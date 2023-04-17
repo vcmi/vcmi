@@ -11,9 +11,8 @@
 
 #include "PossibleSpellcast.h"
 
-PossibleSpellcast::PossibleSpellcast()
-	: spell(nullptr),
-	dest(),
+PossibleSpellcast::PossibleSpellcast():
+	spell(nullptr),
 	value(0)
 {
 }

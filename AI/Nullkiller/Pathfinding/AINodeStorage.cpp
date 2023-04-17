@@ -391,9 +391,12 @@ private:
 	std::vector<DelayedWork> delayedWork;
 
 public:
-	HeroChainCalculationTask(
-		AINodeStorage & storage, AISharedStorage & nodes, const std::vector<int3> & tiles, uint64_t chainMask, int heroChainTurn)
-		:existingChains(), newChains(), delayedWork(), nodes(nodes), storage(storage), chainMask(chainMask), heroChainTurn(heroChainTurn), heroChain(), tiles(tiles)
+	HeroChainCalculationTask(AINodeStorage & storage, AISharedStorage & nodes, const std::vector<int3> & tiles, uint64_t chainMask, int heroChainTurn):
+		nodes(nodes),
+		storage(storage),
+		chainMask(chainMask),
+		heroChainTurn(heroChainTurn),
+		tiles(tiles)
 	{
 		existingChains.reserve(AIPathfinding::NUM_CHAINS);
 		newChains.reserve(AIPathfinding::NUM_CHAINS);
@@ -699,8 +702,9 @@ void HeroChainCalculationTask::calculateHeroChain(
 		}
 
 		auto newActor = carrier->actor->tryExchangeNoLock(other->actor);
-		
-		if(!newActor.lockAcquired) delayedWork.push_back(DelayedWork(carrier, other));
+
+		if(!newActor.lockAcquired)
+			delayedWork.emplace_back(carrier, other);
 		if(newActor.actor) result.push_back(calculateExchange(newActor.actor, carrier, other));
 	}
 }

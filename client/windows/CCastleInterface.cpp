@@ -1603,12 +1603,12 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 
 	if(fortSize == GameConstants::CREATURES_PER_TOWN)
 	{
-		positions.push_back(Point(206,421));
+		positions.emplace_back(206, 421);
 	}
 	else
 	{
-		positions.push_back(Point(10, 421));
-		positions.push_back(Point(404,421));
+		positions.emplace_back(10, 421);
+		positions.emplace_back(404, 421);
 	}
 
 	for(ui32 i=0; i<fortSize; i++)

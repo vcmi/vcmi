@@ -2696,7 +2696,7 @@ void CGameHandler::sendMessageTo(std::shared_ptr<CConnection> c, const std::stri
 	SystemMessage sm;
 	sm.text = message;
 	boost::unique_lock<boost::mutex> lock(*c->mutexWrite);
-	*(c.get()) << &sm;
+	*(c) << &sm;
 }
 
 void CGameHandler::giveHeroBonus(GiveBonus * bonus)
@@ -3406,9 +3406,9 @@ bool CGameHandler::hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> 
 PlayerColor CGameHandler::getPlayerAt(std::shared_ptr<CConnection> c) const
 {
 	std::set<PlayerColor> all;
-	for (auto i=connections.cbegin(); i!=connections.cend(); i++)
-		if(vstd::contains(i->second, c))
-			all.insert(i->first);
+	for(const auto & connection : connections)
+		if(vstd::contains(connection.second, c))
+			all.insert(connection.first);
 
 	switch(all.size())
 	{
@@ -3975,7 +3975,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 		if(dstSlot != ArtifactPosition::PRE_FIRST)
 		{
 			artFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
-			slots.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
+			slots.emplace_back(srcSlot, dstSlot);
 
 			if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, artifact->getTypeId(), dstSlot))
 				giveHeroNewArtifact(dstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
@@ -3999,7 +3999,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 			for(auto & slotInfo : artSet->artifactsInBackpack)
 			{
 				auto slot = artSet->getArtPos(slotInfo.artifact);
-				slots.push_back(BulkMoveArtifacts::LinkedSlots(slot, slot));
+				slots.emplace_back(slot, slot);
 			}
 		};
 		// Move over artifacts that are worn srcHero -> dstHero
@@ -4628,7 +4628,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 			buffer.push_back(bonus2);
 
-			sse.toUpdate.push_back(std::make_pair(ba.stackNumber, buffer));
+			sse.toUpdate.emplace_back(ba.stackNumber, buffer);
 			sendAndApply(&sse);
 
 			BattleLogMessage message;
@@ -5683,17 +5683,17 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		if (victoryLossCheckResult.victory())
 		{
 			//one player won -> all enemies lost
-			for (auto i = gs->players.cbegin(); i!=gs->players.cend(); i++)
+			for(const auto & i : gs->players)
 			{
-				if (i->first != player && getPlayerState(i->first)->status == EPlayerStatus::INGAME)
+				if(i.first != player && getPlayerState(i.first)->status == EPlayerStatus::INGAME)
 				{
-					peg.player = i->first;
-					peg.victoryLossCheckResult = getPlayerRelations(player, i->first) == PlayerRelations::ALLIES ?
+					peg.player = i.first;
+					peg.victoryLossCheckResult = getPlayerRelations(player, i.first) == PlayerRelations::ALLIES ?
 								victoryLossCheckResult : victoryLossCheckResult.invert(); // ally of winner
 
 					InfoWindow iw;
 					getVictoryLossMessage(player, peg.victoryLossCheckResult, iw);
-					iw.player = i->first;
+					iw.player = i.first;
 
 					sendAndApply(&iw);
 					sendAndApply(&peg);
@@ -6105,9 +6105,9 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 		changePrimSkill(hero, PrimarySkill::EXPERIENCE, hero->calculateXp(expSum));
 	};
 
-	for(int i = 0; i < slot.size(); ++i)
+	for(auto i : slot)
 	{
-		ArtifactLocation al(hero, slot[i]);
+		ArtifactLocation al(hero, i);
 		const CArtifactInstance * a = al.getArt();
 
 		if(!a)
@@ -6116,7 +6116,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 			COMPLAIN_RET("Cannot find artifact to sacrifice!");
 		}
 
-		const CArtifactInstance * art = hero->getArt(slot[i]);
+		const CArtifactInstance * art = hero->getArt(i);
 
 		if(!art)
 		{
@@ -7218,7 +7218,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, const
 				logGlobal->debug("War machine has been destroyed");
 				auto hero = dynamic_ptr_cast<CGHeroInstance> (army);
 				if (hero)
-					removedWarMachines.push_back (ArtifactLocation(hero, hero->getArtPos(warMachine, true)));
+					removedWarMachines.emplace_back(hero, hero->getArtPos(warMachine, true));
 				else
 					logGlobal->error("War machine in army without hero");
 			}
@@ -7261,19 +7261,19 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, const
 			{
 				logGlobal->debug("Stack has been destroyed.");
 				StackLocation sl(army, st->slot);
-				newStackCounts.push_back(TStackAndItsNewCount(sl, 0));
+				newStackCounts.emplace_back(sl, 0);
 			}
 			else if(st->getCount() < army->getStackCount(st->slot))
 			{
 				logGlobal->debug("Stack lost %d units.", army->getStackCount(st->slot) - st->getCount());
 				StackLocation sl(army, st->slot);
-				newStackCounts.push_back(TStackAndItsNewCount(sl, st->getCount()));
+				newStackCounts.emplace_back(sl, st->getCount());
 			}
 			else if(st->getCount() > army->getStackCount(st->slot))
 			{
 				logGlobal->debug("Stack gained %d units.", st->getCount() - army->getStackCount(st->slot));
 				StackLocation sl(army, st->slot);
-				newStackCounts.push_back(TStackAndItsNewCount(sl, st->getCount()));
+				newStackCounts.emplace_back(sl, st->getCount());
 			}
 		}
 		else

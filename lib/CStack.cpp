@@ -39,8 +39,7 @@ CStack::CStack(const CStackInstance * Base, const PlayerColor & O, int I, ui8 Si
 CStack::CStack():
 	CBonusSystemNode(STACK_BATTLE),
 	owner(PlayerColor::NEUTRAL),
-	slot(SlotID(255)),
-	initialPosition(BattleHex())
+	slot(SlotID(255))
 {
 }
 

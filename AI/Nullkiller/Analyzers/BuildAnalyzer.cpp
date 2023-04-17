@@ -132,7 +132,7 @@ void BuildAnalyzer::update()
 	{
 		logAi->trace("Checking town %s", town->getNameTranslated());
 
-		developmentInfos.push_back(TownDevelopmentInfo(town));
+		developmentInfos.emplace_back(town);
 		TownDevelopmentInfo & developmentInfo = developmentInfos.back();
 
 		updateTownDwellings(developmentInfo);

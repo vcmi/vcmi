@@ -21,7 +21,6 @@
 #include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/mapping/CMapDefines.h"
 
-extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 extern FuzzyHelper * fh;
 

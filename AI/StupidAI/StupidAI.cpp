@@ -116,7 +116,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	{
 		if(cb->battleCanShoot(stack, s->getPosition()))
 		{
-			enemiesShootable.push_back(s);
+			enemiesShootable.emplace_back(s);
 		}
 		else
 		{
@@ -129,7 +129,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 					std::vector<EnemyInfo>::iterator i = std::find(enemiesReachable.begin(), enemiesReachable.end(), s);
 					if(i == enemiesReachable.end())
 					{
-						enemiesReachable.push_back(s);
+						enemiesReachable.emplace_back(s);
 						i = enemiesReachable.begin() + (enemiesReachable.size() - 1);
 					}
 
@@ -138,7 +138,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 			}
 
 			if(!vstd::contains(enemiesReachable, s) && s->getPosition().isValid())
-				enemiesUnreachable.push_back(s);
+				enemiesUnreachable.emplace_back(s);
 		}
 	}
 

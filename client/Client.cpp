@@ -241,14 +241,14 @@ void CClient::serialize(BinarySerializer & h, const int version)
 	ui8 players = static_cast<ui8>(playerint.size());
 	h & players;
 
-	for(auto i = playerint.begin(); i != playerint.end(); i++)
+	for(auto & i : playerint)
 	{
-		logGlobal->trace("Saving player %s interface", i->first);
+		logGlobal->trace("Saving player %s interface", i.first);
 		assert(i->first == i->second->playerID);
-		h & i->first;
-		h & i->second->dllName;
-		h & i->second->human;
-		i->second->saveGame(h, version);
+		h & i.first;
+		h & i.second->dllName;
+		h & i.second->human;
+		i.second->saveGame(h, version);
 	}
 
 #if SCRIPTING_ENABLED
@@ -723,7 +723,7 @@ std::shared_ptr<const CPathsInfo> CClient::getPathsInfo(const CGHeroInstance * h
 	{
 		std::shared_ptr<CPathsInfo> paths = std::make_shared<CPathsInfo>(getMapSize(), h);
 
-		gs->calculatePaths(h, *paths.get());
+		gs->calculatePaths(h, *paths);
 
 		pathCache[h] = paths;
 		return paths;

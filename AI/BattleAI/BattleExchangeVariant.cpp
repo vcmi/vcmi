@@ -18,7 +18,6 @@ AttackerValue::AttackerValue()
 }
 
 MoveTarget::MoveTarget()
-	: positions()
 {
 	score = EvaluationResult::INEFFECTIVE_SCORE;
 }
@@ -334,9 +333,9 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getExchangeUnits(
 		return exchangeUnits;
 	}
 
-	for(int turn = 0; turn < turnOrder.size(); turn++)
+	for(auto & turn : turnOrder)
 	{
-		for(auto unit : turnOrder[turn])
+		for(auto unit : turn)
 		{
 			if(vstd::contains(allReachableUnits, unit))
 				exchangeUnits.push_back(unit);

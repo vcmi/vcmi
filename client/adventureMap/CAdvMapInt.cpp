@@ -209,7 +209,7 @@ CAdvMapInt::CAdvMapInt():
 
 	config::ButtonInfo worldViewUndergroundConfig = config::ButtonInfo();
 	worldViewUndergroundConfig.defName = "IAM010.DEF";
-	worldViewUndergroundConfig.additionalDefs.push_back("IAM003.DEF");
+	worldViewUndergroundConfig.additionalDefs.emplace_back("IAM003.DEF");
 	worldViewUndergroundConfig.x = GH.screenDimensions().x - 115;
 	worldViewUndergroundConfig.y = 343 + 195;
 	worldViewUndergroundConfig.playerColoured = true;

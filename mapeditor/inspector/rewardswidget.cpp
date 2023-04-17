@@ -256,16 +256,16 @@ bool RewardsWidget::commitChanges()
 					break;
 					
 				case RewardType::SECONDARY_SKILL:
-					pandora->abilities.push_back(SecondarySkill(listId));
+					pandora->abilities.emplace_back(listId);
 					pandora->abilityLevels.push_back(amount);
 					break;
 					
 				case RewardType::ARTIFACT:
-					pandora->artifacts.push_back(ArtifactID(listId));
+					pandora->artifacts.emplace_back(listId);
 					break;
 					
 				case RewardType::SPELL:
-					pandora->spells.push_back(SpellID(listId));
+					pandora->spells.emplace_back(listId);
 					break;
 					
 				case RewardType::CREATURE:

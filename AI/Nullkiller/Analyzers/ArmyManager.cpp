@@ -59,6 +59,7 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 		}
 	}
 
+	resultingArmy.reserve(creToPower.size());
 	for(auto & pair : creToPower)
 		resultingArmy.push_back(pair.second);
 

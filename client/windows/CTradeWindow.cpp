@@ -487,10 +487,10 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 		dy = 70;
 		for (int i = 0; i < 4 ; i++)
 			for (int j = 0; j < 5 ; j++)
-				poss.push_back(Rect(x + dx*j, y + dy*i, w, h));
+				poss.emplace_back(x + dx * j, y + dy * i, w, h);
 
-		poss.push_back(Rect((int)(x + dx * 1.5), (y + dy * 4), w, h));
-		poss.push_back(Rect((int)(x + dx * 2.5), (y + dy * 4), w, h));
+		poss.emplace_back((int)(x + dx * 1.5), (y + dy * 4), w, h);
+		poss.emplace_back((int)(x + dx * 2.5), (y + dy * 4), w, h);
 	}
 	else
 	{
@@ -1294,10 +1294,10 @@ void CAltarWindow::SacrificeAll()
 	}
 	else
 	{
-		for(auto i = hero->artifactsWorn.cbegin(); i != hero->artifactsWorn.cend(); i++)
+		for(const auto & i : hero->artifactsWorn)
 		{
-			if(!i->second.locked) //ignore locks from assembled artifacts
-				moveFromSlotToAltar(i->first, nullptr, i->second.artifact);
+			if(!i.second.locked) //ignore locks from assembled artifacts
+				moveFromSlotToAltar(i.first, nullptr, i.second.artifact);
 		}
 
 		SacrificeBackpack();

@@ -160,7 +160,7 @@ void BattleActionsController::enterCreatureCastingMode()
 	if (!isActiveStackSpellcaster())
 		return;
 
-	for (auto const & action : possibleActions)
+	for(const auto & action : possibleActions)
 	{
 		if (action.get() != PossiblePlayerBattleAction::NO_LOCATION)
 			continue;
@@ -203,14 +203,14 @@ std::vector<PossiblePlayerBattleAction> BattleActionsController::getPossibleActi
 {
 	BattleClientInterfaceData data; //hard to get rid of these things so for now they're required data to pass
 
-	for (auto const & spell : creatureSpells)
+	for(const auto & spell : creatureSpells)
 		data.creatureSpellsToCast.push_back(spell->id);
 
 	data.tacticsMode = owner.tacticsMode;
 	auto allActions = owner.curInt->cb->getClientActionsForStack(stack, data);
 
-	allActions.push_back(PossiblePlayerBattleAction::HERO_INFO);
-	allActions.push_back(PossiblePlayerBattleAction::CREATURE_INFO);
+	allActions.emplace_back(PossiblePlayerBattleAction::HERO_INFO);
+	allActions.emplace_back(PossiblePlayerBattleAction::CREATURE_INFO);
 
 	return std::vector<PossiblePlayerBattleAction>(allActions);
 }
@@ -219,49 +219,62 @@ void BattleActionsController::reorderPossibleActionsPriority(const CStack * stac
 {
 	if(owner.tacticsMode || possibleActions.empty()) return; //this function is not supposed to be called in tactics mode or before getPossibleActionsForStack
 
-	auto assignPriority = [&](PossiblePlayerBattleAction const & item) -> uint8_t //large lambda assigning priority which would have to be part of possibleActions without it
+	auto assignPriority =
+		[&](const PossiblePlayerBattleAction & item) -> uint8_t //large lambda assigning priority which would have to be part of possibleActions without it
 	{
 		switch(item.get())
 		{
-		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-		case PossiblePlayerBattleAction::ANY_LOCATION:
-		case PossiblePlayerBattleAction::NO_LOCATION:
-		case PossiblePlayerBattleAction::FREE_LOCATION:
-		case PossiblePlayerBattleAction::OBSTACLE:
-			if(!stack->hasBonusOfType(Bonus::NO_SPELLCAST_BY_DEFAULT) && context == MouseHoveredHexContext::OCCUPIED_HEX)
-				return 1;
-			else
-				return 100;//bottom priority
-			break;
-		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
-			return 2; break;
-		case PossiblePlayerBattleAction::SHOOT:
-			return 4; break;
-		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
-			return 5; break;
-		case PossiblePlayerBattleAction::ATTACK:
-			return 6; break;
-		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
-			return 7; break;
-		case PossiblePlayerBattleAction::MOVE_STACK:
-			return 8; break;
-		case PossiblePlayerBattleAction::CATAPULT:
-			return 9; break;
-		case PossiblePlayerBattleAction::HEAL:
-			return 10; break;
-		case PossiblePlayerBattleAction::CREATURE_INFO:
-			return 11; break;
-		case PossiblePlayerBattleAction::HERO_INFO:
-			return 12; break;
-		case PossiblePlayerBattleAction::TELEPORT:
-			return 13; break;
-		default:
-			assert(0);
-			return 200; break;
+			case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
+			case PossiblePlayerBattleAction::ANY_LOCATION:
+			case PossiblePlayerBattleAction::NO_LOCATION:
+			case PossiblePlayerBattleAction::FREE_LOCATION:
+			case PossiblePlayerBattleAction::OBSTACLE:
+				if(!stack->hasBonusOfType(Bonus::NO_SPELLCAST_BY_DEFAULT) && context == MouseHoveredHexContext::OCCUPIED_HEX)
+					return 1;
+				else
+					return 100; //bottom priority
+				break;
+			case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
+				return 2;
+				break;
+			case PossiblePlayerBattleAction::SHOOT:
+				return 4;
+				break;
+			case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
+				return 5;
+				break;
+			case PossiblePlayerBattleAction::ATTACK:
+				return 6;
+				break;
+			case PossiblePlayerBattleAction::WALK_AND_ATTACK:
+				return 7;
+				break;
+			case PossiblePlayerBattleAction::MOVE_STACK:
+				return 8;
+				break;
+			case PossiblePlayerBattleAction::CATAPULT:
+				return 9;
+				break;
+			case PossiblePlayerBattleAction::HEAL:
+				return 10;
+				break;
+			case PossiblePlayerBattleAction::CREATURE_INFO:
+				return 11;
+				break;
+			case PossiblePlayerBattleAction::HERO_INFO:
+				return 12;
+				break;
+			case PossiblePlayerBattleAction::TELEPORT:
+				return 13;
+				break;
+			default:
+				assert(0);
+				return 200;
+				break;
 		}
 	};
 
-	auto comparer = [&](PossiblePlayerBattleAction const & lhs, PossiblePlayerBattleAction const & rhs)
+	auto comparer = [&](const PossiblePlayerBattleAction & lhs, const PossiblePlayerBattleAction & rhs)
 	{
 		return assignPriority(lhs) < assignPriority(rhs);
 	};
@@ -696,14 +709,14 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 				if (action.spell() == SpellID::SACRIFICE)
 				{
 					heroSpellToCast->aimToHex(targetHex);
-					possibleActions.push_back({PossiblePlayerBattleAction::SACRIFICE, action.spell()});
+					possibleActions.emplace_back(PossiblePlayerBattleAction::SACRIFICE, action.spell());
 					selectedStack = targetStack;
 					return;
 				}
 				if (action.spell() == SpellID::TELEPORT)
 				{
 					heroSpellToCast->aimToUnit(targetStack);
-					possibleActions.push_back({PossiblePlayerBattleAction::TELEPORT, action.spell()});
+					possibleActions.emplace_back(PossiblePlayerBattleAction::TELEPORT, action.spell());
 					selectedStack = targetStack;
 					return;
 				}
@@ -740,7 +753,6 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 		}
 	}
 	assert(0);
-	return;
 }
 
 PossiblePlayerBattleAction BattleActionsController::selectAction(BattleHex targetHex)
@@ -876,7 +888,7 @@ void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterS
 
 	TConstBonusListPtr bl = casterStack->getBonuses(Selector::type()(Bonus::SPELLCASTER));
 
-	for (auto const & bonus : *bl)
+	for(const auto & bonus : *bl)
 	{
 		if (bonus->additionalInfo[0] <= 0)
 			creatureSpells.push_back(SpellID(bonus->subtype).toSpell());
@@ -951,12 +963,12 @@ void BattleActionsController::activateStack()
 			{
 				case PossiblePlayerBattleAction::SHOOT:
 					actionsToSelect.push_back(possibleActions.front());
-					actionsToSelect.push_back(PossiblePlayerBattleAction::ATTACK);
+					actionsToSelect.emplace_back(PossiblePlayerBattleAction::ATTACK);
 					break;
 					
 				case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
 					actionsToSelect.push_back(possibleActions.front());
-					actionsToSelect.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK);
+					actionsToSelect.emplace_back(PossiblePlayerBattleAction::WALK_AND_ATTACK);
 					break;
 					
 				case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:

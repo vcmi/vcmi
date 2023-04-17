@@ -661,6 +661,7 @@ std::vector<CArtifactInstance *> getBackpackArts(const CGHeroInstance * hero)
 {
 	std::vector<CArtifactInstance *> result;
 
+	result.reserve(hero->artifactsInBackpack.size());
 	for(auto slot : hero->artifactsInBackpack)
 	{
 		result.push_back(slot.artifact);
@@ -848,11 +849,9 @@ void CExchangeController::moveArtifact(
 	cb->swapArtifacts(srcLocation, dstLocation);
 }
 
-CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
-	: CStatusbarWindow(PLAYER_COLORED | BORDERED, isQuickExchangeLayoutAvailable() ? QUICK_EXCHANGE_BG : "TRADE2"),
-	controller(this, hero1, hero2),
-	moveStackLeftButtons(),
-	moveStackRightButtons()
+CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID):
+	CStatusbarWindow(PLAYER_COLORED | BORDERED, isQuickExchangeLayoutAvailable() ? QUICK_EXCHANGE_BG : "TRADE2"),
+	controller(this, hero1, hero2)
 {
 	const bool qeLayout = isQuickExchangeLayoutAvailable();
 
@@ -1792,7 +1791,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 
 	for(int id : _items)
 	{
-		items.push_back(std::make_pair(id, LOCPLINT->cb->getObjInstance(ObjectInstanceID(id))->getObjectName()));
+		items.emplace_back(id, LOCPLINT->cb->getObjInstance(ObjectInstanceID(id))->getObjectName());
 	}
 
 	init(titleWidget_, _title, _descr);
@@ -1807,7 +1806,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 	items.reserve(_items.size());
 
 	for(size_t i=0; i<_items.size(); i++)
-		items.push_back(std::make_pair(int(i), _items[i]));
+		items.emplace_back(int(i), _items[i]);
 
 	init(titleWidget_, _title, _descr);
 }

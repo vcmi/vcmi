@@ -62,9 +62,9 @@ private:
 	AnimBitmapHolder findObjectBitmap(const CGObjectInstance * obj, int anim, int group = 0) const;
 	
 	//FIXME: unique_ptr should be enough, but fails to compile in MSVS 2013
-	typedef std::map<std::string, std::shared_ptr<Animation>> TFlippedAnimations; //[type, rotation]
-	typedef std::map<std::string, std::vector<std::shared_ptr<QImage>>> TFlippedCache;//[type, view type, rotation]
-	
+	using TFlippedAnimations = std::map<std::string, std::shared_ptr<Animation>>; //[type, rotation]
+	using TFlippedCache = std::map<std::string, std::vector<std::shared_ptr<QImage>>>; //[type, view type, rotation]
+
 	TFlippedAnimations terrainAnimations;//[terrain type, rotation]
 	TFlippedCache terrainImages;//[terrain type, view type, rotation]
 	

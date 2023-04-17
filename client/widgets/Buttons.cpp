@@ -433,9 +433,9 @@ void CToggleGroup::setSelected(int id)
 
 void CToggleGroup::setSelectedOnly(int id)
 {
-	for(auto it = buttons.begin(); it != buttons.end(); it++)
+	for(auto & button : buttons)
 	{
-		int buttonId = it->first;
+		int buttonId = button.first;
 		buttons[buttonId]->setEnabled(buttonId == id);
 	}
 

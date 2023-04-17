@@ -45,6 +45,7 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 		}
 	}
 
+	resultingArmy.reserve(creToPower.size());
 	for(auto pair : creToPower)
 		resultingArmy.push_back(pair.second);
 
@@ -114,7 +115,7 @@ ui64 ArmyManager::howManyReinforcementsCanBuy(const CCreatureSet * h, const CGDw
 	TResources availableRes = cb->getResourceAmount();
 	int freeHeroSlots = GameConstants::ARMY_SIZE - h->stacksCount();
 
-	for(auto const & dc : t->creatures)
+	for(const auto & dc : t->creatures)
 	{
 		creInfo ci = infoFromDC(dc);
 

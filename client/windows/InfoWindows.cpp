@@ -84,7 +84,7 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 	if (buttons.size() > 1 && askID.getNum() >= 0) //cancel button functionality
 	{
 		buttons.back()->addCallback([askID]() {
-			LOCPLINT->cb.get()->selectionMade(0, askID);
+			LOCPLINT->cb->selectionMade(0, askID);
 		});
 		//buttons.back()->addCallback(std::bind(&CCallback::selectionMade, LOCPLINT->cb.get(), 0, askID));
 	}
@@ -188,8 +188,8 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & c
 {
 	assert(!LOCPLINT || LOCPLINT->showingDialog->get());
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
+	pom.emplace_back("IOKAY.DEF", 0);
+	pom.emplace_back("ICANCEL.DEF", 0);
 	std::shared_ptr<CInfoWindow> temp =  std::make_shared<CInfoWindow>(text, player, components, pom);
 
 	temp->buttons[0]->addCallback( onYes );
@@ -201,7 +201,7 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & c
 std::shared_ptr<CInfoWindow> CInfoWindow::create(const std::string &text, PlayerColor playerID, const TCompsInfo & components)
 {
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
+	pom.emplace_back("IOKAY.DEF", 0);
 	return std::make_shared<CInfoWindow>(text, playerID, components, pom);
 }
 

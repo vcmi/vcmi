@@ -1086,7 +1086,8 @@ void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &t
 	{
 		std::vector<Component> sender = {vect.begin(), vect.begin() + std::min(vect.size(), static_cast<size_t>(8))};
 		std::vector<std::shared_ptr<CComponent>> intComps;
-		for (auto & component : sender)
+		intComps.reserve(sender.size());
+		for(auto & component : sender)
 			intComps.push_back(std::make_shared<CComponent>(component));
 		showInfoDialog(text,intComps,soundID);
 		vect.erase(vect.begin(), vect.begin() + std::min(vect.size(), static_cast<size_t>(8)));
@@ -1157,7 +1158,8 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 	if (!selection && cancel) //simple yes/no dialog
 	{
 		std::vector<std::shared_ptr<CComponent>> intComps;
-		for (auto & component : components)
+		intComps.reserve(components.size());
+		for(auto & component : components)
 			intComps.push_back(std::make_shared<CComponent>(component)); //will be deleted by close in window
 
 		showYesNoDialog(text, [=](){ cb->selectionMade(1, askID); }, [=](){ cb->selectionMade(0, askID); }, intComps);
@@ -1165,14 +1167,15 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 	else if (selection)
 	{
 		std::vector<std::shared_ptr<CSelectableComponent>> intComps;
-		for (auto & component : components)
+		intComps.reserve(components.size());
+		for(auto & component : components)
 			intComps.push_back(std::make_shared<CSelectableComponent>(component)); //will be deleted by CSelWindow::close
 
 		std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
-		pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
+		pom.emplace_back("IOKAY.DEF", 0);
 		if (cancel)
 		{
-			pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
+			pom.emplace_back("ICANCEL.DEF", 0);
 		}
 
 		int charperline = 35;

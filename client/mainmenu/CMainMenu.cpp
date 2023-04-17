@@ -86,7 +86,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 		images.push_back(CMainMenu::createPicture(node));
 
 	//Hardcoded entry
-	menuNameToEntry.push_back("credits");
+	menuNameToEntry.emplace_back("credits");
 
 	tabs = std::make_shared<CTabbedInt>(std::bind(&CMenuScreen::createTab, this, _1));
 	tabs->type |= REDRAW_PARENT;

@@ -32,8 +32,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/RoadHandler.h"
 
-RandomMapTab::RandomMapTab():
-	InterfaceObjectConfigurable()
+RandomMapTab::RandomMapTab()
 {
 	recActions = 0;
 	mapGenOptions = std::make_shared<CMapGenOptions>();
@@ -491,8 +490,8 @@ void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
 	GH.popInt(GH.topInt());
 }
 
-TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
-	InterfaceObjectConfigurable()
+TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab)
+
 {
 	const JsonNode config(ResourceID("config/widgets/randomMapTeamsWidget.json"));
 	variables = config["variables"];

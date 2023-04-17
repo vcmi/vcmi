@@ -662,9 +662,9 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)
 {
 	if(cs)
-		GH.pushUserEvent(EUserEvent::CAMPAIGN_START_SCENARIO, CMemorySerializer::deepCopy(*cs.get()).release());
+		GH.pushUserEvent(EUserEvent::CAMPAIGN_START_SCENARIO, CMemorySerializer::deepCopy(*cs).release());
 	else
-		GH.pushUserEvent(EUserEvent::CAMPAIGN_START_SCENARIO, CMemorySerializer::deepCopy(*si->campState.get()).release());
+		GH.pushUserEvent(EUserEvent::CAMPAIGN_START_SCENARIO, CMemorySerializer::deepCopy(*si->campState).release());
 }
 
 void CServerHandler::showServerError(std::string txt)

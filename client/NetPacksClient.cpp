@@ -424,12 +424,12 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 		CGI->mh->onObjectFadeOut(o);
 
 	//notify interfaces about removal
-	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
+	for(auto & i : cl.playerint)
 	{
 		//below line contains little cheat for AI so it will be aware of deletion of enemy heroes that moved or got re-covered by FoW
 		//TODO: loose requirements as next AI related crashes appear, for example another pack.player collects object that got re-covered by FoW, unsure if AI code workarounds this
-		if(gs.isVisible(o, i->first) || (!cl.getPlayerState(i->first)->human && o->ID == Obj::HERO && o->tempOwner != i->first))
-			i->second->objectRemoved(o);
+		if(gs.isVisible(o, i.first) || (!cl.getPlayerState(i.first)->human && o->ID == Obj::HERO && o->tempOwner != i.first))
+			i.second->objectRemoved(o);
 	}
 
 	CGI->mh->waitForOngoingAnimations();
@@ -438,8 +438,8 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 void ApplyClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 {
 	cl.invalidatePaths();
-	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
-		i->second->objectRemovedAfter();
+	for(auto & i : cl.playerint)
+		i.second->objectRemovedAfter();
 }
 
 void ApplyFirstClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
@@ -494,17 +494,17 @@ void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 		if(cl.getPlayerRelations(i.first, player) != PlayerRelations::ENEMIES)
 			i.second->tileRevealed(pack.fowRevealed);
 
-	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
+	for(auto & i : cl.playerint)
 	{
-		if(i->first != PlayerColor::SPECTATOR && gs.checkForStandardLoss(i->first)) // Do not notify vanquished pack.player's interface
+		if(i.first != PlayerColor::SPECTATOR && gs.checkForStandardLoss(i.first)) // Do not notify vanquished pack.player's interface
 			continue;
 
-		if(gs.isVisible(h->convertToVisitablePos(pack.start), i->first)
-			|| gs.isVisible(h->convertToVisitablePos(pack.end), i->first))
+		if(gs.isVisible(h->convertToVisitablePos(pack.start), i.first)
+			|| gs.isVisible(h->convertToVisitablePos(pack.end), i.first))
 		{
 			// pack.src and pack.dst of enemy hero move may be not visible => 'verbose' should be false
-			const bool verbose = cl.getPlayerRelations(i->first, player) != PlayerRelations::ENEMIES;
-			i->second->heroMoved(pack, verbose);
+			const bool verbose = cl.getPlayerRelations(i.first, player) != PlayerRelations::ENEMIES;
+			i.second->heroMoved(pack, verbose);
 		}
 	}
 }
@@ -555,16 +555,16 @@ void ApplyClientNetPackVisitor::visitSetHeroesInTown(SetHeroesInTown & pack)
 	CGHeroInstance * hVisit = gs.getHero(pack.visiting);
 
 	//inform all players that see this object
-	for(auto i = cl.playerint.cbegin(); i != cl.playerint.cend(); ++i)
+	for(const auto & i : cl.playerint)
 	{
-		if(i->first >= PlayerColor::PLAYER_LIMIT)
+		if(i.first >= PlayerColor::PLAYER_LIMIT)
 			continue;
 
-		if(gs.isVisible(t, i->first) ||
-			(hGarr && gs.isVisible(hGarr, i->first)) ||
-			(hVisit && gs.isVisible(hVisit, i->first)))
+		if(gs.isVisible(t, i.first) ||
+			(hGarr && gs.isVisible(hGarr, i.first)) ||
+			(hVisit && gs.isVisible(hVisit, i.first)))
 		{
-			cl.playerint[i->first]->heroInGarrisonChange(t);
+			cl.playerint[i.first]->heroInGarrisonChange(t);
 		}
 	}
 }
@@ -610,10 +610,10 @@ void ApplyClientNetPackVisitor::visitInfoWindow(InfoWindow & pack)
 void ApplyClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 {
 	//inform all players that see this object
-	for(auto it = cl.playerint.cbegin(); it != cl.playerint.cend(); ++it)
+	for(const auto & it : cl.playerint)
 	{
-		if(gs.isVisible(gs.getObjInstance(pack.id), it->first))
-			callInterfaceIfPresent(cl, it->first, &IGameEventsReceiver::objectPropertyChanged, &pack);
+		if(gs.isVisible(gs.getObjInstance(pack.id), it.first))
+			callInterfaceIfPresent(cl, it.first, &IGameEventsReceiver::objectPropertyChanged, &pack);
 	}
 
 	if (pack.what == ObjProperty::OWNER)
@@ -967,10 +967,10 @@ void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 	if(CGI->mh)
 		CGI->mh->onObjectFadeIn(obj);
 
-	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
+	for(auto & i : cl.playerint)
 	{
-		if(gs.isVisible(obj, i->first))
-			i->second->newObject(obj);
+		if(gs.isVisible(obj, i.first))
+			i.second->newObject(obj);
 	}
 	CGI->mh->waitForOngoingAnimations();
 }

@@ -832,7 +832,7 @@ std::vector<HeroPtr> VCAI::getMyHeroes() const
 
 	for(auto h : cb->getHeroesInfo())
 	{
-		ret.push_back(h);
+		ret.emplace_back(h);
 	}
 
 	return ret;
@@ -1141,21 +1141,21 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				for(auto p : h->artifactsWorn)
 				{
 					if(p.second.artifact)
-						allArtifacts.push_back(ArtifactLocation(h, p.first));
+						allArtifacts.emplace_back(h, p.first);
 				}
 			}
 			for(auto slot : h->artifactsInBackpack)
-				allArtifacts.push_back(ArtifactLocation(h, h->getArtPos(slot.artifact)));
+				allArtifacts.emplace_back(h, h->getArtPos(slot.artifact));
 
 			if(otherh)
 			{
 				for(auto p : otherh->artifactsWorn)
 				{
 					if(p.second.artifact)
-						allArtifacts.push_back(ArtifactLocation(otherh, p.first));
+						allArtifacts.emplace_back(otherh, p.first);
 				}
 				for(auto slot : otherh->artifactsInBackpack)
-					allArtifacts.push_back(ArtifactLocation(otherh, otherh->getArtPos(slot.artifact)));
+					allArtifacts.emplace_back(otherh, otherh->getArtPos(slot.artifact));
 			}
 			//we give stuff to one hero or another, depending on giveStuffToFirstHero
 
@@ -1411,7 +1411,7 @@ void VCAI::wander(HeroPtr h)
 			}
 			if(townsReachable.size()) //travel to town with largest garrison, or empty - better than nothing
 			{
-				dests.push_back(*boost::max_element(townsReachable, compareReinforcements));
+				dests.emplace_back(*boost::max_element(townsReachable, compareReinforcements));
 			}
 			else if(townsNotReachable.size())
 			{
@@ -2243,7 +2243,7 @@ std::vector<HeroPtr> VCAI::getUnblockedHeroes() const
 		//&& !vstd::contains(lockedHeroes, h)
 		//at this point we assume heroes exhausted their locked goals
 		if(canAct(h))
-			ret.push_back(h);
+			ret.emplace_back(h);
 	}
 	return ret;
 }

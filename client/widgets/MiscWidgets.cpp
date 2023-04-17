@@ -232,13 +232,13 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, army.name);
 
 	std::vector<Point> slotsPos;
-	slotsPos.push_back(Point(36, 73));
-	slotsPos.push_back(Point(72, 73));
-	slotsPos.push_back(Point(108, 73));
-	slotsPos.push_back(Point(18, 122));
-	slotsPos.push_back(Point(54, 122));
-	slotsPos.push_back(Point(90, 122));
-	slotsPos.push_back(Point(126, 122));
+	slotsPos.emplace_back(36, 73);
+	slotsPos.emplace_back(72, 73);
+	slotsPos.emplace_back(108, 73);
+	slotsPos.emplace_back(18, 122);
+	slotsPos.emplace_back(54, 122);
+	slotsPos.emplace_back(90, 122);
+	slotsPos.emplace_back(126, 122);
 
 	for(auto & slot : army.army)
 	{
@@ -413,7 +413,7 @@ void MoraleLuckBox::set(const IBonusBearer * node)
 	}
 	else
 	{
-		std::string addInfo = "";
+		std::string addInfo;
 		for(auto & bonus : * modifierList)
 		{
 			if(bonus->val)

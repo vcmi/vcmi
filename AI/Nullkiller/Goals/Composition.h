@@ -22,7 +22,7 @@ namespace Goals
 
 	public:
 		Composition()
-			: ElementarGoal(Goals::COMPOSITION), subtasks()
+			: ElementarGoal(Goals::COMPOSITION)
 		{
 		}
 

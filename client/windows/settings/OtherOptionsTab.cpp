@@ -22,7 +22,7 @@ static void setBoolSetting(std::string group, std::string field, bool value)
 	fullscreen->Bool() = value;
 }
 
-OtherOptionsTab::OtherOptionsTab() : InterfaceObjectConfigurable()
+OtherOptionsTab::OtherOptionsTab()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 

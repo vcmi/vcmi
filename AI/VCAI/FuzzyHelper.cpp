@@ -17,7 +17,6 @@
 FuzzyHelper * fh;
 
 extern boost::thread_specific_ptr<VCAI> ai;
-extern boost::thread_specific_ptr<CCallback> cb;
 
 Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
 {

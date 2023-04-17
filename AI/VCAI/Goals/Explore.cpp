@@ -20,7 +20,6 @@
 #include "../../../lib/StringConstants.h"
 #include "../../../lib/CPlayerState.h"
 
-extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 extern FuzzyHelper * fh;
 

@@ -306,8 +306,8 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	{
 		if(CExchangeWindow * cew = dynamic_cast<CExchangeWindow*>(isa.get()))
 		{
-			for(int g=0; g < cew->heroInst.size(); ++g)
-				if(cew->heroInst[g] == curHero)
+			for(auto & g : cew->heroInst)
+				if(g == curHero)
 					noDismiss = true;
 		}
 
