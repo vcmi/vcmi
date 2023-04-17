@@ -127,3 +127,26 @@ void PlayerLocalState::setSelection(const CArmedInstance *selection)
 {
 	currentSelection = selection;
 }
+
+bool PlayerLocalState::isHeroSleeping(const CGHeroInstance * hero) const
+{
+	return vstd::contains(sleepingHeroes, hero);
+}
+
+void PlayerLocalState::setHeroAsleep(const CGHeroInstance *hero)
+{
+	assert(hero);
+	assert(vstd::contains(wanderingHeroes, hero));
+	assert(!vstd::contains(sleepingHeroes, hero));
+
+	sleepingHeroes.push_back(hero);
+}
+
+void PlayerLocalState::setHeroAwaken(const CGHeroInstance * hero)
+{
+	assert(hero);
+	assert(vstd::contains(wanderingHeroes, hero));
+	assert(vstd::contains(sleepingHeroes, hero));
+
+	vstd::erase(sleepingHeroes, hero);
+}

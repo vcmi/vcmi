@@ -291,7 +291,7 @@ void CAdventureMapInterface::fsleepWake()
 	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
 	if (!h)
 		return;
-	bool newSleep = !isHeroSleeping(h);
+	bool newSleep = !LOCPLINT->localState->isHeroSleeping(h);
 	setHeroSleeping(h, newSleep);
 	updateSleepWake(h);
 	if (newSleep)
@@ -354,7 +354,7 @@ void CAdventureMapInterface::fendTurn()
 	{
 		for(auto hero : LOCPLINT->localState->wanderingHeroes)
 		{
-			if(!isHeroSleeping(hero) && hero->movement > 0)
+			if(!LOCPLINT->localState->isHeroSleeping(hero) && hero->movement > 0)
 			{
 				// Only show hero reminder if conditions met:
 				// - There still movement points
@@ -384,7 +384,7 @@ void CAdventureMapInterface::updateSleepWake(const CGHeroInstance *h)
 	sleepWake->block(!h);
 	if (!h)
 		return;
-	bool state = isHeroSleeping(h);
+	bool state = LOCPLINT->localState->isHeroSleeping(h);
 	sleepWake->setIndex(state ? 1 : 0, true);
 	sleepWake->assignedKeys.clear();
 	sleepWake->assignedKeys.insert(state ? SDLK_w : SDLK_z);
@@ -408,9 +408,9 @@ int CAdventureMapInterface::getNextHeroIndex(int startIndex)
 		if (i >= LOCPLINT->localState->wanderingHeroes.size())
 			i = 0;
 	}
-	while (((LOCPLINT->localState->wanderingHeroes[i]->movement == 0) || isHeroSleeping(LOCPLINT->localState->wanderingHeroes[i])) && (i != startIndex));
+	while (((LOCPLINT->localState->wanderingHeroes[i]->movement == 0) || LOCPLINT->localState->isHeroSleeping(LOCPLINT->localState->wanderingHeroes[i])) && (i != startIndex));
 
-	if ((LOCPLINT->localState->wanderingHeroes[i]->movement != 0) && !isHeroSleeping(LOCPLINT->localState->wanderingHeroes[i]))
+	if ((LOCPLINT->localState->wanderingHeroes[i]->movement != 0) && !LOCPLINT->localState->isHeroSleeping(LOCPLINT->localState->wanderingHeroes[i]))
 		return i;
 	else
 		return -1;
@@ -431,7 +431,7 @@ void CAdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 		return;
 	}
 	const CGHeroInstance *nextH = LOCPLINT->localState->wanderingHeroes[next];
-	bool noActiveHeroes = (next == start) && ((nextH->movement == 0) || isHeroSleeping(nextH));
+	bool noActiveHeroes = (next == start) && ((nextH->movement == 0) || LOCPLINT->localState->isHeroSleeping(nextH));
 	nextHero->block(noActiveHeroes);
 
 	if(!h)
@@ -534,17 +534,9 @@ void CAdventureMapInterface::showAll(SDL_Surface * to)
 	LOCPLINT->cingconsole->show(to);
 }
 
-bool CAdventureMapInterface::isHeroSleeping(const CGHeroInstance *hero)
-{
-	if (!hero)
-		return false;
-
-	return vstd::contains(LOCPLINT->localState->sleepingHeroes, hero);
-}
-
 void CAdventureMapInterface::onHeroWokeUp(const CGHeroInstance * hero)
 {
-	if (!isHeroSleeping(hero))
+	if (!LOCPLINT->localState->isHeroSleeping(hero))
 		return;
 
 	sleepWake->clickLeft(true, false);
@@ -557,9 +549,9 @@ void CAdventureMapInterface::onHeroWokeUp(const CGHeroInstance * hero)
 void CAdventureMapInterface::setHeroSleeping(const CGHeroInstance *hero, bool sleep)
 {
 	if (sleep)
-		LOCPLINT->localState->sleepingHeroes.push_back(hero); //FIXME: should we check for existence?
+		LOCPLINT->localState->setHeroAsleep(hero);
 	else
-		LOCPLINT->localState->sleepingHeroes -= hero;
+		LOCPLINT->localState->setHeroAwaken(hero);
 
 	onHeroChanged(hero);
 }
@@ -981,7 +973,7 @@ void CAdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 	// find first non-sleeping hero
 	for (auto hero : LOCPLINT->localState->wanderingHeroes)
 	{
-		if (boost::range::find(LOCPLINT->localState->sleepingHeroes, hero) == LOCPLINT->localState->sleepingHeroes.end())
+		if (!LOCPLINT->localState->isHeroSleeping(hero))
 		{
 			heroToSelect = hero;
 			break;

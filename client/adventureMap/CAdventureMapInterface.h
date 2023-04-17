@@ -136,7 +136,6 @@ private:
 
 	std::optional<Point> keyToMoveDirection(const SDL_Keycode & key);
 
-	bool isHeroSleeping(const CGHeroInstance *hero);
 	void setHeroSleeping(const CGHeroInstance *hero, bool sleep);
 	int getNextHeroIndex(int startIndex); //for Next Hero button - cycles awake heroes with movement only
 	void endingTurn();
