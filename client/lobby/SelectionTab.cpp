@@ -326,12 +326,12 @@ void SelectionTab::filter(int size, bool selectFirst)
 
 	if(tabType == ESelectionScreen::campaignList)
 	{
-		for(auto elem : allItems)
+		for(const auto & elem : allItems)
 			curItems.push_back(elem);
 	}
 	else
 	{
-		for(auto elem : allItems)
+		for(const auto & elem : allItems)
 		{
 			if(elem->mapHeader && (!size || elem->mapHeader->width == size))
 				curItems.push_back(elem);
@@ -435,7 +435,7 @@ void SelectionTab::updateListItems()
 	// slider->capacity contains the number of available screen lines
 	// slider->positionsAmnt is the number of elements after filtering
 	int elemIdx = slider->getValue();
-	for(auto item : listItems)
+	for(const auto & item : listItems)
 	{
 		if(elemIdx < curItems.size())
 		{

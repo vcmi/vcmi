@@ -45,7 +45,7 @@ Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
 		return lhs->priority < rhs->priority;
 	};
 
-	for(auto goal : vec)
+	for(const auto & goal : vec)
 	{
 		logAi->trace("FuzzyHelper evaluated goal %s, priority=%.4f", goal->name(), goal->priority);
 	}

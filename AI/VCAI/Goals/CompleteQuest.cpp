@@ -169,7 +169,7 @@ TGoalVec CompleteQuest::missionArmy() const
 	if(!solutions.empty())
 		return solutions;
 
-	for(auto creature : q.quest->m6creatures)
+	for(const auto & creature : q.quest->m6creatures)
 	{
 		solutions.push_back(sptr(GatherTroops(creature.type->getId(), creature.count)));
 	}

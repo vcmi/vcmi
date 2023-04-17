@@ -142,7 +142,7 @@ void BuildAnalyzer::update()
 		totalDevelopmentCost += developmentInfo.townDevelopmentCost;
 		armyCost += developmentInfo.armyCost;
 
-		for(auto bi : developmentInfo.toBuild)
+		for(const auto & bi : developmentInfo.toBuild)
 		{
 			logAi->trace("Building preferences %s", bi.toString());
 		}
@@ -292,7 +292,7 @@ void BuildAnalyzer::updateDailyIncome()
 
 bool BuildAnalyzer::hasAnyBuilding(int32_t alignment, BuildingID bid) const
 {
-	for(auto tdi : developmentInfos)
+	for(const auto & tdi : developmentInfos)
 	{
 		if(tdi.town->subID == alignment && tdi.town->hasBuilt(bid))
 			return true;

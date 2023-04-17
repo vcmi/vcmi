@@ -370,7 +370,7 @@ void CBonusSelection::updateAfterStateChange()
 		buttonStart->block(false);
 	}
 
-	for(auto region : regions)
+	for(const auto & region : regions)
 		region->updateState();
 
 	if(!CSH->mi)

@@ -760,7 +760,7 @@ void CStackWindow::initBonusesList()
 	}
 
 	BonusInfo bonusInfo;
-	for(auto b : output)
+	for(const auto & b : output)
 	{
 		bonusInfo.name = info->stackNode->bonusToString(b, false);
 		bonusInfo.description = info->stackNode->bonusToString(b, true);

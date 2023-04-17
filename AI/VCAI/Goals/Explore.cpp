@@ -143,7 +143,7 @@ namespace Goals
 				return;
 
 			auto waysToVisit = aip->ah->howToVisitTile(hero, tile, allowGatherArmy);
-			for(auto goal : waysToVisit)
+			for(const auto & goal : waysToVisit)
 			{
 				if(goal->evaluationContext.movementCost <= 0.0) // should not happen
 					continue;
@@ -304,7 +304,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 				auto tObj = dynamic_cast<const CGTeleport *>(obj);
 				if(TeleportChannel::IMPASSABLE == ai->knownTeleportChannels[tObj->channel]->passability)
 					break;
-				for(auto exit : ai->knownTeleportChannels[tObj->channel]->exits)
+				for(const auto & exit : ai->knownTeleportChannels[tObj->channel]->exits)
 				{
 					if(!cb->getObj(exit))
 					{ // Always attempt to visit two-way teleports if one of channel exits is not visible

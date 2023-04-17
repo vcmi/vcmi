@@ -288,7 +288,7 @@ void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> soundsArg)
 			updateChannelVolume(channel);
 		}
 	}
-	for(auto soundId : stoppedSounds)
+	for(const auto & soundId : stoppedSounds)
 	{
 		channelVolumes.erase(ambientChannels[soundId]);
 		ambientChannels.erase(soundId);
@@ -315,7 +315,7 @@ void CSoundHandler::ambientStopAllChannels()
 {
 	boost::mutex::scoped_lock guard(mutex);
 
-	for(auto ch : ambientChannels)
+	for(const auto & ch : ambientChannels)
 	{
 		ambientStopSound(ch.first);
 	}

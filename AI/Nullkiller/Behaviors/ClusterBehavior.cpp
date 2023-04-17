@@ -33,7 +33,7 @@ Goals::TGoalVec ClusterBehavior::decompose() const
 	Goals::TGoalVec tasks;
 	auto clusters = ai->nullkiller->objectClusterizer->getLockedClusters();
 
-	for(auto cluster : clusters)
+	for(const auto & cluster : clusters)
 	{
 		vstd::concatenate(tasks, decomposeCluster(cluster));
 	}

@@ -638,7 +638,7 @@ void CCastleBuildings::addBuilding(BuildingID building)
 
 	auto & structures = groups.at(base);
 
-	for(auto buildingRect : buildings)
+	for(const auto & buildingRect : buildings)
 	{
 		if(vstd::contains(structures, buildingRect->str))
 		{
@@ -1327,7 +1327,7 @@ void CCastleInterface::keyPressed(const SDL_Keycode & key)
 
 void CCastleInterface::creaturesChangedEventHandler()
 {
-	for(auto creatureInfoBox : creainfo)
+	for(const auto & creatureInfoBox : creainfo)
 	{
 		if(creatureInfoBox->getShowAvailable())
 		{

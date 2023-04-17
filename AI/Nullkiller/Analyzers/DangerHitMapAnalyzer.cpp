@@ -47,7 +47,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 		hitMap[pos.x][pos.y][pos.z].reset();
 	});
 
-	for(auto pair : heroes)
+	for(const auto & pair : heroes)
 	{
 		if(!pair.first.isValidPlayer())
 			continue;

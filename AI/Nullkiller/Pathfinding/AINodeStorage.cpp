@@ -166,7 +166,7 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 
 	std::vector<CGPathNode *> initialNodes;
 
-	for(auto actorPtr : actors)
+	for(const auto & actorPtr : actors)
 	{
 		ChainActor * actor = actorPtr.get();
 
@@ -826,7 +826,7 @@ const std::set<const CGHeroInstance *> AINodeStorage::getAllHeroes() const
 {
 	std::set<const CGHeroInstance *> heroes;
 
-	for(auto actor : actors)
+	for(const auto & actor : actors)
 	{
 		if(actor->hero)
 			heroes.insert(actor->hero);
@@ -1119,7 +1119,7 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 
 	std::map<const CGHeroInstance *, int> maskMap;
 
-	for(std::shared_ptr<ChainActor> basicActor : actors)
+	for(const auto & basicActor : actors)
 	{
 		if(basicActor->hero)
 			maskMap[basicActor->hero] = basicActor->chainMask;
@@ -1427,7 +1427,7 @@ bool AIPath::containsHero(const CGHeroInstance * hero) const
 	if(targetHero == hero)
 		return true;
 
-	for(auto node : nodes)
+	for(const auto & node : nodes)
 	{
 		if(node.targetHero == hero)
 			return true;
@@ -1447,7 +1447,7 @@ std::string AIPath::toString() const
 
 	str << targetHero->getNameTranslated() << "[" << std::hex << chainMask << std::dec << "]" << ", turn " << (int)(turn()) << ": ";
 
-	for(auto node : nodes)
+	for(const auto & node : nodes)
 		str << node.targetHero->getNameTranslated() << "[" << std::hex << node.chainMask << std::dec << "]" << "->" << node.coord.toString() << "; ";
 
 	return str.str();

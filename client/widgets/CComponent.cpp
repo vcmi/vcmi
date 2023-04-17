@@ -378,7 +378,7 @@ void CComponentBox::placeComponents(bool selectable)
 	//split components in rows
 	std::shared_ptr<CComponent> prevComp;
 
-	for(std::shared_ptr<CComponent> comp : components)
+	for(const auto & comp : components)
 	{
 		//make sure that components are smaller than our width
 		//assert(pos.w == 0 || pos.w < comp->pos.w);

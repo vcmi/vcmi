@@ -696,7 +696,7 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 
 void CKingdHeroList::updateGarrisons()
 {
-	for(std::shared_ptr<CIntObject> object : heroes->getItems())
+	for(const auto & object : heroes->getItems())
 	{
 		if(auto * garrison = dynamic_cast<CGarrisonHolder *>(object.get()))
 			garrison->updateGarrisons();
@@ -737,7 +737,7 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 
 void CKingdTownList::townChanged(const CGTownInstance * town)
 {
-	for(std::shared_ptr<CIntObject> object : towns->getItems())
+	for(const auto & object : towns->getItems())
 	{
 		auto * townItem = dynamic_cast<CTownItem *>(object.get());
 		if(townItem && townItem->town == town)
@@ -747,7 +747,7 @@ void CKingdTownList::townChanged(const CGTownInstance * town)
 
 void CKingdTownList::updateGarrisons()
 {
-	for(std::shared_ptr<CIntObject> object : towns->getItems())
+	for(const auto & object : towns->getItems())
 	{
 		if(auto * garrison = dynamic_cast<CGarrisonHolder *>(object.get()))
 			garrison->updateGarrisons();

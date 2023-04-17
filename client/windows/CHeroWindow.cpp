@@ -302,7 +302,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	//if we have exchange window with this curHero open
 	bool noDismiss=false;
-	for(auto isa : GH.listInt)
+	for(const auto & isa : GH.listInt)
 	{
 		if(auto * cew = dynamic_cast<CExchangeWindow *>(isa.get()))
 		{

@@ -526,7 +526,7 @@ void CGarrisonInt::recreateSlots()
 	for(auto & elem : splitButtons)
 		elem->block(true);
 
-	for(auto slot : availableSlots)
+	for(const auto & slot : availableSlots)
 		slot->update();
 }
 
@@ -685,7 +685,7 @@ void CGarrisonInt::selectSlot(CGarrisonSlot *slot)
 			highlighted->setHighlight(false);
 
 		highlighted = slot;
-		for(auto button : splitButtons)
+		for(const auto & button : splitButtons)
 			button->block(highlighted == nullptr || !slot->our());
 
 		if(highlighted)
@@ -699,7 +699,7 @@ void CGarrisonInt::setSplittingMode(bool on)
 
 	if(inSplittingMode || on)
 	{
-		for(auto slot : availableSlots)
+		for(const auto & slot : availableSlots)
 		{
 			if(slot.get() != getSelection())
 				slot->setHighlight( ( on && (slot->our() || slot->ally()) && (slot->creature == nullptr || slot->creature == getSelection()->creature)));

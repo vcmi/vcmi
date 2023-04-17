@@ -207,7 +207,7 @@ void BattleProjectileController::emitStackProjectile(const CStack * stack)
 {
 	int stackID = stack ? stack->ID : -1;
 
-	for (auto projectile : projectiles)
+	for(const auto & projectile : projectiles)
 	{
 		if ( !projectile->playing && projectile->shooterID == stackID)
 		{
@@ -219,7 +219,7 @@ void BattleProjectileController::emitStackProjectile(const CStack * stack)
 
 void BattleProjectileController::showProjectiles(Canvas & canvas)
 {
-	for ( auto projectile: projectiles)
+	for(const auto & projectile : projectiles)
 	{
 		if ( projectile->playing )
 			projectile->show(canvas);
@@ -234,7 +234,7 @@ bool BattleProjectileController::hasActiveProjectile(const CStack * stack, bool 
 {
 	int stackID = stack ? stack->ID : -1;
 
-	for(auto const & instance : projectiles)
+	for(const auto & instance : projectiles)
 	{
 		if(instance->shooterID == stackID && (instance->playing || !emittedOnly))
 		{

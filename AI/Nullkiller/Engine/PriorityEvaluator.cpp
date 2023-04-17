@@ -144,7 +144,7 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 		}
 	}
 
-	for (auto c : creatures)
+	for(const auto & c : creatures)
 	{
 		//Only if hero has slot for this creature in the army
 		auto ccre = dynamic_cast<const CCreature*>(c.data.type);
@@ -500,7 +500,7 @@ int32_t getArmyCost(const CArmedInstance * army)
 {
 	int32_t value = 0;
 
-	for(auto stack : army->Slots())
+	for(const auto & stack : army->Slots())
 	{
 		value += stack.second->getCreatureID().toCreature()->getRecruitCost(EGameResID::GOLD) * stack.second->count;
 	}
@@ -883,11 +883,11 @@ EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal
 		parts.push_back(goal);
 	}
 
-	for(auto subgoal : parts)
+	for(const auto & subgoal : parts)
 	{
 		context.goldCost += subgoal->goldCost;
 
-		for(auto builder : evaluationContextBuilders)
+		for(const auto & builder : evaluationContextBuilders)
 		{
 			builder->buildEvaluationContext(context, subgoal);
 		}

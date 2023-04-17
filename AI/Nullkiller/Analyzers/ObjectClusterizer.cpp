@@ -83,7 +83,7 @@ std::vector<std::shared_ptr<ObjectCluster>> ObjectClusterizer::getLockedClusters
 {
 	std::vector<std::shared_ptr<ObjectCluster>> result;
 
-	for(auto pair : blockedObjects)
+	for(const auto & pair : blockedObjects)
 	{
 		result.push_back(pair.second);
 	}
@@ -343,7 +343,7 @@ void ObjectClusterizer::clusterize()
 	logAi->trace("Near objects count: %i", nearObjects.objects.size());
 	logAi->trace("Far objects count: %i", farObjects.objects.size());
 
-	for(auto pair : blockedObjects)
+	for(const auto & pair : blockedObjects)
 	{
 		logAi->trace("Cluster %s %s count: %i", pair.first->getObjectName(), pair.first->visitablePos().toString(), pair.second->objects.size());
 

@@ -439,7 +439,7 @@ void CMultiPlayers::onChange(std::string newText)
 void CMultiPlayers::enterSelectionScreen()
 {
 	std::vector<std::string> names;
-	for(auto name : inputNames)
+	for(const auto & name : inputNames)
 	{
 		if(name->getText().length())
 			names.push_back(name->getText());

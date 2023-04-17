@@ -140,7 +140,7 @@ void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas)
 
 void BattleObstacleController::collectRenderableObjects(BattleRenderer & renderer)
 {
-	for (auto obstacle : owner.curInt->cb->battleGetAllObstacles())
+	for(const auto & obstacle : owner.curInt->cb->battleGetAllObstacles())
 	{
 		if (obstacle->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 			continue;

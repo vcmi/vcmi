@@ -28,7 +28,7 @@ int64_t BattleExchangeVariant::trackAttack(const AttackPossibility & ap, Hypothe
 
 	affectedUnits.push_back(ap.attackerState);
 
-	for(auto affectedUnit : affectedUnits)
+	for(const auto & affectedUnit : affectedUnits)
 	{
 		auto unitToUpdate = state.getForUpdate(affectedUnit->unitId());
 

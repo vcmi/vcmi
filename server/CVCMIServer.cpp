@@ -279,8 +279,8 @@ void CVCMIServer::prepareToRestart()
 		// FIXME: dirry hack to make sure old CGameHandler::run is finished
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 	}
-	
-	for(auto c : connections)
+
+	for(const auto & c : connections)
 	{
 		c->enterLobbyConnectionMode();
 		c->disableStackSendingByID();
@@ -323,7 +323,7 @@ bool CVCMIServer::prepareToStartGame()
 
 void CVCMIServer::startGameImmidiately()
 {
-	for(auto c : connections)
+	for(const auto & c : connections)
 		c->enterGameplayConnectionMode(gh->gs);
 
 	state = EServerState::GAMEPLAY;
@@ -474,7 +474,7 @@ void CVCMIServer::handleReceivedPack(std::unique_ptr<CPackForLobby> pack)
 
 void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 {
-	for(auto c : connections)
+	for(const auto & c : connections)
 	{
 		// FIXME: we need to avoid sending something to client that not yet get answer for LobbyClientConnected
 		// Until UUID set we only pass LobbyClientConnected to this client
@@ -512,7 +512,7 @@ void CVCMIServer::addToAnnounceQueue(std::unique_ptr<CPackForLobby> pack)
 
 bool CVCMIServer::passHost(int toConnectionId)
 {
-	for(auto c : connections)
+	for(const auto & c : connections)
 	{
 		if(isClientHost(c->connectionID))
 			continue;

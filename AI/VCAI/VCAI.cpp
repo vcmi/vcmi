@@ -663,7 +663,7 @@ void VCAI::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exit
 			choosenExit = vstd::find_pos(exits, neededExit);
 	}
 
-	for(auto exit : exits)
+	for(const auto & exit : exits)
 	{
 		if(status.channelProbing() && exit.first == destinationTeleport)
 		{
@@ -855,7 +855,7 @@ void VCAI::mainLoop()
 	}
 	if (ah->hasTasksLeft())
 		basicGoals.push_back(ah->whatToDo());
-	for (auto quest : myCb->getMyQuests())
+	for(const auto & quest : myCb->getMyQuests())
 	{
 		basicGoals.push_back(sptr(Goals::CompleteQuest(quest)));
 	}
@@ -875,7 +875,7 @@ void VCAI::mainLoop()
 
 		logAi->debug("Main loop: decomposing %i basic goals", basicGoals.size());
 
-		for (auto basicGoal : basicGoals)
+		for(const auto & basicGoal : basicGoals)
 		{
 			logAi->debug("Main loop: decomposing basic goal %s", basicGoal->name());
 
@@ -991,7 +991,7 @@ void VCAI::mainLoop()
 				logAi->debug("The error message was: %s", e.what());
 
 				//erase base goal if we failed to execute decomposed goal
-				for (auto basicGoal : ultimateGoalsFromBasic[goalToRealize])
+				for(const auto & basicGoal : ultimateGoalsFromBasic[goalToRealize])
 					goalsToRemove.push_back(basicGoal);
 
 				// sometimes resource manager contains an elementar goal which is not able to execute anymore and just fails each turn.
@@ -1001,7 +1001,7 @@ void VCAI::mainLoop()
 			}
 
 			//remove goals we couldn't decompose
-			for (auto goal : goalsToRemove)
+			for(const auto & goal : goalsToRemove)
 				vstd::erase_if_present(basicGoals, goal);
 
 			//add abstract goals
@@ -1165,7 +1165,7 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 			else
 				target = otherh;
 
-			for(auto location : allArtifacts)
+			for(const auto & location : allArtifacts)
 			{
 				if(location.slot == ArtifactPosition::MACH4 || location.slot == ArtifactPosition::SPELLBOOK)
 					continue; // don't attempt to move catapult and spellbook
@@ -1458,7 +1458,7 @@ void VCAI::wander(HeroPtr h)
 		if(dests.size()) //performance improvement
 		{
 			Goals::TGoalVec targetObjectGoals;
-			for(auto destination : dests)
+			for(const auto & destination : dests)
 			{
 				vstd::concatenate(targetObjectGoals, ah->howToVisitObj(h, destination, false));
 			}
@@ -1531,7 +1531,7 @@ void VCAI::completeGoal(Goals::TSubgoal goal)
 	ah->notifyGoalCompleted(goal);
 	//notify mainLoop()
 	goalsToRemove.push_back(goal); //will be removed from mainLoop() goals
-	for (auto basicGoal : basicGoals) //we could luckily fulfill any of our goals
+	for(const auto & basicGoal : basicGoals) //we could luckily fulfill any of our goals
 	{
 		if (basicGoal->fulfillsMe(goal))
 			goalsToRemove.push_back(basicGoal);
@@ -1892,7 +1892,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			auto currentExit = getObj(currentPos, true)->id;
 
 			status.setChannelProbing(true);
-			for(auto exit : teleportChannelProbingList)
+			for(const auto & exit : teleportChannelProbingList)
 				doTeleportMovement(exit, int3(-1));
 			teleportChannelProbingList.clear();
 			status.setChannelProbing(false);
@@ -2361,7 +2361,7 @@ void VCAI::striveToGoal(Goals::TSubgoal basicGoal)
 			logAi->debug("The error message was: %s", e.what());
 
 			//erase base goal if we failed to execute decomposed goal
-			for (auto basicGoalToRemove : ultimateGoalsFromBasic[elementarGoal])
+			for(const auto & basicGoalToRemove : ultimateGoalsFromBasic[elementarGoal])
 				goalsToRemove.push_back(basicGoalToRemove);
 		}
 	}
@@ -2402,7 +2402,7 @@ Goals::TSubgoal VCAI::decomposeGoal(Goals::TSubgoal ultimateGoal)
 
 void VCAI::performTypicalActions()
 {
-	for(auto h : getUnblockedHeroes())
+	for(const auto & h : getUnblockedHeroes())
 	{
 		if(!h) //hero might be lost. getUnblockedHeroes() called once on start of turn
 			continue;
@@ -2775,7 +2775,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		return obj->tempOwner != h->tempOwner; //do not visit our towns at random
 	case Obj::BORDER_GATE:
 	{
-		for(auto q : ai->myCb->getMyQuests())
+		for(const auto & q : ai->myCb->getMyQuests())
 		{
 			if(q.obj == obj)
 			{
@@ -2789,7 +2789,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	case Obj::SEER_HUT:
 	case Obj::QUEST_GUARD:
 	{
-		for(auto q : ai->myCb->getMyQuests())
+		for(const auto & q : ai->myCb->getMyQuests())
 		{
 			if(q.obj == obj)
 			{
@@ -2807,7 +2807,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 			return true; //flag just in case
 		bool canRecruitCreatures = false;
 		const auto * d = dynamic_cast<const CGDwelling *>(obj);
-		for(auto level : d->creatures)
+		for(const auto & level : d->creatures)
 		{
 			for(auto c : level.second)
 			{
@@ -2819,7 +2819,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	}
 	case Obj::HILL_FORT:
 	{
-		for(auto slot : h->Slots())
+		for(const auto & slot : h->Slots())
 		{
 			if(slot.second->type->hasUpgrades())
 				return true; //TODO: check price?

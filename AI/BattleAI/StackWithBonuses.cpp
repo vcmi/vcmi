@@ -190,7 +190,7 @@ void StackWithBonuses::removeUnitBonus(const CSelector & selector)
 {
 	TConstBonusListPtr toRemove = origBearer->getBonuses(selector);
 
-	for(auto b : *toRemove)
+	for(const auto & b : *toRemove)
 		bonusesToRemove.insert(b);
 
 	vstd::erase_if(bonusesToAdd, [&](const Bonus & b){return selector(&b);});
@@ -280,7 +280,7 @@ battle::Units HypotheticBattle::getUnitsIf(battle::UnitFilter predicate) const
 			ret.push_back(unit);
 	}
 
-	for(auto id_unit : stackStates)
+	for(const auto & id_unit : stackStates)
 	{
 		if(predicate(id_unit.second.get()))
 			ret.push_back(id_unit.second.get());

@@ -342,7 +342,7 @@ std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode
 	{
 		if(config["hotkey"].getType() == JsonNode::JsonType::DATA_VECTOR)
 		{
-			for(auto k : config["hotkey"].Vector())
+			for(const auto & k : config["hotkey"].Vector())
 				button->assignedKeys.insert(readKeycode(k));
 		}
 		else
@@ -380,7 +380,7 @@ std::shared_ptr<CSlider> InterfaceObjectConfigurable::buildSlider(const JsonNode
 	auto itemsTotal = config["itemsTotal"].Integer();
 	auto value = config["selected"].Integer();
 	bool horizontal = config["orientation"].String() == "horizontal";
-	auto const & result = std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal, style);
+	const auto & result = std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal, style);
 
 	if (!config["scrollBounds"].isNull())
 	{

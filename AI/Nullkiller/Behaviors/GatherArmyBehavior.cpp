@@ -124,7 +124,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		// avoid trying to move bigger army to the weaker one.
 		bool hasOtherMainInPath = false;
 
-		for(auto node : path.nodes)
+		for(const auto & node : path.nodes)
 		{
 			if(!node.targetHero) continue;
 

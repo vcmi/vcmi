@@ -212,7 +212,7 @@ bool ResourceManager::containsObjective(Goals::TSubgoal goal) const
 	dumpToLog();
 
 	//TODO: unit tests for once
-	for (auto objective : queue)
+	for(const auto & objective : queue)
 	{
 		if (objective.goal == goal)
 			return true;
@@ -327,7 +327,7 @@ bool ResourceManager::removeOutdatedObjectives(std::function<bool(const Goals::T
 TResources ResourceManager::reservedResources() const
 {
 	TResources res;
-	for (auto it : queue) //substract the value of reserved goals
+	for(const auto & it : queue) //substract the value of reserved goals
 		res += it.resources;
 	return res;
 }

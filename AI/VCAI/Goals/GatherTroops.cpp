@@ -33,7 +33,7 @@ int GatherTroops::getCreaturesCount(const CArmedInstance * army)
 {
 	int count = 0;
 
-	for(auto stack : army->Slots())
+	for(const auto & stack : army->Slots())
 	{
 		if(objid == stack.second->getCreatureID().num)
 		{
@@ -132,7 +132,7 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 		if(!d || obj->ID == Obj::TOWN)
 			continue;
 
-		for(auto creature : d->creatures)
+		for(const auto & creature : d->creatures)
 		{
 			if(creature.first) //there are more than 0 creatures avaliabe
 			{

@@ -62,7 +62,7 @@ armyStructure evaluateArmyStructure(const CArmedInstance * army)
 	static const CSelector selectorSTACKS_SPEED = Selector::type()(Bonus::STACKS_SPEED);
 	static const std::string keySTACKS_SPEED = "type_"+std::to_string((int32_t)Bonus::STACKS_SPEED);
 
-	for(auto s : army->Slots())
+	for(const auto & s : army->Slots())
 	{
 		bool walker = true;
 		auto bearer = s.second->getType()->getBonusBearer();

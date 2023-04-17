@@ -217,7 +217,7 @@ si32 TownPlacer::getRandomTownType(bool matchUndergroundType)
 	if(matchUndergroundType)
 	{
 		std::set<FactionID> townTypesVerify;
-		for(auto factionIdx : townTypesAllowed)
+		for(const auto & factionIdx : townTypesAllowed)
 		{
 			bool preferUnderground = (*VLC->townh)[factionIdx]->preferUndergroundPlacement;
 			if(zone.isUnderground() ? preferUnderground : !preferUnderground)

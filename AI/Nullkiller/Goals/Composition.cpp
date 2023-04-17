@@ -32,7 +32,7 @@ std::string Composition::toString() const
 {
 	std::string result = "Composition";
 
-	for(auto goal : subtasks)
+	for(const auto & goal : subtasks)
 	{
 		result += " " + goal->toString();
 	}

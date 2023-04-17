@@ -131,7 +131,7 @@ CAdvMapInt::CAdvMapInt():
 	auto makeButton = [&](int textID, std::function<void()> callback, config::ButtonInfo info, int key) -> std::shared_ptr<CButton>
 	{
 		auto button = std::make_shared<CButton>(Point(info.x, info.y), info.defName, CGI->generaltexth->zelp[textID], callback, key, info.playerColoured);
-		for(auto image : info.additionalDefs)
+		for(const auto & image : info.additionalDefs)
 			button->addImage(image);
 		return button;
 	};

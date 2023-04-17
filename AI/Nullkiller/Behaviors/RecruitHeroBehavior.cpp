@@ -36,7 +36,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 	auto ourHeroes = ai->nullkiller->heroManager->getHeroRoles();
 	auto minScoreToHireMain = std::numeric_limits<float>::max();
 
-	for(auto hero : ourHeroes)
+	for(const auto & hero : ourHeroes)
 	{
 		if(hero.second != HeroRole::MAIN)
 			continue;

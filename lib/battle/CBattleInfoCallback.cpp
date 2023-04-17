@@ -838,7 +838,7 @@ bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & s
 	for(auto & obstacle : getAllAffectedObstaclesByStack(&unit, passed))
 	{
 		//helper info
-		const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle.get());
+		const auto * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle.get());
 
 		if(spellObstacle)
 		{

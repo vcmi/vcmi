@@ -585,7 +585,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		castleInt->heroes->update();
 		castleInt->redraw();
 	}
-	for (auto isa : GH.listInt)
+	for(const auto & isa : GH.listInt)
 	{
 		auto * ki = dynamic_cast<CKingdomInterface *>(isa.get());
 		if (ki)
@@ -1220,7 +1220,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	std::vector<int> tempList;
 	tempList.reserve(objects.size());
 
-	for(auto item : objects)
+	for(const auto & item : objects)
 		tempList.push_back(item.getNum());
 
 	CComponent localIconC(icon);
@@ -1267,7 +1267,7 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 		else if(castleInterface)
 			castleInterface->creaturesChangedEventHandler();
 
-		for(auto isa : GH.listInt)
+		for(const auto & isa : GH.listInt)
 		{
 			auto * ki = dynamic_cast<CKingdomInterface *>(isa.get());
 			if (ki && townObj)
@@ -1944,7 +1944,7 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	updateInfo(hero);
-	for(auto isa : GH.listInt)
+	for(const auto & isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
 		if (artWin)
@@ -1969,7 +1969,7 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 			redraw = false;
 	}
 
-	for(auto isa : GH.listInt)
+	for(const auto & isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
 		if (artWin)
@@ -1988,7 +1988,7 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	updateInfo(hero);
-	for(auto isa : GH.listInt)
+	for(const auto & isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
 		if (artWin)
@@ -2001,7 +2001,7 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	updateInfo(hero);
-	for(auto isa : GH.listInt)
+	for(const auto & isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
 		if (artWin)

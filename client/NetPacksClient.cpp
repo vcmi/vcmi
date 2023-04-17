@@ -72,7 +72,7 @@ void callOnlyThatBattleInterface(CClient & cl, PlayerColor player, void (T::*ptr
 
 	if(cl.additionalBattleInts.count(player))
 	{
-		for(auto bInt : cl.additionalBattleInts[player])
+		for(const auto & bInt : cl.additionalBattleInts[player])
 			((*bInt).*ptr)(std::forward<Args2>(args)...);
 	}
 }
@@ -87,7 +87,7 @@ void callBattleInterfaceIfPresent(CClient & cl, PlayerColor player, void (T::*pt
 template<typename T, typename ... Args, typename ... Args2>
 void callAllInterfaces(CClient & cl, void (T::*ptr)(Args...), Args2 && ...args)
 {
-	for(auto pInt : cl.playerint)
+	for(const auto & pInt : cl.playerint)
 		((*pInt.second).*ptr)(std::forward<Args2>(args)...);
 }
 
@@ -377,8 +377,8 @@ void ApplyClientNetPackVisitor::visitPlayerReinitInterface(PlayerReinitInterface
 		callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, currentPlayer);
 		callOnlyThatInterface(cl, currentPlayer, &CGameInterface::yourTurn);
 	};
-	
-	for(auto player : pack.players)
+
+	for(const auto & player : pack.players)
 	{
 		auto & plSettings = CSH->si->getIthPlayersSettings(player);
 		if(pack.playerConnectionId == PlayerSettings::PLAYER_AI)

@@ -457,7 +457,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 			clu.skills.push_back(i);
 	}
 	int i = 100;
-	for (auto specialSkill : VLC->creh->skillRequirements)
+	for(const auto & specialSkill : VLC->creh->skillRequirements)
 	{
 		if (c->secondarySkills.at(specialSkill.second.first) == ECommander::MAX_SKILL_LEVEL
 			&&  c->secondarySkills.at(specialSkill.second.second) == ECommander::MAX_SKILL_LEVEL
@@ -604,7 +604,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 	queries.addQuery(battleDialogQuery);
 	
 	//set same battle result for all queries
-	for(auto q : queries.allQueries())
+	for(const auto & q : queries.allQueries())
 	{
 		auto otherBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(q);
 		if(otherBattleQuery)
@@ -703,7 +703,7 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 				}
 			}
 		}
-		for (auto armySlot : battleInfo->sides.at(!battleResult.data->winner).armyObject->stacks)
+		for(const auto & armySlot : battleInfo->sides.at(!battleResult.data->winner).armyObject->stacks)
 		{
 			auto artifactsWorn = armySlot.second->artifactsWorn;
 			for (auto artSlot : artifactsWorn)
@@ -1823,7 +1823,7 @@ void CGameHandler::newTurn()
 			bool hasCrystalGenCreature = false;
 			for(CGHeroInstance * hero : elem.second.heroes)
 			{
-				for(auto stack : hero->stacks)
+				for(const auto & stack : hero->stacks)
 				{
 					if(stack.second->hasBonusOfType(Bonus::SPECIAL_CRYSTAL_GENERATION))
 					{
@@ -1836,7 +1836,7 @@ void CGameHandler::newTurn()
 			{
 				for(CGTownInstance * town : elem.second.towns)
 				{
-					for(auto stack : town->stacks)
+					for(const auto & stack : town->stacks)
 					{
 						if(stack.second->hasBonusOfType(Bonus::SPECIAL_CRYSTAL_GENERATION))
 						{
@@ -2042,12 +2042,12 @@ void CGameHandler::run(bool resume)
 	LOG_TRACE_PARAMS(logGlobal, "resume=%d", resume);
 
 	using namespace boost::posix_time;
-	for (auto cc : lobby->connections)
+	for(const auto & cc : lobby->connections)
 	{
 		auto players = lobby->getAllClientPlayers(cc->connectionID);
 		std::stringstream sbuffer;
 		sbuffer << "Connection " << cc->connectionID << " will handle " << players.size() << " player: ";
-		for (PlayerColor color : players)
+		for(const auto & color : players)
 		{
 			sbuffer << color << " ";
 			{
@@ -2132,7 +2132,7 @@ void CGameHandler::run(bool resume)
 		}
 		//additional check that game is not finished
 		bool activePlayer = false;
-		for (auto player : playerTurnOrder)
+		for(const auto & player : playerTurnOrder)
 		{
 			if (gs->players[player].status == EPlayerStatus::INGAME)
 					activePlayer = true;
@@ -2850,7 +2850,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 void CGameHandler::sendToAllClients(CPackForClient * pack)
 {
 	logNetwork->trace("\tSending to all clients: %s", typeid(*pack).name());
-	for (auto c : lobby->connections)
+	for(const auto & c : lobby->connections)
 	{
 		if(!c->isOpen())
 			continue;
@@ -3031,7 +3031,7 @@ bool CGameHandler::bulkSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner, si3
 
 	BulkRebalanceStacks bulkRS;
 
-	for(auto slot : freeSlots)
+	for(const auto & slot : freeSlots)
 	{
 		RebalanceStacks rs;
 		rs.srcArmy = army->id;
@@ -3078,7 +3078,7 @@ bool CGameHandler::bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner)
 
 	BulkRebalanceStacks bulkRS;
 
-	for(auto slot : creatureSlots)
+	for(const auto & slot : creatureSlots)
 	{
 		RebalanceStacks rs;
 		rs.srcArmy = army->id;
@@ -3202,7 +3202,7 @@ bool CGameHandler::bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner
 	auto creatureSlots = creatureSet.getCreatureSlots(currentCreature, SlotID(-1), 1); // Ignore slots where's only 1 creature, don't ignore slotSrc
 	TQuantity totalCreatures = 0;
 
-	for(auto slot : creatureSlots)
+	for(const auto & slot : creatureSlots)
 		totalCreatures += creatureSet.getStackCount(slot);
 
 	if(totalCreatures <= 1 && complain("Total creatures number is invalid"))
@@ -3235,7 +3235,7 @@ bool CGameHandler::bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner
 	auto currSlot = 0;
 	auto check = 0;
 
-	for(auto slot : creatureSlots)
+	for(const auto & slot : creatureSlots)
 	{
 		ChangeStackCount csc;
 
@@ -5099,7 +5099,7 @@ bool CGameHandler::makeCustomAction(BattleAction & ba)
 				logGlobal->warn("Spell cannot be cast!");
 				std::vector<std::string> texts;
 				problem.getAll(texts);
-				for(auto s : texts)
+				for(const auto & s : texts)
 					logGlobal->warn(s);
 				return false;
 			}
@@ -5132,7 +5132,7 @@ bool CGameHandler::makeCustomAction(BattleAction & ba)
 void CGameHandler::stackEnchantedTrigger(const CStack * st)
 {
 	auto bl = *(st->getBonuses(Selector::type()(Bonus::ENCHANTED)));
-	for(auto b : bl)
+	for(const auto & b : bl)
 	{
 		const CSpell * sp = SpellID(b->subtype).toSpell();
 		if(!sp)
@@ -5177,7 +5177,7 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 			BonusList bl = *(st->getBonuses(Selector::type()(Bonus::BIND_EFFECT)));
 			auto adjacent = gs->curB->battleAdjacentUnits(st);
 
-			for (auto b : bl)
+			for(const auto & b : bl)
 			{
 				if(b->additionalInfo != CAddInfo::NONE)
 				{
@@ -5643,7 +5643,7 @@ void CGameHandler::engageIntoBattle(PlayerColor player)
 
 void CGameHandler::checkVictoryLossConditions(const std::set<PlayerColor> & playerColors)
 {
-	for (auto playerColor : playerColors)
+	for(const auto & playerColor : playerColors)
 	{
 		if (getPlayerState(playerColor, false))
 			checkVictoryLossConditionsForPlayer(playerColor);
@@ -5732,7 +5732,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			}
 
 			//notify all players
-			for (auto pc : playerColors)
+			for(const auto & pc : playerColors)
 			{
 				if (getPlayerState(pc)->status == EPlayerStatus::INGAME)
 				{
@@ -6403,7 +6403,7 @@ void CGameHandler::runBattle()
 		{
 			TConstBonusListPtr bl = h->getBonuses(Selector::type()(Bonus::OPENING_BATTLE_SPELL));
 
-			for (auto b : *bl)
+			for(const auto & b : *bl)
 			{
 				spells::BonusCaster caster(h, b);
 
@@ -7306,7 +7306,7 @@ void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 			gh->complain("No free slot to put summoned creature");
 		}
 	}
-	for (auto al : removedWarMachines)
+	for(const auto & al : removedWarMachines)
 	{
 		gh->removeArtifact(al);
 	}

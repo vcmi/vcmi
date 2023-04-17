@@ -60,7 +60,7 @@ Goals::TGoalVec DeepDecomposer::decompose(TSubgoal behavior, int depthLimit)
 			goals[depth + 1].clear();
 		}
 
-		for(TSubgoal subgoal : subgoals)
+		for(const auto & subgoal : subgoals)
 		{
 			if(subgoal->invalid())
 				continue;
@@ -160,7 +160,7 @@ bool DeepDecomposer::isCompositionLoop(TSubgoal goal)
 {
 	auto goalsToTest = goal->goalType == Goals::COMPOSITION ? goal->decompose() : TGoalVec{goal};
 
-	for(auto goalToTest : goalsToTest)
+	for(const auto & goalToTest : goalsToTest)
 	{
 		for(int i = depth; i >= 0; i--)
 		{

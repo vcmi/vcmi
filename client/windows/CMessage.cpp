@@ -478,7 +478,7 @@ void ComponentsToBlit::blitCompsOnSur( bool blitOr, int inter, int &curh, SDL_Su
 	for (auto & elem : comps)//for each row
 	{
 		int totalw=0, maxHeight=0;
-		for(auto cur : elem) //find max height & total width in this row
+		for(const auto & cur : elem) //find max height & total width in this row
 		{
 			totalw += cur->pos.w;
 			vstd::amax(maxHeight, cur->pos.h);

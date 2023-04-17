@@ -80,7 +80,7 @@ void QuickRecruitmentWindow::initWindow(Rect startupPosition)
 void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePurchaseCard> > cards)
 {
 	auto allAvailableResources = LOCPLINT->cb->getResourceAmount();
-	for(auto i : boost::adaptors::reverse(cards))
+	for(const auto & i : boost::adaptors::reverse(cards))
 	{
 		si32 maxAmount = i->creatureOnTheCard->maxAmount(allAvailableResources);
 		vstd::amin(maxAmount, i->maxAmount);
@@ -101,7 +101,7 @@ void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePur
 
 void QuickRecruitmentWindow::purchaseUnits()
 {
-	for(auto selected : boost::adaptors::reverse(cards))
+	for(const auto & selected : boost::adaptors::reverse(cards))
 	{
 		if(selected->slider->getValue())
 		{
@@ -128,9 +128,9 @@ int QuickRecruitmentWindow::getAvailableCreatures()
 void QuickRecruitmentWindow::updateAllSliders()
 {
 	auto allAvailableResources = LOCPLINT->cb->getResourceAmount();
-	for(auto i : boost::adaptors::reverse(cards))
+	for(const auto & i : boost::adaptors::reverse(cards))
 		allAvailableResources -= (i->creatureOnTheCard->getFullRecruitCost() * i->slider->getValue());
-	for(auto i : cards)
+	for(const auto & i : cards)
 	{
 		si32 maxAmount = i->creatureOnTheCard->maxAmount(allAvailableResources);
 		vstd::amin(maxAmount, i->maxAmount);

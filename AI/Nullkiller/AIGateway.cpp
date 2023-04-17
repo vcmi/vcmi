@@ -659,7 +659,7 @@ void AIGateway::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList
 			choosenExit = vstd::find_pos(exits, neededExit);
 	}
 
-	for(auto exit : exits)
+	for(const auto & exit : exits)
 	{
 		if(status.channelProbing() && exit.first == destinationTeleport)
 		{
@@ -982,7 +982,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 			else
 				target = otherh;
 
-			for(auto location : allArtifacts)
+			for(const auto & location : allArtifacts)
 			{
 				if(location.relatedObj() == target && location.slot < ArtifactPosition::AFTER_LAST)
 					continue; //don't reequip artifact we already wear
@@ -1274,7 +1274,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 			auto currentExit = getObj(currentPos, true)->id;
 
 			status.setChannelProbing(true);
-			for(auto exit : teleportChannelProbingList)
+			for(const auto & exit : teleportChannelProbingList)
 				doTeleportMovement(exit, int3(-1));
 			teleportChannelProbingList.clear();
 			status.setChannelProbing(false);

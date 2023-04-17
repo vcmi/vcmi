@@ -526,7 +526,7 @@ void CBattleAI::attemptCastingSpell()
 					if(ap.attackerDamageReduce > 0)
 						swb->removeUnitBonus(Bonus::UntilBeingAttacked);
 
-					for(auto affected : ap.affectedUnits)
+					for(const auto & affected : ap.affectedUnits)
 					{
 						swb = state.getForUpdate(affected->unitId());
 						*swb = *affected;

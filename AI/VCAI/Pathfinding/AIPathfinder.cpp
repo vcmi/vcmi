@@ -62,7 +62,7 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 
 	std::vector<CThreadHelper::Task> calculationTasks;
 
-	for(HeroPtr hero : heroes)
+	for(const HeroPtr & hero : heroes)
 	{
 		std::shared_ptr<AINodeStorage> nodeStorage;
 
@@ -90,7 +90,7 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 
 	if(threadsCount <= 1)
 	{
-		for(auto task : calculationTasks)
+		for(const auto & task : calculationTasks)
 		{
 			task();
 		}
