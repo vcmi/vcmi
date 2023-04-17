@@ -8,6 +8,7 @@
  *
  */
 #pragma once
+#include "../../lib/mapping/CCampaignHandler.h"
 #include "../windows/CWindowObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -32,21 +33,6 @@ public:
 	std::shared_ptr<CCampaignState> getCampaign();
 	CBonusSelection();
 
-	struct SCampPositions
-	{
-		std::string campPrefix;
-		int colorSuffixLength;
-
-		struct SRegionDesc
-		{
-			std::string infix;
-			int xpos, ypos;
-		};
-
-		std::vector<SRegionDesc> regions;
-
-	};
-
 	class CRegion
 		: public CIntObject
 	{
@@ -57,13 +43,12 @@ public:
 		bool accessible; // false if region should be striped
 		bool selectable; // true if region should be selectable
 	public:
-		CRegion(int id, bool accessible, bool selectable, const SCampPositions & campDsc);
+		CRegion(int id, bool accessible, bool selectable, const CampaignRegions & campDsc);
 		void updateState();
 		void clickLeft(tribool down, bool previousState) override;
 		void clickRight(tribool down, bool previousState) override;
 	};
 
-	void loadPositionsOfGraphics();
 	void createBonusesIcons();
 	void updateAfterStateChange();
 
@@ -84,7 +69,6 @@ public:
 	std::shared_ptr<CLabel> mapName;
 	std::shared_ptr<CLabel> labelMapDescription;
 	std::shared_ptr<CTextBox> mapDescription;
-	std::vector<SCampPositions> campDescriptions;
 	std::vector<std::shared_ptr<CRegion>> regions;
 	std::shared_ptr<CFlagBox> flagbox;
 

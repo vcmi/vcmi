@@ -37,11 +37,45 @@ namespace CampaignVersion
 	const int VCMI_MAX = 1;
 }
 
+struct DLL_LINKAGE CampaignRegions
+{
+	std::string campPrefix;
+	int colorSuffixLength;
+
+	struct DLL_LINKAGE RegionDescription
+	{
+		std::string infix;
+		int xpos, ypos;
+		
+		template <typename Handler> void serialize(Handler &h, const int formatVersion)
+		{
+			h & infix;
+			h & xpos;
+			h & ypos;
+		}
+		
+		static CampaignRegions::RegionDescription fromJson(const JsonNode & node);
+	};
+
+	std::vector<RegionDescription> regions;
+	
+	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	{
+		h & campPrefix;
+		h & colorSuffixLength;
+		h & regions;
+	}
+	
+	static CampaignRegions fromJson(const JsonNode & node);
+	static CampaignRegions getLegacy(int campId);
+};
+
 class DLL_LINKAGE CCampaignHeader
 {
 public:
 	si32 version = 0; //4 - RoE, 5 - AB, 6 - SoD and WoG
-	ui8 mapVersion = 0; //CampText.txt's format
+	CampaignRegions campaignRegions;
+	int numberOfScenarios = 0;
 	std::string name, description;
 	ui8 difficultyChoosenByPlayer = 0;
 	ui8 music = 0; //CmpMusic.txt, start from 0, field is unused in vcmi
@@ -50,15 +84,28 @@ public:
 	std::string filename;
 	std::string modName;
 	std::string encoding;
+	
+	void loadLegacyData(ui8 campId);
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
 		h & version;
-		h & mapVersion;
+		if(!h.saving && formatVersion < 821)
+		{
+			ui8 campId = 0; //legacy field
+			h & campId;
+			loadLegacyData(campId);
+		}
+		else
+		{
+			h & campaignRegions;
+			h & numberOfScenarios;
+		}
 		h & name;
 		h & description;
 		h & difficultyChoosenByPlayer;
-		h & music;
+		if(formatVersion < 821)
+			h & music; //deprecated
 		h & filename;
 		h & modName;
 		h & encoding;
@@ -223,18 +270,16 @@ public:
 
 class DLL_LINKAGE CCampaignHandler
 {
-	std::vector<size_t> scenariosCountPerCampaign;
-
 	static std::string readLocalizedString(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier);
 	
 	//parsers for VCMI campaigns (*.vcmp)
 	static CCampaignHeader readHeaderFromJson(JsonNode & reader, std::string filename, std::string modName, std::string encoding);
-	static CCampaignScenario readScenarioFromJson(JsonNode & reader, std::string filename, std::string modName, std::string encoding, int version, int mapVersion );
-	static CScenarioTravel readScenarioTravelFromJson(JsonNode & reader, int version);
+	static CCampaignScenario readScenarioFromJson(JsonNode & reader);
+	static CScenarioTravel readScenarioTravelFromJson(JsonNode & reader);
 
 	//parsers for original H3C campaigns
 	static CCampaignHeader readHeaderFromMemory(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding);
-	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, int version, int mapVersion );
+	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, const CCampaignHeader & header);
 	static CScenarioTravel readScenarioTravelFromMemory(CBinaryReader & reader, int version);
 	/// returns h3c split in parts. 0 = h3c header, 1-end - maps (binary h3m)
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps

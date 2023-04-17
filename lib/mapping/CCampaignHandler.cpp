@@ -36,10 +36,51 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+CampaignRegions::RegionDescription CampaignRegions::RegionDescription::fromJson(const JsonNode & node)
+{
+	CampaignRegions::RegionDescription rd;
+	rd.infix = node["infix"].String();
+	rd.xpos = static_cast<int>(node["x"].Float());
+	rd.ypos = static_cast<int>(node["y"].Float());
+	return rd;
+}
+
+CampaignRegions CampaignRegions::fromJson(const JsonNode & node)
+{
+	CampaignRegions cr;
+	cr.campPrefix = node["prefix"].String();
+	cr.colorSuffixLength = static_cast<int>(node["color_suffix_length"].Float());
+
+	for(const JsonNode & desc : node["desc"].Vector())
+		cr.regions.push_back(CampaignRegions::RegionDescription::fromJson(desc));
+	
+	return cr;
+}
+
+CampaignRegions CampaignRegions::getLegacy(int campId)
+{
+	static std::vector<CampaignRegions> campDescriptions;
+	if(campDescriptions.empty()) //read once
+	{
+		const JsonNode config(ResourceID("config/campaign_regions.json"));
+		for(const JsonNode & campaign : config["campaign_regions"].Vector())
+			campDescriptions.push_back(CampaignRegions::fromJson(campaign));
+	}
+	
+	return campDescriptions.at(campId);
+}
+
+
 bool CScenarioTravel::STravelBonus::isBonusForHero() const
 {
 	return type == SPELL || type == MONSTER || type == ARTIFACT || type == SPELL_SCROLL || type == PRIMARY_SKILL
 		|| type == SECONDARY_SKILL;
+}
+
+void CCampaignHeader::loadLegacyData(ui8 campId)
+{
+	campaignRegions = CampaignRegions::getLegacy(campId);
+	numberOfScenarios = VLC->generaltexth->getCampaignLength(campId);
 }
 
 CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
@@ -86,10 +127,10 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 		CBinaryReader reader(&stream);
 		ret->header = readHeaderFromMemory(reader, resourceID.getName(), modName, encoding);
 
-		int howManyScenarios = static_cast<int>(VLC->generaltexth->getCampaignLength(ret->header.mapVersion));
-		for(int g=0; g<howManyScenarios; ++g)
+		int howManyScenarios = ret->header.numberOfScenarios;
+		for(int g = 0; g < howManyScenarios; ++g)
 		{
-			CCampaignScenario sc = readScenarioFromMemory(reader, resourceID.getName(), modName, encoding, ret->header.version, ret->header.mapVersion);
+			CCampaignScenario sc = readScenarioFromMemory(reader, ret->header);
 			ret->scenarios.push_back(sc);
 		}
 		
@@ -126,7 +167,7 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 		
 		for(auto & scenario : jsonCampaign["scenarios"].Vector())
 		{
-			CCampaignScenario sc = readScenarioFromJson(scenario, resourceID.getName(), modName, encoding, ret->header.version, ret->header.mapVersion);
+			CCampaignScenario sc = readScenarioFromJson(scenario);
 			if(sc.isNotVoid())
 			{
 				CMapService mapService;
@@ -180,7 +221,7 @@ std::string CCampaignHandler::readLocalizedString(CBinaryReader & reader, std::s
 	return VLC->generaltexth->translate(stringID.get());
 }
 
-CCampaignHeader CCampaignHandler::readHeaderFromJson(JsonNode & reader, std::string filename, std::string modName, std::string encoding )
+CCampaignHeader CCampaignHandler::readHeaderFromJson(JsonNode & reader, std::string filename, std::string modName, std::string encoding)
 {
 	CCampaignHeader ret;
 
@@ -192,7 +233,8 @@ CCampaignHeader CCampaignHandler::readHeaderFromJson(JsonNode & reader, std::str
 	}
 	
 	ret.version = CampaignVersion::VCMI;
-	ret.mapVersion = reader["campaignId"].Integer();
+	ret.campaignRegions = CampaignRegions::fromJson(reader["regions"]);
+	ret.numberOfScenarios = reader["scenarios"].Vector().size();
 	ret.name = reader["name"].String();
 	ret.description = reader["description"].String();
 	ret.difficultyChoosenByPlayer = reader["allowDifficultySelection"].Bool();
@@ -204,7 +246,7 @@ CCampaignHeader CCampaignHandler::readHeaderFromJson(JsonNode & reader, std::str
 	return ret;
 }
 
-CCampaignScenario CCampaignHandler::readScenarioFromJson(JsonNode & reader, std::string filename, std::string modName, std::string encoding, int version, int mapVersion)
+CCampaignScenario CCampaignHandler::readScenarioFromJson(JsonNode & reader)
 {
 	auto prologEpilogReader = [](JsonNode & identifier) -> CCampaignScenario::SScenarioPrologEpilog
 	{
@@ -231,12 +273,12 @@ CCampaignScenario CCampaignHandler::readScenarioFromJson(JsonNode & reader, std:
 	ret.prolog = prologEpilogReader(reader["prolog"]);
 	ret.epilog = prologEpilogReader(reader["epilog"]);
 
-	ret.travelOptions = readScenarioTravelFromJson(reader, version);
+	ret.travelOptions = readScenarioTravelFromJson(reader);
 
 	return ret;
 }
 
-CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader, int version )
+CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 {
 	CScenarioTravel ret;
 
@@ -442,7 +484,8 @@ CCampaignHeader CCampaignHandler::readHeaderFromMemory( CBinaryReader & reader, 
 	CCampaignHeader ret;
 
 	ret.version = reader.readUInt32();
-	ret.mapVersion = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
+	ui8 campId = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
+	ret.loadLegacyData(campId);
 	ret.name = readLocalizedString(reader, filename, modName, encoding, "name");
 	ret.description = readLocalizedString(reader, filename, modName, encoding, "description");
 	if (ret.version > CampaignVersion::RoE)
@@ -457,7 +500,7 @@ CCampaignHeader CCampaignHandler::readHeaderFromMemory( CBinaryReader & reader, 
 	return ret;
 }
 
-CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, int version, int mapVersion )
+CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & reader, const CCampaignHeader & header)
 {
 	auto prologEpilogReader = [&](const std::string & identifier) -> CCampaignScenario::SScenarioPrologEpilog
 	{
@@ -467,7 +510,7 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & read
 		{
 			ret.prologVideo = reader.readUInt8();
 			ret.prologMusic = reader.readUInt8();
-			ret.prologText = readLocalizedString(reader, filename, modName, encoding, identifier);
+			ret.prologText = readLocalizedString(reader, header.filename, header.modName, header.encoding, identifier);
 		}
 		return ret;
 	};
@@ -476,7 +519,7 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & read
 	ret.conquered = false;
 	ret.mapName = reader.readBaseString();
 	ret.packedMapSize = reader.readUInt32();
-	if(mapVersion == 18)//unholy alliance
+	if(header.numberOfScenarios > 0) //unholy alliance
 	{
 		ret.loadPreconditionRegions(reader.readUInt16());
 	}
@@ -486,11 +529,11 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & read
 	}
 	ret.regionColor = reader.readUInt8();
 	ret.difficulty = reader.readUInt8();
-	ret.regionText = readLocalizedString(reader, filename, modName, encoding, ret.mapName + ".region");
+	ret.regionText = readLocalizedString(reader, header.filename, header.modName, header.encoding, ret.mapName + ".region");
 	ret.prolog = prologEpilogReader(ret.mapName + ".prolog");
 	ret.epilog = prologEpilogReader(ret.mapName + ".epilog");
 
-	ret.travelOptions = readScenarioTravelFromMemory(reader, version);
+	ret.travelOptions = readScenarioTravelFromMemory(reader, header.version);
 
 	return ret;
 }

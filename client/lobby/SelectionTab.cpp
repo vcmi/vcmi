@@ -100,8 +100,8 @@ bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::share
 		switch(sortBy)
 		{
 		case _numOfMaps: //by number of maps in campaign
-			return CGI->generaltexth->getCampaignLength(aaa->campaignHeader->mapVersion) <
-				   CGI->generaltexth->getCampaignLength(bbb->campaignHeader->mapVersion);
+			return aaa->campaignHeader->numberOfScenarios <
+				   bbb->campaignHeader->numberOfScenarios;
 			break;
 		case _name: //by name
 			return boost::ilexicographical_compare(aaa->campaignHeader->name, bbb->campaignHeader->name);
@@ -665,7 +665,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<CMapInfo> info, bool sel
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->enable();
 		std::ostringstream ostr(std::ostringstream::out);
-		ostr << CGI->generaltexth->getCampaignLength(info->campaignHeader->mapVersion);
+		ostr << info->campaignHeader->numberOfScenarios;
 		labelNumberOfCampaignMaps->setText(ostr.str());
 		labelNumberOfCampaignMaps->setColor(color);
 	}

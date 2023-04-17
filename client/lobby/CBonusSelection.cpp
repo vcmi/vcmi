@@ -51,6 +51,7 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
+
 std::shared_ptr<CCampaignState> CBonusSelection::getCampaign()
 {
 	return CSH->si->campState;
@@ -61,8 +62,7 @@ CBonusSelection::CBonusSelection()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	loadPositionsOfGraphics();
-	std::string bgName = campDescriptions[getCampaign()->camp->header.mapVersion].campPrefix + "_BG.BMP";
+	std::string bgName = getCampaign()->camp->header.campaignRegions.campPrefix + "_BG.BMP";
 	setBackground(bgName);
 
 	panelBackground = std::make_shared<CPicture>("CAMPBRF.BMP", 456, 6);
@@ -106,35 +106,9 @@ CBonusSelection::CBonusSelection()
 	for(int g = 0; g < getCampaign()->camp->scenarios.size(); ++g)
 	{
 		if(getCampaign()->camp->conquerable(g))
-			regions.push_back(std::make_shared<CRegion>(g, true, true, campDescriptions[getCampaign()->camp->header.mapVersion]));
+			regions.push_back(std::make_shared<CRegion>(g, true, true, getCampaign()->camp->header.campaignRegions));
 		else if(getCampaign()->camp->scenarios[g].conquered) //display as striped
-			regions.push_back(std::make_shared<CRegion>(g, false, false, campDescriptions[getCampaign()->camp->header.mapVersion]));
-	}
-}
-
-void CBonusSelection::loadPositionsOfGraphics()
-{
-	const JsonNode config(ResourceID("config/campaign_regions.json"));
-
-	for(const JsonNode & campaign : config["campaign_regions"].Vector())
-	{
-		SCampPositions sc;
-
-		sc.campPrefix = campaign["prefix"].String();
-		sc.colorSuffixLength = static_cast<int>(campaign["color_suffix_length"].Float());
-
-		for(const JsonNode & desc : campaign["desc"].Vector())
-		{
-			SCampPositions::SRegionDesc rd;
-
-			rd.infix = desc["infix"].String();
-			rd.xpos = static_cast<int>(desc["x"].Float());
-			rd.ypos = static_cast<int>(desc["y"].Float());
-			sc.regions.push_back(rd);
-		}
-
-		campDescriptions.push_back(sc);
-
+			regions.push_back(std::make_shared<CRegion>(g, false, false, getCampaign()->camp->header.campaignRegions));
 	}
 }
 
@@ -470,7 +444,7 @@ void CBonusSelection::decreaseDifficulty()
 		CSH->setDifficulty(CSH->si->difficulty - 1);
 }
 
-CBonusSelection::CRegion::CRegion(int id, bool accessible, bool selectable, const SCampPositions & campDsc)
+CBonusSelection::CRegion::CRegion(int id, bool accessible, bool selectable, const CampaignRegions & campDsc)
 	: CIntObject(LCLICK | RCLICK), idOfMapAndRegion(id), accessible(accessible), selectable(selectable)
 {
 	OBJ_CONSTRUCTION;
@@ -480,7 +454,7 @@ CBonusSelection::CRegion::CRegion(int id, bool accessible, bool selectable, cons
 		{"Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi"}
 	};
 
-	const SCampPositions::SRegionDesc & desc = campDsc.regions[idOfMapAndRegion];
+	const CampaignRegions::RegionDescription & desc = campDsc.regions[idOfMapAndRegion];
 	pos.x += desc.xpos;
 	pos.y += desc.ypos;
 
