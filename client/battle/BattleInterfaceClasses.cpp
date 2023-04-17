@@ -327,7 +327,7 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	if(!hero->type->battleImage.empty())
 		animationPath = hero->type->battleImage;
 	else
-	if(hero->sex)
+	if(hero->gender == EHeroGender::FEMALE)
 		animationPath = hero->type->heroClass->imageBattleFemale;
 	else
 		animationPath = hero->type->heroClass->imageBattleMale;

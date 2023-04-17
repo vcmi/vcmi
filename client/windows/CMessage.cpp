@@ -242,7 +242,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 
 	assert(ret && ret->text);
 	for(int i = 0;
-		i < ARRAY_COUNT(sizes)
+		i < std::size(sizes)
 			&& sizes[i][0] < GH.screenDimensions().x - 150
 			&& sizes[i][1] < GH.screenDimensions().y - 150
 			&& ret->text->slider;

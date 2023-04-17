@@ -66,15 +66,14 @@ void CCreGenAsCastleInfo::serializeJson(JsonSerializeFormat & handler)
 
 void CCreGenLeveledInfo::serializeJson(JsonSerializeFormat & handler)
 {
-	handler.serializeInt("minLevel", minLevel, static_cast<ui8>(1));
-	handler.serializeInt("maxLevel", maxLevel, static_cast<ui8>(7));
+	handler.serializeInt("minLevel", minLevel, static_cast<uint8_t>(1));
+	handler.serializeInt("maxLevel", maxLevel, static_cast<uint8_t>(7));
 
 	if(!handler.saving)
 	{
 		//todo: safely allow any level > 7
-		vstd::amax(minLevel, 1);
-		vstd::amin(minLevel, 7);
-		vstd::abetween(maxLevel, minLevel, 7);
+		vstd::abetween<uint8_t>(minLevel, 1, 7);
+		vstd::abetween<uint8_t>(maxLevel, minLevel, 7);
 	}
 }
 
@@ -635,7 +634,7 @@ CGTownInstance::CGTownInstance():
 	builded(0),
 	destroyed(0),
 	identifier(0),
-	alignment(0xff)
+	alignmentToPlayer(PlayerColor::NEUTRAL)
 {
 	this->setNodeType(CBonusSystemNode::TOWN);
 }
@@ -1495,9 +1494,11 @@ void CGTownInstance::reset()
 
 void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 {
+	static const std::vector<std::string> FORMATIONS  =	{ "wide", "tight" };
+
 	CGObjectInstance::serializeJsonOwner(handler);
 	CCreatureSet::serializeJson(handler, "army", 7);
-	handler.serializeBool<ui8>("tightFormation", formation, 1, 0, 0);
+	handler.serializeEnum("tightFormation", formation, FORMATIONS);
 	handler.serializeString("name", name);
 
 	{

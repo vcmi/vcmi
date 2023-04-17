@@ -14,6 +14,7 @@
 #include "../ISpellMechanics.h"
 #include "../../NetPacks.h"
 #include "../../battle/CBattleInfoCallback.h"
+#include "../../serializer/JsonSerializeFormat.h"
 #include "../../battle/Unit.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -45,39 +46,34 @@ void Teleport::adjustTargetTypes(std::vector<TargetType> & types) const
 	}
 }
 
-bool Teleport::applicable(Problem & problem, const Mechanics * m) const
+bool Teleport::applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const
 {
-	return UnitEffect::applicable(problem, m);
+	if(target.size() == 1) //Assume, this is check only for selecting a unit
+		return UnitEffect::applicable(problem, m);
+
+	if(target.size() != 2)
+		return m->adaptProblem(ESpellCastProblem::WRONG_SPELL_TARGET, problem);
+
+	const auto *targetUnit = target[0].unitValue;
+	const auto & targetHex = target[1].hexValue;
+
+	if(!targetUnit)
+		return m->adaptProblem(ESpellCastProblem::WRONG_SPELL_TARGET, problem);
+
+	if(!targetHex.isValid() || !m->battle()->getAccesibility(targetUnit).accessible(targetHex, targetUnit))
+		return m->adaptProblem(ESpellCastProblem::WRONG_SPELL_TARGET, problem);
+
+	if(m->battle()->battleGetSiegeLevel() && !(isWallPassable && isMoatPassable))
+	{
+		return !m->battle()->battleHasPenaltyOnLine(target[0].hexValue, target[1].hexValue, !isWallPassable, !isMoatPassable);
+	}
+	return true;
 }
 
 void Teleport::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
-	if(target.size() != 2)
-	{
-		server->complain("Teleport requires 2 destinations.");
-		return;
-	}
-
 	const auto *targetUnit = target[0].unitValue;
-	if(nullptr == targetUnit)
-	{
-		server->complain("No unit to teleport");
-		return;
-	}
-
-	const BattleHex destination = target[1].hexValue;
-	if(!destination.isValid())
-	{
-		server->complain("Invalid teleport destination");
-		return;
-	}
-
-	//TODO: move here all teleport checks
-	if(!m->battle()->battleCanTeleportTo(targetUnit, destination, m->getEffectLevel()))
-	{
-		server->complain("Forbidden teleport.");
-		return;
-	}
+	const auto destination = target[1].hexValue;
 
 	BattleStackMoved pack;
 	pack.distance = 0;
@@ -87,11 +83,19 @@ void Teleport::apply(ServerCallback * server, const Mechanics * m, const EffectT
 	pack.tilesToMove = tiles;
 	pack.teleporting = true;
 	server->apply(&pack);
+
+	if(triggerObstacles)
+	{
+		auto spellEnv = dynamic_cast<SpellCastEnvironment*>(server);
+		m->battle()->handleObstacleTriggersForUnit(*spellEnv, *targetUnit);
+	}
 }
 
 void Teleport::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 {
-	//TODO: teleport options
+	handler.serializeBool("triggerObstacles", triggerObstacles);
+	handler.serializeBool("isWallPassable", isWallPassable);
+	handler.serializeBool("isMoatPassable", isMoatPassable);
 }
 
 EffectTarget Teleport::transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const

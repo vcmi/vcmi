@@ -41,9 +41,8 @@ void WaterProxy::process()
 	paintZoneTerrain(zone, generator.rand, map, zone.getTerrainType());
 	
 	//check terrain type
-	for(const auto & t : zone.area().getTilesVector())
+	for([[maybe_unused]] const auto & t : zone.area().getTilesVector())
 	{
-		MAYBE_UNUSED(t);
 		assert(map.isOnMap(t));
 		assert(map.map().getTile(t).terType->getId() == zone.getTerrainType());
 	}

@@ -19,6 +19,7 @@
 				"aiValue" : 0,
 				"power" : 40,
 				"cost" : 1,
+				"targetModifier":{"smart":true},
 				"range" : "0",
 				"battleEffects":{
 					"demonSummon":{

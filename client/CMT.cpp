@@ -117,6 +117,9 @@ void init()
 
 	logGlobal->info("Initializing VCMI_Lib: %d ms", tmh.getDiff());
 
+	// Debug code to load all maps on start
+	//ClientCommandManager commandController;
+	//commandController.processCommand("convert txt", false);
 }
 
 static void prog_version()

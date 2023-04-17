@@ -664,23 +664,13 @@ void CGMine::initObj(CRandomGenerator & rand)
 		auto * troglodytes = new CStackInstance(CreatureID::TROGLODYTES, howManyTroglodytes);
 		putStack(SlotID(0), troglodytes);
 
-		//after map reading tempOwner placeholds bitmask for allowed resources
-		std::vector<GameResID> possibleResources;
-		for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
-			if(tempOwner.getNum() & 1<<i) //NOTE: reuse of tempOwner
-				possibleResources.push_back(GameResID(i));
-
-		assert(!possibleResources.empty());
-		producedResource = *RandomGeneratorUtil::nextItem(possibleResources, rand);
-		tempOwner = PlayerColor::NEUTRAL;
+		assert(!abandonedMineResources.empty());
+		producedResource = *RandomGeneratorUtil::nextItem(abandonedMineResources, rand);
 	}
 	else
 	{
 		producedResource = GameResID(subID);
-		if(tempOwner >= PlayerColor::PLAYER_LIMIT)
-			tempOwner = PlayerColor::NEUTRAL;
 	}
-
 	producedQuantity = defaultResProduction();
 }
 
@@ -766,14 +756,11 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(handler.saving)
 		{
 			JsonNode node(JsonNode::JsonType::DATA_VECTOR);
-			for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
+			for(auto const & resID : abandonedMineResources)
 			{
-				if(tempOwner.getNum() & 1<<i)
-				{
-					JsonNode one(JsonNode::JsonType::DATA_STRING);
-					one.String() = GameConstants::RESOURCE_NAMES[i];
-					node.Vector().push_back(one);
-				}
+				JsonNode one(JsonNode::JsonType::DATA_STRING);
+				one.String() = GameConstants::RESOURCE_NAMES[resID];
+				node.Vector().push_back(one);
 			}
 			handler.serializeRaw("possibleResources", node, boost::none);
 		}
@@ -781,32 +768,17 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 		{
 			auto guard = handler.enterArray("possibleResources");
 			const JsonNode & node = handler.getCurrent();
-			std::set<int> possibleResources;
+			std::set<int> abandonedMineResources;
 
-			if(node.getType() != JsonNode::JsonType::DATA_VECTOR || node.Vector().empty())
+			auto names = node.convertTo<std::vector<std::string>>();
+
+			for(const std::string & s : names)
 			{
-				//assume all allowed
-				for(int i = static_cast<int>(EGameResID::WOOD); i < static_cast<int>(EGameResID::GOLD); i++)
-					possibleResources.insert(i);
-			}
-			else
-			{
-				auto names = node.convertTo<std::vector<std::string>>();
-
-				for(const std::string & s : names)
-				{
-					int raw_res = vstd::find_pos(GameConstants::RESOURCE_NAMES, s);
-					if(raw_res < 0)
-						logGlobal->error("Invalid resource name: %s", s);
-					else
-						possibleResources.insert(raw_res);
-				}
-
-				int tmp = 0;
-
-				for(int r : possibleResources)
-					tmp |=  (1<<r);
-				tempOwner = PlayerColor(tmp);
+				int raw_res = vstd::find_pos(GameConstants::RESOURCE_NAMES, s);
+				if(raw_res < 0)
+					logGlobal->error("Invalid resource name: %s", s);
+				else
+					abandonedMineResources.insert(raw_res);
 			}
 		}
 	}
@@ -1422,12 +1394,17 @@ void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 
 void CGWitchHut::initObj(CRandomGenerator & rand)
 {
-	if (allowedAbilities.empty()) //this can happen for RMG. regular maps load abilities from map file
+	if (allowedAbilities.empty()) //this can happen for RMG and RoE maps.
 	{
-		// Necromancy can't be learned on random maps
-		for(int i = 0; i < VLC->skillh->size(); i++)
-			if(VLC->skillh->getByIndex(i)->getId() != SecondarySkill::NECROMANCY)
-				allowedAbilities.push_back(i);
+		auto defaultAllowed = VLC->skillh->getDefaultAllowed();
+
+		// Necromancy and Leadership can't be learned by default
+		defaultAllowed[SecondarySkill::NECROMANCY] = false;
+		defaultAllowed[SecondarySkill::LEADERSHIP] = false;
+
+		for(int i = 0; i < defaultAllowed.size(); i++)
+			if (defaultAllowed[i] && cb->isAllowed(2, i))
+				allowedAbilities.insert(i);
 	}
 	ability = *RandomGeneratorUtil::nextItem(allowedAbilities, rand);
 }
@@ -1503,7 +1480,7 @@ void CGWitchHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		allowedAbilities.clear();
 		for(si32 i = 0; i < skillCount; ++i)
 			if(temp[i])
-				allowedAbilities.push_back(i);
+				allowedAbilities.insert(i);
 	}
 }
 

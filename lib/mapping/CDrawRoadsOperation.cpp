@@ -293,7 +293,7 @@ CDrawLinesOperation::ValidationResult CDrawLinesOperation::validateTile(const Li
 
 			int3 currentPos(cx, cy, pos.z);
 
-			bool hasSomething = !map->isInTheMap(currentPos) || tileHasSomething(currentPos);
+			bool hasSomething = map->isInTheMap(currentPos) && tileHasSomething(currentPos);
 
 			if(ruleIsSomething(flipped.data[i]))
 			{

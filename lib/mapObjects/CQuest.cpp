@@ -44,7 +44,7 @@ CQuest::CQuest():
 	completedOption(0),
 	stackDirection(0),
 	heroPortrait(-1),
-	isCustomFirst(false), 
+	isCustomFirst(false),
 	isCustomNext(false),
 	isCustomComplete(false)
 {
@@ -296,7 +296,7 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 	if(onHover)
 		ms << "\n\n";
 
-	std::string questName = missionName(static_cast<Emission>(missionType - 1));
+	std::string questName = missionName(missionType);
 	std::string questState = missionState(onHover ? 3 : 4);
 
 	ms << VLC->generaltexth->translate("core.seerhut.quest", questName, questState,textOption);
@@ -512,20 +512,20 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 		handler.serializeIdArray<ArtifactID>("artifacts", m5arts);
 		break;
 	case MISSION_ARMY:
-        {
+		{
 			auto a = handler.enterArray("creatures");
 			a.serializeStruct(m6creatures);
-        }
+		}
 		break;
 	case MISSION_RESOURCES:
-        {
-        	auto r = handler.enterStruct("resources");
+		{
+			auto r = handler.enterStruct("resources");
 
 			for(size_t idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
 			{
 				handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], m7resources[idx], 0);
 			}
-        }
+		}
 		break;
 	case MISSION_HERO:
 		handler.serializeId<ui32, ui32, HeroTypeID>("hero", m13489val, 0);
@@ -560,7 +560,8 @@ void CGSeerHut::init(CRandomGenerator & rand)
 {
 	auto names = VLC->generaltexth->findStringsWithPrefix("core.seerhut.names");
 
-	seerName = *RandomGeneratorUtil::nextItem(names, rand);
+	auto seerNameID = *RandomGeneratorUtil::nextItem(names, rand);
+	seerName = VLC->generaltexth->translate(seerNameID);
 	quest->textOption = rand.nextInt(2);
 	quest->completedOption = rand.nextInt(1, 3);
 }

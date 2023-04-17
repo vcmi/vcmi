@@ -52,7 +52,7 @@ void BattleInfo::calculateCasualties(std::map<ui32,si32> * casualties) const
 		const CStack * const st = elem;
 		si32 killed = st->getKilled();
 		if(killed > 0)
-			casualties[st->side][st->getCreature()->getId()] += killed;
+			casualties[st->side][st->unitType()->getId()] += killed;
 	}
 }
 
@@ -210,7 +210,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	if(town)
 	{
 		curB->town = town;
-		curB->terrainType = (*VLC->townh)[town->subID]->nativeTerrain;
+		curB->terrainType = town->getNativeTerrain();
 	}
 	else
 	{
@@ -414,12 +414,13 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 		for(auto i = armies[side]->Slots().begin(); i != armies[side]->Slots().end(); i++, k++)
 		{
 			std::vector<int> *formationVector = nullptr;
-			if(creatureBank)
-				formationVector = &creBankFormations[side][formationNo];
-			else if(armies[side]->formation)
+			if(armies[side]->formation == EArmyFormation::TIGHT )
 				formationVector = &tightFormations[side][formationNo];
 			else
 				formationVector = &looseFormations[side][formationNo];
+
+			if(creatureBank)
+				formationVector = &creBankFormations[side][formationNo];
 
 			BattleHex pos = (k < formationVector->size() ? formationVector->at(k) : 0);
 			if(creatureBank && i->second->type->isDoubleWide())

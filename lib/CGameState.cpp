@@ -496,7 +496,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 		return std::make_pair(Obj::RESOURCE,getRandomGenerator().nextInt(6)); //now it's OH3 style, use %8 for mithril
 	case Obj::RANDOM_TOWN:
 		{
-			PlayerColor align = PlayerColor((dynamic_cast<CGTownInstance *>(obj))->alignment);
+			PlayerColor align = (dynamic_cast<CGTownInstance *>(obj))->alignmentToPlayer;
 			si32 f; // can be negative (for random)
 			if(align >= PlayerColor::PLAYER_LIMIT) //same as owner / random
 			{
@@ -1810,10 +1810,9 @@ void CGameState::initTowns()
 			vti->builtBuildings.erase(BuildingID::SHIPYARD);//if we have harbor without water - erase it (this is H3 behaviour)
 
 		//Early check for #1444-like problems
-		for(const auto & building : vti->builtBuildings)
+		for([[maybe_unused]] const auto & building : vti->builtBuildings)
 		{
 			assert(vti->getTown()->buildings.at(building) != nullptr);
-			MAYBE_UNUSED(building);
 		}
 
 		//town events
@@ -2059,7 +2058,7 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 	if(h && map->getTile(h->visitablePos()).visitableObjects.front()->ID == Obj::HILL_FORT)
 	{
 		static const int costModifiers[] = {0, 25, 50, 75, 100}; //we get cheaper upgrades depending on level
-		const int costModifier = costModifiers[std::min<int>(std::max((int)base->getLevel() - 1, 0), ARRAY_COUNT(costModifiers) - 1)];
+		const int costModifier = costModifiers[std::min<int>(std::max((int)base->getLevel() - 1, 0), std::size(costModifiers) - 1)];
 
 		for(const auto & nid : base->upgrades)
 		{
@@ -2228,7 +2227,7 @@ void CGameState::updateRumor()
 			}
 			else
 				rumor.type = RumorState::TYPE_RAND;
-			FALLTHROUGH
+			[[fallthrough]];
 
 		case RumorState::TYPE_RAND:
 			auto vector = VLC->generaltexth->findStringsWithPrefix("core.randtvrn");

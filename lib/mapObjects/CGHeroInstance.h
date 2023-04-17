@@ -25,6 +25,7 @@ class CGTownInstance;
 class CMap;
 struct TerrainTile;
 struct TurnInfo;
+enum class EHeroGender : uint8_t;
 
 class CGHeroPlaceholder : public CGObjectInstance
 {
@@ -69,7 +70,7 @@ public:
 	si32 mana; // remaining spell points
 	std::vector<std::pair<SecondarySkill,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	ui32 movement; //remaining movement points
-	ui8 sex;
+	EHeroGender gender;
 
 	std::string nameCustom;
 	std::string biographyCustom;
@@ -312,7 +313,7 @@ public:
 		h & mana;
 		h & secSkills;
 		h & movement;
-		h & sex;
+		h & gender;
 		h & inTownGarrison;
 		h & spells;
 		h & patrol;

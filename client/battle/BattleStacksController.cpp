@@ -49,7 +49,7 @@ static void onAnimationFinished(const CStack *stack, std::weak_ptr<CreatureAnima
 
 	if (animation->isIdle())
 	{
-		const CCreature *creature = stack->getCreature();
+		const CCreature *creature = stack->unitType();
 
 		if (stack->isFrozen())
 			animation->setType(ECreatureAnimType::FROZEN);
@@ -207,7 +207,7 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 	}
 	else
 	{
-		stackAnimation[stack->ID] = AnimationControls::getAnimation(stack->getCreature());
+		stackAnimation[stack->ID] = AnimationControls::getAnimation(stack->unitType());
 		stackAnimation[stack->ID]->onAnimationReset += std::bind(&onAnimationFinished, stack, stackAnimation[stack->ID]);
 		stackAnimation[stack->ID]->pos.h = stackAnimation[stack->ID]->getHeight();
 		stackAnimation[stack->ID]->pos.w = stackAnimation[stack->ID]->getWidth();

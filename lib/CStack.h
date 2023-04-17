@@ -43,8 +43,6 @@ public:
 	CStack();
 	~CStack();
 
-	const CCreature * getCreature() const; //deprecated
-
 	std::string nodeName() const override;
 
 	void localInit(BattleInfo * battleInfo);

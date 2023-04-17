@@ -158,10 +158,10 @@ ECreatureAnimType AttackAnimation::findValidGroup( const std::vector<ECreatureAn
 
 const CCreature * AttackAnimation::getCreature() const
 {
-	if (attackingStack->getCreature()->getId() == CreatureID::ARROW_TOWERS)
+	if (attackingStack->unitType()->getId() == CreatureID::ARROW_TOWERS)
 		return owner.siegeController->getTurretCreature();
 	else
-		return attackingStack->getCreature();
+		return attackingStack->unitType();
 }
 
 
@@ -179,7 +179,7 @@ HittedAnimation::HittedAnimation(BattleInterface & owner, const CStack * stack)
 	: StackActionAnimation(owner, stack)
 {
 	setGroup(ECreatureAnimType::HITTED);
-	setSound(battle_sound(stack->getCreature(), wince));
+	setSound(battle_sound(stack->unitType(), wince));
 	logAnim->debug("Created HittedAnimation for %s", stack->getName());
 }
 
@@ -187,14 +187,14 @@ DefenceAnimation::DefenceAnimation(BattleInterface & owner, const CStack * stack
 	: StackActionAnimation(owner, stack)
 {
 	setGroup(ECreatureAnimType::DEFENCE);
-	setSound(battle_sound(stack->getCreature(), defend));
+	setSound(battle_sound(stack->unitType(), defend));
 	logAnim->debug("Created DefenceAnimation for %s", stack->getName());
 }
 
 DeathAnimation::DeathAnimation(BattleInterface & owner, const CStack * stack, bool ranged):
 	StackActionAnimation(owner, stack)
 {
-	setSound(battle_sound(stack->getCreature(), killed));
+	setSound(battle_sound(stack->unitType(), killed));
 
 	if(ranged && myAnim->framesInGroup(ECreatureAnimType::DEATH_RANGED) > 0)
 		setGroup(ECreatureAnimType::DEATH_RANGED);
@@ -356,13 +356,13 @@ bool MovementAnimation::init()
 
 	if (moveSoundHander == -1)
 	{
-		moveSoundHander = CCS->soundh->playSound(battle_sound(stack->getCreature(), move), -1);
+		moveSoundHander = CCS->soundh->playSound(battle_sound(stack->unitType(), move), -1);
 	}
 
 	Point begPosition = owner.stacksController->getStackPositionAtHex(prevHex, stack);
 	Point endPosition = owner.stacksController->getStackPositionAtHex(nextHex, stack);
 
-	progressPerSecond = AnimationControls::getMovementDistance(stack->getCreature());
+	progressPerSecond = AnimationControls::getMovementDistance(stack->unitType());
 
 	begX = begPosition.x;
 	begY = begPosition.y;
@@ -373,7 +373,7 @@ bool MovementAnimation::init()
 	if (stack->hasBonus(Selector::type()(Bonus::FLYING)))
 	{
 		float distance = static_cast<float>(sqrt(distanceX * distanceX + distanceY * distanceY));
-		progressPerSecond =  AnimationControls::getFlightDistance(stack->getCreature()) / distance;
+		progressPerSecond =  AnimationControls::getFlightDistance(stack->unitType()) / distance;
 	}
 
 	return true;
@@ -453,7 +453,7 @@ bool MovementEndAnimation::init()
 	logAnim->debug("CMovementEndAnimation::init: stack %s", stack->getName());
 	myAnim->pos.moveTo(owner.stacksController->getStackPositionAtHex(nextHex, stack));
 
-	CCS->soundh->playSound(battle_sound(stack->getCreature(), endMoving));
+	CCS->soundh->playSound(battle_sound(stack->unitType(), endMoving));
 
 	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_END))
 	{
@@ -494,7 +494,7 @@ bool MovementStartAnimation::init()
 	}
 
 	logAnim->debug("CMovementStartAnimation::init: stack %s", stack->getName());
-	CCS->soundh->playSound(battle_sound(stack->getCreature(), startMoving));
+	CCS->soundh->playSound(battle_sound(stack->unitType(), startMoving));
 
 	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_START))
 	{
@@ -759,7 +759,7 @@ uint32_t ShootingAnimation::getAttackClimaxFrame() const
 
 	uint32_t maxFrames = stackAnimation(attackingStack)->framesInGroup(getGroup());
 	uint32_t climaxFrame = shooterInfo->animation.attackClimaxFrame;
-	uint32_t selectedFrame = vstd::clamp(shooterInfo->animation.attackClimaxFrame, 1, maxFrames);
+	uint32_t selectedFrame = std::clamp<int>(shooterInfo->animation.attackClimaxFrame, 1, maxFrames);
 
 	if (climaxFrame != selectedFrame)
 		logGlobal->warn("Shooter %s has ranged attack climax frame set to %d, but only %d available!", shooterInfo->getNamePluralTranslated(), climaxFrame, maxFrames);

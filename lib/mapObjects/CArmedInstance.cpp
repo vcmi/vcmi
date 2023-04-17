@@ -23,14 +23,13 @@ void CArmedInstance::randomizeArmy(int type)
 {
 	for (auto & elem : stacks)
 	{
-		int & randID = elem.second->idRand;
-		if(randID >= 0)
+		if(elem.second->randomStack)
 		{
-			int level = randID / 2;
-			bool upgrade = randID % 2;
+			int level = elem.second->randomStack->level;
+			int upgrade = elem.second->randomStack->upgrade;
 			elem.second->setType((*VLC->townh)[type]->town->creatures[level][upgrade]);
 
-			randID = -1;
+			elem.second->randomStack = boost::none;
 		}
 		assert(elem.second->valid(false));
 		assert(elem.second->armyObj == this);

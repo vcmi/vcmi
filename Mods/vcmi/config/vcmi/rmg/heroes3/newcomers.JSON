@@ -1,0 +1,183 @@
+{
+	"Newcomers" :
+	{
+		"minSize" : "m+u", "maxSize" : "xl+u",
+		"players" : "2-3", "cpu" : "1",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "playerStart",
+				"size" : 10,
+				"owner" : 1,
+				"monsters" : "weak",
+				"playerTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
+				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 1 },
+				"treasure" :
+				[
+					{ "min" : 500, "max" : 3000, "density" : 10 },
+					{ "min" : 500, "max" : 3000, "density" : 10 }
+				]
+			},
+			"2" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"owner" : 1,
+				"monsters" : "weak",
+				"playerTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"3" :
+			{
+				"type" : "playerStart",
+				"size" : 10,
+				"owner" : 2,
+				"monsters" : "weak",
+				"playerTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"4" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"owner" : 2,
+				"monsters" : "weak",
+				"playerTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"5" :
+			{
+				"type" : "playerStart",
+				"size" : 10,
+				"owner" : 3,
+				"monsters" : "weak",
+				"playerTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"6" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"owner" : 3,
+				"monsters" : "weak",
+				"playerTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"7" :
+			{
+				"type" : "cpuStart",
+				"size" : 10,
+				"owner" : 4,
+				"monsters" : "weak",
+				"playerTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "conflux" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"8" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"owner" : 4,
+				"monsters" : "weak",
+				"playerTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "conflux" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"9" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"owner" : 4,
+				"monsters" : "weak",
+				"playerTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "conflux" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"10" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"owner" : 4,
+				"monsters" : "weak",
+				"playerTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "conflux" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"11" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"owner" : 4,
+				"monsters" : "weak",
+				"playerTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "conflux" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"12" :
+			{
+				"type" : "treasure",
+				"size" : 15,
+				"monsters" : "normal",
+				"matchTerrainToTown" : false,
+				"treasure" :
+				[
+					{ "min" : 3000, "max" : 6000, "density" : 9 },
+					{ "min" : 6000, "max" : 15000, "density" : 6 },
+					{ "min" : 15000, "max" : 20000, "density" : 1 }
+				]
+			},
+			"13" :
+			{
+				"type" : "treasure",
+				"size" : 15,
+				"monsters" : "normal",
+				"neutralTowns" : { "towns" : 1 },
+				"matchTerrainToTown" : false,
+				"treasureLikeZone" : 12
+			},
+			"14" :
+			{
+				"type" : "treasure",
+				"size" : 15,
+				"monsters" : "normal",
+				"matchTerrainToTown" : false,
+				"treasureLikeZone" : 12
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "12", "b" : "1", "guard" : 6000 },
+			{ "a" : "12", "b" : "3", "guard" : 6000 },
+			{ "a" : "12", "b" : "7", "guard" : 6000 },
+			{ "a" : "12", "b" : "9", "guard" : 6000 },
+
+			{ "a" : "13", "b" : "2", "guard" : 6000 },
+			{ "a" : "13", "b" : "5", "guard" : 6000 },
+			{ "a" : "13", "b" : "7", "guard" : 6000 },
+			{ "a" : "13", "b" : "8", "guard" : 6000 },
+			{ "a" : "13", "b" : "10", "guard" : 6000 },
+
+			{ "a" : "14", "b" : "4", "guard" : 6000 },
+			{ "a" : "14", "b" : "6", "guard" : 6000 },
+			{ "a" : "14", "b" : "8", "guard" : 6000 },
+			{ "a" : "14", "b" : "11", "guard" : 6000 }
+		]
+	}
+}

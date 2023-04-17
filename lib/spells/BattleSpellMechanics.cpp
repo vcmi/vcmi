@@ -400,7 +400,7 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 
 	if(mode == Mode::MAGIC_MIRROR)
 	{
-		if(caster->getCasterUnitId() >= 0)
+		if(caster->getHeroCaster() == nullptr)
 		{
 			sc.reflectedCres.insert(caster->getCasterUnitId());
 		}

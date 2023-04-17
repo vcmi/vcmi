@@ -89,7 +89,7 @@ public class Config
         config.mVolumeSound = loadEntry(general, "sound", DEFAULT_SOUND_VALUE);
         config.mVolumeMusic = loadEntry(general, "music", DEFAULT_MUSIC_VALUE);
         config.mSwipeEnabled = loadEntry(general, "swipe", true);
-        config.adventureAi = loadEntry(server, "playerAI", "VCAI");
+        config.adventureAi = loadEntry(server, "playerAI", "Nullkiller");
         config.mUseRelativePointer = loadEntry(general, "userRelativePointer", false);
         config.mPointerSpeedMultiplier = loadDouble(general, "relativePointerSpeedMultiplier", 1.0);
 
@@ -140,7 +140,7 @@ public class Config
 
     public String getAdventureAi()
     {
-        return this.adventureAi == null ? "VCAI" : this.adventureAi;
+        return this.adventureAi == null ? "Nullkiller" : this.adventureAi;
     }
 
     public void setPointerSpeedMultiplier(float speedMultiplier)

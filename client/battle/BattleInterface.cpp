@@ -336,11 +336,16 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 
 void BattleInterface::spellCast(const BattleSpellCast * sc)
 {
-	windowObject->blockUI(true);
+	// Do not deactivate anything in tactics mode
+	// This is battlefield setup spells
+	if(!tacticsMode)
+	{
+		windowObject->blockUI(true);
 
-	// Disable current active stack duing the cast
-	// Store the current activeStack to stackToActivate
-	stacksController->deactivateStack();
+		// Disable current active stack duing the cast
+		// Store the current activeStack to stackToActivate
+		stacksController->deactivateStack();
+	}
 
 	CCS->curh->set(Cursor::Combat::BLOCKED);
 
@@ -565,6 +570,9 @@ bool BattleInterface::makingTurn() const
 
 void BattleInterface::endAction(const BattleAction* action)
 {
+	// it is possible that tactics mode ended while opening music is still playing
+	waitForAnimations();
+
 	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
 
 	// Activate stack from stackToActivate because this might have been temporary disabled, e.g., during spell cast

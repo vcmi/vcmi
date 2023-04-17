@@ -749,7 +749,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 				else
 					return std::make_shared<CreatureAlignmentLimiter>(static_cast<EAlignment>(alignment));
 			}
-			else if(limiterType == "FACTION_LIMITER")
+			else if(limiterType == "FACTION_LIMITER" || limiterType == "CREATURE_FACTION_LIMITER") //Second name is deprecated, 1.2 compat
 			{
 				std::shared_ptr<FactionLimiter> factionLimiter = std::make_shared<FactionLimiter>();
 				VLC->modh->identifiers.requestIdentifier("faction", parameters[0], [=](si32 faction)

@@ -167,7 +167,7 @@ public:
 	template < typename T, typename std::enable_if < std::is_array<T>::value, int  >::type = 0 >
 	void save(const T &data)
 	{
-		ui32 size = ARRAY_COUNT(data);
+		ui32 size = std::size(data);
 		for(ui32 i=0; i < size; i++)
 			*this & data[i];
 	}
