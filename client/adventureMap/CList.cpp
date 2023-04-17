@@ -294,7 +294,7 @@ void CTownList::CTownItem::update()
 void CTownList::CTownItem::select(bool on)
 {
 	if (on && LOCPLINT->localState->getCurrentTown() != town)
-		LOCPLINT->localState->setSelection(town);
+		LOCPLINT->setSelection(town, true);
 }
 
 void CTownList::CTownItem::open()

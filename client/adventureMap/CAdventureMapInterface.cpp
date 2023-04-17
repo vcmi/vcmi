@@ -70,11 +70,6 @@ CAdventureMapInterface::CAdventureMapInterface():
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
 	strongInterest = true; // handle all mouse move events to prevent dead mouse move space in fullscreen mode
-	townList->onSelect = [this](){
-		const CGTownInstance * selectedTown = LOCPLINT->localState->getOwnedTown(townList->getSelectedIndex());
-		assert(selectedTown);
-		LOCPLINT->setSelection(selectedTown);
-	};
 
 	bg = IImage::createFromFile(ADVOPT.mainGraphic);
 	if(!ADVOPT.worldViewGraphic.empty())
@@ -293,15 +288,10 @@ void CAdventureMapInterface::fsleepWake()
 		return;
 	bool newSleep = !LOCPLINT->localState->isHeroSleeping(h);
 	setHeroSleeping(h, newSleep);
-	updateSleepWake(h);
-	if (newSleep)
-	{
-		fnextHero();
 
-		//moveHero.block(true);
-		//uncomment to enable original HoMM3 behaviour:
-		//move button is disabled for hero going to sleep, even though it's enabled when you reselect him
-	}
+	updateButtons();
+	if (newSleep)
+		fnextHero();
 
 	// redraw to update the image of sleep/wake button
 	panelMain->redraw();
@@ -378,20 +368,24 @@ void CAdventureMapInterface::fendTurn()
 	endingTurn();
 }
 
-void CAdventureMapInterface::updateSleepWake(const CGHeroInstance *h)
+void CAdventureMapInterface::updateButtons()
 {
-	sleepWake->block(!h);
-	if (!h)
-		return;
-	bool state = LOCPLINT->localState->isHeroSleeping(h);
-	sleepWake->setIndex(state ? 1 : 0, true);
-	sleepWake->assignedKeys.clear();
-	sleepWake->assignedKeys.insert(state ? SDLK_w : SDLK_z);
-}
+	const auto * hero = LOCPLINT->localState->getCurrentHero();
 
-void CAdventureMapInterface::updateSpellbook(const CGHeroInstance *h)
-{
-	spellbook->block(!h);
+	sleepWake->block(!hero);
+	spellbook->block(!hero);
+	moveHero->block(!hero || !LOCPLINT->localState->hasPath(hero) || hero->movement == 0);
+
+	const auto * nextSuitableHero = getNextHero(hero);
+	nextHero->block(nextSuitableHero == nullptr);
+
+	if(hero)
+	{
+		bool state = LOCPLINT->localState->isHeroSleeping(hero);
+		sleepWake->setIndex(state ? 1 : 0, true);
+		sleepWake->assignedKeys = {state ? SDLK_w : SDLK_z};
+		sleepWake->redraw();
+	}
 }
 
 const CGHeroInstance * CAdventureMapInterface::getNextHero(const CGHeroInstance * currentHero)
@@ -400,7 +394,7 @@ const CGHeroInstance * CAdventureMapInterface::getNextHero(const CGHeroInstance 
 	const CGHeroInstance * firstSuitable = nullptr;
 	const CGHeroInstance * nextSuitable = nullptr;
 
-	for (auto const * hero : LOCPLINT->localState->getWanderingHeroes())
+	for(const auto * hero : LOCPLINT->localState->getWanderingHeroes())
 	{
 		if (hero == currentHero)
 		{
@@ -436,23 +430,7 @@ void CAdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 	if (h == LOCPLINT->localState->getCurrentHero())
 		infoBar->showSelection();
 
-	const auto * nextSuitableHero = getNextHero(h);
-	if (nextSuitableHero == nullptr)
-	{
-		nextHero->block(true);
-		return;
-	}
-
-	nextHero->block(false);
-
-	if(!LOCPLINT->localState->getCurrentHero())
-	{
-		moveHero->block(true);
-		return;
-	}
-
-	bool hasPath = LOCPLINT->localState->hasPath(h);
-	moveHero->block(!hasPath || h->movement == 0);
+	updateButtons();
 }
 
 void CAdventureMapInterface::onTownChanged(const CGTownInstance * town)
@@ -526,8 +504,8 @@ void CAdventureMapInterface::showAll(SDL_Surface * to)
 {
 	bg->draw(to, 0, 0);
 
-	if(state != EGameState::MAKING_TURN)
-		return;
+//	if(state != EGameState::MAKING_TURN)
+//		return;
 
 	heroList->showAll(to);
 	townList->showAll(to);
@@ -544,18 +522,6 @@ void CAdventureMapInterface::showAll(SDL_Surface * to)
 	LOCPLINT->cingconsole->show(to);
 }
 
-void CAdventureMapInterface::onHeroWokeUp(const CGHeroInstance * hero)
-{
-	if (!LOCPLINT->localState->isHeroSleeping(hero))
-		return;
-
-	sleepWake->clickLeft(true, false);
-	sleepWake->clickLeft(false, true);
-	//could've just called
-	//fsleepWake();
-	//but no authentic button click/sound ;-)
-}
-
 void CAdventureMapInterface::setHeroSleeping(const CGHeroInstance *hero, bool sleep)
 {
 	if (sleep)
@@ -568,8 +534,8 @@ void CAdventureMapInterface::setHeroSleeping(const CGHeroInstance *hero, bool sl
 
 void CAdventureMapInterface::show(SDL_Surface * to)
 {
-	if(state != EGameState::MAKING_TURN)
-		return;
+//	if(state != EGameState::MAKING_TURN)
+//		return;
 
 	handleMapScrollingUpdate();
 
@@ -652,6 +618,8 @@ void CAdventureMapInterface::handleMapScrollingUpdate()
 		if(scrollDelta.y == 0)
 			CCS->curh->set(Cursor::Map::POINTER);
 	}
+
+	scrollingCursorSet = scrollDelta != Point(0,0);
 }
 
 void CAdventureMapInterface::centerOnTile(int3 on)
@@ -866,10 +834,7 @@ void CAdventureMapInterface::onSelectionChanged(const CArmedInstance *sel, bool 
 		infoBar->showTownSelection(town);
 		townList->select(town);
 		heroList->select(nullptr);
-
-		updateSleepWake(nullptr);
 		onHeroChanged(nullptr);
-		updateSpellbook(nullptr);
 	}
 	else //hero selected
 	{
@@ -880,11 +845,9 @@ void CAdventureMapInterface::onSelectionChanged(const CArmedInstance *sel, bool 
 		townList->select(nullptr);
 
 		LOCPLINT->localState->verifyPath(hero);
-
-		updateSleepWake(hero);
 		onHeroChanged(hero);
-		updateSpellbook(hero);
 	}
+	updateButtons();
 	townList->redraw();
 	heroList->redraw();
 }
@@ -1128,10 +1091,11 @@ void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 
 void CAdventureMapInterface::onTileHovered(const int3 &mapPos)
 {
-	if(state == EGameState::MAKING_TURN)
+	if(state != EGameState::MAKING_TURN)
 		return;
 
-	if(!LOCPLINT->localState->getCurrentArmy()) //may occur just at the start of game (fake move before full intiialization)
+	//may occur just at the start of game (fake move before full intiialization)
+	if(!LOCPLINT->localState->getCurrentArmy())
 		return;
 
 	if(!LOCPLINT->cb->isVisible(mapPos))

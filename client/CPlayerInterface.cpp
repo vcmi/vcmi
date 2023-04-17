@@ -515,7 +515,8 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 
 	if(town->visitingHero) //hero leaves garrison
 	{
-		if(town->visitingHero->tempOwner == playerID)
+		// This method also gets called on hero recruitment -> wandering heroes already contains new hero
+		if(town->visitingHero->tempOwner == playerID && !vstd::contains(localState->getWanderingHeroes(), town->visitingHero))
 			localState->addWanderingHero(town->visitingHero);
 	}
 	adventureInt->onHeroChanged(nullptr);
@@ -1255,8 +1256,8 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 
 	setMovementStatus(true);
 
-	if (adventureInt)
-		adventureInt->onHeroWokeUp(h);
+	if (localState->isHeroSleeping(h))
+		localState->setHeroAwaken(h);
 
 	boost::thread moveHeroTask(std::bind(&CPlayerInterface::doMoveHero,this,h,path));
 }

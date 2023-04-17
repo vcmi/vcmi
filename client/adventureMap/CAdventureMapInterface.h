@@ -120,9 +120,9 @@ private:
 	void adjustActiveness(bool aiTurnStart); //should be called every time at AI/human turn transition; blocks GUI during AI turn
 
 	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const; //checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or nullptr else
-	//button updates
-	void updateSleepWake(const CGHeroInstance *h);
-	void updateSpellbook(const CGHeroInstance *h);
+
+	// update locked state of buttons
+	void updateButtons();
 
 	void handleMapScrollingUpdate();
 
@@ -138,6 +138,8 @@ private:
 
 	/// exits currently opened world view mode and returns to normal map
 	void exitWorldView();
+	void leaveCastingMode(const int3 & castTarget);
+	void abortCastingMode();
 
 protected:
 	// CIntObject interface implementation
@@ -164,9 +166,6 @@ public:
 
 	/// Called by PlayerInterface when interface should be switched to specified player without starting turn
 	void onCurrentPlayerChanged(PlayerColor playerID);
-
-	/// Called by PlayerInterface when hero is forced to wake up, e.g. on moving sleeping hero
-	void onHeroWokeUp(const CGHeroInstance * hero);
 
 	/// Called by PlayerInterface when specific map tile changed and must be updated on minimap
 	void onMapTilesChanged( boost::optional<std::unordered_set<int3> > positions);
@@ -206,9 +205,8 @@ public:
 	/// called by MapView whenever tile is clicked
 	void onTileRightClicked(const int3 & mapPos);
 
+	/// called by spell window when spell to cast has been selected
 	void enterCastingMode(const CSpell * sp);
-	void leaveCastingMode(const int3 & castTarget);
-	void abortCastingMode();
 
 	/// returns area of screen covered by terrain (main game area)
 	Rect terrainAreaPixels() const;
