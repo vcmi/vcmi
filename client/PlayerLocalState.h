@@ -31,6 +31,7 @@ class PlayerLocalState
 
 	std::map<const CGHeroInstance *, CGPath> paths; //maps hero => selected path in adventure map
 	std::vector<const CGHeroInstance *> sleepingHeroes; //if hero is in here, he's sleeping
+	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
 
 	void saveHeroPaths(std::map<const CGHeroInstance *, int3> & paths);
 	void loadHeroPaths(std::map<const CGHeroInstance *, int3> & paths);
@@ -52,7 +53,6 @@ public:
 		}
 	} spellbookSettings;
 
-	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
 	std::vector<const CGTownInstance *> ownedTowns; //our towns on the adventure map
 
 	explicit PlayerLocalState(CPlayerInterface & owner);
@@ -60,6 +60,11 @@ public:
 	bool isHeroSleeping(const CGHeroInstance * hero) const;
 	void setHeroAsleep(const CGHeroInstance * hero);
 	void setHeroAwaken(const CGHeroInstance * hero);
+
+	const std::vector<const CGHeroInstance *> & getWanderingHeroes();
+	const CGHeroInstance * getWanderingHero(size_t index);
+	void addWanderingHero(const CGHeroInstance * hero);
+	void removeWanderingHero(const CGHeroInstance * hero);
 
 	void setPath(const CGHeroInstance *h, const CGPath & path);
 	bool setPath(const CGHeroInstance *h, const int3 & destination);

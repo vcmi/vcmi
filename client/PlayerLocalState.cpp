@@ -150,3 +150,30 @@ void PlayerLocalState::setHeroAwaken(const CGHeroInstance * hero)
 
 	vstd::erase(sleepingHeroes, hero);
 }
+
+const std::vector<const CGHeroInstance *> & PlayerLocalState::getWanderingHeroes()
+{
+	return wanderingHeroes;
+}
+
+const CGHeroInstance * PlayerLocalState::getWanderingHero(size_t index)
+{
+	if (index < wanderingHeroes.size())
+		return wanderingHeroes[index];
+	return nullptr;
+}
+
+void PlayerLocalState::addWanderingHero(const CGHeroInstance * hero)
+{
+	assert(hero);
+	assert(!vstd::contains(wanderingHeroes, hero));
+	wanderingHeroes.push_back(hero);
+}
+
+void PlayerLocalState::removeWanderingHero(const CGHeroInstance * hero)
+{
+	assert(hero);
+	assert(vstd::contains(wanderingHeroes, hero));
+	vstd::erase(wanderingHeroes, hero);
+	vstd::erase(sleepingHeroes, hero);
+}

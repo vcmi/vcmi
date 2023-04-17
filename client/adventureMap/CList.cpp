@@ -225,19 +225,19 @@ std::string CHeroList::CHeroItem::getHoverText()
 
 std::shared_ptr<CIntObject> CHeroList::createHeroItem(size_t index)
 {
-	if (LOCPLINT->localState->wanderingHeroes.size() > index)
-		return std::make_shared<CHeroItem>(this, LOCPLINT->localState->wanderingHeroes[index]);
+	if (LOCPLINT->localState->getWanderingHeroes().size() > index)
+		return std::make_shared<CHeroItem>(this, LOCPLINT->localState->getWanderingHero(index));
 	return std::make_shared<CEmptyHeroItem>();
 }
 
 CHeroList::CHeroList(int size, Point position, std::string btnUp, std::string btnDown):
-	CList(size, position, btnUp, btnDown, LOCPLINT->localState->wanderingHeroes.size(), 303, 304, std::bind(&CHeroList::createHeroItem, this, _1))
+	CList(size, position, btnUp, btnDown, LOCPLINT->localState->getWanderingHeroes().size(), 303, 304, std::bind(&CHeroList::createHeroItem, this, _1))
 {
 }
 
 void CHeroList::select(const CGHeroInstance * hero)
 {
-	selectIndex(vstd::find_pos(LOCPLINT->localState->wanderingHeroes, hero));
+	selectIndex(vstd::find_pos(LOCPLINT->localState->getWanderingHeroes(), hero));
 }
 
 void CHeroList::update(const CGHeroInstance * hero)
@@ -246,7 +246,7 @@ void CHeroList::update(const CGHeroInstance * hero)
 	for(auto & elem : listBox->getItems())
 	{
 		auto item = std::dynamic_pointer_cast<CHeroItem>(elem);
-		if(item && item->hero == hero && vstd::contains(LOCPLINT->localState->wanderingHeroes, hero))
+		if(item && item->hero == hero && vstd::contains(LOCPLINT->localState->getWanderingHeroes(), hero))
 		{
 			item->update();
 			return;
@@ -254,7 +254,7 @@ void CHeroList::update(const CGHeroInstance * hero)
 	}
 	//simplest solution for now: reset list and restore selection
 
-	listBox->resize(LOCPLINT->localState->wanderingHeroes.size());
+	listBox->resize(LOCPLINT->localState->getWanderingHeroes().size());
 	if (LOCPLINT->localState->getCurrentHero())
 		select(LOCPLINT->localState->getCurrentHero());
 

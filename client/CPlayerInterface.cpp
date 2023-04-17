@@ -405,7 +405,7 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", hero->getNameTranslated() % playerID);
-	localState->wanderingHeroes -= hero;
+	localState->removeWanderingHero(hero);
 	adventureInt->onHeroChanged(hero);
 	localState->erasePath(hero);
 }
@@ -423,7 +423,7 @@ void CPlayerInterface::heroVisit(const CGHeroInstance * visitor, const CGObjectI
 void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	localState->wanderingHeroes.push_back(hero);
+	localState->addWanderingHero(hero);
 	adventureInt->onHeroChanged(hero);
 }
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
@@ -507,16 +507,16 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-	if (town->garrisonHero) //wandering hero moved to the garrison
+	if(town->garrisonHero) //wandering hero moved to the garrison
 	{
-		if (town->garrisonHero->tempOwner == playerID && vstd::contains(localState->wanderingHeroes,town->garrisonHero)) // our hero
-			localState->wanderingHeroes -= town->garrisonHero;
+		if(town->garrisonHero->tempOwner == playerID)
+			localState->removeWanderingHero(town->garrisonHero);
 	}
 
-	if (town->visitingHero) //hero leaves garrison
+	if(town->visitingHero) //hero leaves garrison
 	{
-		if (town->visitingHero->tempOwner == playerID && !vstd::contains(localState->wanderingHeroes,town->visitingHero)) // our hero
-			localState->wanderingHeroes.push_back(town->visitingHero);
+		if(town->visitingHero->tempOwner == playerID)
+			localState->addWanderingHero(town->visitingHero);
 	}
 	adventureInt->onHeroChanged(nullptr);
 	adventureInt->onTownChanged(town);
@@ -1368,13 +1368,13 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 
 void CPlayerInterface::initializeHeroTownList()
 {
-	if(!localState->wanderingHeroes.size())
+	if(localState->getWanderingHeroes().empty())
 	{
 		std::vector<const CGHeroInstance*> heroes = cb->getHeroesInfo();
 		for(auto & hero : heroes)
 		{
 			if(!hero->inTownGarrison)
-				localState->wanderingHeroes.push_back(hero);
+				localState->addWanderingHero(hero);
 		}
 	}
 
@@ -2084,6 +2084,9 @@ void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectP
 
 void CPlayerInterface::setSelection(const CArmedInstance *sel, bool centerView)
 {
+	if (sel == localState->getCurrentArmy())
+		return;
+
 	localState->setSelection(sel);
 	adventureInt->onSelectionChanged(sel, centerView);
 }

@@ -59,9 +59,6 @@ private:
 
 	EGameState state;
 
-	/// Currently selected object, can be town, hero or null
-	const CArmedInstance *currentSelection;
-
 	/// currently acting player
 	PlayerColor currentPlayerID;
 
@@ -119,7 +116,6 @@ private:
 	void fnextHero();
 	void fendTurn();
 
-	void selectionChanged();
 	bool isActive();
 	void adjustActiveness(bool aiTurnStart); //should be called every time at AI/human turn transition; blocks GUI during AI turn
 
@@ -137,7 +133,7 @@ private:
 	std::optional<Point> keyToMoveDirection(const SDL_Keycode & key);
 
 	void setHeroSleeping(const CGHeroInstance *hero, bool sleep);
-	int getNextHeroIndex(int startIndex); //for Next Hero button - cycles awake heroes with movement only
+	const CGHeroInstance * getNextHero(const CGHeroInstance * currentHero); //for Next Hero button - cycles awake heroes with movement only
 	void endingTurn();
 
 	/// exits currently opened world view mode and returns to normal map
