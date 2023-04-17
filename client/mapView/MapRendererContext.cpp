@@ -18,7 +18,6 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
-#include "../adventureMap/CAdventureMapInterface.h"
 
 #include "../../lib/CPathfinder.h"
 #include "../../lib/Point.h"

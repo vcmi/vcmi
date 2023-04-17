@@ -27,7 +27,6 @@
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../CGameInfo.h"
-#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../lobby/CSavingScreen.h"
 #include "../render/CAnimation.h"
@@ -48,9 +47,6 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/CPathfinder.h"
 #include "../../lib/mapping/CMap.h"
-#include "../../lib/UnlockGuard.h"
-#include "../../lib/TerrainHandler.h"
-#include <SDL_keycode.h>
 
 #define ADVOPT (conf.go()->ac)
 

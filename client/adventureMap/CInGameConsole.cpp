@@ -16,7 +16,6 @@
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../ClientCommandManager.h"
-#include "../adventureMap/CAdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/Colors.h"
 

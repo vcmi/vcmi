@@ -117,13 +117,13 @@ const CGTownInstance * PlayerLocalState::getCurrentTown() const
 
 const CArmedInstance * PlayerLocalState::getCurrentArmy() const
 {
-	if (currentSelection)
+	if(currentSelection)
 		return dynamic_cast<const CArmedInstance *>(currentSelection);
 	else
 		return nullptr;
 }
 
-void PlayerLocalState::setSelection(const CArmedInstance *selection)
+void PlayerLocalState::setSelection(const CArmedInstance * selection)
 {
 	currentSelection = selection;
 }
@@ -133,7 +133,7 @@ bool PlayerLocalState::isHeroSleeping(const CGHeroInstance * hero) const
 	return vstd::contains(sleepingHeroes, hero);
 }
 
-void PlayerLocalState::setHeroAsleep(const CGHeroInstance *hero)
+void PlayerLocalState::setHeroAsleep(const CGHeroInstance * hero)
 {
 	assert(hero);
 	assert(vstd::contains(wanderingHeroes, hero));
@@ -158,7 +158,7 @@ const std::vector<const CGHeroInstance *> & PlayerLocalState::getWanderingHeroes
 
 const CGHeroInstance * PlayerLocalState::getWanderingHero(size_t index)
 {
-	if (index < wanderingHeroes.size())
+	if(index < wanderingHeroes.size())
 		return wanderingHeroes[index];
 	return nullptr;
 }
@@ -185,7 +185,7 @@ const std::vector<const CGTownInstance *> & PlayerLocalState::getOwnedTowns()
 
 const CGTownInstance * PlayerLocalState::getOwnedTown(size_t index)
 {
-	if (index < ownedTowns.size())
+	if(index < ownedTowns.size())
 		return ownedTowns[index];
 	return nullptr;
 }

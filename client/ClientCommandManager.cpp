@@ -8,12 +8,10 @@
  *
  */
 #include "StdInc.h"
-
 #include "ClientCommandManager.h"
 
 #include "Client.h"
 #include "adventureMap/CInGameConsole.h"
-#include "adventureMap/CAdventureMapInterface.h"
 #include "CPlayerInterface.h"
 #include "PlayerLocalState.h"
 #include "CServerHandler.h"

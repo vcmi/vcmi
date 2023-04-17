@@ -34,9 +34,9 @@ class PlayerLocalState
 	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
 	std::vector<const CGTownInstance *> ownedTowns; //our towns on the adventure map
 
-
 	void saveHeroPaths(std::map<const CGHeroInstance *, int3> & paths);
 	void loadHeroPaths(std::map<const CGHeroInstance *, int3> & paths);
+
 public:
 	struct SpellbookLastSetting
 	{
@@ -46,7 +46,8 @@ public:
 		int spellbookLastTabBattle = 4;
 		int spellbookLastTabAdvmap = 4;
 
-		template <typename Handler> void serialize( Handler &h, const int version )
+		template<typename Handler>
+		void serialize(Handler & h, const int version)
 		{
 			h & spellbookLastPageBattle;
 			h & spellbokLastPageAdvmap;
@@ -71,15 +72,15 @@ public:
 	void addWanderingHero(const CGHeroInstance * hero);
 	void removeWanderingHero(const CGHeroInstance * hero);
 
-	void setPath(const CGHeroInstance *h, const CGPath & path);
-	bool setPath(const CGHeroInstance *h, const int3 & destination);
+	void setPath(const CGHeroInstance * h, const CGPath & path);
+	bool setPath(const CGHeroInstance * h, const int3 & destination);
 
-	const CGPath & getPath(const CGHeroInstance *h) const;
-	bool hasPath(const CGHeroInstance *h) const;
+	const CGPath & getPath(const CGHeroInstance * h) const;
+	bool hasPath(const CGHeroInstance * h) const;
 
-	void removeLastNode(const CGHeroInstance *h);
-	void erasePath(const CGHeroInstance *h);
-	void verifyPath(const CGHeroInstance *h);
+	void removeLastNode(const CGHeroInstance * h);
+	void erasePath(const CGHeroInstance * h);
+	void verifyPath(const CGHeroInstance * h);
 
 	/// Returns currently selected object
 	const CGHeroInstance * getCurrentHero() const;
@@ -87,10 +88,10 @@ public:
 	const CArmedInstance * getCurrentArmy() const;
 
 	/// Changes currently selected object
-	void setSelection(const CArmedInstance *selection);
+	void setSelection(const CArmedInstance * selection);
 
-	template <typename Handler>
-	void serialize( Handler &h, int version )
+	template<typename Handler>
+	void serialize(Handler & h, int version)
 	{
 		//WARNING: this code is broken and not used. See CClient::loadGame
 		std::map<const CGHeroInstance *, int3> pathsMap; //hero -> dest

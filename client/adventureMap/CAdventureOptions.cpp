@@ -11,8 +11,6 @@
 #include "StdInc.h"
 #include "CAdventureOptions.h"
 
-#include "CAdventureMapInterface.h"
-
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
