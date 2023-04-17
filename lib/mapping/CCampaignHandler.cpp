@@ -254,8 +254,8 @@ CCampaignScenario CCampaignHandler::readScenarioFromJson(JsonNode & reader)
 		ret.hasPrologEpilog = !identifier.isNull();
 		if(ret.hasPrologEpilog)
 		{
-			ret.prologVideo = identifier["video"].Integer();
-			ret.prologMusic = identifier["music"].Integer();
+			ret.prologVideo = identifier["video"].String();
+			ret.prologMusic = identifier["music"].String();
 			ret.prologText = identifier["text"].String();
 		}
 		return ret;
@@ -508,8 +508,8 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & read
 		ret.hasPrologEpilog = reader.readUInt8();
 		if(ret.hasPrologEpilog)
 		{
-			ret.prologVideo = reader.readUInt8();
-			ret.prologMusic = reader.readUInt8();
+			ret.prologVideo = CCampaignHandler::prologVideoName(reader.readUInt8());
+			ret.prologMusic = CCampaignHandler::prologMusicName(reader.readUInt8());
 			ret.prologText = readLocalizedString(reader, header.filename, header.modName, header.encoding, identifier);
 		}
 		return ret;
@@ -519,7 +519,7 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & read
 	ret.conquered = false;
 	ret.mapName = reader.readBaseString();
 	ret.packedMapSize = reader.readUInt32();
-	if(header.numberOfScenarios > 0) //unholy alliance
+	if(header.numberOfScenarios > 8) //unholy alliance
 	{
 		ret.loadPreconditionRegions(reader.readUInt16());
 	}

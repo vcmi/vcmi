@@ -29,8 +29,8 @@ CPrologEpilogVideo::CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog 
 	pos = center(Rect(0, 0, 800, 600));
 	updateShadow();
 
-	CCS->videoh->open(CCampaignHandler::prologVideoName(spe.prologVideo));
-	CCS->musich->playMusic("Music/" + CCampaignHandler::prologMusicName(spe.prologMusic), true, true);
+	CCS->videoh->open(spe.prologVideo);
+	CCS->musich->playMusic("Music/" + spe.prologMusic, true, true);
 	// MPTODO: Custom campaign crashing on this?
 //	voiceSoundHandle = CCS->soundh->playSound(CCampaignHandler::prologVoiceName(spe.prologVideo));
 

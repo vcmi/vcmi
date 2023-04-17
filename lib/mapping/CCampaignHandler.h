@@ -161,8 +161,8 @@ public:
 	struct DLL_LINKAGE SScenarioPrologEpilog
 	{
 		bool hasPrologEpilog = false;
-		ui8 prologVideo = 0; // from CmpMovie.txt
-		ui8 prologMusic = 0; // from CmpMusic.txt
+		std::string prologVideo; // from CmpMovie.txt
+		std::string prologMusic; // from CmpMusic.txt
 		std::string prologText;
 
 		template <typename Handler> void serialize(Handler &h, const int formatVersion)
@@ -285,11 +285,11 @@ class DLL_LINKAGE CCampaignHandler
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps
 	static std::vector<std::vector<ui8>> getFile(std::unique_ptr<CInputStream> file, bool headerOnly);
 
-public:
 	static std::string prologVideoName(ui8 index);
 	static std::string prologMusicName(ui8 index);
 	static std::string prologVoiceName(ui8 index);
 
+public:
 	static CCampaignHeader getHeader( const std::string & name); //name - name of appropriate file
 
 	static std::unique_ptr<CCampaign> getCampaign(const std::string & name); //name - name of appropriate file
