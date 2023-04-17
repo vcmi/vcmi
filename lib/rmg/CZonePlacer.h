@@ -57,6 +57,8 @@ private:
 
 	float gravityConstant;
 	float stiffnessConstant;
+	float stifness;
+	float stiffnessIncreaseFactor;
     //float a1, b1, c1, a2, b2, c2;
 	//CMap * map;
 	//std::unique_ptr<CZoneGraph> graph;
