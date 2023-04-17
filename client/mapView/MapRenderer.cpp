@@ -477,7 +477,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getOverlayAnimation(const CGObje
 		};
 
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
-		if (boat->hero)
+		if(boat->hero && obj->subID < boatAnimations.size())
 			return getAnimation(boatAnimations[obj->subID], true);
 	}
 	return nullptr;
