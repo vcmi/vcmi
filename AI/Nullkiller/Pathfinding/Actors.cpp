@@ -42,7 +42,7 @@ ChainActor::ChainActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t 
 	baseActor(this), carrierParent(nullptr), otherParent(nullptr), actorExchangeCount(1), armyCost(), actorAction()
 {
 	initialPosition = hero->visitablePos();
-	layer = hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND;
+	layer = hero->boat ? hero->boat->layer : EPathfindingLayer::LAND;
 	initialMovement = hero->movement;
 	initialTurn = 0;
 	armyValue = hero->getArmyStrength();

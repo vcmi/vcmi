@@ -109,7 +109,7 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 {
 	auto hpos = hero->visitablePos();
 	auto initialNode =
-		getOrCreateNode(hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, NORMAL_CHAIN)
+		getOrCreateNode(hpos, hero->boat ? hero->boat->layer : EPathfindingLayer::LAND, NORMAL_CHAIN)
 		.get();
 
 	initialNode->turns = 0;
