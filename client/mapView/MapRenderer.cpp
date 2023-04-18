@@ -392,7 +392,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getBaseAnimation(const CGObjectI
 		return std::shared_ptr<CAnimation>();
 	}
 
-	bool generateMovementGroups = (info->id == Obj::BOAT) || (info->id == Obj::HERO);
+	bool generateMovementGroups = (info->id == Obj::TRANSPORT) || (info->id == Obj::HERO);
 
 	//TODO: relocate to config file?
 	// Boat appearance files only contain single, unanimated image
@@ -401,7 +401,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getBaseAnimation(const CGObjectI
 		"AB01_.def", "AB02_.def", "AB03_.def"
 	};
 
-	if (info->id == Obj::BOAT)
+	if (info->id == Obj::TRANSPORT && info->subid < boatAnimations.size())
 		return getAnimation(boatAnimations[info->subid], generateMovementGroups);
 
 	return getAnimation(info->animationFile, generateMovementGroups);
@@ -452,11 +452,10 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 		return getAnimation(heroFlags[obj->tempOwner.getNum()], true);
 	}
 
-	if(obj->ID == Obj::BOAT)
+	if(obj->ID == Obj::TRANSPORT)
 	{
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
-		assert(boat->subID < boatFlags.size());
-		if (boat->hero)
+		if(boat->hero && boat->subID < boatFlags.size())
 		{
 			assert(boat->hero->tempOwner.isValidPlayer());
 			return getAnimation(boatFlags[boat->subID][boat->hero->tempOwner.getNum()], true);
@@ -468,7 +467,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 
 std::shared_ptr<CAnimation> MapRendererObjects::getOverlayAnimation(const CGObjectInstance * obj)
 {
-	if(obj->ID == Obj::BOAT)
+	if(obj->ID == Obj::TRANSPORT)
 	{
 		//TODO: relocate to config file?
 		// Boats have additional animation with waves around boat

@@ -39,7 +39,7 @@ uint32_t MapRendererBaseContext::getObjectRotation(ObjectInstanceID objectID) co
 		return hero->moveDir;
 	}
 
-	if(obj->ID == Obj::BOAT)
+	if(obj->ID == Obj::TRANSPORT)
 	{
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
 

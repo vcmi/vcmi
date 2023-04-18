@@ -2263,7 +2263,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	const TerrainTile t = *getTile(hmpos);
 	const int3 guardPos = gs->guardingCreaturePosition(hmpos);
 
-	const bool embarking = !h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::BOAT;
+	const bool embarking = !h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::TRANSPORT;
 	const bool disembarking = h->boat && t.terType->isLand() && !t.blocked;
 
 	//result structure for start - movement failed, no move points used
@@ -2286,7 +2286,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
 	if (((!t.terType->isPassable()  ||  (t.blocked && !t.visitable && !canFly))
 			&& complain("Cannot move hero, destination tile is blocked!"))
-		|| ((!h->boat && !canWalkOnSea && !canFly && t.terType->isWater() && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != Obj::BOAT && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
+		|| ((!h->boat && !canWalkOnSea && !canFly && t.terType->isWater() && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != Obj::TRANSPORT && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!"))
 		|| ((h->boat && t.terType->isLand() && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!"))
@@ -5624,8 +5624,8 @@ bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 
 	//create boat
 	NewObject no;
-	no.ID = Obj::BOAT;
-	no.subID = obj->getBoatType();
+	no.ID = Obj::TRANSPORT;
+	no.subID = obj->getTransportType().getNum();
 	no.pos = tile + int3(1,0,0);
 	sendAndApply(&no);
 

@@ -1083,7 +1083,7 @@ void CAdvMapInt::onTileLeftClicked(const int3 &mapPos)
 		switch(spellBeingCasted->id)
 		{
 		case SpellID::SCUTTLE_BOAT: //Scuttle Boat
-			if(topBlocking && topBlocking->ID == Obj::BOAT)
+			if(topBlocking && topBlocking->ID == Obj::TRANSPORT)
 				leaveCastingMode(true, mapPos);
 			break;
 		case SpellID::DIMENSION_DOOR:
@@ -1179,7 +1179,7 @@ void CAdvMapInt::onTileHovered(const int3 &mapPos)
 		switch(spellBeingCasted->id)
 		{
 		case SpellID::SCUTTLE_BOAT:
-			if(objAtTile && objAtTile->ID == Obj::BOAT)
+			if(objAtTile && objAtTile->ID == Obj::TRANSPORT)
 				CCS->curh->set(Cursor::Map::SCUTTLE_BOAT);
 			else
 				CCS->curh->set(Cursor::Map::POINTER);

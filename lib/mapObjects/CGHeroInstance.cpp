@@ -935,18 +935,14 @@ si32 CGHeroInstance::getManaNewTurn() const
 // 	ai->putAt(this, ai->firstAvailableSlot(this));
 // }
 
-int CGHeroInstance::getBoatType() const
+TransportId CGHeroInstance::getTransportType() const
 {
 	switch(type->heroClass->getAlignment())
 	{
-	case EAlignment::GOOD:
-		return 1;
-	case EAlignment::EVIL:
-		return 0;
-	case EAlignment::NEUTRAL:
-		return 2;
-	default:
-		throw std::runtime_error("Wrong alignment!");
+		case EAlignment::EVIL : return TransportId::ETransportId::BOAT_EVIL;
+		case EAlignment::GOOD : return TransportId::ETransportId::BOAT_GOOD;
+		case EAlignment::NEUTRAL : return TransportId::ETransportId::BOAT_NEUTRAL;
+		default: return TransportId::ETransportId::NONE;
 	}
 }
 

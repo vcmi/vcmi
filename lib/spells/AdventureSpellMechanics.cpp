@@ -182,7 +182,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	double dist = 0;
 	for(const CGObjectInstance * obj : env->getMap()->objects)
 	{
-		if(obj && obj->ID == Obj::BOAT)
+		if(obj && obj->ID == Obj::TRANSPORT)
 		{
 			const auto * b = dynamic_cast<const CGBoat *>(obj);
 			if(b->hero)
@@ -214,8 +214,8 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	else //create boat
 	{
 		NewObject no;
-		no.ID = Obj::BOAT;
-		no.subID = parameters.caster->getHeroCaster()->getBoatType();
+		no.ID = Obj::TRANSPORT;
+		no.subID = parameters.caster->getHeroCaster()->getTransportType().getNum();
 		no.pos = summonPos + int3(1,0,0);
 		env->apply(&no);
 	}
@@ -250,7 +250,7 @@ ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(SpellCastEnvironmen
 
 	//TODO: test range, visibility
 	const TerrainTile *t = &env->getMap()->getTile(parameters.pos);
-	if(t->visitableObjects.empty() || t->visitableObjects.back()->ID != Obj::BOAT)
+	if(t->visitableObjects.empty() || t->visitableObjects.back()->ID != Obj::TRANSPORT)
 	{
 		env->complain("There is no boat to scuttle!");
 		return ESpellCastResult::ERROR;

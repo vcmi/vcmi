@@ -756,7 +756,7 @@ public:
 		ARTIFACT = 5,
 		PANDORAS_BOX = 6,
 		BLACK_MARKET = 7,
-		BOAT = 8,
+		TRANSPORT = 8,
 		BORDERGUARD = 9,
 		KEYMASTER = 10,
 		BUOY = 11,
@@ -1240,6 +1240,27 @@ class BattleField : public BaseForID<BattleField, si32>
 
 	DLL_LINKAGE static BattleField fromString(const std::string & identifier);
 };
+
+class TransportId
+{
+public:
+	enum ETransportId
+	{
+		NONE = -1,
+		BOAT_EVIL = 0,
+		BOAT_GOOD,
+		BOAT_NEUTRAL
+	};
+	
+	TransportId(ETransportId _num = NONE) : num(_num)
+	{}
+	
+	ID_LIKE_CLASS_COMMON(TransportId, ETransportId)
+	
+	ETransportId num;
+};
+
+ID_LIKE_OPERATORS(TransportId, TransportId::ETransportId)
 
 enum class ETerrainId {
 	NATIVE_TERRAIN = -4,

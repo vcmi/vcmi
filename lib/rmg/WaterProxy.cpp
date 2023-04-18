@@ -209,8 +209,8 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 	if(!manager)
 		return false;
 
-	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::BOAT);
-	auto * boat = dynamic_cast<CGBoat *>(VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, generator.rand))->create());
+	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::TRANSPORT);
+	auto * boat = dynamic_cast<CGBoat *>(VLC->objtypeh->getHandlerFor(Obj::TRANSPORT, *RandomGeneratorUtil::nextItem(subObjects, generator.rand))->create());
 
 	rmg::Object rmgObject(*boat);
 	rmgObject.setTemplate(zone.getTerrainType());

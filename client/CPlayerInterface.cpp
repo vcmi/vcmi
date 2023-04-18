@@ -1490,14 +1490,14 @@ void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
 	auto state = obj->shipyardStatus();
 	TResources cost;
 	obj->getBoatCost(cost);
-	GH.pushIntT<CShipyardWindow>(cost, state, obj->getBoatType(), [=](){ cb->buildBoat(obj); });
+	GH.pushIntT<CShipyardWindow>(cost, state, obj->getTransportType(), [=](){ cb->buildBoat(obj); });
 }
 
 void CPlayerInterface::newObject( const CGObjectInstance * obj )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	//we might have built a boat in shipyard in opened town screen
-	if (obj->ID == Obj::BOAT
+	if (obj->ID == Obj::TRANSPORT
 		&& LOCPLINT->castleInt
 		&&  obj->visitablePos() == LOCPLINT->castleInt->town->bestLocation())
 	{

@@ -1285,7 +1285,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 	if(result == EMBARK) //hero enters boat at destination tile
 	{
 		const TerrainTile &tt = gs->map->getTile(h->convertToVisitablePos(end));
-		assert(tt.visitableObjects.size() >= 1  &&  tt.visitableObjects.back()->ID == Obj::BOAT); //the only visitable object at destination is Boat
+		assert(tt.visitableObjects.size() >= 1  &&  tt.visitableObjects.back()->ID == Obj::TRANSPORT); //the only visitable object at destination is Boat
 		auto * boat = dynamic_cast<CGBoat *>(tt.visitableObjects.back());
 		assert(boat);
 
@@ -1457,7 +1457,7 @@ void NewObject::applyGs(CGameState *gs)
 {
 	TerrainId terrainType = ETerrainId::NONE;
 
-	if(ID == Obj::BOAT && !gs->isInTheMap(pos)) //special handling for bug #3060 - pos outside map but visitablePos is not
+	if(ID == Obj::TRANSPORT && !gs->isInTheMap(pos)) //special handling for bug #3060 - pos outside map but visitablePos is not
 	{
 		CGObjectInstance testObject = CGObjectInstance();
 		testObject.pos = pos;
@@ -1475,7 +1475,7 @@ void NewObject::applyGs(CGameState *gs)
 	CGObjectInstance *o = nullptr;
 	switch(ID)
 	{
-	case Obj::BOAT:
+	case Obj::TRANSPORT:
 		o = new CGBoat();
 		terrainType = ETerrainId::WATER; //TODO: either boat should only spawn on water, or all water objects should be handled this way
 		break;

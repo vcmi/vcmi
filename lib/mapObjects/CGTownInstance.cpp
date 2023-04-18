@@ -1085,16 +1085,15 @@ void CGTownInstance::clearArmy() const
 	}
 }
 
-int CGTownInstance::getBoatType() const
+TransportId CGTownInstance::getTransportType() const
 {
 	switch (town->faction->alignment)
 	{
-	case EAlignment::EVIL : return 0;
-	case EAlignment::GOOD : return 1;
-	case EAlignment::NEUTRAL : return 2;
+		case EAlignment::EVIL : return TransportId::ETransportId::BOAT_EVIL;
+		case EAlignment::GOOD : return TransportId::ETransportId::BOAT_GOOD;
+		case EAlignment::NEUTRAL : return TransportId::ETransportId::BOAT_NEUTRAL;
+		default: return TransportId::ETransportId::NONE;
 	}
-	assert(0);
-	return -1;
 }
 
 int CGTownInstance::getMarketEfficiency() const

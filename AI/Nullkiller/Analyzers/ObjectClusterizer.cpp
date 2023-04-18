@@ -193,7 +193,7 @@ void ObjectClusterizer::clusterize()
 	blockedObjects.clear();
 
 	Obj ignoreObjects[] = {
-		Obj::BOAT,
+		Obj::TRANSPORT,
 		Obj::EYE_OF_MAGI,
 		Obj::MONOLITH_ONE_WAY_ENTRANCE,
 		Obj::MONOLITH_ONE_WAY_EXIT,

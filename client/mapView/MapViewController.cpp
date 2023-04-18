@@ -276,7 +276,7 @@ void MapViewController::fadeInObject(const CGObjectInstance * obj)
 
 void MapViewController::removeObject(const CGObjectInstance * obj)
 {
-	if (obj->ID == Obj::BOAT)
+	if (obj->ID == Obj::TRANSPORT)
 	{
 		auto * boat = dynamic_cast<const CGBoat*>(obj);
 		if (boat->hero)

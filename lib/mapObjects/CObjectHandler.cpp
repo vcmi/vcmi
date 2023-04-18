@@ -442,7 +442,7 @@ int3 IBoatGenerator::bestLocation() const
 	{
 		if(const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offset, false)) //tile is in the map
 		{
-			if(tile->terType->isWater()  &&  (!tile->blocked || tile->blockingObjects.front()->ID == Obj::BOAT)) //and is water and is not blocked or is blocked by boat
+			if(tile->terType->isWater()  &&  (!tile->blocked || tile->blockingObjects.front()->ID == Obj::TRANSPORT)) //and is water and is not blocked or is blocked by boat
 				return o->pos + offset;
 		}
 	}
@@ -457,16 +457,16 @@ IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 		return TILE_BLOCKED; //no available water
 	else if(t->blockingObjects.empty())
 		return GOOD; //OK
-	else if(t->blockingObjects.front()->ID == Obj::BOAT)
+	else if(t->blockingObjects.front()->ID == Obj::TRANSPORT)
 		return BOAT_ALREADY_BUILT; //blocked with boat
 	else
 		return TILE_BLOCKED; //blocked
 }
 
-int IBoatGenerator::getBoatType() const
+TransportId IBoatGenerator::getTransportType() const
 {
 	//We make good ships by default
-	return 1;
+	return TransportId::ETransportId::BOAT_GOOD;
 }
 
 
