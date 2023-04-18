@@ -226,8 +226,8 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 								if ((zoneType == ETemplateZoneType::PLAYER_START || zoneType == ETemplateZoneType::CPU_START) && 
 									(existingZoneType == ETemplateZoneType::PLAYER_START || existingZoneType == ETemplateZoneType::CPU_START))
 								{
-									int firstPlayer = zone->getOwner().get();
-									int secondPlayer = existingZone->getOwner().get();
+									int firstPlayer = zone->getOwner().value();
+									int secondPlayer = existingZone->getOwner().value();
 
 									//Players with lower indexes (especially 1 and 2) will be placed further apart
 
