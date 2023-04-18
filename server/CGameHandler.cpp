@@ -2263,9 +2263,11 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	const TerrainTile t = *getTile(hmpos);
 	const int3 guardPos = gs->guardingCreaturePosition(hmpos);
 
-	const bool sailingBoat = h->boat && h->boat->layer == EPathfindingLayer::SAIL;
 	const bool embarking = !h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::TRANSPORT;
-	const bool disembarking = sailingBoat && t.terType->isLand() && !t.blocked;
+	const bool disembarking = h->boat
+		&& t.terType->isLand()
+		&& (h->boat->layer == EPathfindingLayer::SAIL || dst == h->pos)
+		&& !t.blocked;
 
 	//result structure for start - movement failed, no move points used
 	TryMoveHero tmh;
@@ -2289,7 +2291,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 			&& complain("Cannot move hero, destination tile is blocked!"))
 		|| ((!h->boat && !canWalkOnSea && !canFly && t.terType->isWater() && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != Obj::TRANSPORT && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!"))
-		|| ((sailingBoat && t.terType->isLand() && t.blocked)
+		|| ((h->boat && h->boat->layer == EPathfindingLayer::SAIL && t.terType->isLand() && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!"))
 		|| ((distance(h->pos, dst) >= 1.5 && !teleporting)
 			&& complain("Tiles are not neighboring!"))
