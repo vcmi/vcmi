@@ -115,9 +115,32 @@
 			}
 		},
 		"types" : {
-			"evil" : { "index" : 0,	"rmg" : { "mapLimit" : 64 } },
-			"good" : { "index" : 1, "rmg" : { "mapLimit" : 64 } },
-			"neutral" : { "index" : 2, "rmg" : { "mapLimit" : 64 } },
+			"evil" : 
+			{ 
+				"index" : 0,	
+				"rmg" : { "mapLimit" : 64 },
+				"layer" : "sail",
+				"actualAnimation" : "AB01_.def",
+				"overlayAnimation" : "ABM01_.def",
+				"flagAnimations" : ["ABF01L", "ABF01G", "ABF01R", "ABF01D", "ABF01B", "ABF01P", "ABF01W", "ABF01K"]
+			},
+			"good" : 
+			{ 
+				"index" : 1, 
+				"rmg" : { "mapLimit" : 64 },
+				"layer" : "sail",
+				"actualAnimation" : "AB02_.def",
+				"overlayAnimation" : "ABM02_.def",
+				"flagAnimations" : ["ABF02L", "ABF02G", "ABF02R", "ABF02D", "ABF02B", "ABF02P", "ABF02W", "ABF02K"]
+			},
+			"neutral" : { 
+				"index" : 2, 
+				"rmg" : { "mapLimit" : 64 },
+				"layer" : "sail",
+				"actualAnimation" : "AB03_.def",
+				"overlayAnimation" : "ABM03_.def",
+				"flagAnimations" : ["ABF03L", "ABF03G", "ABF03R", "ABF03D", "ABF03B", "ABF03P", "ABF03W", "ABF03K"]
+			},
 		}
 	},
 

@@ -26,6 +26,7 @@
 #include "../../lib/RoadHandler.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapping/CMap.h"
 
 struct NeighborTilesInfo
@@ -394,15 +395,11 @@ std::shared_ptr<CAnimation> MapRendererObjects::getBaseAnimation(const CGObjectI
 
 	bool generateMovementGroups = (info->id == Obj::TRANSPORT) || (info->id == Obj::HERO);
 
-	//TODO: relocate to config file?
 	// Boat appearance files only contain single, unanimated image
 	// proper boat animations are actually in different file
-	static const std::vector<std::string> boatAnimations = {
-		"AB01_.def", "AB02_.def", "AB03_.def"
-	};
-
-	if (info->id == Obj::TRANSPORT && info->subid < boatAnimations.size())
-		return getAnimation(boatAnimations[info->subid], generateMovementGroups);
+	if (info->id == Obj::TRANSPORT)
+		if(auto boat = dynamic_cast<const CGBoat*>(obj); boat && !boat->actualAnimation.empty())
+			return getAnimation(boat->actualAnimation, generateMovementGroups);
 
 	return getAnimation(info->animationFile, generateMovementGroups);
 }
@@ -438,13 +435,6 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 		"AF00", "AF01", "AF02", "AF03", "AF04", "AF05", "AF06", "AF07"
 	};
 
-	//TODO: relocate to config file?
-	static const std::vector<std::vector<std::string>> boatFlags = {
-		{"ABF01L", "ABF01G", "ABF01R", "ABF01D", "ABF01B", "ABF01P", "ABF01W", "ABF01K"},
-		{"ABF02L", "ABF02G", "ABF02R", "ABF02D", "ABF02B", "ABF02P", "ABF02W", "ABF02K"},
-		{"ABF03L", "ABF03G", "ABF03R", "ABF03D", "ABF03B", "ABF03P", "ABF03W", "ABF03K"}
-	};
-
 	if(obj->ID == Obj::HERO)
 	{
 		assert(dynamic_cast<const CGHeroInstance *>(obj) != nullptr);
@@ -455,11 +445,8 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 	if(obj->ID == Obj::TRANSPORT)
 	{
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
-		if(boat->hero && boat->subID < boatFlags.size())
-		{
-			assert(boat->hero->tempOwner.isValidPlayer());
-			return getAnimation(boatFlags[boat->subID][boat->hero->tempOwner.getNum()], true);
-		}
+		if(boat && boat->hero && !boat->flagAnimations[boat->hero->tempOwner.getNum()].empty())
+			return getAnimation(boat->flagAnimations[boat->hero->tempOwner.getNum()], true);
 	}
 
 	return nullptr;
@@ -469,15 +456,10 @@ std::shared_ptr<CAnimation> MapRendererObjects::getOverlayAnimation(const CGObje
 {
 	if(obj->ID == Obj::TRANSPORT)
 	{
-		//TODO: relocate to config file?
 		// Boats have additional animation with waves around boat
-		static const std::vector<std::string> boatAnimations = {
-			"ABM01_.def", "ABM02_.def", "ABM03_.def"
-		};
-
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
-		if(boat->hero && obj->subID < boatAnimations.size())
-			return getAnimation(boatAnimations[obj->subID], true);
+		if(boat && boat->hero && !boat->overlayAnimation.empty())
+			return getAnimation(boat->overlayAnimation, true);
 	}
 	return nullptr;
 }

@@ -421,6 +421,11 @@ public:
 	const CGHeroInstance *hero;  //hero on board
 	
 	EPathfindingLayer::EEPathfindingLayer layer;
+	
+	//animation filenames. If empty - animations won't be used
+	std::string actualAnimation; //for OH3 boats those have actual animations
+	std::string overlayAnimation; //waves animations
+	std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
 
 	void initObj(CRandomGenerator & rand) override;
 
