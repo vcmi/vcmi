@@ -68,8 +68,8 @@ public:
 	using Value = int32_t;
 	using Value64 = int64_t;
 
-	using OptionalValue = boost::optional<Value>;
-	using OptionalValue64 = boost::optional<Value64>;
+	using OptionalValue = std::optional<Value>;
+	using OptionalValue64 = std::optional<Value64>;
 
 	virtual const CSpell * getSpell() const = 0;
 	virtual Mode getMode() const = 0;

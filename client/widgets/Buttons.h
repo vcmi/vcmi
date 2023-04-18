@@ -52,7 +52,7 @@ private:
 
 	std::array<int, 4> stateToIndex; // mapping of button state to index of frame in animation
 	std::array<std::string, 4> hoverTexts; //texts for statusbar, if empty - first entry will be used
-	std::array<boost::optional<SDL_Color>, 4> stateToBorderColor; // mapping of button state to border color
+	std::array<std::optional<SDL_Color>, 4> stateToBorderColor; // mapping of button state to border color
 	std::string helpBox; //for right-click help
 
 	std::shared_ptr<CAnimImage> image; //image for this button
@@ -73,13 +73,13 @@ public:
 
 	// sets border color for each button state;
 	// if it's set, the button will have 1-px border around it with this color
-	void setBorderColor(boost::optional<SDL_Color> normalBorderColor,
-	                    boost::optional<SDL_Color> pressedBorderColor,
-	                    boost::optional<SDL_Color> blockedBorderColor,
-	                    boost::optional<SDL_Color> highlightedBorderColor);
+	void setBorderColor(std::optional<SDL_Color> normalBorderColor,
+						std::optional<SDL_Color> pressedBorderColor,
+						std::optional<SDL_Color> blockedBorderColor,
+						std::optional<SDL_Color> highlightedBorderColor);
 
 	// sets the same border color for all button states.
-	void setBorderColor(boost::optional<SDL_Color> borderColor);
+	void setBorderColor(std::optional<SDL_Color> borderColor);
 
 	/// adds one more callback to on-click actions
 	void addCallback(std::function<void()> callback);
@@ -229,7 +229,7 @@ class CSlider : public CIntObject
 	std::shared_ptr<CButton> right;
 	std::shared_ptr<CButton> slider;
 
-	boost::optional<Rect> scrollBounds;
+	std::optional<Rect> scrollBounds;
 
 	int capacity;//how many elements can be active at same time (e.g. hero list = 5)
 	int positions; //number of highest position (0 if there is only one)

@@ -72,8 +72,8 @@ public:
 			handler.serializeString("s1", s1);
 			handler.serializeString("s2", s2);
 
-			handler.serializeRaw("j1", j1, boost::none);
-			handler.serializeRaw("j2", j2, boost::none);
+			handler.serializeRaw("j1", j1, std::nullopt);
+			handler.serializeRaw("j2", j2, std::nullopt);
 
 			handler.serializeStruct("inner1", inner1);
 			handler.serializeStruct("inner2", inner2);

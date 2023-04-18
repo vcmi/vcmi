@@ -1520,7 +1520,7 @@ int64_t CBonusSystemNode::getTreeVersion() const
 	return treeChanged;
 }
 
-std::string Bonus::Description(boost::optional<si32> customValue) const
+std::string Bonus::Description(std::optional<si32> customValue) const
 {
 	std::ostringstream str;
 

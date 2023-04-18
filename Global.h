@@ -101,6 +101,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define _USE_MATH_DEFINES
 
 #include <algorithm>
+#include <any>
 #include <array>
 #include <atomic>
 #include <bitset>
@@ -144,14 +145,13 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #endif
 
 #include <boost/algorithm/string.hpp>
-#include <boost/any.hpp>
-#include <boost/current_function.hpp>
 #include <boost/crc.hpp>
+#include <boost/current_function.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/posix_time/posix_time_io.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/filesystem/path.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem/path.hpp>
 #include <boost/format.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/lexical_cast.hpp>
@@ -159,14 +159,11 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/locale/generator.hpp>
 #endif
 #include <boost/logic/tribool.hpp>
-#include <boost/optional.hpp>
-#include <boost/optional/optional_io.hpp>
+#include <boost/multi_array.hpp>
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/range/algorithm.hpp>
 #include <boost/thread.hpp>
-#include <boost/variant.hpp>
-#include <boost/multi_array.hpp>
 
 #ifndef M_PI
 #  define M_PI 3.14159265358979323846
@@ -576,28 +573,6 @@ namespace vstd
 		return i >= 0  &&  i < c.size();
 	}
 
-	template <typename Container, typename Index>
-	boost::optional<typename Container::const_reference> tryAt(const Container &c, Index i)
-	{
-		if(isValidIndex(c, i))
-		{
-			auto itr = c.begin();
-			std::advance(itr, i);
-			return *itr;
-		}
-		return boost::none;
-	}
-
-	template <typename Container, typename Pred>
-	static boost::optional<typename Container::const_reference> tryFindIf(const Container &r, const Pred &t)
-	{
-		auto pos = range::find_if(r, t);
-		if(pos == boost::end(r))
-			return boost::none;
-		else
-			return *pos;
-	}
-
 	template <typename Container>
 	typename Container::const_reference atOrDefault(const Container &r, size_t index, const typename Container::const_reference &defaultValue)
 	{
@@ -668,8 +643,8 @@ namespace vstd
 		return false;
 	}
 
-	template <class M, class Key, class F>
-	typename M::mapped_type & getOrCompute(M & m, Key const & k, F f)
+	template<class M, class Key, class F>
+	typename M::mapped_type & getOrCompute(M & m, const Key & k, F f)
 	{
 		typedef typename M::mapped_type V;
 

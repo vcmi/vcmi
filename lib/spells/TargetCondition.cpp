@@ -350,7 +350,7 @@ public:
 			auto rawId = VLC->modh->identifiers.getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
-				return std::make_shared<CreatureCondition>(CreatureID(rawId.get()));
+				return std::make_shared<CreatureCondition>(CreatureID(rawId.value()));
 			else
 				logMod->error("Invalid creature %s type in spell target condition.", identifier);
 		}
@@ -359,7 +359,7 @@ public:
 			auto rawId = VLC->modh->identifiers.getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
-				return std::make_shared<SpellEffectCondition>(SpellID(rawId.get()));
+				return std::make_shared<SpellEffectCondition>(SpellID(rawId.value()));
 			else
 				logMod->error("Invalid spell %s in spell target condition.", identifier);
 		}

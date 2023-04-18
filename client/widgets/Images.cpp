@@ -85,7 +85,7 @@ void CPicture::show(SDL_Surface * to)
 void CPicture::showAll(SDL_Surface * to)
 {
 	if(bg && visible)
-		bg->draw(to, pos.x, pos.y, srcRect.get_ptr());
+		bg->draw(to, pos.x, pos.y, srcRect.has_value() ? &srcRect.value() : nullptr);
 }
 
 void CPicture::setAlpha(int value)

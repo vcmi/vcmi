@@ -53,10 +53,10 @@ public:
 	void push(const JsonNode & value);
 
 	template<typename T>
-	void push(const boost::optional<T> & value)
+	void push(const std::optional<T> & value)
 	{
-		if(value.is_initialized())
-			push(value.get());
+		if(value.has_value())
+			push(value.value());
 		else
 			pushNil();
 	}

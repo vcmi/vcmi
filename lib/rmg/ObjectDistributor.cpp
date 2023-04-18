@@ -98,7 +98,7 @@ void ObjectDistributor::distributeLimitedObjects()
 						oi.templ = temp;
 
 						//Rounding up will make sure all possible objects are exhausted
-						uint32_t mapLimit = rmgInfo.mapLimit.get();
+						uint32_t mapLimit = rmgInfo.mapLimit.value();
 						uint32_t maxPerZone = std::ceil(float(mapLimit) / numZones);
 
 						//But not more than zone limit

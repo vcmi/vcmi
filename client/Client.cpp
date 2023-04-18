@@ -421,7 +421,7 @@ void CClient::initPlayerEnvironments()
 	
 	if(settings["session"]["spectate"].Bool())
 	{
-		playerEnvironments[PlayerColor::SPECTATOR] = std::make_shared<CPlayerEnvironment>(PlayerColor::SPECTATOR, this, std::make_shared<CCallback>(gs, boost::none, this));
+		playerEnvironments[PlayerColor::SPECTATOR] = std::make_shared<CPlayerEnvironment>(PlayerColor::SPECTATOR, this, std::make_shared<CCallback>(gs, std::nullopt, this));
 	}
 }
 
@@ -626,7 +626,7 @@ void CClient::commenceTacticPhaseForInt(std::shared_ptr<CBattleGameInterface> ba
 		battleInt->yourTacticPhase(gs->curB->tacticDistance);
 		if(gs && !!gs->curB && gs->curB->tacticDistance) //while awaiting for end of tactics phase, many things can happen (end of battle... or game)
 		{
-			MakeAction ma(BattleAction::makeEndOFTacticPhase(gs->curB->playerToSide(battleInt->playerID).get()));
+			MakeAction ma(BattleAction::makeEndOFTacticPhase(gs->curB->playerToSide(battleInt->playerID).value()));
 			sendRequest(&ma, battleInt->playerID);
 		}
 	}

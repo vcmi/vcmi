@@ -590,7 +590,7 @@ void BattleWindow::blockUI(bool on)
 	}
 }
 
-boost::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()
+std::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()
 {
 	return queue->getHoveredUnitIdIfAny();
 }

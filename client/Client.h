@@ -140,7 +140,7 @@ public:
 
 	std::map<PlayerColor, std::vector<std::shared_ptr<IBattleEventsReceiver>>> additionalBattleInts;
 
-	boost::optional<BattleAction> curbaction;
+	std::optional<BattleAction> curbaction;
 
 	CClient();
 	~CClient();

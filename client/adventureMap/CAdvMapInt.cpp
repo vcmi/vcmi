@@ -853,7 +853,7 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 	}
 }
 
-boost::optional<Point> CAdvMapInt::keyToMoveDirection(const SDL_Keycode & key)
+std::optional<Point> CAdvMapInt::keyToMoveDirection(const SDL_Keycode & key)
 {
 	switch (key) {
 		case SDLK_DOWN:  return Point( 0, +1);
@@ -871,7 +871,7 @@ boost::optional<Point> CAdvMapInt::keyToMoveDirection(const SDL_Keycode & key)
 		case SDLK_KP_8: return Point( 0, -1);
 		case SDLK_KP_9: return Point(+1, -1);
 	}
-	return boost::none;
+	return std::nullopt;
 }
 
 void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)

@@ -23,7 +23,7 @@ const IBattleInfo * CCallbackBase::getBattle() const
 	return battle;
 }
 
-CCallbackBase::CCallbackBase(boost::optional<PlayerColor> Player):
+CCallbackBase::CCallbackBase(std::optional<PlayerColor> Player):
 	player(std::move(Player))
 {
 }
@@ -33,7 +33,7 @@ void CCallbackBase::setBattle(const IBattleInfo * B)
 	battle = B;
 }
 
-boost::optional<PlayerColor> CCallbackBase::getPlayerID() const
+std::optional<PlayerColor> CCallbackBase::getPlayerID() const
 {
 	return player;
 }

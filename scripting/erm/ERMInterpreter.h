@@ -213,15 +213,15 @@ namespace VERMInterpreter
 	{};
 
 
-	typedef boost::variant<char, double, int, std::string> TLiteral;
+	typedef std::variant<char, double, int, std::string> TLiteral;
 
-	typedef boost::variant<VNIL, boost::recursive_wrapper<VNode>, VSymbol, TLiteral, ERM::Tcommand> VOption; //options in v-expression, VNIl should be the default
+	typedef std::variant<VNIL, boost::recursive_wrapper<VNode>, VSymbol, TLiteral, ERM::Tcommand> VOption; //options in v-expression, VNIl should be the default
 
 	template<typename T, typename SecType>
 	T& getAs(SecType & opt)
 	{
 		if(opt.type() == typeid(T))
-			return boost::get<T>(opt);
+			return std::get<T>(opt);
 		else
 			throw EVermScriptExecError("Wrong type!");
 	}
@@ -278,15 +278,15 @@ namespace VERMInterpreter
 		VermTreeIterator cdr();
 	};
 
-	struct OptionConverterVisitor : boost::static_visitor<VOption>
+	struct OptionConverterVisitor
 	{
-		VOption operator()(ERM::TVExp const& cmd) const;
-		VOption operator()(ERM::TSymbol const& cmd) const;
-		VOption operator()(char const& cmd) const;
-		VOption operator()(double const& cmd) const;
-		VOption operator()(int const& cmd) const;
-		VOption operator()(ERM::Tcommand const& cmd) const;
-		VOption operator()(ERM::TStringConstant const& cmd) const;
+		VOption operator()(ERM const ::TVExp & cmd) const;
+		VOption operator()(ERM const ::TSymbol & cmd) const;
+		VOption operator()(const char & cmd) const;
+		VOption operator()(const double & cmd) const;
+		VOption operator()(const int & cmd) const;
+		VOption operator()(ERM const ::Tcommand & cmd) const;
+		VOption operator()(ERM const ::TStringConstant & cmd) const;
 	};
 
 	struct VNode

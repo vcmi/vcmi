@@ -296,7 +296,7 @@ bool CVCMIServer::prepareToStartGame()
 	{
 	case StartInfo::CAMPAIGN:
 		logNetwork->info("Preparing to start new campaign");
-		si->campState->currentMap = boost::make_optional(campaignMap);
+		si->campState->currentMap = std::make_optional(campaignMap);
 		si->campState->chosenCampaignBonuses[campaignMap] = campaignBonus;
 		gh->init(si.get());
 		break;
@@ -665,7 +665,7 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 		si = CMemorySerializer::deepCopy(*mi->scenarioOptionsOfSave);
 		si->mode = StartInfo::LOAD_GAME;
 		if(si->campState)
-			campaignMap = si->campState->currentMap.get();
+			campaignMap = si->campState->currentMap.value();
 
 		for(auto & ps : si->playerInfos)
 		{

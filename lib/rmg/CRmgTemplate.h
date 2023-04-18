@@ -124,7 +124,7 @@ public:
 	
 	int getSize() const;
 	void setSize(int value);
-	boost::optional<int> getOwner() const;
+	std::optional<int> getOwner() const;
 
 	const std::set<TerrainId> & getTerrainTypes() const;
 	void setTerrainTypes(const std::set<TerrainId> & value);
@@ -166,7 +166,7 @@ protected:
 	ETemplateZoneType::ETemplateZoneType type;
 	int size;
 	ui32 maxTreasureValue;
-	boost::optional<int> owner;
+	std::optional<int> owner;
 	CTownInfo playerTowns;
 	CTownInfo neutralTowns;
 	bool matchTerrainToTown;

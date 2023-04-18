@@ -175,7 +175,7 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 			zonesToPlace.push_back(zone);
 		else //place players depending on their factions
 		{
-			if (boost::optional<int> owner = zone.second->getOwner())
+			if(std::optional<int> owner = zone.second->getOwner())
 			{
 				auto player = PlayerColor(*owner - 1);
 				auto playerSettings = map.getMapGenOptions().getPlayersSettings();

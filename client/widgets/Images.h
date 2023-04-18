@@ -30,7 +30,7 @@ class CPicture : public CIntObject
 
 public:
 	/// if set, only specified section of internal image will be rendered
-	boost::optional<Rect> srcRect;
+	std::optional<Rect> srcRect;
 
 	/// If set to true, iamge will be redrawn on each frame
 	bool needRefresh;

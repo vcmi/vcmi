@@ -133,8 +133,8 @@ protected:
 	CGameState * gs;//todo: replace with protected const getter, only actual Server and Client objects should hold game state
 
 	CGameInfoCallback() = default;
-	CGameInfoCallback(CGameState *GS, boost::optional<PlayerColor> Player);
-	bool hasAccess(boost::optional<PlayerColor> playerId) const;
+	CGameInfoCallback(CGameState * GS, std::optional<PlayerColor> Player);
+	bool hasAccess(std::optional<PlayerColor> playerId) const;
 
 	bool canGetFullInfo(const CGObjectInstance *obj) const; //true we player owns obj or ally owns obj or privileged mode
 	bool isOwnedOrVisited(const CGObjectInstance *obj) const;
@@ -157,9 +157,9 @@ public:
 	virtual const PlayerSettings * getPlayerSettings(PlayerColor color) const;
 
 	//map
-	virtual bool isVisible(int3 pos, const boost::optional<PlayerColor> & Player) const;
-	virtual bool isVisible(const CGObjectInstance *obj, const boost::optional<PlayerColor> & Player) const;
-	virtual bool isVisible(const CGObjectInstance *obj) const;
+	virtual bool isVisible(int3 pos, const std::optional<PlayerColor> & Player) const;
+	virtual bool isVisible(const CGObjectInstance * obj, const std::optional<PlayerColor> & Player) const;
+	virtual bool isVisible(const CGObjectInstance * obj) const;
 	virtual bool isVisible(int3 pos) const;
 
 
@@ -234,7 +234,7 @@ public:
 	virtual int howManyTowns() const;
 	virtual int howManyHeroes(bool includeGarrisoned = true) const;
 	virtual int3 getGrailPos(double *outKnownRatio);
-	virtual boost::optional<PlayerColor> getMyColor() const;
+	virtual std::optional<PlayerColor> getMyColor() const;
 
 	virtual std::vector <const CGTownInstance *> getTownsInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible
 	virtual int getHeroSerial(const CGHeroInstance * hero, bool includeGarrisoned=true) const;

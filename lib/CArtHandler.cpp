@@ -740,15 +740,28 @@ void CArtHandler::erasePickedArt(const ArtifactID & id)
 {
 	CArtifact *art = objects[id];
 
-	if(auto artifactList = listFromClass(art->aClass))
+	if(!(art->aClass & CArtifact::ART_SPECIAL))
 	{
-		if(artifactList->empty())
-			fillList(*artifactList, art->aClass);
-
-		auto itr = vstd::find(*artifactList, art);
-		if(itr != artifactList->end())
+		auto & artifactList = treasures;
+		switch(art->aClass)
 		{
-			artifactList->erase(itr);
+			case CArtifact::ART_MINOR:
+				artifactList = minors;
+				break;
+			case CArtifact::ART_MAJOR:
+				artifactList = majors;
+				break;
+			case CArtifact::ART_RELIC:
+				artifactList = relics;
+				break;
+		}
+		if(artifactList.empty())
+			fillList(artifactList, art->aClass);
+
+		auto itr = vstd::find(artifactList, art);
+		if(itr != artifactList.end())
+		{
+			artifactList.erase(itr);
 		}
 		else
 			logMod->warn("Problem: cannot erase artifact %s from list, it was not present", art->getNameTranslated());
@@ -756,23 +769,6 @@ void CArtHandler::erasePickedArt(const ArtifactID & id)
 	}
 	else
 		logMod->warn("Problem: cannot find list for artifact %s, strange class. (special?)", art->getNameTranslated());
-}
-
-boost::optional<std::vector<CArtifact*>&> CArtHandler::listFromClass( CArtifact::EartClass artifactClass )
-{
-	switch(artifactClass)
-	{
-	case CArtifact::ART_TREASURE:
-		return treasures;
-	case CArtifact::ART_MINOR:
-		return minors;
-	case CArtifact::ART_MAJOR:
-		return majors;
-	case CArtifact::ART_RELIC:
-		return relics;
-	default: //special artifacts should not be erased
-		return boost::optional<std::vector<CArtifact*>&>();
-	}
 }
 
 void CArtHandler::fillList( std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass )

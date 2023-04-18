@@ -140,8 +140,8 @@ void CRandomRewardObjectInfo::configureReward(CRewardableObject * object, CRando
 
 	for ( auto node : source["changeCreatures"].Struct() )
 	{
-		CreatureID from (VLC->modh->identifiers.getIdentifier (node.second.meta, "creature", node.first) .get());
-		CreatureID dest (VLC->modh->identifiers.getIdentifier (node.second.meta, "creature", node.second.String()).get());
+		CreatureID from(VLC->modh->identifiers.getIdentifier(node.second.meta, "creature", node.first).value());
+		CreatureID dest(VLC->modh->identifiers.getIdentifier(node.second.meta, "creature", node.second.String()).value());
 
 		reward.extraComponents.emplace_back(Component::EComponentType::CREATURE, dest.getNum(), 0, 0);
 

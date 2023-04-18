@@ -217,7 +217,7 @@ public:
 	spells::AimType getTargetType() const;
 
 	bool hasEffects() const;
-	void getEffects(std::vector<Bonus> & lst, const int level, const bool cumulative, const si32 duration, boost::optional<si32 *> maxDuration = boost::none) const;
+	void getEffects(std::vector<Bonus> & lst, const int level, const bool cumulative, const si32 duration, std::optional<si32 *> maxDuration = std::nullopt) const;
 
 	bool hasBattleEffects() const;
 

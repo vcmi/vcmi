@@ -165,7 +165,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 	obj->objects.push_back(object);
 
 	registerObject(scope, obj->getJsonKey(), object->getSubTypeName(), object->subtype);
-	for (auto const & compatID : entry["compatibilityIdentifiers"].Vector())
+	for(const auto & compatID : entry["compatibilityIdentifiers"].Vector())
 		registerObject(scope, obj->getJsonKey(), compatID.String(), object->subtype);
 }
 
@@ -178,7 +178,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 	obj->objects[index] = object;
 
 	registerObject(scope, obj->getJsonKey(), object->getSubTypeName(), object->subtype);
-	for (auto const & compatID : entry["compatibilityIdentifiers"].Vector())
+	for(const auto & compatID : entry["compatibilityIdentifiers"].Vector())
 		registerObject(scope, obj->getJsonKey(), compatID.String(), object->subtype);
 }
 
@@ -313,14 +313,14 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype)
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const
 {
-	boost::optional<si32> id = VLC->modh->identifiers.getIdentifier(scope, "object", type);
+	std::optional<si32> id = VLC->modh->identifiers.getIdentifier(scope, "object", type);
 	if(id)
 	{
-		auto * object = objects[id.get()];
-		boost::optional<si32> subID = VLC->modh->identifiers.getIdentifier(scope, object->getJsonKey(), subtype);
+		auto * object = objects[id.value()];
+		std::optional<si32> subID = VLC->modh->identifiers.getIdentifier(scope, object->getJsonKey(), subtype);
 
 		if (subID)
-			return object->objects[subID.get()];
+			return object->objects[subID.value()];
 	}
 
 	std::string errorString = "Failed to find object of type " + type + "::" + subtype;
@@ -515,7 +515,7 @@ void AObjectTypeHandler::init(const JsonNode & input)
 
 		const JsonNode & mapLimit = input["rmg"]["mapLimit"];
 		if (!mapLimit.isNull())
-			rmgInfo.mapLimit.reset(static_cast<ui32>(mapLimit.Float()));
+			rmgInfo.mapLimit = static_cast<ui32>(mapLimit.Float());
 
 		rmgInfo.zoneLimit = loadJsonOrMax(input["rmg"]["zoneLimit"]);
 		rmgInfo.rarity =    static_cast<ui32>(input["rmg"]["rarity"].Float());
@@ -551,14 +551,14 @@ void AObjectTypeHandler::init(const JsonNode & input)
 		sounds.removal.push_back(node.String());
 
 	if(input["aiValue"].isNull())
-		aiValue = boost::none;
+		aiValue = std::nullopt;
 	else
-		aiValue = static_cast<boost::optional<si32>>(input["aiValue"].Integer());
+		aiValue = static_cast<std::optional<si32>>(input["aiValue"].Integer());
 
 	if(input["battleground"].getType() == JsonNode::JsonType::DATA_STRING)
 		battlefield = input["battleground"].String();
 	else
-		battlefield = boost::none;
+		battlefield = std::nullopt;
 
 	initTypeData(input);
 }
@@ -625,7 +625,7 @@ std::vector<std::shared_ptr<const ObjectTemplate>> AObjectTypeHandler::getTempla
 
 BattleField AObjectTypeHandler::getBattlefield() const
 {
-	return battlefield ? BattleField::fromString(battlefield.get()) : BattleField::NONE;
+	return battlefield ? BattleField::fromString(battlefield.value()) : BattleField::NONE;
 }
 
 std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplates(TerrainId terrainType) const
@@ -661,7 +661,7 @@ const RandomMapInfo & AObjectTypeHandler::getRMGInfo()
 	return rmgInfo;
 }
 
-boost::optional<si32> AObjectTypeHandler::getAiValue() const
+std::optional<si32> AObjectTypeHandler::getAiValue() const
 {
 	return aiValue;
 }
