@@ -103,7 +103,7 @@ public:
 #ifndef __APPLE__
 			assert(i->second.type() == typeid(VectorizedObjectInfo<T, U>));
 #endif
-			VectorizedObjectInfo<T, U> *ret = std::any_cast<VectorizedObjectInfo<T, U>*>(i->second);
+			auto *ret = std::any_cast<VectorizedObjectInfo<T, U>>(&i->second);
 			return ret;
 		}
 	}
