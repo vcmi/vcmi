@@ -69,6 +69,7 @@ public:
 
 	const std::vector<const CGHeroInstance *> & getWanderingHeroes();
 	const CGHeroInstance * getWanderingHero(size_t index);
+	const CGHeroInstance * getNextWanderingHero(const CGHeroInstance * hero);
 	void addWanderingHero(const CGHeroInstance * hero);
 	void removeWanderingHero(const CGHeroInstance * hero);
 
@@ -88,7 +89,7 @@ public:
 	const CArmedInstance * getCurrentArmy() const;
 
 	/// Changes currently selected object
-	void setSelection(const CArmedInstance * selection);
+	void setSelection(const CArmedInstance *sel);
 
 	template<typename Handler>
 	void serialize(Handler & h, int version)

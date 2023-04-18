@@ -1230,9 +1230,9 @@ void CCastleInterface::close()
 	if(town->tempOwner == LOCPLINT->playerID) //we may have opened window for an allied town
 	{
 		if(town->visitingHero && town->visitingHero->tempOwner == LOCPLINT->playerID)
-			LOCPLINT->setSelection(town->visitingHero);
+			LOCPLINT->localState->setSelection(town->visitingHero);
 		else
-			LOCPLINT->setSelection(town);
+			LOCPLINT->localState->setSelection(town);
 	}
 	CWindowObject::close();
 }

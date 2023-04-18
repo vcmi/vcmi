@@ -207,9 +207,6 @@ public: // public interface for use by client via LOCPLINT access
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
 	void proposeLoadingGame();
 
-	/// Changes currently selected object
-	void setSelection(const CArmedInstance *sel, bool centerView = true);
-
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
 

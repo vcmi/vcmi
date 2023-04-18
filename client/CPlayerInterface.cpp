@@ -405,6 +405,7 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", hero->getNameTranslated() % playerID);
+
 	localState->removeWanderingHero(hero);
 	adventureInt->onHeroChanged(hero);
 	localState->erasePath(hero);
@@ -2083,13 +2084,4 @@ void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectP
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->openWorldView(objectPositions, showTerrain );
-}
-
-void CPlayerInterface::setSelection(const CArmedInstance *sel, bool centerView)
-{
-	if (sel == localState->getCurrentArmy())
-		return;
-
-	localState->setSelection(sel);
-	adventureInt->onSelectionChanged(sel, centerView);
 }

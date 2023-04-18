@@ -204,8 +204,8 @@ std::shared_ptr<CIntObject> CHeroList::CHeroItem::genSelection()
 
 void CHeroList::CHeroItem::select(bool on)
 {
-	if(on && LOCPLINT->localState->getCurrentHero() != hero)
-		LOCPLINT->setSelection(hero);
+	if(on)
+		LOCPLINT->localState->setSelection(hero);
 }
 
 void CHeroList::CHeroItem::open()
@@ -293,8 +293,8 @@ void CTownList::CTownItem::update()
 
 void CTownList::CTownItem::select(bool on)
 {
-	if (on && LOCPLINT->localState->getCurrentTown() != town)
-		LOCPLINT->setSelection(town, true);
+	if(on)
+		LOCPLINT->localState->setSelection(town);
 }
 
 void CTownList::CTownItem::open()

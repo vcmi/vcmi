@@ -132,8 +132,6 @@ private:
 
 	std::optional<Point> keyToMoveDirection(const SDL_Keycode & key);
 
-	void setHeroSleeping(const CGHeroInstance *hero, bool sleep);
-	const CGHeroInstance * getNextHero(const CGHeroInstance * currentHero); //for Next Hero button - cycles awake heroes with movement only
 	void endingTurn();
 
 	/// exits currently opened world view mode and returns to normal map
@@ -176,8 +174,8 @@ public:
 	/// Called by PlayerInterface when town state changed and town list must be updated
 	void onTownChanged(const CGTownInstance * town);
 
-	/// Changes currently selected object
-	void onSelectionChanged(const CArmedInstance *sel, bool centerView = true);
+	/// Called when currently selected object changes
+	void onSelectionChanged(const CArmedInstance *sel);
 
 	/// Called when map audio should be paused, e.g. on combat or town screen access
 	void onAudioPaused();

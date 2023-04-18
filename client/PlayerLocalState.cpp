@@ -107,6 +107,41 @@ const CGHeroInstance * PlayerLocalState::getCurrentHero() const
 		return nullptr;
 }
 
+const CGHeroInstance * PlayerLocalState::getNextWanderingHero(const CGHeroInstance * currentHero)
+{
+	bool currentHeroFound = false;
+	const CGHeroInstance * firstSuitable = nullptr;
+	const CGHeroInstance * nextSuitable = nullptr;
+
+	for(const auto * hero : getWanderingHeroes())
+	{
+		if (hero == currentHero)
+		{
+			currentHeroFound = true;
+			continue;
+		}
+
+		if (isHeroSleeping(hero))
+			continue;
+
+		if (hero->movement == 0)
+			continue;
+
+		if (!firstSuitable)
+			firstSuitable = hero;
+
+		if (!nextSuitable && currentHeroFound)
+			nextSuitable = hero;
+	}
+
+	// if we found suitable hero after currently selected hero -> return this hero
+	if (nextSuitable)
+		return nextSuitable;
+
+	// othervice -> loop over and return first suitable hero in the list (or null if none)
+	return firstSuitable;
+}
+
 const CGTownInstance * PlayerLocalState::getCurrentTown() const
 {
 	if(currentSelection && currentSelection->ID == Obj::TOWN)
@@ -125,7 +160,13 @@ const CArmedInstance * PlayerLocalState::getCurrentArmy() const
 
 void PlayerLocalState::setSelection(const CArmedInstance * selection)
 {
+	if (currentSelection == selection)
+		return;
+
 	currentSelection = selection;
+
+	if (selection)
+		adventureInt->onSelectionChanged(selection);
 }
 
 bool PlayerLocalState::isHeroSleeping(const CGHeroInstance * hero) const
@@ -174,8 +215,21 @@ void PlayerLocalState::removeWanderingHero(const CGHeroInstance * hero)
 {
 	assert(hero);
 	assert(vstd::contains(wanderingHeroes, hero));
+
+	if (hero == currentSelection)
+	{
+		auto const * nextHero = getNextWanderingHero(hero);
+		setSelection(nextHero);
+	}
+
 	vstd::erase(wanderingHeroes, hero);
 	vstd::erase(sleepingHeroes, hero);
+
+	if (currentSelection == nullptr && !wanderingHeroes.empty())
+		setSelection(wanderingHeroes.front());
+
+	if (currentSelection == nullptr && !ownedTowns.empty())
+		setSelection(ownedTowns.front());
 }
 
 const std::vector<const CGTownInstance *> & PlayerLocalState::getOwnedTowns()
@@ -202,4 +256,13 @@ void PlayerLocalState::removeOwnedTown(const CGTownInstance * town)
 	assert(town);
 	assert(vstd::contains(ownedTowns, town));
 	vstd::erase(ownedTowns, town);
+
+	if (town == currentSelection)
+		setSelection(nullptr);
+
+	if (currentSelection == nullptr && !wanderingHeroes.empty())
+		setSelection(wanderingHeroes.front());
+
+	if (currentSelection == nullptr && !ownedTowns.empty())
+		setSelection(ownedTowns.front());
 }
