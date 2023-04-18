@@ -38,7 +38,7 @@ public:
 
 	bool enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
 	EPlayerStatus::EStatus status;
-	boost::optional<ui8> daysWithoutCastle;
+	std::optional<ui8> daysWithoutCastle;
 
 	PlayerState();
 	PlayerState(PlayerState && other) noexcept;

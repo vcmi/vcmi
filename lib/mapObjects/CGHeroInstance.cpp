@@ -1278,11 +1278,11 @@ PrimarySkill::PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & r
 	return static_cast<PrimarySkill::PrimarySkill>(primarySkill);
 }
 
-boost::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill(CRandomGenerator & rand) const
+std::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill(CRandomGenerator & rand) const
 {
 	assert(gainsLevel());
 
-	boost::optional<SecondarySkill> chosenSecondarySkill;
+	std::optional<SecondarySkill> chosenSecondarySkill;
 	const auto proposedSecondarySkills = getLevelUpProposedSecondarySkills();
 	if(!proposedSecondarySkills.empty())
 	{
@@ -1298,12 +1298,12 @@ boost::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill(CRandomGenera
 		if(learnedSecondarySkills.empty())
 		{
 			// there are only new skills to learn, so choose anyone of them
-			chosenSecondarySkill = boost::make_optional(*RandomGeneratorUtil::nextItem(proposedSecondarySkills, rand));
+			chosenSecondarySkill = std::make_optional(*RandomGeneratorUtil::nextItem(proposedSecondarySkills, rand));
 		}
 		else
 		{
 			// preferably upgrade a already learned secondary skill
-			chosenSecondarySkill = boost::make_optional(*RandomGeneratorUtil::nextItem(learnedSecondarySkills, rand));
+			chosenSecondarySkill = std::make_optional(*RandomGeneratorUtil::nextItem(learnedSecondarySkills, rand));
 		}
 	}
 	return chosenSecondarySkill;
@@ -1439,7 +1439,7 @@ void CGHeroInstance::setHeroTypeName(const std::string & identifier)
 		auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", identifier);
 
 		if(rawId)
-			subID = rawId.get();
+			subID = rawId.value();
 		else
 		{
 			throw std::runtime_error("Couldn't resolve hero identifier " + identifier);

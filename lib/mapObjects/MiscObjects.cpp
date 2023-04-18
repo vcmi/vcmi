@@ -762,7 +762,7 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 				one.String() = GameConstants::RESOURCE_NAMES[resID];
 				node.Vector().push_back(one);
 			}
-			handler.serializeRaw("possibleResources", node, boost::none);
+			handler.serializeRaw("possibleResources", node, std::nullopt);
 		}
 		else
 		{
@@ -1737,7 +1737,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 			if(raw)
 			{
 				bonusType = PRIM_SKILL;
-				bonusID = raw.get();
+				bonusID = raw.value();
 			}
 		}
 		else if(!json["rewardSkill"].String().empty())
@@ -1746,7 +1746,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 			if(raw)
 			{
 				bonusType = SECONDARY_SKILL;
-				bonusID = raw.get();
+				bonusID = raw.value();
 			}
 		}
 		else if(!json["rewardSpell"].String().empty())
@@ -1755,7 +1755,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 			if(raw)
 			{
 				bonusType = SPELL;
-				bonusID = raw.get();
+				bonusID = raw.value();
 			}
 		}
 	}

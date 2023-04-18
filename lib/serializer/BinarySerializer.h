@@ -36,8 +36,8 @@ public:
 /// VCMI Classes:  recursively serialize them via ClassName::serialize( BinarySerializer &, int version) call
 class DLL_LINKAGE BinarySerializer : public CSaverBase
 {
-	template <typename Handler>
-	struct VariantVisitorSaver : boost::static_visitor<>
+	template<typename Handler>
+	struct VariantVisitorSaver
 	{
 		Handler &h;
 		VariantVisitorSaver(Handler &H):h(H)
@@ -330,17 +330,17 @@ public:
 			save(i->second);
 		}
 	}
-	template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-	void save(const boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> &data)
+	template<typename T0, typename... TN>
+	void save(const std::variant<T0, TN...> & data)
 	{
-		si32 which = data.which();
+		si32 which = data.index();
 		save(which);
 
 		VariantVisitorSaver<BinarySerializer> visitor(*this);
-		boost::apply_visitor(visitor, data);
+		std::visit(visitor, data);
 	}
-	template <typename T>
-	void save(const boost::optional<T> &data)
+	template<typename T>
+	void save(const std::optional<T> & data)
 	{
 		if(data)
 		{

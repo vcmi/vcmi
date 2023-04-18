@@ -103,7 +103,7 @@ std::shared_ptr<BattleInterface> CPlayerInterface::battleInt;
 enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
 CondSh<EMoveState> stillMoveHero(STOP_MOVE); //used during hero movement
 
-struct HeroObjectRetriever : boost::static_visitor<const CGHeroInstance *>
+struct HeroObjectRetriever
 {
 	const CGHeroInstance * operator()(const ConstTransitivePtr<CGHeroInstance> &h) const
 	{
@@ -328,7 +328,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	if (details.result == TryMoveHero::EMBARK || details.result == TryMoveHero::DISEMBARK)
 	{
 		if(hero->getRemovalSound() && hero->tempOwner == playerID)
-			CCS->soundh->playSound(hero->getRemovalSound().get());
+			CCS->soundh->playSound(hero->getRemovalSound().value());
 	}
 
 	adventureInt->minimap->updateTile(hero->convertToVisitablePos(details.start));
@@ -463,7 +463,7 @@ void CPlayerInterface::heroVisit(const CGHeroInstance * visitor, const CGObjectI
 	if(start && visitedObj)
 	{
 		if(visitedObj->getVisitSound())
-			CCS->soundh->playSound(visitedObj->getVisitSound().get());
+			CCS->soundh->playSound(visitedObj->getVisitSound().value());
 	}
 }
 
@@ -1530,7 +1530,7 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj)
 	if(LOCPLINT->cb->getCurrentPlayer() == playerID && obj->getRemovalSound())
 	{
 		waitWhileDialog();
-		CCS->soundh->playSound(obj->getRemovalSound().get());
+		CCS->soundh->playSound(obj->getRemovalSound().value());
 	}
 	CGI->mh->waitForOngoingAnimations();
 
@@ -1758,7 +1758,7 @@ void CPlayerInterface::acceptTurn()
 
 		if(optDaysWithoutCastle)
 		{
-			auto daysWithoutCastle = optDaysWithoutCastle.get();
+			auto daysWithoutCastle = optDaysWithoutCastle.value();
 			if (daysWithoutCastle < 6)
 			{
 				text.addTxt(MetaString::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.
@@ -1915,7 +1915,7 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 
 void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 {
-	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	if(hero)
 	{
 		auto art = hero->getArt(al.slot);
@@ -1932,14 +1932,14 @@ void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	updateInfo(hero);
 }
 
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	updateInfo(hero);
 	for(auto isa : GH.listInt)
 	{
@@ -1954,7 +1954,7 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = boost::apply_visitor(HeroObjectRetriever(), dst.artHolder);
+	auto hero = std::visit(HeroObjectRetriever(), dst.artHolder);
 	updateInfo(hero);
 
 	bool redraw = true;
@@ -1983,7 +1983,7 @@ void CPlayerInterface::bulkArtMovementStart(size_t numOfArts)
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	updateInfo(hero);
 	for(auto isa : GH.listInt)
 	{
@@ -1996,7 +1996,7 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	updateInfo(hero);
 	for(auto isa : GH.listInt)
 	{

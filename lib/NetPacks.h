@@ -145,7 +145,7 @@ struct DLL_LINKAGE YourTurn : public CPackForClient
 	void applyGs(CGameState * gs) const;
 
 	PlayerColor player;
-	boost::optional<ui8> daysWithoutCastle;
+	std::optional<ui8> daysWithoutCastle;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
@@ -591,7 +591,7 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 	EResult result = FAILED; //uses EResult
 	int3 start, end; //h3m format
 	std::unordered_set<int3, ShashInt3> fowRevealed; //revealed tiles
-	boost::optional<int3> attackedFrom; // Set when stepping into endangered tile.
+	std::optional<int3> attackedFrom; // Set when stepping into endangered tile.
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
@@ -930,17 +930,17 @@ struct DLL_LINKAGE BulkSmartRebalanceStacks : CGarrisonOperationPack
 	}
 };
 
-struct GetEngagedHeroIds : boost::static_visitor<boost::optional<ObjectInstanceID>>
+struct GetEngagedHeroIds
 {
-	boost::optional<ObjectInstanceID> operator()(const ConstTransitivePtr<CGHeroInstance> & h) const
+	std::optional<ObjectInstanceID> operator()(const ConstTransitivePtr<CGHeroInstance> & h) const
 	{
 		return h->id;
 	}
-	boost::optional<ObjectInstanceID> operator()(const ConstTransitivePtr<CStackInstance> & s) const
+	std::optional<ObjectInstanceID> operator()(const ConstTransitivePtr<CStackInstance> & s) const
 	{
 		if(s->armyObj && s->armyObj->ID == Obj::HERO)
 			return s->armyObj->id;
-		return boost::optional<ObjectInstanceID>();
+		return std::optional<ObjectInstanceID>();
 	}
 };
 

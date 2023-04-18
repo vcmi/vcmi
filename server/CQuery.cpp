@@ -360,11 +360,11 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 
 	if(auto arts = dynamic_ptr_cast<ExchangeArtifacts>(pack))
 	{
-		if(auto id1 = boost::apply_visitor(GetEngagedHeroIds(), arts->src.artHolder))
+		if(auto id1 = std::visit(GetEngagedHeroIds(), arts->src.artHolder))
 			if(!vstd::contains(ourIds, *id1))
 				return true;
 
-		if(auto id2 = boost::apply_visitor(GetEngagedHeroIds(), arts->dst.artHolder))
+		if(auto id2 = std::visit(GetEngagedHeroIds(), arts->dst.artHolder))
 			if(!vstd::contains(ourIds, *id2))
 				return true;
 		return false;
@@ -377,7 +377,7 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 
 	if(auto art = dynamic_ptr_cast<EraseArtifactByClient>(pack))
 	{
-		if (auto id = boost::apply_visitor(GetEngagedHeroIds(), art->al.artHolder))
+		if (auto id = std::visit(GetEngagedHeroIds(), art->al.artHolder))
 			return !vstd::contains(ourIds, *id);
 	}
 
@@ -455,7 +455,7 @@ CHeroLevelUpDialogQuery::CHeroLevelUpDialogQuery(CGameHandler * owner, const Her
 void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
 {
 	assert(answer);
-	logGlobal->trace("Completing hero level-up query. %s gains skill %d", hero->getObjectName(), answer.get());
+	logGlobal->trace("Completing hero level-up query. %s gains skill %d", hero->getObjectName(), answer.value());
 	gh->levelUpHero(hero, hlu.skills[*answer]);
 }
 
@@ -474,7 +474,7 @@ CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(CGameHandler * owner,
 void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 {
 	assert(answer);
-	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getObjectName(), answer.get());
+	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getObjectName(), answer.value());
 	gh->levelUpCommander(hero->commander, clu.skills[*answer]);
 }
 

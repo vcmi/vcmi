@@ -51,7 +51,7 @@ void CTownInstanceConstructor::afterLoadFinalization()
 	{
 		filters[entry.first] = LogicalExpression<BuildingID>(entry.second, [this](const JsonNode & node)
 		{
-			return BuildingID(VLC->modh->identifiers.getIdentifier("building." + faction->getJsonKey(), node.Vector()[0]).get());
+			return BuildingID(VLC->modh->identifiers.getIdentifier("building." + faction->getJsonKey(), node.Vector()[0]).value());
 		});
 	}
 }
@@ -99,7 +99,7 @@ void CHeroInstanceConstructor::afterLoadFinalization()
 	{
 		filters[entry.first] = LogicalExpression<HeroTypeID>(entry.second, [](const JsonNode & node)
 		{
-			return HeroTypeID(VLC->modh->identifiers.getIdentifier("hero", node.Vector()[0]).get());
+			return HeroTypeID(VLC->modh->identifiers.getIdentifier("hero", node.Vector()[0]).value());
 		});
 	}
 }

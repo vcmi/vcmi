@@ -83,7 +83,7 @@ bool AINodeStorage::isBattleNode(const CGPathNode * node) const
 	return (getAINode(node)->chainMask & BATTLE_CHAIN) > 0;
 }
 
-boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, const EPathfindingLayer layer, int chainNumber)
+std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, const EPathfindingLayer layer, int chainNumber)
 {
 	auto chains = nodes[layer][pos.z][pos.x][pos.y];
 
@@ -102,15 +102,13 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, c
 		}
 	}
 
-	return boost::none;
+	return std::nullopt;
 }
 
 std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 {
 	auto hpos = hero->visitablePos();
-	auto initialNode =
-		getOrCreateNode(hpos, hero->boat ? hero->boat->layer : EPathfindingLayer::LAND, NORMAL_CHAIN)
-		.get();
+	auto initialNode = getOrCreateNode(hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, NORMAL_CHAIN).value();
 
 	initialNode->turns = 0;
 	initialNode->moveRemains = hero->movement;
@@ -171,10 +169,10 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 		{
 			auto nextNode = getOrCreateNode(neighbour, i, srcNode->chainMask);
 
-			if(!nextNode || nextNode.get()->accessible == CGPathNode::NOT_SET)
+			if(!nextNode || nextNode.value()->accessible == CGPathNode::NOT_SET)
 				continue;
 
-			neighbours.push_back(nextNode.get());
+			neighbours.push_back(nextNode.value());
 		}
 	}
 
@@ -207,7 +205,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 			if(!node)
 				continue;
 
-			neighbours.push_back(node.get());
+			neighbours.push_back(node.value());
 		}
 	}
 
@@ -273,7 +271,7 @@ void AINodeStorage::calculateTownPortalTeleportations(
 				logAi->trace("Adding town portal node at %s", targetTown->name);
 #endif
 
-				AIPathNode * node = nodeOptional.get();
+				AIPathNode * node = nodeOptional.value();
 
 				node->theNodeBefore = source.node;
 				node->specialAction.reset(new AIPathfinding::TownPortalAction(targetTown));

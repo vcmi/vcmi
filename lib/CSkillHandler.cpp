@@ -262,7 +262,7 @@ si32 CSkillHandler::decodeSkill(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "skill", identifier);
 	if(rawId)
-		return rawId.get();
+		return rawId.value();
 	else
 		return -1;
 }

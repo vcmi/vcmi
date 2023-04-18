@@ -120,7 +120,7 @@ void AINodeStorage::clear()
 	turnDistanceLimit[HeroRole::SCOUT] = 255;
 }
 
-boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
+std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	const int3 & pos, 
 	const EPathfindingLayer layer, 
 	const ChainActor * actor)
@@ -131,7 +131,7 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 
 	if(chains[0].blocked())
 	{
-		return boost::none;
+		return std::nullopt;
 	}
 
 	for(auto i = AIPathfinding::BUCKET_SIZE - 1; i >= 0; i--)
@@ -151,7 +151,7 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 		}
 	}
 
-	return boost::none;
+	return std::nullopt;
 }
 
 std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
@@ -175,7 +175,7 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 		if(!allocated)
 			continue;
 
-		AIPathNode * initialNode = allocated.get();
+		AIPathNode * initialNode = allocated.value();
 
 		initialNode->inPQ = false;
 		initialNode->pq = nullptr;
@@ -289,10 +289,10 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 		{
 			auto nextNode = getOrCreateNode(neighbour, i, srcNode->actor);
 
-			if(!nextNode || nextNode.get()->accessible == CGPathNode::NOT_SET)
+			if(!nextNode || nextNode.value()->accessible == CGPathNode::NOT_SET)
 				continue;
 
-			neighbours.push_back(nextNode.get());
+			neighbours.push_back(nextNode.value());
 		}
 	}
 	
@@ -722,7 +722,7 @@ void HeroChainCalculationTask::addHeroChain(const std::vector<ExchangeCandidate>
 			continue;
 		}
 
-		auto exchangeNode = chainNodeOptional.get();
+		auto exchangeNode = chainNodeOptional.value();
 
 		if(exchangeNode->action != CGPathNode::ENodeAction::UNKNOWN)
 		{
@@ -946,7 +946,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 			if(!node)
 				continue;
 
-			neighbours.push_back(node.get());
+			neighbours.push_back(node.value());
 		}
 	}
 
@@ -1017,19 +1017,19 @@ struct TowmPortalFinder
 		return nullptr;
 	}
 
-	boost::optional<AIPathNode *> createTownPortalNode(const CGTownInstance * targetTown)
+	std::optional<AIPathNode *> createTownPortalNode(const CGTownInstance * targetTown)
 	{
 		auto bestNode = getBestInitialNodeForTownPortal(targetTown);
 
 		if(!bestNode)
-			return boost::none;
+			return std::nullopt;
 
 		auto nodeOptional = nodeStorage->getOrCreateNode(targetTown->visitablePos(), EPathfindingLayer::LAND, actor->castActor);
 
 		if(!nodeOptional)
-			return boost::none;
+			return std::nullopt;
 
-		AIPathNode * node = nodeOptional.get();
+		AIPathNode * node = nodeOptional.value();
 		float movementCost = (float)movementNeeded / (float)hero->maxMovePoints(EPathfindingLayer::LAND);
 
 		movementCost += bestNode->getCost();
@@ -1095,7 +1095,7 @@ void AINodeStorage::calculateTownPortal(
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 1
 				logAi->trace("Adding town portal node at %s", targetTown->name);
 #endif
-				output.push_back(nodeOptional.get());
+				output.push_back(nodeOptional.value());
 			}
 		}
 	}

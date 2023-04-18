@@ -349,7 +349,7 @@ si32 CSpell::getProbability(const FactionID & factionId) const
 	return probabilities.at(factionId);
 }
 
-void CSpell::getEffects(std::vector<Bonus> & lst, const int level, const bool cumulative, const si32 duration, boost::optional<si32 *> maxDuration) const
+void CSpell::getEffects(std::vector<Bonus> & lst, const int level, const bool cumulative, const si32 duration, std::optional<si32 *> maxDuration) const
 {
 	if(level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
 	{
@@ -377,7 +377,7 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level, const bool cu
 		if(nb.turnsRemain == 0)
 			nb.turnsRemain = duration;
 		if(maxDuration)
-			vstd::amax(*(maxDuration.get()), nb.turnsRemain);
+			vstd::amax(*(maxDuration.value()), nb.turnsRemain);
 
 		lst.push_back(nb);
 	}

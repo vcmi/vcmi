@@ -90,7 +90,7 @@ bool CCallback::upgradeCreature(const CArmedInstance *obj, SlotID stackPos, Crea
 
 void CCallback::endTurn()
 {
-	logGlobal->trace("Player %d ended his turn.", player.get().getNum());
+	logGlobal->trace("Player %d ended his turn.", player->getNum());
 	EndTurn pack;
 	sendRequest(&pack);
 }
@@ -306,8 +306,8 @@ void CCallback::buildBoat( const IShipyard *obj )
 	sendRequest(&bb);
 }
 
-CCallback::CCallback(CGameState * GS, boost::optional<PlayerColor> Player, CClient * C)
-	: CBattleCallback(Player, C)
+CCallback::CCallback(CGameState * GS, std::optional<PlayerColor> Player, CClient * C):
+	CBattleCallback(Player, C)
 {
 	gs = GS;
 
@@ -380,7 +380,7 @@ scripting::Pool * CBattleCallback::getContextPool() const
 }
 #endif
 
-CBattleCallback::CBattleCallback(boost::optional<PlayerColor> Player, CClient *C )
+CBattleCallback::CBattleCallback(std::optional<PlayerColor> Player, CClient * C)
 {
 	player = Player;
 	cl = C;
@@ -395,8 +395,7 @@ bool CBattleCallback::battleMakeTacticAction( BattleAction * action )
 	return true;
 }
 
-boost::optional<BattleAction> CBattleCallback::makeSurrenderRetreatDecision(
-	const BattleStateInfoForRetreat & battleState)
+std::optional<BattleAction> CBattleCallback::makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
 {
-	return cl->playerint[getPlayerID().get()]->makeSurrenderRetreatDecision(battleState);
+	return cl->playerint[getPlayerID().value()]->makeSurrenderRetreatDecision(battleState);
 }

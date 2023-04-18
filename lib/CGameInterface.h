@@ -110,9 +110,9 @@ public:
 
 	virtual void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain){};
 
-	virtual boost::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
+	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
 	{
-		return boost::none;
+		return std::nullopt;
 	}
 
 	virtual void saveGame(BinarySerializer & h, const int version) = 0;

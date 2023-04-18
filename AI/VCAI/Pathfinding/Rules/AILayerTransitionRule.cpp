@@ -120,7 +120,7 @@ namespace AIPathfinding
 
 			if(boatNodeOptional)
 			{
-				AIPathNode * boatNode = boatNodeOptional.get();
+				AIPathNode * boatNode = boatNodeOptional.value();
 
 				if(boatNode->action == CGPathNode::UNKNOWN)
 				{

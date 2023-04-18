@@ -26,30 +26,30 @@ void JsonSerializer::serializeInternal(const std::string & fieldName, boost::log
 		currentObject->operator[](fieldName).Bool() = (bool)value;
 }
 
-void JsonSerializer::serializeInternal(const std::string & fieldName, si32 & value, const boost::optional<si32> & defaultValue, const TDecoder & decoder, const TEncoder & encoder)
+void JsonSerializer::serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const TDecoder & decoder, const TEncoder & encoder)
 {
-	if(!defaultValue || defaultValue.get() != value)
+	if(!defaultValue || defaultValue.value() != value)
 	{
 		std::string identifier = encoder(value);
 		serializeString(fieldName, identifier);
 	}
 }
 
-void JsonSerializer::serializeInternal(const std::string & fieldName, double & value, const boost::optional<double> & defaultValue)
+void JsonSerializer::serializeInternal(const std::string & fieldName, double & value, const std::optional<double> & defaultValue)
 {
-	if(!defaultValue || defaultValue.get() != value)
+	if(!defaultValue || defaultValue.value() != value)
 		currentObject->operator[](fieldName).Float() = value;
 }
 
-void JsonSerializer::serializeInternal(const std::string & fieldName, si64 & value, const boost::optional<si64> & defaultValue)
+void JsonSerializer::serializeInternal(const std::string & fieldName, si64 & value, const std::optional<si64> & defaultValue)
 {
-	if(!defaultValue || defaultValue.get() != value)
+	if(!defaultValue || defaultValue.value() != value)
 		currentObject->operator[](fieldName).Integer() = value;
 }
 
-void JsonSerializer::serializeInternal(const std::string & fieldName, si32 & value, const boost::optional<si32> & defaultValue, const std::vector<std::string> & enumMap)
+void JsonSerializer::serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const std::vector<std::string> & enumMap)
 {
-	if(!defaultValue || defaultValue.get() != value)
+	if(!defaultValue || defaultValue.value() != value)
 		currentObject->operator[](fieldName).String() = enumMap.at(value);
 }
 
@@ -112,9 +112,9 @@ void JsonSerializer::serializeString(const std::string & fieldName, std::string 
 		currentObject->operator[](fieldName).String() = value;
 }
 
-void JsonSerializer::serializeRaw(const std::string & fieldName, JsonNode & value, const boost::optional<const JsonNode &> defaultValue)
+void JsonSerializer::serializeRaw(const std::string & fieldName, JsonNode & value, const std::optional<std::reference_wrapper<const JsonNode>> defaultValue)
 {
-	if(!defaultValue || value != defaultValue.get())
+	if(!defaultValue || value != defaultValue.value())
 		currentObject->operator[](fieldName) = value;
 }
 

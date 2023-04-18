@@ -44,7 +44,7 @@ std::string CFilesystemLoader::getMountPoint() const
 	return mountPoint;
 }
 
-boost::optional<boost::filesystem::path> CFilesystemLoader::getResourceName(const ResourceID & resourceName) const
+std::optional<boost::filesystem::path> CFilesystemLoader::getResourceName(const ResourceID & resourceName) const
 {
 	assert(existsResource(resourceName));
 

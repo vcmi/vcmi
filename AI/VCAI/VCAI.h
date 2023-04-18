@@ -217,7 +217,7 @@ public:
 	void completeGoal(Goals::TSubgoal goal); //safely removes goal from reserved hero
 
 	void recruitHero(const CGTownInstance * t, bool throwing = false);
-	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, boost::optional<float> movementCostLimit = boost::none);
+	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, std::optional<float> movementCostLimit = std::nullopt);
 	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, const AIPath & path) const;
 	//void recruitCreatures(const CGTownInstance * t);
 	void recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter);

@@ -1535,7 +1535,7 @@ const CStackInstance * StackLocation::getStack()
 	return &army->getStack(slot);
 }
 
-struct ObjectRetriever : boost::static_visitor<const CArmedInstance *>
+struct ObjectRetriever
 {
 	const CArmedInstance * operator()(const ConstTransitivePtr<CGHeroInstance> &h) const
 	{
@@ -1546,8 +1546,8 @@ struct ObjectRetriever : boost::static_visitor<const CArmedInstance *>
 		return s->armyObj;
 	}
 };
-template <typename T>
-struct GetBase : boost::static_visitor<T*>
+template<typename T>
+struct GetBase
 {
 	template <typename TArg>
 	T * operator()(TArg &arg) const
@@ -1566,7 +1566,7 @@ void ArtifactLocation::removeArtifact()
 
 const CArmedInstance * ArtifactLocation::relatedObj() const
 {
-	return boost::apply_visitor(ObjectRetriever(), artHolder);
+	return std::visit(ObjectRetriever(), artHolder);
 }
 
 PlayerColor ArtifactLocation::owningPlayer() const
@@ -1577,12 +1577,12 @@ PlayerColor ArtifactLocation::owningPlayer() const
 
 CArtifactSet *ArtifactLocation::getHolderArtSet()
 {
-	return boost::apply_visitor(GetBase<CArtifactSet>(), artHolder);
+	return std::visit(GetBase<CArtifactSet>(), artHolder);
 }
 
 CBonusSystemNode *ArtifactLocation::getHolderNode()
 {
-	return boost::apply_visitor(GetBase<CBonusSystemNode>(), artHolder);
+	return std::visit(GetBase<CBonusSystemNode>(), artHolder);
 }
 
 const CArtifactInstance *ArtifactLocation::getArt() const
@@ -2053,11 +2053,11 @@ void NewTurn::applyGs(CGameState *gs)
 				if (playerState.daysWithoutCastle)
 					++(*playerState.daysWithoutCastle);
 				else
-					playerState.daysWithoutCastle = boost::make_optional(0);
+					playerState.daysWithoutCastle = std::make_optional(0);
 			}
 			else
 			{
-				playerState.daysWithoutCastle = boost::none;
+				playerState.daysWithoutCastle = std::nullopt;
 			}
 		}
 	}
@@ -2088,7 +2088,7 @@ void SetObjectProperty::applyGs(CGameState * gs) const
 
 				//reset counter before NewTurn to avoid no town message if game loaded at turn when one already captured
 				if(p->daysWithoutCastle)
-					p->daysWithoutCastle = boost::none;
+					p->daysWithoutCastle = std::nullopt;
 			}
 		}
 
@@ -2536,12 +2536,12 @@ const CArtifactInstance * ArtSlotInfo::getArt() const
 
 CArtifactSet * BulkMoveArtifacts::getSrcHolderArtSet()
 {
-	return boost::apply_visitor(GetBase<CArtifactSet>(), srcArtHolder);
+	return std::visit(GetBase<CArtifactSet>(), srcArtHolder);
 }
 
 CArtifactSet * BulkMoveArtifacts::getDstHolderArtSet()
 {
-	return boost::apply_visitor(GetBase<CArtifactSet>(), dstArtHolder);
+	return std::visit(GetBase<CArtifactSet>(), dstArtHolder);
 }
 
 VCMI_LIB_NAMESPACE_END

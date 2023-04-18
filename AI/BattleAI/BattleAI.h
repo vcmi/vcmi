@@ -73,7 +73,7 @@ public:
 
 	BattleAction activeStack(const CStack * stack) override; //called when it's turn of that stack
 
-	boost::optional<BattleAction> considerFleeingOrSurrendering();
+	std::optional<BattleAction> considerFleeingOrSurrendering();
 
 	void print(const std::string &text) const;
 	BattleAction useCatapult(const CStack *stack);

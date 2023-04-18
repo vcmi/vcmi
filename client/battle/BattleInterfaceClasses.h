@@ -166,7 +166,7 @@ class StackQueue : public CIntObject
 	class StackBox : public CIntObject
 	{
 		StackQueue * owner;
-		boost::optional<uint32_t> boundUnitID;
+		std::optional<uint32_t> boundUnitID;
 		bool highlighted = false;
 
 	public:
@@ -178,7 +178,7 @@ class StackQueue : public CIntObject
 		StackBox(StackQueue * owner);
 		void setUnit(const battle::Unit * unit, size_t turn = 0);
 		void toggleHighlight(bool value);
-		boost::optional<uint32_t> getBoundUnitID() const;
+		std::optional<uint32_t> getBoundUnitID() const;
 
 		void show(SDL_Surface * to) override;
 	};
@@ -197,7 +197,7 @@ public:
 
 	StackQueue(bool Embedded, BattleInterface & owner);
 	void update();
-	boost::optional<uint32_t> getHoveredUnitIdIfAny() const;
+	std::optional<uint32_t> getHoveredUnitIdIfAny() const;
 
 	void show(SDL_Surface * to) override;
 };

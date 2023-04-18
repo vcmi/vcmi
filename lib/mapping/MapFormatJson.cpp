@@ -224,7 +224,7 @@ namespace TriggeredEventsDetail
 					auto type = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), fullIdentifier, false);
 
 					if(type)
-						event.objectType = type.get();
+						event.objectType = type.value();
 					event.objectInstanceName = data["object"].String();
 					if(data["value"].isNumber())
 						event.value = static_cast<si32>(data["value"].Integer());
@@ -242,7 +242,7 @@ namespace TriggeredEventsDetail
 					{
 						auto identifier = VLC->modh->identifiers.getIdentifier(data["type"]);
 						if(identifier)
-							event.objectType = identifier.get();
+							event.objectType = identifier.value();
 						else
 							throw std::runtime_error("Identifier resolution failed in event condition");
 					}
@@ -658,7 +658,7 @@ void CMapFormatJson::writeTeams(JsonSerializer & handler)
 			}
 			dest.Vector().push_back(std::move(team));
 		}
-		handler.serializeRaw("teams", dest, boost::none);
+		handler.serializeRaw("teams", dest, std::nullopt);
 	}
 }
 
@@ -695,7 +695,7 @@ void CMapFormatJson::writeTriggeredEvents(JsonSerializer & handler)
 	for(const auto & event : mapHeader->triggeredEvents)
 		writeTriggeredEvent(event, triggeredEvents[event.identifier]);
 
-	handler.serializeRaw("triggeredEvents", triggeredEvents, boost::none);
+	handler.serializeRaw("triggeredEvents", triggeredEvents, std::nullopt);
 }
 
 void CMapFormatJson::writeTriggeredEvent(const TriggeredEvent & event, JsonNode & dest) const
@@ -774,7 +774,7 @@ void CMapFormatJson::writeDisposedHeroes(JsonSerializeFormat & handler)
 				players.Vector().push_back(player);
 			}
 		}
-		definition->serializeRaw("availableFor", players, boost::none);
+		definition->serializeRaw("availableFor", players, std::nullopt);
 	}
 }
 
@@ -1186,7 +1186,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 			auto spellIdentifier = configuration["options"]["spell"].String();
 			auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "spell", spellIdentifier);
 			if(rawId)
-				spellID = rawId.get();
+				spellID = rawId.value();
 			else
 				spellID = 0;
 			artID = ArtifactID::SPELL_SCROLL;

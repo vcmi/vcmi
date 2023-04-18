@@ -450,13 +450,13 @@ void CCampaignState::setCurrentMapAsConquered(const std::vector<CGHeroInstance *
 	camp->scenarios[*currentMap].conquered = true;
 }
 
-boost::optional<CScenarioTravel::STravelBonus> CCampaignState::getBonusForCurrentMap() const
+std::optional<CScenarioTravel::STravelBonus> CCampaignState::getBonusForCurrentMap() const
 {
 	auto bonuses = getCurrentScenario().travelOptions.bonusesToChoose;
 	assert(chosenCampaignBonuses.count(*currentMap) || bonuses.size() == 0);
 
 	if(bonuses.empty())
-		return boost::optional<CScenarioTravel::STravelBonus>();
+		return std::optional<CScenarioTravel::STravelBonus>();
 	else
 		return bonuses[currentBonusID()];
 }
@@ -489,7 +489,7 @@ CMap * CCampaignState::getMap(int scenarioId) const
 {
 	// FIXME: there is certainly better way to handle maps inside campaigns
 	if(scenarioId == -1)
-		scenarioId = currentMap.get();
+		scenarioId = currentMap.value();
 	std::string scenarioName = camp->header.filename.substr(0, camp->header.filename.find('.'));
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(scenarioId);
@@ -502,7 +502,7 @@ CMap * CCampaignState::getMap(int scenarioId) const
 std::unique_ptr<CMapHeader> CCampaignState::getHeader(int scenarioId) const
 {
 	if(scenarioId == -1)
-		scenarioId = currentMap.get();
+		scenarioId = currentMap.value();
 
 	std::string scenarioName = camp->header.filename.substr(0, camp->header.filename.find('.'));
 	boost::to_lower(scenarioName);
@@ -516,7 +516,7 @@ std::unique_ptr<CMapHeader> CCampaignState::getHeader(int scenarioId) const
 std::shared_ptr<CMapInfo> CCampaignState::getMapInfo(int scenarioId) const
 {
 	if(scenarioId == -1)
-		scenarioId = currentMap.get();
+		scenarioId = currentMap.value();
 
 	auto mapInfo = std::make_shared<CMapInfo>();
 	mapInfo->fileURI = camp->header.filename;

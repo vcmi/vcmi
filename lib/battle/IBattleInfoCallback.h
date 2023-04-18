@@ -58,7 +58,7 @@ public:
 	virtual BattleField battleGetBattlefieldType() const = 0;
 
 	///return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw
-	virtual boost::optional<int> battleIsFinished() const = 0;
+	virtual std::optional<int> battleIsFinished() const = 0;
 
 	virtual si8 battleTacticDist() const = 0; //returns tactic distance in current tactics phase; 0 if not in tactics phase
 	virtual si8 battleGetTacticsSide() const = 0; //returns which side is in tactics phase, undefined if none (?)

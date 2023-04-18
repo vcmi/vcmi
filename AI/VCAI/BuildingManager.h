@@ -33,9 +33,9 @@ public:
 	virtual void setAI(VCAI * AI) = 0;
 
 	virtual bool getBuildingOptions(const CGTownInstance * t) = 0;
-	virtual boost::optional<PotentialBuilding> immediateBuilding() const = 0;
-	virtual boost::optional<PotentialBuilding> expensiveBuilding() const = 0;
-	virtual boost::optional<BuildingID> canBuildAnyStructure(const CGTownInstance * t, const std::vector<BuildingID> & buildList, unsigned int maxDays) const = 0;
+	virtual std::optional<PotentialBuilding> immediateBuilding() const = 0;
+	virtual std::optional<PotentialBuilding> expensiveBuilding() const = 0;
+	virtual std::optional<BuildingID> canBuildAnyStructure(const CGTownInstance * t, const std::vector<BuildingID> & buildList, unsigned int maxDays) const = 0;
 };
 
 class DLL_EXPORT BuildingManager : public IBuildingManager
@@ -52,9 +52,9 @@ public:
 	//try build anything in given town, and execute resulting Goal if any
 	bool getBuildingOptions(const CGTownInstance * t) override;
 	BuildingID getMaxPossibleGoldBuilding(const CGTownInstance * t);
-	boost::optional<PotentialBuilding> immediateBuilding() const override;
-	boost::optional<PotentialBuilding> expensiveBuilding() const override;
-	boost::optional<BuildingID> canBuildAnyStructure(const CGTownInstance * t, const std::vector<BuildingID> & buildList, unsigned int maxDays = 7) const override;
+	std::optional<PotentialBuilding> immediateBuilding() const override;
+	std::optional<PotentialBuilding> expensiveBuilding() const override;
+	std::optional<BuildingID> canBuildAnyStructure(const CGTownInstance * t, const std::vector<BuildingID> & buildList, unsigned int maxDays = 7) const override;
 
 protected:
 

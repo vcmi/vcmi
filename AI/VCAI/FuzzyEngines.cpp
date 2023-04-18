@@ -399,12 +399,12 @@ float VisitObjEngine::evaluate(Goals::VisitObj & goal)
 		return -100; // FIXME: Added check when goal was used for hero instead of VisitHero, but crashes are bad anyway
 	}
 
-	boost::optional<int> objValueKnownByAI = MapObjectsEvaluator::getInstance().getObjectValue(obj);
+	std::optional<int> objValueKnownByAI = MapObjectsEvaluator::getInstance().getObjectValue(obj);
 	int objValue = 0;
 
-	if(objValueKnownByAI != boost::none) //consider adding value manipulation based on object instances on map
+	if(objValueKnownByAI != std::nullopt) //consider adding value manipulation based on object instances on map
 	{
-		objValue = std::min(std::max(objValueKnownByAI.get(), 0), 20000);
+		objValue = std::min(std::max(objValueKnownByAI.value(), 0), 20000);
 	}
 	else
 	{

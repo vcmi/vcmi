@@ -1506,7 +1506,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 			auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), getTown()->getBuildingScope(), identifier);
 
 			if(rawId)
-				return rawId.get();
+				return rawId.value();
 			else
 				return -1;
 		};

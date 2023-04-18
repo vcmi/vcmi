@@ -137,7 +137,7 @@ ZoneOptions::ZoneOptions():
 	type(ETemplateZoneType::PLAYER_START),
 	size(1),
 	maxTreasureValue(0),
-	owner(boost::none),
+	owner(std::nullopt),
 	matchTerrainToTown(true),
 	townsAreSameType(false),
 	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL),
@@ -182,7 +182,7 @@ void ZoneOptions::setSize(int value)
 	size = value;
 }
 
-boost::optional<int> ZoneOptions::getOwner() const
+std::optional<int> ZoneOptions::getOwner() const
 {
 	return owner;
 }
@@ -355,7 +355,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 				node.Vector().push_back(n);
 			}
 		}
-		handler.serializeRaw("terrainTypes", node, boost::none);
+		handler.serializeRaw("terrainTypes", node, std::nullopt);
 		if(!handler.saving)
 		{
 			if(!node.Vector().empty())
@@ -657,7 +657,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 				node.Vector().push_back(n);
 			}
 		}
-		handler.serializeRaw("allowedWaterContent", node, boost::none);
+		handler.serializeRaw("allowedWaterContent", node, std::nullopt);
 		if(!handler.saving)
 		{
 			for(auto wc : node.Vector())

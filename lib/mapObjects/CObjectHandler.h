@@ -171,10 +171,9 @@ public:
 
 	virtual bool isTile2Terrain() const { return false; }
 
-	boost::optional<std::string> getAmbientSound() const;
-	boost::optional<std::string> getVisitSound() const;
-	boost::optional<std::string> getRemovalSound() const;
-
+	std::optional<std::string> getAmbientSound() const;
+	std::optional<std::string> getVisitSound() const;
+	std::optional<std::string> getRemovalSound() const;
 
 	/** VIRTUAL METHODS **/
 
