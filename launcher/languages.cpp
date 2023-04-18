@@ -44,7 +44,7 @@ QString Languages::getHeroesDataLanguage()
 	QString language = QString::fromStdString(settings["session"]["language"].String());
 	double deviation = settings["session"]["languageDeviation"].Float();
 
-	if(deviation > 0.05)
+	if(deviation > 0.1)
 		return QString();
 	return language;
 }
