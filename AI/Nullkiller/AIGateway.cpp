@@ -501,8 +501,7 @@ void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositio
 	NET_EVENT_HANDLER;
 }
 
-boost::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(
-	const BattleStateInfoForRetreat & battleState)
+std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -516,7 +515,7 @@ boost::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(
 		return BattleAction::makeRetreat(battleState.ourSide);
 	}
 
-	return boost::none;
+	return std::nullopt;
 }
 
 

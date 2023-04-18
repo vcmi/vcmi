@@ -139,17 +139,17 @@ namespace AIPathfinding
 		{
 			if(!destinationNode->actor->allowUseResources)
 			{
-				boost::optional<AIPathNode *> questNode = nodeStorage->getOrCreateNode(
+				std::optional<AIPathNode *> questNode = nodeStorage->getOrCreateNode(
 					destination.coord,
 					destination.node->layer,
 					destinationNode->actor->resourceActor);
 
-				if(!questNode || questNode.get()->getCost() < destination.cost)
+				if(!questNode || questNode.value()->getCost() < destination.cost)
 				{
 					return false;
 				}
 
-				destination.node = questNode.get();
+				destination.node = questNode.value();
 
 				nodeStorage->commit(destination, source);
 				AIPreviousNodeRule(nodeStorage).process(source, destination, pathfinderConfig, pathfinderHelper);
@@ -259,7 +259,7 @@ namespace AIPathfinding
 			return false;
 		}
 
-		AIPathNode * battleNode = battleNodeOptional.get();
+		auto * battleNode = battleNodeOptional.value();
 
 		if(battleNode->locked)
 		{

@@ -20,7 +20,7 @@ public:
 	MOCK_CONST_METHOD0(battleTerrainType, TerrainId());
 	MOCK_CONST_METHOD0(battleGetBattlefieldType, BattleField());
 
-	MOCK_CONST_METHOD0(battleIsFinished, boost::optional<int>());
+	MOCK_CONST_METHOD0(battleIsFinished, std::optional<int>());
 
 	MOCK_CONST_METHOD0(battleTacticDist, si8());
 	MOCK_CONST_METHOD0(battleGetTacticsSide, si8());

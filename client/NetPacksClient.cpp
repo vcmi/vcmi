@@ -762,7 +762,7 @@ void ApplyClientNetPackVisitor::visitBattleAttack(BattleAttack & pack)
 
 void ApplyFirstClientNetPackVisitor::visitStartAction(StartAction & pack)
 {
-	cl.curbaction = boost::make_optional(pack.ba);
+	cl.curbaction = std::make_optional(pack.ba);
 	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::actionStarted, pack.ba);
 }
 

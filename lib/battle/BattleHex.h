@@ -29,7 +29,7 @@ namespace GameConstants
 	const int BFIELD_SIZE = BFIELD_WIDTH * BFIELD_HEIGHT;
 }
 
-using BattleSideOpt =  boost::optional<ui8>;
+using BattleSideOpt = std::optional<ui8>;
 
 // for battle stacks' positions
 struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class for better code design

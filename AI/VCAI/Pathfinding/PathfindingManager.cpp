@@ -114,7 +114,7 @@ Goals::TGoalVec PathfindingManager::findPath(
 	const std::function<Goals::TSubgoal(int3)> doVisitTile) const
 {
 	Goals::TGoalVec result;
-	boost::optional<uint64_t> armyValueRequired;
+	std::optional<uint64_t> armyValueRequired;
 	uint64_t danger;
 
 	std::vector<AIPath> chainInfo = pathfinder->getPathInfo(hero, dest);
@@ -165,12 +165,12 @@ Goals::TGoalVec PathfindingManager::findPath(
 
 			if(!armyValueRequired || armyValueRequired > danger)
 			{
-				armyValueRequired = boost::make_optional(danger);
+				armyValueRequired = std::make_optional(danger);
 			}
 		}
 	}
 
-	danger = armyValueRequired.get_value_or(0);
+	danger = armyValueRequired.value_or(0);
 
 	if(allowGatherArmy && danger > 0)
 	{

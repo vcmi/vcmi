@@ -28,12 +28,12 @@ void JsonUpdater::serializeInternal(const std::string & fieldName, boost::logic:
 		value = data.Bool();
 }
 
-void JsonUpdater::serializeInternal(const std::string & fieldName, si32 & value, const boost::optional<si32> & defaultValue, const TDecoder & decoder, const TEncoder & encoder)
+void JsonUpdater::serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const TDecoder & decoder, const TEncoder & encoder)
 {
 //	std::string identifier;
 //	serializeString(fieldName, identifier);
 //
-//	value = defaultValue ? defaultValue.get() : 0;
+//	value = defaultValue.value_or(0);
 //
 //	if(identifier != "")
 //	{
@@ -59,7 +59,7 @@ void JsonUpdater::serializeInternal(const std::string & fieldName, std::vector<s
 //	}
 }
 
-void JsonUpdater::serializeInternal(const std::string & fieldName, double & value, const boost::optional<double> & defaultValue)
+void JsonUpdater::serializeInternal(const std::string & fieldName, double & value, const std::optional<double> & defaultValue)
 {
 	const JsonNode & data = currentObject->operator[](fieldName);
 
@@ -67,7 +67,7 @@ void JsonUpdater::serializeInternal(const std::string & fieldName, double & valu
 		value = data.Float();
 }
 
-void JsonUpdater::serializeInternal(const std::string & fieldName, si64 & value, const boost::optional<si64> &)
+void JsonUpdater::serializeInternal(const std::string & fieldName, si64 & value, const std::optional<si64> &)
 {
 	const JsonNode & data = currentObject->operator[](fieldName);
 
@@ -75,11 +75,11 @@ void JsonUpdater::serializeInternal(const std::string & fieldName, si64 & value,
 		value = data.Integer();
 }
 
-void JsonUpdater::serializeInternal(const std::string & fieldName, si32 & value, const boost::optional<si32> & defaultValue, const std::vector<std::string> & enumMap)
+void JsonUpdater::serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const std::vector<std::string> & enumMap)
 {
 //	const std::string & valueName = currentObject->operator[](fieldName).String();
 //
-//	const si32 actualOptional = defaultValue ? defaultValue.get() : 0;
+//	const si32 actualOptional = defaultValue.value_or(0);
 //
 //	si32 rawValue = vstd::find_pos(enumMap, valueName);
 //	if(rawValue < 0)
@@ -230,7 +230,7 @@ void JsonUpdater::serializeString(const std::string & fieldName, std::string & v
 		value = data.String();
 }
 
-void JsonUpdater::serializeRaw(const std::string & fieldName, JsonNode & value, const boost::optional<const JsonNode &> defaultValue)
+void JsonUpdater::serializeRaw(const std::string & fieldName, JsonNode & value, const std::optional<std::reference_wrapper<const JsonNode>> defaultValue)
 {
 	const JsonNode & data = currentObject->operator[](fieldName);
 	if(data.getType() != JsonNode::JsonType::DATA_NULL)

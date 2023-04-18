@@ -156,7 +156,7 @@ void CIdentifierStorage::tryRequestIdentifier(const std::string & type, const Js
 	requestIdentifier(ObjectCallback::fromNameAndType(name.meta, type, name.String(), callback, true));
 }
 
-boost::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent)
+std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent)
 {
 	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameAndType(scope, type, name, std::function<void(si32)>(), silent));
 
@@ -165,10 +165,10 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scop
 	if (!silent)
 		logMod->error("Failed to resolve identifier %s of type %s from mod %s", name , type ,scope);
 
-	return boost::optional<si32>();
+	return std::optional<si32>();
 }
 
-boost::optional<si32> CIdentifierStorage::getIdentifier(const std::string & type, const JsonNode & name, bool silent)
+std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & type, const JsonNode & name, bool silent)
 {
 	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameAndType(name.meta, type, name.String(), std::function<void(si32)>(), silent));
 
@@ -177,10 +177,10 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(const std::string & type
 	if (!silent)
 		logMod->error("Failed to resolve identifier %s of type %s from mod %s", name.String(), type, name.meta);
 
-	return boost::optional<si32>();
+	return std::optional<si32>();
 }
 
-boost::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, bool silent)
+std::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, bool silent)
 {
 	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameWithType(name.meta, name.String(), std::function<void(si32)>(), silent));
 
@@ -189,10 +189,10 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, b
 	if (!silent)
 		logMod->error("Failed to resolve identifier %s from mod %s", name.String(), name.meta);
 
-	return boost::optional<si32>();
+	return std::optional<si32>();
 }
 
-boost::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & fullName, bool silent)
+std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & fullName, bool silent)
 {
 	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameWithType(scope, fullName, std::function<void(si32)>(), silent));
 
@@ -201,7 +201,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scop
 	if (!silent)
 		logMod->error("Failed to resolve identifier %s from mod %s", fullName, scope);
 
-	return boost::optional<si32>();
+	return std::optional<si32>();
 }
 
 void CIdentifierStorage::registerObject(const std::string & scope, const std::string & type, const std::string & name, si32 identifier)

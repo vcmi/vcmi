@@ -26,17 +26,17 @@ public:
 	void serializeLIC(const std::string & fieldName, LICSet & value) override;
 	void serializeString(const std::string & fieldName, std::string & value) override;
 
-	void serializeRaw(const std::string & fieldName, JsonNode & value, const boost::optional<const JsonNode &> defaultValue) override;
+	void serializeRaw(const std::string & fieldName, JsonNode & value, const std::optional<std::reference_wrapper<const JsonNode>> defaultValue) override;
 
 	void serializeBonuses(const std::string & fieldName, CBonusSystemNode * value);
 
 protected:
 	void serializeInternal(const std::string & fieldName, boost::logic::tribool & value) override;
-	void serializeInternal(const std::string & fieldName, si32 & value, const boost::optional<si32> & defaultValue, const TDecoder & decoder, const TEncoder & encoder)	override;
+	void serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const TDecoder & decoder, const TEncoder & encoder)	override;
 	void serializeInternal(const std::string & fieldName, std::vector<si32> & value, const TDecoder & decoder, const TEncoder & encoder) override;
-	void serializeInternal(const std::string & fieldName, double & value, const boost::optional<double> & defaultValue) override;
-	void serializeInternal(const std::string & fieldName, si64 & value, const boost::optional<si64> & defaultValue) override;
-	void serializeInternal(const std::string & fieldName, si32 & value, const boost::optional<si32> & defaultValue, const std::vector<std::string> & enumMap) override;
+	void serializeInternal(const std::string & fieldName, double & value, const std::optional<double> & defaultValue) override;
+	void serializeInternal(const std::string & fieldName, si64 & value, const std::optional<si64> & defaultValue) override;
+	void serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const std::vector<std::string> & enumMap) override;
 
 	void serializeInternal(std::string & value) override;
 	void serializeInternal(int64_t & value) override;

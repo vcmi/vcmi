@@ -58,7 +58,7 @@ public:
 		RANDOM_GENIE, RANDOM_AIMED
 	};
 
-	boost::optional<int> battleIsFinished() const override; //return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw
+	std::optional<int> battleIsFinished() const override; //return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw
 
 	std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(BattleHex tile, bool onlyBlocking = true) const override;
 	std::vector<std::shared_ptr<const CObstacleInstance>> getAllAffectedObstaclesByStack(const battle::Unit * unit, const std::set<BattleHex> & passed) const override;

@@ -232,7 +232,7 @@ public:
 		const AIPathNode * destinationNode,
 		const NodeRange & chains) const;
 
-	boost::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
+	std::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
 	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const;
 	void setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes);

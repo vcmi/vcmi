@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include <boost/mpl/vector.hpp>
 #include <boost/mpl/for_each.hpp>
 
 #include "CTypeList.h"
@@ -43,10 +44,21 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 		Source & source;
 		std::vector<std::function<Variant()>> funcs;
 
+		template <class V>
+		struct mpl_types_impl;
+
+		template <class... Ts>
+		struct mpl_types_impl<std::variant<Ts...>> {
+			using type = boost::mpl::vector<Ts...>;
+		};
+
+		template <class V>
+		using mpl_types = typename mpl_types_impl<V>::type;
+
 		VariantLoaderHelper(Source & source):
 			source(source)
 		{
-			boost::mpl::for_each<typename Variant::types>(std::ref(*this));
+			boost::mpl::for_each<mpl_types<Variant>>(std::ref(*this));
 		}
 
 		template<typename Type>
@@ -170,7 +182,7 @@ public:
 
 	std::map<ui32, void*> loadedPointers;
 	std::map<ui32, const std::type_info*> loadedPointersTypes;
-	std::map<const void*, boost::any> loadedSharedPointers;
+	std::map<const void*, std::any> loadedSharedPointers;
 	bool smartPointerSerialization;
 	bool saving;
 
@@ -365,13 +377,13 @@ public:
 					if(*actualType == *typeWeNeedToReturn)
 					{
 						// No casting needed, just unpack already stored shared_ptr and return it
-						data = boost::any_cast<std::shared_ptr<T>>(itr->second);
+						data = std::any_cast<std::shared_ptr<T>>(itr->second);
 					}
 					else
 					{
 						// We need to perform series of casts
 						auto ret = typeList.castShared(itr->second, actualType, typeWeNeedToReturn);
-						data = boost::any_cast<std::shared_ptr<T>>(ret);
+						data = std::any_cast<std::shared_ptr<T>>(ret);
 					}
 				}
 				catch(std::exception &e)
@@ -494,10 +506,10 @@ public:
 		this->read((void*)data.c_str(),length);
 	}
 
-	template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-	void load(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> &data)
+	template<typename T0, typename... TN>
+	void load(std::variant<T0, TN...> & data)
 	{
-		typedef boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> TVariant;
+		using TVariant = std::variant<T0, TN...>;
 
 		VariantLoaderHelper<TVariant, BinaryDeserializer> loader(*this);
 
@@ -507,8 +519,8 @@ public:
 		data = loader.funcs.at(which)();
 	}
 
-	template <typename T>
-	void load(boost::optional<T> & data)
+	template<typename T>
+	void load(std::optional<T> & data)
 	{
 		ui8 present;
 		load( present );
@@ -517,11 +529,11 @@ public:
 			//TODO: replace with emplace once we start request Boost 1.56+, see PR360
 			T t;
 			load(t);
-			data = boost::make_optional(std::move(t));
+			data = std::make_optional(std::move(t));
 		}
 		else
 		{
-			data = boost::optional<T>();
+			data = std::optional<T>();
 		}
 	}
 

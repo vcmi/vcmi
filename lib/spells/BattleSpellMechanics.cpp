@@ -200,7 +200,7 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 	//TODO: check creature abilities to block
 	//TODO: check any possible caster
 
-	if(battle()->battleMaxSpellLevel(side.get()) < getSpellLevel() || battle()->battleMinSpellLevel(side.get()) > getSpellLevel())
+	if(battle()->battleMaxSpellLevel(side.value()) < getSpellLevel() || battle()->battleMinSpellLevel(side.value()) > getSpellLevel())
 		return adaptProblem(ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED, problem);
 
 	return effects->applicable(problem, this);

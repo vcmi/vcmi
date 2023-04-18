@@ -75,7 +75,7 @@ public:
 		uint8_t upgrade;
 	};
 	// helper variable used during loading map, when object (hero or town) have creatures that must have same alignment.
-	boost::optional<RandomStackInfo> randomStack;
+	std::optional<RandomStackInfo> randomStack;
 
 	const CArmedInstance * const & armyObj; //stack must be part of some army, army must be part of some object
 	TExpType experience;//commander needs same amount of exp as hero
@@ -286,7 +286,7 @@ public:
 		h & formation;
 	}
 
-	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName, const boost::optional<int> fixedSize = boost::none);
+	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName, const std::optional<int> fixedSize = std::nullopt);
 
 	operator bool() const
 	{

@@ -96,7 +96,18 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 		auto creature = VLC->creatures()->getByIndex(objid);
 		if(t->subID == creature->getFaction()) //TODO: how to force AI to build unupgraded creatures? :O
 		{
-			auto creatures = vstd::tryAt(t->town->creatures, creature->getLevel() - 1);
+			auto tryFindCreature = [&]() -> std::optional<std::vector<CreatureID>>
+			{
+				if(vstd::isValidIndex(t->town->creatures, creature->getLevel() - 1))
+				{
+					auto itr = t->town->creatures.begin();
+					std::advance(itr, creature->getLevel() - 1);
+					return make_optional(*itr);
+				}
+				return std::nullopt;
+			};
+
+			auto creatures = tryFindCreature();
 			if(!creatures)
 				continue;
 

@@ -245,12 +245,12 @@ public:
 	std::unique_ptr<CCampaign> camp;
 	std::string fileEncoding;
 	std::vector<ui8> mapsConquered, mapsRemaining;
-	boost::optional<si32> currentMap;
+	std::optional<si32> currentMap;
 
 	std::map<ui8, ui8> chosenCampaignBonuses;
 
 	void setCurrentMapAsConquered(const std::vector<CGHeroInstance*> & heroes);
-	boost::optional<CScenarioTravel::STravelBonus> getBonusForCurrentMap() const;
+	std::optional<CScenarioTravel::STravelBonus> getBonusForCurrentMap() const;
 	const CCampaignScenario & getCurrentScenario() const;
 	CCampaignScenario & getCurrentScenario();
 	ui8 currentBonusID() const;

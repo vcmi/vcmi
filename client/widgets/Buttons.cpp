@@ -57,15 +57,15 @@ void CButton::update()
 		redraw();
 }
 
-void CButton::setBorderColor(boost::optional<SDL_Color> borderColor)
+void CButton::setBorderColor(std::optional<SDL_Color> borderColor)
 {
 	setBorderColor(borderColor, borderColor, borderColor, borderColor);
 }
 
-void CButton::setBorderColor(boost::optional<SDL_Color> normalBorderColor,
-                             boost::optional<SDL_Color> pressedBorderColor,
-                             boost::optional<SDL_Color> blockedBorderColor,
-                             boost::optional<SDL_Color> highlightedBorderColor)
+void CButton::setBorderColor(std::optional<SDL_Color> normalBorderColor,
+							 std::optional<SDL_Color> pressedBorderColor,
+							 std::optional<SDL_Color> blockedBorderColor,
+							 std::optional<SDL_Color> highlightedBorderColor)
 {
 	stateToBorderColor[NORMAL] = normalBorderColor;
 	stateToBorderColor[PRESSED] = pressedBorderColor;
@@ -591,7 +591,7 @@ void CSlider::setScrollBounds(const Rect & bounds )
 
 void CSlider::clearScrollBounds()
 {
-	scrollBounds = boost::none;
+	scrollBounds = std::nullopt;
 }
 
 int CSlider::getAmount() const

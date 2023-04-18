@@ -99,10 +99,10 @@ public:
 	void tryRequestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback);
 
 	/// get identifier immediately. If identifier is not know and not silent call will result in error message
-	boost::optional<si32> getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent = false);
-	boost::optional<si32> getIdentifier(const std::string & type, const JsonNode & name, bool silent = false);
-	boost::optional<si32> getIdentifier(const JsonNode & name, bool silent = false);
-	boost::optional<si32> getIdentifier(const std::string & scope, const std::string & fullName, bool silent = false);
+	std::optional<si32> getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent = false);
+	std::optional<si32> getIdentifier(const std::string & type, const JsonNode & name, bool silent = false);
+	std::optional<si32> getIdentifier(const JsonNode & name, bool silent = false);
+	std::optional<si32> getIdentifier(const std::string & scope, const std::string & fullName, bool silent = false);
 
 	/// registers new object
 	void registerObject(const std::string & scope, const std::string & type, const std::string & name, si32 identifier);

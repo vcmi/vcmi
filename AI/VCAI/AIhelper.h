@@ -52,9 +52,9 @@ public:
 
 	bool getBuildingOptions(const CGTownInstance * t) override;
 	BuildingID getMaxPossibleGoldBuilding(const CGTownInstance * t);
-	boost::optional<PotentialBuilding> immediateBuilding() const override;
-	boost::optional<PotentialBuilding> expensiveBuilding() const override;
-	boost::optional<BuildingID> canBuildAnyStructure(const CGTownInstance * t, const std::vector<BuildingID> & buildList, unsigned int maxDays = 7) const override;
+	std::optional<PotentialBuilding> immediateBuilding() const override;
+	std::optional<PotentialBuilding> expensiveBuilding() const override;
+	std::optional<BuildingID> canBuildAnyStructure(const CGTownInstance * t, const std::vector<BuildingID> & buildList, unsigned int maxDays = 7) const override;
 
 	Goals::TGoalVec howToVisitTile(const HeroPtr & hero, const int3 & tile, bool allowGatherArmy = true) const override;
 	Goals::TGoalVec howToVisitObj(const HeroPtr & hero, ObjectIdRef obj, bool allowGatherArmy = true) const override;

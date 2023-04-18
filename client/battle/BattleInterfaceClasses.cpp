@@ -68,7 +68,7 @@ void BattleConsole::showAll(SDL_Surface * to)
 std::vector<std::string> BattleConsole::getVisibleText()
 {
 	// high priority texts that hide battle log entries
-	for (auto const & text : {consoleText, hoverText} )
+	for(const auto & text : {consoleText, hoverText})
 	{
 		if (text.empty())
 			continue;
@@ -94,7 +94,7 @@ std::vector<std::string> BattleConsole::splitText(const std::string &text)
 
 	boost::split(lines, text, boost::is_any_of("\n"));
 
-	for (auto const & line : lines)
+	for(const auto & line : lines)
 	{
 		if (graphics->fonts[FONT_SMALL]->getStringWidth(text) < pos.w)
 		{
@@ -679,7 +679,7 @@ int32_t StackQueue::getSiegeShooterIconID()
 	return owner.siegeController->getSiegedTown()->town->faction->getIndex();
 }
 
-boost::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
+std::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
 {
 	for(const auto & stackBox : stackBoxes)
 	{
@@ -689,7 +689,7 @@ boost::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
 		}
 	}
 
-	return boost::none;
+	return std::nullopt;
 }
 
 StackQueue::StackBox::StackBox(StackQueue * owner):
@@ -758,7 +758,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 	}
 	else
 	{
-		boundUnitID = boost::none;
+		boundUnitID = std::nullopt;
 		background->colorize(PlayerColor::NEUTRAL);
 		icon->visible = false;
 		icon->setFrame(0);
@@ -769,7 +769,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 	}
 }
 
-boost::optional<uint32_t> StackQueue::StackBox::getBoundUnitID() const
+std::optional<uint32_t> StackQueue::StackBox::getBoundUnitID() const
 {
 	return boundUnitID;
 }

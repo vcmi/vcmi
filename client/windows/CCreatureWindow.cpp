@@ -64,9 +64,9 @@ public:
 	const CGHeroInstance * owner;
 
 	// temporary objects which should be kept as copy if needed
-	boost::optional<CommanderLevelInfo> levelupInfo;
-	boost::optional<StackDismissInfo> dismissInfo;
-	boost::optional<StackUpgradeInfo> upgradeInfo;
+	std::optional<CommanderLevelInfo> levelupInfo;
+	std::optional<StackDismissInfo> dismissInfo;
+	std::optional<StackUpgradeInfo> upgradeInfo;
 
 	// misc fields
 	unsigned int creatureCount;
@@ -246,8 +246,8 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 	}
 }
 
-CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, boost::optional<size_t> preferredSize)
-	: CWindowSection(owner, "", yOffset)
+CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, std::optional<size_t> preferredSize):
+	CWindowSection(owner, "", yOffset)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -255,7 +255,7 @@ CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, 
 	static const int itemHeight = 59;
 
 	size_t totalSize = (owner->activeBonuses.size() + 1) / 2;
-	size_t visibleSize = preferredSize ? preferredSize.get() : std::min<size_t>(3, totalSize);
+	size_t visibleSize = preferredSize.value_or(std::min<size_t>(3, totalSize));
 
 	pos.w = owner->pos.w;
 	pos.h = itemHeight * (int)visibleSize;
@@ -292,7 +292,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 		// used space overlaps with commander switch button
 		// besides - should commander really be upgradeable?
 
-		UnitView::StackUpgradeInfo & upgradeInfo = parent->info->upgradeInfo.get();
+		auto & upgradeInfo = parent->info->upgradeInfo.value();
 		const size_t buttonsToCreate = std::min<size_t>(upgradeInfo.info.newID.size(), upgrade.size());
 
 		for(size_t buttonIndex = 0; buttonIndex < buttonsToCreate; buttonIndex++)
@@ -686,8 +686,8 @@ CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> d
 	info->creature = stack->type;
 	info->creatureCount = stack->count;
 
-	info->upgradeInfo = boost::make_optional(UnitView::StackUpgradeInfo());
-	info->dismissInfo = boost::make_optional(UnitView::StackDismissInfo());
+	info->upgradeInfo = std::make_optional(UnitView::StackUpgradeInfo());
+	info->dismissInfo = std::make_optional(UnitView::StackDismissInfo());
 	info->upgradeInfo->info = upgradeInfo;
 	info->upgradeInfo->callback = callback;
 	info->dismissInfo->callback = dismiss;
@@ -716,7 +716,7 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui3
 	info->creature = commander->type;
 	info->commander = commander;
 	info->creatureCount = 1;
-	info->levelupInfo = boost::make_optional(UnitView::CommanderLevelInfo());
+	info->levelupInfo = std::make_optional(UnitView::CommanderLevelInfo());
 	info->levelupInfo->skills = skills;
 	info->levelupInfo->callback = callback;
 	info->owner = dynamic_cast<const CGHeroInstance *> (commander->armyObj);
@@ -814,7 +814,7 @@ void CStackWindow::initSections()
 
 		commanderMainSection = std::make_shared<CommanderMainSection>(this, 0);
 
-		auto size = boost::make_optional<size_t>((info->levelupInfo) ? 4 : 3);
+		auto size = std::make_optional<size_t>((info->levelupInfo) ? 4 : 3);
 		commanderBonusesSection = std::make_shared<BonusesSection>(this, 0, size);
 		deactivateObj(commanderBonusesSection);
 

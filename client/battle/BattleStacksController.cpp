@@ -281,7 +281,7 @@ std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack *
 
 	int effectsPositivness = 0;
 
-	for ( auto const & spellID : activeSpells)
+	for(const auto & spellID : activeSpells)
 		effectsPositivness += CGI->spellh->objects.at(spellID)->positiveness;
 
 	if (effectsPositivness > 0)
@@ -336,7 +336,7 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
 {
 	ColorFilter fullFilter = ColorFilter::genEmptyShifter();
-	for (auto const & filter : stackFilterEffects)
+	for(const auto & filter : stackFilterEffects)
 	{
 		if (filter.target == stack)
 			fullFilter = ColorFilter::genCombined(fullFilter, filter.effect);
@@ -814,7 +814,7 @@ void BattleStacksController::updateHoveredStacks()
 {
 	auto newStacks = selectHoveredStacks();
 
-	for (auto const * stack : mouseHoveredStacks)
+	for(const auto * stack : mouseHoveredStacks)
 	{
 		if (vstd::contains(newStacks, stack))
 			continue;
@@ -825,7 +825,7 @@ void BattleStacksController::updateHoveredStacks()
 			stackAnimation[stack->ID]->setBorderColor(AnimationControls::getNoBorder());
 	}
 
-	for (auto const * stack : newStacks)
+	for(const auto * stack : newStacks)
 	{
 		if (vstd::contains(mouseHoveredStacks, stack))
 			continue;
@@ -848,7 +848,7 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 		return {};
 
 	auto hoveredQueueUnitId = owner.windowObject->getQueueHoveredUnitId();
-	if(hoveredQueueUnitId.is_initialized())
+	if(hoveredQueueUnitId.has_value())
 	{
 		return { owner.curInt->cb->battleGetStackByID(hoveredQueueUnitId.value(), true) };
 	}
@@ -889,7 +889,7 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 const std::vector<uint32_t> BattleStacksController::getHoveredStacksUnitIds() const
 {
 	auto result = std::vector<uint32_t>();
-	for (auto const * stack : mouseHoveredStacks)
+	for(const auto * stack : mouseHoveredStacks)
 	{
 		result.push_back(stack->unitId());
 	}

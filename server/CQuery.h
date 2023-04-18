@@ -100,7 +100,7 @@ public:
 	std::array<int, 2> initialHeroMana;
 
 	const BattleInfo *bi;
-	boost::optional<BattleResult> result;
+	std::optional<BattleResult> result;
 
 	CBattleQuery(CGameHandler * owner);
 	CBattleQuery(CGameHandler * owner, const BattleInfo * Bi); //TODO
@@ -133,7 +133,7 @@ public:
 	virtual bool blocksPack(const CPack *pack) const override;
 	void setReply(const JsonNode & reply) override;
 protected:
-	boost::optional<ui32> answer;
+	std::optional<ui32> answer;
 };
 
 class CGarrisonDialogQuery : public CDialogQuery //used also for hero exchange dialogs

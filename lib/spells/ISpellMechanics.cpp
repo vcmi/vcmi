@@ -222,22 +222,22 @@ boost::logic::tribool BattleCast::isMassive() const
 
 void BattleCast::setSpellLevel(BattleCast::Value value)
 {
-	magicSkillLevel = boost::make_optional(value);
+	magicSkillLevel = std::make_optional(value);
 }
 
 void BattleCast::setEffectPower(BattleCast::Value value)
 {
-	effectPower = boost::make_optional(value);
+	effectPower = std::make_optional(value);
 }
 
 void BattleCast::setEffectDuration(BattleCast::Value value)
 {
-	effectDuration = boost::make_optional(value);
+	effectDuration = std::make_optional(value);
 }
 
 void BattleCast::setEffectValue(BattleCast::Value64 value)
 {
-	effectValue = boost::make_optional(value);
+	effectValue = std::make_optional(value);
 }
 
 void BattleCast::applyEffects(ServerCallback * server, const Target & target, bool indirect, bool ignoreImmunity) const
@@ -424,54 +424,32 @@ BaseMechanics::BaseMechanics(const IBattleCast * event):
 	caster = event->getCaster();
 
 	//FIXME: do not crash on invalid side
-	casterSide = cb->playerToSide(caster->getCasterOwner()).get();
+	casterSide = cb->playerToSide(caster->getCasterOwner()).value();
 
 	{
 		auto value = event->getSpellLevel();
-		if(value)
-			rangeLevel = value.get();
-		else
-			rangeLevel = caster->getSpellSchoolLevel(owner);
+		rangeLevel = value.value_or(caster->getSpellSchoolLevel(owner));
 		vstd::abetween(rangeLevel, 0, 3);
 	}
 	{
 		auto value = event->getSpellLevel();
-        if(value)
-			effectLevel = value.get();
-		else
-			effectLevel = caster->getEffectLevel(owner);
+		effectLevel = value.value_or(caster->getEffectLevel(owner));
 		vstd::abetween(effectLevel, 0, 3);
 	}
 	{
 		auto value = event->getEffectPower();
-		if(value)
-			effectPower = value.get();
-		else
-			effectPower = caster->getEffectPower(owner);
+		effectPower = value.value_or(caster->getEffectPower(owner));
 		vstd::amax(effectPower, 0);
 	}
 	{
 		auto value = event->getEffectDuration();
-		if(value)
-			effectDuration = value.get();
-		else
-			effectDuration = caster->getEnchantPower(owner);
+		effectDuration = value.value_or(caster->getEnchantPower(owner));
 		vstd::amax(effectDuration, 0); //???
 	}
 	{
 		auto value = event->getEffectValue();
-		if(value)
-		{
-			effectValue = value.get();
-		}
-		else
-		{
-			auto casterValue = caster->getEffectValue(owner);
-			if(casterValue == 0)
-				effectValue = owner->calculateRawEffectValue(effectLevel, effectPower, 1);
-			else
-				effectValue = casterValue;
-		}
+		auto casterValue = caster->getEffectValue(owner) ? caster->getEffectValue(owner) : owner->calculateRawEffectValue(effectLevel, effectPower, 1);
+		effectValue = value.value_or(casterValue);
 		vstd::amax(effectValue, 0);
 	}
 }

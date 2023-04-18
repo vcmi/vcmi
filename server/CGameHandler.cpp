@@ -593,7 +593,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 		return;
 	}
 
-	battleQuery->result = boost::make_optional(*battleResult.data);
+	battleQuery->result = std::make_optional(*battleResult.data);
 
 	//Check how many battle queries were created (number of players blocked by battle)
 	const int queriedPlayers = battleQuery ? (int)boost::count(queries.allQueries(), battleQuery) : 0;
@@ -662,7 +662,7 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 
 		if (finishingBattle->loserHero)
 		{
-			//TODO: wrap it into a function, somehow (boost::variant -_-)
+			//TODO: wrap it into a function, somehow (std::variant -_-)
 			auto artifactsWorn = finishingBattle->loserHero->artifactsWorn;
 			for (auto artSlot : artifactsWorn)
 			{
@@ -2330,7 +2330,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 			leaveTile();
 
 		if (isInTheMap(guardPos))
-			tmh.attackedFrom = boost::make_optional(guardPos);
+			tmh.attackedFrom = std::make_optional(guardPos);
 
 		tmh.result = result;
 		sendAndApply(&tmh);
@@ -2651,7 +2651,7 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 		}
 		
 		battleQuery->bi = gs->curB;
-		battleQuery->result = boost::none;
+		battleQuery->result = std::nullopt;
 		battleQuery->belligerents[0] = gs->curB->sides[0].armyObject;
 		battleQuery->belligerents[1] = gs->curB->sides[1].armyObject;
 	}
@@ -3930,11 +3930,11 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 
 		try
 		{
-			auto hero = boost::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
+			auto hero = std::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
 			if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->getId(), dst.slot))
 				giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 		}
-		catch(const boost::bad_get &)
+		catch(const std::bad_variant_access &)
 		{
 			// object other than hero received an art - ignore
 		}
@@ -6901,7 +6901,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		creatures.insert(std::make_pair("vcmiazure", std::make_pair("azureDragon", 5000))); //5000 azure dragons
 		creatures.insert(std::make_pair("vcmifaerie", std::make_pair("fairieDragon", 5000))); //5000 faerie dragons
 
-		const int32_t creatureIdentifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", creatures[cheat].first, false).get();
+		const int32_t creatureIdentifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", creatures[cheat].first, false).value();
 		const CCreature * creature = VLC->creh->objects.at(creatureIdentifier);
 		for (int i = 0; i < GameConstants::ARMY_SIZE; i++)
 			if (!hero->hasStackAtSlot(SlotID(i)))
@@ -6920,11 +6920,11 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 
 		std::string creatureIdentifier = words[1];
 
-		boost::optional<int32_t> creatureId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", creatureIdentifier, false);
+		std::optional<int32_t> creatureId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", creatureIdentifier, false);
 
-		if(creatureId.is_initialized())
+		if(creatureId.has_value())
 		{
-			const CCreature * creature = VLC->creh->objects.at(creatureId.get());
+			const auto * creature = CreatureID(creatureId.value()).toCreature();
 
 			for (int i = 0; i < GameConstants::ARMY_SIZE; i++)
 				if (!hero->hasStackAtSlot(SlotID(i)))
