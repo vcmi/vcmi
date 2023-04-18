@@ -145,7 +145,9 @@ class BoatInstanceConstructor : public CDefaultObjectTypeHandler<CGBoat>
 protected:
 	void initTypeData(const JsonNode & config) override;
 	
+	std::vector<Bonus> bonuses;
 	EPathfindingLayer layer;
+	
 	std::string actualAnimation; //for OH3 boats those have actual animations
 	std::string overlayAnimation; //waves animations
 	std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flagAnimations;

@@ -268,6 +268,7 @@ void BoatInstanceConstructor::initTypeData(const JsonNode & input)
 	overlayAnimation = input["overlayAnimation"].String();
 	for(int i = 0; i < flagAnimations.size() && i < input["flagAnimations"].Vector().size(); ++i)
 		flagAnimations[i] = input["flagAnimations"].Vector()[i].String();
+	bonuses = JsonRandom::loadBonuses(input["bonuses"]);
 }
 
 CGObjectInstance * BoatInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
@@ -277,6 +278,9 @@ CGObjectInstance * BoatInstanceConstructor::create(std::shared_ptr<const ObjectT
 	boat->actualAnimation = actualAnimation;
 	boat->overlayAnimation = overlayAnimation;
 	boat->flagAnimations = flagAnimations;
+	for(auto & b : bonuses)
+		boat->addNewBonus(std::make_shared<Bonus>(b));
+	
 	return boat;
 }
 

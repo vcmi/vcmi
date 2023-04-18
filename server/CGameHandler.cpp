@@ -2266,8 +2266,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	const bool embarking = !h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::TRANSPORT;
 	const bool disembarking = h->boat
 		&& t.terType->isLand()
-		&& (h->boat->layer == EPathfindingLayer::SAIL || dst == h->pos)
-		&& !t.blocked;
+		&& (dst == h->pos
+			|| (h->boat->layer == EPathfindingLayer::SAIL && !t.blocked));
 
 	//result structure for start - movement failed, no move points used
 	TryMoveHero tmh;

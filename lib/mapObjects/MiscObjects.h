@@ -414,7 +414,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGBoat : public CGObjectInstance
+class DLL_LINKAGE CGBoat : public CGObjectInstance, public CBonusSystemNode
 {
 public:
 	ui8 direction;
@@ -438,9 +438,13 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
+		h & static_cast<CBonusSystemNode&>(*this);
 		h & direction;
 		h & hero;
 		h & layer;
+		h & actualAnimation;
+		h & overlayAnimation;
+		h & flagAnimations;
 	}
 };
 
