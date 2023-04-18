@@ -687,22 +687,18 @@ void CZonePlacer::moveOneZone(TZoneMap & zones, TForceVector & totalForces, TDis
 
 float CZonePlacer::metric (const int3 &A, const int3 &B) const
 {
-/*
-
-Matlab code
-
-	dx = abs(A(1) - B(1)); %distance must be symmetric
-	dy = abs(A(2) - B(2));
-
-d = 0.01 * dx^3 - 0.1618 * dx^2 + 1 * dx + ...
-    0.01618 * dy^3 + 0.1 * dy^2 + 0.168 * dy;
-*/
-
 	float dx = abs(A.x - B.x) * scaleX;
 	float dy = abs(A.y - B.y) * scaleY;
 
-	//Horner scheme
-	return dx * (1.0f + dx * (0.1f + dx * 0.01f)) + dy * (1.618f + dy * (-0.1618f + dy * 0.01618f));
+	/*
+	1. Normal euclidean distance
+	2. Sinus for extra curves
+	3. Nonlinear mess for fuzzy edges
+	*/
+
+	return dx * dx + dy * dy +
+		5 * std::sin(dx * dy / 10) +
+		25 * std::sin (std::sqrt(A.x * B.x) * (A.y - B.y) / 50);
 }
 
 void CZonePlacer::assignZones(CRandomGenerator * rand)
