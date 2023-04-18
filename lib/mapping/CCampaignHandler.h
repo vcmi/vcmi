@@ -125,8 +125,9 @@ public:
 	
 	WhatHeroKeeps whatHeroKeeps;
 	
-	std::set<CreatureID> monstersKeptByHero;
-	std::set<ArtifactID> artifactsKeptByHero;
+	//TODO: use typed containers
+	std::set<int> monstersKeptByHero;
+	std::set<int> artifactsKeptByHero;
 
 	ui8 startOptions = 0; //1 - start bonus, 2 - traveling hero, 3 - hero options
 

@@ -341,14 +341,14 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 	for(auto & k : reader["keepCreatures"].Vector())
 	{
 		if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "creature", k.String()))
-			ret.monstersKeptByHero.insert(CreatureID(identifier.get()));
+			ret.monstersKeptByHero.insert(CreatureID(identifier.value()));
 		else
 			logGlobal->warn("VCMP Loading: keepCreatures contains unresolved identifier %s", k.String());
 	}
 	for(auto & k : reader["keepArtifacts"].Vector())
 	{
 		if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "artifact", k.String()))
-			ret.artifactsKeptByHero.insert(ArtifactID(identifier.get()));
+			ret.artifactsKeptByHero.insert(ArtifactID(identifier.value()));
 		else
 			logGlobal->warn("VCMP Loading: keepArtifacts contains unresolved identifier %s", k.String());
 	}
@@ -384,7 +384,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 							bonus.info1 = heroId;
 						else
 							if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", bjson["hero"].String()))
-								bonus.info1 = identifier.get();
+								bonus.info1 = identifier.value();
 							else
 								logGlobal->warn("VCMP Loading: unresolved hero identifier %s", bjson["hero"].String());
 	
@@ -397,14 +397,14 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 							case CScenarioTravel::STravelBonus::EBonusType::SECONDARY_SKILL:
 							case CScenarioTravel::STravelBonus::EBonusType::ARTIFACT:
 								if(auto identifier  = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), bjson["what"].String(), bjson["type"].String()))
-									bonus.info2 = identifier.get();
+									bonus.info2 = identifier.value();
 								else
 									logGlobal->warn("VCMP Loading: unresolved %s identifier %s", bjson["what"].String(), bjson["type"].String());
 								break;
 								
 							case CScenarioTravel::STravelBonus::EBonusType::SPELL_SCROLL:
 								if(auto Identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "spell", bjson["type"].String()))
-									bonus.info2 = Identifier.get();
+									bonus.info2 = Identifier.value();
 								else
 									logGlobal->warn("VCMP Loading: unresolved spell scroll identifier %s", bjson["type"].String());
 								break;
@@ -447,7 +447,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 					bonus.info2 = heroId;
 				else
 					if (auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", bjson["hero"].String()))
-						bonus.info2 = identifier.get();
+						bonus.info2 = identifier.value();
 					else
 						logGlobal->warn("VCMP Loading: unresolved hero identifier %s", bjson["hero"].String());
 			
@@ -544,23 +544,21 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & r
 	ret.whatHeroKeeps.secondarySkills = whatHeroKeeps & 4;
 	ret.whatHeroKeeps.spells = whatHeroKeeps & 8;
 	ret.whatHeroKeeps.artifacts = whatHeroKeeps & 16;
-		
-	auto bitMaskToId = [&reader]<typename T>(std::set<T> & container, int size)
+	
+	//TODO: replace with template lambda form C++20 and make typed containers
+	auto bitMaskToId = [&reader](std::set<int> & container, int size)
 	{
 		for(int iId = 0, byte = 0; iId < size * 8; ++iId)
 		{
 			if(iId % 8 == 0)
 				byte = reader.readUInt8();
 			if(byte & (1 << iId % 8))
-				container.insert(T(iId));
+				container.insert(iId);
 		}
 	};
 	
 	bitMaskToId(ret.monstersKeptByHero, 19);
-	if(version < CampaignVersion::SoD)
-		bitMaskToId(ret.artifactsKeptByHero, 17);
-	else
-		bitMaskToId(ret.artifactsKeptByHero, 18);
+	bitMaskToId(ret.artifactsKeptByHero, version < CampaignVersion::SoD ? 17 : 18);
 
 	ret.startOptions = reader.readUInt8();
 
