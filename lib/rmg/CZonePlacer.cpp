@@ -698,7 +698,7 @@ float CZonePlacer::metric (const int3 &A, const int3 &B) const
 
 	return dx * dx + dy * dy +
 		5 * std::sin(dx * dy / 10) +
-		25 * std::sin (std::sqrt(A.x * B.x) * (A.y - B.y) / 50);
+		25 * std::sin (std::sqrt(A.x * B.x) * (A.y - B.y) / 100 * (scaleX * scaleY));
 }
 
 void CZonePlacer::assignZones(CRandomGenerator * rand)
