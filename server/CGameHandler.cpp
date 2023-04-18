@@ -2264,7 +2264,9 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	const int3 guardPos = gs->guardingCreaturePosition(hmpos);
 
 	const bool embarking = !h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::TRANSPORT;
-	const bool disembarking = h->boat && t.terType->isLand() && !t.blocked;
+	const bool disembarking = h->boat
+		&& (h->boat->layer == EPathfindingLayer::SAIL && t.terType->isLand())
+		&& !t.blocked;
 
 	//result structure for start - movement failed, no move points used
 	TryMoveHero tmh;
@@ -2278,8 +2280,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, h, PathfinderOptions());
 	auto ti = pathfinderHelper->getTurnInfo();
 
-	const bool canFly = pathfinderHelper->hasBonusOfType(Bonus::FLYING_MOVEMENT);
-	const bool canWalkOnSea = pathfinderHelper->hasBonusOfType(Bonus::WATER_WALKING);
+	const bool canFly = pathfinderHelper->hasBonusOfType(Bonus::FLYING_MOVEMENT) || (h->boat && h->boat->layer == EPathfindingLayer::AIR);
+	const bool canWalkOnSea = pathfinderHelper->hasBonusOfType(Bonus::WATER_WALKING) || (h->boat && h->boat->layer == EPathfindingLayer::WATER);
 	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movement);
 
 	//it's a rock or blocked and not visitable tile
