@@ -419,6 +419,8 @@ class DLL_LINKAGE CGBoat : public CGObjectInstance
 public:
 	ui8 direction;
 	const CGHeroInstance *hero;  //hero on board
+	
+	EPathfindingLayer::EEPathfindingLayer layer;
 
 	void initObj(CRandomGenerator & rand) override;
 
@@ -426,12 +428,14 @@ public:
 	{
 		hero = nullptr;
 		direction = 4;
+		layer = EPathfindingLayer::EEPathfindingLayer::SAIL;
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & direction;
 		h & hero;
+		h & layer;
 	}
 };
 

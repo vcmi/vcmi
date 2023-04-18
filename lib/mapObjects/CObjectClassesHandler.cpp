@@ -39,6 +39,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER_CLASS("hero", CHeroInstanceConstructor);
 	SET_HANDLER_CLASS("town", CTownInstanceConstructor);
 	SET_HANDLER_CLASS("bank", CBankInstanceConstructor);
+	SET_HANDLER_CLASS("boat", BoatInstanceConstructor);
 
 	SET_HANDLER_CLASS("static", CObstacleConstructor);
 	SET_HANDLER_CLASS("", CObstacleConstructor);
@@ -54,7 +55,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("cartographer", CCartographer);
 	SET_HANDLER("artifact", CGArtifact);
 	SET_HANDLER("blackMarket", CGBlackMarket);
-	SET_HANDLER("boat", CGBoat);
 	SET_HANDLER("borderGate", CGBorderGate);
 	SET_HANDLER("borderGuard", CGBorderGuard);
 	SET_HANDLER("monster", CGCreature);

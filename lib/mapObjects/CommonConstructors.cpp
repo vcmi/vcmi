@@ -257,6 +257,26 @@ std::vector<const CCreature *> CDwellingInstanceConstructor::getProducedCreature
 	return creatures;
 }
 
+void BoatInstanceConstructor::initTypeData(const JsonNode & input)
+{
+	layer = EPathfindingLayer::EEPathfindingLayer::SAIL;
+	if(input["layer"].String() == "land")
+		layer = EPathfindingLayer::EEPathfindingLayer::LAND;
+	if(input["layer"].String() == "air")
+		layer = EPathfindingLayer::EEPathfindingLayer::AIR;
+	if(input["layer"].String() == "water")
+		layer = EPathfindingLayer::EEPathfindingLayer::WATER;
+	if(input["layer"].String() == "sail")
+		layer = EPathfindingLayer::EEPathfindingLayer::SAIL;
+}
+
+CGObjectInstance * BoatInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
+{
+	CGBoat * boat = createTyped(tmpl);
+	boat->layer = layer;
+	return boat;
+}
+
 bool CBankInstanceConstructor::hasNameTextID() const
 {
 	return true;

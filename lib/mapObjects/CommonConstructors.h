@@ -140,6 +140,22 @@ public:
 	}
 };
 
+class BoatInstanceConstructor : public CDefaultObjectTypeHandler<CGBoat>
+{
+protected:
+	void initTypeData(const JsonNode & config) override;
+	
+	EPathfindingLayer::EEPathfindingLayer layer;
+	
+public:
+	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CDefaultObjectTypeHandler<CGBoat>&>(*this);
+	}
+};
+
 struct BankConfig
 {
 	ui32 value = 0; //overall value of given things
