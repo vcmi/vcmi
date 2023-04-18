@@ -2364,10 +2364,16 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	{
 		for (CGObjectInstance *obj : t.visitableObjects)
 		{
-			if (obj != h  &&  obj->blockVisit  &&  !obj->passableFor(h->tempOwner))
+			if(h->boat && !obj->blockVisit && !h->boat->onboardVisitAllowed)
+				return doMove(TryMoveHero::SUCCESS, this->IGNORE_GUARDS, DONT_VISIT_DEST, REMAINING_ON_TILE);
+			
+			if (obj != h && obj->blockVisit && !obj->passableFor(h->tempOwner))
 			{
-				return doMove(TryMoveHero::BLOCKING_VISIT, this->IGNORE_GUARDS, VISIT_DEST, REMAINING_ON_TILE);
-				//this-> is needed for MVS2010 to recognize scope (?)
+				EVisitDest visitDest = VISIT_DEST;
+				if(h->boat && !h->boat->onboardVisitAllowed)
+					visitDest = DONT_VISIT_DEST;
+				
+				return doMove(TryMoveHero::BLOCKING_VISIT, this->IGNORE_GUARDS, visitDest, REMAINING_ON_TILE);
 			}
 		}
 		return false;
@@ -2405,6 +2411,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 		return true;
 	}
+	
 
 	//still here? it is standard movement!
 	{
@@ -2427,6 +2434,9 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		}
 		else if (blockingVisit())
 			return true;
+		
+		if(h->boat && !h->boat->onboardAssaultAllowed)
+		   lookForGuards = IGNORE_GUARDS;
 
 		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
 		return true;

@@ -122,6 +122,8 @@
 				"layer" : "sail",
 				"actualAnimation" : "AB01_.def",
 				"overlayAnimation" : "ABM01_.def",
+				"onboardAssaultAllowed" : true,
+				"onboardVisitAllowed" : true,
 				"flagAnimations" : ["ABF01L", "ABF01G", "ABF01R", "ABF01D", "ABF01B", "ABF01P", "ABF01W", "ABF01K"]
 			},
 			"good" : 
@@ -131,6 +133,8 @@
 				"layer" : "sail",
 				"actualAnimation" : "AB02_.def",
 				"overlayAnimation" : "ABM02_.def",
+				"onboardAssaultAllowed" : true,
+				"onboardVisitAllowed" : true,
 				"flagAnimations" : ["ABF02L", "ABF02G", "ABF02R", "ABF02D", "ABF02B", "ABF02P", "ABF02W", "ABF02K"]
 			},
 			"neutral" : { 
@@ -139,6 +143,8 @@
 				"layer" : "sail",
 				"actualAnimation" : "AB03_.def",
 				"overlayAnimation" : "ABM03_.def",
+				"onboardAssaultAllowed" : true,
+				"onboardVisitAllowed" : true,
 				"flagAnimations" : ["ABF03L", "ABF03G", "ABF03R", "ABF03D", "ABF03B", "ABF03P", "ABF03W", "ABF03K"]
 			},
 		}

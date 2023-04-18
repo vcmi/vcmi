@@ -264,6 +264,8 @@ void BoatInstanceConstructor::initTypeData(const JsonNode & input)
 	int pos = vstd::find_pos(NPathfindingLayer::names, input["layer"].String());
 	if(pos != -1)
 		layer = EPathfindingLayer(pos);
+	onboardAssaultAllowed = input["onboardAssaultAllowed"].Bool();
+	onboardVisitAllowed = input["onboardVisitAllowed"].Bool();
 	actualAnimation = input["actualAnimation"].String();
 	overlayAnimation = input["overlayAnimation"].String();
 	for(int i = 0; i < flagAnimations.size() && i < input["flagAnimations"].Vector().size(); ++i)

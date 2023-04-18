@@ -419,7 +419,8 @@ class DLL_LINKAGE CGBoat : public CGObjectInstance, public CBonusSystemNode
 public:
 	ui8 direction;
 	const CGHeroInstance *hero;  //hero on board
-	
+	bool onboardAssaultAllowed; //if true, hero can attack units from transport
+	bool onboardVisitAllowed; //if true, hero can visit objects from transport
 	EPathfindingLayer::EEPathfindingLayer layer;
 	
 	//animation filenames. If empty - animations won't be used
@@ -442,6 +443,8 @@ public:
 		h & direction;
 		h & hero;
 		h & layer;
+		h & onboardAssaultAllowed;
+		h & onboardVisitAllowed;
 		h & actualAnimation;
 		h & overlayAnimation;
 		h & flagAnimations;
