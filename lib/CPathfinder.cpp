@@ -1022,7 +1022,7 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 		if(hero && hero->boat && hero->boat->layer == EPathfindingLayer::AIR)
 			break;
 			
-		if(hasBonusOfType(Bonus::FLYING_MOVEMENT))
+		if(!hasBonusOfType(Bonus::FLYING_MOVEMENT))
 			return false;
 
 		break;
