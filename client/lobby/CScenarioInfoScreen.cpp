@@ -26,6 +26,10 @@
 CScenarioInfoScreen::CScenarioInfoScreen()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	pos.w = 800;
+	pos.h = 600;
+	pos = center();
+
 	localSi = new StartInfo(*LOCPLINT->cb->getStartInfo());
 	localMi = new CMapInfo();
 	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*LOCPLINT->cb->getMapHeader()));
