@@ -242,9 +242,29 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	}
 	
 	if(auto w = widget<CToggleGroup>("groupMapSize"))
+	{
+		for(auto toggle : w->buttons)
+		{
+			if(auto button = std::dynamic_pointer_cast<CToggleButton>(toggle.second))
+			{
+				const auto & mapSizes = getPossibleMapSizes();
+				int3 size( mapSizes[toggle.first], mapSizes[toggle.first], 1 + mapGenOptions->getHasTwoLevels());
+
+				bool sizeAllowed = !mapGenOptions->getMapTemplate() || mapGenOptions->getMapTemplate()->matchesSize(size);
+				button->block(!sizeAllowed);
+			}
+		}
 		w->setSelected(vstd::find_pos(getPossibleMapSizes(), opts->getWidth()));
+	}
 	if(auto w = widget<CToggleButton>("buttonTwoLevels"))
+	{
+		int3 size( opts->getWidth(), opts->getWidth(), 2);
+
+		bool undergoundAllowed = !mapGenOptions->getMapTemplate() || mapGenOptions->getMapTemplate()->matchesSize(size);
+
 		w->setSelected(opts->getHasTwoLevels());
+		w->block(!undergoundAllowed);
+	}
 	if(auto w = widget<CToggleGroup>("groupMaxPlayers"))
 	{
 		w->setSelected(opts->getPlayerCount());
@@ -408,7 +428,11 @@ TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
 	REGISTER_BUILDER("templateListItem", &TemplatesDropBox::buildListItem);
 	
 	curItems = VLC->tplh->getTemplates();
-	vstd::erase_if(curItems, [size](const CRmgTemplate * t){return !t->matchesSize(size);});
+
+	boost::range::sort(curItems, [](const CRmgTemplate * a, const CRmgTemplate * b){
+		return a->getName() < b->getName();
+	});
+
 	curItems.insert(curItems.begin(), nullptr); //default template
 	
 	const JsonNode config(ResourceID("config/widgets/randomMapTemplateWidget.json"));

@@ -3,6 +3,8 @@
 ### GENERAL:
 * Fixed movement cost penalty from terrain
 * Fixed empty Black Market on game start
+* RMG settings will now show all existing in game templates and not just those suitable for current settings
+* RMG settings (map size and two-level maps) that are not compatible with current template will be blocked
 * Fixed centering of scenario information window
 * Fixed crash on empty save game list after filtering
 * Fixed blocked progress in Launcher on language detection failure
