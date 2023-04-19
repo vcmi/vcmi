@@ -190,7 +190,7 @@ void FirstLaunchView::heroesDataMissing()
 	ui->labelDataCopy->setVisible(true);
 
 	ui->labelDataFound->setVisible(false);
-	ui->pushButtonDataNext->setEnabled(true);
+	ui->pushButtonDataNext->setEnabled(false);
 
 	if(hasVCMIBuilderScript)
 	{

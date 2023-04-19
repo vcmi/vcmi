@@ -2,6 +2,8 @@
 
 ### GENERAL:
 * Fixed movement cost penalty from terrain
+* Fixed blocked progress in Launcher on language detection failure
+* Launcher will now correctly handle selection of Data directory in H3 install
 
 # 1.1.1 -> 1.2.0
 

@@ -96,14 +96,14 @@ JsonNode toJson(QVariant object)
 {
 	JsonNode ret;
 
-	if(object.canConvert<QVariantMap>())
-		ret.Struct() = VariantToMap(object.toMap());
-	else if(object.canConvert<QVariantList>())
-		ret.Vector() = VariantToList(object.toList());
-	else if(object.userType() == QMetaType::QString)
+	if(object.userType() == QMetaType::QString)
 		ret.String() = object.toString().toUtf8().data();
 	else if(object.userType() == QMetaType::Bool)
 		ret.Bool() = object.toBool();
+	else if(object.canConvert<QVariantMap>())
+		ret.Struct() = VariantToMap(object.toMap());
+	else if(object.canConvert<QVariantList>())
+		ret.Vector() = VariantToList(object.toList());
 	else if(object.canConvert<int>())
 		ret.Integer() = object.toInt();
 	else if(object.canConvert<double>())
