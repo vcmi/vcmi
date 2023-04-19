@@ -280,7 +280,7 @@ void Inspector::updateProperties(CGArtifact * o)
 	CArtifactInstance * instance = o->storedArtifact;
 	if(instance)
 	{
-		SpellID spellId = instance->getGivenSpellID();
+		SpellID spellId = instance->getScrollSpellID();
 		if(spellId != -1)
 		{
 			auto * delegate = new InspectorDelegate;

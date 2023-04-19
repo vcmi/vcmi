@@ -730,7 +730,7 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 		{
 			iw.components.emplace_back(
 				Component::EComponentType::ARTIFACT, art->artType->getId(),
-				art->artType->getId() == ArtifactID::SPELL_SCROLL? art->getGivenSpellID() : 0, 0);
+				art->artType->getId() == ArtifactID::SPELL_SCROLL? art->getScrollSpellID() : 0, 0);
 			if (iw.components.size() >= 14)
 			{
 				sendAndApply(&iw);
@@ -4057,8 +4057,11 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 		CArtifact * combinedArt = VLC->arth->objects[assembleTo];
 		if(!combinedArt->constituents)
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to assemble is not a combined artifacts!");
-		if(!vstd::contains(destArtifact->assemblyPossibilities(hero, ArtifactUtils::isSlotEquipment(artifactSlot)), combinedArt))
+		if (!vstd::contains(ArtifactUtils::assemblyPossibilities(hero, destArtifact->getTypeId(),
+			ArtifactUtils::isSlotEquipment(artifactSlot)), combinedArt))
+		{
 			COMPLAIN_RET("assembleArtifacts: It's impossible to assemble requested artifact!");
+		}
 
 		
 		if(ArtifactUtils::checkSpellbookIsNeeded(hero, assembleTo, artifactSlot))

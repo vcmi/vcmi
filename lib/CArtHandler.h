@@ -153,8 +153,8 @@ public:
 	void deserializationFix();
 	void setType(CArtifact *Art);
 
-	std::string getEffectiveDescription(const CGHeroInstance *hero = nullptr) const;
-	SpellID getGivenSpellID() const; //to be used with scrolls (and similar arts), -1 if none
+	std::string getDescription() const;
+	SpellID getScrollSpellID() const; //to be used with scrolls (and similar arts), -1 if none
 
 	ArtifactID getTypeId() const;
 	bool canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved = false) const;  //forwards to the above one
@@ -165,7 +165,6 @@ public:
 	/// of itself, additionally truth is returned for constituents of combined arts
 	virtual bool isPart(const CArtifactInstance *supposedPart) const;
 
-	std::vector<const CArtifact *> assemblyPossibilities(const CArtifactSet * h, bool equipped) const;
 	void move(const ArtifactLocation & src,const ArtifactLocation & dst);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -388,6 +387,7 @@ namespace ArtifactUtils
 	DLL_LINKAGE bool isSlotBackpack(const ArtifactPosition & slot);
 	DLL_LINKAGE bool isSlotEquipment(const ArtifactPosition & slot);
 	DLL_LINKAGE bool isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots = 1);
+	DLL_LINKAGE std::vector<const CArtifact*> assemblyPossibilities(const CArtifactSet * artSet, const ArtifactID & aid, bool equipped);
 }
 
 VCMI_LIB_NAMESPACE_END

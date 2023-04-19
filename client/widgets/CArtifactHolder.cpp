@@ -200,7 +200,7 @@ bool CHeroArtPlace::askToAssemble(const CGHeroInstance * hero, ArtifactPosition 
 	assert(hero);
 	const auto art = hero->getArt(slot);
 	assert(art);
-	auto assemblyPossibilities = art->assemblyPossibilities(hero, ArtifactUtils::isSlotEquipment(slot));
+	auto assemblyPossibilities = ArtifactUtils::assemblyPossibilities(hero, art->getTypeId(), ArtifactUtils::isSlotEquipment(slot));
 
 	// If the artifact can be assembled, display dialog.
 	for(const auto * combination : assemblyPossibilities)
@@ -359,11 +359,32 @@ void CHeroArtPlace::setArtifact(const CArtifactInstance *art)
 	image->enable();
 	image->setFrame(locked ? ArtifactID::ART_LOCK : art->artType->getIconIndex());
 
-	text = art->getEffectiveDescription(ourOwner->curHero);
+	text = art->getDescription();
+
+	// Display info about set
+	if(ourOwner && ourOwner->curHero && !art->canBeDisassembled())
+	{
+		for(const auto combinedArt : art->artType->constituentOf)
+		{
+			std::string artList;
+			text += "\n\n";
+			text += "{" + combinedArt->getNameTranslated() + "}";
+			int wornArtifacts = 0;
+			for(const auto part : *combinedArt->constituents)
+			{
+				if(art->artType->constituentOf.size() <= 1)
+					artList += "\n" + part->getNameTranslated();
+				if(ourOwner->curHero->hasArt(part->getId(), true))
+					wornArtifacts++;
+			}
+			text += " (" + boost::str(boost::format("%d") % wornArtifacts) + " / " +
+				boost::str(boost::format("%d") % combinedArt->constituents->size()) + ")" + artList;
+		}
+	}
 
 	if(art->artType->getId() == ArtifactID::SPELL_SCROLL)
 	{
-		int spellID = art->getGivenSpellID();
+		int spellID = art->getScrollSpellID();
 		if(spellID >= 0)
 		{
 			//add spell component info (used to provide a pic in r-click popup)
@@ -1039,11 +1060,11 @@ void CCommanderArtPlace::setArtifact(const CArtifactInstance * art)
 	image->enable();
 	image->setFrame(art->artType->getIconIndex());
 
-	text = art->getEffectiveDescription();
+	text = art->getDescription();
 
 	if (art->artType->getId() == ArtifactID::SPELL_SCROLL)
 	{
-		int spellID = art->getGivenSpellID();
+		int spellID = art->getScrollSpellID();
 		if (spellID >= 0)
 		{
 			//add spell component info (used to provide a pic in r-click popup)
