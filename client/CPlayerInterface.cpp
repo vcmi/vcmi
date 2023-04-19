@@ -313,6 +313,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 		hero->convertToVisitablePos(details.end)
 	};
 	adventureInt->onMapTilesChanged(changedTiles);
+	adventureInt->onHeroMovementStarted(hero);
 
 	bool directlyAttackingCreature = details.attackedFrom && localState->hasPath(hero) && localState->getPath(hero).endPos() == *details.attackedFrom;
 
@@ -510,7 +511,8 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 
 	if(town->garrisonHero) //wandering hero moved to the garrison
 	{
-		if(town->garrisonHero->tempOwner == playerID)
+		// This method also gets called on hero recruitment -> garrisoned hero is already in garrison
+		if(town->garrisonHero->tempOwner == playerID && !vstd::contains(localState->getWanderingHeroes(), town->visitingHero))
 			localState->removeWanderingHero(town->garrisonHero);
 	}
 

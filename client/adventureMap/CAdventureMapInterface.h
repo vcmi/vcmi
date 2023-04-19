@@ -136,6 +136,7 @@ private:
 
 	/// exits currently opened world view mode and returns to normal map
 	void exitWorldView();
+	void exitCastingMode();
 	void leaveCastingMode(const int3 & castTarget);
 	void abortCastingMode();
 
@@ -166,7 +167,10 @@ public:
 	void onCurrentPlayerChanged(PlayerColor playerID);
 
 	/// Called by PlayerInterface when specific map tile changed and must be updated on minimap
-	void onMapTilesChanged( boost::optional<std::unordered_set<int3> > positions);
+	void onMapTilesChanged(boost::optional<std::unordered_set<int3>> positions);
+
+	/// Called by PlayerInterface when hero starts movement
+	void onHeroMovementStarted(const CGHeroInstance * hero);
 
 	/// Called by PlayerInterface when hero state changed and hero list must be updated
 	void onHeroChanged(const CGHeroInstance * hero);

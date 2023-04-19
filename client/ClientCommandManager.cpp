@@ -415,7 +415,7 @@ void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffe
 
 void ClientCommandManager::handleMpCommand()
 {
-	if(const CGHeroInstance* h = adventureInt->getCurrentHero())
+	if(const CGHeroInstance* h = LOCPLINT->localState->getCurrentHero())
 		printCommandMessage(std::to_string(h->movement) + "; max: " + std::to_string(h->maxMovePoints(true)) + "/" + std::to_string(h->maxMovePoints(false)) + "\n");
 }
 
@@ -601,7 +601,7 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 	else if(commandName == "tell")
 		handleTellCommand(singleWordBuffer);
 
-	else if(commandName == "mp" && adventureInt)
+	else if(commandName == "mp" && LOCPLINT)
 		handleMpCommand();
 
 	else if (commandName == "set")

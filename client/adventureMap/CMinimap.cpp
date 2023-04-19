@@ -18,7 +18,7 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/Colors.h"
-#include "../renderSDL/SDL_PixelAccess.h"
+#include "../renderSDL/SDL_Extensions.h"
 #include "../render/Canvas.h"
 #include "../windows/InfoWindows.h"
 
@@ -27,6 +27,8 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMapDefines.h"
+
+#include <SDL_pixels.h>
 
 ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
 {

@@ -397,11 +397,17 @@ void CAdventureMapInterface::updateButtons()
 	}
 }
 
+void CAdventureMapInterface::onHeroMovementStarted(const CGHeroInstance * hero)
+{
+	infoBar->popAll();
+	infoBar->showSelection();
+}
+
 void CAdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 {
 	heroList->update(h);
 
-	if (h == LOCPLINT->localState->getCurrentHero())
+	if (h && h == LOCPLINT->localState->getCurrentHero() && !infoBar->showingComponents())
 		infoBar->showSelection();
 
 	updateButtons();
@@ -410,7 +416,9 @@ void CAdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 void CAdventureMapInterface::onTownChanged(const CGTownInstance * town)
 {
 	townList->update(town);
-	infoBar->showSelection();
+
+	if (town && town == LOCPLINT->localState->getCurrentTown() && !infoBar->showingComponents())
+		infoBar->showSelection();
 }
 
 void CAdventureMapInterface::showInfoBoxMessage(const std::vector<Component> & components, std::string message, int timer)
@@ -432,8 +440,8 @@ void CAdventureMapInterface::activate()
 		LOCPLINT->cingconsole->activate();
 		LOCPLINT->cingconsole->pos = this->pos;
 	}
-	
-	if(state != EGameState::ENEMY_TURN)
+
+	if(state != EGameState::ENEMY_TURN && state != EGameState::HOTSEAT_WAIT)
 	{
 		assert(state == EGameState::MAKING_TURN);
 
@@ -456,7 +464,7 @@ void CAdventureMapInterface::deactivate()
 {
 	CIntObject::deactivate();
 
-	if(state != EGameState::ENEMY_TURN)
+	if(state != EGameState::ENEMY_TURN && state != EGameState::HOTSEAT_WAIT)
 	{
 		assert(state == EGameState::MAKING_TURN);
 
@@ -525,6 +533,9 @@ void CAdventureMapInterface::show(SDL_Surface * to)
 
 void CAdventureMapInterface::handleMapScrollingUpdate()
 {
+	/// Width of window border, in pixels, that triggers map scrolling
+	static constexpr uint32_t borderScrollWidth = 15;
+
 	uint32_t timePassed = GH.mainFPSmng->getElapsedMilliseconds();
 	uint32_t scrollSpeedPixels = settings["adventure"]["scrollSpeedPixels"].Float();
 	uint32_t scrollDistance = scrollSpeedPixels * timePassed / 1000;
@@ -534,16 +545,16 @@ void CAdventureMapInterface::handleMapScrollingUpdate()
 	Point cursorPosition = GH.getCursorPosition();
 	Point scrollDirection;
 
-	if (cursorPosition.x < 15)
+	if (cursorPosition.x < borderScrollWidth)
 		scrollDirection.x = -1;
 
-	if (cursorPosition.x > GH.screenDimensions().x - 15)
+	if (cursorPosition.x > GH.screenDimensions().x - borderScrollWidth)
 		scrollDirection.x = +1;
 
-	if (cursorPosition.y < 15)
+	if (cursorPosition.y < borderScrollWidth)
 		scrollDirection.y = -1;
 
-	if (cursorPosition.y > GH.screenDimensions().y - 15)
+	if (cursorPosition.y > GH.screenDimensions().y - borderScrollWidth)
 		scrollDirection.y = +1;
 
 	Point scrollDelta = scrollDirection * scrollDistance;
@@ -1251,7 +1262,7 @@ void CAdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 
 void CAdventureMapInterface::enterCastingMode(const CSpell * sp)
 {
-	assert(sp->id == SpellID::SCUTTLE_BOAT  ||  sp->id == SpellID::DIMENSION_DOOR);
+	assert(sp->id == SpellID::SCUTTLE_BOAT || sp->id == SpellID::DIMENSION_DOOR);
 	spellBeingCasted = sp;
 
 	deactivate();
@@ -1259,7 +1270,7 @@ void CAdventureMapInterface::enterCastingMode(const CSpell * sp)
 	GH.fakeMouseMove();
 }
 
-void CAdventureMapInterface::abortCastingMode()
+void CAdventureMapInterface::exitCastingMode()
 {
 	assert(spellBeingCasted);
 	spellBeingCasted = nullptr;
@@ -1267,15 +1278,17 @@ void CAdventureMapInterface::abortCastingMode()
 	activate();
 }
 
+void CAdventureMapInterface::abortCastingMode()
+{
+	exitCastingMode();
+	LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[731]); //Spell cancelled
+}
+
 void CAdventureMapInterface::leaveCastingMode(const int3 & dest)
 {
 	SpellID id = spellBeingCasted->id;
-
-	abortCastingMode();
-//	if(cast)
-		LOCPLINT->cb->castSpell(LOCPLINT->localState->getCurrentHero(), id, dest);
-//	else
-//		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[731]); //Spell cancelled
+	exitCastingMode();
+	LOCPLINT->cb->castSpell(LOCPLINT->localState->getCurrentHero(), id, dest);
 }
 
 Rect CAdventureMapInterface::terrainAreaPixels() const
