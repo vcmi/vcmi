@@ -99,7 +99,7 @@ public:
 			return nullptr;
 		else
 		{
-			assert(!i->second.empty());
+			assert(i->second.has_value());
 #ifndef __APPLE__
 			assert(i->second.type() == typeid(VectorizedObjectInfo<T, U>));
 #endif
