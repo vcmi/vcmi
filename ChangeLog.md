@@ -4,6 +4,7 @@
 * Fixed movement cost penalty from terrain
 * Fixed empty Black Market on game start
 * Fixed centering of scenario information window
+* Fixed crash on empty save game list after filtering
 * Fixed blocked progress in Launcher on language detection failure
 * Launcher will now correctly handle selection of Data directory in H3 install
 
