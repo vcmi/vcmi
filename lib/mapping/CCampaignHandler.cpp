@@ -264,7 +264,7 @@ CCampaignScenario CCampaignHandler::readScenarioFromJson(JsonNode & reader)
 	CCampaignScenario ret;
 	ret.conquered = false;
 	ret.mapName = reader["map"].String();
-	for(auto & g : reader["precoditions"].Vector())
+	for(auto & g : reader["preconditions"].Vector())
 		ret.preconditionRegions.insert(g.Integer());
 
 	ret.regionColor = reader["color"].Integer();
