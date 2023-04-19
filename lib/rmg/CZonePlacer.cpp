@@ -55,7 +55,6 @@ void CZonePlacer::findPathsBetweenZones()
 	for (const auto& zone : zones)
 	{
 		int start = zone.first;
-		const auto& zone1Ptr = zone.second;
 		distancesBetweenZones[start][start] = 0; // Distance from a node to itself is 0
 
 		std::queue<int> q;
@@ -157,7 +156,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 			}
 			break;
 		case ETemplateZoneType::TREASURE:
-			if (gridSize && 1) //odd
+			if (gridSize & 1) //odd
 			{
 				x = y = (gridSize / 2);
 			}
@@ -401,9 +400,6 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, CRandomGenerator * rand)
 {
 	std::vector<float> totalSize = { 0, 0 }; //make sure that sum of zone sizes on surface and uderground match size of the map
-
-	const float radius = 0.4f;
-	const float pi2 = 6.28f;
 
 	int zonesOnLevel[2] = { 0, 0 };
 
