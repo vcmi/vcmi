@@ -6788,12 +6788,13 @@ void CGameHandler::runBattle()
 				{
 					//check for good morale
 					nextStackMorale = next->MoraleVal();
-					if(!next->hadMorale  //only one extra move per turn possible
+					if( !battleResult.get()
+						&& !next->hadMorale
 						&& !next->defending
 						&& !next->waited()
 						&& !next->fear
-						&&  next->alive()
-						&&  nextStackMorale > 0)
+						&& next->alive()
+						&& nextStackMorale > 0)
 					{
 						auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE);
 						size_t diceIndex = std::min<size_t>(diceSize.size()-1, nextStackMorale);
