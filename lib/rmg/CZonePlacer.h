@@ -45,7 +45,7 @@ private:
 	void prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, CRandomGenerator * rand);
 	void attractConnectedZones(TZoneMap & zones, TForceVector & forces, TDistanceVector & distances) const;
 	void separateOverlappingZones(TZoneMap &zones, TForceVector &forces, TDistanceVector &overlaps);
-	void moveOneZone(TZoneMap & zones, TForceVector & totalForces, TDistanceVector & distances, TDistanceVector & overlaps) const;
+	void moveOneZone(TZoneMap & zones, TForceVector & totalForces, TDistanceVector & distances, TDistanceVector & overlaps);
 
 private:
 	int width;
@@ -65,6 +65,7 @@ private:
 
 	//distance [a][b] = number of zone connections required to travel between the zones
 	std::map<int, std::map<int, size_t>> distancesBetweenZones;
+	std::set<TRmgTemplateZoneId> lastSwappedZones;
 	RmgMap & map;
 };
 

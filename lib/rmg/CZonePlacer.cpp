@@ -277,7 +277,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 			auto zone = grid[x][y];
 			if (zone)
 			{
-				//i.e. for grid size 5 we get range (0.5 - 4.5)
+				//i.e. for grid size 5 we get range (0.25 - 4.75)
 				auto targetX = rand->nextDouble(x + 0.25f, x + 0.75f);
 				vstd::abetween(targetX, 0.5, gridSize - 0.5);
 				auto targetY = rand->nextDouble(y + 0.25f, y + 0.75f);
@@ -597,88 +597,141 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 	}
 }
 
-void CZonePlacer::moveOneZone(TZoneMap & zones, TForceVector & totalForces, TDistanceVector & distances, TDistanceVector & overlaps) const
+void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDistanceVector& distances, TDistanceVector& overlaps)
 {
-	float maxRatio = 0;
-	const int maxDistanceMovementRatio = 1e1 * static_cast<int>(zones.size() * zones.size()); //experimental - the more zones, the greater total distance expected
-	std::shared_ptr<Zone> misplacedZone;
+	const int maxDistanceMovementRatio = zones.size() * zones.size(); //The more zones, the greater total distance expected
+
+	typedef std::pair<float, std::shared_ptr<Zone>> Misplacement;
+	std::vector<Misplacement> misplacedZones;
 
 	float totalDistance = 0;
 	float totalOverlap = 0;
-	for(const auto & zone : distances) //find most misplaced zone
+	for (const auto& zone : distances) //find most misplaced zone
 	{
+		if (vstd::contains(lastSwappedZones, zone.first->getId()))
+		{
+			continue;
+		}
 		totalDistance += zone.second;
 		float overlap = overlaps[zone.first];
 		totalOverlap += overlap;
 		//if distance to actual movement is long, the zone is misplaced
 		float ratio = (zone.second + overlap) / static_cast<float>(totalForces[zone.first].mag());
-		if (ratio > maxRatio)
+		if (ratio > maxDistanceMovementRatio)
 		{
-			maxRatio = ratio;
-			misplacedZone = zone.first;
+			misplacedZones.emplace_back(std::make_pair(ratio, zone.first));
 		}
 	}
-	logGlobal->trace("Worst misplacement/movement ratio: %3.2f", maxRatio);
 
-	if (maxRatio > maxDistanceMovementRatio && misplacedZone)
+	if (misplacedZones.empty())
+		return;
+
+	boost::sort(misplacedZones, [](const Misplacement& lhs, Misplacement& rhs)
 	{
-		std::shared_ptr<Zone> targetZone;
-		float3 ourCenter = misplacedZone->getCenter();
+		return lhs.first > rhs.first; //Biggest first
+	});
 
-		if (totalDistance > totalOverlap)
+	logGlobal->trace("Worst misplacement/movement ratio: %3.2f", misplacedZones.front().first);
+
+	if (misplacedZones.size() >= 2)
+	{
+		//Swap 2 misplaced zones
+
+		auto firstZone = misplacedZones.front().second;
+		std::shared_ptr<Zone> secondZone;
+
+		auto level = firstZone->getCenter().z;
+		for (size_t i = 1; i < misplacedZones.size(); i++)
 		{
-			//find most distant zone that should be attracted and move inside it
-			float maxDistance = 0;
-			for (auto con : misplacedZone->getConnections())
+			//Only swap zones on the same level
+			//Don't swap zones that should be connected (Jebus)
+			if (misplacedZones[i].second->getCenter().z == level &&
+				!vstd::contains(firstZone->getConnections(), misplacedZones[i].second->getId()))
 			{
-				auto otherZone = zones[con];
-				float distance = static_cast<float>(otherZone->getCenter().dist2dSQ(ourCenter));
-				if (distance > maxDistance)
-				{
-					maxDistance = distance;
-					targetZone = otherZone;
-				}
-			}
-			if (targetZone) //TODO: consider refactoring duplicated code
-			{
-				float3 vec = targetZone->getCenter() - ourCenter;
-				float newDistanceBetweenZones = (std::max(misplacedZone->getSize(), targetZone->getSize())) / mapSize;
-				logGlobal->trace("Trying to move zone %d %s towards %d %s. Old distance %f", misplacedZone->getId(), ourCenter.toString(), targetZone->getId(), targetZone->getCenter().toString(), maxDistance);
-				logGlobal->trace("direction is %s", vec.toString());
-
-				misplacedZone->setCenter(targetZone->getCenter() - vec.unitVector() * newDistanceBetweenZones); //zones should now overlap by half size
-				logGlobal->trace("New distance %f", targetZone->getCenter().dist2d(misplacedZone->getCenter()));
+				secondZone = misplacedZones[i].second;
+				break;
 			}
 		}
-		else
+		if (secondZone)
 		{
-			float maxOverlap = 0;
-			for(const auto & otherZone : zones)
-			{
-				float3 otherZoneCenter = otherZone.second->getCenter();
+			logGlobal->trace("Swapping two misplaced zones %d and %d", firstZone->getId(), secondZone->getId());
 
-				if (otherZone.second == misplacedZone || otherZoneCenter.z != ourCenter.z)
-					continue;
+			auto firstCenter = firstZone->getCenter();
+			auto secondCenter = secondZone->getCenter();
+			firstZone->setCenter(secondCenter);
+			secondZone->setCenter(firstCenter);
 
-				auto distance = static_cast<float>(otherZoneCenter.dist2dSQ(ourCenter));
-				if (distance > maxOverlap)
-				{
-					maxOverlap = distance;
-					targetZone = otherZone.second;
-				}
-			}
-			if (targetZone)
-			{
-				float3 vec = ourCenter - targetZone->getCenter();
-				float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) / mapSize;
-				logGlobal->trace("Trying to move zone %d %s away from %d %s. Old distance %f", misplacedZone->getId(), ourCenter.toString(), targetZone->getId(), targetZone->getCenter().toString(), maxOverlap);
-				logGlobal->trace("direction is %s", vec.toString());
-
-				misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
-				logGlobal->trace("New distance %f", targetZone->getCenter().dist2d(misplacedZone->getCenter()));
-			}
+			lastSwappedZones.insert(firstZone->getId());
+			lastSwappedZones.insert(secondZone->getId());
+			return;
 		}
 	}
+	lastSwappedZones.clear(); //If we didn't swap zones in this iteration, we can do it in the next
+
+	//find most distant zone that should be attracted and move inside it
+	std::shared_ptr<Zone> targetZone;
+	auto misplacedZone = misplacedZones.front().second;
+	float3 ourCenter = misplacedZone->getCenter();
+		
+	if (totalDistance > totalOverlap)
+	{
+		//Move one zone towards most distant zone to reduce distance
+
+		float maxDistance = 0;
+		for (auto con : misplacedZone->getConnections())
+		{
+			auto otherZone = zones[con];
+			float distance = static_cast<float>(otherZone->getCenter().dist2dSQ(ourCenter));
+			if (distance > maxDistance)
+			{
+				maxDistance = distance;
+				targetZone = otherZone;
+			}
+		}
+		if (targetZone) //TODO: consider refactoring duplicated code
+		{
+			float3 vec = targetZone->getCenter() - ourCenter;
+			float newDistanceBetweenZones = (std::max(misplacedZone->getSize(), targetZone->getSize())) / mapSize;
+			logGlobal->trace("Trying to move zone %d %s towards %d %s. Old distance %f", misplacedZone->getId(), ourCenter.toString(), targetZone->getId(), targetZone->getCenter().toString(), maxDistance);
+			logGlobal->trace("direction is %s", vec.toString());
+
+			misplacedZone->setCenter(targetZone->getCenter() - vec.unitVector() * newDistanceBetweenZones); //zones should now overlap by half size
+			logGlobal->trace("New distance %f", targetZone->getCenter().dist2d(misplacedZone->getCenter()));
+		}
+	}
+	else
+	{
+		//Move misplaced zone away from overlapping zone
+		//FIXME: Does that ever happend? Check the number ranges and rescale if needed
+
+		float maxOverlap = 0;
+		for(const auto & otherZone : zones)
+		{
+			float3 otherZoneCenter = otherZone.second->getCenter();
+
+			if (otherZone.second == misplacedZone || otherZoneCenter.z != ourCenter.z)
+				continue;
+
+			auto distance = static_cast<float>(otherZoneCenter.dist2dSQ(ourCenter));
+			if (distance > maxOverlap)
+			{
+				maxOverlap = distance;
+				targetZone = otherZone.second;
+			}
+		}
+		if (targetZone)
+		{
+			float3 vec = ourCenter - targetZone->getCenter();
+			float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) / mapSize;
+			logGlobal->trace("Trying to move zone %d %s away from %d %s. Old distance %f", misplacedZone->getId(), ourCenter.toString(), targetZone->getId(), targetZone->getCenter().toString(), maxOverlap);
+			logGlobal->trace("direction is %s", vec.toString());
+
+			misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
+			logGlobal->trace("New distance %f", targetZone->getCenter().dist2d(misplacedZone->getCenter()));
+		}
+	}
+	//Don't swap that zone in next iteration
+	lastSwappedZones.insert(misplacedZone->getId());
 }
 
 float CZonePlacer::metric (const int3 &A, const int3 &B) const
