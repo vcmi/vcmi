@@ -690,8 +690,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		{
 			float3 vec = targetZone->getCenter() - ourCenter;
 			float newDistanceBetweenZones = (std::max(misplacedZone->getSize(), targetZone->getSize())) / mapSize;
-			logGlobal->trace("Trying to move zone %d %s towards %d %s. Old distance %f", misplacedZone->getId(), ourCenter.toString(), targetZone->getId(), targetZone->getCenter().toString(), maxDistance);
-			logGlobal->trace("direction is %s", vec.toString());
+			logGlobal->trace("Trying to move zone %d %s towards %d %s. Direction is %s", misplacedZone->getId(), ourCenter.toString(), targetZone->getId(), targetZone->getCenter().toString(), vec.toString());
 
 			misplacedZone->setCenter(targetZone->getCenter() - vec.unitVector() * newDistanceBetweenZones); //zones should now overlap by half size
 		}
@@ -719,8 +718,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		{
 			float3 vec = ourCenter - targetZone->getCenter();
 			float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) / mapSize;
-			logGlobal->trace("Trying to move zone %d %s away from %d %s. Old distance %f", misplacedZone->getId(), ourCenter.toString(), targetZone->getId(), targetZone->getCenter().toString(), maxOverlap);
-			logGlobal->trace("direction is %s", vec.toString());
+			logGlobal->trace("Trying to move zone %d %s away from %d %s. Direction is %s", misplacedZone->getId(), ourCenter.toString(), targetZone->getId(), targetZone->getCenter().toString(), vec.toString());
 
 			misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
 		}
