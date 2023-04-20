@@ -5,6 +5,7 @@
 * Fixed empty Black Market on game start
 * Fixed bad morale happening after waiting
 * Fixed good morale happening after defeating last enemy unit
+* Adventure map spells are no longer visible on units in battle
 * RMG settings will now show all existing in game templates and not just those suitable for current settings
 * RMG settings (map size and two-level maps) that are not compatible with current template will be blocked
 * Fixed centering of scenario information window
