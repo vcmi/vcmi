@@ -6600,9 +6600,9 @@ void CGameHandler::runBattle()
 			if(!removeGhosts.changedStacks.empty())
 				sendAndApply(&removeGhosts);
 
-			//check for bad morale => freeze
+			// check for bad morale => freeze
 			int nextStackMorale = next->MoraleVal();
-			if (nextStackMorale < 0)
+			if(!next->hadMorale && !next->waited() && nextStackMorale < 0)
 			{
 				auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE);
 				size_t diceIndex = std::min<size_t>(diceSize.size()-1, -nextStackMorale);
