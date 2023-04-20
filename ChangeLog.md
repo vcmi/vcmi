@@ -8,12 +8,13 @@
 * Fixed good morale happening after defeating last enemy unit
 * Fixed death animation of Efreeti killed by petrification attack
 * Adventure map spells are no longer visible on units in battle
+* Attempt to cast spell with no valid targets in hotseat will show appropriate error message
 * RMG settings will now show all existing in game templates and not just those suitable for current settings
 * RMG settings (map size and two-level maps) that are not compatible with current template will be blocked
 * Fixed centering of scenario information window
 * Fixed crash on empty save game list after filtering
 * Fixed blocked progress in Launcher on language detection failure
-* Launcher will now correctly handle selection of Data directory in H3 install
+* Launcher will now correctly handle selection of Ddata directory in H3 install
 
 # 1.1.1 -> 1.2.0
 
