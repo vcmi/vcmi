@@ -90,21 +90,19 @@ CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
 	std::string language = VLC->modh->getModLanguage(modName);
 	std::string encoding = Languages::getLanguageOptions(language).encoding;
 	
-	JsonNode jsonCampaign(resourceID);
+	auto fileStream = CResourceHandler::get(modName)->load(resourceID);
+	std::vector<ui8> cmpgn = getFile(std::move(fileStream), true)[0];
+	JsonNode jsonCampaign((const char*)cmpgn.data(), cmpgn.size());
 	if(jsonCampaign.isNull())
 	{
-		auto fileStream = CResourceHandler::get(modName)->load(resourceID);
-		std::vector<ui8> cmpgn = getFile(std::move(fileStream), true)[0];
+		//legacy OH3 campaign (*.h3c)
 		CMemoryStream stream(cmpgn.data(), cmpgn.size());
 		CBinaryReader reader(&stream);
-		CCampaignHeader ret = readHeaderFromMemory(reader, resourceID.getName(), modName, encoding);
-		return ret;
+		return readHeaderFromMemory(reader, resourceID.getName(), modName, encoding);
 	}
-	else
-	{
-		CCampaignHeader ret = readHeaderFromJson(jsonCampaign, resourceID.getName(), modName, encoding);
-		return ret;
-	}
+	
+	//VCMI (*.vcmp)
+	return readHeaderFromJson(jsonCampaign, resourceID.getName(), modName, encoding);
 }
 
 std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & name )
@@ -116,66 +114,48 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 	
 	auto ret = std::make_unique<CCampaign>();
 	
-	JsonNode jsonCampaign(resourceID);
+	auto fileStream = CResourceHandler::get(modName)->load(resourceID);
+
+	std::vector<std::vector<ui8>> files = getFile(std::move(fileStream), false);
+	
+	JsonNode jsonCampaign((const char*)files[0].data(), files[0].size());
 	if(jsonCampaign.isNull())
 	{
-		auto fileStream = CResourceHandler::get(modName)->load(resourceID);
-
-		std::vector<std::vector<ui8>> file = getFile(std::move(fileStream), false);
-
-		CMemoryStream stream(file[0].data(), file[0].size());
+		CMemoryStream stream(files[0].data(), files[0].size());
 		CBinaryReader reader(&stream);
 		ret->header = readHeaderFromMemory(reader, resourceID.getName(), modName, encoding);
-
-		int howManyScenarios = ret->header.numberOfScenarios;
-		for(int g = 0; g < howManyScenarios; ++g)
-		{
-			CCampaignScenario sc = readScenarioFromMemory(reader, ret->header);
-			ret->scenarios.push_back(sc);
-		}
 		
-		int scenarioID = 0;
-		
-		//first entry is campaign header. start loop from 1
-		for (int g=1; g<file.size() && scenarioID<howManyScenarios; ++g)
-		{
-			while(!ret->scenarios[scenarioID].isNotVoid()) //skip void scenarios
-			{
-				scenarioID++;
-			}
-
-			std::string scenarioName = resourceID.getName();
-			boost::to_lower(scenarioName);
-			scenarioName += ':' + std::to_string(g - 1);
-
-			//set map piece appropriately, convert vector to string
-			ret->mapPieces[scenarioID].assign(reinterpret_cast< const char* >(file[g].data()), file[g].size());
-			CMapService mapService;
-			auto hdr = mapService.loadMapHeader(
-				reinterpret_cast<const ui8 *>(ret->mapPieces[scenarioID].c_str()),
-				static_cast<int>(ret->mapPieces[scenarioID].size()),
-				scenarioName,
-				modName,
-				encoding);
-			ret->scenarios[scenarioID].scenarioName = hdr->name;
-			scenarioID++;
-		}
+		for(int g = 0; g < ret->header.numberOfScenarios; ++g)
+			ret->scenarios.emplace_back(readScenarioFromMemory(reader, ret->header));
 	}
 	else
 	{
 		ret->header = readHeaderFromJson(jsonCampaign, resourceID.getName(), modName, encoding);
-		
 		for(auto & scenario : jsonCampaign["scenarios"].Vector())
-		{
-			CCampaignScenario sc = readScenarioFromJson(scenario);
-			if(sc.isNotVoid())
-			{
-				CMapService mapService;
-				if(auto hdr = mapService.loadMapHeader(ResourceID(sc.mapName, EResType::MAP)))
-					sc.scenarioName = hdr->name;
-			}
-			ret->scenarios.push_back(sc);
-		}
+			ret->scenarios.emplace_back(readScenarioFromJson(scenario));
+	}
+	
+	//first entry is campaign header. start loop from 1
+	for(int scenarioID = 0, g = 1; g < files.size() && scenarioID < ret->header.numberOfScenarios; ++g)
+	{
+		while(!ret->scenarios[scenarioID].isNotVoid()) //skip void scenarios
+			scenarioID++;
+
+		std::string scenarioName = resourceID.getName();
+		boost::to_lower(scenarioName);
+		scenarioName += ':' + std::to_string(g - 1);
+
+		//set map piece appropriately, convert vector to string
+		ret->mapPieces[scenarioID].assign(reinterpret_cast<const char*>(files[g].data()), files[g].size());
+		CMapService mapService;
+		auto hdr = mapService.loadMapHeader(
+			reinterpret_cast<const ui8 *>(ret->mapPieces[scenarioID].c_str()),
+			static_cast<int>(ret->mapPieces[scenarioID].size()),
+			scenarioName,
+			modName,
+			encoding);
+		ret->scenarios[scenarioID].scenarioName = hdr->name;
+		scenarioID++;
 	}
 
 	// handle campaign specific discrepancies
@@ -817,10 +797,7 @@ CMap * CCampaignState::getMap(int scenarioId) const
 	if(scenarioId == -1)
 		scenarioId = currentMap.value();
 	
-	CMapService mapService;
-	if(camp->header.version == CampaignVersion::Version::VCMI)
-		return mapService.loadMap(ResourceID(camp->scenarios.at(scenarioId).mapName, EResType::MAP)).release();
-	
+	CMapService mapService;	
 	std::string scenarioName = camp->header.filename.substr(0, camp->header.filename.find('.'));
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(scenarioId);
