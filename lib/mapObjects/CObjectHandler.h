@@ -86,7 +86,7 @@ public:
 	IBoatGenerator(const CGObjectInstance *O);
 	virtual ~IBoatGenerator() = default;
 
-	virtual TransportId getTransportType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
+	virtual BoatId getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
 	virtual void getOutOffsets(std::vector<int3> &offsets) const =0; //offsets to obj pos when we boat can be placed
 	int3 bestLocation() const; //returns location when the boat should be placed
 

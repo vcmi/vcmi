@@ -1079,7 +1079,7 @@ void CExchangeWindow::updateWidgets()
 	}
 }
 
-CShipyardWindow::CShipyardWindow(const TResources & cost, int state, TransportId boatType, const std::function<void()> & onBuy)
+CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boatType, const std::function<void()> & onBuy)
 	: CStatusbarWindow(PLAYER_COLORED, "TPSHIP")
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);

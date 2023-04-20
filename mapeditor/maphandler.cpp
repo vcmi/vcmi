@@ -187,7 +187,7 @@ void MapHandler::initObjectRects()
 		CGObjectInstance *obj = const_cast<CGObjectInstance *>(elem);
 		if(	!obj
 		   || (obj->ID==Obj::HERO && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
-		   || (obj->ID==Obj::TRANSPORT && static_cast<const CGBoat*>(obj)->hero)) //boat with hero (hero graphics is used)
+		   || (obj->ID==Obj::BOAT && static_cast<const CGBoat*>(obj)->hero)) //boat with hero (hero graphics is used)
 		{
 			continue;
 		}

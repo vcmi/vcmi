@@ -393,11 +393,11 @@ std::shared_ptr<CAnimation> MapRendererObjects::getBaseAnimation(const CGObjectI
 		return std::shared_ptr<CAnimation>();
 	}
 
-	bool generateMovementGroups = (info->id == Obj::TRANSPORT) || (info->id == Obj::HERO);
+	bool generateMovementGroups = (info->id == Obj::BOAT) || (info->id == Obj::HERO);
 
 	// Boat appearance files only contain single, unanimated image
 	// proper boat animations are actually in different file
-	if (info->id == Obj::TRANSPORT)
+	if (info->id == Obj::BOAT)
 		if(auto boat = dynamic_cast<const CGBoat*>(obj); boat && !boat->actualAnimation.empty())
 			return getAnimation(boat->actualAnimation, generateMovementGroups);
 
@@ -442,7 +442,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 		return getAnimation(heroFlags[obj->tempOwner.getNum()], true);
 	}
 
-	if(obj->ID == Obj::TRANSPORT)
+	if(obj->ID == Obj::BOAT)
 	{
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
 		if(boat && boat->hero && !boat->flagAnimations[boat->hero->tempOwner.getNum()].empty())
@@ -454,7 +454,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 
 std::shared_ptr<CAnimation> MapRendererObjects::getOverlayAnimation(const CGObjectInstance * obj)
 {
-	if(obj->ID == Obj::TRANSPORT)
+	if(obj->ID == Obj::BOAT)
 	{
 		// Boats have additional animation with waves around boat
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);

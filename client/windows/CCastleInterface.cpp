@@ -595,7 +595,7 @@ void CCastleBuildings::recreate()
 			logGlobal->warn("Shipyard in non-coastal town!");
 		std::vector <const CGObjectInstance *> vobjs = LOCPLINT->cb->getVisitableObjs(bayPos, false);
 		//there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
-		if(!vobjs.empty() && (vobjs.front()->ID == Obj::TRANSPORT || vobjs.front()->ID == Obj::HERO))
+		if(!vobjs.empty() && (vobjs.front()->ID == Obj::BOAT || vobjs.front()->ID == Obj::HERO))
 		{
 			buildingsCopy.insert(BuildingID::SHIP);
 		}

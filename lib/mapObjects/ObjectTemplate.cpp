@@ -36,7 +36,7 @@ static bool isOnVisitableFromTopList(int identifier, int type)
 		Obj::SHIPWRECK_SURVIVOR,
 		Obj::BUOY,
 		Obj::OCEAN_BOTTLE,
-		Obj::TRANSPORT,
+		Obj::BOAT,
 		Obj::WHIRLPOOL,
 		Obj::GARRISON,
 		Obj::GARRISON2,

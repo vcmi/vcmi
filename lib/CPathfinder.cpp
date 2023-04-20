@@ -668,10 +668,10 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 			if(!destination.isNodeObjectVisitable())
 				return BlockingReason::DESTINATION_BLOCKED;
 
-			if(destination.nodeObject->ID != Obj::TRANSPORT && !destination.nodeHero)
+			if(destination.nodeObject->ID != Obj::BOAT && !destination.nodeHero)
 				return BlockingReason::DESTINATION_BLOCKED;
 		}
-		else if(destination.isNodeObjectVisitable() && destination.nodeObject->ID == Obj::TRANSPORT)
+		else if(destination.isNodeObjectVisitable() && destination.nodeObject->ID == Obj::BOAT)
 		{
 			/// Hero in boat can't visit empty boats
 			return BlockingReason::DESTINATION_BLOCKED;
@@ -810,7 +810,7 @@ void DestinationActionRule::process(
 		{
 			auto objRel = destination.objectRelations;
 
-			if(destination.nodeObject->ID == Obj::TRANSPORT)
+			if(destination.nodeObject->ID == Obj::BOAT)
 				action = CGPathNode::EMBARK;
 			else if(destination.nodeHero)
 			{

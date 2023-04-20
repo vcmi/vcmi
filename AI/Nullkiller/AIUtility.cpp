@@ -228,7 +228,7 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 	}
 	else if(!fromWater) // do not try to board when in water sector
 	{
-		if(t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::TRANSPORT)
+		if(t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::BOAT)
 			return true;
 	}
 	return false;
@@ -450,7 +450,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		return ai->cb->getHeroesInfo().size() < VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
 	case Obj::TAVERN:
 	case Obj::EYE_OF_MAGI:
-	case Obj::TRANSPORT:
+	case Obj::BOAT:
 	case Obj::SIGN:
 		return false;
 	}

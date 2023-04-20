@@ -935,14 +935,14 @@ si32 CGHeroInstance::getManaNewTurn() const
 // 	ai->putAt(this, ai->firstAvailableSlot(this));
 // }
 
-TransportId CGHeroInstance::getTransportType() const
+BoatId CGHeroInstance::getBoatType() const
 {
 	switch(type->heroClass->getAlignment())
 	{
-		case EAlignment::EVIL : return TransportId::ETransportId::BOAT_EVIL;
-		case EAlignment::GOOD : return TransportId::ETransportId::BOAT_GOOD;
-		case EAlignment::NEUTRAL : return TransportId::ETransportId::BOAT_NEUTRAL;
-		default: return TransportId::ETransportId::NONE;
+		case EAlignment::EVIL : return EBoatId::BOAT_EVIL;
+		case EAlignment::GOOD : return EBoatId::BOAT_GOOD;
+		case EAlignment::NEUTRAL : return EBoatId::BOAT_NEUTRAL;
+		default: return EBoatId::NONE;
 	}
 }
 

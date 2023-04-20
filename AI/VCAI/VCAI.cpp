@@ -2863,7 +2863,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 			return false;
 		break;
 	}
-	case Obj::TRANSPORT:
+	case Obj::BOAT:
 		return false;
 	//Boats are handled by pathfinder
 	case Obj::EYE_OF_MAGI:
