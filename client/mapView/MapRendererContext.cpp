@@ -73,9 +73,9 @@ bool MapRendererBaseContext::isActiveHero(const CGObjectInstance * obj) const
 	if(obj->ID == Obj::HERO)
 	{
 		assert(dynamic_cast<const CGHeroInstance *>(obj) != nullptr);
-		if(adventureInt->curHero() != nullptr)
+		if(adventureInt->getCurrentHero() != nullptr)
 		{
-			if(obj->id == adventureInt->curHero()->id)
+			if(obj->id == adventureInt->getCurrentHero()->id)
 				return true;
 		}
 	}
@@ -206,7 +206,7 @@ MapRendererAdventureContext::MapRendererAdventureContext(const MapRendererContex
 
 const CGPath * MapRendererAdventureContext::currentPath() const
 {
-	const auto * hero = adventureInt->curHero();
+	const auto * hero = adventureInt->getCurrentHero();
 
 	if(!hero)
 		return nullptr;

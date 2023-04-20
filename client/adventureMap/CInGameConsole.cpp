@@ -259,7 +259,7 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 			clientCommandThread.detach();
 		}
 		else
-			LOCPLINT->cb->sendMessage(txt, adventureInt->curArmy());
+			LOCPLINT->cb->sendMessage(txt, adventureInt->getCurrentArmy());
 	}
 	enteredText.clear();
 

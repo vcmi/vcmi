@@ -1915,7 +1915,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 	[[maybe_unused]] const CArtifactInstance *transformedArt = al.getArt();
 	assert(transformedArt);
 	bool combineEquipped = !ArtifactUtils::isSlotBackpack(al.slot);
-	assert(vstd::contains_if(transformedArt->assemblyPossibilities(artSet, combineEquipped), [=](const CArtifact * art)->bool
+	assert(vstd::contains_if(ArtifactUtils::assemblyPossibilities(artSet, transformedArt->artType->getId(), combineEquipped), [=](const CArtifact * art)->bool
 		{
 			return art->getId() == builtArt->getId();
 		}));

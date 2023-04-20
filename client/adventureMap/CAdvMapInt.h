@@ -23,6 +23,7 @@ class CArmedInstance;
 class IShipyard;
 struct CGPathNode;
 struct ObjectPosInfo;
+struct Component;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -54,12 +55,9 @@ enum class EAdvMapMode
 /// can get to the towns and heroes.
 class CAdvMapInt : public CIntObject
 {
-	//TODO: remove
-	friend class CPlayerInterface;
-
 private:
 	enum EDirections {LEFT=1, RIGHT=2, UP=4, DOWN=8};
-	enum EGameStates {NA, INGAME, WAITING};
+	enum class EGameStates {NA, INGAME, WAITING};
 
 	EGameStates state;
 	EAdvMapMode mode;
@@ -145,6 +143,11 @@ private:
 
 	std::optional<Point> keyToMoveDirection(const SDL_Keycode & key);
 
+	bool isHeroSleeping(const CGHeroInstance *hero);
+	void setHeroSleeping(const CGHeroInstance *hero, bool sleep);
+	int getNextHeroIndex(int startIndex); //for Next Hero button - cycles awake heroes with movement only
+	void endingTurn();
+
 public:
 	CAdvMapInt();
 
@@ -162,9 +165,28 @@ public:
 
 	// public interface
 
-	/// called by MapView whenever currently visible area changes
-	/// visibleArea describen now visible map section measured in tiles
-	void onMapViewMoved(const Rect & visibleArea, int mapLevel);
+	void startHotSeatWait(PlayerColor Player);
+	void startTurn();
+	void initializeNewTurn();
+	void aiTurnStarted();
+
+	/// Called by PlayerInterface when hero is forced to wake up, e.g. on moving sleeping hero
+	void onHeroWokeUp(const CGHeroInstance * hero);
+
+	/// Called by PlayerInterface when current player changes in hotseat
+	void onCurrentPlayerChanged(PlayerColor Player);
+
+	/// Called by PlayerInterface when specific map tile changed and must be updated on minimap
+	void onMapTileChanged(const int3 & mapPosition);
+
+	/// Called by PlayerInterface when unknown number of tiles changed and minimap should redraw
+	void onMapTilesChanged();
+
+	/// Called by PlayerInterface when hero state changed and hero list must be updated
+	void onHeroChanged(const CGHeroInstance * hero);
+
+	/// Called by PlayerInterface when town state changed and town list must be updated
+	void onTownChanged(const CGTownInstance * town);
 
 	/// Called when map audio should be paused, e.g. on combat or town scren access
 	void onAudioPaused();
@@ -172,36 +194,35 @@ public:
 	/// Called when map audio should be resume, opposite to onPaused
 	void onAudioResumed();
 
-	void select(const CArmedInstance *sel, bool centerView = true);
+	/// Requests to display provided information inside infobox
+	void showInfoBoxMessage(const std::vector<Component> & components, std::string message, int timer);
+
+	/// Changes currently selected object
+	void setSelection(const CArmedInstance *sel, bool centerView = true);
+
+	/// Changes position on map to center selected location
 	void centerOnTile(int3 on);
 	void centerOnObject(const CGObjectInstance *obj);
 
-	bool isHeroSleeping(const CGHeroInstance *hero);
-	void setHeroSleeping(const CGHeroInstance *hero, bool sleep);
-	int getNextHeroIndex(int startIndex); //for Next Hero button - cycles awake heroes with movement only
+	/// called by MapView whenever currently visible area changes
+	/// visibleArea describes now visible map section measured in tiles
+	void onMapViewMoved(const Rect & visibleArea, int mapLevel);
 
-	void setPlayer(PlayerColor Player);
-	void startHotSeatWait(PlayerColor Player);
-	void startTurn();
-	void initializeNewTurn();
-	void endingTurn();
-	void aiTurnStarted();
-
-	void quickCombatLock(); //should be called when quick battle started
-	void quickCombatUnlock();
-
+	/// called by MapView whenever tile is clicked
 	void onTileLeftClicked(const int3 & mapPos);
+
+	/// called by MapView whenever tile is hovered
 	void onTileHovered(const int3 & mapPos);
+
+	/// called by MapView whenever tile is clicked
 	void onTileRightClicked(const int3 & mapPos);
 
 	void enterCastingMode(const CSpell * sp);
 	void leaveCastingMode(bool cast = false, int3 dest = int3(-1, -1, -1));
-	const CGHeroInstance * curHero() const;
-	const CGTownInstance * curTown() const;
-	const CArmedInstance * curArmy() const;
 
-	void updateMoveHero(const CGHeroInstance *h, tribool hasPath = boost::logic::indeterminate);
-	void updateNextHero(const CGHeroInstance *h);
+	const CGHeroInstance * getCurrentHero() const;
+	const CGTownInstance * getCurrentTown() const;
+	const CArmedInstance * getCurrentArmy() const;
 
 	/// returns area of screen covered by terrain (main game area)
 	Rect terrainAreaPixels() const;
@@ -217,6 +238,7 @@ public:
 
 	/// opens world view with specific info, e.g. after View Earth/Air is shown
 	void openWorldView(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain);
+
 };
 
 extern std::shared_ptr<CAdvMapInt> adventureInt;

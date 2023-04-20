@@ -91,7 +91,7 @@ CAdvMapInt::CAdvMapInt():
 	resdatabar(new CResDataBar),
 	mapAudio(new MapAudioPlayer()),
 	terrain(new MapView(Point(ADVOPT.advmapX, ADVOPT.advmapY), Point(ADVOPT.advmapW, ADVOPT.advmapH))),
-	state(NA),
+	state(EGameStates::NA),
 	spellBeingCasted(nullptr),
 	selection(nullptr),
 	activeMapPanel(nullptr),
@@ -216,7 +216,7 @@ CAdvMapInt::CAdvMapInt():
 	worldViewUnderground = makeButton(294, std::bind(&CAdvMapInt::fswitchLevel,this), worldViewUndergroundConfig, SDLK_u);
 	panelWorldView->addChildColorableButton(worldViewUnderground);
 
-	setPlayer(LOCPLINT->playerID);
+	onCurrentPlayerChanged(LOCPLINT->playerID);
 
 	int iconColorMultiplier = player.getNum() * 19;
 	int wvLeft = heroList->pos.x - 2; // TODO correct drawing position
@@ -259,7 +259,7 @@ void CAdvMapInt::fworldViewBack()
 {
 	exitWorldView();
 
-	auto hero = curHero();
+	auto hero = getCurrentHero();
 	if (hero)
 		centerOnObject(hero);
 }
@@ -318,7 +318,7 @@ void CAdvMapInt::fshowQuestlog()
 
 void CAdvMapInt::fsleepWake()
 {
-	const CGHeroInstance *h = curHero();
+	const CGHeroInstance *h = getCurrentHero();
 	if (!h)
 		return;
 	bool newSleep = !isHeroSleeping(h);
@@ -339,7 +339,7 @@ void CAdvMapInt::fsleepWake()
 
 void CAdvMapInt::fmoveHero()
 {
-	const CGHeroInstance *h = curHero();
+	const CGHeroInstance *h = getCurrentHero();
 	if (!h || !LOCPLINT->paths.hasPath(h) || CGI->mh->hasOngoingAnimations())
 		return;
 
@@ -348,12 +348,12 @@ void CAdvMapInt::fmoveHero()
 
 void CAdvMapInt::fshowSpellbok()
 {
-	if (!curHero()) //checking necessary values
+	if (!getCurrentHero()) //checking necessary values
 		return;
 
 	centerOnObject(selection);
 
-	GH.pushIntT<CSpellWindow>(curHero(), LOCPLINT, false);
+	GH.pushIntT<CSpellWindow>(getCurrentHero(), LOCPLINT, false);
 }
 
 void CAdvMapInt::fadventureOPtions()
@@ -372,7 +372,7 @@ void CAdvMapInt::fnextHero()
 	int next = getNextHeroIndex(vstd::find_pos(LOCPLINT->wanderingHeroes, hero));
 	if (next < 0)
 		return;
-	select(LOCPLINT->wanderingHeroes[next], true);
+	setSelection(LOCPLINT->wanderingHeroes[next], true);
 }
 
 void CAdvMapInt::fendTurn()
@@ -420,20 +420,6 @@ void CAdvMapInt::updateSleepWake(const CGHeroInstance *h)
 	sleepWake->assignedKeys.insert(state ? SDLK_w : SDLK_z);
 }
 
-void CAdvMapInt::updateMoveHero(const CGHeroInstance *h, tribool hasPath)
-{
-	if(!h)
-	{
-		moveHero->block(true);
-		return;
-	}
-	//default value is for everywhere but CPlayerInterface::moveHero, because paths are not updated from there immediately
-	if(boost::logic::indeterminate(hasPath))
-		hasPath = LOCPLINT->paths.hasPath(h);
-
-	moveHero->block(!(bool)hasPath || (h->movement == 0));
-}
-
 void CAdvMapInt::updateSpellbook(const CGHeroInstance *h)
 {
 	spellbook->block(!h);
@@ -460,8 +446,13 @@ int CAdvMapInt::getNextHeroIndex(int startIndex)
 		return -1;
 }
 
-void CAdvMapInt::updateNextHero(const CGHeroInstance *h)
+void CAdvMapInt::onHeroChanged(const CGHeroInstance *h)
 {
+	heroList->update(h);
+
+	if (h == getCurrentHero())
+		adventureInt->infoBar->showSelection();
+
 	int start = vstd::find_pos(LOCPLINT->wanderingHeroes, h);
 	int next = getNextHeroIndex(start);
 	if (next < 0)
@@ -472,6 +463,27 @@ void CAdvMapInt::updateNextHero(const CGHeroInstance *h)
 	const CGHeroInstance *nextH = LOCPLINT->wanderingHeroes[next];
 	bool noActiveHeroes = (next == start) && ((nextH->movement == 0) || isHeroSleeping(nextH));
 	nextHero->block(noActiveHeroes);
+
+	if(!h)
+	{
+		moveHero->block(true);
+		return;
+	}
+	//default value is for everywhere but CPlayerInterface::moveHero, because paths are not updated from there immediately
+	bool hasPath = LOCPLINT->paths.hasPath(h);
+
+	moveHero->block(!(bool)hasPath || (h->movement == 0));
+}
+
+void CAdvMapInt::onTownChanged(const CGTownInstance * town)
+{
+	townList->update(town);
+	adventureInt->infoBar->showSelection();
+}
+
+void CAdvMapInt::showInfoBoxMessage(const std::vector<Component> & components, std::string message, int timer)
+{
+	infoBar->pushComponents(components, message, timer);
 }
 
 void CAdvMapInt::activate()
@@ -532,7 +544,7 @@ void CAdvMapInt::showAll(SDL_Surface * to)
 {
 	bg->draw(to, 0, 0);
 
-	if(state != INGAME)
+	if(state != EGameStates::INGAME)
 		return;
 
 	switch (mode)
@@ -565,18 +577,30 @@ bool CAdvMapInt::isHeroSleeping(const CGHeroInstance *hero)
 	return vstd::contains(LOCPLINT->sleepingHeroes, hero);
 }
 
+void CAdvMapInt::onHeroWokeUp(const CGHeroInstance * hero)
+{
+	if (!isHeroSleeping(hero))
+		return;
+
+	sleepWake->clickLeft(true, false);
+	sleepWake->clickLeft(false, true);
+	//could've just called
+	//adventureInt->fsleepWake();
+	//but no authentic button click/sound ;-)
+}
+
 void CAdvMapInt::setHeroSleeping(const CGHeroInstance *hero, bool sleep)
 {
 	if (sleep)
 		LOCPLINT->sleepingHeroes.push_back(hero); //FIXME: should we check for existence?
 	else
 		LOCPLINT->sleepingHeroes -= hero;
-	updateNextHero(nullptr);
+	onHeroChanged(nullptr);
 }
 
 void CAdvMapInt::show(SDL_Surface * to)
 {
-	if(state != INGAME)
+	if(state != EGameStates::INGAME)
 		return;
 
 	handleMapScrollingUpdate();
@@ -636,7 +660,7 @@ void CAdvMapInt::selectionChanged()
 {
 	const CGTownInstance *to = LOCPLINT->towns[townList->getSelectedIndex()];
 	if (selection != to)
-		select(to);
+		setSelection(to);
 }
 
 void CAdvMapInt::centerOnTile(int3 on)
@@ -682,8 +706,8 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 	if (mode != EAdvMapMode::NORMAL)
 		return;
 
-	const CGHeroInstance *h = curHero(); //selected hero
-	const CGTownInstance *t = curTown(); //selected town
+	const CGHeroInstance *h = getCurrentHero(); //selected hero
+	const CGTownInstance *t = getCurrentTown(); //selected town
 
 	switch(key)
 	{
@@ -843,7 +867,7 @@ void CAdvMapInt::keyPressed(const SDL_Keycode & key)
 			const CGPath & path = LOCPLINT->paths.getPath(h);
 
 			if (path.nodes.size() > 2)
-				updateMoveHero(h);
+				onHeroChanged(h);
 			else
 			if(!path.nodes[0].turns)
 				LOCPLINT->moveHero(h, path);
@@ -874,7 +898,7 @@ std::optional<Point> CAdvMapInt::keyToMoveDirection(const SDL_Keycode & key)
 	return std::nullopt;
 }
 
-void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
+void CAdvMapInt::setSelection(const CArmedInstance *sel, bool centerView)
 {
 	assert(sel);
 	if(selection != sel)
@@ -893,7 +917,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 		heroList->select(nullptr);
 
 		updateSleepWake(nullptr);
-		updateMoveHero(nullptr);
+		onHeroChanged(nullptr);
 		updateSpellbook(nullptr);
 	}
 	else //hero selected
@@ -907,7 +931,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 		LOCPLINT->paths.verifyPath(hero);
 
 		updateSleepWake(hero);
-		updateMoveHero(hero);
+		onHeroChanged(hero);
 		updateSpellbook(hero);
 	}
 	townList->redraw();
@@ -962,11 +986,23 @@ bool CAdvMapInt::isActive()
 
 void CAdvMapInt::startHotSeatWait(PlayerColor Player)
 {
-	state = WAITING;
+	state = EGameStates::WAITING;
 }
 
-void CAdvMapInt::setPlayer(PlayerColor Player)
+void CAdvMapInt::onMapTileChanged(const int3 & mapPosition)
 {
+	minimap->updateTile(mapPosition);
+}
+
+void CAdvMapInt::onMapTilesChanged()
+{
+	minimap->update();
+}
+
+void CAdvMapInt::onCurrentPlayerChanged(PlayerColor Player)
+{
+	selection = nullptr;
+
 	if (Player == player)
 		return;
 
@@ -981,12 +1017,13 @@ void CAdvMapInt::setPlayer(PlayerColor Player)
 
 void CAdvMapInt::startTurn()
 {
-	state = INGAME;
+	state = EGameStates::INGAME;
 	if(LOCPLINT->cb->getCurrentPlayer() == LOCPLINT->playerID
 		|| settings["session"]["spectate"].Bool())
 	{
 		adjustActiveness(false);
 		minimap->setAIRadar(false);
+		infoBar->showSelection();
 	}
 }
 
@@ -1012,17 +1049,17 @@ void CAdvMapInt::initializeNewTurn()
 	//select first hero if available.
 	if (heroToSelect != nullptr)
 	{
-		select(heroToSelect, centerView);
+		setSelection(heroToSelect, centerView);
 	}
 	else if (LOCPLINT->towns.size())
-		select(LOCPLINT->towns.front(), centerView);
+		setSelection(LOCPLINT->towns.front(), centerView);
 	else
-		select(LOCPLINT->wanderingHeroes.front());
+		setSelection(LOCPLINT->wanderingHeroes.front());
 
 	//show new day animation and sound on infobar
 	infoBar->showDate();
 
-	updateNextHero(nullptr);
+	onHeroChanged(nullptr);
 	showAll(screen);
 	mapAudio->onPlayerTurnStarted();
 
@@ -1103,9 +1140,9 @@ void CAdvMapInt::onTileLeftClicked(const int3 &mapPos)
 		if(selection == topBlocking) //selected town clicked
 			LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(topBlocking));
 		else if(canSelect)
-			select(static_cast<const CArmedInstance*>(topBlocking), false);
+			setSelection(static_cast<const CArmedInstance*>(topBlocking), false);
 	}
-	else if(const CGHeroInstance * currentHero = curHero()) //hero is selected
+	else if(const CGHeroInstance * currentHero = getCurrentHero()) //hero is selected
 	{
 		isHero = true;
 
@@ -1117,7 +1154,7 @@ void CAdvMapInt::onTileLeftClicked(const int3 &mapPos)
 		}
 		else if(canSelect && pn->turns == 255 ) //selectable object at inaccessible tile
 		{
-			select(static_cast<const CArmedInstance*>(topBlocking), false);
+			setSelection(static_cast<const CArmedInstance*>(topBlocking), false);
 			return;
 		}
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
@@ -1132,7 +1169,7 @@ void CAdvMapInt::onTileLeftClicked(const int3 &mapPos)
 			else //remove old path and find a new one if we clicked on accessible tile
 			{
 				LOCPLINT->paths.setPath(currentHero, mapPos);
-				updateMoveHero(currentHero);
+				onHeroChanged(currentHero);
 			}
 		}
 	} //end of hero is selected "case"
@@ -1164,7 +1201,7 @@ void CAdvMapInt::onTileHovered(const int3 &mapPos)
 	if(objAtTile)
 	{
 		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
-		std::string text = curHero() ? objAtTile->getHoverText(curHero()) : objAtTile->getHoverText(LOCPLINT->playerID);
+		std::string text = getCurrentHero() ? objAtTile->getHoverText(getCurrentHero()) : objAtTile->getHoverText(LOCPLINT->playerID);
 		boost::replace_all(text,"\n"," ");
 		statusbar->write(text);
 	}
@@ -1211,7 +1248,7 @@ void CAdvMapInt::onTileHovered(const int3 &mapPos)
 		else
 			CCS->curh->set(Cursor::Map::POINTER);
 	}
-	else if(const CGHeroInstance * hero = curHero())
+	else if(const CGHeroInstance * hero = getCurrentHero())
 	{
 		std::array<Cursor::Map, 4> cursorMove      = { Cursor::Map::T1_MOVE,       Cursor::Map::T2_MOVE,       Cursor::Map::T3_MOVE,       Cursor::Map::T4_MOVE,       };
 		std::array<Cursor::Map, 4> cursorAttack    = { Cursor::Map::T1_ATTACK,     Cursor::Map::T2_ATTACK,     Cursor::Map::T3_ATTACK,     Cursor::Map::T4_ATTACK,     };
@@ -1357,12 +1394,12 @@ void CAdvMapInt::leaveCastingMode(bool cast, int3 dest)
 	activate();
 
 	if(cast)
-		LOCPLINT->cb->castSpell(curHero(), id, dest);
+		LOCPLINT->cb->castSpell(getCurrentHero(), id, dest);
 	else
 		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[731]); //Spell cancelled
 }
 
-const CGHeroInstance * CAdvMapInt::curHero() const
+const CGHeroInstance * CAdvMapInt::getCurrentHero() const
 {
 	if(selection && selection->ID == Obj::HERO)
 		return dynamic_cast<const CGHeroInstance *>(selection);
@@ -1370,7 +1407,7 @@ const CGHeroInstance * CAdvMapInt::curHero() const
 		return nullptr;
 }
 
-const CGTownInstance * CAdvMapInt::curTown() const
+const CGTownInstance * CAdvMapInt::getCurrentTown() const
 {
 	if(selection && selection->ID == Obj::TOWN)
 		return dynamic_cast<const CGTownInstance *>(selection);
@@ -1378,7 +1415,7 @@ const CGTownInstance * CAdvMapInt::curTown() const
 		return nullptr;
 }
 
-const CArmedInstance * CAdvMapInt::curArmy() const
+const CArmedInstance * CAdvMapInt::getCurrentArmy() const
 {
 	if (selection)
 		return dynamic_cast<const CArmedInstance *>(selection);
@@ -1424,18 +1461,6 @@ void CAdvMapInt::adjustActiveness(bool aiTurnStart)
 		deactivate();
 	adventureInt->duringAITurn = aiTurnStart;
 	if(wasActive)
-		activate();
-}
-
-void CAdvMapInt::quickCombatLock()
-{
-	if(!duringAITurn)
-		deactivate();
-}
-
-void CAdvMapInt::quickCombatUnlock()
-{
-	if(!duringAITurn)
 		activate();
 }
 

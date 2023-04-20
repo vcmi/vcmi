@@ -237,15 +237,15 @@ void CInfoBar::reset()
 void CInfoBar::showSelection()
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	if(adventureInt->curHero())
+	if(adventureInt->getCurrentHero())
 	{
-		showHeroSelection(adventureInt->curHero());
+		showHeroSelection(adventureInt->getCurrentHero());
 		return;
 	}
 
-	if(adventureInt->curTown())
+	if(adventureInt->getCurrentTown())
 	{
-		showTownSelection(adventureInt->curTown());
+		showTownSelection(adventureInt->getCurrentTown());
 		return;
 	}
 

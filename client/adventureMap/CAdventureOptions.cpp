@@ -41,7 +41,7 @@ CAdventureOptions::CAdventureOptions()
 	puzzle->addCallback(std::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT));
 
 	dig = std::make_shared<CButton>(Point(24, 139), "ADVDIG.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_d);
-	if(const CGHeroInstance *h = adventureInt->curHero())
+	if(const CGHeroInstance *h = adventureInt->getCurrentHero())
 		dig->addCallback(std::bind(&CPlayerInterface::tryDiggging, LOCPLINT, h));
 	else
 		dig->block(true);

@@ -240,7 +240,6 @@ public:
 	void redrawHeroWin(const CGHeroInstance * hero);
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
-	void updateInfo(const CGObjectInstance * specific);
 	void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
 	void activateForSpectator(); // TODO: spectator probably need own player interface class
 
