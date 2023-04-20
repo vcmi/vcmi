@@ -120,7 +120,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		}
 		else
 		{
-			std::vector<BattleHex> avHexes = cb->battleGetAvailableHexes(stack, true);
+			std::vector<BattleHex> avHexes = cb->battleGetAvailableHexes(stack, false);
 
 			for (BattleHex hex : avHexes)
 			{
