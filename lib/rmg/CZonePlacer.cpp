@@ -26,10 +26,10 @@ class CRandomGenerator;
 
 CZonePlacer::CZonePlacer(RmgMap & map)
 	: width(0), height(0), scaleX(0), scaleY(0), mapSize(0),
-	gravityConstant(5e-4f),
+	gravityConstant(1e-3f),
 	stiffnessConstant(3e-3f),
 	stifness(0),
-	stiffnessIncreaseFactor(1.05f),
+	stiffnessIncreaseFactor(1.03f),
 	bestTotalDistance(1e10),
 	bestTotalOverlap(1e10),
 	map(map)
