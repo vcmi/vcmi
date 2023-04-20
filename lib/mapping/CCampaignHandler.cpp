@@ -797,7 +797,7 @@ CMap * CCampaignState::getMap(int scenarioId) const
 	if(scenarioId == -1)
 		scenarioId = currentMap.value();
 	
-	CMapService mapService;	
+	CMapService mapService;
 	std::string scenarioName = camp->header.filename.substr(0, camp->header.filename.find('.'));
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(scenarioId);
@@ -812,9 +812,6 @@ std::unique_ptr<CMapHeader> CCampaignState::getHeader(int scenarioId) const
 		scenarioId = currentMap.value();
 	
 	CMapService mapService;
-	if(camp->header.version == CampaignVersion::Version::VCMI)
-		return mapService.loadMapHeader(ResourceID(camp->scenarios.at(scenarioId).mapName, EResType::MAP));
-
 	std::string scenarioName = camp->header.filename.substr(0, camp->header.filename.find('.'));
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(scenarioId);
