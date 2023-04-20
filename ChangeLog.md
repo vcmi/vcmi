@@ -1,6 +1,7 @@
 # 1.2.0 -> 1.2.1
 
 ### GENERAL:
+* Implemented spell range overlay for Dimension Door and Scuttle Boat
 * Fixed movement cost penalty from terrain
 * Fixed empty Black Market on game start
 * Fixed bad morale happening after waiting
