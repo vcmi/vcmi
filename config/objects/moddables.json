@@ -118,7 +118,6 @@
 			"evil" : 
 			{ 
 				"index" : 0,	
-				"rmg" : { "mapLimit" : 64 },
 				"layer" : "sail",
 				"actualAnimation" : "AB01_.def",
 				"overlayAnimation" : "ABM01_.def",
@@ -129,7 +128,6 @@
 			"good" : 
 			{ 
 				"index" : 1, 
-				"rmg" : { "mapLimit" : 64 },
 				"layer" : "sail",
 				"actualAnimation" : "AB02_.def",
 				"overlayAnimation" : "ABM02_.def",
@@ -139,7 +137,6 @@
 			},
 			"neutral" : { 
 				"index" : 2, 
-				"rmg" : { "mapLimit" : 64 },
 				"layer" : "sail",
 				"actualAnimation" : "AB03_.def",
 				"overlayAnimation" : "ABM03_.def",
