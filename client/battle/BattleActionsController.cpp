@@ -620,7 +620,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 		{
 			if(owner.stacksController->getActiveStack()->doubleWide())
 			{
-				std::vector<BattleHex> acc = owner.curInt->cb->battleGetAvailableHexes(owner.stacksController->getActiveStack(), true);
+				std::vector<BattleHex> acc = owner.curInt->cb->battleGetAvailableHexes(owner.stacksController->getActiveStack(), false);
 				BattleHex shiftedDest = targetHex.cloneInDirection(owner.stacksController->getActiveStack()->destShiftDir(), false);
 				if(vstd::contains(acc, targetHex))
 					owner.giveCommand(EActionType::WALK, targetHex);

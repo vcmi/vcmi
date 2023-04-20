@@ -174,7 +174,7 @@ void BattleFieldController::redrawBackgroundWithHexes()
 	const CStack *activeStack = owner.stacksController->getActiveStack();
 	std::vector<BattleHex> attackableHexes;
 	if(activeStack)
-		occupiableHexes = owner.curInt->cb->battleGetAvailableHexes(activeStack, true, true, &attackableHexes);
+		occupiableHexes = owner.curInt->cb->battleGetAvailableHexes(activeStack, false, true, &attackableHexes);
 
 	// prepare background graphic with hexes and shaded hexes
 	backgroundWithHexes->draw(background, Point(0,0));
@@ -252,7 +252,7 @@ std::set<BattleHex> BattleFieldController::getMovementRangeForHoveredStack()
 	const CStack * const hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
 	if(hoveredStack)
 	{
-		std::vector<BattleHex> v = owner.curInt->cb->battleGetAvailableHexes(hoveredStack, false, true, nullptr);
+		std::vector<BattleHex> v = owner.curInt->cb->battleGetAvailableHexes(hoveredStack, true, true, nullptr);
 		for(BattleHex hex : v)
 			result.insert(hex);
 	}
@@ -289,7 +289,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForSpellRange()
 	return result;
 }
 
-std::set<BattleHex> BattleFieldController::getHighlightedHexesMovementTarget()
+std::set<BattleHex> BattleFieldController::getHighlightedHexesForMovementTarget()
 {
 	const CStack * stack = owner.stacksController->getActiveStack();
 	auto hoveredHex = getHoveredHex();
@@ -297,7 +297,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesMovementTarget()
 	if(!stack)
 		return {};
 
-	std::vector<BattleHex> availableHexes = owner.curInt->cb->battleGetAvailableHexes(stack, true, false, nullptr);
+	std::vector<BattleHex> availableHexes = owner.curInt->cb->battleGetAvailableHexes(stack, false, false, nullptr);
 
 	auto hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
 	if(owner.curInt->cb->battleCanAttack(stack, hoveredStack, hoveredHex))
@@ -337,7 +337,7 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 {
 	std::set<BattleHex> hoveredStackMovementRangeHexes = getMovementRangeForHoveredStack();
 	std::set<BattleHex> hoveredSpellHexes = getHighlightedHexesForSpellRange();
-	std::set<BattleHex> hoveredMoveHexes  = getHighlightedHexesMovementTarget();
+	std::set<BattleHex> hoveredMoveHexes  = getHighlightedHexesForMovementTarget();
 
 	if(getHoveredHex() == BattleHex::INVALID)
 		return;

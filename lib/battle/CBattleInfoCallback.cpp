@@ -546,7 +546,7 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & turns,
 		battleGetTurnOrder(turns, maxUnits, maxTurns, actualTurn + 1, sideThatLastMoved);
 }
 
-std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit * unit, bool isActiveStack) const
+std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit * unit, bool getMovementRange) const
 {
 
 	RETURN_IF_NOT_BATTLE(std::vector<BattleHex>());
@@ -555,10 +555,10 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle
 
 	auto reachability = getReachability(unit);
 
-	return battleGetAvailableHexes(reachability, unit, isActiveStack);
+	return battleGetAvailableHexes(reachability, unit, getMovementRange);
 }
 
-std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const ReachabilityInfo & cache, const battle::Unit * unit, bool isActiveStack) const
+std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const ReachabilityInfo & cache, const battle::Unit * unit, bool getMovementRange) const
 {
 	std::vector<BattleHex> ret;
 
@@ -568,7 +568,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const Reacha
 
 	auto unitSpeed = unit->Speed(0, true);
 
-	const bool showTacticsRange = battleTacticDist() && battleGetTacticsSide() == unit->unitSide() && isActiveStack;
+	const bool tacticsPhase = battleTacticDist() && battleGetTacticsSide() == unit->unitSide();
 
 	for(int i = 0; i < GameConstants::BFIELD_SIZE; ++i)
 	{
@@ -576,7 +576,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const Reacha
 		if(!cache.isReachable(i))
 			continue;
 
-		if(showTacticsRange)
+		if(tacticsPhase && !getMovementRange) // if getMovementRange requested do not return tactics range
 		{
 			// Stack has to perform tactic-phase movement -> can enter any reachable tile within given range
 			if(!isInTacticRange(i))
@@ -595,9 +595,9 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const Reacha
 	return ret;
 }
 
-std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit * unit, bool isActiveStack, bool addOccupiable, std::vector<BattleHex> * attackable) const
+std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit * unit, bool getMovementRange, bool addOccupiable, std::vector<BattleHex> * attackable) const
 {
-	std::vector<BattleHex> ret = battleGetAvailableHexes(unit, isActiveStack);
+	std::vector<BattleHex> ret = battleGetAvailableHexes(unit, getMovementRange);
 
 	if(ret.empty())
 		return ret;
