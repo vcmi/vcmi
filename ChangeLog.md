@@ -7,6 +7,7 @@
 * Fixed bad morale happening after waiting
 * Fixed good morale happening after defeating last enemy unit
 * Fixed death animation of Efreeti killed by petrification attack
+* Fixed crash on leaving to main menu from battle in hotseat mode
 * Adventure map spells are no longer visible on units in battle
 * Attempt to cast spell with no valid targets in hotseat will show appropriate error message
 * RMG settings will now show all existing in game templates and not just those suitable for current settings
