@@ -42,6 +42,10 @@ private slots:
 	
 	void allowedFactionsCheck(QListWidgetItem *);
 
+	void on_teamId_activated(int index);
+
+	void on_playerColorCombo_activated(int index);
+
 private:
 	Ui::PlayerParams *ui;
 	
