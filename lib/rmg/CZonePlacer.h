@@ -50,7 +50,7 @@ private:
 private:
 	int width;
 	int height;
-	//metric coefiicients
+	//metric coeficients
 	float scaleX;
 	float scaleY;
 	float mapSize;
@@ -59,9 +59,10 @@ private:
 	float stiffnessConstant;
 	float stifness;
 	float stiffnessIncreaseFactor;
-    //float a1, b1, c1, a2, b2, c2;
-	//CMap * map;
-	//std::unique_ptr<CZoneGraph> graph;
+
+	//remember best solution
+	float bestTotalDistance;
+	float bestTotalOverlap;
 
 	//distance [a][b] = number of zone connections required to travel between the zones
 	std::map<int, std::map<int, size_t>> distancesBetweenZones;

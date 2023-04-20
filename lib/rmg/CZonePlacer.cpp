@@ -30,6 +30,8 @@ CZonePlacer::CZonePlacer(RmgMap & map)
 	stiffnessConstant(3e-3f),
 	stifness(0),
 	stiffnessIncreaseFactor(1.05f),
+	bestTotalDistance(1e10),
+	bestTotalOverlap(1e10),
 	map(map)
 {
 }
@@ -320,10 +322,6 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 
 	//0. set zone sizes and surface / underground level
 	prepareZones(zones, zonesVector, underground, rand);
-
-	//remember best solution
-	float bestTotalDistance = 1e10;
-	float bestTotalOverlap = 1e10;
 
 	std::map<std::shared_ptr<Zone>, float3> bestSolution;
 
@@ -673,7 +671,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 	auto misplacedZone = misplacedZones.front().second;
 	float3 ourCenter = misplacedZone->getCenter();
 		
-	if (totalDistance > totalOverlap)
+	if ((totalDistance / (bestTotalDistance + 1)) > (totalOverlap / (bestTotalOverlap + 1)))
 	{
 		//Move one zone towards most distant zone to reduce distance
 
@@ -688,7 +686,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 				targetZone = otherZone;
 			}
 		}
-		if (targetZone) //TODO: consider refactoring duplicated code
+		if (targetZone)
 		{
 			float3 vec = targetZone->getCenter() - ourCenter;
 			float newDistanceBetweenZones = (std::max(misplacedZone->getSize(), targetZone->getSize())) / mapSize;
@@ -696,13 +694,11 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 			logGlobal->trace("direction is %s", vec.toString());
 
 			misplacedZone->setCenter(targetZone->getCenter() - vec.unitVector() * newDistanceBetweenZones); //zones should now overlap by half size
-			logGlobal->trace("New distance %f", targetZone->getCenter().dist2d(misplacedZone->getCenter()));
 		}
 	}
 	else
 	{
 		//Move misplaced zone away from overlapping zone
-		//FIXME: Does that ever happend? Check the number ranges and rescale if needed
 
 		float maxOverlap = 0;
 		for(const auto & otherZone : zones)
@@ -727,7 +723,6 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 			logGlobal->trace("direction is %s", vec.toString());
 
 			misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
-			logGlobal->trace("New distance %f", targetZone->getCenter().dist2d(misplacedZone->getCenter()));
 		}
 	}
 	//Don't swap that zone in next iteration
