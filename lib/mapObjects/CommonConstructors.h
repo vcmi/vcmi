@@ -140,6 +140,37 @@ public:
 	}
 };
 
+class BoatInstanceConstructor : public CDefaultObjectTypeHandler<CGBoat>
+{
+protected:
+	void initTypeData(const JsonNode & config) override;
+	
+	std::vector<Bonus> bonuses;
+	EPathfindingLayer layer;
+	bool onboardAssaultAllowed; //if true, hero can attack units from transport
+	bool onboardVisitAllowed; //if true, hero can visit objects from transport
+	
+	std::string actualAnimation; //for OH3 boats those have actual animations
+	std::string overlayAnimation; //waves animations
+	std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
+	
+public:
+	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
+	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CDefaultObjectTypeHandler<CGBoat>&>(*this);
+		h & layer;
+		h & onboardAssaultAllowed;
+		h & onboardVisitAllowed;
+		h & bonuses;
+		h & actualAnimation;
+		h & overlayAnimation;
+		h & flagAnimations;
+	}
+};
+
 struct BankConfig
 {
 	ui32 value = 0; //overall value of given things

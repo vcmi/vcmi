@@ -1079,7 +1079,7 @@ void CExchangeWindow::updateWidgets()
 	}
 }
 
-CShipyardWindow::CShipyardWindow(const TResources & cost, int state, int boatType, const std::function<void()> & onBuy)
+CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boatType, const std::function<void()> & onBuy)
 	: CStatusbarWindow(PLAYER_COLORED, "TPSHIP")
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1089,7 +1089,7 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, int boatTyp
 	std::string boatFilenames[3] = {"AB01_", "AB02_", "AB03_"};
 
 	Point waterCenter = Point(bgWater->pos.x+bgWater->pos.w/2, bgWater->pos.y+bgWater->pos.h/2);
-	bgShip = std::make_shared<CAnimImage>(boatFilenames[boatType], 0, 7, 120, 96, 0);
+	bgShip = std::make_shared<CAnimImage>(boatFilenames[boatType.getNum()], 0, 7, 120, 96, 0);
 	bgShip->center(waterCenter);
 
 	// Create resource icons and costs.

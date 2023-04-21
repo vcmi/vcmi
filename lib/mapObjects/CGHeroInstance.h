@@ -133,7 +133,7 @@ public:
 	int getSightRadius() const override; //sight distance (should be used if player-owned structure)
 	//////////////////////////////////////////////////////////////////////////
 
-	int getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
+	BoatId getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
 	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed
 
 	//////////////////////////////////////////////////////////////////////////

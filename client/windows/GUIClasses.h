@@ -358,7 +358,7 @@ class CShipyardWindow : public CStatusbarWindow
 	std::shared_ptr<CButton> quit;
 
 public:
-	CShipyardWindow(const TResources & cost, int state, int boatType, const std::function<void()> & onBuy);
+	CShipyardWindow(const TResources & cost, int state, BoatId boatType, const std::function<void()> & onBuy);
 };
 
 /// Creature transformer window

@@ -414,11 +414,19 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGBoat : public CGObjectInstance
+class DLL_LINKAGE CGBoat : public CGObjectInstance, public CBonusSystemNode
 {
 public:
 	ui8 direction;
 	const CGHeroInstance *hero;  //hero on board
+	bool onboardAssaultAllowed; //if true, hero can attack units from transport
+	bool onboardVisitAllowed; //if true, hero can visit objects from transport
+	EPathfindingLayer::EEPathfindingLayer layer;
+	
+	//animation filenames. If empty - animations won't be used
+	std::string actualAnimation; //for OH3 boats those have actual animations
+	std::string overlayAnimation; //waves animations
+	std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
 
 	void initObj(CRandomGenerator & rand) override;
 
@@ -426,12 +434,20 @@ public:
 	{
 		hero = nullptr;
 		direction = 4;
+		layer = EPathfindingLayer::EEPathfindingLayer::SAIL;
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
+		h & static_cast<CBonusSystemNode&>(*this);
 		h & direction;
 		h & hero;
+		h & layer;
+		h & onboardAssaultAllowed;
+		h & onboardVisitAllowed;
+		h & actualAnimation;
+		h & overlayAnimation;
+		h & flagAnimations;
 	}
 };
 

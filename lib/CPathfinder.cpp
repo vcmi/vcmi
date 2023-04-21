@@ -151,7 +151,7 @@ void NodeStorage::resetTile(const int3 & tile, const EPathfindingLayer & layer, 
 
 std::vector<CGPathNode *> NodeStorage::getInitialNodes()
 {
-	auto * initialNode = getNode(out.hpos, out.hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND);
+	auto * initialNode = getNode(out.hpos, out.hero->boat ? out.hero->boat->layer : EPathfindingLayer::LAND);
 
 	initialNode->turns = 0;
 	initialNode->moveRemains = out.hero->movement;
@@ -1019,12 +1019,18 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 	switch(layer)
 	{
 	case EPathfindingLayer::AIR:
+		if(hero && hero->boat && hero->boat->layer == EPathfindingLayer::AIR)
+			break;
+			
 		if(!hasBonusOfType(Bonus::FLYING_MOVEMENT))
 			return false;
 
 		break;
 
 	case EPathfindingLayer::WATER:
+		if(hero && hero->boat && hero->boat->layer == EPathfindingLayer::WATER)
+			break;
+			
 		if(!hasBonusOfType(Bonus::WATER_WALKING))
 			return false;
 
@@ -1236,15 +1242,17 @@ int CPathfinderHelper::getMovementCost(
 
 	bool isSailLayer;
 	if(indeterminate(isDstSailLayer))
-		isSailLayer = hero->boat != nullptr && dt->terType->isWater();
+		isSailLayer = hero->boat && hero->boat->layer == EPathfindingLayer::SAIL && dt->terType->isWater();
 	else
 		isSailLayer = static_cast<bool>(isDstSailLayer);
 
 	bool isWaterLayer;
 	if(indeterminate(isDstWaterLayer))
-		isWaterLayer = dt->terType->isWater();
+		isWaterLayer = ((hero->boat && hero->boat->layer == EPathfindingLayer::WATER) || ti->hasBonusOfType(Bonus::WATER_WALKING)) && dt->terType->isWater();
 	else
 		isWaterLayer = static_cast<bool>(isDstWaterLayer);
+	
+	bool isAirLayer = (hero->boat && hero->boat->layer == EPathfindingLayer::AIR) || ti->hasBonusOfType(Bonus::FLYING_MOVEMENT);
 
 	int ret = hero->getTileCost(*dt, *ct, ti);
 	if(isSailLayer)
@@ -1252,7 +1260,7 @@ int CPathfinderHelper::getMovementCost(
 		if(ct->hasFavorableWinds())
 			ret = static_cast<int>(ret * 2.0 / 3);
 	}
-	else if(ti->hasBonusOfType(Bonus::FLYING_MOVEMENT))
+	else if(isAirLayer)
 		vstd::amin(ret, GameConstants::BASE_MOVEMENT_COST + ti->valOfBonuses(Bonus::FLYING_MOVEMENT));
 	else if(isWaterLayer && ti->hasBonusOfType(Bonus::WATER_WALKING))
 		ret = static_cast<int>(ret * (100.0 + ti->valOfBonuses(Bonus::WATER_WALKING)) / 100.0);

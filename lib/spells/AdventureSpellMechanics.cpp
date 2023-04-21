@@ -185,7 +185,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 		if(obj && obj->ID == Obj::BOAT)
 		{
 			const auto * b = dynamic_cast<const CGBoat *>(obj);
-			if(b->hero)
+			if(b->hero || b->layer != EPathfindingLayer::SAIL)
 				continue; //we're looking for unoccupied boat
 
 			double nDist = b->pos.dist2d(parameters.caster->getHeroCaster()->visitablePos());
@@ -215,7 +215,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	{
 		NewObject no;
 		no.ID = Obj::BOAT;
-		no.subID = parameters.caster->getHeroCaster()->getBoatType();
+		no.subID = parameters.caster->getHeroCaster()->getBoatType().getNum();
 		no.pos = summonPos + int3(1,0,0);
 		env->apply(&no);
 	}

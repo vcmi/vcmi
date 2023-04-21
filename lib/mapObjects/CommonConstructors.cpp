@@ -21,6 +21,7 @@
 #include "JsonRandom.h"
 #include "../CModHandler.h"
 #include "../IGameCallback.h"
+#include "../StringConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -255,6 +256,39 @@ std::vector<const CCreature *> CDwellingInstanceConstructor::getProducedCreature
 			creatures.push_back(cre);
 	}
 	return creatures;
+}
+
+void BoatInstanceConstructor::initTypeData(const JsonNode & input)
+{
+	layer = EPathfindingLayer::SAIL;
+	int pos = vstd::find_pos(NPathfindingLayer::names, input["layer"].String());
+	if(pos != -1)
+		layer = EPathfindingLayer(pos);
+	onboardAssaultAllowed = input["onboardAssaultAllowed"].Bool();
+	onboardVisitAllowed = input["onboardVisitAllowed"].Bool();
+	actualAnimation = input["actualAnimation"].String();
+	overlayAnimation = input["overlayAnimation"].String();
+	for(int i = 0; i < flagAnimations.size() && i < input["flagAnimations"].Vector().size(); ++i)
+		flagAnimations[i] = input["flagAnimations"].Vector()[i].String();
+	bonuses = JsonRandom::loadBonuses(input["bonuses"]);
+}
+
+CGObjectInstance * BoatInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
+{
+	CGBoat * boat = createTyped(tmpl);
+	boat->layer = layer;
+	boat->actualAnimation = actualAnimation;
+	boat->overlayAnimation = overlayAnimation;
+	boat->flagAnimations = flagAnimations;
+	for(auto & b : bonuses)
+		boat->addNewBonus(std::make_shared<Bonus>(b));
+	
+	return boat;
+}
+
+void BoatInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
+{
+
 }
 
 bool CBankInstanceConstructor::hasNameTextID() const

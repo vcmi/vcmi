@@ -1176,6 +1176,7 @@ void RemoveObject::applyGs(CGameState *gs)
 		//If hero on Boat is removed, the Boat disappears
 		if(beatenHero->boat)
 		{
+			beatenHero->detachFrom(const_cast<CGBoat&>(*beatenHero->boat));
 			gs->map->instanceNames.erase(beatenHero->boat->instanceName);
 			gs->map->objects[beatenHero->boat->id.getNum()].dellNull();
 			beatenHero->boat = nullptr;
@@ -1291,6 +1292,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 
 		gs->map->removeBlockVisTiles(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat
 		h->boat = boat;
+		h->attachTo(*boat);
 		boat->hero = h;
 	}
 	else if(result == DISEMBARK) //hero leaves boat to destination tile
@@ -1300,6 +1302,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 		b->pos = start;
 		b->hero = nullptr;
 		gs->map->addBlockVisTiles(b);
+		h->detachFrom(*b);
 		h->boat = nullptr;
 	}
 

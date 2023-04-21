@@ -2264,7 +2264,10 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	const int3 guardPos = gs->guardingCreaturePosition(hmpos);
 
 	const bool embarking = !h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::BOAT;
-	const bool disembarking = h->boat && t.terType->isLand() && !t.blocked;
+	const bool disembarking = h->boat
+		&& t.terType->isLand()
+		&& (dst == h->pos
+			|| (h->boat->layer == EPathfindingLayer::SAIL && !t.blocked));
 
 	//result structure for start - movement failed, no move points used
 	TryMoveHero tmh;
@@ -2278,8 +2281,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, h, PathfinderOptions());
 	auto ti = pathfinderHelper->getTurnInfo();
 
-	const bool canFly = pathfinderHelper->hasBonusOfType(Bonus::FLYING_MOVEMENT);
-	const bool canWalkOnSea = pathfinderHelper->hasBonusOfType(Bonus::WATER_WALKING);
+	const bool canFly = pathfinderHelper->hasBonusOfType(Bonus::FLYING_MOVEMENT) || (h->boat && h->boat->layer == EPathfindingLayer::AIR);
+	const bool canWalkOnSea = pathfinderHelper->hasBonusOfType(Bonus::WATER_WALKING) || (h->boat && h->boat->layer == EPathfindingLayer::WATER);
 	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movement);
 
 	//it's a rock or blocked and not visitable tile
@@ -2288,7 +2291,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 			&& complain("Cannot move hero, destination tile is blocked!"))
 		|| ((!h->boat && !canWalkOnSea && !canFly && t.terType->isWater() && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != Obj::BOAT && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!"))
-		|| ((h->boat && t.terType->isLand() && t.blocked)
+		|| ((h->boat && h->boat->layer == EPathfindingLayer::SAIL && t.terType->isLand() && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!"))
 		|| ((distance(h->pos, dst) >= 1.5 && !teleporting)
 			&& complain("Tiles are not neighboring!"))
@@ -2361,10 +2364,16 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	{
 		for (CGObjectInstance *obj : t.visitableObjects)
 		{
-			if (obj != h  &&  obj->blockVisit  &&  !obj->passableFor(h->tempOwner))
+			if(h->boat && !obj->blockVisit && !h->boat->onboardVisitAllowed)
+				return doMove(TryMoveHero::SUCCESS, this->IGNORE_GUARDS, DONT_VISIT_DEST, REMAINING_ON_TILE);
+			
+			if (obj != h && obj->blockVisit && !obj->passableFor(h->tempOwner))
 			{
-				return doMove(TryMoveHero::BLOCKING_VISIT, this->IGNORE_GUARDS, VISIT_DEST, REMAINING_ON_TILE);
-				//this-> is needed for MVS2010 to recognize scope (?)
+				EVisitDest visitDest = VISIT_DEST;
+				if(h->boat && !h->boat->onboardVisitAllowed)
+					visitDest = DONT_VISIT_DEST;
+				
+				return doMove(TryMoveHero::BLOCKING_VISIT, this->IGNORE_GUARDS, visitDest, REMAINING_ON_TILE);
 			}
 		}
 		return false;
@@ -2402,6 +2411,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 		return true;
 	}
+	
 
 	//still here? it is standard movement!
 	{
@@ -2424,6 +2434,9 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		}
 		else if (blockingVisit())
 			return true;
+		
+		if(h->boat && !h->boat->onboardAssaultAllowed)
+		   lookForGuards = IGNORE_GUARDS;
 
 		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
 		return true;
@@ -5628,7 +5641,7 @@ bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 	//create boat
 	NewObject no;
 	no.ID = Obj::BOAT;
-	no.subID = obj->getBoatType();
+	no.subID = obj->getBoatType().getNum();
 	no.pos = tile + int3(1,0,0);
 	sendAndApply(&no);
 

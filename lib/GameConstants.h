@@ -1241,6 +1241,16 @@ class BattleField : public BaseForID<BattleField, si32>
 	DLL_LINKAGE static BattleField fromString(const std::string & identifier);
 };
 
+enum class EBoatId
+{
+	NONE = -1,
+	BOAT_EVIL = 0,
+	BOAT_GOOD,
+	BOAT_NEUTRAL
+};
+
+using BoatId = Identifier<EBoatId>;
+
 enum class ETerrainId {
 	NATIVE_TERRAIN = -4,
 	ANY_TERRAIN = -3,

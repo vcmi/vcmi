@@ -19,6 +19,7 @@
 #include "../CPlayerState.h"
 #include "../spells/CSpellHandler.h"
 #include "../spells/ISpellMechanics.h"
+#include "../mapObjects/MiscObjects.h"
 
 #include "CObjectClassesHandler.h"
 
@@ -316,7 +317,7 @@ void CRewardableObject::grantRewardAfterLevelup(const CRewardVisitInfo & info, c
 		smp.val = hero->movement;
 
 		if (info.reward.movePercentage >= 0) // percent from max
-			smp.val = hero->maxMovePoints(hero->boat != nullptr) * info.reward.movePercentage / 100;
+			smp.val = hero->maxMovePoints(hero->boat && hero->boat->layer == EPathfindingLayer::SAIL) * info.reward.movePercentage / 100;
 		smp.val = std::max<si32>(0, smp.val + info.reward.movePoints);
 
 		cb->setMovePoints(&smp);

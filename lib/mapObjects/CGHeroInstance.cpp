@@ -935,18 +935,14 @@ si32 CGHeroInstance::getManaNewTurn() const
 // 	ai->putAt(this, ai->firstAvailableSlot(this));
 // }
 
-int CGHeroInstance::getBoatType() const
+BoatId CGHeroInstance::getBoatType() const
 {
 	switch(type->heroClass->getAlignment())
 	{
-	case EAlignment::GOOD:
-		return 1;
-	case EAlignment::EVIL:
-		return 0;
-	case EAlignment::NEUTRAL:
-		return 2;
-	default:
-		throw std::runtime_error("Wrong alignment!");
+		case EAlignment::EVIL : return EBoatId::BOAT_EVIL;
+		case EAlignment::GOOD : return EBoatId::BOAT_GOOD;
+		case EAlignment::NEUTRAL : return EBoatId::BOAT_NEUTRAL;
+		default: return EBoatId::NONE;
 	}
 }
 
@@ -1124,9 +1120,11 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 
 	if(!ti->hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
 		return 0; // take all MPs by default
+	
+	auto boatLayer = boat ? boat->layer : EPathfindingLayer::SAIL;
 
-	int mp1 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL);
-	int mp2 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND);
+	int mp1 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::LAND : boatLayer);
+	int mp2 = ti->getMaxMovePoints(disembark ? boatLayer : EPathfindingLayer::LAND);
 	int ret = static_cast<int>((MPsBefore - basicCost) * static_cast<double>(mp1) / mp2);
 	return ret;
 }

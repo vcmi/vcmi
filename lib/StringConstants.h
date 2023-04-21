@@ -114,4 +114,12 @@ namespace NMetaclass
     };
 }
 
+namespace NPathfindingLayer
+{
+	const std::string names[EPathfindingLayer::NUM_LAYERS] =
+	{
+		"land", "sail", "water", "air"
+	};
+}
+
 VCMI_LIB_NAMESPACE_END

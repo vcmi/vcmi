@@ -463,10 +463,10 @@ IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 		return TILE_BLOCKED; //blocked
 }
 
-int IBoatGenerator::getBoatType() const
+BoatId IBoatGenerator::getBoatType() const
 {
 	//We make good ships by default
-	return 1;
+	return EBoatId::BOAT_GOOD;
 }
 
 
