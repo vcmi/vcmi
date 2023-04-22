@@ -1093,7 +1093,7 @@ void AINodeStorage::calculateTownPortal(
 			if(nodeOptional)
 			{
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 1
-				logAi->trace("Adding town portal node at %s", targetTown->name);
+				logAi->trace("Adding town portal node at %s", targetTown->getObjectName());
 #endif
 				output.push_back(nodeOptional.get());
 			}
