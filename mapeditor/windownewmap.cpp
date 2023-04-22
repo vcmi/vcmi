@@ -331,7 +331,7 @@ void WindowNewMap::on_humanCombo_activated(int index)
 	int teams = mapGenOptions.getTeamCount();
 	if(teams > humans - 1)
 	{
-		teams = humans - 1;
+		teams = humans > 0 ? humans - 1 : CMapGenOptions::RANDOM_SIZE;
 		ui->humanTeamsCombo->setCurrentIndex(teams + 1); //skip one element because first is random
 	}
 
@@ -345,7 +345,7 @@ void WindowNewMap::on_humanCombo_activated(int index)
 	int cpuTeams = mapGenOptions.getCompOnlyTeamCount(); //comp only players - 1
 	if(cpuTeams > cpu - 1)
 	{
-		cpuTeams = cpu - 1;
+		cpuTeams = cpu > 0 ? cpu - 1 : CMapGenOptions::RANDOM_SIZE;
 		ui->cpuTeamsCombo->setCurrentIndex(cpuTeams + 1); //skip one element because first is random
 	}
 
@@ -368,7 +368,7 @@ void WindowNewMap::on_cpuCombo_activated(int index)
 	int cpuTeams = mapGenOptions.getCompOnlyTeamCount(); //comp only players - 1
 	if(cpuTeams > cpu - 1)
 	{
-		cpuTeams = cpu - 1;
+		cpuTeams = cpu > 0 ? cpu - 1 : CMapGenOptions::RANDOM_SIZE;
 		ui->cpuTeamsCombo->setCurrentIndex(cpuTeams + 1); //skip one element because first is random
 	}
 
@@ -453,7 +453,7 @@ void WindowNewMap::on_humanTeamsCombo_activated(int index)
 	int teams = ui->humanTeamsCombo->currentData().toInt();
 	if(teams >= humans)
 	{
-		teams = humans - 1;
+		teams = humans > 0 ? humans - 1 : CMapGenOptions::RANDOM_SIZE;
 		ui->humanTeamsCombo->setCurrentIndex(teams + 1); //skip one element because first is random
 	}
 
@@ -465,14 +465,14 @@ void WindowNewMap::on_humanTeamsCombo_activated(int index)
 void WindowNewMap::on_cpuTeamsCombo_activated(int index)
 {
 	int cpu = mapGenOptions.getCompOnlyPlayerCount();
-	int teams = ui->cpuTeamsCombo->currentData().toInt();
-	if(teams >= cpu)
+	int cpuTeams = ui->cpuTeamsCombo->currentData().toInt();
+	if(cpuTeams >= cpu)
 	{
-		teams = cpu - 1;
-		ui->cpuTeamsCombo->setCurrentIndex(teams + 1); //skip one element because first is random
+		cpuTeams = cpu > 0 ? cpu - 1 : CMapGenOptions::RANDOM_SIZE;
+		ui->cpuTeamsCombo->setCurrentIndex(cpuTeams + 1); //skip one element because first is random
 	}
 
-	mapGenOptions.setCompOnlyTeamCount(teams);
+	mapGenOptions.setCompOnlyTeamCount(cpuTeams);
 	updateTemplateList();
 }
 
