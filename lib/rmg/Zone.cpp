@@ -196,8 +196,9 @@ void Zone::fractalize()
 	rmg::Area possibleTiles(dAreaPossible);
 	rmg::Area tilesToIgnore; //will be erased in this iteration
 
-	const float minDistance = 10 * 10; //squared
-	
+	//Squared
+	float minDistance = pos.z ? (10 * 10) : (8 * 8); //Narrower passages in the Underground
+
 	if(type != ETemplateZoneType::JUNCTION)
 	{
 		//junction is not fractalized, has only one straight path
@@ -260,7 +261,8 @@ void Zone::fractalize()
 	}
 	
 	//now block most distant tiles away from passages
-	float blockDistance = minDistance * 0.25f;
+	float blockDistance = minDistance * (pos.z ? 0.25 : 0.75f); //More obstacles in the Underground
+
 	auto areaToBlock = dArea.getSubarea([this, blockDistance](const int3 & t)
 	{
 		auto distance = static_cast<float>(dAreaFree.distanceSqr(t));
