@@ -1234,3 +1234,14 @@ void MainWindow::on_actionPaste_triggered()
 	}
 }
 
+
+void MainWindow::on_actionExport_triggered()
+{
+	QString fileName = QFileDialog::getSaveFileName(this, "Save to image", QCoreApplication::applicationDirPath(), "BMP (*.bmp);;JPEG (*.jpeg);;PNG (*.png)");
+	if(!fileName.isNull())
+	{
+		auto pixmap = ui->mapView->grab();
+		pixmap.save(fileName);
+	}
+}
+

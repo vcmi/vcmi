@@ -62,6 +62,7 @@
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
+    <addaction name="actionExport"/>
    </widget>
    <widget class="QMenu" name="menuMap">
     <property name="title">
@@ -750,7 +751,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>257</height>
+          <height>251</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -793,7 +794,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>257</height>
+          <height>251</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -829,7 +830,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>257</height>
+          <height>251</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -1226,6 +1227,11 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+8</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Export as</string>
    </property>
   </action>
  </widget>
