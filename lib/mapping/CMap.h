@@ -18,6 +18,7 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../LogicalExpression.h"
+#include "../CModHandler.h"
 #include "CMapDefines.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -262,6 +263,10 @@ enum class EMapFormat: uint8_t
 	VCMI  = 0xF0
 };
 
+// Inherit from container to enable forward declaration
+class ModCompatibilityInfo: public std::map<TModID, CModInfo::Version>
+{};
+
 /// The map header holds information about loss/victory condition,map format, version, players, height, width,...
 class DLL_LINKAGE CMapHeader
 {
@@ -282,6 +287,8 @@ public:
 	ui8 levels() const;
 
 	EMapFormat version; /// The default value is EMapFormat::SOD.
+	ModCompatibilityInfo mods; /// set of mods required to play a map
+	
 	si32 height; /// The default value is 72.
 	si32 width; /// The default value is 72.
 	bool twoLevel; /// The default value is true.
@@ -310,6 +317,8 @@ public:
 	void serialize(Handler & h, const int Version)
 	{
 		h & version;
+		if(Version >= 821)
+			h & mods;
 		h & name;
 		h & description;
 		h & width;

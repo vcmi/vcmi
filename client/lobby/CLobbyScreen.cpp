@@ -131,6 +131,15 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 		CSH->sendStartGame(allowOnlyAI);
 		buttonStart->block(true);
 	}
+	catch(CModHandler::Incompatibility & e)
+	{
+		logGlobal->warn("Incompatibility exception during start scenario: %s", e.what());
+		
+		auto errorMsg = VLC->generaltexth->translate("vcmi.server.errors.modsIncompatibility") + '\n';
+		errorMsg += e.what();
+		
+		CInfoWindow::showInfoDialog(errorMsg, CInfoWindow::TCompsInfo(), PlayerColor(1));
+	}
 	catch(std::exception & e)
 	{
 		logGlobal->error("Exception during startScenario: %s", e.what());

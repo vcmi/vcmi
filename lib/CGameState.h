@@ -57,7 +57,7 @@ class CQuest;
 class CCampaignScenario;
 struct EventCondition;
 class CScenarioTravel;
-class IMapService;
+class CMapService;
 
 
 template<typename T> class CApplier;
@@ -161,7 +161,7 @@ public:
 
 	void preInit(Services * services);
 
-	void init(const IMapService * mapService, StartInfo * si, bool allowSavingRandomMap = false);
+	void init(const CMapService * mapService, StartInfo * si, bool allowSavingRandomMap = false);
 	void updateOnLoad(StartInfo * si);
 
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
@@ -252,7 +252,7 @@ private:
 
 	// ----- initialization -----
 	void preInitAuto();
-	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap);
+	void initNewGame(const CMapService * mapService, bool allowSavingRandomMap);
 	void initCampaign();
 	void checkMapChecksum();
 	void initGlobalBonuses();

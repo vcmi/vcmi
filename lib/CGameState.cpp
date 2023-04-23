@@ -722,7 +722,7 @@ void CGameState::preInit(Services * services)
 	this->services = services;
 }
 
-void CGameState::init(const IMapService * mapService, StartInfo * si, bool allowSavingRandomMap)
+void CGameState::init(const CMapService * mapService, StartInfo * si, bool allowSavingRandomMap)
 {
 	preInitAuto();
 	logGlobal->info("\tUsing random seed: %d", si->seedToBeUsed);
@@ -851,7 +851,7 @@ void CGameState::preInitAuto()
 	}
 }
 
-void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRandomMap)
+void CGameState::initNewGame(const CMapService * mapService, bool allowSavingRandomMap)
 {
 	if(scenarioOps->createRandomMap())
 	{
@@ -1266,7 +1266,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 
 	// TODO replace magic numbers with named constants
 	// TODO this logic (what should be kept) should be part of CScenarioTravel and be exposed via some clean set of methods
-	if(!(travelOptions.whatHeroKeeps & 1))
+	if(!travelOptions.whatHeroKeeps.experience)
 	{
 		//trimming experience
 		for(CGHeroInstance * cgh : crossoverHeroes)
@@ -1275,7 +1275,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		}
 	}
 
-	if(!(travelOptions.whatHeroKeeps & 2))
+	if(!travelOptions.whatHeroKeeps.primarySkills)
 	{
 		//trimming prim skills
 		for(CGHeroInstance * cgh : crossoverHeroes)
@@ -1291,7 +1291,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		}
 	}
 
-	if(!(travelOptions.whatHeroKeeps & 4))
+	if(!travelOptions.whatHeroKeeps.secondarySkills)
 	{
 		//trimming sec skills
 		for(CGHeroInstance * cgh : crossoverHeroes)
@@ -1301,7 +1301,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		}
 	}
 
-	if(!(travelOptions.whatHeroKeeps & 8))
+	if(!travelOptions.whatHeroKeeps.spells)
 	{
 		for(CGHeroInstance * cgh : crossoverHeroes)
 		{
@@ -1309,7 +1309,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		}
 	}
 
-	if(!(travelOptions.whatHeroKeeps & 16))
+	if(!travelOptions.whatHeroKeeps.artifacts)
 	{
 		//trimming artifacts
 		for(CGHeroInstance * hero : crossoverHeroes)
@@ -1329,9 +1329,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 				if(!art)
 					continue;
 
-				int id  = art->artType->getId();
-				assert( 8*18 > id );//number of arts that fits into h3m format
-				bool takeable = travelOptions.artifsKeptByHero[id / 8] & ( 1 << (id%8) );
+				bool takeable = travelOptions.artifactsKeptByHero.count(art->artType->getId());
 
 				ArtifactLocation al(hero, artifactPosition);
 				if(!takeable  &&  !al.getSlot()->locked)  //don't try removing locked artifacts -> it crashes #1719
@@ -1346,7 +1344,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		auto shouldSlotBeErased = [&](const std::pair<SlotID, CStackInstance *> & j) -> bool
 		{
 			CreatureID::ECreatureID crid = j.second->getCreatureID().toEnum();
-			return !(travelOptions.monstersKeptByHero[crid / 8] & (1 << (crid % 8)));
+			return !travelOptions.monstersKeptByHero.count(crid);
 		};
 
 		auto stacksCopy = cgh->stacks; //copy of the map, so we can iterate iover it and remove stacks
@@ -1725,8 +1723,13 @@ void CGameState::initTowns()
 					if (owner->human && //human-owned
 						map->towns[g]->pos == pi.posOfMainTown)
 					{
-						map->towns[g]->builtBuildings.insert(
-							CBuildingHandler::campToERMU(chosenBonus->info1, map->towns[g]->subID, map->towns[g]->builtBuildings));
+						BuildingID buildingId;
+						if(scenarioOps->campState->camp->header.version == CampaignVersion::VCMI)
+							buildingId = BuildingID(chosenBonus->info1);
+						else
+							buildingId = CBuildingHandler::campToERMU(chosenBonus->info1, map->towns[g]->subID, map->towns[g]->builtBuildings);
+
+						map->towns[g]->builtBuildings.insert(buildingId);
 						break;
 					}
 				}

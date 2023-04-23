@@ -86,6 +86,24 @@ void CMapService::saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::
 	}
 }
 
+ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
+{
+	ModCompatibilityInfo modCompatibilityInfo;
+	const auto & activeMods = VLC->modh->getActiveMods();
+	for(const auto & mapMod : map.mods)
+	{
+		if(vstd::contains(activeMods, mapMod.first))
+		{
+			const auto & modInfo = VLC->modh->getModInfo(mapMod.first);
+			if(modInfo.version.compatible(mapMod.second))
+				continue;
+		}
+		
+		modCompatibilityInfo[mapMod.first] = mapMod.second;
+	}	
+	return modCompatibilityInfo;
+}
+
 std::unique_ptr<CInputStream> CMapService::getStreamFromFS(const ResourceID & name)
 {
 	return CResourceHandler::get()->load(name);

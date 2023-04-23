@@ -54,6 +54,9 @@ public:
 	bool discardObject(int level) const;
 	void createObject(int level, CGObjectInstance * obj) const;
 	bool canPlaceObject(int level, CGObjectInstance * obj, QString & error) const;
+	
+	static ModCompatibilityInfo modAssessmentAll();
+	static ModCompatibilityInfo modAssessmentMap(const CMap & map);
 
 	void undo();
 	void redo();

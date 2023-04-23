@@ -32,11 +32,21 @@ private slots:
 
 	void on_loseComboBox_currentIndexChanged(int index);
 
+	void on_heroLevelLimitCheck_toggled(bool checked);
+
+	void on_modResolution_map_clicked();
+
+	void on_modResolution_full_clicked();
+
+	void on_treeMods_itemChanged(QTreeWidgetItem *item, int column);
+
 private:
 	
 	std::string getTownName(int townObjectIdx);
 	std::string getHeroName(int townObjectIdx);
 	std::string getMonsterName(int townObjectIdx);
+	
+	void updateModWidgetBasedOnMods(const ModCompatibilityInfo & mods);
 	
 	template<class T>
 	std::vector<int> getObjectIndexes() const
