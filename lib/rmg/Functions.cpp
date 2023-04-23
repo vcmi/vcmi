@@ -31,32 +31,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void createModificators(RmgMap & map)
-{
-	for(auto & z : map.getZones())
-	{
-		auto & zone = *z.second;
-		switch(zone.getType())
-		{
-			case ETemplateZoneType::WATER:
-				zone.addModificator<ObjectManager>();
-				zone.addModificator<TreasurePlacer>();
-				zone.addModificator<WaterProxy>();
-				zone.addModificator<WaterRoutes>();
-				break;
-				
-			default:
-				zone.addModificator<TownPlacer>();
-				zone.addModificator<ObjectManager>();
-				zone.addModificator<ConnectionsPlacer>();
-				zone.addModificator<TreasurePlacer>();
-				zone.addModificator<RoadPlacer>();
-				break;
-		}
-		
-	}
-}
-
 rmg::Tileset collectDistantTiles(const Zone& zone, int distance)
 {
 	uint32_t distanceSq = distance * distance;
