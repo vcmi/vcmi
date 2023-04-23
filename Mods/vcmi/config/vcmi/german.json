@@ -21,6 +21,15 @@
 	"vcmi.adventureMap.moveCostDetails"        : "Bewegungspunkte - Kosten: %TURNS Runden + %POINTS Punkte, Verbleibende Punkte: %REMAINING",
 	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Bewegungspunkte - Kosten: %POINTS Punkte, Verbleibende Punkte: %REMAINING",
 
+	"vcmi.capitalColors.0" : "Rot",
+	"vcmi.capitalColors.1" : "Blau",
+	"vcmi.capitalColors.2" : "Braun",
+	"vcmi.capitalColors.3" : "Grün",
+	"vcmi.capitalColors.4" : "Orange",
+	"vcmi.capitalColors.5" : "Violett",
+	"vcmi.capitalColors.6" : "Türkis",
+	"vcmi.capitalColors.7" : "Rosa",
+
 	"vcmi.server.errors.existingProcess"     : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
 	"vcmi.server.errors.modsIncompatibility" : "Erforderliche Mods um das Spiel zu laden:",
 	"vcmi.server.confirmReconnect"           : "Mit der letzten Sitzung verbinden?",
