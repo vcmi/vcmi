@@ -3902,7 +3902,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 
 	if(srcArtifact == nullptr)
 		COMPLAIN_RET("No artifact to move!");
-	if(destArtifact && srcPlayer != dstPlayer)
+	if(destArtifact && srcPlayer != dstPlayer && !isDstSlotBackpack)
 		COMPLAIN_RET("Can't touch artifact on hero of another player!");
 
 	// Check if src/dest slots are appropriate for the artifacts exchanged.
