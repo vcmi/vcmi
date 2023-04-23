@@ -14,37 +14,40 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct ArtifactLocation;
+class CArtifactSet;
+class CArtifactFittingSet;
 
 VCMI_LIB_NAMESPACE_END
 
-class CArtifactsOfHero;
+class CArtifactsOfHeroBase;
 class CAnimImage;
 class CButton;
 
 class CArtifactHolder
 {
 public:
-	CArtifactHolder();
-
-	virtual void artifactRemoved(const ArtifactLocation &artLoc)=0;
-	virtual void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc, bool withRedraw)=0;
-	virtual void artifactDisassembled(const ArtifactLocation &artLoc)=0;
-	virtual void artifactAssembled(const ArtifactLocation &artLoc)=0;
+	virtual void artifactRemoved(const ArtifactLocation & artLoc)=0;
+	virtual void artifactMoved(const ArtifactLocation & artLoc, const ArtifactLocation & destLoc, bool withRedraw)=0;
+	virtual void artifactDisassembled(const ArtifactLocation & artLoc)=0;
+	virtual void artifactAssembled(const ArtifactLocation & artLoc)=0;
 };
 
 class CArtPlace : public LRClickableAreaWTextComp
 {
 protected:
 	std::shared_ptr<CAnimImage> image;
-	virtual void createImage()=0;
-public:
-	const CArtifactInstance * ourArt; // should be changed only with setArtifact()
+	const CArtifactInstance * ourArt;
 
+	void setInternals(const CArtifactInstance * artInst);
+	virtual void createImage()=0;
+
+public:
 	CArtPlace(Point position, const CArtifactInstance * Art = nullptr);
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
+	const CArtifactInstance * getArt();
 
-	virtual void setArtifact(const CArtifactInstance *art)=0;
+	virtual void setArtifact(const CArtifactInstance * art)=0;
 };
 
 class CCommanderArtPlace : public CArtPlace
@@ -55,138 +58,165 @@ protected:
 
 	void createImage() override;
 	void returnArtToHeroCallback();
+
 public:
 	CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * Art = nullptr);
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
-
-	virtual void setArtifact(const CArtifactInstance * art) override;
-
+	void setArtifact(const CArtifactInstance * art) override;
 };
 
-/// Artifacts can be placed there. Gets shown at the hero window
 class CHeroArtPlace: public CArtPlace
 {
-	std::shared_ptr<CAnimImage> selection;
-
-	void createImage() override;
-
 public:
-	// consider these members as const - change them only with appropriate methods e.g. lockSlot()
-	bool locked;
-	bool picked;
-	bool marked;
+	using ClickHandler = std::function<void(CHeroArtPlace&)>;
 
-	ArtifactPosition slotID; //Arts::EPOS enum + backpack starting from Arts::BACKPACK_START
-
-	CArtifactsOfHero * ourOwner;
+	ArtifactPosition slot;
+	ClickHandler leftClickCallback;
+	ClickHandler rightClickCallback;
 
 	CHeroArtPlace(Point position, const CArtifactInstance * Art = nullptr);
-
 	void lockSlot(bool on);
-	void pickSlot(bool on);
+	bool isLocked();
 	void selectSlot(bool on);
-
+	bool isMarked() const;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
-	void select();
 	void showAll(SDL_Surface * to) override;
-	bool fitsHere (const CArtifactInstance * art) const; //returns true if given artifact can be placed here
+	void setArtifact(const CArtifactInstance * art) override;
+	void addCombinedArtInfo(std::map<const CArtifact*, int> & arts);
 
-	void setMeAsDest(bool backpackAsVoid = true);
-	void setArtifact(const CArtifactInstance *art) override;
-	static bool askToAssemble(const CGHeroInstance * hero, ArtifactPosition slot);
-	static bool askToDisassemble(const CGHeroInstance * hero, ArtifactPosition slot);
+protected:
+	std::shared_ptr<CAnimImage> selection;
+	bool locked;
+	bool marked;
+
+	void createImage() override;
 };
 
-/// Contains artifacts of hero. Distincts which artifacts are worn or backpacked
-class CArtifactsOfHero : public CIntObject
+class CArtifactsOfHeroBase : public CIntObject
 {
-public:
+protected:
 	using ArtPlacePtr = std::shared_ptr<CHeroArtPlace>;
+	using BpackScrollHandler = std::function<void(int)>;
+
+public:
 	using ArtPlaceMap = std::map<ArtifactPosition, ArtPlacePtr>;
-
-	struct SCommonPart
-	{
-		struct Artpos
-		{
-			ArtifactPosition slotID;
-			const CArtifactsOfHero *AOH;
-			const CArtifactInstance *art;
-
-			void clear();
-			void setTo(const CHeroArtPlace *place, bool dontTakeBackpack);
-			bool valid();
-			bool operator==(const ArtifactLocation &al) const;
-		} src, dst;
-
-		std::set<CArtifactsOfHero *> participants; // Needed to mark slots.
-
-		void reset();
-	};
-	std::shared_ptr<SCommonPart> commonInfo; //when we have more than one CArtifactsOfHero in one window with exchange possibility, we use this (eg. in exchange window); to be provided externally
-
-	std::shared_ptr<CButton> leftArtRoll;
-	std::shared_ptr<CButton> rightArtRoll;
-	bool allowedAssembling;
-
-	std::multiset<const CArtifactInstance*> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be omitted in backpack slots
-	std::function<void(CHeroArtPlace*)> highlightModeCallback; //if set, clicking on art place doesn't pick artifact but highlights the slot and calls this function
-
-	void realizeCurrentTransaction(); //calls callback with parameters stored in commonInfo
-	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst, bool withUIUpdate);
-	void artifactRemoved(const ArtifactLocation &al);
-	void artifactUpdateSlots(const ArtifactLocation &al);
-	ArtPlacePtr getArtPlace(ArtifactPosition slot);//may return null
-
-	void setHero(const CGHeroInstance * hero);
-	const CGHeroInstance *getHero() const;
-	void dispose(); //free resources not needed after closing windows and reset state
-	void scrollBackpack(int dir); //dir==-1 => to left; dir==1 => to right
-
-	void activate() override;
-	void deactivate() override;
-
-	void safeRedraw();
-	void markPossibleSlots(const CArtifactInstance * art, bool withRedraw = false);
-	void unmarkSlots(bool withRedraw = false); //unmarks slots in all visible AOHs
-	void unmarkLocalSlots(bool withRedraw = false); //unmarks slots in that particular AOH
-	void updateWornSlots(bool redrawParent = false);
-	void updateBackpackSlots(bool redrawParent = false);
-
-	void updateSlot(ArtifactPosition i);
-
-	CArtifactsOfHero(const Point& position, bool createCommonPart = false);
-	//Alternative constructor, used if custom artifacts positioning required (Kingdom interface)
-	CArtifactsOfHero(ArtPlaceMap ArtWorn, std::vector<ArtPlacePtr> Backpack,
-		std::shared_ptr<CButton> leftScroll, std::shared_ptr<CButton> rightScroll, bool createCommonPart = false);
-	~CArtifactsOfHero();
-	void updateParentWindow();
-	friend class CHeroArtPlace;
-
-private:
+	using ClickHandler = std::function<void(CArtifactsOfHeroBase&, CHeroArtPlace&)>;
 
 	const CGHeroInstance * curHero;
+	ClickHandler leftClickCallback;
+	ClickHandler rightClickCallback;
+	
+	CArtifactsOfHeroBase();
+	virtual ~CArtifactsOfHeroBase();
+	virtual void leftClickArtPlace(CHeroArtPlace & artPlace);
+	virtual void rightClickArtPlace(CHeroArtPlace & artPlace);
+	virtual void setHero(const CGHeroInstance * hero);
+	virtual const CGHeroInstance * getHero() const;
+	virtual void scrollBackpack(int offset);
+	virtual void safeRedraw();
+	virtual void markPossibleSlots(const CArtifactInstance * art, bool assumeDestRemoved = true);
+	virtual void unmarkSlots();
+	virtual ArtPlacePtr getArtPlace(const ArtifactPosition & slot);
+	virtual void updateWornSlots();
+	virtual void updateBackpackSlots();
+	virtual void updateSlot(const ArtifactPosition & slot);
+	virtual const CArtifactInstance * getPickedArtifact();
 
+protected:
 	ArtPlaceMap artWorn;
+	std::vector<ArtPlacePtr> backpack;
+	std::shared_ptr<CButton> leftBackpackRoll;
+	std::shared_ptr<CButton> rightBackpackRoll;
+	int backpackPos; // Position to display artifacts in heroes backpack
 
-	std::vector<ArtPlacePtr> backpack; //hero's visible backpack (only 5 elements!)
-	int backpackPos; //number of first art visible in backpack (in hero's vector)
+	const std::vector<Point> slotPos =
+	{
+		Point(509,30),  Point(567,240), Point(509,80),  //0-2
+		Point(383,68),  Point(564,183), Point(509,130), //3-5
+		Point(431,68),  Point(610,183), Point(515,295), //6-8
+		Point(383,143), Point(399,194), Point(415,245), //9-11
+		Point(431,296), Point(564,30),  Point(610,30), //12-14
+		Point(610,76),  Point(610,122), Point(610,310), //15-17
+		Point(381,296) //18
+	};
 
-	void eraseSlotData(ArtPlacePtr artPlace, ArtifactPosition slotID);
-	void setSlotData(ArtPlacePtr artPlace, ArtifactPosition slotID);
+	virtual void init(CHeroArtPlace::ClickHandler lClickCallback, CHeroArtPlace::ClickHandler rClickCallback,
+		const Point & position, BpackScrollHandler scrollHandler);
+	// Assigns an artifacts to an artifact place depending on it's new slot ID
+	virtual void setSlotData(ArtPlacePtr artPlace, const ArtifactPosition & slot, const CArtifactSet & artSet);
+	virtual void scrollBackpackForArtSet(int offset, const CArtifactSet & artSet);
+};
+
+class CArtifactsOfHeroMain : public CArtifactsOfHeroBase
+{
+public:
+	CArtifactsOfHeroMain(const Point & position);
+	void swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc);
+	void pickUpArtifact(CHeroArtPlace & artPlace);
+};
+
+class CArtifactsOfHeroKingdom : public CArtifactsOfHeroBase
+{
+public:
+	CArtifactsOfHeroKingdom(ArtPlaceMap ArtWorn, std::vector<ArtPlacePtr> Backpack,
+		std::shared_ptr<CButton> leftScroll, std::shared_ptr<CButton> rightScroll);
+	void swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc);
+	void pickUpArtifact(CHeroArtPlace & artPlace);
+};
+
+class CArtifactsOfHeroAltar : public CArtifactsOfHeroBase
+{
+public:
+	std::set<const CArtifactInstance*> artifactsOnAltar;
+	ArtifactPosition pickedArtFromSlot;
+	std::shared_ptr<CArtifactFittingSet> visibleArtSet;
+
+	CArtifactsOfHeroAltar(const Point & position);
+	void setHero(const CGHeroInstance * hero) override;
+	void updateWornSlots() override;
+	void updateBackpackSlots() override;
+	void scrollBackpack(int offset) override;
+	void pickUpArtifact(CHeroArtPlace & artPlace);
+	void swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc);
+	void pickedArtMoveToAltar(const ArtifactPosition & slot);
+	void deleteFromVisible(const CArtifactInstance * artInst);
+};
+
+class CArtifactsOfHeroMarket : public CArtifactsOfHeroBase
+{
+public:
+	std::function<void(CHeroArtPlace*)> selectArtCallback;
+
+	CArtifactsOfHeroMarket(const Point & position);
+	void scrollBackpack(int offset) override;
 };
 
 class CWindowWithArtifacts : public CArtifactHolder
 {
-	std::vector<std::weak_ptr<CArtifactsOfHero>> artSets;
 public:
-	void addSet(std::shared_ptr<CArtifactsOfHero> artSet);
+	using CArtifactsOfHeroPtr = std::variant<
+		std::weak_ptr<CArtifactsOfHeroMarket>,
+		std::weak_ptr<CArtifactsOfHeroAltar>,
+		std::weak_ptr<CArtifactsOfHeroKingdom>,
+		std::weak_ptr<CArtifactsOfHeroMain>>;
 
-	std::shared_ptr<CArtifactsOfHero::SCommonPart> getCommonPart();
+	void addSet(CArtifactsOfHeroPtr artSet);
+	const CGHeroInstance * getHeroPickedArtifact();
+	const CArtifactInstance * getPickedArtifact();
+	void leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst, CHeroArtPlace & artPlace);
+	void rightClickArtPlaceHero(CArtifactsOfHeroBase & artsInst, CHeroArtPlace & artPlace);
 
-	void artifactRemoved(const ArtifactLocation &artLoc) override;
-	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc, bool withRedraw) override;
-	void artifactDisassembled(const ArtifactLocation &artLoc) override;
-	void artifactAssembled(const ArtifactLocation &artLoc) override;
+	void artifactRemoved(const ArtifactLocation & artLoc) override;
+	void artifactMoved(const ArtifactLocation & srcLoc, const ArtifactLocation & destLoc, bool withRedraw) override;
+	void artifactDisassembled(const ArtifactLocation & artLoc) override;
+	void artifactAssembled(const ArtifactLocation & artLoc) override;
+
+private:
+	std::vector<CArtifactsOfHeroPtr> artSets;
+
+	void updateSlots(const ArtifactPosition & slot);
+	std::optional<std::tuple<const CGHeroInstance*, const CArtifactInstance*>> getState();
+	std::optional<CArtifactsOfHeroPtr> findAOHbyRef(CArtifactsOfHeroBase & artsInst);
 };
