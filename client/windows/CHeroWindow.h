@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../../lib/HeroBonus.h"
-#include "../widgets/CArtifactHolder.h"
+#include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/CGarrisonInt.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

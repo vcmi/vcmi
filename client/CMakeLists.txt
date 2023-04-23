@@ -85,6 +85,12 @@ set(client_SRCS
 	widgets/MiscWidgets.cpp
 	widgets/ObjectLists.cpp
 	widgets/TextControls.cpp
+	widgets/CArtifactsOfHeroBase.cpp
+	widgets/CArtifactsOfHeroMain.cpp
+	widgets/CArtifactsOfHeroKingdom.cpp
+	widgets/CArtifactsOfHeroAltar.cpp
+	widgets/CArtifactsOfHeroMarket.cpp
+	widgets/CWindowWithArtifacts.cpp
 
 	windows/CCastleInterface.cpp
 	windows/CCreatureWindow.cpp
@@ -213,6 +219,12 @@ set(client_HEADERS
 	widgets/MiscWidgets.h
 	widgets/ObjectLists.h
 	widgets/TextControls.h
+	widgets/CArtifactsOfHeroBase.h
+	widgets/CArtifactsOfHeroMain.h
+	widgets/CArtifactsOfHeroKingdom.h
+	widgets/CArtifactsOfHeroAltar.h
+	widgets/CArtifactsOfHeroMarket.h
+	widgets/CWindowWithArtifacts.h
 
 	windows/CCastleInterface.h
 	windows/CCreatureWindow.h

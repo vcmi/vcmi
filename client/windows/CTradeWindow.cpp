@@ -1305,7 +1305,7 @@ void CAltarWindow::SacrificeAll()
 	else
 	{
 		auto artifactsOfHero = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(arts);
-		for(const auto & aw : artifactsOfHero->visibleArtSet->artifactsWorn)
+		for(const auto & aw : artifactsOfHero->visibleArtSet.artifactsWorn)
 		{
 			if(!aw.second.locked)
 				moveArtToAltar(nullptr, aw.second.artifact);
@@ -1471,9 +1471,9 @@ int CAltarWindow::firstFreeSlot()
 void CAltarWindow::SacrificeBackpack()
 {
 	auto artsAltar = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(arts);
-	while(!artsAltar->visibleArtSet->artifactsInBackpack.empty())
+	while(!artsAltar->visibleArtSet.artifactsInBackpack.empty())
 	{
-		if(!putOnAltar(nullptr, artsAltar->visibleArtSet->artifactsInBackpack[0].artifact))
+		if(!putOnAltar(nullptr, artsAltar->visibleArtSet.artifactsInBackpack[0].artifact))
 			break;
 	};
 	calcTotalExp();

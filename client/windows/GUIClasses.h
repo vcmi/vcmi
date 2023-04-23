@@ -14,7 +14,7 @@
 #include "../lib/ResourceSet.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/int3.h"
-#include "../widgets/CArtifactHolder.h"
+#include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/Images.h"
 

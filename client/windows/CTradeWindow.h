@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../widgets/CArtifactHolder.h"
+#include "../widgets/CWindowWithArtifacts.h"
 #include "CWindowObject.h"
 #include "../../lib/FunctionList.h"
 
