@@ -389,7 +389,7 @@ void CTradeWindow::initItems(bool Left)
 		}
 		else //ARTIFACT_EXP
 		{
-			xOffset = -363;
+			xOffset = -365;
 			yOffset = -12;
 		}
 

@@ -826,7 +826,7 @@ public:
 		background = std::make_shared<CAnimImage>("OVSLOT", 4);
 		pos = background->pos;
 		for(int i=0; i<9; i++)
-			arts.push_back(std::make_shared<CHeroArtPlace>(Point(270+i*48, 65)));
+			arts.push_back(std::make_shared<CHeroArtPlace>(Point(269+i*48, 66)));
 	}
 };
 
@@ -846,7 +846,7 @@ public:
 		btnLeft = std::make_shared<CButton>(Point(269, 66), "HSBTNS3", CButton::tooltip(), 0);
 		btnRight = std::make_shared<CButton>(Point(675, 66), "HSBTNS5", CButton::tooltip(), 0);
 		for(int i=0; i<8; i++)
-			arts.push_back(std::make_shared<CHeroArtPlace>(Point(295+i*48, 65)));
+			arts.push_back(std::make_shared<CHeroArtPlace>(Point(294+i*48, 66)));
 	}
 };
 
