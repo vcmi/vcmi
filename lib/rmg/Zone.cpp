@@ -95,6 +95,11 @@ rmg::Area & Zone::areaUsed()
 	return dAreaUsed;
 }
 
+std::vector<int3> Zone::getPossibleQuestArtifactPos() const
+{
+	return possibleQuestArtifactPos;
+}
+
 void Zone::clearTiles()
 {
 	dArea.clear();

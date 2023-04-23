@@ -1,5 +1,5 @@
 /*
- * TreasurePlacer.cpp, part of VCMI engine
+ * TreasurePlacer.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -18,6 +18,7 @@ class CGObjectInstance;
 class ObjectManager;
 class RmgMap;
 class CMapGenerator;
+class CRandomGenerator;
 
 struct ObjectInfo
 {
@@ -43,8 +44,6 @@ public:
 	char dump(const int3 &) override;
 	
 	void createTreasures(ObjectManager & manager);
-	
-	void setQuestArtZone(Zone * otherZone);
 	void addObjectToRandomPool(const ObjectInfo& oi);
 	void addAllPossibleObjects(); //add objects, including zone-specific, to possibleObjects
 
@@ -56,8 +55,7 @@ protected:
 	ObjectInfo * getRandomObject(ui32 desiredValue, ui32 currentValue, ui32 maxValue, bool allowLargeObjects);
 	std::vector<ObjectInfo*> prepareTreasurePile(const CTreasureInfo & treasureInfo);
 	rmg::Object constructTreasurePile(const std::vector<ObjectInfo*> & treasureInfos, bool densePlacement = false);
-	
-	
+
 protected:	
 	std::vector<ObjectInfo> possibleObjects;
 	int minGuardedValue = 0;
@@ -65,8 +63,6 @@ protected:
 	rmg::Area treasureArea;
 	rmg::Area treasureBlockArea;
 	rmg::Area guards;
-	
-	Zone * questArtZone = nullptr; //artifacts required for Seer Huts will be placed here - or not if null
 };
 
 VCMI_LIB_NAMESPACE_END

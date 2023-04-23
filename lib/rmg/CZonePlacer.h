@@ -26,6 +26,7 @@ typedef std::vector<std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>>> TZoneV
 typedef std::map<TRmgTemplateZoneId, std::shared_ptr<Zone>> TZoneMap;
 typedef std::map<std::shared_ptr<Zone>, float3> TForceVector;
 typedef std::map<std::shared_ptr<Zone>, float> TDistanceVector;
+typedef std::map<int, std::map<int, size_t>> TDistanceMap;
 
 class CZonePlacer
 {
@@ -40,6 +41,8 @@ public:
 	void findPathsBetweenZones();
 	void placeOnGrid(CRandomGenerator* rand);
 	void assignZones(CRandomGenerator * rand);
+
+	const TDistanceMap & getDistanceMap();
 	
 private:
 	void prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, CRandomGenerator * rand);
@@ -65,7 +68,7 @@ private:
 	float bestTotalOverlap;
 
 	//distance [a][b] = number of zone connections required to travel between the zones
-	std::map<int, std::map<int, size_t>> distancesBetweenZones;
+	TDistanceMap distancesBetweenZones;
 	std::set<TRmgTemplateZoneId> lastSwappedZones;
 	RmgMap & map;
 };

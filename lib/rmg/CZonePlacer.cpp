@@ -869,4 +869,9 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	logGlobal->info("Finished zone colouring");
 }
 
+const TDistanceMap& CZonePlacer::getDistanceMap()
+{
+	return distancesBetweenZones;
+}
+
 VCMI_LIB_NAMESPACE_END

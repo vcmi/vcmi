@@ -93,6 +93,8 @@ public:
 	rmg::Area & areaPossible();
 	rmg::Area & freePaths();
 	rmg::Area & areaUsed();
+
+	std::vector<int3> getPossibleQuestArtifactPos() const;
 	
 	void initFreeTiles();
 	void clearTiles();
@@ -137,6 +139,7 @@ protected:
 	rmg::Area dAreaPossible;
 	rmg::Area dAreaFree; //core paths of free tiles that all other objects will be linked to
 	rmg::Area dAreaUsed;
+	std::vector<int3> possibleQuestArtifactPos;
 	
 	//template info
 	si32 townType;

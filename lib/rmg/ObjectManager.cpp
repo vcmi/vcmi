@@ -16,6 +16,8 @@
 #include "RoadPlacer.h"
 #include "RiverPlacer.h"
 #include "WaterAdopter.h"
+#include "TreasurePlacer.h"
+#include "QuestArtifactPlacer.h"
 #include "../CCreatureHandler.h"
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
@@ -378,6 +380,21 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 			{
 				m->areaIsolated().add(instance->getVisitablePosition() + int3(0, -1, 0));
 			}
+		}
+
+		switch (instance->object().ID)
+		{
+			case Obj::RANDOM_TREASURE_ART:
+			case Obj::RANDOM_MINOR_ART: //In OH3 quest artifacts have higher value than normal arts
+			{
+				if (auto * qap = zone.getModificator<QuestArtifactPlacer>())
+				{
+					qap->rememberPotentialArtifactToReplace(&instance->object());
+				}
+				break;
+			}
+			default:
+				break;
 		}
 	}
 	

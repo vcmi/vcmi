@@ -17,6 +17,8 @@
 #include "ConnectionsPlacer.h"
 #include "RmgMap.h"
 #include "TileInfo.h"
+#include "CZonePlacer.h"
+#include "QuestArtifactPlacer.h"
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "../CCreatureHandler.h"
@@ -39,11 +41,6 @@ void TreasurePlacer::init()
 	DEPENDENCY(ObjectManager);
 	DEPENDENCY(ConnectionsPlacer);
 	POSTFUNCTION(RoadPlacer);
-}
-
-void TreasurePlacer::setQuestArtZone(Zone * otherZone)
-{
-	questArtZone = otherZone;
 }
 
 void TreasurePlacer::addObjectToRandomPool(const ObjectInfo& oi)
@@ -389,8 +386,8 @@ void TreasurePlacer::addAllPossibleObjects()
 	addObjectToRandomPool(oi);
 	
 	//seer huts with creatures or generic rewards
-	
-	if(questArtZone) //we won't be placing seer huts if there is no zone left to place arties
+
+	if(zone.getConnections().size()) //Unlikely, but...
 	{
 		static const int genericSeerHuts = 8;
 		int seerHutsPerType = 0;
@@ -450,9 +447,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
 				
 				generator.banQuestArt(artid);
-				
-				
-				this->questArtZone->getModificator<TreasurePlacer>()->addObjectToRandomPool(generateArtInfo(artid));
+				zone.getModificator<QuestArtifactPlacer>()->addQuestArtifact(artid);
 				
 				return obj;
 			};
@@ -487,8 +482,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
 				
 				generator.banQuestArt(artid);
-				
-				this->questArtZone->getModificator<TreasurePlacer>()->addObjectToRandomPool(generateArtInfo(artid));
+				zone.getModificator<QuestArtifactPlacer>()->addQuestArtifact(artid);
 				
 				return obj;
 			};
@@ -510,8 +504,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
 				
 				generator.banQuestArt(artid);
-				
-				this->questArtZone->getModificator<TreasurePlacer>()->addObjectToRandomPool(generateArtInfo(artid));
+				zone.getModificator<QuestArtifactPlacer>()->addQuestArtifact(artid);
 				
 				return obj;
 			};

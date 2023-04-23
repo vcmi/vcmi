@@ -37,6 +37,7 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
 	rand.setSeed(this->randomSeed);
 	mapGenOptions.finalize(rand);
 	map = std::make_unique<RmgMap>(mapGenOptions);
+	placer = std::make_shared<CZonePlacer>(*map);
 }
 
 int CMapGenerator::getRandomSeed() const
@@ -109,6 +110,7 @@ void CMapGenerator::initPrisonsRemaining()
 
 void CMapGenerator::initQuestArtsRemaining()
 {
+	//TODO: Move to QuestArtifactPlacer?
 	for (auto art : VLC->arth->objects)
 	{
 		if (art->aClass == CArtifact::ART_TREASURE && VLC->arth->legalArtifact(art->getId()) && art->constituentOf.empty()) //don't use parts of combined artifacts
@@ -267,14 +269,13 @@ void CMapGenerator::addPlayerInfo()
 
 void CMapGenerator::genZones()
 {
-	CZonePlacer placer(*map);
-	placer.placeZones(&rand);
-	placer.assignZones(&rand);
+	placer->placeZones(&rand);
+	placer->assignZones(&rand);
 
 	logGlobal->info("Zones generated successfully");
 }
 
-void CMapGenerator::createWaterTreasures()
+void CMapGenerator::addWaterTreasuresInfo()
 {
 	if (!getZoneWater())
 		return;
@@ -288,8 +289,7 @@ void CMapGenerator::createWaterTreasures()
 
 void CMapGenerator::fillZones()
 {
-	findZonesForQuestArts();
-	createWaterTreasures();
+	addWaterTreasuresInfo();
 
 	logGlobal->info("Started filling zones");
 
@@ -331,28 +331,6 @@ void CMapGenerator::fillZones()
 	Load::Progress::set(250);
 }
 
-void CMapGenerator::findZonesForQuestArts()
-{
-	//we want to place arties in zones that were not yet filled (higher index)
-
-	for (auto connection : mapGenOptions.getMapTemplate()->getConnections())
-	{
-		auto zoneA = map->getZones()[connection.getZoneA()];
-		auto zoneB = map->getZones()[connection.getZoneB()];
-
-		if (zoneA->getId() > zoneB->getId())
-		{
-			if(auto * m = zoneB->getModificator<TreasurePlacer>())
-				m->setQuestArtZone(zoneA.get());
-		}
-		else if (zoneA->getId() < zoneB->getId())
-		{
-			if(auto * m = zoneA->getModificator<TreasurePlacer>())
-				m->setQuestArtZone(zoneB.get());
-		}
-	}
-}
-
 void CMapGenerator::addHeaderInfo()
 {
 	map->map().version = EMapFormat::VCMI;
@@ -390,6 +368,11 @@ int CMapGenerator::getNextMonlithIndex()
 int CMapGenerator::getPrisonsRemaning() const
 {
 	return prisonsRemaining;
+}
+
+std::shared_ptr<CZonePlacer> CMapGenerator::getZonePlacer() const
+{
+	return placer;
 }
 
 void CMapGenerator::decreasePrisonsRemaining()

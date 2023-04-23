@@ -25,6 +25,7 @@ class JsonNode;
 class RmgMap;
 class CMap;
 class Zone;
+class CZonePlacer;
 
 typedef std::vector<JsonNode> JsonVector;
 
@@ -59,16 +60,15 @@ public:
 	
 	std::unique_ptr<CMap> generate();
 
-	void findZonesForQuestArts();
-
 	int getNextMonlithIndex();
 	int getPrisonsRemaning() const;
+	std::shared_ptr<CZonePlacer> getZonePlacer() const;
 	void decreasePrisonsRemaining();
 	const std::vector<ArtifactID> & getQuestArtsRemaning() const;
 	void banQuestArt(const ArtifactID & id);
 
 	Zone * getZoneWater() const;
-	void createWaterTreasures();
+	void addWaterTreasuresInfo();
 
 	int getRandomSeed() const;
 	
@@ -77,6 +77,7 @@ private:
 	CMapGenOptions& mapGenOptions;
 	Config config;
 	std::unique_ptr<RmgMap> map;
+	std::shared_ptr<CZonePlacer> placer;
 	
 	std::vector<rmg::ZoneConnection> connectionsLeft;
 	
@@ -85,7 +86,7 @@ private:
 	int prisonsRemaining;
 	//int questArtsRemaining;
 	int monolithIndex;
-	std::vector<ArtifactID> questArtifacts;
+	std::vector<ArtifactID> questArtifacts; //TODO: Protect with mutex
 
 	/// Generation methods
 	void loadConfig();
