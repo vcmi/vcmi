@@ -909,13 +909,9 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	portraits[0] = std::make_shared<CAnimImage>("PortraitsLarge", heroInst[0]->portrait, 0, 257, 13);
 	portraits[1] = std::make_shared<CAnimImage>("PortraitsLarge", heroInst[1]->portrait, 0, 485, 13);
 
-	artifs[0] = std::make_shared<CArtifactsOfHero>(Point(-334, 150));
-	artifs[0]->commonInfo = std::make_shared<CArtifactsOfHero::SCommonPart>();
-	artifs[0]->commonInfo->participants.insert(artifs[0].get());
+	artifs[0] = std::make_shared<CArtifactsOfHeroMain>(Point(-334, 150));
 	artifs[0]->setHero(heroInst[0]);
-	artifs[1] = std::make_shared<CArtifactsOfHero>(Point(96, 150));
-	artifs[1]->commonInfo = artifs[0]->commonInfo;
-	artifs[1]->commonInfo->participants.insert(artifs[1].get());
+	artifs[1] = std::make_shared<CArtifactsOfHeroMain>(Point(98, 150));
 	artifs[1]->setHero(heroInst[1]);
 
 	addSet(artifs[0]);

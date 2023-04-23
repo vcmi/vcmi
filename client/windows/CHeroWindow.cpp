@@ -42,9 +42,10 @@ TConstBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector &
 	TConstBonusListPtr heroBonuses = hero->getAllBonuses(selector, limit, hero, cachingStr);
 	TConstBonusListPtr bonusesFromPickedUpArtifact;
 
-	std::shared_ptr<CArtifactsOfHero::SCommonPart> cp = cww->getCommonPart();
-	if(cp && cp->src.art && cp->src.valid() && cp->src.AOH && cp->src.AOH->getHero() == hero)
-		bonusesFromPickedUpArtifact = cp->src.art->getAllBonuses(selector, limit, hero);
+	const auto pickedArtInst = cww->getPickedArtifact();
+
+	if(pickedArtInst)
+		bonusesFromPickedUpArtifact = pickedArtInst->getAllBonuses(selector, limit, hero);
 	else
 		bonusesFromPickedUpArtifact = TBonusListPtr(new BonusList());
 
@@ -244,7 +245,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 		}
 		if(!arts)
 		{
-			arts = std::make_shared<CArtifactsOfHero>(Point(-65, -8), true);
+			arts = std::make_shared<CArtifactsOfHeroMain>(Point(-65, -8));
 			arts->setHero(curHero);
 			addSet(arts);
 		}
@@ -354,25 +355,23 @@ void CHeroWindow::dismissCurrent()
 
 void CHeroWindow::commanderWindow()
 {
-	//bool artSelected = false;
-	std::shared_ptr<CArtifactsOfHero::SCommonPart> commonInfo = getCommonPart();
+	const auto pickedArtInst = getPickedArtifact();
+	const auto hero = getHeroPickedArtifact();
 
-	if(const CArtifactInstance *art = commonInfo->src.art)
+	if(pickedArtInst)
 	{
-		const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
-		//artSelected = true;
-		const auto freeSlot = ArtifactUtils::getArtAnyPosition(curHero->commander, art->artType->getId());
+		const auto freeSlot = ArtifactUtils::getArtAnyPosition(curHero->commander, pickedArtInst->getTypeId());
 		if(freeSlot < ArtifactPosition::COMMANDER_AFTER_LAST) //we don't want to put it in commander's backpack!
 		{
-			ArtifactLocation src(srcHero, commonInfo->src.slotID);
+			ArtifactLocation src(hero, ArtifactPosition::TRANSITION_POS);
 			ArtifactLocation dst(curHero->commander.get(), freeSlot);
 
-			if(art->canBePutAt(dst, true))
+			if(pickedArtInst->canBePutAt(dst, true))
 			{	//equip clicked stack
 				if(dst.getArt())
 				{
-					LOCPLINT->cb->swapArtifacts (dst, ArtifactLocation(srcHero,
-						ArtifactUtils::getArtBackpackPosition(srcHero, art->getTypeId())));
+					LOCPLINT->cb->swapArtifacts(dst, ArtifactLocation(hero,
+						ArtifactUtils::getArtBackpackPosition(hero, pickedArtInst->getTypeId())));
 				}
 				LOCPLINT->cb->swapArtifacts(src, dst);
 			}

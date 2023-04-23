@@ -179,24 +179,26 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 		if(type == ARTIFACT_PLACEHOLDER)
 		{
 			CAltarWindow *aw = static_cast<CAltarWindow *>(mw);
-			if(const CArtifactInstance *movedArt = aw->arts->commonInfo->src.art)
+			const auto pickedArtInst = aw->getPickedArtifact();
+
+			auto artifactsOfHero = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(aw->arts);
+			if(pickedArtInst)
 			{
-				aw->moveFromSlotToAltar(aw->arts->commonInfo->src.slotID, this->shared_from_this(), movedArt);
+				artifactsOfHero->pickedArtMoveToAltar(ArtifactPosition::TRANSITION_POS);
+				aw->moveArtToAltar(this->shared_from_this(), pickedArtInst);
 			}
 			else if(const CArtifactInstance *art = getArtInstance())
 			{
-				aw->arts->commonInfo->src.AOH = aw->arts.get();
-				aw->arts->commonInfo->src.art = art;
-				aw->arts->commonInfo->src.slotID = aw->hero->getArtPos(art);
-				aw->arts->markPossibleSlots(art);
-
-				//aw->arts->commonInfo->dst.AOH = aw->arts;
-				CCS->curh->dragAndDropCursor("artifact", art->artType->getIconIndex());
-
-				aw->arts->artifactsOnAltar.erase(art);
+				const auto hero = artifactsOfHero->getHero();
+				const auto slot = hero->getSlotByInstance(art);
+				assert(slot != ArtifactPosition::PRE_FIRST);
+				LOCPLINT->cb->swapArtifacts(ArtifactLocation(hero, slot),
+					ArtifactLocation(hero, ArtifactPosition::TRANSITION_POS));
+				artifactsOfHero->pickedArtFromSlot = slot;
+				artifactsOfHero->artifactsOnAltar.erase(art);
 				setID(-1);
 				subtitle.clear();
-				aw->deal->block(!aw->arts->artifactsOnAltar.size());
+				aw->deal->block(!artifactsOfHero->artifactsOnAltar.size());
 			}
 
 			aw->calcTotalExp();
@@ -391,14 +393,21 @@ void CTradeWindow::initItems(bool Left)
 			yOffset = -12;
 		}
 
-		arts = std::make_shared<CArtifactsOfHero>(Point(xOffset, yOffset), true);
-		arts->recActions = 255-DISPOSE;
-		arts->setHero(hero);
-		arts->allowedAssembling = false;
-		addSet(arts);
-
 		if(mode == EMarketMode::ARTIFACT_RESOURCE)
-			arts->highlightModeCallback = std::bind(&CTradeWindow::artifactSelected, this, _1);
+		{
+			auto artifactsOfHero = std::make_shared<CArtifactsOfHeroMarket>(Point(xOffset, yOffset));
+			artifactsOfHero->selectArtCallback = std::bind(&CTradeWindow::artifactSelected, this, _1);
+			artifactsOfHero->setHero(hero);
+			addSet(artifactsOfHero);
+			arts = artifactsOfHero;
+		}
+		else
+		{
+			auto artifactsOfHero = std::make_shared<CArtifactsOfHeroAltar>(Point(xOffset, yOffset));
+			artifactsOfHero->setHero(hero);
+			addSet(artifactsOfHero);
+			arts = artifactsOfHero;
+		}
 	}
 	else
 	{
@@ -630,8 +639,8 @@ void CTradeWindow::setMode(EMarketMode::EMarketMode Mode)
 void CTradeWindow::artifactSelected(CHeroArtPlace *slot)
 {
 	assert(mode == EMarketMode::ARTIFACT_RESOURCE);
-	items[1][0]->setArtInstance(slot->ourArt);
-	if(slot->ourArt && !slot->locked)
+	items[1][0]->setArtInstance(slot->getArt());
+	if(slot->getArt())
 		hLeft = items[1][0];
 	else
 		hLeft = nullptr;
@@ -858,7 +867,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 		readyToTrade = readyToTrade && (hLeft->id != hRight->id); //for resource trade, two DIFFERENT resources must be selected
 
 	if(mode == EMarketMode::ARTIFACT_RESOURCE && !hLeft)
-		arts->unmarkSlots(false);
+		arts->unmarkSlots();
 
 	if(readyToTrade)
 	{
@@ -1250,13 +1259,15 @@ void CAltarWindow::makeDeal()
 	else
 	{
 		std::vector<ui32> positions;
-		for(const CArtifactInstance *art : arts->artifactsOnAltar) //sacrifice each artifact on the list
+		auto artifactsOfHero = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(arts);
+		for(const CArtifactInstance * art : artifactsOfHero->artifactsOnAltar)
 		{
-			positions.push_back(hero->getArtPos(art));
+			positions.push_back(hero->getSlotByInstance(art));
 		}
+		std::sort(positions.begin(), positions.end(), std::greater<>());
 
 		LOCPLINT->cb->trade(market->o, mode, positions, {}, {}, hero);
-		arts->artifactsOnAltar.clear();
+		artifactsOfHero->artifactsOnAltar.clear();
 
 		for(auto item : items[0])
 		{
@@ -1264,7 +1275,6 @@ void CAltarWindow::makeDeal()
 			item->subtitle = "";
 		}
 
-		arts->commonInfo->reset();
 		//arts->scrollBackpack(0);
 		deal->block(true);
 	}
@@ -1294,12 +1304,13 @@ void CAltarWindow::SacrificeAll()
 	}
 	else
 	{
-		for(auto i = hero->artifactsWorn.cbegin(); i != hero->artifactsWorn.cend(); i++)
+		auto artifactsOfHero = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(arts);
+		for(const auto & aw : artifactsOfHero->visibleArtSet->artifactsWorn)
 		{
-			if(!i->second.locked) //ignore locks from assembled artifacts
-				moveFromSlotToAltar(i->first, nullptr, i->second.artifact);
+			if(!aw.second.locked)
+				moveArtToAltar(nullptr, aw.second.artifact);
 		}
-
+		artifactsOfHero->updateWornSlots();
 		SacrificeBackpack();
 	}
 	redraw();
@@ -1414,7 +1425,8 @@ void CAltarWindow::calcTotalExp()
 	}
 	else
 	{
-		for(const CArtifactInstance *art : arts->artifactsOnAltar)
+		auto artifactsOfHero = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(arts);
+		for(const CArtifactInstance * art : artifactsOfHero->artifactsOnAltar)
 		{
 			int dmp, valOfArt;
 			market->getOffer(art->artType->getId(), 0, dmp, valOfArt, mode);
@@ -1458,21 +1470,12 @@ int CAltarWindow::firstFreeSlot()
 
 void CAltarWindow::SacrificeBackpack()
 {
-	std::multiset<const CArtifactInstance *> toOmmit = arts->artifactsOnAltar;
-
-	for (auto & elem : hero->artifactsInBackpack)
+	auto artsAltar = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(arts);
+	while(!artsAltar->visibleArtSet->artifactsInBackpack.empty())
 	{
-
-		if(vstd::contains(toOmmit, elem.artifact))
-		{
-			toOmmit -= elem.artifact;
-			continue;
-		}
-
-		putOnAltar(nullptr, elem.artifact);
-	}
-
-	arts->scrollBackpack(0);
+		if(!putOnAltar(nullptr, artsAltar->visibleArtSet->artifactsInBackpack[0].artifact))
+			break;
+	};
 	calcTotalExp();
 }
 
@@ -1484,15 +1487,18 @@ void CAltarWindow::artifactPicked()
 void CAltarWindow::showAll(SDL_Surface * to)
 {
 	CTradeWindow::showAll(to);
-	if(mode == EMarketMode::ARTIFACT_EXP && arts && arts->commonInfo->src.art)
+	if(mode == EMarketMode::ARTIFACT_EXP && arts)
 	{
-		artIcon->setFrame(arts->commonInfo->src.art->artType->getIconIndex());
-		artIcon->showAll(to);
+		if(auto pickedArt = arts->getPickedArtifact())
+		{
+			artIcon->setFrame(pickedArt->artType->getIconIndex());
+			artIcon->showAll(to);
 
-		int dmp, val;
-		market->getOffer(arts->commonInfo->src.art->artType->getId(), 0, dmp, val, EMarketMode::ARTIFACT_EXP);
-		val = static_cast<int>(hero->calculateXp(val));
-		printAtMiddleLoc(std::to_string(val), 304, 498, FONT_SMALL, Colors::WHITE, to);
+			int dmp, val;
+			market->getOffer(pickedArt->getTypeId(), 0, dmp, val, EMarketMode::ARTIFACT_EXP);
+			val = static_cast<int>(hero->calculateXp(val));
+			printAtMiddleLoc(std::to_string(val), 304, 498, FONT_SMALL, Colors::WHITE, to);
+		}
 	}
 }
 
@@ -1519,7 +1525,9 @@ bool CAltarWindow::putOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const C
 	market->getOffer(art->artType->getId(), 0, dmp, val, EMarketMode::ARTIFACT_EXP);
 	val = static_cast<int>(hero->calculateXp(val));
 
-	arts->artifactsOnAltar.insert(art);
+	auto artsAltar = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(arts);
+	artsAltar->artifactsOnAltar.insert(art);
+	artsAltar->deleteFromVisible(art);
 	altarSlot->setArtInstance(art);
 	altarSlot->subtitle = std::to_string(val);
 
@@ -1527,25 +1535,11 @@ bool CAltarWindow::putOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const C
 	return true;
 }
 
-void CAltarWindow::moveFromSlotToAltar(ArtifactPosition slotID, std::shared_ptr<CTradeableItem> altarSlot, const CArtifactInstance *art)
+void CAltarWindow::moveArtToAltar(std::shared_ptr<CTradeableItem> altarSlot, const CArtifactInstance *art)
 {
-	auto freeBackpackSlot = ArtifactPosition((si32)hero->artifactsInBackpack.size() + GameConstants::BACKPACK_START);
-	if(arts->commonInfo->src.art)
-	{
-		arts->commonInfo->dst.slotID = freeBackpackSlot;
-		arts->commonInfo->dst.AOH = arts.get();
-	}
-
 	if(putOnAltar(altarSlot, art))
 	{
-		if(slotID < GameConstants::BACKPACK_START)
-			LOCPLINT->cb->swapArtifacts(ArtifactLocation(hero, slotID), ArtifactLocation(hero, freeBackpackSlot));
-		else
-		{
-			arts->commonInfo->src.clear();
-			arts->commonInfo->dst.clear();
-			CCS->curh->dragAndDropCursor(nullptr);
-			arts->unmarkSlots(false);
-		}
+		CCS->curh->dragAndDropCursor(nullptr);
+		arts->unmarkSlots();
 	}
 }

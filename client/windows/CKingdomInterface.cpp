@@ -872,7 +872,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	assert(arts1->arts.size() == 9);
 	assert(arts2->arts.size() == 9);
 
-	CArtifactsOfHero::ArtPlaceMap arts =
+	CArtifactsOfHeroMain::ArtPlaceMap arts =
 	{
 		{ArtifactPosition::HEAD, arts1->arts[0]},
 		{ArtifactPosition::SHOULDERS,arts1->arts[1]},
@@ -896,7 +896,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	};
 
 
-	heroArts = std::make_shared<CArtifactsOfHero>(arts, backpack->arts, backpack->btnLeft, backpack->btnRight, true);
+	heroArts = std::make_shared<CArtifactsOfHeroKingdom>(arts, backpack->arts, backpack->btnLeft, backpack->btnRight);
 	heroArts->setHero(hero);
 
 	artsTabs = std::make_shared<CTabbedInt>(std::bind(&CHeroItem::onTabSelected, this, _1));

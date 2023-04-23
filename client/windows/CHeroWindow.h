@@ -25,7 +25,7 @@ class CHeroWindow;
 class LClickableAreaHero;
 class LRClickableAreaWText;
 class LRClickableAreaWTextComp;
-class CArtifactsOfHero;
+class CArtifactsOfHeroMain;
 class MoraleLuckBox;
 class CToggleButton;
 class CToggleGroup;
@@ -105,7 +105,7 @@ class CHeroWindow : public CStatusbarWindow, public CGarrisonHolder, public CWin
 	std::shared_ptr<CToggleGroup> formations;
 
 	std::shared_ptr<CGarrisonInt> garr;
-	std::shared_ptr<CArtifactsOfHero> arts;
+	std::shared_ptr<CArtifactsOfHeroMain> arts;
 
 	std::vector<std::shared_ptr<CLabel>> labels;
 
