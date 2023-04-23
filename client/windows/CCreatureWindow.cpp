@@ -95,8 +95,7 @@ private:
 
 };
 
-CCommanderSkillIcon::CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, std::function<void()> callback)
-	: object(),
+CCommanderSkillIcon::CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, std::function<void()> callback):
 	callback(callback)
 {
 	pos = object_->pos;
@@ -761,7 +760,7 @@ void CStackWindow::initBonusesList()
 	}
 
 	BonusInfo bonusInfo;
-	for(auto b : output)
+	for(const auto & b : output)
 	{
 		bonusInfo.name = info->stackNode->bonusToString(b, false);
 		bonusInfo.description = info->stackNode->bonusToString(b, true);

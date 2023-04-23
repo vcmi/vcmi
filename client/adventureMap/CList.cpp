@@ -27,10 +27,9 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
-CList::CListItem::CListItem(CList * Parent)
-	: CIntObject(LCLICK | RCLICK | HOVER),
-	parent(Parent),
-	selection()
+CList::CListItem::CListItem(CList * Parent):
+	CIntObject(LCLICK | RCLICK | HOVER),
+	parent(Parent)
 {
 	defActions = 255-DISPOSE;
 }

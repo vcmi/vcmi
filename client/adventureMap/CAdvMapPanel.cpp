@@ -17,9 +17,8 @@
 #include "../render/IImage.h"
 #include "../gui/CGuiHandler.h"
 
-CAdvMapPanel::CAdvMapPanel(std::shared_ptr<IImage> bg, Point position)
-	: CIntObject()
-	, background(bg)
+CAdvMapPanel::CAdvMapPanel(std::shared_ptr<IImage> bg, Point position):
+	background(bg)
 {
 	defActions = 255;
 	recActions = 255;

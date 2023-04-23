@@ -372,7 +372,7 @@ bool MovementAnimation::init()
 
 	if (stack->hasBonus(Selector::type()(Bonus::FLYING)))
 	{
-		float distance = static_cast<float>(sqrt(distanceX * distanceX + distanceY * distanceY));
+		auto distance = static_cast<float>(sqrt(distanceX * distanceX + distanceY * distanceY));
 		progressPerSecond =  AnimationControls::getFlightDistance(stack->unitType()) / distance;
 	}
 
@@ -944,7 +944,7 @@ bool EffectAnimation::init()
 	{
 		for(int i=0; i * first->width() < owner.fieldController->pos.w ; ++i)
 			for(int j=0; j * first->height() < owner.fieldController->pos.h ; ++j)
-				positions.push_back(Point( i * first->width(), j * first->height()));
+				positions.emplace_back(i * first->width(), j * first->height());
 	}
 
 	BattleEffect be;

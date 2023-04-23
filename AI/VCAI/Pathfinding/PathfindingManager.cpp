@@ -69,7 +69,7 @@ Goals::TGoalVec PathfindingManager::howToVisitTile(const HeroPtr & hero, const i
 		return sptr(Goals::VisitTile(firstTileToGet).sethero(hero).setisAbstract(true));
 	});
 
-	for(Goals::TSubgoal solution : result)
+	for(const Goals::TSubgoal & solution : result)
 	{
 		solution->setparent(sptr(Goals::VisitTile(tile).sethero(hero).setevaluationContext(solution->evaluationContext)));
 	}
@@ -94,7 +94,7 @@ Goals::TGoalVec PathfindingManager::howToVisitObj(const HeroPtr & hero, ObjectId
 			return sptr(Goals::VisitObj(obj->id.getNum()).sethero(hero).setisAbstract(true));
 	});
 
-	for(Goals::TSubgoal solution : result)
+	for(const Goals::TSubgoal & solution : result)
 	{
 		solution->setparent(sptr(Goals::VisitObj(obj->id.getNum()).sethero(hero).setevaluationContext(solution->evaluationContext)));
 	}
@@ -123,7 +123,7 @@ Goals::TGoalVec PathfindingManager::findPath(
 	logAi->trace("Trying to find a way for %s to visit tile %s", hero->name, dest.toString());
 #endif
 
-	for(auto path : chainInfo)
+	for(const auto & path : chainInfo)
 	{
 		int3 firstTileToGet = path.firstTileToGet();
 #ifdef VCMI_TRACE_PATHFINDER

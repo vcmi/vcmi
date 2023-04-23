@@ -37,7 +37,7 @@ CInfoBar::CVisibleInfo::CVisibleInfo()
 void CInfoBar::CVisibleInfo::show(SDL_Surface * to)
 {
 	CIntObject::show(to);
-	for(auto object : forceRefresh)
+	for(const auto & object : forceRefresh)
 		object->showAll(to);
 }
 
@@ -130,9 +130,9 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 		if(LOCPLINT->cb->getPlayerStatus(PlayerColor(i), false) == EPlayerStatus::INGAME)
 		{
 			if(LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, PlayerColor(i)) != PlayerRelations::ENEMIES)
-				allies.push_back(PlayerColor(i));
+				allies.emplace_back(i);
 			else
-				enemies.push_back(PlayerColor(i));
+				enemies.emplace_back(i);
 		}
 	}
 
@@ -205,6 +205,7 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 
 		std::vector<std::shared_ptr<CComponent>> vect;
 
+		vect.reserve(compsToDisplay.size());
 		for(const auto & c : compsToDisplay)
 			vect.emplace_back(std::make_shared<CComponent>(c, size, font));
 
@@ -425,8 +426,6 @@ void CInfoBar::prepareComponents(const std::vector<Component> & components, std:
 		pushComponents(components, header, headerTinyH, true, timer);
 	else
 		pushComponents(components, "", 0, false, timer);
-
-	return;
 }
 
 void CInfoBar::requestPopAll()

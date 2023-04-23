@@ -131,7 +131,7 @@ CAdvMapInt::CAdvMapInt():
 	auto makeButton = [&](int textID, std::function<void()> callback, config::ButtonInfo info, int key) -> std::shared_ptr<CButton>
 	{
 		auto button = std::make_shared<CButton>(Point(info.x, info.y), info.defName, CGI->generaltexth->zelp[textID], callback, key, info.playerColoured);
-		for(auto image : info.additionalDefs)
+		for(const auto & image : info.additionalDefs)
 			button->addImage(image);
 		return button;
 	};
@@ -209,7 +209,7 @@ CAdvMapInt::CAdvMapInt():
 
 	config::ButtonInfo worldViewUndergroundConfig = config::ButtonInfo();
 	worldViewUndergroundConfig.defName = "IAM010.DEF";
-	worldViewUndergroundConfig.additionalDefs.push_back("IAM003.DEF");
+	worldViewUndergroundConfig.additionalDefs.emplace_back("IAM003.DEF");
 	worldViewUndergroundConfig.x = GH.screenDimensions().x - 115;
 	worldViewUndergroundConfig.y = 343 + 195;
 	worldViewUndergroundConfig.playerColoured = true;
@@ -605,7 +605,7 @@ void CAdvMapInt::handleMapScrollingUpdate()
 {
 	uint32_t timePassed = GH.mainFPSmng->getElapsedMilliseconds();
 	double scrollSpeedPixels = settings["adventure"]["scrollSpeedPixels"].Float();
-	int32_t scrollDistance = static_cast<int32_t>(scrollSpeedPixels * timePassed / 1000);
+	auto scrollDistance = static_cast<int32_t>(scrollSpeedPixels * timePassed / 1000);
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
 
 	if(scrollingDir & LEFT)

@@ -659,7 +659,7 @@ void AIGateway::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList
 			choosenExit = vstd::find_pos(exits, neededExit);
 	}
 
-	for(auto exit : exits)
+	for(const auto & exit : exits)
 	{
 		if(status.channelProbing() && exit.first == destinationTeleport)
 		{
@@ -866,7 +866,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 	auto bestArmy = nullkiller->armyManager->getBestArmy(destinationArmy, destinationArmy, source);
 
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
-	for(SlotID i = SlotID(0); i.validSlot(); i.advance(1)) //i-th strongest creature type will go to i-th slot
+	for(auto i = SlotID(0); i.validSlot(); i.advance(1)) //i-th strongest creature type will go to i-th slot
 	{
 		if(i.getNum() >= bestArmy.size())
 		{
@@ -894,7 +894,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 
 		for(auto armyPtr : armies)
 		{
-			for(SlotID j = SlotID(0); j.validSlot(); j.advance(1))
+			for(auto j = SlotID(0); j.validSlot(); j.advance(1))
 			{
 				if(armyPtr->getCreature(j) == targetCreature && (i != j || armyPtr != destinationArmy)) //it's a searched creature not in dst SLOT
 				{
@@ -958,21 +958,21 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 				for(auto p : h->artifactsWorn)
 				{
 					if(p.second.artifact)
-						allArtifacts.push_back(ArtifactLocation(h, p.first));
+						allArtifacts.emplace_back(h, p.first);
 				}
 			}
 			for(auto slot : h->artifactsInBackpack)
-				allArtifacts.push_back(ArtifactLocation(h, h->getArtPos(slot.artifact)));
+				allArtifacts.emplace_back(h, h->getArtPos(slot.artifact));
 
 			if(otherh)
 			{
 				for(auto p : otherh->artifactsWorn)
 				{
 					if(p.second.artifact)
-						allArtifacts.push_back(ArtifactLocation(otherh, p.first));
+						allArtifacts.emplace_back(otherh, p.first);
 				}
 				for(auto slot : otherh->artifactsInBackpack)
-					allArtifacts.push_back(ArtifactLocation(otherh, otherh->getArtPos(slot.artifact)));
+					allArtifacts.emplace_back(otherh, otherh->getArtPos(slot.artifact));
 			}
 			//we give stuff to one hero or another, depending on giveStuffToFirstHero
 
@@ -982,7 +982,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 			else
 				target = otherh;
 
-			for(auto location : allArtifacts)
+			for(const auto & location : allArtifacts)
 			{
 				if(location.relatedObj() == target && location.slot < ArtifactPosition::AFTER_LAST)
 					continue; //don't reequip artifact we already wear
@@ -1243,7 +1243,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 			auto currentExit = getObj(currentPos, true)->id;
 
 			status.setChannelProbing(true);
-			for(auto exit : teleportChannelProbingList)
+			for(const auto & exit : teleportChannelProbingList)
 				doTeleportMovement(exit, int3(-1));
 			teleportChannelProbingList.clear();
 			status.setChannelProbing(false);

@@ -72,7 +72,7 @@ void callOnlyThatBattleInterface(CClient & cl, PlayerColor player, void (T::*ptr
 
 	if(cl.additionalBattleInts.count(player))
 	{
-		for(auto bInt : cl.additionalBattleInts[player])
+		for(const auto & bInt : cl.additionalBattleInts[player])
 			((*bInt).*ptr)(std::forward<Args2>(args)...);
 	}
 }
@@ -87,7 +87,7 @@ void callBattleInterfaceIfPresent(CClient & cl, PlayerColor player, void (T::*pt
 template<typename T, typename ... Args, typename ... Args2>
 void callAllInterfaces(CClient & cl, void (T::*ptr)(Args...), Args2 && ...args)
 {
-	for(auto pInt : cl.playerint)
+	for(const auto & pInt : cl.playerint)
 		((*pInt.second).*ptr)(std::forward<Args2>(args)...);
 }
 
@@ -377,8 +377,8 @@ void ApplyClientNetPackVisitor::visitPlayerReinitInterface(PlayerReinitInterface
 		callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, currentPlayer);
 		callOnlyThatInterface(cl, currentPlayer, &CGameInterface::yourTurn);
 	};
-	
-	for(auto player : pack.players)
+
+	for(const auto & player : pack.players)
 	{
 		auto & plSettings = CSH->si->getIthPlayersSettings(player);
 		if(pack.playerConnectionId == PlayerSettings::PLAYER_AI)
@@ -424,12 +424,12 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 		CGI->mh->onObjectFadeOut(o);
 
 	//notify interfaces about removal
-	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
+	for(auto & i : cl.playerint)
 	{
 		//below line contains little cheat for AI so it will be aware of deletion of enemy heroes that moved or got re-covered by FoW
 		//TODO: loose requirements as next AI related crashes appear, for example another pack.player collects object that got re-covered by FoW, unsure if AI code workarounds this
-		if(gs.isVisible(o, i->first) || (!cl.getPlayerState(i->first)->human && o->ID == Obj::HERO && o->tempOwner != i->first))
-			i->second->objectRemoved(o);
+		if(gs.isVisible(o, i.first) || (!cl.getPlayerState(i.first)->human && o->ID == Obj::HERO && o->tempOwner != i.first))
+			i.second->objectRemoved(o);
 	}
 
 	CGI->mh->waitForOngoingAnimations();
@@ -438,8 +438,8 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 void ApplyClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 {
 	cl.invalidatePaths();
-	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
-		i->second->objectRemovedAfter();
+	for(auto & i : cl.playerint)
+		i.second->objectRemovedAfter();
 }
 
 void ApplyFirstClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
@@ -494,17 +494,17 @@ void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 		if(cl.getPlayerRelations(i.first, player) != PlayerRelations::ENEMIES)
 			i.second->tileRevealed(pack.fowRevealed);
 
-	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
+	for(auto & i : cl.playerint)
 	{
-		if(i->first != PlayerColor::SPECTATOR && gs.checkForStandardLoss(i->first)) // Do not notify vanquished pack.player's interface
+		if(i.first != PlayerColor::SPECTATOR && gs.checkForStandardLoss(i.first)) // Do not notify vanquished pack.player's interface
 			continue;
 
-		if(gs.isVisible(h->convertToVisitablePos(pack.start), i->first)
-			|| gs.isVisible(h->convertToVisitablePos(pack.end), i->first))
+		if(gs.isVisible(h->convertToVisitablePos(pack.start), i.first)
+			|| gs.isVisible(h->convertToVisitablePos(pack.end), i.first))
 		{
 			// pack.src and pack.dst of enemy hero move may be not visible => 'verbose' should be false
-			const bool verbose = cl.getPlayerRelations(i->first, player) != PlayerRelations::ENEMIES;
-			i->second->heroMoved(pack, verbose);
+			const bool verbose = cl.getPlayerRelations(i.first, player) != PlayerRelations::ENEMIES;
+			i.second->heroMoved(pack, verbose);
 		}
 	}
 }
@@ -537,7 +537,7 @@ void ApplyClientNetPackVisitor::visitRazeStructures(RazeStructures & pack)
 
 void ApplyClientNetPackVisitor::visitSetAvailableCreatures(SetAvailableCreatures & pack)
 {
-	const CGDwelling * dw = static_cast<const CGDwelling*>(cl.getObj(pack.tid));
+	const auto * dw = static_cast<const CGDwelling *>(cl.getObj(pack.tid));
 
 	PlayerColor p;
 	if(dw->ID == Obj::WAR_MACHINE_FACTORY) //War Machines Factory is not flaggable, it's "owned" by visitor
@@ -555,16 +555,16 @@ void ApplyClientNetPackVisitor::visitSetHeroesInTown(SetHeroesInTown & pack)
 	CGHeroInstance * hVisit = gs.getHero(pack.visiting);
 
 	//inform all players that see this object
-	for(auto i = cl.playerint.cbegin(); i != cl.playerint.cend(); ++i)
+	for(const auto & i : cl.playerint)
 	{
-		if(i->first >= PlayerColor::PLAYER_LIMIT)
+		if(i.first >= PlayerColor::PLAYER_LIMIT)
 			continue;
 
-		if(gs.isVisible(t, i->first) ||
-			(hGarr && gs.isVisible(hGarr, i->first)) ||
-			(hVisit && gs.isVisible(hVisit, i->first)))
+		if(gs.isVisible(t, i.first) ||
+			(hGarr && gs.isVisible(hGarr, i.first)) ||
+			(hVisit && gs.isVisible(hVisit, i.first)))
 		{
-			cl.playerint[i->first]->heroInGarrisonChange(t);
+			cl.playerint[i.first]->heroInGarrisonChange(t);
 		}
 	}
 }
@@ -610,10 +610,10 @@ void ApplyClientNetPackVisitor::visitInfoWindow(InfoWindow & pack)
 void ApplyClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 {
 	//inform all players that see this object
-	for(auto it = cl.playerint.cbegin(); it != cl.playerint.cend(); ++it)
+	for(const auto & it : cl.playerint)
 	{
-		if(gs.isVisible(gs.getObjInstance(pack.id), it->first))
-			callInterfaceIfPresent(cl, it->first, &IGameEventsReceiver::objectPropertyChanged, &pack);
+		if(gs.isVisible(gs.getObjInstance(pack.id), it.first))
+			callInterfaceIfPresent(cl, it.first, &IGameEventsReceiver::objectPropertyChanged, &pack);
 	}
 
 	if (pack.what == ObjProperty::OWNER)
@@ -653,7 +653,7 @@ void ApplyClientNetPackVisitor::visitBlockingDialog(BlockingDialog & pack)
 void ApplyClientNetPackVisitor::visitGarrisonDialog(GarrisonDialog & pack)
 {
 	const CGHeroInstance *h = cl.getHero(pack.hid);
-	const CArmedInstance *obj = static_cast<const CArmedInstance*>(cl.getObj(pack.objid));
+	const auto * obj = static_cast<const CArmedInstance *>(cl.getObj(pack.objid));
 
 	callOnlyThatInterface(cl, h->getOwner(), &CGameInterface::showGarrisonDialog, obj, h, pack.removableUnits, pack.queryID);
 }
@@ -898,8 +898,8 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 	case EOpenWindowMode::RECRUITMENT_FIRST:
 	case EOpenWindowMode::RECRUITMENT_ALL:
 		{
-			const CGDwelling *dw = dynamic_cast<const CGDwelling*>(cl.getObj(ObjectInstanceID(pack.id1)));
-			const CArmedInstance *dst = dynamic_cast<const CArmedInstance*>(cl.getObj(ObjectInstanceID(pack.id2)));
+			const auto * dw = dynamic_cast<const CGDwelling *>(cl.getObj(ObjectInstanceID(pack.id1)));
+			const auto * dst = dynamic_cast<const CArmedInstance *>(cl.getObj(ObjectInstanceID(pack.id2)));
 			callInterfaceIfPresent(cl, dst->tempOwner, &IGameEventsReceiver::showRecruitmentDialog, dw, dst, pack.window == EOpenWindowMode::RECRUITMENT_FIRST ? 0 : -1);
 		}
 		break;
@@ -967,10 +967,10 @@ void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 	if(CGI->mh)
 		CGI->mh->onObjectFadeIn(obj);
 
-	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
+	for(auto & i : cl.playerint)
 	{
-		if(gs.isVisible(obj, i->first))
-			i->second->newObject(obj);
+		if(gs.isVisible(obj, i.first))
+			i.second->newObject(obj);
 	}
 	CGI->mh->waitForOngoingAnimations();
 }
@@ -983,7 +983,7 @@ void ApplyClientNetPackVisitor::visitSetAvailableArtifacts(SetAvailableArtifacts
 	}
 	else
 	{
-		const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(cl.getObj(ObjectInstanceID(pack.id)));
+		const auto * bm = dynamic_cast<const CGBlackMarket *>(cl.getObj(ObjectInstanceID(pack.id)));
 		assert(bm);
 		callInterfaceIfPresent(cl, cl.getTile(bm->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::availableArtifactsChanged, bm);
 	}

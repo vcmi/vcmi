@@ -64,7 +64,7 @@ public:
 class DLL_LINKAGE CGDwelling : public CArmedInstance
 {
 public:
-	typedef std::vector<std::pair<ui32, std::vector<CreatureID> > > TCreaturesSet;
+	using TCreaturesSet = std::vector<std::pair<ui32, std::vector<CreatureID>>>;
 
 	CSpecObjInfo * info; //random dwelling options; not serialized
 	TCreaturesSet creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>

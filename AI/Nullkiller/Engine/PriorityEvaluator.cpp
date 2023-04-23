@@ -34,12 +34,11 @@ namespace NKAI
 #define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
 
-EvaluationContext::EvaluationContext(const Nullkiller * ai)
-	: movementCost(0.0),
+EvaluationContext::EvaluationContext(const Nullkiller * ai):
+	movementCost(0.0),
 	manaCost(0),
 	danger(0),
 	closestWayRatio(1),
-	movementCostByRole(),
 	skillReward(0),
 	goldReward(0),
 	goldCost(0),
@@ -112,7 +111,7 @@ TResources getCreatureBankResources(const CGObjectInstance * target, const CGHer
 	//Fixme: unused variable hero
 
 	auto objectInfo = VLC->objtypeh->getHandlerFor(target->ID, target->subID)->getObjectInfo(target->appearance);
-	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
+	auto * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 	auto resources = bankInfo->getPossibleResourcesReward();
 	TResources result = TResources();
 	int sum = 0;
@@ -129,7 +128,7 @@ TResources getCreatureBankResources(const CGObjectInstance * target, const CGHer
 uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero)
 {
 	auto objectInfo = VLC->objtypeh->getHandlerFor(target->ID, target->subID)->getObjectInfo(target->appearance);
-	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
+	auto * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 	auto creatures = bankInfo->getPossibleCreaturesReward();
 	uint64_t result = 0;
 
@@ -145,7 +144,7 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 		}
 	}
 
-	for (auto c : creatures)
+	for(const auto & c : creatures)
 	{
 		//Only if hero has slot for this creature in the army
 		auto ccre = dynamic_cast<const CCreature*>(c.data.type);
@@ -501,7 +500,7 @@ int32_t getArmyCost(const CArmedInstance * army)
 {
 	int32_t value = 0;
 
-	for(auto stack : army->Slots())
+	for(const auto & stack : army->Slots())
 	{
 		value += stack.second->getCreatureID().toCreature()->getRecruitCost(EGameResID::GOLD) * stack.second->count;
 	}
@@ -571,7 +570,7 @@ public:
 		if(task->goalType != Goals::HERO_EXCHANGE)
 			return;
 
-		Goals::HeroExchange & heroExchange = dynamic_cast<Goals::HeroExchange &>(*task);
+		auto & heroExchange = dynamic_cast<Goals::HeroExchange &>(*task);
 
 		uint64_t armyStrength = heroExchange.getReinforcementArmyStrength();
 
@@ -587,7 +586,7 @@ public:
 		if(task->goalType != Goals::ARMY_UPGRADE)
 			return;
 
-		Goals::ArmyUpgrade & armyUpgrade = dynamic_cast<Goals::ArmyUpgrade &>(*task);
+		auto & armyUpgrade = dynamic_cast<Goals::ArmyUpgrade &>(*task);
 
 		uint64_t upgradeValue = armyUpgrade.getUpgradeValue();
 
@@ -640,7 +639,7 @@ public:
 		if(task->goalType != Goals::DEFEND_TOWN)
 			return;
 
-		Goals::DefendTown & defendTown = dynamic_cast<Goals::DefendTown &>(*task);
+		auto & defendTown = dynamic_cast<Goals::DefendTown &>(*task);
 		const CGTownInstance * town = defendTown.town;
 		auto & treat = defendTown.getTreat();
 
@@ -678,7 +677,7 @@ public:
 		if(task->goalType != Goals::EXECUTE_HERO_CHAIN)
 			return;
 
-		Goals::ExecuteHeroChain & chain = dynamic_cast<Goals::ExecuteHeroChain &>(*task);
+		auto & chain = dynamic_cast<Goals::ExecuteHeroChain &>(*task);
 		const AIPath & path = chain.getPath();
 
 		vstd::amax(evaluationContext.danger, path.getTotalDanger());
@@ -732,7 +731,7 @@ public:
 		if(task->goalType != Goals::UNLOCK_CLUSTER)
 			return;
 
-		Goals::UnlockCluster & clusterGoal = dynamic_cast<Goals::UnlockCluster &>(*task);
+		auto & clusterGoal = dynamic_cast<Goals::UnlockCluster &>(*task);
 		std::shared_ptr<ObjectCluster> cluster = clusterGoal.getCluster();
 
 		auto hero = clusterGoal.hero.get();
@@ -779,7 +778,7 @@ public:
 		if(task->goalType != Goals::EXCHANGE_SWAP_TOWN_HEROES)
 			return;
 
-		Goals::ExchangeSwapTownHeroes & swapCommand = dynamic_cast<Goals::ExchangeSwapTownHeroes &>(*task);
+		auto & swapCommand = dynamic_cast<Goals::ExchangeSwapTownHeroes &>(*task);
 		const CGHeroInstance * garrisonHero = swapCommand.getGarrisonHero();
 
 		if(garrisonHero && swapCommand.getLockingReason() == HeroLockedReason::DEFENCE)
@@ -802,7 +801,7 @@ public:
 		if(task->goalType != Goals::BUILD_STRUCTURE)
 			return;
 
-		Goals::BuildThis & buildThis = dynamic_cast<Goals::BuildThis &>(*task);
+		auto & buildThis = dynamic_cast<Goals::BuildThis &>(*task);
 		auto & bi = buildThis.buildingInfo;
 		
 		evaluationContext.goldReward += 7 * bi.dailyIncome[EGameResID::GOLD] / 2; // 7 day income but half we already have
@@ -884,11 +883,11 @@ EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal
 		parts.push_back(goal);
 	}
 
-	for(auto subgoal : parts)
+	for(const auto & subgoal : parts)
 	{
 		context.goldCost += subgoal->goldCost;
 
-		for(auto builder : evaluationContextBuilders)
+		for(const auto & builder : evaluationContextBuilders)
 		{
 			builder->buildEvaluationContext(context, subgoal);
 		}

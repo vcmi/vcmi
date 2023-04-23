@@ -1335,6 +1335,7 @@ CGObjectInstance * CMapLoaderH3M::readBank(const int3 & mapPosition, std::shared
 		// - ArtifactID::NONE indictates random artifact, other values indicate artifact that should be used as reward
 		std::vector<ArtifactID> artifacts;
 		int artNumber = reader->readUInt32();
+		artifacts.reserve(artNumber);
 		for(int yy = 0; yy < artNumber; ++yy)
 		{
 			artifacts.push_back(reader->readArtifact32());
@@ -1477,7 +1478,7 @@ void CMapLoaderH3M::readObjects()
 		int3 mapPosition = reader->readInt3();
 
 		uint32_t defIndex = reader->readUInt32();
-		ObjectInstanceID objectInstanceID = ObjectInstanceID(static_cast<si32>(map->objects.size()));
+		auto objectInstanceID = ObjectInstanceID(static_cast<si32>(map->objects.size()));
 
 		std::shared_ptr<const ObjectTemplate> objectTemplate = templates.at(defIndex);
 		reader->skipZero(5);

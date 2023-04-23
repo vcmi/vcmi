@@ -18,7 +18,6 @@ AttackerValue::AttackerValue()
 }
 
 MoveTarget::MoveTarget()
-	: positions()
 {
 	score = EvaluationResult::INEFFECTIVE_SCORE;
 }
@@ -29,7 +28,7 @@ int64_t BattleExchangeVariant::trackAttack(const AttackPossibility & ap, Hypothe
 
 	affectedUnits.push_back(ap.attackerState);
 
-	for(auto affectedUnit : affectedUnits)
+	for(const auto & affectedUnit : affectedUnits)
 	{
 		auto unitToUpdate = state.getForUpdate(affectedUnit->unitId());
 
@@ -334,9 +333,9 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getExchangeUnits(
 		return exchangeUnits;
 	}
 
-	for(int turn = 0; turn < turnOrder.size(); turn++)
+	for(auto & turn : turnOrder)
 	{
-		for(auto unit : turnOrder[turn])
+		for(auto unit : turn)
 		{
 			if(vstd::contains(allReachableUnits, unit))
 				exchangeUnits.push_back(unit);

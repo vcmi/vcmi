@@ -16,7 +16,7 @@ MapObjectsEvaluator & MapObjectsEvaluator::getInstance()
 	if(singletonInstance == nullptr)
 		singletonInstance.reset(new MapObjectsEvaluator());
 
-	return *(singletonInstance.get());
+	return *(singletonInstance);
 }
 
 MapObjectsEvaluator::MapObjectsEvaluator()

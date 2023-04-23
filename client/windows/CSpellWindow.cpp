@@ -179,7 +179,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	schoolBorders[2] = std::make_shared<CAnimation>("SplevW.def");
 	schoolBorders[3] = std::make_shared<CAnimation>("SplevE.def");
 
-	for(auto item : schoolBorders)
+	for(const auto & item : schoolBorders)
 		item->preload();
 	mana = std::make_shared<CLabel>(435, 426, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, std::to_string(myHero->mana));
 	statusBar = CGStatusBar::create(7, 569, "Spelroll.bmp");
@@ -496,7 +496,7 @@ CSpellWindow::SpellArea::SpellArea(Rect pos, CSpellWindow * owner)
 	level = std::make_shared<CLabel>(39, 82, FONT_TINY, ETextAlignment::CENTER);
 	cost = std::make_shared<CLabel>(39, 94, FONT_TINY, ETextAlignment::CENTER);
 
-	for(auto l : {name, level, cost})
+	for(const auto & l : {name, level, cost})
 		l->setAutoRedraw(false);
 }
 

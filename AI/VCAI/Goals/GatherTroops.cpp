@@ -19,8 +19,6 @@
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
 
-
-extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 extern FuzzyHelper * fh;
 
@@ -35,7 +33,7 @@ int GatherTroops::getCreaturesCount(const CArmedInstance * army)
 {
 	int count = 0;
 
-	for(auto stack : army->Slots())
+	for(const auto & stack : army->Slots())
 	{
 		if(objid == stack.second->getCreatureID().num)
 		{
@@ -134,7 +132,7 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 		if(!d || obj->ID == Obj::TOWN)
 			continue;
 
-		for(auto creature : d->creatures)
+		for(const auto & creature : d->creatures)
 		{
 			if(creature.first) //there are more than 0 creatures avaliabe
 			{
@@ -147,7 +145,7 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 		}
 	}
 
-	CreatureID creID = CreatureID(objid);
+	auto creID = CreatureID(objid);
 
 	vstd::erase_if(solutions, [&](TSubgoal goal)->bool
 	{

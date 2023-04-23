@@ -373,12 +373,12 @@ void CComponentBox::placeComponents(bool selectable)
 		comps(Comps), width (Width), height (Height){};
 	};
 	std::vector<RowData> rows;
-	rows.push_back (RowData (0,0,0));
+	rows.emplace_back(0, 0, 0);
 
 	//split components in rows
 	std::shared_ptr<CComponent> prevComp;
 
-	for(std::shared_ptr<CComponent> comp : components)
+	for(const auto & comp : components)
 	{
 		//make sure that components are smaller than our width
 		//assert(pos.w == 0 || pos.w < comp->pos.w);
@@ -390,7 +390,7 @@ void CComponentBox::placeComponents(bool selectable)
 			|| rows.back().comps >= componentsInRow)
 		{
 			prevComp = nullptr;
-			rows.push_back (RowData (0,0,0));
+			rows.emplace_back(0, 0, 0);
 		}
 
 		if (prevComp)

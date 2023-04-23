@@ -116,7 +116,7 @@ std::string BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisua
 void BattleSiegeController::showWallPiece(Canvas & canvas, EWallVisual::EWallVisual what)
 {
 	auto & ci = town->town->clientInfo;
-	auto const & pos = ci.siegePositions[what];
+	const auto & pos = ci.siegePositions[what];
 
 	if ( wallPieceImages[what] && pos.isValid())
 		canvas.draw(wallPieceImages[what], Point(pos.x, pos.y));
@@ -345,7 +345,8 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		std::vector<Point> positions;
 
 		//no attacker stack, assume spell-related (earthquake) - only hit animation
-		for (auto attackInfo : ca.attackedParts)
+		positions.reserve(ca.attackedParts.size());
+		for(auto attackInfo : ca.attackedParts)
 			positions.push_back(owner.stacksController->getStackPositionAtHex(attackInfo.destinationTile, nullptr) + Point(99, 120));
 
 		CCS->soundh->playSound( "WALLHIT" );

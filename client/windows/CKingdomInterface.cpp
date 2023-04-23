@@ -572,11 +572,11 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 		//Mines
 		if(object->ID == Obj::MINE || object->ID == Obj::ABANDONED_MINE)
 		{
-			const CGMine * mine = dynamic_cast<const CGMine *>(object);
+			const auto * mine = dynamic_cast<const CGMine *>(object);
 			assert(mine);
 			minesCount[mine->producedResource]++;
 
-			if (mine->producedResource == EGameResID::GOLD)
+			if(mine->producedResource == EGameResID::GOLD)
 				totalIncome += mine->producedQuantity;
 		}
 	}
@@ -696,9 +696,9 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 
 void CKingdHeroList::updateGarrisons()
 {
-	for(std::shared_ptr<CIntObject> object : heroes->getItems())
+	for(const auto & object : heroes->getItems())
 	{
-		if(CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(object.get()))
+		if(auto * garrison = dynamic_cast<CGarrisonHolder *>(object.get()))
 			garrison->updateGarrisons();
 	}
 }
@@ -737,9 +737,9 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 
 void CKingdTownList::townChanged(const CGTownInstance * town)
 {
-	for(std::shared_ptr<CIntObject> object : towns->getItems())
+	for(const auto & object : towns->getItems())
 	{
-		CTownItem * townItem = dynamic_cast<CTownItem *>(object.get());
+		auto * townItem = dynamic_cast<CTownItem *>(object.get());
 		if(townItem && townItem->town == town)
 			townItem->update();
 	}
@@ -747,9 +747,9 @@ void CKingdTownList::townChanged(const CGTownInstance * town)
 
 void CKingdTownList::updateGarrisons()
 {
-	for(std::shared_ptr<CIntObject> object : towns->getItems())
+	for(const auto & object : towns->getItems())
 	{
-		if(CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(object.get()))
+		if(auto * garrison = dynamic_cast<CGarrisonHolder *>(object.get()))
 			garrison->updateGarrisons();
 	}
 }

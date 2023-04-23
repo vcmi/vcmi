@@ -241,7 +241,7 @@ public:
 	}
 };
 
-typedef std::shared_ptr<AObjectTypeHandler> TObjectTypeHandler;
+using TObjectTypeHandler = std::shared_ptr<AObjectTypeHandler>;
 
 /// Class responsible for creation of adventure map objects of specific type
 class DLL_LINKAGE ObjectClass
@@ -283,7 +283,7 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
 
 	/// container with H3 templates, used only during loading, no need to serialize it
-	typedef std::multimap<std::pair<si32, si32>, std::shared_ptr<const ObjectTemplate>> TTemplatesContainer;
+	using TTemplatesContainer = std::multimap<std::pair<si32, si32>, std::shared_ptr<const ObjectTemplate>>;
 	TTemplatesContainer legacyTemplates;
 
 	TObjectTypeHandler loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index);

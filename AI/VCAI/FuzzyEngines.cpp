@@ -61,7 +61,7 @@ armyStructure evaluateArmyStructure(const CArmedInstance * army)
 	static const CSelector selectorSTACKS_SPEED = Selector::type()(Bonus::STACKS_SPEED);
 	static const std::string keySTACKS_SPEED = "type_"+std::to_string((int32_t)Bonus::STACKS_SPEED);
 
-	for(auto s : army->Slots())
+	for(const auto & s : army->Slots())
 	{
 		bool walker = true;
 		auto bearer = s.second->getType()->getBonusBearer();
@@ -144,14 +144,14 @@ TacticalAdvantageEngine::TacticalAdvantageEngine()
 		castleWalls = new fl::InputVariable("CastleWalls");
 		engine.addInputVariable(castleWalls);
 		{
-			fl::Rectangle * none = new fl::Rectangle("NONE", CGTownInstance::NONE, CGTownInstance::NONE + (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f);
+			auto * none = new fl::Rectangle("NONE", CGTownInstance::NONE, CGTownInstance::NONE + (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f);
 			castleWalls->addTerm(none);
 
-			fl::Trapezoid * medium = new fl::Trapezoid("MEDIUM", (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f, CGTownInstance::FORT,
+			auto * medium = new fl::Trapezoid("MEDIUM", (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f, CGTownInstance::FORT,
 				CGTownInstance::CITADEL, CGTownInstance::CITADEL + (CGTownInstance::CASTLE - CGTownInstance::CITADEL) * 0.5f);
 			castleWalls->addTerm(medium);
 
-			fl::Ramp * high = new fl::Ramp("HIGH", CGTownInstance::CITADEL - 0.1, CGTownInstance::CASTLE);
+			auto * high = new fl::Ramp("HIGH", CGTownInstance::CITADEL - 0.1, CGTownInstance::CASTLE);
 			castleWalls->addTerm(high);
 
 			castleWalls->setRange(CGTownInstance::NONE, CGTownInstance::CASTLE);
@@ -161,9 +161,9 @@ TacticalAdvantageEngine::TacticalAdvantageEngine()
 		bankPresent = new fl::InputVariable("Bank");
 		engine.addInputVariable(bankPresent);
 		{
-			fl::Rectangle * termFalse = new fl::Rectangle("FALSE", 0.0, 0.5f);
+			auto * termFalse = new fl::Rectangle("FALSE", 0.0, 0.5f);
 			bankPresent->addTerm(termFalse);
-			fl::Rectangle * termTrue = new fl::Rectangle("TRUE", 0.5f, 1);
+			auto * termTrue = new fl::Rectangle("TRUE", 0.5f, 1);
 			bankPresent->addTerm(termTrue);
 			bankPresent->setRange(0, 1);
 		}

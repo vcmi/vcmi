@@ -40,7 +40,7 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 
 		for(BuildingID prefix : prefixes)
 		{
-			BuildingID building = BuildingID(prefix + level);
+			auto building = BuildingID(prefix + level);
 
 			if(!vstd::contains(buildings, building))
 				continue; // no such building in town
@@ -132,7 +132,7 @@ void BuildAnalyzer::update()
 	{
 		logAi->trace("Checking town %s", town->getNameTranslated());
 
-		developmentInfos.push_back(TownDevelopmentInfo(town));
+		developmentInfos.emplace_back(town);
 		TownDevelopmentInfo & developmentInfo = developmentInfos.back();
 
 		updateTownDwellings(developmentInfo);
@@ -142,7 +142,7 @@ void BuildAnalyzer::update()
 		totalDevelopmentCost += developmentInfo.townDevelopmentCost;
 		armyCost += developmentInfo.armyCost;
 
-		for(auto bi : developmentInfo.toBuild)
+		for(const auto & bi : developmentInfo.toBuild)
 		{
 			logAi->trace("Building preferences %s", bi.toString());
 		}
@@ -276,7 +276,7 @@ void BuildAnalyzer::updateDailyIncome()
 
 	for(const CGObjectInstance* obj : objects)
 	{
-		const CGMine* mine = dynamic_cast<const CGMine*>(obj);
+		const auto * mine = dynamic_cast<const CGMine *>(obj);
 
 		if(mine)
 		{
@@ -292,7 +292,7 @@ void BuildAnalyzer::updateDailyIncome()
 
 bool BuildAnalyzer::hasAnyBuilding(int32_t alignment, BuildingID bid) const
 {
-	for(auto tdi : developmentInfos)
+	for(const auto & tdi : developmentInfos)
 	{
 		if(tdi.town->subID == alignment && tdi.town->hasBuilt(bid))
 			return true;

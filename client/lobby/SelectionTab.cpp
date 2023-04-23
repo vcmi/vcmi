@@ -153,7 +153,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		const char * sortIconNames[] = {"SCBUTT1.DEF", "SCBUTT2.DEF", "SCBUTCP.DEF", "SCBUTT3.DEF", "SCBUTT4.DEF", "SCBUTT5.DEF"};
 		for(int i = 0; i < 6; i++)
 		{
-			ESortBy criteria = (ESortBy)i;
+			auto criteria = (ESortBy)i;
 			if(criteria == _name)
 				criteria = generalSortingBy;
 
@@ -326,12 +326,12 @@ void SelectionTab::filter(int size, bool selectFirst)
 
 	if(tabType == ESelectionScreen::campaignList)
 	{
-		for(auto elem : allItems)
+		for(const auto & elem : allItems)
 			curItems.push_back(elem);
 	}
 	else
 	{
-		for(auto elem : allItems)
+		for(const auto & elem : allItems)
 		{
 			if(elem->mapHeader && (!size || elem->mapHeader->width == size))
 				curItems.push_back(elem);
@@ -435,7 +435,7 @@ void SelectionTab::updateListItems()
 	// slider->capacity contains the number of available screen lines
 	// slider->positionsAmnt is the number of elements after filtering
 	int elemIdx = slider->getValue();
-	for(auto item : listItems)
+	for(const auto & item : listItems)
 	{
 		if(elemIdx < curItems.size())
 		{
@@ -537,7 +537,7 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourceID> & files)
 			auto mapInfo = std::make_shared<CMapInfo>();
 			mapInfo->mapInit(file.getName());
 
-			EMapFormat maxSupported = static_cast<EMapFormat>(CGI->settings()->getInteger(EGameSettings::TEXTS_MAP_VERSION));
+			auto maxSupported = static_cast<EMapFormat>(CGI->settings()->getInteger(EGameSettings::TEXTS_MAP_VERSION));
 
 			if(mapInfo->mapHeader->version == EMapFormat::VCMI || mapInfo->mapHeader->version <= maxSupported)
 				allItems.push_back(mapInfo);

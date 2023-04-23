@@ -19,7 +19,6 @@
 namespace NKAI
 {
 
-extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;

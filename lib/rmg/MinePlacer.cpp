@@ -67,7 +67,7 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 			if(!i && (res == EGameResID::WOOD || res == EGameResID::ORE))
 				manager.addCloseObject(mine, rmginfo.value); //only first wood&ore mines are close
 			else
-				requiredObjects.push_back(std::pair<CGObjectInstance*, ui32>(mine, rmginfo.value));
+				requiredObjects.emplace_back(mine, rmginfo.value);
 		}
 	}
 

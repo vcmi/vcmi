@@ -49,7 +49,7 @@ CQuery::CQuery(Queries * Owner):
 {
 	boost::unique_lock<boost::mutex> l(Queries::mx);
 
-	static QueryID QID = QueryID(0);
+	static auto QID = QueryID(0);
 
 	queryID = ++QID;
 	logGlobal->trace("Created a new query with id %d", queryID);
@@ -203,7 +203,7 @@ void Queries::popQuery(const CQuery &query)
 	//LOG_TRACE_PARAMS(logGlobal, "query='%s'", query);
 
 	assert(query.players.size());
-	for(auto player : query.players)
+	for(const auto & player : query.players)
 	{
 		auto top = topQuery(player);
 		if(top.get() == &query)
@@ -215,16 +215,16 @@ void Queries::popQuery(const CQuery &query)
 
 void Queries::popQuery(QueryPtr query)
 {
-	for(auto player : query->players)
+	for(const auto & player : query->players)
 		popQuery(player, query);
 }
 
 void Queries::addQuery(QueryPtr query)
 {
-	for(auto player : query->players)
+	for(const auto & player : query->players)
 		addQuery(player, query);
 
-	for(auto player : query->players)
+	for(const auto & player : query->players)
 		query->onAdded(player);
 }
 
@@ -251,7 +251,7 @@ void Queries::popIfTop(QueryPtr query)
 
 void Queries::popIfTop(const CQuery & query)
 {
-	for(PlayerColor color : query.players)
+	for(const auto & color : query.players)
 		if(topQuery(color).get() == &query)
 			popQuery(color, topQuery(color));
 }

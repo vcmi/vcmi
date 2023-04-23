@@ -166,7 +166,7 @@ void BattleFieldController::showBackgroundImage(Canvas & canvas)
 
 void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
 {
-	canvas.draw(*backgroundWithHexes.get(), Point(0, 0));
+	canvas.draw(*backgroundWithHexes, Point(0, 0));
 }
 
 void BattleFieldController::redrawBackgroundWithHexes()
@@ -323,7 +323,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesMovementTarget()
 
 	if(stack->doubleWide())
 	{
-		for(auto const & hex : availableHexes)
+		for(const auto & hex : availableHexes)
 		{
 			if(stack->occupiedHex(hex) == hoveredHex)
 				return {hoveredHex, hex};
@@ -342,7 +342,7 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	if(getHoveredHex() == BattleHex::INVALID)
 		return;
 
-	auto const & hoveredMouseHexes = owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpellHexes : hoveredMoveHexes;
+	const auto & hoveredMouseHexes = owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpellHexes : hoveredMoveHexes;
 
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; ++hex)
 	{
@@ -379,7 +379,7 @@ Rect BattleFieldController::hexPositionAbsolute(BattleHex hex) const
 	return hexPositionLocal(hex) + pos.topLeft();
 }
 
-bool BattleFieldController::isPixelInHex(Point const & position)
+bool BattleFieldController::isPixelInHex(const Point & position)
 {
 	return !cellShade->isTransparent(position);
 }

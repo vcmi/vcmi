@@ -222,7 +222,7 @@ void ClientCommandManager::handleConvertTextCommand()
 	CMapService mapService;
 
 	logGlobal->info("Loading maps for export");
-	for (auto const & mapName : mapList)
+	for (const auto & mapName : mapList)
 	{
 		try
 		{

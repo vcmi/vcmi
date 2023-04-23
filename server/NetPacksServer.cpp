@@ -213,12 +213,12 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 			result &= gh.sellArtifact(m, hero, ArtifactInstanceID(pack.r1[i]), GameResID(pack.r2[i]));
 		break;
 	case EMarketMode::CREATURE_UNDEAD:
-		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.transformInUndead(m, hero, SlotID(pack.r1[i]));
+		for(unsigned int i : pack.r1)
+			result &= gh.transformInUndead(m, hero, SlotID(i));
 		break;
 	case EMarketMode::RESOURCE_SKILL:
-		for(int i = 0; i < pack.r2.size(); ++i)
-			result &= gh.buySecSkill(m, hero, SecondarySkill(pack.r2[i]));
+		for(unsigned int i : pack.r2)
+			result &= gh.buySecSkill(m, hero, SecondarySkill(i));
 		break;
 	case EMarketMode::CREATURE_EXP:
 	{
@@ -247,7 +247,7 @@ void ApplyGhNetPackVisitor::visitSetFormation(SetFormation & pack)
 void ApplyGhNetPackVisitor::visitHireHero(HireHero & pack)
 {
 	const CGObjectInstance * obj = gh.getObj(pack.tid);
-	const CGTownInstance * town = dynamic_ptr_cast<CGTownInstance>(obj);
+	const auto * town = dynamic_ptr_cast<CGTownInstance>(obj);
 	if(town && PlayerRelations::ENEMIES == gh.getPlayerRelations(obj->tempOwner, gh.getPlayerAt(pack.c)))
 		gh.throwAndComplain(&pack, "Can't buy hero in enemy town!");
 

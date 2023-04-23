@@ -13,8 +13,6 @@
 #include "../VCAI.h"
 #include "../AIUtility.h"
 
-
-extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 extern FuzzyHelper * fh;
 
@@ -30,7 +28,7 @@ TSubgoal DigAtTile::whatToDoToAchieve()
 	const CGObjectInstance * firstObj = vstd::frontOrNull(cb->getVisitableObjs(tile));
 	if(firstObj && firstObj->ID == Obj::HERO && firstObj->tempOwner == ai->playerID) //we have hero at dest
 	{
-		const CGHeroInstance * h = dynamic_cast<const CGHeroInstance *>(firstObj);
+		const auto * h = dynamic_cast<const CGHeroInstance *>(firstObj);
 		sethero(h).setisElementar(true);
 		return sptr(*this);
 	}

@@ -37,7 +37,7 @@ bool AdventureSpellMechanics::adventureCast(SpellCastEnvironment * env, const Ad
 		return false;
 	}
 
-	if(const CGHeroInstance * heroCaster = dynamic_cast<const CGHeroInstance *>(parameters.caster))
+	if(const auto * heroCaster = dynamic_cast<const CGHeroInstance *>(parameters.caster))
 	{
 		if(heroCaster->inTownGarrison)
 		{

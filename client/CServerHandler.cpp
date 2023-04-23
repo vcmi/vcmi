@@ -662,9 +662,9 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)
 {
 	if(cs)
-		GH.pushUserEvent(EUserEvent::CAMPAIGN_START_SCENARIO, CMemorySerializer::deepCopy(*cs.get()).release());
+		GH.pushUserEvent(EUserEvent::CAMPAIGN_START_SCENARIO, CMemorySerializer::deepCopy(*cs).release());
 	else
-		GH.pushUserEvent(EUserEvent::CAMPAIGN_START_SCENARIO, CMemorySerializer::deepCopy(*si->campState.get()).release());
+		GH.pushUserEvent(EUserEvent::CAMPAIGN_START_SCENARIO, CMemorySerializer::deepCopy(*si->campState).release());
 }
 
 void CServerHandler::showServerError(std::string txt)
@@ -675,7 +675,7 @@ void CServerHandler::showServerError(std::string txt)
 int CServerHandler::howManyPlayerInterfaces()
 {
 	int playerInts = 0;
-	for(auto pint : client->playerint)
+	for(const auto & pint : client->playerint)
 	{
 		if(dynamic_cast<CPlayerInterface *>(pint.second.get()))
 			playerInts++;
@@ -690,7 +690,7 @@ ui8 CServerHandler::getLoadMode()
 	{
 		if(si->campState)
 			return ELoadMode::CAMPAIGN;
-		for(auto pn : playerNames)
+		for(const auto & pn : playerNames)
 		{
 			if(pn.second.connection != c->connectionID)
 				return ELoadMode::MULTI;

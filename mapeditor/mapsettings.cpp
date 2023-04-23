@@ -689,7 +689,7 @@ void MapSettings::on_pushButton_clicked()
 			EventExpression::OperatorAll oper;
 			EventCondition notAI(EventCondition::IS_HUMAN);
 			notAI.value = 1;
-			oper.expressions.push_back(notAI);
+			oper.expressions.emplace_back(notAI);
 			oper.expressions.push_back(specialVictory.trigger.get());
 			specialVictory.trigger = EventExpression(oper);
 		}
@@ -732,7 +732,7 @@ void MapSettings::on_pushButton_clicked()
 				assert(loseTypeWidget);
 				int townIdx = loseTypeWidget->currentData().toInt();
 				cond.position = controller.map()->objects[townIdx]->pos;
-				noneOf.expressions.push_back(cond);
+				noneOf.expressions.emplace_back(cond);
 				specialDefeat.onFulfill = VLC->generaltexth->allTexts[251];
 				specialDefeat.trigger = EventExpression(noneOf);
 				break;
@@ -745,7 +745,7 @@ void MapSettings::on_pushButton_clicked()
 				assert(loseTypeWidget);
 				int townIdx = loseTypeWidget->currentData().toInt();
 				cond.position = controller.map()->objects[townIdx]->pos;
-				noneOf.expressions.push_back(cond);
+				noneOf.expressions.emplace_back(cond);
 				specialDefeat.onFulfill = VLC->generaltexth->allTexts[253];
 				specialDefeat.trigger = EventExpression(noneOf);
 				break;
@@ -775,7 +775,7 @@ void MapSettings::on_pushButton_clicked()
 		isHuman.value = 1;
 
 		allOf.expressions.push_back(specialDefeat.trigger.get());
-		allOf.expressions.push_back(isHuman);
+		allOf.expressions.emplace_back(isHuman);
 		specialDefeat.trigger = EventExpression(allOf);
 
 		if(ui->standardLoseCheck->isChecked())

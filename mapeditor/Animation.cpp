@@ -22,7 +22,7 @@
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMIDirs.h"
 
-typedef std::map<size_t, std::vector<JsonNode>> source_map;
+using source_map = std::map<size_t, std::vector<JsonNode>>;
 
 /// Class for def loading
 /// After loading will store general info (palette and frame offsets) and pointer to file itself
@@ -605,8 +605,7 @@ void Animation::printError(size_t frame, size_t group, std::string type) const
 
 Animation::Animation(std::string Name):
 	name(Name),
-	preloaded(false),
-	defFile()
+	preloaded(false)
 {
 	size_t dotPos = name.find_last_of('.');
 	if( dotPos!=-1 )
@@ -625,9 +624,9 @@ Animation::Animation(std::string Name):
 }
 
 Animation::Animation():
-	name(""),
-	preloaded(false),
-	defFile()
+
+	preloaded(false)
+
 {
 	init();
 }

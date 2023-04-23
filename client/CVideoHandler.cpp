@@ -19,7 +19,7 @@
 #include <SDL_render.h>
 #include <SDL_events.h>
 
-extern CGuiHandler GH; //global gui handler
+//global gui handler
 
 #ifndef DISABLE_VIDEO
 
@@ -110,7 +110,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 
 	static const int BUFFER_SIZE = 4096;
 
-	unsigned char * buffer  = (unsigned char *)av_malloc(BUFFER_SIZE);// will be freed by ffmpeg
+	auto * buffer = (unsigned char *)av_malloc(BUFFER_SIZE); // will be freed by ffmpeg
 	context = avio_alloc_context( buffer, BUFFER_SIZE, 0, (void *)this, lodRead, nullptr, lodSeek);
 
 	format = avformat_alloc_context();

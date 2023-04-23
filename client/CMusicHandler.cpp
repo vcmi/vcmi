@@ -216,7 +216,7 @@ void CSoundHandler::setVolume(ui32 percent)
 	{
 		setChannelVolume(-1, volume);
 
-		for (auto const & channel : channelVolumes)
+		for(const auto & channel : channelVolumes)
 			updateChannelVolume(channel.first);
 	}
 }
@@ -288,7 +288,7 @@ void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> soundsArg)
 			updateChannelVolume(channel);
 		}
 	}
-	for(auto soundId : stoppedSounds)
+	for(const auto & soundId : stoppedSounds)
 	{
 		channelVolumes.erase(ambientChannels[soundId]);
 		ambientChannels.erase(soundId);
@@ -315,7 +315,7 @@ void CSoundHandler::ambientStopAllChannels()
 {
 	boost::mutex::scoped_lock guard(mutex);
 
-	for(auto ch : ambientChannels)
+	for(const auto & ch : ambientChannels)
 	{
 		ambientStopSound(ch.first);
 	}
@@ -437,7 +437,7 @@ void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
 
 	next = std::move(queued);
 
-	if (current.get() == nullptr || !current->stop(1000))
+	if(current == nullptr || !current->stop(1000))
 	{
 		current.reset(next.release());
 		current->play();
@@ -456,7 +456,7 @@ void CMusicHandler::stopMusic(int fade_ms)
 
 	boost::mutex::scoped_lock guard(mutex);
 
-	if (current.get() != nullptr)
+	if(current != nullptr)
 		current->stop(fade_ms);
 	next.reset();
 }
@@ -489,7 +489,7 @@ void CMusicHandler::musicFinishedCallback()
 		return;
 	}
 
-	if (current.get() != nullptr)
+	if(current != nullptr)
 	{
 		// if music is looped, play it again
 		if (current->play())
@@ -503,7 +503,7 @@ void CMusicHandler::musicFinishedCallback()
 		}
 	}
 
-	if (current.get() == nullptr && next.get() != nullptr)
+	if(current == nullptr && next != nullptr)
 	{
 		current.reset(next.release());
 		current->play();

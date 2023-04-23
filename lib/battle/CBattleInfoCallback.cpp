@@ -220,8 +220,8 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 	std::vector<PossiblePlayerBattleAction> allowedActionList;
 	if(data.tacticsMode) //would "if(battleGetTacticDist() > 0)" work?
 	{
-		allowedActionList.push_back(PossiblePlayerBattleAction::MOVE_TACTICS);
-		allowedActionList.push_back(PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK);
+		allowedActionList.emplace_back(PossiblePlayerBattleAction::MOVE_TACTICS);
+		allowedActionList.emplace_back(PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK);
 	}
 	else
 	{
@@ -231,30 +231,30 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 			{
 				for(const auto & spellID : data.creatureSpellsToCast)
 				{
-					const CSpell *spell = spellID.toSpell();
+					const CSpell * spell = spellID.toSpell();
 					PossiblePlayerBattleAction act = getCasterAction(spell, stack, spells::Mode::CREATURE_ACTIVE);
 					allowedActionList.push_back(act);
 				}
 			}
 			if(stack->hasBonusOfType(Bonus::RANDOM_SPELLCASTER))
-				allowedActionList.push_back(PossiblePlayerBattleAction::RANDOM_GENIE_SPELL);
+				allowedActionList.emplace_back(PossiblePlayerBattleAction::RANDOM_GENIE_SPELL);
 		}
 		if(stack->canShoot())
-			allowedActionList.push_back(PossiblePlayerBattleAction::SHOOT);
+			allowedActionList.emplace_back(PossiblePlayerBattleAction::SHOOT);
 		if(stack->hasBonusOfType(Bonus::RETURN_AFTER_STRIKE))
-			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK_AND_RETURN);
+			allowedActionList.emplace_back(PossiblePlayerBattleAction::ATTACK_AND_RETURN);
 
-		allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK); //all active stacks can attack
-		allowedActionList.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK); //not all stacks can always walk, but we will check this elsewhere
+		allowedActionList.emplace_back(PossiblePlayerBattleAction::ATTACK); //all active stacks can attack
+		allowedActionList.emplace_back(PossiblePlayerBattleAction::WALK_AND_ATTACK); //not all stacks can always walk, but we will check this elsewhere
 
 		if(stack->canMove() && stack->Speed(0, true)) //probably no reason to try move war machines or bound stacks
-			allowedActionList.push_back(PossiblePlayerBattleAction::MOVE_STACK);
+			allowedActionList.emplace_back(PossiblePlayerBattleAction::MOVE_STACK);
 
 		const auto * siegedTown = battleGetDefendedTown();
 		if(siegedTown && siegedTown->hasFort() && stack->hasBonusOfType(Bonus::CATAPULT)) //TODO: check shots
-			allowedActionList.push_back(PossiblePlayerBattleAction::CATAPULT);
+			allowedActionList.emplace_back(PossiblePlayerBattleAction::CATAPULT);
 		if(stack->hasBonusOfType(Bonus::HEALER))
-			allowedActionList.push_back(PossiblePlayerBattleAction::HEAL);
+			allowedActionList.emplace_back(PossiblePlayerBattleAction::HEAL);
 	}
 
 	return allowedActionList;
@@ -838,7 +838,7 @@ bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & s
 	for(auto & obstacle : getAllAffectedObstaclesByStack(&unit, passed))
 	{
 		//helper info
-		const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle.get());
+		const auto * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle.get());
 
 		if(spellObstacle)
 		{

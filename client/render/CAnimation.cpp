@@ -205,8 +205,7 @@ void CAnimation::printError(size_t frame, size_t group, std::string type) const
 
 CAnimation::CAnimation(std::string Name):
 	name(Name),
-	preloaded(false),
-	defFile()
+	preloaded(false)
 {
 	size_t dotPos = name.find_last_of('.');
 	if ( dotPos!=-1 )
@@ -225,9 +224,7 @@ CAnimation::CAnimation(std::string Name):
 }
 
 CAnimation::CAnimation():
-	name(""),
-	preloaded(false),
-	defFile()
+	preloaded(false)
 {
 	init();
 }

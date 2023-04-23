@@ -200,7 +200,7 @@ void CBonusSelection::createBonusesIcons()
 				}
 				if(ptr[g] != 0)
 				{
-					toPrint.push_back(std::make_pair(g, ptr[g]));
+					toPrint.emplace_back(g, ptr[g]);
 				}
 			}
 			picNumber = leadingSkill;
@@ -344,7 +344,7 @@ void CBonusSelection::updateAfterStateChange()
 		buttonStart->block(false);
 	}
 
-	for(auto region : regions)
+	for(const auto & region : regions)
 		region->updateState();
 
 	if(!CSH->mi)

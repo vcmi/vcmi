@@ -82,7 +82,7 @@ void RmgMap::initTiles(CMapGenerator & generator)
 	zoneColouring.resize(boost::extents[mapInstance->width][mapInstance->height][mapInstance->levels()]);
 	
 	//init native town count with 0
-	for (auto faction : VLC->townh->getAllowedFactions())
+	for(const auto & faction : VLC->townh->getAllowedFactions())
 		zonesPerFaction[faction] = 0;
 	
 	getEditManager()->clearTerrain(&generator.rand);

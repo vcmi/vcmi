@@ -57,9 +57,8 @@ static std::string resolutionToLabelString( int w, int h)
 	return string;
 }
 
-GeneralOptionsTab::GeneralOptionsTab()
-		: InterfaceObjectConfigurable(),
-		  onFullscreenChanged(settings.listen["video"]["fullscreen"])
+GeneralOptionsTab::GeneralOptionsTab():
+	onFullscreenChanged(settings.listen["video"]["fullscreen"])
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	type |= REDRAW_PARENT;

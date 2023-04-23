@@ -134,7 +134,7 @@ QString QuestWidget::commitChanges()
 			return QString("N/A");
 		case CQuest::Emission::MISSION_ART:
 			seerhut.quest->m5arts.clear();
-			seerhut.quest->m5arts.push_back(ArtifactID(ui->targetId->currentIndex()));
+			seerhut.quest->m5arts.emplace_back(ui->targetId->currentIndex());
 			//TODO: support multiple artifacts
 			return ui->targetId->currentText();
 		case CQuest::Emission::MISSION_ARMY:
@@ -157,7 +157,9 @@ QString QuestWidget::commitChanges()
 	}
 }
 
-QuestDelegate::QuestDelegate(const CMap & m, CGSeerHut & t): map(m), seerhut(t), QStyledItemDelegate()
+QuestDelegate::QuestDelegate(const CMap & m, CGSeerHut & t):
+	map(m),
+	seerhut(t) 
 {
 }
 

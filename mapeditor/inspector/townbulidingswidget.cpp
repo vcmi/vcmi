@@ -123,7 +123,7 @@ QStandardItem * TownBulidingsWidget::addBuilding(const CTown & ctown, int bId, s
 	{
 		QStandardItem * parent = nullptr;
 		std::vector<QModelIndex> stack;
-		stack.push_back(QModelIndex());
+		stack.emplace_back();
 		while(!parent && !stack.empty())
 		{
 			auto pindex = stack.back();
@@ -173,7 +173,7 @@ std::set<BuildingID> TownBulidingsWidget::getBuildingsFromModel(int modelColumn,
 {
 	std::set<BuildingID> result;
 	std::vector<QModelIndex> stack;
-	stack.push_back(QModelIndex());
+	stack.emplace_back();
 	while(!stack.empty())
 	{
 		auto pindex = stack.back();
@@ -213,8 +213,8 @@ void TownBulidingsWidget::on_treeView_collapsed(const QModelIndex &index)
 	ui->treeView->resizeColumnToContents(0);
 }
 
-
-TownBuildingsDelegate::TownBuildingsDelegate(CGTownInstance & t): town(t), QStyledItemDelegate()
+TownBuildingsDelegate::TownBuildingsDelegate(CGTownInstance & t):
+	town(t)
 {
 }
 

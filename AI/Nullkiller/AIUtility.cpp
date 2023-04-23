@@ -359,7 +359,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 
 	case Obj::BORDER_GATE:
 	{
-		for(auto q : ai->cb->getMyQuests())
+		for(const auto & q : ai->cb->getMyQuests())
 		{
 			if(q.obj == obj)
 			{
@@ -372,7 +372,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		return (dynamic_cast<const CGKeys *>(obj))->wasMyColorVisited(ai->playerID);
 	case Obj::SEER_HUT:
 	{
-		for(auto q : ai->cb->getMyQuests())
+		for(const auto & q : ai->cb->getMyQuests())
 		{
 			if(q.obj == obj)
 			{
@@ -392,9 +392,9 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		if(relations == PlayerRelations::ALLIES)
 			return false;
 
-		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
+		const auto * d = dynamic_cast<const CGDwelling *>(obj);
 
-		for(auto level : d->creatures)
+		for(const auto & level : d->creatures)
 		{
 			for(auto c : level.second)
 			{
@@ -411,7 +411,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	}
 	case Obj::HILL_FORT:
 	{
-		for(auto slot : h->Slots())
+		for(const auto & slot : h->Slots())
 		{
 			if(slot.second->type->hasUpgrades())
 				return true; //TODO: check price?

@@ -24,7 +24,6 @@
 namespace NKAI
 {
 
-extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
@@ -84,8 +83,8 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositi
 	Goals::TTaskVec tasks;
 
 	boost::this_thread::interruption_point();
-	
-	for(auto goal : elementarGoals)
+
+	for(const auto & goal : elementarGoals)
 	{
 		Goals::TTask task = Goals::taskptr(*goal);
 

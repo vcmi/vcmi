@@ -61,8 +61,8 @@ namespace boost { class thread; }
 template<typename T>
 class ThreadSafeVector
 {
-	typedef std::vector<T> TVector;
-	typedef boost::unique_lock<boost::mutex> TLock;
+	using TVector = std::vector<T>;
+	using TLock = boost::unique_lock<boost::mutex>;
 	TVector items;
 	boost::mutex mx;
 	boost::condition_variable cond;

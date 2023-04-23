@@ -54,7 +54,7 @@
 
 using namespace tbb;
 
-typedef std::pair<ui32, std::vector<CreatureID>> dwellingContent;
+using dwellingContent = std::pair<ui32, std::vector<CreatureID>>;
 
 namespace NKAI
 {
@@ -305,10 +305,10 @@ public:
 public:
 	using ptr_type = std::unique_ptr<T, External_Deleter>;
 
-	SharedPool(std::function<std::unique_ptr<T>()> elementFactory)
-		: elementFactory(elementFactory), pool(), sync(), instance_tracker(new SharedPool<T>*(this))
+	SharedPool(std::function<std::unique_ptr<T>()> elementFactory):
+		elementFactory(elementFactory), pool(), instance_tracker(new SharedPool<T> *(this))
 	{}
-	
+
 	void add(std::unique_ptr<T> t)
 	{
 		boost::lock_guard<boost::mutex> lock(sync);

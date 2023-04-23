@@ -32,8 +32,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/RoadHandler.h"
 
-RandomMapTab::RandomMapTab():
-	InterfaceObjectConfigurable()
+RandomMapTab::RandomMapTab()
 {
 	recActions = 0;
 	mapGenOptions = std::make_shared<CMapGenOptions>();
@@ -311,7 +310,7 @@ void RandomMapTab::setTemplate(const CRmgTemplate * tmpl)
 void RandomMapTab::deactivateButtonsFrom(CToggleGroup & group, const std::set<int> & allowed)
 {
 	logGlobal->debug("Blocking buttons");
-	for(auto toggle : group.buttons)
+	for(const auto & toggle : group.buttons)
 	{
 		if(auto button = std::dynamic_pointer_cast<CToggleButton>(toggle.second))
 		{
@@ -469,7 +468,7 @@ void TemplatesDropBox::updateListItems()
 	if(auto w = widget<CSlider>("slider"))
 	{
 		int elemIdx = w->getValue();
-		for(auto item : listItems)
+		for(const auto & item : listItems)
 		{
 			if(elemIdx < curItems.size())
 			{
@@ -491,8 +490,8 @@ void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
 	GH.popInt(GH.topInt());
 }
 
-TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
-	InterfaceObjectConfigurable()
+TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab)
+
 {
 	const JsonNode config(ResourceID("config/widgets/randomMapTeamsWidget.json"));
 	variables = config["variables"];

@@ -423,7 +423,7 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 
 	// Fill the slots for worn artifacts and backpack.
 
-	for(auto p : artWorn)
+	for(const auto & p : artWorn)
 	{
 		setSlotData(p.second, p.first);
 	}
@@ -507,7 +507,7 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 void CArtifactsOfHero::markPossibleSlots(const CArtifactInstance* art, bool withRedraw)
 {
 	for(CArtifactsOfHero *aoh : commonInfo->participants)
-		for(auto p : aoh->artWorn)
+		for(const auto & p : aoh->artWorn)
 			p.second->selectSlot(art->canBePutAt(ArtifactLocation(aoh->curHero, p.second->slotID), true));
 
 	if(withRedraw)
@@ -592,7 +592,7 @@ CArtifactsOfHero::CArtifactsOfHero(ArtPlaceMap ArtWorn, std::vector<ArtPlacePtr>
 	}
 
 	// Init slots for worn artifacts.
-	for(auto p : artWorn)
+	for(const auto & p : artWorn)
 	{
 		p.second->ourOwner = this;
 		eraseSlotData(p.second, p.first);
@@ -842,7 +842,7 @@ void CArtifactsOfHero::artifactUpdateSlots(const ArtifactLocation & al)
 
 void CArtifactsOfHero::updateWornSlots(bool redrawParent)
 {
-	for(auto p : artWorn)
+	for(const auto & p : artWorn)
 		updateSlot(p.first);
 
 	if(redrawParent)
@@ -851,7 +851,7 @@ void CArtifactsOfHero::updateWornSlots(bool redrawParent)
 
 void CArtifactsOfHero::updateBackpackSlots(bool redrawParent)
 {
-	for(auto artPlace : backpack)
+	for(const auto & artPlace : backpack)
 		updateSlot(artPlace->slotID);
 	scrollBackpack(0);
 
@@ -880,7 +880,7 @@ void CWindowWithArtifacts::addSet(std::shared_ptr<CArtifactsOfHero> artSet)
 
 std::shared_ptr<CArtifactsOfHero::SCommonPart> CWindowWithArtifacts::getCommonPart()
 {
-	for(auto artSetWeak : artSets)
+	for(const auto & artSetWeak : artSets)
 	{
 		std::shared_ptr<CArtifactsOfHero> realPtr = artSetWeak.lock();
 		if(realPtr)
@@ -892,7 +892,7 @@ std::shared_ptr<CArtifactsOfHero::SCommonPart> CWindowWithArtifacts::getCommonPa
 
 void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation &artLoc)
 {
-	for(auto artSetWeak : artSets)
+	for(const auto & artSetWeak : artSets)
 	{
 		std::shared_ptr<CArtifactsOfHero> realPtr = artSetWeak.lock();
 		if(realPtr)
@@ -904,7 +904,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation &artLoc, const A
 {
 	CArtifactsOfHero * destaoh = nullptr;
 
-	for(auto artSetWeak : artSets)
+	for(const auto & artSetWeak : artSets)
 	{
 		std::shared_ptr<CArtifactsOfHero> realPtr = artSetWeak.lock();
 		if(realPtr)
@@ -924,7 +924,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation &artLoc, const A
 
 void CWindowWithArtifacts::artifactDisassembled(const ArtifactLocation &artLoc)
 {
-	for(auto artSetWeak : artSets)
+	for(const auto & artSetWeak : artSets)
 	{
 		std::shared_ptr<CArtifactsOfHero> realPtr = artSetWeak.lock();
 		if(realPtr)
@@ -934,7 +934,7 @@ void CWindowWithArtifacts::artifactDisassembled(const ArtifactLocation &artLoc)
 
 void CWindowWithArtifacts::artifactAssembled(const ArtifactLocation &artLoc)
 {
-	for(auto artSetWeak : artSets)
+	for(const auto & artSetWeak : artSets)
 	{
 		std::shared_ptr<CArtifactsOfHero> realPtr = artSetWeak.lock();
 		if(realPtr)

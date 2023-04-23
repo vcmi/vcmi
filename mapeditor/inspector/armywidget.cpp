@@ -111,9 +111,8 @@ ArmyWidget::~ArmyWidget()
 	delete ui;
 }
 
-
-
-ArmyDelegate::ArmyDelegate(CArmedInstance & t): army(t), QStyledItemDelegate()
+ArmyDelegate::ArmyDelegate(CArmedInstance & t):
+	army(t)
 {
 }
 

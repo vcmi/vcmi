@@ -279,8 +279,8 @@ void CVCMIServer::prepareToRestart()
 		// FIXME: dirry hack to make sure old CGameHandler::run is finished
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 	}
-	
-	for(auto c : connections)
+
+	for(const auto & c : connections)
 	{
 		c->enterLobbyConnectionMode();
 		c->disableStackSendingByID();
@@ -323,7 +323,7 @@ bool CVCMIServer::prepareToStartGame()
 
 void CVCMIServer::startGameImmidiately()
 {
-	for(auto c : connections)
+	for(const auto & c : connections)
 		c->enterGameplayConnectionMode(gh->gs);
 
 	state = EServerState::GAMEPLAY;
@@ -474,7 +474,7 @@ void CVCMIServer::handleReceivedPack(std::unique_ptr<CPackForLobby> pack)
 
 void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 {
-	for(auto c : connections)
+	for(const auto & c : connections)
 	{
 		// FIXME: we need to avoid sending something to client that not yet get answer for LobbyClientConnected
 		// Until UUID set we only pass LobbyClientConnected to this client
@@ -512,7 +512,7 @@ void CVCMIServer::addToAnnounceQueue(std::unique_ptr<CPackForLobby> pack)
 
 bool CVCMIServer::passHost(int toConnectionId)
 {
-	for(auto c : connections)
+	for(const auto & c : connections)
 	{
 		if(isClientHost(c->connectionID))
 			continue;
@@ -619,12 +619,12 @@ void CVCMIServer::reconnectPlayer(int connId)
 	
 	if(gh && si && state == EServerState::GAMEPLAY)
 	{
-		for(auto it = playerNames.begin(); it != playerNames.end(); ++it)
+		for(auto & playerName : playerNames)
 		{
-			if(it->second.connection != connId)
+			if(playerName.second.connection != connId)
 				continue;
-			
-			int id = it->first;
+
+			int id = playerName.first;
 			auto * playerSettings = si->getPlayersSettings(id);
 			if(!playerSettings)
 				continue;
@@ -801,15 +801,15 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 	//if that player was somewhere else, we need to replace him with computer
 	if(newPlayer) //not AI
 	{
-		for(auto i = si->playerInfos.begin(); i != si->playerInfos.end(); i++)
+		for(auto & playerInfo : si->playerInfos)
 		{
-			int curNameID = *(i->second.connectedPlayerIDs.begin());
-			if(i->first != clickedColor && curNameID == newPlayer)
+			int curNameID = *(playerInfo.second.connectedPlayerIDs.begin());
+			if(playerInfo.first != clickedColor && curNameID == newPlayer)
 			{
 				assert(i->second.connectedPlayerIDs.size());
-				playerToRestore.color = i->first;
+				playerToRestore.color = playerInfo.first;
 				playerToRestore.id = newPlayer;
-				setPlayerConnectedId(i->second, PlayerSettings::PLAYER_AI); //set computer
+				setPlayerConnectedId(playerInfo.second, PlayerSettings::PLAYER_AI); //set computer
 				break;
 			}
 		}
@@ -986,10 +986,10 @@ std::vector<int> CVCMIServer::getUsedHeroes()
 
 ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 {
-	for(auto i = playerNames.cbegin(); i != playerNames.cend(); i++)
+	for(const auto & playerName : playerNames)
 	{
-		if(!si->getPlayersSettings(i->first))
-			return i->first;
+		if(!si->getPlayersSettings(playerName.first))
+			return playerName.first;
 	}
 
 	return 0;

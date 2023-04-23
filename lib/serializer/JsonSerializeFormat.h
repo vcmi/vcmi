@@ -461,7 +461,7 @@ private:
 	void doSerializeInternal(const std::string & fieldName, VType & value, const std::optional<DVType> & defaultValue, Args... args)
 	{
 		const std::optional<IType> tempDefault = defaultValue ? std::optional<IType>(static_cast<IType>(defaultValue.value())) : std::nullopt;
-		IType temp = static_cast<IType>(value);
+		auto temp = static_cast<IType>(value);
 
 		serializeInternal(fieldName, temp, tempDefault, args...);
 
@@ -476,7 +476,7 @@ private:
 		{
 			if(value)
 			{
-				IType temp = static_cast<IType>(value.value());
+				auto temp = static_cast<IType>(value.value());
 				pushField(fieldName);
 				serializeInternal(temp, args...);
 				pop();
@@ -518,7 +518,7 @@ void JsonArraySerializer::syncSize(Container & c, JsonNode::JsonType type)
 template <typename T>
 void JsonArraySerializer::serializeInt(const size_t index, T & value)
 {
-	int64_t temp = static_cast<int64_t>(value);
+	auto temp = static_cast<int64_t>(value);
 
 	serializeInt64(index, temp);
 

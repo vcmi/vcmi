@@ -78,13 +78,13 @@ float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 	auto secondarySkillBonuses = hero->getBonuses(Selector::sourceTypeSel(Bonus::SECONDARY_SKILL));
 	float specialityScore = 0.0f;
 
-	for(auto bonus : *secondarySkillBonuses)
+	for(const auto & bonus : *secondarySkillBonuses)
 	{
 		auto hasBonus = !!specialSecondarySkillBonuses->getFirst(Selector::typeSubtype(bonus->type, bonus->subtype));
 
 		if(hasBonus)
 		{
-			SecondarySkill bonusSkill = SecondarySkill(bonus->sid);
+			auto bonusSkill = SecondarySkill(bonus->sid);
 			float bonusScore = wariorSkillsScores.evaluateSecSkill(hero, bonusSkill);
 
 			if(bonusScore > 0)
@@ -310,7 +310,7 @@ float SecondarySkillEvaluator::evaluateSecSkill(const CGHeroInstance * hero, Sec
 {
 	float score = 0;
 
-	for(auto rule : evaluationRules)
+	for(const auto & rule : evaluationRules)
 		rule->evaluateScore(hero, skill, score);
 
 	return score;

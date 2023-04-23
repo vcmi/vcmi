@@ -14,7 +14,7 @@
 
 struct _Mix_Music;
 struct SDL_RWops;
-typedef struct _Mix_Music Mix_Music;
+using Mix_Music = struct _Mix_Music;
 struct Mix_Chunk;
 
 class CAudioBase {

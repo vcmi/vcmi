@@ -13,8 +13,6 @@
 #include "../AIhelper.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
 
-
-extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 extern FuzzyHelper * fh;
 

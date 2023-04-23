@@ -53,7 +53,7 @@ CLabel::CLabel(int x, int y, EFonts Font, ETextAlignment Align, const SDL_Color 
 
 	if(alignment == ETextAlignment::TOPLEFT) // causes issues for MIDDLE
 	{
-		pos.w = (int)graphics->fonts[font]->getStringWidth(visibleText().c_str());
+		pos.w = (int)graphics->fonts[font]->getStringWidth(visibleText());
 		pos.h = (int)graphics->fonts[font]->getLineHeight();
 	}
 }
@@ -246,7 +246,7 @@ void CMultiLineLabel::splitText(const std::string & Txt, bool redrawAfter)
 	textSize.y = lineHeight * (int)lines.size();
 	textSize.x = 0;
 	for(const std::string & line : lines)
-		vstd::amax(textSize.x, f->getStringWidth(line.c_str()));
+		vstd::amax(textSize.x, f->getStringWidth(line));
 	if(redrawAfter)
 		redraw();
 }

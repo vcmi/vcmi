@@ -23,7 +23,7 @@ ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 
 	auto objectInfo = VLC->objtypeh->getHandlerFor(bank->ID, bank->subID)->getObjectInfo(bank->appearance);
 
-	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
+	auto * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 
 	ui64 totalStrength = 0;
 	ui8 totalChance = 0;
@@ -115,7 +115,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	{
 	case Obj::TOWN:
 	{
-		const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
+		const auto * town = dynamic_cast<const CGTownInstance *>(obj);
 		auto danger = town->getUpperArmy()->getArmyStrength();
 
 		if(danger || town->visitingHero)
@@ -148,7 +148,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	case Obj::ABANDONED_MINE:
 	case Obj::PANDORAS_BOX:
 	{
-		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
+		const auto * a = dynamic_cast<const CArmedInstance *>(obj);
 		return a->getArmyStrength();
 	}
 	case Obj::CRYPT: //crypt

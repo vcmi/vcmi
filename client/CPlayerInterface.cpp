@@ -585,9 +585,9 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		castleInt->heroes->update();
 		castleInt->redraw();
 	}
-	for (auto isa : GH.listInt)
+	for(const auto & isa : GH.listInt)
 	{
-		CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa.get());
+		auto * ki = dynamic_cast<CKingdomInterface *>(isa.get());
 		if (ki)
 		{
 			ki->townChanged(town);
@@ -631,11 +631,11 @@ void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> ob
 
 	for (auto & elem : GH.listInt)
 	{
-		CGarrisonHolder *cgh = dynamic_cast<CGarrisonHolder*>(elem.get());
+		auto * cgh = dynamic_cast<CGarrisonHolder *>(elem.get());
 		if (cgh)
 			cgh->updateGarrisons();
 
-		if (CTradeWindow *cmw = dynamic_cast<CTradeWindow*>(elem.get()))
+		if(auto * cmw = dynamic_cast<CTradeWindow *>(elem.get()))
 		{
 			if (vstd::contains(objs, cmw->hero))
 				cmw->garrisonChanged();
@@ -1086,7 +1086,8 @@ void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &t
 	{
 		std::vector<Component> sender = {vect.begin(), vect.begin() + std::min(vect.size(), static_cast<size_t>(8))};
 		std::vector<std::shared_ptr<CComponent>> intComps;
-		for (auto & component : sender)
+		intComps.reserve(sender.size());
+		for(auto & component : sender)
 			intComps.push_back(std::make_shared<CComponent>(component));
 		showInfoDialog(text,intComps,soundID);
 		vect.erase(vect.begin(), vect.begin() + std::min(vect.size(), static_cast<size_t>(8)));
@@ -1157,7 +1158,8 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 	if (!selection && cancel) //simple yes/no dialog
 	{
 		std::vector<std::shared_ptr<CComponent>> intComps;
-		for (auto & component : components)
+		intComps.reserve(components.size());
+		for(auto & component : components)
 			intComps.push_back(std::make_shared<CComponent>(component)); //will be deleted by close in window
 
 		showYesNoDialog(text, [=](){ cb->selectionMade(1, askID); }, [=](){ cb->selectionMade(0, askID); }, intComps);
@@ -1165,14 +1167,15 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 	else if (selection)
 	{
 		std::vector<std::shared_ptr<CSelectableComponent>> intComps;
-		for (auto & component : components)
+		intComps.reserve(components.size());
+		for(auto & component : components)
 			intComps.push_back(std::make_shared<CSelectableComponent>(component)); //will be deleted by CSelWindow::close
 
 		std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
-		pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
+		pom.emplace_back("IOKAY.DEF", 0);
 		if (cancel)
 		{
-			pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
+			pom.emplace_back("ICANCEL.DEF", 0);
 		}
 
 		int charperline = 35;
@@ -1217,7 +1220,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	std::vector<int> tempList;
 	tempList.reserve(objects.size());
 
-	for(auto item : objects)
+	for(const auto & item : objects)
 		tempList.push_back(item.getNum());
 
 	CComponent localIconC(icon);
@@ -1254,7 +1257,7 @@ void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (const CGTownInstance * townObj = dynamic_cast<const CGTownInstance*>(town))
+	if(const auto * townObj = dynamic_cast<const CGTownInstance *>(town))
 	{
 		CFortScreen * fortScreen = dynamic_cast<CFortScreen*>(GH.topInt().get());
 		CCastleInterface * castleInterface = dynamic_cast<CCastleInterface*>(GH.topInt().get());
@@ -1264,9 +1267,9 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 		else if(castleInterface)
 			castleInterface->creaturesChangedEventHandler();
 
-		for(auto isa : GH.listInt)
+		for(const auto & isa : GH.listInt)
 		{
-			CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa.get());
+			auto * ki = dynamic_cast<CKingdomInterface *>(isa.get());
 			if (ki && townObj)
 				ki->townChanged(townObj);
 		}
@@ -1536,7 +1539,7 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj)
 
 	if(obj->ID == Obj::HERO && obj->tempOwner == playerID)
 	{
-		const CGHeroInstance * h = static_cast<const CGHeroInstance *>(obj);
+		const auto * h = static_cast<const CGHeroInstance *>(obj);
 		heroKilled(h);
 	}
 	GH.fakeMouseMove();
@@ -1941,7 +1944,7 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	updateInfo(hero);
-	for(auto isa : GH.listInt)
+	for(const auto & isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
 		if (artWin)
@@ -1966,7 +1969,7 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 			redraw = false;
 	}
 
-	for(auto isa : GH.listInt)
+	for(const auto & isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
 		if (artWin)
@@ -1985,7 +1988,7 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	updateInfo(hero);
-	for(auto isa : GH.listInt)
+	for(const auto & isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
 		if (artWin)
@@ -1998,7 +2001,7 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	updateInfo(hero);
-	for(auto isa : GH.listInt)
+	for(const auto & isa : GH.listInt)
 	{
 		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
 		if (artWin)

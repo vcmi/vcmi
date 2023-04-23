@@ -19,7 +19,6 @@
 namespace NKAI
 {
 
-extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
@@ -33,7 +32,7 @@ std::string Composition::toString() const
 {
 	std::string result = "Composition";
 
-	for(auto goal : subtasks)
+	for(const auto & goal : subtasks)
 	{
 		result += " " + goal->toString();
 	}
@@ -60,8 +59,7 @@ Composition & Composition::addNext(TSubgoal goal)
 {
 	if(goal->goalType == COMPOSITION)
 	{
-		Composition & other = dynamic_cast<Composition &>(*goal);
-		
+		auto & other = dynamic_cast<Composition &>(*goal);
 		vstd::concatenate(subtasks, other.subtasks);
 	}
 	else

@@ -37,9 +37,16 @@ std::shared_ptr<SpecialAction> HeroExchangeArmy::getActorAction() const
 	return result;
 }
 
-ChainActor::ChainActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask)
-	:hero(hero), heroRole(heroRole), isMovable(true), chainMask(chainMask), creatureSet(hero),
-	baseActor(this), carrierParent(nullptr), otherParent(nullptr), actorExchangeCount(1), armyCost(), actorAction()
+ChainActor::ChainActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask):
+	hero(hero),
+	heroRole(heroRole),
+	isMovable(true),
+	chainMask(chainMask),
+	creatureSet(hero),
+	baseActor(this),
+	carrierParent(nullptr),
+	otherParent(nullptr),
+	actorExchangeCount(1)
 {
 	initialPosition = hero->visitablePos();
 	layer = hero->boat ? hero->boat->layer : EPathfindingLayer::LAND;
@@ -50,18 +57,36 @@ ChainActor::ChainActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t 
 	tiCache.reset(new TurnInfo(hero));
 }
 
-ChainActor::ChainActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * heroArmy)
-	:hero(carrier->hero), tiCache(carrier->tiCache), heroRole(carrier->heroRole), isMovable(true), creatureSet(heroArmy), chainMask(carrier->chainMask | other->chainMask),
-	baseActor(this), carrierParent(carrier), otherParent(other), heroFightingStrength(carrier->heroFightingStrength),
-	actorExchangeCount(carrier->actorExchangeCount + other->actorExchangeCount), armyCost(carrier->armyCost + other->armyCost), actorAction()
+ChainActor::ChainActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * heroArmy):
+	hero(carrier->hero),
+	tiCache(carrier->tiCache),
+	heroRole(carrier->heroRole),
+	isMovable(true),
+	creatureSet(heroArmy),
+	chainMask(carrier->chainMask | other->chainMask),
+	baseActor(this),
+	carrierParent(carrier),
+	otherParent(other),
+	heroFightingStrength(carrier->heroFightingStrength),
+	actorExchangeCount(carrier->actorExchangeCount + other->actorExchangeCount),
+	armyCost(carrier->armyCost + other->armyCost)
 {
 	armyValue = heroArmy->getArmyStrength();
 }
 
-ChainActor::ChainActor(const CGObjectInstance * obj, const CCreatureSet * creatureSet, uint64_t chainMask, int initialTurn)
-	:hero(nullptr), heroRole(HeroRole::MAIN), isMovable(false), creatureSet(creatureSet), chainMask(chainMask),
-	baseActor(this), carrierParent(nullptr), otherParent(nullptr), initialTurn(initialTurn), initialMovement(0),
-	heroFightingStrength(0), actorExchangeCount(1), armyCost(), actorAction()
+ChainActor::ChainActor(const CGObjectInstance * obj, const CCreatureSet * creatureSet, uint64_t chainMask, int initialTurn):
+	hero(nullptr),
+	heroRole(HeroRole::MAIN),
+	isMovable(false),
+	creatureSet(creatureSet),
+	chainMask(chainMask),
+	baseActor(this),
+	carrierParent(nullptr),
+	otherParent(nullptr),
+	initialTurn(initialTurn),
+	initialMovement(0),
+	heroFightingStrength(0),
+	actorExchangeCount(1)
 {
 	initialPosition = obj->visitablePos();
 	layer = EPathfindingLayer::LAND;
@@ -186,8 +211,9 @@ ExchangeResult HeroActor::tryExchangeNoLock(const ChainActor * specialActor, con
 	return result;
 }
 
-HeroExchangeMap::HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai)
-	:actor(actor), ai(ai), sync()
+HeroExchangeMap::HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai):
+	actor(actor),
+	ai(ai)
 {
 }
 
@@ -326,7 +352,7 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 			return result;
 		}
 
-		HeroActor * exchanged = new HeroActor(actor, other, newArmy, ai);
+		auto * exchanged = new HeroActor(actor, other, newArmy, ai);
 
 		exchanged->armyCost += newArmy->armyCost;
 		result.actor = exchanged;
@@ -341,7 +367,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 	const CGObjectInstance * upgrader,
 	TResources resources) const
 {
-	HeroExchangeArmy * target = new HeroExchangeArmy();
+	auto * target = new HeroExchangeArmy();
 	auto upgradeInfo = ai->armyManager->calculateCreaturesUpgrade(army, upgrader, resources);
 
 	if(upgradeInfo.upgradeValue)
@@ -358,7 +384,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 	}
 	else
 	{
-		for(auto slot : army->Slots())
+		for(const auto & slot : army->Slots())
 		{
 			auto targetSlot = target->getSlotFor(slot.second->getCreatureID());
 
@@ -392,7 +418,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 
 HeroExchangeArmy * HeroExchangeMap::pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const
 {
-	HeroExchangeArmy * target = new HeroExchangeArmy();
+	auto * target = new HeroExchangeArmy();
 	auto bestArmy = ai->armyManager->getBestArmy(actor->hero, army1, army2);
 
 	for(auto & slotInfo : bestArmy)
@@ -444,7 +470,7 @@ std::string DwellingActor::toString() const
 
 CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, bool waitForGrowth)
 {
-	CCreatureSet * dwellingCreatures = new CCreatureSet();
+	auto * dwellingCreatures = new CCreatureSet();
 
 	for(auto & creatureInfo : dwelling->creatures)
 	{

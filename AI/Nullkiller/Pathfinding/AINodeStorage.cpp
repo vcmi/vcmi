@@ -166,7 +166,7 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 
 	std::vector<CGPathNode *> initialNodes;
 
-	for(auto actorPtr : actors)
+	for(const auto & actorPtr : actors)
 	{
 		ChainActor * actor = actorPtr.get();
 
@@ -391,9 +391,12 @@ private:
 	std::vector<DelayedWork> delayedWork;
 
 public:
-	HeroChainCalculationTask(
-		AINodeStorage & storage, AISharedStorage & nodes, const std::vector<int3> & tiles, uint64_t chainMask, int heroChainTurn)
-		:existingChains(), newChains(), delayedWork(), nodes(nodes), storage(storage), chainMask(chainMask), heroChainTurn(heroChainTurn), heroChain(), tiles(tiles)
+	HeroChainCalculationTask(AINodeStorage & storage, AISharedStorage & nodes, const std::vector<int3> & tiles, uint64_t chainMask, int heroChainTurn):
+		nodes(nodes),
+		storage(storage),
+		chainMask(chainMask),
+		heroChainTurn(heroChainTurn),
+		tiles(tiles)
 	{
 		existingChains.reserve(AIPathfinding::NUM_CHAINS);
 		newChains.reserve(AIPathfinding::NUM_CHAINS);
@@ -699,8 +702,9 @@ void HeroChainCalculationTask::calculateHeroChain(
 		}
 
 		auto newActor = carrier->actor->tryExchangeNoLock(other->actor);
-		
-		if(!newActor.lockAcquired) delayedWork.push_back(DelayedWork(carrier, other));
+
+		if(!newActor.lockAcquired)
+			delayedWork.emplace_back(carrier, other);
 		if(newActor.actor) result.push_back(calculateExchange(newActor.actor, carrier, other));
 	}
 }
@@ -822,7 +826,7 @@ const std::set<const CGHeroInstance *> AINodeStorage::getAllHeroes() const
 {
 	std::set<const CGHeroInstance *> heroes;
 
-	for(auto actor : actors)
+	for(const auto & actor : actors)
 	{
 		if(actor->hero)
 			heroes.insert(actor->hero);
@@ -1115,7 +1119,7 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 
 	std::map<const CGHeroInstance *, int> maskMap;
 
-	for(std::shared_ptr<ChainActor> basicActor : actors)
+	for(const auto & basicActor : actors)
 	{
 		if(basicActor->hero)
 			maskMap[basicActor->hero] = basicActor->chainMask;
@@ -1423,7 +1427,7 @@ bool AIPath::containsHero(const CGHeroInstance * hero) const
 	if(targetHero == hero)
 		return true;
 
-	for(auto node : nodes)
+	for(const auto & node : nodes)
 	{
 		if(node.targetHero == hero)
 			return true;
@@ -1443,7 +1447,7 @@ std::string AIPath::toString() const
 
 	str << targetHero->getNameTranslated() << "[" << std::hex << chainMask << std::dec << "]" << ", turn " << (int)(turn()) << ": ";
 
-	for(auto node : nodes)
+	for(const auto & node : nodes)
 		str << node.targetHero->getNameTranslated() << "[" << std::hex << node.chainMask << std::dec << "]" << "->" << node.coord.toString() << "; ";
 
 	return str.str();

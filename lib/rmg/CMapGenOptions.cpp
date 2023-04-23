@@ -420,7 +420,7 @@ int CMapGenOptions::countCompOnlyPlayers() const
 
 PlayerColor CMapGenOptions::getNextPlayerColor() const
 {
-	for(PlayerColor i = PlayerColor(0); i < PlayerColor::PLAYER_LIMIT; i.advance(1))
+	for(auto i = PlayerColor(0); i < PlayerColor::PLAYER_LIMIT; i.advance(1))
 	{
 		if(!players.count(i))
 		{

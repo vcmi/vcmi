@@ -28,7 +28,7 @@
 #include "widgets/ObjectLists.h"
 #include "windows/CMessage.h"
 
-SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : InterfaceObjectConfigurable()
+SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
