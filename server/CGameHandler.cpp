@@ -789,12 +789,12 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 					sendMoveArtifact(art, &ma);
 				}
 			}
-			while(!finishingBattle->loserHero->artifactsInBackpack.empty())
+			for(int slotNumber = finishingBattle->loserHero->artifactsInBackpack.size() - 1; slotNumber >= 0; slotNumber--)
 			{
 				//we assume that no big artifacts can be found
 				MoveArtifact ma;
 				ma.src = ArtifactLocation(finishingBattle->loserHero,
-					ArtifactPosition(GameConstants::BACKPACK_START)); //backpack automatically shifts arts to beginning
+					ArtifactPosition(GameConstants::BACKPACK_START + slotNumber)); //backpack automatically shifts arts to beginning
 				const CArtifactInstance * art =  ma.src.getArt();
 				if (art->artType->getId() != ArtifactID::GRAIL) //grail may not be won
 				{
