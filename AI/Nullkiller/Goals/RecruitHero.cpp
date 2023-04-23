@@ -33,8 +33,6 @@ void RecruitHero::accept(AIGateway * ai)
 {
 	auto t = town;
 
-	if(!t) t = ai->findTownWithTavern();
-
 	if(!t)
 	{
 		throw cannotFulfillGoalException("No town to recruit hero!");
