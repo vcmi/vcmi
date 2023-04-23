@@ -1925,7 +1925,7 @@ void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 							 al.slot.num);
 			return;
 		}
-		CHeroArtPlace::askToAssemble(hero, al.slot);
+		ArtifactUtils::askToAssemble(hero, al.slot);
 	}
 }
 

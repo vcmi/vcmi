@@ -1056,3 +1056,44 @@ std::optional<CWindowWithArtifacts::CArtifactsOfHeroPtr> CWindowWithArtifacts::f
 	}
 	return res;
 }
+
+bool ArtifactUtils::askToAssemble(const CGHeroInstance * hero, const ArtifactPosition & slot)
+{
+	assert(hero);
+	const auto art = hero->getArt(slot);
+	assert(art);
+	auto assemblyPossibilities = ArtifactUtils::assemblyPossibilities(hero, art->getTypeId(), ArtifactUtils::isSlotEquipment(slot));
+
+	for(const auto combinedArt : assemblyPossibilities)
+	{
+		LOCPLINT->showArtifactAssemblyDialog(
+			art->artType,
+			combinedArt,
+			std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, true, combinedArt->getId()));
+
+		if(assemblyPossibilities.size() > 2)
+			logGlobal->warn("More than one possibility of assembling on %s... taking only first", art->artType->getNameTranslated());
+		return true;
+	}
+	return false;
+}
+
+bool ArtifactUtils::askToDisassemble(const CGHeroInstance * hero, const ArtifactPosition & slot)
+{
+	assert(hero);
+	const auto art = hero->getArt(slot);
+	assert(art);
+
+	if(art->canBeDisassembled())
+	{
+		if(ArtifactUtils::isSlotBackpack(slot) && !ArtifactUtils::isBackpackFreeSlots(hero, art->artType->constituents->size() - 1))
+			return false;
+
+		LOCPLINT->showArtifactAssemblyDialog(
+			art->artType,
+			nullptr,
+			std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, false, ArtifactID()));
+		return true;
+	}
+	return false;
+}

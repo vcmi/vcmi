@@ -220,3 +220,9 @@ private:
 	std::optional<std::tuple<const CGHeroInstance*, const CArtifactInstance*>> getState();
 	std::optional<CArtifactsOfHeroPtr> findAOHbyRef(CArtifactsOfHeroBase & artsInst);
 };
+
+namespace ArtifactUtils
+{
+	bool askToAssemble(const CGHeroInstance* hero, const ArtifactPosition& slot);
+	bool askToDisassemble(const CGHeroInstance* hero, const ArtifactPosition& slot);
+}
