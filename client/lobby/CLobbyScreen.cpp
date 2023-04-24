@@ -197,7 +197,7 @@ void CLobbyScreen::updateAfterStateChange()
 		}
 	}
 	
-	if(curTab == tabRand && CSH->si->mapGenOptions)
+	if(curTab && curTab == tabRand && CSH->si->mapGenOptions)
 		tabRand->setMapGenOptions(CSH->si->mapGenOptions);
 }
 
