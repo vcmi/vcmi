@@ -1475,15 +1475,17 @@ void NewObject::applyGs(CGameState *gs)
 		terrainType = t.terType->getId();
 	}
 
-	CGObjectInstance *o = nullptr;
+	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
+	CGObjectInstance * o = handler->create();
+	handler->configureObject(o, gs->getRandomGenerator());
+	
 	switch(ID)
 	{
 	case Obj::BOAT:
-		o = new CGBoat();
 		terrainType = ETerrainId::WATER; //TODO: either boat should only spawn on water, or all water objects should be handled this way
 		break;
+			
 	case Obj::MONSTER: //probably more options will be needed
-		o = new CGCreature();
 		{
 			//CStackInstance hlp;
 			auto * cre = dynamic_cast<CGCreature *>(o);
@@ -1496,14 +1498,11 @@ void NewObject::applyGs(CGameState *gs)
 			cre->addToSlot(SlotID(0), new CStackInstance(CreatureID(subID), -1)); //add placeholder stack
 		}
 		break;
-	default:
-		o = new CGObjectInstance();
-		break;
 	}
 	o->ID = ID;
 	o->subID = subID;
 	o->pos = pos;
-	o->appearance = VLC->objtypeh->getHandlerFor(o->ID, o->subID)->getTemplates(terrainType).front();
+	o->appearance = handler->getTemplates(terrainType).front();
 	id = o->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
 
 	gs->map->objects.emplace_back(o);
