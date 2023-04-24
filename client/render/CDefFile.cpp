@@ -142,13 +142,13 @@ CDefFile::CDefFile(std::string Name):
 		palette[6] = H3Palette[6];
 		palette[7] = H3Palette[7];
 		break;
-	case DefType::MAP:
 	case DefType::MAP_HERO:
 		palette[0] = H3Palette[0];
 		palette[1] = H3Palette[1];
 		palette[4] = H3Palette[4];
 		//5 = owner flag, handled separately
 		break;
+	case DefType::MAP:
 	case DefType::TERRAIN:
 		palette[0] = H3Palette[0];
 		palette[1] = H3Palette[1];
