@@ -69,11 +69,12 @@ public:
 	MOCK_CONST_METHOD2(ownerMatches, bool(const battle::Unit *, const boost::logic::tribool));
 
 	MOCK_CONST_METHOD0(creatures, const CreatureService *());
-	MOCK_CONST_METHOD0(scripts, const scripting::Service *());
 	MOCK_CONST_METHOD0(spells, const Service *());
 
 	MOCK_CONST_METHOD0(game, const IGameInfoCallback * ());
 	MOCK_CONST_METHOD0(battle, const CBattleInfoCallback * ());
+	
+	MOCK_CONST_METHOD0(isMagicalEffect, bool());
 };
 
 }

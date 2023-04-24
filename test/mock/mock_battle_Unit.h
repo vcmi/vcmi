@@ -77,7 +77,7 @@ public:
 	MOCK_CONST_METHOD1(willMove, bool(int));
 	MOCK_CONST_METHOD1(waited, bool(int));
 
-	MOCK_CONST_METHOD1(battleQueuePhase, int(int));
+	MOCK_CONST_METHOD1(battleQueuePhase, battle::BattlePhases::Type(int));
 
 	MOCK_CONST_METHOD0(acquire, std::shared_ptr<battle::Unit>());
 	MOCK_CONST_METHOD0(acquireState, std::shared_ptr<battle::CUnitState>());
@@ -87,6 +87,11 @@ public:
 
 	MOCK_METHOD1(damage, void(int64_t &));
 	MOCK_METHOD3(heal, void(int64_t &, EHealLevel, EHealPower));
+	
+	MOCK_CONST_METHOD0(manaLimit, int32_t());
+	MOCK_CONST_METHOD0(getHeroCaster, CGHeroInstance*());
+	
+	MOCK_CONST_METHOD0(getFaction, FactionID());
 };
 
 

@@ -26,7 +26,6 @@
 #include "../../mock/mock_battle_IBattleState.h"
 #include "../../mock/mock_battle_Unit.h"
 #include "../../mock/mock_vstd_RNG.h"
-#include "../../mock/mock_scripting_Pool.h"
 #include "../../mock/BattleFake.h"
 #include "../../mock/mock_ServerCallback.h"
 
@@ -48,7 +47,6 @@ namespace test
 using namespace ::testing;
 using namespace ::spells;
 using namespace ::spells::effects;
-using namespace ::scripting;
 
 class EffectFixture
 {
@@ -65,7 +63,6 @@ public:
 
 	battle::UnitsFake unitsFake;
 
-	std::shared_ptr<PoolMock> pool;
 	std::shared_ptr<battle::BattleFake> battleFake;
 
 	StrictMock<ServerCallbackMock> serverMock;

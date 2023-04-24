@@ -29,22 +29,6 @@ set(test_SRCS
 		entity/CHeroTest.cpp
 		entity/CSkillTest.cpp
 
-		erm/ERM_BM.cpp
-		erm/ERM_BU.cpp
-		erm/ERM_FU.cpp
-		erm/ERM_GM_T.cpp
-		erm/ERM_MA.cpp
-		erm/ERM_MC.cpp
-		erm/ERM_MF.cpp
-		erm/ERM_TM_T.cpp
-		erm/ERM_VR.cpp
-		erm/ERM_UN.cpp
-		erm/ERMPersistenceTest.cpp
-		erm/ExamplesTest.cpp
-		erm/interpretter/ERM_VR.cpp
-		erm/interpretter/ERM_UN.cpp
-		erm/interpretter/ErmRunner.cpp
-
 		events/ApplyDamageTest.cpp
 		events/EventBusTest.cpp
 
@@ -56,12 +40,6 @@ set(test_SRCS
 
 		netpacks/EntitiesChangedTest.cpp
 		netpacks/NetPackFixture.cpp
-
-		scripting/LuaSandboxTest.cpp
-		scripting/LuaSpellEffectTest.cpp
-		scripting/LuaSpellEffectAPITest.cpp
-		scripting/PoolTest.cpp
-		scripting/ScriptFixture.cpp
 
 		spells/AbilityCasterTest.cpp
 		spells/CSpellTest.cpp
@@ -103,9 +81,6 @@ set(test_HEADERS
 
  		CVcmiTestConfig.h
 		JsonComparer.h
-
-		scripting/ScriptFixture.h
-		erm/interpretter/ErmRunner.h
 
  		map/MapComparer.h
 

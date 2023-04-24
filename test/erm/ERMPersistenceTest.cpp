@@ -9,6 +9,8 @@
  */
 #include "StdInc.h"
 
+#if 0
+
 #include "../scripting/ScriptFixture.h"
 
 namespace test
@@ -100,3 +102,4 @@ TEST_F(ERMPersistenceTest, RegularVar)
 }
 
 }
+#endif

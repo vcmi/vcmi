@@ -46,6 +46,7 @@ public:
 	MOCK_CONST_METHOD3(createConfigurable, Object(std::string, std::string, std::string));
 	MOCK_CONST_METHOD0(createReceptiveFeature, Object());
 	MOCK_CONST_METHOD0(createImmunityNegation, Object());
+	MOCK_CONST_METHOD1(createFromJsonStruct, Object(const JsonNode &));
 };
 
 class TargetConditionTest : public Test

@@ -65,12 +65,12 @@ std::unique_ptr<CMapHeader> MapServiceMock::loadMapHeader(const ResourceID & nam
 	return initialLoader.loadMapHeader();
 }
 
-std::unique_ptr<CMap> MapServiceMock::loadMap(const ui8 * buffer, int size, const std::string & name) const
+std::unique_ptr<CMap> MapServiceMock::loadMap(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const
 {
 	return loadMap();
 }
 
-std::unique_ptr<CMapHeader> MapServiceMock::loadMapHeader(const ui8 * buffer, int size, const std::string & name) const
+std::unique_ptr<CMapHeader> MapServiceMock::loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const
 {
 	initialBuffer.seek(0);
 	CMapLoaderJson initialLoader(&initialBuffer);

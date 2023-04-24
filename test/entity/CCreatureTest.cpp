@@ -31,7 +31,6 @@ protected:
 
 TEST_F(CCreatureTest, RegistersIcons)
 {
-	subject->iconIndex = 4242;
 	subject->smallIconName = "Test1";
 	subject->largeIconName = "Test2";
 

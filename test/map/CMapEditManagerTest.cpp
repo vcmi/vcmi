@@ -18,6 +18,7 @@
 #include "../lib/int3.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMI_Lib.h"
+#include "../lib/TerrainHandler.h"
 
 
 TEST(MapManager, DrawTerrain_Type)
@@ -33,49 +34,49 @@ TEST(MapManager, DrawTerrain_Type)
 
 		// 1x1 Blow up
 		editManager->getTerrainSelection().select(int3(5, 5, 0));
-		editManager->drawTerrain(Terrain::GRASS);
-		static const int3 squareCheck[] = { int3(5,5,0), int3(5,4,0), int3(4,4,0), int3(4,5,0) };
-		for(int i = 0; i < ARRAY_COUNT(squareCheck); ++i)
+		editManager->drawTerrain(ETerrainId::GRASS);
+		static const std::array<int3, 4> squareCheck = { int3(5,5,0), int3(5,4,0), int3(4,4,0), int3(4,5,0) };
+		for(int i = 0; i < squareCheck.size(); ++i)
 		{
-			EXPECT_EQ(map->getTile(squareCheck[i]).terType->id, Terrain::GRASS);
+			EXPECT_EQ(map->getTile(squareCheck[i]).terType->getId(), ETerrainId::GRASS);
 		}
 
 		// Concat to square
 		editManager->getTerrainSelection().select(int3(6, 5, 0));
-		editManager->drawTerrain(Terrain::GRASS);
-		EXPECT_EQ(map->getTile(int3(6, 4, 0)).terType->id, Terrain::GRASS);
+		editManager->drawTerrain(ETerrainId::GRASS);
+		EXPECT_EQ(map->getTile(int3(6, 4, 0)).terType->getId(), ETerrainId::GRASS);
 		editManager->getTerrainSelection().select(int3(6, 5, 0));
-		editManager->drawTerrain(Terrain::LAVA);
-		EXPECT_EQ(map->getTile(int3(4, 4, 0)).terType->id, Terrain::GRASS);
-		EXPECT_EQ(map->getTile(int3(7, 4, 0)).terType->id, Terrain::LAVA);
+		editManager->drawTerrain(ETerrainId::LAVA);
+		EXPECT_EQ(map->getTile(int3(4, 4, 0)).terType->getId(), ETerrainId::GRASS);
+		EXPECT_EQ(map->getTile(int3(7, 4, 0)).terType->getId(), ETerrainId::LAVA);
 
 		// Special case water,rock
 		editManager->getTerrainSelection().selectRange(MapRect(int3(10, 10, 0), 10, 5));
-		editManager->drawTerrain(Terrain::GRASS);
+		editManager->drawTerrain(ETerrainId::GRASS);
 		editManager->getTerrainSelection().selectRange(MapRect(int3(15, 17, 0), 10, 5));
-		editManager->drawTerrain(Terrain::GRASS);
+		editManager->drawTerrain(ETerrainId::GRASS);
 		editManager->getTerrainSelection().select(int3(21, 16, 0));
-		editManager->drawTerrain(Terrain::GRASS);
-		EXPECT_EQ(map->getTile(int3(20, 15, 0)).terType->id, Terrain::GRASS);
+		editManager->drawTerrain(ETerrainId::GRASS);
+		EXPECT_EQ(map->getTile(int3(20, 15, 0)).terType->getId(), ETerrainId::GRASS);
 
 		// Special case non water,rock
-		static const int3 diagonalCheck[] = { int3(31,42,0), int3(32,42,0), int3(32,43,0), int3(33,43,0), int3(33,44,0),
+		static const std::array<int3, 12> diagonalCheck = { int3(31,42,0), int3(32,42,0), int3(32,43,0), int3(33,43,0), int3(33,44,0),
 											int3(34,44,0), int3(34,45,0), int3(35,45,0), int3(35,46,0), int3(36,46,0),
 											int3(36,47,0), int3(37,47,0)};
-		for(int i = 0; i < ARRAY_COUNT(diagonalCheck); ++i)
+		for(int i = 0; i < diagonalCheck.size(); ++i)
 		{
 			editManager->getTerrainSelection().select(diagonalCheck[i]);
 		}
-		editManager->drawTerrain(Terrain::GRASS);
-		EXPECT_EQ(map->getTile(int3(35, 44, 0)).terType->id, Terrain::WATER);
+		editManager->drawTerrain(ETerrainId::GRASS);
+		EXPECT_EQ(map->getTile(int3(35, 44, 0)).terType->getId(), ETerrainId::WATER);
 
 		// Rock case
 		editManager->getTerrainSelection().selectRange(MapRect(int3(1, 1, 1), 15, 15));
-		editManager->drawTerrain(Terrain::SUBTERRANEAN);
+		editManager->drawTerrain(ETerrainId::SUBTERRANEAN);
 		std::vector<int3> vec({ int3(6, 6, 1), int3(7, 6, 1), int3(8, 6, 1), int3(5, 7, 1), int3(6, 7, 1), int3(7, 7, 1),
 								int3(8, 7, 1), int3(4, 8, 1), int3(5, 8, 1), int3(6, 8, 1)});
 		editManager->getTerrainSelection().setSelection(vec);
-		editManager->drawTerrain(Terrain::ROCK);
+		editManager->drawTerrain(ETerrainId::ROCK);
 		EXPECT_TRUE(!map->getTile(int3(5, 6, 1)).terType->isPassable() || !map->getTile(int3(7, 8, 1)).terType->isPassable());
 
 		//todo: add checks here and enable, also use smaller size
@@ -132,8 +133,8 @@ TEST(MapManager, DrawTerrain_View)
 			const auto & id = patternParts[1];
 
 			// Get mapping range
-			const auto & pattern = VLC->terviewh->getTerrainViewPatternById(groupStr, id); 
-			const auto & mapping = (*pattern).mapping;
+			const auto pattern = VLC->terviewh->getTerrainViewPatternById(groupStr, id);
+			const auto & mapping = pattern->get().mapping;
 
 			const auto & positionsNode = node["pos"].Vector();
 			for (const auto & posNode : positionsNode)
@@ -143,7 +144,7 @@ TEST(MapManager, DrawTerrain_View)
 				int3 pos((si32)posVector[0].Float(), (si32)posVector[1].Float(), (si32)posVector[2].Float());
 				const auto & originalTile = originalMap->getTile(pos);
 				editManager->getTerrainSelection().selectRange(MapRect(pos, 1, 1));
-				editManager->drawTerrain(originalTile.terType->id, &gen);
+				editManager->drawTerrain(originalTile.terType->getId(), &gen);
 				const auto & tile = map->getTile(pos);
 				bool isInRange = false;
 				for(const auto & range : mapping)

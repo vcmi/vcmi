@@ -15,7 +15,6 @@
 #include "mock_BonusBearer.h"
 #include "mock_battle_IBattleState.h"
 #include "mock_battle_Unit.h"
-#include "mock_scripting_Pool.h"
 
 #include "../../lib/JsonNode.h"
 #include "../../lib/NetPacksBase.h"
@@ -61,16 +60,13 @@ public:
 
 class BattleFake : public CBattleInfoCallback, public BattleStateMock
 {
-	std::shared_ptr<scripting::PoolMock> pool;
 public:
-	BattleFake(std::shared_ptr<scripting::PoolMock> pool_);
+	BattleFake();
 	virtual ~BattleFake();
 
 	void setUp();
 
 	void setupEmptyBattlefield();
-
-	scripting::Pool * getContextPool() const override;
 
 	template <typename T>
 	void accept(T * pack)

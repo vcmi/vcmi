@@ -19,6 +19,7 @@
 #include "../../lib/NetPacks.h"
 #include "../../lib/StartInfo.h"
 
+#include "../../lib/TerrainHandler.h"
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/CStack.h"
 
@@ -193,7 +194,7 @@ public:
 
 		const auto & t = *gameCallback->getTile(tile);
 
-		TerrainId terrain = t.terType->id;
+		TerrainId terrain = t.terType->getId();
 		BattleField terType = BattleField::fromString("grass_hills");
 
 		//send info about battles
