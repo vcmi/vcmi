@@ -63,7 +63,7 @@ void MapViewController::setViewCenter(const Point & position, int level)
 	model->setViewCenter(betterPosition);
 	model->setLevel(vstd::clamp(level, 0, context->getMapSize().z));
 
-	if(adventureInt) // may be called before adventureInt is initialized
+	if(adventureInt && !puzzleMapContext) // may be called before adventureInt is initialized
 		adventureInt->onMapViewMoved(model->getTilesTotalRect(), model->getLevel());
 }
 
