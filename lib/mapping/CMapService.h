@@ -24,30 +24,30 @@ class IMapPatcher;
 class ModCompatibilityInfo;
 
 /**
- * The map service provides loading and saving of VCMI/H3 map files.
+ * The map service provides loading of VCMI/H3 map files. It can
+ * be extended to save maps later as well.
  */
-class DLL_LINKAGE CMapService
+class DLL_LINKAGE IMapService
 {
 public:
-	CMapService() = default;
-	virtual ~CMapService() = default;
-
+	IMapService() = default;
+	virtual ~IMapService() = default;
 	/**
 	 * Loads the VCMI/H3 map file specified by the name.
 	 *
 	 * @param name the name of the map
 	 * @return a unique ptr to the loaded map class
 	 */
-	std::unique_ptr<CMap> loadMap(const ResourceID & name) const;
-	
+	virtual std::unique_ptr<CMap> loadMap(const ResourceID & name) const = 0;
+
 	/**
 	 * Loads the VCMI/H3 map header specified by the name.
 	 *
 	 * @param name the name of the map
 	 * @return a unique ptr to the loaded map header class
 	 */
-	std::unique_ptr<CMapHeader> loadMapHeader(const ResourceID & name) const;
-	
+	virtual std::unique_ptr<CMapHeader> loadMapHeader(const ResourceID & name) const = 0;
+
 	/**
 	 * Loads the VCMI/H3 map file from a buffer. This method is temporarily
 	 * in use to ease the transition to use the new map service.
@@ -60,8 +60,8 @@ public:
 	 * @param name indicates name of file that will be used during map header patching
 	 * @return a unique ptr to the loaded map class
 	 */
-	std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const;
-	
+	virtual std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const = 0;
+
 	/**
 	 * Loads the VCMI/H3 map header from a buffer. This method is temporarily
 	 * in use to ease the transition to use the new map service.
@@ -74,7 +74,27 @@ public:
 	 * @param name indicates name of file that will be used during map header patching
 	 * @return a unique ptr to the loaded map class
 	 */
-	std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const;
+	virtual std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const = 0;
+	
+	/**
+	 * Saves map into VCMI format with name specified
+	 * @param map to save
+	 * @param fullPath full path to file to write, including extension
+	 */
+	virtual void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const = 0;
+};
+
+class DLL_LINKAGE CMapService : public IMapService
+{
+public:
+	CMapService() = default;
+	virtual ~CMapService() = default;
+
+	std::unique_ptr<CMap> loadMap(const ResourceID & name) const override;
+	std::unique_ptr<CMapHeader> loadMapHeader(const ResourceID & name) const override;
+	std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
+	std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
+	void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const override;
 	
 	/**
 	 * Tests if mods used in the map are currently loaded
@@ -82,13 +102,6 @@ public:
 	 * @return data structure representing missing or incompatible mods (those which are needed from map but not loaded)
 	 */
 	static ModCompatibilityInfo verifyMapHeaderMods(const CMapHeader & map);
-	
-	/**
-	 * Saves map into VCMI format with name specified
-	 * @param map to save
-	 * @param fullPath full path to file to write, including extension
-	 */
-	void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const;
 	
 private:
 	/**
