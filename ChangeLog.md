@@ -16,6 +16,7 @@
 * Fixed crash on empty save game list after filtering
 * Fixed blocked progress in Launcher on language detection failure
 * Launcher will now correctly handle selection of Ddata directory in H3 install
+* Map editor will now correctly save message property for events and pandoras
 
 # 1.1.1 -> 1.2.0
 

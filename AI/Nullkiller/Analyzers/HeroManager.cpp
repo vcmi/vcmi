@@ -189,7 +189,7 @@ bool HeroManager::canRecruitHero(const CGTownInstance * town) const
 	if(!town || !townHasFreeTavern(town))
 		return false;
 
-	if(cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST)
+	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST)
 		return false;
 
 	const bool includeGarnisoned = true;

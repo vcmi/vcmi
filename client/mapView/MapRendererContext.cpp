@@ -279,6 +279,9 @@ bool MapRendererAdventureContext::showSpellRange(const int3 & position) const
 
 	auto hero = adventureInt->curHero();
 
+	if (!hero)
+		return false;
+
 	return !isInScreenRange(hero->getSightCenter(), position);
 }
 
