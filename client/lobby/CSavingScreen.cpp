@@ -31,8 +31,6 @@ CSavingScreen::CSavingScreen()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	center(pos);
-	// TODO: we should really use std::shared_ptr for passing StartInfo around.
-	localSi = new StartInfo(*LOCPLINT->cb->getStartInfo());
 	localMi = std::make_shared<CMapInfo>();
 	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*LOCPLINT->cb->getMapHeader()));
 
@@ -52,7 +50,9 @@ const CMapInfo * CSavingScreen::getMapInfo()
 
 const StartInfo * CSavingScreen::getStartInfo()
 {
-	return localSi;
+	if (localMi)
+		return localMi->scenarioOptionsOfSave;
+	return LOCPLINT->cb->getStartInfo();
 }
 
 void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
@@ -61,7 +61,6 @@ void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
 		return;
 
 	localMi = to;
-	localSi = localMi->scenarioOptionsOfSave;
 	card->changeSelection();
 }
 

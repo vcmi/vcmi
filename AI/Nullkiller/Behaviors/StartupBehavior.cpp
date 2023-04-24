@@ -66,7 +66,7 @@ const CGHeroInstance * getNearestHero(const CGTownInstance * town)
 
 bool needToRecruitHero(const CGTownInstance * startupTown)
 {
-	if(!ai->canRecruitAnyHero(startupTown))
+	if(!ai->nullkiller->heroManager->canRecruitHero(startupTown))
 		return false;
 
 	if(!startupTown->garrisonHero && !startupTown->visitingHero)

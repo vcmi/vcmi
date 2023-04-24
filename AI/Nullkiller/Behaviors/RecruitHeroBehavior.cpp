@@ -53,7 +53,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 
 	for(auto town : towns)
 	{
-		if(ai->canRecruitAnyHero(town))
+		if(ai->nullkiller->heroManager->canRecruitHero(town))
 		{
 			auto availableHeroes = cb->getAvailableHeroes(town);
 

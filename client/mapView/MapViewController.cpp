@@ -63,7 +63,7 @@ void MapViewController::setViewCenter(const Point & position, int level)
 	model->setViewCenter(betterPosition);
 	model->setLevel(vstd::clamp(level, 0, context->getMapSize().z));
 
-	if(adventureInt) // may be called before adventureInt is initialized
+	if(adventureInt && !puzzleMapContext) // may be called before adventureInt is initialized
 		adventureInt->onMapViewMoved(model->getTilesTotalRect(), model->getLevel());
 }
 
@@ -154,6 +154,7 @@ void MapViewController::updateBefore(uint32_t timeDelta)
 		adventureContext->settingShowGrid = settings["gameTweaks"]["showGrid"].Bool();
 		adventureContext->settingShowVisitable = settings["session"]["showVisitable"].Bool();
 		adventureContext->settingShowBlocked = settings["session"]["showBlocked"].Bool();
+		adventureContext->settingSpellRange = settings["session"]["showSpellRange"].Bool();
 	}
 }
 

@@ -133,7 +133,7 @@ std::vector<si32> CStack::activeSpells() const
 	CSelector selector = Selector::sourceType()(Bonus::SPELL_EFFECT)
 						 .And(CSelector([](const Bonus * b)->bool
 	{
-		return b->type != Bonus::NONE;
+		return b->type != Bonus::NONE && SpellID(b->sid).toSpell() && !SpellID(b->sid).toSpell()->isAdventure();
 	}));
 
 	TConstBonusListPtr spellEffects = getBonuses(selector, Selector::all, cachingStr.str());
