@@ -915,7 +915,7 @@ void FoWChange::applyGs(CGameState *gs)
 		(*fogOfWarMap)[t.z][t.x][t.y] = mode;
 	if (mode == 0) //do not hide too much
 	{
-		std::unordered_set<int3, ShashInt3> tilesRevealed;
+		std::unordered_set<int3> tilesRevealed;
 		for (auto & elem : gs->map->objects)
 		{
 			const CGObjectInstance *o = elem;
@@ -1918,7 +1918,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 	[[maybe_unused]] const CArtifactInstance *transformedArt = al.getArt();
 	assert(transformedArt);
 	bool combineEquipped = !ArtifactUtils::isSlotBackpack(al.slot);
-	assert(vstd::contains_if(transformedArt->assemblyPossibilities(artSet, combineEquipped), [=](const CArtifact * art)->bool
+	assert(vstd::contains_if(ArtifactUtils::assemblyPossibilities(artSet, transformedArt->artType->getId(), combineEquipped), [=](const CArtifact * art)->bool
 		{
 			return art->getId() == builtArt->getId();
 		}));

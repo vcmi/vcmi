@@ -8,13 +8,12 @@
  *
  */
 #include "StdInc.h"
-
 #include "ClientCommandManager.h"
 
 #include "Client.h"
 #include "adventureMap/CInGameConsole.h"
-#include "adventureMap/CAdvMapInt.h"
 #include "CPlayerInterface.h"
+#include "PlayerLocalState.h"
 #include "CServerHandler.h"
 #include "gui/CGuiHandler.h"
 #include "../lib/NetPacks.h"
@@ -387,12 +386,12 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 		ss << b;
 		return ss.str();
 	};
-	printCommandMessage("Bonuses of " + adventureInt->curArmy()->getObjectName() + "\n");
-	printCommandMessage(format(adventureInt->curArmy()->getBonusList()) + "\n");
+		printCommandMessage("Bonuses of " + LOCPLINT->localState->getCurrentArmy()->getObjectName() + "\n");
+		printCommandMessage(format(LOCPLINT->localState->getCurrentArmy()->getBonusList()) + "\n");
 
 	printCommandMessage("\nInherited bonuses:\n");
 	TCNodes parents;
-	adventureInt->curArmy()->getParents(parents);
+		LOCPLINT->localState->getCurrentArmy()->getParents(parents);
 	for(const CBonusSystemNode *parent : parents)
 	{
 		printCommandMessage(std::string("\nBonuses from ") + typeid(*parent).name() + "\n" + format(*parent->getAllBonuses(Selector::all, Selector::all)) + "\n");
@@ -416,7 +415,7 @@ void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffe
 
 void ClientCommandManager::handleMpCommand()
 {
-	if(const CGHeroInstance* h = adventureInt->curHero())
+	if(const CGHeroInstance* h = LOCPLINT->localState->getCurrentHero())
 		printCommandMessage(std::to_string(h->movement) + "; max: " + std::to_string(h->maxMovePoints(true)) + "/" + std::to_string(h->maxMovePoints(false)) + "\n");
 }
 
@@ -602,7 +601,7 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 	else if(commandName == "tell")
 		handleTellCommand(singleWordBuffer);
 
-	else if(commandName == "mp" && adventureInt)
+	else if(commandName == "mp" && LOCPLINT)
 		handleMpCommand();
 
 	else if (commandName == "set")

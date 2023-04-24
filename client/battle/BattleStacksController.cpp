@@ -246,14 +246,6 @@ void BattleStacksController::setActiveStack(const CStack *stack)
 
 bool BattleStacksController::stackNeedsAmountBox(const CStack * stack) const
 {
-	BattleHex currentActionTarget;
-	if(owner.curInt->curAction)
-	{
-		auto target = owner.curInt->curAction->getTarget(owner.curInt->cb.get());
-		if(!target.empty())
-			currentActionTarget = target.at(0).hexValue;
-	}
-
 	//do not show box for singular war machines, stacked war machines with box shown are supported as extension feature
 	if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->getCount() == 1)
 		return false;

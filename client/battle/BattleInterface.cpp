@@ -29,7 +29,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/CAdventureMapInterface.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"

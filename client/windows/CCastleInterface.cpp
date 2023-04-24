@@ -19,6 +19,7 @@
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
@@ -27,7 +28,7 @@
 #include "../renderSDL/SDL_Extensions.h"
 #include "../render/IImage.h"
 #include "../render/ColorFilter.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/CAdventureMapInterface.h"
 #include "../adventureMap/CList.h"
 #include "../adventureMap/CResDataBar.h"
 
@@ -495,7 +496,7 @@ void HeroSlots::splitClicked()
 {
 	if(!!town->visitingHero && town->garrisonHero && (visitingHero->isSelected() || garrisonedHero->isSelected()))
 	{
-		LOCPLINT->heroExchangeStarted(town->visitingHero->id, town->garrisonHero->id, QueryID(-1));
+		LOCPLINT->showHeroExchange(town->visitingHero->id, town->garrisonHero->id);
 	}
 }
 
@@ -1229,9 +1230,9 @@ void CCastleInterface::close()
 	if(town->tempOwner == LOCPLINT->playerID) //we may have opened window for an allied town
 	{
 		if(town->visitingHero && town->visitingHero->tempOwner == LOCPLINT->playerID)
-			adventureInt->select(town->visitingHero);
+			LOCPLINT->localState->setSelection(town->visitingHero);
 		else
-			adventureInt->select(town);
+			LOCPLINT->localState->setSelection(town);
 	}
 	CWindowObject::close();
 }
@@ -1239,15 +1240,15 @@ void CCastleInterface::close()
 void CCastleInterface::castleTeleport(int where)
 {
 	const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(where));
-	adventureInt->select(town->visitingHero);//according to assert(ho == adventureInt->selection) in the eraseCurrentPathOf
+	LOCPLINT->localState->setSelection(town->visitingHero);//according to assert(ho == adventureInt->selection) in the eraseCurrentPathOf
 	LOCPLINT->cb->teleportHero(town->visitingHero, dest);
-	LOCPLINT->paths.erasePath(town->visitingHero);
+	LOCPLINT->localState->erasePath(town->visitingHero);
 }
 
 void CCastleInterface::townChange()
 {
 	//TODO: do not recreate window
-	const CGTownInstance * dest = LOCPLINT->towns[townlist->getSelectedIndex()];
+	const CGTownInstance * dest = LOCPLINT->localState->getOwnedTown(townlist->getSelectedIndex());
 	const CGTownInstance * town = this->town;// "this" is going to be deleted
 	if ( dest == town )
 		return;

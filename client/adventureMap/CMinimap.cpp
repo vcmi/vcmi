@@ -11,14 +11,15 @@
 #include "StdInc.h"
 #include "CMinimap.h"
 
-#include "CAdvMapInt.h"
+#include "CAdventureMapInterface.h"
 
 #include "../widgets/Images.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/Colors.h"
-#include "../renderSDL/SDL_PixelAccess.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 #include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"
@@ -26,6 +27,8 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMapDefines.h"
+
+#include <SDL_pixels.h>
 
 ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
 {
@@ -225,10 +228,13 @@ void CMinimap::setAIRadar(bool on)
 	redraw();
 }
 
-void CMinimap::updateTile(const int3 &pos)
+void CMinimap::updateTiles(std::unordered_set<int3> positions)
 {
 	if(minimap)
-		minimap->refreshTile(pos);
+	{
+		for (auto const & tile : positions)
+			minimap->refreshTile(tile);
+	}
 	redraw();
 }
 

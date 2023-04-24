@@ -11,13 +11,14 @@
 #include "StdInc.h"
 #include "CList.h"
 
-#include "CAdvMapInt.h"
+#include "CAdventureMapInterface.h"
 
 #include "../widgets/Images.h"
 #include "../widgets/Buttons.h"
 #include "../windows/InfoWindows.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
 
 #include "../../lib/CGeneralTextHandler.h"
@@ -203,8 +204,8 @@ std::shared_ptr<CIntObject> CHeroList::CHeroItem::genSelection()
 
 void CHeroList::CHeroItem::select(bool on)
 {
-	if(on && adventureInt->curHero() != hero)
-		adventureInt->select(hero);
+	if(on)
+		LOCPLINT->localState->setSelection(hero);
 }
 
 void CHeroList::CHeroItem::open()
@@ -224,19 +225,19 @@ std::string CHeroList::CHeroItem::getHoverText()
 
 std::shared_ptr<CIntObject> CHeroList::createHeroItem(size_t index)
 {
-	if (LOCPLINT->wanderingHeroes.size() > index)
-		return std::make_shared<CHeroItem>(this, LOCPLINT->wanderingHeroes[index]);
+	if (LOCPLINT->localState->getWanderingHeroes().size() > index)
+		return std::make_shared<CHeroItem>(this, LOCPLINT->localState->getWanderingHero(index));
 	return std::make_shared<CEmptyHeroItem>();
 }
 
 CHeroList::CHeroList(int size, Point position, std::string btnUp, std::string btnDown):
-	CList(size, position, btnUp, btnDown, LOCPLINT->wanderingHeroes.size(), 303, 304, std::bind(&CHeroList::createHeroItem, this, _1))
+	CList(size, position, btnUp, btnDown, LOCPLINT->localState->getWanderingHeroes().size(), 303, 304, std::bind(&CHeroList::createHeroItem, this, _1))
 {
 }
 
 void CHeroList::select(const CGHeroInstance * hero)
 {
-	selectIndex(vstd::find_pos(LOCPLINT->wanderingHeroes, hero));
+	selectIndex(vstd::find_pos(LOCPLINT->localState->getWanderingHeroes(), hero));
 }
 
 void CHeroList::update(const CGHeroInstance * hero)
@@ -245,7 +246,7 @@ void CHeroList::update(const CGHeroInstance * hero)
 	for(auto & elem : listBox->getItems())
 	{
 		auto item = std::dynamic_pointer_cast<CHeroItem>(elem);
-		if(item && item->hero == hero && vstd::contains(LOCPLINT->wanderingHeroes, hero))
+		if(item && item->hero == hero && vstd::contains(LOCPLINT->localState->getWanderingHeroes(), hero))
 		{
 			item->update();
 			return;
@@ -253,17 +254,17 @@ void CHeroList::update(const CGHeroInstance * hero)
 	}
 	//simplest solution for now: reset list and restore selection
 
-	listBox->resize(LOCPLINT->wanderingHeroes.size());
-	if (adventureInt->curHero())
-		select(adventureInt->curHero());
+	listBox->resize(LOCPLINT->localState->getWanderingHeroes().size());
+	if (LOCPLINT->localState->getCurrentHero())
+		select(LOCPLINT->localState->getCurrentHero());
 
 	CList::update();
 }
 
 std::shared_ptr<CIntObject> CTownList::createTownItem(size_t index)
 {
-	if (LOCPLINT->towns.size() > index)
-		return std::make_shared<CTownItem>(this, LOCPLINT->towns[index]);
+	if (LOCPLINT->localState->getOwnedTowns().size() > index)
+		return std::make_shared<CTownItem>(this, LOCPLINT->localState->getOwnedTown(index));
 	return std::make_shared<CAnimImage>("ITPA", 0);
 }
 
@@ -292,8 +293,8 @@ void CTownList::CTownItem::update()
 
 void CTownList::CTownItem::select(bool on)
 {
-	if (on && adventureInt->curTown() != town)
-		adventureInt->select(town);
+	if(on)
+		LOCPLINT->localState->setSelection(town);
 }
 
 void CTownList::CTownItem::open()
@@ -312,22 +313,22 @@ std::string CTownList::CTownItem::getHoverText()
 }
 
 CTownList::CTownList(int size, Point position, std::string btnUp, std::string btnDown):
-	CList(size, position, btnUp, btnDown, LOCPLINT->towns.size(),  306, 307, std::bind(&CTownList::createTownItem, this, _1))
+	CList(size, position, btnUp, btnDown, LOCPLINT->localState->getOwnedTowns().size(),  306, 307, std::bind(&CTownList::createTownItem, this, _1))
 {
 }
 
 void CTownList::select(const CGTownInstance * town)
 {
-	selectIndex(vstd::find_pos(LOCPLINT->towns, town));
+	selectIndex(vstd::find_pos(LOCPLINT->localState->getOwnedTowns(), town));
 }
 
 void CTownList::update(const CGTownInstance *)
 {
 	//simplest solution for now: reset list and restore selection
 
-	listBox->resize(LOCPLINT->towns.size());
-	if (adventureInt->curTown())
-		select(adventureInt->curTown());
+	listBox->resize(LOCPLINT->localState->getOwnedTowns().size());
+	if (LOCPLINT->localState->getCurrentTown())
+		select(LOCPLINT->localState->getCurrentTown());
 
 	CList::update();
 }

@@ -256,7 +256,7 @@ void AIGateway::heroVisitsTown(const CGHeroInstance * hero, const CGTownInstance
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::tileHidden(const std::unordered_set<int3, ShashInt3> & pos)
+void AIGateway::tileHidden(const std::unordered_set<int3> & pos)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -264,7 +264,7 @@ void AIGateway::tileHidden(const std::unordered_set<int3, ShashInt3> & pos)
 	nullkiller->memory->removeInvisibleObjects(myCb.get());
 }
 
-void AIGateway::tileRevealed(const std::unordered_set<int3, ShashInt3> & pos)
+void AIGateway::tileRevealed(const std::unordered_set<int3> & pos)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;

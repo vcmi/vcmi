@@ -19,7 +19,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/CAdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"

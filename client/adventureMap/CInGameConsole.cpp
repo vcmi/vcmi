@@ -14,8 +14,8 @@
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../ClientCommandManager.h"
-#include "../adventureMap/CAdvMapInt.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/Colors.h"
 
@@ -259,7 +259,7 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 			clientCommandThread.detach();
 		}
 		else
-			LOCPLINT->cb->sendMessage(txt, adventureInt->curArmy());
+			LOCPLINT->cb->sendMessage(txt, LOCPLINT->localState->getCurrentArmy());
 	}
 	enteredText.clear();
 

@@ -7136,11 +7136,11 @@ void CGameHandler::removeAfterVisit(const CGObjectInstance *object)
 
 void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide)
 {
-	std::unordered_set<int3, ShashInt3> tiles;
+	std::unordered_set<int3> tiles;
 	getTilesInRange(tiles, center, radius, player, hide? -1 : 1);
 	if (hide)
 	{
-		std::unordered_set<int3, ShashInt3> observedTiles; //do not hide tiles observed by heroes. May lead to disastrous AI problems
+		std::unordered_set<int3> observedTiles; //do not hide tiles observed by heroes. May lead to disastrous AI problems
 		auto p = getPlayerState(player);
 		for (auto h : p->heroes)
 		{
@@ -7156,7 +7156,7 @@ void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, 
 	changeFogOfWar(tiles, player, hide);
 }
 
-void CGameHandler::changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide)
+void CGameHandler::changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, bool hide)
 {
 	FoWChange fow;
 	fow.tiles = tiles;
