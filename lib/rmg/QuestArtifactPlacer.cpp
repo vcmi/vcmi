@@ -38,8 +38,7 @@ void QuestArtifactPlacer::addQuestArtZone(std::shared_ptr<Zone> otherZone)
 
 void QuestArtifactPlacer::addQuestArtifact(const ArtifactID& id)
 {
-	logGlobal->info((boost::format("Need to place quest artifact artifact %s")
-		% VLC->arth->getById(id)->getNameTranslated()).str());
+	logGlobal->info("Need to place quest artifact artifact %s", VLC->arth->getById(id)->getNameTranslated());
 	questArtifactsToPlace.emplace_back(id);
 }
 
@@ -67,8 +66,8 @@ void QuestArtifactPlacer::findZonesForQuestArts()
 		}
 	}
 
-	logGlobal->info((boost::format("Number of nearby zones suitable for quest artifacts: %d") % questArtZones.size()).str());
-	logGlobal->info((boost::format("Number of possible quest artifacts remaining: %d") % generator.getQuestArtsRemaning().size()).str());
+	logGlobal->info("Number of nearby zones suitable for quest artifacts: %d", questArtZones.size());
+	logGlobal->info("Number of possible quest artifacts remaining: %d", generator.getQuestArtsRemaning().size());
 }
 
 void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator * rand)
@@ -84,10 +83,10 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator * rand)
 				continue;
 
 			auto artifactToReplace = *RandomGeneratorUtil::nextItem(artifactsToReplace, *rand);
-			logGlobal->info((boost::format("Replacing %s at %s with the quest artifact %s")
-				% artifactToReplace->getObjectName()
-				% artifactToReplace->getPosition().toString()
-				% VLC->arth->getById(artifactToPlace)->getNameTranslated()).str());
+			logGlobal->info("Replacing %s at %s with the quest artifact %s",
+				artifactToReplace->getObjectName(),
+				artifactToReplace->getPosition().toString(),
+				VLC->arth->getById(artifactToPlace)->getNameTranslated());
 			artifactToReplace->ID = Obj::ARTIFACT;
 			artifactToReplace->subID = artifactToPlace;
 
