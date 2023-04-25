@@ -768,7 +768,6 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 		{
 			auto guard = handler.enterArray("possibleResources");
 			const JsonNode & node = handler.getCurrent();
-			std::set<int> abandonedMineResources;
 
 			auto names = node.convertTo<std::vector<std::string>>();
 
@@ -778,7 +777,7 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 				if(raw_res < 0)
 					logGlobal->error("Invalid resource name: %s", s);
 				else
-					abandonedMineResources.insert(raw_res);
+					abandonedMineResources.emplace(raw_res);
 			}
 		}
 	}
