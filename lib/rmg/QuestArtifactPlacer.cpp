@@ -38,7 +38,7 @@ void QuestArtifactPlacer::addQuestArtZone(std::shared_ptr<Zone> otherZone)
 
 void QuestArtifactPlacer::addQuestArtifact(const ArtifactID& id)
 {
-	logGlobal->info("Need to place quest artifact artifact %s", VLC->arth->getById(id)->getNameTranslated());
+	logGlobal->info("Need to place quest artifact artifact %s", VLC->artifacts()->getById(id)->getNameTranslated());
 	questArtifactsToPlace.emplace_back(id);
 }
 
@@ -86,7 +86,7 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator * rand)
 			logGlobal->info("Replacing %s at %s with the quest artifact %s",
 				artifactToReplace->getObjectName(),
 				artifactToReplace->getPosition().toString(),
-				VLC->arth->getById(artifactToPlace)->getNameTranslated());
+				VLC->artifacts()->getById(artifactToPlace)->getNameTranslated());
 			artifactToReplace->ID = Obj::ARTIFACT;
 			artifactToReplace->subID = artifactToPlace;
 
