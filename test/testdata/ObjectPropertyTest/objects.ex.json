@@ -2732,7 +2732,8 @@
 		"x" : 124,
 		"y" : 143,
 		"options" : {
-			"owner" : "tan"
+			"owner" : "tan",
+			"formation" : "wide"
 		}
 	},
 	"randomHero_104" : {
@@ -2755,7 +2756,8 @@
 		"x" : 119,
 		"y" : 143,
 		"options" : {
-			"owner" : "blue"
+			"owner" : "blue",
+			"formation" : "wide"
 		}
 	},
 	"randomHero_105" : {
@@ -2778,7 +2780,8 @@
 		"x" : 129,
 		"y" : 143,
 		"options" : {
-			"owner" : "green"
+			"owner" : "green",
+			"formation" : "wide"
 		}
 	},
 	"randomHero_106" : {
@@ -2801,7 +2804,8 @@
 		"x" : 134,
 		"y" : 143,
 		"options" : {
-			"owner" : "orange"
+			"owner" : "orange",
+			"formation" : "wide"
 		}
 	},
 	"randomHero_107" : {
@@ -2824,7 +2828,8 @@
 		"x" : 139,
 		"y" : 143,
 		"options" : {
-			"owner" : "purple"
+			"owner" : "purple",
+			"formation" : "wide"
 		}
 	},
 	"randomHero_108" : {
@@ -2847,7 +2852,8 @@
 		"x" : 144,
 		"y" : 143,
 		"options" : {
-			"owner" : "teal"
+			"owner" : "teal",
+			"formation" : "wide"
 		}
 	},
 	"randomHero_109" : {
@@ -2870,7 +2876,8 @@
 		"x" : 114,
 		"y" : 143,
 		"options" : {
-			"owner" : "pink"
+			"owner" : "pink",
+			"formation" : "wide"
 		}
 	},
 	"event_110" : {
@@ -5155,6 +5162,7 @@
 				]
 			},
 			"name" : "TownAsRed",
+			"tightFormation" : "wide",
 			"spells" : {}
 		}
 	},
@@ -5206,6 +5214,7 @@
 		"options" : {
 			"buildings" : {},
 			"hasFort" : false,
+			"tightFormation" : "wide",
 			"spells" : {}
 		}
 	},
@@ -5276,6 +5285,7 @@
 					"core:townHall"
 				]
 			},
+			"tightFormation" : "wide",
 			"spells" : {}
 		}
 	},
@@ -7083,6 +7093,7 @@
 		"x" : 33,
 		"y" : 13,
 		"options" : {
+			"formation" : "wide",
 			"type" : "core:valeska"
 		}
 	},
@@ -7134,6 +7145,7 @@
 			"patrolRadius" : 9,
 			"portrait" : "core:orrin",
 			"type" : "core:luna",
+			"formation" : "wide",
 			"female" : false
 		}
 	},
@@ -7168,6 +7180,7 @@
 				"core:resistance" : "advanced",
 				"core:firstAid" : "expert"
 			},
+			"formation" : "wide",
 			"type" : "core:orrin"
 		}
 	},
@@ -7200,6 +7213,7 @@
 				"spellbook" : "core:spellBook",
 				"torso" : "core:armorOfWonder"
 			},
+			"formation" : "wide",
 			"type" : "core:edric"
 		}
 	},
@@ -7295,6 +7309,7 @@
 				"core:waterElemental",
 				"core:airElemental"
 			],
+			"formation" : "wide",
 			"type" : "core:sorsha"
 		}
 	},
