@@ -87,8 +87,8 @@ TEST_F(CFactionTest, RegistersIcons)
 	EXPECT_CALL(*this, registarCb(Eq(14), Eq(0), "ITPA", "Test30"));
 	EXPECT_CALL(*this, registarCb(Eq(15), Eq(0), "ITPA", "Test40"));
 
-	EXPECT_CALL(*this, registarCb(Eq(0), Eq(1), "CPRSMALL", "Test5"));
-	EXPECT_CALL(*this, registarCb(Eq(0), Eq(1), "TWCRPORT", "Test6"));
+	EXPECT_CALL(*this, registarCb(Eq(subject->getIconIndex()), Eq(1), "CPRSMALL", "Test5"));
+	EXPECT_CALL(*this, registarCb(Eq(subject->getIconIndex()), Eq(1), "TWCRPORT", "Test6"));
 
 	subject->registerIcons(cb);
 }
