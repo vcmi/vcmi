@@ -172,12 +172,15 @@ if(COPY)
 endif()
 check_cxx_compiler_flag(-Wvirtual-move-assign MOVE_ASSIGN)
 if(MOVE_ASSIGN)
-	add_compile_options(-Wno-virtual-move-assign) #GCC is too strict here
+	add_compile_options(-Wno-error=virtual-move-assign) #GCC is too strict here
 endif()
 add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 
 add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS})
 target_link_libraries(vcmitest PRIVATE gtest gmock vcmi ${SYSTEM_LIBS})
+if(ENABLE_LUA)
+	target_link_libraries(vcmitest PRIVATE vcmiLua)
+endif()
 
 target_include_directories(vcmitest
 		PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}

@@ -70,7 +70,9 @@ public:
 	MOCK_CONST_METHOD2(ownerMatches, bool(const battle::Unit *, const boost::logic::tribool));
 
 	MOCK_CONST_METHOD0(creatures, const CreatureService *());
+#if SCRIPTING_ENABLED
 	MOCK_CONST_METHOD0(scripts, const scripting::Service *());
+#endif
 	MOCK_CONST_METHOD0(spells, const Service *());
 
 	MOCK_CONST_METHOD0(game, const IGameInfoCallback * ());

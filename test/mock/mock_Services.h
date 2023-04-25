@@ -21,7 +21,9 @@ public:
 	MOCK_CONST_METHOD0(factions, const FactionService *());
 	MOCK_CONST_METHOD0(heroClasses, const HeroClassService *());
 	MOCK_CONST_METHOD0(heroTypes, const HeroTypeService *());
+#if SCRIPTING_ENABLED
 	MOCK_CONST_METHOD0(scripts, const scripting::Service *());
+#endif
 	MOCK_CONST_METHOD0(spells, const spells::Service *());
 	MOCK_CONST_METHOD0(skills, const SkillService * ());
 	MOCK_CONST_METHOD0(battlefields, const BattleFieldService *());

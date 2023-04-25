@@ -24,7 +24,9 @@
 #include "../mock/mock_IBattleInfoCallback.h"
 #include "../mock/mock_IGameInfoCallback.h"
 #include "../mock/mock_battle_IBattleState.h"
+#if SCRIPTING_ENABLED
 #include "../mock/mock_scripting_Pool.h"
+#endif
 #include "../mock/mock_Environment.h"
 #include "../mock/mock_Services.h"
 #include "../mock/mock_vstd_CLoggerBase.h"
