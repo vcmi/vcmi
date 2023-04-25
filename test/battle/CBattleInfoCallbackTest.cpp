@@ -275,7 +275,7 @@ TEST_F(BattleFinishedTest, LastWarMachineLoose)
 
 		expectBattleWinner(0);
 	}
-	catch(std::exception e)
+	catch(const std::exception & e)
 	{
 		logGlobal->error(e.what());
 	}
