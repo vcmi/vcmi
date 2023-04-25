@@ -92,6 +92,8 @@
             "description": "VCMI Linux GCC",
             "inherits": "linux-test",
             "cacheVariables": {
+                "ENABLE_LUA" : "OFF",
+                "ENABLE_PCH" : "OFF",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
             }
