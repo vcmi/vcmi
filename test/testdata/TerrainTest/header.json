@@ -17,11 +17,11 @@
 			"width" : 32
 		}
 	},
-	"mods" : {},
+	"mods" : null,
 	"name" : "Untitled",
 	"players" : {},
 	"triggeredEvents" : {},
 	"victoryIconIndex" : 0,
 	"versionMajor" : 1,
-	"versionMinor" : 0
+	"versionMinor" : 1
 }
