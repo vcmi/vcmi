@@ -2686,7 +2686,7 @@
 			"spellBook" : [
 				"core:fly"
 			],
-			"tightFormation" : true,
+			"formation" : "tight",
 			"type" : "core:ingham"
 		}
 	},
@@ -5065,7 +5065,7 @@
 			"buildings" : {},
 			"hasFort" : false,
 			"spells" : {},
-			"tightFormation" : true
+			"tightFormation" : "tight"
 		}
 	},
 	"sign_189" : {

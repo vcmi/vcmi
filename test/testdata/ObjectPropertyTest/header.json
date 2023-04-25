@@ -279,7 +279,7 @@
 			"width" : 144
 		}
 	},
-	"mods" : {},
+	"mods" : null,
 	"name" : "ObjectPropertyTest v1",
 	"players" : {
 		"blue" : {
@@ -363,5 +363,5 @@
 	"victoryIconIndex" : 11,
 	"victoryString" : "Test victoryString",
 	"versionMajor" : 1,
-	"versionMinor" : 0
+	"versionMinor" : 1
 }
