@@ -56,4 +56,8 @@ public:
 
 	MOCK_CONST_METHOD1(getCost, int32_t(int32_t));
 	MOCK_CONST_METHOD0(isDoubleWide, bool());
+
+	MOCK_CONST_METHOD1(getRecruitCost, int32_t(Identifier<EGameResID>));
+	MOCK_CONST_METHOD0(getFullRecruitCost, ResourceSet());
+	MOCK_CONST_METHOD0(hasUpgrades, bool());
 };

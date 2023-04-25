@@ -36,9 +36,9 @@ TEST(MapManager, DrawTerrain_Type)
 		editManager->getTerrainSelection().select(int3(5, 5, 0));
 		editManager->drawTerrain(ETerrainId::GRASS);
 		static const int3 squareCheck[] = { int3(5,5,0), int3(5,4,0), int3(4,4,0), int3(4,5,0) };
-		for(int i = 0; i < ARRAY_COUNT(squareCheck); ++i)
+		for(const auto & tile : squareCheck)
 		{
-			EXPECT_EQ(map->getTile(squareCheck[i]).terType->getId(), ETerrainId::GRASS);
+			EXPECT_EQ(map->getTile(tile).terType->getId(), ETerrainId::GRASS);
 		}
 
 		// Concat to square
@@ -63,9 +63,9 @@ TEST(MapManager, DrawTerrain_Type)
 		static const int3 diagonalCheck[] = { int3(31,42,0), int3(32,42,0), int3(32,43,0), int3(33,43,0), int3(33,44,0),
 											int3(34,44,0), int3(34,45,0), int3(35,45,0), int3(35,46,0), int3(36,46,0),
 											int3(36,47,0), int3(37,47,0)};
-		for(int i = 0; i < ARRAY_COUNT(diagonalCheck); ++i)
+		for(const auto & tile : diagonalCheck)
 		{
-			editManager->getTerrainSelection().select(diagonalCheck[i]);
+			editManager->getTerrainSelection().select(tile);
 		}
 		editManager->drawTerrain(ETerrainId::GRASS);
 		EXPECT_EQ(map->getTile(int3(35, 44, 0)).terType->getId(), ETerrainId::WATER);
@@ -134,7 +134,7 @@ TEST(MapManager, DrawTerrain_View)
 
 			// Get mapping range
 			const auto & pattern = VLC->terviewh->getTerrainViewPatternById(groupStr, id); 
-			const auto & mapping = (*pattern).mapping;
+			const auto & mapping = pattern->get().mapping;
 
 			const auto & positionsNode = node["pos"].Vector();
 			for (const auto & posNode : positionsNode)

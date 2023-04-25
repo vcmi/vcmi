@@ -33,6 +33,8 @@ public:
 	MOCK_CONST_METHOD2(battleGetUnitByPos, const battle::Unit *(BattleHex, bool));
 	MOCK_CONST_METHOD0(battleActiveUnit, const battle::Unit *());
 
+	MOCK_CONST_METHOD0(getBonusBearer, IBonusBearer*());
+
 	MOCK_CONST_METHOD2(battleGetAllObstaclesOnPos, std::vector<std::shared_ptr<const CObstacleInstance>>(BattleHex, bool));
 	MOCK_CONST_METHOD2(getAllAffectedObstaclesByStack, std::vector<std::shared_ptr<const CObstacleInstance>>(const battle::Unit *, const std::set<BattleHex> &));
 
