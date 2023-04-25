@@ -47,8 +47,6 @@ class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 
 	bool doubleWide = false;
 
-	si32 iconIndex = -1; // index of icon in files like twcrport
-
 	TResources cost; //cost[res_id] - amount of that resource required to buy creature from dwelling
 
 public:
@@ -61,6 +59,7 @@ public:
 	std::string animDefName; // creature animation used during battles
 	std::string advMapDef; //for new creatures only, image for adventure map
 
+	si32 iconIndex = -1; // index of icon in files like twcrport, used in tests now.
 	/// names of files with appropriate icons. Used only during loading
 	std::string smallIconName;
 	std::string largeIconName;
