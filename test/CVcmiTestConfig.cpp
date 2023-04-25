@@ -25,7 +25,6 @@ void CVcmiTestConfig::SetUp()
 {
 	console = new CConsoleHandler();
 	preinitDLL(console, true);
-	settings.init();
 	loadDLLClasses(true);
 
 	/* TEST_DATA_DIR may be wrong, if yes below test don't run,
