@@ -39,6 +39,9 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 
+static const std::string OVERVIEW_BACKGROUND = "OvCast.pcx";
+static const size_t OVERVIEW_SIZE = 4;
+
 InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IInfoBoxData> Data):
 	size(Size),
 	infoPos(Pos),
@@ -468,10 +471,10 @@ void InfoBoxCustom::prepareMessage(std::string & text, std::shared_ptr<CComponen
 }
 
 CKingdomInterface::CKingdomInterface()
-	: CWindowObject(PLAYER_COLORED | BORDERED, conf.go()->ac.overviewBg)
+	: CWindowObject(PLAYER_COLORED | BORDERED, OVERVIEW_BACKGROUND)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	ui32 footerPos = conf.go()->ac.overviewSize * 116;
+	ui32 footerPos = OVERVIEW_SIZE * 116;
 
 	tabArea = std::make_shared<CTabbedInt>(std::bind(&CKingdomInterface::createMainTab, this, _1), Point(4,4));
 
@@ -486,7 +489,7 @@ CKingdomInterface::CKingdomInterface()
 
 void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInstance * > &ownedObjects)
 {
-	ui32 footerPos = conf.go()->ac.overviewSize * 116;
+	ui32 footerPos = OVERVIEW_SIZE * 116;
 	size_t dwellSize = (footerPos - 64)/57;
 
 	//Map used to determine image number for several objects
@@ -550,7 +553,7 @@ std::shared_ptr<CIntObject> CKingdomInterface::createOwnedObject(size_t index)
 
 std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
 {
-	size_t size = conf.go()->ac.overviewSize;
+	size_t size = OVERVIEW_SIZE;
 	switch(index)
 	{
 	case 0:
@@ -564,7 +567,7 @@ std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
 
 void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstance *> & ownedObjects)
 {
-	ui32 footerPos = conf.go()->ac.overviewSize * 116;
+	ui32 footerPos = OVERVIEW_SIZE * 116;
 	TResources minesCount(GameConstants::RESOURCE_QUANTITY, 0);
 	int totalIncome=0;
 
@@ -610,7 +613,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 
 void CKingdomInterface::generateButtons()
 {
-	ui32 footerPos = conf.go()->ac.overviewSize * 116;
+	ui32 footerPos = OVERVIEW_SIZE * 116;
 
 	//Main control buttons
 	btnHeroes = std::make_shared<CButton>(Point(748, 28+footerPos), "OVBUTN1.DEF", CButton::tooltip(CGI->generaltexth->overview[11], CGI->generaltexth->overview[6]),
@@ -689,7 +692,7 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 	skillsLabel = std::make_shared<CLabel>(500, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[1]);
 
 	ui32 townCount = LOCPLINT->cb->howManyHeroes(false);
-	ui32 size = conf.go()->ac.overviewSize*116 + 19;
+	ui32 size = OVERVIEW_SIZE*116 + 19;
 	heroes = std::make_shared<CListBox>(std::bind(&CKingdHeroList::createHeroItem, this, _1),
 		Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size));
 }
@@ -705,7 +708,7 @@ void CKingdHeroList::updateGarrisons()
 
 std::shared_ptr<CIntObject> CKingdHeroList::createHeroItem(size_t index)
 {
-	ui32 picCount = conf.go()->ac.overviewPics;
+	ui32 picCount = 4; // OVSLOT contains 4 images
 	size_t heroesCount = LOCPLINT->cb->howManyHeroes(false);
 
 	if(index < heroesCount)
@@ -730,7 +733,7 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 	visitHeroLabel = std::make_shared<CLabel>(608, 10, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->overview[5]);
 
 	ui32 townCount = LOCPLINT->cb->howManyTowns();
-	ui32 size = conf.go()->ac.overviewSize*116 + 19;
+	ui32 size = OVERVIEW_SIZE*116 + 19;
 	towns = std::make_shared<CListBox>(std::bind(&CKingdTownList::createTownItem, this, _1),
 		Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size));
 }
@@ -756,7 +759,7 @@ void CKingdTownList::updateGarrisons()
 
 std::shared_ptr<CIntObject> CKingdTownList::createTownItem(size_t index)
 {
-	ui32 picCount = conf.go()->ac.overviewPics;
+	ui32 picCount = 4; // OVSLOT contains 4 images
 	size_t townsCount = LOCPLINT->cb->howManyTowns();
 
 	if(index < townsCount)

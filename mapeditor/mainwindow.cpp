@@ -191,9 +191,6 @@ MainWindow::MainWindow(QWidget* parent) :
 		QApplication::quit();
 	}
 
-	conf.init();
-	logGlobal->info("Loading settings");
-
 	loadTranslation();
 
 	ui->setupUi(this);

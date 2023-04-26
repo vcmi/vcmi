@@ -174,6 +174,8 @@ EFonts InterfaceObjectConfigurable::readFont(const JsonNode & config) const
 			return EFonts::FONT_SMALL;
 		if(config.String() == "tiny")
 			return EFonts::FONT_TINY;
+		if(config.String() == "calisto")
+			return EFonts::FONT_CALLI;
 	}
 	logGlobal->debug("Uknown font attribute");
 	return EFonts::FONT_TIMES;

@@ -112,6 +112,16 @@ CFilledTexture::CFilledTexture(std::string imageName, Rect position):
 {
 	pos.w = position.w;
 	pos.h = position.h;
+	imageArea = Rect(Point(), texture->dimensions());
+}
+
+CFilledTexture::CFilledTexture(std::shared_ptr<IImage> image, Rect position, Rect imageArea)
+	: CIntObject(0, position.topLeft())
+	, texture(image)
+	, imageArea(imageArea)
+{
+	pos.w = position.w;
+	pos.h = position.h;
 }
 
 void CFilledTexture::showAll(SDL_Surface *to)
@@ -121,7 +131,7 @@ void CFilledTexture::showAll(SDL_Surface *to)
 	for (int y=pos.top(); y < pos.bottom(); y+= texture->height())
 	{
 		for (int x=pos.left(); x < pos.right(); x+=texture->width())
-			texture->draw(to, x, y);
+			texture->draw(to, x, y, &imageArea);
 	}
 }
 

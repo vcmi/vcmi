@@ -15,7 +15,6 @@
 #include "adventureMap/CAdventureMapInterface.h"
 #include "mapView/mapHandler.h"
 #include "adventureMap/CList.h"
-#include "adventureMap/CInfoBar.h"
 #include "battle/BattleInterface.h"
 #include "battle/BattleEffectsController.h"
 #include "battle/BattleFieldController.h"

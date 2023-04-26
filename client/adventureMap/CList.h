@@ -53,22 +53,8 @@ protected:
 		virtual std::string getHoverText()=0;
 	};
 
-	std::shared_ptr<CListBox> listBox;
+private:
 	const size_t size;
-
-	/**
-	 * @brief CList - protected constructor
-	 * @param size - maximal amount of visible at once items
-	 * @param position - cordinates
-	 * @param btnUp - path to image to use as top button
-	 * @param btnDown - path to image to use as bottom button
-	 * @param listAmount - amount of items in the list
-	 * @param helpUp - index in zelp.txt for button help tooltip
-	 * @param helpDown - index in zelp.txt for button help tooltip
-	 * @param create - function for creating items in listbox
-	 * @param destroy - function for deleting items in listbox
-	 */
-	CList(int size, Point position, std::string btnUp, std::string btnDown, size_t listAmount, int helpUp, int helpDown, CListBox::CreateFunc create);
 
 	//for selection\deselection
 	std::shared_ptr<CListItem> selected;
@@ -78,8 +64,14 @@ protected:
 	std::shared_ptr<CButton> scrollUp;
 	std::shared_ptr<CButton> scrollDown;
 
-	/// should be called when list is invalidated
-	void update();
+protected:
+	std::shared_ptr<CListBox> listBox;
+
+	CList(int size, Point position);
+
+	void createList(Point itemOffset, size_t listAmount);
+
+	virtual std::shared_ptr<CIntObject> createItem(size_t index) = 0;
 
 public:
 	/// functions that will be called when selection changes
@@ -87,6 +79,12 @@ public:
 
 	/// return index of currently selected element
 	int getSelectedIndex();
+
+	void setScrollUpButton(std::shared_ptr<CButton> button);
+	void setScrollDownButton(std::shared_ptr<CButton> button);
+
+	/// should be called when list is invalidated
+	void update();
 
 	/// set of methods to switch selection
 	void selectIndex(int which);
@@ -125,13 +123,9 @@ class CHeroList	: public CList
 		std::string getHoverText() override;
 	};
 
-	std::shared_ptr<CIntObject> createHeroItem(size_t index);
+	std::shared_ptr<CIntObject> createItem(size_t index);
 public:
-	/**
-	 * @brief CHeroList
-	 * @param size, position, btnUp, btnDown @see CList::CList
-	 */
-	CHeroList(int size, Point position, std::string btnUp, std::string btnDown);
+	CHeroList(int size, Point position, Point itemOffset, size_t listAmount);
 
 	/// Select specific hero and scroll if needed
 	void select(const CGHeroInstance * hero = nullptr);
@@ -159,13 +153,9 @@ class CTownList	: public CList
 		std::string getHoverText() override;
 	};
 
-	std::shared_ptr<CIntObject> createTownItem(size_t index);
+	std::shared_ptr<CIntObject> createItem(size_t index) override;
 public:
-	/**
-	 * @brief CTownList
-	 * @param size, position, btnUp, btnDown @see CList::CList
-	 */
-	CTownList(int size, Point position, std::string btnUp, std::string btnDown);
+	CTownList(int size, Point position, Point itemOffset, size_t listAmount);
 
 	/// Select specific town and scroll if needed
 	void select(const CGTownInstance * town = nullptr);

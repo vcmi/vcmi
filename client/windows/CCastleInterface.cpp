@@ -1200,7 +1200,10 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	statusbar = CGStatusBar::create(statusbarBackground);
 	resdatabar = std::make_shared<CResDataBar>("ARESBAR", 3, 575, 32, 2, 85, 85);
 
-	townlist = std::make_shared<CTownList>(3, Point(744, 414), "IAM014", "IAM015");
+	townlist = std::make_shared<CTownList>(3, Point(745, 430), Point(0, 32), LOCPLINT->localState->getOwnedTowns().size() );
+	townlist->setScrollUpButton( std::make_shared<CButton>( Point(744, 414), "IAM014", CButton::tooltipLocalized("core.help.306")));
+	townlist->setScrollDownButton( std::make_shared<CButton>( Point(744, 526), "IAM015", CButton::tooltipLocalized("core.help.307")));
+
 	if(from)
 		townlist->select(from);
 

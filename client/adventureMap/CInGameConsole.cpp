@@ -83,7 +83,7 @@ void CInGameConsole::print(const std::string & txt)
 	// boost::unique_lock scope
 	{
 		boost::unique_lock<boost::mutex> lock(texts_mx);
-		int lineLen = conf.go()->ac.outputLineLength;
+		int lineLen = 60; //FIXME: CONFIGURABLE ADVMAP
 
 		if(txt.size() < lineLen)
 		{

@@ -338,9 +338,6 @@ int main(int argc, char * argv[])
 	testFile("VIDEO/GOOD1A.SMK", "campaign movies");
 	testFile("SOUNDS/G1A.WAV", "campaign music"); //technically not a music but voiced intro sounds
 
-	conf.init();
-	logGlobal->info("Loading settings: %d ms", pomtime.getDiff());
-
 	srand ( (unsigned int)time(nullptr) );
 
 
@@ -659,10 +656,18 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	int renderWidth = 0, renderHeight = 0;
 	auto aspectRatio = (float)w / (float)h;
 	auto minDiff = 10.f;
-	for (const auto& pair : conf.guiOptions)
+
+	// TODO: CONFIGURABLE ADVMAP
+	static const std::vector<Point> supportedResolutions = {
+		{ 800, 600 }
+	};
+
+
+	for (const auto& pair : supportedResolutions)
 	{
-		int pWidth, pHeight;
-		std::tie(pWidth, pHeight) = pair.first;
+		int pWidth = pair.x;
+		int pHeight = pair.y;
+
 		/* filter out resolution which is larger than window */
 		if (pWidth > w || pHeight > h)
 		{
@@ -690,10 +695,13 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		// no matching resolution for upscaling - complain & fallback to default resolution.
 		logGlobal->error("Failed to match rendering resolution for %dx%d!", w, h);
 		Settings newRes = settings.write["video"]["screenRes"];
-		std::tie(w, h) = conf.guiOptions.begin()->first;
+
+		w = supportedResolutions.front().x;
+		h = supportedResolutions.front().y;
+
 		newRes["width"].Float() = w;
 		newRes["height"].Float() = h;
-		conf.SetResolution(w, h);
+
 		logGlobal->error("Falling back to %dx%d", w, h);
 		renderWidth = w;
 		renderHeight = h;

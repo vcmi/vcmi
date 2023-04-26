@@ -45,7 +45,7 @@ protected:
 	Point getBorderSize() override;
 	virtual std::string visibleText();
 
-	std::shared_ptr<CPicture> background;
+	std::shared_ptr<CIntObject> background;
 	std::string text;
 	bool autoRedraw;  //whether control will redraw itself on setTxt
 
@@ -127,7 +127,7 @@ class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusB
 
 	void init();
 
-	CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::CENTER, const SDL_Color & Color = Colors::WHITE);
+	CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::CENTER, const SDL_Color & Color = Colors::WHITE);
 	CGStatusBar(int x, int y, std::string name, int maxw = -1);
 
 	//make CLabel API private

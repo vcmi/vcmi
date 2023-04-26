@@ -11,6 +11,9 @@
 
 #include "../gui/CIntObject.h"
 
+enum class EGameResID : int8_t;
+using GameResID = Identifier<EGameResID>;
+
 /// Resources bar which shows information about how many gold, crystals,... you have
 /// Current date is displayed too
 class CResDataBar : public CIntObject
@@ -19,13 +22,20 @@ class CResDataBar : public CIntObject
 
 	std::shared_ptr<CPicture> background;
 
-	std::vector<std::pair<int,int> > txtpos;
-
+	std::map<GameResID, Point> resourcePositions;
+	std::optional<Point> datePosition;
 
 	void draw(SDL_Surface * to);
 public:
-	CResDataBar();
+
+	/// For dynamically-sized UI windows, e.g. adventure map interface
+	CResDataBar(const std::string & imageName, const Point & position);
+
+	/// For fixed-size UI windows, e.g. CastleInterface
 	CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist);
+
+	void setDatePosition(const Point & position);
+	void setResourcePosition(const GameResID & resource, const Point & position);
 
 	void colorize(PlayerColor player);
 	void showAll(SDL_Surface * to) override;

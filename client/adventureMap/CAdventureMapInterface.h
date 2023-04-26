@@ -1,5 +1,5 @@
 /*
- * CAdvMapInt.h, part of VCMI engine
+ * CAdventureMapInterface.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -29,6 +29,7 @@ class CButton;
 class IImage;
 class CAnimImage;
 class CGStatusBar;
+class CAdventureMapWidget;
 class CAdvMapPanel;
 class CAdvMapWorldViewPanel;
 class CAnimation;
@@ -48,17 +49,6 @@ struct MapDrawingInfo;
 class CAdventureMapInterface : public CIntObject
 {
 private:
-	enum class EGameState
-	{
-		NOT_INITIALIZED,
-		HOTSEAT_WAIT,
-		MAKING_TURN,
-		ENEMY_TURN,
-		WORLD_VIEW
-	};
-
-	EGameState state;
-
 	/// currently acting player
 	PlayerColor currentPlayerID;
 
@@ -67,37 +57,8 @@ private:
 
 	const CSpell *spellBeingCasted; //nullptr if none
 
-	std::vector<std::shared_ptr<CAnimImage>> gems;
-
-	std::shared_ptr<IImage> bg;
-	std::shared_ptr<IImage> bgWorldView;
-	std::shared_ptr<CButton> kingOverview;
-	std::shared_ptr<CButton> sleepWake;
-	std::shared_ptr<CButton> underground;
-	std::shared_ptr<CButton> questlog;
-	std::shared_ptr<CButton> moveHero;
-	std::shared_ptr<CButton> spellbook;
-	std::shared_ptr<CButton> advOptions;
-	std::shared_ptr<CButton> sysOptions;
-	std::shared_ptr<CButton> nextHero;
-	std::shared_ptr<CButton> endTurn;
-	std::shared_ptr<CButton> worldViewUnderground;
-
-	std::shared_ptr<MapView> terrain;
-	std::shared_ptr<CMinimap> minimap;
-	std::shared_ptr<CHeroList> heroList;
-	std::shared_ptr<CTownList> townList;
-	std::shared_ptr<CInfoBar> infoBar;
-	std::shared_ptr<CGStatusBar> statusbar;
-	std::shared_ptr<CResDataBar> resdatabar;
-
-	std::shared_ptr<CAdvMapPanel> panelMain; // panel that holds all right-side buttons in normal view
-	std::shared_ptr<CAdvMapWorldViewPanel> panelWorldView; // panel that holds all buttons and other ui in world view
-	std::shared_ptr<CAdvMapPanel> activeMapPanel; // currently active panel (either main or world view, depending on current mode)
-
-	std::shared_ptr<CAnimation> worldViewIcons;// images for world view overlay
-
 	std::shared_ptr<MapAudioPlayer> mapAudio;
+	std::shared_ptr<CAdventureMapWidget> widget;
 
 private:
 	//functions bound to buttons

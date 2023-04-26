@@ -1,0 +1,612 @@
+{
+	"options" : {
+
+		// player-colored images used for background
+		"imagesPlayerColored" : [ "AdvMap.pcx" ],
+
+		// widgets that are only visible in world view mode
+		"worldViewWidgets" : [ "worldViewContainer" ],
+		
+		// widgets that are only visible in game view mode
+		"gameViewWidgets" : [ "townListContainer", "heroListContainer", "buttonsContainer", "infobox" ],
+		
+		// widgets that should be drawn on top of game area
+		// NOTE: semi-transparency is not supported, only fully transparent/fully opaque
+		"overlayWidgets" : [ "gemTopLeft", "gemTopRight", "gemBottomLeft", "gemBottomRight" ]
+	},
+
+	"items":
+	[
+		// GEMS - set of images with different image for each player
+		{
+			"type": "adventureMapIcon",
+			"name" : "gemTopLeft",
+			"image" : "agemUL.def",
+			"index" : 0,
+			"perPlayer" : 1,
+			"area" : { "left": 7, "top" : 7, "width" : 46, "height" : 46 }
+		},
+		{
+			"type": "adventureMapIcon",
+			"name" : "gemTopRight",
+			"image" : "agemUR.def",
+			"index" : 0,
+			"perPlayer" : 1,
+			"area" : { "right": 198, "top" : 7, "width" : 46, "height" : 46 }
+		},
+		{
+			"type": "adventureMapIcon",
+			"name" : "gemBottomLeft",
+			"image" : "agemLL.def",
+			"index" : 0,
+			"perPlayer" : 1,
+			"area" : { "left": 7, "bottom" : 46, "width" : 46, "height" : 46 }
+		},
+		{
+			"type": "adventureMapIcon",
+			"name" : "gemBottomRight",
+			"image" : "agemLR.def",
+			"index" : 0,
+			"perPlayer" : 1,
+			"area" : { "right": 198, "bottom" : 46, "width" : 46, "height" : 46 }
+		},
+
+		// Background sections
+		{
+			"type": "adventureMapImage",
+			"name" : "backgroundTopLeft",
+			"image" : "AdvMap.pcx",
+			"area" : { "left": 0, "top" : 0, "width" : 7, "height" : 7 }
+		},
+		{
+			"type": "adventureMapImage",
+			"name" : "backgroundBottomLeft",
+			"image" : "AdvMap.pcx",
+			"area" : { "left": 0, "bottom" : 0, "width" : 7, "height" : 46 }
+		},
+		{
+			"type": "adventureMapImage",
+			"name" : "backgroundTopRight",
+			"image" : "AdvMap.pcx",
+			"area" : { "right": 0, "top" : 0, "width" : 199, "height" : 196 }
+		},
+		{
+			"type": "adventureMapImage",
+			"name" : "backgroundBottomRight",
+			"image" : "AdvMap.pcx",
+			"area" : { "bottom": 0, "right" : 0, "width" : 199, "height" : 211 }
+		},
+		{
+			"type": "adventureMapImage",
+			"name": "sideBorderLeft",
+			"image" : "AdvMap.pcx",
+			"area": { "top": 7, "left" : 0, "bottom" : 46, "width" : 7 }
+		},
+		{
+			"type": "adventureMapImage",
+			"name": "sideBorderTop",
+			"image" : "AdvMap.pcx",
+			"area": { "top": 0, "left" : 7, "right" : 199, "height" : 7 }
+		},
+		{
+			"type": "adventureMapImage",
+			"name": "sideBorderBottom",
+			"image" : "AdvMap.pcx",
+			"area": { "bottom": 0, "right" : 199, "left" : 0, "height" : 47 }
+		},
+		{
+			"type": "adventureMapImage",
+			"name": "heroListBorderLeft",
+			"image" : "AdvMap.pcx",
+			"area": { "top": 196, "bottom" : 210, "right" : 192, "width" : 7 }
+		},
+		{
+			"type": "adventureMapImage",
+			"name": "heroListBorderRight",
+			"image" : "AdvMap.pcx",
+			"area": { "top": 196, "bottom" : 210, "right" : 122, "width" : 3 }
+		},
+		{
+			"type": "adventureMapImage",
+			"name": "townListBorderLeft",
+			"image" : "AdvMap.pcx",
+			"area": { "top": 196, "bottom" : 210, "right" : 54, "width" : 3 }
+		},
+		{
+			"type": "adventureMapImage",
+			"name": "townListBorderRight",
+			"image" : "AdvMap.pcx",
+			"area": { "top": 196, "bottom" : 210, "right" : 0, "width" : 3 }
+		},
+		
+		// Game area
+		{
+			"type": "adventureMapGameArea",
+			"name": "mapView",
+			"area": { "top": 7, "bottom" : 47, "left" : 7, "right" : 199 }
+		},
+		
+		// Minimap
+		{
+			"type": "adventureMinimap",
+			"name": "minimap",
+			"area": { "top": 26, "right" : 26, "width" : 144, "height" : 144 }
+		},
+
+		// Adventure map buttons
+		{
+			"type": "adventureMapContainer",
+			"name" : "buttonsContainer",
+			"area": { "top": 196, "right" : 57, "width" : 64, "height" : 192 },
+			"items" : [
+				{
+					"type" : "adventureMapButton",
+					"name" : "buttonKingdomOverview",
+					"image" : "IAM002.DEF",
+					"help" : "core.help.293",
+					"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "buttonUnderground",
+					"image" : "IAM010.DEF",
+					"help" : "core.help.294",
+					"area": { "top" : 0, "left": 32, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "buttonSurface",
+					"image" : "IAM003.DEF",
+					"help" : "core.help.294",
+					"area": { "top" : 0, "left": 32, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "buttonQuestLog",
+					"image" : "IAM004.DEF",
+					"help" : "core.help.295",
+					"area": { "top" : 32, "left": 0, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "buttonSleep",
+					"image" : "IAM005.DEF",
+					"help" : "core.help.296",
+					"area": { "top" : 32, "left": 32, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "buttonWake",
+					"image" : "IAM011.DEF",
+					"help" : "core.help.296",
+					"area": { "top" : 32, "left": 32, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "buttonMove",
+					"image" : "IAM006.DEF",
+					"help" : "core.help.297",
+					"area": { "top" : 64, "left": 0, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "buttonCast",
+					"image" : "IAM007.DEF",
+					"help" : "core.help.298",
+					"area": { "top" : 64, "left": 32, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "buttonAdventureOptions",
+					"image" : "IAM008.DEF",
+					"help" : "core.help.299",
+					"area": { "top" : 96, "left": 0, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "buttonSystemOptions",
+					"image" : "IAM009.DEF",
+					"help" : "core.help.300",
+					"area": { "top" : 96, "left": 32, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "buttonNextHero",
+					"image" : "IAM000.DEF",
+					"help" : "core.help.301",
+					"area": { "top" : 128, "left": 0, "width" : 64, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "buttonEndTurn",
+					"image" : "IAM001.DEF",
+					"help" : "core.help.302",
+					"area": { "top" : 160, "left": 0, "width" : 64, "height" : 32 }
+				}
+			]
+		},
+		// Hero List
+		{
+			"type": "adventureMapHeroList",
+			"name" : "heroList",
+			"area": { "top": 196, "right" : 127, "width" : 64, "height" : 192 },
+			"scrollUp" : {
+				"type": "adventureMapButton",
+				"name": "heroListScrollUp",
+				"image" : "IAM012.DEF",
+				"help" : "core.help.303",
+				"area": { "top" : 0, "left": 0, "width" : 64, "height" : 16 }
+			},
+			"scrollDown" : {
+				"type": "adventureMapButton",
+				"name": "heroListScrollDown",
+				"image" : "IAM013.DEF",
+				"help" : "core.help.304",
+				"area": { "top" : 176, "left": 0, "width" : 64, "height" : 16 }
+			},
+			"item" : { "top" :  16, "left": 1, "width" : 62, "height" : 32 },
+			"itemsOffset" : { "x" : 0, "y" : 32 },
+			"itemsCount" : 5
+		},
+		
+		// Town List
+		{
+			"type": "adventureMapTownList",
+			"name" : "townList",
+			"area": { "top": 196, "right" : 5, "width" : 48, "height" : 192 },
+			"scrollUp" : {
+				"type": "adventureMapButton",
+				"name": "townListScrollUp",
+				"image" : "IAM014.DEF",
+				"help" : "core.help.306",
+				"area": { "top" : 0, "left": 0, "width" : 48, "height" : 16 }
+			},
+			"scrollDown" : {
+				"type": "adventureMapButton",
+				"name": "townListScrollDown",
+				"image" : "IAM015.DEF",
+				"help" : "core.help.307",
+				"area": { "top" : 176, "left": 0, "width" : 48, "height" : 16 }
+			},
+			"item" : { "top" :  16, "left": 0, "width" : 48, "height" : 32 },
+			"itemsOffset" : { "x" : 0, "y" : 32 },
+			"itemsCount" : 5
+		},
+		
+		// Infobar
+		{
+			"type": "adventureInfobar",
+			"name": "infoBar",
+			"area": { "bottom": 44, "right" : 19, "width" : 175, "height" : 168 }
+		},
+		// Status bar
+		{
+			"type": "adventureStatusBar",
+			"name": "statusBar",
+			"image" : "DiBoxBck.pcx",
+			"area": { "left": 8, "bottom" : 26, "right" : 199, "height" : 18 }
+		},
+		// Resource & Data bar
+		{
+			"type": "adventureResourceDateBar",
+			"name": "resourceDataBar",
+			"image" : "AResBar.pcx",
+			"area": { "bottom" : 3, "right" : 3, "height" : 22, "width" : 794 },
+			
+			"wood"    : { "x" :  36, "y" : 2 },
+			"mercury" : { "x" : 120, "y" : 2 },
+			"ore"     : { "x" : 204, "y" : 2 },
+			"sulfur"  : { "x" : 288, "y" : 2 },
+			"crystal" : { "x" : 372, "y" : 2 },
+			"gems"    : { "x" : 456, "y" : 2 },
+			"gold"    : { "x" : 540, "y" : 2 },
+			"date"    : { "x" : 615, "y" : 2 }
+		},
+		// World view mode widgets
+		{
+			"type": "adventureMapContainer",
+			"name" : "worldViewContainer",
+			"area": { "top": 195, "right" : 4, "width" : 190, "height" : 381 },
+			"items" : [
+				{
+					"type": "adventureMapImage",
+					"name": "worldViewBackground",
+					"image" : "VWorld.pcx",
+					"area": { "top" : 0, "left": 0, "width" : 48, "height" : 192 },
+					"areaSource": { "left" : 0, "right" : 0, "top" : 0, "bottom" : 0 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "worldViewZoom1",
+					"image" : "VWMAG1.DEF",
+					"area": { "top" : 23, "left": 1, "width" : 60, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "worldViewZoom2",
+					"image" : "VWMAG2.DEF",
+					"area": { "top" : 23, "left": 64, "width" : 60, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "worldViewZoom4",
+					"image" : "VWMAG4.DEF",
+					"area": { "top" : 23, "left": 1, "width" : 60, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "worldViewSurface",
+					"image" : "IAM003.DEF",
+					"area": { "top" : 79, "left": 343, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "worldViewPuzzle",
+					"image" : "VWPUZ.DEF",
+					"area": { "top" : 343, "left": 5, "width" : 66, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "worldViewUnderground",
+					"image" : "IAM010.DEF",
+					"area": { "top" : 343, "left": 79, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapButton",
+					"name": "worldViewExit",
+					"image" : "IOK6432.DEF",
+					"area": { "top" : 343, "left": 117, "width" : 66, "height" : 32 }
+				},
+				// World view - objects icons
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconTown",
+					"image" : "VwSymbol.def",
+					"index" : 0,
+					"perPlayer" : 19,
+					"area": { "top" : 66, "left": 12, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconHero",
+					"image" : "VwSymbol.def",
+					"index" : 1,
+					"perPlayer" : 19,
+					"area": { "top" : 86, "left": 12, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconArtifact",
+					"image" : "VwSymbol.def",
+					"index" : 2,
+					"perPlayer" : 19,
+					"area": { "top" : 106, "left": 12, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconTeleporter",
+					"image" : "VwSymbol.def",
+					"index" : 3,
+					"perPlayer" : 19,
+					"area": { "top" : 126, "left": 12, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconGate",
+					"image" : "VwSymbol.def",
+					"index" : 4,
+					"perPlayer" : 19,
+					"area": { "top" : 146, "left": 12, "width" : 32, "height" : 32 }
+				},
+				
+				// World view - mines icons
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconMineWood",
+					"image" : "VwSymbol.def",
+					"index" : 5,
+					"perPlayer" : 19,
+					"area": { "top" : 190, "left": 12, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconMineMercury",
+					"image" : "VwSymbol.def",
+					"index" : 6,
+					"perPlayer" : 19,
+					"area": { "top" : 210, "left": 12, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconOre",
+					"image" : "VwSymbol.def",
+					"index" : 7,
+					"perPlayer" : 19,
+					"area": { "top" : 230, "left": 12, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconMineSulfur",
+					"image" : "VwSymbol.def",
+					"index" : 8,
+					"perPlayer" : 19,
+					"area": { "top" : 250, "left": 12, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconMineCrystal",
+					"image" : "VwSymbol.def",
+					"index" : 9,
+					"perPlayer" : 19,
+					"area": { "top" : 270, "left": 12, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconMineGems",
+					"image" : "VwSymbol.def",
+					"index" : 10,
+					"perPlayer" : 19,
+					"area": { "top" : 290, "left": 12, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconMineGold",
+					"image" : "VwSymbol.def",
+					"index" : 11,
+					"perPlayer" : 19,
+					"area": { "top" : 310, "left": 12, "width" : 32, "height" : 32 }
+				},
+				
+				// World view - resources icons
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconMineWood",
+					"image" : "VwSymbol.def",
+					"index" : 12,
+					"perPlayer" : 19,
+					"area": { "top" : 190, "left": 160, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconMineMercury",
+					"image" : "VwSymbol.def",
+					"index" : 13,
+					"perPlayer" : 19,
+					"area": { "top" : 210, "left": 160, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconOre",
+					"image" : "VwSymbol.def",
+					"index" : 14,
+					"perPlayer" : 19,
+					"area": { "top" : 230, "left": 160, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconMineSulfur",
+					"image" : "VwSymbol.def",
+					"index" : 15,
+					"perPlayer" : 19,
+					"area": { "top" : 250, "left": 160, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconMineCrystal",
+					"image" : "VwSymbol.def",
+					"index" : 16,
+					"perPlayer" : 19,
+					"area": { "top" : 270, "left": 160, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconMineGems",
+					"image" : "VwSymbol.def",
+					"index" : 17,
+					"perPlayer" : 19,
+					"area": { "top" : 290, "left": 160, "width" : 32, "height" : 32 }
+				},
+				{
+					"type": "adventureMapIcon",
+					"name": "worldViewIconMineGold",
+					"image" : "VwSymbol.def",
+					"index" : 18,
+					"perPlayer" : 19,
+					"area": { "top" : 310, "left": 160, "width" : 32, "height" : 32 }
+				},
+
+				{
+					"name": "worldViewLabelTitle",
+					"type": "label",
+					"font": "big",
+					"alignment": "center",
+					"color": "yellow",
+					"position": {"x": 100, "y": 10},
+					"text": "core.genrltxt.611"
+				},
+				{
+					"name": "worldViewLabelMine",
+					"type": "label",
+					"font": "calisto",
+					"alignment": "center",
+					"color": "yellow",
+					"position": {"x": 10, "y": 175},
+					"text": "core.genrltxt.617"
+				},
+				{
+					"name": "worldViewLabelResource",
+					"type": "label",
+					"font": "calisto",
+					"alignment": "center",
+					"color": "yellow",
+					"position": {"x": 185, "y": 185},
+					"text": "core.genrltxt.618"
+				},
+				{
+					"name": "worldViewLabelsObjects",
+					"type": "labelGroup",
+					"font": "calisto",
+					"alignment": "left",
+					"color": "white",
+					"items":
+					[
+						{
+							"position": {"x": 45, "y": 70},
+							"text": "core.genrltxt.612"
+						},
+						{
+							"position": {"x": 45, "y": 90},
+							"text": "core.genrltxt.613"
+						},
+						{
+							"position": {"x": 45, "y": 110},
+							"text": "core.genrltxt.614"
+						},
+						{
+							"position": {"x": 45, "y": 130},
+							"text": "core.genrltxt.615"
+						},
+						{
+							"position": {"x": 45, "y": 150},
+							"text": "core.genrltxt.616"
+						}
+					]
+				},
+				{
+					"name": "worldViewLabelsResources",
+					"type": "labelGroup",
+					"font": "calisto",
+					"alignment": "center",
+					"color": "white",
+					"items":
+					[
+						{
+							"position": {"x": 100, "y": 200},
+							"text": "core.genrltxt.619"
+						},
+						{
+							"position": {"x": 100, "y": 220},
+							"text": "core.genrltxt.620"
+						},
+						{
+							"position": {"x": 100, "y": 240},
+							"text": "core.genrltxt.621"
+						},
+						{
+							"position": {"x": 100, "y": 260},
+							"text": "core.genrltxt.622"
+						},
+						{
+							"position": {"x": 100, "y": 280},
+							"text": "core.genrltxt.623"
+						},
+						{
+							"position": {"x": 100, "y": 300},
+							"text": "core.genrltxt.624"
+						}
+					]
+				},
+			]
+		}
+	]
+}

@@ -16,13 +16,7 @@
 #include <SDL_pixels.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-namespace config
-{
-struct ButtonInfo;
-}
 class Rect;
-
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;

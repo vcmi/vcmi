@@ -69,9 +69,11 @@ public:
 class CFilledTexture : public CIntObject
 {
 	std::shared_ptr<IImage> texture;
+	Rect imageArea;
 
 public:
 	CFilledTexture(std::string imageName, Rect position);
+	CFilledTexture(std::shared_ptr<IImage> image, Rect position, Rect imageArea);
 
 	void showAll(SDL_Surface *to) override;
 };

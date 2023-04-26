@@ -243,10 +243,13 @@ void GeneralOptionsTab::fillSelectableResolutions()
 {
 	selectableResolutions.clear();
 
-	for(const auto & it : conf.guiOptions)
-	{
-		const Point dimensions(it.first.first, it.first.second);
+	// TODO: CONFIGURABLE ADVMAP
+	static const std::vector<Point> supportedResolutions = {
+		{ 800, 600 }
+	};
 
+	for(const auto & dimensions : supportedResolutions)
+	{
 		if(isResolutionSupported(dimensions))
 			selectableResolutions.push_back(dimensions);
 	}
