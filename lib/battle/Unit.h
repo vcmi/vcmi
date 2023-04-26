@@ -41,7 +41,7 @@ namespace BattlePhases
 
 class CUnitState;
 
-class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer, public IConstBonusNativeTerrainProvider
+class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer, public IFactionMember
 {
 public:
 	virtual ~Unit();

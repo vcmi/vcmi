@@ -63,7 +63,7 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
-class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public IConstBonusNativeTerrainProvider
+class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public IFactionMember
 {
 protected:
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object

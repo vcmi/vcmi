@@ -26,7 +26,7 @@ bool INativeTerrainProvider::isNativeTerrain(TerrainId terrain) const
 	return native == terrain || native == ETerrainId::ANY_TERRAIN;
 }
 
-TerrainId IConstBonusNativeTerrainProvider::getNativeTerrain() const
+TerrainId IFactionMember::getNativeTerrain() const
 {
 	constexpr auto any = TerrainId(ETerrainId::ANY_TERRAIN);
 	const std::string cachingStringNoTerrainPenalty = "type_NO_TERRAIN_PENALTY_sANY";
