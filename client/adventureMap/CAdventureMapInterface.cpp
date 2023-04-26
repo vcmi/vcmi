@@ -747,11 +747,11 @@ void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 		{
 		case SpellID::SCUTTLE_BOAT: //Scuttle Boat
 			if(topBlocking && topBlocking->ID == Obj::BOAT)
-				leaveCastingMode(mapPos);
+				performSpellcasting(mapPos);
 			break;
 		case SpellID::DIMENSION_DOOR:
 			if(!tile || tile->isClear(heroTile))
-				leaveCastingMode(mapPos);
+				performSpellcasting(mapPos);
 			break;
 		}
 		return;
@@ -1037,7 +1037,7 @@ void CAdventureMapInterface::abortCastingMode()
 	LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[731]); //Spell cancelled
 }
 
-void CAdventureMapInterface::leaveCastingMode(const int3 & dest)
+void CAdventureMapInterface::performSpellcasting(const int3 & dest)
 {
 	SpellID id = spellBeingCasted->id;
 	exitCastingMode();

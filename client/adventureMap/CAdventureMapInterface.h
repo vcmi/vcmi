@@ -100,7 +100,7 @@ private:
 	/// exits currently opened world view mode and returns to normal map
 	void exitWorldView();
 	void exitCastingMode();
-	void leaveCastingMode(const int3 & castTarget);
+	void performSpellcasting(const int3 & castTarget);
 	void abortCastingMode();
 
 protected:
