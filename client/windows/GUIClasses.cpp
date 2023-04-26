@@ -1288,18 +1288,11 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	bars->setCustom("UNIVGREN", 2, 0);
 	bars->preload();
 
-	if(market->o->ID == Obj::TOWN)
+	if(auto town = dynamic_cast<const CGTownInstance *>(_market))
 	{
-		auto town = dynamic_cast<const CGTownInstance *>(_market);
-
-		if(town)
-		{
-			auto faction = town->town->faction->getId();
-			auto bid = town->town->getSpecialBuilding(BuildingSubID::MAGIC_UNIVERSITY)->bid;
-			titlePic = std::make_shared<CAnimImage>((*CGI->townh)[faction]->town->clientInfo.buildingsIcons, bid);
-		}
-		else
-			titlePic = std::make_shared<CAnimImage>((*CGI->townh)[ETownType::CONFLUX]->town->clientInfo.buildingsIcons, BuildingID::MAGIC_UNIVERSITY);
+		auto faction = town->town->faction->getId();
+		auto bid = town->town->getSpecialBuilding(BuildingSubID::MAGIC_UNIVERSITY)->bid;
+		titlePic = std::make_shared<CAnimImage>((*CGI->townh)[faction]->town->clientInfo.buildingsIcons, bid);
 	}
 	else
 		titlePic = std::make_shared<CPicture>("UNIVBLDG");
@@ -1321,7 +1314,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 
 void CUniversityWindow::makeDeal(int skill)
 {
-	LOCPLINT->cb->trade(market->o, EMarketMode::RESOURCE_SKILL, 6, skill, 1, hero);
+	LOCPLINT->cb->trade(dynamic_cast<const CGObjectInstance *>(market), EMarketMode::RESOURCE_SKILL, 6, skill, 1, hero);
 }
 
 

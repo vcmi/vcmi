@@ -679,7 +679,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 
 	std::string title;
 
-	if(market->o->ID == Obj::TOWN)
+	if(auto * o = dynamic_cast<const CGTownInstance *>(market))
 	{
 		switch (mode)
 		{
@@ -687,11 +687,11 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 			title = (*CGI->townh)[ETownType::STRONGHOLD]->town->buildings[BuildingID::FREELANCERS_GUILD]->getNameTranslated();
 			break;
 		case EMarketMode::RESOURCE_ARTIFACT:
-			title = (*CGI->townh)[market->o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
+			title = (*CGI->townh)[o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
 			sliderNeeded = false;
 			break;
 		case EMarketMode::ARTIFACT_RESOURCE:
-			title = (*CGI->townh)[market->o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
+			title = (*CGI->townh)[o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
 
 			// create image that copies part of background containing slot MISC_1 into position of slot MISC_5
 			// this is workaround for bug in H3 files where this slot for ragdoll on this screen is missing
@@ -705,21 +705,24 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 	}
 	else
 	{
-		switch(market->o->ID)
+		if(auto * o = dynamic_cast<const CGObjectInstance *>(market))
 		{
-		case Obj::BLACK_MARKET:
-			title = CGI->generaltexth->allTexts[349];
-			sliderNeeded = false;
-			break;
-		case Obj::TRADING_POST:
-			title = CGI->generaltexth->allTexts[159];
-			break;
-		case Obj::TRADING_POST_SNOW:
-			title = CGI->generaltexth->allTexts[159];
-			break;
-		default:
-			title = market->o->getObjectName();
-			break;
+			switch(o->ID)
+			{
+			case Obj::BLACK_MARKET:
+				title = CGI->generaltexth->allTexts[349];
+				sliderNeeded = false;
+				break;
+			case Obj::TRADING_POST:
+				title = CGI->generaltexth->allTexts[159];
+				break;
+			case Obj::TRADING_POST_SNOW:
+				title = CGI->generaltexth->allTexts[159];
+				break;
+			default:
+				title = o->getObjectName();
+				break;
+			}
 		}
 	}
 
@@ -838,14 +841,15 @@ void CMarketplaceWindow::makeDeal()
 
 	if(allowDeal)
 	{
+		const auto * o = dynamic_cast<const CGObjectInstance *>(market);
 		if(slider)
 		{
-			LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, slider->getValue() * r1, hero);
+			LOCPLINT->cb->trade(o, mode, leftIdToSend, hRight->id, slider->getValue() * r1, hero);
 			slider->moveTo(0);
 		}
 		else
 		{
-			LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, r2, hero);
+			LOCPLINT->cb->trade(o, mode, leftIdToSend, hRight->id, r2, hero);
 		}
 	}
 
@@ -1245,7 +1249,7 @@ void CAltarWindow::makeDeal()
 			}
 		}
 
-		LOCPLINT->cb->trade(market->o, mode, ids, {}, toSacrifice, hero);
+		LOCPLINT->cb->trade(dynamic_cast<const CGObjectInstance *>(market), mode, ids, {}, toSacrifice, hero);
 
 		for(int& val : sacrificedUnits)
 			val = 0;
@@ -1266,8 +1270,8 @@ void CAltarWindow::makeDeal()
 		}
 		std::sort(positions.begin(), positions.end(), std::greater<>());
 
-		LOCPLINT->cb->trade(market->o, mode, positions, {}, {}, hero);
-		artifactsOfHero->artifactsOnAltar.clear();
+		LOCPLINT->cb->trade(dynamic_cast<const CGObjectInstance *>(market), mode, positions, {}, {}, hero);
+		arts->artifactsOnAltar.clear();
 
 		for(auto item : items[0])
 		{

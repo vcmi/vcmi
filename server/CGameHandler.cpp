@@ -4177,12 +4177,12 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, GameRe
 	giveResource(h->tempOwner, rid, -b1);
 
 	SetAvailableArtifacts saa;
-	if (m->o->ID == Obj::TOWN)
+	if(dynamic_cast<const CGTownInstance *>(m))
 	{
 		saa.id = -1;
 		saa.arts = CGTownInstance::merchantArtifacts;
 	}
-	else if (const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(m->o)) //black market
+	else if(const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(m)) //black market
 	{
 		saa.id = bm->id.getNum();
 		saa.arts = bm->artifacts;
@@ -4309,7 +4309,7 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 	if (hero)
 		army = hero;
 	else
-		army = dynamic_cast<const CGTownInstance *>(market->o);
+		army = dynamic_cast<const CGTownInstance *>(market);
 
 	if (!army)
 		COMPLAIN_RET("Incorrect call to transform in undead!");
