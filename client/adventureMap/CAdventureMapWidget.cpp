@@ -133,7 +133,8 @@ std::shared_ptr<CAnimation> CAdventureMapWidget::loadAnimation(const std::string
 std::shared_ptr<CIntObject> CAdventureMapWidget::buildInfobox(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
-	return std::make_shared<CInfoBar>(area);
+	infoBar = std::make_shared<CInfoBar>(area);
+	return infoBar;
 }
 
 std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapImage(const JsonNode & input)
@@ -158,6 +159,18 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapContainer(const JsonNod
 	auto position = readTargetArea(input["area"]);
 	std::shared_ptr<CAdventureMapContainerWidget> result;
 
+	if (!input["exists"].isNull())
+	{
+		if (!input["exists"]["heightMin"].isNull() && input["exists"]["heightMin"].Integer() >= pos.h)
+			return nullptr;
+		if (!input["exists"]["heightMax"].isNull() && input["exists"]["heightMax"].Integer() < pos.h)
+			return nullptr;
+		if (!input["exists"]["widthMin"].isNull() && input["exists"]["widthMin"].Integer() >= pos.w)
+			return nullptr;
+		if (!input["exists"]["widthMax"].isNull() && input["exists"]["widthMax"].Integer() < pos.w)
+			return nullptr;
+	}
+
 	if (input["overlay"].Bool())
 		result = std::make_shared<CAdventureMapOverlayWidget>();
 	else
@@ -168,7 +181,7 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapContainer(const JsonNod
 	for(const auto & entry : input["items"].Vector())
 	{
 		result->ownedChildren.push_back(buildWidget(entry));
-		result->addChild(result->ownedChildren.back().get(), true);
+		result->addChild(result->ownedChildren.back().get(), false);
 	}
 	subwidgetSizes.pop_back();
 
@@ -178,20 +191,22 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapContainer(const JsonNod
 std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapGameArea(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
-	return std::make_shared<MapView>(area.topLeft(), area.dimensions());
+	mapView = std::make_shared<MapView>(area.topLeft(), area.dimensions());
+	return mapView;
 }
 
 std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapHeroList(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
+	subwidgetSizes.push_back(area);
+
 	Rect item = readTargetArea(input["item"]);
 
 	Point itemOffset(input["itemsOffset"]["x"].Integer(), input["itemsOffset"]["y"].Integer());
 	int itemsCount = input["itemsCount"].Integer();
 
-	auto result = std::make_shared<CHeroList>(itemsCount, area.topLeft() + item.topLeft(), itemOffset, LOCPLINT->localState->getWanderingHeroes().size());
+	auto result = std::make_shared<CHeroList>(itemsCount, item.topLeft(), itemOffset, LOCPLINT->localState->getWanderingHeroes().size());
 
-	subwidgetSizes.push_back(area);
 
 	if(!input["scrollUp"].isNull())
 		result->setScrollUpButton(std::dynamic_pointer_cast<CButton>(buildMapButton(input["scrollUp"])));
@@ -201,6 +216,7 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapHeroList(const JsonNode
 
 	subwidgetSizes.pop_back();
 
+	heroList = result;
 	return result;
 }
 
@@ -217,14 +233,13 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapIcon(const JsonNode & i
 std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapTownList(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
-	Rect item = readTargetArea(input["item"]);
+	subwidgetSizes.push_back(area);
 
+	Rect item = readTargetArea(input["item"]);
 	Point itemOffset(input["itemsOffset"]["x"].Integer(), input["itemsOffset"]["y"].Integer());
 	int itemsCount = input["itemsCount"].Integer();
 
-	auto result = std::make_shared<CTownList>(itemsCount, area.topLeft() + item.topLeft(), itemOffset, LOCPLINT->localState->getOwnedTowns().size());
-
-	subwidgetSizes.push_back(area);
+	auto result = std::make_shared<CTownList>(itemsCount, item.topLeft(), itemOffset, LOCPLINT->localState->getOwnedTowns().size());
 
 	if(!input["scrollUp"].isNull())
 		result->setScrollUpButton(std::dynamic_pointer_cast<CButton>(buildMapButton(input["scrollUp"])));
@@ -234,13 +249,15 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapTownList(const JsonNode
 
 	subwidgetSizes.pop_back();
 
+	townList = result;
 	return result;
 }
 
 std::shared_ptr<CIntObject> CAdventureMapWidget::buildMinimap(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
-	return std::make_shared<CMinimap>(area);
+	minimap = std::make_shared<CMinimap>(area);
+	return minimap;
 }
 
 std::shared_ptr<CIntObject> CAdventureMapWidget::buildResourceDateBar(const JsonNode & input)
@@ -277,27 +294,27 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildStatusBar(const JsonNode &
 
 std::shared_ptr<CHeroList> CAdventureMapWidget::getHeroList()
 {
-	return widget<CHeroList>("heroList");
+	return heroList;
 }
 
 std::shared_ptr<CTownList> CAdventureMapWidget::getTownList()
 {
-	return widget<CTownList>("townList");
+	return townList;
 }
 
 std::shared_ptr<CMinimap> CAdventureMapWidget::getMinimap()
 {
-	return widget<CMinimap>("minimap");
+	return minimap;
 }
 
 std::shared_ptr<MapView> CAdventureMapWidget::getMapView()
 {
-	return widget<MapView>("mapView");
+	return mapView;
 }
 
 std::shared_ptr<CInfoBar> CAdventureMapWidget::getInfoBar()
 {
-	return widget<CInfoBar>("infoBar");
+	return infoBar;
 }
 
 void CAdventureMapWidget::setPlayer(const PlayerColor & player)

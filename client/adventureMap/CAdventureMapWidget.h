@@ -42,6 +42,13 @@ class CAdventureMapWidget : public InterfaceObjectConfigurable
 	std::map<std::string, std::shared_ptr<IImage>> images;
 	std::map<std::string, std::shared_ptr<CAnimation>> animations;
 
+	/// Widgets that require access from adventure map
+	std::shared_ptr<CHeroList> heroList;
+	std::shared_ptr<CTownList> townList;
+	std::shared_ptr<CMinimap> minimap;
+	std::shared_ptr<MapView> mapView;
+	std::shared_ptr<CInfoBar> infoBar;
+
 	Rect readTargetArea(const JsonNode & source);
 	Rect readSourceArea(const JsonNode & source, const JsonNode & sourceCommon);
 	Rect readArea(const JsonNode & source, const Rect & boundingBox);

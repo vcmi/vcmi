@@ -91,23 +91,10 @@
 		},
 		{
 			"type": "adventureMapImage",
-			"name": "backgroundHeroListBorderRight",
-			"image" : "AdvMap.pcx",
-			"area": { "top": 196, "bottom" : 211, "right" : 121, "width" : 6 }
-		},
-		{
-			"type": "adventureMapImage",
-			"name": "backgroundTownListBorderLeft",
-			"image" : "AdvMap.pcx",
-			"area": { "top": 196, "bottom" : 211, "right" : 53, "width" : 4 }
-		},
-		{
-			"type": "adventureMapImage",
 			"name": "backgroundTownListBorderRight",
 			"image" : "AdvMap.pcx",
 			"area": { "top": 196, "bottom" : 211, "right" : 0, "width" : 5 }
 		},
-		
 		// Game area
 		{
 			"type": "adventureMapGameArea",
@@ -214,54 +201,182 @@
 				}
 			]
 		},
-		// Hero List
+		// Town / Hero lists for small (600-664) vertical resolution
 		{
-			"type": "adventureMapHeroList",
-			"name" : "heroList",
-			"area": { "top": 196, "right" : 127, "width" : 64, "height" : 192 },
-			"scrollUp" : {
-				"type": "adventureMapButton",
-				"name": "heroListScrollUp",
-				"image" : "IAM012.DEF",
-				"help" : "core.help.303",
-				"area": { "top" : 0, "left": 0, "width" : 64, "height" : 16 }
-			},
-			"scrollDown" : {
-				"type": "adventureMapButton",
-				"name": "heroListScrollDown",
-				"image" : "IAM013.DEF",
-				"help" : "core.help.304",
-				"area": { "top" : 176, "left": 0, "width" : 64, "height" : 16 }
-			},
-			"item" : { "top" :  16, "left": 1, "width" : 62, "height" : 32 },
-			"itemsOffset" : { "x" : 0, "y" : 32 },
-			"itemsCount" : 5
+			"type": "adventureMapContainer",
+			"name" : "listContainerSmall",
+			"area": { "top": 196, "right" : 0, "width" : 193, "height" : 196 },
+			"exists" : { "heightMax" : 664 },
+			"items" : [
+				{
+					"type": "adventureMapImage",
+					"name": "backgroundHeroListBorderRight",
+					"image" : "AdvMap.pcx",
+					"area": { "top": 0, "bottom" : 0, "right" : 121, "width" : 6 },
+					"sourceArea": { "top": 196, "bottom" : 211, "right" : 121, "width" : 6 }
+				},
+				{
+					"type": "adventureMapImage",
+					"name": "backgroundTownListBorderLeft",
+					"image" : "AdvMap.pcx",
+					"area": { "top": 0, "bottom" : 0, "right" : 53, "width" : 4 },
+					"sourceArea": { "top": 196, "bottom" : 211, "right" : 53, "width" : 4 }
+				},
+				{
+					"type": "adventureMapImage",
+					"name" : "backgroundBelowHeroTownList",
+					"image" : "AdvMap.pcx",
+					"area" : { "right": 0, "left" : 0, "bottom" : 0, "height" : 3 },
+					"sourceArea": { "bottom" : 208, "height" : 3, "right" : 0, "width" : 193 }
+				},
+				// Hero List
+				{
+					"type": "adventureMapHeroList",
+					"name" : "heroList",
+					"area": { "top": 0, "right" : 127, "width" : 64, "height" : 192 },
+					"scrollUp" : {
+						"type": "adventureMapButton",
+						"name": "heroListScrollUp",
+						"image" : "IAM012.DEF",
+						"help" : "core.help.303",
+						"area": { "top" : 0, "left": 0, "width" : 64, "height" : 16 }
+					},
+					"scrollDown" : {
+						"type": "adventureMapButton",
+						"name": "heroListScrollDown",
+						"image" : "IAM013.DEF",
+						"help" : "core.help.304",
+						"area": { "bottom" : 0, "left": 0, "width" : 64, "height" : 16 }
+					},
+					"item" : { "top" :  16, "left": 1, "width" : 62, "height" : 32 },
+					"itemsOffset" : { "x" : 0, "y" : 32 },
+					"itemsCount" : 5
+				},
+				// Town List
+				{
+					"type": "adventureMapTownList",
+					"name" : "townList",
+					"area": { "top": 0, "right" : 5, "width" : 48, "height" : 192 },
+					"scrollUp" : {
+						"type": "adventureMapButton",
+						"name": "townListScrollUp",
+						"image" : "IAM014.DEF",
+						"help" : "core.help.306",
+						"area": { "top" : 0, "left": 0, "width" : 48, "height" : 16 }
+					},
+					"scrollDown" : {
+						"type": "adventureMapButton",
+						"name": "townListScrollDown",
+						"image" : "IAM015.DEF",
+						"help" : "core.help.307",
+						"area": { "bottom" : 0, "left": 0, "width" : 48, "height" : 16 }
+					},
+					"item" : { "top" :  16, "left": 0, "width" : 48, "height" : 32 },
+					"itemsOffset" : { "x" : 0, "y" : 32 },
+					"itemsCount" : 5
+				},
+			]
 		},
-		
-		// Town List
 		{
-			"type": "adventureMapTownList",
-			"name" : "townList",
-			"area": { "top": 196, "right" : 5, "width" : 48, "height" : 192 },
-			"scrollUp" : {
-				"type": "adventureMapButton",
-				"name": "townListScrollUp",
-				"image" : "IAM014.DEF",
-				"help" : "core.help.306",
-				"area": { "top" : 0, "left": 0, "width" : 48, "height" : 16 }
-			},
-			"scrollDown" : {
-				"type": "adventureMapButton",
-				"name": "townListScrollDown",
-				"image" : "IAM015.DEF",
-				"help" : "core.help.307",
-				"area": { "top" : 176, "left": 0, "width" : 48, "height" : 16 }
-			},
-			"item" : { "top" :  16, "left": 0, "width" : 48, "height" : 32 },
-			"itemsOffset" : { "x" : 0, "y" : 32 },
-			"itemsCount" : 5
+			"type": "adventureMapContainer",
+			"name" : "emptyAreaFillSmall",
+			"area": { "top": 392, "right" : 3, "width" : 190, "bottom" : 211 },
+			"exists" : { "heightMax" : 664 },
+			"items" : [
+				{
+					"type": "adventureMapImage",
+					"name": "emptyAreaFillSmallImage",
+					"image" : "DiBoxBck.pcx",
+					"area": { "top": 0, "bottom" : 0, "left" : 0, "right" : 0 }
+					"sourceArea": { "left" : 0, "top" : 0, "width" : 256, "height" : 256 }
+				},
+			]
 		},
-		
+		// Town / Hero lists for large (664+) vertical resolution
+		{
+			"type": "adventureMapContainer",
+			"name" : "listContainerLarge",
+			"area": { "top": 196, "right" : 0, "width" : 193, "height" : 260 },
+			"exists" : { "heightMin" : 664 },
+			"items" : [
+				{
+					"type": "adventureMapImage",
+					"name": "backgroundHeroListBorderRight",
+					"image" : "AdvMap.pcx",
+					"area": { "top": 0, "bottom" : 0, "right" : 121, "width" : 6 }
+					"sourceArea": { "top": 196, "bottom" : 211, "right" : 121, "width" : 6 }
+				},
+				{
+					"type": "adventureMapImage",
+					"name": "backgroundTownListBorderLeft",
+					"image" : "AdvMap.pcx",
+					"area": { "top": 0, "bottom" : 0, "right" : 53, "width" : 4 }
+					"sourceArea": { "top": 196, "bottom" : 211, "right" : 53, "width" : 4 }
+				},
+				{
+					"type": "adventureMapImage",
+					"name" : "backgroundBelowHeroTownList",
+					"image" : "AdvMap.pcx",
+					"area" : { "right": 0, "left" : 0, "bottom" : 0, "height" : 3 }
+					"sourceArea": { "bottom" : 208, "height" : 3, "right" : 0, "width" : 193 }
+				},
+				// Hero List
+				{
+					"type": "adventureMapHeroList",
+					"name" : "heroList",
+					"area": { "top": 0, "right" : 127, "width" : 64, "height" : 256 },
+					"item" : { "top" :  0, "left": 1, "width" : 62, "height" : 32 },
+					"itemsOffset" : { "x" : 0, "y" : 32 },
+					"itemsCount" : 8
+				},
+				// Town List
+				{
+					"type": "adventureMapTownList",
+					"name" : "townList",
+					"area": { "top": 0, "right" : 5, "width" : 48, "height" : 256 },
+					"scrollUp" : {
+						"type": "adventureMapButton",
+						"name": "townListScrollUp",
+						"image" : "IAM014.DEF",
+						"help" : "core.help.306",
+						"area": { "top" : 0, "left": 0, "width" : 48, "height" : 16 }
+					},
+					"scrollDown" : {
+						"type": "adventureMapButton",
+						"name": "townListScrollDown",
+						"image" : "IAM015.DEF",
+						"help" : "core.help.307",
+						"area": { "bottom" : 0, "left": 0, "width" : 48, "height" : 16 }
+					},
+					"item" : { "top" :  16, "left": 0, "width" : 48, "height" : 32 },
+					"itemsOffset" : { "x" : 0, "y" : 32 },
+					"itemsCount" : 7
+				}
+				// Fill empty area below buttons
+				{
+					"type": "adventureMapImage",
+					"name" : "backgroundBelowButtons",
+					"image" : "DiBoxBck.pcx",
+					"area": { "top": 192, "bottom" : 3, "right" : 57, "width" : 64 }
+					"sourceArea": { "left" : 0, "top" : 0, "width" : 256, "height" : 256 }
+				},
+			]
+		},
+		{
+			"type": "adventureMapContainer",
+			"name" : "emptyAreaFillLarge",
+			"area": { "top": 456, "right" : 3, "width" : 190, "bottom" : 211 },
+			"exists" : { "heightMin" : 664 },
+			"items" : [
+				{
+					"type": "adventureMapImage",
+					"name": "emptyAreaFillLargeImage",
+					"image" : "DiBoxBck.pcx",
+					"area": { "top": 0, "bottom" : 0, "left" : 0, "right" : 0 }
+					"sourceArea": { "left" : 0, "top" : 0, "width" : 256, "height" : 256 }
+				},
+			]
+		},
 		// Infobar
 		{
 			"type": "adventureInfobar",
@@ -302,7 +417,7 @@
 					"name": "worldViewBackground",
 					"image" : "VWorld.pcx",
 					"area": { "top" : 0, "left": 0, "width" : 48, "height" : 192 },
-					"areaSource": { "left" : 0, "right" : 0, "top" : 0, "bottom" : 0 }
+					"sourceArea": { "left" : 0, "right" : 0, "top" : 0, "bottom" : 0 }
 				},
 				{
 					"type": "adventureMapButton",
