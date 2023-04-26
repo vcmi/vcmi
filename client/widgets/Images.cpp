@@ -128,9 +128,9 @@ void CFilledTexture::showAll(SDL_Surface *to)
 {
 	CSDL_Ext::CClipRectGuard guard(to, pos);
 
-	for (int y=pos.top(); y < pos.bottom(); y+= texture->height())
+	for (int y=pos.top(); y < pos.bottom(); y+= imageArea.h)
 	{
-		for (int x=pos.left(); x < pos.right(); x+=texture->width())
+		for (int x=pos.left(); x < pos.right(); x+= imageArea.w)
 			texture->draw(to, x, y, &imageArea);
 	}
 }

@@ -91,6 +91,12 @@ class CAdventureMapContainerWidget : public CIntObject
 	std::vector<std::shared_ptr<CIntObject>> ownedChildren;
 };
 
+class CAdventureMapOverlayWidget : public CAdventureMapContainerWidget
+{
+public:
+	void show(SDL_Surface * to) override;
+};
+
 /// Small helper class that provides player-colorable icon using animation file
 class CAdventureMapIcon : public CIntObject
 {

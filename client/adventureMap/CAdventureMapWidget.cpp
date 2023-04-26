@@ -32,8 +32,10 @@
 CAdventureMapWidget::CAdventureMapWidget()
 	: state(EGameState::NOT_INITIALIZED)
 {
-	pos.w = 800;
-	pos.h = 600;
+	pos.x = pos.y = 0;
+	pos.w = GH.screenDimensions().x;
+	pos.h = GH.screenDimensions().y;
+
 	REGISTER_BUILDER("adventureInfobar",         &CAdventureMapWidget::buildInfobox         );
 	REGISTER_BUILDER("adventureMapImage",        &CAdventureMapWidget::buildMapImage        );
 	REGISTER_BUILDER("adventureMapButton",       &CAdventureMapWidget::buildMapButton       );
@@ -154,7 +156,12 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapButton(const JsonNode &
 std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapContainer(const JsonNode & input)
 {
 	auto position = readTargetArea(input["area"]);
-	auto result = std::make_shared<CAdventureMapContainerWidget>();
+	std::shared_ptr<CAdventureMapContainerWidget> result;
+
+	if (input["overlay"].Bool())
+		result = std::make_shared<CAdventureMapOverlayWidget>();
+	else
+		result = std::make_shared<CAdventureMapContainerWidget>();
 
 	result->moveBy(position.topLeft());
 	subwidgetSizes.push_back(position);
@@ -387,4 +394,9 @@ CAdventureMapIcon::CAdventureMapIcon(const Point & position, std::shared_ptr<CAn
 void CAdventureMapIcon::setPlayer(const PlayerColor & player)
 {
 	image->setFrame(index + player.getNum() * iconsPerPlayer);
+}
+
+void CAdventureMapOverlayWidget::show(SDL_Surface * to)
+{
+	CIntObject::showAll(to);
 }

@@ -9,114 +9,103 @@
 		
 		// widgets that are only visible in game view mode
 		"gameViewWidgets" : [ "townListContainer", "heroListContainer", "buttonsContainer", "infobox" ],
-		
-		// widgets that should be drawn on top of game area
-		// NOTE: semi-transparency is not supported, only fully transparent/fully opaque
-		"overlayWidgets" : [ "gemTopLeft", "gemTopRight", "gemBottomLeft", "gemBottomRight" ]
 	},
 
 	"items":
 	[
-		// GEMS - set of images with different image for each player
+		// Background sections - left side
 		{
-			"type": "adventureMapIcon",
-			"name" : "gemTopLeft",
-			"image" : "agemUL.def",
-			"index" : 0,
-			"perPlayer" : 1,
-			"area" : { "left": 7, "top" : 7, "width" : 46, "height" : 46 }
+			"type": "adventureMapImage",
+			"name" : "backgroundLeftTop",
+			"image" : "AdvMap.pcx",
+			"area" : { "left": 0, "top" : 0, "width" : 7, "height" : 52 }
 		},
 		{
-			"type": "adventureMapIcon",
-			"name" : "gemTopRight",
-			"image" : "agemUR.def",
-			"index" : 0,
-			"perPlayer" : 1,
-			"area" : { "right": 198, "top" : 7, "width" : 46, "height" : 46 }
+			"type": "adventureMapImage",
+			"name" : "backgroundLeftCenter",
+			"image" : "AdvMap.pcx",
+			"area" : { "left": 0, "top" : 52, "width" : 7, "bottom" : 91 }
 		},
 		{
-			"type": "adventureMapIcon",
-			"name" : "gemBottomLeft",
-			"image" : "agemLL.def",
-			"index" : 0,
-			"perPlayer" : 1,
-			"area" : { "left": 7, "bottom" : 46, "width" : 46, "height" : 46 }
+			"type": "adventureMapImage",
+			"name" : "backgroundLeftBottom",
+			"image" : "AdvMap.pcx",
+			"area" : { "left": 0, "bottom" : 0, "width" : 7, "height" : 91 }
 		},
-		{
-			"type": "adventureMapIcon",
-			"name" : "gemBottomRight",
-			"image" : "agemLR.def",
-			"index" : 0,
-			"perPlayer" : 1,
-			"area" : { "right": 198, "bottom" : 46, "width" : 46, "height" : 46 }
-		},
-
-		// Background sections
+		// Background sections - top side
 		{
 			"type": "adventureMapImage",
 			"name" : "backgroundTopLeft",
 			"image" : "AdvMap.pcx",
-			"area" : { "left": 0, "top" : 0, "width" : 7, "height" : 7 }
+			"area" : { "left": 7, "top" : 0, "width" : 193, "height" : 7 }
 		},
 		{
 			"type": "adventureMapImage",
-			"name" : "backgroundBottomLeft",
+			"name" : "backgroundTopCenter",
 			"image" : "AdvMap.pcx",
-			"area" : { "left": 0, "bottom" : 0, "width" : 7, "height" : 46 }
+			"area" : { "left": 200, "top" : 0, "right" : 244, "height" : 7 }
 		},
 		{
 			"type": "adventureMapImage",
 			"name" : "backgroundTopRight",
 			"image" : "AdvMap.pcx",
-			"area" : { "right": 0, "top" : 0, "width" : 199, "height" : 196 }
+			"area" : { "width": 45, "top" : 0, "right" : 199, "height" : 7 }
+		},
+		// Background sections - bottom side
+		{
+			"type": "adventureMapImage",
+			"name" : "backgroundBottomLeft",
+			"image" : "AdvMap.pcx",
+			"area" : { "left": 7, "bottom" : 0, "width" : 44, "height" : 47 }
+		},
+		{
+			"type": "adventureMapImage",
+			"name" : "backgroundBottomCenter",
+			"image" : "AdvMap.pcx",
+			"area" : { "left": 51, "bottom" : 0, "right" : 244, "height" : 47 }
 		},
 		{
 			"type": "adventureMapImage",
 			"name" : "backgroundBottomRight",
 			"image" : "AdvMap.pcx",
+			"area" : { "width": 45, "bottom" : 0, "right" : 199, "height" : 47 }
+		},
+		// Background sections - side panel
+		{
+			"type": "adventureMapImage",
+			"name" : "backgroundRightMinimap",
+			"image" : "AdvMap.pcx",
+			"area" : { "right": 0, "top" : 0, "width" : 199, "height" : 196 }
+		},
+		{
+			"type": "adventureMapImage",
+			"name" : "backgroundRightInfobar",
+			"image" : "AdvMap.pcx",
 			"area" : { "bottom": 0, "right" : 0, "width" : 199, "height" : 211 }
 		},
 		{
 			"type": "adventureMapImage",
-			"name": "sideBorderLeft",
+			"name": "backgroundHeroListBorderLeft",
 			"image" : "AdvMap.pcx",
-			"area": { "top": 7, "left" : 0, "bottom" : 46, "width" : 7 }
+			"area": { "top": 196, "bottom" : 211, "right" : 191, "width" : 8 }
 		},
 		{
 			"type": "adventureMapImage",
-			"name": "sideBorderTop",
+			"name": "backgroundHeroListBorderRight",
 			"image" : "AdvMap.pcx",
-			"area": { "top": 0, "left" : 7, "right" : 199, "height" : 7 }
+			"area": { "top": 196, "bottom" : 211, "right" : 121, "width" : 6 }
 		},
 		{
 			"type": "adventureMapImage",
-			"name": "sideBorderBottom",
+			"name": "backgroundTownListBorderLeft",
 			"image" : "AdvMap.pcx",
-			"area": { "bottom": 0, "right" : 199, "left" : 0, "height" : 47 }
+			"area": { "top": 196, "bottom" : 211, "right" : 53, "width" : 4 }
 		},
 		{
 			"type": "adventureMapImage",
-			"name": "heroListBorderLeft",
+			"name": "backgroundTownListBorderRight",
 			"image" : "AdvMap.pcx",
-			"area": { "top": 196, "bottom" : 210, "right" : 192, "width" : 7 }
-		},
-		{
-			"type": "adventureMapImage",
-			"name": "heroListBorderRight",
-			"image" : "AdvMap.pcx",
-			"area": { "top": 196, "bottom" : 210, "right" : 122, "width" : 3 }
-		},
-		{
-			"type": "adventureMapImage",
-			"name": "townListBorderLeft",
-			"image" : "AdvMap.pcx",
-			"area": { "top": 196, "bottom" : 210, "right" : 54, "width" : 3 }
-		},
-		{
-			"type": "adventureMapImage",
-			"name": "townListBorderRight",
-			"image" : "AdvMap.pcx",
-			"area": { "top": 196, "bottom" : 210, "right" : 0, "width" : 3 }
+			"area": { "top": 196, "bottom" : 211, "right" : 0, "width" : 5 }
 		},
 		
 		// Game area
@@ -606,6 +595,71 @@
 						}
 					]
 				},
+			]
+		},
+		// GEMS - set of images with different image for each player
+		{
+			"type": "adventureMapContainer",
+			"name" : "overlayGemTopLeft",
+			"overlay" : true,
+			"area": { "left": 6, "top" : 6, "width" : 46, "height" : 46 },
+			"items" : [
+				{
+					"type": "adventureMapIcon",
+					"name" : "gemTopLeft",
+					"image" : "agemUL.def",
+					"index" : 0,
+					"perPlayer" : 1,
+					"area" : { "left": 0, "top" : 0, "right" : 0, "bottom" : 0 }
+				}
+			]
+		},
+		{
+			"type": "adventureMapContainer",
+			"name" : "overlayGemTopRight",
+			"overlay" : true,
+			"area": { "right": 198, "top" : 6, "width" : 46, "height" : 46 },
+			"items" : [
+				{
+					"type": "adventureMapIcon",
+					"name" : "gemTopRight",
+					"image" : "agemUR.def",
+					"index" : 0,
+					"perPlayer" : 1,
+					"area" : { "left": 0, "top" : 0, "right" : 0, "bottom" : 0 }
+				}
+			]
+		},
+		{
+			"type": "adventureMapContainer",
+			"name" : "overlayGemBottomLeft",
+			"overlay" : true,
+			"area": { "left": 6, "bottom" : 46, "width" : 46, "height" : 46 },
+			"items" : [
+				{
+					"type": "adventureMapIcon",
+					"name" : "gemBottomLeft",
+					"image" : "agemLL.def",
+					"index" : 0,
+					"perPlayer" : 1,
+					"area" : { "left": 0, "top" : 0, "right" : 0, "bottom" : 0 }
+				}
+			]
+		},
+		{
+			"type": "adventureMapContainer",
+			"name" : "overlayGemBottomRight",
+			"overlay" : true,
+			"area": { "right": 198, "bottom" : 46, "width" : 46, "height" : 46 },
+			"items" : [
+				{
+					"type": "adventureMapIcon",
+					"name" : "gemBottomRight",
+					"image" : "agemLR.def",
+					"index" : 0,
+					"perPlayer" : 1,
+					"area" : { "left": 0, "top" : 0, "right" : 0, "bottom" : 0 }
+				}
 			]
 		}
 	]

@@ -659,7 +659,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 
 	// TODO: CONFIGURABLE ADVMAP
 	static const std::vector<Point> supportedResolutions = {
-		{ 800, 600 }
+		{ 1280, 720 }
 	};
 
 
