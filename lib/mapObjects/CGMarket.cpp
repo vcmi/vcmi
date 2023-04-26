@@ -177,10 +177,8 @@ const IMarket * IMarket::castFrom(const CGObjectInstance *obj, bool verbose)
 	}
 }
 
-IMarket::IMarket(const CGObjectInstance *O)
-	:o(O)
+IMarket::IMarket()
 {
-
 }
 
 std::vector<EMarketMode::EMarketMode> IMarket::availableModes() const
@@ -250,7 +248,6 @@ std::vector<int> CGMarket::availableItemsIds(EMarketMode::EMarketMode mode) cons
 }
 
 CGMarket::CGMarket()
-	:IMarket(this)
 {
 }
 
