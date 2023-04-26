@@ -35,9 +35,13 @@ class DLL_LINKAGE IFactionMember: public IConstBonusProvider, public INativeTerr
 {
 public:
 	/**
-	Returns native terrain considering some terrain bonuses.
+	 Returns native terrain considering some terrain bonuses.
 	*/
 	virtual Identifier<ETerrainId> getNativeTerrain() const;
+	/**
+	 Returns magic resistance considering some bonuses.
+	*/
+	virtual int32_t magicResistance() const;
 };
 
 class DLL_LINKAGE Entity

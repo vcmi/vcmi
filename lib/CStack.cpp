@@ -12,6 +12,7 @@
 
 #include <vstd/RNG.h>
 
+#include <vcmi/Entity.h>
 #include <vcmi/ServerCallback.h>
 
 #include "CGeneralTextHandler.h"
@@ -88,7 +89,7 @@ ui32 CStack::level() const
 
 si32 CStack::magicResistance() const
 {
-	auto magicResistance = IBonusBearer::magicResistance();
+	auto magicResistance = IFactionMember::magicResistance();
 
 	si32 auraBonus = 0;
 

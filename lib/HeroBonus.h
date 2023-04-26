@@ -760,7 +760,6 @@ public:
 
 	ui32 MaxHealth() const; //get max HP of stack with all modifiers
 	bool isLiving() const; //non-undead, non-non living or alive
-	virtual si32 magicResistance() const;
 	ui32 Speed(int turn = 0, bool useBind = false) const; //get speed of creature with all modificators
 
 	int getPrimSkillLevel(PrimarySkill::PrimarySkill id) const;

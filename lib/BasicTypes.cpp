@@ -38,4 +38,11 @@ TerrainId IFactionMember::getNativeTerrain() const
 		? any : VLC->factions()->getById(getFaction())->getNativeTerrain();
 }
 
+int32_t IFactionMember::magicResistance() const
+{
+	si32 val = getBonusBearer()->valOfBonuses(Selector::type()(Bonus::MAGIC_RESISTANCE));
+	vstd::amin (val, 100);
+	return val;
+}
+
 VCMI_LIB_NAMESPACE_END

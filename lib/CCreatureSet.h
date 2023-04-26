@@ -106,7 +106,6 @@ public:
 	std::string getQuantityTXT(bool capitalized = true) const;
 	virtual int getExpRank() const;
 	virtual int getLevel() const; //different for regular stack and commander
-	si32 magicResistance() const override;
 	CreatureID getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
 	virtual void init();

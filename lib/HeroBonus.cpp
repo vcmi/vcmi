@@ -795,11 +795,6 @@ int IBonusBearer::getPrimSkillLevel(PrimarySkill::PrimarySkill id) const
 	return ret; //sp=0 works in old saves
 }
 
-si32 IBonusBearer::magicResistance() const
-{
-	return valOfBonuses(Bonus::MAGIC_RESISTANCE);
-}
-
 ui32 IBonusBearer::Speed(int turn, bool useBind) const
 {
 	//war machines cannot move
