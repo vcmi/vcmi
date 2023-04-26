@@ -55,9 +55,11 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CBank.cpp
+		${MAIN_LIB_DIR}/mapObjects/CGDwelling.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGHeroInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGMarket.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGPandoraBox.cpp
+		${MAIN_LIB_DIR}/mapObjects/CGTownBuilding.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGTownInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CObjectClassesHandler.cpp
 		${MAIN_LIB_DIR}/mapObjects/CObjectHandler.cpp
@@ -325,9 +327,11 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CBank.h
+		${MAIN_LIB_DIR}/mapObjects/CGDwelling.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGHeroInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CGMarket.h
 		${MAIN_LIB_DIR}/mapObjects/CGPandoraBox.h
+		${MAIN_LIB_DIR}/mapObjects/CGTownBuilding.h
 		${MAIN_LIB_DIR}/mapObjects/CGTownInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CObjectClassesHandler.h
 		${MAIN_LIB_DIR}/mapObjects/CObjectHandler.h
