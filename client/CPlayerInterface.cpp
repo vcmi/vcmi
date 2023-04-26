@@ -1709,7 +1709,8 @@ void CPlayerInterface::stopMovement()
 void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (market->o->ID == Obj::ALTAR_OF_SACRIFICE)
+	auto * o = dynamic_cast<const CGObjectInstance *>(market);
+	if(o && o->ID == Obj::ALTAR_OF_SACRIFICE)
 	{
 		//EEMarketMode mode = market->availableModes().front();
 		if (market->allowsTrade(EMarketMode::ARTIFACT_EXP) && visitor->getAlignment() != EAlignment::EVIL)
