@@ -160,6 +160,7 @@ void MapView::onViewMapActivated()
 PuzzleMapView::PuzzleMapView(const Point & offset, const Point & dimensions, const int3 & tileToCenter)
 	: BasicMapView(offset, dimensions)
 {
-	controller->setViewCenter(tileToCenter);
 	controller->activatePuzzleMapContext(tileToCenter);
+	controller->setViewCenter(tileToCenter);
+
 }

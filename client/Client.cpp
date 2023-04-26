@@ -374,6 +374,7 @@ void CClient::endGame()
 	//threads cleanup has to be after gs cleanup and before battleints cleanup to stop tacticThread
 	cleanThreads();
 
+	CPlayerInterface::battleInt.reset();
 	playerint.clear();
 	battleints.clear();
 	battleCallbacks.clear();

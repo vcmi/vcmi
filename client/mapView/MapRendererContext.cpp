@@ -22,6 +22,7 @@
 #include "../../lib/CPathfinder.h"
 #include "../../lib/Point.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapping/CMap.h"
 
 MapRendererBaseContext::MapRendererBaseContext(const MapRendererContextState & viewState)
@@ -199,6 +200,11 @@ bool MapRendererBaseContext::showBlocked() const
 	return false;
 }
 
+bool MapRendererBaseContext::showSpellRange(const int3 & position) const
+{
+	return false;
+}
+
 MapRendererAdventureContext::MapRendererAdventureContext(const MapRendererContextState & viewState)
 	: MapRendererBaseContext(viewState)
 {
@@ -264,6 +270,19 @@ bool MapRendererAdventureContext::showVisitable() const
 bool MapRendererAdventureContext::showBlocked() const
 {
 	return settingShowBlocked;
+}
+
+bool MapRendererAdventureContext::showSpellRange(const int3 & position) const
+{
+	if (!settingSpellRange)
+		return false;
+
+	auto hero = LOCPLINT->localState->getCurrentHero();
+
+	if (!hero)
+		return false;
+
+	return !isInScreenRange(hero->getSightCenter(), position);
 }
 
 MapRendererAdventureTransitionContext::MapRendererAdventureTransitionContext(const MapRendererContextState & viewState)

@@ -137,7 +137,7 @@ bool StackActionAnimation::init()
 
 StackActionAnimation::~StackActionAnimation()
 {
-	if (stack->isFrozen())
+	if (stack->isFrozen() && currGroup != ECreatureAnimType::DEATH && currGroup != ECreatureAnimType::DEATH_RANGED)
 		myAnim->setType(ECreatureAnimType::HOLDING);
 	else
 		myAnim->setType(nextGroup);

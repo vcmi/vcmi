@@ -510,7 +510,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		auto spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 		if(spellCost > owner->myHero->mana) //insufficient mana
 		{
-			owner->myInt->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[206]) % spellCost % owner->myHero->mana));
+			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[206]) % spellCost % owner->myHero->mana));
 			return;
 		}
 
@@ -530,7 +530,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		if((combatSpell ^ inCombat) || inCastle)
 		{
 			std::vector<std::shared_ptr<CComponent>> hlp(1, std::make_shared<CComponent>(CComponent::spell, mySpell->id, 0));
-			owner->myInt->showInfoDialog(mySpell->getDescriptionTranslated(schoolLevel), hlp);
+			LOCPLINT->showInfoDialog(mySpell->getDescriptionTranslated(schoolLevel), hlp);
 		}
 		else if(combatSpell)
 		{
@@ -545,9 +545,9 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				std::vector<std::string> texts;
 				problem.getAll(texts);
 				if(!texts.empty())
-					owner->myInt->showInfoDialog(texts.front());
+					LOCPLINT->showInfoDialog(texts.front());
 				else
-					owner->myInt->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
+					LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
 			}
 		}
 		else //adventure spell

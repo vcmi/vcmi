@@ -251,6 +251,7 @@ if(MINGW OR MSVC)
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4250") # 4250: 'class1' : inherits 'class2::member' via dominance
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251") # 4251: class 'xxx' needs to have dll-interface to be used by clients of class 'yyy'
