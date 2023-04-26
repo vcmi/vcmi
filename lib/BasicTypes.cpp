@@ -45,4 +45,59 @@ int32_t IFactionMember::magicResistance() const
 	return val;
 }
 
+int IFactionMember::getAttack(bool ranged) const
+{
+	const std::string cachingStr = "type_PRIMARY_SKILLs_ATTACK";
+
+	static const auto selector = Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
+
+	return getBonusBearer()->valOfBonuses(selector, cachingStr);
+}
+
+int IFactionMember::getDefense(bool ranged) const
+{
+	const std::string cachingStr = "type_PRIMARY_SKILLs_DEFENSE";
+
+	static const auto selector = Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
+
+	return getBonusBearer()->valOfBonuses(selector, cachingStr);
+}
+
+int IFactionMember::getMinDamage(bool ranged) const
+{
+	const std::string cachingStr = "type_CREATURE_DAMAGEs_0Otype_CREATURE_DAMAGEs_1";
+	static const auto selector = Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 1));
+	return getBonusBearer()->valOfBonuses(selector, cachingStr);
+}
+
+int IFactionMember::getMaxDamage(bool ranged) const
+{
+	const std::string cachingStr = "type_CREATURE_DAMAGEs_0Otype_CREATURE_DAMAGEs_2";
+	static const auto selector = Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2));
+	return getBonusBearer()->valOfBonuses(selector, cachingStr);
+}
+
+ui32 ICreature::MaxHealth() const
+{
+	const std::string cachingStr = "type_STACK_HEALTH";
+	static const auto selector = Selector::type()(Bonus::STACK_HEALTH);
+	auto value = getBonusBearer()->valOfBonuses(selector, cachingStr);
+	return std::max(1, value); //never 0
+}
+
+ui32 ICreature::Speed(int turn, bool useBind) const
+{
+	//war machines cannot move
+	if(getBonusBearer()->hasBonus(Selector::type()(Bonus::SIEGE_WEAPON).And(Selector::turns(turn))))
+	{
+		return 0;
+	}
+	//bind effect check - doesn't influence stack initiative
+	if(useBind && getBonusBearer()->hasBonus(Selector::type()(Bonus::BIND_EFFECT).And(Selector::turns(turn))))
+	{
+		return 0;
+	}
+
+	return getBonusBearer()->valOfBonuses(Selector::type()(Bonus::STACKS_SPEED).And(Selector::turns(turn)));
+}
 VCMI_LIB_NAMESPACE_END

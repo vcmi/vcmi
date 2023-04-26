@@ -744,46 +744,6 @@ int IBonusBearer::LuckValAndBonusList(TConstBonusListPtr & bonusList) const
 	return std::clamp(luckValue.getValueAndList(bonusList), -3, +3);
 }
 
-ui32 IBonusBearer::MaxHealth() const
-{
-	const std::string cachingStr = "type_STACK_HEALTH";
-	static const auto selector = Selector::type()(Bonus::STACK_HEALTH);
-	auto value = valOfBonuses(selector, cachingStr);
-	return std::max(1, value); //never 0
-}
-
-int IBonusBearer::getAttack(bool ranged) const
-{
-	const std::string cachingStr = "type_PRIMARY_SKILLs_ATTACK";
-
-	static const auto selector = Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
-
-	return getBonuses(selector, nullptr, cachingStr)->totalValue();
-}
-
-int IBonusBearer::getDefense(bool ranged) const
-{
-	const std::string cachingStr = "type_PRIMARY_SKILLs_DEFENSE";
-
-	static const auto selector = Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
-
-	return getBonuses(selector, nullptr, cachingStr)->totalValue();
-}
-
-int IBonusBearer::getMinDamage(bool ranged) const
-{
-	const std::string cachingStr = "type_CREATURE_DAMAGEs_0Otype_CREATURE_DAMAGEs_1";
-	static const auto selector = Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 1));
-	return valOfBonuses(selector, cachingStr);
-}
-
-int IBonusBearer::getMaxDamage(bool ranged) const
-{
-	const std::string cachingStr = "type_CREATURE_DAMAGEs_0Otype_CREATURE_DAMAGEs_2";
-	static const auto selector = Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2));
-	return valOfBonuses(selector, cachingStr);
-}
-
 int IBonusBearer::getPrimSkillLevel(PrimarySkill::PrimarySkill id) const
 {
 	static const CSelector selectorAllSkills = Selector::type()(Bonus::PRIMARY_SKILL);
@@ -793,22 +753,6 @@ int IBonusBearer::getPrimSkillLevel(PrimarySkill::PrimarySkill id) const
 	auto minSkillValue = (id == PrimarySkill::SPELL_POWER || id == PrimarySkill::KNOWLEDGE) ? 1 : 0;
 	vstd::amax(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect
 	return ret; //sp=0 works in old saves
-}
-
-ui32 IBonusBearer::Speed(int turn, bool useBind) const
-{
-	//war machines cannot move
-	if(hasBonus(Selector::type()(Bonus::SIEGE_WEAPON).And(Selector::turns(turn))))
-	{
-		return 0;
-	}
-	//bind effect check - doesn't influence stack initiative
-	if(useBind && hasBonus(Selector::type()(Bonus::BIND_EFFECT).And(Selector::turns(turn))))
-	{
-		return 0;
-	}
-
-	return valOfBonuses(Selector::type()(Bonus::STACKS_SPEED).And(Selector::turns(turn)));
 }
 
 bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation

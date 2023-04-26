@@ -743,11 +743,6 @@ public:
 	//various hlp functions for non-trivial values
 	//used for stacks and creatures only
 
-	virtual int getMinDamage(bool ranged) const;
-	virtual int getMaxDamage(bool ranged) const;
-	virtual int getAttack(bool ranged) const;
-	virtual int getDefense(bool ranged) const;
-
 	int MoraleVal() const; //range [-3, +3]
 	int LuckVal() const; //range [-3, +3]
 	/**
@@ -758,9 +753,7 @@ public:
 	int MoraleValAndBonusList(TConstBonusListPtr & bonusList) const;
 	int LuckValAndBonusList(TConstBonusListPtr & bonusList) const;
 
-	ui32 MaxHealth() const; //get max HP of stack with all modifiers
 	bool isLiving() const; //non-undead, non-non living or alive
-	ui32 Speed(int turn = 0, bool useBind = false) const; //get speed of creature with all modificators
 
 	int getPrimSkillLevel(PrimarySkill::PrimarySkill id) const;
 

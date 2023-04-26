@@ -42,6 +42,30 @@ public:
 	 Returns magic resistance considering some bonuses.
 	*/
 	virtual int32_t magicResistance() const;
+	/**
+	 Returns minimal damage of creature or (when implemented) hero.
+	*/
+	virtual int getMinDamage(bool ranged) const;
+	/**
+	 Returns maximal damage of creature or (when implemented) hero.
+	*/
+	virtual int getMaxDamage(bool ranged) const;
+	/**
+	 Returns attack of creature or hero.
+	*/
+	virtual int getAttack(bool ranged) const;
+	/**
+	 Returns defence of creature or hero.
+	*/
+	virtual int getDefense(bool ranged) const;
+};
+
+/// Base class for creatures and battle stacks
+class DLL_LINKAGE ICreature: public IFactionMember
+{
+public:
+	ui32 Speed(int turn = 0, bool useBind = false) const; //get speed (in moving tiles) of creature with all modificators
+	ui32 MaxHealth() const; //get max HP of stack with all modifiers
 };
 
 class DLL_LINKAGE Entity
@@ -73,7 +97,7 @@ class DLL_LINKAGE EntityWithBonuses : public EntityT<IdType>, public IConstBonus
 };
 
 template <typename IdType>
-class DLL_LINKAGE EntityWithNativeTerrain : public EntityT<IdType>, public IFactionMember
+class DLL_LINKAGE CreatureEntity : public EntityT<IdType>, public ICreature
 {
 };
 
