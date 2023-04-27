@@ -660,28 +660,6 @@ public:
 	}
 };
 
-// Extensions for BOOST_FOREACH to enable iterating of BonusList objects
-// Don't touch/call this functions
-inline BonusList::iterator range_begin(BonusList & x)
-{
-	return x.begin();
-}
-
-inline BonusList::iterator range_end(BonusList & x)
-{
-	return x.end();
-}
-
-inline BonusList::const_iterator range_begin(const BonusList & x)
-{
-	return x.begin();
-}
-
-inline BonusList::const_iterator range_end(const BonusList & x)
-{
-	return x.end();
-}
-
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const BonusList &bonusList);
 
 struct BonusLimitationContext
