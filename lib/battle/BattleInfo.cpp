@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "BattleInfo.h"
+#include "../bonuses/ILimiter.h"
 #include "../CStack.h"
 #include "../CHeroHandler.h"
 #include "../NetPacks.h"

@@ -18,6 +18,7 @@
 #include "CModHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
+#include "bonuses/ILimiter.h"
 
 #include "serializer/CSerializer.h" // for SAVEGAME_MAGIC
 #include "serializer/BinaryDeserializer.h"
