@@ -740,35 +740,36 @@ void CArtHandler::erasePickedArt(const ArtifactID & id)
 {
 	CArtifact *art = objects[id];
 
-	if(!(art->aClass & CArtifact::ART_SPECIAL))
+	std::vector<CArtifact*> * artifactList = nullptr;
+	switch(art->aClass)
 	{
-		auto & artifactList = treasures;
-		switch(art->aClass)
-		{
-			case CArtifact::ART_MINOR:
-				artifactList = minors;
-				break;
-			case CArtifact::ART_MAJOR:
-				artifactList = majors;
-				break;
-			case CArtifact::ART_RELIC:
-				artifactList = relics;
-				break;
-		}
-		if(artifactList.empty())
-			fillList(artifactList, art->aClass);
+		case CArtifact::ART_TREASURE:
+			artifactList = &treasures;
+			break;
+		case CArtifact::ART_MINOR:
+			artifactList = &minors;
+			break;
+		case CArtifact::ART_MAJOR:
+			artifactList = &majors;
+			break;
+		case CArtifact::ART_RELIC:
+			artifactList = &relics;
+			break;
+		default:
+			logMod->warn("Problem: cannot find list for artifact %s, strange class. (special?)", art->getNameTranslated());
+			return;
+	}
 
-		auto itr = vstd::find(artifactList, art);
-		if(itr != artifactList.end())
-		{
-			artifactList.erase(itr);
-		}
-		else
-			logMod->warn("Problem: cannot erase artifact %s from list, it was not present", art->getNameTranslated());
+	if(artifactList->empty())
+		fillList(*artifactList, art->aClass);
 
+	auto itr = vstd::find(*artifactList, art);
+	if(itr != artifactList->end())
+	{
+		artifactList->erase(itr);
 	}
 	else
-		logMod->warn("Problem: cannot find list for artifact %s, strange class. (special?)", art->getNameTranslated());
+		logMod->warn("Problem: cannot erase artifact %s from list, it was not present", art->getNameTranslated());
 }
 
 void CArtHandler::fillList( std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass )
