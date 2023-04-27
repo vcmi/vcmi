@@ -19,6 +19,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/TextAlignment.h"
+#include "../gui/Shortcut.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../windows/CMessage.h"
 #include "../windows/InfoWindows.h"
@@ -488,11 +489,12 @@ CComponentBox::CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> 
 
 	assert(!components.empty());
 
-	int key = SDLK_1;
+	auto key = EShortcut::SELECT_INDEX_1;
 	for(auto & comp : _components)
 	{
 		comp->onSelect = std::bind(&CComponentBox::selectionChanged, this, comp);
-		comp->assignedKeys.insert(key++);
+		comp->assignedKey = key;
+		vstd::advance(key, 1);
 	}
 	selectionChanged(_components.front());
 }

@@ -15,6 +15,7 @@
 #include "../widgets/Images.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../gui/TextAlignment.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
 #include "../windows/InfoWindows.h"
@@ -728,8 +729,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 	initItems(false);
 	initItems(true);
 
-	ok = std::make_shared<CButton>(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[600], [&](){ close(); }, SDLK_RETURN);
-	ok->assignedKeys.insert(SDLK_ESCAPE);
+	ok = std::make_shared<CButton>(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[600], [&](){ close(); }, EShortcut::GLOBAL_RETURN);
 	deal = std::make_shared<CButton>(Point(307, 520), "TPMRKB.DEF", CGI->generaltexth->zelp[595], [&](){ makeDeal(); } );
 	deal->block(true);
 
@@ -1170,8 +1170,7 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	ok = std::make_shared<CButton>(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[568], [&](){ close();}, SDLK_RETURN);
-	ok->assignedKeys.insert(SDLK_ESCAPE);
+	ok = std::make_shared<CButton>(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[568], [&](){ close();}, EShortcut::GLOBAL_RETURN);
 
 	deal = std::make_shared<CButton>(Point(269, 520), "ALTSACR.DEF", CGI->generaltexth->zelp[585], std::bind(&CAltarWindow::makeDeal,this));
 

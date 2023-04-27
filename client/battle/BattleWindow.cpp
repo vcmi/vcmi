@@ -21,6 +21,7 @@
 #include "../CMusicHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../windows/CSpellWindow.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
@@ -182,7 +183,7 @@ void BattleWindow::deactivate()
 	LOCPLINT->cingconsole->deactivate();
 }
 
-void BattleWindow::keyPressed(const SDL_Keycode & key)
+void BattleWindow::keyPressed(EShortcut key)
 {
 	if (owner.openingPlaying())
 	{
@@ -190,34 +191,17 @@ void BattleWindow::keyPressed(const SDL_Keycode & key)
 		return;
 	}
 
-	if(key == SDLK_q)
+	if(key == EShortcut::BATTLE_TOGGLE_QUEUE)
 	{
 		toggleQueueVisibility();
 	}
-	else if(key == SDLK_f)
+	else if(key == EShortcut::BATTLE_USE_CREATURE_SPELL)
 	{
 		owner.actionsController->enterCreatureCastingMode();
 	}
-	else if(key == SDLK_ESCAPE)
+	else if(key == EShortcut::GLOBAL_CANCEL)
 	{
 		owner.actionsController->endCastingSpell();
-	}
-	else if(GH.isKeyboardShiftDown())
-	{
-		// save and activate setting
-		Settings movementHighlightOnHover = settings.write["battle"]["movementHighlightOnHover"];
-		movementHighlightOnHoverCache = movementHighlightOnHover->Bool();
-		movementHighlightOnHover->Bool() = true;
-	}
-}
-
-void BattleWindow::keyReleased(const SDL_Keycode & key)
-{
-	if(!GH.isKeyboardShiftDown())
-	{
-		// set back to initial state
-		Settings movementHighlightOnHover = settings.write["battle"]["movementHighlightOnHover"];
-		movementHighlightOnHover->Bool() = movementHighlightOnHoverCache;
 	}
 }
 

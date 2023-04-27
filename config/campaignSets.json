@@ -2,7 +2,7 @@
 	"roe" :
 	{
 		"images" : [ {"x": 0, "y": 0, "name":"CAMPBACK"} ],
-		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN", "hotkey" : 27},
+		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN" },
 		"items":
 		[
 			{ "x":90,  "y":72,  "file":"DATA/GOOD1.H3C",    "image":"CAMPGD1S", "video":"CGOOD1",   "open": true },
@@ -22,7 +22,7 @@
 			{"x": 34,  "y": 417, "name":"CAMP1FWX"},//one campaign have special inactive image
 			{"x": 385, "y": 401, "name":"CAMPNOSC"},//and the last one is not present
 		],
-		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN", "hotkey" : 27},
+		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN" },
 		"items":
 		[
 			{ "x":90,  "y":72,  "file":"DATA/AB.H3C",       "image":"CAMP1AB7", "video":"C1ab7", "open": true },
@@ -36,7 +36,7 @@
 	"sod":
 	{
 		"images" : [ {"x": 0, "y": 0, "name":"CAMPBKX2"} ],
-		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN", "hotkey" : 27},
+		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN" },
 		"items":
 		[
 			{ "x":90,  "y":72,  "file":"DATA/GEM.H3C",      "image":"CAMPNB1", "video":"NEW",     "open": true },
@@ -46,19 +46,6 @@
 			{ "x":586, "y":246, "file":"DATA/YOG.H3C",      "image":"CAMPBB1", "video":"BIRTH",   "open": true },
 			{ "x":34,  "y":417, "file":"DATA/FINAL.H3C",    "image":"CAMPUA1", "video":"UNHOLY",  "open": true },
 			{ "x":404, "y":414, "file":"DATA/SECRET.H3C",  "image":"CAMPSP1", "video":"SPECTRE", "open": true }
-		]
-	},
-	"wog" : 
-	{
-		/// wog campaigns, currently has no assigned button in campaign screen and thus unused
-		"images" : [ {"x": 0, "y": 0, "name":"CAMPZALL"} ],
-		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN", "hotkey" : 27},
-		"items":
-		[
-			{ "x":90,  "y":72,  "file":"DATA/ZC1.H3C", "image":"CAMPZ01", "open": true},
-			{ "x":539, "y":72,  "file":"DATA/ZC2.H3C", "image":"CAMPZ02", "open": true},
-			{ "x":43,  "y":245, "file":"DATA/ZC3.H3C", "image":"CAMPZ03", "open": true},
-			{ "x":311, "y":242, "file":"DATA/ZC4.H3C", "image":"CAMPZ04", "open": true}
 		]
 	}
 }

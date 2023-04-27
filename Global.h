@@ -544,9 +544,15 @@ namespace vstd
 	}
 
 	template<typename T>
+	T advance_r(const T &obj, int change)
+	{
+		return static_cast<T>(static_cast<int>(obj) + change);
+	}
+
+	template<typename T>
 	void advance(T &obj, int change)
 	{
-		obj = (T)(((int)obj) + change);
+		obj = advance_r(obj, change);
 	}
 
 	template <typename Container>

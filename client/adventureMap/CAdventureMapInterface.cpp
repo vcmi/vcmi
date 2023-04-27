@@ -33,6 +33,7 @@
 #include "../gui/CursorHandler.h"
 #include "../render/IImage.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
 #include "../windows/settings/SettingsMainWindow.h"
@@ -95,7 +96,7 @@ CAdventureMapInterface::CAdventureMapInterface():
 		gems.push_back(std::make_shared<CAnimImage>(ADVOPT.gemG[g], 0, 0, ADVOPT.gemX[g], ADVOPT.gemY[g]));
 	}
 
-	auto makeButton = [&](int textID, std::function<void()> callback, config::ButtonInfo info, int key) -> std::shared_ptr<CButton>
+	auto makeButton = [&](int textID, std::function<void()> callback, config::ButtonInfo info, EShortcut key) -> std::shared_ptr<CButton>
 	{
 		auto button = std::make_shared<CButton>(Point(info.x, info.y), info.defName, CGI->generaltexth->zelp[textID], callback, key, info.playerColoured);
 		for(auto image : info.additionalDefs)
@@ -103,16 +104,16 @@ CAdventureMapInterface::CAdventureMapInterface():
 		return button;
 	};
 
-	kingOverview = makeButton(293, std::bind(&CAdventureMapInterface::fshowOverview,this),     ADVOPT.kingOverview, SDLK_k);
-	underground  = makeButton(294, std::bind(&CAdventureMapInterface::fswitchLevel,this),      ADVOPT.underground,  SDLK_u);
-	questlog     = makeButton(295, std::bind(&CAdventureMapInterface::fshowQuestlog,this),     ADVOPT.questlog,     SDLK_q);
-	sleepWake    = makeButton(296, std::bind(&CAdventureMapInterface::fsleepWake,this),        ADVOPT.sleepWake,    SDLK_w);
-	moveHero     = makeButton(297, std::bind(&CAdventureMapInterface::fmoveHero,this),         ADVOPT.moveHero,     SDLK_m);
-	spellbook    = makeButton(298, std::bind(&CAdventureMapInterface::fshowSpellbok,this),     ADVOPT.spellbook,    SDLK_c);
-	advOptions   = makeButton(299, std::bind(&CAdventureMapInterface::fadventureOPtions,this), ADVOPT.advOptions,   SDLK_a);
-	sysOptions   = makeButton(300, std::bind(&CAdventureMapInterface::fsystemOptions,this),    ADVOPT.sysOptions,   SDLK_o);
-	nextHero     = makeButton(301, std::bind(&CAdventureMapInterface::fnextHero,this),         ADVOPT.nextHero,     SDLK_h);
-	endTurn      = makeButton(302, std::bind(&CAdventureMapInterface::fendTurn,this),          ADVOPT.endTurn,      SDLK_e);
+	kingOverview = makeButton(293, std::bind(&CAdventureMapInterface::fshowOverview,this),     ADVOPT.kingOverview, EShortcut::ADVENTURE_KINGDOM_OVERVIEW);
+	underground  = makeButton(294, std::bind(&CAdventureMapInterface::fswitchLevel,this),      ADVOPT.underground,  EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL);
+	questlog     = makeButton(295, std::bind(&CAdventureMapInterface::fshowQuestlog,this),     ADVOPT.questlog,     EShortcut::ADVENTURE_QUEST_LOG);
+	sleepWake    = makeButton(296, std::bind(&CAdventureMapInterface::fsleepWake,this),        ADVOPT.sleepWake,    EShortcut::ADVENTURE_TOGGLE_SLEEP);
+	moveHero     = makeButton(297, std::bind(&CAdventureMapInterface::fmoveHero,this),         ADVOPT.moveHero,     EShortcut::ADVENTURE_MOVE_HERO);
+	spellbook    = makeButton(298, std::bind(&CAdventureMapInterface::fshowSpellbok,this),     ADVOPT.spellbook,    EShortcut::ADVENTURE_CAST_SPELL);
+	advOptions   = makeButton(299, std::bind(&CAdventureMapInterface::fadventureOPtions,this), ADVOPT.advOptions,   EShortcut::ADVENTURE_OPTIONS);
+	sysOptions   = makeButton(300, std::bind(&CAdventureMapInterface::fsystemOptions,this),    ADVOPT.sysOptions,   EShortcut::GLOBAL_OPTIONS);
+	nextHero     = makeButton(301, std::bind(&CAdventureMapInterface::fnextHero,this),         ADVOPT.nextHero,     EShortcut::ADVENTURE_NEXT_HERO);
+	endTurn      = makeButton(302, std::bind(&CAdventureMapInterface::fendTurn,this),          ADVOPT.endTurn,      EShortcut::ADVENTURE_END_TURN);
 
 	int panelSpaceBottom = GH.screenDimensions().y - resdatabar->pos.h - 4;
 
@@ -139,7 +140,7 @@ CAdventureMapInterface::CAdventureMapInterface():
 	worldViewBackConfig.y = 343 + 195;
 	worldViewBackConfig.playerColoured = false;
 	panelWorldView->addChildToPanel(
-		makeButton(288, std::bind(&CAdventureMapInterface::fworldViewBack,this), worldViewBackConfig, SDLK_ESCAPE), ACTIVATE | DEACTIVATE);
+		makeButton(288, std::bind(&CAdventureMapInterface::fworldViewBack,this), worldViewBackConfig, EShortcut::GLOBAL_CANCEL), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewPuzzleConfig = config::ButtonInfo();
 	worldViewPuzzleConfig.defName = "VWPUZ.DEF";
@@ -148,7 +149,7 @@ CAdventureMapInterface::CAdventureMapInterface():
 	worldViewPuzzleConfig.playerColoured = false;
 	panelWorldView->addChildToPanel( // no help text for this one
 		std::make_shared<CButton>(Point(worldViewPuzzleConfig.x, worldViewPuzzleConfig.y), worldViewPuzzleConfig.defName, std::pair<std::string, std::string>(),
-				std::bind(&CPlayerInterface::showPuzzleMap,LOCPLINT), SDLK_p, worldViewPuzzleConfig.playerColoured), ACTIVATE | DEACTIVATE);
+				std::bind(&CPlayerInterface::showPuzzleMap,LOCPLINT), EShortcut::ADVENTURE_VIEW_PUZZLE, worldViewPuzzleConfig.playerColoured), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewScale1xConfig = config::ButtonInfo();
 	worldViewScale1xConfig.defName = "VWMAG1.DEF";
@@ -156,7 +157,7 @@ CAdventureMapInterface::CAdventureMapInterface():
 	worldViewScale1xConfig.y = 23 + 195;
 	worldViewScale1xConfig.playerColoured = false;
 	panelWorldView->addChildToPanel( // help text is wrong for this button
-		makeButton(291, std::bind(&CAdventureMapInterface::fworldViewScale1x,this), worldViewScale1xConfig, SDLK_1), ACTIVATE | DEACTIVATE);
+		makeButton(291, std::bind(&CAdventureMapInterface::fworldViewScale1x,this), worldViewScale1xConfig, EShortcut::SELECT_INDEX_1), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewScale2xConfig = config::ButtonInfo();
 	worldViewScale2xConfig.defName = "VWMAG2.DEF";
@@ -164,7 +165,7 @@ CAdventureMapInterface::CAdventureMapInterface():
 	worldViewScale2xConfig.y = 23 + 195;
 	worldViewScale2xConfig.playerColoured = false;
 	panelWorldView->addChildToPanel( // help text is wrong for this button
-		makeButton(291, std::bind(&CAdventureMapInterface::fworldViewScale2x,this), worldViewScale2xConfig, SDLK_2), ACTIVATE | DEACTIVATE);
+		makeButton(291, std::bind(&CAdventureMapInterface::fworldViewScale2x,this), worldViewScale2xConfig, EShortcut::SELECT_INDEX_2), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewScale4xConfig = config::ButtonInfo();
 	worldViewScale4xConfig.defName = "VWMAG4.DEF";
@@ -172,7 +173,7 @@ CAdventureMapInterface::CAdventureMapInterface():
 	worldViewScale4xConfig.y = 23 + 195;
 	worldViewScale4xConfig.playerColoured = false;
 	panelWorldView->addChildToPanel( // help text is wrong for this button
-		makeButton(291, std::bind(&CAdventureMapInterface::fworldViewScale4x,this), worldViewScale4xConfig, SDLK_4), ACTIVATE | DEACTIVATE);
+		makeButton(291, std::bind(&CAdventureMapInterface::fworldViewScale4x,this), worldViewScale4xConfig, EShortcut::SELECT_INDEX_4), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewUndergroundConfig = config::ButtonInfo();
 	worldViewUndergroundConfig.defName = "IAM010.DEF";
@@ -180,7 +181,7 @@ CAdventureMapInterface::CAdventureMapInterface():
 	worldViewUndergroundConfig.x = GH.screenDimensions().x - 115;
 	worldViewUndergroundConfig.y = 343 + 195;
 	worldViewUndergroundConfig.playerColoured = true;
-	worldViewUnderground = makeButton(294, std::bind(&CAdventureMapInterface::fswitchLevel,this), worldViewUndergroundConfig, SDLK_u);
+	worldViewUnderground = makeButton(294, std::bind(&CAdventureMapInterface::fswitchLevel,this), worldViewUndergroundConfig, EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL);
 	panelWorldView->addChildColorableButton(worldViewUnderground);
 
 	onCurrentPlayerChanged(LOCPLINT->playerID);
@@ -392,7 +393,6 @@ void CAdventureMapInterface::updateButtons()
 	{
 		bool state = LOCPLINT->localState->isHeroSleeping(hero);
 		sleepWake->setIndex(state ? 1 : 0, true);
-		sleepWake->assignedKeys = {state ? SDLK_w : SDLK_z};
 		sleepWake->redraw();
 	}
 }
@@ -607,17 +607,20 @@ void CAdventureMapInterface::centerOnObject(const CGObjectInstance * obj)
 	terrain->onCenteredObject(obj);
 }
 
-void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
+void CAdventureMapInterface::keyPressed(EShortcut key)
 {
 	if (state != EGameState::MAKING_TURN)
 		return;
+
+	//fake mouse use to trigger onTileHovered()
+	GH.fakeMouseMove();
 
 	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero(); //selected hero
 	const CGTownInstance *t = LOCPLINT->localState->getCurrentTown(); //selected town
 
 	switch(key)
 	{
-	case SDLK_g:
+	case EShortcut::ADVENTURE_THIEVES_GUILD:
 		if(GH.topInt()->type & BLOCK_ADV_HOTKEYS)
 			return;
 
@@ -634,40 +637,40 @@ void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 				LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
 		}
 		return;
-	case SDLK_i:
+	case EShortcut::ADVENTURE_VIEW_SCENARIO:
 		if(isActive())
 			CAdventureOptions::showScenarioInfo();
 		return;
-	case SDLK_s:
+	case EShortcut::GAME_SAVE_GAME:
 		if(isActive())
 			GH.pushIntT<CSavingScreen>();
 		return;
-	case SDLK_l:
+	case EShortcut::GAME_LOAD_GAME:
 		if(isActive())
 			LOCPLINT->proposeLoadingGame();
 		return;
-	case SDLK_d:
+	case EShortcut::ADVENTURE_DIG_GRAIL:
 		{
 			if(h && isActive() && LOCPLINT->makingTurn)
 				LOCPLINT->tryDiggging(h);
 			return;
 		}
-	case SDLK_p:
+	case EShortcut::ADVENTURE_VIEW_PUZZLE:
 		if(isActive())
 			LOCPLINT->showPuzzleMap();
 		return;
-	case SDLK_v:
+	case EShortcut::ADVENTURE_VIEW_WORLD:
 		if(isActive())
 			LOCPLINT->viewWorldMap();
 		return;
-	case SDLK_r:
+	case EShortcut::GAME_RESTART_GAME:
 		if(isActive() && GH.isKeyboardCtrlDown())
 		{
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.adventureMap.confirmRestartGame"),
 				[](){ GH.pushUserEvent(EUserEvent::RESTART_GAME); }, nullptr);
 		}
 		return;
-	case SDLK_SPACE: //space - try to revisit current object with selected hero
+	case EShortcut::ADVENTURE_VISIT_OBJECT: //space - try to revisit current object with selected hero
 		{
 			if(!isActive())
 				return;
@@ -677,7 +680,7 @@ void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 			}
 		}
 		return;
-	case SDLK_RETURN:
+	case EShortcut::ADVENTURE_VIEW_SELECTED:
 		{
 			if(!isActive() || !LOCPLINT->localState->getCurrentArmy())
 				return;
@@ -687,7 +690,7 @@ void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 				LOCPLINT->openTownWindow(t);
 			return;
 		}
-	case SDLK_ESCAPE:
+	case EShortcut::GLOBAL_CANCEL:
 		{
 			//FIXME: this case is never executed since AdvMapInt is disabled while in spellcasting mode
 			if(!isActive() || GH.topInt().get() != this || !spellBeingCasted)
@@ -696,7 +699,7 @@ void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 			abortCastingMode();
 			return;
 		}
-	case SDLK_t:
+	case EShortcut::GAME_MARKETPLACE:
 		{
 			//act on key down if marketplace windows is not already opened
 			if(GH.topInt()->type & BLOCK_ADV_HOTKEYS)
@@ -720,77 +723,55 @@ void CAdventureMapInterface::keyPressed(const SDL_Keycode & key)
 				else //if not - complain
 					LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 			}
-			else if(isActive()) //no ctrl, advmapint is on the top => switch to town
+	case EShortcut::ADVENTURE_NEXT_TOWN:
+			if(isActive() && !GH.isKeyboardCtrlDown()) //no ctrl, advmapint is on the top => switch to town
 			{
 				townList->selectNext();
 			}
 			return;
 		}
-	case SDLK_LALT:
-	case SDLK_RALT:
-		{
-			//fake mouse use to trigger onTileHovered()
-			GH.fakeMouseMove();
-			return;
-		}
-	default:
-		{
-			auto direction = keyToMoveDirection(key);
-
-			if (!direction)
-				return;
-
-			if(!h || !isActive())
-				return;
-
-			if (CGI->mh->hasOngoingAnimations())
-				return;
-
-			if(*direction == Point(0,0))
-			{
-				centerOnObject(h);
-				return;
-			}
-
-			int3 dst = h->visitablePos() + int3(direction->x, direction->y, 0);
-
-			if (!CGI->mh->isInMap((dst)))
-				return;
-
-			if ( !LOCPLINT->localState->setPath(h, dst))
-				return;
-
-			const CGPath & path = LOCPLINT->localState->getPath(h);
-
-			if (path.nodes.size() > 2)
-				onHeroChanged(h);
-			else
-			if(!path.nodes[0].turns)
-				LOCPLINT->moveHero(h, path);
-		}
-		return;
+	case EShortcut::ADVENTURE_MOVE_HERO_SW: return hotkeyMoveHeroDirectional({-1, +1});
+	case EShortcut::ADVENTURE_MOVE_HERO_SS: return hotkeyMoveHeroDirectional({ 0, +1});
+	case EShortcut::ADVENTURE_MOVE_HERO_SE: return hotkeyMoveHeroDirectional({+1, +1});
+	case EShortcut::ADVENTURE_MOVE_HERO_WW: return hotkeyMoveHeroDirectional({-1,  0});
+	case EShortcut::ADVENTURE_MOVE_HERO_EE: return hotkeyMoveHeroDirectional({+1,  0});
+	case EShortcut::ADVENTURE_MOVE_HERO_NW: return hotkeyMoveHeroDirectional({-1, -1});
+	case EShortcut::ADVENTURE_MOVE_HERO_NN: return hotkeyMoveHeroDirectional({ 0, -1});
+	case EShortcut::ADVENTURE_MOVE_HERO_NE: return hotkeyMoveHeroDirectional({+1, -1});
 	}
 }
 
-std::optional<Point> CAdventureMapInterface::keyToMoveDirection(const SDL_Keycode & key)
+void CAdventureMapInterface::hotkeyMoveHeroDirectional(Point direction)
 {
-	switch (key) {
-		case SDLK_DOWN:  return Point( 0, +1);
-		case SDLK_LEFT:  return Point(-1,  0);
-		case SDLK_RIGHT: return Point(+1,  0);
-		case SDLK_UP:    return Point( 0, -1);
+	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero(); //selected hero
 
-		case SDLK_KP_1: return Point(-1, +1);
-		case SDLK_KP_2: return Point( 0, +1);
-		case SDLK_KP_3: return Point(+1, +1);
-		case SDLK_KP_4: return Point(-1,  0);
-		case SDLK_KP_5: return Point( 0,  0);
-		case SDLK_KP_6: return Point(+1,  0);
-		case SDLK_KP_7: return Point(-1, -1);
-		case SDLK_KP_8: return Point( 0, -1);
-		case SDLK_KP_9: return Point(+1, -1);
+	if(!h || !isActive())
+		return;
+
+	if (CGI->mh->hasOngoingAnimations())
+		return;
+
+	if(direction == Point(0,0))
+	{
+		centerOnObject(h);
+		return;
 	}
-	return std::nullopt;
+
+	int3 dst = h->visitablePos() + int3(direction.x, direction.y, 0);
+
+	if (!CGI->mh->isInMap((dst)))
+		return;
+
+	if ( !LOCPLINT->localState->setPath(h, dst))
+		return;
+
+	const CGPath & path = LOCPLINT->localState->getPath(h);
+
+	if (path.nodes.size() > 2)
+		onHeroChanged(h);
+	else
+		if(!path.nodes[0].turns)
+			LOCPLINT->moveHero(h, path);
 }
 
 void CAdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)

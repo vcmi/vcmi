@@ -64,7 +64,7 @@ protected:
 	EFonts readFont(const JsonNode &) const;
 	std::string readText(const JsonNode &) const;
 	std::pair<std::string, std::string> readHintText(const JsonNode &) const;
-	int readKeycode(const JsonNode &) const;
+	EShortcut readKeycode(const JsonNode &) const;
 	
 	//basic widgets
 	std::shared_ptr<CPicture> buildPicture(const JsonNode &) const;

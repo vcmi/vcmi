@@ -22,7 +22,7 @@
 			"image": "icm003",
 			"help": "core.help.381",
 			"callback": "options",
-			"hotkey": "o"
+			"hotkey": "globalOptions"
 		},
 
 		{
@@ -32,7 +32,7 @@
 			"image": "icm001",
 			"help": "core.help.379",
 			"callback": "surrender",
-			"hotkey": "s"
+			"hotkey": "battleSurrender"
 		},
 
 		{
@@ -42,7 +42,7 @@
 			"image": "icm002",
 			"help": "core.help.380",
 			"callback": "flee",
-			"hotkey": "r"
+			"hotkey": "battleRetreat"
 		},
 
 		{
@@ -52,7 +52,7 @@
 			"image": "icm004",
 			"help": "core.help.382",
 			"callback": "autofight",
-			"hotkey": "a"
+			"hotkey": "battleAutocombat"
 		},
 
 		{
@@ -62,7 +62,7 @@
 			"image": "icm005",
 			"help": "core.help.385",
 			"callback": "spellbook",
-			"hotkey": "c"
+			"hotkey": "battleCastSpell"
 		},
 
 		{
@@ -72,7 +72,7 @@
 			"image": "icm006",
 			"help": "core.help.386",
 			"callback": "wait",
-			"hotkey": "w"
+			"hotkey": "battleWait"
 		},
 
 		{
@@ -82,7 +82,7 @@
 			"image": "icm007",
 			"help": "core.help.387",
 			"callback": "defence",
-			"hotkey": ["d", "space"]
+			"hotkey": "battleDefend"
 		},
 
 		{
@@ -92,7 +92,7 @@
 			"image": "ComSlide",
 			"callback": "consoleUp",
 			"imageOrder": [0, 1, 0, 0],
-			"hotkey": "up"
+			"hotkey": "battleConsoleUp"
 		},
 
 		{
@@ -102,7 +102,7 @@
 			"image": "ComSlide",
 			"callback": "consoleDown",
 			"imageOrder": [2, 3, 2, 2],
-			"hotkey": "down"
+			"hotkey": "battleConsoleDown"
 		},
 
 		{
@@ -118,7 +118,7 @@
 			"position": {"x": 213, "y": 560},
 			"image": "icm011",
 			"callback": "tacticNext",
-			"hotkey": "space"
+			"hotkey": "battleTacticsNext"
 		},
 		
 		{
@@ -127,7 +127,7 @@
 			"position": {"x": 419, "y": 560},
 			"image": "icm012",
 			"callback": "tacticEnd",
-			"hotkey": "enter"
+			"hotkey": "battleTacticsEnd"
 		}
 	]
 }

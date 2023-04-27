@@ -11,6 +11,7 @@
 #include "CArtifactHolder.h"
 
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 
 #include "CComponent.h"
 

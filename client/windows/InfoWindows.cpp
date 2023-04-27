@@ -26,6 +26,7 @@
 #include "../windows/CMessage.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../gui/CursorHandler.h"
+#include "../gui/Shortcut.h"
 
 #include "../../CCallback.h"
 
@@ -79,9 +80,6 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 
 	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
-	buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
-	buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
-
 	if (buttons.size() > 1 && askID.getNum() >= 0) //cancel button functionality
 	{
 		buttons.back()->addCallback([askID]() {
@@ -96,8 +94,8 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 		addChild(comps[i].get());
 		components.push_back(comps[i]);
 		comps[i]->onSelect = std::bind(&CSelWindow::selectionChange,this,i);
-		if(i<9)
-			comps[i]->assignedKeys.insert(SDLK_1+i);
+		if(i<8)
+			comps[i]->assignedKey = vstd::advance_r(EShortcut::SELECT_INDEX_1,i);
 	}
 	CMessage::drawIWindow(this, Text, player);
 }
@@ -135,12 +133,6 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 	if(!text->slider)
 	{
 		text->resize(text->label->textSize);
-	}
-
-	if(buttons.size())
-	{
-		buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
-		buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
 	}
 
 	for(auto & comp : comps)

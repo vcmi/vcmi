@@ -243,7 +243,7 @@ std::set<BattleHex> BattleFieldController::getMovementRangeForHoveredStack()
 	if (!owner.stacksController->getActiveStack())
 		return result;
 
-	if (!settings["battle"]["movementHighlightOnHover"].Bool())
+	if (!settings["battle"]["movementHighlightOnHover"].Bool() && !GH.isKeyboardShiftDown())
 		return result;
 
 	auto hoveredHex = getHoveredHex();

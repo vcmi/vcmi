@@ -13,6 +13,7 @@
 
 #include "CIntObject.h"
 #include "CursorHandler.h"
+#include "ShortcutHandler.h"
 
 #include "../CGameInfo.h"
 #include "../render/Colors.h"
@@ -27,6 +28,7 @@
 #include <SDL_render.h>
 #include <SDL_timer.h>
 #include <SDL_events.h>
+#include <SDL_keycode.h>
 
 #ifdef VCMI_APPLE
 #include <dispatch/dispatch.h>
@@ -93,6 +95,7 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 
 void CGuiHandler::init()
 {
+	shortcutsHandler = std::make_unique<ShortcutHandler>();
 	mainFPSmng = new CFramerateManager();
 	mainFPSmng->init(settings["video"]["targetfps"].Integer());
 	isPointerRelativeMode = settings["general"]["userRelativePointer"].Bool();
@@ -356,6 +359,10 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 	if(current.type == SDL_KEYDOWN || current.type == SDL_KEYUP)
 	{
 		SDL_KeyboardEvent key = current.key;
+
+		if (key.repeat != 0)
+			return; // ignore periodic event resends
+
 		if(current.type == SDL_KEYDOWN && key.keysym.sym >= SDLK_F1 && key.keysym.sym <= SDLK_F15 && settings["session"]["spectate"].Bool())
 		{
 			//TODO: we need some central place for all interface-independent hotkeys
@@ -397,32 +404,35 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 			return;
 		}
 
-		//translate numpad keys
-		if(key.keysym.sym == SDLK_KP_ENTER)
-		{
-			key.keysym.sym = SDLK_RETURN;
-			key.keysym.scancode = SDL_SCANCODE_RETURN;
-		}
+		auto shortcutsVector = shortcutsHandler->translateKeycode(key.keysym.sym);
 
 		bool keysCaptured = false;
 		for(auto i = keyinterested.begin(); i != keyinterested.end() && continueEventHandling; i++)
 		{
-			if((*i)->captureThisKey(key.keysym.sym))
+			for (EShortcut shortcut : shortcutsVector)
 			{
-				keysCaptured = true;
-				break;
+				if((*i)->captureThisKey(shortcut))
+				{
+					keysCaptured = true;
+					break;
+				}
 			}
 		}
 
 		std::list<CIntObject*> miCopy = keyinterested;
 		for(auto i = miCopy.begin(); i != miCopy.end() && continueEventHandling; i++)
-			if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureThisKey(key.keysym.sym)))
+		{
+			for (EShortcut shortcut : shortcutsVector)
 			{
-				if (key.state == SDL_PRESSED && key.repeat == 0) // function like key_DOWN, and not like a periodic key_Pressed check 
-					(**i).keyPressed(key.keysym.sym);
-				if (key.state == SDL_RELEASED)
-					(**i).keyReleased(key.keysym.sym);
+				if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureThisKey(shortcut)))
+				{
+					if (key.state == SDL_PRESSED)
+						(**i).keyPressed(shortcut);
+					if (key.state == SDL_RELEASED)
+						(**i).keyReleased(shortcut);
+				}
 			}
+		}
 	}
 	else if(current.type == SDL_MOUSEMOTION)
 	{
@@ -704,6 +714,10 @@ CGuiHandler::~CGuiHandler()
 	delete terminate_cond;
 }
 
+ShortcutHandler & CGuiHandler::getShortcutsHandler()
+{
+	return *shortcutsHandler;
+}
 
 void CGuiHandler::moveCursorToPosition(const Point & position)
 {
@@ -768,69 +782,6 @@ void CGuiHandler::drawFPSCounter()
 	SDL_FillRect(screen, &overlay, black);
 	std::string fps = std::to_string(mainFPSmng->getFramerate());
 	graphics->fonts[FONT_BIG]->renderTextLeft(screen, fps, Colors::YELLOW, Point(10, 10));
-}
-
-SDL_Keycode CGuiHandler::arrowToNum(SDL_Keycode key)
-{
-	switch(key)
-	{
-	case SDLK_DOWN:
-		return SDLK_KP_2;
-	case SDLK_UP:
-		return SDLK_KP_8;
-	case SDLK_LEFT:
-		return SDLK_KP_4;
-	case SDLK_RIGHT:
-		return SDLK_KP_6;
-	default:
-		throw std::runtime_error("Wrong key!");
-	}
-}
-
-SDL_Keycode CGuiHandler::numToDigit(SDL_Keycode key)
-{
-
-#define REMOVE_KP(keyName) case SDLK_KP_ ## keyName : return SDLK_ ## keyName;
-	switch(key)
-	{
-		REMOVE_KP(0)
-		REMOVE_KP(1)
-		REMOVE_KP(2)
-		REMOVE_KP(3)
-		REMOVE_KP(4)
-		REMOVE_KP(5)
-		REMOVE_KP(6)
-		REMOVE_KP(7)
-		REMOVE_KP(8)
-		REMOVE_KP(9)
-		REMOVE_KP(PERIOD)
-		REMOVE_KP(MINUS)
-		REMOVE_KP(PLUS)
-		REMOVE_KP(EQUALS)
-
-	case SDLK_KP_MULTIPLY:
-		return SDLK_ASTERISK;
-	case SDLK_KP_DIVIDE:
-		return SDLK_SLASH;
-	case SDLK_KP_ENTER:
-		return SDLK_RETURN;
-	default:
-		return SDLK_UNKNOWN;
-	}
-#undef REMOVE_KP
-}
-
-bool CGuiHandler::isNumKey(SDL_Keycode key, bool number)
-{
-	if(number)
-		return key >= SDLK_KP_1 && key <= SDLK_KP_0;
-	else
-		return (key >= SDLK_KP_1 && key <= SDLK_KP_0) || key == SDLK_KP_MINUS || key == SDLK_KP_PLUS || key == SDLK_KP_EQUALS;
-}
-
-bool CGuiHandler::isArrowKey(SDL_Keycode key)
-{
-	return key == SDLK_UP || key == SDLK_DOWN || key == SDLK_LEFT || key == SDLK_RIGHT;
 }
 
 bool CGuiHandler::amIGuiThread()

@@ -31,6 +31,7 @@ set(client_SRCS
 	gui/CursorHandler.cpp
 	gui/InterfaceObjectConfigurable.cpp
 	gui/NotificationHandler.cpp
+	gui/ShortcutHandler.cpp
 
 	lobby/CBonusSelection.cpp
 	lobby/CCampaignInfoScreen.cpp
@@ -159,6 +160,8 @@ set(client_HEADERS
 	gui/InterfaceObjectConfigurable.h
 	gui/MouseButton.h
 	gui/NotificationHandler.h
+	gui/Shortcut.h
+	gui/ShortcutHandler.h
 	gui/TextAlignment.h
 
 	lobby/CBonusSelection.h

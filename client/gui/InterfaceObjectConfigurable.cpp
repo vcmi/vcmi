@@ -15,6 +15,8 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/ShortcutHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -24,18 +26,6 @@
 #include "../windows/InfoWindows.h"
 
 #include "../../lib/CGeneralTextHandler.h"
-
-static std::map<std::string, int> KeycodeMap{
-	{"up", SDLK_UP},
-	{"down", SDLK_DOWN},
-	{"left", SDLK_LEFT},
-	{"right", SDLK_RIGHT},
-	{"space", SDLK_SPACE},
-	{"escape", SDLK_ESCAPE},
-	{"backspace", SDLK_BACKSPACE},
-	{"enter", SDLK_RETURN}
-};
-
 
 InterfaceObjectConfigurable::InterfaceObjectConfigurable(const JsonNode & config, int used, Point offset):
 	InterfaceObjectConfigurable(used, offset)
@@ -211,27 +201,20 @@ std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(co
 	return result;
 }
 
-int InterfaceObjectConfigurable::readKeycode(const JsonNode & config) const
+EShortcut InterfaceObjectConfigurable::readKeycode(const JsonNode & config) const
 {
 	logGlobal->debug("Reading keycode");
-	if(config.getType() == JsonNode::JsonType::DATA_INTEGER)
-		return config.Integer();
-	
-	if(config.getType() == JsonNode::JsonType::DATA_STRING)
+
+	if(config.getType() != JsonNode::JsonType::DATA_STRING)
 	{
-		auto s = config.String();
-		if(s.size() == 1) //keyboard symbol
-			return s[0];
-
-		if (KeycodeMap.count(s))
-			return KeycodeMap[s];
-
-		logGlobal->error("Invalid keycode '%s' in interface configuration!", config.String());
-		return SDLK_UNKNOWN;
+		logGlobal->error("Invalid keycode format in interface configuration! Expected string!", config.String());
+		return EShortcut::NONE;
 	}
 
-	logGlobal->error("Invalid keycode format in interface configuration! Expected string or integer!", config.String());
-	return SDLK_UNKNOWN;
+	EShortcut result = GH.getShortcutsHandler().findShortcut(config.String());
+	if (result == EShortcut::NONE)
+		logGlobal->error("Invalid keycode '%s' in interface configuration!", config.String());
+	return result;;
 }
 
 std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNode & config) const
@@ -340,13 +323,8 @@ std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode
 		button->addCallback(std::bind(callbacks.at(config["callback"].String()), 0));
 	if(!config["hotkey"].isNull())
 	{
-		if(config["hotkey"].getType() == JsonNode::JsonType::DATA_VECTOR)
-		{
-			for(auto k : config["hotkey"].Vector())
-				button->assignedKeys.insert(readKeycode(k));
-		}
-		else
-			button->assignedKeys.insert(readKeycode(config["hotkey"]));
+		if(config["hotkey"].getType() == JsonNode::JsonType::DATA_STRING)
+			button->assignedKey = readKeycode(config["hotkey"]);
 	}
 	return button;
 }

@@ -23,6 +23,7 @@
 
 #include "../battle/BattleInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
@@ -409,27 +410,24 @@ void CSpellWindow::turnPageRight()
 		CCS->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15);
 }
 
-void CSpellWindow::keyPressed(const SDL_Keycode & key)
+void CSpellWindow::keyPressed(EShortcut key)
 {
-	if(key == SDLK_ESCAPE ||  key == SDLK_RETURN)
+	switch(key)
 	{
-		fexitb();
-		return;
-	}
-	else
-	{
-		switch(key)
-		{
-		case SDLK_LEFT:
+		case EShortcut::GLOBAL_RETURN:
+			fexitb();
+			break;
+
+		case EShortcut::SELECT_LEFT:
 			fLcornerb();
 			break;
-		case SDLK_RIGHT:
+		case EShortcut::SELECT_RIGHT:
 			fRcornerb();
 			break;
-		case SDLK_UP:
-		case SDLK_DOWN:
+		case EShortcut::SELECT_UP:
+		case EShortcut::SELECT_DOWN:
 		{
-			bool down = key == SDLK_DOWN;
+			bool down = key == EShortcut::SELECT_DOWN;
 			static const int schoolsOrder[] = { 0, 3, 1, 2, 4 };
 			int index = -1;
 			while(schoolsOrder[++index] != selectedTab);
@@ -439,38 +437,12 @@ void CSpellWindow::keyPressed(const SDL_Keycode & key)
 				selectSchool(schoolsOrder[index]);
 			break;
 		}
-		case SDLK_c:
+		case EShortcut::SPELLBOOK_TAB_COMBAT:
 			fbattleSpellsb();
 			break;
-		case SDLK_a:
+		case EShortcut::SPELLBOOK_TAB_ADVENTURE:
 			fadvSpellsb();
 			break;
-		default://to get rid of warnings
-			break;
-		}
-
-		//alt + 1234567890-= casts spell from 1 - 12 slot
-		if(GH.isKeyboardAltDown())
-		{
-			SDL_Keycode hlpKey = key;
-			if(CGuiHandler::isNumKey(hlpKey, false))
-			{
-				if(hlpKey == SDLK_KP_PLUS)
-					hlpKey = SDLK_EQUALS;
-				else
-					hlpKey = CGuiHandler::numToDigit(hlpKey);
-			}
-
-			static const SDL_Keycode spellSelectors[] = {SDLK_1, SDLK_2, SDLK_3, SDLK_4, SDLK_5, SDLK_6, SDLK_7, SDLK_8, SDLK_9, SDLK_0, SDLK_MINUS, SDLK_EQUALS};
-
-			int index = -1;
-			while(++index < std::size(spellSelectors) && spellSelectors[index] != hlpKey);
-			if(index >= std::size(spellSelectors))
-				return;
-
-			//try casting spell
-			spellAreas[index]->clickLeft(false, true);
-		}
 	}
 }
 
