@@ -543,16 +543,12 @@ namespace vstd
 		});
 	}
 
+	/// Increments value by specific delta
+	/// similar to std::next but works with other types, e.g. enum class
 	template<typename T>
-	T advance_r(const T &obj, int change)
+	T next(const T &obj, int change)
 	{
-		return static_cast<T>(static_cast<int>(obj) + change);
-	}
-
-	template<typename T>
-	void advance(T &obj, int change)
-	{
-		obj = advance_r(obj, change);
+		return static_cast<T>(static_cast<ptrdiff_t>(obj) + change);
 	}
 
 	template <typename Container>

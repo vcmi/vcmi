@@ -95,7 +95,7 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 		components.push_back(comps[i]);
 		comps[i]->onSelect = std::bind(&CSelWindow::selectionChange,this,i);
 		if(i<8)
-			comps[i]->assignedKey = vstd::advance_r(EShortcut::SELECT_INDEX_1,i);
+			comps[i]->assignedKey = vstd::next(EShortcut::SELECT_INDEX_1,i);
 	}
 	CMessage::drawIWindow(this, Text, player);
 }

@@ -1103,7 +1103,7 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 	build = std::make_shared<CButton>(Point(42, 312), "IBUY30", CButton::tooltip(CGI->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this), EShortcut::GLOBAL_CONFIRM);
 	build->addCallback(onBuy);
 
-	for(auto i = EGameResID::WOOD; i <= EGameResID::GOLD; vstd::advance(i, 1))
+	for(GameResID i = EGameResID::WOOD; i <= EGameResID::GOLD; ++i)
 	{
 		if(cost[i] > LOCPLINT->cb->getResourceAmount(i))
 		{
@@ -1427,7 +1427,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 
 	for(int i = 0; i < slotsCount; i++)
 	{
-		upgrade[i] = std::make_shared<CButton>(Point(107 + i * 76, 171), "", CButton::tooltip(getTextForSlot(SlotID(i))), [=](){ makeDeal(SlotID(i)); }, vstd::advance_r(EShortcut::SELECT_INDEX_1, i));
+		upgrade[i] = std::make_shared<CButton>(Point(107 + i * 76, 171), "", CButton::tooltip(getTextForSlot(SlotID(i))), [=](){ makeDeal(SlotID(i)); }, vstd::next(EShortcut::SELECT_INDEX_1, i));
 		for(auto image : { "APHLF1R.DEF", "APHLF1Y.DEF", "APHLF1G.DEF" })
 			upgrade[i]->addImage(image);
 

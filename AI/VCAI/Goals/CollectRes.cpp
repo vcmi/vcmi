@@ -170,7 +170,7 @@ TSubgoal CollectRes::whatToDoToTrade()
 		const IMarket * m = markets.back();
 		//attempt trade at back (best prices)
 		int howManyCanWeBuy = 0;
-		for (auto i = EGameResID::WOOD; i <= EGameResID::GOLD; vstd::advance(i, 1))
+		for (GameResID i = EGameResID::WOOD; i <= EGameResID::GOLD; ++i)
 		{
 			if (GameResID(i) == resID)
 				continue;

@@ -163,7 +163,7 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 		case MISSION_ARMY:
 			return checkMissionArmy(this, h);
 		case MISSION_RESOURCES:
-			for(auto i = EGameResID::WOOD; i <= EGameResID::GOLD; vstd::advance(i, +1)) //including Mithril ?
+			for(GameResID i = EGameResID::WOOD; i <= EGameResID::GOLD; ++i) //including Mithril ?
 			{	//Quest has no direct access to callback
 				if(CGHeroInstance::cb->getResource(h->tempOwner, i) < static_cast<int>(m7resources[i]))
 					return false;

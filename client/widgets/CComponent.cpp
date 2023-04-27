@@ -494,7 +494,7 @@ CComponentBox::CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> 
 	{
 		comp->onSelect = std::bind(&CComponentBox::selectionChanged, this, comp);
 		comp->assignedKey = key;
-		vstd::advance(key, 1);
+		key = vstd::next(key, 1);
 	}
 	selectionChanged(_components.front());
 }
