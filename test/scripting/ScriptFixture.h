@@ -15,10 +15,10 @@
 #include <vcmi/events/EventBus.h>
 
 #include "../../lib/JsonNode.h"
-#include "../../lib/HeroBonus.h"
 #include "../../lib/ScriptHandler.h"
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
+#include "../../lib/bonuses/HeroBonus.h"
 
 #include "../mock/mock_ServerCallback.h"
 #include "../mock/mock_IBattleInfoCallback.h"

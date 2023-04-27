@@ -27,6 +27,8 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/SiegeInfo.cpp
 		${MAIN_LIB_DIR}/battle/Unit.cpp
 
+		${MAIN_LIB_DIR}/bonuses/HeroBonus.cpp
+
 		${MAIN_LIB_DIR}/events/ApplyDamage.cpp
 		${MAIN_LIB_DIR}/events/GameResumed.cpp
 		${MAIN_LIB_DIR}/events/ObjectVisitEnded.cpp
@@ -198,7 +200,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CTownHandler.cpp
 		${MAIN_LIB_DIR}/GameConstants.cpp
 		${MAIN_LIB_DIR}/GameSettings.cpp
-		${MAIN_LIB_DIR}/HeroBonus.cpp
 		${MAIN_LIB_DIR}/IGameCallback.cpp
 		${MAIN_LIB_DIR}/IHandlerBase.cpp
 		${MAIN_LIB_DIR}/JsonDetail.cpp
@@ -299,6 +300,8 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/SideInBattle.h
 		${MAIN_LIB_DIR}/battle/SiegeInfo.h
 		${MAIN_LIB_DIR}/battle/Unit.h
+
+		${MAIN_LIB_DIR}/bonuses/HeroBonus.h
 
 		${MAIN_LIB_DIR}/events/ApplyDamage.h
 		${MAIN_LIB_DIR}/events/GameResumed.h
@@ -478,7 +481,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/FunctionList.h
 		${MAIN_LIB_DIR}/GameConstants.h
 		${MAIN_LIB_DIR}/GameSettings.h
-		${MAIN_LIB_DIR}/HeroBonus.h
 		${MAIN_LIB_DIR}/IBonusTypeHandler.h
 		${MAIN_LIB_DIR}/IGameCallback.h
 		${MAIN_LIB_DIR}/IGameEventsReceiver.h

@@ -12,7 +12,7 @@
 #include <vcmi/Artifact.h>
 #include <vcmi/ArtifactService.h>
 
-#include "HeroBonus.h"
+#include "bonuses/HeroBonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 

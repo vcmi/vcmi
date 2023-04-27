@@ -13,7 +13,7 @@
 #include "CBattleInfoCallback.h"
 #include "Unit.h"
 
-#include "../HeroBonus.h"
+#include "../bonuses/HeroBonus.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../spells/CSpellHandler.h"
 #include "../GameSettings.h"

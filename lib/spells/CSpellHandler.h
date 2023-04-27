@@ -19,7 +19,7 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../battle/BattleHex.h"
-#include "../HeroBonus.h"
+#include "../bonuses/HeroBonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

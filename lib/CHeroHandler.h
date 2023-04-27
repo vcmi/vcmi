@@ -16,7 +16,7 @@
 
 #include "../lib/ConstTransitivePtr.h"
 #include "GameConstants.h"
-#include "HeroBonus.h"
+#include "bonuses/HeroBonus.h"
 #include "IHandlerBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

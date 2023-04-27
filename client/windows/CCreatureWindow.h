@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../../lib/HeroBonus.h"
+#include "../../lib/bonuses/HeroBonus.h"
 #include "../widgets/MiscWidgets.h"
 #include "CWindowObject.h"
 

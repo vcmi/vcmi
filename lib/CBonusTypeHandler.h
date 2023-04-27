@@ -12,7 +12,7 @@
 
 #include "IBonusTypeHandler.h"
 #include "IHandlerBase.h"
-#include "HeroBonus.h"
+#include "bonuses/HeroBonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

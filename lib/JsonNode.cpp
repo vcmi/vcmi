@@ -13,7 +13,7 @@
 
 #include "ScopeGuard.h"
 
-#include "HeroBonus.h"
+#include "bonuses/HeroBonus.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h" //for identifier resolution
 #include "CModHandler.h"

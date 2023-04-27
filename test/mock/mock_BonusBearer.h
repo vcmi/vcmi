@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../../lib/HeroBonus.h"
+#include "../../lib/bonuses/HeroBonus.h"
 
 
 class BonusBearerMock : public IBonusBearer

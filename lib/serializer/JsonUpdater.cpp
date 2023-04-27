@@ -11,7 +11,8 @@
 #include "JsonUpdater.h"
 
 #include "../JsonNode.h"
-#include "../HeroBonus.h"
+
+#include "../bonuses/HeroBonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

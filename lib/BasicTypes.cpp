@@ -12,7 +12,7 @@
 
 #include "VCMI_Lib.h"
 #include "GameConstants.h"
-#include "HeroBonus.h"
+#include "bonuses/HeroBonus.h"
 
 #include <vcmi/Creature.h>
 #include <vcmi/Faction.h>

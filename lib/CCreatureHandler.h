@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "HeroBonus.h"
+#include "bonuses/HeroBonus.h"
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
 #include "GameConstants.h"

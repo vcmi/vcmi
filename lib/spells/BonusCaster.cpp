@@ -14,8 +14,8 @@
 #include <vcmi/spells/Spell.h>
 
 #include "../NetPacksBase.h"
-#include "../HeroBonus.h"
 #include "../battle/Unit.h"
+#include "../bonuses/HeroBonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

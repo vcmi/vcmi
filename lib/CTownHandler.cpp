@@ -23,7 +23,7 @@
 #include "filesystem/Filesystem.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "mapObjects/CObjectHandler.h"
-#include "HeroBonus.h"
+#include "bonuses/HeroBonus.h"
 #include "ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

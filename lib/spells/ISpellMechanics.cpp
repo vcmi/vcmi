@@ -14,7 +14,7 @@
 #include "../CRandomGenerator.h"
 #include "../VCMI_Lib.h"
 
-#include "../HeroBonus.h"
+#include "../bonuses/HeroBonus.h"
 #include "../battle/CBattleInfoCallback.h"
 #include "../battle/IBattleState.h"
 #include "../battle/Unit.h"
