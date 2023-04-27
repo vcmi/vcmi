@@ -744,28 +744,6 @@ int IBonusBearer::LuckValAndBonusList(TConstBonusListPtr & bonusList) const
 	return std::clamp(luckValue.getValueAndList(bonusList), -3, +3);
 }
 
-int IBonusBearer::getPrimSkillLevel(PrimarySkill::PrimarySkill id) const
-{
-	static const CSelector selectorAllSkills = Selector::type()(Bonus::PRIMARY_SKILL);
-	static const std::string keyAllSkills = "type_PRIMARY_SKILL";
-	auto allSkills = getBonuses(selectorAllSkills, keyAllSkills);
-	auto ret = allSkills->valOfBonuses(Selector::subtype()(id));
-	auto minSkillValue = (id == PrimarySkill::SPELL_POWER || id == PrimarySkill::KNOWLEDGE) ? 1 : 0;
-	vstd::amax(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect
-	return ret; //sp=0 works in old saves
-}
-
-bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation
-{
-	static const std::string cachingStr = "IBonusBearer::isLiving";
-	static const CSelector selector = Selector::type()(Bonus::UNDEAD)
-		.Or(Selector::type()(Bonus::NON_LIVING))
-		.Or(Selector::type()(Bonus::GARGOYLE))
-		.Or(Selector::type()(Bonus::SIEGE_WEAPON));
-
-	return !hasBonus(selector, cachingStr);
-}
-
 std::shared_ptr<const Bonus> IBonusBearer::getBonus(const CSelector &selector) const
 {
 	auto bonuses = getAllBonuses(selector, Selector::all);

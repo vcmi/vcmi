@@ -14,8 +14,9 @@
 #include "GameConstants.h"
 #include "HeroBonus.h"
 
-#include <vcmi/Entity.h>
+#include <vcmi/Creature.h>
 #include <vcmi/Faction.h>
+#include <vcmi/FactionMember.h>
 #include <vcmi/FactionService.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -77,6 +78,16 @@ int IFactionMember::getMaxDamage(bool ranged) const
 	return getBonusBearer()->valOfBonuses(selector, cachingStr);
 }
 
+int IFactionMember::getPrimSkillLevel(PrimarySkill::PrimarySkill id) const
+{
+	static const CSelector selectorAllSkills = Selector::type()(Bonus::PRIMARY_SKILL);
+	static const std::string keyAllSkills = "type_PRIMARY_SKILL";
+	auto allSkills = getBonusBearer()->getBonuses(selectorAllSkills, keyAllSkills);
+	auto ret = allSkills->valOfBonuses(Selector::subtype()(id));
+	auto minSkillValue = (id == PrimarySkill::SPELL_POWER || id == PrimarySkill::KNOWLEDGE) ? 1 : 0;
+	return std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect, sp=0 works in old saves
+}
+
 ui32 ICreature::MaxHealth() const
 {
 	const std::string cachingStr = "type_STACK_HEALTH";
@@ -100,4 +111,17 @@ ui32 ICreature::Speed(int turn, bool useBind) const
 
 	return getBonusBearer()->valOfBonuses(Selector::type()(Bonus::STACKS_SPEED).And(Selector::turns(turn)));
 }
+
+bool ICreature::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation
+{
+	static const std::string cachingStr = "IBonusBearer::isLiving";
+	static const CSelector selector = Selector::type()(Bonus::UNDEAD)
+		.Or(Selector::type()(Bonus::NON_LIVING))
+		.Or(Selector::type()(Bonus::GARGOYLE))
+		.Or(Selector::type()(Bonus::SIEGE_WEAPON));
+
+	return !getBonusBearer()->hasBonus(selector, cachingStr);
+}
+
+
 VCMI_LIB_NAMESPACE_END

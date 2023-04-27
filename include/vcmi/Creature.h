@@ -10,13 +10,27 @@
 
 #pragma once
 
-#include "Entity.h"
+#include "FactionMember.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CreatureID;
 class ResourceSet;
 enum class EGameResID : int8_t;
+
+/// Base class for creatures and battle stacks
+class DLL_LINKAGE ICreature: public IFactionMember
+{
+public:
+	bool isLiving() const; //non-undead, non-non living or alive
+	ui32 Speed(int turn = 0, bool useBind = false) const; //get speed (in moving tiles) of creature with all modificators
+	ui32 MaxHealth() const; //get max HP of stack with all modifiers
+};
+
+template <typename IdType>
+class DLL_LINKAGE CreatureEntity : public EntityT<IdType>, public ICreature
+{
+};
 
 class DLL_LINKAGE Creature : public CreatureEntity<CreatureID>
 {

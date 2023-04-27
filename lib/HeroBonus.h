@@ -753,10 +753,6 @@ public:
 	int MoraleValAndBonusList(TConstBonusListPtr & bonusList) const;
 	int LuckValAndBonusList(TConstBonusListPtr & bonusList) const;
 
-	bool isLiving() const; //non-undead, non-non living or alive
-
-	int getPrimSkillLevel(PrimarySkill::PrimarySkill id) const;
-
 	virtual int64_t getTreeVersion() const = 0;
 };
 
