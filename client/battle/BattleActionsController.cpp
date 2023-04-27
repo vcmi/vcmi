@@ -524,7 +524,7 @@ std::string BattleActionsController::actionGetStatusMessageBlocked(PossiblePlaye
 bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, BattleHex targetHex)
 {
 	const CStack * targetStack = getStackForHex(targetHex);
-	bool targetStackOwned = targetStack && targetStack->owner == owner.curInt->playerID;
+	bool targetStackOwned = targetStack && targetStack->unitOwner() == owner.curInt->playerID;
 
 	switch (action.get())
 	{

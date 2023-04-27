@@ -95,7 +95,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	ReachabilityInfo dists = cb->getReachability(stack);
 	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
 
-	if(stack->type->getId() == CreatureID::CATAPULT)
+	if(stack->creatureId() == CreatureID::CATAPULT)
 	{
 		BattleAction attack;
 		static const std::vector<int> wallHexes = {50, 183, 182, 130, 78, 29, 12, 95};
@@ -103,7 +103,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		attack.aimToHex(seletectedHex);
 		attack.actionType = EActionType::CATAPULT;
 		attack.side = side;
-		attack.stackNumber = stack->ID;
+		attack.stackNumber = stack->unitId();
 
 		return attack;
 	}

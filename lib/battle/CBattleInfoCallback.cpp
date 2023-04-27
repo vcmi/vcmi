@@ -1367,7 +1367,7 @@ std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* 
 	for (BattleHex tile : at.hostileCreaturePositions) //all around & three-headed attack
 	{
 		const CStack * st = battleGetStackByPos(tile, true);
-		if(st && st->owner != attacker->owner) //only hostile stacks - does it work well with Berserk?
+		if(st && st->unitOwner() != attacker->unitOwner()) //only hostile stacks - does it work well with Berserk?
 		{
 			attackedCres.insert(st);
 		}
@@ -1623,7 +1623,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 	{
 		auto stacks = battleGetStacksIf([=](const CStack * stack)
 		{
-			return pred(stack) && stack->owner != subject->owner && stack->isValidTarget(false);
+			return pred(stack) && stack->unitOwner() != subject->unitOwner() && stack->isValidTarget(false);
 		});
 
 		if(stacks.empty())
@@ -1673,7 +1673,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		case SpellID::PROTECTION_FROM_FIRE:
 		case SpellID::PROTECTION_FROM_WATER:
 		{
-			const ui8 enemySide = 1 - subject->side;
+			const ui8 enemySide = 1 - subject->unitSide();
 			//todo: only if enemy has spellbook
 			if (!battleHasHero(enemySide)) //only if there is enemy hero
 				continue;

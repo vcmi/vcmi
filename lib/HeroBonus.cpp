@@ -2047,7 +2047,7 @@ const CCreature * retrieveCreature(const CBonusSystemNode *node)
 	case CBonusSystemNode::CREATURE:
 		return (dynamic_cast<const CCreature *>(node));
 	case CBonusSystemNode::STACK_BATTLE:
-		return (dynamic_cast<const CStack *>(node))->type;
+		return (dynamic_cast<const CStack *>(node))->unitType();
 	default:
 		const CStackInstance * csi = retrieveStackInstance(node);
 		if(csi)
@@ -2749,7 +2749,7 @@ std::shared_ptr<Bonus> TimesStackLevelUpdater::createUpdatedBonus(const std::sha
 		//otherwise we'd end up multiplying twice
 		if(stack.base == nullptr)
 		{
-			int level = stack.type->getLevel();
+			int level = stack.unitType()->getLevel();
 			std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*b);
 			newBonus->val *= level;
 			return newBonus;

@@ -708,13 +708,13 @@ void ApplyClientNetPackVisitor::visitBattleSetActiveStack(BattleSetActiveStack &
 	PlayerColor playerToCall; //pack.player that will move activated stack
 	if (activated->hasBonusOfType(Bonus::HYPNOTIZED))
 	{
-		playerToCall = (gs.curB->sides[0].color == activated->owner
+		playerToCall = (gs.curB->sides[0].color == activated->unitOwner()
 			? gs.curB->sides[1].color
 			: gs.curB->sides[0].color);
 	}
 	else
 	{
-		playerToCall = activated->owner;
+		playerToCall = activated->unitOwner();
 	}
 
 	cl.startPlayerBattleAction(playerToCall);

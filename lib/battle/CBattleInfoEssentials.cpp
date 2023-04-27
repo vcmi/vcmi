@@ -87,7 +87,7 @@ bool CBattleInfoEssentials::battleHasNativeStack(ui8 side) const
 
 	for(const auto * s : battleGetAllStacks())
 	{
-		if(s->side == side && s->isNativeTerrain(getBattle()->getTerrainType()))
+		if(s->unitSide() == side && s->isNativeTerrain(getBattle()->getTerrainType()))
 			return true;
 	}
 
@@ -173,7 +173,7 @@ const CStack* CBattleInfoEssentials::battleGetStackByID(int ID, bool onlyAlive) 
 
 	auto stacks = battleGetStacksIf([=](const CStack * s)
 	{
-		return s->ID == ID && (!onlyAlive || s->alive());
+		return s->unitId() == ID && (!onlyAlive || s->alive());
 	});
 
 	if(stacks.empty())

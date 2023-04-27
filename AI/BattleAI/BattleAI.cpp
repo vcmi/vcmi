@@ -102,7 +102,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 	try
 	{
-		if(stack->type->getId() == CreatureID::CATAPULT)
+		if(stack->creatureId() == CreatureID::CATAPULT)
 			return useCatapult(stack);
 		if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->hasBonusOfType(Bonus::HEALER))
 		{
@@ -420,7 +420,7 @@ BattleAction CBattleAI::useCatapult(const CStack * stack)
 	attack.aimToHex(targetHex);
 	attack.actionType = EActionType::CATAPULT;
 	attack.side = side;
-	attack.stackNumber = stack->ID;
+	attack.stackNumber = stack->unitId();
 
 	movesSkippedByDefense = 0;
 
@@ -815,7 +815,7 @@ std::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 	{
 		if(stack->alive())
 		{
-			if(stack->side == bs.ourSide)
+			if(stack->unitSide() == bs.ourSide)
 				bs.ourStacks.push_back(stack);
 			else
 			{
