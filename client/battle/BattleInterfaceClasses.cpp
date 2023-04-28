@@ -407,7 +407,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	background->colorize(owner.playerID);
 	pos = center(background->pos);
 
-	exit = std::make_shared<CButton>(Point(384, 505), "iok6432.def", std::make_pair("", ""), [&](){ bExitf();}, EShortcut::GLOBAL_CONFIRM);
+	exit = std::make_shared<CButton>(Point(384, 505), "iok6432.def", std::make_pair("", ""), [&](){ bExitf();}, EShortcut::GLOBAL_ACCEPT);
 	exit->setBorderColor(Colors::METALLIC_GOLD);
 	
 	if(allowReplay)

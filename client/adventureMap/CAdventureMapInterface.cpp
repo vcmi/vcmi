@@ -110,7 +110,7 @@ CAdventureMapInterface::CAdventureMapInterface():
 	sleepWake    = makeButton(296, std::bind(&CAdventureMapInterface::fsleepWake,this),        ADVOPT.sleepWake,    EShortcut::ADVENTURE_TOGGLE_SLEEP);
 	moveHero     = makeButton(297, std::bind(&CAdventureMapInterface::fmoveHero,this),         ADVOPT.moveHero,     EShortcut::ADVENTURE_MOVE_HERO);
 	spellbook    = makeButton(298, std::bind(&CAdventureMapInterface::fshowSpellbok,this),     ADVOPT.spellbook,    EShortcut::ADVENTURE_CAST_SPELL);
-	advOptions   = makeButton(299, std::bind(&CAdventureMapInterface::fadventureOPtions,this), ADVOPT.advOptions,   EShortcut::ADVENTURE_OPTIONS);
+	advOptions   = makeButton(299, std::bind(&CAdventureMapInterface::fadventureOPtions,this), ADVOPT.advOptions,   EShortcut::ADVENTURE_GAME_OPTIONS);
 	sysOptions   = makeButton(300, std::bind(&CAdventureMapInterface::fsystemOptions,this),    ADVOPT.sysOptions,   EShortcut::GLOBAL_OPTIONS);
 	nextHero     = makeButton(301, std::bind(&CAdventureMapInterface::fnextHero,this),         ADVOPT.nextHero,     EShortcut::ADVENTURE_NEXT_HERO);
 	endTurn      = makeButton(302, std::bind(&CAdventureMapInterface::fendTurn,this),          ADVOPT.endTurn,      EShortcut::ADVENTURE_END_TURN);
@@ -699,7 +699,7 @@ void CAdventureMapInterface::keyPressed(EShortcut key)
 			abortCastingMode();
 			return;
 		}
-	case EShortcut::GAME_MARKETPLACE:
+	case EShortcut::GAME_OPEN_MARKETPLACE:
 		{
 			//act on key down if marketplace windows is not already opened
 			if(GH.topInt()->type & BLOCK_ADV_HOTKEYS)

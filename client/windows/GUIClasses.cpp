@@ -212,7 +212,7 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, c
 	slider = std::make_shared<CSlider>(Point(176,279),135,std::bind(&CRecruitmentWindow::sliderMoved,this, _1),0,0,0,true);
 
 	maxButton = std::make_shared<CButton>(Point(134, 313), "IRCBTNS.DEF", CGI->generaltexth->zelp[553], std::bind(&CSlider::moveToMax, slider), EShortcut::RECRUITMENT_MAX);
-	buyButton = std::make_shared<CButton>(Point(212, 313), "IBY6432.DEF", CGI->generaltexth->zelp[554], std::bind(&CRecruitmentWindow::buy, this), EShortcut::GLOBAL_CONFIRM);
+	buyButton = std::make_shared<CButton>(Point(212, 313), "IBY6432.DEF", CGI->generaltexth->zelp[554], std::bind(&CRecruitmentWindow::buy, this), EShortcut::GLOBAL_ACCEPT);
 	cancelButton = std::make_shared<CButton>(Point(290, 313), "ICN6432.DEF", CGI->generaltexth->zelp[555], std::bind(&CRecruitmentWindow::close, this), EShortcut::GLOBAL_CANCEL);
 
 	title = std::make_shared<CLabel>(243, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW);
@@ -314,7 +314,7 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 	int leftMax = total - rightMin;
 	int rightMax = total - leftMin;
 
-	ok = std::make_shared<CButton>(Point(20, 263), "IOK6432", CButton::tooltip(), std::bind(&CSplitWindow::apply, this), EShortcut::GLOBAL_CONFIRM);
+	ok = std::make_shared<CButton>(Point(20, 263), "IOK6432", CButton::tooltip(), std::bind(&CSplitWindow::apply, this), EShortcut::GLOBAL_ACCEPT);
 	cancel = std::make_shared<CButton>(Point(214, 263), "ICN6432", CButton::tooltip(), std::bind(&CSplitWindow::close, this), EShortcut::GLOBAL_CANCEL);
 
 	int sliderPosition = total - leftMin - rightMin;
@@ -404,7 +404,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill::PrimarySki
 	}
 
 	portrait = std::make_shared<CAnimImage>("PortraitsLarge", hero->portrait, 0, 170, 66);
-	ok = std::make_shared<CButton>(Point(297, 413), "IOKAY", CButton::tooltip(), std::bind(&CLevelWindow::close, this), EShortcut::GLOBAL_CONFIRM);
+	ok = std::make_shared<CButton>(Point(297, 413), "IOKAY", CButton::tooltip(), std::bind(&CLevelWindow::close, this), EShortcut::GLOBAL_ACCEPT);
 
 	//%s has gained a level.
 	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->getNameTranslated()));
@@ -461,7 +461,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 	cancel = std::make_shared<CButton>(Point(310, 428), "ICANCEL.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[7]), std::bind(&CTavernWindow::close, this), EShortcut::GLOBAL_CANCEL);
-	recruit = std::make_shared<CButton>(Point(272, 355), "TPTAV01.DEF", CButton::tooltip(), std::bind(&CTavernWindow::recruitb, this), EShortcut::GLOBAL_CONFIRM);
+	recruit = std::make_shared<CButton>(Point(272, 355), "TPTAV01.DEF", CButton::tooltip(), std::bind(&CTavernWindow::recruitb, this), EShortcut::GLOBAL_ACCEPT);
 	thiefGuild = std::make_shared<CButton>(Point(22, 428), "TPTAV02.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[5]), std::bind(&CTavernWindow::thievesguildb, this), EShortcut::ADVENTURE_THIEVES_GUILD);
 
 	if(LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST) //not enough gold
@@ -983,7 +983,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		luck[b] = std::make_shared<MoraleLuckBox>(false,  Rect(Point(212 + 490 * b, 39), Point(32, 32)), true);
 	}
 
-	quit = std::make_shared<CButton>(Point(732, 567), "IOKAY.DEF", CGI->generaltexth->zelp[600], std::bind(&CExchangeWindow::close, this), EShortcut::GLOBAL_CONFIRM);
+	quit = std::make_shared<CButton>(Point(732, 567), "IOKAY.DEF", CGI->generaltexth->zelp[600], std::bind(&CExchangeWindow::close, this), EShortcut::GLOBAL_ACCEPT);
 	if(queryID.getNum() > 0)
 		quit->addCallback([=](){ LOCPLINT->cb->selectionMade(0, queryID); });
 
@@ -1100,7 +1100,7 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 	woodPic = std::make_shared<CAnimImage>("RESOURCE", GameResID(EGameResID::WOOD), 0, 196, 244);
 
 	quit = std::make_shared<CButton>(Point(224, 312), "ICANCEL", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CShipyardWindow::close, this), EShortcut::GLOBAL_CANCEL);
-	build = std::make_shared<CButton>(Point(42, 312), "IBUY30", CButton::tooltip(CGI->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this), EShortcut::GLOBAL_CONFIRM);
+	build = std::make_shared<CButton>(Point(42, 312), "IBUY30", CButton::tooltip(CGI->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this), EShortcut::GLOBAL_ACCEPT);
 	build->addCallback(onBuy);
 
 	for(GameResID i = EGameResID::WOOD; i <= EGameResID::GOLD; ++i)
@@ -1201,7 +1201,7 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 	}
 
 	all = std::make_shared<CButton>(Point(146, 416), "ALTARMY.DEF", CGI->generaltexth->zelp[590], [&](){ addAll(); }, EShortcut::RECRUITMENT_UPGRADE_ALL);
-	convert = std::make_shared<CButton>(Point(269, 416), "ALTSACR.DEF", CGI->generaltexth->zelp[591], [&](){ makeDeal(); }, EShortcut::GLOBAL_CONFIRM);
+	convert = std::make_shared<CButton>(Point(269, 416), "ALTSACR.DEF", CGI->generaltexth->zelp[591], [&](){ makeDeal(); }, EShortcut::GLOBAL_ACCEPT);
 	cancel = std::make_shared<CButton>(Point(392, 416), "ICANCEL.DEF", CGI->generaltexth->zelp[592], [&](){ close(); },EShortcut::GLOBAL_CANCEL);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
@@ -1316,7 +1316,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	for(int i=0; i<goods.size(); i++)//prepare clickable items
 		items.push_back(std::make_shared<CItem>(this, goods[i], 54+i*104, 234));
 
-	cancel = std::make_shared<CButton>(Point(200, 313), "IOKAY.DEF", CGI->generaltexth->zelp[632], [&](){ close(); }, EShortcut::GLOBAL_CONFIRM);
+	cancel = std::make_shared<CButton>(Point(200, 313), "IOKAY.DEF", CGI->generaltexth->zelp[632], [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
 
@@ -1354,7 +1354,7 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, int SKILL, bo
 	boost::replace_first(text, "%s", CGI->skillh->getByIndex(SKILL)->getNameTranslated());
 	boost::replace_first(text, "%d", "2000");
 
-	confirm = std::make_shared<CButton>(Point(148, 299), "IBY6432.DEF", CButton::tooltip(hoverText, text), [=](){makeDeal(SKILL);}, EShortcut::GLOBAL_CONFIRM);
+	confirm = std::make_shared<CButton>(Point(148, 299), "IBY6432.DEF", CButton::tooltip(hoverText, text), [=](){makeDeal(SKILL);}, EShortcut::GLOBAL_ACCEPT);
 	confirm->block(!available);
 
 	cancel = std::make_shared<CButton>(Point(252,299), "ICANCEL.DEF", CGI->generaltexth->zelp[631], [&](){ close(); }, EShortcut::GLOBAL_CANCEL);
@@ -1377,7 +1377,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 		auto split = std::make_shared<CButton>(Point(88, 314), "IDV6432.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3], ""), [&](){ garr->splitClick(); } );
 		garr->addSplitBtn(split);
 	}
-	quit = std::make_shared<CButton>(Point(399, 314), "IOK6432.DEF", CButton::tooltip(CGI->generaltexth->tcommands[8], ""), [&](){ close(); }, EShortcut::GLOBAL_CONFIRM);
+	quit = std::make_shared<CButton>(Point(399, 314), "IOK6432.DEF", CButton::tooltip(CGI->generaltexth->tcommands[8], ""), [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
 
 	std::string titleText;
 	if(down->tempOwner == up->tempOwner)
@@ -1442,7 +1442,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 	for(auto image : { "APHLF4R.DEF", "APHLF4Y.DEF", "APHLF4G.DEF" })
 		upgradeAll->addImage(image);
 
-	quit = std::make_shared<CButton>(Point(294, 275), "IOKAY.DEF", CButton::tooltip(), std::bind(&CHillFortWindow::close, this), EShortcut::GLOBAL_CONFIRM);
+	quit = std::make_shared<CButton>(Point(294, 275), "IOKAY.DEF", CButton::tooltip(), std::bind(&CHillFortWindow::close, this), EShortcut::GLOBAL_ACCEPT);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	garr = std::make_shared<CGarrisonInt>(108, 60, 18, Point(), hero, nullptr);
@@ -1827,7 +1827,7 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 		Point(14, 151), Point(0, 25), 9, items.size(), 0, 1, Rect(262, -32, 256, 256) );
 	list->type |= REDRAW_PARENT;
 
-	ok = std::make_shared<CButton>(Point(15, 402), "IOKAY.DEF", CButton::tooltip(), std::bind(&CObjectListWindow::elementSelected, this), EShortcut::GLOBAL_CONFIRM);
+	ok = std::make_shared<CButton>(Point(15, 402), "IOKAY.DEF", CButton::tooltip(), std::bind(&CObjectListWindow::elementSelected, this), EShortcut::GLOBAL_ACCEPT);
 	ok->block(!list->size());
 }
 
@@ -1881,22 +1881,22 @@ void CObjectListWindow::keyPressed (EShortcut key)
 
 	switch(key)
 	{
-	break; case EShortcut::SELECT_UP:
+	break; case EShortcut::MOVE_UP:
 		sel -=1;
 
-	break; case EShortcut::SELECT_DOWN:
+	break; case EShortcut::MOVE_DOWN:
 		sel +=1;
 
-	break; case EShortcut::SELECT_PAGE_UP:
+	break; case EShortcut::MOVE_PAGE_UP:
 		sel -=9;
 
-	break; case EShortcut::SELECT_PAGE_DOWN:
+	break; case EShortcut::MOVE_PAGE_DOWN:
 		sel +=9;
 
-	break; case EShortcut::SELECT_FIRST:
+	break; case EShortcut::MOVE_FIRST:
 		sel = 0;
 
-	break; case EShortcut::SELECT_LAST:
+	break; case EShortcut::MOVE_LAST:
 		sel = static_cast<int>(items.size());
 
 	break; default:

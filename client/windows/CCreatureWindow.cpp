@@ -455,8 +455,8 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 
 		abilities = std::make_shared<CListBox>(onCreate, Point(38, 3+pos.h), Point(63, 0), 6, abilitiesCount);
 
-		leftBtn = std::make_shared<CButton>(Point(10,  pos.h + 6), "hsbtns3.def", CButton::tooltip(), [=](){ abilities->moveToPrev(); }, EShortcut::SELECT_LEFT);
-		rightBtn = std::make_shared<CButton>(Point(411, pos.h + 6), "hsbtns5.def", CButton::tooltip(), [=](){ abilities->moveToNext(); }, EShortcut::SELECT_RIGHT);
+		leftBtn = std::make_shared<CButton>(Point(10,  pos.h + 6), "hsbtns3.def", CButton::tooltip(), [=](){ abilities->moveToPrev(); }, EShortcut::MOVE_LEFT);
+		rightBtn = std::make_shared<CButton>(Point(411, pos.h + 6), "hsbtns5.def", CButton::tooltip(), [=](){ abilities->moveToNext(); }, EShortcut::MOVE_RIGHT);
 
 		if(abilitiesCount <= 6)
 		{

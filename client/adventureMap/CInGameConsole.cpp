@@ -131,7 +131,7 @@ void CInGameConsole::keyPressed (EShortcut key)
 			startEnteringText();
 		break;
 
-	case EShortcut::GLOBAL_CONFIRM:
+	case EShortcut::GLOBAL_ACCEPT:
 		{
 			if(!enteredText.empty() && captureAllKeys)
 			{
@@ -155,7 +155,7 @@ void CInGameConsole::keyPressed (EShortcut key)
 			}
 			break;
 		}
-	case EShortcut::SELECT_UP:
+	case EShortcut::MOVE_UP:
 		{
 			if(previouslyEntered.empty())
 				break;
@@ -174,7 +174,7 @@ void CInGameConsole::keyPressed (EShortcut key)
 			}
 			break;
 		}
-	case EShortcut::SELECT_DOWN:
+	case EShortcut::MOVE_DOWN:
 		{
 			if(prevEntDisp != -1 && prevEntDisp+1 < previouslyEntered.size())
 			{

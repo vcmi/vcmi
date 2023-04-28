@@ -95,7 +95,7 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 
 void CGuiHandler::init()
 {
-	shortcutsHandler = std::make_unique<ShortcutHandler>();
+	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
 	mainFPSmng = new CFramerateManager();
 	mainFPSmng->init(settings["video"]["targetfps"].Integer());
 	isPointerRelativeMode = settings["general"]["userRelativePointer"].Bool();
@@ -404,7 +404,7 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 			return;
 		}
 
-		auto shortcutsVector = shortcutsHandler->translateKeycode(key.keysym.sym);
+		auto shortcutsVector = shortcutsHandler().translateKeycode(key.keysym.sym);
 
 		bool keysCaptured = false;
 		for(auto i = keyinterested.begin(); i != keyinterested.end() && continueEventHandling; i++)
@@ -714,9 +714,9 @@ CGuiHandler::~CGuiHandler()
 	delete terminate_cond;
 }
 
-ShortcutHandler & CGuiHandler::getShortcutsHandler()
+ShortcutHandler & CGuiHandler::shortcutsHandler()
 {
-	return *shortcutsHandler;
+	return *shortcutsHandlerInstance;
 }
 
 void CGuiHandler::moveCursorToPosition(const Point & position)

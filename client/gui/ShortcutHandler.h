@@ -17,8 +17,8 @@ class ShortcutHandler
 {
 public:
 	/// returns list of shortcuts assigned to provided SDL keycode
-	std::vector<EShortcut> translateKeycode(SDL_Keycode key);
+	std::vector<EShortcut> translateKeycode(SDL_Keycode key) const;
 
 	/// attempts to find shortcut by its unique identifier. Returns EShortcut::NONE on failure
-	EShortcut findShortcut(const std::string & identifier );
+	EShortcut findShortcut(const std::string & identifier ) const;
 };

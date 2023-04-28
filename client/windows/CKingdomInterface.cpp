@@ -614,11 +614,11 @@ void CKingdomInterface::generateButtons()
 
 	//Main control buttons
 	btnHeroes = std::make_shared<CButton>(Point(748, 28+footerPos), "OVBUTN1.DEF", CButton::tooltip(CGI->generaltexth->overview[11], CGI->generaltexth->overview[6]),
-		std::bind(&CKingdomInterface::activateTab, this, 0), EShortcut::KINGDOM_HEROES);
+		std::bind(&CKingdomInterface::activateTab, this, 0), EShortcut::KINGDOM_HEROES_TAB);
 	btnHeroes->block(true);
 
 	btnTowns = std::make_shared<CButton>(Point(748, 64+footerPos), "OVBUTN6.DEF", CButton::tooltip(CGI->generaltexth->overview[12], CGI->generaltexth->overview[7]),
-		std::bind(&CKingdomInterface::activateTab, this, 1), EShortcut::KINGDOM_TOWNS);
+		std::bind(&CKingdomInterface::activateTab, this, 1), EShortcut::KINGDOM_TOWNS_TAB);
 
 	btnExit = std::make_shared<CButton>(Point(748,99+footerPos), "OVBUTN1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[600]),
 		std::bind(&CKingdomInterface::close, this), EShortcut::GLOBAL_RETURN);

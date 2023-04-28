@@ -36,7 +36,7 @@ void QuickRecruitmentWindow::setCancelButton()
 
 void QuickRecruitmentWindow::setBuyButton()
 {
-	buyButton = std::make_shared<CButton>(Point((pos.w / 2) - 32, 418), "IBY6432.DEF", CButton::tooltip(), [&](){ purchaseUnits(); }, EShortcut::GLOBAL_CONFIRM);
+	buyButton = std::make_shared<CButton>(Point((pos.w / 2) - 32, 418), "IBY6432.DEF", CButton::tooltip(), [&](){ purchaseUnits(); }, EShortcut::GLOBAL_ACCEPT);
 	buyButton->setImageOrder(0, 1, 2, 3);
 }
 

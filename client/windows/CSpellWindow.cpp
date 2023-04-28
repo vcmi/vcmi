@@ -418,16 +418,16 @@ void CSpellWindow::keyPressed(EShortcut key)
 			fexitb();
 			break;
 
-		case EShortcut::SELECT_LEFT:
+		case EShortcut::MOVE_LEFT:
 			fLcornerb();
 			break;
-		case EShortcut::SELECT_RIGHT:
+		case EShortcut::MOVE_RIGHT:
 			fRcornerb();
 			break;
-		case EShortcut::SELECT_UP:
-		case EShortcut::SELECT_DOWN:
+		case EShortcut::MOVE_UP:
+		case EShortcut::MOVE_DOWN:
 		{
-			bool down = key == EShortcut::SELECT_DOWN;
+			bool down = key == EShortcut::MOVE_DOWN;
 			static const int schoolsOrder[] = { 0, 3, 1, 2, 4 };
 			int index = -1;
 			while(schoolsOrder[++index] != selectedTab);

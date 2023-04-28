@@ -232,7 +232,7 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 	if(posy < 0)
 		posy = pos.h + posy;
 
-	EShortcut shortcut = GH.getShortcutsHandler().findShortcut(button["shortcut"].String());
+	EShortcut shortcut = GH.shortcutsHandler().findShortcut(button["shortcut"].String());
 
 	auto result = std::make_shared<CButton>(Point(posx, posy), button["name"].String(), help, command, shortcut);
 
@@ -426,7 +426,7 @@ CMultiPlayers::CMultiPlayers(const std::string & firstPlayer, ESelectionScreen S
 		inputNames[i]->cb += std::bind(&CMultiPlayers::onChange, this, _1);
 	}
 
-	buttonOk = std::make_shared<CButton>(Point(95, 338), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CMultiPlayers::enterSelectionScreen, this), EShortcut::GLOBAL_CONFIRM);
+	buttonOk = std::make_shared<CButton>(Point(95, 338), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CMultiPlayers::enterSelectionScreen, this), EShortcut::GLOBAL_ACCEPT);
 	buttonCancel = std::make_shared<CButton>(Point(205, 338), "MUBCANC.DEF", CGI->generaltexth->zelp[561], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 381, 348, 18), 7, 381));
 
@@ -475,7 +475,7 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 		inputAddress->cb += std::bind(&CSimpleJoinScreen::onChange, this, _1);
 		inputPort->cb += std::bind(&CSimpleJoinScreen::onChange, this, _1);
 		inputPort->filters += std::bind(&CTextInput::numberFilter, _1, _2, 0, 65535);
-		buttonOk = std::make_shared<CButton>(Point(26, 142), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CSimpleJoinScreen::connectToServer, this), EShortcut::GLOBAL_CONFIRM);
+		buttonOk = std::make_shared<CButton>(Point(26, 142), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CSimpleJoinScreen::connectToServer, this), EShortcut::GLOBAL_ACCEPT);
 
 		inputAddress->giveFocus();
 	}

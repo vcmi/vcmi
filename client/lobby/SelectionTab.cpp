@@ -287,22 +287,22 @@ void SelectionTab::keyPressed(EShortcut key)
 	int moveBy = 0;
 	switch(key)
 	{
-	case EShortcut::SELECT_UP:
+	case EShortcut::MOVE_UP:
 		moveBy = -1;
 		break;
-	case EShortcut::SELECT_DOWN:
+	case EShortcut::MOVE_DOWN:
 		moveBy = +1;
 		break;
-	case EShortcut::SELECT_PAGE_UP:
+	case EShortcut::MOVE_PAGE_UP:
 		moveBy = -(int)listItems.size() + 1;
 		break;
-	case EShortcut::SELECT_PAGE_DOWN:
+	case EShortcut::MOVE_PAGE_DOWN:
 		moveBy = +(int)listItems.size() - 1;
 		break;
-	case EShortcut::SELECT_FIRST:
+	case EShortcut::MOVE_FIRST:
 		select(-slider->getValue());
 		return;
-	case EShortcut::SELECT_LAST:
+	case EShortcut::MOVE_LAST:
 		select((int)curItems.size() - slider->getValue());
 		return;
 	default:

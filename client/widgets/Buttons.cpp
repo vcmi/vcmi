@@ -806,32 +806,32 @@ void CSlider::keyPressed(EShortcut key)
 	int moveDest = value;
 	switch(key)
 	{
-	case EShortcut::SELECT_UP:
+	case EShortcut::MOVE_UP:
 		if (!horizontal)
 			moveDest = value - scrollStep;
 		break;
-	case EShortcut::SELECT_LEFT:
+	case EShortcut::MOVE_LEFT:
 		if (horizontal)
 			moveDest = value - scrollStep;
 		break;
-	case EShortcut::SELECT_DOWN:
+	case EShortcut::MOVE_DOWN:
 		if (!horizontal)
 			moveDest = value + scrollStep;
 		break;
-	case EShortcut::SELECT_RIGHT:
+	case EShortcut::MOVE_RIGHT:
 		if (horizontal)
 			moveDest = value + scrollStep;
 		break;
-	case EShortcut::SELECT_PAGE_UP:
+	case EShortcut::MOVE_PAGE_UP:
 		moveDest = value - capacity + scrollStep;
 		break;
-	case EShortcut::SELECT_PAGE_DOWN:
+	case EShortcut::MOVE_PAGE_DOWN:
 		moveDest = value + capacity - scrollStep;
 		break;
-	case EShortcut::SELECT_FIRST:
+	case EShortcut::MOVE_FIRST:
 		moveDest = 0;
 		break;
-	case EShortcut::SELECT_LAST:
+	case EShortcut::MOVE_LAST:
 		moveDest = amount - capacity;
 		break;
 	default:

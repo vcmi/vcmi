@@ -211,7 +211,7 @@ EShortcut InterfaceObjectConfigurable::readKeycode(const JsonNode & config) cons
 		return EShortcut::NONE;
 	}
 
-	EShortcut result = GH.getShortcutsHandler().findShortcut(config.String());
+	EShortcut result = GH.shortcutsHandler().findShortcut(config.String());
 	if (result == EShortcut::NONE)
 		logGlobal->error("Invalid keycode '%s' in interface configuration!", config.String());
 	return result;;

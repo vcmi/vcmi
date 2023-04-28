@@ -321,7 +321,7 @@ CChatBox::CChatBox(const Rect & rect)
 
 void CChatBox::keyPressed(EShortcut key)
 {
-	if(key == EShortcut::GLOBAL_CONFIRM && inputBox->getText().size())
+	if(key == EShortcut::GLOBAL_ACCEPT && inputBox->getText().size())
 	{
 		CSH->sendMessage(inputBox->getText());
 		inputBox->setText("");

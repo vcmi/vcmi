@@ -135,6 +135,15 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 		text->resize(text->label->textSize);
 	}
 
+	if(buttons.size() == 1)
+		buttons.front()->assignedKey = EShortcut::GLOBAL_RETURN;
+
+	if(buttons.size() == 2)
+	{
+		buttons.front()->assignedKey = EShortcut::GLOBAL_ACCEPT;
+		buttons.back()->assignedKey = EShortcut::GLOBAL_CANCEL;
+	}
+
 	for(auto & comp : comps)
 	{
 		comp->recActions = 0xff & ~DISPOSE;

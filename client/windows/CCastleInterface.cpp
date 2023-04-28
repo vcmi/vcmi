@@ -1312,10 +1312,10 @@ void CCastleInterface::keyPressed(EShortcut key)
 {
 	switch(key)
 	{
-	case EShortcut::SELECT_UP:
+	case EShortcut::MOVE_UP:
 		townlist->selectPrev();
 		break;
-	case EShortcut::SELECT_DOWN:
+	case EShortcut::MOVE_DOWN:
 		townlist->selectNext();
 		break;
 	case EShortcut::TOWN_SWAP_ARMIES:
@@ -1485,7 +1485,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		std::string tooltipYes = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->getNameTranslated());
 		std::string tooltipNo  = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->getNameTranslated());
 
-		buy = std::make_shared<CButton>(Point(45, 446), "IBUY30", CButton::tooltip(tooltipYes), [&](){ buyFunc(); }, EShortcut::GLOBAL_CONFIRM);
+		buy = std::make_shared<CButton>(Point(45, 446), "IBUY30", CButton::tooltip(tooltipYes), [&](){ buyFunc(); }, EShortcut::GLOBAL_ACCEPT);
 		buy->setBorderColor(Colors::METALLIC_GOLD);
 		buy->block(state!=7 || LOCPLINT->playerID != town->tempOwner);
 
@@ -1863,7 +1863,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	                std::to_string(aid.toArtifact(CGI->artifacts())->getPrice()));
 
 	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->getNameSingularTranslated());
-	buy = std::make_shared<CButton>(Point(42, 312), "IBUY30.DEF", CButton::tooltip(text), [&](){ close(); }, EShortcut::GLOBAL_CONFIRM);
+	buy = std::make_shared<CButton>(Point(42, 312), "IBUY30.DEF", CButton::tooltip(text), [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
 
 	text = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % creature->getNameSingularTranslated());
 	cancel = std::make_shared<CButton>(Point(224, 312), "ICANCEL.DEF", CButton::tooltip(text), [&](){ close(); }, EShortcut::GLOBAL_CANCEL);

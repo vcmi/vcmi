@@ -78,7 +78,7 @@ private:
 
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;
 
-	std::unique_ptr<ShortcutHandler> shortcutsHandler;
+	std::unique_ptr<ShortcutHandler> shortcutsHandlerInstance;
 
 	std::atomic<bool> continueEventHandling;
 	using CIntObjectList = std::list<CIntObject *>;
@@ -114,7 +114,7 @@ public:
 	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
 
-	ShortcutHandler & getShortcutsHandler();
+	ShortcutHandler & shortcutsHandler();
 
 	Point screenDimensions() const;
 

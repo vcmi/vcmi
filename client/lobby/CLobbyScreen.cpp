@@ -41,7 +41,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 	{
 		tabSel->callOnSelect = std::bind(&IServerAPI::setMapInfo, CSH, _1, nullptr);
 
-		buttonSelect = std::make_shared<CButton>(Point(411, 80), "GSPBUTT.DEF", CGI->generaltexth->zelp[45], 0, EShortcut::LOBBY_SELECT);
+		buttonSelect = std::make_shared<CButton>(Point(411, 80), "GSPBUTT.DEF", CGI->generaltexth->zelp[45], 0, EShortcut::LOBBY_SELECT_SCENARIO);
 		buttonSelect->addCallback([&]()
 		{
 			toggleTab(tabSel);
