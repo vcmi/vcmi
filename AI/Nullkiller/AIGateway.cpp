@@ -1059,27 +1059,6 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 	}
 }
 
-bool AIGateway::canRecruitAnyHero(const CGTownInstance * t) const
-{
-	//TODO: make gathering gold, building tavern or conquering town (?) possible subgoals
-	if(!t)
-		t = findTownWithTavern();
-
-	if(!t || !townHasFreeTavern(t))
-		return false;
-
-	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST) //TODO: use ResourceManager
-		return false;
-	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
-		return false;
-	if(cb->getHeroesInfo().size() >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
-		return false;
-	if(!cb->getAvailableHeroes(t).size())
-		return false;
-
-	return true;
-}
-
 void AIGateway::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side)
 {
 	NET_EVENT_HANDLER;
@@ -1153,16 +1132,6 @@ void AIGateway::addVisitableObj(const CGObjectInstance * obj)
 	{
 		nullkiller->dangerHitMap->reset();
 	}
-}
-
-HeroPtr AIGateway::getHeroWithGrail() const
-{
-	for(const CGHeroInstance * h : cb->getHeroesInfo())
-	{
-		if(h->hasArt(ArtifactID::GRAIL))
-			return h;
-	}
-	return nullptr;
 }
 
 bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
@@ -1430,15 +1399,6 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 	{
 		throw cannotFulfillGoalException("No object that could be used to raise resources!");
 	}
-}
-
-const CGTownInstance * AIGateway::findTownWithTavern() const
-{
-	for(const CGTownInstance * t : cb->getTownsInfo())
-		if(townHasFreeTavern(t))
-			return t;
-
-	return nullptr;
 }
 
 void AIGateway::endTurn()

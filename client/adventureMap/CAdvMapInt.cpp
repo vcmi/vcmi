@@ -1076,8 +1076,11 @@ void CAdvMapInt::onTileLeftClicked(const int3 &mapPos)
 	const CGObjectInstance *topBlocking = getActiveObject(mapPos);
 
 	int3 selPos = selection->getSightCenter();
-	if(spellBeingCasted && isInScreenRange(selPos, mapPos))
+	if(spellBeingCasted)
 	{
+		if (!isInScreenRange(selPos, mapPos))
+			return;
+
 		const TerrainTile *heroTile = LOCPLINT->cb->getTile(selPos);
 
 		switch(spellBeingCasted->id)
@@ -1179,11 +1182,15 @@ void CAdvMapInt::onTileHovered(const int3 &mapPos)
 		switch(spellBeingCasted->id)
 		{
 		case SpellID::SCUTTLE_BOAT:
-			if(objAtTile && objAtTile->ID == Obj::BOAT)
+			{
+			int3 hpos = selection->getSightCenter();
+
+			if(objAtTile && objAtTile->ID == Obj::BOAT && isInScreenRange(hpos, mapPos))
 				CCS->curh->set(Cursor::Map::SCUTTLE_BOAT);
 			else
 				CCS->curh->set(Cursor::Map::POINTER);
 			return;
+			}
 		case SpellID::DIMENSION_DOOR:
 			{
 				const TerrainTile * t = LOCPLINT->cb->getTile(mapPos, false);
@@ -1342,6 +1349,8 @@ void CAdvMapInt::enterCastingMode(const CSpell * sp)
 {
 	assert(sp->id == SpellID::SCUTTLE_BOAT  ||  sp->id == SpellID::DIMENSION_DOOR);
 	spellBeingCasted = sp;
+	Settings config = settings.write["session"]["showSpellRange"];
+	config->Bool() = true;
 
 	deactivate();
 	terrain->activate();
@@ -1355,6 +1364,9 @@ void CAdvMapInt::leaveCastingMode(bool cast, int3 dest)
 	spellBeingCasted = nullptr;
 	terrain->deactivate();
 	activate();
+
+	Settings config = settings.write["session"]["showSpellRange"];
+	config->Bool() = false;
 
 	if(cast)
 		LOCPLINT->cb->castSpell(curHero(), id, dest);

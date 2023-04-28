@@ -198,11 +198,6 @@ public:
 	void retrieveVisitableObjs();
 	virtual std::vector<const CGObjectInstance *> getFlaggedObjects() const;
 
-	HeroPtr getHeroWithGrail() const;
-
-	const CGTownInstance * findTownWithTavern() const;
-	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;
-
 	void requestSent(const CPackForServer * pack, int requestID) override;
 	void answerQuery(QueryID queryID, int selection);
 	//special function that can be called ONLY from game events handling thread and will send request ASAP

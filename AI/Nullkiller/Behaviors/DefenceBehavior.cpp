@@ -58,13 +58,6 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	auto treatNode = ai->nullkiller->dangerHitMap->getObjectTreat(town);
 	auto treats = { treatNode.maximumDanger, treatNode.fastestDanger };
 
-	if(!treatNode.fastestDanger.hero)
-	{
-		logAi->trace("No treat found for town %s", town->getNameTranslated());
-
-		return;
-	}
-
 	int dayOfWeek = cb->getDate(Date::DAY_OF_WEEK);
 
 	if(town->garrisonHero)
@@ -88,6 +81,13 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			"Hero %s in garrison of town %s is suposed to defend the town",
 			town->garrisonHero->getNameTranslated(),
 			town->getNameTranslated());
+
+		return;
+	}
+
+	if(!treatNode.fastestDanger.hero)
+	{
+		logAi->trace("No treat found for town %s", town->getNameTranslated());
 
 		return;
 	}

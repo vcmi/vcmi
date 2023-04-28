@@ -279,10 +279,10 @@ void CGBlackMarket::newTurn(CRandomGenerator & rand) const
 {
 	int resetPeriod = VLC->settings()->getInteger(EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD);
 
-	if(resetPeriod == 0) //check if feature changing OH3 behavior is enabled
-		return;
+	bool isFirstDay = cb->getDate(Date::DAY) == 1;
+	bool regularResetTriggered = resetPeriod != 0 && ((cb->getDate(Date::DAY)-1) % resetPeriod) != 0;
 
-	if (((cb->getDate(Date::DAY)-1) % resetPeriod) != 0)
+	if (!isFirstDay && !regularResetTriggered)
 		return;
 
 	SetAvailableArtifacts saa;

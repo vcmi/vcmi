@@ -472,6 +472,9 @@ void Inspector::setProperty(CGLighthouse * o, const QString & key, const QVarian
 void Inspector::setProperty(CGPandoraBox * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
+	
+	if(key == "Message")
+		o->message = value.toString().toStdString();
 }
 
 void Inspector::setProperty(CGEvent * o, const QString & key, const QVariant & value)

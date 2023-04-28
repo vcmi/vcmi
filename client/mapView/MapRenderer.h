@@ -129,21 +129,12 @@ public:
 	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
 
-class MapRendererDebug
+class MapRendererOverlay
 {
 	std::shared_ptr<IImage> imageGrid;
 	std::shared_ptr<IImage> imageVisitable;
 	std::shared_ptr<IImage> imageBlocked;
-public:
-	MapRendererDebug();
-
-	uint8_t checksum(IMapRendererContext & context, const int3 & coordinates);
-	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
-};
-
-class MapRendererOverlay
-{
-	std::unique_ptr<CAnimation> iconsStorage;
+	std::shared_ptr<IImage> imageSpellRange;
 public:
 	MapRendererOverlay();
 
@@ -160,7 +151,7 @@ class MapRenderer
 	MapRendererFow rendererFow;
 	MapRendererObjects rendererObjects;
 	MapRendererPath rendererPath;
-	MapRendererDebug rendererDebug;
+	MapRendererOverlay rendererOverlay;
 
 public:
 	using TileChecksum = std::array<uint8_t, 8>;

@@ -86,4 +86,8 @@ public:
 	virtual bool showGrid() const = 0;
 	virtual bool showVisitable() const = 0;
 	virtual bool showBlocked() const = 0;
+
+	/// if true, spell range for teleport / scuttle boat will be visible
+	virtual bool showSpellRange(const int3 & position) const = 0;
+
 };
