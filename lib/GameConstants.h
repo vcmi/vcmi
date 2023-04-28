@@ -585,6 +585,16 @@ namespace BuildingSubID
 	};
 }
 
+namespace EMarketMode
+{
+	enum EMarketMode
+	{
+		RESOURCE_RESOURCE, RESOURCE_PLAYER, CREATURE_RESOURCE, RESOURCE_ARTIFACT,
+		ARTIFACT_RESOURCE, ARTIFACT_EXP, CREATURE_EXP, CREATURE_UNDEAD, RESOURCE_SKILL,
+		MARTKET_AFTER_LAST_PLACEHOLDER
+	};
+}
+
 namespace MappedKeys
 {
 
@@ -634,6 +644,19 @@ namespace MappedKeys
 		{ "lighthouse", BuildingSubID::LIGHTHOUSE },
 		{ "treasury", BuildingSubID::TREASURY }
 	};
+
+	static const std::map<std::string, EMarketMode::EMarketMode> MARKET_NAMES_TO_TYPES =
+	{
+		{ "resource-resource", EMarketMode::RESOURCE_RESOURCE },
+		{ "resource-player", EMarketMode::RESOURCE_PLAYER },
+		{ "creature-resource", EMarketMode::CREATURE_RESOURCE },
+		{ "resource-artifact", EMarketMode::RESOURCE_ARTIFACT },
+		{ "artifact-resource", EMarketMode::ARTIFACT_RESOURCE },
+		{ "artifact-experience", EMarketMode::ARTIFACT_EXP },
+		{ "creature-experience", EMarketMode::CREATURE_EXP },
+		{ "creature-undead", EMarketMode::CREATURE_UNDEAD },
+		{ "resource-skill", EMarketMode::RESOURCE_SKILL },
+	};
 }
 
 namespace EAiTactic
@@ -667,16 +690,6 @@ namespace ESpellCastProblem
 		NO_APPROPRIATE_TARGET, STACK_IMMUNE_TO_SPELL, WRONG_SPELL_TARGET, ONGOING_TACTIC_PHASE,
 		MAGIC_IS_BLOCKED, //For Orb of Inhibition and similar - no casting at all
 		INVALID
-	};
-}
-
-namespace EMarketMode
-{
-	enum EMarketMode
-	{
-		RESOURCE_RESOURCE, RESOURCE_PLAYER, CREATURE_RESOURCE, RESOURCE_ARTIFACT,
-		ARTIFACT_RESOURCE, ARTIFACT_EXP, CREATURE_EXP, CREATURE_UNDEAD, RESOURCE_SKILL,
-		MARTKET_AFTER_LAST_PLACEHOLDER
 	};
 }
 
