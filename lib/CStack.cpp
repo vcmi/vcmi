@@ -28,7 +28,7 @@ CStack::CStack(const CStackInstance * Base, const PlayerColor & O, int I, ui8 Si
 	base(Base),
 	ID(I),
 	type(Base->type),
-	baseAmount(base->count),
+	baseAmount(Base->count),
 	owner(O),
 	slot(S),
 	side(Side)

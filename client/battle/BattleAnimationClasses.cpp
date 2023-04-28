@@ -71,17 +71,17 @@ std::vector<BattleAnimation *> & BattleAnimation::pendingAnimations()
 
 std::shared_ptr<CreatureAnimation> BattleAnimation::stackAnimation(const CStack * stack) const
 {
-	return owner.stacksController->stackAnimation[stack->ID];
+	return owner.stacksController->stackAnimation[stack->unitId()];
 }
 
 bool BattleAnimation::stackFacingRight(const CStack * stack)
 {
-	return owner.stacksController->stackFacingRight[stack->ID];
+	return owner.stacksController->stackFacingRight[stack->unitId()];
 }
 
 void BattleAnimation::setStackFacingRight(const CStack * stack, bool facingRight)
 {
-	owner.stacksController->stackFacingRight[stack->ID] = facingRight;
+	owner.stacksController->stackFacingRight[stack->unitId()] = facingRight;
 }
 
 BattleStackAnimation::BattleStackAnimation(BattleInterface & owner, const CStack * stack)
@@ -279,7 +279,7 @@ ECreatureAnimType MeleeAttackAnimation::selectGroup(bool multiAttack)
 		getForwardGroup  (multiAttack)
 	};
 
-	int revShiftattacker = (attackingStack->side == BattleSide::ATTACKER ? -1 : 1);
+	int revShiftattacker = (attackingStack->unitSide() == BattleSide::ATTACKER ? -1 : 1);
 
 	int mutPos = BattleHex::mutualPosition(attackingStackPosBeforeReturn, dest);
 	if(mutPos == -1 && attackingStack->doubleWide())

@@ -25,17 +25,20 @@ class BattleInfo;
 //Represents STACK_BATTLE nodes
 class DLL_LINKAGE CStack : public CBonusSystemNode, public battle::CUnitState, public battle::IUnitEnvironment
 {
-public:
-	const CStackInstance * base = nullptr; //garrison slot from which stack originates (nullptr for war machines, summoned cres, etc)
-
+private:
 	ui32 ID = -1; //unique ID of stack
 	const CCreature * type = nullptr;
 	TerrainId nativeTerrain; //tmp variable to save native terrain value on battle init
 	ui32 baseAmount = -1;
 
 	PlayerColor owner; //owner - player color (255 for neutrals)
-	SlotID slot;  //slot - position in garrison (may be 255 for neutrals/called creatures)
 	ui8 side = 1;
+
+	SlotID slot;  //slot - position in garrison (may be 255 for neutrals/called creatures)
+
+public:
+	const CStackInstance * base = nullptr; //garrison slot from which stack originates (nullptr for war machines, summoned cres, etc)
+	
 	BattleHex initialPosition; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
 
 	CStack(const CStackInstance * base, const PlayerColor & O, int I, ui8 Side, const SlotID & S);

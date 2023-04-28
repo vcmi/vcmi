@@ -951,7 +951,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		bat.flags |= BattleAttack::DEATH_BLOW;
 	}
 
-	const auto * owner = gs->curB->getHero(attacker->owner);
+	const auto * owner = gs->curB->getHero(attacker->unitOwner());
 	if(owner)
 	{
 		int chance = owner->valOfBonuses(Bonus::BONUS_DAMAGE_CHANCE, attacker->creatureIndex());
@@ -1005,7 +1005,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		//now add effect info for all attacked stacks
 		for (BattleStackAttacked & bsa : bat.bsa)
 		{
-			if (bsa.attackerID == attacker->ID) //this is our attack and not f.e. fire shield
+			if (bsa.attackerID == attacker->unitId()) //this is our attack and not f.e. fire shield
 			{
 				//this is need for displaying affect animation
 				bsa.flags |= BattleStackAttacked::SPELL_EFFECT;
@@ -1072,7 +1072,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 			const CStack * actor = item.first;
 			int64_t rawDamage = item.second;
 
-			const CGHeroInstance * actorOwner = gs->curB->getHero(actor->owner);
+			const CGHeroInstance * actorOwner = gs->curB->getHero(actor->unitOwner());
 
 			if(actorOwner)
 			{
@@ -1092,8 +1092,8 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 			BattleStackAttacked bsa;
 
 			bsa.flags |= BattleStackAttacked::FIRE_SHIELD;
-			bsa.stackAttacked = attacker->ID; //invert
-			bsa.attackerID = defender->ID;
+			bsa.stackAttacked = attacker->unitId(); //invert
+			bsa.attackerID = defender->unitId();
 			bsa.damageAmount = totalDamage;
 			attacker->prepareAttacked(bsa, getRandomGenerator());
 
@@ -1323,7 +1323,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 	bool canUseGate = false;
 	auto dbState = gs->curB->si.gateState;
-	if(battleGetSiegeLevel() > 0 && curStack->side == BattleSide::DEFENDER &&
+	if(battleGetSiegeLevel() > 0 && curStack->unitSide() == BattleSide::DEFENDER &&
 		dbState != EGateState::DESTROYED &&
 		dbState != EGateState::BLOCKED)
 	{
@@ -1385,7 +1385,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 			//inform clients about move
 			BattleStackMoved sm;
-			sm.stack = curStack->ID;
+			sm.stack = curStack->unitId();
 			std::vector<BattleHex> tiles;
 			tiles.push_back(path.first[0]);
 			sm.tilesToMove = tiles;
@@ -1514,7 +1514,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			{
 				//commit movement
 				BattleStackMoved sm;
-				sm.stack = curStack->ID;
+				sm.stack = curStack->unitId();
 				sm.distance = path.second;
 				sm.teleporting = false;
 				sm.tilesToMove = tiles;
@@ -1560,8 +1560,8 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	//handle last hex separately for deviation
 	if (VLC->settings()->getBoolean(EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES))
 	{
-		if (dest == battle::Unit::occupiedHex(start, curStack->doubleWide(), curStack->side)
-			|| start == battle::Unit::occupiedHex(dest, curStack->doubleWide(), curStack->side))
+		if (dest == battle::Unit::occupiedHex(start, curStack->doubleWide(), curStack->unitSide())
+			|| start == battle::Unit::occupiedHex(dest, curStack->doubleWide(), curStack->unitSide()))
 			passed.clear(); //Just empty passed, obstacles will handled automatically
 	}
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
@@ -4568,7 +4568,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 		if (battleTacticDist())
 		{
-			if (stack && stack->side != battleGetTacticsSide())
+			if (stack && stack->unitSide() != battleGetTacticsSide())
 			{
 				complain("This is not a stack of side that has tactics!");
 				return false;
@@ -4731,7 +4731,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				break;
 			}
 
-			if(destinationStack && stack->ID == destinationStack->ID) //we should just move, it will be handled by following check
+			if(destinationStack && stack->unitId() == destinationStack->unitId()) //we should just move, it will be handled by following check
 			{
 				destinationStack = nullptr;
 			}
@@ -4796,7 +4796,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				&& stack->alive())
 			{
 				moveStack(ba.stackNumber, startingPos);
-				//NOTE: curStack->ID == ba.stackNumber (rev 1431)
+				//NOTE: curStack->unitId() == ba.stackNumber (rev 1431)
 			}
 			break;
 		}
@@ -5181,7 +5181,7 @@ void CGameHandler::stackEnchantedTrigger(const CStack * st)
 void CGameHandler::stackTurnTrigger(const CStack *st)
 {
 	BattleTriggerEffect bte;
-	bte.stackID = st->ID;
+	bte.stackID = st->unitId();
 	bte.effect = -1;
 	bte.val = 0;
 	bte.additionalInfo = 0;
@@ -5214,7 +5214,7 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 			{
 				BattleSetStackProperty ssp;
 				ssp.which = BattleSetStackProperty::UNBIND;
-				ssp.stackID = st->ID;
+				ssp.stackID = st->unitId();
 				sendAndApply(&ssp);
 			}
 		}
@@ -5270,7 +5270,7 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 			}
 		}
 		BonusList bl = *(st->getBonuses(Selector::type()(Bonus::ENCHANTER)));
-		int side = gs->curB->whatSide(st->owner);
+		int side = gs->curB->whatSide(st->unitOwner());
 		if(st->canCast() && gs->curB->battleGetEnchanterCounter(side) == 0)
 		{
 			bool cast = false;
@@ -6043,7 +6043,7 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 
 		BattleStackAttacked bsa;
 		bsa.attackerID = -1;
-		bsa.stackAttacked = defender->ID;
+		bsa.stackAttacked = defender->unitId();
 		bsa.damageAmount = amountToDie * defender->MaxHealth();
 		bsa.flags = BattleStackAttacked::SPELL_EFFECT;
 		bsa.spellID = SpellID::SLAYER;
@@ -6159,8 +6159,8 @@ void CGameHandler::makeStackDoNothing(const CStack * next)
 {
 	BattleAction doNothing;
 	doNothing.actionType = EActionType::NO_ACTION;
-	doNothing.side = next->side;
-	doNothing.stackNumber = next->ID;
+	doNothing.side = next->unitSide();
+	doNothing.stackNumber = next->unitId();
 
 	makeAutomaticAction(next, doNothing);
 }
@@ -6387,17 +6387,17 @@ void CGameHandler::runBattle()
 			if (!guardianIsBig)
 				targetHexes = stack->getSurroundingHexes();
 			else
-				summonGuardiansHelper(targetHexes, stack->getPosition(), stack->side, targetIsBig);
+				summonGuardiansHelper(targetHexes, stack->getPosition(), stack->unitSide(), targetIsBig);
 
 			for(auto hex : targetHexes)
 			{
-				if(accessibility.accessible(hex, guardianIsBig, stack->side)) //without this multiple creatures can occupy one hex
+				if(accessibility.accessible(hex, guardianIsBig, stack->unitSide())) //without this multiple creatures can occupy one hex
 				{
 					battle::UnitInfo info;
 					info.id = gs->curB->battleNextUnitId();
 					info.count =  std::max(1, (int)(stack->getCount() * 0.01 * summonInfo->val));
 					info.type = creatureData;
-					info.side = stack->side;
+					info.side = stack->unitSide();
 					info.position = hex;
 					info.summoned = true;
 
@@ -6485,7 +6485,7 @@ void CGameHandler::runBattle()
 					if(stack && stack->alive() && !stack->waiting)
 					{
 						BattleTriggerEffect bte;
-						bte.stackID = stack->ID;
+						bte.stackID = stack->unitId();
 						bte.effect = Bonus::HP_REGENERATION;
 
 						const int32_t lostHealth = stack->MaxHealth() - stack->getFirstHPleft();
@@ -6529,8 +6529,8 @@ void CGameHandler::runBattle()
 					//unit loses its turn - empty freeze action
 					BattleAction ba;
 					ba.actionType = EActionType::BAD_MORALE;
-					ba.side = next->side;
-					ba.stackNumber = next->ID;
+					ba.side = next->unitSide();
+					ba.stackNumber = next->unitId();
 
 					makeAutomaticAction(next, ba);
 					continue;
@@ -6545,8 +6545,8 @@ void CGameHandler::runBattle()
 				{
 					BattleAction attack;
 					attack.actionType = EActionType::WALK_AND_ATTACK;
-					attack.side = next->side;
-					attack.stackNumber = next->ID;
+					attack.side = next->unitSide();
+					attack.stackNumber = next->unitId();
 					attack.aimToHex(attackInfo.second);
 					attack.aimToUnit(attackInfo.first);
 
@@ -6569,8 +6569,8 @@ void CGameHandler::runBattle()
 			{
 				BattleAction attack;
 				attack.actionType = EActionType::SHOOT;
-				attack.side = next->side;
-				attack.stackNumber = next->ID;
+				attack.side = next->unitSide();
+				attack.stackNumber = next->unitId();
 
 				//TODO: select target by priority
 
@@ -6579,7 +6579,7 @@ void CGameHandler::runBattle()
 				for(auto & elem : gs->curB->stacks)
 				{
 					if(elem->unitType()->getId() != CreatureID::CATAPULT
-						&& elem->owner != next->owner
+						&& elem->unitOwner() != next->unitOwner()
 						&& elem->isValidTarget()
 						&& gs->curB->battleCanShoot(next, elem->getPosition()))
 					{
@@ -6614,8 +6614,8 @@ void CGameHandler::runBattle()
 				{
 					BattleAction attack;
 					attack.actionType = EActionType::CATAPULT;
-					attack.side = next->side;
-					attack.stackNumber = next->ID;
+					attack.side = next->unitSide();
+					attack.stackNumber = next->unitId();
 
 					makeAutomaticAction(next, attack);
 					continue;
@@ -6626,7 +6626,7 @@ void CGameHandler::runBattle()
 			{
 				TStacks possibleStacks = battleGetStacksIf([=](const CStack * s)
 				{
-					return s->owner == next->owner && s->canBeHealed();
+					return s->unitOwner() == next->unitOwner() && s->canBeHealed();
 				});
 
 				if (!possibleStacks.size())
@@ -6643,8 +6643,8 @@ void CGameHandler::runBattle()
 					BattleAction heal;
 					heal.actionType = EActionType::STACK_HEAL;
 					heal.aimToUnit(toBeHealed);
-					heal.side = next->side;
-					heal.stackNumber = next->ID;
+					heal.side = next->unitSide();
+					heal.stackNumber = next->unitId();
 
 					makeAutomaticAction(next, heal);
 					continue;
@@ -6666,7 +6666,7 @@ void CGameHandler::runBattle()
 					else
 					{
 						logGlobal->trace("Activating %s", next->nodeName());
-						auto nextId = next->ID;
+						auto nextId = next->unitId();
 						BattleSetActiveStack sas;
 						sas.stack = nextId;
 						sendAndApply(&sas);
@@ -6719,7 +6719,7 @@ void CGameHandler::runBattle()
 						if(diceSize.size() > 0 && getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
 						{
 							BattleTriggerEffect bte;
-							bte.stackID = next->ID;
+							bte.stackID = next->unitId();
 							bte.effect = Bonus::MORALE;
 							bte.val = 1;
 							bte.additionalInfo = 0;
@@ -6748,7 +6748,7 @@ void CGameHandler::runBattle()
 bool CGameHandler::makeAutomaticAction(const CStack *stack, BattleAction &ba)
 {
 	BattleSetActiveStack bsa;
-	bsa.stack = stack->ID;
+	bsa.stack = stack->unitId();
 	bsa.askPlayerInterface = false;
 	sendAndApply(&bsa);
 
@@ -7210,20 +7210,20 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, const
 	{
 		if(st->summoned) //don't take into account temporary summoned stacks
 			continue;
-		if(st->owner != color) //remove only our stacks
+		if(st->unitOwner() != color) //remove only our stacks
 			continue;
 
 		logGlobal->debug("Calculating casualties for %s", st->nodeName());
 
 		st->health.takeResurrected();
 
-		if(st->slot == SlotID::ARROW_TOWERS_SLOT)
+		if(st->unitSlot() == SlotID::ARROW_TOWERS_SLOT)
 		{
 			logGlobal->debug("Ignored arrow towers stack.");
 		}
-		else if(st->slot == SlotID::WAR_MACHINES_SLOT)
+		else if(st->unitSlot() == SlotID::WAR_MACHINES_SLOT)
 		{
-			auto warMachine = st->type->warMachine;
+			auto warMachine = st->unitType()->warMachine;
 
 			if(warMachine == ArtifactID::NONE)
 			{
@@ -7240,16 +7240,16 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, const
 					logGlobal->error("War machine in army without hero");
 			}
 		}
-		else if(st->slot == SlotID::SUMMONED_SLOT_PLACEHOLDER)
+		else if(st->unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER)
 		{
 			if(st->alive() && st->getCount() > 0)
 			{
 				logGlobal->debug("Permanently summoned %d units.", st->getCount());
-				const CreatureID summonedType = st->type->getId();
+				const CreatureID summonedType = st->creatureId();
 				summoned[summonedType] += st->getCount();
 			}
 		}
-		else if(st->slot == SlotID::COMMANDER_SLOT_PLACEHOLDER)
+		else if(st->unitSlot() == SlotID::COMMANDER_SLOT_PLACEHOLDER)
 		{
 			if (nullptr == st->base)
 			{
@@ -7271,25 +7271,25 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, const
 					logGlobal->error("Stack with invalid instance in commander slot. Stack: %s", st->nodeName());
 			}
 		}
-		else if(st->base && !army->slotEmpty(st->slot))
+		else if(st->base && !army->slotEmpty(st->unitSlot()))
 		{
-			logGlobal->debug("Count: %d; base count: %d", st->getCount(), army->getStackCount(st->slot));
+			logGlobal->debug("Count: %d; base count: %d", st->getCount(), army->getStackCount(st->unitSlot()));
 			if(st->getCount() == 0 || !st->alive())
 			{
 				logGlobal->debug("Stack has been destroyed.");
-				StackLocation sl(army, st->slot);
+				StackLocation sl(army, st->unitSlot());
 				newStackCounts.push_back(TStackAndItsNewCount(sl, 0));
 			}
-			else if(st->getCount() < army->getStackCount(st->slot))
+			else if(st->getCount() < army->getStackCount(st->unitSlot()))
 			{
-				logGlobal->debug("Stack lost %d units.", army->getStackCount(st->slot) - st->getCount());
-				StackLocation sl(army, st->slot);
+				logGlobal->debug("Stack lost %d units.", army->getStackCount(st->unitSlot()) - st->getCount());
+				StackLocation sl(army, st->unitSlot());
 				newStackCounts.push_back(TStackAndItsNewCount(sl, st->getCount()));
 			}
-			else if(st->getCount() > army->getStackCount(st->slot))
+			else if(st->getCount() > army->getStackCount(st->unitSlot()))
 			{
-				logGlobal->debug("Stack gained %d units.", st->getCount() - army->getStackCount(st->slot));
-				StackLocation sl(army, st->slot);
+				logGlobal->debug("Stack gained %d units.", st->getCount() - army->getStackCount(st->unitSlot()));
+				StackLocation sl(army, st->unitSlot());
 				newStackCounts.push_back(TStackAndItsNewCount(sl, st->getCount()));
 			}
 		}

@@ -208,7 +208,7 @@ void BattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedI
 
 	for(const StackAttackedInfo & attackedInfo : attackedInfos)
 	{
-		ui8 side = attackedInfo.defender->side;
+		ui8 side = attackedInfo.defender->unitSide();
 		killedBySide.at(side) += attackedInfo.amountKilled;
 	}
 
@@ -288,7 +288,7 @@ const CGHeroInstance * BattleInterface::getActiveHero()
 		return nullptr;
 	}
 
-	if(attacker->side == BattleSide::ATTACKER)
+	if(attacker->unitSide() == BattleSide::ATTACKER)
 	{
 		return attackingHeroInstance;
 	}

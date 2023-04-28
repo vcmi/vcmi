@@ -47,12 +47,11 @@ std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, Ba
 
 void BattleInfo::calculateCasualties(std::map<ui32,si32> * casualties) const
 {
-	for(const auto & elem : stacks) //setting casualties
+	for(const auto & st : stacks) //setting casualties
 	{
-		const CStack * const st = elem;
 		si32 killed = st->getKilled();
 		if(killed > 0)
-			casualties[st->side][st->unitType()->getId()] += killed;
+			casualties[st->unitSide()][st->creatureId()] += killed;
 	}
 }
 

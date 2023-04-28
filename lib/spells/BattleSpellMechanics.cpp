@@ -279,9 +279,9 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 		if(nullptr != otherHero) //handle mana channel
 		{
 			int manaChannel = 0;
-			for(const CStack * stack : battle()->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
+			for(const auto * stack : battle()->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
 			{
-				if(stack->owner == otherHero->tempOwner)
+				if(stack->unitOwner() == otherHero->tempOwner)
 				{
 					vstd::amax(manaChannel, stack->valOfBonuses(Bonus::MANA_CHANNELING));
 				}

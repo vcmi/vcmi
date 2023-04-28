@@ -134,7 +134,7 @@ void BattleFieldController::renderBattlefield(Canvas & canvas)
 
 void BattleFieldController::showBackground(Canvas & canvas)
 {
-	if (owner.stacksController->getActiveStack() != nullptr ) //&& creAnims[stacksController->getActiveStack()->ID]->isIdle() //show everything with range
+	if (owner.stacksController->getActiveStack() != nullptr ) //&& creAnims[stacksController->getActiveStack()->unitId()]->isIdle() //show everything with range
 		showBackgroundImageWithHexes(canvas);
 	else
 		showBackgroundImage(canvas);
@@ -540,7 +540,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
 		case BattleHex::LEFT:
 		case BattleHex::BOTTOM_LEFT:
 		{
-			if ( attacker->side == BattleSide::ATTACKER )
+			if ( attacker->unitSide() == BattleSide::ATTACKER )
 				return attackTarget.cloneInDirection(direction);
 			else
 				return attackTarget.cloneInDirection(direction).cloneInDirection(BattleHex::LEFT);
@@ -550,7 +550,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
 		case BattleHex::RIGHT:
 		case BattleHex::BOTTOM_RIGHT:
 		{
-			if ( attacker->side == BattleSide::ATTACKER )
+			if ( attacker->unitSide() == BattleSide::ATTACKER )
 				return attackTarget.cloneInDirection(direction).cloneInDirection(BattleHex::RIGHT);
 			else
 				return attackTarget.cloneInDirection(direction);
@@ -558,7 +558,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
 
 		case BattleHex::TOP:
 		{
-			if ( attacker->side == BattleSide::ATTACKER )
+			if ( attacker->unitSide() == BattleSide::ATTACKER )
 				return attackTarget.cloneInDirection(BattleHex::TOP_RIGHT);
 			else
 				return attackTarget.cloneInDirection(BattleHex::TOP_LEFT);
@@ -566,7 +566,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
 
 		case BattleHex::BOTTOM:
 		{
-			if ( attacker->side == BattleSide::ATTACKER )
+			if ( attacker->unitSide() == BattleSide::ATTACKER )
 				return attackTarget.cloneInDirection(BattleHex::BOTTOM_RIGHT);
 			else
 				return attackTarget.cloneInDirection(BattleHex::BOTTOM_LEFT);

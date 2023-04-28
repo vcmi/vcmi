@@ -651,7 +651,7 @@ CStackWindow::CStackWindow(const CStack * stack, bool popup)
 {
 	info->stack = stack;
 	info->stackNode = stack->base;
-	info->creature = stack->type;
+	info->creature = stack->unitType();
 	info->creatureCount = stack->getCount();
 	info->popupWindow = popup;
 	init();

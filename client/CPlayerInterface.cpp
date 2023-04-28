@@ -774,7 +774,7 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 {
 	THREAD_CREATED_BY_CLIENT;
 	logGlobal->trace("Awaiting command for %s", stack->nodeName());
-	auto stackId = stack->ID;
+	auto stackId = stack->unitId();
 	auto stackName = stack->nodeName();
 	if (autofightingAI)
 	{

@@ -2467,7 +2467,7 @@ void BattleSetStackProperty::applyGs(CGameState * gs) const
 		}
 		case ENCHANTER_COUNTER:
 		{
-			auto & counter = gs->curB->sides[gs->curB->whatSide(stack->owner)].enchanterCounter;
+			auto & counter = gs->curB->sides[gs->curB->whatSide(stack->unitOwner())].enchanterCounter;
 			if(absolute)
 				counter = val;
 			else
