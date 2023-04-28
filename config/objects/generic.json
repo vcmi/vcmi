@@ -30,7 +30,8 @@
 					"zoneLimit"	: 1,
 					"value"		: 100,
 					"rarity"	: 20
-				}
+				},
+				"modes" : ["creature-experience", "artifact-experience"]
 			}
 		}
 	},
@@ -51,7 +52,9 @@
 					"zoneLimit"	: 1,
 					"value"		: 100,
 					"rarity"	: 100
-				}
+				},
+				"modes" : ["resource-resource", "resource-player"],
+				"efficacy" : 5
 			}
 		}
 	},
@@ -72,7 +75,9 @@
 					"zoneLimit"	: 1,
 					"value"		: 100,
 					"rarity"	: 100
-				}
+				},
+				"modes" : ["resource-resource", "resource-player"],
+				"efficacy" : 5
 			}
 		}
 	},
@@ -87,14 +92,15 @@
 					"zoneLimit"	: 1,
 					"value"		: 100,
 					"rarity"	: 100
-				}
+				},
+				"modes" : ["creature-resource"]
 			}
 		}
 	},
 
 	"blackMarket" : {
 		"index" :7,
-		"handler" : "blackMarket",
+		"handler" : "market",
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPMARK"],
@@ -108,7 +114,8 @@
 				"rmg" : {
 					"value"		: 8000,
 					"rarity"	: 20
-				}
+				},
+				"modes" : ["resource-artifact"]
 			}
 		}
 	},
@@ -536,7 +543,7 @@
 	},
 	"university" : {
 		"index" :104,
-		"handler" : "university",
+		"handler" : "market",
 		"base" : {
 			"sounds" : {
 				"visit" : ["GAZEBO"]
@@ -549,7 +556,10 @@
 				"rmg" : {
 					"value"		: 2500,
 					"rarity"	: 20
-				}
+				},
+				"modes" : ["resource-skill"],
+				"title" : "core.genrltxt.602",
+				"speech" : "core.genrltxt.603"
 			}
 		}
 	},
