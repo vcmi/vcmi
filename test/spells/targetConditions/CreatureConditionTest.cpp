@@ -29,7 +29,7 @@ public:
 	{
 		TargetConditionItemTest::SetUp();
 
-		subject = TargetConditionItemFactory::getDefault()->createConfigurable("", "creature", "ammoCart");
+		subject = TargetConditionItemFactory::getDefault()->createConfigurable("core", "creature", "ammoCart");
 		GTEST_ASSERT_NE(subject, nullptr);
 	}
 };

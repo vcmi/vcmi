@@ -1,4 +1,5 @@
 include(GoogleTest)
+include(CheckCXXCompilerFlag)
 
 set(googleTest_Dir ${CMAKE_CURRENT_SOURCE_DIR}/googletest)
 if(EXISTS ${googleTest_Dir})
@@ -29,22 +30,6 @@ set(test_SRCS
 		entity/CHeroTest.cpp
 		entity/CSkillTest.cpp
 
-		erm/ERM_BM.cpp
-		erm/ERM_BU.cpp
-		erm/ERM_FU.cpp
-		erm/ERM_GM_T.cpp
-		erm/ERM_MA.cpp
-		erm/ERM_MC.cpp
-		erm/ERM_MF.cpp
-		erm/ERM_TM_T.cpp
-		erm/ERM_VR.cpp
-		erm/ERM_UN.cpp
-		erm/ERMPersistenceTest.cpp
-		erm/ExamplesTest.cpp
-		erm/interpretter/ERM_VR.cpp
-		erm/interpretter/ERM_UN.cpp
-		erm/interpretter/ErmRunner.cpp
-
 		events/ApplyDamageTest.cpp
 		events/EventBusTest.cpp
 
@@ -56,12 +41,6 @@ set(test_SRCS
 
 		netpacks/EntitiesChangedTest.cpp
 		netpacks/NetPackFixture.cpp
-
-		scripting/LuaSandboxTest.cpp
-		scripting/LuaSpellEffectTest.cpp
-		scripting/LuaSpellEffectAPITest.cpp
-		scripting/PoolTest.cpp
-		scripting/ScriptFixture.cpp
 
 		spells/AbilityCasterTest.cpp
 		spells/CSpellTest.cpp
@@ -104,10 +83,7 @@ set(test_HEADERS
  		CVcmiTestConfig.h
 		JsonComparer.h
 
-		scripting/ScriptFixture.h
-		erm/interpretter/ErmRunner.h
-
- 		map/MapComparer.h
+		map/MapComparer.h
 
  		netpacks/NetPackFixture.h
 
@@ -124,6 +100,44 @@ set(test_HEADERS
 		mock/mock_BonusBearer.h
 
 )
+
+if(ENABLE_LUA)
+	list(APPEND test_SRCS
+		scripting/LuaSandboxTest.cpp
+		scripting/LuaSpellEffectTest.cpp
+		scripting/LuaSpellEffectAPITest.cpp
+		scripting/PoolTest.cpp
+		scripting/ScriptFixture.cpp
+	)
+
+	list(APPEND test_HEADERS
+		scripting/ScriptFixture.h
+	)
+endif()
+
+if(ENABLE_ERM) 
+	list(APPEND test_SRCS 
+		erm/ERM_BM.cpp
+		erm/ERM_BU.cpp
+		erm/ERM_FU.cpp
+		erm/ERM_GM_T.cpp
+		erm/ERM_MA.cpp
+		erm/ERM_MC.cpp
+		erm/ERM_MF.cpp
+		erm/ERM_TM_T.cpp
+		erm/ERM_VR.cpp
+		erm/ERM_UN.cpp
+		erm/ERMPersistenceTest.cpp
+		erm/ExamplesTest.cpp
+		erm/interpretter/ERM_VR.cpp
+		erm/interpretter/ERM_UN.cpp
+		erm/interpretter/ErmRunner.cpp
+	)
+
+	list(APPEND test_HEADERS
+		erm/interpretter/ErmRunner.h
+	)
+endif()
 
 assign_source_group(${test_SRCS} ${test_HEADERS})
 
@@ -148,10 +162,25 @@ set(mock_HEADERS
 if(MSVC)
 	set(gtest_force_shared_crt ON CACHE BOOL "Use shared (DLL) run-time lib even when Google Test is built as static lib." FORCE)
 endif()
+check_cxx_compiler_flag(-Wimplicit-int-float-conversion CONV)
+if(CONV)
+	add_compile_options(-Wno-error=implicit-int-float-conversion) #Used in googletest
+endif()
+check_cxx_compiler_flag(-Wdeprecated-copy-with-user-provided-copy COPY)
+if(COPY)
+	add_compile_options(-Wno-deprecated-copy-with-user-provided-copy) #Used in googletest
+endif()
+check_cxx_compiler_flag(-Wvirtual-move-assign MOVE_ASSIGN)
+if(MOVE_ASSIGN)
+	add_compile_options(-Wno-error=virtual-move-assign) #GCC is too strict here
+endif()
 add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 
 add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS})
 target_link_libraries(vcmitest PRIVATE gtest gmock vcmi ${SYSTEM_LIBS})
+if(ENABLE_LUA)
+	target_link_libraries(vcmitest PRIVATE vcmiLua)
+endif()
 
 target_include_directories(vcmitest
 		PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
@@ -161,16 +190,10 @@ target_include_directories(vcmitest
 		PRIVATE	${GMockSrc}/include
 )
 
-if(FALSE AND NOT ${CMAKE_VERSION} VERSION_LESS "3.10.0")
-	# Running tests one by one using ctest not recommended due to vcmi having
-	# slow global initialization.
-	gtest_discover_tests(vcmitest
-		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
-else()
-	add_test(NAME tests
-		COMMAND vcmitest
-		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
-endif()
+# Running tests one by one using ctest not recommended due to vcmi having
+# slow global initialization.
+gtest_discover_tests(vcmitest
+	WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
 
 
 vcmi_set_output_dir(vcmitest "")

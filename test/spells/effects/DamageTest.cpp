@@ -45,7 +45,6 @@ TEST_F(DamageTest, ApplicableToAliveUnit)
 	EXPECT_CALL(unit, isValidTarget(Eq(false))).WillOnce(Return(true));
 
 	EXPECT_CALL(mechanicsMock, isSmart()).WillOnce(Return(false));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillOnce(Return(true));
 
 	EffectTarget target;
 	target.emplace_back(&unit, BattleHex());

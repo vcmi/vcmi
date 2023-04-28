@@ -23,6 +23,7 @@ public:
 
 	void setDefaultExpectations()
 	{
+		EXPECT_CALL(mechanicsMock, isMagicalEffect()).WillRepeatedly(Return(true));
 		EXPECT_CALL(unitMock, getAllBonuses(_, _, _, _)).Times(AtLeast(1));
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(AtLeast(0));
 	}

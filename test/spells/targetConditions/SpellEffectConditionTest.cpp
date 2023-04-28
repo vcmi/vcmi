@@ -31,7 +31,7 @@ public:
 	{
 		TargetConditionItemTest::SetUp();
 
-		subject = TargetConditionItemFactory::getDefault()->createConfigurable("", "spell", "age");
+		subject = TargetConditionItemFactory::getDefault()->createConfigurable("core", "spell", "age");
 		GTEST_ASSERT_NE(subject, nullptr);
 	}
 };

@@ -84,7 +84,7 @@ void checkEqual(const PlayerInfo & actual, const PlayerInfo & expected)
 	VCMI_CHECK_FIELD_EQUAL(hasMainTown);
 	VCMI_CHECK_FIELD_EQUAL(generateHeroAtMainTown);
 	VCMI_CHECK_FIELD_EQUAL(posOfMainTown);
-	VCMI_CHECK_FIELD_EQUAL(team);
+	//VCMI_CHECK_FIELD_EQUAL(team); //TODO: smart team checking, for now team checking is useless, because random team is assigned for single-member teams
 	VCMI_CHECK_FIELD_EQUAL(hasRandomHero);
 }
 
@@ -207,7 +207,7 @@ void MapComparer::compareObject(const CGObjectInstance * actual, const CGObjectI
 	EXPECT_EQ(actualFullID, expectedFullID);
 
 	VCMI_CHECK_FIELD_EQUAL_P(pos);
-	checkEqual(actual->appearance, expected->appearance);
+	checkEqual(*actual->appearance, *expected->appearance);
 }
 
 void MapComparer::compareObjects()

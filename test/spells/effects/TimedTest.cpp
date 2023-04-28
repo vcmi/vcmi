@@ -124,7 +124,7 @@ TEST_P(TimedApplyTest, ChangesBonuses)
 	EXPECT_THAT(actualBonus, UnorderedElementsAreArray(expectedBonus));
 }
 
-INSTANTIATE_TEST_CASE_P
+INSTANTIATE_TEST_SUITE_P
 (
 	ByConfig,
 	TimedApplyTest,

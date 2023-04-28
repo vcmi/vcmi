@@ -62,7 +62,7 @@ TEST_P(AbsoluteSpellConditionTest, IgnoresNormalCase)
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
-INSTANTIATE_TEST_CASE_P
+INSTANTIATE_TEST_SUITE_P
 (
 	BySpells,
 	AbsoluteSpellConditionTest,

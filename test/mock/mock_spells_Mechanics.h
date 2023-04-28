@@ -57,6 +57,7 @@ public:
 	MOCK_CONST_METHOD0(requiresClearTiles, bool());
 	MOCK_CONST_METHOD0(isNegativeSpell, bool());
 	MOCK_CONST_METHOD0(isPositiveSpell, bool());
+	MOCK_CONST_METHOD0(isMagicalEffect, bool());
 
 	MOCK_CONST_METHOD1(adjustEffectValue,int64_t(const battle::Unit *));
 	MOCK_CONST_METHOD2(applySpellBonus,int64_t(int64_t, const battle::Unit *));
@@ -69,7 +70,9 @@ public:
 	MOCK_CONST_METHOD2(ownerMatches, bool(const battle::Unit *, const boost::logic::tribool));
 
 	MOCK_CONST_METHOD0(creatures, const CreatureService *());
+#if SCRIPTING_ENABLED
 	MOCK_CONST_METHOD0(scripts, const scripting::Service *());
+#endif
 	MOCK_CONST_METHOD0(spells, const Service *());
 
 	MOCK_CONST_METHOD0(game, const IGameInfoCallback * ());
