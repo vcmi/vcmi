@@ -244,15 +244,15 @@ void CCallback::buyArtifact(const CGHeroInstance *hero, ArtifactID aid)
 	sendRequest(&pack);
 }
 
-void CCallback::trade(const CGObjectInstance * market, EMarketMode::EMarketMode mode, ui32 id1, ui32 id2, ui32 val1, const CGHeroInstance * hero)
+void CCallback::trade(const IMarket * market, EMarketMode::EMarketMode mode, ui32 id1, ui32 id2, ui32 val1, const CGHeroInstance * hero)
 {
 	trade(market, mode, std::vector<ui32>(1, id1), std::vector<ui32>(1, id2), std::vector<ui32>(1, val1), hero);
 }
 
-void CCallback::trade(const CGObjectInstance * market, EMarketMode::EMarketMode mode, const std::vector<ui32> & id1, const std::vector<ui32> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero)
+void CCallback::trade(const IMarket * market, EMarketMode::EMarketMode mode, const std::vector<ui32> & id1, const std::vector<ui32> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero)
 {
 	TradeOnMarketplace pack;
-	pack.marketId = market->id;
+	pack.marketId = dynamic_cast<const CGObjectInstance *>(market)->id;
 	pack.heroId = hero ? hero->id : ObjectInstanceID();
 	pack.mode = mode;
 	pack.r1 = id1;
