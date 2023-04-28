@@ -1206,13 +1206,17 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	townlist->onSelect = std::bind(&CCastleInterface::townChange, this);
 
 	recreateIcons();
-	adventureInt->onAudioPaused();
+	if (!from)
+		adventureInt->onAudioPaused();
 	CCS->musich->playMusic(town->town->clientInfo.musicTheme, true, false);
 }
 
 CCastleInterface::~CCastleInterface()
 {
-	if (adventureInt) // may happen on exiting client with open castle interface
+	// resume map audio if:
+	// adventureInt exists (may happen on exiting client with open castle interface)
+	// castleInt has not been replaced (happens on switching between towns inside castle interface)
+	if (adventureInt && LOCPLINT->castleInt == this)
 		adventureInt->onAudioResumed();
 	if(LOCPLINT->castleInt == this)
 		LOCPLINT->castleInt = nullptr;
