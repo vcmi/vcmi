@@ -1478,7 +1478,9 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 			{
 				if(portrait < legacyHeroes || portrait >= moddedStart)
 				{
-					int tempPortrait = portrait - GameConstants::HERO_PORTRAIT_SHIFT;
+					int tempPortrait = portrait >= moddedStart
+						? portrait - GameConstants::HERO_PORTRAIT_SHIFT
+						: portrait;
 					handler.serializeId<si32, si32, HeroTypeID>("portrait", tempPortrait, -1);
 				}
 				else
@@ -1492,7 +1494,8 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 			if(portraitNode.getType() == JsonNode::JsonType::DATA_STRING)
 			{
 				handler.serializeId<si32, si32, HeroTypeID>("portrait", portrait, -1);
-				portrait += GameConstants::HERO_PORTRAIT_SHIFT;
+				if(portrait >= legacyHeroes)
+					portrait += GameConstants::HERO_PORTRAIT_SHIFT;
 			}
 			else
 				handler.serializeInt("portrait", portrait, -1);

@@ -1718,7 +1718,7 @@ void CGameHandler::newTurn()
 			n.specialWeek = NewTurn::DEITYOFFIRE;
 			n.creatureid = CreatureID::IMP;
 		}
-		else if(!VLC->settings()->getBoolean(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS))
+		else if(VLC->settings()->getBoolean(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS))
 		{
 			int monthType = getRandomGenerator().nextInt(99);
 			if (newMonth) //new month
