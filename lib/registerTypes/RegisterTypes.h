@@ -89,12 +89,12 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<AObjectTypeHandler, CDwellingInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CBankInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, BoatInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, MarketInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CObstacleConstructor>();
 
 #define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()
 
 	REGISTER_GENERIC_HANDLER(CGObjectInstance);
-	REGISTER_GENERIC_HANDLER(CGMarket);
 	REGISTER_GENERIC_HANDLER(CCartographer);
 	REGISTER_GENERIC_HANDLER(CGArtifact);
 	REGISTER_GENERIC_HANDLER(CGBlackMarket);

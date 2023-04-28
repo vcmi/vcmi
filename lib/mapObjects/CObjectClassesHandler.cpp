@@ -40,6 +40,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER_CLASS("town", CTownInstanceConstructor);
 	SET_HANDLER_CLASS("bank", CBankInstanceConstructor);
 	SET_HANDLER_CLASS("boat", BoatInstanceConstructor);
+	SET_HANDLER_CLASS("market", MarketInstanceConstructor);
 
 	SET_HANDLER_CLASS("static", CObstacleConstructor);
 	SET_HANDLER_CLASS("", CObstacleConstructor);
@@ -54,7 +55,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("generic", CGObjectInstance);
 	SET_HANDLER("cartographer", CCartographer);
 	SET_HANDLER("artifact", CGArtifact);
-	SET_HANDLER("blackMarket", CGBlackMarket);
 	SET_HANDLER("borderGate", CGBorderGate);
 	SET_HANDLER("borderGuard", CGBorderGuard);
 	SET_HANDLER("monster", CGCreature);
@@ -65,7 +65,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("keymaster", CGKeymasterTent);
 	SET_HANDLER("lighthouse", CGLighthouse);
 	SET_HANDLER("magi", CGMagi);
-	SET_HANDLER("market", CGMarket);
 	SET_HANDLER("mine", CGMine);
 	SET_HANDLER("obelisk", CGObelisk);
 	SET_HANDLER("observatory", CGObservatory);
@@ -82,7 +81,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("monolith", CGMonolith);
 	SET_HANDLER("subterraneanGate", CGSubterraneanGate);
 	SET_HANDLER("whirlpool", CGWhirlpool);
-	SET_HANDLER("university", CGUniversity);
 	SET_HANDLER("witch", CGWitchHut);
 	SET_HANDLER("terrain", CGTerrainPatch);
 
