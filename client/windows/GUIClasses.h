@@ -382,7 +382,7 @@ class CTransformerWindow : public CStatusbarWindow, public CGarrisonHolder
 
 	const CArmedInstance * army;//object with army for transforming (hero or town)
 	const CGHeroInstance * hero;//only if we have hero in town
-	const CGTownInstance * town;//market, town garrison is used if hero == nullptr
+	const IMarket * market;//market, town garrison is used if hero == nullptr
 
 	std::shared_ptr<CLabel> titleLeft;
 	std::shared_ptr<CLabel> titleRight;
@@ -399,7 +399,7 @@ public:
 	void makeDeal();
 	void addAll();
 	void updateGarrisons() override;
-	CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town);
+	CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero);
 };
 
 class CUniversityWindow : public CStatusbarWindow
