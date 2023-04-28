@@ -264,9 +264,9 @@ TEST_F(CGameStateTest, issue2765)
 
 	for(const CStack * s : gameState->curB->stacks)
 	{
-		if(s->type->getId() == CreatureID::BALLISTA && s->unitSide() == BattleSide::DEFENDER)
+		if(s->unitType()->getId() == CreatureID::BALLISTA && s->unitSide() == BattleSide::DEFENDER)
 			def = s;
-		else if(s->type->getId() == CreatureID(69) && s->unitSide() == BattleSide::ATTACKER)
+		else if(s->unitType()->getId() == CreatureID(69) && s->unitSide() == BattleSide::ATTACKER)
 			att = s;
 	}
 	ASSERT_NE(att, nullptr);
