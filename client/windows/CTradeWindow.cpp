@@ -832,15 +832,14 @@ void CMarketplaceWindow::makeDeal()
 
 	if(allowDeal)
 	{
-		const auto * o = dynamic_cast<const CGObjectInstance *>(market);
 		if(slider)
 		{
-			LOCPLINT->cb->trade(o, mode, leftIdToSend, hRight->id, slider->getValue() * r1, hero);
+			LOCPLINT->cb->trade(market, mode, leftIdToSend, hRight->id, slider->getValue() * r1, hero);
 			slider->moveTo(0);
 		}
 		else
 		{
-			LOCPLINT->cb->trade(o, mode, leftIdToSend, hRight->id, r2, hero);
+			LOCPLINT->cb->trade(market, mode, leftIdToSend, hRight->id, r2, hero);
 		}
 	}
 
@@ -1240,7 +1239,7 @@ void CAltarWindow::makeDeal()
 			}
 		}
 
-		LOCPLINT->cb->trade(dynamic_cast<const CGObjectInstance *>(market), mode, ids, {}, toSacrifice, hero);
+		LOCPLINT->cb->trade(market, mode, ids, {}, toSacrifice, hero);
 
 		for(int& val : sacrificedUnits)
 			val = 0;
@@ -1259,7 +1258,7 @@ void CAltarWindow::makeDeal()
 			positions.push_back(hero->getArtPos(art));
 		}
 
-		LOCPLINT->cb->trade(dynamic_cast<const CGObjectInstance *>(market), mode, positions, {}, {}, hero);
+		LOCPLINT->cb->trade(market, mode, positions, {}, {}, hero);
 		arts->artifactsOnAltar.clear();
 
 		for(auto item : items[0])
