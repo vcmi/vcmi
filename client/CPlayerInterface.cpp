@@ -1720,7 +1720,10 @@ void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInsta
 	}
 	else
 	{
-		GH.pushIntT<CMarketplaceWindow>(market, visitor, market->availableModes().front());
+		if(market->allowsTrade(EMarketMode::CREATURE_UNDEAD))
+			GH.pushIntT<CTransformerWindow>(market, visitor);
+		else
+			GH.pushIntT<CMarketplaceWindow>(market, visitor, market->availableModes().front());
 	}
 }
 
