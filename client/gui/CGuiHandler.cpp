@@ -18,6 +18,7 @@
 #include "../CGameInfo.h"
 #include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
+#include "../renderSDL/WindowHandler.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
@@ -95,9 +96,10 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 
 void CGuiHandler::init()
 {
+	windowHandlerInstance = std::make_unique<WindowHandler>();
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
-	mainFPSmng = new CFramerateManager();
-	mainFPSmng->init(settings["video"]["targetfps"].Integer());
+	mainFPSmng = new CFramerateManager(settings["video"]["targetfps"].Integer());
+
 	isPointerRelativeMode = settings["general"]["userRelativePointer"].Bool();
 	pointerSpeedMultiplier = settings["general"]["relativePointerSpeedMultiplier"].Float();
 }
@@ -803,7 +805,12 @@ void CGuiHandler::pushUserEvent(EUserEvent usercode, void * userdata)
 	SDL_PushEvent(&event);
 }
 
-CFramerateManager::CFramerateManager()
+WindowHandler & CGuiHandler::windowHandler()
+{
+	return *windowHandlerInstance;
+}
+
+CFramerateManager::CFramerateManager(int newRate)
 	: rate(0)
 	, rateticks(0)
 	, fps(0)
@@ -811,7 +818,9 @@ CFramerateManager::CFramerateManager()
 	, accumulatedTime(0)
 	, lastticks(0)
 	, timeElapsed(0)
-{}
+{
+	init(newRate);
+}
 
 void CFramerateManager::init(int newRate)
 {

@@ -75,6 +75,7 @@ set(client_SRCS
 	renderSDL/SDLImage.cpp
 	renderSDL/SDLImageLoader.cpp
 	renderSDL/SDLRWwrapper.cpp
+	renderSDL/WindowHandler.cpp
 	renderSDL/SDL_Extensions.cpp
 
 	widgets/Buttons.cpp
@@ -211,6 +212,7 @@ set(client_HEADERS
 	renderSDL/SDLImage.h
 	renderSDL/SDLImageLoader.h
 	renderSDL/SDLRWwrapper.h
+	renderSDL/WindowHandler.h
 	renderSDL/SDL_Extensions.h
 	renderSDL/SDL_PixelAccess.h
 

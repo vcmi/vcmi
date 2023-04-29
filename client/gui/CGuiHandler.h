@@ -29,6 +29,7 @@ class CIntObject;
 class IUpdateable;
 class IShowActivatable;
 class IShowable;
+class WindowHandler;
 
 // TODO: event handling need refactoring
 enum class EUserEvent
@@ -56,7 +57,7 @@ private:
 	ui32 accumulatedFrames;
 
 public:
-	CFramerateManager(); // initializes the manager with a given fps rate
+	CFramerateManager(int newRate); // initializes the manager with a given fps rate
 	void init(int newRate); // needs to be called directly before the main game loop to reset the internal timer
 	void framerateDelay(); // needs to be called every game update cycle
 	ui32 getElapsedMilliseconds() const {return this->timeElapsed;}
@@ -95,6 +96,7 @@ private:
 	CIntObjectList doubleClickInterested;
 	CIntObjectList textInterested;
 
+	std::unique_ptr<WindowHandler> windowHandlerInstance;
 
 	void handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed);
 	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
@@ -134,6 +136,8 @@ public:
 
 	/// moves mouse pointer into specified position inside vcmi window
 	void moveCursorToPosition(const Point & position);
+
+	WindowHandler & windowHandler();
 
 	IUpdateable *curInt;
 

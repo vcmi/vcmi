@@ -123,7 +123,8 @@ public:
 	}
 };
 
-extern std::string NAME;
+static const std::string NAME_AFFIX = "client";
+static const std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 
 CServerHandler::CServerHandler()
 	: state(EClientState::NONE), mx(std::make_shared<boost::recursive_mutex>()), client(nullptr), loadMode(0), campaignStateToSend(nullptr), campaignServerRestartLock(false)
