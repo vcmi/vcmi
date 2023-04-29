@@ -278,9 +278,8 @@ namespace Rewardable
 	const std::array<std::string, 5> VisitModeString{"unlimited", "once", "hero", "bonus", "player"};
 
 	/// Base class that can handle granting rewards to visiting heroes.
-	class DLL_LINKAGE Configuration
+	struct DLL_LINKAGE Configuration
 	{
-	public:
 		/// Message that will be shown if player needs to select one of multiple rewards
 		MetaString onSelect;
 
@@ -305,11 +304,6 @@ namespace Rewardable
 		EVisitMode getVisitMode() const;
 		ui16 getResetDuration() const;
 		
-		/// filters list of visit info and returns rewards that can be granted to current hero
-		virtual std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero, CRewardVisitInfo::ERewardEventType event ) const;
-		
-		void initObj(CRandomGenerator & rand);
-		
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & info;
@@ -321,39 +315,58 @@ namespace Rewardable
 			h & infoWindowType;
 		}
 	};
+
+	class DLL_LINKAGE Interface
+	{
+	private:
+		
+		Rewardable::Configuration _configuration;
+		
+		/// caster to cast adveture spells, no serialize
+		mutable spells::ExternalCaster caster;
+		
+	protected:
+		
+		/// filters list of visit info and returns rewards that can be granted to current hero
+		std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero, CRewardVisitInfo::ERewardEventType event) const;
+		
+		/// function that must be called if hero got level-up during grantReward call
+		virtual void grantRewardAfterLevelup(IGameCallback * cb, const CRewardVisitInfo & reward, const CGHeroInstance * hero) const;
+
+		/// grants reward to hero
+		virtual void grantRewardBeforeLevelup(IGameCallback * cb, const CRewardVisitInfo & reward, const CGHeroInstance * hero) const;
+		
+	public:
+		
+		const Rewardable::Configuration & getConfiguration() const;
+		Rewardable::Configuration & configuration();
+		
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & _configuration;
+		}
+	};
 }
 
 /// Base class that can handle granting rewards to visiting heroes.
 /// Inherits from CArmedInstance for proper trasfer of armies
-class DLL_LINKAGE CRewardableObject : public CArmedInstance
+class DLL_LINKAGE CRewardableObject : public CArmedInstance, public Rewardable::Interface
 {
 protected:
-	Rewardable::Configuration configuration;
 	
-	/// function that must be called if hero got level-up during grantReward call
-	void grantRewardAfterLevelup(const CRewardVisitInfo & reward, const CGHeroInstance * hero) const;
-
-	/// grants reward to hero
-	void grantRewardBeforeLevelup(const CRewardVisitInfo & reward, const CGHeroInstance * hero) const;
-	
-	/// caster to cast adveture spells, no serialize
-	mutable spells::ExternalCaster caster;
+	bool onceVisitableObjectCleared = false;
 	
 	/// reward selected by player, no serialize
 	ui16 selectedReward = 0;
 	
-	bool onceVisitableObjectCleared = false;
-
-public:
-	
-	const Rewardable::Configuration getConfiguration() const;
+	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
+	void markAsVisited(const CGHeroInstance * hero) const;
 	
 	/// return true if this object was "cleared" before and no longer has rewards applicable to selected hero
 	/// unlike wasVisited, this method uses information not available to player owner, for example, if object was cleared by another player before
 	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
-	
-	virtual void grantReward(ui32 rewardID, const CGHeroInstance * hero, bool markVisited) const;
-	
+
+public:
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)
 	bool wasVisited(PlayerColor player) const override;
 	bool wasVisited(const CGHeroInstance * h) const override;
@@ -371,21 +384,20 @@ public:
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
 	void initObj(CRandomGenerator & rand) override;
+	
+	void setPropertyDer(ui8 what, ui32 val) override;
 
 	CRewardableObject();
 	
-	void setPropertyDer(ui8 what, ui32 val) override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & configuration;
+		h & static_cast<Rewardable::Interface&>(*this);
 		h & onceVisitableObjectCleared;
 	}
-	
-	friend class CRewardableConstructor;
 };
 
 //TODO:
