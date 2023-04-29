@@ -1240,8 +1240,10 @@ void MainWindow::on_actionExport_triggered()
 	QString fileName = QFileDialog::getSaveFileName(this, "Save to image", QCoreApplication::applicationDirPath(), "BMP (*.bmp);;JPEG (*.jpeg);;PNG (*.png)");
 	if(!fileName.isNull())
 	{
-		auto pixmap = ui->mapView->grab();
-		pixmap.save(fileName);
+		QImage image(ui->mapView->scene()->sceneRect().size().toSize(), QImage::Format_RGB888);
+		QPainter painter(&image);
+		ui->mapView->scene()->render(&painter);
+		image.save(fileName);
 	}
 }
 
