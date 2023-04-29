@@ -627,6 +627,12 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 			for(auto & bonus : ret->onVisitBonuses)
 				bonus->sid = Bonus::getSid32(ret->town->faction->getIndex(), ret->bid);
 		}
+		
+		if(!source["rewards"].isNull() && ret->subId == BuildingSubID::NONE)
+		{
+			ret->subId = BuildingSubID::CONFIGURABLE_REWARD;
+			ret->rewardableObjectInfo.init(source["rewards"]);
+		}
 	}
 	//MODS COMPATIBILITY FOR 0.96
 	if(!ret->produce.nonZero())

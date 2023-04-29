@@ -214,7 +214,7 @@ private:
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
 	bool isBonusingBuildingAdded(BuildingID::EBuildingID bid) const;
 	void initOverriddenBids();
-	void addTownBonuses();
+	void addTownBonuses(CRandomGenerator & rand);
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -365,7 +365,7 @@ bool CGTownInstance::isBonusingBuildingAdded(BuildingID::EBuildingID bid) const
 	return present != bonusingBuildings.end();
 }
 
-void CGTownInstance::addTownBonuses()
+void CGTownInstance::addTownBonuses(CRandomGenerator & rand)
 {
 	for(const auto & kvp : town->buildings)
 	{
@@ -377,6 +377,13 @@ void CGTownInstance::addTownBonuses()
 
 		if(kvp.second->IsWeekBonus())
 			bonusingBuildings.push_back(new COPWBonus(kvp.second->bid, kvp.second->subId, this));
+		
+		if(kvp.second->subId == BuildingSubID::CONFIGURABLE_REWARD)
+		{
+			auto * newBuilding = new CTownRewardableBuilding(this);
+			kvp.second->rewardableObjectInfo.configureObject(newBuilding->configuration(), rand);
+			bonusingBuildings.push_back(newBuilding);
+		}
 	}
 }
 
@@ -465,7 +472,7 @@ void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structu
 		}
 	}
 	initOverriddenBids();
-	addTownBonuses(); //add special bonuses from buildings to the bonusingBuildings vector.
+	addTownBonuses(rand); //add special bonuses from buildings to the bonusingBuildings vector.
 	recreateBuildingsBonuses();
 	updateAppearance();
 }

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "CObjectHandler.h"
+#include "CRewardableObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -102,6 +103,22 @@ public:
 
 private:
 	void applyBonuses(CGHeroInstance * h, const BonusList & bonuses) const;
+};
+
+class DLL_LINKAGE CTownRewardableBuilding : public CGTownBuilding, public Rewardable::Interface
+{
+public:
+	void setProperty(ui8 what, ui32 val) override;
+	void onHeroVisit (const CGHeroInstance * h) const override;
+	
+	CTownRewardableBuilding(CGTownInstance * TOWN);
+	CTownRewardableBuilding() = default;
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGTownBuilding&>(*this);
+		h & static_cast<Rewardable::Interface&>(*this);
+	}
 };
 
 VCMI_LIB_NAMESPACE_END
