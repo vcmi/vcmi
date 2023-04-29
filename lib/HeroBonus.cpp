@@ -1755,7 +1755,7 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 		}
 		else if(deprecatedSubtype == SecondarySkill::LOGISTICS || deprecatedSubtypeStr == "skill.logistics")
 		{
-			subtype = 0;
+			subtype = 1;
 			subtypeRelevant = true;
 			valueType = Bonus::PERCENT_TO_BASE;
 			valueTypeRelevant = true;
