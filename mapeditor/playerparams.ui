@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -51,10 +51,23 @@
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="4" column="0">
-       <widget class="QComboBox" name="teamId"/>
+       <widget class="QComboBox" name="teamId">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
       </item>
       <item row="4" column="1">
        <widget class="QCheckBox" name="generateHero">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Generate hero at main</string>
         </property>
@@ -62,6 +75,12 @@
       </item>
       <item row="4" column="2">
        <widget class="QCheckBox" name="randomFaction">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Random faction</string>
         </property>
@@ -76,6 +95,12 @@
       </item>
       <item row="2" column="0">
        <widget class="QRadioButton" name="radioCpu">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>CPU only</string>
         </property>
@@ -83,6 +108,12 @@
       </item>
       <item row="1" column="0">
        <widget class="QRadioButton" name="radioHuman">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Human/CPU</string>
         </property>
@@ -112,6 +143,12 @@
       </item>
       <item row="3" column="1">
        <widget class="QComboBox" name="mainTown">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <item>
          <property name="text">
           <string>(default)</string>
@@ -127,7 +164,14 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QComboBox" name="playerColorCombo"/>
+       <widget class="QComboBox" name="playerColorCombo">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
       </item>
       <item row="0" column="1">
        <widget class="QLabel" name="label">
