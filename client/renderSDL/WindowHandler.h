@@ -47,7 +47,7 @@ class WindowHandler
 	int getPreferredRenderingDriver() const;
 
 	/// Creates SDL window with specified parameters
-	SDL_Window * createWindowImpl(Point dimensions, int displayIndex, int flags, bool center);
+	SDL_Window * createWindowImpl(Point dimensions, int flags, bool center);
 
 	/// Creates SDL window using OS-specific settings & user-specific config
 	SDL_Window * createWindow();
@@ -71,4 +71,7 @@ public:
 
 	/// De-initializes and destroys screen, window and SDL state
 	void close();
+
+	/// Fills screen with black color, erasing any existing content
+	void clearScreen();
 };

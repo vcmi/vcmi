@@ -36,13 +36,17 @@
 
 #include <boost/program_options.hpp>
 #include <vstd/StringUtils.h>
-#include <SDL.h>
+#include <SDL_events.h>
+#include <SDL_hints.h>
+#include <SDL_main.h>
 
 #ifdef VCMI_WINDOWS
 #include <SDL_syswm.h>
 #endif
+
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
+#include <SDL_system.h>
 #endif
 
 #if __MINGW32__
@@ -53,24 +57,12 @@ namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 namespace bfs = boost::filesystem;
 
-CGuiHandler GH;
-
-SDL_Window * mainWindow = nullptr;
-SDL_Renderer * mainRenderer = nullptr;
-SDL_Texture * screenTexture = nullptr;
-
 extern boost::thread_specific_ptr<bool> inGuiThread;
-
-SDL_Surface *screen = nullptr, //main screen surface
-	*screen2 = nullptr, //and hlp surface (used to store not-active interfaces layer)
-	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 
 std::queue<SDL_Event> SDLEventsQueue;
 boost::mutex eventsM;
 
 static po::variables_map vm;
-
-//static bool setResolution = false; //set by event handling thread after resolution is adjusted
 
 #ifndef VCMI_IOS
 void processCommand(const std::string &message);
@@ -356,9 +348,7 @@ int main(int argc, char * argv[])
 	{
 		if(!vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool())
 			playIntro();
-		SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
-		SDL_RenderClear(mainRenderer);
-		SDL_RenderPresent(mainRenderer);
+		GH.windowHandler().clearScreen();
 	}
 
 

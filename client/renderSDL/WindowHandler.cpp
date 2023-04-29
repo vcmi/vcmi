@@ -17,7 +17,18 @@
 #include "CMT.h"
 #include "SDL_Extensions.h"
 
+#ifdef VCMI_ANDROID
+#include "../lib/CAndroidVMHelper.h"
+#endif
+
 #include <SDL.h>
+
+SDL_Window * mainWindow = nullptr;
+SDL_Renderer * mainRenderer = nullptr;
+SDL_Texture * screenTexture = nullptr;
+SDL_Surface * screen = nullptr; //main screen surface
+SDL_Surface * screen2 = nullptr; //and hlp surface (used to store not-active interfaces layer)
+SDL_Surface * screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 
 static const std::string NAME_AFFIX = "client";
 static const std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
@@ -229,14 +240,12 @@ void WindowHandler::initializeScreen()
 	}
 
 	screenBuf = screen;
-
-	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 0);
-	SDL_RenderClear(mainRenderer);
-	SDL_RenderPresent(mainRenderer);
+	clearScreen();
 }
 
-SDL_Window * WindowHandler::createWindowImpl(Point dimensions, int displayIndex, int flags, bool center)
+SDL_Window * WindowHandler::createWindowImpl(Point dimensions, int flags, bool center)
 {
+	int displayIndex = getPreferredDisplayIndex();
 	int positionFlags = center ? SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex) : SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex);
 
 	return SDL_CreateWindow(NAME.c_str(), positionFlags, positionFlags, dimensions.x, dimensions.y, flags);
@@ -245,19 +254,22 @@ SDL_Window * WindowHandler::createWindowImpl(Point dimensions, int displayIndex,
 SDL_Window * WindowHandler::createWindow()
 {
 #ifndef VCMI_MOBILE
-	const JsonNode & video = settings["video"];
-	int displayIndex = video["displayIndex"].Float();
-	bool fullscreen = video["fullscreen"].Bool();
-	bool realFullscreen = video["realFullscreen"].Bool();
 	Point dimensions = getPreferredRenderingResolution();
 
-	if(!fullscreen)
-		return createWindowImpl(dimensions, displayIndex, 0, true);
+	switch(getPreferredWindowMode())
+	{
+		case EWindowMode::FULLSCREEN_TRUE:
+			return createWindowImpl(dimensions, SDL_WINDOW_FULLSCREEN, false);
 
-	if(realFullscreen)
-		return createWindowImpl(dimensions, displayIndex, SDL_WINDOW_FULLSCREEN, false);
-	else
-		return createWindowImpl(Point(), displayIndex, SDL_WINDOW_FULLSCREEN_DESKTOP, false);
+		case EWindowMode::FULLSCREEN_WINDOWED:
+			return createWindowImpl(Point(), SDL_WINDOW_FULLSCREEN_DESKTOP, false);
+
+		case EWindowMode::WINDOWED:
+			return createWindowImpl(dimensions, 0, true);
+
+		default:
+			return nullptr;
+	};
 #endif
 
 #ifdef VCMI_IOS
@@ -266,17 +278,17 @@ SDL_Window * WindowHandler::createWindow()
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 
 	uint32_t windowFlags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI;
-	SDL_Window * result = createWindowImpl(Point(), displayIndex, windowFlags | SDL_WINDOW_METAL, false);
+	SDL_Window * result = createWindowImpl(Point(), windowFlags | SDL_WINDOW_METAL, false);
 
 	if(result != nullptr)
 		return result;
 
 	logGlobal->warn("Metal unavailable, using OpenGLES");
-	return createWindowImpl(Point(), displayIndex, windowFlags, false);
+	return createWindowImpl(Point(), windowFlags, false);
 #endif
 
 #ifdef VCMI_ANDROID
-	return createWindowImpl(Point(), displayIndex, SDL_WINDOW_FULLSCREEN, false);
+	return createWindowImpl(Point(), SDL_WINDOW_FULLSCREEN, false);
 #endif
 }
 
@@ -404,4 +416,11 @@ void WindowHandler::close()
 	destroyScreen();
 	destroyWindow();
 	SDL_Quit();
+}
+
+void WindowHandler::clearScreen()
+{
+	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
+	SDL_RenderClear(mainRenderer);
+	SDL_RenderPresent(mainRenderer);
 }

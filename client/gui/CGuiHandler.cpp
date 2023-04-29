@@ -39,6 +39,8 @@
 #include "ios/utils.h"
 #endif
 
+CGuiHandler GH;
+
 extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;
 
