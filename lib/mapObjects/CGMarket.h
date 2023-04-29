@@ -37,6 +37,10 @@ public:
 	std::set<EMarketMode::EMarketMode> marketModes;
 	int marketEfficacy = 5;
 	
+	//window variables
+	std::string title;
+	std::string speech; //currently shown only in university
+	
 	CGMarket();
 	///IObjectInterface
 	void onHeroVisit(const CGHeroInstance * h) const override; //open trading window
@@ -53,6 +57,8 @@ public:
 		h & static_cast<CGObjectInstance&>(*this);
 		h & marketModes;
 		h & marketEfficacy;
+		h & title;
+		h & speech;
 	}
 };
 
@@ -76,10 +82,6 @@ class DLL_LINKAGE CGUniversity : public CGMarket
 public:
 	int skillsTotal = 4;
 	std::vector<int> skills; //available skills
-	
-	//window variables
-	std::string title;
-	std::string speech;
 
 	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;
 	void initObj(CRandomGenerator & rand) override;//set skills for trade
@@ -89,8 +91,6 @@ public:
 	{
 		h & static_cast<CGMarket&>(*this);
 		h & skills;
-		h & title;
-		h & speech;
 	}
 };
 

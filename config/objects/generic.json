@@ -54,7 +54,8 @@
 					"rarity"	: 100
 				},
 				"modes" : ["resource-resource", "resource-player"],
-				"efficacy" : 5
+				"efficacy" : 5,
+				"title" : "core.genrltxt.159"
 			}
 		}
 	},
@@ -77,7 +78,8 @@
 					"rarity"	: 100
 				},
 				"modes" : ["resource-resource", "resource-player"],
-				"efficacy" : 5
+				"efficacy" : 5,
+				"title" : "core.genrltxt.159"
 			}
 		}
 	},
@@ -115,7 +117,8 @@
 					"value"		: 8000,
 					"rarity"	: 20
 				},
-				"modes" : ["resource-artifact"]
+				"modes" : ["resource-artifact"],
+				"title" : "core.genrltxt.349"
 			}
 		}
 	},
