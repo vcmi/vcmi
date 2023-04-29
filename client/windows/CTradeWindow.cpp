@@ -703,7 +703,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 	}
 	else if(auto * o = dynamic_cast<const CGMarket *>(market))
 	{
-		title = o->title.empty() ? o->getObjectName() : o->title;
+		title = o->title;
 	}
 
 	titleLabel = std::make_shared<CLabel>(300, 27, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title);
