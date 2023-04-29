@@ -72,10 +72,10 @@ void AIMemory::markObjectVisited(const CGObjectInstance * obj)
 	// TODO: maybe this logic belongs to CaptureObjects::shouldVisit
 	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj))
 	{
-		if (rewardable->getVisitMode() == CRewardableObject::VISIT_HERO) //we may want to visit it with another hero
+		if (rewardable->getConfiguration().getVisitMode() == Rewardable::VISIT_HERO) //we may want to visit it with another hero
 			return;
 
-		if (rewardable->getVisitMode() == CRewardableObject::VISIT_BONUS) //or another time
+		if (rewardable->getConfiguration().getVisitMode() == Rewardable::VISIT_BONUS) //or another time
 			return;
 	}
 

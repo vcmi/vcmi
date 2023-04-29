@@ -47,7 +47,7 @@ void CRandomRewardObjectInfo::init(const JsonNode & objectConfig)
 	parameters = objectConfig;
 }
 
-TRewardLimitersList CRandomRewardObjectInfo::configureSublimiters(CRewardableObject * object, CRandomGenerator & rng, const JsonNode & source) const
+TRewardLimitersList CRandomRewardObjectInfo::configureSublimiters(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const
 {
 	TRewardLimitersList result;
 	for (const auto & input : source.Vector())
@@ -62,7 +62,7 @@ TRewardLimitersList CRandomRewardObjectInfo::configureSublimiters(CRewardableObj
 	return result;
 }
 
-void CRandomRewardObjectInfo::configureLimiter(CRewardableObject * object, CRandomGenerator & rng, CRewardLimiter & limiter, const JsonNode & source) const
+void CRandomRewardObjectInfo::configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, CRewardLimiter & limiter, const JsonNode & source) const
 {
 	std::vector<SpellID> spells;
 	for (size_t i=0; i<6; i++)
@@ -91,7 +91,7 @@ void CRandomRewardObjectInfo::configureLimiter(CRewardableObject * object, CRand
 	limiter.noneOf = configureSublimiters(object, rng, source["noneOf"] );
 }
 
-void CRandomRewardObjectInfo::configureReward(CRewardableObject * object, CRandomGenerator & rng, CRewardInfo & reward, const JsonNode & source) const
+void CRandomRewardObjectInfo::configureReward(Rewardable::Configuration & object, CRandomGenerator & rng, CRewardInfo & reward, const JsonNode & source) const
 {
 	reward.resources = JsonRandom::loadResources(source["resources"], rng);
 
@@ -110,17 +110,6 @@ void CRandomRewardObjectInfo::configureReward(CRewardableObject * object, CRando
 
 	reward.removeObject = source["removeObject"].Bool();
 	reward.bonuses = JsonRandom::loadBonuses(source["bonuses"]);
-
-	for (auto & bonus : reward.bonuses)
-	{
-		bonus.source = Bonus::OBJECT;
-		bonus.sid = object->ID;
-		//TODO: bonus.description = object->getObjectName();
-		if (bonus.type == Bonus::MORALE)
-			reward.extraComponents.emplace_back(Component::EComponentType::MORALE, 0, bonus.val, 0);
-		if (bonus.type == Bonus::LUCK)
-			reward.extraComponents.emplace_back(Component::EComponentType::LUCK, 0, bonus.val, 0);
-	}
 
 	reward.primary = JsonRandom::loadPrimary(source["primary"], rng);
 	reward.secondary = JsonRandom::loadSecondary(source["secondary"], rng);
@@ -149,7 +138,7 @@ void CRandomRewardObjectInfo::configureReward(CRewardableObject * object, CRando
 	}
 }
 
-void CRandomRewardObjectInfo::configureResetInfo(CRewardableObject * object, CRandomGenerator & rng, CRewardResetInfo & resetParameters, const JsonNode & source) const
+void CRandomRewardObjectInfo::configureResetInfo(Rewardable::Configuration & object, CRandomGenerator & rng, CRewardResetInfo & resetParameters, const JsonNode & source) const
 {
 	resetParameters.period   = static_cast<ui32>(source["period"].Float());
 	resetParameters.visitors = source["visitors"].Bool();
@@ -157,7 +146,7 @@ void CRandomRewardObjectInfo::configureResetInfo(CRewardableObject * object, CRa
 }
 
 void CRandomRewardObjectInfo::configureRewards(
-		CRewardableObject * object,
+		Rewardable::Configuration & object,
 		CRandomGenerator & rng, const
 		JsonNode & source,
 		std::map<si32, si32> & thrownDice,
@@ -200,13 +189,13 @@ void CRandomRewardObjectInfo::configureRewards(
 		for (const auto & artifact : info.reward.spells )
 			info.message.addReplacement(MetaString::SPELL_NAME, artifact.getNum());
 
-		object->info.push_back(info);
+		object.info.push_back(info);
 	}
 }
 
-void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRandomGenerator & rng) const
+void CRandomRewardObjectInfo::configureObject(Rewardable::Configuration & object, CRandomGenerator & rng) const
 {
-	object->info.clear();
+	object.info.clear();
 
 	std::map<si32, si32> thrownDice;
 
@@ -214,15 +203,14 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 	configureRewards(object, rng, parameters["onVisited"], thrownDice, CRewardVisitInfo::EVENT_ALREADY_VISITED);
 	configureRewards(object, rng, parameters["onEmpty"], thrownDice, CRewardVisitInfo::EVENT_NOT_AVAILABLE);
 
-	object->blockVisit= parameters["blockedVisitable"].Bool();
-	object->onSelect  = loadMessage(parameters["onSelectMessage"]);
+	object.onSelect   = loadMessage(parameters["onSelectMessage"]);
 
 	if (!parameters["onVisitedMessage"].isNull())
 	{
 		CRewardVisitInfo onVisited;
 		onVisited.visitType = CRewardVisitInfo::EVENT_ALREADY_VISITED;
 		onVisited.message = loadMessage(parameters["onVisitedMessage"]);
-		object->info.push_back(onVisited);
+		object.info.push_back(onVisited);
 	}
 
 	if (!parameters["onEmptyMessage"].isNull())
@@ -230,24 +218,24 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 		CRewardVisitInfo onEmpty;
 		onEmpty.visitType = CRewardVisitInfo::EVENT_NOT_AVAILABLE;
 		onEmpty.message = loadMessage(parameters["onEmptyMessage"]);
-		object->info.push_back(onEmpty);
+		object.info.push_back(onEmpty);
 	}
 
-	configureResetInfo(object, rng, object->resetParameters, parameters["resetParameters"]);
+	configureResetInfo(object, rng, object.resetParameters, parameters["resetParameters"]);
 
-	object->canRefuse = parameters["canRefuse"].Bool();
+	object.canRefuse = parameters["canRefuse"].Bool();
 
 	if(parameters["showInInfobox"].isNull())
-		object->infoWindowType = EInfoWindowMode::AUTO;
+		object.infoWindowType = EInfoWindowMode::AUTO;
 	else
-		object->infoWindowType = parameters["showInInfobox"].Bool() ? EInfoWindowMode::INFO : EInfoWindowMode::MODAL;
+		object.infoWindowType = parameters["showInInfobox"].Bool() ? EInfoWindowMode::INFO : EInfoWindowMode::MODAL;
 	
 	auto visitMode = parameters["visitMode"].String();
 	for(int i = 0; i < Rewardable::VisitModeString.size(); ++i)
 	{
 		if(Rewardable::VisitModeString[i] == visitMode)
 		{
-			object->visitMode = i;
+			object.visitMode = i;
 			break;
 		}
 	}
@@ -257,7 +245,7 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 	{
 		if(Rewardable::SelectModeString[i] == selectMode)
 		{
-			object->selectMode = i;
+			object.selectMode = i;
 			break;
 		}
 	}	
@@ -321,9 +309,11 @@ const JsonNode & CRandomRewardObjectInfo::getParameters() const
 void CRewardableConstructor::initTypeData(const JsonNode & config)
 {
 	objectInfo.init(config);
+	blockVisit = config["blockedVisitable"].Bool();
 
 	if (!config["name"].isNull())
 		VLC->generaltexth->registerString( config.meta, getNameTextID(), config["name"].String());
+	
 }
 
 bool CRewardableConstructor::hasNameTextID() const
@@ -336,12 +326,29 @@ CGObjectInstance * CRewardableConstructor::create(std::shared_ptr<const ObjectTe
 	auto * ret = new CRewardableObject();
 	preInitObject(ret);
 	ret->appearance = tmpl;
+	ret->blockVisit = blockVisit;
 	return ret;
 }
 
 void CRewardableConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
 {
-	objectInfo.configureObject(dynamic_cast<CRewardableObject*>(object), rng);
+	if(auto * rewardableObject = dynamic_cast<CRewardableObject*>(object))
+	{
+		objectInfo.configureObject(rewardableObject->configuration, rng);
+		for(auto & rewardInfo : rewardableObject->configuration.info)
+		{
+			for (auto & bonus : rewardInfo.reward.bonuses)
+			{
+				bonus.source = Bonus::OBJECT;
+				bonus.sid = rewardableObject->ID;
+				//TODO: bonus.description = object->getObjectName();
+				if (bonus.type == Bonus::MORALE)
+					rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::MORALE, 0, bonus.val, 0);
+				if (bonus.type == Bonus::LUCK)
+					rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::LUCK, 0, bonus.val, 0);
+			}
+		}
+	}
 }
 
 std::unique_ptr<IObjectInfo> CRewardableConstructor::getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const

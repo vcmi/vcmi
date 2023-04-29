@@ -20,13 +20,13 @@ class DLL_LINKAGE CRandomRewardObjectInfo : public IObjectInfo
 {
 	JsonNode parameters;
 
-	void configureRewards(CRewardableObject * object, CRandomGenerator & rng, const JsonNode & source, std::map<si32, si32> & thrownDice, CRewardVisitInfo::ERewardEventType mode) const;
+	void configureRewards(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source, std::map<si32, si32> & thrownDice, CRewardVisitInfo::ERewardEventType mode) const;
 
-	void configureLimiter(CRewardableObject * object, CRandomGenerator & rng, CRewardLimiter & limiter, const JsonNode & source) const;
-	TRewardLimitersList configureSublimiters(CRewardableObject * object, CRandomGenerator & rng, const JsonNode & source) const;
+	void configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, CRewardLimiter & limiter, const JsonNode & source) const;
+	TRewardLimitersList configureSublimiters(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const;
 
-	void configureReward(CRewardableObject * object, CRandomGenerator & rng, CRewardInfo & info, const JsonNode & source) const;
-	void configureResetInfo(CRewardableObject * object, CRandomGenerator & rng, CRewardResetInfo & info, const JsonNode & source) const;
+	void configureReward(Rewardable::Configuration & object, CRandomGenerator & rng, CRewardInfo & info, const JsonNode & source) const;
+	void configureResetInfo(Rewardable::Configuration & object, CRandomGenerator & rng, CRewardResetInfo & info, const JsonNode & source) const;
 public:
 	const JsonNode & getParameters() const;
 
@@ -45,7 +45,7 @@ public:
 
 	bool givesBonuses() const override;
 
-	void configureObject(CRewardableObject * object, CRandomGenerator & rng) const;
+	void configureObject(Rewardable::Configuration & object, CRandomGenerator & rng) const;
 
 	void init(const JsonNode & objectConfig);
 
@@ -60,6 +60,8 @@ class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
 	CRandomRewardObjectInfo objectInfo;
 
 	void initTypeData(const JsonNode & config) override;
+	
+	bool blockVisit = false;
 
 public:
 	bool hasNameTextID() const override;

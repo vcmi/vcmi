@@ -183,6 +183,7 @@ public:
 	/// Generates list of components that describes reward for a specific hero
 	virtual void loadComponents(std::vector<Component> & comps,
 	                            const CGHeroInstance * h) const;
+	
 	Component getDisplayedComponent(const CGHeroInstance * h) const;
 
 	si32 calculateManaPoints(const CGHeroInstance * h) const;
@@ -256,21 +257,6 @@ public:
 
 namespace Rewardable
 {
-	const std::array<std::string, 3> SelectModeString{"selectFirst", "selectPlayer"};
-	const std::array<std::string, 5> VisitModeString{"unlimited", "once", "hero", "bonus", "player"};
-}
-
-/// Base class that can handle granting rewards to visiting heroes.
-/// Inherits from CArmedInstance for proper trasfer of armies
-class DLL_LINKAGE CRewardableObject : public CArmedInstance
-{
-	/// function that must be called if hero got level-up during grantReward call
-	void grantRewardAfterLevelup(const CRewardVisitInfo & reward, const CGHeroInstance * hero) const;
-
-	/// grants reward to hero
-	void grantRewardBeforeLevelup(const CRewardVisitInfo & reward, const CGHeroInstance * hero) const;
-
-public:
 	enum EVisitMode
 	{
 		VISIT_UNLIMITED, // any number of times. Side effect - object hover text won't contain visited/not visited text
@@ -280,7 +266,6 @@ public:
 		VISIT_PLAYER     // every player can visit object once
 	};
 
-protected:
 	/// controls selection of reward granted to player
 	enum ESelectMode
 	{
@@ -288,58 +273,92 @@ protected:
 		SELECT_PLAYER, // player can select from all allowed rewards
 	};
 
-	/// filters list of visit info and returns rewards that can be granted to current hero
-	virtual std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero, CRewardVisitInfo::ERewardEventType event ) const;
+	const std::array<std::string, 3> SelectModeString{"selectFirst", "selectPlayer"};
+	const std::array<std::string, 5> VisitModeString{"unlimited", "once", "hero", "bonus", "player"};
 
-	virtual void grantReward(ui32 rewardID, const CGHeroInstance * hero, bool markVisited) const;
+	/// Base class that can handle granting rewards to visiting heroes.
+	class DLL_LINKAGE Configuration
+	{
+	public:
+		/// Message that will be shown if player needs to select one of multiple rewards
+		MetaString onSelect;
 
-	virtual void triggerReset() const;
+		/// Rewards that can be applied by an object
+		std::vector<CRewardVisitInfo> info;
 
-	/// Message that will be shown if player needs to select one of multiple rewards
-	MetaString onSelect;
+		/// how reward will be selected, uses ESelectMode enum
+		ui8 selectMode = Rewardable::SELECT_FIRST;
 
-	/// Rewards that can be applied by an object
-	std::vector<CRewardVisitInfo> info;
+		/// contols who can visit an object, uses EVisitMode enum
+		ui8 visitMode = Rewardable::VISIT_UNLIMITED;
 
-	/// how reward will be selected, uses ESelectMode enum
-	ui8 selectMode;
+		/// reward selected by player
+		ui16 selectedReward = 0;
 
-	/// contols who can visit an object, uses EVisitMode enum
-	ui8 visitMode;
+		/// how and when should the object be reset
+		CRewardResetInfo resetParameters;
 
-	/// reward selected by player
-	ui16 selectedReward;
+		/// if true - player can refuse visiting an object (e.g. Tomb)
+		bool canRefuse = false;
 
-	/// how and when should the object be reset
-	CRewardResetInfo resetParameters;
+		/// if true - object info will shown in infobox (like resource pickup)
+		EInfoWindowMode infoWindowType = EInfoWindowMode::AUTO;
+		
+		bool onceVisitableObjectCleared = false;
+		
+		EVisitMode getVisitMode() const;
+		ui16 getResetDuration() const;
+		
+		/// filters list of visit info and returns rewards that can be granted to current hero
+		virtual std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero, CRewardVisitInfo::ERewardEventType event ) const;
+		
+		void initObj(CRandomGenerator & rand);
+		
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & info;
+			h & canRefuse;
+			h & resetParameters;
+			h & onSelect;
+			h & visitMode;
+			h & selectMode;
+			h & selectedReward;
+			h & onceVisitableObjectCleared;
+			h & infoWindowType;
+		}
+	};
+}
 
-	/// if true - player can refuse visiting an object (e.g. Tomb)
-	bool canRefuse;
+/// Base class that can handle granting rewards to visiting heroes.
+/// Inherits from CArmedInstance for proper trasfer of armies
+class DLL_LINKAGE CRewardableObject : public CArmedInstance
+{
+protected:
+	Rewardable::Configuration configuration;
+	
+	/// function that must be called if hero got level-up during grantReward call
+	void grantRewardAfterLevelup(const CRewardVisitInfo & reward, const CGHeroInstance * hero) const;
 
-	/// if true - object info will shown in infobox (like resource pickup)
-	EInfoWindowMode infoWindowType = EInfoWindowMode::AUTO;
-
-	/// return true if this object was "cleared" before and no longer has rewards applicable to selected hero
-	/// unlike wasVisited, this method uses information not available to player owner, for example, if object was cleared by another player before
-	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
-
-	bool onceVisitableObjectCleared;
+	/// grants reward to hero
+	void grantRewardBeforeLevelup(const CRewardVisitInfo & reward, const CGHeroInstance * hero) const;
 	
 	/// caster to cast adveture spells
 	mutable spells::ExternalCaster caster;
 
 public:
-	EVisitMode getVisitMode() const;
-	ui16 getResetDuration() const;
-
-	void setPropertyDer(ui8 what, ui32 val) override;
-	std::string getHoverText(PlayerColor player) const override;
-	std::string getHoverText(const CGHeroInstance * hero) const override;
-
+	
+	const Rewardable::Configuration getConfiguration() const;
+	
+	/// return true if this object was "cleared" before and no longer has rewards applicable to selected hero
+	/// unlike wasVisited, this method uses information not available to player owner, for example, if object was cleared by another player before
+	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
+	
+	virtual void grantReward(ui32 rewardID, const CGHeroInstance * hero, bool markVisited) const;
+	
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)
 	bool wasVisited(PlayerColor player) const override;
 	bool wasVisited(const CGHeroInstance * h) const override;
-
+	
 	/// gives reward to player or ask for choice in case of multiple rewards
 	void onHeroVisit(const CGHeroInstance *h) const override;
 
@@ -355,24 +374,17 @@ public:
 	void initObj(CRandomGenerator & rand) override;
 
 	CRewardableObject();
+	
+	void setPropertyDer(ui8 what, ui32 val) override;
+	std::string getHoverText(PlayerColor player) const override;
+	std::string getHoverText(const CGHeroInstance * hero) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & info;
-		h & canRefuse;
-		h & resetParameters;
-		h & onSelect;
-		h & visitMode;
-		h & selectMode;
-		h & selectedReward;
-		h & onceVisitableObjectCleared;
-		if (version >= 817)
-			h & infoWindowType;
 	}
-
-	// for configuration/object setup
-	friend class CRandomRewardObjectInfo;
+	
+	friend class CRewardableConstructor;
 };
 
 //TODO:
