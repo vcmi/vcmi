@@ -2145,7 +2145,7 @@ void CGLighthouse::giveBonusTo(const PlayerColor & player, bool onInit) const
 	gb.bonus.duration = Bonus::PERMANENT;
 	gb.bonus.source = Bonus::OBJECT;
 	gb.bonus.sid = id.getNum();
-	gb.bonus.subtype = 1;
+	gb.bonus.subtype = 0;
 
 	// FIXME: This is really dirty hack
 	// Proper fix would be to make CGLighthouse into bonus system node
