@@ -271,9 +271,10 @@ namespace Rewardable
 	{
 		SELECT_FIRST,  // first reward that matches limiters
 		SELECT_PLAYER, // player can select from all allowed rewards
+		SELECT_RANDOM, // one random reward from all mathing limiters
 	};
 
-	const std::array<std::string, 3> SelectModeString{"selectFirst", "selectPlayer"};
+	const std::array<std::string, 3> SelectModeString{"selectFirst", "selectPlayer", "selectRandom"};
 	const std::array<std::string, 5> VisitModeString{"unlimited", "once", "hero", "bonus", "player"};
 
 	/// Base class that can handle granting rewards to visiting heroes.
@@ -292,9 +293,6 @@ namespace Rewardable
 		/// contols who can visit an object, uses EVisitMode enum
 		ui8 visitMode = Rewardable::VISIT_UNLIMITED;
 
-		/// reward selected by player
-		ui16 selectedReward = 0;
-
 		/// how and when should the object be reset
 		CRewardResetInfo resetParameters;
 
@@ -303,8 +301,6 @@ namespace Rewardable
 
 		/// if true - object info will shown in infobox (like resource pickup)
 		EInfoWindowMode infoWindowType = EInfoWindowMode::AUTO;
-		
-		bool onceVisitableObjectCleared = false;
 		
 		EVisitMode getVisitMode() const;
 		ui16 getResetDuration() const;
@@ -322,8 +318,6 @@ namespace Rewardable
 			h & onSelect;
 			h & visitMode;
 			h & selectMode;
-			h & selectedReward;
-			h & onceVisitableObjectCleared;
 			h & infoWindowType;
 		}
 	};
@@ -342,8 +336,13 @@ protected:
 	/// grants reward to hero
 	void grantRewardBeforeLevelup(const CRewardVisitInfo & reward, const CGHeroInstance * hero) const;
 	
-	/// caster to cast adveture spells
+	/// caster to cast adveture spells, no serialize
 	mutable spells::ExternalCaster caster;
+	
+	/// reward selected by player, no serialize
+	ui16 selectedReward = 0;
+	
+	bool onceVisitableObjectCleared = false;
 
 public:
 	
@@ -382,6 +381,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
+		h & configuration;
+		h & onceVisitableObjectCleared;
 	}
 	
 	friend class CRewardableConstructor;

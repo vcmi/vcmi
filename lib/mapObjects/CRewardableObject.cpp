@@ -212,11 +212,6 @@ ui16 Rewardable::Configuration::getResetDuration() const
 	return resetParameters.period;
 }
 
-
-
-
-
-
 void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 {
 	auto grantRewardWithMessage = [&](int index, bool markAsVisit) -> void
@@ -292,6 +287,9 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 					case Rewardable::SELECT_FIRST: // give first available
 						grantRewardWithMessage(rewards[0], true);
 						break;
+					case Rewardable::SELECT_RANDOM: // give random
+						grantRewardWithMessage(*RandomGeneratorUtil::nextItem(rewards, cb->gameState()->getRandomGenerator()), true);
+						break;
 				}
 				break;
 			}
@@ -317,7 +315,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 
 void CRewardableObject::heroLevelUpDone(const CGHeroInstance *hero) const
 {
-	grantRewardAfterLevelup(configuration.info[configuration.selectedReward], hero);
+	grantRewardAfterLevelup(configuration.info[selectedReward], hero);
 }
 
 void CRewardableObject::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
@@ -476,7 +474,7 @@ bool CRewardableObject::wasVisitedBefore(const CGHeroInstance * contextHero) con
 		case Rewardable::VISIT_UNLIMITED:
 			return false;
 		case Rewardable::VISIT_ONCE:
-			return configuration.onceVisitableObjectCleared;
+			return onceVisitableObjectCleared;
 		case Rewardable::VISIT_PLAYER:
 			return vstd::contains(cb->getPlayerState(contextHero->getOwner())->visitedObjects, ObjectInstanceID(id));
 		case Rewardable::VISIT_BONUS:
@@ -540,10 +538,10 @@ void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
 			initObj(cb->gameState()->getRandomGenerator());
 			break;
 		case ObjProperty::REWARD_SELECT:
-			configuration.selectedReward = val;
+			selectedReward = val;
 			break;
 		case ObjProperty::REWARD_CLEARED:
-			configuration.onceVisitableObjectCleared = val;
+			onceVisitableObjectCleared = val;
 			break;
 	}
 }
