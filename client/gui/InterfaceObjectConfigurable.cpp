@@ -449,7 +449,7 @@ std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(JsonNode co
 
 void InterfaceObjectConfigurable::setShortcutBlocked(EShortcut shortcut, bool isBlocked)
 {
-	auto target = shortcuts.find(key);
+	auto target = shortcuts.find(shortcut);
 	if (target == shortcuts.end())
 		return;
 
