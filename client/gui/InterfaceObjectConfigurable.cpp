@@ -201,19 +201,19 @@ std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(co
 	return result;
 }
 
-EShortcut InterfaceObjectConfigurable::readKeycode(const JsonNode & config) const
+EShortcut InterfaceObjectConfigurable::readHotkey(const JsonNode & config) const
 {
-	logGlobal->debug("Reading keycode");
+	logGlobal->debug("Reading hotkey");
 
 	if(config.getType() != JsonNode::JsonType::DATA_STRING)
 	{
-		logGlobal->error("Invalid keycode format in interface configuration! Expected string!", config.String());
+		logGlobal->error("Invalid hotket format in interface configuration! Expected string!", config.String());
 		return EShortcut::NONE;
 	}
 
 	EShortcut result = GH.shortcutsHandler().findShortcut(config.String());
 	if (result == EShortcut::NONE)
-		logGlobal->error("Invalid keycode '%s' in interface configuration!", config.String());
+		logGlobal->error("Invalid hotkey '%s' in interface configuration!", config.String());
 	return result;;
 }
 
@@ -320,11 +320,27 @@ std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode
 		button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
 	}
 	if(!config["callback"].isNull())
-		button->addCallback(std::bind(callbacks.at(config["callback"].String()), 0));
+	{
+		std::string callbackName = config["callback"].String();
+
+		if (callbacks.count(callbackName) > 0)
+			button->addCallback(std::bind(callbacks.at(callbackName), 0));
+		else
+			logGlobal->error("Invalid callback '%s' in widget", callbackName );
+	}
 	if(!config["hotkey"].isNull())
 	{
 		if(config["hotkey"].getType() == JsonNode::JsonType::DATA_STRING)
-			button->assignedKey = readKeycode(config["hotkey"]);
+		{
+			button->assignedKey = readHotkey(config["hotkey"]);
+
+			auto target = shortcuts.find(button->assignedKey);
+			if (target != shortcuts.end())
+			{
+				button->addCallback(target->second.callback);
+				target->second.assignedToButton = true;
+			}
+		}
 	}
 	return button;
 }
@@ -429,4 +445,42 @@ std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(JsonNode co
 
 	logGlobal->error("Builder with type %s is not registered", type);
 	return nullptr;
+}
+
+void InterfaceObjectConfigurable::setShortcutBlocked(EShortcut shortcut, bool isBlocked)
+{
+	auto target = shortcuts.find(key);
+	if (target == shortcuts.end())
+		return;
+
+	target->second.blocked = isBlocked;
+
+	for	(auto & entry : widgets)
+	{
+		auto button = std::dynamic_pointer_cast<CButton>(entry.second);
+
+		if (button && button->assignedKey == shortcut)
+			button->block(isBlocked);
+	}
+}
+
+void InterfaceObjectConfigurable::addShortcut(EShortcut shortcut, std::function<void()> callback)
+{
+	assert(shortcuts.count(shortcut) == 0);
+	shortcuts[shortcut].callback = callback;
+}
+
+void InterfaceObjectConfigurable::keyPressed(EShortcut key)
+{
+	auto target = shortcuts.find(key);
+	if (target == shortcuts.end())
+		return;
+
+	if (target->second.assignedToButton)
+		return; // will be handled by button instance
+
+	if (target->second.blocked)
+		return;
+
+	target->second.callback();
 }
