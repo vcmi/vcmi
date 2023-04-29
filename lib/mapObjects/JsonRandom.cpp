@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "JsonRandom.h"
 
+#include <vstd/StringUtils.h>
+
 #include "../JsonNode.h"
 #include "../CRandomGenerator.h"
 #include "../StringConstants.h"
@@ -150,7 +152,11 @@ namespace JsonRandom
 			for(const auto & skill : VLC->skillh->objects)
 			{
 				IObjectInterface::cb->isAllowed(2, skill->getIndex());
-				defaultSkills.insert(skill->getNameTextID());
+				auto scopeAndName = vstd::splitStringToPair(skill->getJsonKey(), ':');
+				if(scopeAndName.first == CModHandler::scopeBuiltin() || scopeAndName.first == value.meta)
+					defaultSkills.insert(scopeAndName.second);
+				else
+					defaultSkills.insert(skill->getJsonKey());
 			}
 			
 			for(const auto & element : value.Vector())
