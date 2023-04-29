@@ -80,7 +80,6 @@ public:
 class DLL_LINKAGE CGUniversity : public CGMarket
 {
 public:
-	int skillsTotal = 4;
 	std::vector<int> skills; //available skills
 
 	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;

@@ -562,7 +562,14 @@
 				},
 				"modes" : ["resource-skill"],
 				"title" : "core.genrltxt.602",
-				"speech" : "core.genrltxt.603"
+				"speech" : "core.genrltxt.603",
+				"offer": 
+				[
+					{ "noneOf" : ["necromancy"] },
+					{ "noneOf" : ["necromancy"] },
+					{ "noneOf" : ["necromancy"] },
+					{ "noneOf" : ["necromancy"] }
+				]
 			}
 		}
 	},
