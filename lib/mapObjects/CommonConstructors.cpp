@@ -335,6 +335,9 @@ CGObjectInstance * MarketInstanceConstructor::create(std::shared_ptr<const Objec
 	if(marketEfficacy >= 0)
 		market->marketEfficacy = marketEfficacy;
 	
+	market->title = VLC->generaltexth->translate(title);
+	market->speech = VLC->generaltexth->translate(speech);
+	
 	return market;
 }
 
@@ -344,9 +347,6 @@ void MarketInstanceConstructor::configureObject(CGObjectInstance * object, CRand
 	{
 		for(auto skill : JsonRandom::loadSecondary(predefinedOffer, rng))
 			university->skills.push_back(skill.first.getNum());
-		
-		university->title = VLC->generaltexth->translate(title);
-		university->speech = VLC->generaltexth->translate(speech);
 	}
 }
 

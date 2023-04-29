@@ -673,7 +673,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	madeTransaction = false;
-	bool sliderNeeded = true;
+	bool sliderNeeded = (mode != EMarketMode::RESOURCE_ARTIFACT && mode != EMarketMode::ARTIFACT_RESOURCE);
 
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
@@ -688,7 +688,6 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 			break;
 		case EMarketMode::RESOURCE_ARTIFACT:
 			title = (*CGI->townh)[o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
-			sliderNeeded = false;
 			break;
 		case EMarketMode::ARTIFACT_RESOURCE:
 			title = (*CGI->townh)[o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
@@ -696,34 +695,15 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 			// create image that copies part of background containing slot MISC_1 into position of slot MISC_5
 			// this is workaround for bug in H3 files where this slot for ragdoll on this screen is missing
 			images.push_back(std::make_shared<CPicture>(background->getSurface(), Rect(20, 187, 47, 47), 18, 339 ));
-			sliderNeeded = false;
 			break;
 		default:
 			title = CGI->generaltexth->allTexts[158];
 			break;
 		}
 	}
-	else
+	else if(auto * o = dynamic_cast<const CGMarket *>(market))
 	{
-		if(auto * o = dynamic_cast<const CGObjectInstance *>(market))
-		{
-			switch(o->ID)
-			{
-			case Obj::BLACK_MARKET:
-				title = CGI->generaltexth->allTexts[349];
-				sliderNeeded = false;
-				break;
-			case Obj::TRADING_POST:
-				title = CGI->generaltexth->allTexts[159];
-				break;
-			case Obj::TRADING_POST_SNOW:
-				title = CGI->generaltexth->allTexts[159];
-				break;
-			default:
-				title = o->getObjectName();
-				break;
-			}
-		}
+		title = o->title.empty() ? o->getObjectName() : o->title;
 	}
 
 	titleLabel = std::make_shared<CLabel>(300, 27, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title);
