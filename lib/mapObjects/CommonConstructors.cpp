@@ -335,7 +335,10 @@ CGObjectInstance * MarketInstanceConstructor::create(std::shared_ptr<const Objec
 	if(marketEfficacy >= 0)
 		market->marketEfficacy = marketEfficacy;
 	
-	market->title = VLC->generaltexth->translate(title);
+	market->title = market->getObjectName();
+	if(!title.empty())
+		market->title = VLC->generaltexth->translate(title);
+	
 	market->speech = VLC->generaltexth->translate(speech);
 	
 	return market;
