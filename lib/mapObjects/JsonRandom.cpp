@@ -123,7 +123,9 @@ namespace JsonRandom
 			std::set<std::string> defaultStats(std::begin(PrimarySkill::names), std::end(PrimarySkill::names));
 			for(const auto & element : value.Vector())
 			{
-				int id = vstd::find_pos(PrimarySkill::names, loadKey(element, rng, defaultStats));
+				auto key = loadKey(element, rng, defaultStats);
+				defaultStats.erase(key);
+				int id = vstd::find_pos(PrimarySkill::names, key);
 				if(id != -1)
 					ret[id] += loadValue(element, rng);
 			}
@@ -153,8 +155,13 @@ namespace JsonRandom
 			
 			for(const auto & element : value.Vector())
 			{
-				SecondarySkill id(VLC->modh->identifiers.getIdentifier(element.meta, "skill", loadKey(element, rng, defaultSkills)).value());
-				ret[id] = loadValue(element, rng);
+				auto key = loadKey(element, rng, defaultSkills);
+				defaultSkills.erase(key); //avoid dupicates
+				if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "skill", key))
+				{
+					SecondarySkill id(identifier.value());
+					ret[id] = loadValue(element, rng);
+				}
 			}
 		}
 		return ret;
