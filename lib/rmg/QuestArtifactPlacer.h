@@ -10,6 +10,7 @@
 
 #pragma once
 #include "Zone.h"
+#include "Functions.h"
 #include "../mapObjects/ObjectTemplate.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -33,11 +34,18 @@ public:
 	void placeQuestArtifacts(CRandomGenerator* rand);
 	void dropReplacedArtifact(CGObjectInstance* obj);
 
+	size_t getMaxQuestArtifactCount() const;
+	ArtifactID drawRandomArtifact();
+	void addRandomArtifact(ArtifactID artid);
+
 protected:
 
 	std::vector<std::shared_ptr<Zone>> questArtZones; //artifacts required for Seer Huts will be placed here - or not if null
 	std::vector<ArtifactID> questArtifactsToPlace;
 	std::vector<CGObjectInstance*> artifactsToReplace; //Common artifacts which may be replaced by quest artifacts from other zones
+
+	size_t maxQuestArtifacts;
+	std::vector<ArtifactID> questArtifacts;
 };
 
 VCMI_LIB_NAMESPACE_END

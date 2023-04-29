@@ -113,7 +113,8 @@ void CMapGenerator::initQuestArtsRemaining()
 	//TODO: Move to QuestArtifactPlacer?
 	for (auto art : VLC->arth->objects)
 	{
-		if (art->aClass == CArtifact::ART_TREASURE && VLC->arth->legalArtifact(art->getId()) && art->constituentOf.empty()) //don't use parts of combined artifacts
+		//Don't use parts of combined artifacts
+		if (art->aClass == CArtifact::ART_TREASURE && VLC->arth->legalArtifact(art->getId()) && art->constituentOf.empty())
 			questArtifacts.push_back(art->getId());
 	}
 }

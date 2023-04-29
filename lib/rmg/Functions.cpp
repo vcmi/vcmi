@@ -82,6 +82,7 @@ int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, TerrainId t
 	auto factories = VLC->objtypeh->knownSubObjects(ObjID);
 	vstd::erase_if(factories, [ObjID, &terrain](si32 f)
 	{
+		//TODO: Use templates with lowest number of terrains (most specific)
 		return VLC->objtypeh->getHandlerFor(ObjID, f)->getTemplates(terrain).empty();
 	});
 	

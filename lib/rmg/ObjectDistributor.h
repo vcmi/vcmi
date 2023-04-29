@@ -21,6 +21,7 @@ class ObjectTemplate;
 class ObjectDistributor : public Modificator
 {
 	void distributeLimitedObjects();
+	void distributeSeerHuts();
 
 public:
 	MODIFICATOR(ObjectDistributor);

@@ -54,9 +54,7 @@ std::vector<CGObjectInstance*> QuestArtifactPlacer::getPossibleArtifactsToReplac
 
 void QuestArtifactPlacer::findZonesForQuestArts()
 {
-	//FIXME: Store and access CZonePlacer from CMapGenerator
-
-	const auto& distances = 	generator.getZonePlacer()->getDistanceMap().at(zone.getId());
+	const auto& distances = generator.getZonePlacer()->getDistanceMap().at(zone.getId());
 	for (auto const& connectedZone : distances)
 	{
 		// Choose zones that are 1 or 2 connections away
@@ -96,6 +94,8 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator * rand)
 			artifactToReplace->appearance = templates.front();
 			//FIXME: Instance name is still "randomArtifact"
 
+			//FIXME: Every qap has its OWN collection of artifacts,
+			//which means different qaps can replace the same object many times
 			qap->dropReplacedArtifact(artifactToReplace);
 
 			break;
@@ -106,4 +106,29 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator * rand)
 void QuestArtifactPlacer::dropReplacedArtifact(CGObjectInstance* obj)
 {
 	boost::remove(artifactsToReplace, obj);
+}
+
+size_t QuestArtifactPlacer::getMaxQuestArtifactCount() const
+{
+	return questArtifacts.size();
+}
+
+ArtifactID QuestArtifactPlacer::drawRandomArtifact()
+{
+	if (!questArtifacts.empty())
+	{
+		ArtifactID ret = questArtifacts.back();
+		questArtifacts.pop_back();
+		RandomGeneratorUtil::randomShuffle(questArtifacts, generator.rand);
+		return ret;
+	}
+	else
+	{
+		throw rmgException("No quest artifacts left for this zone!");
+	}
+}
+
+void QuestArtifactPlacer::addRandomArtifact(ArtifactID artid)
+{
+	questArtifacts.push_back(artid);
 }

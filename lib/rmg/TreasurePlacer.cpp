@@ -70,6 +70,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				if (templates.empty())
 					continue;
 
+				//TODO: Reuse chooseRandomAppearance (eg. WoG treasure chests)
 				//Assume the template with fewest terrains is the most suitable
 				auto temp = *boost::min_element(templates, [](std::shared_ptr<const ObjectTemplate> lhs, std::shared_ptr<const ObjectTemplate> rhs) -> bool
 				{
@@ -385,44 +386,28 @@ void TreasurePlacer::addAllPossibleObjects()
 	oi.probability = 2;
 	addObjectToRandomPool(oi);
 	
-	//seer huts with creatures or generic rewards
+	//Seer huts with creatures or generic rewards
 
 	if(zone.getConnections().size()) //Unlikely, but...
 	{
-		static const int genericSeerHuts = 8;
-		int seerHutsPerType = 0;
-		const int questArtsRemaining = static_cast<int>(generator.getQuestArtsRemaning().size());
+		auto * qap = zone.getModificator<QuestArtifactPlacer>();
+		if(!qap)
+		{
+			return; //TODO: throw?
+		}
 		
-		//general issue is that not many artifact types are available for quests
+		const int questArtsRemaining = qap->getMaxQuestArtifactCount();
+		
+		//Generate Seer Hut one by one. Duplicated oi possible and should work fine.
+		oi.maxPerZone = 1;
 
-		if(questArtsRemaining >= genericSeerHuts + static_cast<int>(creatures.size()))
-		{
-			seerHutsPerType = questArtsRemaining / (genericSeerHuts + static_cast<int>(creatures.size()));
-		}
-		else if(questArtsRemaining >= genericSeerHuts)
-		{
-			seerHutsPerType = 1;
-		}
-		oi.maxPerZone = seerHutsPerType;
+		std::vector<ObjectInfo> possibleSeerHuts;
+		//14 creatures per town + 4 for each of gold / exp reward
+		possibleSeerHuts.reserve(14 + 4 + 4);
 		
 		RandomGeneratorUtil::randomShuffle(creatures, generator.rand);
 
-		auto generateArtInfo = [this](const ArtifactID & id) -> ObjectInfo
-		{
-			ObjectInfo artInfo;
-			artInfo.probability = std::numeric_limits<ui16>::max(); //99,9% to spawn that art in first treasure pile
-			artInfo.maxPerZone = 1;
-			artInfo.value = 2000; //treasure art
-			artInfo.setTemplate(Obj::ARTIFACT, id, this->zone.getTerrainType());
-			artInfo.generateObject = [id]() -> CGObjectInstance *
-			{
-				auto handler = VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, id);
-				return handler->create(handler->getTemplates().front());
-			};
-			return artInfo;
-		};
-
-		for(int i = 0; i < std::min(static_cast<int>(creatures.size()), questArtsRemaining - genericSeerHuts); i++)
+		for(int i = 0; i < static_cast<int>(creatures.size()); i++)
 		{
 			auto * creature = creatures[i];
 			int creaturesAmount = creatureToCount(creature);
@@ -432,7 +417,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			
 			int randomAppearance = chooseRandomAppearance(generator.rand, Obj::SEER_HUT, zone.getTerrainType());
 			
-			oi.generateObject = [creature, creaturesAmount, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
+			oi.generateObject = [creature, creaturesAmount, randomAppearance, this, qap]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
@@ -441,7 +426,8 @@ void TreasurePlacer::addAllPossibleObjects()
 				obj->rVal = creaturesAmount;
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
-				ArtifactID artid = *RandomGeneratorUtil::nextItem(generator.getQuestArtsRemaning(), generator.rand);
+				
+				ArtifactID artid = qap->drawRandomArtifact();
 				obj->quest->addArtifactID(artid);
 				obj->quest->lastDay = -1;
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
@@ -451,10 +437,17 @@ void TreasurePlacer::addAllPossibleObjects()
 				
 				return obj;
 			};
+			oi.probability = 3;
 			oi.setTemplate(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
 			oi.value = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFaction())) / map.getTotalZoneCount())) - 4000) / 3);
-			oi.probability = 3;
-			addObjectToRandomPool(oi);
+			if (oi.value > zone.getMaxTreasureValue())
+			{
+				continue;
+			}
+			else
+			{
+				possibleSeerHuts.push_back(oi);
+			}
 		}
 		
 		static int seerLevels = std::min(generator.getConfig().questValues.size(), generator.getConfig().questRewardValues.size());
@@ -464,9 +457,15 @@ void TreasurePlacer::addAllPossibleObjects()
 			
 			oi.setTemplate(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
 			oi.value = generator.getConfig().questValues[i];
+			if (oi.value > zone.getMaxTreasureValue())
+			{
+				//Both variants have same value
+				continue;
+			}
+
 			oi.probability = 10;
 			
-			oi.generateObject = [i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
+			oi.generateObject = [i, randomAppearance, this, qap]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
@@ -476,7 +475,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				obj->rVal = generator.getConfig().questRewardValues[i];
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
-				ArtifactID artid = *RandomGeneratorUtil::nextItem(generator.getQuestArtsRemaning(), generator.rand);
+				ArtifactID artid = qap->drawRandomArtifact();
 				obj->quest->addArtifactID(artid);
 				obj->quest->lastDay = -1;
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
@@ -487,9 +486,9 @@ void TreasurePlacer::addAllPossibleObjects()
 				return obj;
 			};
 			
-			addObjectToRandomPool(oi);
+			possibleSeerHuts.push_back(oi);
 			
-			oi.generateObject = [i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
+			oi.generateObject = [i, randomAppearance, this, qap]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto * obj = dynamic_cast<CGSeerHut *>(factory->create());
@@ -498,7 +497,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				obj->rVal = generator.getConfig().questRewardValues[i];
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
-				ArtifactID artid = *RandomGeneratorUtil::nextItem(generator.getQuestArtsRemaning(), generator.rand);
+				ArtifactID artid = qap->drawRandomArtifact();
 				obj->quest->addArtifactID(artid);
 				obj->quest->lastDay = -1;
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
@@ -509,7 +508,12 @@ void TreasurePlacer::addAllPossibleObjects()
 				return obj;
 			};
 			
-			addObjectToRandomPool(oi);
+			possibleSeerHuts.push_back(oi);
+		}
+
+		for (size_t i = 0; i < questArtsRemaining; i++)
+		{
+			addObjectToRandomPool(*RandomGeneratorUtil::nextItem(possibleSeerHuts, generator.rand));
 		}
 	}
 }

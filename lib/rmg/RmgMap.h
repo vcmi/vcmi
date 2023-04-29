@@ -57,6 +57,8 @@ public:
 	void setZoneID(const int3& tile, TRmgTemplateZoneId zid);
 	
 	using Zones = std::map<TRmgTemplateZoneId, std::shared_ptr<Zone>>;
+	using ZonePair = std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>>;
+	using ZoneVector = std::vector<ZonePair>;
 	
 	Zones & getZones();
 	

@@ -15,6 +15,7 @@
 #include "RmgMap.h"
 #include "CMapGenerator.h"
 #include "TreasurePlacer.h"
+#include "QuestArtifactPlacer.h"
 #include "TownPlacer.h"
 #include "TerrainPainter.h"
 #include "../mapObjects/CObjectClassesHandler.h"
@@ -29,7 +30,8 @@ void ObjectDistributor::process()
 	//Firts call will add objects to ALL zones, once they were added skip it
 	if (zone.getModificator<TreasurePlacer>()->getPossibleObjectsSize() == 0)
 	{
-		ObjectDistributor::distributeLimitedObjects();
+		distributeLimitedObjects();
+		distributeSeerHuts();
 	}
 }
 
@@ -113,6 +115,35 @@ void ObjectDistributor::distributeLimitedObjects()
 						}
 					}
 				}
+			}
+		}
+	}
+}
+
+void ObjectDistributor::distributeSeerHuts()
+{
+	//TODO: Move typedef outside the class?
+
+	//Copy by value to random shuffle
+	const auto & zoneMap = map.getZones();
+	RmgMap::ZoneVector zones(zoneMap.begin(), zoneMap.end());
+
+	RandomGeneratorUtil::randomShuffle(zones, generator.rand);
+
+	const auto & possibleQuestArts = generator.getQuestArtsRemaning();
+	size_t availableArts = possibleQuestArts.size();
+	auto artIt = possibleQuestArts.begin();
+	for (int i = zones.size() - 1; i >= 0 ; i--)
+	{
+		size_t localArts = std::ceil((float)availableArts / (i + 1));
+		availableArts -= localArts;
+
+		auto * qap = zones[i].second->getModificator<QuestArtifactPlacer>();
+		if (qap)
+		{
+			for (;localArts > 0 && artIt != possibleQuestArts.end(); artIt++, localArts--)
+			{
+				qap->addRandomArtifact(*artIt);
 			}
 		}
 	}
