@@ -606,22 +606,6 @@ void BonusList::insert(BonusList::TInternalContainer::iterator position, BonusLi
 	changed();
 }
 
-CSelector IBonusBearer::anaffectedByMoraleSelector =
-Selector::type()(Bonus::NON_LIVING)
-.Or(Selector::type()(Bonus::UNDEAD))
-.Or(Selector::type()(Bonus::SIEGE_WEAPON))
-.Or(Selector::type()(Bonus::NO_MORALE));
-
-CSelector IBonusBearer::moraleSelector = Selector::type()(Bonus::MORALE);
-CSelector IBonusBearer::luckSelector = Selector::type()(Bonus::LUCK);
-
-IBonusBearer::IBonusBearer()
-	:anaffectedByMorale(this, anaffectedByMoraleSelector),
-	moraleValue(this, moraleSelector, 0),
-	luckValue(this, luckSelector, 0)
-{
-}
-
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
 {
 	return valOfBonuses(Selector::type()(type).And(selector));
@@ -685,47 +669,6 @@ bool IBonusBearer::hasBonusFrom(Bonus::BonusSource source, ui32 sourceID) const
 
 	return hasBonus(Selector::source(source,sourceID), fmt.str());
 }
-
-int IBonusBearer::MoraleVal() const
-{
-	if(anaffectedByMorale.getHasBonus())
-		return 0;
-
-	return std::clamp(moraleValue.getValue(), -3, +3);
-}
-
-int IBonusBearer::LuckVal() const
-{
-	if(hasBonusOfType(Bonus::NO_LUCK))
-		return 0;
-
-	return std::clamp(luckValue.getValue(), -3, +3);
-}
-
-int IBonusBearer::MoraleValAndBonusList(TConstBonusListPtr & bonusList) const
-{
-	if(anaffectedByMorale.getHasBonus())
-	{
-		if(!bonusList->empty())
-			bonusList = std::make_shared<const BonusList>();
-		return 0;
-	}
-
-	return std::clamp(moraleValue.getValueAndList(bonusList), -3, +3);
-}
-
-int IBonusBearer::LuckValAndBonusList(TConstBonusListPtr & bonusList) const
-{
-	if(hasBonusOfType(Bonus::NO_LUCK))
-	{
-		if(!bonusList->empty())
-			bonusList = std::make_shared<const BonusList>();
-		return 0;
-	}
-
-	return std::clamp(luckValue.getValueAndList(bonusList), -3, +3);
-}
-
 std::shared_ptr<const Bonus> IBonusBearer::getBonus(const CSelector &selector) const
 {
 	auto bonuses = getAllBonuses(selector, Selector::all);

@@ -14,6 +14,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class BonusList;
+
 namespace PrimarySkill
 {
     enum PrimarySkill : int8_t;
@@ -50,6 +52,18 @@ public:
 	 Returns primskill of creature or hero.
 	*/
 	int getPrimSkillLevel(PrimarySkill::PrimarySkill id) const;
+	/**
+	 Returns morale or luck of creature or hero.
+	*/
+	int MoraleVal() const; //range [-3, +3]
+	int LuckVal() const; //range [-3, +3]
+	/**
+	 Returns total value of all morale bonuses and sets bonusList as a pointer to the list of selected bonuses.
+	 @param bonusList is the out param it's list of all selected bonuses
+	 @return total value of all morale in the range [-3, +3] and 0 otherwise
+	*/
+	int MoraleValAndBonusList(std::shared_ptr<const BonusList> & bonusList) const;
+	int LuckValAndBonusList(std::shared_ptr<const BonusList> & bonusList) const;
 };
 
 VCMI_LIB_NAMESPACE_END

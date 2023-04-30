@@ -88,6 +88,55 @@ int IFactionMember::getPrimSkillLevel(PrimarySkill::PrimarySkill id) const
 	return std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect, sp=0 works in old saves
 }
 
+int IFactionMember::MoraleValAndBonusList(TConstBonusListPtr & bonusList) const
+{
+	static const auto unaffectedByMoraleSelector = Selector::type()(Bonus::NON_LIVING).Or(Selector::type()(Bonus::UNDEAD))
+													.Or(Selector::type()(Bonus::SIEGE_WEAPON)).Or(Selector::type()(Bonus::NO_MORALE));
+
+	static const std::string cachingStrUn = "IFactionMember::unaffectedByMoraleSelector";
+	auto unaffected = getBonusBearer()->hasBonus(unaffectedByMoraleSelector, cachingStrUn);
+	if(unaffected)
+	{
+		if(bonusList && !bonusList->empty())
+			bonusList = std::make_shared<const BonusList>();
+		return 0;
+	}
+
+	static const auto moraleSelector = Selector::type()(Bonus::MORALE);
+	static const std::string cachingStrMor = "type_MORALE";
+	bonusList = getBonusBearer()->getBonuses(moraleSelector, cachingStrMor);
+
+	return std::clamp(bonusList->totalValue(), -3, +3);
+}
+
+int IFactionMember::LuckValAndBonusList(TConstBonusListPtr & bonusList) const
+{
+	if(getBonusBearer()->hasBonusOfType(Bonus::NO_LUCK))
+	{
+		if(bonusList && !bonusList->empty())
+			bonusList = std::make_shared<const BonusList>();
+		return 0;
+	}
+
+	static const auto luckSelector = Selector::type()(Bonus::LUCK);
+	static const std::string cachingStrLuck = "type_LUCK";
+	bonusList = getBonusBearer()->getBonuses(luckSelector, cachingStrLuck);
+
+	return std::clamp(bonusList->totalValue(), -3, +3);
+}
+
+int IFactionMember::MoraleVal() const
+{
+	TConstBonusListPtr tmp = nullptr;
+	return MoraleValAndBonusList(tmp);
+}
+
+int IFactionMember::LuckVal() const
+{
+	TConstBonusListPtr tmp = nullptr;
+	return LuckValAndBonusList(tmp);
+}
+
 ui32 ICreature::MaxHealth() const
 {
 	const std::string cachingStr = "type_STACK_HEALTH";
@@ -114,7 +163,7 @@ ui32 ICreature::Speed(int turn, bool useBind) const
 
 bool ICreature::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation
 {
-	static const std::string cachingStr = "IBonusBearer::isLiving";
+	static const std::string cachingStr = "ICreature::isLiving";
 	static const CSelector selector = Selector::type()(Bonus::UNDEAD)
 		.Or(Selector::type()(Bonus::NON_LIVING))
 		.Or(Selector::type()(Bonus::GARGOYLE))

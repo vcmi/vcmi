@@ -663,20 +663,12 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const BonusList &bonusL
 
 class DLL_LINKAGE IBonusBearer
 {
-private:
-	static CSelector anaffectedByMoraleSelector;
-	CCheckProxy anaffectedByMorale;
-	static CSelector moraleSelector;
-	CTotalsProxy moraleValue;
-	static CSelector luckSelector;
-	CTotalsProxy luckValue;
-
 public:
 	//new bonusing node interface
 	// * selector is predicate that tests if HeroBonus matches our criteria
 	// * root is node on which call was made (nullptr will be replaced with this)
 	//interface
-	IBonusBearer();
+	IBonusBearer() = default;
 	virtual ~IBonusBearer() = default;
 	virtual TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const = 0;
 	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
@@ -692,19 +684,6 @@ public:
 	int valOfBonuses(Bonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then anyt;
 	bool hasBonusOfType(Bonus::BonusType type, int subtype = -1) const;//determines if hero has a bonus of given type (and optionally subtype)
 	bool hasBonusFrom(Bonus::BonusSource source, ui32 sourceID) const;
-
-	//various hlp functions for non-trivial values
-	//used for stacks and creatures only
-
-	int MoraleVal() const; //range [-3, +3]
-	int LuckVal() const; //range [-3, +3]
-	/**
-	 Returns total value of all morale bonuses and sets bonusList as a pointer to the list of selected bonuses.
-	 @param bonusList is the out param it's list of all selected bonuses
-	 @return total value of all morale in the range [-3, +3] and 0 otherwise
-	*/
-	int MoraleValAndBonusList(TConstBonusListPtr & bonusList) const;
-	int LuckValAndBonusList(TConstBonusListPtr & bonusList) const;
 
 	virtual int64_t getTreeVersion() const = 0;
 };
