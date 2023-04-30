@@ -9,14 +9,14 @@
  */
 #pragma once
 
-#include "CObjectClassesHandler.h"
-#include "CRandomRewardObjectInfo.h"
+#include "../mapObjects/CObjectClassesHandler.h"
+#include "../rewardable/Info.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
 {
-	CRandomRewardObjectInfo objectInfo;
+	Rewardable::Info objectInfo;
 
 	void initTypeData(const JsonNode & config) override;
 	

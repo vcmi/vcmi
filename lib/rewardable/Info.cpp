@@ -1,5 +1,5 @@
 /*
- * CRandomRewardObjectInfo.cpp, part of VCMI engine
+ * Info.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,15 +9,21 @@
  */
 
 #include "StdInc.h"
-#include "CRandomRewardObjectInfo.h"
+#include "Info.h"
+#include "Limiter.h"
+#include "Reward.h"
+#include "Configuration.h"
 
 #include "../CRandomGenerator.h"
 #include "../StringConstants.h"
 #include "../CCreatureHandler.h"
 #include "../CModHandler.h"
-#include "JsonRandom.h"
+#include "../JsonRandom.h"
 #include "../IGameCallback.h"
 #include "../CGeneralTextHandler.h"
+#include "../JsonNode.h"
+#include "../IGameCallback.h"
+#include "../CPlayerState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -43,17 +49,17 @@ namespace {
 	}
 }
 
-void CRandomRewardObjectInfo::init(const JsonNode & objectConfig)
+void Rewardable::Info::init(const JsonNode & objectConfig)
 {
 	parameters = objectConfig;
 }
 
-TRewardLimitersList CRandomRewardObjectInfo::configureSublimiters(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const
+Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const
 {
-	TRewardLimitersList result;
+	Rewardable::LimitersList result;
 	for (const auto & input : source.Vector())
 	{
-		auto newLimiter = std::make_shared<CRewardLimiter>();
+		auto newLimiter = std::make_shared<Rewardable::Limiter>();
 
 		configureLimiter(object, rng, *newLimiter, input);
 
@@ -63,7 +69,7 @@ TRewardLimitersList CRandomRewardObjectInfo::configureSublimiters(Rewardable::Co
 	return result;
 }
 
-void CRandomRewardObjectInfo::configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, CRewardLimiter & limiter, const JsonNode & source) const
+void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Limiter & limiter, const JsonNode & source) const
 {
 	std::vector<SpellID> spells;
 	for (size_t i=0; i<6; i++)
@@ -92,7 +98,7 @@ void CRandomRewardObjectInfo::configureLimiter(Rewardable::Configuration & objec
 	limiter.noneOf = configureSublimiters(object, rng, source["noneOf"] );
 }
 
-void CRandomRewardObjectInfo::configureReward(Rewardable::Configuration & object, CRandomGenerator & rng, CRewardInfo & reward, const JsonNode & source) const
+void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Reward & reward, const JsonNode & source) const
 {
 	reward.resources = JsonRandom::loadResources(source["resources"], rng);
 
@@ -139,19 +145,19 @@ void CRandomRewardObjectInfo::configureReward(Rewardable::Configuration & object
 	}
 }
 
-void CRandomRewardObjectInfo::configureResetInfo(Rewardable::Configuration & object, CRandomGenerator & rng, CRewardResetInfo & resetParameters, const JsonNode & source) const
+void Rewardable::Info::configureResetInfo(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::ResetInfo & resetParameters, const JsonNode & source) const
 {
 	resetParameters.period   = static_cast<ui32>(source["period"].Float());
 	resetParameters.visitors = source["visitors"].Bool();
 	resetParameters.rewards  = source["rewards"].Bool();
 }
 
-void CRandomRewardObjectInfo::configureRewards(
+void Rewardable::Info::configureRewards(
 		Rewardable::Configuration & object,
 		CRandomGenerator & rng, const
 		JsonNode & source,
 		std::map<si32, si32> & thrownDice,
-		CRewardVisitInfo::ERewardEventType event ) const
+		Rewardable::EEventType event ) const
 {
 	for (const JsonNode & reward : source.Vector())
 	{
@@ -177,7 +183,7 @@ void CRandomRewardObjectInfo::configureRewards(
 			}
 		}
 
-		CRewardVisitInfo info;
+		Rewardable::VisitInfo info;
 		configureLimiter(object, rng, info.limiter, reward["limiter"]);
 		configureReward(object, rng, info.reward, reward);
 
@@ -194,30 +200,30 @@ void CRandomRewardObjectInfo::configureRewards(
 	}
 }
 
-void CRandomRewardObjectInfo::configureObject(Rewardable::Configuration & object, CRandomGenerator & rng) const
+void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRandomGenerator & rng) const
 {
 	object.info.clear();
 
 	std::map<si32, si32> thrownDice;
 
-	configureRewards(object, rng, parameters["rewards"], thrownDice, CRewardVisitInfo::EVENT_FIRST_VISIT);
-	configureRewards(object, rng, parameters["onVisited"], thrownDice, CRewardVisitInfo::EVENT_ALREADY_VISITED);
-	configureRewards(object, rng, parameters["onEmpty"], thrownDice, CRewardVisitInfo::EVENT_NOT_AVAILABLE);
+	configureRewards(object, rng, parameters["rewards"], thrownDice, Rewardable::EEventType::EVENT_FIRST_VISIT);
+	configureRewards(object, rng, parameters["onVisited"], thrownDice, Rewardable::EEventType::EVENT_ALREADY_VISITED);
+	configureRewards(object, rng, parameters["onEmpty"], thrownDice, Rewardable::EEventType::EVENT_NOT_AVAILABLE);
 
 	object.onSelect   = loadMessage(parameters["onSelectMessage"]);
 
 	if (!parameters["onVisitedMessage"].isNull())
 	{
-		CRewardVisitInfo onVisited;
-		onVisited.visitType = CRewardVisitInfo::EVENT_ALREADY_VISITED;
+		Rewardable::VisitInfo onVisited;
+		onVisited.visitType = Rewardable::EEventType::EVENT_ALREADY_VISITED;
 		onVisited.message = loadMessage(parameters["onVisitedMessage"]);
 		object.info.push_back(onVisited);
 	}
 
 	if (!parameters["onEmptyMessage"].isNull())
 	{
-		CRewardVisitInfo onEmpty;
-		onEmpty.visitType = CRewardVisitInfo::EVENT_NOT_AVAILABLE;
+		Rewardable::VisitInfo onEmpty;
+		onEmpty.visitType = Rewardable::EEventType::EVENT_NOT_AVAILABLE;
 		onEmpty.message = loadMessage(parameters["onEmptyMessage"]);
 		object.info.push_back(onEmpty);
 	}
@@ -252,57 +258,57 @@ void CRandomRewardObjectInfo::configureObject(Rewardable::Configuration & object
 	}
 }
 
-bool CRandomRewardObjectInfo::givesResources() const
+bool Rewardable::Info::givesResources() const
 {
 	return testForKey(parameters, "resources");
 }
 
-bool CRandomRewardObjectInfo::givesExperience() const
+bool Rewardable::Info::givesExperience() const
 {
 	return testForKey(parameters, "gainedExp") || testForKey(parameters, "gainedLevels");
 }
 
-bool CRandomRewardObjectInfo::givesMana() const
+bool Rewardable::Info::givesMana() const
 {
 	return testForKey(parameters, "manaPoints") || testForKey(parameters, "manaPercentage");
 }
 
-bool CRandomRewardObjectInfo::givesMovement() const
+bool Rewardable::Info::givesMovement() const
 {
 	return testForKey(parameters, "movePoints") || testForKey(parameters, "movePercentage");
 }
 
-bool CRandomRewardObjectInfo::givesPrimarySkills() const
+bool Rewardable::Info::givesPrimarySkills() const
 {
 	return testForKey(parameters, "primary");
 }
 
-bool CRandomRewardObjectInfo::givesSecondarySkills() const
+bool Rewardable::Info::givesSecondarySkills() const
 {
 	return testForKey(parameters, "secondary");
 }
 
-bool CRandomRewardObjectInfo::givesArtifacts() const
+bool Rewardable::Info::givesArtifacts() const
 {
 	return testForKey(parameters, "artifacts");
 }
 
-bool CRandomRewardObjectInfo::givesCreatures() const
+bool Rewardable::Info::givesCreatures() const
 {
 	return testForKey(parameters, "spells");
 }
 
-bool CRandomRewardObjectInfo::givesSpells() const
+bool Rewardable::Info::givesSpells() const
 {
 	return testForKey(parameters, "creatures");
 }
 
-bool CRandomRewardObjectInfo::givesBonuses() const
+bool Rewardable::Info::givesBonuses() const
 {
 	return testForKey(parameters, "bonuses");
 }
 
-const JsonNode & CRandomRewardObjectInfo::getParameters() const
+const JsonNode & Rewardable::Info::getParameters() const
 {
 	return parameters;
 }

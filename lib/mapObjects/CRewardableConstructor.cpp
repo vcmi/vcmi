@@ -43,8 +43,8 @@ void CRewardableConstructor::configureObject(CGObjectInstance * object, CRandomG
 {
 	if(auto * rewardableObject = dynamic_cast<CRewardableObject*>(object))
 	{
-		objectInfo.configureObject(rewardableObject->configuration(), rng);
-		for(auto & rewardInfo : rewardableObject->configuration().info)
+		objectInfo.configureObject(rewardableObject->configuration, rng);
+		for(auto & rewardInfo : rewardableObject->configuration.info)
 		{
 			for (auto & bonus : rewardInfo.reward.bonuses)
 			{
@@ -62,7 +62,7 @@ void CRewardableConstructor::configureObject(CGObjectInstance * object, CRandomG
 
 std::unique_ptr<IObjectInfo> CRewardableConstructor::getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const
 {
-	return std::unique_ptr<IObjectInfo>(new CRandomRewardObjectInfo(objectInfo));
+	return std::unique_ptr<IObjectInfo>(new Rewardable::Info(objectInfo));
 }
 
 VCMI_LIB_NAMESPACE_END

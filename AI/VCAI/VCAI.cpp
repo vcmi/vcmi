@@ -1605,10 +1605,10 @@ void VCAI::markObjectVisited(const CGObjectInstance * obj)
 
 	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj)) //we may want to visit it with another hero
 	{
-		if (rewardable->getConfiguration().getVisitMode() == Rewardable::VISIT_HERO) //we may want to visit it with another hero
+		if (rewardable->configuration.getVisitMode() == Rewardable::VISIT_HERO) //we may want to visit it with another hero
 			return;
 
-		if (rewardable->getConfiguration().getVisitMode() == Rewardable::VISIT_BONUS) //or another time
+		if (rewardable->configuration.getVisitMode() == Rewardable::VISIT_BONUS) //or another time
 			return;
 	}
 
@@ -2746,7 +2746,7 @@ bool isWeeklyRevisitable(const CGObjectInstance * obj)
 {
 	//TODO: allow polling of remaining creatures in dwelling
 	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj))
-		return rewardable->getConfiguration().getResetDuration() == 7;
+		return rewardable->configuration.getResetDuration() == 7;
 
 	if(dynamic_cast<const CGDwelling *>(obj))
 		return true;
