@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "Limiter.h"
 #include "../IGameCallback.h"
+#include "../CGameStateFwd.h"
 #include "../CPlayerState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
