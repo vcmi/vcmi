@@ -11,6 +11,7 @@
 #pragma once
 
 #include "HeroBonus.h"
+#include "BonusSelector.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

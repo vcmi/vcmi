@@ -11,6 +11,7 @@
 #include "StdInc.h"
 
 #include "BonusParams.h"
+#include "BonusSelector.h"
 
 #include "../ResourceSet.h"
 
