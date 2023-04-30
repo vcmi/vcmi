@@ -297,8 +297,6 @@ public:
 /// Struct for handling bonuses of several types. Can be transferred to any hero
 struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 {
-	enum { EVERY_TYPE = -1 };
-
 	enum BonusType
 	{
 #define BONUS_NAME(x) x,
@@ -580,27 +578,6 @@ public:
 		{
 			return bonus->*ptr2 == valueToCompareAgainst;
 		};
-	}
-};
-
-template<typename T> //can be same, needed for subtype field
-class CSelectFieldEqualOrEvery
-{
-	T Bonus::*ptr;
-	T val;
-public:
-	CSelectFieldEqualOrEvery(T Bonus::*Ptr, const T &Val)
-		: ptr(Ptr), val(Val)
-	{
-	}
-	bool operator()(const Bonus *bonus) const
-	{
-		return (bonus->*ptr == val) || (bonus->*ptr == static_cast<T>(Bonus::EVERY_TYPE));
-	}
-	CSelectFieldEqualOrEvery& operator()(const T &setVal)
-	{
-		val = setVal;
-		return *this;
 	}
 };
 
