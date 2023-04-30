@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Unit.h"
+#include "../bonuses/CBonusProxy.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
