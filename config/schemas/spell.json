@@ -232,7 +232,7 @@
 						},
 						"special":{
 								"type": "boolean",
-								"description": "Special spell. Can be given only by Bonus::SPELL"
+								"description": "Special spell. Can be given only by BonusType::SPELL"
 						},
 						"nonMagical":{
 							"type": "boolean",

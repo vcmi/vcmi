@@ -27,9 +27,9 @@ BattleFieldInfo * BattleFieldHandler::loadFromJson(const std::string & scope, co
 	{
 		auto bonus = JsonUtils::parseBonus(b);
 
-		bonus->source = Bonus::TERRAIN_OVERLAY;
+		bonus->source = BonusSource::TERRAIN_OVERLAY;
 		bonus->sid = info->getIndex();
-		bonus->duration = Bonus::ONE_BATTLE;
+		bonus->duration = BonusDuration::ONE_BATTLE;
 
 		info->bonuses.push_back(bonus);
 	}

@@ -65,7 +65,7 @@ int64_t BattleExchangeVariant::trackAttack(
 	bool evaluateOnly)
 {
 	const std::string cachingStringBlocksRetaliation = "type_BLOCKS_RETALIATION";
-	static const auto selectorBlocksRetaliation = Selector::type()(Bonus::BLOCKS_RETALIATION);
+	static const auto selectorBlocksRetaliation = Selector::type()(BonusType::BLOCKS_RETALIATION);
 	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
 
 	DamageEstimation retaliation;

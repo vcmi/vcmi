@@ -18,15 +18,15 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct DLL_LINKAGE BonusParams {
 	bool isConverted;
-	Bonus::BonusType type = Bonus::NONE;
+	BonusType type = BonusType::NONE;
 	TBonusSubtype subtype = -1;
 	std::string subtypeStr;
 	bool subtypeRelevant = false;
-	Bonus::ValueType valueType = Bonus::BASE_NUMBER;
+	BonusValueType valueType = BonusValueType::BASE_NUMBER;
 	bool valueTypeRelevant = false;
 	si32 val = 0;
 	bool valRelevant = false;
-	Bonus::BonusSource targetType = Bonus::SECONDARY_SKILL;
+	BonusSource targetType = BonusSource::SECONDARY_SKILL;
 	bool targetTypeRelevant = false;
 
 	BonusParams(bool isConverted = true) : isConverted(isConverted) {};

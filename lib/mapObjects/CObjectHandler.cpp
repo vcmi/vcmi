@@ -272,13 +272,13 @@ int3 CGObjectInstance::getVisitableOffset() const
 	return appearance->getVisitableOffset();
 }
 
-void CGObjectInstance::giveDummyBonus(const ObjectInstanceID & heroID, ui8 duration) const
+void CGObjectInstance::giveDummyBonus(const ObjectInstanceID & heroID, BonusDuration duration) const
 {
 	GiveBonus gbonus;
-	gbonus.bonus.type = Bonus::NONE;
+	gbonus.bonus.type = BonusType::NONE;
 	gbonus.id = heroID.getNum();
-	gbonus.bonus.duration = static_cast<Bonus::BonusDuration>(duration);
-	gbonus.bonus.source = Bonus::OBJECT;
+	gbonus.bonus.duration = duration;
+	gbonus.bonus.source = BonusSource::OBJECT;
 	gbonus.bonus.sid = ID;
 	cb->giveHeroBonus(&gbonus);
 }

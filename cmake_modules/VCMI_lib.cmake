@@ -28,6 +28,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/Unit.cpp
 
 		${MAIN_LIB_DIR}/bonuses/Bonus.cpp
+		${MAIN_LIB_DIR}/bonuses/BonusEnum.cpp
 		${MAIN_LIB_DIR}/bonuses/BonusList.cpp
 		${MAIN_LIB_DIR}/bonuses/BonusParams.cpp
 		${MAIN_LIB_DIR}/bonuses/BonusSelector.cpp
@@ -311,6 +312,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/Unit.h
 
 		${MAIN_LIB_DIR}/bonuses/Bonus.h
+		${MAIN_LIB_DIR}/bonuses/BonusEnum.h
 		${MAIN_LIB_DIR}/bonuses/BonusList.h
 		${MAIN_LIB_DIR}/bonuses/BonusParams.h
 		${MAIN_LIB_DIR}/bonuses/BonusSelector.h

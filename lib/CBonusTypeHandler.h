@@ -19,8 +19,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
 
-using BonusTypeID = Bonus::BonusType;
-
 class DLL_LINKAGE CBonusType
 {
 public:
@@ -67,7 +65,7 @@ private:
 	void load(const JsonNode & config);
 	void loadItem(const JsonNode & source, CBonusType & dest, const std::string & name) const;
 
-	std::vector<CBonusType> bonusTypes; //index = BonusTypeID
+	std::vector<CBonusType> bonusTypes; //index = BonusType
 };
 
 VCMI_LIB_NAMESPACE_END

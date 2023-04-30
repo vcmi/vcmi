@@ -283,7 +283,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 			{
 				if(stack->unitOwner() == otherHero->tempOwner)
 				{
-					vstd::amax(manaChannel, stack->valOfBonuses(Bonus::MANA_CHANNELING));
+					vstd::amax(manaChannel, stack->valOfBonuses(BonusType::MANA_CHANNELING));
 				}
 			}
 			sc.manaGained = (manaChannel * spellCost) / 100;
@@ -467,7 +467,7 @@ void BattleSpellMechanics::doRemoveEffects(ServerCallback * server, const std::v
 
 bool BattleSpellMechanics::counteringSelector(const Bonus * bonus) const
 {
-	if(bonus->source != Bonus::SPELL_EFFECT)
+	if(bonus->source != BonusSource::SPELL_EFFECT)
 		return false;
 
 	for(const SpellID & id : owner->counteredSpells)

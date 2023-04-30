@@ -23,7 +23,6 @@
 #include "../CTownHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSkillHandler.h"
-#include "../CStack.h"
 #include "../CArtHandler.h"
 #include "../CModHandler.h"
 #include "../TerrainHandler.h"
@@ -31,44 +30,6 @@
 #include "../battle/BattleInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-#define BONUS_NAME(x) { #x, Bonus::x },
-	const std::map<std::string, Bonus::BonusType> bonusNameMap = {
-		BONUS_LIST
-	};
-#undef BONUS_NAME
-
-#define BONUS_VALUE(x) { #x, Bonus::x },
-	const std::map<std::string, Bonus::ValueType> bonusValueMap = { BONUS_VALUE_LIST };
-#undef BONUS_VALUE
-
-#define BONUS_SOURCE(x) { #x, Bonus::x },
-	const std::map<std::string, Bonus::BonusSource> bonusSourceMap = { BONUS_SOURCE_LIST };
-#undef BONUS_SOURCE
-
-#define BONUS_ITEM(x) { #x, Bonus::x },
-
-const std::map<std::string, ui16> bonusDurationMap =
-{
-	BONUS_ITEM(PERMANENT)
-	BONUS_ITEM(ONE_BATTLE)
-	BONUS_ITEM(ONE_DAY)
-	BONUS_ITEM(ONE_WEEK)
-	BONUS_ITEM(N_TURNS)
-	BONUS_ITEM(N_DAYS)
-	BONUS_ITEM(UNTIL_BEING_ATTACKED)
-	BONUS_ITEM(UNTIL_ATTACK)
-	BONUS_ITEM(STACK_GETS_TURN)
-	BONUS_ITEM(COMMANDER_KILLED)
-	{ "UNITL_BEING_ATTACKED", Bonus::UNTIL_BEING_ATTACKED }//typo, but used in some mods
-};
-
-const std::map<std::string, Bonus::LimitEffect> bonusLimitEffect =
-{
-	BONUS_ITEM(NO_LIMIT)
-	BONUS_ITEM(ONLY_DISTANCE_FIGHT)
-	BONUS_ITEM(ONLY_MELEE_FIGHT)
-};
 
 const std::set<std::string> deprecatedBonusSet = {
 	"SECONDARY_SKILL_PREMY",
@@ -158,20 +119,20 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 		{
 			switch(source)
 			{
-			case ARTIFACT:
+			case BonusSource::ARTIFACT:
 				str << ArtifactID(sid).toArtifact(VLC->artifacts())->getNameTranslated();
 				break;
-			case SPELL_EFFECT:
+			case BonusSource::SPELL_EFFECT:
 				str << SpellID(sid).toSpell(VLC->spells())->getNameTranslated();
 				break;
-			case CREATURE_ABILITY:
-				str << VLC->creh->objects[sid]->getNamePluralTranslated();
+			case BonusSource::CREATURE_ABILITY:
+				str << CreatureID(sid).toCreature(VLC->creatures())->getNamePluralTranslated();
 				break;
-			case SECONDARY_SKILL:
-				str << VLC->skillh->getByIndex(sid)->getNameTranslated();
+			case BonusSource::SECONDARY_SKILL:
+				str << VLC->skills()->getByIndex(sid)->getNameTranslated();
 				break;
-			case HERO_SPECIAL:
-				str << VLC->heroh->objects[sid]->getNameTranslated();
+			case BonusSource::HERO_SPECIAL:
+				str << VLC->heroTypes()->getByIndex(sid)->getNameTranslated();
 				break;
 			default:
 				//todo: handle all possible sources
@@ -193,58 +154,37 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 	return str.str();
 }
 
-JsonNode subtypeToJson(Bonus::BonusType type, int subtype)
+JsonNode subtypeToJson(BonusType type, int subtype)
 {
 	switch(type)
 	{
-	case Bonus::PRIMARY_SKILL:
+	case BonusType::PRIMARY_SKILL:
 		return JsonUtils::stringNode("primSkill." + PrimarySkill::names[subtype]);
-	case Bonus::SPECIAL_SPELL_LEV:
-	case Bonus::SPECIFIC_SPELL_DAMAGE:
-	case Bonus::SPELL:
-	case Bonus::SPECIAL_PECULIAR_ENCHANT:
-	case Bonus::SPECIAL_ADD_VALUE_ENCHANT:
-	case Bonus::SPECIAL_FIXED_VALUE_ENCHANT:
+	case BonusType::SPECIAL_SPELL_LEV:
+	case BonusType::SPECIFIC_SPELL_DAMAGE:
+	case BonusType::SPELL:
+	case BonusType::SPECIAL_PECULIAR_ENCHANT:
+	case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
+	case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
 		return JsonUtils::stringNode(CModHandler::makeFullIdentifier("", "spell", SpellID::encode(subtype)));
-	case Bonus::IMPROVED_NECROMANCY:
-	case Bonus::SPECIAL_UPGRADE:
+	case BonusType::IMPROVED_NECROMANCY:
+	case BonusType::SPECIAL_UPGRADE:
 		return JsonUtils::stringNode(CModHandler::makeFullIdentifier("", "creature", CreatureID::encode(subtype)));
-	case Bonus::GENERATE_RESOURCE:
+	case BonusType::GENERATE_RESOURCE:
 		return JsonUtils::stringNode("resource." + GameConstants::RESOURCE_NAMES[subtype]);
 	default:
 		return JsonUtils::intNode(subtype);
 	}
 }
 
-JsonNode additionalInfoToJson(Bonus::BonusType type, CAddInfo addInfo)
+JsonNode additionalInfoToJson(BonusType type, CAddInfo addInfo)
 {
 	switch(type)
 	{
-	case Bonus::SPECIAL_UPGRADE:
+	case BonusType::SPECIAL_UPGRADE:
 		return JsonUtils::stringNode(CModHandler::makeFullIdentifier("", "creature", CreatureID::encode(addInfo[0])));
 	default:
 		return addInfo.toJsonNode();
-	}
-}
-
-JsonNode durationToJson(ui16 duration)
-{
-	std::vector<std::string> durationNames;
-	for(ui16 durBit = 1; durBit; durBit = durBit << 1)
-	{
-		if(duration & durBit)
-			durationNames.push_back(vstd::findKey(bonusDurationMap, durBit));
-	}
-	if(durationNames.size() == 1)
-	{
-		return JsonUtils::stringNode(durationNames[0]);
-	}
-	else
-	{
-		JsonNode node(JsonNode::JsonType::DATA_VECTOR);
-		for(const std::string & dur : durationNames)
-			node.Vector().push_back(JsonUtils::stringNode(dur));
-		return node;
 	}
 }
 
@@ -257,36 +197,26 @@ JsonNode Bonus::toJsonNode() const
 		root["subtype"] = subtypeToJson(type, subtype);
 	if(additionalInfo != CAddInfo::NONE)
 		root["addInfo"] = additionalInfoToJson(type, additionalInfo);
-	if(duration != 0)
-	{
-		JsonNode durationVec(JsonNode::JsonType::DATA_VECTOR);
-		for(const auto & kv : bonusDurationMap)
-		{
-			if(duration & kv.second)
-				durationVec.Vector().push_back(JsonUtils::stringNode(kv.first));
-		}
-		root["duration"] = durationVec;
-	}
 	if(turnsRemain != 0)
 		root["turns"].Integer() = turnsRemain;
-	if(source != OTHER)
+	if(source != BonusSource::OTHER)
 		root["sourceType"].String() = vstd::findKey(bonusSourceMap, source);
-	if(targetSourceType != OTHER)
+	if(targetSourceType != BonusSource::OTHER)
 		root["targetSourceType"].String() = vstd::findKey(bonusSourceMap, targetSourceType);
 	if(sid != 0)
 		root["sourceID"].Integer() = sid;
 	if(val != 0)
 		root["val"].Integer() = val;
-	if(valType != ADDITIVE_VALUE)
+	if(valType != BonusValueType::ADDITIVE_VALUE)
 		root["valueType"].String() = vstd::findKey(bonusValueMap, valType);
 	if(!stacking.empty())
 		root["stacking"].String() = stacking;
 	if(!description.empty())
 		root["description"].String() = description;
-	if(effectRange != NO_LIMIT)
+	if(effectRange != BonusLimitEffect::NO_LIMIT)
 		root["effectRange"].String() = vstd::findKey(bonusLimitEffect, effectRange);
-	if(duration != PERMANENT)
-		root["duration"] = durationToJson(duration);
+	if(duration != BonusDuration::PERMANENT)
+		root["duration"].String() = vstd::findKey(bonusDurationMap, duration);
 	if(turnsRemain)
 		root["turns"].Integer() = turnsRemain;
 	if(limiter)
@@ -298,32 +228,8 @@ JsonNode Bonus::toJsonNode() const
 	return root;
 }
 
-std::string Bonus::nameForBonus() const
-{
-	switch(type)
-	{
-	case Bonus::PRIMARY_SKILL:
-		return PrimarySkill::names[subtype];
-	case Bonus::SPECIAL_SPELL_LEV:
-	case Bonus::SPECIFIC_SPELL_DAMAGE:
-	case Bonus::SPELL:
-	case Bonus::SPECIAL_PECULIAR_ENCHANT:
-	case Bonus::SPECIAL_ADD_VALUE_ENCHANT:
-	case Bonus::SPECIAL_FIXED_VALUE_ENCHANT:
-		return VLC->spells()->getByIndex(subtype)->getJsonKey();
-	case Bonus::SPECIAL_UPGRADE:
-		return CreatureID::encode(subtype) + "2" + CreatureID::encode(additionalInfo[0]);
-	case Bonus::GENERATE_RESOURCE:
-		return GameConstants::RESOURCE_NAMES[subtype];
-	case Bonus::STACKS_SPEED:
-		return "speed";
-	default:
-		return vstd::findKey(bonusNameMap, type);
-	}
-}
-
-Bonus::Bonus(Bonus::BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype):
-	duration(static_cast<ui16>(Duration)),
+Bonus::Bonus(BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype):
+	duration(Duration),
 	type(Type),
 	subtype(Subtype),
 	source(Src),
@@ -332,11 +238,11 @@ Bonus::Bonus(Bonus::BonusDuration Duration, BonusType Type, BonusSource Src, si3
 	description(std::move(Desc))
 {
 	boost::algorithm::trim(description);
-	targetSourceType = OTHER;
+	targetSourceType = BonusSource::OTHER;
 }
 
-Bonus::Bonus(Bonus::BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype, ValueType ValType):
-	duration(static_cast<ui16>(Duration)),
+Bonus::Bonus(BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype, BonusValueType ValType):
+	duration(Duration),
 	type(Type),
 	subtype(Subtype),
 	source(Src),
@@ -345,8 +251,8 @@ Bonus::Bonus(Bonus::BonusDuration Duration, BonusType Type, BonusSource Src, si3
 	valType(ValType)
 {
 	turnsRemain = 0;
-	effectRange = NO_LIMIT;
-	targetSourceType = OTHER;
+	effectRange = BonusLimitEffect::NO_LIMIT;
+	targetSourceType = BonusSource::OTHER;
 }
 
 std::shared_ptr<Bonus> Bonus::addPropagator(const TPropagatorPtr & Propagator)

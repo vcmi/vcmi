@@ -98,7 +98,7 @@ int BonusList::totalValue() const
 	auto percent = [](int64_t base, int64_t percent) -> int {
 		return static_cast<int>(std::clamp<int64_t>((base * (100 + percent)) / 100, std::numeric_limits<int>::min(), std::numeric_limits<int>::max()));
 	};
-	std::array <BonusCollection, Bonus::BonusSource::NUM_BONUS_SOURCE> sources = {};
+	std::array <BonusCollection, vstd::to_underlying(BonusSource::NUM_BONUS_SOURCE)> sources = {};
 	BonusCollection any;
 	bool hasIndepMax = false;
 	bool hasIndepMin = false;
@@ -107,31 +107,31 @@ int BonusList::totalValue() const
 	{
 		switch(b->valType)
 		{
-		case Bonus::BASE_NUMBER:
-			sources[b->source].base += b->val;
+		case BonusValueType::BASE_NUMBER:
+			sources[vstd::to_underlying(b->source)].base += b->val;
 			break;
-		case Bonus::PERCENT_TO_ALL:
-			sources[b->source].percentToAll += b->val;
+		case BonusValueType::PERCENT_TO_ALL:
+			sources[vstd::to_underlying(b->source)].percentToAll += b->val;
 			break;
-		case Bonus::PERCENT_TO_BASE:
-			sources[b->source].percentToBase += b->val;
+		case BonusValueType::PERCENT_TO_BASE:
+			sources[vstd::to_underlying(b->source)].percentToBase += b->val;
 			break;
-		case Bonus::PERCENT_TO_SOURCE:
-			sources[b->source].percentToSource += b->val;
+		case BonusValueType::PERCENT_TO_SOURCE:
+			sources[vstd::to_underlying(b->source)].percentToSource += b->val;
 			break;
-		case Bonus::PERCENT_TO_TARGET_TYPE:
-			sources[b->targetSourceType].percentToSource += b->val;
+		case BonusValueType::PERCENT_TO_TARGET_TYPE:
+			sources[vstd::to_underlying(b->targetSourceType)].percentToSource += b->val;
 			break;
-		case Bonus::ADDITIVE_VALUE:
-			sources[b->source].additive += b->val;
+		case BonusValueType::ADDITIVE_VALUE:
+			sources[vstd::to_underlying(b->source)].additive += b->val;
 			break;
-		case Bonus::INDEPENDENT_MAX:
+		case BonusValueType::INDEPENDENT_MAX:
 			hasIndepMax = true;
-			vstd::amax(sources[b->source].indepMax, b->val);
+			vstd::amax(sources[vstd::to_underlying(b->source)].indepMax, b->val);
 			break;
-		case Bonus::INDEPENDENT_MIN:
+		case BonusValueType::INDEPENDENT_MIN:
 			hasIndepMin = true;
-			vstd::amin(sources[b->source].indepMin, b->val);
+			vstd::amin(sources[vstd::to_underlying(b->source)].indepMin, b->val);
 			break;
 		}
 	}
@@ -155,7 +155,7 @@ int BonusList::totalValue() const
 
 	const int notIndepBonuses = static_cast<int>(std::count_if(bonuses.cbegin(), bonuses.cend(), [](const std::shared_ptr<Bonus>& b)
 	{
-		return b->valType != Bonus::INDEPENDENT_MAX && b->valType != Bonus::INDEPENDENT_MIN;
+		return b->valType != BonusValueType::INDEPENDENT_MAX && b->valType != BonusValueType::INDEPENDENT_MIN;
 	}));
 
 	if(notIndepBonuses)
@@ -190,7 +190,7 @@ void BonusList::getBonuses(BonusList & out, const CSelector &selector, const CSe
 	for(const auto & b : bonuses)
 	{
 		//add matching bonuses that matches limit predicate or have NO_LIMIT if no given predicate
-		auto noFightLimit = b->effectRange == Bonus::NO_LIMIT;
+		auto noFightLimit = b->effectRange == BonusLimitEffect::NO_LIMIT;
 		if(selector(b.get()) && ((!limit && noFightLimit) || ((bool)limit && limit(b.get()))))
 			out.push_back(b);
 	}

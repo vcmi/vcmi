@@ -66,7 +66,7 @@ CBonusTypeHandler::~CBonusTypeHandler()
 
 std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer, bool description) const
 {
-	const CBonusType & bt = bonusTypes[bonus->type];
+	const CBonusType & bt = bonusTypes[vstd::to_underlying(bonus->type)];
 	if(bt.hidden)
 		return "";
 
@@ -92,14 +92,14 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 
 	switch(bonus->type)
 	{
-	case Bonus::SPELL_IMMUNITY:
+	case BonusType::SPELL_IMMUNITY:
 	{
 		fullPath = true;
 		const CSpell * sp = SpellID(bonus->subtype).toSpell();
 		fileName = sp->getIconImmune();
 		break;
 	}
-	case Bonus::FIRE_IMMUNITY:
+	case BonusType::FIRE_IMMUNITY:
 		switch(bonus->subtype)
 		{
 		case 0:
@@ -113,7 +113,7 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 			break;//direct damage
 		}
 		break;
-	case Bonus::WATER_IMMUNITY:
+	case BonusType::WATER_IMMUNITY:
 		switch(bonus->subtype)
 		{
 		case 0:
@@ -127,7 +127,7 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 			break;//direct damage
 		}
 		break;
-	case Bonus::AIR_IMMUNITY:
+	case BonusType::AIR_IMMUNITY:
 		switch(bonus->subtype)
 		{
 		case 0:
@@ -141,7 +141,7 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 			break;//direct damage
 		}
 		break;
-	case Bonus::EARTH_IMMUNITY:
+	case BonusType::EARTH_IMMUNITY:
 		switch(bonus->subtype)
 		{
 		case 0:
@@ -153,7 +153,7 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 			break;//not positive
 		}
 		break;
-	case Bonus::LEVEL_SPELL_IMMUNITY:
+	case BonusType::LEVEL_SPELL_IMMUNITY:
 	{
 		if(vstd::iswithin(bonus->val, 1, 5))
 		{
@@ -161,7 +161,7 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 		}
 		break;
 	}
-	case Bonus::KING:
+	case BonusType::KING:
 	{
 		if(vstd::iswithin(bonus->val, 0, 3))
 		{
@@ -169,7 +169,7 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 		}
 		break;
 	}
-	case Bonus::GENERAL_DAMAGE_REDUCTION:
+	case BonusType::GENERAL_DAMAGE_REDUCTION:
 	{
 		switch(bonus->subtype)
 		{
@@ -185,7 +185,7 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 
 	default:
 		{
-			const CBonusType & bt = bonusTypes[bonus->type];
+			const CBonusType & bt = bonusTypes[vstd::to_underlying(bonus->type)];
 			fileName = bt.icon;
 			fullPath = true;
 		}
@@ -224,7 +224,7 @@ void CBonusTypeHandler::load(const JsonNode & config)
 		}
 		else
 		{
-			CBonusType & bt = bonusTypes[it->second];
+			CBonusType & bt = bonusTypes[vstd::to_underlying(it->second)];
 
 			loadItem(node.second, bt, node.first);
 			logBonus->trace("Loaded bonus type %s", node.first);

@@ -152,7 +152,7 @@ int CTotalsProxy::getValueAndList(TConstBonusListPtr & outBonusList) const
 
 int CTotalsProxy::getMeleeValue() const
 {
-	static const auto limit = Selector::effectRange()(Bonus::NO_LIMIT).Or(Selector::effectRange()(Bonus::ONLY_MELEE_FIGHT));
+	static const auto limit = Selector::effectRange()(BonusLimitEffect::NO_LIMIT).Or(Selector::effectRange()(BonusLimitEffect::ONLY_MELEE_FIGHT));
 
 	const auto treeVersion = target->getTreeVersion();
 
@@ -168,7 +168,7 @@ int CTotalsProxy::getMeleeValue() const
 
 int CTotalsProxy::getRangedValue() const
 {
-	static const auto limit = Selector::effectRange()(Bonus::NO_LIMIT).Or(Selector::effectRange()(Bonus::ONLY_DISTANCE_FIGHT));
+	static const auto limit = Selector::effectRange()(BonusLimitEffect::NO_LIMIT).Or(Selector::effectRange()(BonusLimitEffect::ONLY_DISTANCE_FIGHT));
 
 	const auto treeVersion = target->getTreeVersion();
 

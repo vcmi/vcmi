@@ -1225,11 +1225,11 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus &bonus, bool gain )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (bonus.type == Bonus::NONE)
+	if (bonus.type == BonusType::NONE)
 		return;
 
 	adventureInt->onHeroChanged(hero);
-	if ((bonus.type == Bonus::FLYING_MOVEMENT || bonus.type == Bonus::WATER_WALKING) && !gain)
+	if ((bonus.type == BonusType::FLYING_MOVEMENT || bonus.type == BonusType::WATER_WALKING) && !gain)
 	{
 		//recalculate paths because hero has lost bonus influencing pathfinding
 		localState->erasePath(hero);

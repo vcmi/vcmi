@@ -244,12 +244,12 @@ TEST_P(SummonApplyTest, UpdatesOldUnit)
 	setDefaultExpectaions();
 
 	acquired = std::make_shared<battle::UnitFake>();
-	acquired->addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, unitHealth, 0));
+	acquired->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHealth, 0));
 	acquired->redirectBonusesToFake();
 	acquired->expectAnyBonusSystemCall();
 
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
-	unit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, unitHealth, 0));
+	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHealth, 0));
 
 	{
 		EXPECT_CALL(unit, acquire()).WillOnce(Return(acquired));

@@ -140,7 +140,7 @@ bool BattleActionsController::isActiveStackSpellcaster() const
 	if (!casterStack)
 		return false;
 
-	bool spellcaster = casterStack->hasBonusOfType(Bonus::SPELLCASTER);
+	bool spellcaster = casterStack->hasBonusOfType(BonusType::SPELLCASTER);
 	return (spellcaster && casterStack->canCast());
 }
 
@@ -228,7 +228,7 @@ void BattleActionsController::reorderPossibleActionsPriority(const CStack * stac
 		case PossiblePlayerBattleAction::NO_LOCATION:
 		case PossiblePlayerBattleAction::FREE_LOCATION:
 		case PossiblePlayerBattleAction::OBSTACLE:
-			if(!stack->hasBonusOfType(Bonus::NO_SPELLCAST_BY_DEFAULT) && context == MouseHoveredHexContext::OCCUPIED_HEX)
+			if(!stack->hasBonusOfType(BonusType::NO_SPELLCAST_BY_DEFAULT) && context == MouseHoveredHexContext::OCCUPIED_HEX)
 				return 1;
 			else
 				return 100;//bottom priority
@@ -349,7 +349,7 @@ void BattleActionsController::actionSetCursor(PossiblePlayerBattleAction action,
 
 		case PossiblePlayerBattleAction::MOVE_TACTICS:
 		case PossiblePlayerBattleAction::MOVE_STACK:
-			if (owner.stacksController->getActiveStack()->hasBonusOfType(Bonus::FLYING))
+			if (owner.stacksController->getActiveStack()->hasBonusOfType(BonusType::FLYING))
 				CCS->curh->set(Cursor::Combat::FLY);
 			else
 				CCS->curh->set(Cursor::Combat::MOVE);
@@ -434,7 +434,7 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 
 		case PossiblePlayerBattleAction::MOVE_TACTICS:
 		case PossiblePlayerBattleAction::MOVE_STACK:
-			if (owner.stacksController->getActiveStack()->hasBonusOfType(Bonus::FLYING))
+			if (owner.stacksController->getActiveStack()->hasBonusOfType(BonusType::FLYING))
 				return (boost::format(CGI->generaltexth->allTexts[295]) % owner.stacksController->getActiveStack()->getName()).str(); //Fly %s here
 			else
 				return (boost::format(CGI->generaltexth->allTexts[294]) % owner.stacksController->getActiveStack()->getName()).str(); //Move %s here
@@ -863,7 +863,7 @@ void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterS
 {
 	creatureSpells.clear();
 
-	bool spellcaster = casterStack->hasBonusOfType(Bonus::SPELLCASTER);
+	bool spellcaster = casterStack->hasBonusOfType(BonusType::SPELLCASTER);
 	if(casterStack->canCast() && spellcaster)
 	{
 		// faerie dragon can cast only one, randomly selected spell until their next move
@@ -874,7 +874,7 @@ void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterS
 			creatureSpells.push_back(spellToCast);
 	}
 
-	TConstBonusListPtr bl = casterStack->getBonuses(Selector::type()(Bonus::SPELLCASTER));
+	TConstBonusListPtr bl = casterStack->getBonuses(Selector::type()(BonusType::SPELLCASTER));
 
 	for (auto const & bonus : *bl)
 	{

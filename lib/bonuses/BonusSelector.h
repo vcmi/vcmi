@@ -125,20 +125,20 @@ public:
 
 namespace Selector
 {
-	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> & type();
+	extern DLL_LINKAGE CSelectFieldEqual<BonusType> & type();
 	extern DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> & subtype();
 	extern DLL_LINKAGE CSelectFieldEqual<CAddInfo> & info();
-	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> & sourceType();
-	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> & targetSourceType();
-	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> & effectRange();
+	extern DLL_LINKAGE CSelectFieldEqual<BonusSource> & sourceType();
+	extern DLL_LINKAGE CSelectFieldEqual<BonusSource> & targetSourceType();
+	extern DLL_LINKAGE CSelectFieldEqual<BonusLimitEffect> & effectRange();
 	extern DLL_LINKAGE CWillLastTurns turns;
 	extern DLL_LINKAGE CWillLastDays days;
 
-	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype);
-	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, const CAddInfo & info);
-	CSelector DLL_LINKAGE source(Bonus::BonusSource source, ui32 sourceID);
-	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source);
-	CSelector DLL_LINKAGE valueType(Bonus::ValueType valType);
+	CSelector DLL_LINKAGE typeSubtype(BonusType Type, TBonusSubtype Subtype);
+	CSelector DLL_LINKAGE typeSubtypeInfo(BonusType type, TBonusSubtype subtype, const CAddInfo & info);
+	CSelector DLL_LINKAGE source(BonusSource source, ui32 sourceID);
+	CSelector DLL_LINKAGE sourceTypeSel(BonusSource source);
+	CSelector DLL_LINKAGE valueType(BonusValueType valType);
 
 	/**
 	 * Selects all bonuses

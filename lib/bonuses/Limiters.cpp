@@ -30,9 +30,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 const std::map<std::string, TLimiterPtr> bonusLimiterMap =
 {
-	{"SHOOTER_ONLY", std::make_shared<HasAnotherBonusLimiter>(Bonus::SHOOTER)},
-	{"DRAGON_NATURE", std::make_shared<HasAnotherBonusLimiter>(Bonus::DRAGON_NATURE)},
-	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(Bonus::UNDEAD)},
+	{"SHOOTER_ONLY", std::make_shared<HasAnotherBonusLimiter>(BonusType::SHOOTER)},
+	{"DRAGON_NATURE", std::make_shared<HasAnotherBonusLimiter>(BonusType::DRAGON_NATURE)},
+	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(BonusType::UNDEAD)},
 	{"CREATURE_NATIVE_TERRAIN", std::make_shared<CreatureTerrainLimiter>()},
 	{"CREATURE_FACTION", std::make_shared<AllOfLimiter>(std::initializer_list<TLimiterPtr>{std::make_shared<CreatureLevelLimiter>(), std::make_shared<FactionLimiter>()})},
 	{"SAME_FACTION", std::make_shared<FactionLimiter>()},
@@ -136,22 +136,22 @@ JsonNode CCreatureTypeLimiter::toJsonNode() const
 	return root;
 }
 
-HasAnotherBonusLimiter::HasAnotherBonusLimiter( Bonus::BonusType bonus )
+HasAnotherBonusLimiter::HasAnotherBonusLimiter( BonusType bonus )
 	: type(bonus), subtype(0), isSubtypeRelevant(false), isSourceRelevant(false), isSourceIDRelevant(false)
 {
 }
 
-HasAnotherBonusLimiter::HasAnotherBonusLimiter( Bonus::BonusType bonus, TBonusSubtype _subtype )
+HasAnotherBonusLimiter::HasAnotherBonusLimiter( BonusType bonus, TBonusSubtype _subtype )
 	: type(bonus), subtype(_subtype), isSubtypeRelevant(true), isSourceRelevant(false), isSourceIDRelevant(false)
 {
 }
 
-HasAnotherBonusLimiter::HasAnotherBonusLimiter(Bonus::BonusType bonus, Bonus::BonusSource src)
+HasAnotherBonusLimiter::HasAnotherBonusLimiter(BonusType bonus, BonusSource src)
 	: type(bonus), source(src), isSubtypeRelevant(false), isSourceRelevant(true), isSourceIDRelevant(false)
 {
 }
 
-HasAnotherBonusLimiter::HasAnotherBonusLimiter(Bonus::BonusType bonus, TBonusSubtype _subtype, Bonus::BonusSource src)
+HasAnotherBonusLimiter::HasAnotherBonusLimiter(BonusType bonus, TBonusSubtype _subtype, BonusSource src)
 	: type(bonus), subtype(_subtype), isSubtypeRelevant(true), source(src), isSourceRelevant(true), isSourceIDRelevant(false)
 {
 }
@@ -303,10 +303,10 @@ ILimiter::EDecision FactionLimiter::limit(const BonusLimitationContext &context)
 
 		switch(context.b.source)
 		{
-			case Bonus::CREATURE_ABILITY:
+			case BonusSource::CREATURE_ABILITY:
 				return bearer->getFaction() == CreatureID(context.b.sid).toCreature()->getFaction() ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 			
-			case Bonus::TOWN_STRUCTURE:
+			case BonusSource::TOWN_STRUCTURE:
 				return bearer->getFaction() == FactionID(Bonus::getHighFromSid32(context.b.sid)) ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 
 			//TODO: other sources of bonuses
