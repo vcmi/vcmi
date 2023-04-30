@@ -10,6 +10,7 @@
 #pragma once
 
 #include "bonuses/HeroBonus.h"
+#include "bonuses/CBonusSystemNode.h"
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
 #include "GameConstants.h"

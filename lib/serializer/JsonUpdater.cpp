@@ -12,6 +12,7 @@
 
 #include "../JsonNode.h"
 
+#include "../bonuses/CBonusSystemNode.h"
 #include "../bonuses/HeroBonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

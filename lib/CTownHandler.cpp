@@ -24,6 +24,7 @@
 #include "mapObjects/CObjectClassesHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "bonuses/HeroBonus.h"
+#include "bonuses/Propagators.h"
 #include "ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

@@ -15,6 +15,7 @@
 #include "../CBonusTypeHandler.h"
 #include "../battle/CBattleInfoCallback.h"
 #include "../battle/Unit.h"
+#include "../bonuses/BonusParams.h"
 
 #include "../serializer/JsonSerializeFormat.h"
 #include "../VCMI_Lib.h"

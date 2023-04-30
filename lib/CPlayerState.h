@@ -13,6 +13,7 @@
 #include <vcmi/Team.h>
 
 #include "bonuses/HeroBonus.h"
+#include "bonuses/CBonusSystemNode.h"
 #include "ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
