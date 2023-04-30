@@ -47,7 +47,7 @@ public:
 };
 
 //helper class for calculating values of hero bonuses without bonuses from picked up artifact
-class CHeroWithMaybePickedArtifact : public IBonusBearer, public IFactionMember
+class CHeroWithMaybePickedArtifact : public IBonusBearer, public AFactionMember
 {
 public:
 	const CGHeroInstance * hero;

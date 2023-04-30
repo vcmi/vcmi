@@ -21,7 +21,7 @@ namespace PrimarySkill
     enum PrimarySkill : int8_t;
 }
 
-class DLL_LINKAGE IFactionMember: public IConstBonusProvider, public INativeTerrainProvider
+class DLL_LINKAGE AFactionMember: public IConstBonusProvider, public INativeTerrainProvider
 {
 public:
 	/**

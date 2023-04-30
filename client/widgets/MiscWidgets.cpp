@@ -372,7 +372,7 @@ CTownTooltip::CTownTooltip(Point pos, const CGTownInstance * town)
 	init(InfoAboutTown(town, true));
 }
 
-void MoraleLuckBox::set(const IFactionMember * node)
+void MoraleLuckBox::set(const AFactionMember * node)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 

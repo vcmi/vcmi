@@ -64,7 +64,7 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
-class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public ICreature
+class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public ACreature
 {
 protected:
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object

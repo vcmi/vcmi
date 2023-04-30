@@ -19,7 +19,7 @@ class ResourceSet;
 enum class EGameResID : int8_t;
 
 /// Base class for creatures and battle stacks
-class DLL_LINKAGE ICreature: public IFactionMember
+class DLL_LINKAGE ACreature: public AFactionMember
 {
 public:
 	bool isLiving() const; //non-undead, non-non living or alive
@@ -28,7 +28,7 @@ public:
 };
 
 template <typename IdType>
-class DLL_LINKAGE CreatureEntity : public EntityT<IdType>, public ICreature
+class DLL_LINKAGE CreatureEntity : public EntityT<IdType>, public ACreature
 {
 };
 

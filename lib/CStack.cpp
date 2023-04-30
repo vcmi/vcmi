@@ -89,7 +89,7 @@ ui32 CStack::level() const
 
 si32 CStack::magicResistance() const
 {
-	auto magicResistance = IFactionMember::magicResistance();
+	auto magicResistance = AFactionMember::magicResistance();
 
 	si32 auraBonus = 0;
 
