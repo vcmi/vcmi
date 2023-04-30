@@ -12,7 +12,7 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
-#include "../gui/EShortcut.h"
+#include "../gui/Shortcut.h"
 
 #include "Buttons.h"
 

@@ -48,4 +48,17 @@
 			{ "x":404, "y":414, "file":"DATA/SECRET.H3C",  "image":"CAMPSP1", "video":"SPECTRE", "open": true }
 		]
 	}
+//	"wog" : 
+//	{
+//		/// wog campaigns, currently has no assigned button in campaign screen and thus unused
+//		"images" : [ {"x": 0, "y": 0, "name":"CAMPZALL"} ],
+//		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN", "hotkey" : 27},
+//		"items":
+//		[
+//			{ "x":90,  "y":72,  "file":"DATA/ZC1.H3C", "image":"CAMPZ01", "open": true},
+//			{ "x":539, "y":72,  "file":"DATA/ZC2.H3C", "image":"CAMPZ02", "open": true},
+//			{ "x":43,  "y":245, "file":"DATA/ZC3.H3C", "image":"CAMPZ03", "open": true},
+//			{ "x":311, "y":242, "file":"DATA/ZC4.H3C", "image":"CAMPZ04", "open": true}
+//		]
+//	}
 }
