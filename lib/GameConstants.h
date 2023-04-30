@@ -1339,7 +1339,6 @@ enum class EHealPower : ui8
 
 // Typedef declarations
 using TExpType = si64;
-using TBonusSubtype = si32;
 using TQuantity = si32;
 
 using TRmgTemplateZoneId = int;

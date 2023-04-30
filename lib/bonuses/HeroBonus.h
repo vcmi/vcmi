@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "../GameConstants.h"
 #include "../JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -22,6 +21,7 @@ class IPropagator;
 class IUpdater;
 class BonusList;
 
+using TBonusSubtype = int32_t;
 using TBonusListPtr = std::shared_ptr<BonusList>;
 using TConstBonusListPtr = std::shared_ptr<const BonusList>;
 using TLimiterPtr = std::shared_ptr<ILimiter>;
