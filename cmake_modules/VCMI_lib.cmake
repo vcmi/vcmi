@@ -65,11 +65,13 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapObjects/CObjectHandler.cpp
 		${MAIN_LIB_DIR}/mapObjects/CommonConstructors.cpp
 		${MAIN_LIB_DIR}/mapObjects/CQuest.cpp
+		${MAIN_LIB_DIR}/mapObjects/CRandomRewardObjectInfo.cpp
 		${MAIN_LIB_DIR}/mapObjects/CRewardableConstructor.cpp
 		${MAIN_LIB_DIR}/mapObjects/CRewardableObject.cpp
 		${MAIN_LIB_DIR}/mapObjects/JsonRandom.cpp
 		${MAIN_LIB_DIR}/mapObjects/MiscObjects.cpp
 		${MAIN_LIB_DIR}/mapObjects/ObjectTemplate.cpp
+		${MAIN_LIB_DIR}/mapObjects/Rewardable.cpp
 
 		${MAIN_LIB_DIR}/mapping/CCampaignHandler.cpp
 		${MAIN_LIB_DIR}/mapping/CDrawRoadsOperation.cpp
@@ -337,12 +339,14 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapObjects/CObjectHandler.h
 		${MAIN_LIB_DIR}/mapObjects/CommonConstructors.h
 		${MAIN_LIB_DIR}/mapObjects/CQuest.h
+		${MAIN_LIB_DIR}/mapObjects/CRandomRewardObjectInfo.h
 		${MAIN_LIB_DIR}/mapObjects/CRewardableConstructor.h
 		${MAIN_LIB_DIR}/mapObjects/CRewardableObject.h
 		${MAIN_LIB_DIR}/mapObjects/JsonRandom.h
 		${MAIN_LIB_DIR}/mapObjects/MapObjects.h
 		${MAIN_LIB_DIR}/mapObjects/MiscObjects.h
 		${MAIN_LIB_DIR}/mapObjects/ObjectTemplate.h
+		${MAIN_LIB_DIR}/mapObjects/Rewardable.h
 
 		${MAIN_LIB_DIR}/mapping/CCampaignHandler.h
 		${MAIN_LIB_DIR}/mapping/CDrawRoadsOperation.h
