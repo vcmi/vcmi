@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "Configuration.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
