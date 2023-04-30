@@ -413,11 +413,6 @@ void BonusList::insert(BonusList::TInternalContainer::iterator position, BonusLi
 	changed();
 }
 
-int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
-{
-	return valOfBonuses(Selector::type()(type).And(selector));
-}
-
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype) const
 {
 	//This part is performance-critical
