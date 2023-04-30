@@ -424,3 +424,30 @@ void WindowHandler::clearScreen()
 	SDL_RenderClear(mainRenderer);
 	SDL_RenderPresent(mainRenderer);
 }
+
+std::vector<Point> WindowHandler::getSupportedResolutions() const
+{
+	int displayID = SDL_GetWindowDisplayIndex(mainWindow);
+	return getSupportedResolutions(displayID);
+}
+
+std::vector<Point> WindowHandler::getSupportedResolutions( int displayIndex) const
+{
+	//TODO: check this method on iOS / Android
+
+	std::vector<Point> result;
+
+	int modesCount = SDL_GetNumDisplayModes(displayIndex);
+
+	for (int i =0; i < modesCount; ++i)
+	{
+		SDL_DisplayMode mode;
+		if (SDL_GetDisplayMode(displayIndex, i, &mode) != 0)
+			continue;
+
+		Point resolution(mode.w, mode.h);
+
+		result.push_back(resolution);
+	}
+	return result;
+}

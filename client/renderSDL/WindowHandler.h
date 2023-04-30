@@ -16,6 +16,7 @@ struct SDL_Renderer;
 struct SDL_Surface;
 
 #include "../../lib/Point.h"
+#include "../render/IWindowHandler.h"
 
 enum class EWindowMode
 {
@@ -29,7 +30,7 @@ enum class EWindowMode
 };
 
 /// This class is responsible for management of game window and its main rendering surface
-class WindowHandler
+class WindowHandler : public IWindowHandler
 {
 	/// Dimensions of target surfaces/textures, this value is what game logic views as screen size
 	Point getPreferredLogicalResolution() const;
@@ -67,11 +68,14 @@ public:
 	WindowHandler();
 
 	/// Updates and potentially recreates target screen to match selected fullscreen status
-	void onFullscreenChanged();
+	void onFullscreenChanged() final;
 
 	/// De-initializes and destroys screen, window and SDL state
-	void close();
+	void close() final;
 
 	/// Fills screen with black color, erasing any existing content
-	void clearScreen();
+	void clearScreen() final;
+
+	std::vector<Point> getSupportedResolutions() const final;
+	std::vector<Point> getSupportedResolutions(int displayIndex) const;
 };

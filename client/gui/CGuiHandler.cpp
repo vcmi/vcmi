@@ -807,7 +807,7 @@ void CGuiHandler::pushUserEvent(EUserEvent usercode, void * userdata)
 	SDL_PushEvent(&event);
 }
 
-WindowHandler & CGuiHandler::windowHandler()
+IWindowHandler & CGuiHandler::windowHandler()
 {
 	return *windowHandlerInstance;
 }

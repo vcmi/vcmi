@@ -24,7 +24,7 @@
 #include "gui/NotificationHandler.h"
 #include "ClientCommandManager.h"
 #include "windows/CMessage.h"
-#include "renderSDL/WindowHandler.h"
+#include "render/IWindowHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/CConsoleHandler.h"

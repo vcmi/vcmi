@@ -203,6 +203,7 @@ set(client_HEADERS
 	render/IFont.h
 	render/IImage.h
 	render/IImageLoader.h
+	render/IWindowHandler.h
 
 	renderSDL/CBitmapFont.h
 	renderSDL/CBitmapHanFont.h
