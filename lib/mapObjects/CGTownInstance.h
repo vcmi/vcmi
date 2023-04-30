@@ -206,6 +206,7 @@ public:
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
 private:
 	void setOwner(const PlayerColor & owner) const;

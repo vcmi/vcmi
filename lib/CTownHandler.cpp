@@ -628,10 +628,10 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 				bonus->sid = Bonus::getSid32(ret->town->faction->getIndex(), ret->bid);
 		}
 		
-		if(!source["rewards"].isNull() && ret->subId == BuildingSubID::NONE)
+		if(source["type"].String() == "configurable" && ret->subId == BuildingSubID::NONE)
 		{
 			ret->subId = BuildingSubID::CONFIGURABLE_REWARD;
-			ret->rewardableObjectInfo.init(source["rewards"]);
+			ret->rewardableObjectInfo.init(source);
 		}
 	}
 	//MODS COMPATIBILITY FOR 0.96

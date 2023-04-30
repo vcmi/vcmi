@@ -315,13 +315,18 @@ void CTownRewardableBuilding::heroLevelUpDone(const CGHeroInstance *hero) const
 
 void CTownRewardableBuilding::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
+	if(visitors.find(hero->id) != visitors.end())
+		return; // query not for this building
+	
 	if(answer == 0)
+	{
+		cb->setObjProperty(town->id, ObjProperty::STRUCTURE_CLEAR_VISITORS, indexOnTV);
 		return; // player refused
+	}
 
 	if(answer > 0 && answer-1 < configuration.info.size())
 	{
 		auto list = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
-		//markAsVisited(hero);
 		grantReward(list[answer - 1], hero);
 	}
 	else
@@ -332,8 +337,8 @@ void CTownRewardableBuilding::blockingDialogAnswered(const CGHeroInstance *hero,
 
 void CTownRewardableBuilding::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
 {
-	//cb->setObjProperty(town->id, ObjProperty::REWARD_SELECT, manaVortex->indexOnTV); //reset visitors for Mana Vortex
-	//cb->setObjProperty(ObjectInstanceID(indexOnTV), ObjProperty::REWARD_SELECT, rewardID);
+	town->addHeroToStructureVisitors(hero, indexOnTV);
+	
 	grantRewardBeforeLevelup(cb, configuration.info.at(rewardID), hero);
 	
 	// hero is not blocked by levelup dialog - grant remainer immediately
@@ -368,6 +373,8 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 	{
 		auto vi = configuration.info.at(index);
 		logGlobal->debug("Granting reward %d. Message says: %s", index, vi.message.toString());
+		
+		town->addHeroToStructureVisitors(h, indexOnTV); //adding to visitors
 
 		InfoWindow iw;
 		iw.player = h->tempOwner;
@@ -377,7 +384,7 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 		if(!iw.components.empty() || !iw.text.toString().empty())
 			cb->showInfoDialog(&iw);
 		
-		//grantReward(index, h);
+		grantReward(index, h);
 	};
 	auto selectRewardsMessage = [&](const std::vector<ui32> & rewards, const MetaString & dialog) -> void
 	{
@@ -400,8 +407,6 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 
 	if(!wasVisitedBefore(h))
 	{
-		town->addHeroToStructureVisitors(h, indexOnTV);
-		
 		auto rewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT);
 
 		logGlobal->debug("Visiting object with %d possible rewards", rewards.size());
@@ -442,11 +447,11 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 			}
 		}
 
-		if(getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
+		/*if(getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
 		{
-			//ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
-			//cb->sendAndApply(&cov);
-		}
+			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
+			cb->sendAndApply(&cov);
+		}*/
 	}
 	else
 	{

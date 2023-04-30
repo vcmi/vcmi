@@ -53,7 +53,7 @@ void CGTownInstance::setPropertyDer(ui8 what, ui32 val)
 ///this is freakin' overcomplicated solution
 	switch (what)
 	{
-	case ObjProperty::STRUCTURE_ADD_VISITING_HERO:
+		case ObjProperty::STRUCTURE_ADD_VISITING_HERO:
 			bonusingBuildings[val]->setProperty (ObjProperty::VISITORS, visitingHero->id.getNum());
 			break;
 		case ObjProperty::STRUCTURE_CLEAR_VISITORS:
@@ -260,6 +260,12 @@ void CGTownInstance::setOwner(const PlayerColor & player) const
 	cb->setOwner(this, player);
 }
 
+void CGTownInstance::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+{
+	for (auto building : bonusingBuildings)
+		building->blockingDialogAnswered(hero, answer);
+}
+
 void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 {
 	if(!cb->gameState()->getPlayerRelations( getOwner(), h->getOwner() ))//if this is enemy
@@ -383,6 +389,19 @@ void CGTownInstance::addTownBonuses(CRandomGenerator & rand)
 		{
 			auto * newBuilding = new CTownRewardableBuilding(kvp.second->bid, kvp.second->subId, this);
 			kvp.second->rewardableObjectInfo.configureObject(newBuilding->configuration, rand);
+			for(auto & rewardInfo : newBuilding->configuration.info)
+			{
+				for (auto & bonus : rewardInfo.reward.bonuses)
+				{
+					bonus.source = Bonus::TOWN_STRUCTURE;
+					bonus.sid = kvp.second->bid;
+					//TODO: bonus.description = object->getObjectName();
+					if (bonus.type == Bonus::MORALE)
+						rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::MORALE, 0, bonus.val, 0);
+					if (bonus.type == Bonus::LUCK)
+						rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::LUCK, 0, bonus.val, 0);
+				}
+			}
 			bonusingBuildings.push_back(newBuilding);
 		}
 	}
