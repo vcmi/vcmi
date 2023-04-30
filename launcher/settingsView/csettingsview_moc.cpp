@@ -155,8 +155,8 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 		ui->comboBoxResolution->addItem(resolutionToString(resolution));
 	}
 
-	int resX = settings["video"]["screenRes"]["width"].Integer();
-	int resY = settings["video"]["screenRes"]["height"].Integer();
+	int resX = settings["video"]["resolution"]["width"].Integer();
+	int resY = settings["video"]["resolution"]["height"].Integer();
 	int resIndex = ui->comboBoxResolution->findText(resolutionToString({resX, resY}));
 	ui->comboBoxResolution->setCurrentIndex(resIndex);
 
@@ -186,7 +186,7 @@ void CSettingsView::on_comboBoxResolution_currentTextChanged(const QString & arg
 {
 	QStringList list = arg1.split("x");
 
-	Settings node = settings.write["video"]["screenRes"];
+	Settings node = settings.write["video"]["resolution"];
 	node["width"].Float() = list[0].toInt();
 	node["height"].Float() = list[1].toInt();
 }

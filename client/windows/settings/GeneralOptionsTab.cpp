@@ -115,7 +115,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 	build(config);
 
 	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
-	const auto & currentResolution = settings["video"]["screenRes"];
+	const auto & currentResolution = settings["video"]["resolution"];
 	resolutionLabel->setText(resolutionToLabelString(currentResolution["width"].Integer(), currentResolution["height"].Integer()));
 
 	std::shared_ptr<CToggleButton> spellbookAnimationCheckbox = widget<CToggleButton>("spellbookAnimationCheckbox");
@@ -185,7 +185,7 @@ void GeneralOptionsTab::setGameResolution(int index)
 
 	Point resolution = supportedResolutions[index];
 
-	Settings gameRes = settings.write["video"]["screenRes"];
+	Settings gameRes = settings.write["video"]["resolution"];
 	gameRes["width"].Float() = resolution.x;
 	gameRes["height"].Float() = resolution.y;
 

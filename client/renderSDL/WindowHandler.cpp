@@ -35,8 +35,22 @@ static const std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") 
 
 Point WindowHandler::getPreferredLogicalResolution() const
 {
-	// TODO: CONFIGURABLE ADVMAP - IMPLEMENT UI SCALE SETTING
-	return {1280, 720};
+	// H3 resolution, any resolution smaller than that is not correctly supported
+	static const Point minResolution = {800, 600};
+	// arbitrary limit on *downscaling*. Allow some downscaling, if requested by user. Should be generally limited to 100+ for all but few devices
+	static const double minimalScaling = 50;
+
+	Point renderResolution = getPreferredRenderingResolution();
+	double userScaling = settings["video"]["resolution"]["scaling"].Float();
+	double maximalScalingWidth = 100.0 * renderResolution.x / minResolution.x;
+	double maximalScalingHeight = 100.0 * renderResolution.y / minResolution.y;
+	double maximalScaling = std::min(maximalScalingWidth, maximalScalingHeight);
+
+	double scaling = std::clamp(userScaling, minimalScaling, maximalScaling);
+
+	Point logicalResolution = renderResolution * 100.0 / scaling;
+
+	return logicalResolution;
 }
 
 Point WindowHandler::getPreferredRenderingResolution() const
@@ -50,8 +64,8 @@ Point WindowHandler::getPreferredRenderingResolution() const
 	else
 	{
 		const JsonNode & video = settings["video"];
-		int width = video["screenRes"]["width"].Integer();
-		int height = video["screenRes"]["height"].Integer();
+		int width = video["resolution"]["width"].Integer();
+		int height = video["resolution"]["height"].Integer();
 
 		return Point(width, height);
 	}
@@ -328,7 +342,7 @@ void WindowHandler::validateSettings()
 		{
 			if(resolution.x > mode.w || resolution.y > mode.h)
 			{
-				Settings writer = settings.write["video"]["screenRes"];
+				Settings writer = settings.write["video"]["resolution"];
 				writer["width"].Float() = mode.w;
 				writer["height"].Float() = mode.h;
 			}
