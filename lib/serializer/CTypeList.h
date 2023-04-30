@@ -66,17 +66,18 @@ class DLL_LINKAGE CTypeList: public boost::noncopyable
 {
 //public:
 	struct TypeDescriptor;
-	typedef std::shared_ptr<TypeDescriptor> TypeInfoPtr;
-	typedef std::weak_ptr<TypeDescriptor> WeakTypeInfoPtr;
+	using TypeInfoPtr = std::shared_ptr<TypeDescriptor>;
+	using WeakTypeInfoPtr = std::weak_ptr<TypeDescriptor>;
 	struct TypeDescriptor
 	{
 		ui16 typeID;
 		const char *name;
 		std::vector<WeakTypeInfoPtr> children, parents;
 	};
-	typedef boost::shared_mutex TMutex;
-	typedef boost::unique_lock<TMutex> TUniqueLock;
-	typedef boost::shared_lock<TMutex> TSharedLock;
+	using TMutex = boost::shared_mutex;
+	using TUniqueLock = boost::unique_lock<TMutex>;
+	using TSharedLock = boost::shared_lock<TMutex>;
+
 private:
 	mutable TMutex mx;
 
@@ -103,7 +104,7 @@ private:
 			if(!casters.count(castingPair))
 				THROW_FORMAT("Cannot find caster for conversion %s -> %s which is needed to cast %s -> %s", from->name % to->name % fromArg->name() % toArg->name());
 
-			auto &caster = casters.at(castingPair);
+			const auto & caster = casters.at(castingPair);
 			ptr = (*caster.*CastingFunction)(ptr); //Why does unique_ptr not have operator->* ..?
 		}
 
@@ -150,7 +151,7 @@ public:
 	template<typename TInput>
 	void * castToMostDerived(const TInput * inputPtr) const
 	{
-		auto &baseType = typeid(typename std::remove_cv<TInput>::type);
+		const auto & baseType = typeid(typename std::remove_cv<TInput>::type);
 		auto derivedType = getTypeInfo(inputPtr);
 
 		if (strcmp(baseType.name(), derivedType->name()) == 0)
@@ -166,7 +167,7 @@ public:
 	template<typename TInput>
 	std::any castSharedToMostDerived(const std::shared_ptr<TInput> inputPtr) const
 	{
-		auto &baseType = typeid(typename std::remove_cv<TInput>::type);
+		const auto & baseType = typeid(typename std::remove_cv<TInput>::type);
 		auto derivedType = getTypeInfo(inputPtr.get());
 
 		if (!strcmp(baseType.name(), derivedType->name()))

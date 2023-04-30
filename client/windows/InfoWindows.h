@@ -45,8 +45,8 @@ public:
 class CInfoWindow : public CSimpleWindow
 {
 public:
-	typedef std::vector<std::pair<std::string, CFunctionList<void()> > > TButtonsInfo;
-	typedef std::vector<std::shared_ptr<CComponent>> TCompsInfo;
+	using TButtonsInfo = std::vector<std::pair<std::string, CFunctionList<void()>>>;
+	using TCompsInfo = std::vector<std::shared_ptr<CComponent>>;
 	QueryID ID; //for identification
 	std::shared_ptr<CTextBox> text;
 	std::vector<std::shared_ptr<CButton>> buttons;

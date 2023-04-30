@@ -76,7 +76,7 @@ namespace Goals
 		//TODO: serialize?
 	};
 
-	typedef std::vector<TSubgoal> TGoalVec;
+	using TGoalVec = std::vector<TSubgoal>;
 
 	//method chaining + clone pattern
 #define VSETTER(type, field) virtual AbstractGoal & set ## field(const type &rhs) {field = rhs; return *this;};
@@ -121,8 +121,7 @@ namespace Goals
 			TSubgoal parent; VSETTER(TSubgoal, parent)
 			EvaluationContext evaluationContext; VSETTER(EvaluationContext, evaluationContext)
 
-			AbstractGoal(EGoals goal = EGoals::INVALID)
-			: goalType(goal), evaluationContext()
+		AbstractGoal(EGoals goal = EGoals::INVALID): goalType(goal)
 		{
 			priority = 0;
 			isElementar = false;

@@ -81,9 +81,9 @@ namespace Goals
 		bool operator<(const TSubgoal & rhs) const;
 	};
 
-	typedef std::shared_ptr<ITask> TTask;
-	typedef std::vector<TTask> TTaskVec;
-	typedef std::vector<TSubgoal> TGoalVec;
+	using TTask = std::shared_ptr<ITask>;
+	using TTaskVec = std::vector<TTask>;
+	using TGoalVec = std::vector<TSubgoal>;
 
 	//method chaining + clone pattern
 #define SETTER(type, field) AbstractGoal & set ## field(const type &rhs) {field = rhs; return *this;};
@@ -107,8 +107,7 @@ namespace Goals
 		const CGTownInstance *town; SETTER(CGTownInstance *, town)
 		int bid; SETTER(int, bid)
 
-		AbstractGoal(EGoals goal = EGoals::INVALID)
-			: goalType(goal), hero()
+		AbstractGoal(EGoals goal = EGoals::INVALID): goalType(goal)
 		{
 			isAbstract = false;
 			value = 0;

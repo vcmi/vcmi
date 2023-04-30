@@ -79,8 +79,8 @@ public:
 
 struct CasualtiesAfterBattle
 {
-	typedef std::pair<StackLocation, int> TStackAndItsNewCount;
-	typedef std::map<CreatureID, TQuantity> TSummoned;
+	using TStackAndItsNewCount = std::pair<StackLocation, int>;
+	using TSummoned = std::map<CreatureID, TQuantity>;
 	enum {ERASE = -1};
 	const CArmedInstance * army;
 	std::vector<TStackAndItsNewCount> newStackCounts;

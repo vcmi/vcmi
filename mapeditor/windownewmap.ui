@@ -213,59 +213,60 @@
        <height>68</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0,1">
-      <item row="0" column="3">
-       <widget class="QComboBox" name="humanTeamsCombo">
-        <property name="minimumSize">
-         <size>
-          <width>48</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>64</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="currentText">
-         <string notr="true">0</string>
-        </property>
+     <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0">
+      <item row="1" column="1">
+       <widget class="QComboBox" name="cpuCombo">
+        <item>
+         <property name="text">
+          <string>Random</string>
+         </property>
+        </item>
         <item>
          <property name="text">
           <string notr="true">0</string>
          </property>
         </item>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QComboBox" name="cpuTeamsCombo">
-        <property name="currentText">
-         <string notr="true">0</string>
-        </property>
         <item>
          <property name="text">
-          <string notr="true">0</string>
+          <string notr="true">1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">2</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">3</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">4</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">5</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">6</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">7</string>
          </property>
         </item>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="minimumSize">
-         <size>
-          <width>96</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>120</width>
-          <height>16777215</height>
-         </size>
-        </property>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>Human/Computer</string>
+         <string>Computer only</string>
         </property>
        </widget>
       </item>
@@ -330,87 +331,74 @@
         </item>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_4">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="minimumSize">
+         <size>
+          <width>96</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>120</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="text">
-         <string>Computer only</string>
+         <string>Human/Computer</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
+      <item row="0" column="3">
+       <widget class="QComboBox" name="humanTeamsCombo">
+        <property name="minimumSize">
          <size>
-          <width>40</width>
-          <height>20</height>
+          <width>0</width>
+          <height>0</height>
          </size>
         </property>
-       </spacer>
-      </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="cpuCombo">
-        <item>
-         <property name="text">
-          <string>Random</string>
-         </property>
-        </item>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="currentText">
+         <string notr="true">0</string>
+        </property>
         <item>
          <property name="text">
           <string notr="true">0</string>
          </property>
         </item>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Human teams</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QComboBox" name="cpuTeamsCombo">
+        <property name="currentText">
+         <string notr="true">0</string>
+        </property>
         <item>
          <property name="text">
-          <string notr="true">1</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">2</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">3</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">4</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">5</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">6</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">7</string>
+          <string notr="true">0</string>
          </property>
         </item>
        </widget>
       </item>
-      <item row="1" column="4">
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+      <item row="1" column="2">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Computer teams</string>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
+       </widget>
       </item>
      </layout>
     </widget>
