@@ -58,7 +58,7 @@ public:
 	BonusList buildingBonuses;
 	BonusList onVisitBonuses;
 	
-	CRandomRewardObjectInfo rewardableObjectInfo; ///configurable rewards for special buildings
+	Rewardable::Info rewardableObjectInfo; ///configurable rewards for special buildings
 
 	enum EBuildMode
 	{

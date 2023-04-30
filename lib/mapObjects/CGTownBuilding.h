@@ -11,7 +11,7 @@
 #pragma once
 
 #include "CObjectHandler.h"
-#include "Rewardable.h"
+#include "../rewardable/Interface.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -114,9 +114,17 @@ class DLL_LINKAGE CTownRewardableBuilding : public CGTownBuilding, public Reward
 	
 	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
 	
+	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
+	
 public:
 	void setProperty(ui8 what, ui32 val) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
+	
+	/// gives second part of reward after hero level-ups for proper granting of spells/mana
+	void heroLevelUpDone(const CGHeroInstance *hero) const override;
+	
+	/// applies player selection of reward
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 	
 	CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * TOWN);
 	CTownRewardableBuilding() = default;

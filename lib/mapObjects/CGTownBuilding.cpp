@@ -308,9 +308,44 @@ void CTownRewardableBuilding::setProperty(ui8 what, ui32 val)
 	}
 }
 
+void CTownRewardableBuilding::heroLevelUpDone(const CGHeroInstance *hero) const
+{
+	grantRewardAfterLevelup(cb, configuration.info.at(selectedReward), town, hero);
+}
+
+void CTownRewardableBuilding::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+{
+	if(answer == 0)
+		return; // player refused
+
+	if(answer > 0 && answer-1 < configuration.info.size())
+	{
+		auto list = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
+		//markAsVisited(hero);
+		grantReward(list[answer - 1], hero);
+	}
+	else
+	{
+		throw std::runtime_error("Unhandled choice");
+	}
+}
+
+void CTownRewardableBuilding::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
+{
+	//cb->setObjProperty(town->id, ObjProperty::REWARD_SELECT, manaVortex->indexOnTV); //reset visitors for Mana Vortex
+	//cb->setObjProperty(ObjectInstanceID(indexOnTV), ObjProperty::REWARD_SELECT, rewardID);
+	grantRewardBeforeLevelup(cb, configuration.info.at(rewardID), hero);
+	
+	// hero is not blocked by levelup dialog - grant remainer immediately
+	if(!cb->isVisitCoveredByAnotherQuery(town, hero))
+	{
+		grantRewardAfterLevelup(cb, configuration.info.at(rewardID), town, hero);
+	}
+}
+
 bool CTownRewardableBuilding::wasVisitedBefore(const CGHeroInstance * contextHero) const
 {
-	switch (getConfiguration().visitMode)
+	switch (configuration.visitMode)
 	{
 		case Rewardable::VISIT_UNLIMITED:
 			return false;
@@ -331,14 +366,14 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 {
 	auto grantRewardWithMessage = [&](int index) -> void
 	{
-		auto vi = getConfiguration().info.at(index);
+		auto vi = configuration.info.at(index);
 		logGlobal->debug("Granting reward %d. Message says: %s", index, vi.message.toString());
 
 		InfoWindow iw;
 		iw.player = h->tempOwner;
 		iw.text = vi.message;
 		vi.reward.loadComponents(iw.components, h);
-		iw.type = getConfiguration().infoWindowType;
+		iw.type = configuration.infoWindowType;
 		if(!iw.components.empty() || !iw.text.toString().empty())
 			cb->showInfoDialog(&iw);
 		
@@ -346,16 +381,16 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 	};
 	auto selectRewardsMessage = [&](const std::vector<ui32> & rewards, const MetaString & dialog) -> void
 	{
-		BlockingDialog sd(getConfiguration().canRefuse, rewards.size() > 1);
+		BlockingDialog sd(configuration.canRefuse, rewards.size() > 1);
 		sd.player = h->tempOwner;
 		sd.text = dialog;
 
 		if (rewards.size() > 1)
 			for (auto index : rewards)
-				sd.components.push_back(getConfiguration().info.at(index).reward.getDisplayedComponent(h));
+				sd.components.push_back(configuration.info.at(index).reward.getDisplayedComponent(h));
 
 		if (rewards.size() == 1)
-			getConfiguration().info.at(rewards.front()).reward.loadComponents(sd.components, h);
+			configuration.info.at(rewards.front()).reward.loadComponents(sd.components, h);
 
 		cb->showBlockingDialog(&sd);
 	};
@@ -367,14 +402,14 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 	{
 		town->addHeroToStructureVisitors(h, indexOnTV);
 		
-		auto rewards = getAvailableRewards(h, CRewardVisitInfo::EVENT_FIRST_VISIT);
+		auto rewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT);
 
 		logGlobal->debug("Visiting object with %d possible rewards", rewards.size());
 		switch (rewards.size())
 		{
 			case 0: // no available rewards, e.g. visiting School of War without gold
 			{
-				auto emptyRewards = getAvailableRewards(h, CRewardVisitInfo::EVENT_NOT_AVAILABLE);
+				auto emptyRewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_NOT_AVAILABLE);
 				if (!emptyRewards.empty())
 					grantRewardWithMessage(emptyRewards[0]);
 				else
@@ -383,17 +418,17 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 			}
 			case 1: // one reward. Just give it with message
 			{
-				if (getConfiguration().canRefuse)
-					selectRewardsMessage(rewards, getConfiguration().info.at(rewards.front()).message);
+				if (configuration.canRefuse)
+					selectRewardsMessage(rewards, configuration.info.at(rewards.front()).message);
 				else
 					grantRewardWithMessage(rewards.front());
 				break;
 			}
 			default: // multiple rewards. Act according to select mode
 			{
-				switch (getConfiguration().selectMode) {
+				switch (configuration.selectMode) {
 					case Rewardable::SELECT_PLAYER: // player must select
-						selectRewardsMessage(rewards, getConfiguration().onSelect);
+						selectRewardsMessage(rewards, configuration.onSelect);
 						break;
 					case Rewardable::SELECT_FIRST: // give first available
 						grantRewardWithMessage(rewards.front());
@@ -407,7 +442,7 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 			}
 		}
 
-		if(getAvailableRewards(h, CRewardVisitInfo::EVENT_FIRST_VISIT).empty())
+		if(getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
 		{
 			//ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
 			//cb->sendAndApply(&cov);
@@ -417,7 +452,7 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 	{
 		logGlobal->debug("Revisiting already visited object");
 
-		auto visitedRewards = getAvailableRewards(h, CRewardVisitInfo::EVENT_ALREADY_VISITED);
+		auto visitedRewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_ALREADY_VISITED);
 		if (!visitedRewards.empty())
 			grantRewardWithMessage(visitedRewards[0]);
 		else

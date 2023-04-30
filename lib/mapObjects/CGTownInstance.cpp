@@ -382,7 +382,7 @@ void CGTownInstance::addTownBonuses(CRandomGenerator & rand)
 		if(kvp.second->subId == BuildingSubID::CONFIGURABLE_REWARD)
 		{
 			auto * newBuilding = new CTownRewardableBuilding(kvp.second->bid, kvp.second->subId, this);
-			kvp.second->rewardableObjectInfo.configureObject(newBuilding->configuration(), rand);
+			kvp.second->rewardableObjectInfo.configureObject(newBuilding->configuration, rand);
 			bonusingBuildings.push_back(newBuilding);
 		}
 	}
