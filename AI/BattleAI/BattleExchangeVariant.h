@@ -56,10 +56,7 @@ struct EvaluationResult
 class BattleExchangeVariant
 {
 public:
-	BattleExchangeVariant()
-		:dpsScore(0), attackerValue()
-	{
-	}
+	BattleExchangeVariant(): dpsScore(0) {}
 
 	int64_t trackAttack(const AttackPossibility & ap, HypotheticBattle & state);
 
@@ -92,10 +89,7 @@ private:
 	std::vector<battle::Units> turnOrder;
 
 public:
-	BattleExchangeEvaluator(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env)
-		:cb(cb), reachabilityMap(), env(env), turnOrder()
-	{
-	}
+	BattleExchangeEvaluator(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env): cb(cb), env(env) {}
 
 	EvaluationResult findBestTarget(const battle::Unit * activeStack, PotentialTargets & targets, HypotheticBattle & hb);
 	int64_t calculateExchange(const AttackPossibility & ap, PotentialTargets & targets, HypotheticBattle & hb);

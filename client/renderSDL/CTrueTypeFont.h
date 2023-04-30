@@ -17,7 +17,7 @@ VCMI_LIB_NAMESPACE_END
 
 class CBitmapFont;
 
-typedef struct _TTF_Font TTF_Font;
+using TTF_Font = struct _TTF_Font;
 
 class CTrueTypeFont : public IFont
 {

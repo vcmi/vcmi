@@ -29,7 +29,7 @@ public:
 	
 protected:
 	void createWater(EWaterContent::EWaterContent waterContent);
-	
+
 protected:
 	rmg::Area noWaterArea, waterArea;
 	TRmgTemplateZoneId waterZoneId;

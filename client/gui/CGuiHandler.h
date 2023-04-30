@@ -80,7 +80,7 @@ private:
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;
 
 	std::atomic<bool> continueEventHandling;
-	typedef std::list<CIntObject*> CIntObjectList;
+	using CIntObjectList = std::list<CIntObject *>;
 
 	//active GUI elements (listening for events
 	CIntObjectList lclickable;
@@ -107,11 +107,9 @@ private:
 public:
 	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
 	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);
-
 public:
 	//objs to blit
 	std::vector<std::shared_ptr<IShowActivatable>> objsToBlit;
-
 	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
 

@@ -17,7 +17,7 @@ struct SDL_Surface;
 class CGuiHandler;
 class CPicture;
 
-typedef int32_t SDL_Keycode;
+using SDL_Keycode = int32_t;
 
 using boost::logic::tribool;
 

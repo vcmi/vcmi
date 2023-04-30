@@ -52,7 +52,7 @@ enum class AimType
 class DLL_LINKAGE Problem
 {
 public:
-	typedef int Severity;
+	using Severity = int;
 
 	enum ESeverity
 	{

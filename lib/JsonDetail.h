@@ -116,10 +116,10 @@ namespace Validation
 		std::string makeErrorMessage(const std::string &message);
 	};
 
-	typedef std::function<std::string(const JsonNode &)> TFormatValidator;
-	typedef std::unordered_map<std::string, TFormatValidator> TFormatMap;
-	typedef std::function<std::string(ValidationData &, const JsonNode &, const JsonNode &, const JsonNode &)> TFieldValidator;
-	typedef std::unordered_map<std::string, TFieldValidator> TValidatorMap;
+	using TFormatValidator = std::function<std::string(const JsonNode &)>;
+	using TFormatMap = std::unordered_map<std::string, TFormatValidator>;
+	using TFieldValidator = std::function<std::string(ValidationData &, const JsonNode &, const JsonNode &, const JsonNode &)>;
+	using TValidatorMap = std::unordered_map<std::string, TFieldValidator>;
 
 	/// map of known fields in schema
 	const TValidatorMap & getKnownFieldsFor(JsonNode::JsonType type);

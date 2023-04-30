@@ -22,10 +22,10 @@ class CRandomGenerator;
 class RmgMap;
 class Zone;
 
-typedef std::vector<std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>>> TZoneVector;
-typedef std::map<TRmgTemplateZoneId, std::shared_ptr<Zone>> TZoneMap;
-typedef std::map<std::shared_ptr<Zone>, float3> TForceVector;
-typedef std::map<std::shared_ptr<Zone>, float> TDistanceVector;
+using TZoneVector = std::vector<std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>>>;
+using TZoneMap = std::map<TRmgTemplateZoneId, std::shared_ptr<Zone>>;
+using TForceVector = std::map<std::shared_ptr<Zone>, float3>;
+using TDistanceVector = std::map<std::shared_ptr<Zone>, float>;
 
 class CZonePlacer
 {

@@ -121,7 +121,7 @@ public:
 
 			if(extSlot == SlotID::COMMANDER_SLOT_PLACEHOLDER)
 			{
-				auto hero = dynamic_cast<const CGHeroInstance *>(army);
+				const auto * hero = dynamic_cast<const CGHeroInstance *>(army);
 				assert(hero);
 				base = hero->commander;
 			}

@@ -30,7 +30,7 @@ public:
 	
 protected:
 	void collectNeighbourZones();
-	
+
 protected:
 	std::vector<rmg::ZoneConnection> dConnections, dCompleted;
 	std::map<TRmgTemplateZoneId, rmg::Tileset> dNeighbourZones;
