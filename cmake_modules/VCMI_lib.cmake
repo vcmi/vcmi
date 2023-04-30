@@ -29,6 +29,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/bonuses/HeroBonus.cpp
 		${MAIN_LIB_DIR}/bonuses/ILimiter.cpp
+		${MAIN_LIB_DIR}/bonuses/IUpdater.cpp
 
 		${MAIN_LIB_DIR}/events/ApplyDamage.cpp
 		${MAIN_LIB_DIR}/events/GameResumed.cpp
@@ -304,6 +305,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/bonuses/HeroBonus.h
 		${MAIN_LIB_DIR}/bonuses/ILimiter.h
+		${MAIN_LIB_DIR}/bonuses/IUpdater.h
 
 		${MAIN_LIB_DIR}/events/ApplyDamage.h
 		${MAIN_LIB_DIR}/events/GameResumed.h

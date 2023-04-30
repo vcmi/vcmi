@@ -15,6 +15,7 @@
 
 #include "bonuses/HeroBonus.h"
 #include "bonuses/ILimiter.h"
+#include "bonuses/IUpdater.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h" //for identifier resolution
 #include "CModHandler.h"

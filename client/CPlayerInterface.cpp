@@ -44,6 +44,7 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/bonuses/ILimiter.h"
+#include "../lib/bonuses/IUpdater.h"
 #include "../lib/serializer/CTypeList.h"
 #include "../lib/serializer/BinaryDeserializer.h"
 #include "../lib/serializer/BinarySerializer.h"

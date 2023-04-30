@@ -25,6 +25,7 @@
 #include "mapObjects/CObjectClassesHandler.h"
 #include "BattleFieldHandler.h"
 #include "bonuses/ILimiter.h"
+#include "bonuses/IUpdater.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

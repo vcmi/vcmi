@@ -23,6 +23,7 @@
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/bonuses/ILimiter.h"
+#include "../../lib/bonuses/IUpdater.h"
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/serializer/BinarySerializer.h"
 #include "../../lib/serializer/BinaryDeserializer.h"

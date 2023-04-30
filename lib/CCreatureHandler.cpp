@@ -20,6 +20,7 @@
 #include "GameSettings.h"
 #include "StringConstants.h"
 #include "bonuses/ILimiter.h"
+#include "bonuses/IUpdater.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
 #include "mapObjects/CObjectClassesHandler.h"

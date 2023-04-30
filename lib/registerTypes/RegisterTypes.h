@@ -23,6 +23,7 @@
 #include "../mapObjects/MapObjects.h"
 #include "../battle/CObstacleInstance.h"
 #include "../bonuses/ILimiter.h"
+#include "../bonuses/IUpdater.h"
 #include "../CStack.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
