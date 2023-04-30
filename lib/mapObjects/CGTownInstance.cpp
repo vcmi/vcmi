@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "CGTownInstance.h"
+#include "CGTownBuilding.h"
 #include "CObjectClassesHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../battle/IBattleInfoCallback.h"
@@ -380,7 +381,7 @@ void CGTownInstance::addTownBonuses(CRandomGenerator & rand)
 		
 		if(kvp.second->subId == BuildingSubID::CONFIGURABLE_REWARD)
 		{
-			auto * newBuilding = new CTownRewardableBuilding(this);
+			auto * newBuilding = new CTownRewardableBuilding(kvp.second->bid, kvp.second->subId, this);
 			kvp.second->rewardableObjectInfo.configureObject(newBuilding->configuration(), rand);
 			bonusingBuildings.push_back(newBuilding);
 		}

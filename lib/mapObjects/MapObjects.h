@@ -18,7 +18,6 @@
 #include "CGDwelling.h"
 #include "CGHeroInstance.h"
 #include "CGMarket.h"
-#include "CGTownBuilding.h"
 #include "CGTownInstance.h"
 #include "CGPandoraBox.h"
 #include "CRewardableObject.h"

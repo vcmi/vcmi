@@ -284,5 +284,146 @@ void CTownBonus::applyBonuses(CGHeroInstance * h, const BonusList & bonuses) con
 		town->addHeroToStructureVisitors(h, indexOnTV);
 }
 
+CTownRewardableBuilding::CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * cgTown)
+{
+	bID = index;
+	bType = subId;
+	town = cgTown;
+	indexOnTV = static_cast<si32>(town->bonusingBuildings.size());
+}
+
+void CTownRewardableBuilding::setProperty(ui8 what, ui32 val)
+{
+	switch (what)
+	{
+		case ObjProperty::VISITORS:
+			visitors.insert(ObjectInstanceID(val));
+			break;
+		case ObjProperty::REWARD_RANDOMIZE:
+			//initObj(cb->gameState()->getRandomGenerator());
+			break;
+		case ObjProperty::REWARD_SELECT:
+			selectedReward = val;
+			break;
+	}
+}
+
+bool CTownRewardableBuilding::wasVisitedBefore(const CGHeroInstance * contextHero) const
+{
+	switch (getConfiguration().visitMode)
+	{
+		case Rewardable::VISIT_UNLIMITED:
+			return false;
+		case Rewardable::VISIT_ONCE:
+			return false; //not supported
+		case Rewardable::VISIT_PLAYER:
+			return false; //not supported
+		case Rewardable::VISIT_BONUS:
+			return contextHero->hasBonusFrom(Bonus::TOWN_STRUCTURE, Bonus::getSid32(town->town->faction->getIndex(), bID));
+		case Rewardable::VISIT_HERO:
+			return visitors.find(contextHero->id) != visitors.end();
+		default:
+			return false;
+	}
+}
+
+void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
+{
+	auto grantRewardWithMessage = [&](int index) -> void
+	{
+		auto vi = getConfiguration().info.at(index);
+		logGlobal->debug("Granting reward %d. Message says: %s", index, vi.message.toString());
+
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		iw.text = vi.message;
+		vi.reward.loadComponents(iw.components, h);
+		iw.type = getConfiguration().infoWindowType;
+		if(!iw.components.empty() || !iw.text.toString().empty())
+			cb->showInfoDialog(&iw);
+		
+		//grantReward(index, h);
+	};
+	auto selectRewardsMessage = [&](const std::vector<ui32> & rewards, const MetaString & dialog) -> void
+	{
+		BlockingDialog sd(getConfiguration().canRefuse, rewards.size() > 1);
+		sd.player = h->tempOwner;
+		sd.text = dialog;
+
+		if (rewards.size() > 1)
+			for (auto index : rewards)
+				sd.components.push_back(getConfiguration().info.at(index).reward.getDisplayedComponent(h));
+
+		if (rewards.size() == 1)
+			getConfiguration().info.at(rewards.front()).reward.loadComponents(sd.components, h);
+
+		cb->showBlockingDialog(&sd);
+	};
+	
+	if(!town->hasBuilt(bID))
+		return;
+
+	if(!wasVisitedBefore(h))
+	{
+		town->addHeroToStructureVisitors(h, indexOnTV);
+		
+		auto rewards = getAvailableRewards(h, CRewardVisitInfo::EVENT_FIRST_VISIT);
+
+		logGlobal->debug("Visiting object with %d possible rewards", rewards.size());
+		switch (rewards.size())
+		{
+			case 0: // no available rewards, e.g. visiting School of War without gold
+			{
+				auto emptyRewards = getAvailableRewards(h, CRewardVisitInfo::EVENT_NOT_AVAILABLE);
+				if (!emptyRewards.empty())
+					grantRewardWithMessage(emptyRewards[0]);
+				else
+					logMod->warn("No applicable message for visiting empty object!");
+				break;
+			}
+			case 1: // one reward. Just give it with message
+			{
+				if (getConfiguration().canRefuse)
+					selectRewardsMessage(rewards, getConfiguration().info.at(rewards.front()).message);
+				else
+					grantRewardWithMessage(rewards.front());
+				break;
+			}
+			default: // multiple rewards. Act according to select mode
+			{
+				switch (getConfiguration().selectMode) {
+					case Rewardable::SELECT_PLAYER: // player must select
+						selectRewardsMessage(rewards, getConfiguration().onSelect);
+						break;
+					case Rewardable::SELECT_FIRST: // give first available
+						grantRewardWithMessage(rewards.front());
+						break;
+					case Rewardable::SELECT_RANDOM: // give random
+						//TODO: support
+						//grantRewardWithMessage(*RandomGeneratorUtil::nextItem(rewards, cb->gameState()->getRandomGenerator()));
+						break;
+				}
+				break;
+			}
+		}
+
+		if(getAvailableRewards(h, CRewardVisitInfo::EVENT_FIRST_VISIT).empty())
+		{
+			//ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
+			//cb->sendAndApply(&cov);
+		}
+	}
+	else
+	{
+		logGlobal->debug("Revisiting already visited object");
+
+		auto visitedRewards = getAvailableRewards(h, CRewardVisitInfo::EVENT_ALREADY_VISITED);
+		if (!visitedRewards.empty())
+			grantRewardWithMessage(visitedRewards[0]);
+		else
+			logMod->warn("No applicable message for visiting already visited object!");
+	}
+}
+
 
 VCMI_LIB_NAMESPACE_END

@@ -21,6 +21,7 @@
 #include "../mapObjects/CRewardableConstructor.h"
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h"
+#include "../mapObjects/CGTownBuilding.h"
 #include "../battle/CObstacleInstance.h"
 #include "../CStack.h"
 
@@ -153,7 +154,8 @@ void registerTypesMapObjects2(Serializer &s)
 	//Other object-related
 	s.template registerType<IObjectInterface, CGTownBuilding>();
 		s.template registerType<CGTownBuilding, CTownBonus>();
-			s.template registerType<CGTownBuilding, COPWBonus>();
+		s.template registerType<CGTownBuilding, COPWBonus>();
+		s.template registerType<CGTownBuilding, CTownRewardableBuilding>();
 
 	s.template registerType<CGObjectInstance, CRewardableObject>();
 
