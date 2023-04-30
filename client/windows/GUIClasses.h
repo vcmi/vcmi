@@ -14,7 +14,7 @@
 #include "../lib/ResourceSet.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/int3.h"
-#include "../widgets/CArtifactHolder.h"
+#include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/Images.h"
 
@@ -327,7 +327,7 @@ class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public 
 
 public:
 	std::array<const CGHeroInstance *, 2> heroInst;
-	std::array<std::shared_ptr<CArtifactsOfHero>, 2> artifs;
+	std::array<std::shared_ptr<CArtifactsOfHeroMain>, 2> artifs;
 
 	void updateGarrisons() override;
 
