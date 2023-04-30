@@ -22,7 +22,7 @@
 #include "CPlayerInterface.h"
 #include "windows/GUIClasses.h"
 #include "CServerHandler.h"
-#include "renderSDL/SDL_Extensions.h"
+#include "render/IWindowHandler.h"
 
 
 static void setIntSetting(std::string group, std::string field, int value)
@@ -148,23 +148,6 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	std::shared_ptr<CLabel> soundVolumeLabel = widget<CLabel>("soundValueLabel");
 	soundVolumeLabel->setText(std::to_string(CCS->soundh->getVolume()) + "%");
-
-}
-
-
-bool GeneralOptionsTab::isResolutionSupported(const Point & resolution)
-{
-	return isResolutionSupported( resolution, settings["video"]["fullscreen"].Bool());
-}
-
-bool GeneralOptionsTab::isResolutionSupported(const Point & resolution, bool fullscreen)
-{
-	if (!fullscreen)
-		return true;
-
-	auto supportedList = CSDL_Ext::getSupportedResolutions();
-
-	return CSDL_Ext::isResolutionSupported(supportedList, resolution);
 }
 
 void GeneralOptionsTab::selectGameResolution()
@@ -174,7 +157,7 @@ void GeneralOptionsTab::selectGameResolution()
 	std::vector<std::string> items;
 	size_t currentResolutionIndex = 0;
 	size_t i = 0;
-	for(const auto & it : selectableResolutions)
+	for(const auto & it : supportedResolutions)
 	{
 		auto resolutionStr = resolutionToEntryString(it.x, it.y);
 		if(widget<CLabel>("resolutionLabel")->getText() == resolutionToLabelString(it.x, it.y))
@@ -195,12 +178,12 @@ void GeneralOptionsTab::selectGameResolution()
 
 void GeneralOptionsTab::setGameResolution(int index)
 {
-	assert(index >= 0 && index < selectableResolutions.size());
+	assert(index >= 0 && index < supportedResolutions.size());
 
-	if ( index < 0 || index >= selectableResolutions.size() )
+	if ( index < 0 || index >= supportedResolutions.size() )
 		return;
 
-	Point resolution = selectableResolutions[index];
+	Point resolution = supportedResolutions[index];
 
 	Settings gameRes = settings.write["video"]["screenRes"];
 	gameRes["width"].Float() = resolution.x;
@@ -211,50 +194,14 @@ void GeneralOptionsTab::setGameResolution(int index)
 
 void GeneralOptionsTab::setFullscreenMode(bool on)
 {
-	fillSelectableResolutions();
-
-	const auto & screenRes = settings["video"]["screenRes"];
-	const Point desiredResolution(screenRes["width"].Integer(), screenRes["height"].Integer());
-	const Point currentResolution = GH.screenDimensions();
-
-	if (!isResolutionSupported(currentResolution, on))
-	{
-		widget<CToggleButton>("fullscreenCheckbox")->setSelected(!on);
-		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.systemOptions.fullscreenFailed"));
-		return;
-	}
-
 	setBoolSetting("video", "fullscreen", on);
-
-	if (!isResolutionSupported(desiredResolution, on))
-	{
-		// user changed his desired resolution and switched to fullscreen
-		// however resolution he selected before is not available in fullscreen
-		// so reset it back to currect resolution which is confirmed to be supported earlier
-		Settings gameRes = settings.write["video"]["screenRes"];
-		gameRes["width"].Float() = currentResolution.x;
-		gameRes["height"].Float() = currentResolution.y;
-
-		widget<CLabel>("resolutionLabel")->setText(resolutionToLabelString(currentResolution.x, currentResolution.y));
-	}
 }
 
 void GeneralOptionsTab::fillSelectableResolutions()
 {
-	selectableResolutions.clear();
+	supportedResolutions = GH.windowHandler().getSupportedResolutions();
 
-	// TODO: CONFIGURABLE ADVMAP
-	static const std::vector<Point> supportedResolutions = {
-		{ 800, 600 }
-	};
-
-	for(const auto & dimensions : supportedResolutions)
-	{
-		if(isResolutionSupported(dimensions))
-			selectableResolutions.push_back(dimensions);
-	}
-
-	boost::range::sort(selectableResolutions, [](const auto & left, const auto & right)
+	boost::range::sort(supportedResolutions, [](const auto & left, const auto & right)
 	{
 		return left.x * left.y < right.x * right.y;
 	});
