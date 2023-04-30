@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "HeroBonus.h"
+#include "IBonusBearer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

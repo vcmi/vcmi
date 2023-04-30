@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "CBonusProxy.h"
+#include "IBonusBearer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../../lib/bonuses/HeroBonus.h"
+#include "../../lib/bonuses/IBonusBearer.h"
 
 
 class BonusBearerMock : public IBonusBearer

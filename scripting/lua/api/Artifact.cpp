@@ -16,6 +16,7 @@
 #include "../LuaStack.h"
 #include "../LuaCallWrapper.h"
 #include "../../../lib/bonuses/HeroBonus.h"
+#include "../../../lib/bonuses/IBonusBearer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

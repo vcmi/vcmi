@@ -31,6 +31,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/bonuses/CBonusProxy.cpp
 		${MAIN_LIB_DIR}/bonuses/CBonusSystemNode.cpp
 		${MAIN_LIB_DIR}/bonuses/HeroBonus.cpp
+		${MAIN_LIB_DIR}/bonuses/IBonusBearer.cpp
 		${MAIN_LIB_DIR}/bonuses/Limiters.cpp
 		${MAIN_LIB_DIR}/bonuses/Propagators.cpp
 		${MAIN_LIB_DIR}/bonuses/Updaters.cpp
@@ -311,6 +312,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/bonuses/CBonusProxy.h
 		${MAIN_LIB_DIR}/bonuses/CBonusSystemNode.h
 		${MAIN_LIB_DIR}/bonuses/HeroBonus.h
+		${MAIN_LIB_DIR}/bonuses/IBonusBearer.h
 		${MAIN_LIB_DIR}/bonuses/Limiters.h
 		${MAIN_LIB_DIR}/bonuses/Propagators.h
 		${MAIN_LIB_DIR}/bonuses/Updaters.h

@@ -14,6 +14,7 @@
 #include <vcmi/spells/Caster.h>
 
 #include "../bonuses/HeroBonus.h"
+#include "../bonuses/IBonusBearer.h"
 
 #include "IUnitInfo.h"
 #include "BattleHex.h"
