@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "BonusList.h"
 #include "IBonusBearer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

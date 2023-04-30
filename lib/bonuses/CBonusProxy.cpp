@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "BonusList.h"
 #include "CBonusProxy.h"
 #include "IBonusBearer.h"
 

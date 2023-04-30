@@ -27,6 +27,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/SiegeInfo.cpp
 		${MAIN_LIB_DIR}/battle/Unit.cpp
 
+		${MAIN_LIB_DIR}/bonuses/BonusList.cpp
 		${MAIN_LIB_DIR}/bonuses/BonusParams.cpp
 		${MAIN_LIB_DIR}/bonuses/CBonusProxy.cpp
 		${MAIN_LIB_DIR}/bonuses/CBonusSystemNode.cpp
@@ -308,6 +309,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/SiegeInfo.h
 		${MAIN_LIB_DIR}/battle/Unit.h
 
+		${MAIN_LIB_DIR}/bonuses/BonusList.h
 		${MAIN_LIB_DIR}/bonuses/BonusParams.h
 		${MAIN_LIB_DIR}/bonuses/CBonusProxy.h
 		${MAIN_LIB_DIR}/bonuses/CBonusSystemNode.h

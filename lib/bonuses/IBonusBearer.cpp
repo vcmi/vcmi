@@ -11,6 +11,7 @@
 #include "StdInc.h"
 
 #include "CBonusSystemNode.h"
+#include "BonusList.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

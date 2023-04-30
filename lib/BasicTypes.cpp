@@ -12,6 +12,7 @@
 
 #include "VCMI_Lib.h"
 #include "GameConstants.h"
+#include "bonuses/BonusList.h"
 #include "bonuses/HeroBonus.h"
 #include "bonuses/IBonusBearer.h"
 
