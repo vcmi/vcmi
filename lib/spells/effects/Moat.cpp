@@ -16,7 +16,7 @@
 
 #include "../../NetPacks.h"
 #include "../../mapObjects/CGTownInstance.h"
-#include "../../bonuses/ILimiter.h"
+#include "../../bonuses/Limiters.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../serializer/JsonSerializeFormat.h"

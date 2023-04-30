@@ -14,7 +14,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CCreature;
 struct Bonus;
 class IBonusBearer;
 class CBonusSystemNode;

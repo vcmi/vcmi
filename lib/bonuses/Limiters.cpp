@@ -1,5 +1,5 @@
 /*
- * ILimiter.cpp, part of VCMI engine
+ * Limiters.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,7 @@
  */
 
 #include "StdInc.h"
-#include "ILimiter.h"
+#include "Limiters.h"
 
 #include "../VCMI_Lib.h"
 #include "../spells/CSpellHandler.h"

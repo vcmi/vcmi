@@ -10,8 +10,8 @@
 
 #include "StdInc.h"
 #include "HeroBonus.h"
-#include "ILimiter.h"
-#include "IUpdater.h"
+#include "Limiters.h"
+#include "Updaters.h"
 
 #include "../VCMI_Lib.h"
 #include "../spells/CSpellHandler.h"

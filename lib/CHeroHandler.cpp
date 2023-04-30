@@ -24,8 +24,8 @@
 #include "CSkillHandler.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "BattleFieldHandler.h"
-#include "bonuses/ILimiter.h"
-#include "bonuses/IUpdater.h"
+#include "bonuses/Limiters.h"
+#include "bonuses/Updaters.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

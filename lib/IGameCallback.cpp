@@ -18,8 +18,8 @@
 #include "CModHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
-#include "bonuses/ILimiter.h"
-#include "bonuses/IUpdater.h"
+#include "bonuses/Limiters.h"
+#include "bonuses/Updaters.h"
 
 #include "serializer/CSerializer.h" // for SAVEGAME_MAGIC
 #include "serializer/BinaryDeserializer.h"

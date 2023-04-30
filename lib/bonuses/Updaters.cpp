@@ -1,5 +1,5 @@
 /*
- * IUpdater.cpp, part of VCMI engine
+ * Updaters.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,8 +10,8 @@
 
 #include "StdInc.h"
 
-#include "IUpdater.h"
-#include "ILimiter.h"
+#include "Updaters.h"
+#include "Limiters.h"
 
 #include "../mapObjects/CGHeroInstance.h"
 #include "../CStack.h"

@@ -14,8 +14,8 @@
 #include "ScopeGuard.h"
 
 #include "bonuses/HeroBonus.h"
-#include "bonuses/ILimiter.h"
-#include "bonuses/IUpdater.h"
+#include "bonuses/Limiters.h"
+#include "bonuses/Updaters.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h" //for identifier resolution
 #include "CModHandler.h"

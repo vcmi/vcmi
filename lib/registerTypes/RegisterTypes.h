@@ -22,8 +22,8 @@
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h"
 #include "../battle/CObstacleInstance.h"
-#include "../bonuses/ILimiter.h"
-#include "../bonuses/IUpdater.h"
+#include "../bonuses/Limiters.h"
+#include "../bonuses/Updaters.h"
 #include "../CStack.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
