@@ -131,13 +131,16 @@ TSubgoal CollectRes::whatToDoToTrade()
 
 	std::vector<const CGObjectInstance *> visObjs;
 	ai->retrieveVisitableObjs(visObjs, true);
-	for (const CGObjectInstance * obj : visObjs)
+	for(const CGObjectInstance * obj : visObjs)
 	{
-		if (const IMarket * m = IMarket::castFrom(obj, false))
+		if(const IMarket * m = IMarket::castFrom(obj, false); m->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
 		{
-			if (obj->ID == Obj::TOWN && obj->tempOwner == ai->playerID && m->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
-				markets.push_back(m);
-			else if (obj->ID == Obj::TRADING_POST)
+			if(obj->ID == Obj::TOWN)
+			{
+				if(obj->tempOwner == ai->playerID)
+					markets.push_back(m);
+			}
+			else
 				markets.push_back(m);
 		}
 	}
@@ -149,9 +152,10 @@ TSubgoal CollectRes::whatToDoToTrade()
 
 	markets.erase(boost::remove_if(markets, [](const IMarket * market) -> bool
 	{
-		if (!(market->o->ID == Obj::TOWN && market->o->tempOwner == ai->playerID))
+		auto * o = dynamic_cast<const CGObjectInstance *>(market);
+		if(o && !(o->ID == Obj::TOWN && o->tempOwner == ai->playerID))
 		{
-			if (!ai->isAccessible(market->o->visitablePos()))
+			if(!ai->isAccessible(o->visitablePos()))
 				return true;
 		}
 		return false;
@@ -182,9 +186,10 @@ TSubgoal CollectRes::whatToDoToTrade()
 
 		if (howManyCanWeBuy >= value)
 		{
-			auto backObj = cb->getTopObj(m->o->visitablePos()); //it'll be a hero if we have one there; otherwise marketplace
+			auto * o = dynamic_cast<const CGObjectInstance *>(m);
+			auto backObj = cb->getTopObj(o->visitablePos()); //it'll be a hero if we have one there; otherwise marketplace
 			assert(backObj);
-			auto objid = m->o->id.getNum();
+			auto objid = o->id.getNum();
 			if (backObj->tempOwner != ai->playerID) //top object not owned
 			{
 				return sptr(VisitObj(objid)); //just go there

@@ -291,6 +291,68 @@ void BoatInstanceConstructor::configureObject(CGObjectInstance * object, CRandom
 
 }
 
+void MarketInstanceConstructor::initTypeData(const JsonNode & input)
+{
+	for(auto & element : input["modes"].Vector())
+	{
+		if(MappedKeys::MARKET_NAMES_TO_TYPES.count(element.String()))
+			marketModes.insert(MappedKeys::MARKET_NAMES_TO_TYPES.at(element.String()));
+	}
+	
+	marketEfficiency = input["efficiency"].isNull() ? 5 : input["efficiency"].Integer();
+	predefinedOffer = input["offer"];
+	
+	title = input["title"].String();
+	speech = input["speech"].String();
+}
+
+CGObjectInstance * MarketInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
+{
+	CGMarket * market = nullptr;
+	if(marketModes.size() == 1)
+	{
+		switch(*marketModes.begin())
+		{
+			case EMarketMode::ARTIFACT_RESOURCE:
+			case EMarketMode::RESOURCE_ARTIFACT:
+				market = new CGBlackMarket;
+				break;
+				
+			case EMarketMode::RESOURCE_SKILL:
+				market = new CGUniversity;
+				break;
+		}
+	}
+	
+	if(!market)
+		market = new CGMarket;
+	
+	preInitObject(market);
+
+	if(tmpl)
+		market->appearance = tmpl;
+	market->marketModes = marketModes;
+	market->marketEfficiency = marketEfficiency;
+	
+	market->title = market->getObjectName();
+	if(!title.empty())
+		market->title = VLC->generaltexth->translate(title);
+	
+	market->speech = VLC->generaltexth->translate(speech);
+	
+	return market;
+}
+
+void MarketInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
+{
+	if(auto * university = dynamic_cast<CGUniversity *>(object))
+	{
+		for(auto skill : JsonRandom::loadSecondary(predefinedOffer, rng))
+			university->skills.push_back(skill.first.getNum());
+	}
+}
+
+
 bool CBankInstanceConstructor::hasNameTextID() const
 {
 	return true;

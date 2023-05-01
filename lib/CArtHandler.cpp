@@ -1206,6 +1206,25 @@ const CArtifactInstance * CArtifactSet::getArtByInstanceId(const ArtifactInstanc
 	return nullptr;
 }
 
+const ArtifactPosition CArtifactSet::getSlotByInstance(const CArtifactInstance * artInst) const
+{
+	if(artInst)
+	{
+		for(auto & slot : artInst->artType->possibleSlots.at(bearerType()))
+			if(getArt(slot) == artInst)
+				return slot;
+
+		auto backpackSlot = GameConstants::BACKPACK_START;
+		for(auto & slotInfo : artifactsInBackpack)
+		{
+			if(slotInfo.getArt() == artInst)
+				return backpackSlot;
+			backpackSlot = ArtifactPosition(backpackSlot + 1);
+		}
+	}
+	return ArtifactPosition::PRE_FIRST;
+}
+
 bool CArtifactSet::hasArt(const ArtifactID & aid, bool onlyWorn, bool searchBackpackAssemblies, bool allowLocked) const
 {
 	return getArtPosCount(aid, onlyWorn, searchBackpackAssemblies, allowLocked) > 0;

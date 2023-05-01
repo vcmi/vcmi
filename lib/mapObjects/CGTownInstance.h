@@ -74,7 +74,6 @@ public:
 	{
 		h & static_cast<CGDwelling&>(*this);
 		h & static_cast<IShipyard&>(*this);
-		h & static_cast<IMarket&>(*this);
 		h & name;
 		h & builded;
 		h & destroyed;
@@ -212,11 +211,8 @@ private:
 	void setOwner(const PlayerColor & owner) const;
 	void onTownCaptured(const PlayerColor & winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
-	bool hasBuiltInOldWay(ETownType::ETownType type, const BuildingID & bid) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
 	bool isBonusingBuildingAdded(BuildingID::EBuildingID bid) const;
-	void tryAddOnePerWeekBonus(BuildingSubID::EBuildingSubID subID);
-	void tryAddVisitingBonus(BuildingSubID::EBuildingSubID subID);
 	void initOverriddenBids();
 	void addTownBonuses();
 };

@@ -909,13 +909,9 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	portraits[0] = std::make_shared<CAnimImage>("PortraitsLarge", heroInst[0]->portrait, 0, 257, 13);
 	portraits[1] = std::make_shared<CAnimImage>("PortraitsLarge", heroInst[1]->portrait, 0, 485, 13);
 
-	artifs[0] = std::make_shared<CArtifactsOfHero>(Point(-334, 150));
-	artifs[0]->commonInfo = std::make_shared<CArtifactsOfHero::SCommonPart>();
-	artifs[0]->commonInfo->participants.insert(artifs[0].get());
+	artifs[0] = std::make_shared<CArtifactsOfHeroMain>(Point(-334, 150));
 	artifs[0]->setHero(heroInst[0]);
-	artifs[1] = std::make_shared<CArtifactsOfHero>(Point(96, 150));
-	artifs[1]->commonInfo = artifs[0]->commonInfo;
-	artifs[1]->commonInfo->participants.insert(artifs[1].get());
+	artifs[1] = std::make_shared<CArtifactsOfHeroMain>(Point(98, 150));
 	artifs[1]->setHero(heroInst[1]);
 
 	addSet(artifs[0]);
@@ -1166,7 +1162,7 @@ void CTransformerWindow::makeDeal()
 	for(auto & elem : items)
 	{
 		if(!elem->left)
-			LOCPLINT->cb->trade(town, EMarketMode::CREATURE_UNDEAD, elem->id, 0, 0, hero);
+			LOCPLINT->cb->trade(market, EMarketMode::CREATURE_UNDEAD, elem->id, 0, 0, hero);
 	}
 }
 
@@ -1186,21 +1182,24 @@ void CTransformerWindow::updateGarrisons()
 		item->update();
 }
 
-CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town)
+CTransformerWindow::CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero)
 	: CStatusbarWindow(PLAYER_COLORED, "SKTRNBK"),
 	hero(_hero),
-	town(_town)
+	market(_market)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	if(hero)
 		army = hero;
 	else
-		army = town;
-
-	for(int i=0; i<GameConstants::ARMY_SIZE; i++)
+		army = dynamic_cast<const CArmedInstance *>(market); //for town only
+	
+	if(army)
 	{
-		if(army->getCreature(SlotID(i)))
-			items.push_back(std::make_shared<CItem>(this, army->getStackCount(SlotID(i)), i));
+		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
+		{
+			if(army->getCreature(SlotID(i)))
+				items.push_back(std::make_shared<CItem>(this, army->getStackCount(SlotID(i)), i));
+		}
 	}
 
 	all = std::make_shared<CButton>(Point(146, 416), "ALTARMY.DEF", CGI->generaltexth->zelp[590], [&](){ addAll(); }, SDLK_a);
@@ -1291,30 +1290,33 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	bars->setCustom("UNIVGOLD", 1, 0);
 	bars->setCustom("UNIVGREN", 2, 0);
 	bars->preload();
+	
+	std::string titleStr = CGI->generaltexth->allTexts[602];
+	std::string speechStr = CGI->generaltexth->allTexts[603];
 
-	if(market->o->ID == Obj::TOWN)
+	if(auto town = dynamic_cast<const CGTownInstance *>(_market))
 	{
-		auto town = dynamic_cast<const CGTownInstance *>(_market);
-
-		if(town)
-		{
-			auto faction = town->town->faction->getId();
-			auto bid = town->town->getSpecialBuilding(BuildingSubID::MAGIC_UNIVERSITY)->bid;
-			titlePic = std::make_shared<CAnimImage>((*CGI->townh)[faction]->town->clientInfo.buildingsIcons, bid);
-		}
-		else
-			titlePic = std::make_shared<CAnimImage>((*CGI->townh)[ETownType::CONFLUX]->town->clientInfo.buildingsIcons, BuildingID::MAGIC_UNIVERSITY);
+		auto faction = town->town->faction->getId();
+		auto bid = town->town->getSpecialBuilding(BuildingSubID::MAGIC_UNIVERSITY)->bid;
+		titlePic = std::make_shared<CAnimImage>((*CGI->townh)[faction]->town->clientInfo.buildingsIcons, bid);
+	}
+	else if(auto uni = dynamic_cast<const CGUniversity *>(_market); uni->appearance)
+	{
+		titlePic = std::make_shared<CAnimImage>(uni->appearance->animationFile, 0);
+		titleStr = uni->title;
+		speechStr = uni->speech;
 	}
 	else
+	{
 		titlePic = std::make_shared<CPicture>("UNIVBLDG");
+	}
 
 	titlePic->center(Point(232 + pos.x, 76 + pos.y));
 
-	clerkSpeech = std::make_shared<CTextBox>(CGI->generaltexth->allTexts[603], Rect(24, 129, 413, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
-	title = std::make_shared<CLabel>(231, 26, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[602]);
+	clerkSpeech = std::make_shared<CTextBox>(speechStr, Rect(24, 129, 413, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	title = std::make_shared<CLabel>(231, 26, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, titleStr);
 
 	std::vector<int> goods = market->availableItemsIds(EMarketMode::RESOURCE_SKILL);
-	assert(goods.size() == 4);
 
 	for(int i=0; i<goods.size(); i++)//prepare clickable items
 		items.push_back(std::make_shared<CItem>(this, goods[i], 54+i*104, 234));
@@ -1325,7 +1327,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 
 void CUniversityWindow::makeDeal(int skill)
 {
-	LOCPLINT->cb->trade(market->o, EMarketMode::RESOURCE_SKILL, 6, skill, 1, hero);
+	LOCPLINT->cb->trade(market, EMarketMode::RESOURCE_SKILL, 6, skill, 1, hero);
 }
 
 

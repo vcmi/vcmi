@@ -255,4 +255,27 @@ public:
 	}
 };
 
+class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
+{
+protected:
+	void initTypeData(const JsonNode & config) override;
+	
+	std::set<EMarketMode::EMarketMode> marketModes;
+	JsonNode predefinedOffer;
+	int marketEfficiency;
+	
+	std::string title, speech;
+	
+public:
+	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
+	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CDefaultObjectTypeHandler<CGMarket>&>(*this);
+		h & marketModes;
+		h & marketEfficiency;
+	}
+};
+
 VCMI_LIB_NAMESPACE_END

@@ -32,22 +32,26 @@ namespace JsonRandom
 {
 	si32 loadValue(const JsonNode & value, CRandomGenerator & rng, si32 defaultValue)
 	{
-		if (value.isNull())
+		if(value.isNull())
 			return defaultValue;
-		if (value.isNumber())
+		if(value.isNumber())
 			return static_cast<si32>(value.Float());
-		if (value.isVector())
+		if(value.isVector())
 		{
 			const auto & vector = value.Vector();
 
 			size_t index= rng.getIntRange(0, vector.size()-1)();
 			return loadValue(vector[index], rng, 0);
 		}
-		if (!value["amount"].isNull())
-			return static_cast<si32>(loadValue(value["amount"], rng, defaultValue));
-		si32 min = static_cast<si32>(loadValue(value["min"], rng, 0));
-		si32 max = static_cast<si32>(loadValue(value["max"], rng, 0));
-		return rng.getIntRange(min, max)();
+		if(value.isStruct())
+		{
+			if (!value["amount"].isNull())
+				return static_cast<si32>(loadValue(value["amount"], rng, defaultValue));
+			si32 min = static_cast<si32>(loadValue(value["min"], rng, 0));
+			si32 max = static_cast<si32>(loadValue(value["max"], rng, 0));
+			return rng.getIntRange(min, max)();
+		}
+		return defaultValue;
 	}
 
 	std::string loadKey(const JsonNode & value, CRandomGenerator & rng, const std::set<std::string> & valuesSet)

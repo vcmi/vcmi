@@ -774,7 +774,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						break;
 
 				case BuildingSubID::CREATURE_TRANSFORMER: //Skeleton Transformer
-						GH.pushIntT<CTransformerWindow>(getHero(), town);
+						GH.pushIntT<CTransformerWindow>(town, getHero());
 						break;
 
 				case BuildingSubID::PORTAL_OF_SUMMONING:

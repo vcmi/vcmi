@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../widgets/CArtifactHolder.h"
+#include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/CGarrisonInt.h"
 
 class CButton;
@@ -309,7 +309,7 @@ class CHeroItem : public CIntObject, public CGarrisonHolder
 	std::shared_ptr<CIntObject> onTabSelected(size_t index);
 
 public:
-	std::shared_ptr<CArtifactsOfHero> heroArts;
+	std::shared_ptr<CArtifactsOfHeroKingdom> heroArts;
 
 	void updateGarrisons() override;
 
