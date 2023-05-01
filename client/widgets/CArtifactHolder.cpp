@@ -250,7 +250,7 @@ void CHeroArtPlace::setArtifact(const CArtifactInstance * art)
 
 void CHeroArtPlace::addCombinedArtInfo(std::map<const CArtifact*, int> & arts)
 {
-	for(const auto combinedArt : arts)
+	for(const auto & combinedArt : arts)
 	{
 		std::string artList;
 		text += "\n\n";
