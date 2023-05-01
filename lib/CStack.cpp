@@ -230,7 +230,7 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 			{
 				customState->casts.use();
 				bsa.flags |= BattleStackAttacked::REBIRTH;
-				int64_t toHeal = customState->MaxHealth() * resurrectedCount;
+				int64_t toHeal = customState->getMaxHealth() * resurrectedCount;
 				//TODO: add one-battle rebirth?
 				customState->heal(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
 				customState->counterAttacks.use(customState->counterAttacks.available());
@@ -308,7 +308,7 @@ std::string CStack::getName() const
 
 bool CStack::canBeHealed() const
 {
-	return getFirstHPleft() < static_cast<int32_t>(MaxHealth()) && isValidTarget() && !hasBonusOfType(Bonus::SIEGE_WEAPON);
+	return getFirstHPleft() < static_cast<int32_t>(getMaxHealth()) && isValidTarget() && !hasBonusOfType(Bonus::SIEGE_WEAPON);
 }
 
 bool CStack::isOnNativeTerrain() const

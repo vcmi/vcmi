@@ -15,7 +15,7 @@
 #include "../NetPacksBase.h"
 #include "../ResourceSet.h"
 
-#include "../bonuses/HeroBonus.h"
+#include "../bonuses/Bonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

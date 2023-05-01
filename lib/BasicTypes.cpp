@@ -13,7 +13,7 @@
 #include "VCMI_Lib.h"
 #include "GameConstants.h"
 #include "bonuses/BonusList.h"
-#include "bonuses/HeroBonus.h"
+#include "bonuses/Bonus.h"
 #include "bonuses/IBonusBearer.h"
 
 #include <vcmi/Creature.h>
@@ -139,7 +139,7 @@ int AFactionMember::LuckVal() const
 	return LuckValAndBonusList(tmp);
 }
 
-ui32 ACreature::MaxHealth() const
+ui32 ACreature::getMaxHealth() const
 {
 	const std::string cachingStr = "type_STACK_HEALTH";
 	static const auto selector = Selector::type()(Bonus::STACK_HEALTH);

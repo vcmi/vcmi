@@ -11,7 +11,7 @@
 
 #include <vcmi/FactionMember.h>
 
-#include "../../lib/bonuses/HeroBonus.h"
+#include "../../lib/bonuses/Bonus.h"
 #include "../../lib/bonuses/IBonusBearer.h"
 #include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/CGarrisonInt.h"

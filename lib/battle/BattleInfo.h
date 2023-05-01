@@ -9,7 +9,7 @@
  */
 #pragma once
 #include "../int3.h"
-#include "../bonuses/HeroBonus.h"
+#include "../bonuses/Bonus.h"
 #include "../bonuses/CBonusSystemNode.h"
 #include "CBattleInfoCallback.h"
 #include "IBattleState.h"

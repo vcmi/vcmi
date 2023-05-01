@@ -19,7 +19,7 @@
 #include "IHandlerBase.h"
 #include "LogicalExpression.h"
 #include "battle/BattleHex.h"
-#include "bonuses/HeroBonus.h"
+#include "bonuses/Bonus.h"
 #include "bonuses/BonusList.h"
 #include "Point.h"
 

@@ -13,7 +13,7 @@
 #include "CBattleInfoCallback.h"
 #include "Unit.h"
 
-#include "../bonuses/HeroBonus.h"
+#include "../bonuses/Bonus.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../spells/CSpellHandler.h"
 #include "../GameSettings.h"
@@ -464,7 +464,7 @@ int64_t DamageCalculator::getCasualties(int64_t damageDealt) const
 		return 0;
 
 	int64_t damageLeft = damageDealt - info.defender->getFirstHPleft();
-	int64_t killsLeft = damageLeft / info.defender->MaxHealth();
+	int64_t killsLeft = damageLeft / info.defender->getMaxHealth();
 
 	return 1 + killsLeft;
 }

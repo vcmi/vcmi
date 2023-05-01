@@ -23,7 +23,7 @@
 #include "filesystem/Filesystem.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "mapObjects/CObjectHandler.h"
-#include "bonuses/HeroBonus.h"
+#include "bonuses/Bonus.h"
 #include "bonuses/Propagators.h"
 #include "ResourceSet.h"
 

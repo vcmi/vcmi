@@ -1,5 +1,5 @@
 /*
- * HeroBonus.cpp, part of VCMI engine
+ * Bonus.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,7 @@
  */
 
 #include "StdInc.h"
-#include "HeroBonus.h"
+#include "Bonus.h"
 #include "CBonusSystemNode.h"
 #include "Limiters.h"
 #include "Updaters.h"
@@ -86,7 +86,8 @@ const std::set<std::string> deprecatedBonusSet = {
 	"BLOCK_MORALE",
 	"BLOCK_LUCK",
 	"SELF_MORALE",
-	"SELF_LUCK"
+	"SELF_LUCK",
+	"DIRECT_DAMAGE_IMMUNITY"
 };
 
 //This constructor should be placed here to avoid side effects

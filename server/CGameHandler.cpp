@@ -1158,7 +1158,7 @@ int64_t CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<bat
 		{
 			if(attackerState->hasBonusOfType(Bonus::SOUL_STEAL, subtype))
 			{
-				int64_t toHeal = bsa.killedAmount * attackerState->valOfBonuses(Bonus::SOUL_STEAL, subtype) * attackerState->MaxHealth();
+				int64_t toHeal = bsa.killedAmount * attackerState->valOfBonuses(Bonus::SOUL_STEAL, subtype) * attackerState->getMaxHealth();
 				attackerState->heal(toHeal, EHealLevel::OVERHEAL, ((subtype == 0) ? EHealPower::ONE_BATTLE : EHealPower::PERMANENT));
 				drainedLife += toHeal;
 				break;
@@ -6003,7 +6003,7 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 			resurrectInfo.type = attacker->creatureId();
 
 		if(attacker->hasBonusOfType((Bonus::TRANSMUTATION), 0))
-			resurrectInfo.count = std::max((defender->getCount() * defender->MaxHealth()) / resurrectInfo.type.toCreature()->MaxHealth(), 1u);
+			resurrectInfo.count = std::max((defender->getCount() * defender->getMaxHealth()) / resurrectInfo.type.toCreature()->getMaxHealth(), 1u);
 		else if (attacker->hasBonusOfType((Bonus::TRANSMUTATION), 1))
 			resurrectInfo.count = defender->getCount();
 		else
@@ -6044,7 +6044,7 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 		BattleStackAttacked bsa;
 		bsa.attackerID = -1;
 		bsa.stackAttacked = defender->unitId();
-		bsa.damageAmount = amountToDie * defender->MaxHealth();
+		bsa.damageAmount = amountToDie * defender->getMaxHealth();
 		bsa.flags = BattleStackAttacked::SPELL_EFFECT;
 		bsa.spellID = SpellID::SLAYER;
 		defender->prepareAttacked(bsa, getRandomGenerator());
@@ -6488,7 +6488,7 @@ void CGameHandler::runBattle()
 						bte.stackID = stack->unitId();
 						bte.effect = Bonus::HP_REGENERATION;
 
-						const int32_t lostHealth = stack->MaxHealth() - stack->getFirstHPleft();
+						const int32_t lostHealth = stack->getMaxHealth() - stack->getFirstHPleft();
 						if(stack->hasBonusOfType(Bonus::HP_REGENERATION))
 							bte.val = std::min(lostHealth, stack->valOfBonuses(Bonus::HP_REGENERATION));
 

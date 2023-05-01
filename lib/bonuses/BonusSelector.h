@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "HeroBonus.h"
+#include "Bonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

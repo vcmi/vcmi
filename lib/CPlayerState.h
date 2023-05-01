@@ -12,7 +12,7 @@
 #include <vcmi/Player.h>
 #include <vcmi/Team.h>
 
-#include "bonuses/HeroBonus.h"
+#include "bonuses/Bonus.h"
 #include "bonuses/CBonusSystemNode.h"
 #include "ResourceSet.h"
 

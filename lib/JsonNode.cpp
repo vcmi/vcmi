@@ -14,7 +14,7 @@
 #include "ScopeGuard.h"
 
 #include "bonuses/BonusParams.h"
-#include "bonuses/HeroBonus.h"
+#include "bonuses/Bonus.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Propagators.h"
 #include "bonuses/Updaters.h"

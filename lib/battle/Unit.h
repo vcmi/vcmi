@@ -13,7 +13,7 @@
 #include <vcmi/Creature.h>
 #include <vcmi/spells/Caster.h>
 
-#include "../bonuses/HeroBonus.h"
+#include "../bonuses/Bonus.h"
 #include "../bonuses/IBonusBearer.h"
 
 #include "IUnitInfo.h"

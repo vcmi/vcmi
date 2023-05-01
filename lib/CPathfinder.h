@@ -11,7 +11,7 @@
 
 #include "VCMI_Lib.h"
 #include "IGameCallback.h"
-#include "bonuses/HeroBonus.h"
+#include "bonuses/Bonus.h"
 #include "int3.h"
 
 #include <boost/heap/fibonacci_heap.hpp>

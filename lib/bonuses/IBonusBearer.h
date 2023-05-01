@@ -1,6 +1,6 @@
 
 /*
- * CBonusSystemNode.h, part of VCMI engine
+ * IBonusBearer.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#include "HeroBonus.h"
+#include "Bonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

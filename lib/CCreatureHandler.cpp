@@ -71,11 +71,6 @@ const IBonusBearer * CCreature::getBonusBearer() const
 	return this;
 }
 
-uint32_t CCreature::getMaxHealth() const
-{
-	return MaxHealth();
-}
-
 int32_t CCreature::getAdvMapAmountMin() const
 {
 	return ammMin;

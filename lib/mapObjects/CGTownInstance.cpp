@@ -12,7 +12,7 @@
 #include "CGTownInstance.h"
 #include "CObjectClassesHandler.h"
 #include "../spells/CSpellHandler.h"
-#include "../bonuses/HeroBonus.h"
+#include "../bonuses/Bonus.h"
 #include "../battle/IBattleInfoCallback.h"
 #include "../NetPacks.h"
 #include "../CConfigHandler.h"

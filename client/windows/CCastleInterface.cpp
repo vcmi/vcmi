@@ -1703,7 +1703,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 		sizes.y+=21;
 		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[199], CGI->generaltexth->fcommands[2], getMyCreature()->getMinDamage(false), getMyCreature()->getMaxDamage(false)));
 		sizes.y+=20;
-		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[388], CGI->generaltexth->fcommands[3], getMyCreature()->MaxHealth()));
+		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[388], CGI->generaltexth->fcommands[3], getMyCreature()->getMaxHealth()));
 		sizes.y+=21;
 		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[193], CGI->generaltexth->fcommands[4], getMyCreature()->valOfBonuses(Bonus::STACKS_SPEED)));
 		sizes.y+=20;

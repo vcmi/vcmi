@@ -14,7 +14,7 @@
 #include <vcmi/Environment.h>
 #include <vcmi/ServerCallback.h>
 
-#include "../../lib/bonuses/HeroBonus.h"
+#include "../../lib/bonuses/Bonus.h"
 #include "../../lib/battle/BattleProxy.h"
 #include "../../lib/battle/CUnitState.h"
 

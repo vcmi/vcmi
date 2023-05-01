@@ -53,10 +53,15 @@ public:
 	*/
 	int getPrimSkillLevel(PrimarySkill::PrimarySkill id) const;
 	/**
-	 Returns morale or luck of creature or hero.
+	 Returns morale of creature or hero. Taking absolute bonuses into account.
+	 For now, uses range [-3, +3]
 	*/
-	int MoraleVal() const; //range [-3, +3]
-	int LuckVal() const; //range [-3, +3]
+	int MoraleVal() const;
+	/**
+	 Returns luck of creature or hero. Taking absolute bonuses into account.
+	 For now, uses range [-3, +3]
+	*/
+	int LuckVal() const;
 	/**
 	 Returns total value of all morale bonuses and sets bonusList as a pointer to the list of selected bonuses.
 	 @param bonusList is the out param it's list of all selected bonuses

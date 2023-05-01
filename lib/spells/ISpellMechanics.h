@@ -16,7 +16,7 @@
 #include "../battle/Destination.h"
 #include "../int3.h"
 #include "../GameConstants.h"
-#include "../bonuses/HeroBonus.h"
+#include "../bonuses/Bonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -18,7 +18,7 @@
 #include "../../lib/ScriptHandler.h"
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
-#include "../../lib/bonuses/HeroBonus.h"
+#include "../../lib/bonuses/Bonus.h"
 
 #include "../mock/mock_ServerCallback.h"
 #include "../mock/mock_IBattleInfoCallback.h"

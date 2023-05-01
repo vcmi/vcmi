@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "HeroBonus.h"
+#include "Bonus.h"
 
 #include "../GameConstants.h"
 #include "../JsonNode.h"

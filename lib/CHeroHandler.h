@@ -16,7 +16,7 @@
 
 #include "../lib/ConstTransitivePtr.h"
 #include "GameConstants.h"
-#include "bonuses/HeroBonus.h"
+#include "bonuses/Bonus.h"
 #include "bonuses/BonusList.h"
 #include "IHandlerBase.h"
 
