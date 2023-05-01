@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include "../GameConstants.h"
-#include "../ResourceSet.h"
+#include "GameConstants.h"
+#include "ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

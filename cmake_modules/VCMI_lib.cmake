@@ -67,7 +67,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapObjects/CQuest.cpp
 		${MAIN_LIB_DIR}/mapObjects/CRewardableConstructor.cpp
 		${MAIN_LIB_DIR}/mapObjects/CRewardableObject.cpp
-		${MAIN_LIB_DIR}/mapObjects/JsonRandom.cpp
 		${MAIN_LIB_DIR}/mapObjects/MiscObjects.cpp
 		${MAIN_LIB_DIR}/mapObjects/ObjectTemplate.cpp
 
@@ -92,6 +91,12 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/registerTypes/TypesMapObjects3.cpp
 		${MAIN_LIB_DIR}/registerTypes/TypesLobbyPacks.cpp
 		${MAIN_LIB_DIR}/registerTypes/TypesServerPacks.cpp
+
+		${MAIN_LIB_DIR}/rewardable/Configuration.cpp
+		${MAIN_LIB_DIR}/rewardable/Info.cpp
+		${MAIN_LIB_DIR}/rewardable/Interface.cpp
+		${MAIN_LIB_DIR}/rewardable/Limiter.cpp
+		${MAIN_LIB_DIR}/rewardable/Reward.cpp
 
 		${MAIN_LIB_DIR}/rmg/RmgArea.cpp
 		${MAIN_LIB_DIR}/rmg/RmgObject.cpp
@@ -198,6 +203,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/IHandlerBase.cpp
 		${MAIN_LIB_DIR}/JsonDetail.cpp
 		${MAIN_LIB_DIR}/JsonNode.cpp
+		${MAIN_LIB_DIR}/JsonRandom.cpp
 		${MAIN_LIB_DIR}/LoadProgress.cpp
 		${MAIN_LIB_DIR}/LogicalExpression.cpp
 		${MAIN_LIB_DIR}/NetPacksLib.cpp
@@ -339,7 +345,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapObjects/CQuest.h
 		${MAIN_LIB_DIR}/mapObjects/CRewardableConstructor.h
 		${MAIN_LIB_DIR}/mapObjects/CRewardableObject.h
-		${MAIN_LIB_DIR}/mapObjects/JsonRandom.h
 		${MAIN_LIB_DIR}/mapObjects/MapObjects.h
 		${MAIN_LIB_DIR}/mapObjects/MiscObjects.h
 		${MAIN_LIB_DIR}/mapObjects/ObjectTemplate.h
@@ -359,6 +364,12 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.h
 
 		${MAIN_LIB_DIR}/registerTypes/RegisterTypes.h
+
+		${MAIN_LIB_DIR}/rewardable/Configuration.h
+		${MAIN_LIB_DIR}/rewardable/Info.h
+		${MAIN_LIB_DIR}/rewardable/Interface.h
+		${MAIN_LIB_DIR}/rewardable/Limiter.h
+		${MAIN_LIB_DIR}/rewardable/Reward.h
 
 		${MAIN_LIB_DIR}/rmg/RmgArea.h
 		${MAIN_LIB_DIR}/rmg/RmgObject.h
@@ -476,6 +487,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/Interprocess.h
 		${MAIN_LIB_DIR}/JsonDetail.h
 		${MAIN_LIB_DIR}/JsonNode.h
+		${MAIN_LIB_DIR}/JsonRandom.h
 		${MAIN_LIB_DIR}/Languages.h
 		${MAIN_LIB_DIR}/LoadProgress.h
 		${MAIN_LIB_DIR}/LogicalExpression.h
