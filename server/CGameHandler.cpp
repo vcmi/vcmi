@@ -3902,7 +3902,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 
 	if(srcArtifact == nullptr)
 		COMPLAIN_RET("No artifact to move!");
-	if(destArtifact && srcPlayer != dstPlayer)
+	if(destArtifact && srcPlayer != dstPlayer && !isDstSlotBackpack)
 		COMPLAIN_RET("Can't touch artifact on hero of another player!");
 
 	// Check if src/dest slots are appropriate for the artifacts exchanged.
@@ -7029,7 +7029,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		///Give resources to player
 		TResources resources;
 		resources[EGameResID::GOLD] = 100000;
-		for (auto i = EGameResID::WOOD; i < EGameResID::GOLD; vstd::advance(i, 1))
+		for (GameResID i = EGameResID::WOOD; i < EGameResID::GOLD; ++i)
 			resources[i] = 100;
 
 		giveResources(player, resources);

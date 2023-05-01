@@ -33,6 +33,7 @@
 #include "../render/IImage.h"
 #include "../render/CAnimation.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -67,9 +68,9 @@ CBonusSelection::CBonusSelection()
 
 	panelBackground = std::make_shared<CPicture>("CAMPBRF.BMP", 456, 6);
 
-	buttonStart = std::make_shared<CButton>(Point(475, 536), "CBBEGIB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::startMap, this), SDLK_RETURN);
-	buttonRestart = std::make_shared<CButton>(Point(475, 536), "CBRESTB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::restartMap, this), SDLK_RETURN);
-	buttonBack = std::make_shared<CButton>(Point(624, 536), "CBCANCB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::goBack, this), SDLK_ESCAPE);
+	buttonStart = std::make_shared<CButton>(Point(475, 536), "CBBEGIB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::startMap, this), EShortcut::GLOBAL_ACCEPT);
+	buttonRestart = std::make_shared<CButton>(Point(475, 536), "CBRESTB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::restartMap, this), EShortcut::GLOBAL_ACCEPT);
+	buttonBack = std::make_shared<CButton>(Point(624, 536), "CBCANCB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::goBack, this), EShortcut::GLOBAL_CANCEL);
 
 	campaignName = std::make_shared<CLabel>(481, 28, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->si->getCampaignName());
 

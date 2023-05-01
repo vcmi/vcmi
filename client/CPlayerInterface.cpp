@@ -1709,22 +1709,15 @@ void CPlayerInterface::stopMovement()
 void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto * o = dynamic_cast<const CGObjectInstance *>(market);
-	if(o && o->ID == Obj::ALTAR_OF_SACRIFICE)
-	{
-		//EEMarketMode mode = market->availableModes().front();
-		if (market->allowsTrade(EMarketMode::ARTIFACT_EXP) && visitor->getAlignment() != EAlignment::EVIL)
-			GH.pushIntT<CAltarWindow>(market, visitor, EMarketMode::ARTIFACT_EXP);
-		else if (market->allowsTrade(EMarketMode::CREATURE_EXP) && visitor->getAlignment() != EAlignment::GOOD)
-			GH.pushIntT<CAltarWindow>(market, visitor, EMarketMode::CREATURE_EXP);
-	}
-	else
-	{
-		if(market->allowsTrade(EMarketMode::CREATURE_UNDEAD))
-			GH.pushIntT<CTransformerWindow>(market, visitor);
-		else
-			GH.pushIntT<CMarketplaceWindow>(market, visitor, market->availableModes().front());
-	}
+
+	if(market->allowsTrade(EMarketMode::ARTIFACT_EXP) && visitor->getAlignment() != EAlignment::EVIL)
+		GH.pushIntT<CAltarWindow>(market, visitor, EMarketMode::ARTIFACT_EXP);
+	else if(market->allowsTrade(EMarketMode::CREATURE_EXP) && visitor->getAlignment() != EAlignment::GOOD)
+		GH.pushIntT<CAltarWindow>(market, visitor, EMarketMode::CREATURE_EXP);
+	else if(market->allowsTrade(EMarketMode::CREATURE_UNDEAD))
+		GH.pushIntT<CTransformerWindow>(market, visitor);
+	else if(!market->availableModes().empty())
+		GH.pushIntT<CMarketplaceWindow>(market, visitor, market->availableModes().front());
 }
 
 void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor)
@@ -1796,7 +1789,7 @@ void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 							 al.slot.num);
 			return;
 		}
-		CHeroArtPlace::askToAssemble(hero, al.slot);
+		ArtifactUtilsClient::askToAssemble(hero, al.slot);
 	}
 }
 

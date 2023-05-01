@@ -20,7 +20,7 @@ class CGObjectInstance;
 class ObjectTemplate;
 class CGCreature;
 
-typedef std::pair<int3, float> TDistance;
+using TDistance = std::pair<int3, float>;
 struct DistanceMaximizeFunctor
 {
 	bool operator()(const TDistance & lhs, const TDistance & rhs) const
@@ -38,10 +38,9 @@ public:
 		WEIGHT = 0x00000001,
 		DISTANCE = 0x00000010
 	};
-	
+
 public:
 	MODIFICATOR(ObjectManager);
-
 
 	void process() override;
 	void init() override;

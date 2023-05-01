@@ -205,14 +205,14 @@ public:
 
 	inline void updateAINode(CGPathNode * node, std::function<void (AIPathNode *)> updater)
 	{
-		auto aiNode = static_cast<AIPathNode *>(node);
+		auto * aiNode = static_cast<AIPathNode *>(node);
 
 		updater(aiNode);
 	}
 
 	inline const CGHeroInstance * getHero(const CGPathNode * node) const
 	{
-		auto aiNode = getAINode(node);
+		const auto * aiNode = getAINode(node);
 
 		return aiNode->actor->hero;
 	}

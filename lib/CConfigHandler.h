@@ -171,7 +171,7 @@ namespace config
 		GUIOptions *current; // pointer to current gui options
 
 	public:
-		typedef std::map<std::pair<int,int>, GUIOptions > GuiOptionsMap;
+		using GuiOptionsMap = std::map<std::pair<int, int>, GUIOptions>;
 		GuiOptionsMap guiOptions;
 		void init();
 		CConfigHandler();

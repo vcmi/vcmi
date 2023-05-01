@@ -21,6 +21,7 @@
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
@@ -1184,8 +1185,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	income = std::make_shared<CLabel>(195, 443, FONT_SMALL, ETextAlignment::CENTER);
 	icon = std::make_shared<CAnimImage>("ITPT", 0, 0, 15, 387);
 
-	exit = std::make_shared<CButton>(Point(744, 544), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[8]), [&](){close();}, SDLK_RETURN);
-	exit->assignedKeys.insert(SDLK_ESCAPE);
+	exit = std::make_shared<CButton>(Point(744, 544), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[8]), [&](){close();}, EShortcut::GLOBAL_RETURN);
 	exit->setImageOrder(4, 5, 6, 7);
 
 	auto split = std::make_shared<CButton>(Point(744, 382), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[3]), [&]()
@@ -1308,20 +1308,20 @@ void CCastleInterface::recreateIcons()
 
 }
 
-void CCastleInterface::keyPressed(const SDL_Keycode & key)
+void CCastleInterface::keyPressed(EShortcut key)
 {
 	switch(key)
 	{
-	case SDLK_UP:
+	case EShortcut::MOVE_UP:
 		townlist->selectPrev();
 		break;
-	case SDLK_DOWN:
+	case EShortcut::MOVE_DOWN:
 		townlist->selectNext();
 		break;
-	case SDLK_SPACE:
+	case EShortcut::TOWN_SWAP_ARMIES:
 		heroes->swapArmies();
 		break;
-	case SDLK_t:
+	case EShortcut::TOWN_OPEN_TAVERN:
 		if(town->hasBuilt(BuildingID::TAVERN))
 			LOCPLINT->showTavernWindow(town);
 		break;
@@ -1420,8 +1420,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 	statusbar = CGStatusBar::create(statusbarBackground);
 
 	title = std::make_shared<CLabel>(399, 12, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, town->town->buildings.at(BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL))->getNameTranslated());
-	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->hcommands[8]), [&](){close();}, SDLK_RETURN);
-	exit->assignedKeys.insert(SDLK_ESCAPE);
+	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->hcommands[8]), [&](){close();}, EShortcut::GLOBAL_RETURN);
 
 	auto & boxList = town->town->clientInfo.hallSlots;
 	boxes.resize(boxList.size());
@@ -1486,11 +1485,11 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		std::string tooltipYes = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->getNameTranslated());
 		std::string tooltipNo  = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->getNameTranslated());
 
-		buy = std::make_shared<CButton>(Point(45, 446), "IBUY30", CButton::tooltip(tooltipYes), [&](){ buyFunc(); }, SDLK_RETURN);
+		buy = std::make_shared<CButton>(Point(45, 446), "IBUY30", CButton::tooltip(tooltipYes), [&](){ buyFunc(); }, EShortcut::GLOBAL_ACCEPT);
 		buy->setBorderColor(Colors::METALLIC_GOLD);
 		buy->block(state!=7 || LOCPLINT->playerID != town->tempOwner);
 
-		cancel = std::make_shared<CButton>(Point(290, 445), "ICANCEL", CButton::tooltip(tooltipNo), [&](){ close();}, SDLK_ESCAPE);
+		cancel = std::make_shared<CButton>(Point(290, 445), "ICANCEL", CButton::tooltip(tooltipNo), [&](){ close();}, EShortcut::GLOBAL_CANCEL);
 		cancel->setBorderColor(Colors::METALLIC_GOLD);
 	}
 }
@@ -1596,8 +1595,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 	title = std::make_shared<CLabel>(400, 12, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE, fortBuilding->getNameTranslated());
 
 	std::string text = boost::str(boost::format(CGI->generaltexth->fcommands[6]) % fortBuilding->getNameTranslated());
-	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1", CButton::tooltip(text), [&](){ close(); }, SDLK_RETURN);
-	exit->assignedKeys.insert(SDLK_ESCAPE);
+	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1", CButton::tooltip(text), [&](){ close(); }, EShortcut::GLOBAL_RETURN);
 
 	std::vector<Point> positions =
 	{
@@ -1785,8 +1783,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem)
 	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 7, 556);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
-	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[593]), [&](){ close(); }, SDLK_RETURN);
-	exit->assignedKeys.insert(SDLK_ESCAPE);
+	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[593]), [&](){ close(); }, EShortcut::GLOBAL_RETURN);
 
 	static const std::vector<std::vector<Point> > positions =
 	{
@@ -1866,10 +1863,10 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	                std::to_string(aid.toArtifact(CGI->artifacts())->getPrice()));
 
 	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->getNameSingularTranslated());
-	buy = std::make_shared<CButton>(Point(42, 312), "IBUY30.DEF", CButton::tooltip(text), [&](){ close(); }, SDLK_RETURN);
+	buy = std::make_shared<CButton>(Point(42, 312), "IBUY30.DEF", CButton::tooltip(text), [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
 
 	text = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % creature->getNameSingularTranslated());
-	cancel = std::make_shared<CButton>(Point(224, 312), "ICANCEL.DEF", CButton::tooltip(text), [&](){ close(); }, SDLK_ESCAPE);
+	cancel = std::make_shared<CButton>(Point(224, 312), "ICANCEL.DEF", CButton::tooltip(text), [&](){ close(); }, EShortcut::GLOBAL_CANCEL);
 
 	if(possible)
 		buy->addCallback([=](){ LOCPLINT->cb->buyArtifact(LOCPLINT->cb->getHero(hid),aid); });

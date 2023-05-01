@@ -31,6 +31,28 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 	setAttribute(Qt::WA_DeleteOnClose);
 
 	setWindowModality(Qt::ApplicationModal);
+	
+	for(auto * combo : {ui->humanCombo, ui->cpuCombo, ui->humanTeamsCombo, ui->cpuTeamsCombo})
+		combo->clear();
+	
+	//prepare human players combo box
+	for(int i = 0; i <= PlayerColor::PLAYER_LIMIT_I; ++i)
+	{
+		ui->humanCombo->addItem(!i ? randomString : QString::number(players.at(i)));
+		ui->humanCombo->setItemData(i, QVariant(players.at(i)));
+		
+		ui->cpuCombo->addItem(!i ? randomString : QString::number(cpuPlayers.at(i)));
+		ui->cpuCombo->setItemData(i, QVariant(cpuPlayers.at(i)));
+		
+		ui->humanTeamsCombo->addItem(!i ? randomString : QString::number(cpuPlayers.at(i)));
+		ui->humanTeamsCombo->setItemData(i, QVariant(cpuPlayers.at(i)));
+		
+		ui->cpuTeamsCombo->addItem(!i ? randomString : QString::number(cpuPlayers.at(i)));
+		ui->cpuTeamsCombo->setItemData(i, QVariant(cpuPlayers.at(i)));
+	}
+	
+	for(auto * combo : {ui->humanCombo, ui->cpuCombo, ui->humanTeamsCombo, ui->cpuTeamsCombo})
+		combo->setCurrentIndex(0);
 
 	loadUserSettings();
 
@@ -87,8 +109,17 @@ void WindowNewMap::loadUserSettings()
 	{
 		ui->cpuCombo->setCurrentIndex(cpuPlayers.toInt());
 	}
-	//TODO: teams when implemented
-
+	auto teams = s.value(newMapHumanTeams);
+	if(teams.isValid())
+	{
+		ui->humanTeamsCombo->setCurrentIndex(teams.toInt());
+	}
+	auto cputeams = s.value(newMapCpuTeams);
+	if(cputeams.isValid())
+	{
+		ui->cpuTeamsCombo->setCurrentIndex(cputeams.toInt());
+	}
+	
 	auto waterContent = s.value(newMapWaterContent);
 	if (waterContent.isValid())
 	{
@@ -150,7 +181,8 @@ void WindowNewMap::saveUserSettings()
 
 	s.setValue(newMapPlayers,ui->humanCombo->currentIndex());
 	s.setValue(newMapCpuPlayers,ui->cpuCombo->currentIndex());
-	//TODO: teams when implemented
+	s.setValue(newMapHumanTeams, ui->humanTeamsCombo->currentIndex());
+	s.setValue(newMapCpuTeams, ui->cpuTeamsCombo->currentIndex());
 
 	EWaterContent::EWaterContent water = EWaterContent::RANDOM;
 	if(ui->waterOpt1->isChecked())
@@ -272,16 +304,8 @@ void WindowNewMap::on_okButton_clicked()
 
 void WindowNewMap::on_sizeCombo_activated(int index)
 {
-	std::map<int, std::pair<int, int>> sizes
-	{
-		{0, {36, 36}},
-		{1, {72, 72}},
-		{2, {108, 108}},
-		{3, {144, 144}},
-	};
-
-	ui->widthTxt->setText(QString::number(sizes[index].first));
-	ui->heightTxt->setText(QString::number(sizes[index].second));
+	ui->widthTxt->setText(QString::number(mapSizes.at(index).first));
+	ui->heightTxt->setText(QString::number(mapSizes.at(index).second));
 }
 
 
@@ -295,12 +319,11 @@ void WindowNewMap::on_twoLevelCheck_stateChanged(int arg1)
 
 void WindowNewMap::on_humanCombo_activated(int index)
 {
-	int humans = players.at(index);
-	if(humans > playerLimit)
+	int humans = ui->humanCombo->currentData().toInt();
+	if(humans > PlayerColor::PLAYER_LIMIT_I)
 	{
-		humans = playerLimit;
+		humans = PlayerColor::PLAYER_LIMIT_I;
 		ui->humanCombo->setCurrentIndex(humans);
-		return;
 	}
 
 	mapGenOptions.setPlayerCount(humans);
@@ -308,25 +331,24 @@ void WindowNewMap::on_humanCombo_activated(int index)
 	int teams = mapGenOptions.getTeamCount();
 	if(teams > humans - 1)
 	{
-		teams = humans - 1;
-		//TBD
+		teams = humans > 0 ? humans - 1 : CMapGenOptions::RANDOM_SIZE;
+		ui->humanTeamsCombo->setCurrentIndex(teams + 1); //skip one element because first is random
 	}
 
 	int cpu = mapGenOptions.getCompOnlyPlayerCount();
-	if(cpu > playerLimit - humans)
+	if(cpu > PlayerColor::PLAYER_LIMIT_I - humans)
 	{
-		cpu = playerLimit - humans;
-		ui->cpuCombo->setCurrentIndex(cpu + 1);
+		cpu = PlayerColor::PLAYER_LIMIT_I - humans;
+		ui->cpuCombo->setCurrentIndex(cpu + 1); //skip one element because first is random
 	}
 
 	int cpuTeams = mapGenOptions.getCompOnlyTeamCount(); //comp only players - 1
 	if(cpuTeams > cpu - 1)
 	{
-		cpuTeams = cpu - 1;
-		//TBD
+		cpuTeams = cpu > 0 ? cpu - 1 : CMapGenOptions::RANDOM_SIZE;
+		ui->cpuTeamsCombo->setCurrentIndex(cpuTeams + 1); //skip one element because first is random
 	}
 
-	//void setMapTemplate(const CRmgTemplate * value);
 	updateTemplateList();
 }
 
@@ -334,15 +356,22 @@ void WindowNewMap::on_humanCombo_activated(int index)
 void WindowNewMap::on_cpuCombo_activated(int index)
 {
 	int humans = mapGenOptions.getPlayerCount();
-	int cpu = cpuPlayers.at(index);
-	if(cpu > playerLimit - humans)
+	int cpu = ui->cpuCombo->currentData().toInt();
+	if(cpu > PlayerColor::PLAYER_LIMIT_I - humans)
 	{
-		cpu = playerLimit - humans;
-		ui->cpuCombo->setCurrentIndex(cpu + 1);
-		return;
+		cpu = PlayerColor::PLAYER_LIMIT_I - humans;
+		ui->cpuCombo->setCurrentIndex(cpu + 1); //skip one element because first is random
+	}
+	
+	mapGenOptions.setCompOnlyPlayerCount(cpu);
+	
+	int cpuTeams = mapGenOptions.getCompOnlyTeamCount(); //comp only players - 1
+	if(cpuTeams > cpu - 1)
+	{
+		cpuTeams = cpu > 0 ? cpu - 1 : CMapGenOptions::RANDOM_SIZE;
+		ui->cpuTeamsCombo->setCurrentIndex(cpuTeams + 1); //skip one element because first is random
 	}
 
-	mapGenOptions.setCompOnlyPlayerCount(cpu);
 	updateTemplateList();
 }
 
@@ -415,5 +444,35 @@ void WindowNewMap::updateTemplateList()
 void WindowNewMap::on_checkSeed_toggled(bool checked)
 {
 	ui->lineSeed->setEnabled(checked);
+}
+
+
+void WindowNewMap::on_humanTeamsCombo_activated(int index)
+{
+	int humans = mapGenOptions.getPlayerCount();
+	int teams = ui->humanTeamsCombo->currentData().toInt();
+	if(teams >= humans)
+	{
+		teams = humans > 0 ? humans - 1 : CMapGenOptions::RANDOM_SIZE;
+		ui->humanTeamsCombo->setCurrentIndex(teams + 1); //skip one element because first is random
+	}
+
+	mapGenOptions.setTeamCount(teams);
+	updateTemplateList();
+}
+
+
+void WindowNewMap::on_cpuTeamsCombo_activated(int index)
+{
+	int cpu = mapGenOptions.getCompOnlyPlayerCount();
+	int cpuTeams = ui->cpuTeamsCombo->currentData().toInt();
+	if(cpuTeams >= cpu)
+	{
+		cpuTeams = cpu > 0 ? cpu - 1 : CMapGenOptions::RANDOM_SIZE;
+		ui->cpuTeamsCombo->setCurrentIndex(cpuTeams + 1); //skip one element because first is random
+	}
+
+	mapGenOptions.setCompOnlyTeamCount(cpuTeams);
+	updateTemplateList();
 }
 

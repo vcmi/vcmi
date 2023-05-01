@@ -15,7 +15,7 @@
 	},
 
 	"altarOfSacrifice" : {
-		"index" :2,
+		"index" :2, 
 		"handler" : "market",
 		"base" : {
 			"sounds" : {
@@ -36,7 +36,7 @@
 		}
 	},
 	"tradingPost" : {
-		"index" :221,
+		"index" :221, 
 		"handler" : "market",
 		"base" : {
 			"sounds" : {
@@ -54,12 +54,13 @@
 					"rarity"	: 100
 				},
 				"modes" : ["resource-resource", "resource-player"],
-				"efficacy" : 5
+				"efficiency" : 5,
+				"title" : "core.genrltxt.159"
 			}
 		}
 	},
 	"tradingPostDUPLICATE"		: {
-		"index" :99,
+		"index" :99, 
 		"handler" : "market",
 		"base" : {
 			"sounds" : {
@@ -77,12 +78,13 @@
 					"rarity"	: 100
 				},
 				"modes" : ["resource-resource", "resource-player"],
-				"efficacy" : 5
+				"efficiency" : 5,
+				"title" : "core.genrltxt.159"
 			}
 		}
 	},
 	"freelancersGuild" : {
-		"index" :213,
+		"index" :213, 
 		"handler" : "market",
 		"types" : {
 			"object" : {
@@ -99,7 +101,7 @@
 	},
 
 	"blackMarket" : {
-		"index" :7,
+		"index" :7, 
 		"handler" : "market",
 		"base" : {
 			"sounds" : {
@@ -115,7 +117,8 @@
 					"value"		: 8000,
 					"rarity"	: 20
 				},
-				"modes" : ["resource-artifact"]
+				"modes" : ["resource-artifact"],
+				"title" : "core.genrltxt.349"
 			}
 		}
 	},
@@ -542,7 +545,7 @@
 		}
 	},
 	"university" : {
-		"index" :104,
+		"index" :104, 
 		"handler" : "market",
 		"base" : {
 			"sounds" : {
@@ -559,7 +562,14 @@
 				},
 				"modes" : ["resource-skill"],
 				"title" : "core.genrltxt.602",
-				"speech" : "core.genrltxt.603"
+				"speech" : "core.genrltxt.603",
+				"offer": 
+				[
+					{ "noneOf" : ["necromancy"] },
+					{ "noneOf" : ["necromancy"] },
+					{ "noneOf" : ["necromancy"] },
+					{ "noneOf" : ["necromancy"] }
+				]
 			}
 		}
 	},

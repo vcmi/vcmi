@@ -35,7 +35,11 @@ class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket
 public:
 	
 	std::set<EMarketMode::EMarketMode> marketModes;
-	int marketEfficacy = 5;
+	int marketEfficiency;
+	
+	//window variables
+	std::string title;
+	std::string speech; //currently shown only in university
 	
 	CGMarket();
 	///IObjectInterface
@@ -52,7 +56,9 @@ public:
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & marketModes;
-		h & marketEfficacy;
+		h & marketEfficiency;
+		h & title;
+		h & speech;
 	}
 };
 
@@ -74,12 +80,7 @@ public:
 class DLL_LINKAGE CGUniversity : public CGMarket
 {
 public:
-	int skillsTotal = 4;
 	std::vector<int> skills; //available skills
-	
-	//window variables
-	std::string title;
-	std::string speech;
 
 	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;
 	void initObj(CRandomGenerator & rand) override;//set skills for trade
@@ -89,8 +90,6 @@ public:
 	{
 		h & static_cast<CGMarket&>(*this);
 		h & skills;
-		h & title;
-		h & speech;
 	}
 };
 

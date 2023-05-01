@@ -26,7 +26,7 @@ class CObjectVisitQuery;
 class CQuery;
 class Queries;
 
-typedef std::shared_ptr<CQuery> QueryPtr;
+using QueryPtr = std::shared_ptr<CQuery>;
 
 // This class represents any kind of prolonged interaction that may need to do something special after it is over.
 // It does not necessarily has to be "query" requiring player action, it can be also used internally within server.

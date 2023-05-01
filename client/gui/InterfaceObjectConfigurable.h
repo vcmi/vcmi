@@ -35,7 +35,14 @@ public:
 	InterfaceObjectConfigurable(const JsonNode & config, int used=0, Point offset=Point());
 
 protected:
-	
+	/// Set blocked status for all buttons assotiated with provided shortcut
+	void setShortcutBlocked(EShortcut shortcut, bool isBlocked);
+
+	/// Registers provided callback to be called whenever specified shortcut is triggered
+	void addShortcut(EShortcut shortcut, std::function<void()> callback);
+
+	void keyPressed(EShortcut key) override;
+
 	using BuilderFunction = std::function<std::shared_ptr<CIntObject>(const JsonNode &)>;
 	void registerBuilder(const std::string &, BuilderFunction);
 	
@@ -64,7 +71,7 @@ protected:
 	EFonts readFont(const JsonNode &) const;
 	std::string readText(const JsonNode &) const;
 	std::pair<std::string, std::string> readHintText(const JsonNode &) const;
-	int readKeycode(const JsonNode &) const;
+	EShortcut readHotkey(const JsonNode &) const;
 	
 	//basic widgets
 	std::shared_ptr<CPicture> buildPicture(const JsonNode &) const;
@@ -82,9 +89,16 @@ protected:
 	std::shared_ptr<CIntObject> buildWidget(JsonNode config) const;
 	
 private:
+	struct ShortcutState
+	{
+		std::function<void()> callback;
+		mutable bool assignedToButton = false;
+		bool blocked = false;
+	};
 	
 	int unnamedObjectId = 0;
 	std::map<std::string, BuilderFunction> builders;
 	std::map<std::string, std::shared_ptr<CIntObject>> widgets;
 	std::map<std::string, std::function<void(int)>> callbacks;
+	std::map<EShortcut, ShortcutState> shortcuts;
 };

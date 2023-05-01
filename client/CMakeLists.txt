@@ -31,6 +31,7 @@ set(client_SRCS
 	gui/CursorHandler.cpp
 	gui/InterfaceObjectConfigurable.cpp
 	gui/NotificationHandler.cpp
+	gui/ShortcutHandler.cpp
 
 	lobby/CBonusSelection.cpp
 	lobby/CCampaignInfoScreen.cpp
@@ -85,6 +86,12 @@ set(client_SRCS
 	widgets/MiscWidgets.cpp
 	widgets/ObjectLists.cpp
 	widgets/TextControls.cpp
+	widgets/CArtifactsOfHeroBase.cpp
+	widgets/CArtifactsOfHeroMain.cpp
+	widgets/CArtifactsOfHeroKingdom.cpp
+	widgets/CArtifactsOfHeroAltar.cpp
+	widgets/CArtifactsOfHeroMarket.cpp
+	widgets/CWindowWithArtifacts.cpp
 
 	windows/CCastleInterface.cpp
 	windows/CCreatureWindow.cpp
@@ -153,6 +160,8 @@ set(client_HEADERS
 	gui/InterfaceObjectConfigurable.h
 	gui/MouseButton.h
 	gui/NotificationHandler.h
+	gui/Shortcut.h
+	gui/ShortcutHandler.h
 	gui/TextAlignment.h
 
 	lobby/CBonusSelection.h
@@ -214,6 +223,12 @@ set(client_HEADERS
 	widgets/MiscWidgets.h
 	widgets/ObjectLists.h
 	widgets/TextControls.h
+	widgets/CArtifactsOfHeroBase.h
+	widgets/CArtifactsOfHeroMain.h
+	widgets/CArtifactsOfHeroKingdom.h
+	widgets/CArtifactsOfHeroAltar.h
+	widgets/CArtifactsOfHeroMarket.h
+	widgets/CWindowWithArtifacts.h
 
 	windows/CCastleInterface.h
 	windows/CCreatureWindow.h

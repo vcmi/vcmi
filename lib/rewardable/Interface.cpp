@@ -18,7 +18,6 @@
 #include "../spells/ISpellMechanics.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../IGameCallback.h"
-#include "../CPlayerState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

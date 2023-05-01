@@ -23,7 +23,6 @@
 #include "../CGeneralTextHandler.h"
 #include "../JsonNode.h"
 #include "../IGameCallback.h"
-#include "../CPlayerState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

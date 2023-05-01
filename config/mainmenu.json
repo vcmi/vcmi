@@ -17,22 +17,22 @@
 				"name" : "main",
 				"buttons":
 				[
-					{"x": 644, "y":  70, "center" : true, "name":"MMENUNG", "hotkey" : 110, "help": 3, "command": "to new"},
-					{"x": 645, "y": 192, "center" : true, "name":"MMENULG", "hotkey" : 108, "help": 4, "command": "to load"},
-					{"x": 643, "y": 296, "center" : true, "name":"MMENUHS", "hotkey" : 104, "help": 5, "command": "highscores"},
-					{"x": 643, "y": 414, "center" : true, "name":"MMENUCR", "hotkey" : 99,  "help": 6, "command": "to credits"},
-					{"x": 643, "y": 520, "center" : true, "name":"MMENUQT", "hotkey" : 27,  "help": 7, "command": "exit"}
+					{"x": 644, "y":  70, "center" : true, "name":"MMENUNG", "shortcut" : "mainMenuNew", "help": 3, "command": "to new"},
+					{"x": 645, "y": 192, "center" : true, "name":"MMENULG", "shortcut" : "mainMenuLoad", "help": 4, "command": "to load"},
+					{"x": 643, "y": 296, "center" : true, "name":"MMENUHS", "shortcut" : "mainMenuScores", "help": 5, "command": "highscores"},
+					{"x": 643, "y": 414, "center" : true, "name":"MMENUCR", "shortcut" : "mainMenuCredits", "help": 6, "command": "to credits"},
+					{"x": 643, "y": 520, "center" : true, "name":"MMENUQT", "shortcut" : "mainMenuQuit", "help": 7, "command": "exit"}
 				]
 			},
 			{
 				"name" : "new",
 				"buttons":
 				[
-					{"x": 649, "y":  65, "center" : true, "name":"GTSINGL", "hotkey" : 115, "help": 10, "command": "start single"},
-					{"x": 649, "y": 180, "center" : true, "name":"GTMULTI", "hotkey" : 109, "help": 12, "command": "start multi"},
-					{"x": 646, "y": 298, "center" : true, "name":"GTCAMPN", "hotkey" : 99,  "help": 11, "command": "to campaign"},
-					{"x": 647, "y": 412, "center" : true, "name":"GTTUTOR", "hotkey" : 116, "help": 13, "command": "start tutorial"},
-					{"x": 645, "y": 517, "center" : true, "name":"GTBACK",  "hotkey" : 27,  "help": 14, "command": "to main"}
+					{"x": 649, "y":  65, "center" : true, "name":"GTSINGL", "shortcut" : "mainMenuSingleplayer", "help": 10, "command": "start single"},
+					{"x": 649, "y": 180, "center" : true, "name":"GTMULTI", "shortcut" : "mainMenuMultiplayer", "help": 12, "command": "start multi"},
+					{"x": 646, "y": 298, "center" : true, "name":"GTCAMPN", "shortcut" : "mainMenuCampaign", "help": 11, "command": "to campaign"},
+					{"x": 647, "y": 412, "center" : true, "name":"GTTUTOR", "shortcut" : "mainMenuTutorial", "help": 13, "command": "start tutorial"},
+					{"x": 645, "y": 517, "center" : true, "name":"GTBACK",  "shortcut" : "mainMenuBack", "help": 14, "command": "to main"}
 				],
 				"images": [ {"x": 114, "y": 312, "name":"NEWGAME"} ]
 			},
@@ -40,11 +40,11 @@
 				"name" : "load",
 				"buttons":
 				[
-					{"x": 649, "y":  65, "center" : true, "name":"GTSINGL", "hotkey" : 115, "help": 10, "command": "load single"},
-					{"x": 649, "y": 180, "center" : true, "name":"GTMULTI", "hotkey" : 109, "help": 12, "command": "load multi"},
-					{"x": 646, "y": 298, "center" : true, "name":"GTCAMPN", "hotkey" : 99,  "help": 11, "command": "load campaign"},
-					{"x": 647, "y": 412, "center" : true, "name":"GTTUTOR", "hotkey" : 116, "help": 13, "command": "load tutorial"},
-					{"x": 645, "y": 517, "center" : true, "name":"GTBACK",  "hotkey" : 27,  "help": 14, "command": "to main"}
+					{"x": 649, "y":  65, "center" : true, "name":"GTSINGL", "shortcut" : "mainMenuSingleplayer", "help": 10, "command": "load single"},
+					{"x": 649, "y": 180, "center" : true, "name":"GTMULTI", "shortcut" : "mainMenuMultiplayer", "help": 12, "command": "load multi"},
+					{"x": 646, "y": 298, "center" : true, "name":"GTCAMPN", "shortcut" : "mainMenuCampaign", "help": 11, "command": "load campaign"},
+					{"x": 647, "y": 412, "center" : true, "name":"GTTUTOR", "shortcut" : "mainMenuTutorial", "help": 13, "command": "load tutorial"},
+					{"x": 645, "y": 517, "center" : true, "name":"GTBACK",  "shortcut" : "mainMenuBack", "help": 14, "command": "to main"}
 				],
 				"images": [ {"x": 114, "y": 312, "name":"LOADGAME"} ]
 			},
@@ -52,11 +52,11 @@
 				"name" : "campaign",
 				"buttons":
 				[
-					{"x": 634, "y":  67, "center" : true, "name":"CSSSOD", "hotkey" : 119, "command": "campaigns sod"},
-					{"x": 637, "y": 181, "center" : true, "name":"CSSROE", "hotkey" : 114, "command": "campaigns roe"},
-					{"x": 638, "y": 301, "center" : true, "name":"CSSARM", "hotkey" : 97,  "command": "campaigns ab"},
-					{"x": 638, "y": 413, "center" : true, "name":"CSSCUS", "hotkey" : 99,  "command": "start campaign"},
-					{"x": 639, "y": 518, "center" : true, "name":"CSSEXIT", "hotkey" : 27,  "command": "to new"}
+					{"x": 634, "y":  67, "center" : true, "name":"CSSSOD",  "shortcut" : "mainMenuCampaignSod", "command": "campaigns sod"},
+					{"x": 637, "y": 181, "center" : true, "name":"CSSROE",  "shortcut" : "mainMenuCampaignRoe", "command": "campaigns roe"},
+					{"x": 638, "y": 301, "center" : true, "name":"CSSARM",  "shortcut" : "mainMenuCampaignAb", "command": "campaigns ab"},
+					{"x": 638, "y": 413, "center" : true, "name":"CSSCUS",  "shortcut" : "mainMenuCampaign", "command": "start campaign"},
+					{"x": 639, "y": 518, "center" : true, "name":"CSSEXIT", "shortcut" : "mainMenuBack",  "command": "to new"}
 				],
 			}
 		]

@@ -25,7 +25,7 @@ class CAnimation;
 class CObjectList : public CIntObject
 {
 public:
-	typedef std::function<std::shared_ptr<CIntObject>(size_t)> CreateFunc;
+	using CreateFunc = std::function<std::shared_ptr<CIntObject>(size_t)>;
 
 private:
 	CreateFunc createObject;

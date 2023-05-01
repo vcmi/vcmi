@@ -15,6 +15,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 
 #include "../../CCallback.h"
@@ -43,7 +44,7 @@ CScenarioInfoScreen::CScenarioInfoScreen()
 	card->changeSelection();
 
 	card->iconDifficulty->setSelected(getCurrentDifficulty());
-	buttonBack = std::make_shared<CButton>(Point(584, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [=](){ close();}, SDLK_ESCAPE);
+	buttonBack = std::make_shared<CButton>(Point(584, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 CScenarioInfoScreen::~CScenarioInfoScreen()

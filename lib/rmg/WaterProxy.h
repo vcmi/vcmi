@@ -49,8 +49,8 @@ protected:
 	
 	bool placeShipyard(Zone & land, const Lake & lake, si32 guard, RouteInfo & info);
 	bool placeBoat(Zone & land, const Lake & lake, RouteInfo & info);
-		
-protected:	
+
+protected:
 	std::vector<Lake> lakes; //disconnected parts of zone. Used to work with water zones
 	std::map<int3, int> lakeMap; //map tile on lakeId which is position of lake in lakes array +1
 };

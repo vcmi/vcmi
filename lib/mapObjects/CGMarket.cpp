@@ -191,7 +191,7 @@ void CGMarket::onHeroVisit(const CGHeroInstance * h) const
 
 int CGMarket::getMarketEfficiency() const
 {
-	return marketEfficacy;
+	return marketEfficiency;
 }
 
 bool CGMarket::allowsTrade(EMarketMode::EMarketMode mode) const
@@ -257,28 +257,12 @@ void CGUniversity::initObj(CRandomGenerator & rand)
 	CGMarket::initObj(rand);
 	
 	std::vector<int> toChoose;
-	int skillsNeeded = skillsTotal - skills.size();
 	for(int i = 0; i < VLC->skillh->size(); ++i)
 	{
 		if(!vstd::contains(skills, i) && cb->isAllowed(2, i))
 		{
 			toChoose.push_back(i);
 		}
-	}
-	if(toChoose.size() < skillsNeeded)
-	{
-		logGlobal->warn("Warning: less then %d available skills was found by University initializer!", skillsTotal);
-		return;
-	}
-
-	// get 4 skills, excluding predefined
-	
-	for(int i = 0; i < skillsNeeded; ++i)
-	{
-		// move randomly one skill to selected and remove from list
-		auto it = RandomGeneratorUtil::nextItem(toChoose, rand);
-		skills.push_back(*it);
-		toChoose.erase(it);
 	}
 }
 

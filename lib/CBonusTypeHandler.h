@@ -19,7 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
 
-typedef Bonus::BonusType BonusTypeID;
+using BonusTypeID = Bonus::BonusType;
 
 class DLL_LINKAGE CBonusType
 {

@@ -32,13 +32,8 @@ struct SlotInfo
 struct ArmyUpgradeInfo
 {
 	std::vector<SlotInfo> resultingArmy;
-	uint64_t upgradeValue;
+	uint64_t upgradeValue = 0;
 	TResources upgradeCost;
-
-	ArmyUpgradeInfo()
-		: resultingArmy(), upgradeValue(0), upgradeCost()
-	{
-	}
 };
 
 class DLL_EXPORT IArmyManager //: public: IAbstractManager

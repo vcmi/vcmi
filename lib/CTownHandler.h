@@ -44,7 +44,7 @@ class DLL_LINKAGE CBuilding
 	std::string identifier;
 
 public:
-	typedef LogicalExpression<BuildingID> TRequired;
+	using TRequired = LogicalExpression<BuildingID>;
 
 	CTown * town; // town this building belongs to
 	TResources resources;

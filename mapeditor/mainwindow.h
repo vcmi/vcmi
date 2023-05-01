@@ -41,7 +41,7 @@ public:
 	void saveMap();
 	bool openMap(const QString &);
 	
-	MapView * mapView();
+	//MapView * mapView();
 
 	void loadObjectsTree();
 
@@ -114,6 +114,8 @@ private slots:
 	void on_actionCopy_triggered();
 
 	void on_actionPaste_triggered();
+
+	void on_actionExport_triggered();
 
 public slots:
 

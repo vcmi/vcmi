@@ -197,7 +197,7 @@ struct BankConfig
 	}
 };
 
-typedef std::vector<std::pair<ui8, IObjectInfo::CArmyStructure>> TPossibleGuards;
+using TPossibleGuards = std::vector<std::pair<ui8, IObjectInfo::CArmyStructure>>;
 
 template <typename T>
 struct DLL_LINKAGE PossibleReward
@@ -262,7 +262,7 @@ protected:
 	
 	std::set<EMarketMode::EMarketMode> marketModes;
 	JsonNode predefinedOffer;
-	int marketEfficacy;
+	int marketEfficiency;
 	
 	std::string title, speech;
 	
@@ -274,7 +274,7 @@ public:
 	{
 		h & static_cast<CDefaultObjectTypeHandler<CGMarket>&>(*this);
 		h & marketModes;
-		h & marketEfficacy;
+		h & marketEfficiency;
 	}
 };
 
