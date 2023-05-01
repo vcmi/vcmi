@@ -54,7 +54,7 @@
 					"rarity"	: 100
 				},
 				"modes" : ["resource-resource", "resource-player"],
-				"efficacy" : 5,
+				"efficiency" : 5,
 				"title" : "core.genrltxt.159"
 			}
 		}
@@ -78,7 +78,7 @@
 					"rarity"	: 100
 				},
 				"modes" : ["resource-resource", "resource-player"],
-				"efficacy" : 5,
+				"efficiency" : 5,
 				"title" : "core.genrltxt.159"
 			}
 		}
