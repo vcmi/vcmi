@@ -99,7 +99,7 @@ void CArtifactsOfHeroAltar::deleteFromVisible(const CArtifactInstance * artInst)
 	{
 		if(artInst->canBeDisassembled())
 		{
-			for(const auto part : dynamic_cast<const CCombinedArtifactInstance*>(artInst)->constituentsInfo)
+			for(const auto & part : dynamic_cast<const CCombinedArtifactInstance*>(artInst)->constituentsInfo)
 			{
 				if(part.slot != ArtifactPosition::PRE_FIRST)
 					getArtPlace(part.slot)->setArtifact(nullptr);
