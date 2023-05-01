@@ -131,13 +131,16 @@ TSubgoal CollectRes::whatToDoToTrade()
 
 	std::vector<const CGObjectInstance *> visObjs;
 	ai->retrieveVisitableObjs(visObjs, true);
-	for (const CGObjectInstance * obj : visObjs)
+	for(const CGObjectInstance * obj : visObjs)
 	{
-		if (const IMarket * m = IMarket::castFrom(obj, false))
+		if(const IMarket * m = IMarket::castFrom(obj, false); m->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
 		{
-			if (obj->ID == Obj::TOWN && obj->tempOwner == ai->playerID && m->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
-				markets.push_back(m);
-			else if (obj->ID == Obj::TRADING_POST)
+			if(obj->ID == Obj::TOWN)
+			{
+				if(obj->tempOwner == ai->playerID)
+					markets.push_back(m);
+			}
+			else
 				markets.push_back(m);
 		}
 	}
