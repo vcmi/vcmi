@@ -15,6 +15,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
 
@@ -39,8 +40,7 @@ CSavingScreen::CSavingScreen()
 	tabSel->toggleMode();
 
 	tabSel->callOnSelect = std::bind(&CSavingScreen::changeSelection, this, _1);
-	buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRSAV.DEF", CGI->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), SDLK_s);
-	buttonStart->assignedKeys.insert(SDLK_RETURN);
+	buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRSAV.DEF", CGI->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
 }
 
 const CMapInfo * CSavingScreen::getMapInfo()

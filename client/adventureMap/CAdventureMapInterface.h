@@ -116,6 +116,8 @@ private:
 	void fnextHero();
 	void fendTurn();
 
+	void hotkeyMoveHeroDirectional(Point direction);
+
 	bool isActive();
 	void adjustActiveness(bool aiTurnStart); //should be called every time at AI/human turn transition; blocks GUI during AI turn
 
@@ -130,7 +132,7 @@ private:
 
 	const CGObjectInstance *getActiveObject(const int3 &tile);
 
-	std::optional<Point> keyToMoveDirection(const SDL_Keycode & key);
+	std::optional<Point> keyToMoveDirection(EShortcut key);
 
 	void endingTurn();
 
@@ -149,7 +151,7 @@ protected:
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 
-	void keyPressed(const SDL_Keycode & key) override;
+	void keyPressed(EShortcut key) override;
 
 public:
 	CAdventureMapInterface();

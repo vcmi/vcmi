@@ -12,6 +12,7 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
+#include "../gui/Shortcut.h"
 
 #include "Buttons.h"
 
@@ -82,8 +83,8 @@ void CArtifactsOfHeroBase::init(
 		artPlace->leftClickCallback = lClickCallback;
 		artPlace->rightClickCallback = rClickCallback;
 	}
-	leftBackpackRoll = std::make_shared<CButton>(Point(379, 364), "hsbtns3.def", CButton::tooltip(), [scrollHandler]() { scrollHandler(-1); }, SDLK_LEFT);
-	rightBackpackRoll = std::make_shared<CButton>(Point(632, 364), "hsbtns5.def", CButton::tooltip(), [scrollHandler]() { scrollHandler(+1); }, SDLK_RIGHT);
+	leftBackpackRoll = std::make_shared<CButton>(Point(379, 364), "hsbtns3.def", CButton::tooltip(), [scrollHandler]() { scrollHandler(-1); }, EShortcut::MOVE_LEFT);
+	rightBackpackRoll = std::make_shared<CButton>(Point(632, 364), "hsbtns5.def", CButton::tooltip(), [scrollHandler]() { scrollHandler(+1); }, EShortcut::MOVE_RIGHT);
 	leftBackpackRoll->block(true);
 	rightBackpackRoll->block(true);
 }

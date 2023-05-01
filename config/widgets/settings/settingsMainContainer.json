@@ -103,7 +103,7 @@
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.321",
 			"callback": "loadGame",
-			"hotkey": "l"
+			"hotkey": "gameLoadGame"
 		},
 		{
 			"name": "saveButton",
@@ -113,7 +113,7 @@
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.322",
 			"callback": "saveGame",
-			"hotkey": "s"
+			"hotkey": "gameSaveGame"
 		},
 		{
 			"name": "restartButton",
@@ -123,7 +123,7 @@
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.323",
 			"callback": "restartGame",
-			"hotkey": "r"
+			"hotkey": "gameRestartGame"
 		},
 		{
 			"name": "mainMenuButton",
@@ -133,7 +133,7 @@
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.320",
 			"callback": "returnToMainMenu",
-			"hotkey": "m"
+			"hotkey": "gameMainMenu"
 		},
 		{
 			"name": "quitButton",
@@ -143,7 +143,7 @@
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.324",
 			"callback": "quitGame",
-			"hotkey": "q"
+			"hotkey": "gameQuitGame"
 		},
 		{
 			"name": "closeSettingsButton",
@@ -153,7 +153,7 @@
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.325",
 			"callback": "closeWindow",
-			"hotkey": ["escape", "backspace"]
+			"hotkey": "globalReturn"
 		}
 	]
 }

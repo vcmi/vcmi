@@ -47,7 +47,7 @@ public:
 	void tick(uint32_t msPassed) override;
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
-	void keyPressed(const SDL_Keycode & key) override;
+	void keyPressed(EShortcut key) override;
 	void textInputed(const std::string & enteredText) override;
 	void textEdited(const std::string & enteredText) override;
 

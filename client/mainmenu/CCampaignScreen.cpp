@@ -19,6 +19,7 @@
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -77,7 +78,7 @@ std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & butt
 	if(!button["help"].isNull() && button["help"].Float() > 0)
 		help = CGI->generaltexth->zelp[(size_t)button["help"].Float()];
 
-	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), button["name"].String(), help, [=](){ close();}, (int)button["hotkey"].Float());
+	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), button["name"].String(), help, [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)

@@ -225,9 +225,9 @@ public:
 	CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf);
 
 	void clickLeft(tribool down, bool previousState) override;
-	void keyPressed(const SDL_Keycode & key) override;
+	void keyPressed(EShortcut key) override;
 
-	bool captureThisKey(const SDL_Keycode & key) override;
+	bool captureThisKey(EShortcut key) override;
 
 	void textInputed(const std::string & enteredText) override;
 	void textEdited(const std::string & enteredText) override;

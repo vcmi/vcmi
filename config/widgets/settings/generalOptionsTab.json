@@ -47,7 +47,6 @@
 			"image": "settingsWindow/button32",
 			"help": "vcmi.systemOptions.resolutionButton",
 			"callback": "setGameResolution",
-			"hotkey": "g",			
 			"items":
 			[
 				{

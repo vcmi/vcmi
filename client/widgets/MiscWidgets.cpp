@@ -200,7 +200,7 @@ void CMinorResDataBar::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 
-	for (EGameResID i=EGameResID::WOOD; i<=EGameResID::GOLD; vstd::advance(i, 1))
+	for (GameResID i=EGameResID::WOOD; i<=EGameResID::GOLD; ++i)
 	{
 		std::string text = std::to_string(LOCPLINT->cb->getResourceAmount(i));
 

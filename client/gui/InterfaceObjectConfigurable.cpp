@@ -15,6 +15,8 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/ShortcutHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -24,18 +26,6 @@
 #include "../windows/InfoWindows.h"
 
 #include "../../lib/CGeneralTextHandler.h"
-
-static std::map<std::string, int> KeycodeMap{
-	{"up", SDLK_UP},
-	{"down", SDLK_DOWN},
-	{"left", SDLK_LEFT},
-	{"right", SDLK_RIGHT},
-	{"space", SDLK_SPACE},
-	{"escape", SDLK_ESCAPE},
-	{"backspace", SDLK_BACKSPACE},
-	{"enter", SDLK_RETURN}
-};
-
 
 InterfaceObjectConfigurable::InterfaceObjectConfigurable(const JsonNode & config, int used, Point offset):
 	InterfaceObjectConfigurable(used, offset)
@@ -211,27 +201,20 @@ std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(co
 	return result;
 }
 
-int InterfaceObjectConfigurable::readKeycode(const JsonNode & config) const
+EShortcut InterfaceObjectConfigurable::readHotkey(const JsonNode & config) const
 {
-	logGlobal->debug("Reading keycode");
-	if(config.getType() == JsonNode::JsonType::DATA_INTEGER)
-		return config.Integer();
-	
-	if(config.getType() == JsonNode::JsonType::DATA_STRING)
+	logGlobal->debug("Reading hotkey");
+
+	if(config.getType() != JsonNode::JsonType::DATA_STRING)
 	{
-		auto s = config.String();
-		if(s.size() == 1) //keyboard symbol
-			return s[0];
-
-		if (KeycodeMap.count(s))
-			return KeycodeMap[s];
-
-		logGlobal->error("Invalid keycode '%s' in interface configuration!", config.String());
-		return SDLK_UNKNOWN;
+		logGlobal->error("Invalid hotket format in interface configuration! Expected string!", config.String());
+		return EShortcut::NONE;
 	}
 
-	logGlobal->error("Invalid keycode format in interface configuration! Expected string or integer!", config.String());
-	return SDLK_UNKNOWN;
+	EShortcut result = GH.shortcutsHandler().findShortcut(config.String());
+	if (result == EShortcut::NONE)
+		logGlobal->error("Invalid hotkey '%s' in interface configuration!", config.String());
+	return result;;
 }
 
 std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNode & config) const
@@ -337,16 +320,27 @@ std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode
 		button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
 	}
 	if(!config["callback"].isNull())
-		button->addCallback(std::bind(callbacks.at(config["callback"].String()), 0));
+	{
+		std::string callbackName = config["callback"].String();
+
+		if (callbacks.count(callbackName) > 0)
+			button->addCallback(std::bind(callbacks.at(callbackName), 0));
+		else
+			logGlobal->error("Invalid callback '%s' in widget", callbackName );
+	}
 	if(!config["hotkey"].isNull())
 	{
-		if(config["hotkey"].getType() == JsonNode::JsonType::DATA_VECTOR)
+		if(config["hotkey"].getType() == JsonNode::JsonType::DATA_STRING)
 		{
-			for(auto k : config["hotkey"].Vector())
-				button->assignedKeys.insert(readKeycode(k));
+			button->assignedKey = readHotkey(config["hotkey"]);
+
+			auto target = shortcuts.find(button->assignedKey);
+			if (target != shortcuts.end())
+			{
+				button->addCallback(target->second.callback);
+				target->second.assignedToButton = true;
+			}
 		}
-		else
-			button->assignedKeys.insert(readKeycode(config["hotkey"]));
 	}
 	return button;
 }
@@ -451,4 +445,42 @@ std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(JsonNode co
 
 	logGlobal->error("Builder with type %s is not registered", type);
 	return nullptr;
+}
+
+void InterfaceObjectConfigurable::setShortcutBlocked(EShortcut shortcut, bool isBlocked)
+{
+	auto target = shortcuts.find(shortcut);
+	if (target == shortcuts.end())
+		return;
+
+	target->second.blocked = isBlocked;
+
+	for	(auto & entry : widgets)
+	{
+		auto button = std::dynamic_pointer_cast<CButton>(entry.second);
+
+		if (button && button->assignedKey == shortcut)
+			button->block(isBlocked);
+	}
+}
+
+void InterfaceObjectConfigurable::addShortcut(EShortcut shortcut, std::function<void()> callback)
+{
+	assert(shortcuts.count(shortcut) == 0);
+	shortcuts[shortcut].callback = callback;
+}
+
+void InterfaceObjectConfigurable::keyPressed(EShortcut key)
+{
+	auto target = shortcuts.find(key);
+	if (target == shortcuts.end())
+		return;
+
+	if (target->second.assignedToButton)
+		return; // will be handled by button instance
+
+	if (target->second.blocked)
+		return;
+
+	target->second.callback();
 }

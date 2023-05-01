@@ -7029,7 +7029,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		///Give resources to player
 		TResources resources;
 		resources[EGameResID::GOLD] = 100000;
-		for (auto i = EGameResID::WOOD; i < EGameResID::GOLD; vstd::advance(i, 1))
+		for (GameResID i = EGameResID::WOOD; i < EGameResID::GOLD; ++i)
 			resources[i] = 100;
 
 		giveResources(player, resources);
