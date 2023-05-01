@@ -297,6 +297,12 @@ int RewardEvaluator::getGoldCost(const CGObjectInstance * target, const CGHeroIn
 {
 	if(!target)
 		return 0;
+	
+	if(auto * m = dynamic_cast<const IMarket *>(target))
+	{
+		if(m->allowsTrade(EMarketMode::RESOURCE_SKILL))
+			return 2000;
+	}
 
 	switch(target->ID)
 	{
@@ -305,8 +311,6 @@ int RewardEvaluator::getGoldCost(const CGObjectInstance * target, const CGHeroIn
 	case Obj::SCHOOL_OF_MAGIC:
 	case Obj::SCHOOL_OF_WAR:
 		return 1000;
-	case Obj::UNIVERSITY:
-		return 2000;
 	case Obj::CREATURE_GENERATOR1:
 	case Obj::CREATURE_GENERATOR2:
 	case Obj::CREATURE_GENERATOR3:
