@@ -926,7 +926,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	if(counter)
 		bat.flags |= BattleAttack::COUNTER;
 
-	const int attackerLuck = attacker->LuckVal();
+	const int attackerLuck = attacker->luckVal();
 
 	if(attackerLuck > 0)
 	{
@@ -1334,7 +1334,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 	ret = path.second;
 
-	int creSpeed = curStack->Speed(0, true);
+	int creSpeed = curStack->speed(0, true);
 
 	if (gs->curB->tacticDistance > 0 && creSpeed > 0)
 		creSpeed = GameConstants::BFIELD_SIZE;
@@ -6518,7 +6518,7 @@ void CGameHandler::runBattle()
 				sendAndApply(&removeGhosts);
 
 			// check for bad morale => freeze
-			int nextStackMorale = next->MoraleVal();
+			int nextStackMorale = next->moraleVal();
 			if(!next->hadMorale && !next->waited() && nextStackMorale < 0)
 			{
 				auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE);
@@ -6704,7 +6704,7 @@ void CGameHandler::runBattle()
 				if(next != nullptr)
 				{
 					//check for good morale
-					nextStackMorale = next->MoraleVal();
+					nextStackMorale = next->moraleVal();
 					if( !battleResult.get()
 						&& !next->hadMorale
 						&& !next->defending

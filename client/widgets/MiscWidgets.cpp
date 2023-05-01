@@ -385,7 +385,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 	bonusValue = 0;
 
 	if(node)
-		bonusValue = morale ? node->MoraleValAndBonusList(modifierList) : node->LuckValAndBonusList(modifierList);
+		bonusValue = morale ? node->moraleValAndBonusList(modifierList) : node->luckValAndBonusList(modifierList);
 
 	int mrlt = (bonusValue>0)-(bonusValue<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
 	hoverText = CGI->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];

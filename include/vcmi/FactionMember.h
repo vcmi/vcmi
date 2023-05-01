@@ -54,21 +54,21 @@ public:
 	int getPrimSkillLevel(PrimarySkill::PrimarySkill id) const;
 	/**
 	 Returns morale of creature or hero. Taking absolute bonuses into account.
-	 For now, uses range [-3, +3]
+	 For now, uses range from EGameSettings
 	*/
-	int MoraleVal() const;
+	int moraleVal() const;
 	/**
 	 Returns luck of creature or hero. Taking absolute bonuses into account.
-	 For now, uses range [-3, +3]
+	 For now, uses range from EGameSettings
 	*/
-	int LuckVal() const;
+	int luckVal() const;
 	/**
 	 Returns total value of all morale bonuses and sets bonusList as a pointer to the list of selected bonuses.
 	 @param bonusList is the out param it's list of all selected bonuses
-	 @return total value of all morale in the range [-3, +3] and 0 otherwise
+	 @return total value of all morale in the range from EGameSettings and 0 otherwise
 	*/
-	int MoraleValAndBonusList(std::shared_ptr<const BonusList> & bonusList) const;
-	int LuckValAndBonusList(std::shared_ptr<const BonusList> & bonusList) const;
+	int moraleValAndBonusList(std::shared_ptr<const BonusList> & bonusList) const;
+	int luckValAndBonusList(std::shared_ptr<const BonusList> & bonusList) const;
 };
 
 VCMI_LIB_NAMESPACE_END

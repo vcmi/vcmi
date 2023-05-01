@@ -214,7 +214,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 					bestAttack.attackerState->unitType()->getJsonKey(),
 					bestAttack.affectedUnits[0]->unitType()->getJsonKey(),
 					(int)bestAttack.affectedUnits[0]->getCount(), action, (int)bestAttack.from, (int)bestAttack.attack.attacker->getPosition().hex,
-					bestAttack.attack.chargeDistance, bestAttack.attack.attacker->Speed(0, true),
+					bestAttack.attack.chargeDistance, bestAttack.attack.attacker->speed(0, true),
 					bestAttack.defenderDamageReduce, bestAttack.attackerDamageReduce, bestAttack.attackValue()
 				);
 			}

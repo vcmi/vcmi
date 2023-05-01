@@ -23,7 +23,7 @@ class DLL_LINKAGE ACreature: public AFactionMember
 {
 public:
 	bool isLiving() const; //non-undead, non-non living or alive
-	ui32 Speed(int turn = 0, bool useBind = false) const; //get speed (in moving tiles) of creature with all modificators
+	ui32 speed(int turn = 0, bool useBind = false) const; //get speed (in moving tiles) of creature with all modificators
 	virtual ui32 getMaxHealth() const; //get max HP of stack with all modifiers
 };
 

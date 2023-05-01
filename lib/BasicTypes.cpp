@@ -12,6 +12,7 @@
 
 #include "VCMI_Lib.h"
 #include "GameConstants.h"
+#include "GameSettings.h"
 #include "bonuses/BonusList.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/IBonusBearer.h"
@@ -90,7 +91,7 @@ int AFactionMember::getPrimSkillLevel(PrimarySkill::PrimarySkill id) const
 	return std::max(ret, minSkillValue); //otherwise, some artifacts may cause negative skill value effect, sp=0 works in old saves
 }
 
-int AFactionMember::MoraleValAndBonusList(TConstBonusListPtr & bonusList) const
+int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 {
 	static const auto unaffectedByMoraleSelector = Selector::type()(Bonus::NON_LIVING).Or(Selector::type()(Bonus::UNDEAD))
 													.Or(Selector::type()(Bonus::SIEGE_WEAPON)).Or(Selector::type()(Bonus::NO_MORALE));
@@ -108,10 +109,13 @@ int AFactionMember::MoraleValAndBonusList(TConstBonusListPtr & bonusList) const
 	static const std::string cachingStrMor = "type_MORALE";
 	bonusList = getBonusBearer()->getBonuses(moraleSelector, cachingStrMor);
 
-	return std::clamp(bonusList->totalValue(), -3, +3);
+	int32_t maxGoodMorale = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE).size();
+	int32_t maxBadMorale = -VLC->settings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE).size();
+
+	return std::clamp(bonusList->totalValue(), maxBadMorale, maxGoodMorale);
 }
 
-int AFactionMember::LuckValAndBonusList(TConstBonusListPtr & bonusList) const
+int AFactionMember::luckValAndBonusList(TConstBonusListPtr & bonusList) const
 {
 	if(getBonusBearer()->hasBonusOfType(Bonus::NO_LUCK))
 	{
@@ -124,19 +128,22 @@ int AFactionMember::LuckValAndBonusList(TConstBonusListPtr & bonusList) const
 	static const std::string cachingStrLuck = "type_LUCK";
 	bonusList = getBonusBearer()->getBonuses(luckSelector, cachingStrLuck);
 
-	return std::clamp(bonusList->totalValue(), -3, +3);
+	int32_t maxGoodLuck = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE).size();
+	int32_t maxBadLuck = -VLC->settings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE).size();
+
+	return std::clamp(bonusList->totalValue(), maxBadLuck, maxGoodLuck);
 }
 
-int AFactionMember::MoraleVal() const
+int AFactionMember::moraleVal() const
 {
 	TConstBonusListPtr tmp = nullptr;
-	return MoraleValAndBonusList(tmp);
+	return moraleValAndBonusList(tmp);
 }
 
-int AFactionMember::LuckVal() const
+int AFactionMember::luckVal() const
 {
 	TConstBonusListPtr tmp = nullptr;
-	return LuckValAndBonusList(tmp);
+	return luckValAndBonusList(tmp);
 }
 
 ui32 ACreature::getMaxHealth() const
@@ -147,7 +154,7 @@ ui32 ACreature::getMaxHealth() const
 	return std::max(1, value); //never 0
 }
 
-ui32 ACreature::Speed(int turn, bool useBind) const
+ui32 ACreature::speed(int turn, bool useBind) const
 {
 	//war machines cannot move
 	if(getBonusBearer()->hasBonus(Selector::type()(Bonus::SIEGE_WEAPON).And(Selector::turns(turn))))

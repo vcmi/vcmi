@@ -205,7 +205,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(const battle::Uni
 	if(targets.unreachableEnemies.empty())
 		return result;
 
-	auto speed = activeStack->Speed();
+	auto speed = activeStack->speed();
 
 	if(speed == 0)
 		return result;
@@ -607,7 +607,7 @@ void BattleExchangeEvaluator::updateReachabilityMap(HypotheticBattle & hb)
 
 			for(BattleHex hex = BattleHex::TOP_LEFT; hex.isValid(); hex = hex + 1)
 			{
-				bool reachable = unitReachability.distances[hex] <= unit->Speed(turn);
+				bool reachable = unitReachability.distances[hex] <= unit->speed(turn);
 
 				if(!reachable && unitReachability.accessibility[hex] == EAccessibility::ALIVE_STACK)
 				{
@@ -617,7 +617,7 @@ void BattleExchangeEvaluator::updateReachabilityMap(HypotheticBattle & hb)
 					{
 						for(BattleHex neighbor : hex.neighbouringTiles())
 						{
-							reachable = unitReachability.distances[neighbor] <= unit->Speed(turn);
+							reachable = unitReachability.distances[neighbor] <= unit->speed(turn);
 
 							if(reachable) break;
 						}
@@ -665,7 +665,7 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 			for(BattleHex hex = BattleHex::TOP_LEFT; hex.isValid(); hex = hex + 1)
 			{
 				bool enemyUnit = false;
-				bool reachable = unitReachability.distances[hex] <= unit->Speed(turn);
+				bool reachable = unitReachability.distances[hex] <= unit->speed(turn);
 
 				if(!reachable && unitReachability.accessibility[hex] == EAccessibility::ALIVE_STACK)
 				{
@@ -677,7 +677,7 @@ bool BattleExchangeEvaluator::checkPositionBlocksOurStacks(HypotheticBattle & hb
 
 						for(BattleHex neighbor : hex.neighbouringTiles())
 						{
-							reachable = unitReachability.distances[neighbor] <= unit->Speed(turn);
+							reachable = unitReachability.distances[neighbor] <= unit->speed(turn);
 
 							if(reachable) break;
 						}
