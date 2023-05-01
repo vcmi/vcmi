@@ -286,7 +286,6 @@ void CAdventureMapInterface::deactivate()
 
 void CAdventureMapInterface::showAll(SDL_Surface * to)
 {
-	CSDL_Ext::fillSurface(to, CSDL_Ext::toSDL(ColorRGBA(255, 0,255,255)));// FIXME: CONFIGURABLE ADVMAP - debug fill to detect any empty areas
 	CIntObject::showAll(to);
 	LOCPLINT->cingconsole->show(to);
 }
