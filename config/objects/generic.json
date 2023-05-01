@@ -15,7 +15,7 @@
 	},
 
 	"altarOfSacrifice" : {
-		"index" :2, //deprecated
+		"index" :2, 
 		"handler" : "market",
 		"base" : {
 			"sounds" : {
@@ -36,7 +36,7 @@
 		}
 	},
 	"tradingPost" : {
-		"index" :221, //deprecated
+		"index" :221, 
 		"handler" : "market",
 		"base" : {
 			"sounds" : {
@@ -60,7 +60,7 @@
 		}
 	},
 	"tradingPostDUPLICATE"		: {
-		"index" :99, //deprecated
+		"index" :99, 
 		"handler" : "market",
 		"base" : {
 			"sounds" : {
@@ -84,7 +84,7 @@
 		}
 	},
 	"freelancersGuild" : {
-		"index" :213, //deprecated
+		"index" :213, 
 		"handler" : "market",
 		"types" : {
 			"object" : {
@@ -101,7 +101,7 @@
 	},
 
 	"blackMarket" : {
-		"index" :7, //deprecated
+		"index" :7, 
 		"handler" : "market",
 		"base" : {
 			"sounds" : {
@@ -545,7 +545,7 @@
 		}
 	},
 	"university" : {
-		"index" :104, //deprecated
+		"index" :104, 
 		"handler" : "market",
 		"base" : {
 			"sounds" : {
