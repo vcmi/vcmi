@@ -1250,7 +1250,7 @@ void CAltarWindow::makeDeal()
 		std::sort(positions.begin(), positions.end(), std::greater<>());
 
 		LOCPLINT->cb->trade(market, mode, positions, {}, {}, hero);
-		arts->artifactsOnAltar.clear();
+		artifactsOfHero->artifactsOnAltar.clear();
 
 		for(auto item : items[0])
 		{
