@@ -191,7 +191,7 @@ void CGMarket::onHeroVisit(const CGHeroInstance * h) const
 
 int CGMarket::getMarketEfficiency() const
 {
-	return marketEfficacy;
+	return marketEfficiency;
 }
 
 bool CGMarket::allowsTrade(EMarketMode::EMarketMode mode) const

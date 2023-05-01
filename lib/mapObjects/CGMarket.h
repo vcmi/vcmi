@@ -35,7 +35,7 @@ class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket
 public:
 	
 	std::set<EMarketMode::EMarketMode> marketModes;
-	int marketEfficacy = 5;
+	int marketEfficiency;
 	
 	//window variables
 	std::string title;
@@ -56,7 +56,7 @@ public:
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & marketModes;
-		h & marketEfficacy;
+		h & marketEfficiency;
 		h & title;
 		h & speech;
 	}

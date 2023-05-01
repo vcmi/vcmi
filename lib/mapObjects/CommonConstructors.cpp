@@ -299,7 +299,7 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 			marketModes.insert(MappedKeys::MARKET_NAMES_TO_TYPES.at(element.String()));
 	}
 	
-	marketEfficacy = input["efficacy"].isNull() ? -1 : input["efficacy"].Integer();
+	marketEfficiency = input["efficiency"].isNull() ? 5 : input["efficiency"].Integer();
 	predefinedOffer = input["offer"];
 	
 	title = input["title"].String();
@@ -332,8 +332,7 @@ CGObjectInstance * MarketInstanceConstructor::create(std::shared_ptr<const Objec
 	if(tmpl)
 		market->appearance = tmpl;
 	market->marketModes = marketModes;
-	if(marketEfficacy >= 0)
-		market->marketEfficacy = marketEfficacy;
+	market->marketEfficiency = marketEfficiency;
 	
 	market->title = market->getObjectName();
 	if(!title.empty())
