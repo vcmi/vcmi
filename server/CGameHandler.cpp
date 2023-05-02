@@ -4440,10 +4440,9 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 
 	giveResource(player, EGameResID::GOLD, -GameConstants::HERO_GOLD_COST);
 
-	if (t)
+	if(t)
 	{
-		visitCastleObjects(t, nh);
-		giveSpells (t,nh);
+		objectVisited(t, nh);
 	}
 	return true;
 }

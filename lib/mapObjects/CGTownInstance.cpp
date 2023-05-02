@@ -54,19 +54,25 @@ void CGTownInstance::setPropertyDer(ui8 what, ui32 val)
 	switch (what)
 	{
 		case ObjProperty::STRUCTURE_ADD_VISITING_HERO:
-			bonusingBuildings[val]->setProperty (ObjProperty::VISITORS, visitingHero->id.getNum());
+			bonusingBuildings[val]->setProperty(ObjProperty::VISITORS, visitingHero->id.getNum());
 			break;
 		case ObjProperty::STRUCTURE_CLEAR_VISITORS:
-			bonusingBuildings[val]->setProperty (ObjProperty::STRUCTURE_CLEAR_VISITORS, 0);
+			bonusingBuildings[val]->setProperty(ObjProperty::STRUCTURE_CLEAR_VISITORS, 0);
 			break;
 		case ObjProperty::STRUCTURE_ADD_GARRISONED_HERO: //add garrisoned hero to visitors
-			bonusingBuildings[val]->setProperty (ObjProperty::VISITORS, garrisonHero->id.getNum());
+			bonusingBuildings[val]->setProperty(ObjProperty::VISITORS, garrisonHero->id.getNum());
 			break;
 		case ObjProperty::BONUS_VALUE_FIRST:
 			bonusValue.first = val;
 			break;
 		case ObjProperty::BONUS_VALUE_SECOND:
 			bonusValue.second = val;
+			break;
+		case ObjProperty::REWARD_RANDOMIZE:
+			bonusingBuildings[val]->setProperty(ObjProperty::REWARD_RANDOMIZE, 0);
+			break;
+		case ObjProperty::REWARD_CLEARED:
+			bonusingBuildings[val]->setProperty(ObjProperty::REWARD_CLEARED, false);
 			break;
 	}
 }
@@ -386,24 +392,7 @@ void CGTownInstance::addTownBonuses(CRandomGenerator & rand)
 			bonusingBuildings.push_back(new COPWBonus(kvp.second->bid, kvp.second->subId, this));
 		
 		if(kvp.second->subId == BuildingSubID::CONFIGURABLE_REWARD)
-		{
-			auto * newBuilding = new CTownRewardableBuilding(kvp.second->bid, kvp.second->subId, this);
-			kvp.second->rewardableObjectInfo.configureObject(newBuilding->configuration, rand);
-			for(auto & rewardInfo : newBuilding->configuration.info)
-			{
-				for (auto & bonus : rewardInfo.reward.bonuses)
-				{
-					bonus.source = Bonus::TOWN_STRUCTURE;
-					bonus.sid = kvp.second->bid;
-					//TODO: bonus.description = object->getObjectName();
-					if (bonus.type == Bonus::MORALE)
-						rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::MORALE, 0, bonus.val, 0);
-					if (bonus.type == Bonus::LUCK)
-						rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::LUCK, 0, bonus.val, 0);
-				}
-			}
-			bonusingBuildings.push_back(newBuilding);
-		}
+			bonusingBuildings.push_back(new CTownRewardableBuilding(kvp.second->bid, kvp.second->subId, this, rand));
 	}
 }
 
@@ -514,72 +503,73 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 			cb->setObjProperty (id, ObjProperty::BONUS_VALUE_FIRST, resID);
 			cb->setObjProperty (id, ObjProperty::BONUS_VALUE_SECOND, resVal);
 		}
-
-		const auto * manaVortex = getBonusingBuilding(BuildingSubID::MANA_VORTEX);
-
-		if (manaVortex != nullptr)
+		
+		for(const auto * manaVortex : getBonusingBuildings(BuildingSubID::MANA_VORTEX))
 			cb->setObjProperty(id, ObjProperty::STRUCTURE_CLEAR_VISITORS, manaVortex->indexOnTV); //reset visitors for Mana Vortex
-
+		
 		//get Mana Vortex or Stables bonuses
 		//same code is in the CGameHandler::buildStructure method
 		if (visitingHero != nullptr)
 			cb->visitCastleObjects(this, visitingHero);
-
+		
 		if (garrisonHero != nullptr)
 			cb->visitCastleObjects(this, garrisonHero);
-
+		
 		if (tempOwner == PlayerColor::NEUTRAL) //garrison growth for neutral towns
+		{
+			std::vector<SlotID> nativeCrits; //slots
+			for(const auto & elem : Slots())
 			{
-				std::vector<SlotID> nativeCrits; //slots
-				for(const auto & elem : Slots())
+				if (elem.second->type->getFaction() == subID) //native
 				{
-					if (elem.second->type->getFaction() == subID) //native
-					{
-						nativeCrits.push_back(elem.first); //collect matching slots
-					}
+					nativeCrits.push_back(elem.first); //collect matching slots
 				}
-				if(!nativeCrits.empty())
+			}
+			if(!nativeCrits.empty())
+			{
+				SlotID pos = *RandomGeneratorUtil::nextItem(nativeCrits, rand);
+				StackLocation sl(this, pos);
+				
+				const CCreature *c = getCreature(pos);
+				if (rand.nextInt(99) < 90 || c->upgrades.empty()) //increase number if no upgrade available
 				{
-					SlotID pos = *RandomGeneratorUtil::nextItem(nativeCrits, rand);
-					StackLocation sl(this, pos);
-
-					const CCreature *c = getCreature(pos);
-					if (rand.nextInt(99) < 90 || c->upgrades.empty()) //increase number if no upgrade available
-					{
-						cb->changeStackCount(sl, c->getGrowth());
-					}
-					else //upgrade
-					{
-						cb->changeStackType(sl, VLC->creh->objects[*c->upgrades.begin()]);
-					}
+					cb->changeStackCount(sl, c->getGrowth());
 				}
-				if ((stacksCount() < GameConstants::ARMY_SIZE && rand.nextInt(99) < 25) || Slots().empty()) //add new stack
+				else //upgrade
 				{
-					int i = rand.nextInt(std::min(GameConstants::CREATURES_PER_TOWN, cb->getDate(Date::MONTH) << 1) - 1);
-					if (!town->creatures[i].empty())
-					{
-						CreatureID c = town->creatures[i][0];
-						SlotID n;
-
-						TQuantity count = creatureGrowth(i);
-						if (!count) // no dwelling
-							count = VLC->creh->objects[c]->getGrowth();
-
-						{//no lower tiers or above current month
-
-							if ((n = getSlotFor(c)).validSlot())
-							{
-								StackLocation sl(this, n);
-								if (slotEmpty(n))
-									cb->insertNewStack(sl, VLC->creh->objects[c], count);
-								else //add to existing
-									cb->changeStackCount(sl, count);
-							}
+					cb->changeStackType(sl, VLC->creh->objects[*c->upgrades.begin()]);
+				}
+			}
+			if ((stacksCount() < GameConstants::ARMY_SIZE && rand.nextInt(99) < 25) || Slots().empty()) //add new stack
+			{
+				int i = rand.nextInt(std::min(GameConstants::CREATURES_PER_TOWN, cb->getDate(Date::MONTH) << 1) - 1);
+				if (!town->creatures[i].empty())
+				{
+					CreatureID c = town->creatures[i][0];
+					SlotID n;
+					
+					TQuantity count = creatureGrowth(i);
+					if (!count) // no dwelling
+						count = VLC->creh->objects[c]->getGrowth();
+					
+					{//no lower tiers or above current month
+						
+						if ((n = getSlotFor(c)).validSlot())
+						{
+							StackLocation sl(this, n);
+							if (slotEmpty(n))
+								cb->insertNewStack(sl, VLC->creh->objects[c], count);
+							else //add to existing
+								cb->changeStackCount(sl, count);
 						}
 					}
 				}
 			}
+		}
 	}
+	
+	for(const auto * rewardableBuilding : getBonusingBuildings(BuildingSubID::CONFIGURABLE_REWARD))
+		rewardableBuilding->newTurn(rand);
 }
 /*
 int3 CGTownInstance::getSightCenter() const
@@ -832,7 +822,9 @@ void CGTownInstance::recreateBuildingsBonuses()
 
 void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 {
-	assert(!!visitingHero == !h);
+	if(visitingHero.get() == h)
+		return;
+	
 	if(h)
 	{
 		PlayerState *p = cb->gameState()->getPlayerState(h->tempOwner);
@@ -855,7 +847,9 @@ void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 
 void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 {
-	assert(!!garrisonHero == !h);
+	if(garrisonHero.get() == h)
+		return;
+	
 	if(h)
 	{
 		PlayerState *p = cb->gameState()->getPlayerState(h->tempOwner);
@@ -933,14 +927,15 @@ const CArmedInstance * CGTownInstance::getUpperArmy() const
 	return this;
 }
 
-const CGTownBuilding * CGTownInstance::getBonusingBuilding(BuildingSubID::EBuildingSubID subId) const
+std::vector<const CGTownBuilding *> CGTownInstance::getBonusingBuildings(BuildingSubID::EBuildingSubID subId) const
 {
+	std::vector<const CGTownBuilding *> ret;
 	for(auto * const building : bonusingBuildings)
 	{
 		if(building->getBuildingSubtype() == subId)
-			return building;
+			ret.push_back(building);
 	}
-	return nullptr;
+	return ret;
 }
 
 

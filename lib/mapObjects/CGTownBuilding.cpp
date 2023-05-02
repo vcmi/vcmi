@@ -14,6 +14,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../NetPacks.h"
 #include "../IGameCallback.h"
+#include "../CGameState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -284,12 +285,47 @@ void CTownBonus::applyBonuses(CGHeroInstance * h, const BonusList & bonuses) con
 		town->addHeroToStructureVisitors(h, indexOnTV);
 }
 
-CTownRewardableBuilding::CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * cgTown)
+CTownRewardableBuilding::CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * cgTown, CRandomGenerator & rand)
 {
 	bID = index;
 	bType = subId;
 	town = cgTown;
 	indexOnTV = static_cast<si32>(town->bonusingBuildings.size());
+	initObj(rand);
+}
+
+void CTownRewardableBuilding::initObj(CRandomGenerator & rand)
+{
+	assert(town && town->town);
+	town->town->buildings.at(bID)->rewardableObjectInfo.configureObject(configuration, rand);
+	for(auto & rewardInfo : configuration.info)
+	{
+		for (auto & bonus : rewardInfo.reward.bonuses)
+		{
+			bonus.source = Bonus::TOWN_STRUCTURE;
+			bonus.sid = bID;
+			if (bonus.type == Bonus::MORALE)
+				rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::MORALE, 0, bonus.val, 0);
+			if (bonus.type == Bonus::LUCK)
+				rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::LUCK, 0, bonus.val, 0);
+		}
+	}
+}
+
+void CTownRewardableBuilding::newTurn(CRandomGenerator & rand) const
+{
+	if (configuration.resetParameters.period != 0 && cb->getDate(Date::DAY) > 1 && ((cb->getDate(Date::DAY)-1) % configuration.resetParameters.period) == 0)
+	{
+		if(configuration.resetParameters.rewards)
+		{
+			cb->setObjProperty(town->id, ObjProperty::REWARD_RANDOMIZE, indexOnTV);
+		}
+		if(configuration.resetParameters.visitors)
+		{
+			cb->setObjProperty(town->id, ObjProperty::REWARD_CLEARED, indexOnTV);
+			cb->setObjProperty(town->id, ObjProperty::STRUCTURE_CLEAR_VISITORS, indexOnTV);
+		}
+	}
 }
 
 void CTownRewardableBuilding::setProperty(ui8 what, ui32 val)
@@ -299,11 +335,17 @@ void CTownRewardableBuilding::setProperty(ui8 what, ui32 val)
 		case ObjProperty::VISITORS:
 			visitors.insert(ObjectInstanceID(val));
 			break;
+		case ObjProperty::STRUCTURE_CLEAR_VISITORS:
+			visitors.clear();
+			break;
 		case ObjProperty::REWARD_RANDOMIZE:
-			//initObj(cb->gameState()->getRandomGenerator());
+			initObj(cb->gameState()->getRandomGenerator());
 			break;
 		case ObjProperty::REWARD_SELECT:
 			selectedReward = val;
+			break;
+		case ObjProperty::REWARD_CLEARED:
+			onceVisitableObjectCleared = val;
 			break;
 	}
 }
@@ -355,7 +397,7 @@ bool CTownRewardableBuilding::wasVisitedBefore(const CGHeroInstance * contextHer
 		case Rewardable::VISIT_UNLIMITED:
 			return false;
 		case Rewardable::VISIT_ONCE:
-			return false; //not supported
+			return onceVisitableObjectCleared;
 		case Rewardable::VISIT_PLAYER:
 			return false; //not supported
 		case Rewardable::VISIT_BONUS:
@@ -439,19 +481,12 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 						grantRewardWithMessage(rewards.front());
 						break;
 					case Rewardable::SELECT_RANDOM: // give random
-						//TODO: support
-						//grantRewardWithMessage(*RandomGeneratorUtil::nextItem(rewards, cb->gameState()->getRandomGenerator()));
+						grantRewardWithMessage(*RandomGeneratorUtil::nextItem(rewards, cb->gameState()->getRandomGenerator()));
 						break;
 				}
 				break;
 			}
 		}
-
-		/*if(getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
-		{
-			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
-			cb->sendAndApply(&cov);
-		}*/
 	}
 	else
 	{

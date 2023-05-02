@@ -579,6 +579,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 	auto * ret = new CBuilding();
 	ret->bid = getMappedValue<BuildingID, std::string>(stringID, BuildingID::NONE, MappedKeys::BUILDING_NAMES_TO_TYPES, false);
+	ret->subId = BuildingSubID::NONE;
 
 	if(ret->bid == BuildingID::NONE && !source["id"].isNull())
 	{

@@ -150,7 +150,7 @@ public:
 	GrowthInfo getGrowthInfo(int level) const;
 	bool hasFort() const;
 	bool hasCapitol() const;
-	const CGTownBuilding * getBonusingBuilding(BuildingSubID::EBuildingSubID subId) const;
+	std::vector<const CGTownBuilding *> getBonusingBuildings(BuildingSubID::EBuildingSubID subId) const;
 	bool hasBuiltSomeTradeBuilding() const;
 	//checks if special building with type buildingID is constructed
 	bool hasBuilt(BuildingSubID::EBuildingSubID buildingID) const;
