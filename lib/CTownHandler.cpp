@@ -631,7 +631,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		
 		if(source["type"].String() == "configurable" && ret->subId == BuildingSubID::NONE)
 		{
-			ret->subId = BuildingSubID::CONFIGURABLE_REWARD;
+			ret->subId = BuildingSubID::CUSTOM_VISITING_REWARD;
 			ret->rewardableObjectInfo.init(source);
 		}
 	}

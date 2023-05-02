@@ -391,7 +391,7 @@ void CGTownInstance::addTownBonuses(CRandomGenerator & rand)
 		if(kvp.second->IsWeekBonus())
 			bonusingBuildings.push_back(new COPWBonus(kvp.second->bid, kvp.second->subId, this));
 		
-		if(kvp.second->subId == BuildingSubID::CONFIGURABLE_REWARD)
+		if(kvp.second->subId == BuildingSubID::CUSTOM_VISITING_REWARD)
 			bonusingBuildings.push_back(new CTownRewardableBuilding(kvp.second->bid, kvp.second->subId, this, rand));
 	}
 }
@@ -568,7 +568,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 		}
 	}
 	
-	for(const auto * rewardableBuilding : getBonusingBuildings(BuildingSubID::CONFIGURABLE_REWARD))
+	for(const auto * rewardableBuilding : getBonusingBuildings(BuildingSubID::CUSTOM_VISITING_REWARD))
 		rewardableBuilding->newTurn(rand);
 }
 /*
