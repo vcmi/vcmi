@@ -3612,9 +3612,9 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	sendAndApply(&fw);
 
 	if(t->visitingHero)
-		visitCastleObjects(t, t->visitingHero);
+		objectVisited(t, t->visitingHero);
 	if(t->garrisonHero)
-		visitCastleObjects(t, t->garrisonHero);
+		objectVisited(t, t->garrisonHero);
 
 	checkVictoryLossConditionsForPlayer(t->tempOwner);
 	return true;
