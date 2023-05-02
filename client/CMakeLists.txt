@@ -4,6 +4,7 @@ set(client_SRCS
 
 	adventureMap/CAdventureMapInterface.cpp
 	adventureMap/CAdventureMapWidget.cpp
+	adventureMap/AdventureMapShortcuts.cpp
 	adventureMap/CAdventureOptions.cpp
 	adventureMap/CInGameConsole.cpp
 	adventureMap/CInfoBar.cpp
@@ -132,6 +133,7 @@ set(client_HEADERS
 
 	adventureMap/CAdventureMapInterface.h
 	adventureMap/CAdventureMapWidget.h
+	adventureMap/AdventureMapShortcuts.h
 	adventureMap/CAdventureOptions.h
 	adventureMap/CInGameConsole.h
 	adventureMap/CInfoBar.h

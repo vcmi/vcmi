@@ -17,35 +17,23 @@
 #include "CInfoBar.h"
 #include "MapAudioPlayer.h"
 #include "CAdventureMapWidget.h"
+#include "AdventureMapShortcuts.h"
 
 #include "../mapView/mapHandler.h"
 #include "../mapView/MapView.h"
-#include "../windows/CKingdomInterface.h"
-#include "../windows/CSpellWindow.h"
-#include "../windows/CTradeWindow.h"
-#include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../CGameInfo.h"
-#include "../CPlayerInterface.h"
-#include "../lobby/CSavingScreen.h"
-#include "../render/CAnimation.h"
 #include "../gui/CursorHandler.h"
-#include "../render/IImage.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/Shortcut.h"
-#include "../widgets/TextControls.h"
-#include "../widgets/Buttons.h"
-#include "../windows/settings/SettingsMainWindow.h"
 #include "../CMT.h"
 #include "../PlayerLocalState.h"
+#include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/CPathfinder.h"
 #include "../../lib/mapping/CMap.h"
 
@@ -62,51 +50,14 @@ CAdventureMapInterface::CAdventureMapInterface():
 	pos.h = GH.screenDimensions().y;
 	strongInterest = true; // handle all mouse move events to prevent dead mouse move space in fullscreen mode
 
-	widget = std::make_shared<CAdventureMapWidget>();
-	exitWorldView();
+	shortcuts = std::make_shared<AdventureMapShortcuts>(*this);
+
+	widget = std::make_shared<CAdventureMapWidget>(shortcuts);
+	widget->setState(EGameState::MAKING_TURN);
+	widget->getMapView()->onViewMapActivated();
 
 	widget->setOptionHasQuests(!CGI->mh->getMap()->quests.empty());
 	widget->setOptionHasUnderground(CGI->mh->getMap()->twoLevel);
-}
-
-void CAdventureMapInterface::fshowOverview()
-{
-	GH.pushIntT<CKingdomInterface>();
-}
-
-void CAdventureMapInterface::fworldViewBack()
-{
-	exitWorldView();
-
-	auto hero = LOCPLINT->localState->getCurrentHero();
-	if (hero)
-		centerOnObject(hero);
-}
-
-void CAdventureMapInterface::fworldViewScale1x()
-{
-	// TODO set corresponding scale button to "selected" mode
-	openWorldView(7);
-}
-
-void CAdventureMapInterface::fworldViewScale2x()
-{
-	openWorldView(11);
-}
-
-void CAdventureMapInterface::fworldViewScale4x()
-{
-	openWorldView(16);
-}
-
-void CAdventureMapInterface::fswitchLevel()
-{
-	// with support for future multi-level maps :)
-	int maxLevels = CGI->mh->getMap()->levels();
-	if (maxLevels < 2)
-		return;
-
-	widget->getMapView()->onMapLevelSwitched();
 }
 
 void CAdventureMapInterface::onMapViewMoved(const Rect & visibleArea, int mapLevel)
@@ -123,104 +74,6 @@ void CAdventureMapInterface::onAudioResumed()
 void CAdventureMapInterface::onAudioPaused()
 {
 	mapAudio->onAudioPaused();
-}
-
-void CAdventureMapInterface::fshowQuestlog()
-{
-	LOCPLINT->showQuestLog();
-}
-
-void CAdventureMapInterface::fsleepWake()
-{
-	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
-	if (!h)
-		return;
-	bool newSleep = !LOCPLINT->localState->isHeroSleeping(h);
-
-	if (newSleep)
-		LOCPLINT->localState->setHeroAsleep(h);
-	else
-		LOCPLINT->localState->setHeroAwaken(h);
-
-	onHeroChanged(h);
-
-	if (newSleep)
-		fnextHero();
-}
-
-void CAdventureMapInterface::fmoveHero()
-{
-	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
-	if (!h || !LOCPLINT->localState->hasPath(h) || CGI->mh->hasOngoingAnimations())
-		return;
-
-	LOCPLINT->moveHero(h, LOCPLINT->localState->getPath(h));
-}
-
-void CAdventureMapInterface::fshowSpellbok()
-{
-	if (!LOCPLINT->localState->getCurrentHero()) //checking necessary values
-		return;
-
-	centerOnObject(LOCPLINT->localState->getCurrentHero());
-
-	GH.pushIntT<CSpellWindow>(LOCPLINT->localState->getCurrentHero(), LOCPLINT, false);
-}
-
-void CAdventureMapInterface::fadventureOPtions()
-{
-	GH.pushIntT<CAdventureOptions>();
-}
-
-void CAdventureMapInterface::fsystemOptions()
-{
-	GH.pushIntT<SettingsMainWindow>();
-}
-
-void CAdventureMapInterface::fnextHero()
-{
-	const auto * currHero = LOCPLINT->localState->getCurrentHero();
-	const auto * nextHero = LOCPLINT->localState->getNextWanderingHero(currHero);
-
-	if (nextHero)
-	{
-		LOCPLINT->localState->setSelection(nextHero);
-		centerOnObject(nextHero);
-	}
-}
-
-void CAdventureMapInterface::fendTurn()
-{
-	if(!LOCPLINT->makingTurn)
-		return;
-
-	if(settings["adventure"]["heroReminder"].Bool())
-	{
-		for(auto hero : LOCPLINT->localState->getWanderingHeroes())
-		{
-			if(!LOCPLINT->localState->isHeroSleeping(hero) && hero->movement > 0)
-			{
-				// Only show hero reminder if conditions met:
-				// - There still movement points
-				// - Hero don't have a path or there not points for first step on path
-				LOCPLINT->localState->verifyPath(hero);
-
-				if(!LOCPLINT->localState->hasPath(hero))
-				{
-					LOCPLINT->showYesNoDialog( CGI->generaltexth->allTexts[55], std::bind(&CAdventureMapInterface::endingTurn, this), nullptr );
-					return;
-				}
-
-				auto path = LOCPLINT->localState->getPath(hero);
-				if (path.nodes.size() < 2 || path.nodes[path.nodes.size() - 2].turns)
-				{
-					LOCPLINT->showYesNoDialog( CGI->generaltexth->allTexts[55], std::bind(&CAdventureMapInterface::endingTurn, this), nullptr );
-					return;
-				}
-			}
-		}
-	}
-	endingTurn();
 }
 
 void CAdventureMapInterface::updateButtons()
@@ -376,136 +229,8 @@ void CAdventureMapInterface::centerOnObject(const CGObjectInstance * obj)
 
 void CAdventureMapInterface::keyPressed(EShortcut key)
 {
-	if (widget->getState() != EGameState::MAKING_TURN)
-		return;
-
 	//fake mouse use to trigger onTileHovered()
 	GH.fakeMouseMove();
-
-	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero(); //selected hero
-	const CGTownInstance *t = LOCPLINT->localState->getCurrentTown(); //selected town
-
-	switch(key)
-	{
-	case EShortcut::ADVENTURE_THIEVES_GUILD:
-		if(GH.topInt()->type & BLOCK_ADV_HOTKEYS)
-			return;
-
-		{
-			//find first town with tavern
-			auto itr = range::find_if(LOCPLINT->localState->getOwnedTowns(), [](const CGTownInstance * town)
-			{
-				return town->hasBuilt(BuildingID::TAVERN);
-			});
-
-			if(itr != LOCPLINT->localState->getOwnedTowns().end())
-				LOCPLINT->showThievesGuildWindow(*itr);
-			else
-				LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithTavern"));
-		}
-		return;
-	case EShortcut::ADVENTURE_VIEW_SCENARIO:
-		if(isActive())
-			CAdventureOptions::showScenarioInfo();
-		return;
-	case EShortcut::GAME_SAVE_GAME:
-		if(isActive())
-			GH.pushIntT<CSavingScreen>();
-		return;
-	case EShortcut::GAME_LOAD_GAME:
-		if(isActive())
-			LOCPLINT->proposeLoadingGame();
-		return;
-	case EShortcut::ADVENTURE_DIG_GRAIL:
-		{
-			if(h && isActive() && LOCPLINT->makingTurn)
-				LOCPLINT->tryDiggging(h);
-			return;
-		}
-	case EShortcut::ADVENTURE_VIEW_PUZZLE:
-		if(isActive())
-			LOCPLINT->showPuzzleMap();
-		return;
-	case EShortcut::ADVENTURE_VIEW_WORLD:
-		if(isActive())
-			LOCPLINT->viewWorldMap();
-		return;
-	case EShortcut::GAME_RESTART_GAME:
-		if(isActive() && GH.isKeyboardCtrlDown())
-		{
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.adventureMap.confirmRestartGame"),
-				[](){ GH.pushUserEvent(EUserEvent::RESTART_GAME); }, nullptr);
-		}
-		return;
-	case EShortcut::ADVENTURE_VISIT_OBJECT: //space - try to revisit current object with selected hero
-		{
-			if(!isActive())
-				return;
-			if(h)
-			{
-				LOCPLINT->cb->moveHero(h,h->pos);
-			}
-		}
-		return;
-	case EShortcut::ADVENTURE_VIEW_SELECTED:
-		{
-			if(!isActive() || !LOCPLINT->localState->getCurrentArmy())
-				return;
-			if(h)
-				LOCPLINT->openHeroWindow(h);
-			else if(t)
-				LOCPLINT->openTownWindow(t);
-			return;
-		}
-	case EShortcut::GLOBAL_CANCEL:
-		{
-			//FIXME: this case is never executed since AdvMapInt is disabled while in spellcasting mode
-			if(!isActive() || GH.topInt().get() != this || !spellBeingCasted)
-				return;
-
-			abortCastingMode();
-			return;
-		}
-	case EShortcut::GAME_OPEN_MARKETPLACE:
-		{
-			//act on key down if marketplace windows is not already opened
-			if(GH.topInt()->type & BLOCK_ADV_HOTKEYS)
-				return;
-
-			if(GH.isKeyboardCtrlDown()) //CTRL + T => open marketplace
-			{
-				//check if we have any marketplace
-				const CGTownInstance *townWithMarket = nullptr;
-				for(const CGTownInstance *t : LOCPLINT->cb->getTownsInfo())
-				{
-					if(t->hasBuilt(BuildingID::MARKETPLACE))
-					{
-						townWithMarket = t;
-						break;
-					}
-				}
-
-				if(townWithMarket) //if any town has marketplace, open window
-					GH.pushIntT<CMarketplaceWindow>(townWithMarket);
-				else //if not - complain
-					LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
-			}
-	case EShortcut::ADVENTURE_NEXT_TOWN:
-			if(isActive() && !GH.isKeyboardCtrlDown()) //no ctrl, advmapint is on the top => switch to town
-			{
-				widget->getTownList()->selectNext();
-			}
-			return;
-		}
-	case EShortcut::ADVENTURE_MOVE_HERO_SW: return hotkeyMoveHeroDirectional({-1, +1});
-	case EShortcut::ADVENTURE_MOVE_HERO_SS: return hotkeyMoveHeroDirectional({ 0, +1});
-	case EShortcut::ADVENTURE_MOVE_HERO_SE: return hotkeyMoveHeroDirectional({+1, +1});
-	case EShortcut::ADVENTURE_MOVE_HERO_WW: return hotkeyMoveHeroDirectional({-1,  0});
-	case EShortcut::ADVENTURE_MOVE_HERO_EE: return hotkeyMoveHeroDirectional({+1,  0});
-	case EShortcut::ADVENTURE_MOVE_HERO_NW: return hotkeyMoveHeroDirectional({-1, -1});
-	case EShortcut::ADVENTURE_MOVE_HERO_NN: return hotkeyMoveHeroDirectional({ 0, -1});
-	case EShortcut::ADVENTURE_MOVE_HERO_NE: return hotkeyMoveHeroDirectional({+1, -1});
-	}
 }
 
 void CAdventureMapInterface::hotkeyMoveHeroDirectional(Point direction)
@@ -690,11 +415,11 @@ void CAdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt().get()))
 			iw->close();
 
-		endingTurn();
+		hotkeyEndingTurn();
 	}
 }
 
-void CAdventureMapInterface::endingTurn()
+void CAdventureMapInterface::hotkeyEndingTurn()
 {
 	if(settings["session"]["spectate"].Bool())
 		return;
@@ -712,11 +437,6 @@ const CGObjectInstance* CAdventureMapInterface::getActiveObject(const int3 &mapP
 		return nullptr;
 
 	return *boost::range::max_element(bobjs, &CMapHandler::compareObjectBlitOrder);
-/*
-	if (bobjs.back()->ID == Obj::HERO)
-		return bobjs.back();
-	else
-		return bobjs.front();*/
 }
 
 void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
@@ -984,7 +704,7 @@ void CAdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 
 	if(spellBeingCasted)
 	{
-		abortCastingMode();
+		hotkeyAbortCastingMode();
 		return;
 	}
 
@@ -1030,7 +750,7 @@ void CAdventureMapInterface::exitCastingMode()
 	config->Bool() = false;
 }
 
-void CAdventureMapInterface::abortCastingMode()
+void CAdventureMapInterface::hotkeyAbortCastingMode()
 {
 	exitCastingMode();
 	LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[731]); //Spell cancelled
@@ -1060,7 +780,7 @@ const IShipyard * CAdventureMapInterface::ourInaccessibleShipyard(const CGObject
 	return ret;
 }
 
-void CAdventureMapInterface::exitWorldView()
+void CAdventureMapInterface::hotkeyExitWorldView()
 {
 	widget->setState(EGameState::MAKING_TURN);
 	widget->getMapView()->onViewMapActivated();
@@ -1081,4 +801,14 @@ void CAdventureMapInterface::openWorldView(const std::vector<ObjectPosInfo>& obj
 {
 	openWorldView(11);
 	widget->getMapView()->onViewSpellActivated(11, objectPositions, showTerrain);
+}
+
+void CAdventureMapInterface::hotkeyNextTown()
+{
+	widget->getTownList()->selectNext();
+}
+
+void CAdventureMapInterface::hotkeySwitchMapLevel()
+{
+	widget->getMapView()->onMapLevelSwitched();
 }

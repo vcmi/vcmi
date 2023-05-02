@@ -30,8 +30,7 @@ class IImage;
 class CAnimImage;
 class CGStatusBar;
 class CAdventureMapWidget;
-class CAdvMapPanel;
-class CAdvMapWorldViewPanel;
+class AdventureMapShortcuts;
 class CAnimation;
 class MapView;
 class CResDataBar;
@@ -59,26 +58,9 @@ private:
 
 	std::shared_ptr<MapAudioPlayer> mapAudio;
 	std::shared_ptr<CAdventureMapWidget> widget;
+	std::shared_ptr<AdventureMapShortcuts> shortcuts;
 
 private:
-	//functions bound to buttons
-	void fshowOverview();
-	void fworldViewBack();
-	void fworldViewScale1x();
-	void fworldViewScale2x();
-	void fworldViewScale4x();
-	void fswitchLevel();
-	void fshowQuestlog();
-	void fsleepWake();
-	void fmoveHero();
-	void fshowSpellbok();
-	void fadventureOPtions();
-	void fsystemOptions();
-	void fnextHero();
-	void fendTurn();
-
-	void hotkeyMoveHeroDirectional(Point direction);
-
 	bool isActive();
 	void adjustActiveness(bool aiTurnStart); //should be called every time at AI/human turn transition; blocks GUI during AI turn
 
@@ -93,15 +75,9 @@ private:
 
 	const CGObjectInstance *getActiveObject(const int3 &tile);
 
-	std::optional<Point> keyToMoveDirection(EShortcut key);
-
-	void endingTurn();
-
 	/// exits currently opened world view mode and returns to normal map
-	void exitWorldView();
 	void exitCastingMode();
 	void performSpellcasting(const int3 & castTarget);
-	void abortCastingMode();
 
 protected:
 	// CIntObject interface implementation
@@ -116,6 +92,13 @@ protected:
 
 public:
 	CAdventureMapInterface();
+
+	void hotkeyMoveHeroDirectional(Point direction);
+	void hotkeyAbortCastingMode();
+	void hotkeyExitWorldView();
+	void hotkeyEndingTurn();
+	void hotkeyNextTown();
+	void hotkeySwitchMapLevel();
 
 	/// Called by PlayerInterface when specified player is ready to start his turn
 	void onHotseatWaitStarted(PlayerColor playerID);

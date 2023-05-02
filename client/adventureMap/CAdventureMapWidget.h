@@ -17,6 +17,7 @@ class CMinimap;
 class MapView;
 class CInfoBar;
 class IImage;
+class AdventureMapShortcuts;
 
 enum class EGameState
 {
@@ -49,6 +50,8 @@ class CAdventureMapWidget : public InterfaceObjectConfigurable
 	std::shared_ptr<MapView> mapView;
 	std::shared_ptr<CInfoBar> infoBar;
 
+	std::shared_ptr<AdventureMapShortcuts> shortcuts;
+
 	Rect readTargetArea(const JsonNode & source);
 	Rect readSourceArea(const JsonNode & source, const JsonNode & sourceCommon);
 	Rect readArea(const JsonNode & source, const Rect & boundingBox);
@@ -70,7 +73,7 @@ class CAdventureMapWidget : public InterfaceObjectConfigurable
 
 	void setPlayerChildren(CIntObject * widget, const PlayerColor & player);
 public:
-	CAdventureMapWidget();
+	explicit CAdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts );
 
 	std::shared_ptr<CHeroList> getHeroList();
 	std::shared_ptr<CTownList> getTownList();

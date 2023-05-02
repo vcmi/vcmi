@@ -120,6 +120,7 @@
 					"name" : "buttonKingdomOverview",
 					"image" : "IAM002.DEF",
 					"help" : "core.help.293",
+					"hotkey": "adventureKingdomOverview",
 					"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
 				},
 				{
@@ -127,6 +128,7 @@
 					"name": "buttonUnderground",
 					"image" : "IAM010.DEF",
 					"help" : "core.help.294",
+					"hotkey": "adventureToggleMapLevel",
 					"area": { "top" : 0, "left": 32, "width" : 32, "height" : 32 }
 				},
 				{
@@ -134,6 +136,7 @@
 					"name": "buttonSurface",
 					"image" : "IAM003.DEF",
 					"help" : "core.help.294",
+					"hotkey": "adventureToggleMapLevel",
 					"area": { "top" : 0, "left": 32, "width" : 32, "height" : 32 }
 				},
 				{
@@ -141,6 +144,7 @@
 					"name": "buttonQuestLog",
 					"image" : "IAM004.DEF",
 					"help" : "core.help.295",
+					"hotkey": "adventureQuestLog",
 					"area": { "top" : 32, "left": 0, "width" : 32, "height" : 32 }
 				},
 				{
@@ -148,6 +152,7 @@
 					"name": "buttonSleep",
 					"image" : "IAM005.DEF",
 					"help" : "core.help.296",
+					"hotkey": "adventureSetHeroAsleep",
 					"area": { "top" : 32, "left": 32, "width" : 32, "height" : 32 }
 				},
 				{
@@ -155,6 +160,7 @@
 					"name": "buttonWake",
 					"image" : "IAM011.DEF",
 					"help" : "core.help.296",
+					"hotkey": "adventureSetHeroAwake",
 					"area": { "top" : 32, "left": 32, "width" : 32, "height" : 32 }
 				},
 				{
@@ -162,6 +168,7 @@
 					"name": "buttonMove",
 					"image" : "IAM006.DEF",
 					"help" : "core.help.297",
+					"hotkey": "adventureMoveHero",
 					"area": { "top" : 64, "left": 0, "width" : 32, "height" : 32 }
 				},
 				{
@@ -169,6 +176,7 @@
 					"name": "buttonCast",
 					"image" : "IAM007.DEF",
 					"help" : "core.help.298",
+					"hotkey": "adventureCastSpell",
 					"area": { "top" : 64, "left": 32, "width" : 32, "height" : 32 }
 				},
 				{
@@ -176,6 +184,7 @@
 					"name": "buttonAdventureOptions",
 					"image" : "IAM008.DEF",
 					"help" : "core.help.299",
+					"hotkey": "adventureGameOptions",
 					"area": { "top" : 96, "left": 0, "width" : 32, "height" : 32 }
 				},
 				{
@@ -183,6 +192,7 @@
 					"name": "buttonSystemOptions",
 					"image" : "IAM009.DEF",
 					"help" : "core.help.300",
+					"hotkey": "globalOptions",
 					"area": { "top" : 96, "left": 32, "width" : 32, "height" : 32 }
 				},
 				{
@@ -190,12 +200,14 @@
 					"name": "buttonNextHero",
 					"image" : "IAM000.DEF",
 					"help" : "core.help.301",
+					"hotkey": "adventureNextHero",
 					"area": { "top" : 128, "left": 0, "width" : 64, "height" : 32 }
 				},
 				{
 					"type": "adventureMapButton",
 					"name": "buttonEndTurn",
 					"image" : "IAM001.DEF",
+					"hotkey": "adventureEndTurn",
 					"help" : "core.help.302",
 					"area": { "top" : 160, "left": 0, "width" : 64, "height" : 32 }
 				}
@@ -287,7 +299,7 @@
 					"type": "adventureMapImage",
 					"name": "emptyAreaFillSmallImage",
 					"image" : "DiBoxBck.pcx",
-					"area": { "top": 0, "bottom" : 0, "left" : 0, "right" : 0 }
+					"area": { "top": 0, "bottom" : 0, "left" : 0, "right" : 0 },
 					"sourceArea": { "left" : 0, "top" : 0, "width" : 256, "height" : 256 }
 				},
 			]
@@ -303,21 +315,21 @@
 					"type": "adventureMapImage",
 					"name": "backgroundHeroListBorderRight",
 					"image" : "AdvMap.pcx",
-					"area": { "top": 0, "bottom" : 0, "right" : 121, "width" : 6 }
+					"area": { "top": 0, "bottom" : 0, "right" : 121, "width" : 6 },
 					"sourceArea": { "top": 196, "bottom" : 211, "right" : 121, "width" : 6 }
 				},
 				{
 					"type": "adventureMapImage",
 					"name": "backgroundTownListBorderLeft",
 					"image" : "AdvMap.pcx",
-					"area": { "top": 0, "bottom" : 0, "right" : 53, "width" : 4 }
+					"area": { "top": 0, "bottom" : 0, "right" : 53, "width" : 4 },
 					"sourceArea": { "top": 196, "bottom" : 211, "right" : 53, "width" : 4 }
 				},
 				{
 					"type": "adventureMapImage",
 					"name" : "backgroundBelowHeroTownList",
 					"image" : "AdvMap.pcx",
-					"area" : { "right": 0, "left" : 0, "bottom" : 0, "height" : 3 }
+					"area" : { "right": 0, "left" : 0, "bottom" : 0, "height" : 3 },
 					"sourceArea": { "bottom" : 208, "height" : 3, "right" : 0, "width" : 193 }
 				},
 				// Hero List
@@ -351,13 +363,13 @@
 					"item" : { "top" :  16, "left": 0, "width" : 48, "height" : 32 },
 					"itemsOffset" : { "x" : 0, "y" : 32 },
 					"itemsCount" : 7
-				}
+				},
 				// Fill empty area below buttons
 				{
 					"type": "adventureMapImage",
 					"name" : "backgroundBelowButtons",
 					"image" : "DiBoxBck.pcx",
-					"area": { "top": 192, "bottom" : 3, "right" : 57, "width" : 64 }
+					"area": { "top": 192, "bottom" : 3, "right" : 57, "width" : 64 },
 					"sourceArea": { "left" : 0, "top" : 0, "width" : 256, "height" : 256 }
 				},
 			]
@@ -372,7 +384,7 @@
 					"type": "adventureMapImage",
 					"name": "emptyAreaFillLargeImage",
 					"image" : "DiBoxBck.pcx",
-					"area": { "top": 0, "bottom" : 0, "left" : 0, "right" : 0 }
+					"area": { "top": 0, "bottom" : 0, "left" : 0, "right" : 0 },
 					"sourceArea": { "left" : 0, "top" : 0, "width" : 256, "height" : 256 }
 				},
 			]

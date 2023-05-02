@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CAdventureMapWidget.h"
 
+#include "AdventureMapShortcuts.h"
 #include "CInfoBar.h"
 #include "CList.h"
 #include "CMinimap.h"
@@ -29,8 +30,9 @@
 #include "../../lib/StringConstants.h"
 #include "../../lib/filesystem/ResourceID.h"
 
-CAdventureMapWidget::CAdventureMapWidget()
+CAdventureMapWidget::CAdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts )
 	: state(EGameState::NOT_INITIALIZED)
+	, shortcuts(shortcuts)
 {
 	pos.x = pos.y = 0;
 	pos.w = GH.screenDimensions().x;
@@ -48,6 +50,9 @@ CAdventureMapWidget::CAdventureMapWidget()
 	REGISTER_BUILDER("adventureResourceDateBar", &CAdventureMapWidget::buildResourceDateBar );
 	REGISTER_BUILDER("adventureStatusBar",       &CAdventureMapWidget::buildStatusBar       );
 
+	for (const auto & entry : shortcuts->getFunctors())
+		addShortcut(entry.first, entry.second);
+
 	const JsonNode config(ResourceID("config/widgets/adventureMap.json"));
 
 	for(const auto & entry : config["options"]["imagesPlayerColored"].Vector())
@@ -57,6 +62,8 @@ CAdventureMapWidget::CAdventureMapWidget()
 	}
 
 	build(config);
+
+	addUsedEvents(KEYBOARD);
 }
 
 Rect CAdventureMapWidget::readSourceArea(const JsonNode & source, const JsonNode & sourceCommon)
@@ -151,7 +158,12 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapButton(const JsonNode &
 	auto position = readTargetArea(input["area"]);
 	auto image = input["image"].String();
 	auto help = readHintText(input["help"]);
-	return std::make_shared<CButton>(position.topLeft(), image, help);
+
+	auto button = std::make_shared<CButton>(position.topLeft(), image, help);
+
+	loadButtonHotkey(button, input["hotkey"]);
+
+	return button;
 }
 
 std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapContainer(const JsonNode & input)

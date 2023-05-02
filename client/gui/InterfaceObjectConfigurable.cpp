@@ -289,15 +289,7 @@ std::shared_ptr<CToggleButton> InterfaceObjectConfigurable::buildToggleButton(co
 		assert(imgOrder.size() >= 4);
 		button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
 	}
-	if(!config["callback"].isNull())
-	{
-		std::string callbackName = config["callback"].String();
-
-		if (callbacks.count(callbackName))
-			button->addCallback(callbacks.at(callbackName));
-		else
-			logGlobal->error("Invalid callback '%s' in widget", callbackName );
-	}
+	loadButtonCallback(button, config["callback"]);
 	return button;
 }
 
@@ -321,30 +313,44 @@ std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode
 		assert(imgOrder.size() >= 4);
 		button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
 	}
-	if(!config["callback"].isNull())
-	{
-		std::string callbackName = config["callback"].String();
 
-		if (callbacks.count(callbackName) > 0)
-			button->addCallback(std::bind(callbacks.at(callbackName), 0));
-		else
-			logGlobal->error("Invalid callback '%s' in widget", callbackName );
-	}
-	if(!config["hotkey"].isNull())
-	{
-		if(config["hotkey"].getType() == JsonNode::JsonType::DATA_STRING)
-		{
-			button->assignedKey = readHotkey(config["hotkey"]);
-
-			auto target = shortcuts.find(button->assignedKey);
-			if (target != shortcuts.end())
-			{
-				button->addCallback(target->second.callback);
-				target->second.assignedToButton = true;
-			}
-		}
-	}
+	loadButtonCallback(button, config["callback"]);
+	loadButtonHotkey(button, config["hotkey"]);
 	return button;
+}
+
+void InterfaceObjectConfigurable::loadButtonCallback(std::shared_ptr<CButton> button, const JsonNode & config) const
+{
+	if(config.isNull())
+		return;
+
+	std::string callbackName = config.String();
+
+	if (callbacks.count(callbackName) > 0)
+		button->addCallback(std::bind(callbacks.at(callbackName), 0));
+	else
+		logGlobal->error("Invalid callback '%s' in widget", callbackName );
+}
+
+void InterfaceObjectConfigurable::loadButtonHotkey(std::shared_ptr<CButton> button, const JsonNode & config) const
+{
+	if(config.isNull())
+		return;
+
+	if(config.getType() != JsonNode::JsonType::DATA_STRING)
+	{
+		logGlobal->error("Invalid shortcut format - string expected!");
+		return;
+	}
+
+	button->assignedKey = readHotkey(config);
+
+	auto target = shortcuts.find(button->assignedKey);
+	if (target == shortcuts.end())
+		return;
+
+	button->addCallback(target->second.callback);
+	target->second.assignedToButton = true;
 }
 
 std::shared_ptr<CLabelGroup> InterfaceObjectConfigurable::buildLabelGroup(const JsonNode & config) const
