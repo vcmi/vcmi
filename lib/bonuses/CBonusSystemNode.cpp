@@ -218,11 +218,6 @@ std::shared_ptr<Bonus> CBonusSystemNode::getUpdatedBonus(const std::shared_ptr<B
 	return updater->createUpdatedBonus(b, * this);
 }
 
-CBonusSystemNode::CBonusSystemNode()
-	:CBonusSystemNode(false)
-{
-}
-
 CBonusSystemNode::CBonusSystemNode(bool isHypotetic):
 	bonuses(true),
 	exportedBonuses(true),

@@ -53,9 +53,27 @@ private:
 	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr) const;
 	std::shared_ptr<Bonus> getUpdatedBonus(const std::shared_ptr<Bonus> & b, const TUpdaterPtr & updater) const;
 
+	void getRedParents(TNodes &out);  //retrieves list of red parent nodes (nodes bonuses propagate from)
+	void getRedAncestors(TNodes &out);
+	void getRedChildren(TNodes &out);
+
+	void getAllParents(TCNodes & out) const;
+
+	void newChildAttached(CBonusSystemNode & child);
+	void childDetached(CBonusSystemNode & child);
+	void propagateBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & source);
+	void unpropagateBonus(const std::shared_ptr<Bonus> & b);
+	bool actsAsBonusSourceOnly() const;
+
+	void newRedDescendant(CBonusSystemNode & descendant); //propagation needed
+	void removedRedDescendant(CBonusSystemNode & descendant); //de-propagation needed
+
+	std::string nodeShortInfo() const;
+
+	void exportBonus(const std::shared_ptr<Bonus> & b);
+
 public:
-	explicit CBonusSystemNode();
-	explicit CBonusSystemNode(bool isHypotetic);
+	explicit CBonusSystemNode(bool isHypotetic = false);
 	explicit CBonusSystemNode(ENodeTypes NodeType);
 	CBonusSystemNode(CBonusSystemNode && other) noexcept;
 	virtual ~CBonusSystemNode();
@@ -68,11 +86,6 @@ public:
 
 	//non-const interface
 	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from)
-
-	void getRedParents(TNodes &out);  //retrieves list of red parent nodes (nodes bonuses propagate from)
-	void getRedAncestors(TNodes &out);
-	void getRedChildren(TNodes &out);
-	void getAllParents(TCNodes & out) const;
 	static PlayerColor retrieveNodeOwner(const CBonusSystemNode * node);
 	std::shared_ptr<Bonus> getBonusLocalFirst(const CSelector & selector);
 
@@ -82,27 +95,18 @@ public:
 	virtual void addNewBonus(const std::shared_ptr<Bonus>& b);
 	void accumulateBonus(const std::shared_ptr<Bonus>& b); //add value of bonus with same type/subtype or create new
 
-	void newChildAttached(CBonusSystemNode & child);
-	void childDetached(CBonusSystemNode & child);
-	void propagateBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & source);
-	void unpropagateBonus(const std::shared_ptr<Bonus> & b);
 	void removeBonus(const std::shared_ptr<Bonus>& b);
 	void removeBonuses(const CSelector & selector);
 	void removeBonusesRecursive(const CSelector & s);
-	void newRedDescendant(CBonusSystemNode & descendant); //propagation needed
-	void removedRedDescendant(CBonusSystemNode & descendant); //de-propagation needed
 
 	bool isIndependentNode() const; //node is independent when it has no parents nor children
-	bool actsAsBonusSourceOnly() const;
 	///updates count of remaining turns and removes outdated bonuses by selector
 	void reduceBonusDurations(const CSelector &s);
 	virtual std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
-	virtual std::string nodeShortInfo() const;
 	bool isHypothetic() const { return isHypotheticNode; }
 
 	void deserializationFix();
-	void exportBonus(const std::shared_ptr<Bonus> & b);
 	void exportBonuses();
 
 	const BonusList &getBonusList() const;
@@ -110,10 +114,10 @@ public:
 	const BonusList & getExportedBonusList() const;
 	CBonusSystemNode::ENodeTypes getNodeType() const;
 	void setNodeType(CBonusSystemNode::ENodeTypes type);
-	const TNodesVector &getParentNodes() const;
-	const TNodesVector &getChildrenNodes() const;
-	const std::string &getDescription() const;
-	void setDescription(const std::string &description);
+	const TNodesVector & getParentNodes() const;
+	const TNodesVector & getChildrenNodes() const;
+	const std::string & getDescription() const;
+	void setDescription(const std::string & description);
 
 	static void treeHasChanged();
 
