@@ -444,7 +444,7 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 		cb->showBlockingDialog(&sd);
 	};
 	
-	if(!town->hasBuilt(bID))
+	if(!town->hasBuilt(bID) || cb->isVisitCoveredByAnotherQuery(town, h))
 		return;
 
 	if(!wasVisitedBefore(h))
@@ -496,7 +496,7 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 		if (!visitedRewards.empty())
 			grantRewardWithMessage(visitedRewards[0]);
 		else
-			logMod->warn("No applicable message for visiting already visited object!");
+			logMod->debug("No applicable message for visiting already visited object!");
 	}
 }
 
