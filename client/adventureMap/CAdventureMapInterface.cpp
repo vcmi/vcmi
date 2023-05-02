@@ -441,7 +441,7 @@ const CGObjectInstance* CAdventureMapInterface::getActiveObject(const int3 &mapP
 
 void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 {
-	if(widget->getState() == EGameState::MAKING_TURN)
+	if(widget->getState() != EGameState::MAKING_TURN)
 		return;
 
 	//FIXME: this line breaks H3 behavior for Dimension Door
