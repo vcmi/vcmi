@@ -210,7 +210,22 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 		return false;
 
 	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::BOAT);
-	auto * boat = dynamic_cast<CGBoat *>(VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, generator.rand))->create());
+	std::set<si32> sailingBoatTypes; //RMG shall place only sailing boats on water
+	for(auto subObj : subObjects)
+	{
+		//making a temporary object
+		std::unique_ptr<CGObjectInstance> obj(VLC->objtypeh->getHandlerFor(Obj::BOAT, subObj)->create());
+		if(auto * testBoat = dynamic_cast<CGBoat *>(obj.get()))
+		{
+			if(testBoat->layer == EPathfindingLayer::SAIL)
+				sailingBoatTypes.insert(subObj);
+		}
+	}
+			
+	if(sailingBoatTypes.empty())
+		return false;
+	
+	auto * boat = dynamic_cast<CGBoat *>(VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(sailingBoatTypes, generator.rand))->create());
 
 	rmg::Object rmgObject(*boat);
 	rmgObject.setTemplate(zone.getTerrainType());
