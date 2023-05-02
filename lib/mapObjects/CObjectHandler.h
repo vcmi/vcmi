@@ -12,9 +12,10 @@
 #include "ObjectTemplate.h"
 
 #include "../int3.h"
-#include "../HeroBonus.h"
 #include "../NetPacksBase.h"
 #include "../ResourceSet.h"
+
+#include "../bonuses/Bonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

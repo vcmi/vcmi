@@ -10,7 +10,8 @@
 
 #pragma once
 #include "JsonNode.h"
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/CBonusSystemNode.h"
 #include "CCreatureHandler.h" //todo: remove
 #include "battle/BattleHex.h"
 #include "mapObjects/CGHeroInstance.h" // for commander serialization

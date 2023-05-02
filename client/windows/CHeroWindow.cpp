@@ -69,6 +69,16 @@ si32 CHeroWithMaybePickedArtifact::manaLimit() const
 	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE) * (valOfBonuses(Bonus::MANA_PER_KNOWLEDGE)));
 }
 
+const IBonusBearer * CHeroWithMaybePickedArtifact::getBonusBearer() const 
+{
+	return this;
+}
+
+FactionID CHeroWithMaybePickedArtifact::getFaction() const
+{
+	return hero->getFaction();
+} 
+
 CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts * Cww, const CGHeroInstance * Hero)
 	: hero(Hero), cww(Cww)
 {

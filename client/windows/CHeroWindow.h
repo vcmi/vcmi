@@ -9,7 +9,10 @@
  */
 #pragma once
 
-#include "../../lib/HeroBonus.h"
+#include <vcmi/FactionMember.h>
+
+#include "../../lib/bonuses/Bonus.h"
+#include "../../lib/bonuses/IBonusBearer.h"
 #include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/CGarrisonInt.h"
 
@@ -45,7 +48,7 @@ public:
 };
 
 //helper class for calculating values of hero bonuses without bonuses from picked up artifact
-class CHeroWithMaybePickedArtifact : public virtual IBonusBearer
+class CHeroWithMaybePickedArtifact : public IBonusBearer, public AFactionMember
 {
 public:
 	const CGHeroInstance * hero;
@@ -53,6 +56,9 @@ public:
 
 	CHeroWithMaybePickedArtifact(CWindowWithArtifacts * Cww, const CGHeroInstance * Hero);
 	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root = nullptr, const std::string & cachingStr = "") const override;
+
+	const IBonusBearer * getBonusBearer() const override;
+	FactionID getFaction() const override; 
 
 	int64_t getTreeVersion() const override;
 

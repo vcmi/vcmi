@@ -849,12 +849,12 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 			}
 		}
 		// calculate number of creatures raised - low level units contribute at 50% rate
-		const double raisedUnitHealth = VLC->creh->objects[creatureTypeRaised]->MaxHealth();
+		const double raisedUnitHealth = VLC->creh->objects[creatureTypeRaised]->getMaxHealth();
 		double raisedUnits = 0;
 		for(const auto & casualty : casualties)
 		{
 			const CCreature * c = VLC->creh->objects[casualty.first];
-			double raisedFromCasualty = std::min(c->MaxHealth() / raisedUnitHealth, 1.0) * casualty.second * necromancySkill;
+			double raisedFromCasualty = std::min(c->getMaxHealth() / raisedUnitHealth, 1.0) * casualty.second * necromancySkill;
 			if(c->getLevel() < requiredCasualtyLevel)
 				raisedFromCasualty *= 0.5;
 			raisedUnits += raisedFromCasualty;

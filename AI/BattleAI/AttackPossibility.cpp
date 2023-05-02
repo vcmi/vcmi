@@ -51,11 +51,11 @@ int64_t AttackPossibility::calculateDamageReduce(
 
 	// FIXME: provide distance info for Jousting bonus
 	auto enemyDamageBeforeAttack = cb.battleEstimateDamage(defender, attacker, 0);
-	auto enemiesKilled = damageDealt / defender->MaxHealth() + (damageDealt % defender->MaxHealth() >= defender->getFirstHPleft() ? 1 : 0);
+	auto enemiesKilled = damageDealt / defender->getMaxHealth() + (damageDealt % defender->getMaxHealth() >= defender->getFirstHPleft() ? 1 : 0);
 	auto enemyDamage = averageDmg(enemyDamageBeforeAttack.damage);
 	auto damagePerEnemy = enemyDamage / (double)defender->getCount();
 
-	return (int64_t)(damagePerEnemy * (enemiesKilled * KILL_BOUNTY + damageDealt * HEALTH_BOUNTY / (double)defender->MaxHealth()));
+	return (int64_t)(damagePerEnemy * (enemiesKilled * KILL_BOUNTY + damageDealt * HEALTH_BOUNTY / (double)defender->getMaxHealth()));
 }
 
 int64_t AttackPossibility::evaluateBlockedShootersDmg(const BattleAttackInfo & attackInfo, BattleHex hex, const HypotheticBattle & state)

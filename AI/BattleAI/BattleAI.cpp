@@ -109,7 +109,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			auto healingTargets = cb->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);
 			std::map<int, const CStack*> woundHpToStack;
 			for(auto stack : healingTargets)
-				if(auto woundHp = stack->MaxHealth() - stack->getFirstHPleft())
+				if(auto woundHp = stack->getMaxHealth() - stack->getFirstHPleft())
 					woundHpToStack[woundHp] = stack;
 			if(woundHpToStack.empty())
 				return BattleAction::makeDefend(stack);
@@ -214,7 +214,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 					bestAttack.attackerState->unitType()->getJsonKey(),
 					bestAttack.affectedUnits[0]->unitType()->getJsonKey(),
 					(int)bestAttack.affectedUnits[0]->getCount(), action, (int)bestAttack.from, (int)bestAttack.attack.attacker->getPosition().hex,
-					bestAttack.attack.chargeDistance, bestAttack.attack.attacker->Speed(0, true),
+					bestAttack.attack.chargeDistance, bestAttack.attack.attacker->speed(0, true),
 					bestAttack.defenderDamageReduce, bestAttack.attackerDamageReduce, bestAttack.attackValue()
 				);
 			}

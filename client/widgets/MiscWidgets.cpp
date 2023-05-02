@@ -372,7 +372,7 @@ CTownTooltip::CTownTooltip(Point pos, const CGTownInstance * town)
 	init(InfoAboutTown(town, true));
 }
 
-void MoraleLuckBox::set(const IBonusBearer * node)
+void MoraleLuckBox::set(const AFactionMember * node)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
@@ -385,7 +385,7 @@ void MoraleLuckBox::set(const IBonusBearer * node)
 	bonusValue = 0;
 
 	if(node)
-		bonusValue = morale ? node->MoraleValAndBonusList(modifierList) : node->LuckValAndBonusList(modifierList);
+		bonusValue = morale ? node->moraleValAndBonusList(modifierList) : node->luckValAndBonusList(modifierList);
 
 	int mrlt = (bonusValue>0)-(bonusValue<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
 	hoverText = CGI->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
@@ -393,21 +393,21 @@ void MoraleLuckBox::set(const IBonusBearer * node)
 	text = CGI->generaltexth->arraytxt[textId[morale]];
 	boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
 
-	if (morale && node && (node->hasBonusOfType(Bonus::UNDEAD)
-			|| node->hasBonusOfType(Bonus::NON_LIVING)))
+	if (morale && node && (node->getBonusBearer()->hasBonusOfType(Bonus::UNDEAD)
+			|| node->getBonusBearer()->hasBonusOfType(Bonus::NON_LIVING)))
 	{
 		text += CGI->generaltexth->arraytxt[113]; //unaffected by morale
 		bonusValue = 0;
 	}
-	else if(morale && node && node->hasBonusOfType(Bonus::NO_MORALE))
+	else if(morale && node && node->getBonusBearer()->hasBonusOfType(Bonus::NO_MORALE))
 	{
-		auto noMorale = node->getBonus(Selector::type()(Bonus::NO_MORALE));
+		auto noMorale = node->getBonusBearer()->getBonus(Selector::type()(Bonus::NO_MORALE));
 		text += "\n" + noMorale->Description();
 		bonusValue = 0;
 	}
-	else if (!morale && node && node->hasBonusOfType(Bonus::NO_LUCK))
+	else if (!morale && node && node->getBonusBearer()->hasBonusOfType(Bonus::NO_LUCK))
 	{
-		auto noLuck = node->getBonus(Selector::type()(Bonus::NO_LUCK));
+		auto noLuck = node->getBonusBearer()->getBonus(Selector::type()(Bonus::NO_LUCK));
 		text += "\n" + noLuck->Description();
 		bonusValue = 0;
 	}

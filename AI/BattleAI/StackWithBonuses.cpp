@@ -36,9 +36,9 @@ void actualizeEffect(TBonusListPtr target, const Bonus & ef)
 	}
 }
 
-StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const CStack * Stack)
+StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle::CUnitState * Stack)
 	: battle::CUnitState(),
-	origBearer(Stack),
+	origBearer(Stack->getBonusBearer()),
 	owner(Owner),
 	type(Stack->unitType()),
 	baseAmount(Stack->unitBaseAmount()),
