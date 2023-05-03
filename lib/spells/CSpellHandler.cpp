@@ -658,9 +658,12 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData()
 
     //TODO: maybe move to config
 	//clone Acid Breath attributes for Acid Breath damage effect
-	JsonNode temp = legacyData[SpellID::ACID_BREATH_DEFENSE];
-	temp["index"].Integer() = SpellID::ACID_BREATH_DAMAGE;
-	legacyData.push_back(temp);
+	if(SpellID::ACID_BREATH_DEFENSE < legacyData.size())
+	{
+		JsonNode temp = legacyData[SpellID::ACID_BREATH_DEFENSE];
+		temp["index"].Integer() = SpellID::ACID_BREATH_DAMAGE;
+		legacyData.push_back(temp);
+	}
 
 	objects.resize(legacyData.size());
 

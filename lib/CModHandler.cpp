@@ -352,7 +352,7 @@ void CIdentifierStorage::finalize()
 		}
 		logMod->error("All known identifiers were dumped into log file");
 	}
-	assert(errorsFound == false);
+	
 	state = FINISHED;
 }
 

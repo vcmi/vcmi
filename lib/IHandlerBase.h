@@ -104,6 +104,9 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override
 	{
 		auto object = loadFromJson(scope, data, name, index);
+		
+		if(index >= objects.size())
+			objects.resize(index + 1);
 
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
 		objects[index] = object;

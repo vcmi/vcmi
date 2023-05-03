@@ -534,7 +534,8 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 	{
 		//loop till non-empty line
 		while (parser.isNextEntryEmpty())
-			parser.endLine();
+			if(!parser.endLine())
+				break;
 
 		JsonNode data;
 
@@ -889,11 +890,13 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 		{
 			if (!ability.second.isNull())
 			{
-				auto b = JsonUtils::parseBonus(ability.second);
-				b->source = Bonus::CREATURE_ABILITY;
-				b->sid = creature->getIndex();
-				b->duration = Bonus::PERMANENT;
-				creature->addNewBonus(b);
+				if(auto b = JsonUtils::parseBonus(ability.second))
+				{
+					b->source = Bonus::CREATURE_ABILITY;
+					b->sid = creature->getIndex();
+					b->duration = Bonus::PERMANENT;
+					creature->addNewBonus(b);
+				}
 			}
 		}
 	}
@@ -907,11 +910,13 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 			}
 			else
 			{
-				auto b = JsonUtils::parseBonus(ability);
-				b->source = Bonus::CREATURE_ABILITY;
-				b->sid = creature->getIndex();
-				b->duration = Bonus::PERMANENT;
-				creature->addNewBonus(b);
+				if(auto b = JsonUtils::parseBonus(ability))
+				{
+					b->source = Bonus::CREATURE_ABILITY;
+					b->sid = creature->getIndex();
+					b->duration = Bonus::PERMANENT;
+					creature->addNewBonus(b);
+				}
 			}
 		}
 	}
