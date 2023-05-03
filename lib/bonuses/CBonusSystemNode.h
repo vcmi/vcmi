@@ -35,7 +35,6 @@ private:
 	TNodesVector children;
 
 	ENodeTypes nodeType;
-	std::string description;
 	bool isHypotheticNode;
 
 	static const bool cachingEnabled;
@@ -72,6 +71,10 @@ private:
 
 	void exportBonus(const std::shared_ptr<Bonus> & b);
 
+protected:
+	bool isIndependentNode() const; //node is independent when it has no parents nor children
+	void exportBonuses();
+
 public:
 	explicit CBonusSystemNode(bool isHypotetic = false);
 	explicit CBonusSystemNode(ENodeTypes NodeType);
@@ -86,7 +89,6 @@ public:
 
 	//non-const interface
 	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from)
-	static PlayerColor retrieveNodeOwner(const CBonusSystemNode * node);
 	std::shared_ptr<Bonus> getBonusLocalFirst(const CSelector & selector);
 
 	void attachTo(CBonusSystemNode & parent);
@@ -99,7 +101,6 @@ public:
 	void removeBonuses(const CSelector & selector);
 	void removeBonusesRecursive(const CSelector & s);
 
-	bool isIndependentNode() const; //node is independent when it has no parents nor children
 	///updates count of remaining turns and removes outdated bonuses by selector
 	void reduceBonusDurations(const CSelector &s);
 	virtual std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const {return "";}; //description or bonus name
@@ -107,17 +108,12 @@ public:
 	bool isHypothetic() const { return isHypotheticNode; }
 
 	void deserializationFix();
-	void exportBonuses();
 
-	const BonusList &getBonusList() const;
 	BonusList & getExportedBonusList();
 	const BonusList & getExportedBonusList() const;
 	CBonusSystemNode::ENodeTypes getNodeType() const;
 	void setNodeType(CBonusSystemNode::ENodeTypes type);
 	const TNodesVector & getParentNodes() const;
-	const TNodesVector & getChildrenNodes() const;
-	const std::string & getDescription() const;
-	void setDescription(const std::string & description);
 
 	static void treeHasChanged();
 
@@ -133,7 +129,6 @@ public:
 //		h & bonuses;
 		h & nodeType;
 		h & exportedBonuses;
-		h & description;
 		BONUS_TREE_DESERIALIZATION_FIX
 		//h & parents & children;
 	}
