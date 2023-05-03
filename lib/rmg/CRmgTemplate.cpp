@@ -380,6 +380,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 		//TODO: add support for std::map to serializeEnum
 		static const std::vector<std::string> STRENGTH =
 		{
+			"none",
 			"weak",
 			"normal",
 			"strong"

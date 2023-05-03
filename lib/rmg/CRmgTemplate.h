@@ -45,7 +45,8 @@ namespace EMonsterStrength
 {
 	enum EMonsterStrength
 	{
-		RANDOM = -2,
+		RANDOM = -3,
+		ZONE_NONE = -2,
 		ZONE_WEAK = -1,
 		ZONE_NORMAL = 0,
 		ZONE_STRONG = 1,
