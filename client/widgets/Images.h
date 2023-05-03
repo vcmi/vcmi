@@ -86,9 +86,11 @@ private:
 	//displayed frame/group
 	size_t frame;
 	size_t group;
-	PlayerColor player;
 	ui8 flags;
 	const Point scaledSize;
+
+	/// If set, then image is colored using player-specific palette
+	std::optional<PlayerColor> player;
 
 	bool isScaled() const;
 	void setSizeFromImage(const IImage &img);
@@ -101,14 +103,17 @@ public:
 	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, Rect targetPos, size_t Group=0, ui8 Flags=0);
 	~CAnimImage();
 
-	//size of animation
+	/// size of animation
 	size_t size();
 
-	//change displayed frame on this one
+	/// change displayed frame on this one
 	void setFrame(size_t Frame, size_t Group=0);
 
-	//makes image player-colored
+	/// makes image player-colored to specific player
 	void playerColored(PlayerColor player);
+
+	/// returns true if image has player-colored effect applied
+	bool isPlayerColored() const;
 
 	void showAll(SDL_Surface * to) override;
 };
@@ -122,7 +127,6 @@ public:
 		BASE=1,            //base frame will be blitted before current one
 		HORIZONTAL_FLIP=2, //TODO: will be displayed rotated
 		VERTICAL_FLIP=4,   //TODO: will be displayed rotated
-		PLAYER_COLORED=16, //TODO: all loaded images will be player-colored
 		PLAY_ONCE=32       //play animation only once and stop at last frame
 	};
 protected:

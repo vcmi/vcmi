@@ -17,6 +17,7 @@
 #include "CResDataBar.h"
 
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../mapView/MapView.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
@@ -158,8 +159,9 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapButton(const JsonNode &
 	auto position = readTargetArea(input["area"]);
 	auto image = input["image"].String();
 	auto help = readHintText(input["help"]);
+	bool playerColored = input["playerColored"].Bool();
 
-	auto button = std::make_shared<CButton>(position.topLeft(), image, help);
+	auto button = std::make_shared<CButton>(position.topLeft(), image, help, 0, EShortcut::NONE, playerColored);
 
 	loadButtonHotkey(button, input["hotkey"]);
 

@@ -138,7 +138,6 @@ void CFilledTexture::showAll(SDL_Surface *to)
 CAnimImage::CAnimImage(const std::string & name, size_t Frame, size_t Group, int x, int y, ui8 Flags):
 	frame(Frame),
 	group(Group),
-	player(-1),
 	flags(Flags)
 {
 	pos.x += x;
@@ -151,7 +150,6 @@ CAnimImage::CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Gr
 	anim(Anim),
 	frame(Frame),
 	group(Group),
-	player(-1),
 	flags(Flags)
 {
 	pos.x += x;
@@ -163,7 +161,6 @@ CAnimImage::CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, Rect targ
 	anim(Anim),
 	frame(Frame),
 	group(Group),
-	player(-1),
 	flags(Flags),
 	scaledSize(targetPos.w, targetPos.h)
 {
@@ -252,8 +249,8 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 		group = Group;
 		if(auto img = anim->getImage(frame, group))
 		{
-			if (flags & CShowableAnim::PLAYER_COLORED)
-				img->playerColored(player);
+			if (player.has_value())
+				img->playerColored(*player);
 			setSizeFromImage(*img);
 		}
 	}
@@ -264,10 +261,14 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 void CAnimImage::playerColored(PlayerColor currPlayer)
 {
 	player = currPlayer;
-	flags |= CShowableAnim::PLAYER_COLORED;
-	anim->getImage(frame, group)->playerColored(player);
+	anim->getImage(frame, group)->playerColored(*player);
 	if (flags & CShowableAnim::BASE)
-			anim->getImage(0, group)->playerColored(player);
+			anim->getImage(0, group)->playerColored(*player);
+}
+
+bool CAnimImage::isPlayerColored() const
+{
+	return player.has_value();
 }
 
 CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 frameTime, size_t Group, uint8_t alpha):

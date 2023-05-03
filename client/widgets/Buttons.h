@@ -98,8 +98,8 @@ public:
 			CFunctionList<void()> Callback = 0, EShortcut key = {}, bool playerColoredButton = false );
 
 	/// Appearance modifiers
-	void setIndex(size_t index, bool playerColoredButton=false);
-	void setImage(std::shared_ptr<CAnimation> anim, bool playerColoredButton=false, int animFlags=0);
+	void setIndex(size_t index);
+	void setImage(std::shared_ptr<CAnimation> anim, int animFlags=0);
 	void setPlayerColor(PlayerColor player);
 
 	/// CIntObject overrides

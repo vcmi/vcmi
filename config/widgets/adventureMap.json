@@ -121,6 +121,7 @@
 					"image" : "IAM002.DEF",
 					"help" : "core.help.293",
 					"hotkey": "adventureKingdomOverview",
+					"playerColored" : true,
 					"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
 				},
 				{
@@ -129,6 +130,7 @@
 					"image" : "IAM010.DEF",
 					"help" : "core.help.294",
 					"hotkey": "adventureToggleMapLevel",
+					"playerColored" : true,
 					"area": { "top" : 0, "left": 32, "width" : 32, "height" : 32 }
 				},
 				{
@@ -137,6 +139,7 @@
 					"image" : "IAM003.DEF",
 					"help" : "core.help.294",
 					"hotkey": "adventureToggleMapLevel",
+					"playerColored" : true,
 					"area": { "top" : 0, "left": 32, "width" : 32, "height" : 32 }
 				},
 				{
@@ -145,6 +148,7 @@
 					"image" : "IAM004.DEF",
 					"help" : "core.help.295",
 					"hotkey": "adventureQuestLog",
+					"playerColored" : true,
 					"area": { "top" : 32, "left": 0, "width" : 32, "height" : 32 }
 				},
 				{
@@ -153,6 +157,7 @@
 					"image" : "IAM005.DEF",
 					"help" : "core.help.296",
 					"hotkey": "adventureSetHeroAsleep",
+					"playerColored" : true,
 					"area": { "top" : 32, "left": 32, "width" : 32, "height" : 32 }
 				},
 				{
@@ -161,6 +166,7 @@
 					"image" : "IAM011.DEF",
 					"help" : "core.help.296",
 					"hotkey": "adventureSetHeroAwake",
+					"playerColored" : true,
 					"area": { "top" : 32, "left": 32, "width" : 32, "height" : 32 }
 				},
 				{
@@ -169,6 +175,7 @@
 					"image" : "IAM006.DEF",
 					"help" : "core.help.297",
 					"hotkey": "adventureMoveHero",
+					"playerColored" : true,
 					"area": { "top" : 64, "left": 0, "width" : 32, "height" : 32 }
 				},
 				{
@@ -177,6 +184,7 @@
 					"image" : "IAM007.DEF",
 					"help" : "core.help.298",
 					"hotkey": "adventureCastSpell",
+					"playerColored" : true,
 					"area": { "top" : 64, "left": 32, "width" : 32, "height" : 32 }
 				},
 				{
@@ -185,6 +193,7 @@
 					"image" : "IAM008.DEF",
 					"help" : "core.help.299",
 					"hotkey": "adventureGameOptions",
+					"playerColored" : true,
 					"area": { "top" : 96, "left": 0, "width" : 32, "height" : 32 }
 				},
 				{
@@ -193,6 +202,7 @@
 					"image" : "IAM009.DEF",
 					"help" : "core.help.300",
 					"hotkey": "globalOptions",
+					"playerColored" : true,
 					"area": { "top" : 96, "left": 32, "width" : 32, "height" : 32 }
 				},
 				{
@@ -201,14 +211,16 @@
 					"image" : "IAM000.DEF",
 					"help" : "core.help.301",
 					"hotkey": "adventureNextHero",
+					"playerColored" : true,
 					"area": { "top" : 128, "left": 0, "width" : 64, "height" : 32 }
 				},
 				{
 					"type": "adventureMapButton",
 					"name": "buttonEndTurn",
 					"image" : "IAM001.DEF",
-					"hotkey": "adventureEndTurn",
+					"hotkey": "gameEndTurn",
 					"help" : "core.help.302",
+					"playerColored" : true,
 					"area": { "top" : 160, "left": 0, "width" : 64, "height" : 32 }
 				}
 			]
@@ -453,6 +465,7 @@
 					"type": "adventureMapButton",
 					"name": "worldViewSurface",
 					"image" : "IAM003.DEF",
+					"playerColored" : true,
 					"area": { "top" : 79, "left": 343, "width" : 32, "height" : 32 }
 				},
 				{
@@ -465,6 +478,7 @@
 					"type": "adventureMapButton",
 					"name": "worldViewUnderground",
 					"image" : "IAM010.DEF",
+					"playerColored" : true,
 					"area": { "top" : 343, "left": 79, "width" : 32, "height" : 32 }
 				},
 				{
