@@ -302,7 +302,6 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 {
 	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_ARTIFACT);
 
-	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 
@@ -347,25 +346,26 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto * object = loadFromJson(scope, data, name, objects.size());
-
-	object->iconIndex = object->getIndex() + 5;
-
-	objects.emplace_back(object);
-
-	registerObject(scope, "artifact", name, object->id);
+	if(auto * object = loadFromJson(scope, data, name, objects.size()))
+	{
+		object->iconIndex = object->getIndex() + 5;
+		objects.emplace_back(object);
+		registerObject(scope, "artifact", name, object->id);
+	}
 }
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto * object = loadFromJson(scope, data, name, index);
-
-	object->iconIndex = object->getIndex();
-
-	assert(objects[index] == nullptr); // ensure that this id was not loaded before
-	objects[index] = object;
-
-	registerObject(scope, "artifact", name, object->id);
+	if(auto * object = loadFromJson(scope, data, name, index))
+	{
+		if(index >= objects.size())
+			objects.resize(index + 1);
+		
+		object->iconIndex = object->getIndex();
+		assert(objects[index] == nullptr); // ensure that this id was not loaded before
+		objects[index] = object;
+		registerObject(scope, "artifact", name, object->id);
+	}
 }
 
 const std::vector<std::string> & CArtHandler::getTypeNames() const
