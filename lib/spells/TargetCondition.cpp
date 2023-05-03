@@ -89,6 +89,18 @@ private:
 	si32 maxVal = std::numeric_limits<si32>::max();
 };
 
+class ResistanceCondition : public TargetConditionItemBase
+{
+protected:
+	bool check(const Mechanics * m, const battle::Unit * target) const override
+	{
+		if(m->isPositiveSpell()) //Always pass on positive
+			return true;
+
+		return target->magicResistance() < 100;
+	}
+};
+
 class CreatureCondition : public TargetConditionItemBase
 {
 public:
@@ -319,6 +331,12 @@ public:
 		return elementalCondition;
 	}
 
+	Object createResistance() const override
+	{
+		static auto elementalCondition = std::make_shared<ResistanceCondition>();
+		return elementalCondition;
+	}
+
 	Object createNormalLevel() const override
 	{
 		static std::shared_ptr<TargetConditionItem> nlCondition = std::make_shared<NormalLevelCondition>();
@@ -451,6 +469,7 @@ void TargetCondition::serializeJson(JsonSerializeFormat & handler, const ItemFac
 	absolute.push_back(itemFactory->createAbsoluteSpell());
 	absolute.push_back(itemFactory->createAbsoluteLevel());
 	normal.push_back(itemFactory->createElemental());
+	normal.push_back(itemFactory->createResistance());
 	normal.push_back(itemFactory->createNormalLevel());
 	normal.push_back(itemFactory->createNormalSpell());
 	negation.push_back(itemFactory->createReceptiveFeature());
