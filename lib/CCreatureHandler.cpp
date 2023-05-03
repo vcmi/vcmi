@@ -1178,8 +1178,9 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.subtype = 1; //not positive
 				break;
 			case 'O':
-				b.type = BonusType::FIRE_IMMUNITY;
-				b.subtype = 2; //only direct damage
+				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				b.subtype = 1; //Fire school
+				b.val = 100; //Full damage immunity
 				break;
 			case 'f':
 				b.type = BonusType::FIRE_IMMUNITY;
@@ -1190,31 +1191,36 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.subtype = 1; //not positive
 				break;
 			case 'W':
-				b.type = BonusType::WATER_IMMUNITY;
-				b.subtype = 2; //only direct damage
+				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				b.subtype = 2; //Water school
+				b.val = 100; //Full damage immunity
 				break;
 			case 'w':
 				b.type = BonusType::WATER_IMMUNITY;
 				b.subtype = 0; //all
 				break;
 			case 'E':
-				b.type = BonusType::EARTH_IMMUNITY;
-				b.subtype = 2; //only direct damage
+				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				b.subtype = 3; //Earth school
+				b.val = 100; //Full damage immunity
 				break;
 			case 'e':
 				b.type = BonusType::EARTH_IMMUNITY;
 				b.subtype = 0; //all
 				break;
 			case 'A':
-				b.type = BonusType::AIR_IMMUNITY;
-				b.subtype = 2; //only direct damage
+				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				b.subtype = 0; //Air school
+				b.val = 100; //Full damage immunity
 				break;
 			case 'a':
 				b.type = BonusType::AIR_IMMUNITY;
 				b.subtype = 0; //all
 				break;
 			case 'D':
-				b.type = BonusType::DIRECT_DAMAGE_IMMUNITY;
+				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				b.subtype = -1; //all
+				b.val = 100; //Full damage immunity
 				break;
 			case '0':
 				b.type = BonusType::RECEPTIVE;

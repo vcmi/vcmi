@@ -11,6 +11,7 @@
 
 #include "Damage.h"
 #include "Registry.h"
+#include "../CSpellHandler.h"
 #include "../ISpellMechanics.h"
 
 #include "../../NetPacks.h"
@@ -19,6 +20,8 @@
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../CGeneralTextHandler.h"
 #include "../../serializer/JsonSerializeFormat.h"
+
+#include <vcmi/spells/Spell.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -82,16 +85,14 @@ bool Damage::isReceptive(const Mechanics * m, const battle::Unit * unit) const
 	if(!UnitEffect::isReceptive(m, unit))
 		return false;
 
+	bool isImmune = m->getSpell()->isMagical() && (unit->getBonusBearer()->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, -1) >= 100); //General spell damage immunity
 	//elemental immunity for damage
-	auto filter = m->getElementalImmunity();
-
-	for(auto element : filter)
+	m->getSpell()->forEachSchool([&](const SchoolInfo & cnf, bool & stop)
 	{
-		if(!m->isPositiveSpell() && unit->hasBonusOfType(element, 2))
-			return false;
-	}
+		isImmune |= (unit->getBonusBearer()->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, static_cast<ui8>(cnf.id)) >= 100); //100% reduction is immunity
+	});
 
-	return true;
+	return !isImmune;
 }
 
 void Damage::serializeJsonUnitEffect(JsonSerializeFormat & handler)
