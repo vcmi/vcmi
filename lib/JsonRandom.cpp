@@ -11,18 +11,20 @@
 #include "StdInc.h"
 #include "JsonRandom.h"
 
-#include "../JsonNode.h"
-#include "../CRandomGenerator.h"
-#include "../StringConstants.h"
-#include "../VCMI_Lib.h"
-#include "../CModHandler.h"
-#include "../CArtHandler.h"
-#include "../CCreatureHandler.h"
-#include "../CCreatureSet.h"
-#include "../spells/CSpellHandler.h"
-#include "../CSkillHandler.h"
-#include "../mapObjects/CObjectHandler.h"
-#include "../IGameCallback.h"
+#include <vstd/StringUtils.h>
+
+#include "JsonNode.h"
+#include "CRandomGenerator.h"
+#include "StringConstants.h"
+#include "VCMI_Lib.h"
+#include "CModHandler.h"
+#include "CArtHandler.h"
+#include "CCreatureHandler.h"
+#include "CCreatureSet.h"
+#include "spells/CSpellHandler.h"
+#include "CSkillHandler.h"
+#include "mapObjects/CObjectHandler.h"
+#include "IGameCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -30,22 +32,26 @@ namespace JsonRandom
 {
 	si32 loadValue(const JsonNode & value, CRandomGenerator & rng, si32 defaultValue)
 	{
-		if (value.isNull())
+		if(value.isNull())
 			return defaultValue;
-		if (value.isNumber())
+		if(value.isNumber())
 			return static_cast<si32>(value.Float());
-		if (value.isVector())
+		if(value.isVector())
 		{
 			const auto & vector = value.Vector();
 
 			size_t index= rng.getIntRange(0, vector.size()-1)();
 			return loadValue(vector[index], rng, 0);
 		}
-		if (!value["amount"].isNull())
-			return static_cast<si32>(loadValue(value["amount"], rng, defaultValue));
-		si32 min = static_cast<si32>(loadValue(value["min"], rng, 0));
-		si32 max = static_cast<si32>(loadValue(value["max"], rng, 0));
-		return rng.getIntRange(min, max)();
+		if(value.isStruct())
+		{
+			if (!value["amount"].isNull())
+				return static_cast<si32>(loadValue(value["amount"], rng, defaultValue));
+			si32 min = static_cast<si32>(loadValue(value["min"], rng, 0));
+			si32 max = static_cast<si32>(loadValue(value["max"], rng, 0));
+			return rng.getIntRange(min, max)();
+		}
+		return defaultValue;
 	}
 
 	std::string loadKey(const JsonNode & value, CRandomGenerator & rng, const std::set<std::string> & valuesSet)
@@ -123,7 +129,9 @@ namespace JsonRandom
 			std::set<std::string> defaultStats(std::begin(PrimarySkill::names), std::end(PrimarySkill::names));
 			for(const auto & element : value.Vector())
 			{
-				int id = vstd::find_pos(PrimarySkill::names, loadKey(element, rng, defaultStats));
+				auto key = loadKey(element, rng, defaultStats);
+				defaultStats.erase(key);
+				int id = vstd::find_pos(PrimarySkill::names, key);
 				if(id != -1)
 					ret[id] += loadValue(element, rng);
 			}
@@ -148,13 +156,22 @@ namespace JsonRandom
 			for(const auto & skill : VLC->skillh->objects)
 			{
 				IObjectInterface::cb->isAllowed(2, skill->getIndex());
-				defaultSkills.insert(skill->getNameTextID());
+				auto scopeAndName = vstd::splitStringToPair(skill->getJsonKey(), ':');
+				if(scopeAndName.first == CModHandler::scopeBuiltin() || scopeAndName.first == value.meta)
+					defaultSkills.insert(scopeAndName.second);
+				else
+					defaultSkills.insert(skill->getJsonKey());
 			}
 			
 			for(const auto & element : value.Vector())
 			{
-				SecondarySkill id(VLC->modh->identifiers.getIdentifier(element.meta, "skill", loadKey(element, rng, defaultSkills)).value());
-				ret[id] = loadValue(element, rng);
+				auto key = loadKey(element, rng, defaultSkills);
+				defaultSkills.erase(key); //avoid dupicates
+				if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "skill", key))
+				{
+					SecondarySkill id(identifier.value());
+					ret[id] = loadValue(element, rng);
+				}
 			}
 		}
 		return ret;

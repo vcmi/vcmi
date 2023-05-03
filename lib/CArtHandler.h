@@ -12,7 +12,8 @@
 #include <vcmi/Artifact.h>
 #include <vcmi/ArtifactService.h>
 
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/CBonusSystemNode.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 
@@ -328,6 +329,7 @@ public:
 	std::vector<ArtifactPosition> getAllArtPositions(const ArtifactID & aid, bool onlyWorn, bool allowLocked, bool getAll) const;
 	std::vector<ArtifactPosition> getBackpackArtPositions(const ArtifactID & aid) const;
 	const CArtifactInstance * getArtByInstanceId(const ArtifactInstanceID & artInstId) const;
+	const ArtifactPosition getSlotByInstance(const CArtifactInstance * artInst) const;
 	/// Search for constituents of assemblies in backpack which do not have an ArtifactPosition
 	const CArtifactInstance * getHiddenArt(const ArtifactID & aid) const;
 	const CCombinedArtifactInstance * getAssemblyByConstituent(const ArtifactID & aid) const;

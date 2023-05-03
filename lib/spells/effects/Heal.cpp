@@ -59,7 +59,7 @@ bool Heal::isValidTarget(const Mechanics * m, const battle::Unit * unit) const
 	if(minFullUnits > 0)
 	{
 		auto hpGained = std::min(m->getEffectValue(), injuries);
-		if(hpGained < minFullUnits * unit->MaxHealth())
+		if(hpGained < minFullUnits * unit->getMaxHealth())
 			return false;
 	}
 

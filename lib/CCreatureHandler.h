@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/CBonusSystemNode.h"
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
 #include "GameConstants.h"
@@ -168,7 +169,6 @@ public:
 	void registerIcons(const IconRegistar & cb) const override;
 	CreatureID getId() const override;
 	virtual const IBonusBearer * getBonusBearer() const override;
-	uint32_t getMaxHealth() const override;
 
 	int32_t getAdvMapAmountMin() const override;
 	int32_t getAdvMapAmountMax() const override;

@@ -101,7 +101,7 @@ public:
 
 	/// Constructor
 	CButton(Point position, const std::string & defName, const std::pair<std::string, std::string> & help,
-	        CFunctionList<void()> Callback = 0, int key=0, bool playerColoredButton = false );
+			CFunctionList<void()> Callback = 0, EShortcut key = {}, bool playerColoredButton = false );
 
 	/// Appearance modifiers
 	void setIndex(size_t index, bool playerColoredButton=false);
@@ -157,7 +157,7 @@ class CToggleButton : public CButton, public CToggleBase
 
 public:
 	CToggleButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help,
-	              CFunctionList<void(bool)> Callback = 0, int key=0, bool playerColoredButton = false );
+				  CFunctionList<void(bool)> Callback = 0, EShortcut key = {}, bool playerColoredButton = false );
 	void clickLeft(tribool down, bool previousState) override;
 
 	// bring overrides into scope
@@ -276,7 +276,7 @@ public:
 
 	void addCallback(std::function<void(int)> callback);
 
-	void keyPressed(const SDL_Keycode & key) override;
+	void keyPressed(EShortcut key) override;
 	void wheelScrolled(bool down, bool in) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void mouseMoved (const Point & cursorPosition) override;

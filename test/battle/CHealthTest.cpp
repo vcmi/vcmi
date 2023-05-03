@@ -42,7 +42,7 @@ public:
 
 static void checkTotal(const CHealth & health, const UnitMock & mock)
 {
-	EXPECT_EQ(health.total(), mock.MaxHealth() * mock.unitBaseAmount());
+	EXPECT_EQ(health.total(), mock.getMaxHealth() * mock.unitBaseAmount());
 }
 
 static void checkEmptyHealth(const CHealth & health, const UnitMock  & mock)
@@ -58,9 +58,9 @@ static void checkFullHealth(const CHealth & health, const UnitMock  & mock)
 {
 	checkTotal(health, mock);
 	EXPECT_EQ(health.getCount(), mock.unitBaseAmount());
-	EXPECT_EQ(health.getFirstHPleft(), mock.MaxHealth());
+	EXPECT_EQ(health.getFirstHPleft(), mock.getMaxHealth());
 	EXPECT_EQ(health.getResurrected(), 0);
-	EXPECT_EQ(health.available(), mock.MaxHealth() * mock.unitBaseAmount());
+	EXPECT_EQ(health.available(), mock.getMaxHealth() * mock.unitBaseAmount());
 }
 
 static void checkDamage(CHealth & health, const int64_t initialDamage, const int64_t expectedDamage)
@@ -110,7 +110,7 @@ TEST_F(HealthTest, damage)
 	checkNormalDamage(health, 0);
 	checkFullHealth(health, mock);
 
-	checkNormalDamage(health, mock.MaxHealth() - 1);
+	checkNormalDamage(health, mock.getMaxHealth() - 1);
 	EXPECT_EQ(health.getCount(), UNIT_AMOUNT);
 	EXPECT_EQ(health.getFirstHPleft(), 1);
 	EXPECT_EQ(health.getResurrected(), 0);

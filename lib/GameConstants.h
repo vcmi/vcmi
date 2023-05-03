@@ -398,7 +398,7 @@ class TeleportChannelID : public BaseForID<TeleportChannelID, si32>
 // Enum declarations
 namespace PrimarySkill
 {
-	enum PrimarySkill { NONE = -1, ATTACK, DEFENSE, SPELL_POWER, KNOWLEDGE,
+	enum PrimarySkill : int8_t { NONE = -1, ATTACK, DEFENSE, SPELL_POWER, KNOWLEDGE,
 				EXPERIENCE = 4}; //for some reason changePrimSkill uses it
 }
 
@@ -585,6 +585,16 @@ namespace BuildingSubID
 	};
 }
 
+namespace EMarketMode
+{
+	enum EMarketMode
+	{
+		RESOURCE_RESOURCE, RESOURCE_PLAYER, CREATURE_RESOURCE, RESOURCE_ARTIFACT,
+		ARTIFACT_RESOURCE, ARTIFACT_EXP, CREATURE_EXP, CREATURE_UNDEAD, RESOURCE_SKILL,
+		MARTKET_AFTER_LAST_PLACEHOLDER
+	};
+}
+
 namespace MappedKeys
 {
 
@@ -634,6 +644,19 @@ namespace MappedKeys
 		{ "lighthouse", BuildingSubID::LIGHTHOUSE },
 		{ "treasury", BuildingSubID::TREASURY }
 	};
+
+	static const std::map<std::string, EMarketMode::EMarketMode> MARKET_NAMES_TO_TYPES =
+	{
+		{ "resource-resource", EMarketMode::RESOURCE_RESOURCE },
+		{ "resource-player", EMarketMode::RESOURCE_PLAYER },
+		{ "creature-resource", EMarketMode::CREATURE_RESOURCE },
+		{ "resource-artifact", EMarketMode::RESOURCE_ARTIFACT },
+		{ "artifact-resource", EMarketMode::ARTIFACT_RESOURCE },
+		{ "artifact-experience", EMarketMode::ARTIFACT_EXP },
+		{ "creature-experience", EMarketMode::CREATURE_EXP },
+		{ "creature-undead", EMarketMode::CREATURE_UNDEAD },
+		{ "resource-skill", EMarketMode::RESOURCE_SKILL },
+	};
 }
 
 namespace EAiTactic
@@ -667,16 +690,6 @@ namespace ESpellCastProblem
 		NO_APPROPRIATE_TARGET, STACK_IMMUNE_TO_SPELL, WRONG_SPELL_TARGET, ONGOING_TACTIC_PHASE,
 		MAGIC_IS_BLOCKED, //For Orb of Inhibition and similar - no casting at all
 		INVALID
-	};
-}
-
-namespace EMarketMode
-{
-	enum EMarketMode
-	{
-		RESOURCE_RESOURCE, RESOURCE_PLAYER, CREATURE_RESOURCE, RESOURCE_ARTIFACT,
-		ARTIFACT_RESOURCE, ARTIFACT_EXP, CREATURE_EXP, CREATURE_UNDEAD, RESOURCE_SKILL,
-		MARTKET_AFTER_LAST_PLACEHOLDER
 	};
 }
 
@@ -750,12 +763,12 @@ public:
 	enum EObj
 	{
 		NO_OBJ = -1,
-		ALTAR_OF_SACRIFICE = 2,
+		ALTAR_OF_SACRIFICE [[deprecated]] = 2,
 		ANCHOR_POINT = 3,
 		ARENA = 4,
 		ARTIFACT = 5,
 		PANDORAS_BOX = 6,
-		BLACK_MARKET = 7,
+		BLACK_MARKET [[deprecated]] = 7,
 		BOAT = 8,
 		BORDERGUARD = 9,
 		KEYMASTER = 10,
@@ -847,12 +860,12 @@ public:
 		TEMPLE = 96,
 		DEN_OF_THIEVES = 97,
 		TOWN = 98,
-		TRADING_POST = 99,
+		TRADING_POST [[deprecated]] = 99,
 		LEARNING_STONE = 100,
 		TREASURE_CHEST = 101,
 		TREE_OF_KNOWLEDGE = 102,
 		SUBTERRANEAN_GATE = 103,
-		UNIVERSITY = 104,
+		UNIVERSITY [[deprecated]] = 104,
 		WAGON = 105,
 		WAR_MACHINE_FACTORY = 106,
 		SCHOOL_OF_WAR = 107,
@@ -867,7 +880,7 @@ public:
 		RANDOM_MONSTER_L6 = 163,
 		RANDOM_MONSTER_L7 = 164,
 		BORDER_GATE = 212,
-		FREELANCERS_GUILD = 213,
+		FREELANCERS_GUILD [[deprecated]] = 213,
 		HERO_PLACEHOLDER = 214,
 		QUEST_GUARD = 215,
 		RANDOM_DWELLING = 216,
@@ -875,7 +888,7 @@ public:
 		RANDOM_DWELLING_FACTION = 218, //subtype = faction
 		GARRISON2 = 219,
 		ABANDONED_MINE = 220,
-		TRADING_POST_SNOW = 221,
+		TRADING_POST_SNOW [[deprecated]] = 221,
 		CLOVER_FIELD = 222,
 		CURSED_GROUND2 = 223,
 		EVIL_FOG = 224,
@@ -1326,7 +1339,6 @@ enum class EHealPower : ui8
 
 // Typedef declarations
 using TExpType = si64;
-using TBonusSubtype = si32;
 using TQuantity = si32;
 
 using TRmgTemplateZoneId = int;

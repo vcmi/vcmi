@@ -77,7 +77,7 @@ std::vector<SlotInfo>::iterator ArmyManager::getWeakestCreature(std::vector<Slot
 		if(left.creature->getLevel() != right.creature->getLevel())
 			return left.creature->getLevel() < right.creature->getLevel();
 		
-		return left.creature->Speed() > right.creature->Speed();
+		return left.creature->speed() > right.creature->speed();
 	});
 
 	return weakest;
@@ -150,7 +150,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 
 		for(auto & slot : newArmyInstance.Slots())
 		{
-			auto morale = slot.second->MoraleVal();
+			auto morale = slot.second->moraleVal();
 			auto multiplier = 1.0f;
 
 			const float BadMoraleChance = 0.083f;

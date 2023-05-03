@@ -9,8 +9,11 @@
  */
 #pragma once
 
-#include "../../lib/HeroBonus.h"
-#include "../widgets/CArtifactHolder.h"
+#include <vcmi/FactionMember.h>
+
+#include "../../lib/bonuses/Bonus.h"
+#include "../../lib/bonuses/IBonusBearer.h"
+#include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/CGarrisonInt.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -25,7 +28,7 @@ class CHeroWindow;
 class LClickableAreaHero;
 class LRClickableAreaWText;
 class LRClickableAreaWTextComp;
-class CArtifactsOfHero;
+class CArtifactsOfHeroMain;
 class MoraleLuckBox;
 class CToggleButton;
 class CToggleGroup;
@@ -45,7 +48,7 @@ public:
 };
 
 //helper class for calculating values of hero bonuses without bonuses from picked up artifact
-class CHeroWithMaybePickedArtifact : public virtual IBonusBearer
+class CHeroWithMaybePickedArtifact : public IBonusBearer, public AFactionMember
 {
 public:
 	const CGHeroInstance * hero;
@@ -53,6 +56,9 @@ public:
 
 	CHeroWithMaybePickedArtifact(CWindowWithArtifacts * Cww, const CGHeroInstance * Hero);
 	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root = nullptr, const std::string & cachingStr = "") const override;
+
+	const IBonusBearer * getBonusBearer() const override;
+	FactionID getFaction() const override; 
 
 	int64_t getTreeVersion() const override;
 
@@ -105,7 +111,7 @@ class CHeroWindow : public CStatusbarWindow, public CGarrisonHolder, public CWin
 	std::shared_ptr<CToggleGroup> formations;
 
 	std::shared_ptr<CGarrisonInt> garr;
-	std::shared_ptr<CArtifactsOfHero> arts;
+	std::shared_ptr<CArtifactsOfHeroMain> arts;
 
 	std::vector<std::shared_ptr<CLabel>> labels;
 

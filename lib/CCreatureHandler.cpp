@@ -19,6 +19,8 @@
 #include "CModHandler.h"
 #include "GameSettings.h"
 #include "StringConstants.h"
+#include "bonuses/Limiters.h"
+#include "bonuses/Updaters.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
 #include "mapObjects/CObjectClassesHandler.h"
@@ -67,11 +69,6 @@ CreatureID CCreature::getId() const
 const IBonusBearer * CCreature::getBonusBearer() const
 {
 	return this;
-}
-
-uint32_t CCreature::getMaxHealth() const
-{
-	return CBonusSystemNode::MaxHealth();
 }
 
 int32_t CCreature::getAdvMapAmountMin() const

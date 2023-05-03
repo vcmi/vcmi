@@ -17,6 +17,7 @@
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -281,27 +282,27 @@ void SelectionTab::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void SelectionTab::keyPressed(const SDL_Keycode & key)
+void SelectionTab::keyPressed(EShortcut key)
 {
 	int moveBy = 0;
 	switch(key)
 	{
-	case SDLK_UP:
+	case EShortcut::MOVE_UP:
 		moveBy = -1;
 		break;
-	case SDLK_DOWN:
+	case EShortcut::MOVE_DOWN:
 		moveBy = +1;
 		break;
-	case SDLK_PAGEUP:
+	case EShortcut::MOVE_PAGE_UP:
 		moveBy = -(int)listItems.size() + 1;
 		break;
-	case SDLK_PAGEDOWN:
+	case EShortcut::MOVE_PAGE_DOWN:
 		moveBy = +(int)listItems.size() - 1;
 		break;
-	case SDLK_HOME:
+	case EShortcut::MOVE_FIRST:
 		select(-slider->getValue());
 		return;
-	case SDLK_END:
+	case EShortcut::MOVE_LAST:
 		select((int)curItems.size() - slider->getValue());
 		return;
 	default:

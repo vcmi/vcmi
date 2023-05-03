@@ -22,6 +22,10 @@
 #include "../../lib/CGameState.h"
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/NetPacks.h"
+#include "../../lib/bonuses/CBonusSystemNode.h"
+#include "../../lib/bonuses/Limiters.h"
+#include "../../lib/bonuses/Updaters.h"
+#include "../../lib/bonuses/Propagators.h"
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/serializer/BinarySerializer.h"
 #include "../../lib/serializer/BinaryDeserializer.h"
@@ -1605,10 +1609,10 @@ void VCAI::markObjectVisited(const CGObjectInstance * obj)
 
 	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj)) //we may want to visit it with another hero
 	{
-		if (rewardable->getVisitMode() == CRewardableObject::VISIT_HERO) //we may want to visit it with another hero
+		if (rewardable->configuration.getVisitMode() == Rewardable::VISIT_HERO) //we may want to visit it with another hero
 			return;
 
-		if (rewardable->getVisitMode() == CRewardableObject::VISIT_BONUS) //or another time
+		if (rewardable->configuration.getVisitMode() == Rewardable::VISIT_BONUS) //or another time
 			return;
 	}
 
@@ -2130,7 +2134,7 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources
 				{
-					cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, res, g.resID, toGive);
+					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, res, g.resID, toGive);
 					accquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
 					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, accquiredResources, g.resID, obj->getObjectName());
 				}
@@ -2746,7 +2750,7 @@ bool isWeeklyRevisitable(const CGObjectInstance * obj)
 {
 	//TODO: allow polling of remaining creatures in dwelling
 	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj))
-		return rewardable->getResetDuration() == 7;
+		return rewardable->configuration.getResetDuration() == 7;
 
 	if(dynamic_cast<const CGDwelling *>(obj))
 		return true;

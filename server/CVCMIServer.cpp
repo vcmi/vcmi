@@ -375,10 +375,10 @@ class CVCMIServerPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
 private:
 	CVCMIServer & handler;
-	CGameHandler & gh;
+	std::shared_ptr<CGameHandler> gh;
 
 public:
-	CVCMIServerPackVisitor(CVCMIServer & handler, CGameHandler & gh)
+	CVCMIServerPackVisitor(CVCMIServer & handler, std::shared_ptr<CGameHandler> gh)
 			:handler(handler), gh(gh)
 	{
 	}
@@ -392,7 +392,10 @@ public:
 
 	virtual void visitForServer(CPackForServer & serverPack) override
 	{
-		gh.handleReceivedPack(&serverPack);
+		if (gh)
+			gh->handleReceivedPack(&serverPack);
+		else
+			logNetwork->error("Received pack for game server while in lobby!");
 	}
 
 	virtual void visitForClient(CPackForClient & clientPack) override
@@ -432,7 +435,7 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 				break;
 			}
 
-			CVCMIServerPackVisitor visitor(*this, *this->gh);
+			CVCMIServerPackVisitor visitor(*this, this->gh);
 			pack->visit(visitor);
 		}
 #ifndef _MSC_VER

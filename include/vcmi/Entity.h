@@ -31,15 +31,6 @@ public:
 	virtual bool isNativeTerrain(Identifier<ETerrainId> terrain) const;
 };
 
-class DLL_LINKAGE IConstBonusNativeTerrainProvider: public IConstBonusProvider, public INativeTerrainProvider
-{
-public:
-	/**
-	Returns native terrain considering some terrain bonuses.
-	*/
-	virtual Identifier<ETerrainId> getNativeTerrain() const;
-};
-
 class DLL_LINKAGE Entity
 {
 public:
@@ -65,11 +56,6 @@ public:
 
 template <typename IdType>
 class DLL_LINKAGE EntityWithBonuses : public EntityT<IdType>, public IConstBonusProvider
-{
-};
-
-template <typename IdType>
-class DLL_LINKAGE EntityWithNativeTerrain : public EntityT<IdType>, public IConstBonusNativeTerrainProvider
 {
 };
 

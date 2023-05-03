@@ -25,6 +25,7 @@
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
@@ -84,7 +85,7 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	}
 	pos = background->center();
 	card = std::make_shared<InfoCard>();
-	buttonBack = std::make_shared<CButton>(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [=](){ close();}, SDLK_ESCAPE);
+	buttonBack = std::make_shared<CButton>(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
@@ -318,9 +319,9 @@ CChatBox::CChatBox(const Rect & rect)
 	chatHistory->label->color = Colors::GREEN;
 }
 
-void CChatBox::keyPressed(const SDL_Keycode & key)
+void CChatBox::keyPressed(EShortcut key)
 {
-	if(key == SDLK_RETURN && inputBox->getText().size())
+	if(key == EShortcut::GLOBAL_ACCEPT && inputBox->getText().size())
 	{
 		CSH->sendMessage(inputBox->getText());
 		inputBox->setText("");

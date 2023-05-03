@@ -13,6 +13,7 @@
 
 #include "../ISpellMechanics.h"
 
+#include "../../bonuses/BonusSelector.h"
 #include "../../NetPacksBase.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"

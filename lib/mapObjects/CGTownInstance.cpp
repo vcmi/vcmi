@@ -12,6 +12,7 @@
 #include "CGTownInstance.h"
 #include "CObjectClassesHandler.h"
 #include "../spells/CSpellHandler.h"
+#include "../bonuses/Bonus.h"
 #include "../battle/IBattleInfoCallback.h"
 #include "../NetPacks.h"
 #include "../CConfigHandler.h"
@@ -23,7 +24,6 @@
 #include "../CPlayerState.h"
 #include "../TerrainHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
-#include "../HeroBonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -220,7 +220,7 @@ bool CGTownInstance::hasCapitol() const
 
 CGTownInstance::CGTownInstance():
 	IShipyard(this),
-	IMarket(this),
+	IMarket(),
 	town(nullptr),
 	builded(0),
 	destroyed(0),
@@ -365,23 +365,6 @@ bool CGTownInstance::isBonusingBuildingAdded(BuildingID::EBuildingID bid) const
 	return present != bonusingBuildings.end();
 }
 
-//it does not check hasBuilt because this check is in the OnHeroVisit handler
-void CGTownInstance::tryAddOnePerWeekBonus(BuildingSubID::EBuildingSubID subID)
-{
-	auto bid = town->getBuildingType(subID);
-
-	if(bid != BuildingID::NONE && !isBonusingBuildingAdded(bid))
-		bonusingBuildings.push_back(new COPWBonus(bid, subID, this));
-}
-
-void CGTownInstance::tryAddVisitingBonus(BuildingSubID::EBuildingSubID subID)
-{
-	auto bid = town->getBuildingType(subID);
-
-	if(bid != BuildingID::NONE && !isBonusingBuildingAdded(bid))
-		bonusingBuildings.push_back(new CTownBonus(bid, subID, this));
-}
-
 void CGTownInstance::addTownBonuses()
 {
 	for(const auto & kvp : town->buildings)
@@ -485,11 +468,6 @@ void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structu
 	addTownBonuses(); //add special bonuses from buildings to the bonusingBuildings vector.
 	recreateBuildingsBonuses();
 	updateAppearance();
-}
-
-bool CGTownInstance::hasBuiltInOldWay(ETownType::ETownType type, const BuildingID & bid) const
-{
-	return (this->town->faction != nullptr && this->town->faction->getIndex() == type && hasBuilt(bid));
 }
 
 void CGTownInstance::newTurn(CRandomGenerator & rand) const

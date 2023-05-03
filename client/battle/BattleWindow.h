@@ -84,8 +84,7 @@ public:
 
 	void activate() override;
 	void deactivate() override;
-	void keyPressed(const SDL_Keycode & key) override;
-	void keyReleased(const SDL_Keycode& key) override;
+	void keyPressed(EShortcut key) override;
 	void clickRight(tribool down, bool previousState) override;
 	void show(SDL_Surface *to) override;
 	void showAll(SDL_Surface *to) override;
@@ -98,9 +97,5 @@ public:
 
 	/// Set possible alternative options. If more than 1 - the last will be considered as default option
 	void setAlternativeActions(const std::list<PossiblePlayerBattleAction> &);
-
-private:
-	/// used to save the state of this setting on toggle.
-	bool movementHighlightOnHoverCache;
 };
 

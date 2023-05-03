@@ -179,7 +179,7 @@ void CHealth::init()
 {
 	reset();
 	fullUnits = owner->unitBaseAmount() > 1 ? owner->unitBaseAmount() - 1 : 0;
-	firstHPleft = owner->unitBaseAmount() > 0 ? owner->MaxHealth() : 0;
+	firstHPleft = owner->unitBaseAmount() > 0 ? owner->getMaxHealth() : 0;
 }
 
 void CHealth::addResurrected(int32_t amount)
@@ -190,12 +190,12 @@ void CHealth::addResurrected(int32_t amount)
 
 int64_t CHealth::available() const
 {
-	return static_cast<int64_t>(firstHPleft) + owner->MaxHealth() * fullUnits;
+	return static_cast<int64_t>(firstHPleft) + owner->getMaxHealth() * fullUnits;
 }
 
 int64_t CHealth::total() const
 {
-	return static_cast<int64_t>(owner->MaxHealth()) * owner->unitBaseAmount();
+	return static_cast<int64_t>(owner->getMaxHealth()) * owner->unitBaseAmount();
 }
 
 void CHealth::damage(int64_t & amount)
@@ -230,7 +230,7 @@ void CHealth::damage(int64_t & amount)
 
 void CHealth::heal(int64_t & amount, EHealLevel level, EHealPower power)
 {
-	const int32_t unitHealth = owner->MaxHealth();
+	const int32_t unitHealth = owner->getMaxHealth();
 	const int32_t oldCount = getCount();
 
 	int64_t maxHeal = std::numeric_limits<int64_t>::max();
@@ -267,7 +267,7 @@ void CHealth::heal(int64_t & amount, EHealLevel level, EHealPower power)
 
 void CHealth::setFromTotal(const int64_t totalHealth)
 {
-	const int32_t unitHealth = owner->MaxHealth();
+	const int32_t unitHealth = owner->getMaxHealth();
 	firstHPleft = totalHealth % unitHealth;
 	fullUnits = static_cast<int32_t>(totalHealth / unitHealth);
 
@@ -306,7 +306,7 @@ void CHealth::takeResurrected()
 	{
 		int64_t totalHealth = available();
 
-		totalHealth -= resurrected * owner->MaxHealth();
+		totalHealth -= resurrected * owner->getMaxHealth();
 		vstd::amax(totalHealth, 0);
 		setFromTotal(totalHealth);
 		resurrected = 0;

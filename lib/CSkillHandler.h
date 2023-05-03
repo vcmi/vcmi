@@ -12,7 +12,7 @@
 #include <vcmi/Skill.h>
 #include <vcmi/SkillService.h>
 
-#include "../lib/HeroBonus.h"
+#include "../lib/bonuses/Bonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 

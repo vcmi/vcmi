@@ -43,6 +43,10 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
+#include "../lib/bonuses/CBonusSystemNode.h"
+#include "../lib/bonuses/Limiters.h"
+#include "../lib/bonuses/Updaters.h"
+#include "../lib/bonuses/Propagators.h"
 #include "../lib/serializer/CTypeList.h"
 #include "../lib/serializer/BinaryDeserializer.h"
 #include "../lib/serializer/BinarySerializer.h"
@@ -1709,18 +1713,15 @@ void CPlayerInterface::stopMovement()
 void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (market->o->ID == Obj::ALTAR_OF_SACRIFICE)
-	{
-		//EEMarketMode mode = market->availableModes().front();
-		if (market->allowsTrade(EMarketMode::ARTIFACT_EXP) && visitor->getAlignment() != EAlignment::EVIL)
-			GH.pushIntT<CAltarWindow>(market, visitor, EMarketMode::ARTIFACT_EXP);
-		else if (market->allowsTrade(EMarketMode::CREATURE_EXP) && visitor->getAlignment() != EAlignment::GOOD)
-			GH.pushIntT<CAltarWindow>(market, visitor, EMarketMode::CREATURE_EXP);
-	}
-	else
-	{
+
+	if(market->allowsTrade(EMarketMode::ARTIFACT_EXP) && visitor->getAlignment() != EAlignment::EVIL)
+		GH.pushIntT<CAltarWindow>(market, visitor, EMarketMode::ARTIFACT_EXP);
+	else if(market->allowsTrade(EMarketMode::CREATURE_EXP) && visitor->getAlignment() != EAlignment::GOOD)
+		GH.pushIntT<CAltarWindow>(market, visitor, EMarketMode::CREATURE_EXP);
+	else if(market->allowsTrade(EMarketMode::CREATURE_UNDEAD))
+		GH.pushIntT<CTransformerWindow>(market, visitor);
+	else if(!market->availableModes().empty())
 		GH.pushIntT<CMarketplaceWindow>(market, visitor, market->availableModes().front());
-	}
 }
 
 void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor)
@@ -1792,7 +1793,7 @@ void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 							 al.slot.num);
 			return;
 		}
-		CHeroArtPlace::askToAssemble(hero, al.slot);
+		ArtifactUtilsClient::askToAssemble(hero, al.slot);
 	}
 }
 

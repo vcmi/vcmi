@@ -19,7 +19,8 @@
 #include "IHandlerBase.h"
 #include "LogicalExpression.h"
 #include "battle/BattleHex.h"
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/BonusList.h"
 #include "Point.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

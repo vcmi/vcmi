@@ -247,7 +247,7 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 		allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK); //all active stacks can attack
 		allowedActionList.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK); //not all stacks can always walk, but we will check this elsewhere
 
-		if(stack->canMove() && stack->Speed(0, true)) //probably no reason to try move war machines or bound stacks
+		if(stack->canMove() && stack->speed(0, true)) //probably no reason to try move war machines or bound stacks
 			allowedActionList.push_back(PossiblePlayerBattleAction::MOVE_STACK);
 
 		const auto * siegedTown = battleGetDefendedTown();
@@ -566,7 +566,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const Reacha
 	if(!unit->getPosition().isValid()) //turrets
 		return ret;
 
-	auto unitSpeed = unit->Speed(0, true);
+	auto unitSpeed = unit->speed(0, true);
 
 	const bool tacticsPhase = battleTacticDist() && battleGetTacticsSide() == unit->unitSide();
 
