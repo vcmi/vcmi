@@ -736,13 +736,6 @@ int CStackInstance::getLevel() const
 	return std::max(1, static_cast<int>(type->getLevel()));
 }
 
-si32 CStackInstance::magicResistance() const
-{
-	si32 val = valOfBonuses(Selector::type()(Bonus::MAGIC_RESISTANCE));
-	vstd::amin (val, 100);
-	return val;
-}
-
 void CStackInstance::giveStackExp(TExpType exp)
 {
 	int level = type->getLevel();

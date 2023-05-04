@@ -53,7 +53,7 @@ TEST_F(NormalLevelConditionTest, DefaultForNormal)
 TEST_F(NormalLevelConditionTest, ReceptiveNormal)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LEVEL_SPELL_IMMUNITY, Bonus::OTHER, 3, 0));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 3, 0));
 	EXPECT_CALL(mechanicsMock, getSpellLevel()).Times(AtLeast(1)).WillRepeatedly(Return(4));
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
@@ -62,7 +62,7 @@ TEST_F(NormalLevelConditionTest, ReceptiveNormal)
 TEST_F(NormalLevelConditionTest, ReceptiveAbility)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LEVEL_SPELL_IMMUNITY, Bonus::OTHER, 5, 0));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 5, 0));
 	EXPECT_CALL(mechanicsMock, getSpellLevel()).Times(AtLeast(1)).WillRepeatedly(Return(0));
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
@@ -70,7 +70,7 @@ TEST_F(NormalLevelConditionTest, ReceptiveAbility)
 TEST_F(NormalLevelConditionTest, ImmuneNormal)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LEVEL_SPELL_IMMUNITY, Bonus::OTHER, 4, 0));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 4, 0));
 	EXPECT_CALL(mechanicsMock, getSpellLevel()).Times(AtLeast(1)).WillRepeatedly(Return(2));
 	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
 }

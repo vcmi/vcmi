@@ -12,7 +12,7 @@
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
 
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
 #include "CCreatureSet.h"
 #include "ConstTransitivePtr.h"
 #include "IGameCallback.h"

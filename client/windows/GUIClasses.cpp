@@ -61,7 +61,7 @@
 #include "../lib/CStopWatch.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/GameConstants.h"
-#include "../lib/HeroBonus.h"
+#include "../lib/bonuses/Bonus.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/NetPacksBase.h"
 #include "../lib/StartInfo.h"

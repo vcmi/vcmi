@@ -374,7 +374,7 @@ TEST_F(CGameStateTest, battleResurrection)
 
 	ASSERT_NE(unit, nullptr);
 
-	int64_t damage = unit->MaxHealth() + 1;
+	int64_t damage = unit->getMaxHealth() + 1;
 
 	unit->damage(damage);
 

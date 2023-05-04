@@ -77,7 +77,7 @@ std::vector<SlotInfo>::iterator ArmyManager::getWeakestCreature(std::vector<Slot
 		if(left.creature->getLevel() != right.creature->getLevel())
 			return left.creature->getLevel() < right.creature->getLevel();
 		
-		return left.creature->Speed() > right.creature->Speed();
+		return left.creature->speed() > right.creature->speed();
 	});
 
 	return weakest;
@@ -108,12 +108,12 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 	uint64_t armyValue = 0;
 
 	TemporaryArmy newArmyInstance;
-	auto bonusModifiers = armyCarrier->getBonuses(Selector::type()(Bonus::MORALE));
+	auto bonusModifiers = armyCarrier->getBonuses(Selector::type()(BonusType::MORALE));
 
 	for(auto bonus : *bonusModifiers)
 	{
 		// army bonuses will change and object bonuses are temporary
-		if(bonus->source != Bonus::ARMY && bonus->source != Bonus::OBJECT)
+		if(bonus->source != BonusSource::ARMY && bonus->source != BonusSource::OBJECT)
 		{
 			newArmyInstance.addNewBonus(std::make_shared<Bonus>(*bonus));
 		}
@@ -150,7 +150,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 
 		for(auto & slot : newArmyInstance.Slots())
 		{
-			auto morale = slot.second->MoraleVal();
+			auto morale = slot.second->moraleVal();
 			auto multiplier = 1.0f;
 
 			const float BadMoraleChance = 0.083f;

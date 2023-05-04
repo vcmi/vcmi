@@ -343,7 +343,7 @@ public:
 	void newTurn();
 	void handleAttackBeforeCasting(bool ranged, const CStack * attacker, const CStack * defender);
 	void handleAfterAttackCasting(bool ranged, const CStack * attacker, const CStack * defender);
-	void attackCasting(bool ranged, Bonus::BonusType attackMode, const battle::Unit * attacker, const battle::Unit * defender);
+	void attackCasting(bool ranged, BonusType attackMode, const battle::Unit * attacker, const battle::Unit * defender);
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactPosition> & slot);
 	void spawnWanderingMonsters(CreatureID creatureID);
 	void handleCheatCode(std::string & cheat, PlayerColor player, const CGHeroInstance * hero, const CGTownInstance * town, bool & cheated);

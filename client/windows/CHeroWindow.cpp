@@ -66,8 +66,18 @@ int64_t CHeroWithMaybePickedArtifact::getTreeVersion() const
 si32 CHeroWithMaybePickedArtifact::manaLimit() const
 {
 	//TODO: reduplicate code with CGHeroInstance
-	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE) * (valOfBonuses(Bonus::MANA_PER_KNOWLEDGE)));
+	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE) * (valOfBonuses(BonusType::MANA_PER_KNOWLEDGE)));
 }
+
+const IBonusBearer * CHeroWithMaybePickedArtifact::getBonusBearer() const 
+{
+	return this;
+}
+
+FactionID CHeroWithMaybePickedArtifact::getFaction() const
+{
+	return hero->getFaction();
+} 
 
 CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts * Cww, const CGHeroInstance * Hero)
 	: hero(Hero), cww(Cww)
@@ -324,7 +334,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	dismissButton->block(!!curHero->visitedTown || noDismiss);
 
-	if(curHero->valOfBonuses(Selector::type()(Bonus::BEFORE_BATTLE_REPOSITION)) == 0)
+	if(curHero->valOfBonuses(Selector::type()(BonusType::BEFORE_BATTLE_REPOSITION)) == 0)
 	{
 		tacticsButton->block(true);
 	}

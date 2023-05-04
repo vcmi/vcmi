@@ -19,7 +19,7 @@ ReachabilityInfo::Parameters::Parameters(const battle::Unit * Stack, BattleHex S
 	startPosition(StartPosition),
 	doubleWide(Stack->doubleWide()),
 	side(Stack->unitSide()),
-	flying(Stack->hasBonusOfType(Bonus::FLYING))
+	flying(Stack->hasBonusOfType(BonusType::FLYING))
 {
 	knownAccessible = battle::Unit::getHexes(startPosition, doubleWide, side);
 }

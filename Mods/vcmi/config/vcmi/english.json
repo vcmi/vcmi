@@ -234,7 +234,7 @@
 	"core.bonus.HEALER.name": "Healer",
 	"core.bonus.HEALER.description": "Heals allied units",
 	"core.bonus.HP_REGENERATION.name": "Regeneration",
-	"core.bonus.HP_REGENERATION.description": "Heals ${SHval} hit points every round",
+	"core.bonus.HP_REGENERATION.description": "Heals ${val} hit points every round",
 	"core.bonus.JOUSTING.name": "Champion charge",
 	"core.bonus.JOUSTING.description": "+${val}% damage for each hex travelled",
 	"core.bonus.KING.name": "King",

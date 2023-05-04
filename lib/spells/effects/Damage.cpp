@@ -107,11 +107,11 @@ int64_t Damage::damageForTarget(size_t targetIndex, const Mechanics * m, const b
 	if(killByPercentage)
 	{
 		int64_t amountToKill = target->getCount() * m->getEffectValue() / 100;
-		baseDamage = amountToKill * target->MaxHealth();
+		baseDamage = amountToKill * target->getMaxHealth();
 	}
 	else if(killByCount)
 	{
-		baseDamage = m->getEffectValue() * target->MaxHealth();
+		baseDamage = m->getEffectValue() * target->getMaxHealth();
 	}
 	else
 	{

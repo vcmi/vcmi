@@ -107,7 +107,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 
 		return attack;
 	}
-	else if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON))
+	else if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON))
 	{
 		return BattleAction::makeDefend(stack);
 	}
@@ -270,7 +270,7 @@ BattleAction CStupidAI::goTowards(const CStack * stack, std::vector<BattleHex> h
 		return BattleAction::makeDefend(stack);
 	}
 
-	if(stack->hasBonusOfType(Bonus::FLYING))
+	if(stack->hasBonusOfType(BonusType::FLYING))
 	{
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
 		// We just check all available hexes and pick the one closest to the target.

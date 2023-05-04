@@ -398,7 +398,7 @@ class TeleportChannelID : public BaseForID<TeleportChannelID, si32>
 // Enum declarations
 namespace PrimarySkill
 {
-	enum PrimarySkill { NONE = -1, ATTACK, DEFENSE, SPELL_POWER, KNOWLEDGE,
+	enum PrimarySkill : int8_t { NONE = -1, ATTACK, DEFENSE, SPELL_POWER, KNOWLEDGE,
 				EXPERIENCE = 4}; //for some reason changePrimSkill uses it
 }
 
@@ -1339,7 +1339,6 @@ enum class EHealPower : ui8
 
 // Typedef declarations
 using TExpType = si64;
-using TBonusSubtype = si32;
 using TQuantity = si32;
 
 using TRmgTemplateZoneId = int;

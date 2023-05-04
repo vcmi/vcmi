@@ -12,6 +12,7 @@
 
 #include <vstd/RNG.h>
 
+#include <vcmi/Entity.h>
 #include <vcmi/ServerCallback.h>
 
 #include "CGeneralTextHandler.h"
@@ -88,14 +89,14 @@ ui32 CStack::level() const
 
 si32 CStack::magicResistance() const
 {
-	auto magicResistance = IBonusBearer::magicResistance();
+	auto magicResistance = AFactionMember::magicResistance();
 
 	si32 auraBonus = 0;
 
 	for(const auto * one : battle->battleAdjacentUnits(this))
 	{
 		if(one->unitOwner() == owner)
-			vstd::amax(auraBonus, one->valOfBonuses(Bonus::SPELL_RESISTANCE_AURA)); //max value
+			vstd::amax(auraBonus, one->valOfBonuses(BonusType::SPELL_RESISTANCE_AURA)); //max value
 	}
 	vstd::abetween(auraBonus, 0, 100);
 	vstd::abetween(magicResistance, 0, 100);
@@ -124,11 +125,11 @@ std::vector<si32> CStack::activeSpells() const
 	std::vector<si32> ret;
 
 	std::stringstream cachingStr;
-	cachingStr << "!type_" << Bonus::NONE << "source_" << Bonus::SPELL_EFFECT;
-	CSelector selector = Selector::sourceType()(Bonus::SPELL_EFFECT)
+	cachingStr << "!type_" << vstd::to_underlying(BonusType::NONE) << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT);
+	CSelector selector = Selector::sourceType()(BonusSource::SPELL_EFFECT)
 						 .And(CSelector([](const Bonus * b)->bool
 	{
-		return b->type != Bonus::NONE && SpellID(b->sid).toSpell() && !SpellID(b->sid).toSpell()->isAdventure();
+		return b->type != BonusType::NONE && SpellID(b->sid).toSpell() && !SpellID(b->sid).toSpell()->isAdventure();
 	}));
 
 	TConstBonusListPtr spellEffects = getBonuses(selector, Selector::all, cachingStr.str());
@@ -197,7 +198,7 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 	{
 		bsa.flags |= BattleStackAttacked::KILLED;
 
-		auto resurrectValue = customState->valOfBonuses(Bonus::REBIRTH);
+		auto resurrectValue = customState->valOfBonuses(BonusType::REBIRTH);
 
 		if(resurrectValue > 0 && customState->canCast()) //there must be casts left
 		{
@@ -219,7 +220,7 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 					resurrectedCount += 1;
 			}
 
-			if(customState->hasBonusOfType(Bonus::REBIRTH, 1))
+			if(customState->hasBonusOfType(BonusType::REBIRTH, 1))
 			{
 				// resurrect at least one Sacred Phoenix
 				vstd::amax(resurrectedCount, 1);
@@ -229,7 +230,7 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 			{
 				customState->casts.use();
 				bsa.flags |= BattleStackAttacked::REBIRTH;
-				int64_t toHeal = customState->MaxHealth() * resurrectedCount;
+				int64_t toHeal = customState->getMaxHealth() * resurrectedCount;
 				//TODO: add one-battle rebirth?
 				customState->heal(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
 				customState->counterAttacks.use(customState->counterAttacks.available());
@@ -307,7 +308,7 @@ std::string CStack::getName() const
 
 bool CStack::canBeHealed() const
 {
-	return getFirstHPleft() < static_cast<int32_t>(MaxHealth()) && isValidTarget() && !hasBonusOfType(Bonus::SIEGE_WEAPON);
+	return getFirstHPleft() < static_cast<int32_t>(getMaxHealth()) && isValidTarget() && !hasBonusOfType(BonusType::SIEGE_WEAPON);
 }
 
 bool CStack::isOnNativeTerrain() const

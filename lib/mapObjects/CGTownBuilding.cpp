@@ -84,7 +84,7 @@ std::string CGTownBuilding::getVisitingBonusGreeting() const
 
 std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus) const
 {
-	if(bonus.type == Bonus::TOWN_MAGIC_WELL)
+	if(bonus.type == BonusType::TOWN_MAGIC_WELL)
 	{
 		auto bonusGreeting = std::string(VLC->generaltexth->translate("vcmi.townHall.greetingInTownMagicWell"));
 		auto buildingName = town->getTown()->getSpecialBuilding(bType)->getNameTranslated();
@@ -95,12 +95,12 @@ std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus) const
 	std::string param;
 	std::string until;
 
-	if(bonus.type == Bonus::MORALE)
+	if(bonus.type == BonusType::MORALE)
 		param = VLC->generaltexth->allTexts[384];
-	else if(bonus.type == Bonus::LUCK)
+	else if(bonus.type == BonusType::LUCK)
 		param = VLC->generaltexth->allTexts[385];
 
-	until = bonus.duration == static_cast<ui16>(Bonus::ONE_BATTLE)
+	until = bonus.duration == BonusDuration::ONE_BATTLE
 			? VLC->generaltexth->translate("vcmi.townHall.greetingCustomUntil")
 			: ".";
 
@@ -142,10 +142,10 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 		switch (this->bType)
 		{
 		case BuildingSubID::STABLES:
-			if(!h->hasBonusFrom(Bonus::OBJECT, Obj::STABLES)) //does not stack with advMap Stables
+			if(!h->hasBonusFrom(BonusSource::OBJECT, Obj::STABLES)) //does not stack with advMap Stables
 			{
 				GiveBonus gb;
-				gb.bonus = Bonus(Bonus::ONE_WEEK, Bonus::MOVEMENT, Bonus::OBJECT, 600, 94, VLC->generaltexth->arraytxt[100], 1);
+				gb.bonus = Bonus(BonusDuration::ONE_WEEK, BonusType::MOVEMENT, BonusSource::OBJECT, 600, 94, VLC->generaltexth->arraytxt[100], 1);
 				gb.id = heroID.getNum();
 				cb->giveHeroBonus(&gb);
 
@@ -234,7 +234,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 
 		case BuildingSubID::CUSTOM_VISITING_BONUS:
 			const auto building = town->getTown()->buildings.at(bID);
-			if(!h->hasBonusFrom(Bonus::TOWN_STRUCTURE, Bonus::getSid32(building->town->faction->getIndex(), building->bid)))
+			if(!h->hasBonusFrom(BonusSource::TOWN_STRUCTURE, Bonus::getSid32(building->town->faction->getIndex(), building->bid)))
 			{
 				const auto & bonuses = building->onVisitBonuses;
 				applyBonuses(const_cast<CGHeroInstance *>(h), bonuses);
@@ -262,18 +262,18 @@ void CTownBonus::applyBonuses(CGHeroInstance * h, const BonusList & bonuses) con
 		GiveBonus gb;
 		InfoWindow iw;
 
-		if(bonus->type == Bonus::TOWN_MAGIC_WELL)
+		if(bonus->type == BonusType::TOWN_MAGIC_WELL)
 		{
 			if(h->mana >= h->manaLimit())
 				return;
 			cb->setManaPoints(h->id, h->manaLimit());
-			bonus->duration = Bonus::ONE_DAY;
+			bonus->duration = BonusDuration::ONE_DAY;
 		}
 		gb.bonus = * bonus;
 		gb.id = h->id.getNum();
 		cb->giveHeroBonus(&gb);
 
-		if(bonus->duration == Bonus::PERMANENT)
+		if(bonus->duration == BonusDuration::PERMANENT)
 			addToVisitors = true;
 
 		iw.player = cb->getOwner(h->id);

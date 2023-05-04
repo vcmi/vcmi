@@ -22,6 +22,10 @@
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h"
 #include "../battle/CObstacleInstance.h"
+#include "../bonuses/CBonusSystemNode.h"
+#include "../bonuses/Limiters.h"
+#include "../bonuses/Updaters.h"
+#include "../bonuses/Propagators.h"
 #include "../CStack.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

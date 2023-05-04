@@ -229,7 +229,7 @@
 	"core.bonus.HEALER.name": "Heiler",
 	"core.bonus.HEALER.description": "Heilt verbündete Einheiten",
 	"core.bonus.HP_REGENERATION.name": "Regeneration",
-	"core.bonus.HP_REGENERATION.description": "Heilt ${SHval} Trefferpunkte jede Runde",
+	"core.bonus.HP_REGENERATION.description": "Heilt ${val} Trefferpunkte jede Runde",
 	"core.bonus.JOUSTING.name": "Champion Charge",
 	"core.bonus.JOUSTING.description": "+${val}% Schaden pro zurückgelegtem Feld",
 	"core.bonus.KING.name": "König",

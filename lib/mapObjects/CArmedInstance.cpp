@@ -37,7 +37,7 @@ void CArmedInstance::randomizeArmy(int type)
 }
 
 // Take Angelic Alliance troop-mixing freedom of non-evil units into account.
-CSelector CArmedInstance::nonEvilAlignmentMixSelector = Selector::type()(Bonus::NONEVIL_ALIGNMENT_MIX);
+CSelector CArmedInstance::nonEvilAlignmentMixSelector = Selector::type()(BonusType::NONEVIL_ALIGNMENT_MIX);
 
 CArmedInstance::CArmedInstance()
 	:CArmedInstance(false)
@@ -56,10 +56,10 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	if(!validTypes(false)) //object not randomized, don't bother
 		return;
 
-	auto b = getExportedBonusList().getFirst(Selector::sourceType()(Bonus::ARMY).And(Selector::type()(Bonus::MORALE)));
+	auto b = getExportedBonusList().getFirst(Selector::sourceType()(BonusSource::ARMY).And(Selector::type()(BonusType::MORALE)));
  	if(!b)
 	{
-		b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);
+		b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, 0, -1);
 		addNewBonus(b);
 	}
 
@@ -68,7 +68,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	bool hasUndead = false;
 
 	const std::string undeadCacheKey = "type_UNDEAD";
-	static const CSelector undeadSelector = Selector::type()(Bonus::UNDEAD);
+	static const CSelector undeadSelector = Selector::type()(BonusType::UNDEAD);
 
 	for(const auto & slot : Slots())
 	{
@@ -121,12 +121,12 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 	//-1 modifier for any Undead unit in army
 	const ui8 UNDEAD_MODIFIER_ID = -2;
-	auto undeadModifier = getExportedBonusList().getFirst(Selector::source(Bonus::ARMY, UNDEAD_MODIFIER_ID));
+	auto undeadModifier = getExportedBonusList().getFirst(Selector::source(BonusSource::ARMY, UNDEAD_MODIFIER_ID));
  	if(hasUndead)
 	{
 		if(!undeadModifier)
 		{
-			undeadModifier = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, UNDEAD_MODIFIER_ID, VLC->generaltexth->arraytxt[116]);
+			undeadModifier = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, -1, UNDEAD_MODIFIER_ID, VLC->generaltexth->arraytxt[116]);
 			undeadModifier->description = undeadModifier->description.substr(0, undeadModifier->description.size()-2);//trim value
 			addNewBonus(undeadModifier);
 		}

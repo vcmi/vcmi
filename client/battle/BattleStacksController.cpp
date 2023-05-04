@@ -107,7 +107,7 @@ BattleHex BattleStacksController::getStackCurrentPosition(const CStack * stack) 
 	if ( !stackAnimation.at(stack->unitId())->isMoving())
 		return stack->getPosition();
 
-	if (stack->hasBonusOfType(Bonus::FLYING) && stackAnimation.at(stack->unitId())->getType() == ECreatureAnimType::MOVING )
+	if (stack->hasBonusOfType(BonusType::FLYING) && stackAnimation.at(stack->unitId())->getType() == ECreatureAnimType::MOVING )
 		return BattleHex::HEX_AFTER_ALL;
 
 	for (auto & anim : currentAnimations)
@@ -247,7 +247,7 @@ void BattleStacksController::setActiveStack(const CStack *stack)
 bool BattleStacksController::stackNeedsAmountBox(const CStack * stack) const
 {
 	//do not show box for singular war machines, stacked war machines with box shown are supported as extension feature
-	if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->getCount() == 1)
+	if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON) && stack->getCount() == 1)
 		return false;
 
 	if(!stack->alive())
@@ -528,7 +528,7 @@ void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleH
 		addNewAnim(new MovementStartAnimation(owner, stack));
 	});
 
-	if (!stack->hasBonus(Selector::typeSubtype(Bonus::FLYING, 1)))
+	if (!stack->hasBonus(Selector::typeSubtype(BonusType::FLYING, 1)))
 	{
 		owner.addToAnimationStage(EAnimationEvents::MOVEMENT, [&]()
 		{
@@ -793,7 +793,7 @@ void BattleStacksController::removeExpiredColorFilters()
 	{
 		if (!filter.persistent)
 		{
-			if (filter.source && !filter.target->hasBonus(Selector::source(Bonus::SPELL_EFFECT, filter.source->id), Selector::all))
+			if (filter.source && !filter.target->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, filter.source->id), Selector::all))
 				return true;
 			if (filter.effect == ColorFilter::genEmptyShifter())
 				return true;

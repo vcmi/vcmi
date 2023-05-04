@@ -11,7 +11,7 @@
 
 #include <vcmi/EntityService.h>
 #include <vcmi/Entity.h>
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 #include "battle/BattleHex.h"

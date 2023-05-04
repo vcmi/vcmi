@@ -312,7 +312,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	if(count*2 > totalCount)
 		sympathy++; // 2 - hero have similar creatures more that 50%
 
-	int diplomacy = h->valOfBonuses(Bonus::WANDERING_CREATURES_JOIN_BONUS);
+	int diplomacy = h->valOfBonuses(BonusType::WANDERING_CREATURES_JOIN_BONUS);
 	int charisma = powerFactor + diplomacy + sympathy;
 
 	if(charisma < character)
@@ -1232,7 +1232,7 @@ void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer
 
 bool CGWhirlpool::isProtected(const CGHeroInstance * h)
 {
-	return h->hasBonusOfType(Bonus::WHIRLPOOL_PROTECTION)
+	return h->hasBonusOfType(BonusType::WHIRLPOOL_PROTECTION)
 	|| (h->stacksCount() == 1 && h->Slots().begin()->second->count == 1);
 }
 
@@ -1384,7 +1384,7 @@ void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 
 	if(handler.saving && ID == Obj::SPELL_SCROLL)
 	{
-		const std::shared_ptr<Bonus> b = storedArtifact->getBonusLocalFirst(Selector::type()(Bonus::SPELL));
+		const std::shared_ptr<Bonus> b = storedArtifact->getBonusLocalFirst(Selector::type()(BonusType::SPELL));
 		SpellID spellId(b->subtype);
 
 		handler.serializeId("spell", spellId, SpellID::NONE);
@@ -1866,21 +1866,21 @@ void CGSirens::initObj(CRandomGenerator & rand)
 
 std::string CGSirens::getHoverText(const CGHeroInstance * hero) const
 {
-	return getObjectName() + " " + visitedTxt(hero->hasBonusFrom(Bonus::OBJECT,ID));
+	return getObjectName() + " " + visitedTxt(hero->hasBonusFrom(BonusSource::OBJECT,ID));
 }
 
 void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
 	iw.player = h->tempOwner;
-	if(h->hasBonusFrom(Bonus::OBJECT,ID)) //has already visited Sirens
+	if(h->hasBonusFrom(BonusSource::OBJECT,ID)) //has already visited Sirens
 	{
 		iw.type = EInfoWindowMode::AUTO;
 		iw.text.addTxt(MetaString::ADVOB_TXT,133);
 	}
 	else
 	{
-		giveDummyBonus(h->id, Bonus::ONE_BATTLE);
+		giveDummyBonus(h->id, BonusDuration::ONE_BATTLE);
 		TExpType xp = 0;
 
 		for (auto i = h->Slots().begin(); i != h->Slots().end(); i++)
@@ -1895,7 +1895,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 			if(drown)
 			{
 				cb->changeStackCount(StackLocation(h, i->first), -drown);
-				xp += drown * i->second->type->MaxHealth();
+				xp += drown * i->second->type->getMaxHealth();
 			}
 		}
 
@@ -2120,7 +2120,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			RemoveBonus rb(GiveBonus::ETarget::PLAYER);
 			rb.whoID = oldOwner.getNum();
-			rb.source = Bonus::OBJECT;
+			rb.source = vstd::to_underlying(BonusSource::OBJECT);
 			rb.id = id.getNum();
 			cb->sendAndApply(&rb);
 		}
@@ -2139,11 +2139,11 @@ void CGLighthouse::initObj(CRandomGenerator & rand)
 void CGLighthouse::giveBonusTo(const PlayerColor & player, bool onInit) const
 {
 	GiveBonus gb(GiveBonus::ETarget::PLAYER);
-	gb.bonus.type = Bonus::MOVEMENT;
+	gb.bonus.type = BonusType::MOVEMENT;
 	gb.bonus.val = 500;
 	gb.id = player.getNum();
-	gb.bonus.duration = Bonus::PERMANENT;
-	gb.bonus.source = Bonus::OBJECT;
+	gb.bonus.duration = BonusDuration::PERMANENT;
+	gb.bonus.source = BonusSource::OBJECT;
 	gb.bonus.sid = id.getNum();
 	gb.bonus.subtype = 0;
 

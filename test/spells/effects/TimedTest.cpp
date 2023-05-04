@@ -71,9 +71,9 @@ protected:
 
 TEST_P(TimedApplyTest, ChangesBonuses)
 {
-	Bonus testBonus1(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::OTHER, 3, 0, PrimarySkill::KNOWLEDGE);
+	Bonus testBonus1(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 3, 0, PrimarySkill::KNOWLEDGE);
 
-	Bonus testBonus2(Bonus::N_TURNS, Bonus::PRIMARY_SKILL, Bonus::OTHER, 3, 0, PrimarySkill::KNOWLEDGE);
+	Bonus testBonus2(BonusDuration::N_TURNS, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 3, 0, PrimarySkill::KNOWLEDGE);
 	testBonus2.turnsRemain = 4;
 
 	JsonNode options(JsonNode::JsonType::DATA_STRUCT);
@@ -102,7 +102,7 @@ TEST_P(TimedApplyTest, ChangesBonuses)
 
 	for(auto & bonus : expectedBonus)
 	{
-		bonus.source = Bonus::SPELL_EFFECT;
+		bonus.source = BonusSource::SPELL_EFFECT;
 		bonus.sid = spellIndex;
 	}
 

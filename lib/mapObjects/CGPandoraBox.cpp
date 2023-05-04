@@ -183,7 +183,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 		iw.components.emplace_back(Component::EComponentType::MORALE, 0, moraleDiff, 0);
 		cb->showInfoDialog(&iw);
 		GiveBonus gb;
-		gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::MORALE,Bonus::OBJECT,moraleDiff,id.getNum(),"");
+		gb.bonus = Bonus(BonusDuration::ONE_BATTLE,BonusType::MORALE,BonusSource::OBJECT,moraleDiff,id.getNum(),"");
 		gb.id = h->id.getNum();
 		cb->giveHeroBonus(&gb);
 	}
@@ -194,7 +194,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 		iw.components.emplace_back(Component::EComponentType::LUCK, 0, luckDiff, 0);
 		cb->showInfoDialog(&iw);
 		GiveBonus gb;
-		gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::LUCK,Bonus::OBJECT,luckDiff,id.getNum(),"");
+		gb.bonus = Bonus(BonusDuration::ONE_BATTLE,BonusType::LUCK,BonusSource::OBJECT,luckDiff,id.getNum(),"");
 		gb.id = h->id.getNum();
 		cb->giveHeroBonus(&gb);
 	}

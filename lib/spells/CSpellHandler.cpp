@@ -42,35 +42,35 @@ static const spells::SchoolInfo SCHOOL[4] =
 {
 	{
 		ESpellSchool::AIR,
-		Bonus::AIR_SPELL_DMG_PREMY,
-		Bonus::AIR_IMMUNITY,
+		BonusType::AIR_SPELL_DMG_PREMY,
+		BonusType::AIR_IMMUNITY,
 		"air",
 		SecondarySkill::AIR_MAGIC,
-		Bonus::AIR_SPELLS
+		BonusType::AIR_SPELLS
 	},
 	{
 		ESpellSchool::FIRE,
-		Bonus::FIRE_SPELL_DMG_PREMY,
-		Bonus::FIRE_IMMUNITY,
+		BonusType::FIRE_SPELL_DMG_PREMY,
+		BonusType::FIRE_IMMUNITY,
 		"fire",
 		SecondarySkill::FIRE_MAGIC,
-		Bonus::FIRE_SPELLS
+		BonusType::FIRE_SPELLS
 	},
 	{
 		ESpellSchool::WATER,
-		Bonus::WATER_SPELL_DMG_PREMY,
-		Bonus::WATER_IMMUNITY,
+		BonusType::WATER_SPELL_DMG_PREMY,
+		BonusType::WATER_IMMUNITY,
 		"water",
 		SecondarySkill::WATER_MAGIC,
-		Bonus::WATER_SPELLS
+		BonusType::WATER_SPELLS
 	},
 	{
 		ESpellSchool::EARTH,
-		Bonus::EARTH_SPELL_DMG_PREMY,
-		Bonus::EARTH_IMMUNITY,
+		BonusType::EARTH_SPELL_DMG_PREMY,
+		BonusType::EARTH_IMMUNITY,
 		"earth",
 		SecondarySkill::EARTH_MAGIC,
-		Bonus::EARTH_SPELLS
+		BonusType::EARTH_SPELLS
 	}
 };
 
@@ -393,15 +393,15 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
 		forEachSchool([&](const spells::SchoolInfo & cnf, bool & stop)
 		{
-			if(bearer->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, static_cast<ui8>(cnf.id)))
+			if(bearer->hasBonusOfType(BonusType::SPELL_DAMAGE_REDUCTION, static_cast<ui8>(cnf.id)))
 			{
-				ret *= 100 - bearer->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, static_cast<ui8>(cnf.id));
+				ret *= 100 - bearer->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, static_cast<ui8>(cnf.id));
 				ret /= 100;
 				stop = true; //only bonus from one school is used
 			}
 		});
 
-		CSelector selector = Selector::type()(Bonus::SPELL_DAMAGE_REDUCTION).And(Selector::subtype()(-1));
+		CSelector selector = Selector::type()(BonusType::SPELL_DAMAGE_REDUCTION).And(Selector::subtype()(-1));
 
 		//general spell dmg reduction, works only on magical effects
 		if(bearer->hasBonus(selector) && isMagical())
@@ -411,9 +411,9 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 		}
 
 		//dmg increasing
-		if(bearer->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, id))
+		if(bearer->hasBonusOfType(BonusType::MORE_DAMAGE_FROM_SPELL, id))
 		{
-			ret *= 100 + bearer->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, id.toEnum());
+			ret *= 100 + bearer->valOfBonuses(BonusType::MORE_DAMAGE_FROM_SPELL, id.toEnum());
 			ret /= 100;
 		}
 	}
@@ -452,8 +452,8 @@ JsonNode CSpell::convertTargetCondition(const BTVector & immunity, const BTVecto
 	static const std::string CONDITION_NORMAL = "normal";
 	static const std::string CONDITION_ABSOLUTE = "absolute";
 
-#define BONUS_NAME(x) { Bonus::x, #x },
-	static const std::map<Bonus::BonusType, std::string> bonusNameRMap = { BONUS_LIST };
+#define BONUS_NAME(x) { BonusType::x, #x },
+	static const std::map<BonusType, std::string> bonusNameRMap = { BONUS_LIST };
 #undef BONUS_NAME
 
 	JsonNode res;
@@ -794,7 +794,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 	spell->special = flags["special"].Bool();
 
-	auto findBonus = [&](const std::string & name, std::vector<Bonus::BonusType> & vec)
+	auto findBonus = [&](const std::string & name, std::vector<BonusType> & vec)
 	{
 		auto it = bonusNameMap.find(name);
 		if(it == bonusNameMap.end())
@@ -803,11 +803,11 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 		}
 		else
 		{
-			vec.push_back(static_cast<Bonus::BonusType>(it->second));
+			vec.push_back(static_cast<BonusType>(it->second));
 		}
 	};
 
-	auto readBonusStruct = [&](const std::string & name, std::vector<Bonus::BonusType> & vec)
+	auto readBonusStruct = [&](const std::string & name, std::vector<BonusType> & vec)
 	{
 		for(auto bonusData: json[name].Struct())
 		{
@@ -936,7 +936,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 			const bool usePowerAsValue = bonusNode["val"].isNull();
 
 			b->sid = spell->id; //for all
-			b->source = Bonus::SPELL_EFFECT;//for all
+			b->source = BonusSource::SPELL_EFFECT;//for all
 
 			if(usePowerAsValue)
 				b->val = levelPower;
@@ -951,7 +951,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 			const bool usePowerAsValue = bonusNode["val"].isNull();
 
 			b->sid = spell->id; //for all
-			b->source = Bonus::SPELL_EFFECT;//for all
+			b->source = BonusSource::SPELL_EFFECT;//for all
 
 			if(usePowerAsValue)
 				b->val = levelPower;
