@@ -169,6 +169,16 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	std::shared_ptr<CLabel> soundVolumeLabel = widget<CLabel>("soundValueLabel");
 	soundVolumeLabel->setText(std::to_string(CCS->soundh->getVolume()) + "%");
+
+#ifdef VCMI_MOBILE
+	// On mobile platforms, VCMI always uses OS screen resolutions
+	// Players can control UI size via "Interface Scaling" option instead
+	std::shared_ptr<CButton> resolutionButton = widget<CButton>("resolutionButton");
+
+	resolutionButton->disable();
+	resolutionLabel->disable();
+	fullscreenCheckbox->block(true);
+#endif
 }
 
 void GeneralOptionsTab::selectGameResolution()
