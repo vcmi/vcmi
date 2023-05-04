@@ -71,9 +71,6 @@ void CGTownInstance::setPropertyDer(ui8 what, ui32 val)
 		case ObjProperty::REWARD_RANDOMIZE:
 			bonusingBuildings[val]->setProperty(ObjProperty::REWARD_RANDOMIZE, 0);
 			break;
-		case ObjProperty::REWARD_CLEARED:
-			bonusingBuildings[val]->setProperty(ObjProperty::REWARD_CLEARED, false);
-			break;
 	}
 }
 CGTownInstance::EFortLevel CGTownInstance::fortLevel() const //0 - none, 1 - fort, 2 - citadel, 3 - castle
@@ -506,15 +503,15 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 		
 		for(const auto * manaVortex : getBonusingBuildings(BuildingSubID::MANA_VORTEX))
 			cb->setObjProperty(id, ObjProperty::STRUCTURE_CLEAR_VISITORS, manaVortex->indexOnTV); //reset visitors for Mana Vortex
-		
+
 		//get Mana Vortex or Stables bonuses
 		//same code is in the CGameHandler::buildStructure method
 		if (visitingHero != nullptr)
 			cb->visitCastleObjects(this, visitingHero);
-		
+
 		if (garrisonHero != nullptr)
 			cb->visitCastleObjects(this, garrisonHero);
-		
+
 		if (tempOwner == PlayerColor::NEUTRAL) //garrison growth for neutral towns
 		{
 			std::vector<SlotID> nativeCrits; //slots
@@ -550,7 +547,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 					
 					TQuantity count = creatureGrowth(i);
 					if (!count) // no dwelling
-						count = VLC->creh->objects[c]->getGrowth();
+						count = VLC->creatures()->getByIndex(c)->getGrowth();
 					
 					{//no lower tiers or above current month
 						

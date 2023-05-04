@@ -109,9 +109,7 @@ class DLL_LINKAGE CTownRewardableBuilding : public CGTownBuilding, public Reward
 {
 	/// reward selected by player, no serialize
 	ui16 selectedReward = 0;
-	
-	bool onceVisitableObjectCleared = false;
-	
+		
 	std::set<ObjectInstanceID> visitors;
 	
 	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
@@ -139,7 +137,6 @@ public:
 	{
 		h & static_cast<CGTownBuilding&>(*this);
 		h & static_cast<Rewardable::Interface&>(*this);
-		h & onceVisitableObjectCleared;
 		h & visitors;
 	}
 };

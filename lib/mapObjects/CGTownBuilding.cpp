@@ -322,7 +322,6 @@ void CTownRewardableBuilding::newTurn(CRandomGenerator & rand) const
 		}
 		if(configuration.resetParameters.visitors)
 		{
-			cb->setObjProperty(town->id, ObjProperty::REWARD_CLEARED, indexOnTV);
 			cb->setObjProperty(town->id, ObjProperty::STRUCTURE_CLEAR_VISITORS, indexOnTV);
 		}
 	}
@@ -344,9 +343,6 @@ void CTownRewardableBuilding::setProperty(ui8 what, ui32 val)
 		case ObjProperty::REWARD_SELECT:
 			selectedReward = val;
 			break;
-		case ObjProperty::REWARD_CLEARED:
-			onceVisitableObjectCleared = val;
-			break;
 	}
 }
 
@@ -359,12 +355,6 @@ void CTownRewardableBuilding::blockingDialogAnswered(const CGHeroInstance *hero,
 {
 	if(visitors.find(hero->id) != visitors.end())
 		return; // query not for this building
-	
-	if(answer == 0)
-	{
-		cb->setObjProperty(town->id, ObjProperty::STRUCTURE_CLEAR_VISITORS, indexOnTV);
-		return; // player refused
-	}
 
 	if(answer > 0 && answer-1 < configuration.info.size())
 	{
@@ -397,7 +387,7 @@ bool CTownRewardableBuilding::wasVisitedBefore(const CGHeroInstance * contextHer
 		case Rewardable::VISIT_UNLIMITED:
 			return false;
 		case Rewardable::VISIT_ONCE:
-			return onceVisitableObjectCleared;
+			return !visitors.empty();
 		case Rewardable::VISIT_PLAYER:
 			return false; //not supported
 		case Rewardable::VISIT_BONUS:
