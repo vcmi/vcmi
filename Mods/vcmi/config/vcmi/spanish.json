@@ -21,6 +21,15 @@
     "vcmi.adventureMap.moveCostDetails"        : "Puntos de movimiento - Coste: %TURNS turnos + %POINTS puntos, Puntos restantes: %REMAINING",
     "vcmi.adventureMap.moveCostDetailsNoTurns" : "Puntos de movimiento - Coste: %POINTS puntos, Puntos restantes: %REMAINING",
 
+	"vcmi.capitalColors.0" : "Rojo",
+	"vcmi.capitalColors.1" : "Azul",
+	"vcmi.capitalColors.2" : "Marron",
+	"vcmi.capitalColors.3" : "Verde",
+	"vcmi.capitalColors.4" : "Naranja",
+	"vcmi.capitalColors.5" : "Morado",
+	"vcmi.capitalColors.6" : "Turquesa",
+	"vcmi.capitalColors.7" : "Rosa",
+
     "vcmi.server.errors.existingProcess"     : "Otro proceso de vcmiserver está en ejecución, por favor termínalo primero",
     "vcmi.server.errors.modsIncompatibility" : "Mods necesarios para cargar el juego:",
     "vcmi.server.confirmReconnect"           : "¿Conectar a la última sesión?",
@@ -31,7 +40,6 @@
     "vcmi.settingsMainWindow.battleTab.help"     : "Cambiar a la pestaña de opciones de batalla, que permite configurar el comportamiento del juego durante las batallas",
     "vcmi.settingsMainWindow.adventureTab.hover" : "Mapa de Aventuras",
     "vcmi.settingsMainWindow.adventureTab.help"  : "Cambiar a la pestaña de opciones de Mapa de Aventuras - el mapa de aventuras es parte del juego donde puedes mover a tus héroes",
-
 
     "vcmi.systemOptions.videoGroup" : "Configuración de vídeo",
     "vcmi.systemOptions.audioGroup" : "Configuración de audio",
@@ -48,6 +56,8 @@
     "vcmi.systemOptions.framerateButton.hover"  : "Mostrar FPS",
     "vcmi.systemOptions.framerateButton.help"   : "{Mostrar FPS}\n\n Muestra el contador de Frames Por Segundo en la esquina de la ventana del juego.",
 
+	"vcmi.adventureOptions.infoBarPick.hover" : "Mostrar mensajes en el panel de información",
+	"vcmi.adventureOptions.infoBarPick.help" : "{Mostrar mensajes en el panel de información}\n\nSiempre que sea posible, los mensajes del juego sobre los objetos del mapa que se visiten se mostrarán en el panel de información, en lugar de aparecer en una ventana separada.",
     "vcmi.adventureOptions.numericQuantities.hover": "Cantidades numéricas de criaturas",
     "vcmi.adventureOptions.numericQuantities.help": "{Cantidades numéricas de criaturas}\n\n Muestra las cantidades aproximadas de criaturas enemigas en formato A-B numérico.",
     "vcmi.adventureOptions.forceMovementInfo.hover": "Mostrar siempre el coste de movimiento",
@@ -78,8 +88,26 @@
     "vcmi.battleOptions.animationsSpeed1.help": "Establece la velocidad de animación como muy lenta.",
     "vcmi.battleOptions.animationsSpeed5.help": "Establece la velocidad de animación como muy rápida.",
     "vcmi.battleOptions.animationsSpeed6.help": "Establece la velocidad de animación como instantánea.",
+	"vcmi.battleOptions.touchscreenMode.hover": "Modo pantalla táctil",
+	"vcmi.battleOptions.touchscreenMode.help": "{Modo pantalla táctil}\n\nSi está habilitado, se requiere de un segundo clic para confirmar y ejecutar la acción. Adecuado para dispositivos con pantalla táctil.",
+	"vcmi.battleOptions.movementHighlightOnHover.hover": "Resaltado de movimiento al pasar el ratón",
+	"vcmi.battleOptions.movementHighlightOnHover.help": "{Resaltado de movimiento al pasar el ratón}\n\nResalta el rango de movimiento de la unidad cuando el cursor esta sobre esta.",
     "vcmi.battleOptions.skipBattleIntroMusic.hover": "Omitir música de introducción",
     "vcmi.battleOptions.skipBattleIntroMusic.help": "{Omitir música de introducción}\n\n Omitir la breve música que se reproduce al comienzo de cada batalla antes de que comience la acción. También se puede omitir presionando la tecla ESC.",
+	"vcmi.battleWindow.pressKeyToSkipIntro" : "Presiona una tecla para comenzar la batalla inmediatamente.",
+
+	"vcmi.battleWindow.damageEstimation.melee" : "Ataque %CREATURE (%DAMAGE).",
+	"vcmi.battleWindow.damageEstimation.meleeKills" : "Ataque %CREATURE (%DAMAGE, %KILLS).",
+	"vcmi.battleWindow.damageEstimation.ranged" : "Disparo %CREATURE (%SHOTS, %DAMAGE).",
+	"vcmi.battleWindow.damageEstimation.rangedKills" : "Disparo %CREATURE (%SHOTS, %DAMAGE, %KILLS).",
+	"vcmi.battleWindow.damageEstimation.shots" : "%d disparos restantes",
+	"vcmi.battleWindow.damageEstimation.shots.1" : "%d disparos restantes",
+	"vcmi.battleWindow.damageEstimation.damage" : "%d daño",
+	"vcmi.battleWindow.damageEstimation.damage.1" : "%d daño",
+	"vcmi.battleWindow.damageEstimation.kills" : "%d perecerán",
+	"vcmi.battleWindow.damageEstimation.kills.1" : "%d perecerán",
+
+	"vcmi.battleResultsWindow.applyResultsLabel" : "Aplicar resultado de la batalla",
 
     "vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover": "Mostrar criaturas disponibles",
     "vcmi.otherOptions.availableCreaturesAsDwellingLabel.help": "{Mostrar criaturas disponibles}\n\n Muestra las criaturas disponibles para comprar en lugar de su crecimiento en el resumen de la ciudad (esquina inferior izquierda).",
@@ -118,7 +146,6 @@
     "vcmi.creatureWindow.returnArtifact.hover" : "Devolver artefacto",
     "vcmi.creatureWindow.returnArtifact.help"  : "Usa este botón para devolver un artefacto del almacen al inventario del héroe",
 
-
     "vcmi.questLog.hideComplete.hover" : "Ocultar misiones completas",
     "vcmi.questLog.hideComplete.help" : "Ocultar todas las misiones que ya han sido completadas",
 
@@ -127,7 +154,6 @@
     "vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Configurar...",
     "vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Alineaciones de equipos",
     "vcmi.randomMapTab.widgets.roadTypesLabel"       : "Tipos de caminos",
-
 	
 	// few strings from WoG used by vcmi
     "vcmi.stackExperience.description" : "» D e t a l l e s  d e  E x p e r i e n c i a  d e l  G r u p o «\n\nTipo de Criatura ................ : %s\nRango de Experiencia ............ : %s (%i)\nPuntos de Experiencia ............ : %i\nPuntos de Experiencia para el\nSiguiente Rango ............... : %i\nExperiencia Máxima por Batalla .. : %i%% (%i)\nNúmero de Criaturas en el grupo .. : %i\nMáximo de Nuevos Reclutas sin\nPerder el Rango Actual ......... : %i\nMultiplicador de Experiencia .... : %.2f\nMultiplicador de Actualización .. : %.2f\nExperiencia después del Rango 10 : %i\nMáximo de Nuevos Reclutas para\nMantener el Rango 10 si\nEstá en la Experiencia Máxima : %i",
@@ -199,8 +225,6 @@
     "core.bonus.FLYING.description": "Puede volar (ignora obstáculos)",
     "core.bonus.FREE_SHOOTING.name": "Disparo cercano",
     "core.bonus.FREE_SHOOTING.description": "Puede disparar en combate cercano",
-    "core.bonus.FULL_HP_REGENERATION.name": "Regeneración completa",
-    "core.bonus.FULL_HP_REGENERATION.description": "Puede regenerar hasta la salud completa",
     "core.bonus.GARGOYLE.name": "Gárgola",
     "core.bonus.GARGOYLE.description": "No puede ser resucitado o curado",
     "core.bonus.GENERAL_DAMAGE_REDUCTION.name": "Reducir daño (${val}%)",
@@ -213,12 +237,8 @@
     "core.bonus.HP_REGENERATION.description": "Cura ${val} puntos de vida cada ronda",
     "core.bonus.JOUSTING.name": "Carga de campeón",
     "core.bonus.JOUSTING.description": "+5% de daño por hexágono recorrido",
-    "core.bonus.KING1.name": "Rey 1",
-    "core.bonus.KING1.description": "Vulnerable al SLAYER básico",
-    "core.bonus.KING2.name": "Rey 2",
-    "core.bonus.KING2.description": "Vulnerable al SLAYER avanzado",
-    "core.bonus.KING3.name": "Rey 3",
-    "core.bonus.KING3.description":"Vulnerable al SLAYER experto",
+    "core.bonus.KING.name": "Rey",
+    "core.bonus.KING.description": "Vulnerable a nivel SLAYER ${val} o superior.",
     "core.bonus.LEVEL_SPELL_IMMUNITY.name": "Inmunidad a hechizos 1-${val}",
     "core.bonus.LEVEL_SPELL_IMMUNITY.description": "Inmune a hechizos de nivel 1-${val}",
     "core.bonus.LIMITED_SHOOTING_RANGE.name" : "Rango de disparo limitado",
