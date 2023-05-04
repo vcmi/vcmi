@@ -37,6 +37,19 @@ static void setBoolSetting(std::string group, std::string field, bool value)
 	entry->Bool() = value;
 }
 
+static std::string scalingToEntryString( int scaling)
+{
+	return std::to_string(scaling) + '%';
+}
+
+static std::string scalingToLabelString( int scaling)
+{
+	std::string string = CGI->generaltexth->translate("vcmi.systemOptions.scalingButton.hover");
+	boost::replace_all(string, "%p", std::to_string(scaling));
+
+	return string;
+}
+
 static std::string resolutionToEntryString( int w, int h)
 {
 	std::string string = "%wx%h";
@@ -96,6 +109,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	{
 		selectGameResolution();
 	});
+	addCallback("setGameScaling", [this](int dummyValue)
+	{
+		selectGameScaling();
+	});
 	addCallback("framerateChanged", [](bool value)
 	{
 		setBoolSetting("video", "showfps", value);
@@ -114,9 +131,13 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	build(config);
 
-	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
 	const auto & currentResolution = settings["video"]["resolution"];
+
+	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
 	resolutionLabel->setText(resolutionToLabelString(currentResolution["width"].Integer(), currentResolution["height"].Integer()));
+
+	std::shared_ptr<CLabel> scalingLabel = widget<CLabel>("scalingLabel");
+	scalingLabel->setText(scalingToLabelString(currentResolution["scaling"].Integer()));
 
 	std::shared_ptr<CToggleButton> spellbookAnimationCheckbox = widget<CToggleButton>("spellbookAnimationCheckbox");
 	spellbookAnimationCheckbox->setSelected(settings["video"]["spellbookAnimation"].Bool());
@@ -152,7 +173,12 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 void GeneralOptionsTab::selectGameResolution()
 {
-	fillSelectableResolutions();
+	supportedResolutions = GH.windowHandler().getSupportedResolutions();
+
+	boost::range::sort(supportedResolutions, [](const auto & left, const auto & right)
+	{
+		return left.x * left.y < right.x * right.y;
+	});
 
 	std::vector<std::string> items;
 	size_t currentResolutionIndex = 0;
@@ -197,12 +223,54 @@ void GeneralOptionsTab::setFullscreenMode(bool on)
 	setBoolSetting("video", "fullscreen", on);
 }
 
-void GeneralOptionsTab::fillSelectableResolutions()
+void GeneralOptionsTab::selectGameScaling()
 {
-	supportedResolutions = GH.windowHandler().getSupportedResolutions();
+	supportedScaling.clear();
 
-	boost::range::sort(supportedResolutions, [](const auto & left, const auto & right)
+	auto [minimalScaling, maximalScaling] = GH.windowHandler().getSupportedScalingRange();
+	for (int i = 0; i <= static_cast<int>(maximalScaling); i += 10)
 	{
-		return left.x * left.y < right.x * right.y;
-	});
+		if (i >= static_cast<int>(minimalScaling))
+			supportedScaling.push_back(i);
+	}
+
+	std::vector<std::string> items;
+	size_t currentIndex = 0;
+	size_t i = 0;
+	for(const auto & it : supportedScaling)
+	{
+		auto resolutionStr = scalingToEntryString(it);
+		if(widget<CLabel>("scalingLabel")->getText() == scalingToLabelString(it))
+			currentIndex = i;
+
+		items.push_back(std::move(resolutionStr));
+		++i;
+	}
+
+	GH.pushIntT<CObjectListWindow>(
+		items,
+		nullptr,
+		CGI->generaltexth->translate("vcmi.systemOptions.scalingMenu.hover"),
+		CGI->generaltexth->translate("vcmi.systemOptions.scalingMenu.help"),
+		[this](int index)
+		{
+			setGameScaling(index);
+		},
+		currentIndex
+	);
+}
+
+void GeneralOptionsTab::setGameScaling(int index)
+{
+	assert(index >= 0 && index < supportedScaling.size());
+
+	if ( index < 0 || index >= supportedScaling.size() )
+		return;
+
+	int scaling = supportedScaling[index];
+
+	Settings gameRes = settings.write["video"]["resolution"];
+	gameRes["scaling"].Float() = scaling;
+
+	widget<CLabel>("scalingLabel")->setText(scalingToLabelString(scaling));
 }

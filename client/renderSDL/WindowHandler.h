@@ -78,4 +78,5 @@ public:
 
 	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;
+	std::tuple<double, double> getSupportedScalingRange() const final;
 };

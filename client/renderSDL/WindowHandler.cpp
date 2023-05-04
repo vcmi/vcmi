@@ -33,7 +33,7 @@ SDL_Surface * screenBuf = screen; //points to screen (if only advmapint is prese
 static const std::string NAME_AFFIX = "client";
 static const std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 
-Point WindowHandler::getPreferredLogicalResolution() const
+std::tuple<double, double> WindowHandler::getSupportedScalingRange() const
 {
 	// H3 resolution, any resolution smaller than that is not correctly supported
 	static const Point minResolution = {800, 600};
@@ -41,11 +41,19 @@ Point WindowHandler::getPreferredLogicalResolution() const
 	static const double minimalScaling = 50;
 
 	Point renderResolution = getPreferredRenderingResolution();
-	double userScaling = settings["video"]["resolution"]["scaling"].Float();
 	double maximalScalingWidth = 100.0 * renderResolution.x / minResolution.x;
 	double maximalScalingHeight = 100.0 * renderResolution.y / minResolution.y;
 	double maximalScaling = std::min(maximalScalingWidth, maximalScalingHeight);
 
+	return { minimalScaling, maximalScaling };
+}
+
+Point WindowHandler::getPreferredLogicalResolution() const
+{
+	Point renderResolution = getPreferredRenderingResolution();
+	auto [minimalScaling, maximalScaling] = getSupportedScalingRange();
+
+	double userScaling = settings["video"]["resolution"]["scaling"].Float();
 	double scaling = std::clamp(userScaling, minimalScaling, maximalScaling);
 
 	Point logicalResolution = renderResolution * 100.0 / scaling;
@@ -182,7 +190,7 @@ void WindowHandler::updateFullscreenState()
 		}
 		case EWindowMode::WINDOWED:
 		{
-			Point resolution = getPreferredLogicalResolution();
+			Point resolution = getPreferredRenderingResolution();
 			SDL_SetWindowFullscreen(mainWindow, 0);
 			SDL_SetWindowSize(mainWindow, resolution.x, resolution.y);
 			SDL_SetWindowPosition(mainWindow, SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex), SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex));

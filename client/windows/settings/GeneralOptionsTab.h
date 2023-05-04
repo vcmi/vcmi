@@ -19,12 +19,15 @@ private:
 	SettingsListener onFullscreenChanged;
 
 	std::vector<Point> supportedResolutions;
+	std::vector<double> supportedScaling;
 
 	void setFullscreenMode( bool on);
-	void fillSelectableResolutions();
 
 	void selectGameResolution();
 	void setGameResolution(int index);
+
+	void selectGameScaling();
+	void setGameScaling(int index);
 
 public:
 	GeneralOptionsTab();

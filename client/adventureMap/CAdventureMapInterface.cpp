@@ -811,6 +811,7 @@ void CAdventureMapInterface::onScreenResize()
 	widget = std::make_shared<CAdventureMapWidget>(shortcuts);
 	widget->setState(EGameState::MAKING_TURN);
 	widget->getMapView()->onViewMapActivated();
+	widget->setPlayer(currentPlayerID);
 
 	if (isActive())
 		widget->activate();

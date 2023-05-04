@@ -30,4 +30,7 @@ public:
 
 	/// Returns list of resolutions supported by current screen
 	virtual std::vector<Point> getSupportedResolutions() const = 0;
+
+	/// Returns <min, max> range of possible values for screen scaling
+	virtual std::tuple<double, double> getSupportedScalingRange() const = 0;
 };
