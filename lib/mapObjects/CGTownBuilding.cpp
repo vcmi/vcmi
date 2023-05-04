@@ -302,11 +302,11 @@ void CTownRewardableBuilding::initObj(CRandomGenerator & rand)
 	{
 		for (auto & bonus : rewardInfo.reward.bonuses)
 		{
-			bonus.source = Bonus::TOWN_STRUCTURE;
+			bonus.source = BonusSource::TOWN_STRUCTURE;
 			bonus.sid = bID;
-			if (bonus.type == Bonus::MORALE)
+			if (bonus.type == BonusType::MORALE)
 				rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::MORALE, 0, bonus.val, 0);
-			if (bonus.type == Bonus::LUCK)
+			if (bonus.type == BonusType::LUCK)
 				rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::LUCK, 0, bonus.val, 0);
 		}
 	}
@@ -391,7 +391,7 @@ bool CTownRewardableBuilding::wasVisitedBefore(const CGHeroInstance * contextHer
 		case Rewardable::VISIT_PLAYER:
 			return false; //not supported
 		case Rewardable::VISIT_BONUS:
-			return contextHero->hasBonusFrom(Bonus::TOWN_STRUCTURE, Bonus::getSid32(town->town->faction->getIndex(), bID));
+			return contextHero->hasBonusFrom(BonusSource::TOWN_STRUCTURE, Bonus::getSid32(town->town->faction->getIndex(), bID));
 		case Rewardable::VISIT_HERO:
 			return visitors.find(contextHero->id) != visitors.end();
 		default:
