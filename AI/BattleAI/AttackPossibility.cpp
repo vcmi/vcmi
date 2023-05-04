@@ -51,11 +51,11 @@ int64_t AttackPossibility::calculateDamageReduce(
 
 	// FIXME: provide distance info for Jousting bonus
 	auto enemyDamageBeforeAttack = cb.battleEstimateDamage(defender, attacker, 0);
-	auto enemiesKilled = damageDealt / defender->MaxHealth() + (damageDealt % defender->MaxHealth() >= defender->getFirstHPleft() ? 1 : 0);
+	auto enemiesKilled = damageDealt / defender->getMaxHealth() + (damageDealt % defender->getMaxHealth() >= defender->getFirstHPleft() ? 1 : 0);
 	auto enemyDamage = averageDmg(enemyDamageBeforeAttack.damage);
 	auto damagePerEnemy = enemyDamage / (double)defender->getCount();
 
-	return (int64_t)(damagePerEnemy * (enemiesKilled * KILL_BOUNTY + damageDealt * HEALTH_BOUNTY / (double)defender->MaxHealth()));
+	return (int64_t)(damagePerEnemy * (enemiesKilled * KILL_BOUNTY + damageDealt * HEALTH_BOUNTY / (double)defender->getMaxHealth()));
 }
 
 int64_t AttackPossibility::evaluateBlockedShootersDmg(const BattleAttackInfo & attackInfo, BattleHex hex, const HypotheticBattle & state)
@@ -97,7 +97,7 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 	auto attacker = attackInfo.attacker;
 	auto defender = attackInfo.defender;
 	const std::string cachingStringBlocksRetaliation = "type_BLOCKS_RETALIATION";
-	static const auto selectorBlocksRetaliation = Selector::type()(Bonus::BLOCKS_RETALIATION);
+	static const auto selectorBlocksRetaliation = Selector::type()(BonusType::BLOCKS_RETALIATION);
 	const auto attackerSide = state.playerToSide(state.battleGetOwner(attacker));
 	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
 

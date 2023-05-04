@@ -12,9 +12,10 @@
 #include "ObjectTemplate.h"
 
 #include "../int3.h"
-#include "../HeroBonus.h"
 #include "../NetPacksBase.h"
 #include "../ResourceSet.h"
+
+#include "../bonuses/Bonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -231,7 +232,7 @@ protected:
 	virtual void setPropertyDer(ui8 what, ui32 val);
 
 	/// Gives dummy bonus from this object to hero. Can be used to track visited state
-	void giveDummyBonus(const ObjectInstanceID & heroID, ui8 duration = Bonus::ONE_DAY) const;
+	void giveDummyBonus(const ObjectInstanceID & heroID, BonusDuration duration = BonusDuration::ONE_DAY) const;
 
 	///Serialize object-type specific options
 	virtual void serializeJsonOptions(JsonSerializeFormat & handler);

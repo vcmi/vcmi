@@ -63,7 +63,7 @@ std::vector<SlotInfo>::iterator ArmyManager::getWeakestCreature(std::vector<Slot
 		if(left.creature->getLevel() != right.creature->getLevel())
 			return left.creature->getLevel() < right.creature->getLevel();
 		
-		return left.creature->Speed() > right.creature->Speed();
+		return left.creature->speed() > right.creature->speed();
 	});
 
 	return weakest;

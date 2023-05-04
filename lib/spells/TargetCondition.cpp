@@ -15,6 +15,8 @@
 #include "../CBonusTypeHandler.h"
 #include "../battle/CBattleInfoCallback.h"
 #include "../battle/Unit.h"
+#include "../bonuses/BonusParams.h"
+#include "../bonuses/BonusList.h"
 
 #include "../serializer/JsonSerializeFormat.h"
 #include "../VCMI_Lib.h"
@@ -119,9 +121,9 @@ protected:
 			return true;
 
 		std::stringstream cachingStr;
-		cachingStr << "type_" << Bonus::LEVEL_SPELL_IMMUNITY << "addInfo_1";
+		cachingStr << "type_" << vstd::to_underlying(BonusType::LEVEL_SPELL_IMMUNITY) << "addInfo_1";
 
-		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::info()(1)), cachingStr.str());
+		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(BonusType::LEVEL_SPELL_IMMUNITY).And(Selector::info()(1)), cachingStr.str());
 		return (levelImmunities->size() == 0 || levelImmunities->totalValue() < m->getSpellLevel() || m->getSpellLevel() <= 0);
 	}
 };
@@ -139,8 +141,8 @@ protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
 		std::stringstream cachingStr;
-		cachingStr << "type_" << Bonus::SPELL_IMMUNITY << "subtype_" << m->getSpellIndex() << "addInfo_1";
-		return !target->hasBonus(Selector::typeSubtypeInfo(Bonus::SPELL_IMMUNITY, m->getSpellIndex(), 1), cachingStr.str());
+		cachingStr << "type_" << vstd::to_underlying(BonusType::SPELL_IMMUNITY) << "subtype_" << m->getSpellIndex() << "addInfo_1";
+		return !target->hasBonus(Selector::typeSubtypeInfo(BonusType::SPELL_IMMUNITY, m->getSpellIndex(), 1), cachingStr.str());
 	}
 };
 
@@ -195,7 +197,7 @@ protected:
 	{
 		if(!m->isMagicalEffect()) //Always pass on non-magical
 			return true;
-		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(Bonus::LEVEL_SPELL_IMMUNITY));
+		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(BonusType::LEVEL_SPELL_IMMUNITY));
 		return levelImmunities->size() == 0 ||
 		levelImmunities->totalValue() < m->getSpellLevel() ||
 		m->getSpellLevel() <= 0;
@@ -214,7 +216,7 @@ public:
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		return !target->hasBonusOfType(Bonus::SPELL_IMMUNITY, m->getSpellIndex());
+		return !target->hasBonusOfType(BonusType::SPELL_IMMUNITY, m->getSpellIndex());
 	}
 };
 
@@ -239,10 +241,10 @@ public:
 	SpellEffectCondition(const SpellID & spellID_): spellID(spellID_)
 	{
 		std::stringstream builder;
-		builder << "source_" << Bonus::SPELL_EFFECT << "id_" << spellID.num;
+		builder << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT) << "id_" << spellID.num;
 		cachingString = builder.str();
 
-		selector = Selector::source(Bonus::SPELL_EFFECT, spellID.num);
+		selector = Selector::source(BonusSource::SPELL_EFFECT, spellID.num);
 	}
 
 protected:
@@ -266,7 +268,7 @@ protected:
 	}
 
 private:
-	CSelector selector = Selector::type()(Bonus::RECEPTIVE);
+	CSelector selector = Selector::type()(BonusType::RECEPTIVE);
 	std::string cachingString = "type_RECEPTIVE";
 };
 
@@ -275,8 +277,8 @@ class ImmunityNegationCondition : public TargetConditionItemBase
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		const bool battleWideNegation = target->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, 0);
-		const bool heroNegation = target->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, 1);
+		const bool battleWideNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, 0);
+		const bool heroNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, 1);
 		//anyone can cast on artifact holder`s stacks
 		if(heroNegation)
 		{

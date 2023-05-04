@@ -52,14 +52,14 @@ armyStructure evaluateArmyStructure(const CArmedInstance * army)
 	double shootersStrength = 0;
 	ui32 maxSpeed = 0;
 
-	static const CSelector selectorSHOOTER = Selector::type()(Bonus::SHOOTER);
-	static const std::string keySHOOTER = "type_"+std::to_string((int32_t)Bonus::SHOOTER);
+	static const CSelector selectorSHOOTER = Selector::type()(BonusType::SHOOTER);
+	static const std::string keySHOOTER = "type_"+std::to_string((int32_t)BonusType::SHOOTER);
 
-	static const CSelector selectorFLYING = Selector::type()(Bonus::FLYING);
-	static const std::string keyFLYING = "type_"+std::to_string((int32_t)Bonus::FLYING);
+	static const CSelector selectorFLYING = Selector::type()(BonusType::FLYING);
+	static const std::string keyFLYING = "type_"+std::to_string((int32_t)BonusType::FLYING);
 
-	static const CSelector selectorSTACKS_SPEED = Selector::type()(Bonus::STACKS_SPEED);
-	static const std::string keySTACKS_SPEED = "type_"+std::to_string((int32_t)Bonus::STACKS_SPEED);
+	static const CSelector selectorSTACKS_SPEED = Selector::type()(BonusType::STACKS_SPEED);
+	static const std::string keySTACKS_SPEED = "type_"+std::to_string((int32_t)BonusType::STACKS_SPEED);
 
 	for(auto s : army->Slots())
 	{

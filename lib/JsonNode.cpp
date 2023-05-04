@@ -13,7 +13,11 @@
 
 #include "ScopeGuard.h"
 
-#include "HeroBonus.h"
+#include "bonuses/BonusParams.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/Limiters.h"
+#include "bonuses/Propagators.h"
+#include "bonuses/Updaters.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h" //for identifier resolution
 #include "CModHandler.h"
@@ -481,7 +485,7 @@ void JsonUtils::parseTypedBonusShort(const JsonVector & source, const std::share
 	dest->val = static_cast<si32>(source[1].Float());
 	resolveIdentifier(source[2],dest->subtype);
 	dest->additionalInfo = static_cast<si32>(source[3].Float());
-	dest->duration = Bonus::PERMANENT; //TODO: handle flags (as integer)
+	dest->duration = BonusDuration::PERMANENT; //TODO: handle flags (as integer)
 	dest->turnsRemain = 0;
 }
 
@@ -817,11 +821,11 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 
 std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode & ability, const BuildingID & building, const std::string & description)
 {
-	/*	duration = Bonus::PERMANENT
-		source = Bonus::TOWN_STRUCTURE
+	/*	duration = BonusDuration::PERMANENT
+		source = BonusSource::TOWN_STRUCTURE
 		bonusType, val, subtype - get from json
 	*/
-	auto b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::NONE, Bonus::TOWN_STRUCTURE, 0, building, description, -1);
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, building, description, -1);
 
 	if(!parseBonus(ability, b.get()))
 		return nullptr;
@@ -842,14 +846,14 @@ static BonusParams convertDeprecatedBonus(const JsonNode &ability)
 				params.val = static_cast<si32>(ability["val"].Float());
 				params.valRelevant = true;
 			}
-			Bonus::ValueType valueType = Bonus::ADDITIVE_VALUE;
+			BonusValueType valueType = BonusValueType::ADDITIVE_VALUE;
 			if(!ability["valueType"].isNull())
 				valueType = bonusValueMap.find(ability["valueType"].String())->second;
 
-			if(ability["type"].String() == "SECONDARY_SKILL_PREMY" && valueType == Bonus::PERCENT_TO_BASE) //assume secondary skill special
+			if(ability["type"].String() == "SECONDARY_SKILL_PREMY" && valueType == BonusValueType::PERCENT_TO_BASE) //assume secondary skill special
 			{
-				params.valueType = Bonus::PERCENT_TO_TARGET_TYPE;
-				params.targetType = Bonus::SECONDARY_SKILL;
+				params.valueType = BonusValueType::PERCENT_TO_TARGET_TYPE;
+				params.targetType = BonusSource::SECONDARY_SKILL;
 				params.targetTypeRelevant = true;
 			}
 
@@ -942,7 +946,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 		value = &ability["valueType"];
 		if (!value->isNull())
-			b->valType = static_cast<Bonus::ValueType>(parseByMapN(bonusValueMap, value, "value type "));
+			b->valType = static_cast<BonusValueType>(parseByMapN(bonusValueMap, value, "value type "));
 	}
 
 	b->stacking = ability["stacking"].String();
@@ -963,7 +967,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	value = &ability["effectRange"];
 	if (!value->isNull())
-		b->effectRange = static_cast<Bonus::LimitEffect>(parseByMapN(bonusLimitEffect, value, "effect range "));
+		b->effectRange = static_cast<BonusLimitEffect>(parseByMapN(bonusLimitEffect, value, "effect range "));
 
 	value = &ability["duration"];
 	if (!value->isNull())
@@ -971,17 +975,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 		switch (value->getType())
 		{
 		case JsonNode::JsonType::DATA_STRING:
-			b->duration = static_cast<Bonus::BonusDuration>(parseByMap(bonusDurationMap, value, "duration type "));
-			break;
-		case JsonNode::JsonType::DATA_VECTOR:
-			{
-				ui16 dur = 0;
-				for (const JsonNode & d : value->Vector())
-				{
-					dur |= parseByMapN(bonusDurationMap, &d, "duration type ");
-				}
-				b->duration = static_cast<Bonus::BonusDuration>(dur);
-			}
+			b->duration = static_cast<BonusDuration>(parseByMap(bonusDurationMap, value, "duration type "));
 			break;
 		default:
 			logMod->error("Error! Wrong bonus duration format.");
@@ -990,11 +984,11 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	value = &ability["sourceType"];
 	if (!value->isNull())
-		b->source = static_cast<Bonus::BonusSource>(parseByMap(bonusSourceMap, value, "source type "));
+		b->source = static_cast<BonusSource>(parseByMap(bonusSourceMap, value, "source type "));
 
 	value = &ability["targetSourceType"];
 	if (!value->isNull())
-		b->targetSourceType = static_cast<Bonus::BonusSource>(parseByMap(bonusSourceMap, value, "target type "));
+		b->targetSourceType = static_cast<BonusSource>(parseByMap(bonusSourceMap, value, "target type "));
 
 	value = &ability["limiters"];
 	if (!value->isNull())
@@ -1071,7 +1065,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 		ret = ret.And(Selector::subtype()(subtype));
 	}
 	value = &ability["sourceType"];
-	Bonus::BonusSource src = Bonus::OTHER; //Fixes for GCC false maybe-uninitialized
+	BonusSource src = BonusSource::OTHER; //Fixes for GCC false maybe-uninitialized
 	si32 id = 0;
 	auto sourceIDRelevant = false;
 	auto sourceTypeRelevant = false;

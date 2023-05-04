@@ -13,6 +13,7 @@
 #include "CGTownBuilding.h"
 #include "CObjectClassesHandler.h"
 #include "../spells/CSpellHandler.h"
+#include "../bonuses/Bonus.h"
 #include "../battle/IBattleInfoCallback.h"
 #include "../NetPacks.h"
 #include "../CConfigHandler.h"
@@ -24,7 +25,6 @@
 #include "../CPlayerState.h"
 #include "../TerrainHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
-#include "../HeroBonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -151,7 +151,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 			ret.entries.emplace_back(subID, BuildingID::HORDE_2, creature->getHorde());
 
 	//statue-of-legion-like bonus: % to base+castle
-	TConstBonusListPtr bonuses2 = getBonuses(Selector::type()(Bonus::CREATURE_GROWTH_PERCENT));
+	TConstBonusListPtr bonuses2 = getBonuses(Selector::type()(BonusType::CREATURE_GROWTH_PERCENT));
 	for(const auto & b : *bonuses2)
 	{
 		const auto growth = b->val * (base + castleBonus) / 100;
@@ -159,7 +159,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	}
 
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
-	TConstBonusListPtr bonuses = getBonuses(Selector::type()(Bonus::CREATURE_GROWTH).And(Selector::subtype()(level)));
+	TConstBonusListPtr bonuses = getBonuses(Selector::type()(BonusType::CREATURE_GROWTH).And(Selector::subtype()(level)));
 	for(const auto & b : *bonuses)
 		ret.entries.emplace_back(b->val, b->Description());
 
@@ -778,10 +778,10 @@ void CGTownInstance::deserializationFix()
 
 void CGTownInstance::updateMoraleBonusFromArmy()
 {
-	auto b = getExportedBonusList().getFirst(Selector::sourceType()(Bonus::ARMY).And(Selector::type()(Bonus::MORALE)));
+	auto b = getExportedBonusList().getFirst(Selector::sourceType()(BonusSource::ARMY).And(Selector::type()(BonusType::MORALE)));
 	if(!b)
 	{
-		b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);
+		b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, 0, -1);
 		addNewBonus(b);
 	}
 
@@ -797,7 +797,7 @@ void CGTownInstance::updateMoraleBonusFromArmy()
 void CGTownInstance::recreateBuildingsBonuses()
 {
 	BonusList bl;
-	getExportedBonusList().getBonuses(bl, Selector::sourceType()(Bonus::TOWN_STRUCTURE));
+	getExportedBonusList().getBonuses(bl, Selector::sourceType()(BonusSource::TOWN_STRUCTURE));
 
 	for(const auto & b : bl)
 		removeBonus(b);

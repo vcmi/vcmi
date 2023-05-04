@@ -407,7 +407,7 @@
     <ClInclude Include="CondSh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HeroBonus.h">
+    <ClInclude Include="Bonus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IGameCallback.h">

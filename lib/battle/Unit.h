@@ -10,10 +10,11 @@
 
 #pragma once
 
-#include <vcmi/Entity.h>
+#include <vcmi/Creature.h>
 #include <vcmi/spells/Caster.h>
 
-#include "../HeroBonus.h"
+#include "../bonuses/Bonus.h"
+#include "../bonuses/IBonusBearer.h"
 
 #include "IUnitInfo.h"
 #include "BattleHex.h"
@@ -41,7 +42,7 @@ namespace BattlePhases
 
 class CUnitState;
 
-class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer, public IConstBonusNativeTerrainProvider
+class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer, public ACreature
 {
 public:
 	virtual ~Unit();

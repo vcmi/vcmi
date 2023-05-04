@@ -208,7 +208,7 @@
 	"core.bonus.HEALER.name": "Uzdrowiciel",
 	"core.bonus.HEALER.description": "Leczy sprzymierzone jednostki",
 	"core.bonus.HP_REGENERATION.name": "Regeneracja",
-	"core.bonus.HP_REGENERATION.description": "Leczy ${SHval} punktów zdrowia każdej rundy",
+	"core.bonus.HP_REGENERATION.description": "Leczy ${val} punktów zdrowia każdej rundy",
 	"core.bonus.JOUSTING.name": "Szarża Czempiona",
 	"core.bonus.JOUSTING.description": "+${val}% obrażeń na przebytego heksa",
 	"core.bonus.KING.name": "Król",

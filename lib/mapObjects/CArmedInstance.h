@@ -11,6 +11,8 @@
 
 #include "CObjectHandler.h"
 #include "../CCreatureSet.h"
+#include "../bonuses/CBonusProxy.h"
+#include "../bonuses/CBonusSystemNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

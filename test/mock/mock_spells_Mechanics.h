@@ -64,7 +64,7 @@ public:
 	MOCK_CONST_METHOD1(applySpecificSpellBonus,int64_t(int64_t));
 	MOCK_CONST_METHOD2(calculateRawEffectValue, int64_t(int32_t, int32_t));
 
-	MOCK_CONST_METHOD0(getElementalImmunity, std::vector<Bonus::BonusType>());
+	MOCK_CONST_METHOD0(getElementalImmunity, std::vector<BonusType>());
 
 	MOCK_CONST_METHOD1(ownerMatches, bool(const battle::Unit *));
 	MOCK_CONST_METHOD2(ownerMatches, bool(const battle::Unit *, const boost::logic::tribool));

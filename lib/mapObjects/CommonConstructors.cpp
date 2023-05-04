@@ -435,12 +435,12 @@ static void addStackToArmy(IObjectInfo::CArmyStructure & army, const CCreature *
 	army.totalStrength += crea->getFightValue() * amount;
 
 	bool walker = true;
-	if(crea->hasBonusOfType(Bonus::SHOOTER))
+	if(crea->hasBonusOfType(BonusType::SHOOTER))
 	{
 		army.shootersStrength += crea->getFightValue() * amount;
 		walker = false;
 	}
-	if(crea->hasBonusOfType(Bonus::FLYING))
+	if(crea->hasBonusOfType(BonusType::FLYING))
 	{
 		army.flyersStrength += crea->getFightValue() * amount;
 		walker = false;

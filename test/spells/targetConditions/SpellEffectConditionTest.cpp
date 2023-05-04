@@ -45,7 +45,7 @@ TEST_F(SpellEffectConditionTest, ImmuneByDefault)
 TEST_F(SpellEffectConditionTest, ReceptiveIfHasEffectFromDesiredSpell)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::STACK_HEALTH, Bonus::SPELL_EFFECT, 3, SpellID::AGE));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::STACK_HEALTH, BonusSource::SPELL_EFFECT, 3, SpellID::AGE));
 
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
@@ -53,14 +53,14 @@ TEST_F(SpellEffectConditionTest, ReceptiveIfHasEffectFromDesiredSpell)
 TEST_F(SpellEffectConditionTest, ImmuneIfHasEffectFromOtherSpell)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::STACK_HEALTH, Bonus::SPELL_EFFECT, 3, SpellID::AIR_SHIELD));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::STACK_HEALTH, BonusSource::SPELL_EFFECT, 3, SpellID::AIR_SHIELD));
 	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
 TEST_F(SpellEffectConditionTest, ImmuneIfHasNoSpellEffects)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, 3, 0));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 3, 0));
 	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 

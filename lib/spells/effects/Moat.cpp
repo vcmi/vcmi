@@ -16,6 +16,7 @@
 
 #include "../../NetPacks.h"
 #include "../../mapObjects/CGTownInstance.h"
+#include "../../bonuses/Limiters.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../serializer/JsonSerializeFormat.h"
@@ -79,17 +80,17 @@ void Moat::convertBonus(const Mechanics * m, std::vector<Bonus> & converted) con
 		Bonus nb(*b);
 
 		//Moat battlefield effect is always permanent
-		nb.duration = Bonus::ONE_BATTLE;
+		nb.duration = BonusDuration::ONE_BATTLE;
 
 		if(m->battle()->battleGetDefendedTown() && m->battle()->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
 		{
 			nb.sid = Bonus::getSid32(m->battle()->battleGetDefendedTown()->getFaction(), BuildingID::CITADEL);
-			nb.source = Bonus::TOWN_STRUCTURE;
+			nb.source = BonusSource::TOWN_STRUCTURE;
 		}
 		else
 		{
 			nb.sid = m->getSpellIndex(); //for all
-			nb.source = Bonus::SPELL_EFFECT;//for all
+			nb.source = BonusSource::SPELL_EFFECT;//for all
 		}
 		std::set<BattleHex> flatMoatHexes;
 

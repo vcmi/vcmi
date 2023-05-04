@@ -14,15 +14,9 @@
 #include <vcmi/Environment.h>
 #include <vcmi/ServerCallback.h>
 
-#include "../../lib/HeroBonus.h"
+#include "../../lib/bonuses/Bonus.h"
 #include "../../lib/battle/BattleProxy.h"
 #include "../../lib/battle/CUnitState.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
-
-class CStack;
-
-VCMI_LIB_NAMESPACE_END
 
 class HypotheticBattle;
 
@@ -54,7 +48,7 @@ public:
 	std::vector<Bonus> bonusesToUpdate;
 	std::set<std::shared_ptr<Bonus>> bonusesToRemove;
 
-	StackWithBonuses(const HypotheticBattle * Owner, const CStack * Stack);
+	StackWithBonuses(const HypotheticBattle * Owner, const battle::CUnitState * Stack);
 
 	StackWithBonuses(const HypotheticBattle * Owner, const battle::UnitInfo & info);
 

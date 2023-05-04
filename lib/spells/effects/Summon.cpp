@@ -94,7 +94,7 @@ void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 		{
 			const battle::Unit * summoned = dest.unitValue;
 			std::shared_ptr<battle::Unit> state = summoned->acquire();
-			int64_t healthValue = (summonByHealth ? valueWithBonus : (valueWithBonus * summoned->MaxHealth()));
+			int64_t healthValue = (summonByHealth ? valueWithBonus : (valueWithBonus * summoned->getMaxHealth()));
 			state->heal(healthValue, EHealLevel::OVERHEAL, (permanent ? EHealPower::PERMANENT : EHealPower::ONE_BATTLE));
 			pack.changedStacks.emplace_back(summoned->unitId(), UnitChanges::EOperation::RESET_STATE);
 			state->save(pack.changedStacks.back().data);
