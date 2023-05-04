@@ -256,8 +256,8 @@ std::string CArtifact::nodeName() const
 
 void CArtifact::addNewBonus(const std::shared_ptr<Bonus>& b)
 {
-	b->source = Bonus::ARTIFACT;
-	b->duration = Bonus::PERMANENT;
+	b->source = BonusSource::ARTIFACT;
+	b->duration = BonusDuration::PERMANENT;
 	b->description = getNameTranslated();
 	CBonusSystemNode::addNewBonus(b);
 }
@@ -275,21 +275,21 @@ void CArtifact::serializeJson(JsonSerializeFormat & handler)
 void CGrowingArtifact::levelUpArtifact (CArtifactInstance * art)
 {
 	auto b = std::make_shared<Bonus>();
-	b->type = Bonus::LEVEL_COUNTER;
+	b->type = BonusType::LEVEL_COUNTER;
 	b->val = 1;
-	b->duration = Bonus::COMMANDER_KILLED;
+	b->duration = BonusDuration::COMMANDER_KILLED;
 	art->accumulateBonus(b);
 
 	for(const auto & bonus : bonusesPerLevel)
 	{
-		if (art->valOfBonuses(Bonus::LEVEL_COUNTER) % bonus.first == 0) //every n levels
+		if (art->valOfBonuses(BonusType::LEVEL_COUNTER) % bonus.first == 0) //every n levels
 		{
 			art->accumulateBonus(std::make_shared<Bonus>(bonus.second));
 		}
 	}
 	for(const auto & bonus : thresholdBonuses)
 	{
-		if (art->valOfBonuses(Bonus::LEVEL_COUNTER) == bonus.first) //every n levels
+		if (art->valOfBonuses(BonusType::LEVEL_COUNTER) == bonus.first) //every n levels
 		{
 			art->addNewBonus(std::make_shared<Bonus>(bonus.second));
 		}
@@ -790,7 +790,7 @@ void CArtHandler::afterLoadFinalization()
 		for(auto &bonus : art->getExportedBonusList())
 		{
 			assert(art == objects[art->id]);
-			assert(bonus->source == Bonus::ARTIFACT);
+			assert(bonus->source == BonusSource::ARTIFACT);
 			bonus->sid = art->id;
 		}
 	}
@@ -822,7 +822,7 @@ std::string CArtifactInstance::nodeName() const
 CArtifactInstance * CArtifactInstance::createScroll(const SpellID & sid)
 {
 	auto * ret = new CArtifactInstance(VLC->arth->objects[ArtifactID::SPELL_SCROLL]);
-	auto b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT_INSTANCE, -1, ArtifactID::SPELL_SCROLL, sid);
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL, BonusSource::ARTIFACT_INSTANCE, -1, ArtifactID::SPELL_SCROLL, sid);
 	ret->addNewBonus(b);
 	return ret;
 }
@@ -903,7 +903,7 @@ CArtifactInstance * CArtifactInstance::createNewArtifactInstance(CArtifact *Art)
 		if (dynamic_cast<CGrowingArtifact *>(Art))
 		{
 			auto bonus = std::make_shared<Bonus>();
-			bonus->type = Bonus::LEVEL_COUNTER;
+			bonus->type = BonusType::LEVEL_COUNTER;
 			bonus->val = 0;
 			ret->addNewBonus (bonus);
 		}
@@ -963,7 +963,7 @@ void CArtifactInstance::deserializationFix()
 
 SpellID CArtifactInstance::getScrollSpellID() const
 {
-	const auto b = getBonusLocalFirst(Selector::type()(Bonus::SPELL));
+	const auto b = getBonusLocalFirst(Selector::type()(BonusType::SPELL));
 	if(!b)
 	{
 		logMod->warn("Warning: %s doesn't bear any spell!", nodeName());

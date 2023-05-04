@@ -118,17 +118,17 @@ ArmyMovementUpdater::ArmyMovementUpdater(int base, int divider, int multiplier, 
 
 std::shared_ptr<Bonus> ArmyMovementUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
-	if(b->type == Bonus::MOVEMENT && context.getNodeType() == CBonusSystemNode::HERO)
+	if(b->type == BonusType::MOVEMENT && context.getNodeType() == CBonusSystemNode::HERO)
 	{
 		auto speed = static_cast<const CGHeroInstance &>(context).getLowestCreatureSpeed();
 		si32 armySpeed = speed * base / divider;
 		auto counted = armySpeed * multiplier;
 		auto newBonus = std::make_shared<Bonus>(*b);
-		newBonus->source = Bonus::ARMY;
+		newBonus->source = BonusSource::ARMY;
 		newBonus->val += vstd::amin(counted, max);
 		return newBonus;
 	}
-	if(b->type != Bonus::MOVEMENT)
+	if(b->type != BonusType::MOVEMENT)
 		logGlobal->error("ArmyMovementUpdater should only be used for MOVEMENT bonus!");
 	return b;
 }
@@ -203,7 +203,7 @@ std::shared_ptr<Bonus> OwnerUpdater::createUpdatedBonus(const std::shared_ptr<Bo
 		owner = PlayerColor::NEUTRAL;
 
 	std::shared_ptr<Bonus> updated =
-		std::make_shared<Bonus>(static_cast<Bonus::BonusDuration>(b->duration), b->type, b->source, b->val, b->sid, b->subtype, b->valType);
+		std::make_shared<Bonus>(b->duration, b->type, b->source, b->val, b->sid, b->subtype, b->valType);
 	updated->limiter = std::make_shared<OppositeSideLimiter>(owner);
 	return updated;
 }

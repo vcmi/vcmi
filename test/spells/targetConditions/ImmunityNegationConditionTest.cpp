@@ -54,7 +54,7 @@ TEST_P(ImmunityNegationConditionTest, WithHeroNegation)
 {
 	setDefaultExpectations();
 
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, Bonus::OTHER, 0, 0, 1));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSource::OTHER, 0, 0, 1));
 
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
@@ -63,7 +63,7 @@ TEST_P(ImmunityNegationConditionTest, WithBattleWideNegation)
 {
 	setDefaultExpectations();
 
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, Bonus::OTHER, 0, 0, 0));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSource::OTHER, 0, 0, 0));
 
 	//This should return if ownerMatches, because anyone should cast onto owner's stacks, but not on enemyStacks
 	EXPECT_EQ(ownerMatches, subject->isReceptive(&mechanicsMock, &unitMock));

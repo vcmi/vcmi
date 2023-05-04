@@ -113,49 +113,49 @@ FactionID CCreature::getFaction() const
 
 int32_t CCreature::getBaseAttack() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseDefense() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseDamageMin() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 1).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 1).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseDamageMax() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 2).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseHitPoints() const
 {
-	static const auto SELECTOR = Selector::type()(Bonus::STACK_HEALTH).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::type()(BonusType::STACK_HEALTH).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseSpellPoints() const
 {
-	static const auto SELECTOR = Selector::type()(Bonus::CASTS).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::type()(BonusType::CASTS).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseSpeed() const
 {
-	static const auto SELECTOR = Selector::type()(Bonus::STACKS_SPEED).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::type()(BonusType::STACKS_SPEED).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseShots() const
 {
-	static const auto SELECTOR = Selector::type()(Bonus::SHOTS).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::type()(BonusType::SHOTS).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
@@ -291,9 +291,9 @@ CCreature::CCreature()
 	fightValue = AIValue = growth = hordeGrowth = ammMin = ammMax = 0;
 }
 
-void CCreature::addBonus(int val, Bonus::BonusType type, int subtype)
+void CCreature::addBonus(int val, BonusType type, int subtype)
 {
-	auto selector = Selector::typeSubtype(type, subtype).And(Selector::source(Bonus::CREATURE_ABILITY, getIndex()));
+	auto selector = Selector::typeSubtype(type, subtype).And(Selector::source(BonusSource::CREATURE_ABILITY, getIndex()));
 	BonusList & exported = getExportedBonusList();
 
 	BonusList existing;
@@ -301,7 +301,7 @@ void CCreature::addBonus(int val, Bonus::BonusType type, int subtype)
 
 	if(existing.empty())
 	{
-		auto added = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, getIndex(), subtype, Bonus::BASE_NUMBER);
+		auto added = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::CREATURE_ABILITY, val, getIndex(), subtype, BonusValueType::BASE_NUMBER);
 		addNewBonus(added);
 	}
 	else
@@ -339,28 +339,28 @@ void CCreature::updateFrom(const JsonNode & data)
 		serializeJson(handler);
 
 		if(!configNode["hitPoints"].isNull())
-			addBonus(configNode["hitPoints"].Integer(), Bonus::STACK_HEALTH);
+			addBonus(configNode["hitPoints"].Integer(), BonusType::STACK_HEALTH);
 
 		if(!configNode["speed"].isNull())
-			addBonus(configNode["speed"].Integer(), Bonus::STACKS_SPEED);
+			addBonus(configNode["speed"].Integer(), BonusType::STACKS_SPEED);
 
 		if(!configNode["attack"].isNull())
-			addBonus(configNode["attack"].Integer(), Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
+			addBonus(configNode["attack"].Integer(), BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK);
 
 		if(!configNode["defense"].isNull())
-			addBonus(configNode["defense"].Integer(), Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
+			addBonus(configNode["defense"].Integer(), BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE);
 
 		if(!configNode["damage"]["min"].isNull())
-			addBonus(configNode["damage"]["min"].Integer(), Bonus::CREATURE_DAMAGE, 1);
+			addBonus(configNode["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, 1);
 
 		if(!configNode["damage"]["max"].isNull())
-			addBonus(configNode["damage"]["max"].Integer(), Bonus::CREATURE_DAMAGE, 2);
+			addBonus(configNode["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, 2);
 
 		if(!configNode["shots"].isNull())
-			addBonus(configNode["shots"].Integer(), Bonus::SHOTS);
+			addBonus(configNode["shots"].Integer(), BonusType::SHOTS);
 
 		if(!configNode["spellPoints"].isNull())
-			addBonus(configNode["spellPoints"].Integer(), Bonus::CASTS);
+			addBonus(configNode["spellPoints"].Integer(), BonusType::CASTS);
 	}
 
 
@@ -601,18 +601,18 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	VLC->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"].String());
 	VLC->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"].String());
 
-	cre->addBonus(node["hitPoints"].Integer(), Bonus::STACK_HEALTH);
-	cre->addBonus(node["speed"].Integer(), Bonus::STACKS_SPEED);
-	cre->addBonus(node["attack"].Integer(), Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
-	cre->addBonus(node["defense"].Integer(), Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
+	cre->addBonus(node["hitPoints"].Integer(), BonusType::STACK_HEALTH);
+	cre->addBonus(node["speed"].Integer(), BonusType::STACKS_SPEED);
+	cre->addBonus(node["attack"].Integer(), BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK);
+	cre->addBonus(node["defense"].Integer(), BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE);
 
-	cre->addBonus(node["damage"]["min"].Integer(), Bonus::CREATURE_DAMAGE, 1);
-	cre->addBonus(node["damage"]["max"].Integer(), Bonus::CREATURE_DAMAGE, 2);
+	cre->addBonus(node["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, 1);
+	cre->addBonus(node["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, 2);
 
 	assert(node["damage"]["min"].Integer() <= node["damage"]["max"].Integer());
 
 	if(!node["shots"].isNull())
-		cre->addBonus(node["shots"].Integer(), Bonus::SHOTS);
+		cre->addBonus(node["shots"].Integer(), BonusType::SHOTS);
 
 	loadStackExperience(cre, node["stackExperience"]);
 	loadJsonAnimation(cre, node["graphics"]);
@@ -708,8 +708,8 @@ void CCreatureHandler::loadCrExpMod()
 			expBonParser.endLine();
 		}
 		//skeleton gets exp penalty
-		objects[56].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
-		objects[57].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
+		objects[56].get()->addBonus(-50, BonusType::EXP_MULTIPLIER, -1);
+		objects[57].get()->addBonus(-50, BonusType::EXP_MULTIPLIER, -1);
 		//exp for tier >7, rank 11
 		expRanks[0].push_back(147000);
 		expAfterUpgrade = 75; //percent
@@ -740,10 +740,10 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 		CLegacyConfigParser parser("DATA/CREXPBON.TXT");
 
 		Bonus b; //prototype with some default properties
-		b.source = Bonus::STACK_EXPERIENCE;
-		b.duration = Bonus::PERMANENT;
-		b.valType = Bonus::ADDITIVE_VALUE;
-		b.effectRange = Bonus::NO_LIMIT;
+		b.source = BonusSource::STACK_EXPERIENCE;
+		b.duration = BonusDuration::PERMANENT;
+		b.valType = BonusValueType::ADDITIVE_VALUE;
+		b.effectRange = BonusLimitEffect::NO_LIMIT;
 		b.additionalInfo = 0;
 		b.turnsRemain = 0;
 		BonusList bl;
@@ -887,9 +887,9 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 			if (!ability.second.isNull())
 			{
 				auto b = JsonUtils::parseBonus(ability.second);
-				b->source = Bonus::CREATURE_ABILITY;
+				b->source = BonusSource::CREATURE_ABILITY;
 				b->sid = creature->getIndex();
-				b->duration = Bonus::PERMANENT;
+				b->duration = BonusDuration::PERMANENT;
 				creature->addNewBonus(b);
 			}
 		}
@@ -905,9 +905,9 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 			else
 			{
 				auto b = JsonUtils::parseBonus(ability);
-				b->source = Bonus::CREATURE_ABILITY;
+				b->source = BonusSource::CREATURE_ABILITY;
 				b->sid = creature->getIndex();
-				b->duration = Bonus::PERMANENT;
+				b->duration = BonusDuration::PERMANENT;
 				creature->addNewBonus(b);
 			}
 		}
@@ -977,8 +977,8 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					// we can not create copies since identifiers resolution does not tracks copies
 					// leading to unset identifier values in copies
 					auto bonus = JsonUtils::parseBonus (exp["bonus"]);
-					bonus->source = Bonus::STACK_EXPERIENCE;
-					bonus->duration = Bonus::PERMANENT;
+					bonus->source = BonusSource::STACK_EXPERIENCE;
+					bonus->duration = BonusDuration::PERMANENT;
 					bonus->limiter = std::make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
 					creature->addNewBonus (bonus);
 					break; //TODO: allow bonuses to turn off?
@@ -997,8 +997,8 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					bonusInput["val"].Float() = static_cast<int>(val.Float()) - lastVal;
 
 					auto bonus = JsonUtils::parseBonus (bonusInput);
-					bonus->source = Bonus::STACK_EXPERIENCE;
-					bonus->duration = Bonus::PERMANENT;
+					bonus->source = BonusSource::STACK_EXPERIENCE;
+					bonus->duration = BonusDuration::PERMANENT;
 					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
 					creature->addNewBonus (bonus);
 				}
@@ -1018,55 +1018,55 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	switch (buf[0])
 	{
 	case 'H':
-		b.type = Bonus::STACK_HEALTH;
-		b.valType = Bonus::PERCENT_TO_BASE;
+		b.type = BonusType::STACK_HEALTH;
+		b.valType = BonusValueType::PERCENT_TO_BASE;
 		break;
 	case 'A':
-		b.type = Bonus::PRIMARY_SKILL;
+		b.type = BonusType::PRIMARY_SKILL;
 		b.subtype = PrimarySkill::ATTACK;
 		break;
 	case 'D':
-		b.type = Bonus::PRIMARY_SKILL;
+		b.type = BonusType::PRIMARY_SKILL;
 		b.subtype = PrimarySkill::DEFENSE;
 		break;
 	case 'M': //Max damage
-		b.type = Bonus::CREATURE_DAMAGE;
+		b.type = BonusType::CREATURE_DAMAGE;
 		b.subtype = 2;
 		break;
 	case 'm': //Min damage
-		b.type = Bonus::CREATURE_DAMAGE;
+		b.type = BonusType::CREATURE_DAMAGE;
 		b.subtype = 1;
 		break;
 	case 'S':
-		b.type = Bonus::STACKS_SPEED; break;
+		b.type = BonusType::STACKS_SPEED; break;
 	case 'O':
-		b.type = Bonus::SHOTS; break;
+		b.type = BonusType::SHOTS; break;
 	case 'b':
-		b.type = Bonus::ENEMY_DEFENCE_REDUCTION; break;
+		b.type = BonusType::ENEMY_DEFENCE_REDUCTION; break;
 	case 'C':
-		b.type = Bonus::CHANGES_SPELL_COST_FOR_ALLY; break;
+		b.type = BonusType::CHANGES_SPELL_COST_FOR_ALLY; break;
 	case 'd':
-		b.type = Bonus::DEFENSIVE_STANCE; break;
+		b.type = BonusType::DEFENSIVE_STANCE; break;
 	case 'e':
-		b.type = Bonus::DOUBLE_DAMAGE_CHANCE;
+		b.type = BonusType::DOUBLE_DAMAGE_CHANCE;
 		b.subtype = 0;
 		break;
 	case 'E':
-		b.type = Bonus::DEATH_STARE;
+		b.type = BonusType::DEATH_STARE;
 		b.subtype = 0; //Gorgon
 		break;
 	case 'F':
-		b.type = Bonus::FEAR; break;
+		b.type = BonusType::FEAR; break;
 	case 'g':
-		b.type = Bonus::SPELL_DAMAGE_REDUCTION;
+		b.type = BonusType::SPELL_DAMAGE_REDUCTION;
 		b.subtype = -1; //all magic schools
 		break;
 	case 'P':
-		b.type = Bonus::CASTS; break;
+		b.type = BonusType::CASTS; break;
 	case 'R':
-		b.type = Bonus::ADDITIONAL_RETALIATION; break;
+		b.type = BonusType::ADDITIONAL_RETALIATION; break;
 	case 'W':
-		b.type = Bonus::MAGIC_RESISTANCE;
+		b.type = BonusType::MAGIC_RESISTANCE;
 		b.subtype = 0; //otherwise creature window goes crazy
 		break;
 	case 'f': //on-off skill
@@ -1074,44 +1074,44 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		switch (mod[0])
 		{
 			case 'A':
-				b.type = Bonus::ATTACKS_ALL_ADJACENT; break;
+				b.type = BonusType::ATTACKS_ALL_ADJACENT; break;
 			case 'b':
-				b.type = Bonus::RETURN_AFTER_STRIKE; break;
+				b.type = BonusType::RETURN_AFTER_STRIKE; break;
 			case 'B':
-				b.type = Bonus::TWO_HEX_ATTACK_BREATH; break;
+				b.type = BonusType::TWO_HEX_ATTACK_BREATH; break;
 			case 'c':
-				b.type = Bonus::JOUSTING; 
+				b.type = BonusType::JOUSTING; 
 				b.val = 5;
 				break;
 			case 'D':
-				b.type = Bonus::ADDITIONAL_ATTACK; break;
+				b.type = BonusType::ADDITIONAL_ATTACK; break;
 			case 'f':
-				b.type = Bonus::FEARLESS; break;
+				b.type = BonusType::FEARLESS; break;
 			case 'F':
-				b.type = Bonus::FLYING; break;
+				b.type = BonusType::FLYING; break;
 			case 'm':
-				b.type = Bonus::MORALE; break;
+				b.type = BonusType::MORALE; break;
 				b.val = 1;
-				b.valType = Bonus::INDEPENDENT_MAX;
+				b.valType = BonusValueType::INDEPENDENT_MAX;
 				break;
 			case 'M':
-				b.type = Bonus::NO_MORALE; break;
+				b.type = BonusType::NO_MORALE; break;
 			case 'p': //Mind spells
 			case 'P':
-				b.type = Bonus::MIND_IMMUNITY; break;
+				b.type = BonusType::MIND_IMMUNITY; break;
 			case 'r':
-				b.type = Bonus::REBIRTH; //on/off? makes sense?
+				b.type = BonusType::REBIRTH; //on/off? makes sense?
 				b.subtype = 0;
 				b.val = 20; //arbitrary value
 				break;
 			case 'R':
-				b.type = Bonus::BLOCKS_RETALIATION; break;
+				b.type = BonusType::BLOCKS_RETALIATION; break;
 			case 's':
-				b.type = Bonus::FREE_SHOOTING; break;
+				b.type = BonusType::FREE_SHOOTING; break;
 			case 'u':
-				b.type = Bonus::SPELL_RESISTANCE_AURA; break;
+				b.type = BonusType::SPELL_RESISTANCE_AURA; break;
 			case 'U':
-				b.type = Bonus::UNDEAD; break;
+				b.type = BonusType::UNDEAD; break;
 			default:
 				logGlobal->trace("Not parsed bonus %s %s", buf, mod);
 				return;
@@ -1123,42 +1123,42 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		switch (mod[0])
 		{
 			case 'B': //Blind
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::BLIND;
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'H': //Hypnotize
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::HYPNOTIZE;
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'I': //Implosion
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::IMPLOSION;
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'K': //Berserk
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::BERSERK;
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'M': //Meteor Shower
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::METEOR_SHOWER;
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'N': //dispell beneficial spells
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::DISPEL_HELPFUL_SPELLS;
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'R': //Armageddon
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::ARMAGEDDON;
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'S': //Slow
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::SLOW;
 				b.additionalInfo = 0;//normal immunity
 				break;
@@ -1166,61 +1166,61 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case '7':
 			case '8':
 			case '9':
-				b.type = Bonus::LEVEL_SPELL_IMMUNITY;
+				b.type = BonusType::LEVEL_SPELL_IMMUNITY;
 				b.val = std::atoi(mod.c_str()) - 5;
 				break;
 			case ':':
-				b.type = Bonus::LEVEL_SPELL_IMMUNITY;
+				b.type = BonusType::LEVEL_SPELL_IMMUNITY;
 				b.val = GameConstants::SPELL_LEVELS; //in case someone adds higher level spells?
 				break;
 			case 'F':
-				b.type = Bonus::FIRE_IMMUNITY;
+				b.type = BonusType::FIRE_IMMUNITY;
 				b.subtype = 1; //not positive
 				break;
 			case 'O':
-				b.type = Bonus::FIRE_IMMUNITY;
+				b.type = BonusType::FIRE_IMMUNITY;
 				b.subtype = 2; //only direct damage
 				break;
 			case 'f':
-				b.type = Bonus::FIRE_IMMUNITY;
+				b.type = BonusType::FIRE_IMMUNITY;
 				b.subtype = 0; //all
 				break;
 			case 'C':
-				b.type = Bonus::WATER_IMMUNITY;
+				b.type = BonusType::WATER_IMMUNITY;
 				b.subtype = 1; //not positive
 				break;
 			case 'W':
-				b.type = Bonus::WATER_IMMUNITY;
+				b.type = BonusType::WATER_IMMUNITY;
 				b.subtype = 2; //only direct damage
 				break;
 			case 'w':
-				b.type = Bonus::WATER_IMMUNITY;
+				b.type = BonusType::WATER_IMMUNITY;
 				b.subtype = 0; //all
 				break;
 			case 'E':
-				b.type = Bonus::EARTH_IMMUNITY;
+				b.type = BonusType::EARTH_IMMUNITY;
 				b.subtype = 2; //only direct damage
 				break;
 			case 'e':
-				b.type = Bonus::EARTH_IMMUNITY;
+				b.type = BonusType::EARTH_IMMUNITY;
 				b.subtype = 0; //all
 				break;
 			case 'A':
-				b.type = Bonus::AIR_IMMUNITY;
+				b.type = BonusType::AIR_IMMUNITY;
 				b.subtype = 2; //only direct damage
 				break;
 			case 'a':
-				b.type = Bonus::AIR_IMMUNITY;
+				b.type = BonusType::AIR_IMMUNITY;
 				b.subtype = 0; //all
 				break;
 			case 'D':
-				b.type = Bonus::DIRECT_DAMAGE_IMMUNITY;
+				b.type = BonusType::DIRECT_DAMAGE_IMMUNITY;
 				break;
 			case '0':
-				b.type = Bonus::RECEPTIVE;
+				b.type = BonusType::RECEPTIVE;
 				break;
 			case 'm':
-				b.type = Bonus::MIND_IMMUNITY;
+				b.type = BonusType::MIND_IMMUNITY;
 				break;
 			default:
 				logGlobal->trace("Not parsed bonus %s %s", buf, mod);
@@ -1230,38 +1230,38 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 
 	case 'i':
 		enable = true;
-		b.type = Bonus::NO_DISTANCE_PENALTY;
+		b.type = BonusType::NO_DISTANCE_PENALTY;
 		break;
 	case 'o':
 		enable = true;
-		b.type = Bonus::NO_WALL_PENALTY;
+		b.type = BonusType::NO_WALL_PENALTY;
 		break;
 
 	case 'a':
 	case 'c':
 	case 'K':
 	case 'k':
-		b.type = Bonus::SPELL_AFTER_ATTACK;
+		b.type = BonusType::SPELL_AFTER_ATTACK;
 		b.subtype = stringToNumber(mod);
 		break;
 	case 'h':
-		b.type= Bonus::HATE;
+		b.type = BonusType::HATE;
 		b.subtype = stringToNumber(mod);
 		break;
 	case 'p':
 	case 'J':
-		b.type = Bonus::SPELL_BEFORE_ATTACK;
+		b.type = BonusType::SPELL_BEFORE_ATTACK;
 		b.subtype = stringToNumber(mod);
 		b.additionalInfo = 3; //always expert?
 		break;
 	case 'r':
-		b.type = Bonus::HP_REGENERATION;
+		b.type = BonusType::HP_REGENERATION;
 		b.val = stringToNumber(mod);
 		break;
 	case 's':
-		b.type = Bonus::ENCHANTED;
+		b.type = BonusType::ENCHANTED;
 		b.subtype = stringToNumber(mod);
-		b.valType = Bonus::INDEPENDENT_MAX;
+		b.valType = BonusValueType::INDEPENDENT_MAX;
 		break;
 	default:
 		logGlobal->trace("Not parsed bonus %s %s", buf, mod);
@@ -1272,7 +1272,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	{
 		case '+':
 		case '=': //should we allow percent values to stack or pick highest?
-			b.valType = Bonus::ADDITIVE_VALUE;
+			b.valType = BonusValueType::ADDITIVE_VALUE;
 			break;
 	}
 
@@ -1283,7 +1283,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 
 	if (enable) //0 and 2 means non-active, 1 - active
 	{
-		if (b.type != Bonus::REBIRTH)
+		if (b.type != BonusType::REBIRTH)
 			b.val = 0; //on-off ability, no value specified
 		parser.readNumber(); // 0 level is never active
 		for (int i = 1; i < 11; ++i)
@@ -1300,13 +1300,13 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	else
 	{
 		lastVal = static_cast<si32>(parser.readNumber());
-		if (b.type == Bonus::HATE)
+		if (b.type == BonusType::HATE)
 			lastVal *= 10; //odd fix
 		//FIXME: value for zero level should be stored in our config files (independent of stack exp)
 		for (int i = 1; i < 11; ++i)
 		{
 			curVal = static_cast<si32>(parser.readNumber());
-			if (b.type == Bonus::HATE)
+			if (b.type == BonusType::HATE)
 				curVal *= 10; //odd fix
 			if (curVal > lastVal) //threshold, add new bonus
 			{

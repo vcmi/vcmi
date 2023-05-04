@@ -210,7 +210,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 			spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
 			boost::replace_first(spellText, "%s", spell->getNameTranslated());
 			//FIXME: support permanent duration
-			int duration = battleStack->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
+			int duration = battleStack->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT,effect))->turnsRemain;
 			boost::replace_first(spellText, "%d", std::to_string(duration));
 
 			spellIcons.push_back(std::make_shared<CAnimImage>("SpellInt", effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));
@@ -510,7 +510,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 	name = std::make_shared<CLabel>(215, 12, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, parent->info->getName());
 
 	int dmgMultiply = 1;
-	if(parent->info->owner && parent->info->stackNode->hasBonusOfType(Bonus::SIEGE_WEAPON))
+	if(parent->info->owner && parent->info->stackNode->hasBonusOfType(BonusType::SIEGE_WEAPON))
 		dmgMultiply += parent->info->owner->getPrimSkillLevel(PrimarySkill::ATTACK);
 
 	icons = std::make_shared<CPicture>("stackWindow/icons", 117, 32);
@@ -539,8 +539,8 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 	}
 	else
 	{
-		const bool shooter = parent->info->stackNode->hasBonusOfType(Bonus::SHOOTER) && parent->info->stackNode->valOfBonuses(Bonus::SHOTS);
-		const bool caster = parent->info->stackNode->valOfBonuses(Bonus::CASTS);
+		const bool shooter = parent->info->stackNode->hasBonusOfType(BonusType::SHOOTER) && parent->info->stackNode->valOfBonuses(BonusType::SHOTS);
+		const bool caster = parent->info->stackNode->valOfBonuses(BonusType::CASTS);
 
 		addStatLabel(EStat::ATTACK, parent->info->creature->getAttack(shooter), parent->info->stackNode->getAttack(shooter));
 		addStatLabel(EStat::DEFENCE, parent->info->creature->getDefense(shooter), parent->info->stackNode->getDefense(shooter));
@@ -549,9 +549,9 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		addStatLabel(EStat::SPEED, parent->info->creature->speed(), parent->info->stackNode->speed());
 
 		if(shooter)
-			addStatLabel(EStat::SHOTS, parent->info->stackNode->valOfBonuses(Bonus::SHOTS));
+			addStatLabel(EStat::SHOTS, parent->info->stackNode->valOfBonuses(BonusType::SHOTS));
 		if(caster)
-			addStatLabel(EStat::MANA, parent->info->stackNode->valOfBonuses(Bonus::CASTS));
+			addStatLabel(EStat::MANA, parent->info->stackNode->valOfBonuses(BonusType::CASTS));
 
 		morale->set(parent->info->stackNode);
 		luck->set(parent->info->stackNode);

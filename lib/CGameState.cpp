@@ -954,7 +954,7 @@ void CGameState::initGlobalBonuses()
 	for(const auto & b : baseBonuses.Struct())
 	{
 		auto bonus = JsonUtils::parseBonus(b.second);
-		bonus->source = Bonus::GLOBAL;//for all
+		bonus->source = BonusSource::GLOBAL;//for all
 		bonus->sid = -1; //there is one global object
 		globalEffects.addNewBonus(bonus);
 	}
@@ -1282,9 +1282,9 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		{
 			for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
 			{
-				auto sel = Selector::type()(Bonus::PRIMARY_SKILL)
+				auto sel = Selector::type()(BonusType::PRIMARY_SKILL)
 					.And(Selector::subtype()(g))
-					.And(Selector::sourceType()(Bonus::HERO_BASE_SKILL));
+					.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
 
 				cgh->getBonusLocalFirst(sel)->val = cgh->type->heroClass->primarySkillInitial[g];
 			}
@@ -1614,7 +1614,7 @@ void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 					{
 						continue;
 					}
-					auto bb = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::CAMPAIGN_BONUS, val, *scenarioOps->campState->currentMap, g);
+					auto bb = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CAMPAIGN_BONUS, val, *scenarioOps->campState->currentMap, g);
 					hero->addNewBonus(bb);
 				}
 			}
@@ -2022,7 +2022,7 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 		t = dynamic_cast<const CGTownInstance *>(stack.armyObj);
 	else if(h)
 	{	//hero specialty
-		TConstBonusListPtr lista = h->getBonuses(Selector::typeSubtype(Bonus::SPECIAL_UPGRADE, base->getId()));
+		TConstBonusListPtr lista = h->getBonuses(Selector::typeSubtype(BonusType::SPECIAL_UPGRADE, base->getId()));
 		for(const auto & it : *lista)
 		{
 			auto nid = CreatureID(it->additionalInfo[0]);
@@ -2590,7 +2590,7 @@ struct statsHLP
 		//Heroes can produce gold as well - skill, specialty or arts
 		for(const auto & h : ps->heroes)
 		{
-			totalIncome += h->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, GameResID(EGameResID::GOLD)));
+			totalIncome += h->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, GameResID(EGameResID::GOLD)));
 
 			if(!heroOrTown)
 				heroOrTown = h;

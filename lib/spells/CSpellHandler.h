@@ -44,11 +44,11 @@ class IBattleCast;
 struct SchoolInfo
 {
 	ESpellSchool id; //backlink
-	Bonus::BonusType damagePremyBonus;
-	Bonus::BonusType immunityBonus;
+	BonusType damagePremyBonus;
+	BonusType immunityBonus;
 	std::string jsonName;
 	SecondarySkill::ESecondarySkill skill;
-	Bonus::BonusType knoledgeBonus;
+	BonusType knoledgeBonus;
 };
 
 }
@@ -184,7 +184,7 @@ public:
 		TargetInfo(const CSpell * spell, const int32_t level, spells::Mode mode);
 	};
 
-	using BTVector = std::vector<Bonus::BonusType>;
+	using BTVector = std::vector<BonusType>;
 
 	si32 level;
 

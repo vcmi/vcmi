@@ -33,7 +33,7 @@ public:
 		EXPECT_CALL(mock, getAllBonuses(_, _, _, _)).WillRepeatedly(Invoke(&bonusMock, &BonusBearerMock::getAllBonuses));
 		EXPECT_CALL(mock, getTreeVersion()).WillRepeatedly(Return(1));
 
-		bonusMock.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, UNIT_HEALTH, 0));
+		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, UNIT_HEALTH, 0));
 
 		EXPECT_CALL(mock, unitBaseAmount()).WillRepeatedly(Return(UNIT_AMOUNT));
 	}
@@ -239,7 +239,7 @@ TEST_F(HealthTest, singleUnitStack)
 	EXPECT_CALL(mock, getAllBonuses(_, _, _, _)).WillRepeatedly(Invoke(&bonusMock, &BonusBearerMock::getAllBonuses));
 	EXPECT_CALL(mock, getTreeVersion()).WillRepeatedly(Return(1));
 
-	bonusMock.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, 300, 0));
+	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 300, 0));
 
 	EXPECT_CALL(mock, unitBaseAmount()).WillRepeatedly(Return(1));
 

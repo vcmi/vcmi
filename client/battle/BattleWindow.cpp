@@ -426,11 +426,11 @@ void BattleWindow::bSpellf()
 	{
 		//TODO: move to spell mechanics, add more information to spell cast problem
 		//Handle Orb of Inhibition-like effects -> we want to display dialog with info, why casting is impossible
-		auto blockingBonus = owner.currentHero()->getBonusLocalFirst(Selector::type()(Bonus::BLOCK_ALL_MAGIC));
+		auto blockingBonus = owner.currentHero()->getBonusLocalFirst(Selector::type()(BonusType::BLOCK_ALL_MAGIC));
 		if (!blockingBonus)
 			return;
 
-		if (blockingBonus->source == Bonus::ARTIFACT)
+		if (blockingBonus->source == BonusSource::ARTIFACT)
 		{
 			const auto artID = ArtifactID(blockingBonus->sid);
 			//If we have artifact, put name of our hero. Otherwise assume it's the enemy.
