@@ -687,7 +687,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 	const int maxAttempts = 2;
 	
 	int mapMonsterStrength = map.getMapGenOptions().getMonsterStrength();
-	int monsterStrength = zone.zoneMonsterStrength + mapMonsterStrength - 1; //array index from 0 to 4
+	int monsterStrength = zone.monsterStrength - EZoneMonsterStrength::NORMAL + mapMonsterStrength - 1; //array index from 0 to 4
 	
 	static int minGuardedValues[] = { 6500, 4167, 3000, 1833, 1333 };
 	minGuardedValue = minGuardedValues[monsterStrength];

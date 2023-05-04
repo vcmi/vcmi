@@ -410,7 +410,7 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	//http://forum.vcmi.eu/viewtopic.php?p=12426#12426
 	
 	int mapMonsterStrength = map.getMapGenOptions().getMonsterStrength();
-	int monsterStrength = (zoneGuard ? 0 : zone.zoneMonsterStrength) + mapMonsterStrength - 1; //array index from 0 to 4
+	int monsterStrength = (zoneGuard ? 0 : zone.monsterStrength - EZoneMonsterStrength::NORMAL) + mapMonsterStrength - 1; //array index from 0 to 4
 	static const std::array<int, 5> value1{2500, 1500, 1000, 500, 0};
 	static const std::array<int, 5> value2{7500, 7500, 7500, 5000, 5000};
 	static const std::array<float, 5> multiplier1{0.5, 0.75, 1.0, 1.5, 1.5};

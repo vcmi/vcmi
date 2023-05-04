@@ -41,17 +41,24 @@ namespace EWaterContent
 	};
 }
 
+namespace EZoneMonsterStrength
+{
+	enum EZoneMonsterStrength
+	{
+		WEAK,
+		NORMAL,
+		STRONG
+	};
+}
+
 namespace EMonsterStrength
 {
 	enum EMonsterStrength
 	{
-		RANDOM = -2,
-		ZONE_WEAK = -1,
-		ZONE_NORMAL = 0,
-		ZONE_STRONG = 1,
-		GLOBAL_WEAK = 2,
-		GLOBAL_NORMAL = 3,
-		GLOBAL_STRONG = 4
+		RANDOM = -1,
+		WEAK = 2,
+		NORMAL = 3,
+		STRONG = 4
 	};
 }
 
@@ -156,7 +163,7 @@ public:
 
 	void serializeJson(JsonSerializeFormat & handler);
 	
-	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
+	EZoneMonsterStrength::EZoneMonsterStrength monsterStrength;
 	
 	bool areTownsSameType() const;
 	bool isMatchTerrainToTown() const;

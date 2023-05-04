@@ -140,7 +140,7 @@ ZoneOptions::ZoneOptions():
 	owner(std::nullopt),
 	matchTerrainToTown(true),
 	townsAreSameType(false),
-	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL),
+	monsterStrength(EZoneMonsterStrength::NORMAL),
 	minesLikeZone(NO_ZONE),
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
@@ -378,25 +378,14 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 
 	{
 		//TODO: add support for std::map to serializeEnum
-		static const std::vector<std::string> STRENGTH =
+		static const std::vector<std::string> zoneMonsterStrengths =
 		{
 			"weak",
 			"normal",
 			"strong"
 		};
 
-		si32 rawStrength = 0;
-		if(handler.saving)
-		{
-			rawStrength = static_cast<decltype(rawStrength)>(zoneMonsterStrength);
-			rawStrength++;
-		}
-		handler.serializeEnum("monsters", rawStrength, EMonsterStrength::ZONE_NORMAL + 1, STRENGTH);
-		if(!handler.saving)
-		{
-			rawStrength--;
-			zoneMonsterStrength = static_cast<decltype(zoneMonsterStrength)>(rawStrength);
-		}
+		handler.serializeEnum("monsters", monsterStrength, EZoneMonsterStrength::NORMAL, zoneMonsterStrengths); // default is normal monsters
 	}
 
 	if(treasureLikeZone == NO_ZONE)

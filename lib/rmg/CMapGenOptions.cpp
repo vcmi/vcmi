@@ -310,11 +310,11 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 
 	if(monsterStrength == EMonsterStrength::RANDOM)
 	{
-		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(rand.nextInt(EMonsterStrength::GLOBAL_WEAK, EMonsterStrength::GLOBAL_STRONG));
+		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(rand.nextInt(EMonsterStrength::WEAK, EMonsterStrength::STRONG));
 	}
 
 	assert (vstd::iswithin(waterContent, EWaterContent::NONE, EWaterContent::ISLANDS));
-	assert (vstd::iswithin(monsterStrength, EMonsterStrength::GLOBAL_WEAK, EMonsterStrength::GLOBAL_STRONG));
+	assert (vstd::iswithin(monsterStrength, EMonsterStrength::WEAK, EMonsterStrength::STRONG));
 
 
 	//rectangular maps are the future of gaming

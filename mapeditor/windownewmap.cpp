@@ -143,11 +143,11 @@ void WindowNewMap::loadUserSettings()
 		{
 			case EMonsterStrength::RANDOM:
 				ui->monsterOpt1->setChecked(true); break;
-			case EMonsterStrength::GLOBAL_WEAK:
+			case EMonsterStrength::WEAK:
 				ui->monsterOpt2->setChecked(true); break;
-			case EMonsterStrength::GLOBAL_NORMAL:
+			case EMonsterStrength::NORMAL:
 				ui->monsterOpt3->setChecked(true); break;
-			case EMonsterStrength::GLOBAL_STRONG:
+			case EMonsterStrength::STRONG:
 				ui->monsterOpt4->setChecked(true); break;
 		}
 	}
@@ -199,11 +199,11 @@ void WindowNewMap::saveUserSettings()
 	if(ui->monsterOpt1->isChecked())
 		monster = EMonsterStrength::RANDOM;
 	else if(ui->monsterOpt2->isChecked())
-		monster = EMonsterStrength::GLOBAL_WEAK;
+		monster = EMonsterStrength::WEAK;
 	else if(ui->monsterOpt3->isChecked())
-		monster = EMonsterStrength::GLOBAL_NORMAL;
+		monster = EMonsterStrength::NORMAL;
 	else if(ui->monsterOpt4->isChecked())
-		monster = EMonsterStrength::GLOBAL_STRONG;
+		monster = EMonsterStrength::STRONG;
 	s.setValue(newMapMonsterStrength, static_cast<int>(monster));
 
 	auto templateName = ui->templateCombo->currentText();
@@ -252,11 +252,11 @@ void WindowNewMap::on_okButton_clicked()
 	if(ui->monsterOpt1->isChecked())
 		monster = EMonsterStrength::RANDOM;
 	if(ui->monsterOpt2->isChecked())
-		monster = EMonsterStrength::GLOBAL_WEAK;
+		monster = EMonsterStrength::WEAK;
 	if(ui->monsterOpt3->isChecked())
-		monster = EMonsterStrength::GLOBAL_NORMAL;
+		monster = EMonsterStrength::NORMAL;
 	if(ui->monsterOpt4->isChecked())
-		monster = EMonsterStrength::GLOBAL_STRONG;
+		monster = EMonsterStrength::STRONG;
 
 	mapGenOptions.setWaterContent(water);
 	mapGenOptions.setMonsterStrength(monster);
