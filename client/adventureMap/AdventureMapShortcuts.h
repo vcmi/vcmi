@@ -17,6 +17,13 @@ VCMI_LIB_NAMESPACE_END
 enum class EShortcut;
 class CAdventureMapInterface;
 
+struct AdventureMapShortcutState
+{
+	EShortcut shortcut;
+	bool isEnabled;
+	std::function<void()> callback;
+};
+
 /// Class that contains list of functions for shortcuts available from adventure map
 class AdventureMapShortcuts
 {
@@ -44,7 +51,6 @@ class AdventureMapShortcuts
 	void loadGame();
 	void digGrail();
 	void viewPuzzleMap();
-	void viewWorldMap();
 	void restartGame();
 	void visitObject();
 	void openObject();
@@ -57,5 +63,15 @@ class AdventureMapShortcuts
 public:
 	explicit AdventureMapShortcuts(CAdventureMapInterface & owner);
 
-	std::map<EShortcut, std::function<void()>> getFunctors();
+	std::vector<AdventureMapShortcutState> getShortcuts();
+
+	bool optionHasQuests();
+	bool optionHasUnderground();
+	bool optionMapLevelSurface();
+	bool optionHeroSleeping();
+	bool optionHeroSelected();
+	bool optionHeroCanMove();
+	bool optionHasNextHero();
+	bool optionSpellcasting();
+	bool optionDefault();
 };

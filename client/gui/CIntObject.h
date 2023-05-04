@@ -140,8 +140,13 @@ public:
 	ui8 defActions; //which calls will be tried to be redirected to children
 	ui8 recActions; //which calls we allow to receive from parent
 
-	void disable(); //deactivates if needed, blocks all automatic activity, allows only disposal
-	void enable(); //activates if needed, all activity enabled (Warning: may not be symetric with disable if recActions was limited!)
+	/// deactivates if needed, blocks all automatic activity, allows only disposal
+	void disable();
+	/// activates if needed, all activity enabled (Warning: may not be symetric with disable if recActions was limited!)
+	void enable();
+	/// deactivates or activates UI element based on flag
+	void setEnabled(bool on);
+
 
 	// activate or deactivate object. Inactive object won't receive any input events (keyboard\mouse)
 	// usually used automatically by parent

@@ -48,6 +48,8 @@ protected:
 	
 	//must be called after adding callbacks
 	void build(const JsonNode & config);
+
+	void addWidget(const std::string & name, std::shared_ptr<CIntObject> widget);
 	
 	void addCallback(const std::string & callbackName, std::function<void(int)> callback);
 	JsonNode variables;

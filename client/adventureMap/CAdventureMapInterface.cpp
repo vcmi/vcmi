@@ -55,15 +55,12 @@ CAdventureMapInterface::CAdventureMapInterface():
 	widget = std::make_shared<CAdventureMapWidget>(shortcuts);
 	widget->setState(EGameState::MAKING_TURN);
 	widget->getMapView()->onViewMapActivated();
-
-	widget->setOptionHasQuests(!CGI->mh->getMap()->quests.empty());
-	widget->setOptionHasUnderground(CGI->mh->getMap()->twoLevel);
 }
 
 void CAdventureMapInterface::onMapViewMoved(const Rect & visibleArea, int mapLevel)
 {
-	widget->setOptionUndergroundLevel(mapLevel > 0);
 	widget->getMinimap()->onMapViewMoved(visibleArea, mapLevel);
+	widget->updateActiveState();
 }
 
 void CAdventureMapInterface::onAudioResumed()
@@ -74,17 +71,6 @@ void CAdventureMapInterface::onAudioResumed()
 void CAdventureMapInterface::onAudioPaused()
 {
 	mapAudio->onAudioPaused();
-}
-
-void CAdventureMapInterface::updateButtons()
-{
-	const auto * hero = LOCPLINT->localState->getCurrentHero();
-	const auto * nextSuitableHero = LOCPLINT->localState->getNextWanderingHero(hero);
-
-	widget->setOptionHeroSelected(hero != nullptr);
-	widget->setOptionHeroCanMove(hero && LOCPLINT->localState->hasPath(hero) && hero->movement != 0);
-	widget->setOptionHasNextHero(nextSuitableHero != nullptr);
-	widget->setOptionHeroSleeping(hero && LOCPLINT->localState->isHeroSleeping(hero));
 }
 
 void CAdventureMapInterface::onHeroMovementStarted(const CGHeroInstance * hero)
@@ -100,7 +86,7 @@ void CAdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 	if (h && h == LOCPLINT->localState->getCurrentHero() && !widget->getInfoBar()->showingComponents())
 		widget->getInfoBar()->showSelection();
 
-	updateButtons();
+	widget->updateActiveState();
 }
 
 void CAdventureMapInterface::onTownChanged(const CGTownInstance * town)
@@ -297,7 +283,8 @@ void CAdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
 		LOCPLINT->localState->verifyPath(hero);
 		onHeroChanged(hero);
 	}
-	updateButtons();
+
+	widget->updateActiveState();
 	widget->getHeroList()->redraw();
 	widget->getTownList()->redraw();
 }

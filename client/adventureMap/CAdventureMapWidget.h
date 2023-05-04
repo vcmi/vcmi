@@ -72,6 +72,7 @@ class CAdventureMapWidget : public InterfaceObjectConfigurable
 	std::shared_ptr<CIntObject> buildStatusBar(const JsonNode & input);
 
 	void setPlayerChildren(CIntObject * widget, const PlayerColor & player);
+	void updateActiveStateChildden(CIntObject * widget);
 public:
 	explicit CAdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts );
 
@@ -85,13 +86,8 @@ public:
 	void setState(EGameState newState);
 	EGameState getState();
 
-	void setOptionHasQuests(bool on);
-	void setOptionHasUnderground(bool on);
-	void setOptionUndergroundLevel(bool on);
-	void setOptionHeroSleeping(bool on);
-	void setOptionHeroSelected(bool on);
-	void setOptionHeroCanMove(bool on);
-	void setOptionHasNextHero(bool on);
+	void updateActiveState();
+
 };
 
 /// Small helper class that provides ownership for shared_ptr's of child elements
@@ -99,6 +95,7 @@ class CAdventureMapContainerWidget : public CIntObject
 {
 	friend class CAdventureMapWidget;
 	std::vector<std::shared_ptr<CIntObject>> ownedChildren;
+	std::string disableCondition;
 };
 
 class CAdventureMapOverlayWidget : public CAdventureMapContainerWidget

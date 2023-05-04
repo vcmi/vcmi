@@ -66,9 +66,6 @@ private:
 
 	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const; //checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or nullptr else
 
-	// update locked state of buttons
-	void updateButtons();
-
 	void handleMapScrollingUpdate();
 
 	void showMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode);

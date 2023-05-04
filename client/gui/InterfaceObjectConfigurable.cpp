@@ -82,15 +82,26 @@ void InterfaceObjectConfigurable::build(const JsonNode &config)
 		items = &config["items"];
 	}
 	
-	const std::string unnamedObjectPrefix = "__widget_";
 	for(const auto & item : items->Vector())
-	{
-		std::string name = item["name"].isNull()
-						? unnamedObjectPrefix + std::to_string(unnamedObjectId++)
-						: item["name"].String();
-		logGlobal->debug("Building widget with name %s", name);
-		widgets[name] = buildWidget(item);
-	}
+		addWidget(item["name"].String(), buildWidget(item));
+}
+
+void InterfaceObjectConfigurable::addWidget(const std::string & namePreferred, std::shared_ptr<CIntObject> widget)
+{
+	static const std::string unnamedObjectPrefix = "__widget_";
+
+	std::string nameActual;
+
+	if (widgets.count(namePreferred) == 0)
+		nameActual = namePreferred;
+	else
+		logGlobal->error("Duplicated widget name: '%s'", namePreferred);
+
+	if (nameActual.empty())
+		nameActual = unnamedObjectPrefix + std::to_string(unnamedObjectId++);
+
+	logGlobal->debug("Building widget with name %s", nameActual);
+	widgets[nameActual] = widget;
 }
 
 std::string InterfaceObjectConfigurable::readText(const JsonNode & config) const
@@ -382,7 +393,8 @@ std::shared_ptr<CSlider> InterfaceObjectConfigurable::buildSlider(const JsonNode
 	auto itemsTotal = config["itemsTotal"].Integer();
 	auto value = config["selected"].Integer();
 	bool horizontal = config["orientation"].String() == "horizontal";
-	auto const & result = std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal, style);
+	const auto & result =
+		std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal, style);
 
 	if (!config["scrollBounds"].isNull())
 	{

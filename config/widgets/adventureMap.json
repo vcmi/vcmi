@@ -113,6 +113,7 @@
 		{
 			"type": "adventureMapContainer",
 			"name" : "buttonsContainer",
+			"hideWhen" : "worldViewMode",
 			"area": { "top": 196, "right" : 57, "width" : 64, "height" : 192 },
 			"items" : [
 				{
@@ -125,22 +126,36 @@
 					"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
 				},
 				{
-					"type": "adventureMapButton",
-					"name": "buttonUnderground",
-					"image" : "IAM010.DEF",
-					"help" : "core.help.294",
-					"hotkey": "adventureToggleMapLevel",
-					"playerColored" : true,
+					"type": "adventureMapContainer",
+					"hideWhen" : "mapLayerUnderground",
 					"area": { "top" : 0, "left": 32, "width" : 32, "height" : 32 }
+					"items" : [
+						{
+							"type": "adventureMapButton",
+							"name": "buttonUnderground",
+							"image" : "IAM010.DEF",
+							"help" : "core.help.294",
+							"hotkey": "adventureToggleMapLevel",
+							"playerColored" : true,
+							"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
+						}
+					],
 				},
 				{
-					"type": "adventureMapButton",
-					"name": "buttonSurface",
-					"image" : "IAM003.DEF",
-					"help" : "core.help.294",
-					"hotkey": "adventureToggleMapLevel",
-					"playerColored" : true,
+					"type": "adventureMapContainer",
+					"hideWhen" : "mapLayerSurface",
 					"area": { "top" : 0, "left": 32, "width" : 32, "height" : 32 }
+					"items" : [
+						{
+							"type": "adventureMapButton",
+							"name": "buttonSurface",
+							"image" : "IAM003.DEF",
+							"help" : "core.help.294",
+							"hotkey": "adventureToggleMapLevel",
+							"playerColored" : true,
+							"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
+						}
+					],
 				},
 				{
 					"type": "adventureMapButton",
@@ -152,22 +167,36 @@
 					"area": { "top" : 32, "left": 0, "width" : 32, "height" : 32 }
 				},
 				{
-					"type": "adventureMapButton",
-					"name": "buttonSleep",
-					"image" : "IAM005.DEF",
-					"help" : "core.help.296",
-					"hotkey": "adventureSetHeroAsleep",
-					"playerColored" : true,
+					"type": "adventureMapContainer",
+					"hideWhen" : "heroAwake",
 					"area": { "top" : 32, "left": 32, "width" : 32, "height" : 32 }
+					"items" : [
+						{
+							"type": "adventureMapButton",
+							"name": "buttonSleep",
+							"image" : "IAM005.DEF",
+							"help" : "core.help.296",
+							"hotkey": "adventureSetHeroAsleep",
+							"playerColored" : true,
+							"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
+						}
+					]
 				},
 				{
-					"type": "adventureMapButton",
-					"name": "buttonWake",
-					"image" : "IAM011.DEF",
-					"help" : "core.help.296",
-					"hotkey": "adventureSetHeroAwake",
-					"playerColored" : true,
+					"type": "adventureMapContainer",
+					"hideWhen" : "heroSleeping",
 					"area": { "top" : 32, "left": 32, "width" : 32, "height" : 32 }
+					"items" : [
+						{
+							"type": "adventureMapButton",
+							"name": "buttonWake",
+							"image" : "IAM011.DEF",
+							"help" : "core.help.296",
+							"hotkey": "adventureSetHeroAwake",
+							"playerColored" : true,
+							"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
+						}
+					]
 				},
 				{
 					"type": "adventureMapButton",
@@ -229,6 +258,7 @@
 		{
 			"type": "adventureMapContainer",
 			"name" : "listContainerSmall",
+			"hideWhen" : "worldViewMode",
 			"area": { "top": 196, "right" : 0, "width" : 193, "height" : 196 },
 			"exists" : { "heightMax" : 664 },
 			"items" : [
@@ -304,6 +334,7 @@
 		{
 			"type": "adventureMapContainer",
 			"name" : "emptyAreaFillSmall",
+			"hideWhen" : "worldViewMode",
 			"area": { "top": 392, "right" : 3, "width" : 190, "bottom" : 211 },
 			"exists" : { "heightMax" : 664 },
 			"items" : [
@@ -320,6 +351,7 @@
 		{
 			"type": "adventureMapContainer",
 			"name" : "listContainerLarge",
+			"hideWhen" : "worldViewMode",
 			"area": { "top": 196, "right" : 0, "width" : 193, "height" : 260 },
 			"exists" : { "heightMin" : 664 },
 			"items" : [
@@ -389,6 +421,7 @@
 		{
 			"type": "adventureMapContainer",
 			"name" : "emptyAreaFillLarge",
+			"hideWhen" : "worldViewMode",
 			"area": { "top": 456, "right" : 3, "width" : 190, "bottom" : 211 },
 			"exists" : { "heightMin" : 664 },
 			"items" : [
@@ -434,6 +467,7 @@
 		{
 			"type": "adventureMapContainer",
 			"name" : "worldViewContainer",
+			"hideWhen" : "mapViewMode",
 			"area": { "top": 195, "right" : 4, "width" : 190, "height" : 381 },
 			"items" : [
 				{

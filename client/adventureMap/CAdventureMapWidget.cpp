@@ -51,8 +51,8 @@ CAdventureMapWidget::CAdventureMapWidget( std::shared_ptr<AdventureMapShortcuts>
 	REGISTER_BUILDER("adventureResourceDateBar", &CAdventureMapWidget::buildResourceDateBar );
 	REGISTER_BUILDER("adventureStatusBar",       &CAdventureMapWidget::buildStatusBar       );
 
-	for (const auto & entry : shortcuts->getFunctors())
-		addShortcut(entry.first, entry.second);
+	for (const auto & entry : shortcuts->getShortcuts())
+		addShortcut(entry.shortcut, entry.callback);
 
 	const JsonNode config(ResourceID("config/widgets/adventureMap.json"));
 
@@ -190,12 +190,17 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapContainer(const JsonNod
 	else
 		result = std::make_shared<CAdventureMapContainerWidget>();
 
+	result->disableCondition = input["hideWhen"].String();
+
 	result->moveBy(position.topLeft());
 	subwidgetSizes.push_back(position);
 	for(const auto & entry : input["items"].Vector())
 	{
-		result->ownedChildren.push_back(buildWidget(entry));
-		result->addChild(result->ownedChildren.back().get(), false);
+		auto widget = buildWidget(entry);
+
+		addWidget(entry["name"].String(), widget);
+		result->ownedChildren.push_back(widget);
+		result->addChild(widget.get(), false);
 	}
 	subwidgetSizes.pop_back();
 
@@ -378,41 +383,6 @@ EGameState CAdventureMapWidget::getState()
 	return state;
 }
 
-void CAdventureMapWidget::setOptionHasQuests(bool on)
-{
-
-}
-
-void CAdventureMapWidget::setOptionHasUnderground(bool on)
-{
-
-}
-
-void CAdventureMapWidget::setOptionUndergroundLevel(bool on)
-{
-
-}
-
-void CAdventureMapWidget::setOptionHeroSleeping(bool on)
-{
-
-}
-
-void CAdventureMapWidget::setOptionHeroSelected(bool on)
-{
-
-}
-
-void CAdventureMapWidget::setOptionHeroCanMove(bool on)
-{
-
-}
-
-void CAdventureMapWidget::setOptionHasNextHero(bool on)
-{
-
-}
-
 CAdventureMapIcon::CAdventureMapIcon(const Point & position, std::shared_ptr<CAnimation> animation, size_t index, size_t iconsPerPlayer)
 	: index(index)
 	, iconsPerPlayer(iconsPerPlayer)
@@ -430,4 +400,37 @@ void CAdventureMapIcon::setPlayer(const PlayerColor & player)
 void CAdventureMapOverlayWidget::show(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
+}
+
+void CAdventureMapWidget::updateActiveStateChildden(CIntObject * widget)
+{
+	for(auto & entry : widget->children)
+	{
+		auto container = dynamic_cast<CAdventureMapContainerWidget *>(entry);
+
+		if (container)
+		{
+			if (container->disableCondition == "heroAwake")
+				container->setEnabled(!shortcuts->optionHeroSleeping());
+
+			if (container->disableCondition == "heroSleeping")
+				container->setEnabled(shortcuts->optionHeroSleeping());
+
+			if (container->disableCondition == "mapLayerSurface")
+				container->setEnabled(shortcuts->optionMapLevelSurface());
+
+			if (container->disableCondition == "mapLayerUnderground")
+				container->setEnabled(!shortcuts->optionMapLevelSurface());
+
+		}
+
+	}
+}
+
+void CAdventureMapWidget::updateActiveState()
+{
+	updateActiveStateChildden(this);
+
+	for (auto entry: shortcuts->getShortcuts())
+		setShortcutBlocked(entry.shortcut, !entry.isEnabled);
 }

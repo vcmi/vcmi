@@ -204,6 +204,14 @@ void CIntObject::enable()
 	recActions = 255;
 }
 
+void CIntObject::setEnabled(bool on)
+{
+	if (on)
+		enable();
+	else
+		disable();
+}
+
 void CIntObject::fitToScreen(int borderWidth, bool propagate)
 {
 	Point newPos = pos.topLeft();
