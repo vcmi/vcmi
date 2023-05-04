@@ -409,8 +409,8 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	//precalculate actual (randomized) monster strength based on this post
 	//http://forum.vcmi.eu/viewtopic.php?p=12426#12426
 	
-	if(zone.zoneMonsterStrength == EMonsterStrength::ZONE_NONE)
-		return nullptr; //no guards in this zone
+	if(!zoneGuard && zone.zoneMonsterStrength == EMonsterStrength::ZONE_NONE)
+		return nullptr; //no guards inside this zone
 	
 	int mapMonsterStrength = map.getMapGenOptions().getMonsterStrength();
 	int monsterStrength = (zoneGuard ? 0 : zone.zoneMonsterStrength) + mapMonsterStrength - 1; //array index from 0 to 4
