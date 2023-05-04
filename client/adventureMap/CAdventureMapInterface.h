@@ -87,6 +87,8 @@ protected:
 
 	void keyPressed(EShortcut key) override;
 
+	void onScreenResize() override;
+
 public:
 	CAdventureMapInterface();
 

@@ -811,6 +811,20 @@ IWindowHandler & CGuiHandler::windowHandler()
 	return *windowHandlerInstance;
 }
 
+void CGuiHandler::onScreenResize()
+{
+	for (auto const & entry : listInt)
+	{
+		auto intObject = std::dynamic_pointer_cast<CIntObject>(entry);
+
+		if (intObject)
+			intObject->onScreenResize();
+	}
+
+	totalRedraw();
+}
+
+
 CFramerateManager::CFramerateManager(int newRate)
 	: rate(0)
 	, rateticks(0)

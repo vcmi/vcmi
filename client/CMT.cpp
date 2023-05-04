@@ -547,7 +547,7 @@ static void handleEvent(SDL_Event & ev)
 		case EUserEvent::FULLSCREEN_TOGGLED:
 			{
 				boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
-				GH.windowHandler().onFullscreenChanged();
+				GH.windowHandler().onScreenResize();
 				break;
 			}
 		default:
@@ -564,7 +564,7 @@ static void handleEvent(SDL_Event & ev)
 #ifndef VCMI_IOS
 			{
 				boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
-				GH.windowHandler().onFullscreenChanged();
+				GH.windowHandler().onScreenResize();
 			}
 #endif
 			break;
@@ -593,8 +593,10 @@ static void handleEvent(SDL_Event & ev)
 
 static void mainLoop()
 {
-	SettingsListener resChanged = settings.listen["video"]["fullscreen"];
+	SettingsListener resChanged = settings.listen["video"]["resolution"];
+	SettingsListener fsChanged = settings.listen["video"]["fullscreen"];
 	resChanged([](const JsonNode &newState){  CGuiHandler::pushUserEvent(EUserEvent::FULLSCREEN_TOGGLED); });
+	fsChanged([](const JsonNode &newState){  CGuiHandler::pushUserEvent(EUserEvent::FULLSCREEN_TOGGLED); });
 
 	inGuiThread.reset(new bool(true));
 	assert(GH.mainFPSmng);

@@ -799,3 +799,19 @@ void CAdventureMapInterface::hotkeySwitchMapLevel()
 {
 	widget->getMapView()->onMapLevelSwitched();
 }
+
+void CAdventureMapInterface::onScreenResize()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	widget.reset();
+	pos.x = pos.y = 0;
+	pos.w = GH.screenDimensions().x;
+	pos.h = GH.screenDimensions().y;
+
+	widget = std::make_shared<CAdventureMapWidget>(shortcuts);
+	widget->setState(EGameState::MAKING_TURN);
+	widget->getMapView()->onViewMapActivated();
+
+	if (isActive())
+		widget->activate();
+}

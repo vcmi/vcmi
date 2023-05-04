@@ -294,6 +294,11 @@ void CIntObject::redraw()
 	}
 }
 
+void CIntObject::onScreenResize()
+{
+	center(pos, true);
+}
+
 const Rect & CIntObject::center( const Rect &r, bool propagate )
 {
 	pos.w = r.w;

@@ -20,7 +20,7 @@ public:
 	virtual ~IWindowHandler() = default;
 
 	/// Updates window state after fullscreen state has been changed in settings
-	virtual void onFullscreenChanged() = 0;
+	virtual void onScreenResize() = 0;
 
 	/// De-initializes window state
 	virtual void close() = 0;

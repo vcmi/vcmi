@@ -160,6 +160,9 @@ public:
 	void totalRedraw(); //forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering
 	void simpleRedraw(); //update only top interface and draw background from buffer, sets a flag, method gets called at the end of the rendering
 
+	/// called whenever user selects different resolution, requiring to center/resize all windows
+	void onScreenResize();
+
 	void pushInt(std::shared_ptr<IShowActivatable> newInt); //deactivate old top interface, activates this one and pushes to the top
 	template <typename T, typename ... Args>
 	void pushIntT(Args && ... args)

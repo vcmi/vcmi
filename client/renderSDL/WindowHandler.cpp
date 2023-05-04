@@ -306,14 +306,14 @@ SDL_Window * WindowHandler::createWindow()
 #endif
 }
 
-void WindowHandler::onFullscreenChanged()
+void WindowHandler::onScreenResize()
 {
 	if(!recreateWindow())
 	{
 		//will return false and report error if video mode is not supported
 		return;
 	}
-	GH.totalRedraw();
+	GH.onScreenResize();
 }
 
 void WindowHandler::validateSettings()

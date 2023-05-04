@@ -68,7 +68,7 @@ public:
 	WindowHandler();
 
 	/// Updates and potentially recreates target screen to match selected fullscreen status
-	void onFullscreenChanged() final;
+	void onScreenResize() final;
 
 	/// De-initializes and destroys screen, window and SDL state
 	void close() final;
