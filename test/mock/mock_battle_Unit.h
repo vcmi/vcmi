@@ -33,6 +33,9 @@ public:
 	MOCK_CONST_METHOD0(manaLimit, int32_t());
 	MOCK_CONST_METHOD0(getHeroCaster, CGHeroInstance*());
 
+	//ACreature
+	MOCK_CONST_METHOD0(magicResistance, int32_t());
+
 	MOCK_CONST_METHOD0(unitBaseAmount, int32_t());
 	MOCK_CONST_METHOD0(unitId, uint32_t());
 	MOCK_CONST_METHOD0(unitSide, ui8());
