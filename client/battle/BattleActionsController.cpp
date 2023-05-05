@@ -140,7 +140,7 @@ bool BattleActionsController::isActiveStackSpellcaster() const
 	if (!casterStack)
 		return false;
 
-	bool spellcaster = casterStack->hasBonusOfType(Bonus::SPELLCASTER);
+	bool spellcaster = casterStack->hasBonusOfType(BonusType::SPELLCASTER);
 	return (spellcaster && casterStack->canCast());
 }
 
@@ -228,7 +228,7 @@ void BattleActionsController::reorderPossibleActionsPriority(const CStack * stac
 		case PossiblePlayerBattleAction::NO_LOCATION:
 		case PossiblePlayerBattleAction::FREE_LOCATION:
 		case PossiblePlayerBattleAction::OBSTACLE:
-			if(!stack->hasBonusOfType(Bonus::NO_SPELLCAST_BY_DEFAULT) && context == MouseHoveredHexContext::OCCUPIED_HEX)
+			if(!stack->hasBonusOfType(BonusType::NO_SPELLCAST_BY_DEFAULT) && context == MouseHoveredHexContext::OCCUPIED_HEX)
 				return 1;
 			else
 				return 100;//bottom priority
@@ -349,7 +349,7 @@ void BattleActionsController::actionSetCursor(PossiblePlayerBattleAction action,
 
 		case PossiblePlayerBattleAction::MOVE_TACTICS:
 		case PossiblePlayerBattleAction::MOVE_STACK:
-			if (owner.stacksController->getActiveStack()->hasBonusOfType(Bonus::FLYING))
+			if (owner.stacksController->getActiveStack()->hasBonusOfType(BonusType::FLYING))
 				CCS->curh->set(Cursor::Combat::FLY);
 			else
 				CCS->curh->set(Cursor::Combat::MOVE);
@@ -434,7 +434,7 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 
 		case PossiblePlayerBattleAction::MOVE_TACTICS:
 		case PossiblePlayerBattleAction::MOVE_STACK:
-			if (owner.stacksController->getActiveStack()->hasBonusOfType(Bonus::FLYING))
+			if (owner.stacksController->getActiveStack()->hasBonusOfType(BonusType::FLYING))
 				return (boost::format(CGI->generaltexth->allTexts[295]) % owner.stacksController->getActiveStack()->getName()).str(); //Fly %s here
 			else
 				return (boost::format(CGI->generaltexth->allTexts[294]) % owner.stacksController->getActiveStack()->getName()).str(); //Move %s here
@@ -524,12 +524,12 @@ std::string BattleActionsController::actionGetStatusMessageBlocked(PossiblePlaye
 bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, BattleHex targetHex)
 {
 	const CStack * targetStack = getStackForHex(targetHex);
-	bool targetStackOwned = targetStack && targetStack->owner == owner.curInt->playerID;
+	bool targetStackOwned = targetStack && targetStack->unitOwner() == owner.curInt->playerID;
 
 	switch (action.get())
 	{
 		case PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK:
-			return (targetStack && targetStackOwned && targetStack->Speed() > 0);
+			return (targetStack && targetStackOwned && targetStack->speed() > 0);
 
 		case PossiblePlayerBattleAction::CREATURE_INFO:
 			return (targetStack && targetStackOwned && targetStack->alive());
@@ -620,7 +620,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 		{
 			if(owner.stacksController->getActiveStack()->doubleWide())
 			{
-				std::vector<BattleHex> acc = owner.curInt->cb->battleGetAvailableHexes(owner.stacksController->getActiveStack(), true);
+				std::vector<BattleHex> acc = owner.curInt->cb->battleGetAvailableHexes(owner.stacksController->getActiveStack(), false);
 				BattleHex shiftedDest = targetHex.cloneInDirection(owner.stacksController->getActiveStack()->destShiftDir(), false);
 				if(vstd::contains(acc, targetHex))
 					owner.giveCommand(EActionType::WALK, targetHex);
@@ -863,7 +863,7 @@ void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterS
 {
 	creatureSpells.clear();
 
-	bool spellcaster = casterStack->hasBonusOfType(Bonus::SPELLCASTER);
+	bool spellcaster = casterStack->hasBonusOfType(BonusType::SPELLCASTER);
 	if(casterStack->canCast() && spellcaster)
 	{
 		// faerie dragon can cast only one, randomly selected spell until their next move
@@ -874,7 +874,7 @@ void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterS
 			creatureSpells.push_back(spellToCast);
 	}
 
-	TConstBonusListPtr bl = casterStack->getBonuses(Selector::type()(Bonus::SPELLCASTER));
+	TConstBonusListPtr bl = casterStack->getBonuses(Selector::type()(BonusType::SPELLCASTER));
 
 	for (auto const & bonus : *bl)
 	{

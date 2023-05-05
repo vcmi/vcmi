@@ -11,7 +11,9 @@
 
 #include "BonusSystem.h"
 
-#include "../../../lib/HeroBonus.h"
+#include "../../../lib/bonuses/BonusList.h"
+#include "../../../lib/bonuses/Bonus.h"
+#include "../../../lib/bonuses/IBonusBearer.h"
 
 #include "Registry.h"
 

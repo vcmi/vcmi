@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "Entity.h"
+#include "FactionMember.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -18,7 +18,21 @@ class CreatureID;
 class ResourceSet;
 enum class EGameResID : int8_t;
 
-class DLL_LINKAGE Creature : public EntityWithNativeTerrain<CreatureID>
+/// Base class for creatures and battle stacks
+class DLL_LINKAGE ACreature: public AFactionMember
+{
+public:
+	bool isLiving() const; //non-undead, non-non living or alive
+	ui32 speed(int turn = 0, bool useBind = false) const; //get speed (in moving tiles) of creature with all modificators
+	virtual ui32 getMaxHealth() const; //get max HP of stack with all modifiers
+};
+
+template <typename IdType>
+class DLL_LINKAGE CreatureEntity : public EntityT<IdType>, public ACreature
+{
+};
+
+class DLL_LINKAGE Creature : public CreatureEntity<CreatureID>
 {
 protected:
 	// use getNamePlural/Singular instead
@@ -31,8 +45,6 @@ public:
 
 	virtual std::string getNamePluralTextID() const = 0;
 	virtual std::string getNameSingularTextID() const = 0;
-
-	virtual uint32_t getMaxHealth() const = 0;
 
 	virtual int32_t getAdvMapAmountMin() const = 0;
 	virtual int32_t getAdvMapAmountMax() const = 0;

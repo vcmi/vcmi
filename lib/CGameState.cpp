@@ -954,7 +954,7 @@ void CGameState::initGlobalBonuses()
 	for(const auto & b : baseBonuses.Struct())
 	{
 		auto bonus = JsonUtils::parseBonus(b.second);
-		bonus->source = Bonus::GLOBAL;//for all
+		bonus->source = BonusSource::GLOBAL;//for all
 		bonus->sid = -1; //there is one global object
 		globalEffects.addNewBonus(bonus);
 	}
@@ -1266,7 +1266,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 
 	// TODO replace magic numbers with named constants
 	// TODO this logic (what should be kept) should be part of CScenarioTravel and be exposed via some clean set of methods
-	if(!(travelOptions.whatHeroKeeps & 1))
+	if(!travelOptions.whatHeroKeeps.experience)
 	{
 		//trimming experience
 		for(CGHeroInstance * cgh : crossoverHeroes)
@@ -1275,23 +1275,23 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		}
 	}
 
-	if(!(travelOptions.whatHeroKeeps & 2))
+	if(!travelOptions.whatHeroKeeps.primarySkills)
 	{
 		//trimming prim skills
 		for(CGHeroInstance * cgh : crossoverHeroes)
 		{
 			for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
 			{
-				auto sel = Selector::type()(Bonus::PRIMARY_SKILL)
+				auto sel = Selector::type()(BonusType::PRIMARY_SKILL)
 					.And(Selector::subtype()(g))
-					.And(Selector::sourceType()(Bonus::HERO_BASE_SKILL));
+					.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
 
 				cgh->getBonusLocalFirst(sel)->val = cgh->type->heroClass->primarySkillInitial[g];
 			}
 		}
 	}
 
-	if(!(travelOptions.whatHeroKeeps & 4))
+	if(!travelOptions.whatHeroKeeps.secondarySkills)
 	{
 		//trimming sec skills
 		for(CGHeroInstance * cgh : crossoverHeroes)
@@ -1301,7 +1301,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		}
 	}
 
-	if(!(travelOptions.whatHeroKeeps & 8))
+	if(!travelOptions.whatHeroKeeps.spells)
 	{
 		for(CGHeroInstance * cgh : crossoverHeroes)
 		{
@@ -1309,7 +1309,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		}
 	}
 
-	if(!(travelOptions.whatHeroKeeps & 16))
+	if(!travelOptions.whatHeroKeeps.artifacts)
 	{
 		//trimming artifacts
 		for(CGHeroInstance * hero : crossoverHeroes)
@@ -1329,9 +1329,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 				if(!art)
 					continue;
 
-				int id  = art->artType->getId();
-				assert( 8*18 > id );//number of arts that fits into h3m format
-				bool takeable = travelOptions.artifsKeptByHero[id / 8] & ( 1 << (id%8) );
+				bool takeable = travelOptions.artifactsKeptByHero.count(art->artType->getId());
 
 				ArtifactLocation al(hero, artifactPosition);
 				if(!takeable  &&  !al.getSlot()->locked)  //don't try removing locked artifacts -> it crashes #1719
@@ -1346,7 +1344,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		auto shouldSlotBeErased = [&](const std::pair<SlotID, CStackInstance *> & j) -> bool
 		{
 			CreatureID::ECreatureID crid = j.second->getCreatureID().toEnum();
-			return !(travelOptions.monstersKeptByHero[crid / 8] & (1 << (crid % 8)));
+			return !travelOptions.monstersKeptByHero.count(crid);
 		};
 
 		auto stacksCopy = cgh->stacks; //copy of the map, so we can iterate iover it and remove stacks
@@ -1616,7 +1614,7 @@ void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 					{
 						continue;
 					}
-					auto bb = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::CAMPAIGN_BONUS, val, *scenarioOps->campState->currentMap, g);
+					auto bb = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CAMPAIGN_BONUS, val, *scenarioOps->campState->currentMap, g);
 					hero->addNewBonus(bb);
 				}
 			}
@@ -1643,7 +1641,7 @@ void CGameState::initFogOfWar()
 		{
 			if(!obj || !vstd::contains(elem.second.players, obj->tempOwner)) continue; //not a flagged object
 
-			std::unordered_set<int3, ShashInt3> tiles;
+			std::unordered_set<int3> tiles;
 			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), obj->tempOwner, 1);
 			for(const int3 & tile : tiles)
 			{
@@ -1725,8 +1723,13 @@ void CGameState::initTowns()
 					if (owner->human && //human-owned
 						map->towns[g]->pos == pi.posOfMainTown)
 					{
-						map->towns[g]->builtBuildings.insert(
-							CBuildingHandler::campToERMU(chosenBonus->info1, map->towns[g]->subID, map->towns[g]->builtBuildings));
+						BuildingID buildingId;
+						if(scenarioOps->campState->camp->header.version == CampaignVersion::VCMI)
+							buildingId = BuildingID(chosenBonus->info1);
+						else
+							buildingId = CBuildingHandler::campToERMU(chosenBonus->info1, map->towns[g]->subID, map->towns[g]->builtBuildings);
+
+						map->towns[g]->builtBuildings.insert(buildingId);
 						break;
 					}
 				}
@@ -2019,7 +2022,7 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 		t = dynamic_cast<const CGTownInstance *>(stack.armyObj);
 	else if(h)
 	{	//hero specialty
-		TConstBonusListPtr lista = h->getBonuses(Selector::typeSubtype(Bonus::SPECIAL_UPGRADE, base->getId()));
+		TConstBonusListPtr lista = h->getBonuses(Selector::typeSubtype(BonusType::SPECIAL_UPGRADE, base->getId()));
 		for(const auto & it : *lista)
 		{
 			auto nid = CreatureID(it->additionalInfo[0]);
@@ -2587,7 +2590,7 @@ struct statsHLP
 		//Heroes can produce gold as well - skill, specialty or arts
 		for(const auto & h : ps->heroes)
 		{
-			totalIncome += h->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, GameResID(EGameResID::GOLD)));
+			totalIncome += h->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, GameResID(EGameResID::GOLD)));
 
 			if(!heroOrTown)
 				heroOrTown = h;
@@ -3086,8 +3089,8 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLe
 	{
 		//include details about hero
 		details = new Details();
-		details->luck = h->LuckVal();
-		details->morale = h->MoraleVal();
+		details->luck = h->luckVal();
+		details->morale = h->moraleVal();
 		details->mana = h->mana;
 		details->primskills.resize(GameConstants::PRIMARY_SKILLS);
 

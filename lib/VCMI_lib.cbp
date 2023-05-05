@@ -245,7 +245,7 @@
 		<Unit filename="GameConstants.cpp" />
 		<Unit filename="GameConstants.h" />
 		<Unit filename="HeroBonus.cpp" />
-		<Unit filename="HeroBonus.h" />
+		<Unit filename="Bonus.h" />
 		<Unit filename="IBonusTypeHandler.h" />
 		<Unit filename="IGameCallback.cpp" />
 		<Unit filename="IGameCallback.h" />

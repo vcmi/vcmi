@@ -87,7 +87,7 @@ bool CBattleInfoEssentials::battleHasNativeStack(ui8 side) const
 
 	for(const auto * s : battleGetAllStacks())
 	{
-		if(s->side == side && s->isNativeTerrain(getBattle()->getTerrainType()))
+		if(s->unitSide() == side && s->isNativeTerrain(getBattle()->getTerrainType()))
 			return true;
 	}
 
@@ -173,7 +173,7 @@ const CStack* CBattleInfoEssentials::battleGetStackByID(int ID, bool onlyAlive) 
 
 	auto stacks = battleGetStacksIf([=](const CStack * s)
 	{
-		return s->ID == ID && (!onlyAlive || s->alive());
+		return s->unitId() == ID && (!onlyAlive || s->alive());
 	});
 
 	if(stacks.empty())
@@ -271,7 +271,7 @@ bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const
 		return false;
 
 	//eg. one of heroes is wearing shakles of war
-	if(myHero->hasBonusOfType(Bonus::BATTLE_NO_FLEEING))
+	if(myHero->hasBonusOfType(BonusType::BATTLE_NO_FLEEING))
 		return false;
 
 	//we are besieged defender
@@ -394,7 +394,7 @@ PlayerColor CBattleInfoEssentials::battleGetOwner(const battle::Unit * unit) con
 
 	PlayerColor initialOwner = getBattle()->getSidePlayer(unit->unitSide());
 
-	static CSelector selector = Selector::type()(Bonus::HYPNOTIZED);
+	static CSelector selector = Selector::type()(BonusType::HYPNOTIZED);
 	static std::string cachingString = "type_103s-1";
 
 	if(unit->hasBonus(selector, cachingString))

@@ -21,8 +21,7 @@
 			"position": {"x": 4, "y": 560},
 			"image": "icm003",
 			"help": "core.help.381",
-			"callback": "options",
-			"hotkey": "o"
+			"hotkey": "globalOptions"
 		},
 
 		{
@@ -31,8 +30,7 @@
 			"position": {"x": 55, "y": 560},
 			"image": "icm001",
 			"help": "core.help.379",
-			"callback": "surrender",
-			"hotkey": "s"
+			"hotkey": "battleSurrender"
 		},
 
 		{
@@ -41,8 +39,7 @@
 			"position": {"x": 106, "y": 560},
 			"image": "icm002",
 			"help": "core.help.380",
-			"callback": "flee",
-			"hotkey": "r"
+			"hotkey": "battleRetreat"
 		},
 
 		{
@@ -51,8 +48,7 @@
 			"position": {"x": 157, "y": 560},
 			"image": "icm004",
 			"help": "core.help.382",
-			"callback": "autofight",
-			"hotkey": "a"
+			"hotkey": "battleAutocombat"
 		},
 
 		{
@@ -61,8 +57,7 @@
 			"position": {"x": 646, "y": 560},
 			"image": "icm005",
 			"help": "core.help.385",
-			"callback": "spellbook",
-			"hotkey": "c"
+			"hotkey": "battleCastSpell"
 		},
 
 		{
@@ -71,8 +66,7 @@
 			"position": {"x": 697, "y": 560},
 			"image": "icm006",
 			"help": "core.help.386",
-			"callback": "wait",
-			"hotkey": "w"
+			"hotkey": "battleWait"
 		},
 
 		{
@@ -81,8 +75,7 @@
 			"position": {"x": 748, "y": 560},
 			"image": "icm007",
 			"help": "core.help.387",
-			"callback": "defence",
-			"hotkey": ["d", "space"]
+			"hotkey": "battleDefend"
 		},
 
 		{
@@ -90,9 +83,8 @@
 			"name": "consoleUp",
 			"position": {"x": 625, "y": 560},
 			"image": "ComSlide",
-			"callback": "consoleUp",
 			"imageOrder": [0, 1, 0, 0],
-			"hotkey": "up"
+			"hotkey": "battleConsoleUp"
 		},
 
 		{
@@ -100,9 +92,8 @@
 			"name": "consoleDown",
 			"position": {"x": 625, "y": 579},
 			"image": "ComSlide",
-			"callback": "consoleDown",
 			"imageOrder": [2, 3, 2, 2],
-			"hotkey": "down"
+			"hotkey": "battleConsoleDown"
 		},
 
 		{
@@ -117,8 +108,7 @@
 			"name": "tacticNext",
 			"position": {"x": 213, "y": 560},
 			"image": "icm011",
-			"callback": "tacticNext",
-			"hotkey": "space"
+			"hotkey": "battleTacticsNext"
 		},
 		
 		{
@@ -126,8 +116,7 @@
 			"name": "tacticEnd",
 			"position": {"x": 419, "y": 560},
 			"image": "icm012",
-			"callback": "tacticEnd",
-			"hotkey": "enter"
+			"hotkey": "battleTacticsEnd"
 		}
 	]
 }

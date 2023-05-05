@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../widgets/CArtifactHolder.h"
+#include "../widgets/CWindowWithArtifacts.h"
 #include "CWindowObject.h"
 #include "../../lib/FunctionList.h"
 
@@ -67,7 +67,7 @@ public:
 	const IMarket * market;
 	const CGHeroInstance * hero;
 
-	std::shared_ptr<CArtifactsOfHero> arts;
+	std::shared_ptr<CArtifactsOfHeroBase> arts;
 	//all indexes: 1 = left, 0 = right
 	std::array<std::vector<std::shared_ptr<CTradeableItem>>, 2> items;
 
@@ -186,5 +186,5 @@ public:
 
 	void artifactPicked();
 	int firstFreeSlot();
-	void moveFromSlotToAltar(ArtifactPosition slotID, std::shared_ptr<CTradeableItem>, const CArtifactInstance * art);
+	void moveArtToAltar(std::shared_ptr<CTradeableItem>, const CArtifactInstance * art);
 };

@@ -22,7 +22,7 @@ public:
 	MOCK_CONST_METHOD0(getTerrainType, TerrainId());
 	MOCK_CONST_METHOD0(getAllObstacles, IBattleInfo::ObstacleCList());
 	MOCK_CONST_METHOD0(getDefendedTown, const CGTownInstance *());
-	MOCK_CONST_METHOD1(getWallState, si8(int));
+	MOCK_CONST_METHOD1(getWallState, EWallState(EWallPart));
 	MOCK_CONST_METHOD0(getGateState, EGateState());
 	MOCK_CONST_METHOD1(getSidePlayer, PlayerColor(ui8));
 	MOCK_CONST_METHOD1(getSideArmy, const CArmedInstance *(ui8));
@@ -33,7 +33,7 @@ public:
 	MOCK_CONST_METHOD0(getTacticsSide, ui8());
 	MOCK_CONST_METHOD0(getBonusBearer, const IBonusBearer *());
 	MOCK_CONST_METHOD0(nextUnitId, uint32_t());
-	MOCK_CONST_METHOD3(getActualDamage, int64_t(const TDmgRange &, int32_t, vstd::RNG &));
+	MOCK_CONST_METHOD3(getActualDamage, int64_t(const DamageRange &, int32_t, vstd::RNG &));
 
 	MOCK_METHOD1(nextRound, void(int32_t));
 	MOCK_METHOD1(nextTurn, void(uint32_t));
@@ -45,7 +45,7 @@ public:
 	MOCK_METHOD2(addUnitBonus, void(uint32_t, const std::vector<Bonus> &));
 	MOCK_METHOD2(updateUnitBonus, void(uint32_t, const std::vector<Bonus> &));
 	MOCK_METHOD2(removeUnitBonus, void(uint32_t, const std::vector<Bonus> &));
-	MOCK_METHOD2(setWallState, void(int, si8));
+	MOCK_METHOD2(setWallState, void(EWallPart, EWallState));
 	MOCK_METHOD1(addObstacle, void(const ObstacleChanges &));
 	MOCK_METHOD1(removeObstacle, void(uint32_t));
 	MOCK_METHOD1(updateObstacle, void(const ObstacleChanges &));

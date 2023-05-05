@@ -156,7 +156,7 @@ BattleAction CGlobalAI::activeStack(const CStack * stack)
 {
 	BattleAction ba;
 	ba.actionType = EActionType::DEFEND;
-	ba.stackNumber = stack->ID;
+	ba.stackNumber = stack->unitId();
 	return ba;
 }
 

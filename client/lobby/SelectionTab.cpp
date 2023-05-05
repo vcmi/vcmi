@@ -17,6 +17,7 @@
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -100,8 +101,8 @@ bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::share
 		switch(sortBy)
 		{
 		case _numOfMaps: //by number of maps in campaign
-			return CGI->generaltexth->getCampaignLength(aaa->campaignHeader->mapVersion) <
-				   CGI->generaltexth->getCampaignLength(bbb->campaignHeader->mapVersion);
+			return aaa->campaignHeader->numberOfScenarios <
+				   bbb->campaignHeader->numberOfScenarios;
 			break;
 		case _name: //by name
 			return boost::ilexicographical_compare(aaa->campaignHeader->name, bbb->campaignHeader->name);
@@ -281,27 +282,27 @@ void SelectionTab::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void SelectionTab::keyPressed(const SDL_Keycode & key)
+void SelectionTab::keyPressed(EShortcut key)
 {
 	int moveBy = 0;
 	switch(key)
 	{
-	case SDLK_UP:
+	case EShortcut::MOVE_UP:
 		moveBy = -1;
 		break;
-	case SDLK_DOWN:
+	case EShortcut::MOVE_DOWN:
 		moveBy = +1;
 		break;
-	case SDLK_PAGEUP:
+	case EShortcut::MOVE_PAGE_UP:
 		moveBy = -(int)listItems.size() + 1;
 		break;
-	case SDLK_PAGEDOWN:
+	case EShortcut::MOVE_PAGE_DOWN:
 		moveBy = +(int)listItems.size() - 1;
 		break;
-	case SDLK_HOME:
+	case EShortcut::MOVE_FIRST:
 		select(-slider->getValue());
 		return;
-	case SDLK_END:
+	case EShortcut::MOVE_LAST:
 		select((int)curItems.size() - slider->getValue());
 		return;
 	default:
@@ -595,7 +596,8 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourceID> & files)
 		//allItems[i].date = std::asctime(std::localtime(&files[i].date));
 		info->fileURI = file.getName();
 		info->campaignInit();
-		allItems.push_back(info);
+		if(info->campaignHeader)
+			allItems.push_back(info);
 	}
 }
 
@@ -657,7 +659,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<CMapInfo> info, bool sel
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->enable();
 		std::ostringstream ostr(std::ostringstream::out);
-		ostr << CGI->generaltexth->getCampaignLength(info->campaignHeader->mapVersion);
+		ostr << info->campaignHeader->numberOfScenarios;
 		labelNumberOfCampaignMaps->setText(ostr.str());
 		labelNumberOfCampaignMaps->setColor(color);
 	}

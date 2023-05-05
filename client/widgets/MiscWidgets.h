@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGGarrison;
 struct InfoAboutArmy;
 class CArmedInstance;
-class IBonusBearer;
+class AFactionMember;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -170,7 +170,7 @@ public:
 	bool morale; //true if morale, false if luck
 	bool small;
 
-	void set(const IBonusBearer *node);
+	void set(const AFactionMember *node);
 
 	MoraleLuckBox(bool Morale, const Rect &r, bool Small=false);
 };

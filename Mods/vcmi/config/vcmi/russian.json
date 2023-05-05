@@ -232,7 +232,7 @@
 	"core.bonus.HEALER.name": "Целитель",
 	"core.bonus.HEALER.description": "Исцеляет дружественные юниты",
 	"core.bonus.HP_REGENERATION.name": "Регенерация",
-	"core.bonus.HP_REGENERATION.description": "Исцеляет ${SHval} очков здоровья каждый ход",
+	"core.bonus.HP_REGENERATION.description": "Исцеляет ${val} очков здоровья каждый ход",
 	"core.bonus.JOUSTING.name": "Разгон",
 	"core.bonus.JOUSTING.description": "+${val}% урона за каждую пройденную клетку",
 	"core.bonus.KING.name": "Король",

@@ -16,8 +16,7 @@
 struct SDL_Surface;
 class CGuiHandler;
 class CPicture;
-
-typedef int32_t SDL_Keycode;
+enum class EShortcut;
 
 using boost::logic::tribool;
 
@@ -111,9 +110,9 @@ public:
 
 	//keyboard handling
 	bool captureAllKeys; //if true, only this object should get info about pressed keys
-	virtual void keyPressed(const SDL_Keycode & key){}
-	virtual void keyReleased(const SDL_Keycode & key){}
-	virtual bool captureThisKey(const SDL_Keycode & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
+	virtual void keyPressed(EShortcut key){}
+	virtual void keyReleased(EShortcut key){}
+	virtual bool captureThisKey(EShortcut key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
 
 	virtual void textInputed(const std::string & enteredText){};
 	virtual void textEdited(const std::string & enteredText){};
@@ -190,12 +189,11 @@ public:
 class CKeyShortcut : public virtual CIntObject
 {
 public:
-	std::set<int> assignedKeys;
+	EShortcut assignedKey;
 	CKeyShortcut();
-	CKeyShortcut(int key);
-	CKeyShortcut(std::set<int> Keys);
-	void keyPressed(const SDL_Keycode & key) override;
-	void keyReleased(const SDL_Keycode & key) override;
+	CKeyShortcut(EShortcut key);
+	void keyPressed(EShortcut key) override;
+	void keyReleased(EShortcut key) override;
 
 };
 

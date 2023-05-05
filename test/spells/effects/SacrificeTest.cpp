@@ -166,24 +166,26 @@ TEST_F(SacrificeApplyTest, ResurrectsTarget)
 	const uint32_t victimId = 4242;
 	const int32_t victimCount = 5;
 	const int32_t victimUnitHP = 100;
+	const auto pikeman = CreatureID(unitId).toCreature();
 
 	const int64_t expectedHealValue = (effectPower + victimUnitHP + effectValue) * victimCount;
 
 	auto & targetUnit = unitsFake.add(BattleSide::ATTACKER);
 	EXPECT_CALL(targetUnit, unitBaseAmount()).WillRepeatedly(Return(unitAmount));
 	EXPECT_CALL(targetUnit, unitId()).WillRepeatedly(Return(unitId));
+	EXPECT_CALL(targetUnit, unitType()).WillRepeatedly(Return(pikeman));
 
 	EXPECT_CALL(mechanicsMock, getEffectPower()).Times(AtLeast(1)).WillRepeatedly(Return(effectPower));
 	EXPECT_CALL(mechanicsMock, applySpellBonus(_, Eq(&targetUnit))).WillOnce(ReturnArg<0>());
 	EXPECT_CALL(mechanicsMock, calculateRawEffectValue(_,_)).WillOnce(Return(effectValue));
 
-	targetUnit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, unitHP, 0));
+	targetUnit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHP, 0));
 
 	auto & victim = unitsFake.add(BattleSide::ATTACKER);
 	EXPECT_CALL(victim, unitId()).Times(AtLeast(1)).WillRepeatedly(Return(victimId));
 	EXPECT_CALL(victim, getCount()).Times(AtLeast(1)).WillRepeatedly(Return(victimCount));
 
-	victim.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, victimUnitHP, 0));
+	victim.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, victimUnitHP, 0));
 
 	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Eq(expectedHealValue))).Times(1);
 
@@ -201,6 +203,7 @@ TEST_F(SacrificeApplyTest, ResurrectsTarget)
 	EXPECT_CALL(targetUnit, acquire()).WillOnce(Return(targetUnitState));
 
 	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged *>(_))).Times(AtLeast(1));
+	EXPECT_CALL(serverMock, apply(Matcher<BattleLogMessage *>(_))).Times(AtLeast(1));
 
 	setupDefaultRNG();
 

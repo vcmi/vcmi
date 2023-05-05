@@ -256,7 +256,7 @@ void AIGateway::heroVisitsTown(const CGHeroInstance * hero, const CGTownInstance
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::tileHidden(const std::unordered_set<int3, ShashInt3> & pos)
+void AIGateway::tileHidden(const std::unordered_set<int3> & pos)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -264,7 +264,7 @@ void AIGateway::tileHidden(const std::unordered_set<int3, ShashInt3> & pos)
 	nullkiller->memory->removeInvisibleObjects(myCb.get());
 }
 
-void AIGateway::tileRevealed(const std::unordered_set<int3, ShashInt3> & pos)
+void AIGateway::tileRevealed(const std::unordered_set<int3> & pos)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -1058,27 +1058,6 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 	}
 }
 
-bool AIGateway::canRecruitAnyHero(const CGTownInstance * t) const
-{
-	//TODO: make gathering gold, building tavern or conquering town (?) possible subgoals
-	if(!t)
-		t = findTownWithTavern();
-
-	if(!t || !townHasFreeTavern(t))
-		return false;
-
-	if(cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST) //TODO: use ResourceManager
-		return false;
-	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
-		return false;
-	if(cb->getHeroesInfo().size() >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
-		return false;
-	if(!cb->getAvailableHeroes(t).size())
-		return false;
-
-	return true;
-}
-
 void AIGateway::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side)
 {
 	NET_EVENT_HANDLER;
@@ -1158,16 +1137,6 @@ void AIGateway::addVisitableObj(const CGObjectInstance * obj)
 	{
 		nullkiller->dangerHitMap->reset();
 	}
-}
-
-HeroPtr AIGateway::getHeroWithGrail() const
-{
-	for(const CGHeroInstance * h : cb->getHeroesInfo())
-	{
-		if(h->hasArt(ArtifactID::GRAIL))
-			return h;
-	}
-	return nullptr;
 }
 
 bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
@@ -1416,7 +1385,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources
 				{
-					cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, res, g.resID, toGive);
+					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, res, g.resID, toGive);
 					accquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
 					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, accquiredResources, g.resID, obj->getObjectName());
 				}
@@ -1435,15 +1404,6 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 	{
 		throw cannotFulfillGoalException("No object that could be used to raise resources!");
 	}
-}
-
-const CGTownInstance * AIGateway::findTownWithTavern() const
-{
-	for(const CGTownInstance * t : cb->getTownsInfo())
-		if(townHasFreeTavern(t))
-			return t;
-
-	return nullptr;
 }
 
 void AIGateway::endTurn()

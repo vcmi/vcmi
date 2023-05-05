@@ -24,6 +24,7 @@
 #include "../CVideoHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../widgets/Buttons.h"
@@ -406,12 +407,12 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	background->colorize(owner.playerID);
 	pos = center(background->pos);
 
-	exit = std::make_shared<CButton>(Point(384, 505), "iok6432.def", std::make_pair("", ""), [&](){ bExitf();}, SDLK_RETURN);
+	exit = std::make_shared<CButton>(Point(384, 505), "iok6432.def", std::make_pair("", ""), [&](){ bExitf();}, EShortcut::GLOBAL_ACCEPT);
 	exit->setBorderColor(Colors::METALLIC_GOLD);
 	
 	if(allowReplay)
 	{
-		repeat = std::make_shared<CButton>(Point(24, 505), "icn6432.def", std::make_pair("", ""), [&](){ bRepeatf();}, SDLK_ESCAPE);
+		repeat = std::make_shared<CButton>(Point(24, 505), "icn6432.def", std::make_pair("", ""), [&](){ bRepeatf();}, EShortcut::GLOBAL_CANCEL);
 		repeat->setBorderColor(Colors::METALLIC_GOLD);
 		labels.push_back(std::make_shared<CLabel>(232, 520, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.battleResultsWindow.applyResultsLabel")));
 	}
@@ -455,18 +456,18 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 			auto stacks = owner.cb->battleGetAllStacks();
 			vstd::erase_if(stacks, [i](const CStack * stack) //erase stack of other side and not coming from garrison
 			{
-				return stack->side != i || !stack->base;
+				return stack->unitSide() != i || !stack->base;
 			});
 
 			auto best = vstd::maxElementByFun(stacks, [](const CStack * stack)
 			{
-				return stack->type->getAIValue();
+				return stack->unitType()->getAIValue();
 			});
 
 			if(best != stacks.end()) //should be always but to be safe...
 			{
-				icons.push_back(std::make_shared<CAnimImage>("TWCRPORT", (*best)->type->getIconIndex(), 0, xs[i], 38));
-				sideNames[i] = (*best)->type->getNamePluralTranslated();
+				icons.push_back(std::make_shared<CAnimImage>("TWCRPORT", (*best)->unitType()->getIconIndex(), 0, xs[i], 38));
+				sideNames[i] = (*best)->unitType()->getNamePluralTranslated();
 			}
 		}
 	}

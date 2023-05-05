@@ -35,7 +35,6 @@ struct SThievesGuildInfo;
 class CMapHeader;
 struct TeamState;
 struct QuestInfo;
-struct ShashInt3;
 class CGameState;
 class PathfinderConfig;
 
@@ -99,7 +98,7 @@ public:
 //	const TerrainTile * getTile(int3 tile, bool verbose = true) const;
 //	std::shared_ptr<boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 //	bool isInTheMap(const int3 &pos) const;
-//	void getVisibleTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
+//	void getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
 
 	//town
 //	const CGTownInstance* getTown(ObjectInstanceID objid) const;
@@ -194,7 +193,7 @@ public:
 	virtual const TerrainTile * getTile(int3 tile, bool verbose = true) const;
 	virtual std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 	virtual bool isInTheMap(const int3 &pos) const;
-	virtual void getVisibleTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
+	virtual void getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
 	virtual void calculatePaths(const std::shared_ptr<PathfinderConfig> & config);
 	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out);
 	virtual EDiggingStatus getTileDigStatus(int3 tile, bool verbose = true) const;

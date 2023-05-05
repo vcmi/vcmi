@@ -256,8 +256,8 @@ std::string CArtifact::nodeName() const
 
 void CArtifact::addNewBonus(const std::shared_ptr<Bonus>& b)
 {
-	b->source = Bonus::ARTIFACT;
-	b->duration = Bonus::PERMANENT;
+	b->source = BonusSource::ARTIFACT;
+	b->duration = BonusDuration::PERMANENT;
 	b->description = getNameTranslated();
 	CBonusSystemNode::addNewBonus(b);
 }
@@ -275,21 +275,21 @@ void CArtifact::serializeJson(JsonSerializeFormat & handler)
 void CGrowingArtifact::levelUpArtifact (CArtifactInstance * art)
 {
 	auto b = std::make_shared<Bonus>();
-	b->type = Bonus::LEVEL_COUNTER;
+	b->type = BonusType::LEVEL_COUNTER;
 	b->val = 1;
-	b->duration = Bonus::COMMANDER_KILLED;
+	b->duration = BonusDuration::COMMANDER_KILLED;
 	art->accumulateBonus(b);
 
 	for(const auto & bonus : bonusesPerLevel)
 	{
-		if (art->valOfBonuses(Bonus::LEVEL_COUNTER) % bonus.first == 0) //every n levels
+		if (art->valOfBonuses(BonusType::LEVEL_COUNTER) % bonus.first == 0) //every n levels
 		{
 			art->accumulateBonus(std::make_shared<Bonus>(bonus.second));
 		}
 	}
 	for(const auto & bonus : thresholdBonuses)
 	{
-		if (art->valOfBonuses(Bonus::LEVEL_COUNTER) == bonus.first) //every n levels
+		if (art->valOfBonuses(BonusType::LEVEL_COUNTER) == bonus.first) //every n levels
 		{
 			art->addNewBonus(std::make_shared<Bonus>(bonus.second));
 		}
@@ -740,35 +740,36 @@ void CArtHandler::erasePickedArt(const ArtifactID & id)
 {
 	CArtifact *art = objects[id];
 
-	if(!(art->aClass & CArtifact::ART_SPECIAL))
+	std::vector<CArtifact*> * artifactList = nullptr;
+	switch(art->aClass)
 	{
-		auto & artifactList = treasures;
-		switch(art->aClass)
-		{
-			case CArtifact::ART_MINOR:
-				artifactList = minors;
-				break;
-			case CArtifact::ART_MAJOR:
-				artifactList = majors;
-				break;
-			case CArtifact::ART_RELIC:
-				artifactList = relics;
-				break;
-		}
-		if(artifactList.empty())
-			fillList(artifactList, art->aClass);
+		case CArtifact::ART_TREASURE:
+			artifactList = &treasures;
+			break;
+		case CArtifact::ART_MINOR:
+			artifactList = &minors;
+			break;
+		case CArtifact::ART_MAJOR:
+			artifactList = &majors;
+			break;
+		case CArtifact::ART_RELIC:
+			artifactList = &relics;
+			break;
+		default:
+			logMod->warn("Problem: cannot find list for artifact %s, strange class. (special?)", art->getNameTranslated());
+			return;
+	}
 
-		auto itr = vstd::find(artifactList, art);
-		if(itr != artifactList.end())
-		{
-			artifactList.erase(itr);
-		}
-		else
-			logMod->warn("Problem: cannot erase artifact %s from list, it was not present", art->getNameTranslated());
+	if(artifactList->empty())
+		fillList(*artifactList, art->aClass);
 
+	auto itr = vstd::find(*artifactList, art);
+	if(itr != artifactList->end())
+	{
+		artifactList->erase(itr);
 	}
 	else
-		logMod->warn("Problem: cannot find list for artifact %s, strange class. (special?)", art->getNameTranslated());
+		logMod->warn("Problem: cannot erase artifact %s from list, it was not present", art->getNameTranslated());
 }
 
 void CArtHandler::fillList( std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass )
@@ -789,7 +790,7 @@ void CArtHandler::afterLoadFinalization()
 		for(auto &bonus : art->getExportedBonusList())
 		{
 			assert(art == objects[art->id]);
-			assert(bonus->source == Bonus::ARTIFACT);
+			assert(bonus->source == BonusSource::ARTIFACT);
 			bonus->sid = art->id;
 		}
 	}
@@ -821,7 +822,7 @@ std::string CArtifactInstance::nodeName() const
 CArtifactInstance * CArtifactInstance::createScroll(const SpellID & sid)
 {
 	auto * ret = new CArtifactInstance(VLC->arth->objects[ArtifactID::SPELL_SCROLL]);
-	auto b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT_INSTANCE, -1, ArtifactID::SPELL_SCROLL, sid);
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL, BonusSource::ARTIFACT_INSTANCE, -1, ArtifactID::SPELL_SCROLL, sid);
 	ret->addNewBonus(b);
 	return ret;
 }
@@ -902,7 +903,7 @@ CArtifactInstance * CArtifactInstance::createNewArtifactInstance(CArtifact *Art)
 		if (dynamic_cast<CGrowingArtifact *>(Art))
 		{
 			auto bonus = std::make_shared<Bonus>();
-			bonus->type = Bonus::LEVEL_COUNTER;
+			bonus->type = BonusType::LEVEL_COUNTER;
 			bonus->val = 0;
 			ret->addNewBonus (bonus);
 		}
@@ -962,7 +963,7 @@ void CArtifactInstance::deserializationFix()
 
 SpellID CArtifactInstance::getScrollSpellID() const
 {
-	const auto b = getBonusLocalFirst(Selector::type()(Bonus::SPELL));
+	const auto b = getBonusLocalFirst(Selector::type()(BonusType::SPELL));
 	if(!b)
 	{
 		logMod->warn("Warning: %s doesn't bear any spell!", nodeName());
@@ -1203,6 +1204,25 @@ const CArtifactInstance * CArtifactSet::getArtByInstanceId(const ArtifactInstanc
 			return i.artifact;
 
 	return nullptr;
+}
+
+const ArtifactPosition CArtifactSet::getSlotByInstance(const CArtifactInstance * artInst) const
+{
+	if(artInst)
+	{
+		for(auto & slot : artInst->artType->possibleSlots.at(bearerType()))
+			if(getArt(slot) == artInst)
+				return slot;
+
+		auto backpackSlot = GameConstants::BACKPACK_START;
+		for(auto & slotInfo : artifactsInBackpack)
+		{
+			if(slotInfo.getArt() == artInst)
+				return backpackSlot;
+			backpackSlot = ArtifactPosition(backpackSlot + 1);
+		}
+	}
+	return ArtifactPosition::PRE_FIRST;
 }
 
 bool CArtifactSet::hasArt(const ArtifactID & aid, bool onlyWorn, bool searchBackpackAssemblies, bool allowLocked) const

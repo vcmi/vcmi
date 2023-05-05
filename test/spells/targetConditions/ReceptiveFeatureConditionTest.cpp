@@ -31,7 +31,7 @@ public:
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(AtLeast(0));
 		EXPECT_CALL(mechanicsMock, isPositiveSpell()).WillRepeatedly(Return(isPositive));
 		if(hasBonus)
-			unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::RECEPTIVE, Bonus::OTHER, 0, 0));
+			unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::RECEPTIVE, BonusSource::OTHER, 0, 0));
 	}
 
 protected:
@@ -50,7 +50,7 @@ TEST_P(ReceptiveFeatureConditionTest, isReceptive)
 	EXPECT_EQ(isPositive && hasBonus, subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
-INSTANTIATE_TEST_CASE_P
+INSTANTIATE_TEST_SUITE_P
 (
 	ByFlags,
 	ReceptiveFeatureConditionTest,

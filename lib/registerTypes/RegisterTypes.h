@@ -22,6 +22,10 @@
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h"
 #include "../battle/CObstacleInstance.h"
+#include "../bonuses/CBonusSystemNode.h"
+#include "../bonuses/Limiters.h"
+#include "../bonuses/Updaters.h"
+#include "../bonuses/Propagators.h"
 #include "../CStack.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -57,7 +61,7 @@ void registerTypesMapObjects1(Serializer &s)
 	s.template registerType<CGObjectInstance, CGDenOfthieves>();
 	s.template registerType<CGObjectInstance, CGLighthouse>();
 	s.template registerType<CGObjectInstance, CGTerrainPatch>();
-	s.template registerType<CGObjectInstance, CGMarket>(); s.template registerType<IMarket, CGMarket>();
+	s.template registerType<CGObjectInstance, CGMarket>();
 		s.template registerType<CGMarket, CGBlackMarket>();
 		s.template registerType<CGMarket, CGUniversity>();
 	s.template registerType<CGObjectInstance, CGHeroPlaceholder>();
@@ -67,7 +71,7 @@ void registerTypesMapObjects1(Serializer &s)
 	// Armed objects
 	s.template registerType<CArmedInstance, CGHeroInstance>(); s.template registerType<IBoatGenerator, CGHeroInstance>(); s.template registerType<CArtifactSet, CGHeroInstance>();
 	s.template registerType<CArmedInstance, CGDwelling>();
-		s.template registerType<CGDwelling, CGTownInstance>(); s.template registerType<IShipyard, CGTownInstance>(); s.template registerType<IMarket, CGTownInstance>();
+		s.template registerType<CGDwelling, CGTownInstance>(); s.template registerType<IShipyard, CGTownInstance>();
 	s.template registerType<CArmedInstance, CGPandoraBox>();
 		s.template registerType<CGPandoraBox, CGEvent>();
 	s.template registerType<CArmedInstance, CGCreature>();
@@ -89,12 +93,12 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<AObjectTypeHandler, CDwellingInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CBankInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, BoatInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, MarketInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CObstacleConstructor>();
 
 #define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()
 
 	REGISTER_GENERIC_HANDLER(CGObjectInstance);
-	REGISTER_GENERIC_HANDLER(CGMarket);
 	REGISTER_GENERIC_HANDLER(CCartographer);
 	REGISTER_GENERIC_HANDLER(CGArtifact);
 	REGISTER_GENERIC_HANDLER(CGBlackMarket);

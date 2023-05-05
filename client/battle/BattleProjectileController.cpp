@@ -205,7 +205,7 @@ std::shared_ptr<CAnimation> BattleProjectileController::getProjectileImage(const
 
 void BattleProjectileController::emitStackProjectile(const CStack * stack)
 {
-	int stackID = stack ? stack->ID : -1;
+	int stackID = stack ? stack->unitId() : -1;
 
 	for (auto projectile : projectiles)
 	{
@@ -232,7 +232,7 @@ void BattleProjectileController::showProjectiles(Canvas & canvas)
 
 bool BattleProjectileController::hasActiveProjectile(const CStack * stack, bool emittedOnly) const
 {
-	int stackID = stack ? stack->ID : -1;
+	int stackID = stack ? stack->unitId() : -1;
 
 	for(auto const & instance : projectiles)
 	{
@@ -294,7 +294,7 @@ void BattleProjectileController::createCatapultProjectile(const CStack * shooter
 	catapultProjectile->speed     = computeProjectileFlightTime(from, dest, AnimationControls::getCatapultSpeed());
 	catapultProjectile->from      = from;
 	catapultProjectile->dest      = dest;
-	catapultProjectile->shooterID = shooter->ID;
+	catapultProjectile->shooterID = shooter->unitId();
 	catapultProjectile->playing   = false;
 	catapultProjectile->frameProgress = 0.f;
 
@@ -333,7 +333,7 @@ void BattleProjectileController::createProjectile(const CStack * shooter, Point 
 
 	projectile->from      = from;
 	projectile->dest      = dest;
-	projectile->shooterID = shooter->ID;
+	projectile->shooterID = shooter->unitId();
 	projectile->progress  = 0;
 	projectile->playing   = false;
 
@@ -357,7 +357,7 @@ void BattleProjectileController::createSpellProjectile(const CStack * shooter, P
 		projectile->reverse       = from.x > dest.x;
 		projectile->from          = from;
 		projectile->dest          = dest;
-		projectile->shooterID     = shooter ? shooter->ID : -1;
+		projectile->shooterID     = shooter ? shooter->unitId() : -1;
 		projectile->progress      = 0;
 		projectile->speed         = computeProjectileFlightTime(from, dest, AnimationControls::getProjectileSpeed());
 		projectile->playing       = false;

@@ -12,8 +12,6 @@
 #include "MouseButton.h"
 #include "../../lib/Point.h"
 
-#include <SDL_keycode.h>
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 template <typename T> struct CondSh;
@@ -24,6 +22,7 @@ VCMI_LIB_NAMESPACE_END
 union SDL_Event;
 struct SDL_MouseMotionEvent;
 
+class ShortcutHandler;
 class CFramerateManager;
 class IStatusBar;
 class CIntObject;
@@ -79,8 +78,10 @@ private:
 
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;
 
+	std::unique_ptr<ShortcutHandler> shortcutsHandlerInstance;
+
 	std::atomic<bool> continueEventHandling;
-	typedef std::list<CIntObject*> CIntObjectList;
+	using CIntObjectList = std::list<CIntObject *>;
 
 	//active GUI elements (listening for events
 	CIntObjectList lclickable;
@@ -107,13 +108,13 @@ private:
 public:
 	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
 	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);
-
 public:
 	//objs to blit
 	std::vector<std::shared_ptr<IShowActivatable>> objsToBlit;
-
 	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
+
+	ShortcutHandler & shortcutsHandler();
 
 	Point screenDimensions() const;
 
@@ -175,10 +176,6 @@ public:
 	void breakEventHandling(); //current event won't be propagated anymore
 	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen
 
-	static SDL_Keycode arrowToNum(SDL_Keycode key); //converts arrow key to according numpad key
-	static SDL_Keycode numToDigit(SDL_Keycode key);//converts numpad digit key to normal digit key
-	static bool isNumKey(SDL_Keycode key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)
-	static bool isArrowKey(SDL_Keycode key);
 	static bool amIGuiThread();
 	static void pushUserEvent(EUserEvent usercode);
 	static void pushUserEvent(EUserEvent usercode, void * userdata);

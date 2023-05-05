@@ -1,5 +1,28 @@
-# 1.2.0 -> 1.3.0
+# 1.2.1 -> 1.3.0
 (unreleased)
+
+# 1.2.0 -> 1.2.1
+
+### GENERAL:
+* Implemented spell range overlay for Dimension Door and Scuttle Boat
+* Fixed movement cost penalty from terrain
+* Fixed empty Black Market on game start
+* Fixed bad morale happening after waiting
+* Fixed good morale happening after defeating last enemy unit
+* Fixed death animation of Efreeti killed by petrification attack
+* Fixed crash on leaving to main menu from battle in hotseat mode
+* Fixed music playback on switching between towns
+* Special months (double growth and plague) will now appear correctly
+* Adventure map spells are no longer visible on units in battle
+* Attempt to cast spell with no valid targets in hotseat will show appropriate error message
+* RMG settings will now show all existing in game templates and not just those suitable for current settings
+* RMG settings (map size and two-level maps) that are not compatible with current template will be blocked
+* Fixed centering of scenario information window
+* Fixed crash on empty save game list after filtering
+* Fixed blocked progress in Launcher on language detection failure
+* Launcher will now correctly handle selection of Ddata directory in H3 install
+* Map editor will now correctly save message property for events and pandoras
+* Fixed incorrect saving of heroes portraits in editor
 
 # 1.1.1 -> 1.2.0
 

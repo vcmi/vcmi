@@ -915,7 +915,7 @@ void FoWChange::applyGs(CGameState *gs)
 		(*fogOfWarMap)[t.z][t.x][t.y] = mode;
 	if (mode == 0) //do not hide too much
 	{
-		std::unordered_set<int3, ShashInt3> tilesRevealed;
+		std::unordered_set<int3> tilesRevealed;
 		for (auto & elem : gs->map->objects)
 		{
 			const CGObjectInstance *o = elem;
@@ -982,13 +982,13 @@ void GiveBonus::applyGs(CGameState *gs)
 
 	std::string &descr = b->description;
 
-	if(bdescr.message.empty() && (bonus.type == Bonus::LUCK || bonus.type == Bonus::MORALE))
+	if(bdescr.message.empty() && (bonus.type == BonusType::LUCK || bonus.type == BonusType::MORALE))
 	{
-		if (bonus.source == Bonus::OBJECT)
+		if (bonus.source == BonusSource::OBJECT)
 		{
 			descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
 		}
-		else if(bonus.source == Bonus::TOWN_STRUCTURE)
+		else if(bonus.source == BonusSource::TOWN_STRUCTURE)
 		{
 			descr = bonus.description;
 			return;
@@ -1124,7 +1124,7 @@ void RemoveBonus::applyGs(CGameState *gs)
 
 	for(const auto & b : bonuses)
 	{
-		if(b->source == source && b->sid == id)
+		if(vstd::to_underlying(b->source) == source && b->sid == id)
 		{
 			bonus = *b; //backup bonus (to show to interfaces later)
 			node->removeBonus(b);
@@ -1475,15 +1475,17 @@ void NewObject::applyGs(CGameState *gs)
 		terrainType = t.terType->getId();
 	}
 
-	CGObjectInstance *o = nullptr;
+	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
+	CGObjectInstance * o = handler->create();
+	handler->configureObject(o, gs->getRandomGenerator());
+	
 	switch(ID)
 	{
 	case Obj::BOAT:
-		o = new CGBoat();
 		terrainType = ETerrainId::WATER; //TODO: either boat should only spawn on water, or all water objects should be handled this way
 		break;
+			
 	case Obj::MONSTER: //probably more options will be needed
-		o = new CGCreature();
 		{
 			//CStackInstance hlp;
 			auto * cre = dynamic_cast<CGCreature *>(o);
@@ -1496,14 +1498,11 @@ void NewObject::applyGs(CGameState *gs)
 			cre->addToSlot(SlotID(0), new CStackInstance(CreatureID(subID), -1)); //add placeholder stack
 		}
 		break;
-	default:
-		o = new CGObjectInstance();
-		break;
 	}
 	o->ID = ID;
 	o->subID = subID;
 	o->pos = pos;
-	o->appearance = VLC->objtypeh->getHandlerFor(o->ID, o->subID)->getTemplates(terrainType).front();
+	o->appearance = handler->getTemplates(terrainType).front();
 	id = o->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
 
 	gs->map->objects.emplace_back(o);
@@ -1918,7 +1917,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 	[[maybe_unused]] const CArtifactInstance *transformedArt = al.getArt();
 	assert(transformedArt);
 	bool combineEquipped = !ArtifactUtils::isSlotBackpack(al.slot);
-	assert(vstd::contains_if(transformedArt->assemblyPossibilities(artSet, combineEquipped), [=](const CArtifact * art)->bool
+	assert(vstd::contains_if(ArtifactUtils::assemblyPossibilities(artSet, transformedArt->artType->getId(), combineEquipped), [=](const CArtifact * art)->bool
 		{
 			return art->getId() == builtArt->getId();
 		}));
@@ -2156,15 +2155,15 @@ void BattleTriggerEffect::applyGs(CGameState * gs) const
 {
 	CStack * st = gs->curB->getStack(stackID);
 	assert(st);
-	switch(effect)
+	switch(static_cast<BonusType>(effect))
 	{
-	case Bonus::HP_REGENERATION:
+	case BonusType::HP_REGENERATION:
 	{
 		int64_t toHeal = val;
 		st->heal(toHeal, EHealLevel::HEAL, EHealPower::PERMANENT);
 		break;
 	}
-	case Bonus::MANA_DRAIN:
+	case BonusType::MANA_DRAIN:
 	{
 		CGHeroInstance * h = gs->getHero(ObjectInstanceID(additionalInfo));
 		st->drainedMana = true;
@@ -2172,18 +2171,18 @@ void BattleTriggerEffect::applyGs(CGameState * gs) const
 		vstd::amax(h->mana, 0);
 		break;
 	}
-	case Bonus::POISON:
+	case BonusType::POISON:
 	{
-		auto b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON)
-				.And(Selector::type()(Bonus::STACK_HEALTH)));
+		auto b = st->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, SpellID::POISON)
+				.And(Selector::type()(BonusType::STACK_HEALTH)));
 		if (b)
 			b->val = val;
 		break;
 	}
-	case Bonus::ENCHANTER:
-	case Bonus::MORALE:
+	case BonusType::ENCHANTER:
+	case BonusType::MORALE:
 		break;
-	case Bonus::FEAR:
+	case BonusType::FEAR:
 		st->fear = true;
 		break;
 	default:
@@ -2468,7 +2467,7 @@ void BattleSetStackProperty::applyGs(CGameState * gs) const
 		}
 		case ENCHANTER_COUNTER:
 		{
-			auto & counter = gs->curB->sides[gs->curB->whatSide(stack->owner)].enchanterCounter;
+			auto & counter = gs->curB->sides[gs->curB->whatSide(stack->unitOwner())].enchanterCounter;
 			if(absolute)
 				counter = val;
 			else
@@ -2478,7 +2477,7 @@ void BattleSetStackProperty::applyGs(CGameState * gs) const
 		}
 		case UNBIND:
 		{
-			stack->removeBonusesRecursive(Selector::type()(Bonus::BIND_EFFECT));
+			stack->removeBonusesRecursive(Selector::type()(BonusType::BIND_EFFECT));
 			break;
 		}
 		case CLONED:

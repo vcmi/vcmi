@@ -29,43 +29,105 @@ namespace CampaignVersion
 		RoE = 4,
 		AB = 5,
 		SoD = 6,
-		WoG = 6
+		WoG = 6,
+		VCMI = 1
 	};
+
+	const int VCMI_MIN = 1;
+	const int VCMI_MAX = 1;
 }
+
+struct DLL_LINKAGE CampaignRegions
+{
+	std::string campPrefix;
+	int colorSuffixLength;
+
+	struct DLL_LINKAGE RegionDescription
+	{
+		std::string infix;
+		int xpos, ypos;
+		
+		template <typename Handler> void serialize(Handler &h, const int formatVersion)
+		{
+			h & infix;
+			h & xpos;
+			h & ypos;
+		}
+		
+		static CampaignRegions::RegionDescription fromJson(const JsonNode & node);
+	};
+
+	std::vector<RegionDescription> regions;
+	
+	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	{
+		h & campPrefix;
+		h & colorSuffixLength;
+		h & regions;
+	}
+	
+	static CampaignRegions fromJson(const JsonNode & node);
+	static CampaignRegions getLegacy(int campId);
+};
 
 class DLL_LINKAGE CCampaignHeader
 {
 public:
 	si32 version = 0; //4 - RoE, 5 - AB, 6 - SoD and WoG
-	ui8 mapVersion = 0; //CampText.txt's format
+	CampaignRegions campaignRegions;
+	int numberOfScenarios = 0;
 	std::string name, description;
-	ui8 difficultyChoosenByPlayer = 0;
-	ui8 music = 0; //CmpMusic.txt, start from 0
+	bool difficultyChoosenByPlayer = false;
+	bool valid = false;
 
 	std::string filename;
 	std::string modName;
 	std::string encoding;
+	
+	void loadLegacyData(ui8 campId);
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
 		h & version;
-		h & mapVersion;
+		h & campaignRegions;
+		h & numberOfScenarios;
 		h & name;
 		h & description;
 		h & difficultyChoosenByPlayer;
-		h & music;
 		h & filename;
 		h & modName;
 		h & encoding;
+		h & valid;
 	}
 };
 
 class DLL_LINKAGE CScenarioTravel
 {
 public:
-	ui8 whatHeroKeeps = 0; //bitfield [0] - experience, [1] - prim skills, [2] - sec skills, [3] - spells, [4] - artifacts
-	std::array<ui8, 19> monstersKeptByHero;
-	std::array<ui8, 18> artifsKeptByHero;
+	
+	struct DLL_LINKAGE WhatHeroKeeps
+	{
+		bool experience = false;
+		bool primarySkills = false;
+		bool secondarySkills = false;
+		bool spells = false;
+		bool artifacts = false;
+		
+		template <typename Handler> void serialize(Handler &h, const int formatVersion)
+		{
+			h & experience;
+			h & primarySkills;
+			h & secondarySkills;
+			h & spells;
+			h & artifacts;
+		}
+	};
+	
+	WhatHeroKeeps whatHeroKeeps;
+	
+	//TODO: use typed containers
+	std::set<int> monstersKeptByHero;
+	std::set<int> artifactsKeptByHero;
 
 	ui8 startOptions = 0; //1 - start bonus, 2 - traveling hero, 3 - hero options
 
@@ -95,7 +157,7 @@ public:
 	{
 		h & whatHeroKeeps;
 		h & monstersKeptByHero;
-		h & artifsKeptByHero;
+		h & artifactsKeptByHero;
 		h & startOptions;
 		h & playerColor;
 		h & bonusesToChoose;
@@ -109,8 +171,8 @@ public:
 	struct DLL_LINKAGE SScenarioPrologEpilog
 	{
 		bool hasPrologEpilog = false;
-		ui8 prologVideo = 0; // from CmpMovie.txt
-		ui8 prologMusic = 0; // from CmpMusic.txt
+		std::string prologVideo; // from CmpMovie.txt
+		std::string prologMusic; // from CmpMusic.txt
 		std::string prologText;
 
 		template <typename Handler> void serialize(Handler &h, const int formatVersion)
@@ -124,7 +186,6 @@ public:
 
 	std::string mapName; //*.h3m
 	std::string scenarioName; //from header. human-readble
-	ui32 packedMapSize = 0; //generally not used
 	std::set<ui8> preconditionRegions; //what we need to conquer to conquer this one (stored as bitfield in h3c)
 	ui8 regionColor = 0;
 	ui8 difficulty = 0;
@@ -148,7 +209,6 @@ public:
 	{
 		h & mapName;
 		h & scenarioName;
-		h & packedMapSize;
 		h & preconditionRegions;
 		h & regionColor;
 		h & difficulty;
@@ -218,22 +278,26 @@ public:
 
 class DLL_LINKAGE CCampaignHandler
 {
-	std::vector<size_t> scenariosCountPerCampaign;
-
 	static std::string readLocalizedString(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier);
+	
+	//parsers for VCMI campaigns (*.vcmp)
+	static CCampaignHeader readHeaderFromJson(JsonNode & reader, std::string filename, std::string modName, std::string encoding);
+	static CCampaignScenario readScenarioFromJson(JsonNode & reader);
+	static CScenarioTravel readScenarioTravelFromJson(JsonNode & reader);
 
+	//parsers for original H3C campaigns
 	static CCampaignHeader readHeaderFromMemory(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding);
-	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, int version, int mapVersion );
+	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, const CCampaignHeader & header);
 	static CScenarioTravel readScenarioTravelFromMemory(CBinaryReader & reader, int version);
 	/// returns h3c split in parts. 0 = h3c header, 1-end - maps (binary h3m)
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps
 	static std::vector<std::vector<ui8>> getFile(std::unique_ptr<CInputStream> file, bool headerOnly);
 
-public:
 	static std::string prologVideoName(ui8 index);
 	static std::string prologMusicName(ui8 index);
 	static std::string prologVoiceName(ui8 index);
 
+public:
 	static CCampaignHeader getHeader( const std::string & name); //name - name of appropriate file
 
 	static std::unique_ptr<CCampaign> getCampaign(const std::string & name); //name - name of appropriate file

@@ -565,15 +565,16 @@ uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 &
 	return 0xff-1;
 }
 
-MapRendererDebug::MapRendererDebug()
+MapRendererOverlay::MapRendererOverlay()
 	: imageGrid(IImage::createFromFile("debug/grid", EImageBlitMode::ALPHA))
 	, imageBlocked(IImage::createFromFile("debug/blocked", EImageBlitMode::ALPHA))
 	, imageVisitable(IImage::createFromFile("debug/visitable", EImageBlitMode::ALPHA))
+	, imageSpellRange(IImage::createFromFile("debug/spellRange", EImageBlitMode::ALPHA))
 {
 
 }
 
-void MapRendererDebug::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
+void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
 	if(context.showGrid())
 		target.draw(imageGrid, Point(0,0));
@@ -599,9 +600,12 @@ void MapRendererDebug::renderTile(IMapRendererContext & context, Canvas & target
 		if (context.showVisitable() && visitable)
 			target.draw(imageVisitable, Point(0,0));
 	}
+
+	if (context.showSpellRange(coordinates))
+		target.draw(imageSpellRange, Point(0,0));
 }
 
-uint8_t MapRendererDebug::checksum(IMapRendererContext & context, const int3 & coordinates)
+uint8_t MapRendererOverlay::checksum(IMapRendererContext & context, const int3 & coordinates)
 {
 	uint8_t result = 0;
 
@@ -613,6 +617,9 @@ uint8_t MapRendererDebug::checksum(IMapRendererContext & context, const int3 & c
 
 	if (context.showGrid())
 		result += 4;
+
+	if (context.showSpellRange(coordinates))
+		result += 8;
 
 	return result;
 }
@@ -747,7 +754,7 @@ MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & con
 			result[3] = rendererRoad.checksum(context, coordinates);
 		result[4] = rendererObjects.checksum(context, coordinates);
 		result[5] = rendererPath.checksum(context, coordinates);
-		result[6] = rendererDebug.checksum(context, coordinates);
+		result[6] = rendererOverlay.checksum(context, coordinates);
 
 		if(!context.isVisible(coordinates))
 			result[7] = rendererFow.checksum(context, coordinates);
@@ -781,7 +788,7 @@ void MapRenderer::renderTile(IMapRendererContext & context, Canvas & target, con
 
 		rendererObjects.renderTile(context, target, coordinates);
 		rendererPath.renderTile(context, target, coordinates);
-		rendererDebug.renderTile(context, target, coordinates);
+		rendererOverlay.renderTile(context, target, coordinates);
 
 		if(!context.isVisible(coordinates))
 			rendererFow.renderTile(context, target, coordinates);

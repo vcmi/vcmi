@@ -10,13 +10,12 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "../../lib/GameConstants.h"
-#include "../render/Canvas.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class ColorRGBA;
 VCMI_LIB_NAMESPACE_END
 
+class Canvas;
 class CMinimap;
 
 class CMinimapInstance : public CIntObject
@@ -68,6 +67,6 @@ public:
 
 	void showAll(SDL_Surface * to) override;
 
-	void updateTile(const int3 &pos);
+	void updateTiles(std::unordered_set<int3> positions);
 };
 

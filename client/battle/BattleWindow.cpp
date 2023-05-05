@@ -21,6 +21,7 @@
 #include "../CMusicHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../windows/CSpellWindow.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
@@ -50,19 +51,23 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	
 	const JsonNode config(ResourceID("config/widgets/BattleWindow.json"));
 	
-	addCallback("options", std::bind(&BattleWindow::bOptionsf, this));
-	addCallback("surrender", std::bind(&BattleWindow::bSurrenderf, this));
-	addCallback("flee", std::bind(&BattleWindow::bFleef, this));
-	addCallback("autofight", std::bind(&BattleWindow::bAutofightf, this));
-	addCallback("spellbook", std::bind(&BattleWindow::bSpellf, this));
-	addCallback("wait", std::bind(&BattleWindow::bWaitf, this));
-	addCallback("defence", std::bind(&BattleWindow::bDefencef, this));
-	addCallback("consoleUp", std::bind(&BattleWindow::bConsoleUpf, this));
-	addCallback("consoleDown", std::bind(&BattleWindow::bConsoleDownf, this));
-	addCallback("tacticNext", std::bind(&BattleWindow::bTacticNextStack, this));
-	addCallback("tacticEnd", std::bind(&BattleWindow::bTacticPhaseEnd, this));
-	addCallback("alternativeAction", std::bind(&BattleWindow::bSwitchActionf, this));
-	
+	addShortcut(EShortcut::GLOBAL_OPTIONS, std::bind(&BattleWindow::bOptionsf, this));
+	addShortcut(EShortcut::BATTLE_SURRENDER, std::bind(&BattleWindow::bSurrenderf, this));
+	addShortcut(EShortcut::BATTLE_RETREAT, std::bind(&BattleWindow::bFleef, this));
+	addShortcut(EShortcut::BATTLE_AUTOCOMBAT, std::bind(&BattleWindow::bAutofightf, this));
+	addShortcut(EShortcut::BATTLE_CAST_SPELL, std::bind(&BattleWindow::bSpellf, this));
+	addShortcut(EShortcut::BATTLE_WAIT, std::bind(&BattleWindow::bWaitf, this));
+	addShortcut(EShortcut::BATTLE_DEFEND, std::bind(&BattleWindow::bDefencef, this));
+	addShortcut(EShortcut::BATTLE_CONSOLE_UP, std::bind(&BattleWindow::bConsoleUpf, this));
+	addShortcut(EShortcut::BATTLE_CONSOLE_DOWN, std::bind(&BattleWindow::bConsoleDownf, this));
+	addShortcut(EShortcut::BATTLE_TACTICS_NEXT, std::bind(&BattleWindow::bTacticNextStack, this));
+	addShortcut(EShortcut::BATTLE_TACTICS_END, std::bind(&BattleWindow::bTacticPhaseEnd, this));
+	addShortcut(EShortcut::BATTLE_SELECT_ACTION, std::bind(&BattleWindow::bSwitchActionf, this));
+
+	addShortcut(EShortcut::BATTLE_TOGGLE_QUEUE, [this](){ this->toggleQueueVisibility();});
+	addShortcut(EShortcut::BATTLE_USE_CREATURE_SPELL, [this](){ this->owner.actionsController->enterCreatureCastingMode(); });
+	addShortcut(EShortcut::GLOBAL_CANCEL, [this](){ this->owner.actionsController->endCastingSpell(); });
+
 	build(config);
 	
 	console = widget<BattleConsole>("console");
@@ -182,43 +187,14 @@ void BattleWindow::deactivate()
 	LOCPLINT->cingconsole->deactivate();
 }
 
-void BattleWindow::keyPressed(const SDL_Keycode & key)
+void BattleWindow::keyPressed(EShortcut key)
 {
 	if (owner.openingPlaying())
 	{
 		owner.openingEnd();
 		return;
 	}
-
-	if(key == SDLK_q)
-	{
-		toggleQueueVisibility();
-	}
-	else if(key == SDLK_f)
-	{
-		owner.actionsController->enterCreatureCastingMode();
-	}
-	else if(key == SDLK_ESCAPE)
-	{
-		owner.actionsController->endCastingSpell();
-	}
-	else if(GH.isKeyboardShiftDown())
-	{
-		// save and activate setting
-		Settings movementHighlightOnHover = settings.write["battle"]["movementHighlightOnHover"];
-		movementHighlightOnHoverCache = movementHighlightOnHover->Bool();
-		movementHighlightOnHover->Bool() = true;
-	}
-}
-
-void BattleWindow::keyReleased(const SDL_Keycode & key)
-{
-	if(!GH.isKeyboardShiftDown())
-	{
-		// set back to initial state
-		Settings movementHighlightOnHover = settings.write["battle"]["movementHighlightOnHover"];
-		movementHighlightOnHover->Bool() = movementHighlightOnHoverCache;
-	}
+	InterfaceObjectConfigurable::keyPressed(key);
 }
 
 void BattleWindow::clickRight(tribool down, bool previousState)
@@ -450,11 +426,11 @@ void BattleWindow::bSpellf()
 	{
 		//TODO: move to spell mechanics, add more information to spell cast problem
 		//Handle Orb of Inhibition-like effects -> we want to display dialog with info, why casting is impossible
-		auto blockingBonus = owner.currentHero()->getBonusLocalFirst(Selector::type()(Bonus::BLOCK_ALL_MAGIC));
+		auto blockingBonus = owner.currentHero()->getBonusLocalFirst(Selector::type()(BonusType::BLOCK_ALL_MAGIC));
 		if (!blockingBonus)
 			return;
 
-		if (blockingBonus->source == Bonus::ARTIFACT)
+		if (blockingBonus->source == BonusSource::ARTIFACT)
 		{
 			const auto artID = ArtifactID(blockingBonus->sid);
 			//If we have artifact, put name of our hero. Otherwise assume it's the enemy.
@@ -554,40 +530,18 @@ void BattleWindow::blockUI(bool on)
 
 	bool canWait = owner.stacksController->getActiveStack() ? !owner.stacksController->getActiveStack()->waitedThisTurn : false;
 
-	if(auto w = widget<CButton>("options"))
-		w->block(on);
-	if(auto w = widget<CButton>("flee"))
-		w->block(on || !owner.curInt->cb->battleCanFlee());
-	if(auto w = widget<CButton>("surrender"))
-		w->block(on || owner.curInt->cb->battleGetSurrenderCost() < 0);
-	if(auto w = widget<CButton>("cast"))
-		w->block(on || owner.tacticsMode || !canCastSpells);
-	if(auto w = widget<CButton>("wait"))
-		w->block(on || owner.tacticsMode || !canWait);
-	if(auto w = widget<CButton>("defence"))
-		w->block(on || owner.tacticsMode);
-	if(auto w = widget<CButton>("alternativeAction"))
-		w->block(on || owner.tacticsMode);
-	if(auto w = widget<CButton>("autofight"))
-		w->block(owner.actionsController->spellcastingModeActive());
-
-	auto btactEnd = widget<CButton>("tacticEnd");
-	auto btactNext = widget<CButton>("tacticNext");
-	if(owner.tacticsMode && btactEnd && btactNext)
-	{
-		btactNext->block(on);
-		btactEnd->block(on);
-	}
-	else
-	{
-		auto bConsoleUp = widget<CButton>("consoleUp");
-		auto bConsoleDown = widget<CButton>("consoleDown");
-		if(bConsoleUp && bConsoleDown)
-		{
-			bConsoleUp->block(on);
-			bConsoleDown->block(on);
-		}
-	}
+	setShortcutBlocked(EShortcut::GLOBAL_OPTIONS, on);
+	setShortcutBlocked(EShortcut::BATTLE_RETREAT, on || !owner.curInt->cb->battleCanFlee());
+	setShortcutBlocked(EShortcut::BATTLE_SURRENDER, on || owner.curInt->cb->battleGetSurrenderCost() < 0);
+	setShortcutBlocked(EShortcut::BATTLE_CAST_SPELL, on || owner.tacticsMode || !canCastSpells);
+	setShortcutBlocked(EShortcut::BATTLE_WAIT, on || owner.tacticsMode || !canWait);
+	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on || owner.tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_SELECT_ACTION, on || owner.tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, owner.actionsController->spellcastingModeActive());
+	setShortcutBlocked(EShortcut::BATTLE_TACTICS_END, on && owner.tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on && owner.tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_DOWN, on && !owner.tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_UP, on && !owner.tacticsMode);
 }
 
 std::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()

@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "validator.h"
+#include "mapcontroller.h"
 #include "ui_validator.h"
 #include "../lib/mapObjects/MapObjects.h"
 #include "../lib/CHeroHandler.h"
@@ -73,6 +74,8 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 		if(!hplayers)
 			issues.emplace_back("No human players allowed to play this map", true);
 
+		std::set<CHero*> allHeroesOnMap; //used to find hero duplicated
+		
 		//checking all objects in the map
 		for(auto o : map->objects)
 		{
@@ -120,6 +123,9 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 				{
 					if(!map->allowedHeroes[ins->type->getId().getNum()])
 						issues.emplace_back(QString("Hero %1 is prohibited by map settings").arg(ins->type->getNameTranslated().c_str()), false);
+					
+					if(!allHeroesOnMap.insert(ins->type).second)
+						issues.emplace_back(QString("Hero %1 has duplicate on map").arg(ins->type->getNameTranslated().c_str()), false);
 				}
 				else
 					issues.emplace_back(QString("Hero %1 has an empty type and must be removed").arg(ins->instanceName.c_str()), true);
@@ -158,6 +164,15 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 			issues.emplace_back("Map name is not specified", false);
 		if(map->description.empty())
 			issues.emplace_back("Map description is not specified", false);
+		
+		//verificationfor mods
+		for(auto & mod : MapController::modAssessmentMap(*map))
+		{
+			if(!map->mods.count(mod.first))
+			{
+				issues.emplace_back(QString("Map contains object from mod \"%1\", but doesn't require it").arg(QString::fromStdString(VLC->modh->getModInfo(mod.first).name)), true);
+			}
+		}
 	}
 	catch(const std::exception & e)
 	{

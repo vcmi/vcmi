@@ -18,6 +18,7 @@
 #include "../../lib/CGameState.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/TerrainHandler.h"
 
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/CStack.h"
@@ -193,7 +194,7 @@ public:
 
 		const auto & t = *gameCallback->getTile(tile);
 
-		TerrainId terrain = t.terType->id;
+		auto terrain = t.terType->getId();
 		BattleField terType = BattleField::fromString("grass_hills");
 
 		//send info about battles
@@ -263,9 +264,9 @@ TEST_F(CGameStateTest, issue2765)
 
 	for(const CStack * s : gameState->curB->stacks)
 	{
-		if(s->type->getId() == CreatureID::BALLISTA && s->unitSide() == BattleSide::DEFENDER)
+		if(s->unitType()->getId() == CreatureID::BALLISTA && s->unitSide() == BattleSide::DEFENDER)
 			def = s;
-		else if(s->type->getId() == CreatureID(69) && s->unitSide() == BattleSide::ATTACKER)
+		else if(s->unitType()->getId() == CreatureID(69) && s->unitSide() == BattleSide::ATTACKER)
 			att = s;
 	}
 	ASSERT_NE(att, nullptr);
@@ -373,7 +374,7 @@ TEST_F(CGameStateTest, battleResurrection)
 
 	ASSERT_NE(unit, nullptr);
 
-	int64_t damage = unit->MaxHealth() + 1;
+	int64_t damage = unit->getMaxHealth() + 1;
 
 	unit->damage(damage);
 

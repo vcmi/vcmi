@@ -19,7 +19,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/CAdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
@@ -160,6 +160,7 @@ void MapView::onViewMapActivated()
 PuzzleMapView::PuzzleMapView(const Point & offset, const Point & dimensions, const int3 & tileToCenter)
 	: BasicMapView(offset, dimensions)
 {
-	controller->setViewCenter(tileToCenter);
 	controller->activatePuzzleMapContext(tileToCenter);
+	controller->setViewCenter(tileToCenter);
+
 }

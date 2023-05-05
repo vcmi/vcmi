@@ -45,7 +45,7 @@ static void describeEffect(std::vector<MetaString> & log, const Mechanics * m, c
 	{
 		switch(bonus.type)
 		{
-		case Bonus::NOT_ACTIVE:
+		case BonusType::NOT_ACTIVE:
 			{
 				switch(bonus.subtype)
 				{
@@ -60,17 +60,17 @@ static void describeEffect(std::vector<MetaString> & log, const Mechanics * m, c
 				}
 			}
 			break;
-		case Bonus::POISON:
+		case BonusType::POISON:
 			addLogLine(561, boost::logic::indeterminate);
 			return;
-		case Bonus::BIND_EFFECT:
+		case BonusType::BIND_EFFECT:
 			addLogLine(-560, true);
 			return;
-		case Bonus::STACK_HEALTH:
+		case BonusType::STACK_HEALTH:
 			{
 				if(bonus.val < 0)
 				{
-					BonusList unitHealth = *target->getBonuses(Selector::type()(Bonus::STACK_HEALTH));
+					BonusList unitHealth = *target->getBonuses(Selector::type()(BonusType::STACK_HEALTH));
 
 					auto oldHealth = unitHealth.totalValue();
 					unitHealth.push_back(std::make_shared<Bonus>(bonus));
@@ -108,9 +108,9 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 	const auto *casterHero = dynamic_cast<const CGHeroInstance *>(m->caster);
 	if(casterHero)
 	{ 
-		peculiarBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, m->getSpellIndex()));
-		addedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_ADD_VALUE_ENCHANT, m->getSpellIndex()));
-		fixedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_FIXED_VALUE_ENCHANT, m->getSpellIndex()));
+		peculiarBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_PECULIAR_ENCHANT, m->getSpellIndex()));
+		addedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_ADD_VALUE_ENCHANT, m->getSpellIndex()));
+		fixedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(BonusType::SPECIAL_FIXED_VALUE_ENCHANT, m->getSpellIndex()));
 	}	
 	//TODO: does hero specialty should affects his stack casting spells?
 
@@ -220,13 +220,13 @@ void Timed::convertBonus(const Mechanics * m, int32_t & duration, std::vector<Bo
 		vstd::amax(maxDuration, nb.turnsRemain);
 
 		nb.sid = m->getSpellIndex(); //for all
-		nb.source = Bonus::SPELL_EFFECT;//for all
+		nb.source = BonusSource::SPELL_EFFECT;//for all
 
 		//fix to original config: shield should display damage reduction
-		if((nb.sid == SpellID::SHIELD || nb.sid == SpellID::AIR_SHIELD) && (nb.type == Bonus::GENERAL_DAMAGE_REDUCTION))
+		if((nb.sid == SpellID::SHIELD || nb.sid == SpellID::AIR_SHIELD) && (nb.type == BonusType::GENERAL_DAMAGE_REDUCTION))
 			nb.val = 100 - nb.val;
 		//we need to know who cast Bind
-		else if(nb.sid == SpellID::BIND && nb.type == Bonus::BIND_EFFECT && m->caster->getHeroCaster() == nullptr)
+		else if(nb.sid == SpellID::BIND && nb.type == BonusType::BIND_EFFECT && m->caster->getHeroCaster() == nullptr)
 			nb.additionalInfo = m->caster->getCasterUnitId();
 
 		converted.push_back(nb);

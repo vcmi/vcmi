@@ -24,11 +24,11 @@ PlayerSettings::PlayerSettings(MapController & ctrl, QWidget *parent) :
 
 	int players = 0;
 	const int minAllowedPlayers = 1;
-	for(auto & p : controller.map()->players)
+	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
-		if(p.canAnyonePlay())
+		if(controller.map()->players[i].canAnyonePlay())
 		{
-			paramWidgets.push_back(new PlayerParams(controller, players));
+			paramWidgets.push_back(new PlayerParams(controller, i));
 			ui->playersLayout->addWidget(paramWidgets.back());
 			++players;
 		}
@@ -51,22 +51,29 @@ void PlayerSettings::on_playersCount_currentIndexChanged(int index)
 {
 	const auto selectedPlayerCount = index + 1;
 	assert(selectedPlayerCount <= controller.map()->players.size());
+	std::set<int> availableColors{0, 1, 2, 3, 4, 5, 6, 7};
 
 	for(int i = 0; i < selectedPlayerCount; ++i)
 	{
 		if(i < paramWidgets.size())
+		{
+			availableColors.erase(paramWidgets[i]->playerColor);
 			continue;
+		}
 
-		auto & p = controller.map()->players[i];
+		assert(!availableColors.empty());
+		auto plColor = *availableColors.begin();
+		auto & p = controller.map()->players[plColor];
 		p.canComputerPlay = true;
-		paramWidgets.push_back(new PlayerParams(controller, i));
+		paramWidgets.push_back(new PlayerParams(controller, plColor));
+		availableColors.erase(plColor);
 		ui->playersLayout->addWidget(paramWidgets.back());
 	}
 
 	assert(!paramWidgets.empty());
 	for(int i = paramWidgets.size() - 1; i >= selectedPlayerCount; --i)
 	{
-		auto & p = controller.map()->players[i];
+		auto & p = controller.map()->players[paramWidgets[i]->playerColor];
 		p.canComputerPlay = false;
 		p.canHumanPlay = false;
 		ui->playersLayout->removeWidget(paramWidgets[i]);

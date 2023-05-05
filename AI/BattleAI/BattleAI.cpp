@@ -102,14 +102,14 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 	try
 	{
-		if(stack->type->getId() == CreatureID::CATAPULT)
+		if(stack->creatureId() == CreatureID::CATAPULT)
 			return useCatapult(stack);
-		if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->hasBonusOfType(Bonus::HEALER))
+		if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON) && stack->hasBonusOfType(BonusType::HEALER))
 		{
 			auto healingTargets = cb->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);
 			std::map<int, const CStack*> woundHpToStack;
 			for(auto stack : healingTargets)
-				if(auto woundHp = stack->MaxHealth() - stack->getFirstHPleft())
+				if(auto woundHp = stack->getMaxHealth() - stack->getFirstHPleft())
 					woundHpToStack[woundHp] = stack;
 			if(woundHpToStack.empty())
 				return BattleAction::makeDefend(stack);
@@ -137,7 +137,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		std::optional<PossibleSpellcast> bestSpellcast(std::nullopt);
 		//TODO: faerie dragon type spell should be selected by server
 		SpellID creatureSpellToCast = cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), stack, CBattleInfoCallback::RANDOM_AIMED);
-		if(stack->hasBonusOfType(Bonus::SPELLCASTER) && stack->canCast() && creatureSpellToCast != SpellID::NONE)
+		if(stack->hasBonusOfType(BonusType::SPELLCASTER) && stack->canCast() && creatureSpellToCast != SpellID::NONE)
 		{
 			const CSpell * spell = creatureSpellToCast.toSpell();
 
@@ -214,7 +214,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 					bestAttack.attackerState->unitType()->getJsonKey(),
 					bestAttack.affectedUnits[0]->unitType()->getJsonKey(),
 					(int)bestAttack.affectedUnits[0]->getCount(), action, (int)bestAttack.from, (int)bestAttack.attack.attacker->getPosition().hex,
-					bestAttack.attack.chargeDistance, bestAttack.attack.attacker->Speed(0, true),
+					bestAttack.attack.chargeDistance, bestAttack.attack.attacker->speed(0, true),
 					bestAttack.defenderDamageReduce, bestAttack.attackerDamageReduce, bestAttack.attackValue()
 				);
 			}
@@ -241,7 +241,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		}
 
 		if(score <= EvaluationResult::INEFFECTIVE_SCORE
-			&& !stack->hasBonusOfType(Bonus::FLYING)
+			&& !stack->hasBonusOfType(BonusType::FLYING)
 			&& stack->unitSide() == BattleSide::ATTACKER
 			&& cb->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
 		{
@@ -282,7 +282,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes) const
 {
 	auto reachability = cb->getReachability(stack);
-	auto avHexes = cb->battleGetAvailableHexes(reachability, stack, true);
+	auto avHexes = cb->battleGetAvailableHexes(reachability, stack, false);
 
 	if(!avHexes.size() || !hexes.size()) //we are blocked or dest is blocked
 	{
@@ -321,7 +321,7 @@ BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<Battl
 
 	scoreEvaluator.updateReachabilityMap(hb);
 
-	if(stack->hasBonusOfType(Bonus::FLYING))
+	if(stack->hasBonusOfType(BonusType::FLYING))
 	{
 		std::set<BattleHex> obstacleHexes;
 
@@ -420,7 +420,7 @@ BattleAction CBattleAI::useCatapult(const CStack * stack)
 	attack.aimToHex(targetHex);
 	attack.actionType = EActionType::CATAPULT;
 	attack.side = side;
-	attack.stackNumber = stack->ID;
+	attack.stackNumber = stack->unitId();
 
 	movesSkippedByDefense = 0;
 
@@ -815,7 +815,7 @@ std::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 	{
 		if(stack->alive())
 		{
-			if(stack->side == bs.ourSide)
+			if(stack->unitSide() == bs.ourSide)
 				bs.ourStacks.push_back(stack);
 			else
 			{

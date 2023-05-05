@@ -17,11 +17,12 @@
 #include "../../CCallback.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../PlayerLocalState.h"
 
 #include "../../lib/CPathfinder.h"
 #include "../../lib/Point.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapping/CMap.h"
 
 MapRendererBaseContext::MapRendererBaseContext(const MapRendererContextState & viewState)
@@ -73,9 +74,9 @@ bool MapRendererBaseContext::isActiveHero(const CGObjectInstance * obj) const
 	if(obj->ID == Obj::HERO)
 	{
 		assert(dynamic_cast<const CGHeroInstance *>(obj) != nullptr);
-		if(adventureInt->curHero() != nullptr)
+		if(LOCPLINT->localState->getCurrentHero() != nullptr)
 		{
-			if(obj->id == adventureInt->curHero()->id)
+			if(obj->id == LOCPLINT->localState->getCurrentHero()->id)
 				return true;
 		}
 	}
@@ -199,6 +200,11 @@ bool MapRendererBaseContext::showBlocked() const
 	return false;
 }
 
+bool MapRendererBaseContext::showSpellRange(const int3 & position) const
+{
+	return false;
+}
+
 MapRendererAdventureContext::MapRendererAdventureContext(const MapRendererContextState & viewState)
 	: MapRendererBaseContext(viewState)
 {
@@ -206,15 +212,15 @@ MapRendererAdventureContext::MapRendererAdventureContext(const MapRendererContex
 
 const CGPath * MapRendererAdventureContext::currentPath() const
 {
-	const auto * hero = adventureInt->curHero();
+	const auto * hero = LOCPLINT->localState->getCurrentHero();
 
 	if(!hero)
 		return nullptr;
 
-	if(!LOCPLINT->paths.hasPath(hero))
+	if(!LOCPLINT->localState->hasPath(hero))
 		return nullptr;
 
-	return &LOCPLINT->paths.getPath(hero);
+	return &LOCPLINT->localState->getPath(hero);
 }
 
 size_t MapRendererAdventureContext::objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const
@@ -264,6 +270,19 @@ bool MapRendererAdventureContext::showVisitable() const
 bool MapRendererAdventureContext::showBlocked() const
 {
 	return settingShowBlocked;
+}
+
+bool MapRendererAdventureContext::showSpellRange(const int3 & position) const
+{
+	if (!settingSpellRange)
+		return false;
+
+	auto hero = LOCPLINT->localState->getCurrentHero();
+
+	if (!hero)
+		return false;
+
+	return !isInScreenRange(hero->getSightCenter(), position);
 }
 
 MapRendererAdventureTransitionContext::MapRendererAdventureTransitionContext(const MapRendererContextState & viewState)

@@ -19,6 +19,7 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/TextAlignment.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
@@ -42,9 +43,10 @@ TConstBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector &
 	TConstBonusListPtr heroBonuses = hero->getAllBonuses(selector, limit, hero, cachingStr);
 	TConstBonusListPtr bonusesFromPickedUpArtifact;
 
-	std::shared_ptr<CArtifactsOfHero::SCommonPart> cp = cww->getCommonPart();
-	if(cp && cp->src.art && cp->src.valid() && cp->src.AOH && cp->src.AOH->getHero() == hero)
-		bonusesFromPickedUpArtifact = cp->src.art->getAllBonuses(selector, limit, hero);
+	const auto pickedArtInst = cww->getPickedArtifact();
+
+	if(pickedArtInst)
+		bonusesFromPickedUpArtifact = pickedArtInst->getAllBonuses(selector, limit, hero);
 	else
 		bonusesFromPickedUpArtifact = TBonusListPtr(new BonusList());
 
@@ -64,8 +66,18 @@ int64_t CHeroWithMaybePickedArtifact::getTreeVersion() const
 si32 CHeroWithMaybePickedArtifact::manaLimit() const
 {
 	//TODO: reduplicate code with CGHeroInstance
-	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE) * (valOfBonuses(Bonus::MANA_PER_KNOWLEDGE)));
+	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE) * (valOfBonuses(BonusType::MANA_PER_KNOWLEDGE)));
 }
+
+const IBonusBearer * CHeroWithMaybePickedArtifact::getBonusBearer() const 
+{
+	return this;
+}
+
+FactionID CHeroWithMaybePickedArtifact::getFaction() const
+{
+	return hero->getFaction();
+} 
 
 CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts * Cww, const CGHeroInstance * Hero)
 	: hero(Hero), cww(Cww)
@@ -118,22 +130,21 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 
 	statusbar = CGStatusBar::create(7, 559, "ADROLLVR.bmp", 660);
 
-	quitButton = std::make_shared<CButton>(Point(609, 516), "hsbtns.def", CButton::tooltip(heroscrn[17]), [=](){ close(); }, SDLK_RETURN);
-	quitButton->assignedKeys.insert(SDLK_ESCAPE);
+	quitButton = std::make_shared<CButton>(Point(609, 516), "hsbtns.def", CButton::tooltip(heroscrn[17]), [=](){ close(); }, EShortcut::GLOBAL_RETURN);
 
 	dismissLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[8], Rect(370, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-	dismissButton = std::make_shared<CButton>(Point(454, 429), "hsbtns2.def", CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, SDLK_d);
+	dismissButton = std::make_shared<CButton>(Point(454, 429), "hsbtns2.def", CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
 
 	questlogLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[9], Rect(510, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-	questlogButton = std::make_shared<CButton>(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, SDLK_q);
+	questlogButton = std::make_shared<CButton>(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
 
 	formations = std::make_shared<CToggleGroup>(0);
-	formations->addToggle(0, std::make_shared<CToggleButton>(Point(481, 483), "hsbtns6.def", std::make_pair(heroscrn[23], heroscrn[29]), 0, SDLK_t));
-	formations->addToggle(1, std::make_shared<CToggleButton>(Point(481, 519), "hsbtns7.def", std::make_pair(heroscrn[24], heroscrn[30]), 0, SDLK_l));
+	formations->addToggle(0, std::make_shared<CToggleButton>(Point(481, 483), "hsbtns6.def", std::make_pair(heroscrn[23], heroscrn[29]), 0, EShortcut::HERO_TIGHT_FORMATION));
+	formations->addToggle(1, std::make_shared<CToggleButton>(Point(481, 519), "hsbtns7.def", std::make_pair(heroscrn[24], heroscrn[30]), 0, EShortcut::HERO_LOOSE_FORMATION));
 
 	if(hero->commander)
 	{
-		commanderButton = std::make_shared<CButton>(Point(317, 18), "buttons/commander", CButton::tooltipLocalized("vcmi.heroWindow.openCommander"), [&](){ commanderWindow(); }, SDLK_c);
+		commanderButton = std::make_shared<CButton>(Point(317, 18), "buttons/commander", CButton::tooltipLocalized("vcmi.heroWindow.openCommander"), [&](){ commanderWindow(); }, EShortcut::HERO_COMMANDER);
 	}
 
 	//right list of heroes
@@ -223,7 +234,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	specImage->setFrame(curHero->type->imageIndex);
 	specName->setText(curHero->type->getSpecialtyNameTranslated());
 
-	tacticsButton = std::make_shared<CToggleButton>(Point(539, 483), "hsbtns8.def", std::make_pair(heroscrn[26], heroscrn[31]), 0, SDLK_b);
+	tacticsButton = std::make_shared<CToggleButton>(Point(539, 483), "hsbtns8.def", std::make_pair(heroscrn[26], heroscrn[31]), 0, EShortcut::HERO_TOGGLE_TACTICS);
 	tacticsButton->addHoverText(CButton::HIGHLIGHTED, CGI->generaltexth->heroscrn[25]);
 
 	dismissButton->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->heroscrn[16]) % curHero->getNameTranslated() % curHero->type->heroClass->getNameTranslated()));
@@ -244,7 +255,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 		}
 		if(!arts)
 		{
-			arts = std::make_shared<CArtifactsOfHero>(Point(-65, -8), true);
+			arts = std::make_shared<CArtifactsOfHeroMain>(Point(-65, -8));
 			arts->setHero(curHero);
 			addSet(arts);
 		}
@@ -323,7 +334,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	dismissButton->block(!!curHero->visitedTown || noDismiss);
 
-	if(curHero->valOfBonuses(Selector::type()(Bonus::BEFORE_BATTLE_REPOSITION)) == 0)
+	if(curHero->valOfBonuses(Selector::type()(BonusType::BEFORE_BATTLE_REPOSITION)) == 0)
 	{
 		tacticsButton->block(true);
 	}
@@ -354,25 +365,23 @@ void CHeroWindow::dismissCurrent()
 
 void CHeroWindow::commanderWindow()
 {
-	//bool artSelected = false;
-	std::shared_ptr<CArtifactsOfHero::SCommonPart> commonInfo = getCommonPart();
+	const auto pickedArtInst = getPickedArtifact();
+	const auto hero = getHeroPickedArtifact();
 
-	if(const CArtifactInstance *art = commonInfo->src.art)
+	if(pickedArtInst)
 	{
-		const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
-		//artSelected = true;
-		const auto freeSlot = ArtifactUtils::getArtAnyPosition(curHero->commander, art->artType->getId());
+		const auto freeSlot = ArtifactUtils::getArtAnyPosition(curHero->commander, pickedArtInst->getTypeId());
 		if(freeSlot < ArtifactPosition::COMMANDER_AFTER_LAST) //we don't want to put it in commander's backpack!
 		{
-			ArtifactLocation src(srcHero, commonInfo->src.slotID);
+			ArtifactLocation src(hero, ArtifactPosition::TRANSITION_POS);
 			ArtifactLocation dst(curHero->commander.get(), freeSlot);
 
-			if(art->canBePutAt(dst, true))
+			if(pickedArtInst->canBePutAt(dst, true))
 			{	//equip clicked stack
 				if(dst.getArt())
 				{
-					LOCPLINT->cb->swapArtifacts (dst, ArtifactLocation(srcHero,
-						ArtifactUtils::getArtBackpackPosition(srcHero, art->getTypeId())));
+					LOCPLINT->cb->swapArtifacts(dst, ArtifactLocation(hero,
+						ArtifactUtils::getArtBackpackPosition(hero, pickedArtInst->getTypeId())));
 				}
 				LOCPLINT->cb->swapArtifacts(src, dst);
 			}

@@ -79,8 +79,8 @@ public:
 
 struct CasualtiesAfterBattle
 {
-	typedef std::pair<StackLocation, int> TStackAndItsNewCount;
-	typedef std::map<CreatureID, TQuantity> TSummoned;
+	using TStackAndItsNewCount = std::pair<StackLocation, int>;
+	using TSummoned = std::map<CreatureID, TQuantity>;
 	enum {ERASE = -1};
 	const CArmedInstance * army;
 	std::vector<TStackAndItsNewCount> newStackCounts;
@@ -200,7 +200,7 @@ public:
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override;
 
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override;
-	void changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide) override;
+	void changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, bool hide) override;
 	
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override;
 
@@ -343,7 +343,7 @@ public:
 	void newTurn();
 	void handleAttackBeforeCasting(bool ranged, const CStack * attacker, const CStack * defender);
 	void handleAfterAttackCasting(bool ranged, const CStack * attacker, const CStack * defender);
-	void attackCasting(bool ranged, Bonus::BonusType attackMode, const battle::Unit * attacker, const battle::Unit * defender);
+	void attackCasting(bool ranged, BonusType attackMode, const battle::Unit * attacker, const battle::Unit * defender);
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactPosition> & slot);
 	void spawnWanderingMonsters(CreatureID creatureID);
 	void handleCheatCode(std::string & cheat, PlayerColor player, const CGHeroInstance * hero, const CGTownInstance * town, bool & cheated);

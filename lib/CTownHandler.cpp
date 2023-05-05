@@ -23,7 +23,8 @@
 #include "filesystem/Filesystem.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "mapObjects/CObjectHandler.h"
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/Propagators.h"
 #include "ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -499,7 +500,7 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 	{
 		if(building->bid == BuildingID::TAVERN)
 		{
-			b = createBonus(building, Bonus::MORALE, +1);
+			b = createBonus(building, BonusType::MORALE, +1);
 		}
 	}
 	else
@@ -507,23 +508,23 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 		switch(building->subId)
 		{
 		case BuildingSubID::BROTHERHOOD_OF_SWORD:
-			b = createBonus(building, Bonus::MORALE, +2);
+			b = createBonus(building, BonusType::MORALE, +2);
 			building->overrideBids.insert(BuildingID::TAVERN);
 			break;
 		case BuildingSubID::FOUNTAIN_OF_FORTUNE:
-			b = createBonus(building, Bonus::LUCK, +2);
+			b = createBonus(building, BonusType::LUCK, +2);
 			break;
 		case BuildingSubID::SPELL_POWER_GARRISON_BONUS:
-			b = createBonus(building, Bonus::PRIMARY_SKILL, +2, PrimarySkill::SPELL_POWER);
+			b = createBonus(building, BonusType::PRIMARY_SKILL, +2, PrimarySkill::SPELL_POWER);
 			break;
 		case BuildingSubID::ATTACK_GARRISON_BONUS:
-			b = createBonus(building, Bonus::PRIMARY_SKILL, +2, PrimarySkill::ATTACK);
+			b = createBonus(building, BonusType::PRIMARY_SKILL, +2, PrimarySkill::ATTACK);
 			break;
 		case BuildingSubID::DEFENSE_GARRISON_BONUS:
-			b = createBonus(building, Bonus::PRIMARY_SKILL, +2, PrimarySkill::DEFENSE);
+			b = createBonus(building, BonusType::PRIMARY_SKILL, +2, PrimarySkill::DEFENSE);
 			break;
 		case BuildingSubID::LIGHTHOUSE:
-			b = createBonus(building, Bonus::MOVEMENT, +500, playerPropagator, 0);
+			b = createBonus(building, BonusType::MOVEMENT, +500, playerPropagator, 0);
 			break;
 		}
 	}
@@ -531,12 +532,12 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 		building->addNewBonus(b, building->buildingBonuses);
 }
 
-std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, Bonus::BonusType type, int val, int subtype) const
+std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, int subtype) const
 {
 	return createBonus(build, type, val, emptyPropagator(), subtype);
 }
 
-std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype) const
+std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, BonusType type, int val, TPropagatorPtr & prop, int subtype) const
 {
 	std::ostringstream descr;
 	descr << build->getNameTranslated();
@@ -544,13 +545,13 @@ std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, Bonus::Bonus
 }
 
 std::shared_ptr<Bonus> CTownHandler::createBonusImpl(const BuildingID & building,
-													 Bonus::BonusType type,
+													 BonusType type,
 													 int val,
 													 TPropagatorPtr & prop,
 													 const std::string & description,
 													 int subtype) const
 {
-	auto b = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::TOWN_STRUCTURE, val, building, description, subtype);
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::TOWN_STRUCTURE, val, building, description, subtype);
 
 	if(prop)
 		b->addPropagator(prop);

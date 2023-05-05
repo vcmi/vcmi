@@ -15,6 +15,7 @@
 #include "mapping/CMapInfo.h"
 #include "mapping/CCampaignHandler.h"
 #include "mapping/CMap.h"
+#include "mapping/CMapService.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -67,8 +68,16 @@ std::string StartInfo::getCampaignName() const
 
 void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 {
-	if(!mi)
+	if(!mi || !mi->mapHeader)
 		throw std::domain_error("ExceptionMapMissing");
+	
+	auto missingMods = CMapService::verifyMapHeaderMods(*mi->mapHeader);
+	CModHandler::Incompatibility::ModList modList;
+	for(const auto & m : missingMods)
+		modList.push_back({m.first, m.second.toString()});
+	
+	if(!modList.empty())
+		throw CModHandler::Incompatibility(std::move(modList));
 
 	//there must be at least one human player before game can be started
 	std::map<PlayerColor, PlayerSettings>::const_iterator i;

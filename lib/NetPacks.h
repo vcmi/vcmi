@@ -308,7 +308,7 @@ struct DLL_LINKAGE FoWChange : public CPackForClient
 {
 	void applyGs(CGameState * gs);
 
-	std::unordered_set<int3, struct ShashInt3 > tiles;
+	std::unordered_set<int3> tiles;
 	PlayerColor player;
 	ui8 mode = 0; //mode==0 - hide, mode==1 - reveal
 	bool waitForDialogs = false;
@@ -590,7 +590,7 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 	ui32 movePoints = 0;
 	EResult result = FAILED; //uses EResult
 	int3 start, end; //h3m format
-	std::unordered_set<int3, ShashInt3> fowRevealed; //revealed tiles
+	std::unordered_set<int3> fowRevealed; //revealed tiles
 	std::optional<int3> attackedFrom; // Set when stepping into endangered tile.
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;

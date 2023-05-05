@@ -14,7 +14,7 @@
 #include "../lib/ResourceSet.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/int3.h"
-#include "../widgets/CArtifactHolder.h"
+#include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/Images.h"
 
@@ -194,7 +194,7 @@ public:
 	std::shared_ptr<CIntObject> genItem(size_t index);
 	void elementSelected();//call callback and close this window
 	void changeSelection(size_t which);
-	void keyPressed(const SDL_Keycode & key) override;
+	void keyPressed(EShortcut key) override;
 };
 
 class CTavernWindow : public CStatusbarWindow
@@ -327,7 +327,7 @@ class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public 
 
 public:
 	std::array<const CGHeroInstance *, 2> heroInst;
-	std::array<std::shared_ptr<CArtifactsOfHero>, 2> artifs;
+	std::array<std::shared_ptr<CArtifactsOfHeroMain>, 2> artifs;
 
 	void updateGarrisons() override;
 
@@ -382,7 +382,7 @@ class CTransformerWindow : public CStatusbarWindow, public CGarrisonHolder
 
 	const CArmedInstance * army;//object with army for transforming (hero or town)
 	const CGHeroInstance * hero;//only if we have hero in town
-	const CGTownInstance * town;//market, town garrison is used if hero == nullptr
+	const IMarket * market;//market, town garrison is used if hero == nullptr
 
 	std::shared_ptr<CLabel> titleLeft;
 	std::shared_ptr<CLabel> titleRight;
@@ -399,7 +399,7 @@ public:
 	void makeDeal();
 	void addAll();
 	void updateGarrisons() override;
-	CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town);
+	CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero);
 };
 
 class CUniversityWindow : public CStatusbarWindow

@@ -53,7 +53,7 @@ class BattleFieldController : public CIntObject
 	std::set<BattleHex> getHighlightedHexesForActiveStack();
 	std::set<BattleHex> getMovementRangeForHoveredStack();
 	std::set<BattleHex> getHighlightedHexesForSpellRange();
-	std::set<BattleHex> getHighlightedHexesMovementTarget();
+	std::set<BattleHex> getHighlightedHexesForMovementTarget();
 
 	void showBackground(Canvas & canvas);
 	void showBackgroundImage(Canvas & canvas);

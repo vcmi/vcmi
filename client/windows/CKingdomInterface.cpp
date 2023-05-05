@@ -17,6 +17,7 @@
 #include "../CPlayerInterface.h"
 #include "../adventureMap/CResDataBar.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
@@ -585,7 +586,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
 	for(auto & heroe : heroes)
 	{
-		totalIncome += heroe->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, GameResID(EGameResID::GOLD)));
+		totalIncome += heroe->valOfBonuses(Selector::typeSubtype(BonusType::GENERATE_RESOURCE, GameResID(EGameResID::GOLD)));
 	}
 
 	//Add town income of all towns
@@ -613,15 +614,14 @@ void CKingdomInterface::generateButtons()
 
 	//Main control buttons
 	btnHeroes = std::make_shared<CButton>(Point(748, 28+footerPos), "OVBUTN1.DEF", CButton::tooltip(CGI->generaltexth->overview[11], CGI->generaltexth->overview[6]),
-		std::bind(&CKingdomInterface::activateTab, this, 0), SDLK_h);
+		std::bind(&CKingdomInterface::activateTab, this, 0), EShortcut::KINGDOM_HEROES_TAB);
 	btnHeroes->block(true);
 
 	btnTowns = std::make_shared<CButton>(Point(748, 64+footerPos), "OVBUTN6.DEF", CButton::tooltip(CGI->generaltexth->overview[12], CGI->generaltexth->overview[7]),
-		std::bind(&CKingdomInterface::activateTab, this, 1), SDLK_t);
+		std::bind(&CKingdomInterface::activateTab, this, 1), EShortcut::KINGDOM_TOWNS_TAB);
 
 	btnExit = std::make_shared<CButton>(Point(748,99+footerPos), "OVBUTN1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[600]),
-		std::bind(&CKingdomInterface::close, this), SDLK_RETURN);
-	btnExit->assignedKeys.insert(SDLK_ESCAPE);
+		std::bind(&CKingdomInterface::close, this), EShortcut::GLOBAL_RETURN);
 	btnExit->setImageOrder(3, 4, 5, 6);
 
 	//Object list control buttons
@@ -826,7 +826,7 @@ public:
 		background = std::make_shared<CAnimImage>("OVSLOT", 4);
 		pos = background->pos;
 		for(int i=0; i<9; i++)
-			arts.push_back(std::make_shared<CHeroArtPlace>(Point(270+i*48, 65)));
+			arts.push_back(std::make_shared<CHeroArtPlace>(Point(269+i*48, 66)));
 	}
 };
 
@@ -846,7 +846,7 @@ public:
 		btnLeft = std::make_shared<CButton>(Point(269, 66), "HSBTNS3", CButton::tooltip(), 0);
 		btnRight = std::make_shared<CButton>(Point(675, 66), "HSBTNS5", CButton::tooltip(), 0);
 		for(int i=0; i<8; i++)
-			arts.push_back(std::make_shared<CHeroArtPlace>(Point(295+i*48, 65)));
+			arts.push_back(std::make_shared<CHeroArtPlace>(Point(294+i*48, 66)));
 	}
 };
 
@@ -872,7 +872,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	assert(arts1->arts.size() == 9);
 	assert(arts2->arts.size() == 9);
 
-	CArtifactsOfHero::ArtPlaceMap arts =
+	CArtifactsOfHeroMain::ArtPlaceMap arts =
 	{
 		{ArtifactPosition::HEAD, arts1->arts[0]},
 		{ArtifactPosition::SHOULDERS,arts1->arts[1]},
@@ -896,7 +896,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	};
 
 
-	heroArts = std::make_shared<CArtifactsOfHero>(arts, backpack->arts, backpack->btnLeft, backpack->btnRight, true);
+	heroArts = std::make_shared<CArtifactsOfHeroKingdom>(arts, backpack->arts, backpack->btnLeft, backpack->btnRight);
 	heroArts->setHero(hero);
 
 	artsTabs = std::make_shared<CTabbedInt>(std::bind(&CHeroItem::onTabSelected, this, _1));

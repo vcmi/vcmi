@@ -11,9 +11,6 @@
 
 #include "../gui/CIntObject.h"
 
-#include "../../lib/int3.h"
-#include "../../lib/GameConstants.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
@@ -23,6 +20,8 @@ class CArmedInstance;
 class IShipyard;
 struct CGPathNode;
 struct ObjectPosInfo;
+struct Component;
+class int3;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -43,38 +42,28 @@ class MapAudioPlayer;
 
 struct MapDrawingInfo;
 
-enum class EAdvMapMode
-{
-	NORMAL,
-	WORLD_VIEW
-};
-
 /// That's a huge class which handles general adventure map actions and
 /// shows the right menu(questlog, spellbook, end turn,..) from where you
 /// can get to the towns and heroes.
-class CAdvMapInt : public CIntObject
+class CAdventureMapInterface : public CIntObject
 {
-	//TODO: remove
-	friend class CPlayerInterface;
-
 private:
-	enum EDirections {LEFT=1, RIGHT=2, UP=4, DOWN=8};
-	enum EGameStates {NA, INGAME, WAITING};
+	enum class EGameState
+	{
+		NOT_INITIALIZED,
+		HOTSEAT_WAIT,
+		MAKING_TURN,
+		ENEMY_TURN,
+		WORLD_VIEW
+	};
 
-	EGameStates state;
-	EAdvMapMode mode;
-
-	/// Currently selected object, can be town, hero or null
-	const CArmedInstance *selection;
+	EGameState state;
 
 	/// currently acting player
-	PlayerColor player;
-
-	bool duringAITurn;
+	PlayerColor currentPlayerID;
 
 	/// uses EDirections enum
-	ui8 scrollingDir;
-	bool scrollingState;
+	bool scrollingCursorSet;
 
 	const CSpell *spellBeingCasted; //nullptr if none
 
@@ -127,15 +116,15 @@ private:
 	void fnextHero();
 	void fendTurn();
 
-	void setScrollingCursor(ui8 direction) const;
-	void selectionChanged();
+	void hotkeyMoveHeroDirectional(Point direction);
+
 	bool isActive();
 	void adjustActiveness(bool aiTurnStart); //should be called every time at AI/human turn transition; blocks GUI during AI turn
 
 	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const; //checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or nullptr else
-	//button updates
-	void updateSleepWake(const CGHeroInstance *h);
-	void updateSpellbook(const CGHeroInstance *h);
+
+	// update locked state of buttons
+	void updateButtons();
 
 	void handleMapScrollingUpdate();
 
@@ -143,11 +132,17 @@ private:
 
 	const CGObjectInstance *getActiveObject(const int3 &tile);
 
-	std::optional<Point> keyToMoveDirection(const SDL_Keycode & key);
+	std::optional<Point> keyToMoveDirection(EShortcut key);
 
-public:
-	CAdvMapInt();
+	void endingTurn();
 
+	/// exits currently opened world view mode and returns to normal map
+	void exitWorldView();
+	void exitCastingMode();
+	void leaveCastingMode(const int3 & castTarget);
+	void abortCastingMode();
+
+protected:
 	// CIntObject interface implementation
 
 	void activate() override;
@@ -156,58 +151,69 @@ public:
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 
-	void keyPressed(const SDL_Keycode & key) override;
-	void keyReleased(const SDL_Keycode & key) override;
-	void mouseMoved (const Point & cursorPosition) override;
+	void keyPressed(EShortcut key) override;
 
-	// public interface
+public:
+	CAdventureMapInterface();
 
-	/// called by MapView whenever currently visible area changes
-	/// visibleArea describen now visible map section measured in tiles
-	void onMapViewMoved(const Rect & visibleArea, int mapLevel);
+	/// Called by PlayerInterface when specified player is ready to start his turn
+	void onHotseatWaitStarted(PlayerColor playerID);
 
-	/// Called when map audio should be paused, e.g. on combat or town scren access
+	/// Called by PlayerInterface when AI or remote human player starts his turn
+	void onEnemyTurnStarted(PlayerColor playerID);
+
+	/// Called by PlayerInterface when local human player starts his turn
+	void onPlayerTurnStarted(PlayerColor playerID);
+
+	/// Called by PlayerInterface when interface should be switched to specified player without starting turn
+	void onCurrentPlayerChanged(PlayerColor playerID);
+
+	/// Called by PlayerInterface when specific map tile changed and must be updated on minimap
+	void onMapTilesChanged(boost::optional<std::unordered_set<int3>> positions);
+
+	/// Called by PlayerInterface when hero starts movement
+	void onHeroMovementStarted(const CGHeroInstance * hero);
+
+	/// Called by PlayerInterface when hero state changed and hero list must be updated
+	void onHeroChanged(const CGHeroInstance * hero);
+
+	/// Called by PlayerInterface when town state changed and town list must be updated
+	void onTownChanged(const CGTownInstance * town);
+
+	/// Called when currently selected object changes
+	void onSelectionChanged(const CArmedInstance *sel);
+
+	/// Called when map audio should be paused, e.g. on combat or town screen access
 	void onAudioPaused();
 
 	/// Called when map audio should be resume, opposite to onPaused
 	void onAudioResumed();
 
-	void select(const CArmedInstance *sel, bool centerView = true);
+	/// Requests to display provided information inside infobox
+	void showInfoBoxMessage(const std::vector<Component> & components, std::string message, int timer);
+
+	/// Changes position on map to center selected location
 	void centerOnTile(int3 on);
 	void centerOnObject(const CGObjectInstance *obj);
 
-	bool isHeroSleeping(const CGHeroInstance *hero);
-	void setHeroSleeping(const CGHeroInstance *hero, bool sleep);
-	int getNextHeroIndex(int startIndex); //for Next Hero button - cycles awake heroes with movement only
+	/// called by MapView whenever currently visible area changes
+	/// visibleArea describes now visible map section measured in tiles
+	void onMapViewMoved(const Rect & visibleArea, int mapLevel);
 
-	void setPlayer(PlayerColor Player);
-	void startHotSeatWait(PlayerColor Player);
-	void startTurn();
-	void initializeNewTurn();
-	void endingTurn();
-	void aiTurnStarted();
-
-	void quickCombatLock(); //should be called when quick battle started
-	void quickCombatUnlock();
-
+	/// called by MapView whenever tile is clicked
 	void onTileLeftClicked(const int3 & mapPos);
+
+	/// called by MapView whenever tile is hovered
 	void onTileHovered(const int3 & mapPos);
+
+	/// called by MapView whenever tile is clicked
 	void onTileRightClicked(const int3 & mapPos);
 
+	/// called by spell window when spell to cast has been selected
 	void enterCastingMode(const CSpell * sp);
-	void leaveCastingMode(bool cast = false, int3 dest = int3(-1, -1, -1));
-	const CGHeroInstance * curHero() const;
-	const CGTownInstance * curTown() const;
-	const CArmedInstance * curArmy() const;
-
-	void updateMoveHero(const CGHeroInstance *h, tribool hasPath = boost::logic::indeterminate);
-	void updateNextHero(const CGHeroInstance *h);
 
 	/// returns area of screen covered by terrain (main game area)
 	Rect terrainAreaPixels() const;
-
-	/// exits currently opened world view mode and returns to normal map
-	void exitWorldView();
 
 	/// opens world view at default scale
 	void openWorldView();
@@ -219,4 +225,4 @@ public:
 	void openWorldView(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain);
 };
 
-extern std::shared_ptr<CAdvMapInt> adventureInt;
+extern std::shared_ptr<CAdventureMapInterface> adventureInt;

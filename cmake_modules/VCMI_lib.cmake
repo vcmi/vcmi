@@ -27,6 +27,18 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/SiegeInfo.cpp
 		${MAIN_LIB_DIR}/battle/Unit.cpp
 
+		${MAIN_LIB_DIR}/bonuses/Bonus.cpp
+		${MAIN_LIB_DIR}/bonuses/BonusEnum.cpp
+		${MAIN_LIB_DIR}/bonuses/BonusList.cpp
+		${MAIN_LIB_DIR}/bonuses/BonusParams.cpp
+		${MAIN_LIB_DIR}/bonuses/BonusSelector.cpp
+		${MAIN_LIB_DIR}/bonuses/CBonusProxy.cpp
+		${MAIN_LIB_DIR}/bonuses/CBonusSystemNode.cpp
+		${MAIN_LIB_DIR}/bonuses/IBonusBearer.cpp
+		${MAIN_LIB_DIR}/bonuses/Limiters.cpp
+		${MAIN_LIB_DIR}/bonuses/Propagators.cpp
+		${MAIN_LIB_DIR}/bonuses/Updaters.cpp
+
 		${MAIN_LIB_DIR}/events/ApplyDamage.cpp
 		${MAIN_LIB_DIR}/events/GameResumed.cpp
 		${MAIN_LIB_DIR}/events/ObjectVisitEnded.cpp
@@ -55,9 +67,11 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CBank.cpp
+		${MAIN_LIB_DIR}/mapObjects/CGDwelling.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGHeroInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGMarket.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGPandoraBox.cpp
+		${MAIN_LIB_DIR}/mapObjects/CGTownBuilding.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGTownInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CObjectClassesHandler.cpp
 		${MAIN_LIB_DIR}/mapObjects/CObjectHandler.cpp
@@ -65,7 +79,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapObjects/CQuest.cpp
 		${MAIN_LIB_DIR}/mapObjects/CRewardableConstructor.cpp
 		${MAIN_LIB_DIR}/mapObjects/CRewardableObject.cpp
-		${MAIN_LIB_DIR}/mapObjects/JsonRandom.cpp
 		${MAIN_LIB_DIR}/mapObjects/MiscObjects.cpp
 		${MAIN_LIB_DIR}/mapObjects/ObjectTemplate.cpp
 
@@ -90,6 +103,12 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/registerTypes/TypesMapObjects3.cpp
 		${MAIN_LIB_DIR}/registerTypes/TypesLobbyPacks.cpp
 		${MAIN_LIB_DIR}/registerTypes/TypesServerPacks.cpp
+
+		${MAIN_LIB_DIR}/rewardable/Configuration.cpp
+		${MAIN_LIB_DIR}/rewardable/Info.cpp
+		${MAIN_LIB_DIR}/rewardable/Interface.cpp
+		${MAIN_LIB_DIR}/rewardable/Limiter.cpp
+		${MAIN_LIB_DIR}/rewardable/Reward.cpp
 
 		${MAIN_LIB_DIR}/rmg/RmgArea.cpp
 		${MAIN_LIB_DIR}/rmg/RmgObject.cpp
@@ -192,11 +211,11 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CTownHandler.cpp
 		${MAIN_LIB_DIR}/GameConstants.cpp
 		${MAIN_LIB_DIR}/GameSettings.cpp
-		${MAIN_LIB_DIR}/HeroBonus.cpp
 		${MAIN_LIB_DIR}/IGameCallback.cpp
 		${MAIN_LIB_DIR}/IHandlerBase.cpp
 		${MAIN_LIB_DIR}/JsonDetail.cpp
 		${MAIN_LIB_DIR}/JsonNode.cpp
+		${MAIN_LIB_DIR}/JsonRandom.cpp
 		${MAIN_LIB_DIR}/LoadProgress.cpp
 		${MAIN_LIB_DIR}/LogicalExpression.cpp
 		${MAIN_LIB_DIR}/NetPacksLib.cpp
@@ -293,6 +312,18 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/SiegeInfo.h
 		${MAIN_LIB_DIR}/battle/Unit.h
 
+		${MAIN_LIB_DIR}/bonuses/Bonus.h
+		${MAIN_LIB_DIR}/bonuses/BonusEnum.h
+		${MAIN_LIB_DIR}/bonuses/BonusList.h
+		${MAIN_LIB_DIR}/bonuses/BonusParams.h
+		${MAIN_LIB_DIR}/bonuses/BonusSelector.h
+		${MAIN_LIB_DIR}/bonuses/CBonusProxy.h
+		${MAIN_LIB_DIR}/bonuses/CBonusSystemNode.h
+		${MAIN_LIB_DIR}/bonuses/IBonusBearer.h
+		${MAIN_LIB_DIR}/bonuses/Limiters.h
+		${MAIN_LIB_DIR}/bonuses/Propagators.h
+		${MAIN_LIB_DIR}/bonuses/Updaters.h
+
 		${MAIN_LIB_DIR}/events/ApplyDamage.h
 		${MAIN_LIB_DIR}/events/GameResumed.h
 		${MAIN_LIB_DIR}/events/ObjectVisitEnded.h
@@ -326,9 +357,11 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CBank.h
+		${MAIN_LIB_DIR}/mapObjects/CGDwelling.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGHeroInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CGMarket.h
 		${MAIN_LIB_DIR}/mapObjects/CGPandoraBox.h
+		${MAIN_LIB_DIR}/mapObjects/CGTownBuilding.h
 		${MAIN_LIB_DIR}/mapObjects/CGTownInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CObjectClassesHandler.h
 		${MAIN_LIB_DIR}/mapObjects/CObjectHandler.h
@@ -336,7 +369,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapObjects/CQuest.h
 		${MAIN_LIB_DIR}/mapObjects/CRewardableConstructor.h
 		${MAIN_LIB_DIR}/mapObjects/CRewardableObject.h
-		${MAIN_LIB_DIR}/mapObjects/JsonRandom.h
 		${MAIN_LIB_DIR}/mapObjects/MapObjects.h
 		${MAIN_LIB_DIR}/mapObjects/MiscObjects.h
 		${MAIN_LIB_DIR}/mapObjects/ObjectTemplate.h
@@ -356,6 +388,12 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.h
 
 		${MAIN_LIB_DIR}/registerTypes/RegisterTypes.h
+
+		${MAIN_LIB_DIR}/rewardable/Configuration.h
+		${MAIN_LIB_DIR}/rewardable/Info.h
+		${MAIN_LIB_DIR}/rewardable/Interface.h
+		${MAIN_LIB_DIR}/rewardable/Limiter.h
+		${MAIN_LIB_DIR}/rewardable/Reward.h
 
 		${MAIN_LIB_DIR}/rmg/RmgArea.h
 		${MAIN_LIB_DIR}/rmg/RmgObject.h
@@ -465,7 +503,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/FunctionList.h
 		${MAIN_LIB_DIR}/GameConstants.h
 		${MAIN_LIB_DIR}/GameSettings.h
-		${MAIN_LIB_DIR}/HeroBonus.h
 		${MAIN_LIB_DIR}/IBonusTypeHandler.h
 		${MAIN_LIB_DIR}/IGameCallback.h
 		${MAIN_LIB_DIR}/IGameEventsReceiver.h
@@ -474,6 +511,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/Interprocess.h
 		${MAIN_LIB_DIR}/JsonDetail.h
 		${MAIN_LIB_DIR}/JsonNode.h
+		${MAIN_LIB_DIR}/JsonRandom.h
 		${MAIN_LIB_DIR}/Languages.h
 		${MAIN_LIB_DIR}/LoadProgress.h
 		${MAIN_LIB_DIR}/LogicalExpression.h

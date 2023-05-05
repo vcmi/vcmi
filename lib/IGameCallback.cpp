@@ -18,6 +18,10 @@
 #include "CModHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
+#include "bonuses/CBonusSystemNode.h"
+#include "bonuses/Limiters.h"
+#include "bonuses/Propagators.h"
+#include "bonuses/Updaters.h"
 
 #include "serializer/CSerializer.h" // for SAVEGAME_MAGIC
 #include "serializer/BinaryDeserializer.h"
@@ -63,7 +67,7 @@ void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 	}
 }
 
-void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3> & tiles,
+void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 											  const int3 & pos,
 											  int radious,
 											  std::optional<PlayerColor> player,
@@ -100,7 +104,7 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3
 	}
 }
 
-void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> & tiles, std::optional<PlayerColor> Player, int level, MapTerrainFilterMode tileFilterMode) const
+void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std::optional<PlayerColor> Player, int level, MapTerrainFilterMode tileFilterMode) const
 {
 	if(!!Player && *Player >= PlayerColor::PLAYER_LIMIT)
 	{

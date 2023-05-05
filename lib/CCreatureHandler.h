@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/CBonusSystemNode.h"
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
 #include "GameConstants.h"
@@ -47,8 +48,6 @@ class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 
 	bool doubleWide = false;
 
-	si32 iconIndex = -1; // index of icon in files like twcrport
-
 	TResources cost; //cost[res_id] - amount of that resource required to buy creature from dwelling
 
 public:
@@ -61,6 +60,7 @@ public:
 	std::string animDefName; // creature animation used during battles
 	std::string advMapDef; //for new creatures only, image for adventure map
 
+	si32 iconIndex = -1; // index of icon in files like twcrport, used in tests now.
 	/// names of files with appropriate icons. Used only during loading
 	std::string smallIconName;
 	std::string largeIconName;
@@ -169,7 +169,6 @@ public:
 	void registerIcons(const IconRegistar & cb) const override;
 	CreatureID getId() const override;
 	virtual const IBonusBearer * getBonusBearer() const override;
-	uint32_t getMaxHealth() const override;
 
 	int32_t getAdvMapAmountMin() const override;
 	int32_t getAdvMapAmountMax() const override;
@@ -203,7 +202,7 @@ public:
 
 	bool valid() const;
 
-	void addBonus(int val, Bonus::BonusType type, int subtype = -1);
+	void addBonus(int val, BonusType type, int subtype = -1);
 	std::string nodeName() const override;
 
 	template<typename RanGen>

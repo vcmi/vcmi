@@ -189,10 +189,8 @@ protected:
 class DLL_LINKAGE CGArtifact : public CArmedInstance
 {
 public:
-	CArtifactInstance *storedArtifact;
+	CArtifactInstance * storedArtifact = nullptr;
 	std::string message;
-
-	CGArtifact() : CArmedInstance() {storedArtifact = nullptr;};
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;

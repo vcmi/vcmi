@@ -134,7 +134,7 @@ void BattleFieldController::renderBattlefield(Canvas & canvas)
 
 void BattleFieldController::showBackground(Canvas & canvas)
 {
-	if (owner.stacksController->getActiveStack() != nullptr ) //&& creAnims[stacksController->getActiveStack()->ID]->isIdle() //show everything with range
+	if (owner.stacksController->getActiveStack() != nullptr ) //&& creAnims[stacksController->getActiveStack()->unitId()]->isIdle() //show everything with range
 		showBackgroundImageWithHexes(canvas);
 	else
 		showBackgroundImage(canvas);
@@ -174,7 +174,7 @@ void BattleFieldController::redrawBackgroundWithHexes()
 	const CStack *activeStack = owner.stacksController->getActiveStack();
 	std::vector<BattleHex> attackableHexes;
 	if(activeStack)
-		occupiableHexes = owner.curInt->cb->battleGetAvailableHexes(activeStack, true, true, &attackableHexes);
+		occupiableHexes = owner.curInt->cb->battleGetAvailableHexes(activeStack, false, true, &attackableHexes);
 
 	// prepare background graphic with hexes and shaded hexes
 	backgroundWithHexes->draw(background, Point(0,0));
@@ -243,7 +243,7 @@ std::set<BattleHex> BattleFieldController::getMovementRangeForHoveredStack()
 	if (!owner.stacksController->getActiveStack())
 		return result;
 
-	if (!settings["battle"]["movementHighlightOnHover"].Bool())
+	if (!settings["battle"]["movementHighlightOnHover"].Bool() && !GH.isKeyboardShiftDown())
 		return result;
 
 	auto hoveredHex = getHoveredHex();
@@ -252,7 +252,7 @@ std::set<BattleHex> BattleFieldController::getMovementRangeForHoveredStack()
 	const CStack * const hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
 	if(hoveredStack)
 	{
-		std::vector<BattleHex> v = owner.curInt->cb->battleGetAvailableHexes(hoveredStack, false, true, nullptr);
+		std::vector<BattleHex> v = owner.curInt->cb->battleGetAvailableHexes(hoveredStack, true, true, nullptr);
 		for(BattleHex hex : v)
 			result.insert(hex);
 	}
@@ -289,7 +289,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForSpellRange()
 	return result;
 }
 
-std::set<BattleHex> BattleFieldController::getHighlightedHexesMovementTarget()
+std::set<BattleHex> BattleFieldController::getHighlightedHexesForMovementTarget()
 {
 	const CStack * stack = owner.stacksController->getActiveStack();
 	auto hoveredHex = getHoveredHex();
@@ -297,7 +297,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesMovementTarget()
 	if(!stack)
 		return {};
 
-	std::vector<BattleHex> availableHexes = owner.curInt->cb->battleGetAvailableHexes(stack, true, false, nullptr);
+	std::vector<BattleHex> availableHexes = owner.curInt->cb->battleGetAvailableHexes(stack, false, false, nullptr);
 
 	auto hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
 	if(owner.curInt->cb->battleCanAttack(stack, hoveredStack, hoveredHex))
@@ -337,7 +337,7 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 {
 	std::set<BattleHex> hoveredStackMovementRangeHexes = getMovementRangeForHoveredStack();
 	std::set<BattleHex> hoveredSpellHexes = getHighlightedHexesForSpellRange();
-	std::set<BattleHex> hoveredMoveHexes  = getHighlightedHexesMovementTarget();
+	std::set<BattleHex> hoveredMoveHexes  = getHighlightedHexesForMovementTarget();
 
 	if(getHoveredHex() == BattleHex::INVALID)
 		return;
@@ -540,7 +540,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
 		case BattleHex::LEFT:
 		case BattleHex::BOTTOM_LEFT:
 		{
-			if ( attacker->side == BattleSide::ATTACKER )
+			if ( attacker->unitSide() == BattleSide::ATTACKER )
 				return attackTarget.cloneInDirection(direction);
 			else
 				return attackTarget.cloneInDirection(direction).cloneInDirection(BattleHex::LEFT);
@@ -550,7 +550,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
 		case BattleHex::RIGHT:
 		case BattleHex::BOTTOM_RIGHT:
 		{
-			if ( attacker->side == BattleSide::ATTACKER )
+			if ( attacker->unitSide() == BattleSide::ATTACKER )
 				return attackTarget.cloneInDirection(direction).cloneInDirection(BattleHex::RIGHT);
 			else
 				return attackTarget.cloneInDirection(direction);
@@ -558,7 +558,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
 
 		case BattleHex::TOP:
 		{
-			if ( attacker->side == BattleSide::ATTACKER )
+			if ( attacker->unitSide() == BattleSide::ATTACKER )
 				return attackTarget.cloneInDirection(BattleHex::TOP_RIGHT);
 			else
 				return attackTarget.cloneInDirection(BattleHex::TOP_LEFT);
@@ -566,7 +566,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
 
 		case BattleHex::BOTTOM:
 		{
-			if ( attacker->side == BattleSide::ATTACKER )
+			if ( attacker->unitSide() == BattleSide::ATTACKER )
 				return attackTarget.cloneInDirection(BattleHex::BOTTOM_RIGHT);
 			else
 				return attackTarget.cloneInDirection(BattleHex::BOTTOM_LEFT);

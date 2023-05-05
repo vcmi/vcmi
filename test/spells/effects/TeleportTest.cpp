@@ -65,7 +65,6 @@ TEST_F(TeleportApplyTest, MovesUnit)
 
 	EXPECT_CALL(unit, getPosition()).WillRepeatedly(Return(initial));
 	EXPECT_CALL(unit, unitId()).Times(AtLeast(1)).WillRepeatedly(Return(unitId));
-	EXPECT_CALL(unit, unitSide()).Times(AtLeast(1));
 	EXPECT_CALL(unit, doubleWide()).WillRepeatedly(Return(false));
 	EXPECT_CALL(unit, isValidTarget(Eq(false))).WillRepeatedly(Return(true));
 

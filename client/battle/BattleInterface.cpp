@@ -29,7 +29,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/CAdventureMapInterface.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
@@ -208,7 +208,7 @@ void BattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedI
 
 	for(const StackAttackedInfo & attackedInfo : attackedInfos)
 	{
-		ui8 side = attackedInfo.defender->side;
+		ui8 side = attackedInfo.defender->unitSide();
 		killedBySide.at(side) += attackedInfo.amountKilled;
 	}
 
@@ -288,7 +288,7 @@ const CGHeroInstance * BattleInterface::getActiveHero()
 		return nullptr;
 	}
 
-	if(attacker->side == BattleSide::ATTACKER)
+	if(attacker->unitSide() == BattleSide::ATTACKER)
 	{
 		return attackingHeroInstance;
 	}
@@ -636,7 +636,7 @@ void BattleInterface::tacticPhaseEnd()
 
 static bool immobile(const CStack *s)
 {
-	return !s->Speed(0, true); //should bound stacks be immobile?
+	return !s->speed(0, true); //should bound stacks be immobile?
 }
 
 void BattleInterface::tacticNextStack(const CStack * current)

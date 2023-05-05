@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/CBonusSystemNode.h"
 #include "GameConstants.h"
 #include "CArtHandler.h"
 #include "CCreatureHandler.h"
@@ -63,7 +64,7 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
-class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public IConstBonusNativeTerrainProvider
+class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public ACreature
 {
 protected:
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
@@ -106,7 +107,6 @@ public:
 	std::string getQuantityTXT(bool capitalized = true) const;
 	virtual int getExpRank() const;
 	virtual int getLevel() const; //different for regular stack and commander
-	si32 magicResistance() const override;
 	CreatureID getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
 	virtual void init();
@@ -163,22 +163,18 @@ public:
 	}
 };
 
-typedef std::map<SlotID, CStackInstance*> TSlots;
-typedef std::map<SlotID, std::pair<CreatureID, TQuantity>> TSimpleSlots;
+using TSlots = std::map<SlotID, CStackInstance *>;
+using TSimpleSlots = std::map<SlotID, std::pair<CreatureID, TQuantity>>;
 
-typedef std::pair<const CCreature*, SlotID> TPairCreatureSlot;
-typedef std::map<const CCreature*, SlotID> TMapCreatureSlot;
+using TPairCreatureSlot = std::pair<const CCreature *, SlotID>;
+using TMapCreatureSlot = std::map<const CCreature *, SlotID>;
 
 struct DLL_LINKAGE CreatureSlotComparer
 {
 	bool operator()(const TPairCreatureSlot & lhs, const TPairCreatureSlot & rhs);
 };
 
-typedef std::priority_queue<
-	TPairCreatureSlot,
-	std::vector<TPairCreatureSlot>,
-	CreatureSlotComparer
-> TCreatureQueue;
+using TCreatureQueue = std::priority_queue<TPairCreatureSlot, std::vector<TPairCreatureSlot>, CreatureSlotComparer>;
 
 class IArmyDescriptor
 {

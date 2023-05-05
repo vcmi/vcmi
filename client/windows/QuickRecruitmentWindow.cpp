@@ -14,6 +14,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/CreatureCostBox.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../../CCallback.h"
 #include "../../lib/ResourceSet.h"
 #include "../../lib/CCreatureHandler.h"
@@ -29,20 +30,19 @@ void QuickRecruitmentWindow::setButtons()
 
 void QuickRecruitmentWindow::setCancelButton()
 {
-	cancelButton = std::make_shared<CButton>(Point((pos.w / 2) + 48, 418), "ICN6432.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_ESCAPE);
+	cancelButton = std::make_shared<CButton>(Point((pos.w / 2) + 48, 418), "ICN6432.DEF", CButton::tooltip(), [&](){ close(); }, EShortcut::GLOBAL_CANCEL);
 	cancelButton->setImageOrder(0, 1, 2, 3);
 }
 
 void QuickRecruitmentWindow::setBuyButton()
 {
-	buyButton = std::make_shared<CButton>(Point((pos.w / 2) - 32, 418), "IBY6432.DEF", CButton::tooltip(), [&](){ purchaseUnits(); }, SDLK_RETURN);
-	cancelButton->assignedKeys.insert(SDLK_ESCAPE);
+	buyButton = std::make_shared<CButton>(Point((pos.w / 2) - 32, 418), "IBY6432.DEF", CButton::tooltip(), [&](){ purchaseUnits(); }, EShortcut::GLOBAL_ACCEPT);
 	buyButton->setImageOrder(0, 1, 2, 3);
 }
 
 void QuickRecruitmentWindow::setMaxButton()
 {
-	maxButton = std::make_shared<CButton>(Point((pos.w/2)-112, 418), "IRCBTNS.DEF", CButton::tooltip(), [&](){ maxAllCards(cards); }, SDLK_m);
+	maxButton = std::make_shared<CButton>(Point((pos.w/2)-112, 418), "IRCBTNS.DEF", CButton::tooltip(), [&](){ maxAllCards(cards); }, EShortcut::RECRUITMENT_MAX);
 	maxButton->setImageOrder(0, 1, 2, 3);
 }
 

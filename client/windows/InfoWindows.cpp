@@ -11,6 +11,7 @@
 #include "InfoWindows.h"
 
 #include "../CGameInfo.h"
+#include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
 #include "../CMusicHandler.h"
 
@@ -21,10 +22,11 @@
 #include "../gui/CGuiHandler.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/CAdventureMapInterface.h"
 #include "../windows/CMessage.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../gui/CursorHandler.h"
+#include "../gui/Shortcut.h"
 
 #include "../../CCallback.h"
 
@@ -78,9 +80,6 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 
 	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
-	buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
-	buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
-
 	if (buttons.size() > 1 && askID.getNum() >= 0) //cancel button functionality
 	{
 		buttons.back()->addCallback([askID]() {
@@ -95,8 +94,8 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 		addChild(comps[i].get());
 		components.push_back(comps[i]);
 		comps[i]->onSelect = std::bind(&CSelWindow::selectionChange,this,i);
-		if(i<9)
-			comps[i]->assignedKeys.insert(SDLK_1+i);
+		if(i<8)
+			comps[i]->assignedKey = vstd::next(EShortcut::SELECT_INDEX_1,i);
 	}
 	CMessage::drawIWindow(this, Text, player);
 }
@@ -136,10 +135,13 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 		text->resize(text->label->textSize);
 	}
 
-	if(buttons.size())
+	if(buttons.size() == 1)
+		buttons.front()->assignedKey = EShortcut::GLOBAL_RETURN;
+
+	if(buttons.size() == 2)
 	{
-		buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
-		buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
+		buttons.front()->assignedKey = EShortcut::GLOBAL_ACCEPT;
+		buttons.back()->assignedKey = EShortcut::GLOBAL_CANCEL;
 	}
 
 	for(auto & comp : comps)
@@ -332,8 +334,8 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 	}
 	else
 	{
-		if(adventureInt->curHero())
-			CRClickPopup::createAndPush(obj->getHoverText(adventureInt->curHero()));
+		if(LOCPLINT->localState->getCurrentHero())
+			CRClickPopup::createAndPush(obj->getHoverText(LOCPLINT->localState->getCurrentHero()));
 		else
 			CRClickPopup::createAndPush(obj->getHoverText(LOCPLINT->playerID));
 	}
@@ -376,7 +378,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town)
 	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "TOWNQVBK", toScreen(position))
 {
 	InfoAboutTown iah;
-	LOCPLINT->cb->getTownInfo(town, iah, adventureInt->curTown()); //todo: should this be nearest hero?
+	LOCPLINT->cb->getTownInfo(town, iah, LOCPLINT->localState->getCurrentTown()); //todo: should this be nearest hero?
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	tooltip = std::make_shared<CTownTooltip>(Point(9, 10), iah);
@@ -386,7 +388,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
 	: CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "HEROQVBK", toScreen(position))
 {
 	InfoAboutHero iah;
-	LOCPLINT->cb->getHeroInfo(hero, iah, adventureInt->curHero());//todo: should this be nearest hero?
+	LOCPLINT->cb->getHeroInfo(hero, iah, LOCPLINT->localState->getCurrentHero());//todo: should this be nearest hero?
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	tooltip = std::make_shared<CHeroTooltip>(Point(9, 10), iah);
@@ -405,7 +407,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
 std::shared_ptr<WindowBase> CRClickPopup::createInfoWin(Point position, const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
 {
 	if(nullptr == specific)
-		specific = adventureInt->curArmy();
+		specific = LOCPLINT->localState->getCurrentArmy();
 
 	if(nullptr == specific)
 	{

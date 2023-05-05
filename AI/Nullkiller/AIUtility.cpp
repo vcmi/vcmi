@@ -307,7 +307,7 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 	auto art2 = a2->artType;
 
 	if(art1->price == art2->price)
-		return art1->valOfBonuses(Bonus::PRIMARY_SKILL) > art2->valOfBonuses(Bonus::PRIMARY_SKILL);
+		return art1->valOfBonuses(BonusType::PRIMARY_SKILL) > art2->valOfBonuses(BonusType::PRIMARY_SKILL);
 	else
 		return art1->price > art2->price;
 }
@@ -319,7 +319,7 @@ bool isWeeklyRevisitable(const CGObjectInstance * obj)
 
 	//TODO: allow polling of remaining creatures in dwelling
 	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj))
-		return rewardable->getResetDuration() == 7;
+		return rewardable->configuration.getResetDuration() == 7;
 
 	if(dynamic_cast<const CGDwelling *>(obj))
 		return true;

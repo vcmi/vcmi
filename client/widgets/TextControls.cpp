@@ -15,6 +15,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../windows/CMessage.h"
 #include "../adventureMap/CInGameConsole.h"
 #include "../renderSDL/SDL_Extensions.h"
@@ -555,12 +556,12 @@ void CTextInput::clickLeft(tribool down, bool previousState)
 		giveFocus();
 }
 
-void CTextInput::keyPressed(const SDL_Keycode & key)
+void CTextInput::keyPressed(EShortcut key)
 {
 	if(!focus)
 		return;
 
-	if(key == SDLK_TAB)
+	if(key == EShortcut::GLOBAL_MOVE_FOCUS)
 	{
 		moveFocus();
 		GH.breakEventHandling();
@@ -571,9 +572,7 @@ void CTextInput::keyPressed(const SDL_Keycode & key)
 
 	switch(key)
 	{
-	case SDLK_DELETE: // have index > ' ' so it won't be filtered out by default section
-		return;
-	case SDLK_BACKSPACE:
+	case EShortcut::GLOBAL_BACKSPACE:
 		if(!newText.empty())
 		{
 			TextOperations::trimRightUnicode(newText);
@@ -608,9 +607,9 @@ void CTextInput::setText(const std::string & nText, bool callCb)
 		cb(text);
 }
 
-bool CTextInput::captureThisKey(const SDL_Keycode & key)
+bool CTextInput::captureThisKey(EShortcut key)
 {
-	if(key == SDLK_RETURN || key == SDLK_KP_ENTER || key == SDLK_ESCAPE)
+	if(key == EShortcut::GLOBAL_RETURN)
 		return false;
 
 	return true;

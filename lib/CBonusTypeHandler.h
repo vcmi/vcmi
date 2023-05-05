@@ -12,14 +12,12 @@
 
 #include "IBonusTypeHandler.h"
 #include "IHandlerBase.h"
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 
 class JsonNode;
-
-typedef Bonus::BonusType BonusTypeID;
 
 class DLL_LINKAGE CBonusType
 {
@@ -67,7 +65,7 @@ private:
 	void load(const JsonNode & config);
 	void loadItem(const JsonNode & source, CBonusType & dest, const std::string & name) const;
 
-	std::vector<CBonusType> bonusTypes; //index = BonusTypeID
+	std::vector<CBonusType> bonusTypes; //index = BonusType
 };
 
 VCMI_LIB_NAMESPACE_END

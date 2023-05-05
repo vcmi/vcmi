@@ -17,8 +17,10 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CGeneralTextHandler.h"
+#include "../lib/CModHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
+#include "../lib/mapping/CMapService.h"
 #include "../lib/StringConstants.h"
 #include "inspector/townbulidingswidget.h" //to convert BuildingID to string
 
@@ -82,6 +84,14 @@ std::vector<JsonNode> linearJsonArray(const JsonNode & json)
 	return result;
 }
 
+void traverseNode(QTreeWidgetItem * item, std::function<void(QTreeWidgetItem*)> action)
+{
+	// Do something with item
+	action(item);
+	for (int i = 0; i < item->childCount(); ++i)
+		traverseNode(item->child(i), action);
+}
+
 MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::MapSettings),
@@ -93,9 +103,10 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 
 	ui->mapNameEdit->setText(tr(controller.map()->name.c_str()));
 	ui->mapDescriptionEdit->setPlainText(tr(controller.map()->description.c_str()));
+	ui->heroLevelLimit->setValue(controller.map()->levelLimit);
+	ui->heroLevelLimitCheck->setChecked(controller.map()->levelLimit);
 	
 	show();
-	
 	
 	for(int i = 0; i < controller.map()->allowedAbilities.size(); ++i)
 	{
@@ -385,6 +396,61 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 			}
 		}
 	}
+	
+	//mods management
+	//collect all active mods
+	QMap<QString, QTreeWidgetItem*> addedMods;
+	QSet<QString> modsToProcess;
+	ui->treeMods->blockSignals(true);
+	
+	auto createModTreeWidgetItem = [&](QTreeWidgetItem * parent, const CModInfo & modInfo)
+	{
+		auto item = new QTreeWidgetItem(parent, {QString::fromStdString(modInfo.name), QString::fromStdString(modInfo.version.toString())});
+		item->setData(0, Qt::UserRole, QVariant(QString::fromStdString(modInfo.identifier)));
+		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+		item->setCheckState(0, controller.map()->mods.count(modInfo.identifier) ? Qt::Checked : Qt::Unchecked);
+		//set parent check
+		if(parent && item->checkState(0) == Qt::Checked)
+			parent->setCheckState(0, Qt::Checked);
+		return item;
+	};
+	
+	for(const auto & modName : VLC->modh->getActiveMods())
+	{
+		QString qmodName = QString::fromStdString(modName);
+		if(qmodName.split(".").size() == 1)
+		{
+			const auto & modInfo = VLC->modh->getModInfo(modName);
+			addedMods[qmodName] = createModTreeWidgetItem(nullptr, modInfo);
+			ui->treeMods->addTopLevelItem(addedMods[qmodName]);
+		}
+		else
+		{
+			modsToProcess.insert(qmodName);
+		}
+	}
+	
+	for(auto qmodIter = modsToProcess.begin(); qmodIter != modsToProcess.end();)
+	{
+		auto qmodName = *qmodIter;
+		auto pieces = qmodName.split(".");
+		assert(pieces.size() > 1);
+		
+		QString qs;
+		for(int i = 0; i < pieces.size() - 1; ++i)
+			qs += pieces[i];
+		
+		if(addedMods.count(qs))
+		{
+			const auto & modInfo = VLC->modh->getModInfo(qmodName.toStdString());
+			addedMods[qmodName] = createModTreeWidgetItem(addedMods[qs], modInfo);
+			modsToProcess.erase(qmodIter);
+			qmodIter = modsToProcess.begin();
+		}
+		else
+			++qmodIter;
+	}
+	ui->treeMods->blockSignals(false);
 }
 
 MapSettings::~MapSettings()
@@ -428,10 +494,30 @@ std::string MapSettings::getMonsterName(int monsterObjectIdx)
 	return name;
 }
 
+void MapSettings::updateModWidgetBasedOnMods(const ModCompatibilityInfo & mods)
+{
+	//Mod management
+	auto widgetAction = [&](QTreeWidgetItem * item)
+	{
+		auto modName = item->data(0, Qt::UserRole).toString().toStdString();
+		item->setCheckState(0, mods.count(modName) ? Qt::Checked : Qt::Unchecked);
+	};
+	
+	for (int i = 0; i < ui->treeMods->topLevelItemCount(); ++i)
+	{
+		QTreeWidgetItem *item = ui->treeMods->topLevelItem(i);
+		traverseNode(item, widgetAction);
+	}
+}
+
 void MapSettings::on_pushButton_clicked()
 {
 	controller.map()->name = ui->mapNameEdit->text().toStdString();
 	controller.map()->description = ui->mapDescriptionEdit->toPlainText().toStdString();
+	if(ui->heroLevelLimitCheck->isChecked())
+		controller.map()->levelLimit = ui->heroLevelLimit->value();
+	else
+		controller.map()->levelLimit = 0;
 	controller.commitChangeWithoutRedraw();
 	
 	for(int i = 0; i < controller.map()->allowedAbilities.size(); ++i)
@@ -699,6 +785,23 @@ void MapSettings::on_pushButton_clicked()
 		controller.map()->triggeredEvents.push_back(specialDefeat);
 	}
 	
+	//Mod management
+	auto widgetAction = [&](QTreeWidgetItem * item)
+	{
+		if(item->checkState(0) == Qt::Checked)
+		{
+			auto modName = item->data(0, Qt::UserRole).toString().toStdString();
+			controller.map()->mods[modName] = VLC->modh->getModInfo(modName).version;
+		}
+	};
+	
+	controller.map()->mods.clear();
+	for (int i = 0; i < ui->treeMods->topLevelItemCount(); ++i)
+	{
+		QTreeWidgetItem *item = ui->treeMods->topLevelItem(i);
+		traverseNode(item, widgetAction);
+	}
+	
 	close();
 }
 
@@ -873,5 +976,41 @@ void MapSettings::on_loseComboBox_currentIndexChanged(int index)
 			break;
 		}
 	}
+}
+
+
+void MapSettings::on_heroLevelLimitCheck_toggled(bool checked)
+{
+	ui->heroLevelLimit->setEnabled(checked);
+}
+
+void MapSettings::on_modResolution_map_clicked()
+{
+	updateModWidgetBasedOnMods(MapController::modAssessmentMap(*controller.map()));
+}
+
+
+void MapSettings::on_modResolution_full_clicked()
+{
+	updateModWidgetBasedOnMods(MapController::modAssessmentAll());
+}
+
+void MapSettings::on_treeMods_itemChanged(QTreeWidgetItem *item, int column)
+{
+	//set state for children
+	for (int i = 0; i < item->childCount(); ++i)
+		item->child(i)->setCheckState(0, item->checkState(0));
+	
+	//set state for parent
+	ui->treeMods->blockSignals(true);
+	if(item->checkState(0) == Qt::Checked)
+	{
+		while(item->parent())
+		{
+			item->parent()->setCheckState(0, Qt::Checked);
+			item = item->parent();
+		}
+	}
+	ui->treeMods->blockSignals(false);
 }
 

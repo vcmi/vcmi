@@ -17,6 +17,7 @@
 #include "../CServerHandler.h"
 
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../windows/InfoWindows.h"
 
@@ -40,17 +41,17 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 	{
 		tabSel->callOnSelect = std::bind(&IServerAPI::setMapInfo, CSH, _1, nullptr);
 
-		buttonSelect = std::make_shared<CButton>(Point(411, 80), "GSPBUTT.DEF", CGI->generaltexth->zelp[45], 0, SDLK_s);
+		buttonSelect = std::make_shared<CButton>(Point(411, 80), "GSPBUTT.DEF", CGI->generaltexth->zelp[45], 0, EShortcut::LOBBY_SELECT_SCENARIO);
 		buttonSelect->addCallback([&]()
 		{
 			toggleTab(tabSel);
 			CSH->setMapInfo(tabSel->getSelectedMapInfo());
 		});
 
-		buttonOptions = std::make_shared<CButton>(Point(411, 510), "GSPBUTT.DEF", CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabOpt), SDLK_a);
+		buttonOptions = std::make_shared<CButton>(Point(411, 510), "GSPBUTT.DEF", CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabOpt), EShortcut::LOBBY_ADDITIONAL_OPTIONS);
 	};
 
-	buttonChat = std::make_shared<CButton>(Point(619, 83), "GSPBUT2.DEF", CGI->generaltexth->zelp[48], std::bind(&CLobbyScreen::toggleChat, this), SDLK_h);
+	buttonChat = std::make_shared<CButton>(Point(619, 83), "GSPBUT2.DEF", CGI->generaltexth->zelp[48], std::bind(&CLobbyScreen::toggleChat, this), EShortcut::LOBBY_HIDE_CHAT);
 	buttonChat->addTextOverlay(CGI->generaltexth->allTexts[532], FONT_SMALL);
 
 	switch(screenType)
@@ -60,7 +61,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 		tabOpt = std::make_shared<OptionsTab>();
 		tabRand = std::make_shared<RandomMapTab>();
 		tabRand->mapInfoChanged += std::bind(&IServerAPI::setMapInfo, CSH, _1, _2);
-		buttonRMG = std::make_shared<CButton>(Point(411, 105), "GSPBUTT.DEF", CGI->generaltexth->zelp[47], 0, SDLK_r);
+		buttonRMG = std::make_shared<CButton>(Point(411, 105), "GSPBUTT.DEF", CGI->generaltexth->zelp[47], 0, EShortcut::LOBBY_RANDOM_MAP);
 		buttonRMG->addCallback([&]()
 		{
 			toggleTab(tabRand);
@@ -69,30 +70,28 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 
 		card->iconDifficulty->addCallback(std::bind(&IServerAPI::setDifficulty, CSH, _1));
 
-		buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRBEG.DEF", CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, true), SDLK_b);
+		buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRBEG.DEF", CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, true), EShortcut::LOBBY_BEGIN_GAME);
 		initLobby();
 		break;
 	}
 	case ESelectionScreen::loadGame:
 	{
 		tabOpt = std::make_shared<OptionsTab>();
-		buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRLOD.DEF", CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, true), SDLK_l);
+		buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRLOD.DEF", CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, true), EShortcut::LOBBY_LOAD_GAME);
 		initLobby();
 		break;
 	}
 	case ESelectionScreen::campaignList:
 		tabSel->callOnSelect = std::bind(&IServerAPI::setMapInfo, CSH, _1, nullptr);
-		buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRLOD.DEF", CButton::tooltip(), std::bind(&CLobbyScreen::startCampaign, this), SDLK_b);
+		buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRLOD.DEF", CButton::tooltip(), std::bind(&CLobbyScreen::startCampaign, this), EShortcut::LOBBY_BEGIN_GAME);
 		break;
 	}
-
-	buttonStart->assignedKeys.insert(SDLK_RETURN);
 
 	buttonBack = std::make_shared<CButton>(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [&]()
 	{
 		CSH->sendClientDisconnecting();
 		close();
-	}, SDLK_ESCAPE);
+	}, EShortcut::GLOBAL_CANCEL);
 }
 
 CLobbyScreen::~CLobbyScreen()
@@ -130,6 +129,15 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 	{
 		CSH->sendStartGame(allowOnlyAI);
 		buttonStart->block(true);
+	}
+	catch(CModHandler::Incompatibility & e)
+	{
+		logGlobal->warn("Incompatibility exception during start scenario: %s", e.what());
+		
+		auto errorMsg = VLC->generaltexth->translate("vcmi.server.errors.modsIncompatibility") + '\n';
+		errorMsg += e.what();
+		
+		CInfoWindow::showInfoDialog(errorMsg, CInfoWindow::TCompsInfo(), PlayerColor(1));
 	}
 	catch(std::exception & e)
 	{
@@ -197,7 +205,7 @@ void CLobbyScreen::updateAfterStateChange()
 		}
 	}
 	
-	if(curTab == tabRand && CSH->si->mapGenOptions)
+	if(curTab && curTab == tabRand && CSH->si->mapGenOptions)
 		tabRand->setMapGenOptions(CSH->si->mapGenOptions);
 }
 

@@ -149,7 +149,7 @@ void ResourceSet::nziterator::advance()
 {
 	do
 	{
-		vstd::advance(cur.resType, +1);
+		++cur.resType;
 	} while(cur.resType < GameConstants::RESOURCE_QUANTITY && !(cur.resVal=rs[cur.resType]));
 
 	if(cur.resType >= GameConstants::RESOURCE_QUANTITY)

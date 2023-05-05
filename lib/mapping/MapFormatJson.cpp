@@ -339,7 +339,7 @@ namespace TerrainDetail
 
 ///CMapFormatJson
 const int CMapFormatJson::VERSION_MAJOR = 1;
-const int CMapFormatJson::VERSION_MINOR = 0;
+const int CMapFormatJson::VERSION_MINOR = 1;
 
 const std::string CMapFormatJson::HEADER_FILE_NAME = "header.json";
 const std::string CMapFormatJson::OBJECTS_FILE_NAME = "objects.json";
@@ -595,9 +595,9 @@ void CMapFormatJson::readTeams(JsonDeserializer & handler)
 			logGlobal->error("Invalid teams field type");
 
 		mapHeader->howManyTeams = 0;
-		for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
-			if(mapHeader->players[i].canComputerPlay || mapHeader->players[i].canHumanPlay)
-				mapHeader->players[i].team = TeamID(mapHeader->howManyTeams++);
+		for(auto & player : mapHeader->players)
+			if(player.canAnyonePlay())
+				player.team = TeamID(mapHeader->howManyTeams++);
 	}
 	else
 	{
@@ -947,6 +947,13 @@ void CMapLoaderJson::readHeader(const bool complete)
 	JsonDeserializer handler(mapObjectResolver.get(), header);
 
 	mapHeader->version = EMapFormat::VCMI;//todo: new version field
+	
+	//loading mods
+	if(!header["mods"].isNull())
+	{
+		for(auto & mod : header["mods"].Vector())
+			mapHeader->mods[mod["name"].String()] = CModInfo::Version::fromString(mod["version"].String());
+	}
 
 	//todo: multilevel map load support
 	{
@@ -1279,6 +1286,16 @@ void CMapSaverJson::writeHeader()
 
 	header["versionMajor"].Float() = VERSION_MAJOR;
 	header["versionMinor"].Float() = VERSION_MINOR;
+	
+	//write mods
+	JsonNode & mods = header["mods"];
+	for(const auto & mod : mapHeader->mods)
+	{
+		JsonNode modWriter;
+		modWriter["name"].String() = mod.first;
+		modWriter["version"].String() = mod.second.toString();
+		mods.Vector().push_back(modWriter);
+	}
 
 	//todo: multilevel map save support
 	JsonNode & levels = header["mapLevels"];

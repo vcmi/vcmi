@@ -53,15 +53,13 @@ namespace AIPathfinding
 
 		for(const CGTownInstance * t : cb->getTownsInfo())
 		{
-			// do not allow ally shipyards because of bug
-			if(t->hasBuilt(BuildingID::SHIPYARD) && t->getOwner() == ai->playerID)
+			if(t->hasBuilt(BuildingID::SHIPYARD))
 				shipyards.push_back(t);
 		}
 
 		for(const CGObjectInstance * obj : ai->memory->visitableObjs)
 		{
-			// do not allow ally shipyards because of bug
-			if(obj->ID != Obj::TOWN && obj->getOwner() == ai->playerID) //towns were handled in the previous loop
+			if(obj->ID != Obj::TOWN) //towns were handled in the previous loop
 			{
 				if(const IShipyard * shipyard = IShipyard::castFrom(obj))
 					shipyards.push_back(shipyard);

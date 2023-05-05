@@ -71,11 +71,11 @@ jobs:
           - platform: linux-qt6
             os: ubuntu-22.04
             test: 0
-            preset: linux-clang-release
+            preset: linux-clang-test
           - platform: linux
             os: ubuntu-20.04
             test: 0
-            preset: linux-gcc-release
+            preset: linux-gcc-test
           - platform: mac-intel
             os: macos-12
             test: 0
@@ -130,7 +130,7 @@ jobs:
             preset: android-conan-ninja-release
             conan_profile: android-64
             conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
-            artifact_platform: aarch64-v8a
+            artifact_platform: arm64-v8a
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -225,6 +225,7 @@ jobs:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: |
           ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
+          
     - name: Android artifacts
       if: ${{ startsWith(matrix.platform, 'android') }}
       uses: actions/upload-artifact@v3
@@ -232,6 +233,14 @@ jobs:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: |
           ${{ env.ANDROID_APK_PATH }}
+
+    - name: Android JNI ${{matrix.platform}}
+      if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: Android JNI ${{matrix.platform}}
+        path: |
+          ${{ github.workspace }}/android/vcmi-app/src/main/jniLibs
 
     - name: Upload build
       if: ${{ (matrix.pack == 1 || startsWith(matrix.platform, 'android')) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' }}
@@ -246,6 +255,109 @@ jobs:
       env:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}
+
+    - uses: act10ns/slack@v1
+      with:
+        status: ${{ job.status }}
+        channel: '#notifications'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      if: always()
+  
+  # copy-pasted mostly
+  bundle_release:
+    
+    needs: build
+    if: always() && github.ref == 'refs/heads/master'
+    strategy:
+      matrix:
+        include:
+          - platform: android-32
+            os: ubuntu-22.04
+            extension: aab
+            preset: android-conan-ninja-release
+            conan_profile: android-32
+            conan_options: --conf tools.android:ndk_path=$ANDROID_NDK_ROOT
+            artifact_platform: aab
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Dependencies
+      run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
+      env:
+        VCMI_BUILD_PLATFORM: x64
+
+    - uses: actions/setup-python@v4
+      if: "${{ matrix.conan_profile != '' }}"
+      with:
+        python-version: '3.10'
+    - name: Conan setup
+      if: "${{ matrix.conan_profile != '' }}"
+      run: |
+        pip3 install 'conan<2.0'
+        conan profile new default --detect
+        conan install . \
+          --install-folder=conan-generated \
+          --no-imports \
+          --build=never \
+          --profile:build=default \
+          --profile:host=CI/conan/${{ matrix.conan_profile }} \
+          ${{ matrix.conan_options }}
+      env:
+        GENERATE_ONLY_BUILT_CONFIG: 1
+
+    - name: Git branch name
+      id: git-branch-name
+      uses: EthanSK/git-branch-name-action@v1
+
+    - name: Build Number
+      run: |
+        source '${{github.workspace}}/CI/get_package_name.sh'
+        if [ '${{ matrix.artifact_platform }}' ]; then
+          VCMI_PACKAGE_FILE_NAME+="-${{ matrix.artifact_platform }}"
+        fi
+        echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_NAME_SUFFIX="$VCMI_PACKAGE_NAME_SUFFIX" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_GITVERSION="$VCMI_PACKAGE_GITVERSION" >> $GITHUB_ENV
+      env:
+        PULL_REQUEST: ${{ github.event.pull_request.number }}
+
+    - name: CMake Preset
+      run: |
+        cmake --preset ${{ matrix.preset }}
+
+    - name: Build Preset
+      run: |
+        cmake --build --preset ${{matrix.preset}}
+
+    - name: Download libs x64
+      uses: actions/download-artifact@v3
+      with:
+        name: Android JNI android-64
+        path: ${{ github.workspace }}/android/vcmi-app/src/main/jniLibs/
+ 
+    - name: Create android package
+      run: |
+        cd android
+        ./gradlew bundleRelease --info
+        echo ANDROID_APK_PATH="$(ls ${{ github.workspace }}/android/vcmi-app/build/outputs/bundle/release/*.aab)" >> $GITHUB_ENV
+      env:
+        ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+    - name: Android artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
+        path: |
+          ${{ env.ANDROID_APK_PATH }}
 
     - uses: act10ns/slack@v1
       with:

@@ -163,7 +163,7 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 		case MISSION_ARMY:
 			return checkMissionArmy(this, h);
 		case MISSION_RESOURCES:
-			for(auto i = EGameResID::WOOD; i <= EGameResID::GOLD; vstd::advance(i, +1)) //including Mithril ?
+			for(GameResID i = EGameResID::WOOD; i <= EGameResID::GOLD; ++i) //including Mithril ?
 			{	//Quest has no direct access to callback
 				if(CGHeroInstance::cb->getResource(h->tempOwner, i) < static_cast<int>(m7resources[i]))
 					return false;
@@ -850,8 +850,8 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 		}
 		case MORALE_BONUS: case LUCK_BONUS:
 		{
-			Bonus hb(Bonus::ONE_WEEK, (rewardType == 3 ? Bonus::MORALE : Bonus::LUCK),
-				Bonus::OBJECT, rVal, h->id.getNum(), "", -1);
+			Bonus hb(BonusDuration::ONE_WEEK, (rewardType == 3 ? BonusType::MORALE : BonusType::LUCK),
+				BonusSource::OBJECT, rVal, h->id.getNum(), "", -1);
 			GiveBonus gb;
 			gb.id = h->id.getNum();
 			gb.bonus = hb;

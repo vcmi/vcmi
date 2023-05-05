@@ -56,7 +56,7 @@ protected:
 	std::vector<ObjectInfo*> prepareTreasurePile(const CTreasureInfo & treasureInfo);
 	rmg::Object constructTreasurePile(const std::vector<ObjectInfo*> & treasureInfos, bool densePlacement = false);
 
-protected:	
+protected:
 	std::vector<ObjectInfo> possibleObjects;
 	int minGuardedValue = 0;
 	

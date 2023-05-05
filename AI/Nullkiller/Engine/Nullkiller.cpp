@@ -117,7 +117,7 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositi
 void Nullkiller::resetAiState()
 {
 	lockedResources = TResources();
-	scanDepth = ScanDepth::SMALL;
+	scanDepth = ScanDepth::FULL;
 	playerID = ai->playerID;
 	lockedHeroes.clear();
 	dangerHitMap->reset();

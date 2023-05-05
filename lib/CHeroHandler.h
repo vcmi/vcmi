@@ -16,7 +16,8 @@
 
 #include "../lib/ConstTransitivePtr.h"
 #include "GameConstants.h"
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/BonusList.h"
 #include "IHandlerBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -198,10 +199,9 @@ public:
 
 		if(!h.saving)
 		{
-			for(auto i = 0; i < secSkillProbability.size(); i++)
-				if(secSkillProbability[i] < 0)
-					secSkillProbability[i] = 0;
-	}
+			for(int & i : secSkillProbability)
+				vstd::amax(i, 0);
+		}
 	}
 	EAlignment getAlignment() const;
 };

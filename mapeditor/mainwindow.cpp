@@ -333,7 +333,23 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	CMapService mapService;
 	try
 	{
-		controller.setMap(mapService.loadMap(resId));
+		if(auto header = mapService.loadMapHeader(resId))
+		{
+			auto missingMods = CMapService::verifyMapHeaderMods(*header);
+			CModHandler::Incompatibility::ModList modList;
+			for(const auto & m : missingMods)
+				modList.push_back({m.first, m.second.toString()});
+			
+			if(!modList.empty())
+				throw CModHandler::Incompatibility(std::move(modList));
+			
+			controller.setMap(mapService.loadMap(resId));
+		}
+	}
+	catch(const CModHandler::Incompatibility & e)
+	{
+		QMessageBox::warning(this, "Mods requiered", e.what());
+		return false;
 	}
 	catch(const std::exception & e)
 	{
@@ -524,19 +540,16 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 			//create object to extract name
 			std::unique_ptr<CGObjectInstance> temporaryObj(factory->create(templ));
 			QString translated = useCustomName ? tr(temporaryObj->getObjectName().c_str()) : subGroupName;
+			itemType->setText(translated);
 
 			//do not have extra level
 			if(singleTemplate)
 			{
-				if(useCustomName)
-					itemType->setText(translated);
 				itemType->setIcon(QIcon(preview));
 				itemType->setData(data);
 			}
 			else
 			{
-				if(useCustomName)
-					itemType->setText(translated);
 				auto * item = new QStandardItem(QIcon(preview), QString::fromStdString(templ->stringID));
 				item->setData(data);
 				itemType->appendRow(item);
@@ -607,9 +620,7 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("TOWNS", true, false, Obj::SHIPYARD);
 	addGroupIntoCatalog("TOWNS", true, false, Obj::GARRISON);
 	addGroupIntoCatalog("TOWNS", true, false, Obj::GARRISON2);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::ALTAR_OF_SACRIFICE);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::ARENA);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::BLACK_MARKET);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::BUOY);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::CARTOGRAPHER);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::SWAN_POND);
@@ -646,17 +657,13 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::TAVERN);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::TEMPLE);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::DEN_OF_THIEVES);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::TRADING_POST);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::TRADING_POST_SNOW);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::LEARNING_STONE);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::TREE_OF_KNOWLEDGE);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::UNIVERSITY);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::WAGON);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::SCHOOL_OF_WAR);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::WAR_MACHINE_FACTORY);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::WARRIORS_TOMB);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::WITCH_HUT);
-	addGroupIntoCatalog("OBJECTS", true, false, Obj::FREELANCERS_GUILD);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::SANCTUARY);
 	addGroupIntoCatalog("OBJECTS", true, false, Obj::MARLETTO_TOWER);
 	addGroupIntoCatalog("HEROES", true, false, Obj::PRISON);
@@ -1215,6 +1222,19 @@ void MainWindow::on_actionPaste_triggered()
 	if(controller.map())
 	{
 		controller.pasteFromClipboard(mapLevel);
+	}
+}
+
+
+void MainWindow::on_actionExport_triggered()
+{
+	QString fileName = QFileDialog::getSaveFileName(this, "Save to image", QCoreApplication::applicationDirPath(), "BMP (*.bmp);;JPEG (*.jpeg);;PNG (*.png)");
+	if(!fileName.isNull())
+	{
+		QImage image(ui->mapView->scene()->sceneRect().size().toSize(), QImage::Format_RGB888);
+		QPainter painter(&image);
+		ui->mapView->scene()->render(&painter);
+		image.save(fileName);
 	}
 }
 

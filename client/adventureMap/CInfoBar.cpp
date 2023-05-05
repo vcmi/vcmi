@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CInfoBar.h"
 
-#include "CAdvMapInt.h"
+#include "CAdventureMapInterface.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/Images.h"
@@ -22,6 +22,7 @@
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
 
 #include "../../CCallback.h"
@@ -114,7 +115,7 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	//get amount of halls of each level
 	std::vector<int> halls(4, 0);
-	for(auto town : LOCPLINT->towns)
+	for(auto town : LOCPLINT->localState->getOwnedTowns())
 	{
 		int hallLevel = town->hallLevel();
 		//negative value means no village hall, unlikely but possible
@@ -237,15 +238,15 @@ void CInfoBar::reset()
 void CInfoBar::showSelection()
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	if(adventureInt->curHero())
+	if(LOCPLINT->localState->getCurrentHero())
 	{
-		showHeroSelection(adventureInt->curHero());
+		showHeroSelection(LOCPLINT->localState->getCurrentHero());
 		return;
 	}
 
-	if(adventureInt->curTown())
+	if(LOCPLINT->localState->getCurrentTown())
 	{
-		showTownSelection(adventureInt->curTown());
+		showTownSelection(LOCPLINT->localState->getCurrentTown());
 		return;
 	}
 

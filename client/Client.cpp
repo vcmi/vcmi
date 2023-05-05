@@ -15,7 +15,7 @@
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
 #include "ClientNetPackVisitors.h"
-#include "adventureMap/CAdvMapInt.h"
+#include "adventureMap/CAdventureMapInterface.h"
 #include "battle/BattleInterface.h"
 #include "gui/CGuiHandler.h"
 #include "mapView/mapHandler.h"
@@ -374,6 +374,7 @@ void CClient::endGame()
 	//threads cleanup has to be after gs cleanup and before battleints cleanup to stop tacticThread
 	cleanThreads();
 
+	CPlayerInterface::battleInt.reset();
 	playerint.clear();
 	battleints.clear();
 	battleCallbacks.clear();

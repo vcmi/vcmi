@@ -12,6 +12,8 @@
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/CHeroHandler.h"
+#include "../../../lib/GameSettings.h"
+#include "../../../lib/CGameState.h"
 
 namespace NKAI
 {
@@ -70,10 +72,10 @@ float HeroManager::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance *
 
 float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 {
-	auto heroSpecial = Selector::source(Bonus::HERO_SPECIAL, hero->type->getIndex());
-	auto secondarySkillBonus = Selector::targetSourceType()(Bonus::SECONDARY_SKILL);
+	auto heroSpecial = Selector::source(BonusSource::HERO_SPECIAL, hero->type->getIndex());
+	auto secondarySkillBonus = Selector::targetSourceType()(BonusSource::SECONDARY_SKILL);
 	auto specialSecondarySkillBonuses = hero->getBonuses(heroSpecial.And(secondarySkillBonus));
-	auto secondarySkillBonuses = hero->getBonuses(Selector::sourceTypeSel(Bonus::SECONDARY_SKILL));
+	auto secondarySkillBonuses = hero->getBonuses(Selector::sourceTypeSel(BonusSource::SECONDARY_SKILL));
 	float specialityScore = 0.0f;
 
 	for(auto bonus : *secondarySkillBonuses)
@@ -177,6 +179,51 @@ int HeroManager::selectBestSkill(const HeroPtr & hero, const std::vector<Seconda
 float HeroManager::evaluateHero(const CGHeroInstance * hero) const
 {
 	return evaluateFightingStrength(hero);
+}
+
+bool HeroManager::canRecruitHero(const CGTownInstance * town) const
+{
+	if(!town)
+		town = findTownWithTavern();
+
+	if(!town || !townHasFreeTavern(town))
+		return false;
+
+	if(cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST)
+		return false;
+
+	const bool includeGarnisoned = true;
+	int heroCount = cb->getHeroCount(ai->playerID, includeGarnisoned);
+
+	if(heroCount >= ALLOWED_ROAMING_HEROES)
+		return false;
+
+	if(heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
+		return false;
+
+	if(!cb->getAvailableHeroes(town).size())
+		return false;
+
+	return true;
+}
+
+const CGTownInstance * HeroManager::findTownWithTavern() const
+{
+	for(const CGTownInstance * t : cb->getTownsInfo())
+		if(townHasFreeTavern(t))
+			return t;
+
+	return nullptr;
+}
+
+const CGHeroInstance * HeroManager::findHeroWithGrail() const
+{
+	for(const CGHeroInstance * h : cb->getHeroesInfo())
+	{
+		if(h->hasArt(ArtifactID::GRAIL))
+			return h;
+	}
+	return nullptr;
 }
 
 SecondarySkillScoreMap::SecondarySkillScoreMap(std::map<SecondarySkill, float> scoreMap)

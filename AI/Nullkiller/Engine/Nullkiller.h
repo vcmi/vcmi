@@ -88,6 +88,7 @@ public:
 	int32_t getFreeGold() const { return getFreeResources()[EGameResID::GOLD]; }
 	void lockResources(const TResources & res);
 	const TResources & getLockedResources() const { return lockedResources; }
+	ScanDepth getScanDepth() const { return scanDepth; }
 
 private:
 	void resetAiState();

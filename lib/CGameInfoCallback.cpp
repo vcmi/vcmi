@@ -314,7 +314,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 	if(getPlayerRelations(getLocalPlayer(), hero->tempOwner) == PlayerRelations::ENEMIES)
 	{
 		//todo: bonus cashing
-		int disguiseLevel = h->valOfBonuses(Selector::typeSubtype(Bonus::DISGUISED, 0));
+		int disguiseLevel = h->valOfBonuses(Selector::typeSubtype(BonusType::DISGUISED, 0));
 
 		auto doBasicDisguise = [](InfoAboutHero & info)
 		{
@@ -935,7 +935,7 @@ bool CGameInfoCallback::isInTheMap(const int3 &pos) const
 	return gs->map->isInTheMap(pos);
 }
 
-void CGameInfoCallback::getVisibleTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula) const
+void CGameInfoCallback::getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula) const
 {
 	gs->getTilesInRange(tiles, pos, radious, getLocalPlayer(), -1, distanceFormula);
 }

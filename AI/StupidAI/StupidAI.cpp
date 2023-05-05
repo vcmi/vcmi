@@ -95,7 +95,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	ReachabilityInfo dists = cb->getReachability(stack);
 	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
 
-	if(stack->type->getId() == CreatureID::CATAPULT)
+	if(stack->creatureId() == CreatureID::CATAPULT)
 	{
 		BattleAction attack;
 		static const std::vector<int> wallHexes = {50, 183, 182, 130, 78, 29, 12, 95};
@@ -103,11 +103,11 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		attack.aimToHex(seletectedHex);
 		attack.actionType = EActionType::CATAPULT;
 		attack.side = side;
-		attack.stackNumber = stack->ID;
+		attack.stackNumber = stack->unitId();
 
 		return attack;
 	}
-	else if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON))
+	else if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON))
 	{
 		return BattleAction::makeDefend(stack);
 	}
@@ -120,7 +120,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		}
 		else
 		{
-			std::vector<BattleHex> avHexes = cb->battleGetAvailableHexes(stack, true);
+			std::vector<BattleHex> avHexes = cb->battleGetAvailableHexes(stack, false);
 
 			for (BattleHex hex : avHexes)
 			{
@@ -270,7 +270,7 @@ BattleAction CStupidAI::goTowards(const CStack * stack, std::vector<BattleHex> h
 		return BattleAction::makeDefend(stack);
 	}
 
-	if(stack->hasBonusOfType(Bonus::FLYING))
+	if(stack->hasBonusOfType(BonusType::FLYING))
 	{
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
 		// We just check all available hexes and pick the one closest to the target.

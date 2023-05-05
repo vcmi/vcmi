@@ -11,6 +11,7 @@
 #include "CIntObject.h"
 
 #include "CGuiHandler.h"
+#include "Shortcut.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../windows/CMessage.h"
 #include "../CMT.h"
@@ -305,28 +306,23 @@ const Rect & CIntObject::center(const Point & p, bool propagate)
 	return pos;
 }
 
-bool CIntObject::captureThisKey(const SDL_Keycode & key)
+bool CIntObject::captureThisKey(EShortcut key)
 {
 	return captureAllKeys;
 }
 
 CKeyShortcut::CKeyShortcut()
+	: assignedKey(EShortcut::NONE)
 {}
 
-CKeyShortcut::CKeyShortcut(int key)
+CKeyShortcut::CKeyShortcut(EShortcut key)
+	: assignedKey(key)
 {
-	if (key != SDLK_UNKNOWN)
-		assignedKeys.insert(key);
 }
 
-CKeyShortcut::CKeyShortcut(std::set<int> Keys)
-	:assignedKeys(Keys)
-{}
-
-void CKeyShortcut::keyPressed(const SDL_Keycode & key)
+void CKeyShortcut::keyPressed(EShortcut key)
 {
-	if(vstd::contains(assignedKeys,key)
-	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key)))
+	if( assignedKey == key && assignedKey != EShortcut::NONE)
 	{
 		bool prev = mouseState(MouseButton::LEFT);
 		updateMouseState(MouseButton::LEFT, true);
@@ -335,10 +331,9 @@ void CKeyShortcut::keyPressed(const SDL_Keycode & key)
 	}
 }
 
-void CKeyShortcut::keyReleased(const SDL_Keycode & key)
+void CKeyShortcut::keyReleased(EShortcut key)
 {
-	if(vstd::contains(assignedKeys,key)
-	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key)))
+	if( assignedKey == key && assignedKey != EShortcut::NONE)
 	{
 		bool prev = mouseState(MouseButton::LEFT);
 		updateMouseState(MouseButton::LEFT, false);

@@ -112,9 +112,8 @@
 				"matchTerrainToTown" : false,
 				"treasure" :
 				[
-					{ "min" : 0, "max" : 0, "density" : 1 },
-					{ "min" : 0, "max" : 0, "density" : 1 },
-					{ "min" : 0, "max" : 0, "density" : 1 }
+					{ "min" : 100, "max" : 1000, "density" : 10 },
+					{ "min" : 1000, "max" : 3000, "density" : 1 }
 				]
 			},
 			"12" :

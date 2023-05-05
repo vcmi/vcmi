@@ -185,20 +185,17 @@ bool CGarrisonSlot::highlightOrDropArtifact()
 	bool artSelected = false;
 	if (CWindowWithArtifacts* chw = dynamic_cast<CWindowWithArtifacts*>(GH.topInt().get())) //dirty solution
 	{
-		std::shared_ptr<CArtifactsOfHero::SCommonPart> commonInfo = chw->getCommonPart();
-		const CArtifactInstance * art = nullptr;
-		if(commonInfo)
-			art = commonInfo->src.art;
+		const auto pickedArtInst = chw->getPickedArtifact();
 
-		if(art)
+		if(pickedArtInst)
 		{
-			const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
+			const auto * srcHero = chw->getHeroPickedArtifact();
 			artSelected = true;
 			if (myStack) // try dropping the artifact only if the slot isn't empty
 			{
-				ArtifactLocation src(srcHero, commonInfo->src.slotID);
+				ArtifactLocation src(srcHero, ArtifactPosition::TRANSITION_POS);
 				ArtifactLocation dst(myStack, ArtifactPosition::CREATURE_SLOT);
-				if (art->canBePutAt(dst, true))
+				if(pickedArtInst->canBePutAt(dst, true))
 				{	//equip clicked stack
 					if(dst.getArt())
 					{

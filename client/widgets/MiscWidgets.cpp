@@ -200,7 +200,7 @@ void CMinorResDataBar::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 
-	for (EGameResID i=EGameResID::WOOD; i<=EGameResID::GOLD; vstd::advance(i, 1))
+	for (GameResID i=EGameResID::WOOD; i<=EGameResID::GOLD; ++i)
 	{
 		std::string text = std::to_string(LOCPLINT->cb->getResourceAmount(i));
 
@@ -372,7 +372,7 @@ CTownTooltip::CTownTooltip(Point pos, const CGTownInstance * town)
 	init(InfoAboutTown(town, true));
 }
 
-void MoraleLuckBox::set(const IBonusBearer * node)
+void MoraleLuckBox::set(const AFactionMember * node)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
@@ -385,7 +385,7 @@ void MoraleLuckBox::set(const IBonusBearer * node)
 	bonusValue = 0;
 
 	if(node)
-		bonusValue = morale ? node->MoraleValAndBonusList(modifierList) : node->LuckValAndBonusList(modifierList);
+		bonusValue = morale ? node->moraleValAndBonusList(modifierList) : node->luckValAndBonusList(modifierList);
 
 	int mrlt = (bonusValue>0)-(bonusValue<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
 	hoverText = CGI->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
@@ -393,21 +393,21 @@ void MoraleLuckBox::set(const IBonusBearer * node)
 	text = CGI->generaltexth->arraytxt[textId[morale]];
 	boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
 
-	if (morale && node && (node->hasBonusOfType(Bonus::UNDEAD)
-			|| node->hasBonusOfType(Bonus::NON_LIVING)))
+	if (morale && node && (node->getBonusBearer()->hasBonusOfType(BonusType::UNDEAD)
+			|| node->getBonusBearer()->hasBonusOfType(BonusType::NON_LIVING)))
 	{
 		text += CGI->generaltexth->arraytxt[113]; //unaffected by morale
 		bonusValue = 0;
 	}
-	else if(morale && node && node->hasBonusOfType(Bonus::NO_MORALE))
+	else if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))
 	{
-		auto noMorale = node->getBonus(Selector::type()(Bonus::NO_MORALE));
+		auto noMorale = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_MORALE));
 		text += "\n" + noMorale->Description();
 		bonusValue = 0;
 	}
-	else if (!morale && node && node->hasBonusOfType(Bonus::NO_LUCK))
+	else if (!morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_LUCK))
 	{
-		auto noLuck = node->getBonus(Selector::type()(Bonus::NO_LUCK));
+		auto noLuck = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_LUCK));
 		text += "\n" + noLuck->Description();
 		bonusValue = 0;
 	}
@@ -458,7 +458,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 		bg = std::make_shared<CPicture>((*CGI->townh)[faction]->creatureBg120);
 	anim = std::make_shared<CCreatureAnim>(0, 0, cre->animDefName);
 	anim->clipRect(cre->isDoubleWide()?170:150, 155, bg->pos.w, bg->pos.h);
-	anim->startPreview(cre->hasBonusOfType(Bonus::SIEGE_WEAPON));
+	anim->startPreview(cre->hasBonusOfType(BonusType::SIEGE_WEAPON));
 
 	amount = std::make_shared<CLabel>(bg->pos.w, bg->pos.h, FONT_MEDIUM, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
 

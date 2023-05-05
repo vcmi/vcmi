@@ -19,7 +19,7 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../battle/BattleHex.h"
-#include "../HeroBonus.h"
+#include "../bonuses/Bonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -44,11 +44,11 @@ class IBattleCast;
 struct SchoolInfo
 {
 	ESpellSchool id; //backlink
-	Bonus::BonusType damagePremyBonus;
-	Bonus::BonusType immunityBonus;
+	BonusType damagePremyBonus;
+	BonusType immunityBonus;
 	std::string jsonName;
 	SecondarySkill::ESecondarySkill skill;
-	Bonus::BonusType knoledgeBonus;
+	BonusType knoledgeBonus;
 };
 
 }
@@ -92,8 +92,8 @@ public:
 		}
 	};
 
-	typedef AnimationItem TAnimation;
-	typedef std::vector<TAnimation> TAnimationQueue;
+	using TAnimation = AnimationItem;
+	using TAnimationQueue = std::vector<TAnimation>;
 
 	struct DLL_LINKAGE AnimationInfo
 	{
@@ -184,7 +184,7 @@ public:
 		TargetInfo(const CSpell * spell, const int32_t level, spells::Mode mode);
 	};
 
-	using BTVector = std::vector<Bonus::BonusType>;
+	using BTVector = std::vector<BonusType>;
 
 	si32 level;
 

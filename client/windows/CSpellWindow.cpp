@@ -18,14 +18,16 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../CVideoHandler.h"
 
 #include "../battle/BattleInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/CAdventureMapInterface.h"
 #include "../render/CAnimation.h"
 #include "../renderSDL/SDL_Extensions.h"
 
@@ -221,9 +223,9 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 		}
 	}
 
-	selectedTab = battleSpellsOnly ? myInt->spellbookSettings.spellbookLastTabBattle : myInt->spellbookSettings.spellbookLastTabAdvmap;
+	selectedTab = battleSpellsOnly ? myInt->localState->spellbookSettings.spellbookLastTabBattle : myInt->localState->spellbookSettings.spellbookLastTabAdvmap;
 	schoolTab->setFrame(selectedTab, 0);
-	int cp = battleSpellsOnly ? myInt->spellbookSettings.spellbookLastPageBattle : myInt->spellbookSettings.spellbokLastPageAdvmap;
+	int cp = battleSpellsOnly ? myInt->localState->spellbookSettings.spellbookLastPageBattle : myInt->localState->spellbookSettings.spellbokLastPageAdvmap;
 	// spellbook last page battle index is not reset after battle, so this needs to stay here
 	vstd::abetween(cp, 0, std::max(0, pagesWithinCurrentTab() - 1));
 	setCurrentPage(cp);
@@ -237,8 +239,8 @@ CSpellWindow::~CSpellWindow()
 
 void CSpellWindow::fexitb()
 {
-	(myInt->battleInt ? myInt->spellbookSettings.spellbookLastTabBattle : myInt->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
-	(myInt->battleInt ? myInt->spellbookSettings.spellbookLastPageBattle : myInt->spellbookSettings.spellbokLastPageAdvmap) = currentPage;
+	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastTabBattle : myInt->localState->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
+	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastPageBattle : myInt->localState->spellbookSettings.spellbokLastPageAdvmap) = currentPage;
 
 	close();
 }
@@ -408,27 +410,24 @@ void CSpellWindow::turnPageRight()
 		CCS->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15);
 }
 
-void CSpellWindow::keyPressed(const SDL_Keycode & key)
+void CSpellWindow::keyPressed(EShortcut key)
 {
-	if(key == SDLK_ESCAPE ||  key == SDLK_RETURN)
+	switch(key)
 	{
-		fexitb();
-		return;
-	}
-	else
-	{
-		switch(key)
-		{
-		case SDLK_LEFT:
+		case EShortcut::GLOBAL_RETURN:
+			fexitb();
+			break;
+
+		case EShortcut::MOVE_LEFT:
 			fLcornerb();
 			break;
-		case SDLK_RIGHT:
+		case EShortcut::MOVE_RIGHT:
 			fRcornerb();
 			break;
-		case SDLK_UP:
-		case SDLK_DOWN:
+		case EShortcut::MOVE_UP:
+		case EShortcut::MOVE_DOWN:
 		{
-			bool down = key == SDLK_DOWN;
+			bool down = key == EShortcut::MOVE_DOWN;
 			static const int schoolsOrder[] = { 0, 3, 1, 2, 4 };
 			int index = -1;
 			while(schoolsOrder[++index] != selectedTab);
@@ -438,38 +437,12 @@ void CSpellWindow::keyPressed(const SDL_Keycode & key)
 				selectSchool(schoolsOrder[index]);
 			break;
 		}
-		case SDLK_c:
+		case EShortcut::SPELLBOOK_TAB_COMBAT:
 			fbattleSpellsb();
 			break;
-		case SDLK_a:
+		case EShortcut::SPELLBOOK_TAB_ADVENTURE:
 			fadvSpellsb();
 			break;
-		default://to get rid of warnings
-			break;
-		}
-
-		//alt + 1234567890-= casts spell from 1 - 12 slot
-		if(GH.isKeyboardAltDown())
-		{
-			SDL_Keycode hlpKey = key;
-			if(CGuiHandler::isNumKey(hlpKey, false))
-			{
-				if(hlpKey == SDLK_KP_PLUS)
-					hlpKey = SDLK_EQUALS;
-				else
-					hlpKey = CGuiHandler::numToDigit(hlpKey);
-			}
-
-			static const SDL_Keycode spellSelectors[] = {SDLK_1, SDLK_2, SDLK_3, SDLK_4, SDLK_5, SDLK_6, SDLK_7, SDLK_8, SDLK_9, SDLK_0, SDLK_MINUS, SDLK_EQUALS};
-
-			int index = -1;
-			while(++index < std::size(spellSelectors) && spellSelectors[index] != hlpKey);
-			if(index >= std::size(spellSelectors))
-				return;
-
-			//try casting spell
-			spellAreas[index]->clickLeft(false, true);
-		}
 	}
 }
 
@@ -509,7 +482,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		auto spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 		if(spellCost > owner->myHero->mana) //insufficient mana
 		{
-			owner->myInt->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[206]) % spellCost % owner->myHero->mana));
+			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[206]) % spellCost % owner->myHero->mana));
 			return;
 		}
 
@@ -529,7 +502,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		if((combatSpell ^ inCombat) || inCastle)
 		{
 			std::vector<std::shared_ptr<CComponent>> hlp(1, std::make_shared<CComponent>(CComponent::spell, mySpell->id, 0));
-			owner->myInt->showInfoDialog(mySpell->getDescriptionTranslated(schoolLevel), hlp);
+			LOCPLINT->showInfoDialog(mySpell->getDescriptionTranslated(schoolLevel), hlp);
 		}
 		else if(combatSpell)
 		{
@@ -544,9 +517,9 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				std::vector<std::string> texts;
 				problem.getAll(texts);
 				if(!texts.empty())
-					owner->myInt->showInfoDialog(texts.front());
+					LOCPLINT->showInfoDialog(texts.front());
 				else
-					owner->myInt->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
+					LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.spellUnknownProblem"));
 			}
 		}
 		else //adventure spell
@@ -556,8 +529,8 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 
 			auto guard = vstd::makeScopeGuard([this]()
 			{
-				owner->myInt->spellbookSettings.spellbookLastTabAdvmap = owner->selectedTab;
-				owner->myInt->spellbookSettings.spellbokLastPageAdvmap = owner->currentPage;
+				owner->myInt->localState->spellbookSettings.spellbookLastTabAdvmap = owner->selectedTab;
+				owner->myInt->localState->spellbookSettings.spellbokLastPageAdvmap = owner->currentPage;
 			});
 
 			if(mySpell->getTargetType() == spells::AimType::LOCATION)

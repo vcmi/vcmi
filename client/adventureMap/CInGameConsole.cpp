@@ -14,9 +14,10 @@
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../ClientCommandManager.h"
-#include "../adventureMap/CAdvMapInt.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../render/Colors.h"
 
 #include "../../CCallback.h"
@@ -108,30 +109,29 @@ void CInGameConsole::print(const std::string & txt)
 	GH.totalRedraw(); // FIXME: ingame console has no parent widget set
 }
 
-void CInGameConsole::keyPressed (const SDL_Keycode & key)
+void CInGameConsole::keyPressed (EShortcut key)
 {
 	if (LOCPLINT->cingconsole != this)
 		return;
 
-	if(!captureAllKeys && key != SDLK_TAB)
+	if(!captureAllKeys && key != EShortcut::GAME_ACTIVATE_CONSOLE)
 		return; //because user is not entering any text
 
 	switch(key)
 	{
-	case SDLK_TAB:
-	case SDLK_ESCAPE:
-		{
-			if(captureAllKeys)
-			{
-				endEnteringText(false);
-			}
-			else if(SDLK_TAB == key)
-			{
-				startEnteringText();
-			}
-			break;
-		}
-	case SDLK_RETURN: //enter key
+	case EShortcut::GLOBAL_CANCEL:
+		if(captureAllKeys)
+			endEnteringText(false);
+		break;
+
+	case EShortcut::GAME_ACTIVATE_CONSOLE:
+		if(captureAllKeys)
+			endEnteringText(false);
+		else
+			startEnteringText();
+		break;
+
+	case EShortcut::GLOBAL_ACCEPT:
 		{
 			if(!enteredText.empty() && captureAllKeys)
 			{
@@ -145,7 +145,7 @@ void CInGameConsole::keyPressed (const SDL_Keycode & key)
 			}
 			break;
 		}
-	case SDLK_BACKSPACE:
+	case EShortcut::GLOBAL_BACKSPACE:
 		{
 			if(enteredText.size() > 1)
 			{
@@ -155,7 +155,7 @@ void CInGameConsole::keyPressed (const SDL_Keycode & key)
 			}
 			break;
 		}
-	case SDLK_UP: //up arrow
+	case EShortcut::MOVE_UP:
 		{
 			if(previouslyEntered.empty())
 				break;
@@ -174,7 +174,7 @@ void CInGameConsole::keyPressed (const SDL_Keycode & key)
 			}
 			break;
 		}
-	case SDLK_DOWN: //down arrow
+	case EShortcut::MOVE_DOWN:
 		{
 			if(prevEntDisp != -1 && prevEntDisp+1 < previouslyEntered.size())
 			{
@@ -188,10 +188,6 @@ void CInGameConsole::keyPressed (const SDL_Keycode & key)
 				enteredText = "_";
 				refreshEnteredText();
 			}
-			break;
-		}
-	default:
-		{
 			break;
 		}
 	}
@@ -259,7 +255,7 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 			clientCommandThread.detach();
 		}
 		else
-			LOCPLINT->cb->sendMessage(txt, adventureInt->curArmy());
+			LOCPLINT->cb->sendMessage(txt, LOCPLINT->localState->getCurrentArmy());
 	}
 	enteredText.clear();
 

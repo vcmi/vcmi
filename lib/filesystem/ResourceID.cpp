@@ -159,6 +159,7 @@ EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)
 		{".ERT",   EResType::ERT},
 		{".ERS",   EResType::ERS},
 		{".VMAP",  EResType::MAP},
+		{".VCMP",  EResType::CAMPAIGN},
 		{".VERM",  EResType::ERM},
 		{".LUA",   EResType::LUA}
 	};

@@ -74,12 +74,11 @@ TEST_F(DispelTest, ApplicableToAliveUnitWithTimedEffect)
 
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
 
-	unit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::SPELL_EFFECT, 1, negativeID.toEnum()));
+	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::SPELL_EFFECT, 1, negativeID.toEnum()));
 
 	EXPECT_CALL(unit, isValidTarget(Eq(false))).WillOnce(Return(true));
 
 	EXPECT_CALL(mechanicsMock, isSmart()).WillOnce(Return(false));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillOnce(Return(true));
 	EXPECT_CALL(mechanicsMock, getSpellIndex()).Times(AtLeast(1)).WillRepeatedly(Return(neutralID.toEnum()));
 
 	setDefaultExpectaions();
@@ -102,7 +101,7 @@ TEST_F(DispelTest, IgnoresOwnEffects)
 	}
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
 
-	unit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::SPELL_EFFECT, 1, neutralID.toEnum()));
+	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::SPELL_EFFECT, 1, neutralID.toEnum()));
 
 	EXPECT_CALL(unit, isValidTarget(Eq(false))).Times(AtMost(1)).WillRepeatedly(Return(true));
 
@@ -183,23 +182,23 @@ TEST_F(DispelApplyTest, RemovesEffects)
 	EXPECT_CALL(unit1, unitId()).Times(AtLeast(1)).WillRepeatedly(Return(unitIds[1]));
 
 	{
-		auto bonus = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::SPELL_EFFECT, 1, negativeID.toEnum());
+		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::SPELL_EFFECT, 1, negativeID.toEnum());
 		expectedBonus[0].emplace_back(*bonus);
 		unit0.addNewBonus(bonus);
 
-		bonus = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::SPELL_EFFECT, 1, negativeID.toEnum());
+		bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::SPELL_EFFECT, 1, negativeID.toEnum());
 		expectedBonus[0].emplace_back(*bonus);
 		unit0.addNewBonus(bonus);
 
-		bonus = std::make_shared<Bonus>(Bonus::N_TURNS, Bonus::GENERAL_ATTACK_REDUCTION, Bonus::SPELL_EFFECT, 3, negativeID.toEnum());
+		bonus = std::make_shared<Bonus>(BonusDuration::N_TURNS, BonusType::GENERAL_ATTACK_REDUCTION, BonusSource::SPELL_EFFECT, 3, negativeID.toEnum());
 		expectedBonus[0].emplace_back(*bonus);
 		unit0.addNewBonus(bonus);
 
-		bonus = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::SPELL_EFFECT, 5, positiveID.toEnum());
+		bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::SPELL_EFFECT, 5, positiveID.toEnum());
 		expectedBonus[1].emplace_back(*bonus);
 		unit1.addNewBonus(bonus);
 
-		bonus = std::make_shared<Bonus>(Bonus::N_TURNS, Bonus::GENERAL_ATTACK_REDUCTION, Bonus::SPELL_EFFECT, 3, positiveID.toEnum());
+		bonus = std::make_shared<Bonus>(BonusDuration::N_TURNS, BonusType::GENERAL_ATTACK_REDUCTION, BonusSource::SPELL_EFFECT, 3, positiveID.toEnum());
 		expectedBonus[1].emplace_back(*bonus);
 		unit1.addNewBonus(bonus);
 	}

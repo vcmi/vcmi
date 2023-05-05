@@ -19,6 +19,7 @@
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
 #include "../renderSDL/SDL_Extensions.h"
@@ -223,7 +224,7 @@ void CButton::hover (bool on)
 	}
 }
 
-CButton::CButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help, CFunctionList<void()> Callback, int key, bool playerColoredButton):
+CButton::CButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help, CFunctionList<void()> Callback, EShortcut key, bool playerColoredButton):
     CKeyShortcut(key),
     callback(Callback)
 {
@@ -345,7 +346,7 @@ void CToggleBase::addCallback(std::function<void(bool)> function)
 }
 
 CToggleButton::CToggleButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help,
-                             CFunctionList<void(bool)> callback, int key, bool playerColoredButton):
+							 CFunctionList<void(bool)> callback, EShortcut key, bool playerColoredButton):
   CButton(position, defName, help, 0, key, playerColoredButton),
   CToggleBase(callback)
 {
@@ -800,37 +801,37 @@ void CSlider::wheelScrolled(bool down, bool in)
 	moveTo(value + 3 * (positive ? +scrollStep : -scrollStep));
 }
 
-void CSlider::keyPressed(const SDL_Keycode & key)
+void CSlider::keyPressed(EShortcut key)
 {
 	int moveDest = value;
 	switch(key)
 	{
-	case SDLK_UP:
+	case EShortcut::MOVE_UP:
 		if (!horizontal)
 			moveDest = value - scrollStep;
 		break;
-	case SDLK_LEFT:
+	case EShortcut::MOVE_LEFT:
 		if (horizontal)
 			moveDest = value - scrollStep;
 		break;
-	case SDLK_DOWN:
+	case EShortcut::MOVE_DOWN:
 		if (!horizontal)
 			moveDest = value + scrollStep;
 		break;
-	case SDLK_RIGHT:
+	case EShortcut::MOVE_RIGHT:
 		if (horizontal)
 			moveDest = value + scrollStep;
 		break;
-	case SDLK_PAGEUP:
+	case EShortcut::MOVE_PAGE_UP:
 		moveDest = value - capacity + scrollStep;
 		break;
-	case SDLK_PAGEDOWN:
+	case EShortcut::MOVE_PAGE_DOWN:
 		moveDest = value + capacity - scrollStep;
 		break;
-	case SDLK_HOME:
+	case EShortcut::MOVE_FIRST:
 		moveDest = 0;
 		break;
-	case SDLK_END:
+	case EShortcut::MOVE_LAST:
 		moveDest = amount - capacity;
 		break;
 	default:

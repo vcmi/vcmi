@@ -35,7 +35,10 @@ TEST_F(CCreatureTest, RegistersIcons)
 	subject->smallIconName = "Test1";
 	subject->largeIconName = "Test2";
 
-	auto cb = std::bind(&CCreatureTest::registarCb, this, _1, _2, _3, _4);
+	auto cb = [this](auto && PH1, auto && PH2, auto && PH3, auto && PH4) 
+	{
+		registarCb(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2), std::forward<decltype(PH3)>(PH3), std::forward<decltype(PH4)>(PH4));
+	};
 
 	EXPECT_CALL(*this, registarCb(Eq(4242), Eq(0), "CPRSMALL", "Test1"));
 	EXPECT_CALL(*this, registarCb(Eq(4242), Eq(0), "TWCRPORT", "Test2"));
@@ -104,7 +107,7 @@ TEST_F(CCreatureTest, JsonAddBonus)
 {
 	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
 
-	std::shared_ptr<Bonus> b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::BLOCKS_RETALIATION, Bonus::CREATURE_ABILITY, 17, 42, 43, Bonus::BASE_NUMBER);
+	std::shared_ptr<Bonus> b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, 42, 43, BonusValueType::BASE_NUMBER);
 
 	JsonNode & toAdd = data["bonuses"]["toAdd"];
 
@@ -114,13 +117,13 @@ TEST_F(CCreatureTest, JsonAddBonus)
 
 	auto selector = [](const Bonus * bonus)
 	{
-		return (bonus->duration == Bonus::PERMANENT)
-			&& (bonus->type == Bonus::BLOCKS_RETALIATION)
-			&& (bonus->source == Bonus::CREATURE_ABILITY)
+		return (bonus->duration == BonusDuration::PERMANENT)
+			&& (bonus->type == BonusType::BLOCKS_RETALIATION)
+			&& (bonus->source == BonusSource::CREATURE_ABILITY)
 			&& (bonus->val == 17)
 			&& (bonus->sid == 42)
 			&& (bonus->subtype == 43)
-			&& (bonus->valType == Bonus::BASE_NUMBER);
+			&& (bonus->valType == BonusValueType::BASE_NUMBER);
 	};
 
 	EXPECT_TRUE(subject->hasBonus(selector));
@@ -130,10 +133,10 @@ TEST_F(CCreatureTest, JsonRemoveBonus)
 {
 	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
 
-	std::shared_ptr<Bonus> b1 = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::BLOCKS_RETALIATION, Bonus::CREATURE_ABILITY, 17, 42, 43, Bonus::BASE_NUMBER);
+	std::shared_ptr<Bonus> b1 = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 17, 42, 43, BonusValueType::BASE_NUMBER);
 	subject->addNewBonus(b1);
 
-	std::shared_ptr<Bonus> b2 = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::BLOCKS_RETALIATION, Bonus::CREATURE_ABILITY, 18, 42, 43, Bonus::BASE_NUMBER);
+	std::shared_ptr<Bonus> b2 = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCKS_RETALIATION, BonusSource::CREATURE_ABILITY, 18, 42, 43, BonusValueType::BASE_NUMBER);
 	subject->addNewBonus(b2);
 
 
@@ -145,26 +148,26 @@ TEST_F(CCreatureTest, JsonRemoveBonus)
 
 	auto selector1 = [](const Bonus * bonus)
 	{
-		return (bonus->duration == Bonus::PERMANENT)
-			&& (bonus->type == Bonus::BLOCKS_RETALIATION)
-			&& (bonus->source == Bonus::CREATURE_ABILITY)
+		return (bonus->duration == BonusDuration::PERMANENT)
+			&& (bonus->type == BonusType::BLOCKS_RETALIATION)
+			&& (bonus->source == BonusSource::CREATURE_ABILITY)
 			&& (bonus->val == 17)
 			&& (bonus->sid == 42)
 			&& (bonus->subtype == 43)
-			&& (bonus->valType == Bonus::BASE_NUMBER);
+			&& (bonus->valType == BonusValueType::BASE_NUMBER);
 	};
 
 	EXPECT_TRUE(subject->hasBonus(selector1));
 
 	auto selector2 = [](const Bonus * bonus)
 	{
-		return (bonus->duration == Bonus::PERMANENT)
-			&& (bonus->type == Bonus::BLOCKS_RETALIATION)
-			&& (bonus->source == Bonus::CREATURE_ABILITY)
+		return (bonus->duration == BonusDuration::PERMANENT)
+			&& (bonus->type == BonusType::BLOCKS_RETALIATION)
+			&& (bonus->source == BonusSource::CREATURE_ABILITY)
 			&& (bonus->val == 18)
 			&& (bonus->sid == 42)
 			&& (bonus->subtype == 43)
-			&& (bonus->valType == Bonus::BASE_NUMBER);
+			&& (bonus->valType == BonusValueType::BASE_NUMBER);
 	};
 
 	EXPECT_FALSE(subject->hasBonus(selector2));

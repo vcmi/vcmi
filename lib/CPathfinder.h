@@ -11,7 +11,7 @@
 
 #include "VCMI_Lib.h"
 #include "IGameCallback.h"
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
 #include "int3.h"
 
 #include <boost/heap/fibonacci_heap.hpp>
@@ -42,7 +42,7 @@ struct DLL_LINKAGE NodeComparer
 
 struct DLL_LINKAGE CGPathNode
 {
-	typedef EPathfindingLayer ELayer;
+	using ELayer = EPathfindingLayer;
 
 	enum ENodeAction : ui8
 	{
@@ -151,10 +151,7 @@ struct DLL_LINKAGE CGPathNode
 		return turns < 255;
 	}
 
-	typedef boost::heap::fibonacci_heap<
-		CGPathNode *,
-		boost::heap::compare<NodeComparer<CGPathNode>>
-	> TFibHeap;
+	using TFibHeap = boost::heap::fibonacci_heap<CGPathNode *, boost::heap::compare<NodeComparer<CGPathNode>>>;
 
 	TFibHeap::handle_type pqHandle;
 	TFibHeap* pq;
@@ -173,7 +170,7 @@ struct DLL_LINKAGE CGPath
 
 struct DLL_LINKAGE CPathsInfo
 {
-	typedef EPathfindingLayer ELayer;
+	using ELayer = EPathfindingLayer;
 
 	const CGHeroInstance * hero;
 	int3 hpos;
@@ -484,7 +481,7 @@ public:
 private:
 	CGameState * gamestate;
 
-	typedef EPathfindingLayer ELayer;
+	using ELayer = EPathfindingLayer;
 
 	std::shared_ptr<PathfinderConfig> config;
 
@@ -533,9 +530,9 @@ struct DLL_LINKAGE TurnInfo
 
 	TurnInfo(const CGHeroInstance * Hero, const int Turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer & layer) const;
-	bool hasBonusOfType(const Bonus::BonusType type, const int subtype = -1) const;
-	int valOfBonuses(const Bonus::BonusType type, const int subtype = -1) const;
-	void updateHeroBonuses(Bonus::BonusType type, const CSelector& sel) const;
+	bool hasBonusOfType(const BonusType type, const int subtype = -1) const;
+	int valOfBonuses(const BonusType type, const int subtype = -1) const;
+	void updateHeroBonuses(BonusType type, const CSelector& sel) const;
 	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 };
 
@@ -548,7 +545,7 @@ public:
 		PATROL_LOCKED = 1,
 		PATROL_RADIUS
 	} patrolState;
-	std::unordered_set<int3, ShashInt3> patrolTiles;
+	std::unordered_set<int3> patrolTiles;
 
 	int turn;
 	PlayerColor owner;
@@ -564,7 +561,7 @@ public:
 	void updateTurnInfo(const int turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer & layer) const;
 	const TurnInfo * getTurnInfo() const;
-	bool hasBonusOfType(const Bonus::BonusType type, const int subtype = -1) const;
+	bool hasBonusOfType(const BonusType type, const int subtype = -1) const;
 	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 
 	std::vector<int3> getCastleGates(const PathNodeInfo & source) const;

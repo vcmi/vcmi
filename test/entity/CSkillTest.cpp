@@ -41,7 +41,10 @@ TEST_F(CSkillTest, RegistersIcons)
 		skillAtLevel.iconLarge = "TestL"+std::to_string(level);
 	}
 
-	auto cb = std::bind(&CSkillTest::registarCb, this, _1, _2, _3, _4);
+	auto cb = [this](auto && PH1, auto && PH2, auto && PH3, auto && PH4) 
+	{
+		registarCb(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2), std::forward<decltype(PH3)>(PH3), std::forward<decltype(PH4)>(PH4));
+	};
 
 	for(int level = 1; level <= 3; level++)
 	{

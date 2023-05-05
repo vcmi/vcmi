@@ -25,10 +25,10 @@ public:
 		EXPECT_CALL(unitMock, getAllBonuses(_, _, _, _)).Times(AtLeast(1));
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(AtLeast(0));
 
-		std::vector<Bonus::BonusType> immunityList =
+		std::vector<BonusType> immunityList =
 		{
-			Bonus::AIR_IMMUNITY,
-			Bonus::FIRE_IMMUNITY,
+			BonusType::AIR_IMMUNITY,
+			BonusType::FIRE_IMMUNITY,
 		};
 
 		EXPECT_CALL(mechanicsMock, getElementalImmunity()).Times(AtLeast(1)).WillRepeatedly(Return(immunityList));
@@ -54,7 +54,7 @@ TEST_P(ElementalConditionTest, ReceptiveIfNoBonus)
 TEST_P(ElementalConditionTest, ImmuneIfBonusMatches)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::AIR_IMMUNITY, Bonus::SPELL_EFFECT, 0, 0, 0));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::AIR_IMMUNITY, BonusSource::SPELL_EFFECT, 0, 0, 0));
 
 	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
@@ -62,7 +62,7 @@ TEST_P(ElementalConditionTest, ImmuneIfBonusMatches)
 TEST_P(ElementalConditionTest, DependsOnPositivness)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::AIR_IMMUNITY, Bonus::SPELL_EFFECT, 0, 0, 1));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::AIR_IMMUNITY, BonusSource::SPELL_EFFECT, 0, 0, 1));
 
 	EXPECT_EQ(isPositive, subject->isReceptive(&mechanicsMock, &unitMock));
 }
@@ -70,13 +70,13 @@ TEST_P(ElementalConditionTest, DependsOnPositivness)
 TEST_P(ElementalConditionTest, ImmuneIfBothBonusesPresent)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::AIR_IMMUNITY, Bonus::SPELL_EFFECT, 0, 0, 0));
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::AIR_IMMUNITY, Bonus::SPELL_EFFECT, 0, 0, 1));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::AIR_IMMUNITY, BonusSource::SPELL_EFFECT, 0, 0, 0));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::AIR_IMMUNITY, BonusSource::SPELL_EFFECT, 0, 0, 1));
 
 	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
-INSTANTIATE_TEST_CASE_P
+INSTANTIATE_TEST_SUITE_P
 (
 	ByPositiveness,
 	ElementalConditionTest,
