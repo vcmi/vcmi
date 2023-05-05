@@ -325,9 +325,19 @@ std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode
 		button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
 	}
 
+	loadButtonBorderColor(button, config["borderColor"]);
 	loadButtonCallback(button, config["callback"]);
 	loadButtonHotkey(button, config["hotkey"]);
 	return button;
+}
+
+void InterfaceObjectConfigurable::loadButtonBorderColor(std::shared_ptr<CButton> button, const JsonNode & config) const
+{
+	if (config.isNull())
+		return;
+
+	auto color = readColor(config);
+	button->setBorderColor(color);
 }
 
 void InterfaceObjectConfigurable::loadButtonCallback(std::shared_ptr<CButton> button, const JsonNode & config) const

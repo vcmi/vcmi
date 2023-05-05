@@ -23,7 +23,6 @@ enum class EAdventureState;
 /// Internal class of AdventureMapInterface that contains actual UI elements
 class CAdventureMapWidget : public InterfaceObjectConfigurable
 {
-	EAdventureState state;
 	int mapLevel;
 	/// temporary stack of sizes of currently building widgets
 	std::vector<Rect> subwidgetSizes;
@@ -75,8 +74,6 @@ public:
 	std::shared_ptr<CInfoBar> getInfoBar();
 
 	void setPlayer(const PlayerColor & player);
-	void setState(EAdventureState newState);
-	EAdventureState getState();
 
 	void onMapViewMoved(const Rect & visibleArea, int mapLevel);
 	void updateActiveState();

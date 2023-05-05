@@ -77,6 +77,7 @@ protected:
 	
 	void loadButtonCallback(std::shared_ptr<CButton> button, const JsonNode & config) const;
 	void loadButtonHotkey(std::shared_ptr<CButton> button, const JsonNode & config) const;
+	void loadButtonBorderColor(std::shared_ptr<CButton> button, const JsonNode & config) const;
 
 	//basic widgets
 	std::shared_ptr<CPicture> buildPicture(const JsonNode &) const;

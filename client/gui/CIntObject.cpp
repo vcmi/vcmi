@@ -253,7 +253,7 @@ void CIntObject::addChild(CIntObject * child, bool adjustPosition)
 	children.push_back(child);
 	child->parent_m = this;
 	if(adjustPosition)
-		child->pos += pos.topLeft();
+		child->moveBy(pos.topLeft(), adjustPosition);
 
 	if (!active && child->active)
 		child->deactivate();

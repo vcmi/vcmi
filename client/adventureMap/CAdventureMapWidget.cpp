@@ -33,8 +33,7 @@
 #include "../../lib/filesystem/ResourceID.h"
 
 CAdventureMapWidget::CAdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts )
-	: state(EAdventureState::NOT_INITIALIZED)
-	, shortcuts(shortcuts)
+	: shortcuts(shortcuts)
 	, mapLevel(0)
 {
 	pos.x = pos.y = 0;
@@ -173,6 +172,7 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapButton(const JsonNode &
 
 	auto button = std::make_shared<CButton>(position.topLeft(), image, help, 0, EShortcut::NONE, playerColored);
 
+	loadButtonBorderColor(button, input["borderColor"]);
 	loadButtonHotkey(button, input["hotkey"]);
 
 	return button;
@@ -210,7 +210,11 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapContainer(const JsonNod
 
 		addWidget(entry["name"].String(), widget);
 		result->ownedChildren.push_back(widget);
-		result->addChild(widget.get(), false);
+
+		if (std::dynamic_pointer_cast<CLabel>(widget) || std::dynamic_pointer_cast<CLabelGroup>(widget))
+			result->addChild(widget.get(), true);
+		else
+			result->addChild(widget.get(), false);
 	}
 	subwidgetSizes.pop_back();
 
@@ -378,21 +382,6 @@ void CAdventureMapWidget::setPlayerChildren(CIntObject * widget, const PlayerCol
 	redraw();
 }
 
-void CAdventureMapWidget::setState(EAdventureState newState)
-{
-	state = newState;
-
-	if(newState == EAdventureState::WORLD_VIEW)
-		widget<CIntObject>("worldViewContainer")->enable();
-	else
-		widget<CIntObject>("worldViewContainer")->disable();
-}
-
-EAdventureState CAdventureMapWidget::getState()
-{
-	return state;
-}
-
 CAdventureMapIcon::CAdventureMapIcon(const Point & position, std::shared_ptr<CAnimation> animation, size_t index, size_t iconsPerPlayer)
 	: index(index)
 	, iconsPerPlayer(iconsPerPlayer)
@@ -432,9 +421,15 @@ void CAdventureMapWidget::updateActiveStateChildden(CIntObject * widget)
 			if (container->disableCondition == "mapLayerUnderground")
 				container->setEnabled(!shortcuts->optionMapLevelSurface());
 
+			if (container->disableCondition == "mapViewMode")
+				container->setEnabled(shortcuts->optionInWorldView());
+
+			if (container->disableCondition == "worldViewMode")
+				container->setEnabled(!shortcuts->optionInWorldView());
+
+
 			updateActiveStateChildden(container);
 		}
-
 	}
 }
 

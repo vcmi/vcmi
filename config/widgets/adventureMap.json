@@ -434,11 +434,19 @@
 				},
 			]
 		},
-		// Infobar
 		{
-			"type": "adventureInfobar",
-			"name": "infoBar",
+			"type": "adventureMapContainer",
+			"name" : "adventureInfobarContainer",
+			"hideWhen" : "worldViewMode",
 			"area": { "bottom": 44, "right" : 19, "width" : 175, "height" : 168 }
+			"items" : [
+				// Infobar
+				{
+					"type": "adventureInfobar",
+					"name": "infoBar",
+					"area": { "bottom": 0, "top" : 0, "left" : 0, "right" : 0 }
+				}
+			]
 		},
 		// Status bar
 		{
@@ -454,58 +462,64 @@
 			"image" : "AResBar.pcx",
 			"area": { "bottom" : 3, "right" : 3, "height" : 22, "width" : 794 },
 			
-			"wood"    : { "x" :  36, "y" : 2 },
-			"mercury" : { "x" : 120, "y" : 2 },
-			"ore"     : { "x" : 204, "y" : 2 },
-			"sulfur"  : { "x" : 288, "y" : 2 },
-			"crystal" : { "x" : 372, "y" : 2 },
-			"gems"    : { "x" : 456, "y" : 2 },
-			"gold"    : { "x" : 540, "y" : 2 },
-			"date"    : { "x" : 615, "y" : 2 }
+			"wood"    : { "x" :  37, "y" : 3 },
+			"mercury" : { "x" : 121, "y" : 3 },
+			"ore"     : { "x" : 205, "y" : 3 },
+			"sulfur"  : { "x" : 289, "y" : 3 },
+			"crystal" : { "x" : 373, "y" : 3 },
+			"gems"    : { "x" : 457, "y" : 3 },
+			"gold"    : { "x" : 541, "y" : 3 },
+			"date"    : { "x" : 619, "y" : 3 }
 		},
 		// World view mode widgets
 		{
 			"type": "adventureMapContainer",
 			"name" : "worldViewContainer",
 			"hideWhen" : "mapViewMode",
-			"area": { "top": 195, "right" : 4, "width" : 190, "height" : 381 },
+			"area": { "top": 195, "right" : 3, "width" : 190, "bottom" : 26 },
 			"items" : [
 				{
 					"type": "adventureMapImage",
 					"name": "worldViewBackground",
 					"image" : "VWorld.pcx",
-					"area": { "top" : 0, "left": 0, "width" : 48, "height" : 192 },
+					"area": { "left" : 0, "right" : 0, "top" : 0, "height" : 381 },
 					"sourceArea": { "left" : 0, "right" : 0, "top" : 0, "bottom" : 0 }
 				},
 				{
 					"type": "adventureMapButton",
 					"name": "worldViewZoom1",
 					"image" : "VWMAG1.DEF",
+					"hotkey": "adventureViewWorld1",
 					"area": { "top" : 23, "left": 1, "width" : 60, "height" : 32 }
 				},
 				{
 					"type": "adventureMapButton",
 					"name": "worldViewZoom2",
 					"image" : "VWMAG2.DEF",
+					"hotkey": "adventureViewWorld2",
 					"area": { "top" : 23, "left": 64, "width" : 60, "height" : 32 }
 				},
 				{
 					"type": "adventureMapButton",
 					"name": "worldViewZoom4",
 					"image" : "VWMAG4.DEF",
-					"area": { "top" : 23, "left": 1, "width" : 60, "height" : 32 }
+					"hotkey": "adventureViewWorld4",
+					"area": { "top" : 23, "left": 128, "width" : 60, "height" : 32 }
 				},
 				{
 					"type": "adventureMapButton",
 					"name": "worldViewSurface",
 					"image" : "IAM003.DEF",
+					"hotkey": "adventureToggleMapLevel",
 					"playerColored" : true,
 					"area": { "top" : 79, "left": 343, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapButton",
 					"name": "worldViewPuzzle",
+					"borderColor" : "gold",
 					"image" : "VWPUZ.DEF",
+					"hotkey": "adventureViewPuzzle",
 					"area": { "top" : 343, "left": 5, "width" : 66, "height" : 32 }
 				},
 				{
@@ -513,13 +527,16 @@
 					"name": "worldViewUnderground",
 					"image" : "IAM010.DEF",
 					"playerColored" : true,
+					"hotkey": "adventureToggleMapLevel",
 					"area": { "top" : 343, "left": 79, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapButton",
 					"name": "worldViewExit",
-					"image" : "IOK6432.DEF",
-					"area": { "top" : 343, "left": 117, "width" : 66, "height" : 32 }
+					"borderColor" : "gold",
+					"image" : "IOKAY32.DEF",
+					"hotkey": "adventureExitWorldView",
+					"area": { "top" : 343, "left": 119, "width" : 66, "height" : 32 }
 				},
 				// World view - objects icons
 				{
@@ -528,7 +545,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 0,
 					"perPlayer" : 19,
-					"area": { "top" : 66, "left": 12, "width" : 32, "height" : 32 }
+					"area": { "top" : 59, "left": 5, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -536,7 +553,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 1,
 					"perPlayer" : 19,
-					"area": { "top" : 86, "left": 12, "width" : 32, "height" : 32 }
+					"area": { "top" : 79, "left": 5, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -544,7 +561,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 2,
 					"perPlayer" : 19,
-					"area": { "top" : 106, "left": 12, "width" : 32, "height" : 32 }
+					"area": { "top" : 99, "left": 5, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -552,7 +569,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 3,
 					"perPlayer" : 19,
-					"area": { "top" : 126, "left": 12, "width" : 32, "height" : 32 }
+					"area": { "top" : 119, "left": 5, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -560,7 +577,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 4,
 					"perPlayer" : 19,
-					"area": { "top" : 146, "left": 12, "width" : 32, "height" : 32 }
+					"area": { "top" : 139, "left": 5, "width" : 32, "height" : 32 }
 				},
 				
 				// World view - mines icons
@@ -570,7 +587,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 5,
 					"perPlayer" : 19,
-					"area": { "top" : 190, "left": 12, "width" : 32, "height" : 32 }
+					"area": { "top" : 183, "left": 5, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -578,7 +595,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 6,
 					"perPlayer" : 19,
-					"area": { "top" : 210, "left": 12, "width" : 32, "height" : 32 }
+					"area": { "top" : 203, "left": 5, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -586,7 +603,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 7,
 					"perPlayer" : 19,
-					"area": { "top" : 230, "left": 12, "width" : 32, "height" : 32 }
+					"area": { "top" : 223, "left": 5, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -594,7 +611,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 8,
 					"perPlayer" : 19,
-					"area": { "top" : 250, "left": 12, "width" : 32, "height" : 32 }
+					"area": { "top" : 243, "left": 5, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -602,7 +619,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 9,
 					"perPlayer" : 19,
-					"area": { "top" : 270, "left": 12, "width" : 32, "height" : 32 }
+					"area": { "top" : 263, "left": 5, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -610,7 +627,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 10,
 					"perPlayer" : 19,
-					"area": { "top" : 290, "left": 12, "width" : 32, "height" : 32 }
+					"area": { "top" : 283, "left": 5, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -618,7 +635,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 11,
 					"perPlayer" : 19,
-					"area": { "top" : 310, "left": 12, "width" : 32, "height" : 32 }
+					"area": { "top" : 303, "left": 5, "width" : 32, "height" : 32 }
 				},
 				
 				// World view - resources icons
@@ -628,7 +645,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 12,
 					"perPlayer" : 19,
-					"area": { "top" : 190, "left": 160, "width" : 32, "height" : 32 }
+					"area": { "top" : 183, "left": 154, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -636,7 +653,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 13,
 					"perPlayer" : 19,
-					"area": { "top" : 210, "left": 160, "width" : 32, "height" : 32 }
+					"area": { "top" : 203, "left": 154, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -644,7 +661,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 14,
 					"perPlayer" : 19,
-					"area": { "top" : 230, "left": 160, "width" : 32, "height" : 32 }
+					"area": { "top" : 223, "left": 154, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -652,7 +669,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 15,
 					"perPlayer" : 19,
-					"area": { "top" : 250, "left": 160, "width" : 32, "height" : 32 }
+					"area": { "top" : 243, "left": 154, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -660,7 +677,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 16,
 					"perPlayer" : 19,
-					"area": { "top" : 270, "left": 160, "width" : 32, "height" : 32 }
+					"area": { "top" : 263, "left": 154, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -668,7 +685,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 17,
 					"perPlayer" : 19,
-					"area": { "top" : 290, "left": 160, "width" : 32, "height" : 32 }
+					"area": { "top" : 283, "left": 154, "width" : 32, "height" : 32 }
 				},
 				{
 					"type": "adventureMapIcon",
@@ -676,7 +693,7 @@
 					"image" : "VwSymbol.def",
 					"index" : 18,
 					"perPlayer" : 19,
-					"area": { "top" : 310, "left": 160, "width" : 32, "height" : 32 }
+					"area": { "top" : 303, "left": 154, "width" : 32, "height" : 32 }
 				},
 
 				{
@@ -685,25 +702,25 @@
 					"font": "big",
 					"alignment": "center",
 					"color": "yellow",
-					"position": {"x": 100, "y": 10},
+					"position": {"x": 94, "y": 11},
 					"text": "core.genrltxt.611"
 				},
 				{
 					"name": "worldViewLabelMine",
 					"type": "label",
 					"font": "calisto",
-					"alignment": "center",
-					"color": "yellow",
-					"position": {"x": 10, "y": 175},
+					"alignment": "left",
+					"color": "white",
+					"position": {"x": 7, "y": 173},
 					"text": "core.genrltxt.617"
 				},
 				{
 					"name": "worldViewLabelResource",
 					"type": "label",
 					"font": "calisto",
-					"alignment": "center",
-					"color": "yellow",
-					"position": {"x": 185, "y": 185},
+					"alignment": "right",
+					"color": "white",
+					"position": {"x": 185, "y": 190},
 					"text": "core.genrltxt.618"
 				},
 				{
@@ -715,23 +732,23 @@
 					"items":
 					[
 						{
-							"position": {"x": 45, "y": 70},
+							"position": {"x": 43, "y": 66},
 							"text": "core.genrltxt.612"
 						},
 						{
-							"position": {"x": 45, "y": 90},
+							"position": {"x": 43, "y": 86},
 							"text": "core.genrltxt.613"
 						},
 						{
-							"position": {"x": 45, "y": 110},
+							"position": {"x": 43, "y": 106},
 							"text": "core.genrltxt.614"
 						},
 						{
-							"position": {"x": 45, "y": 130},
+							"position": {"x": 43, "y": 126},
 							"text": "core.genrltxt.615"
 						},
 						{
-							"position": {"x": 45, "y": 150},
+							"position": {"x": 43, "y": 146},
 							"text": "core.genrltxt.616"
 						}
 					]
@@ -745,31 +762,42 @@
 					"items":
 					[
 						{
-							"position": {"x": 100, "y": 200},
+							"position": {"x": 101, "y": 198},
 							"text": "core.genrltxt.619"
 						},
 						{
-							"position": {"x": 100, "y": 220},
+							"position": {"x": 101, "y": 218},
 							"text": "core.genrltxt.620"
 						},
 						{
-							"position": {"x": 100, "y": 240},
+							"position": {"x": 101, "y": 238},
 							"text": "core.genrltxt.621"
 						},
 						{
-							"position": {"x": 100, "y": 260},
+							"position": {"x": 101, "y": 258},
 							"text": "core.genrltxt.622"
 						},
 						{
-							"position": {"x": 100, "y": 280},
+							"position": {"x": 101, "y": 278},
 							"text": "core.genrltxt.623"
 						},
 						{
-							"position": {"x": 100, "y": 300},
+							"position": {"x": 101, "y": 298},
 							"text": "core.genrltxt.624"
+						},
+						{
+							"position": {"x": 101, "y": 318},
+							"text": "core.genrltxt.625"
 						}
 					]
-				},
+				}
+				{
+					"type": "adventureMapImage",
+					"name" : "backgroundBelowWorldView",
+					"image" : "DiBoxBck.pcx",
+					"area": { "top": 381, "bottom" : 0, "left" : 0, "right" : 0 },
+					"sourceArea": { "left" : 0, "top" : 0, "width" : 256, "height" : 256 }
+				}
 			]
 		},
 		// GEMS - set of images with different image for each player
