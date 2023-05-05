@@ -113,13 +113,12 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 		legacyTemplates.insert(std::make_pair(key, std::shared_ptr<const ObjectTemplate>(tmpl)));
 	}
 
-	objects.resize(256);
+	objects.resize(dataSize);
 
 	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
-	assert(dataSize == 256);
 
 	CLegacyConfigParser namesParser("Data/ObjNames.txt");
-	for (size_t i=0; i<256; i++)
+	for (size_t i=0; i<dataSize; i++)
 	{
 		ret[i]["name"].String() = namesParser.readString();
 		namesParser.endLine();

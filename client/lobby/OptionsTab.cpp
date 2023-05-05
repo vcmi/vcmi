@@ -85,7 +85,7 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex()
 		TOWN_RANDOM = 38,  TOWN_NONE = 39, // Special frames in ITPA
 		HERO_RANDOM = 163, HERO_NONE = 164 // Special frames in PortraitsSmall
 	};
-	auto factionIndex = settings.castle >= CGI->townh->size() ? 0 : settings.castle;
+	auto factionIndex = settings.castle >= CGI->townh->size() || !CGI->townh->getByIndex(settings.castle)->hasTown() ? 0 : settings.castle;
 
 	switch(type)
 	{
