@@ -54,7 +54,7 @@ struct VectorizedObjectInfo
 class DLL_LINKAGE CSerializer
 {
 	template<typename T>
-	static si32 idToNumber(const T &t, typename boost::enable_if<boost::is_convertible<T,si32> >::type * dummy = 0)
+	static si32 idToNumber(const T &t, typename std::enable_if<std::is_convertible<T,si32>::value>::type * dummy = 0)
 	{
 		return t;
 	}
