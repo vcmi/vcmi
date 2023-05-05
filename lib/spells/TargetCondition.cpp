@@ -362,8 +362,8 @@ public:
 			auto params = BonusParams(identifier, "", -1);
 			if(params.isConverted)
 			{
-				if(params.valRelevant)
-					return std::make_shared<SelectorCondition>(params.toSelector(), params.val, params.val);
+				if(params.val)
+					return std::make_shared<SelectorCondition>(params.toSelector(), *params.val, *params.val);
 				return std::make_shared<SelectorCondition>(params.toSelector());
 			}
 
