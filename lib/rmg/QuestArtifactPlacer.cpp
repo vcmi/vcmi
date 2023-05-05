@@ -94,10 +94,15 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator * rand)
 			artifactToReplace->appearance = templates.front();
 			//FIXME: Instance name is still "randomArtifact"
 
-			//FIXME: Every qap has its OWN collection of artifacts,
-			//which means different qaps can replace the same object many times
-			qap->dropReplacedArtifact(artifactToReplace);
-
+			for (auto z : map.getZones())
+			{
+				//Every qap has its OWN collection of artifacts
+				auto * localQap = zone->getModificator<QuestArtifactPlacer>();
+				if (localQap)
+				{
+					localQap->dropReplacedArtifact(artifactToReplace);
+				}
+			}
 			break;
 		}
 	}
