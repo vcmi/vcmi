@@ -58,7 +58,6 @@ class CStatusbarWindow : public CWindowObject
 public:
 	CStatusbarWindow(int options, std::string imageName, Point centerAt);
 	CStatusbarWindow(int options, std::string imageName = "");
-	void activate() override;
 protected:
 	std::shared_ptr<CGStatusBar> statusbar;
 };

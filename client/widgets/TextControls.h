@@ -125,8 +125,6 @@ class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusB
 	std::string consoleText;
 	bool enteringText;
 
-	void init();
-
 	CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::CENTER, const SDL_Color & Color = Colors::WHITE);
 	CGStatusBar(int x, int y, std::string name, int maxw = -1);
 
@@ -143,15 +141,17 @@ protected:
 	void clickLeft(tribool down, bool previousState) override;
 
 public:
+	~CGStatusBar();
+
 	template<typename ...Args>
 	static std::shared_ptr<CGStatusBar> create(Args... args)
 	{
 		std::shared_ptr<CGStatusBar> ret{new CGStatusBar{args...}};
-		ret->init();
 		return ret;
 	}
 
 	void show(SDL_Surface * to) override;
+	void activate() override;
 	void deactivate() override;
 
 	// IStatusBar interface

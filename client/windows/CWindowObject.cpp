@@ -248,9 +248,3 @@ CStatusbarWindow::CStatusbarWindow(int options, std::string imageName, Point cen
 CStatusbarWindow::CStatusbarWindow(int options, std::string imageName) : CWindowObject(options, imageName)
 {
 }
-
-void CStatusbarWindow::activate()
-{
-	CIntObject::activate();
-	GH.statusbar = statusbar;
-}

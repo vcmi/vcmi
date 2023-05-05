@@ -432,14 +432,16 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 	autoRedraw = false;
 }
 
+CGStatusBar::~CGStatusBar()
+{
+	assert(GH.statusbar.get() != this || GH.statusbar == nullptr);
+	if (GH.statusbar.get() == this)
+		GH.statusbar = nullptr;
+}
+
 void CGStatusBar::show(SDL_Surface * to)
 {
 	showAll(to);
-}
-
-void CGStatusBar::init()
-{
-	GH.statusbar = shared_from_this();
 }
 
 void CGStatusBar::clickLeft(tribool down, bool previousState)
@@ -451,8 +453,16 @@ void CGStatusBar::clickLeft(tribool down, bool previousState)
 	}
 }
 
+void CGStatusBar::activate()
+{
+	GH.statusbar = shared_from_this();
+	CIntObject::deactivate();
+}
+
 void CGStatusBar::deactivate()
 {
+	assert(GH.statusbar.get() == this);
+
 	if (enteringText)
 		LOCPLINT->cingconsole->endEnteringText(false);
 
