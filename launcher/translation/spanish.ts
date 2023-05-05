@@ -487,7 +487,7 @@
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="552"/>
         <source>Default</source>
-        <translationDefecto</translation>
+        <translation>Defecto</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="557"/>
