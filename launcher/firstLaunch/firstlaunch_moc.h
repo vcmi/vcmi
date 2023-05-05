@@ -46,9 +46,10 @@ class FirstLaunchView : public QWidget
 
 	// Tab Heroes III Data
 	void heroesDataUpdate();
-	bool heroesDataDetect();
+	std::pair<bool, bool> heroesDataDetect(); //RoE, SoD data presence
 
 	void heroesDataMissing();
+	void heroesDataProblem();
 	void heroesDataDetected();
 
 	void heroesLanguageUpdate();
@@ -104,5 +105,7 @@ private slots:
 
 private:
 	Ui::FirstLaunchView * ui;
+	
+	bool problemWithData = false;
 
 };

@@ -71,6 +71,10 @@ void FirstLaunchView::on_pushButtonLanguageNext_clicked()
 
 void FirstLaunchView::on_pushButtonDataNext_clicked()
 {
+	if(problemWithData)
+		if(QMessageBox::warning(this, tr("Heroes III data error"), tr("You are going to use data only partialy compatible with VCMI. Some game features may be unavailalbe. Are you sure you want to continue?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+			return;
+		
 	activateTabModPreset();
 }
 
@@ -184,8 +188,11 @@ void FirstLaunchView::languageSelected(const QString & selectedLanguage)
 
 void FirstLaunchView::heroesDataUpdate()
 {
-	if(heroesDataDetect())
+	auto dataDetected = heroesDataDetect();
+	if(dataDetected.first && dataDetected.second)
 		heroesDataDetected();
+	else if (dataDetected.first)
+		heroesDataProblem();
 	else
 		heroesDataMissing();
 }
@@ -211,6 +218,35 @@ void FirstLaunchView::heroesDataMissing()
 		ui->pushButtonDataHelp->setVisible(true);
 		ui->labelDataHelp->setVisible(true);
 	}
+	
+	problemWithData = true;
+}
+
+
+void FirstLaunchView::heroesDataProblem()
+{
+	QPalette newPalette = palette();
+	newPalette.setColor(QPalette::Base, QColor(200, 200, 50));
+	ui->lineEditDataSystem->setPalette(newPalette);
+	ui->lineEditDataUser->setPalette(newPalette);
+
+	ui->pushButtonDataSearch->setVisible(true);
+	ui->pushButtonDataCopy->setVisible(true);
+
+	ui->labelDataSearch->setVisible(true);
+	ui->labelDataCopy->setVisible(true);
+
+	if(hasVCMIBuilderScript)
+	{
+		ui->pushButtonDataHelp->setVisible(true);
+		ui->labelDataHelp->setVisible(true);
+	}
+
+	ui->labelDataFound->setVisible(true);
+	ui->pushButtonDataNext->setEnabled(true);
+
+	heroesLanguageUpdate();
+	problemWithData = true;
 }
 
 void FirstLaunchView::heroesDataDetected()
@@ -236,10 +272,11 @@ void FirstLaunchView::heroesDataDetected()
 	ui->pushButtonDataNext->setEnabled(true);
 
 	heroesLanguageUpdate();
+	problemWithData = false;
 }
 
 // Tab Heroes III Data
-bool FirstLaunchView::heroesDataDetect()
+std::pair<bool, bool> FirstLaunchView::heroesDataDetect()
 {
 	// user might have copied files to one of our data path.
 	// perform full reinitialization of virtual filesystem
@@ -251,7 +288,7 @@ bool FirstLaunchView::heroesDataDetect()
 	bool heroesDataFoundROE = CResourceHandler::get()->existsResource(ResourceID("DATA/GENRLTXT.TXT"));
 	bool heroesDataFoundSOD = CResourceHandler::get()->existsResource(ResourceID("DATA/TENTCOLR.TXT"));
 
-	return heroesDataFoundROE && heroesDataFoundSOD;
+	return std::make_pair(heroesDataFoundROE, heroesDataFoundSOD);
 }
 
 void FirstLaunchView::heroesLanguageUpdate()
@@ -322,9 +359,8 @@ void FirstLaunchView::copyHeroesData()
 			return;
 		}
 
-		// RoE or some other unsupported edition. Demo version?
-		QMessageBox::critical(this, "Heroes III data not found!", "Unknown or unsupported Heroes III version found.\nPlease select directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.");
-		return;
+		// RoE or some other edition. Demo version?
+		QMessageBox::warning(this, "Heroes III data supported partially", "To play using this data you need to install dedicated mod\nWe highly recommend to install Heroes III: Complete Edition or Heroes III: Shadow of Death.");
 	}
 
 	QStringList copyDirectories;
