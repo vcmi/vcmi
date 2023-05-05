@@ -27,6 +27,8 @@
 #include "mapping/CMap.h"
 #include "serializer/JsonSerializeFormat.h"
 
+#include <regex>
+
 // Note: list must match entries in ArtTraits.txt
 #define ART_POS_LIST    \
 	ART_POS(SPELLBOOK)  \
@@ -301,6 +303,7 @@ CArtHandler::~CArtHandler() = default;
 std::vector<JsonNode> CArtHandler::loadLegacyData()
 {
 	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_ARTIFACT);
+	objects.resize(dataSize);
 
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
@@ -308,14 +311,34 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 	#define ART_POS(x) #x ,
 	const std::vector<std::string> artSlots = { ART_POS_LIST };
 	#undef ART_POS
+	
+	std::set<std::string> artSlotAllowed;
 
 	static std::map<char, std::string> classes =
 		{{'S',"SPECIAL"}, {'T',"TREASURE"},{'N',"MINOR"},{'J',"MAJOR"},{'R',"RELIC"},};
 
 	CLegacyConfigParser parser("DATA/ARTRAITS.TXT");
 	CLegacyConfigParser events("DATA/ARTEVENT.TXT");
+	
+	parser.endLine();
+	
+	//parse header
+	for(auto slotName = parser.readString(); !slotName.empty(); slotName = parser.readString())
+	{
+		//try to match our format
+		for(auto & c : slotName)
+		{
+			c = std::toupper(c);
+			if(c == ' ')
+				c = '_';
+		}
+		
+		artSlotAllowed.insert(slotName);
+		slotName.erase(std::remove(slotName.begin(), slotName.end(), '_'), slotName.end()); //no spaces and underscores
+		slotName = std::regex_replace(slotName, std::regex("WARMACHINE"), "MACH"); //special case
+		artSlotAllowed.insert(slotName);
+	}
 
-	parser.endLine(); // header
 	parser.endLine();
 
 	for (size_t i = 0; i < dataSize; i++)
@@ -328,6 +351,9 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 
 		for(const auto & artSlot : artSlots)
 		{
+			if(!artSlotAllowed.count(artSlot))
+				continue;
+			
 			if(parser.readString() == "x")
 			{
 				artData["slot"].Vector().push_back(JsonNode());
@@ -358,9 +384,6 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 {
 	if(auto * object = loadFromJson(scope, data, name, index))
 	{
-		if(index >= objects.size())
-			objects.resize(index + 1);
-		
 		object->iconIndex = object->getIndex();
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
 		objects[index] = object;
