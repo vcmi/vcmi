@@ -215,6 +215,7 @@
 				"spellDamage" : 
 				{
 					"type" : "SPELL_DAMAGE",
+					"subtype" : "spellSchool.any",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"
 				},

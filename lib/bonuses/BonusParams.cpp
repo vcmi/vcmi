@@ -74,7 +74,10 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 			valueType = BonusValueType::PERCENT_TO_BASE;
 		}
 		else if(deprecatedSubtype == SecondarySkill::SORCERY || deprecatedSubtypeStr == "skill.sorcery")
+		{
 			type = BonusType::SPELL_DAMAGE;
+			subtype = SpellSchool(ESpellSchool::ANY);
+		}
 		else if(deprecatedSubtype == SecondarySkill::SCHOLAR || deprecatedSubtypeStr == "skill.scholar")
 			type = BonusType::LEARN_MEETING_SPELL_LIMIT;
 		else if(deprecatedSubtype == SecondarySkill::ARCHERY|| deprecatedSubtypeStr == "skill.archery")
@@ -112,22 +115,22 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 		else if(deprecatedSubtype == SecondarySkill::AIR_MAGIC || deprecatedSubtypeStr == "skill.airMagic")
 		{
 			type = BonusType::MAGIC_SCHOOL_SKILL;
-			subtype = 4;
+			subtype = SpellSchool(ESpellSchool::AIR);
 		}
 		else if(deprecatedSubtype == SecondarySkill::WATER_MAGIC || deprecatedSubtypeStr == "skill.waterMagic")
 		{
 			type = BonusType::MAGIC_SCHOOL_SKILL;
-			subtype = 1;
+			subtype = SpellSchool(ESpellSchool::WATER);
 		}
 		else if(deprecatedSubtype == SecondarySkill::FIRE_MAGIC || deprecatedSubtypeStr == "skill.fireMagic")
 		{
 			type = BonusType::MAGIC_SCHOOL_SKILL;
-			subtype = 2;
+			subtype = SpellSchool(ESpellSchool::FIRE);
 		}
 		else if(deprecatedSubtype == SecondarySkill::EARTH_MAGIC || deprecatedSubtypeStr == "skill.earthMagic")
 		{
 			type = BonusType::MAGIC_SCHOOL_SKILL;
-			subtype = 8;
+			subtype = SpellSchool(ESpellSchool::EARTH);
 		}
 		else if (deprecatedSubtype == SecondarySkill::ARTILLERY || deprecatedSubtypeStr == "skill.artillery")
 		{
@@ -215,47 +218,48 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 	else if (deprecatedTypeStr == "DIRECT_DAMAGE_IMMUNITY")
 	{
 		type = BonusType::SPELL_DAMAGE_REDUCTION;
+		subtype = SpellSchool(ESpellSchool::ANY);
 		val = 100;
 	}
 	else if (deprecatedTypeStr == "AIR_SPELL_DMG_PREMY")
 	{
 		type = BonusType::SPELL_DAMAGE;
-		subtype = 0;
+		subtype = SpellSchool(ESpellSchool::AIR);
 	}
 	else if (deprecatedTypeStr == "FIRE_SPELL_DMG_PREMY")
 	{
 		type = BonusType::SPELL_DAMAGE;
-		subtype = 1;
+		subtype = SpellSchool(ESpellSchool::FIRE);
 	}
 	else if (deprecatedTypeStr == "WATER_SPELL_DMG_PREMY")
 	{
 		type = BonusType::SPELL_DAMAGE;
-		subtype = 2;
+		subtype = SpellSchool(ESpellSchool::WATER);
 	}
 	else if (deprecatedTypeStr == "EARTH_SPELL_DMG_PREMY")
 	{
 		type = BonusType::SPELL_DAMAGE;
-		subtype = 3;
+		subtype = SpellSchool(ESpellSchool::EARTH);
 	}
 	else if (deprecatedTypeStr == "AIR_SPELLS")
 	{
 		type = BonusType::SPELLS_OF_SCHOOL;
-		subtype = 0;
+		subtype = SpellSchool(ESpellSchool::AIR);
 	}
 	else if (deprecatedTypeStr == "FIRE_SPELLS")
 	{
 		type = BonusType::SPELLS_OF_SCHOOL;
-		subtype = 1;
+		subtype = SpellSchool(ESpellSchool::FIRE);
 	}
 	else if (deprecatedTypeStr == "WATER_SPELLS")
 	{
 		type = BonusType::SPELLS_OF_SCHOOL;
-		subtype = 2;
+		subtype = SpellSchool(ESpellSchool::WATER);
 	}
 	else if (deprecatedTypeStr == "EARTH_SPELLS")
 	{
 		type = BonusType::SPELLS_OF_SCHOOL;
-		subtype = 3;
+		subtype = SpellSchool(ESpellSchool::EARTH);
 	}
 	else
 		isConverted = false;

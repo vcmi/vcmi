@@ -1059,7 +1059,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.type = BonusType::FEAR; break;
 	case 'g':
 		b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-		b.subtype = -1; //all magic schools
+		b.subtype = SpellSchool(ESpellSchool::ANY);
 		break;
 	case 'P':
 		b.type = BonusType::CASTS; break;
@@ -1179,7 +1179,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				break;
 			case 'O':
 				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				b.subtype = 1; //Fire school
+				b.subtype = SpellSchool(ESpellSchool::FIRE);
 				b.val = 100; //Full damage immunity
 				break;
 			case 'f':
@@ -1192,7 +1192,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				break;
 			case 'W':
 				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				b.subtype = 2; //Water school
+				b.subtype = SpellSchool(ESpellSchool::WATER);
 				b.val = 100; //Full damage immunity
 				break;
 			case 'w':
@@ -1201,7 +1201,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				break;
 			case 'E':
 				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				b.subtype = 3; //Earth school
+				b.subtype = SpellSchool(ESpellSchool::EARTH);
 				b.val = 100; //Full damage immunity
 				break;
 			case 'e':
@@ -1210,7 +1210,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				break;
 			case 'A':
 				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				b.subtype = 0; //Air school
+				b.subtype = SpellSchool(ESpellSchool::AIR);
 				b.val = 100; //Full damage immunity
 				break;
 			case 'a':
@@ -1219,7 +1219,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				break;
 			case 'D':
 				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				b.subtype = -1; //all
+				b.subtype = SpellSchool(ESpellSchool::ANY);
 				b.val = 100; //Full damage immunity
 				break;
 			case '0':

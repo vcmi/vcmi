@@ -7,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "GameConstants.h"
 #include "StdInc.h"
 #include "CModHandler.h"
 #include "mapObjects/CObjectClassesHandler.h"
@@ -745,6 +746,12 @@ void CModInfo::setEnabled(bool on)
 
 CModHandler::CModHandler() : content(std::make_shared<CContentHandler>())
 {
+	//TODO: moddable spell schools
+	for (auto i = 0; i < GameConstants::DEFAULT_SCHOOLS; ++i)
+		identifiers.registerObject(CModHandler::scopeBuiltin(), "spellSchool", SpellConfig::SCHOOL[i].jsonName, SpellConfig::SCHOOL[i].id);
+
+	identifiers.registerObject(CModHandler::scopeBuiltin(), "spellSchool", "any", SpellSchool(ESpellSchool::ANY));
+
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
 		identifiers.registerObject(CModHandler::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);

@@ -1185,7 +1185,7 @@
 		"bonuses" : [
 			{
 				"type" : "SPELL_DAMAGE",
-				"subtype" : 0,
+				"subtype" : "spellSchool.air",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -1198,7 +1198,7 @@
 		"bonuses" : [
 			{
 				"type" : "SPELL_DAMAGE",
-				"subtype" : 3,
+				"subtype" : "spellSchool.earth",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -1211,7 +1211,7 @@
 		"bonuses" : [
 			{
 				"type" : "SPELL_DAMAGE",
-				"subtype" : 1,
+				"subtype" : "spellSchool.fire",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -1224,7 +1224,7 @@
 		"bonuses" : [
 			{
 				"type" : "SPELL_DAMAGE",
-				"subtype" : 2,
+				"subtype" : "spellSchool.water",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			}

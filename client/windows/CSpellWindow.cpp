@@ -82,11 +82,11 @@ public:
 			return false;
 
 
-		for(ui8 schoolId = 0; schoolId < 4; schoolId++)
+		for(auto schoolId = 0; schoolId < GameConstants::DEFAULT_SCHOOLS; schoolId++)
 		{
-			if(A->school.at((ESpellSchool)schoolId) && !B->school.at((ESpellSchool)schoolId))
+			if(A->school.at(SpellSchool(schoolId)) && !B->school.at(SpellSchool(schoolId)))
 				return true;
-			if(!A->school.at((ESpellSchool)schoolId) && B->school.at((ESpellSchool)schoolId))
+			if(!A->school.at(SpellSchool(schoolId)) && B->school.at(SpellSchool(schoolId)))
 				return false;
 		}
 
@@ -320,7 +320,7 @@ void CSpellWindow::computeSpellsPerArea()
 	for(const CSpell * spell : mySpells)
 	{
 		if(spell->isCombat() ^ !battleSpellsOnly
-			&& ((selectedTab == 4) || spell->school.at((ESpellSchool)selectedTab))
+			&& ((selectedTab == 4) || spell->school.at(SpellSchool(selectedTab)))
 			)
 		{
 			spellsCurSite.push_back(spell);

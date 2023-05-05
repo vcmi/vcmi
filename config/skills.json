@@ -406,7 +406,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : 2,
+					"subtype" : "spellSchool.fire",
 					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
@@ -434,7 +434,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : 1,
+					"subtype" : "spellSchool.air",
 					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
@@ -462,7 +462,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : 4,
+					"subtype" : "spellSchool.water",
 					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
@@ -490,7 +490,7 @@
 		"base" : {
 			"effects" : {
 				"main" : {
-					"subtype" : 8,
+					"subtype" : "spellSchool.earth",
 					"type" : "MAGIC_SCHOOL_SKILL",
 					"valueType" : "BASE_NUMBER"
 				}
@@ -737,6 +737,7 @@
 			"effects" : {
 				"main" : {
 					"type" : "SPELL_DAMAGE",
+					"subtype" : "spellSchool.any",
 					"valueType" : "BASE_NUMBER"
 				}
 			}

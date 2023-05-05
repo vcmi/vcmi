@@ -343,7 +343,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			std::vector <CSpell *> spells;
 			for(auto spell : VLC->spellh->objects)
 			{
-				if(map.isAllowedSpell(spell->id) && spell->school[static_cast<ESpellSchool>(i)])
+				if(map.isAllowedSpell(spell->id) && spell->school[SpellSchool(i)])
 					spells.push_back(spell);
 			}
 			
