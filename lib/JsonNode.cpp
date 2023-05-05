@@ -975,7 +975,15 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 		switch (value->getType())
 		{
 		case JsonNode::JsonType::DATA_STRING:
-			b->duration = static_cast<BonusDuration>(parseByMap(bonusDurationMap, value, "duration type "));
+			b->duration = parseByMap(bonusDurationMap, value, "duration type ");
+			break;
+		case JsonNode::JsonType::DATA_VECTOR:
+			{
+				BonusDuration::Type dur = 0;
+				for (const JsonNode & d : value->Vector())
+					dur |= parseByMapN(bonusDurationMap, &d, "duration type ");
+				b->duration = dur;
+			}
 			break;
 		default:
 			logMod->error("Error! Wrong bonus duration format.");

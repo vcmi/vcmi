@@ -351,6 +351,14 @@ public:
 		return 1;
 	}
 
+	template<std::size_t T>
+	static int quickRetInt(lua_State * L, const std::bitset<T> & value)
+	{
+		lua_settop(L, 0);
+		lua_pushinteger(L, static_cast<int32_t>(value.to_ulong()));
+		return 1;
+	}
+
 	static int quickRetStr(lua_State * L, const std::string & value)
 	{
 		lua_settop(L, 0);

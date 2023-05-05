@@ -12,6 +12,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+#include "../JsonNode.h"
+
 #define BONUS_LIST										\
 	BONUS_NAME(NONE) 									\
 	BONUS_NAME(LEVEL_COUNTER) /* for commander artifacts*/ \
@@ -220,18 +222,20 @@ enum class BonusType
     BONUS_LIST
 #undef BONUS_NAME
 };
-enum class BonusDuration : uint16_t //when bonus is automatically removed
+namespace BonusDuration  //when bonus is automatically removed
 {
-    PERMANENT = 1,
-    ONE_BATTLE = 2, //at the end of battle
-    ONE_DAY = 4,   //at the end of day
-    ONE_WEEK = 8, //at the end of week (bonus lasts till the end of week, thats NOT 7 days
-    N_TURNS = 16, //used during battles, after battle bonus is always removed
-    N_DAYS = 32,
-    UNTIL_BEING_ATTACKED = 64, /*removed after attack and counterattacks are performed*/
-    UNTIL_ATTACK = 128, /*removed after attack and counterattacks are performed*/
-    STACK_GETS_TURN = 256, /*removed when stack gets its turn - used for defensive stance*/
-    COMMANDER_KILLED = 512
+	using Type = std::bitset<10>;
+	extern JsonNode toJson(const Type & duration);
+	constexpr Type PERMANENT = 1 << 0;
+	constexpr Type ONE_BATTLE = 1 << 1; //at the end of battle
+	constexpr Type ONE_DAY = 1 << 2;   //at the end of day
+	constexpr Type ONE_WEEK = 1 << 3; //at the end of week (bonus lasts till the end of week, thats NOT 7 days
+	constexpr Type N_TURNS = 1 << 4; //used during battles, after battle bonus is always removed
+	constexpr Type N_DAYS = 1 << 5;
+	constexpr Type UNTIL_BEING_ATTACKED = 1 << 6; /*removed after attack and counterattacks are performed*/
+	constexpr Type UNTIL_ATTACK = 1 << 7; /*removed after attack and counterattacks are performed*/
+	constexpr Type STACK_GETS_TURN = 1 << 8; /*removed when stack gets its turn - used for defensive stance*/
+	constexpr Type COMMANDER_KILLED = 1 << 9;
 };
 enum class BonusSource
 {
@@ -257,7 +261,7 @@ enum class BonusValueType
 extern DLL_LINKAGE const std::map<std::string, BonusType> bonusNameMap;
 extern DLL_LINKAGE const std::map<std::string, BonusValueType> bonusValueMap;
 extern DLL_LINKAGE const std::map<std::string, BonusSource> bonusSourceMap;
-extern DLL_LINKAGE const std::map<std::string, BonusDuration> bonusDurationMap;
+extern DLL_LINKAGE const std::map<std::string, BonusDuration::Type> bonusDurationMap;
 extern DLL_LINKAGE const std::map<std::string, BonusLimitEffect> bonusLimitEffect;
 
 VCMI_LIB_NAMESPACE_END

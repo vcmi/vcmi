@@ -10,7 +10,6 @@
 #pragma once
 
 #include "BonusEnum.h"
-#include "../JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -52,7 +51,7 @@ public:
 /// Struct for handling bonuses of several types. Can be transferred to any hero
 struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 {
-	BonusDuration duration = BonusDuration::PERMANENT; //uses BonusDuration values
+	BonusDuration::Type duration = BonusDuration::PERMANENT; //uses BonusDuration values
 	si16 turnsRemain = 0; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
 
 	BonusType type = BonusType::NONE; //uses BonusType values - says to what is this bonus - 1 byte
@@ -75,8 +74,8 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 
 	std::string description;
 
-	Bonus(BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1);
-	Bonus(BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype=-1, BonusValueType ValType = BonusValueType::ADDITIVE_VALUE);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1);
+	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype=-1, BonusValueType ValType = BonusValueType::ADDITIVE_VALUE);
 	Bonus() = default;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -107,43 +106,53 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	}
 	static bool NDays(const Bonus *hb)
 	{
-		return hb->duration == BonusDuration::N_DAYS;
+		auto set = hb->duration & BonusDuration::N_DAYS;
+		return set.any();
 	}
 	static bool NTurns(const Bonus *hb)
 	{
-		return hb->duration == BonusDuration::N_TURNS;
+		auto set = hb->duration & BonusDuration::N_TURNS;
+		return set.any();
 	}
 	static bool OneDay(const Bonus *hb)
 	{
-		return hb->duration == BonusDuration::ONE_DAY;
+		auto set = hb->duration & BonusDuration::ONE_DAY;
+		return set.any();
 	}
 	static bool OneWeek(const Bonus *hb)
 	{
-		return hb->duration == BonusDuration::ONE_WEEK;
+		auto set = hb->duration & BonusDuration::ONE_WEEK;
+		return set.any();
 	}
 	static bool OneBattle(const Bonus *hb)
 	{
-		return hb->duration == BonusDuration::ONE_BATTLE;
+		auto set = hb->duration & BonusDuration::ONE_BATTLE;
+		return set.any();
 	}
 	static bool Permanent(const Bonus *hb)
 	{
-		return hb->duration == BonusDuration::PERMANENT;
+		auto set = hb->duration & BonusDuration::PERMANENT;
+		return set.any();
 	}
 	static bool UntilGetsTurn(const Bonus *hb)
 	{
-		return hb->duration == BonusDuration::STACK_GETS_TURN;
+		auto set = hb->duration & BonusDuration::STACK_GETS_TURN;
+		return set.any();
 	}
 	static bool UntilAttack(const Bonus *hb)
 	{
-		return hb->duration == BonusDuration::UNTIL_ATTACK;
+		auto set = hb->duration & BonusDuration::UNTIL_ATTACK;
+		return set.any();
 	}
 	static bool UntilBeingAttacked(const Bonus *hb)
 	{
-		return hb->duration == BonusDuration::UNTIL_BEING_ATTACKED;
+		auto set = hb->duration & BonusDuration::UNTIL_BEING_ATTACKED;
+		return set.any();
 	}
 	static bool UntilCommanderKilled(const Bonus *hb)
 	{
-		return hb->duration == BonusDuration::COMMANDER_KILLED;
+		auto set = hb->duration & BonusDuration::COMMANDER_KILLED;
+		return set.any();
 	}
 	inline bool operator == (const BonusType & cf) const
 	{

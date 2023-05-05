@@ -30,7 +30,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 #undef BONUS_SOURCE
 
 #define BONUS_ITEM(x) { #x, BonusDuration::x },
-const std::map<std::string, BonusDuration> bonusDurationMap =
+const std::map<std::string, BonusDuration::Type> bonusDurationMap =
 {
 	BONUS_ITEM(PERMANENT)
 	BONUS_ITEM(ONE_BATTLE)
@@ -54,5 +54,29 @@ const std::map<std::string, BonusLimitEffect> bonusLimitEffect =
 	BONUS_ITEM(ONLY_MELEE_FIGHT)
 };
 #undef BONUS_ITEM
+
+namespace BonusDuration
+{
+	JsonNode toJson(const Type & duration)
+	{
+		std::vector<std::string> durationNames;
+		for(auto durBit = 0; durBit < duration.size(); durBit++)
+		{
+			if(duration[durBit])
+				durationNames.push_back(vstd::findKey(bonusDurationMap, duration & Type().set(durBit)));
+		}
+		if(durationNames.size() == 1)
+		{
+			return JsonUtils::stringNode(durationNames[0]);
+		}
+		else
+		{
+			JsonNode node(JsonNode::JsonType::DATA_VECTOR);
+			for(const std::string & dur : durationNames)
+				node.Vector().push_back(JsonUtils::stringNode(dur));
+			return node;
+		}
+	}
+}
 
 VCMI_LIB_NAMESPACE_END
