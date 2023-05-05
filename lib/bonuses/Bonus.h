@@ -20,6 +20,7 @@ class ILimiter;
 class IPropagator;
 class IUpdater;
 class BonusList;
+class CSelector;
 
 using TBonusSubtype = int32_t;
 using TBonusListPtr = std::shared_ptr<BonusList>;

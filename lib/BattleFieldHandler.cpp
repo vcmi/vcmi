@@ -11,6 +11,7 @@
 
 #include <vcmi/Entity.h>
 #include "BattleFieldHandler.h"
+#include "JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

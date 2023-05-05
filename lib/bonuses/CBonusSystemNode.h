@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "GameConstants.h"
+
 #include "BonusList.h"
 #include "IBonusBearer.h"
 

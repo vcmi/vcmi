@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "CBonusSystemNode.h"
 
+#include "../JsonNode.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 BonusList::BonusList(bool BelongsToTree) : belongsToTree(BelongsToTree)

@@ -13,6 +13,8 @@
 
 #include "BonusEnum.h"
 
+#include "../JsonNode.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 #define BONUS_NAME(x) { #x, BonusType::x },

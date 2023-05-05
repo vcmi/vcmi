@@ -10,9 +10,9 @@
 
 #pragma once
 
-#include "../JsonNode.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
+
+class JsonNode;
 
 #define BONUS_LIST										\
 	BONUS_NAME(NONE) 									\

@@ -7,7 +7,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "GameConstants.h"
 #include "StdInc.h"
 #include "CModHandler.h"
 #include "mapObjects/CObjectClassesHandler.h"
