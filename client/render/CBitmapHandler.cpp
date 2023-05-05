@@ -14,6 +14,7 @@
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/vcmi_endian.h"
+#include "../lib/JsonNode.h"
 
 #include <SDL_image.h>
 
@@ -103,6 +104,23 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 	return ret;
 }
 
+ResourceID loadBitmapResource(const std::string & path, const std::string & fname)
+{
+	ResourceID resource(path + fname, EResType::IMAGE);
+	if(CResourceHandler::get()->existsResource(resource))
+		return resource;
+	
+	//load from json
+	ResourceID jsonresource(path + fname, EResType::TEXT);
+	if(CResourceHandler::get()->existsResource(jsonresource))
+	{
+		JsonNode json(jsonresource);
+		resource = ResourceID(json["basepath"].String() + json["image"].String(), EResType::IMAGE);
+	}
+	
+	return resource;
+}
+
 SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fname)
 {
 	if(!fname.size())
@@ -110,14 +128,16 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 		logGlobal->warn("Call to loadBitmap with void fname!");
 		return nullptr;
 	}
-	if (!CResourceHandler::get()->existsResource(ResourceID(path + fname, EResType::IMAGE)))
+	
+	auto resource = loadBitmapResource(path, fname);
+	if (!CResourceHandler::get()->existsResource(resource))
 	{
 		return nullptr;
 	}
 
 	SDL_Surface * ret=nullptr;
 
-	auto readFile = CResourceHandler::get()->load(ResourceID(path + fname, EResType::IMAGE))->readAll();
+	auto readFile = CResourceHandler::get()->load(resource)->readAll();
 
 	if (isPCX(readFile.first.get()))
 	{//H3-style PCX

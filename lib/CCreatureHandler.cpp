@@ -527,7 +527,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 		parser.endLine();
 	}
 
-	for (size_t i=0; i<dataSize; i++)
+	for (size_t i = 0; i < dataSize; i++)
 	{
 		//loop till non-empty line
 		while (parser.isNextEntryEmpty())

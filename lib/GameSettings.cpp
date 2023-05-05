@@ -58,7 +58,7 @@ void GameSettings::load(const JsonNode & input)
 		{EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP, "combat",    "defensePointDamageFactorCap"},
 		{EGameSettings::COMBAT_GOOD_LUCK_DICE,                  "combat",    "goodLuckDice"               },
 		{EGameSettings::COMBAT_GOOD_MORALE_DICE,                "combat",    "goodMoraleDice"             },
-		{EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES,      "combat",    "oneHexTriggersObstacles"   },
+		{EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES,      "combat",    "oneHexTriggersObstacles"    },
 		{EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH,   "creatures", "allowAllForDoubleMonth"     },
 		{EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS,   "creatures", "allowRandomSpecialWeeks"    },
 		{EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE,       "creatures", "dailyStackExperience"       },
@@ -86,6 +86,7 @@ void GameSettings::load(const JsonNode & input)
 		{EGameSettings::TEXTS_ROAD,                             "textData",  "road"                       },
 		{EGameSettings::TEXTS_SPELL,                            "textData",  "spell"                      },
 		{EGameSettings::TEXTS_TERRAIN,                          "textData",  "terrain"                    },
+		{EGameSettings::TEXTS_SKIP_ARRAYTXT,                    "textData",  "skip_arraytxt"              },
 		{EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP,           "towns",     "buildingsPerTurnCap"        },
 		{EGameSettings::TOWNS_STARTING_DWELLING_CHANCES,        "towns",     "startingDwellingChances"    },
 	};

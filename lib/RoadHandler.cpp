@@ -56,7 +56,7 @@ std::vector<JsonNode> RoadTypeHandler::loadLegacyData()
 	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_ROAD);
 
 	objects.resize(dataSize);
-	return {};
+	return std::vector<JsonNode>(dataSize);
 }
 
 std::vector<bool> RoadTypeHandler::getDefaultAllowed() const

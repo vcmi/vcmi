@@ -71,6 +71,8 @@ void CMapInfo::campaignInit()
 
 void CMapInfo::countPlayers()
 {
+	assert(mapHeader);
+	assert(mapHeader->players.size() == PlayerColor::PLAYER_LIMIT_I);
 	for(int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
 	{
 		if(mapHeader->players[i].canHumanPlay)

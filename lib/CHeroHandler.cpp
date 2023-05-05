@@ -688,7 +688,7 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData()
 	specParser.endLine(); //ignore header
 	specParser.endLine();
 
-	for (int i=0; i<GameConstants::HEROES_QUANTITY; i++)
+	for (int i = 0; i < dataSize; i++)
 	{
 		JsonNode heroData;
 

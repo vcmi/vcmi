@@ -122,7 +122,8 @@
 			"terrain"    : 10,
 			"river"      : 5,
 			"road"       : 4,
-			"mapVersion" : 28 // max supported version, SoD
+			"mapVersion" : 28, // max supported version, SoD
+			"skip_arraytxt" : [] //numbers of lines to be skipped in ARRAYTXT
 		},
 
 		"heroes" :

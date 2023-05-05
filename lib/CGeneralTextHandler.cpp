@@ -248,16 +248,20 @@ bool CLegacyConfigParser::endLine()
 	return curr < end;
 }
 
-void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::string & sourceName)
+void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::string & sourceName, const std::vector<int> & skipLines)
 {
 	CLegacyConfigParser parser(sourceName);
 	size_t index = 0;
-	do
+	while(true)
 	{
-		registerString( "core", {sourceID, index}, parser.readString());
+		if(skipLines.empty() || !vstd::contains(skipLines, index))
+		{
+			registerString( "core", {sourceID, index}, parser.readString());
+			if(!parser.endLine())
+				break;
+		}
 		index += 1;
 	}
-	while (parser.endLine());
 }
 
 const std::string & CGeneralTextHandler::deserialize(const TextIdentifier & identifier) const
@@ -414,7 +418,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.restypes", "DATA/RESTYPES.TXT" );
 	readToVector("core.randsign", "DATA/RANDSIGN.TXT" );
 	readToVector("core.overview", "DATA/OVERVIEW.TXT" );
-	readToVector("core.arraytxt", "DATA/ARRAYTXT.TXT" );
+	readToVector("core.arraytxt", "DATA/ARRAYTXT.TXT", VLC->settings()->getVector(EGameSettings::TEXTS_SKIP_ARRAYTXT));
 	readToVector("core.priskill", "DATA/PRISKILL.TXT" );
 	readToVector("core.jktext",   "DATA/JKTEXT.TXT"   );
 	readToVector("core.tvrninfo", "DATA/TVRNINFO.TXT" );

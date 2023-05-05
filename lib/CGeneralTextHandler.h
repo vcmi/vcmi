@@ -135,7 +135,7 @@ class DLL_LINKAGE CGeneralTextHandler
 	/// map identifier -> localization
 	std::unordered_map<std::string, StringState> stringsLocalizations;
 
-	void readToVector(const std::string & sourceID, const std::string & sourceName);
+	void readToVector(const std::string & sourceID, const std::string & sourceName, const std::vector<int> & skipLines = {});
 
 	/// number of scenarios in specific campaign. TODO: move to a better location
 	std::vector<size_t> scenariosCountPerCampaign;

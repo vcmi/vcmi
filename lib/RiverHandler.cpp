@@ -56,7 +56,7 @@ std::vector<JsonNode> RiverTypeHandler::loadLegacyData()
 	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_RIVER);
 
 	objects.resize(dataSize);
-	return {};
+	return std::vector<JsonNode>(dataSize);
 }
 
 std::vector<bool> RiverTypeHandler::getDefaultAllowed() const
