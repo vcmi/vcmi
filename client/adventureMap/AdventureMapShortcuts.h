@@ -12,10 +12,12 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 class Point;
+class Rect;
 VCMI_LIB_NAMESPACE_END
 
 enum class EShortcut;
 class CAdventureMapInterface;
+enum class EAdventureState;
 
 struct AdventureMapShortcutState
 {
@@ -28,6 +30,8 @@ struct AdventureMapShortcutState
 class AdventureMapShortcuts
 {
 	CAdventureMapInterface & owner;
+	EAdventureState state;
+	int mapLevel;
 
 	void showOverview();
 	void worldViewBack();
@@ -69,9 +73,14 @@ public:
 	bool optionHasUnderground();
 	bool optionMapLevelSurface();
 	bool optionHeroSleeping();
+	bool optionHeroAwake();
 	bool optionHeroSelected();
 	bool optionHeroCanMove();
 	bool optionHasNextHero();
 	bool optionSpellcasting();
-	bool optionDefault();
+	bool optionInMapView();
+	bool optionInWorldView();
+
+	void setState(EAdventureState newState);
+	void onMapViewMoved(const Rect & visibleArea, int mapLevel);
 };

@@ -134,6 +134,7 @@ set(client_HEADERS
 	adventureMap/CAdventureMapInterface.h
 	adventureMap/CAdventureMapWidget.h
 	adventureMap/AdventureMapShortcuts.h
+	adventureMap/AdventureState.h
 	adventureMap/CAdventureOptions.h
 	adventureMap/CInGameConsole.h
 	adventureMap/CInfoBar.h

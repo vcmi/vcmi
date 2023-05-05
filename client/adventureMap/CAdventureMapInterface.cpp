@@ -11,6 +11,7 @@
 #include "CAdventureMapInterface.h"
 
 #include "CAdventureOptions.h"
+#include "AdventureState.h"
 #include "CInGameConsole.h"
 #include "CMinimap.h"
 #include "CList.h"
@@ -53,14 +54,16 @@ CAdventureMapInterface::CAdventureMapInterface():
 	shortcuts = std::make_shared<AdventureMapShortcuts>(*this);
 
 	widget = std::make_shared<CAdventureMapWidget>(shortcuts);
-	widget->setState(EGameState::MAKING_TURN);
+	widget->setState(EAdventureState::MAKING_TURN);
+	shortcuts->setState(EAdventureState::MAKING_TURN);
 	widget->getMapView()->onViewMapActivated();
 }
 
 void CAdventureMapInterface::onMapViewMoved(const Rect & visibleArea, int mapLevel)
 {
+	shortcuts->onMapViewMoved(visibleArea, mapLevel);
 	widget->getMinimap()->onMapViewMoved(visibleArea, mapLevel);
-	widget->updateActiveState();
+	widget->onMapViewMoved(visibleArea, mapLevel);
 }
 
 void CAdventureMapInterface::onAudioResumed()
@@ -146,7 +149,7 @@ void CAdventureMapInterface::handleMapScrollingUpdate()
 	uint32_t scrollSpeedPixels = settings["adventure"]["scrollSpeedPixels"].Float();
 	uint32_t scrollDistance = scrollSpeedPixels * timePassed / 1000;
 
-	bool scrollingActive = !GH.isKeyboardCtrlDown() && isActive() && widget->getState() == EGameState::MAKING_TURN;
+	bool scrollingActive = !GH.isKeyboardCtrlDown() && isActive() && widget->getState() == EAdventureState::MAKING_TURN;
 
 	Point cursorPosition = GH.getCursorPosition();
 	Point scrollDirection;
@@ -219,39 +222,6 @@ void CAdventureMapInterface::keyPressed(EShortcut key)
 	GH.fakeMouseMove();
 }
 
-void CAdventureMapInterface::hotkeyMoveHeroDirectional(Point direction)
-{
-	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero(); //selected hero
-
-	if(!h || !isActive())
-		return;
-
-	if (CGI->mh->hasOngoingAnimations())
-		return;
-
-	if(direction == Point(0,0))
-	{
-		centerOnObject(h);
-		return;
-	}
-
-	int3 dst = h->visitablePos() + int3(direction.x, direction.y, 0);
-
-	if (!CGI->mh->isInMap((dst)))
-		return;
-
-	if ( !LOCPLINT->localState->setPath(h, dst))
-		return;
-
-	const CGPath & path = LOCPLINT->localState->getPath(h);
-
-	if (path.nodes.size() > 2)
-		onHeroChanged(h);
-	else
-		if(!path.nodes[0].turns)
-			LOCPLINT->moveHero(h, path);
-}
-
 void CAdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
 {
 	assert(sel);
@@ -305,7 +275,8 @@ void CAdventureMapInterface::onMapTilesChanged(boost::optional<std::unordered_se
 void CAdventureMapInterface::onHotseatWaitStarted(PlayerColor playerID)
 {
 	onCurrentPlayerChanged(playerID);
-	widget->setState(EGameState::HOTSEAT_WAIT);
+	widget->setState(EAdventureState::HOTSEAT_WAIT);
+	shortcuts->setState(EAdventureState::HOTSEAT_WAIT);
 }
 
 void CAdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID)
@@ -329,9 +300,15 @@ void CAdventureMapInterface::adjustActiveness(bool aiTurnStart)
 		deactivate();
 
 	if (aiTurnStart)
-		widget->setState(EGameState::ENEMY_TURN);
+	{
+		widget->setState(EAdventureState::ENEMY_TURN);
+		shortcuts->setState(EAdventureState::ENEMY_TURN);
+	}
 	else
-		widget->setState(EGameState::MAKING_TURN);
+	{
+		widget->setState(EAdventureState::MAKING_TURN);
+		shortcuts->setState(EAdventureState::MAKING_TURN);
+	}
 
 	if(wasActive)
 		activate();
@@ -352,7 +329,8 @@ void CAdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 {
 	onCurrentPlayerChanged(playerID);
 
-	widget->setState(EGameState::MAKING_TURN);
+	widget->setState(EAdventureState::MAKING_TURN);
+	shortcuts->setState(EAdventureState::MAKING_TURN);
 	if(LOCPLINT->cb->getCurrentPlayer() == LOCPLINT->playerID
 		|| settings["session"]["spectate"].Bool())
 	{
@@ -428,7 +406,7 @@ const CGObjectInstance* CAdventureMapInterface::getActiveObject(const int3 &mapP
 
 void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 {
-	if(widget->getState() != EGameState::MAKING_TURN)
+	if(widget->getState() != EAdventureState::MAKING_TURN)
 		return;
 
 	//FIXME: this line breaks H3 behavior for Dimension Door
@@ -519,7 +497,7 @@ void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 
 void CAdventureMapInterface::onTileHovered(const int3 &mapPos)
 {
-	if(widget->getState() != EGameState::MAKING_TURN)
+	if(widget->getState() != EAdventureState::MAKING_TURN)
 		return;
 
 	//may occur just at the start of game (fake move before full intiialization)
@@ -686,7 +664,7 @@ void CAdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & h
 
 void CAdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 {
-	if(widget->getState() != EGameState::MAKING_TURN)
+	if(widget->getState() != EAdventureState::MAKING_TURN)
 		return;
 
 	if(spellBeingCasted)
@@ -724,14 +702,16 @@ void CAdventureMapInterface::enterCastingMode(const CSpell * sp)
 	Settings config = settings.write["session"]["showSpellRange"];
 	config->Bool() = true;
 
-	widget->setState(EGameState::CASTING_SPELL);
+	widget->setState(EAdventureState::CASTING_SPELL);
+	shortcuts->setState(EAdventureState::CASTING_SPELL);
 }
 
 void CAdventureMapInterface::exitCastingMode()
 {
 	assert(spellBeingCasted);
 	spellBeingCasted = nullptr;
-	widget->setState(EGameState::MAKING_TURN);
+	widget->setState(EAdventureState::MAKING_TURN);
+	shortcuts->setState(EAdventureState::MAKING_TURN);
 
 	Settings config = settings.write["session"]["showSpellRange"];
 	config->Bool() = false;
@@ -769,13 +749,15 @@ const IShipyard * CAdventureMapInterface::ourInaccessibleShipyard(const CGObject
 
 void CAdventureMapInterface::hotkeyExitWorldView()
 {
-	widget->setState(EGameState::MAKING_TURN);
+	widget->setState(EAdventureState::MAKING_TURN);
+	shortcuts->setState(EAdventureState::MAKING_TURN);
 	widget->getMapView()->onViewMapActivated();
 }
 
 void CAdventureMapInterface::openWorldView(int tileSize)
 {
-	widget->setState(EGameState::WORLD_VIEW);
+	widget->setState(EAdventureState::WORLD_VIEW);
+	shortcuts->setState(EAdventureState::WORLD_VIEW);
 	widget->getMapView()->onViewWorldActivated(tileSize);
 }
 
@@ -803,13 +785,14 @@ void CAdventureMapInterface::hotkeySwitchMapLevel()
 void CAdventureMapInterface::onScreenResize()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	EAdventureState oldState = widget->getState();
 	widget.reset();
 	pos.x = pos.y = 0;
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
 
 	widget = std::make_shared<CAdventureMapWidget>(shortcuts);
-	widget->setState(EGameState::MAKING_TURN);
+	widget->setState(oldState);
 	widget->getMapView()->onViewMapActivated();
 	widget->setPlayer(currentPlayerID);
 

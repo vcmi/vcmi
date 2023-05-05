@@ -15,6 +15,7 @@
 #include "CList.h"
 #include "CMinimap.h"
 #include "CResDataBar.h"
+#include "AdventureState.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
@@ -32,8 +33,9 @@
 #include "../../lib/filesystem/ResourceID.h"
 
 CAdventureMapWidget::CAdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts )
-	: state(EGameState::NOT_INITIALIZED)
+	: state(EAdventureState::NOT_INITIALIZED)
 	, shortcuts(shortcuts)
+	, mapLevel(0)
 {
 	pos.x = pos.y = 0;
 	pos.w = GH.screenDimensions().x;
@@ -63,8 +65,16 @@ CAdventureMapWidget::CAdventureMapWidget( std::shared_ptr<AdventureMapShortcuts>
 	}
 
 	build(config);
-
 	addUsedEvents(KEYBOARD);
+}
+
+void CAdventureMapWidget::onMapViewMoved(const Rect & visibleArea, int newMapLevel)
+{
+	if(mapLevel == newMapLevel)
+		return;
+
+	mapLevel = newMapLevel;
+	updateActiveState();
 }
 
 Rect CAdventureMapWidget::readSourceArea(const JsonNode & source, const JsonNode & sourceCommon)
@@ -368,17 +378,17 @@ void CAdventureMapWidget::setPlayerChildren(CIntObject * widget, const PlayerCol
 	redraw();
 }
 
-void CAdventureMapWidget::setState(EGameState newState)
+void CAdventureMapWidget::setState(EAdventureState newState)
 {
 	state = newState;
 
-	if(newState == EGameState::WORLD_VIEW)
+	if(newState == EAdventureState::WORLD_VIEW)
 		widget<CIntObject>("worldViewContainer")->enable();
 	else
 		widget<CIntObject>("worldViewContainer")->disable();
 }
 
-EGameState CAdventureMapWidget::getState()
+EAdventureState CAdventureMapWidget::getState()
 {
 	return state;
 }
@@ -422,6 +432,7 @@ void CAdventureMapWidget::updateActiveStateChildden(CIntObject * widget)
 			if (container->disableCondition == "mapLayerUnderground")
 				container->setEnabled(!shortcuts->optionMapLevelSurface());
 
+			updateActiveStateChildden(container);
 		}
 
 	}

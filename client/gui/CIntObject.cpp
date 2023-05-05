@@ -199,7 +199,10 @@ void CIntObject::disable()
 void CIntObject::enable()
 {
 	if(!active_m && (!parent_m || parent_m->active))
+	{
 		activate();
+		redraw();
+	}
 
 	recActions = 255;
 }

@@ -92,7 +92,6 @@ protected:
 public:
 	CAdventureMapInterface();
 
-	void hotkeyMoveHeroDirectional(Point direction);
 	void hotkeyAbortCastingMode();
 	void hotkeyExitWorldView();
 	void hotkeyEndingTurn();

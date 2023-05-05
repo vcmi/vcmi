@@ -18,21 +18,13 @@ class MapView;
 class CInfoBar;
 class IImage;
 class AdventureMapShortcuts;
-
-enum class EGameState
-{
-	NOT_INITIALIZED,
-	HOTSEAT_WAIT,
-	MAKING_TURN,
-	ENEMY_TURN,
-	CASTING_SPELL,
-	WORLD_VIEW
-};
+enum class EAdventureState;
 
 /// Internal class of AdventureMapInterface that contains actual UI elements
 class CAdventureMapWidget : public InterfaceObjectConfigurable
 {
-	EGameState state;
+	EAdventureState state;
+	int mapLevel;
 	/// temporary stack of sizes of currently building widgets
 	std::vector<Rect> subwidgetSizes;
 
@@ -83,11 +75,11 @@ public:
 	std::shared_ptr<CInfoBar> getInfoBar();
 
 	void setPlayer(const PlayerColor & player);
-	void setState(EGameState newState);
-	EGameState getState();
+	void setState(EAdventureState newState);
+	EAdventureState getState();
 
+	void onMapViewMoved(const Rect & visibleArea, int mapLevel);
 	void updateActiveState();
-
 };
 
 /// Small helper class that provides ownership for shared_ptr's of child elements
