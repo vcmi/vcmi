@@ -44,11 +44,8 @@ class IBattleCast;
 struct SchoolInfo
 {
 	ESpellSchool id; //backlink
-	BonusType damagePremyBonus;
 	BonusType immunityBonus;
 	std::string jsonName;
-	SecondarySkill::ESecondarySkill skill;
-	BonusType knoledgeBonus;
 };
 
 }

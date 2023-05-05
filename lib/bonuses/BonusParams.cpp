@@ -17,6 +17,34 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+const std::set<std::string> deprecatedBonusSet = {
+	"SECONDARY_SKILL_PREMY",
+	"SECONDARY_SKILL_VAL2",
+	"MAXED_SPELL",
+	"LAND_MOVEMENT",
+	"SEA_MOVEMENT",
+	"SIGHT_RADIOUS",
+	"NO_TYPE",
+	"SPECIAL_SECONDARY_SKILL",
+	"FULL_HP_REGENERATION",
+	"KING1",
+	"KING2",
+	"KING3",
+	"BLOCK_MORALE",
+	"BLOCK_LUCK",
+	"SELF_MORALE",
+	"SELF_LUCK",
+	"DIRECT_DAMAGE_IMMUNITY",
+	"AIR_SPELL_DMG_PREMY",
+	"EARTH_SPELL_DMG_PREMY"
+	"FIRE_SPELL_DMG_PREMY"
+	"WATER_SPELL_DMG_PREMY",
+	"FIRE_SPELLS",
+	"AIR_SPELLS",
+	"WATER_SPELLS",
+	"EARTH_SPELLS"
+};
+
 BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSubtypeStr, int deprecatedSubtype):
 	isConverted(true)
 {
@@ -221,6 +249,54 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 		type = BonusType::SPELL_DAMAGE_REDUCTION;
 		val = 100;
 		valRelevant = true;
+	}
+	else if (deprecatedTypeStr == "AIR_SPELL_DMG_PREMY")
+	{
+		type = BonusType::SPELL_DAMAGE;
+		subtypeRelevant = true;
+		subtype = 0;
+	}
+	else if (deprecatedTypeStr == "FIRE_SPELL_DMG_PREMY")
+	{
+		type = BonusType::SPELL_DAMAGE;
+		subtypeRelevant = true;
+		subtype = 1;
+	}
+	else if (deprecatedTypeStr == "WATER_SPELL_DMG_PREMY")
+	{
+		type = BonusType::SPELL_DAMAGE;
+		subtypeRelevant = true;
+		subtype = 2;
+	}
+	else if (deprecatedTypeStr == "EARTH_SPELL_DMG_PREMY")
+	{
+		type = BonusType::SPELL_DAMAGE;
+		subtypeRelevant = true;
+		subtype = 3;
+	}
+	else if (deprecatedTypeStr == "AIR_SPELLS")
+	{
+		type = BonusType::SPELLS_OF_SCHOOL;
+		subtypeRelevant = true;
+		subtype = 0;
+	}
+	else if (deprecatedTypeStr == "FIRE_SPELLS")
+	{
+		type = BonusType::SPELLS_OF_SCHOOL;
+		subtypeRelevant = true;
+		subtype = 1;
+	}
+	else if (deprecatedTypeStr == "WATER_SPELLS")
+	{
+		type = BonusType::SPELLS_OF_SCHOOL;
+		subtypeRelevant = true;
+		subtype = 2;
+	}
+	else if (deprecatedTypeStr == "EARTH_SPELLS")
+	{
+		type = BonusType::SPELLS_OF_SCHOOL;
+		subtypeRelevant = true;
+		subtype = 3;
 	}
 	else
 		isConverted = false;

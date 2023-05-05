@@ -42,35 +42,23 @@ static const spells::SchoolInfo SCHOOL[4] =
 {
 	{
 		ESpellSchool::AIR,
-		BonusType::AIR_SPELL_DMG_PREMY,
 		BonusType::AIR_IMMUNITY,
-		"air",
-		SecondarySkill::AIR_MAGIC,
-		BonusType::AIR_SPELLS
+		"air"
 	},
 	{
 		ESpellSchool::FIRE,
-		BonusType::FIRE_SPELL_DMG_PREMY,
 		BonusType::FIRE_IMMUNITY,
-		"fire",
-		SecondarySkill::FIRE_MAGIC,
-		BonusType::FIRE_SPELLS
+		"fire"
 	},
 	{
 		ESpellSchool::WATER,
-		BonusType::WATER_SPELL_DMG_PREMY,
 		BonusType::WATER_IMMUNITY,
-		"water",
-		SecondarySkill::WATER_MAGIC,
-		BonusType::WATER_SPELLS
+		"water"
 	},
 	{
 		ESpellSchool::EARTH,
-		BonusType::EARTH_SPELL_DMG_PREMY,
 		BonusType::EARTH_IMMUNITY,
-		"earth",
-		SecondarySkill::EARTH_MAGIC,
-		BonusType::EARTH_SPELLS
+		"earth"
 	}
 };
 

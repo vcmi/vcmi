@@ -31,26 +31,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-const std::set<std::string> deprecatedBonusSet = {
-	"SECONDARY_SKILL_PREMY",
-	"SECONDARY_SKILL_VAL2",
-	"MAXED_SPELL",
-	"LAND_MOVEMENT",
-	"SEA_MOVEMENT",
-	"SIGHT_RADIOUS",
-	"NO_TYPE",
-	"SPECIAL_SECONDARY_SKILL",
-	"FULL_HP_REGENERATION",
-	"KING1",
-	"KING2",
-	"KING3",
-	"BLOCK_MORALE",
-	"BLOCK_LUCK",
-	"SELF_MORALE",
-	"SELF_LUCK",
-	"DIRECT_DAMAGE_IMMUNITY"
-};
-
 //This constructor should be placed here to avoid side effects
 CAddInfo::CAddInfo() = default;
 

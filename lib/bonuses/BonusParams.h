@@ -38,4 +38,6 @@ private:
 	bool jsonCreated = false;
 };
 
+extern DLL_LINKAGE const std::set<std::string> deprecatedBonusSet;
+
 VCMI_LIB_NAMESPACE_END

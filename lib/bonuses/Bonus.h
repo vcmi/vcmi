@@ -187,6 +187,4 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
 
-extern DLL_LINKAGE const std::set<std::string> deprecatedBonusSet;
-
 VCMI_LIB_NAMESPACE_END

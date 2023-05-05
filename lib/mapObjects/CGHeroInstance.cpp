@@ -619,7 +619,7 @@ int64_t CGHeroInstance::getSpellBonus(const spells::Spell * spell, int64_t base,
 
 	spell->forEachSchool([&maxSchoolBonus, this](const spells::SchoolInfo & cnf, bool & stop)
 	{
-		vstd::amax(maxSchoolBonus, valOfBonuses(cnf.damagePremyBonus));
+		vstd::amax(maxSchoolBonus, valOfBonuses(BonusType::SPELL_DAMAGE, vstd::to_underlying(cnf.id)));
 	});
 
 	base = static_cast<int64_t>(base * (100 + maxSchoolBonus) / 100.0);
@@ -708,7 +708,7 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 
 	spell->forEachSchool([this, &schoolBonus](const spells::SchoolInfo & cnf, bool & stop)
 	{
-		if(hasBonusOfType(cnf.knoledgeBonus))
+		if(hasBonusOfType(BonusType::SPELLS_OF_SCHOOL, vstd::to_underlying(cnf.id)))
 		{
 			schoolBonus = stop = true;
 		}
