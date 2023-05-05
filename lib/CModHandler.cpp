@@ -440,6 +440,7 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 			else
 			{
 				logMod->trace("no original data in loadMod(%s) at index %d", name, index);
+				continue;
 			}
 			performValidate(data, name);
 			handler->loadObject(modName, name, data, index);
