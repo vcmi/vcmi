@@ -48,6 +48,8 @@ public:
 	void addAllPossibleObjects(); //add objects, including zone-specific, to possibleObjects
 
 	size_t getPossibleObjectsSize() const;
+	void setMaxPrisons(size_t count);
+	size_t getMaxPrisons() const;
 	
 protected:
 	bool isGuardNeededForTreasure(int value);
@@ -63,6 +65,8 @@ protected:
 	rmg::Area treasureArea;
 	rmg::Area treasureBlockArea;
 	rmg::Area guards;
+
+	size_t maxPrisons;
 };
 
 VCMI_LIB_NAMESPACE_END

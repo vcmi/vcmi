@@ -31,7 +31,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
-	prisonsRemaining(0), monolithIndex(0)
+	allowedPrisons(0), monolithIndex(0)
 {
 	loadConfig();
 	rand.setSeed(this->randomSeed);
@@ -99,13 +99,13 @@ const CMapGenOptions& CMapGenerator::getMapGenOptions() const
 
 void CMapGenerator::initPrisonsRemaining()
 {
-	prisonsRemaining = 0;
+	allowedPrisons = 0;
 	for (auto isAllowed : map->map().allowedHeroes)
 	{
 		if (isAllowed)
-			prisonsRemaining++;
+			allowedPrisons++;
 	}
-	prisonsRemaining = std::max<int> (0, prisonsRemaining - 16 * mapGenOptions.getPlayerCount()); //so at least 16 heroes will be available for every player
+	allowedPrisons = std::max<int> (0, allowedPrisons - 16 * mapGenOptions.getPlayerCount()); //so at least 16 heroes will be available for every player
 }
 
 void CMapGenerator::initQuestArtsRemaining()
@@ -368,7 +368,7 @@ int CMapGenerator::getNextMonlithIndex()
 
 int CMapGenerator::getPrisonsRemaning() const
 {
-	return prisonsRemaining;
+	return allowedPrisons;
 }
 
 std::shared_ptr<CZonePlacer> CMapGenerator::getZonePlacer() const
@@ -376,21 +376,33 @@ std::shared_ptr<CZonePlacer> CMapGenerator::getZonePlacer() const
 	return placer;
 }
 
-void CMapGenerator::decreasePrisonsRemaining()
-{
-	prisonsRemaining = std::max (0, prisonsRemaining - 1);
-}
-
-const std::vector<ArtifactID> & CMapGenerator::getQuestArtsRemaning() const
+const std::vector<ArtifactID> & CMapGenerator::getAllPossibleQuestArtifacts() const
 {
 	return questArtifacts;
+}
+
+const std::vector<HeroTypeID>& CMapGenerator::getAllPossibleHeroes() const
+{
+	//Skip heroes that were banned, including the ones placed in prisons
+	std::vector<HeroTypeID> ret;
+	for (int j = 0; j < map->map().allowedHeroes.size(); j++)
+	{
+		if (map->map().allowedHeroes[j])
+			ret.push_back(HeroTypeID(j));
+	}
+	return ret;
 }
 
 void CMapGenerator::banQuestArt(const ArtifactID & id)
 {
 	map->map().allowedArtifact[id] = false;
-	vstd::erase_if_present(questArtifacts, id);
 }
+
+void CMapGenerator::banHero(const HeroTypeID & id)
+{
+	map->map().allowedHeroes[id] = false;
+}
+
 
 Zone * CMapGenerator::getZoneWater() const
 {

@@ -130,7 +130,7 @@ void ObjectDistributor::distributeSeerHuts()
 
 	RandomGeneratorUtil::randomShuffle(zones, generator.rand);
 
-	const auto & possibleQuestArts = generator.getQuestArtsRemaning();
+	const auto & possibleQuestArts = generator.getAllPossibleQuestArtifacts();
 	size_t availableArts = possibleQuestArts.size();
 	auto artIt = possibleQuestArts.begin();
 	for (int i = zones.size() - 1; i >= 0 ; i--)
@@ -145,6 +145,27 @@ void ObjectDistributor::distributeSeerHuts()
 			{
 				qap->addRandomArtifact(*artIt);
 			}
+		}
+	}
+}
+
+void ObjectDistributor::distributePrisons()
+{
+	//Copy by value to random shuffle
+	const auto & zoneMap = map.getZones();
+	RmgMap::ZoneVector zones(zoneMap.begin(), zoneMap.end());
+
+	RandomGeneratorUtil::randomShuffle(zones, generator.rand);
+
+	size_t allowedPrisons = generator.getPrisonsRemaning();
+	for (int i = zones.size() - 1; i >= 0; i--)
+	{
+		auto zone = zones[i].second;
+		auto * tp = zone->getModificator<TreasurePlacer>();
+		if (tp)
+		{
+			tp->setMaxPrisons(std::ceil(float(allowedPrisons) / (i + 1)));
+			allowedPrisons -= tp->getMaxPrisons();
 		}
 	}
 }

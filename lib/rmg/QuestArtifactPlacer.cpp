@@ -65,7 +65,6 @@ void QuestArtifactPlacer::findZonesForQuestArts()
 	}
 
 	logGlobal->info("Number of nearby zones suitable for quest artifacts: %d", questArtZones.size());
-	logGlobal->info("Number of possible quest artifacts remaining: %d", generator.getQuestArtsRemaning().size());
 }
 
 void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator * rand)

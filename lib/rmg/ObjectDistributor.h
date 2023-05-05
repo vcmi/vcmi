@@ -22,6 +22,7 @@ class ObjectDistributor : public Modificator
 {
 	void distributeLimitedObjects();
 	void distributeSeerHuts();
+	void distributePrisons();
 
 public:
 	MODIFICATOR(ObjectDistributor);

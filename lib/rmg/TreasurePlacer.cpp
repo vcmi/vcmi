@@ -96,26 +96,28 @@ void TreasurePlacer::addAllPossibleObjects()
 	//prisons
 	//levels 1, 5, 10, 20, 30
 	static int prisonsLevels = std::min(generator.getConfig().prisonExperience.size(), generator.getConfig().prisonValues.size());
-	for(int i = 0; i < prisonsLevels; i++)
+	
+	size_t prisonsLeft = getMaxPrisons();
+	for(int i = prisonsLevels - 1; i >= 0 ;i--)
 	{
+		oi.value = generator.getConfig().prisonValues[i];
+		if (oi.value > zone.getMaxTreasureValue())
+		{
+			continue;
+		}
+
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
-			std::vector<ui32> possibleHeroes;
-			for(int j = 0; j < map.map().allowedHeroes.size(); j++)
-			{
-				if(map.map().allowedHeroes[j])
-					possibleHeroes.push_back(j);
-			}
-			
-			auto hid = *RandomGeneratorUtil::nextItem(possibleHeroes, generator.rand);
+			auto possibleHeroes = generator.getAllPossibleHeroes();
+			HeroTypeID hid = *RandomGeneratorUtil::nextItem(possibleHeroes, generator.rand);
+
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0);
 			auto * obj = dynamic_cast<CGHeroInstance *>(factory->create());
 
 			obj->subID = hid; //will be initialized later
 			obj->exp = generator.getConfig().prisonExperience[i];
 			obj->setOwner(PlayerColor::NEUTRAL);
-			map.map().allowedHeroes[hid] = false; //ban this hero
-			generator.decreasePrisonsRemaining();
+			generator.banHero(hid);
 			obj->appearance = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0)->getTemplates(zone.getTerrainType()).front(); //can't init template with hero subID
 			
 			return obj;
@@ -123,7 +125,10 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.setTemplate(Obj::PRISON, 0, zone.getTerrainType());
 		oi.value = generator.getConfig().prisonValues[i];
 		oi.probability = 30;
-		oi.maxPerZone = generator.getPrisonsRemaning() / 5; //probably not perfect, but we can't generate more prisons than hereos.
+		
+		//Distribute all allowed prisons, starting from the most valuable
+		oi.maxPerZone = (std::ceil((float)prisonsLeft / (i + 1)));
+		prisonsLeft -= oi.maxPerZone;
 		addObjectToRandomPool(oi);
 	}
 	
@@ -521,6 +526,16 @@ void TreasurePlacer::addAllPossibleObjects()
 size_t TreasurePlacer::getPossibleObjectsSize() const
 {
 	return possibleObjects.size();
+}
+
+void TreasurePlacer::setMaxPrisons(size_t count)
+{
+	maxPrisons = count;
+}
+
+size_t TreasurePlacer::getMaxPrisons() const
+{
+	return maxPrisons;
 }
 
 bool TreasurePlacer::isGuardNeededForTreasure(int value)

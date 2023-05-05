@@ -63,9 +63,10 @@ public:
 	int getNextMonlithIndex();
 	int getPrisonsRemaning() const;
 	std::shared_ptr<CZonePlacer> getZonePlacer() const;
-	void decreasePrisonsRemaining();
-	const std::vector<ArtifactID> & getQuestArtsRemaning() const;
+	const std::vector<ArtifactID> & getAllPossibleQuestArtifacts() const;
+	const std::vector<HeroTypeID>& getAllPossibleHeroes() const;
 	void banQuestArt(const ArtifactID & id);
+	void banHero(const HeroTypeID& id);
 
 	Zone * getZoneWater() const;
 	void addWaterTreasuresInfo();
@@ -83,8 +84,7 @@ private:
 	
 	//std::pair<Zones::key_type, Zones::mapped_type> zoneWater;
 
-	int prisonsRemaining;
-	//int questArtsRemaining;
+	int allowedPrisons;
 	int monolithIndex;
 	std::vector<ArtifactID> questArtifacts; //TODO: Protect with mutex
 
