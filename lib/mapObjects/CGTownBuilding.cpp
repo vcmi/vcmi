@@ -412,7 +412,7 @@ void CTownRewardableBuilding::onHeroVisit(const CGHeroInstance *h) const
 		iw.player = h->tempOwner;
 		iw.text = vi.message;
 		vi.reward.loadComponents(iw.components, h);
-		iw.type = configuration.infoWindowType;
+		iw.type = EInfoWindowMode::MODAL;
 		if(!iw.components.empty() || !iw.text.toString().empty())
 			cb->showInfoDialog(&iw);
 		
