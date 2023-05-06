@@ -115,7 +115,7 @@
 				{
 					"type": "adventureMapContainer",
 					"hideWhen" : "mapLayerSurface",
-					"area": { "top" : 0, "left": 32, "width" : 32, "height" : 32 }
+					"area": { "top" : 0, "left": 32, "width" : 32, "height" : 32 },
 					"items" : [
 						{
 							"type": "adventureMapButton",
@@ -131,7 +131,7 @@
 				{
 					"type": "adventureMapContainer",
 					"hideWhen" : "mapLayerUnderground",
-					"area": { "top" : 0, "left": 32, "width" : 32, "height" : 32 }
+					"area": { "top" : 0, "left": 32, "width" : 32, "height" : 32 },
 					"items" : [
 						{
 							"type": "adventureMapButton",
@@ -156,7 +156,7 @@
 				{
 					"type": "adventureMapContainer",
 					"hideWhen" : "heroAwake",
-					"area": { "top" : 32, "left": 32, "width" : 32, "height" : 32 }
+					"area": { "top" : 32, "left": 32, "width" : 32, "height" : 32 },
 					"items" : [
 						{
 							"type": "adventureMapButton",
@@ -172,7 +172,7 @@
 				{
 					"type": "adventureMapContainer",
 					"hideWhen" : "heroSleeping",
-					"area": { "top" : 32, "left": 32, "width" : 32, "height" : 32 }
+					"area": { "top" : 32, "left": 32, "width" : 32, "height" : 32 },
 					"items" : [
 						{
 							"type": "adventureMapButton",
@@ -425,7 +425,7 @@
 			"type": "adventureMapContainer",
 			"name" : "adventureInfobarContainer",
 			"hideWhen" : "worldViewMode",
-			"area" : { "bottom": 0, "right" : 0, "width" : 199, "height" : 211 }
+			"area" : { "bottom": 0, "right" : 0, "width" : 199, "height" : 211 },
 			"items" : [
 				// Infobar
 				{
@@ -450,6 +450,12 @@
 			"area": { "left": 8, "bottom" : 26, "right" : 199, "height" : 18 }
 		},
 		// Resource & Data bar
+		{
+			"type": "adventurePlayerTexture",
+			"name" : "backgroundBottomCenter",
+			"image" : "DiBoxBck.pcx",
+			"area" : { "left": 3, "bottom" : 4, "right" : 797, "height" : 21 }
+		},
 		{
 			"type": "adventureResourceDateBar",
 			"name": "resourceDataBar",
@@ -784,7 +790,7 @@
 							"text": "core.genrltxt.625"
 						}
 					]
-				}
+				},
 				{
 					"type": "adventureMapImage",
 					"name" : "backgroundBelowWorldView",

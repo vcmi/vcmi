@@ -51,6 +51,7 @@ CAdventureMapWidget::CAdventureMapWidget( std::shared_ptr<AdventureMapShortcuts>
 	REGISTER_BUILDER("adventureMinimap",         &CAdventureMapWidget::buildMinimap         );
 	REGISTER_BUILDER("adventureResourceDateBar", &CAdventureMapWidget::buildResourceDateBar );
 	REGISTER_BUILDER("adventureStatusBar",       &CAdventureMapWidget::buildStatusBar       );
+	REGISTER_BUILDER("adventurePlayerTexture",   &CAdventureMapWidget::buildTexturePlayerColored);
 
 	for (const auto & entry : shortcuts->getShortcuts())
 		addShortcut(entry.shortcut, entry.callback);
@@ -326,6 +327,14 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildStatusBar(const JsonNode &
 	return CGStatusBar::create(background);
 }
 
+std::shared_ptr<CIntObject> CAdventureMapWidget::buildTexturePlayerColored(const JsonNode & input)
+{
+	logGlobal->debug("Building widget CFilledTexture");
+	auto image = input["image"].String();
+	Rect area = readTargetArea(input["area"]);
+	return std::make_shared<FilledTexturePlayerColored>(image, area);
+}
+
 std::shared_ptr<CHeroList> CAdventureMapWidget::getHeroList()
 {
 	return heroList;
@@ -363,6 +372,7 @@ void CAdventureMapWidget::setPlayerChildren(CIntObject * widget, const PlayerCol
 		auto container = dynamic_cast<CAdventureMapContainerWidget *>(entry);
 		auto icon = dynamic_cast<CAdventureMapIcon *>(entry);
 		auto button = dynamic_cast<CButton *>(entry);
+		auto texture = dynamic_cast<FilledTexturePlayerColored *>(entry);
 
 		if(button)
 			button->setPlayerColor(player);
@@ -372,6 +382,9 @@ void CAdventureMapWidget::setPlayerChildren(CIntObject * widget, const PlayerCol
 
 		if(container)
 			setPlayerChildren(container, player);
+
+		if (texture)
+			texture->playerColored(player);
 	}
 
 	for(const auto & entry : playerColorerImages)

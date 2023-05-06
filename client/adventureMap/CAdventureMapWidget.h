@@ -61,6 +61,8 @@ class CAdventureMapWidget : public InterfaceObjectConfigurable
 	std::shared_ptr<CIntObject> buildMinimap(const JsonNode & input);
 	std::shared_ptr<CIntObject> buildResourceDateBar(const JsonNode & input);
 	std::shared_ptr<CIntObject> buildStatusBar(const JsonNode & input);
+	std::shared_ptr<CIntObject> buildTexturePlayerColored(const JsonNode &);
+
 
 	void setPlayerChildren(CIntObject * widget, const PlayerColor & player);
 	void updateActiveStateChildden(CIntObject * widget);

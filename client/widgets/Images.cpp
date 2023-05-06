@@ -16,6 +16,7 @@
 #include "../renderSDL/SDL_Extensions.h"
 #include "../render/IImage.h"
 #include "../render/CAnimation.h"
+#include "../render/ColorFilter.h"
 
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -133,6 +134,35 @@ void CFilledTexture::showAll(SDL_Surface *to)
 		for (int x=pos.left(); x < pos.right(); x+= imageArea.w)
 			texture->draw(to, x, y, &imageArea);
 	}
+}
+
+FilledTexturePlayerColored::FilledTexturePlayerColored(std::string imageName, Rect position)
+	: CFilledTexture(imageName, position)
+{
+}
+
+void FilledTexturePlayerColored::playerColored(PlayerColor player)
+{
+	// Color transform to make color of brown DIBOX.PCX texture match color of specified player
+	std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
+		ColorFilter::genRangeShifter( 0.250,0,0, 1.250, 0.000, 0.000 ), // red
+		ColorFilter::genRangeShifter( 0,0,0, 0.435, 1.160, 4.500 ), // blue
+		ColorFilter::genRangeShifter( 0,0,0, 2.000, 2.400, 3.200 ), // tan
+		ColorFilter::genRangeShifter( 0,0,0, 0.160, 2.150, 0.125 ), // green
+		ColorFilter::genRangeShifter( 0,0,0, 2.700, 1.900, 0.000 ), // orange
+		ColorFilter::genRangeShifter( 0,0,0, 1.400, 0.540, 5.000 ), // purple
+		ColorFilter::genRangeShifter( 0,0,0, 0.450, 2.250, 4.400 ), // teal
+		ColorFilter::genRangeShifter( 0,0,0, 2.000, 1.750, 3.750 ) // pink
+	};
+
+	assert(player.isValidPlayer());
+	if (!player.isValidPlayer())
+	{
+		logGlobal->error("Unable to colorize to invalid player color %d!", static_cast<int>(player.getNum()));
+		return;
+	}
+
+	texture->adjustPalette(filters[player.getNum()], 0);
 }
 
 CAnimImage::CAnimImage(const std::string & name, size_t Frame, size_t Group, int x, int y, ui8 Flags):

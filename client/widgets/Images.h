@@ -68,6 +68,7 @@ public:
 /// area filled with specific texture
 class CFilledTexture : public CIntObject
 {
+protected:
 	std::shared_ptr<IImage> texture;
 	Rect imageArea;
 
@@ -76,6 +77,14 @@ public:
 	CFilledTexture(std::shared_ptr<IImage> image, Rect position, Rect imageArea);
 
 	void showAll(SDL_Surface *to) override;
+};
+
+class FilledTexturePlayerColored : public CFilledTexture
+{
+public:
+	FilledTexturePlayerColored(std::string imageName, Rect position);
+
+	void playerColored(PlayerColor player);
 };
 
 /// Class for displaying one image from animation
