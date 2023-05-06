@@ -27,8 +27,6 @@
 #include "mapping/CMap.h"
 #include "serializer/JsonSerializeFormat.h"
 
-#include <regex>
-
 // Note: list must match entries in ArtTraits.txt
 #define ART_POS_LIST    \
 	ART_POS(SPELLBOOK)  \
@@ -335,7 +333,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 		
 		artSlotAllowed.insert(slotName);
 		slotName.erase(std::remove(slotName.begin(), slotName.end(), '_'), slotName.end()); //no spaces and underscores
-		slotName = std::regex_replace(slotName, std::regex("WARMACHINE"), "MACH"); //special case
+		boost::replace_first(slotName, "WARMACHINE", "MACH");
 		artSlotAllowed.insert(slotName);
 	}
 
