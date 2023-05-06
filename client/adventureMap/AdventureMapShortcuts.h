@@ -69,8 +69,8 @@ public:
 
 	std::vector<AdventureMapShortcutState> getShortcuts();
 
-	bool optionHasQuests();
-	bool optionHasUnderground();
+	bool optionCanViewQuests();
+	bool optionCanToggleLevel();
 	bool optionMapLevelSurface();
 	bool optionHeroSleeping();
 	bool optionHeroAwake();
@@ -80,6 +80,8 @@ public:
 	bool optionSpellcasting();
 	bool optionInMapView();
 	bool optionInWorldView();
+	bool optionSidePanelActive();
+	bool optionMapViewActive();
 
 	void setState(EAdventureState newState);
 	void onMapViewMoved(const Rect & visibleArea, int mapLevel);

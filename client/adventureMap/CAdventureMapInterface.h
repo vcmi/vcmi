@@ -39,6 +39,7 @@ class CTownList;
 class CInfoBar;
 class CMinimap;
 class MapAudioPlayer;
+enum class EAdventureState;
 
 struct MapDrawingInfo;
 
@@ -61,8 +62,8 @@ private:
 	std::shared_ptr<AdventureMapShortcuts> shortcuts;
 
 private:
-	bool isActive();
-	void adjustActiveness(bool aiTurnStart); //should be called every time at AI/human turn transition; blocks GUI during AI turn
+	void setState(EAdventureState state);
+	void adjustActiveness(); //should be called every time at AI/human turn transition; blocks GUI during AI turn
 
 	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const; //checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or nullptr else
 

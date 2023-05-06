@@ -452,6 +452,4 @@ void CAdventureMapWidget::updateActiveState()
 
 	for (auto entry: shortcuts->getShortcuts())
 		setShortcutBlocked(entry.shortcut, !entry.isEnabled);
-
-	//GH.totalRedraw(); // FIXME: required to eliminate graphical artifacts on leaving world view mode
 }

@@ -62,8 +62,8 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_VIEW_WORLD_X1,    optionInWorldView(),    [this]() { this->worldViewScale1x(); } },
 		{ EShortcut::ADVENTURE_VIEW_WORLD_X2,    optionInWorldView(),    [this]() { this->worldViewScale2x(); } },
 		{ EShortcut::ADVENTURE_VIEW_WORLD_X4,    optionInWorldView(),    [this]() { this->worldViewScale4x(); } },
-		{ EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL, optionHasUnderground(), [this]() { this->switchMapLevel(); } },
-		{ EShortcut::ADVENTURE_QUEST_LOG,        optionHasQuests(),      [this]() { this->showQuestlog(); } },
+		{ EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL, optionCanToggleLevel(), [this]() { this->switchMapLevel(); } },
+		{ EShortcut::ADVENTURE_QUEST_LOG,        optionCanViewQuests(),  [this]() { this->showQuestlog(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_SLEEP,     optionHeroSelected(),   [this]() { this->toggleSleepWake(); } },
 		{ EShortcut::ADVENTURE_SET_HERO_ASLEEP,  optionHeroAwake(),      [this]() { this->setHeroSleeping(); } },
 		{ EShortcut::ADVENTURE_SET_HERO_AWAKE,   optionHeroSleeping(),   [this]() { this->setHeroAwake(); } },
@@ -78,7 +78,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::GAME_SAVE_GAME,             optionInMapView(),      [this]() { this->saveGame(); } },
 		{ EShortcut::GAME_LOAD_GAME,             optionInMapView(),      [this]() { this->loadGame(); } },
 		{ EShortcut::ADVENTURE_DIG_GRAIL,        optionHeroSelected(),   [this]() { this->digGrail(); } },
-		{ EShortcut::ADVENTURE_VIEW_PUZZLE,      optionInMapView(),      [this]() { this->viewPuzzleMap(); } },
+		{ EShortcut::ADVENTURE_VIEW_PUZZLE,      optionSidePanelActive(),[this]() { this->viewPuzzleMap(); } },
 		{ EShortcut::GAME_RESTART_GAME,          optionInMapView(),      [this]() { this->restartGame(); } },
 		{ EShortcut::ADVENTURE_VISIT_OBJECT,     optionHeroSelected(),   [this]() { this->visitObject(); } },
 		{ EShortcut::ADVENTURE_VIEW_SELECTED,    optionInMapView(),      [this]() { this->openObject(); } },
@@ -391,14 +391,14 @@ void AdventureMapShortcuts::moveHeroDirectional(const Point & direction)
 			LOCPLINT->moveHero(h, path);
 }
 
-bool AdventureMapShortcuts::optionHasQuests()
+bool AdventureMapShortcuts::optionCanViewQuests()
 {
-	return CGI->mh->getMap()->quests.empty();
+	return optionInMapView() && CGI->mh->getMap()->quests.empty();
 }
 
-bool AdventureMapShortcuts::optionHasUnderground()
+bool AdventureMapShortcuts::optionCanToggleLevel()
 {
-	return LOCPLINT->cb->getMapSize().z > 0;
+	return optionInMapView() && LOCPLINT->cb->getMapSize().z > 0;
 }
 
 bool AdventureMapShortcuts::optionMapLevelSurface()
@@ -409,24 +409,24 @@ bool AdventureMapShortcuts::optionMapLevelSurface()
 bool AdventureMapShortcuts::optionHeroSleeping()
 {
 	const CGHeroInstance *hero = LOCPLINT->localState->getCurrentHero();
-	return hero && LOCPLINT->localState->isHeroSleeping(hero);
+	return optionInMapView() && hero && LOCPLINT->localState->isHeroSleeping(hero);
 }
 
 bool AdventureMapShortcuts::optionHeroAwake()
 {
 	const CGHeroInstance *hero = LOCPLINT->localState->getCurrentHero();
-	return hero && !LOCPLINT->localState->isHeroSleeping(hero);
+	return optionInMapView() && hero && !LOCPLINT->localState->isHeroSleeping(hero);
 }
 
 bool AdventureMapShortcuts::optionHeroSelected()
 {
-	return LOCPLINT->localState->getCurrentHero() != nullptr;
+	return optionInMapView() && LOCPLINT->localState->getCurrentHero() != nullptr;
 }
 
 bool AdventureMapShortcuts::optionHeroCanMove()
 {
 	const auto * hero = LOCPLINT->localState->getCurrentHero();
-	return hero && hero->movement != 0 && LOCPLINT->localState->hasPath(hero);
+	return optionInMapView() && hero && hero->movement != 0 && LOCPLINT->localState->hasPath(hero);
 }
 
 bool AdventureMapShortcuts::optionHasNextHero()
@@ -434,7 +434,7 @@ bool AdventureMapShortcuts::optionHasNextHero()
 	const auto * hero = LOCPLINT->localState->getCurrentHero();
 	const auto * nextSuitableHero = LOCPLINT->localState->getNextWanderingHero(hero);
 
-	return nextSuitableHero != nullptr;
+	return optionInMapView() && nextSuitableHero != nullptr;
 }
 
 bool AdventureMapShortcuts::optionSpellcasting()
@@ -450,4 +450,14 @@ bool AdventureMapShortcuts::optionInMapView()
 bool AdventureMapShortcuts::optionInWorldView()
 {
 	return state == EAdventureState::WORLD_VIEW;
+}
+
+bool AdventureMapShortcuts::optionSidePanelActive()
+{
+	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW;
+}
+
+bool AdventureMapShortcuts::optionMapViewActive()
+{
+	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::CASTING_SPELL;
 }
