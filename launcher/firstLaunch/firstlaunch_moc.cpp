@@ -188,10 +188,10 @@ void FirstLaunchView::languageSelected(const QString & selectedLanguage)
 
 void FirstLaunchView::heroesDataUpdate()
 {
-	auto dataDetected = heroesDataDetect();
-	if(dataDetected.first && dataDetected.second)
+	auto [roeFound, sodFound] = heroesDataDetect();
+	if(roeFound && sodFound)
 		heroesDataDetected();
-	else if (dataDetected.first)
+	else if (roeFound)
 		heroesDataProblem();
 	else
 		heroesDataMissing();
@@ -276,7 +276,7 @@ void FirstLaunchView::heroesDataDetected()
 }
 
 // Tab Heroes III Data
-std::pair<bool, bool> FirstLaunchView::heroesDataDetect()
+std::tuple<bool, bool> FirstLaunchView::heroesDataDetect()
 {
 	// user might have copied files to one of our data path.
 	// perform full reinitialization of virtual filesystem
@@ -288,7 +288,7 @@ std::pair<bool, bool> FirstLaunchView::heroesDataDetect()
 	bool heroesDataFoundROE = CResourceHandler::get()->existsResource(ResourceID("DATA/GENRLTXT.TXT"));
 	bool heroesDataFoundSOD = CResourceHandler::get()->existsResource(ResourceID("DATA/TENTCOLR.TXT"));
 
-	return std::make_pair(heroesDataFoundROE, heroesDataFoundSOD);
+	return std::make_tuple(heroesDataFoundROE, heroesDataFoundSOD);
 }
 
 void FirstLaunchView::heroesLanguageUpdate()

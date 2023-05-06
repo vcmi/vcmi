@@ -46,7 +46,7 @@ class FirstLaunchView : public QWidget
 
 	// Tab Heroes III Data
 	void heroesDataUpdate();
-	std::pair<bool, bool> heroesDataDetect(); //RoE, SoD data presence
+	std::tuple<bool, bool> heroesDataDetect(); //RoE, SoD data presence
 
 	void heroesDataMissing();
 	void heroesDataProblem();
