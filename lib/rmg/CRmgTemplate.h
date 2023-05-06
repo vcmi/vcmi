@@ -41,7 +41,7 @@ namespace EWaterContent
 	};
 }
 
-namespace EZoneMonsterStrength
+namespace EZoneMonsterStrength // used as int in monster generation procedure
 {
 	enum EZoneMonsterStrength
 	{
@@ -51,9 +51,9 @@ namespace EZoneMonsterStrength
 	};
 }
 
-namespace EMonsterStrength
+namespace EGlobalMonsterStrength // used as int in monster generation procedure and in map description for the generated random map
 {
-	enum EMonsterStrength
+	enum EGlobalMonsterStrength
 	{
 		RANDOM = -1,
 		WEAK = 2,

@@ -93,9 +93,9 @@ RandomMapTab::RandomMapTab():
 	addCallback("setMonsterStrength", [&](int btnId)
 	{
 		if(btnId < 0)
-			mapGenOptions->setMonsterStrength(EMonsterStrength::RANDOM);
+			mapGenOptions->setMonsterStrength(EGlobalMonsterStrength::RANDOM);
 		else
-			mapGenOptions->setMonsterStrength(static_cast<EMonsterStrength::EMonsterStrength>(btnId)); //value 2 to 4
+			mapGenOptions->setMonsterStrength(static_cast<EGlobalMonsterStrength::EGlobalMonsterStrength>(btnId)); //value 2 to 4
 		updateMapInfoByHost();
 	});
 	

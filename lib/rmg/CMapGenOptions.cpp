@@ -23,7 +23,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 CMapGenOptions::CMapGenOptions()
 	: width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), hasTwoLevels(true),
 	playerCount(RANDOM_SIZE), teamCount(RANDOM_SIZE), compOnlyPlayerCount(RANDOM_SIZE), compOnlyTeamCount(RANDOM_SIZE),
-	waterContent(EWaterContent::RANDOM), monsterStrength(EMonsterStrength::RANDOM), mapTemplate(nullptr)
+	waterContent(EWaterContent::RANDOM), monsterStrength(EGlobalMonsterStrength::RANDOM), mapTemplate(nullptr)
 {
 	resetPlayersMap();
 }
@@ -122,12 +122,12 @@ void CMapGenOptions::setWaterContent(EWaterContent::EWaterContent value)
 	waterContent = value;
 }
 
-EMonsterStrength::EMonsterStrength CMapGenOptions::getMonsterStrength() const
+EGlobalMonsterStrength::EGlobalMonsterStrength CMapGenOptions::getMonsterStrength() const
 {
 	return monsterStrength;
 }
 
-void CMapGenOptions::setMonsterStrength(EMonsterStrength::EMonsterStrength value)
+void CMapGenOptions::setMonsterStrength(EGlobalMonsterStrength::EGlobalMonsterStrength value)
 {
  	monsterStrength = value;
 }
@@ -308,13 +308,13 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 		}
 	}
 
-	if(monsterStrength == EMonsterStrength::RANDOM)
+	if(monsterStrength == EGlobalMonsterStrength::RANDOM)
 	{
-		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(rand.nextInt(EMonsterStrength::WEAK, EMonsterStrength::STRONG));
+		monsterStrength = static_cast<EGlobalMonsterStrength::EGlobalMonsterStrength>(rand.nextInt(EGlobalMonsterStrength::WEAK, EGlobalMonsterStrength::STRONG));
 	}
 
 	assert (vstd::iswithin(waterContent, EWaterContent::NONE, EWaterContent::ISLANDS));
-	assert (vstd::iswithin(monsterStrength, EMonsterStrength::WEAK, EMonsterStrength::STRONG));
+	assert (vstd::iswithin(monsterStrength, EGlobalMonsterStrength::WEAK, EGlobalMonsterStrength::STRONG));
 
 
 	//rectangular maps are the future of gaming
