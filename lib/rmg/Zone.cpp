@@ -179,6 +179,30 @@ rmg::Path Zone::searchPath(const int3 & src, bool onlyStraight, const std::funct
 	return searchPath(rmg::Area({src}), onlyStraight, areafilter);
 }
 
+TRMGJob Zone::getNextJob()
+{
+	for (auto& modificator : modificators)
+	{
+		if (modificator->hasJobs())
+		{
+			return modificator->getNextJob();
+		}
+	}
+	return TRMGJob();
+}
+
+bool Zone::hasJobs()
+{
+	for (auto& modificator : modificators)
+	{
+		if (modificator->hasJobs())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void Zone::connectPath(const rmg::Path & path)
 ///connect current tile to any other free tile within zone
 {

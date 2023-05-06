@@ -13,6 +13,7 @@
 #include "../GameConstants.h"
 #include "float3.h"
 #include "../int3.h"
+#include "threadpool/JobProvider.h"
 #include "CRmgTemplate.h"
 #include "RmgArea.h"
 #include "RmgPath.h"
@@ -30,7 +31,7 @@ class Modificator;
 
 extern std::function<bool(const int3 &)> AREA_NO_FILTER;
 
-class Zone : public rmg::ZoneOptions
+class Zone : public rmg::ZoneOptions, public IJobProvider
 {
 public:
 	Zone(RmgMap & map, CMapGenerator & generator);
@@ -63,9 +64,14 @@ public:
 	rmg::Path searchPath(const rmg::Area & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter = AREA_NO_FILTER) const;
 	rmg::Path searchPath(const int3 & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter = AREA_NO_FILTER) const;
 
+	TRMGJob getNextJob() override;
+	bool hasJobs() override;
+
 	template<class T>
 	T* getModificator()
 	{
+		//TODO: Protect with recursive mutex?
+
 		for(auto & m : modificators)
 			if(auto * mm = dynamic_cast<T*>(m.get()))
 				return mm;

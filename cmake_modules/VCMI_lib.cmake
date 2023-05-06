@@ -425,6 +425,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/RiverPlacer.h
 		${MAIN_LIB_DIR}/rmg/TerrainPainter.h
 		${MAIN_LIB_DIR}/rmg/float3.h
+		${MAIN_LIB_DIR}/rmg/threadpool/BlockingQueue.h
+		${MAIN_LIB_DIR}/rmg/threadpool/ThreadPool.h
+		${MAIN_LIB_DIR}/rmg/threadpool/JobProvider.h
 
 		${MAIN_LIB_DIR}/serializer/BinaryDeserializer.h
 		${MAIN_LIB_DIR}/serializer/BinarySerializer.h

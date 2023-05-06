@@ -23,6 +23,7 @@
 #include "Zone.h"
 #include "Functions.h"
 #include "RmgMap.h"
+#include "threadpool/ThreadPool.h"
 #include "ObjectManager.h"
 #include "TreasurePlacer.h"
 #include "RoadPlacer.h"
@@ -294,9 +295,12 @@ void CMapGenerator::fillZones()
 
 	logGlobal->info("Started filling zones");
 
+	size_t numZones = map->getZones().size();
+
 	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
 	//place main town in the middle
-	Load::Progress::setupStepsTill(map->getZones().size(), 50);
+	
+	Load::Progress::setupStepsTill(numZones, 50);
 	for (const auto& it : map->getZones())
 	{
 		it.second->initFreeTiles();
@@ -304,16 +308,40 @@ void CMapGenerator::fillZones()
 		Progress::Progress::step();
 	}
 
-	Load::Progress::setupStepsTill(map->getZones().size(), 240);
+	//TODO: multiply by the number of modificators
+	Load::Progress::setupStepsTill(numZones, 240);
 	std::vector<std::shared_ptr<Zone>> treasureZones;
+
+	ThreadPool pool;
+
+	std::vector<boost::future<void>> futures;
+	//At most one Modificator can run for every zone
+	pool.init(std::min<int>(std::thread::hardware_concurrency(), numZones));
+
+	while (hasJobs())
+	{
+		auto job = getNextJob();
+		if (job)
+		{
+			futures.push_back(pool.async([this, job]() -> void
+				{
+					job.value()();
+					Progress::Progress::step(); //Update progress bar
+				}
+			));
+		}
+	}
+
+	//Wait for all the tasks
+	for (auto& fut : futures)
+	{
+		fut.get();
+	}
+
 	for (const auto& it : map->getZones())
 	{
-		it.second->processModificators();
-
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
 			treasureZones.push_back(it.second);
-
-		Progress::Progress::step();
 	}
 
 	//find place for Grail
@@ -381,7 +409,7 @@ const std::vector<ArtifactID> & CMapGenerator::getAllPossibleQuestArtifacts() co
 	return questArtifacts;
 }
 
-const std::vector<HeroTypeID>& CMapGenerator::getAllPossibleHeroes() const
+const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 {
 	//Skip heroes that were banned, including the ones placed in prisons
 	std::vector<HeroTypeID> ret;
@@ -395,11 +423,13 @@ const std::vector<HeroTypeID>& CMapGenerator::getAllPossibleHeroes() const
 
 void CMapGenerator::banQuestArt(const ArtifactID & id)
 {
+	//TODO: Protect with mutex
 	map->map().allowedArtifact[id] = false;
 }
 
 void CMapGenerator::banHero(const HeroTypeID & id)
 {
+	//TODO: Protect with mutex
 	map->map().allowedHeroes[id] = false;
 }
 
@@ -409,6 +439,30 @@ Zone * CMapGenerator::getZoneWater() const
 		if(z.second->getType() == ETemplateZoneType::WATER)
 			return z.second.get();
 	return nullptr;
+}
+
+bool CMapGenerator::hasJobs()
+{
+	for (auto zone : map->getZones())
+	{
+		if (zone.second->hasJobs())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+TRMGJob CMapGenerator::getNextJob()
+{
+	for (auto zone : map->getZones())
+	{
+		if (zone.second->hasJobs())
+		{
+			return zone.second->getNextJob();
+		}
+	}
+	return TRMGJob();
 }
 
 VCMI_LIB_NAMESPACE_END

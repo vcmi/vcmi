@@ -15,6 +15,7 @@
 #include "CMapGenOptions.h"
 #include "../int3.h"
 #include "CRmgTemplate.h"
+#include "threadpool/JobProvider.h"
 #include "../LoadProgress.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -30,7 +31,7 @@ class CZonePlacer;
 using JsonVector = std::vector<JsonNode>;
 
 /// The map generator creates a map randomly.
-class DLL_LINKAGE CMapGenerator: public Load::Progress
+class DLL_LINKAGE CMapGenerator: public Load::Progress, public IJobProvider
 {
 public:
 	struct Config
@@ -64,7 +65,7 @@ public:
 	int getPrisonsRemaning() const;
 	std::shared_ptr<CZonePlacer> getZonePlacer() const;
 	const std::vector<ArtifactID> & getAllPossibleQuestArtifacts() const;
-	const std::vector<HeroTypeID>& getAllPossibleHeroes() const;
+	const std::vector<HeroTypeID> getAllPossibleHeroes() const;
 	void banQuestArt(const ArtifactID & id);
 	void banHero(const HeroTypeID& id);
 
@@ -82,11 +83,9 @@ private:
 	
 	std::vector<rmg::ZoneConnection> connectionsLeft;
 	
-	//std::pair<Zones::key_type, Zones::mapped_type> zoneWater;
-
 	int allowedPrisons;
 	int monolithIndex;
-	std::vector<ArtifactID> questArtifacts; //TODO: Protect with mutex
+	std::vector<ArtifactID> questArtifacts;
 
 	/// Generation methods
 	void loadConfig();
@@ -99,6 +98,9 @@ private:
 	void addHeaderInfo();
 	void genZones();
 	void fillZones();
+
+	TRMGJob getNextJob() override;
+	bool hasJobs() override;
 
 };
 
