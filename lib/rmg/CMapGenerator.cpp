@@ -403,7 +403,6 @@ void CMapGenerator::banHero(const HeroTypeID & id)
 	map->map().allowedHeroes[id] = false;
 }
 
-
 Zone * CMapGenerator::getZoneWater() const
 {
 	for(auto & z : map->getZones())

@@ -121,6 +121,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/TileInfo.cpp
 		${MAIN_LIB_DIR}/rmg/Zone.cpp
 		${MAIN_LIB_DIR}/rmg/Functions.cpp
+		${MAIN_LIB_DIR}/rmg/Modificator.cpp
 		${MAIN_LIB_DIR}/rmg/ObjectManager.cpp
 		${MAIN_LIB_DIR}/rmg/ObjectDistributor.cpp
 		${MAIN_LIB_DIR}/rmg/RoadPlacer.cpp
@@ -406,6 +407,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/TileInfo.h
 		${MAIN_LIB_DIR}/rmg/Zone.h
 		${MAIN_LIB_DIR}/rmg/Functions.h
+		${MAIN_LIB_DIR}/rmg/Modificator.h
 		${MAIN_LIB_DIR}/rmg/ObjectManager.h
 		${MAIN_LIB_DIR}/rmg/ObjectDistributor.h
 		${MAIN_LIB_DIR}/rmg/RoadPlacer.h

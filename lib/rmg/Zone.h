@@ -17,60 +17,16 @@
 #include "RmgArea.h"
 #include "RmgPath.h"
 #include "RmgObject.h"
+#include "Modificator.h"
 
 //uncomment to generate dumps afger every step of map generation
 //#define RMG_DUMP
-
-#define MODIFICATOR(x) x(Zone & z, RmgMap & m, CMapGenerator & g): Modificator(z, m, g) {setName(#x);}
-#define DEPENDENCY(x) 		dependency(zone.getModificator<x>());
-#define POSTFUNCTION(x)		postfunction(zone.getModificator<x>());
-#define DEPENDENCY_ALL(x) 	for(auto & z : map.getZones()) \
-							{ \
-								dependency(z.second->getModificator<x>()); \
-							}
-#define POSTFUNCTION_ALL(x) for(auto & z : map.getZones()) \
-							{ \
-								postfunction(z.second->getModificator<x>()); \
-							}
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class RmgMap;
 class CMapGenerator;
-class Zone;
-
-class Modificator
-{
-public:
-	Modificator() = delete;
-	Modificator(Zone & zone, RmgMap & map, CMapGenerator & generator);
-	
-	virtual void process() = 0;
-	virtual void init() {/*override to add dependencies*/}
-	virtual char dump(const int3 &);
-	virtual ~Modificator() = default;
-
-	void setName(const std::string & n);
-	const std::string & getName() const;
-	
-	void run();
-	void dependency(Modificator * modificator);
-	void postfunction(Modificator * modificator);
-
-protected:
-	RmgMap & map;
-	CMapGenerator & generator;
-	Zone & zone;
-	
-	bool isFinished() const;
-	
-private:
-	std::string name;
-	bool started = false;
-	bool finished = false;
-	std::list<Modificator*> preceeders; //must be ordered container
-	void dump();
-};
+class Modificator;
 
 extern std::function<bool(const int3 &)> AREA_NO_FILTER;
 
