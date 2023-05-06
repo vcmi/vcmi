@@ -128,7 +128,7 @@ inline void ThreadPool::terminate()
 {
 	{
 		Lock lock(mx);
-		if (running())
+		if (isRunning())
 		{
 			stopping = true;
 		}
