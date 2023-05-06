@@ -67,9 +67,9 @@ private:
 protected:
 	std::shared_ptr<CListBox> listBox;
 
-	CList(int size, Point position);
+	CList(int size, Rect widgetDimensions);
 
-	void createList(Point itemOffset, size_t listAmount);
+	void createList(Point firstItemPosition, Point itemPositionDelta, size_t listAmount);
 
 	virtual std::shared_ptr<CIntObject> createItem(size_t index) = 0;
 
@@ -90,6 +90,8 @@ public:
 	void selectIndex(int which);
 	void selectNext();
 	void selectPrev();
+
+	void showAll(SDL_Surface * to) override;
 };
 
 /// List of heroes which is shown at the right of the adventure map screen
@@ -125,7 +127,7 @@ class CHeroList	: public CList
 
 	std::shared_ptr<CIntObject> createItem(size_t index);
 public:
-	CHeroList(int size, Point position, Point itemOffset, size_t listAmount);
+	CHeroList(int visibleItemsCount, Rect widgetPosition, Point firstItemOffset, Point itemOffsetDelta, size_t initialItemsCount);
 
 	/// Select specific hero and scroll if needed
 	void select(const CGHeroInstance * hero = nullptr);
@@ -155,7 +157,7 @@ class CTownList	: public CList
 
 	std::shared_ptr<CIntObject> createItem(size_t index) override;
 public:
-	CTownList(int size, Point position, Point itemOffset, size_t listAmount);
+	CTownList(int visibleItemsCount, Rect widgetPosition, Point firstItemOffset, Point itemOffsetDelta, size_t initialItemsCount);
 
 	/// Select specific town and scroll if needed
 	void select(const CGTownInstance * town = nullptr);

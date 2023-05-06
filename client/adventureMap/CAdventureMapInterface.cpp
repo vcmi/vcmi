@@ -788,6 +788,8 @@ void CAdventureMapInterface::onScreenResize()
 	widget = std::make_shared<CAdventureMapWidget>(shortcuts);
 	widget->getMapView()->onViewMapActivated();
 	widget->setPlayer(currentPlayerID);
+	widget->updateActiveState();
+	widget->getMinimap()->update();
 
 	if (isActive())
 		widget->activate();

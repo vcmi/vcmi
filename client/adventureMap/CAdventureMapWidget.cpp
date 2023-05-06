@@ -238,7 +238,7 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapHeroList(const JsonNode
 	Point itemOffset(input["itemsOffset"]["x"].Integer(), input["itemsOffset"]["y"].Integer());
 	int itemsCount = input["itemsCount"].Integer();
 
-	auto result = std::make_shared<CHeroList>(itemsCount, item.topLeft(), itemOffset, LOCPLINT->localState->getWanderingHeroes().size());
+	auto result = std::make_shared<CHeroList>(itemsCount, area, item.topLeft() - area.topLeft(), itemOffset, LOCPLINT->localState->getWanderingHeroes().size());
 
 
 	if(!input["scrollUp"].isNull())
@@ -272,7 +272,8 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapTownList(const JsonNode
 	Point itemOffset(input["itemsOffset"]["x"].Integer(), input["itemsOffset"]["y"].Integer());
 	int itemsCount = input["itemsCount"].Integer();
 
-	auto result = std::make_shared<CTownList>(itemsCount, item.topLeft(), itemOffset, LOCPLINT->localState->getOwnedTowns().size());
+	auto result = std::make_shared<CTownList>(itemsCount, area, item.topLeft() - area.topLeft(), itemOffset, LOCPLINT->localState->getOwnedTowns().size());
+
 
 	if(!input["scrollUp"].isNull())
 		result->setScrollUpButton(std::dynamic_pointer_cast<CButton>(buildMapButton(input["scrollUp"])));
@@ -427,7 +428,6 @@ void CAdventureMapWidget::updateActiveStateChildden(CIntObject * widget)
 			if (container->disableCondition == "worldViewMode")
 				container->setEnabled(!shortcuts->optionInWorldView());
 
-
 			updateActiveStateChildden(container);
 		}
 	}
@@ -439,4 +439,6 @@ void CAdventureMapWidget::updateActiveState()
 
 	for (auto entry: shortcuts->getShortcuts())
 		setShortcutBlocked(entry.shortcut, !entry.isEnabled);
+
+	//GH.totalRedraw(); // FIXME: required to eliminate graphical artifacts on leaving world view mode
 }

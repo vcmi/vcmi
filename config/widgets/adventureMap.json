@@ -1,14 +1,7 @@
 {
 	"options" : {
-
 		// player-colored images used for background
 		"imagesPlayerColored" : [ "AdvMap.pcx" ],
-
-		// widgets that are only visible in world view mode
-		"worldViewWidgets" : [ "worldViewContainer" ],
-		
-		// widgets that are only visible in game view mode
-		"gameViewWidgets" : [ "townListContainer", "heroListContainer", "buttonsContainer", "infobox" ],
 	},
 
 	"items":
@@ -76,12 +69,6 @@
 			"name" : "backgroundRightMinimap",
 			"image" : "AdvMap.pcx",
 			"area" : { "right": 0, "top" : 0, "width" : 199, "height" : 196 }
-		},
-		{
-			"type": "adventureMapImage",
-			"name" : "backgroundRightInfobar",
-			"image" : "AdvMap.pcx",
-			"area" : { "bottom": 0, "right" : 0, "width" : 199, "height" : 211 }
 		},
 		{
 			"type": "adventureMapImage",
@@ -280,29 +267,29 @@
 					"type": "adventureMapImage",
 					"name" : "backgroundBelowHeroTownList",
 					"image" : "AdvMap.pcx",
-					"area" : { "right": 0, "left" : 0, "bottom" : 0, "height" : 3 },
-					"sourceArea": { "bottom" : 208, "height" : 3, "right" : 0, "width" : 193 }
+					"area" : { "right": 0, "left" : 0, "bottom" : 0, "height" : 4 },
+					"sourceArea": { "bottom" : 208, "height" : 4, "right" : 0, "width" : 193 }
 				},
 				// Hero List
 				{
 					"type": "adventureMapHeroList",
 					"name" : "heroList",
-					"area": { "top": 0, "right" : 127, "width" : 64, "height" : 192 },
+					"area": { "top": 0, "right" : 125, "width" : 68, "height" : 193 },
 					"scrollUp" : {
 						"type": "adventureMapButton",
 						"name": "heroListScrollUp",
 						"image" : "IAM012.DEF",
 						"help" : "core.help.303",
-						"area": { "top" : 0, "left": 0, "width" : 64, "height" : 16 }
+						"area": { "top" : 0, "left": 2, "width" : 64, "height" : 16 }
 					},
 					"scrollDown" : {
 						"type": "adventureMapButton",
 						"name": "heroListScrollDown",
 						"image" : "IAM013.DEF",
 						"help" : "core.help.304",
-						"area": { "bottom" : 0, "left": 0, "width" : 64, "height" : 16 }
+						"area": { "bottom" : 0, "left": 2, "width" : 64, "height" : 16 }
 					},
-					"item" : { "top" :  16, "left": 1, "width" : 62, "height" : 32 },
+					"item" : { "top" :  16, "left": 3, "width" : 62, "height" : 32 },
 					"itemsOffset" : { "x" : 0, "y" : 32 },
 					"itemsCount" : 5
 				},
@@ -310,22 +297,22 @@
 				{
 					"type": "adventureMapTownList",
 					"name" : "townList",
-					"area": { "top": 0, "right" : 5, "width" : 48, "height" : 192 },
+					"area": { "top": 0, "right" : 3, "width" : 51, "height" : 193 },
 					"scrollUp" : {
 						"type": "adventureMapButton",
 						"name": "townListScrollUp",
 						"image" : "IAM014.DEF",
 						"help" : "core.help.306",
-						"area": { "top" : 0, "left": 0, "width" : 48, "height" : 16 }
+						"area": { "top" : 0, "left": 1, "width" : 48, "height" : 16 }
 					},
 					"scrollDown" : {
 						"type": "adventureMapButton",
 						"name": "townListScrollDown",
 						"image" : "IAM015.DEF",
 						"help" : "core.help.307",
-						"area": { "bottom" : 0, "left": 0, "width" : 48, "height" : 16 }
+						"area": { "bottom" : 0, "left": 1, "width" : 48, "height" : 16 }
 					},
-					"item" : { "top" :  16, "left": 0, "width" : 48, "height" : 32 },
+					"item" : { "top" :  16, "left": 2, "width" : 48, "height" : 32 },
 					"itemsOffset" : { "x" : 0, "y" : 32 },
 					"itemsCount" : 5
 				},
@@ -373,15 +360,15 @@
 					"type": "adventureMapImage",
 					"name" : "backgroundBelowHeroTownList",
 					"image" : "AdvMap.pcx",
-					"area" : { "right": 0, "left" : 0, "bottom" : 0, "height" : 3 },
-					"sourceArea": { "bottom" : 208, "height" : 3, "right" : 0, "width" : 193 }
+					"area" : { "right": 0, "left" : 0, "bottom" : 0, "height" : 4 },
+					"sourceArea": { "bottom" : 208, "height" : 4, "right" : 0, "width" : 193 }
 				},
 				// Hero List
 				{
 					"type": "adventureMapHeroList",
 					"name" : "heroList",
-					"area": { "top": 0, "right" : 127, "width" : 64, "height" : 256 },
-					"item" : { "top" :  0, "left": 1, "width" : 62, "height" : 32 },
+					"area": { "top": 0, "right" : 125, "width" : 68, "height" : 257 },
+					"item" : { "top" :  1, "left": 3, "width" : 62, "height" : 32 },
 					"itemsOffset" : { "x" : 0, "y" : 32 },
 					"itemsCount" : 8
 				},
@@ -389,22 +376,22 @@
 				{
 					"type": "adventureMapTownList",
 					"name" : "townList",
-					"area": { "top": 0, "right" : 5, "width" : 48, "height" : 256 },
+					"area": { "top": 0, "right" : 3, "width" : 51, "height" : 257 },
 					"scrollUp" : {
 						"type": "adventureMapButton",
 						"name": "townListScrollUp",
 						"image" : "IAM014.DEF",
 						"help" : "core.help.306",
-						"area": { "top" : 0, "left": 0, "width" : 48, "height" : 16 }
+						"area": { "top" : 0, "left": 1, "width" : 48, "height" : 16 }
 					},
 					"scrollDown" : {
 						"type": "adventureMapButton",
 						"name": "townListScrollDown",
 						"image" : "IAM015.DEF",
 						"help" : "core.help.307",
-						"area": { "bottom" : 0, "left": 0, "width" : 48, "height" : 16 }
+						"area": { "bottom" : 0, "left": 1, "width" : 48, "height" : 16 }
 					},
-					"item" : { "top" :  16, "left": 0, "width" : 48, "height" : 32 },
+					"item" : { "top" :  16, "left": 1, "width" : 48, "height" : 32 },
 					"itemsOffset" : { "x" : 0, "y" : 32 },
 					"itemsCount" : 7
 				},
@@ -438,13 +425,20 @@
 			"type": "adventureMapContainer",
 			"name" : "adventureInfobarContainer",
 			"hideWhen" : "worldViewMode",
-			"area": { "bottom": 44, "right" : 19, "width" : 175, "height" : 168 }
+			"area" : { "bottom": 0, "right" : 0, "width" : 199, "height" : 211 }
 			"items" : [
 				// Infobar
 				{
+					"type": "adventureMapImage",
+					"name" : "backgroundRightInfobar",
+					"image" : "AdvMap.pcx",
+					"area": { "top": 0, "bottom" : 0, "left" : 0, "right" : 0 },
+					"sourceArea" : { "bottom": 0, "right" : 0, "width" : 199, "height" : 211 }
+				},
+				{
 					"type": "adventureInfobar",
 					"name": "infoBar",
-					"area": { "bottom": 0, "top" : 0, "left" : 0, "right" : 0 }
+					"area": { "bottom": 44, "right" : 19, "width" : 175, "height" : 168 }
 				}
 			]
 		},

@@ -20,6 +20,7 @@
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
@@ -81,22 +82,31 @@ void CList::CListItem::onSelect(bool on)
 	redraw();
 }
 
-CList::CList(int Size, Point position)
-	: CIntObject(0, position),
+CList::CList(int Size, Rect widgetDimensions)
+	: CIntObject(0, widgetDimensions.topLeft()),
 	size(Size),
 	selected(nullptr)
 {
-
+	pos.w = widgetDimensions.w;
+	pos.h = widgetDimensions.h;
 }
 
-void CList::createList(Point itemOffset, size_t listAmount)
+void CList::showAll(SDL_Surface * to)
+{
+	CSDL_Ext::fillRect(to, pos, Colors::BLACK);
+	CIntObject::showAll(to);
+}
+
+void CList::createList(Point firstItemPosition, Point itemPositionDelta, size_t listAmount)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	listBox = std::make_shared<CListBox>(std::bind(&CList::createItem, this, _1), Point(0, 0), itemOffset, size, listAmount);
+	listBox = std::make_shared<CListBox>(std::bind(&CList::createItem, this, _1), firstItemPosition, itemPositionDelta, size, listAmount);
 }
 
 void CList::setScrollUpButton(std::shared_ptr<CButton> button)
 {
+	addChild(button.get());
+
 	scrollUp = button;
 	scrollUp->addCallback(std::bind(&CListBox::moveToPrev, listBox));
 	scrollUp->addCallback(std::bind(&CList::update, this));
@@ -105,6 +115,8 @@ void CList::setScrollUpButton(std::shared_ptr<CButton> button)
 
 void CList::setScrollDownButton(std::shared_ptr<CButton> button)
 {
+	addChild(button.get());
+
 	scrollDown = button;
 	scrollDown->addCallback(std::bind(&CList::update, this));
 	scrollDown->addCallback(std::bind(&CListBox::moveToNext, listBox));
@@ -242,10 +254,10 @@ std::shared_ptr<CIntObject> CHeroList::createItem(size_t index)
 	return std::make_shared<CEmptyHeroItem>();
 }
 
-CHeroList::CHeroList(int size, Point position, Point itemOffset, size_t listAmount)
-	: CList(size, position)
+CHeroList::CHeroList(int visibleItemsCount, Rect widgetPosition, Point firstItemOffset, Point itemOffsetDelta, size_t initialItemsCount)
+	: CList(visibleItemsCount, widgetPosition)
 {
-	createList(itemOffset, listAmount);
+	createList(firstItemOffset, itemOffsetDelta, initialItemsCount);
 }
 
 void CHeroList::select(const CGHeroInstance * hero)
@@ -325,10 +337,10 @@ std::string CTownList::CTownItem::getHoverText()
 	return town->getObjectName();
 }
 
-CTownList::CTownList(int size, Point position, Point itemOffset, size_t listAmount)
-	: CList(size, position)
+CTownList::CTownList(int visibleItemsCount, Rect widgetPosition, Point firstItemOffset, Point itemOffsetDelta, size_t initialItemsCount)
+	: CList(visibleItemsCount, widgetPosition)
 {
-	createList(itemOffset, listAmount);
+	createList(firstItemOffset, itemOffsetDelta, initialItemsCount);
 }
 
 void CTownList::select(const CGTownInstance * town)

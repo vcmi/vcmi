@@ -72,7 +72,6 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	
 	console = widget<BattleConsole>("console");
 
-	GH.statusbar = console;
 	owner.console = console;
 
 	owner.fieldController.reset( new BattleFieldController(owner));
