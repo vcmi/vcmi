@@ -50,8 +50,6 @@ public:
 	rmg::Area & freePaths();
 	rmg::Area & areaUsed();
 
-	std::vector<int3> getPossibleQuestArtifactPos() const;
-	
 	void initFreeTiles();
 	void clearTiles();
 	void fractalize();
