@@ -299,7 +299,7 @@ SDL_Window * WindowHandler::createWindow()
 			return createWindowImpl(Point(), SDL_WINDOW_FULLSCREEN_DESKTOP, false);
 
 		case EWindowMode::WINDOWED:
-			return createWindowImpl(dimensions, 0, true);
+			return createWindowImpl(dimensions, SDL_WINDOW_RESIZABLE, true);
 
 		default:
 			return nullptr;
@@ -309,7 +309,6 @@ SDL_Window * WindowHandler::createWindow()
 #ifdef VCMI_IOS
 	SDL_SetHint(SDL_HINT_IOS_HIDE_HOME_INDICATOR, "1");
 	SDL_SetHint(SDL_HINT_RETURN_KEY_HIDES_IME, "1");
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 
 	uint32_t windowFlags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI;
 	SDL_Window * result = createWindowImpl(Point(), windowFlags | SDL_WINDOW_METAL, false);
