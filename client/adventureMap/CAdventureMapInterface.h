@@ -52,8 +52,11 @@ private:
 	/// currently acting player
 	PlayerColor currentPlayerID;
 
-	/// uses EDirections enum
-	bool scrollingCursorSet;
+	/// if true, cursor was changed to scrolling and must be reset back once scroll is over
+	bool scrollingWasActive;
+
+	/// if true, then scrolling was blocked via ctrl and should not restart until player move cursor outside scrolling area
+	bool scrollingWasBlocked;
 
 	const CSpell *spellBeingCasted; //nullptr if none
 

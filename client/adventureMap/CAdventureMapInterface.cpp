@@ -43,7 +43,8 @@ std::shared_ptr<CAdventureMapInterface> adventureInt;
 CAdventureMapInterface::CAdventureMapInterface():
 	mapAudio(new MapAudioPlayer()),
 	spellBeingCasted(nullptr),
-	scrollingCursorSet(false)
+	scrollingWasActive(false),
+	scrollingWasBlocked(false)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos.x = pos.y = 0;
@@ -150,8 +151,6 @@ void CAdventureMapInterface::handleMapScrollingUpdate()
 	uint32_t scrollSpeedPixels = settings["adventure"]["scrollSpeedPixels"].Float();
 	uint32_t scrollDistance = scrollSpeedPixels * timePassed / 1000;
 
-	bool scrollingActive = !GH.isKeyboardCtrlDown() && active && shortcuts->optionInMapView();
-
 	Point cursorPosition = GH.getCursorPosition();
 	Point scrollDirection;
 
@@ -169,10 +168,26 @@ void CAdventureMapInterface::handleMapScrollingUpdate()
 
 	Point scrollDelta = scrollDirection * scrollDistance;
 
-	if (scrollingActive && scrollDelta != Point(0,0))
+	bool cursorInScrollArea = scrollDelta != Point(0,0);
+	bool scrollingActive = cursorInScrollArea && active && shortcuts->optionSidePanelActive() && !scrollingWasBlocked;
+	bool scrollingBlocked = GH.isKeyboardCtrlDown();
+
+	if (!scrollingWasActive && scrollingBlocked)
+	{
+		scrollingWasBlocked = true;
+		return;
+	}
+
+	if (!cursorInScrollArea && scrollingWasBlocked)
+	{
+		scrollingWasBlocked = false;
+		return;
+	}
+
+	if (scrollingActive)
 		widget->getMapView()->onMapScrolled(scrollDelta);
 
-	if (scrollDelta == Point(0,0) && !scrollingCursorSet)
+	if (!scrollingActive && !scrollingWasActive)
 		return;
 
 	if(scrollDelta.x > 0)
@@ -204,7 +219,7 @@ void CAdventureMapInterface::handleMapScrollingUpdate()
 			CCS->curh->set(Cursor::Map::POINTER);
 	}
 
-	scrollingCursorSet = scrollDelta != Point(0,0);
+	scrollingWasActive = scrollingActive;
 }
 
 void CAdventureMapInterface::centerOnTile(int3 on)
