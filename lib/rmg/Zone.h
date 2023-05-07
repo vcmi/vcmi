@@ -31,7 +31,9 @@ class Modificator;
 
 extern std::function<bool(const int3 &)> AREA_NO_FILTER;
 
-class Zone : public rmg::ZoneOptions, public IJobProvider
+typedef std::list<std::shared_ptr<Modificator>> TModificators;
+
+class Zone : public rmg::ZoneOptions
 {
 public:
 	Zone(RmgMap & map, CMapGenerator & generator);
@@ -64,8 +66,8 @@ public:
 	rmg::Path searchPath(const rmg::Area & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter = AREA_NO_FILTER) const;
 	rmg::Path searchPath(const int3 & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter = AREA_NO_FILTER) const;
 
-	TRMGJob getNextJob() override;
-	bool hasJobs() override;
+	//std::vector<std:> & getAllJobs() const;
+	TModificators getModificators();
 
 	template<class T>
 	T* getModificator()
@@ -85,12 +87,12 @@ public:
 	}
 	
 	void initModificators();
-	void processModificators();
 	
 protected:
 	CMapGenerator & generator;
 	RmgMap & map;
-	std::list<std::unique_ptr<Modificator>> modificators;
+	TModificators modificators;
+	bool finished;
 	
 	//placement info
 	int3 pos;

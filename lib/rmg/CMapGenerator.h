@@ -31,7 +31,7 @@ class CZonePlacer;
 using JsonVector = std::vector<JsonNode>;
 
 /// The map generator creates a map randomly.
-class DLL_LINKAGE CMapGenerator: public Load::Progress, public IJobProvider
+class DLL_LINKAGE CMapGenerator: public Load::Progress
 {
 public:
 	struct Config
@@ -98,10 +98,6 @@ private:
 	void addHeaderInfo();
 	void genZones();
 	void fillZones();
-
-	TRMGJob getNextJob() override;
-	bool hasJobs() override;
-
 };
 
 VCMI_LIB_NAMESPACE_END

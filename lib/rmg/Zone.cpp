@@ -24,7 +24,8 @@ std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
 };
 
 Zone::Zone(RmgMap & map, CMapGenerator & generator)
-	: townType(ETownType::NEUTRAL)
+	: finished(false)
+	, townType(ETownType::NEUTRAL)
 	, terrainType(ETerrainId::GRASS)
 	, map(map)
 	, generator(generator)
@@ -152,12 +153,12 @@ rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, const std::
 			return 2;
 		return 3;
 	};
-	
+
 	auto area = (dAreaPossible + dAreaFree).getSubarea(areafilter);
 	rmg::Path freePath(area);
 	rmg::Path resultPath(area);
 	freePath.connect(dAreaFree);
-	
+
 	//connect to all pieces
 	auto goals = connectedAreas(src, onlyStraight);
 	for(auto & goal : goals)
@@ -165,42 +166,23 @@ rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, const std::
 		auto path = freePath.search(goal, onlyStraight, movementCost);
 		if(path.getPathArea().empty())
 			return rmg::Path::invalid();
-		
+
 		freePath.connect(path.getPathArea());
 		resultPath.connect(path.getPathArea());
 	}
-	
+
 	return resultPath;
 }
 
 rmg::Path Zone::searchPath(const int3 & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter) const
 ///connect current tile to any other free tile within zone
 {
-	return searchPath(rmg::Area({src}), onlyStraight, areafilter);
+	return searchPath(rmg::Area({ src }), onlyStraight, areafilter);
 }
 
-TRMGJob Zone::getNextJob()
+TModificators Zone::getModificators()
 {
-	for (auto& modificator : modificators)
-	{
-		if (modificator->hasJobs())
-		{
-			return modificator->getNextJob();
-		}
-	}
-	return TRMGJob();
-}
-
-bool Zone::hasJobs()
-{
-	for (auto& modificator : modificators)
-	{
-		if (modificator->hasJobs())
-		{
-			return true;
-		}
-	}
-	return false;
+	return modificators;
 }
 
 void Zone::connectPath(const rmg::Path & path)
@@ -301,23 +283,6 @@ void Zone::initModificators()
 		modificator->init();
 	}
 	logGlobal->info("Zone %d modificators initialized", getId());
-}
-
-void Zone::processModificators()
-{
-	for(auto & modificator : modificators)
-	{
-		try
-		{
-			modificator->run();
-		}
-		catch (const rmgException & e)
-		{
-			logGlobal->info("Zone %d, modificator %s - FAILED: %s", getId(), e.what());
-			throw e;
-		}
-	}
-	logGlobal->info("Zone %d filled successfully", getId());
 }
 
 VCMI_LIB_NAMESPACE_END

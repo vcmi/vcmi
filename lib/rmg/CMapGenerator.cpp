@@ -309,7 +309,7 @@ void CMapGenerator::fillZones()
 	}
 
 	//TODO: multiply by the number of modificators
-	Load::Progress::setupStepsTill(numZones, 240);
+
 	std::vector<std::shared_ptr<Zone>> treasureZones;
 
 	ThreadPool pool;
@@ -318,17 +318,38 @@ void CMapGenerator::fillZones()
 	//At most one Modificator can run for every zone
 	pool.init(std::min<int>(std::thread::hardware_concurrency(), numZones));
 
-	while (hasJobs())
+	TModificators allJobs;
+	for (auto & it : map->getZones())
 	{
-		auto job = getNextJob();
-		if (job)
+		allJobs.splice(allJobs.end(), it.second->getModificators());
+	}
+
+	Load::Progress::setupStepsTill(allJobs.size(), 240);
+
+	while (!allJobs.empty())
+	{
+		for (auto it = allJobs.begin(); it != allJobs.end();)
 		{
-			futures.push_back(pool.async([this, job]() -> void
-				{
-					job.value()();
-					Progress::Progress::step(); //Update progress bar
-				}
-			));
+			if ((*it)->isFinished())
+			{
+				it = allJobs.erase(it);
+				Progress::Progress::step();
+			}
+			else if ((*it)->isReady())
+			{
+				auto jobCopy = *it;
+				futures.emplace_back(pool.async([this, jobCopy]() -> void
+					{
+						jobCopy->run();
+						Progress::Progress::step(); //Update progress bar
+					}
+				));
+				it = allJobs.erase(it);
+			}
+			else
+			{
+				++it;
+			}
 		}
 	}
 
@@ -439,30 +460,6 @@ Zone * CMapGenerator::getZoneWater() const
 		if(z.second->getType() == ETemplateZoneType::WATER)
 			return z.second.get();
 	return nullptr;
-}
-
-bool CMapGenerator::hasJobs()
-{
-	for (auto zone : map->getZones())
-	{
-		if (zone.second->hasJobs())
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-TRMGJob CMapGenerator::getNextJob()
-{
-	for (auto zone : map->getZones())
-	{
-		if (zone.second->hasJobs())
-		{
-			return zone.second->getNextJob();
-		}
-	}
-	return TRMGJob();
 }
 
 VCMI_LIB_NAMESPACE_END
