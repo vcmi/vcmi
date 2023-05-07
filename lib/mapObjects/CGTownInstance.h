@@ -89,6 +89,10 @@ public:
 		h & spells;
 		h & events;
 		h & bonusingBuildings;
+		
+		for(auto * bonusingBuilding : bonusingBuildings)
+			bonusingBuilding->town = this;
+		
 		h & town;
 		h & townAndVis;
 		BONUS_TREE_DESERIALIZATION_FIX
@@ -150,7 +154,7 @@ public:
 	GrowthInfo getGrowthInfo(int level) const;
 	bool hasFort() const;
 	bool hasCapitol() const;
-	const CGTownBuilding * getBonusingBuilding(BuildingSubID::EBuildingSubID subId) const;
+	std::vector<const CGTownBuilding *> getBonusingBuildings(BuildingSubID::EBuildingSubID subId) const;
 	bool hasBuiltSomeTradeBuilding() const;
 	//checks if special building with type buildingID is constructed
 	bool hasBuilt(BuildingSubID::EBuildingSubID buildingID) const;
@@ -206,6 +210,7 @@ public:
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
 private:
 	void setOwner(const PlayerColor & owner) const;
@@ -214,7 +219,7 @@ private:
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
 	bool isBonusingBuildingAdded(BuildingID::EBuildingID bid) const;
 	void initOverriddenBids();
-	void addTownBonuses();
+	void addTownBonuses(CRandomGenerator & rand);
 };
 
 VCMI_LIB_NAMESPACE_END

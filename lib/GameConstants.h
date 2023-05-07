@@ -581,7 +581,8 @@ namespace BuildingSubID
 		EXPERIENCE_VISITING_BONUS,
 		LIGHTHOUSE,
 		TREASURY,
-		CUSTOM_VISITING_BONUS
+		CUSTOM_VISITING_BONUS,
+		CUSTOM_VISITING_REWARD
 	};
 }
 
@@ -604,16 +605,43 @@ namespace MappedKeys
 		{ "special2", BuildingID::SPECIAL_2 },
 		{ "special3", BuildingID::SPECIAL_3 },
 		{ "special4", BuildingID::SPECIAL_4 },
-		{ "grail", BuildingID::GRAIL }
-	};
-
-	static const std::map<BuildingID, std::string> BUILDING_TYPES_TO_NAMES =
-	{
-		{ BuildingID::SPECIAL_1, "special1", },
-		{ BuildingID::SPECIAL_2, "special2" },
-		{ BuildingID::SPECIAL_3, "special3" },
-		{ BuildingID::SPECIAL_4, "special4" },
-		{ BuildingID::GRAIL, "grail"}
+		{ "grail", BuildingID::GRAIL },
+		{ "mageGuild1", BuildingID::MAGES_GUILD_1 },
+		{ "mageGuild2", BuildingID::MAGES_GUILD_2 },
+		{ "mageGuild3", BuildingID::MAGES_GUILD_3 },
+		{ "mageGuild4", BuildingID::MAGES_GUILD_4 },
+		{ "mageGuild5", BuildingID::MAGES_GUILD_5 },
+		{ "tavern", BuildingID::TAVERN },
+		{ "shipyard", BuildingID::SHIPYARD },
+		{ "fort", BuildingID::FORT },
+		{ "citadel", BuildingID::CITADEL },
+		{ "castle", BuildingID::CASTLE },
+		{ "villageHall", BuildingID::VILLAGE_HALL },
+		{ "townHall", BuildingID::TOWN_HALL },
+		{ "cityHall", BuildingID::CITY_HALL },
+		{ "capitol", BuildingID::CAPITOL },
+		{ "marketplace", BuildingID::MARKETPLACE },
+		{ "resourceSilo", BuildingID::RESOURCE_SILO },
+		{ "blacksmith", BuildingID::BLACKSMITH },
+		{ "horde1", BuildingID::HORDE_1 },
+		{ "horde1Upgr", BuildingID::HORDE_1_UPGR },
+		{ "horde2", BuildingID::HORDE_2 },
+		{ "horde2Upgr", BuildingID::HORDE_2_UPGR },
+		{ "ship", BuildingID::SHIP },
+		{ "dwellingLvl1", BuildingID::DWELL_LVL_1 },
+		{ "dwellingLvl2", BuildingID::DWELL_LVL_2 },
+		{ "dwellingLvl3", BuildingID::DWELL_LVL_3 },
+		{ "dwellingLvl4", BuildingID::DWELL_LVL_4 },
+		{ "dwellingLvl5", BuildingID::DWELL_LVL_5 },
+		{ "dwellingLvl6", BuildingID::DWELL_LVL_6 },
+		{ "dwellingLvl7", BuildingID::DWELL_LVL_7 },
+		{ "dwellingUpLvl1", BuildingID::DWELL_LVL_1_UP },
+		{ "dwellingUpLvl2", BuildingID::DWELL_LVL_2_UP },
+		{ "dwellingUpLvl3", BuildingID::DWELL_LVL_3_UP },
+		{ "dwellingUpLvl4", BuildingID::DWELL_LVL_4_UP },
+		{ "dwellingUpLvl5", BuildingID::DWELL_LVL_5_UP },
+		{ "dwellingUpLvl6", BuildingID::DWELL_LVL_6_UP },
+		{ "dwellingUpLvl7", BuildingID::DWELL_LVL_7_UP },
 	};
 
 	static const std::map<std::string, BuildingSubID::EBuildingSubID> SPECIAL_BUILDINGS =
