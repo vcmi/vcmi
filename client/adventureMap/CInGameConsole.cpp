@@ -19,6 +19,8 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../render/Colors.h"
+#include "../adventureMap/CAdventureMapInterface.h"
+#include "../windows/CMessage.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
@@ -83,24 +85,17 @@ void CInGameConsole::print(const std::string & txt)
 	// boost::unique_lock scope
 	{
 		boost::unique_lock<boost::mutex> lock(texts_mx);
-		int lineLen = 60; //FIXME: CONFIGURABLE ADVMAP
 
-		if(txt.size() < lineLen)
-		{
-			texts.push_back({txt, 0});
-		}
-		else
-		{
-			assert(lineLen);
-			for(int g = 0; g < txt.size() / lineLen + 1; ++g)
-			{
-				std::string part = txt.substr(g * lineLen, lineLen);
-				if(part.empty())
-					break;
+		// Maximum width for a text line is limited by:
+		// 1) width of adventure map terrain area, for when in-game console is on top of advmap
+		// 2) width of castle/battle window (fixed to 800) when this window is open
+		// 3) arbitrary selected left and right margins
+		int maxWidth = std::min( 800, adventureInt->terrainAreaPixels().w) - 100;
 
-				texts.push_back({part, 0});
-			}
-		}
+		auto splitText = CMessage::breakText(txt, maxWidth, FONT_MEDIUM);
+
+		for (auto const & entry : splitText)
+			texts.push_back({entry, 0});
 
 		while(texts.size() > maxDisplayedTexts)
 			texts.erase(texts.begin());
