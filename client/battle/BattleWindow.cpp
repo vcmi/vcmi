@@ -186,6 +186,11 @@ void BattleWindow::deactivate()
 	LOCPLINT->cingconsole->deactivate();
 }
 
+bool BattleWindow::captureThisKey(EShortcut key)
+{
+	return owner.openingPlaying();
+}
+
 void BattleWindow::keyPressed(EShortcut key)
 {
 	if (owner.openingPlaying())
