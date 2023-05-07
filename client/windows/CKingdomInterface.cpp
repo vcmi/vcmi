@@ -484,7 +484,7 @@ CKingdomInterface::CKingdomInterface()
 	generateButtons();
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>("KSTATBAR", 10,pos.h - 45));
-	resdatabar = std::make_shared<CResDataBar>("KRESBAR", 3, 111+footerPos, 32, 2, 76, 76);
+	resdatabar = std::make_shared<CResDataBar>("KRESBAR", 7, 111+footerPos, 29, 5, 76, 81);
 }
 
 void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInstance * > &ownedObjects)
