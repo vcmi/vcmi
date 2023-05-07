@@ -269,7 +269,11 @@ void WindowHandler::initializeScreen()
 		throw std::runtime_error("Unable to copy surface\n");
 	}
 
-	screenBuf = screen;
+	if (GH.listInt.size() > 1)
+		screenBuf = screen2;
+	else
+		screenBuf = screen;
+
 	clearScreen();
 }
 
