@@ -90,11 +90,13 @@ void WaterProxy::init()
 
 const std::vector<WaterProxy::Lake> & WaterProxy::getLakes() const
 {
+	Lock lock(externalAccessMutex);
 	return lakes;
 }
 
 void WaterProxy::collectLakes()
 {
+	Lock lock(externalAccessMutex);
 	int lakeId = 0;
 	for(const auto & lake : connectedAreas(zone.getArea(), true))
 	{

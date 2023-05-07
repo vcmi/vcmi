@@ -45,6 +45,7 @@ void TreasurePlacer::init()
 
 void TreasurePlacer::addObjectToRandomPool(const ObjectInfo& oi)
 {
+	Lock lock(externalAccessMutex);
 	possibleObjects.push_back(oi);
 }
 
@@ -525,16 +526,19 @@ void TreasurePlacer::addAllPossibleObjects()
 
 size_t TreasurePlacer::getPossibleObjectsSize() const
 {
+	Lock lock(externalAccessMutex);
 	return possibleObjects.size();
 }
 
 void TreasurePlacer::setMaxPrisons(size_t count)
 {
+	Lock lock(externalAccessMutex);
 	maxPrisons = count;
 }
 
 size_t TreasurePlacer::getMaxPrisons() const
 {
+	Lock lock(externalAccessMutex);
 	return maxPrisons;
 }
 

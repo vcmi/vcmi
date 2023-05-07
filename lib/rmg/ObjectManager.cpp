@@ -43,6 +43,7 @@ void ObjectManager::init()
 
 void ObjectManager::createDistancesPriorityQueue()
 {
+	Lock lock(externalAccessMutex);
 	tilesByDistance.clear();
 	for(const auto & tile : zone.areaPossible().getTilesVector())
 	{
@@ -52,21 +53,25 @@ void ObjectManager::createDistancesPriorityQueue()
 
 void ObjectManager::addRequiredObject(CGObjectInstance * obj, si32 strength)
 {
+	Lock lock(externalAccessMutex);
 	requiredObjects.emplace_back(obj, strength);
 }
 
 void ObjectManager::addCloseObject(CGObjectInstance * obj, si32 strength)
 {
+	Lock lock(externalAccessMutex);
 	closeObjects.emplace_back(obj, strength);
 }
 
 void ObjectManager::addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget)
 {
+	Lock lock(externalAccessMutex);
 	nearbyObjects.emplace_back(obj, nearbyTarget);
 }
 
 void ObjectManager::updateDistances(const rmg::Object & obj)
 {
+	Lock lock(externalAccessMutex);
 	tilesByDistance.clear();
 	for (auto tile : zone.areaPossible().getTiles()) //don't need to mark distance for not possible tiles
 	{
@@ -78,11 +83,13 @@ void ObjectManager::updateDistances(const rmg::Object & obj)
 
 const rmg::Area & ObjectManager::getVisitableArea() const
 {
+	Lock lock(externalAccessMutex);
 	return objectsVisitableArea;
 }
 
 std::vector<CGObjectInstance*> ObjectManager::getMines() const
 {
+	Lock lock(externalAccessMutex);
 	std::vector<CGObjectInstance*> mines;
 
 	for(auto * object : objects)

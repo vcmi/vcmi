@@ -62,17 +62,17 @@ protected:
 
 	bool finished = false;
 	
-	//bool wasStarted() const;
+	mutable boost::shared_mutex externalAccessMutex; //Used to communicate between Modificators
+	using Lock = boost::unique_lock<boost::shared_mutex>;
+
 private:
 	virtual void process() = 0;
 
 	std::string name;
-	//bool started = false;
 
 	std::list<Modificator*> preceeders; //must be ordered container
 
-	mutable boost::shared_mutex mx;
-	using Lock = boost::unique_lock<boost::shared_mutex>;
+	mutable boost::shared_mutex mx; //Used only for task scheduling
 
 	void dump();
 };

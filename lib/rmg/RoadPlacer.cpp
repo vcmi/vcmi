@@ -76,6 +76,7 @@ void RoadPlacer::drawRoads(bool secondary)
 	   || (!secondary && generator.getConfig().defaultRoadType.empty()))
 		return;
 	
+	Lock lock(externalAccessMutex);
 	zone.areaPossible().subtract(roads);
 	zone.freePaths().unite(roads);
 	map.getEditManager()->getTerrainSelection().setSelection(roads.getTilesVector());
@@ -87,6 +88,7 @@ void RoadPlacer::drawRoads(bool secondary)
 
 void RoadPlacer::addRoadNode(const int3& node)
 {
+	Lock lock(externalAccessMutex);
 	roadNodes.insert(node);
 }
 
@@ -111,6 +113,7 @@ void RoadPlacer::connectRoads()
 		return;
 	
 	//take any tile from road nodes as destination zone for all other road nodes
+	Lock lock(externalAccessMutex);
 	if(roads.empty())
 		roads.add(*roadNodes.begin());
 
