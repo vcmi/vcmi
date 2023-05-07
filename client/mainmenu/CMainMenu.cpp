@@ -299,6 +299,26 @@ CMainMenu::~CMainMenu()
 		GH.curInt = nullptr;
 }
 
+void CMainMenu::activate()
+{
+	// check if screen was resized while main menu was inactive - e.g. in gameplay mode
+	if (pos.dimensions() != GH.screenDimensions())
+		onScreenResize();
+
+	CIntObject::activate();
+}
+
+void CMainMenu::onScreenResize()
+{
+	pos.w = GH.screenDimensions().x;
+	pos.h = GH.screenDimensions().y;
+
+	menu = nullptr;
+	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
+
+	backgroundAroundMenu->pos = pos;
+}
+
 void CMainMenu::update()
 {
 	if(CMM != this->shared_from_this()) //don't update if you are not a main interface

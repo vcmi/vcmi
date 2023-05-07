@@ -803,6 +803,7 @@ void CAdventureMapInterface::onScreenResize()
 	widget->setPlayer(currentPlayerID);
 	widget->updateActiveState();
 	widget->getMinimap()->update();
+	widget->getInfoBar()->showSelection();
 
 	adjustActiveness();
 }
