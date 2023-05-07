@@ -25,6 +25,10 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/VCMIDirs.h"
 
+#ifndef VCMI_MOBILE
+#include <SDL2/SDL.h>
+#endif
+
 namespace
 {
 QString resolutionToString(const QSize & resolution)
@@ -67,9 +71,9 @@ void CSettingsView::loadSettings()
 {
 	ui->comboBoxShowIntro->setCurrentIndex(settings["video"]["showIntro"].Bool());
 
-#ifdef Q_OS_IOS
-	ui->comboBoxFullScreen->setCurrentIndex(1);
-	ui->comboBoxFullScreen->setDisabled(true);
+#ifdef VCMI_MOBILE
+	ui->comboBoxFullScreen->hide();
+	ui->labelFullScreen->hide();
 #else
 	if (settings["video"]["realFullscreen"].Bool())
 		ui->comboBoxFullScreen->setCurrentIndex(2);
@@ -106,10 +110,43 @@ void CSettingsView::loadSettings()
 	ui->comboBoxCursorType->setCurrentIndex((int)cursorTypeIndex);
 }
 
-void CSettingsView::fillValidResolutions(bool isExtraResolutionsModEnabled)
+void CSettingsView::fillValidResolutions()
 {
-	this->isExtraResolutionsModEnabled = isExtraResolutionsModEnabled;
 	fillValidResolutionsForScreen(ui->comboBoxDisplayIndex->isVisible() ? ui->comboBoxDisplayIndex->currentIndex() : 0);
+}
+
+#ifndef VCMI_MOBILE
+
+static QVector<QSize> findAvailableResolutions(int displayIndex)
+{
+	// Ugly workaround since we don't actually need SDL in Launcher
+	// However Qt at the moment provides no way to query list of available resolutions
+	QVector<QSize> result;
+	SDL_Init(SDL_INIT_VIDEO);
+
+	int modesCount = SDL_GetNumDisplayModes(displayIndex);
+
+	for (int i =0; i < modesCount; ++i)
+	{
+		SDL_DisplayMode mode;
+		if (SDL_GetDisplayMode(displayIndex, i, &mode) != 0)
+			continue;
+
+		QSize resolution(mode.w, mode.h);
+
+		result.push_back(resolution);
+	}
+
+	boost::range::sort(result, [](const auto & left, const auto & right)
+	{
+		return left.height() * left.width() < right.height() * right.width();
+	});
+
+	result.erase(boost::unique(result).end(), result.end());
+
+	SDL_Quit();
+
+	return result;
 }
 
 void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
@@ -117,43 +154,10 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 	ui->comboBoxResolution->blockSignals(true); // avoid saving wrong resolution after adding first item from the list
 	ui->comboBoxResolution->clear();
 
-	// TODO: read available resolutions from all mods
-	QVariantList resolutions;
-	if(isExtraResolutionsModEnabled)
-	{
-		const auto extrasResolutionsPath = settings["launcher"]["extraResolutionsModPath"].String().c_str();
-		const auto extrasResolutionsJson = JsonUtils::JsonFromFile(CLauncherDirs::get().modsPath() + extrasResolutionsPath);
-		resolutions = extrasResolutionsJson.toMap().value(QLatin1String{"GUISettings"}).toList();
-	}
-	if(resolutions.isEmpty())
-	{
-		ui->comboBoxResolution->blockSignals(false);
-		ui->comboBoxResolution->addItem(resolutionToString({800, 600}));
-		return;
-	}
-
-	const auto screens = qGuiApp->screens();
-	const auto currentScreen = screenIndex < screens.size() ? screens[screenIndex] : qGuiApp->primaryScreen();
-	[[maybe_unused]] const auto screenSize = currentScreen->size();
+	QVector<QSize> resolutions = findAvailableResolutions(screenIndex);
 
 	for(const auto & entry : resolutions)
-	{
-		const auto resolutionMap = entry.toMap().value(QLatin1String{"resolution"}).toMap();
-		if(resolutionMap.isEmpty())
-			continue;
-
-		const auto widthValue = resolutionMap[QLatin1String{"x"}];
-		const auto heightValue = resolutionMap[QLatin1String{"y"}];
-		if(!widthValue.isValid() || !heightValue.isValid())
-			continue;
-
-		const QSize resolution{widthValue.toInt(), heightValue.toInt()};
-#ifndef VCMI_IOS
-		if(screenSize.width() < resolution.width() || screenSize.height() < resolution.height())
-			continue;
-#endif
-		ui->comboBoxResolution->addItem(resolutionToString(resolution));
-	}
+		ui->comboBoxResolution->addItem(resolutionToString(entry));
 
 	int resX = settings["video"]["resolution"]["width"].Integer();
 	int resY = settings["video"]["resolution"]["height"].Integer();
@@ -162,10 +166,18 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 
 	ui->comboBoxResolution->blockSignals(false);
 
-	// if selected resolution no longer exists, force update value to the first resolution
+	// if selected resolution no longer exists, force update value to the largest (last) resolution
 	if(resIndex == -1)
-		ui->comboBoxResolution->setCurrentIndex(0);
+		ui->comboBoxResolution->setCurrentIndex(ui->comboBoxResolution->count() - 1);
 }
+#else
+void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
+{
+	// resolutions are not selectable on mobile platforms
+	ui->comboBoxResolution->hide();
+	ui->labelResolution->hide();
+}
+#endif
 
 CSettingsView::CSettingsView(QWidget * parent)
 	: QWidget(parent), ui(new Ui::CSettingsView)
