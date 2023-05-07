@@ -64,6 +64,8 @@ std::vector<EShortcut> ShortcutHandler::translateKeycode(SDL_Keycode key) const
 		{SDLK_RETURN,    EShortcut::LOBBY_LOAD_GAME           },
 		{SDLK_KP_ENTER,  EShortcut::LOBBY_LOAD_GAME           },
 		{SDLK_s,         EShortcut::LOBBY_SAVE_GAME           },
+		{SDLK_RETURN,    EShortcut::LOBBY_SAVE_GAME           },
+		{SDLK_KP_ENTER,  EShortcut::LOBBY_SAVE_GAME           },
 		{SDLK_r,         EShortcut::LOBBY_RANDOM_MAP          },
 		{SDLK_h,         EShortcut::LOBBY_HIDE_CHAT           },
 		{SDLK_a,         EShortcut::LOBBY_ADDITIONAL_OPTIONS  },
