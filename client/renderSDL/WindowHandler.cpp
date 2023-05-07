@@ -471,5 +471,13 @@ std::vector<Point> WindowHandler::getSupportedResolutions( int displayIndex) con
 
 		result.push_back(resolution);
 	}
+
+	boost::range::sort(result, [](const auto & left, const auto & right)
+	{
+		return left.x * left.y < right.x * right.y;
+	});
+
+	result.erase(boost::unique(result).end(), result.end());
+
 	return result;
 }

@@ -185,11 +185,6 @@ void GeneralOptionsTab::selectGameResolution()
 {
 	supportedResolutions = GH.windowHandler().getSupportedResolutions();
 
-	boost::range::sort(supportedResolutions, [](const auto & left, const auto & right)
-	{
-		return left.x * left.y < right.x * right.y;
-	});
-
 	std::vector<std::string> items;
 	size_t currentResolutionIndex = 0;
 	size_t i = 0;
