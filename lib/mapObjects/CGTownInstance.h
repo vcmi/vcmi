@@ -89,6 +89,10 @@ public:
 		h & spells;
 		h & events;
 		h & bonusingBuildings;
+		
+		for(auto * bonusingBuilding : bonusingBuildings)
+			bonusingBuilding->town = this;
+		
 		h & town;
 		h & townAndVis;
 		BONUS_TREE_DESERIALIZATION_FIX
