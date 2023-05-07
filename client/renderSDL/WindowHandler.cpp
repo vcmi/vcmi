@@ -114,6 +114,14 @@ EWindowMode WindowHandler::getPreferredWindowMode() const
 
 WindowHandler::WindowHandler()
 {
+#ifdef VCMI_WINDOWS
+	// set VCMI as "per-monitor DPI awareness". This completely disables any DPI-scaling by system.
+	// Might not be the best solution since VCMI can't automatically adjust to DPI changes (including moving to monitors with different DPI scaling)
+	// However this fixed unintuitive bug where player selects specific resolution for windowed mode, but ends up with completely different one due to scaling
+	// NOTE: requires SDL 2.24.
+	SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitor");
+#endif
+
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE))
 	{
 		logGlobal->error("Something was wrong: %s", SDL_GetError());
