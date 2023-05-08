@@ -26,6 +26,7 @@
 #include "../CGameInfo.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../CMT.h"
 #include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
@@ -57,6 +58,8 @@ AdventureMapInterface::AdventureMapInterface():
 	widget = std::make_shared<AdventureMapWidget>(shortcuts);
 	shortcuts->setState(EAdventureState::MAKING_TURN);
 	widget->getMapView()->onViewMapActivated();
+
+	addUsedEvents(KEYBOARD);
 }
 
 void AdventureMapInterface::onMapViewMoved(const Rect & visibleArea, int mapLevel)
@@ -234,6 +237,9 @@ void AdventureMapInterface::centerOnObject(const CGObjectInstance * obj)
 
 void AdventureMapInterface::keyPressed(EShortcut key)
 {
+	if (key == EShortcut::GLOBAL_CANCEL && spellBeingCasted)
+		hotkeyAbortCastingMode();
+
 	//fake mouse use to trigger onTileHovered()
 	GH.fakeMouseMove();
 }

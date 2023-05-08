@@ -58,7 +58,6 @@ class AdventureMapShortcuts
 	void restartGame();
 	void visitObject();
 	void openObject();
-	void abortSpellcasting();
 	void showMarketplace();
 	void nextTown();
 	void nextObject();

@@ -47,9 +47,6 @@ void AdventureMapShortcuts::setState(EAdventureState newState)
 
 void AdventureMapShortcuts::onMapViewMoved(const Rect & visibleArea, int newMapLevel)
 {
-	if(mapLevel == newMapLevel)
-		return;
-
 	mapLevel = newMapLevel;
 }
 
@@ -82,7 +79,6 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::GAME_RESTART_GAME,          optionInMapView(),      [this]() { this->restartGame(); } },
 		{ EShortcut::ADVENTURE_VISIT_OBJECT,     optionHeroSelected(),   [this]() { this->visitObject(); } },
 		{ EShortcut::ADVENTURE_VIEW_SELECTED,    optionInMapView(),      [this]() { this->openObject(); } },
-		{ EShortcut::GLOBAL_CANCEL,              optionSpellcasting(),   [this]() { this->abortSpellcasting(); } },
 		{ EShortcut::GAME_OPEN_MARKETPLACE,      optionInMapView(),      [this]() { this->showMarketplace(); } },
 		{ EShortcut::ADVENTURE_NEXT_TOWN,        optionInMapView(),      [this]() { this->nextTown(); } },
 		{ EShortcut::ADVENTURE_NEXT_OBJECT,      optionInMapView(),      [this]() { this->nextObject(); } },
@@ -130,7 +126,6 @@ void AdventureMapShortcuts::worldViewScale4x()
 
 void AdventureMapShortcuts::switchMapLevel()
 {
-	// with support for future multi-level maps :)
 	int maxLevels = LOCPLINT->cb->getMapSize().z;
 	if (maxLevels < 2)
 		return;
@@ -145,20 +140,13 @@ void AdventureMapShortcuts::showQuestlog()
 
 void AdventureMapShortcuts::toggleSleepWake()
 {
-	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
-	if (!h)
+	if (!optionHeroSelected())
 		return;
-	bool newSleep = !LOCPLINT->localState->isHeroSleeping(h);
 
-	if (newSleep)
-		LOCPLINT->localState->setHeroAsleep(h);
+	if (optionHeroAwake())
+		setHeroSleeping();
 	else
-		LOCPLINT->localState->setHeroAwaken(h);
-
-	owner.onHeroChanged(h);
-
-	if (newSleep)
-		nextHero();
+		setHeroAwake();
 }
 
 void AdventureMapShortcuts::setHeroSleeping()
@@ -193,7 +181,7 @@ void AdventureMapShortcuts::moveHeroAlongPath()
 
 void AdventureMapShortcuts::showSpellbook()
 {
-	if (!LOCPLINT->localState->getCurrentHero()) //checking necessary values
+	if (!LOCPLINT->localState->getCurrentHero())
 		return;
 
 	owner.centerOnObject(LOCPLINT->localState->getCurrentHero());
@@ -322,11 +310,6 @@ void AdventureMapShortcuts::openObject()
 
 	if(t)
 		LOCPLINT->openTownWindow(t);
-}
-
-void AdventureMapShortcuts::abortSpellcasting()
-{
-	owner.hotkeyAbortCastingMode();
 }
 
 void AdventureMapShortcuts::showMarketplace()

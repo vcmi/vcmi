@@ -168,7 +168,7 @@ void ScreenHandler::recreateWindowAndScreenBuffers()
 
 void ScreenHandler::updateWindowState()
 {
-#if !defined(VCMI_MOBILE)
+#ifdef VCMI_MOBILE
 	int displayIndex = getPreferredDisplayIndex();
 
 	switch(getPreferredWindowMode())
@@ -332,7 +332,7 @@ void ScreenHandler::onScreenResize()
 
 void ScreenHandler::validateSettings()
 {
-#if !defined(VCMI_MOBILE)
+#ifdef VCMI_MOBILE
 	{
 		int displayIndex = settings["video"]["displayIndex"].Integer();
 		int displaysCount = SDL_GetNumVideoDisplays();

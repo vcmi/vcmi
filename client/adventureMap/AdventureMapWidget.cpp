@@ -133,7 +133,6 @@ std::shared_ptr<IImage> AdventureMapWidget::loadImage(const std::string & name)
 
 	if(images.count(resource.getName()) == 0)
 		images[resource.getName()] = IImage::createFromFile(resource.getName());
-	;
 
 	return images[resource.getName()];
 }
@@ -212,6 +211,7 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildMapContainer(const JsonNode
 		addWidget(entry["name"].String(), widget);
 		result->ownedChildren.push_back(widget);
 
+		// FIXME: remove cast and replace it with better check
 		if (std::dynamic_pointer_cast<CLabel>(widget) || std::dynamic_pointer_cast<CLabelGroup>(widget))
 			result->addChild(widget.get(), true);
 		else
