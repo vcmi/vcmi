@@ -452,7 +452,7 @@
 		// Resource & Data bar
 		{
 			"type": "adventurePlayerTexture",
-			"name" : "backgroundBottomCenter",
+			"name" : "backgroundLeftOfResourceDateBar",
 			"image" : "DiBoxBck.pcx",
 			"area" : { "left": 3, "bottom" : 4, "right" : 797, "height" : 21 }
 		},
@@ -599,7 +599,7 @@
 				},
 				{
 					"type": "adventureMapIcon",
-					"name": "worldViewIconOre",
+					"name": "worldViewIconMineOre",
 					"image" : "VwSymbol.def",
 					"index" : 7,
 					"perPlayer" : 19,
@@ -641,7 +641,7 @@
 				// World view - resources icons
 				{
 					"type": "adventureMapIcon",
-					"name": "worldViewIconMineWood",
+					"name": "worldViewIconResourceWood",
 					"image" : "VwSymbol.def",
 					"index" : 12,
 					"perPlayer" : 19,
@@ -649,7 +649,7 @@
 				},
 				{
 					"type": "adventureMapIcon",
-					"name": "worldViewIconMineMercury",
+					"name": "worldViewIconResourceMercury",
 					"image" : "VwSymbol.def",
 					"index" : 13,
 					"perPlayer" : 19,
@@ -657,7 +657,7 @@
 				},
 				{
 					"type": "adventureMapIcon",
-					"name": "worldViewIconOre",
+					"name": "worldViewIconResourceOre",
 					"image" : "VwSymbol.def",
 					"index" : 14,
 					"perPlayer" : 19,
@@ -665,7 +665,7 @@
 				},
 				{
 					"type": "adventureMapIcon",
-					"name": "worldViewIconMineSulfur",
+					"name": "worldViewIconResourceSulfur",
 					"image" : "VwSymbol.def",
 					"index" : 15,
 					"perPlayer" : 19,
@@ -673,7 +673,7 @@
 				},
 				{
 					"type": "adventureMapIcon",
-					"name": "worldViewIconMineCrystal",
+					"name": "worldViewIconResourceCrystal",
 					"image" : "VwSymbol.def",
 					"index" : 16,
 					"perPlayer" : 19,
@@ -681,7 +681,7 @@
 				},
 				{
 					"type": "adventureMapIcon",
-					"name": "worldViewIconMineGems",
+					"name": "worldViewIconResourceGems",
 					"image" : "VwSymbol.def",
 					"index" : 17,
 					"perPlayer" : 19,
@@ -689,7 +689,7 @@
 				},
 				{
 					"type": "adventureMapIcon",
-					"name": "worldViewIconMineGold",
+					"name": "worldViewIconResourceGold",
 					"image" : "VwSymbol.def",
 					"index" : 18,
 					"perPlayer" : 19,

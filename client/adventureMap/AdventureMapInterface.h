@@ -58,7 +58,8 @@ private:
 	/// if true, then scrolling was blocked via ctrl and should not restart until player move cursor outside scrolling area
 	bool scrollingWasBlocked;
 
-	const CSpell *spellBeingCasted; //nullptr if none
+	/// spell for which player is selecting target, or nullptr if none
+	const CSpell *spellBeingCasted;
 
 	std::shared_ptr<MapAudioPlayer> mapAudio;
 	std::shared_ptr<AdventureMapWidget> widget;
@@ -66,10 +67,14 @@ private:
 
 private:
 	void setState(EAdventureState state);
-	void adjustActiveness(); //should be called every time at AI/human turn transition; blocks GUI during AI turn
 
-	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const; //checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or nullptr else
+	/// updates active state of game window whenever game state changes
+	void adjustActiveness();
 
+	/// checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or nullptr else
+	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const;
+
+	/// check and if necessary reacts on scrolling by moving cursor to screen edge
 	void handleMapScrollingUpdate();
 
 	void showMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode);
@@ -78,10 +83,12 @@ private:
 
 	/// exits currently opened world view mode and returns to normal map
 	void exitCastingMode();
+
+	/// casts current spell at specified location
 	void performSpellcasting(const int3 & castTarget);
 
 protected:
-	// CIntObject interface implementation
+	/// CIntObject interface implementation
 
 	void activate() override;
 	void deactivate() override;
