@@ -22,7 +22,7 @@
 #include "CPlayerInterface.h"
 #include "windows/GUIClasses.h"
 #include "CServerHandler.h"
-#include "render/IWindowHandler.h"
+#include "render/IScreenHandler.h"
 
 
 static void setIntSetting(std::string group, std::string field, int value)
@@ -183,7 +183,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 void GeneralOptionsTab::selectGameResolution()
 {
-	supportedResolutions = GH.windowHandler().getSupportedResolutions();
+	supportedResolutions = GH.screenHandler().getSupportedResolutions();
 
 	std::vector<std::string> items;
 	size_t currentResolutionIndex = 0;
@@ -232,10 +232,10 @@ void GeneralOptionsTab::selectGameScaling()
 {
 	supportedScaling.clear();
 
-	auto [minimalScaling, maximalScaling] = GH.windowHandler().getSupportedScalingRange();
-	for (int i = 0; i <= static_cast<int>(maximalScaling); i += 10)
+	auto [minimalScaling, maximalScaling] = GH.screenHandler().getSupportedScalingRange();
+	for (int i = 0; i <= maximalScaling; i += 10)
 	{
-		if (i >= static_cast<int>(minimalScaling))
+		if (i >= minimalScaling)
 			supportedScaling.push_back(i);
 	}
 

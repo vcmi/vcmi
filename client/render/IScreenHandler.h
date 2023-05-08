@@ -1,5 +1,5 @@
 /*
- * IWindowHandler.h, part of VCMI engine
+ * IScreenHandler.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -14,10 +14,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 VCMI_LIB_NAMESPACE_END
 
-class IWindowHandler
+class IScreenHandler
 {
 public:
-	virtual ~IWindowHandler() = default;
+	virtual ~IScreenHandler() = default;
 
 	/// Updates window state after fullscreen state has been changed in settings
 	virtual void onScreenResize() = 0;
@@ -31,6 +31,6 @@ public:
 	/// Returns list of resolutions supported by current screen
 	virtual std::vector<Point> getSupportedResolutions() const = 0;
 
-	/// Returns <min, max> range of possible values for screen scaling
-	virtual std::tuple<double, double> getSupportedScalingRange() const = 0;
+	/// Returns <min, max> range of possible values for screen scaling percentage
+	virtual std::tuple<int, int> getSupportedScalingRange() const = 0;
 };

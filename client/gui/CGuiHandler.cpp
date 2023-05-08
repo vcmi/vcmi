@@ -18,7 +18,7 @@
 #include "../CGameInfo.h"
 #include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
-#include "../renderSDL/WindowHandler.h"
+#include "../renderSDL/ScreenHandler.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
@@ -98,7 +98,7 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 
 void CGuiHandler::init()
 {
-	windowHandlerInstance = std::make_unique<WindowHandler>();
+	screenHandlerInstance = std::make_unique<ScreenHandler>();
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
 	mainFPSmng = new CFramerateManager(settings["video"]["targetfps"].Integer());
 
@@ -806,9 +806,9 @@ void CGuiHandler::pushUserEvent(EUserEvent usercode, void * userdata)
 	SDL_PushEvent(&event);
 }
 
-IWindowHandler & CGuiHandler::windowHandler()
+IScreenHandler & CGuiHandler::screenHandler()
 {
-	return *windowHandlerInstance;
+	return *screenHandlerInstance;
 }
 
 void CGuiHandler::onScreenResize()

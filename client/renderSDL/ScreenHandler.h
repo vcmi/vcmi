@@ -1,5 +1,5 @@
 /*
- * WindowHandler.h, part of VCMI engine
+ * ScreenHandler.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -16,7 +16,7 @@ struct SDL_Renderer;
 struct SDL_Surface;
 
 #include "../../lib/Point.h"
-#include "../render/IWindowHandler.h"
+#include "../render/IScreenHandler.h"
 
 enum class EWindowMode
 {
@@ -24,13 +24,13 @@ enum class EWindowMode
 	WINDOWED,
 	// game runs in a 'window' that always covers entire screen and uses unmodified desktop resolution
 	// The only mode that is available on mobile devices
-	FULLSCREEN_WINDOWED,
+	FULLSCREEN_BORDERLESS_WINDOWED,
 	// game runs in a fullscreen mode with resolution selected by player
-	FULLSCREEN_TRUE
+	FULLSCREEN_EXCLUSIVE
 };
 
 /// This class is responsible for management of game window and its main rendering surface
-class WindowHandler : public IWindowHandler
+class ScreenHandler : public IScreenHandler
 {
 	/// Dimensions of target surfaces/textures, this value is what game logic views as screen size
 	Point getPreferredLogicalResolution() const;
@@ -53,19 +53,26 @@ class WindowHandler : public IWindowHandler
 	/// Creates SDL window using OS-specific settings & user-specific config
 	SDL_Window * createWindow();
 
-	void initializeRenderer();
-	void initializeScreen();
-	void updateFullscreenState();
-
-	bool recreateWindow();
-	void destroyScreen();
+	/// Manages window and SDL renderer
+	void initializeWindow();
 	void destroyWindow();
 
+	/// Manages surfaces & textures used for
+	void initializeScreenBuffers();
+	void destroyScreenBuffers();
+
+	/// Updates state (e.g. position) of game window after resolution/fullscreen change
+	void updateWindowState();
+
+	/// Initializes or reiniitalizes all screen state
+	void recreateWindowAndScreenBuffers();
+
+	/// Performs validation of settings and updates them to valid values if necessary
 	void validateSettings();
 public:
 
 	/// Creates and initializes screen, window and SDL state
-	WindowHandler();
+	ScreenHandler();
 
 	/// Updates and potentially recreates target screen to match selected fullscreen status
 	void onScreenResize() final;
@@ -78,5 +85,5 @@ public:
 
 	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;
-	std::tuple<double, double> getSupportedScalingRange() const final;
+	std::tuple<int, int> getSupportedScalingRange() const final;
 };

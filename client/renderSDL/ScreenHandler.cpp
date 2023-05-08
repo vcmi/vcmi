@@ -1,5 +1,5 @@
 /*
- * WindowHandler.cpp, part of VCMI engine
+ * ScreenHandler.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,7 @@
  */
 
 #include "StdInc.h"
-#include "WindowHandler.h"
+#include "ScreenHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../gui/CGuiHandler.h"
@@ -23,6 +23,7 @@
 
 #include <SDL.h>
 
+// TODO: should be made into a private members of ScreenHandler
 SDL_Window * mainWindow = nullptr;
 SDL_Renderer * mainRenderer = nullptr;
 SDL_Texture * screenTexture = nullptr;
@@ -33,7 +34,7 @@ SDL_Surface * screenBuf = screen; //points to screen (if only advmapint is prese
 static const std::string NAME_AFFIX = "client";
 static const std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 
-std::tuple<double, double> WindowHandler::getSupportedScalingRange() const
+std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
 {
 	// H3 resolution, any resolution smaller than that is not correctly supported
 	static const Point minResolution = {800, 600};
@@ -48,22 +49,22 @@ std::tuple<double, double> WindowHandler::getSupportedScalingRange() const
 	return { minimalScaling, maximalScaling };
 }
 
-Point WindowHandler::getPreferredLogicalResolution() const
+Point ScreenHandler::getPreferredLogicalResolution() const
 {
 	Point renderResolution = getPreferredRenderingResolution();
 	auto [minimalScaling, maximalScaling] = getSupportedScalingRange();
 
-	double userScaling = settings["video"]["resolution"]["scaling"].Float();
-	double scaling = std::clamp(userScaling, minimalScaling, maximalScaling);
+	int userScaling = settings["video"]["resolution"]["scaling"].Integer();
+	int scaling = std::clamp(userScaling, minimalScaling, maximalScaling);
 
 	Point logicalResolution = renderResolution * 100.0 / scaling;
 
 	return logicalResolution;
 }
 
-Point WindowHandler::getPreferredRenderingResolution() const
+Point ScreenHandler::getPreferredRenderingResolution() const
 {
-	if (getPreferredWindowMode() == EWindowMode::FULLSCREEN_WINDOWED)
+	if (getPreferredWindowMode() == EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED)
 	{
 		SDL_Rect bounds;
 		SDL_GetDisplayBounds(getPreferredDisplayIndex(), &bounds);
@@ -79,7 +80,7 @@ Point WindowHandler::getPreferredRenderingResolution() const
 	}
 }
 
-int WindowHandler::getPreferredDisplayIndex() const
+int ScreenHandler::getPreferredDisplayIndex() const
 {
 #ifdef VCMI_MOBILE
 	// Assuming no multiple screens on Android / ios?
@@ -92,11 +93,11 @@ int WindowHandler::getPreferredDisplayIndex() const
 #endif
 }
 
-EWindowMode WindowHandler::getPreferredWindowMode() const
+EWindowMode ScreenHandler::getPreferredWindowMode() const
 {
 #ifdef VCMI_MOBILE
 	// On Android / ios game will always render to screen size
-	return EWindowMode::FULLSCREEN_WINDOWED;
+	return EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED;
 #else
 	const JsonNode & video = settings["video"];
 	bool fullscreen = video["fullscreen"].Bool();
@@ -106,13 +107,13 @@ EWindowMode WindowHandler::getPreferredWindowMode() const
 		return EWindowMode::WINDOWED;
 
 	if (realFullscreen)
-		return EWindowMode::FULLSCREEN_TRUE;
+		return EWindowMode::FULLSCREEN_EXCLUSIVE;
 	else
-		return EWindowMode::FULLSCREEN_WINDOWED;
+		return EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED;
 #endif
 }
 
-WindowHandler::WindowHandler()
+ScreenHandler::ScreenHandler()
 {
 #ifdef VCMI_WINDOWS
 	// set VCMI as "per-monitor DPI awareness". This completely disables any DPI-scaling by system.
@@ -145,36 +146,34 @@ WindowHandler::WindowHandler()
 #endif // VCMI_ANDROID
 
 	validateSettings();
-	recreateWindow();
+	recreateWindowAndScreenBuffers();
 }
 
-bool WindowHandler::recreateWindow()
+void ScreenHandler::recreateWindowAndScreenBuffers()
 {
-	destroyScreen();
+	destroyScreenBuffers();
 
 	if(mainWindow == nullptr)
-		initializeRenderer();
+		initializeWindow();
 	else
-		updateFullscreenState();
+		updateWindowState();
 
-	initializeScreen();
+	initializeScreenBuffers();
 
 	if(!settings["session"]["headless"].Bool() && settings["general"]["notifications"].Bool())
 	{
 		NotificationHandler::init(mainWindow);
 	}
-
-	return true;
 }
 
-void WindowHandler::updateFullscreenState()
+void ScreenHandler::updateWindowState()
 {
 #if !defined(VCMI_MOBILE)
 	int displayIndex = getPreferredDisplayIndex();
 
 	switch(getPreferredWindowMode())
 	{
-		case EWindowMode::FULLSCREEN_TRUE:
+		case EWindowMode::FULLSCREEN_EXCLUSIVE:
 		{
 			SDL_SetWindowFullscreen(mainWindow, SDL_WINDOW_FULLSCREEN);
 
@@ -190,7 +189,7 @@ void WindowHandler::updateFullscreenState()
 
 			return;
 		}
-		case EWindowMode::FULLSCREEN_WINDOWED:
+		case EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED:
 		{
 			SDL_SetWindowFullscreen(mainWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
 			SDL_SetWindowPosition(mainWindow, SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex));
@@ -208,7 +207,7 @@ void WindowHandler::updateFullscreenState()
 #endif
 }
 
-void WindowHandler::initializeRenderer()
+void ScreenHandler::initializeWindow()
 {
 	mainWindow = createWindow();
 
@@ -227,7 +226,7 @@ void WindowHandler::initializeRenderer()
 	logGlobal->info("Created renderer %s", info.name);
 }
 
-void WindowHandler::initializeScreen()
+void ScreenHandler::initializeScreenBuffers()
 {
 #ifdef VCMI_ENDIAN_BIG
 	int bmask = 0xff000000;
@@ -277,7 +276,7 @@ void WindowHandler::initializeScreen()
 	clearScreen();
 }
 
-SDL_Window * WindowHandler::createWindowImpl(Point dimensions, int flags, bool center)
+SDL_Window * ScreenHandler::createWindowImpl(Point dimensions, int flags, bool center)
 {
 	int displayIndex = getPreferredDisplayIndex();
 	int positionFlags = center ? SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex) : SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex);
@@ -285,17 +284,17 @@ SDL_Window * WindowHandler::createWindowImpl(Point dimensions, int flags, bool c
 	return SDL_CreateWindow(NAME.c_str(), positionFlags, positionFlags, dimensions.x, dimensions.y, flags);
 }
 
-SDL_Window * WindowHandler::createWindow()
+SDL_Window * ScreenHandler::createWindow()
 {
 #ifndef VCMI_MOBILE
 	Point dimensions = getPreferredRenderingResolution();
 
 	switch(getPreferredWindowMode())
 	{
-		case EWindowMode::FULLSCREEN_TRUE:
+		case EWindowMode::FULLSCREEN_EXCLUSIVE:
 			return createWindowImpl(dimensions, SDL_WINDOW_FULLSCREEN, false);
 
-		case EWindowMode::FULLSCREEN_WINDOWED:
+		case EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED:
 			return createWindowImpl(Point(), SDL_WINDOW_FULLSCREEN_DESKTOP, false);
 
 		case EWindowMode::WINDOWED:
@@ -325,17 +324,13 @@ SDL_Window * WindowHandler::createWindow()
 #endif
 }
 
-void WindowHandler::onScreenResize()
+void ScreenHandler::onScreenResize()
 {
-	if(!recreateWindow())
-	{
-		//will return false and report error if video mode is not supported
-		return;
-	}
+	recreateWindowAndScreenBuffers();
 	GH.onScreenResize();
 }
 
-void WindowHandler::validateSettings()
+void ScreenHandler::validateSettings()
 {
 #if !defined(VCMI_MOBILE)
 	{
@@ -368,14 +363,29 @@ void WindowHandler::validateSettings()
 		}
 	}
 
-	if (getPreferredWindowMode() == EWindowMode::FULLSCREEN_TRUE)
+	if (getPreferredWindowMode() == EWindowMode::FULLSCREEN_EXCLUSIVE)
 	{
-		// TODO: check that display supports selected resolution
+		auto legalOptions = getSupportedResolutions();
+		Point selectedResolution = getPreferredRenderingResolution();
+
+		if(!vstd::contains(legalOptions, selectedResolution))
+		{
+			// resolution selected for fullscreen mode is not supported by display
+			// try to find current display resolution and use it instead as "reasonable default"
+			SDL_DisplayMode mode;
+
+			if (SDL_GetDesktopDisplayMode(getPreferredDisplayIndex(), &mode) == 0)
+			{
+				Settings writer = settings.write["video"]["resolution"];
+				writer["width"].Float() = mode.w;
+				writer["height"].Float() = mode.h;
+			}
+		}
 	}
 #endif
 }
 
-int WindowHandler::getPreferredRenderingDriver() const
+int ScreenHandler::getPreferredRenderingDriver() const
 {
 	int result = -1;
 	const JsonNode & video = settings["video"];
@@ -403,9 +413,10 @@ int WindowHandler::getPreferredRenderingDriver() const
 	return result;
 }
 
-void WindowHandler::destroyScreen()
+void ScreenHandler::destroyScreenBuffers()
 {
-	screenBuf = nullptr; //it`s a link - just nullify
+	// screenBuf is not a separate surface, but points to either screen or screen2 - just set to null
+	screenBuf = nullptr;
 
 	if(nullptr != screen2)
 	{
@@ -426,7 +437,7 @@ void WindowHandler::destroyScreen()
 	}
 }
 
-void WindowHandler::destroyWindow()
+void ScreenHandler::destroyWindow()
 {
 	if(nullptr != mainRenderer)
 	{
@@ -441,32 +452,32 @@ void WindowHandler::destroyWindow()
 	}
 }
 
-void WindowHandler::close()
+void ScreenHandler::close()
 {
 	if(settings["general"]["notifications"].Bool())
 		NotificationHandler::destroy();
 
-	destroyScreen();
+	destroyScreenBuffers();
 	destroyWindow();
 	SDL_Quit();
 }
 
-void WindowHandler::clearScreen()
+void ScreenHandler::clearScreen()
 {
 	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
 	SDL_RenderClear(mainRenderer);
 	SDL_RenderPresent(mainRenderer);
 }
 
-std::vector<Point> WindowHandler::getSupportedResolutions() const
+std::vector<Point> ScreenHandler::getSupportedResolutions() const
 {
 	int displayID = SDL_GetWindowDisplayIndex(mainWindow);
 	return getSupportedResolutions(displayID);
 }
 
-std::vector<Point> WindowHandler::getSupportedResolutions( int displayIndex) const
+std::vector<Point> ScreenHandler::getSupportedResolutions( int displayIndex) const
 {
-	//TODO: check this method on iOS / Android
+	//NOTE: this method is never called on Android/iOS, only on desktop systems
 
 	std::vector<Point> result;
 
@@ -488,6 +499,7 @@ std::vector<Point> WindowHandler::getSupportedResolutions( int displayIndex) con
 		return left.x * left.y < right.x * right.y;
 	});
 
+	// erase potential duplicates, e.g. resolutions with different framerate / bits per pixel
 	result.erase(boost::unique(result).end(), result.end());
 
 	return result;

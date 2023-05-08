@@ -76,7 +76,7 @@ set(client_SRCS
 	renderSDL/SDLImage.cpp
 	renderSDL/SDLImageLoader.cpp
 	renderSDL/SDLRWwrapper.cpp
-	renderSDL/WindowHandler.cpp
+	renderSDL/ScreenHandler.cpp
 	renderSDL/SDL_Extensions.cpp
 
 	widgets/Buttons.cpp
@@ -206,7 +206,7 @@ set(client_HEADERS
 	render/IFont.h
 	render/IImage.h
 	render/IImageLoader.h
-	render/IWindowHandler.h
+	render/IScreenHandler.h
 
 	renderSDL/CBitmapFont.h
 	renderSDL/CBitmapHanFont.h
@@ -216,7 +216,7 @@ set(client_HEADERS
 	renderSDL/SDLImage.h
 	renderSDL/SDLImageLoader.h
 	renderSDL/SDLRWwrapper.h
-	renderSDL/WindowHandler.h
+	renderSDL/ScreenHandler.h
 	renderSDL/SDL_Extensions.h
 	renderSDL/SDL_PixelAccess.h
 

@@ -24,7 +24,7 @@
 #include "gui/NotificationHandler.h"
 #include "ClientCommandManager.h"
 #include "windows/CMessage.h"
-#include "render/IWindowHandler.h"
+#include "render/IScreenHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/CConsoleHandler.h"
@@ -348,7 +348,7 @@ int main(int argc, char * argv[])
 	{
 		if(!vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool())
 			playIntro();
-		GH.windowHandler().clearScreen();
+		GH.screenHandler().clearScreen();
 	}
 
 
@@ -547,7 +547,7 @@ static void handleEvent(SDL_Event & ev)
 		case EUserEvent::FULLSCREEN_TOGGLED:
 			{
 				boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
-				GH.windowHandler().onScreenResize();
+				GH.screenHandler().onScreenResize();
 				break;
 			}
 		default:
@@ -564,7 +564,7 @@ static void handleEvent(SDL_Event & ev)
 #ifndef VCMI_IOS
 			{
 				boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
-				GH.windowHandler().onScreenResize();
+				GH.screenHandler().onScreenResize();
 			}
 #endif
 			break;
@@ -651,7 +651,7 @@ static void quitApplication()
 	boost::this_thread::sleep(boost::posix_time::milliseconds(750));//???
 
 	if(!settings["session"]["headless"].Bool())
-		GH.windowHandler().close();
+		GH.screenHandler().close();
 
 	if(logConfig != nullptr)
 	{

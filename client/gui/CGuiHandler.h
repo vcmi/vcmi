@@ -29,7 +29,7 @@ class CIntObject;
 class IUpdateable;
 class IShowActivatable;
 class IShowable;
-class IWindowHandler;
+class IScreenHandler;
 
 // TODO: event handling need refactoring
 enum class EUserEvent
@@ -96,7 +96,7 @@ private:
 	CIntObjectList doubleClickInterested;
 	CIntObjectList textInterested;
 
-	std::unique_ptr<IWindowHandler> windowHandlerInstance;
+	std::unique_ptr<IScreenHandler> screenHandlerInstance;
 
 	void handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed);
 	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
@@ -137,7 +137,7 @@ public:
 	/// moves mouse pointer into specified position inside vcmi window
 	void moveCursorToPosition(const Point & position);
 
-	IWindowHandler & windowHandler();
+	IScreenHandler & screenHandler();
 
 	IUpdateable *curInt;
 
