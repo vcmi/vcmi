@@ -1835,9 +1835,7 @@ void EraseArtifact::applyGs(CGameState *gs)
 void MoveArtifact::applyGs(CGameState * gs)
 {
 	CArtifactInstance * art = src.getArt();
-	if(!ArtifactUtils::isSlotBackpack(dst.slot))
-		assert(!dst.getArt());
-
+	assert(!ArtifactUtils::isSlotEquipment(dst.slot) || !dst.getArt());
 	art->move(src, dst);
 }
 

@@ -229,8 +229,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 	// we have a different artifact may look surprising... but it's valid.
 
 	auto pickedArtInst = std::get<const CArtifactInstance*>(curState.value());
-	assert(srcLoc.isHolder(std::get<const CGHeroInstance*>(curState.value())));
-	assert(srcLoc.getArt() == pickedArtInst);
+	assert(!pickedArtInst || destLoc.isHolder(std::get<const CGHeroInstance*>(curState.value())));
 
 	auto artifactMovedBody = [this, withRedraw, &srcLoc, &destLoc, &pickedArtInst](auto artSetWeak) -> void
 	{
