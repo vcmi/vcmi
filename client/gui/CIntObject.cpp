@@ -159,16 +159,6 @@ void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFon
 	graphics->fonts[font]->renderTextCenter(dst, text, kolor, pos.topLeft() + p);
 }
 
-void CIntObject::blitAtLoc( SDL_Surface * src, int x, int y, SDL_Surface * dst )
-{
-	CSDL_Ext::blitAt(src, pos.x + x, pos.y + y, dst);
-}
-
-void CIntObject::blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst)
-{
-	blitAtLoc(src, p.x, p.y, dst);
-}
-
 void CIntObject::printAtMiddleWBLoc( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst)
 {
 	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, charpr, font), kolor, Point(pos.x + x, pos.y + y));

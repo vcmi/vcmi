@@ -71,7 +71,6 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	: CWindowObject(BORDERED | SHADOW_DISABLED), ISelectionScreenInfo(type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	IShowActivatable::type = BLOCK_ADV_HOTKEYS;
 	pos.w = 762;
 	pos.h = 584;
 	if(screenType == ESelectionScreen::campaignList)

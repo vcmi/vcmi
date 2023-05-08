@@ -53,7 +53,7 @@ class IShowActivatable : public IShowable, public IActivatable
 {
 public:
 	//redraw parent flag - this int may be semi-transparent and require redraw of parent window
-	enum {BLOCK_ADV_HOTKEYS = 2, REDRAW_PARENT=8};
+	enum {REDRAW_PARENT=8};
 	int type; //bin flags using etype
 	IShowActivatable();
 	virtual ~IShowActivatable(){};
@@ -185,10 +185,6 @@ public:
 	void printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printAtMiddleWBLoc(const std::string & text, int x, int y, EFonts font, int charsPerLine, SDL_Color color, SDL_Surface * dst);
-
-	//image blitting. If possible use CPicture or CAnimImage instead
-	void blitAtLoc(SDL_Surface * src, int x, int y, SDL_Surface * dst);
-	void blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst);
 
 	friend class CGuiHandler;
 };

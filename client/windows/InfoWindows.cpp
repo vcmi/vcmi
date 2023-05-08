@@ -119,7 +119,6 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	type |= BLOCK_ADV_HOTKEYS;
 	ID = QueryID(-1);
 	for(auto & Button : Buttons)
 	{

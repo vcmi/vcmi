@@ -15,6 +15,7 @@
 
 #include "../widgets/Images.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/ObjectLists.h"
 #include "../windows/InfoWindows.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"

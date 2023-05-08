@@ -10,8 +10,6 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-
-#include "../widgets/ObjectLists.h"
 #include "../../lib/FunctionList.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -21,7 +19,9 @@ class CGTownInstance;
 
 VCMI_LIB_NAMESPACE_END
 
+class CListBox;
 class CButton;
+class CAnimImage;
 
 /// Base UI Element for hero\town lists
 class CList : public CIntObject
