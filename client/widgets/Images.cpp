@@ -145,14 +145,14 @@ void FilledTexturePlayerColored::playerColored(PlayerColor player)
 {
 	// Color transform to make color of brown DIBOX.PCX texture match color of specified player
 	std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
-		ColorFilter::genRangeShifter( 0.250,0,0, 1.250, 0.000, 0.000 ), // red
-		ColorFilter::genRangeShifter( 0,0,0, 0.435, 1.160, 4.500 ), // blue
-		ColorFilter::genRangeShifter( 0,0,0, 2.000, 2.400, 3.200 ), // tan
-		ColorFilter::genRangeShifter( 0,0,0, 0.160, 2.150, 0.125 ), // green
-		ColorFilter::genRangeShifter( 0,0,0, 2.700, 1.900, 0.000 ), // orange
-		ColorFilter::genRangeShifter( 0,0,0, 1.400, 0.540, 5.000 ), // purple
-		ColorFilter::genRangeShifter( 0,0,0, 0.450, 2.250, 4.400 ), // teal
-		ColorFilter::genRangeShifter( 0,0,0, 2.000, 1.750, 3.750 ) // pink
+		ColorFilter::genRangeShifter(  0.25,  0,     0,     1.25, 0.00, 0.00 ), // red
+		ColorFilter::genRangeShifter(  0,     0,     0,     0.45, 1.20, 4.50 ), // blue
+		ColorFilter::genRangeShifter(  0.40,  0.27,  0.23,  1.10, 1.20, 1.15 ), // tan
+		ColorFilter::genRangeShifter( -0.27,  0.10, -0.27,  0.70, 1.70, 0.70 ), // green
+		ColorFilter::genRangeShifter(  0.47,  0.17, -0.27,  1.60, 1.20, 0.70 ), // orange
+		ColorFilter::genRangeShifter(  0.12, -0.1,   0.25,  1.15, 1.20, 2.20 ), // purple
+		ColorFilter::genRangeShifter( -0.13,  0.23,  0.23,  0.90, 1.20, 2.20 ), // teal
+		ColorFilter::genRangeShifter(  0.44,  0.15,  0.25,  1.00, 1.00, 1.75 )  // pink
 	};
 
 	assert(player.isValidPlayer());
