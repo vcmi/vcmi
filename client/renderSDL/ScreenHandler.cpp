@@ -67,17 +67,15 @@ Point ScreenHandler::getPreferredRenderingResolution() const
 	if (getPreferredWindowMode() == EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED)
 	{
 		SDL_Rect bounds;
-		SDL_GetDisplayBounds(getPreferredDisplayIndex(), &bounds);
-		return Point(bounds.w, bounds.h);
+		if (SDL_GetDisplayBounds(getPreferredDisplayIndex(), &bounds) == 0)
+			return Point(bounds.w, bounds.h);
 	}
-	else
-	{
-		const JsonNode & video = settings["video"];
-		int width = video["resolution"]["width"].Integer();
-		int height = video["resolution"]["height"].Integer();
 
-		return Point(width, height);
-	}
+	const JsonNode & video = settings["video"];
+	int width = video["resolution"]["width"].Integer();
+	int height = video["resolution"]["height"].Integer();
+
+	return Point(width, height);
 }
 
 int ScreenHandler::getPreferredDisplayIndex() const
@@ -87,9 +85,13 @@ int ScreenHandler::getPreferredDisplayIndex() const
 	return 0;
 #else
 	if (mainWindow != nullptr)
-		return SDL_GetWindowDisplayIndex(mainWindow);
-	else
-		return settings["video"]["displayIndex"].Integer();
+	{
+		int result = SDL_GetWindowDisplayIndex(mainWindow);
+		if (result >= 0)
+			return result;
+	}
+
+	return settings["video"]["displayIndex"].Integer();
 #endif
 }
 
@@ -168,7 +170,7 @@ void ScreenHandler::recreateWindowAndScreenBuffers()
 
 void ScreenHandler::updateWindowState()
 {
-#ifdef VCMI_MOBILE
+#ifndef VCMI_MOBILE
 	int displayIndex = getPreferredDisplayIndex();
 
 	switch(getPreferredWindowMode())
@@ -332,7 +334,7 @@ void ScreenHandler::onScreenResize()
 
 void ScreenHandler::validateSettings()
 {
-#ifdef VCMI_MOBILE
+#ifndef VCMI_MOBILE
 	{
 		int displayIndex = settings["video"]["displayIndex"].Integer();
 		int displaysCount = SDL_GetNumVideoDisplays();
@@ -398,17 +400,20 @@ int ScreenHandler::getPreferredRenderingDriver() const
 	for(int it = 0; it < driversCount; it++)
 	{
 		SDL_RendererInfo info;
-		SDL_GetRenderDriverInfo(it, &info);
-
-		std::string driverName(info.name);
-
-		if(!preferredDriverName.empty() && driverName == preferredDriverName)
+		if (SDL_GetRenderDriverInfo(it, &info) == 0)
 		{
-			result = it;
-			logGlobal->info("\t%s (active)", driverName);
+			std::string driverName(info.name);
+
+			if(!preferredDriverName.empty() && driverName == preferredDriverName)
+			{
+				result = it;
+				logGlobal->info("\t%s (active)", driverName);
+			}
+			else
+				logGlobal->info("\t%s", driverName);
 		}
 		else
-			logGlobal->info("\t%s", driverName);
+			logGlobal->info("\t(error)");
 	}
 	return result;
 }
@@ -486,12 +491,11 @@ std::vector<Point> ScreenHandler::getSupportedResolutions( int displayIndex) con
 	for (int i =0; i < modesCount; ++i)
 	{
 		SDL_DisplayMode mode;
-		if (SDL_GetDisplayMode(displayIndex, i, &mode) != 0)
-			continue;
-
-		Point resolution(mode.w, mode.h);
-
-		result.push_back(resolution);
+		if (SDL_GetDisplayMode(displayIndex, i, &mode) == 0)
+		{
+			Point resolution(mode.w, mode.h);
+			result.push_back(resolution);
+		}
 	}
 
 	boost::range::sort(result, [](const auto & left, const auto & right)
