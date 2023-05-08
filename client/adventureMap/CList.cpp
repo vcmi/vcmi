@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CList.h"
 
-#include "CAdventureMapInterface.h"
+#include "AdventureMapInterface.h"
 
 #include "../widgets/Images.h"
 #include "../widgets/Buttons.h"

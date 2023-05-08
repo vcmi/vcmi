@@ -1,5 +1,5 @@
 /*
- * CAdventureMapInterface.h, part of VCMI engine
+ * AdventureMapInterface.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -29,7 +29,7 @@ class CButton;
 class IImage;
 class CAnimImage;
 class CGStatusBar;
-class CAdventureMapWidget;
+class AdventureMapWidget;
 class AdventureMapShortcuts;
 class CAnimation;
 class MapView;
@@ -46,7 +46,7 @@ struct MapDrawingInfo;
 /// That's a huge class which handles general adventure map actions and
 /// shows the right menu(questlog, spellbook, end turn,..) from where you
 /// can get to the towns and heroes.
-class CAdventureMapInterface : public CIntObject
+class AdventureMapInterface : public CIntObject
 {
 private:
 	/// currently acting player
@@ -61,7 +61,7 @@ private:
 	const CSpell *spellBeingCasted; //nullptr if none
 
 	std::shared_ptr<MapAudioPlayer> mapAudio;
-	std::shared_ptr<CAdventureMapWidget> widget;
+	std::shared_ptr<AdventureMapWidget> widget;
 	std::shared_ptr<AdventureMapShortcuts> shortcuts;
 
 private:
@@ -94,7 +94,7 @@ protected:
 	void onScreenResize() override;
 
 public:
-	CAdventureMapInterface();
+	AdventureMapInterface();
 
 	void hotkeyAbortCastingMode();
 	void hotkeyExitWorldView();
@@ -171,4 +171,4 @@ public:
 	void openWorldView(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain);
 };
 
-extern std::shared_ptr<CAdventureMapInterface> adventureInt;
+extern std::shared_ptr<AdventureMapInterface> adventureInt;

@@ -21,7 +21,7 @@ class AdventureMapShortcuts;
 enum class EAdventureState;
 
 /// Internal class of AdventureMapInterface that contains actual UI elements
-class CAdventureMapWidget : public InterfaceObjectConfigurable
+class AdventureMapWidget : public InterfaceObjectConfigurable
 {
 	int mapLevel;
 	/// temporary stack of sizes of currently building widgets
@@ -67,7 +67,7 @@ class CAdventureMapWidget : public InterfaceObjectConfigurable
 	void setPlayerChildren(CIntObject * widget, const PlayerColor & player);
 	void updateActiveStateChildden(CIntObject * widget);
 public:
-	explicit CAdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts );
+	explicit AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts );
 
 	std::shared_ptr<CHeroList> getHeroList();
 	std::shared_ptr<CTownList> getTownList();
@@ -84,7 +84,7 @@ public:
 /// Small helper class that provides ownership for shared_ptr's of child elements
 class CAdventureMapContainerWidget : public CIntObject
 {
-	friend class CAdventureMapWidget;
+	friend class AdventureMapWidget;
 	std::vector<std::shared_ptr<CIntObject>> ownedChildren;
 	std::string disableCondition;
 };

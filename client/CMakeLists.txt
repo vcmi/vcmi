@@ -2,10 +2,10 @@ set(client_SRCS
 	StdInc.cpp
 	../CCallback.cpp
 
-	adventureMap/CAdventureMapInterface.cpp
-	adventureMap/CAdventureMapWidget.cpp
+	adventureMap/AdventureMapInterface.cpp
 	adventureMap/AdventureMapShortcuts.cpp
-	adventureMap/CAdventureOptions.cpp
+	adventureMap/AdventureMapWidget.cpp
+	adventureMap/AdventureOptions.cpp
 	adventureMap/CInGameConsole.cpp
 	adventureMap/CInfoBar.cpp
 	adventureMap/CList.cpp
@@ -131,11 +131,11 @@ set(client_SRCS
 set(client_HEADERS
 	StdInc.h
 
-	adventureMap/CAdventureMapInterface.h
-	adventureMap/CAdventureMapWidget.h
+	adventureMap/AdventureMapInterface.h
 	adventureMap/AdventureMapShortcuts.h
+	adventureMap/AdventureMapWidget.h
 	adventureMap/AdventureState.h
-	adventureMap/CAdventureOptions.h
+	adventureMap/AdventureOptions.h
 	adventureMap/CInGameConsole.h
 	adventureMap/CInfoBar.h
 	adventureMap/CList.h

@@ -15,7 +15,7 @@
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "CPlayerInterface.h"
-#include "adventureMap/CAdventureMapInterface.h"
+#include "adventureMap/AdventureMapInterface.h"
 
 PlayerLocalState::PlayerLocalState(CPlayerInterface & owner)
 	: owner(owner)

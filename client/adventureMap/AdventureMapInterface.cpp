@@ -1,5 +1,5 @@
 /*
- * CAdventureMapInterface.cpp, part of VCMI engine
+ * AdventureMapInterface.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,16 +8,16 @@
  *
  */
 #include "StdInc.h"
-#include "CAdventureMapInterface.h"
+#include "AdventureMapInterface.h"
 
-#include "CAdventureOptions.h"
+#include "AdventureOptions.h"
 #include "AdventureState.h"
 #include "CInGameConsole.h"
 #include "CMinimap.h"
 #include "CList.h"
 #include "CInfoBar.h"
 #include "MapAudioPlayer.h"
-#include "CAdventureMapWidget.h"
+#include "AdventureMapWidget.h"
 #include "AdventureMapShortcuts.h"
 
 #include "../mapView/mapHandler.h"
@@ -38,9 +38,9 @@
 #include "../../lib/CPathfinder.h"
 #include "../../lib/mapping/CMap.h"
 
-std::shared_ptr<CAdventureMapInterface> adventureInt;
+std::shared_ptr<AdventureMapInterface> adventureInt;
 
-CAdventureMapInterface::CAdventureMapInterface():
+AdventureMapInterface::AdventureMapInterface():
 	mapAudio(new MapAudioPlayer()),
 	spellBeingCasted(nullptr),
 	scrollingWasActive(false),
@@ -54,35 +54,35 @@ CAdventureMapInterface::CAdventureMapInterface():
 
 	shortcuts = std::make_shared<AdventureMapShortcuts>(*this);
 
-	widget = std::make_shared<CAdventureMapWidget>(shortcuts);
+	widget = std::make_shared<AdventureMapWidget>(shortcuts);
 	shortcuts->setState(EAdventureState::MAKING_TURN);
 	widget->getMapView()->onViewMapActivated();
 }
 
-void CAdventureMapInterface::onMapViewMoved(const Rect & visibleArea, int mapLevel)
+void AdventureMapInterface::onMapViewMoved(const Rect & visibleArea, int mapLevel)
 {
 	shortcuts->onMapViewMoved(visibleArea, mapLevel);
 	widget->getMinimap()->onMapViewMoved(visibleArea, mapLevel);
 	widget->onMapViewMoved(visibleArea, mapLevel);
 }
 
-void CAdventureMapInterface::onAudioResumed()
+void AdventureMapInterface::onAudioResumed()
 {
 	mapAudio->onAudioResumed();
 }
 
-void CAdventureMapInterface::onAudioPaused()
+void AdventureMapInterface::onAudioPaused()
 {
 	mapAudio->onAudioPaused();
 }
 
-void CAdventureMapInterface::onHeroMovementStarted(const CGHeroInstance * hero)
+void AdventureMapInterface::onHeroMovementStarted(const CGHeroInstance * hero)
 {
 	widget->getInfoBar()->popAll();
 	widget->getInfoBar()->showSelection();
 }
 
-void CAdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
+void AdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 {
 	widget->getHeroList()->update(h);
 
@@ -92,7 +92,7 @@ void CAdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 	widget->updateActiveState();
 }
 
-void CAdventureMapInterface::onTownChanged(const CGTownInstance * town)
+void AdventureMapInterface::onTownChanged(const CGTownInstance * town)
 {
 	widget->getTownList()->update(town);
 
@@ -100,12 +100,12 @@ void CAdventureMapInterface::onTownChanged(const CGTownInstance * town)
 		widget->getInfoBar()->showSelection();
 }
 
-void CAdventureMapInterface::showInfoBoxMessage(const std::vector<Component> & components, std::string message, int timer)
+void AdventureMapInterface::showInfoBoxMessage(const std::vector<Component> & components, std::string message, int timer)
 {
 	widget->getInfoBar()->pushComponents(components, message, timer);
 }
 
-void CAdventureMapInterface::activate()
+void AdventureMapInterface::activate()
 {
 	CIntObject::activate();
 
@@ -122,19 +122,19 @@ void CAdventureMapInterface::activate()
 	GH.fakeMouseMove(); //to restore the cursor
 }
 
-void CAdventureMapInterface::deactivate()
+void AdventureMapInterface::deactivate()
 {
 	CIntObject::deactivate();
 	CCS->curh->set(Cursor::Map::POINTER);
 }
 
-void CAdventureMapInterface::showAll(SDL_Surface * to)
+void AdventureMapInterface::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 	LOCPLINT->cingconsole->show(to);
 }
 
-void CAdventureMapInterface::show(SDL_Surface * to)
+void AdventureMapInterface::show(SDL_Surface * to)
 {
 	handleMapScrollingUpdate();
 
@@ -142,7 +142,7 @@ void CAdventureMapInterface::show(SDL_Surface * to)
 	LOCPLINT->cingconsole->show(to);
 }
 
-void CAdventureMapInterface::handleMapScrollingUpdate()
+void AdventureMapInterface::handleMapScrollingUpdate()
 {
 	/// Width of window border, in pixels, that triggers map scrolling
 	static constexpr uint32_t borderScrollWidth = 15;
@@ -222,23 +222,23 @@ void CAdventureMapInterface::handleMapScrollingUpdate()
 	scrollingWasActive = scrollingActive;
 }
 
-void CAdventureMapInterface::centerOnTile(int3 on)
+void AdventureMapInterface::centerOnTile(int3 on)
 {
 	widget->getMapView()->onCenteredTile(on);
 }
 
-void CAdventureMapInterface::centerOnObject(const CGObjectInstance * obj)
+void AdventureMapInterface::centerOnObject(const CGObjectInstance * obj)
 {
 	widget->getMapView()->onCenteredObject(obj);
 }
 
-void CAdventureMapInterface::keyPressed(EShortcut key)
+void AdventureMapInterface::keyPressed(EShortcut key)
 {
 	//fake mouse use to trigger onTileHovered()
 	GH.fakeMouseMove();
 }
 
-void CAdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
+void AdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
 {
 	assert(sel);
 
@@ -275,7 +275,7 @@ void CAdventureMapInterface::onSelectionChanged(const CArmedInstance *sel)
 	widget->getTownList()->redraw();
 }
 
-void CAdventureMapInterface::onMapTilesChanged(boost::optional<std::unordered_set<int3>> positions)
+void AdventureMapInterface::onMapTilesChanged(boost::optional<std::unordered_set<int3>> positions)
 {
 	if (positions)
 		widget->getMinimap()->updateTiles(*positions);
@@ -283,13 +283,13 @@ void CAdventureMapInterface::onMapTilesChanged(boost::optional<std::unordered_se
 		widget->getMinimap()->update();
 }
 
-void CAdventureMapInterface::onHotseatWaitStarted(PlayerColor playerID)
+void AdventureMapInterface::onHotseatWaitStarted(PlayerColor playerID)
 {
 	onCurrentPlayerChanged(playerID);
 	setState(EAdventureState::HOTSEAT_WAIT);
 }
 
-void CAdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID)
+void AdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID)
 {
 	if(settings["session"]["spectate"].Bool())
 		return;
@@ -301,14 +301,14 @@ void CAdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID)
 
 }
 
-void CAdventureMapInterface::setState(EAdventureState state)
+void AdventureMapInterface::setState(EAdventureState state)
 {
 	shortcuts->setState(state);
 	adjustActiveness();
 	widget->updateActiveState();
 }
 
-void CAdventureMapInterface::adjustActiveness()
+void AdventureMapInterface::adjustActiveness()
 {
 	bool widgetMustBeActive = active && shortcuts->optionSidePanelActive();
 	bool mapViewMustBeActive = active && (shortcuts->optionMapViewActive());
@@ -326,7 +326,7 @@ void CAdventureMapInterface::adjustActiveness()
 		widget->getMapView()->deactivate();
 }
 
-void CAdventureMapInterface::onCurrentPlayerChanged(PlayerColor playerID)
+void AdventureMapInterface::onCurrentPlayerChanged(PlayerColor playerID)
 {
 	LOCPLINT->localState->setSelection(nullptr);
 
@@ -337,7 +337,7 @@ void CAdventureMapInterface::onCurrentPlayerChanged(PlayerColor playerID)
 	widget->setPlayer(playerID);
 }
 
-void CAdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
+void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 {
 	onCurrentPlayerChanged(playerID);
 
@@ -394,7 +394,7 @@ void CAdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 	}
 }
 
-void CAdventureMapInterface::hotkeyEndingTurn()
+void AdventureMapInterface::hotkeyEndingTurn()
 {
 	if(settings["session"]["spectate"].Bool())
 		return;
@@ -404,7 +404,7 @@ void CAdventureMapInterface::hotkeyEndingTurn()
 	mapAudio->onPlayerTurnEnded();
 }
 
-const CGObjectInstance* CAdventureMapInterface::getActiveObject(const int3 &mapPos)
+const CGObjectInstance* AdventureMapInterface::getActiveObject(const int3 &mapPos)
 {
 	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mapPos);  //blocking objects at tile
 
@@ -414,7 +414,7 @@ const CGObjectInstance* CAdventureMapInterface::getActiveObject(const int3 &mapP
 	return *boost::range::max_element(bobjs, &CMapHandler::compareObjectBlitOrder);
 }
 
-void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
+void AdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 {
 	if(!shortcuts->optionMapViewActive())
 		return;
@@ -507,7 +507,7 @@ void CAdventureMapInterface::onTileLeftClicked(const int3 &mapPos)
 	}
 }
 
-void CAdventureMapInterface::onTileHovered(const int3 &mapPos)
+void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 {
 	if(!shortcuts->optionMapViewActive())
 		return;
@@ -659,7 +659,7 @@ void CAdventureMapInterface::onTileHovered(const int3 &mapPos)
 	}
 }
 
-void CAdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode)
+void AdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode)
 {
 	const int maxMovementPointsAtStartOfLastTurn = pathNode.turns > 0 ? hero.maxMovePoints(pathNode.layer == EPathfindingLayer::LAND) : hero.movement;
 	const int movementPointsLastTurnCost = maxMovementPointsAtStartOfLastTurn - pathNode.moveRemains;
@@ -674,7 +674,7 @@ void CAdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & h
 	GH.statusbar->write(result);
 }
 
-void CAdventureMapInterface::onTileRightClicked(const int3 &mapPos)
+void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 {
 	if(!shortcuts->optionMapViewActive())
 		return;
@@ -707,7 +707,7 @@ void CAdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 	CRClickPopup::createAndPush(obj, GH.getCursorPosition(), ETextAlignment::CENTER);
 }
 
-void CAdventureMapInterface::enterCastingMode(const CSpell * sp)
+void AdventureMapInterface::enterCastingMode(const CSpell * sp)
 {
 	assert(sp->id == SpellID::SCUTTLE_BOAT || sp->id == SpellID::DIMENSION_DOOR);
 	spellBeingCasted = sp;
@@ -717,7 +717,7 @@ void CAdventureMapInterface::enterCastingMode(const CSpell * sp)
 	setState(EAdventureState::CASTING_SPELL);
 }
 
-void CAdventureMapInterface::exitCastingMode()
+void AdventureMapInterface::exitCastingMode()
 {
 	assert(spellBeingCasted);
 	spellBeingCasted = nullptr;
@@ -727,25 +727,25 @@ void CAdventureMapInterface::exitCastingMode()
 	config->Bool() = false;
 }
 
-void CAdventureMapInterface::hotkeyAbortCastingMode()
+void AdventureMapInterface::hotkeyAbortCastingMode()
 {
 	exitCastingMode();
 	LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[731]); //Spell cancelled
 }
 
-void CAdventureMapInterface::performSpellcasting(const int3 & dest)
+void AdventureMapInterface::performSpellcasting(const int3 & dest)
 {
 	SpellID id = spellBeingCasted->id;
 	exitCastingMode();
 	LOCPLINT->cb->castSpell(LOCPLINT->localState->getCurrentHero(), id, dest);
 }
 
-Rect CAdventureMapInterface::terrainAreaPixels() const
+Rect AdventureMapInterface::terrainAreaPixels() const
 {
 	return widget->getMapView()->pos;
 }
 
-const IShipyard * CAdventureMapInterface::ourInaccessibleShipyard(const CGObjectInstance *obj) const
+const IShipyard * AdventureMapInterface::ourInaccessibleShipyard(const CGObjectInstance *obj) const
 {
 	const IShipyard *ret = IShipyard::castFrom(obj);
 
@@ -757,40 +757,40 @@ const IShipyard * CAdventureMapInterface::ourInaccessibleShipyard(const CGObject
 	return ret;
 }
 
-void CAdventureMapInterface::hotkeyExitWorldView()
+void AdventureMapInterface::hotkeyExitWorldView()
 {
 	setState(EAdventureState::MAKING_TURN);
 	widget->getMapView()->onViewMapActivated();
 }
 
-void CAdventureMapInterface::openWorldView(int tileSize)
+void AdventureMapInterface::openWorldView(int tileSize)
 {
 	setState(EAdventureState::WORLD_VIEW);
 	widget->getMapView()->onViewWorldActivated(tileSize);
 }
 
-void CAdventureMapInterface::openWorldView()
+void AdventureMapInterface::openWorldView()
 {
 	openWorldView(11);
 }
 
-void CAdventureMapInterface::openWorldView(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain)
+void AdventureMapInterface::openWorldView(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain)
 {
 	openWorldView(11);
 	widget->getMapView()->onViewSpellActivated(11, objectPositions, showTerrain);
 }
 
-void CAdventureMapInterface::hotkeyNextTown()
+void AdventureMapInterface::hotkeyNextTown()
 {
 	widget->getTownList()->selectNext();
 }
 
-void CAdventureMapInterface::hotkeySwitchMapLevel()
+void AdventureMapInterface::hotkeySwitchMapLevel()
 {
 	widget->getMapView()->onMapLevelSwitched();
 }
 
-void CAdventureMapInterface::onScreenResize()
+void AdventureMapInterface::onScreenResize()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	widget.reset();
@@ -798,7 +798,7 @@ void CAdventureMapInterface::onScreenResize()
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
 
-	widget = std::make_shared<CAdventureMapWidget>(shortcuts);
+	widget = std::make_shared<AdventureMapWidget>(shortcuts);
 	widget->getMapView()->onViewMapActivated();
 	widget->setPlayer(currentPlayerID);
 	widget->updateActiveState();

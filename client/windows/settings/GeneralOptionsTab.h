@@ -19,7 +19,7 @@ private:
 	SettingsListener onFullscreenChanged;
 
 	std::vector<Point> supportedResolutions;
-	std::vector<double> supportedScaling;
+	std::vector<int> supportedScaling;
 
 	void setFullscreenMode( bool on);
 

@@ -22,8 +22,8 @@
 #include "../windows/CSpellWindow.h"
 #include "../windows/CTradeWindow.h"
 #include "../windows/settings/SettingsMainWindow.h"
-#include "CAdventureMapInterface.h"
-#include "CAdventureOptions.h"
+#include "AdventureMapInterface.h"
+#include "AdventureOptions.h"
 #include "AdventureState.h"
 
 #include "../../CCallback.h"
@@ -34,7 +34,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/CMap.h"
 
-AdventureMapShortcuts::AdventureMapShortcuts(CAdventureMapInterface & owner)
+AdventureMapShortcuts::AdventureMapShortcuts(AdventureMapInterface & owner)
 	: owner(owner)
 	, state(EAdventureState::NOT_INITIALIZED)
 	, mapLevel(0)
@@ -203,7 +203,7 @@ void AdventureMapShortcuts::showSpellbook()
 
 void AdventureMapShortcuts::adventureOptions()
 {
-	GH.pushIntT<CAdventureOptions>();
+	GH.pushIntT<AdventureOptions>();
 }
 
 void AdventureMapShortcuts::systemOptions()
@@ -273,7 +273,7 @@ void AdventureMapShortcuts::showThievesGuild()
 
 void AdventureMapShortcuts::showScenarioInfo()
 {
-	CAdventureOptions::showScenarioInfo();
+	AdventureOptions::showScenarioInfo();
 }
 
 void AdventureMapShortcuts::saveGame()

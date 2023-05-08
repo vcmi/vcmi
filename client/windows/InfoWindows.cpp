@@ -22,7 +22,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
-#include "../adventureMap/CAdventureMapInterface.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../windows/CMessage.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../gui/CursorHandler.h"

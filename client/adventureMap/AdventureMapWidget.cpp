@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "CAdventureMapWidget.h"
+#include "AdventureMapWidget.h"
 
 #include "AdventureMapShortcuts.h"
 #include "CInfoBar.h"
@@ -32,7 +32,7 @@
 #include "../../lib/StringConstants.h"
 #include "../../lib/filesystem/ResourceID.h"
 
-CAdventureMapWidget::CAdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts )
+AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts )
 	: shortcuts(shortcuts)
 	, mapLevel(0)
 {
@@ -40,18 +40,18 @@ CAdventureMapWidget::CAdventureMapWidget( std::shared_ptr<AdventureMapShortcuts>
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
 
-	REGISTER_BUILDER("adventureInfobar",         &CAdventureMapWidget::buildInfobox         );
-	REGISTER_BUILDER("adventureMapImage",        &CAdventureMapWidget::buildMapImage        );
-	REGISTER_BUILDER("adventureMapButton",       &CAdventureMapWidget::buildMapButton       );
-	REGISTER_BUILDER("adventureMapContainer",    &CAdventureMapWidget::buildMapContainer    );
-	REGISTER_BUILDER("adventureMapGameArea",     &CAdventureMapWidget::buildMapGameArea     );
-	REGISTER_BUILDER("adventureMapHeroList",     &CAdventureMapWidget::buildMapHeroList     );
-	REGISTER_BUILDER("adventureMapIcon",         &CAdventureMapWidget::buildMapIcon         );
-	REGISTER_BUILDER("adventureMapTownList",     &CAdventureMapWidget::buildMapTownList     );
-	REGISTER_BUILDER("adventureMinimap",         &CAdventureMapWidget::buildMinimap         );
-	REGISTER_BUILDER("adventureResourceDateBar", &CAdventureMapWidget::buildResourceDateBar );
-	REGISTER_BUILDER("adventureStatusBar",       &CAdventureMapWidget::buildStatusBar       );
-	REGISTER_BUILDER("adventurePlayerTexture",   &CAdventureMapWidget::buildTexturePlayerColored);
+	REGISTER_BUILDER("adventureInfobar",         &AdventureMapWidget::buildInfobox         );
+	REGISTER_BUILDER("adventureMapImage",        &AdventureMapWidget::buildMapImage        );
+	REGISTER_BUILDER("adventureMapButton",       &AdventureMapWidget::buildMapButton       );
+	REGISTER_BUILDER("adventureMapContainer",    &AdventureMapWidget::buildMapContainer    );
+	REGISTER_BUILDER("adventureMapGameArea",     &AdventureMapWidget::buildMapGameArea     );
+	REGISTER_BUILDER("adventureMapHeroList",     &AdventureMapWidget::buildMapHeroList     );
+	REGISTER_BUILDER("adventureMapIcon",         &AdventureMapWidget::buildMapIcon         );
+	REGISTER_BUILDER("adventureMapTownList",     &AdventureMapWidget::buildMapTownList     );
+	REGISTER_BUILDER("adventureMinimap",         &AdventureMapWidget::buildMinimap         );
+	REGISTER_BUILDER("adventureResourceDateBar", &AdventureMapWidget::buildResourceDateBar );
+	REGISTER_BUILDER("adventureStatusBar",       &AdventureMapWidget::buildStatusBar       );
+	REGISTER_BUILDER("adventurePlayerTexture",   &AdventureMapWidget::buildTexturePlayerColored);
 
 	for (const auto & entry : shortcuts->getShortcuts())
 		addShortcut(entry.shortcut, entry.callback);
@@ -68,7 +68,7 @@ CAdventureMapWidget::CAdventureMapWidget( std::shared_ptr<AdventureMapShortcuts>
 	addUsedEvents(KEYBOARD);
 }
 
-void CAdventureMapWidget::onMapViewMoved(const Rect & visibleArea, int newMapLevel)
+void AdventureMapWidget::onMapViewMoved(const Rect & visibleArea, int newMapLevel)
 {
 	if(mapLevel == newMapLevel)
 		return;
@@ -77,21 +77,21 @@ void CAdventureMapWidget::onMapViewMoved(const Rect & visibleArea, int newMapLev
 	updateActiveState();
 }
 
-Rect CAdventureMapWidget::readSourceArea(const JsonNode & source, const JsonNode & sourceCommon)
+Rect AdventureMapWidget::readSourceArea(const JsonNode & source, const JsonNode & sourceCommon)
 {
 	const auto & input = source.isNull() ? sourceCommon : source;
 
 	return readArea(input, Rect(Point(0, 0), Point(800, 600)));
 }
 
-Rect CAdventureMapWidget::readTargetArea(const JsonNode & source)
+Rect AdventureMapWidget::readTargetArea(const JsonNode & source)
 {
 	if(subwidgetSizes.empty())
 		return readArea(source, pos);
 	return readArea(source, subwidgetSizes.back());
 }
 
-Rect CAdventureMapWidget::readArea(const JsonNode & source, const Rect & boundingBox)
+Rect AdventureMapWidget::readArea(const JsonNode & source, const Rect & boundingBox)
 {
 	const auto & object = source.Struct();
 
@@ -127,7 +127,7 @@ Rect CAdventureMapWidget::readArea(const JsonNode & source, const Rect & boundin
 	return Rect(topLeft + boundingBox.topLeft(), dimensions);
 }
 
-std::shared_ptr<IImage> CAdventureMapWidget::loadImage(const std::string & name)
+std::shared_ptr<IImage> AdventureMapWidget::loadImage(const std::string & name)
 {
 	ResourceID resource(name, EResType::IMAGE);
 
@@ -138,7 +138,7 @@ std::shared_ptr<IImage> CAdventureMapWidget::loadImage(const std::string & name)
 	return images[resource.getName()];
 }
 
-std::shared_ptr<CAnimation> CAdventureMapWidget::loadAnimation(const std::string & name)
+std::shared_ptr<CAnimation> AdventureMapWidget::loadAnimation(const std::string & name)
 {
 	ResourceID resource(name, EResType::ANIMATION);
 
@@ -148,14 +148,14 @@ std::shared_ptr<CAnimation> CAdventureMapWidget::loadAnimation(const std::string
 	return animations[resource.getName()];
 }
 
-std::shared_ptr<CIntObject> CAdventureMapWidget::buildInfobox(const JsonNode & input)
+std::shared_ptr<CIntObject> AdventureMapWidget::buildInfobox(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
 	infoBar = std::make_shared<CInfoBar>(area);
 	return infoBar;
 }
 
-std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapImage(const JsonNode & input)
+std::shared_ptr<CIntObject> AdventureMapWidget::buildMapImage(const JsonNode & input)
 {
 	Rect targetArea = readTargetArea(input["area"]);
 	Rect sourceArea = readSourceArea(input["sourceArea"], input["area"]);
@@ -164,7 +164,7 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapImage(const JsonNode & 
 	return std::make_shared<CFilledTexture>(loadImage(image), targetArea, sourceArea);
 }
 
-std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapButton(const JsonNode & input)
+std::shared_ptr<CIntObject> AdventureMapWidget::buildMapButton(const JsonNode & input)
 {
 	auto position = readTargetArea(input["area"]);
 	auto image = input["image"].String();
@@ -179,7 +179,7 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapButton(const JsonNode &
 	return button;
 }
 
-std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapContainer(const JsonNode & input)
+std::shared_ptr<CIntObject> AdventureMapWidget::buildMapContainer(const JsonNode & input)
 {
 	auto position = readTargetArea(input["area"]);
 	std::shared_ptr<CAdventureMapContainerWidget> result;
@@ -222,14 +222,14 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapContainer(const JsonNod
 	return result;
 }
 
-std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapGameArea(const JsonNode & input)
+std::shared_ptr<CIntObject> AdventureMapWidget::buildMapGameArea(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
 	mapView = std::make_shared<MapView>(area.topLeft(), area.dimensions());
 	return mapView;
 }
 
-std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapHeroList(const JsonNode & input)
+std::shared_ptr<CIntObject> AdventureMapWidget::buildMapHeroList(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
 	subwidgetSizes.push_back(area);
@@ -254,7 +254,7 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapHeroList(const JsonNode
 	return result;
 }
 
-std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapIcon(const JsonNode & input)
+std::shared_ptr<CIntObject> AdventureMapWidget::buildMapIcon(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
 	size_t index = input["index"].Integer();
@@ -264,7 +264,7 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapIcon(const JsonNode & i
 	return std::make_shared<CAdventureMapIcon>(area.topLeft(), loadAnimation(image), index, perPlayer);
 }
 
-std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapTownList(const JsonNode & input)
+std::shared_ptr<CIntObject> AdventureMapWidget::buildMapTownList(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
 	subwidgetSizes.push_back(area);
@@ -288,14 +288,14 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildMapTownList(const JsonNode
 	return result;
 }
 
-std::shared_ptr<CIntObject> CAdventureMapWidget::buildMinimap(const JsonNode & input)
+std::shared_ptr<CIntObject> AdventureMapWidget::buildMinimap(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
 	minimap = std::make_shared<CMinimap>(area);
 	return minimap;
 }
 
-std::shared_ptr<CIntObject> CAdventureMapWidget::buildResourceDateBar(const JsonNode & input)
+std::shared_ptr<CIntObject> AdventureMapWidget::buildResourceDateBar(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
 	std::string image = input["image"].String();
@@ -317,7 +317,7 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildResourceDateBar(const Json
 	return result;
 }
 
-std::shared_ptr<CIntObject> CAdventureMapWidget::buildStatusBar(const JsonNode & input)
+std::shared_ptr<CIntObject> AdventureMapWidget::buildStatusBar(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
 	std::string image = input["image"].String();
@@ -327,7 +327,7 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildStatusBar(const JsonNode &
 	return CGStatusBar::create(background);
 }
 
-std::shared_ptr<CIntObject> CAdventureMapWidget::buildTexturePlayerColored(const JsonNode & input)
+std::shared_ptr<CIntObject> AdventureMapWidget::buildTexturePlayerColored(const JsonNode & input)
 {
 	logGlobal->debug("Building widget CFilledTexture");
 	auto image = input["image"].String();
@@ -335,37 +335,37 @@ std::shared_ptr<CIntObject> CAdventureMapWidget::buildTexturePlayerColored(const
 	return std::make_shared<FilledTexturePlayerColored>(image, area);
 }
 
-std::shared_ptr<CHeroList> CAdventureMapWidget::getHeroList()
+std::shared_ptr<CHeroList> AdventureMapWidget::getHeroList()
 {
 	return heroList;
 }
 
-std::shared_ptr<CTownList> CAdventureMapWidget::getTownList()
+std::shared_ptr<CTownList> AdventureMapWidget::getTownList()
 {
 	return townList;
 }
 
-std::shared_ptr<CMinimap> CAdventureMapWidget::getMinimap()
+std::shared_ptr<CMinimap> AdventureMapWidget::getMinimap()
 {
 	return minimap;
 }
 
-std::shared_ptr<MapView> CAdventureMapWidget::getMapView()
+std::shared_ptr<MapView> AdventureMapWidget::getMapView()
 {
 	return mapView;
 }
 
-std::shared_ptr<CInfoBar> CAdventureMapWidget::getInfoBar()
+std::shared_ptr<CInfoBar> AdventureMapWidget::getInfoBar()
 {
 	return infoBar;
 }
 
-void CAdventureMapWidget::setPlayer(const PlayerColor & player)
+void AdventureMapWidget::setPlayer(const PlayerColor & player)
 {
 	setPlayerChildren(this, player);
 }
 
-void CAdventureMapWidget::setPlayerChildren(CIntObject * widget, const PlayerColor & player)
+void AdventureMapWidget::setPlayerChildren(CIntObject * widget, const PlayerColor & player)
 {
 	for(auto & entry : widget->children)
 	{
@@ -415,7 +415,7 @@ void CAdventureMapOverlayWidget::show(SDL_Surface * to)
 	CIntObject::showAll(to);
 }
 
-void CAdventureMapWidget::updateActiveStateChildden(CIntObject * widget)
+void AdventureMapWidget::updateActiveStateChildden(CIntObject * widget)
 {
 	for(auto & entry : widget->children)
 	{
@@ -446,7 +446,7 @@ void CAdventureMapWidget::updateActiveStateChildden(CIntObject * widget)
 	}
 }
 
-void CAdventureMapWidget::updateActiveState()
+void AdventureMapWidget::updateActiveState()
 {
 	updateActiveStateChildden(this);
 

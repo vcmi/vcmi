@@ -29,7 +29,7 @@
 #include "../renderSDL/SDL_Extensions.h"
 #include "../render/IImage.h"
 #include "../render/ColorFilter.h"
-#include "../adventureMap/CAdventureMapInterface.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../adventureMap/CList.h"
 #include "../adventureMap/CResDataBar.h"
 

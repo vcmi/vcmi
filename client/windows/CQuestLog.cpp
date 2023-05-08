@@ -16,7 +16,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/CComponent.h"
-#include "../adventureMap/CAdventureMapInterface.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../widgets/Buttons.h"
 #include "../adventureMap/CMinimap.h"
 #include "../renderSDL/SDL_Extensions.h"

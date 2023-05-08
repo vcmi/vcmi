@@ -16,7 +16,7 @@ class Rect;
 VCMI_LIB_NAMESPACE_END
 
 enum class EShortcut;
-class CAdventureMapInterface;
+class AdventureMapInterface;
 enum class EAdventureState;
 
 struct AdventureMapShortcutState
@@ -29,7 +29,7 @@ struct AdventureMapShortcutState
 /// Class that contains list of functions for shortcuts available from adventure map
 class AdventureMapShortcuts
 {
-	CAdventureMapInterface & owner;
+	AdventureMapInterface & owner;
 	EAdventureState state;
 	int mapLevel;
 
@@ -65,7 +65,7 @@ class AdventureMapShortcuts
 	void moveHeroDirectional(const Point & direction);
 
 public:
-	explicit AdventureMapShortcuts(CAdventureMapInterface & owner);
+	explicit AdventureMapShortcuts(AdventureMapInterface & owner);
 
 	std::vector<AdventureMapShortcutState> getShortcuts();
 

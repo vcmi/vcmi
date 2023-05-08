@@ -19,7 +19,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../render/Colors.h"
-#include "../adventureMap/CAdventureMapInterface.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../windows/CMessage.h"
 
 #include "../../CCallback.h"
