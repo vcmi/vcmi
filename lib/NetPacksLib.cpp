@@ -1793,6 +1793,9 @@ void BulkSmartRebalanceStacks::applyGs(CGameState * gs)
 void PutArtifact::applyGs(CGameState *gs)
 {
 	assert(art->canBePutAt(al));
+	// Ensure that artifact has been correctly added via NewArtifact pack
+	assert(vstd::contains(gs->map->artInstances, art));
+	assert(!art->getParentNodes().empty());
 	art->putAt(al);
 	//al.hero->putArtifact(al.slot, art);
 }
