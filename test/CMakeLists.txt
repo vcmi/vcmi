@@ -67,6 +67,7 @@ set(test_SRCS
  		spells/targetConditions/NormalLevelConditionTest.cpp
  		spells/targetConditions/NormalSpellConditionTest.cpp
  		spells/targetConditions/ReceptiveFeatureConditionTest.cpp
+		spells/targetConditions/ResistanceConditionTest.cpp
  		spells/targetConditions/SpellEffectConditionTest.cpp
  		spells/targetConditions/TargetConditionItemFixture.cpp
 		

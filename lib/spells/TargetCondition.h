@@ -49,6 +49,7 @@ public:
 	virtual Object createElemental() const = 0;
 	virtual Object createNormalLevel() const = 0;
 	virtual Object createNormalSpell() const = 0;
+	virtual Object createResistance() const = 0;
 
 	virtual Object createConfigurable(std::string scope, std::string type, std::string identifier) const = 0;
 	virtual Object createFromJsonStruct(const JsonNode & jsonStruct) const = 0;

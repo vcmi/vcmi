@@ -50,6 +50,7 @@ namespace GameConstants
 	constexpr int CREATURES_PER_TOWN = 7; //without upgrades
 	constexpr int SPELL_LEVELS = 5;
 	constexpr int SPELL_SCHOOL_LEVELS = 4;
+	constexpr int DEFAULT_SCHOOLS = 4;
 	constexpr int CRE_LEVELS = 10; // number of creature experience levels
 
 	constexpr int HERO_GOLD_COST = 2500;
@@ -1324,13 +1325,16 @@ class Obstacle : public BaseForID<Obstacle, si32>
 	DLL_LINKAGE static Obstacle fromString(const std::string & identifier);
 };
 
-enum class ESpellSchool: ui8
+enum class ESpellSchool: int8_t
 {
+	ANY 	= -1,
 	AIR 	= 0,
 	FIRE 	= 1,
 	WATER 	= 2,
-	EARTH 	= 3
+	EARTH 	= 3,
 };
+
+using SpellSchool = Identifier<ESpellSchool>;
 
 enum class EMetaclass: ui8
 {

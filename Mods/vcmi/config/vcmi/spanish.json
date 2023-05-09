@@ -201,8 +201,6 @@
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "${val}% de probabilidad de doble daño",
 	"core.bonus.DRAGON_NATURE.name": "Dragón",
 	"core.bonus.DRAGON_NATURE.description": "La criatura tiene la naturaleza de dragón",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.name": "Inmunidad al Daño Directo",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.description": "Inmune a hechizos de daño directo",
 	"core.bonus.EARTH_IMMUNITY.name": "Inmunidad a la Tierra",
 	"core.bonus.EARTH_IMMUNITY.description": "Inmune a todos los hechizos de la escuela de tierra",
 	"core.bonus.ENCHANTER.name": "Encantador",

@@ -703,8 +703,6 @@ CGameState::CGameState()
 	applier = std::make_shared<CApplier<CBaseForGSApply>>();
 	registerTypesClientPacks1(*applier);
 	registerTypesClientPacks2(*applier);
-	//objCaller = new CObjectCallersHandler();
-	globalEffects.setDescription("Global effects");
 	globalEffects.setNodeType(CBonusSystemNode::GLOBAL_EFFECTS);
 }
 

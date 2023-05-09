@@ -11,6 +11,7 @@
 #pragma once
 
 #include <vcmi/spells/Spell.h>
+#include "GameConstants.h"
 
 namespace spells
 {

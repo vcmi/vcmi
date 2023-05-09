@@ -12,6 +12,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class JsonNode;
+
 #define BONUS_LIST										\
 	BONUS_NAME(NONE) 									\
 	BONUS_NAME(LEVEL_COUNTER) /* for commander artifacts*/ \
@@ -20,29 +22,22 @@ VCMI_LIB_NAMESPACE_BEGIN
 	BONUS_NAME(LUCK) \
 	BONUS_NAME(PRIMARY_SKILL) /*uses subtype to pick skill; additional info if set: 1 - only melee, 2 - only distance*/  \
 	BONUS_NAME(SIGHT_RADIUS) \
-	BONUS_NAME(MANA_REGENERATION) /*points per turn apart from normal (1 + mysticism)*/  \
+	BONUS_NAME(MANA_REGENERATION) /*points per turn*/  \
 	BONUS_NAME(FULL_MANA_REGENERATION) /*all mana points are replenished every day*/  \
 	BONUS_NAME(NONEVIL_ALIGNMENT_MIX) /*good and neutral creatures can be mixed without morale penalty*/  \
 	BONUS_NAME(SURRENDER_DISCOUNT) /*%*/  \
 	BONUS_NAME(STACKS_SPEED)  /*additional info - percent of speed bonus applied after direct bonuses; >0 - added, <0 - subtracted to this part*/ \
 	BONUS_NAME(FLYING_MOVEMENT) /*value - penalty percentage*/ \
 	BONUS_NAME(SPELL_DURATION) \
-	BONUS_NAME(AIR_SPELL_DMG_PREMY) \
-	BONUS_NAME(EARTH_SPELL_DMG_PREMY) \
-	BONUS_NAME(FIRE_SPELL_DMG_PREMY) \
-	BONUS_NAME(WATER_SPELL_DMG_PREMY) \
 	BONUS_NAME(WATER_WALKING) /*value - penalty percentage*/ \
 	BONUS_NAME(NEGATE_ALL_NATURAL_IMMUNITIES) \
 	BONUS_NAME(STACK_HEALTH) \
-	BONUS_NAME(FIRE_SPELLS) \
-	BONUS_NAME(AIR_SPELLS) \
-	BONUS_NAME(WATER_SPELLS) \
-	BONUS_NAME(EARTH_SPELLS) \
 	BONUS_NAME(GENERATE_RESOURCE) /*daily value, uses subtype (resource type)*/  \
 	BONUS_NAME(CREATURE_GROWTH) /*for legion artifacts: value - week growth bonus, subtype - monster level if aplicable*/  \
 	BONUS_NAME(WHIRLPOOL_PROTECTION) /*hero won't lose army when teleporting through whirlpool*/  \
 	BONUS_NAME(SPELL) /*hero knows spell, val - skill level (0 - 3), subtype - spell id*/  \
 	BONUS_NAME(SPELLS_OF_LEVEL) /*hero knows all spells of given level, val - skill level; subtype - level*/  \
+	BONUS_NAME(SPELLS_OF_SCHOOL) /*hero knows all spells of given school, subtype - spell school; 0 - air, 1 - fire, 2 - water, 3 - earth*/  \
 	BONUS_NAME(BATTLE_NO_FLEEING) /*for shackles of war*/ \
 	BONUS_NAME(MAGIC_SCHOOL_SKILL) /* //eg. for magic plains terrain, subtype: school of magic (0 - all, 1 - fire, 2 - air, 4 - water, 8 - earth), value - level*/ \
 	BONUS_NAME(FREE_SHOOTING) /*stacks can shoot even if otherwise blocked (sharpshooter's bow effect)*/ \
@@ -79,7 +74,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 	BONUS_NAME(SPELL_LIKE_ATTACK) /*subtype - spell, value - spell level; range is taken from spell, but damage from creature; eg. magog*/ \
 	BONUS_NAME(THREE_HEADED_ATTACK) /*eg. cerberus*/	\
 	BONUS_NAME(GENERAL_DAMAGE_PREMY)						\
-	BONUS_NAME(FIRE_IMMUNITY)	/*subtype 0 - all, 1 - all except positive, 2 - only damage spells*/						\
+	BONUS_NAME(FIRE_IMMUNITY)	/*subtype 0 - all, 1 - all except positive*/						\
 	BONUS_NAME(WATER_IMMUNITY)							\
 	BONUS_NAME(EARTH_IMMUNITY)							\
 	BONUS_NAME(AIR_IMMUNITY)							\
@@ -120,7 +115,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 	BONUS_NAME(NO_MORALE) /*eg. when fighting on cursed ground*/ \
 	BONUS_NAME(DARKNESS) /*val = radius */ \
 	BONUS_NAME(SPECIAL_SPELL_LEV) /*subtype = id, val = value per level in percent*/\
-	BONUS_NAME(SPELL_DAMAGE) /*val = value, now works for sorcery*/\
+	BONUS_NAME(SPELL_DAMAGE) /*val = value, now works for sorcery, subtype - spell school; -1 - all, 0 - air, 1 - fire, 2 - water, 3 - earth*/\
 	BONUS_NAME(SPECIFIC_SPELL_DAMAGE) /*subtype = id of spell, val = value*/\
 	BONUS_NAME(SPECIAL_PECULIAR_ENCHANT) /*blesses and curses with id = val dependent on unit's level, subtype = 0 or 1 for Coronius*/\
 	BONUS_NAME(SPECIAL_UPGRADE) /*subtype = base, additionalInfo = target */\
@@ -133,7 +128,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 	BONUS_NAME(BIND_EFFECT) /*doesn't do anything particular, works as a marker)*/\
 	BONUS_NAME(ACID_BREATH) /*additional val damage per creature after attack, additional info - chance in percent*/\
 	BONUS_NAME(RECEPTIVE) /*accepts friendly spells even with immunity*/\
-	BONUS_NAME(DIRECT_DAMAGE_IMMUNITY) /*direct damage spells, that is*/\
 	BONUS_NAME(CASTS) /*how many times creature can cast activated spell*/ \
 	BONUS_NAME(SPECIFIC_SPELL_POWER) /* value used for Thunderbolt and Resurrection cast by units, subtype - spell id */\
 	BONUS_NAME(CREATURE_SPELL_POWER) /* value per unit, divided by 100 (so faerie Dragons have 800)*/ \
@@ -221,18 +215,20 @@ enum class BonusType
     BONUS_LIST
 #undef BONUS_NAME
 };
-enum class BonusDuration : uint16_t //when bonus is automatically removed
+namespace BonusDuration  //when bonus is automatically removed
 {
-    PERMANENT = 1,
-    ONE_BATTLE = 2, //at the end of battle
-    ONE_DAY = 4,   //at the end of day
-    ONE_WEEK = 8, //at the end of week (bonus lasts till the end of week, thats NOT 7 days
-    N_TURNS = 16, //used during battles, after battle bonus is always removed
-    N_DAYS = 32,
-    UNTIL_BEING_ATTACKED = 64, /*removed after attack and counterattacks are performed*/
-    UNTIL_ATTACK = 128, /*removed after attack and counterattacks are performed*/
-    STACK_GETS_TURN = 256, /*removed when stack gets its turn - used for defensive stance*/
-    COMMANDER_KILLED = 512
+	using Type = std::bitset<10>;
+	extern JsonNode toJson(const Type & duration);
+	constexpr Type PERMANENT = 1 << 0;
+	constexpr Type ONE_BATTLE = 1 << 1; //at the end of battle
+	constexpr Type ONE_DAY = 1 << 2;   //at the end of day
+	constexpr Type ONE_WEEK = 1 << 3; //at the end of week (bonus lasts till the end of week, thats NOT 7 days
+	constexpr Type N_TURNS = 1 << 4; //used during battles, after battle bonus is always removed
+	constexpr Type N_DAYS = 1 << 5;
+	constexpr Type UNTIL_BEING_ATTACKED = 1 << 6; /*removed after attack and counterattacks are performed*/
+	constexpr Type UNTIL_ATTACK = 1 << 7; /*removed after attack and counterattacks are performed*/
+	constexpr Type STACK_GETS_TURN = 1 << 8; /*removed when stack gets its turn - used for defensive stance*/
+	constexpr Type COMMANDER_KILLED = 1 << 9;
 };
 enum class BonusSource
 {
@@ -258,7 +254,7 @@ enum class BonusValueType
 extern DLL_LINKAGE const std::map<std::string, BonusType> bonusNameMap;
 extern DLL_LINKAGE const std::map<std::string, BonusValueType> bonusValueMap;
 extern DLL_LINKAGE const std::map<std::string, BonusSource> bonusSourceMap;
-extern DLL_LINKAGE const std::map<std::string, BonusDuration> bonusDurationMap;
+extern DLL_LINKAGE const std::map<std::string, BonusDuration::Type> bonusDurationMap;
 extern DLL_LINKAGE const std::map<std::string, BonusLimitEffect> bonusLimitEffect;
 
 VCMI_LIB_NAMESPACE_END

@@ -31,26 +31,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-const std::set<std::string> deprecatedBonusSet = {
-	"SECONDARY_SKILL_PREMY",
-	"SECONDARY_SKILL_VAL2",
-	"MAXED_SPELL",
-	"LAND_MOVEMENT",
-	"SEA_MOVEMENT",
-	"SIGHT_RADIOUS",
-	"NO_TYPE",
-	"SPECIAL_SECONDARY_SKILL",
-	"FULL_HP_REGENERATION",
-	"KING1",
-	"KING2",
-	"KING3",
-	"BLOCK_MORALE",
-	"BLOCK_LUCK",
-	"SELF_MORALE",
-	"SELF_LUCK",
-	"DIRECT_DAMAGE_IMMUNITY"
-};
-
 //This constructor should be placed here to avoid side effects
 CAddInfo::CAddInfo() = default;
 
@@ -154,7 +134,7 @@ std::string Bonus::Description(std::optional<si32> customValue) const
 	return str.str();
 }
 
-JsonNode subtypeToJson(BonusType type, int subtype)
+static JsonNode subtypeToJson(BonusType type, int subtype)
 {
 	switch(type)
 	{
@@ -177,7 +157,7 @@ JsonNode subtypeToJson(BonusType type, int subtype)
 	}
 }
 
-JsonNode additionalInfoToJson(BonusType type, CAddInfo addInfo)
+static JsonNode additionalInfoToJson(BonusType type, CAddInfo addInfo)
 {
 	switch(type)
 	{
@@ -216,7 +196,7 @@ JsonNode Bonus::toJsonNode() const
 	if(effectRange != BonusLimitEffect::NO_LIMIT)
 		root["effectRange"].String() = vstd::findKey(bonusLimitEffect, effectRange);
 	if(duration != BonusDuration::PERMANENT)
-		root["duration"].String() = vstd::findKey(bonusDurationMap, duration);
+		root["duration"] = BonusDuration::toJson(duration);
 	if(turnsRemain)
 		root["turns"].Integer() = turnsRemain;
 	if(limiter)
@@ -228,7 +208,7 @@ JsonNode Bonus::toJsonNode() const
 	return root;
 }
 
-Bonus::Bonus(BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype):
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype):
 	duration(Duration),
 	type(Type),
 	subtype(Subtype),
@@ -241,7 +221,7 @@ Bonus::Bonus(BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, 
 	targetSourceType = BonusSource::OTHER;
 }
 
-Bonus::Bonus(BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype, BonusValueType ValType):
+Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype, BonusValueType ValType):
 	duration(Duration),
 	type(Type),
 	subtype(Subtype),
@@ -270,7 +250,7 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 #define printField(field) out << "\t" #field ": " << (int)bonus.field << "\n"
 	printField(val);
 	printField(subtype);
-	printField(duration);
+	printField(duration.to_ulong());
 	printField(source);
 	printField(sid);
 	if(bonus.additionalInfo != CAddInfo::NONE)

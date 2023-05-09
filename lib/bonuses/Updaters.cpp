@@ -197,7 +197,7 @@ JsonNode OwnerUpdater::toJsonNode() const
 
 std::shared_ptr<Bonus> OwnerUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
-	auto owner = CBonusSystemNode::retrieveNodeOwner(&context);
+	auto owner = context.getOwner();
 
 	if(owner == PlayerColor::UNFLAGGABLE)
 		owner = PlayerColor::NEUTRAL;

@@ -387,7 +387,7 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 		return ss.str();
 	};
 		printCommandMessage("Bonuses of " + LOCPLINT->localState->getCurrentArmy()->getObjectName() + "\n");
-		printCommandMessage(format(LOCPLINT->localState->getCurrentArmy()->getBonusList()) + "\n");
+		printCommandMessage(format(*LOCPLINT->localState->getCurrentArmy()->getAllBonuses(Selector::all, Selector::all)) + "\n");
 
 	printCommandMessage("\nInherited bonuses:\n");
 	TCNodes parents;

@@ -35,7 +35,7 @@ int32_t AbilityCaster::getSpellSchoolLevel(const Spell * spell, int32_t * outSel
 
 	if(spell->getLevel() > 0)
 	{
-		vstd::amax(skill, unit->valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, 0));
+		vstd::amax(skill, unit->valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, SpellSchool(ESpellSchool::ANY)));
 	}
 
 	vstd::amax(skill, 0);

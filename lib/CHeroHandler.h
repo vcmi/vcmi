@@ -248,9 +248,6 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 public:
 	CHeroClassHandler classes;
 
-	//default costs of going through terrains. -1 means terrain is impassable
-	std::map<TerrainId, int> terrCosts;
-
 	ui32 level(ui64 experience) const; //calculates level corresponding to given experience amount
 	ui64 reqExp(ui32 level) const; //calculates experience required for given level
 
@@ -271,7 +268,6 @@ public:
 		h & classes;
 		h & objects;
 		h & expPerLevel;
-		h & terrCosts;
 	}
 
 protected:

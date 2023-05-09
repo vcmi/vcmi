@@ -842,25 +842,12 @@ static BonusParams convertDeprecatedBonus(const JsonNode &ability)
 											   ability["subtype"].isNumber() ? ability["subtype"].Integer() : -1);
 		if(params.isConverted)
 		{
-			if(!params.valRelevant) {
-				params.val = static_cast<si32>(ability["val"].Float());
-				params.valRelevant = true;
-			}
-			BonusValueType valueType = BonusValueType::ADDITIVE_VALUE;
-			if(!ability["valueType"].isNull())
-				valueType = bonusValueMap.find(ability["valueType"].String())->second;
-
-			if(ability["type"].String() == "SECONDARY_SKILL_PREMY" && valueType == BonusValueType::PERCENT_TO_BASE) //assume secondary skill special
+			if(ability["type"].String() == "SECONDARY_SKILL_PREMY" && bonusValueMap.find(ability["valueType"].String())->second == BonusValueType::PERCENT_TO_BASE) //assume secondary skill special
 			{
 				params.valueType = BonusValueType::PERCENT_TO_TARGET_TYPE;
 				params.targetType = BonusSource::SECONDARY_SKILL;
-				params.targetTypeRelevant = true;
 			}
 
-			if(!params.valueTypeRelevant) {
-				params.valueType = valueType;
-				params.valueTypeRelevant = true;
-			}
 			logMod->warn("Please, use this bonus:\n%s\nConverted sucessfully!", params.toJson().toJson());
 			return params;
 		}
@@ -930,10 +917,10 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 			return false;
 		}
 		b->type = params->type;
-		b->val = params->val;
-		b->valType = params->valueType;
-		if(params->targetTypeRelevant)
-			b->targetSourceType = params->targetType;
+		b->val = params->val.value_or(0);
+		b->valType = params->valueType.value_or(BonusValueType::ADDITIVE_VALUE);
+		if(params->targetType)
+			b->targetSourceType = params->targetType.value();
 	}
 	else
 		b->type = it->second;
@@ -975,7 +962,15 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 		switch (value->getType())
 		{
 		case JsonNode::JsonType::DATA_STRING:
-			b->duration = static_cast<BonusDuration>(parseByMap(bonusDurationMap, value, "duration type "));
+			b->duration = parseByMap(bonusDurationMap, value, "duration type ");
+			break;
+		case JsonNode::JsonType::DATA_VECTOR:
+			{
+				BonusDuration::Type dur = 0;
+				for (const JsonNode & d : value->Vector())
+					dur |= parseByMapN(bonusDurationMap, &d, "duration type ");
+				b->duration = dur;
+			}
 			break;
 		default:
 			logMod->error("Error! Wrong bonus duration format.");
@@ -1065,31 +1060,26 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 		ret = ret.And(Selector::subtype()(subtype));
 	}
 	value = &ability["sourceType"];
-	BonusSource src = BonusSource::OTHER; //Fixes for GCC false maybe-uninitialized
-	si32 id = 0;
-	auto sourceIDRelevant = false;
-	auto sourceTypeRelevant = false;
+	std::optional<BonusSource> src = std::nullopt; //Fixes for GCC false maybe-uninitialized
+	std::optional<si32> id = std::nullopt;
 	if(value->isString())
 	{
 		auto it = bonusSourceMap.find(value->String());
 		if(it != bonusSourceMap.end())
-		{
 			src = it->second;
-			sourceTypeRelevant = true;
-		}
-
 	}
+
 	value = &ability["sourceID"];
 	if(!value->isNull())
 	{
-		sourceIDRelevant = true;
-		resolveIdentifier(id, ability, "sourceID");
+		id = -1;
+		resolveIdentifier(*id, ability, "sourceID");
 	}
 
-	if(sourceIDRelevant && sourceTypeRelevant)
-		ret = ret.And(Selector::source(src, id));
-	else if(sourceTypeRelevant)
-		ret = ret.And(Selector::sourceTypeSel(src));
+	if(src && id)
+		ret = ret.And(Selector::source(*src, *id));
+	else if(src)
+		ret = ret.And(Selector::sourceTypeSel(*src));
 
 	
 	value = &ability["targetSourceType"];
