@@ -6793,8 +6793,21 @@ void CGameHandler::putArtifact(const ArtifactLocation &al, const CArtifactInstan
 bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos)
 {
 	assert(artType);
-	if(pos != ArtifactPosition::FIRST_AVAILABLE && !ArtifactUtils::isSlotBackpack(pos))
+
+	if(pos == ArtifactPosition::FIRST_AVAILABLE)
+	{
+		if(!artType->canBePutAt(h, ArtifactUtils::getArtAnyPosition(h, artType->getId())))
+			COMPLAIN_RET("Cannot put artifact in that slot!");
+	}
+	else if(ArtifactUtils::isSlotBackpack(pos))
+	{
+		if(!artType->canBePutAt(h, ArtifactUtils::getArtBackpackPosition(h, artType->getId())))
+			COMPLAIN_RET("Cannot put artifact in that slot!");
+	}
+	else
+	{
 		COMPLAIN_RET_FALSE_IF(!artType->canBePutAt(h, pos, false), "Cannot put artifact in that slot!");
+	}
 
 	CArtifactInstance * newArtInst = nullptr;
 	if(artType->canBeDisassembled())
@@ -6803,18 +6816,15 @@ bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact
 		newArtInst = new CArtifactInstance();
 
 	newArtInst->artType = artType; // *NOT* via settype -> all bonus-related stuff must be done by NewArtifact apply
+
+	NewArtifact na;
+	na.art = newArtInst;
+	sendAndApply(&na); // -> updates a!!!, will create a on other machines
+
 	if(giveHeroArtifact(h, newArtInst, pos))
-	{
-		NewArtifact na;
-		na.art = newArtInst;
-		sendAndApply(&na); // -> updates a!!!, will create a on other machines
 		return true;
-	}
 	else
-	{
-		delete newArtInst;
 		return false;
-	}
 }
 
 void CGameHandler::setBattleResult(BattleResult::EResult resultType, int victoriusSide)
