@@ -270,7 +270,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 			}
 
 			// Make sure the status bar is updated so it does not display old text
-			if(destLoc.isHolder(hero))
+			if(destLoc.getHolderArtSet() == hero)
 			{
 				if(auto artPlace = artSetPtr->getArtPlace(destLoc.slot))
 					artPlace->hover(true);
