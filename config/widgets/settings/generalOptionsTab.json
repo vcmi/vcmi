@@ -68,7 +68,7 @@
 			"text": "vcmi.systemOptions.scalingButton.hover"
 		},
 		{
-			"name": "resolutionButton",
+			"name": "scalingButton",
 			"type": "button",
 			"position": {"x": 10, "y": 113},
 			"image": "settingsWindow/button32",

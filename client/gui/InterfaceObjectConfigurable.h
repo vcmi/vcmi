@@ -75,6 +75,7 @@ protected:
 	std::pair<std::string, std::string> readHintText(const JsonNode &) const;
 	EShortcut readHotkey(const JsonNode &) const;
 	
+	void loadToggleButtonCallback(std::shared_ptr<CToggleButton> button, const JsonNode & config) const;
 	void loadButtonCallback(std::shared_ptr<CButton> button, const JsonNode & config) const;
 	void loadButtonHotkey(std::shared_ptr<CButton> button, const JsonNode & config) const;
 	void loadButtonBorderColor(std::shared_ptr<CButton> button, const JsonNode & config) const;

@@ -300,7 +300,7 @@ std::shared_ptr<CToggleButton> InterfaceObjectConfigurable::buildToggleButton(co
 		assert(imgOrder.size() >= 4);
 		button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
 	}
-	loadButtonCallback(button, config["callback"]);
+	loadToggleButtonCallback(button, config["callback"]);
 	return button;
 }
 
@@ -338,6 +338,19 @@ void InterfaceObjectConfigurable::loadButtonBorderColor(std::shared_ptr<CButton>
 
 	auto color = readColor(config);
 	button->setBorderColor(color);
+}
+
+void InterfaceObjectConfigurable::loadToggleButtonCallback(std::shared_ptr<CToggleButton> button, const JsonNode & config) const
+{
+	if(config.isNull())
+		return;
+
+	std::string callbackName = config.String();
+
+	if (callbacks.count(callbackName) > 0)
+		button->addCallback(callbacks.at(callbackName));
+	else
+		logGlobal->error("Invalid callback '%s' in widget", callbackName );
 }
 
 void InterfaceObjectConfigurable::loadButtonCallback(std::shared_ptr<CButton> button, const JsonNode & config) const
