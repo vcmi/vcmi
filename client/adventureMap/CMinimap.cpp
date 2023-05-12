@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CMinimap.h"
 
-#include "CAdventureMapInterface.h"
+#include "AdventureMapInterface.h"
 
 #include "../widgets/Images.h"
 #include "../CGameInfo.h"

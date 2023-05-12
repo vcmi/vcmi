@@ -1619,7 +1619,6 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	owner(_owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	type |= BLOCK_ADV_HOTKEYS;
 
 	SThievesGuildInfo tgi; //info to be displayed
 	LOCPLINT->cb->getThievesGuildInfo(tgi, owner);

@@ -1,5 +1,5 @@
 /*
- * CAdvMapInt.h, part of VCMI engine
+ * AdventureMapInterface.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -29,8 +29,8 @@ class CButton;
 class IImage;
 class CAnimImage;
 class CGStatusBar;
-class CAdvMapPanel;
-class CAdvMapWorldViewPanel;
+class AdventureMapWidget;
+class AdventureMapShortcuts;
 class CAnimation;
 class MapView;
 class CResDataBar;
@@ -39,111 +39,56 @@ class CTownList;
 class CInfoBar;
 class CMinimap;
 class MapAudioPlayer;
+enum class EAdventureState;
 
 struct MapDrawingInfo;
 
 /// That's a huge class which handles general adventure map actions and
 /// shows the right menu(questlog, spellbook, end turn,..) from where you
 /// can get to the towns and heroes.
-class CAdventureMapInterface : public CIntObject
+class AdventureMapInterface : public CIntObject
 {
 private:
-	enum class EGameState
-	{
-		NOT_INITIALIZED,
-		HOTSEAT_WAIT,
-		MAKING_TURN,
-		ENEMY_TURN,
-		WORLD_VIEW
-	};
-
-	EGameState state;
-
 	/// currently acting player
 	PlayerColor currentPlayerID;
 
-	/// uses EDirections enum
-	bool scrollingCursorSet;
+	/// if true, cursor was changed to scrolling and must be reset back once scroll is over
+	bool scrollingWasActive;
 
-	const CSpell *spellBeingCasted; //nullptr if none
+	/// if true, then scrolling was blocked via ctrl and should not restart until player move cursor outside scrolling area
+	bool scrollingWasBlocked;
 
-	std::vector<std::shared_ptr<CAnimImage>> gems;
-
-	std::shared_ptr<IImage> bg;
-	std::shared_ptr<IImage> bgWorldView;
-	std::shared_ptr<CButton> kingOverview;
-	std::shared_ptr<CButton> sleepWake;
-	std::shared_ptr<CButton> underground;
-	std::shared_ptr<CButton> questlog;
-	std::shared_ptr<CButton> moveHero;
-	std::shared_ptr<CButton> spellbook;
-	std::shared_ptr<CButton> advOptions;
-	std::shared_ptr<CButton> sysOptions;
-	std::shared_ptr<CButton> nextHero;
-	std::shared_ptr<CButton> endTurn;
-	std::shared_ptr<CButton> worldViewUnderground;
-
-	std::shared_ptr<MapView> terrain;
-	std::shared_ptr<CMinimap> minimap;
-	std::shared_ptr<CHeroList> heroList;
-	std::shared_ptr<CTownList> townList;
-	std::shared_ptr<CInfoBar> infoBar;
-	std::shared_ptr<CGStatusBar> statusbar;
-	std::shared_ptr<CResDataBar> resdatabar;
-
-	std::shared_ptr<CAdvMapPanel> panelMain; // panel that holds all right-side buttons in normal view
-	std::shared_ptr<CAdvMapWorldViewPanel> panelWorldView; // panel that holds all buttons and other ui in world view
-	std::shared_ptr<CAdvMapPanel> activeMapPanel; // currently active panel (either main or world view, depending on current mode)
-
-	std::shared_ptr<CAnimation> worldViewIcons;// images for world view overlay
+	/// spell for which player is selecting target, or nullptr if none
+	const CSpell *spellBeingCasted;
 
 	std::shared_ptr<MapAudioPlayer> mapAudio;
+	std::shared_ptr<AdventureMapWidget> widget;
+	std::shared_ptr<AdventureMapShortcuts> shortcuts;
 
 private:
-	//functions bound to buttons
-	void fshowOverview();
-	void fworldViewBack();
-	void fworldViewScale1x();
-	void fworldViewScale2x();
-	void fworldViewScale4x();
-	void fswitchLevel();
-	void fshowQuestlog();
-	void fsleepWake();
-	void fmoveHero();
-	void fshowSpellbok();
-	void fadventureOPtions();
-	void fsystemOptions();
-	void fnextHero();
-	void fendTurn();
+	void setState(EAdventureState state);
 
-	void hotkeyMoveHeroDirectional(Point direction);
+	/// updates active state of game window whenever game state changes
+	void adjustActiveness();
 
-	bool isActive();
-	void adjustActiveness(bool aiTurnStart); //should be called every time at AI/human turn transition; blocks GUI during AI turn
+	/// checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or nullptr else
+	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const;
 
-	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const; //checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or nullptr else
-
-	// update locked state of buttons
-	void updateButtons();
-
+	/// check and if necessary reacts on scrolling by moving cursor to screen edge
 	void handleMapScrollingUpdate();
 
 	void showMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode);
 
 	const CGObjectInstance *getActiveObject(const int3 &tile);
 
-	std::optional<Point> keyToMoveDirection(EShortcut key);
-
-	void endingTurn();
-
 	/// exits currently opened world view mode and returns to normal map
-	void exitWorldView();
 	void exitCastingMode();
-	void leaveCastingMode(const int3 & castTarget);
-	void abortCastingMode();
+
+	/// casts current spell at specified location
+	void performSpellcasting(const int3 & castTarget);
 
 protected:
-	// CIntObject interface implementation
+	/// CIntObject interface implementation
 
 	void activate() override;
 	void deactivate() override;
@@ -153,8 +98,16 @@ protected:
 
 	void keyPressed(EShortcut key) override;
 
+	void onScreenResize() override;
+
 public:
-	CAdventureMapInterface();
+	AdventureMapInterface();
+
+	void hotkeyAbortCastingMode();
+	void hotkeyExitWorldView();
+	void hotkeyEndingTurn();
+	void hotkeyNextTown();
+	void hotkeySwitchMapLevel();
 
 	/// Called by PlayerInterface when specified player is ready to start his turn
 	void onHotseatWaitStarted(PlayerColor playerID);
@@ -225,4 +178,4 @@ public:
 	void openWorldView(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain);
 };
 
-extern std::shared_ptr<CAdventureMapInterface> adventureInt;
+extern std::shared_ptr<AdventureMapInterface> adventureInt;

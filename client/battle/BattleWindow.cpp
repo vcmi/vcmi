@@ -72,7 +72,6 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	
 	console = widget<BattleConsole>("console");
 
-	GH.statusbar = console;
 	owner.console = console;
 
 	owner.fieldController.reset( new BattleFieldController(owner));
@@ -185,6 +184,11 @@ void BattleWindow::deactivate()
 {
 	CIntObject::deactivate();
 	LOCPLINT->cingconsole->deactivate();
+}
+
+bool BattleWindow::captureThisKey(EShortcut key)
+{
+	return owner.openingPlaying();
 }
 
 void BattleWindow::keyPressed(EShortcut key)
@@ -359,7 +363,7 @@ void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 	}
 		
 	auto anim = std::make_shared<CAnimation>(iconName);
-	w->setImage(anim, false);
+	w->setImage(anim);
 	w->redraw();
 }
 

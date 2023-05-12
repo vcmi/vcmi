@@ -332,7 +332,6 @@ CTradeWindow::CTradeWindow(std::string bgName, const IMarket *Market, const CGHe
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	type |= BLOCK_ADV_HOTKEYS;
 	mode = Mode;
 	initTypes();
 }

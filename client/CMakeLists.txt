@@ -2,9 +2,10 @@ set(client_SRCS
 	StdInc.cpp
 	../CCallback.cpp
 
-	adventureMap/CAdvMapPanel.cpp
-	adventureMap/CAdventureMapInterface.cpp
-	adventureMap/CAdventureOptions.cpp
+	adventureMap/AdventureMapInterface.cpp
+	adventureMap/AdventureMapShortcuts.cpp
+	adventureMap/AdventureMapWidget.cpp
+	adventureMap/AdventureOptions.cpp
 	adventureMap/CInGameConsole.cpp
 	adventureMap/CInfoBar.cpp
 	adventureMap/CList.cpp
@@ -75,6 +76,7 @@ set(client_SRCS
 	renderSDL/SDLImage.cpp
 	renderSDL/SDLImageLoader.cpp
 	renderSDL/SDLRWwrapper.cpp
+	renderSDL/ScreenHandler.cpp
 	renderSDL/SDL_Extensions.cpp
 
 	widgets/Buttons.cpp
@@ -129,9 +131,11 @@ set(client_SRCS
 set(client_HEADERS
 	StdInc.h
 
-	adventureMap/CAdvMapPanel.h
-	adventureMap/CAdventureMapInterface.h
-	adventureMap/CAdventureOptions.h
+	adventureMap/AdventureMapInterface.h
+	adventureMap/AdventureMapShortcuts.h
+	adventureMap/AdventureMapWidget.h
+	adventureMap/AdventureState.h
+	adventureMap/AdventureOptions.h
 	adventureMap/CInGameConsole.h
 	adventureMap/CInfoBar.h
 	adventureMap/CList.h
@@ -202,6 +206,7 @@ set(client_HEADERS
 	render/IFont.h
 	render/IImage.h
 	render/IImageLoader.h
+	render/IScreenHandler.h
 
 	renderSDL/CBitmapFont.h
 	renderSDL/CBitmapHanFont.h
@@ -211,6 +216,7 @@ set(client_HEADERS
 	renderSDL/SDLImage.h
 	renderSDL/SDLImageLoader.h
 	renderSDL/SDLRWwrapper.h
+	renderSDL/ScreenHandler.h
 	renderSDL/SDL_Extensions.h
 	renderSDL/SDL_PixelAccess.h
 

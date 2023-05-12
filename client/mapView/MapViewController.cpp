@@ -17,7 +17,7 @@
 #include "MapViewModel.h"
 
 #include "../CPlayerInterface.h"
-#include "../adventureMap/CAdventureMapInterface.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
 
 #include "../../lib/CConfigHandler.h"

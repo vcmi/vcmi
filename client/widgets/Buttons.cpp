@@ -249,32 +249,32 @@ CButton::CButton(Point position, const std::string &defName, const std::pair<std
 	if (!defName.empty())
 	{
 		imageNames.push_back(defName);
-		setIndex(0, playerColoredButton);
+		setIndex(0);
+		if (playerColoredButton)
+			image->playerColored(LOCPLINT->playerID);
 	}
 }
 
-void CButton::setIndex(size_t index, bool playerColoredButton)
+void CButton::setIndex(size_t index)
 {
 	if (index == currentImage || index>=imageNames.size())
 		return;
 	currentImage = index;
 	auto anim = std::make_shared<CAnimation>(imageNames[index]);
-	setImage(anim, playerColoredButton);
+	setImage(anim);
 }
 
-void CButton::setImage(std::shared_ptr<CAnimation> anim, bool playerColoredButton, int animFlags)
+void CButton::setImage(std::shared_ptr<CAnimation> anim, int animFlags)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
 	image = std::make_shared<CAnimImage>(anim, getState(), 0, 0, 0, animFlags);
-	if (playerColoredButton)
-		image->playerColored(LOCPLINT->playerID);
 	pos = image->pos;
 }
 
 void CButton::setPlayerColor(PlayerColor player)
 {
-	if (image)
+	if (image && image->isPlayerColored())
 		image->playerColored(player);
 }
 

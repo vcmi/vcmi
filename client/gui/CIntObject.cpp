@@ -159,16 +159,6 @@ void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFon
 	graphics->fonts[font]->renderTextCenter(dst, text, kolor, pos.topLeft() + p);
 }
 
-void CIntObject::blitAtLoc( SDL_Surface * src, int x, int y, SDL_Surface * dst )
-{
-	CSDL_Ext::blitAt(src, pos.x + x, pos.y + y, dst);
-}
-
-void CIntObject::blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst)
-{
-	blitAtLoc(src, p.x, p.y, dst);
-}
-
 void CIntObject::printAtMiddleWBLoc( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst)
 {
 	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, charpr, font), kolor, Point(pos.x + x, pos.y + y));
@@ -199,9 +189,20 @@ void CIntObject::disable()
 void CIntObject::enable()
 {
 	if(!active_m && (!parent_m || parent_m->active))
+	{
 		activate();
+		redraw();
+	}
 
 	recActions = 255;
+}
+
+void CIntObject::setEnabled(bool on)
+{
+	if (on)
+		enable();
+	else
+		disable();
 }
 
 void CIntObject::fitToScreen(int borderWidth, bool propagate)
@@ -242,7 +243,7 @@ void CIntObject::addChild(CIntObject * child, bool adjustPosition)
 	children.push_back(child);
 	child->parent_m = this;
 	if(adjustPosition)
-		child->pos += pos.topLeft();
+		child->moveBy(pos.topLeft(), adjustPosition);
 
 	if (!active && child->active)
 		child->deactivate();
@@ -284,6 +285,11 @@ void CIntObject::redraw()
 				showAll(screen);
 		}
 	}
+}
+
+void CIntObject::onScreenResize()
+{
+	center(pos, true);
 }
 
 const Rect & CIntObject::center( const Rect &r, bool propagate )

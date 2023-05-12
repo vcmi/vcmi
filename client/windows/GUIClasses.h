@@ -12,7 +12,6 @@
 #include "CWindowObject.h"
 #include "../lib/GameConstants.h"
 #include "../lib/ResourceSet.h"
-#include "../lib/CConfigHandler.h"
 #include "../lib/int3.h"
 #include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/CGarrisonInt.h"

@@ -59,6 +59,33 @@
 		},
 		
 		{
+			"name": "scalingLabel",
+			"type": "label",
+			"font": "medium",
+			"alignment": "left",
+			"color": "white",
+			"position": {"x": 45, "y": 115},
+			"text": "vcmi.systemOptions.scalingButton.hover"
+		},
+		{
+			"name": "resolutionButton",
+			"type": "button",
+			"position": {"x": 10, "y": 113},
+			"image": "settingsWindow/button32",
+			"help": "vcmi.systemOptions.scalingButton",
+			"callback": "setGameScaling",
+			"items":
+			[
+				{
+					"name": "gearIcon",
+					"type": "picture",
+					"image": "settingsWindow/gear",
+					"position": {"x": 0, "y": 0 }
+				}
+			]
+		},
+		
+		{
 			"name": "topCheckboxesLabels",
 			"type": "labelGroup",
 			"font": "medium",
@@ -67,15 +94,15 @@
 			"items":
 			[
 				{
-					"position": {"x": 45, "y": 115},
+					"position": {"x": 45, "y": 145},
 					"text": "vcmi.systemOptions.fullscreenButton.hover"
 				},
 				{
-					"position": {"x": 45, "y": 145},
+					"position": {"x": 45, "y": 175},
 					"text": "vcmi.systemOptions.framerateButton.hover"
 				},
 				{
-					"position": {"x": 45, "y": 175},
+					"position": {"x": 45, "y": 205},
 					"text": "core.genrltxt.577"
 				},
 
@@ -86,7 +113,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.systemOptions.fullscreenButton",
-			"position": {"x": 10, "y": 113},
+			"position": {"x": 10, "y": 143},
 			"callback": "fullscreenChanged"
 		},
 		{
@@ -94,7 +121,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.systemOptions.framerateButton",
-			"position": {"x": 10, "y": 143},
+			"position": {"x": 10, "y": 173},
 			"callback": "framerateChanged"
 		},
 		
@@ -103,7 +130,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.364",
-			"position": {"x": 10, "y": 173},
+			"position": {"x": 10, "y": 203},
 			"callback": "spellbookAnimationChanged"
 		},
 

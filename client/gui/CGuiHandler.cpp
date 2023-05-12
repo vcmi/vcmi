@@ -18,6 +18,7 @@
 #include "../CGameInfo.h"
 #include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
+#include "../renderSDL/ScreenHandler.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
@@ -37,6 +38,8 @@
 #ifdef VCMI_IOS
 #include "ios/utils.h"
 #endif
+
+CGuiHandler GH;
 
 extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;
@@ -95,9 +98,10 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 
 void CGuiHandler::init()
 {
+	screenHandlerInstance = std::make_unique<ScreenHandler>();
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
-	mainFPSmng = new CFramerateManager();
-	mainFPSmng->init(settings["video"]["targetfps"].Integer());
+	mainFPSmng = new CFramerateManager(settings["video"]["targetfps"].Integer());
+
 	isPointerRelativeMode = settings["general"]["userRelativePointer"].Bool();
 	pointerSpeedMultiplier = settings["general"]["relativePointerSpeedMultiplier"].Float();
 }
@@ -180,9 +184,8 @@ std::shared_ptr<IShowActivatable> CGuiHandler::topInt()
 
 void CGuiHandler::totalRedraw()
 {
-#ifdef VCMI_ANDROID
-	SDL_FillRect(screen2, NULL, SDL_MapRGB(screen2->format, 0, 0, 0));
-#endif
+	CSDL_Ext::fillSurface( screen2, Colors::BLACK);
+
 	for(auto & elem : objsToBlit)
 		elem->showAll(screen2);
 	CSDL_Ext::blitAt(screen2,0,0,screen);
@@ -803,7 +806,26 @@ void CGuiHandler::pushUserEvent(EUserEvent usercode, void * userdata)
 	SDL_PushEvent(&event);
 }
 
-CFramerateManager::CFramerateManager()
+IScreenHandler & CGuiHandler::screenHandler()
+{
+	return *screenHandlerInstance;
+}
+
+void CGuiHandler::onScreenResize()
+{
+	for (auto const & entry : listInt)
+	{
+		auto intObject = std::dynamic_pointer_cast<CIntObject>(entry);
+
+		if (intObject)
+			intObject->onScreenResize();
+	}
+
+	totalRedraw();
+}
+
+
+CFramerateManager::CFramerateManager(int newRate)
 	: rate(0)
 	, rateticks(0)
 	, fps(0)
@@ -811,7 +833,9 @@ CFramerateManager::CFramerateManager()
 	, accumulatedTime(0)
 	, lastticks(0)
 	, timeElapsed(0)
-{}
+{
+	init(newRate);
+}
 
 void CFramerateManager::init(int newRate)
 {

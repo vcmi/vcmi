@@ -29,6 +29,7 @@ class CIntObject;
 class IUpdateable;
 class IShowActivatable;
 class IShowable;
+class IScreenHandler;
 
 // TODO: event handling need refactoring
 enum class EUserEvent
@@ -56,7 +57,7 @@ private:
 	ui32 accumulatedFrames;
 
 public:
-	CFramerateManager(); // initializes the manager with a given fps rate
+	CFramerateManager(int newRate); // initializes the manager with a given fps rate
 	void init(int newRate); // needs to be called directly before the main game loop to reset the internal timer
 	void framerateDelay(); // needs to be called every game update cycle
 	ui32 getElapsedMilliseconds() const {return this->timeElapsed;}
@@ -95,6 +96,7 @@ private:
 	CIntObjectList doubleClickInterested;
 	CIntObjectList textInterested;
 
+	std::unique_ptr<IScreenHandler> screenHandlerInstance;
 
 	void handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed);
 	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
@@ -135,6 +137,8 @@ public:
 	/// moves mouse pointer into specified position inside vcmi window
 	void moveCursorToPosition(const Point & position);
 
+	IScreenHandler & screenHandler();
+
 	IUpdateable *curInt;
 
 	Point lastClick;
@@ -155,6 +159,9 @@ public:
 
 	void totalRedraw(); //forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering
 	void simpleRedraw(); //update only top interface and draw background from buffer, sets a flag, method gets called at the end of the rendering
+
+	/// called whenever user selects different resolution, requiring to center/resize all windows
+	void onScreenResize();
 
 	void pushInt(std::shared_ptr<IShowActivatable> newInt); //deactivate old top interface, activates this one and pushes to the top
 	template <typename T, typename ... Args>

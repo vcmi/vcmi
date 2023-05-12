@@ -22,7 +22,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
-#include "../adventureMap/CAdventureMapInterface.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../windows/CMessage.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../gui/CursorHandler.h"
@@ -119,7 +119,6 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	type |= BLOCK_ADV_HOTKEYS;
 	ID = QueryID(-1);
 	for(auto & Button : Buttons)
 	{

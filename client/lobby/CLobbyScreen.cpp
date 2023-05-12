@@ -51,7 +51,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 		buttonOptions = std::make_shared<CButton>(Point(411, 510), "GSPBUTT.DEF", CGI->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabOpt), EShortcut::LOBBY_ADDITIONAL_OPTIONS);
 	};
 
-	buttonChat = std::make_shared<CButton>(Point(619, 83), "GSPBUT2.DEF", CGI->generaltexth->zelp[48], std::bind(&CLobbyScreen::toggleChat, this), EShortcut::LOBBY_HIDE_CHAT);
+	buttonChat = std::make_shared<CButton>(Point(619, 80), "GSPBUT2.DEF", CGI->generaltexth->zelp[48], std::bind(&CLobbyScreen::toggleChat, this), EShortcut::LOBBY_HIDE_CHAT);
 	buttonChat->addTextOverlay(CGI->generaltexth->allTexts[532], FONT_SMALL);
 
 	switch(screenType)

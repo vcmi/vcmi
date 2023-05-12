@@ -29,7 +29,7 @@
 #include "../renderSDL/SDL_Extensions.h"
 #include "../render/IImage.h"
 #include "../render/ColorFilter.h"
-#include "../adventureMap/CAdventureMapInterface.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../adventureMap/CList.h"
 #include "../adventureMap/CResDataBar.h"
 
@@ -1198,9 +1198,12 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	Rect barRect(9, 182, 732, 18);
 	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, 9, 555);
 	statusbar = CGStatusBar::create(statusbarBackground);
-	resdatabar = std::make_shared<CResDataBar>("ARESBAR", 3, 575, 32, 2, 85, 85);
+	resdatabar = std::make_shared<CResDataBar>("ARESBAR", 3, 575, 37, 3, 84, 78);
 
-	townlist = std::make_shared<CTownList>(3, Point(744, 414), "IAM014", "IAM015");
+	townlist = std::make_shared<CTownList>(3, Rect(Point(743, 414), Point(48, 128)), Point(1,16), Point(0, 32), LOCPLINT->localState->getOwnedTowns().size() );
+	townlist->setScrollUpButton( std::make_shared<CButton>( Point(744, 414), "IAM014", CButton::tooltipLocalized("core.help.306")));
+	townlist->setScrollDownButton( std::make_shared<CButton>( Point(744, 526), "IAM015", CButton::tooltipLocalized("core.help.307")));
+
 	if(from)
 		townlist->select(from);
 

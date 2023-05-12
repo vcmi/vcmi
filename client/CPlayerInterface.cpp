@@ -12,10 +12,9 @@
 
 #include <vcmi/Artifact.h>
 
-#include "adventureMap/CAdventureMapInterface.h"
+#include "adventureMap/AdventureMapInterface.h"
 #include "mapView/mapHandler.h"
 #include "adventureMap/CList.h"
-#include "adventureMap/CInfoBar.h"
 #include "battle/BattleInterface.h"
 #include "battle/BattleEffectsController.h"
 #include "battle/BattleFieldController.h"
@@ -163,7 +162,7 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	initializeHeroTownList();
 
 	// always recreate advmap interface to avoid possible memory-corruption bugs
-	adventureInt.reset(new CAdventureMapInterface());
+	adventureInt.reset(new AdventureMapInterface());
 }
 
 void CPlayerInterface::playerStartsTurn(PlayerColor player)

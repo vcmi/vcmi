@@ -64,6 +64,8 @@ std::vector<EShortcut> ShortcutHandler::translateKeycode(SDL_Keycode key) const
 		{SDLK_RETURN,    EShortcut::LOBBY_LOAD_GAME           },
 		{SDLK_KP_ENTER,  EShortcut::LOBBY_LOAD_GAME           },
 		{SDLK_s,         EShortcut::LOBBY_SAVE_GAME           },
+		{SDLK_RETURN,    EShortcut::LOBBY_SAVE_GAME           },
+		{SDLK_KP_ENTER,  EShortcut::LOBBY_SAVE_GAME           },
 		{SDLK_r,         EShortcut::LOBBY_RANDOM_MAP          },
 		{SDLK_h,         EShortcut::LOBBY_HIDE_CHAT           },
 		{SDLK_a,         EShortcut::LOBBY_ADDITIONAL_OPTIONS  },
@@ -79,8 +81,8 @@ std::vector<EShortcut> ShortcutHandler::translateKeycode(SDL_Keycode key) const
 		{SDLK_TAB,       EShortcut::GAME_ACTIVATE_CONSOLE     },
 		{SDLK_o,         EShortcut::ADVENTURE_GAME_OPTIONS    },
 		{SDLK_F6,        EShortcut::ADVENTURE_TOGGLE_GRID     },
-		{SDLK_z,         EShortcut::ADVENTURE_TOGGLE_SLEEP    },
-		{SDLK_w,         EShortcut::ADVENTURE_TOGGLE_SLEEP    },
+		{SDLK_z,         EShortcut::ADVENTURE_SET_HERO_ASLEEP },
+		{SDLK_w,         EShortcut::ADVENTURE_SET_HERO_AWAKE  },
 		{SDLK_m,         EShortcut::ADVENTURE_MOVE_HERO       },
 		{SDLK_SPACE,     EShortcut::ADVENTURE_VISIT_OBJECT    },
 		{SDLK_KP_1,      EShortcut::ADVENTURE_MOVE_HERO_SW    },
@@ -106,11 +108,13 @@ std::vector<EShortcut> ShortcutHandler::translateKeycode(SDL_Keycode key) const
 		{SDLK_d,         EShortcut::ADVENTURE_DIG_GRAIL       },
 		{SDLK_p,         EShortcut::ADVENTURE_VIEW_PUZZLE     },
 		{SDLK_v,         EShortcut::ADVENTURE_VIEW_WORLD      },
+		{SDLK_1,         EShortcut::ADVENTURE_VIEW_WORLD_X1   },
+		{SDLK_2,         EShortcut::ADVENTURE_VIEW_WORLD_X2   },
+		{SDLK_4,         EShortcut::ADVENTURE_VIEW_WORLD_X4   },
 		{SDLK_u,         EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL},
 		{SDLK_k,         EShortcut::ADVENTURE_KINGDOM_OVERVIEW},
 		{SDLK_q,         EShortcut::ADVENTURE_QUEST_LOG       },
 		{SDLK_c,         EShortcut::ADVENTURE_CAST_SPELL      },
-		{SDLK_e,         EShortcut::ADVENTURE_END_TURN        },
 		{SDLK_g,         EShortcut::ADVENTURE_THIEVES_GUILD   },
 		{SDLK_q,         EShortcut::BATTLE_TOGGLE_QUEUE       },
 		{SDLK_c,         EShortcut::BATTLE_USE_CREATURE_SPELL },
@@ -218,6 +222,8 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"adventureGameOptions",     EShortcut::ADVENTURE_GAME_OPTIONS    },
 		{"adventureToggleGrid",      EShortcut::ADVENTURE_TOGGLE_GRID     },
 		{"adventureToggleSleep",     EShortcut::ADVENTURE_TOGGLE_SLEEP    },
+		{"adventureSetHeroAsleep",   EShortcut::ADVENTURE_SET_HERO_ASLEEP },
+		{"adventureSetHeroAwake",    EShortcut::ADVENTURE_SET_HERO_AWAKE  },
 		{"adventureMoveHero",        EShortcut::ADVENTURE_MOVE_HERO       },
 		{"adventureVisitObject",     EShortcut::ADVENTURE_VISIT_OBJECT    },
 		{"adventureMoveHeroSW",      EShortcut::ADVENTURE_MOVE_HERO_SW    },
@@ -238,12 +244,15 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"adventureDigGrail",        EShortcut::ADVENTURE_DIG_GRAIL       },
 		{"adventureViewPuzzle",      EShortcut::ADVENTURE_VIEW_PUZZLE     },
 		{"adventureViewWorld",       EShortcut::ADVENTURE_VIEW_WORLD      },
+		{"adventureViewWorld1",      EShortcut::ADVENTURE_VIEW_WORLD_X1   },
+		{"adventureViewWorld2",      EShortcut::ADVENTURE_VIEW_WORLD_X2   },
+		{"adventureViewWorld4",      EShortcut::ADVENTURE_VIEW_WORLD_X4   },
 		{"adventureToggleMapLevel",  EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL},
 		{"adventureKingdomOverview", EShortcut::ADVENTURE_KINGDOM_OVERVIEW},
 		{"adventureQuestLog",        EShortcut::ADVENTURE_QUEST_LOG       },
 		{"adventureCastSpell",       EShortcut::ADVENTURE_CAST_SPELL      },
-		{"adventureEndTurn",         EShortcut::ADVENTURE_END_TURN        },
 		{"adventureThievesGuild",    EShortcut::ADVENTURE_THIEVES_GUILD   },
+		{"adventureExitWorldView",   EShortcut::ADVENTURE_EXIT_WORLD_VIEW },
 		{"battleToggleQueue",        EShortcut::BATTLE_TOGGLE_QUEUE       },
 		{"battleUseCreatureSpell",   EShortcut::BATTLE_USE_CREATURE_SPELL },
 		{"battleSurrender",          EShortcut::BATTLE_SURRENDER          },
@@ -278,85 +287,3 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		return shortcutNames.at(identifier);
 	return EShortcut::NONE;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

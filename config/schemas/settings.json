@@ -111,7 +111,7 @@
 			"additionalProperties" : false,
 			"default": {},
 			"required" : [ 
-				"screenRes", 
+				"resolution", 
 				"bitsPerPixel", 
 				"fullscreen", 
 				"realFullscreen", 
@@ -124,15 +124,16 @@
 				"targetfps"
 			],
 			"properties" : {
-				"screenRes" : {
+				"resolution" : {
 					"type" : "object",
 					"additionalProperties" : false,
-					"required" : [ "width", "height" ],
+					"required" : [ "width", "height", "scaling" ],
 					"properties" : {
 						"width"  : { "type" : "number" },
-						"height" : { "type" : "number" }
+						"height" : { "type" : "number" },
+						"scaling" : { "type" : "number" }
 					},
-					"default": {"width" : 800, "height": 600 }
+					"default": {"width" : 800, "height": 600, "scaling" : 100 }
 				},
 				"bitsPerPixel" : {
 					"type" : "number",

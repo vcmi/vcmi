@@ -85,6 +85,7 @@ public:
 	void activate() override;
 	void deactivate() override;
 	void keyPressed(EShortcut key) override;
+	bool captureThisKey(EShortcut key) override;
 	void clickRight(tribool down, bool previousState) override;
 	void show(SDL_Surface *to) override;
 	void showAll(SDL_Surface *to) override;
