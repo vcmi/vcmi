@@ -50,7 +50,22 @@ int64_t AttackPossibility::calculateDamageReduce(
 	vstd::amin(damageDealt, defender->getAvailableHealth());
 
 	// FIXME: provide distance info for Jousting bonus
-	auto enemyDamageBeforeAttack = cb.battleEstimateDamage(defender, attacker, 0);
+	auto attackerUnitForMeasurement = attacker;
+
+	if(attackerUnitForMeasurement->isTurret())
+	{
+		auto ourUnits = cb.battleGetUnitsIf([&](const battle::Unit * u) -> bool
+			{
+				return u->unitSide() == attacker->unitSide() && !u->isTurret();
+			});
+
+		if(ourUnits.empty())
+			attackerUnitForMeasurement = defender;
+		else
+			attackerUnitForMeasurement = ourUnits.front();
+	}
+
+	auto enemyDamageBeforeAttack = cb.battleEstimateDamage(defender, attackerUnitForMeasurement, 0);
 	auto enemiesKilled = damageDealt / defender->getMaxHealth() + (damageDealt % defender->getMaxHealth() >= defender->getFirstHPleft() ? 1 : 0);
 	auto enemyDamage = averageDmg(enemyDamageBeforeAttack.damage);
 	auto damagePerEnemy = enemyDamage / (double)defender->getCount();
