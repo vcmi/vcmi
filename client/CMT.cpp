@@ -16,7 +16,6 @@
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CPrologEpilogVideo.h"
 #include "gui/CursorHandler.h"
-#include "gui/FramerateManager.h"
 #include "CPlayerInterface.h"
 #include "CVideoHandler.h"
 #include "CMusicHandler.h"
@@ -600,7 +599,6 @@ static void mainLoop()
 	fsChanged([](const JsonNode &newState){  CGuiHandler::pushUserEvent(EUserEvent::FULLSCREEN_TOGGLED); });
 
 	inGuiThread.reset(new bool(true));
-	GH.framerateManager().init(settings["video"]["targetfps"].Integer());
 
 	while(1) //main SDL events loop
 	{

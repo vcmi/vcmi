@@ -717,11 +717,13 @@ CGuiHandler::~CGuiHandler()
 
 ShortcutHandler & CGuiHandler::shortcutsHandler()
 {
+	assert(shortcutsHandlerInstance);
 	return *shortcutsHandlerInstance;
 }
 
 FramerateManager & CGuiHandler::framerateManager()
 {
+	assert(framerateManagerInstance);
 	return *framerateManagerInstance;
 }
 

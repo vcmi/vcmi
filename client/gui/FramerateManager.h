@@ -9,23 +9,32 @@
  */
 #pragma once
 
-// A fps manager which holds game updates at a constant rate
+/// Framerate manager controls current game frame rate by constantly trying to reach targeted frame rate
 class FramerateManager
 {
-private:
-	double rateticks;
-	ui32 lastticks;
-	ui32 timeElapsed;
-	int rate;
-	int fps; // the actual fps value
-	ui32 accumulatedTime;
-	ui32 accumulatedFrames;
+	using Clock = boost::chrono::high_resolution_clock;
+	using TimePoint = Clock::time_point;
+	using Duration = Clock::duration;
+
+	/// cyclic buffer of durations of last frames
+	std::array<Duration, 60> lastFrameTimes;
+
+	Duration targetFrameTime;
+	TimePoint lastTimePoint;
+
+	/// index of last measured frome in lastFrameTimes array
+	ui32 lastFrameIndex;
 
 public:
-	FramerateManager(int newRate); // initializes the manager with a given fps rate
-	void init(int newRate); // needs to be called directly before the main game loop to reset the internal timer
-	void framerateDelay(); // needs to be called every game update cycle
-	ui32 getElapsedMilliseconds() const {return this->timeElapsed;}
-	ui32 getFrameNumber() const { return accumulatedFrames; }
-	ui32 getFramerate() const { return fps; };
+	FramerateManager(int targetFramerate);
+
+	/// must be called every frame
+	/// updates framerate calculations and executes sleep to maintain target frame rate
+	void framerateDelay();
+
+	/// returns duration of last frame in seconds
+	ui32 getElapsedMilliseconds() const;
+
+	/// returns current estimation of frame rate
+	ui32 getFramerate() const;
 };

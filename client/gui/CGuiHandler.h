@@ -93,13 +93,19 @@ public:
 public:
 	//objs to blit
 	std::vector<std::shared_ptr<IShowActivatable>> objsToBlit;
+
 	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
 
 	ShortcutHandler & shortcutsHandler();
 	FramerateManager & framerateManager();
 
+	/// returns duration of last frame in milliseconds
+	/// NOTE: avoid to use, preferred method is to overload CIntObject::tick(uint32_t)
 	uint32_t getFrameDeltaMilliseconds() const;
+
+	/// Returns current logical screen dimensions
+	/// May not match size of window if user has UI scaling different from 100%
 	Point screenDimensions() const;
 
 	/// returns true if at least one mouse button is pressed

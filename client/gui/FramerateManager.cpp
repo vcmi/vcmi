@@ -11,55 +11,47 @@
 #include "StdInc.h"
 #include "FramerateManager.h"
 
-#include <SDL_timer.h>
-
-FramerateManager::FramerateManager(int newRate)
-	: rate(0)
-	, rateticks(0)
-	, fps(0)
-	, accumulatedFrames(0)
-	, accumulatedTime(0)
-	, lastticks(0)
-	, timeElapsed(0)
+FramerateManager::FramerateManager(int targetFrameRate)
+	: targetFrameTime(Duration(boost::chrono::seconds(1)) / targetFrameRate)
+	, lastFrameIndex(0)
+	, lastFrameTimes({})
+	, lastTimePoint (Clock::now())
 {
-	init(newRate);
-}
-
-void FramerateManager::init(int newRate)
-{
-	rate = newRate;
-	rateticks = 1000.0 / rate;
-	this->lastticks = SDL_GetTicks();
+	boost::range::fill(lastFrameTimes, targetFrameTime);
 }
 
 void FramerateManager::framerateDelay()
 {
-	ui32 currentTicks = SDL_GetTicks();
-
-	timeElapsed = currentTicks - lastticks;
-	accumulatedFrames++;
+	Duration timeSpentBusy = Clock::now() - lastTimePoint;
 
 	// FPS is higher than it should be, then wait some time
-	if(timeElapsed < rateticks)
-	{
-		int timeToSleep = (uint32_t)ceil(this->rateticks) - timeElapsed;
-		boost::this_thread::sleep(boost::posix_time::milliseconds(timeToSleep));
-	}
+	if(timeSpentBusy < targetFrameTime)
+		boost::this_thread::sleep_for(targetFrameTime - timeSpentBusy);
 
-	currentTicks = SDL_GetTicks();
-	// recalculate timeElapsed for external calls via getElapsed()
+	// compute actual timeElapsed taking into account actual sleep interval
 	// limit it to 100 ms to avoid breaking animation in case of huge lag (e.g. triggered breakpoint)
-	timeElapsed = std::min<ui32>(currentTicks - lastticks, 100);
+	TimePoint currentTicks = Clock::now();
+	Duration timeElapsed = currentTicks - lastTimePoint;
+	if(timeElapsed > boost::chrono::milliseconds(100))
+		timeElapsed = boost::chrono::milliseconds(100);
 
-	lastticks = SDL_GetTicks();
-
-	accumulatedTime += timeElapsed;
-
-	if(accumulatedFrames >= 100)
-	{
-		//about 2 second should be passed
-		fps = static_cast<int>(ceil(1000.0 / (accumulatedTime / accumulatedFrames)));
-		accumulatedTime = 0;
-		accumulatedFrames = 0;
-	}
+	lastTimePoint = currentTicks;
+	lastFrameIndex = (lastFrameIndex + 1) % lastFrameTimes.size();
+	lastFrameTimes[lastFrameIndex] = timeElapsed;
 }
+
+ui32 FramerateManager::getElapsedMilliseconds() const
+{
+	return lastFrameTimes[lastFrameIndex] / boost::chrono::milliseconds(1);
+}
+
+ui32 FramerateManager::getFramerate() const
+{
+	Duration accumulatedTime = std::accumulate(lastFrameTimes.begin(), lastFrameTimes.end(), Duration());
+
+	auto actualFrameTime = accumulatedTime / lastFrameTimes.size();
+	if(actualFrameTime == actualFrameTime.zero())
+		return 0;
+
+	return std::round(boost::chrono::duration<double>(1) / actualFrameTime);
+};
