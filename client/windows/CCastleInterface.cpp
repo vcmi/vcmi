@@ -215,7 +215,7 @@ void CBuildingRect::show(SDL_Surface * to)
 	}
 
 	if(stateTimeCounter < BUILD_ANIMATION_FINISHED_TIMEPOINT)
-		stateTimeCounter += GH.mainFPSmng->getElapsedMilliseconds();
+		stateTimeCounter += GH.getFrameDeltaMilliseconds();
 }
 
 void CBuildingRect::showAll(SDL_Surface * to)

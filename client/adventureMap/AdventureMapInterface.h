@@ -75,7 +75,7 @@ private:
 	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const;
 
 	/// check and if necessary reacts on scrolling by moving cursor to screen edge
-	void handleMapScrollingUpdate();
+	void handleMapScrollingUpdate(uint32_t msPassed);
 
 	void showMoveDetailsInStatusbar(const CGHeroInstance & hero, const CGPathNode & pathNode);
 
@@ -93,6 +93,7 @@ protected:
 	void activate() override;
 	void deactivate() override;
 
+	void tick(uint32_t msPassed) override;
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 

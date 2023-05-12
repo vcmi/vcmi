@@ -370,7 +370,7 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 	auto packet_duration = frame->duration;
 #endif
 	double frameEndTime = (frame->pts + packet_duration) * av_q2d(format->streams[stream]->time_base);
-	frameTime += GH.mainFPSmng->getElapsedMilliseconds() / 1000.0;
+	frameTime += GH.getFrameDeltaMilliseconds() / 1000.0;
 
 	if (frameTime >= frameEndTime )
 	{
@@ -450,6 +450,7 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 
 	pos.x = x;
 	pos.y = y;
+	frameTime = 0.0;
 
 	while(nextFrame())
 	{
@@ -461,10 +462,15 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 		SDL_RenderCopy(mainRenderer, texture, nullptr, &rect);
 		SDL_RenderPresent(mainRenderer);
 
-		// Wait 3 frames
-		GH.mainFPSmng->framerateDelay();
-		GH.mainFPSmng->framerateDelay();
-		GH.mainFPSmng->framerateDelay();
+#if (LIBAVUTIL_VERSION_MAJOR < 58)
+		auto packet_duration = frame->pkt_duration;
+#else
+		auto packet_duration = frame->duration;
+#endif
+		double frameDurationSec = packet_duration * av_q2d(format->streams[stream]->time_base);
+		uint32_t timeToSleepMillisec = 1000 * (frameDurationSec);
+
+		boost::this_thread::sleep(boost::posix_time::millisec(timeToSleepMillisec));
 	}
 
 	return true;

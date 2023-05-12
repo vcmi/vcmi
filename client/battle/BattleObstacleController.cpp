@@ -161,7 +161,7 @@ void BattleObstacleController::collectRenderableObjects(BattleRenderer & rendere
 
 void BattleObstacleController::update()
 {
-	timePassed += GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+	timePassed += GH.getFrameDeltaMilliseconds() / 1000.f;
 }
 
 std::shared_ptr<IImage> BattleObstacleController::getObstacleImage(const CObstacleInstance & oi)

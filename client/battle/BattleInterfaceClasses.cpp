@@ -220,7 +220,7 @@ void BattleHero::render(Canvas & canvas)
 	canvas.draw(flagFrame, flagPosition);
 	canvas.draw(heroFrame, heroPosition);
 
-	float timePassed = float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000.f;
+	float timePassed = float(GH.getFrameDeltaMilliseconds()) / 1000.f;
 
 	flagCurrentFrame += currentSpeed * timePassed;
 	currentFrame += currentSpeed * timePassed;

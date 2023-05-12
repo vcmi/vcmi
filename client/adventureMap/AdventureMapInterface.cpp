@@ -59,7 +59,7 @@ AdventureMapInterface::AdventureMapInterface():
 	shortcuts->setState(EAdventureState::MAKING_TURN);
 	widget->getMapView()->onViewMapActivated();
 
-	addUsedEvents(KEYBOARD);
+	addUsedEvents(KEYBOARD | TIME);
 }
 
 void AdventureMapInterface::onMapViewMoved(const Rect & visibleArea, int mapLevel)
@@ -139,18 +139,20 @@ void AdventureMapInterface::showAll(SDL_Surface * to)
 
 void AdventureMapInterface::show(SDL_Surface * to)
 {
-	handleMapScrollingUpdate();
-
 	CIntObject::show(to);
 	LOCPLINT->cingconsole->show(to);
 }
 
-void AdventureMapInterface::handleMapScrollingUpdate()
+void AdventureMapInterface::tick(uint32_t msPassed)
+{
+	handleMapScrollingUpdate(msPassed);
+}
+
+void AdventureMapInterface::handleMapScrollingUpdate(uint32_t timePassed)
 {
 	/// Width of window border, in pixels, that triggers map scrolling
 	static constexpr uint32_t borderScrollWidth = 15;
 
-	uint32_t timePassed = GH.mainFPSmng->getElapsedMilliseconds();
 	uint32_t scrollSpeedPixels = settings["adventure"]["scrollSpeedPixels"].Float();
 	uint32_t scrollDistance = scrollSpeedPixels * timePassed / 1000;
 

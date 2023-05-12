@@ -381,7 +381,7 @@ bool MovementAnimation::init()
 
 void MovementAnimation::nextFrame()
 {
-	progress += float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000 * progressPerSecond;
+	progress += float(GH.getFrameDeltaMilliseconds()) / 1000 * progressPerSecond;
 
 	//moving instructions
 	myAnim->pos.x = static_cast<Sint16>(begX + distanceX * progress );
@@ -579,7 +579,7 @@ bool ColorTransformAnimation::init()
 
 void ColorTransformAnimation::nextFrame()
 {
-	float elapsed  = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+	float elapsed  = GH.getFrameDeltaMilliseconds() / 1000.f;
 	float fullTime = AnimationControls::getFadeInDuration();
 	float delta    = elapsed / fullTime;
 	totalProgress += delta;
@@ -1029,7 +1029,7 @@ void EffectAnimation::playEffect()
 	{
 		if(elem.effectID == ID)
 		{
-			elem.currentFrame += AnimationControls::getSpellEffectSpeed() * GH.mainFPSmng->getElapsedMilliseconds() / 1000;
+			elem.currentFrame += AnimationControls::getSpellEffectSpeed() * GH.getFrameDeltaMilliseconds() / 1000;
 
 			if(elem.currentFrame >= elem.animation->size())
 			{

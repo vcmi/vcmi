@@ -335,7 +335,7 @@ void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
 	}
 
 	stackAnimation[stack->unitId()]->nextFrame(canvas, fullFilter, facingRight(stack)); // do actual blit
-	stackAnimation[stack->unitId()]->incrementFrame(float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000);
+	stackAnimation[stack->unitId()]->incrementFrame(float(GH.getFrameDeltaMilliseconds()) / 1000);
 }
 
 void BattleStacksController::update()

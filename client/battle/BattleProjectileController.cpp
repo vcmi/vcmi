@@ -59,14 +59,14 @@ void ProjectileMissile::show(Canvas & canvas)
 		canvas.draw(image, pos);
 	}
 
-	float timePassed = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+	float timePassed = GH.getFrameDeltaMilliseconds() / 1000.f;
 	progress += timePassed * speed;
 }
 
 void ProjectileAnimatedMissile::show(Canvas & canvas)
 {
 	ProjectileMissile::show(canvas);
-	frameProgress += AnimationControls::getSpellEffectSpeed() * GH.mainFPSmng->getElapsedMilliseconds() / 1000;
+	frameProgress += AnimationControls::getSpellEffectSpeed() * GH.getFrameDeltaMilliseconds() / 1000;
 	size_t animationSize = animation->size(reverse ? 1 : 0);
 	while (frameProgress > animationSize)
 		frameProgress -= animationSize;
@@ -76,7 +76,7 @@ void ProjectileAnimatedMissile::show(Canvas & canvas)
 
 void ProjectileCatapult::show(Canvas & canvas)
 {
-	frameProgress += AnimationControls::getSpellEffectSpeed() * GH.mainFPSmng->getElapsedMilliseconds() / 1000;
+	frameProgress += AnimationControls::getSpellEffectSpeed() * GH.getFrameDeltaMilliseconds() / 1000;
 	int frameCounter = std::floor(frameProgress);
 	int frameIndex = (frameCounter + 1) % animation->size(0);
 
@@ -91,7 +91,7 @@ void ProjectileCatapult::show(Canvas & canvas)
 		canvas.draw(image, pos);
 	}
 
-	float timePassed = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+	float timePassed = GH.getFrameDeltaMilliseconds() / 1000.f;
 	progress += timePassed * speed;
 }
 
@@ -136,7 +136,7 @@ void ProjectileRay::show(Canvas & canvas)
 		}
 	}
 
-	float timePassed = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+	float timePassed = GH.getFrameDeltaMilliseconds() / 1000.f;
 	progress += timePassed * speed;
 }
 

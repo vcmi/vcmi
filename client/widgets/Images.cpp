@@ -395,7 +395,7 @@ void CShowableAnim::show(SDL_Surface * to)
 	if ((flags & PLAY_ONCE) && frame + 1 == last)
 		return;
 
-	frameTimePassed += GH.mainFPSmng->getElapsedMilliseconds();
+	frameTimePassed += GH.getFrameDeltaMilliseconds();
 
 	if(frameTimePassed >= frameTimeTotal)
 	{
