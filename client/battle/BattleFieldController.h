@@ -66,6 +66,7 @@ class BattleFieldController : public CIntObject
 	void mouseMoved(const Point & cursorPosition) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
+	void activate() override;
 
 	void showAll(SDL_Surface * to) override;
 	void show(SDL_Surface * to) override;
