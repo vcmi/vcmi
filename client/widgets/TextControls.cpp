@@ -456,7 +456,7 @@ void CGStatusBar::clickLeft(tribool down, bool previousState)
 void CGStatusBar::activate()
 {
 	GH.statusbar = shared_from_this();
-	CIntObject::deactivate();
+	CIntObject::activate();
 }
 
 void CGStatusBar::deactivate()
