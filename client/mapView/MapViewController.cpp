@@ -89,7 +89,7 @@ std::shared_ptr<IMapRendererContext> MapViewController::getContext() const
 	return context;
 }
 
-void MapViewController::updateBefore(uint32_t timeDelta)
+void MapViewController::tick(uint32_t timeDelta)
 {
 	// confirmed to match H3 for
 	// - hero embarking on boat (500 ms)
@@ -158,7 +158,7 @@ void MapViewController::updateBefore(uint32_t timeDelta)
 	}
 }
 
-void MapViewController::updateAfter(uint32_t timeDelta)
+void MapViewController::afterRender()
 {
 	if(movementContext)
 	{

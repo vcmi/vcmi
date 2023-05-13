@@ -68,7 +68,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	  area(nullptr),
 	  stateTimeCounter(BUILD_ANIMATION_FINISHED_TIMEPOINT)
 {
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | RCLICK | HOVER | TIME);
 	pos.x += str->pos.x;
 	pos.y += str->pos.y;
 
@@ -203,9 +203,12 @@ void CBuildingRect::show(SDL_Surface * to)
 
 		border->draw(to, pos.x, pos.y);
 	}
+}
 
-	if(stateTimeCounter < BUILD_ANIMATION_FINISHED_TIMEPOINT)
-		stateTimeCounter += GH.getFrameDeltaMilliseconds();
+void CBuildingRect::tick(uint32_t msPassed)
+{
+	CShowableAnim::tick(msPassed);
+	stateTimeCounter += msPassed;
 }
 
 void CBuildingRect::showAll(SDL_Surface * to)
