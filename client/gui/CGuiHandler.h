@@ -87,6 +87,8 @@ private:
 	void fakeMoveCursor(float dx, float dy);
 	void fakeMouseButtonEventRelativeMode(bool down, bool right);
 
+	FramerateManager & framerateManager();
+
 public:
 	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
 	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);
@@ -98,7 +100,7 @@ public:
 	const Point & getCursorPosition() const;
 
 	ShortcutHandler & shortcutsHandler();
-	FramerateManager & framerateManager();
+
 
 	/// returns duration of last frame in milliseconds
 	/// NOTE: avoid to use, preferred method is to overload CIntObject::tick(uint32_t)

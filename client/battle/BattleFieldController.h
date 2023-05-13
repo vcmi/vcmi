@@ -70,6 +70,7 @@ class BattleFieldController : public CIntObject
 
 	void showAll(SDL_Surface * to) override;
 	void show(SDL_Surface * to) override;
+	void tick(uint32_t msPassed) override;
 public:
 	BattleFieldController(BattleInterface & owner);
 

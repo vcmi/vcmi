@@ -222,7 +222,7 @@ bool DummyAnimation::init()
 	return true;
 }
 
-void DummyAnimation::nextFrame()
+void DummyAnimation::tick(uint32_t msPassed)
 {
 	counter++;
 	if(counter > howMany)
@@ -300,7 +300,7 @@ ECreatureAnimType MeleeAttackAnimation::selectGroup(bool multiAttack)
 	return mutPosToGroup[mutPos];
 }
 
-void MeleeAttackAnimation::nextFrame()
+void MeleeAttackAnimation::tick(uint32_t msPassed)
 {
 	size_t currentFrame = stackAnimation(attackingStack)->getCurrentFrame();
 	size_t totalFrames = stackAnimation(attackingStack)->framesInGroup(getGroup());
@@ -308,7 +308,7 @@ void MeleeAttackAnimation::nextFrame()
 	if ( currentFrame * 2 >= totalFrames )
 		owner.executeAnimationStage(EAnimationEvents::HIT);
 
-	AttackAnimation::nextFrame();
+	AttackAnimation::tick(msPassed);
 }
 
 MeleeAttackAnimation::MeleeAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, bool multiAttack)
@@ -379,15 +379,15 @@ bool MovementAnimation::init()
 	return true;
 }
 
-void MovementAnimation::nextFrame()
+void MovementAnimation::tick(uint32_t msPassed)
 {
-	progress += float(GH.getFrameDeltaMilliseconds()) / 1000 * progressPerSecond;
+	progress += float(msPassed) / 1000 * progressPerSecond;
 
 	//moving instructions
 	myAnim->pos.x = static_cast<Sint16>(begX + distanceX * progress );
 	myAnim->pos.y = static_cast<Sint16>(begY + distanceY * progress );
 
-	BattleAnimation::nextFrame();
+	BattleAnimation::tick(msPassed);
 
 	if(progress >= 1.0)
 	{
@@ -577,9 +577,9 @@ bool ColorTransformAnimation::init()
 	return true;
 }
 
-void ColorTransformAnimation::nextFrame()
+void ColorTransformAnimation::tick(uint32_t msPassed)
 {
-	float elapsed  = GH.getFrameDeltaMilliseconds() / 1000.f;
+	float elapsed  = msPassed / 1000.f;
 	float fullTime = AnimationControls::getFadeInDuration();
 	float delta    = elapsed / fullTime;
 	totalProgress += delta;
@@ -699,7 +699,7 @@ void RangedAttackAnimation::emitProjectile()
 	projectileEmitted = true;
 }
 
-void RangedAttackAnimation::nextFrame()
+void RangedAttackAnimation::tick(uint32_t msPassed)
 {
 	// animation should be paused if there is an active projectile
 	if (projectileEmitted)
@@ -716,7 +716,7 @@ void RangedAttackAnimation::nextFrame()
 	else
 		stackAnimation(attackingStack)->playUntil(static_cast<size_t>(-1));
 
-	AttackAnimation::nextFrame();
+	AttackAnimation::tick(msPassed);
 
 	if (!projectileEmitted)
 	{
@@ -790,9 +790,9 @@ CatapultAnimation::CatapultAnimation(BattleInterface & owner, const CStack * att
 	logAnim->debug("Created shooting anim for %s", stack->getName());
 }
 
-void CatapultAnimation::nextFrame()
+void CatapultAnimation::tick(uint32_t msPassed)
 {
-	ShootingAnimation::nextFrame();
+	ShootingAnimation::tick(msPassed);
 
 	if ( explosionEmitted)
 		return;
@@ -988,9 +988,9 @@ bool EffectAnimation::init()
 	return true;
 }
 
-void EffectAnimation::nextFrame()
+void EffectAnimation::tick(uint32_t msPassed)
 {
-	playEffect();
+	playEffect(msPassed);
 
 	if (effectFinished)
 	{
@@ -1020,7 +1020,7 @@ void EffectAnimation::onEffectFinished()
 	effectFinished = true;
 }
 
-void EffectAnimation::playEffect()
+void EffectAnimation::playEffect(uint32_t msPassed)
 {
 	if ( effectFinished )
 		return;
@@ -1029,7 +1029,7 @@ void EffectAnimation::playEffect()
 	{
 		if(elem.effectID == ID)
 		{
-			elem.currentFrame += AnimationControls::getSpellEffectSpeed() * GH.getFrameDeltaMilliseconds() / 1000;
+			elem.currentFrame += AnimationControls::getSpellEffectSpeed() * msPassed / 1000;
 
 			if(elem.currentFrame >= elem.animation->size())
 			{
@@ -1113,7 +1113,7 @@ void HeroCastAnimation::emitAnimationEvent()
 	owner.executeAnimationStage(EAnimationEvents::HIT);
 }
 
-void HeroCastAnimation::nextFrame()
+void HeroCastAnimation::tick(uint32_t msPassed)
 {
 	float frame = hero->getFrame();
 

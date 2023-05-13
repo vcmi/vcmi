@@ -58,15 +58,18 @@ void ProjectileMissile::show(Canvas & canvas)
 
 		canvas.draw(image, pos);
 	}
+}
 
-	float timePassed = GH.getFrameDeltaMilliseconds() / 1000.f;
+void ProjectileMissile::tick(uint32_t msPassed)
+{
+	float timePassed = msPassed / 1000.f;
 	progress += timePassed * speed;
 }
 
-void ProjectileAnimatedMissile::show(Canvas & canvas)
+void ProjectileAnimatedMissile::tick(uint32_t msPassed)
 {
-	ProjectileMissile::show(canvas);
-	frameProgress += AnimationControls::getSpellEffectSpeed() * GH.getFrameDeltaMilliseconds() / 1000;
+	ProjectileMissile::tick(msPassed);
+	frameProgress += AnimationControls::getSpellEffectSpeed() * msPassed / 1000;
 	size_t animationSize = animation->size(reverse ? 1 : 0);
 	while (frameProgress > animationSize)
 		frameProgress -= animationSize;
@@ -74,9 +77,15 @@ void ProjectileAnimatedMissile::show(Canvas & canvas)
 	frameNum = std::floor(frameProgress);
 }
 
+void ProjectileCatapult::tick(uint32_t msPassed)
+{
+	frameProgress += AnimationControls::getSpellEffectSpeed() * msPassed / 1000;
+	float timePassed = msPassed / 1000.f;
+	progress += timePassed * speed;
+}
+
 void ProjectileCatapult::show(Canvas & canvas)
 {
-	frameProgress += AnimationControls::getSpellEffectSpeed() * GH.getFrameDeltaMilliseconds() / 1000;
 	int frameCounter = std::floor(frameProgress);
 	int frameIndex = (frameCounter + 1) % animation->size(0);
 
@@ -90,9 +99,6 @@ void ProjectileCatapult::show(Canvas & canvas)
 
 		canvas.draw(image, pos);
 	}
-
-	float timePassed = GH.getFrameDeltaMilliseconds() / 1000.f;
-	progress += timePassed * speed;
 }
 
 void ProjectileRay::show(Canvas & canvas)
@@ -135,8 +141,11 @@ void ProjectileRay::show(Canvas & canvas)
 			canvas.drawLine(Point(x1 + i, y1), Point(x2 + i, y2), ray.start, ray.end);
 		}
 	}
+}
 
-	float timePassed = GH.getFrameDeltaMilliseconds() / 1000.f;
+void ProjectileRay::tick(uint32_t msPassed)
+{
+	float timePassed = msPassed / 1000.f;
 	progress += timePassed * speed;
 }
 
@@ -217,12 +226,21 @@ void BattleProjectileController::emitStackProjectile(const CStack * stack)
 	}
 }
 
-void BattleProjectileController::showProjectiles(Canvas & canvas)
+void BattleProjectileController::render(Canvas & canvas)
 {
 	for ( auto projectile: projectiles)
 	{
 		if ( projectile->playing )
 			projectile->show(canvas);
+	}
+}
+
+void BattleProjectileController::tick(uint32_t msPassed)
+{
+	for ( auto projectile: projectiles)
+	{
+		if ( projectile->playing )
+			projectile->tick(msPassed);
 	}
 
 	vstd::erase_if(projectiles, [&](const std::shared_ptr<ProjectileBase> & projectile){

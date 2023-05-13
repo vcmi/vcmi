@@ -335,13 +335,12 @@ void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
 	}
 
 	stackAnimation[stack->unitId()]->nextFrame(canvas, fullFilter, facingRight(stack)); // do actual blit
-	stackAnimation[stack->unitId()]->incrementFrame(float(GH.getFrameDeltaMilliseconds()) / 1000);
 }
 
-void BattleStacksController::update()
+void BattleStacksController::tick(uint32_t msPassed)
 {
 	updateHoveredStacks();
-	updateBattleAnimations();
+	updateBattleAnimations(msPassed);
 }
 
 void BattleStacksController::initializeBattleAnimations()
@@ -352,21 +351,30 @@ void BattleStacksController::initializeBattleAnimations()
 			elem->tryInitialize();
 }
 
-void BattleStacksController::stepFrameBattleAnimations()
+void BattleStacksController::tickFrameBattleAnimations(uint32_t msPassed)
 {
+	for (auto stack : owner.curInt->cb->battleGetAllStacks(false))
+	{
+		if (stackAnimation.find(stack->unitId()) == stackAnimation.end()) //e.g. for summoned but not yet handled stacks
+			continue;
+
+		stackAnimation[stack->unitId()]->incrementFrame(msPassed / 1000.f);
+	}
+
 	// operate on copy - to prevent potential iterator invalidation due to push_back's
 	// FIXME? : remove remaining calls to addNewAnim from BattleAnimation::nextFrame (only Catapult explosion at the time of writing)
+
 	auto copiedVector = currentAnimations;
 	for (auto & elem : copiedVector)
 		if (elem && elem->isInitialized())
-			elem->nextFrame();
+			elem->tick(msPassed);
 }
 
-void BattleStacksController::updateBattleAnimations()
+void BattleStacksController::updateBattleAnimations(uint32_t msPassed)
 {
 	bool hadAnimations = !currentAnimations.empty();
 	initializeBattleAnimations();
-	stepFrameBattleAnimations();
+	tickFrameBattleAnimations(msPassed);
 	vstd::erase(currentAnimations, nullptr);
 
 	if (hadAnimations && currentAnimations.empty())

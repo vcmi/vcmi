@@ -91,9 +91,9 @@ class BattleStacksController
 	void removeExpiredColorFilters();
 
 	void initializeBattleAnimations();
-	void stepFrameBattleAnimations();
+	void tickFrameBattleAnimations(uint32_t msPassed);
 
-	void updateBattleAnimations();
+	void updateBattleAnimations(uint32_t msPassed);
 	void updateHoveredStacks();
 
 	std::vector<const CStack *> selectHoveredStacks();
@@ -138,7 +138,7 @@ public:
 	const CStack* getActiveStack() const;
 	const std::vector<uint32_t> getHoveredStacksUnitIds() const;
 
-	void update();
+	void tick(uint32_t msPassed);
 
 	/// returns position of animation needed to place stack in specific hex
 	Point getStackPositionAtHex(BattleHex hexNum, const CStack * creature) const;

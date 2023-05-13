@@ -194,7 +194,7 @@ void CGuiHandler::totalRedraw()
 
 void CGuiHandler::updateTime()
 {
-	int ms = framerateManagerInstance->getElapsedMilliseconds();
+	int ms = framerateManager().getElapsedMilliseconds();
 	std::list<CIntObject*> hlp = timeinterested;
 	for (auto & elem : hlp)
 	{
@@ -693,7 +693,7 @@ void CGuiHandler::renderFrame()
 		disposed.clear();
 	}
 
-	framerateManagerInstance->framerateDelay(); // holds a constant FPS
+	framerateManager().framerateDelay(); // holds a constant FPS
 }
 
 CGuiHandler::CGuiHandler()
@@ -793,7 +793,7 @@ void CGuiHandler::drawFPSCounter()
 	static SDL_Rect overlay = { 0, 0, 64, 32};
 	uint32_t black = SDL_MapRGB(screen->format, 10, 10, 10);
 	SDL_FillRect(screen, &overlay, black);
-	std::string fps = std::to_string(framerateManagerInstance->getFramerate());
+	std::string fps = std::to_string(framerateManager().getFramerate());
 	graphics->fonts[FONT_BIG]->renderTextLeft(screen, fps, Colors::YELLOW, Point(10, 10));
 }
 

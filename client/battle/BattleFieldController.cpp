@@ -68,7 +68,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()));
 
 	updateAccessibleHexes();
-	addUsedEvents(LCLICK | RCLICK | MOVE);
+	addUsedEvents(LCLICK | RCLICK | MOVE | TIME);
 }
 
 void BattleFieldController::activate()
@@ -134,7 +134,7 @@ void BattleFieldController::renderBattlefield(Canvas & canvas)
 
 	renderer.execute(clippedCanvas);
 
-	owner.projectilesController->showProjectiles(clippedCanvas);
+	owner.projectilesController->render(clippedCanvas);
 }
 
 void BattleFieldController::showBackground(Canvas & canvas)
@@ -611,12 +611,16 @@ void BattleFieldController::showAll(SDL_Surface * to)
 	show(to);
 }
 
-void BattleFieldController::show(SDL_Surface * to)
+void BattleFieldController::tick(uint32_t msPassed)
 {
 	updateAccessibleHexes();
-	owner.stacksController->update();
-	owner.obstacleController->update();
+	owner.stacksController->tick(msPassed);
+	owner.obstacleController->tick(msPassed);
+	owner.projectilesController->tick(msPassed);
+}
 
+void BattleFieldController::show(SDL_Surface * to)
+{
 	Canvas canvas(to);
 	CSDL_Ext::CClipRectGuard guard(to, pos);
 
