@@ -49,7 +49,8 @@ EvaluationContext::EvaluationContext(const Nullkiller * ai)
 	turn(0),
 	strategicalValue(0),
 	evaluator(ai),
-	enemyHeroDangerRatio(0)
+	enemyHeroDangerRatio(0),
+	armyGrowth(0)
 {
 }
 
@@ -64,6 +65,7 @@ void PriorityEvaluator::initVisitTile()
 	std::string str = std::string((char *)file.first.get(), file.second);
 	engine = fl::FllImporter().fromString(str);
 	armyLossPersentageVariable = engine->getInputVariable("armyLoss");
+	armyGrowthVariable = engine->getInputVariable("armyGrowth");
 	heroRoleVariable = engine->getInputVariable("heroRole");
 	dangerVariable = engine->getInputVariable("danger");
 	turnVariable = engine->getInputVariable("turn");
@@ -164,7 +166,7 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 	return result;
 }
 
-uint64_t getDwellingScore(CCallback * cb, const CGObjectInstance * target, bool checkGold)
+uint64_t getDwellingArmyValue(CCallback * cb, const CGObjectInstance * target, bool checkGold)
 {
 	auto dwelling = dynamic_cast<const CGDwelling *>(target);
 	uint64_t score = 0;
@@ -179,6 +181,27 @@ uint64_t getDwellingScore(CCallback * cb, const CGObjectInstance * target, bool 
 				continue;
 
 			score += creature->getAIValue() * creLevel.first;
+		}
+	}
+
+	return score;
+}
+
+uint64_t getDwellingArmyGrowth(CCallback * cb, const CGObjectInstance * target, PlayerColor myColor)
+{
+	auto dwelling = dynamic_cast<const CGDwelling *>(target);
+	uint64_t score = 0;
+
+	if(dwelling->getOwner() == myColor)
+		return 0;
+
+	for(auto & creLevel : dwelling->creatures)
+	{
+		if(creLevel.second.size())
+		{
+			auto creature = creLevel.second.back().toCreature();
+
+			score += creature->getAIValue() * creature->getGrowth();
 		}
 	}
 
@@ -272,7 +295,7 @@ uint64_t RewardEvaluator::getArmyReward(
 	case Obj::CREATURE_GENERATOR2:
 	case Obj::CREATURE_GENERATOR3:
 	case Obj::CREATURE_GENERATOR4:
-		return getDwellingScore(ai->cb.get(), target, checkGold);
+		return getDwellingArmyValue(ai->cb.get(), target, checkGold);
 	case Obj::CRYPT:
 	case Obj::SHIPWRECK:
 	case Obj::SHIPWRECK_SURVIVOR:
@@ -288,6 +311,44 @@ uint64_t RewardEvaluator::getArmyReward(
 			: 0;
 	case Obj::PANDORAS_BOX:
 		return 5000;
+	default:
+		return 0;
+	}
+}
+
+uint64_t RewardEvaluator::getArmyGrowth(
+	const CGObjectInstance * target,
+	const CGHeroInstance * hero,
+	const CCreatureSet * army) const
+{
+	const float enemyArmyEliminationRewardRatio = 0.5f;
+
+	if(!target)
+		return 0;
+
+	switch(target->ID)
+	{
+	case Obj::TOWN:
+	{
+		auto town = dynamic_cast<const CGTownInstance *>(target);
+		auto fortLevel = town->fortLevel();
+		auto neutral = !town->getOwner().isValidPlayer();
+		auto booster = isAnotherAi(town, *ai->cb) ||  neutral ? 1 : 2;
+
+		if(fortLevel < CGTownInstance::CITADEL)
+			return town->hasFort() ? booster * 500 : 0;
+		else
+			return booster * (fortLevel == CGTownInstance::CASTLE ? 5000 : 2000);
+	}
+
+	case Obj::CREATURE_GENERATOR1:
+	case Obj::CREATURE_GENERATOR2:
+	case Obj::CREATURE_GENERATOR3:
+	case Obj::CREATURE_GENERATOR4:
+		return getDwellingArmyGrowth(ai->cb.get(), target, hero->getOwner());
+	case Obj::ARTIFACT:
+		// it is not supported now because hero will not sit in town on 7th day but later parts of legion may be counted as army growth as well.
+		return 0;
 	default:
 		return 0;
 	}
@@ -714,6 +775,7 @@ public:
 		{
 			evaluationContext.goldReward += evaluationContext.evaluator.getGoldReward(target, hero);
 			evaluationContext.armyReward += evaluationContext.evaluator.getArmyReward(target, hero, army, checkGold);
+			evaluationContext.armyGrowth += evaluationContext.evaluator.getArmyGrowth(target, hero, army);
 			evaluationContext.skillReward += evaluationContext.evaluator.getSkillReward(target, hero, evaluationContext.heroRole);
 			evaluationContext.strategicalValue += evaluationContext.evaluator.getStrategicalValue(target);
 			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army);
@@ -920,6 +982,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		scoutTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::SCOUT]);
 		goldRewardVariable->setValue(evaluationContext.goldReward);
 		armyRewardVariable->setValue(evaluationContext.armyReward);
+		armyGrowthVariable->setValue(evaluationContext.armyGrowth);
 		skillRewardVariable->setValue(evaluationContext.skillReward);
 		dangerVariable->setValue(evaluationContext.danger);
 		rewardTypeVariable->setValue(rewardType);
