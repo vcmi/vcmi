@@ -95,6 +95,8 @@
 	"vcmi.battleOptions.touchscreenMode.help": "{Touchscreen mode}\n\nIf enabled, second click is required to confirm and execute action. This is more suitable for touchscreen devices.",
 	"vcmi.battleOptions.movementHighlightOnHover.hover": "Movement Highlight on Hover",
 	"vcmi.battleOptions.movementHighlightOnHover.help": "{Movement Highlight on Hover}\n\nHighlight unit's movement range when you hover over it.",
+	"vcmi.battleOptions.rangedFullDamageLimitHighlightOnHover.hover": "Ranged Full Damage Limit Highlight",
+	"vcmi.battleOptions.rangedFullDamageLimitHighlightOnHover.help": "{Ranged Full Damage Limit on Hover}\n\nHighlight ranged unit's full damage range limit when you hover over it.",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Skip Intro Music",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Skip Intro Music}\n\nAllow actions during the intro music that plays at the beginning of each battle",
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Press any key to start battle immediately",

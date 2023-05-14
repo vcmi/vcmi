@@ -141,6 +141,21 @@ std::vector<BattleHex> BattleHex::neighbouringTiles() const
 	return ret;
 }
 
+std::vector<std::pair<BattleHex::EDir, BattleHex>> BattleHex::neighbouringTilesWithDirection() const
+{
+	std::vector<std::pair<BattleHex::EDir, BattleHex>> ret;
+	ret.reserve(6);
+
+	for(auto dir : hexagonalDirections())
+	{
+		auto tile = cloneInDirection(dir, false);
+		if(tile.isAvailable())
+			ret.push_back({dir, tile});
+	}
+
+	return ret;
+}
+
 std::vector<BattleHex> BattleHex::allNeighbouringTiles() const
 {
 	std::vector<BattleHex> ret;

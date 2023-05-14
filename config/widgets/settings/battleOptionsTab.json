@@ -5,13 +5,13 @@
 			"name": "lineCreatureInfo",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 229, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 259, "w": 365, "h": 3}
 		},
 		{
 			"name": "lineAnimationSpeed",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 319, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 349, "w": 365, "h": 3}
 		},
 
 		{
@@ -28,7 +28,7 @@
 				},
 				{
 					"text": "core.genrltxt.397", // Creature info
-					"position": {"x": 10, "y": 235}
+					"position": {"x": 10, "y": 265}
 				}
 			]
 		},
@@ -104,11 +104,11 @@
 			[
 				{
 					"text": "core.genrltxt.402", // All Stats
-					"position": {"x": 45, "y": 265}
+					"position": {"x": 45, "y": 295}
 				},
 				{
 					"text": "core.genrltxt.403", // Spells only
-					"position": {"x": 45, "y": 295}
+					"position": {"x": 45, "y": 325}
 				}
 			]
 		},
@@ -116,13 +116,13 @@
 			"name": "creatureInfoAllPlaceholder",
 			"type": "picture",
 			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 10, "y": 263},
+			"position": {"x": 10, "y": 293},
 		},
 		{
 			"name": "creatureInfoSpellsPlaceholder",
 			"type": "picture",
 			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 10, "y": 293},
+			"position": {"x": 10, "y": 323},
 		},
 
 		{
@@ -146,16 +146,20 @@
 					"position": {"x": 45, "y": 115}
 				},
 				{
-					"text": "core.genrltxt.406",
+					"text": "vcmi.battleOptions.rangedFullDamageLimitHighlightOnHover.hover",
 					"position": {"x": 45, "y": 145}
 				},
 				{
-					"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
+					"text": "core.genrltxt.406",
 					"position": {"x": 45, "y": 175}
 				},
 				{
-					"text": "vcmi.battleOptions.touchscreenMode.hover",
+					"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
 					"position": {"x": 45, "y": 205}
+				},
+				{
+					"text": "vcmi.battleOptions.touchscreenMode.hover",
+					"position": {"x": 45, "y": 235}
 				}
 			]
 		},
@@ -185,11 +189,19 @@
 			"callback": "movementHighlightOnHoverChanged"
 		},
 		{
+			"name": "rangedFullDamageLimitHighlightOnHoverCheckbox",
+			"type": "toggleButton",
+			"image": "sysopchk.def",
+			"help": "vcmi.battleOptions.rangedFullDamageLimitHighlightOnHover",
+			"position": {"x": 10, "y": 143},
+			"callback": "rangedFullDamageLimitHighlightOnHoverChanged"
+		},
+		{
 			"name": "mouseShadowCheckbox",
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "core.help.429",
-			"position": {"x": 10, "y": 143},
+			"position": {"x": 10, "y": 173},
 			"callback": "mouseShadowChanged"
 		},
 		{
@@ -197,7 +209,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.battleOptions.skipBattleIntroMusic",
-			"position": {"x": 10, "y": 173},
+			"position": {"x": 10, "y": 203},
 			"callback": "skipBattleIntroMusicChanged"
 		},
 		{
@@ -205,7 +217,7 @@
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.battleOptions.touchscreenMode",
-			"position": {"x": 10, "y": 203},
+			"position": {"x": 10, "y": 233},
 			"callback": "touchscreenModeChanged"
 		},
 /////////////////////////////////////// Bottom section - Animation Speed and Turn Order

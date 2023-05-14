@@ -291,7 +291,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "showQueue", "queueSize", "touchscreenMode" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangedFullDamageLimitHighlightOnHover", "showQueue", "queueSize", "touchscreenMode" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -314,6 +314,10 @@
 					"default" : true
 				},
 				"movementHighlightOnHover" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"rangedFullDamageLimitHighlightOnHover" : {
 					"type" : "boolean",
 					"default" : true
 				},

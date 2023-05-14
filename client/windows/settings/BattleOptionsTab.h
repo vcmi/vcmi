@@ -25,6 +25,7 @@ private:
 	void viewGridChangedCallback(bool value, BattleInterface * parentBattleInterface);
 	void movementShadowChangedCallback(bool value, BattleInterface * parentBattleInterface);
 	void movementHighlightOnHoverChangedCallback(bool value, BattleInterface * parentBattleInterface);
+	void rangedFullDamageLimitHighlightOnHoverChangedCallback(bool value, BattleInterface * parentBattleInterface);
 	void mouseShadowChangedCallback(bool value);
 	void animationSpeedChangedCallback(int value);
 	void showQueueChangedCallback(bool value, BattleInterface * parentBattleInterface);
