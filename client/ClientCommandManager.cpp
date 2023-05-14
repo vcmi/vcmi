@@ -415,6 +415,13 @@ void ClientCommandManager::handleSetCommand(std::istringstream& singleWordBuffer
 	}
 }
 
+void ClientCommandManager::handleShowObjectCommand(std::istringstream& singleWordBuffer)
+{
+	Settings config = settings.write["session"]["showObject"];
+	singleWordBuffer >> config->String();
+	printCommandMessage("Showing objects of type: " + config->String() + "!", ELogLevel::INFO);
+}
+
 void ClientCommandManager::handleUnlockCommand(std::istringstream& singleWordBuffer)
 {
 	std::string mxname;
@@ -545,6 +552,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if (commandName == "set")
 		handleSetCommand(singleWordBuffer);
+
+	else if (commandName == "showObject")
+		handleShowObjectCommand(singleWordBuffer);
 
 	else if(commandName == "unlock")
 		handleUnlockCommand(singleWordBuffer);

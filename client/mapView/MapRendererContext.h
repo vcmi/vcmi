@@ -59,6 +59,7 @@ public:
 	bool showVisitable() const override;
 	bool showBlocked() const override;
 	bool showSpellRange(const int3 & position) const override;
+	std::string showObject() const override;
 };
 
 class MapRendererAdventureContext : public MapRendererBaseContext
@@ -69,6 +70,7 @@ public:
 	bool settingShowVisitable = false;
 	bool settingShowBlocked = false;
 	bool settingSpellRange= false;
+	std::string searchedObject = "";
 	bool settingsAdventureObjectAnimation = true;
 	bool settingsAdventureTerrainAnimation = true;
 
@@ -84,6 +86,8 @@ public:
 	bool showBlocked() const override;
 
 	bool showSpellRange(const int3 & position) const override;
+	std::string showObject() const override;
+
 };
 
 class MapRendererAdventureTransitionContext : public MapRendererAdventureContext

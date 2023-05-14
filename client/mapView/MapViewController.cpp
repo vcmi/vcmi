@@ -218,6 +218,7 @@ void MapViewController::updateState()
 		adventureContext->settingShowVisitable = settings["session"]["showVisitable"].Bool();
 		adventureContext->settingShowBlocked = settings["session"]["showBlocked"].Bool();
 		adventureContext->settingSpellRange = settings["session"]["showSpellRange"].Bool();
+		adventureContext->searchedObject = settings["session"]["showObject"].String();
 	}
 }
 
