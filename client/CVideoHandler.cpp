@@ -12,6 +12,7 @@
 
 #include "CMT.h"
 #include "gui/CGuiHandler.h"
+#include "gui/FramerateManager.h"
 #include "renderSDL/SDL_Extensions.h"
 #include "CPlayerInterface.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -370,7 +371,7 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 	auto packet_duration = frame->duration;
 #endif
 	double frameEndTime = (frame->pts + packet_duration) * av_q2d(format->streams[stream]->time_base);
-	frameTime += GH.getFrameDeltaMilliseconds() / 1000.0;
+	frameTime += GH.framerateManager().getElapsedMilliseconds() / 1000.0;
 
 	if (frameTime >= frameEndTime )
 	{

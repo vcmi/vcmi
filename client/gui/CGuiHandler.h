@@ -87,8 +87,6 @@ private:
 	void fakeMoveCursor(float dx, float dy);
 	void fakeMouseButtonEventRelativeMode(bool down, bool right);
 
-	FramerateManager & framerateManager();
-
 public:
 	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
 	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);
@@ -100,11 +98,7 @@ public:
 	const Point & getCursorPosition() const;
 
 	ShortcutHandler & shortcutsHandler();
-
-
-	/// returns duration of last frame in milliseconds
-	/// NOTE: avoid to use, preferred method is to overload CIntObject::tick(uint32_t)
-	uint32_t getFrameDeltaMilliseconds() const;
+	FramerateManager & framerateManager();
 
 	/// Returns current logical screen dimensions
 	/// May not match size of window if user has UI scaling different from 100%

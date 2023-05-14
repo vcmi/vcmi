@@ -761,11 +761,6 @@ const Point & CGuiHandler::getCursorPosition() const
 	return cursorPosition;
 }
 
-uint32_t CGuiHandler::getFrameDeltaMilliseconds() const
-{
-	return framerateManagerInstance->getElapsedMilliseconds();
-}
-
 Point CGuiHandler::screenDimensions() const
 {
 	return Point(screen->w, screen->h);
