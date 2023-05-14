@@ -50,6 +50,33 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	attackCursors = std::make_shared<CAnimation>("CRCOMBAT");
 	attackCursors->preload();
 
+	// load single edges
+	fullDamageRangeLimitImages[0b000001] = IImage::createFromFile("rangeHighlights/green/topLeft.PNG", EImageBlitMode::COLORKEY);
+	fullDamageRangeLimitImages[0b000010] = IImage::createFromFile("rangeHighlights/green/topRight.PNG", EImageBlitMode::COLORKEY);
+	fullDamageRangeLimitImages[0b000100] = IImage::createFromFile("rangeHighlights/green/right.PNG", EImageBlitMode::COLORKEY);
+	fullDamageRangeLimitImages[0b001000] = IImage::createFromFile("rangeHighlights/green/bottomRight.PNG", EImageBlitMode::COLORKEY);
+	fullDamageRangeLimitImages[0b010000] = IImage::createFromFile("rangeHighlights/green/bottomLeft.PNG", EImageBlitMode::COLORKEY);
+	fullDamageRangeLimitImages[0b100000] = IImage::createFromFile("rangeHighlights/green/left.PNG", EImageBlitMode::COLORKEY);
+
+	// load double edges
+	fullDamageRangeLimitImages[0b000011] = IImage::createFromFile("rangeHighlights/green/top.PNG", EImageBlitMode::COLORKEY);
+	fullDamageRangeLimitImages[0b011000] = IImage::createFromFile("rangeHighlights/green/bottom.PNG", EImageBlitMode::COLORKEY);
+
+	fullDamageRangeLimitImages[0b000110] = IImage::createFromFile("rangeHighlights/green/topRightHalfCorner.PNG", EImageBlitMode::COLORKEY);
+	fullDamageRangeLimitImages[0b001100] = IImage::createFromFile("rangeHighlights/green/bottomRightHalfCorner.PNG", EImageBlitMode::COLORKEY);
+	fullDamageRangeLimitImages[0b110000] = IImage::createFromFile("rangeHighlights/green/bottomLeftHalfCorner.PNG", EImageBlitMode::COLORKEY);
+	fullDamageRangeLimitImages[0b100001] = IImage::createFromFile("rangeHighlights/green/topLeftHalfCorner.PNG", EImageBlitMode::COLORKEY);
+
+	// load halves
+	fullDamageRangeLimitImages[0b001110] = IImage::createFromFile("rangeHighlights/green/rightHalf.PNG", EImageBlitMode::COLORKEY);
+	fullDamageRangeLimitImages[0b110001] = IImage::createFromFile("rangeHighlights/green/leftHalf.PNG", EImageBlitMode::COLORKEY);
+
+	// load corners
+	fullDamageRangeLimitImages[0b000111] = IImage::createFromFile("rangeHighlights/green/topRightCorner.PNG", EImageBlitMode::COLORKEY);
+	fullDamageRangeLimitImages[0b011100] = IImage::createFromFile("rangeHighlights/green/bottomRightCorner.PNG", EImageBlitMode::COLORKEY);
+	fullDamageRangeLimitImages[0b111000] = IImage::createFromFile("rangeHighlights/green/bottomLeftCorner.PNG", EImageBlitMode::COLORKEY);
+	fullDamageRangeLimitImages[0b100011] = IImage::createFromFile("rangeHighlights/green/topLeftCorner.PNG", EImageBlitMode::COLORKEY);
+
 	if(!owner.siegeController)
 	{
 		auto bfieldType = owner.curInt->cb->battleGetBattlefieldType();
@@ -361,6 +388,124 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForMovementTarget(
 	return {};
 }
 
+std::vector<BattleHex> BattleFieldController::getRangedFullDamageHexes()
+{
+	std::vector<BattleHex> rangedFullDamageHexes; // used for return
+	std::set<BattleHex> battleFieldWithoutSideColumns;
+
+	// if not a hovered arcer unit -> return
+	auto hoveredHex = getHoveredHex();
+	const CStack * hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+
+	if (!settings["battle"]["rangedFullDamageLimitHighlightOnHover"].Bool() && !GH.isKeyboardShiftDown())
+		return rangedFullDamageHexes;
+
+	if(!(hoveredStack && hoveredStack->isShooter()))
+		return rangedFullDamageHexes;
+	
+	// construct battlefield grid without the 2 unusable sidecolumns
+	for(auto x = 1; x < GameConstants::BFIELD_WIDTH - 1; ++x)
+	{
+		for(auto y = 0; y < GameConstants::BFIELD_HEIGHT; ++y)
+			battleFieldWithoutSideColumns.insert(BattleHex(x, y));
+	}
+
+	auto rangedFullDamageDistance = GameConstants::BATTLE_PENALTY_DISTANCE;
+
+	// overwrite full ranged damage distance from Additional info field of LIMITED_SHOOTING_RANGE bonus
+	auto bonus = hoveredStack->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
+	if(bonus != nullptr && bonus->additionalInfo != CAddInfo::NONE)
+		rangedFullDamageDistance = bonus->additionalInfo[0];
+
+	// get only battlefield hexes that are in full range damage distance
+	std::set<BattleHex> fullRangeLimit; 
+	for(auto & hex : battleFieldWithoutSideColumns)
+	{
+		if(BattleHex::getDistance(hoveredHex, hex) <= rangedFullDamageDistance)
+			rangedFullDamageHexes.push_back(hex);
+	}
+
+	return rangedFullDamageHexes;
+}
+
+std::vector<BattleHex> BattleFieldController::getRangedFullDamageLimitHexes(std::vector<BattleHex> rangedFullDamageHexes)
+{
+	std::vector<BattleHex> rangedFullDamageLimitHexes; // used for return
+
+	// if not a hovered arcer unit -> return
+	auto hoveredHex = getHoveredHex();
+	const CStack * hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+	if(!(hoveredStack && hoveredStack->isShooter()))
+		return rangedFullDamageLimitHexes;
+
+	auto rangedFullDamageDistance = GameConstants::BATTLE_PENALTY_DISTANCE;
+
+	// overwrite full ranged damage distance from Additional info field of LIMITED_SHOOTING_RANGE bonus
+	auto bonus = hoveredStack->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
+	if(bonus != nullptr && bonus->additionalInfo != CAddInfo::NONE)
+		rangedFullDamageDistance = bonus->additionalInfo[0];
+
+	// from ranged full damage hexes get only the ones at the limit
+	for(auto & hex : rangedFullDamageHexes)
+	{
+		if(BattleHex::getDistance(hoveredHex, hex) == rangedFullDamageDistance)
+			rangedFullDamageLimitHexes.push_back(hex);
+	}
+
+	return rangedFullDamageLimitHexes;
+}
+
+std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeighbourDirectionsForLimitHexes(std::vector<BattleHex> rangedFullDamageHexes, std::vector<BattleHex> rangedFullDamageLimitHexes)
+{
+	std::vector<std::vector<BattleHex::EDir>> output;
+
+	if(rangedFullDamageHexes.empty())
+		return output;
+
+	for(auto & hex : rangedFullDamageLimitHexes)
+	{
+		// get all neighbours and their directions
+		auto neighbours = hex.neighbouringTilesWithDirection();
+
+		std::vector<BattleHex::EDir> outsideNeighbourDirections;
+
+		// for each neighbour add to output only the ones not found in rangedFullDamageHexes
+		for(auto & neighbour : neighbours)
+		{
+			auto it = std::find(rangedFullDamageHexes.begin(), rangedFullDamageHexes.end(), neighbour.second);
+
+			if(it == rangedFullDamageHexes.end())
+				outsideNeighbourDirections.push_back(neighbour.first); // push direction
+		}
+
+		output.push_back(outsideNeighbourDirections);
+	}
+
+	return output;
+}
+
+std::vector<std::shared_ptr<IImage>> BattleFieldController::calculateFullRangedDamageHighlightImages(std::vector<std::vector<BattleHex::EDir>> fullRangedDamageLimitHexesNeighbourDirections)
+{
+	std::vector<std::shared_ptr<IImage>> output; // if no image is to be shown an empty image is still added to help with traverssing the range
+
+	if(fullRangedDamageLimitHexesNeighbourDirections.empty())
+		return output;
+
+	for(auto & directions : fullRangedDamageLimitHexesNeighbourDirections)
+	{
+		std::bitset<6> mask;
+		
+		// convert directions to mask
+		for(auto direction : directions)
+			mask.set(direction);
+
+		uint8_t imageKey = static_cast<uint8_t>(mask.to_ulong());
+		output.push_back(fullDamageRangeLimitImages[imageKey]);
+	}
+
+	return output;
+}
+
 void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 {
 	std::set<BattleHex> hoveredStackMovementRangeHexes = getMovementRangeForHoveredStack();
@@ -370,12 +515,28 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	if(getHoveredHex() == BattleHex::INVALID)
 		return;
 
+	// calculate array with highlight images for ranged full damage limit
+	std::vector<BattleHex> rangedFullDamageHexes = getRangedFullDamageHexes();
+	std::vector<BattleHex> rangedFullDamageLimitHexes = getRangedFullDamageLimitHexes(rangedFullDamageHexes);
+	std::vector<std::vector<BattleHex::EDir>> rangedFullDamageLimitHexesNeighbourDirections = getOutsideNeighbourDirectionsForLimitHexes(rangedFullDamageHexes, rangedFullDamageLimitHexes);
+	std::vector<std::shared_ptr<IImage>> rangedFullDamageLimitHexesHighligts = calculateFullRangedDamageHighlightImages(rangedFullDamageLimitHexesNeighbourDirections);
+
 	auto const & hoveredMouseHexes = owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpellHexes : hoveredMoveHexes;
 
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; ++hex)
 	{
 		bool stackMovement = hoveredStackMovementRangeHexes.count(hex);
 		bool mouse = hoveredMouseHexes.count(hex);
+
+		// calculate if hex is Ranged Full Damage Limit and its position in highlight array
+		bool isRangedFullDamageLimit = false;
+		int hexIndexInRangedFullDamageLimit = 0;
+		if(!rangedFullDamageLimitHexes.empty())
+		{
+			auto pos = std::find(rangedFullDamageLimitHexes.begin(), rangedFullDamageLimitHexes.end(), hex);
+			hexIndexInRangedFullDamageLimit = std::distance(rangedFullDamageLimitHexes.begin(), pos);
+			isRangedFullDamageLimit = pos != rangedFullDamageLimitHexes.end();
+		}
 
 		if(stackMovement && mouse) // area where hovered stackMovement can move shown with highlight. Because also affected by mouse cursor, shade as well
 		{
@@ -389,6 +550,10 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 		if(stackMovement && !mouse) // hexes where hovered stackMovement can move shown with highlight
 		{
 			showHighlightedHex(canvas, cellUnitMovementHighlight, hex, false);
+		}
+		if(isRangedFullDamageLimit)
+		{
+			showHighlightedHex(canvas, rangedFullDamageLimitHexesHighligts[hexIndexInRangedFullDamageLimit], hex, false);
 		}
 	}
 }

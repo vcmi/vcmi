@@ -39,6 +39,10 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	{
 		movementHighlightOnHoverChangedCallback(value, owner);
 	});
+	addCallback("rangedFullDamageLimitHighlightOnHoverChanged", [this, owner](bool value)
+	{
+		rangedFullDamageLimitHighlightOnHoverChangedCallback(value, owner);
+	});
 	addCallback("mouseShadowChanged", [this](bool value)
 	{
 		mouseShadowChangedCallback(value);
@@ -75,6 +79,9 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 
 	std::shared_ptr<CToggleButton> movementHighlightOnHoverCheckbox = widget<CToggleButton>("movementHighlightOnHoverCheckbox");
 	movementHighlightOnHoverCheckbox->setSelected(settings["battle"]["movementHighlightOnHover"].Bool());
+
+	std::shared_ptr<CToggleButton> rangedFullDamageLimitHighlightOnHoverCheckbox = widget<CToggleButton>("rangedFullDamageLimitHighlightOnHoverCheckbox");
+	rangedFullDamageLimitHighlightOnHoverCheckbox->setSelected(settings["battle"]["rangedFullDamageLimitHighlightOnHover"].Bool());
 
 	std::shared_ptr<CToggleButton> mouseShadowCheckbox = widget<CToggleButton>("mouseShadowCheckbox");
 	mouseShadowCheckbox->setSelected(settings["battle"]["mouseShadow"].Bool());
@@ -147,6 +154,14 @@ void BattleOptionsTab::movementShadowChangedCallback(bool value, BattleInterface
 void BattleOptionsTab::movementHighlightOnHoverChangedCallback(bool value, BattleInterface * parentBattleInterface)
 {
 	Settings stackRange = settings.write["battle"]["movementHighlightOnHover"];
+	stackRange->Bool() = value;
+	if(parentBattleInterface)
+		parentBattleInterface->redrawBattlefield();
+}
+
+void BattleOptionsTab::rangedFullDamageLimitHighlightOnHoverChangedCallback(bool value, BattleInterface * parentBattleInterface)
+{
+	Settings stackRange = settings.write["battle"]["rangedFullDamageLimitHighlightOnHover"];
 	stackRange->Bool() = value;
 	if(parentBattleInterface)
 		parentBattleInterface->redrawBattlefield();
