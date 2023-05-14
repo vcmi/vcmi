@@ -52,7 +52,7 @@ void CInGameConsole::show(SDL_Surface * to)
 		Point leftBottomCorner(0, pos.h);
 		Point textPosition(leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number * 20);
 
-		graphics->fonts[FONT_MEDIUM]->renderTextLeft(to, text.text, Colors::GREEN, textPosition );
+		graphics->fonts[FONT_MEDIUM]->renderTextLeft(to, text.text, Colors::GREEN, pos.topLeft() + textPosition );
 
 		number++;
 	}

@@ -69,7 +69,12 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 	updateAccessibleHexes();
 	addUsedEvents(LCLICK | RCLICK | MOVE);
+}
+
+void BattleFieldController::activate()
+{
 	LOCPLINT->cingconsole->pos = this->pos;
+	CIntObject::activate();
 }
 
 void BattleFieldController::createHeroes()
