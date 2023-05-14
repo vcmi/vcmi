@@ -65,14 +65,36 @@ void InterfaceObjectConfigurable::deleteWidget(const std::string & name)
 		widgets.erase(iter);
 }
 
+void InterfaceObjectConfigurable::loadCustomBuilders(const JsonNode & config)
+{
+	for(auto & item : config.Struct())
+	{
+		std::string typeName = item.first;
+		JsonNode baseConfig = item.second;
+
+		auto const & functor = [this, baseConfig](const JsonNode & widgetConfig) -> std::shared_ptr<CIntObject>
+		{
+			JsonNode actualConfig = widgetConfig;
+			JsonUtils::mergeCopy(actualConfig, baseConfig);
+
+			return this->buildWidget(actualConfig);
+		};
+
+		registerBuilder(typeName, functor);
+	}
+}
+
 void InterfaceObjectConfigurable::build(const JsonNode &config)
 {
 	OBJ_CONSTRUCTION;
+
 	logGlobal->debug("Building configurable interface object");
 	auto * items = &config;
 	
 	if(config.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
+		loadCustomBuilders(config["customTypes"]);
+
 		for(auto & item : config["variables"].Struct())
 		{
 			logGlobal->debug("Read variable named %s", item.first);

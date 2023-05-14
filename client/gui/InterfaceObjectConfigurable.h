@@ -45,6 +45,8 @@ protected:
 
 	using BuilderFunction = std::function<std::shared_ptr<CIntObject>(const JsonNode &)>;
 	void registerBuilder(const std::string &, BuilderFunction);
+
+	void loadCustomBuilders(const JsonNode & config);
 	
 	//must be called after adding callbacks
 	void build(const JsonNode & config);
