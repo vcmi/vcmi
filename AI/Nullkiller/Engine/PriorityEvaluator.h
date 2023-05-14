@@ -33,6 +33,7 @@ public:
 	RewardEvaluator(const Nullkiller * ai) : ai(ai) {}
 
 	uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army, bool checkGold) const;
+	uint64_t getArmyGrowth(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
 	int getGoldCost(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
 	float getEnemyHeroStrategicalValue(const CGHeroInstance * enemy) const;
 	float getResourceRequirementStrength(int resType) const;
@@ -54,6 +55,7 @@ struct DLL_EXPORT EvaluationContext
 	float closestWayRatio;
 	float armyLossPersentage;
 	float armyReward;
+	uint64_t armyGrowth;
 	int32_t goldReward;
 	int32_t goldCost;
 	float skillReward;
@@ -95,6 +97,7 @@ private:
 	fl::InputVariable * turnVariable;
 	fl::InputVariable * goldRewardVariable;
 	fl::InputVariable * armyRewardVariable;
+	fl::InputVariable * armyGrowthVariable;
 	fl::InputVariable * dangerVariable;
 	fl::InputVariable * skillRewardVariable;
 	fl::InputVariable * strategicalValueVariable;
