@@ -1,0 +1,62 @@
+{
+	"labelTitle" : {
+		"type": "label",
+		"font": "medium",
+		"alignment": "left",
+		"color": "yellow"
+	},
+	"labelCentered" : {
+		"type": "label",
+		"font": "medium",
+		"alignment": "center",
+		"color": "yellow"
+	},
+	"labelDescription" : {
+		"type": "label",
+		"font": "medium",
+		"alignment": "left",
+		"color": "white"
+	},
+	"checkbox" : {
+		"type": "toggleButton",
+		"image": "sysopchk.def",
+	},
+	"buttonGear" : {
+		"type": "button",
+		"image": "settingsWindow/button32",
+		"items":
+		[
+			{
+				"name": "gearIcon",
+				"type": "picture",
+				"image": "settingsWindow/gear",
+				"position": {"x": 0, "y": 0 }
+			}
+		]
+	},
+	"checkboxFake" : {
+		"type": "picture",
+		"image": "settingsWindow/checkBoxEmpty"
+	},
+	"audioSlider" : {
+		"type": "slider",
+		"scrollBounds" : { "x" : -4, "y" : -34, "w" : 208, "h" : 52 },
+		"size": 200,
+		"style": "brown",
+		"orientation": "horizontal",
+		"itemsVisible": 0,
+		"itemsTotal": 100,
+	},
+	"verticalLayout" : {
+		"type" : "layout",
+		"vertical" : true,
+		"dynamic" : false,
+		"distance" : 30
+	},
+	"verticalLayout60" : {
+		"type" : "layout",
+		"vertical" : true,
+		"dynamic" : false,
+		"distance" : 60
+	}
+}

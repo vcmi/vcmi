@@ -26,6 +26,7 @@
 #include "../windows/InfoWindows.h"
 
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/filesystem/ResourceID.h"
 
 InterfaceObjectConfigurable::InterfaceObjectConfigurable(const JsonNode & config, int used, Point offset):
 	InterfaceObjectConfigurable(used, offset)
@@ -80,7 +81,6 @@ void InterfaceObjectConfigurable::loadCustomBuilders(const JsonNode & config)
 
 			return this->buildWidget(actualConfig);
 		};
-
 		registerBuilder(typeName, functor);
 	}
 }
@@ -94,6 +94,12 @@ void InterfaceObjectConfigurable::build(const JsonNode &config)
 	
 	if(config.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
+		if (!config["library"].isNull())
+		{
+			const JsonNode library(ResourceID(config["library"].String()));
+			loadCustomBuilders(library);
+		}
+
 		loadCustomBuilders(config["customTypes"]);
 
 		for(auto & item : config["variables"].Struct())
@@ -101,7 +107,7 @@ void InterfaceObjectConfigurable::build(const JsonNode &config)
 			logGlobal->debug("Read variable named %s", item.first);
 			variables[item.first] = item.second;
 		}
-		
+
 		items = &config["items"];
 	}
 	

@@ -1,56 +1,5 @@
 {
-	"customTypes" : {
-		"labelTitle" : {
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "yellow"
-		},
-		"labelAudio" : {
-			"type": "label",
-			"font": "medium",
-			"alignment": "center",
-			"color": "yellow"
-		},
-		"labelDescription" : {
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white"
-		},
-		"checkbox" : {
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-		},
-		"buttonGear" : {
-			"type": "button",
-			"image": "settingsWindow/button32",
-			"items":
-			[
-				{
-					"name": "gearIcon",
-					"type": "picture",
-					"image": "settingsWindow/gear",
-					"position": {"x": 0, "y": 0 }
-				}
-			]
-		},
-		"audioSlider" : {
-			"type": "slider",
-			"scrollBounds" : { "x" : -4, "y" : -34, "w" : 208, "h" : 52 },
-			"size": 200,
-			"style": "brown",
-			"orientation": "horizontal",
-			"itemsVisible": 0,
-			"itemsTotal": 100,
-		},
-		"verticalLayout" : {
-			"type" : "layout",
-			"vertical" : true,
-			"dynamic" : false,
-			"distance" : 30
-		}
-	},
+	"library" : "config/widgets/settings/library.json",
 
 	"items":
 	[
@@ -136,12 +85,12 @@
 		},
 /////////////////////////////////////// Right section - Audio Settings
 		{
-			"type" : "labelAudio",
+			"type" : "labelCentered",
 			"position": {"x": 460, "y": 98},
 			"text": "core.genrltxt.394" // Music Volume
 		},
 		{
-			"type" : "labelAudio",
+			"type" : "labelCentered",
 			"position": {"x": 460, "y": 158},
 			"text": "core.genrltxt.395" // Effects volume
 		},
@@ -159,7 +108,7 @@
 		},
 		{
 			"name": "musicValueLabel",
-			"type": "labelAudio",
+			"type": "labelCentered",
 			"position": {"x": 565, "y": 98}
 		},
 		{
@@ -176,7 +125,7 @@
 		},
 		{
 			"name": "soundValueLabel",
-			"type": "labelAudio",
+			"type": "labelCentered",
 			"position": {"x": 565, "y": 158}
 		},
 /////////////////////////////////////// Bottom section - Towns Settings
@@ -202,27 +151,32 @@
 			"callback": "availableCreaturesAsDwellingChanged"
 		},
 		{
-			"type" : "verticalLayout",
-			"customType" : "checkbox",
+			"name": "availableCreaturesAsDwellingPicker",
+			"type": "toggleGroup",
 			"position": {"x": 10, "y": 323},
 			"items":
 			[
 				{
+					"index": 0,
+					"type": "checkbox",
 					"help": "vcmi.otherOptions.creatureGrowthAsDwellingLabel",
-					"group" : "availableCreaturesAsDwellingPicker",
-					"index": 0
+					"position": {"x": 0, "y": 0}
 				},
 				{
+					"index": 1,
+					"type": "checkbox",
 					"help": "vcmi.otherOptions.availableCreaturesAsDwellingLabel",
-					"group" : "availableCreaturesAsDwellingPicker",
-					"index": 1
+					"position": {"x": 0, "y": 30}
 				},
-				{
-					"name": "compactTownCreatureInfoCheckbox",
-					"help": "vcmi.otherOptions.compactTownCreatureInfo",
-					"callback": "compactTownCreatureInfoChanged"
-				}
-			]
+			],
+			"callback": "availableCreaturesAsDwellingChanged"
+		},
+		{
+			"name": "compactTownCreatureInfoCheckbox",
+			"type": "checkbox",
+			"help": "vcmi.otherOptions.compactTownCreatureInfo",
+			"position": {"x": 10, "y": 383},
+			"callback": "compactTownCreatureInfoChanged"
 		}
 	]
 }
