@@ -19,6 +19,7 @@
 #include "CHeroHandler.h"
 #include "CArtHandler.h"
 #include "GameSettings.h"
+#include "TerrainHandler.h"
 #include "spells/CSpellHandler.h"
 #include "filesystem/Filesystem.h"
 #include "mapObjects/CObjectClassesHandler.h"
@@ -1035,6 +1036,11 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	{
 		VLC->modh->identifiers.requestIdentifier("terrain", source["nativeTerrain"], [=](int32_t index){
 			faction->nativeTerrain = TerrainId(index);
+
+			auto const & terrain = VLC->terrainTypeHandler->getById(faction->nativeTerrain);
+
+			if (!terrain->isSurface() && !terrain->isUnderground())
+				logMod->warn("Faction %s has terrain %s as native, but terrain is not suitable for either surface or subterranean layers!", faction->getJsonKey(), terrain->getJsonKey());
 		});
 	}
 
