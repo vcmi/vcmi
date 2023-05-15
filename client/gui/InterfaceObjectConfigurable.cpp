@@ -46,6 +46,7 @@ InterfaceObjectConfigurable::InterfaceObjectConfigurable(int used, Point offset)
 	REGISTER_BUILDER("button", &InterfaceObjectConfigurable::buildButton);
 	REGISTER_BUILDER("labelGroup", &InterfaceObjectConfigurable::buildLabelGroup);
 	REGISTER_BUILDER("slider", &InterfaceObjectConfigurable::buildSlider);
+	REGISTER_BUILDER("layout", &InterfaceObjectConfigurable::buildLayout);
 }
 
 void InterfaceObjectConfigurable::registerBuilder(const std::string & type, BuilderFunction f)
@@ -466,6 +467,54 @@ std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const 
 	auto image = config["image"].String();
 	auto rect = readRect(config["rect"]);
 	return std::make_shared<CFilledTexture>(image, rect);
+}
+
+/// Small helper class that provides ownership for shared_ptr's of child elements
+class InterfaceLayoutWidget : public CIntObject
+{
+public:
+	std::vector<std::shared_ptr<CIntObject>> ownedChildren;
+};
+
+std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildLayout(const JsonNode & config)
+{
+	logGlobal->debug("Building widget Layout");
+	bool vertical = config["vertical"].Bool();
+	bool horizontal = config["horizontal"].Bool();
+	bool dynamic = config["dynamic"].Bool();
+	int distance = config["distance"].Integer();
+	std::string customType = config["customType"].String();
+	auto position = readPosition(config["position"]);
+
+	auto result = std::make_shared<InterfaceLayoutWidget>();
+	result->moveBy(position);
+	Point layoutPosition;
+
+	for(auto item : config["items"].Vector())
+	{
+		if (item["type"].String().empty())
+			item["type"].String() = customType;
+
+		auto widget = buildWidget(item);
+
+		addWidget(item["name"].String(), widget);
+		result->ownedChildren.push_back(widget);
+		result->addChild(widget.get(), false);
+
+		widget->moveBy(position + layoutPosition);
+
+		if (dynamic && vertical)
+			layoutPosition.y += widget->pos.h;
+		if (dynamic && horizontal)
+			layoutPosition.x += widget->pos.w;
+
+		if (vertical)
+			layoutPosition.y += distance;
+		if (horizontal)
+			layoutPosition.x += distance;
+	}
+
+	return result;
 }
 
 std::shared_ptr<CShowableAnim> InterfaceObjectConfigurable::buildAnimation(const JsonNode & config) const

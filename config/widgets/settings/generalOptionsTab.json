@@ -43,9 +43,15 @@
 			"orientation": "horizontal",
 			"itemsVisible": 0,
 			"itemsTotal": 100,
+		},
+		"verticalLayout" : {
+			"type" : "layout",
+			"vertical" : true,
+			"dynamic" : false,
+			"distance" : 30
 		}
 	},
-	
+
 	"items":
 	[
 		{
@@ -54,7 +60,6 @@
 			"image": "settingsWindow/lineHorizontal",
 			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
 		},
-		
 		{
 			"type" : "labelTitle",
 			"position": {"x": 10, "y": 55},
@@ -72,67 +77,62 @@
 		},
 /////////////////////////////////////// Left section - Video Settings
 		{
-			"name": "resolutionLabel",
-			"type": "labelDescription",
-			"position": {"x": 45, "y": 85},
-			"text": "vcmi.systemOptions.resolutionButton.hover"
+			"type" : "verticalLayout",
+			"customType" : "labelDescription",
+			"position" : {"x": 45, "y": 85},
+			"items" : [
+				{
+					"name": "resolutionLabel",
+					"text": "vcmi.systemOptions.resolutionButton.hover"
+				},
+				{
+					"name": "scalingLabel",
+					"text": "vcmi.systemOptions.scalingButton.hover"
+				},
+				{
+					"text": "vcmi.systemOptions.fullscreenButton.hover"
+				},
+				{
+					"text": "vcmi.systemOptions.framerateButton.hover"
+				},
+				{
+					"text": "core.genrltxt.577"
+				}
+			]
 		},
 		{
-			"name": "resolutionButton",
-			"type": "buttonGear",
-			"position": {"x": 10, "y": 83},
-			"help": "vcmi.systemOptions.resolutionButton",
-			"callback": "setGameResolution",
-		},
-		
-		{
-			"name": "scalingLabel",
-			"type": "labelDescription",
-			"position": {"x": 45, "y": 115},
-			"text": "vcmi.systemOptions.scalingButton.hover"
-		},
-		{
-			"name": "scalingButton",
-			"type": "buttonGear",
-			"position": {"x": 10, "y": 113},
-			"help": "vcmi.systemOptions.scalingButton",
-			"callback": "setGameScaling",
-		},
-		{
-			"type" : "labelDescription",
-			"position": {"x": 45, "y": 145},
-			"text": "vcmi.systemOptions.fullscreenButton.hover"
-		},
-		{
-			"type" : "labelDescription",
-			"position": {"x": 45, "y": 175},
-			"text": "vcmi.systemOptions.framerateButton.hover"
-		},
-		{
-			"type" : "labelDescription",
-			"position": {"x": 45, "y": 205},
-			"text": "core.genrltxt.577"
-		},
-		{
-			"name": "fullscreenCheckbox",
-			"type": "checkbox",
-			"help": "vcmi.systemOptions.fullscreenButton",
-			"position": {"x": 10, "y": 143},
-			"callback": "fullscreenChanged"
-		},
-		{
-			"name": "framerateCheckbox",
-			"type": "checkbox",
-			"help": "vcmi.systemOptions.framerateButton",
-			"position": {"x": 10, "y": 173},
-			"callback": "framerateChanged"
-		},
-		{
-			"name": "spellbookAnimationCheckbox",
-			"type": "checkbox",
-			"help": "core.help.364",
-			"position": {"x": 10, "y": 203},
-			"callback": "spellbookAnimationChanged"
+			"type" : "verticalLayout",
+			"customType" : "checkbox",
+			"position" : {"x": 10, "y": 83},
+			"items" : [
+				{
+					"name": "resolutionButton",
+					"type": "buttonGear",
+					"help": "vcmi.systemOptions.resolutionButton",
+					"callback": "setGameResolution",
+				},
+				{
+					"name": "scalingButton",
+					"type": "buttonGear",
+					"help": "vcmi.systemOptions.scalingButton",
+					"callback": "setGameScaling",
+				},
+				{
+					"name": "fullscreenCheckbox",
+					"help": "vcmi.systemOptions.fullscreenButton",
+					"callback": "fullscreenChanged"
+				},
+				{
+					"name": "framerateCheckbox",
+					"help": "vcmi.systemOptions.framerateButton",
+					"callback": "framerateChanged"
+				},
+				{
+					"name": "spellbookAnimationCheckbox",
+					"help": "core.help.364",
+					"callback": "spellbookAnimationChanged"
+				},
+			]
 		},
 /////////////////////////////////////// Right section - Audio Settings
 		{
@@ -181,49 +181,48 @@
 		},
 /////////////////////////////////////// Bottom section - Towns Settings
 		{
-			"type" : "labelDescription",
-			"text": "vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover",
-			"position": {"x": 45, "y": 325}
+			"type" : "verticalLayout",
+			"customType" : "labelDescription",
+			"position": {"x": 45, "y": 325},
+			"items" : [
+				{
+					"text": "vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover",
+				},
+				{
+					"text": "vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover",
+				},
+				{
+					"text": "vcmi.otherOptions.compactTownCreatureInfo.hover",
+				}
+			]
 		},
-		{
-			"type" : "labelDescription",
-			"text": "vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover",
-			"position": {"x": 45, "y": 355}
-		},
-		{
-			"type" : "labelDescription",
-			"text": "vcmi.otherOptions.compactTownCreatureInfo.hover",
-			"position": {"x": 45, "y": 385}
-		},
-		
 		{
 			"name": "availableCreaturesAsDwellingPicker",
 			"type": "toggleGroup",
+			"callback": "availableCreaturesAsDwellingChanged"
+		},
+		{
+			"type" : "verticalLayout",
+			"customType" : "checkbox",
 			"position": {"x": 10, "y": 323},
 			"items":
 			[
 				{
-					"index": 0,
-					"type": "checkbox",
 					"help": "vcmi.otherOptions.creatureGrowthAsDwellingLabel",
-					"position": {"x": 0, "y": 0}
+					"group" : "availableCreaturesAsDwellingPicker",
+					"index": 0
 				},
 				{
-					"index": 1,
-					"type": "checkbox",
 					"help": "vcmi.otherOptions.availableCreaturesAsDwellingLabel",
-					"position": {"x": 0, "y": 30}
+					"group" : "availableCreaturesAsDwellingPicker",
+					"index": 1
 				},
-			],
-			"callback": "availableCreaturesAsDwellingChanged"
-		},
-
-		{
-			"name": "compactTownCreatureInfoCheckbox",
-			"type": "checkbox",
-			"help": "vcmi.otherOptions.compactTownCreatureInfo",
-			"position": {"x": 10, "y": 383},
-			"callback": "compactTownCreatureInfoChanged"
+				{
+					"name": "compactTownCreatureInfoCheckbox",
+					"help": "vcmi.otherOptions.compactTownCreatureInfo",
+					"callback": "compactTownCreatureInfoChanged"
+				}
+			]
 		}
 	]
 }

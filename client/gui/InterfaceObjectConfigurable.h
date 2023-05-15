@@ -93,6 +93,7 @@ protected:
 	std::shared_ptr<CAnimImage> buildImage(const JsonNode &) const;
 	std::shared_ptr<CShowableAnim> buildAnimation(const JsonNode &) const;
 	std::shared_ptr<CFilledTexture> buildTexture(const JsonNode &) const;
+	std::shared_ptr<CIntObject> buildLayout(const JsonNode &);
 		
 	//composite widgets
 	std::shared_ptr<CIntObject> buildWidget(JsonNode config) const;
