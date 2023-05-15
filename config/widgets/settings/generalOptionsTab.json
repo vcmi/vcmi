@@ -32,14 +32,20 @@
 			"items" : [
 				{
 					"name": "resolutionLabel",
-					"text": "vcmi.systemOptions.resolutionButton.hover"
+					"text": "vcmi.systemOptions.resolutionButton.hover",
+					"created" : "desktop"
 				},
 				{
 					"name": "scalingLabel",
 					"text": "vcmi.systemOptions.scalingButton.hover"
 				},
 				{
-					"text": "vcmi.systemOptions.fullscreenButton.hover"
+					"text": "vcmi.systemOptions.fullscreenBorderless.hover",
+					"created" : "desktop"
+				},
+				{
+					"text": "vcmi.systemOptions.fullscreenExclusive.hover",
+					"created" : "desktop"
 				},
 				{
 					"text": "vcmi.systemOptions.framerateButton.hover"
@@ -59,6 +65,7 @@
 					"type": "buttonGear",
 					"help": "vcmi.systemOptions.resolutionButton",
 					"callback": "setGameResolution",
+					"created" : "desktop"
 				},
 				{
 					"name": "scalingButton",
@@ -67,9 +74,16 @@
 					"callback": "setGameScaling",
 				},
 				{
-					"name": "fullscreenCheckbox",
-					"help": "vcmi.systemOptions.fullscreenButton",
-					"callback": "fullscreenChanged"
+					"name": "fullscreenBorderlessCheckbox",
+					"help": "vcmi.systemOptions.fullscreenBorderless",
+					"callback": "fullscreenBorderlessChanged"
+					"created" : "desktop"
+				},
+				{
+					"name": "fullscreenExclusiveCheckbox",
+					"help": "vcmi.systemOptions.fullscreenExclusive",
+					"callback": "fullscreenExclusiveChanged"
+					"created" : "desktop"
 				},
 				{
 					"name": "framerateCheckbox",

@@ -37,13 +37,10 @@
 	"vcmi.systemOptions.otherGroup" : "Иное", // unused right now
 	"vcmi.systemOptions.townsGroup" : "Экран города",
 
-	"vcmi.systemOptions.fullscreenButton.hover" : "Полный экран",
-	"vcmi.systemOptions.fullscreenButton.help"  : "{Полный экран}\n\n Если выбрано, то VCMI будет работать в полноэкранном режиме, если нет - в окне",
 	"vcmi.systemOptions.resolutionButton.hover" : "Разрешение %wx%h",
 	"vcmi.systemOptions.resolutionButton.help"  : "{Разрешение экрана}\n\n Изменение разрешения экрана. Для применения нового разрешения требуется перезапуск игры.",
 	"vcmi.systemOptions.resolutionMenu.hover"   : "Выбрать разрешения экрана",
 	"vcmi.systemOptions.resolutionMenu.help"    : "Изменение разрешения экрана в игре.",
-	"vcmi.systemOptions.fullscreenFailed"       : "{Полный экран}\n\n Невозможно переключиться в полноэкранный режим - выбранное разрешение не поддерживается дисплеем!",
 	"vcmi.systemOptions.framerateButton.hover"  : "Показывать частоту кадров",
 	"vcmi.systemOptions.framerateButton.help"   : "{Показывать частоту кадров}\n\n Включить счетчик частоты кадров в углу игрового клиента",
 

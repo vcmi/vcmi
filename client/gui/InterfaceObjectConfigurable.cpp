@@ -297,7 +297,8 @@ std::shared_ptr<CToggleGroup> InterfaceObjectConfigurable::buildToggleGroup(cons
 		for(const auto & item : config["items"].Vector())
 		{
 			itemIdx = item["index"].isNull() ? itemIdx + 1 : item["index"].Integer();
-			group->addToggle(itemIdx, std::dynamic_pointer_cast<CToggleBase>(buildWidget(item)));
+			auto newToggle = std::dynamic_pointer_cast<CToggleButton>(buildWidget(item));
+			group->addToggle(itemIdx, newToggle);
 		}
 	}
 	if(!config["selected"].isNull())

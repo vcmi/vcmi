@@ -46,8 +46,10 @@
 	"vcmi.systemOptions.otherGroup" : "Other Settings", // unused right now
 	"vcmi.systemOptions.townsGroup" : "Town Screen",
 
-	"vcmi.systemOptions.fullscreenButton.hover" : "Fullscreen",
-	"vcmi.systemOptions.fullscreenButton.help"  : "{Fullscreen}\n\nIf selected, VCMI will run in fullscreen mode, otherwise it will run in windowed mode",
+	"vcmi.systemOptions.fullscreenBorderless.hover" : "Fullscreen (borderless)",
+	"vcmi.systemOptions.fullscreenBorderless.help"  : "{Borderless Fullscreen}\n\nIf selected, VCMI will run in borderless fullscreen mode. In this mode, game will always use same resolution as desktop, ignoring selected resolution.",
+	"vcmi.systemOptions.fullscreenExclusive.hover"  : "Fullscreen (exclusive)",
+	"vcmi.systemOptions.fullscreenExclusive.help"   : "{Fullscreen}\n\nIf selected, VCMI will run in exclusive fullscreen mode. In this mode, game will change resolution of monitor to selected resolution.",
 	"vcmi.systemOptions.resolutionButton.hover" : "Resolution: %wx%h",
 	"vcmi.systemOptions.resolutionButton.help"  : "{Select Resolution}\n\nChange in-game screen resolution.",
 	"vcmi.systemOptions.resolutionMenu.hover"   : "Select Resolution",
