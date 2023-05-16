@@ -80,7 +80,7 @@ public:
 	void onViewWorldActivated(uint32_t tileSize);
 
 	/// Changes zoom level / tile size of current view by specified factor
-	void onMapZoomLevelChanged(double zoomFactor);
+	void onMapZoomLevelChanged(int stepsChange);
 
 	/// Switches view from View World mode back to standard view
 	void onViewMapActivated();

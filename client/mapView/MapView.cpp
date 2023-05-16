@@ -154,9 +154,9 @@ void MapView::onViewWorldActivated(uint32_t tileSize)
 	controller->setTileSize(Point(tileSize, tileSize));
 }
 
-void MapView::onMapZoomLevelChanged(double zoomFactor)
+void MapView::onMapZoomLevelChanged(int stepsChange)
 {
-	controller->modifyTileSize(zoomFactor);
+	controller->modifyTileSize(stepsChange);
 }
 
 void MapView::onViewMapActivated()

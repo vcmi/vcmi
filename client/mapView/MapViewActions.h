@@ -42,4 +42,5 @@ public:
 	void clickMiddle(tribool down, bool previousState) override;
 	void hover(bool on) override;
 	void mouseMoved(const Point & cursorPosition) override;
+	void wheelScrolled(bool down, bool in) override;
 };

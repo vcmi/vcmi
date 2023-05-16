@@ -75,15 +75,23 @@ void MapViewController::setTileSize(const Point & tileSize)
 	setViewCenter(model->getMapViewCenter(), model->getLevel());
 }
 
-void MapViewController::modifyTileSize(double zoomFactor)
+void MapViewController::modifyTileSize(int stepsChange)
 {
-	Point currentZoom = model->getSingleTileSize();
-	Point desiredZoom = currentZoom * zoomFactor;
+	// we want to zoom in/out in fixed 10% steps, to allow player to return back to exactly 100% zoom just by scrolling
+	// so, zooming in for 5 steps will put game at 1.1^5 = 1.61 scale
+	// try to determine current zooming level and change it by requested number of steps
+	double currentZoomFactor = model->getSingleTileSize().x / 32.0;
+	double currentZoomSteps = std::round(std::log(currentZoomFactor) / std::log(1.1));
+	double newZoomSteps = currentZoomSteps + stepsChange;
+	double newZoomFactor = std::pow(1.1, newZoomSteps);
 
-	if (desiredZoom == currentZoom && zoomFactor < 1.0)
+	Point currentZoom = model->getSingleTileSize();
+	Point desiredZoom = Point(32,32) * newZoomFactor;
+
+	if (desiredZoom == currentZoom && stepsChange < 0)
 		desiredZoom -= Point(1,1);
 
-	if (desiredZoom == currentZoom && zoomFactor > 1.0)
+	if (desiredZoom == currentZoom && stepsChange > 0)
 		desiredZoom += Point(1,1);
 
 	Point minimal = model->getSingleTileSizeLowerLimit();

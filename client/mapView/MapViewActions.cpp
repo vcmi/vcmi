@@ -29,7 +29,7 @@ MapViewActions::MapViewActions(MapView & owner, const std::shared_ptr<MapViewMod
 	pos.w = model->getPixelsVisibleDimensions().x;
 	pos.h = model->getPixelsVisibleDimensions().y;
 
-	addUsedEvents(LCLICK | RCLICK | MCLICK | HOVER | MOVE);
+	addUsedEvents(LCLICK | RCLICK | MCLICK | HOVER | MOVE | WHEEL);
 }
 
 bool MapViewActions::swipeEnabled() const
@@ -90,6 +90,13 @@ void MapViewActions::mouseMoved(const Point & cursorPosition)
 {
 	handleHover(cursorPosition);
 	handleSwipeMove(cursorPosition);
+}
+
+void MapViewActions::wheelScrolled(bool down, bool in)
+{
+	if (!in)
+		return;
+	adventureInt->hotkeyZoom(down ? -1 : +1);
 }
 
 void MapViewActions::handleSwipeMove(const Point & cursorPosition)

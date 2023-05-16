@@ -800,7 +800,7 @@ void AdventureMapInterface::hotkeySwitchMapLevel()
 
 void AdventureMapInterface::hotkeyZoom(int delta)
 {
-	widget->getMapView()->onMapZoomLevelChanged( 1.0 + delta / 10.0);
+	widget->getMapView()->onMapZoomLevelChanged(delta);
 }
 
 void AdventureMapInterface::onScreenResize()
