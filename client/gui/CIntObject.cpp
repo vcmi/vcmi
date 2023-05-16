@@ -11,6 +11,7 @@
 #include "CIntObject.h"
 
 #include "CGuiHandler.h"
+#include "WindowHandler.h"
 #include "Shortcut.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../windows/CMessage.h"
@@ -356,9 +357,9 @@ WindowBase::WindowBase(int used_, Point pos_)
 
 void WindowBase::close()
 {
-	if(GH.topInt().get() != this)
+	if(GH.windows().topInt().get() != this)
 		logGlobal->error("Only top interface must be closed");
-	GH.popInts(1);
+	GH.windows().popInts(1);
 }
 
 IStatusBar::~IStatusBar()

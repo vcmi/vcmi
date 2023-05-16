@@ -26,6 +26,7 @@
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
@@ -105,7 +106,7 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 	{
 		curTab.reset();
 	}
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
 }
 
 InfoCard::InfoCard()
@@ -299,7 +300,7 @@ void InfoCard::setChat(bool activateChat)
 	}
 
 	showChat = activateChat;
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
 }
 
 CChatBox::CChatBox(const Rect & rect)
@@ -378,7 +379,7 @@ void CFlagBox::recreate()
 void CFlagBox::clickRight(tribool down, bool previousState)
 {
 	if(down && SEL->getMapInfo())
-		GH.pushIntT<CFlagBoxTooltipBox>(iconsTeamFlags);
+		GH.windows().pushIntT<CFlagBoxTooltipBox>(iconsTeamFlags);
 }
 
 CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> icons)

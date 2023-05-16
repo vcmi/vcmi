@@ -34,6 +34,7 @@ set(client_SRCS
 	gui/FramerateManager.cpp
 	gui/NotificationHandler.cpp
 	gui/ShortcutHandler.cpp
+	gui/WindowHandler.cpp
 
 	lobby/CBonusSelection.cpp
 	lobby/CCampaignInfoScreen.cpp
@@ -169,6 +170,7 @@ set(client_HEADERS
 	gui/Shortcut.h
 	gui/ShortcutHandler.h
 	gui/TextAlignment.h
+	gui/WindowHandler.h
 
 	lobby/CBonusSelection.h
 	lobby/CCampaignInfoScreen.h

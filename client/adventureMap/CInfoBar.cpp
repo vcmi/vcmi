@@ -24,6 +24,7 @@
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -261,7 +262,7 @@ void CInfoBar::tick(uint32_t msPassed)
 	{
 		timerCounter = 0;
 		removeUsedEvents(TIME);
-		if(GH.topInt() == adventureInt)
+		if(GH.windows().topInt() == adventureInt)
 			popComponents(true);
 	}
 	else

@@ -22,6 +22,7 @@
 #include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
@@ -158,7 +159,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 		else
 		{
 			int level = ( bid - BuildingID::DWELL_FIRST ) % GameConstants::CREATURES_PER_TOWN;
-			GH.pushIntT<CDwellingInfoBox>(parent->pos.x+parent->pos.w / 2, parent->pos.y+parent->pos.h  /2, town, level);
+			GH.windows().pushIntT<CDwellingInfoBox>(parent->pos.x+parent->pos.w / 2, parent->pos.y+parent->pos.h  /2, town, level);
 		}
 	}
 }
@@ -420,7 +421,7 @@ void CHeroGSlot::clickRight(tribool down, bool previousState)
 {
 	if(hero && down)
 	{
-		GH.pushIntT<CInfoBoxPopup>(Point(pos.x + 175, pos.y + 100), hero);
+		GH.windows().pushIntT<CInfoBoxPopup>(Point(pos.x + 175, pos.y + 100), hero);
 	}
 }
 
@@ -696,7 +697,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 		case BuildingID::FORT:
 		case BuildingID::CITADEL:
 		case BuildingID::CASTLE:
-				GH.pushIntT<CFortScreen>(town);
+				GH.windows().pushIntT<CFortScreen>(town);
 				break;
 
 		case BuildingID::VILLAGE_HALL:
@@ -707,7 +708,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 				break;
 
 		case BuildingID::MARKETPLACE:
-				GH.pushIntT<CMarketplaceWindow>(town, town->visitingHero);
+				GH.windows().pushIntT<CMarketplaceWindow>(town, town->visitingHero);
 				break;
 
 		case BuildingID::BLACKSMITH:
@@ -733,7 +734,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 
 				case BuildingSubID::ARTIFACT_MERCHANT:
 						if(town->visitingHero)
-							GH.pushIntT<CMarketplaceWindow>(town, town->visitingHero, EMarketMode::RESOURCE_ARTIFACT);
+							GH.windows().pushIntT<CMarketplaceWindow>(town, town->visitingHero, EMarketMode::RESOURCE_ARTIFACT);
 						else
 							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
 						break;
@@ -744,14 +745,14 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 
 				case BuildingSubID::FREELANCERS_GUILD:
 						if(getHero())
-							GH.pushIntT<CMarketplaceWindow>(town, getHero(), EMarketMode::CREATURE_RESOURCE);
+							GH.windows().pushIntT<CMarketplaceWindow>(town, getHero(), EMarketMode::CREATURE_RESOURCE);
 						else
 							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
 						break;
 
 				case BuildingSubID::MAGIC_UNIVERSITY:
 						if (getHero())
-							GH.pushIntT<CUniversityWindow>(getHero(), town);
+							GH.windows().pushIntT<CUniversityWindow>(getHero(), town);
 						else
 							enterBuilding(building);
 						break;
@@ -768,7 +769,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						break;
 
 				case BuildingSubID::CREATURE_TRANSFORMER: //Skeleton Transformer
-						GH.pushIntT<CTransformerWindow>(town, getHero());
+						GH.windows().pushIntT<CTransformerWindow>(town, getHero());
 						break;
 
 				case BuildingSubID::PORTAL_OF_SUMMONING:
@@ -823,7 +824,7 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 		}
 	}
 	CreatureID cre = art->getWarMachine();
-	GH.pushIntT<CBlacksmithDialog>(possible, cre, artifactID, hero->id);
+	GH.windows().pushIntT<CBlacksmithDialog>(possible, cre, artifactID, hero->id);
 }
 
 void CCastleBuildings::enterBuilding(BuildingID building)
@@ -852,7 +853,7 @@ void CCastleBuildings::enterCastleGate()
 		}
 	}
 	auto gateIcon = std::make_shared<CAnimImage>(town->town->clientInfo.buildingsIcons, BuildingID::CASTLE_GATE);//will be deleted by selection window
-	GH.pushIntT<CObjectListWindow>(availableTowns, gateIcon, CGI->generaltexth->jktexts[40],
+	GH.windows().pushIntT<CObjectListWindow>(availableTowns, gateIcon, CGI->generaltexth->jktexts[40],
 		CGI->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1));
 }
 
@@ -863,7 +864,7 @@ void CCastleBuildings::enterDwelling(int level)
 	{
 		LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 	};
-	GH.pushIntT<CRecruitmentWindow>(town, level, town, recruitCb, -87);
+	GH.windows().pushIntT<CRecruitmentWindow>(town, level, town, recruitCb, -87);
 }
 
 void CCastleBuildings::enterToTheQuickRecruitmentWindow()
@@ -875,7 +876,7 @@ void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 	const auto hasSomeoneToRecruit = std::any_of(beginIt, afterLastIt,
 		[](const auto & creatureInfo) { return creatureInfo.first > 0; });
 	if(hasSomeoneToRecruit)
-		GH.pushIntT<QuickRecruitmentWindow>(town, pos);
+		GH.windows().pushIntT<QuickRecruitmentWindow>(town, pos);
 	else
 		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.townHall.noCreaturesToRecruit"), {});
 }
@@ -973,7 +974,7 @@ void CCastleBuildings::enterTownHall()
 		else
 		{
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[673]);
-			dynamic_cast<CInfoWindow*>(GH.topInt().get())->buttons[0]->addCallback(std::bind(&CCastleBuildings::openTownHall, this));
+			dynamic_cast<CInfoWindow*>(GH.windows().topInt().get())->buttons[0]->addCallback(std::bind(&CCastleBuildings::openTownHall, this));
 		}
 	}
 	else
@@ -986,12 +987,12 @@ void CCastleBuildings::openMagesGuild()
 {
 	std::string mageGuildBackground;
 	mageGuildBackground = LOCPLINT->castleInt->town->town->clientInfo.guildBackground;
-	GH.pushIntT<CMageGuildScreen>(LOCPLINT->castleInt,mageGuildBackground);
+	GH.windows().pushIntT<CMageGuildScreen>(LOCPLINT->castleInt,mageGuildBackground);
 }
 
 void CCastleBuildings::openTownHall()
 {
-	GH.pushIntT<CHallInterface>(town);
+	GH.windows().pushIntT<CHallInterface>(town);
 }
 
 CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, bool compact, bool _showAvailable):
@@ -1074,7 +1075,7 @@ void CCreaInfo::clickLeft(tribool down, bool previousState)
 		{
 			LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 		};
-		GH.pushIntT<CRecruitmentWindow>(town, level, town, recruitCb, offset);
+		GH.windows().pushIntT<CRecruitmentWindow>(town, level, town, recruitCb, offset);
 	}
 }
 
@@ -1094,7 +1095,7 @@ void CCreaInfo::clickRight(tribool down, bool previousState)
 	if(down)
 	{
 		if (showAvailable)
-			GH.pushIntT<CDwellingInfoBox>(GH.screenDimensions().x / 2, GH.screenDimensions().y / 2, town, level);
+			GH.windows().pushIntT<CDwellingInfoBox>(GH.screenDimensions().x / 2, GH.screenDimensions().y / 2, town, level);
 		else
 			CRClickPopup::createAndPush(genGrowthText(), std::make_shared<CComponent>(CComponent::creature, creature->getId()));
 	}
@@ -1253,7 +1254,7 @@ void CCastleInterface::townChange()
 	if ( dest == town )
 		return;
 	close();
-	GH.pushIntT<CCastleInterface>(dest, town);
+	GH.windows().pushIntT<CCastleInterface>(dest, town);
 }
 
 void CCastleInterface::addBuilding(BuildingID bid)
@@ -1393,13 +1394,13 @@ void CHallInterface::CBuildingBox::hover(bool on)
 void CHallInterface::CBuildingBox::clickLeft(tribool down, bool previousState)
 {
 	if(previousState && (!down))
-		GH.pushIntT<CBuildWindow>(town,building,state,0);
+		GH.windows().pushIntT<CBuildWindow>(town,building,state,0);
 }
 
 void CHallInterface::CBuildingBox::clickRight(tribool down, bool previousState)
 {
 	if(down)
-		GH.pushIntT<CBuildWindow>(town,building,state,1);
+		GH.windows().pushIntT<CBuildWindow>(town,building,state,1);
 }
 
 CHallInterface::CHallInterface(const CGTownInstance * Town):
@@ -1493,7 +1494,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 void CBuildWindow::buyFunc()
 {
 	LOCPLINT->cb->buildBuilding(town,building->bid);
-	GH.popInts(2); //we - build window and hall screen
+	GH.windows().popInts(2); //we - build window and hall screen
 }
 
 std::string CBuildWindow::getTextForState(int state)

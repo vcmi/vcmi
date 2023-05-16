@@ -14,6 +14,7 @@
 #include "CGameInfo.h"
 #include "CPlayerInterface.h"
 #include "gui/CGuiHandler.h"
+#include "gui/WindowHandler.h"
 
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
@@ -325,7 +326,7 @@ void CServerHandler::applyPacksOnLobbyScreen()
 		packsForLobbyScreen.pop_front();
 		CBaseForLobbyApply * apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier
 		apply->applyOnLobbyScreen(static_cast<CLobbyScreen *>(SEL), this, pack);
-		GH.totalRedraw();
+		GH.windows().totalRedraw();
 		delete pack;
 	}
 }
@@ -749,7 +750,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 
 	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
-	while(!settings["session"]["headless"].Bool() && !dynamic_cast<CLobbyScreen *>(GH.topInt().get()))
+	while(!settings["session"]["headless"].Bool() && !dynamic_cast<CLobbyScreen *>(GH.windows().topInt().get()))
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 	while(!mi || mapInfo->fileURI != CSH->mi->fileURI)
 	{

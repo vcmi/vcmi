@@ -20,6 +20,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
@@ -96,8 +97,8 @@ void CHeroSwitcher::clickLeft(tribool down, bool previousState)
 		else
 		{
 			const CGHeroInstance * buf = hero;
-			GH.popInts(1);
-			GH.pushIntT<CHeroWindow>(buf);
+			GH.windows().popInts(1);
+			GH.windows().pushIntT<CHeroWindow>(buf);
 		}
 	}
 }
@@ -313,7 +314,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	//if we have exchange window with this curHero open
 	bool noDismiss=false;
-	for(auto isa : GH.listInt)
+	for(auto isa : GH.windows().listInt)
 	{
 		if(CExchangeWindow * cew = dynamic_cast<CExchangeWindow*>(isa.get()))
 		{
@@ -389,7 +390,7 @@ void CHeroWindow::commanderWindow()
 	}
 	else
 	{
-		GH.pushIntT<CStackWindow>(curHero->commander, false);
+		GH.windows().pushIntT<CStackWindow>(curHero->commander, false);
 	}
 }
 

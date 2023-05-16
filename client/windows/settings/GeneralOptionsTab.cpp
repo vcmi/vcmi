@@ -14,6 +14,7 @@
 #include "../../../lib/CGeneralTextHandler.h"
 #include "../../../lib/filesystem/ResourceID.h"
 #include "../../gui/CGuiHandler.h"
+#include "../../gui/WindowHandler.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 #include "../../widgets/Images.h"
@@ -197,7 +198,7 @@ void GeneralOptionsTab::selectGameResolution()
 		items.push_back(std::move(resolutionStr));
 		++i;
 	}
-	GH.pushIntT<CObjectListWindow>(items, nullptr,
+	GH.windows().pushIntT<CObjectListWindow>(items, nullptr,
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
 								   [this](int index)
@@ -252,7 +253,7 @@ void GeneralOptionsTab::selectGameScaling()
 		++i;
 	}
 
-	GH.pushIntT<CObjectListWindow>(
+	GH.windows().pushIntT<CObjectListWindow>(
 		items,
 		nullptr,
 		CGI->generaltexth->translate("vcmi.systemOptions.scalingMenu.hover"),

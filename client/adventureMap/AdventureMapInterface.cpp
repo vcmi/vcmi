@@ -27,6 +27,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../CMT.h"
 #include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
@@ -395,7 +396,7 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 
 	if(settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
 	{
-		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt().get()))
+		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.windows().topInt().get()))
 			iw->close();
 
 		hotkeyEndingTurn();

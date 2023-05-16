@@ -17,6 +17,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 #include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../render/Canvas.h"
@@ -131,7 +132,7 @@ void CMinimap::moveAdvMapSelection()
 	adventureInt->centerOnTile(newLocation);
 
 	if (!(adventureInt->active & GENERAL))
-		GH.totalRedraw(); //redraw this as well as inactive adventure map
+		GH.windows().totalRedraw(); //redraw this as well as inactive adventure map
 	else
 		redraw();//redraw only this
 }

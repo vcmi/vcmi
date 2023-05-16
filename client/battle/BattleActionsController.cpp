@@ -22,6 +22,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CIntObject.h"
+#include "../gui/WindowHandler.h"
 #include "../windows/CCreatureWindow.h"
 
 #include "../../CCallback.h"
@@ -668,7 +669,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 
 		case PossiblePlayerBattleAction::CREATURE_INFO:
 		{
-			GH.pushIntT<CStackWindow>(targetStack, false);
+			GH.windows().pushIntT<CStackWindow>(targetStack, false);
 			return;
 		}
 
@@ -973,7 +974,7 @@ void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 	auto selectedStack = owner.curInt->cb->battleGetStackByPos(clickedHex, true);
 
 	if (selectedStack != nullptr)
-		GH.pushIntT<CStackWindow>(selectedStack, true);
+		GH.windows().pushIntT<CStackWindow>(selectedStack, true);
 
 	if (clickedHex == BattleHex::HERO_ATTACKER && owner.attackingHero)
 		owner.attackingHero->heroRightClicked();

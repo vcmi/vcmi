@@ -20,6 +20,7 @@
 #include "CVideoHandler.h"
 #include "CMusicHandler.h"
 #include "gui/CGuiHandler.h"
+#include "gui/WindowHandler.h"
 #include "CServerHandler.h"
 #include "gui/NotificationHandler.h"
 #include "ClientCommandManager.h"
@@ -523,14 +524,14 @@ static void handleEvent(SDL_Event & ev)
 				{
 					if(ourCampaign->mapsRemaining.size())
 					{
-						GH.pushInt(CMM);
-						GH.pushInt(CMM->menu);
+						GH.windows().pushInt(CMM);
+						GH.windows().pushInt(CMM->menu);
 						CMM->openCampaignLobby(ourCampaign);
 					}
 				};
 				if(epilogue.hasPrologEpilog)
 				{
-					GH.pushIntT<CPrologEpilogVideo>(epilogue, finisher);
+					GH.windows().pushIntT<CPrologEpilogVideo>(epilogue, finisher);
 				}
 				else
 				{
@@ -547,7 +548,7 @@ static void handleEvent(SDL_Event & ev)
 		case EUserEvent::FULLSCREEN_TOGGLED:
 			{
 				boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
-				GH.screenHandler().onScreenResize();
+				GH.onScreenResize();
 				break;
 			}
 		default:
@@ -564,7 +565,7 @@ static void handleEvent(SDL_Event & ev)
 #ifndef VCMI_IOS
 			{
 				boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
-				GH.screenHandler().onScreenResize();
+				GH.onScreenResize();
 			}
 #endif
 			break;
@@ -622,8 +623,8 @@ static void quitApplication()
 			CSH->endGameplay();
 	}
 
-	GH.listInt.clear();
-	GH.objsToBlit.clear();
+	GH.windows().listInt.clear();
+	GH.windows().objsToBlit.clear();
 
 	CMM.reset();
 

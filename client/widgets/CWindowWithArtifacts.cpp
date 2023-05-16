@@ -12,6 +12,7 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
+#include "../gui/WindowHandler.h"
 
 #include "CComponent.h"
 
@@ -65,7 +66,7 @@ void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst
 	{
 		if(artPlace.getArt()->getTypeId() == ArtifactID::SPELLBOOK)
 		{
-			GH.pushIntT<CSpellWindow>(hero, LOCPLINT, LOCPLINT->battleInt.get());
+			GH.windows().pushIntT<CSpellWindow>(hero, LOCPLINT, LOCPLINT->battleInt.get());
 			return false;
 		}
 		if(artPlace.getArt()->getTypeId() == ArtifactID::CATAPULT)

@@ -14,6 +14,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/NotificationHandler.h"
+#include "../gui/WindowHandler.h"
 #include "CMT.h"
 #include "SDL_Extensions.h"
 
@@ -270,7 +271,7 @@ void ScreenHandler::initializeScreenBuffers()
 		throw std::runtime_error("Unable to copy surface\n");
 	}
 
-	if (GH.listInt.size() > 1)
+	if (GH.windows().listInt.size() > 1)
 		screenBuf = screen2;
 	else
 		screenBuf = screen;

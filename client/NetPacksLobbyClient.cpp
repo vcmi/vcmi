@@ -21,6 +21,7 @@
 #include "CServerHandler.h"
 #include "CGameInfo.h"
 #include "gui/CGuiHandler.h"
+#include "gui/WindowHandler.h"
 #include "widgets/Buttons.h"
 #include "widgets/TextControls.h"
 
@@ -38,7 +39,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 	{
 		handler.c->connectionID = pack.clientId;
 		if(!settings["session"]["headless"].Bool())
-			GH.pushIntT<CLobbyScreen>(static_cast<ESelectionScreen>(handler.screenType));
+			GH.windows().pushIntT<CLobbyScreen>(static_cast<ESelectionScreen>(handler.screenType));
 		handler.state = EClientState::LOBBY;
 	}
 }
@@ -56,8 +57,8 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClient
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-	if(GH.listInt.size())
-		GH.popInts(1);
+	if(GH.windows().listInt.size())
+		GH.windows().popInts(1);
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & pack)
@@ -128,7 +129,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack
 	if(pack.clientId != -1 && pack.clientId != handler.c->connectionID)
 		return;
 	
-	GH.pushIntT<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, &handler, pack.initializedGameState));
+	GH.windows().pushIntT<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, &handler, pack.initializedGameState));
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)
@@ -145,7 +146,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 	if(!lobby->bonusSel && handler.si->campState && handler.state == EClientState::LOBBY_CAMPAIGN)
 	{
 		lobby->bonusSel = std::make_shared<CBonusSelection>();
-		GH.pushInt(lobby->bonusSel);
+		GH.windows().pushInt(lobby->bonusSel);
 	}
 
 	if(lobby->bonusSel)

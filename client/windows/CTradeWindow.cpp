@@ -16,6 +16,7 @@
 #include "../renderSDL/SDL_Extensions.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
 #include "../windows/InfoWindows.h"
@@ -628,10 +629,10 @@ void CTradeWindow::setMode(EMarketMode::EMarketMode Mode)
 	{
 	case EMarketMode::CREATURE_EXP:
 	case EMarketMode::ARTIFACT_EXP:
-		GH.pushIntT<CAltarWindow>(m, h, Mode);
+		GH.windows().pushIntT<CAltarWindow>(m, h, Mode);
 		break;
 	default:
-		GH.pushIntT<CMarketplaceWindow>(m, h, Mode);
+		GH.windows().pushIntT<CMarketplaceWindow>(m, h, Mode);
 		break;
 	}
 }

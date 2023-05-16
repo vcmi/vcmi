@@ -22,6 +22,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../windows/CSpellWindow.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
@@ -152,7 +153,7 @@ void BattleWindow::hideQueue()
 		pos.h -= queue->pos.h;
 		pos = center();
 	}
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
 }
 
 void BattleWindow::showQueue()
@@ -165,7 +166,7 @@ void BattleWindow::showQueue()
 
 	createQueue();
 	updateQueue();
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
 }
 
 void BattleWindow::updateQueue()
@@ -256,7 +257,7 @@ void BattleWindow::bOptionsf()
 
 	CCS->curh->set(Cursor::Map::POINTER);
 
-	GH.pushIntT<SettingsMainWindow>(&owner);
+	GH.windows().pushIntT<SettingsMainWindow>(&owner);
 }
 
 void BattleWindow::bSurrenderf()
@@ -424,7 +425,7 @@ void BattleWindow::bSpellf()
 
 	if(spellCastProblem == ESpellCastProblem::OK)
 	{
-		GH.pushIntT<CSpellWindow>(myHero, owner.curInt.get());
+		GH.windows().pushIntT<CSpellWindow>(myHero, owner.curInt.get());
 	}
 	else if (spellCastProblem == ESpellCastProblem::MAGIC_IS_BLOCKED)
 	{
@@ -569,7 +570,7 @@ void BattleWindow::show(SDL_Surface *to)
 
 void BattleWindow::close()
 {
-	if(GH.topInt().get() != this)
+	if(GH.windows().topInt().get() != this)
 		logGlobal->error("Only top interface must be closed");
-	GH.popInts(1);
+	GH.windows().popInts(1);
 }

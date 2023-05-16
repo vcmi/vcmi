@@ -19,6 +19,7 @@
 #include "../CPlayerInterface.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CPathfinder.h"
@@ -208,7 +209,7 @@ bool MapViewController::isEventVisible(const CGObjectInstance * obj)
 	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
-	if(GH.topInt() != adventureInt)
+	if(GH.windows().topInt() != adventureInt)
 		return false;
 
 	if(obj->isVisitable())
@@ -225,7 +226,7 @@ bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & 
 	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
-	if(GH.topInt() != adventureInt)
+	if(GH.windows().topInt() != adventureInt)
 		return false;
 
 	if(context->isVisible(obj->convertToVisitablePos(from)))

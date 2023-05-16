@@ -29,6 +29,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
@@ -98,7 +99,7 @@ void CRecruitmentWindow::CCreatureCard::clickLeft(tribool down, bool previousSta
 void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousState)
 {
 	if(down)
-		GH.pushIntT<CStackWindow>(creature, true);
+		GH.windows().pushIntT<CStackWindow>(creature, true);
 }
 
 void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)
@@ -507,7 +508,7 @@ void CTavernWindow::recruitb()
 
 void CTavernWindow::thievesguildb()
 {
-	GH.pushIntT<CThievesGuildWindow>(tavernObj);
+	GH.windows().pushIntT<CThievesGuildWindow>(tavernObj);
 }
 
 CTavernWindow::~CTavernWindow()
@@ -547,7 +548,7 @@ void CTavernWindow::HeroPortrait::clickLeft(tribool down, bool previousState)
 void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 {
 	if(h && down)
-		GH.pushIntT<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
+		GH.windows().pushIntT<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
 }
 
 CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H)
@@ -1240,7 +1241,7 @@ void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
 	if(previousState && (!down))
 	{
 		if(state() == 2)
-			GH.pushIntT<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
+			GH.windows().pushIntT<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
 	}
 }
 

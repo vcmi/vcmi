@@ -21,6 +21,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/ShortcutHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -177,7 +178,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 0:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::newGame, true, nullptr, ELoadMode::NONE);
 				case 1:
-					return []() { GH.pushIntT<CMultiMode>(ESelectionScreen::newGame); };
+					return []() { GH.windows().pushIntT<CMultiMode>(ESelectionScreen::newGame); };
 				case 2:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::campaignList, true, nullptr, ELoadMode::NONE);
 				case 3:
@@ -192,7 +193,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 0:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::SINGLE);
 				case 1:
-					return []() { GH.pushIntT<CMultiMode>(ESelectionScreen::loadGame); };
+					return []() { GH.windows().pushIntT<CMultiMode>(ESelectionScreen::loadGame); };
 				case 2:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::CAMPAIGN);
 				case 3:
@@ -324,10 +325,10 @@ void CMainMenu::update()
 	if(CMM != this->shared_from_this()) //don't update if you are not a main interface
 		return;
 
-	if(GH.listInt.empty())
+	if(GH.windows().listInt.empty())
 	{
-		GH.pushInt(CMM);
-		GH.pushInt(menu);
+		GH.windows().pushInt(CMM);
+		GH.windows().pushInt(menu);
 		menu->switchToTab(menu->getActiveTab());
 	}
 
@@ -336,9 +337,9 @@ void CMainMenu::update()
 	GH.handleEvents();
 
 	// check for null othervice crash on finishing a campaign
-	// /FIXME: find out why GH.listInt is empty to begin with
-	if(GH.topInt())
-		GH.topInt()->show(screen);
+	// /FIXME: find out why GH.windows().listInt is empty to begin with
+	if(GH.windows().topInt())
+		GH.windows().topInt()->show(screen);
 }
 
 void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> * names, ELoadMode loadMode)
@@ -347,7 +348,7 @@ void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vec
 	CSH->screenType = screenType;
 	CSH->loadMode = loadMode;
 
-	GH.pushIntT<CSimpleJoinScreen>(host);
+	GH.windows().pushIntT<CSimpleJoinScreen>(host);
 }
 
 void CMainMenu::openCampaignLobby(const std::string & campaignFileName)
@@ -361,14 +362,14 @@ void CMainMenu::openCampaignLobby(std::shared_ptr<CCampaignState> campaign)
 	CSH->resetStateForLobby(StartInfo::CAMPAIGN);
 	CSH->screenType = ESelectionScreen::campaignList;
 	CSH->campaignStateToSend = campaign;
-	GH.pushIntT<CSimpleJoinScreen>();
+	GH.windows().pushIntT<CSimpleJoinScreen>();
 }
 
 void CMainMenu::openCampaignScreen(std::string name)
 {
 	if(vstd::contains(CMainMenuConfig::get().getCampaigns().Struct(), name))
 	{
-		GH.pushIntT<CCampaignScreen>(CMainMenuConfig::get().getCampaigns()[name]);
+		GH.windows().pushIntT<CCampaignScreen>(CMainMenuConfig::get().getCampaigns()[name]);
 		return;
 	}
 	logGlobal->error("Unknown campaign set: %s", name);
@@ -413,14 +414,14 @@ void CMultiMode::hostTCP()
 {
 	auto savedScreenType = screenType;
 	close();
-	GH.pushIntT<CMultiPlayers>(settings["general"]["playerName"].String(), savedScreenType, true, ELoadMode::MULTI);
+	GH.windows().pushIntT<CMultiPlayers>(settings["general"]["playerName"].String(), savedScreenType, true, ELoadMode::MULTI);
 }
 
 void CMultiMode::joinTCP()
 {
 	auto savedScreenType = screenType;
 	close();
-	GH.pushIntT<CMultiPlayers>(settings["general"]["playerName"].String(), savedScreenType, false, ELoadMode::MULTI);
+	GH.windows().pushIntT<CMultiPlayers>(settings["general"]["playerName"].String(), savedScreenType, false, ELoadMode::MULTI);
 }
 
 void CMultiMode::onNameChange(std::string newText)
@@ -522,7 +523,7 @@ void CSimpleJoinScreen::leaveScreen()
 		textTitle->setText("Closing...");
 		CSH->state = EClientState::CONNECTION_CANCELLED;
 	}
-	else if(GH.listInt.size() && GH.listInt.front().get() == this)
+	else if(GH.windows().listInt.size() && GH.windows().listInt.front().get() == this)
 	{
 		close();
 	}
@@ -552,7 +553,7 @@ void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
 	else
 		CSH->justConnectToServer(addr, port);
 
-	if(GH.listInt.size() && GH.listInt.front().get() == this)
+	if(GH.windows().listInt.size() && GH.windows().listInt.front().get() == this)
 	{
 		close();
 	}

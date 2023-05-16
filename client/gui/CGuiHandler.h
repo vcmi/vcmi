@@ -30,6 +30,7 @@ class IUpdateable;
 class IShowActivatable;
 class IShowable;
 class IScreenHandler;
+class WindowHandler;
 
 // TODO: event handling need refactoring
 enum class EUserEvent
@@ -49,16 +50,14 @@ class CGuiHandler
 {
 public:
 
-	std::list<std::shared_ptr<IShowActivatable>> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
 	std::shared_ptr<IStatusBar> statusbar;
 
 private:
 	Point cursorPosition;
 	uint32_t mouseButtonsMask;
 
-	std::vector<std::shared_ptr<IShowActivatable>> disposed;
-
 	std::unique_ptr<ShortcutHandler> shortcutsHandlerInstance;
+	std::unique_ptr<WindowHandler> windowHandlerInstance;
 
 	std::atomic<bool> continueEventHandling;
 	using CIntObjectList = std::list<CIntObject *>;
@@ -91,8 +90,6 @@ public:
 	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
 	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);
 public:
-	//objs to blit
-	std::vector<std::shared_ptr<IShowActivatable>> objsToBlit;
 
 	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
@@ -123,6 +120,8 @@ public:
 
 	IScreenHandler & screenHandler();
 
+	WindowHandler & windows();
+
 	IUpdateable *curInt;
 
 	Point lastClick;
@@ -141,25 +140,8 @@ public:
 	void init();
 	void renderFrame();
 
-	void totalRedraw(); //forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering
-	void simpleRedraw(); //update only top interface and draw background from buffer, sets a flag, method gets called at the end of the rendering
-
 	/// called whenever user selects different resolution, requiring to center/resize all windows
 	void onScreenResize();
-
-	void pushInt(std::shared_ptr<IShowActivatable> newInt); //deactivate old top interface, activates this one and pushes to the top
-	template <typename T, typename ... Args>
-	void pushIntT(Args && ... args)
-	{
-		auto newInt = std::make_shared<T>(std::forward<Args>(args)...);
-		pushInt(newInt);
-	}
-
-	void popInts(int howMany); //pops one or more interfaces - deactivates top, deletes and removes given number of interfaces, activates new front
-
-	void popInt(std::shared_ptr<IShowActivatable> top); //removes given interface from the top and activates next
-
-	std::shared_ptr<IShowActivatable> topInt(); //returns top interface
 
 	void updateTime(); //handles timeInterested
 	void handleEvents(); //takes events from queue and calls interested objects
