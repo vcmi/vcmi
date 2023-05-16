@@ -18,6 +18,7 @@
 		},
 		"graphics": {
 			"type":"string",
+			"format" : "imageFile",
 			"description": "BMP battleground resource"
 		},
 		"isSpecial": {
