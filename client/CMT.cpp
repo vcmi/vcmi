@@ -599,8 +599,6 @@ static void mainLoop()
 	fsChanged([](const JsonNode &newState){  CGuiHandler::pushUserEvent(EUserEvent::FULLSCREEN_TOGGLED); });
 
 	inGuiThread.reset(new bool(true));
-	assert(GH.mainFPSmng);
-	GH.mainFPSmng->init(settings["video"]["targetfps"].Integer());
 
 	while(1) //main SDL events loop
 	{

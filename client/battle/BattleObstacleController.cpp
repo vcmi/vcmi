@@ -159,9 +159,9 @@ void BattleObstacleController::collectRenderableObjects(BattleRenderer & rendere
 	}
 }
 
-void BattleObstacleController::update()
+void BattleObstacleController::tick(uint32_t msPassed)
 {
-	timePassed += GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+	timePassed += msPassed / 1000.f;
 }
 
 std::shared_ptr<IImage> BattleObstacleController::getObstacleImage(const CObstacleInstance & oi)

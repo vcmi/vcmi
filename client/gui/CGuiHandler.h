@@ -23,7 +23,7 @@ union SDL_Event;
 struct SDL_MouseMotionEvent;
 
 class ShortcutHandler;
-class CFramerateManager;
+class FramerateManager;
 class IStatusBar;
 class CIntObject;
 class IUpdateable;
@@ -44,32 +44,11 @@ enum class EUserEvent
 	FORCE_QUIT, //quit client without question
 };
 
-// A fps manager which holds game updates at a constant rate
-class CFramerateManager
-{
-private:
-	double rateticks;
-	ui32 lastticks;
-	ui32 timeElapsed;
-	int rate;
-	int fps; // the actual fps value
-	ui32 accumulatedTime;
-	ui32 accumulatedFrames;
-
-public:
-	CFramerateManager(int newRate); // initializes the manager with a given fps rate
-	void init(int newRate); // needs to be called directly before the main game loop to reset the internal timer
-	void framerateDelay(); // needs to be called every game update cycle
-	ui32 getElapsedMilliseconds() const {return this->timeElapsed;}
-	ui32 getFrameNumber() const { return accumulatedFrames; }
-	ui32 getFramerate() const { return fps; };
-};
-
 // Handles GUI logic and drawing
 class CGuiHandler
 {
 public:
-	CFramerateManager * mainFPSmng; //to keep const framerate
+
 	std::list<std::shared_ptr<IShowActivatable>> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
 	std::shared_ptr<IStatusBar> statusbar;
 
@@ -97,6 +76,7 @@ private:
 	CIntObjectList textInterested;
 
 	std::unique_ptr<IScreenHandler> screenHandlerInstance;
+	std::unique_ptr<FramerateManager> framerateManagerInstance;
 
 	void handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed);
 	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
@@ -113,11 +93,15 @@ public:
 public:
 	//objs to blit
 	std::vector<std::shared_ptr<IShowActivatable>> objsToBlit;
+
 	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
 
 	ShortcutHandler & shortcutsHandler();
+	FramerateManager & framerateManager();
 
+	/// Returns current logical screen dimensions
+	/// May not match size of window if user has UI scaling different from 100%
 	Point screenDimensions() const;
 
 	/// returns true if at least one mouse button is pressed

@@ -55,6 +55,8 @@ BasicMapView::BasicMapView(const Point & offset, const Point & dimensions)
 	pos += offset;
 	pos.w = dimensions.x;
 	pos.h = dimensions.y;
+
+	addUsedEvents(TIME);
 }
 
 void BasicMapView::render(Canvas & target, bool fullUpdate)
@@ -64,21 +66,22 @@ void BasicMapView::render(Canvas & target, bool fullUpdate)
 	tilesCache->render(controller->getContext(), targetClipped, fullUpdate);
 }
 
+void BasicMapView::tick(uint32_t msPassed)
+{
+	controller->tick(msPassed);
+}
+
 void BasicMapView::show(SDL_Surface * to)
 {
-	controller->updateBefore(GH.mainFPSmng->getElapsedMilliseconds());
-
 	Canvas target(to);
 	CSDL_Ext::CClipRectGuard guard(to, pos);
 	render(target, false);
 
-	controller->updateAfter(GH.mainFPSmng->getElapsedMilliseconds());
+	controller->afterRender();
 }
 
 void BasicMapView::showAll(SDL_Surface * to)
 {
-	controller->updateBefore(0);
-
 	Canvas target(to);
 	CSDL_Ext::CClipRectGuard guard(to, pos);
 	render(target, true);

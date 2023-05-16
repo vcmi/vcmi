@@ -190,6 +190,7 @@ public:
 	//show current frame and increase counter
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
+	void tick(uint32_t msPassed) override;
 };
 
 /// Creature-dependend animations like attacking, moving,...

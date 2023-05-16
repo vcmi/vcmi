@@ -202,6 +202,25 @@ const CGHeroInstance * BattleHero::instance()
 	return hero;
 }
 
+void BattleHero::tick(uint32_t msPassed)
+{
+	size_t groupIndex = static_cast<size_t>(phase);
+
+	float timePassed = msPassed / 1000.f;
+
+	flagCurrentFrame += currentSpeed * timePassed;
+	currentFrame += currentSpeed * timePassed;
+
+	if(flagCurrentFrame >= flagAnimation->size(0))
+		flagCurrentFrame -= flagAnimation->size(0);
+
+	if(currentFrame >= animation->size(groupIndex))
+	{
+		currentFrame -= animation->size(groupIndex);
+		switchToNextPhase();
+	}
+}
+
 void BattleHero::render(Canvas & canvas)
 {
 	size_t groupIndex = static_cast<size_t>(phase);
@@ -219,20 +238,6 @@ void BattleHero::render(Canvas & canvas)
 
 	canvas.draw(flagFrame, flagPosition);
 	canvas.draw(heroFrame, heroPosition);
-
-	float timePassed = float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000.f;
-
-	flagCurrentFrame += currentSpeed * timePassed;
-	currentFrame += currentSpeed * timePassed;
-
-	if(flagCurrentFrame >= flagAnimation->size(0))
-		flagCurrentFrame -= flagAnimation->size(0);
-
-	if(currentFrame >= animation->size(groupIndex))
-	{
-		currentFrame -= animation->size(groupIndex);
-		switchToNextPhase();
-	}
 }
 
 void BattleHero::pause()
@@ -354,6 +359,8 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 
 	switchToNextPhase();
 	play();
+
+	addUsedEvents(TIME);
 }
 
 HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)

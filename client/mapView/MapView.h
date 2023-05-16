@@ -37,6 +37,7 @@ public:
 	BasicMapView(const Point & offset, const Point & dimensions);
 	~BasicMapView() override;
 
+	void tick(uint32_t msPassed) override;
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 };

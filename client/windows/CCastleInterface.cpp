@@ -68,7 +68,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	  area(nullptr),
 	  stateTimeCounter(BUILD_ANIMATION_FINISHED_TIMEPOINT)
 {
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | RCLICK | HOVER | TIME);
 	pos.x += str->pos.x;
 	pos.y += str->pos.y;
 
@@ -163,16 +163,6 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 	}
 }
 
-SDL_Color multiplyColors(const SDL_Color & b, const SDL_Color & a, double f)
-{
-	SDL_Color ret;
-	ret.r = static_cast<uint8_t>(a.r * f + b.r * (1 - f));
-	ret.g = static_cast<uint8_t>(a.g * f + b.g * (1 - f));
-	ret.b = static_cast<uint8_t>(a.b * f + b.b * (1 - f));
-	ret.a = static_cast<uint8_t>(a.a * f + b.b * (1 - f));
-	return ret;
-}
-
 void CBuildingRect::show(SDL_Surface * to)
 {
 	uint32_t stageDelay = BUILDING_APPEAR_TIMEPOINT;
@@ -213,9 +203,12 @@ void CBuildingRect::show(SDL_Surface * to)
 
 		border->draw(to, pos.x, pos.y);
 	}
+}
 
-	if(stateTimeCounter < BUILD_ANIMATION_FINISHED_TIMEPOINT)
-		stateTimeCounter += GH.mainFPSmng->getElapsedMilliseconds();
+void CBuildingRect::tick(uint32_t msPassed)
+{
+	CShowableAnim::tick(msPassed);
+	stateTimeCounter += msPassed;
 }
 
 void CBuildingRect::showAll(SDL_Surface * to)

@@ -320,6 +320,8 @@ CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 fra
 	pos.h = anim->getImage(0, group)->height();
 	pos.x+= x;
 	pos.y+= y;
+
+	addUsedEvents(TIME);
 }
 
 CShowableAnim::~CShowableAnim()
@@ -391,11 +393,14 @@ void CShowableAnim::show(SDL_Surface * to)
 	if ( flags & BASE )// && frame != first) // FIXME: results in graphical glytch in Fortress, upgraded hydra's dwelling
 		blitImage(first, group, to);
 	blitImage(frame, group, to);
+}
 
+void CShowableAnim::tick(uint32_t msPassed)
+{
 	if ((flags & PLAY_ONCE) && frame + 1 == last)
 		return;
 
-	frameTimePassed += GH.mainFPSmng->getElapsedMilliseconds();
+	frameTimePassed += msPassed;
 
 	if(frameTimePassed >= frameTimeTotal)
 	{

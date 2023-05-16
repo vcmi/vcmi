@@ -14,6 +14,7 @@
 #include "CIntObject.h"
 #include "CursorHandler.h"
 #include "ShortcutHandler.h"
+#include "FramerateManager.h"
 
 #include "../CGameInfo.h"
 #include "../render/Colors.h"
@@ -100,7 +101,7 @@ void CGuiHandler::init()
 {
 	screenHandlerInstance = std::make_unique<ScreenHandler>();
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
-	mainFPSmng = new CFramerateManager(settings["video"]["targetfps"].Integer());
+	framerateManagerInstance = std::make_unique<FramerateManager>(settings["video"]["targetfps"].Integer());
 
 	isPointerRelativeMode = settings["general"]["userRelativePointer"].Bool();
 	pointerSpeedMultiplier = settings["general"]["relativePointerSpeedMultiplier"].Float();
@@ -193,7 +194,7 @@ void CGuiHandler::totalRedraw()
 
 void CGuiHandler::updateTime()
 {
-	int ms = mainFPSmng->getElapsedMilliseconds();
+	int ms = framerateManager().getElapsedMilliseconds();
 	std::list<CIntObject*> hlp = timeinterested;
 	for (auto & elem : hlp)
 	{
@@ -692,9 +693,8 @@ void CGuiHandler::renderFrame()
 		disposed.clear();
 	}
 
-	mainFPSmng->framerateDelay(); // holds a constant FPS
+	framerateManager().framerateDelay(); // holds a constant FPS
 }
-
 
 CGuiHandler::CGuiHandler()
 	: lastClick(-500, -500)
@@ -705,7 +705,6 @@ CGuiHandler::CGuiHandler()
 	, mouseButtonsMask(0)
 	, continueEventHandling(true)
 	, curInt(nullptr)
-	, mainFPSmng(nullptr)
 	, statusbar(nullptr)
 {
 	terminate_cond = new CondSh<bool>(false);
@@ -713,13 +712,19 @@ CGuiHandler::CGuiHandler()
 
 CGuiHandler::~CGuiHandler()
 {
-	delete mainFPSmng;
 	delete terminate_cond;
 }
 
 ShortcutHandler & CGuiHandler::shortcutsHandler()
 {
+	assert(shortcutsHandlerInstance);
 	return *shortcutsHandlerInstance;
+}
+
+FramerateManager & CGuiHandler::framerateManager()
+{
+	assert(framerateManagerInstance);
+	return *framerateManagerInstance;
 }
 
 void CGuiHandler::moveCursorToPosition(const Point & position)
@@ -783,7 +788,7 @@ void CGuiHandler::drawFPSCounter()
 	static SDL_Rect overlay = { 0, 0, 64, 32};
 	uint32_t black = SDL_MapRGB(screen->format, 10, 10, 10);
 	SDL_FillRect(screen, &overlay, black);
-	std::string fps = std::to_string(mainFPSmng->getFramerate());
+	std::string fps = std::to_string(framerateManager().getFramerate());
 	graphics->fonts[FONT_BIG]->renderTextLeft(screen, fps, Colors::YELLOW, Point(10, 10));
 }
 
@@ -822,56 +827,4 @@ void CGuiHandler::onScreenResize()
 	}
 
 	totalRedraw();
-}
-
-
-CFramerateManager::CFramerateManager(int newRate)
-	: rate(0)
-	, rateticks(0)
-	, fps(0)
-	, accumulatedFrames(0)
-	, accumulatedTime(0)
-	, lastticks(0)
-	, timeElapsed(0)
-{
-	init(newRate);
-}
-
-void CFramerateManager::init(int newRate)
-{
-	rate = newRate;
-	rateticks = 1000.0 / rate;
-	this->lastticks = SDL_GetTicks();
-}
-
-void CFramerateManager::framerateDelay()
-{
-	ui32 currentTicks = SDL_GetTicks();
-
-	timeElapsed = currentTicks - lastticks;
-	accumulatedFrames++;
-
-	// FPS is higher than it should be, then wait some time
-	if(timeElapsed < rateticks)
-	{
-		int timeToSleep = (uint32_t)ceil(this->rateticks) - timeElapsed;
-		boost::this_thread::sleep(boost::posix_time::milliseconds(timeToSleep));
-	}
-
-	currentTicks = SDL_GetTicks();
-	// recalculate timeElapsed for external calls via getElapsed()
-	// limit it to 100 ms to avoid breaking animation in case of huge lag (e.g. triggered breakpoint)
-	timeElapsed = std::min<ui32>(currentTicks - lastticks, 100);
-
-	lastticks = SDL_GetTicks();
-
-	accumulatedTime += timeElapsed;
-
-	if(accumulatedFrames >= 100)
-	{
-		//about 2 second should be passed
-		fps = static_cast<int>(ceil(1000.0 / (accumulatedTime / accumulatedFrames)));
-		accumulatedTime = 0;
-		accumulatedFrames = 0;
-	}
 }
