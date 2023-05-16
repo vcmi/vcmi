@@ -798,6 +798,11 @@ void AdventureMapInterface::hotkeySwitchMapLevel()
 	widget->getMapView()->onMapLevelSwitched();
 }
 
+void AdventureMapInterface::hotkeyZoom(int delta)
+{
+	widget->getMapView()->onMapZoomLevelChanged( 1.0 + delta / 10.0);
+}
+
 void AdventureMapInterface::onScreenResize()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;

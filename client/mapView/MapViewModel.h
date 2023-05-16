@@ -25,6 +25,12 @@ public:
 	void setViewDimensions(const Point & newValue);
 	void setLevel(int newLevel);
 
+	/// returns maximal possible size for a single tile
+	Point getSingleTileSizeUpperLimit() const;
+
+	/// returns minimal possible size for a single tile
+	Point getSingleTileSizeLowerLimit() const;
+
 	/// returns current size of map tile in pixels
 	Point getSingleTileSize() const;
 

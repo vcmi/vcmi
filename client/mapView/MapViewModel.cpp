@@ -33,6 +33,16 @@ void MapViewModel::setLevel(int newLevel)
 	mapLevel = newLevel;
 }
 
+Point MapViewModel::getSingleTileSizeUpperLimit() const
+{
+	return Point(128, 128); // arbitrary-seleted upscaling limit
+}
+
+Point MapViewModel::getSingleTileSizeLowerLimit() const
+{
+	return Point(4, 4); // arbitrary-seleted upscaling limit
+}
+
 Point MapViewModel::getSingleTileSize() const
 {
 	return tileSize;
@@ -90,7 +100,7 @@ int3 MapViewModel::getTileAtPoint(const Point & position) const
 
 Point MapViewModel::getCacheDimensionsPixels() const
 {
-	return getTilesVisibleDimensions() * getSingleTileSize();
+	return getTilesVisibleDimensions() * getSingleTileSizeUpperLimit();
 }
 
 Rect MapViewModel::getCacheTileArea(const int3 & coordinates) const

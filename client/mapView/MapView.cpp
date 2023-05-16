@@ -154,6 +154,11 @@ void MapView::onViewWorldActivated(uint32_t tileSize)
 	controller->setTileSize(Point(tileSize, tileSize));
 }
 
+void MapView::onMapZoomLevelChanged(double zoomFactor)
+{
+	controller->modifyTileSize(zoomFactor);
+}
+
 void MapView::onViewMapActivated()
 {
 	controller->activateAdventureContext();

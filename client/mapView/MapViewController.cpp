@@ -75,6 +75,27 @@ void MapViewController::setTileSize(const Point & tileSize)
 	setViewCenter(model->getMapViewCenter(), model->getLevel());
 }
 
+void MapViewController::modifyTileSize(double zoomFactor)
+{
+	Point currentZoom = model->getSingleTileSize();
+	Point desiredZoom = currentZoom * zoomFactor;
+
+	if (desiredZoom == currentZoom && zoomFactor < 1.0)
+		desiredZoom -= Point(1,1);
+
+	if (desiredZoom == currentZoom && zoomFactor > 1.0)
+		desiredZoom += Point(1,1);
+
+	Point minimal = model->getSingleTileSizeLowerLimit();
+	Point maximal = model->getSingleTileSizeUpperLimit();
+	Point actualZoom = {
+		std::clamp(desiredZoom.x, minimal.x, maximal.x),
+		std::clamp(desiredZoom.y, minimal.y, maximal.y)
+	};
+
+	setTileSize(actualZoom);
+}
+
 MapViewController::MapViewController(std::shared_ptr<MapViewModel> model, std::shared_ptr<MapViewCache> view)
 	: state(new MapRendererContextState())
 	, model(std::move(model))
