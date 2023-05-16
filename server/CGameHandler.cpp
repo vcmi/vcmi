@@ -5809,7 +5809,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 		iw.text.addTxt(MetaString::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the "
 		iw.text.addTxt(MetaString::ART_NAMES, ArtifactID::GRAIL);
 		iw.soundID = soundBase::ULTIMATEARTIFACT;
-		giveHeroNewArtifact(h, VLC->arth->objects[ArtifactID::GRAIL], ArtifactPosition::PRE_FIRST); //give grail
+		giveHeroNewArtifact(h, VLC->arth->objects[ArtifactID::GRAIL], ArtifactPosition::FIRST_AVAILABLE); //give grail
 		sendAndApply(&iw);
 
 		iw.soundID = soundBase::invalid;
