@@ -209,7 +209,7 @@ bool MapViewController::isEventVisible(const CGObjectInstance * obj)
 	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
-	if(GH.windows().topWindow() != adventureInt)
+	if(!GH.windows().isTopWindow(adventureInt))
 		return false;
 
 	if(obj->isVisitable())
@@ -226,7 +226,7 @@ bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & 
 	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
-	if(GH.windows().topWindow() != adventureInt)
+	if(!GH.windows().isTopWindow(adventureInt))
 		return false;
 
 	if(context->isVisible(obj->convertToVisitablePos(from)))

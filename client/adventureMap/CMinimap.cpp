@@ -152,9 +152,9 @@ void CMinimap::clickRight(tribool down, bool previousState)
 void CMinimap::hover(bool on)
 {
 	if(on)
-		GH.statusbar->write(CGI->generaltexth->zelp[291].first);
+		GH.statusbar()->write(CGI->generaltexth->zelp[291].first);
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 }
 
 void CMinimap::mouseMoved(const Point & cursorPosition)

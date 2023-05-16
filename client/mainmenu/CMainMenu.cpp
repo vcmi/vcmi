@@ -338,8 +338,8 @@ void CMainMenu::update()
 
 	// check for null othervice crash on finishing a campaign
 	// /FIXME: find out why GH.windows().listInt is empty to begin with
-	if(GH.windows().topWindow())
-		GH.windows().topWindow()->show(screen);
+	if(GH.windows().topWindow<CIntObject>())
+		GH.windows().topWindow<CIntObject>()->show(screen);
 }
 
 void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> * names, ELoadMode loadMode)
@@ -523,7 +523,7 @@ void CSimpleJoinScreen::leaveScreen()
 		textTitle->setText("Closing...");
 		CSH->state = EClientState::CONNECTION_CANCELLED;
 	}
-	else if(GH.windows().topWindow().get() == this)
+	else if(GH.windows().isTopWindow(this))
 	{
 		close();
 	}
@@ -553,7 +553,7 @@ void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
 	else
 		CSH->justConnectToServer(addr, port);
 
-	if(GH.windows().topWindow().get() == this)
+	if(GH.windows().isTopWindow(this))
 	{
 		close();
 	}

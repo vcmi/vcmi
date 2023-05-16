@@ -483,8 +483,8 @@ void TemplatesDropBox::clickLeft(tribool down, bool previousState)
 		// pop the interface only if the mouse is not clicking on the slider
 		if (!w || !w->mouseState(MouseButton::LEFT))
 		{
-			assert(GH.windows().topWindow().get() == this);
-			GH.windows().popWindow(GH.windows().topWindow());
+			assert(GH.windows().isTopWindow(this));
+			GH.windows().popWindows(1);
 		}
 	}
 }
@@ -512,8 +512,8 @@ void TemplatesDropBox::updateListItems()
 void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
 {
 	randomMapTab.setTemplate(tmpl);
-	assert(GH.windows().topWindow().get() == this);
-	GH.windows().popWindow(GH.windows().topWindow());
+	assert(GH.windows().isTopWindow(this));
+	GH.windows().popWindows(1);
 }
 
 TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
@@ -548,14 +548,14 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 			randomMapTab.obtainMapGenOptions().setPlayerTeam(PlayerColor(plId), TeamID(players[plId]->getSelected()));
 		}
 		randomMapTab.updateMapInfoByHost();
-		assert(GH.windows().topWindow().get() == this);
-		GH.windows().popWindow(GH.windows().topWindow());
+		assert(GH.windows().isTopWindow(this));
+		GH.windows().popWindows(1);
 	});
 	
 	addCallback("cancel", [&](int)
 	{
-		assert(GH.windows().topWindow().get() == this);
-		GH.windows().popWindow(GH.windows().topWindow());
+		assert(GH.windows().isTopWindow(this));
+		GH.windows().popWindows(1);
 	});
 	
 	build(config);

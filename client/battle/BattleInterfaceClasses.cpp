@@ -592,7 +592,7 @@ void BattleResultWindow::buttonPressed(int button)
 
 	close();
 
-	if(dynamic_cast<BattleWindow*>(GH.windows().topWindow().get()))
+	if(GH.windows().topWindow<BattleWindow>())
 		GH.windows().popWindows(1); //pop battle interface if present
 
 	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,

@@ -330,7 +330,6 @@ SDL_Window * ScreenHandler::createWindow()
 void ScreenHandler::onScreenResize()
 {
 	recreateWindowAndScreenBuffers();
-	GH.onScreenResize();
 }
 
 void ScreenHandler::validateSettings()

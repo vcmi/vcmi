@@ -116,11 +116,11 @@ void CGarrisonSlot::hover (bool on)
 				temp = CGI->generaltexth->tcommands[11]; //Empty
 			}
 		}
-		GH.statusbar->write(temp);
+		GH.statusbar()->write(temp);
 	}
 	else
 	{
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 	}
 }
 
@@ -184,7 +184,7 @@ bool CGarrisonSlot::viewInfo()
 bool CGarrisonSlot::highlightOrDropArtifact()
 {
 	bool artSelected = false;
-	if (CWindowWithArtifacts* chw = dynamic_cast<CWindowWithArtifacts*>(GH.windows().topWindow().get())) //dirty solution
+	if (auto chw = GH.windows().topWindow<CWindowWithArtifacts>()) //dirty solution
 	{
 		const auto pickedArtInst = chw->getPickedArtifact();
 

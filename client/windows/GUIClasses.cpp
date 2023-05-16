@@ -586,9 +586,9 @@ void CTavernWindow::HeroPortrait::hover(bool on)
 {
 	//Hoverable::hover(on);
 	if(on)
-		GH.statusbar->write(hoverName);
+		GH.statusbar()->write(hoverName);
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 }
 
 static const std::string QUICK_EXCHANGE_MOD_PREFIX = "quick-exchange";
@@ -1256,9 +1256,9 @@ void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
 void CUniversityWindow::CItem::hover(bool on)
 {
 	if(on)
-		GH.statusbar->write(CGI->skillh->getByIndex(ID)->getNameTranslated());
+		GH.statusbar()->write(CGI->skillh->getByIndex(ID)->getNameTranslated());
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 }
 
 int CUniversityWindow::CItem::state()

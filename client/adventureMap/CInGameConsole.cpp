@@ -217,16 +217,15 @@ void CInGameConsole::startEnteringText()
 	if (captureAllKeys)
 		return;
 
-	assert(GH.statusbar);
 	assert(currentStatusBar.expired());//effectively, nullptr check
 
-	currentStatusBar = GH.statusbar;
+	currentStatusBar = GH.statusbar();
 
 	captureAllKeys = true;
 	enteredText = "_";
 
-	GH.statusbar->setEnteringMode(true);
-	GH.statusbar->setEnteredText(enteredText);
+	GH.statusbar()->setEnteringMode(true);
+	GH.statusbar()->setEnteredText(enteredText);
 }
 
 void CInGameConsole::endEnteringText(bool processEnteredText)

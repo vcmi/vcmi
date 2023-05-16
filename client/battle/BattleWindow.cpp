@@ -176,13 +176,14 @@ void BattleWindow::updateQueue()
 
 void BattleWindow::activate()
 {
-	GH.statusbar = console;
+	GH.setStatusbar(console);
 	CIntObject::activate();
 	LOCPLINT->cingconsole->activate();
 }
 
 void BattleWindow::deactivate()
 {
+	GH.setStatusbar(nullptr);
 	CIntObject::deactivate();
 	LOCPLINT->cingconsole->deactivate();
 }
@@ -570,7 +571,7 @@ void BattleWindow::show(SDL_Surface *to)
 
 void BattleWindow::close()
 {
-	if(GH.windows().topWindow().get() != this)
+	if(!GH.windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
 	GH.windows().popWindows(1);
 }

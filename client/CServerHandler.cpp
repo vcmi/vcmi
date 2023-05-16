@@ -750,8 +750,9 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 
 	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
-	while(!settings["session"]["headless"].Bool() && !dynamic_cast<CLobbyScreen *>(GH.windows().topWindow().get()))
+	while(!settings["session"]["headless"].Bool() && !GH.windows().topWindow<CLobbyScreen>())
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+
 	while(!mi || mapInfo->fileURI != CSH->mi->fileURI)
 	{
 		setMapInfo(mapInfo);

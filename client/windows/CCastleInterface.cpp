@@ -126,7 +126,7 @@ void CBuildingRect::hover(bool on)
 		if(parent->selectedBuilding == this)
 		{
 			parent->selectedBuilding = nullptr;
-			GH.statusbar->clear();
+			GH.statusbar()->clear();
 		}
 	}
 }
@@ -256,7 +256,7 @@ void CBuildingRect::mouseMoved (const Point & cursorPosition)
 			if(parent->selectedBuilding == this)
 			{
 				parent->selectedBuilding = nullptr;
-				GH.statusbar->clear();
+				GH.statusbar()->clear();
 			}
 		}
 		else //inside the area of this building
@@ -265,7 +265,7 @@ void CBuildingRect::mouseMoved (const Point & cursorPosition)
 			  || (*parent->selectedBuilding)<(*this)) //or we are on top
 			{
 				parent->selectedBuilding = this;
-				GH.statusbar->write(getSubtitle());
+				GH.statusbar()->write(getSubtitle());
 			}
 		}
 	}
@@ -339,7 +339,7 @@ void CHeroGSlot::hover(bool on)
 {
 	if(!on)
 	{
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 		return;
 	}
 	std::shared_ptr<CHeroGSlot> other = upg ? owner->garrisonedHero : owner->visitingHero;
@@ -384,7 +384,7 @@ void CHeroGSlot::hover(bool on)
 		}
 	}
 	if(temp.size())
-		GH.statusbar->write(temp);
+		GH.statusbar()->write(temp);
 }
 
 void CHeroGSlot::clickLeft(tribool down, bool previousState)
@@ -974,7 +974,8 @@ void CCastleBuildings::enterTownHall()
 		else
 		{
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[673]);
-			dynamic_cast<CInfoWindow*>(GH.windows().topWindow().get())->buttons[0]->addCallback(std::bind(&CCastleBuildings::openTownHall, this));
+			assert(GH.windows().topWindow<CInfoWindow>() != nullptr);
+			GH.windows().topWindow<CInfoWindow>()->buttons[0]->addCallback(std::bind(&CCastleBuildings::openTownHall, this));
 		}
 	}
 	else
@@ -1058,11 +1059,11 @@ void CCreaInfo::hover(bool on)
 
 	if(on)
 	{
-		GH.statusbar->write(message);
+		GH.statusbar()->write(message);
 	}
 	else
 	{
-		GH.statusbar->clearIfMatching(message);
+		GH.statusbar()->clearIfMatching(message);
 	}
 }
 
@@ -1137,11 +1138,11 @@ void CTownInfo::hover(bool on)
 	if(on)
 	{
 		if(building )
-			GH.statusbar->write(building->getNameTranslated());
+			GH.statusbar()->write(building->getNameTranslated());
 	}
 	else
 	{
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 	}
 }
 
@@ -1383,11 +1384,11 @@ void CHallInterface::CBuildingBox::hover(bool on)
 		else
 			toPrint = CGI->generaltexth->hcommands[state];
 		boost::algorithm::replace_first(toPrint,"%s",building->getNameTranslated());
-		GH.statusbar->write(toPrint);
+		GH.statusbar()->write(toPrint);
 	}
 	else
 	{
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 	}
 }
 
@@ -1571,11 +1572,11 @@ void LabeledValue::hover(bool on)
 {
 	if(on)
 	{
-		GH.statusbar->write(hoverText);
+		GH.statusbar()->write(hoverText);
 	}
 	else
 	{
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 		parent->hovered = false;
 	}
 }
@@ -1740,9 +1741,9 @@ const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 void CFortScreen::RecruitArea::hover(bool on)
 {
 	if(on)
-		GH.statusbar->write(hoverText);
+		GH.statusbar()->write(hoverText);
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 }
 
 void CFortScreen::RecruitArea::creaturesChangedEventHandler()
@@ -1830,9 +1831,9 @@ void CMageGuildScreen::Scroll::clickRight(tribool down, bool previousState)
 void CMageGuildScreen::Scroll::hover(bool on)
 {
 	if(on)
-		GH.statusbar->write(spell->getNameTranslated());
+		GH.statusbar()->write(spell->getNameTranslated());
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 
 }
 

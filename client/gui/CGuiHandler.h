@@ -50,9 +50,14 @@ class CGuiHandler
 {
 public:
 
-	std::shared_ptr<IStatusBar> statusbar;
 
 private:
+	/// Fake no-op version status bar, for use in windows that have no status bar
+	std::shared_ptr<IStatusBar> fakeStatusBar;
+
+	/// Status bar of current window, if any. Uses weak_ptr to allow potential hanging reference after owned window has been deleted
+	std::weak_ptr<IStatusBar> currentStatusBar;
+
 	Point cursorPosition;
 	uint32_t mouseButtonsMask;
 
@@ -121,6 +126,12 @@ public:
 	IScreenHandler & screenHandler();
 
 	WindowHandler & windows();
+
+	/// Returns currently active status bar. Guaranteed to be non-null
+	std::shared_ptr<IStatusBar> statusbar();
+
+	/// Set currently active status bar
+	void setStatusbar(std::shared_ptr<IStatusBar>);
 
 	IUpdateable *curInt;
 

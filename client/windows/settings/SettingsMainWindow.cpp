@@ -104,7 +104,7 @@ void SettingsMainWindow::openTab(size_t index)
 
 void SettingsMainWindow::close()
 {
-	if(GH.windows().topWindow().get() != this)
+	if(!GH.windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
 	GH.windows().popWindows(1);
 }

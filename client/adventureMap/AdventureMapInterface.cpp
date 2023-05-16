@@ -396,7 +396,7 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 
 	if(settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
 	{
-		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.windows().topWindow().get()))
+		if(auto iw = GH.windows().topWindow<CInfoWindow>())
 			iw->close();
 
 		hotkeyEndingTurn();
@@ -528,7 +528,7 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 	if(!LOCPLINT->cb->isVisible(mapPos))
 	{
 		CCS->curh->set(Cursor::Map::POINTER);
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 		return;
 	}
 	auto objRelations = PlayerRelations::ALLIES;
@@ -538,12 +538,12 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
 		std::string text = LOCPLINT->localState->getCurrentHero() ? objAtTile->getHoverText(LOCPLINT->localState->getCurrentHero()) : objAtTile->getHoverText(LOCPLINT->playerID);
 		boost::replace_all(text,"\n"," ");
-		GH.statusbar->write(text);
+		GH.statusbar()->write(text);
 	}
 	else
 	{
 		std::string hlp = CGI->mh->getTerrainDescr(mapPos, false);
-		GH.statusbar->write(hlp);
+		GH.statusbar()->write(hlp);
 	}
 
 	if(spellBeingCasted)
@@ -680,7 +680,7 @@ void AdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & he
 	boost::replace_first(result, "%POINTS", std::to_string(movementPointsLastTurnCost));
 	boost::replace_first(result, "%REMAINING", std::to_string(remainingPointsAfterMove));
 
-	GH.statusbar->write(result);
+	GH.statusbar()->write(result);
 }
 
 void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)

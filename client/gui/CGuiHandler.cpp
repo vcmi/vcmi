@@ -631,7 +631,7 @@ CGuiHandler::CGuiHandler()
 	, mouseButtonsMask(0)
 	, continueEventHandling(true)
 	, curInt(nullptr)
-	, statusbar(nullptr)
+	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
 	, terminate_cond (new CondSh<bool>(false))
 {
 }
@@ -746,6 +746,21 @@ WindowHandler & CGuiHandler::windows()
 {
 	assert(windowHandlerInstance);
 	return *windowHandlerInstance;
+}
+
+std::shared_ptr<IStatusBar> CGuiHandler::statusbar()
+{
+	auto locked = currentStatusBar.lock();
+
+	if (!locked)
+		return fakeStatusBar;
+
+	return locked;
+}
+
+void CGuiHandler::setStatusbar(std::shared_ptr<IStatusBar> newStatusBar)
+{
+	currentStatusBar = newStatusBar;
 }
 
 void CGuiHandler::onScreenResize()

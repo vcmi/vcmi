@@ -178,7 +178,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 	}
 
 	// remove all dialogs that do not expect query answer
-	while (GH.windows().topWindow() != adventureInt && !dynamic_cast<CInfoWindow*>(GH.windows().topWindow().get()))
+	while (!GH.windows().topWindow<AdventureMapInterface>() && !GH.windows().topWindow<CInfoWindow>())
 		GH.windows().popWindows(1);
 
 	if (player != playerID && LOCPLINT == this)
@@ -247,7 +247,7 @@ void CPlayerInterface::acceptTurn()
 {
 	if (settings["session"]["autoSkip"].Bool())
 	{
-		while(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.windows().topWindow().get()))
+		while(auto iw = GH.windows().topWindow<CInfoWindow>())
 			iw->close();
 	}
 
@@ -449,7 +449,7 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (which == 4)
 	{
-		if (CAltarWindow *ctw = dynamic_cast<CAltarWindow *>(GH.windows().topWindow().get()))
+		for (auto ctw : GH.windows().findWindows<CAltarWindow>())
 			ctw->setExpToLevel();
 	}
 	else
@@ -459,11 +459,8 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 void CPlayerInterface::heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	CUniversityWindow* cuw = dynamic_cast<CUniversityWindow*>(GH.windows().topWindow().get());
-	if (cuw) //university window is open
-	{
-		GH.windows().totalRedraw();
-	}
+	for (auto cuw : GH.windows().findWindows<CUniversityWindow>())
+		cuw->redraw();
 }
 
 void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -482,7 +479,7 @@ void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 void CPlayerInterface::receivedResource()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (CMarketplaceWindow *mw = dynamic_cast<CMarketplaceWindow *>(GH.windows().topWindow().get()))
+	for (auto mw : GH.windows().findWindows<CMarketplaceWindow>())
 		mw->resourceChanged();
 
 	GH.windows().totalRedraw();
@@ -1193,12 +1190,10 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (const CGTownInstance * townObj = dynamic_cast<const CGTownInstance*>(town))
 	{
-		CFortScreen * fortScreen = dynamic_cast<CFortScreen*>(GH.windows().topWindow().get());
-		CCastleInterface * castleInterface = dynamic_cast<CCastleInterface*>(GH.windows().topWindow().get());
-
-		if (fortScreen)
+		for (auto fortScreen : GH.windows().findWindows<CFortScreen>())
 			fortScreen->creaturesChangedEventHandler();
-		else if(castleInterface)
+
+		for (auto castleInterface : GH.windows().findWindows<CCastleInterface>())
 			castleInterface->creaturesChangedEventHandler();
 
 		if (townObj)
@@ -1208,9 +1203,9 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 	else if(town && GH.windows().count() > 0 && (town->ID == Obj::CREATURE_GENERATOR1
 		||  town->ID == Obj::CREATURE_GENERATOR4  ||  town->ID == Obj::WAR_MACHINE_FACTORY))
 	{
-		CRecruitmentWindow *crw = dynamic_cast<CRecruitmentWindow*>(GH.windows().topWindow().get());
-		if (crw && crw->dwelling == town)
-			crw->availableCreaturesChanged();
+		for (auto crw : GH.windows().findWindows<CRecruitmentWindow>())
+			if (crw->dwelling == town)
+				crw->availableCreaturesChanged();
 	}
 }
 
@@ -1644,7 +1639,7 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-	if(dynamic_cast<CSpellWindow *>(GH.windows().topWindow().get()))
+	if(GH.windows().topWindow<CSpellWindow>())
 		GH.windows().popWindows(1);
 
 	if(spellID == SpellID::FLY || spellID == SpellID::WATER_WALK)
@@ -1731,7 +1726,7 @@ void CPlayerInterface::showHillFortWindow(const CGObjectInstance *object, const 
 void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket * bm)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (CMarketplaceWindow *cmw = dynamic_cast<CMarketplaceWindow*>(GH.windows().topWindow().get()))
+	for (auto cmw : GH.windows().findWindows<CMarketplaceWindow>())
 		cmw->artifactsChanged(false);
 }
 

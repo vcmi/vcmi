@@ -68,12 +68,24 @@ void WindowHandler::popWindows(int howMany)
 	GH.fakeMouseMove();
 }
 
-std::shared_ptr<IShowActivatable> WindowHandler::topWindow() const
+std::shared_ptr<IShowActivatable> WindowHandler::topWindowImpl() const
 {
 	if(windowsStack.empty())
 		return nullptr;
 
 	return windowsStack.back();
+}
+
+bool WindowHandler::isTopWindow(std::shared_ptr<IShowActivatable> window) const
+{
+	assert(window != nullptr);
+	return !windowsStack.empty() && windowsStack.back() == window;
+}
+
+bool WindowHandler::isTopWindow(IShowActivatable * window) const
+{
+	assert(window != nullptr);
+	return !windowsStack.empty() && windowsStack.back().get() == window;
 }
 
 void WindowHandler::totalRedraw()
@@ -118,6 +130,9 @@ size_t WindowHandler::count() const
 
 void WindowHandler::clear()
 {
+	if(!windowsStack.empty())
+		windowsStack.back()->deactivate();
+
 	windowsStack.clear();
 	disposed.clear();
 }

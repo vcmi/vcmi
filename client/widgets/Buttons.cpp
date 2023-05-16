@@ -218,9 +218,9 @@ void CButton::hover (bool on)
 	if(!name.empty() && !isBlocked()) //if there is no name, there is nothing to display also
 	{
 		if (on)
-			GH.statusbar->write(name);
+			GH.statusbar()->write(name);
 		else
-			GH.statusbar->clearIfMatching(name);
+			GH.statusbar()->clearIfMatching(name);
 	}
 }
 
@@ -532,8 +532,8 @@ void CVolumeSlider::clickRight(tribool down, bool previousState)
 
 		if(!helpBox.empty())
 			CRClickPopup::createAndPush(helpBox);
-		if(GH.statusbar)
-			GH.statusbar->write(helpBox);
+
+		GH.statusbar()->write(helpBox);
 	}
 }
 

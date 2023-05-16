@@ -20,6 +20,9 @@ class WindowHandler
 	/// Temporary list of recently popped windows
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;
 
+	/// returns top windows
+	std::shared_ptr<IShowActivatable> topWindowImpl() const;
+
 public:
 	/// forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering
 	void totalRedraw();
@@ -43,8 +46,13 @@ public:
 	/// removes given windows from the top and activates next
 	void popWindow(std::shared_ptr<IShowActivatable> top);
 
-	/// returns top windows
-	std::shared_ptr<IShowActivatable> topWindow() const;
+	/// returns true if selected interface is on top
+	bool isTopWindow(std::shared_ptr<IShowActivatable> window) const;
+	bool isTopWindow(IShowActivatable * window) const;
+
+	/// returns top window if it matches requested class
+	template <typename T>
+	std::shared_ptr<T> topWindow() const;
 
 	/// should be called after frame has been rendered to screen
 	void onFrameRendered();
@@ -72,7 +80,7 @@ std::vector<std::shared_ptr<T>> WindowHandler::findWindows() const
 {
 	std::vector<std::shared_ptr<T>> result;
 
-	for (auto const & window : windowsStack)
+	for(const auto & window : windowsStack)
 	{
 		std::shared_ptr<T> casted = std::dynamic_pointer_cast<T>(window);
 
@@ -80,4 +88,10 @@ std::vector<std::shared_ptr<T>> WindowHandler::findWindows() const
 			result.push_back(casted);
 	}
 	return result;
+}
+
+template <typename T>
+std::shared_ptr<T> WindowHandler::topWindow() const
+{
+	return std::dynamic_pointer_cast<T>(topWindowImpl());
 }

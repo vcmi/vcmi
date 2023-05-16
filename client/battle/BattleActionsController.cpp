@@ -773,7 +773,7 @@ void BattleActionsController::onHexHovered(BattleHex hoveredHex)
 	if (owner.openingPlaying())
 	{
 		currentConsoleMsg = VLC->generaltexth->translate("vcmi.battleWindow.pressKeyToSkipIntro");
-		GH.statusbar->write(currentConsoleMsg);
+		GH.statusbar()->write(currentConsoleMsg);
 		return;
 	}
 
@@ -783,7 +783,7 @@ void BattleActionsController::onHexHovered(BattleHex hoveredHex)
 	if (hoveredHex == BattleHex::INVALID)
 	{
 		if (!currentConsoleMsg.empty())
-			GH.statusbar->clearIfMatching(currentConsoleMsg);
+			GH.statusbar()->clearIfMatching(currentConsoleMsg);
 
 		currentConsoleMsg.clear();
 		CCS->curh->set(Cursor::Combat::BLOCKED);
@@ -806,10 +806,10 @@ void BattleActionsController::onHexHovered(BattleHex hoveredHex)
 	}
 
 	if (!currentConsoleMsg.empty())
-		GH.statusbar->clearIfMatching(currentConsoleMsg);
+		GH.statusbar()->clearIfMatching(currentConsoleMsg);
 
 	if (!newConsoleMsg.empty())
-		GH.statusbar->write(newConsoleMsg);
+		GH.statusbar()->write(newConsoleMsg);
 
 	currentConsoleMsg = newConsoleMsg;
 }
@@ -819,7 +819,7 @@ void BattleActionsController::onHoverEnded()
 	CCS->curh->set(Cursor::Combat::POINTER);
 
 	if (!currentConsoleMsg.empty())
-		GH.statusbar->clearIfMatching(currentConsoleMsg);
+		GH.statusbar()->clearIfMatching(currentConsoleMsg);
 
 	currentConsoleMsg.clear();
 }
@@ -850,7 +850,7 @@ void BattleActionsController::onHexLeftClicked(BattleHex clickedHex)
 	{
 		actionRealize(action, clickedHex);
 
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 	}
 	else
 	{

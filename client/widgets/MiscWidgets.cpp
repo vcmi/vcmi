@@ -36,9 +36,9 @@
 void CHoverableArea::hover (bool on)
 {
 	if (on)
-		GH.statusbar->write(hoverText);
+		GH.statusbar()->write(hoverText);
 	else
-		GH.statusbar->clearIfMatching(hoverText);
+		GH.statusbar()->clearIfMatching(hoverText);
 }
 
 CHoverableArea::CHoverableArea()
@@ -152,9 +152,9 @@ void CHeroArea::clickRight(tribool down, bool previousState)
 void CHeroArea::hover(bool on)
 {
 	if (on && hero)
-		GH.statusbar->write(hero->getObjectName());
+		GH.statusbar()->write(hero->getObjectName());
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 }
 
 void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)
