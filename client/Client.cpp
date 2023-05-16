@@ -770,8 +770,7 @@ void CClient::removeGUI()
 	if(GH.windows().topInt())
 		GH.windows().topInt()->deactivate();
 	adventureInt.reset();
-	GH.windows().listInt.clear();
-	GH.windows().objsToBlit.clear();
+	GH.windows().clear();
 	GH.statusbar.reset();
 	logGlobal->info("Removed GUI.");
 

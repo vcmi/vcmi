@@ -57,7 +57,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClient
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-	if(GH.windows().listInt.size())
+	if(GH.windows().count() > 0)
 		GH.windows().popInts(1);
 }
 

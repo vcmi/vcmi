@@ -271,7 +271,7 @@ void ScreenHandler::initializeScreenBuffers()
 		throw std::runtime_error("Unable to copy surface\n");
 	}
 
-	if (GH.windows().listInt.size() > 1)
+	if (GH.windows().count() > 1)
 		screenBuf = screen2;
 	else
 		screenBuf = screen;

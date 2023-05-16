@@ -325,7 +325,7 @@ void CMainMenu::update()
 	if(CMM != this->shared_from_this()) //don't update if you are not a main interface
 		return;
 
-	if(GH.windows().listInt.empty())
+	if(GH.windows().count() == 0)
 	{
 		GH.windows().pushInt(CMM);
 		GH.windows().pushInt(menu);
@@ -523,7 +523,7 @@ void CSimpleJoinScreen::leaveScreen()
 		textTitle->setText("Closing...");
 		CSH->state = EClientState::CONNECTION_CANCELLED;
 	}
-	else if(GH.windows().listInt.size() && GH.windows().listInt.front().get() == this)
+	else if(GH.windows().topInt().get() == this)
 	{
 		close();
 	}
@@ -553,7 +553,7 @@ void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
 	else
 		CSH->justConnectToServer(addr, port);
 
-	if(GH.windows().listInt.size() && GH.windows().listInt.front().get() == this)
+	if(GH.windows().topInt().get() == this)
 	{
 		close();
 	}

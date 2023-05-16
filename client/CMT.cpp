@@ -623,8 +623,7 @@ static void quitApplication()
 			CSH->endGameplay();
 	}
 
-	GH.windows().listInt.clear();
-	GH.windows().objsToBlit.clear();
+	GH.windows().clear();
 
 	CMM.reset();
 

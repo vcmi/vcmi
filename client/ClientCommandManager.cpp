@@ -196,14 +196,8 @@ void ClientCommandManager::handleNotDialogCommand()
 
 void ClientCommandManager::handleGuiCommand()
 {
-	for(const auto & child : GH.windows().listInt)
-	{
-		const auto childPtr = child.get();
-		if(const CIntObject * obj = dynamic_cast<const CIntObject*>(childPtr))
-			printInfoAboutInterfaceObject(obj, 0);
-		else
-			printCommandMessage(std::string(typeid(childPtr).name()) + "\n");
-	}
+	for(const auto & child : GH.windows().findInts<CIntObject>())
+		printInfoAboutInterfaceObject(child.get(), 0);
 }
 
 void ClientCommandManager::handleConvertTextCommand()

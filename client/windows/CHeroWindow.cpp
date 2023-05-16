@@ -314,18 +314,17 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	//if we have exchange window with this curHero open
 	bool noDismiss=false;
-	for(auto isa : GH.windows().listInt)
-	{
-		if(CExchangeWindow * cew = dynamic_cast<CExchangeWindow*>(isa.get()))
-		{
-			for(int g=0; g < cew->heroInst.size(); ++g)
-				if(cew->heroInst[g] == curHero)
-					noDismiss = true;
-		}
 
-		if(dynamic_cast<CKingdomInterface*>(isa.get()))
-			noDismiss = true;
+	for(auto cew : GH.windows().findInts<CExchangeWindow>())
+	{
+		for(int g=0; g < cew->heroInst.size(); ++g)
+			if(cew->heroInst[g] == curHero)
+				noDismiss = true;
 	}
+
+	for(auto ki : GH.windows().findInts<CKingdomInterface>())
+		noDismiss = true;
+
 	//if player only have one hero and no towns
 	if(!LOCPLINT->cb->howManyTowns() && LOCPLINT->cb->howManyHeroes() == 1)
 		noDismiss = true;

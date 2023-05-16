@@ -21,30 +21,29 @@
 
 void WindowHandler::popInt(std::shared_ptr<IShowActivatable> top)
 {
-	assert(listInt.front() == top);
+	assert(windowsStack.back() == top);
 	top->deactivate();
 	disposed.push_back(top);
-	listInt.pop_front();
-	objsToBlit -= top;
-	if(!listInt.empty())
-		listInt.front()->activate();
+	windowsStack.pop_back();
+	if(!windowsStack.empty())
+		windowsStack.back()->activate();
+
 	totalRedraw();
 }
 
 void WindowHandler::pushInt(std::shared_ptr<IShowActivatable> newInt)
 {
 	assert(newInt);
-	assert(!vstd::contains(listInt, newInt)); // do not add same object twice
+	assert(!vstd::contains(windowsStack, newInt)); // do not add same object twice
 
 	//a new interface will be present, we'll need to use buffer surface (unless it's advmapint that will alter screenBuf on activate anyway)
 	screenBuf = screen2;
 
-	if(!listInt.empty())
-		listInt.front()->deactivate();
-	listInt.push_front(newInt);
+	if(!windowsStack.empty())
+		windowsStack.back()->deactivate();
+	windowsStack.push_back(newInt);
 	CCS->curh->set(Cursor::Map::POINTER);
 	newInt->activate();
-	objsToBlit.push_back(newInt);
 	totalRedraw();
 }
 
@@ -53,36 +52,35 @@ void WindowHandler::popInts(int howMany)
 	if(!howMany)
 		return; //senseless but who knows...
 
-	assert(listInt.size() >= howMany);
-	listInt.front()->deactivate();
+	assert(windowsStack.size() >= howMany);
+	windowsStack.back()->deactivate();
 	for(int i = 0; i < howMany; i++)
 	{
-		objsToBlit -= listInt.front();
-		disposed.push_back(listInt.front());
-		listInt.pop_front();
+		disposed.push_back(windowsStack.back());
+		windowsStack.pop_back();
 	}
 
-	if(!listInt.empty())
+	if(!windowsStack.empty())
 	{
-		listInt.front()->activate();
+		windowsStack.back()->activate();
 		totalRedraw();
 	}
 	GH.fakeMouseMove();
 }
 
-std::shared_ptr<IShowActivatable> WindowHandler::topInt()
+std::shared_ptr<IShowActivatable> WindowHandler::topInt() const
 {
-	if(listInt.empty())
-		return std::shared_ptr<IShowActivatable>();
-	else
-		return listInt.front();
+	if(windowsStack.empty())
+		return nullptr;
+
+	return windowsStack.back();
 }
 
 void WindowHandler::totalRedraw()
 {
 	CSDL_Ext::fillSurface(screen2, Colors::BLACK);
 
-	for(auto & elem : objsToBlit)
+	for(auto & elem : windowsStack)
 		elem->showAll(screen2);
 	CSDL_Ext::blitAt(screen2, 0, 0, screen);
 }
@@ -90,26 +88,36 @@ void WindowHandler::totalRedraw()
 void WindowHandler::simpleRedraw()
 {
 	//update only top interface and draw background
-	if(objsToBlit.size() > 1)
+	if(windowsStack.size() > 1)
 		CSDL_Ext::blitAt(screen2, 0, 0, screen); //blit background
-	if(!objsToBlit.empty())
-		objsToBlit.back()->show(screen); //blit active interface/window
+	if(!windowsStack.empty())
+		windowsStack.back()->show(screen); //blit active interface/window
 }
 
 void WindowHandler::onScreenResize()
 {
-	for(const auto & entry : listInt)
+	for(const auto & entry : windowsStack)
 	{
 		auto intObject = std::dynamic_pointer_cast<CIntObject>(entry);
 
 		if(intObject)
 			intObject->onScreenResize();
 	}
-
 	totalRedraw();
 }
 
 void WindowHandler::onFrameRendered()
 {
+	disposed.clear();
+}
+
+size_t WindowHandler::count() const
+{
+	return windowsStack.size();
+}
+
+void WindowHandler::clear()
+{
+	windowsStack.clear();
 	disposed.clear();
 }

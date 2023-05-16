@@ -169,15 +169,16 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 void CPlayerInterface::playerStartsTurn(PlayerColor player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (!vstd::contains (GH.windows().listInt, adventureInt))
+
+	if(GH.windows().findInts<AdventureMapInterface>().empty())
 	{
 		// after map load - remove all active windows and replace them with adventure map
-		GH.windows().popInts ((int)GH.windows().listInt.size());
-		GH.windows().pushInt (adventureInt);
+		GH.windows().clear();
+		GH.windows().pushInt(adventureInt);
 	}
 
 	// remove all dialogs that do not expect query answer
-	while (GH.windows().listInt.front() != adventureInt && !dynamic_cast<CInfoWindow*>(GH.windows().listInt.front().get()))
+	while (GH.windows().topInt() != adventureInt && !dynamic_cast<CInfoWindow*>(GH.windows().topInt().get()))
 		GH.windows().popInts(1);
 
 	if (player != playerID && LOCPLINT == this)
@@ -538,17 +539,15 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		castleInt->heroes->update();
 		castleInt->redraw();
 	}
-	for (auto isa : GH.windows().listInt)
+
+	for (auto ki : GH.windows().findInts<CKingdomInterface>())
 	{
-		CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa.get());
-		if (ki)
-		{
-			ki->townChanged(town);
-			ki->updateGarrisons();
-			ki->redraw();
-		}
+		ki->townChanged(town);
+		ki->updateGarrisons();
+		ki->redraw();
 	}
 }
+
 void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -590,17 +589,13 @@ void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> ob
 			adventureInt->onTownChanged(town);
 	}
 
-	for (auto & elem : GH.windows().listInt)
-	{
-		CGarrisonHolder *cgh = dynamic_cast<CGarrisonHolder*>(elem.get());
-		if (cgh)
-			cgh->updateGarrisons();
+	for (auto cgh : GH.windows().findInts<CGarrisonHolder>())
+		cgh->updateGarrisons();
 
-		if (CTradeWindow *cmw = dynamic_cast<CTradeWindow*>(elem.get()))
-		{
-			if (vstd::contains(objs, cmw->hero))
-				cmw->garrisonChanged();
-		}
+	for (auto cmw : GH.windows().findInts<CTradeWindow>())
+	{
+		if (vstd::contains(objs, cmw->hero))
+			cmw->garrisonChanged();
 	}
 
 	GH.windows().totalRedraw();
@@ -1016,7 +1011,7 @@ void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &t
 		waitWhileDialog(); //Fix for mantis #98
 		adventureInt->showInfoBoxMessage(components, text, timer);
 
-		if (makingTurn && GH.windows().listInt.size() && LOCPLINT == this)
+		if (makingTurn && GH.windows().count() > 0 && LOCPLINT == this)
 			CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 		return;
 	}
@@ -1057,7 +1052,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	}
 	std::shared_ptr<CInfoWindow> temp = CInfoWindow::create(text, playerID, components);
 
-	if (makingTurn && GH.windows().listInt.size() && LOCPLINT == this)
+	if (makingTurn && GH.windows().count() > 0 && LOCPLINT == this)
 	{
 		CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->set(true);
@@ -1206,14 +1201,11 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 		else if(castleInterface)
 			castleInterface->creaturesChangedEventHandler();
 
-		for(auto isa : GH.windows().listInt)
-		{
-			CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa.get());
-			if (ki && townObj)
+		if (townObj)
+			for (auto ki : GH.windows().findInts<CKingdomInterface>())
 				ki->townChanged(townObj);
-		}
 	}
-	else if(town && GH.windows().listInt.size() && (town->ID == Obj::CREATURE_GENERATOR1
+	else if(town && GH.windows().count() > 0 && (town->ID == Obj::CREATURE_GENERATOR1
 		||  town->ID == Obj::CREATURE_GENERATOR4  ||  town->ID == Obj::WAR_MACHINE_FACTORY))
 	{
 		CRecruitmentWindow *crw = dynamic_cast<CRecruitmentWindow*>(GH.windows().topInt().get());
@@ -1594,7 +1586,7 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 			if(adventureInt)
 			{
 				GH.terminate_cond->setn(true);
-				GH.windows().popInts(GH.windows().listInt.size());
+				GH.windows().popInts(GH.windows().count());
 				adventureInt.reset();
 			}
 		}
@@ -1809,12 +1801,9 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	adventureInt->onHeroChanged(hero);
-	for(auto isa : GH.windows().listInt)
-	{
-		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
-		if (artWin)
-			artWin->artifactRemoved(al);
-	}
+
+	for(auto artWin : GH.windows().findInts<CArtifactHolder>())
+		artWin->artifactRemoved(al);
 
 	waitWhileDialog();
 }
@@ -1834,12 +1823,9 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 			redraw = false;
 	}
 
-	for(auto isa : GH.windows().listInt)
-	{
-		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
-		if (artWin)
-			artWin->artifactMoved(src, dst, redraw);
-	}
+	for(auto artWin : GH.windows().findInts<CArtifactHolder>())
+		artWin->artifactMoved(src, dst, redraw);
+
 	waitWhileDialog();
 }
 
@@ -1853,12 +1839,9 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	adventureInt->onHeroChanged(hero);
-	for(auto isa : GH.windows().listInt)
-	{
-		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
-		if (artWin)
-			artWin->artifactAssembled(al);
-	}
+
+	for(auto artWin : GH.windows().findInts<CArtifactHolder>())
+		artWin->artifactAssembled(al);
 }
 
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
@@ -1866,12 +1849,9 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	adventureInt->onHeroChanged(hero);
-	for(auto isa : GH.windows().listInt)
-	{
-		auto artWin = dynamic_cast<CArtifactHolder*>(isa.get());
-		if (artWin)
-			artWin->artifactDisassembled(al);
-	}
+
+	for(auto artWin : GH.windows().findInts<CArtifactHolder>())
+		artWin->artifactDisassembled(al);
 }
 
 void CPlayerInterface::waitForAllDialogs(bool unlockPim)
