@@ -368,7 +368,7 @@ void CBonusSelection::goBack()
 {
 	if(CSH->state != EClientState::GAMEPLAY)
 	{
-		GH.windows().popInts(2);
+		GH.windows().popWindows(2);
 	}
 	else
 	{
@@ -398,7 +398,7 @@ void CBonusSelection::startMap()
 		const CCampaignScenario & scenario = getCampaign()->camp->scenarios[CSH->campaignMap];
 		if(scenario.prolog.hasPrologEpilog)
 		{
-			GH.windows().pushIntT<CPrologEpilogVideo>(scenario.prolog, exitCb);
+			GH.windows().createAndPushWindow<CPrologEpilogVideo>(scenario.prolog, exitCb);
 		}
 		else
 		{

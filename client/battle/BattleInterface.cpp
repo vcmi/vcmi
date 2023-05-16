@@ -96,7 +96,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	adventureInt->onAudioPaused();
 	ongoingAnimationsState.set(true);
 
-	GH.windows().pushInt(windowObject);
+	GH.windows().pushWindow(windowObject);
 	windowObject->blockUI(true);
 	windowObject->updateQueue();
 
@@ -329,7 +329,7 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 	{
 		curInt->cb->selectionMade(selection, queryID);
 	};
-	GH.windows().pushInt(wnd);
+	GH.windows().pushWindow(wnd);
 	
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897
 	CPlayerInterface::battleInt = nullptr;

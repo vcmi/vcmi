@@ -103,12 +103,12 @@ RandomMapTab::RandomMapTab():
 	//new callbacks available only from mod
 	addCallback("templateSelection", [&](int)
 	{
-		GH.windows().pushIntT<TemplatesDropBox>(*this, int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()});
+		GH.windows().createAndPushWindow<TemplatesDropBox>(*this, int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()});
 	});
 	
 	addCallback("teamAlignments", [&](int)
 	{
-		GH.windows().pushIntT<TeamAlignmentsWidget>(*this);
+		GH.windows().createAndPushWindow<TeamAlignmentsWidget>(*this);
 	});
 	
 	for(auto road : VLC->roadTypeHandler->objects)
@@ -483,8 +483,8 @@ void TemplatesDropBox::clickLeft(tribool down, bool previousState)
 		// pop the interface only if the mouse is not clicking on the slider
 		if (!w || !w->mouseState(MouseButton::LEFT))
 		{
-			assert(GH.windows().topInt().get() == this);
-			GH.windows().popInt(GH.windows().topInt());
+			assert(GH.windows().topWindow().get() == this);
+			GH.windows().popWindow(GH.windows().topWindow());
 		}
 	}
 }
@@ -512,8 +512,8 @@ void TemplatesDropBox::updateListItems()
 void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
 {
 	randomMapTab.setTemplate(tmpl);
-	assert(GH.windows().topInt().get() == this);
-	GH.windows().popInt(GH.windows().topInt());
+	assert(GH.windows().topWindow().get() == this);
+	GH.windows().popWindow(GH.windows().topWindow());
 }
 
 TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
@@ -548,14 +548,14 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 			randomMapTab.obtainMapGenOptions().setPlayerTeam(PlayerColor(plId), TeamID(players[plId]->getSelected()));
 		}
 		randomMapTab.updateMapInfoByHost();
-		assert(GH.windows().topInt().get() == this);
-		GH.windows().popInt(GH.windows().topInt());
+		assert(GH.windows().topWindow().get() == this);
+		GH.windows().popWindow(GH.windows().topWindow());
 	});
 	
 	addCallback("cancel", [&](int)
 	{
-		assert(GH.windows().topInt().get() == this);
-		GH.windows().popInt(GH.windows().topInt());
+		assert(GH.windows().topWindow().get() == this);
+		GH.windows().popWindow(GH.windows().topWindow());
 	});
 	
 	build(config);

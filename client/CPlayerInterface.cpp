@@ -170,16 +170,16 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-	if(GH.windows().findInts<AdventureMapInterface>().empty())
+	if(GH.windows().findWindows<AdventureMapInterface>().empty())
 	{
 		// after map load - remove all active windows and replace them with adventure map
 		GH.windows().clear();
-		GH.windows().pushInt(adventureInt);
+		GH.windows().pushWindow(adventureInt);
 	}
 
 	// remove all dialogs that do not expect query answer
-	while (GH.windows().topInt() != adventureInt && !dynamic_cast<CInfoWindow*>(GH.windows().topInt().get()))
-		GH.windows().popInts(1);
+	while (GH.windows().topWindow() != adventureInt && !dynamic_cast<CInfoWindow*>(GH.windows().topWindow().get()))
+		GH.windows().popWindows(1);
 
 	if (player != playerID && LOCPLINT == this)
 	{
@@ -247,7 +247,7 @@ void CPlayerInterface::acceptTurn()
 {
 	if (settings["session"]["autoSkip"].Bool())
 	{
-		while(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.windows().topInt().get()))
+		while(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.windows().topWindow().get()))
 			iw->close();
 	}
 
@@ -441,7 +441,7 @@ void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 
 	auto newCastleInt = std::make_shared<CCastleInterface>(town);
 
-	GH.windows().pushInt(newCastleInt);
+	GH.windows().pushWindow(newCastleInt);
 }
 
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
@@ -449,7 +449,7 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (which == 4)
 	{
-		if (CAltarWindow *ctw = dynamic_cast<CAltarWindow *>(GH.windows().topInt().get()))
+		if (CAltarWindow *ctw = dynamic_cast<CAltarWindow *>(GH.windows().topWindow().get()))
 			ctw->setExpToLevel();
 	}
 	else
@@ -459,7 +459,7 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 void CPlayerInterface::heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	CUniversityWindow* cuw = dynamic_cast<CUniversityWindow*>(GH.windows().topInt().get());
+	CUniversityWindow* cuw = dynamic_cast<CUniversityWindow*>(GH.windows().topWindow().get());
 	if (cuw) //university window is open
 	{
 		GH.windows().totalRedraw();
@@ -482,7 +482,7 @@ void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 void CPlayerInterface::receivedResource()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (CMarketplaceWindow *mw = dynamic_cast<CMarketplaceWindow *>(GH.windows().topInt().get()))
+	if (CMarketplaceWindow *mw = dynamic_cast<CMarketplaceWindow *>(GH.windows().topWindow().get()))
 		mw->resourceChanged();
 
 	GH.windows().totalRedraw();
@@ -493,7 +493,7 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::Pr
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 	CCS->soundh->playSound(soundBase::heroNewLevel);
-	GH.windows().pushIntT<CLevelWindow>(hero, pskill, skills, [=](ui32 selection)
+	GH.windows().createAndPushWindow<CLevelWindow>(hero, pskill, skills, [=](ui32 selection)
 	{
 		cb->selectionMade(selection, queryID);
 	});
@@ -504,7 +504,7 @@ void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, 
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 	CCS->soundh->playSound(soundBase::heroNewLevel);
-	GH.windows().pushIntT<CStackWindow>(commander, skills, [=](ui32 selection)
+	GH.windows().createAndPushWindow<CStackWindow>(commander, skills, [=](ui32 selection)
 	{
 		cb->selectionMade(selection, queryID);
 	});
@@ -540,7 +540,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		castleInt->redraw();
 	}
 
-	for (auto ki : GH.windows().findInts<CKingdomInterface>())
+	for (auto ki : GH.windows().findWindows<CKingdomInterface>())
 	{
 		ki->townChanged(town);
 		ki->updateGarrisons();
@@ -589,10 +589,10 @@ void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> ob
 			adventureInt->onTownChanged(town);
 	}
 
-	for (auto cgh : GH.windows().findInts<CGarrisonHolder>())
+	for (auto cgh : GH.windows().findWindows<CGarrisonHolder>())
 		cgh->updateGarrisons();
 
-	for (auto cmw : GH.windows().findInts<CTradeWindow>())
+	for (auto cmw : GH.windows().findWindows<CTradeWindow>())
 	{
 		if (vstd::contains(objs, cmw->hero))
 			cmw->garrisonChanged();
@@ -857,7 +857,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br, QueryID queryID)
 			{
 				cb->selectionMade(selection, queryID);
 			};
-			GH.windows().pushInt(wnd);
+			GH.windows().pushWindow(wnd);
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
 			// Otherwise NewTurn causes freeze.
 			waitWhileDialog();
@@ -1057,7 +1057,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 		CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->set(true);
 		stopMovement(); // interrupt movement to show dialog
-		GH.windows().pushInt(temp);
+		GH.windows().pushWindow(temp);
 	}
 	else
 	{
@@ -1117,7 +1117,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 		int charperline = 35;
 		if (pom.size() > 1)
 			charperline = 50;
-		GH.windows().pushIntT<CSelWindow>(text, playerID, charperline, intComps, pom, askID);
+		GH.windows().createAndPushWindow<CSelWindow>(text, playerID, charperline, intComps, pom, askID);
 		intComps[0]->clickLeft(true, false);
 	}
 }
@@ -1166,7 +1166,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 
 	std::shared_ptr<CObjectListWindow> wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback);
 	wnd->onExit = cancelCallback;
-	GH.windows().pushInt(wnd);
+	GH.windows().pushWindow(wnd);
 }
 
 void CPlayerInterface::tileRevealed(const std::unordered_set<int3> &pos)
@@ -1185,7 +1185,7 @@ void CPlayerInterface::tileHidden(const std::unordered_set<int3> &pos)
 void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	GH.windows().pushIntT<CHeroWindow>(hero);
+	GH.windows().createAndPushWindow<CHeroWindow>(hero);
 }
 
 void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
@@ -1193,8 +1193,8 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (const CGTownInstance * townObj = dynamic_cast<const CGTownInstance*>(town))
 	{
-		CFortScreen * fortScreen = dynamic_cast<CFortScreen*>(GH.windows().topInt().get());
-		CCastleInterface * castleInterface = dynamic_cast<CCastleInterface*>(GH.windows().topInt().get());
+		CFortScreen * fortScreen = dynamic_cast<CFortScreen*>(GH.windows().topWindow().get());
+		CCastleInterface * castleInterface = dynamic_cast<CCastleInterface*>(GH.windows().topWindow().get());
 
 		if (fortScreen)
 			fortScreen->creaturesChangedEventHandler();
@@ -1202,13 +1202,13 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 			castleInterface->creaturesChangedEventHandler();
 
 		if (townObj)
-			for (auto ki : GH.windows().findInts<CKingdomInterface>())
+			for (auto ki : GH.windows().findWindows<CKingdomInterface>())
 				ki->townChanged(townObj);
 	}
 	else if(town && GH.windows().count() > 0 && (town->ID == Obj::CREATURE_GENERATOR1
 		||  town->ID == Obj::CREATURE_GENERATOR4  ||  town->ID == Obj::WAR_MACHINE_FACTORY))
 	{
-		CRecruitmentWindow *crw = dynamic_cast<CRecruitmentWindow*>(GH.windows().topInt().get());
+		CRecruitmentWindow *crw = dynamic_cast<CRecruitmentWindow*>(GH.windows().topWindow().get());
 		if (crw && crw->dwelling == town)
 			crw->availableCreaturesChanged();
 	}
@@ -1276,7 +1276,7 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 
 	auto cgw = std::make_shared<CGarrisonWindow>(up, down, removableUnits);
 	cgw->quit->addCallback(onEnd);
-	GH.windows().pushInt(cgw);
+	GH.windows().pushWindow(cgw);
 }
 
 /**
@@ -1334,7 +1334,7 @@ void CPlayerInterface::showHeroExchange(ObjectInstanceID hero1, ObjectInstanceID
 void CPlayerInterface::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	GH.windows().pushIntT<CExchangeWindow>(hero1, hero2, query);
+	GH.windows().createAndPushWindow<CExchangeWindow>(hero1, hero2, query);
 }
 
 void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
@@ -1395,7 +1395,7 @@ void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const C
 	{
 		LOCPLINT->cb->recruitCreatures(dwelling, dst, id, count, -1);
 	};
-	GH.windows().pushIntT<CRecruitmentWindow>(dwelling, level, dst, recruitCb);
+	GH.windows().createAndPushWindow<CRecruitmentWindow>(dwelling, level, dst, recruitCb);
 }
 
 void CPlayerInterface::waitWhileDialog(bool unlockPim)
@@ -1418,7 +1418,7 @@ void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
 	auto state = obj->shipyardStatus();
 	TResources cost;
 	obj->getBoatCost(cost);
-	GH.windows().pushIntT<CShipyardWindow>(cost, state, obj->getBoatType(), [=](){ cb->buildBoat(obj); });
+	GH.windows().createAndPushWindow<CShipyardWindow>(cost, state, obj->getBoatType(), [=](){ cb->buildBoat(obj); });
 }
 
 void CPlayerInterface::newObject( const CGObjectInstance * obj )
@@ -1511,7 +1511,7 @@ void CPlayerInterface::update()
 	if ((CSH->howManyPlayerInterfaces() <= 1 || makingTurn) && !dialogs.empty() && !showingDialog->get())
 	{
 		showingDialog->set(true);
-		GH.windows().pushInt(dialogs.front());
+		GH.windows().pushWindow(dialogs.front());
 		dialogs.pop_front();
 	}
 
@@ -1586,7 +1586,7 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 			if(adventureInt)
 			{
 				GH.terminate_cond->setn(true);
-				GH.windows().popInts(GH.windows().count());
+				GH.windows().popWindows(GH.windows().count());
 				adventureInt.reset();
 			}
 		}
@@ -1632,7 +1632,7 @@ void CPlayerInterface::showPuzzleMap()
 	double ratio = 0;
 	int3 grailPos = cb->getGrailPos(&ratio);
 
-	GH.windows().pushIntT<CPuzzleWindow>(grailPos, ratio);
+	GH.windows().createAndPushWindow<CPuzzleWindow>(grailPos, ratio);
 }
 
 void CPlayerInterface::viewWorldMap()
@@ -1644,8 +1644,8 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-	if(dynamic_cast<CSpellWindow *>(GH.windows().topInt().get()))
-		GH.windows().popInts(1);
+	if(dynamic_cast<CSpellWindow *>(GH.windows().topWindow().get()))
+		GH.windows().popWindows(1);
 
 	if(spellID == SpellID::FLY || spellID == SpellID::WATER_WALK)
 		localState->erasePath(caster);
@@ -1707,50 +1707,50 @@ void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInsta
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
 	if(market->allowsTrade(EMarketMode::ARTIFACT_EXP) && visitor->getAlignment() != EAlignment::EVIL)
-		GH.windows().pushIntT<CAltarWindow>(market, visitor, EMarketMode::ARTIFACT_EXP);
+		GH.windows().createAndPushWindow<CAltarWindow>(market, visitor, EMarketMode::ARTIFACT_EXP);
 	else if(market->allowsTrade(EMarketMode::CREATURE_EXP) && visitor->getAlignment() != EAlignment::GOOD)
-		GH.windows().pushIntT<CAltarWindow>(market, visitor, EMarketMode::CREATURE_EXP);
+		GH.windows().createAndPushWindow<CAltarWindow>(market, visitor, EMarketMode::CREATURE_EXP);
 	else if(market->allowsTrade(EMarketMode::CREATURE_UNDEAD))
-		GH.windows().pushIntT<CTransformerWindow>(market, visitor);
+		GH.windows().createAndPushWindow<CTransformerWindow>(market, visitor);
 	else if(!market->availableModes().empty())
-		GH.windows().pushIntT<CMarketplaceWindow>(market, visitor, market->availableModes().front());
+		GH.windows().createAndPushWindow<CMarketplaceWindow>(market, visitor, market->availableModes().front());
 }
 
 void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	GH.windows().pushIntT<CUniversityWindow>(visitor, market);
+	GH.windows().createAndPushWindow<CUniversityWindow>(visitor, market);
 }
 
 void CPlayerInterface::showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	GH.windows().pushIntT<CHillFortWindow>(visitor, object);
+	GH.windows().createAndPushWindow<CHillFortWindow>(visitor, object);
 }
 
 void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket * bm)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (CMarketplaceWindow *cmw = dynamic_cast<CMarketplaceWindow*>(GH.windows().topInt().get()))
+	if (CMarketplaceWindow *cmw = dynamic_cast<CMarketplaceWindow*>(GH.windows().topWindow().get()))
 		cmw->artifactsChanged(false);
 }
 
 void CPlayerInterface::showTavernWindow(const CGObjectInstance *townOrTavern)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	GH.windows().pushIntT<CTavernWindow>(townOrTavern);
+	GH.windows().createAndPushWindow<CTavernWindow>(townOrTavern);
 }
 
 void CPlayerInterface::showThievesGuildWindow (const CGObjectInstance * obj)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	GH.windows().pushIntT<CThievesGuildWindow>(obj);
+	GH.windows().createAndPushWindow<CThievesGuildWindow>(obj);
 }
 
 void CPlayerInterface::showQuestLog()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	GH.windows().pushIntT<CQuestLog>(LOCPLINT->cb->getMyQuests());
+	GH.windows().createAndPushWindow<CQuestLog>(LOCPLINT->cb->getMyQuests());
 }
 
 void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
@@ -1802,7 +1802,7 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	adventureInt->onHeroChanged(hero);
 
-	for(auto artWin : GH.windows().findInts<CArtifactHolder>())
+	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
 		artWin->artifactRemoved(al);
 
 	waitWhileDialog();
@@ -1823,7 +1823,7 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 			redraw = false;
 	}
 
-	for(auto artWin : GH.windows().findInts<CArtifactHolder>())
+	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
 		artWin->artifactMoved(src, dst, redraw);
 
 	waitWhileDialog();
@@ -1840,7 +1840,7 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	adventureInt->onHeroChanged(hero);
 
-	for(auto artWin : GH.windows().findInts<CArtifactHolder>())
+	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
 		artWin->artifactAssembled(al);
 }
 
@@ -1850,7 +1850,7 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 	auto hero = std::visit(HeroObjectRetriever(), al.artHolder);
 	adventureInt->onHeroChanged(hero);
 
-	for(auto artWin : GH.windows().findInts<CArtifactHolder>())
+	for(auto artWin : GH.windows().findWindows<CArtifactHolder>())
 		artWin->artifactDisassembled(al);
 }
 

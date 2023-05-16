@@ -669,7 +669,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 
 		case PossiblePlayerBattleAction::CREATURE_INFO:
 		{
-			GH.windows().pushIntT<CStackWindow>(targetStack, false);
+			GH.windows().createAndPushWindow<CStackWindow>(targetStack, false);
 			return;
 		}
 
@@ -974,7 +974,7 @@ void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 	auto selectedStack = owner.curInt->cb->battleGetStackByPos(clickedHex, true);
 
 	if (selectedStack != nullptr)
-		GH.windows().pushIntT<CStackWindow>(selectedStack, true);
+		GH.windows().createAndPushWindow<CStackWindow>(selectedStack, true);
 
 	if (clickedHex == BattleHex::HERO_ATTACKER && owner.attackingHero)
 		owner.attackingHero->heroRightClicked();

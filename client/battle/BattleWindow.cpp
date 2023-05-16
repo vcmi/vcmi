@@ -257,7 +257,7 @@ void BattleWindow::bOptionsf()
 
 	CCS->curh->set(Cursor::Map::POINTER);
 
-	GH.windows().pushIntT<SettingsMainWindow>(&owner);
+	GH.windows().createAndPushWindow<SettingsMainWindow>(&owner);
 }
 
 void BattleWindow::bSurrenderf()
@@ -425,7 +425,7 @@ void BattleWindow::bSpellf()
 
 	if(spellCastProblem == ESpellCastProblem::OK)
 	{
-		GH.windows().pushIntT<CSpellWindow>(myHero, owner.curInt.get());
+		GH.windows().createAndPushWindow<CSpellWindow>(myHero, owner.curInt.get());
 	}
 	else if (spellCastProblem == ESpellCastProblem::MAGIC_IS_BLOCKED)
 	{
@@ -570,7 +570,7 @@ void BattleWindow::show(SDL_Surface *to)
 
 void BattleWindow::close()
 {
-	if(GH.windows().topInt().get() != this)
+	if(GH.windows().topWindow().get() != this)
 		logGlobal->error("Only top interface must be closed");
-	GH.windows().popInts(1);
+	GH.windows().popWindows(1);
 }

@@ -524,14 +524,14 @@ static void handleEvent(SDL_Event & ev)
 				{
 					if(ourCampaign->mapsRemaining.size())
 					{
-						GH.windows().pushInt(CMM);
-						GH.windows().pushInt(CMM->menu);
+						GH.windows().pushWindow(CMM);
+						GH.windows().pushWindow(CMM->menu);
 						CMM->openCampaignLobby(ourCampaign);
 					}
 				};
 				if(epilogue.hasPrologEpilog)
 				{
-					GH.windows().pushIntT<CPrologEpilogVideo>(epilogue, finisher);
+					GH.windows().createAndPushWindow<CPrologEpilogVideo>(epilogue, finisher);
 				}
 				else
 				{

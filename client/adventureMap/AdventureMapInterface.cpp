@@ -396,7 +396,7 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 
 	if(settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())
 	{
-		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.windows().topInt().get()))
+		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.windows().topWindow().get()))
 			iw->close();
 
 		hotkeyEndingTurn();

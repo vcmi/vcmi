@@ -526,7 +526,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		else //adventure spell
 		{
 			const CGHeroInstance * h = owner->myHero;
-			GH.windows().popInts(1);
+			GH.windows().popWindows(1);
 
 			auto guard = vstd::makeScopeGuard([this]()
 			{

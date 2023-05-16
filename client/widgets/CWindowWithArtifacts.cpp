@@ -66,7 +66,7 @@ void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst
 	{
 		if(artPlace.getArt()->getTypeId() == ArtifactID::SPELLBOOK)
 		{
-			GH.windows().pushIntT<CSpellWindow>(hero, LOCPLINT, LOCPLINT->battleInt.get());
+			GH.windows().createAndPushWindow<CSpellWindow>(hero, LOCPLINT, LOCPLINT->battleInt.get());
 			return false;
 		}
 		if(artPlace.getArt()->getTypeId() == ArtifactID::CATAPULT)

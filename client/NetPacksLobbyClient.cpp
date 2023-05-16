@@ -39,7 +39,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 	{
 		handler.c->connectionID = pack.clientId;
 		if(!settings["session"]["headless"].Bool())
-			GH.windows().pushIntT<CLobbyScreen>(static_cast<ESelectionScreen>(handler.screenType));
+			GH.windows().createAndPushWindow<CLobbyScreen>(static_cast<ESelectionScreen>(handler.screenType));
 		handler.state = EClientState::LOBBY;
 	}
 }
@@ -58,7 +58,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClient
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
 	if(GH.windows().count() > 0)
-		GH.windows().popInts(1);
+		GH.windows().popWindows(1);
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & pack)
@@ -129,7 +129,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack
 	if(pack.clientId != -1 && pack.clientId != handler.c->connectionID)
 		return;
 	
-	GH.windows().pushIntT<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, &handler, pack.initializedGameState));
+	GH.windows().createAndPushWindow<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, &handler, pack.initializedGameState));
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)
@@ -146,7 +146,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 	if(!lobby->bonusSel && handler.si->campState && handler.state == EClientState::LOBBY_CAMPAIGN)
 	{
 		lobby->bonusSel = std::make_shared<CBonusSelection>();
-		GH.windows().pushInt(lobby->bonusSel);
+		GH.windows().pushWindow(lobby->bonusSel);
 	}
 
 	if(lobby->bonusSel)

@@ -767,8 +767,8 @@ void CClient::removeGUI()
 {
 	// CClient::endGame
 	GH.curInt = nullptr;
-	if(GH.windows().topInt())
-		GH.windows().topInt()->deactivate();
+	if(GH.windows().topWindow())
+		GH.windows().topWindow()->deactivate();
 	adventureInt.reset();
 	GH.windows().clear();
 	GH.statusbar.reset();

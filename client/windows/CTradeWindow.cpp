@@ -629,10 +629,10 @@ void CTradeWindow::setMode(EMarketMode::EMarketMode Mode)
 	{
 	case EMarketMode::CREATURE_EXP:
 	case EMarketMode::ARTIFACT_EXP:
-		GH.windows().pushIntT<CAltarWindow>(m, h, Mode);
+		GH.windows().createAndPushWindow<CAltarWindow>(m, h, Mode);
 		break;
 	default:
-		GH.windows().pushIntT<CMarketplaceWindow>(m, h, Mode);
+		GH.windows().createAndPushWindow<CMarketplaceWindow>(m, h, Mode);
 		break;
 	}
 }

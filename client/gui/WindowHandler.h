@@ -13,8 +13,8 @@ class IShowActivatable;
 
 class WindowHandler
 {
-	/// list of interfaces. front = bottom-most (background), back = top-most (foreground)
-	/// (includes adventure map, window interfaces, all kind of active dialogs, and so on)
+	/// list of windows. front = bottom-most (background), back = top-most (foreground)
+	/// (includes adventure map, window windows, all kind of active dialogs, and so on)
 	std::vector<std::shared_ptr<IShowActivatable>> windowsStack;
 
 	/// Temporary list of recently popped windows
@@ -24,27 +24,27 @@ public:
 	/// forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering
 	void totalRedraw();
 
-	/// update only top interface and draw background from buffer, sets a flag, method gets called at the end of the rendering
+	/// update only top windows and draw background from buffer, sets a flag, method gets called at the end of the rendering
 	void simpleRedraw();
 
 	/// called whenever user selects different resolution, requiring to center/resize all windows
 	void onScreenResize();
 
-	/// deactivate old top interface, activates this one and pushes to the top
-	void pushInt(std::shared_ptr<IShowActivatable> newInt);
+	/// deactivate old top windows, activates this one and pushes to the top
+	void pushWindow(std::shared_ptr<IShowActivatable> newInt);
 
 	/// creates window of class T and pushes it to the top
 	template <typename T, typename ... Args>
-	void pushIntT(Args && ... args);
+	void createAndPushWindow(Args && ... args);
 
-	/// pops one or more interfaces - deactivates top, deletes and removes given number of interfaces, activates new front
-	void popInts(int howMany);
+	/// pops one or more windows - deactivates top, deletes and removes given number of windows, activates new front
+	void popWindows(int howMany);
 
-	/// removes given interface from the top and activates next
-	void popInt(std::shared_ptr<IShowActivatable> top);
+	/// removes given windows from the top and activates next
+	void popWindow(std::shared_ptr<IShowActivatable> top);
 
-	/// returns top interface
-	std::shared_ptr<IShowActivatable> topInt() const;
+	/// returns top windows
+	std::shared_ptr<IShowActivatable> topWindow() const;
 
 	/// should be called after frame has been rendered to screen
 	void onFrameRendered();
@@ -52,23 +52,23 @@ public:
 	/// returns current number of windows in the stack
 	size_t count() const;
 
-	/// erases all currently existing windows from the stacl
+	/// erases all currently existing windows from the stack
 	void clear();
 
 	/// returns all existing windows of selected type
 	template <typename T>
-	std::vector<std::shared_ptr<T>> findInts() const;
+	std::vector<std::shared_ptr<T>> findWindows() const;
 };
 
 template <typename T, typename ... Args>
-void WindowHandler::pushIntT(Args && ... args)
+void WindowHandler::createAndPushWindow(Args && ... args)
 {
-	auto newInt = std::make_shared<T>(std::forward<Args>(args)...);
-	pushInt(newInt);
+	auto newWindow = std::make_shared<T>(std::forward<Args>(args)...);
+	pushWindow(newWindow);
 }
 
 template <typename T>
-std::vector<std::shared_ptr<T>> WindowHandler::findInts() const
+std::vector<std::shared_ptr<T>> WindowHandler::findWindows() const
 {
 	std::vector<std::shared_ptr<T>> result;
 
@@ -79,6 +79,5 @@ std::vector<std::shared_ptr<T>> WindowHandler::findInts() const
 		if (casted)
 			result.push_back(casted);
 	}
-
 	return result;
 }

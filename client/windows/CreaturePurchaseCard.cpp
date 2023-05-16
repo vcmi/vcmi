@@ -125,5 +125,5 @@ CreaturePurchaseCard::CCreatureClickArea::CCreatureClickArea(const Point & posit
 void CreaturePurchaseCard::CCreatureClickArea::clickRight(tribool down, bool previousState)
 {
 	if (down)
-		GH.windows().pushIntT<CStackWindow>(creatureOnTheCard, true);
+		GH.windows().createAndPushWindow<CStackWindow>(creatureOnTheCard, true);
 }

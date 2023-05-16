@@ -357,9 +357,9 @@ WindowBase::WindowBase(int used_, Point pos_)
 
 void WindowBase::close()
 {
-	if(GH.windows().topInt().get() != this)
+	if(GH.windows().topWindow().get() != this)
 		logGlobal->error("Only top interface must be closed");
-	GH.windows().popInts(1);
+	GH.windows().popWindows(1);
 }
 
 IStatusBar::~IStatusBar()

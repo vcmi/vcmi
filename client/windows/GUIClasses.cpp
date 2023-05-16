@@ -99,7 +99,7 @@ void CRecruitmentWindow::CCreatureCard::clickLeft(tribool down, bool previousSta
 void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousState)
 {
 	if(down)
-		GH.windows().pushIntT<CStackWindow>(creature, true);
+		GH.windows().createAndPushWindow<CStackWindow>(creature, true);
 }
 
 void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)
@@ -508,7 +508,7 @@ void CTavernWindow::recruitb()
 
 void CTavernWindow::thievesguildb()
 {
-	GH.windows().pushIntT<CThievesGuildWindow>(tavernObj);
+	GH.windows().createAndPushWindow<CThievesGuildWindow>(tavernObj);
 }
 
 CTavernWindow::~CTavernWindow()
@@ -548,7 +548,7 @@ void CTavernWindow::HeroPortrait::clickLeft(tribool down, bool previousState)
 void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 {
 	if(h && down)
-		GH.windows().pushIntT<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
+		GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
 }
 
 CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H)
@@ -1241,7 +1241,7 @@ void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
 	if(previousState && (!down))
 	{
 		if(state() == 2)
-			GH.windows().pushIntT<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
+			GH.windows().createAndPushWindow<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
 	}
 }
 

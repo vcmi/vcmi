@@ -178,7 +178,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 0:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::newGame, true, nullptr, ELoadMode::NONE);
 				case 1:
-					return []() { GH.windows().pushIntT<CMultiMode>(ESelectionScreen::newGame); };
+					return []() { GH.windows().createAndPushWindow<CMultiMode>(ESelectionScreen::newGame); };
 				case 2:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::campaignList, true, nullptr, ELoadMode::NONE);
 				case 3:
@@ -193,7 +193,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 0:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::SINGLE);
 				case 1:
-					return []() { GH.windows().pushIntT<CMultiMode>(ESelectionScreen::loadGame); };
+					return []() { GH.windows().createAndPushWindow<CMultiMode>(ESelectionScreen::loadGame); };
 				case 2:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::CAMPAIGN);
 				case 3:
@@ -327,8 +327,8 @@ void CMainMenu::update()
 
 	if(GH.windows().count() == 0)
 	{
-		GH.windows().pushInt(CMM);
-		GH.windows().pushInt(menu);
+		GH.windows().pushWindow(CMM);
+		GH.windows().pushWindow(menu);
 		menu->switchToTab(menu->getActiveTab());
 	}
 
@@ -338,8 +338,8 @@ void CMainMenu::update()
 
 	// check for null othervice crash on finishing a campaign
 	// /FIXME: find out why GH.windows().listInt is empty to begin with
-	if(GH.windows().topInt())
-		GH.windows().topInt()->show(screen);
+	if(GH.windows().topWindow())
+		GH.windows().topWindow()->show(screen);
 }
 
 void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> * names, ELoadMode loadMode)
@@ -348,7 +348,7 @@ void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vec
 	CSH->screenType = screenType;
 	CSH->loadMode = loadMode;
 
-	GH.windows().pushIntT<CSimpleJoinScreen>(host);
+	GH.windows().createAndPushWindow<CSimpleJoinScreen>(host);
 }
 
 void CMainMenu::openCampaignLobby(const std::string & campaignFileName)
@@ -362,14 +362,14 @@ void CMainMenu::openCampaignLobby(std::shared_ptr<CCampaignState> campaign)
 	CSH->resetStateForLobby(StartInfo::CAMPAIGN);
 	CSH->screenType = ESelectionScreen::campaignList;
 	CSH->campaignStateToSend = campaign;
-	GH.windows().pushIntT<CSimpleJoinScreen>();
+	GH.windows().createAndPushWindow<CSimpleJoinScreen>();
 }
 
 void CMainMenu::openCampaignScreen(std::string name)
 {
 	if(vstd::contains(CMainMenuConfig::get().getCampaigns().Struct(), name))
 	{
-		GH.windows().pushIntT<CCampaignScreen>(CMainMenuConfig::get().getCampaigns()[name]);
+		GH.windows().createAndPushWindow<CCampaignScreen>(CMainMenuConfig::get().getCampaigns()[name]);
 		return;
 	}
 	logGlobal->error("Unknown campaign set: %s", name);
@@ -414,14 +414,14 @@ void CMultiMode::hostTCP()
 {
 	auto savedScreenType = screenType;
 	close();
-	GH.windows().pushIntT<CMultiPlayers>(settings["general"]["playerName"].String(), savedScreenType, true, ELoadMode::MULTI);
+	GH.windows().createAndPushWindow<CMultiPlayers>(settings["general"]["playerName"].String(), savedScreenType, true, ELoadMode::MULTI);
 }
 
 void CMultiMode::joinTCP()
 {
 	auto savedScreenType = screenType;
 	close();
-	GH.windows().pushIntT<CMultiPlayers>(settings["general"]["playerName"].String(), savedScreenType, false, ELoadMode::MULTI);
+	GH.windows().createAndPushWindow<CMultiPlayers>(settings["general"]["playerName"].String(), savedScreenType, false, ELoadMode::MULTI);
 }
 
 void CMultiMode::onNameChange(std::string newText)
@@ -523,7 +523,7 @@ void CSimpleJoinScreen::leaveScreen()
 		textTitle->setText("Closing...");
 		CSH->state = EClientState::CONNECTION_CANCELLED;
 	}
-	else if(GH.windows().topInt().get() == this)
+	else if(GH.windows().topWindow().get() == this)
 	{
 		close();
 	}
@@ -553,7 +553,7 @@ void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
 	else
 		CSH->justConnectToServer(addr, port);
 
-	if(GH.windows().topInt().get() == this)
+	if(GH.windows().topWindow().get() == this)
 	{
 		close();
 	}

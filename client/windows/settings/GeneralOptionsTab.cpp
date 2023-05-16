@@ -198,7 +198,7 @@ void GeneralOptionsTab::selectGameResolution()
 		items.push_back(std::move(resolutionStr));
 		++i;
 	}
-	GH.windows().pushIntT<CObjectListWindow>(items, nullptr,
+	GH.windows().createAndPushWindow<CObjectListWindow>(items, nullptr,
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
 								   [this](int index)
@@ -253,7 +253,7 @@ void GeneralOptionsTab::selectGameScaling()
 		++i;
 	}
 
-	GH.windows().pushIntT<CObjectListWindow>(
+	GH.windows().createAndPushWindow<CObjectListWindow>(
 		items,
 		nullptr,
 		CGI->generaltexth->translate("vcmi.systemOptions.scalingMenu.hover"),

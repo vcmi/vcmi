@@ -51,11 +51,11 @@ void AdventureOptions::showScenarioInfo()
 {
 	if(LOCPLINT->cb->getStartInfo()->campState)
 	{
-		GH.windows().pushIntT<CCampaignInfoScreen>();
+		GH.windows().createAndPushWindow<CCampaignInfoScreen>();
 	}
 	else
 	{
-		GH.windows().pushIntT<CScenarioInfoScreen>();
+		GH.windows().createAndPushWindow<CScenarioInfoScreen>();
 	}
 }
 

@@ -262,7 +262,7 @@ void CInfoBar::tick(uint32_t msPassed)
 	{
 		timerCounter = 0;
 		removeUsedEvents(TIME);
-		if(GH.windows().topInt() == adventureInt)
+		if(GH.windows().topWindow() == adventureInt)
 			popComponents(true);
 	}
 	else

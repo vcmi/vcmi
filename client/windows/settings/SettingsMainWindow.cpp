@@ -104,9 +104,9 @@ void SettingsMainWindow::openTab(size_t index)
 
 void SettingsMainWindow::close()
 {
-	if(GH.windows().topInt().get() != this)
+	if(GH.windows().topWindow().get() != this)
 		logGlobal->error("Only top interface must be closed");
-	GH.windows().popInts(1);
+	GH.windows().popWindows(1);
 }
 
 void SettingsMainWindow::quitGameButtonCallback()
@@ -133,7 +133,7 @@ void SettingsMainWindow::loadGameButtonCallback()
 void SettingsMainWindow::saveGameButtonCallback()
 {
 	close();
-	GH.windows().pushIntT<CSavingScreen>();
+	GH.windows().createAndPushWindow<CSavingScreen>();
 }
 
 void SettingsMainWindow::restartGameButtonCallback()

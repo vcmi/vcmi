@@ -19,7 +19,7 @@
 #include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
 
-void WindowHandler::popInt(std::shared_ptr<IShowActivatable> top)
+void WindowHandler::popWindow(std::shared_ptr<IShowActivatable> top)
 {
 	assert(windowsStack.back() == top);
 	top->deactivate();
@@ -31,7 +31,7 @@ void WindowHandler::popInt(std::shared_ptr<IShowActivatable> top)
 	totalRedraw();
 }
 
-void WindowHandler::pushInt(std::shared_ptr<IShowActivatable> newInt)
+void WindowHandler::pushWindow(std::shared_ptr<IShowActivatable> newInt)
 {
 	assert(newInt);
 	assert(!vstd::contains(windowsStack, newInt)); // do not add same object twice
@@ -47,7 +47,7 @@ void WindowHandler::pushInt(std::shared_ptr<IShowActivatable> newInt)
 	totalRedraw();
 }
 
-void WindowHandler::popInts(int howMany)
+void WindowHandler::popWindows(int howMany)
 {
 	if(!howMany)
 		return; //senseless but who knows...
@@ -68,7 +68,7 @@ void WindowHandler::popInts(int howMany)
 	GH.fakeMouseMove();
 }
 
-std::shared_ptr<IShowActivatable> WindowHandler::topInt() const
+std::shared_ptr<IShowActivatable> WindowHandler::topWindow() const
 {
 	if(windowsStack.empty())
 		return nullptr;

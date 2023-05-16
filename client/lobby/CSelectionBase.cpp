@@ -379,7 +379,7 @@ void CFlagBox::recreate()
 void CFlagBox::clickRight(tribool down, bool previousState)
 {
 	if(down && SEL->getMapInfo())
-		GH.windows().pushIntT<CFlagBoxTooltipBox>(iconsTeamFlags);
+		GH.windows().createAndPushWindow<CFlagBoxTooltipBox>(iconsTeamFlags);
 }
 
 CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> icons)

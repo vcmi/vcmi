@@ -196,7 +196,7 @@ void ClientCommandManager::handleNotDialogCommand()
 
 void ClientCommandManager::handleGuiCommand()
 {
-	for(const auto & child : GH.windows().findInts<CIntObject>())
+	for(const auto & child : GH.windows().findWindows<CIntObject>())
 		printInfoAboutInterfaceObject(child.get(), 0);
 }
 

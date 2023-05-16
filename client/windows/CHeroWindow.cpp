@@ -97,8 +97,8 @@ void CHeroSwitcher::clickLeft(tribool down, bool previousState)
 		else
 		{
 			const CGHeroInstance * buf = hero;
-			GH.windows().popInts(1);
-			GH.windows().pushIntT<CHeroWindow>(buf);
+			GH.windows().popWindows(1);
+			GH.windows().createAndPushWindow<CHeroWindow>(buf);
 		}
 	}
 }
@@ -315,14 +315,14 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	//if we have exchange window with this curHero open
 	bool noDismiss=false;
 
-	for(auto cew : GH.windows().findInts<CExchangeWindow>())
+	for(auto cew : GH.windows().findWindows<CExchangeWindow>())
 	{
 		for(int g=0; g < cew->heroInst.size(); ++g)
 			if(cew->heroInst[g] == curHero)
 				noDismiss = true;
 	}
 
-	for(auto ki : GH.windows().findInts<CKingdomInterface>())
+	for(auto ki : GH.windows().findWindows<CKingdomInterface>())
 		noDismiss = true;
 
 	//if player only have one hero and no towns
@@ -389,7 +389,7 @@ void CHeroWindow::commanderWindow()
 	}
 	else
 	{
-		GH.windows().pushIntT<CStackWindow>(curHero->commander, false);
+		GH.windows().createAndPushWindow<CStackWindow>(curHero->commander, false);
 	}
 }
 

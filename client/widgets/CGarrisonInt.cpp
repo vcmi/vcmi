@@ -175,7 +175,7 @@ bool CGarrisonSlot::viewInfo()
 		elem->block(true);
 
 	redraw();
-	GH.windows().pushIntT<CStackWindow>(myStack, dism, pom, upgr);
+	GH.windows().createAndPushWindow<CStackWindow>(myStack, dism, pom, upgr);
 	return true;
 }
 
@@ -184,7 +184,7 @@ bool CGarrisonSlot::viewInfo()
 bool CGarrisonSlot::highlightOrDropArtifact()
 {
 	bool artSelected = false;
-	if (CWindowWithArtifacts* chw = dynamic_cast<CWindowWithArtifacts*>(GH.windows().topInt().get())) //dirty solution
+	if (CWindowWithArtifacts* chw = dynamic_cast<CWindowWithArtifacts*>(GH.windows().topWindow().get())) //dirty solution
 	{
 		const auto pickedArtInst = chw->getPickedArtifact();
 
@@ -253,7 +253,7 @@ bool CGarrisonSlot::split()
 	int countLeft = selection->myStack ? selection->myStack->count : 0;
 	int countRight = myStack ? myStack->count : 0;
 
-	GH.windows().pushIntT<CSplitWindow>(selection->creature, std::bind(&CGarrisonInt::splitStacks, owner, _1, _2),
+	GH.windows().createAndPushWindow<CSplitWindow>(selection->creature, std::bind(&CGarrisonInt::splitStacks, owner, _1, _2),
 		minLeft, minRight, countLeft, countRight);
 	return true;
 }
@@ -290,7 +290,7 @@ void CGarrisonSlot::clickRight(tribool down, bool previousState)
 {
 	if(creature && down)
 	{
-		GH.windows().pushIntT<CStackWindow>(myStack, true);
+		GH.windows().createAndPushWindow<CStackWindow>(myStack, true);
 	}
 }
 

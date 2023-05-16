@@ -290,7 +290,7 @@ void BattleHero::heroLeftClicked()
 	if(owner.getCurrentPlayerInterface()->cb->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
 		CCS->curh->set(Cursor::Map::POINTER);
-		GH.windows().pushIntT<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
+		GH.windows().createAndPushWindow<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
 	}
 }
 
@@ -305,7 +305,7 @@ void BattleHero::heroRightClicked()
 	{
 		auto h = defender ? owner.defendingHeroInstance : owner.attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
-		GH.windows().pushIntT<HeroInfoWindow>(targetHero, &windowPosition);
+		GH.windows().createAndPushWindow<HeroInfoWindow>(targetHero, &windowPosition);
 	}
 }
 
@@ -592,8 +592,8 @@ void BattleResultWindow::buttonPressed(int button)
 
 	close();
 
-	if(dynamic_cast<BattleWindow*>(GH.windows().topInt().get()))
-		GH.windows().popInts(1); //pop battle interface if present
+	if(dynamic_cast<BattleWindow*>(GH.windows().topWindow().get()))
+		GH.windows().popWindows(1); //pop battle interface if present
 
 	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,
 	//so we can be sure that there is no dialogs left on GUI stack.
