@@ -391,7 +391,6 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForMovementTarget(
 std::vector<BattleHex> BattleFieldController::getRangedFullDamageHexes()
 {
 	std::vector<BattleHex> rangedFullDamageHexes; // used for return
-	std::set<BattleHex> battleFieldWithoutSideColumns;
 
 	// if not a hovered arcer unit -> return
 	auto hoveredHex = getHoveredHex();
@@ -402,13 +401,6 @@ std::vector<BattleHex> BattleFieldController::getRangedFullDamageHexes()
 
 	if(!(hoveredStack && hoveredStack->isShooter()))
 		return rangedFullDamageHexes;
-	
-	// construct battlefield grid without the 2 unusable sidecolumns
-	for(auto x = 1; x < GameConstants::BFIELD_WIDTH - 1; ++x)
-	{
-		for(auto y = 0; y < GameConstants::BFIELD_HEIGHT; ++y)
-			battleFieldWithoutSideColumns.insert(BattleHex(x, y));
-	}
 
 	auto rangedFullDamageDistance = GameConstants::BATTLE_PENALTY_DISTANCE;
 
@@ -419,9 +411,10 @@ std::vector<BattleHex> BattleFieldController::getRangedFullDamageHexes()
 
 	// get only battlefield hexes that are in full range damage distance
 	std::set<BattleHex> fullRangeLimit; 
-	for(auto & hex : battleFieldWithoutSideColumns)
+	for(auto i = 0; i < GameConstants::BFIELD_SIZE; i++)
 	{
-		if(BattleHex::getDistance(hoveredHex, hex) <= rangedFullDamageDistance)
+		BattleHex hex(i);
+		if(hex.isAvailable() && BattleHex::getDistance(hoveredHex, hex) <= rangedFullDamageDistance)
 			rangedFullDamageHexes.push_back(hex);
 	}
 
