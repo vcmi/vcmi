@@ -195,13 +195,11 @@ public:
 
 	std::vector<ConstituentInfo> constituentsInfo;
 
-	void putAt(ArtifactLocation al) override;
 	void removeFrom(ArtifactLocation al) override;
 	bool isPart(const CArtifactInstance *supposedPart) const override;
 
 	void createConstituents();
 	void addAsConstituent(CArtifactInstance * art, const ArtifactPosition & slot);
-	CArtifactInstance * figureMainConstituent(const ArtifactLocation & al); //main constituent is replaced with us (combined art), not lock
 
 	CCombinedArtifactInstance() = default;
 
@@ -325,7 +323,8 @@ public:
 	unsigned getArtPosCount(const ArtifactID & aid, bool onlyWorn = true, bool searchBackpackAssemblies = true, bool allowLocked = true) const;
 
 	virtual ArtBearer::ArtBearer bearerType() const = 0;
-	virtual void putArtifact(ArtifactPosition pos, CArtifactInstance * art) = 0;
+	virtual void putArtifact(ArtifactPosition slot, CArtifactInstance * art);
+	void removeArtifact(ArtifactPosition slot);
 	virtual ~CArtifactSet();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -353,8 +352,6 @@ class DLL_LINKAGE CArtifactFittingSet : public CArtifactSet
 {
 public:
 	CArtifactFittingSet(ArtBearer::ArtBearer Bearer);
-	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;
-	void removeArtifact(ArtifactPosition pos);
 	ArtBearer::ArtBearer bearerType() const override;
 
 protected:

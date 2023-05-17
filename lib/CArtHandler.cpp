@@ -858,7 +858,7 @@ void CArtifactInstance::putAt(ArtifactLocation al)
 {
 	assert(canBePutAt(al));
 
-	al.getHolderArtSet()->setNewArtSlot(al.slot, this, false);
+	al.getHolderArtSet()->CArtifactSet::putArtifact(al.slot, this);
 	if(ArtifactUtils::isSlotEquipment(al.slot))
 		al.getHolderNode()->attachTo(*this);
 }
@@ -866,7 +866,8 @@ void CArtifactInstance::putAt(ArtifactLocation al)
 void CArtifactInstance::removeFrom(ArtifactLocation al)
 {
 	assert(al.getHolderArtSet()->getArt(al.slot) == this);
-	al.getHolderArtSet()->eraseArtSlot(al.slot);
+
+	al.getHolderArtSet()->removeArtifact(al.slot);
 	if(ArtifactUtils::isSlotEquipment(al.slot))
 		al.getHolderNode()->detachFrom(*this);
 }
@@ -929,88 +930,14 @@ void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance * art, const 
 	attachTo(*art);
 }
 
-void CCombinedArtifactInstance::putAt(ArtifactLocation al)
-{
-	if(al.slot == ArtifactPosition::TRANSITION_POS)
-	{
-		CArtifactInstance::putAt(al);
-	}
-	else if(ArtifactUtils::isSlotBackpack(al.slot))
-	{
-		CArtifactInstance::putAt(al);
-		for(ConstituentInfo &ci : constituentsInfo)
-			ci.slot = ArtifactPosition::PRE_FIRST;
-	}
-	else
-	{
-		CArtifactInstance *mainConstituent = figureMainConstituent(al); //it'll be replaced with combined artifact, not a lock
-		CArtifactInstance::putAt(al); //puts combined art (this)
-
-		for(ConstituentInfo & ci : constituentsInfo)
-		{
-			if(ci.art != mainConstituent)
-			{
-				const ArtifactLocation suggestedPos(al.artHolder, ci.slot);
-				const bool inActiveSlot = vstd::isbetween(ci.slot, 0, GameConstants::BACKPACK_START);
-				const bool suggestedPosValid = ci.art->canBePutAt(suggestedPos);
-
-				if(!(inActiveSlot && suggestedPosValid)) //there is a valid suggestion where to place lock
-					ci.slot = ArtifactUtils::getArtAnyPosition(al.getHolderArtSet(), ci.art->getTypeId());
-
-				assert(ArtifactUtils::isSlotEquipment(ci.slot));
-				al.getHolderArtSet()->setNewArtSlot(ci.slot, ci.art, true); //sets as lock
-			}
-			else
-			{
-				ci.slot = ArtifactPosition::PRE_FIRST;
-			}
-		}
-	}
-}
-
 void CCombinedArtifactInstance::removeFrom(ArtifactLocation al)
 {
-	if(ArtifactUtils::isSlotBackpack(al.slot) || al.slot == ArtifactPosition::TRANSITION_POS)
+	CArtifactInstance::removeFrom(al);
+	for(auto & part : constituentsInfo)
 	{
-		CArtifactInstance::removeFrom(al);
+		if(part.slot != ArtifactPosition::PRE_FIRST)
+			part.slot = ArtifactPosition::PRE_FIRST;
 	}
-	else
-	{
-		for(ConstituentInfo &ci : constituentsInfo)
-		{
-			if(ci.slot >= 0)
-			{
-				al.getHolderArtSet()->eraseArtSlot(ci.slot);
-				ci.slot = ArtifactPosition::PRE_FIRST;
-			}
-			else
-			{
-				//main constituent
-				CArtifactInstance::removeFrom(al);
-			}
-		}
-	}
-}
-
-CArtifactInstance * CCombinedArtifactInstance::figureMainConstituent(const ArtifactLocation & al)
-{
-	CArtifactInstance *mainConstituent = nullptr; //it'll be replaced with combined artifact, not a lock
-	for(ConstituentInfo &ci : constituentsInfo)
-		if(ci.slot == al.slot)
-			mainConstituent = ci.art;
-
-	if(!mainConstituent)
-	{
-		for(ConstituentInfo &ci : constituentsInfo)
-		{
-			if(vstd::contains(ci.art->artType->possibleSlots[al.getHolderArtSet()->bearerType()], al.slot))
-			{
-				mainConstituent = ci.art;
-			}
-		}
-	}
-
-	return mainConstituent;
 }
 
 void CCombinedArtifactInstance::deserializationFix()
@@ -1171,6 +1098,52 @@ unsigned CArtifactSet::getArtPosCount(const ArtifactID & aid, bool onlyWorn, boo
 		return 1;
 
 	return 0;
+}
+
+void CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
+{
+	setNewArtSlot(slot, art, false);
+	if(art->artType->canBeDisassembled() && ArtifactUtils::isSlotEquipment(slot))
+	{
+		const CArtifactInstance * mainPart = nullptr;
+		auto & parts = dynamic_cast<CCombinedArtifactInstance*>(art)->constituentsInfo;
+		for(const auto & part : parts)
+			if(vstd::contains(part.art->artType->possibleSlots.at(bearerType()), slot))
+			{
+				mainPart = part.art;
+				break;
+			}
+
+		for(auto & part : parts)
+		{
+			if(part.art != mainPart)
+			{
+				if(!part.art->artType->canBePutAt(this, part.slot))
+					part.slot = ArtifactUtils::getArtAnyPosition(this, part.art->getTypeId());
+
+				assert(ArtifactUtils::isSlotEquipment(part.slot));
+				setNewArtSlot(part.slot, art, true);
+			}
+		}
+	}
+}
+
+void CArtifactSet::removeArtifact(ArtifactPosition slot)
+{
+	auto art = getArt(slot, false);
+	if(art)
+	{
+		if(art->canBeDisassembled())
+		{
+			auto combinedArt = dynamic_cast<CCombinedArtifactInstance*>(art);
+			for(auto & part : combinedArt->constituentsInfo)
+			{
+				if(getArt(part.slot, false))
+					eraseArtSlot(part.slot);
+			}
+		}
+		eraseArtSlot(slot);
+	}
 }
 
 std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *> CArtifactSet::searchForConstituent(const ArtifactID & aid) const
@@ -1397,44 +1370,6 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 CArtifactFittingSet::CArtifactFittingSet(ArtBearer::ArtBearer Bearer):
 	Bearer(Bearer)
 {
-}
-
-void CArtifactFittingSet::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
-{
-	if(art && art->canBeDisassembled() && ArtifactUtils::isSlotEquipment(pos))
-	{
-		for(auto & part : dynamic_cast<CCombinedArtifactInstance*>(art)->constituentsInfo)
-		{
-			const auto slot = ArtifactUtils::getArtAnyPosition(this, part.art->getTypeId());
-			assert(slot != ArtifactPosition::PRE_FIRST);
-			// For the ArtFittingSet is no needed to do figureMainConstituent, just lock slots
-			this->setNewArtSlot(slot, part.art, true);
-		}
-	}
-	else
-	{
-		this->setNewArtSlot(pos, art, false);
-	}
-}
-
-void CArtifactFittingSet::removeArtifact(ArtifactPosition pos)
-{
-	// Removes the art from the CartifactSet, but does not remove it from art->constituentsInfo.
-	// removeArtifact is for CArtifactFittingSet only. Do not move it to the parent class.
-
-	auto art = getArt(pos);
-	if(art == nullptr)
-		return;
-	if(art->canBeDisassembled())
-	{
-		auto combinedArt = dynamic_cast<CCombinedArtifactInstance*>(art);
-		for(const auto & part : combinedArt->constituentsInfo)
-		{
-			if(ArtifactUtils::isSlotEquipment(part.slot))
-				eraseArtSlot(part.slot);
-		}
-	}
-	eraseArtSlot(pos);
 }
 
 ArtBearer::ArtBearer CArtifactFittingSet::bearerType() const
