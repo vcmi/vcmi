@@ -28,7 +28,6 @@ class IStatusBar;
 class CIntObject;
 class IUpdateable;
 class IShowActivatable;
-class IShowable;
 class IScreenHandler;
 class WindowHandler;
 class InterfaceEventDispatcher;
@@ -49,8 +48,6 @@ enum class EUserEvent
 // Handles GUI logic and drawing
 class CGuiHandler
 {
-	friend class InterfaceEventDispatcher;
-
 private:
 	/// Fake no-op version status bar, for use in windows that have no status bar
 	std::shared_ptr<IStatusBar> fakeStatusBar;
@@ -63,8 +60,6 @@ private:
 
 	std::unique_ptr<ShortcutHandler> shortcutsHandlerInstance;
 	std::unique_ptr<WindowHandler> windowHandlerInstance;
-
-	std::atomic<bool> continueEventHandling;
 
 	std::unique_ptr<IScreenHandler> screenHandlerInstance;
 	std::unique_ptr<FramerateManager> framerateManagerInstance;
@@ -129,8 +124,6 @@ public:
 
 	IUpdateable *curInt;
 
-	Point lastClick;
-	unsigned lastClickTime;
 	bool multifinger;
 	bool isPointerRelativeMode;
 	float pointerSpeedMultiplier;
@@ -148,7 +141,6 @@ public:
 	/// called whenever user selects different resolution, requiring to center/resize all windows
 	void onScreenResize();
 
-	void updateTime();
 	void handleEvents(); //takes events from queue and calls interested objects
 	void fakeMouseMove();
 	void breakEventHandling(); //current event won't be propagated anymore

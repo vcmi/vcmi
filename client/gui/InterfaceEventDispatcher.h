@@ -33,6 +33,8 @@ class InterfaceEventDispatcher
 	CIntObjectList doubleClickInterested;
 	CIntObjectList textInterested;
 
+	std::atomic<bool> eventHandlingAllowed = true;
+
 	CIntObjectList & getListForMouseButton(MouseButton button);
 
 	void handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed);
@@ -41,10 +43,12 @@ class InterfaceEventDispatcher
 	void processLists(ui16 activityFlag, std::function<void(CIntObjectList *)> cb);
 
 public:
+	void allowEventHandling(bool enable);
+
 	void handleElementActivate(AEventsReceiver * elem, ui16 activityFlag);
 	void handleElementDeActivate(AEventsReceiver * elem, ui16 activityFlag);
 
-	void updateTime(uint32_t msPassed); //handles timeInterested
+	void dispatchTimer(uint32_t msPassed);
 
 	void dispatchShortcutPressed(const std::vector<EShortcut> & shortcuts);
 	void dispatchShortcutReleased(const std::vector<EShortcut> & shortcuts);
@@ -52,6 +56,7 @@ public:
 	void dispatchMouseButtonPressed(const MouseButton & button, const Point & position);
 	void dispatchMouseButtonReleased(const MouseButton & button, const Point & position);
 	void dispatchMouseScrolled(const Point & distance, const Point & position);
+	void dispatchMouseDoubleClick(const Point & position);
 	void dispatchMouseMoved(const Point & position);
 
 	void dispatchTextInput(const std::string & text);

@@ -333,7 +333,6 @@ void CMainMenu::update()
 	}
 
 	// Handles mouse and key input
-	GH.updateTime();
 	GH.handleEvents();
 
 	// check for null othervice crash on finishing a campaign

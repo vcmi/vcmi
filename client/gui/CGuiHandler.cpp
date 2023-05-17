@@ -90,13 +90,10 @@ void CGuiHandler::init()
 	pointerSpeedMultiplier = settings["general"]["relativePointerSpeedMultiplier"].Float();
 }
 
-void CGuiHandler::updateTime()
-{
-	eventDispatcher().updateTime(framerateManager().getElapsedMilliseconds());
-}
-
 void CGuiHandler::handleEvents()
 {
+	eventDispatcher().dispatchTimer(framerateManager().getElapsedMilliseconds());
+
 	//player interface may want special event handling
 	if(nullptr != LOCPLINT && LOCPLINT->capturedAllEvents())
 		return;
@@ -104,7 +101,7 @@ void CGuiHandler::handleEvents()
 	boost::unique_lock<boost::mutex> lock(eventsM);
 	while(!SDLEventsQueue.empty())
 	{
-		continueEventHandling = true;
+		eventDispatcher().allowEventHandling(true);
 		SDL_Event currentEvent = SDLEventsQueue.front();
 
 		if (currentEvent.type == SDL_MOUSEMOTION)
@@ -349,7 +346,10 @@ void CGuiHandler::handleEventMouseButtonDown(SDL_Event & current)
 	switch(current.button.button)
 	{
 		case SDL_BUTTON_LEFT:
-			eventDispatcher().dispatchMouseButtonPressed(MouseButton::LEFT, Point(current.button.x, current.button.y));
+			if (current.button.clicks > 1)
+				eventDispatcher().dispatchMouseDoubleClick(Point(current.button.x, current.button.y));
+			else
+				eventDispatcher().dispatchMouseButtonPressed(MouseButton::LEFT, Point(current.button.x, current.button.y));
 			break;
 		case SDL_BUTTON_RIGHT:
 			eventDispatcher().dispatchMouseButtonPressed(MouseButton::RIGHT, Point(current.button.x, current.button.y));
@@ -460,7 +460,6 @@ void CGuiHandler::handleEventFingerUp(SDL_Event & current)
 
 void CGuiHandler::renderFrame()
 {
-
 	// Updating GUI requires locking pim mutex (that protects screen and GUI state).
 	// During game:
 	// When ending the game, the pim mutex might be hold by other thread,
@@ -498,13 +497,10 @@ void CGuiHandler::renderFrame()
 }
 
 CGuiHandler::CGuiHandler()
-	: lastClick(-500, -500)
-	, lastClickTime(0)
-	, defActionsDef(0)
+	: defActionsDef(0)
 	, captureChildren(false)
 	, multifinger(false)
 	, mouseButtonsMask(0)
-	, continueEventHandling(true)
 	, curInt(nullptr)
 	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
 	, terminate_cond (new CondSh<bool>(false))
@@ -554,7 +550,7 @@ bool CGuiHandler::isKeyboardShiftDown() const
 
 void CGuiHandler::breakEventHandling()
 {
-	continueEventHandling = false;
+	eventDispatcher().allowEventHandling(false);
 }
 
 const Point & CGuiHandler::getCursorPosition() const

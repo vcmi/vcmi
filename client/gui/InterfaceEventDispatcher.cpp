@@ -13,6 +13,11 @@
 #include "CGuiHandler.h"
 #include "FramerateManager.h"
 
+void InterfaceEventDispatcher::allowEventHandling(bool enable)
+{
+	eventHandlingAllowed = enable;
+}
+
 void InterfaceEventDispatcher::processList(const ui16 mask, const ui16 flag, CIntObjectList *lst, std::function<void (CIntObjectList *)> cb)
 {
 	if (mask & flag)
@@ -51,7 +56,7 @@ void InterfaceEventDispatcher::handleElementDeActivate(AEventsReceiver * elem, u
 	elem->activeState &= ~activityFlag;
 }
 
-void InterfaceEventDispatcher::updateTime(uint32_t msPassed)
+void InterfaceEventDispatcher::dispatchTimer(uint32_t msPassed)
 {
 	CIntObjectList hlp = timeinterested;
 	for (auto & elem : hlp)
@@ -65,34 +70,44 @@ void InterfaceEventDispatcher::dispatchShortcutPressed(const std::vector<EShortc
 {
 	bool keysCaptured = false;
 
-	for(auto i = keyinterested.begin(); i != keyinterested.end() && GH.continueEventHandling; i++)
+	for(auto & i : keyinterested)
 		for(EShortcut shortcut : shortcutsVector)
-			if((*i)->captureThisKey(shortcut))
+			if(i->captureThisKey(shortcut))
 				keysCaptured = true;
 
 	CIntObjectList miCopy = keyinterested;
 
-	for(auto i = miCopy.begin(); i != miCopy.end() && GH.continueEventHandling; i++)
+	for(auto & i : miCopy)
+	{
+		if (!eventHandlingAllowed)
+			break;
+
 		for(EShortcut shortcut : shortcutsVector)
-			if(vstd::contains(keyinterested, *i) && (!keysCaptured || (*i)->captureThisKey(shortcut)))
-					(**i).keyPressed(shortcut);
+			if(vstd::contains(keyinterested, i) && (!keysCaptured || i->captureThisKey(shortcut)))
+				i->keyPressed(shortcut);
+	}
 }
 
 void InterfaceEventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & shortcutsVector)
 {
 	bool keysCaptured = false;
 
-	for(auto i = keyinterested.begin(); i != keyinterested.end() && GH.continueEventHandling; i++)
+	for(auto & i : keyinterested)
 		for(EShortcut shortcut : shortcutsVector)
-			if((*i)->captureThisKey(shortcut))
+			if(i->captureThisKey(shortcut))
 				keysCaptured = true;
 
 	CIntObjectList miCopy = keyinterested;
 
-	for(auto i = miCopy.begin(); i != miCopy.end() && GH.continueEventHandling; i++)
+	for(auto & i : miCopy)
+	{
+		if (!eventHandlingAllowed)
+			break;
+
 		for(EShortcut shortcut : shortcutsVector)
-			if(vstd::contains(keyinterested, *i) && (!keysCaptured || (*i)->captureThisKey(shortcut)))
-				(**i).keyReleased(shortcut);
+			if(vstd::contains(keyinterested, i) && (!keysCaptured || i->captureThisKey(shortcut)))
+				i->keyReleased(shortcut);
+	}
 }
 
 InterfaceEventDispatcher::CIntObjectList & InterfaceEventDispatcher::getListForMouseButton(MouseButton button)
@@ -109,32 +124,32 @@ InterfaceEventDispatcher::CIntObjectList & InterfaceEventDispatcher::getListForM
 	throw std::runtime_error("Invalid mouse button in getListForMouseButton");
 }
 
+void InterfaceEventDispatcher::dispatchMouseDoubleClick(const Point & position)
+{
+	bool doubleClicked = false;
+	auto hlp = doubleClickInterested;
+
+	for(auto & i : hlp)
+	{
+		if(!vstd::contains(doubleClickInterested, i))
+			continue;
+
+		if (!eventHandlingAllowed)
+			break;
+
+		if(i->isInside(position))
+		{
+			i->onDoubleClick();
+			doubleClicked = true;
+		}
+	}
+
+	if(!doubleClicked)
+		dispatchMouseButtonPressed(MouseButton::LEFT, position);
+}
+
 void InterfaceEventDispatcher::dispatchMouseButtonPressed(const MouseButton & button, const Point & position)
 {
-//	if (button == MouseButton::LEFT)
-//	{
-//		auto doubleClicked = false;
-//		if(lastClick == getCursorPosition() && (SDL_GetTicks() - lastClickTime) < 300)
-//		{
-//			std::list<CIntObject*> hlp = doubleClickInterested;
-//			for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
-//			{
-//				if(!vstd::contains(doubleClickInterested, *i)) continue;
-//				if((*i)->pos.isInside(current.motion.x, current.motion.y))
-//				{
-//					(*i)->onDoubleClick();
-//					doubleClicked = true;
-//				}
-//			}
-//		}
-//
-//		lastClick = current.motion;
-//		lastClickTime = SDL_GetTicks();
-//
-//		if(doubleClicked)
-//			return;
-//	}
-
 	handleMouseButtonClick(getListForMouseButton(button), button, true);
 }
 
@@ -146,28 +161,32 @@ void InterfaceEventDispatcher::dispatchMouseButtonReleased(const MouseButton & b
 void InterfaceEventDispatcher::handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed)
 {
 	auto hlp = interestedObjs;
-	for(auto i = hlp.begin(); i != hlp.end() && GH.continueEventHandling; i++)
+	for(auto & i : hlp)
 	{
-		if(!vstd::contains(interestedObjs, *i)) continue;
+		if(!vstd::contains(interestedObjs, i))
+			continue;
 
-		auto prev = (*i)->isMouseButtonPressed(btn);
+		if (!eventHandlingAllowed)
+			break;
+
+		auto prev = i->isMouseButtonPressed(btn);
 		if(!isPressed)
-			(*i)->currentMouseState[btn] = isPressed;
-		if((*i)->isInside(GH.getCursorPosition()))
+			i->currentMouseState[btn] = isPressed;
+		if(i->isInside(GH.getCursorPosition()))
 		{
 			if(isPressed)
-				(*i)->currentMouseState[btn] = isPressed;
-			(*i)->click(btn, isPressed, prev);
+				i->currentMouseState[btn] = isPressed;
+			i->click(btn, isPressed, prev);
 		}
 		else if(!isPressed)
-			(*i)->click(btn, boost::logic::indeterminate, prev);
+			i->click(btn, boost::logic::indeterminate, prev);
 	}
 }
 
 void InterfaceEventDispatcher::dispatchMouseScrolled(const Point & distance, const Point & position)
 {
 	CIntObjectList hlp = wheelInterested;
-	for(auto i = hlp.begin(); i != hlp.end() && GH.continueEventHandling; i++)
+	for(auto i = hlp.begin(); i != hlp.end() && eventHandlingAllowed; i++)
 	{
 		if(!vstd::contains(wheelInterested,*i))
 			continue;

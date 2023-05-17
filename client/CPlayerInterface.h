@@ -47,7 +47,6 @@ class KeyInterested;
 class MotionInterested;
 class PlayerLocalState;
 class TimeInterested;
-class IShowable;
 
 namespace boost
 {

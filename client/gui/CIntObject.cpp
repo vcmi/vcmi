@@ -67,6 +67,23 @@ void AEventsReceiver::deactivateEvents(ui16 what)
 	GH.eventDispatcher().handleElementDeActivate(this, what & activeState);
 }
 
+void AEventsReceiver::click(MouseButton btn, tribool down, bool previousState)
+{
+	switch(btn)
+	{
+	default:
+	case MouseButton::LEFT:
+		clickLeft(down, previousState);
+		break;
+	case MouseButton::MIDDLE:
+		clickMiddle(down, previousState);
+		break;
+	case MouseButton::RIGHT:
+		clickRight(down, previousState);
+		break;
+	}
+}
+
 CIntObject::CIntObject(int used_, Point pos_):
 	parent_m(nullptr),
 	parent(parent_m),
@@ -150,41 +167,14 @@ void CIntObject::deactivate()
 				elem->deactivate();
 }
 
-void CIntObject::click(MouseButton btn, tribool down, bool previousState)
-{
-	switch(btn)
-	{
-	default:
-	case MouseButton::LEFT:
-		clickLeft(down, previousState);
-		break;
-	case MouseButton::MIDDLE:
-		clickMiddle(down, previousState);
-		break;
-	case MouseButton::RIGHT:
-		clickRight(down, previousState);
-		break;
-	}
-}
-
-void CIntObject::printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst)
-{
-	graphics->fonts[font]->renderTextLeft(dst, text, kolor, Point(pos.x + x, pos.y + y));
-}
-
-void CIntObject::printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst)
-{
-	printAtMiddleLoc(text, Point(x,y), font, kolor, dst);
-}
-
 void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color kolor, SDL_Surface * dst)
 {
 	graphics->fonts[font]->renderTextCenter(dst, text, kolor, pos.topLeft() + p);
 }
 
-void CIntObject::printAtMiddleWBLoc( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst)
+void CIntObject::printAtMiddleWBLoc( const std::string & text, const Point &p, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst)
 {
-	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, charpr, font), kolor, Point(pos.x + x, pos.y + y));
+	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, charpr, font), kolor, pos.topLeft() + p);
 }
 
 void CIntObject::addUsedEvents(ui16 newActions)
@@ -347,6 +337,7 @@ bool CIntObject::captureThisKey(EShortcut key)
 
 CKeyShortcut::CKeyShortcut()
 	: assignedKey(EShortcut::NONE)
+	, shortcutPressed(false)
 {}
 
 CKeyShortcut::CKeyShortcut(EShortcut key)
@@ -356,14 +347,20 @@ CKeyShortcut::CKeyShortcut(EShortcut key)
 
 void CKeyShortcut::keyPressed(EShortcut key)
 {
-	if( assignedKey == key && assignedKey != EShortcut::NONE)
+	if( assignedKey == key && assignedKey != EShortcut::NONE && !shortcutPressed)
+	{
+		shortcutPressed = true;
 		clickLeft(true, false);
+	}
 }
 
 void CKeyShortcut::keyReleased(EShortcut key)
 {
-	if( assignedKey == key && assignedKey != EShortcut::NONE)
+	if( assignedKey == key && assignedKey != EShortcut::NONE && shortcutPressed)
+	{
+		shortcutPressed = false;
 		clickLeft(false, true);
+	}
 }
 
 WindowBase::WindowBase(int used_, Point pos_)

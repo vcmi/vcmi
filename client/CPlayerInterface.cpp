@@ -1513,7 +1513,6 @@ void CPlayerInterface::update()
 	assert(adventureInt);
 
 	// Handles mouse and key input
-	GH.updateTime();
 	GH.handleEvents();
 	GH.windows().simpleRedraw();
 }

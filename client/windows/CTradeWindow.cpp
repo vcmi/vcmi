@@ -1479,7 +1479,7 @@ void CAltarWindow::showAll(SDL_Surface * to)
 			int dmp, val;
 			market->getOffer(pickedArt->getTypeId(), 0, dmp, val, EMarketMode::ARTIFACT_EXP);
 			val = static_cast<int>(hero->calculateXp(val));
-			printAtMiddleLoc(std::to_string(val), 304, 498, FONT_SMALL, Colors::WHITE, to);
+			printAtMiddleLoc(std::to_string(val), Point(304, 498), FONT_SMALL, Colors::WHITE, to);
 		}
 	}
 }
