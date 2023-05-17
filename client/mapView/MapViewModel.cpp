@@ -35,12 +35,15 @@ void MapViewModel::setLevel(int newLevel)
 
 Point MapViewModel::getSingleTileSizeUpperLimit() const
 {
-	return Point(128, 128); // arbitrary-seleted upscaling limit
+	// arbitrary-seleted upscaling limit
+	// TODO: figure out reason behind graphical artifacts on scaling higher than 120px (375%)
+	return Point(120, 120);
 }
 
 Point MapViewModel::getSingleTileSizeLowerLimit() const
 {
-	return Point(4, 4); // arbitrary-seleted upscaling limit
+	// arbitrary-seleted downscaling limit
+	return Point(4, 4);
 }
 
 Point MapViewModel::getSingleTileSize() const
@@ -114,14 +117,14 @@ Rect MapViewModel::getCacheTileArea(const int3 & coordinates) const
 		(getTilesVisibleDimensions().y + coordinates.y) % getTilesVisibleDimensions().y
 	};
 
-	return Rect(tileIndex * tileSize, tileSize);
+	return Rect(tileIndex * getSingleTileSize(), getSingleTileSize());
 }
 
 Rect MapViewModel::getTargetTileArea(const int3 & coordinates) const
 {
 	Point topLeftOffset = getMapViewCenter() - getPixelsVisibleDimensions() / 2;
-	Point tilePosAbsolute = Point(coordinates) * tileSize;
+	Point tilePosAbsolute = Point(coordinates) * getSingleTileSize();
 	Point tilePosRelative = tilePosAbsolute - topLeftOffset;
 
-	return Rect(tilePosRelative, tileSize);
+	return Rect(tilePosRelative, getSingleTileSize());
 }

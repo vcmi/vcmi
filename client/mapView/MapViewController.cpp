@@ -69,10 +69,19 @@ void MapViewController::setViewCenter(const Point & position, int level)
 
 void MapViewController::setTileSize(const Point & tileSize)
 {
+	Point oldSize = model->getSingleTileSize();
 	model->setTileSize(tileSize);
 
+	double scaleChangeX = 1.0 * tileSize.x / oldSize.x;
+	double scaleChangeY = 1.0 * tileSize.y / oldSize.y;
+
+	Point newViewCenter {
+		static_cast<int>(std::round(model->getMapViewCenter().x * scaleChangeX)),
+		static_cast<int>(std::round(model->getMapViewCenter().y * scaleChangeY))
+	};
+
 	// force update of view center since changing tile size may invalidated it
-	setViewCenter(model->getMapViewCenter(), model->getLevel());
+	setViewCenter(newViewCenter, model->getLevel());
 }
 
 void MapViewController::modifyTileSize(int stepsChange)
@@ -101,7 +110,8 @@ void MapViewController::modifyTileSize(int stepsChange)
 		std::clamp(desiredZoom.y, minimal.y, maximal.y)
 	};
 
-	setTileSize(actualZoom);
+	if (actualZoom != currentZoom)
+		setTileSize(actualZoom);
 }
 
 MapViewController::MapViewController(std::shared_ptr<MapViewModel> model, std::shared_ptr<MapViewCache> view)
