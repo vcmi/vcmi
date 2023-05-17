@@ -1208,32 +1208,28 @@ bool CArtifactSet::isPositionFree(const ArtifactPosition & pos, bool onlyLockChe
 	return true; //no slot means not used
 }
 
-ArtSlotInfo & CArtifactSet::retrieveNewArtSlot(const ArtifactPosition & slot)
+void CArtifactSet::setNewArtSlot(const ArtifactPosition & slot, CArtifactInstance * art, bool locked)
 {
 	assert(!vstd::contains(artifactsWorn, slot));
 
+	ArtSlotInfo * slotInfo;
 	if(slot == ArtifactPosition::TRANSITION_POS)
 	{
 		// Always add to the end. Always take from the beginning.
 		artifactsTransitionPos.emplace_back();
-		return artifactsTransitionPos.back();
+		slotInfo = &artifactsTransitionPos.back();
 	}
-	if(!ArtifactUtils::isSlotBackpack(slot))
-		return artifactsWorn[slot];
-
-	ArtSlotInfo newSlot;
-	size_t index  = slot - GameConstants::BACKPACK_START;
-	auto position = artifactsInBackpack.begin() + index;
-	auto inserted = artifactsInBackpack.insert(position, newSlot);
-
-	return *inserted;
-}
-
-void CArtifactSet::setNewArtSlot(const ArtifactPosition & slot, CArtifactInstance * art, bool locked)
-{
-	ArtSlotInfo & asi = retrieveNewArtSlot(slot);
-	asi.artifact = art;
-	asi.locked = locked;
+	else if(ArtifactUtils::isSlotEquipment(slot))
+	{
+		slotInfo =  &artifactsWorn[slot];
+	}
+	else
+	{
+		auto position = artifactsInBackpack.begin() + slot - GameConstants::BACKPACK_START;
+		slotInfo = &(*artifactsInBackpack.emplace(position, ArtSlotInfo()));
+	}
+	slotInfo->artifact = art;
+	slotInfo->locked = locked;
 }
 
 void CArtifactSet::eraseArtSlot(const ArtifactPosition & slot)
