@@ -449,17 +449,21 @@ std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeigh
 	for(auto & hex : rangedFullDamageLimitHexes)
 	{
 		// get all neighbours and their directions
-		auto neighbours = hex.neighbouringTilesWithDirection();
+		
+		auto neighbouringTiles = hex.allNeighbouringTiles();
 
 		std::vector<BattleHex::EDir> outsideNeighbourDirections;
 
-		// for each neighbour add to output only the ones not found in rangedFullDamageHexes
-		for(auto & neighbour : neighbours)
+		// for each neighbour add to output only the valid ones and only that are not found in rangedFullDamageHexes
+		for(auto direction = 0; direction < 6; direction++)
 		{
-			auto it = std::find(rangedFullDamageHexes.begin(), rangedFullDamageHexes.end(), neighbour.second);
+			if(!neighbouringTiles[direction].isAvailable())
+				continue;
+
+			auto it = std::find(rangedFullDamageHexes.begin(), rangedFullDamageHexes.end(), neighbouringTiles[direction]);
 
 			if(it == rangedFullDamageHexes.end())
-				outsideNeighbourDirections.push_back(neighbour.first); // push direction
+				outsideNeighbourDirections.push_back(BattleHex::EDir(direction)); // push direction
 		}
 
 		output.push_back(outsideNeighbourDirections);

@@ -87,10 +87,6 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	/// returns all valid neighbouring tiles
 	std::vector<BattleHex> neighbouringTiles() const;
 
-	/// returns all valid (not first and last columns) neighbouring tiles, with their relative direction
-	std::vector<std::pair<BattleHex::EDir, BattleHex>> neighbouringTilesWithDirection() const;
-
-
 	/// returns all tiles, unavailable tiles will be set as invalid
 	/// order of returned tiles matches EDir enim
 	std::vector<BattleHex> allNeighbouringTiles() const;
