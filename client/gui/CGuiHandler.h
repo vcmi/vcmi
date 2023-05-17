@@ -91,6 +91,18 @@ private:
 	void fakeMoveCursor(float dx, float dy);
 	void fakeMouseButtonEventRelativeMode(bool down, bool right);
 
+	void handleEventKeyDown(SDL_Event & current);
+	void handleEventKeyUp(SDL_Event & current);
+	void handleEventMouseMotion(SDL_Event & current);
+	void handleEventMouseButtonDown(SDL_Event & current);
+	void handleEventMouseWheel(SDL_Event & current);
+	void handleEventTextInput(SDL_Event & current);
+	void handleEventTextEditing(SDL_Event & current);
+	void handleEventMouseButtonUp(SDL_Event & current);
+	void handleEventFingerMotion(SDL_Event & current);
+	void handleEventFingerDown(SDL_Event & current);
+	void handleEventFingerUp(SDL_Event & current);
+
 public:
 	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
 	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);

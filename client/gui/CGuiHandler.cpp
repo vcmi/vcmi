@@ -295,19 +295,48 @@ void CGuiHandler::fakeMouseButtonEventRelativeMode(bool down, bool right)
 
 void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 {
-	if(current.type == SDL_KEYDOWN || current.type == SDL_KEYUP)
+	switch (current.type)
 	{
-		SDL_KeyboardEvent key = current.key;
+		case SDL_KEYDOWN:
+			return handleEventKeyDown(current);
+		case SDL_KEYUP:
+			return handleEventKeyUp(current);
+		case SDL_MOUSEMOTION:
+			return handleEventMouseMotion(current);
+		case SDL_MOUSEBUTTONDOWN:
+			return handleEventMouseButtonDown(current);
+		case SDL_MOUSEWHEEL:
+			return handleEventMouseWheel(current);
+		case SDL_TEXTINPUT:
+			return handleEventTextInput(current);
+		case SDL_TEXTEDITING:
+			return handleEventTextEditing(current);
+		case SDL_MOUSEBUTTONUP:
+			return handleEventMouseButtonUp(current);
+		case SDL_FINGERMOTION:
+			return handleEventFingerMotion(current);
+		case SDL_FINGERDOWN:
+			return handleEventFingerDown(current);
+		case SDL_FINGERUP:
+			return handleEventFingerUp(current);
+	}
+}
 
-		if (key.repeat != 0)
-			return; // ignore periodic event resends
+void CGuiHandler::handleEventKeyDown(SDL_Event & current)
+{
+	SDL_KeyboardEvent key = current.key;
 
-		if(current.type == SDL_KEYDOWN && key.keysym.sym >= SDLK_F1 && key.keysym.sym <= SDLK_F15 && settings["session"]["spectate"].Bool())
+	if(key.repeat != 0)
+		return; // ignore periodic event resends
+
+	assert(key.state == SDL_PRESSED);
+
+	if(current.type == SDL_KEYDOWN && key.keysym.sym >= SDLK_F1 && key.keysym.sym <= SDLK_F15 && settings["session"]["spectate"].Bool())
+	{
+		//TODO: we need some central place for all interface-independent hotkeys
+		Settings s = settings.write["session"];
+		switch(key.keysym.sym)
 		{
-			//TODO: we need some central place for all interface-independent hotkeys
-			Settings s = settings.write["session"];
-			switch(key.keysym.sym)
-			{
 			case SDLK_F5:
 				if(settings["session"]["spectate-locked-pim"].Bool())
 					LOCPLINT->pim->unlock();
@@ -328,59 +357,63 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 				s["spectate-skip-battle-result"].Bool() = !settings["session"]["spectate-skip-battle-result"].Bool();
 				break;
 
-			case SDLK_F9:
-				//not working yet since CClient::run remain locked after BattleInterface removal
-//				if(LOCPLINT->battleInt)
-//				{
-//					GH.windows().popInts(1);
-//					vstd::clear_pointer(LOCPLINT->battleInt);
-//				}
-				break;
-
 			default:
 				break;
-			}
-			return;
 		}
-
-		auto shortcutsVector = shortcutsHandler().translateKeycode(key.keysym.sym);
-
-		bool keysCaptured = false;
-		for(auto i = keyinterested.begin(); i != keyinterested.end() && continueEventHandling; i++)
-		{
-			for (EShortcut shortcut : shortcutsVector)
-			{
-				if((*i)->captureThisKey(shortcut))
-				{
-					keysCaptured = true;
-					break;
-				}
-			}
-		}
-
-		std::list<CIntObject*> miCopy = keyinterested;
-		for(auto i = miCopy.begin(); i != miCopy.end() && continueEventHandling; i++)
-		{
-			for (EShortcut shortcut : shortcutsVector)
-			{
-				if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureThisKey(shortcut)))
-				{
-					if (key.state == SDL_PRESSED)
-						(**i).keyPressed(shortcut);
-					if (key.state == SDL_RELEASED)
-						(**i).keyReleased(shortcut);
-				}
-			}
-		}
+		return;
 	}
-	else if(current.type == SDL_MOUSEMOTION)
+
+	auto shortcutsVector = shortcutsHandler().translateKeycode(key.keysym.sym);
+
+	bool keysCaptured = false;
+	for(auto i = keyinterested.begin(); i != keyinterested.end() && continueEventHandling; i++)
+		for(EShortcut shortcut : shortcutsVector)
+			if((*i)->captureThisKey(shortcut))
+				keysCaptured = true;
+
+	std::list<CIntObject *> miCopy = keyinterested;
+
+	for(auto i = miCopy.begin(); i != miCopy.end() && continueEventHandling; i++)
+		for(EShortcut shortcut : shortcutsVector)
+			if(vstd::contains(keyinterested, *i) && (!keysCaptured || (*i)->captureThisKey(shortcut)))
+					(**i).keyPressed(shortcut);
+}
+
+void CGuiHandler::handleEventKeyUp(SDL_Event & current)
+{
+	SDL_KeyboardEvent key = current.key;
+
+	if(key.repeat != 0)
+		return; // ignore periodic event resends
+
+	assert(key.state == SDL_RELEASED);
+
+	auto shortcutsVector = shortcutsHandler().translateKeycode(key.keysym.sym);
+
+	bool keysCaptured = false;
+
+	for(auto i = keyinterested.begin(); i != keyinterested.end() && continueEventHandling; i++)
+		for(EShortcut shortcut : shortcutsVector)
+			if((*i)->captureThisKey(shortcut))
+				keysCaptured = true;
+
+	std::list<CIntObject *> miCopy = keyinterested;
+
+	for(auto i = miCopy.begin(); i != miCopy.end() && continueEventHandling; i++)
+		for(EShortcut shortcut : shortcutsVector)
+			if(vstd::contains(keyinterested, *i) && (!keysCaptured || (*i)->captureThisKey(shortcut)))
+				(**i).keyReleased(shortcut);
+}
+
+void CGuiHandler::handleEventMouseMotion(SDL_Event & current)
+{
+	handleMouseMotion(current);
+}
+
+void CGuiHandler::handleEventMouseButtonDown(SDL_Event & current)
+{
+	switch(current.button.button)
 	{
-		handleMouseMotion(current);
-	}
-	else if(current.type == SDL_MOUSEBUTTONDOWN)
-	{
-		switch(current.button.button)
-		{
 		case SDL_BUTTON_LEFT:
 		{
 			auto doubleClicked = false;
@@ -414,40 +447,44 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 			break;
 		default:
 			break;
-		}
 	}
-	else if(current.type == SDL_MOUSEWHEEL)
+}
+
+void CGuiHandler::handleEventMouseWheel(SDL_Event & current)
+{
+	std::list<CIntObject*> hlp = wheelInterested;
+	for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
 	{
-		std::list<CIntObject*> hlp = wheelInterested;
-		for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
-		{
-			if(!vstd::contains(wheelInterested,*i)) continue;
-			// SDL doesn't have the proper values for mouse positions on SDL_MOUSEWHEEL, refetch them
-			int x = 0, y = 0;
-			SDL_GetMouseState(&x, &y);
-			(*i)->wheelScrolled(current.wheel.y < 0, (*i)->pos.isInside(x, y));
-		}
+		if(!vstd::contains(wheelInterested,*i)) continue;
+		// SDL doesn't have the proper values for mouse positions on SDL_MOUSEWHEEL, refetch them
+		int x = 0, y = 0;
+		SDL_GetMouseState(&x, &y);
+		(*i)->wheelScrolled(current.wheel.y < 0, (*i)->pos.isInside(x, y));
 	}
-	else if(current.type == SDL_TEXTINPUT)
+}
+
+void CGuiHandler::handleEventTextInput(SDL_Event & current)
+{
+	for(auto it : textInterested)
 	{
-		for(auto it : textInterested)
-		{
-			it->textInputed(current.text.text);
-		}
+		it->textInputed(current.text.text);
 	}
-	else if(current.type == SDL_TEXTEDITING)
+}
+
+void CGuiHandler::handleEventTextEditing(SDL_Event & current)
+{
+	for(auto it : textInterested)
 	{
-		for(auto it : textInterested)
-		{
-			it->textEdited(current.edit.text);
-		}
+		it->textEdited(current.edit.text);
 	}
-	else if(current.type == SDL_MOUSEBUTTONUP)
+}
+
+void CGuiHandler::handleEventMouseButtonUp(SDL_Event & current)
+{
+	if(!multifinger)
 	{
-		if(!multifinger)
+		switch(current.button.button)
 		{
-			switch(current.button.button)
-			{
 			case SDL_BUTTON_LEFT:
 				handleMouseButtonClick(lclickable, MouseButton::LEFT, false);
 				break;
@@ -457,66 +494,68 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 			case SDL_BUTTON_MIDDLE:
 				handleMouseButtonClick(mclickable, MouseButton::MIDDLE, false);
 				break;
-			}
 		}
 	}
-	else if(current.type == SDL_FINGERMOTION)
+}
+
+void CGuiHandler::handleEventFingerMotion(SDL_Event & current)
+{
+	if(isPointerRelativeMode)
 	{
-		if(isPointerRelativeMode)
-		{
-			fakeMoveCursor(current.tfinger.dx, current.tfinger.dy);
-		}
+		fakeMoveCursor(current.tfinger.dx, current.tfinger.dy);
 	}
-	else if(current.type == SDL_FINGERDOWN)
+}
+	
+void CGuiHandler::handleEventFingerDown(SDL_Event & current)
+{
+	auto fingerCount = SDL_GetNumTouchFingers(current.tfinger.touchId);
+
+	multifinger = fingerCount > 1;
+
+	if(isPointerRelativeMode)
 	{
-		auto fingerCount = SDL_GetNumTouchFingers(current.tfinger.touchId);
-
-		multifinger = fingerCount > 1;
-
-		if(isPointerRelativeMode)
+		if(current.tfinger.x > 0.5)
 		{
-			if(current.tfinger.x > 0.5)
-			{
-				bool isRightClick = current.tfinger.y < 0.5;
+			bool isRightClick = current.tfinger.y < 0.5;
 
-				fakeMouseButtonEventRelativeMode(true, isRightClick);
-			}
+			fakeMouseButtonEventRelativeMode(true, isRightClick);
 		}
-#ifndef VCMI_IOS
-		else if(fingerCount == 2)
-		{
-			convertTouchToMouse(&current);
-			handleMouseMotion(current);
-			handleMouseButtonClick(rclickable, MouseButton::RIGHT, true);
-		}
-#endif //VCMI_IOS
 	}
-	else if(current.type == SDL_FINGERUP)
+#ifndef VCMI_IOS
+	else if(fingerCount == 2)
 	{
-#ifndef VCMI_IOS
-		auto fingerCount = SDL_GetNumTouchFingers(current.tfinger.touchId);
-#endif //VCMI_IOS
-
-		if(isPointerRelativeMode)
-		{
-			if(current.tfinger.x > 0.5)
-			{
-				bool isRightClick = current.tfinger.y < 0.5;
-
-				fakeMouseButtonEventRelativeMode(false, isRightClick);
-			}
-		}
-#ifndef VCMI_IOS
-		else if(multifinger)
-		{
-			convertTouchToMouse(&current);
-			handleMouseMotion(current);
-			handleMouseButtonClick(rclickable, MouseButton::RIGHT, false);
-			multifinger = fingerCount != 0;
-		}
-#endif //VCMI_IOS
+		convertTouchToMouse(&current);
+		handleMouseMotion(current);
+		handleMouseButtonClick(rclickable, MouseButton::RIGHT, true);
 	}
-} //event end
+#endif //VCMI_IOS
+}
+
+void CGuiHandler::handleEventFingerUp(SDL_Event & current)
+{
+#ifndef VCMI_IOS
+	auto fingerCount = SDL_GetNumTouchFingers(current.tfinger.touchId);
+#endif //VCMI_IOS
+
+	if(isPointerRelativeMode)
+	{
+		if(current.tfinger.x > 0.5)
+		{
+			bool isRightClick = current.tfinger.y < 0.5;
+
+			fakeMouseButtonEventRelativeMode(false, isRightClick);
+		}
+	}
+#ifndef VCMI_IOS
+	else if(multifinger)
+	{
+		convertTouchToMouse(&current);
+		handleMouseMotion(current);
+		handleMouseButtonClick(rclickable, MouseButton::RIGHT, false);
+		multifinger = fingerCount != 0;
+	}
+#endif //VCMI_IOS
+}
 
 void CGuiHandler::handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed)
 {
