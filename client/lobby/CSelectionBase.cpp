@@ -90,7 +90,7 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 
 void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 {
-	if(curTab && curTab->active)
+	if(curTab && curTab->isActive())
 	{
 		curTab->deactivate();
 		curTab->recActions = 0;

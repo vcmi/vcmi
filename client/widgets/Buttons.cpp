@@ -54,7 +54,7 @@ void CButton::update()
 		newPos = (int)image->size()-1;
 	image->setFrame(newPos);
 
-	if (active)
+	if (isActive())
 		redraw();
 }
 
@@ -177,7 +177,7 @@ void CButton::clickLeft(tribool down, bool previousState)
 			CCS->soundh->playSound(soundBase::button);
 		setState(PRESSED);
 	}
-	else if(hoverable && hovered)
+	else if(hoverable && isHovered())
 		setState(HIGHLIGHTED);
 	else
 		setState(NORMAL);
@@ -492,7 +492,7 @@ void CVolumeSlider::moveTo(int id)
 	vstd::abetween<int>(id, 0, animImage->size() - 1);
 	animImage->setFrame(id);
 	animImage->moveTo(Point(pos.x + (animImage->pos.w + 1) * id, pos.y));
-	if (active)
+	if (isActive())
 		redraw();
 }
 
@@ -550,7 +550,7 @@ void CVolumeSlider::wheelScrolled(bool down, bool in)
 
 void CSlider::sliderClicked()
 {
-	if(!(active & MOVE))
+	if(!isActive(MOVE))
 		addUsedEvents(MOVE);
 }
 
@@ -688,11 +688,11 @@ void CSlider::clickLeft(tribool down, bool previousState)
 			return;
 		// 		if (rw>1) return;
 		// 		if (rw<0) return;
-		slider->clickLeft(true, slider->mouseState(MouseButton::LEFT));
+		slider->clickLeft(true, slider->isMouseButtonPressed(MouseButton::LEFT));
 		moveTo((int)(rw * positions  +  0.5));
 		return;
 	}
-	if(active & MOVE)
+	if(isActive(MOVE))
 		removeUsedEvents(MOVE);
 }
 
@@ -710,7 +710,7 @@ CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int
 	vstd::amax(value, 0);
 	vstd::amin(value, positions);
 
-	strongInterest = true;
+	setMoveEventStrongInterest(true);
 
 	pos.x += position.x;
 	pos.y += position.y;

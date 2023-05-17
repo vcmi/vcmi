@@ -11,6 +11,7 @@
 #include "CIntObject.h"
 
 #include "CGuiHandler.h"
+#include "InterfaceEventDispatcher.h"
 #include "WindowHandler.h"
 #include "Shortcut.h"
 #include "../renderSDL/SDL_Extensions.h"
@@ -19,18 +20,59 @@
 
 #include <SDL_pixels.h>
 
-IShowActivatable::IShowActivatable()
+AEventsReceiver::AEventsReceiver()
+	: activeState(0)
+	, hoveredState(false)
+	, strongInterestState(false)
 {
-	type = 0;
+}
+
+bool AEventsReceiver::isHovered() const
+{
+	return hoveredState;
+}
+
+bool AEventsReceiver::isActive() const
+{
+	return activeState;
+}
+
+bool AEventsReceiver::isActive(int flags) const
+{
+	return activeState & flags;
+}
+
+bool AEventsReceiver::isMouseButtonPressed(MouseButton btn) const
+{
+	return currentMouseState.count(btn) ? currentMouseState.at(btn) : false;
+}
+
+void AEventsReceiver::setMoveEventStrongInterest(bool on)
+{
+	strongInterestState = on;
+}
+
+void AEventsReceiver::activateEvents(ui16 what)
+{
+	assert((what & GENERAL) || (activeState & GENERAL));
+
+	activeState |= GENERAL;
+	GH.eventDispatcher().handleElementActivate(this, what);
+}
+
+void AEventsReceiver::deactivateEvents(ui16 what)
+{
+	if (what & GENERAL)
+		activeState &= ~GENERAL;
+	GH.eventDispatcher().handleElementDeActivate(this, what & activeState);
 }
 
 CIntObject::CIntObject(int used_, Point pos_):
 	parent_m(nullptr),
-	active_m(0),
 	parent(parent_m),
-	active(active_m)
+	type(0)
 {
-	hovered = captureAllKeys = strongInterest = false;
+	captureAllKeys = false;
 	used = used_;
 
 	recActions = defActions = GH.defActionsDef;
@@ -46,7 +88,7 @@ CIntObject::CIntObject(int used_, Point pos_):
 
 CIntObject::~CIntObject()
 {
-	if(active_m)
+	if(isActive())
 		deactivate();
 
 	while(!children.empty())
@@ -76,25 +118,16 @@ void CIntObject::showAll(SDL_Surface * to)
 		for(auto & elem : children)
 			if(elem->recActions & SHOWALL)
 				elem->showAll(to);
-
 	}
 }
 
 void CIntObject::activate()
 {
-	if (active_m)
-	{
-		if ((used | GENERAL) == active_m)
-			return;
-		else
-		{
-			logGlobal->warn("Warning: IntObject re-activated with mismatching used and active");
-			deactivate(); //FIXME: better to avoid such possibility at all
-		}
-	}
+	if (isActive())
+		return;
 
-	active_m |= GENERAL;
-	activate(used);
+	activateEvents(used | GENERAL);
+	assert(isActive());
 
 	if(defActions & ACTIVATE)
 		for(auto & elem : children)
@@ -102,30 +135,19 @@ void CIntObject::activate()
 				elem->activate();
 }
 
-void CIntObject::activate(ui16 what)
-{
-	GH.handleElementActivate(this, what);
-}
-
 void CIntObject::deactivate()
 {
-	if (!active_m)
+	if (!isActive())
 		return;
 
-	active_m &= ~ GENERAL;
-	deactivate(active_m);
+	deactivateEvents(ALL);
 
-	assert(!active_m);
+	assert(!isActive());
 
 	if(defActions & DEACTIVATE)
 		for(auto & elem : children)
 			if(elem->recActions & DEACTIVATE)
 				elem->deactivate();
-}
-
-void CIntObject::deactivate(ui16 what)
-{
-	GH.handleElementDeActivate(this, what);
 }
 
 void CIntObject::click(MouseButton btn, tribool down, bool previousState)
@@ -167,21 +189,21 @@ void CIntObject::printAtMiddleWBLoc( const std::string & text, int x, int y, EFo
 
 void CIntObject::addUsedEvents(ui16 newActions)
 {
-	if (active_m)
-		activate(~used & newActions);
+	if (isActive())
+		activateEvents(~used & newActions);
 	used |= newActions;
 }
 
 void CIntObject::removeUsedEvents(ui16 newActions)
 {
-	if (active_m)
-		deactivate(used & newActions);
+	if (isActive())
+		deactivateEvents(used & newActions);
 	used &= ~newActions;
 }
 
 void CIntObject::disable()
 {
-	if(active)
+	if(isActive())
 		deactivate();
 
 	recActions = DISPOSE;
@@ -189,7 +211,7 @@ void CIntObject::disable()
 
 void CIntObject::enable()
 {
-	if(!active_m && (!parent_m || parent_m->active))
+	if(!isActive() && (!parent_m || parent_m->isActive()))
 	{
 		activate();
 		redraw();
@@ -246,9 +268,9 @@ void CIntObject::addChild(CIntObject * child, bool adjustPosition)
 	if(adjustPosition)
 		child->moveBy(pos.topLeft(), adjustPosition);
 
-	if (!active && child->active)
+	if (!isActive() && child->isActive())
 		child->deactivate();
-	if (active && !child->active)
+	if (isActive()&& !child->isActive())
 		child->activate();
 }
 
@@ -273,7 +295,7 @@ void CIntObject::redraw()
 {
 	//currently most of calls come from active objects so this check won't affect them
 	//it should fix glitches when called by inactive elements located below active window
-	if (active)
+	if (isActive())
 	{
 		if (parent_m && (type & REDRAW_PARENT))
 		{
@@ -286,6 +308,11 @@ void CIntObject::redraw()
 				showAll(screen);
 		}
 	}
+}
+
+bool CIntObject::isInside(const Point & position)
+{
+	return pos.isInside(position);
 }
 
 void CIntObject::onScreenResize()
@@ -330,23 +357,13 @@ CKeyShortcut::CKeyShortcut(EShortcut key)
 void CKeyShortcut::keyPressed(EShortcut key)
 {
 	if( assignedKey == key && assignedKey != EShortcut::NONE)
-	{
-		bool prev = mouseState(MouseButton::LEFT);
-		updateMouseState(MouseButton::LEFT, true);
-		clickLeft(true, prev);
-
-	}
+		clickLeft(true, false);
 }
 
 void CKeyShortcut::keyReleased(EShortcut key)
 {
 	if( assignedKey == key && assignedKey != EShortcut::NONE)
-	{
-		bool prev = mouseState(MouseButton::LEFT);
-		updateMouseState(MouseButton::LEFT, false);
-		clickLeft(false, prev);
-
-	}
+		clickLeft(false, true);
 }
 
 WindowBase::WindowBase(int used_, Point pos_)

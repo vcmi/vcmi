@@ -35,7 +35,7 @@ std::shared_ptr<CIntObject> CObjectList::createItem(size_t index)
 
 	item->recActions = defActions;
 	addChild(item.get());
-	if (active)
+	if (isActive())
 		item->activate();
 	return item;
 }
@@ -70,7 +70,7 @@ void CTabbedInt::reset()
 	activeTab = createItem(activeID);
 	activeTab->moveTo(pos.topLeft());
 
-	if(active)
+	if(isActive())
 		redraw();
 }
 
@@ -107,7 +107,7 @@ void CListBox::updatePositions()
 		(elem)->moveTo(itemPos);
 		itemPos += itemOffset;
 	}
-	if (active)
+	if (isActive())
 	{
 		redraw();
 		if (slider)

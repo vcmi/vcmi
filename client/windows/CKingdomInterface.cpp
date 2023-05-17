@@ -972,6 +972,6 @@ std::shared_ptr<CIntObject> CHeroItem::onTabSelected(size_t index)
 void CHeroItem::onArtChange(int tabIndex)
 {
 	//redraw item after background change
-	if(active)
+	if(isActive())
 		redraw();
 }

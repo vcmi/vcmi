@@ -16,6 +16,7 @@
 struct SDL_Surface;
 class CGuiHandler;
 class CPicture;
+class InterfaceEventDispatcher;
 enum class EShortcut;
 
 using boost::logic::tribool;
@@ -26,14 +27,14 @@ class IActivatable
 public:
 	virtual void activate()=0;
 	virtual void deactivate()=0;
-	virtual ~IActivatable(){};
+	virtual ~IActivatable() = default;
 };
 
 class IUpdateable
 {
 public:
 	virtual void update()=0;
-	virtual ~IUpdateable(){};
+	virtual ~IUpdateable() = default;
 };
 
 // Defines a show method
@@ -46,36 +47,81 @@ public:
 	{
 		show(to);
 	}
-	virtual ~IShowable(){};
+	virtual ~IShowable() = default;
 };
 
 class IShowActivatable : public IShowable, public IActivatable
 {
 public:
-	//redraw parent flag - this int may be semi-transparent and require redraw of parent window
-	enum {REDRAW_PARENT=8};
-	int type; //bin flags using etype
-	IShowActivatable();
-	virtual ~IShowActivatable(){};
+	virtual void onScreenResize() = 0;
+	virtual ~IShowActivatable() = default;
+};
+
+class IEventsReceiver
+{
+public:
+	virtual void keyPressed(EShortcut key) = 0;
+	virtual void keyReleased(EShortcut key) = 0;
+	virtual bool captureThisKey(EShortcut key) = 0;
+
+	virtual void click(MouseButton btn, tribool down, bool previousState) = 0;
+	virtual void clickLeft(tribool down, bool previousState) = 0;
+	virtual void clickRight(tribool down, bool previousState) = 0;
+	virtual void clickMiddle(tribool down, bool previousState) = 0;
+
+	virtual void textInputed(const std::string & enteredText) = 0;
+	virtual void textEdited(const std::string & enteredText) = 0;
+
+	virtual void tick(uint32_t msPassed) = 0;
+	virtual void wheelScrolled(bool down, bool in) = 0;
+	virtual void mouseMoved(const Point & cursorPosition) = 0;
+	virtual void hover(bool on) = 0;
+	virtual void onDoubleClick() = 0;
+
+	virtual ~IEventsReceiver() = default;
+};
+
+class AEventsReceiver : public IEventsReceiver
+{
+	friend class InterfaceEventDispatcher;
+
+	ui16 activeState;
+	std::map<MouseButton, bool> currentMouseState;
+
+	bool hoveredState; //for determining if object is hovered
+	bool strongInterestState; //if true - report all mouse movements, if not - only when hovered
+
+protected:
+	void setMoveEventStrongInterest(bool on);
+
+	void activateEvents(ui16 what);
+	void deactivateEvents(ui16 what);
+
+public:
+	AEventsReceiver();
+
+	// These are the arguments that can be used to determine what kind of input the CIntObject will receive
+	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, MCLICK=1024, ALL=0xffff};
+
+	virtual bool isInside(const Point & position) = 0;
+	bool isHovered() const;
+	bool isActive() const;
+	bool isActive(int flags) const;
+	bool isMouseButtonPressed(MouseButton btn) const;
 };
 
 // Base UI element
-class CIntObject : public IShowActivatable //interface object
+class CIntObject : public IShowActivatable, public AEventsReceiver //interface object
 {
 	ui16 used;//change via addUsed() or delUsed
 
-	std::map<MouseButton, bool> currentMouseState;
-
 	//non-const versions of fields to allow changing them in CIntObject
 	CIntObject *parent_m; //parent object
-	ui16 active_m;
-
-protected:
-	//activate or deactivate specific action (LCLICK, RCLICK...)
-	void activate(ui16 what);
-	void deactivate(ui16 what);
 
 public:
+	//redraw parent flag - this int may be semi-transparent and require redraw of parent window
+	enum {REDRAW_PARENT=8};
+	int type; //bin flags using etype
 /*
  * Functions and fields that supposed to be private but are not for now.
  * Don't use them unless you really know what they are for
@@ -96,43 +142,35 @@ public:
 	CIntObject(int used=0, Point offset=Point());
 	virtual ~CIntObject();
 
-	void updateMouseState(MouseButton btn, bool state) { currentMouseState[btn] = state; }
-	bool mouseState(MouseButton btn) const { return currentMouseState.count(btn) ? currentMouseState.at(btn) : false; }
-
-	virtual void click(MouseButton btn, tribool down, bool previousState);
-	virtual void clickLeft(tribool down, bool previousState) {}
-	virtual void clickRight(tribool down, bool previousState) {}
-	virtual void clickMiddle(tribool down, bool previousState) {}
+	void click(MouseButton btn, tribool down, bool previousState) final;
+	void clickLeft(tribool down, bool previousState) override {}
+	void clickRight(tribool down, bool previousState) override {}
+	void clickMiddle(tribool down, bool previousState) override {}
 
 	//hover handling
-	/*const*/ bool hovered;  //for determining if object is hovered
-	virtual void hover (bool on){}
+	void hover (bool on) override{}
 
 	//keyboard handling
 	bool captureAllKeys; //if true, only this object should get info about pressed keys
-	virtual void keyPressed(EShortcut key){}
-	virtual void keyReleased(EShortcut key){}
-	virtual bool captureThisKey(EShortcut key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
+	void keyPressed(EShortcut key) override {}
+	void keyReleased(EShortcut key) override {}
+	bool captureThisKey(EShortcut key) override; //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
 
-	virtual void textInputed(const std::string & enteredText){};
-	virtual void textEdited(const std::string & enteredText){};
+	void textInputed(const std::string & enteredText) override{};
+	void textEdited(const std::string & enteredText) override{};
 
 	//mouse movement handling
-	bool strongInterest; //if true - report all mouse movements, if not - only when hovered
-	virtual void mouseMoved (const Point & cursorPosition){}
+	void mouseMoved (const Point & cursorPosition) override{}
 
 	//time handling
-	virtual void tick(uint32_t msPassed){}
+	void tick(uint32_t msPassed) override {}
 
 	//mouse wheel
-	virtual void wheelScrolled(bool down, bool in){}
+	void wheelScrolled(bool down, bool in) override {}
 
 	//double click
-	virtual void onDoubleClick(){}
+	void onDoubleClick() override {}
 
-	// These are the arguments that can be used to determine what kind of input the CIntObject will receive
-	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, MCLICK=1024, ALL=0xffff};
-	const ui16 & active;
 	void addUsedEvents(ui16 newActions);
 	void removeUsedEvents(ui16 newActions);
 
@@ -162,7 +200,9 @@ public:
 
 	/// called only for windows whenever screen size changes
 	/// default behavior is to re-center, can be overriden
-	virtual void onScreenResize();
+	void onScreenResize() override;
+
+	bool isInside(const Point & position) override;
 
 	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
 	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center

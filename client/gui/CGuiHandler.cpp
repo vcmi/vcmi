@@ -16,6 +16,7 @@
 #include "ShortcutHandler.h"
 #include "FramerateManager.h"
 #include "WindowHandler.h"
+#include "InterfaceEventDispatcher.h"
 
 #include "../CGameInfo.h"
 #include "../render/Colors.h"
@@ -77,29 +78,9 @@ SSetCaptureState::~SSetCaptureState()
 	GH.defActionsDef = prevActions;
 }
 
-static inline void
-processList(const ui16 mask, const ui16 flag, std::list<CIntObject*> *lst, std::function<void (std::list<CIntObject*> *)> cb)
-{
-	if (mask & flag)
-		cb(lst);
-}
-
-void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb)
-{
-	processList(CIntObject::LCLICK,activityFlag,&lclickable,cb);
-	processList(CIntObject::RCLICK,activityFlag,&rclickable,cb);
-	processList(CIntObject::MCLICK,activityFlag,&mclickable,cb);
-	processList(CIntObject::HOVER,activityFlag,&hoverable,cb);
-	processList(CIntObject::MOVE,activityFlag,&motioninterested,cb);
-	processList(CIntObject::KEYBOARD,activityFlag,&keyinterested,cb);
-	processList(CIntObject::TIME,activityFlag,&timeinterested,cb);
-	processList(CIntObject::WHEEL,activityFlag,&wheelInterested,cb);
-	processList(CIntObject::DOUBLECLICK,activityFlag,&doubleClickInterested,cb);
-	processList(CIntObject::TEXTINPUT,activityFlag,&textInterested,cb);
-}
-
 void CGuiHandler::init()
 {
+	eventDispatcherInstance = std::make_unique<InterfaceEventDispatcher>();
 	windowHandlerInstance = std::make_unique<WindowHandler>();
 	screenHandlerInstance = std::make_unique<ScreenHandler>();
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
@@ -109,33 +90,9 @@ void CGuiHandler::init()
 	pointerSpeedMultiplier = settings["general"]["relativePointerSpeedMultiplier"].Float();
 }
 
-void CGuiHandler::handleElementActivate(CIntObject * elem, ui16 activityFlag)
-{
-	processLists(activityFlag,[&](std::list<CIntObject*> * lst){
-		lst->push_front(elem);
-	});
-	elem->active_m |= activityFlag;
-}
-
-void CGuiHandler::handleElementDeActivate(CIntObject * elem, ui16 activityFlag)
-{
-	processLists(activityFlag,[&](std::list<CIntObject*> * lst){
-		auto hlp = std::find(lst->begin(),lst->end(),elem);
-		assert(hlp != lst->end());
-		lst->erase(hlp);
-	});
-	elem->active_m &= ~activityFlag;
-}
-
 void CGuiHandler::updateTime()
 {
-	int ms = framerateManager().getElapsedMilliseconds();
-	std::list<CIntObject*> hlp = timeinterested;
-	for (auto & elem : hlp)
-	{
-		if(!vstd::contains(timeinterested,elem)) continue;
-		(elem)->tick(ms);
-	}
+	eventDispatcher().updateTime(framerateManager().getElapsedMilliseconds());
 }
 
 void CGuiHandler::handleEvents()
@@ -365,18 +322,7 @@ void CGuiHandler::handleEventKeyDown(SDL_Event & current)
 
 	auto shortcutsVector = shortcutsHandler().translateKeycode(key.keysym.sym);
 
-	bool keysCaptured = false;
-	for(auto i = keyinterested.begin(); i != keyinterested.end() && continueEventHandling; i++)
-		for(EShortcut shortcut : shortcutsVector)
-			if((*i)->captureThisKey(shortcut))
-				keysCaptured = true;
-
-	std::list<CIntObject *> miCopy = keyinterested;
-
-	for(auto i = miCopy.begin(); i != miCopy.end() && continueEventHandling; i++)
-		for(EShortcut shortcut : shortcutsVector)
-			if(vstd::contains(keyinterested, *i) && (!keysCaptured || (*i)->captureThisKey(shortcut)))
-					(**i).keyPressed(shortcut);
+	eventDispatcher().dispatchShortcutPressed(shortcutsVector);
 }
 
 void CGuiHandler::handleEventKeyUp(SDL_Event & current)
@@ -390,24 +336,12 @@ void CGuiHandler::handleEventKeyUp(SDL_Event & current)
 
 	auto shortcutsVector = shortcutsHandler().translateKeycode(key.keysym.sym);
 
-	bool keysCaptured = false;
-
-	for(auto i = keyinterested.begin(); i != keyinterested.end() && continueEventHandling; i++)
-		for(EShortcut shortcut : shortcutsVector)
-			if((*i)->captureThisKey(shortcut))
-				keysCaptured = true;
-
-	std::list<CIntObject *> miCopy = keyinterested;
-
-	for(auto i = miCopy.begin(); i != miCopy.end() && continueEventHandling; i++)
-		for(EShortcut shortcut : shortcutsVector)
-			if(vstd::contains(keyinterested, *i) && (!keysCaptured || (*i)->captureThisKey(shortcut)))
-				(**i).keyReleased(shortcut);
+	eventDispatcher().dispatchShortcutReleased(shortcutsVector);
 }
 
 void CGuiHandler::handleEventMouseMotion(SDL_Event & current)
 {
-	handleMouseMotion(current);
+	eventDispatcher().dispatchMouseMoved(Point(current.motion.x, current.motion.y));
 }
 
 void CGuiHandler::handleEventMouseButtonDown(SDL_Event & current)
@@ -415,68 +349,34 @@ void CGuiHandler::handleEventMouseButtonDown(SDL_Event & current)
 	switch(current.button.button)
 	{
 		case SDL_BUTTON_LEFT:
-		{
-			auto doubleClicked = false;
-			if(lastClick == getCursorPosition() && (SDL_GetTicks() - lastClickTime) < 300)
-			{
-				std::list<CIntObject*> hlp = doubleClickInterested;
-				for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
-				{
-					if(!vstd::contains(doubleClickInterested, *i)) continue;
-					if((*i)->pos.isInside(current.motion.x, current.motion.y))
-					{
-						(*i)->onDoubleClick();
-						doubleClicked = true;
-					}
-				}
-
-			}
-
-			lastClick = current.motion;
-			lastClickTime = SDL_GetTicks();
-
-			if(!doubleClicked)
-				handleMouseButtonClick(lclickable, MouseButton::LEFT, true);
+			eventDispatcher().dispatchMouseButtonPressed(MouseButton::LEFT, Point(current.button.x, current.button.y));
 			break;
-		}
 		case SDL_BUTTON_RIGHT:
-			handleMouseButtonClick(rclickable, MouseButton::RIGHT, true);
+			eventDispatcher().dispatchMouseButtonPressed(MouseButton::RIGHT, Point(current.button.x, current.button.y));
 			break;
 		case SDL_BUTTON_MIDDLE:
-			handleMouseButtonClick(mclickable, MouseButton::MIDDLE, true);
-			break;
-		default:
+			eventDispatcher().dispatchMouseButtonPressed(MouseButton::MIDDLE, Point(current.button.x, current.button.y));
 			break;
 	}
 }
 
 void CGuiHandler::handleEventMouseWheel(SDL_Event & current)
 {
-	std::list<CIntObject*> hlp = wheelInterested;
-	for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
-	{
-		if(!vstd::contains(wheelInterested,*i)) continue;
-		// SDL doesn't have the proper values for mouse positions on SDL_MOUSEWHEEL, refetch them
-		int x = 0, y = 0;
-		SDL_GetMouseState(&x, &y);
-		(*i)->wheelScrolled(current.wheel.y < 0, (*i)->pos.isInside(x, y));
-	}
+	// SDL doesn't have the proper values for mouse positions on SDL_MOUSEWHEEL, refetch them
+	int x = 0, y = 0;
+	SDL_GetMouseState(&x, &y);
+
+	eventDispatcher().dispatchMouseScrolled(Point(current.wheel.x, current.wheel.y), Point(x, y));
 }
 
 void CGuiHandler::handleEventTextInput(SDL_Event & current)
 {
-	for(auto it : textInterested)
-	{
-		it->textInputed(current.text.text);
-	}
+	eventDispatcher().dispatchTextInput(current.text.text);
 }
 
 void CGuiHandler::handleEventTextEditing(SDL_Event & current)
 {
-	for(auto it : textInterested)
-	{
-		it->textEdited(current.edit.text);
-	}
+	eventDispatcher().dispatchTextEditing(current.text.text);
 }
 
 void CGuiHandler::handleEventMouseButtonUp(SDL_Event & current)
@@ -486,13 +386,13 @@ void CGuiHandler::handleEventMouseButtonUp(SDL_Event & current)
 		switch(current.button.button)
 		{
 			case SDL_BUTTON_LEFT:
-				handleMouseButtonClick(lclickable, MouseButton::LEFT, false);
+				eventDispatcher().dispatchMouseButtonReleased(MouseButton::LEFT, Point(current.button.x, current.button.y));
 				break;
 			case SDL_BUTTON_RIGHT:
-				handleMouseButtonClick(rclickable, MouseButton::RIGHT, false);
+				eventDispatcher().dispatchMouseButtonReleased(MouseButton::RIGHT, Point(current.button.x, current.button.y));
 				break;
 			case SDL_BUTTON_MIDDLE:
-				handleMouseButtonClick(mclickable, MouseButton::MIDDLE, false);
+				eventDispatcher().dispatchMouseButtonReleased(MouseButton::MIDDLE, Point(current.button.x, current.button.y));
 				break;
 		}
 	}
@@ -525,8 +425,9 @@ void CGuiHandler::handleEventFingerDown(SDL_Event & current)
 	else if(fingerCount == 2)
 	{
 		convertTouchToMouse(&current);
-		handleMouseMotion(current);
-		handleMouseButtonClick(rclickable, MouseButton::RIGHT, true);
+
+		eventDispatcher().dispatchMouseMoved(Point(current.button.x, current.button.y));
+		eventDispatcher().dispatchMouseButtonPressed(MouseButton::RIGHT, Point(current.button.x, current.button.y));
 	}
 #endif //VCMI_IOS
 }
@@ -550,76 +451,11 @@ void CGuiHandler::handleEventFingerUp(SDL_Event & current)
 	else if(multifinger)
 	{
 		convertTouchToMouse(&current);
-		handleMouseMotion(current);
-		handleMouseButtonClick(rclickable, MouseButton::RIGHT, false);
+		eventDispatcher().dispatchMouseMoved(Point(current.button.x, current.button.y));
+		eventDispatcher().dispatchMouseButtonReleased(MouseButton::RIGHT, Point(current.button.x, current.button.y));
 		multifinger = fingerCount != 0;
 	}
 #endif //VCMI_IOS
-}
-
-void CGuiHandler::handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed)
-{
-	auto hlp = interestedObjs;
-	for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
-	{
-		if(!vstd::contains(interestedObjs, *i)) continue;
-
-		auto prev = (*i)->mouseState(btn);
-		if(!isPressed)
-			(*i)->updateMouseState(btn, isPressed);
-		if((*i)->pos.isInside(getCursorPosition()))
-		{
-			if(isPressed)
-				(*i)->updateMouseState(btn, isPressed);
-			(*i)->click(btn, isPressed, prev);
-		}
-		else if(!isPressed)
-			(*i)->click(btn, boost::logic::indeterminate, prev);
-	}
-}
-
-void CGuiHandler::handleMouseMotion(const SDL_Event & current)
-{
-	//sending active, hovered hoverable objects hover() call
-	std::vector<CIntObject*> hlp;
-
-	auto hoverableCopy = hoverable;
-	for(auto & elem : hoverableCopy)
-	{
-		if(elem->pos.isInside(getCursorPosition()))
-		{
-			if (!(elem)->hovered)
-				hlp.push_back((elem));
-		}
-		else if ((elem)->hovered)
-		{
-			(elem)->hover(false);
-			(elem)->hovered = false;
-		}
-	}
-
-	for(auto & elem : hlp)
-	{
-		elem->hover(true);
-		elem->hovered = true;
-	}
-
-	// do not send motion events for events outside our window
-	//if (current.motion.windowID == 0)
-		handleMoveInterested(current.motion);
-}
-
-void CGuiHandler::handleMoveInterested(const SDL_MouseMotionEvent & motion)
-{
-	//sending active, MotionInterested objects mouseMoved() call
-	std::list<CIntObject*> miCopy = motioninterested;
-	for(auto & elem : miCopy)
-	{
-		if(elem->strongInterest || Rect::createAround(elem->pos, 1).isInside( motion.x, motion.y)) //checking bounds including border fixes bug #2476
-		{
-			(elem)->mouseMoved(Point(motion.x, motion.y));
-		}
-	}
 }
 
 void CGuiHandler::renderFrame()
@@ -779,6 +615,11 @@ void CGuiHandler::pushUserEvent(EUserEvent usercode, void * userdata)
 IScreenHandler & CGuiHandler::screenHandler()
 {
 	return *screenHandlerInstance;
+}
+
+InterfaceEventDispatcher & CGuiHandler::eventDispatcher()
+{
+	return *eventDispatcherInstance;
 }
 
 WindowHandler & CGuiHandler::windows()

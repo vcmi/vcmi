@@ -316,8 +316,7 @@ CInfoBar::CInfoBar(const Point & position): CInfoBar(Rect(position.x, position.y
 
 void CInfoBar::setTimer(uint32_t msToTrigger)
 {
-	if (!(active & TIME))
-		addUsedEvents(TIME);
+	addUsedEvents(TIME);
 	timerCounter = msToTrigger;
 }
 

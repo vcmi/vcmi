@@ -30,6 +30,7 @@ set(client_SRCS
 	gui/CGuiHandler.cpp
 	gui/CIntObject.cpp
 	gui/CursorHandler.cpp
+	gui/InterfaceEventDispatcher.cpp
 	gui/InterfaceObjectConfigurable.cpp
 	gui/FramerateManager.cpp
 	gui/NotificationHandler.cpp
@@ -164,6 +165,7 @@ set(client_HEADERS
 	gui/CIntObject.h
 	gui/CursorHandler.h
 	gui/InterfaceObjectConfigurable.h
+	gui/InterfaceEventDispatcher.h
 	gui/FramerateManager.h
 	gui/MouseButton.h
 	gui/NotificationHandler.h

@@ -39,7 +39,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	owner(owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	strongInterest = true;
+	setMoveEventStrongInterest(true);
 
 	//preparing cells and hexes
 	cellBorder = IImage::createFromFile("CCELLGRD.BMP", EImageBlitMode::COLORKEY);

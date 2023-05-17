@@ -131,7 +131,7 @@ void CMinimap::moveAdvMapSelection()
 	int3 newLocation = pixelToTile(GH.getCursorPosition() - pos.topLeft());
 	adventureInt->centerOnTile(newLocation);
 
-	if (!(adventureInt->active & GENERAL))
+	if (!(adventureInt->isActive() & GENERAL))
 		GH.windows().totalRedraw(); //redraw this as well as inactive adventure map
 	else
 		redraw();//redraw only this
@@ -159,7 +159,7 @@ void CMinimap::hover(bool on)
 
 void CMinimap::mouseMoved(const Point & cursorPosition)
 {
-	if(mouseState(MouseButton::LEFT))
+	if(isMouseButtonPressed(MouseButton::LEFT))
 		moveAdvMapSelection();
 }
 

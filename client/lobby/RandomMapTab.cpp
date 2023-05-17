@@ -397,21 +397,16 @@ void TemplatesDropBox::ListItem::hover(bool on)
 	if(h && w)
 	{
 		if(w->getText().empty())
-		{
-			hovered = false;
 			h->visible = false;
-		}
 		else
-		{
 			h->visible = on;
-		}
 	}
 	redraw();
 }
 
 void TemplatesDropBox::ListItem::clickLeft(tribool down, bool previousState)
 {
-	if(down && hovered)
+	if(down && isHovered())
 	{
 		dropBox.setTemplate(item);
 	}
@@ -469,19 +464,14 @@ void TemplatesDropBox::sliderMove(int slidPos)
 	redraw();
 }
 
-void TemplatesDropBox::hover(bool on)
-{
-	hovered = on;
-}
-
 void TemplatesDropBox::clickLeft(tribool down, bool previousState)
 {
-	if(down && !hovered)
+	if(down && !isActive())
 	{
 		auto w = widget<CSlider>("slider");
 
 		// pop the interface only if the mouse is not clicking on the slider
-		if (!w || !w->mouseState(MouseButton::LEFT))
+		if (!w || !w->isMouseButtonPressed(MouseButton::LEFT))
 		{
 			assert(GH.windows().isTopWindow(this));
 			GH.windows().popWindows(1);

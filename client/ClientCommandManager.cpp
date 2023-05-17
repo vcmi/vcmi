@@ -493,9 +493,9 @@ void ClientCommandManager::printInfoAboutInterfaceObject(const CIntObject *obj, 
 	sbuffer << std::string(level, '\t');
 
 	sbuffer << typeid(*obj).name() << " *** ";
-	if (obj->active)
+	if (obj->isActive())
 	{
-#define PRINT(check, text) if (obj->active & CIntObject::check) sbuffer << text
+#define PRINT(check, text) if (obj->isActive(CIntObject::check)) sbuffer << text
 		PRINT(LCLICK, 'L');
 		PRINT(RCLICK, 'R');
 		PRINT(HOVER, 'H');

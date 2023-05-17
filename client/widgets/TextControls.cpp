@@ -446,7 +446,7 @@ void CGStatusBar::clickLeft(tribool down, bool previousState)
 {
 	if(!down)
 	{
-		if(LOCPLINT && LOCPLINT->cingconsole->active)
+		if(LOCPLINT && LOCPLINT->cingconsole->isActive())
 			LOCPLINT->cingconsole->startEnteringText();
 	}
 }
@@ -749,7 +749,7 @@ void CFocusable::moveFocus()
 		if(i == focusables.end())
 			i = focusables.begin();
 
-		if((*i)->active)
+		if((*i)->isActive())
 		{
 			(*i)->giveFocus();
 			break;

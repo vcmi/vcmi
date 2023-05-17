@@ -211,7 +211,7 @@ void CInGameConsole::textEdited(const std::string & inputtedText)
 
 void CInGameConsole::startEnteringText()
 {
-	if (!active)
+	if (!isActive())
 		return;
 
 	if (captureAllKeys)

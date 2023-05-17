@@ -31,6 +31,7 @@ class IShowActivatable;
 class IShowable;
 class IScreenHandler;
 class WindowHandler;
+class InterfaceEventDispatcher;
 
 // TODO: event handling need refactoring
 enum class EUserEvent
@@ -48,8 +49,7 @@ enum class EUserEvent
 // Handles GUI logic and drawing
 class CGuiHandler
 {
-public:
-
+	friend class InterfaceEventDispatcher;
 
 private:
 	/// Fake no-op version status bar, for use in windows that have no status bar
@@ -65,28 +65,12 @@ private:
 	std::unique_ptr<WindowHandler> windowHandlerInstance;
 
 	std::atomic<bool> continueEventHandling;
-	using CIntObjectList = std::list<CIntObject *>;
-
-	//active GUI elements (listening for events
-	CIntObjectList lclickable;
-	CIntObjectList rclickable;
-	CIntObjectList mclickable;
-	CIntObjectList hoverable;
-	CIntObjectList keyinterested;
-	CIntObjectList motioninterested;
-	CIntObjectList timeinterested;
-	CIntObjectList wheelInterested;
-	CIntObjectList doubleClickInterested;
-	CIntObjectList textInterested;
 
 	std::unique_ptr<IScreenHandler> screenHandlerInstance;
 	std::unique_ptr<FramerateManager> framerateManagerInstance;
+	std::unique_ptr<InterfaceEventDispatcher> eventDispatcherInstance;
 
-	void handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed);
-	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
 	void handleCurrentEvent(SDL_Event &current);
-	void handleMouseMotion(const SDL_Event & current);
-	void handleMoveInterested( const SDL_MouseMotionEvent & motion );
 	void convertTouchToMouse(SDL_Event * current);
 	void fakeMoveCursor(float dx, float dy);
 	void fakeMouseButtonEventRelativeMode(bool down, bool right);
@@ -104,15 +88,13 @@ private:
 	void handleEventFingerUp(SDL_Event & current);
 
 public:
-	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
-	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);
-public:
 
 	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
 
 	ShortcutHandler & shortcutsHandler();
 	FramerateManager & framerateManager();
+	InterfaceEventDispatcher & eventDispatcher();
 
 	/// Returns current logical screen dimensions
 	/// May not match size of window if user has UI scaling different from 100%
@@ -166,7 +148,7 @@ public:
 	/// called whenever user selects different resolution, requiring to center/resize all windows
 	void onScreenResize();
 
-	void updateTime(); //handles timeInterested
+	void updateTime();
 	void handleEvents(); //takes events from queue and calls interested objects
 	void fakeMouseMove();
 	void breakEventHandling(); //current event won't be propagated anymore
