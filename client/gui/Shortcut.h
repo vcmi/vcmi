@@ -107,6 +107,7 @@ enum class EShortcut
 	ADVENTURE_EXIT_WORLD_VIEW,
 	ADVENTURE_ZOOM_IN,
 	ADVENTURE_ZOOM_OUT,
+	ADVENTURE_ZOOM_RESET,
 
 	// Move hero one tile in specified direction. Bound to cursors & numpad buttons
 	ADVENTURE_MOVE_HERO_SW,

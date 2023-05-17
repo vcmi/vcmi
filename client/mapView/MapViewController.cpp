@@ -91,7 +91,7 @@ void MapViewController::modifyTileSize(int stepsChange)
 	// try to determine current zooming level and change it by requested number of steps
 	double currentZoomFactor = model->getSingleTileSize().x / 32.0;
 	double currentZoomSteps = std::round(std::log(currentZoomFactor) / std::log(1.1));
-	double newZoomSteps = currentZoomSteps + stepsChange;
+	double newZoomSteps = stepsChange != 0 ? currentZoomSteps + stepsChange : stepsChange;
 	double newZoomFactor = std::pow(1.1, newZoomSteps);
 
 	Point currentZoom = model->getSingleTileSize();
