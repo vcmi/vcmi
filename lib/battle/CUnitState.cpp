@@ -591,6 +591,24 @@ int32_t CUnitState::getInitiative(int turn) const
 	return valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)));
 }
 
+uint8_t CUnitState::getRangedFullDamageDistance() const
+{
+	if(!isShooter())
+		return 0;
+
+	uint8_t rangedFullDamageDistance = GameConstants::BATTLE_PENALTY_DISTANCE;
+
+	// overwrite full ranged damage distance with the value set in Additional info field of LIMITED_SHOOTING_RANGE bonus
+	if(this->hasBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE)))
+	{
+		auto bonus = this->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
+		if(bonus != nullptr && bonus->additionalInfo != CAddInfo::NONE)
+			rangedFullDamageDistance = bonus->additionalInfo[0];
+	}
+
+	return rangedFullDamageDistance;
+}
+
 bool CUnitState::canMove(int turn) const
 {
 	return alive() && !hasBonus(Selector::type()(BonusType::NOT_ACTIVE).And(Selector::turns(turn))); //eg. Ammo Cart or blinded creature

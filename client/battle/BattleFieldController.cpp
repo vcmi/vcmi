@@ -402,12 +402,7 @@ std::vector<BattleHex> BattleFieldController::getRangedFullDamageHexes()
 	if(!(hoveredStack && hoveredStack->isShooter()))
 		return rangedFullDamageHexes;
 
-	auto rangedFullDamageDistance = GameConstants::BATTLE_PENALTY_DISTANCE;
-
-	// overwrite full ranged damage distance from Additional info field of LIMITED_SHOOTING_RANGE bonus
-	auto bonus = hoveredStack->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
-	if(bonus != nullptr && bonus->additionalInfo != CAddInfo::NONE)
-		rangedFullDamageDistance = bonus->additionalInfo[0];
+	auto rangedFullDamageDistance = hoveredStack->getRangedFullDamageDistance();
 
 	// get only battlefield hexes that are in full range damage distance
 	std::set<BattleHex> fullRangeLimit; 
@@ -428,15 +423,11 @@ std::vector<BattleHex> BattleFieldController::getRangedFullDamageLimitHexes(std:
 	// if not a hovered arcer unit -> return
 	auto hoveredHex = getHoveredHex();
 	const CStack * hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+
 	if(!(hoveredStack && hoveredStack->isShooter()))
 		return rangedFullDamageLimitHexes;
 
-	auto rangedFullDamageDistance = GameConstants::BATTLE_PENALTY_DISTANCE;
-
-	// overwrite full ranged damage distance from Additional info field of LIMITED_SHOOTING_RANGE bonus
-	auto bonus = hoveredStack->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
-	if(bonus != nullptr && bonus->additionalInfo != CAddInfo::NONE)
-		rangedFullDamageDistance = bonus->additionalInfo[0];
+	auto rangedFullDamageDistance = hoveredStack->getRangedFullDamageDistance();
 
 	// from ranged full damage hexes get only the ones at the limit
 	for(auto & hex : rangedFullDamageHexes)

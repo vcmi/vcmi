@@ -221,6 +221,7 @@ public:
 	BattleHex getPosition() const override;
 	void setPosition(BattleHex hex) override;
 	int32_t getInitiative(int turn = 0) const override;
+	uint8_t getRangedFullDamageDistance() const;
 
 	bool canMove(int turn = 0) const override;
 	bool defended(int turn = 0) const override;
