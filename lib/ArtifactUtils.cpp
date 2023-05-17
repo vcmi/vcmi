@@ -1,5 +1,5 @@
 /*
- * CArtHandler.cpp, part of VCMI engine
+ * ArtifactUtils.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,11 +8,10 @@
  *
  */
 
-#include "StdInc.h"
-#include "CArtHandler.h"
-
-#include "GameSettings.h"
 #include "ArtifactUtils.h"
+
+#include "CArtHandler.h"
+#include "GameSettings.h"
 
 #include "mapping/CMap.h"
 

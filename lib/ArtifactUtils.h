@@ -1,5 +1,5 @@
 /*
- * CArtHandler.h, part of VCMI engine
+ * ArtifactUtils.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include <vector>
+#include "StdInc.h"
+
 #include "GameConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

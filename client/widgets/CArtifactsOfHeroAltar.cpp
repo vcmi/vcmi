@@ -82,7 +82,7 @@ void CArtifactsOfHeroAltar::pickedArtMoveToAltar(const ArtifactPosition & slot)
 {
 	if(ArtifactUtils::isSlotBackpack(slot) || ArtifactUtils::isSlotEquipment(slot) || slot == ArtifactPosition::TRANSITION_POS)
 	{
-		assert(!curHero->getSlot(pickedArtFromSlot)->getArt());
+		assert(curHero->getSlot(slot)->getArt());
 		LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero, slot), ArtifactLocation(curHero, pickedArtFromSlot));
 		pickedArtFromSlot = ArtifactPosition::PRE_FIRST;
 	}

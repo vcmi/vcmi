@@ -10,6 +10,7 @@
 
 #include "mapcontroller.h"
 
+#include "../lib/ArtifactUtils.h"
 #include "../lib/GameConstants.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
@@ -185,7 +186,7 @@ void MapController::repairMap()
 						out.push_back(spell->id);
 					}
 				}
-				auto a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
+				auto a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
 				art->storedArtifact = a;
 			}
 			else

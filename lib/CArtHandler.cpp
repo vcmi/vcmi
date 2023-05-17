@@ -933,7 +933,7 @@ void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance * art, const 
 void CCombinedArtifactInstance::removeFrom(ArtifactLocation al)
 {
 	CArtifactInstance::removeFrom(al);
-	for(auto & part : constituentsInfo)
+	for (auto& part : constituentsInfo)
 	{
 		if(part.slot != ArtifactPosition::PRE_FIRST)
 			part.slot = ArtifactPosition::PRE_FIRST;
