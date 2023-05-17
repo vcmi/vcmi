@@ -15,6 +15,7 @@
 #include "../filesystem/COutputStream.h"
 #include "../JsonDetail.h"
 #include "CMap.h"
+#include "../ArtifactUtils.h"
 #include "../CModHandler.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
@@ -1204,7 +1205,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 			artID = ArtifactID(art->subID);
 		}
 
-		art->storedArtifact = CArtifactInstance::createArtifact(owner->map, artID, spellID);
+		art->storedArtifact = ArtifactUtils::createArtifact(owner->map, artID, spellID);
 	}
 
 	if(auto * hero = dynamic_cast<CGHeroInstance *>(instance))

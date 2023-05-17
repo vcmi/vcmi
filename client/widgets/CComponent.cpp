@@ -26,6 +26,7 @@
 #include "../widgets/TextControls.h"
 #include "../CGameInfo.h"
 
+#include "../../lib/ArtifactUtils.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CCreatureHandler.h"
@@ -171,11 +172,11 @@ std::string CComponent::getDescription()
 		std::unique_ptr<CArtifactInstance> art;
 		if (artID != ArtifactID::SPELL_SCROLL)
 		{
-			art.reset(CArtifactInstance::createNewArtifactInstance(artID));
+			art.reset(ArtifactUtils::createNewArtifactInstance(artID));
 		}
 		else
 		{
-			art.reset(CArtifactInstance::createScroll(SpellID(val)));
+			art.reset(ArtifactUtils::createScroll(SpellID(val)));
 		}
 		return art->getDescription();
 	}

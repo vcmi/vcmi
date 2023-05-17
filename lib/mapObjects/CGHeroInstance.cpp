@@ -16,6 +16,7 @@
 
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
+#include "../ArtifactUtils.h"
 #include "../CHeroHandler.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
@@ -279,10 +280,10 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 		spells -= SpellID::PRESET;
 
 	if(!getArt(ArtifactPosition::MACH4) && !getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook) //no catapult means we haven't read pre-existent set -> use default rules for spellbook
-		putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(ArtifactID::SPELLBOOK));
+		putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createNewArtifactInstance(ArtifactID::SPELLBOOK));
 
 	if(!getArt(ArtifactPosition::MACH4))
-		putArtifact(ArtifactPosition::MACH4, CArtifactInstance::createNewArtifactInstance(ArtifactID::CATAPULT)); //everyone has a catapult
+		putArtifact(ArtifactPosition::MACH4, ArtifactUtils::createNewArtifactInstance(ArtifactID::CATAPULT)); //everyone has a catapult
 
 	if(portrait < 0 || portrait == 255)
 		portrait = type->imageIndex;
@@ -388,7 +389,7 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 				ArtifactPosition slot = art->possibleSlots.at(ArtBearer::HERO).front();
 
 				if(!getArt(slot))
-					putArtifact(slot, CArtifactInstance::createNewArtifactInstance(aid));
+					putArtifact(slot, ArtifactUtils::createNewArtifactInstance(aid));
 				else
 					logGlobal->warn("Hero %s already has artifact at %d, omitting giving artifact %d", getNameTranslated(), slot.toEnum(), aid.toEnum());
 			}

@@ -17,6 +17,7 @@
 #include "ConnectionsPlacer.h"
 #include "RmgMap.h"
 #include "TileInfo.h"
+#include "../ArtifactUtils.h"
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "../CCreatureHandler.h"
@@ -204,7 +205,7 @@ void TreasurePlacer::addAllPossibleObjects()
 					out.push_back(spell->id);
 				}
 			}
-			auto * a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, generator.rand));
+			auto * a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, generator.rand));
 			obj->storedArtifact = a;
 			return obj;
 		};

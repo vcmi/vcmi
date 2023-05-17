@@ -45,6 +45,7 @@
 #include "../../CCallback.h"
 
 #include "../lib/mapObjects/CGHeroInstance.h"
+#include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CBuildingHandler.h"
 #include "../lib/CConfigHandler.h"

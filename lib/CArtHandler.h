@@ -141,14 +141,12 @@ class DLL_LINKAGE CArtifactInstance : public CBonusSystemNode
 {
 protected:
 	void init();
-	CArtifactInstance(CArtifact *Art);
 public:
+	CArtifactInstance(CArtifact * Art);
 	CArtifactInstance();
 
 	ConstTransitivePtr<CArtifact> artType;
 	ArtifactInstanceID id;
-
-	//CArtifactInstance(int aid);
 
 	std::string nodeName() const override;
 	void deserializationFix();
@@ -175,25 +173,12 @@ public:
 		h & id;
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
-
-	static CArtifactInstance * createScroll(const SpellID & sid);
-	static CArtifactInstance *createNewArtifactInstance(CArtifact *Art);
-	static CArtifactInstance * createNewArtifactInstance(const ArtifactID & aid);
-
-	/**
-	 * Creates an artifact instance.
-	 *
-	 * @param aid the id of the artifact
-	 * @param spellID optional. the id of a spell if a spell scroll object should be created
-	 * @return the created artifact instance
-	 */
-	static CArtifactInstance * createArtifact(CMap * map, const ArtifactID & aid, int spellID = -1);
 };
 
 class DLL_LINKAGE CCombinedArtifactInstance : public CArtifactInstance
 {
-	CCombinedArtifactInstance(CArtifact *Art);
 public:
+	CCombinedArtifactInstance(CArtifact * Art);
 	struct ConstituentInfo
 	{
 		ConstTransitivePtr<CArtifactInstance> art;
@@ -375,21 +360,5 @@ public:
 protected:
 	ArtBearer::ArtBearer Bearer;
 };
-
-namespace ArtifactUtils
-{
-	// Calculates where an artifact gets placed when it gets transferred from one hero to another.
-	DLL_LINKAGE ArtifactPosition getArtAnyPosition(const CArtifactSet * target, const ArtifactID & aid);
-	DLL_LINKAGE ArtifactPosition getArtBackpackPosition(const CArtifactSet * target, const ArtifactID & aid);
-	// TODO: Make this constexpr when the toolset is upgraded
-	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & unmovableSlots();
-	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & constituentWornSlots();
-	DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot);
-	DLL_LINKAGE bool checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, const ArtifactID & artID, const ArtifactPosition & slot);
-	DLL_LINKAGE bool isSlotBackpack(const ArtifactPosition & slot);
-	DLL_LINKAGE bool isSlotEquipment(const ArtifactPosition & slot);
-	DLL_LINKAGE bool isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots = 1);
-	DLL_LINKAGE std::vector<const CArtifact*> assemblyPossibilities(const CArtifactSet * artSet, const ArtifactID & aid, bool equipped);
-}
 
 VCMI_LIB_NAMESPACE_END

@@ -14,6 +14,7 @@
 
 #include "../../CCallback.h"
 
+#include "../../lib/ArtifactUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 CArtifactsOfHeroAltar::CArtifactsOfHeroAltar(const Point & position)

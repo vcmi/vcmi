@@ -13,6 +13,7 @@
 #include "../lib/filesystem/FileInfo.h"
 #include "../lib/int3.h"
 #include "../lib/mapping/CCampaignHandler.h"
+#include "../lib/ArtifactUtils.h"
 #include "../lib/StartInfo.h"
 #include "../lib/CModHandler.h"
 #include "../lib/CArtHandler.h"

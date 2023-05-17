@@ -13,6 +13,7 @@
 
 #include <vcmi/spells/Spell.h>
 
+#include "../ArtifactUtils.h"
 #include "../NetPacks.h"
 #include "../CSoundBase.h"
 #include "../CGeneralTextHandler.h"

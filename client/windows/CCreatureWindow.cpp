@@ -26,6 +26,7 @@
 #include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
+#include "../../lib/ArtifactUtils.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CBonusTypeHandler.h"
 #include "../../lib/CGeneralTextHandler.h"

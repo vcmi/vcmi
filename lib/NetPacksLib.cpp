@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "ArtifactUtils.h"
 #include "NetPacks.h"
 #include "NetPackVisitor.h"
 #include "CGeneralTextHandler.h"
