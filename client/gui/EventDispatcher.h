@@ -1,5 +1,5 @@
 /*
- * CGuiHandler.h, part of VCMI engine
+ * EventDispatcher.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -17,7 +17,7 @@ class AEventsReceiver;
 enum class MouseButton;
 enum class EShortcut;
 
-class InterfaceEventDispatcher
+class EventDispatcher
 {
 	using CIntObjectList = std::list<AEventsReceiver *>;
 

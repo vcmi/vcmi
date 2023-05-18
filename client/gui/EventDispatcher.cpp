@@ -1,5 +1,5 @@
 /*
- * CGuiHandler.cpp, part of VCMI engine
+ * EventDispatcher.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,23 +8,24 @@
  *
  */
 #include "StdInc.h"
-#include "InterfaceEventDispatcher.h"
-#include "CIntObject.h"
-#include "CGuiHandler.h"
-#include "FramerateManager.h"
+#include "EventDispatcher.h"
 
-void InterfaceEventDispatcher::allowEventHandling(bool enable)
+#include "EventsReceiver.h"
+#include "FramerateManager.h"
+#include "CGuiHandler.h"
+
+void EventDispatcher::allowEventHandling(bool enable)
 {
 	eventHandlingAllowed = enable;
 }
 
-void InterfaceEventDispatcher::processList(const ui16 mask, const ui16 flag, CIntObjectList *lst, std::function<void (CIntObjectList *)> cb)
+void EventDispatcher::processList(const ui16 mask, const ui16 flag, CIntObjectList *lst, std::function<void (CIntObjectList *)> cb)
 {
 	if (mask & flag)
 		cb(lst);
 }
 
-void InterfaceEventDispatcher::processLists(ui16 activityFlag, std::function<void (CIntObjectList *)> cb)
+void EventDispatcher::processLists(ui16 activityFlag, std::function<void (CIntObjectList *)> cb)
 {
 	processList(AEventsReceiver::LCLICK,activityFlag,&lclickable,cb);
 	processList(AEventsReceiver::RCLICK,activityFlag,&rclickable,cb);
@@ -38,7 +39,7 @@ void InterfaceEventDispatcher::processLists(ui16 activityFlag, std::function<voi
 	processList(AEventsReceiver::TEXTINPUT,activityFlag,&textInterested,cb);
 }
 
-void InterfaceEventDispatcher::handleElementActivate(AEventsReceiver * elem, ui16 activityFlag)
+void EventDispatcher::handleElementActivate(AEventsReceiver * elem, ui16 activityFlag)
 {
 	processLists(activityFlag,[&](CIntObjectList * lst){
 		lst->push_front(elem);
@@ -46,7 +47,7 @@ void InterfaceEventDispatcher::handleElementActivate(AEventsReceiver * elem, ui1
 	elem->activeState |= activityFlag;
 }
 
-void InterfaceEventDispatcher::handleElementDeActivate(AEventsReceiver * elem, ui16 activityFlag)
+void EventDispatcher::handleElementDeActivate(AEventsReceiver * elem, ui16 activityFlag)
 {
 	processLists(activityFlag,[&](CIntObjectList * lst){
 		auto hlp = std::find(lst->begin(),lst->end(),elem);
@@ -56,7 +57,7 @@ void InterfaceEventDispatcher::handleElementDeActivate(AEventsReceiver * elem, u
 	elem->activeState &= ~activityFlag;
 }
 
-void InterfaceEventDispatcher::dispatchTimer(uint32_t msPassed)
+void EventDispatcher::dispatchTimer(uint32_t msPassed)
 {
 	CIntObjectList hlp = timeinterested;
 	for (auto & elem : hlp)
@@ -66,7 +67,7 @@ void InterfaceEventDispatcher::dispatchTimer(uint32_t msPassed)
 	}
 }
 
-void InterfaceEventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & shortcutsVector)
+void EventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & shortcutsVector)
 {
 	bool keysCaptured = false;
 
@@ -88,7 +89,7 @@ void InterfaceEventDispatcher::dispatchShortcutPressed(const std::vector<EShortc
 	}
 }
 
-void InterfaceEventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & shortcutsVector)
+void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & shortcutsVector)
 {
 	bool keysCaptured = false;
 
@@ -110,7 +111,7 @@ void InterfaceEventDispatcher::dispatchShortcutReleased(const std::vector<EShort
 	}
 }
 
-InterfaceEventDispatcher::CIntObjectList & InterfaceEventDispatcher::getListForMouseButton(MouseButton button)
+EventDispatcher::CIntObjectList & EventDispatcher::getListForMouseButton(MouseButton button)
 {
 	switch (button)
 	{
@@ -124,7 +125,7 @@ InterfaceEventDispatcher::CIntObjectList & InterfaceEventDispatcher::getListForM
 	throw std::runtime_error("Invalid mouse button in getListForMouseButton");
 }
 
-void InterfaceEventDispatcher::dispatchMouseDoubleClick(const Point & position)
+void EventDispatcher::dispatchMouseDoubleClick(const Point & position)
 {
 	bool doubleClicked = false;
 	auto hlp = doubleClickInterested;
@@ -148,17 +149,17 @@ void InterfaceEventDispatcher::dispatchMouseDoubleClick(const Point & position)
 		dispatchMouseButtonPressed(MouseButton::LEFT, position);
 }
 
-void InterfaceEventDispatcher::dispatchMouseButtonPressed(const MouseButton & button, const Point & position)
+void EventDispatcher::dispatchMouseButtonPressed(const MouseButton & button, const Point & position)
 {
 	handleMouseButtonClick(getListForMouseButton(button), button, true);
 }
 
-void InterfaceEventDispatcher::dispatchMouseButtonReleased(const MouseButton & button, const Point & position)
+void EventDispatcher::dispatchMouseButtonReleased(const MouseButton & button, const Point & position)
 {
 	handleMouseButtonClick(getListForMouseButton(button), button, false);
 }
 
-void InterfaceEventDispatcher::handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed)
+void EventDispatcher::handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed)
 {
 	auto hlp = interestedObjs;
 	for(auto & i : hlp)
@@ -183,7 +184,7 @@ void InterfaceEventDispatcher::handleMouseButtonClick(CIntObjectList & intereste
 	}
 }
 
-void InterfaceEventDispatcher::dispatchMouseScrolled(const Point & distance, const Point & position)
+void EventDispatcher::dispatchMouseScrolled(const Point & distance, const Point & position)
 {
 	CIntObjectList hlp = wheelInterested;
 	for(auto i = hlp.begin(); i != hlp.end() && eventHandlingAllowed; i++)
@@ -194,7 +195,7 @@ void InterfaceEventDispatcher::dispatchMouseScrolled(const Point & distance, con
 	}
 }
 
-void InterfaceEventDispatcher::dispatchTextInput(const std::string & text)
+void EventDispatcher::dispatchTextInput(const std::string & text)
 {
 	for(auto it : textInterested)
 	{
@@ -202,7 +203,7 @@ void InterfaceEventDispatcher::dispatchTextInput(const std::string & text)
 	}
 }
 
-void InterfaceEventDispatcher::dispatchTextEditing(const std::string & text)
+void EventDispatcher::dispatchTextEditing(const std::string & text)
 {
 	for(auto it : textInterested)
 	{
@@ -210,7 +211,7 @@ void InterfaceEventDispatcher::dispatchTextEditing(const std::string & text)
 	}
 }
 
-void InterfaceEventDispatcher::dispatchMouseMoved(const Point & position)
+void EventDispatcher::dispatchMouseMoved(const Point & position)
 {
 	//sending active, hovered hoverable objects hover() call
 	CIntObjectList hlp;

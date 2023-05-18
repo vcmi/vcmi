@@ -16,7 +16,7 @@
 #include "ShortcutHandler.h"
 #include "FramerateManager.h"
 #include "WindowHandler.h"
-#include "InterfaceEventDispatcher.h"
+#include "EventDispatcher.h"
 
 #include "../CGameInfo.h"
 #include "../render/Colors.h"
@@ -80,7 +80,7 @@ SSetCaptureState::~SSetCaptureState()
 
 void CGuiHandler::init()
 {
-	eventDispatcherInstance = std::make_unique<InterfaceEventDispatcher>();
+	eventDispatcherInstance = std::make_unique<EventDispatcher>();
 	windowHandlerInstance = std::make_unique<WindowHandler>();
 	screenHandlerInstance = std::make_unique<ScreenHandler>();
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
@@ -613,7 +613,7 @@ IScreenHandler & CGuiHandler::screenHandler()
 	return *screenHandlerInstance;
 }
 
-InterfaceEventDispatcher & CGuiHandler::eventDispatcher()
+EventDispatcher & CGuiHandler::eventDispatcher()
 {
 	return *eventDispatcherInstance;
 }

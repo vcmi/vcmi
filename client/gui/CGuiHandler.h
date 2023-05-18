@@ -30,7 +30,7 @@ class IUpdateable;
 class IShowActivatable;
 class IScreenHandler;
 class WindowHandler;
-class InterfaceEventDispatcher;
+class EventDispatcher;
 
 // TODO: event handling need refactoring
 enum class EUserEvent
@@ -63,7 +63,7 @@ private:
 
 	std::unique_ptr<IScreenHandler> screenHandlerInstance;
 	std::unique_ptr<FramerateManager> framerateManagerInstance;
-	std::unique_ptr<InterfaceEventDispatcher> eventDispatcherInstance;
+	std::unique_ptr<EventDispatcher> eventDispatcherInstance;
 
 	void handleCurrentEvent(SDL_Event &current);
 	void convertTouchToMouse(SDL_Event * current);
@@ -89,7 +89,7 @@ public:
 
 	ShortcutHandler & shortcutsHandler();
 	FramerateManager & framerateManager();
-	InterfaceEventDispatcher & eventDispatcher();
+	EventDispatcher & eventDispatcher();
 
 	/// Returns current logical screen dimensions
 	/// May not match size of window if user has UI scaling different from 100%

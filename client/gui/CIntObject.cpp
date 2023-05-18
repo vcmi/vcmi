@@ -11,7 +11,6 @@
 #include "CIntObject.h"
 
 #include "CGuiHandler.h"
-#include "InterfaceEventDispatcher.h"
 #include "WindowHandler.h"
 #include "Shortcut.h"
 #include "../renderSDL/SDL_Extensions.h"
@@ -19,70 +18,6 @@
 #include "../CMT.h"
 
 #include <SDL_pixels.h>
-
-AEventsReceiver::AEventsReceiver()
-	: activeState(0)
-	, hoveredState(false)
-	, strongInterestState(false)
-{
-}
-
-bool AEventsReceiver::isHovered() const
-{
-	return hoveredState;
-}
-
-bool AEventsReceiver::isActive() const
-{
-	return activeState;
-}
-
-bool AEventsReceiver::isActive(int flags) const
-{
-	return activeState & flags;
-}
-
-bool AEventsReceiver::isMouseButtonPressed(MouseButton btn) const
-{
-	return currentMouseState.count(btn) ? currentMouseState.at(btn) : false;
-}
-
-void AEventsReceiver::setMoveEventStrongInterest(bool on)
-{
-	strongInterestState = on;
-}
-
-void AEventsReceiver::activateEvents(ui16 what)
-{
-	assert((what & GENERAL) || (activeState & GENERAL));
-
-	activeState |= GENERAL;
-	GH.eventDispatcher().handleElementActivate(this, what);
-}
-
-void AEventsReceiver::deactivateEvents(ui16 what)
-{
-	if (what & GENERAL)
-		activeState &= ~GENERAL;
-	GH.eventDispatcher().handleElementDeActivate(this, what & activeState);
-}
-
-void AEventsReceiver::click(MouseButton btn, tribool down, bool previousState)
-{
-	switch(btn)
-	{
-	default:
-	case MouseButton::LEFT:
-		clickLeft(down, previousState);
-		break;
-	case MouseButton::MIDDLE:
-		clickMiddle(down, previousState);
-		break;
-	case MouseButton::RIGHT:
-		clickRight(down, previousState);
-		break;
-	}
-}
 
 CIntObject::CIntObject(int used_, Point pos_):
 	parent_m(nullptr),
