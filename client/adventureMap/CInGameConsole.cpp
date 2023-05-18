@@ -17,6 +17,7 @@
 #include "../PlayerLocalState.h"
 #include "../ClientCommandManager.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
 #include "../render/Colors.h"
 #include "../adventureMap/AdventureMapInterface.h"
@@ -77,7 +78,7 @@ void CInGameConsole::tick(uint32_t msPassed)
 	}
 
 	if(sizeBefore != texts.size())
-		GH.totalRedraw(); // FIXME: ingame console has no parent widget set
+		GH.windows().totalRedraw(); // FIXME: ingame console has no parent widget set
 }
 
 void CInGameConsole::print(const std::string & txt)
@@ -101,7 +102,7 @@ void CInGameConsole::print(const std::string & txt)
 			texts.erase(texts.begin());
 	}
 
-	GH.totalRedraw(); // FIXME: ingame console has no parent widget set
+	GH.windows().totalRedraw(); // FIXME: ingame console has no parent widget set
 }
 
 void CInGameConsole::keyPressed (EShortcut key)
@@ -216,16 +217,15 @@ void CInGameConsole::startEnteringText()
 	if (captureAllKeys)
 		return;
 
-	assert(GH.statusbar);
 	assert(currentStatusBar.expired());//effectively, nullptr check
 
-	currentStatusBar = GH.statusbar;
+	currentStatusBar = GH.statusbar();
 
 	captureAllKeys = true;
 	enteredText = "_";
 
-	GH.statusbar->setEnteringMode(true);
-	GH.statusbar->setEnteredText(enteredText);
+	GH.statusbar()->setEnteringMode(true);
+	GH.statusbar()->setEnteredText(enteredText);
 }
 
 void CInGameConsole::endEnteringText(bool processEnteredText)

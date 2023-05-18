@@ -34,6 +34,7 @@
 #include "../render/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -367,7 +368,7 @@ void CBonusSelection::goBack()
 {
 	if(CSH->state != EClientState::GAMEPLAY)
 	{
-		GH.popInts(2);
+		GH.windows().popWindows(2);
 	}
 	else
 	{
@@ -397,7 +398,7 @@ void CBonusSelection::startMap()
 		const CCampaignScenario & scenario = getCampaign()->camp->scenarios[CSH->campaignMap];
 		if(scenario.prolog.hasPrologEpilog)
 		{
-			GH.pushIntT<CPrologEpilogVideo>(scenario.prolog, exitCb);
+			GH.windows().createAndPushWindow<CPrologEpilogVideo>(scenario.prolog, exitCb);
 		}
 		else
 		{

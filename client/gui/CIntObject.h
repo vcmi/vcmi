@@ -231,3 +231,12 @@ public:
 	virtual void setEnteredText(const std::string & text) = 0;
 
 };
+
+class EmptyStatusBar : public IStatusBar
+{
+	virtual void write(const std::string & text){};
+	virtual void clear(){};
+	virtual void clearIfMatching(const std::string & testedText){};
+	virtual void setEnteringMode(bool on){};
+	virtual void setEnteredText(const std::string & text){};
+};

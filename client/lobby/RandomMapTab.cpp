@@ -15,6 +15,7 @@
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -102,12 +103,12 @@ RandomMapTab::RandomMapTab():
 	//new callbacks available only from mod
 	addCallback("templateSelection", [&](int)
 	{
-		GH.pushIntT<TemplatesDropBox>(*this, int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()});
+		GH.windows().createAndPushWindow<TemplatesDropBox>(*this, int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()});
 	});
 	
 	addCallback("teamAlignments", [&](int)
 	{
-		GH.pushIntT<TeamAlignmentsWidget>(*this);
+		GH.windows().createAndPushWindow<TeamAlignmentsWidget>(*this);
 	});
 	
 	for(auto road : VLC->roadTypeHandler->objects)
@@ -482,8 +483,8 @@ void TemplatesDropBox::clickLeft(tribool down, bool previousState)
 		// pop the interface only if the mouse is not clicking on the slider
 		if (!w || !w->mouseState(MouseButton::LEFT))
 		{
-			assert(GH.topInt().get() == this);
-			GH.popInt(GH.topInt());
+			assert(GH.windows().isTopWindow(this));
+			GH.windows().popWindows(1);
 		}
 	}
 }
@@ -511,8 +512,8 @@ void TemplatesDropBox::updateListItems()
 void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
 {
 	randomMapTab.setTemplate(tmpl);
-	assert(GH.topInt().get() == this);
-	GH.popInt(GH.topInt());
+	assert(GH.windows().isTopWindow(this));
+	GH.windows().popWindows(1);
 }
 
 TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
@@ -547,14 +548,14 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 			randomMapTab.obtainMapGenOptions().setPlayerTeam(PlayerColor(plId), TeamID(players[plId]->getSelected()));
 		}
 		randomMapTab.updateMapInfoByHost();
-		assert(GH.topInt().get() == this);
-		GH.popInt(GH.topInt());
+		assert(GH.windows().isTopWindow(this));
+		GH.windows().popWindows(1);
 	});
 	
 	addCallback("cancel", [&](int)
 	{
-		assert(GH.topInt().get() == this);
-		GH.popInt(GH.topInt());
+		assert(GH.windows().isTopWindow(this));
+		GH.windows().popWindows(1);
 	});
 	
 	build(config);

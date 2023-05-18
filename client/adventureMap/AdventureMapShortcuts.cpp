@@ -16,6 +16,7 @@
 #include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../lobby/CSavingScreen.h"
 #include "../mapView/mapHandler.h"
 #include "../windows/CKingdomInterface.h"
@@ -96,7 +97,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 
 void AdventureMapShortcuts::showOverview()
 {
-	GH.pushIntT<CKingdomInterface>();
+	GH.windows().createAndPushWindow<CKingdomInterface>();
 }
 
 void AdventureMapShortcuts::worldViewBack()
@@ -186,17 +187,17 @@ void AdventureMapShortcuts::showSpellbook()
 
 	owner.centerOnObject(LOCPLINT->localState->getCurrentHero());
 
-	GH.pushIntT<CSpellWindow>(LOCPLINT->localState->getCurrentHero(), LOCPLINT, false);
+	GH.windows().createAndPushWindow<CSpellWindow>(LOCPLINT->localState->getCurrentHero(), LOCPLINT, false);
 }
 
 void AdventureMapShortcuts::adventureOptions()
 {
-	GH.pushIntT<AdventureOptions>();
+	GH.windows().createAndPushWindow<AdventureOptions>();
 }
 
 void AdventureMapShortcuts::systemOptions()
 {
-	GH.pushIntT<SettingsMainWindow>();
+	GH.windows().createAndPushWindow<SettingsMainWindow>();
 }
 
 void AdventureMapShortcuts::nextHero()
@@ -266,7 +267,7 @@ void AdventureMapShortcuts::showScenarioInfo()
 
 void AdventureMapShortcuts::saveGame()
 {
-	GH.pushIntT<CSavingScreen>();
+	GH.windows().createAndPushWindow<CSavingScreen>();
 }
 
 void AdventureMapShortcuts::loadGame()
@@ -326,7 +327,7 @@ void AdventureMapShortcuts::showMarketplace()
 	}
 
 	if(townWithMarket) //if any town has marketplace, open window
-		GH.pushIntT<CMarketplaceWindow>(townWithMarket);
+		GH.windows().createAndPushWindow<CMarketplaceWindow>(townWithMarket);
 	else //if not - complain
 		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.adventureMap.noTownWithMarket"));
 }

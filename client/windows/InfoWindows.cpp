@@ -20,6 +20,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
 #include "../adventureMap/AdventureMapInterface.h"
@@ -182,7 +183,7 @@ void CInfoWindow::showAll(SDL_Surface * to)
 
 void CInfoWindow::showInfoDialog(const std::string &text, const TCompsInfo & components, PlayerColor player)
 {
-	GH.pushInt(CInfoWindow::create(text, player, components));
+	GH.windows().pushWindow(CInfoWindow::create(text, player, components));
 }
 
 void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, PlayerColor player)
@@ -196,7 +197,7 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & c
 	temp->buttons[0]->addCallback( onYes );
 	temp->buttons[1]->addCallback( onNo );
 
-	GH.pushInt(temp);
+	GH.windows().pushWindow(temp);
 }
 
 std::shared_ptr<CInfoWindow> CInfoWindow::create(const std::string &text, PlayerColor playerID, const TCompsInfo & components)
@@ -313,7 +314,7 @@ void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCom
 #endif
 	temp->fitToScreen(10);
 
-	GH.pushIntT<CRClickPopupInt>(temp);
+	GH.windows().createAndPushWindow<CRClickPopupInt>(temp);
 }
 
 void CRClickPopup::createAndPush(const std::string & txt, std::shared_ptr<CComponent> component)
@@ -329,7 +330,7 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 	auto iWin = createInfoWin(p, obj); //try get custom infowindow for this obj
 	if(iWin)
 	{
-		GH.pushInt(iWin);
+		GH.windows().pushWindow(iWin);
 	}
 	else
 	{

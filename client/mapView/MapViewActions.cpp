@@ -154,7 +154,7 @@ void MapViewActions::hover(bool on)
 {
 	if(!on)
 	{
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 		CCS->curh->set(Cursor::Map::POINTER);
 	}
 }

@@ -16,6 +16,7 @@
 #include "../renderSDL/SDL_Extensions.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
 #include "../windows/InfoWindows.h"
@@ -242,7 +243,7 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 {
 	if(!on)
 	{
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 		return;
 	}
 
@@ -250,13 +251,13 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 	{
 	case CREATURE:
 	case CREATURE_PLACEHOLDER:
-		GH.statusbar->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->getNamePluralTranslated()));
+		GH.statusbar()->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->getNamePluralTranslated()));
 		break;
 	case ARTIFACT_PLACEHOLDER:
 		if(id < 0)
-			GH.statusbar->write(CGI->generaltexth->zelp[582].first);
+			GH.statusbar()->write(CGI->generaltexth->zelp[582].first);
 		else
-			GH.statusbar->write(CGI->artifacts()->getByIndex(id)->getNameTranslated());
+			GH.statusbar()->write(CGI->artifacts()->getByIndex(id)->getNameTranslated());
 		break;
 	}
 }
@@ -628,10 +629,10 @@ void CTradeWindow::setMode(EMarketMode::EMarketMode Mode)
 	{
 	case EMarketMode::CREATURE_EXP:
 	case EMarketMode::ARTIFACT_EXP:
-		GH.pushIntT<CAltarWindow>(m, h, Mode);
+		GH.windows().createAndPushWindow<CAltarWindow>(m, h, Mode);
 		break;
 	default:
-		GH.pushIntT<CMarketplaceWindow>(m, h, Mode);
+		GH.windows().createAndPushWindow<CMarketplaceWindow>(m, h, Mode);
 		break;
 	}
 }

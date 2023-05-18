@@ -68,9 +68,9 @@ void CList::CListItem::clickLeft(tribool down, bool previousState)
 void CList::CListItem::hover(bool on)
 {
 	if (on)
-		GH.statusbar->write(getHoverText());
+		GH.statusbar()->write(getHoverText());
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 }
 
 void CList::CListItem::onSelect(bool on)

@@ -15,6 +15,7 @@
 #include "CursorHandler.h"
 #include "ShortcutHandler.h"
 #include "FramerateManager.h"
+#include "WindowHandler.h"
 
 #include "../CGameInfo.h"
 #include "../render/Colors.h"
@@ -99,6 +100,7 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 
 void CGuiHandler::init()
 {
+	windowHandlerInstance = std::make_unique<WindowHandler>();
 	screenHandlerInstance = std::make_unique<ScreenHandler>();
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
 	framerateManagerInstance = std::make_unique<FramerateManager>(settings["video"]["targetfps"].Integer());
@@ -123,73 +125,6 @@ void CGuiHandler::handleElementDeActivate(CIntObject * elem, ui16 activityFlag)
 		lst->erase(hlp);
 	});
 	elem->active_m &= ~activityFlag;
-}
-
-void CGuiHandler::popInt(std::shared_ptr<IShowActivatable> top)
-{
-	assert(listInt.front() == top);
-	top->deactivate();
-	disposed.push_back(top);
-	listInt.pop_front();
-	objsToBlit -= top;
-	if(!listInt.empty())
-		listInt.front()->activate();
-	totalRedraw();
-}
-
-void CGuiHandler::pushInt(std::shared_ptr<IShowActivatable> newInt)
-{
-	assert(newInt);
-	assert(!vstd::contains(listInt, newInt)); // do not add same object twice
-
-	//a new interface will be present, we'll need to use buffer surface (unless it's advmapint that will alter screenBuf on activate anyway)
-	screenBuf = screen2;
-
-	if(!listInt.empty())
-		listInt.front()->deactivate();
-	listInt.push_front(newInt);
-	CCS->curh->set(Cursor::Map::POINTER);
-	newInt->activate();
-	objsToBlit.push_back(newInt);
-	totalRedraw();
-}
-
-void CGuiHandler::popInts(int howMany)
-{
-	if(!howMany) return; //senseless but who knows...
-
-	assert(listInt.size() >= howMany);
-	listInt.front()->deactivate();
-	for(int i=0; i < howMany; i++)
-	{
-		objsToBlit -= listInt.front();
-		disposed.push_back(listInt.front());
-		listInt.pop_front();
-	}
-
-	if(!listInt.empty())
-	{
-		listInt.front()->activate();
-		totalRedraw();
-	}
-	fakeMouseMove();
-}
-
-std::shared_ptr<IShowActivatable> CGuiHandler::topInt()
-{
-	if(listInt.empty())
-		return std::shared_ptr<IShowActivatable>();
-	else
-		return listInt.front();
-}
-
-void CGuiHandler::totalRedraw()
-{
-	CSDL_Ext::fillSurface( screen2, Colors::BLACK);
-
-	for(auto & elem : objsToBlit)
-		elem->showAll(screen2);
-	CSDL_Ext::blitAt(screen2,0,0,screen);
 }
 
 void CGuiHandler::updateTime()
@@ -397,7 +332,7 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 				//not working yet since CClient::run remain locked after BattleInterface removal
 //				if(LOCPLINT->battleInt)
 //				{
-//					GH.popInts(1);
+//					GH.windows().popInts(1);
 //					vstd::clear_pointer(LOCPLINT->battleInt);
 //				}
 				break;
@@ -635,15 +570,6 @@ void CGuiHandler::handleMouseMotion(const SDL_Event & current)
 		handleMoveInterested(current.motion);
 }
 
-void CGuiHandler::simpleRedraw()
-{
-	//update only top interface and draw background
-	if(objsToBlit.size() > 1)
-		CSDL_Ext::blitAt(screen2,0,0,screen); //blit background
-	if(!objsToBlit.empty())
-		objsToBlit.back()->show(screen); //blit active interface/window
-}
-
 void CGuiHandler::handleMoveInterested(const SDL_MouseMotionEvent & motion)
 {
 	//sending active, MotionInterested objects mouseMoved() call
@@ -690,7 +616,7 @@ void CGuiHandler::renderFrame()
 
 		SDL_RenderPresent(mainRenderer);
 
-		disposed.clear();
+		windows().onFrameRendered();
 	}
 
 	framerateManager().framerateDelay(); // holds a constant FPS
@@ -705,9 +631,9 @@ CGuiHandler::CGuiHandler()
 	, mouseButtonsMask(0)
 	, continueEventHandling(true)
 	, curInt(nullptr)
-	, statusbar(nullptr)
+	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
+	, terminate_cond (new CondSh<bool>(false))
 {
-	terminate_cond = new CondSh<bool>(false);
 }
 
 CGuiHandler::~CGuiHandler()
@@ -816,15 +742,29 @@ IScreenHandler & CGuiHandler::screenHandler()
 	return *screenHandlerInstance;
 }
 
+WindowHandler & CGuiHandler::windows()
+{
+	assert(windowHandlerInstance);
+	return *windowHandlerInstance;
+}
+
+std::shared_ptr<IStatusBar> CGuiHandler::statusbar()
+{
+	auto locked = currentStatusBar.lock();
+
+	if (!locked)
+		return fakeStatusBar;
+
+	return locked;
+}
+
+void CGuiHandler::setStatusbar(std::shared_ptr<IStatusBar> newStatusBar)
+{
+	currentStatusBar = newStatusBar;
+}
+
 void CGuiHandler::onScreenResize()
 {
-	for (auto const & entry : listInt)
-	{
-		auto intObject = std::dynamic_pointer_cast<CIntObject>(entry);
-
-		if (intObject)
-			intObject->onScreenResize();
-	}
-
-	totalRedraw();
+	screenHandler().onScreenResize();
+	windows().onScreenResize();
 }

@@ -22,6 +22,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CIntObject.h"
+#include "../gui/WindowHandler.h"
 #include "../windows/CCreatureWindow.h"
 
 #include "../../CCallback.h"
@@ -668,7 +669,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 
 		case PossiblePlayerBattleAction::CREATURE_INFO:
 		{
-			GH.pushIntT<CStackWindow>(targetStack, false);
+			GH.windows().createAndPushWindow<CStackWindow>(targetStack, false);
 			return;
 		}
 
@@ -772,7 +773,7 @@ void BattleActionsController::onHexHovered(BattleHex hoveredHex)
 	if (owner.openingPlaying())
 	{
 		currentConsoleMsg = VLC->generaltexth->translate("vcmi.battleWindow.pressKeyToSkipIntro");
-		GH.statusbar->write(currentConsoleMsg);
+		GH.statusbar()->write(currentConsoleMsg);
 		return;
 	}
 
@@ -782,7 +783,7 @@ void BattleActionsController::onHexHovered(BattleHex hoveredHex)
 	if (hoveredHex == BattleHex::INVALID)
 	{
 		if (!currentConsoleMsg.empty())
-			GH.statusbar->clearIfMatching(currentConsoleMsg);
+			GH.statusbar()->clearIfMatching(currentConsoleMsg);
 
 		currentConsoleMsg.clear();
 		CCS->curh->set(Cursor::Combat::BLOCKED);
@@ -805,10 +806,10 @@ void BattleActionsController::onHexHovered(BattleHex hoveredHex)
 	}
 
 	if (!currentConsoleMsg.empty())
-		GH.statusbar->clearIfMatching(currentConsoleMsg);
+		GH.statusbar()->clearIfMatching(currentConsoleMsg);
 
 	if (!newConsoleMsg.empty())
-		GH.statusbar->write(newConsoleMsg);
+		GH.statusbar()->write(newConsoleMsg);
 
 	currentConsoleMsg = newConsoleMsg;
 }
@@ -818,7 +819,7 @@ void BattleActionsController::onHoverEnded()
 	CCS->curh->set(Cursor::Combat::POINTER);
 
 	if (!currentConsoleMsg.empty())
-		GH.statusbar->clearIfMatching(currentConsoleMsg);
+		GH.statusbar()->clearIfMatching(currentConsoleMsg);
 
 	currentConsoleMsg.clear();
 }
@@ -849,7 +850,7 @@ void BattleActionsController::onHexLeftClicked(BattleHex clickedHex)
 	{
 		actionRealize(action, clickedHex);
 
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 	}
 	else
 	{
@@ -973,7 +974,7 @@ void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 	auto selectedStack = owner.curInt->cb->battleGetStackByPos(clickedHex, true);
 
 	if (selectedStack != nullptr)
-		GH.pushIntT<CStackWindow>(selectedStack, true);
+		GH.windows().createAndPushWindow<CStackWindow>(selectedStack, true);
 
 	if (clickedHex == BattleHex::HERO_ATTACKER && owner.attackingHero)
 		owner.attackingHero->heroRightClicked();

@@ -28,6 +28,7 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
 #include "../adventureMap/AdventureMapInterface.h"
 
@@ -95,7 +96,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	adventureInt->onAudioPaused();
 	ongoingAnimationsState.set(true);
 
-	GH.pushInt(windowObject);
+	GH.windows().pushWindow(windowObject);
 	windowObject->blockUI(true);
 	windowObject->updateQueue();
 
@@ -167,7 +168,7 @@ BattleInterface::~BattleInterface()
 void BattleInterface::redrawBattlefield()
 {
 	fieldController->redrawBackgroundWithHexes();
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
 }
 
 void BattleInterface::stackReset(const CStack * stack)
@@ -328,7 +329,7 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 	{
 		curInt->cb->selectionMade(selection, queryID);
 	};
-	GH.pushInt(wnd);
+	GH.windows().pushWindow(wnd);
 	
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897
 	CPlayerInterface::battleInt = nullptr;

@@ -24,6 +24,7 @@
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -261,7 +262,7 @@ void CInfoBar::tick(uint32_t msPassed)
 	{
 		timerCounter = 0;
 		removeUsedEvents(TIME);
-		if(GH.topInt() == adventureInt)
+		if(GH.windows().isTopWindow(adventureInt))
 			popComponents(true);
 	}
 	else
@@ -292,9 +293,9 @@ void CInfoBar::clickRight(tribool down, bool previousState)
 void CInfoBar::hover(bool on)
 {
 	if(on)
-		GH.statusbar->write(CGI->generaltexth->zelp[292].first);
+		GH.statusbar()->write(CGI->generaltexth->zelp[292].first);
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 }
 
 CInfoBar::CInfoBar(const Rect & position)

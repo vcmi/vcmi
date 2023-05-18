@@ -17,6 +17,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/TextAlignment.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/CreatureCostBox.h"
@@ -124,5 +125,5 @@ CreaturePurchaseCard::CCreatureClickArea::CCreatureClickArea(const Point & posit
 void CreaturePurchaseCard::CCreatureClickArea::clickRight(tribool down, bool previousState)
 {
 	if (down)
-		GH.pushIntT<CStackWindow>(creatureOnTheCard, true);
+		GH.windows().createAndPushWindow<CStackWindow>(creatureOnTheCard, true);
 }

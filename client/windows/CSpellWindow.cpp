@@ -24,6 +24,7 @@
 #include "../battle/BattleInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
@@ -525,7 +526,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		else //adventure spell
 		{
 			const CGHeroInstance * h = owner->myHero;
-			GH.popInts(1);
+			GH.windows().popWindows(1);
 
 			auto guard = vstd::makeScopeGuard([this]()
 			{

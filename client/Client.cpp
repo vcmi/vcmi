@@ -18,6 +18,7 @@
 #include "adventureMap/AdventureMapInterface.h"
 #include "battle/BattleInterface.h"
 #include "gui/CGuiHandler.h"
+#include "gui/WindowHandler.h"
 #include "mapView/mapHandler.h"
 
 #include "../CCallback.h"
@@ -766,12 +767,8 @@ void CClient::removeGUI()
 {
 	// CClient::endGame
 	GH.curInt = nullptr;
-	if(GH.topInt())
-		GH.topInt()->deactivate();
+	GH.windows().clear();
 	adventureInt.reset();
-	GH.listInt.clear();
-	GH.objsToBlit.clear();
-	GH.statusbar.reset();
 	logGlobal->info("Removed GUI.");
 
 	LOCPLINT = nullptr;
