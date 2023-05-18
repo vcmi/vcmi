@@ -17,8 +17,6 @@
 #include "../windows/CMessage.h"
 #include "../CMT.h"
 
-#include <SDL_pixels.h>
-
 CIntObject::CIntObject(int used_, Point pos_):
 	parent_m(nullptr),
 	parent(parent_m),
@@ -102,12 +100,12 @@ void CIntObject::deactivate()
 				elem->deactivate();
 }
 
-void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color kolor, SDL_Surface * dst)
+void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, const SDL_Color & kolor, SDL_Surface * dst)
 {
 	graphics->fonts[font]->renderTextCenter(dst, text, kolor, pos.topLeft() + p);
 }
 
-void CIntObject::printAtMiddleWBLoc( const std::string & text, const Point &p, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst)
+void CIntObject::printAtMiddleWBLoc( const std::string & text, const Point &p, EFonts font, int charpr, const SDL_Color & kolor, SDL_Surface * dst)
 {
 	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, charpr, font), kolor, pos.topLeft() + p);
 }
@@ -310,6 +308,3 @@ void WindowBase::close()
 		logGlobal->error("Only top interface must be closed");
 	GH.windows().popWindows(1);
 }
-
-IStatusBar::~IStatusBar()
-{}

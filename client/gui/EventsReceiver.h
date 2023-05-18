@@ -18,21 +18,26 @@ enum class MouseButton;
 enum class EShortcut;
 using boost::logic::tribool;
 
+/// Class that is capable of subscribing and receiving input events
+/// Acts as base class for all UI elements
 class AEventsReceiver
 {
 	friend class EventDispatcher;
 
 	ui16 activeState;
+	bool hoveredState;
+	bool strongInterestState;
 	std::map<MouseButton, bool> currentMouseState;
-
-	bool hoveredState; //for determining if object is hovered
-	bool strongInterestState; //if true - report all mouse movements, if not - only when hovered
 
 	void click(MouseButton btn, tribool down, bool previousState);
 protected:
+
+	/// If set, UI element will receive all mouse movement events, even those outside this element
 	void setMoveEventStrongInterest(bool on);
 
+	/// Activates particular events for this UI element. Uses unnamed enum from this class
 	void activateEvents(ui16 what);
+	/// Deactivates particular events for this UI element. Uses unnamed enum from this class
 	void deactivateEvents(ui16 what);
 
 	virtual void clickLeft(tribool down, bool previousState) {}
@@ -58,11 +63,18 @@ public:
 	AEventsReceiver();
 	virtual ~AEventsReceiver() = default;
 
-	// These are the arguments that can be used to determine what kind of input the CIntObject will receive
+	/// These are the arguments that can be used to determine what kind of input UI element will receive
 	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, MCLICK=1024, ALL=0xffff};
 
+	/// Returns true if element is currently hovered by mouse
 	bool isHovered() const;
+
+	/// Returns true if element is currently active and may receive events
 	bool isActive() const;
+
+	/// Returns true if particular event(s) is active for this element
 	bool isActive(int flags) const;
+
+	/// Returns true if particular mouse button was pressed when inside this element
 	bool isMouseButtonPressed(MouseButton btn) const;
 };

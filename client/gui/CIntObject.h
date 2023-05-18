@@ -114,8 +114,8 @@ public:
 
 	/// functions for printing text.
 	/// Deprecated. Use CLabel where possible instead
-	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color color, SDL_Surface * dst);
-	void printAtMiddleWBLoc(const std::string & text, const Point &p, EFonts font, int charsPerLine, SDL_Color color, SDL_Surface * dst);
+	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, const SDL_Color & color, SDL_Surface * dst);
+	void printAtMiddleWBLoc(const std::string & text, const Point &p, EFonts font, int charsPerLine, const SDL_Color & color, SDL_Surface * dst);
 };
 
 /// Class for binding keys to left mouse button clicks
@@ -143,7 +143,7 @@ protected:
 class IStatusBar
 {
 public:
-	virtual ~IStatusBar();
+	virtual ~IStatusBar() = default;
 
 	/// set current text for the status bar
 	virtual void write(const std::string & text) = 0;
