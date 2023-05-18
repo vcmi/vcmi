@@ -422,6 +422,9 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 		const std::string & name = entry.first;
 		JsonNode & data = entry.second;
 
+		if (data.meta != modName)
+			logMod->warn("Mod %s is attempting to inject object %s into mod %s! This may not be supported in future versions!", data.meta, name, modName);
+
 		if (vstd::contains(data.Struct(), "index") && !data["index"].isNull())
 		{
 			if (modName != "core")

@@ -47,7 +47,8 @@
 		"music":
 		{
 			"type": "string",
-			"description": "Music filename to play on this terrain on adventure map"
+			"description": "Music filename to play on this terrain on adventure map",
+			"format": "musicFile"
 		},
 		"tiles":
 		{
@@ -78,12 +79,14 @@
 		"horseSound":
 		{
 			"type": "string",
-			"description": "Hero movement sound for this terrain, version for moving on tiles with road"
+			"description": "Hero movement sound for this terrain, version for moving on tiles with road",
+			"format": "soundFile"
 		},
 		"horseSoundPenalty":
 		{
 			"type": "string",
-			"description": "Hero movement sound for this terrain, version for moving on tiles without road"
+			"description": "Hero movement sound for this terrain, version for moving on tiles without road",
+			"format": "soundFile"
 		},
 		"shortIdentifier":
 		{
@@ -112,7 +115,8 @@
 					"description": "list of ambient sounds for this terrain",
 					"items":
 					{
-						"type": "string"
+						"type": "string",
+						"format": "soundFile"
 					}
 				}
 			}
