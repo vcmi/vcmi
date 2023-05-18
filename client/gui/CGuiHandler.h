@@ -31,18 +31,17 @@ class IShowActivatable;
 class IScreenHandler;
 class WindowHandler;
 class EventDispatcher;
+class InputHandler;
 
-// TODO: event handling need refactoring
+// TODO: event handling need refactoring. Perhaps convert into delayed function call?
 enum class EUserEvent
 {
-	/*CHANGE_SCREEN_RESOLUTION = 1,*/
-	RETURN_TO_MAIN_MENU = 2,
-	//STOP_CLIENT = 3,
-	RESTART_GAME = 4,
+	RETURN_TO_MAIN_MENU,
+	RESTART_GAME,
 	RETURN_TO_MENU_LOAD,
 	FULLSCREEN_TOGGLED,
 	CAMPAIGN_START_SCENARIO,
-	FORCE_QUIT, //quit client without question
+	FORCE_QUIT,
 };
 
 // Handles GUI logic and drawing
@@ -55,41 +54,22 @@ private:
 	/// Status bar of current window, if any. Uses weak_ptr to allow potential hanging reference after owned window has been deleted
 	std::weak_ptr<IStatusBar> currentStatusBar;
 
-	Point cursorPosition;
-	uint32_t mouseButtonsMask;
-
 	std::unique_ptr<ShortcutHandler> shortcutsHandlerInstance;
 	std::unique_ptr<WindowHandler> windowHandlerInstance;
 
 	std::unique_ptr<IScreenHandler> screenHandlerInstance;
 	std::unique_ptr<FramerateManager> framerateManagerInstance;
 	std::unique_ptr<EventDispatcher> eventDispatcherInstance;
-
-	void handleCurrentEvent(SDL_Event &current);
-	void convertTouchToMouse(SDL_Event * current);
-	void fakeMoveCursor(float dx, float dy);
-	void fakeMouseButtonEventRelativeMode(bool down, bool right);
-
-	void handleEventKeyDown(SDL_Event & current);
-	void handleEventKeyUp(SDL_Event & current);
-	void handleEventMouseMotion(SDL_Event & current);
-	void handleEventMouseButtonDown(SDL_Event & current);
-	void handleEventMouseWheel(SDL_Event & current);
-	void handleEventTextInput(SDL_Event & current);
-	void handleEventTextEditing(SDL_Event & current);
-	void handleEventMouseButtonUp(SDL_Event & current);
-	void handleEventFingerMotion(SDL_Event & current);
-	void handleEventFingerDown(SDL_Event & current);
-	void handleEventFingerUp(SDL_Event & current);
+	std::unique_ptr<InputHandler> inputHandlerInstance;
 
 public:
-
 	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
 
-	ShortcutHandler & shortcutsHandler();
-	FramerateManager & framerateManager();
-	EventDispatcher & eventDispatcher();
+	ShortcutHandler & shortcuts();
+	FramerateManager & framerate();
+	EventDispatcher & events();
+	InputHandler & input();
 
 	/// Returns current logical screen dimensions
 	/// May not match size of window if user has UI scaling different from 100%
@@ -109,9 +89,6 @@ public:
 	void startTextInput(const Rect & where);
 	void stopTextInput();
 
-	/// moves mouse pointer into specified position inside vcmi window
-	void moveCursorToPosition(const Point & position);
-
 	IScreenHandler & screenHandler();
 
 	WindowHandler & windows();
@@ -123,10 +100,6 @@ public:
 	void setStatusbar(std::shared_ptr<IStatusBar>);
 
 	IUpdateable *curInt;
-
-	bool multifinger;
-	bool isPointerRelativeMode;
-	float pointerSpeedMultiplier;
 
 	ui8 defActionsDef; //default auto actions
 	bool captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
@@ -146,9 +119,9 @@ public:
 	void breakEventHandling(); //current event won't be propagated anymore
 	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen
 
-	static bool amIGuiThread();
-	static void pushUserEvent(EUserEvent usercode);
-	static void pushUserEvent(EUserEvent usercode, void * userdata);
+	bool amIGuiThread();
+	void pushUserEvent(EUserEvent usercode);
+	void pushUserEvent(EUserEvent usercode, void * userdata);
 
 	CondSh<bool> * terminate_cond; // confirm termination
 };

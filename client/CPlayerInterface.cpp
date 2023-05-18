@@ -74,7 +74,7 @@
 #include "CServerHandler.h"
 // FIXME: only needed for CGameState::mutex
 #include "../lib/CGameState.h"
-#include "gui/NotificationHandler.h"
+#include "eventsSDL/NotificationHandler.h"
 #include "adventureMap/CInGameConsole.h"
 
 #include <SDL_events.h>

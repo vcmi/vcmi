@@ -27,6 +27,14 @@ set(client_SRCS
 	battle/BattleWindow.cpp
 	battle/CreatureAnimation.cpp
 
+	eventsSDL/NotificationHandler.cpp
+	eventsSDL/InputHandler.cpp
+	eventsSDL/UserEventHandler.cpp
+	eventsSDL/InputSourceKeyboard.cpp
+	eventsSDL/InputSourceMouse.cpp
+	eventsSDL/InputSourceText.cpp
+	eventsSDL/InputSourceTouch.cpp
+
 	gui/CGuiHandler.cpp
 	gui/CIntObject.cpp
 	gui/CursorHandler.cpp
@@ -34,7 +42,6 @@ set(client_SRCS
 	gui/EventsReceiver.cpp
 	gui/InterfaceObjectConfigurable.cpp
 	gui/FramerateManager.cpp
-	gui/NotificationHandler.cpp
 	gui/ShortcutHandler.cpp
 	gui/WindowHandler.cpp
 
@@ -162,6 +169,14 @@ set(client_HEADERS
 	battle/BattleWindow.h
 	battle/CreatureAnimation.h
 
+	eventsSDL/NotificationHandler.h
+	eventsSDL/InputHandler.h
+	eventsSDL/UserEventHandler.h
+	eventsSDL/InputSourceKeyboard.h
+	eventsSDL/InputSourceMouse.h
+	eventsSDL/InputSourceText.h
+	eventsSDL/InputSourceTouch.h
+
 	gui/CGuiHandler.h
 	gui/CIntObject.h
 	gui/CursorHandler.h
@@ -170,7 +185,6 @@ set(client_HEADERS
 	gui/InterfaceObjectConfigurable.h
 	gui/FramerateManager.h
 	gui/MouseButton.h
-	gui/NotificationHandler.h
 	gui/Shortcut.h
 	gui/ShortcutHandler.h
 	gui/TextAlignment.h
@@ -337,7 +351,7 @@ if(WIN32)
 	endif()
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
 
-	# TODO: very hacky, find proper solution to copy AI dlls into bin dir
+# TODO: very hacky, find proper solution to copy AI dlls into bin dir
 	if(MSVC)
 		add_custom_command(TARGET vcmiclient POST_BUILD
 			WORKING_DIRECTORY "$<TARGET_FILE_DIR:vcmiclient>"

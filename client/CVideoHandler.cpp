@@ -371,7 +371,7 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 	auto packet_duration = frame->duration;
 #endif
 	double frameEndTime = (frame->pts + packet_duration) * av_q2d(format->streams[stream]->time_base);
-	frameTime += GH.framerateManager().getElapsedMilliseconds() / 1000.0;
+	frameTime += GH.framerate().getElapsedMilliseconds() / 1000.0;
 
 	if (frameTime >= frameEndTime )
 	{

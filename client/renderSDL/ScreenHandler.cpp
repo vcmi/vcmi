@@ -13,7 +13,7 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/NotificationHandler.h"
+#include "../eventsSDL/NotificationHandler.h"
 #include "../gui/WindowHandler.h"
 #include "CMT.h"
 #include "SDL_Extensions.h"

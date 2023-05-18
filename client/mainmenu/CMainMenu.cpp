@@ -233,7 +233,7 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 	if(posy < 0)
 		posy = pos.h + posy;
 
-	EShortcut shortcut = GH.shortcutsHandler().findShortcut(button["shortcut"].String());
+	EShortcut shortcut = GH.shortcuts().findShortcut(button["shortcut"].String());
 
 	auto result = std::make_shared<CButton>(Point(posx, posy), button["name"].String(), help, command, shortcut);
 
