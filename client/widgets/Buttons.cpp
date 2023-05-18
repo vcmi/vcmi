@@ -173,22 +173,28 @@ void CButton::clickLeft(tribool down, bool previousState)
 
 	if (down)
 	{
-		if (!soundDisabled)
-			CCS->soundh->playSound(soundBase::button);
-		setState(PRESSED);
-	}
-	else if(hoverable && isHovered())
-		setState(HIGHLIGHTED);
-	else
-		setState(NORMAL);
+		if (getState() != PRESSED)
+		{
+			if (!soundDisabled)
+				CCS->soundh->playSound(soundBase::button);
+			setState(PRESSED);
 
-	if (actOnDown && down)
-	{
-		onButtonClicked();
+			if (actOnDown)
+				onButtonClicked();
+		}
 	}
-	else if (!actOnDown && previousState && (down==false))
+	else
 	{
-		onButtonClicked();
+		if (getState() == PRESSED)
+		{
+			if(hoverable && isHovered())
+				setState(HIGHLIGHTED);
+			else
+				setState(NORMAL);
+
+			if (!actOnDown && previousState && (down == false))
+				onButtonClicked();
+		}
 	}
 }
 
