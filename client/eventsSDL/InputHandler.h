@@ -24,6 +24,9 @@ class UserEventHandler;
 
 class InputHandler
 {
+	std::queue<SDL_Event> SDLEventsQueue;
+	boost::mutex eventsM;
+
 	Point cursorPosition;
 	float pointerSpeedMultiplier;
 	int mouseButtonsMask;
@@ -43,6 +46,10 @@ public:
 
 	void fetchEvents();
 	void processEvents();
+
+	/// drops all incoming events without processing them
+	/// returns true if input event has been found
+	bool ignoreEventsUntilInput();
 
 	void fakeMoveCursor(float dx, float dy);
 	void startTextInput(const Rect & where);

@@ -17,6 +17,7 @@
 #include "../CMT.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/EventDispatcher.h"
+#include "../gui/MouseButton.h"
 
 #include <SDL_events.h>
 #include <SDL_render.h>

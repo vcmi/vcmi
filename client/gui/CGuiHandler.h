@@ -9,19 +9,13 @@
  */
 #pragma once
 
-#include "MouseButton.h"
-#include "../../lib/Point.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
-
 template <typename T> struct CondSh;
+class Point;
 class Rect;
-
 VCMI_LIB_NAMESPACE_END
 
-union SDL_Event;
-struct SDL_MouseMotionEvent;
-
+enum class MouseButton;
 class ShortcutHandler;
 class FramerateManager;
 class IStatusBar;
@@ -74,9 +68,6 @@ public:
 	/// Returns current logical screen dimensions
 	/// May not match size of window if user has UI scaling different from 100%
 	Point screenDimensions() const;
-
-	/// returns true if at least one mouse button is pressed
-	bool isMouseButtonPressed() const;
 
 	/// returns true if specified mouse button is pressed
 	bool isMouseButtonPressed(MouseButton button) const;

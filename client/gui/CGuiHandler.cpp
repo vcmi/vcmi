@@ -34,9 +34,6 @@
 
 CGuiHandler GH;
 
-extern std::queue<SDL_Event> SDLEventsQueue;
-extern boost::mutex eventsM;
-
 boost::thread_specific_ptr<bool> inGuiThread;
 
 SObjectConstruction::SObjectConstruction(CIntObject *obj)
@@ -196,11 +193,6 @@ const Point & CGuiHandler::getCursorPosition() const
 Point CGuiHandler::screenDimensions() const
 {
 	return Point(screen->w, screen->h);
-}
-
-bool CGuiHandler::isMouseButtonPressed() const
-{
-	return isMouseButtonPressed(MouseButton::LEFT) || isMouseButtonPressed(MouseButton::MIDDLE) || isMouseButtonPressed(MouseButton::RIGHT);
 }
 
 bool CGuiHandler::isMouseButtonPressed(MouseButton button) const

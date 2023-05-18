@@ -18,6 +18,7 @@
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
+#include "../gui/MouseButton.h"
 
 #include "../../lib/CConfigHandler.h"
 

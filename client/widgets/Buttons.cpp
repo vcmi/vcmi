@@ -19,6 +19,7 @@
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/MouseButton.h"
 #include "../gui/Shortcut.h"
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"

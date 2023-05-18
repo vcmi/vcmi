@@ -45,8 +45,6 @@
 #undef main
 #endif
 
-extern boost::mutex eventsM;
-
 namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 namespace bfs = boost::filesystem;
@@ -528,15 +526,7 @@ void handleQuit(bool ask)
 	if(CSH->client && LOCPLINT && ask)
 	{
 		CCS->curh->set(Cursor::Map::POINTER);
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], [](){
-			// Workaround for assertion failure on exit:
-			// handleQuit() is alway called during SDL event processing
-			// during which, eventsM is kept locked
-			// this leads to assertion failure if boost::mutex is in locked state
-			eventsM.unlock();
-
-			quitApplication();
-		}, nullptr);
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
 	}
 	else
 	{

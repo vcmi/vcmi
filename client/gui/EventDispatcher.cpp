@@ -13,6 +13,9 @@
 #include "EventsReceiver.h"
 #include "FramerateManager.h"
 #include "CGuiHandler.h"
+#include "MouseButton.h"
+
+#include "../../lib/Point.h"
 
 void EventDispatcher::allowEventHandling(bool enable)
 {

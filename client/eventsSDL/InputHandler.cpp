@@ -21,6 +21,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/EventDispatcher.h"
+#include "../gui/MouseButton.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
@@ -29,8 +30,6 @@
 
 #include <SDL_events.h>
 
-std::queue<SDL_Event> SDLEventsQueue;
-boost::mutex eventsM;
 
 InputHandler::InputHandler()
 	: mouseHandler(std::make_unique<InputSourceMouse>())
@@ -100,6 +99,27 @@ void InputHandler::processEvents()
 	}
 }
 
+bool InputHandler::ignoreEventsUntilInput()
+{
+	bool inputFound = false;
+
+	boost::unique_lock<boost::mutex> lock(eventsM);
+	while(!SDLEventsQueue.empty())
+	{
+		SDL_Event ev = SDLEventsQueue.front();
+		SDLEventsQueue.pop();
+		switch(ev.type)
+		{
+			case SDL_MOUSEBUTTONDOWN:
+			case SDL_FINGERDOWN:
+			case SDL_KEYDOWN:
+				inputFound = true;
+		}
+	}
+
+	return inputFound;
+}
+
 void InputHandler::preprocessEvent(const SDL_Event & ev)
 {
 	if((ev.type==SDL_QUIT) ||(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))
@@ -154,7 +174,8 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	//preprocessing
 	if(ev.type == SDL_MOUSEMOTION)
 	{
-		CCS->curh->cursorMove(ev.motion.x, ev.motion.y);
+		if (CCS && CCS->curh)
+			CCS->curh->cursorMove(ev.motion.x, ev.motion.y);
 	}
 
 	{
