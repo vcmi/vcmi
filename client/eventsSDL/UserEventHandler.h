@@ -12,6 +12,7 @@
 
 struct SDL_UserEvent;
 
+/// Class for handling events of type SDL_UserEvent
 class UserEventHandler
 {
 public:

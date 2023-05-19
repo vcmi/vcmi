@@ -46,14 +46,14 @@ void AEventsReceiver::activateEvents(ui16 what)
 	assert((what & GENERAL) || (activeState & GENERAL));
 
 	activeState |= GENERAL;
-	GH.events().handleElementActivate(this, what);
+	GH.events().activateElement(this, what);
 }
 
 void AEventsReceiver::deactivateEvents(ui16 what)
 {
 	if (what & GENERAL)
 		activeState &= ~GENERAL;
-	GH.events().handleElementDeActivate(this, what & activeState);
+	GH.events().deactivateElement(this, what & activeState);
 }
 
 void AEventsReceiver::click(MouseButton btn, tribool down, bool previousState)

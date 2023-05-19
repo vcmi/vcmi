@@ -12,6 +12,7 @@
 
 struct SDL_KeyboardEvent;
 
+/// Class that handles keyboard input from SDL events
 class InputSourceKeyboard
 {
 public:

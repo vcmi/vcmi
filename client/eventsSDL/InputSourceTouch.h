@@ -16,6 +16,7 @@ VCMI_LIB_NAMESPACE_END
 
 struct SDL_TouchFingerEvent;
 
+/// Class that handles touchscreen input from SDL events
 class InputSourceTouch
 {
 	bool multifinger;

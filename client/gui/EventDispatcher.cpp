@@ -17,47 +17,48 @@
 
 #include "../../lib/Point.h"
 
-void EventDispatcher::processList(const ui16 mask, const ui16 flag, CIntObjectList *lst, std::function<void (CIntObjectList *)> cb)
+template<typename Functor>
+void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 {
-	if (mask & flag)
-		cb(lst);
+	auto processList = [&](ui16 mask, EventReceiversList & lst)
+	{
+		if(mask & activityFlag)
+			cb(lst);
+	};
+
+	processList(AEventsReceiver::LCLICK, lclickable);
+	processList(AEventsReceiver::RCLICK, rclickable);
+	processList(AEventsReceiver::MCLICK, mclickable);
+	processList(AEventsReceiver::HOVER, hoverable);
+	processList(AEventsReceiver::MOVE, motioninterested);
+	processList(AEventsReceiver::KEYBOARD, keyinterested);
+	processList(AEventsReceiver::TIME, timeinterested);
+	processList(AEventsReceiver::WHEEL, wheelInterested);
+	processList(AEventsReceiver::DOUBLECLICK, doubleClickInterested);
+	processList(AEventsReceiver::TEXTINPUT, textInterested);
 }
 
-void EventDispatcher::processLists(ui16 activityFlag, std::function<void (CIntObjectList *)> cb)
+void EventDispatcher::activateElement(AEventsReceiver * elem, ui16 activityFlag)
 {
-	processList(AEventsReceiver::LCLICK,activityFlag,&lclickable,cb);
-	processList(AEventsReceiver::RCLICK,activityFlag,&rclickable,cb);
-	processList(AEventsReceiver::MCLICK,activityFlag,&mclickable,cb);
-	processList(AEventsReceiver::HOVER,activityFlag,&hoverable,cb);
-	processList(AEventsReceiver::MOVE,activityFlag,&motioninterested,cb);
-	processList(AEventsReceiver::KEYBOARD,activityFlag,&keyinterested,cb);
-	processList(AEventsReceiver::TIME,activityFlag,&timeinterested,cb);
-	processList(AEventsReceiver::WHEEL,activityFlag,&wheelInterested,cb);
-	processList(AEventsReceiver::DOUBLECLICK,activityFlag,&doubleClickInterested,cb);
-	processList(AEventsReceiver::TEXTINPUT,activityFlag,&textInterested,cb);
-}
-
-void EventDispatcher::handleElementActivate(AEventsReceiver * elem, ui16 activityFlag)
-{
-	processLists(activityFlag,[&](CIntObjectList * lst){
-		lst->push_front(elem);
+	processLists(activityFlag,[&](EventReceiversList & lst){
+		lst.push_front(elem);
 	});
 	elem->activeState |= activityFlag;
 }
 
-void EventDispatcher::handleElementDeActivate(AEventsReceiver * elem, ui16 activityFlag)
+void EventDispatcher::deactivateElement(AEventsReceiver * elem, ui16 activityFlag)
 {
-	processLists(activityFlag,[&](CIntObjectList * lst){
-		auto hlp = std::find(lst->begin(),lst->end(),elem);
-		assert(hlp != lst->end());
-		lst->erase(hlp);
+	processLists(activityFlag,[&](EventReceiversList & lst){
+		auto hlp = std::find(lst.begin(),lst.end(),elem);
+		assert(hlp != lst.end());
+		lst.erase(hlp);
 	});
 	elem->activeState &= ~activityFlag;
 }
 
 void EventDispatcher::dispatchTimer(uint32_t msPassed)
 {
-	CIntObjectList hlp = timeinterested;
+	EventReceiversList hlp = timeinterested;
 	for (auto & elem : hlp)
 	{
 		if(!vstd::contains(timeinterested,elem)) continue;
@@ -74,7 +75,7 @@ void EventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & sho
 			if(i->captureThisKey(shortcut))
 				keysCaptured = true;
 
-	CIntObjectList miCopy = keyinterested;
+	EventReceiversList miCopy = keyinterested;
 
 	for(auto & i : miCopy)
 	{
@@ -97,7 +98,7 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 			if(i->captureThisKey(shortcut))
 				keysCaptured = true;
 
-	CIntObjectList miCopy = keyinterested;
+	EventReceiversList miCopy = keyinterested;
 
 	for(auto & i : miCopy)
 	{
@@ -111,7 +112,7 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 	}
 }
 
-EventDispatcher::CIntObjectList & EventDispatcher::getListForMouseButton(MouseButton button)
+EventDispatcher::EventReceiversList & EventDispatcher::getListForMouseButton(MouseButton button)
 {
 	switch (button)
 	{
@@ -156,7 +157,7 @@ void EventDispatcher::dispatchMouseButtonReleased(const MouseButton & button, co
 	handleMouseButtonClick(getListForMouseButton(button), button, false);
 }
 
-void EventDispatcher::handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed)
+void EventDispatcher::handleMouseButtonClick(EventReceiversList & interestedObjs, MouseButton btn, bool isPressed)
 {
 	auto hlp = interestedObjs;
 	for(auto & i : hlp)
@@ -180,7 +181,7 @@ void EventDispatcher::handleMouseButtonClick(CIntObjectList & interestedObjs, Mo
 
 void EventDispatcher::dispatchMouseScrolled(const Point & distance, const Point & position)
 {
-	CIntObjectList hlp = wheelInterested;
+	EventReceiversList hlp = wheelInterested;
 	for(auto & i : hlp)
 	{
 		if(!vstd::contains(wheelInterested,i))
@@ -208,7 +209,7 @@ void EventDispatcher::dispatchTextEditing(const std::string & text)
 void EventDispatcher::dispatchMouseMoved(const Point & position)
 {
 	//sending active, hovered hoverable objects hover() call
-	CIntObjectList hlp;
+	EventReceiversList hlp;
 
 	auto hoverableCopy = hoverable;
 	for(auto & elem : hoverableCopy)
@@ -232,7 +233,7 @@ void EventDispatcher::dispatchMouseMoved(const Point & position)
 	}
 
 	//sending active, MotionInterested objects mouseMoved() call
-	CIntObjectList miCopy = motioninterested;
+	EventReceiversList miCopy = motioninterested;
 	for(auto & elem : miCopy)
 	{
 		if(elem->strongInterestState || elem->isInside(position)) //checking bounds including border fixes bug #2476

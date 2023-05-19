@@ -14,6 +14,7 @@ struct SDL_MouseWheelEvent;
 struct SDL_MouseMotionEvent;
 struct SDL_MouseButtonEvent;
 
+/// Class that handles mouse input from SDL events
 class InputSourceMouse
 {
 public:

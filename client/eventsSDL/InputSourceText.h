@@ -17,6 +17,7 @@ VCMI_LIB_NAMESPACE_END
 struct SDL_TextEditingEvent;
 struct SDL_TextInputEvent;
 
+/// Class that handles text input (e.g. IME or direct input from physical keyboard) from SDL events
 class InputSourceText
 {
 public:
