@@ -35,7 +35,6 @@ void WaterAdopter::process()
 void WaterAdopter::init()
 {
 	//make dependencies
-	DEPENDENCY_ALL(WaterAdopter);
 	DEPENDENCY(TownPlacer);
 	POSTFUNCTION(ConnectionsPlacer);
 	POSTFUNCTION(TreasurePlacer);
@@ -224,7 +223,10 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 		}
 	}
 	
-	map.getZones()[waterZoneId]->area().unite(waterArea);
+	{
+		Zone::Lock waterLock(map.getZones()[waterZoneId]->areaMutex);
+		map.getZones()[waterZoneId]->area().unite(waterArea);
+	}
 	Zone::Lock lock(zone.areaMutex);
 	zone.area().subtract(waterArea);
 	zone.areaPossible().subtract(waterArea);
