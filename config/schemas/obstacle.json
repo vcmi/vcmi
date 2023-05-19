@@ -1,50 +1,49 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI obstacle format",
 	"description" : "Format used to define new obstacles in VCMI",
 	"required" : [ "animation" ],
-
 	"additionalProperties" : false,
-	"properties":{
-		"allowedTerrains": {
-			"type": "array",
-			"description": "Obstacles can be place on specified terrains only",
-			"items": { "type" : "string" }
+	"properties" : {
+		"allowedTerrains" : {
+			"type" : "array",
+			"description" : "Obstacles can be place on specified terrains only",
+			"items" : { "type" : "string" }
 		},
-		"specialBattlefields": {
-			"type": "array",
-			"description": "Obstacles can be placed on specified specified battlefields",
-			"items": { "type" : "string" }
+		"specialBattlefields" : {
+			"type" : "array",
+			"description" : "Obstacles can be placed on specified specified battlefields",
+			"items" : { "type" : "string" }
 		},
-		"absolute": {
-			"type": "boolean",
-			"description": "Should be used absolute or relative coordinates for obstacle. There is possible only one absolute obstacle"
+		"absolute" : {
+			"type" : "boolean",
+			"description" : "Should be used absolute or relative coordinates for obstacle. There is possible only one absolute obstacle"
 		},
-		"width": {
-			"type": "number",
-			"description": "Width ob obstacle"
+		"width" : {
+			"type" : "number",
+			"description" : "Width ob obstacle"
 		},
-		"height": {
-			"type": "number",
-			"description": "height if obstacle"
+		"height" : {
+			"type" : "number",
+			"description" : "height if obstacle"
 		},
-		"blockedTiles": {
-			"type": "array",
-			"description": "Blocked hexes - absolute or relative hex id",
-			"items": { "type" : "number" }
+		"blockedTiles" : {
+			"type" : "array",
+			"description" : "Blocked hexes - absolute or relative hex id",
+			"items" : { "type" : "number" }
 		},
-		"animation": {
-			"type": "string",
-			"description": "Image resource",
+		"animation" : {
+			"type" : "string",
+			"description" : "Image resource",
 			"anyOf" : [
 				{ "format" : "defFile" },
 				{ "format" : "imageFile" }
 			]
 		},
-		"unknown": {
-			"type": "number",
-			"description": "Unknown field"
+		"unknown" : {
+			"type" : "number",
+			"description" : "Unknown field"
 		}
 	}
 }

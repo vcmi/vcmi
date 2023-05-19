@@ -62,8 +62,7 @@
 				"mercury" : { "type" : "number"},
 				"sulfur" :  { "type" : "number"},
 				"crystal" : { "type" : "number"},
-				"gems" :    { "type" : "number"},
-
+				"gems" :    { "type" : "number"}
 			}
 		},
 		"speed" :     { "type" : "number" },

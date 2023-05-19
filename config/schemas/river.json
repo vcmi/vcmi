@@ -1,37 +1,36 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI river format",
 	"description" : "Format used to define new rivers in VCMI",
 	"required" : [ "shortIdentifier", "text", "tilesFilename", "delta" ],
-
 	"additionalProperties" : false,
-	"properties":{
-		"shortIdentifier":
+	"properties" : {
+		"shortIdentifier" :
 		{
-			"type": "string",
-			"description": "Two-letters unique indentifier for this road. Used in map format"
+			"type" : "string",
+			"description" : "Two-letters unique indentifier for this road. Used in map format"
 		},
-		"text":
+		"text" :
 		{
-			"type": "string",
-			"description": "Human-readable name of the river"
+			"type" : "string",
+			"description" : "Human-readable name of the river"
 		},
-		"tilesFilename":
+		"tilesFilename" :
 		{
-			"type": "string",
-			"description": "Name of file with river graphics",
-			"format": "defFile"
+			"type" : "string",
+			"description" : "Name of file with river graphics",
+			"format" : "defFile"
 		},
-		"delta":
+		"delta" :
 		{
-			"type": "string",
-			"description": "Name of file with river delta graphics"
+			"type" : "string",
+			"description" : "Name of file with river delta graphics"
 		},
 		"index" : 
 		{
-			"type": "number",
-			"description": "Internal, do not use"
+			"type" : "number",
+			"description" : "Internal, do not use"
 		}
 	}
 }

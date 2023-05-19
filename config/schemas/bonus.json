@@ -1,10 +1,9 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI bonus system format",
 	"description" : "Subsection of several formats, used to add generic bonuses to objects",
-	"required": ["type"],
-
+	"required" : ["type"],
 	"definitions" :
 	{
 		"nestedLimiter" : {
@@ -38,43 +37,42 @@
 			]
 		}
 	},
-
 	"additionalProperties" : false,
-	"properties":{
-		"type": {
-			"type":"string",
-			"description": "type"
+	"properties" : {
+		"type" : {
+			"type" : "string",
+			"description" : "type"
 		},
-		"subtype": {
+		"subtype" : {
 			"anyOf" : [
 				{ "type" : "string" },
 				{ "type" : "number" }
 			],
-			"description": "subtype"
+			"description" : "subtype"
 		},
-		"sourceID": {
-			"type":"number",
-			"description": "sourceID"
+		"sourceID" : {
+			"type" : "number",
+			"description" : "sourceID"
 		},
-		"sourceType": {
-			"type":"string",
-			"description": "sourceType"
+		"sourceType" : {
+			"type" : "string",
+			"description" : "sourceType"
 		},
-		"targetSourceType": {
-			"type":"string",
-			"description": "targetSourceType"
+		"targetSourceType" : {
+			"type" : "string",
+			"description" : "targetSourceType"
 		},
-		"propagator": {
-			"description": "propagator",
+		"propagator" : {
+			"description" : "propagator",
 			"anyOf" : [
 				{
 					"type" : "string"
 				},
 				{
-					"type":"array",
-					"items": {
-							"type":"string",
-							"description": "0"
+					"type" : "array",
+					"items" : {
+							"type" : "string",
+							"description" : "0"
 					}
 				}
 			]
@@ -94,7 +92,7 @@
 							"type" : "string",
 							"description" : "type"
 						},
-						"parameters": {
+						"parameters" : {
 							"type" : "array",
 							"description" : "parameters",
 							"additionalItems" : true
@@ -118,7 +116,7 @@
 							"type" : "string",
 							"description" : "type"
 						},
-						"parameters": {
+						"parameters" : {
 							"type" : "array",
 							"description" : "parameters",
 							"additionalItems" : true
@@ -131,19 +129,19 @@
 			"$ref" : "#/definitions/nestedLimiter",
 			"description" : "limiter"
 		},
-		"effectRange": {
-			"type":"string",
-			"description": "effectRange"
+		"effectRange" : {
+			"type" : "string",
+			"description" : "effectRange"
 		},
-		"val": {
-			"type":"number",
-			"description": "val"
+		"val" : {
+			"type" : "number",
+			"description" : "val"
 		},
-		"valueType": {
-			"type":"string",
-			"description": "valueType"
+		"valueType" : {
+			"type" : "string",
+			"description" : "valueType"
 		},
-		"addInfo": {
+		"addInfo" : {
 			"anyOf" : [
 				{ "type" : "string" },
 				{ "type" : "number" },
@@ -157,26 +155,26 @@
 					}
 				}
 			],
-			"description": "addInfo"
+			"description" : "addInfo"
 		},
-		"duration": {
+		"duration" : {
                         "anyOf" : [
-                                { "type": "string"},
-                                { "type": "array", "items": {"type": "string"} }
+                                { "type" : "string"},
+                                { "type" : "array", "items" : {"type" : "string"} }
                         ],
-			"description": "duration"
+			"description" : "duration"
 		},
-		"turns": {
-			"type":"number",
-			"description": "turns"
+		"turns" : {
+			"type" : "number",
+			"description" : "turns"
 		},
 		"stacking" : {
 			"type" : "string",
 			"description" : "stacking"
 		},
-		"description": {
-			"type":"string",
-			"description": "description"
+		"description" : {
+			"type" : "string",
+			"description" : "description"
 		}
 	}
 }

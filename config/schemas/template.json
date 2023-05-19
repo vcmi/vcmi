@@ -1,84 +1,84 @@
 {
-	"type":"object",
-	"$schema": "",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI random map template format",
 	"description" : "Format used to define random map templates in VCMI",
 	"definitions" :
 	{
-		"zone":{
-			"type": "object",
+		"zone" : {
+			"type" : "object",
 			"required" : ["type", "monsters", "size"],
-			"properties":{
-				"type":{"$ref" : "#/definitions/type"},
-				"size":{"$ref" : "#/definitions/size"},			
-				"playerTowns":{"$ref" : "#/definitions/playerTowns"},				
-				"neuralTowns":{"$ref" : "#/definitions/neuralTowns"},
-				"townsAreSameType":{"$ref" : "#/definitions/townsAreSameType"},
-				"monsters":{"$ref" : "#/definitions/monsters"},
-				"mines":{"$ref" : "#/definitions/mines"},
-				"treasure":{
-					"type":"array",
-					"items":{
-						"type": "object",
-						"properties":{
-							"min": {"type":"number", "minimum" : 0},
-							"max": {"type":"number", "minimum" : 0},
-							"density": {"type":"number", "minimum" : 1}
+			"properties" : {
+				"type" : {"$ref" : "#/definitions/type"},
+				"size" : {"$ref" : "#/definitions/size"},			
+				"playerTowns" : {"$ref" : "#/definitions/playerTowns"},				
+				"neuralTowns" : {"$ref" : "#/definitions/neuralTowns"},
+				"townsAreSameType" : {"$ref" : "#/definitions/townsAreSameType"},
+				"monsters" : {"$ref" : "#/definitions/monsters"},
+				"mines" : {"$ref" : "#/definitions/mines"},
+				"treasure" : {
+					"type" : "array",
+					"items" : {
+						"type" : "object",
+						"properties" : {
+							"min" : {"type" : "number", "minimum" : 0},
+							"max" : {"type" : "number", "minimum" : 0},
+							"density" : {"type" : "number", "minimum" : 1}
 						},					
 						"additionalProperties" : false						
 					}
 				}				
 			}		
 		},
-		"type" :{
-			"type":"string",
+		"type" : {
+			"type" : "string",
 			"additionalProperties" : false,
-			"enum": ["playerStart", "cpuStart", "treasure", "junction"]
+			"enum" : ["playerStart", "cpuStart", "treasure", "junction"]
 		},
-		"size":{
-			"type": "number",
-			"minimum": 1,
+		"size" : {
+			"type" : "number",
+			"minimum" : 1,
 			"additionalProperties" : false
 		},
-		"connection":
+		"connection" :
 		{
-			"required": ["a", "b", "guard"],
-			"properties":{
-				"a":{
+			"required" : ["a", "b", "guard"],
+			"properties" : {
+				"a" : {
 					"type" : "string"
 				},
-				"b":{
+				"b" : {
 					"type" : "string"
 				},
-				"guard":
+				"guard" :
 				{
-					"type": "number",
+					"type" : "number",
 					"minimum" : 0
 				}
 			}
 		},
-		"waterContent":
+		"waterContent" :
 		{
-			"enum": ["none", "normal", "islands"],
+			"enum" : ["none", "normal", "islands"],
 			"additionalProperties" : false,
-			"type": "string"
+			"type" : "string"
 		}
 	},
-	"properties":
+	"properties" :
 	{
 		"required" : ["zones", "connections"],
 		"additionalProperties" : false,
-		"zones":{
-			"type": "object",
-			"additionalProperties":{"$ref" : "#/definitions/zone"	}						
+		"zones" : {
+			"type" : "object",
+			"additionalProperties" : {"$ref" : "#/definitions/zone"	}						
 		},
-		"connections":{
-			"type": "array",
-			"items":{"$ref" : "#/definitions/connection"}	
+		"connections" : {
+			"type" : "array",
+			"items" : {"$ref" : "#/definitions/connection"}	
 		},
-		"allowedWaterContent": {
-			"type": "array",
-			"items": {"$ref" : "#/definitions/waterContent"}
+		"allowedWaterContent" : {
+			"type" : "array",
+			"items" : {"$ref" : "#/definitions/waterContent"}
 		}
 	}
 }

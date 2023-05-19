@@ -1,23 +1,22 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI map header format",
 	"description" : "Part of map in json format, defines core settings of the map",
-	"required": [ "victoryIconIndex", "victoryString", "defeatIconIndex", "defeatString" ],
-
+	"required" : [ "victoryIconIndex", "victoryString", "defeatIconIndex", "defeatString" ],
 	"additionalProperties" : false,
-	"properties":{
-		"victoryIconIndex": {
-			"type":"number"
+	"properties" : {
+		"victoryIconIndex" : {
+			"type" : "number"
 		},
-		"victoryString": {
-			"type":"string"
+		"victoryString" : {
+			"type" : "string"
 		},
-		"defeatIconIndex": {
-			"type":"number"
+		"defeatIconIndex" : {
+			"type" : "number"
 		},
-		"defeatString": {
-			"type":"string"
+		"defeatString" : {
+			"type" : "string"
 		},
 		"triggeredEvents" : {
 			"type" : "object",

@@ -4,7 +4,6 @@
 	"title" : "VCMI battlefield format",
 	"description" : "Format used to define new battlefields in VCMI",
 	"required" : [ "graphics" ],
-
 	"additionalProperties" : false,
 	"properties" : {
 		"name" : {
@@ -15,13 +14,9 @@
 			"type" : "boolean",
 			"description" : "Shows if this battleground has own obstacles"
 		},
-		"graphics": {
-			"type":"string",
-			"format" : "imageFile",
-			"description": "BMP battleground resource"
-		},
 		"graphics" : {
 			"type" : "string",
+			"format" : "imageFile",
 			"description" : "BMP battleground resource"
 		},
 		"impassableHexes" : {
