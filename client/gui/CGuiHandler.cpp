@@ -180,11 +180,6 @@ bool CGuiHandler::isKeyboardShiftDown() const
 	return inputHandlerInstance->isKeyboardShiftDown();
 }
 
-void CGuiHandler::breakEventHandling()
-{
-	events().allowEventHandling(false);
-}
-
 const Point & CGuiHandler::getCursorPosition() const
 {
 	return inputHandlerInstance->getCursorPosition();

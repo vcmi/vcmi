@@ -574,7 +574,6 @@ void CTextInput::keyPressed(EShortcut key)
 	if(key == EShortcut::GLOBAL_MOVE_FOCUS)
 	{
 		moveFocus();
-		GH.breakEventHandling();
 		return;
 	}
 
@@ -620,6 +619,9 @@ void CTextInput::setText(const std::string & nText, bool callCb)
 bool CTextInput::captureThisKey(EShortcut key)
 {
 	if(key == EShortcut::GLOBAL_RETURN)
+		return false;
+
+	if (!focus)
 		return false;
 
 	return true;

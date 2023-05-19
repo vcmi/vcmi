@@ -441,10 +441,12 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 
 	while(nextFrame())
 	{
-		GH.input().fetchEvents();
-
-		if(stopOnKey && GH.input().ignoreEventsUntilInput())
-			return false;
+		if(stopOnKey)
+		{
+			GH.input().fetchEvents();
+			if(GH.input().ignoreEventsUntilInput())
+				return false;
+		}
 
 		SDL_Rect rect = CSDL_Ext::toSDL(pos);
 

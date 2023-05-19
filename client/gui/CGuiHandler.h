@@ -107,7 +107,6 @@ public:
 
 	void handleEvents(); //takes events from queue and calls interested objects
 	void fakeMouseMove();
-	void breakEventHandling(); //current event won't be propagated anymore
 	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen
 
 	bool amIGuiThread();

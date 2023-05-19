@@ -17,11 +17,6 @@
 
 #include "../../lib/Point.h"
 
-void EventDispatcher::allowEventHandling(bool enable)
-{
-	eventHandlingAllowed = enable;
-}
-
 void EventDispatcher::processList(const ui16 mask, const ui16 flag, CIntObjectList *lst, std::function<void (CIntObjectList *)> cb)
 {
 	if (mask & flag)
@@ -83,12 +78,13 @@ void EventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & sho
 
 	for(auto & i : miCopy)
 	{
-		if (!eventHandlingAllowed)
-			break;
-
 		for(EShortcut shortcut : shortcutsVector)
 			if(vstd::contains(keyinterested, i) && (!keysCaptured || i->captureThisKey(shortcut)))
+			{
 				i->keyPressed(shortcut);
+				if (keysCaptured)
+					return;
+			}
 	}
 }
 
@@ -105,12 +101,13 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 
 	for(auto & i : miCopy)
 	{
-		if (!eventHandlingAllowed)
-			break;
-
 		for(EShortcut shortcut : shortcutsVector)
 			if(vstd::contains(keyinterested, i) && (!keysCaptured || i->captureThisKey(shortcut)))
+			{
 				i->keyReleased(shortcut);
+				if (keysCaptured)
+					return;
+			}
 	}
 }
 
@@ -137,9 +134,6 @@ void EventDispatcher::dispatchMouseDoubleClick(const Point & position)
 	{
 		if(!vstd::contains(doubleClickInterested, i))
 			continue;
-
-		if (!eventHandlingAllowed)
-			break;
 
 		if(i->isInside(position))
 		{
@@ -170,9 +164,6 @@ void EventDispatcher::handleMouseButtonClick(CIntObjectList & interestedObjs, Mo
 		if(!vstd::contains(interestedObjs, i))
 			continue;
 
-		if (!eventHandlingAllowed)
-			break;
-
 		auto prev = i->isMouseButtonPressed(btn);
 		if(!isPressed)
 			i->currentMouseState[btn] = isPressed;
@@ -190,11 +181,11 @@ void EventDispatcher::handleMouseButtonClick(CIntObjectList & interestedObjs, Mo
 void EventDispatcher::dispatchMouseScrolled(const Point & distance, const Point & position)
 {
 	CIntObjectList hlp = wheelInterested;
-	for(auto i = hlp.begin(); i != hlp.end() && eventHandlingAllowed; i++)
+	for(auto & i : hlp)
 	{
-		if(!vstd::contains(wheelInterested,*i))
+		if(!vstd::contains(wheelInterested,i))
 			continue;
-		(*i)->wheelScrolled(distance.y < 0, (*i)->isInside(position));
+		i->wheelScrolled(distance.y < 0, i->isInside(position));
 	}
 }
 

@@ -34,8 +34,6 @@ class EventDispatcher
 	CIntObjectList doubleClickInterested;
 	CIntObjectList textInterested;
 
-	std::atomic<bool> eventHandlingAllowed = true;
-
 	CIntObjectList & getListForMouseButton(MouseButton button);
 
 	void handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed);
@@ -44,9 +42,6 @@ class EventDispatcher
 	void processLists(ui16 activityFlag, std::function<void(CIntObjectList *)> cb);
 
 public:
-	/// allows to interrupt event handling and abort any subsequent event processing
-	void allowEventHandling(bool enable);
-
 	/// add specified UI element as interested. Uses unnamed enum from AEventsReceiver for activity flags
 	void handleElementActivate(AEventsReceiver * elem, ui16 activityFlag);
 

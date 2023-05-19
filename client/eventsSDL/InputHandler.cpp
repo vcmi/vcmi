@@ -78,8 +78,6 @@ void InputHandler::processEvents()
 	boost::unique_lock<boost::mutex> lock(eventsMutex);
 	for (auto const & currentEvent : eventsQueue)
 	{
-		GH.events().allowEventHandling(true);
-
 		if (currentEvent.type == SDL_MOUSEMOTION)
 		{
 			cursorPosition = Point(currentEvent.motion.x, currentEvent.motion.y);
