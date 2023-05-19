@@ -194,12 +194,6 @@ void ClientCommandManager::handleNotDialogCommand()
 	LOCPLINT->showingDialog->setn(false);
 }
 
-void ClientCommandManager::handleGuiCommand()
-{
-	for(const auto & child : GH.windows().findWindows<CIntObject>())
-		printInfoAboutInterfaceObject(child.get(), 0);
-}
-
 void ClientCommandManager::handleConvertTextCommand()
 {
 	logGlobal->info("Searching for available maps");
@@ -487,36 +481,6 @@ void ClientCommandManager::printCommandMessage(const std::string &commandMessage
 	}
 }
 
-void ClientCommandManager::printInfoAboutInterfaceObject(const CIntObject *obj, int level)
-{
-	std::stringstream sbuffer;
-	sbuffer << std::string(level, '\t');
-
-	sbuffer << typeid(*obj).name() << " *** ";
-	if (obj->isActive())
-	{
-#define PRINT(check, text) if (obj->isActive(CIntObject::check)) sbuffer << text
-		PRINT(LCLICK, 'L');
-		PRINT(RCLICK, 'R');
-		PRINT(HOVER, 'H');
-		PRINT(MOVE, 'M');
-		PRINT(KEYBOARD, 'K');
-		PRINT(TIME, 'T');
-		PRINT(GENERAL, 'A');
-		PRINT(WHEEL, 'W');
-		PRINT(DOUBLECLICK, 'D');
-#undef  PRINT
-	}
-	else
-		sbuffer << "inactive";
-	sbuffer << " at " << obj->pos.x <<"x"<< obj->pos.y;
-	sbuffer << " (" << obj->pos.w <<"x"<< obj->pos.h << ")";
-	printCommandMessage(sbuffer.str(), ELogLevel::INFO);
-
-	for(const CIntObject *child : obj->children)
-		printInfoAboutInterfaceObject(child, level+1);
-}
-
 void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)
 {
 	YourTurn yt;
@@ -568,9 +532,6 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(commandName == "not dialog")
 		handleNotDialogCommand();
-
-	else if(commandName == "gui")
-		handleGuiCommand();
 
 	else if(message=="convert txt")
 		handleConvertTextCommand();

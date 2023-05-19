@@ -115,13 +115,11 @@ void CBuildingRect::hover(bool on)
 {
 	if(on)
 	{
-		if(!isActive(MOVE))
-			addUsedEvents(MOVE);
+		addUsedEvents(MOVE);
 	}
 	else
 	{
-		if(isActive(MOVE))
-			removeUsedEvents(MOVE);
+		removeUsedEvents(MOVE);
 
 		if(parent->selectedBuilding == this)
 		{

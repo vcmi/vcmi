@@ -557,8 +557,7 @@ void CVolumeSlider::wheelScrolled(bool down, bool in)
 
 void CSlider::sliderClicked()
 {
-	if(!isActive(MOVE))
-		addUsedEvents(MOVE);
+	addUsedEvents(MOVE);
 }
 
 void CSlider::mouseMoved (const Point & cursorPosition)
@@ -699,8 +698,7 @@ void CSlider::clickLeft(tribool down, bool previousState)
 		moveTo((int)(rw * positions  +  0.5));
 		return;
 	}
-	if(isActive(MOVE))
-		removeUsedEvents(MOVE);
+	removeUsedEvents(MOVE);
 }
 
 CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, CSlider::EStyle style)

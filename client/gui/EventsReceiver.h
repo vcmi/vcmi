@@ -72,9 +72,6 @@ public:
 	/// Returns true if element is currently active and may receive events
 	bool isActive() const;
 
-	/// Returns true if particular event(s) is active for this element
-	bool isActive(int flags) const;
-
 	/// Returns true if particular mouse button was pressed when inside this element
 	bool isMouseButtonPressed(MouseButton btn) const;
 };

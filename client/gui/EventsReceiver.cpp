@@ -31,11 +31,6 @@ bool AEventsReceiver::isActive() const
 	return activeState;
 }
 
-bool AEventsReceiver::isActive(int flags) const
-{
-	return activeState & flags;
-}
-
 bool AEventsReceiver::isMouseButtonPressed(MouseButton btn) const
 {
 	return currentMouseState.count(btn) ? currentMouseState.at(btn) : false;
