@@ -41,40 +41,28 @@
 
 	"additionalProperties" : false,
 	"properties":{
-		"addInfo": {
+		"type": {
+			"type":"string",
+			"description": "type"
+		},
+		"subtype": {
 			"anyOf" : [
 				{ "type" : "string" },
-				{ "type" : "number" },
-				{
-					"type" : "array",
-					"items" : {
-						"anyof" : [
-							{ "type" : "string" },
-							{ "type" : "number" }
-						]
-					}
-				}
+				{ "type" : "number" }
 			],
-			"description": "addInfo"
+			"description": "subtype"
 		},
-		"description": {
+		"sourceID": {
+			"type":"number",
+			"description": "sourceID"
+		},
+		"sourceType": {
 			"type":"string",
-			"description": "description"
+			"description": "sourceType"
 		},
-		"duration": {
-                        "anyOf" : [
-                                { "type": "string"},
-                                { "type": "array", "items": {"type": "string"} }
-                        ],
-			"description": "duration"
-		},
-		"effectRange": {
+		"targetSourceType": {
 			"type":"string",
-			"description": "effectRange"
-		},
-		"limiters" : {
-			"$ref" : "#/definitions/nestedLimiter",
-			"description" : "limiter"
+			"description": "targetSourceType"
 		},
 		"propagator": {
 			"description": "propagator",
@@ -139,36 +127,13 @@
 				}
 			]
 		},
-		"sourceID": {
-			"type":"number",
-			"description": "sourceID"
+		"limiters" : {
+			"$ref" : "#/definitions/nestedLimiter",
+			"description" : "limiter"
 		},
-		"sourceType": {
+		"effectRange": {
 			"type":"string",
-			"description": "sourceType"
-		},
-		"targetSourceType": {
-			"type":"string",
-			"description": "targetSourceType"
-		},
-		"stacking" : {
-			"type" : "string",
-			"description" : "stacking"
-		},
-		"subtype": {
-			"anyOf" : [
-				{ "type" : "string" },
-				{ "type" : "number" }
-			],
-			"description": "subtype"
-		},
-		"turns": {
-			"type":"number",
-			"description": "turns"
-		},
-		"type": {
-			"type":"string",
-			"description": "type"
+			"description": "effectRange"
 		},
 		"val": {
 			"type":"number",
@@ -177,6 +142,41 @@
 		"valueType": {
 			"type":"string",
 			"description": "valueType"
+		},
+		"addInfo": {
+			"anyOf" : [
+				{ "type" : "string" },
+				{ "type" : "number" },
+				{
+					"type" : "array",
+					"items" : {
+						"anyof" : [
+							{ "type" : "string" },
+							{ "type" : "number" }
+						]
+					}
+				}
+			],
+			"description": "addInfo"
+		},
+		"duration": {
+                        "anyOf" : [
+                                { "type": "string"},
+                                { "type": "array", "items": {"type": "string"} }
+                        ],
+			"description": "duration"
+		},
+		"turns": {
+			"type":"number",
+			"description": "turns"
+		},
+		"stacking" : {
+			"type" : "string",
+			"description" : "stacking"
+		},
+		"description": {
+			"type":"string",
+			"description": "description"
 		}
 	}
 }

@@ -17,6 +17,10 @@
 			"description": "Obstacles can be placed on specified specified battlefields",
 			"items": { "type" : "string" }
 		},
+		"absolute": {
+			"type": "boolean",
+			"description": "Should be used absolute or relative coordinates for obstacle. There is possible only one absolute obstacle"
+		},
 		"width": {
 			"type": "number",
 			"description": "Width ob obstacle"
@@ -41,10 +45,6 @@
 		"unknown": {
 			"type": "number",
 			"description": "Unknown field"
-		},
-		"absolute": {
-			"type": "boolean",
-			"description": "Should be used absolute or relative coordinates for obstacle. There is possible only one absolute obstacle"
 		}
 	}
 }

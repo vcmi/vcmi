@@ -24,15 +24,9 @@
 			"maxItems" : 3,
 			"items": {
 				"type": "string",
-				"maxLength" : 3,
-				"minLength" : 3
+				"minLength" : 3,
+				"maxLength" : 3
 			}
-		},
-
-		"allowedTerrains" : {
-			"type":"array",
-			"items": { "type": "string" },
-			"description": "List of terrain on which this object can be placed"
 		},
 		"mask" :  {
 			"type":"array",
@@ -42,6 +36,11 @@
 		"zIndex" :  {
 			"type":"number",
 			"description": "Defines order in which objects on same tile will be blit."
+		},
+		"allowedTerrains" : {
+			"type":"array",
+			"items": { "type": "string" },
+			"description": "List of terrain on which this object can be placed"
 		}
 	}
 }

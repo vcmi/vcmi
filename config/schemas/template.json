@@ -1,12 +1,8 @@
 {
-
 	"type":"object",
 	"$schema": "",
-
 	"title" : "VCMI random map template format",
 	"description" : "Format used to define random map templates in VCMI",
-
-
 	"definitions" :
 	{
 		"zone":{
@@ -35,14 +31,14 @@
 			}		
 		},
 		"type" :{
-			"enum": ["playerStart", "cpuStart", "treasure", "junction"],
+			"type":"string",
 			"additionalProperties" : false,
-			"type":"string"
+			"enum": ["playerStart", "cpuStart", "treasure", "junction"]
 		},
 		"size":{
 			"type": "number",
 			"minimum": 1,
-			"additionalProperties" : false,
+			"additionalProperties" : false
 		},
 		"connection":
 		{
@@ -68,9 +64,10 @@
 			"type": "string"
 		}
 	},
-
 	"properties":
 	{
+		"required" : ["zones", "connections"],
+		"additionalProperties" : false,
 		"zones":{
 			"type": "object",
 			"additionalProperties":{"$ref" : "#/definitions/zone"	}						
@@ -82,8 +79,6 @@
 		"allowedWaterContent": {
 			"type": "array",
 			"items": {"$ref" : "#/definitions/waterContent"}
-		},
-		"required" : ["zones", "connections"],
-		"additionalProperties" : false
+		}
 	}
 }

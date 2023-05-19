@@ -1,12 +1,8 @@
 {
-
 	"type":"object",
 	"$schema": "http://json-schema.org/draft-04/schema",
-
 	"title" : "VCMI spell format",
 	"description" : "Format used to define new spells in VCMI",
-
-
 	"definitions" : {
 		"animationQueue":{
 			"type": "array",
@@ -44,8 +40,8 @@
 					"items":{
 						"type": "object",
 						"properties":{
-							"minimumAngle": {"type":"number", "minimum" : 0},
-							"defName": {"type":"string", "format": "defFile"}
+							"defName": {"type":"string", "format": "defFile"},
+							"minimumAngle": {"type":"number", "minimum" : 0}
 						},
 						"additionalProperties" : false
 					}
@@ -60,7 +56,7 @@
 		},
 		"levelInfo":{
 			"type": "object",
-			"required":["range","description","cost","power","aiValue","range"],
+			"required":["range", "description", "cost", "power", "aiValue"],
 
 			"additionalProperties" : false,
 			"properties":{
@@ -75,13 +71,12 @@
 				"power":{
 					"type": "number"
 				},
-				"aiValue":{
-					"type": "number"
-				},
-
 				"range":{
 					"type": "string",
 					"description": "spell range description in SRSL"
+				},
+				"aiValue":{
+					"type": "number"
 				},
 				"effects":{
 					"type": "object",
@@ -125,46 +120,37 @@
 				}
 			}
 		},
-
 		"texts":{
 			"type": "object",
-
-
 			"additionalProperties" : false
 		}
 	},
-
 	"required" : ["type", "name", "school", "level", "power","gainChance","flags","levels"],
 	"additionalProperties" : false,
-
 	"properties": {
 		"index":{
 				"type": "number",
 				"description": "numeric id of spell required only for original spells, prohibited for new spells"
+		},
+		"name":{
+			"type": "string",
+			"description": "Localizable name"
 		},
 		"type":{
 				"type": "string",
 				"enum": ["adventure", "combat", "ability"],
 				"description":"Spell type"
 		},
-		"name":{
-				"type": "string",
-				"description": "Localizable name"
-
-		},
 		"school":{
 				"type": "object",
 				"description": "Spell schools",
 				"additionalProperties": false,
-
 				"properties":{
-
 						"air":{"type": "boolean"},
 						"fire":{"type": "boolean"},
 						"earth":{"type": "boolean"},
 						"water":{"type": "boolean"}
 				}
-
 		},
 		"level":{
 				"type": "number",
@@ -172,18 +158,15 @@
 				"minimum" : 0,
 				"maximum" : 5
 		},
-
 		"power":{
 				"type": "number",
 				"description": "Base power"
 		},
-
 		"defaultGainChance":{
 				"type": "number",
 				"description": "Gain chance by default for all factions"
 
 		},
-
 		"gainChance":{
 				"type": "object",
 				"description": "Chance in % to gain for faction. NOTE: this field is merged with faction config",
@@ -261,40 +244,37 @@
 			"additionalProperties" : true
 		},
 		"animation":{"$ref": "#/definitions/animation"},
-
 		"graphics":{
-				 "type": "object",
-				 "additionalProperties" : false,
-				 "properties":{
-						 "iconImmune":{
-							  "type": "string",
-							  "description": "Resourse path of icon for SPELL_IMMUNITY bonus (relative to DATA or SPRITES)",
-							  "format" : "imageFile"
-						 },
-						 "iconScenarioBonus":{
-							  "type": "string",
-							  "description": "Resourse path of icon for scenario bonus" ,
-							  "format" : "imageFile"
-						 },
-						 "iconEffect":{
-							  "type": "string",
-							  "description": "Resourse path of icon for spell effects during battle" ,
-							  "format" : "imageFile"
-						 },
-						 "iconBook":{
-							  "type": "string",
-							  "description":"Resourse path of icon for spellbook" ,
-							  "format" : "imageFile"
-						 },
-						 "iconScroll":{
-							  "type": "string",
-							  "description": "Resourse path of icon for spell scrolls",
-							  "format": "imageFile"
-						 }
-				 }
-
+			"type": "object",
+			"additionalProperties" : false,
+			"properties":{
+				"iconBook":{
+						"type": "string",
+						"description":"Resourse path of icon for spellbook" ,
+						"format" : "imageFile"
+				},
+				"iconScroll":{
+						"type": "string",
+						"description": "Resourse path of icon for spell scrolls",
+						"format": "imageFile"
+				},
+				"iconEffect":{
+					"type": "string",
+					"description": "Resourse path of icon for spell effects during battle" ,
+					"format" : "imageFile"
+				},
+				"iconImmune":{
+					"type": "string",
+					"description": "Resourse path of icon for SPELL_IMMUNITY bonus (relative to DATA or SPRITES)",
+					"format" : "imageFile"
+				},
+				"iconScenarioBonus":{
+					"type": "string",
+					"description": "Resourse path of icon for scenario bonus" ,
+					"format" : "imageFile"
+				}
+			}
 		},
-
 		"sounds":{
 			 "type": "object",
 			 "additionalProperties" : false,
@@ -305,12 +285,10 @@
 					 }
 			 }
 		},
-
 		"levels":{
 			 "type": "object",
 			 "additionalProperties" : false,
 			 "required" : ["none", "basic", "advanced", "expert"],
-
 			 "properties":{
 				"base":{
 					"type": "object",

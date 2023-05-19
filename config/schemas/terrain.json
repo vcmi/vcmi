@@ -4,23 +4,57 @@
 	"title" : "VCMI terrain format",
 	"description" : "Format used to define new terrains in VCMI",
 	"required" : [ "text", "moveCost", "minimapUnblocked", "minimapBlocked", "music", "tiles", "type", "horseSound", "horseSoundPenalty", "shortIdentifier", "battleFields" ],
-
 	"additionalProperties" : false,
 	"properties":{
-		"index" :
-		{
-			"type": "number",
-			"description": "Internal, do not use"
-		},
 		"text":
 		{
 			"type": "string",
 			"description": "Human-readable name of this terrain"
 		},
+		"shortIdentifier":
+		{
+			"type": "string",
+			"description": "Two-letters unique indentifier for this terrain. Used for map format"
+		},
+		"type":
+		{
+			"type": "array",
+			"description": "Type of this terrain. Can be land, water, subterranean or rock",
+			"items":
+			{
+				"enum": ["LAND", "WATER", "SUB", "ROCK", "SURFACE"],
+				"type": "string"
+			}
+		},
 		"moveCost":
 		{
 			"type": "number",
 			"description": "How many movement points needed to move hero"
+		},
+		"tiles":
+		{
+			"type": "string",
+			"description": "Name of file with graphicks",
+			"format": "defFile"
+		},
+		"rockTerrain":
+		{
+			"type": "string",
+			"description": "The name of rock type terrain which will be used as borders in the underground"
+		},
+		"river":
+		{
+			"type": "string",
+			"description": "River type which should be used for that terrain"
+		},
+		"battleFields":
+		{
+			"type": "array",
+			"description": "array of battleFields for this terrain",
+			"items":
+			{
+				"type": "string"
+			}
 		},
 		"minimapUnblocked":
 		{
@@ -50,58 +84,6 @@
 			"description": "Music filename to play on this terrain on adventure map",
 			"format": "musicFile"
 		},
-		"tiles":
-		{
-			"type": "string",
-			"description": "Name of file with graphicks",
-			"format": "defFile"
-		},
-		"type":
-		{
-			"type": "array",
-			"description": "Type of this terrain. Can be land, water, subterranean or rock",
-			"items":
-			{
-				"enum": ["LAND", "WATER", "SUB", "ROCK", "SURFACE"],
-				"type": "string"
-			}
-		},
-		"rockTerrain":
-		{
-			"type": "string",
-			"description": "The name of rock type terrain which will be used as borders in the underground"
-		},
-		"river":
-		{
-			"type": "string",
-			"description": "River type which should be used for that terrain"
-		},
-		"horseSound":
-		{
-			"type": "string",
-			"description": "Hero movement sound for this terrain, version for moving on tiles with road",
-			"format": "soundFile"
-		},
-		"horseSoundPenalty":
-		{
-			"type": "string",
-			"description": "Hero movement sound for this terrain, version for moving on tiles without road",
-			"format": "soundFile"
-		},
-		"shortIdentifier":
-		{
-			"type": "string",
-			"description": "Two-letters unique indentifier for this terrain. Used for map format"
-		},
-		"battleFields":
-		{
-			"type": "array",
-			"description": "array of battleFields for this terrain",
-			"items":
-			{
-				"type": "string"
-			}
-		},
 		"sounds":
 		{
 			"type": "object",
@@ -121,6 +103,18 @@
 				}
 			}
 		},
+		"horseSound":
+		{
+			"type": "string",
+			"description": "Hero movement sound for this terrain, version for moving on tiles with road",
+			"format": "soundFile"
+		},
+		"horseSoundPenalty":
+		{
+			"type": "string",
+			"description": "Hero movement sound for this terrain, version for moving on tiles without road",
+			"format": "soundFile"
+		},
 		"prohibitTransitions":
 		{
 			"type": "array",
@@ -139,6 +133,11 @@
 		{
 			"type": "string",
 			"description": "Can be normal, dirt, water, rock"
+		},
+		"index" :
+		{
+			"type": "number",
+			"description": "Internal, do not use"
 		}
 	}
 }

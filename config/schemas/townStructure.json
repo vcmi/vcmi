@@ -6,6 +6,14 @@
 	"required": [ "animation", "x", "y"],
 	"additionalProperties" : false,
 	"properties":{
+		"builds": {
+			"type" : "string",
+			"description" : ""
+		},
+		"hidden": {
+			"type":"boolean",
+			"description" : "If upgrade, this building will replace parent animation but will not alter its behaviour"
+		},
 		"animation": {
 			"type":"string",
 			"description" : "Main animation file for this building",
@@ -20,14 +28,6 @@
 			"type":"string",
 			"description" : "Golden border around building, displayed when building is selected",
 			"format" : "imageFile"
-		},
-		"builds": {
-			"type" : "string",
-			"description" : ""
-		},
-		"hidden": {
-			"type":"boolean",
-			"description" : "If upgrade, this building will replace parent animation but will not alter its behaviour"
 		},
 		"x": {
 			"type":"number",

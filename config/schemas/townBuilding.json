@@ -4,7 +4,6 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI town building format",
 	"description" : "Format used to define town buildings in VCMI",
-
 	"definitions" :
 	{
 		"buildingRequirement" : {
@@ -22,33 +21,10 @@
 			}
 		} 
 	},
-
 	"properties":{
 		"id": {
 			"type":"number",
 			"description" : "Numeric identifier of this building"
-		},
-		"type": {
-			"type":"string",
-			"description" : "Subtype for some special buildings"
-		},
-		"height": {
-			"type":"string",
-			"enum" : [ "skyship", "high", "average", "low"],
-			"description" : "Height for lookout towers and some grails"
-		},
-		"mode": {
-			"type":"string",
-			"enum" : [ "normal", "auto", "special", "grail" ],
-			"description" : "Mode in which this building will be built"
-		},
-		"requires": {
-			"$ref" : "#/definitions/buildingRequirement",
-			"description" : "List of town buildings that must be built before this one"
-		},
-		"upgrades": {
-			"description" : "If this building is upgrade, identifier of base building",
-			"type":"string"
 		},
 		"name" : {
 			"description" : "Name of this building",
@@ -58,18 +34,40 @@
 			"description" : "Full decsription of this building",
 			"type" : "string"
 		},
+		"type": {
+			"type":"string",
+			"description" : "Subtype for some special buildings"
+		},
+		"mode": {
+			"type":"string",
+			"enum" : [ "normal", "auto", "special", "grail" ],
+			"description" : "Mode in which this building will be built"
+		},
+		"height": {
+			"type":"string",
+			"enum" : [ "skyship", "high", "average", "low"],
+			"description" : "Height for lookout towers and some grails"
+		},
+		"requires": {
+			"$ref" : "#/definitions/buildingRequirement",
+			"description" : "List of town buildings that must be built before this one"
+		},
+		"upgrades": {
+			"description" : "If this building is upgrade, identifier of base building",
+			"type":"string"
+		},
 		"cost": {
 			"type":"object",
 			"additionalProperties" : false,
 			"description": "Cost to build this building",
 			"properties":{
+				"gold":    { "type":"number"},
 				"wood":    { "type":"number"},
-				"mercury": { "type":"number"},
 				"ore":     { "type":"number"},
+				"mercury": { "type":"number"},
 				"sulfur":  { "type":"number"},
 				"crystal": { "type":"number"},
-				"gems":    { "type":"number"},
-				"gold":    { "type":"number"}
+				"gems":    { "type":"number"}
 			}
 	    },		
 		"produce": {
@@ -77,13 +75,13 @@
 			"additionalProperties" : false,
 			"description": "Resources this building produce each day",
 			"properties":{
+				"gold":    { "type":"number"},
 				"wood":    { "type":"number"},
-				"mercury": { "type":"number"},
 				"ore":     { "type":"number"},
+				"mercury": { "type":"number"},
 				"sulfur":  { "type":"number"},
 				"crystal": { "type":"number"},
-				"gems":    { "type":"number"},
-				"gold":    { "type":"number"}
+				"gems":    { "type":"number"}
 			}
 		},
 		"overrides": {

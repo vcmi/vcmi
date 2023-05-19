@@ -1,13 +1,9 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-
 	"title" : "VCMI script format",
 	"description" : "Format used to configure script environment",
-
-
 	"required" : ["source"],
-
 	"properties" : {
 		"source" : {
 			"type": "string",

@@ -1,18 +1,18 @@
 {
-
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-
 	"title" : "VCMI skill format",
 	"description" : "Format used to replace bonuses provided by secondary skills in VCMI",
-
 	"definitions" : {
-
 		"skillBonus" : {
 			"type" : "object",
 			"description" : "Set of bonuses provided by skill at given level",
 			"required" : ["description", "effects"],
 			"properties" : {
+				"description" : {
+					"type" : "string",
+					"description" : "localizable description"
+				},
 				"images" : {
 					"type" : "object",
 					"description" : "skill icons of varying size",
@@ -34,10 +34,6 @@
 						}
 					}
 				},
-				"description" : {
-					"type" : "string",
-					"description" : "localizable description"
-				},
 				"effects" : {
 					"type" : "object",
 					"additionalProperties" : {
@@ -46,19 +42,16 @@
 				}
 			}
 		}
-		
 	},
-
 	"required" : ["name", "basic", "advanced", "expert"],
-
 	"properties" : {
-		"index" : {
-			"type": "number",
-			"description": "numeric id of skill, required for existing skills"
-		},
 		"name" : {
 			"type": "string",
 			"description": "localizable skill name"
+		},
+		"index" : {
+			"type": "number",
+			"description": "numeric id of skill, required for existing skills"
 		},
 		"obligatoryMajor":{
 			"type": "boolean",

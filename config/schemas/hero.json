@@ -3,7 +3,7 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI hero format",
 	"description" : "Format used to define new heroes in VCMI",
-	"required": [ "army", "class", "skills", "texts" ],
+	"required": [ "class", "army", "skills", "texts" ],
 	
 	"oneOf" : [
 		{
@@ -16,40 +16,9 @@
 
 	"additionalProperties" : false,
 	"properties":{
-		"army": {
-			"type":"array",
-			"description": "Initial hero army when recruited in tavern",
-			"minItems" : 1,
-			"maxItems" : 3,
-			"items": {
-				"type":"object",
-				"additionalProperties" : false,
-				"required" : [ "creature", "min", "max" ],
-				"properties":{
-					"creature": {
-						"type":"string",
-						"description": "creature"
-					},
-					"max": {
-						"type":"number",
-						"description": "max",
-						"minimum" : 1
-					},
-					"min": {
-						"type":"number",
-						"description": "min",
-						"minimum" : 1
-					}
-				}
-			}
-		},
-		"index" : {
-			"type" : "number",
-			"description" : "Private field to break things, do not use."
-		},
 		"special": {
-				"type":"boolean",
-				"description": "Marks this object as special and not available by default"
+			"type":"boolean",
+			"description": "Marks this object as special and not available by default"
 		},
 		"class": {
 			"type":"string",
@@ -89,6 +58,33 @@
 					"type":"string",
 					"description": "Small image of hero specialty for use in exchange screen",
 					"format" : "imageFile"
+				}
+			}
+		},
+		"army": {
+			"type":"array",
+			"description": "Initial hero army when recruited in tavern",
+			"minItems" : 1,
+			"maxItems" : 3,
+			"items": {
+				"type":"object",
+				"additionalProperties" : false,
+				"required" : [ "creature", "min", "max" ],
+				"properties":{
+					"creature": {
+						"type":"string",
+						"description": "creature"
+					},
+					"max": {
+						"type":"number",
+						"description": "max",
+						"minimum" : 1
+					},
+					"min": {
+						"type":"number",
+						"description": "min",
+						"minimum" : 1
+					}
 				}
 			}
 		},
@@ -142,29 +138,29 @@
 			"type":"object",
 			"additionalProperties" : false,
 			"description": "All translatable texts related to hero",
-			"required" : [ "biography", "name", "specialty" ],
+			"required" : [ "name", "biography", "specialty" ],
 			"properties":{
-				"biography": {
-					"type":"string",
-					"description": "Hero biography"
-				},
 				"name": {
 					"type":"string",
 					"description": "Hero name"
+				},
+				"biography": {
+					"type":"string",
+					"description": "Hero biography"
 				},
 				"specialty": {
 					"type":"object",
 					"additionalProperties" : false,
 					"description": "Hero specialty information",
-					"required" : [ "description", "name", "tooltip" ],
+					"required" : [ "name", "description", "tooltip" ],
 					"properties":{
-						"description": {
-							"type":"string",
-							"description": "Description visible when hovering over specialty icon"
-						},
 						"name": {
 							"type":"string",
 							"description": "Name of the specialty"
+						},
+						"description": {
+							"type":"string",
+							"description": "Description visible when hovering over specialty icon"
 						},
 						"tooltip": {
 							"type":"string",
@@ -173,6 +169,10 @@
 					}
 				}
 			}
+		},
+		"index" : {
+			"type" : "number",
+			"description" : "Private field to break things, do not use."
 		}
 	}
 }

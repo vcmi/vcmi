@@ -4,13 +4,30 @@
 	"title" : "VCMI hero class format",
 	"description" : "Format used to define classes of heroes in VCMI",
 	"required" : [
-		"animation", "faction", "highLevelChance", "lowLevelChance",
-		"name", "primarySkills", "secondarySkills", "tavern", "defaultTavern",
-		"affinity", "commander", "mapObject"
+		"name", "faction", "affinity", "commander", "animation", "mapObject",
+		"primarySkills", "secondarySkills", "lowLevelChance", "highLevelChance", 
+		"defaultTavern", "tavern"
 	],
 
 	"additionalProperties" : false,
 	"properties":{
+		"name": {
+			"type":"string",
+			"description": "Translatable name of hero class"
+		},
+		"faction": {
+			"type":"string",
+			"description": "Faction this hero class belongs to"
+		},
+		"affinity" : {
+			"type" : "string",
+			"description" : "Affinity of hero class, might or magic",
+			"enum" : [ "might", "magic"]
+		},
+		"commander": {
+			"type":"string",
+			"description": "Identifier of creature that is used as commander by heroes"
+		},
 		"animation": {
 			"type":"object",
 			"additionalProperties" : false,
@@ -45,41 +62,6 @@
 				}
 			}
 		},
-		"index" : {
-			"type" : "number",
-			"description" : "Private field to break things, do not use."
-		},
-		"faction": {
-			"type":"string",
-			"description": "Faction this hero class belongs to"
-		},
-		"affinity" : {
-			"type" : "string",
-			"description" : "Affinity of hero class, might or magic",
-			"enum" : [ "might", "magic"]
-		},
-		"commander": {
-			"type":"string",
-			"description": "Identifier of creature that is used as commander by heroes"
-		},
-		"highLevelChance": {
-			"type":"object",
-			"description": "Chance to get specific primary skill on level-up, applicable for levels starting from 10",
-			"additionalProperties":{
-				"type":"number"
-			}
-		},
-		"lowLevelChance": {
-			"type":"object",
-			"description": "Chance to get specific primary skill on level-up, applicable for levels less than 10",
-			"additionalProperties":{
-				"type":"number"
-			}
-		},
-		"name": {
-			"type":"string",
-			"description": "Translatable name of hero class"
-		},
 		"primarySkills": {
 			"type":"object",
 			"description": "Initial primary skills of heroes",
@@ -94,12 +76,25 @@
 				"type":"number"
 			}
 		},
+		"lowLevelChance": {
+			"type":"object",
+			"description": "Chance to get specific primary skill on level-up, applicable for levels less than 10",
+			"additionalProperties":{
+				"type":"number"
+			}
+		},
+		"highLevelChance": {
+			"type":"object",
+			"description": "Chance to get specific primary skill on level-up, applicable for levels starting from 10",
+			"additionalProperties":{
+				"type":"number"
+			}
+		},
 		"defaultTavern" : {
 			"type" : "number",
 			"description" : "Default chance for hero to appear in tavern, used only when value vas not set in tavern field",
 			"minimum" : 0
 		},
-
 		"tavern": {
 			"type":"object",
 			"description": "Chance for this hero to appear in tavern of this factions. Reversed version of field \"tavern\" from town format",
@@ -107,6 +102,10 @@
 				"type":"number",
 				"minimum" : 0
 			}
+		},
+		"index" : {
+			"type" : "number",
+			"description" : "Private field to break things, do not use."
 		}
 	}
 }

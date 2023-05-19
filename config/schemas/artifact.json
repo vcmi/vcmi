@@ -1,10 +1,9 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI artifact format",
 	"description" : "Format used to define new artifacts in VCMI",
-	"required" : [ "class", "text", "type", "value" ],
-
+	"required" : [ "type", "class", "value", "text" ],
 	"definitions" : {
 		"growingBonusList" : {
 			"type" : "array",
@@ -20,50 +19,52 @@
 			}
 		}
 	},
-
 	"additionalProperties" : false,
-	"properties":{
-		"bonuses": {
-			"type":"array",
-			"description": "Bonuses provided by this artifact using bonus system",
-			"items": { "$ref" : "bonus.json" }
+	"properties" : {
+		"warMachine" :
+		{
+			"type" : "string",
+			"description" : "Creature id to use on battle field. If set, this artifact is war machine"
 		},
-		"class": {
-			"type":"string",
-			"enum" : [ "SPECIAL", "TREASURE", "MINOR", "MAJOR", "RELIC" ],
-			"description": "Artifact class, treasure, minor, major or relic"
-		},
-		"index" : {
-			"type" : "number",
-			"description" : "Private field to break things, do not use."
-		},
-		"components": {
-			"type":"array",
-			"description": "Optional, list of components for combinational artifacts",
-			"items": { "type":"string" }
-		},
-		"graphics": {
-			"type":"object",
-			"additionalProperties" : false,
-			"description": "Graphical files associated with the artifact",
-			"required" : [ "image", "map" ],
-			"properties":{
-				"image": {
-					"type":"string",
-					"description": "Base image for this artifact, used for example in hero screen",
-					"format" : "imageFile"
-				},
-				"large": {
-					"type":"string",
-					"description": "Large image, used for drag-and-drop and popup messages",
-					"format" : "imageFile"
-				},
-				"map": {
-					"type":"string",
-					"description": ".def file for adventure map",
-					"format" : "defFile"
-				}
+		"type" : {
+			"type" : "array",
+			"description" : "Type of this artifact - creature, hero or commander",
+			"items" : {
+				"type" : "string",
+				"enum" : [ "HERO", "CREATURE", "COMMANDER" ]
 			}
+		},
+		"slot" : {
+			"description" : "Slot to which this artifact can be put, if applicable",
+			"oneOf" : [
+				{
+					"type" : "string"
+				},
+				{
+					"type" : "array",
+					"minItems" : 1,
+					"additionalItems" : { "type" : "string" }
+				}
+			]
+		},
+		"class" : {
+			"type" : "string",
+			"enum" : [ "SPECIAL", "TREASURE", "MINOR", "MAJOR", "RELIC" ],
+			"description" : "Artifact class, treasure, minor, major or relic"
+		},
+		"value" : {
+			"type" : "number",
+			"description" : "Cost of this artifact, in gold"
+		},
+		"components" : {
+			"type" : "array",
+			"description" : "Optional, list of components for combinational artifacts",
+			"items" : { "type" : "string" }
+		},
+		"bonuses" : {
+			"type" : "array",
+			"description" : "Bonuses provided by this artifact using bonus system",
+			"items" : { "$ref" : "bonus.json" }
 		},
 		"growing" : {
 			"type" : "object",
@@ -73,56 +74,52 @@
 				"thresholdBonuses" : { "$ref" : "#/definitions/growingBonusList"}
 			}
 		},
-		"slot": {
-			"description": "Slot to which this artifact can be put, if applicable",
-			"oneOf" : [
-				{
-					"type":"string"
-				},
-				{
-					"type" : "array",
-					"minItems" : 1,
-					"additionalItems" : { "type" : "string" }
-				}
-			]
-		},
-		"text": {
-			"type":"object",
+		"graphics" : {
+			"type" : "object",
 			"additionalProperties" : false,
-			"description": "Texts associated with artifact",
-			"required" : [ "description", "event", "name" ],
-			"properties":{
-				"description": {
-					"type":"string",
-					"description": "Long description of this artifact"
+			"description" : "Graphical files associated with the artifact",
+			"required" : [ "image", "map" ],
+			"properties" : {
+				"image" : {
+					"type" : "string",
+					"description" : "Base image for this artifact, used for example in hero screen",
+					"format" : "imageFile"
 				},
-				"event": {
-					"type":"string",
-					"description": "Text that visible on picking this artifact on map"
+				"large" : {
+					"type" : "string",
+					"description" : "Large image, used for drag-and-drop and popup messages",
+					"format" : "imageFile"
 				},
-				"name": {
-					"type":"string",
-					"description": "Name of the artifact"
+				"map" : {
+					"type" : "string",
+					"description" : ".def file for adventure map",
+					"format" : "defFile"
 				}
 			}
 		},
-		"type": {
-			"type":"array",
-			"description": "Type of this artifact - creature, hero or commander",
-			"items": {
-				"type":"string",
-				"enum" : [ "HERO", "CREATURE", "COMMANDER" ]
+		"text" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"description" : "Texts associated with artifact",
+			"required" : [ "description", "event", "name" ],
+			"properties" : {
+				"name" : {
+					"type" : "string",
+					"description" : "Name of the artifact"
+				},
+				"description" : {
+					"type" : "string",
+					"description" : "Long description of this artifact"
+				},
+				"event" : {
+					"type" : "string",
+					"description" : "Text that visible on picking this artifact on map"
+				}
 			}
 		},
-		"value": {
-			"type":"number",
-			"description": "Cost of this artifact, in gold"
-		},
-		"warMachine":
-		{
-			"type":"string",
-			"description": "Creature id to use on battle field. If set, this artifact is war machine"
+		"index" : {
+			"type" : "number",
+			"description" : "Private field to break things, do not use."
 		}
-
 	}
 }

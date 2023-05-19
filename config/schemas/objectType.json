@@ -13,6 +13,15 @@
 		"aiValue": {
 			"type":"number"
 		},
+		"base": {
+			"type" : "object"
+		},
+		"templates": {
+			"type":"object",
+			"additionalProperties": {
+				"$ref" : "objectTemplate.json"
+			}
+		},
 		"sounds": {
 			"type":"object",
 			"additionalProperties" : false,
@@ -42,16 +51,6 @@
 						"format" : "soundFile"
 					}
 				}
-			}
-		},
-
-		"base": {
-			"type" : "object"
-		},
-		"templates": {
-			"type":"object",
-			"additionalProperties": {
-				"$ref" : "objectTemplate.json"
 			}
 		}
 	}
