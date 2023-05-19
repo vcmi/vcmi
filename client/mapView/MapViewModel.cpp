@@ -36,8 +36,7 @@ void MapViewModel::setLevel(int newLevel)
 Point MapViewModel::getSingleTileSizeUpperLimit() const
 {
 	// arbitrary-seleted upscaling limit
-	// TODO: figure out reason behind graphical artifacts on scaling higher than 120px (375%)
-	return Point(120, 120);
+	return Point(256, 256);
 }
 
 Point MapViewModel::getSingleTileSizeLowerLimit() const
