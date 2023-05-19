@@ -51,6 +51,8 @@ protected:
 	//must be called after adding callbacks
 	void build(const JsonNode & config);
 
+	void addConditional(const std::string & name, bool active);
+
 	void addWidget(const std::string & name, std::shared_ptr<CIntObject> widget);
 	
 	void addCallback(const std::string & callbackName, std::function<void(int)> callback);
@@ -110,5 +112,6 @@ private:
 	std::map<std::string, BuilderFunction> builders;
 	std::map<std::string, std::shared_ptr<CIntObject>> widgets;
 	std::map<std::string, std::function<void(int)>> callbacks;
+	std::map<std::string, bool> conditionals;
 	std::map<EShortcut, ShortcutState> shortcuts;
 };

@@ -115,6 +115,11 @@ void InterfaceObjectConfigurable::build(const JsonNode &config)
 		addWidget(item["name"].String(), buildWidget(item));
 }
 
+void InterfaceObjectConfigurable::addConditional(const std::string & name, bool active)
+{
+	conditionals[name] = active;
+}
+
 void InterfaceObjectConfigurable::addWidget(const std::string & namePreferred, std::shared_ptr<CIntObject> widget)
 {
 	static const std::string unnamedObjectPrefix = "__widget_";
@@ -501,6 +506,21 @@ std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildLayout(const JsonN
 	{
 		if (item["type"].String().empty())
 			item["type"].String() = customType;
+
+		if (!item["created"].isNull())
+		{
+			std::string name = item["created"].String();
+
+			if (conditionals.count(name) != 0)
+			{
+				if (!conditionals.at(name))
+					continue;
+			}
+			else
+			{
+				logMod->warn("Unknown condition %s in widget!", name);
+			}
+		}
 
 		auto widget = buildWidget(item);
 
