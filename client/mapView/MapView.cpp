@@ -55,8 +55,6 @@ BasicMapView::BasicMapView(const Point & offset, const Point & dimensions)
 	pos += offset;
 	pos.w = dimensions.x;
 	pos.h = dimensions.y;
-
-	addUsedEvents(TIME);
 }
 
 void BasicMapView::render(Canvas & target, bool fullUpdate)
