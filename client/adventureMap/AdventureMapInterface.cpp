@@ -147,6 +147,10 @@ void AdventureMapInterface::show(SDL_Surface * to)
 void AdventureMapInterface::tick(uint32_t msPassed)
 {
 	handleMapScrollingUpdate(msPassed);
+
+	// we want animations to be active during enemy turn but map itself to be non-interactive
+	// so call timer update directly on inactive element
+	widget->getMapView()->tick(msPassed);
 }
 
 void AdventureMapInterface::handleMapScrollingUpdate(uint32_t timePassed)
