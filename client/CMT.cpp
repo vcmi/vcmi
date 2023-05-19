@@ -36,6 +36,8 @@
 #include <boost/program_options.hpp>
 #include <vstd/StringUtils.h>
 
+#include <SDL_main.h>
+
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
 #include <SDL_system.h>
