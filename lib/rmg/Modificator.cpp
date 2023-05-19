@@ -19,6 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 Modificator::Modificator(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
 {
+	mapProxy = map.getMapProxy();
 }
 
 void Modificator::setName(const std::string & n)
@@ -45,18 +46,16 @@ bool Modificator::isReady()
 		{
 			if ((*it)->isFinished()) //OK
 			{
+				//This preceeder won't be checked in the future
 				it = preceeders.erase(it);
-			}
-			else if (!(*it)->isReady())
-			{
-				return false;
 			}
 			else
 			{
-				++it;
+				return false;
 			}
 		}
 
+		//If a job is finished, it should be already erased from a queue
 		return !finished;
 	}
 }
@@ -102,6 +101,7 @@ void Modificator::dependency(Modificator * modificator)
 {
 	if(modificator && modificator != this)
 	{
+		//TODO: use vstd::contains
 		if(std::find(preceeders.begin(), preceeders.end(), modificator) == preceeders.end())
 			preceeders.push_back(modificator);
 	}
@@ -119,10 +119,9 @@ void Modificator::postfunction(Modificator * modificator)
 void Modificator::dump()
 {
 	std::ofstream out(boost::to_string(boost::format("seed_%d_modzone_%d_%s.txt") % generator.getRandomSeed() % zone.getId() % getName()));
-	auto & mapInstance = map.map();
-	int levels = mapInstance.levels();
-	int width =  mapInstance.width;
-	int height = mapInstance.height;
+	int levels = map.levels();
+	int width =  map.width();
+	int height = map.height();
 	for(int z = 0; z < levels; z++)
 	{
 		for(int j=0; j<height; j++)

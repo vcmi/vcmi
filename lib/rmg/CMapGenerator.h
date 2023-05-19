@@ -15,7 +15,6 @@
 #include "CMapGenOptions.h"
 #include "../int3.h"
 #include "CRmgTemplate.h"
-#include "threadpool/JobProvider.h"
 #include "../LoadProgress.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

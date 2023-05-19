@@ -101,7 +101,7 @@ const CMapGenOptions& CMapGenerator::getMapGenOptions() const
 void CMapGenerator::initPrisonsRemaining()
 {
 	allowedPrisons = 0;
-	for (auto isAllowed : map->map().allowedHeroes)
+	for (auto isAllowed : map->getMap(this).allowedHeroes)
 	{
 		if (isAllowed)
 			allowedPrisons++;
@@ -133,7 +133,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		initQuestArtsRemaining();
 		genZones();
 		Load::Progress::step();
-		map->map().calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
+		map->getMap(this).calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
 		map->addModificators();
 		Load::Progress::step(3);
 		fillZones();
@@ -164,7 +164,7 @@ std::string CMapGenerator::getMapDescription() const
     std::stringstream ss;
     ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, Random seed was %d, size %dx%d") +
         ", levels %d, players %d, computers %d, water %s, monster %s, VCMI map") % mapTemplate->getName() %
-		randomSeed % map->map().width % map->map().height % static_cast<int>(map->map().levels()) % static_cast<int>(mapGenOptions.getPlayerCount()) %
+		randomSeed % map->width() % map->height() % static_cast<int>(map->levels()) % static_cast<int>(mapGenOptions.getPlayerCount()) %
 		static_cast<int>(mapGenOptions.getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions.getWaterContent()] %
 		monsterStrengthStr[monsterStrengthIndex]);
 
@@ -263,10 +263,10 @@ void CMapGenerator::addPlayerInfo()
 			teamNumbers[j].erase(itTeam);
 		}
 		teamsTotal.insert(player.team.getNum());
-		map->map().players[pSettings.getColor().getNum()] = player;
+		map->getMap(this).players[pSettings.getColor().getNum()] = player;
 	}
 
-	map->map().howManyTeams = teamsTotal.size();
+	map->getMap(this).howManyTeams = teamsTotal.size();
 }
 
 void CMapGenerator::genZones()
@@ -374,7 +374,7 @@ void CMapGenerator::fillZones()
 	}
 	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, rand);
 
-	map->map().grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths().getTiles(), rand);
+	map->getMap(this).grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths().getTiles(), rand);
 
 	logGlobal->info("Zones filled successfully");
 
@@ -383,13 +383,14 @@ void CMapGenerator::fillZones()
 
 void CMapGenerator::addHeaderInfo()
 {
-	map->map().version = EMapFormat::VCMI;
-	map->map().width = mapGenOptions.getWidth();
-	map->map().height = mapGenOptions.getHeight();
-	map->map().twoLevel = mapGenOptions.getHasTwoLevels();
-	map->map().name = VLC->generaltexth->allTexts[740];
-	map->map().description = getMapDescription();
-	map->map().difficulty = 1;
+	auto& m = map->getMap(this);
+	m.version = EMapFormat::VCMI;
+	m.width = mapGenOptions.getWidth();
+	m.height = mapGenOptions.getHeight();
+	m.twoLevel = mapGenOptions.getHasTwoLevels();
+	m.name = VLC->generaltexth->allTexts[740];
+	m.description = getMapDescription();
+	m.difficulty = 1;
 	addPlayerInfo();
 }
 
@@ -434,9 +435,9 @@ const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 {
 	//Skip heroes that were banned, including the ones placed in prisons
 	std::vector<HeroTypeID> ret;
-	for (int j = 0; j < map->map().allowedHeroes.size(); j++)
+	for (int j = 0; j < map->getMap(this).allowedHeroes.size(); j++)
 	{
-		if (map->map().allowedHeroes[j])
+		if (map->getMap(this).allowedHeroes[j])
 			ret.push_back(HeroTypeID(j));
 	}
 	return ret;
@@ -445,13 +446,13 @@ const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 void CMapGenerator::banQuestArt(const ArtifactID & id)
 {
 	//TODO: Protect with mutex
-	map->map().allowedArtifact[id] = false;
+	map->getMap(this).allowedArtifact[id] = false;
 }
 
 void CMapGenerator::banHero(const HeroTypeID & id)
 {
 	//TODO: Protect with mutex
-	map->map().allowedHeroes[id] = false;
+	map->getMap(this).allowedHeroes[id] = false;
 }
 
 Zone * CMapGenerator::getZoneWater() const

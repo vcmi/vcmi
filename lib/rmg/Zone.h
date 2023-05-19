@@ -13,7 +13,6 @@
 #include "../GameConstants.h"
 #include "float3.h"
 #include "../int3.h"
-#include "threadpool/JobProvider.h"
 #include "CRmgTemplate.h"
 #include "RmgArea.h"
 #include "RmgPath.h"
@@ -87,6 +86,10 @@ public:
 	}
 	
 	void initModificators();
+
+public:
+	boost::recursive_mutex areaMutex;
+	using Lock = boost::unique_lock<boost::recursive_mutex>;
 	
 protected:
 	CMapGenerator & generator;
@@ -106,7 +109,12 @@ protected:
 	//template info
 	si32 townType;
 	TerrainId terrainType;
-	
+
+/*
+private:
+	mutable boost::shared_mutex mx; //Used for area access
+	using Lock = boost::unique_lock<boost::shared_mutex>;
+*/
 };
 
 VCMI_LIB_NAMESPACE_END

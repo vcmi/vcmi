@@ -397,20 +397,24 @@ void MapController::commitObstacleFill(int level)
 		return;
 	
 	//split by zones
-	std::map<TerrainId, ObstacleProxy> terrainSelected;
+
+	std::map<TerrainId, std::unique_ptr<EditorObstaclePlacer>> terrainSelected;
 	for(auto & t : selection)
 	{
 		auto tl = _map->getTile(t);
 		if(tl.blocked || tl.visitable)
 			continue;
 		
-		terrainSelected[tl.terType->getId()].blockedArea.add(t);
+		auto terrain = tl.terType->getId();
+		//FIXME: This map can be populated once at launch, not need to collect objects every time
+		terrainSelected[terrain] = std::make_unique<EditorObstaclePlacer>(_map.get());
+		terrainSelected[terrain]->addBlockedTile(t);
 	}
 	
 	for(auto & sel : terrainSelected)
 	{
-		sel.second.collectPossibleObstacles(sel.first);
-		sel.second.placeObstacles(_map.get(), CRandomGenerator::getDefault());
+		sel.second->collectPossibleObstacles(sel.first);
+		sel.second->placeObstacles(CRandomGenerator::getDefault());
 	}
 
 	_mapHandler->invalidateObjects();

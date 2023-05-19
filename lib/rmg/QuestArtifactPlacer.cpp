@@ -33,26 +33,26 @@ void QuestArtifactPlacer::init()
 
 void QuestArtifactPlacer::addQuestArtZone(std::shared_ptr<Zone> otherZone)
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	questArtZones.push_back(otherZone);
 }
 
 void QuestArtifactPlacer::addQuestArtifact(const ArtifactID& id)
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	logGlobal->info("Need to place quest artifact artifact %s", VLC->artifacts()->getById(id)->getNameTranslated());
 	questArtifactsToPlace.emplace_back(id);
 }
 
 void QuestArtifactPlacer::rememberPotentialArtifactToReplace(CGObjectInstance* obj)
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	artifactsToReplace.push_back(obj);
 }
 
 std::vector<CGObjectInstance*> QuestArtifactPlacer::getPossibleArtifactsToReplace() const
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	return artifactsToReplace;
 }
 
@@ -113,19 +113,19 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator * rand)
 
 void QuestArtifactPlacer::dropReplacedArtifact(CGObjectInstance* obj)
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	boost::remove(artifactsToReplace, obj);
 }
 
 size_t QuestArtifactPlacer::getMaxQuestArtifactCount() const
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	return questArtifacts.size();
 }
 
 ArtifactID QuestArtifactPlacer::drawRandomArtifact()
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	if (!questArtifacts.empty())
 	{
 		ArtifactID ret = questArtifacts.back();
@@ -141,6 +141,6 @@ ArtifactID QuestArtifactPlacer::drawRandomArtifact()
 
 void QuestArtifactPlacer::addRandomArtifact(ArtifactID artid)
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	questArtifacts.push_back(artid);
 }

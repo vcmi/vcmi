@@ -38,7 +38,7 @@ void WaterProxy::process()
 		map.setOccupied(t, ETileType::POSSIBLE);
 	}
 	
-	paintZoneTerrain(zone, generator.rand, map, zone.getTerrainType());
+	paintZoneTerrain(zone, generator.rand, mapProxy, zone.getTerrainType());
 	
 	//check terrain type
 	for([[maybe_unused]] const auto & t : zone.area().getTilesVector())
@@ -52,9 +52,10 @@ void WaterProxy::process()
 		if(z.second->getId() == zone.getId())
 			continue;
 
+		Zone::Lock lock(z.second->areaMutex);
 		for(const auto & t : z.second->area().getTilesVector())
 		{
-			if(map.map().getTile(t).terType->getId() == zone.getTerrainType())
+			if(map.getTile(t).terType->getId() == zone.getTerrainType())
 			{
 				z.second->areaPossible().erase(t);
 				z.second->area().erase(t);
@@ -90,13 +91,13 @@ void WaterProxy::init()
 
 const std::vector<WaterProxy::Lake> & WaterProxy::getLakes() const
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	return lakes;
 }
 
 void WaterProxy::collectLakes()
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	int lakeId = 0;
 	for(const auto & lake : connectedAreas(zone.getArea(), true))
 	{
@@ -140,6 +141,8 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 					if(map.isPossible(ct))
 						map.setOccupied(ct, ETileType::BLOCKED);
 				}
+
+				Zone::Lock lock(dst.areaMutex);
 				dst.areaPossible().subtract(lake.neighbourZones[dst.getId()]);
 				continue;
 			}
@@ -223,7 +226,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 	auto boardingPositions = coast.getSubarea([&waterAvailable, this](const int3 & tile) //tiles where boarding is possible
 		{
 			//We don't want place boat right to any land object, especiallly the zone guard
-			if (map.getTile(tile).getNearestObjectDistance() <= 3)
+			if (map.getTileInfo(tile).getNearestObjectDistance() <= 3)
 				return false;
 
 			rmg::Area a({tile});

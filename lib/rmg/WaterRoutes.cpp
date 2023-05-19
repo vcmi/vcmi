@@ -44,7 +44,9 @@ void WaterRoutes::process()
 		if(z.first != zone.getId())
 			result.push_back(wproxy->waterRoute(*z.second));
 	}
-	
+
+	Zone::Lock lock(zone.areaMutex);
+
 	//prohibit to place objects on sealed off lakes
 	for(const auto & lake : wproxy->getLakes())
 	{

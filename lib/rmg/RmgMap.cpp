@@ -28,6 +28,7 @@
 #include "WaterProxy.h"
 #include "WaterRoutes.h"
 #include "RockPlacer.h"
+#include "RockFiller.h"
 #include "ObstaclePlacer.h"
 #include "RiverPlacer.h"
 #include "TerrainPainter.h"
@@ -40,6 +41,7 @@ RmgMap::RmgMap(const CMapGenOptions& mapGenOptions) :
 	mapGenOptions(mapGenOptions), zonesTotal(0)
 {
 	mapInstance = std::make_unique<CMap>();
+	mapProxy = std::make_shared<MapProxy>(*this);
 	getEditManager()->getUndoManager().setUndoRedoLimit(0);
 }
 
@@ -121,7 +123,7 @@ void RmgMap::addModificators()
 		auto zone = z.second;
 		
 		zone->addModificator<ObjectManager>();
-		zone->addModificator<ObjectDistributor>();
+		zone->addModificator<ObjectDistributor>(); //FIXME: Only one is needed for map
 		zone->addModificator<TreasurePlacer>();
 		zone->addModificator<ObstaclePlacer>();
 		zone->addModificator<TerrainPainter>();
@@ -149,12 +151,38 @@ void RmgMap::addModificators()
 		if(zone->isUnderground())
 		{
 			zone->addModificator<RockPlacer>();
+			zone->addModificator<RockFiller>(); //FIXME: Only one is needed for map
 		}
 		
 	}
 }
 
-CMap & RmgMap::map() const
+int RmgMap::levels() const
+{
+	return mapInstance->levels();
+}
+
+int RmgMap::width() const
+{
+	return mapInstance->width;
+}
+
+int RmgMap::height() const
+{
+	return mapInstance->height;
+}
+
+PlayerInfo & RmgMap::getPlayer(int playerId)
+{
+	return mapInstance->players.at(playerId);
+}
+
+std::shared_ptr<MapProxy> RmgMap::getMapProxy() const
+{
+	return mapProxy;
+}
+
+CMap& RmgMap::getMap(const CMapGenerator*) const
 {
 	return *mapInstance;
 }
@@ -241,11 +269,16 @@ void RmgMap::setRoad(const int3& tile, RoadId roadType)
 	tiles[tile.x][tile.y][tile.z].setRoadType(roadType);
 }
 
-TileInfo RmgMap::getTile(const int3& tile) const
+TileInfo RmgMap::getTileInfo(const int3& tile) const
 {
 	assertOnMap(tile);
 	
 	return tiles[tile.x][tile.y][tile.z];
+}
+
+TerrainTile & RmgMap::getTile(const int3& tile) const
+{
+	return mapInstance->getTile(tile);
 }
 
 TRmgTemplateZoneId RmgMap::getZoneID(const int3& tile) const
@@ -278,6 +311,7 @@ float RmgMap::getNearestObjectDistance(const int3 &tile) const
 
 void RmgMap::registerZone(FactionID faction)
 {
+	//FIXME: Protect with lock guard?
 	zonesPerFaction[faction]++;
 	zonesTotal++;
 }
@@ -323,7 +357,7 @@ void RmgMap::dump(bool zoneId) const
 				else
 				{
 					char t = '?';
-					switch (getTile(int3(i, j, k)).getTileType())
+					switch (getTileInfo(int3(i, j, k)).getTileType())
 					{
 						case ETileType::FREE:
 							t = ' '; break;

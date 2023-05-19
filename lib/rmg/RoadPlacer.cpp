@@ -11,10 +11,11 @@
 #include "StdInc.h"
 #include "RoadPlacer.h"
 #include "ObjectManager.h"
+#include "ObstaclePlacer.h"
 #include "Functions.h"
 #include "CMapGenerator.h"
 #include "RmgMap.h"
-#include "../mapping/CMap.h"
+#include "threadpool/MapProxy.h"
 #include "../mapping/CMapEditManager.h"
 #include "../CModHandler.h"
 #include "RmgPath.h"
@@ -76,19 +77,25 @@ void RoadPlacer::drawRoads(bool secondary)
 	   || (!secondary && generator.getConfig().defaultRoadType.empty()))
 		return;
 	
-	Lock lock(externalAccessMutex);
-	zone.areaPossible().subtract(roads);
-	zone.freePaths().unite(roads);
-	map.getEditManager()->getTerrainSelection().setSelection(roads.getTilesVector());
+	//RecursiveLock lock(externalAccessMutex);
+	{
+		//FIXME: double lock - unsafe
+		Zone::Lock lock(zone.areaMutex);
+
+		zone.areaPossible().subtract(roads);
+		zone.freePaths().unite(roads);
+	}
+
+	auto tiles = roads.getTilesVector();
 
 	std::string roadName = (secondary ? generator.getConfig().secondaryRoadType : generator.getConfig().defaultRoadType);
 	RoadId roadType(*VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "road", roadName));
-	map.getEditManager()->drawRoad(roadType, &generator.rand);
+	mapProxy->drawRoads(generator.rand, tiles, roadType);
 }
 
 void RoadPlacer::addRoadNode(const int3& node)
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	roadNodes.insert(node);
 }
 
@@ -113,7 +120,7 @@ void RoadPlacer::connectRoads()
 		return;
 	
 	//take any tile from road nodes as destination zone for all other road nodes
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	if(roads.empty())
 		roads.add(*roadNodes.begin());
 

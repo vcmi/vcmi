@@ -16,6 +16,9 @@
 #include "RoadPlacer.h"
 #include "RiverPlacer.h"
 #include "WaterAdopter.h"
+#include "ConnectionsPlacer.h"
+#include "TownPlacer.h"
+#include "MinePlacer.h"
 #include "TreasurePlacer.h"
 #include "QuestArtifactPlacer.h"
 #include "../CCreatureHandler.h"
@@ -37,13 +40,16 @@ void ObjectManager::process()
 void ObjectManager::init()
 {
 	DEPENDENCY(WaterAdopter);
+	DEPENDENCY_ALL(ConnectionsPlacer); //Monoliths can be placed by other zone, too
+	DEPENDENCY(TownPlacer); //Only secondary towns
+	DEPENDENCY(MinePlacer);
 	POSTFUNCTION(RoadPlacer);
 	createDistancesPriorityQueue();
 }
 
 void ObjectManager::createDistancesPriorityQueue()
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	tilesByDistance.clear();
 	for(const auto & tile : zone.areaPossible().getTilesVector())
 	{
@@ -53,25 +59,25 @@ void ObjectManager::createDistancesPriorityQueue()
 
 void ObjectManager::addRequiredObject(CGObjectInstance * obj, si32 strength)
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	requiredObjects.emplace_back(obj, strength);
 }
 
 void ObjectManager::addCloseObject(CGObjectInstance * obj, si32 strength)
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	closeObjects.emplace_back(obj, strength);
 }
 
 void ObjectManager::addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget)
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	nearbyObjects.emplace_back(obj, nearbyTarget);
 }
 
 void ObjectManager::updateDistances(const rmg::Object & obj)
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	tilesByDistance.clear();
 	for (auto tile : zone.areaPossible().getTiles()) //don't need to mark distance for not possible tiles
 	{
@@ -83,15 +89,15 @@ void ObjectManager::updateDistances(const rmg::Object & obj)
 
 const rmg::Area & ObjectManager::getVisitableArea() const
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	return objectsVisitableArea;
 }
 
 std::vector<CGObjectInstance*> ObjectManager::getMines() const
 {
-	Lock lock(externalAccessMutex);
 	std::vector<CGObjectInstance*> mines;
 
+	RecursiveLock lock(externalAccessMutex);
 	for(auto * object : objects)
 	{
 		if (object->ID == Obj::MINE)
@@ -161,6 +167,7 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 		}
 	}
 	
+	//FIXME: Race condition for tiles? For Area?
 	if(result.valid())
 		obj.setPosition(result);
 	return result;
@@ -170,14 +177,14 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 {
 	return findPlaceForObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
 	{
-		auto ti = map.getTile(tile);
+		auto ti = map.getTileInfo(tile);
 		float dist = ti.getNearestObjectDistance();
 		if(dist < min_dist)
 			return -1.f;
 
 		for(const auto & t : obj.getArea().getTilesVector())
 		{
-			if(map.getTile(t).getNearestObjectDistance() < min_dist)
+			if(map.getTileInfo(t).getNearestObjectDistance() < min_dist)
 				return -1.f;
 		}
 		
@@ -189,14 +196,14 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 {
 	return placeAndConnectObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
 	{
-		auto ti = map.getTile(tile);
+		auto ti = map.getTileInfo(tile);
 		float dist = ti.getNearestObjectDistance();
 		if(dist < min_dist)
 			return -1.f;
 
 		for(const auto & t : obj.getArea().getTilesVector())
 		{
-			if(map.getTile(t).getNearestObjectDistance() < min_dist)
+			if(map.getTileInfo(t).getNearestObjectDistance() < min_dist)
 				return -1.f;
 		}
 		
@@ -251,13 +258,17 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 bool ObjectManager::createRequiredObjects()
 {
 	logGlobal->trace("Creating required objects");
-		
+	
+	//RecursiveLock lock(externalAccessMutex); //Why could requiredObjects be modified during the loop?
 	for(const auto & object : requiredObjects)
 	{
 		auto * obj = object.first;
+		//FIXME: Invalid dObject inside object?
 		rmg::Object rmgObject(*obj);
 		rmgObject.setTemplate(zone.getTerrainType());
 		bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
+
+		Zone::Lock lock(zone.areaMutex);
 		auto path = placeAndConnectObject(zone.areaPossible(), rmgObject, 3, guarded, false, OptimizeType::DISTANCE);
 		
 		if(!path.valid())
@@ -291,7 +302,11 @@ bool ObjectManager::createRequiredObjects()
 	for(const auto & object : closeObjects)
 	{
 		auto * obj = object.first;
+
+		//TODO: Wrap into same area proxy?
+		Zone::Lock lock(zone.areaMutex);
 		auto possibleArea = zone.areaPossible();
+
 		rmg::Object rmgObject(*obj);
 		rmgObject.setTemplate(zone.getTerrainType());
 		bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
@@ -352,6 +367,8 @@ bool ObjectManager::createRequiredObjects()
 void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateDistance)
 {	
 	object.finalize(map);
+
+	Zone::Lock lock(zone.areaMutex);
 	zone.areaPossible().subtract(object.getArea());
 	bool keepVisitable = zone.freePaths().contains(object.getVisitablePosition());
 	zone.freePaths().subtract(object.getArea()); //just to avoid areas overlapping

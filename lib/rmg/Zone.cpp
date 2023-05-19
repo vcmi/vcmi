@@ -86,6 +86,7 @@ rmg::Area & Zone::area()
 
 rmg::Area & Zone::areaPossible()
 {
+	//FIXME: make const, only modify via mutex-protected interface
 	return dAreaPossible;
 }
 
@@ -96,6 +97,7 @@ rmg::Area & Zone::areaUsed()
 
 void Zone::clearTiles()
 {
+	//Lock lock(mx);
 	dArea.clear();
 	dAreaPossible.clear();
 	dAreaFree.clear();
@@ -104,6 +106,7 @@ void Zone::clearTiles()
 void Zone::initFreeTiles()
 {
 	rmg::Tileset possibleTiles;
+	//Lock lock(mx);
 	vstd::copy_if(dArea.getTiles(), vstd::set_inserter(possibleTiles), [this](const int3 &tile) -> bool
 	{
 		return map.isPossible(tile);
@@ -201,6 +204,7 @@ void Zone::fractalize()
 	rmg::Area tilesToIgnore; //will be erased in this iteration
 
 	const float minDistance = 10 * 10; //squared
+	float blockDistance = minDistance * 0.25f;
 	
 	if(type != ETemplateZoneType::JUNCTION)
 	{
@@ -235,7 +239,7 @@ void Zone::fractalize()
 			tilesToIgnore.clear();
 		}
 	}
-	
+	Lock lock(areaMutex);
 	//cut straight paths towards the center. A* is too slow for that.
 	auto areas = connectedAreas(clearedTiles, false);
 	for(auto & area : areas)
@@ -264,7 +268,6 @@ void Zone::fractalize()
 	}
 	
 	//now block most distant tiles away from passages
-	float blockDistance = minDistance * 0.25f;
 	auto areaToBlock = dArea.getSubarea([this, blockDistance](const int3 & t)
 	{
 		auto distance = static_cast<float>(dAreaFree.distanceSqr(t));
@@ -272,6 +275,8 @@ void Zone::fractalize()
 	});
 	dAreaPossible.subtract(areaToBlock);
 	dAreaFree.subtract(areaToBlock);
+
+	lock.unlock();
 	for(const auto & t : areaToBlock.getTiles())
 		map.setOccupied(t, ETileType::BLOCKED);
 }

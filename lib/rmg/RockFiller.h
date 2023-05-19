@@ -1,5 +1,5 @@
 /*
- * RockPlacer.h, part of VCMI engine
+ * RockFiller.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -13,23 +13,16 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class RockPlacer: public Modificator
+class RockFiller: public Modificator
 {
-	friend class RockFiller;
 public:
-	MODIFICATOR(RockPlacer);
+	MODIFICATOR(RockFiller);
 	
 	void process() override;
 	void init() override;
 	char dump(const int3 &) override;
 	
-	void blockRock();
-	void postProcess();
-	
-protected:
-	
-	rmg::Area rockArea, accessibleArea;
-	TerrainId rockTerrain;
+	void processMap();
 };
 
 VCMI_LIB_NAMESPACE_END

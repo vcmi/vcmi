@@ -43,7 +43,7 @@ rmg::Tileset collectDistantTiles(const Zone & zone, int distance);
 
 void createBorder(RmgMap & gen, Zone & zone);
 
-void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, TerrainId terrainType);
+void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, std::shared_ptr<MapProxy> mapProxy, TerrainId terrainType);
 
 void initTerrainType(Zone & zone, CMapGenerator & gen);
 

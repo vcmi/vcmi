@@ -45,7 +45,7 @@ void TreasurePlacer::init()
 
 void TreasurePlacer::addObjectToRandomPool(const ObjectInfo& oi)
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	possibleObjects.push_back(oi);
 }
 
@@ -526,19 +526,19 @@ void TreasurePlacer::addAllPossibleObjects()
 
 size_t TreasurePlacer::getPossibleObjectsSize() const
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	return possibleObjects.size();
 }
 
 void TreasurePlacer::setMaxPrisons(size_t count)
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	maxPrisons = count;
 }
 
 size_t TreasurePlacer::getMaxPrisons() const
 {
-	Lock lock(externalAccessMutex);
+	RecursiveLock lock(externalAccessMutex);
 	return maxPrisons;
 }
 
@@ -772,6 +772,8 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			if(guarded)
 				guarded = manager.addGuard(rmgObject, value);
 			
+			Zone::Lock lock(zone.areaMutex); //We are going to subtract this area
+			//TODO: Don't place 
 			auto possibleArea = zone.areaPossible();
 			
 			auto path = rmg::Path::invalid();
@@ -779,13 +781,13 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			{
 				path = manager.placeAndConnectObject(possibleArea, rmgObject, [this, &rmgObject, &minDistance, &manager](const int3 & tile)
 				{
-					auto ti = map.getTile(tile);
+					auto ti = map.getTileInfo(tile);
 					if(ti.getNearestObjectDistance() < minDistance)
 						return -1.f;
 
 					for(const auto & t : rmgObject.getArea().getTilesVector())
 					{
-						if(map.getTile(t).getNearestObjectDistance() < minDistance)
+						if(map.getTileInfo(t).getNearestObjectDistance() < minDistance)
 							return -1.f;
 					}
 					

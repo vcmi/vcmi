@@ -25,6 +25,7 @@
 #include "WaterAdopter.h"
 #include "WaterProxy.h"
 #include "TownPlacer.h"
+#include <boost/interprocess/sync/scoped_lock.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -101,7 +102,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			guardPos = zone.areaPossible().nearest(borderPos);
 			assert(borderPos != guardPos);
 
-			float dist = map.getTile(guardPos).getNearestObjectDistance();
+			float dist = map.getTileInfo(guardPos).getNearestObjectDistance();
 			if (dist >= 3) //Don't place guards at adjacent tiles
 			{
 
@@ -228,11 +229,12 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			bool guarded2 = managerOther.addGuard(rmgGate2, connection.getGuardStrength(), true);
 			int minDist = 3;
 			
+			std::scoped_lock doubleLock(zone.areaMutex, otherZone->areaMutex);
 			rmg::Path path2(otherZone->area());
 			rmg::Path path1 = manager.placeAndConnectObject(commonArea, rmgGate1, [this, minDist, &path2, &rmgGate1, &zShift, guarded2, &managerOther, &rmgGate2	](const int3 & tile)
 			{
-				auto ti = map.getTile(tile);
-				auto otherTi = map.getTile(tile - zShift);
+				auto ti = map.getTileInfo(tile);
+				auto otherTi = map.getTileInfo(tile - zShift);
 				float dist = ti.getNearestObjectDistance();
 				float otherDist = otherTi.getNearestObjectDistance();
 				if(dist < minDist || otherDist < minDist)

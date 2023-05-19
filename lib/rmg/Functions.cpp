@@ -51,6 +51,7 @@ void createBorder(RmgMap & gen, Zone & zone)
 		return gen.isOnMap(tile) && gen.getZones()[gen.getZoneID(tile)]->getType() != ETemplateZoneType::WATER;
 	});
 
+	Zone::Lock lock(zone.areaMutex); //Protect from erasing same tiles again
 	for(const auto & tile : blockBorder.getTilesVector())
 	{
 		if(gen.isPossible(tile))
@@ -70,11 +71,10 @@ void createBorder(RmgMap & gen, Zone & zone)
 	}
 }
 
-void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, TerrainId terrain)
+void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, std::shared_ptr<MapProxy> mapProxy, TerrainId terrain)
 {
 	auto v = zone.getArea().getTilesVector();
-	map.getEditManager()->getTerrainSelection().setSelection(v);
-	map.getEditManager()->drawTerrain(terrain, &generator);
+	mapProxy->drawTerrain(generator, v, terrain);
 }
 
 int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, TerrainId terrain)
@@ -153,15 +153,15 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 
 void createObstaclesCommon2(RmgMap & map, CRandomGenerator & generator)
 {
-	if(map.map().twoLevel)
+	if(map.levels())
 	{
 		//finally mark rock tiles as occupied, spawn no obstacles there
-		for(int x = 0; x < map.map().width; x++)
+		for(int x = 0; x < map.width(); x++)
 		{
-			for(int y = 0; y < map.map().height; y++)
+			for(int y = 0; y < map.height(); y++)
 			{
 				int3 tile(x, y, 1);
-				if(!map.map().getTile(tile).terType->isPassable())
+				if(!map.getTile(tile).terType->isPassable())
 				{
 					map.setOccupied(tile, ETileType::USED);
 				}

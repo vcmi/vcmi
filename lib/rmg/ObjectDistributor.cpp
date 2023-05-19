@@ -27,18 +27,28 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void ObjectDistributor::process()
 {
-	//Firts call will add objects to ALL zones, once they were added skip it
-	if (zone.getModificator<TreasurePlacer>()->getPossibleObjectsSize() == 0)
+	//Do that only once
+	auto lockVec = tryLockAll<ObjectDistributor>();
+	if (!lockVec.empty())
 	{
+		for(auto & z : map.getZones())
+		{
+			if(auto * m = z.second->getModificator<ObjectDistributor>())
+			{
+				if(m->isFinished())
+					return;
+			}
+		}
 		distributeLimitedObjects();
 		distributeSeerHuts();
+		finished = true;
 	}
 }
 
 void ObjectDistributor::init()
 {
-	DEPENDENCY(TownPlacer);
-	DEPENDENCY(TerrainPainter);
+	//All of the terrain types need to be determined
+	DEPENDENCY_ALL(TerrainPainter);
 	POSTFUNCTION(TreasurePlacer);
 }
 
@@ -83,6 +93,8 @@ void ObjectDistributor::distributeLimitedObjects()
 					{
 						//We already know there are some templates
 						auto templates = handler->getTemplates(zone->getTerrainType());
+
+						//FIXME: Templates empty?! Maybe zone changed terrain type over time?
 
 						//Assume the template with fewest terrains is the most suitable
 						auto temp = *boost::min_element(templates, [](std::shared_ptr<const ObjectTemplate> lhs, std::shared_ptr<const ObjectTemplate> rhs) -> bool

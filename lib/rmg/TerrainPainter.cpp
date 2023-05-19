@@ -23,8 +23,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void TerrainPainter::process()
 {
+	//TODO: Make member methods
+
 	initTerrainType(zone, generator);
-	paintZoneTerrain(zone, generator.rand, map, zone.getTerrainType());
+	paintZoneTerrain(zone, generator.rand, mapProxy, zone.getTerrainType());
 }
 
 void TerrainPainter::init()

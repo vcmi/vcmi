@@ -11,11 +11,13 @@
 #pragma once
 
 #include "BlockingQueue.h"
-#include "JobProvider.h"
 #include <boost/thread/future.hpp>
 #include <boost/thread/condition_variable.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+typedef std::function<void()> TRMGfunction ;
+typedef std::optional<TRMGfunction> TRMGJob;
 
 //Credit to https://github.com/Liam0205/toy-threadpool/tree/master/yuuki
 

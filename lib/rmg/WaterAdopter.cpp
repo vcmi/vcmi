@@ -225,6 +225,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	}
 	
 	map.getZones()[waterZoneId]->area().unite(waterArea);
+	Zone::Lock lock(zone.areaMutex);
 	zone.area().subtract(waterArea);
 	zone.areaPossible().subtract(waterArea);
 	distanceMap = zone.area().computeDistanceMap(reverseDistanceMap);

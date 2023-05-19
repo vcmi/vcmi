@@ -94,6 +94,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/MapFormatH3M.cpp
 		${MAIN_LIB_DIR}/mapping/MapReaderH3M.cpp
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.cpp
+		${MAIN_LIB_DIR}/mapping/ObstacleProxy.cpp
 
 		${MAIN_LIB_DIR}/registerTypes/RegisterTypes.cpp
 		${MAIN_LIB_DIR}/registerTypes/TypesClientPacks1.cpp
@@ -135,9 +136,11 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/WaterProxy.cpp
 		${MAIN_LIB_DIR}/rmg/WaterRoutes.cpp
 		${MAIN_LIB_DIR}/rmg/RockPlacer.cpp
+		${MAIN_LIB_DIR}/rmg/RockFiller.cpp
 		${MAIN_LIB_DIR}/rmg/ObstaclePlacer.cpp
 		${MAIN_LIB_DIR}/rmg/RiverPlacer.cpp
 		${MAIN_LIB_DIR}/rmg/TerrainPainter.cpp
+		${MAIN_LIB_DIR}/rmg/threadpool/MapProxy.cpp
 
 		${MAIN_LIB_DIR}/serializer/BinaryDeserializer.cpp
 		${MAIN_LIB_DIR}/serializer/BinarySerializer.cpp
@@ -387,6 +390,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/MapFormatH3M.h
 		${MAIN_LIB_DIR}/mapping/MapReaderH3M.h
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.h
+		${MAIN_LIB_DIR}/mapping/ObstacleProxy.h
 
 		${MAIN_LIB_DIR}/registerTypes/RegisterTypes.h
 
@@ -421,13 +425,14 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/WaterProxy.h
 		${MAIN_LIB_DIR}/rmg/WaterRoutes.h
 		${MAIN_LIB_DIR}/rmg/RockPlacer.h
+		${MAIN_LIB_DIR}/rmg/RockFiller.h
 		${MAIN_LIB_DIR}/rmg/ObstaclePlacer.h
 		${MAIN_LIB_DIR}/rmg/RiverPlacer.h
 		${MAIN_LIB_DIR}/rmg/TerrainPainter.h
 		${MAIN_LIB_DIR}/rmg/float3.h
 		${MAIN_LIB_DIR}/rmg/threadpool/BlockingQueue.h
 		${MAIN_LIB_DIR}/rmg/threadpool/ThreadPool.h
-		${MAIN_LIB_DIR}/rmg/threadpool/JobProvider.h
+		${MAIN_LIB_DIR}/rmg/threadpool/MapProxy.h
 
 		${MAIN_LIB_DIR}/serializer/BinaryDeserializer.h
 		${MAIN_LIB_DIR}/serializer/BinarySerializer.h

@@ -87,8 +87,8 @@ void RiverPlacer::init()
 
 void RiverPlacer::drawRivers()
 {
-	map.getEditManager()->getTerrainSelection().setSelection(rivers.getTilesVector());
-	map.getEditManager()->drawRiver(VLC->terrainTypeHandler->getById(zone.getTerrainType())->river, &generator.rand);
+	auto tiles = rivers.getTilesVector();
+	mapProxy->drawRivers(generator.rand, tiles, zone.getTerrainType());
 }
 
 char RiverPlacer::dump(const int3 & t)
@@ -147,9 +147,9 @@ void RiverPlacer::prepareHeightmap()
 	}
 	
 	//make grid
-	for(int j = 0; j < map.map().height; j += 2)
+	for(int j = 0; j < map.height(); j += 2)
 	{
-		for(int i = 0; i < map.map().width; i += 2)
+		for(int i = 0; i < map.width(); i += 2)
 		{
 			int3 t{i, j, zone.getPos().z};
 			if(zone.area().contains(t))

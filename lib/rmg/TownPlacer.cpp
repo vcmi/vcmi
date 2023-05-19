@@ -52,7 +52,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		//set zone types to player faction, generate main town
 		logGlobal->info("Preparing playing zone");
 		int player_id = *zone.getOwner() - 1;
-		auto & playerInfo = map.map().players[player_id];
+		auto& playerInfo = map.getPlayer(player_id);
 		PlayerColor player(player_id);
 		if(playerInfo.canAnyonePlay())
 		{
@@ -140,11 +140,16 @@ int3 TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
 	//towns are big objects and should be centered around visitable position
 	rmg::Object rmgObject(town);
 	rmgObject.setTemplate(zone.getTerrainType());
-	auto position = manager.findPlaceForObject(zone.areaPossible(), rmgObject, [this](const int3 & t)
+
+	int3 position(-1, -1, -1);
 	{
-		float distance = zone.getPos().dist2dSQ(t);
-		return 100000.f - distance; //some big number
-	}, ObjectManager::OptimizeType::WEIGHT);
+		Zone::Lock lock(zone.areaMutex);
+		position = manager.findPlaceForObject(zone.areaPossible(), rmgObject, [this](const int3& t)
+			{
+				float distance = zone.getPos().dist2dSQ(t);
+				return 100000.f - distance; //some big number
+			}, ObjectManager::OptimizeType::WEIGHT);
+	}
 	rmgObject.setPosition(position + int3(2, 2, 0)); //place visitable tile in the exact center of a zone
 	manager.placeObject(rmgObject, false, true);
 	cleanupBoundaries(rmgObject);
@@ -154,6 +159,7 @@ int3 TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
 
 void TownPlacer::cleanupBoundaries(const rmg::Object & rmgObject)
 {
+	Zone::Lock lock(zone.areaMutex);
 	for(const auto & t : rmgObject.getArea().getBorderOutside())
 	{
 		if(map.isOnMap(t))
