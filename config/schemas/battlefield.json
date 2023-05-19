@@ -14,6 +14,11 @@
 			"type" : "boolean",
 			"description" : "Shows if this battleground has own obstacles"
 		},
+		"bonuses": {
+			"type":"array",
+			"description": "Bonuses provided by this battleground using bonus system",
+			"items": { "$ref" : "bonus.json" }
+		},
 		"graphics" : {
 			"type" : "string",
 			"format" : "imageFile",
