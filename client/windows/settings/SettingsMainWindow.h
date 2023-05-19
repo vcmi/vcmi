@@ -41,6 +41,7 @@ private:
 public:
 	SettingsMainWindow(BattleInterface * parentBattleInterface = nullptr);
 
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to) override;
+	void onScreenResize() override;
 };
 

@@ -31,4 +31,6 @@ private:
 
 public:
 	GeneralOptionsTab();
+
+	void updateResolutionSelector();
 };

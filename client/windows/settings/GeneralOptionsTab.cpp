@@ -145,10 +145,6 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	const auto & currentResolution = settings["video"]["resolution"];
 
-	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
-	if (resolutionLabel)
-		resolutionLabel->setText(resolutionToLabelString(currentResolution["width"].Integer(), currentResolution["height"].Integer()));
-
 	std::shared_ptr<CLabel> scalingLabel = widget<CLabel>("scalingLabel");
 	scalingLabel->setText(scalingToLabelString(currentResolution["scaling"].Integer()));
 
@@ -183,6 +179,34 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	std::shared_ptr<CLabel> soundVolumeLabel = widget<CLabel>("soundValueLabel");
 	soundVolumeLabel->setText(std::to_string(CCS->soundh->getVolume()) + "%");
+
+	updateResolutionSelector();
+}
+
+void GeneralOptionsTab::updateResolutionSelector()
+{
+	std::shared_ptr<CButton> resolutionButton = widget<CButton>("resolutionButton");
+	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
+
+	if (settings["video"]["fullscreen"].Bool() && !settings["video"]["realFullscreen"].Bool())
+	{
+		if (resolutionButton)
+			resolutionButton->disable();
+
+		if (resolutionLabel)
+			resolutionLabel->setText(resolutionToLabelString(GH.screenDimensions().x, GH.screenDimensions().y));
+	}
+	else
+	{
+		const auto & currentResolution = settings["video"]["resolution"];
+
+		if (resolutionButton)
+			resolutionButton->enable();
+
+		if (resolutionLabel)
+			resolutionLabel->setText(resolutionToLabelString(currentResolution["width"].Integer(), currentResolution["height"].Integer()));
+	}
+
 }
 
 void GeneralOptionsTab::selectGameResolution()
@@ -240,14 +264,19 @@ void GeneralOptionsTab::setFullscreenMode(bool on, bool exclusive)
 
 	if (fullscreenExclusiveCheckbox)
 		fullscreenExclusiveCheckbox->setSelected(on && exclusive);
+
+	updateResolutionSelector();
 }
 
 void GeneralOptionsTab::selectGameScaling()
 {
 	supportedScaling.clear();
 
+	// generate list of all possible scaling values, with 10% step
+	// also add one value over maximum, so if player can use scaling up to 123.456% he will be able to select 130%
+	// and let screen handler clamp that value to actual maximum
 	auto [minimalScaling, maximalScaling] = GH.screenHandler().getSupportedScalingRange();
-	for (int i = 0; i <= maximalScaling; i += 10)
+	for (int i = 0; i <= maximalScaling + 10 - 1; i += 10)
 	{
 		if (i >= minimalScaling)
 			supportedScaling.push_back(i);
