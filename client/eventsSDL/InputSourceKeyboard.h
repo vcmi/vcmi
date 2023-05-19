@@ -15,6 +15,8 @@ struct SDL_KeyboardEvent;
 class InputSourceKeyboard
 {
 public:
+	InputSourceKeyboard();
+
 	void handleEventKeyDown(const SDL_KeyboardEvent & current);
 	void handleEventKeyUp(const SDL_KeyboardEvent & current);
 };

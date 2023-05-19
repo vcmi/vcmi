@@ -277,7 +277,7 @@ void SelectionTab::clickLeft(tribool down, bool previousState)
 		}
 #ifdef VCMI_IOS
 		// focus input field if clicked inside it
-		else if(inputName && inputName->active && inputNameRect.isInside(GH.getCursorPosition()))
+		else if(inputName && inputName->isActive() && inputNameRect.isInside(GH.getCursorPosition()))
 			inputName->giveFocus();
 #endif
 	}

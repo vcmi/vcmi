@@ -21,11 +21,17 @@
 
 #include <SDL_events.h>
 #include <SDL_render.h>
+#include <SDL_hints.h>
 
 InputSourceTouch::InputSourceTouch()
 	: multifinger(false)
 	, isPointerRelativeMode(settings["general"]["userRelativePointer"].Bool())
 {
+	if(isPointerRelativeMode)
+	{
+		SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
+		SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
+	}
 }
 
 void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfinger)

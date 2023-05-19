@@ -29,7 +29,7 @@
 #include "../../lib/CConfigHandler.h"
 
 #include <SDL_events.h>
-
+#include <SDL_hints.h>
 
 InputHandler::InputHandler()
 	: mouseHandler(std::make_unique<InputSourceMouse>())

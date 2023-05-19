@@ -18,6 +18,15 @@
 #include "../gui/ShortcutHandler.h"
 
 #include <SDL_events.h>
+#include <SDL_hints.h>
+
+InputSourceKeyboard::InputSourceKeyboard()
+{
+#ifdef VCMI_MAC
+	// Ctrl+click should be treated as a right click on Mac OS X
+	SDL_SetHint(SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK, "1");
+#endif
+}
 
 void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 {
