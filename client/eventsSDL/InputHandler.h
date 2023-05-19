@@ -24,8 +24,8 @@ class UserEventHandler;
 
 class InputHandler
 {
-	std::queue<SDL_Event> SDLEventsQueue;
-	boost::mutex eventsM;
+	std::vector<SDL_Event> eventsQueue;
+	boost::mutex eventsMutex;
 
 	Point cursorPosition;
 	float pointerSpeedMultiplier;

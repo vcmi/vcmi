@@ -75,40 +75,29 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 
 void InputHandler::processEvents()
 {
-	boost::unique_lock<boost::mutex> lock(eventsM);
-	while(!SDLEventsQueue.empty())
+	boost::unique_lock<boost::mutex> lock(eventsMutex);
+	for (auto const & currentEvent : eventsQueue)
 	{
 		GH.events().allowEventHandling(true);
-		SDL_Event currentEvent = SDLEventsQueue.front();
 
 		if (currentEvent.type == SDL_MOUSEMOTION)
 		{
 			cursorPosition = Point(currentEvent.motion.x, currentEvent.motion.y);
 			mouseButtonsMask = currentEvent.motion.state;
 		}
-		SDLEventsQueue.pop();
-
-		// In a sequence of mouse motion events, skip all but the last one.
-		// This prevents freezes when every motion event takes longer to handle than interval at which
-		// the events arrive (like dragging on the minimap in world view, with redraw at every event)
-		// so that the events would start piling up faster than they can be processed.
-		if ((currentEvent.type == SDL_MOUSEMOTION) && !SDLEventsQueue.empty() && (SDLEventsQueue.front().type == SDL_MOUSEMOTION))
-			continue;
-
 		handleCurrentEvent(currentEvent);
 	}
+	eventsQueue.clear();
 }
 
 bool InputHandler::ignoreEventsUntilInput()
 {
 	bool inputFound = false;
 
-	boost::unique_lock<boost::mutex> lock(eventsM);
-	while(!SDLEventsQueue.empty())
+	boost::unique_lock<boost::mutex> lock(eventsMutex);
+	for (auto const & event : eventsQueue)
 	{
-		SDL_Event ev = SDLEventsQueue.front();
-		SDLEventsQueue.pop();
-		switch(ev.type)
+		switch(event.type)
 		{
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_FINGERDOWN:
@@ -116,6 +105,7 @@ bool InputHandler::ignoreEventsUntilInput()
 				inputFound = true;
 		}
 	}
+	eventsQueue.clear();
 
 	return inputFound;
 }
@@ -179,8 +169,18 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	}
 
 	{
-		boost::unique_lock<boost::mutex> lock(eventsM);
-		SDLEventsQueue.push(ev);
+		boost::unique_lock<boost::mutex> lock(eventsMutex);
+
+		if(ev.type == SDL_MOUSEMOTION && !eventsQueue.empty() && eventsQueue.back().type == SDL_MOUSEMOTION)
+		{
+			// In a sequence of mouse motion events, skip all but the last one.
+			// This prevents freezes when every motion event takes longer to handle than interval at which
+			// the events arrive (like dragging on the minimap in world view, with redraw at every event)
+			// so that the events would start piling up faster than they can be processed.
+			eventsQueue.back() = ev;
+			return;
+		}
+		eventsQueue.push_back(ev);
 	}
 }
 
