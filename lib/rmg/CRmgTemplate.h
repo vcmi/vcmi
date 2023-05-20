@@ -154,7 +154,7 @@ public:
 
 	void serializeJson(JsonSerializeFormat & handler);
 	
-	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
+	EMonsterStrength::EMonsterStrength monsterStrength;
 	
 	bool areTownsSameType() const;
 	bool isMatchTerrainToTown() const;

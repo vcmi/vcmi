@@ -141,13 +141,13 @@ void WindowNewMap::loadUserSettings()
 	{
 		switch (monsterStrength.toInt())
 		{
-			case EGlobalMonsterStrength::RANDOM:
+			case EMonsterStrength::RANDOM:
 				ui->monsterOpt1->setChecked(true); break;
-			case EGlobalMonsterStrength::WEAK:
+			case EMonsterStrength::GLOBAL_WEAK:
 				ui->monsterOpt2->setChecked(true); break;
-			case EGlobalMonsterStrength::NORMAL:
+			case EMonsterStrength::GLOBAL_NORMAL:
 				ui->monsterOpt3->setChecked(true); break;
-			case EGlobalMonsterStrength::STRONG:
+			case EMonsterStrength::GLOBAL_STRONG:
 				ui->monsterOpt4->setChecked(true); break;
 		}
 	}
@@ -195,15 +195,15 @@ void WindowNewMap::saveUserSettings()
 		water = EWaterContent::ISLANDS;
 	s.setValue(newMapWaterContent, static_cast<int>(water));
 
-	EGlobalMonsterStrength::EGlobalMonsterStrength monster = EGlobalMonsterStrength::RANDOM;
+	EMonsterStrength::EMonsterStrength monster = EMonsterStrength::RANDOM;
 	if(ui->monsterOpt1->isChecked())
-		monster = EGlobalMonsterStrength::RANDOM;
+		monster = EMonsterStrength::RANDOM;
 	else if(ui->monsterOpt2->isChecked())
-		monster = EGlobalMonsterStrength::WEAK;
+		monster = EMonsterStrength::GLOBAL_WEAK;
 	else if(ui->monsterOpt3->isChecked())
-		monster = EGlobalMonsterStrength::NORMAL;
+		monster = EMonsterStrength::GLOBAL_NORMAL;
 	else if(ui->monsterOpt4->isChecked())
-		monster = EGlobalMonsterStrength::STRONG;
+		monster = EMonsterStrength::GLOBAL_STRONG;
 	s.setValue(newMapMonsterStrength, static_cast<int>(monster));
 
 	auto templateName = ui->templateCombo->currentText();
@@ -240,7 +240,7 @@ std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 void WindowNewMap::on_okButton_clicked()
 {
 	EWaterContent::EWaterContent water = EWaterContent::RANDOM;
-	EGlobalMonsterStrength::EGlobalMonsterStrength monster = EGlobalMonsterStrength::RANDOM;
+	EMonsterStrength::EMonsterStrength monster = EMonsterStrength::RANDOM;
 	if(ui->waterOpt1->isChecked())
 		water = EWaterContent::RANDOM;
 	if(ui->waterOpt2->isChecked())
@@ -250,13 +250,13 @@ void WindowNewMap::on_okButton_clicked()
 	if(ui->waterOpt4->isChecked())
 		water = EWaterContent::ISLANDS;
 	if(ui->monsterOpt1->isChecked())
-		monster = EGlobalMonsterStrength::RANDOM;
+		monster = EMonsterStrength::RANDOM;
 	if(ui->monsterOpt2->isChecked())
-		monster = EGlobalMonsterStrength::WEAK;
+		monster = EMonsterStrength::GLOBAL_WEAK;
 	if(ui->monsterOpt3->isChecked())
-		monster = EGlobalMonsterStrength::NORMAL;
+		monster = EMonsterStrength::GLOBAL_NORMAL;
 	if(ui->monsterOpt4->isChecked())
-		monster = EGlobalMonsterStrength::STRONG;
+		monster = EMonsterStrength::GLOBAL_STRONG;
 
 	mapGenOptions.setWaterContent(water);
 	mapGenOptions.setMonsterStrength(monster);

@@ -151,7 +151,7 @@ std::string CMapGenerator::getMapDescription() const
 	const std::string waterContentStr[3] = { "none", "normal", "islands" };
 	const std::string monsterStrengthStr[3] = { "weak", "normal", "strong" };
 
-	int monsterStrengthIndex = mapGenOptions.getMonsterStrength() - EGlobalMonsterStrength::WEAK; //does not start from 0
+	int monsterStrengthIndex = mapGenOptions.getMonsterStrength() - EMonsterStrength::GLOBAL_WEAK; //does not start from 0
 	const auto * mapTemplate = mapGenOptions.getMapTemplate();
 
 	if(!mapTemplate)
