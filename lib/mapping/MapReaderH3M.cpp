@@ -38,8 +38,11 @@ ArtifactID MapReaderH3M::readArtifact()
 	if(result == features.artifactIdentifierInvalid)
 		return ArtifactID::NONE;
 
-	assert(result < features.artifactsCount);
-	return result;
+	if (result < features.artifactsCount)
+		return result;
+
+	logGlobal->warn("Map contains invalid artifact %d. Will be removed!", result.getNum());
+	return ArtifactID::NONE;
 }
 
 ArtifactID MapReaderH3M::readArtifact32()
@@ -49,8 +52,11 @@ ArtifactID MapReaderH3M::readArtifact32()
 	if(result == ArtifactID::NONE)
 		return ArtifactID::NONE;
 
-	assert(result < features.artifactsCount);
-	return result;
+	if (result < features.artifactsCount)
+		return result;
+
+	logGlobal->warn("Map contains invalid artifact %d. Will be removed!", result.getNum());
+	return ArtifactID::NONE;
 }
 
 HeroTypeID MapReaderH3M::readHero()
@@ -76,16 +82,18 @@ CreatureID MapReaderH3M::readCreature()
 	if(result == features.creatureIdentifierInvalid)
 		return CreatureID::NONE;
 
-	if(result > features.creaturesCount)
-	{
-		// this may be random creature in army/town, to be randomized later
-		CreatureID randomIndex(result.getNum() - features.creatureIdentifierInvalid - 1);
-		assert(randomIndex < CreatureID::NONE);
-		assert(randomIndex > -16);
-		return randomIndex;
-	}
+	if(result < features.creaturesCount)
+		return result;
 
-	return result;
+	// this may be random creature in army/town, to be randomized later
+	CreatureID randomIndex(result.getNum() - features.creatureIdentifierInvalid - 1);
+	assert(randomIndex < CreatureID::NONE);
+
+	if (randomIndex > -16)
+		return randomIndex;
+
+	logGlobal->warn("Map contains invalid creature %d. Will be removed!", result.getNum());
+	return CreatureID::NONE;
 }
 
 TerrainId MapReaderH3M::readTerrain()

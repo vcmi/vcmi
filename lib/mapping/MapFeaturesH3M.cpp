@@ -75,7 +75,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesAB()
 	result.factionsBytes = 2; // + Conflux
 	result.factionsCount = 9;
 
-	result.creaturesCount = 144; // + Conflux and new neutrals
+	result.creaturesCount = 145; // + Conflux and new neutrals
 
 	result.heroesCount = 156; // + Conflux and campaign heroes
 	result.heroesPortraitsCount = 163;
