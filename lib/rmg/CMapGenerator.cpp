@@ -24,9 +24,9 @@
 #include "Functions.h"
 #include "RmgMap.h"
 #include "threadpool/ThreadPool.h"
-#include "ObjectManager.h"
-#include "TreasurePlacer.h"
-#include "RoadPlacer.h"
+#include "modificators/ObjectManager.h"
+#include "modificators/TreasurePlacer.h"
+#include "modificators/RoadPlacer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

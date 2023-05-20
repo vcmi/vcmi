@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "Zone.h"
-#include "RmgObject.h"
+#include "../Zone.h"
+#include "../RmgObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

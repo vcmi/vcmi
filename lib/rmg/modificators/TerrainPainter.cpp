@@ -15,11 +15,11 @@
 #include "WaterProxy.h"
 #include "ConnectionsPlacer.h"
 #include "ObjectManager.h"
-#include "Functions.h"
-#include "CMapGenerator.h"
-#include "RmgMap.h"
-#include "../VCMI_Lib.h"
-#include "../TerrainHandler.h"
+#include "../Functions.h"
+#include "../CMapGenerator.h"
+#include "../RmgMap.h"
+#include "../../VCMI_Lib.h"
+#include "../../TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -11,17 +11,17 @@
 #include "StdInc.h"
 #include "ObjectDistributor.h"
 
-#include "../VCMI_Lib.h"
-#include "RmgMap.h"
-#include "CMapGenerator.h"
+#include "../../VCMI_Lib.h"
+#include "../RmgMap.h"
+#include "../CMapGenerator.h"
 #include "TreasurePlacer.h"
 #include "QuestArtifactPlacer.h"
 #include "TownPlacer.h"
 #include "TerrainPainter.h"
-#include "../mapObjects/CObjectClassesHandler.h"
-#include "../mapObjects/MapObjects.h"
-#include "Functions.h"
-#include "RmgObject.h"
+#include "../../mapObjects/CObjectClassesHandler.h"
+#include "../../mapObjects/MapObjects.h"
+#include "../Functions.h"
+#include "../RmgObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

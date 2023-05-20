@@ -15,14 +15,14 @@
 #include "ObjectManager.h"
 #include "RoadPlacer.h"
 #include "RiverPlacer.h"
-#include "RmgMap.h"
-#include "CMapGenerator.h"
-#include "Functions.h"
-#include "../TerrainHandler.h"
-#include "../CRandomGenerator.h"
-#include "../mapping/CMapEditManager.h"
-#include "TileInfo.h"
-#include "threadpool/MapProxy.h"
+#include "../RmgMap.h"
+#include "../CMapGenerator.h"
+#include "../Functions.h"
+#include "../../TerrainHandler.h"
+#include "../../CRandomGenerator.h"
+#include "../lib/mapping/CMapEditManager.h"
+#include "../TileInfo.h"
+#include "../threadpool/MapProxy.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

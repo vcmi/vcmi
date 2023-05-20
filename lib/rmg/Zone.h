@@ -13,11 +13,12 @@
 #include "../GameConstants.h"
 #include "float3.h"
 #include "../int3.h"
+#include "../CRandomGenerator.h"
 #include "CRmgTemplate.h"
 #include "RmgArea.h"
 #include "RmgPath.h"
 #include "RmgObject.h"
-#include "Modificator.h"
+#include "modificators/Modificator.h"
 
 //uncomment to generate dumps afger every step of map generation
 //#define RMG_DUMP
