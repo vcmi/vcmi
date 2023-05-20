@@ -48,8 +48,6 @@ public:
 	
 	void finalInsertion(CMapEditManager * manager, std::set<CGObjectInstance*> & instances);
 
-	void placeObstacles( CRandomGenerator & rand);
-
 	virtual void postProcess(const rmg::Object& object) {};
 
 protected:
@@ -70,7 +68,7 @@ public:
 
 	bool isInTheMap(const int3& tile) override;
 
-	void EditorObstaclePlacer::placeObstacles(CRandomGenerator& rand);
+	void placeObstacles(CRandomGenerator& rand);
 
 private:
 	CMap* map;
