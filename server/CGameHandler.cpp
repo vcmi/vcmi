@@ -6870,6 +6870,9 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 
 void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, const CGHeroInstance * hero, const CGTownInstance * town, bool & cheated)
 {
+	//Make cheat case-insensitive
+	std::transform(cheat.begin(), cheat.end(), cheat.begin(), [](unsigned char c){ return std::tolower(c); });
+	
 	if (cheat == "vcmiistari" || cheat == "vcmispells")
 	{
 		cheated = true;
