@@ -308,15 +308,13 @@ void CMapGenerator::fillZones()
 		Progress::Progress::step();
 	}
 
-	//TODO: multiply by the number of modificators
-
 	std::vector<std::shared_ptr<Zone>> treasureZones;
 
 	ThreadPool pool;
 
 	std::vector<boost::future<void>> futures;
 	//At most one Modificator can run for every zone
-	pool.init(std::min<int>(std::thread::hardware_concurrency(), numZones));
+	pool.init(std::min<int>(boost::thread::hardware_concurrency(), numZones));
 
 	TModificators allJobs;
 	for (auto & it : map->getZones())
