@@ -30,22 +30,7 @@ class TileInfo;
 
 void RockFiller::process()
 {
-	//Do that only once
-	auto lockVec = tryLockAll<RockFiller>();
-	if (!lockVec.empty())
-	{
-		for(auto & z : map.getZones())
-		{
-			if(auto * m = z.second->getModificator<RockFiller>())
-			{
-				if(m->isFinished())
-					return;
-			}
-		}
-		logGlobal->info("Processing RockFiller for the whole map");
-		processMap();
-		finished = true; //Block other placers immediately
-	}
+	processMap();
 }
 
 void RockFiller::processMap()

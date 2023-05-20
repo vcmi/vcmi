@@ -66,28 +66,6 @@ protected:
 	using RecursiveLock = boost::unique_lock<boost::recursive_mutex>;
 	using Lock = boost::unique_lock<boost::shared_mutex>;
 
-	template <typename TModificator>
-	std::vector<RecursiveLock> tryLockAll()
-	{
-		std::vector<RecursiveLock> locks;
-		for (auto & zone : map.getZones())
-		{
-			if (auto * m = zone.second->getModificator<TModificator>())
-			{
-				RecursiveLock lock(m->externalAccessMutex, boost::try_to_lock_t{});
-				if (lock.owns_lock())
-				{
-					locks.emplace_back(std::move(lock));
-				}
-				else //return empty
-				{
-					return std::vector<RecursiveLock>();
-				}
-			}
-		}
-		return locks;
-	}
-
 private:
 	virtual void process() = 0;
 

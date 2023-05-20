@@ -27,22 +27,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void ObjectDistributor::process()
 {
-	//Do that only once
-	auto lockVec = tryLockAll<ObjectDistributor>();
-	if (!lockVec.empty())
-	{
-		for(auto & z : map.getZones())
-		{
-			if(auto * m = z.second->getModificator<ObjectDistributor>())
-			{
-				if(m->isFinished())
-					return;
-			}
-		}
-		distributeLimitedObjects();
-		distributeSeerHuts();
-		finished = true;
-	}
+	distributeLimitedObjects();
+	distributeSeerHuts();
 }
 
 void ObjectDistributor::init()
