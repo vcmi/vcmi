@@ -30,7 +30,7 @@ class TileInfo;
 
 void RockFiller::process()
 {
-    //Do that only once
+	//Do that only once
 	auto lockVec = tryLockAll<RockFiller>();
 	if (!lockVec.empty())
 	{
@@ -75,7 +75,7 @@ void RockFiller::processMap()
 
 void RockFiller::init()
 {
-    DEPENDENCY_ALL(RockPlacer);
+	DEPENDENCY_ALL(RockPlacer);
 	POSTFUNCTION_ALL(RoadPlacer);
 }
 

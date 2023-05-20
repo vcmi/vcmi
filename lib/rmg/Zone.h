@@ -65,14 +65,11 @@ public:
 	rmg::Path searchPath(const rmg::Area & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter = AREA_NO_FILTER) const;
 	rmg::Path searchPath(const int3 & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter = AREA_NO_FILTER) const;
 
-	//std::vector<std:> & getAllJobs() const;
 	TModificators getModificators();
 
 	template<class T>
 	T* getModificator()
 	{
-		//TODO: Protect with recursive mutex?
-
 		for(auto & m : modificators)
 			if(auto * mm = dynamic_cast<T*>(m.get()))
 				return mm;
@@ -109,12 +106,6 @@ protected:
 	//template info
 	si32 townType;
 	TerrainId terrainType;
-
-/*
-private:
-	mutable boost::shared_mutex mx; //Used for area access
-	using Lock = boost::unique_lock<boost::shared_mutex>;
-*/
 };
 
 VCMI_LIB_NAMESPACE_END
