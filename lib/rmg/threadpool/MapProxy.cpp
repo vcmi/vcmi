@@ -8,9 +8,6 @@
  *
  */
 
-
-#pragma once
-
 #include "MapProxy.h"
 #include "../../TerrainHandler.h"
 

@@ -8,7 +8,6 @@
 *
 */
 
-
 #include "StdInc.h"
 #include "QuestArtifactPlacer.h"
 #include "../CMapGenerator.h"
