@@ -70,10 +70,49 @@ void MapViewController::setViewCenter(const Point & position, int level)
 
 void MapViewController::setTileSize(const Point & tileSize)
 {
+	Point oldSize = model->getSingleTileSize();
 	model->setTileSize(tileSize);
 
+	double scaleChangeX = 1.0 * tileSize.x / oldSize.x;
+	double scaleChangeY = 1.0 * tileSize.y / oldSize.y;
+
+	Point newViewCenter {
+		static_cast<int>(std::round(model->getMapViewCenter().x * scaleChangeX)),
+		static_cast<int>(std::round(model->getMapViewCenter().y * scaleChangeY))
+	};
+
 	// force update of view center since changing tile size may invalidated it
-	setViewCenter(model->getMapViewCenter(), model->getLevel());
+	setViewCenter(newViewCenter, model->getLevel());
+}
+
+void MapViewController::modifyTileSize(int stepsChange)
+{
+	// we want to zoom in/out in fixed 10% steps, to allow player to return back to exactly 100% zoom just by scrolling
+	// so, zooming in for 5 steps will put game at 1.1^5 = 1.61 scale
+	// try to determine current zooming level and change it by requested number of steps
+	double currentZoomFactor = model->getSingleTileSize().x / 32.0;
+	double currentZoomSteps = std::round(std::log(currentZoomFactor) / std::log(1.1));
+	double newZoomSteps = stepsChange != 0 ? currentZoomSteps + stepsChange : stepsChange;
+	double newZoomFactor = std::pow(1.1, newZoomSteps);
+
+	Point currentZoom = model->getSingleTileSize();
+	Point desiredZoom = Point(32,32) * newZoomFactor;
+
+	if (desiredZoom == currentZoom && stepsChange < 0)
+		desiredZoom -= Point(1,1);
+
+	if (desiredZoom == currentZoom && stepsChange > 0)
+		desiredZoom += Point(1,1);
+
+	Point minimal = model->getSingleTileSizeLowerLimit();
+	Point maximal = model->getSingleTileSizeUpperLimit();
+	Point actualZoom = {
+		std::clamp(desiredZoom.x, minimal.x, maximal.x),
+		std::clamp(desiredZoom.y, minimal.y, maximal.y)
+	};
+
+	if (actualZoom != currentZoom)
+		setTileSize(actualZoom);
 }
 
 MapViewController::MapViewController(std::shared_ptr<MapViewModel> model, std::shared_ptr<MapViewCache> view)

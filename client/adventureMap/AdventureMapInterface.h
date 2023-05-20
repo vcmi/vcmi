@@ -109,6 +109,7 @@ public:
 	void hotkeyEndingTurn();
 	void hotkeyNextTown();
 	void hotkeySwitchMapLevel();
+	void hotkeyZoom(int delta);
 
 	/// Called by PlayerInterface when specified player is ready to start his turn
 	void onHotseatWaitStarted(PlayerColor playerID);

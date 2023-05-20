@@ -61,6 +61,7 @@ class AdventureMapShortcuts
 	void showMarketplace();
 	void nextTown();
 	void nextObject();
+	void zoom( int distance);
 	void moveHeroDirectional(const Point & direction);
 
 public:
