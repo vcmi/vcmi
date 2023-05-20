@@ -42,7 +42,7 @@ public:
 
 	virtual void placeObject(rmg::Object & object, std::set<CGObjectInstance*> & instances);
 
-	virtual std::set<CGObjectInstance*> ObstacleProxy::createObstacles(CRandomGenerator & rand);
+	virtual std::set<CGObjectInstance*> createObstacles(CRandomGenerator & rand);
 
 	virtual bool isInTheMap(const int3& tile) = 0;
 	
