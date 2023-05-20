@@ -93,6 +93,7 @@ private:
 	ESelectionScreen tabType;
 	Rect inputNameRect;
 
+	bool isMapSupported(const CMapInfo & info);
 	void parseMaps(const std::unordered_set<ResourceID> & files);
 	void parseSaves(const std::unordered_set<ResourceID> & files);
 	void parseCampaigns(const std::unordered_set<ResourceID> & files);

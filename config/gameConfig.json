@@ -84,7 +84,7 @@
 	],
 	"skills" :
 	[
-        "config/skills.json"
+		"config/skills.json"
 	],
 	"terrains":
 	[
@@ -122,7 +122,14 @@
 			"terrain"    : 10,
 			"river"      : 5,
 			"road"       : 4,
-			"mapVersion" : 28 // max supported version, SoD
+		},
+		
+		"mapFormat" : {
+			"restorationOfErathia" : { "supported" : true },
+			"armageddonsBlade" : { "supported" : true },
+			"shadowOfDeath" : { "supported" : true },
+			"hornOfTheAbyss" : { "supported" : false },
+			"inTheWakeOfGods" : { "supported" : false }
 		},
 
 		"heroes" :
