@@ -104,7 +104,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 	{
 		if(stack->creatureId() == CreatureID::CATAPULT)
 			return useCatapult(stack);
-		if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->hasBonusOfType(Bonus::HEALER))
+		if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON) && stack->hasBonusOfType(BonusType::HEALER))
 		{
 			auto healingTargets = cb->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);
 			std::map<int, const CStack*> woundHpToStack;
@@ -137,7 +137,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		std::optional<PossibleSpellcast> bestSpellcast(std::nullopt);
 		//TODO: faerie dragon type spell should be selected by server
 		SpellID creatureSpellToCast = cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), stack, CBattleInfoCallback::RANDOM_AIMED);
-		if(stack->hasBonusOfType(Bonus::SPELLCASTER) && stack->canCast() && creatureSpellToCast != SpellID::NONE)
+		if(stack->hasBonusOfType(BonusType::SPELLCASTER) && stack->canCast() && creatureSpellToCast != SpellID::NONE)
 		{
 			const CSpell * spell = creatureSpellToCast.toSpell();
 
@@ -241,7 +241,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		}
 
 		if(score <= EvaluationResult::INEFFECTIVE_SCORE
-			&& !stack->hasBonusOfType(Bonus::FLYING)
+			&& !stack->hasBonusOfType(BonusType::FLYING)
 			&& stack->unitSide() == BattleSide::ATTACKER
 			&& cb->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
 		{
@@ -321,7 +321,7 @@ BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<Battl
 
 	scoreEvaluator.updateReachabilityMap(hb);
 
-	if(stack->hasBonusOfType(Bonus::FLYING))
+	if(stack->hasBonusOfType(BonusType::FLYING))
 	{
 		std::set<BattleHex> obstacleHexes;
 

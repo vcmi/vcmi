@@ -473,9 +473,9 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	//native terrain bonuses
 	static auto nativeTerrain = std::make_shared<CreatureTerrainLimiter>();
 	
-	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::STACKS_SPEED, Bonus::TERRAIN_NATIVE, 1, 0, 0)->addLimiter(nativeTerrain));
-	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::PRIMARY_SKILL, Bonus::TERRAIN_NATIVE, 1, 0, PrimarySkill::ATTACK)->addLimiter(nativeTerrain));
-	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::PRIMARY_SKILL, Bonus::TERRAIN_NATIVE, 1, 0, PrimarySkill::DEFENSE)->addLimiter(nativeTerrain));
+	curB->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::STACKS_SPEED, BonusSource::TERRAIN_NATIVE, 1, 0, 0)->addLimiter(nativeTerrain));
+	curB->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, 0, PrimarySkill::ATTACK)->addLimiter(nativeTerrain));
+	curB->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, 0, PrimarySkill::DEFENSE)->addLimiter(nativeTerrain));
 	//////////////////////////////////////////////////////////////////////////
 
 	//tactics
@@ -489,8 +489,8 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	{
 		if(heroes[i])
 		{
-			battleRepositionHex[i] += heroes[i]->valOfBonuses(Selector::type()(Bonus::BEFORE_BATTLE_REPOSITION));
-			battleRepositionHexBlock[i] += heroes[i]->valOfBonuses(Selector::type()(Bonus::BEFORE_BATTLE_REPOSITION_BLOCK));
+			battleRepositionHex[i] += heroes[i]->valOfBonuses(Selector::type()(BonusType::BEFORE_BATTLE_REPOSITION));
+			battleRepositionHexBlock[i] += heroes[i]->valOfBonuses(Selector::type()(BonusType::BEFORE_BATTLE_REPOSITION_BLOCK));
 		}
 	}
 	int tacticsSkillDiffAttacker = battleRepositionHex[BattleSide::ATTACKER] - battleRepositionHexBlock[BattleSide::DEFENDER];
@@ -803,7 +803,7 @@ void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t health
 		auto selector = [](const Bonus * b)
 		{
 			//Special case: DISRUPTING_RAY is absolutely permanent
-			return b->source == Bonus::SPELL_EFFECT && b->sid != SpellID::DISRUPTING_RAY;
+			return b->source == BonusSource::SPELL_EFFECT && b->sid != SpellID::DISRUPTING_RAY;
 		};
 		changedStack->removeBonusesRecursive(selector);
 	}
@@ -929,7 +929,7 @@ uint32_t BattleInfo::nextUnitId() const
 
 void BattleInfo::addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool forceAdd)
 {
-	if(forceAdd || !sta->hasBonus(Selector::source(Bonus::SPELL_EFFECT, value.sid).And(Selector::typeSubtype(value.type, value.subtype))))
+	if(forceAdd || !sta->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, value.sid).And(Selector::typeSubtype(value.type, value.subtype))))
 	{
 		//no such effect or cumulative - add new
 		logBonus->trace("%s receives a new bonus: %s", sta->nodeName(), value.Description());

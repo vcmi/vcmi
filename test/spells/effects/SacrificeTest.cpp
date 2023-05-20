@@ -179,13 +179,13 @@ TEST_F(SacrificeApplyTest, ResurrectsTarget)
 	EXPECT_CALL(mechanicsMock, applySpellBonus(_, Eq(&targetUnit))).WillOnce(ReturnArg<0>());
 	EXPECT_CALL(mechanicsMock, calculateRawEffectValue(_,_)).WillOnce(Return(effectValue));
 
-	targetUnit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, unitHP, 0));
+	targetUnit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHP, 0));
 
 	auto & victim = unitsFake.add(BattleSide::ATTACKER);
 	EXPECT_CALL(victim, unitId()).Times(AtLeast(1)).WillRepeatedly(Return(victimId));
 	EXPECT_CALL(victim, getCount()).Times(AtLeast(1)).WillRepeatedly(Return(victimCount));
 
-	victim.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, victimUnitHP, 0));
+	victim.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, victimUnitHP, 0));
 
 	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Eq(expectedHealValue))).Times(1);
 

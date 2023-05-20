@@ -963,7 +963,7 @@ bool CPathfinderHelper::addTeleportOneWayRandom(const CGTeleport * obj) const
 
 bool CPathfinderHelper::addTeleportWhirlpool(const CGWhirlpool * obj) const
 {
-	return options.useTeleportWhirlpool && hasBonusOfType(Bonus::WHIRLPOOL_PROTECTION) && obj;
+	return options.useTeleportWhirlpool && hasBonusOfType(BonusType::WHIRLPOOL_PROTECTION) && obj;
 }
 
 int CPathfinderHelper::movementPointsAfterEmbark(int movement, int basicCost, bool disembark) const
@@ -992,15 +992,15 @@ TurnInfo::BonusCache::BonusCache(const TConstBonusListPtr & bl)
 	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 	{
 		noTerrainPenalty.push_back(static_cast<bool>(
-				bl->getFirst(Selector::type()(Bonus::NO_TERRAIN_PENALTY).And(Selector::subtype()(terrain->getIndex())))));
+				bl->getFirst(Selector::type()(BonusType::NO_TERRAIN_PENALTY).And(Selector::subtype()(terrain->getIndex())))));
 	}
 
-	freeShipBoarding = static_cast<bool>(bl->getFirst(Selector::type()(Bonus::FREE_SHIP_BOARDING)));
-	flyingMovement = static_cast<bool>(bl->getFirst(Selector::type()(Bonus::FLYING_MOVEMENT)));
-	flyingMovementVal = bl->valOfBonuses(Selector::type()(Bonus::FLYING_MOVEMENT));
-	waterWalking = static_cast<bool>(bl->getFirst(Selector::type()(Bonus::WATER_WALKING)));
-	waterWalkingVal = bl->valOfBonuses(Selector::type()(Bonus::WATER_WALKING));
-	pathfindingVal = bl->valOfBonuses(Selector::type()(Bonus::ROUGH_TERRAIN_DISCOUNT));
+	freeShipBoarding = static_cast<bool>(bl->getFirst(Selector::type()(BonusType::FREE_SHIP_BOARDING)));
+	flyingMovement = static_cast<bool>(bl->getFirst(Selector::type()(BonusType::FLYING_MOVEMENT)));
+	flyingMovementVal = bl->valOfBonuses(Selector::type()(BonusType::FLYING_MOVEMENT));
+	waterWalking = static_cast<bool>(bl->getFirst(Selector::type()(BonusType::WATER_WALKING)));
+	waterWalkingVal = bl->valOfBonuses(Selector::type()(BonusType::WATER_WALKING));
+	pathfindingVal = bl->valOfBonuses(Selector::type()(BonusType::ROUGH_TERRAIN_DISCOUNT));
 }
 
 TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn):
@@ -1022,7 +1022,7 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 		if(hero && hero->boat && hero->boat->layer == EPathfindingLayer::AIR)
 			break;
 			
-		if(!hasBonusOfType(Bonus::FLYING_MOVEMENT))
+		if(!hasBonusOfType(BonusType::FLYING_MOVEMENT))
 			return false;
 
 		break;
@@ -1031,7 +1031,7 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 		if(hero && hero->boat && hero->boat->layer == EPathfindingLayer::WATER)
 			break;
 			
-		if(!hasBonusOfType(Bonus::WATER_WALKING))
+		if(!hasBonusOfType(BonusType::WATER_WALKING))
 			return false;
 
 		break;
@@ -1040,17 +1040,17 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 	return true;
 }
 
-bool TurnInfo::hasBonusOfType(Bonus::BonusType type, int subtype) const
+bool TurnInfo::hasBonusOfType(BonusType type, int subtype) const
 {
 	switch(type)
 	{
-	case Bonus::FREE_SHIP_BOARDING:
+	case BonusType::FREE_SHIP_BOARDING:
 		return bonusCache->freeShipBoarding;
-	case Bonus::FLYING_MOVEMENT:
+	case BonusType::FLYING_MOVEMENT:
 		return bonusCache->flyingMovement;
-	case Bonus::WATER_WALKING:
+	case BonusType::WATER_WALKING:
 		return bonusCache->waterWalking;
-	case Bonus::NO_TERRAIN_PENALTY:
+	case BonusType::NO_TERRAIN_PENALTY:
 		return bonusCache->noTerrainPenalty[subtype];
 	}
 
@@ -1058,15 +1058,15 @@ bool TurnInfo::hasBonusOfType(Bonus::BonusType type, int subtype) const
 			bonuses->getFirst(Selector::type()(type).And(Selector::subtype()(subtype))));
 }
 
-int TurnInfo::valOfBonuses(Bonus::BonusType type, int subtype) const
+int TurnInfo::valOfBonuses(BonusType type, int subtype) const
 {
 	switch(type)
 	{
-	case Bonus::FLYING_MOVEMENT:
+	case BonusType::FLYING_MOVEMENT:
 		return bonusCache->flyingMovementVal;
-	case Bonus::WATER_WALKING:
+	case BonusType::WATER_WALKING:
 		return bonusCache->waterWalkingVal;
-	case Bonus::ROUGH_TERRAIN_DISCOUNT:
+	case BonusType::ROUGH_TERRAIN_DISCOUNT:
 		return bonusCache->pathfindingVal;
 	}
 
@@ -1083,23 +1083,23 @@ int TurnInfo::getMaxMovePoints(const EPathfindingLayer & layer) const
 	return layer == EPathfindingLayer::SAIL ? maxMovePointsWater : maxMovePointsLand;
 }
 
-void TurnInfo::updateHeroBonuses(Bonus::BonusType type, const CSelector& sel) const
+void TurnInfo::updateHeroBonuses(BonusType type, const CSelector& sel) const
 {
 	switch(type)
 	{
-	case Bonus::FREE_SHIP_BOARDING:
-		bonusCache->freeShipBoarding = static_cast<bool>(bonuses->getFirst(Selector::type()(Bonus::FREE_SHIP_BOARDING)));
+	case BonusType::FREE_SHIP_BOARDING:
+		bonusCache->freeShipBoarding = static_cast<bool>(bonuses->getFirst(Selector::type()(BonusType::FREE_SHIP_BOARDING)));
 		break;
-	case Bonus::FLYING_MOVEMENT:
-		bonusCache->flyingMovement = static_cast<bool>(bonuses->getFirst(Selector::type()(Bonus::FLYING_MOVEMENT)));
-		bonusCache->flyingMovementVal = bonuses->valOfBonuses(Selector::type()(Bonus::FLYING_MOVEMENT));
+	case BonusType::FLYING_MOVEMENT:
+		bonusCache->flyingMovement = static_cast<bool>(bonuses->getFirst(Selector::type()(BonusType::FLYING_MOVEMENT)));
+		bonusCache->flyingMovementVal = bonuses->valOfBonuses(Selector::type()(BonusType::FLYING_MOVEMENT));
 		break;
-	case Bonus::WATER_WALKING:
-		bonusCache->waterWalking = static_cast<bool>(bonuses->getFirst(Selector::type()(Bonus::WATER_WALKING)));
-		bonusCache->waterWalkingVal = bonuses->valOfBonuses(Selector::type()(Bonus::WATER_WALKING));
+	case BonusType::WATER_WALKING:
+		bonusCache->waterWalking = static_cast<bool>(bonuses->getFirst(Selector::type()(BonusType::WATER_WALKING)));
+		bonusCache->waterWalkingVal = bonuses->valOfBonuses(Selector::type()(BonusType::WATER_WALKING));
 		break;
-	case Bonus::ROUGH_TERRAIN_DISCOUNT:
-		bonusCache->pathfindingVal = bonuses->valOfBonuses(Selector::type()(Bonus::ROUGH_TERRAIN_DISCOUNT));
+	case BonusType::ROUGH_TERRAIN_DISCOUNT:
+		bonusCache->pathfindingVal = bonuses->valOfBonuses(Selector::type()(BonusType::ROUGH_TERRAIN_DISCOUNT));
 		break;
 	default:
 		bonuses = hero->getAllBonuses(Selector::days(turn), Selector::all, nullptr, "");
@@ -1162,7 +1162,7 @@ const TurnInfo * CPathfinderHelper::getTurnInfo() const
 	return turnsInfo[turn];
 }
 
-bool CPathfinderHelper::hasBonusOfType(const Bonus::BonusType type, const int subtype) const
+bool CPathfinderHelper::hasBonusOfType(const BonusType type, const int subtype) const
 {
 	return turnsInfo[turn]->hasBonusOfType(type, subtype);
 }
@@ -1248,11 +1248,11 @@ int CPathfinderHelper::getMovementCost(
 
 	bool isWaterLayer;
 	if(indeterminate(isDstWaterLayer))
-		isWaterLayer = ((hero->boat && hero->boat->layer == EPathfindingLayer::WATER) || ti->hasBonusOfType(Bonus::WATER_WALKING)) && dt->terType->isWater();
+		isWaterLayer = ((hero->boat && hero->boat->layer == EPathfindingLayer::WATER) || ti->hasBonusOfType(BonusType::WATER_WALKING)) && dt->terType->isWater();
 	else
 		isWaterLayer = static_cast<bool>(isDstWaterLayer);
 	
-	bool isAirLayer = (hero->boat && hero->boat->layer == EPathfindingLayer::AIR) || ti->hasBonusOfType(Bonus::FLYING_MOVEMENT);
+	bool isAirLayer = (hero->boat && hero->boat->layer == EPathfindingLayer::AIR) || ti->hasBonusOfType(BonusType::FLYING_MOVEMENT);
 
 	int ret = hero->getTileCost(*dt, *ct, ti);
 	if(isSailLayer)
@@ -1261,9 +1261,9 @@ int CPathfinderHelper::getMovementCost(
 			ret = static_cast<int>(ret * 2.0 / 3);
 	}
 	else if(isAirLayer)
-		vstd::amin(ret, GameConstants::BASE_MOVEMENT_COST + ti->valOfBonuses(Bonus::FLYING_MOVEMENT));
-	else if(isWaterLayer && ti->hasBonusOfType(Bonus::WATER_WALKING))
-		ret = static_cast<int>(ret * (100.0 + ti->valOfBonuses(Bonus::WATER_WALKING)) / 100.0);
+		vstd::amin(ret, GameConstants::BASE_MOVEMENT_COST + ti->valOfBonuses(BonusType::FLYING_MOVEMENT));
+	else if(isWaterLayer && ti->hasBonusOfType(BonusType::WATER_WALKING))
+		ret = static_cast<int>(ret * (100.0 + ti->valOfBonuses(BonusType::WATER_WALKING)) / 100.0);
 
 	if(src.x != dst.x && src.y != dst.y) //it's diagonal move
 	{

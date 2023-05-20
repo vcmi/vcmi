@@ -15,7 +15,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype) const
+int IBonusBearer::valOfBonuses(BonusType type, int subtype) const
 {
 	//This part is performance-critical
 	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + std::to_string(subtype);
@@ -44,7 +44,7 @@ bool IBonusBearer::hasBonus(const CSelector &selector, const CSelector &limit, c
 	return getBonuses(selector, limit, cachingStr)->size() > 0;
 }
 
-bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype) const
+bool IBonusBearer::hasBonusOfType(BonusType type, int subtype) const
 {
 	//This part is performance-ciritcal
 	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + std::to_string(subtype);
@@ -66,7 +66,7 @@ TConstBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const CSe
 	return getAllBonuses(selector, limit, nullptr, cachingStr);
 }
 
-bool IBonusBearer::hasBonusFrom(Bonus::BonusSource source, ui32 sourceID) const
+bool IBonusBearer::hasBonusFrom(BonusSource source, ui32 sourceID) const
 {
 	boost::format fmt("source_%did_%d");
 	fmt % static_cast<int>(source) % sourceID;

@@ -54,7 +54,7 @@ TEST_F(AbsoluteLevelConditionTest, ReceptiveNormalSpell)
 {
 	setDefaultExpectations();
 
-	auto bonus = std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LEVEL_SPELL_IMMUNITY, Bonus::OTHER, 3, 0);
+	auto bonus = std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 3, 0);
 	bonus->additionalInfo = 1;
 	unitBonuses.addNewBonus(bonus);
 
@@ -67,7 +67,7 @@ TEST_F(AbsoluteLevelConditionTest, ReceptiveAbility)
 {
 	setDefaultExpectations();
 
-	auto bonus = std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LEVEL_SPELL_IMMUNITY, Bonus::OTHER, 5, 0);
+	auto bonus = std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 5, 0);
 	bonus->additionalInfo = 1;
 	unitBonuses.addNewBonus(bonus);
 
@@ -79,7 +79,7 @@ TEST_F(AbsoluteLevelConditionTest, ImmuneNormalSpell)
 {
 	setDefaultExpectations();
 
-	auto bonus = std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LEVEL_SPELL_IMMUNITY, Bonus::OTHER, 4, 0);
+	auto bonus = std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 4, 0);
 	bonus->additionalInfo = 1;
 	unitBonuses.addNewBonus(bonus);
 
@@ -90,7 +90,7 @@ TEST_F(AbsoluteLevelConditionTest, ImmuneNormalSpell)
 TEST_F(AbsoluteLevelConditionTest, IgnoresNormalCase)
 {
 	setDefaultExpectations();
-	auto bonus = std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LEVEL_SPELL_IMMUNITY, Bonus::OTHER, 4, 0);
+	auto bonus = std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 4, 0);
 	unitBonuses.addNewBonus(bonus);
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }

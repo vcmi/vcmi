@@ -314,7 +314,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 	if(getPlayerRelations(getLocalPlayer(), hero->tempOwner) == PlayerRelations::ENEMIES)
 	{
 		//todo: bonus cashing
-		int disguiseLevel = h->valOfBonuses(Selector::typeSubtype(Bonus::DISGUISED, 0));
+		int disguiseLevel = h->valOfBonuses(Selector::typeSubtype(BonusType::DISGUISED, 0));
 
 		auto doBasicDisguise = [](InfoAboutHero & info)
 		{

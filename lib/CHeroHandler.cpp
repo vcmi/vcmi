@@ -536,14 +536,14 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 		{
 			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();
 			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
-			bonus->type = Bonus::STACKS_SPEED;
+			bonus->type = BonusType::STACKS_SPEED;
 			bonus->val = 1;
 			result.push_back(bonus);
 		}
 
 		{
 			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();
-			bonus->type = Bonus::PRIMARY_SKILL;
+			bonus->type = BonusType::PRIMARY_SKILL;
 			bonus->subtype = PrimarySkill::ATTACK;
 			bonus->val = 0;
 			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
@@ -553,7 +553,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 
 		{
 			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();
-			bonus->type = Bonus::PRIMARY_SKILL;
+			bonus->type = BonusType::PRIMARY_SKILL;
 			bonus->subtype = PrimarySkill::DEFENSE;
 			bonus->val = 0;
 			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
@@ -600,8 +600,8 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 {
 	auto prepSpec = [=](std::shared_ptr<Bonus> bonus)
 	{
-		bonus->duration = Bonus::PERMANENT;
-		bonus->source = Bonus::HERO_SPECIAL;
+		bonus->duration = BonusDuration::PERMANENT;
+		bonus->source = BonusSource::HERO_SPECIAL;
 		bonus->sid = hero->getIndex();
 		return bonus;
 	};

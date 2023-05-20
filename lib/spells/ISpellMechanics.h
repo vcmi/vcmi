@@ -235,7 +235,7 @@ public:
 	virtual int64_t applySpecificSpellBonus(int64_t value) const = 0;
 	virtual int64_t calculateRawEffectValue(int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const = 0;
 
-	virtual std::vector<Bonus::BonusType> getElementalImmunity() const = 0;
+	virtual std::vector<BonusType> getElementalImmunity() const = 0;
 
 	//Battle facade
 	virtual bool ownerMatches(const battle::Unit * unit) const = 0;
@@ -296,7 +296,7 @@ public:
 	int64_t applySpecificSpellBonus(int64_t value) const override;
 	int64_t calculateRawEffectValue(int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const override;
 
-	std::vector<Bonus::BonusType> getElementalImmunity() const override;
+	std::vector<BonusType> getElementalImmunity() const override;
 
 	bool ownerMatches(const battle::Unit * unit) const override;
 	bool ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const override;

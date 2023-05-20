@@ -202,7 +202,7 @@ public:
 
 	bool valid() const;
 
-	void addBonus(int val, Bonus::BonusType type, int subtype = -1);
+	void addBonus(int val, BonusType type, int subtype = -1);
 	std::string nodeName() const override;
 
 	template<typename RanGen>

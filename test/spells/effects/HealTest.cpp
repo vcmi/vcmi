@@ -91,7 +91,7 @@ TEST_F(HealTest, ApplicableIfActuallyResurrects)
 	EXPECT_CALL(mechanicsMock, getEffectValue()).Times(AtLeast(1)).WillRepeatedly(Return(1000));
 	EXPECT_CALL(mechanicsMock, isSmart()).WillOnce(Return(false));
 
-	unit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, 200, 0));
+	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 200, 0));
 	unitsFake.setDefaultBonusExpectations();
 
 	EffectTarget target;
@@ -117,7 +117,7 @@ TEST_F(HealTest, NotApplicableIfNotEnoughCasualties)
 	EXPECT_CALL(mechanicsMock, getEffectValue()).Times(AtLeast(1)).WillRepeatedly(Return(999));
 	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
 
-	unit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, 200, 0));
+	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 200, 0));
 	unitsFake.setDefaultBonusExpectations();
 
 	EffectTarget target;
@@ -143,7 +143,7 @@ TEST_F(HealTest, NotApplicableIfResurrectsLessThanRequired)
 	EXPECT_CALL(mechanicsMock, getEffectValue()).Times(AtLeast(1)).WillRepeatedly(Return(999));
 	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
 
-	unit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, 200, 0));
+	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 200, 0));
 	unitsFake.setDefaultBonusExpectations();
 
 	EffectTarget target;
@@ -271,7 +271,7 @@ TEST_F(HealTest, NotApplicableIfEffectValueTooLow)
 	EXPECT_CALL(unit, getTotalHealth()).WillOnce(Return(200));
 	EXPECT_CALL(unit, getAvailableHealth()).WillOnce(Return(100));
 
-	unit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, 200, 0));
+	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 200, 0));
 
 	EXPECT_CALL(mechanicsMock, getEffectValue()).Times(AtLeast(1)).WillRepeatedly(Return(199));
 
@@ -348,7 +348,7 @@ TEST_P(HealApplyTest, Heals)
 	EXPECT_CALL(targetUnit, unitId()).WillRepeatedly(Return(unitId));
 	EXPECT_CALL(targetUnit, unitType()).WillRepeatedly(Return(pikeman));
 
-	targetUnit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, unitHP, 0));
+	targetUnit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHP, 0));
 
 	unitsFake.setDefaultBonusExpectations();
 

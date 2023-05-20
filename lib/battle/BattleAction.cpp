@@ -52,7 +52,7 @@ BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, BattleHex
 	ba.stackNumber = stack->unitId();
 	ba.aimToHex(attackFrom);
 	ba.aimToHex(destination);
-	if(returnAfterAttack && stack->hasBonusOfType(Bonus::RETURN_AFTER_STRIKE))
+	if(returnAfterAttack && stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
 		ba.aimToHex(stack->getPosition());
 	return ba;
 }

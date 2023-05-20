@@ -253,7 +253,7 @@ void CGDwelling::newTurn(CRandomGenerator & rand) const
 				creaturesAccumulate = VLC->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_NEUTRAL);
 
 			CCreature *cre = VLC->creh->objects[creatures[i].second[0]];
-			TQuantity amount = cre->getGrowth() * (1 + cre->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(Bonus::CREATURE_GROWTH);
+			TQuantity amount = cre->getGrowth() * (1 + cre->valOfBonuses(BonusType::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(BonusType::CREATURE_GROWTH);
 			if (creaturesAccumulate && ID != Obj::REFUGEE_CAMP) //camp should not try to accumulate different kinds of creatures
 				sac.creatures[i].first += amount;
 			else

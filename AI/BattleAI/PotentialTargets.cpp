@@ -22,7 +22,7 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 	const battle::Unit * forcedTarget = nullptr;
 	BattleHex forcedHex;
 
-	if(attackerInfo->hasBonusOfType(Bonus::ATTACKS_NEAREST_CREATURE))
+	if(attackerInfo->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE))
 	{
 		forceTarget = true;
 		auto nearest = state.getNearestStack(attackerInfo);

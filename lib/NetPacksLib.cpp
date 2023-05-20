@@ -982,13 +982,13 @@ void GiveBonus::applyGs(CGameState *gs)
 
 	std::string &descr = b->description;
 
-	if(bdescr.message.empty() && (bonus.type == Bonus::LUCK || bonus.type == Bonus::MORALE))
+	if(bdescr.message.empty() && (bonus.type == BonusType::LUCK || bonus.type == BonusType::MORALE))
 	{
-		if (bonus.source == Bonus::OBJECT)
+		if (bonus.source == BonusSource::OBJECT)
 		{
 			descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
 		}
-		else if(bonus.source == Bonus::TOWN_STRUCTURE)
+		else if(bonus.source == BonusSource::TOWN_STRUCTURE)
 		{
 			descr = bonus.description;
 			return;
@@ -1124,7 +1124,7 @@ void RemoveBonus::applyGs(CGameState *gs)
 
 	for(const auto & b : bonuses)
 	{
-		if(b->source == source && b->sid == id)
+		if(vstd::to_underlying(b->source) == source && b->sid == id)
 		{
 			bonus = *b; //backup bonus (to show to interfaces later)
 			node->removeBonus(b);
@@ -2155,15 +2155,15 @@ void BattleTriggerEffect::applyGs(CGameState * gs) const
 {
 	CStack * st = gs->curB->getStack(stackID);
 	assert(st);
-	switch(effect)
+	switch(static_cast<BonusType>(effect))
 	{
-	case Bonus::HP_REGENERATION:
+	case BonusType::HP_REGENERATION:
 	{
 		int64_t toHeal = val;
 		st->heal(toHeal, EHealLevel::HEAL, EHealPower::PERMANENT);
 		break;
 	}
-	case Bonus::MANA_DRAIN:
+	case BonusType::MANA_DRAIN:
 	{
 		CGHeroInstance * h = gs->getHero(ObjectInstanceID(additionalInfo));
 		st->drainedMana = true;
@@ -2171,18 +2171,18 @@ void BattleTriggerEffect::applyGs(CGameState * gs) const
 		vstd::amax(h->mana, 0);
 		break;
 	}
-	case Bonus::POISON:
+	case BonusType::POISON:
 	{
-		auto b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON)
-				.And(Selector::type()(Bonus::STACK_HEALTH)));
+		auto b = st->getBonusLocalFirst(Selector::source(BonusSource::SPELL_EFFECT, SpellID::POISON)
+				.And(Selector::type()(BonusType::STACK_HEALTH)));
 		if (b)
 			b->val = val;
 		break;
 	}
-	case Bonus::ENCHANTER:
-	case Bonus::MORALE:
+	case BonusType::ENCHANTER:
+	case BonusType::MORALE:
 		break;
-	case Bonus::FEAR:
+	case BonusType::FEAR:
 		st->fear = true;
 		break;
 	default:
@@ -2477,7 +2477,7 @@ void BattleSetStackProperty::applyGs(CGameState * gs) const
 		}
 		case UNBIND:
 		{
-			stack->removeBonusesRecursive(Selector::type()(Bonus::BIND_EFFECT));
+			stack->removeBonusesRecursive(Selector::type()(BonusType::BIND_EFFECT));
 			break;
 		}
 		case CLONED:

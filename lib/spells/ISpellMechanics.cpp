@@ -274,7 +274,7 @@ void BattleCast::cast(ServerCallback * server, Target target)
 	if(tryMagicMirror)
 	{
 		const std::string magicMirrorCacheStr = "type_MAGIC_MIRROR";
-		static const auto magicMirrorSelector = Selector::type()(Bonus::MAGIC_MIRROR);
+		static const auto magicMirrorSelector = Selector::type()(BonusType::MAGIC_MIRROR);
 
 		auto rangeGen = server->getRNG()->getInt64Range(0, 99);
 
@@ -484,9 +484,9 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Pr
 				return adaptGenericProblem(target);
 
 			//Recanter's Cloak or similar effect. Try to retrieve bonus
-			const auto b = hero->getBonusLocalFirst(Selector::type()(Bonus::BLOCK_MAGIC_ABOVE));
+			const auto b = hero->getBonusLocalFirst(Selector::type()(BonusType::BLOCK_MAGIC_ABOVE));
 			//TODO what about other values and non-artifact sources?
-			if(b && b->val == 2 && b->source == Bonus::ARTIFACT)
+			if(b && b->val == 2 && b->source == BonusSource::ARTIFACT)
 			{
 				//The %s prevents %s from casting 3rd level or higher spells.
 				text.addTxt(MetaString::GENERAL_TXT, 536);
@@ -494,7 +494,7 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Pr
 				caster->getCasterName(text);
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
-			else if(b && b->source == Bonus::TERRAIN_OVERLAY && VLC->battlefields()->getByIndex(b->sid)->identifier == "cursed_ground")
+			else if(b && b->source == BonusSource::TERRAIN_OVERLAY && VLC->battlefields()->getByIndex(b->sid)->identifier == "cursed_ground")
 			{
 				text.addTxt(MetaString::GENERAL_TXT, 537);
 				target.add(std::move(text), spells::Problem::NORMAL);
@@ -620,9 +620,9 @@ int64_t BaseMechanics::calculateRawEffectValue(int32_t basePowerMultiplier, int3
 	return owner->calculateRawEffectValue(getEffectLevel(), basePowerMultiplier, levelPowerMultiplier);
 }
 
-std::vector<Bonus::BonusType> BaseMechanics::getElementalImmunity() const
+std::vector<BonusType> BaseMechanics::getElementalImmunity() const
 {
-	std::vector<Bonus::BonusType> ret;
+	std::vector<BonusType> ret;
 
 	owner->forEachSchool([&](const SchoolInfo & cnf, bool & stop)
 	{
