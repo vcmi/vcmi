@@ -20,6 +20,8 @@
 #include "../../mapObjects/CommonConstructors.h"
 #include "../../mapObjects/MapObjects.h" 
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void QuestArtifactPlacer::process()
 {
 	findZonesForQuestArts();
@@ -144,3 +146,5 @@ void QuestArtifactPlacer::addRandomArtifact(ArtifactID artid)
 	RecursiveLock lock(externalAccessMutex);
 	questArtifacts.push_back(artid);
 }
+
+VCMI_LIB_NAMESPACE_END
