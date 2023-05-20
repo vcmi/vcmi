@@ -21,7 +21,7 @@ private:
 	std::vector<Point> supportedResolutions;
 	std::vector<int> supportedScaling;
 
-	void setFullscreenMode( bool on);
+	void setFullscreenMode( bool on, bool exclusive);
 
 	void selectGameResolution();
 	void setGameResolution(int index);
@@ -31,4 +31,6 @@ private:
 
 public:
 	GeneralOptionsTab();
+
+	void updateResolutionSelector();
 };

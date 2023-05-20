@@ -37,13 +37,10 @@
 	"vcmi.systemOptions.otherGroup" : "Inne ustawienia", // unused right now
 	"vcmi.systemOptions.townsGroup" : "Ekran miasta",
 
-	"vcmi.systemOptions.fullscreenButton.hover" : "Pełny ekran",
-	"vcmi.systemOptions.fullscreenButton.help"  : "{Pełny ekran}\n\n Po wybraniu VCMI uruchomi się w trybie pełnoekranowym, w przeciwnym wypadku uruchomi się w oknie",
 	"vcmi.systemOptions.resolutionButton.hover" : "Rozdzielczość: %wx%h",
 	"vcmi.systemOptions.resolutionButton.help"  : "{Wybierz rozdzielczość}\n\n Zmień rozdzielczość ekranu w grze. Restart gry jest wymagany, by zmiany zostały uwzględnione.",
 	"vcmi.systemOptions.resolutionMenu.hover"   : "Wybierz rozdzielczość",
 	"vcmi.systemOptions.resolutionMenu.help"    : "Zmień rozdzielczość ekranu w grze.",
-	"vcmi.systemOptions.fullscreenFailed"       : "{Pełny ekran}\n\n Nieudane przełączenie w tryb pełnoekranowy! Obecna rozdzielczość nie jest wspierana przez wyświetlacz!",
 	"vcmi.systemOptions.framerateButton.hover"  : "Pokaż FPS",
 	"vcmi.systemOptions.framerateButton.help"   : "{Pokaż FPS}\n\n Przełącza widoczność licznika klatek na sekundę (FPS) w rogu okna gry.",
 

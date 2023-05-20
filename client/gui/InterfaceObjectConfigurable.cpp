@@ -26,6 +26,7 @@
 #include "../windows/InfoWindows.h"
 
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/filesystem/ResourceID.h"
 
 InterfaceObjectConfigurable::InterfaceObjectConfigurable(const JsonNode & config, int used, Point offset):
 	InterfaceObjectConfigurable(used, offset)
@@ -46,6 +47,7 @@ InterfaceObjectConfigurable::InterfaceObjectConfigurable(int used, Point offset)
 	REGISTER_BUILDER("button", &InterfaceObjectConfigurable::buildButton);
 	REGISTER_BUILDER("labelGroup", &InterfaceObjectConfigurable::buildLabelGroup);
 	REGISTER_BUILDER("slider", &InterfaceObjectConfigurable::buildSlider);
+	REGISTER_BUILDER("layout", &InterfaceObjectConfigurable::buildLayout);
 }
 
 void InterfaceObjectConfigurable::registerBuilder(const std::string & type, BuilderFunction f)
@@ -65,25 +67,57 @@ void InterfaceObjectConfigurable::deleteWidget(const std::string & name)
 		widgets.erase(iter);
 }
 
+void InterfaceObjectConfigurable::loadCustomBuilders(const JsonNode & config)
+{
+	for(auto & item : config.Struct())
+	{
+		std::string typeName = item.first;
+		JsonNode baseConfig = item.second;
+
+		auto const & functor = [this, baseConfig](const JsonNode & widgetConfig) -> std::shared_ptr<CIntObject>
+		{
+			JsonNode actualConfig = widgetConfig;
+			JsonUtils::mergeCopy(actualConfig, baseConfig);
+
+			return this->buildWidget(actualConfig);
+		};
+		registerBuilder(typeName, functor);
+	}
+}
+
 void InterfaceObjectConfigurable::build(const JsonNode &config)
 {
 	OBJ_CONSTRUCTION;
+
 	logGlobal->debug("Building configurable interface object");
 	auto * items = &config;
 	
 	if(config.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
+		if (!config["library"].isNull())
+		{
+			const JsonNode library(ResourceID(config["library"].String()));
+			loadCustomBuilders(library);
+		}
+
+		loadCustomBuilders(config["customTypes"]);
+
 		for(auto & item : config["variables"].Struct())
 		{
 			logGlobal->debug("Read variable named %s", item.first);
 			variables[item.first] = item.second;
 		}
-		
+
 		items = &config["items"];
 	}
 	
 	for(const auto & item : items->Vector())
 		addWidget(item["name"].String(), buildWidget(item));
+}
+
+void InterfaceObjectConfigurable::addConditional(const std::string & name, bool active)
+{
+	conditionals[name] = active;
 }
 
 void InterfaceObjectConfigurable::addWidget(const std::string & namePreferred, std::shared_ptr<CIntObject> widget)
@@ -268,7 +302,8 @@ std::shared_ptr<CToggleGroup> InterfaceObjectConfigurable::buildToggleGroup(cons
 		for(const auto & item : config["items"].Vector())
 		{
 			itemIdx = item["index"].isNull() ? itemIdx + 1 : item["index"].Integer();
-			group->addToggle(itemIdx, std::dynamic_pointer_cast<CToggleBase>(buildWidget(item)));
+			auto newToggle = std::dynamic_pointer_cast<CToggleButton>(buildWidget(item));
+			group->addToggle(itemIdx, newToggle);
 		}
 	}
 	if(!config["selected"].isNull())
@@ -444,6 +479,69 @@ std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const 
 	auto image = config["image"].String();
 	auto rect = readRect(config["rect"]);
 	return std::make_shared<CFilledTexture>(image, rect);
+}
+
+/// Small helper class that provides ownership for shared_ptr's of child elements
+class InterfaceLayoutWidget : public CIntObject
+{
+public:
+	std::vector<std::shared_ptr<CIntObject>> ownedChildren;
+};
+
+std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildLayout(const JsonNode & config)
+{
+	logGlobal->debug("Building widget Layout");
+	bool vertical = config["vertical"].Bool();
+	bool horizontal = config["horizontal"].Bool();
+	bool dynamic = config["dynamic"].Bool();
+	int distance = config["distance"].Integer();
+	std::string customType = config["customType"].String();
+	auto position = readPosition(config["position"]);
+
+	auto result = std::make_shared<InterfaceLayoutWidget>();
+	result->moveBy(position);
+	Point layoutPosition;
+
+	for(auto item : config["items"].Vector())
+	{
+		if (item["type"].String().empty())
+			item["type"].String() = customType;
+
+		if (!item["created"].isNull())
+		{
+			std::string name = item["created"].String();
+
+			if (conditionals.count(name) != 0)
+			{
+				if (!conditionals.at(name))
+					continue;
+			}
+			else
+			{
+				logMod->warn("Unknown condition %s in widget!", name);
+			}
+		}
+
+		auto widget = buildWidget(item);
+
+		addWidget(item["name"].String(), widget);
+		result->ownedChildren.push_back(widget);
+		result->addChild(widget.get(), false);
+
+		widget->moveBy(position + layoutPosition);
+
+		if (dynamic && vertical)
+			layoutPosition.y += widget->pos.h;
+		if (dynamic && horizontal)
+			layoutPosition.x += widget->pos.w;
+
+		if (vertical)
+			layoutPosition.y += distance;
+		if (horizontal)
+			layoutPosition.x += distance;
+	}
+
+	return result;
 }
 
 std::shared_ptr<CShowableAnim> InterfaceObjectConfigurable::buildAnimation(const JsonNode & config) const

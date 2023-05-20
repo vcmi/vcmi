@@ -78,6 +78,13 @@ GeneralOptionsTab::GeneralOptionsTab()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	type |= REDRAW_PARENT;
 
+	addConditional("mobile", false);
+	addConditional("desktop", true);
+#ifdef VCMI_MOBILE
+	addConditional("mobile", true);
+	addConditional("desktop", false);
+#endif
+
 	const JsonNode config(ResourceID("config/widgets/settings/generalOptionsTab.json"));
 	addCallback("spellbookAnimationChanged", [](bool value)
 	{
@@ -102,9 +109,13 @@ GeneralOptionsTab::GeneralOptionsTab()
 			targetLabel->setText(std::to_string(value) + "%");
 	});
 	//settings that do not belong to base game:
-	addCallback("fullscreenChanged", [this](bool value)
+	addCallback("fullscreenBorderlessChanged", [this](bool value)
 	{
-		setFullscreenMode(value);
+		setFullscreenMode(value, false);
+	});
+	addCallback("fullscreenExclusiveChanged", [this](bool value)
+	{
+		setFullscreenMode(value, true);
 	});
 	addCallback("setGameResolution", [this](int dummyValue)
 	{
@@ -134,21 +145,19 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	const auto & currentResolution = settings["video"]["resolution"];
 
-	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
-	resolutionLabel->setText(resolutionToLabelString(currentResolution["width"].Integer(), currentResolution["height"].Integer()));
-
 	std::shared_ptr<CLabel> scalingLabel = widget<CLabel>("scalingLabel");
 	scalingLabel->setText(scalingToLabelString(currentResolution["scaling"].Integer()));
 
 	std::shared_ptr<CToggleButton> spellbookAnimationCheckbox = widget<CToggleButton>("spellbookAnimationCheckbox");
 	spellbookAnimationCheckbox->setSelected(settings["video"]["spellbookAnimation"].Bool());
 
-	std::shared_ptr<CToggleButton> fullscreenCheckbox = widget<CToggleButton>("fullscreenCheckbox");
-	fullscreenCheckbox->setSelected(settings["video"]["fullscreen"].Bool());
-	onFullscreenChanged([&](const JsonNode &newState) //used when pressing F4 etc. to change fullscreen checkbox state
-	{
-		widget<CToggleButton>("fullscreenCheckbox")->setSelected(newState.Bool());
-	});
+	std::shared_ptr<CToggleButton> fullscreenBorderlessCheckbox = widget<CToggleButton>("fullscreenBorderlessCheckbox");
+	if (fullscreenBorderlessCheckbox)
+		fullscreenBorderlessCheckbox->setSelected(settings["video"]["fullscreen"].Bool() && !settings["video"]["realFullscreen"].Bool());
+
+	std::shared_ptr<CToggleButton> fullscreenExclusiveCheckbox = widget<CToggleButton>("fullscreenExclusiveCheckbox");
+	if (fullscreenExclusiveCheckbox)
+		fullscreenExclusiveCheckbox->setSelected(settings["video"]["fullscreen"].Bool() && settings["video"]["realFullscreen"].Bool());
 
 	std::shared_ptr<CToggleButton> framerateCheckbox = widget<CToggleButton>("framerateCheckbox");
 	framerateCheckbox->setSelected(settings["video"]["showfps"].Bool());
@@ -171,15 +180,33 @@ GeneralOptionsTab::GeneralOptionsTab()
 	std::shared_ptr<CLabel> soundVolumeLabel = widget<CLabel>("soundValueLabel");
 	soundVolumeLabel->setText(std::to_string(CCS->soundh->getVolume()) + "%");
 
-#ifdef VCMI_MOBILE
-	// On mobile platforms, VCMI always uses OS screen resolutions
-	// Players can control UI size via "Interface Scaling" option instead
-	std::shared_ptr<CButton> resolutionButton = widget<CButton>("resolutionButton");
+	updateResolutionSelector();
+}
 
-	resolutionButton->disable();
-	resolutionLabel->disable();
-	fullscreenCheckbox->block(true);
-#endif
+void GeneralOptionsTab::updateResolutionSelector()
+{
+	std::shared_ptr<CButton> resolutionButton = widget<CButton>("resolutionButton");
+	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
+
+	if (settings["video"]["fullscreen"].Bool() && !settings["video"]["realFullscreen"].Bool())
+	{
+		if (resolutionButton)
+			resolutionButton->disable();
+
+		if (resolutionLabel)
+			resolutionLabel->setText(resolutionToLabelString(GH.screenDimensions().x, GH.screenDimensions().y));
+	}
+	else
+	{
+		const auto & currentResolution = settings["video"]["resolution"];
+
+		if (resolutionButton)
+			resolutionButton->enable();
+
+		if (resolutionLabel)
+			resolutionLabel->setText(resolutionToLabelString(currentResolution["width"].Integer(), currentResolution["height"].Integer()));
+	}
+
 }
 
 void GeneralOptionsTab::selectGameResolution()
@@ -224,17 +251,32 @@ void GeneralOptionsTab::setGameResolution(int index)
 	widget<CLabel>("resolutionLabel")->setText(resolutionToLabelString(resolution.x, resolution.y));
 }
 
-void GeneralOptionsTab::setFullscreenMode(bool on)
+void GeneralOptionsTab::setFullscreenMode(bool on, bool exclusive)
 {
+	setBoolSetting("video", "realFullscreen", exclusive);
 	setBoolSetting("video", "fullscreen", on);
+
+	std::shared_ptr<CToggleButton> fullscreenExclusiveCheckbox = widget<CToggleButton>("fullscreenExclusiveCheckbox");
+	std::shared_ptr<CToggleButton> fullscreenBorderlessCheckbox = widget<CToggleButton>("fullscreenBorderlessCheckbox");
+
+	if (fullscreenBorderlessCheckbox)
+		fullscreenBorderlessCheckbox->setSelected(on && !exclusive);
+
+	if (fullscreenExclusiveCheckbox)
+		fullscreenExclusiveCheckbox->setSelected(on && exclusive);
+
+	updateResolutionSelector();
 }
 
 void GeneralOptionsTab::selectGameScaling()
 {
 	supportedScaling.clear();
 
+	// generate list of all possible scaling values, with 10% step
+	// also add one value over maximum, so if player can use scaling up to 123.456% he will be able to select 130%
+	// and let screen handler clamp that value to actual maximum
 	auto [minimalScaling, maximalScaling] = GH.screenHandler().getSupportedScalingRange();
-	for (int i = 0; i <= maximalScaling; i += 10)
+	for (int i = 0; i <= maximalScaling + 10 - 1; i += 10)
 	{
 		if (i >= minimalScaling)
 			supportedScaling.push_back(i);

@@ -46,8 +46,6 @@
 	"vcmi.systemOptions.otherGroup" : "Andere Einstellungen", // unused right now
 	"vcmi.systemOptions.townsGroup" : "Stadt-Bildschirm",
 
-	"vcmi.systemOptions.fullscreenButton.hover" : "Vollbild",
-	"vcmi.systemOptions.fullscreenButton.help"  : "{Vollbild}\n\n Wenn ausgewählt wird VCMI im Vollbildmodus laufen, ansonsten im Fenstermodus",
 	"vcmi.systemOptions.resolutionButton.hover" : "Auflösung: %wx%h",
 	"vcmi.systemOptions.resolutionButton.help"  : "{Wähle Auflösung}\n\n Ändert die Spielauflösung. Spielneustart ist erforderlich um neue Auflösung zu übernehmen.",
 	"vcmi.systemOptions.resolutionMenu.hover"   : "Wähle Auflösung",

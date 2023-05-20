@@ -45,9 +45,13 @@ protected:
 
 	using BuilderFunction = std::function<std::shared_ptr<CIntObject>(const JsonNode &)>;
 	void registerBuilder(const std::string &, BuilderFunction);
+
+	void loadCustomBuilders(const JsonNode & config);
 	
 	//must be called after adding callbacks
 	void build(const JsonNode & config);
+
+	void addConditional(const std::string & name, bool active);
 
 	void addWidget(const std::string & name, std::shared_ptr<CIntObject> widget);
 	
@@ -91,6 +95,7 @@ protected:
 	std::shared_ptr<CAnimImage> buildImage(const JsonNode &) const;
 	std::shared_ptr<CShowableAnim> buildAnimation(const JsonNode &) const;
 	std::shared_ptr<CFilledTexture> buildTexture(const JsonNode &) const;
+	std::shared_ptr<CIntObject> buildLayout(const JsonNode &);
 		
 	//composite widgets
 	std::shared_ptr<CIntObject> buildWidget(JsonNode config) const;
@@ -107,5 +112,6 @@ private:
 	std::map<std::string, BuilderFunction> builders;
 	std::map<std::string, std::shared_ptr<CIntObject>> widgets;
 	std::map<std::string, std::function<void(int)>> callbacks;
+	std::map<std::string, bool> conditionals;
 	std::map<EShortcut, ShortcutState> shortcuts;
 };

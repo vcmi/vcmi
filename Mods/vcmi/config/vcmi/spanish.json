@@ -46,13 +46,10 @@
 	"vcmi.systemOptions.otherGroup" : "Otras configuraciones", // actualmente no utilizada
 	"vcmi.systemOptions.townsGroup" : "Pantalla de la ciudad",
 
-	"vcmi.systemOptions.fullscreenButton.hover" : "Pantalla completa",
-	"vcmi.systemOptions.fullscreenButton.help"  : "{Pantalla completa}\n\n Si se selecciona, VCMI se ejecutará en modo de pantalla completa, de lo contrario se ejecutará en ventana",
 	"vcmi.systemOptions.resolutionButton.hover" : "Resolución: %wx%h",
 	"vcmi.systemOptions.resolutionButton.help"  : "{Seleccionar resolución}\n\n Cambia la resolución de la pantalla del juego. Se requiere reiniciar el juego para aplicar la nueva resolución.",
 	"vcmi.systemOptions.resolutionMenu.hover"   : "Seleccionar resolución",
 	"vcmi.systemOptions.resolutionMenu.help"    : "Cambia la resolución de la pantalla del juego.",
-	"vcmi.systemOptions.fullscreenFailed"       : "{Pantalla completa}\n\n ¡Fallo al cambiar a modo de pantalla completa! ¡La resolución actual no es compatible con la pantalla!",
 	"vcmi.systemOptions.framerateButton.hover"  : "Mostrar FPS",
 	"vcmi.systemOptions.framerateButton.help"   : "{Mostrar FPS}\n\n Muestra el contador de Frames Por Segundo en la esquina de la ventana del juego.",
 
