@@ -182,7 +182,7 @@ std::list<Object::Instance*> Object::instances()
 {
 	std::list<Object::Instance*> result;
 	for(auto & i : dInstances)
-		result.push_back(&i); //FIXME: Sterta zosta³a uskzodzona :? Mo¿e w innym miejscu?
+		result.push_back(&i);
 	return result;
 }
 
