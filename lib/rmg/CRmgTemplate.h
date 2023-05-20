@@ -41,12 +41,12 @@ namespace EWaterContent
 	};
 }
 
-namespace EMonsterStrength
+namespace EMonsterStrength // used as int in monster generation procedure and in map description for the generated random map
 {
 	enum EMonsterStrength
 	{
-		RANDOM = -3,
-		ZONE_NONE = -2,
+		ZONE_NONE = -3,
+		RANDOM = -2,
 		ZONE_WEAK = -1,
 		ZONE_NORMAL = 0,
 		ZONE_STRONG = 1,

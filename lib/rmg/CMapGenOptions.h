@@ -110,8 +110,8 @@ public:
 	EWaterContent::EWaterContent getWaterContent() const;
 	void setWaterContent(EWaterContent::EWaterContent value);
 
-	EMonsterStrength::EMonsterStrength getMonsterStrength() const;
-	void setMonsterStrength(EMonsterStrength::EMonsterStrength value);
+	EGlobalMonsterStrength::EGlobalMonsterStrength getMonsterStrength() const;
+	void setMonsterStrength(EGlobalMonsterStrength::EGlobalMonsterStrength value);
 	
 	bool isRoadEnabled(const std::string & roadName) const;
 	void setRoadEnabled(const std::string & roadName, bool enable);
@@ -157,7 +157,7 @@ private:
 	bool hasTwoLevels;
 	si8 playerCount, teamCount, compOnlyPlayerCount, compOnlyTeamCount;
 	EWaterContent::EWaterContent waterContent;
-	EMonsterStrength::EMonsterStrength monsterStrength;
+	EGlobalMonsterStrength::EGlobalMonsterStrength monsterStrength;
 	std::map<PlayerColor, CPlayerSettings> players;
 	std::set<std::string> disabledRoads;
 	
