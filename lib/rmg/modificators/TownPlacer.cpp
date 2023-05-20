@@ -119,16 +119,16 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 	if(!totalTowns) //if there's no town present, get random faction for dwellings and pandoras
 	{
 		//25% chance for neutral
-		if (generator.rand.nextInt(1, 100) <= 25)
+		if (zone.getRand().nextInt(1, 100) <= 25)
 		{
 			zone.setTownType(ETownType::NEUTRAL);
 		}
 		else
 		{
 			if(!zone.getTownTypes().empty())
-				zone.setTownType(*RandomGeneratorUtil::nextItem(zone.getTownTypes(), generator.rand));
+				zone.setTownType(*RandomGeneratorUtil::nextItem(zone.getTownTypes(), zone.getRand()));
 			else if(!zone.getMonsterTypes().empty())
-				zone.setTownType(*RandomGeneratorUtil::nextItem(zone.getMonsterTypes(), generator.rand)); //this happens in Clash of Dragons in treasure zones, where all towns are banned
+				zone.setTownType(*RandomGeneratorUtil::nextItem(zone.getMonsterTypes(), zone.getRand())); //this happens in Clash of Dragons in treasure zones, where all towns are banned
 			else //just in any case
 				zone.setTownType(getRandomTownType());
 		}
@@ -182,9 +182,9 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 			if(!zone.areTownsSameType())
 			{
 				if(!zone.getTownTypes().empty())
-					subType = *RandomGeneratorUtil::nextItem(zone.getTownTypes(), generator.rand);
+					subType = *RandomGeneratorUtil::nextItem(zone.getTownTypes(), zone.getRand());
 				else
-					subType = *RandomGeneratorUtil::nextItem(zone.getDefaultTownTypes(), generator.rand); //it is possible to have zone with no towns allowed
+					subType = *RandomGeneratorUtil::nextItem(zone.getDefaultTownTypes(), zone.getRand()); //it is possible to have zone with no towns allowed
 			}
 		}
 		
@@ -235,7 +235,7 @@ si32 TownPlacer::getRandomTownType(bool matchUndergroundType)
 			townTypesAllowed = townTypesVerify;
 	}
 	
-	return *RandomGeneratorUtil::nextItem(townTypesAllowed, generator.rand);
+	return *RandomGeneratorUtil::nextItem(townTypesAllowed, zone.getRand());
 }
 
 int TownPlacer::getTotalTowns() const

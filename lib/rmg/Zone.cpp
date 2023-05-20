@@ -23,14 +23,14 @@ std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
 	return true;
 };
 
-Zone::Zone(RmgMap & map, CMapGenerator & generator)
+Zone::Zone(RmgMap & map, CMapGenerator & generator, CRandomGenerator & r)
 	: finished(false)
 	, townType(ETownType::NEUTRAL)
 	, terrainType(ETerrainId::GRASS)
 	, map(map)
 	, generator(generator)
 {
-	
+	rand.setSeed(r.nextInt());
 }
 
 bool Zone::isUnderground() const
@@ -214,7 +214,7 @@ void Zone::fractalize()
 		{
 			//link tiles in random order
 			std::vector<int3> tilesToMakePath = possibleTiles.getTilesVector();
-			RandomGeneratorUtil::randomShuffle(tilesToMakePath, generator.rand);
+			RandomGeneratorUtil::randomShuffle(tilesToMakePath, getRand());
 			
 			int3 nodeFound(-1, -1, -1);
 
@@ -288,6 +288,11 @@ void Zone::initModificators()
 		modificator->init();
 	}
 	logGlobal->info("Zone %d modificators initialized", getId());
+}
+
+CRandomGenerator& Zone::getRand()
+{
+	return rand;
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -45,7 +45,7 @@ void ObstaclePlacer::process()
 	//TODO: Set prohibited area in ObstacleProxy :?
 	prohibitedArea = zone.freePaths() + zone.areaUsed() + manager->getVisitableArea();
 
-	auto objs = createObstacles(generator.rand);
+	auto objs = createObstacles(zone.getRand());
 	mapProxy->insertObjects(objs);
 }
 

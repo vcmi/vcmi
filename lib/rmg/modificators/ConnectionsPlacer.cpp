@@ -113,7 +113,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 		int3 borderPos;
 		while(!directConnectionIterator->second.empty())
 		{
-			borderPos = *RandomGeneratorUtil::nextItem(directConnectionIterator->second, generator.rand);
+			borderPos = *RandomGeneratorUtil::nextItem(directConnectionIterator->second, zone.getRand());
 			guardPos = zone.areaPossible().nearest(borderPos);
 			assert(borderPos != guardPos);
 

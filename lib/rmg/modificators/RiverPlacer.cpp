@@ -88,7 +88,7 @@ void RiverPlacer::init()
 void RiverPlacer::drawRivers()
 {
 	auto tiles = rivers.getTilesVector();
-	mapProxy->drawRivers(generator.rand, tiles, zone.getTerrainType());
+	mapProxy->drawRivers(zone.getRand(), tiles, zone.getTerrainType());
 }
 
 char RiverPlacer::dump(const int3 & t)
@@ -137,7 +137,7 @@ void RiverPlacer::prepareHeightmap()
 
 	for(const auto & t : zone.area().getTilesVector())
 	{
-		heightMap[t] = generator.rand.nextInt(5);
+		heightMap[t] = zone.getRand().nextInt(5);
 		
 		if(roads.contains(t))
 			heightMap[t] += 30.f;
@@ -183,13 +183,13 @@ void RiverPlacer::preprocess()
 	//looking outside map
 	if(!outOfMapInternal.empty())
 	{
-		auto elem = *RandomGeneratorUtil::nextItem(outOfMapInternal.getTilesVector(), generator.rand);
+		auto elem = *RandomGeneratorUtil::nextItem(outOfMapInternal.getTilesVector(), zone.getRand());
 		source.add(elem);
 		outOfMapInternal.erase(elem);
 	}
 	if(!outOfMapInternal.empty())
 	{
-		auto elem = *RandomGeneratorUtil::nextItem(outOfMapInternal.getTilesVector(), generator.rand);
+		auto elem = *RandomGeneratorUtil::nextItem(outOfMapInternal.getTilesVector(), zone.getRand());
 		sink.add(elem);
 		outOfMapInternal.erase(elem);
 	}
@@ -294,7 +294,7 @@ void RiverPlacer::preprocess()
 	//decorative river
 	if(!sink.empty() && !source.empty() && riverNodes.empty() && !zone.areaPossible().empty())
 	{
-		addRiverNode(*RandomGeneratorUtil::nextItem(source.getTilesVector(), generator.rand));
+		addRiverNode(*RandomGeneratorUtil::nextItem(source.getTilesVector(), zone.getRand()));
 	}
 	
 	if(source.empty())

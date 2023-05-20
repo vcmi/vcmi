@@ -294,7 +294,7 @@ bool ObjectManager::createRequiredObjects()
 				continue;
 			}
 			
-			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), generator.rand));
+			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), zone.getRand()));
 			placeObject(rmgNearObject, false, false);
 		}
 	}
@@ -342,7 +342,7 @@ bool ObjectManager::createRequiredObjects()
 				continue;
 			}
 			
-			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), generator.rand));
+			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), zone.getRand()));
 			placeObject(rmgNearObject, false, false);
 		}
 	}
@@ -482,10 +482,10 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	}
 	if(!possibleCreatures.empty())
 	{
-		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, generator.rand);
+		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, zone.getRand());
 		amount = strength / VLC->creh->objects[creId]->getAIValue();
 		if (amount >= 4)
-			amount = static_cast<int>(amount * generator.rand.nextDouble(0.75, 1.25));
+			amount = static_cast<int>(amount * zone.getRand().nextDouble(0.75, 1.25));
 	}
 	else //just pick any available creature
 	{

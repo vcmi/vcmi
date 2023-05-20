@@ -77,7 +77,7 @@ void RmgMap::foreachDiagonalNeighbour(const int3 & pos, const std::function<void
 	}
 }
 
-void RmgMap::initTiles(CMapGenerator & generator)
+void RmgMap::initTiles(CMapGenerator & generator, CRandomGenerator & rand)
 {
 	mapInstance->initTerrain();
 	
@@ -88,15 +88,15 @@ void RmgMap::initTiles(CMapGenerator & generator)
 	for (auto faction : VLC->townh->getAllowedFactions())
 		zonesPerFaction[faction] = 0;
 	
-	getEditManager()->clearTerrain(&generator.rand);
+	getEditManager()->clearTerrain(&rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
-	getEditManager()->drawTerrain(ETerrainId::GRASS, &generator.rand);
+	getEditManager()->drawTerrain(ETerrainId::GRASS, &rand);
 
 	const auto * tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();
 	for(const auto & option : tmpl->getZones())
 	{
-		auto zone = std::make_shared<Zone>(*this, generator);
+		auto zone = std::make_shared<Zone>(*this, generator, rand);
 		zone->setOptions(*option.second);
 		zones[zone->getId()] = zone;
 	}
@@ -109,7 +109,7 @@ void RmgMap::initTiles(CMapGenerator & generator)
 			rmg::ZoneOptions options;
 			options.setId(waterId);
 			options.setType(ETemplateZoneType::WATER);
-			auto zone = std::make_shared<Zone>(*this, generator);
+			auto zone = std::make_shared<Zone>(*this, generator, rand);
 			zone->setOptions(options);
 			zones[zone->getId()] = zone;
 			break;

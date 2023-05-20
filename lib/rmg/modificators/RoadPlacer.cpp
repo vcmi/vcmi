@@ -90,7 +90,7 @@ void RoadPlacer::drawRoads(bool secondary)
 
 	std::string roadName = (secondary ? generator.getConfig().secondaryRoadType : generator.getConfig().defaultRoadType);
 	RoadId roadType(*VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "road", roadName));
-	mapProxy->drawRoads(generator.rand, tiles, roadType);
+	mapProxy->drawRoads(zone.getRand(), tiles, roadType);
 }
 
 void RoadPlacer::addRoadNode(const int3& node)

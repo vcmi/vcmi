@@ -140,7 +140,7 @@ void ObjectDistributor::distributeSeerHuts()
 	const auto & zoneMap = map.getZones();
 	RmgMap::ZoneVector zones(zoneMap.begin(), zoneMap.end());
 
-	RandomGeneratorUtil::randomShuffle(zones, generator.rand);
+	RandomGeneratorUtil::randomShuffle(zones, zone.getRand());
 
 	const auto & possibleQuestArts = generator.getAllPossibleQuestArtifacts();
 	size_t availableArts = possibleQuestArts.size();
@@ -167,7 +167,7 @@ void ObjectDistributor::distributePrisons()
 	const auto & zoneMap = map.getZones();
 	RmgMap::ZoneVector zones(zoneMap.begin(), zoneMap.end());
 
-	RandomGeneratorUtil::randomShuffle(zones, generator.rand);
+	RandomGeneratorUtil::randomShuffle(zones, zone.getRand());
 
 	size_t allowedPrisons = generator.getPrisonsRemaning();
 	for (int i = zones.size() - 1; i >= 0; i--)

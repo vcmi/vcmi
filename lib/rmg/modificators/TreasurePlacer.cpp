@@ -110,7 +110,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
 			auto possibleHeroes = generator.getAllPossibleHeroes();
-			HeroTypeID hid = *RandomGeneratorUtil::nextItem(possibleHeroes, generator.rand);
+			HeroTypeID hid = *RandomGeneratorUtil::nextItem(possibleHeroes, zone.getRand());
 
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0);
 			auto * obj = dynamic_cast<CGHeroInstance *>(factory->create());
@@ -208,7 +208,7 @@ void TreasurePlacer::addAllPossibleObjects()
 					out.push_back(spell->id);
 				}
 			}
-			auto * a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, generator.rand));
+			auto * a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, zone.getRand()));
 			obj->storedArtifact = a;
 			return obj;
 		};
@@ -322,7 +322,7 @@ void TreasurePlacer::addAllPossibleObjects()
 					spells.push_back(spell);
 			}
 			
-			RandomGeneratorUtil::randomShuffle(spells, generator.rand);
+			RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
 			for(int j = 0; j < std::min(12, static_cast<int>(spells.size())); j++)
 			{
 				obj->spells.push_back(spells[j]->id);
@@ -351,7 +351,7 @@ void TreasurePlacer::addAllPossibleObjects()
 					spells.push_back(spell);
 			}
 			
-			RandomGeneratorUtil::randomShuffle(spells, generator.rand);
+			RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
 			for(int j = 0; j < std::min(15, static_cast<int>(spells.size())); j++)
 			{
 				obj->spells.push_back(spells[j]->id);
@@ -379,7 +379,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				spells.push_back(spell);
 		}
 		
-		RandomGeneratorUtil::randomShuffle(spells, generator.rand);
+		RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
 		for(int j = 0; j < std::min(60, static_cast<int>(spells.size())); j++)
 		{
 			obj->spells.push_back(spells[j]->id);
@@ -411,7 +411,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		//14 creatures per town + 4 for each of gold / exp reward
 		possibleSeerHuts.reserve(14 + 4 + 4);
 		
-		RandomGeneratorUtil::randomShuffle(creatures, generator.rand);
+		RandomGeneratorUtil::randomShuffle(creatures, zone.getRand());
 
 		for(int i = 0; i < static_cast<int>(creatures.size()); i++)
 		{
@@ -421,7 +421,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			if(!creaturesAmount)
 				continue;
 			
-			int randomAppearance = chooseRandomAppearance(generator.rand, Obj::SEER_HUT, zone.getTerrainType());
+			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
 			
 			oi.generateObject = [creature, creaturesAmount, randomAppearance, this, qap]() -> CGObjectInstance *
 			{
@@ -459,7 +459,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		static int seerLevels = std::min(generator.getConfig().questValues.size(), generator.getConfig().questRewardValues.size());
 		for(int i = 0; i < seerLevels; i++) //seems that code for exp and gold reward is similiar
 		{
-			int randomAppearance = chooseRandomAppearance(generator.rand, Obj::SEER_HUT, zone.getTerrainType());
+			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
 			
 			oi.setTemplate(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
 			oi.value = generator.getConfig().questValues[i];
@@ -519,7 +519,7 @@ void TreasurePlacer::addAllPossibleObjects()
 
 		for (size_t i = 0; i < questArtsRemaining; i++)
 		{
-			addObjectToRandomPool(*RandomGeneratorUtil::nextItem(possibleSeerHuts, generator.rand));
+			addObjectToRandomPool(*RandomGeneratorUtil::nextItem(possibleSeerHuts, zone.getRand()));
 		}
 	}
 }
@@ -553,7 +553,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 	int maxValue = treasureInfo.max;
 	int minValue = treasureInfo.min;
 	
-	const ui32 desiredValue = generator.rand.nextInt(minValue, maxValue);
+	const ui32 desiredValue =zone.getRand().nextInt(minValue, maxValue);
 	
 	int currentValue = 0;
 	bool hasLargeObject = false;
@@ -631,7 +631,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 				bestPositions = accessibleArea.getTilesVector();
 			}
 			
-			int3 nextPos = *RandomGeneratorUtil::nextItem(bestPositions, generator.rand);
+			int3 nextPos = *RandomGeneratorUtil::nextItem(bestPositions, zone.getRand());
 			instance.setPosition(nextPos - rmgObject.getPosition());
 			
 			auto instanceAccessibleArea = instance.getAccessibleArea();
@@ -686,7 +686,7 @@ ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValu
 	}
 	else
 	{
-		int r = generator.rand.nextInt(1, total);
+		int r = zone.getRand().nextInt(1, total);
 		auto sorter = [](const std::pair<ui32, ObjectInfo *> & rhs, const ui32 lhs) -> bool 
 		{
 			return static_cast<int>(rhs.first) < lhs; 

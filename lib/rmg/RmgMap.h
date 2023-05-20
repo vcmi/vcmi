@@ -75,7 +75,7 @@ public:
 	void registerZone(FactionID faction);
 	ui32 getZoneCount(FactionID faction);
 	ui32 getTotalZoneCount() const;
-	void initTiles(CMapGenerator & generator);
+	void initTiles(CMapGenerator & generator, CRandomGenerator & rand);
 	void addModificators();
 
 	bool isAllowedSpell(const SpellID & sid) const;

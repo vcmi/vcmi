@@ -53,20 +53,22 @@ void RockFiller::processMap()
 	//Merge all areas
 	for(auto & z : map.getZones())
 	{
-		if(auto * m = z.second->getModificator<RockPlacer>())
+		auto zone = z.second;
+		if(auto * m = zone->getModificator<RockPlacer>())
 		{
 			auto tiles = m->rockArea.getTilesVector();
-			mapProxy->drawTerrain(generator.rand, tiles, m->rockTerrain);
+			mapProxy->drawTerrain(zone->getRand(), tiles, m->rockTerrain);
 		}
 	}
 	
 	for(auto & z : map.getZones())
 	{
-		if(auto * m = z.second->getModificator<RockPlacer>())
+		auto zone = z.second;
+		if(auto * m = zone->getModificator<RockPlacer>())
 		{
 			//Now make sure all accessible tiles have no additional rock on them
 			auto tiles = m->accessibleArea.getTilesVector();
-			mapProxy->drawTerrain(generator.rand, tiles, z.second->getTerrainType());
+			mapProxy->drawTerrain(zone->getRand(), tiles, zone->getTerrainType());
 
 			m->postProcess();
 		}

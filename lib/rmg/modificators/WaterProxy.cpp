@@ -39,7 +39,7 @@ void WaterProxy::process()
 	}
 	
 	auto v = zone.getArea().getTilesVector();
-	mapProxy->drawTerrain(generator.rand, v, zone.getTerrainType());
+	mapProxy->drawTerrain(zone.getRand(), v, zone.getTerrainType());
 	
 	//check terrain type
 	for([[maybe_unused]] const auto & t : zone.area().getTilesVector())
@@ -216,7 +216,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 		return false;
 
 	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::BOAT);
-	auto * boat = dynamic_cast<CGBoat *>(VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, generator.rand))->create());
+	auto * boat = dynamic_cast<CGBoat *>(VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, zone.getRand()))->create());
 
 	rmg::Object rmgObject(*boat);
 	rmgObject.setTemplate(zone.getTerrainType());
@@ -279,7 +279,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 	if(!manager)
 		return false;
 	
-	int subtype = chooseRandomAppearance(generator.rand, Obj::SHIPYARD, land.getTerrainType());
+	int subtype = chooseRandomAppearance(zone.getRand(), Obj::SHIPYARD, land.getTerrainType());
 	auto * shipyard = dynamic_cast<CGShipyard *>(VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, subtype)->create());
 	shipyard->tempOwner = PlayerColor::NEUTRAL;
 	

@@ -72,7 +72,7 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 	}
 
 	//Shuffle mines to avoid patterns, but don't shuffle key objects like towns
-	RandomGeneratorUtil::randomShuffle(requiredObjects, generator.rand);
+	RandomGeneratorUtil::randomShuffle(requiredObjects, zone.getRand());
 	for (const auto& obj : requiredObjects)
 	{
 		manager.addRequiredObject(obj.first, obj.second);
@@ -83,7 +83,7 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 	{
 		for(auto * mine : createdMines)
 		{
-			for(int rc = generator.rand.nextInt(1, extraRes); rc > 0; --rc)
+			for(int rc = zone.getRand().nextInt(1, extraRes); rc > 0; --rc)
 			{
 				auto * resourse = dynamic_cast<CGResource *>(VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create());
 				resourse->amount = CGResource::RANDOM_AMOUNT;

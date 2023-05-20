@@ -58,8 +58,8 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	if(waterContent == EWaterContent::NORMAL)
 	{
 		waterArea.unite(collectDistantTiles(zone, zone.getSize() - 1));
-		auto sliceStart = RandomGeneratorUtil::nextItem(reverseDistanceMap[0], generator.rand);
-		auto sliceEnd = RandomGeneratorUtil::nextItem(reverseDistanceMap[0], generator.rand);
+		auto sliceStart = RandomGeneratorUtil::nextItem(reverseDistanceMap[0], zone.getRand());
+		auto sliceEnd = RandomGeneratorUtil::nextItem(reverseDistanceMap[0], zone.getRand());
 		
 		//at least 25% without water
 		bool endPassed = false;
@@ -97,7 +97,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 		const int coastLength = reverseDistanceMap[coastId].size() / (coastId + 3);
 		for(int coastIter = 0; coastIter < coastLength; ++coastIter)
 		{
-			int3 tile = *RandomGeneratorUtil::nextItem(reverseDistanceMap[coastId], generator.rand);
+			int3 tile = *RandomGeneratorUtil::nextItem(reverseDistanceMap[coastId], zone.getRand());
 			if(tilesChecked.find(tile) != tilesChecked.end())
 				continue;
 			

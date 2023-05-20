@@ -23,7 +23,7 @@
 void QuestArtifactPlacer::process()
 {
 	findZonesForQuestArts();
-	placeQuestArtifacts(&generator.rand);
+	placeQuestArtifacts(zone.getRand());
 }
 
 void QuestArtifactPlacer::init()
@@ -71,11 +71,11 @@ void QuestArtifactPlacer::findZonesForQuestArts()
 	logGlobal->info("Number of nearby zones suitable for quest artifacts: %d", questArtZones.size());
 }
 
-void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator * rand)
+void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator & rand)
 {
 	for (const auto & artifactToPlace : questArtifactsToPlace)
 	{
-		RandomGeneratorUtil::randomShuffle(questArtZones, *rand);
+		RandomGeneratorUtil::randomShuffle(questArtZones, rand);
 		for (auto zone : questArtZones)
 		{
 			auto* qap = zone->getModificator<QuestArtifactPlacer>();
@@ -83,7 +83,7 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator * rand)
 			if (artifactsToReplace.empty())
 				continue;
 
-			auto artifactToReplace = *RandomGeneratorUtil::nextItem(artifactsToReplace, *rand);
+			auto artifactToReplace = *RandomGeneratorUtil::nextItem(artifactsToReplace, rand);
 			logGlobal->info("Replacing %s at %s with the quest artifact %s",
 				artifactToReplace->getObjectName(),
 				artifactToReplace->getPosition().toString(),
@@ -130,7 +130,7 @@ ArtifactID QuestArtifactPlacer::drawRandomArtifact()
 	{
 		ArtifactID ret = questArtifacts.back();
 		questArtifacts.pop_back();
-		RandomGeneratorUtil::randomShuffle(questArtifacts, generator.rand);
+		RandomGeneratorUtil::randomShuffle(questArtifacts, zone.getRand());
 		return ret;
 	}
 	else

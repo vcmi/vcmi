@@ -28,6 +28,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class RmgMap;
 class CMapGenerator;
 class Modificator;
+class CRandomGenerator;
 
 extern std::function<bool(const int3 &)> AREA_NO_FILTER;
 
@@ -36,7 +37,7 @@ typedef std::list<std::shared_ptr<Modificator>> TModificators;
 class Zone : public rmg::ZoneOptions
 {
 public:
-	Zone(RmgMap & map, CMapGenerator & generator);
+	Zone(RmgMap & map, CMapGenerator & generator, CRandomGenerator & rand);
 	Zone(const Zone &) = delete;
 	
 	void setOptions(const rmg::ZoneOptions & options);
@@ -84,13 +85,15 @@ public:
 	}
 	
 	void initModificators();
-
+	
+	CRandomGenerator & getRand();
 public:
 	boost::recursive_mutex areaMutex;
 	using Lock = boost::unique_lock<boost::recursive_mutex>;
 	
 protected:
 	CMapGenerator & generator;
+	CRandomGenerator rand;
 	RmgMap & map;
 	TModificators modificators;
 	bool finished;

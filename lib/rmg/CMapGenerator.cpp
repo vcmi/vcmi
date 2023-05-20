@@ -127,7 +127,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	try
 	{
 		addHeaderInfo();
-		map->initTiles(*this);
+		map->initTiles(*this, rand);
 		Load::Progress::step();
 		initPrisonsRemaining();
 		initQuestArtsRemaining();

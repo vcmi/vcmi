@@ -28,7 +28,7 @@ void TerrainPainter::process()
 	initTerrainType();
 
 	auto v = zone.getArea().getTilesVector();
-	mapProxy->drawTerrain(generator.rand, v, zone.getTerrainType());
+	mapProxy->drawTerrain(zone.getRand(), v, zone.getTerrainType());
 }
 
 void TerrainPainter::init()
@@ -50,7 +50,7 @@ void TerrainPainter::initTerrainType()
 			if(terrain->isWater())
 				waterTerrains.push_back(terrain->getId());
 
-		zone.setTerrainType(*RandomGeneratorUtil::nextItem(waterTerrains, generator.rand));
+		zone.setTerrainType(*RandomGeneratorUtil::nextItem(waterTerrains, zone.getRand()));
 	}
 	else
 	{
@@ -78,7 +78,7 @@ void TerrainPainter::initTerrainType()
 			}
 			else
 			{
-				zone.setTerrainType(*RandomGeneratorUtil::nextItem(terrainTypes, generator.rand));
+				zone.setTerrainType(*RandomGeneratorUtil::nextItem(terrainTypes, zone.getRand()));
 			}
 		}
 

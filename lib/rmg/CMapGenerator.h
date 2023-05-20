@@ -54,8 +54,6 @@ public:
 	
 	const Config & getConfig() const;
 	
-	CRandomGenerator rand;
-	
 	const CMapGenOptions& getMapGenOptions() const;
 	
 	std::unique_ptr<CMap> generate();
@@ -74,6 +72,7 @@ public:
 	int getRandomSeed() const;
 	
 private:
+	CRandomGenerator rand;
 	int randomSeed;
 	CMapGenOptions& mapGenOptions;
 	Config config;
