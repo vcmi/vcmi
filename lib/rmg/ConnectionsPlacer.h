@@ -27,6 +27,7 @@ public:
 	void selfSideDirectConnection(const rmg::ZoneConnection & connection);
 	void selfSideIndirectConnection(const rmg::ZoneConnection & connection);
 	void otherSideConnection(const rmg::ZoneConnection & connection);
+	void createBorder();
 	
 protected:
 	void collectNeighbourZones();

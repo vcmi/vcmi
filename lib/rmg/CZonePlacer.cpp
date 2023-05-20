@@ -861,8 +861,9 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 			}
 
 			//make sure that terrain inside zone is not a rock
-			//FIXME: reorder actions?
-			paintZoneTerrain(*zone.second, *rand, map.getMapProxy(), ETerrainId::SUBTERRANEAN);
+
+			auto v = zone.second->getArea().getTilesVector();
+			map.getMapProxy()->drawTerrain(*rand, v, ETerrainId::SUBTERRANEAN);
 		}
 	}
 	logGlobal->info("Finished zone colouring");

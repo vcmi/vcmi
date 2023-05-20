@@ -61,14 +61,14 @@ void ConnectionsPlacer::process()
 
 	diningPhilosophers([this](const rmg::ZoneConnection& c)
 	{
-		this->selfSideDirectConnection(c);
+		selfSideDirectConnection(c);
 	});
 
-	createBorder(map, zone);
+	createBorder();
 
 	diningPhilosophers([this](const rmg::ZoneConnection& c)
 	{
-		this->selfSideIndirectConnection(c);
+		selfSideIndirectConnection(c);
 	});
 }
 
@@ -310,6 +310,36 @@ void ConnectionsPlacer::collectNeighbourZones()
 		auto zid = map.getZoneID(i);
 		assert(zid != zone.getId());
 		dNeighbourZones[zid].insert(i);
+	}
+}
+
+void ConnectionsPlacer::createBorder()
+{
+	rmg::Area borderArea(zone.getArea().getBorder());
+	rmg::Area borderOutsideArea(zone.getArea().getBorderOutside());
+	auto blockBorder = borderArea.getSubarea([this, &borderOutsideArea](const int3 & t)
+	{
+		auto tile = borderOutsideArea.nearest(t);
+		return map.isOnMap(tile) && map.getZones()[map.getZoneID(tile)]->getType() != ETemplateZoneType::WATER;
+	});
+
+	Zone::Lock lock(zone.areaMutex); //Protect from erasing same tiles again
+	for(const auto & tile : blockBorder.getTilesVector())
+	{
+		if(map.isPossible(tile))
+		{
+			map.setOccupied(tile, ETileType::BLOCKED);
+			zone.areaPossible().erase(tile);
+		}
+
+		map.foreachDirectNeighbour(tile, [this](int3 &nearbyPos)
+		{
+			if(map.isPossible(nearbyPos) && map.getZoneID(nearbyPos) == zone.getId())
+			{
+				map.setOccupied(nearbyPos, ETileType::BLOCKED);
+				zone.areaPossible().erase(nearbyPos);
+			}
+		});
 	}
 }
 

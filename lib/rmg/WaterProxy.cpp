@@ -38,7 +38,8 @@ void WaterProxy::process()
 		map.setOccupied(t, ETileType::POSSIBLE);
 	}
 	
-	paintZoneTerrain(zone, generator.rand, mapProxy, zone.getTerrainType());
+	auto v = zone.getArea().getTilesVector();
+	mapProxy->drawTerrain(generator.rand, v, zone.getTerrainType());
 	
 	//check terrain type
 	for([[maybe_unused]] const auto & t : zone.area().getTilesVector())

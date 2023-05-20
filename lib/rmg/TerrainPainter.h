@@ -20,6 +20,8 @@ public:
 	
 	void process() override;
 	void init() override;
+
+	void initTerrainType();
 };
 
 VCMI_LIB_NAMESPACE_END
