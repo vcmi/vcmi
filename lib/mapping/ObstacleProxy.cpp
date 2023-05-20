@@ -8,8 +8,6 @@
  *
  */
 
-#pragma once
-
 #include "ObstacleProxy.h"
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/CObjectHandler.h"
