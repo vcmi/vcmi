@@ -185,7 +185,7 @@ void CMapGenerator::addPlayerInfo()
 {
 	// Calculate which team numbers exist
 
-	enum ETeams {CPHUMAN = 0, CPUONLY = 1, AFTER_LAST = 2};
+	enum ETeams {CPHUMAN = 0, CPUONLY = 1, AFTER_LAST = 2}; // Used as a kind of a local named array index, so left as enum, not enum class
 	std::array<std::list<int>, 2> teamNumbers;
 	std::set<int> teamsTotal;
 

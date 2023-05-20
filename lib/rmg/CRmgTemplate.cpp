@@ -162,12 +162,12 @@ void ZoneOptions::setId(TRmgTemplateZoneId value)
 	id = value;
 }
 
-ETemplateZoneType::ETemplateZoneType ZoneOptions::getType() const
+ETemplateZoneType ZoneOptions::getType() const
 {
 	return type;
 }
 	
-void ZoneOptions::setType(ETemplateZoneType::ETemplateZoneType value)
+void ZoneOptions::setType(ETemplateZoneType value)
 {
 	type = value;
 }
@@ -466,7 +466,7 @@ bool CRmgTemplate::matchesSize(const int3 & value) const
 
 bool CRmgTemplate::isWaterContentAllowed(EWaterContent::EWaterContent waterContent) const
 {
-	return waterContent == EWaterContent::EWaterContent::RANDOM || allowedWaterContent.count(waterContent);
+	return waterContent == EWaterContent::RANDOM || allowedWaterContent.count(waterContent);
 }
 
 const std::set<EWaterContent::EWaterContent> & CRmgTemplate::getWaterContentAllowed() const
@@ -754,13 +754,13 @@ void CRmgTemplate::afterLoad()
 		zone2->addConnection(id1);
 	}
 	
-	if(allowedWaterContent.empty() || allowedWaterContent.count(EWaterContent::EWaterContent::RANDOM))
+	if(allowedWaterContent.empty() || allowedWaterContent.count(EWaterContent::RANDOM))
 	{
-		allowedWaterContent.insert(EWaterContent::EWaterContent::NONE);
-		allowedWaterContent.insert(EWaterContent::EWaterContent::NORMAL);
-		allowedWaterContent.insert(EWaterContent::EWaterContent::ISLANDS);
+		allowedWaterContent.insert(EWaterContent::NONE);
+		allowedWaterContent.insert(EWaterContent::NORMAL);
+		allowedWaterContent.insert(EWaterContent::ISLANDS);
 	}
-	allowedWaterContent.erase(EWaterContent::EWaterContent::RANDOM);
+	allowedWaterContent.erase(EWaterContent::RANDOM);
 }
 
 void CRmgTemplate::serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName)

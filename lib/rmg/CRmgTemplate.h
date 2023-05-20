@@ -18,21 +18,18 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonSerializeFormat;
 
-namespace ETemplateZoneType
+enum class ETemplateZoneType
 {
-	enum ETemplateZoneType
-	{
-		PLAYER_START,
-		CPU_START,
-		TREASURE,
-		JUNCTION,
-		WATER
-	};
-}
+	PLAYER_START,
+	CPU_START,
+	TREASURE,
+	JUNCTION,
+	WATER
+};
 
-namespace EWaterContent
-{
-	enum EWaterContent
+namespace EWaterContent // Not enum class, because it's used in method RandomMapTab::setMapGenOptions
+{ // defined in client\lobby\RandomMapTab.cpp and probably in other similar places
+	enum EWaterContent // as an argument of CToggleGroup::setSelected(int id) from \client\widgets\Buttons.cpp 
 	{
 		RANDOM = -1,
 		NONE,
@@ -126,8 +123,8 @@ public:
 	TRmgTemplateZoneId getId() const;
 	void setId(TRmgTemplateZoneId value);
 
-	ETemplateZoneType::ETemplateZoneType getType() const;
-	void setType(ETemplateZoneType::ETemplateZoneType value);
+	ETemplateZoneType getType() const;
+	void setType(ETemplateZoneType value);
 	
 	int getSize() const;
 	void setSize(int value);
@@ -170,7 +167,7 @@ public:
 
 protected:
 	TRmgTemplateZoneId id;
-	ETemplateZoneType::ETemplateZoneType type;
+	ETemplateZoneType type;
 	int size;
 	ui32 maxTreasureValue;
 	std::optional<int> owner;
