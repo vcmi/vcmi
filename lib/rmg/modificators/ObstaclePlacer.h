@@ -11,7 +11,7 @@
 #pragma once
 
 #include "Modificator.h"
-#include "../mapping/ObstacleProxy.h"
+#include "../../mapping/ObstacleProxy.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

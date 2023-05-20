@@ -17,13 +17,13 @@
 #include "WaterProxy.h"
 #include "RoadPlacer.h"
 #include "RiverPlacer.h"
-#include "RmgMap.h"
-#include "CMapGenerator.h"
-#include "../CRandomGenerator.h"
-#include "Functions.h"
-#include "../mapping/CMapEditManager.h"
-#include "../mapping/CMap.h"
-#include "../mapping/ObstacleProxy.h"
+#include "../RmgMap.h"
+#include "../CMapGenerator.h"
+#include "../../CRandomGenerator.h"
+#include "../Functions.h"
+#include "../../mapping/CMapEditManager.h"
+#include "../../mapping/CMap.h"
+#include "../../mapping/ObstacleProxy.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

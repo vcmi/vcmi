@@ -9,9 +9,9 @@
 */
 
 #pragma once
-#include "Zone.h"
-#include "Functions.h"
-#include "../mapObjects/ObjectTemplate.h"
+#include "../Zone.h"
+#include "../Functions.h"
+#include "../../mapObjects/ObjectTemplate.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

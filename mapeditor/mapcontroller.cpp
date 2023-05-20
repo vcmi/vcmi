@@ -16,7 +16,7 @@
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/TerrainHandler.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
-#include "../lib/rmg/ObstaclePlacer.h"
+#include "../lib/rmg/modificators/ObstaclePlacer.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CHeroHandler.h"

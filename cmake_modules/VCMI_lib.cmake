@@ -122,24 +122,24 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/TileInfo.cpp
 		${MAIN_LIB_DIR}/rmg/Zone.cpp
 		${MAIN_LIB_DIR}/rmg/Functions.cpp
-		${MAIN_LIB_DIR}/rmg/Modificator.cpp
-		${MAIN_LIB_DIR}/rmg/ObjectManager.cpp
-		${MAIN_LIB_DIR}/rmg/ObjectDistributor.cpp
-		${MAIN_LIB_DIR}/rmg/RoadPlacer.cpp
-		${MAIN_LIB_DIR}/rmg/TreasurePlacer.cpp
-		${MAIN_LIB_DIR}/rmg/QuestArtifactPlacer.cpp
 		${MAIN_LIB_DIR}/rmg/RmgMap.cpp
-		${MAIN_LIB_DIR}/rmg/ConnectionsPlacer.cpp
-		${MAIN_LIB_DIR}/rmg/WaterAdopter.cpp
-		${MAIN_LIB_DIR}/rmg/MinePlacer.cpp
-		${MAIN_LIB_DIR}/rmg/TownPlacer.cpp
-		${MAIN_LIB_DIR}/rmg/WaterProxy.cpp
-		${MAIN_LIB_DIR}/rmg/WaterRoutes.cpp
-		${MAIN_LIB_DIR}/rmg/RockPlacer.cpp
-		${MAIN_LIB_DIR}/rmg/RockFiller.cpp
-		${MAIN_LIB_DIR}/rmg/ObstaclePlacer.cpp
-		${MAIN_LIB_DIR}/rmg/RiverPlacer.cpp
-		${MAIN_LIB_DIR}/rmg/TerrainPainter.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/Modificator.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/ObjectManager.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/ObjectDistributor.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/RoadPlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/TreasurePlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/QuestArtifactPlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/ConnectionsPlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/WaterAdopter.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/MinePlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/TownPlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/WaterProxy.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/WaterRoutes.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/RockPlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/RockFiller.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/ObstaclePlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/RiverPlacer.cpp
+		${MAIN_LIB_DIR}/rmg/modificators/TerrainPainter.cpp
 		${MAIN_LIB_DIR}/rmg/threadpool/MapProxy.cpp
 
 		${MAIN_LIB_DIR}/serializer/BinaryDeserializer.cpp
@@ -410,26 +410,26 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/CZonePlacer.h
 		${MAIN_LIB_DIR}/rmg/TileInfo.h
 		${MAIN_LIB_DIR}/rmg/Zone.h
-		${MAIN_LIB_DIR}/rmg/Functions.h
-		${MAIN_LIB_DIR}/rmg/Modificator.h
-		${MAIN_LIB_DIR}/rmg/ObjectManager.h
-		${MAIN_LIB_DIR}/rmg/ObjectDistributor.h
-		${MAIN_LIB_DIR}/rmg/RoadPlacer.h
-		${MAIN_LIB_DIR}/rmg/TreasurePlacer.h
-		${MAIN_LIB_DIR}/rmg/QuestArtifactPlacer.h
 		${MAIN_LIB_DIR}/rmg/RmgMap.h
-		${MAIN_LIB_DIR}/rmg/ConnectionsPlacer.h
-		${MAIN_LIB_DIR}/rmg/WaterAdopter.h
-		${MAIN_LIB_DIR}/rmg/MinePlacer.h
-		${MAIN_LIB_DIR}/rmg/TownPlacer.h
-		${MAIN_LIB_DIR}/rmg/WaterProxy.h
-		${MAIN_LIB_DIR}/rmg/WaterRoutes.h
-		${MAIN_LIB_DIR}/rmg/RockPlacer.h
-		${MAIN_LIB_DIR}/rmg/RockFiller.h
-		${MAIN_LIB_DIR}/rmg/ObstaclePlacer.h
-		${MAIN_LIB_DIR}/rmg/RiverPlacer.h
-		${MAIN_LIB_DIR}/rmg/TerrainPainter.h
 		${MAIN_LIB_DIR}/rmg/float3.h
+		${MAIN_LIB_DIR}/rmg/Functions.h
+		${MAIN_LIB_DIR}/rmg/modificators/Modificator.h
+		${MAIN_LIB_DIR}/rmg/modificators/ObjectManager.h
+		${MAIN_LIB_DIR}/rmg/modificators/ObjectDistributor.h
+		${MAIN_LIB_DIR}/rmg/modificators/RoadPlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/TreasurePlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/QuestArtifactPlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/ConnectionsPlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/WaterAdopter.h
+		${MAIN_LIB_DIR}/rmg/modificators/MinePlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/TownPlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/WaterProxy.h
+		${MAIN_LIB_DIR}/rmg/modificators/WaterRoutes.h
+		${MAIN_LIB_DIR}/rmg/modificators/RockPlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/RockFiller.h
+		${MAIN_LIB_DIR}/rmg/modificators/ObstaclePlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/RiverPlacer.h
+		${MAIN_LIB_DIR}/rmg/modificators/TerrainPainter.h
 		${MAIN_LIB_DIR}/rmg/threadpool/BlockingQueue.h
 		${MAIN_LIB_DIR}/rmg/threadpool/ThreadPool.h
 		${MAIN_LIB_DIR}/rmg/threadpool/MapProxy.h

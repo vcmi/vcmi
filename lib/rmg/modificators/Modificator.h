@@ -10,10 +10,10 @@
 
 #pragma once
 
-#include "../GameConstants.h"
-#include "../int3.h"
-#include "Zone.h"
-#include "threadpool/MapProxy.h"
+#include "../../GameConstants.h"
+#include "../../int3.h"
+#include "../Zone.h"
+#include "../threadpool/MapProxy.h"
 
 class RmgMap;
 class CMapGenerator;

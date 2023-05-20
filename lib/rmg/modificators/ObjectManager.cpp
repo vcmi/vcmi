@@ -10,9 +10,9 @@
 
 #include "StdInc.h"
 #include "ObjectManager.h"
-#include "CMapGenerator.h"
-#include "TileInfo.h"
-#include "RmgMap.h"
+#include "../CMapGenerator.h"
+#include "../TileInfo.h"
+#include "../RmgMap.h"
 #include "RoadPlacer.h"
 #include "RiverPlacer.h"
 #include "WaterAdopter.h"
@@ -21,13 +21,13 @@
 #include "MinePlacer.h"
 #include "TreasurePlacer.h"
 #include "QuestArtifactPlacer.h"
-#include "../CCreatureHandler.h"
-#include "../mapObjects/CommonConstructors.h"
-#include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
-#include "../mapping/CMap.h"
-#include "../mapping/CMapEditManager.h"
-#include "Functions.h"
-#include "RmgObject.h"
+#include "../../CCreatureHandler.h"
+#include "../../mapObjects/CommonConstructors.h"
+#include "../../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
+#include "../../mapping/CMap.h"
+#include "../../mapping/CMapEditManager.h"
+#include "../Functions.h"
+#include "../RmgObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

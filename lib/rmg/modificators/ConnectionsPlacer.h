@@ -9,8 +9,8 @@
  */
 
 #pragma once
-#include "Zone.h"
-#include "RmgArea.h"
+#include "../Zone.h"
+#include "../RmgArea.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

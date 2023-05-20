@@ -11,14 +11,14 @@
 
 #include "StdInc.h"
 #include "QuestArtifactPlacer.h"
-#include "CMapGenerator.h"
-#include "RmgMap.h"
+#include "../CMapGenerator.h"
+#include "../RmgMap.h"
 #include "TreasurePlacer.h"
-#include "CZonePlacer.h"
-#include "../VCMI_Lib.h"
-#include "../mapObjects/CObjectHandler.h"
-#include "../mapObjects/CommonConstructors.h"
-#include "../mapObjects/MapObjects.h" 
+#include "../CZonePlacer.h"
+#include "../../VCMI_Lib.h"
+#include "../../mapObjects/CObjectHandler.h"
+#include "../../mapObjects/CommonConstructors.h"
+#include "../../mapObjects/MapObjects.h" 
 
 void QuestArtifactPlacer::process()
 {

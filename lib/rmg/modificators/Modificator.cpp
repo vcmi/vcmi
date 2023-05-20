@@ -9,11 +9,11 @@
  */
 
 #include "Modificator.h"
-#include "Functions.h"
-#include "CMapGenerator.h"
-#include "RmgMap.h"
-#include "../CStopWatch.h"
-#include "../mapping/CMap.h"
+#include "../Functions.h"
+#include "../CMapGenerator.h"
+#include "../RmgMap.h"
+#include "../../CStopWatch.h"
+#include "../../mapping/CMap.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

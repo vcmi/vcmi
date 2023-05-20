@@ -8,7 +8,7 @@
 *
 */
 #pragma once
-#include "Zone.h"
+#include "../Zone.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

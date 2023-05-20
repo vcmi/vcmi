@@ -10,21 +10,21 @@
 
 #include "StdInc.h"
 #include "TreasurePlacer.h"
-#include "CMapGenerator.h"
-#include "Functions.h"
+#include "../CMapGenerator.h"
+#include "../Functions.h"
 #include "ObjectManager.h"
 #include "RoadPlacer.h"
 #include "ConnectionsPlacer.h"
-#include "RmgMap.h"
-#include "TileInfo.h"
-#include "CZonePlacer.h"
+#include "../RmgMap.h"
+#include "../TileInfo.h"
+#include "../CZonePlacer.h"
 #include "QuestArtifactPlacer.h"
-#include "../mapObjects/CommonConstructors.h"
-#include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
-#include "../CCreatureHandler.h"
-#include "../spells/CSpellHandler.h" //for choosing random spells
-#include "../mapping/CMap.h"
-#include "../mapping/CMapEditManager.h"
+#include "../../mapObjects/CommonConstructors.h"
+#include "../../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
+#include "../../CCreatureHandler.h"
+#include "../../spells/CSpellHandler.h" //for choosing random spells
+#include "../../mapping/CMap.h"
+#include "../../mapping/CMapEditManager.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
