@@ -8,12 +8,13 @@
  *
  */
 #pragma once
-#include "../../lib/mapping/CCampaignHandler.h"
+
 #include "../windows/CWindowObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CCampaignState;
+struct CampaignRegions;
 
 VCMI_LIB_NAMESPACE_END
 

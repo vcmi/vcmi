@@ -10,8 +10,7 @@
  
 #pragma once
  
-#include "../CRandomGenerator.h"
-#include "CMapEditManager.h"
+#include "CMapOperation.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

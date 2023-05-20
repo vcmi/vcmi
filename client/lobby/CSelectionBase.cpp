@@ -43,6 +43,7 @@
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/mapping/CMap.h"
 #include "../../lib/serializer/Connection.h"
 
 ISelectionScreenInfo::ISelectionScreenInfo(ESelectionScreen ScreenType)

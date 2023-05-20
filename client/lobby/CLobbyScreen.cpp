@@ -24,6 +24,7 @@
 #include "../../CCallback.h"
 
 #include "../CGameInfo.h"
+#include "../../lib/CModHandler.h"
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
@@ -134,7 +135,7 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 	{
 		logGlobal->warn("Incompatibility exception during start scenario: %s", e.what());
 		
-		auto errorMsg = VLC->generaltexth->translate("vcmi.server.errors.modsIncompatibility") + '\n';
+		auto errorMsg = CGI->generaltexth->translate("vcmi.server.errors.modsIncompatibility") + '\n';
 		errorMsg += e.what();
 		
 		CInfoWindow::showInfoDialog(errorMsg, CInfoWindow::TCompsInfo(), PlayerColor(1));

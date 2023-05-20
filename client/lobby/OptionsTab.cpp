@@ -8,9 +8,9 @@
  *
  */
 #include "StdInc.h"
+#include "OptionsTab.h"
 
 #include "CSelectionBase.h"
-#include "OptionsTab.h"
 
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
@@ -441,13 +441,15 @@ void OptionsTab::SelectedBox::clickRight(tribool down, bool previousState)
 }
 
 OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, const OptionsTab & parent)
-	: pi(SEL->getPlayerInfo(S.color.getNum())), s(S), parentTab(parent)
+	: pi(std::make_unique<PlayerInfo>(SEL->getPlayerInfo(S.color.getNum())))
+	, s(std::make_unique<PlayerSettings>(S))
+	, parentTab(parent)
 {
 	OBJ_CONSTRUCTION;
 	defActions |= SHARE_POS;
 
 	int serial = 0;
-	for(int g = 0; g < s.color.getNum(); ++g)
+	for(int g = 0; g < s->color.getNum(); ++g)
 	{
 		auto itred = SEL->getPlayerInfo(g);
 		if(itred.canComputerPlay || itred.canHumanPlay)
@@ -458,7 +460,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	pos.y += 122 + serial * 50;
 
 	assert(CSH->mi && CSH->mi->mapHeader);
-	const PlayerInfo & p = SEL->getPlayerInfo(s.color.getNum());
+	const PlayerInfo & p = SEL->getPlayerInfo(s->color.getNum());
 	assert(p.canComputerPlay || p.canHumanPlay); //someone must be able to control this player
 	if(p.canHumanPlay && p.canComputerPlay)
 		whoCanPlay = HUMAN_OR_CPU;
@@ -478,29 +480,29 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 		"ADOPOPNL.bmp", "ADOPPPNL.bmp", "ADOPTPNL.bmp", "ADOPSPNL.bmp"
 	}};
 
-	background = std::make_shared<CPicture>(bgs[s.color.getNum()], 0, 0);
-	labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, s.name);
+	background = std::make_shared<CPicture>(bgs[s->color.getNum()], 0, 0);
+	labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, s->name);
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
 
 	if(SEL->screenType == ESelectionScreen::newGame)
 	{
-		buttonTownLeft = std::make_shared<CButton>(Point(107, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[132], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::TOWN, -1, s.color));
-		buttonTownRight = std::make_shared<CButton>(Point(168, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[133], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::TOWN, +1, s.color));
-		buttonHeroLeft = std::make_shared<CButton>(Point(183, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[148], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::HERO, -1, s.color));
-		buttonHeroRight = std::make_shared<CButton>(Point(244, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[149], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::HERO, +1, s.color));
-		buttonBonusLeft = std::make_shared<CButton>(Point(259, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[164], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::BONUS, -1, s.color));
-		buttonBonusRight = std::make_shared<CButton>(Point(320, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[165], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::BONUS, +1, s.color));
+		buttonTownLeft = std::make_shared<CButton>(Point(107, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[132], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::TOWN, -1, s->color));
+		buttonTownRight = std::make_shared<CButton>(Point(168, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[133], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::TOWN, +1, s->color));
+		buttonHeroLeft = std::make_shared<CButton>(Point(183, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[148], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::HERO, -1, s->color));
+		buttonHeroRight = std::make_shared<CButton>(Point(244, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[149], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::HERO, +1, s->color));
+		buttonBonusLeft = std::make_shared<CButton>(Point(259, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[164], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::BONUS, -1, s->color));
+		buttonBonusRight = std::make_shared<CButton>(Point(320, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[165], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::BONUS, +1, s->color));
 	}
 
 	hideUnavailableButtons();
 
-	if(SEL->screenType != ESelectionScreen::scenarioInfo && SEL->getPlayerInfo(s.color.getNum()).canHumanPlay)
+	if(SEL->screenType != ESelectionScreen::scenarioInfo && SEL->getPlayerInfo(s->color.getNum()).canHumanPlay)
 	{
 		flag = std::make_shared<CButton>(
 			Point(-43, 2),
-			flags[s.color.getNum()],
+			flags[s->color.getNum()],
 			CGI->generaltexth->zelp[180],
-			std::bind(&OptionsTab::onSetPlayerClicked, &parentTab, s)
+			std::bind(&OptionsTab::onSetPlayerClicked, &parentTab, *s)
 		);
 		flag->hoverable = true;
 		flag->block(CSH->isGuest());
@@ -508,9 +510,9 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	else
 		flag = nullptr;
 
-	town = std::make_shared<SelectedBox>(Point(119, 2), s, TOWN);
-	hero = std::make_shared<SelectedBox>(Point(195, 2), s, HERO);
-	bonus = std::make_shared<SelectedBox>(Point(271, 2), s, BONUS);
+	town = std::make_shared<SelectedBox>(Point(119, 2), *s, TOWN);
+	hero = std::make_shared<SelectedBox>(Point(195, 2), *s, HERO);
+	bonus = std::make_shared<SelectedBox>(Point(271, 2), *s, BONUS);
 }
 
 void OptionsTab::onSetPlayerClicked(const PlayerSettings & ps) const
@@ -524,9 +526,9 @@ void OptionsTab::PlayerOptionsEntry::hideUnavailableButtons()
 	if(!buttonTownLeft)
 		return;
 
-	const bool foreignPlayer = CSH->isGuest() && !CSH->isMyColor(s.color);
+	const bool foreignPlayer = CSH->isGuest() && !CSH->isMyColor(s->color);
 
-	if((pi.allowedFactions.size() < 2 && !pi.isFactionRandom) || foreignPlayer)
+	if((pi->allowedFactions.size() < 2 && !pi->isFactionRandom) || foreignPlayer)
 	{
 		buttonTownLeft->disable();
 		buttonTownRight->disable();
@@ -537,7 +539,7 @@ void OptionsTab::PlayerOptionsEntry::hideUnavailableButtons()
 		buttonTownRight->enable();
 	}
 
-	if((pi.defaultHero() != -1 || s.castle < 0) //fixed hero
+	if((pi->defaultHero() != -1 || s->castle < 0) //fixed hero
 		|| foreignPlayer) //or not our player
 	{
 		buttonHeroLeft->disable();

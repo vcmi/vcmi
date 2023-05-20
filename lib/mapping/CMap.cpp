@@ -24,6 +24,7 @@
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
 #include "CMapEditManager.h"
+#include "CMapOperation.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

@@ -114,7 +114,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesWOG()
 MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 {
 	// even if changes are minimal, we might not be able to parse map header in map selection screen
-	// throw exception - to be cached by map selection screen & excluded as invalid
+	// throw exception - to be catched by map selection screen & excluded as invalid
 	if(hotaVersion > 3)
 		throw std::runtime_error("Invalid map format!");
 
