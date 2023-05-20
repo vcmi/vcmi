@@ -221,9 +221,6 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 								}
 
 								//Spread apart player starting zones
-
-								auto zoneType = zone->getType();
-								auto existingZoneType = existingZone->getType();
 								if (zone->getOwner() && existingZone->getOwner()) //Players participate in game
 								{
 									int firstPlayer = zone->getOwner().value();
