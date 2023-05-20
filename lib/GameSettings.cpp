@@ -76,6 +76,7 @@ void GameSettings::load(const JsonNode & input)
 		{EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH,             "mapFormat", "shadowOfDeath"              },
 		{EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS,           "mapFormat", "hornOfTheAbyss"             },
 		{EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS,         "mapFormat", "inTheWakeOfGods"            },
+		{EGameSettings::MAP_FORMAT_JSON_VCMI,                   "mapFormat", "jsonVCMI"                   },
 		{EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD,    "markets",   "blackMarketRestockPeriod"   },
 		{EGameSettings::MODULE_COMMANDERS,                      "modules",   "commanders"                 },
 		{EGameSettings::MODULE_STACK_ARTIFACT,                  "modules",   "stackArtifact"              },

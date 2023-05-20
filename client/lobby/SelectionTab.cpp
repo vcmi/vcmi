@@ -543,7 +543,7 @@ bool SelectionTab::isMapSupported(const CMapInfo & info)
 		case EMapFormat::HOTA:
 			return CGI->settings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS)["supported"].Bool();
 		case EMapFormat::VCMI:
-			return true;
+			return CGI->settings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI)["supported"].Bool();
 	}
 	return false;
 }
@@ -694,7 +694,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<CMapInfo> info, bool sel
 		labelMapSizeLetter->setText(info->getMapSizeName());
 		labelMapSizeLetter->setColor(color);
 		iconFormat->enable();
-		iconFormat->setFrame(info->getMapSizeFormatIconId().first, info->getMapSizeFormatIconId().second);
+		iconFormat->setFrame(info->getMapSizeFormatIconId());
 		iconVictoryCondition->enable();
 		iconVictoryCondition->setFrame(info->mapHeader->victoryIconIndex, 0);
 		iconLossCondition->enable();

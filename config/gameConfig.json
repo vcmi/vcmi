@@ -125,11 +125,28 @@
 		},
 		
 		"mapFormat" : {
-			"restorationOfErathia" : { "supported" : true },
-			"armageddonsBlade" : { "supported" : true },
-			"shadowOfDeath" : { "supported" : true },
-			"hornOfTheAbyss" : { "supported" : false },
-			"inTheWakeOfGods" : { "supported" : false }
+			"restorationOfErathia" : { 
+				"supported" : true,
+				"iconIndex" : 0
+			},
+			"armageddonsBlade" : {
+				"supported" : true,
+				"iconIndex" : 1
+			},
+			"shadowOfDeath" : { 
+				"supported" : true,
+				"iconIndex" : 2
+			},
+			"jsonVCMI" : { 
+				"supported" : true,
+				"iconIndex" : 3
+			},
+			"hornOfTheAbyss" : { 
+				"supported" : false
+			},
+			"inTheWakeOfGods" : { 
+				"supported" : false
+			}
 		},
 
 		"heroes" :

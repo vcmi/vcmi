@@ -229,7 +229,7 @@ void CMapHeader::setupEvents()
 	defeatMessage = VLC->generaltexth->lossCondtions[0];
 }
 
-CMapHeader::CMapHeader() : version(EMapFormat::SOD), height(72), width(72),
+CMapHeader::CMapHeader() : version(EMapFormat::VCMI), height(72), width(72),
 	twoLevel(true), difficulty(1), levelLimit(0), howManyTeams(0), areAnyPlayers(false)
 {
 	setupEvents();

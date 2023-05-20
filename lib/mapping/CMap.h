@@ -260,7 +260,7 @@ enum class EMapFormat: uint8_t
 	SOD   = 0x1c, // 28
 	HOTA  = 0x20, // 32
 	WOG   = 0x33, // 51
-	VCMI  = 0xF0
+	VCMI  = 0x64
 };
 
 // Inherit from container to enable forward declaration
