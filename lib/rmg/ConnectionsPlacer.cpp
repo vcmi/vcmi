@@ -32,29 +32,44 @@ VCMI_LIB_NAMESPACE_BEGIN
 void ConnectionsPlacer::process()
 {
 	collectNeighbourZones();
-	for(auto & c : dConnections)
+
+	auto diningPhilosophers = [this](std::function<void(const rmg::ZoneConnection&)> f)
 	{
-		if(c.getZoneA() != zone.getId() && c.getZoneB() != zone.getId())
-			continue;
-		
-		if(vstd::contains(dCompleted, c))
-			continue;
-		
-		selfSideDirectConnection(c);
-	}
-	
+		for (auto& c : dConnections)
+		{
+			if (c.getZoneA() != zone.getId() && c.getZoneB() != zone.getId())
+				continue;
+
+			auto otherZone = map.getZones().at(c.getZoneB());
+			auto* cp = otherZone->getModificator<ConnectionsPlacer>();
+
+			while (cp)
+			{
+				RecursiveLock lock1(externalAccessMutex, boost::try_to_lock_t{});
+				RecursiveLock lock2(cp->externalAccessMutex, boost::try_to_lock_t{});
+				if (lock1.owns_lock() && lock2.owns_lock())
+				{
+					if (!vstd::contains(dCompleted, c))
+					{
+						f(c);
+					}
+					break;
+				}
+			}
+		}
+	};
+
+	diningPhilosophers([this](const rmg::ZoneConnection& c)
+	{
+		this->selfSideDirectConnection(c);
+	});
+
 	createBorder(map, zone);
-	
-	for(auto & c : dConnections)
+
+	diningPhilosophers([this](const rmg::ZoneConnection& c)
 	{
-		if(c.getZoneA() != zone.getId() && c.getZoneB() != zone.getId())
-			continue;
-		
-		if(vstd::contains(dCompleted, c))
-			continue;
-		
-		selfSideIndirectConnection(c);
-	}
+		this->selfSideIndirectConnection(c);
+	});
 }
 
 void ConnectionsPlacer::init()
