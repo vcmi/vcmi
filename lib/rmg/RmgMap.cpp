@@ -118,12 +118,19 @@ void RmgMap::initTiles(CMapGenerator & generator)
 
 void RmgMap::addModificators()
 {
+	bool hasObjectDistributor = false;
+	bool hasRockFiller = false;
+
 	for(auto & z : getZones())
 	{
 		auto zone = z.second;
 		
 		zone->addModificator<ObjectManager>();
-		zone->addModificator<ObjectDistributor>(); //FIXME: Only one is needed for map
+		if (!hasObjectDistributor)
+		{
+			zone->addModificator<ObjectDistributor>();
+			hasObjectDistributor = true;
+		}
 		zone->addModificator<TreasurePlacer>();
 		zone->addModificator<ObstaclePlacer>();
 		zone->addModificator<TerrainPainter>();
@@ -151,7 +158,11 @@ void RmgMap::addModificators()
 		if(zone->isUnderground())
 		{
 			zone->addModificator<RockPlacer>();
-			zone->addModificator<RockFiller>(); //FIXME: Only one is needed for map
+			if (!hasRockFiller)
+			{
+				zone->addModificator<RockFiller>();
+				hasRockFiller = true;
+			}
 		}
 		
 	}
