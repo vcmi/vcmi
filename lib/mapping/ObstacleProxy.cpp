@@ -210,7 +210,8 @@ bool EditorObstaclePlacer::isInTheMap(const int3& tile)
 
 void EditorObstaclePlacer::placeObstacles(CRandomGenerator & rand)
 {
-	finalInsertion(map->getEditManager(), createObstacles(rand));
+	auto obstacles = createObstacles(rand);
+	finalInsertion(map->getEditManager(), obstacles);
 }
 
 VCMI_LIB_NAMESPACE_END
