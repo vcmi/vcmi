@@ -22,21 +22,24 @@
 					"type":"array",
 					"description": "Background sound of an object",
 					"items": {
-						"type": "string"
+						"type": "string",
+						"format" : "soundFile"
 					}
 				},
 				"visit": {
 					"type":"array",
 					"description": "Sound that played on object visit",
 					"items": {
-						"type": "string"
+						"type": "string",
+						"format" : "soundFile"
 					}
 				},
 				"removal": {
 					"type":"array",
 					"description": "Sound that played on object removal",
 					"items": {
-						"type": "string"
+						"type": "string",
+						"format" : "soundFile"
 					}
 				}
 			}

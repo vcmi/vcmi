@@ -139,14 +139,14 @@ EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)
 		{".TGA",   EResType::IMAGE},
 		{".WAV",   EResType::SOUND},
 		{".82M",   EResType::SOUND},
+		{".MP3",   EResType::SOUND},
+		{".OGG",   EResType::SOUND},
+		{".FLAC",  EResType::SOUND},
 		{".SMK",   EResType::VIDEO},
 		{".BIK",   EResType::VIDEO},
 		{".MJPG",  EResType::VIDEO},
 		{".MPG",   EResType::VIDEO},
 		{".AVI",   EResType::VIDEO},
-		{".MP3",   EResType::MUSIC},
-		{".OGG",   EResType::MUSIC},
-		{".FLAC",  EResType::MUSIC},
 		{".ZIP",   EResType::ARCHIVE_ZIP},
 		{".LOD",   EResType::ARCHIVE_LOD},
 		{".PAC",   EResType::ARCHIVE_LOD},
@@ -186,7 +186,6 @@ std::string EResTypeHelper::getEResTypeAsString(EResType::Type type)
 		MAP_ENUM(IMAGE)
 		MAP_ENUM(VIDEO)
 		MAP_ENUM(SOUND)
-		MAP_ENUM(MUSIC)
 		MAP_ENUM(ARCHIVE_ZIP)
 		MAP_ENUM(ARCHIVE_LOD)
 		MAP_ENUM(ARCHIVE_SND)

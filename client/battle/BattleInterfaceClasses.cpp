@@ -25,6 +25,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../widgets/Buttons.h"
@@ -202,6 +203,25 @@ const CGHeroInstance * BattleHero::instance()
 	return hero;
 }
 
+void BattleHero::tick(uint32_t msPassed)
+{
+	size_t groupIndex = static_cast<size_t>(phase);
+
+	float timePassed = msPassed / 1000.f;
+
+	flagCurrentFrame += currentSpeed * timePassed;
+	currentFrame += currentSpeed * timePassed;
+
+	if(flagCurrentFrame >= flagAnimation->size(0))
+		flagCurrentFrame -= flagAnimation->size(0);
+
+	if(currentFrame >= animation->size(groupIndex))
+	{
+		currentFrame -= animation->size(groupIndex);
+		switchToNextPhase();
+	}
+}
+
 void BattleHero::render(Canvas & canvas)
 {
 	size_t groupIndex = static_cast<size_t>(phase);
@@ -219,20 +239,6 @@ void BattleHero::render(Canvas & canvas)
 
 	canvas.draw(flagFrame, flagPosition);
 	canvas.draw(heroFrame, heroPosition);
-
-	float timePassed = float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000.f;
-
-	flagCurrentFrame += currentSpeed * timePassed;
-	currentFrame += currentSpeed * timePassed;
-
-	if(flagCurrentFrame >= flagAnimation->size(0))
-		flagCurrentFrame -= flagAnimation->size(0);
-
-	if(currentFrame >= animation->size(groupIndex))
-	{
-		currentFrame -= animation->size(groupIndex);
-		switchToNextPhase();
-	}
 }
 
 void BattleHero::pause()
@@ -284,7 +290,7 @@ void BattleHero::heroLeftClicked()
 	if(owner.getCurrentPlayerInterface()->cb->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
 		CCS->curh->set(Cursor::Map::POINTER);
-		GH.pushIntT<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
+		GH.windows().createAndPushWindow<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
 	}
 }
 
@@ -299,7 +305,7 @@ void BattleHero::heroRightClicked()
 	{
 		auto h = defender ? owner.defendingHeroInstance : owner.attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
-		GH.pushIntT<HeroInfoWindow>(targetHero, &windowPosition);
+		GH.windows().createAndPushWindow<HeroInfoWindow>(targetHero, &windowPosition);
 	}
 }
 
@@ -354,6 +360,8 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 
 	switchToNextPhase();
 	play();
+
+	addUsedEvents(TIME);
 }
 
 HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
@@ -584,8 +592,8 @@ void BattleResultWindow::buttonPressed(int button)
 
 	close();
 
-	if(dynamic_cast<BattleWindow*>(GH.topInt().get()))
-		GH.popInts(1); //pop battle interface if present
+	if(GH.windows().topWindow<BattleWindow>())
+		GH.windows().popWindows(1); //pop battle interface if present
 
 	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,
 	//so we can be sure that there is no dialogs left on GUI stack.

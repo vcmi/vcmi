@@ -105,9 +105,6 @@
 			"special": true
 		},
 		"targetCondition" : {
-			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
-			}
 		}
 	},
 	"landMine" : {
@@ -163,9 +160,6 @@
 			"indifferent": true
 		},
 		"targetCondition" : {
-			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
-			}
 		}
 	},
 	"forceField" : {
@@ -287,9 +281,6 @@
 			"special": true
 		},
 		"targetCondition" : {
-			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
-			}
 		}
 	},
 	"fireWall" : {
@@ -358,9 +349,6 @@
 			"indifferent": true
 		},
 		"targetCondition" : {
-			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
-			}
 		}
 	},
 	"earthquake" : {

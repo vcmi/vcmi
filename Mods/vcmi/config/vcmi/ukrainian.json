@@ -175,8 +175,6 @@
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description" : "${val}% шанс нанести подвійної шкоди",
 	"core.bonus.DRAGON_NATURE.name" : "Дракон",
 	"core.bonus.DRAGON_NATURE.description" : "Істота має драконячу природу",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.name" : "Імунітет до прямої шкоди",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.description" : "Імунітет до заклять, що завдають прямої шкоди",
 	"core.bonus.EARTH_IMMUNITY.name" : "Імунітет Землі",
 	"core.bonus.EARTH_IMMUNITY.description" : "Імунітет до всіх заклять школи Землі",
 	"core.bonus.ENCHANTER.name" : "Чарівник",

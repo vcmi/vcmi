@@ -20,6 +20,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
@@ -96,8 +97,8 @@ void CHeroSwitcher::clickLeft(tribool down, bool previousState)
 		else
 		{
 			const CGHeroInstance * buf = hero;
-			GH.popInts(1);
-			GH.pushIntT<CHeroWindow>(buf);
+			GH.windows().popWindows(1);
+			GH.windows().createAndPushWindow<CHeroWindow>(buf);
 		}
 	}
 }
@@ -313,18 +314,17 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	//if we have exchange window with this curHero open
 	bool noDismiss=false;
-	for(auto isa : GH.listInt)
-	{
-		if(CExchangeWindow * cew = dynamic_cast<CExchangeWindow*>(isa.get()))
-		{
-			for(int g=0; g < cew->heroInst.size(); ++g)
-				if(cew->heroInst[g] == curHero)
-					noDismiss = true;
-		}
 
-		if(dynamic_cast<CKingdomInterface*>(isa.get()))
-			noDismiss = true;
+	for(auto cew : GH.windows().findWindows<CExchangeWindow>())
+	{
+		for(int g=0; g < cew->heroInst.size(); ++g)
+			if(cew->heroInst[g] == curHero)
+				noDismiss = true;
 	}
+
+	for(auto ki : GH.windows().findWindows<CKingdomInterface>())
+		noDismiss = true;
+
 	//if player only have one hero and no towns
 	if(!LOCPLINT->cb->howManyTowns() && LOCPLINT->cb->howManyHeroes() == 1)
 		noDismiss = true;
@@ -389,7 +389,7 @@ void CHeroWindow::commanderWindow()
 	}
 	else
 	{
-		GH.pushIntT<CStackWindow>(curHero->commander, false);
+		GH.windows().createAndPushWindow<CStackWindow>(curHero->commander, false);
 	}
 }
 

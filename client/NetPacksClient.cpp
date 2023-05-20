@@ -329,13 +329,12 @@ void ApplyClientNetPackVisitor::visitGiveBonus(GiveBonus & pack)
 	case GiveBonus::ETarget::HERO:
 		{
 			const CGHeroInstance *h = gs.getHero(ObjectInstanceID(pack.id));
-			callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroBonusChanged, h, *h->getBonusList().back(), true);
+			callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroBonusChanged, h, pack.bonus, true);
 		}
 		break;
 	case GiveBonus::ETarget::PLAYER:
 		{
-			const PlayerState *p = gs.getPlayerState(PlayerColor(pack.id));
-			callInterfaceIfPresent(cl, PlayerColor(pack.id), &IGameEventsReceiver::playerBonusChanged, *p->getBonusList().back(), true);
+			callInterfaceIfPresent(cl, PlayerColor(pack.id), &IGameEventsReceiver::playerBonusChanged, pack.bonus, true);
 		}
 		break;
 	}

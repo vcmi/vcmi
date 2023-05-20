@@ -9,7 +9,7 @@
  */
 
 #include "StdInc.h"
-#include "CAdventureOptions.h"
+#include "AdventureOptions.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
@@ -17,13 +17,14 @@
 #include "../lobby/CCampaignInfoScreen.h"
 #include "../lobby/CScenarioInfoScreen.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 
 #include "../../CCallback.h"
 #include "../../lib/StartInfo.h"
 
-CAdventureOptions::CAdventureOptions()
+AdventureOptions::AdventureOptions()
 	: CWindowObject(PLAYER_COLORED, "ADVOPTS")
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -31,10 +32,10 @@ CAdventureOptions::CAdventureOptions()
 	viewWorld = std::make_shared<CButton>(Point(24, 23), "ADVVIEW.DEF", CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_VIEW_WORLD);
 	viewWorld->addCallback( [] { LOCPLINT->viewWorldMap(); });
 
-	exit = std::make_shared<CButton>(Point(204, 313), "IOK6432.DEF", CButton::tooltip(), std::bind(&CAdventureOptions::close, this), EShortcut::GLOBAL_RETURN);
+	exit = std::make_shared<CButton>(Point(204, 313), "IOK6432.DEF", CButton::tooltip(), std::bind(&AdventureOptions::close, this), EShortcut::GLOBAL_RETURN);
 
 	scenInfo = std::make_shared<CButton>(Point(24, 198), "ADVINFO.DEF", CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_VIEW_SCENARIO);
-	scenInfo->addCallback(CAdventureOptions::showScenarioInfo);
+	scenInfo->addCallback(AdventureOptions::showScenarioInfo);
 
 	puzzle = std::make_shared<CButton>(Point(24, 81), "ADVPUZ.DEF", CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_VIEW_PUZZLE);
 	puzzle->addCallback(std::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT));
@@ -46,15 +47,15 @@ CAdventureOptions::CAdventureOptions()
 		dig->block(true);
 }
 
-void CAdventureOptions::showScenarioInfo()
+void AdventureOptions::showScenarioInfo()
 {
 	if(LOCPLINT->cb->getStartInfo()->campState)
 	{
-		GH.pushIntT<CCampaignInfoScreen>();
+		GH.windows().createAndPushWindow<CCampaignInfoScreen>();
 	}
 	else
 	{
-		GH.pushIntT<CScenarioInfoScreen>();
+		GH.windows().createAndPushWindow<CScenarioInfoScreen>();
 	}
 }
 

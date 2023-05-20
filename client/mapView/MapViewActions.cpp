@@ -15,7 +15,7 @@
 #include "MapViewModel.h"
 
 #include "../CGameInfo.h"
-#include "../adventureMap/CAdventureMapInterface.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 
@@ -154,7 +154,7 @@ void MapViewActions::hover(bool on)
 {
 	if(!on)
 	{
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 		CCS->curh->set(Cursor::Map::POINTER);
 	}
 }

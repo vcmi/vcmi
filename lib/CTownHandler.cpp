@@ -19,6 +19,7 @@
 #include "CHeroHandler.h"
 #include "CArtHandler.h"
 #include "GameSettings.h"
+#include "TerrainHandler.h"
 #include "spells/CSpellHandler.h"
 #include "filesystem/Filesystem.h"
 #include "mapObjects/CObjectClassesHandler.h"
@@ -496,38 +497,34 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 	std::shared_ptr<Bonus> b;
 	static TPropagatorPtr playerPropagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::ENodeTypes::PLAYER);
 
-	if(building->subId == BuildingSubID::NONE)
+	if(building->bid == BuildingID::TAVERN)
 	{
-		if(building->bid == BuildingID::TAVERN)
-		{
-			b = createBonus(building, BonusType::MORALE, +1);
-		}
+		b = createBonus(building, BonusType::MORALE, +1);
 	}
-	else
+
+	switch(building->subId)
 	{
-		switch(building->subId)
-		{
-		case BuildingSubID::BROTHERHOOD_OF_SWORD:
-			b = createBonus(building, BonusType::MORALE, +2);
-			building->overrideBids.insert(BuildingID::TAVERN);
-			break;
-		case BuildingSubID::FOUNTAIN_OF_FORTUNE:
-			b = createBonus(building, BonusType::LUCK, +2);
-			break;
-		case BuildingSubID::SPELL_POWER_GARRISON_BONUS:
-			b = createBonus(building, BonusType::PRIMARY_SKILL, +2, PrimarySkill::SPELL_POWER);
-			break;
-		case BuildingSubID::ATTACK_GARRISON_BONUS:
-			b = createBonus(building, BonusType::PRIMARY_SKILL, +2, PrimarySkill::ATTACK);
-			break;
-		case BuildingSubID::DEFENSE_GARRISON_BONUS:
-			b = createBonus(building, BonusType::PRIMARY_SKILL, +2, PrimarySkill::DEFENSE);
-			break;
-		case BuildingSubID::LIGHTHOUSE:
-			b = createBonus(building, BonusType::MOVEMENT, +500, playerPropagator, 0);
-			break;
-		}
+	case BuildingSubID::BROTHERHOOD_OF_SWORD:
+		b = createBonus(building, BonusType::MORALE, +2);
+		building->overrideBids.insert(BuildingID::TAVERN);
+		break;
+	case BuildingSubID::FOUNTAIN_OF_FORTUNE:
+		b = createBonus(building, BonusType::LUCK, +2);
+		break;
+	case BuildingSubID::SPELL_POWER_GARRISON_BONUS:
+		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, PrimarySkill::SPELL_POWER);
+		break;
+	case BuildingSubID::ATTACK_GARRISON_BONUS:
+		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, PrimarySkill::ATTACK);
+		break;
+	case BuildingSubID::DEFENSE_GARRISON_BONUS:
+		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, PrimarySkill::DEFENSE);
+		break;
+	case BuildingSubID::LIGHTHOUSE:
+		b = createBonus(building, BonusType::MOVEMENT, +500, playerPropagator, 0);
+		break;
 	}
+
 	if(b)
 		building->addNewBonus(b, building->buildingBonuses);
 }
@@ -584,23 +581,22 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 	auto * ret = new CBuilding();
 	ret->bid = getMappedValue<BuildingID, std::string>(stringID, BuildingID::NONE, MappedKeys::BUILDING_NAMES_TO_TYPES, false);
+	ret->subId = BuildingSubID::NONE;
 
-	if(ret->bid == BuildingID::NONE)
+	if(ret->bid == BuildingID::NONE && !source["id"].isNull())
+	{
+		logMod->warn("Building %s: id field is deprecated", stringID);
 		ret->bid = source["id"].isNull() ? BuildingID(BuildingID::NONE) : BuildingID(source["id"].Float());
+	}
 
 	if (ret->bid == BuildingID::NONE)
-		logMod->error("Error: Building '%s' has not internal ID and won't work properly. Correct the typo or update VCMI.", stringID);
+		logMod->error("Building '%s' isn't recognized and won't work properly. Correct the typo or update VCMI.", stringID);
 
 	ret->mode = ret->bid == BuildingID::GRAIL
 		? CBuilding::BUILD_GRAIL
 		: getMappedValue<CBuilding::EBuildMode>(source["mode"], CBuilding::BUILD_NORMAL, CBuilding::MODES);
 
-	ret->subId = getMappedValue<BuildingSubID::EBuildingSubID>(source["type"], BuildingSubID::NONE, MappedKeys::SPECIAL_BUILDINGS);
-	ret->height = CBuilding::HEIGHT_NO_TOWER;
-
-	if(ret->subId == BuildingSubID::LOOKOUT_TOWER
-		|| ret->bid == BuildingID::GRAIL)
-		ret->height = getMappedValue<CBuilding::ETowerHeight>(source["height"], CBuilding::HEIGHT_NO_TOWER, CBuilding::TOWER_TYPES);
+	ret->height = getMappedValue<CBuilding::ETowerHeight>(source["height"], CBuilding::HEIGHT_NO_TOWER, CBuilding::TOWER_TYPES);
 
 	ret->identifier = stringID;
 	ret->modScope = source.meta;
@@ -619,7 +615,10 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		loadSpecialBuildingBonuses(source["bonuses"], ret->buildingBonuses, ret);
 
 		if(ret->buildingBonuses.empty())
+		{
+			ret->subId = getMappedValue<BuildingSubID::EBuildingSubID>(source["type"], BuildingSubID::NONE, MappedKeys::SPECIAL_BUILDINGS);
 			addBonusesForVanilaBuilding(ret);
+		}
 
 		loadSpecialBuildingBonuses(source["onVisitBonuses"], ret->onVisitBonuses, ret);
 
@@ -630,6 +629,12 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 			for(auto & bonus : ret->onVisitBonuses)
 				bonus->sid = Bonus::getSid32(ret->town->faction->getIndex(), ret->bid);
+		}
+		
+		if(source["type"].String() == "configurable" && ret->subId == BuildingSubID::NONE)
+		{
+			ret->subId = BuildingSubID::CUSTOM_VISITING_REWARD;
+			ret->rewardableObjectInfo.init(source);
 		}
 	}
 	//MODS COMPATIBILITY FOR 0.96
@@ -688,11 +693,12 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 void CTownHandler::loadBuildings(CTown * town, const JsonNode & source)
 {
-	for(const auto & node : source.Struct())
+	if(source.isStruct())
 	{
-		if (!node.second.isNull())
+		for(const auto & node : source.Struct())
 		{
-			loadBuilding(town, node.first, node.second);
+			if (!node.second.isNull())
+				loadBuilding(town, node.first, node.second);
 		}
 	}
 }
@@ -1030,6 +1036,11 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	{
 		VLC->modh->identifiers.requestIdentifier("terrain", source["nativeTerrain"], [=](int32_t index){
 			faction->nativeTerrain = TerrainId(index);
+
+			auto const & terrain = VLC->terrainTypeHandler->getById(faction->nativeTerrain);
+
+			if (!terrain->isSurface() && !terrain->isUnderground())
+				logMod->warn("Faction %s has terrain %s as native, but terrain is not suitable for either surface or subterranean layers!", faction->getJsonKey(), terrain->getJsonKey());
 		});
 	}
 

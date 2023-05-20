@@ -53,7 +53,7 @@ class IShowActivatable : public IShowable, public IActivatable
 {
 public:
 	//redraw parent flag - this int may be semi-transparent and require redraw of parent window
-	enum {BLOCK_ADV_HOTKEYS = 2, REDRAW_PARENT=8};
+	enum {REDRAW_PARENT=8};
 	int type; //bin flags using etype
 	IShowActivatable();
 	virtual ~IShowActivatable(){};
@@ -140,8 +140,13 @@ public:
 	ui8 defActions; //which calls will be tried to be redirected to children
 	ui8 recActions; //which calls we allow to receive from parent
 
-	void disable(); //deactivates if needed, blocks all automatic activity, allows only disposal
-	void enable(); //activates if needed, all activity enabled (Warning: may not be symetric with disable if recActions was limited!)
+	/// deactivates if needed, blocks all automatic activity, allows only disposal
+	void disable();
+	/// activates if needed, all activity enabled (Warning: may not be symetric with disable if recActions was limited!)
+	void enable();
+	/// deactivates or activates UI element based on flag
+	void setEnabled(bool on);
+
 
 	// activate or deactivate object. Inactive object won't receive any input events (keyboard\mouse)
 	// usually used automatically by parent
@@ -154,6 +159,10 @@ public:
 	void showAll(SDL_Surface * to) override;
 	//request complete redraw of this object
 	void redraw() override;
+
+	/// called only for windows whenever screen size changes
+	/// default behavior is to re-center, can be overriden
+	virtual void onScreenResize();
 
 	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
 	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center
@@ -176,10 +185,6 @@ public:
 	void printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printAtMiddleWBLoc(const std::string & text, int x, int y, EFonts font, int charsPerLine, SDL_Color color, SDL_Surface * dst);
-
-	//image blitting. If possible use CPicture or CAnimImage instead
-	void blitAtLoc(SDL_Surface * src, int x, int y, SDL_Surface * dst);
-	void blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst);
 
 	friend class CGuiHandler;
 };
@@ -225,4 +230,13 @@ public:
 	/// overrides hover text from controls with text entered into in-game console (for chat/cheats)
 	virtual void setEnteredText(const std::string & text) = 0;
 
+};
+
+class EmptyStatusBar : public IStatusBar
+{
+	virtual void write(const std::string & text){};
+	virtual void clear(){};
+	virtual void clearIfMatching(const std::string & testedText){};
+	virtual void setEnteringMode(bool on){};
+	virtual void setEnteredText(const std::string & text){};
 };

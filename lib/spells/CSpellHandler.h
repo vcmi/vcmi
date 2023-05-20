@@ -43,14 +43,16 @@ class IBattleCast;
 
 struct SchoolInfo
 {
-	ESpellSchool id; //backlink
-	BonusType damagePremyBonus;
+	SpellSchool id; //backlink
 	BonusType immunityBonus;
 	std::string jsonName;
-	SecondarySkill::ESecondarySkill skill;
-	BonusType knoledgeBonus;
 };
 
+}
+
+namespace SpellConfig
+{
+	extern const spells::SchoolInfo SCHOOL[4];
 }
 
 enum class VerticalPosition : ui8{TOP, CENTER, BOTTOM};
@@ -188,7 +190,7 @@ public:
 
 	si32 level;
 
-	std::map<ESpellSchool, bool> school;
+	std::map<SpellSchool, bool> school;
 
 	si32 power; //spell's power
 

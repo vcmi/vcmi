@@ -24,10 +24,11 @@
 #include "../battle/BattleInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
-#include "../adventureMap/CAdventureMapInterface.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../render/CAnimation.h"
 #include "../renderSDL/SDL_Extensions.h"
 
@@ -82,11 +83,11 @@ public:
 			return false;
 
 
-		for(ui8 schoolId = 0; schoolId < 4; schoolId++)
+		for(auto schoolId = 0; schoolId < GameConstants::DEFAULT_SCHOOLS; schoolId++)
 		{
-			if(A->school.at((ESpellSchool)schoolId) && !B->school.at((ESpellSchool)schoolId))
+			if(A->school.at(SpellSchool(schoolId)) && !B->school.at(SpellSchool(schoolId)))
 				return true;
-			if(!A->school.at((ESpellSchool)schoolId) && B->school.at((ESpellSchool)schoolId))
+			if(!A->school.at(SpellSchool(schoolId)) && B->school.at(SpellSchool(schoolId)))
 				return false;
 		}
 
@@ -320,7 +321,7 @@ void CSpellWindow::computeSpellsPerArea()
 	for(const CSpell * spell : mySpells)
 	{
 		if(spell->isCombat() ^ !battleSpellsOnly
-			&& ((selectedTab == 4) || spell->school.at((ESpellSchool)selectedTab))
+			&& ((selectedTab == 4) || spell->school.at(SpellSchool(selectedTab)))
 			)
 		{
 			spellsCurSite.push_back(spell);
@@ -525,7 +526,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		else //adventure spell
 		{
 			const CGHeroInstance * h = owner->myHero;
-			GH.popInts(1);
+			GH.windows().popWindows(1);
 
 			auto guard = vstd::makeScopeGuard([this]()
 			{

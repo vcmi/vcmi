@@ -10,7 +10,7 @@
 			"magicResistance" :
 			{
 				"type" : "SPELL_DAMAGE_REDUCTION",
-				"subtype" : -1,
+				"subtype" : "spellSchool.any",
 				"val" : 85
 			},
 			"nonliving" :
@@ -41,7 +41,7 @@
 			"magicResistance" :
 			{
 				"type" : "SPELL_DAMAGE_REDUCTION",
-				"subtype" : -1,
+				"subtype" : "spellSchool.any",
 				"val" : 95
 			},
 			"nonliving" :

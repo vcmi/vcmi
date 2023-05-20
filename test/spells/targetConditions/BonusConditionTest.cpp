@@ -42,7 +42,7 @@ TEST_F(BonusConditionTest, ImmuneByDefault)
 TEST_F(BonusConditionTest, ReceptiveIfMatchesType)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::DIRECT_DAMAGE_IMMUNITY, BonusSource::OTHER, 0, 0));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_DAMAGE_REDUCTION, BonusSource::OTHER, 100, 0));
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 

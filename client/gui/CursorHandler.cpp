@@ -12,6 +12,7 @@
 #include "CursorHandler.h"
 
 #include "CGuiHandler.h"
+#include "FramerateManager.h"
 #include "../renderSDL/CursorSoftware.h"
 #include "../renderSDL/CursorHardware.h"
 #include "../render/CAnimation.h"
@@ -250,7 +251,7 @@ void CursorHandler::updateSpellcastCursor()
 {
 	static const float frameDisplayDuration = 0.1f; // H3 uses 100 ms per frame
 
-	frameTime += GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+	frameTime += GH.framerateManager().getElapsedMilliseconds() / 1000.f;
 	size_t newFrame = frame;
 
 	while (frameTime >= frameDisplayDuration)

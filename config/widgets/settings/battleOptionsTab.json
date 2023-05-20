@@ -150,10 +150,6 @@
 					"position": {"x": 45, "y": 145}
 				},
 				{
-					"text": "core.genrltxt.407",
-					"position": {"x": 45, "y": 175}
-				},
-				{
 					"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
 					"position": {"x": 45, "y": 175}
 				},
@@ -197,17 +193,11 @@
 			"callback": "mouseShadowChanged"
 		},
 		{
-			"name": "battleFieldCasualtiesPlaceholder",
-			"type": "picture",
-			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 10, "y": 173},
-		},
-		{
 			"name": "skipBattleIntroMusicCheckbox",
 			"type": "toggleButton",
 			"image": "sysopchk.def",
 			"help": "vcmi.battleOptions.skipBattleIntroMusic",
-			"position": {"x": 10, "y": 203},
+			"position": {"x": 10, "y": 173},
 			"callback": "skipBattleIntroMusicChanged"
 		},
 		{

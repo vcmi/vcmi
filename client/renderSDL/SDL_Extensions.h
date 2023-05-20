@@ -105,11 +105,6 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 	void convertToGrayscaleBpp(SDL_Surface * surf, const Rect & rect);
 	void convertToGrayscale(SDL_Surface * surf, const Rect & rect);
 
-	bool isResolutionSupported(const std::vector<Point> & resolutions, const Point toTest);
-
-	std::vector<Point> getSupportedResolutions();
-	std::vector<Point> getSupportedResolutions(int displayIndex);
-
 	void setColorKey(SDL_Surface * surface, SDL_Color color);
 
 	///set key-color to 0,255,255

@@ -110,7 +110,6 @@ MainWindow::MainWindow(QWidget * parent)
 	else
 		enterSetup();
 
-	ui->settingsView->isExtraResolutionsModEnabled = ui->modlistView->isExtraResolutionsModEnabled();
 	ui->settingsView->setDisplayList();
 	connect(ui->modlistView, &CModListView::extraResolutionsEnabledChanged,
 		ui->settingsView, &CSettingsView::fillValidResolutions);

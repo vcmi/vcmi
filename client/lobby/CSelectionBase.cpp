@@ -26,6 +26,7 @@
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
@@ -71,7 +72,6 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	: CWindowObject(BORDERED | SHADOW_DISABLED), ISelectionScreenInfo(type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	IShowActivatable::type = BLOCK_ADV_HOTKEYS;
 	pos.w = 762;
 	pos.h = 584;
 	if(screenType == ESelectionScreen::campaignList)
@@ -106,7 +106,7 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 	{
 		curTab.reset();
 	}
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
 }
 
 InfoCard::InfoCard()
@@ -300,7 +300,7 @@ void InfoCard::setChat(bool activateChat)
 	}
 
 	showChat = activateChat;
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
 }
 
 CChatBox::CChatBox(const Rect & rect)
@@ -379,7 +379,7 @@ void CFlagBox::recreate()
 void CFlagBox::clickRight(tribool down, bool previousState)
 {
 	if(down && SEL->getMapInfo())
-		GH.pushIntT<CFlagBoxTooltipBox>(iconsTeamFlags);
+		GH.windows().createAndPushWindow<CFlagBoxTooltipBox>(iconsTeamFlags);
 }
 
 CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> icons)

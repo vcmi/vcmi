@@ -13,6 +13,7 @@
 #include "VCMI_Lib.h"
 #include "GameConstants.h"
 #include "GameSettings.h"
+#include "JsonNode.h"
 #include "bonuses/BonusList.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/IBonusBearer.h"

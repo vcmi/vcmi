@@ -29,6 +29,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
@@ -98,7 +99,7 @@ void CRecruitmentWindow::CCreatureCard::clickLeft(tribool down, bool previousSta
 void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousState)
 {
 	if(down)
-		GH.pushIntT<CStackWindow>(creature, true);
+		GH.windows().createAndPushWindow<CStackWindow>(creature, true);
 }
 
 void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)
@@ -507,7 +508,7 @@ void CTavernWindow::recruitb()
 
 void CTavernWindow::thievesguildb()
 {
-	GH.pushIntT<CThievesGuildWindow>(tavernObj);
+	GH.windows().createAndPushWindow<CThievesGuildWindow>(tavernObj);
 }
 
 CTavernWindow::~CTavernWindow()
@@ -547,7 +548,7 @@ void CTavernWindow::HeroPortrait::clickLeft(tribool down, bool previousState)
 void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 {
 	if(h && down)
-		GH.pushIntT<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
+		GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
 }
 
 CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H)
@@ -585,9 +586,9 @@ void CTavernWindow::HeroPortrait::hover(bool on)
 {
 	//Hoverable::hover(on);
 	if(on)
-		GH.statusbar->write(hoverName);
+		GH.statusbar()->write(hoverName);
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 }
 
 static const std::string QUICK_EXCHANGE_MOD_PREFIX = "quick-exchange";
@@ -1240,7 +1241,7 @@ void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
 	if(previousState && (!down))
 	{
 		if(state() == 2)
-			GH.pushIntT<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
+			GH.windows().createAndPushWindow<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
 	}
 }
 
@@ -1255,9 +1256,9 @@ void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
 void CUniversityWindow::CItem::hover(bool on)
 {
 	if(on)
-		GH.statusbar->write(CGI->skillh->getByIndex(ID)->getNameTranslated());
+		GH.statusbar()->write(CGI->skillh->getByIndex(ID)->getNameTranslated());
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 }
 
 int CUniversityWindow::CItem::state()
@@ -1619,7 +1620,6 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	owner(_owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	type |= BLOCK_ADV_HOTKEYS;
 
 	SThievesGuildInfo tgi; //info to be displayed
 	LOCPLINT->cb->getThievesGuildInfo(tgi, owner);

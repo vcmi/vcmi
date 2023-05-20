@@ -386,8 +386,12 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 
 	for(auto unit : exchangeUnits)
 	{
+		if(unit->isTurret())
+			continue;
+
 		bool isOur = cb->battleMatchOwner(ap.attack.attacker, unit, true);
 		auto & attackerQueue = isOur ? ourStacks : enemyStacks;
+
 
 		if(!vstd::contains(attackerQueue, unit))
 		{
@@ -593,6 +597,9 @@ void BattleExchangeEvaluator::updateReachabilityMap(HypotheticBattle & hb)
 
 		for(const battle::Unit * unit : turnQueue)
 		{
+			if(unit->isTurret())
+				continue;
+
 			if(turnBattle.battleCanShoot(unit))
 			{
 				for(BattleHex hex = BattleHex::TOP_LEFT; hex.isValid(); hex = hex + 1)

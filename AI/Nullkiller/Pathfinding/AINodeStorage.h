@@ -55,6 +55,8 @@ struct AIPathNode : public CGPathNode
 		return accessible == CGPathNode::EAccessibility::NOT_SET
 			|| accessible == CGPathNode::EAccessibility::BLOCKED;
 	}
+
+	void addSpecialAction(std::shared_ptr<const SpecialAction> action);
 };
 
 struct AIPathNodeInfo

@@ -48,6 +48,8 @@ protected:
 	
 	//must be called after adding callbacks
 	void build(const JsonNode & config);
+
+	void addWidget(const std::string & name, std::shared_ptr<CIntObject> widget);
 	
 	void addCallback(const std::string & callbackName, std::function<void(int)> callback);
 	JsonNode variables;
@@ -73,6 +75,11 @@ protected:
 	std::pair<std::string, std::string> readHintText(const JsonNode &) const;
 	EShortcut readHotkey(const JsonNode &) const;
 	
+	void loadToggleButtonCallback(std::shared_ptr<CToggleButton> button, const JsonNode & config) const;
+	void loadButtonCallback(std::shared_ptr<CButton> button, const JsonNode & config) const;
+	void loadButtonHotkey(std::shared_ptr<CButton> button, const JsonNode & config) const;
+	void loadButtonBorderColor(std::shared_ptr<CButton> button, const JsonNode & config) const;
+
 	//basic widgets
 	std::shared_ptr<CPicture> buildPicture(const JsonNode &) const;
 	std::shared_ptr<CLabel> buildLabel(const JsonNode &) const;

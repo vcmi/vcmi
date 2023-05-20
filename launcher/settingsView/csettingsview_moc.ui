@@ -112,9 +112,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-107</y>
         <width>620</width>
-        <height>793</height>
+        <height>745</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout" columnstretch="3,0,0,0">
@@ -253,17 +253,17 @@
          </property>
          <item>
           <property name="text">
-           <string>Off</string>
+           <string>Windowed</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>On</string>
+           <string>Borderless fullscreen</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Real</string>
+           <string>Exclusive fullscreen</string>
           </property>
          </item>
         </widget>

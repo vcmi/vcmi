@@ -14,10 +14,13 @@
 #include "CIntObject.h"
 #include "CursorHandler.h"
 #include "ShortcutHandler.h"
+#include "FramerateManager.h"
+#include "WindowHandler.h"
 
 #include "../CGameInfo.h"
 #include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
+#include "../renderSDL/ScreenHandler.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
@@ -37,6 +40,8 @@
 #ifdef VCMI_IOS
 #include "ios/utils.h"
 #endif
+
+CGuiHandler GH;
 
 extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;
@@ -95,9 +100,11 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 
 void CGuiHandler::init()
 {
+	windowHandlerInstance = std::make_unique<WindowHandler>();
+	screenHandlerInstance = std::make_unique<ScreenHandler>();
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
-	mainFPSmng = new CFramerateManager();
-	mainFPSmng->init(settings["video"]["targetfps"].Integer());
+	framerateManagerInstance = std::make_unique<FramerateManager>(settings["video"]["targetfps"].Integer());
+
 	isPointerRelativeMode = settings["general"]["userRelativePointer"].Bool();
 	pointerSpeedMultiplier = settings["general"]["relativePointerSpeedMultiplier"].Float();
 }
@@ -120,77 +127,9 @@ void CGuiHandler::handleElementDeActivate(CIntObject * elem, ui16 activityFlag)
 	elem->active_m &= ~activityFlag;
 }
 
-void CGuiHandler::popInt(std::shared_ptr<IShowActivatable> top)
-{
-	assert(listInt.front() == top);
-	top->deactivate();
-	disposed.push_back(top);
-	listInt.pop_front();
-	objsToBlit -= top;
-	if(!listInt.empty())
-		listInt.front()->activate();
-	totalRedraw();
-}
-
-void CGuiHandler::pushInt(std::shared_ptr<IShowActivatable> newInt)
-{
-	assert(newInt);
-	assert(!vstd::contains(listInt, newInt)); // do not add same object twice
-
-	//a new interface will be present, we'll need to use buffer surface (unless it's advmapint that will alter screenBuf on activate anyway)
-	screenBuf = screen2;
-
-	if(!listInt.empty())
-		listInt.front()->deactivate();
-	listInt.push_front(newInt);
-	CCS->curh->set(Cursor::Map::POINTER);
-	newInt->activate();
-	objsToBlit.push_back(newInt);
-	totalRedraw();
-}
-
-void CGuiHandler::popInts(int howMany)
-{
-	if(!howMany) return; //senseless but who knows...
-
-	assert(listInt.size() >= howMany);
-	listInt.front()->deactivate();
-	for(int i=0; i < howMany; i++)
-	{
-		objsToBlit -= listInt.front();
-		disposed.push_back(listInt.front());
-		listInt.pop_front();
-	}
-
-	if(!listInt.empty())
-	{
-		listInt.front()->activate();
-		totalRedraw();
-	}
-	fakeMouseMove();
-}
-
-std::shared_ptr<IShowActivatable> CGuiHandler::topInt()
-{
-	if(listInt.empty())
-		return std::shared_ptr<IShowActivatable>();
-	else
-		return listInt.front();
-}
-
-void CGuiHandler::totalRedraw()
-{
-#ifdef VCMI_ANDROID
-	SDL_FillRect(screen2, NULL, SDL_MapRGB(screen2->format, 0, 0, 0));
-#endif
-	for(auto & elem : objsToBlit)
-		elem->showAll(screen2);
-	CSDL_Ext::blitAt(screen2,0,0,screen);
-}
-
 void CGuiHandler::updateTime()
 {
-	int ms = mainFPSmng->getElapsedMilliseconds();
+	int ms = framerateManager().getElapsedMilliseconds();
 	std::list<CIntObject*> hlp = timeinterested;
 	for (auto & elem : hlp)
 	{
@@ -393,7 +332,7 @@ void CGuiHandler::handleCurrentEvent( SDL_Event & current )
 				//not working yet since CClient::run remain locked after BattleInterface removal
 //				if(LOCPLINT->battleInt)
 //				{
-//					GH.popInts(1);
+//					GH.windows().popInts(1);
 //					vstd::clear_pointer(LOCPLINT->battleInt);
 //				}
 				break;
@@ -631,15 +570,6 @@ void CGuiHandler::handleMouseMotion(const SDL_Event & current)
 		handleMoveInterested(current.motion);
 }
 
-void CGuiHandler::simpleRedraw()
-{
-	//update only top interface and draw background
-	if(objsToBlit.size() > 1)
-		CSDL_Ext::blitAt(screen2,0,0,screen); //blit background
-	if(!objsToBlit.empty())
-		objsToBlit.back()->show(screen); //blit active interface/window
-}
-
 void CGuiHandler::handleMoveInterested(const SDL_MouseMotionEvent & motion)
 {
 	//sending active, MotionInterested objects mouseMoved() call
@@ -686,12 +616,11 @@ void CGuiHandler::renderFrame()
 
 		SDL_RenderPresent(mainRenderer);
 
-		disposed.clear();
+		windows().onFrameRendered();
 	}
 
-	mainFPSmng->framerateDelay(); // holds a constant FPS
+	framerateManager().framerateDelay(); // holds a constant FPS
 }
-
 
 CGuiHandler::CGuiHandler()
 	: lastClick(-500, -500)
@@ -702,21 +631,26 @@ CGuiHandler::CGuiHandler()
 	, mouseButtonsMask(0)
 	, continueEventHandling(true)
 	, curInt(nullptr)
-	, mainFPSmng(nullptr)
-	, statusbar(nullptr)
+	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
+	, terminate_cond (new CondSh<bool>(false))
 {
-	terminate_cond = new CondSh<bool>(false);
 }
 
 CGuiHandler::~CGuiHandler()
 {
-	delete mainFPSmng;
 	delete terminate_cond;
 }
 
 ShortcutHandler & CGuiHandler::shortcutsHandler()
 {
+	assert(shortcutsHandlerInstance);
 	return *shortcutsHandlerInstance;
+}
+
+FramerateManager & CGuiHandler::framerateManager()
+{
+	assert(framerateManagerInstance);
+	return *framerateManagerInstance;
 }
 
 void CGuiHandler::moveCursorToPosition(const Point & position)
@@ -780,7 +714,7 @@ void CGuiHandler::drawFPSCounter()
 	static SDL_Rect overlay = { 0, 0, 64, 32};
 	uint32_t black = SDL_MapRGB(screen->format, 10, 10, 10);
 	SDL_FillRect(screen, &overlay, black);
-	std::string fps = std::to_string(mainFPSmng->getFramerate());
+	std::string fps = std::to_string(framerateManager().getFramerate());
 	graphics->fonts[FONT_BIG]->renderTextLeft(screen, fps, Colors::YELLOW, Point(10, 10));
 }
 
@@ -803,51 +737,34 @@ void CGuiHandler::pushUserEvent(EUserEvent usercode, void * userdata)
 	SDL_PushEvent(&event);
 }
 
-CFramerateManager::CFramerateManager()
-	: rate(0)
-	, rateticks(0)
-	, fps(0)
-	, accumulatedFrames(0)
-	, accumulatedTime(0)
-	, lastticks(0)
-	, timeElapsed(0)
-{}
-
-void CFramerateManager::init(int newRate)
+IScreenHandler & CGuiHandler::screenHandler()
 {
-	rate = newRate;
-	rateticks = 1000.0 / rate;
-	this->lastticks = SDL_GetTicks();
+	return *screenHandlerInstance;
 }
 
-void CFramerateManager::framerateDelay()
+WindowHandler & CGuiHandler::windows()
 {
-	ui32 currentTicks = SDL_GetTicks();
+	assert(windowHandlerInstance);
+	return *windowHandlerInstance;
+}
 
-	timeElapsed = currentTicks - lastticks;
-	accumulatedFrames++;
+std::shared_ptr<IStatusBar> CGuiHandler::statusbar()
+{
+	auto locked = currentStatusBar.lock();
 
-	// FPS is higher than it should be, then wait some time
-	if(timeElapsed < rateticks)
-	{
-		int timeToSleep = (uint32_t)ceil(this->rateticks) - timeElapsed;
-		boost::this_thread::sleep(boost::posix_time::milliseconds(timeToSleep));
-	}
+	if (!locked)
+		return fakeStatusBar;
 
-	currentTicks = SDL_GetTicks();
-	// recalculate timeElapsed for external calls via getElapsed()
-	// limit it to 100 ms to avoid breaking animation in case of huge lag (e.g. triggered breakpoint)
-	timeElapsed = std::min<ui32>(currentTicks - lastticks, 100);
+	return locked;
+}
 
-	lastticks = SDL_GetTicks();
+void CGuiHandler::setStatusbar(std::shared_ptr<IStatusBar> newStatusBar)
+{
+	currentStatusBar = newStatusBar;
+}
 
-	accumulatedTime += timeElapsed;
-
-	if(accumulatedFrames >= 100)
-	{
-		//about 2 second should be passed
-		fps = static_cast<int>(ceil(1000.0 / (accumulatedTime / accumulatedFrames)));
-		accumulatedTime = 0;
-		accumulatedFrames = 0;
-	}
+void CGuiHandler::onScreenResize()
+{
+	screenHandler().onScreenResize();
+	windows().onScreenResize();
 }

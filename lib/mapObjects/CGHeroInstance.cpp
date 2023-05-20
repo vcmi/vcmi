@@ -589,7 +589,7 @@ int32_t CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, int32_t
 
 	spell->forEachSchool([&, this](const spells::SchoolInfo & cnf, bool & stop)
 	{
-		int32_t thisSchool = valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, 1 << (static_cast<ui8>(cnf.id))); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
+		int32_t thisSchool = valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, cnf.id); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
 		if(thisSchool > skill)
 		{
 			skill = thisSchool;
@@ -598,7 +598,7 @@ int32_t CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, int32_t
 		}
 	});
 
-	vstd::amax(skill, valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
+	vstd::amax(skill, valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, SpellSchool(ESpellSchool::ANY))); //any school bonus
 	vstd::amax(skill, valOfBonuses(BonusType::SPELL, spell->getIndex())); //given by artifact or other effect
 
 	vstd::amax(skill, 0); //in case we don't know any school
@@ -611,7 +611,7 @@ int64_t CGHeroInstance::getSpellBonus(const spells::Spell * spell, int64_t base,
 	//applying sorcery secondary skill
 
 	if(spell->isMagical())
-		base = static_cast<int64_t>(base * (valOfBonuses(BonusType::SPELL_DAMAGE)) / 100.0);
+		base = static_cast<int64_t>(base * (valOfBonuses(BonusType::SPELL_DAMAGE, SpellSchool(ESpellSchool::ANY))) / 100.0);
 
 	base = static_cast<int64_t>(base * (100 + valOfBonuses(BonusType::SPECIFIC_SPELL_DAMAGE, spell->getIndex())) / 100.0);
 
@@ -619,7 +619,7 @@ int64_t CGHeroInstance::getSpellBonus(const spells::Spell * spell, int64_t base,
 
 	spell->forEachSchool([&maxSchoolBonus, this](const spells::SchoolInfo & cnf, bool & stop)
 	{
-		vstd::amax(maxSchoolBonus, valOfBonuses(cnf.damagePremyBonus));
+		vstd::amax(maxSchoolBonus, valOfBonuses(BonusType::SPELL_DAMAGE, cnf.id));
 	});
 
 	base = static_cast<int64_t>(base * (100 + maxSchoolBonus) / 100.0);
@@ -708,7 +708,7 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 
 	spell->forEachSchool([this, &schoolBonus](const spells::SchoolInfo & cnf, bool & stop)
 	{
-		if(hasBonusOfType(cnf.knoledgeBonus))
+		if(hasBonusOfType(BonusType::SPELLS_OF_SCHOOL, cnf.id))
 		{
 			schoolBonus = stop = true;
 		}

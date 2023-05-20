@@ -17,8 +17,9 @@
 #include "MapViewModel.h"
 
 #include "../CPlayerInterface.h"
-#include "../adventureMap/CAdventureMapInterface.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CPathfinder.h"
@@ -89,7 +90,7 @@ std::shared_ptr<IMapRendererContext> MapViewController::getContext() const
 	return context;
 }
 
-void MapViewController::updateBefore(uint32_t timeDelta)
+void MapViewController::tick(uint32_t timeDelta)
 {
 	// confirmed to match H3 for
 	// - hero embarking on boat (500 ms)
@@ -158,7 +159,7 @@ void MapViewController::updateBefore(uint32_t timeDelta)
 	}
 }
 
-void MapViewController::updateAfter(uint32_t timeDelta)
+void MapViewController::afterRender()
 {
 	if(movementContext)
 	{
@@ -208,7 +209,7 @@ bool MapViewController::isEventVisible(const CGObjectInstance * obj)
 	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
-	if(GH.topInt() != adventureInt)
+	if(!GH.windows().isTopWindow(adventureInt))
 		return false;
 
 	if(obj->isVisitable())
@@ -225,7 +226,7 @@ bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & 
 	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
-	if(GH.topInt() != adventureInt)
+	if(!GH.windows().isTopWindow(adventureInt))
 		return false;
 
 	if(context->isVisible(obj->convertToVisitablePos(from)))

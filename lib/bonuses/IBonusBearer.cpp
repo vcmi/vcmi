@@ -15,45 +15,21 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-int IBonusBearer::valOfBonuses(BonusType type, int subtype) const
-{
-	//This part is performance-critical
-	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + std::to_string(subtype);
-
-	CSelector s = Selector::type()(type);
-	if(subtype != -1)
-		s = s.And(Selector::subtype()(subtype));
-
-	return valOfBonuses(s, cachingStr);
-}
-
 int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cachingStr) const
 {
-	CSelector limit = nullptr;
-	TConstBonusListPtr hlp = getAllBonuses(selector, limit, nullptr, cachingStr);
+	TConstBonusListPtr hlp = getAllBonuses(selector, nullptr, nullptr, cachingStr);
 	return hlp->totalValue();
 }
+
 bool IBonusBearer::hasBonus(const CSelector &selector, const std::string &cachingStr) const
 {
 	//TODO: We don't need to count all bonuses and could break on first matching
-	return getBonuses(selector, cachingStr)->size() > 0;
+	return !getBonuses(selector, cachingStr)->empty();
 }
 
 bool IBonusBearer::hasBonus(const CSelector &selector, const CSelector &limit, const std::string &cachingStr) const
 {
-	return getBonuses(selector, limit, cachingStr)->size() > 0;
-}
-
-bool IBonusBearer::hasBonusOfType(BonusType type, int subtype) const
-{
-	//This part is performance-ciritcal
-	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + std::to_string(subtype);
-
-	CSelector s = Selector::type()(type);
-	if(subtype != -1)
-		s = s.And(Selector::subtype()(subtype));
-
-	return hasBonus(s, cachingStr);
+	return !getBonuses(selector, limit, cachingStr)->empty();
 }
 
 TConstBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr) const
@@ -64,6 +40,46 @@ TConstBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const std
 TConstBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr) const
 {
 	return getAllBonuses(selector, limit, nullptr, cachingStr);
+}
+
+int IBonusBearer::valOfBonuses(BonusType type) const
+{
+	//This part is performance-critical
+	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type));
+
+	CSelector s = Selector::type()(type);
+
+	return valOfBonuses(s, cachingStr);
+}
+
+bool IBonusBearer::hasBonusOfType(BonusType type) const
+{
+	//This part is performance-critical
+	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type));
+
+	CSelector s = Selector::type()(type);
+
+	return hasBonus(s, cachingStr);
+}
+
+int IBonusBearer::valOfBonuses(BonusType type, int subtype) const
+{
+	//This part is performance-critical
+	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + std::to_string(subtype);
+
+	CSelector s = Selector::typeSubtype(type, subtype);
+
+	return valOfBonuses(s, cachingStr);
+}
+
+bool IBonusBearer::hasBonusOfType(BonusType type, int subtype) const
+{
+	//This part is performance-critical
+	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + std::to_string(subtype);
+
+	CSelector s = Selector::typeSubtype(type, subtype);
+
+	return hasBonus(s, cachingStr);
 }
 
 bool IBonusBearer::hasBonusFrom(BonusSource source, ui32 sourceID) const

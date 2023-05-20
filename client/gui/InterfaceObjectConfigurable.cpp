@@ -82,15 +82,26 @@ void InterfaceObjectConfigurable::build(const JsonNode &config)
 		items = &config["items"];
 	}
 	
-	const std::string unnamedObjectPrefix = "__widget_";
 	for(const auto & item : items->Vector())
-	{
-		std::string name = item["name"].isNull()
-						? unnamedObjectPrefix + std::to_string(unnamedObjectId++)
-						: item["name"].String();
-		logGlobal->debug("Building widget with name %s", name);
-		widgets[name] = buildWidget(item);
-	}
+		addWidget(item["name"].String(), buildWidget(item));
+}
+
+void InterfaceObjectConfigurable::addWidget(const std::string & namePreferred, std::shared_ptr<CIntObject> widget)
+{
+	static const std::string unnamedObjectPrefix = "__widget_";
+
+	std::string nameActual;
+
+	if (widgets.count(namePreferred) == 0)
+		nameActual = namePreferred;
+	else
+		logGlobal->error("Duplicated widget name: '%s'", namePreferred);
+
+	if (nameActual.empty())
+		nameActual = unnamedObjectPrefix + std::to_string(unnamedObjectId++);
+
+	logGlobal->debug("Building widget with name %s", nameActual);
+	widgets[nameActual] = widget;
 }
 
 std::string InterfaceObjectConfigurable::readText(const JsonNode & config) const
@@ -174,6 +185,8 @@ EFonts InterfaceObjectConfigurable::readFont(const JsonNode & config) const
 			return EFonts::FONT_SMALL;
 		if(config.String() == "tiny")
 			return EFonts::FONT_TINY;
+		if(config.String() == "calisto")
+			return EFonts::FONT_CALLI;
 	}
 	logGlobal->debug("Uknown font attribute");
 	return EFonts::FONT_TIMES;
@@ -287,15 +300,7 @@ std::shared_ptr<CToggleButton> InterfaceObjectConfigurable::buildToggleButton(co
 		assert(imgOrder.size() >= 4);
 		button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
 	}
-	if(!config["callback"].isNull())
-	{
-		std::string callbackName = config["callback"].String();
-
-		if (callbacks.count(callbackName))
-			button->addCallback(callbacks.at(callbackName));
-		else
-			logGlobal->error("Invalid callback '%s' in widget", callbackName );
-	}
+	loadToggleButtonCallback(button, config["callback"]);
 	return button;
 }
 
@@ -319,30 +324,67 @@ std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode
 		assert(imgOrder.size() >= 4);
 		button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
 	}
-	if(!config["callback"].isNull())
-	{
-		std::string callbackName = config["callback"].String();
 
-		if (callbacks.count(callbackName) > 0)
-			button->addCallback(std::bind(callbacks.at(callbackName), 0));
-		else
-			logGlobal->error("Invalid callback '%s' in widget", callbackName );
-	}
-	if(!config["hotkey"].isNull())
-	{
-		if(config["hotkey"].getType() == JsonNode::JsonType::DATA_STRING)
-		{
-			button->assignedKey = readHotkey(config["hotkey"]);
-
-			auto target = shortcuts.find(button->assignedKey);
-			if (target != shortcuts.end())
-			{
-				button->addCallback(target->second.callback);
-				target->second.assignedToButton = true;
-			}
-		}
-	}
+	loadButtonBorderColor(button, config["borderColor"]);
+	loadButtonCallback(button, config["callback"]);
+	loadButtonHotkey(button, config["hotkey"]);
 	return button;
+}
+
+void InterfaceObjectConfigurable::loadButtonBorderColor(std::shared_ptr<CButton> button, const JsonNode & config) const
+{
+	if (config.isNull())
+		return;
+
+	auto color = readColor(config);
+	button->setBorderColor(color);
+}
+
+void InterfaceObjectConfigurable::loadToggleButtonCallback(std::shared_ptr<CToggleButton> button, const JsonNode & config) const
+{
+	if(config.isNull())
+		return;
+
+	std::string callbackName = config.String();
+
+	if (callbacks.count(callbackName) > 0)
+		button->addCallback(callbacks.at(callbackName));
+	else
+		logGlobal->error("Invalid callback '%s' in widget", callbackName );
+}
+
+void InterfaceObjectConfigurable::loadButtonCallback(std::shared_ptr<CButton> button, const JsonNode & config) const
+{
+	if(config.isNull())
+		return;
+
+	std::string callbackName = config.String();
+
+	if (callbacks.count(callbackName) > 0)
+		button->addCallback(std::bind(callbacks.at(callbackName), 0));
+	else
+		logGlobal->error("Invalid callback '%s' in widget", callbackName );
+}
+
+void InterfaceObjectConfigurable::loadButtonHotkey(std::shared_ptr<CButton> button, const JsonNode & config) const
+{
+	if(config.isNull())
+		return;
+
+	if(config.getType() != JsonNode::JsonType::DATA_STRING)
+	{
+		logGlobal->error("Invalid shortcut format - string expected!");
+		return;
+	}
+
+	button->assignedKey = readHotkey(config);
+
+	auto target = shortcuts.find(button->assignedKey);
+	if (target == shortcuts.end())
+		return;
+
+	button->addCallback(target->second.callback);
+	target->second.assignedToButton = true;
 }
 
 std::shared_ptr<CLabelGroup> InterfaceObjectConfigurable::buildLabelGroup(const JsonNode & config) const
@@ -374,7 +416,8 @@ std::shared_ptr<CSlider> InterfaceObjectConfigurable::buildSlider(const JsonNode
 	auto itemsTotal = config["itemsTotal"].Integer();
 	auto value = config["selected"].Integer();
 	bool horizontal = config["orientation"].String() == "horizontal";
-	auto const & result = std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal, style);
+	const auto & result =
+		std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal, style);
 
 	if (!config["scrollBounds"].isNull())
 	{

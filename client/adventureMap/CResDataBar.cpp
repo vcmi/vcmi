@@ -19,50 +19,40 @@
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/ResourceSet.h"
 
-#define ADVOPT (conf.go()->ac)
-
-CResDataBar::CResDataBar(const std::string & defname, int x, int y, int offx, int offy, int resdist, int datedist)
+CResDataBar::CResDataBar(const std::string & imageName, const Point & position)
 {
-	pos.x += x;
-	pos.y += y;
+	pos.x += position.x;
+	pos.y += position.y;
+
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	background = std::make_shared<CPicture>(defname, 0, 0);
+	background = std::make_shared<CPicture>(imageName, 0, 0);
 	background->colorize(LOCPLINT->playerID);
 
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
 
-	txtpos.resize(8);
-	for (int i = 0; i < 8 ; i++)
-	{
-		txtpos[i].first = pos.x + offx + resdist*i;
-		txtpos[i].second = pos.y + offy;
-	}
-	txtpos[7].first = txtpos[6].first + datedist;
 	addUsedEvents(RCLICK);
 }
 
-CResDataBar::CResDataBar()
+CResDataBar::CResDataBar(const std::string & defname, int x, int y, int offx, int offy, int resdist, int datedist):
+	CResDataBar(defname, Point(x,y))
 {
-	pos.x += ADVOPT.resdatabarX;
-	pos.y += ADVOPT.resdatabarY;
+	for (int i = 0; i < 7 ; i++)
+		resourcePositions[GameResID(i)] = Point( offx + resdist*i, offy );
 
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	background = std::make_shared<CPicture>(ADVOPT.resdatabarG, 0, 0);
-	background->colorize(LOCPLINT->playerID);
+	datePosition = resourcePositions[EGameResID::GOLD] + Point(datedist, 0);
+}
 
-	pos.w = background->pos.w;
-	pos.h = background->pos.h;
+void CResDataBar::setDatePosition(const Point & position)
+{
+	datePosition = position;
+}
 
-	txtpos.resize(8);
-	for (int i = 0; i < 8 ; i++)
-	{
-		txtpos[i].first = pos.x + ADVOPT.resOffsetX + ADVOPT.resDist*i;
-		txtpos[i].second = pos.y + ADVOPT.resOffsetY;
-	}
-	txtpos[7].first = txtpos[6].first + ADVOPT.resDateDist;
-
+void CResDataBar::setResourcePosition(const GameResID & resource, const Point & position)
+{
+	resourcePositions[resource] = position;
 }
 
 std::string CResDataBar::buildDateString()
@@ -80,13 +70,15 @@ std::string CResDataBar::buildDateString()
 void CResDataBar::draw(SDL_Surface * to)
 {
 	//TODO: all this should be labels, but they require proper text update on change
-	for (GameResID i=EGameResID::WOOD; i <= GameResID(EGameResID::GOLD); ++i)
+	for (auto & entry : resourcePositions)
 	{
-		std::string text = std::to_string(LOCPLINT->cb->getResourceAmount(i));
+		std::string text = std::to_string(LOCPLINT->cb->getResourceAmount(entry.first));
 
-		graphics->fonts[FONT_SMALL]->renderTextLeft(to, text, Colors::WHITE, Point(txtpos[i].first, txtpos[i].second));
+		graphics->fonts[FONT_SMALL]->renderTextLeft(to, text, Colors::WHITE, pos.topLeft() + entry.second);
 	}
-	graphics->fonts[FONT_SMALL]->renderTextLeft(to, buildDateString(), Colors::WHITE, Point(txtpos[7].first, txtpos[7].second));
+
+	if (datePosition)
+		graphics->fonts[FONT_SMALL]->renderTextLeft(to, buildDateString(), Colors::WHITE, pos.topLeft() + *datePosition);
 }
 
 void CResDataBar::showAll(SDL_Surface * to)

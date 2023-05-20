@@ -16,6 +16,7 @@
 #include "PlayerLocalState.h"
 #include "CServerHandler.h"
 #include "gui/CGuiHandler.h"
+#include "gui/WindowHandler.h"
 #include "../lib/NetPacks.h"
 #include "ClientNetPackVisitors.h"
 #include "../lib/CConfigHandler.h"
@@ -100,7 +101,7 @@ void ClientCommandManager::handleGoSoloCommand()
 				CSH->client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), elem.first);
 			}
 		}
-		GH.totalRedraw();
+		GH.windows().totalRedraw();
 		giveTurn(color);
 	}
 	session["aiSolo"].Bool() = !session["aiSolo"].Bool();
@@ -141,7 +142,7 @@ void ClientCommandManager::handleControlaiCommand(std::istringstream& singleWord
 		CSH->client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
 	}
 
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
 	if(color != PlayerColor::NEUTRAL)
 		giveTurn(color);
 }
@@ -170,7 +171,7 @@ void ClientCommandManager::handleSetBattleAICommand(std::istringstream& singleWo
 
 void ClientCommandManager::handleRedrawCommand()
 {
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
 }
 
 void ClientCommandManager::handleScreenCommand()
@@ -195,14 +196,8 @@ void ClientCommandManager::handleNotDialogCommand()
 
 void ClientCommandManager::handleGuiCommand()
 {
-	for(const auto & child : GH.listInt)
-	{
-		const auto childPtr = child.get();
-		if(const CIntObject * obj = dynamic_cast<const CIntObject*>(childPtr))
-			printInfoAboutInterfaceObject(obj, 0);
-		else
-			printCommandMessage(std::string(typeid(childPtr).name()) + "\n");
-	}
+	for(const auto & child : GH.windows().findWindows<CIntObject>())
+		printInfoAboutInterfaceObject(child.get(), 0);
 }
 
 void ClientCommandManager::handleConvertTextCommand()
@@ -387,7 +382,7 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 		return ss.str();
 	};
 		printCommandMessage("Bonuses of " + LOCPLINT->localState->getCurrentArmy()->getObjectName() + "\n");
-		printCommandMessage(format(LOCPLINT->localState->getCurrentArmy()->getBonusList()) + "\n");
+		printCommandMessage(format(*LOCPLINT->localState->getCurrentArmy()->getAllBonuses(Selector::all, Selector::all)) + "\n");
 
 	printCommandMessage("\nInherited bonuses:\n");
 	TCNodes parents;
