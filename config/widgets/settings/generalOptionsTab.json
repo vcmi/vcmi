@@ -10,6 +10,12 @@
 			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
 		},
 		{
+			"name": "lineCreatureNumbersToggleGroupEnd",
+			"type": "texture",
+			"image": "settingsWindow/lineHorizontal",
+			"rect": { "x" : 5, "y" : 383, "w": 220, "h": 3}
+		},
+		{
 			"type" : "labelTitle",
 			"position": {"x": 10, "y": 55},
 			"text": "vcmi.systemOptions.videoGroup"
@@ -76,13 +82,13 @@
 				{
 					"name": "fullscreenBorderlessCheckbox",
 					"help": "vcmi.systemOptions.fullscreenBorderless",
-					"callback": "fullscreenBorderlessChanged"
+					"callback": "fullscreenBorderlessChanged",
 					"created" : "desktop"
 				},
 				{
 					"name": "fullscreenExclusiveCheckbox",
 					"help": "vcmi.systemOptions.fullscreenExclusive",
-					"callback": "fullscreenExclusiveChanged"
+					"callback": "fullscreenExclusiveChanged",
 					"created" : "desktop"
 				},
 				{
@@ -153,16 +159,8 @@
 				},
 				{
 					"text": "vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover",
-				},
-				{
-					"text": "vcmi.otherOptions.compactTownCreatureInfo.hover",
 				}
 			]
-		},
-		{
-			"name": "availableCreaturesAsDwellingPicker",
-			"type": "toggleGroup",
-			"callback": "availableCreaturesAsDwellingChanged"
 		},
 		{
 			"name": "availableCreaturesAsDwellingPicker",
@@ -186,10 +184,21 @@
 			"callback": "availableCreaturesAsDwellingChanged"
 		},
 		{
+			"name": "compactTownCreatureInfoLabel",
+			"type" : "verticalLayout",
+			"customType" : "labelDescription",
+			"position": {"x": 45, "y": 391},
+			"items" : [
+				{
+					"text": "vcmi.otherOptions.compactTownCreatureInfo.hover",
+				}
+			]
+		},
+		{
 			"name": "compactTownCreatureInfoCheckbox",
 			"type": "checkbox",
 			"help": "vcmi.otherOptions.compactTownCreatureInfo",
-			"position": {"x": 10, "y": 383},
+			"position": {"x": 10, "y": 389},
 			"callback": "compactTownCreatureInfoChanged"
 		}
 	]
