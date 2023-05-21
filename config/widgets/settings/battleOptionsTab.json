@@ -66,24 +66,30 @@
 		},
 /////////////////////////////////////// Left section - checkboxes
 		{
-			"type": "labelDescription",
-			"text": "core.genrltxt.402", // All Stats
-			"position": {"x": 45, "y": 265}
+			"name": "creatureInfoLabels",
+			"type" : "verticalLayout",
+			"customType" : "labelDescription",
+			"position": {"x": 45, "y": 265},
+			"items":
+			[
+				{
+					"text": "core.genrltxt.402",
+				},
+				{
+					"text": "core.genrltxt.403",
+				}
+			]
 		},
 		{
-			"type": "labelDescription",
-			"text": "core.genrltxt.403", // Spells only
-			"position": {"x": 45, "y": 295}
-		},
-		{
-			"name": "creatureInfoAllPlaceholder",
-			"type": "checkboxFake",
+			"name": "creatureInfoCheckboxes",
+			"type" : "verticalLayout",
+			"customType" : "checkboxFake",
 			"position": {"x": 10, "y": 263},
-		},
-		{
-			"name": "creatureInfoSpellsPlaceholder",
-			"type": "checkboxFake",
-			"position": {"x": 10, "y": 293},
+			"items":
+			[
+				{},
+				{}
+			]
 		},
 		{
 			"name": "generalOptionsLabels",
