@@ -29,12 +29,83 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../adventureMap/CInGameConsole.h"
+#include "../client/render/CAnimation.h"
 
 #include "../../CCallback.h"
 #include "../../lib/BattleFieldHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CStack.h"
 #include "../../lib/spells/ISpellMechanics.h"
+
+namespace HexMasks
+{
+	// mask definitions that has set to 1 the edges present in the hex edges highlight image
+	/*
+	    /\
+	   0  1
+	  /    \
+	 |      |
+	 5      2
+	 |      |
+	  \    /
+	   4  3
+	    \/
+	*/
+	enum HexEdgeMasks {
+		empty                 = 0b000000, // empty used when wanting to keep indexes the same but no highlight should be displayed
+		topLeft               = 0b000001,
+		topRight              = 0b000010,
+		right                 = 0b000100,
+		bottomRight           = 0b001000,
+		bottomLeft            = 0b010000,
+		left                  = 0b100000,
+						  
+		top                   = 0b000011,
+		bottom                = 0b011000,
+		topRightHalfCorner    = 0b000110,
+		bottomRightHalfCorner = 0b001100,
+		bottomLeftHalfCorner  = 0b110000,
+		topLeftHalfCorner     = 0b100001,
+						  
+		rightHalf             = 0b001110,
+		leftHalf              = 0b110001,
+						  
+		topRightCorner        = 0b000111,
+		bottomRightCorner     = 0b011100,
+		bottomLeftCorner      = 0b111000,
+		topLeftCorner         = 0b100011
+	};
+}
+
+std::map<int, int> hexEdgeMaskToFrameIndex;
+
+void initializeHexEdgeMaskToFrameIndex()
+{
+	hexEdgeMaskToFrameIndex[HexMasks::empty] = 0;
+
+    hexEdgeMaskToFrameIndex[HexMasks::topLeft] = 1;
+    hexEdgeMaskToFrameIndex[HexMasks::topRight] = 2;
+    hexEdgeMaskToFrameIndex[HexMasks::right] = 3;
+    hexEdgeMaskToFrameIndex[HexMasks::bottomRight] = 4;
+    hexEdgeMaskToFrameIndex[HexMasks::bottomLeft] = 5;
+    hexEdgeMaskToFrameIndex[HexMasks::left] = 6;
+
+    hexEdgeMaskToFrameIndex[HexMasks::top] = 7;
+    hexEdgeMaskToFrameIndex[HexMasks::bottom] = 8;
+
+    hexEdgeMaskToFrameIndex[HexMasks::topRightHalfCorner] = 9;
+    hexEdgeMaskToFrameIndex[HexMasks::bottomRightHalfCorner] = 10;
+    hexEdgeMaskToFrameIndex[HexMasks::bottomLeftHalfCorner] = 11;
+    hexEdgeMaskToFrameIndex[HexMasks::topLeftHalfCorner] = 12;
+
+    hexEdgeMaskToFrameIndex[HexMasks::rightHalf] = 13;
+    hexEdgeMaskToFrameIndex[HexMasks::leftHalf] = 14;
+
+    hexEdgeMaskToFrameIndex[HexMasks::topRightCorner] = 15;
+    hexEdgeMaskToFrameIndex[HexMasks::bottomRightCorner] = 16;
+    hexEdgeMaskToFrameIndex[HexMasks::bottomLeftCorner] = 17;
+    hexEdgeMaskToFrameIndex[HexMasks::topLeftCorner] = 18;
+}
 
 BattleFieldController::BattleFieldController(BattleInterface & owner):
 	owner(owner)
@@ -50,32 +121,10 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	attackCursors = std::make_shared<CAnimation>("CRCOMBAT");
 	attackCursors->preload();
 
-	// load single edges
-	fullDamageRangeLimitImages[0b000001] = IImage::createFromFile("rangeHighlights/green/topLeft.PNG", EImageBlitMode::COLORKEY);
-	fullDamageRangeLimitImages[0b000010] = IImage::createFromFile("rangeHighlights/green/topRight.PNG", EImageBlitMode::COLORKEY);
-	fullDamageRangeLimitImages[0b000100] = IImage::createFromFile("rangeHighlights/green/right.PNG", EImageBlitMode::COLORKEY);
-	fullDamageRangeLimitImages[0b001000] = IImage::createFromFile("rangeHighlights/green/bottomRight.PNG", EImageBlitMode::COLORKEY);
-	fullDamageRangeLimitImages[0b010000] = IImage::createFromFile("rangeHighlights/green/bottomLeft.PNG", EImageBlitMode::COLORKEY);
-	fullDamageRangeLimitImages[0b100000] = IImage::createFromFile("rangeHighlights/green/left.PNG", EImageBlitMode::COLORKEY);
+	fullDamageRangeLimitImages = std::make_unique<CAnimation>("battle/rangeHighlights/rangeHighlightsGreen.json");
+	fullDamageRangeLimitImages->preload();
 
-	// load double edges
-	fullDamageRangeLimitImages[0b000011] = IImage::createFromFile("rangeHighlights/green/top.PNG", EImageBlitMode::COLORKEY);
-	fullDamageRangeLimitImages[0b011000] = IImage::createFromFile("rangeHighlights/green/bottom.PNG", EImageBlitMode::COLORKEY);
-
-	fullDamageRangeLimitImages[0b000110] = IImage::createFromFile("rangeHighlights/green/topRightHalfCorner.PNG", EImageBlitMode::COLORKEY);
-	fullDamageRangeLimitImages[0b001100] = IImage::createFromFile("rangeHighlights/green/bottomRightHalfCorner.PNG", EImageBlitMode::COLORKEY);
-	fullDamageRangeLimitImages[0b110000] = IImage::createFromFile("rangeHighlights/green/bottomLeftHalfCorner.PNG", EImageBlitMode::COLORKEY);
-	fullDamageRangeLimitImages[0b100001] = IImage::createFromFile("rangeHighlights/green/topLeftHalfCorner.PNG", EImageBlitMode::COLORKEY);
-
-	// load halves
-	fullDamageRangeLimitImages[0b001110] = IImage::createFromFile("rangeHighlights/green/rightHalf.PNG", EImageBlitMode::COLORKEY);
-	fullDamageRangeLimitImages[0b110001] = IImage::createFromFile("rangeHighlights/green/leftHalf.PNG", EImageBlitMode::COLORKEY);
-
-	// load corners
-	fullDamageRangeLimitImages[0b000111] = IImage::createFromFile("rangeHighlights/green/topRightCorner.PNG", EImageBlitMode::COLORKEY);
-	fullDamageRangeLimitImages[0b011100] = IImage::createFromFile("rangeHighlights/green/bottomRightCorner.PNG", EImageBlitMode::COLORKEY);
-	fullDamageRangeLimitImages[0b111000] = IImage::createFromFile("rangeHighlights/green/bottomLeftCorner.PNG", EImageBlitMode::COLORKEY);
-	fullDamageRangeLimitImages[0b100011] = IImage::createFromFile("rangeHighlights/green/topLeftCorner.PNG", EImageBlitMode::COLORKEY);
+	initializeHexEdgeMaskToFrameIndex();
 
 	if(!owner.siegeController)
 	{
@@ -488,7 +537,7 @@ std::vector<std::shared_ptr<IImage>> BattleFieldController::calculateFullRangedD
 			mask.set(direction);
 
 		uint8_t imageKey = static_cast<uint8_t>(mask.to_ulong());
-		output.push_back(fullDamageRangeLimitImages[imageKey]);
+		output.push_back(fullDamageRangeLimitImages->getImage(hexEdgeMaskToFrameIndex[imageKey]));
 	}
 
 	return output;
