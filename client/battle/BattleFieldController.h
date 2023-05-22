@@ -33,7 +33,7 @@ class BattleFieldController : public CIntObject
 	std::shared_ptr<IImage> cellUnitMovementHighlight;
 	std::shared_ptr<IImage> cellUnitMaxMovementHighlight;
 	std::shared_ptr<IImage> cellShade;
-	std::unique_ptr<CAnimation> fullDamageRangeLimitImages;
+	std::unique_ptr<CAnimation> rangedFullDamageLimitImages;
 
 	std::shared_ptr<CAnimation> attackCursors;
 
@@ -85,7 +85,7 @@ class BattleFieldController : public CIntObject
 	/// calculates what image to use as range limit, depending on the direction of neighbors
 	/// a mask is used internally to mark the directions of all neighbours
 	/// based on this mask the corresponding image is selected
-	std::vector<std::shared_ptr<IImage>> calculateFullRangedDamageHighlightImages(std::vector<std::vector<BattleHex::EDir>> fullRangeLimitHexesNeighbourDirections);
+	std::vector<std::shared_ptr<IImage>> calculateRangedFullDamageHighlightImages(std::vector<std::vector<BattleHex::EDir>> fullRangeLimitHexesNeighbourDirections);
 
 	void showBackground(Canvas & canvas);
 	void showBackgroundImage(Canvas & canvas);

@@ -521,14 +521,14 @@ std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeigh
 	return output;
 }
 
-std::vector<std::shared_ptr<IImage>> BattleFieldController::calculateFullRangedDamageHighlightImages(std::vector<std::vector<BattleHex::EDir>> fullRangedDamageLimitHexesNeighbourDirections)
+std::vector<std::shared_ptr<IImage>> BattleFieldController::calculateRangedFullDamageHighlightImages(std::vector<std::vector<BattleHex::EDir>> rangedFullDamageLimitHexesNeighbourDirections)
 {
 	std::vector<std::shared_ptr<IImage>> output; // if no image is to be shown an empty image is still added to help with traverssing the range
 
-	if(fullRangedDamageLimitHexesNeighbourDirections.empty())
+	if(rangedFullDamageLimitHexesNeighbourDirections.empty())
 		return output;
 
-	for(auto & directions : fullRangedDamageLimitHexesNeighbourDirections)
+	for(auto & directions : rangedFullDamageLimitHexesNeighbourDirections)
 	{
 		std::bitset<6> mask;
 		
@@ -537,7 +537,7 @@ std::vector<std::shared_ptr<IImage>> BattleFieldController::calculateFullRangedD
 			mask.set(direction);
 
 		uint8_t imageKey = static_cast<uint8_t>(mask.to_ulong());
-		output.push_back(fullDamageRangeLimitImages->getImage(hexEdgeMaskToFrameIndex[imageKey]));
+		output.push_back(rangedFullDamageLimitImages->getImage(hexEdgeMaskToFrameIndex[imageKey]));
 	}
 
 	return output;
@@ -556,7 +556,7 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	std::vector<BattleHex> rangedFullDamageHexes = getRangedFullDamageHexes();
 	std::vector<BattleHex> rangedFullDamageLimitHexes = getRangedFullDamageLimitHexes(rangedFullDamageHexes);
 	std::vector<std::vector<BattleHex::EDir>> rangedFullDamageLimitHexesNeighbourDirections = getOutsideNeighbourDirectionsForLimitHexes(rangedFullDamageHexes, rangedFullDamageLimitHexes);
-	std::vector<std::shared_ptr<IImage>> rangedFullDamageLimitHexesHighligts = calculateFullRangedDamageHighlightImages(rangedFullDamageLimitHexesNeighbourDirections);
+	std::vector<std::shared_ptr<IImage>> rangedFullDamageLimitHexesHighligts = calculateRangedFullDamageHighlightImages(rangedFullDamageLimitHexesNeighbourDirections);
 
 	auto const & hoveredMouseHexes = owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpellHexes : hoveredMoveHexes;
 
