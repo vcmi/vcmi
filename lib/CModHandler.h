@@ -10,6 +10,7 @@
 #pragma once
 
 #include "JsonNode.h"
+#include "CModVersion.h"
 
 #ifdef __UCLIBC__
 #undef major
@@ -185,30 +186,6 @@ public:
 		FAILED,
 		PASSED
 	};
-	
-	struct DLL_LINKAGE Version
-	{
-		int major = 0;
-		int minor = 0;
-		int patch = 0;
-		
-		Version() = default;
-		Version(int mj, int mi, int p): major(mj), minor(mi), patch(p) {}
-		
-		static Version GameVersion();
-		static Version fromString(std::string from);
-		std::string toString() const;
-		
-		bool compatible(const Version & other, bool checkMinor = false, bool checkPatch = false) const;
-		bool isNull() const;
-		
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & major;
-			h & minor;
-			h & patch;
-		}
-	};
 
 	/// identifier, identical to name of folder with mod
 	std::string identifier;
@@ -218,14 +195,14 @@ public:
 	std::string description;
 	
 	/// version of the mod
-	Version version;
+	CModVersion version;
 
 	/// Base language of mod, all mod strings are assumed to be in this language
 	std::string baseLanguage;
 	
 	/// vcmi versions compatible with the mod
 
-	Version vcmiCompatibleMin, vcmiCompatibleMax;
+	CModVersion vcmiCompatibleMin, vcmiCompatibleMax;
 
 	/// list of mods that should be loaded before this one
 	std::set <TModID> dependencies;
@@ -381,7 +358,7 @@ public:
 			for(const auto & m : newActiveMods)
 
 			{
-				CModInfo::Version mver;
+				CModVersion mver;
 				h & mver;
 				
 				if(allMods.count(m) && (allMods[m].version.isNull() || mver.isNull() || allMods[m].version.compatible(mver)))

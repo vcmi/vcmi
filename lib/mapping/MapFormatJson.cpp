@@ -15,6 +15,7 @@
 #include "../filesystem/COutputStream.h"
 #include "../JsonDetail.h"
 #include "CMap.h"
+#include "MapFormat.h"
 #include "../CModHandler.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
@@ -952,7 +953,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 	if(!header["mods"].isNull())
 	{
 		for(auto & mod : header["mods"].Vector())
-			mapHeader->mods[mod["name"].String()] = CModInfo::Version::fromString(mod["version"].String());
+			mapHeader->mods[mod["name"].String()] = CModVersion::fromString(mod["version"].String());
 	}
 
 	//todo: multilevel map load support

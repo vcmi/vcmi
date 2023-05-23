@@ -16,6 +16,7 @@
 #include "CMapService.h"
 #include "CMap.h"
 #include "CCampaignHandler.h"
+#include "MapFormat.h"
 
 #include "../filesystem/Filesystem.h"
 #include "../serializer/CMemorySerializer.h"

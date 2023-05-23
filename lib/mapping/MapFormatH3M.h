@@ -148,7 +148,7 @@ private:
 	/**
 	 * Reads custom(map) def information.
 	 */
-	void readDefInfo();
+	void readObjectTemplates();
 
 	/**
 	 * Reads objects(towns, mines,...).

@@ -13,12 +13,14 @@
 
 #include "CMap.h"
 #include "MapReaderH3M.h"
+#include "MapFormat.h"
 
 #include "../CCreatureHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStopWatch.h"
+#include "../CModHandler.h"
 #include "../GameSettings.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
@@ -107,7 +109,7 @@ void CMapLoaderH3M::init()
 	readRumors();
 	readPredefinedHeroes();
 	readTerrain();
-	readDefInfo();
+	readObjectTemplates();
 	readObjects();
 	readEvents();
 
@@ -911,7 +913,7 @@ void CMapLoaderH3M::readTerrain()
 	}
 }
 
-void CMapLoaderH3M::readDefInfo()
+void CMapLoaderH3M::readObjectTemplates()
 {
 	uint32_t defAmount = reader->readUInt32();
 

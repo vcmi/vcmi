@@ -11,6 +11,7 @@
 #include "StartInfo.h"
 
 #include "CGeneralTextHandler.h"
+#include "CModHandler.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapping/CMapInfo.h"
 #include "mapping/CCampaignHandler.h"

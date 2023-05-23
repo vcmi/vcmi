@@ -12,6 +12,7 @@
 #include "MapFeaturesH3M.h"
 
 #include "CMap.h"
+#include "MapFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

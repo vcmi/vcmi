@@ -19,6 +19,7 @@
 #include "../Languages.h"
 
 #include "CMap.h"
+#include "MapFormat.h"
 
 #include "MapFormatH3M.h"
 #include "MapFormatJson.h"

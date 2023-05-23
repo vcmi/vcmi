@@ -11,6 +11,7 @@
 #include "CMapGenerator.h"
 
 #include "../mapping/CMap.h"
+#include "../mapping/MapFormat.h"
 #include "../VCMI_Lib.h"
 #include "../CGeneralTextHandler.h"
 #include "../mapping/CMapEditManager.h"
