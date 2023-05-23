@@ -79,8 +79,12 @@ public:
 
 private:
 	template<class Identifier>
+	Identifier remapIdentifier(const Identifier & identifier);
+
+	template<class Identifier>
 	void readBitmask(std::set<Identifier> & dest, int bytesToRead, int objectsToRead, bool invert);
 
+	template<class Identifier>
 	void readBitmask(std::vector<bool> & dest, int bytesToRead, int objectsToRead, bool invert);
 
 	MapFormatFeaturesH3M features;
