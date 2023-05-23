@@ -13,6 +13,7 @@
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
 #include "MapFeaturesH3M.h"
+#include "MapIdentifiersH3M.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -27,7 +28,8 @@ class MapReaderH3M
 public:
 	explicit MapReaderH3M(CInputStream * stream);
 
-	void setFormatLevel(EMapFormat format, uint8_t hotaVersion);
+	void setFormatLevel(const MapFormatFeaturesH3M & features);
+	void setIdentifierRemapper(const MapIdentifiersH3M & remapper);
 
 	ArtifactID readArtifact();
 	ArtifactID readArtifact32();
@@ -53,6 +55,8 @@ public:
 			if(bitmap[i])
 				dest.insert(static_cast<Identifier>(i));
 	}
+
+	void readBitmaskBuildings(std::set<BuildingID> & dest, FactionID faction);
 
 	/** Reads bitmask to boolean vector
 	* @param dest destination vector, shall be filed with "true" values
@@ -87,6 +91,7 @@ public:
 
 private:
 	MapFormatFeaturesH3M features;
+	MapIdentifiersH3M remapper;
 
 	std::unique_ptr<CBinaryReader> reader;
 };

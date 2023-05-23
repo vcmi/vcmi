@@ -19,6 +19,7 @@
 #include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStopWatch.h"
+#include "../GameSettings.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
@@ -123,7 +124,7 @@ void CMapLoaderH3M::readHeader()
 	{
 		uint32_t hotaVersion = reader->readUInt32();
 		features = MapFormatFeaturesH3M::find(mapHeader->version, hotaVersion);
-		reader->setFormatLevel(mapHeader->version, hotaVersion);
+		reader->setFormatLevel(features);
 
 		if(hotaVersion > 0)
 		{
@@ -145,9 +146,23 @@ void CMapLoaderH3M::readHeader()
 	else
 	{
 		features = MapFormatFeaturesH3M::find(mapHeader->version, 0);
-		reader->setFormatLevel(mapHeader->version, 0);
+		reader->setFormatLevel(features);
 	}
+	MapIdentifiersH3M identifierMapper;
+
+	if (features.levelROE)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA));
+	if (features.levelAB)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE));
+	if (features.levelSOD)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH));
+	if (features.levelWOG)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
+	if (features.levelHOTA0)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS));
 	
+	reader->setIdentifierRemapper(identifierMapper);
+
 	// include basic mod
 	if(mapHeader->version == EMapFormat::WOG)
 		mapHeader->mods["wake-of-gods"];
@@ -2004,11 +2019,8 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	bool hasCustomBuildings = reader->readBool();
 	if(hasCustomBuildings)
 	{
-		reader->readBitmask(object->builtBuildings, features.buildingsBytes, features.buildingsCount, false);
-		reader->readBitmask(object->forbiddenBuildings, features.buildingsBytes, features.buildingsCount, false);
-
-		object->builtBuildings = convertBuildings(object->builtBuildings, objectTemplate->subid);
-		object->forbiddenBuildings = convertBuildings(object->forbiddenBuildings, objectTemplate->subid);
+		reader->readBitmaskBuildings(object->builtBuildings, FactionID(objectTemplate->subid));
+		reader->readBitmaskBuildings(object->forbiddenBuildings, FactionID(objectTemplate->subid));
 	}
 	// Standard buildings
 	else
@@ -2074,10 +2086,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 		reader->skipZero(17);
 
 		// New buildings
-
-		reader->readBitmask(event.buildings, features.buildingsBytes, features.buildingsCount, false);
-
-		event.buildings = convertBuildings(event.buildings, objectTemplate->subid, false);
+		reader->readBitmaskBuildings(event.buildings, FactionID(objectTemplate->subid));
 
 		event.creatures.resize(7);
 		for(int i = 0; i < 7; ++i)
@@ -2121,67 +2130,6 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	reader->skipZero(3);
 
 	return object;
-}
-
-std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> & h3m, int castleID, bool addAuxiliary) const
-{
-	std::map<int, BuildingID> helperMap;
-	std::set<BuildingID> ret;
-
-	// Note: this file is parsed many times.
-	static const JsonNode config(ResourceID("config/buildings5.json"));
-
-	for(const JsonNode & entry : config["table"].Vector())
-	{
-		int town = static_cast<int>(entry["town"].Float());
-
-		if(town == castleID || town == -1)
-		{
-			helperMap[static_cast<int>(entry["h3"].Float())] = BuildingID(static_cast<si32>(entry["vcmi"].Float()));
-		}
-	}
-
-	for(const auto & elem : h3m)
-	{
-		if(helperMap[elem] >= BuildingID::FIRST_REGULAR_ID)
-		{
-			ret.insert(helperMap[elem]);
-		}
-		// horde buildings use indexes from -1 to -5, where creature level is 1 to 5
-		else if(helperMap[elem] >= (-GameConstants::CREATURES_PER_TOWN))
-		{
-			int level = (helperMap[elem]);
-
-			//(-30)..(-36) - horde buildings (for game loading only)
-			//They will be replaced in CGameState::initTowns()
-			ret.insert(BuildingID(level + BuildingID::HORDE_BUILDING_CONVERTER)); //-1 => -30
-		}
-		else
-		{
-			logGlobal->warn("Conversion warning: unknown building %d in castle %d", elem.num, castleID);
-		}
-	}
-
-	if(addAuxiliary)
-	{
-		//village hall is always present
-		ret.insert(BuildingID::VILLAGE_HALL);
-
-		if(ret.find(BuildingID::CITY_HALL) != ret.end())
-		{
-			ret.insert(BuildingID::EXTRA_CITY_HALL);
-		}
-		if(ret.find(BuildingID::TOWN_HALL) != ret.end())
-		{
-			ret.insert(BuildingID::EXTRA_TOWN_HALL);
-		}
-		if(ret.find(BuildingID::CAPITOL) != ret.end())
-		{
-			ret.insert(BuildingID::EXTRA_CAPITOL);
-		}
-	}
-
-	return ret;
 }
 
 void CMapLoaderH3M::readEvents()

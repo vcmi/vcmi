@@ -21,9 +21,14 @@ MapReaderH3M::MapReaderH3M(CInputStream * stream)
 {
 }
 
-void MapReaderH3M::setFormatLevel(EMapFormat newFormat, uint8_t hotaVersion)
+void MapReaderH3M::setFormatLevel(const MapFormatFeaturesH3M & newFeatures)
 {
-	features = MapFormatFeaturesH3M::find(newFormat, hotaVersion);
+	features = newFeatures;
+}
+
+void MapReaderH3M::setIdentifierRemapper(const MapIdentifiersH3M & newRemapper)
+{
+	remapper = newRemapper;
 }
 
 ArtifactID MapReaderH3M::readArtifact()
@@ -158,6 +163,15 @@ PlayerColor MapReaderH3M::readPlayer32()
 
 	assert(result < PlayerColor::PLAYER_LIMIT || result == PlayerColor::NEUTRAL);
 	return result;
+}
+
+void MapReaderH3M::readBitmaskBuildings(std::set<BuildingID> & dest, FactionID faction)
+{
+	std::set<BuildingID> h3m;
+	readBitmask(h3m, features.buildingsBytes, features.buildingsCount, false);
+
+	for (auto const & h3mEntry : h3m)
+		dest.insert(remapper.remapBuilding(faction, h3mEntry));
 }
 
 void MapReaderH3M::readBitmask(std::vector<bool> & dest, const int bytesToRead, const int objectsToRead, bool invert)

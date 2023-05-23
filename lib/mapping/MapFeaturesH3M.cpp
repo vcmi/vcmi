@@ -57,7 +57,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesROE()
 	result.skillsCount = 28;
 	result.terrainsCount = 10;
 	result.artifactSlotsCount = 18;
-	result.buildingsCount = 40;
+	result.buildingsCount = 41;
 
 	result.heroIdentifierInvalid = 0xff;
 	result.artifactIdentifierInvalid = 0xff;

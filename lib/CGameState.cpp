@@ -1752,6 +1752,10 @@ void CGameState::initTowns()
 			vti->setNameTranslated(vti->getTown()->getRandomNameTranslated(nameID));
 		}
 
+		static const BuildingID basicDwellings[] = { BuildingID::DWELL_FIRST, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3, BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7 };
+		static const BuildingID upgradedDwellings[] = { BuildingID::DWELL_UP_FIRST, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP, BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP };
+		static const BuildingID hordes[] = { BuildingID::HORDE_PLACEHOLDER1, BuildingID::HORDE_PLACEHOLDER2, BuildingID::HORDE_PLACEHOLDER3, BuildingID::HORDE_PLACEHOLDER4, BuildingID::HORDE_PLACEHOLDER5, BuildingID::HORDE_PLACEHOLDER6, BuildingID::HORDE_PLACEHOLDER7 };
+
 		//init buildings
 		if(vstd::contains(vti->builtBuildings, BuildingID::DEFAULT)) //give standard set of buildings
 		{
@@ -1762,8 +1766,6 @@ void CGameState::initTowns()
 
 			auto definesBuildingsChances = VLC->settings()->getVector(EGameSettings::TOWNS_STARTING_DWELLING_CHANCES);
 
-			BuildingID basicDwellings[] = { BuildingID::DWELL_FIRST, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3, BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7 };
-
 			for(int i = 0; i < definesBuildingsChances.size(); i++)
 			{
 				if((getRandomGenerator().nextInt(1,100) <= definesBuildingsChances[i]))
@@ -1773,23 +1775,26 @@ void CGameState::initTowns()
 			}
 		}
 
+		// village hall must always exist
+		vti->builtBuildings.insert(BuildingID::VILLAGE_HALL);
+
 		//init hordes
 		for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; i++)
 		{
-			if (vstd::contains(vti->builtBuildings, (BuildingID::HORDE_PLACEHOLDER1 - i))) //if we have horde for this level
+			if (vstd::contains(vti->builtBuildings, hordes[i])) //if we have horde for this level
 			{
-				vti->builtBuildings.erase(BuildingID(BuildingID::HORDE_PLACEHOLDER1 - i));//remove old ID
+				vti->builtBuildings.erase(hordes[i]);//remove old ID
 				if (vti->getTown()->hordeLvl.at(0) == i)//if town first horde is this one
 				{
 					vti->builtBuildings.insert(BuildingID::HORDE_1);//add it
 					//if we have upgraded dwelling as well
-					if (vstd::contains(vti->builtBuildings, (BuildingID::DWELL_UP_FIRST + i)))
+					if (vstd::contains(vti->builtBuildings, upgradedDwellings[i]))
 						vti->builtBuildings.insert(BuildingID::HORDE_1_UPGR);//add it as well
 				}
 				if (vti->getTown()->hordeLvl.at(1) == i)//if town second horde is this one
 				{
 					vti->builtBuildings.insert(BuildingID::HORDE_2);
-					if (vstd::contains(vti->builtBuildings, (BuildingID::DWELL_UP_FIRST + i)))
+					if (vstd::contains(vti->builtBuildings, upgradedDwellings[i]))
 						vti->builtBuildings.insert(BuildingID::HORDE_2_UPGR);
 				}
 			}
@@ -1815,9 +1820,9 @@ void CGameState::initTowns()
 		for(CCastleEvent &ev : vti->events)
 		{
 			for (int i = 0; i<GameConstants::CREATURES_PER_TOWN; i++)
-				if (vstd::contains(ev.buildings,(-31-i))) //if we have horde for this level
+				if (vstd::contains(ev.buildings,hordes[i])) //if we have horde for this level
 				{
-					ev.buildings.erase(BuildingID(-31-i));
+					ev.buildings.erase(hordes[i]);
 					if (vti->getTown()->hordeLvl.at(0) == i)
 						ev.buildings.insert(BuildingID::HORDE_1);
 					if (vti->getTown()->hordeLvl.at(1) == i)
