@@ -1031,7 +1031,21 @@ std::string CGHeroInstance::getBiographyTextID() const
 void CGHeroInstance::putArtifact(ArtifactPosition pos, CArtifactInstance *art)
 {
 	assert(!getArt(pos));
-	art->putAt(ArtifactLocation(this, pos));
+	assert(art->artType->canBePutAt(this, pos));
+
+	CArtifactSet::putArtifact(pos, art);
+	if(ArtifactUtils::isSlotEquipment(pos))
+		attachTo(*art);
+}
+
+void CGHeroInstance::removeArtifact(ArtifactPosition pos)
+{
+	auto art = getArt(pos);
+	assert(art);
+
+	CArtifactSet::removeArtifact(pos);
+	if(ArtifactUtils::isSlotEquipment(pos))
+		detachFrom(*art);
 }
 
 bool CGHeroInstance::hasSpellbook() const

@@ -158,12 +158,12 @@ public:
 	ArtifactID getTypeId() const;
 	bool canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved = false) const;  //forwards to the above one
 	virtual bool canBeDisassembled() const;
-	virtual void putAt(ArtifactLocation al);
-	virtual void removeFrom(ArtifactLocation al);
 	/// Checks if this a part of this artifact: artifact instance is a part
 	/// of itself, additionally truth is returned for constituents of combined arts
 	virtual bool isPart(const CArtifactInstance *supposedPart) const;
 
+	void putAt(ArtifactLocation al);
+	void removeFrom(ArtifactLocation al);
 	void move(const ArtifactLocation & src,const ArtifactLocation & dst);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -195,9 +195,7 @@ public:
 
 	std::vector<ConstituentInfo> constituentsInfo;
 
-	void removeFrom(ArtifactLocation al) override;
 	bool isPart(const CArtifactInstance *supposedPart) const override;
-
 	void createConstituents();
 	void addAsConstituent(CArtifactInstance * art, const ArtifactPosition & slot);
 
@@ -323,7 +321,7 @@ public:
 
 	virtual ArtBearer::ArtBearer bearerType() const = 0;
 	virtual void putArtifact(ArtifactPosition slot, CArtifactInstance * art);
-	void removeArtifact(ArtifactPosition slot);
+	virtual void removeArtifact(ArtifactPosition slot);
 	virtual ~CArtifactSet();
 
 	template <typename Handler> void serialize(Handler &h, const int version)

@@ -1798,7 +1798,6 @@ void PutArtifact::applyGs(CGameState *gs)
 	assert(vstd::contains(gs->map->artInstances, art));
 	assert(!art->getParentNodes().empty());
 	art->putAt(al);
-	//al.hero->putArtifact(al.slot, art);
 }
 
 void EraseArtifact::applyGs(CGameState *gs)

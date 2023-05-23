@@ -856,20 +856,12 @@ bool CArtifactInstance::canBePutAt(const ArtifactLocation & al, bool assumeDestR
 
 void CArtifactInstance::putAt(ArtifactLocation al)
 {
-	assert(canBePutAt(al));
-
-	al.getHolderArtSet()->CArtifactSet::putArtifact(al.slot, this);
-	if(ArtifactUtils::isSlotEquipment(al.slot))
-		al.getHolderNode()->attachTo(*this);
+	al.getHolderArtSet()->putArtifact(al.slot, this);
 }
 
 void CArtifactInstance::removeFrom(ArtifactLocation al)
 {
-	assert(al.getHolderArtSet()->getArt(al.slot) == this);
-
 	al.getHolderArtSet()->removeArtifact(al.slot);
-	if(ArtifactUtils::isSlotEquipment(al.slot))
-		al.getHolderNode()->detachFrom(*this);
 }
 
 bool CArtifactInstance::canBeDisassembled() const
@@ -928,16 +920,6 @@ void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance * art, const 
 	assert(art->getParentNodes().size() == 1  &&  art->getParentNodes().front() == art->artType);
 	constituentsInfo.emplace_back(art, slot);
 	attachTo(*art);
-}
-
-void CCombinedArtifactInstance::removeFrom(ArtifactLocation al)
-{
-	CArtifactInstance::removeFrom(al);
-	for (auto& part : constituentsInfo)
-	{
-		if(part.slot != ArtifactPosition::PRE_FIRST)
-			part.slot = ArtifactPosition::PRE_FIRST;
-	}
 }
 
 void CCombinedArtifactInstance::deserializationFix()
