@@ -17,6 +17,8 @@
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 SHeroName::SHeroName() : heroId(-1)
 {
 }
@@ -131,3 +133,5 @@ ui8 CMapHeader::levels() const
 {
 	return (twoLevel ? 2 : 1);
 }
+
+VCMI_LIB_NAMESPACE_END

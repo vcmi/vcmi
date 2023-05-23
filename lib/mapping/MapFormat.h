@@ -10,6 +10,8 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 enum class EMapFormat : uint8_t
 {
 	INVALID = 0,
@@ -22,3 +24,5 @@ enum class EMapFormat : uint8_t
 	WOG   = 0x33, // 51
 	VCMI  = 0x64
 };
+
+VCMI_LIB_NAMESPACE_END

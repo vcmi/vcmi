@@ -25,6 +25,8 @@ CMapUndoManager::CMapUndoManager() :
 {
 }
 
+CMapUndoManager::~CMapUndoManager() = default;
+
 void CMapUndoManager::undo()
 {
 	doOperation(undoStack, redoStack, true);

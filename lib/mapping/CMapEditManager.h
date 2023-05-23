@@ -23,6 +23,7 @@ class DLL_LINKAGE CMapUndoManager : boost::noncopyable
 {
 public:
 	CMapUndoManager();
+	~CMapUndoManager();
 
 	void undo();
 	void redo();
