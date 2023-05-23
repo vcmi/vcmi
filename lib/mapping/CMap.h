@@ -258,6 +258,7 @@ enum class EMapFormat: uint8_t
 	ROE   = 0x0e, // 14
 	AB    = 0x15, // 21
 	SOD   = 0x1c, // 28
+//	CHR   = 0x1d, // 29 Heroes Chronicles, presumably - identical to SoD, untested
 	HOTA  = 0x20, // 32
 	WOG   = 0x33, // 51
 	VCMI  = 0x64

@@ -30,6 +30,7 @@ namespace CampaignVersion
 		AB = 5,
 		SoD = 6,
 		WoG = 6,
+//		Chr = 7, // Heroes Chronicles, likely identical to SoD, untested
 		VCMI = 1
 	};
 
