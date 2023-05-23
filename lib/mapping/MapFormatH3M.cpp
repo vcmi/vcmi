@@ -2005,6 +2005,10 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 	setOwnerAndValidate(position, object, reader->readPlayer());
 
+	std::optional<FactionID> faction;
+	if (objectTemplate->id == Obj::TOWN)
+		faction = FactionID(objectTemplate->subid);
+
 	bool hasName = reader->readBool();
 	if(hasName)
 		object->setNameTranslated(readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "name")));
@@ -2019,8 +2023,8 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	bool hasCustomBuildings = reader->readBool();
 	if(hasCustomBuildings)
 	{
-		reader->readBitmaskBuildings(object->builtBuildings, FactionID(objectTemplate->subid));
-		reader->readBitmaskBuildings(object->forbiddenBuildings, FactionID(objectTemplate->subid));
+		reader->readBitmaskBuildings(object->builtBuildings, faction);
+		reader->readBitmaskBuildings(object->forbiddenBuildings, faction);
 	}
 	// Standard buildings
 	else
@@ -2086,7 +2090,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 		reader->skipZero(17);
 
 		// New buildings
-		reader->readBitmaskBuildings(event.buildings, FactionID(objectTemplate->subid));
+		reader->readBitmaskBuildings(event.buildings, faction);
 
 		event.creatures.resize(7);
 		for(int i = 0; i < 7; ++i)

@@ -30,8 +30,7 @@ class MapIdentifiersH3M
 public:
 	void loadMapping(const JsonNode & mapping);
 
-	BuildingID remapBuilding(FactionID owner, BuildingID input) const;
-	BuildingID remapBuilding(BuildingID input) const;
+	BuildingID remapBuilding(std::optional<FactionID> owner, BuildingID input) const;
 	//FactionID remapFaction(FactionID input) const;
 	//CreatureID remapCreature(CreatureID input) const;
 	//HeroTypeID remapHeroType(HeroTypeID input) const;

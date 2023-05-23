@@ -56,7 +56,7 @@ public:
 				dest.insert(static_cast<Identifier>(i));
 	}
 
-	void readBitmaskBuildings(std::set<BuildingID> & dest, FactionID faction);
+	void readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction);
 
 	/** Reads bitmask to boolean vector
 	* @param dest destination vector, shall be filed with "true" values

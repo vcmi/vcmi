@@ -165,13 +165,18 @@ PlayerColor MapReaderH3M::readPlayer32()
 	return result;
 }
 
-void MapReaderH3M::readBitmaskBuildings(std::set<BuildingID> & dest, FactionID faction)
+void MapReaderH3M::readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction)
 {
 	std::set<BuildingID> h3m;
 	readBitmask(h3m, features.buildingsBytes, features.buildingsCount, false);
 
 	for (auto const & h3mEntry : h3m)
-		dest.insert(remapper.remapBuilding(faction, h3mEntry));
+	{
+		BuildingID mapped = remapper.remapBuilding(faction, h3mEntry);
+
+		if (mapped != BuildingID::NONE) // artifact merchant may be set in random town, but not present in actual town
+			dest.insert(mapped);
+	}
 }
 
 void MapReaderH3M::readBitmask(std::vector<bool> & dest, const int bytesToRead, const int objectsToRead, bool invert)

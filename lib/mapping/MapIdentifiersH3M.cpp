@@ -43,11 +43,11 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 	}
 }
 
-BuildingID MapIdentifiersH3M::remapBuilding(FactionID owner, BuildingID input) const
+BuildingID MapIdentifiersH3M::remapBuilding(std::optional<FactionID> owner, BuildingID input) const
 {
-	if (mappingFactionBuilding.count(owner))
+	if (owner.has_value() && mappingFactionBuilding.count(*owner))
 	{
-		auto submap = mappingFactionBuilding.at(owner);
+		auto submap = mappingFactionBuilding.at(*owner);
 
 		if (submap.count(input))
 			return submap.at(input);
@@ -55,16 +55,7 @@ BuildingID MapIdentifiersH3M::remapBuilding(FactionID owner, BuildingID input) c
 
 	if (mappingBuilding.count(input))
 		return mappingBuilding.at(input);
-	logGlobal->warn("Not mapped building ID %d found for faction %d!", input, owner);
-	return input;
-}
-
-BuildingID MapIdentifiersH3M::remapBuilding(BuildingID input) const
-{
-	if (mappingBuilding.count(input))
-		return mappingBuilding.at(input);
-	logGlobal->warn("Not mapped building ID %d found!");
-	return input;
+	return BuildingID::NONE;
 }
 
 VCMI_LIB_NAMESPACE_END
