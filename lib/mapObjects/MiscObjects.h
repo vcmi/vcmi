@@ -131,8 +131,8 @@ protected:
 class DLL_LINKAGE CGWitchHut : public CTeamVisited
 {
 public:
-	std::set<si32> allowedAbilities;
-	ui32 ability;
+	std::set<SecondarySkill> allowedAbilities;
+	SecondarySkill ability;
 
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;

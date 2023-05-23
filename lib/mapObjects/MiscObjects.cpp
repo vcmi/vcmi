@@ -1403,7 +1403,7 @@ void CGWitchHut::initObj(CRandomGenerator & rand)
 
 		for(int i = 0; i < defaultAllowed.size(); i++)
 			if (defaultAllowed[i] && cb->isAllowed(2, i))
-				allowedAbilities.insert(i);
+				allowedAbilities.insert(SecondarySkill(i));
 	}
 	ability = *RandomGeneratorUtil::nextItem(allowedAbilities, rand);
 }
@@ -1479,7 +1479,7 @@ void CGWitchHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		allowedAbilities.clear();
 		for(si32 i = 0; i < skillCount; ++i)
 			if(temp[i])
-				allowedAbilities.insert(i);
+				allowedAbilities.insert(SecondarySkill(i));
 	}
 }
 

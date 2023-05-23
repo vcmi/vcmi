@@ -226,7 +226,6 @@ private:
 	std::string readLocalizedString(const TextIdentifier & identifier);
 
 	void setOwnerAndValidate(const int3 & mapPosition, CGObjectInstance * object, const PlayerColor & owner);
-	void readSpells(std::set<SpellID> & dest);
 
 	void afterRead();
 

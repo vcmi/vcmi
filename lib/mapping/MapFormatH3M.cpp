@@ -214,7 +214,7 @@ void CMapLoaderH3M::readPlayerInfo()
 
 		std::set<FactionID> allowedFactions;
 
-		reader->readBitmask(allowedFactions, features.factionsBytes, features.factionsCount, false);
+		reader->readBitmaskFactions(allowedFactions, false);
 
 		const bool isFactionRandom = playerInfo.isFactionRandom = reader->readBool();
 		const bool allFactionsAllowed = isFactionRandom && allowedFactions.size() == features.factionsCount;
@@ -612,18 +612,10 @@ void CMapLoaderH3M::readAllowedHeroes()
 {
 	mapHeader->allowedHeroes = VLC->heroh->getDefaultAllowed();
 
-	uint32_t heroesCount = features.heroesCount;
-	uint32_t heroesBytes = features.heroesBytes;
-
 	if(features.levelHOTA0)
-	{
-		heroesCount = reader->readUInt32();
-		heroesBytes = (heroesCount + 7) / 8;
-	}
-
-	assert(heroesCount <= features.heroesCount);
-
-	reader->readBitmask(mapHeader->allowedHeroes, heroesBytes, heroesCount, false);
+		reader->readBitmaskHeroesSized(mapHeader->allowedHeroes, false);
+	else
+		reader->readBitmaskHeroes(mapHeader->allowedHeroes, false);
 
 	//TODO: unknown value. Check meaning? Only present in campaign maps.
 	if(features.levelAB)
@@ -687,18 +679,13 @@ void CMapLoaderH3M::readAllowedArtifacts()
 {
 	map->allowedArtifact = VLC->arth->getDefaultAllowed();
 
-	uint32_t artifactsCount = features.artifactsCount;
-	uint32_t artifactsBytes = features.artifactsBytes;
-
-	if(features.levelHOTA0)
-	{
-		artifactsCount = reader->readUInt32();
-		artifactsBytes = (artifactsCount + 7) / 8;
-	}
-	assert(artifactsCount <= features.artifactsCount);
-
 	if(features.levelAB)
-		reader->readBitmask(map->allowedArtifact, artifactsBytes, artifactsCount, true);
+	{
+		if(features.levelHOTA0)
+			reader->readBitmaskArtifactsSized(map->allowedArtifact, true);
+		else
+			reader->readBitmaskArtifacts(map->allowedArtifact, true);
+	}
 
 	// ban combo artifacts
 	if(!features.levelSOD)
@@ -737,8 +724,8 @@ void CMapLoaderH3M::readAllowedSpellsAbilities()
 
 	if(features.levelSOD)
 	{
-		reader->readBitmask(map->allowedSpell, features.spellsBytes, features.spellsCount, true);
-		reader->readBitmask(map->allowedAbilities, features.skillsBytes, features.skillsCount, true);
+		reader->readBitmaskSpells(map->allowedSpell, true);
+		reader->readBitmaskSkills(map->allowedAbilities, true);
 	}
 }
 
@@ -812,7 +799,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 
 		bool hasCustomSpells = reader->readBool();
 		if(hasCustomSpells)
-			readSpells(hero->spells);
+			reader->readBitmaskSpells(hero->spells, false);
 
 		bool hasCustomPrimSkills = reader->readBool();
 		if(hasCustomPrimSkills)
@@ -1069,7 +1056,7 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut()
 	// AB and later maps have allowed abilities defined in H3M
 	if(features.levelAB)
 	{
-		reader->readBitmask(object->allowedAbilities, features.skillsBytes, features.skillsCount, false);
+		reader->readBitmaskSkills(object->allowedAbilities, false);
 
 		if(object->allowedAbilities.size() != 1)
 		{
@@ -1077,7 +1064,7 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut()
 
 			for(int skillID = 0; skillID < VLC->skillh->size(); ++skillID)
 				if(defaultAllowed[skillID])
-					object->allowedAbilities.insert(skillID);
+					object->allowedAbilities.insert(SecondarySkill(skillID));
 		}
 	}
 	return object;
@@ -1156,7 +1143,7 @@ CGObjectInstance * CMapLoaderH3M::readMine(const int3 & mapPosition, std::shared
 	else
 	{
 		object->setOwner(PlayerColor::NEUTRAL);
-		reader->readBitmask(object->abandonedMineResources, features.resourcesBytes, features.resourcesCount, false);
+		reader->readBitmaskResources(object->abandonedMineResources, false);
 	}
 	return object;
 }
@@ -1718,7 +1705,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 			object->spells.insert(SpellID::PRESET); //placeholder "preset spells"
 
-			readSpells(object->spells);
+			reader->readBitmaskSpells(object->spells, false);
 		}
 	}
 	else if(features.levelAB)
@@ -1963,10 +1950,7 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			{
 				guard->quest->missionType = CQuest::MISSION_HOTA_HERO_CLASS;
 				std::set<HeroClassID> heroClasses;
-				uint32_t classesCount = reader->readUInt32();
-				uint32_t classesBytes = (classesCount + 7) / 8;
-
-				reader->readBitmask(heroClasses, classesBytes, classesCount, false);
+				reader->readBitmaskHeroClassesSized(heroClasses, false);
 
 				logGlobal->warn("Map '%s': Quest at %s 'Belong to one of %d classes' is not implemented!", mapName, position.toString(), heroClasses.size());
 				break;
@@ -2041,14 +2025,14 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	{
 		std::set<SpellID> spellsMask;
 
-		reader->readBitmask(spellsMask, features.spellsBytes, features.spellsCount, false);
+		reader->readBitmaskSpells(spellsMask, false);
 		std::copy(spellsMask.begin(), spellsMask.end(), std::back_inserter(object->obligatorySpells));
 	}
 
 	{
 		std::set<SpellID> spellsMask;
 
-		reader->readBitmask(spellsMask, features.spellsBytes, features.spellsCount, true);
+		reader->readBitmaskSpells(spellsMask, true);
 		std::copy(spellsMask.begin(), spellsMask.end(), std::back_inserter(object->possibleSpells));
 
 		auto defaultAllowed = VLC->spellh->getDefaultAllowed();
@@ -2177,11 +2161,6 @@ void CMapLoaderH3M::readMessageAndGuards(std::string & message, CCreatureSet * g
 
 		reader->skipZero(4);
 	}
-}
-
-void CMapLoaderH3M::readSpells(std::set<SpellID> & dest)
-{
-	reader->readBitmask(dest, features.spellsBytes, features.spellsCount, false);
 }
 
 std::string CMapLoaderH3M::readBasicString()
