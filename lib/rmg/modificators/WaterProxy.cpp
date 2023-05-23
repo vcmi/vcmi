@@ -45,7 +45,7 @@ void WaterProxy::process()
 	for([[maybe_unused]] const auto & t : zone.area().getTilesVector())
 	{
 		assert(map.isOnMap(t));
-		assert(map.map().getTile(t).terType->getId() == zone.getTerrainType());
+		assert(map.getTile(t).terType->getId() == zone.getTerrainType());
 	}
 
 	for(const auto & z : map.getZones())

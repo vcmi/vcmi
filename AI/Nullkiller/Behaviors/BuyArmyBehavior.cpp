@@ -13,7 +13,6 @@
 #include "../AIUtility.h"
 #include "../Goals/BuyArmy.h"
 #include "../Engine/Nullkiller.h"
-#include "lib/mapping/CMap.h" //for victory conditions
 #include "lib/CPathfinder.h"
 
 namespace NKAI

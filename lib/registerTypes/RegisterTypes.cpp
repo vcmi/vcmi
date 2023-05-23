@@ -14,7 +14,6 @@
 #include "../mapping/CMapInfo.h"
 #include "../StartInfo.h"
 #include "../CGameState.h"
-#include "../mapping/CMap.h"
 #include "../mapObjects/CObjectHandler.h"
 #include "../CCreatureHandler.h"
 #include "../spells/CSpellHandler.h"

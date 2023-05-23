@@ -12,7 +12,6 @@
 #include "WaterAdopter.h"
 #include "../CMapGenerator.h"
 #include "../RmgMap.h"
-#include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
 #include "../../mapObjects/CObjectClassesHandler.h"
 #include "../RmgPath.h"

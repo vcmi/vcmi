@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "AbstractGoal.h"
 #include "../AIGateway.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
 

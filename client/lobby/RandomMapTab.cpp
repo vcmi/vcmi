@@ -27,7 +27,7 @@
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
-#include "../../lib/mapping/CMap.h"
+#include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/CModHandler.h"

@@ -11,7 +11,7 @@
 #pragma once
 
 #include <QWidget>
-#include "../lib/mapping/CMap.h"
+#include "../lib/mapping/CMapHeader.h"
 #include "mapcontroller.h"
 
 namespace Ui {

@@ -11,7 +11,6 @@
 #include "CompleteQuest.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../AIGateway.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/VCMI_Lib.h"
 #include "../../../lib/CGeneralTextHandler.h"

@@ -12,7 +12,6 @@
 #include "QuestAction.h"
 #include "../../AIGateway.h"
 #include "../../Goals/CompleteQuest.h"
-#include "../../../../lib/mapping/CMap.h" //for victory conditions
 
 namespace NKAI
 {

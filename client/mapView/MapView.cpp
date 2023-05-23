@@ -30,7 +30,6 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapping/CMap.h"
 
 BasicMapView::~BasicMapView() = default;
 

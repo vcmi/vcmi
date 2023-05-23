@@ -15,7 +15,6 @@
 #include "../Goals/RecruitHero.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
-#include "lib/mapping/CMap.h" //for victory conditions
 #include "lib/mapObjects/MapObjects.h" //for victory conditions
 #include "lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"

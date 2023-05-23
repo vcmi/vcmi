@@ -29,8 +29,8 @@
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/mapping/CMap.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/mapping/CMapHeader.h"
 
 OptionsTab::OptionsTab() : humanPlayers(0)
 {

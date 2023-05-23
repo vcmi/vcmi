@@ -12,7 +12,6 @@
 #include "../Goals/ExecuteHeroChain.h"
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
-#include "lib/mapping/CMap.h" //for victory conditions
 
 namespace NKAI
 {

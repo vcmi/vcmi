@@ -21,7 +21,6 @@
 #include "../Goals/CaptureObject.h"
 #include "../Markers/DefendTown.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
-#include "lib/mapping/CMap.h" //for victory conditions
 #include "lib/CPathfinder.h"
 
 namespace NKAI

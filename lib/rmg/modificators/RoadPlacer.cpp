@@ -14,11 +14,9 @@
 #include "ObstaclePlacer.h"
 #include "../Functions.h"
 #include "../CMapGenerator.h"
-#include "../RmgMap.h"
 #include "../threadpool/MapProxy.h"
-#include "../../mapping/CMapEditManager.h"
 #include "../../CModHandler.h"
-#include "../RmgPath.h"
+#include "../../mapping/CMapEditManager.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

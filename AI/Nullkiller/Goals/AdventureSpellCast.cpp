@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "AdventureSpellCast.h"
 #include "../AIGateway.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
 
 namespace NKAI

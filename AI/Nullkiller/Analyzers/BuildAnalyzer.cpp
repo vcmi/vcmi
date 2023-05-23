@@ -9,7 +9,6 @@
 */
 #include "../StdInc.h"
 #include "../Engine/Nullkiller.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../Engine/Nullkiller.h"
 
 namespace NKAI

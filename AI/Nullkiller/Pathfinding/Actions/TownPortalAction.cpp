@@ -10,7 +10,6 @@
 
 #include "StdInc.h"
 #include "../../Goals/AdventureSpellCast.h"
-#include "../../../../lib/mapping/CMap.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "TownPortalAction.h"
 

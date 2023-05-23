@@ -12,7 +12,7 @@
 
 #include "CGameHandler.h"
 #include "../lib/IGameCallback.h"
-#include "../lib/mapping/CMap.h"
+#include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/CGameState.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/battle/BattleAction.h"

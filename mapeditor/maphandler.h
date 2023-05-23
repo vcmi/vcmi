@@ -12,7 +12,7 @@
 //code is copied from vcmiclient/mapHandler.h with minimal changes
 
 #include "StdInc.h"
-#include "../lib/mapping/CMap.h"
+#include "../lib/int3.h"
 #include "Animation.h"
 
 #include <QImage>
@@ -22,7 +22,9 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
+class CGHeroInstance;
 class CGBoat;
+class CMap;
 class PlayerColor;
 
 VCMI_LIB_NAMESPACE_END

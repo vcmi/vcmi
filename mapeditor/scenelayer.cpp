@@ -12,6 +12,7 @@
 #include "scenelayer.h"
 #include "mainwindow.h"
 #include "../lib/mapping/CMapEditManager.h"
+#include "../lib/mapping/CMap.h"
 #include "inspector/inspector.h"
 #include "mapview.h"
 #include "mapcontroller.h"

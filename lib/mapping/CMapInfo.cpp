@@ -14,7 +14,7 @@
 #include "../StartInfo.h"
 #include "../GameConstants.h"
 #include "CMapService.h"
-#include "CMap.h"
+#include "CMapHeader.h"
 #include "CCampaignHandler.h"
 #include "MapFormat.h"
 

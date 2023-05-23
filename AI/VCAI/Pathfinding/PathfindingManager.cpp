@@ -13,7 +13,8 @@
 #include "AIPathfinderConfig.h"
 #include "../Goals/Goals.h"
 #include "../../../lib/CGameInfoCallback.h"
-#include "../../../lib/mapping/CMap.h"
+#include "../../../lib/mapping/CMapDefines.h"
+#include "../../../lib/mapObjects/CQuest.h"
 
 PathfindingManager::PathfindingManager(CPlayerSpecificInfoCallback * CB, VCAI * AI)
 	: ai(AI), cb(CB)

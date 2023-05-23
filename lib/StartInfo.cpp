@@ -12,10 +12,11 @@
 
 #include "CGeneralTextHandler.h"
 #include "CModHandler.h"
+#include "VCMI_Lib.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapping/CMapInfo.h"
 #include "mapping/CCampaignHandler.h"
-#include "mapping/CMap.h"
+#include "mapping/CMapHeader.h"
 #include "mapping/CMapService.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

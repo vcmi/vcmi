@@ -19,7 +19,6 @@
 #include "ConnectionsPlacer.h"
 #include "TownPlacer.h"
 #include "MinePlacer.h"
-#include "TreasurePlacer.h"
 #include "QuestArtifactPlacer.h"
 #include "../../CCreatureHandler.h"
 #include "../../mapObjects/CommonConstructors.h"

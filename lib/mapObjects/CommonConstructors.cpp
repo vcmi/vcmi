@@ -14,7 +14,7 @@
 #include "CGHeroInstance.h"
 #include "CBank.h"
 #include "../TerrainHandler.h"
-#include "../mapping/CMap.h"
+#include "../mapping/CMapDefines.h"
 #include "../CHeroHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CCreatureHandler.h"

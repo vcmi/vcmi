@@ -12,7 +12,7 @@
 #include "MapReaderH3M.h"
 
 #include "../filesystem/CBinaryReader.h"
-#include "CMap.h"
+#include "../int3.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

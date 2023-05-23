@@ -14,7 +14,6 @@
 #include "../../AIGateway.h"
 #include "../Actions/BoatActions.h"
 #include "../../../../CCallback.h"
-#include "../../../../lib/mapping/CMap.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 
 namespace NKAI

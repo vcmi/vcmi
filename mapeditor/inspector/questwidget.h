@@ -11,7 +11,6 @@
 #include "../StdInc.h"
 #include <QDialog>
 #include "../lib/mapObjects/CQuest.h"
-#include "../lib/mapping/CMap.h"
 
 namespace Ui {
 class QuestWidget;

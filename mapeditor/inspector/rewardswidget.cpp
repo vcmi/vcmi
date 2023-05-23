@@ -16,6 +16,7 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/StringConstants.h"
+#include "../lib/mapping/CMap.h"
 
 RewardsWidget::RewardsWidget(const CMap & m, CGPandoraBox & p, QWidget *parent) :
 	QDialog(parent),

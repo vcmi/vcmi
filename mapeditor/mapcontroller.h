@@ -12,8 +12,13 @@
 
 #include "maphandler.h"
 #include "mapview.h"
-#include "../lib/mapping/CMap.h"
-#include "../lib/rmg/modificators/ObstaclePlacer.h"
+
+#include "../lib/CModVersion.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+using ModCompatibilityInfo = std::map<std::string, CModVersion>;
+class EditorObstaclePlacer;
+VCMI_LIB_NAMESPACE_END
 
 class MainWindow;
 class MapController

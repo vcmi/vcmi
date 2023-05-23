@@ -15,7 +15,8 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
+#include "../../../lib/mapping/CMapHeader.h" //for victory conditions
+#include "../../../lib/mapObjects/CGTownInstance.h"
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
 

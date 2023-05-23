@@ -14,6 +14,8 @@
 namespace NKAI
 {
 
+struct AIPath;
+
 struct HitMapInfo
 {
 	static HitMapInfo NoTreat;

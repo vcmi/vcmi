@@ -42,7 +42,6 @@
 #include "../lib/StartInfo.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/mapping/CCampaignHandler.h"
-#include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/rmg/CMapGenOptions.h"

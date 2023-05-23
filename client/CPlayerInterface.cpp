@@ -53,13 +53,14 @@
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h" // For displaying correct UI when interacting with objects
+#include "../lib/mapObjects/CGTownInstance.h"
+#include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/CStack.h"
 #include "../lib/JsonNode.h"
 #include "CMusicHandler.h"
 #include "../lib/CondSh.h"
 #include "../lib/NetPacksBase.h"
 #include "../lib/NetPacks.h"//todo: remove
-#include "../lib/mapping/CMap.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/StartInfo.h"
