@@ -14,36 +14,29 @@
 
 #include "CGameInfo.h"
 #include "mainmenu/CMainMenu.h"
-#include "mainmenu/CPrologEpilogVideo.h"
 #include "gui/CursorHandler.h"
+#include "eventsSDL/InputHandler.h"
 #include "CPlayerInterface.h"
 #include "CVideoHandler.h"
 #include "CMusicHandler.h"
 #include "gui/CGuiHandler.h"
 #include "gui/WindowHandler.h"
 #include "CServerHandler.h"
-#include "gui/NotificationHandler.h"
 #include "ClientCommandManager.h"
 #include "windows/CMessage.h"
 #include "render/IScreenHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/CConsoleHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/mapping/CCampaignHandler.h"
+#include "../lib/CConfigHandler.h"
 
 #include "../lib/logging/CBasicLogConfigurator.h"
 
 #include <boost/program_options.hpp>
 #include <vstd/StringUtils.h>
-#include <SDL_events.h>
-#include <SDL_hints.h>
-#include <SDL_main.h>
 
-#ifdef VCMI_WINDOWS
-#include <SDL_syswm.h>
-#endif
+#include <SDL_main.h>
 
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
@@ -59,9 +52,6 @@ namespace po_style = boost::program_options::command_line_style;
 namespace bfs = boost::filesystem;
 
 extern boost::thread_specific_ptr<bool> inGuiThread;
-
-std::queue<SDL_Event> SDLEventsQueue;
-boost::mutex eventsM;
 
 static po::variables_map vm;
 
@@ -325,19 +315,6 @@ int main(int argc, char * argv[])
 		logGlobal->info("Initializing screen and sound handling: %d ms", pomtime.getDiff());
 	}
 
-#ifdef VCMI_MAC
-	// Ctrl+click should be treated as a right click on Mac OS X
-	SDL_SetHint(SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK, "1");
-#endif
-
-#ifdef SDL_HINT_MOUSE_TOUCH_EVENTS
-	if(GH.isPointerRelativeMode)
-	{
-		SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
-		SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
-	}
-#endif
-
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
 	boost::thread loading(init);
@@ -469,147 +446,18 @@ void playIntro()
 	}
 }
 
-static void handleEvent(SDL_Event & ev)
-{
-	if((ev.type==SDL_QUIT) ||(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))
-	{
-#ifdef VCMI_ANDROID
-		handleQuit(false);
-#else
-		handleQuit();
-#endif
-		return;
-	}
-#ifdef VCMI_ANDROID
-	else if (ev.type == SDL_KEYDOWN && ev.key.keysym.scancode == SDL_SCANCODE_AC_BACK)
-	{
-		handleQuit(true);
-	}
-#endif
-	else if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
-	{
-		Settings full = settings.write["video"]["fullscreen"];
-		full->Bool() = !full->Bool();
-		return;
-	}
-	else if(ev.type == SDL_USEREVENT)
-	{
-		switch(static_cast<EUserEvent>(ev.user.code))
-		{
-		case EUserEvent::FORCE_QUIT:
-			{
-				handleQuit(false);
-				return;
-			}
-			break;
-		case EUserEvent::RETURN_TO_MAIN_MENU:
-			{
-				CSH->endGameplay();
-				GH.defActionsDef = 63;
-				CMM->menu->switchToTab("main");
-			}
-			break;
-		case EUserEvent::RESTART_GAME:
-			{
-				CSH->sendRestartGame();
-			}
-			break;
-		case EUserEvent::CAMPAIGN_START_SCENARIO:
-			{
-				CSH->campaignServerRestartLock.set(true);
-				CSH->endGameplay();
-				auto ourCampaign = std::shared_ptr<CCampaignState>(reinterpret_cast<CCampaignState *>(ev.user.data1));
-				auto & epilogue = ourCampaign->camp->scenarios[ourCampaign->mapsConquered.back()].epilog;
-				auto finisher = [=]()
-				{
-					if(ourCampaign->mapsRemaining.size())
-					{
-						GH.windows().pushWindow(CMM);
-						GH.windows().pushWindow(CMM->menu);
-						CMM->openCampaignLobby(ourCampaign);
-					}
-				};
-				if(epilogue.hasPrologEpilog)
-				{
-					GH.windows().createAndPushWindow<CPrologEpilogVideo>(epilogue, finisher);
-				}
-				else
-				{
-					CSH->campaignServerRestartLock.waitUntil(false);
-					finisher();
-				}
-			}
-			break;
-		case EUserEvent::RETURN_TO_MENU_LOAD:
-			CSH->endGameplay();
-			GH.defActionsDef = 63;
-			CMM->menu->switchToTab("load");
-			break;
-		case EUserEvent::FULLSCREEN_TOGGLED:
-			{
-				boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
-				GH.onScreenResize();
-				break;
-			}
-		default:
-			logGlobal->error("Unknown user event. Code %d", ev.user.code);
-			break;
-		}
-
-		return;
-	}
-	else if(ev.type == SDL_WINDOWEVENT)
-	{
-		switch (ev.window.event) {
-		case SDL_WINDOWEVENT_RESTORED:
-#ifndef VCMI_IOS
-			{
-				boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
-				GH.onScreenResize();
-			}
-#endif
-			break;
-		}
-		return;
-	}
-	else if(ev.type == SDL_SYSWMEVENT)
-	{
-		if(!settings["session"]["headless"].Bool() && settings["general"]["notifications"].Bool())
-		{
-			NotificationHandler::handleSdlEvent(ev);
-		}
-	}
-
-	//preprocessing
-	if(ev.type == SDL_MOUSEMOTION)
-	{
-		CCS->curh->cursorMove(ev.motion.x, ev.motion.y);
-	}
-
-	{
-		boost::unique_lock<boost::mutex> lock(eventsM);
-		SDLEventsQueue.push(ev);
-	}
-}
-
 static void mainLoop()
 {
 	SettingsListener resChanged = settings.listen["video"]["resolution"];
 	SettingsListener fsChanged = settings.listen["video"]["fullscreen"];
-	resChanged([](const JsonNode &newState){  CGuiHandler::pushUserEvent(EUserEvent::FULLSCREEN_TOGGLED); });
-	fsChanged([](const JsonNode &newState){  CGuiHandler::pushUserEvent(EUserEvent::FULLSCREEN_TOGGLED); });
+	resChanged([](const JsonNode &newState){  GH.pushUserEvent(EUserEvent::FULLSCREEN_TOGGLED); });
+	fsChanged([](const JsonNode &newState){  GH.pushUserEvent(EUserEvent::FULLSCREEN_TOGGLED); });
 
 	inGuiThread.reset(new bool(true));
 
 	while(1) //main SDL events loop
 	{
-		SDL_Event ev;
-
-		while(1 == SDL_PollEvent(&ev))
-		{
-			handleEvent(ev);
-		}
-
+		GH.input().fetchEvents();
 		CSH->applyPacksOnLobbyScreen();
 		GH.renderFrame();
 	}
@@ -667,15 +515,7 @@ void handleQuit(bool ask)
 	if(CSH->client && LOCPLINT && ask)
 	{
 		CCS->curh->set(Cursor::Map::POINTER);
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], [](){
-			// Workaround for assertion failure on exit:
-			// handleQuit() is alway called during SDL event processing
-			// during which, eventsM is kept locked
-			// this leads to assertion failure if boost::mutex is in locked state
-			eventsM.unlock();
-
-			quitApplication();
-		}, nullptr);
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
 	}
 	else
 	{

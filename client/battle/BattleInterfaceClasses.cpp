@@ -25,6 +25,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
@@ -692,7 +693,7 @@ std::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
 {
 	for(const auto & stackBox : stackBoxes)
 	{
-		if(stackBox->hovered || stackBox->mouseState(MouseButton::RIGHT))
+		if(stackBox->isHovered() || stackBox->isMouseButtonPressed(MouseButton::RIGHT))
 		{
 			return stackBox->getBoundUnitID();
 		}

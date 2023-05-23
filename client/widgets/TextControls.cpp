@@ -446,7 +446,7 @@ void CGStatusBar::clickLeft(tribool down, bool previousState)
 {
 	if(!down)
 	{
-		if(LOCPLINT && LOCPLINT->cingconsole->active)
+		if(LOCPLINT && LOCPLINT->cingconsole->isActive())
 			LOCPLINT->cingconsole->startEnteringText();
 	}
 }
@@ -574,7 +574,6 @@ void CTextInput::keyPressed(EShortcut key)
 	if(key == EShortcut::GLOBAL_MOVE_FOCUS)
 	{
 		moveFocus();
-		GH.breakEventHandling();
 		return;
 	}
 
@@ -620,6 +619,9 @@ void CTextInput::setText(const std::string & nText, bool callCb)
 bool CTextInput::captureThisKey(EShortcut key)
 {
 	if(key == EShortcut::GLOBAL_RETURN)
+		return false;
+
+	if (!focus)
 		return false;
 
 	return true;
@@ -749,7 +751,7 @@ void CFocusable::moveFocus()
 		if(i == focusables.end())
 			i = focusables.begin();
 
-		if((*i)->active)
+		if((*i)->isActive())
 		{
 			(*i)->giveFocus();
 			break;

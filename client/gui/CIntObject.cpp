@@ -17,20 +17,12 @@
 #include "../windows/CMessage.h"
 #include "../CMT.h"
 
-#include <SDL_pixels.h>
-
-IShowActivatable::IShowActivatable()
-{
-	type = 0;
-}
-
 CIntObject::CIntObject(int used_, Point pos_):
 	parent_m(nullptr),
-	active_m(0),
 	parent(parent_m),
-	active(active_m)
+	type(0)
 {
-	hovered = captureAllKeys = strongInterest = false;
+	captureAllKeys = false;
 	used = used_;
 
 	recActions = defActions = GH.defActionsDef;
@@ -46,7 +38,7 @@ CIntObject::CIntObject(int used_, Point pos_):
 
 CIntObject::~CIntObject()
 {
-	if(active_m)
+	if(isActive())
 		deactivate();
 
 	while(!children.empty())
@@ -76,25 +68,16 @@ void CIntObject::showAll(SDL_Surface * to)
 		for(auto & elem : children)
 			if(elem->recActions & SHOWALL)
 				elem->showAll(to);
-
 	}
 }
 
 void CIntObject::activate()
 {
-	if (active_m)
-	{
-		if ((used | GENERAL) == active_m)
-			return;
-		else
-		{
-			logGlobal->warn("Warning: IntObject re-activated with mismatching used and active");
-			deactivate(); //FIXME: better to avoid such possibility at all
-		}
-	}
+	if (isActive())
+		return;
 
-	active_m |= GENERAL;
-	activate(used);
+	activateEvents(used | GENERAL);
+	assert(isActive());
 
 	if(defActions & ACTIVATE)
 		for(auto & elem : children)
@@ -102,20 +85,14 @@ void CIntObject::activate()
 				elem->activate();
 }
 
-void CIntObject::activate(ui16 what)
-{
-	GH.handleElementActivate(this, what);
-}
-
 void CIntObject::deactivate()
 {
-	if (!active_m)
+	if (!isActive())
 		return;
 
-	active_m &= ~ GENERAL;
-	deactivate(active_m);
+	deactivateEvents(ALL);
 
-	assert(!active_m);
+	assert(!isActive());
 
 	if(defActions & DEACTIVATE)
 		for(auto & elem : children)
@@ -123,65 +100,33 @@ void CIntObject::deactivate()
 				elem->deactivate();
 }
 
-void CIntObject::deactivate(ui16 what)
-{
-	GH.handleElementDeActivate(this, what);
-}
-
-void CIntObject::click(MouseButton btn, tribool down, bool previousState)
-{
-	switch(btn)
-	{
-	default:
-	case MouseButton::LEFT:
-		clickLeft(down, previousState);
-		break;
-	case MouseButton::MIDDLE:
-		clickMiddle(down, previousState);
-		break;
-	case MouseButton::RIGHT:
-		clickRight(down, previousState);
-		break;
-	}
-}
-
-void CIntObject::printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst)
-{
-	graphics->fonts[font]->renderTextLeft(dst, text, kolor, Point(pos.x + x, pos.y + y));
-}
-
-void CIntObject::printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst)
-{
-	printAtMiddleLoc(text, Point(x,y), font, kolor, dst);
-}
-
-void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color kolor, SDL_Surface * dst)
+void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, const SDL_Color & kolor, SDL_Surface * dst)
 {
 	graphics->fonts[font]->renderTextCenter(dst, text, kolor, pos.topLeft() + p);
 }
 
-void CIntObject::printAtMiddleWBLoc( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst)
+void CIntObject::printAtMiddleWBLoc( const std::string & text, const Point &p, EFonts font, int charpr, const SDL_Color & kolor, SDL_Surface * dst)
 {
-	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, charpr, font), kolor, Point(pos.x + x, pos.y + y));
+	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, charpr, font), kolor, pos.topLeft() + p);
 }
 
 void CIntObject::addUsedEvents(ui16 newActions)
 {
-	if (active_m)
-		activate(~used & newActions);
+	if (isActive())
+		activateEvents(~used & newActions);
 	used |= newActions;
 }
 
 void CIntObject::removeUsedEvents(ui16 newActions)
 {
-	if (active_m)
-		deactivate(used & newActions);
+	if (isActive())
+		deactivateEvents(used & newActions);
 	used &= ~newActions;
 }
 
 void CIntObject::disable()
 {
-	if(active)
+	if(isActive())
 		deactivate();
 
 	recActions = DISPOSE;
@@ -189,7 +134,7 @@ void CIntObject::disable()
 
 void CIntObject::enable()
 {
-	if(!active_m && (!parent_m || parent_m->active))
+	if(!isActive() && (!parent_m || parent_m->isActive()))
 	{
 		activate();
 		redraw();
@@ -246,9 +191,9 @@ void CIntObject::addChild(CIntObject * child, bool adjustPosition)
 	if(adjustPosition)
 		child->moveBy(pos.topLeft(), adjustPosition);
 
-	if (!active && child->active)
+	if (!isActive() && child->isActive())
 		child->deactivate();
-	if (active && !child->active)
+	if (isActive()&& !child->isActive())
 		child->activate();
 }
 
@@ -273,7 +218,7 @@ void CIntObject::redraw()
 {
 	//currently most of calls come from active objects so this check won't affect them
 	//it should fix glitches when called by inactive elements located below active window
-	if (active)
+	if (isActive())
 	{
 		if (parent_m && (type & REDRAW_PARENT))
 		{
@@ -286,6 +231,11 @@ void CIntObject::redraw()
 				showAll(screen);
 		}
 	}
+}
+
+bool CIntObject::isInside(const Point & position)
+{
+	return pos.isInside(position);
 }
 
 void CIntObject::onScreenResize()
@@ -320,6 +270,7 @@ bool CIntObject::captureThisKey(EShortcut key)
 
 CKeyShortcut::CKeyShortcut()
 	: assignedKey(EShortcut::NONE)
+	, shortcutPressed(false)
 {}
 
 CKeyShortcut::CKeyShortcut(EShortcut key)
@@ -329,23 +280,19 @@ CKeyShortcut::CKeyShortcut(EShortcut key)
 
 void CKeyShortcut::keyPressed(EShortcut key)
 {
-	if( assignedKey == key && assignedKey != EShortcut::NONE)
+	if( assignedKey == key && assignedKey != EShortcut::NONE && !shortcutPressed)
 	{
-		bool prev = mouseState(MouseButton::LEFT);
-		updateMouseState(MouseButton::LEFT, true);
-		clickLeft(true, prev);
-
+		shortcutPressed = true;
+		clickLeft(true, false);
 	}
 }
 
 void CKeyShortcut::keyReleased(EShortcut key)
 {
-	if( assignedKey == key && assignedKey != EShortcut::NONE)
+	if( assignedKey == key && assignedKey != EShortcut::NONE && shortcutPressed)
 	{
-		bool prev = mouseState(MouseButton::LEFT);
-		updateMouseState(MouseButton::LEFT, false);
-		clickLeft(false, prev);
-
+		shortcutPressed = false;
+		clickLeft(false, true);
 	}
 }
 
@@ -361,6 +308,3 @@ void WindowBase::close()
 		logGlobal->error("Only top interface must be closed");
 	GH.windows().popWindows(1);
 }
-
-IStatusBar::~IStatusBar()
-{}

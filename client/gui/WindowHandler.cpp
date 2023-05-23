@@ -109,12 +109,8 @@ void WindowHandler::simpleRedraw()
 void WindowHandler::onScreenResize()
 {
 	for(const auto & entry : windowsStack)
-	{
-		auto intObject = std::dynamic_pointer_cast<CIntObject>(entry);
+		entry->onScreenResize();
 
-		if(intObject)
-			intObject->onScreenResize();
-	}
 	totalRedraw();
 }
 

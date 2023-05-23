@@ -353,7 +353,7 @@ void BattleStacksController::initializeBattleAnimations()
 
 void BattleStacksController::tickFrameBattleAnimations(uint32_t msPassed)
 {
-	for (auto stack : owner.curInt->cb->battleGetAllStacks(false))
+	for (auto stack : owner.curInt->cb->battleGetAllStacks(true))
 	{
 		if (stackAnimation.find(stack->unitId()) == stackAnimation.end()) //e.g. for summoned but not yet handled stacks
 			continue;

@@ -534,7 +534,7 @@ void CTavernWindow::show(SDL_Surface * to)
 			recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[3]) % sel->h->getNameTranslated() % sel->h->type->heroClass->getNameTranslated()));
 		}
 
-		printAtMiddleWBLoc(sel->description, 146, 395, FONT_SMALL, 200, Colors::WHITE, to);
+		printAtMiddleWBLoc(sel->description, Point(146, 395), FONT_SMALL, 200, Colors::WHITE, to);
 		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,Colors::BRIGHT_YELLOW);
 	}
 }

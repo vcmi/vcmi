@@ -17,6 +17,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
@@ -131,7 +132,7 @@ void CMinimap::moveAdvMapSelection()
 	int3 newLocation = pixelToTile(GH.getCursorPosition() - pos.topLeft());
 	adventureInt->centerOnTile(newLocation);
 
-	if (!(adventureInt->active & GENERAL))
+	if (!(adventureInt->isActive()))
 		GH.windows().totalRedraw(); //redraw this as well as inactive adventure map
 	else
 		redraw();//redraw only this
@@ -159,7 +160,7 @@ void CMinimap::hover(bool on)
 
 void CMinimap::mouseMoved(const Point & cursorPosition)
 {
-	if(mouseState(MouseButton::LEFT))
+	if(isMouseButtonPressed(MouseButton::LEFT))
 		moveAdvMapSelection();
 }
 

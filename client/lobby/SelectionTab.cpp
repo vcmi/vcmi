@@ -277,7 +277,7 @@ void SelectionTab::clickLeft(tribool down, bool previousState)
 		}
 #ifdef VCMI_IOS
 		// focus input field if clicked inside it
-		else if(inputName && inputName->active && inputNameRect.isInside(GH.getCursorPosition()))
+		else if(inputName && inputName->isActive() && inputNameRect.isInside(GH.getCursorPosition()))
 			inputName->giveFocus();
 #endif
 	}
@@ -408,7 +408,7 @@ void SelectionTab::select(int position)
 
 	rememberCurrentSelection();
 
-	if(inputName && inputName->active)
+	if(inputName && inputName->isActive())
 	{
 		auto filename = *CResourceHandler::get("local")->getResourceName(ResourceID(curItems[py]->fileURI, EResType::CLIENT_SAVEGAME));
 		inputName->setText(filename.stem().string());

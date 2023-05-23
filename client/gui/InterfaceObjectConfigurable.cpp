@@ -258,7 +258,7 @@ EShortcut InterfaceObjectConfigurable::readHotkey(const JsonNode & config) const
 		return EShortcut::NONE;
 	}
 
-	EShortcut result = GH.shortcutsHandler().findShortcut(config.String());
+	EShortcut result = GH.shortcuts().findShortcut(config.String());
 	if (result == EShortcut::NONE)
 		logGlobal->error("Invalid hotkey '%s' in interface configuration!", config.String());
 	return result;;

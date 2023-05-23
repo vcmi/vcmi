@@ -238,7 +238,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 		if(artSetPtr)
 		{
 			const auto hero = artSetPtr->getHero();
-			if(artSetPtr->active)
+			if(artSetPtr->isActive())
 			{
 				if(pickedArtInst)
 				{

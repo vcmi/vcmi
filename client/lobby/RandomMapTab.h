@@ -70,7 +70,6 @@ class TemplatesDropBox : public InterfaceObjectConfigurable
 public:
 	TemplatesDropBox(RandomMapTab & randomMapTab, int3 size);
 	
-	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void setTemplate(const CRmgTemplate *);
 	

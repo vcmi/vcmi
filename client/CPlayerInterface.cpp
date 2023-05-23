@@ -22,6 +22,7 @@
 #include "battle/BattleWindow.h"
 #include "../CCallback.h"
 #include "windows/CCastleInterface.h"
+#include "eventsSDL/InputHandler.h"
 #include "gui/CursorHandler.h"
 #include "windows/CKingdomInterface.h"
 #include "CGameInfo.h"
@@ -74,10 +75,8 @@
 #include "CServerHandler.h"
 // FIXME: only needed for CGameState::mutex
 #include "../lib/CGameState.h"
-#include "gui/NotificationHandler.h"
+#include "eventsSDL/NotificationHandler.h"
 #include "adventureMap/CInGameConsole.h"
-
-#include <SDL_events.h>
 
 // The macro below is used to mark functions that are called by client when game state changes.
 // They all assume that CPlayerInterface::pim mutex is locked.
@@ -96,8 +95,6 @@
 		return;						\
 	RETURN_IF_QUICK_COMBAT
 
-extern std::queue<SDL_Event> SDLEventsQueue;
-extern boost::mutex eventsM;
 boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
 
 CPlayerInterface * LOCPLINT;
@@ -206,7 +203,7 @@ void CPlayerInterface::performAutosave()
 	}
 	else if(frequency > 0 && cb->getDate() % frequency == 0)
 	{
-		LOCPLINT->cb->save("Saves/" + prefix + "Autosave_" + std::to_string(autosaveCount++ + 1));
+		cb->save("Saves/" + prefix + "Autosave_" + std::to_string(autosaveCount++ + 1));
 		autosaveCount %= 5;
 	}
 }
@@ -215,8 +212,6 @@ void CPlayerInterface::yourTurn()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	{
-		boost::unique_lock<boost::mutex> lock(eventsM); //block handling events until interface is ready
-
 		LOCPLINT = this;
 		GH.curInt = this;
 
@@ -372,22 +367,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 
 	//check if user cancelled movement
 	{
-		boost::unique_lock<boost::mutex> un(eventsM);
-		while(!SDLEventsQueue.empty())
-		{
-			SDL_Event ev = SDLEventsQueue.front();
-			SDLEventsQueue.pop();
-			switch(ev.type)
-			{
-			case SDL_MOUSEBUTTONDOWN:
-				stillMoveHero.setn(STOP_MOVE);
-				break;
-			case SDL_KEYDOWN:
-				if (ev.key.keysym.sym < SDLK_F1  ||  ev.key.keysym.sym > SDLK_F15)
-					stillMoveHero.setn(STOP_MOVE);
-				break;
-			}
-		}
+		if (GH.input().ignoreEventsUntilInput())
+			stillMoveHero.setn(STOP_MOVE);
 	}
 
 	if (stillMoveHero.get() == WAITING_MOVE)
@@ -1478,7 +1459,6 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 		if(CSH->howManyPlayerInterfaces() > 1 && LOCPLINT != this && LOCPLINT->makingTurn == false)
 		{
 			//one of our players who isn't last in order got attacked not by our another player (happens for example in hotseat mode)
-			boost::unique_lock<boost::mutex> lock(eventsM); //TODO: copied from yourTurn, no idea if it's needed
 			LOCPLINT = this;
 			GH.curInt = this;
 			adventureInt->onCurrentPlayerChanged(playerID);
@@ -1513,7 +1493,6 @@ void CPlayerInterface::update()
 	assert(adventureInt);
 
 	// Handles mouse and key input
-	GH.updateTime();
 	GH.handleEvents();
 	GH.windows().simpleRedraw();
 }
@@ -1872,15 +1851,11 @@ bool CPlayerInterface::capturedAllEvents()
 		return true;
 	}
 
-	bool needToLockAdventureMap = adventureInt && adventureInt->active && CGI->mh->hasOngoingAnimations();
+	bool needToLockAdventureMap = adventureInt && adventureInt->isActive() && CGI->mh->hasOngoingAnimations();
 
 	if (ignoreEvents || needToLockAdventureMap || isAutoFightOn)
 	{
-		boost::unique_lock<boost::mutex> un(eventsM);
-		while(!SDLEventsQueue.empty())
-		{
-			SDLEventsQueue.pop();
-		}
+		GH.input().ignoreEventsUntilInput();
 		return true;
 	}
 

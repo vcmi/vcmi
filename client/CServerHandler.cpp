@@ -843,7 +843,7 @@ void CServerHandler::threadHandleConnection()
 			if(client)
 			{
 				state = EClientState::DISCONNECTING;
-				CGuiHandler::pushUserEvent(EUserEvent::RETURN_TO_MAIN_MENU);
+				GH.pushUserEvent(EUserEvent::RETURN_TO_MAIN_MENU);
 			}
 			else
 			{

@@ -52,7 +52,7 @@ AdventureMapInterface::AdventureMapInterface():
 	pos.x = pos.y = 0;
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
-	strongInterest = true; // handle all mouse move events to prevent dead mouse move space in fullscreen mode
+	setMoveEventStrongInterest(true); // handle all mouse move events to prevent dead mouse move space in fullscreen mode
 
 	shortcuts = std::make_shared<AdventureMapShortcuts>(*this);
 
@@ -179,7 +179,7 @@ void AdventureMapInterface::handleMapScrollingUpdate(uint32_t timePassed)
 	Point scrollDelta = scrollDirection * scrollDistance;
 
 	bool cursorInScrollArea = scrollDelta != Point(0,0);
-	bool scrollingActive = cursorInScrollArea && active && shortcuts->optionSidePanelActive() && !scrollingWasBlocked;
+	bool scrollingActive = cursorInScrollArea && isActive() && shortcuts->optionSidePanelActive() && !scrollingWasBlocked;
 	bool scrollingBlocked = GH.isKeyboardCtrlDown();
 
 	if (!scrollingWasActive && scrollingBlocked)
@@ -323,19 +323,19 @@ void AdventureMapInterface::setState(EAdventureState state)
 
 void AdventureMapInterface::adjustActiveness()
 {
-	bool widgetMustBeActive = active && shortcuts->optionSidePanelActive();
-	bool mapViewMustBeActive = active && (shortcuts->optionMapViewActive());
+	bool widgetMustBeActive = isActive() && shortcuts->optionSidePanelActive();
+	bool mapViewMustBeActive = isActive() && (shortcuts->optionMapViewActive());
 
-	if (widgetMustBeActive && !widget->active)
+	if (widgetMustBeActive && !widget->isActive())
 		widget->activate();
 
-	if (!widgetMustBeActive && widget->active)
+	if (!widgetMustBeActive && widget->isActive())
 		widget->deactivate();
 
-	if (mapViewMustBeActive && !widget->getMapView()->active)
+	if (mapViewMustBeActive && !widget->getMapView()->isActive())
 		widget->getMapView()->activate();
 
-	if (!mapViewMustBeActive && widget->getMapView()->active)
+	if (!mapViewMustBeActive && widget->getMapView()->isActive())
 		widget->getMapView()->deactivate();
 }
 

@@ -295,7 +295,6 @@ void CSpellWindow::fLcornerb()
 		setCurrentPage(currentPage - 1);
 	}
 	computeSpellsPerArea();
-	GH.breakEventHandling();
 }
 
 void CSpellWindow::fRcornerb()
@@ -306,7 +305,6 @@ void CSpellWindow::fRcornerb()
 		setCurrentPage(currentPage + 1);
 	}
 	computeSpellsPerArea();
-	GH.breakEventHandling();
 }
 
 void CSpellWindow::show(SDL_Surface * to)

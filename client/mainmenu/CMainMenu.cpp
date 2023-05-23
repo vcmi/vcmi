@@ -233,7 +233,7 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 	if(posy < 0)
 		posy = pos.h + posy;
 
-	EShortcut shortcut = GH.shortcutsHandler().findShortcut(button["shortcut"].String());
+	EShortcut shortcut = GH.shortcuts().findShortcut(button["shortcut"].String());
 
 	auto result = std::make_shared<CButton>(Point(posx, posy), button["name"].String(), help, command, shortcut);
 
@@ -333,7 +333,6 @@ void CMainMenu::update()
 	}
 
 	// Handles mouse and key input
-	GH.updateTime();
 	GH.handleEvents();
 
 	// check for null othervice crash on finishing a campaign

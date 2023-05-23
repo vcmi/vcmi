@@ -9,48 +9,38 @@
  */
 #pragma once
 
-#include "MouseButton.h"
-#include "../../lib/Point.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
-
 template <typename T> struct CondSh;
+class Point;
 class Rect;
-
 VCMI_LIB_NAMESPACE_END
 
-union SDL_Event;
-struct SDL_MouseMotionEvent;
-
+enum class MouseButton;
 class ShortcutHandler;
 class FramerateManager;
 class IStatusBar;
 class CIntObject;
 class IUpdateable;
 class IShowActivatable;
-class IShowable;
 class IScreenHandler;
 class WindowHandler;
+class EventDispatcher;
+class InputHandler;
 
-// TODO: event handling need refactoring
+// TODO: event handling need refactoring. Perhaps convert into delayed function call?
 enum class EUserEvent
 {
-	/*CHANGE_SCREEN_RESOLUTION = 1,*/
-	RETURN_TO_MAIN_MENU = 2,
-	//STOP_CLIENT = 3,
-	RESTART_GAME = 4,
+	RETURN_TO_MAIN_MENU,
+	RESTART_GAME,
 	RETURN_TO_MENU_LOAD,
 	FULLSCREEN_TOGGLED,
 	CAMPAIGN_START_SCENARIO,
-	FORCE_QUIT, //quit client without question
+	FORCE_QUIT,
 };
 
 // Handles GUI logic and drawing
 class CGuiHandler
 {
-public:
-
-
 private:
 	/// Fake no-op version status bar, for use in windows that have no status bar
 	std::shared_ptr<IStatusBar> fakeStatusBar;
@@ -58,56 +48,26 @@ private:
 	/// Status bar of current window, if any. Uses weak_ptr to allow potential hanging reference after owned window has been deleted
 	std::weak_ptr<IStatusBar> currentStatusBar;
 
-	Point cursorPosition;
-	uint32_t mouseButtonsMask;
-
 	std::unique_ptr<ShortcutHandler> shortcutsHandlerInstance;
 	std::unique_ptr<WindowHandler> windowHandlerInstance;
 
-	std::atomic<bool> continueEventHandling;
-	using CIntObjectList = std::list<CIntObject *>;
-
-	//active GUI elements (listening for events
-	CIntObjectList lclickable;
-	CIntObjectList rclickable;
-	CIntObjectList mclickable;
-	CIntObjectList hoverable;
-	CIntObjectList keyinterested;
-	CIntObjectList motioninterested;
-	CIntObjectList timeinterested;
-	CIntObjectList wheelInterested;
-	CIntObjectList doubleClickInterested;
-	CIntObjectList textInterested;
-
 	std::unique_ptr<IScreenHandler> screenHandlerInstance;
 	std::unique_ptr<FramerateManager> framerateManagerInstance;
-
-	void handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed);
-	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
-	void handleCurrentEvent(SDL_Event &current);
-	void handleMouseMotion(const SDL_Event & current);
-	void handleMoveInterested( const SDL_MouseMotionEvent & motion );
-	void convertTouchToMouse(SDL_Event * current);
-	void fakeMoveCursor(float dx, float dy);
-	void fakeMouseButtonEventRelativeMode(bool down, bool right);
+	std::unique_ptr<EventDispatcher> eventDispatcherInstance;
+	std::unique_ptr<InputHandler> inputHandlerInstance;
 
 public:
-	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
-	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);
-public:
-
 	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
 
-	ShortcutHandler & shortcutsHandler();
-	FramerateManager & framerateManager();
+	ShortcutHandler & shortcuts();
+	FramerateManager & framerate();
+	EventDispatcher & events();
+	InputHandler & input();
 
 	/// Returns current logical screen dimensions
 	/// May not match size of window if user has UI scaling different from 100%
 	Point screenDimensions() const;
-
-	/// returns true if at least one mouse button is pressed
-	bool isMouseButtonPressed() const;
 
 	/// returns true if specified mouse button is pressed
 	bool isMouseButtonPressed(MouseButton button) const;
@@ -120,9 +80,6 @@ public:
 	void startTextInput(const Rect & where);
 	void stopTextInput();
 
-	/// moves mouse pointer into specified position inside vcmi window
-	void moveCursorToPosition(const Point & position);
-
 	IScreenHandler & screenHandler();
 
 	WindowHandler & windows();
@@ -134,12 +91,6 @@ public:
 	void setStatusbar(std::shared_ptr<IStatusBar>);
 
 	IUpdateable *curInt;
-
-	Point lastClick;
-	unsigned lastClickTime;
-	bool multifinger;
-	bool isPointerRelativeMode;
-	float pointerSpeedMultiplier;
 
 	ui8 defActionsDef; //default auto actions
 	bool captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
@@ -154,15 +105,13 @@ public:
 	/// called whenever user selects different resolution, requiring to center/resize all windows
 	void onScreenResize();
 
-	void updateTime(); //handles timeInterested
 	void handleEvents(); //takes events from queue and calls interested objects
 	void fakeMouseMove();
-	void breakEventHandling(); //current event won't be propagated anymore
 	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen
 
-	static bool amIGuiThread();
-	static void pushUserEvent(EUserEvent usercode);
-	static void pushUserEvent(EUserEvent usercode, void * userdata);
+	bool amIGuiThread();
+	void pushUserEvent(EUserEvent usercode);
+	void pushUserEvent(EUserEvent usercode, void * userdata);
 
 	CondSh<bool> * terminate_cond; // confirm termination
 };

@@ -115,13 +115,11 @@ void CBuildingRect::hover(bool on)
 {
 	if(on)
 	{
-		if(!(active & MOVE))
-			addUsedEvents(MOVE);
+		addUsedEvents(MOVE);
 	}
 	else
 	{
-		if(active & MOVE)
-			removeUsedEvents(MOVE);
+		removeUsedEvents(MOVE);
 
 		if(parent->selectedBuilding == this)
 		{
@@ -218,7 +216,7 @@ void CBuildingRect::showAll(SDL_Surface * to)
 		return;
 
 	CShowableAnim::showAll(to);
-	if(!active && parent->selectedBuilding == this && border)
+	if(!isActive() && parent->selectedBuilding == this && border)
 		border->draw(to, pos.x, pos.y);
 }
 
@@ -1577,7 +1575,6 @@ void LabeledValue::hover(bool on)
 	else
 	{
 		GH.statusbar()->clear();
-		parent->hovered = false;
 	}
 }
 

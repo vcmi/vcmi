@@ -12,15 +12,13 @@
 
 #include "CMT.h"
 #include "gui/CGuiHandler.h"
+#include "eventsSDL/InputHandler.h"
 #include "gui/FramerateManager.h"
 #include "renderSDL/SDL_Extensions.h"
 #include "CPlayerInterface.h"
 #include "../lib/filesystem/Filesystem.h"
 
 #include <SDL_render.h>
-#include <SDL_events.h>
-
-extern CGuiHandler GH; //global gui handler
 
 #ifndef DISABLE_VIDEO
 
@@ -29,18 +27,6 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
-}
-
-//reads events and returns true on key down
-static bool keyDown()
-{
-	SDL_Event ev;
-	while(SDL_PollEvent(&ev))
-	{
-		if(ev.type == SDL_KEYDOWN || ev.type == SDL_MOUSEBUTTONDOWN)
-			return true;
-	}
-	return false;
 }
 
 #ifdef _MSC_VER
@@ -371,7 +357,7 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 	auto packet_duration = frame->duration;
 #endif
 	double frameEndTime = (frame->pts + packet_duration) * av_q2d(format->streams[stream]->time_base);
-	frameTime += GH.framerateManager().getElapsedMilliseconds() / 1000.0;
+	frameTime += GH.framerate().getElapsedMilliseconds() / 1000.0;
 
 	if (frameTime >= frameEndTime )
 	{
@@ -455,8 +441,12 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 
 	while(nextFrame())
 	{
-		if(stopOnKey && keyDown())
-			return false;
+		if(stopOnKey)
+		{
+			GH.input().fetchEvents();
+			if(GH.input().ignoreEventsUntilInput())
+				return false;
+		}
 
 		SDL_Rect rect = CSDL_Ext::toSDL(pos);
 

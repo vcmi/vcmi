@@ -169,7 +169,7 @@ void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSe
 
 void CArtifactsOfHeroBase::safeRedraw()
 {
-	if(active)
+	if(isActive())
 	{
 		if(parent)
 			parent->redraw();

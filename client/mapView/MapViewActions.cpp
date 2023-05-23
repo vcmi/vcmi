@@ -18,6 +18,7 @@
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
+#include "../gui/MouseButton.h"
 
 #include "../../lib/CConfigHandler.h"
 
@@ -105,8 +106,8 @@ void MapViewActions::handleSwipeMove(const Point & cursorPosition)
 	if(!swipeEnabled() && !GH.isMouseButtonPressed(MouseButton::MIDDLE))
 		return;
 
-	// on mobile platforms with enabled swipe any button is enough
-	if(swipeEnabled() && (!GH.isMouseButtonPressed() || GH.multifinger))
+	// on mobile platforms with enabled swipe we use left button
+	if(swipeEnabled() && !GH.isMouseButtonPressed(MouseButton::LEFT))
 		return;
 
 	if(!isSwiping)

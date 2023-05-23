@@ -251,7 +251,7 @@ void CursorHandler::updateSpellcastCursor()
 {
 	static const float frameDisplayDuration = 0.1f; // H3 uses 100 ms per frame
 
-	frameTime += GH.framerateManager().getElapsedMilliseconds() / 1000.f;
+	frameTime += GH.framerate().getElapsedMilliseconds() / 1000.f;
 	size_t newFrame = frame;
 
 	while (frameTime >= frameDisplayDuration)

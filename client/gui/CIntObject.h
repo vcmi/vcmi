@@ -9,83 +9,49 @@
  */
 #pragma once
 
-#include "MouseButton.h"
 #include "../render/Graphics.h"
 #include "../../lib/Rect.h"
+#include "EventsReceiver.h"
 
 struct SDL_Surface;
 class CGuiHandler;
 class CPicture;
-enum class EShortcut;
-
-using boost::logic::tribool;
-
-// Defines a activate/deactive method
-class IActivatable
-{
-public:
-	virtual void activate()=0;
-	virtual void deactivate()=0;
-	virtual ~IActivatable(){};
-};
 
 class IUpdateable
 {
 public:
 	virtual void update()=0;
-	virtual ~IUpdateable(){};
+	virtual ~IUpdateable() = default;
 };
 
-// Defines a show method
-class IShowable
+class IShowActivatable
 {
 public:
+	virtual void activate()=0;
+	virtual void deactivate()=0;
+
 	virtual void redraw()=0;
 	virtual void show(SDL_Surface * to) = 0;
-	virtual void showAll(SDL_Surface * to)
-	{
-		show(to);
-	}
-	virtual ~IShowable(){};
+	virtual void showAll(SDL_Surface * to) = 0;
+
+	virtual void onScreenResize() = 0;
+	virtual ~IShowActivatable() = default;
 };
 
-class IShowActivatable : public IShowable, public IActivatable
+// Base UI element
+class CIntObject : public IShowActivatable, public AEventsReceiver //interface object
 {
+	ui16 used;
+
+	//non-const versions of fields to allow changing them in CIntObject
+	CIntObject *parent_m; //parent object
+
 public:
 	//redraw parent flag - this int may be semi-transparent and require redraw of parent window
 	enum {REDRAW_PARENT=8};
 	int type; //bin flags using etype
-	IShowActivatable();
-	virtual ~IShowActivatable(){};
-};
 
-// Base UI element
-class CIntObject : public IShowActivatable //interface object
-{
-	ui16 used;//change via addUsed() or delUsed
-
-	std::map<MouseButton, bool> currentMouseState;
-
-	//non-const versions of fields to allow changing them in CIntObject
-	CIntObject *parent_m; //parent object
-	ui16 active_m;
-
-protected:
-	//activate or deactivate specific action (LCLICK, RCLICK...)
-	void activate(ui16 what);
-	void deactivate(ui16 what);
-
-public:
-/*
- * Functions and fields that supposed to be private but are not for now.
- * Don't use them unless you really know what they are for
- */
 	std::vector<CIntObject *> children;
-
-
-/*
- * Public interface
- */
 
 	/// read-only parent access. May not be a "clean" solution but allows some compatibility
 	CIntObject * const & parent;
@@ -96,43 +62,14 @@ public:
 	CIntObject(int used=0, Point offset=Point());
 	virtual ~CIntObject();
 
-	void updateMouseState(MouseButton btn, bool state) { currentMouseState[btn] = state; }
-	bool mouseState(MouseButton btn) const { return currentMouseState.count(btn) ? currentMouseState.at(btn) : false; }
-
-	virtual void click(MouseButton btn, tribool down, bool previousState);
-	virtual void clickLeft(tribool down, bool previousState) {}
-	virtual void clickRight(tribool down, bool previousState) {}
-	virtual void clickMiddle(tribool down, bool previousState) {}
-
 	//hover handling
-	/*const*/ bool hovered;  //for determining if object is hovered
-	virtual void hover (bool on){}
+	void hover (bool on) override{}
 
 	//keyboard handling
 	bool captureAllKeys; //if true, only this object should get info about pressed keys
-	virtual void keyPressed(EShortcut key){}
-	virtual void keyReleased(EShortcut key){}
-	virtual bool captureThisKey(EShortcut key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
 
-	virtual void textInputed(const std::string & enteredText){};
-	virtual void textEdited(const std::string & enteredText){};
+	bool captureThisKey(EShortcut key) override; //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
 
-	//mouse movement handling
-	bool strongInterest; //if true - report all mouse movements, if not - only when hovered
-	virtual void mouseMoved (const Point & cursorPosition){}
-
-	//time handling
-	virtual void tick(uint32_t msPassed){}
-
-	//mouse wheel
-	virtual void wheelScrolled(bool down, bool in){}
-
-	//double click
-	virtual void onDoubleClick(){}
-
-	// These are the arguments that can be used to determine what kind of input the CIntObject will receive
-	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, MCLICK=1024, ALL=0xffff};
-	const ui16 & active;
 	void addUsedEvents(ui16 newActions);
 	void removeUsedEvents(ui16 newActions);
 
@@ -146,7 +83,6 @@ public:
 	void enable();
 	/// deactivates or activates UI element based on flag
 	void setEnabled(bool on);
-
 
 	// activate or deactivate object. Inactive object won't receive any input events (keyboard\mouse)
 	// usually used automatically by parent
@@ -162,7 +98,9 @@ public:
 
 	/// called only for windows whenever screen size changes
 	/// default behavior is to re-center, can be overriden
-	virtual void onScreenResize();
+	void onScreenResize() override;
+
+	bool isInside(const Point & position) override;
 
 	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
 	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center
@@ -173,26 +111,18 @@ public:
 
 	void addChild(CIntObject *child, bool adjustPosition = false);
 	void removeChild(CIntObject *child, bool adjustPosition = false);
-	//delChild - not needed, use normal "delete child" instead
-	//delChildNull - not needed, use "vstd::clear_pointer(child)" instead
 
-/*
- * Functions that should be used only by specific GUI elements. Don't use them unless you really know why they are here
- */
-
-	//functions for printing text. Use CLabel where possible instead
-	void printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
-	void printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
-	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color color, SDL_Surface * dst);
-	void printAtMiddleWBLoc(const std::string & text, int x, int y, EFonts font, int charsPerLine, SDL_Color color, SDL_Surface * dst);
-
-	friend class CGuiHandler;
+	/// functions for printing text.
+	/// Deprecated. Use CLabel where possible instead
+	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, const SDL_Color & color, SDL_Surface * dst);
+	void printAtMiddleWBLoc(const std::string & text, const Point &p, EFonts font, int charsPerLine, const SDL_Color & color, SDL_Surface * dst);
 };
 
 /// Class for binding keys to left mouse button clicks
 /// Classes wanting use it should have it as one of their base classes
 class CKeyShortcut : public virtual CIntObject
 {
+	bool shortcutPressed;
 public:
 	EShortcut assignedKey;
 	CKeyShortcut();
@@ -213,7 +143,7 @@ protected:
 class IStatusBar
 {
 public:
-	virtual ~IStatusBar();
+	virtual ~IStatusBar() = default;
 
 	/// set current text for the status bar
 	virtual void write(const std::string & text) = 0;
