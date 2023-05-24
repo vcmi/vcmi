@@ -15,6 +15,8 @@
 #include "../VCMI_Lib.h"
 #include "../CModHandler.h"
 #include "../CTownHandler.h"
+#include "../mapObjects/CObjectClassesHandler.h"
+#include "../filesystem/Filesystem.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -50,6 +52,42 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 		}
 	}
 
+	for (auto entryTemplate : mapping["templates"].Struct())
+	{
+		std::string h3mName = entryTemplate.second.String();
+		std::string vcmiName = entryTemplate.first;
+
+		if (!CResourceHandler::get()->existsResource(ResourceID( "SPRITES/" + vcmiName, EResType::ANIMATION)))
+			logMod->warn("Template animation file %s was not found!", vcmiName);
+
+		mappingObjectTemplate[h3mName] = vcmiName;
+	}
+
+	for (auto entryOuter : mapping["objects"].Struct())
+	{
+		if (entryOuter.second.isStruct())
+		{
+			for (auto entryInner : entryOuter.second.Struct())
+			{
+				auto handler = VLC->objtypeh->getHandlerFor( VLC->modh->scopeGame(), entryOuter.first, entryInner.first);
+
+				auto entryValues = entryInner.second.Vector();
+				ObjectTypeIdentifier h3mID{Obj(entryValues[0].Integer()), int32_t(entryValues[1].Integer())};
+				ObjectTypeIdentifier vcmiID{Obj(handler->getIndex()), handler->getSubIndex()};
+				mappingObjectIndex[h3mID] = vcmiID;
+			}
+		}
+		else
+		{
+			auto handler = VLC->objtypeh->getHandlerFor( VLC->modh->scopeGame(), entryOuter.first, entryOuter.first);
+
+			auto entryValues = entryOuter.second.Vector();
+			ObjectTypeIdentifier h3mID{Obj(entryValues[0].Integer()), int32_t(entryValues[1].Integer())};
+			ObjectTypeIdentifier vcmiID{Obj(handler->getIndex()), handler->getSubIndex()};
+			mappingObjectIndex[h3mID] = vcmiID;
+		}
+	}
+
 	mappingBuilding = loadMapping<BuildingID>(mapping["buildingsCommon"], "building.core:random");
 	mappingFaction = loadMapping<FactionID>(mapping["factions"], "faction");
 	mappingCreature = loadMapping<CreatureID>(mapping["creatures"], "creature");
@@ -58,6 +96,23 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 	mappingTerrain = loadMapping<TerrainId>(mapping["terrains"], "terrain");
 	mappingArtifact = loadMapping<ArtifactID>(mapping["artifacts"], "artifact");
 	mappingSecondarySkill = loadMapping<SecondarySkill>(mapping["skills"], "skill");
+}
+
+void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
+{
+	std::string name = boost::to_lower_copy(objectTemplate.animationFile);
+
+	if (mappingObjectTemplate.count(name))
+		objectTemplate.animationFile = mappingObjectTemplate.at(name);
+
+	ObjectTypeIdentifier objectType{ objectTemplate.id, objectTemplate.subid};
+
+	if (mappingObjectIndex.count(objectType))
+	{
+		auto mappedType = mappingObjectIndex.at(objectType);
+		objectTemplate.id = mappedType.ID;
+		objectTemplate.subid = mappedType.subID;
+	}
 }
 
 BuildingID MapIdentifiersH3M::remapBuilding(std::optional<FactionID> owner, BuildingID input) const

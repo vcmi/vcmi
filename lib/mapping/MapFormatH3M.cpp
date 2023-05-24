@@ -922,9 +922,12 @@ void CMapLoaderH3M::readObjectTemplates()
 	// Read custom defs
 	for(int defID = 0; defID < defAmount; ++defID)
 	{
-		auto * tmpl = new ObjectTemplate;
+		auto tmpl = std::make_shared<ObjectTemplate>();
 		tmpl->readMap(reader->getInternalReader());
-		templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
+		templates.push_back(tmpl);
+
+		if (!CResourceHandler::get()->existsResource(ResourceID( "SPRITES/" + tmpl->animationFile, EResType::ANIMATION)))
+			logMod->warn("Template animation %s of type (%d %d) is missing!", tmpl->animationFile, tmpl->id, tmpl->subid );
 	}
 }
 

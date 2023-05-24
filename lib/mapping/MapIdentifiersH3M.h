@@ -15,6 +15,20 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
+class ObjectTemplate;
+
+struct ObjectTypeIdentifier
+{
+	Obj ID;
+	int32_t subID;
+
+	bool operator < (const ObjectTypeIdentifier & other) const
+	{
+		if (ID != other.ID)
+			return ID < other.ID;
+		return subID < other.subID;
+	}
+};
 
 class MapIdentifiersH3M
 {
@@ -28,10 +42,15 @@ class MapIdentifiersH3M
 	std::map<ArtifactID, ArtifactID> mappingArtifact;
 	std::map<SecondarySkill, SecondarySkill> mappingSecondarySkill;
 
+	std::map<std::string, std::string> mappingObjectTemplate;
+	std::map<ObjectTypeIdentifier, ObjectTypeIdentifier> mappingObjectIndex;
+
 	template<typename IdentifierID>
 	std::map<IdentifierID, IdentifierID> loadMapping(const JsonNode & mapping, const std::string & identifierName);
 public:
 	void loadMapping(const JsonNode & mapping);
+
+	void remapTemplate(ObjectTemplate & objectTemplate);
 
 	BuildingID remapBuilding(std::optional<FactionID> owner, BuildingID input) const;
 	FactionID remap(FactionID input) const;
