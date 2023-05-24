@@ -117,9 +117,8 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 	auto fileStream = CResourceHandler::get(modName)->load(resourceID);
 
 	std::vector<std::vector<ui8>> files = getFile(std::move(fileStream), false);
-	
-	JsonNode jsonCampaign((const char*)files[0].data(), files[0].size());
-	if(jsonCampaign.isNull())
+
+	if (files[0].front() < uint8_t(' ')) // binary format
 	{
 		CMemoryStream stream(files[0].data(), files[0].size());
 		CBinaryReader reader(&stream);
@@ -128,8 +127,9 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 		for(int g = 0; g < ret->header.numberOfScenarios; ++g)
 			ret->scenarios.emplace_back(readScenarioFromMemory(reader, ret->header));
 	}
-	else
+	else // text format (json)
 	{
+		JsonNode jsonCampaign((const char*)files[0].data(), files[0].size());
 		ret->header = readHeaderFromJson(jsonCampaign, resourceID.getName(), modName, encoding);
 		for(auto & scenario : jsonCampaign["scenarios"].Vector())
 			ret->scenarios.emplace_back(readScenarioFromJson(scenario));
