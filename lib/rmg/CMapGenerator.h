@@ -47,6 +47,7 @@ public:
 		int pandoraMultiplierGold, pandoraMultiplierExperience, pandoraMultiplierSpells, pandoraSpellSchool, pandoraSpell60;
 		std::vector<int> pandoraCreatureValues;
 		std::vector<int> questValues, questRewardValues;
+		bool singleThread;
 	};
 	
 	explicit CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed = std::time(nullptr));

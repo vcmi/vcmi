@@ -83,6 +83,7 @@ void CMapGenerator::loadConfig()
 		config.secondaryRoadType = "";
 	if(!mapGenOptions.isRoadEnabled(config.defaultRoadType))
 		config.defaultRoadType = config.secondaryRoadType;
+	config.singleThread = randomMapJson["singleThread"].Bool();
 }
 
 const CMapGenerator::Config & CMapGenerator::getConfig() const
@@ -299,7 +300,7 @@ void CMapGenerator::fillZones()
 
 	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
 	//place main town in the middle
-	
+
 	Load::Progress::setupStepsTill(numZones, 50);
 	for (const auto& it : map->getZones())
 	{
@@ -310,51 +311,74 @@ void CMapGenerator::fillZones()
 
 	std::vector<std::shared_ptr<Zone>> treasureZones;
 
-	ThreadPool pool;
-
-	std::vector<boost::future<void>> futures;
-	//At most one Modificator can run for every zone
-	pool.init(std::min<int>(boost::thread::hardware_concurrency(), numZones));
-
 	TModificators allJobs;
-	for (auto & it : map->getZones())
+	for (auto& it : map->getZones())
 	{
 		allJobs.splice(allJobs.end(), it.second->getModificators());
 	}
 
 	Load::Progress::setupStepsTill(allJobs.size(), 240);
 
-	while (!allJobs.empty())
+	if (config.singleThread) //No thread pool, just queue with deterministic order
 	{
-		for (auto it = allJobs.begin(); it != allJobs.end();)
+		while (!allJobs.empty())
 		{
-			if ((*it)->isFinished())
+			for (auto it = allJobs.begin(); it != allJobs.end();)
 			{
-				it = allJobs.erase(it);
-				Progress::Progress::step();
-			}
-			else if ((*it)->isReady())
-			{
-				auto jobCopy = *it;
-				futures.emplace_back(pool.async([this, jobCopy]() -> void
-					{
-						jobCopy->run();
-						Progress::Progress::step(); //Update progress bar
-					}
-				));
-				it = allJobs.erase(it);
-			}
-			else
-			{
-				++it;
+				if ((*it)->isReady())
+				{
+					auto jobCopy = *it;
+					jobCopy->run();
+					Progress::Progress::step(); //Update progress bar
+					allJobs.erase(it);
+					break; //Restart from the first job
+				}
+				else
+				{
+					++it;
+				}
 			}
 		}
 	}
-
-	//Wait for all the tasks
-	for (auto& fut : futures)
+	else
 	{
-		fut.get();
+		ThreadPool pool;
+		std::vector<boost::future<void>> futures;
+		//At most one Modificator can run for every zone
+		pool.init(std::min<int>(boost::thread::hardware_concurrency(), numZones));
+
+		while (!allJobs.empty())
+		{
+			for (auto it = allJobs.begin(); it != allJobs.end();)
+			{
+				if ((*it)->isFinished())
+				{
+					it = allJobs.erase(it);
+					Progress::Progress::step();
+				}
+				else if ((*it)->isReady())
+				{
+					auto jobCopy = *it;
+					futures.emplace_back(pool.async([this, jobCopy]() -> void
+						{
+							jobCopy->run();
+							Progress::Progress::step(); //Update progress bar
+						}
+					));
+					it = allJobs.erase(it);
+				}
+				else
+				{
+					++it;
+				}
+			}
+		}
+
+		//Wait for all the tasks
+		for (auto& fut : futures)
+		{
+			fut.get();
+		}
 	}
 
 	for (const auto& it : map->getZones())

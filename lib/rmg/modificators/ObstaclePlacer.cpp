@@ -42,7 +42,6 @@ void ObstaclePlacer::process()
 	blockedArea.subtract(zone.areaUsed());
 	zone.areaPossible().subtract(blockedArea);
 
-	//TODO: Set prohibited area in ObstacleProxy :?
 	prohibitedArea = zone.freePaths() + zone.areaUsed() + manager->getVisitableArea();
 
 	auto objs = createObstacles(zone.getRand());
