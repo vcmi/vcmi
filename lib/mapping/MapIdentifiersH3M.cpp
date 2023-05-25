@@ -21,10 +21,8 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 template<typename IdentifierID>
-std::map<IdentifierID, IdentifierID> MapIdentifiersH3M::loadMapping(const JsonNode & mapping, const std::string & identifierName)
+void MapIdentifiersH3M::loadMapping(std::map<IdentifierID, IdentifierID> & result, const JsonNode & mapping, const std::string & identifierName)
 {
-	std::map<IdentifierID, IdentifierID> result;
-
 	for (auto entry : mapping.Struct())
 	{
 		IdentifierID sourceID (entry.second.Integer());
@@ -32,8 +30,6 @@ std::map<IdentifierID, IdentifierID> MapIdentifiersH3M::loadMapping(const JsonNo
 
 		result[sourceID] = targetID;
 	}
-
-	return result;
 }
 
 void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
@@ -88,14 +84,14 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 		}
 	}
 
-	mappingBuilding = loadMapping<BuildingID>(mapping["buildingsCommon"], "building.core:random");
-	mappingFaction = loadMapping<FactionID>(mapping["factions"], "faction");
-	mappingCreature = loadMapping<CreatureID>(mapping["creatures"], "creature");
-	mappingHeroType = loadMapping<HeroTypeID>(mapping["heroes"], "hero");
-	mappingHeroClass = loadMapping<HeroClassID>(mapping["heroClasses"], "heroClass");
-	mappingTerrain = loadMapping<TerrainId>(mapping["terrains"], "terrain");
-	mappingArtifact = loadMapping<ArtifactID>(mapping["artifacts"], "artifact");
-	mappingSecondarySkill = loadMapping<SecondarySkill>(mapping["skills"], "skill");
+	loadMapping(mappingBuilding, mapping["buildingsCommon"], "building.core:random");
+	loadMapping(mappingFaction, mapping["factions"], "faction");
+	loadMapping(mappingCreature, mapping["creatures"], "creature");
+	loadMapping(mappingHeroType, mapping["heroes"], "hero");
+	loadMapping(mappingHeroClass, mapping["heroClasses"], "heroClass");
+	loadMapping(mappingTerrain, mapping["terrains"], "terrain");
+	loadMapping(mappingArtifact, mapping["artifacts"], "artifact");
+	loadMapping(mappingSecondarySkill, mapping["skills"], "skill");
 }
 
 void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)

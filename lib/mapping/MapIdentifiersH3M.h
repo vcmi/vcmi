@@ -46,7 +46,7 @@ class MapIdentifiersH3M
 	std::map<ObjectTypeIdentifier, ObjectTypeIdentifier> mappingObjectIndex;
 
 	template<typename IdentifierID>
-	std::map<IdentifierID, IdentifierID> loadMapping(const JsonNode & mapping, const std::string & identifierName);
+	void loadMapping(std::map<IdentifierID, IdentifierID> & result, const JsonNode & mapping, const std::string & identifierName);
 public:
 	void loadMapping(const JsonNode & mapping);
 
