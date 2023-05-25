@@ -57,6 +57,7 @@ void CRewardableConstructor::configureObject(CGObjectInstance * object, CRandomG
 					rewardInfo.reward.extraComponents.emplace_back(Component::EComponentType::LUCK, 0, bonus.val, 0);
 			}
 		}
+		assert(!rewardableObject->configuration.info.empty());
 	}
 }
 

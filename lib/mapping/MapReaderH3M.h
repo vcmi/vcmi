@@ -59,6 +59,8 @@ public:
 
 	int3 readInt3();
 
+	std::shared_ptr<ObjectTemplate> readObjectTemplate();
+
 	void skipUnused(size_t amount);
 	void skipZero(size_t amount);
 

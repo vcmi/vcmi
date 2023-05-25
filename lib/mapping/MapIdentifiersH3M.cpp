@@ -54,8 +54,8 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 
 	for (auto entryTemplate : mapping["templates"].Struct())
 	{
-		std::string h3mName = entryTemplate.second.String();
-		std::string vcmiName = entryTemplate.first;
+		std::string h3mName = boost::to_lower_copy(entryTemplate.second.String());
+		std::string vcmiName = boost::to_lower_copy(entryTemplate.first);
 
 		if (!CResourceHandler::get()->existsResource(ResourceID( "SPRITES/" + vcmiName, EResType::ANIMATION)))
 			logMod->warn("Template animation file %s was not found!", vcmiName);

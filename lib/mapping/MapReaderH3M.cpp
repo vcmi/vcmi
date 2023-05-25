@@ -13,6 +13,7 @@
 
 #include "../filesystem/CBinaryReader.h"
 #include "../int3.h"
+#include "../mapObjects/ObjectTemplate.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -313,6 +314,14 @@ int3 MapReaderH3M::readInt3()
 	p.y = reader->readUInt8();
 	p.z = reader->readUInt8();
 	return p;
+}
+
+std::shared_ptr<ObjectTemplate> MapReaderH3M::readObjectTemplate()
+{
+	auto tmpl = std::make_shared<ObjectTemplate>();
+	tmpl->readMap(*reader);
+	remapper.remapTemplate(*tmpl);
+	return tmpl;
 }
 
 void MapReaderH3M::skipUnused(size_t amount)

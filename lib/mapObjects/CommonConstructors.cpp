@@ -338,7 +338,8 @@ CGObjectInstance * MarketInstanceConstructor::create(std::shared_ptr<const Objec
 	if(!title.empty())
 		market->title = VLC->generaltexth->translate(title);
 	
-	market->speech = VLC->generaltexth->translate(speech);
+	if (!speech.empty())
+		market->speech = VLC->generaltexth->translate(speech);
 	
 	return market;
 }

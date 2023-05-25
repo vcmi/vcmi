@@ -922,8 +922,7 @@ void CMapLoaderH3M::readObjectTemplates()
 	// Read custom defs
 	for(int defID = 0; defID < defAmount; ++defID)
 	{
-		auto tmpl = std::make_shared<ObjectTemplate>();
-		tmpl->readMap(reader->getInternalReader());
+		auto tmpl = reader->readObjectTemplate();
 		templates.push_back(tmpl);
 
 		if (!CResourceHandler::get()->existsResource(ResourceID( "SPRITES/" + tmpl->animationFile, EResType::ANIMATION)))
