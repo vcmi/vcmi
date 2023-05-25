@@ -5,30 +5,30 @@
 		{ "frame" : 00, "file" : "empty.png"},						// 000001 -> 00 empty frame
 			
 		// load single edges
-		{ "frame" : 01, "file" : "topLeft.png"},                    //000001 -> 01
-		{ "frame" : 02, "file" : "topRight.png"},                   //000010 -> 02
-		{ "frame" : 03, "file" : "right.png"},                      //000100 -> 04
-		{ "frame" : 04, "file" : "bottomRight.png"},                //001000 -> 08
-		{ "frame" : 05, "file" : "bottomLeft.png"},                 //010000 -> 16
-		{ "frame" : 06, "file" : "left.png"},                       //100000 -> 32
+		{ "frame" : 01, "file" : "topLeft.png"},                    //000001 -> 01 topLeft
+		{ "frame" : 02, "file" : "topLeft.png"},                    //000010 -> 02 topRight
+		{ "frame" : 03, "file" : "left.png"},                       //000100 -> 04 right
+		{ "frame" : 04, "file" : "topLeft.png"},                    //001000 -> 08 bottomRight
+		{ "frame" : 05, "file" : "topLeft.png"},                    //010000 -> 16 bottomLeft
+		{ "frame" : 06, "file" : "left.png"},                       //100000 -> 32 left
 		
 		// load double edges
-		{ "frame" : 07, "file" : "top.png"},                        //000011 -> 03
-		{ "frame" : 08, "file" : "bottom.png"},                     //011000 -> 24
-		{ "frame" : 09, "file" : "topRightHalfCorner.png"},         //000110 -> 06
-		{ "frame" : 10, "file" : "bottomRightHalfCorner.png"},      //001100 -> 12
-		{ "frame" : 11, "file" : "bottomLeftHalfCorner.png"},       //110000 -> 48
-		{ "frame" : 12, "file" : "topLeftHalfCorner.png"},          //100001 -> 33
+		{ "frame" : 07, "file" : "top.png"},                        //000011 -> 03 top
+		{ "frame" : 08, "file" : "top.png"},                        //011000 -> 24 bottom
+		{ "frame" : 09, "file" : "topLeftHalfCorner.png"},          //000110 -> 06 topRightHalfCorner
+		{ "frame" : 10, "file" : "topLeftHalfCorner.png"},          //001100 -> 12 bottomRightHalfCorner
+		{ "frame" : 11, "file" : "topLeftHalfCorner.png"},          //110000 -> 48 bottomLeftHalfCorner
+		{ "frame" : 12, "file" : "topLeftHalfCorner.png"},          //100001 -> 33 topLeftHalfCorner
 		
 		// load halves
-		{ "frame" : 13, "file" : "rightHalf.png"},                  //001110 -> 14
-		{ "frame" : 14, "file" : "leftHalf.png"},                   //110001 -> 49
+		{ "frame" : 13, "file" : "leftHalf.png"},                   //001110 -> 14 rightHalf
+		{ "frame" : 14, "file" : "leftHalf.png"},                   //110001 -> 49 leftHalf
 		
 		// load corners
-		{ "frame" : 15, "file" : "topRightCorner.png"},             //000111 -> 07
-		{ "frame" : 16, "file" : "bottomRightCorner.png"},          //011100 -> 28
-		{ "frame" : 17, "file" : "bottomLeftCorner.png"},           //111000 -> 56
-		{ "frame" : 18, "file" : "topLeftCorner.png"}               //100011 -> 35
+		{ "frame" : 15, "file" : "topLeftCorner.png"},              //000111 -> 07 topRightCorner
+		{ "frame" : 16, "file" : "topLeftCorner.png"},              //011100 -> 28 bottomRightCorner
+		{ "frame" : 17, "file" : "topLeftCorner.png"},              //111000 -> 56 bottomLeftCorner
+		{ "frame" : 18, "file" : "topLeftCorner.png"}               //100011 -> 35 topLeftCorner
 	]
 }
 

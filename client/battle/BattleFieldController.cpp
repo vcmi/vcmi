@@ -67,8 +67,8 @@ namespace HexMasks
 		bottomLeftHalfCorner  = 0b110000,
 		topLeftHalfCorner     = 0b100001,
 
-		rightTopAndBottom     = 0b001010,
-		leftTopAndBottom      = 0b010001,
+		rightTopAndBottom     = 0b001010, // special case, right half can be drawn instead of only top and bottom
+		leftTopAndBottom      = 0b010001, // special case, left half can be drawn instead of only top and bottom
 						  
 		rightHalf             = 0b001110,
 		leftHalf              = 0b110001,
@@ -131,6 +131,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	fullDamageRangeLimitImages->preload();
 
 	initializeHexEdgeMaskToFrameIndex();
+	flipRangedFullDamageLimitImagesIntoPositions();
 
 	if(!owner.siegeController)
 	{
@@ -547,6 +548,26 @@ std::vector<std::shared_ptr<IImage>> BattleFieldController::calculateRangedFullD
 	}
 
 	return output;
+}
+
+void BattleFieldController::flipRangedFullDamageLimitImagesIntoPositions()
+{
+	rangedFullDamageLimitImages->getImage(hexEdgeMaskToFrameIndex[HexMasks::topRight])->verticalFlip();
+	rangedFullDamageLimitImages->getImage(hexEdgeMaskToFrameIndex[HexMasks::right])->verticalFlip();
+	rangedFullDamageLimitImages->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRight])->doubleFlip();
+	rangedFullDamageLimitImages->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomLeft])->horizontalFlip();
+
+	rangedFullDamageLimitImages->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottom])->horizontalFlip();
+
+	rangedFullDamageLimitImages->getImage(hexEdgeMaskToFrameIndex[HexMasks::topRightHalfCorner])->verticalFlip();
+	rangedFullDamageLimitImages->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRightHalfCorner])->doubleFlip();
+	rangedFullDamageLimitImages->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomLeftHalfCorner])->horizontalFlip();
+
+	rangedFullDamageLimitImages->getImage(hexEdgeMaskToFrameIndex[HexMasks::rightHalf])->verticalFlip();
+
+	rangedFullDamageLimitImages->getImage(hexEdgeMaskToFrameIndex[HexMasks::topRightCorner])->verticalFlip();
+	rangedFullDamageLimitImages->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRightCorner])->doubleFlip();
+	rangedFullDamageLimitImages->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomLeftCorner])->horizontalFlip();
 }
 
 void BattleFieldController::showHighlightedHexes(Canvas & canvas)
