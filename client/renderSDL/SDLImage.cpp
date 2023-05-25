@@ -281,6 +281,12 @@ void SDLImage::verticalFlip()
 	surf = flipped;
 }
 
+void SDLImage::doubleFlip()
+{
+	horizontalFlip();
+	verticalFlip();
+}
+
 // Keep the original palette, in order to do color switching operation
 void SDLImage::savePalette()
 {
