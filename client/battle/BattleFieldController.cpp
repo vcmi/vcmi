@@ -66,6 +66,9 @@ namespace HexMasks
 		bottomRightHalfCorner = 0b001100,
 		bottomLeftHalfCorner  = 0b110000,
 		topLeftHalfCorner     = 0b100001,
+
+		rightTopAndBottom     = 0b001010,
+		leftTopAndBottom      = 0b010001,
 						  
 		rightHalf             = 0b001110,
 		leftHalf              = 0b110001,
@@ -98,6 +101,9 @@ void initializeHexEdgeMaskToFrameIndex()
     hexEdgeMaskToFrameIndex[HexMasks::bottomLeftHalfCorner] = 11;
     hexEdgeMaskToFrameIndex[HexMasks::topLeftHalfCorner] = 12;
 
+    hexEdgeMaskToFrameIndex[HexMasks::rightTopAndBottom] = 13;
+    hexEdgeMaskToFrameIndex[HexMasks::leftTopAndBottom] = 14;
+	
     hexEdgeMaskToFrameIndex[HexMasks::rightHalf] = 13;
     hexEdgeMaskToFrameIndex[HexMasks::leftHalf] = 14;
 
