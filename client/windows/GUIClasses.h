@@ -35,7 +35,6 @@ class CTextInput;
 class CListBox;
 class CLabelGroup;
 class CToggleButton;
-class CVolumeSlider;
 class CGStatusBar;
 class CTextBox;
 class CResDataBar;

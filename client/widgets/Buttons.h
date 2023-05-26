@@ -182,38 +182,6 @@ public:
 	int getSelected() const;
 };
 
-/// A typical slider for volume with an animated indicator
-class CVolumeSlider : public CIntObject
-{
-public:
-	enum ETooltipMode
-	{
-		MUSIC,
-		SOUND
-	};
-
-private:
-	int value;
-	CFunctionList<void(int)> onChange;
-	std::shared_ptr<CAnimImage> animImage;
-	ETooltipMode mode;
-	void setVolume(const int v);
-public:
-	/// @param position coordinates of slider
-	/// @param defName name of def animation for slider
-	/// @param value initial value for volume
-	/// @param mode that determines tooltip texts
-	CVolumeSlider(const Point & position, const std::string & defName, const int value, ETooltipMode mode);
-
-	void moveTo(int id);
-	void addCallback(std::function<void(int)> callback);
-
-
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
-	void wheelScrolled(bool down, bool in) override;
-};
-
 /// A typical slider which can be orientated horizontally/vertically.
 class CSlider : public CIntObject
 {
