@@ -186,21 +186,17 @@ void InputHandler::fetchEvents()
 
 bool InputHandler::isKeyboardCtrlDown() const
 {
-#ifdef VCMI_MAC
-	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LGUI] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RGUI];
-#else
-	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LCTRL] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RCTRL];
-#endif
+	return keyboardHandler->isKeyboardCtrlDown();
 }
 
 bool InputHandler::isKeyboardAltDown() const
 {
-	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LALT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RALT];
+	return keyboardHandler->isKeyboardAltDown();
 }
 
 bool InputHandler::isKeyboardShiftDown() const
 {
-	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RSHIFT];
+	return keyboardHandler->isKeyboardShiftDown();
 }
 
 void InputHandler::moveCursorPosition(const Point & distance)
