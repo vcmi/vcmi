@@ -78,6 +78,7 @@ void InputHandler::processEvents()
 		handleCurrentEvent(currentEvent);
 
 	eventsQueue.clear();
+	fingerHandler->handleUpdate();
 }
 
 bool InputHandler::ignoreEventsUntilInput()

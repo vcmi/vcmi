@@ -20,94 +20,175 @@
 #include "../gui/MouseButton.h"
 
 #include <SDL_events.h>
-#include <SDL_render.h>
 #include <SDL_hints.h>
+#include <SDL_timer.h>
 
 InputSourceTouch::InputSourceTouch()
-	: multifinger(false)
-	, isPointerRelativeMode(settings["general"]["userRelativePointer"].Bool())
-	, pointerSpeedMultiplier(settings["general"]["relativePointerSpeedMultiplier"].Float())
+	: lastTapTimeTicks(0)
 {
-	if(isPointerRelativeMode)
-	{
-		SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
-		SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
-	}
+	params.useRelativeMode = settings["general"]["userRelativePointer"].Bool();
+	params.relativeModeSpeedFactor = settings["general"]["relativePointerSpeedMultiplier"].Float();
+
+	if (params.useRelativeMode)
+		state = TouchState::RELATIVE_MODE;
+	else
+		state = TouchState::IDLE;
+
+	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
+	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 }
 
 void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfinger)
 {
-	if(isPointerRelativeMode)
+	switch(state)
 	{
-		Point screenSize = GH.screenDimensions();
+		case TouchState::RELATIVE_MODE:
+		{
+			Point screenSize = GH.screenDimensions();
 
-		Point moveDistance {
-			static_cast<int>(screenSize.x * pointerSpeedMultiplier * tfinger.dx),
-			static_cast<int>(screenSize.y * pointerSpeedMultiplier * tfinger.dy)
-		};
+			Point moveDistance {
+				static_cast<int>(screenSize.x * params.relativeModeSpeedFactor * tfinger.dx),
+				static_cast<int>(screenSize.y * params.relativeModeSpeedFactor * tfinger.dy)
+			};
 
-		GH.input().moveCursorPosition(moveDistance);
+			GH.input().moveCursorPosition(moveDistance);
+			break;
+		}
+		case TouchState::IDLE:
+		{
+			// no-op, might happen in some edge cases, e.g. when fingerdown event was ignored
+			break;
+		}
+		case TouchState::TAP_DOWN_SHORT:
+		{
+			state = TouchState::TAP_DOWN_PANNING;
+			break;
+		}
+		case TouchState::TAP_DOWN_PANNING:
+		{
+			emitPanningEvent();
+			break;
+		}
+		case TouchState::TAP_DOWN_DOUBLE:
+		{
+			emitPinchEvent();
+			break;
+		}
+		case TouchState::TAP_DOWN_LONG:
+		{
+			// no-op
+			break;
+		}
 	}
 }
 
 void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinger)
 {
-	if(isPointerRelativeMode)
-	{
-		if(tfinger.x > 0.5)
-		{
-			bool isRightClick = tfinger.y < 0.5;
+	lastTapTimeTicks = tfinger.timestamp;
 
-			if (isRightClick)
-				GH.events().dispatchMouseButtonPressed(MouseButton::RIGHT, GH.getCursorPosition());
-			else
-				GH.events().dispatchMouseButtonPressed(MouseButton::LEFT, GH.getCursorPosition());
+	switch(state)
+	{
+		case TouchState::RELATIVE_MODE:
+		{
+			if(tfinger.x > 0.5)
+			{
+				MouseButton button =  tfinger.y < 0.5 ? MouseButton::RIGHT : MouseButton::LEFT;
+				GH.events().dispatchMouseButtonPressed(button, GH.getCursorPosition());
+			}
+			break;
+		}
+		case TouchState::IDLE:
+		{
+			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
+			state = TouchState::TAP_DOWN_SHORT;
+			break;
+		}
+		case TouchState::TAP_DOWN_SHORT:
+		{
+			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
+			state = TouchState::TAP_DOWN_DOUBLE;
+			break;
+		}
+		case TouchState::TAP_DOWN_PANNING:
+		{
+			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
+			state = TouchState::TAP_DOWN_DOUBLE;
+			break;
+		}
+		case TouchState::TAP_DOWN_DOUBLE:
+		{
+			// TODO? ignore?
+			break;
+		}
+		case TouchState::TAP_DOWN_LONG:
+		{
+			// no-op
+			break;
 		}
 	}
-#ifndef VCMI_IOS
-	else
-	{
-		auto fingerCount = SDL_GetNumTouchFingers(tfinger.touchId);
-		multifinger = fingerCount > 1;
-
-		if(fingerCount == 2)
-		{
-			Point position = convertTouchToMouse(tfinger);
-
-			GH.input().setCursorPosition(position);
-			GH.events().dispatchMouseButtonPressed(MouseButton::RIGHT, position);
-		}
-	}
-#endif //VCMI_IOS
 }
 
 void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 {
-	if(isPointerRelativeMode)
+	switch(state)
 	{
-		if(tfinger.x > 0.5)
+		case TouchState::RELATIVE_MODE:
 		{
-			bool isRightClick = tfinger.y < 0.5;
+			if(tfinger.x > 0.5)
+			{
+				MouseButton button =  tfinger.y < 0.5 ? MouseButton::RIGHT : MouseButton::LEFT;
+				GH.events().dispatchMouseButtonReleased(button, GH.getCursorPosition());
+			}
+			break;
+		}
+		case TouchState::IDLE:
+		{
+			// no-op, might happen in some edge cases, e.g. when fingerdown event was ignored
+			break;
+		}
+		case TouchState::TAP_DOWN_SHORT:
+		{
+			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
+			GH.events().dispatchMouseButtonPressed(MouseButton::LEFT, convertTouchToMouse(tfinger));
+			GH.events().dispatchMouseButtonReleased(MouseButton::LEFT, convertTouchToMouse(tfinger));
+			state = TouchState::IDLE;
+			break;
+		}
+		case TouchState::TAP_DOWN_PANNING:
+		{
+			state = TouchState::IDLE;
+			break;
+		}
+		case TouchState::TAP_DOWN_DOUBLE:
+		{
+			if (SDL_GetNumTouchFingers(tfinger.touchId) == 1)
+				state = TouchState::TAP_DOWN_PANNING;
+			break;
+		}
+		case TouchState::TAP_DOWN_LONG:
+		{
+			if (SDL_GetNumTouchFingers(tfinger.touchId) == 0)
+			{
+				GH.input().setCursorPosition(convertTouchToMouse(tfinger));
+				GH.events().dispatchMouseButtonReleased(MouseButton::RIGHT, convertTouchToMouse(tfinger));
+				state = TouchState::IDLE;
+			}
+			break;
+		}
+	}
+}
 
-			if (isRightClick)
-				GH.events().dispatchMouseButtonReleased(MouseButton::RIGHT, GH.getCursorPosition());
-			else
-				GH.events().dispatchMouseButtonReleased(MouseButton::LEFT, GH.getCursorPosition());
-		}
-	}
-#ifndef VCMI_IOS
-	else
+void InputSourceTouch::handleUpdate()
+{
+	if ( state == TouchState::TAP_DOWN_SHORT)
 	{
-		if(multifinger)
+		uint32_t currentTime = SDL_GetTicks();
+		if (currentTime > lastTapTimeTicks + params.longPressTimeMilliseconds)
 		{
-			auto fingerCount = SDL_GetNumTouchFingers(tfinger.touchId);
-			Point position = convertTouchToMouse(tfinger);
-			GH.input().setCursorPosition(position);
-			GH.events().dispatchMouseButtonReleased(MouseButton::RIGHT, position);
-			multifinger = fingerCount != 0;
+			state = TouchState::TAP_DOWN_LONG;
+			GH.events().dispatchMouseButtonPressed(MouseButton::RIGHT, GH.getCursorPosition());
 		}
 	}
-#endif //VCMI_IOS
 }
 
 Point InputSourceTouch::convertTouchToMouse(const SDL_TouchFingerEvent & tfinger)
@@ -117,5 +198,21 @@ Point InputSourceTouch::convertTouchToMouse(const SDL_TouchFingerEvent & tfinger
 
 bool InputSourceTouch::isMouseButtonPressed(MouseButton button) const
 {
+	if (state == TouchState::TAP_DOWN_LONG)
+	{
+		if (button == MouseButton::RIGHT)
+			return true;
+	}
+
 	return false;
+}
+
+void InputSourceTouch::emitPanningEvent()
+{
+	// TODO
+}
+
+void InputSourceTouch::emitPinchEvent()
+{
+	// TODO
 }
