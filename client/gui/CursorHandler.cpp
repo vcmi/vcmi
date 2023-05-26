@@ -62,6 +62,8 @@ CursorHandler::CursorHandler()
 	set(Cursor::Map::POINTER);
 }
 
+CursorHandler::~CursorHandler() = default;
+
 Point CursorHandler::position() const
 {
 	return pos;

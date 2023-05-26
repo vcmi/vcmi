@@ -208,25 +208,29 @@ void EventDispatcher::dispatchTextEditing(const std::string & text)
 
 void EventDispatcher::dispatchMouseMoved(const Point & position)
 {
-	//sending active, hovered hoverable objects hover() call
-	EventReceiversList hlp;
+	EventReceiversList newlyHovered;
 
 	auto hoverableCopy = hoverable;
 	for(auto & elem : hoverableCopy)
 	{
-		if(elem->isInside(GH.getCursorPosition()))
+		if(elem->isInside(position))
 		{
-			if (!(elem)->isHovered())
-				hlp.push_back((elem));
+			if (!elem->isHovered())
+			{
+				newlyHovered.push_back((elem));
+			}
 		}
-		else if ((elem)->isHovered())
+		else
 		{
-			(elem)->hover(false);
-			(elem)->hoveredState = false;
+			if (elem->isHovered())
+			{
+				(elem)->hover(false);
+				(elem)->hoveredState = false;
+			}
 		}
 	}
 
-	for(auto & elem : hlp)
+	for(auto & elem : newlyHovered)
 	{
 		elem->hover(true);
 		elem->hoveredState = true;
