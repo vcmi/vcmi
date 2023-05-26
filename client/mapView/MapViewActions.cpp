@@ -127,7 +127,7 @@ void MapViewActions::handleSwipeMove(const Point & cursorPosition)
 	}
 
 	if(isSwiping)
-	{	    
+	{
 		Point swipeTargetPosition = swipeInitialViewPos + swipeInitialRealPos - cursorPosition;
 		owner.onMapSwiped(swipeTargetPosition);
 	}
@@ -155,10 +155,10 @@ bool MapViewActions::handleSwipeStateChange(bool btnPressed)
 
 void MapViewActions::startTimer()
 {
-    if(!timerRunning) {
-	    addUsedEvents(TIME);
-	    timerCounter = 1;
-	    timerRunning = true;
+	if(!timerRunning) {
+		addUsedEvents(TIME);
+		timerCounter = 1;
+		timerRunning = true;
 	}
 }
 
@@ -169,20 +169,20 @@ void MapViewActions::tick(uint32_t msPassed)
 	if (msPassed >= timerCounter)
 	{
 		if(isSwiping)
-	    {
-	        trackCursor(false);
-	    }
+		{
+			trackCursor(false);
+		}
 		else if(isPostSwiping)
-	    {
-	        handlePostSwipe();
+		{
+			handlePostSwipe();
 		}
 		
 		if(isSwiping || isPostSwiping) {
-	        timerCounter = 20;
+			timerCounter = 20;
 		} else {
 			removeUsedEvents(TIME);
 			timerCounter = 0;
-		    timerRunning = false;
+			timerRunning = false;
 		}
 	}
 	else
@@ -199,23 +199,23 @@ void MapViewActions::trackCursor(bool init)
 
 	swipeDelta = cursorPositionLast[0] - cursorPosition;
 
-    for (int i = 0; i < (sizeof(cursorPositionLast)/sizeof(cursorPositionLast[0]))-1; i++) cursorPositionLast[i] = cursorPositionLast[i+1]; //change to timer (fixed interval), to avoid small move error and save cursorPosition here (or in mouseMoved) to var
-    cursorPositionLast[(sizeof(cursorPositionLast)/sizeof(cursorPositionLast[0]))-1] = cursorPosition; //test also mittle mouse      &&      define minimum point to enable funcionality    && scroll @ border disable functionality
+	for (int i = 0; i < (sizeof(cursorPositionLast)/sizeof(cursorPositionLast[0]))-1; i++) cursorPositionLast[i] = cursorPositionLast[i+1];
+	cursorPositionLast[(sizeof(cursorPositionLast)/sizeof(cursorPositionLast[0]))-1] = cursorPosition;
 }
 
 void MapViewActions::handlePostSwipe()
 {
 	Point swipeLastViewPos = model->getMapViewCenter();
-    Point swipeDeltaSlowdown = swipeDelta / (postSwipeCounter + 1);
-    Point swipeTargetPosition = swipeLastViewPos + swipeDeltaSlowdown;
-    owner.onMapSwiped(swipeTargetPosition);
-    
-    postSwipeCounter++;
-    
-    if(postSwipeCounter == 100 || swipeDeltaSlowdown == Point(0,0)) {
-	    owner.onMapSwipeEnded();
-        isPostSwiping = false;
-    }
+	Point swipeDeltaSlowdown = swipeDelta / (postSwipeCounter + 1);
+	Point swipeTargetPosition = swipeLastViewPos + swipeDeltaSlowdown;
+	owner.onMapSwiped(swipeTargetPosition);
+	
+	postSwipeCounter++;
+	
+	if(postSwipeCounter == 100 || swipeDeltaSlowdown == Point(0,0)) {
+		owner.onMapSwipeEnded();
+		isPostSwiping = false;
+	}
 }
 
 void MapViewActions::handleHover(const Point & cursorPosition)
