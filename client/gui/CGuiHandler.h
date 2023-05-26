@@ -36,6 +36,7 @@ enum class EUserEvent
 	FULLSCREEN_TOGGLED,
 	CAMPAIGN_START_SCENARIO,
 	FORCE_QUIT,
+	FAKE_MOUSE_MOVE,
 };
 
 // Handles GUI logic and drawing

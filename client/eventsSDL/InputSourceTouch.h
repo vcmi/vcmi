@@ -14,16 +14,16 @@ VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 VCMI_LIB_NAMESPACE_END
 
+enum class MouseButton;
 struct SDL_TouchFingerEvent;
 
 /// Class that handles touchscreen input from SDL events
 class InputSourceTouch
 {
+	double pointerSpeedMultiplier;
 	bool multifinger;
 	bool isPointerRelativeMode;
 
-	/// moves mouse pointer into specified position inside vcmi window
-	void moveCursorToPosition(const Point & position);
 	Point convertTouchToMouse(const SDL_TouchFingerEvent & current);
 
 	void fakeMouseButtonEventRelativeMode(bool down, bool right);
@@ -34,4 +34,6 @@ public:
 	void handleEventFingerMotion(const SDL_TouchFingerEvent & current);
 	void handleEventFingerDown(const SDL_TouchFingerEvent & current);
 	void handleEventFingerUp(const SDL_TouchFingerEvent & current);
+
+	bool isMouseButtonPressed(MouseButton button) const;
 };

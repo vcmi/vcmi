@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "InputSourceMouse.h"
+#include "InputHandler.h"
 
 #include "../../lib/Point.h"
 #include "../gui/CGuiHandler.h"
@@ -20,7 +21,12 @@
 
 void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motion)
 {
-	GH.events().dispatchMouseMoved(Point(motion.x, motion.y));
+	Point newPosition(motion.x, motion.y);
+
+	GH.input().setCursorPosition(newPosition);
+
+	mouseButtonsMask = motion.state;
+
 }
 
 void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & button)
@@ -69,4 +75,16 @@ void InputSourceMouse::handleEventMouseButtonUp(const SDL_MouseButtonEvent & but
 			GH.events().dispatchMouseButtonReleased(MouseButton::MIDDLE, position);
 			break;
 	}
+}
+
+bool InputSourceMouse::isMouseButtonPressed(MouseButton button) const
+{
+	static_assert(static_cast<uint32_t>(MouseButton::LEFT)   == SDL_BUTTON_LEFT,   "mismatch between VCMI and SDL enum!");
+	static_assert(static_cast<uint32_t>(MouseButton::MIDDLE) == SDL_BUTTON_MIDDLE, "mismatch between VCMI and SDL enum!");
+	static_assert(static_cast<uint32_t>(MouseButton::RIGHT)  == SDL_BUTTON_RIGHT,  "mismatch between VCMI and SDL enum!");
+	static_assert(static_cast<uint32_t>(MouseButton::EXTRA1) == SDL_BUTTON_X1,     "mismatch between VCMI and SDL enum!");
+	static_assert(static_cast<uint32_t>(MouseButton::EXTRA2) == SDL_BUTTON_X2,     "mismatch between VCMI and SDL enum!");
+
+	uint32_t index = static_cast<uint32_t>(button);
+	return mouseButtonsMask & SDL_BUTTON(index);
 }

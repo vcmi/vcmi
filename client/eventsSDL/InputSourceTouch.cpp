@@ -26,6 +26,7 @@
 InputSourceTouch::InputSourceTouch()
 	: multifinger(false)
 	, isPointerRelativeMode(settings["general"]["userRelativePointer"].Bool())
+	, pointerSpeedMultiplier(settings["general"]["relativePointerSpeedMultiplier"].Float())
 {
 	if(isPointerRelativeMode)
 	{
@@ -38,58 +39,73 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 {
 	if(isPointerRelativeMode)
 	{
-		GH.input().fakeMoveCursor(tfinger.dx, tfinger.dy);
+		Point screenSize = GH.screenDimensions();
+
+		Point moveDistance {
+			static_cast<int>(screenSize.x * pointerSpeedMultiplier * tfinger.dx),
+			static_cast<int>(screenSize.y * pointerSpeedMultiplier * tfinger.dy)
+		};
+
+		GH.input().moveCursorPosition(moveDistance);
 	}
 }
 
 void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinger)
 {
-	auto fingerCount = SDL_GetNumTouchFingers(tfinger.touchId);
-
-	multifinger = fingerCount > 1;
-
 	if(isPointerRelativeMode)
 	{
 		if(tfinger.x > 0.5)
 		{
 			bool isRightClick = tfinger.y < 0.5;
 
-			fakeMouseButtonEventRelativeMode(true, isRightClick);
+			if (isRightClick)
+				GH.events().dispatchMouseButtonPressed(MouseButton::RIGHT, GH.getCursorPosition());
+			else
+				GH.events().dispatchMouseButtonPressed(MouseButton::LEFT, GH.getCursorPosition());
 		}
 	}
 #ifndef VCMI_IOS
-	else if(fingerCount == 2)
+	else
 	{
-		Point position = convertTouchToMouse(tfinger);
+		auto fingerCount = SDL_GetNumTouchFingers(tfinger.touchId);
+		multifinger = fingerCount > 1;
 
-		GH.events().dispatchMouseMoved(position);
-		GH.events().dispatchMouseButtonPressed(MouseButton::RIGHT, position);
+		if(fingerCount == 2)
+		{
+			Point position = convertTouchToMouse(tfinger);
+
+			GH.input().setCursorPosition(position);
+			GH.events().dispatchMouseButtonPressed(MouseButton::RIGHT, position);
+		}
 	}
 #endif //VCMI_IOS
 }
 
 void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 {
-#ifndef VCMI_IOS
-	auto fingerCount = SDL_GetNumTouchFingers(tfinger.touchId);
-#endif //VCMI_IOS
-
 	if(isPointerRelativeMode)
 	{
 		if(tfinger.x > 0.5)
 		{
 			bool isRightClick = tfinger.y < 0.5;
 
-			fakeMouseButtonEventRelativeMode(false, isRightClick);
+			if (isRightClick)
+				GH.events().dispatchMouseButtonReleased(MouseButton::RIGHT, GH.getCursorPosition());
+			else
+				GH.events().dispatchMouseButtonReleased(MouseButton::LEFT, GH.getCursorPosition());
 		}
 	}
 #ifndef VCMI_IOS
-	else if(multifinger)
+	else
 	{
-		Point position = convertTouchToMouse(tfinger);
-		GH.events().dispatchMouseMoved(position);
-		GH.events().dispatchMouseButtonReleased(MouseButton::RIGHT, position);
-		multifinger = fingerCount != 0;
+		if(multifinger)
+		{
+			auto fingerCount = SDL_GetNumTouchFingers(tfinger.touchId);
+			Point position = convertTouchToMouse(tfinger);
+			GH.input().setCursorPosition(position);
+			GH.events().dispatchMouseButtonReleased(MouseButton::RIGHT, position);
+			multifinger = fingerCount != 0;
+		}
 	}
 #endif //VCMI_IOS
 }
@@ -99,37 +115,7 @@ Point InputSourceTouch::convertTouchToMouse(const SDL_TouchFingerEvent & tfinger
 	return Point(tfinger.x * GH.screenDimensions().x, tfinger.y * GH.screenDimensions().y);
 }
 
-void InputSourceTouch::fakeMouseButtonEventRelativeMode(bool down, bool right)
+bool InputSourceTouch::isMouseButtonPressed(MouseButton button) const
 {
-	SDL_Event event;
-	SDL_MouseButtonEvent sme = {SDL_MOUSEBUTTONDOWN, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-	if(!down)
-	{
-		sme.type = SDL_MOUSEBUTTONUP;
-	}
-
-	sme.button = right ? SDL_BUTTON_RIGHT : SDL_BUTTON_LEFT;
-
-	sme.x = GH.getCursorPosition().x;
-	sme.y = GH.getCursorPosition().y;
-
-	float xScale, yScale;
-	int w, h, rLogicalWidth, rLogicalHeight;
-
-	SDL_GetWindowSize(mainWindow, &w, &h);
-	SDL_RenderGetLogicalSize(mainRenderer, &rLogicalWidth, &rLogicalHeight);
-	SDL_RenderGetScale(mainRenderer, &xScale, &yScale);
-
-	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-	moveCursorToPosition(Point((int)(sme.x * xScale) + (w - rLogicalWidth * xScale) / 2, (int)(sme.y * yScale + (h - rLogicalHeight * yScale) / 2)));
-	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
-
-	event.button = sme;
-	SDL_PushEvent(&event);
-}
-
-void InputSourceTouch::moveCursorToPosition(const Point & position)
-{
-	SDL_WarpMouseInWindow(mainWindow, position.x, position.y);
+	return false;
 }
