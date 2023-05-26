@@ -317,6 +317,7 @@ void SelectionTab::onDoubleClick()
 {
 	if(getLine() != -1) //double clicked scenarios list
 	{
+		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickLeft(true, false);
 		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickLeft(false, true);
 	}
 }
