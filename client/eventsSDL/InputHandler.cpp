@@ -54,14 +54,14 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			return mouseHandler->handleEventMouseMotion(current.motion);
 		case SDL_MOUSEBUTTONDOWN:
 			return mouseHandler->handleEventMouseButtonDown(current.button);
+		case SDL_MOUSEBUTTONUP:
+			return mouseHandler->handleEventMouseButtonUp(current.button);
 		case SDL_MOUSEWHEEL:
 			return mouseHandler->handleEventMouseWheel(current.wheel);
 		case SDL_TEXTINPUT:
 			return textHandler->handleEventTextInput(current.text);
 		case SDL_TEXTEDITING:
 			return textHandler->handleEventTextEditing(current.edit);
-		case SDL_MOUSEBUTTONUP:
-			return mouseHandler->handleEventMouseButtonUp(current.button);
 		case SDL_FINGERMOTION:
 			return fingerHandler->handleEventFingerMotion(current.tfinger);
 		case SDL_FINGERDOWN:

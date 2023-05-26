@@ -10,9 +10,7 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-class Point;
-VCMI_LIB_NAMESPACE_END
+#include "../../lib/Point.h"
 
 enum class MouseButton;
 struct SDL_TouchFingerEvent;
@@ -69,7 +67,12 @@ enum class TouchState
 struct TouchInputParameters
 {
 	double relativeModeSpeedFactor = 1.0;
+
+	/// tap for period longer than specified here will be qualified as "long tap", triggering corresponding gesture
 	uint32_t longPressTimeMilliseconds = 500;
+
+	/// moving finger for distance larger than specified will be qualified as panning gesture instead of long press
+	uint32_t panningSensitivityThreshold = 16;
 
 	bool useHoldGesture = true;
 	bool usePanGesture = true;
@@ -83,11 +86,12 @@ class InputSourceTouch
 	TouchInputParameters params;
 	TouchState state;
 	uint32_t lastTapTimeTicks;
+	Point lastTapPosition;
 
 	Point convertTouchToMouse(const SDL_TouchFingerEvent & current);
 
-	void emitPanningEvent();
-	void emitPinchEvent();
+	void emitPanningEvent(const SDL_TouchFingerEvent & tfinger);
+	void emitPinchEvent(const SDL_TouchFingerEvent & tfinger);
 
 public:
 	InputSourceTouch();

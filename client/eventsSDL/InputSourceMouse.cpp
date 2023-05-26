@@ -30,7 +30,6 @@ void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motio
 		GH.events().dispatchGesturePanning(distance);
 
 	mouseButtonsMask = motion.state;
-
 }
 
 void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & button)

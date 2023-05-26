@@ -61,17 +61,21 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 		}
 		case TouchState::TAP_DOWN_SHORT:
 		{
-			state = TouchState::TAP_DOWN_PANNING;
+			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
+
+			Point distance = GH.getCursorPosition() - lastTapPosition;
+			if ( std::abs(distance.x) > params.panningSensitivityThreshold || std::abs(distance.y) > params.panningSensitivityThreshold)
+				state = TouchState::TAP_DOWN_PANNING;
 			break;
 		}
 		case TouchState::TAP_DOWN_PANNING:
 		{
-			emitPanningEvent();
+			emitPanningEvent(tfinger);
 			break;
 		}
 		case TouchState::TAP_DOWN_DOUBLE:
 		{
-			emitPinchEvent();
+			emitPinchEvent(tfinger);
 			break;
 		}
 		case TouchState::TAP_DOWN_LONG:
@@ -100,6 +104,7 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 		case TouchState::IDLE:
 		{
 			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
+			lastTapPosition = GH.getCursorPosition();
 			state = TouchState::TAP_DOWN_SHORT;
 			break;
 		}
@@ -200,12 +205,14 @@ bool InputSourceTouch::isMouseButtonPressed(MouseButton button) const
 	return false;
 }
 
-void InputSourceTouch::emitPanningEvent()
+void InputSourceTouch::emitPanningEvent(const SDL_TouchFingerEvent & tfinger)
 {
-	// TODO
+	Point distance(-tfinger.dx * GH.screenDimensions().x, -tfinger.dy * GH.screenDimensions().y);
+
+	GH.events().dispatchGesturePanning(distance);
 }
 
-void InputSourceTouch::emitPinchEvent()
+void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 {
 	// TODO
 }
