@@ -19,18 +19,29 @@ class MapView;
 class MapViewActions : public CIntObject
 {
 	bool isSwiping;
+	bool isPostSwiping;
+	int32_t postSwipeCounter;
 
 	Point swipeInitialViewPos;
 	Point swipeInitialRealPos;
+	Point swipeDelta;
+	Point cursorPositionLast[5];
 
 	MapView & owner;
 	std::shared_ptr<MapViewModel> model;
 	std::shared_ptr<IMapRendererContext> context;
+	
+	uint32_t timerCounter;
+	bool timerRunning;
 
 	void handleHover(const Point & cursorPosition);
 	void handleSwipeMove(const Point & cursorPosition);
 	bool handleSwipeStateChange(bool btnPressed);
 	bool swipeEnabled() const;
+	void tick(uint32_t msPassed) override;
+	void startTimer();
+	void trackCursor(bool init);
+	void handlePostSwipe();
 
 public:
 	MapViewActions(MapView & owner, const std::shared_ptr<MapViewModel> & model);

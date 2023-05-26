@@ -26,6 +26,9 @@ MapViewActions::MapViewActions(MapView & owner, const std::shared_ptr<MapViewMod
 	: model(model)
 	, owner(owner)
 	, isSwiping(false)
+	, timerCounter(0)
+	, timerRunning(false)
+	, postSwipeCounter(0)
 {
 	pos.w = model->getPixelsVisibleDimensions().x;
 	pos.h = model->getPixelsVisibleDimensions().y;
@@ -116,12 +119,15 @@ void MapViewActions::handleSwipeMove(const Point & cursorPosition)
 		Point distance = (cursorPosition - swipeInitialRealPos);
 
 		// try to distinguish if this touch was meant to be a swipe or just fat-fingering press
-		if(std::abs(distance.x) + std::abs(distance.y) > touchSwipeSlop)
+		if(std::abs(distance.x) + std::abs(distance.y) > touchSwipeSlop) {
 			isSwiping = true;
+			startTimer();
+			trackCursor(true);
+		}
 	}
 
 	if(isSwiping)
-	{
+	{	    
 		Point swipeTargetPosition = swipeInitialViewPos + swipeInitialRealPos - cursorPosition;
 		owner.onMapSwiped(swipeTargetPosition);
 	}
@@ -133,16 +139,83 @@ bool MapViewActions::handleSwipeStateChange(bool btnPressed)
 	{
 		swipeInitialRealPos = GH.getCursorPosition();
 		swipeInitialViewPos = model->getMapViewCenter();
+		isPostSwiping = false;
 		return true;
 	}
 
 	if(isSwiping) // only accept this touch if it wasn't a swipe
 	{
-		owner.onMapSwipeEnded();
+		isPostSwiping = true;
+		postSwipeCounter = 0;
 		isSwiping = false;
 		return true;
 	}
 	return false;
+}
+
+void MapViewActions::startTimer()
+{
+    if(!timerRunning) {
+	    addUsedEvents(TIME);
+	    timerCounter = 1;
+	    timerRunning = true;
+	}
+}
+
+void MapViewActions::tick(uint32_t msPassed)
+{
+	assert(timerCounter > 0);
+
+	if (msPassed >= timerCounter)
+	{
+		if(isSwiping)
+	    {
+	        trackCursor(false);
+	    }
+		else if(isPostSwiping)
+	    {
+	        handlePostSwipe();
+		}
+		
+		if(isSwiping || isPostSwiping) {
+	        timerCounter = 20;
+		} else {
+			removeUsedEvents(TIME);
+			timerCounter = 0;
+		    timerRunning = false;
+		}
+	}
+	else
+	{
+		timerCounter -= msPassed;
+	}
+}
+
+void MapViewActions::trackCursor(bool init)
+{
+	Point cursorPosition = GH.getCursorPosition();
+
+	if(init) for (int i = 0; i < (sizeof(cursorPositionLast)/sizeof(cursorPositionLast[0])); i++) cursorPositionLast[i] = cursorPosition;
+
+	swipeDelta = cursorPositionLast[0] - cursorPosition;
+
+    for (int i = 0; i < (sizeof(cursorPositionLast)/sizeof(cursorPositionLast[0]))-1; i++) cursorPositionLast[i] = cursorPositionLast[i+1]; //change to timer (fixed interval), to avoid small move error and save cursorPosition here (or in mouseMoved) to var
+    cursorPositionLast[(sizeof(cursorPositionLast)/sizeof(cursorPositionLast[0]))-1] = cursorPosition; //test also mittle mouse      &&      define minimum point to enable funcionality    && scroll @ border disable functionality
+}
+
+void MapViewActions::handlePostSwipe()
+{
+	Point swipeLastViewPos = model->getMapViewCenter();
+    Point swipeDeltaSlowdown = swipeDelta / (postSwipeCounter + 1);
+    Point swipeTargetPosition = swipeLastViewPos + swipeDeltaSlowdown;
+    owner.onMapSwiped(swipeTargetPosition);
+    
+    postSwipeCounter++;
+    
+    if(postSwipeCounter == 100 || swipeDeltaSlowdown == Point(0,0)) {
+	    owner.onMapSwipeEnded();
+        isPostSwiping = false;
+    }
 }
 
 void MapViewActions::handleHover(const Point & cursorPosition)
