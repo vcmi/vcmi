@@ -1788,7 +1788,7 @@ void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
 		parent->changeSelection(index);
 }
 
-void CObjectListWindow::CItem::onDoubleClick()
+void CObjectListWindow::CItem::clickDouble()
 {
 	parent->elementSelected();
 }

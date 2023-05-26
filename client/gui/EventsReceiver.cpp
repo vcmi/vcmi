@@ -55,20 +55,3 @@ void AEventsReceiver::deactivateEvents(ui16 what)
 		activeState &= ~GENERAL;
 	GH.events().deactivateElement(this, what & activeState);
 }
-
-void AEventsReceiver::click(MouseButton btn, tribool down, bool previousState)
-{
-	switch(btn)
-	{
-	default:
-	case MouseButton::LEFT:
-		clickLeft(down, previousState);
-		break;
-	case MouseButton::MIDDLE:
-		clickMiddle(down, previousState);
-		break;
-	case MouseButton::RIGHT:
-		clickRight(down, previousState);
-		break;
-	}
-}

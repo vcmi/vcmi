@@ -168,7 +168,11 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 			// This prevents freezes when every motion event takes longer to handle than interval at which
 			// the events arrive (like dragging on the minimap in world view, with redraw at every event)
 			// so that the events would start piling up faster than they can be processed.
+			int xAccumulated = eventsQueue.back().motion.xrel + ev.motion.xrel;
+			int yAccumulated = eventsQueue.back().motion.yrel + ev.motion.yrel;
 			eventsQueue.back() = ev;
+			eventsQueue.back().motion.xrel = xAccumulated;
+			eventsQueue.back().motion.yrel = yAccumulated;
 			return;
 		}
 		eventsQueue.push_back(ev);

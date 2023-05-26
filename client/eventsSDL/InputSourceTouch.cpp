@@ -104,11 +104,6 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 			break;
 		}
 		case TouchState::TAP_DOWN_SHORT:
-		{
-			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
-			state = TouchState::TAP_DOWN_DOUBLE;
-			break;
-		}
 		case TouchState::TAP_DOWN_PANNING:
 		{
 			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
@@ -116,10 +111,6 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 			break;
 		}
 		case TouchState::TAP_DOWN_DOUBLE:
-		{
-			// TODO? ignore?
-			break;
-		}
 		case TouchState::TAP_DOWN_LONG:
 		{
 			// no-op
@@ -163,6 +154,8 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 		{
 			if (SDL_GetNumTouchFingers(tfinger.touchId) == 1)
 				state = TouchState::TAP_DOWN_PANNING;
+			if (SDL_GetNumTouchFingers(tfinger.touchId) == 0)
+				state = TouchState::IDLE;
 			break;
 		}
 		case TouchState::TAP_DOWN_LONG:

@@ -28,7 +28,6 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 
 	processList(AEventsReceiver::LCLICK, lclickable);
 	processList(AEventsReceiver::RCLICK, rclickable);
-	processList(AEventsReceiver::MCLICK, mclickable);
 	processList(AEventsReceiver::HOVER, hoverable);
 	processList(AEventsReceiver::MOVE, motioninterested);
 	processList(AEventsReceiver::KEYBOARD, keyinterested);
@@ -36,6 +35,7 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 	processList(AEventsReceiver::WHEEL, wheelInterested);
 	processList(AEventsReceiver::DOUBLECLICK, doubleClickInterested);
 	processList(AEventsReceiver::TEXTINPUT, textInterested);
+	processList(AEventsReceiver::GESTURE_PANNING, panningInterested);
 }
 
 void EventDispatcher::activateElement(AEventsReceiver * elem, ui16 activityFlag)
@@ -120,8 +120,6 @@ EventDispatcher::EventReceiversList & EventDispatcher::getListForMouseButton(Mou
 			return lclickable;
 		case MouseButton::RIGHT:
 			return rclickable;
-		case MouseButton::MIDDLE:
-			return mclickable;
 	}
 	throw std::runtime_error("Invalid mouse button in getListForMouseButton");
 }
@@ -138,7 +136,7 @@ void EventDispatcher::dispatchMouseDoubleClick(const Point & position)
 
 		if(i->isInside(position))
 		{
-			i->onDoubleClick();
+			i->clickDouble();
 			doubleClicked = true;
 		}
 	}
@@ -172,10 +170,19 @@ void EventDispatcher::handleMouseButtonClick(EventReceiversList & interestedObjs
 		{
 			if(isPressed)
 				i->currentMouseState[btn] = isPressed;
-			i->click(btn, isPressed, prev);
+
+			if (btn == MouseButton::LEFT)
+				i->clickLeft(isPressed, prev);
+			if (btn == MouseButton::RIGHT)
+				i->clickRight(isPressed, prev);
 		}
 		else if(!isPressed)
-			i->click(btn, boost::logic::indeterminate, prev);
+		{
+			if (btn == MouseButton::LEFT)
+				i->clickLeft(boost::logic::indeterminate, prev);
+			if (btn == MouseButton::RIGHT)
+				i->clickRight(boost::logic::indeterminate, prev);
+		}
 	}
 }
 
@@ -203,6 +210,14 @@ void EventDispatcher::dispatchTextEditing(const std::string & text)
 	for(auto it : textInterested)
 	{
 		it->textEdited(text);
+	}
+}
+
+void EventDispatcher::dispatchGesturePanning(const Point & distance)
+{
+	for(auto it : panningInterested)
+	{
+		it->gesturePanning(distance);
 	}
 }
 

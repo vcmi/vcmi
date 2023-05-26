@@ -313,7 +313,7 @@ void SelectionTab::keyPressed(EShortcut key)
 	select((int)selectionPos - slider->getValue() + moveBy);
 }
 
-void SelectionTab::onDoubleClick()
+void SelectionTab::clickDouble()
 {
 	if(getLine() != -1) //double clicked scenarios list
 	{

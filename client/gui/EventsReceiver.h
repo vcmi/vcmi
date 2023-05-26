@@ -29,7 +29,6 @@ class AEventsReceiver
 	bool strongInterestState;
 	std::map<MouseButton, bool> currentMouseState;
 
-	void click(MouseButton btn, tribool down, bool previousState);
 protected:
 
 	/// If set, UI element will receive all mouse movement events, even those outside this element
@@ -42,19 +41,20 @@ protected:
 
 	virtual void clickLeft(tribool down, bool previousState) {}
 	virtual void clickRight(tribool down, bool previousState) {}
-	virtual void clickMiddle(tribool down, bool previousState) {}
+	virtual void clickDouble() {}
+
+	virtual void gesturePanning(const Point & distanceDelta) {}
+	virtual void wheelScrolled(bool down, bool in) {}
+	virtual void mouseMoved(const Point & cursorPosition) {}
+	virtual void hover(bool on) {}
 
 	virtual void textInputed(const std::string & enteredText) {}
 	virtual void textEdited(const std::string & enteredText) {}
 
-	virtual void tick(uint32_t msPassed) {}
-	virtual void wheelScrolled(bool down, bool in) {}
-	virtual void mouseMoved(const Point & cursorPosition) {}
-	virtual void hover(bool on) {}
-	virtual void onDoubleClick() {}
-
 	virtual void keyPressed(EShortcut key) {}
 	virtual void keyReleased(EShortcut key) {}
+
+	virtual void tick(uint32_t msPassed) {}
 
 	virtual bool captureThisKey(EShortcut key) = 0;
 	virtual bool isInside(const Point & position) = 0;
@@ -64,7 +64,7 @@ public:
 	virtual ~AEventsReceiver() = default;
 
 	/// These are the arguments that can be used to determine what kind of input UI element will receive
-	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, MCLICK=1024, ALL=0xffff};
+	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, GESTURE_PANNING=1024, ALL=0xffff};
 
 	/// Returns true if element is currently hovered by mouse
 	bool isHovered() const;

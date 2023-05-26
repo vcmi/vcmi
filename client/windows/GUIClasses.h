@@ -163,7 +163,7 @@ class CObjectListWindow : public CWindowObject
 
 		void select(bool on);
 		void clickLeft(tribool down, bool previousState) override;
-		void onDoubleClick() override;
+		void clickDouble() override;
 	};
 
 	std::function<void(int)> onSelect;//called when OK button is pressed, returns id of selected item.
