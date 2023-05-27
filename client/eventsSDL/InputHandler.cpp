@@ -162,18 +162,31 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	{
 		boost::unique_lock<boost::mutex> lock(eventsMutex);
 
-		if(ev.type == SDL_MOUSEMOTION && !eventsQueue.empty() && eventsQueue.back().type == SDL_MOUSEMOTION)
+		// In a sequence of motion events, skip all but the last one.
+		// This prevents freezes when every motion event takes longer to handle than interval at which
+		// the events arrive (like dragging on the minimap in world view, with redraw at every event)
+		// so that the events would start piling up faster than they can be processed.
+		if (!eventsQueue.empty())
 		{
-			// In a sequence of mouse motion events, skip all but the last one.
-			// This prevents freezes when every motion event takes longer to handle than interval at which
-			// the events arrive (like dragging on the minimap in world view, with redraw at every event)
-			// so that the events would start piling up faster than they can be processed.
-			int xAccumulated = eventsQueue.back().motion.xrel + ev.motion.xrel;
-			int yAccumulated = eventsQueue.back().motion.yrel + ev.motion.yrel;
-			eventsQueue.back() = ev;
-			eventsQueue.back().motion.xrel = xAccumulated;
-			eventsQueue.back().motion.yrel = yAccumulated;
-			return;
+			const SDL_Event & prev = eventsQueue.back();
+
+			if(ev.type == SDL_MOUSEMOTION && prev.type == SDL_MOUSEMOTION)
+			{
+				SDL_Event accumulated = ev;
+				accumulated.motion.xrel += prev.motion.xrel;
+				accumulated.motion.yrel += prev.motion.yrel;
+				eventsQueue.back() = accumulated;
+				return;
+			}
+
+			if(ev.type == SDL_FINGERMOTION && prev.type == SDL_FINGERMOTION && ev.tfinger.fingerId == prev.tfinger.fingerId)
+			{
+				SDL_Event accumulated = ev;
+				accumulated.tfinger.dx += prev.tfinger.dx;
+				accumulated.tfinger.dy += prev.tfinger.dy;
+				eventsQueue.back() = accumulated;
+				return;
+			}
 		}
 		eventsQueue.push_back(ev);
 	}

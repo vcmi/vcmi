@@ -707,7 +707,7 @@ void CSlider::showAll(Canvas & to)
 	CIntObject::showAll(to);
 }
 
-void CSlider::wheelScrolled(bool down, bool in)
+void CSlider::wheelScrolled(int distance, bool in)
 {
 	if (scrollBounds)
 	{
@@ -719,7 +719,7 @@ void CSlider::wheelScrolled(bool down, bool in)
 
 	// vertical slider -> scrolling up move slider upwards
 	// horizontal slider -> scrolling up moves slider towards right
-	bool positive = (down != horizontal);
+	bool positive = ((distance < 0) != horizontal);
 
 	moveTo(value + 3 * (positive ? +scrollStep : -scrollStep));
 }

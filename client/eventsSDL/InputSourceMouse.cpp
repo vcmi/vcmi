@@ -52,11 +52,7 @@ void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & b
 
 void InputSourceMouse::handleEventMouseWheel(const SDL_MouseWheelEvent & wheel)
 {
-	// SDL doesn't have the proper values for mouse positions on SDL_MOUSEWHEEL, refetch them
-	int x = 0, y = 0;
-	SDL_GetMouseState(&x, &y);
-
-	GH.events().dispatchMouseScrolled(Point(wheel.x, wheel.y), Point(x, y));
+	GH.events().dispatchMouseScrolled(Point(wheel.x, wheel.y), GH.getCursorPosition());
 }
 
 void InputSourceMouse::handleEventMouseButtonUp(const SDL_MouseButtonEvent & button)

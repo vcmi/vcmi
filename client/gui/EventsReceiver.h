@@ -44,7 +44,7 @@ protected:
 	virtual void clickDouble() {}
 
 	virtual void gesturePanning(const Point & distanceDelta) {}
-	virtual void wheelScrolled(bool down, bool in) {}
+	virtual void wheelScrolled(int distance, bool inside) {}
 	virtual void mouseMoved(const Point & cursorPosition) {}
 	virtual void hover(bool on) {}
 

@@ -193,7 +193,10 @@ void EventDispatcher::dispatchMouseScrolled(const Point & distance, const Point 
 	{
 		if(!vstd::contains(wheelInterested,i))
 			continue;
-		i->wheelScrolled(distance.y < 0, i->isInside(position));
+
+		// ignore distance value and only provide its sign - we expect one scroll "event" to move sliders and such by 1 point,
+		// and not by system-specific "number of lines to scroll", which is what 'distance' represents
+		i->wheelScrolled( std::clamp(distance.y, -1, 1) , i->isInside(position));
 	}
 }
 

@@ -238,7 +238,7 @@ public:
 	void addCallback(std::function<void(int)> callback);
 
 	void keyPressed(EShortcut key) override;
-	void wheelScrolled(bool down, bool in) override;
+	void wheelScrolled(int distance, bool in) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void mouseMoved (const Point & cursorPosition) override;
 	void showAll(Canvas & to) override;
