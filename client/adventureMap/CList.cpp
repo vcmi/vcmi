@@ -31,15 +31,25 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 
 CList::CListItem::CListItem(CList * Parent)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: CIntObject(LCLICK | RCLICK | HOVER | WHEEL),
 	parent(Parent),
 	selection()
 {
 	defActions = 255-DISPOSE;
 }
 
-CList::CListItem::~CListItem()
+CList::CListItem::~CListItem() = default;
+
+void CList::CListItem::wheelScrolled(int distance, bool inside)
 {
+	if (inside)
+	{
+		if (distance < 0)
+			parent->listBox->moveToNext();
+		if (distance > 0)
+			parent->listBox->moveToPrev();
+		parent->update();
+	}
 }
 
 void CList::CListItem::clickRight(tribool down, bool previousState)
