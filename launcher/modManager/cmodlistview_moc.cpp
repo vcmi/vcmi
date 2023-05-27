@@ -200,8 +200,9 @@ QString CModListView::genChangelogText(CModEntry & mod)
 
 	std::sort(versions.begin(), versions.end(), [](QString lesser, QString greater)
 	{
-		return !CModEntry::compareVersions(lesser, greater);
+		return CModEntry::compareVersions(lesser, greater);
 	});
+	std::reverse(versions.begin(), versions.end());
 
 	for(auto & version : versions)
 	{
