@@ -410,7 +410,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 }
 
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, SelType type)
-	: CIntObject(RCLICK, position), CPlayerSettingsHelper(settings, type)
+	: CIntObject(RCLICK | WHEEL, position), CPlayerSettingsHelper(settings, type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -437,6 +437,25 @@ void OptionsTab::SelectedBox::clickRight(tribool down, bool previousState)
 			return;
 
 		GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
+	}
+}
+
+void OptionsTab::SelectedBox::wheelScrolled(int distance, bool isInside)
+{
+	if (!isInside)
+		return;
+
+	switch(CPlayerSettingsHelper::type)
+	{
+		case TOWN:
+			CSH->setPlayerOption(LobbyChangePlayerOption::TOWN, distance, settings.color);
+			break;
+		case HERO:
+			CSH->setPlayerOption(LobbyChangePlayerOption::HERO, distance, settings.color);
+			break;
+		case BONUS:
+			CSH->setPlayerOption(LobbyChangePlayerOption::BONUS, distance, settings.color);
+			break;
 	}
 }
 
