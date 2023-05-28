@@ -91,7 +91,7 @@ public:
 	CMultiMode(ESelectionScreen ScreenType);
 	void hostTCP();
 	void joinTCP();
-	getDefaultPlayerName()
+	std::string getPlayerName();
 
 	void onNameChange(std::string newText);
 };
