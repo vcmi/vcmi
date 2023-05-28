@@ -30,6 +30,14 @@
 	"vcmi.capitalColors.6" : "Türkis",
 	"vcmi.capitalColors.7" : "Rosa",
 
+	"vcmi.mainMenu.tutorialNotImplemented" : "Das Tutorial ist aktuell noch nicht implementiert\n",
+	"vcmi.mainMenu.highscoresNotImplemented" : "Die Highscores sind aktuell noch nicht implementiert\n",
+	"vcmi.mainMenu.serverConnecting" : "Verbinde...",
+	"vcmi.mainMenu.serverAddressEnter" : "Addresse eingeben:",
+	"vcmi.mainMenu.serverClosing" : "Trenne...",
+	"vcmi.mainMenu.hostTCP" : "Hoste TCP/IP Spiel",
+	"vcmi.mainMenu.joinTCP" : "Trete TCP/IP Spiel bei",
+
 	"vcmi.server.errors.existingProcess"     : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
 	"vcmi.server.errors.modsIncompatibility" : "Erforderliche Mods um das Spiel zu laden:",
 	"vcmi.server.confirmReconnect"           : "Mit der letzten Sitzung verbinden?",
@@ -104,7 +112,7 @@
 
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Verfügbare Kreaturen anzeigen",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Verfügbare Kreaturen anzeigen}\n\n Zeigt in der Stadtübersicht (linke untere Ecke) die zum Kauf verfügbaren Kreaturen anstelle ihres Wachstums an.",
-	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover" : "Wöchentliches Wachstum der Kreaturen anzeigen",
+	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover" : "Wöchentl. Wachstum der Kreaturen anz.",
 	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.help" : "{Wöchentliches Wachstum der Kreaturen anzeigen}\n\n Zeigt das wöchentliche Wachstum der Kreaturen anstelle der verfügbaren Menge in der Stadtübersicht (unten links).",
 	"vcmi.otherOptions.compactTownCreatureInfo.hover": "Kompakte Kreatur-Infos",
 	"vcmi.otherOptions.compactTownCreatureInfo.help": "{Kompakte Kreatur-Infos}\n\n Kleinere Stadt-Kreaturen Informationen in der Stadtübersicht.",

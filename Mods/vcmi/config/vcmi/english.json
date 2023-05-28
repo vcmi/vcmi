@@ -30,6 +30,14 @@
 	"vcmi.capitalColors.6" : "Teal",
 	"vcmi.capitalColors.7" : "Pink",
 
+	"vcmi.mainMenu.tutorialNotImplemented" : "Sorry, tutorial is not implemented yet\n",
+	"vcmi.mainMenu.highscoresNotImplemented" : "Sorry, high scores menu is not implemented yet\n",
+	"vcmi.mainMenu.serverConnecting" : "Connecting...",
+	"vcmi.mainMenu.serverAddressEnter" : "Enter address:",
+	"vcmi.mainMenu.serverClosing" : "Closing...",
+	"vcmi.mainMenu.hostTCP" : "Host TCP/IP game",
+	"vcmi.mainMenu.joinTCP" : "Join TCP/IP game",
+
 	"vcmi.server.errors.existingProcess"     : "Another VCMI server process is running. Please terminate it before starting a new game.",
 	"vcmi.server.errors.modsIncompatibility" : "The following mods are required to load the game:",
 	"vcmi.server.confirmReconnect"           : "Do you want to reconnect to the last session?",

@@ -182,7 +182,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 2:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::campaignList, true, nullptr, ELoadMode::NONE);
 				case 3:
-					return std::bind(CInfoWindow::showInfoDialog, "Sorry, tutorial is not implemented yet\n", std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
+					return std::bind(CInfoWindow::showInfoDialog, CGI->generaltexth->translate("vcmi.mainMenu.tutorialNotImplemented"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
 				}
 				break;
 			}
@@ -197,7 +197,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 2:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::CAMPAIGN);
 				case 3:
-					return std::bind(CInfoWindow::showInfoDialog, "Sorry, tutorial is not implemented yet\n", std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
+					return std::bind(CInfoWindow::showInfoDialog, CGI->generaltexth->translate("vcmi.mainMenu.tutorialNotImplemented"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
 				}
 			}
 			break;
@@ -208,7 +208,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 			break;
 			case 5: //highscores
 			{
-				return std::bind(CInfoWindow::showInfoDialog, "Sorry, high scores menu is not implemented yet\n", std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
+				return std::bind(CInfoWindow::showInfoDialog, CGI->generaltexth->translate("vcmi.mainMenu.highscoresNotImplemented"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
 			}
 			}
 		}
@@ -404,8 +404,8 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	playerName->cb += std::bind(&CMultiMode::onNameChange, this, _1);
 
 	buttonHotseat = std::make_shared<CButton>(Point(373, 78), "MUBHOT.DEF", CGI->generaltexth->zelp[266], std::bind(&CMultiMode::hostTCP, this));
-	buttonHost = std::make_shared<CButton>(Point(373, 78 + 57 * 1), "MUBHOST.DEF", CButton::tooltip("Host TCP/IP game", ""), std::bind(&CMultiMode::hostTCP, this));
-	buttonJoin = std::make_shared<CButton>(Point(373, 78 + 57 * 2), "MUBJOIN.DEF", CButton::tooltip("Join TCP/IP game", ""), std::bind(&CMultiMode::joinTCP, this));
+	buttonHost = std::make_shared<CButton>(Point(373, 78 + 57 * 1), "MUBHOST.DEF", CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.hostTCP"), ""), std::bind(&CMultiMode::hostTCP, this));
+	buttonJoin = std::make_shared<CButton>(Point(373, 78 + 57 * 2), "MUBJOIN.DEF", CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.joinTCP"), ""), std::bind(&CMultiMode::joinTCP, this));
 	buttonCancel = std::make_shared<CButton>(Point(373, 424), "MUBCANC.DEF", CGI->generaltexth->zelp[288], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
@@ -486,12 +486,12 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 	inputPort = std::make_shared<CTextInput>(Rect(25, 115, 175, 16), background->getSurface());
 	if(host && !settings["session"]["donotstartserver"].Bool())
 	{
-		textTitle->setText("Connecting...");
+		textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverConnecting"));
 		startConnectThread();
 	}
 	else
 	{
-		textTitle->setText("Enter address:");
+		textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverAddressEnter"));
 		inputAddress->cb += std::bind(&CSimpleJoinScreen::onChange, this, _1);
 		inputPort->cb += std::bind(&CSimpleJoinScreen::onChange, this, _1);
 		inputPort->filters += std::bind(&CTextInput::numberFilter, _1, _2, 0, 65535);
@@ -508,7 +508,7 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 
 void CSimpleJoinScreen::connectToServer()
 {
-	textTitle->setText("Connecting...");
+	textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverConnecting"));
 	buttonOk->block(true);
 	GH.stopTextInput();
 
@@ -519,7 +519,7 @@ void CSimpleJoinScreen::leaveScreen()
 {
 	if(CSH->state == EClientState::CONNECTING)
 	{
-		textTitle->setText("Closing...");
+		textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverClosing"));
 		CSH->state = EClientState::CONNECTION_CANCELLED;
 	}
 	else if(GH.windows().isTopWindow(this))
