@@ -37,6 +37,7 @@
 	"vcmi.mainMenu.serverClosing" : "Trenne...",
 	"vcmi.mainMenu.hostTCP" : "Hoste TCP/IP Spiel",
 	"vcmi.mainMenu.joinTCP" : "Trete TCP/IP Spiel bei",
+	"vcmi.mainMenu.playerName" : "Spieler",
 
 	"vcmi.server.errors.existingProcess"     : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
 	"vcmi.server.errors.modsIncompatibility" : "Erforderliche Mods um das Spiel zu laden:",

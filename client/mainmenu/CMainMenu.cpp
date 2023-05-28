@@ -400,7 +400,7 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 465, 440, 18), 7, 465));
 	playerName = std::make_shared<CTextInput>(Rect(19, 436, 334, 16), background->getSurface());
-	playerName->setText(settings["general"]["playerName"].String());
+	playerName->setText(getDefaultPlayerName());
 	playerName->cb += std::bind(&CMultiMode::onNameChange, this, _1);
 
 	buttonHotseat = std::make_shared<CButton>(Point(373, 78), "MUBHOT.DEF", CGI->generaltexth->zelp[266], std::bind(&CMultiMode::hostTCP, this));
@@ -413,14 +413,22 @@ void CMultiMode::hostTCP()
 {
 	auto savedScreenType = screenType;
 	close();
-	GH.windows().createAndPushWindow<CMultiPlayers>(settings["general"]["playerName"].String(), savedScreenType, true, ELoadMode::MULTI);
+	GH.windows().createAndPushWindow<CMultiPlayers>(getDefaultPlayerName(), savedScreenType, true, ELoadMode::MULTI);
 }
 
 void CMultiMode::joinTCP()
 {
 	auto savedScreenType = screenType;
 	close();
-	GH.windows().createAndPushWindow<CMultiPlayers>(settings["general"]["playerName"].String(), savedScreenType, false, ELoadMode::MULTI);
+	GH.windows().createAndPushWindow<CMultiPlayers>(getDefaultPlayerName(), savedScreenType, false, ELoadMode::MULTI);
+}
+
+std::string CMultiMode::getDefaultPlayerName()
+{
+	std::string name = settings["general"]["playerName"].String();
+	if(name == "Player")
+		name = CGI->generaltexth->translate("vcmi.mainMenu.playerName");
+	return name;
 }
 
 void CMultiMode::onNameChange(std::string newText)
