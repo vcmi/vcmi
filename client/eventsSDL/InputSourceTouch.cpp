@@ -79,6 +79,7 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 			break;
 		}
 		case TouchState::TAP_DOWN_LONG:
+		case TouchState::TAP_DOWN_LONG_AWAIT:
 		{
 			// no-op
 			break;
@@ -118,6 +119,7 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 		}
 		case TouchState::TAP_DOWN_DOUBLE:
 		case TouchState::TAP_DOWN_LONG:
+		case TouchState::TAP_DOWN_LONG_AWAIT:
 		{
 			// no-op
 			break;
@@ -169,6 +171,14 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 			break;
 		}
 		case TouchState::TAP_DOWN_LONG:
+		{
+			if (SDL_GetNumTouchFingers(tfinger.touchId) == 0)
+			{
+				state = TouchState::TAP_DOWN_LONG_AWAIT;
+			}
+			break;
+		}
+		case TouchState::TAP_DOWN_LONG_AWAIT:
 		{
 			if (SDL_GetNumTouchFingers(tfinger.touchId) == 0)
 			{

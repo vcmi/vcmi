@@ -51,8 +51,14 @@ enum class TouchState
 	// single finger is down for long period of time
 	// DOWN -> ignored
 	// MOTION -> ignored
-	// UP -> transition to IDLE, generate onRightClickUp() event
+	// UP -> transition to TAP_DOWN_LONG_AWAIT
 	TAP_DOWN_LONG,
+
+	// right-click popup is active, waiting for new tap to hide popup
+	// DOWN -> ignored
+	// MOTION -> ignored
+	// UP -> transition to IDLE, generate onRightClickUp() event
+	TAP_DOWN_LONG_AWAIT,
 
 
 	// Possible transitions:
