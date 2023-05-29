@@ -227,6 +227,7 @@ void EventDispatcher::dispatchGesturePanningStarted(const Point & initialPositio
 	{
 		if (it->receiveEvent(initialPosition, AEventsReceiver::GESTURE_PANNING))
 		{
+			assert(it->panningState == false);
 			it->panning(true);
 			it->panningState = true;
 		}
@@ -247,7 +248,9 @@ void EventDispatcher::dispatchGesturePanningEnded()
 
 void EventDispatcher::dispatchGesturePanning(const Point & distance)
 {
-	for(auto it : panningInterested)
+	auto copied = panningInterested;
+
+	for(auto it : copied)
 	{
 		if (it->isPanning())
 			it->gesturePanning(distance);

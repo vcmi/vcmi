@@ -485,7 +485,7 @@ void CServerHandler::setPlayer(PlayerColor color) const
 	sendLobbyPack(lsp);
 }
 
-void CServerHandler::setPlayerOption(ui8 what, ui8 dir, PlayerColor player) const
+void CServerHandler::setPlayerOption(ui8 what, si8 dir, PlayerColor player) const
 {
 	LobbyChangePlayerOption lcpo;
 	lcpo.what = what;

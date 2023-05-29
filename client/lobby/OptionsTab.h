@@ -97,10 +97,13 @@ public:
 	{
 		std::shared_ptr<CAnimImage> image;
 		std::shared_ptr<CLabel> subtitle;
+		int panningDistanceAccumulated;
 
 		SelectedBox(Point position, PlayerSettings & settings, SelType type);
 		void clickRight(tribool down, bool previousState) override;
 		void wheelScrolled(int distance) override;
+		void gesturePanning(const Point & distanceDelta) override;
+		void panning(bool on) override;
 
 		void update();
 	};

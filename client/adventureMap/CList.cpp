@@ -31,7 +31,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 
 CList::CListItem::CListItem(CList * Parent)
-	: CIntObject(LCLICK | RCLICK | HOVER | WHEEL),
+	: CIntObject(LCLICK | RCLICK | HOVER),
 	parent(Parent),
 	selection()
 {
@@ -39,15 +39,6 @@ CList::CListItem::CListItem(CList * Parent)
 }
 
 CList::CListItem::~CListItem() = default;
-
-void CList::CListItem::wheelScrolled(int distance)
-{
-	if (distance < 0)
-		parent->listBox->moveToNext();
-	if (distance > 0)
-		parent->listBox->moveToPrev();
-	parent->update();
-}
 
 void CList::CListItem::clickRight(tribool down, bool previousState)
 {
@@ -91,8 +82,9 @@ void CList::CListItem::onSelect(bool on)
 }
 
 CList::CList(int Size, Rect widgetDimensions)
-	: CIntObject(0, widgetDimensions.topLeft()),
+	: CIntObject(WHEEL | GESTURE_PANNING, widgetDimensions.topLeft()),
 	size(Size),
+	panningDistanceAccumulated(0),
 	selected(nullptr)
 {
 	pos.w = widgetDimensions.w;
@@ -194,6 +186,41 @@ void CList::selectPrev()
 		selectIndex(0);
 	else
 		selectIndex(index-1);
+}
+
+void CList::panning(bool on)
+{
+	panningDistanceAccumulated = 0;
+}
+
+void CList::gesturePanning(const Point & distanceDelta)
+{
+	int panningDistanceSingle = 32;
+
+	panningDistanceAccumulated += distanceDelta.y;
+
+	while (-panningDistanceAccumulated > panningDistanceSingle )
+	{
+		listBox->moveToPrev();
+		panningDistanceAccumulated += panningDistanceSingle;
+	}
+
+	while (panningDistanceAccumulated > panningDistanceSingle )
+	{
+		listBox->moveToNext();
+		panningDistanceAccumulated -= panningDistanceSingle;
+	}
+
+	update();
+}
+
+void CList::wheelScrolled(int distance)
+{
+	if (distance < 0)
+		listBox->moveToNext();
+	if (distance > 0)
+		listBox->moveToPrev();
+	update();
 }
 
 CHeroList::CEmptyHeroItem::CEmptyHeroItem()

@@ -17,6 +17,7 @@
 AEventsReceiver::AEventsReceiver()
 	: activeState(0)
 	, hoveredState(false)
+	, panningState(false)
 {
 }
 

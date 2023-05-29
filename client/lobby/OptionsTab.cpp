@@ -412,7 +412,9 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 }
 
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, SelType type)
-	: CIntObject(RCLICK | WHEEL, position), CPlayerSettingsHelper(settings, type)
+	: CIntObject(RCLICK | WHEEL | GESTURE_PANNING, position)
+	, CPlayerSettingsHelper(settings, type)
+	, panningDistanceAccumulated(0)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -444,6 +446,8 @@ void OptionsTab::SelectedBox::clickRight(tribool down, bool previousState)
 
 void OptionsTab::SelectedBox::wheelScrolled(int distance)
 {
+	distance = std::clamp(distance, -1, 1);
+
 	switch(CPlayerSettingsHelper::type)
 	{
 		case TOWN:
@@ -455,6 +459,38 @@ void OptionsTab::SelectedBox::wheelScrolled(int distance)
 		case BONUS:
 			CSH->setPlayerOption(LobbyChangePlayerOption::BONUS, distance, settings.color);
 			break;
+	}
+}
+
+void OptionsTab::SelectedBox::panning(bool on)
+{
+	panningDistanceAccumulated = 0;
+}
+
+void OptionsTab::SelectedBox::gesturePanning(const Point & distanceDelta)
+{
+	// FIXME: currently options tab is completely recreacted from scratch whenever we receive any information from server
+	// because of that, panning event gets interrupted (due to destruction of element)
+	// so, currently, gesture will always move selection only by 1, and then wait for recreation from server info
+
+	int panningDistanceSingle = 48;
+
+	panningDistanceAccumulated += distanceDelta.x;
+
+	if (-panningDistanceAccumulated > panningDistanceSingle )
+	{
+		int scrollAmount = (-panningDistanceAccumulated) / panningDistanceSingle;
+		wheelScrolled(-scrollAmount);
+		panningDistanceAccumulated += scrollAmount * panningDistanceSingle;
+		removeUsedEvents(GESTURE_PANNING);
+	}
+
+	if (panningDistanceAccumulated > panningDistanceSingle )
+	{
+		int scrollAmount = panningDistanceAccumulated / panningDistanceSingle;
+		wheelScrolled(scrollAmount);
+		panningDistanceAccumulated += -scrollAmount * panningDistanceSingle;
+		removeUsedEvents(GESTURE_PANNING);
 	}
 }
 

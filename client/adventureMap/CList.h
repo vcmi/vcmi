@@ -35,7 +35,6 @@ protected:
 		CListItem(CList * parent);
 		~CListItem();
 
-		void wheelScrolled(int distance) override;
 		void clickRight(tribool down, bool previousState) override;
 		void clickLeft(tribool down, bool previousState) override;
 		void hover(bool on) override;
@@ -56,6 +55,8 @@ protected:
 
 private:
 	const size_t size;
+	/// How far have player moved finger/mouse via gesture so far.
+	int panningDistanceAccumulated;
 
 	//for selection\deselection
 	std::shared_ptr<CListItem> selected;
@@ -93,6 +94,9 @@ public:
 	void selectPrev();
 
 	void showAll(Canvas & to) override;
+	void panning(bool on) override;
+	void gesturePanning(const Point & distanceDelta) override;
+	void wheelScrolled(int distance) override;
 };
 
 /// List of heroes which is shown at the right of the adventure map screen
