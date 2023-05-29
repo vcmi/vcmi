@@ -619,21 +619,68 @@ void CSlider::clickLeft(tribool down, bool previousState)
 	removeUsedEvents(MOVE);
 }
 
+bool CSlider::receiveEvent(const Point &position, int eventType) const
+{
+	if (eventType != WHEEL && eventType != GESTURE_PANNING)
+	{
+		return CIntObject::receiveEvent(position, eventType);
+	}
+
+	if (!scrollBounds)
+		return true;
+
+	Rect testTarget = *scrollBounds + pos.topLeft();
+
+	return testTarget.isInside(position);
+}
+
+void CSlider::setPanningStep(int to)
+{
+	panningDistanceSingle = to;
+}
+
+void CSlider::panning(bool on)
+{
+	panningDistanceAccumulated = 0;
+}
+
+void CSlider::gesturePanning(const Point & distanceDelta)
+{
+	if (horizontal)
+		panningDistanceAccumulated += -distanceDelta.x;
+	else
+		panningDistanceAccumulated += distanceDelta.y;
+
+	if (-panningDistanceAccumulated > panningDistanceSingle )
+	{
+		int scrollAmount = (-panningDistanceAccumulated) / panningDistanceSingle;
+		moveBy(-scrollAmount);
+		panningDistanceAccumulated += scrollAmount * panningDistanceSingle;
+	}
+
+	if (panningDistanceAccumulated > panningDistanceSingle )
+	{
+		int scrollAmount = panningDistanceAccumulated / panningDistanceSingle;
+		moveBy(scrollAmount);
+		panningDistanceAccumulated += -scrollAmount * panningDistanceSingle;
+	}
+}
+
 CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, CSlider::EStyle style)
-	: CIntObject(LCLICK | RCLICK | WHEEL),
+	: CIntObject(LCLICK | RCLICK | WHEEL | GESTURE_PANNING ),
 	capacity(Capacity),
 	horizontal(Horizontal),
 	amount(Amount),
 	value(Value),
 	scrollStep(1),
-	moved(Moved)
+	moved(Moved),
+	panningDistanceAccumulated(0),
+	panningDistanceSingle(32)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	setAmount(amount);
 	vstd::amax(value, 0);
 	vstd::amin(value, positions);
-
-	setMoveEventStrongInterest(true);
 
 	pos.x += position.x;
 	pos.y += position.y;
@@ -707,16 +754,8 @@ void CSlider::showAll(Canvas & to)
 	CIntObject::showAll(to);
 }
 
-void CSlider::wheelScrolled(int distance, bool in)
+void CSlider::wheelScrolled(int distance)
 {
-	if (scrollBounds)
-	{
-		Rect testTarget = *scrollBounds + pos.topLeft();
-
-		if (!testTarget.isInside(GH.getCursorPosition()))
-			return;
-	}
-
 	// vertical slider -> scrolling up move slider upwards
 	// horizontal slider -> scrolling up moves slider towards right
 	bool positive = ((distance < 0) != horizontal);

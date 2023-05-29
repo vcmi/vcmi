@@ -47,6 +47,9 @@ void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & b
 		case SDL_BUTTON_RIGHT:
 			GH.events().dispatchMouseButtonPressed(MouseButton::RIGHT, position);
 			break;
+		case SDL_BUTTON_MIDDLE:
+			GH.events().dispatchGesturePanningStarted(position);
+			break;
 	}
 }
 
@@ -66,6 +69,9 @@ void InputSourceMouse::handleEventMouseButtonUp(const SDL_MouseButtonEvent & but
 			break;
 		case SDL_BUTTON_RIGHT:
 			GH.events().dispatchMouseButtonReleased(MouseButton::RIGHT, position);
+			break;
+		case SDL_BUTTON_MIDDLE:
+			GH.events().dispatchGesturePanningEnded();
 			break;
 	}
 }

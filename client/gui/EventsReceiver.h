@@ -24,16 +24,12 @@ class AEventsReceiver
 {
 	friend class EventDispatcher;
 
+	std::map<MouseButton, bool> currentMouseState;
 	ui16 activeState;
 	bool hoveredState;
-	bool strongInterestState;
-	std::map<MouseButton, bool> currentMouseState;
+	bool panningState;
 
 protected:
-
-	/// If set, UI element will receive all mouse movement events, even those outside this element
-	void setMoveEventStrongInterest(bool on);
-
 	/// Activates particular events for this UI element. Uses unnamed enum from this class
 	void activateEvents(ui16 what);
 	/// Deactivates particular events for this UI element. Uses unnamed enum from this class
@@ -43,10 +39,17 @@ protected:
 	virtual void clickRight(tribool down, bool previousState) {}
 	virtual void clickDouble() {}
 
+	/// Called when user pans screen by specified distance
 	virtual void gesturePanning(const Point & distanceDelta) {}
-	virtual void wheelScrolled(int distance, bool inside) {}
+
+	virtual void wheelScrolled(int distance) {}
 	virtual void mouseMoved(const Point & cursorPosition) {}
+
+	/// Called when UI element hover status changes
 	virtual void hover(bool on) {}
+
+	/// Called when UI element panning gesture status changes
+	virtual void panning(bool on) {}
 
 	virtual void textInputed(const std::string & enteredText) {}
 	virtual void textEdited(const std::string & enteredText) {}
@@ -57,7 +60,9 @@ protected:
 	virtual void tick(uint32_t msPassed) {}
 
 	virtual bool captureThisKey(EShortcut key) = 0;
-	virtual bool isInside(const Point & position) = 0;
+
+	/// If true, event of selected type in selected position will be processed by this element
+	virtual bool receiveEvent(const Point & position, int eventType) const= 0;
 
 public:
 	AEventsReceiver();
@@ -68,6 +73,9 @@ public:
 
 	/// Returns true if element is currently hovered by mouse
 	bool isHovered() const;
+
+	/// Returns true if panning/swiping gesture is currently active
+	bool isPanning() const;
 
 	/// Returns true if element is currently active and may receive events
 	bool isActive() const;

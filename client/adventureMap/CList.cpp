@@ -40,16 +40,13 @@ CList::CListItem::CListItem(CList * Parent)
 
 CList::CListItem::~CListItem() = default;
 
-void CList::CListItem::wheelScrolled(int distance, bool inside)
+void CList::CListItem::wheelScrolled(int distance)
 {
-	if (inside)
-	{
-		if (distance < 0)
-			parent->listBox->moveToNext();
-		if (distance > 0)
-			parent->listBox->moveToPrev();
-		parent->update();
-	}
+	if (distance < 0)
+		parent->listBox->moveToNext();
+	if (distance > 0)
+		parent->listBox->moveToPrev();
+	parent->update();
 }
 
 void CList::CListItem::clickRight(tribool down, bool previousState)

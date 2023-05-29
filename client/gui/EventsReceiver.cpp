@@ -17,13 +17,17 @@
 AEventsReceiver::AEventsReceiver()
 	: activeState(0)
 	, hoveredState(false)
-	, strongInterestState(false)
 {
 }
 
 bool AEventsReceiver::isHovered() const
 {
 	return hoveredState;
+}
+
+bool AEventsReceiver::isPanning() const
+{
+	return panningState;
 }
 
 bool AEventsReceiver::isActive() const
@@ -34,11 +38,6 @@ bool AEventsReceiver::isActive() const
 bool AEventsReceiver::isMouseButtonPressed(MouseButton btn) const
 {
 	return currentMouseState.count(btn) ? currentMouseState.at(btn) : false;
-}
-
-void AEventsReceiver::setMoveEventStrongInterest(bool on)
-{
-	strongInterestState = on;
 }
 
 void AEventsReceiver::activateEvents(ui16 what)

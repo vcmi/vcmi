@@ -134,7 +134,7 @@ void EventDispatcher::dispatchMouseDoubleClick(const Point & position)
 		if(!vstd::contains(doubleClickInterested, i))
 			continue;
 
-		if(i->isInside(position))
+		if(i->receiveEvent(position, AEventsReceiver::DOUBLECLICK))
 		{
 			i->clickDouble();
 			doubleClicked = true;
@@ -164,17 +164,21 @@ void EventDispatcher::handleMouseButtonClick(EventReceiversList & interestedObjs
 			continue;
 
 		auto prev = i->isMouseButtonPressed(btn);
+
 		if(!isPressed)
 			i->currentMouseState[btn] = isPressed;
-		if(i->isInside(GH.getCursorPosition()))
+
+		if( btn == MouseButton::LEFT && i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
 		{
 			if(isPressed)
 				i->currentMouseState[btn] = isPressed;
-
-			if (btn == MouseButton::LEFT)
-				i->clickLeft(isPressed, prev);
-			if (btn == MouseButton::RIGHT)
-				i->clickRight(isPressed, prev);
+			i->clickLeft(isPressed, prev);
+		}
+		else if( btn == MouseButton::RIGHT && i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::RCLICK))
+		{
+			if(isPressed)
+				i->currentMouseState[btn] = isPressed;
+			i->clickRight(isPressed, prev);
 		}
 		else if(!isPressed)
 		{
@@ -196,7 +200,8 @@ void EventDispatcher::dispatchMouseScrolled(const Point & distance, const Point 
 
 		// ignore distance value and only provide its sign - we expect one scroll "event" to move sliders and such by 1 point,
 		// and not by system-specific "number of lines to scroll", which is what 'distance' represents
-		i->wheelScrolled( std::clamp(distance.y, -1, 1) , i->isInside(position));
+		if (i->receiveEvent(position, AEventsReceiver::WHEEL))
+			i->wheelScrolled( std::clamp(distance.y, -1, 1));
 	}
 }
 
@@ -216,11 +221,36 @@ void EventDispatcher::dispatchTextEditing(const std::string & text)
 	}
 }
 
+void EventDispatcher::dispatchGesturePanningStarted(const Point & initialPosition)
+{
+	for(auto it : panningInterested)
+	{
+		if (it->receiveEvent(initialPosition, AEventsReceiver::GESTURE_PANNING))
+		{
+			it->panning(true);
+			it->panningState = true;
+		}
+	}
+}
+
+void EventDispatcher::dispatchGesturePanningEnded()
+{
+	for(auto it : panningInterested)
+	{
+		if (it->isPanning())
+		{
+			it->panning(false);
+			it->panningState = false;
+		}
+	}
+}
+
 void EventDispatcher::dispatchGesturePanning(const Point & distance)
 {
 	for(auto it : panningInterested)
 	{
-		it->gesturePanning(distance);
+		if (it->isPanning())
+			it->gesturePanning(distance);
 	}
 }
 
@@ -231,7 +261,7 @@ void EventDispatcher::dispatchMouseMoved(const Point & position)
 	auto hoverableCopy = hoverable;
 	for(auto & elem : hoverableCopy)
 	{
-		if(elem->isInside(position))
+		if(elem->receiveEvent(position, AEventsReceiver::HOVER))
 		{
 			if (!elem->isHovered())
 			{
@@ -258,7 +288,7 @@ void EventDispatcher::dispatchMouseMoved(const Point & position)
 	EventReceiversList miCopy = motioninterested;
 	for(auto & elem : miCopy)
 	{
-		if(elem->strongInterestState || elem->isInside(position)) //checking bounds including border fixes bug #2476
+		if(elem->receiveEvent(position, AEventsReceiver::HOVER))
 		{
 			(elem)->mouseMoved(position);
 		}

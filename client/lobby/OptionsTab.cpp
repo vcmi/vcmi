@@ -48,6 +48,8 @@ OptionsTab::OptionsTab() : humanPlayers(0)
 	if(SEL->screenType == ESelectionScreen::newGame || SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::scenarioInfo)
 	{
 		sliderTurnDuration = std::make_shared<CSlider>(Point(55, 551), 194, std::bind(&IServerAPI::setTurnLength, CSH, _1), 1, (int)GameConstants::POSSIBLE_TURNTIME.size(), (int)GameConstants::POSSIBLE_TURNTIME.size(), true, CSlider::BLUE);
+		sliderTurnDuration->setScrollBounds(Rect(-3, -25, 337, 43));
+		sliderTurnDuration->setPanningStep(20);
 		labelPlayerTurnDuration = std::make_shared<CLabel>(222, 538, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[521]);
 		labelTurnDurationValue = std::make_shared<CLabel>(319, 559, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	}
@@ -440,11 +442,8 @@ void OptionsTab::SelectedBox::clickRight(tribool down, bool previousState)
 	}
 }
 
-void OptionsTab::SelectedBox::wheelScrolled(int distance, bool isInside)
+void OptionsTab::SelectedBox::wheelScrolled(int distance)
 {
-	if (!isInside)
-		return;
-
 	switch(CPlayerSettingsHelper::type)
 	{
 		case TOWN:

@@ -105,6 +105,7 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 		{
 			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
 			lastTapPosition = GH.getCursorPosition();
+			GH.events().dispatchGesturePanningStarted(lastTapPosition);
 			state = TouchState::TAP_DOWN_SHORT;
 			break;
 		}
@@ -152,6 +153,7 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 		}
 		case TouchState::TAP_DOWN_PANNING:
 		{
+			GH.events().dispatchGesturePanningEnded();
 			state = TouchState::IDLE;
 			break;
 		}
@@ -160,7 +162,10 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 			if (SDL_GetNumTouchFingers(tfinger.touchId) == 1)
 				state = TouchState::TAP_DOWN_PANNING;
 			if (SDL_GetNumTouchFingers(tfinger.touchId) == 0)
+			{
+				GH.events().dispatchGesturePanningEnded();
 				state = TouchState::IDLE;
+			}
 			break;
 		}
 		case TouchState::TAP_DOWN_LONG:

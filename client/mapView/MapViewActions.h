@@ -34,5 +34,5 @@ public:
 	void gesturePanning(const Point & distance) override;
 	void hover(bool on) override;
 	void mouseMoved(const Point & cursorPosition) override;
-	void wheelScrolled(int distance, bool inside) override;
+	void wheelScrolled(int distance) override;
 };

@@ -35,7 +35,7 @@ protected:
 		CListItem(CList * parent);
 		~CListItem();
 
-		void wheelScrolled(int distance, bool inside) override;
+		void wheelScrolled(int distance) override;
 		void clickRight(tribool down, bool previousState) override;
 		void clickLeft(tribool down, bool previousState) override;
 		void hover(bool on) override;

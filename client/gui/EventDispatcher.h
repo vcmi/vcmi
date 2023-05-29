@@ -62,7 +62,9 @@ public:
 	void dispatchMouseDoubleClick(const Point & position);
 	void dispatchMouseMoved(const Point & distance);
 
-	void dispatchGesturePanning(const Point & position);
+	void dispatchGesturePanningStarted(const Point & initialPosition);
+	void dispatchGesturePanningEnded();
+	void dispatchGesturePanning(const Point & distance);
 
 	/// Text input events
 	void dispatchTextInput(const std::string & text);

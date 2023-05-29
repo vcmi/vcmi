@@ -39,7 +39,6 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	owner(owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	setMoveEventStrongInterest(true);
 
 	//preparing cells and hexes
 	cellBorder = IImage::createFromFile("CCELLGRD.BMP", EImageBlitMode::COLORKEY);
@@ -624,4 +623,11 @@ void BattleFieldController::show(Canvas & to)
 	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
 
 	renderBattlefield(to);
+}
+
+bool BattleFieldController::receiveEvent(const Point & position, int eventType) const
+{
+	if (eventType == HOVER)
+		return true;
+	return CIntObject::receiveEvent(position, eventType);
 }

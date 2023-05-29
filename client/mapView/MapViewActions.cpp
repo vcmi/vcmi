@@ -64,10 +64,8 @@ void MapViewActions::mouseMoved(const Point & cursorPosition)
 	handleHover(cursorPosition);
 }
 
-void MapViewActions::wheelScrolled(int distance, bool inside)
+void MapViewActions::wheelScrolled(int distance)
 {
-	if (!inside)
-		return;
 	adventureInt->hotkeyZoom(distance);
 }
 

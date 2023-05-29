@@ -71,6 +71,8 @@ class BattleFieldController : public CIntObject
 	void showAll(Canvas & to) override;
 	void show(Canvas & to) override;
 	void tick(uint32_t msPassed) override;
+
+	bool receiveEvent(const Point & position, int eventType) const override;
 public:
 	BattleFieldController(BattleInterface & owner);
 

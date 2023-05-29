@@ -100,7 +100,7 @@ public:
 
 		SelectedBox(Point position, PlayerSettings & settings, SelType type);
 		void clickRight(tribool down, bool previousState) override;
-		void wheelScrolled(int distance, bool isInside) override;
+		void wheelScrolled(int distance) override;
 
 		void update();
 	};
