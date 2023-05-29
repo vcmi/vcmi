@@ -16,20 +16,22 @@
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
 #include "../CTownHandler.h"
-#include "ObjectManager.h"
-#include "RoadPlacer.h"
-#include "TreasurePlacer.h"
-#include "ConnectionsPlacer.h"
-#include "TownPlacer.h"
-#include "MinePlacer.h"
-#include "ObjectDistributor.h"
-#include "WaterAdopter.h"
-#include "WaterProxy.h"
-#include "WaterRoutes.h"
-#include "RockPlacer.h"
-#include "ObstaclePlacer.h"
-#include "RiverPlacer.h"
-#include "TerrainPainter.h"
+#include "modificators/ObjectManager.h"
+#include "modificators/RoadPlacer.h"
+#include "modificators/TreasurePlacer.h"
+#include "modificators/QuestArtifactPlacer.h"
+#include "modificators/ConnectionsPlacer.h"
+#include "modificators/TownPlacer.h"
+#include "modificators/MinePlacer.h"
+#include "modificators/ObjectDistributor.h"
+#include "modificators/WaterAdopter.h"
+#include "modificators/WaterProxy.h"
+#include "modificators/WaterRoutes.h"
+#include "modificators/RockPlacer.h"
+#include "modificators/RockFiller.h"
+#include "modificators/ObstaclePlacer.h"
+#include "modificators/RiverPlacer.h"
+#include "modificators/TerrainPainter.h"
 #include "Functions.h"
 #include "CMapGenerator.h"
 
@@ -39,6 +41,7 @@ RmgMap::RmgMap(const CMapGenOptions& mapGenOptions) :
 	mapGenOptions(mapGenOptions), zonesTotal(0)
 {
 	mapInstance = std::make_unique<CMap>();
+	mapProxy = std::make_shared<MapProxy>(*this);
 	getEditManager()->getUndoManager().setUndoRedoLimit(0);
 }
 
@@ -74,7 +77,7 @@ void RmgMap::foreachDiagonalNeighbour(const int3 & pos, const std::function<void
 	}
 }
 
-void RmgMap::initTiles(CMapGenerator & generator)
+void RmgMap::initTiles(CMapGenerator & generator, CRandomGenerator & rand)
 {
 	mapInstance->initTerrain();
 	
@@ -85,15 +88,15 @@ void RmgMap::initTiles(CMapGenerator & generator)
 	for (auto faction : VLC->townh->getAllowedFactions())
 		zonesPerFaction[faction] = 0;
 	
-	getEditManager()->clearTerrain(&generator.rand);
+	getEditManager()->clearTerrain(&rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
-	getEditManager()->drawTerrain(ETerrainId::GRASS, &generator.rand);
+	getEditManager()->drawTerrain(ETerrainId::GRASS, &rand);
 
 	const auto * tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();
 	for(const auto & option : tmpl->getZones())
 	{
-		auto zone = std::make_shared<Zone>(*this, generator);
+		auto zone = std::make_shared<Zone>(*this, generator, rand);
 		zone->setOptions(*option.second);
 		zones[zone->getId()] = zone;
 	}
@@ -106,7 +109,7 @@ void RmgMap::initTiles(CMapGenerator & generator)
 			rmg::ZoneOptions options;
 			options.setId(waterId);
 			options.setType(ETemplateZoneType::WATER);
-			auto zone = std::make_shared<Zone>(*this, generator);
+			auto zone = std::make_shared<Zone>(*this, generator, rand);
 			zone->setOptions(options);
 			zones[zone->getId()] = zone;
 			break;
@@ -115,12 +118,19 @@ void RmgMap::initTiles(CMapGenerator & generator)
 
 void RmgMap::addModificators()
 {
+	bool hasObjectDistributor = false;
+	bool hasRockFiller = false;
+
 	for(auto & z : getZones())
 	{
 		auto zone = z.second;
 		
 		zone->addModificator<ObjectManager>();
-		zone->addModificator<ObjectDistributor>();
+		if (!hasObjectDistributor)
+		{
+			zone->addModificator<ObjectDistributor>();
+			hasObjectDistributor = true;
+		}
 		zone->addModificator<TreasurePlacer>();
 		zone->addModificator<ObstaclePlacer>();
 		zone->addModificator<TerrainPainter>();
@@ -139,6 +149,7 @@ void RmgMap::addModificators()
 		{
 			zone->addModificator<TownPlacer>();
 			zone->addModificator<MinePlacer>();
+			zone->addModificator<QuestArtifactPlacer>();
 			zone->addModificator<ConnectionsPlacer>();
 			zone->addModificator<RoadPlacer>();
 			zone->addModificator<RiverPlacer>();
@@ -147,12 +158,42 @@ void RmgMap::addModificators()
 		if(zone->isUnderground())
 		{
 			zone->addModificator<RockPlacer>();
+			if (!hasRockFiller)
+			{
+				zone->addModificator<RockFiller>();
+				hasRockFiller = true;
+			}
 		}
 		
 	}
 }
 
-CMap & RmgMap::map() const
+int RmgMap::levels() const
+{
+	return mapInstance->levels();
+}
+
+int RmgMap::width() const
+{
+	return mapInstance->width;
+}
+
+int RmgMap::height() const
+{
+	return mapInstance->height;
+}
+
+PlayerInfo & RmgMap::getPlayer(int playerId)
+{
+	return mapInstance->players.at(playerId);
+}
+
+std::shared_ptr<MapProxy> RmgMap::getMapProxy() const
+{
+	return mapProxy;
+}
+
+CMap& RmgMap::getMap(const CMapGenerator*) const
 {
 	return *mapInstance;
 }
@@ -239,11 +280,16 @@ void RmgMap::setRoad(const int3& tile, RoadId roadType)
 	tiles[tile.x][tile.y][tile.z].setRoadType(roadType);
 }
 
-TileInfo RmgMap::getTile(const int3& tile) const
+TileInfo RmgMap::getTileInfo(const int3& tile) const
 {
 	assertOnMap(tile);
 	
 	return tiles[tile.x][tile.y][tile.z];
+}
+
+TerrainTile & RmgMap::getTile(const int3& tile) const
+{
+	return mapInstance->getTile(tile);
 }
 
 TRmgTemplateZoneId RmgMap::getZoneID(const int3& tile) const
@@ -276,6 +322,7 @@ float RmgMap::getNearestObjectDistance(const int3 &tile) const
 
 void RmgMap::registerZone(FactionID faction)
 {
+	//FIXME: Protect with lock guard?
 	zonesPerFaction[faction]++;
 	zonesTotal++;
 }
@@ -321,7 +368,7 @@ void RmgMap::dump(bool zoneId) const
 				else
 				{
 					char t = '?';
-					switch (getTile(int3(i, j, k)).getTileType())
+					switch (getTileInfo(int3(i, j, k)).getTileType())
 					{
 						case ETileType::FREE:
 							t = ' '; break;

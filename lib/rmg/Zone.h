@@ -13,71 +13,31 @@
 #include "../GameConstants.h"
 #include "float3.h"
 #include "../int3.h"
+#include "../CRandomGenerator.h"
 #include "CRmgTemplate.h"
 #include "RmgArea.h"
 #include "RmgPath.h"
 #include "RmgObject.h"
+#include "modificators/Modificator.h"
 
 //uncomment to generate dumps afger every step of map generation
 //#define RMG_DUMP
-
-#define MODIFICATOR(x) x(Zone & z, RmgMap & m, CMapGenerator & g): Modificator(z, m, g) {setName(#x);}
-#define DEPENDENCY(x) 		dependency(zone.getModificator<x>());
-#define POSTFUNCTION(x)		postfunction(zone.getModificator<x>());
-#define DEPENDENCY_ALL(x) 	for(auto & z : map.getZones()) \
-							{ \
-								dependency(z.second->getModificator<x>()); \
-							}
-#define POSTFUNCTION_ALL(x) for(auto & z : map.getZones()) \
-							{ \
-								postfunction(z.second->getModificator<x>()); \
-							}
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class RmgMap;
 class CMapGenerator;
-class Zone;
-
-class Modificator
-{
-public:
-	Modificator() = delete;
-	Modificator(Zone & zone, RmgMap & map, CMapGenerator & generator);
-	
-	virtual void process() = 0;
-	virtual void init() {/*override to add dependencies*/}
-	virtual char dump(const int3 &);
-	virtual ~Modificator() = default;
-
-	void setName(const std::string & n);
-	const std::string & getName() const;
-	
-	void run();
-	void dependency(Modificator * modificator);
-	void postfunction(Modificator * modificator);
-
-protected:
-	RmgMap & map;
-	CMapGenerator & generator;
-	Zone & zone;
-	
-	bool isFinished() const;
-	
-private:
-	std::string name;
-	bool started = false;
-	bool finished = false;
-	std::list<Modificator*> preceeders; //must be ordered container
-	void dump();
-};
+class Modificator;
+class CRandomGenerator;
 
 extern std::function<bool(const int3 &)> AREA_NO_FILTER;
+
+typedef std::list<std::shared_ptr<Modificator>> TModificators;
 
 class Zone : public rmg::ZoneOptions
 {
 public:
-	Zone(RmgMap & map, CMapGenerator & generator);
+	Zone(RmgMap & map, CMapGenerator & generator, CRandomGenerator & rand);
 	Zone(const Zone &) = delete;
 	
 	void setOptions(const rmg::ZoneOptions & options);
@@ -93,7 +53,7 @@ public:
 	rmg::Area & areaPossible();
 	rmg::Area & freePaths();
 	rmg::Area & areaUsed();
-	
+
 	void initFreeTiles();
 	void clearTiles();
 	void fractalize();
@@ -106,6 +66,8 @@ public:
 	void connectPath(const rmg::Path & path);
 	rmg::Path searchPath(const rmg::Area & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter = AREA_NO_FILTER) const;
 	rmg::Path searchPath(const int3 & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter = AREA_NO_FILTER) const;
+
+	TModificators getModificators();
 
 	template<class T>
 	T* getModificator()
@@ -123,12 +85,18 @@ public:
 	}
 	
 	void initModificators();
-	void processModificators();
+	
+	CRandomGenerator & getRand();
+public:
+	boost::recursive_mutex areaMutex;
+	using Lock = boost::unique_lock<boost::recursive_mutex>;
 	
 protected:
 	CMapGenerator & generator;
+	CRandomGenerator rand;
 	RmgMap & map;
-	std::list<std::unique_ptr<Modificator>> modificators;
+	TModificators modificators;
+	bool finished;
 	
 	//placement info
 	int3 pos;
@@ -137,11 +105,11 @@ protected:
 	rmg::Area dAreaPossible;
 	rmg::Area dAreaFree; //core paths of free tiles that all other objects will be linked to
 	rmg::Area dAreaUsed;
+	std::vector<int3> possibleQuestArtifactPos;
 	
 	//template info
 	si32 townType;
 	TerrainId terrainType;
-	
 };
 
 VCMI_LIB_NAMESPACE_END
