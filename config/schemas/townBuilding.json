@@ -1,10 +1,9 @@
 {
-	"type":"object",
+	"type" : "object",
 	"additionalProperties" : false,
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI town building format",
 	"description" : "Format used to define town buildings in VCMI",
-
 	"definitions" :
 	{
 		"buildingRequirement" : {
@@ -22,33 +21,10 @@
 			}
 		} 
 	},
-
-	"properties":{
-		"id": {
-			"type":"number",
+	"properties" : {
+		"id" : {
+			"type" : "number",
 			"description" : "Numeric identifier of this building"
-		},
-		"type": {
-			"type":"string",
-			"description" : "Subtype for some special buildings"
-		},
-		"height": {
-			"type":"string",
-			"enum" : [ "skyship", "high", "average", "low"],
-			"description" : "Height for lookout towers and some grails"
-		},
-		"mode": {
-			"type":"string",
-			"enum" : [ "normal", "auto", "special", "grail" ],
-			"description" : "Mode in which this building will be built"
-		},
-		"requires": {
-			"$ref" : "#/definitions/buildingRequirement",
-			"description" : "List of town buildings that must be built before this one"
-		},
-		"upgrades": {
-			"description" : "If this building is upgrade, identifier of base building",
-			"type":"string"
 		},
 		"name" : {
 			"description" : "Name of this building",
@@ -58,35 +34,57 @@
 			"description" : "Full decsription of this building",
 			"type" : "string"
 		},
-		"cost": {
-			"type":"object",
+		"type" : {
+			"type" : "string",
+			"description" : "Subtype for some special buildings"
+		},
+		"mode" : {
+			"type" : "string",
+			"enum" : [ "normal", "auto", "special", "grail" ],
+			"description" : "Mode in which this building will be built"
+		},
+		"height" : {
+			"type" : "string",
+			"enum" : [ "skyship", "high", "average", "low"],
+			"description" : "Height for lookout towers and some grails"
+		},
+		"requires" : {
+			"$ref" : "#/definitions/buildingRequirement",
+			"description" : "List of town buildings that must be built before this one"
+		},
+		"upgrades" : {
+			"description" : "If this building is upgrade, identifier of base building",
+			"type" : "string"
+		},
+		"cost" : {
+			"type" : "object",
 			"additionalProperties" : false,
-			"description": "Cost to build this building",
-			"properties":{
-				"wood":    { "type":"number"},
-				"mercury": { "type":"number"},
-				"ore":     { "type":"number"},
-				"sulfur":  { "type":"number"},
-				"crystal": { "type":"number"},
-				"gems":    { "type":"number"},
-				"gold":    { "type":"number"}
+			"description" : "Cost to build this building",
+			"properties" : {
+				"gold" :    { "type" : "number"},
+				"wood" :    { "type" : "number"},
+				"ore" :     { "type" : "number"},
+				"mercury" : { "type" : "number"},
+				"sulfur" :  { "type" : "number"},
+				"crystal" : { "type" : "number"},
+				"gems" :    { "type" : "number"}
 			}
 	    },		
-		"produce": {
-			"type":"object",
+		"produce" : {
+			"type" : "object",
 			"additionalProperties" : false,
-			"description": "Resources this building produce each day",
-			"properties":{
-				"wood":    { "type":"number"},
-				"mercury": { "type":"number"},
-				"ore":     { "type":"number"},
-				"sulfur":  { "type":"number"},
-				"crystal": { "type":"number"},
-				"gems":    { "type":"number"},
-				"gold":    { "type":"number"}
+			"description" : "Resources this building produce each day",
+			"properties" : {
+				"gold" :    { "type" : "number"},
+				"wood" :    { "type" : "number"},
+				"ore" :     { "type" : "number"},
+				"mercury" : { "type" : "number"},
+				"sulfur" :  { "type" : "number"},
+				"crystal" : { "type" : "number"},
+				"gems" :    { "type" : "number"}
 			}
 		},
-		"overrides": {
+		"overrides" : {
 			"type" : "array",
 			"items" : [
 				{
@@ -95,15 +93,15 @@
 				}
 			]
 		},
-		"bonuses": {
-			"type":"array",
-			"description": "Bonuses, provided by this special building on build using bonus system",
-			"items": { "$ref" : "bonus.json" }
+		"bonuses" : {
+			"type" : "array",
+			"description" : "Bonuses, provided by this special building on build using bonus system",
+			"items" : { "$ref" : "bonus.json" }
 		},
-		"onVisitBonuses": {
-			"type":"array",
-			"description": "Bonuses, provided by this special building on hero visit and applied to the visiting hero",
-			"items": { "$ref" : "bonus.json" }
+		"onVisitBonuses" : {
+			"type" : "array",
+			"description" : "Bonuses, provided by this special building on hero visit and applied to the visiting hero",
+			"items" : { "$ref" : "bonus.json" }
 		}
 	}
 }

@@ -1,144 +1,141 @@
 {
-	"type":"object",
+	"type" : "object",
 	"additionalProperties" : false,
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI siege screen format",
 	"description" : "Format used to define town siege screen in VCMI",
 	"required" : [
-		"gate", "imagePrefix", "moat", "shooter",
-		"towerIconLarge", "towerIconSmall",
-		"static", "towers", "walls"
-	 ],
-	
+		"shooter", "towerIconLarge", "towerIconSmall", "imagePrefix", 
+		"static", "towers", "walls", "gate", "moat"
+	],
 	"definitions" :
 	{
 		"point" : {
 			"type" : "object",
 			"additionalProperties" : false,
 			"required" : [ "x", "y" ],
-			"properties":{
-				"x": { "type":"number" },
-				"y": { "type":"number" }
+			"properties" : {
+				"x" : { "type" : "number" },
+				"y" : { "type" : "number" }
 			}
 		},
 		"tower" : {
 			"type" : "object",
 			"additionalProperties" : false,
 			"required" : [ "battlement", "creature", "tower" ],
-			"properties":{
-				"battlement": {
+			"properties" : {
+				"tower" : {
+					"description" : "Location of main segment of tower",
+					"$ref" : "#/definitions/point"
+				},
+				"battlement" : {
 					"description" : "Location of battlement, part of tower that covers shooter",
 					"$ref" : "#/definitions/point"
 				},
-				"creature": {
+				"creature" : {
 					"description" : "Location of shooter in tower",
-					"$ref" : "#/definitions/point"
-				},
-				"tower": {
-					"description" : "Location of main segment of tower",
 					"$ref" : "#/definitions/point"
 				}
 			}
 		}
 	},
-
-	"properties":{
-		"gate": {
-			"type":"object",
+	"properties" : {
+		"shooter" : {
+			"type" : "string",
+			"description" : "Identifier of creature that will be used as tower shooter"
+		},
+		"towerIconSmall" : {
+			"type" : "string",
+			"description" : "Small icon for tower, used in battle queue",
+			"format" : "imageFile"
+		},
+		"towerIconLarge" : {
+			"type" : "string",
+			"description" : "Large icon for tower, used in battle queue",
+			"format" : "imageFile"
+		},
+		"imagePrefix" : {
+			"type" : "string",
+			"description" : "Prefix to all images related to siege screen"
+		},
+		"static" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"description" : "Static sections of walls",
+			"properties" : {
+				"background" : {
+					"description" : "Very top section of the wall located above hero",
+					"$ref" : "#/definitions/point"
+				},
+				"top" : {
+					"description" : "Top section located between destructible sections",
+					"$ref" : "#/definitions/point"
+				},
+				"bottom" : {
+					"description" : "Bottom section located between destructible sections",
+					"$ref" : "#/definitions/point"
+				}
+			}
+		},
+		"towers" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"description" : "Decription of towers",
+			"properties" : {
+				"top" :    { "$ref" : "#/definitions/tower", "description" : "Top tower" },
+				"keep" :   { "$ref" : "#/definitions/tower", "description" : "Central keep" },
+				"bottom" : { "$ref" : "#/definitions/tower", "description" : "Bottom tower" }
+			}
+		},
+		"walls" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"description" : "Destructible sections of the walls",
+			"properties" : {
+				"upper" : {
+					"description" : "Topmost section located near top tower",
+					"$ref" : "#/definitions/point"
+				},
+				"upperMid" : {
+					"description" : "Second from top section located near gates",
+					"$ref" : "#/definitions/point"
+				},
+				"bottomMid" : {
+					"description" : "Second from bottom section located near gates",
+					"$ref" : "#/definitions/point"
+				},
+				"bottom" : {
+					"description" : "Bottommost section located near bottom tower",
+					"$ref" : "#/definitions/point"
+				}
+			}
+		},
+		"gate" : {
+			"type" : "object",
 			"additionalProperties" : false,
 			"description" : "Town gates",
-			"properties":{
-				"arch": {
+			"properties" : {
+				"arch" : {
 					"description" : "Static, top part of gates",
 					"$ref" : "#/definitions/point"
 				},
-				"gate": {
+				"gate" : {
 					"description" : "Main section of gates",
 					"$ref" : "#/definitions/point"
 				}
 			}
 		},
-		"imagePrefix": {
-			"type":"string",
-			"description" : "Prefix to all images related to siege screen"
-		},
-		"moat": {
-			"type":"object",
+		"moat" : {
+			"type" : "object",
 			"additionalProperties" : false,
 			"description" : "Castle moat description",
-			"properties":{
-				"bank": {
+			"properties" : {
+				"bank" : {
 					"description" : "Small section with bank of the moat",
 					"$ref" : "#/definitions/point"
 				},
-				"moat": {
+				"moat" : {
 					"description" : "Main section of the moat",
-					"$ref" : "#/definitions/point"
-				}
-			}
-		},
-		"shooter": {
-			"type":"string",
-			"description" : "Identifier of creature that will be used as tower shooter"
-		},
-		"towerIconSmall": {
-			"type":"string",
-			"description": "Small icon for tower, used in battle queue",
-			"format" : "imageFile"
-		},
-		"towerIconLarge": {
-			"type":"string",
-			"description": "Large icon for tower, used in battle queue",
-			"format" : "imageFile"
-		},
-		"static": {
-			"type":"object",
-			"additionalProperties" : false,
-			"description" : "Static sections of walls",
-			"properties":{
-				"background": {
-					"description" : "Very top section of the wall located above hero",
-					"$ref" : "#/definitions/point"
-				},
-				"bottom": {
-					"description" : "Bottom section located between destructible sections",
-					"$ref" : "#/definitions/point"
-				},
-				"top": {
-					"description" : "Top section located between destructible sections",
-					"$ref" : "#/definitions/point"
-				}
-			}
-		},
-		"towers": {
-			"type":"object",
-			"additionalProperties" : false,
-			"description" : "Decription of towers",
-			"properties":{
-				"bottom": { "$ref" : "#/definitions/tower", "description" : "Bottom tower" },
-				"keep":   { "$ref" : "#/definitions/tower", "description" : "Central keep" },
-				"top":    { "$ref" : "#/definitions/tower", "description" : "Top tower" }
-			}
-		},
-		"walls": {
-			"type":"object",
-			"additionalProperties" : false,
-			"description" : "Destructible sections of the walls",
-			"properties":{
-				"bottomMid": {
-					"description" : "Second from bottom section located near gates",
-					"$ref" : "#/definitions/point"
-				},
-				"bottom": {
-					"description" : "Bottommost section located near bottom tower",
-					"$ref" : "#/definitions/point"
-				},
-				"upperMid": {
-					"description" : "Second from top section located near gates",
-					"$ref" : "#/definitions/point"
-				},
-				"upper": {
-					"description" : "Topmost section located near top tower",
 					"$ref" : "#/definitions/point"
 				}
 			}

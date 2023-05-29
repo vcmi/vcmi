@@ -11,108 +11,166 @@
 			}
 		},
 		"townIconPair" : {
-			"type":"object",
+			"type" : "object",
 			"additionalProperties" : false,
 			"required" : [ "normal", "built" ],
-			"properties": {
-				"built": {
+			"properties" : {
+				"built" : {
 					"$ref" : "#/definitions/townIcon",
-					"description": "Icon used after player build something in town"
+					"description" : "Icon used after player build something in town"
 				},
-				"normal": {
+				"normal" : {
 					"$ref" : "#/definitions/townIcon",
-					"description": "Icon used normally"
+					"description" : "Icon used normally"
 				}
 			}
 		}
 	},
-
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI faction format",
-	"description": "Json format for defining new faction (aka towns) in VCMI",
-	"required" : [ "name", "alignment", "creatureBackground", "nativeTerrain" ],
+	"description" : "Json format for defining new faction (aka towns) in VCMI",
+	"required" : [ "name", "alignment", "nativeTerrain", "creatureBackground" ],
 	"dependencies" : {
 		"town" : [ "puzzleMap" ]
 	},
-	
 	"additionalProperties" : false,
-	"properties":{
+	"properties" : {
 		"name" : {
 			"type" : "string",
 			"description" : "Translatable name of town"
 		},
-		"index" : {
-			"type" : "number",
-			"description" : "Private field to break things, do not use."
-		},
-		"alignment": {
-			"type":"string",
+		"alignment" : {
+			"type" : "string",
 			"enum" : [ "good", "neutral", "evil" ],
-			"description": "Town alignment, good, neutral or evil"
+			"description" : "Town alignment, good, neutral or evil"
 		},
-		"creatureBackground": {
-			"type":"object",
+		"nativeTerrain" : {
+			"type" : "string",
+			"description" : "Native terrain for creatures. Creatures fighting on native terrain receive several bonuses"
+		},
+		"preferUndergroundPlacement" : {
+			"type" : "boolean",
+			"description" : "Random map generator places player/cpu-owned towns underground if true is specified and on the ground otherwise. Parameter is unused for maps without underground. False by default."
+		},
+		"creatureBackground" : {
+			"type" : "object",
 			"additionalProperties" : false,
 			"required" : [ "120px", "130px" ],
-			"description": "Backgrounds for creature info card",
-			"properties":{
-				"120px": {
-					"type":"string",
-					"description": "Version that is 120 pixels in height",
+			"description" : "Backgrounds for creature info card",
+			"properties" : {
+				"120px" : {
+					"type" : "string",
+					"description" : "Version that is 120 pixels in height",
 					"format" : "imageFile"
 				},
-				"130px": {
-					"type":"string",
-					"description": "Version that is 130 pixels in height",
+				"130px" : {
+					"type" : "string",
+					"description" : "Version that is 130 pixels in height",
 					"format" : "imageFile"
 				}
 			}
 		},
-		"nativeTerrain": {
-			"type":"string",
-			"description": "Native terrain for creatures. Creatures fighting on native terrain receive several bonuses"
-		},
-		"preferUndergroundPlacement": {
-			"type":"boolean",
-			"description": "Random map generator places player/cpu-owned towns underground if true is specified and on the ground otherwise. Parameter is unused for maps without underground. False by default."
-		},
-		"puzzleMap": {
-			"type":"object",
-			"additionalProperties" : false,
-			"required" : [ "prefix", "pieces" ],
-			"description": "Puzzle map from obelisks for this town. Must contain 48 pieces",
-			"properties":{
-				"pieces": {
-					"type":"array",
-					"description": "Lits of pieces definitions",
-					"minItems" : 48,
-					"maxItems" : 48,
-					"items": {
-						"type":"object",
-						"additionalProperties" : false,
-						"properties":{
-							"index": { "type":"number", "description" : "Order in which images will be opened" },
-							"x":     { "type":"number", "description" : "X coordinate on screen" },
-							"y":     { "type":"number", "description" : "X coordinate on screen" }
-						}
-					}
-				},
-				"prefix": {
-					"type":"string",
-					"description": "Prefix for image names, e.g. \"PUZCAS\" for name \"PUZCAS12.png\""
-				}
-			}
-		},
-		"town": {
-			"type":"object",
+		"town" : {
+			"type" : "object",
 			"additionalProperties" : false,
 			"required" : [
 				"mapObject", "buildingsIcons", "buildings", "creatures", "guildWindow", "names",
 				"hallBackground", "hallSlots", "horde", "mageGuild", "moatAbility", "defaultTavern", "tavernVideo", "guildBackground", "musicTheme", "siege", "structures", "townBackground", "warMachine"
 			],
-			"description": "town",
-			"properties":{
+			"description" : "town",
+			"properties" : {
+				"creatures" : {
+					"type" : "array",
+					"minItems" : 7,
+					"maxItems" : 7,
+					"description" : "List of creatures available for recruitment on each level",
+					"items" : {
+						"type" : "array",
+						"items" : { "type" : "string" }
+					}
+				},
+				"hallSlots" : {
+					"type" : "array",
+					"description" : "Description of town hall",
+					"minItems" : 5,
+					"maxItems" : 5,
+					"items" : {
+						"type" : "array",
+						"minItems" : 1,
+						"maxItems" : 4,
+						"items" : {
+							"type" : "array",
+							"description" : "List of buildings available in one slot",
+							"items" : { "type" : "string" }
+						}
+					}
+				},
+				"buildings" : {
+					"type" : "object",
+					"additionalProperties" : {
+						"$ref" : "townBuilding.json"
+					}
+				},
+				"mageGuild" : {
+					"type" : "number",
+					"description" : "Maximal level of mage guild"
+				},
+				"primaryResource" : {
+					"type" : "string",
+					"description" : "Primary resource for this town. Produced by Silo and offered as starting bonus"
+				},
+				"warMachine" : {
+					"type" : "string",
+					"description" : "Identifier of war machine produced by blacksmith in town"
+				},
+				"horde" : {
+					"type" : "array",
+					"maxItems" : 2,
+					"description" : "Levels of creatures that have hordes in town",
+					"items" : { "type" : "number" }
+				},
+				"moatAbility" : {
+					"type" : "string",
+					"description" : "Identifier of ability to use as town moat during siege"
+				},
+				"siege" : {
+					"$ref" : "townSiege.json"
+				},
+				"musicTheme" : {
+					"type" : "string",
+					"description" : "Path to town music theme",
+					"format" : "musicFile"
+				},
+				"tavernVideo" : {
+					"type" : "string",
+					"description" : "Video for tavern window",
+					"format" : "videoFile"
+				},
+				"townBackground" : {
+					"type" : "string",
+					"description" : "Background for town screen",
+					"format" : "imageFile"
+				},
+				"guildWindow" : {
+					"type" : "string",
+					"description" : "Image with small view on town from mage guild"
+				},
+				"guildBackground" : {
+					"type" : "string",
+					"description" : "Image with background of mage guild",
+					"format" : "imageFile"
+				},
+				"hallBackground" : {
+					"type" : "string",
+					"description" : "background image for town hall",
+					"format" : "imageFile"
+				},
+				"buildingsIcons" : {
+					"type" : "string",
+					"description" : "Path to .def file with building icons",
+					"format" : "animationFile"
+				},
 				"mapObject" : {
 					"properties" : {
 						"filters" : {
@@ -121,13 +179,28 @@
 						}
 					}
 				},
-				"guildSpells" : {
+				"structures" : {
 					"type" : "object",
-					"description" : "Spells available in mage guild. Value indicates chance for this spell to appear",
 					"additionalProperties" : {
-						"type" : "number"
+						"$ref" : "townStructure.json"
 					}
-				},				
+				},
+				"icons" : {
+					"type" : "object",
+					"additionalProperties" : false,
+					"description" : "Town icons",
+					"required" : [ "fort", "village" ],
+					"properties" : {
+						"fort" : {
+							"$ref" : "#/definitions/townIconPair",
+							"description" : "Icons for town with built fort"
+						},
+						"village" : {
+							"$ref" : "#/definitions/townIconPair",
+							"description" : "Icons for town without fort"
+						}
+					}
+				},
 				"defaultTavern" : {
 					"type" : "number",
 					"description" : "Default chance for hero to appear in tavern, used only when value vas not set in tavern field",
@@ -141,127 +214,51 @@
 						"minimum" : 0
 					}
 				},
-				"tavernVideo" : {
-					"type" : "string",
-					"description" : "Video for tavern window",
-					"format" : "videoFile"
+				"guildSpells" : {
+					"type" : "object",
+					"description" : "Spells available in mage guild. Value indicates chance for this spell to appear",
+					"additionalProperties" : {
+						"type" : "number"
+					}
 				},
 				"names" : {
 					"type" : "array",
 					"description" : "Names for towns on adventure map",
 					"minItems" : 1,
 					"items" : { "type" : "string" }
-				},
-				"buildingsIcons": {
-					"type" : "string",
-					"description": "Path to .def file with building icons",
-					"format" : "animationFile"
-				},
-				"buildings": {
-					"type" : "object",
-					"additionalProperties" : {
-						"$ref" : "townBuilding.json"
-					}
-				},
-				"creatures": {
-					"type":"array",
-					"minItems" : 7,
-					"maxItems" : 7,
-					"description" : "List of creatures available for recruitment on each level",
-					"items": {
-						"type":"array",
-						"items" : { "type" : "string" }
-					}
-				},
-				"guildWindow": {
-					"type":"string",
-					"description": "Image with small view on town from mage guild"
-				},
-				"guildBackground": {
-					"type":"string",
-					"description": "Image with background of mage guild",
-					"format" : "imageFile"
-				},
-
-				"hallBackground": {
-					"type":"string",
-					"description": "background image for town hall",
-					"format" : "imageFile"
-				},
-				"hallSlots": {
-					"type":"array",
-					"description": "Description of town hall",
-					"minItems" : 5,
-					"maxItems" : 5,
-					"items": {
-						"type":"array",
-						"minItems" : 1,
-						"maxItems" : 4,
-						"items" : {
-							"type" : "array",
-							"description" : "List of buildings available in one slot",
-							"items" : { "type" : "string" }
-						}
-					}
-				},
-				"horde": {
-					"type":"array",
-					"maxItems" : 2,
-					"description": "Levels of creatures that have hordes in town",
-					"items": { "type":"number" }
-				},
-				"icons": {
-					"type":"object",
-					"additionalProperties" : false,
-					"description": "Town icons",
-					"required" : [ "fort", "village" ],
-					"properties":{
-						"fort": {
-							"$ref" : "#/definitions/townIconPair",
-							"description": "Icons for town with built fort"
-						},
-						"village": {
-							"$ref" : "#/definitions/townIconPair",
-							"description": "Icons for town without fort"
-						}
-					}
-				},
-				"mageGuild": {
-					"type":"number",
-					"description": "Maximal level of mage guild"
-				},
-				"moatAbility": {
-					"type":"string",
-					"description": "Identifier of ability to use as town moat during siege"
-				},
-				"musicTheme": {
-					"type":"string",
-					"description": "Path to town music theme",
-					"format" : "musicFile"
-				},
-				"siege": {
-					"$ref" : "townSiege.json"
-				},
-				"structures": {
-					"type" : "object",
-					"additionalProperties" : {
-						"$ref" : "townStructure.json"
-					}
-				},
-				"townBackground": {
-					"type":"string",
-					"description": "Background for town screen",
-					"format" : "imageFile"
-				},
-				"primaryResource": {
-					"type":"string",
-					"description": "Primary resource for this town. Produced by Silo and offered as starting bonus"
-				},
-				"warMachine": {
-					"type":"string",
-					"description": "Identifier of war machine produced by blacksmith in town"
 				}
 			}
+		},
+		"puzzleMap" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"required" : [ "prefix", "pieces" ],
+			"description" : "Puzzle map from obelisks for this town. Must contain 48 pieces",
+			"properties" : {
+				"pieces" : {
+					"type" : "array",
+					"description" : "Lits of pieces definitions",
+					"minItems" : 48,
+					"maxItems" : 48,
+					"items" : {
+						"type" : "object",
+						"additionalProperties" : false,
+						"properties" : {
+							"index" : { "type" : "number", "description" : "Order in which images will be opened" },
+							"x" :     { "type" : "number", "description" : "X coordinate on screen" },
+							"y" :     { "type" : "number", "description" : "X coordinate on screen" }
+						}
+					}
+				},
+				"prefix" : {
+					"type" : "string",
+					"description" : "Prefix for image names, e.g. \"PUZCAS\" for name \"PUZCAS12.png\""
+				}
+			}
+		},
+		"index" : {
+			"type" : "number",
+			"description" : "Private field to break things, do not use."
 		}
 	}
 }

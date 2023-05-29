@@ -1,35 +1,34 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI battlefield format",
 	"description" : "Format used to define new battlefields in VCMI",
 	"required" : [ "graphics" ],
-
 	"additionalProperties" : false,
-	"properties":{
+	"properties" : {
+		"name" : {
+			"type" : "string",
+			"description" : "Name of the battleground"
+		},
+		"isSpecial" : {
+			"type" : "boolean",
+			"description" : "Shows if this battleground has own obstacles"
+		},
 		"bonuses": {
 			"type":"array",
 			"description": "Bonuses provided by this battleground using bonus system",
 			"items": { "$ref" : "bonus.json" }
 		},
-		"name": {
-			"type":"string",
-			"description": "Name of the battleground"
-		},
-		"graphics": {
-			"type":"string",
+		"graphics" : {
+			"type" : "string",
 			"format" : "imageFile",
-			"description": "BMP battleground resource"
+			"description" : "BMP battleground resource"
 		},
-		"isSpecial": {
-			"type":"boolean",
-			"description": "Shows if this battleground has own obstacles"
-		},
-		"impassableHexes": {
-			"type":"array",
-			"description": "Battle hexes always impassable for this type of battlefield (ship to ship for instance)",
-			"items": {
-				"type":"number"
+		"impassableHexes" : {
+			"type" : "array",
+			"description" : "Battle hexes always impassable for this type of battlefield (ship to ship for instance)",
+			"items" : {
+				"type" : "number"
 			}
 		}
 	}
