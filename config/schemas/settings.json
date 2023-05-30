@@ -23,8 +23,6 @@
 				"sound",
 				"language",
 				"gameDataLanguage",
-				"swipe",
-				"swipeDesktop",
 				"saveRandomMaps",
 				"saveFrequency",
 				"notifications",
@@ -45,14 +43,6 @@
 				"sound" : {
 					"type" : "number",
 					"default" : 88
-				},
-				"swipe" : {
-					"type" : "boolean",
-					"default" : true
-				},
-				"swipeDesktop" : {
-					"type" : "boolean",
-					"default" : false
 				},
 				"saveRandomMaps" : {
 					"type" : "boolean",
