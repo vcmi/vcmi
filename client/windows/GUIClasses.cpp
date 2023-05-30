@@ -134,7 +134,7 @@ void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
 		slider->setAmount(maxAmount);
 
 		if(slider->getValue() != maxAmount)
-			slider->moveTo(maxAmount);
+			slider->scrollTo(maxAmount);
 		else // if slider already at 0 - emulate call to sliderMoved()
 			sliderMoved(maxAmount);
 
@@ -215,7 +215,7 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, c
 
 	slider = std::make_shared<CSlider>(Point(176,279),135,std::bind(&CRecruitmentWindow::sliderMoved,this, _1),0,0,0,true);
 
-	maxButton = std::make_shared<CButton>(Point(134, 313), "IRCBTNS.DEF", CGI->generaltexth->zelp[553], std::bind(&CSlider::moveToMax, slider), EShortcut::RECRUITMENT_MAX);
+	maxButton = std::make_shared<CButton>(Point(134, 313), "IRCBTNS.DEF", CGI->generaltexth->zelp[553], std::bind(&CSlider::scrollToMax, slider), EShortcut::RECRUITMENT_MAX);
 	buyButton = std::make_shared<CButton>(Point(212, 313), "IBY6432.DEF", CGI->generaltexth->zelp[554], std::bind(&CRecruitmentWindow::buy, this), EShortcut::GLOBAL_ACCEPT);
 	cancelButton = std::make_shared<CButton>(Point(290, 313), "ICN6432.DEF", CGI->generaltexth->zelp[555], std::bind(&CRecruitmentWindow::close, this), EShortcut::GLOBAL_CANCEL);
 
@@ -287,7 +287,7 @@ void CRecruitmentWindow::availableCreaturesChanged()
 	select(cards[selectedIndex]);
 
 	if(slider->getValue() == slider->getAmount())
-		slider->moveToMax();
+		slider->scrollToMax();
 	else // if slider already at 0 - emulate call to sliderMoved()
 		sliderMoved(slider->getAmount());
 }
@@ -363,7 +363,7 @@ void CSplitWindow::setAmountText(std::string text, bool left)
 	}
 
 	setAmount(amount, left);
-	slider->moveTo(rightAmount - rightMin);
+	slider->scrollTo(rightAmount - rightMin);
 }
 
 void CSplitWindow::setAmount(int value, bool left)

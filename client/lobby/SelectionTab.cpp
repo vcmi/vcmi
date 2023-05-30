@@ -351,7 +351,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 		sort();
 		if(selectFirst)
 		{
-			slider->moveTo(0);
+			slider->scrollTo(0);
 			callOnSelect(curItems[0]);
 			selectAbs(0);
 		}
@@ -406,9 +406,9 @@ void SelectionTab::select(int position)
 	selectionPos = py;
 
 	if(position < 0)
-		slider->moveBy(position);
+		slider->scrollBy(position);
 	else if(position >= listItems.size())
-		slider->moveBy(position - (int)listItems.size() + 1);
+		slider->scrollBy(position - (int)listItems.size() + 1);
 
 	rememberCurrentSelection();
 
@@ -482,7 +482,7 @@ void SelectionTab::selectFileName(std::string fname)
 	{
 		if(curItems[i]->fileURI == fname)
 		{
-			slider->moveTo(i);
+			slider->scrollTo(i);
 			selectAbs(i);
 			return;
 		}

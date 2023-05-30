@@ -194,12 +194,12 @@ void CQuestLog::recreateLabelList()
 	if (currentLabel > QUEST_COUNT)
 	{
 		slider->block(false);
-		slider->moveToMax();
+		slider->scrollToMax();
 	}
 	else
 	{
 		slider->block(true);
-		slider->moveToMin();
+		slider->scrollToMin();
 	}
 }
 
@@ -239,7 +239,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 	std::vector<Component> components;
 	currentQuest->quest->getVisitText (text, components, currentQuest->quest->isCustomFirst, true);
 	if(description->slider)
-		description->slider->moveToMin(); // scroll text to start position
+		description->slider->scrollToMin(); // scroll text to start position
 	description->setText(text.toString()); //TODO: use special log entry text
 
 	componentsBox.reset();

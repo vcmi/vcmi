@@ -113,7 +113,7 @@ void CListBox::updatePositions()
 	{
 		redraw();
 		if (slider)
-			slider->moveTo((int)first);
+			slider->scrollTo((int)first);
 	}
 }
 

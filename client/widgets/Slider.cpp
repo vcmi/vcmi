@@ -26,7 +26,7 @@ void CSlider::sliderClicked()
 void CSlider::mouseMoved (const Point & cursorPosition)
 {
 	double v = 0;
-	if(horizontal)
+	if(getOrientation() == Orientation::HORIZONTAL)
 	{
 		if(	std::abs(cursorPosition.y-(pos.y+pos.h/2)) > pos.h/2+40  ||  std::abs(cursorPosition.x-(pos.x+pos.w/2)) > pos.w/2  )
 			return;
@@ -45,13 +45,8 @@ void CSlider::mouseMoved (const Point & cursorPosition)
 	v += 0.5;
 	if(v!=value)
 	{
-		moveTo(static_cast<int>(v));
+		scrollTo(static_cast<int>(v));
 	}
-}
-
-void CSlider::setScrollStep(int to)
-{
-	scrollStep = to;
 }
 
 void CSlider::setScrollBounds(const Rect & bounds )
@@ -79,24 +74,14 @@ int CSlider::getCapacity() const
 	return capacity;
 }
 
-void CSlider::moveLeft()
+void CSlider::scrollBy(int amount)
 {
-	moveTo(value-1);
-}
-
-void CSlider::moveRight()
-{
-	moveTo(value+1);
-}
-
-void CSlider::moveBy(int amount)
-{
-	moveTo(value + amount);
+	scrollTo(value + amount);
 }
 
 void CSlider::updateSliderPos()
 {
-	if(horizontal)
+	if(getOrientation() == Orientation::HORIZONTAL)
 	{
 		if(positions)
 		{
@@ -122,7 +107,7 @@ void CSlider::updateSliderPos()
 	}
 }
 
-void CSlider::moveTo(int to)
+void CSlider::scrollTo(int to)
 {
 	vstd::amax(to, 0);
 	vstd::amin(to, positions);
@@ -143,7 +128,7 @@ void CSlider::clickLeft(tribool down, bool previousState)
 	{
 		double pw = 0;
 		double rw = 0;
-		if(horizontal)
+		if(getOrientation() == Orientation::HORIZONTAL)
 		{
 			pw = GH.getCursorPosition().x-pos.x-25;
 			rw = pw / static_cast<double>(pos.w - 48);
@@ -153,12 +138,12 @@ void CSlider::clickLeft(tribool down, bool previousState)
 			pw = GH.getCursorPosition().y-pos.y-24;
 			rw = pw / (pos.h-48);
 		}
-		if(pw < -8  ||  pw > (horizontal ? pos.w : pos.h) - 40)
+		if(pw < -8  ||  pw > (getOrientation() == Orientation::HORIZONTAL ? pos.w : pos.h) - 40)
 			return;
 		// 		if (rw>1) return;
 		// 		if (rw<0) return;
 		slider->clickLeft(true, slider->isMouseButtonPressed(MouseButton::LEFT));
-		moveTo((int)(rw * positions  +  0.5));
+		scrollTo((int)(rw * positions  +  0.5));
 		return;
 	}
 	removeUsedEvents(MOVE);
@@ -179,60 +164,21 @@ bool CSlider::receiveEvent(const Point &position, int eventType) const
 	return testTarget.isInside(position);
 }
 
-void CSlider::setPanningStep(int to)
-{
-	panningDistanceSingle = to;
-}
-
-void CSlider::panning(bool on)
-{
-	panningDistanceAccumulated = 0;
-}
-
-void CSlider::gesturePanning(const Point & distanceDelta)
-{
-	if (horizontal)
-		panningDistanceAccumulated += -distanceDelta.x;
-	else
-		panningDistanceAccumulated += distanceDelta.y;
-
-	if (-panningDistanceAccumulated > panningDistanceSingle )
-	{
-		int scrollAmount = (-panningDistanceAccumulated) / panningDistanceSingle;
-		moveBy(-scrollAmount);
-		panningDistanceAccumulated += scrollAmount * panningDistanceSingle;
-	}
-
-	if (panningDistanceAccumulated > panningDistanceSingle )
-	{
-		int scrollAmount = panningDistanceAccumulated / panningDistanceSingle;
-		moveBy(scrollAmount);
-		panningDistanceAccumulated += -scrollAmount * panningDistanceSingle;
-	}
-}
-
 CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, CSlider::EStyle style)
-	: CIntObject(LCLICK | RCLICK | WHEEL | GESTURE_PANNING ),
+	: Scrollable(LCLICK, position, Horizontal ? Orientation::HORIZONTAL : Orientation::VERTICAL ),
 	capacity(Capacity),
-	horizontal(Horizontal),
 	amount(Amount),
 	value(Value),
-	scrollStep(1),
-	moved(Moved),
-	panningDistanceAccumulated(0),
-	panningDistanceSingle(32)
+	moved(Moved)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	setAmount(amount);
 	vstd::amax(value, 0);
 	vstd::amin(value, positions);
 
-	pos.x += position.x;
-	pos.y += position.y;
-
 	if(style == BROWN)
 	{
-		std::string name = horizontal ? "IGPCRDIV.DEF" : "OVBUTN2.DEF";
+		std::string name = getOrientation() == Orientation::HORIZONTAL ? "IGPCRDIV.DEF" : "OVBUTN2.DEF";
 		//NOTE: this images do not have "blocked" frames. They should be implemented somehow (e.g. palette transform or something...)
 
 		left = std::make_shared<CButton>(Point(), name, CButton::tooltip());
@@ -245,8 +191,8 @@ CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int
 	}
 	else
 	{
-		left = std::make_shared<CButton>(Point(), horizontal ? "SCNRBLF.DEF" : "SCNRBUP.DEF", CButton::tooltip());
-		right = std::make_shared<CButton>(Point(), horizontal ? "SCNRBRT.DEF" : "SCNRBDN.DEF", CButton::tooltip());
+		left = std::make_shared<CButton>(Point(), getOrientation() == Orientation::HORIZONTAL ? "SCNRBLF.DEF" : "SCNRBUP.DEF", CButton::tooltip());
+		right = std::make_shared<CButton>(Point(), getOrientation() == Orientation::HORIZONTAL ? "SCNRBRT.DEF" : "SCNRBDN.DEF", CButton::tooltip());
 		slider = std::make_shared<CButton>(Point(), "SCNRBSL.DEF", CButton::tooltip());
 	}
 	slider->actOnDown = true;
@@ -254,16 +200,16 @@ CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int
 	left->soundDisabled = true;
 	right->soundDisabled = true;
 
-	if (horizontal)
+	if (getOrientation() == Orientation::HORIZONTAL)
 		right->moveBy(Point(totalw - right->pos.w, 0));
 	else
 		right->moveBy(Point(0, totalw - right->pos.h));
 
-	left->addCallback(std::bind(&CSlider::moveLeft,this));
-	right->addCallback(std::bind(&CSlider::moveRight,this));
+	left->addCallback(std::bind(&CSlider::scrollPrev,this));
+	right->addCallback(std::bind(&CSlider::scrollNext,this));
 	slider->addCallback(std::bind(&CSlider::sliderClicked,this));
 
-	if(horizontal)
+	if(getOrientation() == Orientation::HORIZONTAL)
 	{
 		pos.h = slider->pos.h;
 		pos.w = totalw;
@@ -299,41 +245,32 @@ void CSlider::showAll(Canvas & to)
 	CIntObject::showAll(to);
 }
 
-void CSlider::wheelScrolled(int distance)
-{
-	// vertical slider -> scrolling up move slider upwards
-	// horizontal slider -> scrolling up moves slider towards right
-	bool positive = ((distance < 0) != horizontal);
-
-	moveTo(value + 3 * (positive ? +scrollStep : -scrollStep));
-}
-
 void CSlider::keyPressed(EShortcut key)
 {
 	int moveDest = value;
 	switch(key)
 	{
 	case EShortcut::MOVE_UP:
-		if (!horizontal)
-			moveDest = value - scrollStep;
+		if (getOrientation() == Orientation::VERTICAL)
+			moveDest = value - getScrollStep();
 		break;
 	case EShortcut::MOVE_LEFT:
-		if (horizontal)
-			moveDest = value - scrollStep;
+		if (getOrientation() == Orientation::HORIZONTAL)
+			moveDest = value - getScrollStep();
 		break;
 	case EShortcut::MOVE_DOWN:
-		if (!horizontal)
-			moveDest = value + scrollStep;
+		if (getOrientation() == Orientation::VERTICAL)
+			moveDest = value + getScrollStep();
 		break;
 	case EShortcut::MOVE_RIGHT:
-		if (horizontal)
-			moveDest = value + scrollStep;
+		if (getOrientation() == Orientation::HORIZONTAL)
+			moveDest = value + getScrollStep();
 		break;
 	case EShortcut::MOVE_PAGE_UP:
-		moveDest = value - capacity + scrollStep;
+		moveDest = value - capacity + getScrollStep();
 		break;
 	case EShortcut::MOVE_PAGE_DOWN:
-		moveDest = value + capacity - scrollStep;
+		moveDest = value + capacity - getScrollStep();
 		break;
 	case EShortcut::MOVE_FIRST:
 		moveDest = 0;
@@ -345,15 +282,15 @@ void CSlider::keyPressed(EShortcut key)
 		return;
 	}
 
-	moveTo(moveDest);
+	scrollTo(moveDest);
 }
 
-void CSlider::moveToMin()
+void CSlider::scrollToMin()
 {
-	moveTo(0);
+	scrollTo(0);
 }
 
-void CSlider::moveToMax()
+void CSlider::scrollToMax()
 {
-	moveTo(amount);
+	scrollTo(amount);
 }

@@ -164,10 +164,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	framerateCheckbox->setSelected(settings["video"]["showfps"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
-	musicSlider->moveTo(CCS->musich->getVolume());
+	musicSlider->scrollTo(CCS->musich->getVolume());
 
 	std::shared_ptr<CSlider> volumeSlider = widget<CSlider>("soundVolumeSlider");
-	volumeSlider->moveTo(CCS->soundh->getVolume());
+	volumeSlider->scrollTo(CCS->soundh->getVolume());
 
 	std::shared_ptr<CToggleGroup> creatureGrowthAsDwellingPicker = widget<CToggleGroup>("availableCreaturesAsDwellingPicker");
 	creatureGrowthAsDwellingPicker->setSelected(settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].Bool());
