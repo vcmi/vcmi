@@ -86,7 +86,6 @@ public:
 	void deactivate() override;
 	void keyPressed(EShortcut key) override;
 	bool captureThisKey(EShortcut key) override;
-	void clickRight(tribool down, bool previousState) override;
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
 

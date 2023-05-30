@@ -85,7 +85,7 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	else
 		tacticPhaseEnded();
 
-	addUsedEvents(RCLICK | KEYBOARD);
+	addUsedEvents(KEYBOARD);
 }
 
 void BattleWindow::createQueue()
@@ -201,12 +201,6 @@ void BattleWindow::keyPressed(EShortcut key)
 		return;
 	}
 	InterfaceObjectConfigurable::keyPressed(key);
-}
-
-void BattleWindow::clickRight(tribool down, bool previousState)
-{
-	if (!down)
-		owner.actionsController->endCastingSpell();
 }
 
 void BattleWindow::tacticPhaseStarted()

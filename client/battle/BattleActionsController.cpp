@@ -971,6 +971,9 @@ void BattleActionsController::activateStack()
 
 void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 {
+	if (spellcastingModeActive())
+		endCastingSpell();
+
 	auto selectedStack = owner.curInt->cb->battleGetStackByPos(clickedHex, true);
 
 	if (selectedStack != nullptr)
