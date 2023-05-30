@@ -18,6 +18,7 @@
 #include "../windows/InfoWindows.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/CAnimation.h"

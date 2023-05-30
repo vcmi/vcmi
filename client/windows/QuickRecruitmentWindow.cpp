@@ -13,6 +13,7 @@
 #include "../CPlayerInterface.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CreatureCostBox.h"
+#include "../widgets/Slider.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../../CCallback.h"

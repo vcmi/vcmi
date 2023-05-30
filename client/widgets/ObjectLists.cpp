@@ -11,7 +11,7 @@
 #include "ObjectLists.h"
 
 #include "../gui/CGuiHandler.h"
-#include "Buttons.h"
+#include "Slider.h"
 
 CObjectList::CObjectList(CreateFunc create)
 	: createObject(create)

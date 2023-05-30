@@ -16,6 +16,7 @@
 #include "../../gui/CGuiHandler.h"
 #include "../../gui/WindowHandler.h"
 #include "../../widgets/Buttons.h"
+#include "../../widgets/Slider.h"
 #include "../../widgets/TextControls.h"
 #include "../../widgets/Images.h"
 #include "CGameInfo.h"

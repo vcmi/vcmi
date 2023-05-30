@@ -21,7 +21,6 @@
 #include "../CVideoHandler.h"
 #include "../CServerHandler.h"
 
-//#include "../adventureMap/CResDataBar.h"
 #include "../battle/BattleInterfaceClasses.h"
 #include "../battle/BattleInterface.h"
 
@@ -35,6 +34,7 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CreatureCostBox.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/ObjectLists.h"
 

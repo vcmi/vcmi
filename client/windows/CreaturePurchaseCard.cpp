@@ -19,6 +19,7 @@
 #include "../gui/TextAlignment.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/CreatureCostBox.h"
 

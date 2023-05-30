@@ -99,6 +99,8 @@ set(client_SRCS
 	widgets/MiscWidgets.cpp
 	widgets/ObjectLists.cpp
 	widgets/TextControls.cpp
+	widgets/Scrollable.cpp
+	widgets/Slider.cpp
 	widgets/CArtifactsOfHeroBase.cpp
 	widgets/CArtifactsOfHeroMain.cpp
 	widgets/CArtifactsOfHeroKingdom.cpp
@@ -251,6 +253,8 @@ set(client_HEADERS
 	widgets/MiscWidgets.h
 	widgets/ObjectLists.h
 	widgets/TextControls.h
+	widgets/Scrollable.h
+	widgets/Slider.h
 	widgets/CArtifactsOfHeroBase.h
 	widgets/CArtifactsOfHeroMain.h
 	widgets/CArtifactsOfHeroKingdom.h

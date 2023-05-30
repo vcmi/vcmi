@@ -15,9 +15,10 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
-#include "../widgets/CComponent.h"
-#include "../adventureMap/AdventureMapInterface.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/CComponent.h"
+#include "../widgets/Slider.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../adventureMap/CMinimap.h"
 #include "../render/Canvas.h"
 #include "../renderSDL/SDL_Extensions.h"
