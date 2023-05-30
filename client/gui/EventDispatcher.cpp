@@ -225,32 +225,32 @@ void EventDispatcher::dispatchGesturePanningStarted(const Point & initialPositio
 	{
 		if (it->receiveEvent(initialPosition, AEventsReceiver::GESTURE_PANNING))
 		{
-			it->panning(true);
+			it->panning(true, initialPosition, initialPosition);
 			it->panningState = true;
 		}
 	}
 }
 
-void EventDispatcher::dispatchGesturePanningEnded()
+void EventDispatcher::dispatchGesturePanningEnded(const Point & initialPosition, const Point & finalPosition)
 {
 	for(auto it : panningInterested)
 	{
 		if (it->isPanning())
 		{
-			it->panning(false);
+			it->panning(false, initialPosition, finalPosition);
 			it->panningState = false;
 		}
 	}
 }
 
-void EventDispatcher::dispatchGesturePanning(const Point & distance)
+void EventDispatcher::dispatchGesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
 	auto copied = panningInterested;
 
 	for(auto it : copied)
 	{
 		if (it->isPanning())
-			it->gesturePanning(distance);
+			it->gesturePanning(initialPosition, currentPosition, lastUpdateDistance);
 	}
 }
 

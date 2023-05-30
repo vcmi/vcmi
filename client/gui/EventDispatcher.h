@@ -63,8 +63,8 @@ public:
 	void dispatchMouseMoved(const Point & distance);
 
 	void dispatchGesturePanningStarted(const Point & initialPosition);
-	void dispatchGesturePanningEnded();
-	void dispatchGesturePanning(const Point & distance);
+	void dispatchGesturePanningEnded(const Point & initialPosition, const Point & finalPosition);
+	void dispatchGesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance);
 
 	/// Text input events
 	void dispatchTextInput(const std::string & text);

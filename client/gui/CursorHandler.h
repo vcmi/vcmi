@@ -150,9 +150,6 @@ public:
 
 	void dragAndDropCursor(std::string path, size_t index);
 
-	/// Returns current position of the cursor
-	Point position() const;
-
 	/// Changes cursor to specified index
 	void set(Cursor::Default index);
 	void set(Cursor::Map index);

@@ -27,7 +27,7 @@ void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motio
 	GH.input().setCursorPosition(newPosition);
 
 	if (mouseButtonsMask & SDL_BUTTON(SDL_BUTTON_MIDDLE))
-		GH.events().dispatchGesturePanning(distance);
+		GH.events().dispatchGesturePanning(middleClickPosition, newPosition, distance);
 
 	mouseButtonsMask = motion.state;
 }
@@ -48,6 +48,7 @@ void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & b
 			GH.events().dispatchMouseButtonPressed(MouseButton::RIGHT, position);
 			break;
 		case SDL_BUTTON_MIDDLE:
+			middleClickPosition = position;
 			GH.events().dispatchGesturePanningStarted(position);
 			break;
 	}
@@ -71,7 +72,7 @@ void InputSourceMouse::handleEventMouseButtonUp(const SDL_MouseButtonEvent & but
 			GH.events().dispatchMouseButtonReleased(MouseButton::RIGHT, position);
 			break;
 		case SDL_BUTTON_MIDDLE:
-			GH.events().dispatchGesturePanningEnded();
+			GH.events().dispatchGesturePanningEnded(middleClickPosition, position);
 			break;
 	}
 }

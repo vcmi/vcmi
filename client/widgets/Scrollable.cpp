@@ -20,7 +20,7 @@ Scrollable::Scrollable(int used, Point position, Orientation orientation)
 {
 }
 
-void Scrollable::panning(bool on)
+void Scrollable::panning(bool on, const Point & initialPosition, const Point & finalPosition)
 {
 	panningDistanceAccumulated = 0;
 }
@@ -33,12 +33,12 @@ void Scrollable::wheelScrolled(int distance)
 		scrollBy(-distance * scrollStep);
 }
 
-void Scrollable::gesturePanning(const Point & distanceDelta)
+void Scrollable::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
 	if (orientation == Orientation::HORIZONTAL)
-		panningDistanceAccumulated += -distanceDelta.x;
+		panningDistanceAccumulated += -lastUpdateDistance.x;
 	else
-		panningDistanceAccumulated += distanceDelta.y;
+		panningDistanceAccumulated += lastUpdateDistance.y;
 
 	if (-panningDistanceAccumulated > panningDistanceSingle )
 	{

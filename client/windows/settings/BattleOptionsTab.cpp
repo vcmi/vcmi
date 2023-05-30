@@ -172,8 +172,6 @@ void BattleOptionsTab::touchscreenModeChangedCallback(bool value, BattleInterfac
 {
 	Settings touchcreenMode = settings.write["battle"]["touchscreenMode"];
 	touchcreenMode->Bool() = value;
-	if(parentBattleInterface)
-		parentBattleInterface->actionsController->setTouchScreenMode(value);
 }
 
 void BattleOptionsTab::animationSpeedChangedCallback(int value)

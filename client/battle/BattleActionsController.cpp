@@ -117,7 +117,6 @@ BattleActionsController::BattleActionsController(BattleInterface & owner):
 	selectedStack(nullptr),
 	heroSpellToCast(nullptr)
 {
-	touchscreenMode = settings["battle"]["touchscreenMode"].Bool();
 }
 
 void BattleActionsController::endCastingSpell()
@@ -826,10 +825,6 @@ void BattleActionsController::onHoverEnded()
 
 void BattleActionsController::onHexLeftClicked(BattleHex clickedHex)
 {
-	static BattleHex lastSelectedHex;
-	static BattleHex lastDirectionalHex;
-	static PossiblePlayerBattleAction::Actions lastSelectedAction;
-	
 	if (owner.stacksController->getActiveStack() == nullptr)
 		return;
 
@@ -840,24 +835,8 @@ void BattleActionsController::onHexLeftClicked(BattleHex clickedHex)
 	if (!actionIsLegal(action, clickedHex))
 		return;
 	
-	auto directionalHex = lastDirectionalHex;
-	if(action.get() == PossiblePlayerBattleAction::ATTACK
-	   || action.get() == PossiblePlayerBattleAction::WALK_AND_ATTACK
-	   || action.get() == PossiblePlayerBattleAction::ATTACK_AND_RETURN)
-		directionalHex = owner.fieldController->fromWhichHexAttack(clickedHex);
-
-	if(!touchscreenMode || (lastSelectedAction == action.get() && lastSelectedHex == clickedHex && lastDirectionalHex == directionalHex))
-	{
-		actionRealize(action, clickedHex);
-
-		GH.statusbar()->clear();
-	}
-	else
-	{
-		lastSelectedAction = action.get();
-		lastSelectedHex = clickedHex;
-		lastDirectionalHex = directionalHex;
-	}
+	actionRealize(action, clickedHex);
+	GH.statusbar()->clear();
 }
 
 void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterStack)
@@ -1017,9 +996,4 @@ void BattleActionsController::removePossibleAction(PossiblePlayerBattleAction ac
 void BattleActionsController::pushFrontPossibleAction(PossiblePlayerBattleAction action)
 {
 	possibleActions.insert(possibleActions.begin(), action);
-}
-
-void BattleActionsController::setTouchScreenMode(bool enabled)
-{
-	touchscreenMode = enabled;
 }

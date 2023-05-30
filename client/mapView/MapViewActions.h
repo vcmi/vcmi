@@ -31,7 +31,7 @@ public:
 
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
-	void gesturePanning(const Point & distance) override;
+	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void hover(bool on) override;
 	void mouseMoved(const Point & cursorPosition) override;
 	void wheelScrolled(int distance) override;

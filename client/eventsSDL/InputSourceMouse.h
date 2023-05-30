@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "../../lib/Point.h"
+
 struct SDL_MouseWheelEvent;
 struct SDL_MouseMotionEvent;
 struct SDL_MouseButtonEvent;
@@ -19,6 +21,7 @@ enum class MouseButton;
 /// Class that handles mouse input from SDL events
 class InputSourceMouse
 {
+	Point middleClickPosition;
 	int mouseButtonsMask = 0;
 public:
 	void handleEventMouseMotion(const SDL_MouseMotionEvent & current);

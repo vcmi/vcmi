@@ -40,7 +40,7 @@ protected:
 	virtual void clickDouble() {}
 
 	/// Called when user pans screen by specified distance
-	virtual void gesturePanning(const Point & distanceDelta) {}
+	virtual void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) {}
 
 	virtual void wheelScrolled(int distance) {}
 	virtual void mouseMoved(const Point & cursorPosition) {}
@@ -49,7 +49,7 @@ protected:
 	virtual void hover(bool on) {}
 
 	/// Called when UI element panning gesture status changes
-	virtual void panning(bool on) {}
+	virtual void panning(bool on, const Point & initialPosition, const Point & finalPosition) {}
 
 	virtual void textInputed(const std::string & enteredText) {}
 	virtual void textEdited(const std::string & enteredText) {}

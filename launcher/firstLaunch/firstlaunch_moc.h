@@ -38,9 +38,6 @@ class FirstLaunchView : public QWidget
 	void activateTabModPreset();
 	void exitSetup();
 	
-	// Initial platform-dependend settings
-	void setupPlatformSettings();
-
 	// Tab Language
 	void languageSelected(const QString & languageCode);
 

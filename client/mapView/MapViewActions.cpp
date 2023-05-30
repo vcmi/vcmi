@@ -69,9 +69,9 @@ void MapViewActions::wheelScrolled(int distance)
 	adventureInt->hotkeyZoom(distance);
 }
 
-void MapViewActions::gesturePanning(const Point & distance)
+void MapViewActions::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
-	owner.onMapSwiped(distance);
+	owner.onMapSwiped(lastUpdateDistance);
 }
 
 void MapViewActions::handleHover(const Point & cursorPosition)

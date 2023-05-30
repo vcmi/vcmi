@@ -64,11 +64,6 @@ CursorHandler::CursorHandler()
 
 CursorHandler::~CursorHandler() = default;
 
-Point CursorHandler::position() const
-{
-	return pos;
-}
-
 void CursorHandler::changeGraphic(Cursor::Type type, size_t index)
 {
 	assert(dndObject == nullptr);

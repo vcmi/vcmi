@@ -297,7 +297,7 @@
 				},
 				"touchscreenMode" : {
 					"type" : "boolean",
-					"default" : false
+					"default" : true
 				},
 				"stackRange" : {
 					"type" : "boolean",

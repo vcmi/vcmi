@@ -61,9 +61,7 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 		}
 		case TouchState::TAP_DOWN_SHORT:
 		{
-			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
-
-			Point distance = GH.getCursorPosition() - lastTapPosition;
+			Point distance = convertTouchToMouse(tfinger) - lastTapPosition;
 			if ( std::abs(distance.x) > params.panningSensitivityThreshold || std::abs(distance.y) > params.panningSensitivityThreshold)
 				state = TouchState::TAP_DOWN_PANNING;
 			break;
@@ -104,8 +102,8 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 		}
 		case TouchState::IDLE:
 		{
-			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
-			lastTapPosition = GH.getCursorPosition();
+			lastTapPosition = convertTouchToMouse(tfinger);
+			GH.input().setCursorPosition(lastTapPosition);
 			GH.events().dispatchGesturePanningStarted(lastTapPosition);
 			state = TouchState::TAP_DOWN_SHORT;
 			break;
@@ -155,7 +153,7 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 		}
 		case TouchState::TAP_DOWN_PANNING:
 		{
-			GH.events().dispatchGesturePanningEnded();
+			GH.events().dispatchGesturePanningEnded(lastTapPosition, convertTouchToMouse(tfinger));
 			state = TouchState::IDLE;
 			break;
 		}
@@ -165,7 +163,7 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 				state = TouchState::TAP_DOWN_PANNING;
 			if (SDL_GetNumTouchFingers(tfinger.touchId) == 0)
 			{
-				GH.events().dispatchGesturePanningEnded();
+				GH.events().dispatchGesturePanningEnded(lastTapPosition, convertTouchToMouse(tfinger));
 				state = TouchState::IDLE;
 			}
 			break;
@@ -229,7 +227,7 @@ void InputSourceTouch::emitPanningEvent(const SDL_TouchFingerEvent & tfinger)
 {
 	Point distance(-tfinger.dx * GH.screenDimensions().x, -tfinger.dy * GH.screenDimensions().y);
 
-	GH.events().dispatchGesturePanning(distance);
+	GH.events().dispatchGesturePanning(lastTapPosition, convertTouchToMouse(tfinger), distance);
 }
 
 void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
