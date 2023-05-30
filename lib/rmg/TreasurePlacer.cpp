@@ -527,8 +527,8 @@ size_t TreasurePlacer::getPossibleObjectsSize() const
 }
 
 bool TreasurePlacer::isGuardNeededForTreasure(int value)
-{// no guard in a zone with "monsters: none", in a water zone and for small treasures
-	return zone.monsterStrength != EMonsterStrength::ZONE_NONE && zone.getType() != ETemplateZoneType::WATER && value > minGuardedValue;
+{// no guard in a zone with "monsters: none" and for small treasures; water zones cen get monster strength ZONE_NONE elsewhere if needed
+	return zone.monsterStrength != EMonsterStrength::ZONE_NONE && value > minGuardedValue;
 }
 
 std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo& treasureInfo)
