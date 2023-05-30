@@ -16,6 +16,8 @@ struct PlayerSettings;
 struct PlayerInfo;
 VCMI_LIB_NAMESPACE_END
 
+#include "../widgets/Scrollable.h"
+
 class CSlider;
 class CLabel;
 class CMultiLineLabel;
@@ -93,17 +95,14 @@ public:
 	};
 
 	/// Image with current town/hero/bonus
-	struct SelectedBox : public CIntObject, public CPlayerSettingsHelper
+	struct SelectedBox : public Scrollable, public CPlayerSettingsHelper
 	{
 		std::shared_ptr<CAnimImage> image;
 		std::shared_ptr<CLabel> subtitle;
-		int panningDistanceAccumulated;
 
 		SelectedBox(Point position, PlayerSettings & settings, SelType type);
 		void clickRight(tribool down, bool previousState) override;
-		void wheelScrolled(int distance) override;
-		void gesturePanning(const Point & distanceDelta) override;
-		void panning(bool on) override;
+		void scrollBy(int distance) override;
 
 		void update();
 	};

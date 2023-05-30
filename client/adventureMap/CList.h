@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
+#include "../widgets/Scrollable.h"
 #include "../../lib/FunctionList.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -24,7 +24,7 @@ class CButton;
 class CAnimImage;
 
 /// Base UI Element for hero\town lists
-class CList : public CIntObject
+class CList : public Scrollable
 {
 protected:
 	class CListItem : public CIntObject, public std::enable_shared_from_this<CListItem>
@@ -55,8 +55,6 @@ protected:
 
 private:
 	const size_t size;
-	/// How far have player moved finger/mouse via gesture so far.
-	int panningDistanceAccumulated;
 
 	//for selection\deselection
 	std::shared_ptr<CListItem> selected;
@@ -65,6 +63,10 @@ private:
 
 	std::shared_ptr<CButton> scrollUp;
 	std::shared_ptr<CButton> scrollDown;
+
+	void scrollBy(int distance) override;
+	void scrollPrev() override;
+	void scrollNext() override;
 
 protected:
 	std::shared_ptr<CListBox> listBox;
@@ -94,9 +96,6 @@ public:
 	void selectPrev();
 
 	void showAll(Canvas & to) override;
-	void panning(bool on) override;
-	void gesturePanning(const Point & distanceDelta) override;
-	void wheelScrolled(int distance) override;
 };
 
 /// List of heroes which is shown at the right of the adventure map screen

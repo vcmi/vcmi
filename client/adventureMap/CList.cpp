@@ -82,9 +82,8 @@ void CList::CListItem::onSelect(bool on)
 }
 
 CList::CList(int Size, Rect widgetDimensions)
-	: CIntObject(WHEEL | GESTURE_PANNING, widgetDimensions.topLeft()),
+	: Scrollable(0, widgetDimensions.topLeft(), Orientation::VERTICAL),
 	size(Size),
-	panningDistanceAccumulated(0),
 	selected(nullptr)
 {
 	pos.w = widgetDimensions.w;
@@ -108,8 +107,7 @@ void CList::setScrollUpButton(std::shared_ptr<CButton> button)
 	addChild(button.get());
 
 	scrollUp = button;
-	scrollUp->addCallback(std::bind(&CListBox::moveToPrev, listBox));
-	scrollUp->addCallback(std::bind(&CList::update, this));
+	scrollUp->addCallback(std::bind(&CList::scrollPrev, this));
 	update();
 }
 
@@ -118,8 +116,29 @@ void CList::setScrollDownButton(std::shared_ptr<CButton> button)
 	addChild(button.get());
 
 	scrollDown = button;
-	scrollDown->addCallback(std::bind(&CList::update, this));
-	scrollDown->addCallback(std::bind(&CListBox::moveToNext, listBox));
+	scrollDown->addCallback(std::bind(&CList::scrollNext, this));
+	update();
+}
+
+void CList::scrollBy(int distance)
+{
+	if (distance < 0 && listBox->getPos() < -distance)
+		listBox->moveToPos(0);
+	else
+		listBox->moveToPos(static_cast<int>(listBox->getPos()) + distance);
+
+	update();
+}
+
+void CList::scrollPrev()
+{
+	listBox->moveToPrev();
+	update();
+}
+
+void CList::scrollNext()
+{
+	listBox->moveToNext();
 	update();
 }
 
@@ -186,41 +205,6 @@ void CList::selectPrev()
 		selectIndex(0);
 	else
 		selectIndex(index-1);
-}
-
-void CList::panning(bool on)
-{
-	panningDistanceAccumulated = 0;
-}
-
-void CList::gesturePanning(const Point & distanceDelta)
-{
-	int panningDistanceSingle = 32;
-
-	panningDistanceAccumulated += distanceDelta.y;
-
-	while (-panningDistanceAccumulated > panningDistanceSingle )
-	{
-		listBox->moveToPrev();
-		panningDistanceAccumulated += panningDistanceSingle;
-	}
-
-	while (panningDistanceAccumulated > panningDistanceSingle )
-	{
-		listBox->moveToNext();
-		panningDistanceAccumulated -= panningDistanceSingle;
-	}
-
-	update();
-}
-
-void CList::wheelScrolled(int distance)
-{
-	if (distance < 0)
-		listBox->moveToNext();
-	if (distance > 0)
-		listBox->moveToPrev();
-	update();
 }
 
 CHeroList::CEmptyHeroItem::CEmptyHeroItem()

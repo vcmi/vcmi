@@ -28,9 +28,9 @@ void Scrollable::panning(bool on)
 void Scrollable::wheelScrolled(int distance)
 {
 	if (orientation == Orientation::HORIZONTAL)
-		scrollBy(distance * 3);
+		scrollBy(distance * scrollStep);
 	else
-		scrollBy(-distance * 3);
+		scrollBy(-distance * scrollStep);
 }
 
 void Scrollable::gesturePanning(const Point & distanceDelta)

@@ -198,10 +198,8 @@ void EventDispatcher::dispatchMouseScrolled(const Point & distance, const Point 
 		if(!vstd::contains(wheelInterested,i))
 			continue;
 
-		// ignore distance value and only provide its sign - we expect one scroll "event" to move sliders and such by 1 point,
-		// and not by system-specific "number of lines to scroll", which is what 'distance' represents
 		if (i->receiveEvent(position, AEventsReceiver::WHEEL))
-			i->wheelScrolled( std::clamp(distance.y, -1, 1));
+			i->wheelScrolled(distance.y);
 	}
 }
 
@@ -227,7 +225,6 @@ void EventDispatcher::dispatchGesturePanningStarted(const Point & initialPositio
 	{
 		if (it->receiveEvent(initialPosition, AEventsReceiver::GESTURE_PANNING))
 		{
-			assert(it->panningState == false);
 			it->panning(true);
 			it->panningState = true;
 		}

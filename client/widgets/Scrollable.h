@@ -21,7 +21,7 @@ enum class Orientation
 /// Simple class that provides scrolling functionality via either mouse wheel or touchscreen gesture
 class Scrollable : public CIntObject
 {
-	/// how many elements will be scrolled via one click, default = 1
+	/// how many elements will be scrolled via one wheel action, default = 1
 	int scrollStep;
 	/// How far player must move finger/mouse to move slider by 1 via gesture
 	int panningDistanceSingle;
