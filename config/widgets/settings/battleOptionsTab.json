@@ -114,6 +114,7 @@
 					"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
 				},
 				{
+					"created" : "touchscreen",
 					"text": "vcmi.battleOptions.touchscreenMode.hover",
 				}
 			]
@@ -152,6 +153,7 @@
 				{
 					"name": "touchscreenModeCheckbox",
 					"help": "vcmi.battleOptions.touchscreenMode",
+					"created" : "touchscreen",
 					"callback": "touchscreenModeChanged"
 				},
 			]

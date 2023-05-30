@@ -238,6 +238,11 @@ void InputHandler::stopTextInput()
 	textHandler->stopTextInput();
 }
 
+bool InputHandler::hasTouchInputDevice() const
+{
+	return fingerHandler->hasTouchInputDevice();
+}
+
 bool InputHandler::isMouseButtonPressed(MouseButton button) const
 {
 	return mouseHandler->isMouseButtonPressed(button) || fingerHandler->isMouseButtonPressed(button);

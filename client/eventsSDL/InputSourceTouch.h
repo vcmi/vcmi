@@ -108,5 +108,6 @@ public:
 
 	void handleUpdate();
 
+	bool hasTouchInputDevice() const;
 	bool isMouseButtonPressed(MouseButton button) const;
 };

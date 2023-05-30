@@ -79,11 +79,12 @@ GeneralOptionsTab::GeneralOptionsTab()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	type |= REDRAW_PARENT;
 
-	addConditional("mobile", false);
-	addConditional("desktop", true);
 #ifdef VCMI_MOBILE
 	addConditional("mobile", true);
 	addConditional("desktop", false);
+#else
+	addConditional("mobile", false);
+	addConditional("desktop", true);
 #endif
 
 	const JsonNode config(ResourceID("config/widgets/settings/generalOptionsTab.json"));

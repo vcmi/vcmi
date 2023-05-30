@@ -63,6 +63,9 @@ public:
 	/// Ends any existing text input state
 	void stopTextInput();
 
+	/// returns true if system has active touchscreen
+	bool hasTouchInputDevice() const;
+
 	/// Returns true if selected mouse button is pressed at the moment
 	bool isMouseButtonPressed(MouseButton button) const;
 

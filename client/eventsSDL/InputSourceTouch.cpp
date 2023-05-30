@@ -209,6 +209,11 @@ Point InputSourceTouch::convertTouchToMouse(const SDL_TouchFingerEvent & tfinger
 	return Point(tfinger.x * GH.screenDimensions().x, tfinger.y * GH.screenDimensions().y);
 }
 
+bool InputSourceTouch::hasTouchInputDevice() const
+{
+	return SDL_GetNumTouchDevices() > 0;
+}
+
 bool InputSourceTouch::isMouseButtonPressed(MouseButton button) const
 {
 	if (state == TouchState::TAP_DOWN_LONG)

@@ -15,6 +15,7 @@
 #include "../../battle/BattleInterface.h"
 #include "../../battle/BattleActionsController.h"
 #include "../../gui/CGuiHandler.h"
+#include "../../eventsSDL/InputHandler.h"
 #include "../../../lib/filesystem/ResourceID.h"
 #include "../../../lib/CGeneralTextHandler.h"
 #include "../../widgets/Buttons.h"
@@ -24,6 +25,8 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	type |= REDRAW_PARENT;
+
+	addConditional("touchscreen", GH.input().hasTouchInputDevice());
 
 	const JsonNode config(ResourceID("config/widgets/settings/battleOptionsTab.json"));
 	addCallback("viewGridChanged", [this, owner](bool value)
@@ -83,7 +86,8 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	mouseShadowCheckbox->setSelected(settings["battle"]["mouseShadow"].Bool());
 	
 	std::shared_ptr<CToggleButton> touchscreenModeCheckbox = widget<CToggleButton>("touchscreenModeCheckbox");
-	touchscreenModeCheckbox->setSelected(settings["battle"]["touchscreenMode"].Bool());
+	if (touchscreenModeCheckbox)
+		touchscreenModeCheckbox->setSelected(settings["battle"]["touchscreenMode"].Bool());
 
 	std::shared_ptr<CToggleButton> skipBattleIntroMusicCheckbox = widget<CToggleButton>("skipBattleIntroMusicCheckbox");
 	skipBattleIntroMusicCheckbox->setSelected(settings["gameTweaks"]["skipBattleIntroMusic"].Bool());
