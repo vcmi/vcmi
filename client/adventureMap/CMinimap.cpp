@@ -88,7 +88,7 @@ void CMinimapInstance::showAll(Canvas & to)
 }
 
 CMinimap::CMinimap(const Rect & position)
-	: CIntObject(LCLICK | RCLICK | HOVER | MOVE, position.topLeft()),
+	: CIntObject(LCLICK | RCLICK | HOVER | MOVE | GESTURE_PANNING, position.topLeft()),
 	level(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -126,9 +126,9 @@ Point CMinimap::tileToPixels(const int3 &tile) const
 	return Point(x,y);
 }
 
-void CMinimap::moveAdvMapSelection()
+void CMinimap::moveAdvMapSelection(const Point & positionGlobal)
 {
-	int3 newLocation = pixelToTile(GH.getCursorPosition() - pos.topLeft());
+	int3 newLocation = pixelToTile(positionGlobal - pos.topLeft());
 	adventureInt->centerOnTile(newLocation);
 
 	if (!(adventureInt->isActive()))
@@ -137,10 +137,15 @@ void CMinimap::moveAdvMapSelection()
 		redraw();//redraw only this
 }
 
+void CMinimap::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
+{
+	moveAdvMapSelection(currentPosition);
+}
+
 void CMinimap::clickLeft(tribool down, bool previousState)
 {
 	if(down)
-		moveAdvMapSelection();
+		moveAdvMapSelection(GH.getCursorPosition());
 }
 
 void CMinimap::clickRight(tribool down, bool previousState)
@@ -160,7 +165,7 @@ void CMinimap::hover(bool on)
 void CMinimap::mouseMoved(const Point & cursorPosition)
 {
 	if(isMouseButtonPressed(MouseButton::LEFT))
-		moveAdvMapSelection();
+		moveAdvMapSelection(cursorPosition);
 }
 
 void CMinimap::showAll(Canvas & to)
