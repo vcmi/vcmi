@@ -81,6 +81,9 @@ struct TouchInputParameters
 	/// moving finger for distance larger than specified will be qualified as panning gesture instead of long press
 	uint32_t panningSensitivityThreshold = 10;
 
+	/// gesture will be qualified as pinch if distance between fingers is at least specified here
+	uint32_t pinchSensitivityThreshold = 10;
+
 	bool useRelativeMode = false;
 };
 
@@ -93,6 +96,7 @@ class InputSourceTouch
 	Point lastTapPosition;
 
 	Point convertTouchToMouse(const SDL_TouchFingerEvent & current);
+	Point convertTouchToMouse(float x, float y);
 
 	void emitPanningEvent(const SDL_TouchFingerEvent & tfinger);
 	void emitPinchEvent(const SDL_TouchFingerEvent & tfinger);

@@ -204,7 +204,12 @@ void InputSourceTouch::handleUpdate()
 
 Point InputSourceTouch::convertTouchToMouse(const SDL_TouchFingerEvent & tfinger)
 {
-	return Point(tfinger.x * GH.screenDimensions().x, tfinger.y * GH.screenDimensions().y);
+	return convertTouchToMouse(tfinger.x, tfinger.y);
+}
+
+Point InputSourceTouch::convertTouchToMouse(float x, float y)
+{
+	return Point(x * GH.screenDimensions().x, y * GH.screenDimensions().y);
 }
 
 bool InputSourceTouch::hasTouchInputDevice() const
@@ -225,12 +230,51 @@ bool InputSourceTouch::isMouseButtonPressed(MouseButton button) const
 
 void InputSourceTouch::emitPanningEvent(const SDL_TouchFingerEvent & tfinger)
 {
-	Point distance(-tfinger.dx * GH.screenDimensions().x, -tfinger.dy * GH.screenDimensions().y);
+	Point distance = convertTouchToMouse(-tfinger.dx, -tfinger.dy);
 
 	GH.events().dispatchGesturePanning(lastTapPosition, convertTouchToMouse(tfinger), distance);
 }
 
 void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 {
-	// TODO
+	int fingers = SDL_GetNumTouchFingers(tfinger.touchId);
+
+	if (fingers < 2)
+		return;
+
+	bool otherFingerFound = false;
+	double otherX;
+	double otherY;
+
+	for (int i = 0; i < fingers; ++i)
+	{
+		SDL_Finger * finger = SDL_GetTouchFinger(tfinger.touchId, i);
+
+		if (finger && finger->id != tfinger.fingerId)
+		{
+			otherX = finger->x * GH.screenDimensions().x;
+			otherY = finger->y * GH.screenDimensions().y;
+			otherFingerFound = true;
+			break;
+		}
+	}
+
+	if (!otherFingerFound)
+		return; // should be impossible, but better to avoid weird edge cases
+
+	float thisX = tfinger.x * GH.screenDimensions().x;
+	float thisY = tfinger.y * GH.screenDimensions().y;
+	float deltaX = tfinger.dx * GH.screenDimensions().x;
+	float deltaY = tfinger.dy * GH.screenDimensions().y;
+
+	float oldX = thisX - deltaX - otherX;
+	float oldY = thisY - deltaY - otherY;
+	float newX = thisX - otherX;
+	float newY = thisY - otherY;
+
+	double distanceOld = std::sqrt(oldX * oldX + oldY + oldY);
+	double distanceNew = std::sqrt(newX * newX + newY + newY);
+
+	if (distanceOld > params.pinchSensitivityThreshold)
+		GH.events().dispatchGesturePinch(lastTapPosition, distanceNew / distanceOld);
 }

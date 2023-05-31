@@ -91,9 +91,9 @@ void MapViewController::modifyTileSize(int stepsChange)
 	// so, zooming in for 5 steps will put game at 1.1^5 = 1.61 scale
 	// try to determine current zooming level and change it by requested number of steps
 	double currentZoomFactor = model->getSingleTileSize().x / 32.0;
-	double currentZoomSteps = std::round(std::log(currentZoomFactor) / std::log(1.1));
+	double currentZoomSteps = std::round(std::log(currentZoomFactor) / std::log(1.01));
 	double newZoomSteps = stepsChange != 0 ? currentZoomSteps + stepsChange : stepsChange;
-	double newZoomFactor = std::pow(1.1, newZoomSteps);
+	double newZoomFactor = std::pow(1.01, newZoomSteps);
 
 	Point currentZoom = model->getSingleTileSize();
 	Point desiredZoom = Point(32,32) * newZoomFactor;

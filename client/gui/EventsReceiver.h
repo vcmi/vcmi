@@ -42,6 +42,8 @@ protected:
 	/// Called when user pans screen by specified distance
 	virtual void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) {}
 
+	virtual void gesturePinch(const Point & centerPosition, double lastUpdateFactor) {}
+
 	virtual void wheelScrolled(int distance) {}
 	virtual void mouseMoved(const Point & cursorPosition) {}
 

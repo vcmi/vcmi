@@ -20,11 +20,15 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/MouseButton.h"
 
+#include "../CPlayerInterface.h"
+#include "../adventureMap/CInGameConsole.h"
+
 #include "../../lib/CConfigHandler.h"
 
 MapViewActions::MapViewActions(MapView & owner, const std::shared_ptr<MapViewModel> & model)
 	: model(model)
 	, owner(owner)
+	, pinchZoomFactor(1.0)
 {
 	pos.w = model->getPixelsVisibleDimensions().x;
 	pos.h = model->getPixelsVisibleDimensions().y;
@@ -66,12 +70,30 @@ void MapViewActions::mouseMoved(const Point & cursorPosition)
 
 void MapViewActions::wheelScrolled(int distance)
 {
-	adventureInt->hotkeyZoom(distance);
+	adventureInt->hotkeyZoom(distance * 4);
 }
 
 void MapViewActions::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
 	owner.onMapSwiped(lastUpdateDistance);
+}
+
+void MapViewActions::gesturePinch(const Point & centerPosition, double lastUpdateFactor)
+{
+	double newZoom = pinchZoomFactor * lastUpdateFactor;
+
+	int newZoomSteps = std::round(std::log(newZoom) / std::log(1.01));
+	int oldZoomSteps = std::round(std::log(pinchZoomFactor) / std::log(1.01));
+
+	if (newZoomSteps != oldZoomSteps)
+		adventureInt->hotkeyZoom(newZoomSteps - oldZoomSteps);
+
+	pinchZoomFactor = newZoom;
+}
+
+void MapViewActions::panning(bool on, const Point & initialPosition, const Point & finalPosition)
+{
+	pinchZoomFactor = 1.0;
 }
 
 void MapViewActions::handleHover(const Point & cursorPosition)
