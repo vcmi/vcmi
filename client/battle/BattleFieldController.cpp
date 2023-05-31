@@ -96,31 +96,22 @@ void BattleFieldController::panning(bool on, const Point & initialPosition, cons
 
 void BattleFieldController::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
-	if (pos.isInside(currentPosition))
-	{
-		hoveredHex = getHexAtPosition(initialPosition);
-		currentAttackDirection = selectAttackDirection(getHoveredHex(), currentPosition);
+	hoveredHex = getHexAtPosition(initialPosition);
+	currentAttackOriginPoint = currentPosition;
 
+	if (pos.isInside(initialPosition))
 		owner.actionsController->onHexHovered(getHoveredHex());
-	}
-	else
-	{
-		hoveredHex = BattleHex::INVALID;
-	}
 }
 
 void BattleFieldController::mouseMoved(const Point & cursorPosition)
 {
 	hoveredHex = getHexAtPosition(cursorPosition);
-	currentAttackDirection = selectAttackDirection(getHoveredHex(), cursorPosition);
+	currentAttackOriginPoint = cursorPosition;
 
-	if (!pos.isInside(cursorPosition))
-	{
+	if (pos.isInside(cursorPosition))
+		owner.actionsController->onHexHovered(getHoveredHex());
+	else
 		owner.actionsController->onHoverEnded();
-		return;
-	}
-
-	owner.actionsController->onHexHovered(getHoveredHex());
 }
 
 void BattleFieldController::clickLeft(tribool down, bool previousState)
@@ -161,7 +152,7 @@ void BattleFieldController::renderBattlefield(Canvas & canvas)
 
 void BattleFieldController::showBackground(Canvas & canvas)
 {
-	if (owner.stacksController->getActiveStack() != nullptr ) //&& creAnims[stacksController->getActiveStack()->unitId()]->isIdle() //show everything with range
+	if (owner.stacksController->getActiveStack() != nullptr )
 		showBackgroundImageWithHexes(canvas);
 	else
 		showBackgroundImage(canvas);
@@ -193,7 +184,7 @@ void BattleFieldController::showBackgroundImage(Canvas & canvas)
 
 void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
 {
-	canvas.draw(*backgroundWithHexes.get(), Point(0, 0));
+	canvas.draw(*backgroundWithHexes, Point(0, 0));
 }
 
 void BattleFieldController::redrawBackgroundWithHexes()
@@ -457,7 +448,7 @@ void BattleFieldController::setBattleCursor(BattleHex myNumber)
 		Cursor::Combat::HIT_NORTH,
 	};
 
-	auto direction = static_cast<size_t>(currentAttackDirection);
+	auto direction = static_cast<size_t>(selectAttackDirection(getHoveredHex(), currentAttackOriginPoint));
 
 	assert(direction != -1);
 	if (direction != -1)
@@ -540,7 +531,7 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(BattleHex myNumber,
 
 BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
 {
-	BattleHex::EDir direction = currentAttackDirection;
+	BattleHex::EDir direction = selectAttackDirection(getHoveredHex(), currentAttackOriginPoint);
 
 	const CStack * attacker = owner.stacksController->getActiveStack();
 

@@ -24,10 +24,10 @@ void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motio
 	Point newPosition(motion.x, motion.y);
 	Point distance(-motion.xrel, -motion.yrel);
 
-	GH.input().setCursorPosition(newPosition);
-
 	if (mouseButtonsMask & SDL_BUTTON(SDL_BUTTON_MIDDLE))
 		GH.events().dispatchGesturePanning(middleClickPosition, newPosition, distance);
+	else
+		GH.input().setCursorPosition(newPosition);
 
 	mouseButtonsMask = motion.state;
 }

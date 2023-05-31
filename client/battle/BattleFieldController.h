@@ -10,14 +10,12 @@
 #pragma once
 
 #include "../../lib/battle/BattleHex.h"
+#include "../../lib/Point.h"
 #include "../gui/CIntObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
 class CStack;
 class Rect;
-class Point;
-
 VCMI_LIB_NAMESPACE_END
 
 class BattleHero;
@@ -40,7 +38,7 @@ class BattleFieldController : public CIntObject
 	std::unique_ptr<Canvas> backgroundWithHexes;
 
 	/// direction which will be used to perform attack with current cursor position
-	BattleHex::EDir currentAttackDirection;
+	Point currentAttackOriginPoint;
 
 	/// hex currently under mouse hover
 	BattleHex hoveredHex;
