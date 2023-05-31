@@ -38,7 +38,7 @@ CZonePlacer::CZonePlacer(RmgMap & map)
 
 int3 CZonePlacer::cords(const float3 & f) const
 {
-	return int3(static_cast<si32>(std::max(0.f, (f.x * map.map().width) - 1)), static_cast<si32>(std::max(0.f, (f.y * map.map().height - 1))), f.z);
+	return int3(static_cast<si32>(std::max(0.f, (f.x * map.width()) - 1)), static_cast<si32>(std::max(0.f, (f.y * map.height() - 1))), f.z);
 }
 
 float CZonePlacer::getDistance (float distance) const
@@ -221,11 +221,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 								}
 
 								//Spread apart player starting zones
-
-								auto zoneType = zone->getType();
-								auto existingZoneType = existingZone->getType();
-								if ((zoneType == ETemplateZoneType::PLAYER_START || zoneType == ETemplateZoneType::CPU_START) && 
-									(existingZoneType == ETemplateZoneType::PLAYER_START || existingZoneType == ETemplateZoneType::CPU_START))
+								if (zone->getOwner() && existingZone->getOwner()) //Players participate in game
 								{
 									int firstPlayer = zone->getOwner().value();
 									int secondPlayer = existingZone->getOwner().value();
@@ -785,7 +781,7 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 		zone->setPos(int3(total.x / size, total.y / size, total.z / size));
 	};
 
-	int levels = map.map().levels();
+	int levels = map.levels();
 
 	/*
 	1. Create Voronoi diagram
@@ -862,11 +858,17 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 			}
 
 			//make sure that terrain inside zone is not a rock
-			//FIXME: reorder actions?
-			paintZoneTerrain(*zone.second, *rand, map, ETerrainId::SUBTERRANEAN);
+
+			auto v = zone.second->getArea().getTilesVector();
+			map.getMapProxy()->drawTerrain(*rand, v, ETerrainId::SUBTERRANEAN);
 		}
 	}
 	logGlobal->info("Finished zone colouring");
+}
+
+const TDistanceMap& CZonePlacer::getDistanceMap()
+{
+	return distancesBetweenZones;
 }
 
 VCMI_LIB_NAMESPACE_END

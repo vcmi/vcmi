@@ -12,6 +12,7 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
+#include "../gui/WindowHandler.h"
 
 #include "CComponent.h"
 
@@ -65,7 +66,7 @@ void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst
 	{
 		if(artPlace.getArt()->getTypeId() == ArtifactID::SPELLBOOK)
 		{
-			GH.pushIntT<CSpellWindow>(hero, LOCPLINT, LOCPLINT->battleInt.get());
+			GH.windows().createAndPushWindow<CSpellWindow>(hero, LOCPLINT, LOCPLINT->battleInt.get());
 			return false;
 		}
 		if(artPlace.getArt()->getTypeId() == ArtifactID::CATAPULT)
@@ -229,8 +230,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 	// we have a different artifact may look surprising... but it's valid.
 
 	auto pickedArtInst = std::get<const CArtifactInstance*>(curState.value());
-	assert(srcLoc.isHolder(std::get<const CGHeroInstance*>(curState.value())));
-	assert(srcLoc.getArt() == pickedArtInst);
+	assert(!pickedArtInst || destLoc.isHolder(std::get<const CGHeroInstance*>(curState.value())));
 
 	auto artifactMovedBody = [this, withRedraw, &srcLoc, &destLoc, &pickedArtInst](auto artSetWeak) -> void
 	{
@@ -238,7 +238,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 		if(artSetPtr)
 		{
 			const auto hero = artSetPtr->getHero();
-			if(artSetPtr->active)
+			if(artSetPtr->isActive())
 			{
 				if(pickedArtInst)
 				{
@@ -271,7 +271,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 			}
 
 			// Make sure the status bar is updated so it does not display old text
-			if(destLoc.isHolder(hero))
+			if(destLoc.getHolderArtSet() == hero)
 			{
 				if(auto artPlace = artSetPtr->getArtPlace(destLoc.slot))
 					artPlace->hover(true);

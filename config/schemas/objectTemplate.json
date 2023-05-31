@@ -1,47 +1,45 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI map object template format",
 	"description" : "Description of map object tempate that describes appearence of object instance",
-	"required": [ "animation", "mask" ],
-
+	"required" : [ "animation", "mask" ],
 	"additionalProperties" : false,
-	"properties":{
-		"animation": {
+	"properties" : {
+		"animation" : {
 			"type" : "string",
-			"description": "Path to def file with animation of this object",
+			"description" : "Path to def file with animation of this object",
 			"format" : "defFile"
 		},
-		"editorAnimation":{
+		"editorAnimation" : {
 			"type" : "string",
-			"description": "Optional path to def file with animation of this object to use in map editor",
+			"description" : "Optional path to def file with animation of this object to use in map editor",
 			"format" : "defFile"			
 		},
-		"visitableFrom": {
-			"type":"array",
-			"description": "Directions from which this object is visible",
+		"visitableFrom" : {
+			"type" : "array",
+			"description" : "Directions from which this object is visible",
 			"minItems" : 3,
 			"maxItems" : 3,
-			"items": {
-				"type": "string",
-				"maxLength" : 3,
-				"minLength" : 3
+			"items" : {
+				"type" : "string",
+				"minLength" : 3,
+				"maxLength" : 3
 			}
 		},
-
-		"allowedTerrains" : {
-			"type":"array",
-			"items": { "type": "string" },
-			"description": "List of terrain on which this object can be placed"
-		},
 		"mask" :  {
-			"type":"array",
-			"items": { "type": "string" },
-			"description": "Object mask that describes on which tiles object is visible/blocked/activatable"
+			"type" : "array",
+			"items" : { "type" : "string" },
+			"description" : "Object mask that describes on which tiles object is visible/blocked/activatable"
 		},
 		"zIndex" :  {
-			"type":"number",
-			"description": "Defines order in which objects on same tile will be blit."
+			"type" : "number",
+			"description" : "Defines order in which objects on same tile will be blit."
+		},
+		"allowedTerrains" : {
+			"type" : "array",
+			"items" : { "type" : "string" },
+			"description" : "List of terrain on which this object can be placed"
 		}
 	}
 }

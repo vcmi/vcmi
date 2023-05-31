@@ -17,8 +17,11 @@
 #include "../PlayerLocalState.h"
 #include "../ClientCommandManager.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
 #include "../render/Colors.h"
+#include "../adventureMap/AdventureMapInterface.h"
+#include "../windows/CMessage.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
@@ -50,7 +53,7 @@ void CInGameConsole::show(SDL_Surface * to)
 		Point leftBottomCorner(0, pos.h);
 		Point textPosition(leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number * 20);
 
-		graphics->fonts[FONT_MEDIUM]->renderTextLeft(to, text.text, Colors::GREEN, textPosition );
+		graphics->fonts[FONT_MEDIUM]->renderTextLeft(to, text.text, Colors::GREEN, pos.topLeft() + textPosition );
 
 		number++;
 	}
@@ -75,7 +78,7 @@ void CInGameConsole::tick(uint32_t msPassed)
 	}
 
 	if(sizeBefore != texts.size())
-		GH.totalRedraw(); // FIXME: ingame console has no parent widget set
+		GH.windows().totalRedraw(); // FIXME: ingame console has no parent widget set
 }
 
 void CInGameConsole::print(const std::string & txt)
@@ -83,30 +86,23 @@ void CInGameConsole::print(const std::string & txt)
 	// boost::unique_lock scope
 	{
 		boost::unique_lock<boost::mutex> lock(texts_mx);
-		int lineLen = conf.go()->ac.outputLineLength;
 
-		if(txt.size() < lineLen)
-		{
-			texts.push_back({txt, 0});
-		}
-		else
-		{
-			assert(lineLen);
-			for(int g = 0; g < txt.size() / lineLen + 1; ++g)
-			{
-				std::string part = txt.substr(g * lineLen, lineLen);
-				if(part.empty())
-					break;
+		// Maximum width for a text line is limited by:
+		// 1) width of adventure map terrain area, for when in-game console is on top of advmap
+		// 2) width of castle/battle window (fixed to 800) when this window is open
+		// 3) arbitrary selected left and right margins
+		int maxWidth = std::min( 800, adventureInt->terrainAreaPixels().w) - 100;
 
-				texts.push_back({part, 0});
-			}
-		}
+		auto splitText = CMessage::breakText(txt, maxWidth, FONT_MEDIUM);
+
+		for (auto const & entry : splitText)
+			texts.push_back({entry, 0});
 
 		while(texts.size() > maxDisplayedTexts)
 			texts.erase(texts.begin());
 	}
 
-	GH.totalRedraw(); // FIXME: ingame console has no parent widget set
+	GH.windows().totalRedraw(); // FIXME: ingame console has no parent widget set
 }
 
 void CInGameConsole::keyPressed (EShortcut key)
@@ -215,22 +211,21 @@ void CInGameConsole::textEdited(const std::string & inputtedText)
 
 void CInGameConsole::startEnteringText()
 {
-	if (!active)
+	if (!isActive())
 		return;
 
 	if (captureAllKeys)
 		return;
 
-	assert(GH.statusbar);
 	assert(currentStatusBar.expired());//effectively, nullptr check
 
-	currentStatusBar = GH.statusbar;
+	currentStatusBar = GH.statusbar();
 
 	captureAllKeys = true;
 	enteredText = "_";
 
-	GH.statusbar->setEnteringMode(true);
-	GH.statusbar->setEnteredText(enteredText);
+	GH.statusbar()->setEnteringMode(true);
+	GH.statusbar()->setEnteredText(enteredText);
 }
 
 void CInGameConsole::endEnteringText(bool processEnteredText)

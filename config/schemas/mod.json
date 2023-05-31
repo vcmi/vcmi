@@ -1,108 +1,94 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI mod file format",
 	"description" : "Format used to define main mod file (mod.json) in VCMI",
-	"required" : [ "name", "description", "version", "author", "contact", "modType" ],
+	"required" : [ "name", "description", "modType", "version", "author", "contact" ],
 	"definitions" : {
 		"localizable" : {
-			"type":"object",
+			"type" : "object",
 			"additionalProperties" : false,
 			"required" : [ "name", "description" ],
-			"properties":{
-				"name": {
-					"type":"string",
-					"description": "Short name of your mod. No more than 2-3 words"
+			"properties" : {
+				"name" : {
+					"type" : "string",
+					"description" : "Short name of your mod. No more than 2-3 words"
 				},
-				"description": {
-					"type":"string",
-					"description": "More lengthy description of mod. No hard limit"
+				"description" : {
+					"type" : "string",
+					"description" : "More lengthy description of mod. No hard limit"
 				},
 				"author" : {
-					"type":"string",
-					"description": "Author of the mod. Can be nickname, real name or name of team"
-				},
-				"skipValidation" : {
-					"type":"boolean",
-					"description": "If set to true, vcmi will skip validation of current translation json files"
-				},
-				"translations":{
-					"type":"array",
-					"description": "List of files with translations for this language",
-					"items": { "type":"string", "format" : "textFile" }
+					"type" : "string",
+					"description" : "Author of the mod. Can be nickname, real name or name of team"
 				},
 				"changelog" : {
-					"type":"object",
-					"description": "List of changes/new features in each version",
+					"type" : "object",
+					"description" : "List of changes/new features in each version",
 					"additionalProperties" : {
 						"type" : "array",
-						"items" : { "type":"string" }
+						"items" : { "type" : "string" }
 					}
+				},
+				"skipValidation" : {
+					"type" : "boolean",
+					"description" : "If set to true, vcmi will skip validation of current translation json files"
+				},
+				"translations" : {
+					"type" : "array",
+					"description" : "List of files with translations for this language",
+					"items" : { "type" : "string", "format" : "textFile" }
 				}
 			}
 		}
 	},
 	
 	"additionalProperties" : false,
-	"properties":{
-		"name": {
-			"type":"string",
-			"description": "Short name of your mod. No more than 2-3 words"
+	"properties" : {
+		"name" : {
+			"type" : "string",
+			"description" : "Short name of your mod. No more than 2-3 words"
 		},
-		"description": {
-			"type":"string",
-			"description": "More lengthy description of mod. No hard limit"
+		"description" : {
+			"type" : "string",
+			"description" : "More lengthy description of mod. No hard limit"
 		},
-
 		"modType" : {
-			"type":"string",
+			"type" : "string",
 			"enum" : [ "Translation", "Town", "Test", "Templates", "Spells", "Music", "Sounds", "Skills", "Other", "Objects", "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Artifacts", "AI" ],
-			"description": "Type of mod, e.g. Town, Artifacts, Graphical."
+			"description" : "Type of mod, e.g. Town, Artifacts, Graphical."
 		},
-
-		"version" : {
-			"type":"string",
-			"description": "Current mod version, up to 3 numbers, dot-separated. Format: A.B.C"
-		},
-
 		"author" : {
-			"type":"string",
-			"description": "Author of the mod. Can be nickname, real name or name of team"
+			"type" : "string",
+			"description" : "Author of the mod. Can be nickname, real name or name of team"
 		},
-
-		"licenseName" : {
-			"type":"string",
-			"description": "Name of the license, recommended is Creative Commons Attribution-ShareAlike"
-		},
-
-		"licenseURL" : {
-			"type":"string",
-			"description": "Url to license text, e.g. http://creativecommons.org/licenses/by-sa/4.0/deed"
-		},
-
 		"contact" : {
-			"type":"string",
-			"description": "Home page of mod or link to forum thread"
+			"type" : "string",
+			"description" : "Home page of mod or link to forum thread"
 		},
-
-		"language" : {
-			"type":"string",
-			"description": "Base language of the mod, before applying localizations. By default vcmi assumes English",
-			"enum" : [ "chinese", "english", "korean", "german", "polish", "russian", "spanish", "ukrainian" ],
+		"licenseName" : {
+			"type" : "string",
+			"description" : "Name of the license, recommended is Creative Commons Attribution-ShareAlike"
 		},
-		"depends": {
-			"type":"array",
-			"description": "List of mods that are required to run this one",
-			"items": { "type":"string" }
+		"licenseURL" : {
+			"type" : "string",
+			"description" : "Url to license text, e.g. http://creativecommons.org/licenses/by-sa/4.0/deed"
 		},
-		"conflicts": {
-			"type":"array",
-			"description": "List of mods that can't be enabled in the same time as this one",
-			"items": { "type":"string" }
+		"version" : {
+			"type" : "string",
+			"description" : "Current mod version, up to 3 numbers, dot-separated. Format: A.B.C"
+		},
+		"changelog" : {
+			"type" : "object",
+			"description" : "List of changes/new features in each version",
+			"additionalProperties" : {
+				"type" : "array",
+				"items" : { "type" : "string" }
+			}
 		},
 		"compatibility" : {
-			"type":"object",
-			"description": "Supported versions of vcmi engine",
+			"type" : "object",
+			"description" : "Supported versions of vcmi engine",
 			"additionalProperties" : false,
 			"properties" : {
 				"min" : {
@@ -117,10 +103,57 @@
 				}
 			}
 		},
-
+		"depends" : {
+			"type" : "array",
+			"description" : "List of mods that are required to run this one",
+			"items" : { "type" : "string" }
+		},
+		"conflicts" : {
+			"type" : "array",
+			"description" : "List of mods that can't be enabled in the same time as this one",
+			"items" : { "type" : "string" }
+		},
 		"keepDisabled" : {
-			"type":"boolean",
-			"description": "If set to true, mod will not be enabled automatically on install"
+			"type" : "boolean",
+			"description" : "If set to true, mod will not be enabled automatically on install"
+		},
+		"settings" : {
+			"type" : "object",
+			"description" : "List of changed game settings by mod",
+			"additionalProperties" : {
+				"type" : "object",
+				"properties" : { 
+					"type" : "object"
+				}
+			}
+		},
+		"filesystem" : {
+			"type" : "object",
+			"description" : "Optional, description on how files are organized in your mod. In most cases you do not need to use this field",
+			"additionalProperties" : {
+				"type" : "array",
+				"description" : "list of data sources attached to this mount point",
+				"items" : {
+					"type" : "object",
+					"additionalProperties" : false,
+					"properties" : {
+						"path" : {
+							"type" : "string",
+							"description" : "Path to data source"
+						},
+						"type" : {
+							"type" : "string",
+							"enum" : [ "dir", "lod", "snd", "vid", "map", "zip" ],
+							"description" : "Type of data source"
+						}
+					}
+				}
+			}
+		},
+		"language" : {
+			"type" : "string",
+			"description" : "Base language of the mod, before applying localizations. By default vcmi assumes English",
+			"enum" : [ "chinese", "english", "korean", "german", "polish", "russian", "spanish", "ukrainian" ]
 		},
 		"chinese" : {
 			"$ref" : "#/definitions/localizable"
@@ -146,137 +179,90 @@
 		"ukrainian" : {
 			"$ref" : "#/definitions/localizable"
 		},
-		"translations":{
-			"type":"array",
-			"description": "List of files with translations for this language",
-			"items": { "type":"string", "format" : "textFile" }
+		"translations" : {
+			"type" : "array",
+			"description" : "List of files with translations for this language",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"artifacts": {
-			"type":"array",
-			"description": "List of configuration files for artifacts",
-			"items": { "type":"string", "format" : "textFile" }
+		"factions" : {
+			"type" : "array",
+			"description" : "List of configuration files for towns/factions",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"bonuses":{
-			"type":"array",
-			"description": "List of configuration files for bonuses",
-			"items": { "type":"string", "format" : "textFile" }
-
+		"heroClasses" : {
+			"type" : "array",
+			"description" : "List of configuration files for hero classes",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"creatures": {
-			"type":"array",
-			"description": "List of configuration files for creatures",
-			"items": { "type":"string", "format" : "textFile" }
+		"heroes" : {
+			"type" : "array",
+			"description" : "List of configuration files for heroes",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"factions": {
-			"type":"array",
-			"description": "List of configuration files for towns/factions",
-			"items": { "type":"string", "format" : "textFile" }
+		"skills" : {
+			"type" : "array",
+			"description" : "List of configuration files for skills",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"heroClasses": {
-			"type":"array",
-			"description": "List of configuration files for hero classes",
-			"items": { "type":"string", "format" : "textFile" }
+		"creatures" : {
+			"type" : "array",
+			"description" : "List of configuration files for creatures",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"heroes": {
-			"type":"array",
-			"description": "List of configuration files for heroes",
-			"items": { "type":"string", "format" : "textFile" }
+		"artifacts" : {
+			"type" : "array",
+			"description" : "List of configuration files for artifacts",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"objects": {
-			"type":"array",
-			"description": "List of configuration files for objects",
-			"items": { "type":"string", "format" : "textFile" }
+		"spells" : {
+			"type" : "array",
+			"description" : "List of configuration files for spells",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"scripts": {
-			"type":"array",
-			"description": "List of configuration files for scripts",
-			"items": { "type":"string", "format" : "textFile" }
+		"objects" : {
+			"type" : "array",
+			"description" : "List of configuration files for objects",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"spells": {
-			"type":"array",
-			"description": "List of configuration files for spells",
-			"items": { "type":"string", "format" : "textFile" }
+		"bonuses" : {
+			"type" : "array",
+			"description" : "List of configuration files for bonuses",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"skills": {
-			"type":"array",
-			"description": "List of configuration files for skills",
-			"items": { "type":"string", "format" : "textFile" }
+		"terrains" : {
+			"type" : "array",
+			"description" : "List of configuration files for terrains",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"templates":{
-			"type":"array",
-			"description": "List of configuration files for RMG templates",
-			"items": { "type":"string", "format" : "textFile" }
-
+		"roads" : {
+			"type" : "array",
+			"description" : "List of configuration files for roads",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"battlefields":{
-			"type":"array",
-			"description": "List of configuration files for battlefields",
-			"items": { "type":"string", "format" : "textFile" }
-
+		"rivers" : {
+			"type" : "array",
+			"description" : "List of configuration files for rivers",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"obstacles":{
-			"type":"array",
-			"description": "List of configuration files for obstacles",
-			"items": { "type":"string", "format" : "textFile" }
+		"battlefields" : {
+			"type" : "array",
+			"description" : "List of configuration files for battlefields",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"terrains":{
-			"type":"array",
-			"description": "List of configuration files for terrains",
-			"items": { "type":"string", "format" : "textFile" }
+		"obstacles" : {
+			"type" : "array",
+			"description" : "List of configuration files for obstacles",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"roads":{
-			"type":"array",
-			"description": "List of configuration files for roads",
-			"items": { "type":"string", "format" : "textFile" }
+		"templates" : {
+			"type" : "array",
+			"description" : "List of configuration files for RMG templates",
+			"items" : { "type" : "string", "format" : "textFile" }
 		},
-		"rivers":{
-			"type":"array",
-			"description": "List of configuration files for rivers",
-			"items": { "type":"string", "format" : "textFile" }
-		},
-
-		"changelog" : {
-			"type":"object",
-			"description": "List of changes/new features in each version",
-			"additionalProperties" : {
-				"type" : "array",
-				"items" : { "type":"string" }
-			}
-		},
-		
-		"settings" : {
-			"type":"object",
-			"description": "List of changed game settings by mod",
-			"additionalProperties" : {
-				"type" : "object",
-				"properties" : { 
-					"type" : "object"
-				}
-			}
-		},
-
-		"filesystem": {
-			"type":"object",
-			"description": "Optional, description on how files are organized in your mod. In most cases you do not need to use this field",
-			"additionalProperties":{
-				"type":"array",
-				"description" : "list of data sources attached to this mount point",
-				"items": {
-					"type":"object",
-					"additionalProperties" : false,
-					"properties":{
-						"path": {
-							"type":"string",
-							"description": "Path to data source"
-						},
-						"type": {
-							"type" : "string",
-							"enum" : [ "dir", "lod", "snd", "vid", "map", "zip" ],
-							"description" : "Type of data source"
-						}
-					}
-				}
-			}
+		"scripts" : {
+			"type" : "array",
+			"description" : "List of configuration files for scripts",
+			"items" : { "type" : "string", "format" : "textFile" }
 		}
 	}
 }

@@ -213,7 +213,7 @@ void CHeroArtPlace::showAll(SDL_Surface* to)
 		CIntObject::showAll(to);
 	}
 
-	if(marked && active)
+	if(marked && isActive())
 	{
 		// Draw vertical bars.
 		for(int i = 0; i < pos.h; ++i)

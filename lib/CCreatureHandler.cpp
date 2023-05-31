@@ -1059,7 +1059,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.type = BonusType::FEAR; break;
 	case 'g':
 		b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-		b.subtype = -1; //all magic schools
+		b.subtype = SpellSchool(ESpellSchool::ANY);
 		break;
 	case 'P':
 		b.type = BonusType::CASTS; break;
@@ -1178,8 +1178,9 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.subtype = 1; //not positive
 				break;
 			case 'O':
-				b.type = BonusType::FIRE_IMMUNITY;
-				b.subtype = 2; //only direct damage
+				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				b.subtype = SpellSchool(ESpellSchool::FIRE);
+				b.val = 100; //Full damage immunity
 				break;
 			case 'f':
 				b.type = BonusType::FIRE_IMMUNITY;
@@ -1190,31 +1191,36 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.subtype = 1; //not positive
 				break;
 			case 'W':
-				b.type = BonusType::WATER_IMMUNITY;
-				b.subtype = 2; //only direct damage
+				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				b.subtype = SpellSchool(ESpellSchool::WATER);
+				b.val = 100; //Full damage immunity
 				break;
 			case 'w':
 				b.type = BonusType::WATER_IMMUNITY;
 				b.subtype = 0; //all
 				break;
 			case 'E':
-				b.type = BonusType::EARTH_IMMUNITY;
-				b.subtype = 2; //only direct damage
+				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				b.subtype = SpellSchool(ESpellSchool::EARTH);
+				b.val = 100; //Full damage immunity
 				break;
 			case 'e':
 				b.type = BonusType::EARTH_IMMUNITY;
 				b.subtype = 0; //all
 				break;
 			case 'A':
-				b.type = BonusType::AIR_IMMUNITY;
-				b.subtype = 2; //only direct damage
+				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				b.subtype = SpellSchool(ESpellSchool::AIR);
+				b.val = 100; //Full damage immunity
 				break;
 			case 'a':
 				b.type = BonusType::AIR_IMMUNITY;
 				b.subtype = 0; //all
 				break;
 			case 'D':
-				b.type = BonusType::DIRECT_DAMAGE_IMMUNITY;
+				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				b.subtype = SpellSchool(ESpellSchool::ANY);
+				b.val = 100; //Full damage immunity
 				break;
 			case '0':
 				b.type = BonusType::RECEPTIVE;

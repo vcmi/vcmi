@@ -19,15 +19,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct DLL_LINKAGE BonusParams {
 	bool isConverted;
 	BonusType type = BonusType::NONE;
-	TBonusSubtype subtype = -1;
-	std::string subtypeStr;
-	bool subtypeRelevant = false;
-	BonusValueType valueType = BonusValueType::BASE_NUMBER;
-	bool valueTypeRelevant = false;
-	si32 val = 0;
-	bool valRelevant = false;
-	BonusSource targetType = BonusSource::SECONDARY_SKILL;
-	bool targetTypeRelevant = false;
+	std::optional<TBonusSubtype> subtype = std::nullopt;
+	std::optional<std::string> subtypeStr = std::nullopt;
+	std::optional<BonusValueType> valueType = std::nullopt;
+	std::optional<si32> val = std::nullopt;
+	std::optional<BonusSource> targetType = std::nullopt;
 
 	BonusParams(bool isConverted = true) : isConverted(isConverted) {};
 	BonusParams(std::string deprecatedTypeStr, std::string deprecatedSubtypeStr = "", int deprecatedSubtype = 0);
@@ -37,5 +33,7 @@ private:
 	JsonNode ret;
 	bool jsonCreated = false;
 };
+
+extern DLL_LINKAGE const std::set<std::string> deprecatedBonusSet;
 
 VCMI_LIB_NAMESPACE_END

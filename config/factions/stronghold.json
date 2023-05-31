@@ -91,7 +91,7 @@
 				"cityHall":       { "animation" : "TBSTHAL3.def", "x" : 0,   "y" : 201, "border" : "TOSHAL3A.bmp", "area" : "TZSHAL3A.bmp" },
 				"capitol":        { "animation" : "TBSTHAL4.def", "x" : 0,   "y" : 148, "border" : "TOSHAL4A.bmp", "area" : "TZSHAL4A.bmp" },
 				"marketplace":    { "animation" : "TBSTMARK.def", "x" : 397, "y" : 308, "z" : 1,  "border" : "TOSMRK1.bmp",  "area" : "TZSMRK1.bmp" },
-				"resourceSilo":   { "animation" : "TBSTSILO.def", "x" : 458, "y" : 248, "z" : 1,  "border" : "TOSMRK2.bmp",  "area" : "TZSMRK2.bmp" },
+				"resourceSilo":   { "animation" : "TBSTSILO.def", "x" : 458, "y" : 248, "z" : 2,  "border" : "TOSMRK2.bmp",  "area" : "TZSMRK2.bmp" },
 				"blacksmith":     { "animation" : "TBSTBLAK.def", "x" : 660, "y" : 286, "border" : "TOSBLK1.bmp",  "area" : "TZSBLK1.bmp" },
 				"special1":       { "animation" : "TBSTSPEC.def", "x" : 550, "y" : 229, "border" : "TOSCA1EA.bmp", "area" : "TZSCA1EA.bmp" },
 				"horde1":         { "animation" : "TBSTHRD1.def", "x" : 373, "y" : 239, "border" : "TOSGOB1H.bmp", "area" : "TZSGOB1H.bmp", "hidden" : true },

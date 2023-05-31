@@ -16,7 +16,6 @@
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/TerrainHandler.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
-#include "../lib/rmg/ObstaclePlacer.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CHeroHandler.h"
@@ -26,7 +25,7 @@
 #include "maphandler.h"
 #include "mainwindow.h"
 #include "inspector/inspector.h"
-
+#include "VCMI_Lib.h"
 
 MapController::MapController(MainWindow * m): main(m)
 {
@@ -217,6 +216,18 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 		}
 	);
 	_map->getEditManager()->getUndoManager().clearAll();
+
+	initObstaclePainters(_map.get());
+}
+
+void MapController::initObstaclePainters(CMap * map)
+{
+	for (auto terrain : VLC->terrainTypeHandler->objects)
+	{
+		auto terrainId = terrain->getId();
+		_obstaclePainters[terrainId] = std::make_unique<EditorObstaclePlacer>(map);
+		_obstaclePainters[terrainId]->collectPossibleObstacles(terrainId);
+	}
 }
 
 void MapController::sceneForceUpdate()
@@ -397,20 +408,24 @@ void MapController::commitObstacleFill(int level)
 		return;
 	
 	//split by zones
-	std::map<TerrainId, ObstacleProxy> terrainSelected;
+	for (auto & painter : _obstaclePainters)
+	{
+		painter.second->clearBlockedArea();
+	}
+	
 	for(auto & t : selection)
 	{
 		auto tl = _map->getTile(t);
 		if(tl.blocked || tl.visitable)
 			continue;
 		
-		terrainSelected[tl.terType->getId()].blockedArea.add(t);
+		auto terrain = tl.terType->getId();
+		_obstaclePainters[terrain]->addBlockedTile(t);
 	}
 	
-	for(auto & sel : terrainSelected)
+	for(auto & sel : _obstaclePainters)
 	{
-		sel.second.collectPossibleObstacles(sel.first);
-		sel.second.placeObstacles(_map.get(), CRandomGenerator::getDefault());
+		sel.second->placeObstacles(CRandomGenerator::getDefault());
 	}
 
 	_mapHandler->invalidateObjects();

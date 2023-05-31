@@ -51,9 +51,6 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	// Set the state indicating if dialog box is active to "no"
 	void handleNotDialogCommand();
 
-	// Displays tree view of currently present VCMI common GUI elements
-	void handleGuiCommand();
-
 	// Dumps all game text, maps text and campaign maps text into Client log between BEGIN TEXT EXPORT and END TEXT EXPORT
 	void handleConvertTextCommand();
 
@@ -92,7 +89,6 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 
 	// Prints in Chat the given message
 	void printCommandMessage(const std::string &commandMessage, ELogLevel::ELogLevel messageType = ELogLevel::NOT_SET);
-	void printInfoAboutInterfaceObject(const CIntObject *obj, int level);
 	void giveTurn(const PlayerColor &color);
 
 public:

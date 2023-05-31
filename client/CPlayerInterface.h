@@ -31,7 +31,7 @@ struct CPathsInfo;
 VCMI_LIB_NAMESPACE_END
 
 class CButton;
-class CAdventureMapInterface;
+class AdventureMapInterface;
 class CCastleInterface;
 class BattleInterface;
 class CComponent;
@@ -47,7 +47,6 @@ class KeyInterested;
 class MotionInterested;
 class PlayerLocalState;
 class TimeInterested;
-class IShowable;
 
 namespace boost
 {

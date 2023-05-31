@@ -13,7 +13,7 @@
 		"bonuses": [
 			{
 				"type" : "MAGIC_SCHOOL_SKILL",
-				"subtype" : 0,
+				"subtype" : "spellSchool.any",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -29,7 +29,7 @@
 		"bonuses": [
 			{
 				"type" : "MAGIC_SCHOOL_SKILL",
-				"subtype" : 2,
+				"subtype" : "spellSchool.fire",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -41,7 +41,7 @@
 		"bonuses": [
 			{
 				"type" : "MAGIC_SCHOOL_SKILL",
-				"subtype" : 8,
+				"subtype" : "spellSchool.earth",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -53,7 +53,7 @@
 		"bonuses": [
 			{
 				"type" : "MAGIC_SCHOOL_SKILL",
-				"subtype" : 1,
+				"subtype" : "spellSchool.air",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -65,7 +65,7 @@
 		"bonuses": [
 			{
 				"type" : "MAGIC_SCHOOL_SKILL",
-				"subtype" : 4,
+				"subtype" : "spellSchool.water",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}

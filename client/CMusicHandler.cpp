@@ -335,7 +335,7 @@ CMusicHandler::CMusicHandler():
 
 	auto mp3files = CResourceHandler::get()->getFilteredFiles([](const ResourceID & id) ->  bool
 	{
-		if(id.getType() != EResType::MUSIC)
+		if(id.getType() != EResType::SOUND)
 			return false;
 
 		if(!boost::algorithm::istarts_with(id.getName(), "MUSIC/"))
@@ -561,7 +561,7 @@ void MusicEntry::load(std::string musicURI)
 
 	try
 	{
-		auto musicFile = MakeSDLRWops(CResourceHandler::get()->load(ResourceID(std::move(musicURI), EResType::MUSIC)));
+		auto musicFile = MakeSDLRWops(CResourceHandler::get()->load(ResourceID(std::move(musicURI), EResType::SOUND)));
 		music = Mix_LoadMUS_RW(musicFile, SDL_TRUE);
 	}
 	catch(std::exception &e)

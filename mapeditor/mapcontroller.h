@@ -13,6 +13,7 @@
 #include "maphandler.h"
 #include "mapview.h"
 #include "../lib/mapping/CMap.h"
+#include "../lib/rmg/modificators/ObstaclePlacer.h"
 
 class MainWindow;
 class MapController
@@ -24,6 +25,7 @@ public:
 	~MapController();
 	
 	void setMap(std::unique_ptr<CMap>);
+	void initObstaclePainters(CMap* map);
 	
 	void repairMap();
 	
@@ -71,6 +73,8 @@ private:
 	mutable std::array<std::unique_ptr<MinimapScene>, 2> _miniscenes;
 	std::vector<std::unique_ptr<CGObjectInstance>> _clipboard;
 	int _clipboardShiftIndex = 0;
+
+	std::map<TerrainId, std::unique_ptr<EditorObstaclePlacer>> _obstaclePainters;
 
 	void connectScenes();
 };

@@ -19,6 +19,7 @@
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/MouseButton.h"
 #include "../gui/Shortcut.h"
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
@@ -54,7 +55,7 @@ void CButton::update()
 		newPos = (int)image->size()-1;
 	image->setFrame(newPos);
 
-	if (active)
+	if (isActive())
 		redraw();
 }
 
@@ -173,22 +174,28 @@ void CButton::clickLeft(tribool down, bool previousState)
 
 	if (down)
 	{
-		if (!soundDisabled)
-			CCS->soundh->playSound(soundBase::button);
-		setState(PRESSED);
-	}
-	else if(hoverable && hovered)
-		setState(HIGHLIGHTED);
-	else
-		setState(NORMAL);
+		if (getState() != PRESSED)
+		{
+			if (!soundDisabled)
+				CCS->soundh->playSound(soundBase::button);
+			setState(PRESSED);
 
-	if (actOnDown && down)
-	{
-		onButtonClicked();
+			if (actOnDown)
+				onButtonClicked();
+		}
 	}
-	else if (!actOnDown && previousState && (down==false))
+	else
 	{
-		onButtonClicked();
+		if (getState() == PRESSED)
+		{
+			if(hoverable && isHovered())
+				setState(HIGHLIGHTED);
+			else
+				setState(NORMAL);
+
+			if (!actOnDown && previousState && (down == false))
+				onButtonClicked();
+		}
 	}
 }
 
@@ -218,9 +225,9 @@ void CButton::hover (bool on)
 	if(!name.empty() && !isBlocked()) //if there is no name, there is nothing to display also
 	{
 		if (on)
-			GH.statusbar->write(name);
+			GH.statusbar()->write(name);
 		else
-			GH.statusbar->clearIfMatching(name);
+			GH.statusbar()->clearIfMatching(name);
 	}
 }
 
@@ -249,32 +256,32 @@ CButton::CButton(Point position, const std::string &defName, const std::pair<std
 	if (!defName.empty())
 	{
 		imageNames.push_back(defName);
-		setIndex(0, playerColoredButton);
+		setIndex(0);
+		if (playerColoredButton)
+			image->playerColored(LOCPLINT->playerID);
 	}
 }
 
-void CButton::setIndex(size_t index, bool playerColoredButton)
+void CButton::setIndex(size_t index)
 {
 	if (index == currentImage || index>=imageNames.size())
 		return;
 	currentImage = index;
 	auto anim = std::make_shared<CAnimation>(imageNames[index]);
-	setImage(anim, playerColoredButton);
+	setImage(anim);
 }
 
-void CButton::setImage(std::shared_ptr<CAnimation> anim, bool playerColoredButton, int animFlags)
+void CButton::setImage(std::shared_ptr<CAnimation> anim, int animFlags)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
 	image = std::make_shared<CAnimImage>(anim, getState(), 0, 0, 0, animFlags);
-	if (playerColoredButton)
-		image->playerColored(LOCPLINT->playerID);
 	pos = image->pos;
 }
 
 void CButton::setPlayerColor(PlayerColor player)
 {
-	if (image)
+	if (image && image->isPlayerColored())
 		image->playerColored(player);
 }
 
@@ -492,7 +499,7 @@ void CVolumeSlider::moveTo(int id)
 	vstd::abetween<int>(id, 0, animImage->size() - 1);
 	animImage->setFrame(id);
 	animImage->moveTo(Point(pos.x + (animImage->pos.w + 1) * id, pos.y));
-	if (active)
+	if (isActive())
 		redraw();
 }
 
@@ -532,8 +539,8 @@ void CVolumeSlider::clickRight(tribool down, bool previousState)
 
 		if(!helpBox.empty())
 			CRClickPopup::createAndPush(helpBox);
-		if(GH.statusbar)
-			GH.statusbar->write(helpBox);
+
+		GH.statusbar()->write(helpBox);
 	}
 }
 
@@ -550,8 +557,7 @@ void CVolumeSlider::wheelScrolled(bool down, bool in)
 
 void CSlider::sliderClicked()
 {
-	if(!(active & MOVE))
-		addUsedEvents(MOVE);
+	addUsedEvents(MOVE);
 }
 
 void CSlider::mouseMoved (const Point & cursorPosition)
@@ -688,12 +694,11 @@ void CSlider::clickLeft(tribool down, bool previousState)
 			return;
 		// 		if (rw>1) return;
 		// 		if (rw<0) return;
-		slider->clickLeft(true, slider->mouseState(MouseButton::LEFT));
+		slider->clickLeft(true, slider->isMouseButtonPressed(MouseButton::LEFT));
 		moveTo((int)(rw * positions  +  0.5));
 		return;
 	}
-	if(active & MOVE)
-		removeUsedEvents(MOVE);
+	removeUsedEvents(MOVE);
 }
 
 CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, CSlider::EStyle style)
@@ -710,7 +715,7 @@ CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int
 	vstd::amax(value, 0);
 	vstd::amin(value, positions);
 
-	strongInterest = true;
+	setMoveEventStrongInterest(true);
 
 	pos.x += position.x;
 	pos.y += position.y;

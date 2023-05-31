@@ -15,6 +15,7 @@
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -435,7 +436,7 @@ void OptionsTab::SelectedBox::clickRight(tribool down, bool previousState)
 		if(settings.hero == -2 && !SEL->getPlayerInfo(settings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
 			return;
 
-		GH.pushIntT<CPlayerOptionTooltipBox>(*this);
+		GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
 	}
 }
 

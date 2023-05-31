@@ -133,6 +133,10 @@ if(APPLE)
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmilauncher)
 endif()
 
+if (NOT APPLE_IOS AND NOT ANDROID)
+	target_link_libraries(vcmilauncher SDL2::SDL2)
+endif()
+
 target_link_libraries(vcmilauncher ${VCMI_LIB_TARGET} Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}

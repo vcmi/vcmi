@@ -9,9 +9,13 @@
  */
 
 #include "Bonus.h"
-#include "battle/BattleHex.h"
+
+#include "../GameConstants.h"
+#include "../battle/BattleHex.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+class CCreature;
 
 extern DLL_LINKAGE const std::map<std::string, TLimiterPtr> bonusLimiterMap;
 

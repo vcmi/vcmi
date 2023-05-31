@@ -19,7 +19,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../adventureMap/CAdventureMapInterface.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
@@ -64,21 +64,22 @@ void BasicMapView::render(Canvas & target, bool fullUpdate)
 	tilesCache->render(controller->getContext(), targetClipped, fullUpdate);
 }
 
+void BasicMapView::tick(uint32_t msPassed)
+{
+	controller->tick(msPassed);
+}
+
 void BasicMapView::show(SDL_Surface * to)
 {
-	controller->updateBefore(GH.mainFPSmng->getElapsedMilliseconds());
-
 	Canvas target(to);
 	CSDL_Ext::CClipRectGuard guard(to, pos);
 	render(target, false);
 
-	controller->updateAfter(GH.mainFPSmng->getElapsedMilliseconds());
+	controller->afterRender();
 }
 
 void BasicMapView::showAll(SDL_Surface * to)
 {
-	controller->updateBefore(0);
-
 	Canvas target(to);
 	CSDL_Ext::CClipRectGuard guard(to, pos);
 	render(target, true);
@@ -149,6 +150,11 @@ void MapView::onViewWorldActivated(uint32_t tileSize)
 {
 	controller->activateWorldViewContext();
 	controller->setTileSize(Point(tileSize, tileSize));
+}
+
+void MapView::onMapZoomLevelChanged(int stepsChange)
+{
+	controller->modifyTileSize(stepsChange);
 }
 
 void MapView::onViewMapActivated()

@@ -22,6 +22,7 @@
 #include "bonuses/Bonus.h"
 #include "bonuses/BonusList.h"
 #include "Point.h"
+#include "mapObjects/CRewardableConstructor.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -57,6 +58,8 @@ public:
 	std::set<BuildingID> overrideBids; /// the building which bonuses should be overridden with bonuses of the current building
 	BonusList buildingBonuses;
 	BonusList onVisitBonuses;
+	
+	Rewardable::Info rewardableObjectInfo; ///configurable rewards for special buildings
 
 	enum EBuildMode
 	{
@@ -135,6 +138,7 @@ public:
 		h & overrideBids;
 		h & buildingBonuses;
 		h & onVisitBonuses;
+		h & rewardableObjectInfo;
 	}
 
 	friend class CTownHandler;

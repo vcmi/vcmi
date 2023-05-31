@@ -91,6 +91,7 @@ public:
 	CMultiMode(ESelectionScreen ScreenType);
 	void hostTCP();
 	void joinTCP();
+	std::string getPlayerName();
 
 	void onNameChange(std::string newText);
 };
@@ -141,6 +142,8 @@ public:
 	std::shared_ptr<CMenuScreen> menu;
 
 	~CMainMenu();
+	void activate() override;
+	void onScreenResize() override;
 	void update() override;
 	static void openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> * names, ELoadMode loadMode);
 	static void openCampaignLobby(const std::string & campaignFileName);

@@ -22,6 +22,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../windows/CSpellWindow.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
@@ -72,7 +73,6 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	
 	console = widget<BattleConsole>("console");
 
-	GH.statusbar = console;
 	owner.console = console;
 
 	owner.fieldController.reset( new BattleFieldController(owner));
@@ -153,7 +153,7 @@ void BattleWindow::hideQueue()
 		pos.h -= queue->pos.h;
 		pos = center();
 	}
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
 }
 
 void BattleWindow::showQueue()
@@ -166,7 +166,7 @@ void BattleWindow::showQueue()
 
 	createQueue();
 	updateQueue();
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
 }
 
 void BattleWindow::updateQueue()
@@ -176,15 +176,21 @@ void BattleWindow::updateQueue()
 
 void BattleWindow::activate()
 {
-	GH.statusbar = console;
+	GH.setStatusbar(console);
 	CIntObject::activate();
 	LOCPLINT->cingconsole->activate();
 }
 
 void BattleWindow::deactivate()
 {
+	GH.setStatusbar(nullptr);
 	CIntObject::deactivate();
 	LOCPLINT->cingconsole->deactivate();
+}
+
+bool BattleWindow::captureThisKey(EShortcut key)
+{
+	return owner.openingPlaying();
 }
 
 void BattleWindow::keyPressed(EShortcut key)
@@ -252,7 +258,7 @@ void BattleWindow::bOptionsf()
 
 	CCS->curh->set(Cursor::Map::POINTER);
 
-	GH.pushIntT<SettingsMainWindow>(&owner);
+	GH.windows().createAndPushWindow<SettingsMainWindow>(&owner);
 }
 
 void BattleWindow::bSurrenderf()
@@ -359,7 +365,7 @@ void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 	}
 		
 	auto anim = std::make_shared<CAnimation>(iconName);
-	w->setImage(anim, false);
+	w->setImage(anim);
 	w->redraw();
 }
 
@@ -420,7 +426,7 @@ void BattleWindow::bSpellf()
 
 	if(spellCastProblem == ESpellCastProblem::OK)
 	{
-		GH.pushIntT<CSpellWindow>(myHero, owner.curInt.get());
+		GH.windows().createAndPushWindow<CSpellWindow>(myHero, owner.curInt.get());
 	}
 	else if (spellCastProblem == ESpellCastProblem::MAGIC_IS_BLOCKED)
 	{
@@ -565,7 +571,7 @@ void BattleWindow::show(SDL_Surface *to)
 
 void BattleWindow::close()
 {
-	if(GH.topInt().get() != this)
+	if(!GH.windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
-	GH.popInts(1);
+	GH.windows().popWindows(1);
 }

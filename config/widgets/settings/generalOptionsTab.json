@@ -1,4 +1,6 @@
 {
+	"library" : "config/widgets/settings/library.json",
+
 	"items":
 	[
 		{
@@ -7,126 +9,105 @@
 			"image": "settingsWindow/lineHorizontal",
 			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
 		},
-		
 		{
-			"name": "settingGroupTitles",
-			"type": "labelGroup",
-			"font": "medium",
-			"alignment": "left",
-			"color": "yellow",
-			"items":
-			[
-				{
-					"position": {"x": 10, "y": 55},
-					"text": "vcmi.systemOptions.videoGroup"
-				},
-				{
-					"position": {"x": 380, "y": 55},
-					"text": "vcmi.systemOptions.audioGroup"
-				},
-				{
-					"position": {"x": 10, "y": 295},
-					"text": "vcmi.systemOptions.townsGroup"
-				}
-			]
+			"type" : "labelTitle",
+			"position": {"x": 10, "y": 55},
+			"text": "vcmi.systemOptions.videoGroup"
+		},
+		{
+			"type" : "labelTitle",
+			"position": {"x": 380, "y": 55},
+			"text": "vcmi.systemOptions.audioGroup"
+		},
+		{
+			"type" : "labelTitle",
+			"position": {"x": 10, "y": 295},
+			"text": "vcmi.systemOptions.townsGroup"
 		},
 /////////////////////////////////////// Left section - Video Settings
 		{
-			"name": "resolutionLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"position": {"x": 45, "y": 85},
-			"text": "vcmi.systemOptions.resolutionButton.hover"
-		},
-		{
-			"name": "resolutionButton",
-			"type": "button",
-			"position": {"x": 10, "y": 83},
-			"image": "settingsWindow/button32",
-			"help": "vcmi.systemOptions.resolutionButton",
-			"callback": "setGameResolution",
-			"items":
-			[
+			"type" : "verticalLayout",
+			"customType" : "labelDescription",
+			"position" : {"x": 45, "y": 85},
+			"items" : [
 				{
-					"name": "gearIcon",
-					"type": "picture",
-					"image": "settingsWindow/gear",
-					"position": {"x": 0, "y": 0 }
-				}
-			]
-		},
-		
-		{
-			"name": "topCheckboxesLabels",
-			"type": "labelGroup",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"items":
-			[
-				{
-					"position": {"x": 45, "y": 115},
-					"text": "vcmi.systemOptions.fullscreenButton.hover"
+					"name": "resolutionLabel",
+					"text": "vcmi.systemOptions.resolutionButton.hover",
+					"created" : "desktop"
 				},
 				{
-					"position": {"x": 45, "y": 145},
+					"name": "scalingLabel",
+					"text": "vcmi.systemOptions.scalingButton.hover"
+				},
+				{
+					"text": "vcmi.systemOptions.fullscreenBorderless.hover",
+					"created" : "desktop"
+				},
+				{
+					"text": "vcmi.systemOptions.fullscreenExclusive.hover",
+					"created" : "desktop"
+				},
+				{
 					"text": "vcmi.systemOptions.framerateButton.hover"
 				},
 				{
-					"position": {"x": 45, "y": 175},
 					"text": "core.genrltxt.577"
-				},
-
-			]
-		},
-		{
-			"name": "fullscreenCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "vcmi.systemOptions.fullscreenButton",
-			"position": {"x": 10, "y": 113},
-			"callback": "fullscreenChanged"
-		},
-		{
-			"name": "framerateCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "vcmi.systemOptions.framerateButton",
-			"position": {"x": 10, "y": 143},
-			"callback": "framerateChanged"
-		},
-		
-		{
-			"name": "spellbookAnimationCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "core.help.364",
-			"position": {"x": 10, "y": 173},
-			"callback": "spellbookAnimationChanged"
-		},
-
-/////////////////////////////////////// Right section - Audio Settings
-		{
-			"name": "settingAudioTitles",
-			"type": "labelGroup",
-			"font": "medium",
-			"alignment": "center",
-			"color": "yellow",
-			"items":
-			[
-				{
-					"position": {"x": 460, "y": 98},
-					"text": "core.genrltxt.394" // Music Volume
-				},
-				{
-					"position": {"x": 460, "y": 158},
-					"text": "core.genrltxt.395" // Effects volume
 				}
 			]
 		},
-
+		{
+			"type" : "verticalLayout",
+			"customType" : "checkbox",
+			"position" : {"x": 10, "y": 83},
+			"items" : [
+				{
+					"name": "resolutionButton",
+					"type": "buttonGear",
+					"help": "vcmi.systemOptions.resolutionButton",
+					"callback": "setGameResolution",
+					"created" : "desktop"
+				},
+				{
+					"name": "scalingButton",
+					"type": "buttonGear",
+					"help": "vcmi.systemOptions.scalingButton",
+					"callback": "setGameScaling",
+				},
+				{
+					"name": "fullscreenBorderlessCheckbox",
+					"help": "vcmi.systemOptions.fullscreenBorderless",
+					"callback": "fullscreenBorderlessChanged"
+					"created" : "desktop"
+				},
+				{
+					"name": "fullscreenExclusiveCheckbox",
+					"help": "vcmi.systemOptions.fullscreenExclusive",
+					"callback": "fullscreenExclusiveChanged"
+					"created" : "desktop"
+				},
+				{
+					"name": "framerateCheckbox",
+					"help": "vcmi.systemOptions.framerateButton",
+					"callback": "framerateChanged"
+				},
+				{
+					"name": "spellbookAnimationCheckbox",
+					"help": "core.help.364",
+					"callback": "spellbookAnimationChanged"
+				},
+			]
+		},
+/////////////////////////////////////// Right section - Audio Settings
+		{
+			"type" : "labelCentered",
+			"position": {"x": 460, "y": 98},
+			"text": "core.genrltxt.394" // Music Volume
+		},
+		{
+			"type" : "labelCentered",
+			"position": {"x": 460, "y": 158},
+			"text": "core.genrltxt.395" // Effects volume
+		},
 		{
 			"name": "frameMusic",
 			"type": "picture",
@@ -135,76 +116,54 @@
 		},
 		{
 			"name": "musicSlider",
-			"type": "slider",
+			"type": "audioSlider",
 			"position": {"x": 385, "y": 115},
-			"scrollBounds" : { "x" : -4, "y" : -34, "w" : 208, "h" : 52 },
-			"size": 200,
-			"style": "brown",
-			"orientation": "horizontal",
-			"itemsVisible": 0,
-			"itemsTotal": 100,
 			"callback": "setMusic"
 		},
 		{
 			"name": "musicValueLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "center",
-			"color": "yellow",
+			"type": "labelCentered",
 			"position": {"x": 565, "y": 98}
 		},
-		
 		{
 			"name": "frameSound",
 			"type": "picture",
 			"image": "settingsWindow/frameAudio",
 			"position": {"x": 380, "y": 140 }
 		},
-
 		{
 			"name": "soundVolumeSlider",
-			"type": "slider",
+			"type": "audioSlider",
 			"position": {"x": 385, "y": 175},
-			"scrollBounds" : { "x" : -4, "y" : -34, "w" : 208, "h" : 52 },
-			"size": 200,
-			"style": "brown",
-			"orientation": "horizontal",
-			"itemsVisible": 0,
-			"itemsTotal": 100,
 			"callback": "setVolume"
 		},
 		{
 			"name": "soundValueLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "center",
-			"color": "yellow",
+			"type": "labelCentered",
 			"position": {"x": 565, "y": 158}
 		},
 /////////////////////////////////////// Bottom section - Towns Settings
 		{
-			"name": "townCheckboxesLabels",
-			"type": "labelGroup",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
-			"items":
-			[
+			"type" : "verticalLayout",
+			"customType" : "labelDescription",
+			"position": {"x": 45, "y": 325},
+			"items" : [
 				{
 					"text": "vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover",
-					"position": {"x": 45, "y": 325}
 				},
 				{
 					"text": "vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover",
-					"position": {"x": 45, "y": 355}
 				},
 				{
 					"text": "vcmi.otherOptions.compactTownCreatureInfo.hover",
-					"position": {"x": 45, "y": 385}
 				}
 			]
 		},
-		
+		{
+			"name": "availableCreaturesAsDwellingPicker",
+			"type": "toggleGroup",
+			"callback": "availableCreaturesAsDwellingChanged"
+		},
 		{
 			"name": "availableCreaturesAsDwellingPicker",
 			"type": "toggleGroup",
@@ -213,26 +172,22 @@
 			[
 				{
 					"index": 0,
-					"type": "toggleButton",
-					"image": "sysopchk.def",
+					"type": "checkbox",
 					"help": "vcmi.otherOptions.creatureGrowthAsDwellingLabel",
 					"position": {"x": 0, "y": 0}
 				},
 				{
 					"index": 1,
-					"type": "toggleButton",
-					"image": "sysopchk.def",
+					"type": "checkbox",
 					"help": "vcmi.otherOptions.availableCreaturesAsDwellingLabel",
 					"position": {"x": 0, "y": 30}
 				},
 			],
 			"callback": "availableCreaturesAsDwellingChanged"
 		},
-
 		{
 			"name": "compactTownCreatureInfoCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
+			"type": "checkbox",
 			"help": "vcmi.otherOptions.compactTownCreatureInfo",
 			"position": {"x": 10, "y": 383},
 			"callback": "compactTownCreatureInfoChanged"

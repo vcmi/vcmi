@@ -22,6 +22,7 @@
 #include "CServerHandler.h"
 #include "filesystem/ResourceID.h"
 #include "gui/CGuiHandler.h"
+#include "gui/WindowHandler.h"
 #include "lobby/CSavingScreen.h"
 #include "widgets/Buttons.h"
 #include "widgets/Images.h"
@@ -103,9 +104,9 @@ void SettingsMainWindow::openTab(size_t index)
 
 void SettingsMainWindow::close()
 {
-	if(GH.topInt().get() != this)
+	if(!GH.windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
-	GH.popInts(1);
+	GH.windows().popWindows(1);
 }
 
 void SettingsMainWindow::quitGameButtonCallback()
@@ -132,7 +133,7 @@ void SettingsMainWindow::loadGameButtonCallback()
 void SettingsMainWindow::saveGameButtonCallback()
 {
 	close();
-	GH.pushIntT<CSavingScreen>();
+	GH.windows().createAndPushWindow<CSavingScreen>();
 }
 
 void SettingsMainWindow::restartGameButtonCallback()
@@ -154,4 +155,14 @@ void SettingsMainWindow::showAll(SDL_Surface *to)
 
 	CIntObject::showAll(to);
 	CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+}
+
+void SettingsMainWindow::onScreenResize()
+{
+	InterfaceObjectConfigurable::onScreenResize();
+
+	auto tab = std::dynamic_pointer_cast<GeneralOptionsTab>(tabContentArea->getItem());
+
+	if (tab)
+		tab->updateResolutionSelector();
 }

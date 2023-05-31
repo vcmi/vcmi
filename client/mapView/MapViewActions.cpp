@@ -15,9 +15,10 @@
 #include "MapViewModel.h"
 
 #include "../CGameInfo.h"
-#include "../adventureMap/CAdventureMapInterface.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
+#include "../gui/MouseButton.h"
 
 #include "../../lib/CConfigHandler.h"
 
@@ -29,7 +30,7 @@ MapViewActions::MapViewActions(MapView & owner, const std::shared_ptr<MapViewMod
 	pos.w = model->getPixelsVisibleDimensions().x;
 	pos.h = model->getPixelsVisibleDimensions().y;
 
-	addUsedEvents(LCLICK | RCLICK | MCLICK | HOVER | MOVE);
+	addUsedEvents(LCLICK | RCLICK | MCLICK | HOVER | MOVE | WHEEL);
 }
 
 bool MapViewActions::swipeEnabled() const
@@ -92,14 +93,21 @@ void MapViewActions::mouseMoved(const Point & cursorPosition)
 	handleSwipeMove(cursorPosition);
 }
 
+void MapViewActions::wheelScrolled(bool down, bool in)
+{
+	if (!in)
+		return;
+	adventureInt->hotkeyZoom(down ? -1 : +1);
+}
+
 void MapViewActions::handleSwipeMove(const Point & cursorPosition)
 {
 	// unless swipe is enabled, swipe move only works with middle mouse button
 	if(!swipeEnabled() && !GH.isMouseButtonPressed(MouseButton::MIDDLE))
 		return;
 
-	// on mobile platforms with enabled swipe any button is enough
-	if(swipeEnabled() && (!GH.isMouseButtonPressed() || GH.multifinger))
+	// on mobile platforms with enabled swipe we use left button
+	if(swipeEnabled() && !GH.isMouseButtonPressed(MouseButton::LEFT))
 		return;
 
 	if(!isSwiping)
@@ -154,7 +162,7 @@ void MapViewActions::hover(bool on)
 {
 	if(!on)
 	{
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 		CCS->curh->set(Cursor::Map::POINTER);
 	}
 }

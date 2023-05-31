@@ -550,6 +550,29 @@ public:
 		for(ui32 i = 0; i < length; i++)
 			load(data.data()[i]);
 	}
+	template <std::size_t T>
+	void load(std::bitset<T> &data)
+	{
+		static_assert(T <= 64);
+		if constexpr (T <= 16)
+		{
+			uint16_t read;
+			load(read);
+			data = read;
+		}
+		else if constexpr (T <= 32)
+		{
+			uint32_t read;
+			load(read);
+			data = read;
+		}
+		else if constexpr (T <= 64)
+		{
+			uint64_t read;
+			load(read);
+			data = read;
+		}
+	}
 };
 
 class DLL_LINKAGE CLoadFile : public IBinaryReader

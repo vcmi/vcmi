@@ -399,7 +399,7 @@ void CGStatusBar::clear()
 	write({});
 }
 
-CGStatusBar::CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font, ETextAlignment Align, const SDL_Color & Color)
+CGStatusBar::CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font, ETextAlignment Align, const SDL_Color & Color)
 	: CLabel(background_->pos.x, background_->pos.y, Font, Align, Color, "")
 	, enteringText(false)
 {
@@ -419,16 +419,22 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 	addUsedEvents(LCLICK);
 
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
-	background = std::make_shared<CPicture>(name);
+	auto backgroundImage = std::make_shared<CPicture>(name);
+	background = backgroundImage;
 	pos = background->pos;
 
 	if((unsigned)maxw < (unsigned)pos.w) //(insigned)-1 > than any correct value of pos.w
 	{
 		//execution of this block when maxw is incorrect breaks text centralization (issue #3151)
 		vstd::amin(pos.w, maxw);
-		background->srcRect = Rect(0, 0, maxw, pos.h);
+		backgroundImage->srcRect = Rect(0, 0, maxw, pos.h);
 	}
 	autoRedraw = false;
+}
+
+CGStatusBar::~CGStatusBar()
+{
+	assert(GH.statusbar().get() != this);
 }
 
 void CGStatusBar::show(SDL_Surface * to)
@@ -436,22 +442,26 @@ void CGStatusBar::show(SDL_Surface * to)
 	showAll(to);
 }
 
-void CGStatusBar::init()
-{
-	GH.statusbar = shared_from_this();
-}
-
 void CGStatusBar::clickLeft(tribool down, bool previousState)
 {
 	if(!down)
 	{
-		if(LOCPLINT && LOCPLINT->cingconsole->active)
+		if(LOCPLINT && LOCPLINT->cingconsole->isActive())
 			LOCPLINT->cingconsole->startEnteringText();
 	}
 }
 
+void CGStatusBar::activate()
+{
+	GH.setStatusbar(shared_from_this());
+	CIntObject::activate();
+}
+
 void CGStatusBar::deactivate()
 {
+	assert(GH.statusbar().get() == this);
+	GH.setStatusbar(nullptr);
+
 	if (enteringText)
 		LOCPLINT->cingconsole->endEnteringText(false);
 
@@ -564,7 +574,6 @@ void CTextInput::keyPressed(EShortcut key)
 	if(key == EShortcut::GLOBAL_MOVE_FOCUS)
 	{
 		moveFocus();
-		GH.breakEventHandling();
 		return;
 	}
 
@@ -610,6 +619,9 @@ void CTextInput::setText(const std::string & nText, bool callCb)
 bool CTextInput::captureThisKey(EShortcut key)
 {
 	if(key == EShortcut::GLOBAL_RETURN)
+		return false;
+
+	if (!focus)
 		return false;
 
 	return true;
@@ -739,7 +751,7 @@ void CFocusable::moveFocus()
 		if(i == focusables.end())
 			i = focusables.begin();
 
-		if((*i)->active)
+		if((*i)->isActive())
 		{
 			(*i)->giveFocus();
 			break;

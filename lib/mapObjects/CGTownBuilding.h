@@ -11,11 +11,12 @@
 #pragma once
 
 #include "CObjectHandler.h"
+#include "../rewardable/Interface.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGTownInstance;
-
+class CBuilding;
 
 class DLL_LINKAGE CGTownBuilding : public IObjectInterface
 {
@@ -102,6 +103,42 @@ public:
 
 private:
 	void applyBonuses(CGHeroInstance * h, const BonusList & bonuses) const;
+};
+
+class DLL_LINKAGE CTownRewardableBuilding : public CGTownBuilding, public Rewardable::Interface
+{
+	/// reward selected by player, no serialize
+	ui16 selectedReward = 0;
+		
+	std::set<ObjectInstanceID> visitors;
+	
+	bool wasVisitedBefore(const CGHeroInstance * contextHero) const;
+	
+	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
+	
+public:
+	void setProperty(ui8 what, ui32 val) override;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	
+	void newTurn(CRandomGenerator & rand) const override;
+	
+	/// gives second part of reward after hero level-ups for proper granting of spells/mana
+	void heroLevelUpDone(const CGHeroInstance *hero) const override;
+	
+	void initObj(CRandomGenerator & rand) override;
+	
+	/// applies player selection of reward
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	
+	CTownRewardableBuilding(const BuildingID & index, BuildingSubID::EBuildingSubID subId, CGTownInstance * town, CRandomGenerator & rand);
+	CTownRewardableBuilding() = default;
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGTownBuilding&>(*this);
+		h & static_cast<Rewardable::Interface&>(*this);
+		h & visitors;
+	}
 };
 
 VCMI_LIB_NAMESPACE_END

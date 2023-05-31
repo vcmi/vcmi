@@ -37,6 +37,7 @@ public:
 	BasicMapView(const Point & offset, const Point & dimensions);
 	~BasicMapView() override;
 
+	void tick(uint32_t msPassed) override;
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 };
@@ -77,6 +78,9 @@ public:
 
 	/// Switches view to downscaled View World
 	void onViewWorldActivated(uint32_t tileSize);
+
+	/// Changes zoom level / tile size of current view by specified factor
+	void onMapZoomLevelChanged(int stepsChange);
 
 	/// Switches view from View World mode back to standard view
 	void onViewMapActivated();

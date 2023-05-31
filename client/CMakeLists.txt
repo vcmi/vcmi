@@ -2,9 +2,10 @@ set(client_SRCS
 	StdInc.cpp
 	../CCallback.cpp
 
-	adventureMap/CAdvMapPanel.cpp
-	adventureMap/CAdventureMapInterface.cpp
-	adventureMap/CAdventureOptions.cpp
+	adventureMap/AdventureMapInterface.cpp
+	adventureMap/AdventureMapShortcuts.cpp
+	adventureMap/AdventureMapWidget.cpp
+	adventureMap/AdventureOptions.cpp
 	adventureMap/CInGameConsole.cpp
 	adventureMap/CInfoBar.cpp
 	adventureMap/CList.cpp
@@ -26,12 +27,23 @@ set(client_SRCS
 	battle/BattleWindow.cpp
 	battle/CreatureAnimation.cpp
 
+	eventsSDL/NotificationHandler.cpp
+	eventsSDL/InputHandler.cpp
+	eventsSDL/UserEventHandler.cpp
+	eventsSDL/InputSourceKeyboard.cpp
+	eventsSDL/InputSourceMouse.cpp
+	eventsSDL/InputSourceText.cpp
+	eventsSDL/InputSourceTouch.cpp
+
 	gui/CGuiHandler.cpp
 	gui/CIntObject.cpp
 	gui/CursorHandler.cpp
+	gui/EventDispatcher.cpp
+	gui/EventsReceiver.cpp
 	gui/InterfaceObjectConfigurable.cpp
-	gui/NotificationHandler.cpp
+	gui/FramerateManager.cpp
 	gui/ShortcutHandler.cpp
+	gui/WindowHandler.cpp
 
 	lobby/CBonusSelection.cpp
 	lobby/CCampaignInfoScreen.cpp
@@ -75,6 +87,7 @@ set(client_SRCS
 	renderSDL/SDLImage.cpp
 	renderSDL/SDLImageLoader.cpp
 	renderSDL/SDLRWwrapper.cpp
+	renderSDL/ScreenHandler.cpp
 	renderSDL/SDL_Extensions.cpp
 
 	widgets/Buttons.cpp
@@ -129,9 +142,11 @@ set(client_SRCS
 set(client_HEADERS
 	StdInc.h
 
-	adventureMap/CAdvMapPanel.h
-	adventureMap/CAdventureMapInterface.h
-	adventureMap/CAdventureOptions.h
+	adventureMap/AdventureMapInterface.h
+	adventureMap/AdventureMapShortcuts.h
+	adventureMap/AdventureMapWidget.h
+	adventureMap/AdventureState.h
+	adventureMap/AdventureOptions.h
 	adventureMap/CInGameConsole.h
 	adventureMap/CInfoBar.h
 	adventureMap/CList.h
@@ -154,15 +169,26 @@ set(client_HEADERS
 	battle/BattleWindow.h
 	battle/CreatureAnimation.h
 
+	eventsSDL/NotificationHandler.h
+	eventsSDL/InputHandler.h
+	eventsSDL/UserEventHandler.h
+	eventsSDL/InputSourceKeyboard.h
+	eventsSDL/InputSourceMouse.h
+	eventsSDL/InputSourceText.h
+	eventsSDL/InputSourceTouch.h
+
 	gui/CGuiHandler.h
 	gui/CIntObject.h
 	gui/CursorHandler.h
+	gui/EventDispatcher.h
+	gui/EventsReceiver.h
 	gui/InterfaceObjectConfigurable.h
+	gui/FramerateManager.h
 	gui/MouseButton.h
-	gui/NotificationHandler.h
 	gui/Shortcut.h
 	gui/ShortcutHandler.h
 	gui/TextAlignment.h
+	gui/WindowHandler.h
 
 	lobby/CBonusSelection.h
 	lobby/CCampaignInfoScreen.h
@@ -202,6 +228,7 @@ set(client_HEADERS
 	render/IFont.h
 	render/IImage.h
 	render/IImageLoader.h
+	render/IScreenHandler.h
 
 	renderSDL/CBitmapFont.h
 	renderSDL/CBitmapHanFont.h
@@ -211,6 +238,7 @@ set(client_HEADERS
 	renderSDL/SDLImage.h
 	renderSDL/SDLImageLoader.h
 	renderSDL/SDLRWwrapper.h
+	renderSDL/ScreenHandler.h
 	renderSDL/SDL_Extensions.h
 	renderSDL/SDL_PixelAccess.h
 
@@ -323,7 +351,7 @@ if(WIN32)
 	endif()
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
 
-	# TODO: very hacky, find proper solution to copy AI dlls into bin dir
+# TODO: very hacky, find proper solution to copy AI dlls into bin dir
 	if(MSVC)
 		add_custom_command(TARGET vcmiclient POST_BUILD
 			WORKING_DIRECTORY "$<TARGET_FILE_DIR:vcmiclient>"

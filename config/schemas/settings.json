@@ -2,7 +2,7 @@
 // Any new settings should be added in this file for correct serialization and initialization
 {
 	"type" : "object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"required" : [ "general", "video", "adventure", "pathfinder", "battle", "server", "logging", "launcher", "gameTweaks" ],
 	"definitions" : {
 		"logLevelEnum" : {
@@ -11,11 +11,11 @@
 		}
 	},
 	"additionalProperties" : false,
-	"properties":
+	"properties" :
 	{
 		"general" : {
 			"type" : "object",
-			"default": {},
+			"default" : {},
 			"additionalProperties" : false,
 			"required" : [
 				"playerName",
@@ -35,7 +35,7 @@
 			],
 			"properties" : {
 				"playerName" : {
-					"type":"string",
+					"type" : "string",
 					"default" : "Player"
 				},
 				"music" : {
@@ -59,21 +59,21 @@
 					"default" : false
 				},
 				"lastMap" : {
-					"type":"string",
+					"type" : "string",
 					"default" : "Maps/Arrogance"
 				},
 				"language" : {
-					"type":"string",
+					"type" : "string",
 					"enum" : [ "english", "chinese", "german", "polish", "russian", "spanish", "ukrainian" ],
 					"default" : "english"
 				},
 				"gameDataLanguage" : {
-					"type":"string",
+					"type" : "string",
 					"enum" : [ "auto", "english", "chinese", "german", "korean", "polish", "russian", "spanish", "ukrainian", "other_cp1250", "other_cp1251", "other_cp1252" ],
 					"default" : "auto"
 				},
 				"lastSave" : {
-					"type":"string",
+					"type" : "string",
 					"default" : "NEWGAME"
 				},
 				"lastSettingsTab" : {
@@ -81,7 +81,7 @@
 					"default" : 0
 				},
 				"lastCampaign" : {
-					"type":"string",
+					"type" : "string",
 					"default" : ""
 				},
 				"saveFrequency" : {
@@ -109,9 +109,9 @@
 		"video" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"default": {},
+			"default" : {},
 			"required" : [ 
-				"screenRes", 
+				"resolution", 
 				"bitsPerPixel", 
 				"fullscreen", 
 				"realFullscreen", 
@@ -124,23 +124,24 @@
 				"targetfps"
 			],
 			"properties" : {
-				"screenRes" : {
+				"resolution" : {
 					"type" : "object",
 					"additionalProperties" : false,
-					"required" : [ "width", "height" ],
+					"required" : [ "width", "height", "scaling" ],
 					"properties" : {
 						"width"  : { "type" : "number" },
-						"height" : { "type" : "number" }
+						"height" : { "type" : "number" },
+						"scaling" : { "type" : "number" }
 					},
-					"default": {"width" : 800, "height": 600 }
+					"default" : {"width" : 800, "height" : 600, "scaling" : 100 }
 				},
 				"bitsPerPixel" : {
 					"type" : "number",
 					"default" : 32
 				},
-				"fullscreen": {
-					"type": "boolean",
-					"default": false
+				"fullscreen" : {
+					"type" : "boolean",
+					"default" : false
 				},
 				"realFullscreen" : {
 					"type" : "boolean",
@@ -159,7 +160,7 @@
 					"type" : "boolean",
 					"default" : true
 				},
-				"driver":{
+				"driver" : {
 					"type" : "string",
 					"default" : "opengl",
 					"description" : "preferred graphics backend driver name for SDL2"
@@ -181,7 +182,7 @@
 		"adventure" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"default": {},
+			"default" : {},
 			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "alwaysSkipCombat" ],
 			"properties" : {
 				"heroMoveTime" : {
@@ -221,13 +222,13 @@
 		"pathfinder" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"default": {},
+			"default" : {},
 			"required" : [ "teleports", "layers", "oneTurnSpecialLayersLimit", "originalMovementRules", "lightweightFlyingMode" ],
 			"properties" : {
 				"layers" : {
 					"type" : "object",
 					"additionalProperties" : false,
-					"default": {},
+					"default" : {},
 					"required" : [ "sailing", "waterWalking", "flying" ],
 					"properties" : {
 						"sailing" : {
@@ -247,7 +248,7 @@
 				"teleports" : {
 					"type" : "object",
 					"additionalProperties" : false,
-					"default": {},
+					"default" : {},
 					"required" : [ "twoWay", "oneWay", "oneWayRandom", "whirlpool", "castleGate" ],
 					"properties" : {
 						"twoWay" : {
@@ -289,7 +290,7 @@
 		"battle" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"default": {},
+			"default" : {},
 			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "showQueue", "queueSize", "touchscreenMode" ],
 			"properties" : {
 				"speedFactor" : {
@@ -297,7 +298,7 @@
 					"default" : 2
 				},
 				"mouseShadow" : {
-					"type":"boolean",
+					"type" : "boolean",
 					"default" : true
 				},
 				"cellBorders" : {
@@ -330,11 +331,11 @@
 		"server" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"default": {},
+			"default" : {},
 			"required" : [ "server", "port", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI", "reconnect", "uuid", "names" ],
 			"properties" : {
 				"server" : {
-					"type":"string",
+					"type" : "string",
 					"default" : "127.0.0.1"
 				},
 				"port" : {
@@ -372,7 +373,7 @@
 				"names" : {
 					"type" : "array",
 					"default" : [],
-					"items":
+					"items" :
 					{
 						"type" : "string",
 						"default" : ""
@@ -456,7 +457,7 @@
 		},
 		"launcher" : {
 			"type" : "object",
-			"default": {},
+			"default" : {},
 			"additionalProperties" : false,
 			"required" : [ "setupCompleted", "repositoryURL", "enableInstalledMods", "extraResolutionsModPath", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl", "lobbyUrl", "lobbyPort", "lobbyUsername", "connectionTimeout" ],
 			"properties" : {
@@ -516,10 +517,10 @@
 			}
 		},
 		"gameTweaks" : {
-			"type": "object",
-			"default": {},
-			"additionalProperties": false,
-			"required": [
+			"type" : "object",
+			"default" : {},
+			"additionalProperties" : false,
+			"required" : [
 				"showGrid",
 				"forceMovementInfo",
 				"numericCreaturesQuantities",
@@ -528,18 +529,18 @@
 				"infoBarPick",
 				"skipBattleIntroMusic"
 			],
-			"properties": {
-				"showGrid": {
-					"type": "boolean",
-					"default": false
+			"properties" : {
+				"showGrid" : {
+					"type" : "boolean",
+					"default" : false
 				},
-				"forceMovementInfo": {
-					"type": "boolean",
-					"default": false
+				"forceMovementInfo" : {
+					"type" : "boolean",
+					"default" : false
 				},
-				"numericCreaturesQuantities": {
-					"type": "boolean",
-					"default": false
+				"numericCreaturesQuantities" : {
+					"type" : "boolean",
+					"default" : false
 				},
 				"availableCreaturesAsDwellingLabel" : {
 					"type" : "boolean",

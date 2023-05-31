@@ -14,6 +14,7 @@
 #include "CGameInfo.h"
 #include "CPlayerInterface.h"
 #include "gui/CGuiHandler.h"
+#include "gui/WindowHandler.h"
 
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
@@ -123,7 +124,8 @@ public:
 	}
 };
 
-extern std::string NAME;
+static const std::string NAME_AFFIX = "client";
+static const std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 
 CServerHandler::CServerHandler()
 	: state(EClientState::NONE), mx(std::make_shared<boost::recursive_mutex>()), client(nullptr), loadMode(0), campaignStateToSend(nullptr), campaignServerRestartLock(false)
@@ -324,7 +326,7 @@ void CServerHandler::applyPacksOnLobbyScreen()
 		packsForLobbyScreen.pop_front();
 		CBaseForLobbyApply * apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier
 		apply->applyOnLobbyScreen(static_cast<CLobbyScreen *>(SEL), this, pack);
-		GH.totalRedraw();
+		GH.windows().totalRedraw();
 		delete pack;
 	}
 }
@@ -748,8 +750,9 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 
 	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
-	while(!settings["session"]["headless"].Bool() && !dynamic_cast<CLobbyScreen *>(GH.topInt().get()))
+	while(!settings["session"]["headless"].Bool() && !GH.windows().topWindow<CLobbyScreen>())
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+
 	while(!mi || mapInfo->fileURI != CSH->mi->fileURI)
 	{
 		setMapInfo(mapInfo);
@@ -840,7 +843,7 @@ void CServerHandler::threadHandleConnection()
 			if(client)
 			{
 				state = EClientState::DISCONNECTING;
-				CGuiHandler::pushUserEvent(EUserEvent::RETURN_TO_MAIN_MENU);
+				GH.pushUserEvent(EUserEvent::RETURN_TO_MAIN_MENU);
 			}
 			else
 			{

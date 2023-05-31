@@ -119,7 +119,7 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
 	CIntObject::show(to);
 
 	// Play the campaign button video when the mouse cursor is placed over the button
-	if(hovered)
+	if(isHovered())
 	{
 		if(CCS->videoh->fname != video)
 			CCS->videoh->open(video);

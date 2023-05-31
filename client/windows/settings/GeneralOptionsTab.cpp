@@ -14,6 +14,7 @@
 #include "../../../lib/CGeneralTextHandler.h"
 #include "../../../lib/filesystem/ResourceID.h"
 #include "../../gui/CGuiHandler.h"
+#include "../../gui/WindowHandler.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 #include "../../widgets/Images.h"
@@ -22,7 +23,7 @@
 #include "CPlayerInterface.h"
 #include "windows/GUIClasses.h"
 #include "CServerHandler.h"
-#include "renderSDL/SDL_Extensions.h"
+#include "render/IScreenHandler.h"
 
 
 static void setIntSetting(std::string group, std::string field, int value)
@@ -35,6 +36,19 @@ static void setBoolSetting(std::string group, std::string field, bool value)
 {
 	Settings entry = settings.write[group][field];
 	entry->Bool() = value;
+}
+
+static std::string scalingToEntryString( int scaling)
+{
+	return std::to_string(scaling) + '%';
+}
+
+static std::string scalingToLabelString( int scaling)
+{
+	std::string string = CGI->generaltexth->translate("vcmi.systemOptions.scalingButton.hover");
+	boost::replace_all(string, "%p", std::to_string(scaling));
+
+	return string;
 }
 
 static std::string resolutionToEntryString( int w, int h)
@@ -64,6 +78,13 @@ GeneralOptionsTab::GeneralOptionsTab()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	type |= REDRAW_PARENT;
 
+	addConditional("mobile", false);
+	addConditional("desktop", true);
+#ifdef VCMI_MOBILE
+	addConditional("mobile", true);
+	addConditional("desktop", false);
+#endif
+
 	const JsonNode config(ResourceID("config/widgets/settings/generalOptionsTab.json"));
 	addCallback("spellbookAnimationChanged", [](bool value)
 	{
@@ -88,13 +109,21 @@ GeneralOptionsTab::GeneralOptionsTab()
 			targetLabel->setText(std::to_string(value) + "%");
 	});
 	//settings that do not belong to base game:
-	addCallback("fullscreenChanged", [this](bool value)
+	addCallback("fullscreenBorderlessChanged", [this](bool value)
 	{
-		setFullscreenMode(value);
+		setFullscreenMode(value, false);
+	});
+	addCallback("fullscreenExclusiveChanged", [this](bool value)
+	{
+		setFullscreenMode(value, true);
 	});
 	addCallback("setGameResolution", [this](int dummyValue)
 	{
 		selectGameResolution();
+	});
+	addCallback("setGameScaling", [this](int dummyValue)
+	{
+		selectGameScaling();
 	});
 	addCallback("framerateChanged", [](bool value)
 	{
@@ -114,19 +143,21 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	build(config);
 
-	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
-	const auto & currentResolution = settings["video"]["screenRes"];
-	resolutionLabel->setText(resolutionToLabelString(currentResolution["width"].Integer(), currentResolution["height"].Integer()));
+	const auto & currentResolution = settings["video"]["resolution"];
+
+	std::shared_ptr<CLabel> scalingLabel = widget<CLabel>("scalingLabel");
+	scalingLabel->setText(scalingToLabelString(currentResolution["scaling"].Integer()));
 
 	std::shared_ptr<CToggleButton> spellbookAnimationCheckbox = widget<CToggleButton>("spellbookAnimationCheckbox");
 	spellbookAnimationCheckbox->setSelected(settings["video"]["spellbookAnimation"].Bool());
 
-	std::shared_ptr<CToggleButton> fullscreenCheckbox = widget<CToggleButton>("fullscreenCheckbox");
-	fullscreenCheckbox->setSelected(settings["video"]["fullscreen"].Bool());
-	onFullscreenChanged([&](const JsonNode &newState) //used when pressing F4 etc. to change fullscreen checkbox state
-	{
-		widget<CToggleButton>("fullscreenCheckbox")->setSelected(newState.Bool());
-	});
+	std::shared_ptr<CToggleButton> fullscreenBorderlessCheckbox = widget<CToggleButton>("fullscreenBorderlessCheckbox");
+	if (fullscreenBorderlessCheckbox)
+		fullscreenBorderlessCheckbox->setSelected(settings["video"]["fullscreen"].Bool() && !settings["video"]["realFullscreen"].Bool());
+
+	std::shared_ptr<CToggleButton> fullscreenExclusiveCheckbox = widget<CToggleButton>("fullscreenExclusiveCheckbox");
+	if (fullscreenExclusiveCheckbox)
+		fullscreenExclusiveCheckbox->setSelected(settings["video"]["fullscreen"].Bool() && settings["video"]["realFullscreen"].Bool());
 
 	std::shared_ptr<CToggleButton> framerateCheckbox = widget<CToggleButton>("framerateCheckbox");
 	framerateCheckbox->setSelected(settings["video"]["showfps"].Bool());
@@ -149,32 +180,43 @@ GeneralOptionsTab::GeneralOptionsTab()
 	std::shared_ptr<CLabel> soundVolumeLabel = widget<CLabel>("soundValueLabel");
 	soundVolumeLabel->setText(std::to_string(CCS->soundh->getVolume()) + "%");
 
+	updateResolutionSelector();
 }
 
-
-bool GeneralOptionsTab::isResolutionSupported(const Point & resolution)
+void GeneralOptionsTab::updateResolutionSelector()
 {
-	return isResolutionSupported( resolution, settings["video"]["fullscreen"].Bool());
-}
+	std::shared_ptr<CButton> resolutionButton = widget<CButton>("resolutionButton");
+	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
 
-bool GeneralOptionsTab::isResolutionSupported(const Point & resolution, bool fullscreen)
-{
-	if (!fullscreen)
-		return true;
+	if (settings["video"]["fullscreen"].Bool() && !settings["video"]["realFullscreen"].Bool())
+	{
+		if (resolutionButton)
+			resolutionButton->disable();
 
-	auto supportedList = CSDL_Ext::getSupportedResolutions();
+		if (resolutionLabel)
+			resolutionLabel->setText(resolutionToLabelString(GH.screenDimensions().x, GH.screenDimensions().y));
+	}
+	else
+	{
+		const auto & currentResolution = settings["video"]["resolution"];
 
-	return CSDL_Ext::isResolutionSupported(supportedList, resolution);
+		if (resolutionButton)
+			resolutionButton->enable();
+
+		if (resolutionLabel)
+			resolutionLabel->setText(resolutionToLabelString(currentResolution["width"].Integer(), currentResolution["height"].Integer()));
+	}
+
 }
 
 void GeneralOptionsTab::selectGameResolution()
 {
-	fillSelectableResolutions();
+	supportedResolutions = GH.screenHandler().getSupportedResolutions();
 
 	std::vector<std::string> items;
 	size_t currentResolutionIndex = 0;
 	size_t i = 0;
-	for(const auto & it : selectableResolutions)
+	for(const auto & it : supportedResolutions)
 	{
 		auto resolutionStr = resolutionToEntryString(it.x, it.y);
 		if(widget<CLabel>("resolutionLabel")->getText() == resolutionToLabelString(it.x, it.y))
@@ -183,7 +225,7 @@ void GeneralOptionsTab::selectGameResolution()
 		items.push_back(std::move(resolutionStr));
 		++i;
 	}
-	GH.pushIntT<CObjectListWindow>(items, nullptr,
+	GH.windows().createAndPushWindow<CObjectListWindow>(items, nullptr,
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
 								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
 								   [this](int index)
@@ -195,64 +237,88 @@ void GeneralOptionsTab::selectGameResolution()
 
 void GeneralOptionsTab::setGameResolution(int index)
 {
-	assert(index >= 0 && index < selectableResolutions.size());
+	assert(index >= 0 && index < supportedResolutions.size());
 
-	if ( index < 0 || index >= selectableResolutions.size() )
+	if ( index < 0 || index >= supportedResolutions.size() )
 		return;
 
-	Point resolution = selectableResolutions[index];
+	Point resolution = supportedResolutions[index];
 
-	Settings gameRes = settings.write["video"]["screenRes"];
+	Settings gameRes = settings.write["video"]["resolution"];
 	gameRes["width"].Float() = resolution.x;
 	gameRes["height"].Float() = resolution.y;
 
 	widget<CLabel>("resolutionLabel")->setText(resolutionToLabelString(resolution.x, resolution.y));
 }
 
-void GeneralOptionsTab::setFullscreenMode(bool on)
+void GeneralOptionsTab::setFullscreenMode(bool on, bool exclusive)
 {
-	fillSelectableResolutions();
-
-	const auto & screenRes = settings["video"]["screenRes"];
-	const Point desiredResolution(screenRes["width"].Integer(), screenRes["height"].Integer());
-	const Point currentResolution = GH.screenDimensions();
-
-	if (!isResolutionSupported(currentResolution, on))
-	{
-		widget<CToggleButton>("fullscreenCheckbox")->setSelected(!on);
-		LOCPLINT->showInfoDialog(CGI->generaltexth->translate("vcmi.systemOptions.fullscreenFailed"));
-		return;
-	}
-
+	setBoolSetting("video", "realFullscreen", exclusive);
 	setBoolSetting("video", "fullscreen", on);
 
-	if (!isResolutionSupported(desiredResolution, on))
-	{
-		// user changed his desired resolution and switched to fullscreen
-		// however resolution he selected before is not available in fullscreen
-		// so reset it back to currect resolution which is confirmed to be supported earlier
-		Settings gameRes = settings.write["video"]["screenRes"];
-		gameRes["width"].Float() = currentResolution.x;
-		gameRes["height"].Float() = currentResolution.y;
+	std::shared_ptr<CToggleButton> fullscreenExclusiveCheckbox = widget<CToggleButton>("fullscreenExclusiveCheckbox");
+	std::shared_ptr<CToggleButton> fullscreenBorderlessCheckbox = widget<CToggleButton>("fullscreenBorderlessCheckbox");
 
-		widget<CLabel>("resolutionLabel")->setText(resolutionToLabelString(currentResolution.x, currentResolution.y));
-	}
+	if (fullscreenBorderlessCheckbox)
+		fullscreenBorderlessCheckbox->setSelected(on && !exclusive);
+
+	if (fullscreenExclusiveCheckbox)
+		fullscreenExclusiveCheckbox->setSelected(on && exclusive);
+
+	updateResolutionSelector();
 }
 
-void GeneralOptionsTab::fillSelectableResolutions()
+void GeneralOptionsTab::selectGameScaling()
 {
-	selectableResolutions.clear();
+	supportedScaling.clear();
 
-	for(const auto & it : conf.guiOptions)
+	// generate list of all possible scaling values, with 10% step
+	// also add one value over maximum, so if player can use scaling up to 123.456% he will be able to select 130%
+	// and let screen handler clamp that value to actual maximum
+	auto [minimalScaling, maximalScaling] = GH.screenHandler().getSupportedScalingRange();
+	for (int i = 0; i <= maximalScaling + 10 - 1; i += 10)
 	{
-		const Point dimensions(it.first.first, it.first.second);
-
-		if(isResolutionSupported(dimensions))
-			selectableResolutions.push_back(dimensions);
+		if (i >= minimalScaling)
+			supportedScaling.push_back(i);
 	}
 
-	boost::range::sort(selectableResolutions, [](const auto & left, const auto & right)
+	std::vector<std::string> items;
+	size_t currentIndex = 0;
+	size_t i = 0;
+	for(const auto & it : supportedScaling)
 	{
-		return left.x * left.y < right.x * right.y;
-	});
+		auto resolutionStr = scalingToEntryString(it);
+		if(widget<CLabel>("scalingLabel")->getText() == scalingToLabelString(it))
+			currentIndex = i;
+
+		items.push_back(std::move(resolutionStr));
+		++i;
+	}
+
+	GH.windows().createAndPushWindow<CObjectListWindow>(
+		items,
+		nullptr,
+		CGI->generaltexth->translate("vcmi.systemOptions.scalingMenu.hover"),
+		CGI->generaltexth->translate("vcmi.systemOptions.scalingMenu.help"),
+		[this](int index)
+		{
+			setGameScaling(index);
+		},
+		currentIndex
+	);
+}
+
+void GeneralOptionsTab::setGameScaling(int index)
+{
+	assert(index >= 0 && index < supportedScaling.size());
+
+	if ( index < 0 || index >= supportedScaling.size() )
+		return;
+
+	int scaling = supportedScaling[index];
+
+	Settings gameRes = settings.write["video"]["resolution"];
+	gameRes["scaling"].Float() = scaling;
+
+	widget<CLabel>("scalingLabel")->setText(scalingToLabelString(scaling));
 }

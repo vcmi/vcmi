@@ -69,6 +69,7 @@ public:
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
 	void mouseMoved (const Point & cursorPosition) override;
+	void tick(uint32_t msPassed) override;
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 };

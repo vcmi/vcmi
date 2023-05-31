@@ -114,6 +114,7 @@ public:
 	void setPhase(EHeroAnimType newPhase); //sets phase of hero animation
 
 	void collectRenderableObjects(BattleRenderer & renderer);
+	void tick(uint32_t msPassed) override;
 
 	float getFrame() const;
 	void onPhaseFinished(const std::function<void()> &);

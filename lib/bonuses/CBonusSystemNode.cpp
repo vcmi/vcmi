@@ -23,11 +23,6 @@ constexpr bool CBonusSystemNode::cachingEnabled = true;
 #define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); for(CBonusSystemNode *pname : lparents)
 #define FOREACH_RED_CHILD(pname) 	TNodes lchildren; getRedChildren(lchildren); for(CBonusSystemNode *pname : lchildren)
 
-PlayerColor CBonusSystemNode::retrieveNodeOwner(const CBonusSystemNode * node)
-{
-	return node ? node->getOwner() : PlayerColor::CANNOT_DETERMINE;
-}
-
 std::shared_ptr<Bonus> CBonusSystemNode::getBonusLocalFirst(const CSelector & selector)
 {
 	auto ret = bonuses.getFirst(selector);
@@ -51,19 +46,15 @@ std::shared_ptr<const Bonus> CBonusSystemNode::getBonusLocalFirst(const CSelecto
 
 void CBonusSystemNode::getParents(TCNodes & out) const /*retrieves list of parent nodes (nodes to inherit bonuses from) */
 {
-	for(const auto & elem : parents)
-	{
-		const CBonusSystemNode *parent = elem;
-		out.insert(parent);
-	}
+	for(const auto * elem : parents)
+		out.insert(elem);
 }
 
 void CBonusSystemNode::getParents(TNodes &out)
 {
-	for (auto & elem : parents)
+	for (auto * elem : parents)
 	{
-		const CBonusSystemNode *parent = elem;
-		out.insert(const_cast<CBonusSystemNode*>(parent));
+		out.insert(elem);
 	}
 }
 
@@ -218,11 +209,6 @@ std::shared_ptr<Bonus> CBonusSystemNode::getUpdatedBonus(const std::shared_ptr<B
 	return updater->createUpdatedBonus(b, * this);
 }
 
-CBonusSystemNode::CBonusSystemNode()
-	:CBonusSystemNode(false)
-{
-}
-
 CBonusSystemNode::CBonusSystemNode(bool isHypotetic):
 	bonuses(true),
 	exportedBonuses(true),
@@ -245,7 +231,6 @@ CBonusSystemNode::CBonusSystemNode(CBonusSystemNode && other) noexcept:
 	bonuses(std::move(other.bonuses)),
 	exportedBonuses(std::move(other.exportedBonuses)),
 	nodeType(other.nodeType),
-	description(other.description),
 	cachedLast(0),
 	isHypotheticNode(other.isHypotheticNode)
 {
@@ -466,18 +451,13 @@ bool CBonusSystemNode::isIndependentNode() const
 
 std::string CBonusSystemNode::nodeName() const
 {
-	return !description.empty()
-		? description
-		: std::string("Bonus system node of type ") + typeid(*this).name();
+	return std::string("Bonus system node of type ") + typeid(*this).name();
 }
 
 std::string CBonusSystemNode::nodeShortInfo() const
 {
 	std::ostringstream str;
 	str << "'" << typeid(* this).name() << "'";
-	description.length() > 0 
-		? str << " (" << description << ")"
-		: str << " (no description)";
 	return str.str();
 }
 
@@ -594,19 +574,9 @@ CBonusSystemNode::ENodeTypes CBonusSystemNode::getNodeType() const
 	return nodeType;
 }
 
-const BonusList& CBonusSystemNode::getBonusList() const
-{
-	return bonuses;
-}
-
 const TNodesVector& CBonusSystemNode::getParentNodes() const
 {
 	return parents;
-}
-
-const TNodesVector& CBonusSystemNode::getChildrenNodes() const
-{
-	return children;
 }
 
 void CBonusSystemNode::setNodeType(CBonusSystemNode::ENodeTypes type)
@@ -622,16 +592,6 @@ BonusList & CBonusSystemNode::getExportedBonusList()
 const BonusList & CBonusSystemNode::getExportedBonusList() const
 {
 	return exportedBonuses;
-}
-
-const std::string& CBonusSystemNode::getDescription() const
-{
-	return description;
-}
-
-void CBonusSystemNode::setDescription(const std::string &description)
-{
-	this->description = description;
 }
 
 void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out) const

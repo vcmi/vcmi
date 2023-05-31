@@ -50,7 +50,7 @@ public:
 	BattleObstacleController(BattleInterface & owner);
 
 	/// called every frame
-	void update();
+	void tick(uint32_t msPassed);
 
 	/// call-in from network pack, add newly placed obstacles with any required animations
 	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & oi);

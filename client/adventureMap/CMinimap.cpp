@@ -11,12 +11,14 @@
 #include "StdInc.h"
 #include "CMinimap.h"
 
-#include "CAdventureMapInterface.h"
+#include "AdventureMapInterface.h"
 
 #include "../widgets/Images.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/MouseButton.h"
+#include "../gui/WindowHandler.h"
 #include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../render/Canvas.h"
@@ -130,8 +132,8 @@ void CMinimap::moveAdvMapSelection()
 	int3 newLocation = pixelToTile(GH.getCursorPosition() - pos.topLeft());
 	adventureInt->centerOnTile(newLocation);
 
-	if (!(adventureInt->active & GENERAL))
-		GH.totalRedraw(); //redraw this as well as inactive adventure map
+	if (!(adventureInt->isActive()))
+		GH.windows().totalRedraw(); //redraw this as well as inactive adventure map
 	else
 		redraw();//redraw only this
 }
@@ -151,14 +153,14 @@ void CMinimap::clickRight(tribool down, bool previousState)
 void CMinimap::hover(bool on)
 {
 	if(on)
-		GH.statusbar->write(CGI->generaltexth->zelp[291].first);
+		GH.statusbar()->write(CGI->generaltexth->zelp[291].first);
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 }
 
 void CMinimap::mouseMoved(const Point & cursorPosition)
 {
-	if(mouseState(MouseButton::LEFT))
+	if(isMouseButtonPressed(MouseButton::LEFT))
 		moveAdvMapSelection();
 }
 

@@ -29,10 +29,8 @@ public:
 	void changeEvent(QEvent *event) override;
 	void showEvent(QShowEvent * event) override;
 
-	bool isExtraResolutionsModEnabled{};
-
 public slots:
-	void fillValidResolutions(bool isExtraResolutionsModEnabled);
+	void fillValidResolutions();
 
 private slots:
 	void on_comboBoxResolution_currentTextChanged(const QString & arg1);

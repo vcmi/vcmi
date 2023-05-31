@@ -1047,7 +1047,8 @@ namespace
 
 		std::string musicFile(const JsonNode & node)
 		{
-			TEST_FILE(node.meta, "", node.String(), EResType::MUSIC);
+			TEST_FILE(node.meta, "Music/", node.String(), EResType::SOUND);
+			TEST_FILE(node.meta, "", node.String(), EResType::SOUND);
 			return "Music file \"" + node.String() + "\" was not found";
 		}
 

@@ -52,6 +52,27 @@ AISharedStorage::~AISharedStorage()
 	}
 }
 
+void AIPathNode::addSpecialAction(std::shared_ptr<const SpecialAction> action)
+{
+	if(!specialAction)
+	{
+		specialAction = action;
+	}
+	else
+	{
+		auto parts = specialAction->getParts();
+
+		if(parts.empty())
+		{
+			parts.push_back(specialAction);
+		}
+
+		parts.push_back(action);
+
+		specialAction = std::make_shared<CompositeAction>(parts);
+	}
+}
+
 AINodeStorage::AINodeStorage(const Nullkiller * ai, const int3 & Sizes)
 	: sizes(Sizes), ai(ai), cb(ai->cb.get()), nodes(Sizes)
 {
@@ -765,7 +786,7 @@ void HeroChainCalculationTask::addHeroChain(const std::vector<ExchangeCandidate>
 		if(exchangeNode->actor->actorAction)
 		{
 			exchangeNode->theNodeBefore = carrier;
-			exchangeNode->specialAction = exchangeNode->actor->actorAction;
+			exchangeNode->addSpecialAction(exchangeNode->actor->actorAction);
 		}
 
 		exchangeNode->chainOther = other;
@@ -1045,7 +1066,7 @@ struct TowmPortalFinder
 				movementCost);
 
 			node->theNodeBefore = bestNode;
-			node->specialAction.reset(new AIPathfinding::TownPortalAction(targetTown));
+			node->addSpecialAction(std::make_shared<AIPathfinding::TownPortalAction>(targetTown));
 		}
 
 		return nodeOptional;

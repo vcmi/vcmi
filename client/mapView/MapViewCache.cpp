@@ -108,8 +108,9 @@ void MapViewCache::updateTile(const std::shared_ptr<IMapRendererContext> & conte
 void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 {
 	Rect dimensions = model->getTilesTotalRect();
+	bool mapResized = cachedSize != model->getSingleTileSize();
 
-	if(dimensions.w != terrainChecksum.shape()[0] || dimensions.h != terrainChecksum.shape()[1])
+	if(mapResized || dimensions.w != terrainChecksum.shape()[0] || dimensions.h != terrainChecksum.shape()[1])
 	{
 		boost::multi_array<TileChecksum, 2> newCache;
 		newCache.resize(boost::extents[dimensions.w][dimensions.h]);
@@ -117,7 +118,7 @@ void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 		terrainChecksum = newCache;
 	}
 
-	if(dimensions.w != tilesUpToDate.shape()[0] || dimensions.h != tilesUpToDate.shape()[1])
+	if(mapResized || dimensions.w != tilesUpToDate.shape()[0] || dimensions.h != tilesUpToDate.shape()[1])
 	{
 		boost::multi_array<bool, 2> newCache;
 		newCache.resize(boost::extents[dimensions.w][dimensions.h]);
@@ -129,6 +130,7 @@ void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 		for(int x = dimensions.left(); x < dimensions.right(); ++x)
 			updateTile(context, {x, y, model->getLevel()});
 
+	cachedSize = model->getSingleTileSize();
 	cachedLevel = model->getLevel();
 }
 

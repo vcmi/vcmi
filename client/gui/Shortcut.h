@@ -81,7 +81,9 @@ enum class EShortcut
 	// Adventure map screen
 	ADVENTURE_GAME_OPTIONS, // 'o', Open CAdventureOptions window
 	ADVENTURE_TOGGLE_GRID,  // F6, Toggles map grid
-	ADVENTURE_TOGGLE_SLEEP, // z,w, Toggles hero sleep status
+	ADVENTURE_TOGGLE_SLEEP, // Toggles hero sleep status
+	ADVENTURE_SET_HERO_ASLEEP, // Moves hero to sleep state
+	ADVENTURE_SET_HERO_AWAKE, // Move hero to awake state
 	ADVENTURE_MOVE_HERO,    // Moves hero alongside set path
 	ADVENTURE_VISIT_OBJECT, // Revisits object hero is standing on
 	ADVENTURE_VIEW_SELECTED,// Open window with currently selected hero/town
@@ -94,12 +96,18 @@ enum class EShortcut
 	ADVENTURE_DIG_GRAIL,
 	ADVENTURE_VIEW_PUZZLE,
 	ADVENTURE_VIEW_WORLD,
+	ADVENTURE_VIEW_WORLD_X1,
+	ADVENTURE_VIEW_WORLD_X2,
+	ADVENTURE_VIEW_WORLD_X4,
 	ADVENTURE_TOGGLE_MAP_LEVEL,
 	ADVENTURE_KINGDOM_OVERVIEW,
 	ADVENTURE_QUEST_LOG,
 	ADVENTURE_CAST_SPELL,
-	ADVENTURE_END_TURN,
 	ADVENTURE_THIEVES_GUILD,
+	ADVENTURE_EXIT_WORLD_VIEW,
+	ADVENTURE_ZOOM_IN,
+	ADVENTURE_ZOOM_OUT,
+	ADVENTURE_ZOOM_RESET,
 
 	// Move hero one tile in specified direction. Bound to cursors & numpad buttons
 	ADVENTURE_MOVE_HERO_SW,
@@ -153,4 +161,3 @@ enum class EShortcut
 
 	AFTER_LAST
 };
-

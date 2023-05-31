@@ -310,7 +310,7 @@ void Object::Instance::finalize(RmgMap & map)
 	//If no specific template was defined for this object, select any matching
 	if (!dObject.appearance)
 	{
-		const auto * terrainType = map.map().getTile(getPosition(true)).terType;
+		const auto * terrainType = map.getTile(getPosition(true)).terType;
 		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType->getId());
 		if (templates.empty())
 		{
@@ -336,7 +336,7 @@ void Object::Instance::finalize(RmgMap & map)
 		map.setOccupied(tile, ETileType::ETileType::USED);
 	}
 	
-	map.getEditManager()->insertObject(&dObject);
+	map.getMapProxy()->insertObject(&dObject);
 }
 
 void Object::finalize(RmgMap & map)

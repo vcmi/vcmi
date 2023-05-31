@@ -45,7 +45,6 @@ namespace EResType
 		IMAGE,
 		VIDEO,
 		SOUND,
-		MUSIC,
 		ARCHIVE_VID,
 		ARCHIVE_ZIP,
 		ARCHIVE_SND,

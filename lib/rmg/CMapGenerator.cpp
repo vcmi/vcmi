@@ -23,20 +23,22 @@
 #include "Zone.h"
 #include "Functions.h"
 #include "RmgMap.h"
-#include "ObjectManager.h"
-#include "TreasurePlacer.h"
-#include "RoadPlacer.h"
+#include "threadpool/ThreadPool.h"
+#include "modificators/ObjectManager.h"
+#include "modificators/TreasurePlacer.h"
+#include "modificators/RoadPlacer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
-	prisonsRemaining(0), monolithIndex(0)
+	allowedPrisons(0), monolithIndex(0)
 {
 	loadConfig();
 	rand.setSeed(this->randomSeed);
 	mapGenOptions.finalize(rand);
 	map = std::make_unique<RmgMap>(mapGenOptions);
+	placer = std::make_shared<CZonePlacer>(*map);
 }
 
 int CMapGenerator::getRandomSeed() const
@@ -81,6 +83,7 @@ void CMapGenerator::loadConfig()
 		config.secondaryRoadType = "";
 	if(!mapGenOptions.isRoadEnabled(config.defaultRoadType))
 		config.defaultRoadType = config.secondaryRoadType;
+	config.singleThread = randomMapJson["singleThread"].Bool();
 }
 
 const CMapGenerator::Config & CMapGenerator::getConfig() const
@@ -98,20 +101,22 @@ const CMapGenOptions& CMapGenerator::getMapGenOptions() const
 
 void CMapGenerator::initPrisonsRemaining()
 {
-	prisonsRemaining = 0;
-	for (auto isAllowed : map->map().allowedHeroes)
+	allowedPrisons = 0;
+	for (auto isAllowed : map->getMap(this).allowedHeroes)
 	{
 		if (isAllowed)
-			prisonsRemaining++;
+			allowedPrisons++;
 	}
-	prisonsRemaining = std::max<int> (0, prisonsRemaining - 16 * mapGenOptions.getPlayerCount()); //so at least 16 heroes will be available for every player
+	allowedPrisons = std::max<int> (0, allowedPrisons - 16 * mapGenOptions.getPlayerCount()); //so at least 16 heroes will be available for every player
 }
 
 void CMapGenerator::initQuestArtsRemaining()
 {
+	//TODO: Move to QuestArtifactPlacer?
 	for (auto art : VLC->arth->objects)
 	{
-		if (art->aClass == CArtifact::ART_TREASURE && VLC->arth->legalArtifact(art->getId()) && art->constituentOf.empty()) //don't use parts of combined artifacts
+		//Don't use parts of combined artifacts
+		if (art->aClass == CArtifact::ART_TREASURE && VLC->arth->legalArtifact(art->getId()) && art->constituentOf.empty())
 			questArtifacts.push_back(art->getId());
 	}
 }
@@ -123,13 +128,13 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	try
 	{
 		addHeaderInfo();
-		map->initTiles(*this);
+		map->initTiles(*this, rand);
 		Load::Progress::step();
 		initPrisonsRemaining();
 		initQuestArtsRemaining();
 		genZones();
 		Load::Progress::step();
-		map->map().calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
+		map->getMap(this).calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
 		map->addModificators();
 		Load::Progress::step(3);
 		fillZones();
@@ -160,7 +165,7 @@ std::string CMapGenerator::getMapDescription() const
     std::stringstream ss;
     ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, Random seed was %d, size %dx%d") +
         ", levels %d, players %d, computers %d, water %s, monster %s, VCMI map") % mapTemplate->getName() %
-		randomSeed % map->map().width % map->map().height % static_cast<int>(map->map().levels()) % static_cast<int>(mapGenOptions.getPlayerCount()) %
+		randomSeed % map->width() % map->height() % static_cast<int>(map->levels()) % static_cast<int>(mapGenOptions.getPlayerCount()) %
 		static_cast<int>(mapGenOptions.getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions.getWaterContent()] %
 		monsterStrengthStr[monsterStrengthIndex]);
 
@@ -259,22 +264,21 @@ void CMapGenerator::addPlayerInfo()
 			teamNumbers[j].erase(itTeam);
 		}
 		teamsTotal.insert(player.team.getNum());
-		map->map().players[pSettings.getColor().getNum()] = player;
+		map->getMap(this).players[pSettings.getColor().getNum()] = player;
 	}
 
-	map->map().howManyTeams = teamsTotal.size();
+	map->getMap(this).howManyTeams = teamsTotal.size();
 }
 
 void CMapGenerator::genZones()
 {
-	CZonePlacer placer(*map);
-	placer.placeZones(&rand);
-	placer.assignZones(&rand);
+	placer->placeZones(&rand);
+	placer->assignZones(&rand);
 
 	logGlobal->info("Zones generated successfully");
 }
 
-void CMapGenerator::createWaterTreasures()
+void CMapGenerator::addWaterTreasuresInfo()
 {
 	if (!getZoneWater())
 		return;
@@ -288,14 +292,16 @@ void CMapGenerator::createWaterTreasures()
 
 void CMapGenerator::fillZones()
 {
-	findZonesForQuestArts();
-	createWaterTreasures();
+	addWaterTreasuresInfo();
 
 	logGlobal->info("Started filling zones");
 
+	size_t numZones = map->getZones().size();
+
 	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
 	//place main town in the middle
-	Load::Progress::setupStepsTill(map->getZones().size(), 50);
+
+	Load::Progress::setupStepsTill(numZones, 50);
 	for (const auto& it : map->getZones())
 	{
 		it.second->initFreeTiles();
@@ -303,16 +309,82 @@ void CMapGenerator::fillZones()
 		Progress::Progress::step();
 	}
 
-	Load::Progress::setupStepsTill(map->getZones().size(), 240);
 	std::vector<std::shared_ptr<Zone>> treasureZones;
+
+	TModificators allJobs;
+	for (auto& it : map->getZones())
+	{
+		allJobs.splice(allJobs.end(), it.second->getModificators());
+	}
+
+	Load::Progress::setupStepsTill(allJobs.size(), 240);
+
+	if (config.singleThread) //No thread pool, just queue with deterministic order
+	{
+		while (!allJobs.empty())
+		{
+			for (auto it = allJobs.begin(); it != allJobs.end();)
+			{
+				if ((*it)->isReady())
+				{
+					auto jobCopy = *it;
+					jobCopy->run();
+					Progress::Progress::step(); //Update progress bar
+					allJobs.erase(it);
+					break; //Restart from the first job
+				}
+				else
+				{
+					++it;
+				}
+			}
+		}
+	}
+	else
+	{
+		ThreadPool pool;
+		std::vector<boost::future<void>> futures;
+		//At most one Modificator can run for every zone
+		pool.init(std::min<int>(boost::thread::hardware_concurrency(), numZones));
+
+		while (!allJobs.empty())
+		{
+			for (auto it = allJobs.begin(); it != allJobs.end();)
+			{
+				if ((*it)->isFinished())
+				{
+					it = allJobs.erase(it);
+					Progress::Progress::step();
+				}
+				else if ((*it)->isReady())
+				{
+					auto jobCopy = *it;
+					futures.emplace_back(pool.async([this, jobCopy]() -> void
+						{
+							jobCopy->run();
+							Progress::Progress::step(); //Update progress bar
+						}
+					));
+					it = allJobs.erase(it);
+				}
+				else
+				{
+					++it;
+				}
+			}
+		}
+
+		//Wait for all the tasks
+		for (auto& fut : futures)
+		{
+			fut.get();
+		}
+	}
+
 	for (const auto& it : map->getZones())
 	{
-		it.second->processModificators();
-
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
 			treasureZones.push_back(it.second);
-
-		Progress::Progress::step();
 	}
 
 	//find place for Grail
@@ -324,44 +396,23 @@ void CMapGenerator::fillZones()
 	}
 	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, rand);
 
-	map->map().grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths().getTiles(), rand);
+	map->getMap(this).grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths().getTiles(), rand);
 
 	logGlobal->info("Zones filled successfully");
 
 	Load::Progress::set(250);
 }
 
-void CMapGenerator::findZonesForQuestArts()
-{
-	//we want to place arties in zones that were not yet filled (higher index)
-
-	for (auto connection : mapGenOptions.getMapTemplate()->getConnections())
-	{
-		auto zoneA = map->getZones()[connection.getZoneA()];
-		auto zoneB = map->getZones()[connection.getZoneB()];
-
-		if (zoneA->getId() > zoneB->getId())
-		{
-			if(auto * m = zoneB->getModificator<TreasurePlacer>())
-				m->setQuestArtZone(zoneA.get());
-		}
-		else if (zoneA->getId() < zoneB->getId())
-		{
-			if(auto * m = zoneA->getModificator<TreasurePlacer>())
-				m->setQuestArtZone(zoneB.get());
-		}
-	}
-}
-
 void CMapGenerator::addHeaderInfo()
 {
-	map->map().version = EMapFormat::VCMI;
-	map->map().width = mapGenOptions.getWidth();
-	map->map().height = mapGenOptions.getHeight();
-	map->map().twoLevel = mapGenOptions.getHasTwoLevels();
-	map->map().name = VLC->generaltexth->allTexts[740];
-	map->map().description = getMapDescription();
-	map->map().difficulty = 1;
+	auto& m = map->getMap(this);
+	m.version = EMapFormat::VCMI;
+	m.width = mapGenOptions.getWidth();
+	m.height = mapGenOptions.getHeight();
+	m.twoLevel = mapGenOptions.getHasTwoLevels();
+	m.name = VLC->generaltexth->allTexts[740];
+	m.description = getMapDescription();
+	m.difficulty = 1;
 	addPlayerInfo();
 }
 
@@ -389,23 +440,41 @@ int CMapGenerator::getNextMonlithIndex()
 
 int CMapGenerator::getPrisonsRemaning() const
 {
-	return prisonsRemaining;
+	return allowedPrisons;
 }
 
-void CMapGenerator::decreasePrisonsRemaining()
+std::shared_ptr<CZonePlacer> CMapGenerator::getZonePlacer() const
 {
-	prisonsRemaining = std::max (0, prisonsRemaining - 1);
+	return placer;
 }
 
-const std::vector<ArtifactID> & CMapGenerator::getQuestArtsRemaning() const
+const std::vector<ArtifactID> & CMapGenerator::getAllPossibleQuestArtifacts() const
 {
 	return questArtifacts;
 }
 
+const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
+{
+	//Skip heroes that were banned, including the ones placed in prisons
+	std::vector<HeroTypeID> ret;
+	for (int j = 0; j < map->getMap(this).allowedHeroes.size(); j++)
+	{
+		if (map->getMap(this).allowedHeroes[j])
+			ret.push_back(HeroTypeID(j));
+	}
+	return ret;
+}
+
 void CMapGenerator::banQuestArt(const ArtifactID & id)
 {
-	map->map().allowedArtifact[id] = false;
-	vstd::erase_if_present(questArtifacts, id);
+	//TODO: Protect with mutex
+	map->getMap(this).allowedArtifact[id] = false;
+}
+
+void CMapGenerator::banHero(const HeroTypeID & id)
+{
+	//TODO: Protect with mutex
+	map->getMap(this).allowedHeroes[id] = false;
 }
 
 Zone * CMapGenerator::getZoneWater() const
