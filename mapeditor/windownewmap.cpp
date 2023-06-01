@@ -15,6 +15,7 @@
 #include "../lib/rmg/CMapGenerator.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/mapping/CMapEditManager.h"
+#include "../lib/mapping/MapFormat.h"
 #include "../lib/CGeneralTextHandler.h"
 
 #include "windownewmap.h"

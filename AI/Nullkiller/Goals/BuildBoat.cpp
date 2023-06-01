@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "BuildBoat.h"
 #include "../AIGateway.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 

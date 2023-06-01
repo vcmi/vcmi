@@ -36,7 +36,8 @@
 #include "../../lib/GameSettings.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapInfo.h"
-#include "../../lib/mapping/CMap.h"
+#include "../../lib/mapping/CMapHeader.h"
+#include "../../lib/mapping/MapFormat.h"
 #include "../../lib/mapping/CCampaignHandler.h"
 #include "../../lib/serializer/Connection.h"
 
@@ -528,6 +529,26 @@ void SelectionTab::restoreLastSelection()
 	}
 }
 
+bool SelectionTab::isMapSupported(const CMapInfo & info)
+{
+	switch (info.mapHeader->version)
+	{
+		case EMapFormat::ROE:
+			return CGI->settings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA)["supported"].Bool();
+		case EMapFormat::AB:
+			return CGI->settings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE)["supported"].Bool();
+		case EMapFormat::SOD:
+			return CGI->settings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH)["supported"].Bool();
+		case EMapFormat::WOG:
+			return CGI->settings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS)["supported"].Bool();
+		case EMapFormat::HOTA:
+			return CGI->settings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS)["supported"].Bool();
+		case EMapFormat::VCMI:
+			return CGI->settings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI)["supported"].Bool();
+	}
+	return false;
+}
+
 void SelectionTab::parseMaps(const std::unordered_set<ResourceID> & files)
 {
 	logGlobal->debug("Parsing %d maps", files.size());
@@ -539,9 +560,7 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourceID> & files)
 			auto mapInfo = std::make_shared<CMapInfo>();
 			mapInfo->mapInit(file.getName());
 
-			EMapFormat maxSupported = static_cast<EMapFormat>(CGI->settings()->getInteger(EGameSettings::TEXTS_MAP_VERSION));
-
-			if(mapInfo->mapHeader->version == EMapFormat::VCMI || mapInfo->mapHeader->version <= maxSupported)
+			if (isMapSupported(*mapInfo))
 				allItems.push_back(mapInfo);
 		}
 		catch(std::exception & e)
@@ -676,7 +695,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<CMapInfo> info, bool sel
 		labelMapSizeLetter->setText(info->getMapSizeName());
 		labelMapSizeLetter->setColor(color);
 		iconFormat->enable();
-		iconFormat->setFrame(info->getMapSizeFormatIconId().first, info->getMapSizeFormatIconId().second);
+		iconFormat->setFrame(info->getMapSizeFormatIconId());
 		iconVictoryCondition->enable();
 		iconVictoryCondition->setFrame(info->mapHeader->victoryIconIndex, 0);
 		iconLossCondition->enable();

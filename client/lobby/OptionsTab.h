@@ -9,8 +9,12 @@
  */
 #pragma once
 
-#include "../../lib/StartInfo.h"
-#include "../../lib/mapping/CMap.h"
+#include "../windows/CWindowObject.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+struct PlayerSettings;
+struct PlayerInfo;
+VCMI_LIB_NAMESPACE_END
 
 class CSlider;
 class CLabel;
@@ -18,6 +22,9 @@ class CMultiLineLabel;
 class CFilledTexture;
 class CAnimImage;
 class CComponentBox;
+class CTextBox;
+class CButton;
+
 /// The options tab which is shown at the map selection phase.
 class OptionsTab : public CIntObject
 {
@@ -99,8 +106,8 @@ public:
 
 	struct PlayerOptionsEntry : public CIntObject
 	{
-		PlayerInfo pi;
-		PlayerSettings s;
+		std::unique_ptr<PlayerInfo> pi;
+		std::unique_ptr<PlayerSettings> s;
 		std::shared_ptr<CLabel> labelPlayerName;
 		std::shared_ptr<CMultiLineLabel> labelWhoCanPlay;
 		std::shared_ptr<CPicture> background;

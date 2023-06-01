@@ -12,7 +12,6 @@
 
 #include "../StartInfo.h"
 #include "../CGameState.h"
-#include "../mapping/CMap.h"
 #include "../CModHandler.h"
 #include "../mapObjects/CObjectHandler.h"
 #include "../CCreatureHandler.h"

@@ -25,7 +25,7 @@
 #include "zlib.h"
 #include "CVCMIServer.h"
 #include "../lib/StartInfo.h"
-#include "../lib/mapping/CMap.h"
+#include "../lib/mapping/CMapHeader.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/NetPackVisitor.h"
 #include "LobbyNetPackVisitors.h"

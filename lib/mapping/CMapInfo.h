@@ -52,7 +52,7 @@ public:
 	std::string getNameForList() const;
 	std::string getDescription() const;
 	int getMapSizeIconId() const;
-	std::pair<int, int> getMapSizeFormatIconId() const;
+	int getMapSizeFormatIconId() const;
 	std::string getMapSizeName() const;
 
 	template <typename Handler> void serialize(Handler &h, const int Version)

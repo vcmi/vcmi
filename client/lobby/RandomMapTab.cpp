@@ -27,7 +27,8 @@
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
-#include "../../lib/mapping/CMap.h"
+#include "../../lib/mapping/CMapHeader.h"
+#include "../../lib/mapping/MapFormat.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/rmg/CRmgTemplateStorage.h"
@@ -137,7 +138,7 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo = std::make_shared<CMapInfo>();
 	mapInfo->isRandomMap = true;
 	mapInfo->mapHeader = std::make_unique<CMapHeader>();
-	mapInfo->mapHeader->version = EMapFormat::SOD;
+	mapInfo->mapHeader->version = EMapFormat::VCMI;
 	mapInfo->mapHeader->name = CGI->generaltexth->allTexts[740];
 	mapInfo->mapHeader->description = CGI->generaltexth->allTexts[741];
 	mapInfo->mapHeader->difficulty = 1; // Normal

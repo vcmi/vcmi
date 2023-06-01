@@ -46,6 +46,7 @@
 #include "../../CCallback.h"
 
 #include "../lib/mapObjects/CGHeroInstance.h"
+#include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CBuildingHandler.h"
 #include "../lib/CConfigHandler.h"
@@ -63,7 +64,6 @@
 #include "../lib/CTownHandler.h"
 #include "../lib/GameConstants.h"
 #include "../lib/bonuses/Bonus.h"
-#include "../lib/mapping/CMap.h"
 #include "../lib/NetPacksBase.h"
 #include "../lib/StartInfo.h"
 #include "../lib/TextOperations.h"

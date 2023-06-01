@@ -12,7 +12,6 @@
 #include <QDialog>
 #include "../lib/mapObjects/CGPandoraBox.h"
 #include "../lib/mapObjects/CQuest.h"
-#include "../lib/mapping/CMap.h"
 
 namespace Ui {
 class RewardsWidget;

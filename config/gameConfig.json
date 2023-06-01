@@ -84,7 +84,7 @@
 	],
 	"skills" :
 	[
-        "config/skills.json"
+		"config/skills.json"
 	],
 	"terrains":
 	[
@@ -122,7 +122,128 @@
 			"terrain"    : 10,
 			"river"      : 5,
 			"road"       : 4,
-			"mapVersion" : 28 // max supported version, SoD
+		},
+		
+		"mapFormat" : {
+			"restorationOfErathia" : { 
+				"supported" : true,
+				"iconIndex" : 0,
+
+				"buildingsCommon": {
+					"townHall"       : 0,
+					"cityHall"       : 1,
+					"capitol"        : 2,
+
+					"fort"           : 3,
+					"citadel"        : 4,
+					"castle"         : 5,
+
+					"tavern"         : 6,
+					"blacksmith"     : 7,
+					"marketplace"    : 8,
+					"resourceSilo"   : 9,
+
+					"mageGuild1"     : 11,
+					"mageGuild2"     : 12,
+					"mageGuild3"     : 13,
+					"mageGuild4"     : 14,
+					"mageGuild5"     : 15,
+
+					"shipyard"       : 16,
+					"grail"          : 17,
+
+					"dwellingLvl1"   : 22,
+					"dwellingUpLvl1" : 23,
+					"horde1"         : 24,
+					"dwellingLvl2"   : 25,
+					"dwellingUpLvl2" : 26,
+					"horde2"         : 27,
+					"dwellingLvl3"   : 28,
+					"dwellingUpLvl3" : 29,
+					"horde3"         : 30,
+					"dwellingLvl4"   : 31,
+					"dwellingUpLvl4" : 32,
+					"horde4"         : 33,
+					"dwellingLvl5"   : 34,
+					"dwellingUpLvl5" : 35,
+					"horde5"         : 36,
+
+					"dwellingLvl6"   : 37,
+					"dwellingUpLvl6" : 38,
+					"dwellingLvl7"   : 39,
+					"dwellingUpLvl7" : 40
+				},
+
+				"buildings" : {
+					"castle" : {
+						"special1" : 18, // lighthouse
+						"special2" : 20, // stables
+						"special3" : 19  // brotherhoodOfSword
+					},
+					"rampart" : {
+						"special1" : 18, // mysticPond
+						"special2" : 19, // fountainOfFortune
+						"special3" : 20  // treasury
+					},
+					"tower" : {
+						"special1" : 10, // artifactMerchants
+						"special2" : 20, // lookoutTower
+						"special3" : 18, // library
+						"special4" : 19  // wallOfKnowledge
+					},
+					"inferno" : {
+						"special2" : 18, // brimstoneStormclouds
+						"special3" : 19, // castleGate
+						"special4" : 20  // orderOfFire
+					},
+					"necropolis" : {
+						"special1" : 18, // coverOfDarkness
+						"special2" : 19, // necromancyAmplifier
+						"special3" : 20  // skeletonTransformer
+					},
+					"dungeon" : {
+						"special1" : 10, // artifactMerchants
+						"special2" : 18, // manaVortex
+						"special3" : 19, // portalOfSummoning
+						"special4" : 20  // battleScholarAcademy
+					},
+					"stronghold" : {
+						"special1" : 18, // escapeTunnel
+						"special2" : 19, // freelancersGuild
+						"special3" : 20, // ballistaYard
+						"special4" : 21  // hallOfValhalla
+					},
+					"fortress" : {
+						"special1" : 20, // cageOfWarlords
+						"special2" : 19, // bloodObelisk
+						"special3" : 18  // glyphsOfFear
+					}
+				}
+			},
+			"armageddonsBlade" : {
+				"supported" : true,
+				"iconIndex" : 1,
+				"buildings" : {
+					"conflux" : {
+						"special1" : 10, // artifactMerchants
+						"special2" : 18  // magicUniversity
+					}
+				}
+			},
+			"shadowOfDeath" : { 
+				"supported" : true,
+				"iconIndex" : 2
+			},
+			"jsonVCMI" : { 
+				"supported" : true,
+				"iconIndex" : 3
+			},
+			"hornOfTheAbyss" : { 
+				"supported" : false
+			},
+			"inTheWakeOfGods" : { 
+				"supported" : false
+			}
 		},
 
 		"heroes" :

@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "MapFeaturesH3M.h"
 
-#include "CMap.h"
+#include "MapFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -57,7 +57,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesROE()
 	result.skillsCount = 28;
 	result.terrainsCount = 10;
 	result.artifactSlotsCount = 18;
-	result.buildingsCount = 40;
+	result.buildingsCount = 41;
 
 	result.heroIdentifierInvalid = 0xff;
 	result.artifactIdentifierInvalid = 0xff;
@@ -75,7 +75,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesAB()
 	result.factionsBytes = 2; // + Conflux
 	result.factionsCount = 9;
 
-	result.creaturesCount = 144; // + Conflux and new neutrals
+	result.creaturesCount = 145; // + Conflux and new neutrals
 
 	result.heroesCount = 156; // + Conflux and campaign heroes
 	result.heroesPortraitsCount = 163;
@@ -114,7 +114,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesWOG()
 MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 {
 	// even if changes are minimal, we might not be able to parse map header in map selection screen
-	// throw exception - to be cached by map selection screen & excluded as invalid
+	// throw exception - to be catched by map selection screen & excluded as invalid
 	if(hotaVersion > 3)
 		throw std::runtime_error("Invalid map format!");
 
@@ -135,14 +135,14 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 	if(hotaVersion < 3)
 	{
 		result.artifactsCount = 163; // + HotA artifacts
-		result.heroesCount = 178; // + Cove
+		result.heroesCount = 177; // + Cove
 		result.heroesPortraitsCount = 187; // + Cove
 	}
 	if(hotaVersion == 3)
 	{
 		result.artifactsCount = 165; // + HotA artifacts
-		result.heroesCount = 179; // + Cove
-		result.heroesPortraitsCount = 187; // + Cove
+		result.heroesCount = 177; // + Cove + Giselle
+		result.heroesPortraitsCount = 188; // + Cove + Giselle
 	}
 
 	assert((result.heroesCount + 7) / 8 == result.heroesBytes);

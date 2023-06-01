@@ -11,7 +11,6 @@
 #pragma once
 
 #include "SpecialAction.h"
-#include "../../../../lib/mapping/CMap.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 
 namespace NKAI

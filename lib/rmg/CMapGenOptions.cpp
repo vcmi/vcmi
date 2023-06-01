@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CMapGenOptions.h"
 
-#include "../mapping/CMap.h"
+#include "../mapping/CMapHeader.h"
 #include "CRmgTemplateStorage.h"
 #include "CRmgTemplate.h"
 #include "CRandomGenerator.h"

@@ -13,7 +13,6 @@
 #include <boost/bimap.hpp>
 #include "CRmgTemplate.h"
 
-#include "../mapping/CMap.h"
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
 #include "../CModHandler.h"

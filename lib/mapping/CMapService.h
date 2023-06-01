@@ -17,11 +17,12 @@ class ResourceID;
 class CMap;
 class CMapHeader;
 class CInputStream;
+struct CModVersion;
 
 class IMapLoader;
 class IMapPatcher;
 
-class ModCompatibilityInfo;
+using ModCompatibilityInfo = std::map<std::string, CModVersion>;
 
 /**
  * The map service provides loading of VCMI/H3 map files. It can

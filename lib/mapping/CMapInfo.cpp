@@ -14,14 +14,16 @@
 #include "../StartInfo.h"
 #include "../GameConstants.h"
 #include "CMapService.h"
-#include "CMap.h"
+#include "CMapHeader.h"
 #include "CCampaignHandler.h"
+#include "MapFormat.h"
 
 #include "../filesystem/Filesystem.h"
 #include "../serializer/CMemorySerializer.h"
 #include "../CGeneralTextHandler.h"
 #include "../rmg/CMapGenOptions.h"
 #include "../CCreatureHandler.h"
+#include "../GameSettings.h"
 #include "../CHeroHandler.h"
 #include "../CModHandler.h"
 
@@ -149,34 +151,24 @@ int CMapInfo::getMapSizeIconId() const
 	}
 }
 
-std::pair<int, int> CMapInfo::getMapSizeFormatIconId() const
+int CMapInfo::getMapSizeFormatIconId() const
 {
-	int frame = -1;
-	int group = 0;
 	switch(mapHeader->version)
 	{
-	case EMapFormat::ROE:
-		frame = 0;
-		break;
-	case EMapFormat::AB:
-		frame = 1;
-		break;
-	case EMapFormat::SOD:
-		frame = 2;
-		break;
-	case EMapFormat::WOG:
-		frame = 3;
-		break;
-	case EMapFormat::VCMI:
-		frame = 0;
-		group = 1;
-		break;
-	default:
-		// Unknown version. Be safe and ignore that map
-		//logGlobal->warn("Warning: %s has wrong version!", currentItem->fileURI);
-		break;
+		case EMapFormat::ROE:
+			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA)["iconIndex"].Integer();
+		case EMapFormat::AB:
+			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE)["iconIndex"].Integer();
+		case EMapFormat::SOD:
+			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH)["iconIndex"].Integer();
+		case EMapFormat::WOG:
+			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS)["iconIndex"].Integer();
+		case EMapFormat::HOTA:
+			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS)["iconIndex"].Integer();
+		case EMapFormat::VCMI:
+			return VLC->settings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI)["iconIndex"].Integer();
 	}
-	return std::make_pair(frame, group);
+	return 0;
 }
 
 std::string CMapInfo::getMapSizeName() const

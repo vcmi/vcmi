@@ -17,8 +17,10 @@
 #include "../filesystem/CMemoryBuffer.h"
 #include "../CModHandler.h"
 #include "../Languages.h"
+#include "../VCMI_Lib.h"
 
 #include "CMap.h"
+#include "MapFormat.h"
 
 #include "MapFormatH3M.h"
 #include "MapFormatJson.h"

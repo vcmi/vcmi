@@ -14,7 +14,7 @@
 #include "CGHeroInstance.h"
 #include "CBank.h"
 #include "../TerrainHandler.h"
-#include "../mapping/CMap.h"
+#include "../mapping/CMapDefines.h"
 #include "../CHeroHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CCreatureHandler.h"
@@ -338,7 +338,8 @@ CGObjectInstance * MarketInstanceConstructor::create(std::shared_ptr<const Objec
 	if(!title.empty())
 		market->title = VLC->generaltexth->translate(title);
 	
-	market->speech = VLC->generaltexth->translate(speech);
+	if (!speech.empty())
+		market->speech = VLC->generaltexth->translate(speech);
 	
 	return market;
 }

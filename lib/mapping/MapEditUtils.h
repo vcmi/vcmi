@@ -11,7 +11,6 @@
 #pragma once
 
 #include "../int3.h"
-#include "../CRandomGenerator.h"
 #include "../GameConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

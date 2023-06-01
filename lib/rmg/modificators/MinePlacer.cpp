@@ -10,10 +10,8 @@
 #include "ConnectionsPlacer.h"
 #include "../CMapGenerator.h"
 #include "../RmgMap.h"
-#include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
 #include "../../mapObjects/CObjectClassesHandler.h"
-#include "../../spells/CSpellHandler.h" //for choosing random spells
 #include "../RmgPath.h"
 #include "../RmgObject.h"
 #include "ObjectManager.h"

@@ -582,53 +582,6 @@ JsonNode addMeta(JsonNode config, const std::string & meta)
 	return config;
 }
 
-CModInfo::Version CModInfo::Version::GameVersion()
-{
-	return Version(VCMI_VERSION_MAJOR, VCMI_VERSION_MINOR, VCMI_VERSION_PATCH);
-}
-
-CModInfo::Version CModInfo::Version::fromString(std::string from)
-{
-	int major = 0;
-	int minor = 0;
-	int patch = 0;
-	try
-	{
-		auto pointPos = from.find('.');
-		major = std::stoi(from.substr(0, pointPos));
-		if(pointPos != std::string::npos)
-		{
-			from = from.substr(pointPos + 1);
-			pointPos = from.find('.');
-			minor = std::stoi(from.substr(0, pointPos));
-			if(pointPos != std::string::npos)
-				patch = std::stoi(from.substr(pointPos + 1));
-		}
-	}
-	catch(const std::invalid_argument &)
-	{
-		return Version();
-	}
-	return Version(major, minor, patch);
-}
-
-std::string CModInfo::Version::toString() const
-{
-	return std::to_string(major) + '.' + std::to_string(minor) + '.' + std::to_string(patch);
-}
-
-bool CModInfo::Version::compatible(const Version & other, bool checkMinor, bool checkPatch) const
-{
-	return  (major == other.major &&
-			(!checkMinor || minor >= other.minor) &&
-			(!checkPatch || minor > other.minor || (minor == other.minor && patch >= other.patch)));
-}
-
-bool CModInfo::Version::isNull() const
-{
-	return major == 0 && minor == 0 && patch == 0;
-}
-
 CModInfo::CModInfo():
 	checksum(0),
 	explicitlyEnabled(false),
@@ -650,11 +603,11 @@ CModInfo::CModInfo(const std::string & identifier, const JsonNode & local, const
 	validation(PENDING),
 	config(addMeta(config, identifier))
 {
-	version = Version::fromString(config["version"].String());
+	version = CModVersion::fromString(config["version"].String());
 	if(!config["compatibility"].isNull())
 	{
-		vcmiCompatibleMin = Version::fromString(config["compatibility"]["min"].String());
-		vcmiCompatibleMax = Version::fromString(config["compatibility"]["max"].String());
+		vcmiCompatibleMin = CModVersion::fromString(config["compatibility"]["min"].String());
+		vcmiCompatibleMax = CModVersion::fromString(config["compatibility"]["max"].String());
 	}
 
 	if (!config["language"].isNull())
@@ -715,8 +668,8 @@ void CModInfo::loadLocalData(const JsonNode & data)
 	}
 
 	//check compatibility
-	implicitlyEnabled &= (vcmiCompatibleMin.isNull() || Version::GameVersion().compatible(vcmiCompatibleMin));
-	implicitlyEnabled &= (vcmiCompatibleMax.isNull() || vcmiCompatibleMax.compatible(Version::GameVersion()));
+	implicitlyEnabled &= (vcmiCompatibleMin.isNull() || CModVersion::GameVersion().compatible(vcmiCompatibleMin));
+	implicitlyEnabled &= (vcmiCompatibleMax.isNull() || vcmiCompatibleMax.compatible(CModVersion::GameVersion()));
 
 	if(!implicitlyEnabled)
 		logGlobal->warn("Mod %s is incompatible with current version of VCMI and cannot be enabled", name);

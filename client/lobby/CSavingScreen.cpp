@@ -25,7 +25,7 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapInfo.h"
-#include "../../lib/mapping/CMap.h"
+#include "../../lib/mapping/CMapHeader.h"
 
 CSavingScreen::CSavingScreen()
 	: CSelectionBase(ESelectionScreen::saveGame)

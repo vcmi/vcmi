@@ -11,7 +11,7 @@
 #include "Connection.h"
 
 #include "../registerTypes/RegisterTypes.h"
-#include "../mapping/CMap.h"
+#include "../mapping/CMapHeader.h"
 #include "../CGameState.h"
 
 #include <boost/asio.hpp>

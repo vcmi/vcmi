@@ -13,12 +13,15 @@
 
 #include "CMap.h"
 #include "MapReaderH3M.h"
+#include "MapFormat.h"
 
 #include "../CCreatureHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStopWatch.h"
+#include "../CModHandler.h"
+#include "../GameSettings.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
@@ -106,7 +109,7 @@ void CMapLoaderH3M::init()
 	readRumors();
 	readPredefinedHeroes();
 	readTerrain();
-	readDefInfo();
+	readObjectTemplates();
 	readObjects();
 	readEvents();
 
@@ -123,7 +126,7 @@ void CMapLoaderH3M::readHeader()
 	{
 		uint32_t hotaVersion = reader->readUInt32();
 		features = MapFormatFeaturesH3M::find(mapHeader->version, hotaVersion);
-		reader->setFormatLevel(mapHeader->version, hotaVersion);
+		reader->setFormatLevel(features);
 
 		if(hotaVersion > 0)
 		{
@@ -145,9 +148,23 @@ void CMapLoaderH3M::readHeader()
 	else
 	{
 		features = MapFormatFeaturesH3M::find(mapHeader->version, 0);
-		reader->setFormatLevel(mapHeader->version, 0);
+		reader->setFormatLevel(features);
 	}
+	MapIdentifiersH3M identifierMapper;
+
+	if (features.levelROE)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA));
+	if (features.levelAB)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE));
+	if (features.levelSOD)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH));
+	if (features.levelWOG)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
+	if (features.levelHOTA0)
+		identifierMapper.loadMapping(VLC->settings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS));
 	
+	reader->setIdentifierRemapper(identifierMapper);
+
 	// include basic mod
 	if(mapHeader->version == EMapFormat::WOG)
 		mapHeader->mods["wake-of-gods"];
@@ -199,7 +216,7 @@ void CMapLoaderH3M::readPlayerInfo()
 
 		std::set<FactionID> allowedFactions;
 
-		reader->readBitmask(allowedFactions, features.factionsBytes, features.factionsCount, false);
+		reader->readBitmaskFactions(allowedFactions, false);
 
 		const bool isFactionRandom = playerInfo.isFactionRandom = reader->readBool();
 		const bool allFactionsAllowed = isFactionRandom && allowedFactions.size() == features.factionsCount;
@@ -597,18 +614,10 @@ void CMapLoaderH3M::readAllowedHeroes()
 {
 	mapHeader->allowedHeroes = VLC->heroh->getDefaultAllowed();
 
-	uint32_t heroesCount = features.heroesCount;
-	uint32_t heroesBytes = features.heroesBytes;
-
 	if(features.levelHOTA0)
-	{
-		heroesCount = reader->readUInt32();
-		heroesBytes = (heroesCount + 7) / 8;
-	}
-
-	assert(heroesCount <= features.heroesCount);
-
-	reader->readBitmask(mapHeader->allowedHeroes, heroesBytes, heroesCount, false);
+		reader->readBitmaskHeroesSized(mapHeader->allowedHeroes, false);
+	else
+		reader->readBitmaskHeroes(mapHeader->allowedHeroes, false);
 
 	//TODO: unknown value. Check meaning? Only present in campaign maps.
 	if(features.levelAB)
@@ -672,18 +681,13 @@ void CMapLoaderH3M::readAllowedArtifacts()
 {
 	map->allowedArtifact = VLC->arth->getDefaultAllowed();
 
-	uint32_t artifactsCount = features.artifactsCount;
-	uint32_t artifactsBytes = features.artifactsBytes;
-
-	if(features.levelHOTA0)
-	{
-		artifactsCount = reader->readUInt32();
-		artifactsBytes = (artifactsCount + 7) / 8;
-	}
-	assert(artifactsCount <= features.artifactsCount);
-
 	if(features.levelAB)
-		reader->readBitmask(map->allowedArtifact, artifactsBytes, artifactsCount, true);
+	{
+		if(features.levelHOTA0)
+			reader->readBitmaskArtifactsSized(map->allowedArtifact, true);
+		else
+			reader->readBitmaskArtifacts(map->allowedArtifact, true);
+	}
 
 	// ban combo artifacts
 	if(!features.levelSOD)
@@ -722,8 +726,8 @@ void CMapLoaderH3M::readAllowedSpellsAbilities()
 
 	if(features.levelSOD)
 	{
-		reader->readBitmask(map->allowedSpell, features.spellsBytes, features.spellsCount, true);
-		reader->readBitmask(map->allowedAbilities, features.skillsBytes, features.skillsCount, true);
+		reader->readBitmaskSpells(map->allowedSpell, true);
+		reader->readBitmaskSkills(map->allowedAbilities, true);
 	}
 }
 
@@ -797,7 +801,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 
 		bool hasCustomSpells = reader->readBool();
 		if(hasCustomSpells)
-			readSpells(hero->spells);
+			reader->readBitmaskSpells(hero->spells, false);
 
 		bool hasCustomPrimSkills = reader->readBool();
 		if(hasCustomPrimSkills)
@@ -909,7 +913,7 @@ void CMapLoaderH3M::readTerrain()
 	}
 }
 
-void CMapLoaderH3M::readDefInfo()
+void CMapLoaderH3M::readObjectTemplates()
 {
 	uint32_t defAmount = reader->readUInt32();
 
@@ -918,9 +922,11 @@ void CMapLoaderH3M::readDefInfo()
 	// Read custom defs
 	for(int defID = 0; defID < defAmount; ++defID)
 	{
-		auto * tmpl = new ObjectTemplate;
-		tmpl->readMap(reader->getInternalReader());
-		templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
+		auto tmpl = reader->readObjectTemplate();
+		templates.push_back(tmpl);
+
+		if (!CResourceHandler::get()->existsResource(ResourceID( "SPRITES/" + tmpl->animationFile, EResType::ANIMATION)))
+			logMod->warn("Template animation %s of type (%d %d) is missing!", tmpl->animationFile, tmpl->id, tmpl->subid );
 	}
 }
 
@@ -1054,7 +1060,7 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut()
 	// AB and later maps have allowed abilities defined in H3M
 	if(features.levelAB)
 	{
-		reader->readBitmask(object->allowedAbilities, features.skillsBytes, features.skillsCount, false);
+		reader->readBitmaskSkills(object->allowedAbilities, false);
 
 		if(object->allowedAbilities.size() != 1)
 		{
@@ -1062,7 +1068,7 @@ CGObjectInstance * CMapLoaderH3M::readWitchHut()
 
 			for(int skillID = 0; skillID < VLC->skillh->size(); ++skillID)
 				if(defaultAllowed[skillID])
-					object->allowedAbilities.insert(skillID);
+					object->allowedAbilities.insert(SecondarySkill(skillID));
 		}
 	}
 	return object;
@@ -1141,7 +1147,7 @@ CGObjectInstance * CMapLoaderH3M::readMine(const int3 & mapPosition, std::shared
 	else
 	{
 		object->setOwner(PlayerColor::NEUTRAL);
-		reader->readBitmask(object->abandonedMineResources, features.resourcesBytes, features.resourcesCount, false);
+		reader->readBitmaskResources(object->abandonedMineResources, false);
 	}
 	return object;
 }
@@ -1703,7 +1709,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 			object->spells.insert(SpellID::PRESET); //placeholder "preset spells"
 
-			readSpells(object->spells);
+			reader->readBitmaskSpells(object->spells, false);
 		}
 	}
 	else if(features.levelAB)
@@ -1948,10 +1954,7 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			{
 				guard->quest->missionType = CQuest::MISSION_HOTA_HERO_CLASS;
 				std::set<HeroClassID> heroClasses;
-				uint32_t classesCount = reader->readUInt32();
-				uint32_t classesBytes = (classesCount + 7) / 8;
-
-				reader->readBitmask(heroClasses, classesBytes, classesCount, false);
+				reader->readBitmaskHeroClassesSized(heroClasses, false);
 
 				logGlobal->warn("Map '%s': Quest at %s 'Belong to one of %d classes' is not implemented!", mapName, position.toString(), heroClasses.size());
 				break;
@@ -1990,6 +1993,10 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 
 	setOwnerAndValidate(position, object, reader->readPlayer());
 
+	std::optional<FactionID> faction;
+	if (objectTemplate->id == Obj::TOWN)
+		faction = FactionID(objectTemplate->subid);
+
 	bool hasName = reader->readBool();
 	if(hasName)
 		object->setNameTranslated(readLocalizedString(TextIdentifier("town", position.x, position.y, position.z, "name")));
@@ -2004,11 +2011,8 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	bool hasCustomBuildings = reader->readBool();
 	if(hasCustomBuildings)
 	{
-		reader->readBitmask(object->builtBuildings, features.buildingsBytes, features.buildingsCount, false);
-		reader->readBitmask(object->forbiddenBuildings, features.buildingsBytes, features.buildingsCount, false);
-
-		object->builtBuildings = convertBuildings(object->builtBuildings, objectTemplate->subid);
-		object->forbiddenBuildings = convertBuildings(object->forbiddenBuildings, objectTemplate->subid);
+		reader->readBitmaskBuildings(object->builtBuildings, faction);
+		reader->readBitmaskBuildings(object->forbiddenBuildings, faction);
 	}
 	// Standard buildings
 	else
@@ -2025,14 +2029,14 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	{
 		std::set<SpellID> spellsMask;
 
-		reader->readBitmask(spellsMask, features.spellsBytes, features.spellsCount, false);
+		reader->readBitmaskSpells(spellsMask, false);
 		std::copy(spellsMask.begin(), spellsMask.end(), std::back_inserter(object->obligatorySpells));
 	}
 
 	{
 		std::set<SpellID> spellsMask;
 
-		reader->readBitmask(spellsMask, features.spellsBytes, features.spellsCount, true);
+		reader->readBitmaskSpells(spellsMask, true);
 		std::copy(spellsMask.begin(), spellsMask.end(), std::back_inserter(object->possibleSpells));
 
 		auto defaultAllowed = VLC->spellh->getDefaultAllowed();
@@ -2074,10 +2078,7 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 		reader->skipZero(17);
 
 		// New buildings
-
-		reader->readBitmask(event.buildings, features.buildingsBytes, features.buildingsCount, false);
-
-		event.buildings = convertBuildings(event.buildings, objectTemplate->subid, false);
+		reader->readBitmaskBuildings(event.buildings, faction);
 
 		event.creatures.resize(7);
 		for(int i = 0; i < 7; ++i)
@@ -2123,67 +2124,6 @@ CGObjectInstance * CMapLoaderH3M::readTown(const int3 & position, std::shared_pt
 	return object;
 }
 
-std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> & h3m, int castleID, bool addAuxiliary) const
-{
-	std::map<int, BuildingID> helperMap;
-	std::set<BuildingID> ret;
-
-	// Note: this file is parsed many times.
-	static const JsonNode config(ResourceID("config/buildings5.json"));
-
-	for(const JsonNode & entry : config["table"].Vector())
-	{
-		int town = static_cast<int>(entry["town"].Float());
-
-		if(town == castleID || town == -1)
-		{
-			helperMap[static_cast<int>(entry["h3"].Float())] = BuildingID(static_cast<si32>(entry["vcmi"].Float()));
-		}
-	}
-
-	for(const auto & elem : h3m)
-	{
-		if(helperMap[elem] >= BuildingID::FIRST_REGULAR_ID)
-		{
-			ret.insert(helperMap[elem]);
-		}
-		// horde buildings use indexes from -1 to -5, where creature level is 1 to 5
-		else if(helperMap[elem] >= (-GameConstants::CREATURES_PER_TOWN))
-		{
-			int level = (helperMap[elem]);
-
-			//(-30)..(-36) - horde buildings (for game loading only)
-			//They will be replaced in CGameState::initTowns()
-			ret.insert(BuildingID(level + BuildingID::HORDE_BUILDING_CONVERTER)); //-1 => -30
-		}
-		else
-		{
-			logGlobal->warn("Conversion warning: unknown building %d in castle %d", elem.num, castleID);
-		}
-	}
-
-	if(addAuxiliary)
-	{
-		//village hall is always present
-		ret.insert(BuildingID::VILLAGE_HALL);
-
-		if(ret.find(BuildingID::CITY_HALL) != ret.end())
-		{
-			ret.insert(BuildingID::EXTRA_CITY_HALL);
-		}
-		if(ret.find(BuildingID::TOWN_HALL) != ret.end())
-		{
-			ret.insert(BuildingID::EXTRA_TOWN_HALL);
-		}
-		if(ret.find(BuildingID::CAPITOL) != ret.end())
-		{
-			ret.insert(BuildingID::EXTRA_CAPITOL);
-		}
-	}
-
-	return ret;
-}
-
 void CMapLoaderH3M::readEvents()
 {
 	uint32_t eventsCount = reader->readUInt32();
@@ -2225,11 +2165,6 @@ void CMapLoaderH3M::readMessageAndGuards(std::string & message, CCreatureSet * g
 
 		reader->skipZero(4);
 	}
-}
-
-void CMapLoaderH3M::readSpells(std::set<SpellID> & dest)
-{
-	reader->readBitmask(dest, features.spellsBytes, features.spellsCount, false);
 }
 
 std::string CMapLoaderH3M::readBasicString()

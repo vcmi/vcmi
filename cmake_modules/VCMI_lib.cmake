@@ -85,11 +85,13 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/CCampaignHandler.cpp
 		${MAIN_LIB_DIR}/mapping/CDrawRoadsOperation.cpp
 		${MAIN_LIB_DIR}/mapping/CMap.cpp
+		${MAIN_LIB_DIR}/mapping/CMapHeader.cpp
 		${MAIN_LIB_DIR}/mapping/CMapEditManager.cpp
 		${MAIN_LIB_DIR}/mapping/CMapInfo.cpp
 		${MAIN_LIB_DIR}/mapping/CMapOperation.cpp
 		${MAIN_LIB_DIR}/mapping/CMapService.cpp
 		${MAIN_LIB_DIR}/mapping/MapEditUtils.cpp
+		${MAIN_LIB_DIR}/mapping/MapIdentifiersH3M.cpp
 		${MAIN_LIB_DIR}/mapping/MapFeaturesH3M.cpp
 		${MAIN_LIB_DIR}/mapping/MapFormatH3M.cpp
 		${MAIN_LIB_DIR}/mapping/MapReaderH3M.cpp
@@ -205,6 +207,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CGeneralTextHandler.cpp
 		${MAIN_LIB_DIR}/CHeroHandler.cpp
 		${MAIN_LIB_DIR}/CModHandler.cpp
+		${MAIN_LIB_DIR}/CModVersion.cpp
 		${MAIN_LIB_DIR}/CPathfinder.cpp
 		${MAIN_LIB_DIR}/CPlayerState.cpp
 		${MAIN_LIB_DIR}/CRandomGenerator.cpp
@@ -381,13 +384,16 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/CDrawRoadsOperation.h
 		${MAIN_LIB_DIR}/mapping/CMapDefines.h
 		${MAIN_LIB_DIR}/mapping/CMapEditManager.h
+		${MAIN_LIB_DIR}/mapping/CMapHeader.h
 		${MAIN_LIB_DIR}/mapping/CMap.h
 		${MAIN_LIB_DIR}/mapping/CMapInfo.h
 		${MAIN_LIB_DIR}/mapping/CMapOperation.h
 		${MAIN_LIB_DIR}/mapping/CMapService.h
 		${MAIN_LIB_DIR}/mapping/MapEditUtils.h
+		${MAIN_LIB_DIR}/mapping/MapIdentifiersH3M.h
 		${MAIN_LIB_DIR}/mapping/MapFeaturesH3M.h
 		${MAIN_LIB_DIR}/mapping/MapFormatH3M.h
+		${MAIN_LIB_DIR}/mapping/MapFormat.h
 		${MAIN_LIB_DIR}/mapping/MapReaderH3M.h
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.h
 		${MAIN_LIB_DIR}/mapping/ObstacleProxy.h
@@ -497,6 +503,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CGeneralTextHandler.h
 		${MAIN_LIB_DIR}/CHeroHandler.h
 		${MAIN_LIB_DIR}/CModHandler.h
+		${MAIN_LIB_DIR}/CModVersion.h
 		${MAIN_LIB_DIR}/CondSh.h
 		${MAIN_LIB_DIR}/ConstTransitivePtr.h
 		${MAIN_LIB_DIR}/Color.h

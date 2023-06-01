@@ -27,6 +27,7 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapEditManager.h"
+#include "../lib/mapping/MapFormat.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/RiverHandler.h"
 #include "../lib/TerrainHandler.h"

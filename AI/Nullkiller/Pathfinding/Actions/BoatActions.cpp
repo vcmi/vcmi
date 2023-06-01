@@ -14,7 +14,6 @@
 #include "../../Goals/CaptureObject.h"
 #include "../../Goals/Invalid.h"
 #include "../../Goals/BuildBoat.h"
-#include "../../../../lib/mapping/CMap.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "BoatActions.h"
 

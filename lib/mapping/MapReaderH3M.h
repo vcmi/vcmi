@@ -13,6 +13,7 @@
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
 #include "MapFeaturesH3M.h"
+#include "MapIdentifiersH3M.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -27,7 +28,8 @@ class MapReaderH3M
 public:
 	explicit MapReaderH3M(CInputStream * stream);
 
-	void setFormatLevel(EMapFormat format, uint8_t hotaVersion);
+	void setFormatLevel(const MapFormatFeaturesH3M & features);
+	void setIdentifierRemapper(const MapIdentifiersH3M & remapper);
 
 	ArtifactID readArtifact();
 	ArtifactID readArtifact32();
@@ -42,30 +44,22 @@ public:
 	PlayerColor readPlayer();
 	PlayerColor readPlayer32();
 
-	template<class Identifier>
-	void readBitmask(std::set<Identifier> & dest, int bytesToRead, int objectsToRead, bool invert)
-	{
-		std::vector<bool> bitmap;
-		bitmap.resize(objectsToRead, false);
-		readBitmask(bitmap, bytesToRead, objectsToRead, invert);
+	void readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction);
+	void readBitmaskFactions(std::set<FactionID> & dest, bool invert);
+	void readBitmaskResources(std::set<GameResID> & dest, bool invert);
+	void readBitmaskHeroClassesSized(std::set<HeroClassID> & dest, bool invert);
+	void readBitmaskHeroes(std::vector<bool> & dest, bool invert);
+	void readBitmaskHeroesSized(std::vector<bool> & dest, bool invert);
+	void readBitmaskArtifacts(std::vector<bool> & dest, bool invert);
+	void readBitmaskArtifactsSized(std::vector<bool> & dest, bool invert);
+	void readBitmaskSpells(std::vector<bool> & dest, bool invert);
+	void readBitmaskSpells(std::set<SpellID> & dest, bool invert);
+	void readBitmaskSkills(std::vector<bool> & dest, bool invert);
+	void readBitmaskSkills(std::set<SecondarySkill> & dest, bool invert);
 
-		for(int i = 0; i < bitmap.size(); i++)
-			if(bitmap[i])
-				dest.insert(static_cast<Identifier>(i));
-	}
-
-	/** Reads bitmask to boolean vector
-	* @param dest destination vector, shall be filed with "true" values
-	* @param byteCount size in bytes of bimask
-	* @param limit max count of vector elements to alter
-	* @param negate if true then set bit in mask means clear flag in vertor
-	*/
-	void readBitmask(std::vector<bool> & dest, int bytesToRead, int objectsToRead, bool invert);
-
-	/**
-	* Helper to read map position
-	*/
 	int3 readInt3();
+
+	std::shared_ptr<ObjectTemplate> readObjectTemplate();
 
 	void skipUnused(size_t amount);
 	void skipZero(size_t amount);
@@ -86,7 +80,17 @@ public:
 	CBinaryReader & getInternalReader();
 
 private:
+	template<class Identifier>
+	Identifier remapIdentifier(const Identifier & identifier);
+
+	template<class Identifier>
+	void readBitmask(std::set<Identifier> & dest, int bytesToRead, int objectsToRead, bool invert);
+
+	template<class Identifier>
+	void readBitmask(std::vector<bool> & dest, int bytesToRead, int objectsToRead, bool invert);
+
 	MapFormatFeaturesH3M features;
+	MapIdentifiersH3M remapper;
 
 	std::unique_ptr<CBinaryReader> reader;
 };

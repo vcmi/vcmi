@@ -14,6 +14,8 @@
 #include "playerparams.h"
 #include "mainwindow.h"
 
+#include "../lib/mapping/CMap.h"
+
 PlayerSettings::PlayerSettings(MapController & ctrl, QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::PlayerSettings),

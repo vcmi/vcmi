@@ -11,20 +11,19 @@
 #pragma once
 
 #include "../GameConstants.h"
-#include "CMapOperation.h"
+#include "../CRandomGenerator.h"
+#include "MapEditUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CGObjectInstance;
-class CTerrainViewPatternConfig;
-struct TerrainViewPattern;
-class CMap;
+class CMapOperation;
 
 /// The CMapUndoManager provides the functionality to save operations and undo/redo them.
 class DLL_LINKAGE CMapUndoManager : boost::noncopyable
 {
 public:
 	CMapUndoManager();
+	~CMapUndoManager();
 
 	void undo();
 	void redo();

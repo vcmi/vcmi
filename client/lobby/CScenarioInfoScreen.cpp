@@ -23,6 +23,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/mapping/CMapHeader.h"
 
 CScenarioInfoScreen::CScenarioInfoScreen()
 {

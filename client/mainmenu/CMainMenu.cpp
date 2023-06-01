@@ -46,7 +46,6 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CCompressedStream.h"
 #include "../../lib/VCMIDirs.h"
-#include "../../lib/mapping/CMap.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CThreadHelper.h"

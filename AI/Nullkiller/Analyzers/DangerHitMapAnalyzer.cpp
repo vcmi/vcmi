@@ -8,7 +8,8 @@
 *
 */
 #include "../StdInc.h"
-#include "lib/mapping/CMap.h" //for victory conditions
+#include "DangerHitMapAnalyzer.h"
+
 #include "../Engine/Nullkiller.h"
 
 namespace NKAI

@@ -148,7 +148,7 @@ private:
 	/**
 	 * Reads custom(map) def information.
 	 */
-	void readDefInfo();
+	void readObjectTemplates();
 
 	/**
 	 * Reads objects(towns, mines,...).
@@ -210,16 +210,6 @@ private:
 	void readSeerHutQuest(CGSeerHut * hut, const int3 & position);
 
 	/**
-	 * Converts buildings to the specified castle id.
-	 *
-	 * @param h3m the ids of the buildings
-	 * @param castleID the castle id
-	 * @param addAuxiliary true if the village hall should be added
-	 * @return the converted buildings
-	 */
-	std::set<BuildingID> convertBuildings(const std::set<BuildingID> & h3m, int castleID, bool addAuxiliary = true) const;
-
-	/**
 	 * Reads events.
 	 */
 	void readEvents();
@@ -236,7 +226,6 @@ private:
 	std::string readLocalizedString(const TextIdentifier & identifier);
 
 	void setOwnerAndValidate(const int3 & mapPosition, CGObjectInstance * object, const PlayerColor & owner);
-	void readSpells(std::set<SpellID> & dest);
 
 	void afterRead();
 
