@@ -173,7 +173,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "alwaysSkipCombat" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "alwaysSkipCombat", "borderScroll" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -206,7 +206,12 @@
 				"alwaysSkipCombat" : {
 					"type" : "boolean",
 					"default" : false
-				}
+				},
+				"borderScroll" : 
+				{
+					"type" : "boolean",
+					"default" : true
+				},
 			}
 		},
 		"pathfinder" : {

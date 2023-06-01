@@ -181,7 +181,7 @@ void AdventureMapInterface::handleMapScrollingUpdate(uint32_t timePassed)
 
 	bool cursorInScrollArea = scrollDelta != Point(0,0);
 	bool scrollingActive = cursorInScrollArea && isActive() && shortcuts->optionSidePanelActive() && !scrollingWasBlocked;
-	bool scrollingBlocked = GH.isKeyboardCtrlDown();
+	bool scrollingBlocked = GH.isKeyboardCtrlDown() || !settings["adventure"]["borderScroll"].Bool();
 
 	if (!scrollingWasActive && scrollingBlocked)
 	{

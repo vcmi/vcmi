@@ -102,10 +102,13 @@ AdventureOptionsTab::AdventureOptionsTab()
 	{
 		return setBoolSetting("gameTweaks", "showGrid", value);
 	});
-
 	addCallback("infoBarPickChanged", [](bool value)
 	{
 		return setBoolSetting("gameTweaks", "infoBarPick", value);
+	});
+	addCallback("borderScrollChanged", [](bool value)
+	{
+		return setBoolSetting("adventure", "borderScroll", value);
 	});
 	build(config);
 
@@ -135,4 +138,7 @@ AdventureOptionsTab::AdventureOptionsTab()
 
 	std::shared_ptr<CToggleButton> infoBarPickCheckbox = widget<CToggleButton>("infoBarPickCheckbox");
 	infoBarPickCheckbox->setSelected(settings["gameTweaks"]["infoBarPick"].Bool());
+
+	std::shared_ptr<CToggleButton> borderScrollCheckbox = widget<CToggleButton>("borderScrollCheckbox");
+	borderScrollCheckbox->setSelected(settings["adventure"]["borderScroll"].Bool());
 }

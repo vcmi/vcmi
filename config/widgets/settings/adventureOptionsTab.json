@@ -336,10 +336,10 @@
 					"text": "vcmi.adventureOptions.showGrid.hover"
 				},
 				{
-					"text": "vcmi.adventureOptions.mapSwipe.hover"
+					"text": "vcmi.adventureOptions.infoBarPick.hover"
 				},
 				{
-					"text": "vcmi.adventureOptions.infoBarPick.hover"
+					"text": "vcmi.adventureOptions.borderScroll.hover"
 				}
 			]
 		},
@@ -365,14 +365,14 @@
 					"callback": "showGridChanged"
 				},
 				{
-					"name": "mapSwipeCheckbox",
-					"help": "vcmi.adventureOptions.mapSwipe",
-					"callback": "mapSwipeChanged"
-				},
-				{
 					"name": "infoBarPickCheckbox",
 					"help": "vcmi.adventureOptions.infoBarPick",
 					"callback": "infoBarPickChanged"
+				},
+				{
+					"name": "borderScrollCheckbox",
+					"help": "vcmi.adventureOptions.borderScroll",
+					"callback": "borderScrollChanged"
 				}
 			]
 		}

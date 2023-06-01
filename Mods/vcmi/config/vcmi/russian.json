@@ -52,8 +52,6 @@
 	"vcmi.adventureOptions.forceMovementInfo.help" : "{Всегда показывать стоимость перемещения}\n\n Заменить информацию в статусной строке на информацию о перемещении без необходимости нажатия {ALT}",
 	"vcmi.adventureOptions.showGrid.hover" : "Сетка",
 	"vcmi.adventureOptions.showGrid.help" : "{Сетка}\n\n Показывать сетку на видимой части карты.",
-	"vcmi.adventureOptions.mapSwipe.hover" : "Перемещение карты жестами",
-	"vcmi.adventureOptions.mapSwipe.help" : "{Перемещение карты жестами}\n\n Включает перемещение карты жестами на системах с сенсорным экраном. Сейчас также активируется левой кнопкой мыши.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",
