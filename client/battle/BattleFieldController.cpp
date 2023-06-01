@@ -22,6 +22,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../renderSDL/SDL_Extensions.h"
@@ -45,6 +46,9 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	cellShade = IImage::createFromFile("CCELLSHD.BMP");
 	cellUnitMovementHighlight = IImage::createFromFile("UnitMovementHighlight.PNG", EImageBlitMode::COLORKEY);
 	cellUnitMaxMovementHighlight = IImage::createFromFile("UnitMaxMovementHighlight.PNG", EImageBlitMode::COLORKEY);
+
+	attackCursors = std::make_shared<CAnimation>("CRCOMBAT");
+	attackCursors->preload();
 
 	if(!owner.siegeController)
 	{
@@ -435,27 +439,7 @@ BattleHex BattleFieldController::getHexAtPosition(Point hoverPos)
 	return BattleHex::INVALID;
 }
 
-void BattleFieldController::setBattleCursor(BattleHex myNumber)
-{
-	std::vector<Cursor::Combat> sectorCursor = {
-		Cursor::Combat::HIT_SOUTHEAST,
-		Cursor::Combat::HIT_SOUTHWEST,
-		Cursor::Combat::HIT_WEST,
-		Cursor::Combat::HIT_NORTHWEST,
-		Cursor::Combat::HIT_NORTHEAST,
-		Cursor::Combat::HIT_EAST,
-		Cursor::Combat::HIT_SOUTH,
-		Cursor::Combat::HIT_NORTH,
-	};
-
-	auto direction = static_cast<size_t>(selectAttackDirection(getHoveredHex(), currentAttackOriginPoint));
-
-	assert(direction != -1);
-	if (direction != -1)
-		CCS->curh->set(sectorCursor[direction]);
-}
-
-BattleHex::EDir BattleFieldController::selectAttackDirection(BattleHex myNumber, const Point & cursorPos)
+BattleHex::EDir BattleFieldController::selectAttackDirection(BattleHex myNumber)
 {
 	const bool doubleWide = owner.stacksController->getActiveStack()->doubleWide();
 	auto neighbours = myNumber.allNeighbouringTiles();
@@ -518,7 +502,7 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(BattleHex myNumber,
 
 	for (size_t i = 0; i < 8; ++i)
 		if (attackAvailability[i])
-			distance2[i] = (testPoint[i].y - cursorPos.y)*(testPoint[i].y - cursorPos.y) + (testPoint[i].x - cursorPos.x)*(testPoint[i].x - cursorPos.x);
+			distance2[i] = (testPoint[i].y - currentAttackOriginPoint.y)*(testPoint[i].y - currentAttackOriginPoint.y) + (testPoint[i].x - currentAttackOriginPoint.x)*(testPoint[i].x - currentAttackOriginPoint.x);
 
 	size_t nearest = -1;
 	for (size_t i = 0; i < 8; ++i)
@@ -531,7 +515,7 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(BattleHex myNumber,
 
 BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
 {
-	BattleHex::EDir direction = selectAttackDirection(getHoveredHex(), currentAttackOriginPoint);
+	BattleHex::EDir direction = selectAttackDirection(getHoveredHex());
 
 	const CStack * attacker = owner.stacksController->getActiveStack();
 
@@ -637,6 +621,14 @@ void BattleFieldController::show(Canvas & to)
 	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
 
 	renderBattlefield(to);
+
+	if (isActive() && isPanning() && getHoveredHex() != BattleHex::INVALID)
+	{
+		auto cursorIndex = CCS->curh->get<Cursor::Combat>();
+		auto imageIndex = static_cast<size_t>(cursorIndex);
+
+		canvas.draw(attackCursors->getImage(imageIndex), hexPositionAbsolute(getHoveredHex()).center() - CCS->curh->getPivotOffsetCombat(imageIndex));
+	}
 }
 
 bool BattleFieldController::receiveEvent(const Point & position, int eventType) const

@@ -34,6 +34,8 @@ class BattleFieldController : public CIntObject
 	std::shared_ptr<IImage> cellUnitMaxMovementHighlight;
 	std::shared_ptr<IImage> cellShade;
 
+	std::shared_ptr<CAnimation> attackCursors;
+
 	/// Canvas that contains background, hex grid (if enabled), absolute obstacles and movement range of active stack
 	std::unique_ptr<Canvas> backgroundWithHexes;
 
@@ -66,8 +68,7 @@ class BattleFieldController : public CIntObject
 
 	/// Checks whether selected pixel is transparent, uses local coordinates of a hex
 	bool isPixelInHex(Point const & position);
-
-	BattleHex::EDir selectAttackDirection(BattleHex myNumber, const Point & point);
+	size_t selectBattleCursor(BattleHex myNumber);
 
 	void panning(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
@@ -105,6 +106,7 @@ public:
 	/// returns true if stack should render its stack count image in default position - outside own hex
 	bool stackCountOutsideHex(const BattleHex & number) const;
 
-	void setBattleCursor(BattleHex myNumber);
+	BattleHex::EDir selectAttackDirection(BattleHex myNumber);
+
 	BattleHex fromWhichHexAttack(BattleHex myNumber);
 };

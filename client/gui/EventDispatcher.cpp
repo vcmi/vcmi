@@ -221,7 +221,9 @@ void EventDispatcher::dispatchTextEditing(const std::string & text)
 
 void EventDispatcher::dispatchGesturePanningStarted(const Point & initialPosition)
 {
-	for(auto it : panningInterested)
+	auto copied = panningInterested;
+
+	for(auto it : copied)
 	{
 		if (it->receiveEvent(initialPosition, AEventsReceiver::GESTURE_PANNING))
 		{
@@ -233,7 +235,9 @@ void EventDispatcher::dispatchGesturePanningStarted(const Point & initialPositio
 
 void EventDispatcher::dispatchGesturePanningEnded(const Point & initialPosition, const Point & finalPosition)
 {
-	for(auto it : panningInterested)
+	auto copied = panningInterested;
+
+	for(auto it : copied)
 	{
 		if (it->isPanning())
 		{
