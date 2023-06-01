@@ -74,7 +74,7 @@ struct DLL_LINKAGE CampaignRegions
 class DLL_LINKAGE CCampaignHeader
 {
 public:
-	si32 version = 0; //4 - RoE, 5 - AB, 6 - SoD and WoG
+	si32 version = 0; //4 - RoE, 5 - AB, 6 - SoD, WoG and HotA
 	CampaignRegions campaignRegions;
 	int numberOfScenarios = 0;
 	std::string name, description;
