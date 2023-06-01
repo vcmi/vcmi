@@ -139,7 +139,8 @@ void CMinimap::moveAdvMapSelection(const Point & positionGlobal)
 
 void CMinimap::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
-	moveAdvMapSelection(currentPosition);
+	if (pos.isInside(currentPosition))
+		moveAdvMapSelection(currentPosition);
 }
 
 void CMinimap::clickLeft(tribool down, bool previousState)
