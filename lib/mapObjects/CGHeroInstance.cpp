@@ -1149,12 +1149,10 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() 
 
 	auto getObligatorySkills = [](CSkill::Obligatory obl){
 		std::vector<SecondarySkill> obligatory = {};
-		for(int i = 0; i < VLC->skillh->size(); i++)
+		for(auto i = 0; i < VLC->skillh->size(); i++)
 			if((*VLC->skillh)[SecondarySkill(i)]->obligatory(obl))
-			{
-				obligatory.emplace_back(i);
-				break;
-			}
+				obligatory.emplace_back(i); //Always return all obligatory skills
+
 		return obligatory;
 	};
 
