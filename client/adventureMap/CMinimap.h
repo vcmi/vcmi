@@ -31,7 +31,7 @@ class CMinimapInstance : public CIntObject
 public:
 	CMinimapInstance(CMinimap * parent, int level);
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 	void refreshTile(const int3 & pos);
 };
 
@@ -65,7 +65,7 @@ public:
 	void update();
 	void setAIRadar(bool on);
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 
 	void updateTiles(std::unordered_set<int3> positions);
 };

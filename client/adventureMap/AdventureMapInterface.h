@@ -94,8 +94,8 @@ protected:
 	void deactivate() override;
 
 	void tick(uint32_t msPassed) override;
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
+	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
 
 	void keyPressed(EShortcut key) override;
 

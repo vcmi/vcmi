@@ -62,7 +62,7 @@ class CRecruitmentWindow : public CStatusbarWindow
 
 		void clickLeft(tribool down, bool previousState) override;
 		void clickRight(tribool down, bool previousState) override;
-		void showAll(SDL_Surface * to) override;
+		void showAll(Canvas & to) override;
 	};
 
 	std::function<void(CreatureID,int)> onRecruit; //void (int ID, int amount) <-- call to recruit creatures
@@ -89,7 +89,7 @@ class CRecruitmentWindow : public CStatusbarWindow
 	void buy();
 	void sliderMoved(int to);
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 public:
 	const CGDwelling * const dwelling;
 	CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset = 0);
@@ -233,6 +233,9 @@ public:
 
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CLabel> cost;
+	std::shared_ptr<CLabel> heroesForHire;
+	std::shared_ptr<CTextBox> heroDescription;
+
 	std::shared_ptr<CTextBox> rumor;
 
 	CTavernWindow(const CGObjectInstance * TavernObj);
@@ -240,7 +243,7 @@ public:
 
 	void recruitb();
 	void thievesguildb();
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 };
 
 class CCallback;
@@ -414,7 +417,7 @@ class CUniversityWindow : public CStatusbarWindow
 		int ID;//id of selected skill
 		CUniversityWindow * parent;
 
-		void showAll(SDL_Surface * to) override;
+		void showAll(Canvas & to) override;
 		void clickLeft(tribool down, bool previousState) override;
 		void clickRight(tribool down, bool previousState) override;
 		void hover(bool on) override;

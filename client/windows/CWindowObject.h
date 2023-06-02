@@ -50,7 +50,7 @@ public:
 	CWindowObject(int options, std::string imageName = "");
 	~CWindowObject();
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 };
 
 class CStatusbarWindow : public CWindowObject

@@ -107,7 +107,7 @@ private:
 	std::shared_ptr<CCreatureAnim> anim; //displayed animation
 	std::shared_ptr<CLabel> amount;
 
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 public:
 	CCreaturePic(int x, int y, const CCreature * cre, bool Big=true, bool Animated=true);
 	void setAmount(int newAmount);
@@ -120,8 +120,8 @@ class CMinorResDataBar : public CIntObject
 
 	std::string buildDateString();
 public:
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
+	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
 	CMinorResDataBar();
 	~CMinorResDataBar();
 };

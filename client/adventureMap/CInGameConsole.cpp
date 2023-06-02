@@ -19,7 +19,9 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/TextAlignment.h"
 #include "../render/Colors.h"
+#include "../render/Canvas.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../windows/CMessage.h"
 
@@ -35,12 +37,12 @@ CInGameConsole::CInGameConsole()
 	type |= REDRAW_PARENT;
 }
 
-void CInGameConsole::showAll(SDL_Surface * to)
+void CInGameConsole::showAll(Canvas & to)
 {
 	show(to);
 }
 
-void CInGameConsole::show(SDL_Surface * to)
+void CInGameConsole::show(Canvas & to)
 {
 	if (LOCPLINT->cingconsole != this)
 		return;
@@ -53,8 +55,7 @@ void CInGameConsole::show(SDL_Surface * to)
 		Point leftBottomCorner(0, pos.h);
 		Point textPosition(leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number * 20);
 
-		graphics->fonts[FONT_MEDIUM]->renderTextLeft(to, text.text, Colors::GREEN, pos.topLeft() + textPosition );
-
+		to.drawText(pos.topLeft() + textPosition, FONT_MEDIUM, Colors::GREEN, ETextAlignment::TOPLEFT, text.text);
 		number++;
 	}
 }

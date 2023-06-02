@@ -82,10 +82,9 @@ CMinimapInstance::CMinimapInstance(CMinimap *Parent, int Level):
 	redrawMinimap();
 }
 
-void CMinimapInstance::showAll(SDL_Surface * to)
+void CMinimapInstance::showAll(Canvas & to)
 {
-	Canvas target(to);
-	target.drawScaled(*minimap, pos.topLeft(), pos.dimensions());
+	to.drawScaled(*minimap, pos.topLeft(), pos.dimensions());
 }
 
 CMinimap::CMinimap(const Rect & position)
@@ -164,15 +163,13 @@ void CMinimap::mouseMoved(const Point & cursorPosition)
 		moveAdvMapSelection();
 }
 
-void CMinimap::showAll(SDL_Surface * to)
+void CMinimap::showAll(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to, pos);
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
 	CIntObject::showAll(to);
 
 	if(minimap)
 	{
-		Canvas target(to);
-
 		int3 mapSizes = LOCPLINT->cb->getMapSize();
 
 		//draw radar
@@ -184,7 +181,7 @@ void CMinimap::showAll(SDL_Surface * to)
 			screenArea.h * pos.h / mapSizes.y - 1
 		};
 
-		Canvas clippedTarget(target, pos);
+		Canvas clippedTarget(to, pos);
 		clippedTarget.drawBorderDashed(radar, CSDL_Ext::fromSDL(Colors::PURPLE));
 	}
 }

@@ -20,6 +20,7 @@
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../render/Canvas.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -111,7 +112,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 		graphicsCompleted = std::make_shared<CPicture>("CAMPCHK");
 }
 
-void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
+void CCampaignScreen::CCampaignButton::show(Canvas & to)
 {
 	if(status == CCampaignScreen::DISABLED)
 		return;
@@ -124,7 +125,7 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
 		if(CCS->videoh->fname != video)
 			CCS->videoh->open(video);
 
-		CCS->videoh->update(pos.x, pos.y, to, true, false); // plays sequentially frame by frame, starts at the beginning when the video is over
+		CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false); // plays sequentially frame by frame, starts at the beginning when the video is over
 	}
 	else if(CCS->videoh->fname == video) // When you got out of the bounds of the button then close the video
 	{

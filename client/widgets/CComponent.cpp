@@ -20,7 +20,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 #include "../windows/CMessage.h"
 #include "../windows/InfoWindows.h"
 #include "../widgets/TextControls.h"
@@ -302,12 +302,12 @@ void CSelectableComponent::select(bool on)
 	}
 }
 
-void CSelectableComponent::showAll(SDL_Surface * to)
+void CSelectableComponent::showAll(Canvas & to)
 {
 	CComponent::showAll(to);
 	if(selected)
 	{
-		CSDL_Ext::drawBorder(to, Rect::createAround(image->pos, 1), Colors::BRIGHT_YELLOW);
+		to.drawBorder(Rect::createAround(image->pos, 1), Colors::BRIGHT_YELLOW);
 	}
 }
 

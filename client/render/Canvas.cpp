@@ -31,6 +31,13 @@ Canvas::Canvas(const Canvas & other):
 	surface->refcount++;
 }
 
+Canvas::Canvas(Canvas && other):
+	surface(other.surface),
+	renderArea(other.renderArea)
+{
+	surface->refcount++;
+}
+
 Canvas::Canvas(const Canvas & other, const Rect & newClipRect):
 	Canvas(other)
 {
@@ -43,6 +50,11 @@ Canvas::Canvas(const Point & size):
 {
 	CSDL_Ext::fillSurface(surface, Colors::TRANSPARENCY );
 	SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
+}
+
+Canvas Canvas::createFromSurface(SDL_Surface * surface)
+{
+	return Canvas(surface);
 }
 
 void Canvas::applyTransparency(bool on)
@@ -115,6 +127,13 @@ void Canvas::drawLineDashed(const Point & from, const Point & dest, const ColorR
 	CSDL_Ext::drawLineDashed(surface, renderArea.topLeft() + from, renderArea.topLeft() + dest, CSDL_Ext::toSDL(color));
 }
 
+void Canvas::drawBorder(const Rect & target, const SDL_Color & color, uint width)
+{
+	Rect realTarget = target + renderArea.topLeft();
+
+	CSDL_Ext::drawBorder(surface, realTarget.x, realTarget.y, realTarget.w, realTarget.h, color, width);
+}
+
 void Canvas::drawBorderDashed(const Rect & target, const ColorRGBA & color)
 {
 	Rect realTarget = target + renderArea.topLeft();
@@ -145,3 +164,14 @@ void Canvas::drawText(const Point & position, const EFonts & font, const SDL_Col
 	}
 }
 
+void Canvas::drawColor(const Rect & target, const SDL_Color & color)
+{
+	Rect realTarget = target + renderArea.topLeft();
+
+	CSDL_Ext::fillRect(surface, realTarget, color);
+}
+
+SDL_Surface * Canvas::getInternalSurface()
+{
+	return surface;
+}

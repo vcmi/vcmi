@@ -87,8 +87,8 @@ public:
 	void keyPressed(EShortcut key) override;
 	bool captureThisKey(EShortcut key) override;
 	void clickRight(tribool down, bool previousState) override;
-	void show(SDL_Surface *to) override;
-	void showAll(SDL_Surface *to) override;
+	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
 
 	/// Toggle UI to displaying tactics phase
 	void tacticPhaseStarted();

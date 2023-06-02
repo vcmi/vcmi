@@ -555,15 +555,15 @@ std::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()
 	return queue->getHoveredUnitIdIfAny();
 }
 
-void BattleWindow::showAll(SDL_Surface *to)
+void BattleWindow::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
 	if (GH.screenDimensions().x != 800 || GH.screenDimensions().y !=600)
-		CMessage::drawBorder(owner.curInt->playerID, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+		CMessage::drawBorder(owner.curInt->playerID, to.getInternalSurface(), pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
-void BattleWindow::show(SDL_Surface *to)
+void BattleWindow::show(Canvas & to)
 {
 	CIntObject::show(to);
 	LOCPLINT->cingconsole->show(to);

@@ -39,7 +39,7 @@
 #include "../widgets/ObjectLists.h"
 
 #include "../lobby/CSavingScreen.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 #include "../render/CAnimation.h"
 #include "../CMT.h"
 
@@ -67,8 +67,6 @@
 #include "../lib/NetPacksBase.h"
 #include "../lib/StartInfo.h"
 #include "../lib/TextOperations.h"
-
-#include <SDL_surface.h>
 
 CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
 	: CIntObject(LCLICK | RCLICK),
@@ -102,13 +100,13 @@ void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousSt
 		GH.windows().createAndPushWindow<CStackWindow>(creature, true);
 }
 
-void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)
+void CRecruitmentWindow::CCreatureCard::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 	if(selected)
-		CSDL_Ext::drawBorder(to, pos, Colors::RED);
+		to.drawBorder(pos, Colors::RED);
 	else
-		CSDL_Ext::drawBorder(to, pos, Colors::YELLOW);
+		to.drawBorder(pos, Colors::YELLOW);
 }
 
 void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
@@ -178,22 +176,24 @@ void CRecruitmentWindow::buy()
 		close();
 }
 
-void CRecruitmentWindow::showAll(SDL_Surface * to)
+void CRecruitmentWindow::showAll(Canvas & to)
 {
 	CWindowObject::showAll(to);
 
+	Rect(172, 222, 67, 42) + pos.topLeft();
+
 	// recruit\total values
-	CSDL_Ext::drawBorder(to, pos.x + 172, pos.y + 222, 67, 42, Colors::YELLOW);
-	CSDL_Ext::drawBorder(to, pos.x + 246, pos.y + 222, 67, 42, Colors::YELLOW);
+	to.drawBorder(Rect(172, 222, 67, 42) + pos.topLeft(), Colors::YELLOW);
+	to.drawBorder(Rect(246, 222, 67, 42) + pos.topLeft(), Colors::YELLOW);
 
 	//cost boxes
-	CSDL_Ext::drawBorder(to, pos.x + 64,  pos.y + 222, 99, 76, Colors::YELLOW);
-	CSDL_Ext::drawBorder(to, pos.x + 322, pos.y + 222, 99, 76, Colors::YELLOW);
+	to.drawBorder(Rect( 64, 222, 99, 76) + pos.topLeft(), Colors::YELLOW);
+	to.drawBorder(Rect(322, 222, 99, 76) + pos.topLeft(), Colors::YELLOW);
 
 	//buttons borders
-	CSDL_Ext::drawBorder(to, pos.x + 133, pos.y + 312, 66, 34, Colors::METALLIC_GOLD);
-	CSDL_Ext::drawBorder(to, pos.x + 211, pos.y + 312, 66, 34, Colors::METALLIC_GOLD);
-	CSDL_Ext::drawBorder(to, pos.x + 289, pos.y + 312, 66, 34, Colors::METALLIC_GOLD);
+	to.drawBorder(Rect(133, 312, 66, 34) + pos.topLeft(), Colors::METALLIC_GOLD);
+	to.drawBorder(Rect(211, 312, 66, 34) + pos.topLeft(), Colors::METALLIC_GOLD);
+	to.drawBorder(Rect(289, 312, 66, 34) + pos.topLeft(), Colors::METALLIC_GOLD);
 }
 
 CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset):
@@ -454,11 +454,13 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)
 	h1 = std::make_shared<HeroPortrait>(selected, 0, 72, 299, h[0]);
 	h2 = std::make_shared<HeroPortrait>(selected, 1, 162, 299, h[1]);
 
-	title = std::make_shared<CLabel>(200, 35, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[37]);
+	title = std::make_shared<CLabel>(197, 32, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[37]);
 	cost = std::make_shared<CLabel>(320, 328, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(GameConstants::HERO_GOLD_COST));
+	heroDescription = std::make_shared<CTextBox>("", Rect(30, 373, 233, 35), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	heroesForHire = std::make_shared<CLabel>(145, 283, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[38]);
 
 	auto rumorText = boost::str(boost::format(CGI->generaltexth->allTexts[216]) % LOCPLINT->cb->getTavernRumor(tavernObj));
-	rumor = std::make_shared<CTextBox>(rumorText, Rect(32, 190, 330, 68), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	rumor = std::make_shared<CTextBox>(rumorText, Rect(32, 188, 330, 66), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 	cancel = std::make_shared<CButton>(Point(310, 428), "ICANCEL.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[7]), std::bind(&CTavernWindow::close, this), EShortcut::GLOBAL_CANCEL);
@@ -516,27 +518,31 @@ CTavernWindow::~CTavernWindow()
 	CCS->videoh->close();
 }
 
-void CTavernWindow::show(SDL_Surface * to)
+void CTavernWindow::show(Canvas & to)
 {
 	CWindowObject::show(to);
 
-	CCS->videoh->update(pos.x+70, pos.y+56, to, true, false);
 	if(selected >= 0)
 	{
 		auto sel = selected ? h2 : h1;
 
-		if (selected != oldSelected  &&  !recruit->isBlocked())
+		if(selected != oldSelected)
 		{
 			// Selected hero just changed. Update RECRUIT button hover text if recruitment is allowed.
 			oldSelected = selected;
 
+			heroDescription->setText(sel->description);
+
 			//Recruit %s the %s
-			recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[3]) % sel->h->getNameTranslated() % sel->h->type->heroClass->getNameTranslated()));
+			if (!recruit->isBlocked())
+				recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[3]) % sel->h->getNameTranslated() % sel->h->type->heroClass->getNameTranslated()));
+
 		}
 
-		printAtMiddleWBLoc(sel->description, Point(146, 395), FONT_SMALL, 200, Colors::WHITE, to);
-		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,Colors::BRIGHT_YELLOW);
+		to.drawBorder(Rect::createAround(sel->pos, 2), Colors::BRIGHT_YELLOW, 2);
 	}
+
+	CCS->videoh->update(pos.x+70, pos.y+56, to.getInternalSurface(), true, false);
 }
 
 void CTavernWindow::HeroPortrait::clickLeft(tribool down, bool previousState)
@@ -1270,7 +1276,7 @@ int CUniversityWindow::CItem::state()
 	return 2;
 }
 
-void CUniversityWindow::CItem::showAll(SDL_Surface * to)
+void CUniversityWindow::CItem::showAll(Canvas & to)
 {
 	//TODO: update when state actually changes
 	auto stateIndex = state();

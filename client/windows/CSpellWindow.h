@@ -18,7 +18,6 @@ class CSpell;
 
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Surface;
 class IImage;
 class CAnimImage;
 class CPicture;
@@ -114,5 +113,5 @@ public:
 
 	void keyPressed(EShortcut key) override;
 
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 };

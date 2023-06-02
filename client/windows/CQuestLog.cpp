@@ -19,6 +19,7 @@
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../widgets/Buttons.h"
 #include "../adventureMap/CMinimap.h"
+#include "../render/Canvas.h"
 #include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
@@ -43,7 +44,7 @@ void CQuestLabel::clickLeft(tribool down, bool previousState)
 		callback();
 }
 
-void CQuestLabel::showAll(SDL_Surface * to)
+void CQuestLabel::showAll(Canvas & to)
 {
 	CMultiLineLabel::showAll (to);
 }
@@ -60,9 +61,9 @@ void CQuestIcon::clickLeft(tribool down, bool previousState)
 		callback();
 }
 
-void CQuestIcon::showAll(SDL_Surface * to)
+void CQuestIcon::showAll(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to, parent->pos);
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), parent->pos);
 	CAnimImage::showAll(to);
 }
 
@@ -109,7 +110,7 @@ void CQuestMinimap::iconClicked()
 	//moveAdvMapSelection();
 }
 
-void CQuestMinimap::showAll(SDL_Surface * to)
+void CQuestMinimap::showAll(Canvas & to)
 {
 	CIntObject::showAll(to); // blitting IntObject directly to hide radar
 //	for (auto pic : icons)
@@ -201,7 +202,7 @@ void CQuestLog::recreateLabelList()
 	}
 }
 
-void CQuestLog::showAll(SDL_Surface * to)
+void CQuestLog::showAll(Canvas & to)
 {
 	CWindowObject::showAll(to);
 	if(questIndex >= 0 && questIndex < labels.size())
@@ -210,7 +211,7 @@ void CQuestLog::showAll(SDL_Surface * to)
 		Rect rect = Rect::createAround(labels[questIndex]->pos, 1);
 		rect.x -= 2; // Adjustment needed as we want selection box on top of border in graphics
 		rect.w += 2;
-		CSDL_Ext::drawBorder(to, rect, Colors::METALLIC_GOLD);
+		to.drawBorder(rect, Colors::METALLIC_GOLD);
 	}
 }
 

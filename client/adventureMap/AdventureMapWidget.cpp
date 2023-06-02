@@ -410,7 +410,7 @@ void CAdventureMapIcon::setPlayer(const PlayerColor & player)
 	image->setFrame(index + player.getNum() * iconsPerPlayer);
 }
 
-void CAdventureMapOverlayWidget::show(SDL_Surface * to)
+void CAdventureMapOverlayWidget::show(Canvas & to)
 {
 	CIntObject::showAll(to);
 }

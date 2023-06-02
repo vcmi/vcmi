@@ -16,7 +16,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 class Rect;
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Surface;
 struct SDL_Color;
 class CAnimImage;
 class CLabel;
@@ -61,8 +60,8 @@ public:
 	void scaleTo(Point size);
 	void colorize(PlayerColor player);
 
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
+	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
 };
 
 /// area filled with specific texture
@@ -76,7 +75,7 @@ public:
 	CFilledTexture(std::string imageName, Rect position);
 	CFilledTexture(std::shared_ptr<IImage> image, Rect position, Rect imageArea);
 
-	void showAll(SDL_Surface *to) override;
+	void showAll(Canvas & to) override;
 };
 
 class FilledTexturePlayerColored : public CFilledTexture
@@ -124,7 +123,7 @@ public:
 	/// returns true if image has player-colored effect applied
 	bool isPlayerColored() const;
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 };
 
 /// Base class for displaying animation, used as superclass for different animations
@@ -154,7 +153,7 @@ protected:
 	ui8 flags;//Flags from EFlags enum
 
 	//blit image with optional rotation, fitting into rect, etc
-	void blitImage(size_t frame, size_t group, SDL_Surface *to);
+	void blitImage(size_t frame, size_t group, Canvas & to);
 
 	//For clipping in rect, offsets of picture coordinates
 	int xOffset, yOffset;
@@ -188,8 +187,8 @@ public:
 	void setDuration(int durationMs);
 
 	//show current frame and increase counter
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
+	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
 	void tick(uint32_t msPassed) override;
 };
 

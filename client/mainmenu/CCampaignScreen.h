@@ -20,7 +20,6 @@ VCMI_LIB_NAMESPACE_END
 class CLabel;
 class CPicture;
 class CButton;
-struct SDL_Surface;
 
 class CCampaignScreen : public CWindowObject
 {
@@ -46,7 +45,7 @@ private:
 
 	public:
 		CCampaignButton(const JsonNode & config);
-		void show(SDL_Surface * to) override;
+		void show(Canvas & to) override;
 	};
 
 	std::vector<std::shared_ptr<CCampaignButton>> campButtons;

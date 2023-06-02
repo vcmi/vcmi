@@ -40,8 +40,6 @@
 #include "../lib/ScriptHandler.h"
 #endif
 
-#include <SDL_surface.h>
-
 void ClientCommandManager::handleQuitCommand()
 {
 		exit(EXIT_SUCCESS);
@@ -172,21 +170,6 @@ void ClientCommandManager::handleSetBattleAICommand(std::istringstream& singleWo
 void ClientCommandManager::handleRedrawCommand()
 {
 	GH.windows().totalRedraw();
-}
-
-void ClientCommandManager::handleScreenCommand()
-{
-	printCommandMessage("Screenbuf points to ");
-
-	if(screenBuf == screen)
-		printCommandMessage("screen", ELogLevel::ERROR);
-	else if(screenBuf == screen2)
-		printCommandMessage("screen2", ELogLevel::ERROR);
-	else
-		printCommandMessage("?!?", ELogLevel::ERROR);
-
-	SDL_SaveBMP(screen, "Screen_c.bmp");
-	SDL_SaveBMP(screen2, "Screen2_c.bmp");
 }
 
 void ClientCommandManager::handleNotDialogCommand()
@@ -526,9 +509,6 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(commandName == "redraw")
 		handleRedrawCommand();
-
-	else if(commandName == "screen")
-		handleScreenCommand();
 
 	else if(commandName == "not dialog")
 		handleNotDialogCommand();

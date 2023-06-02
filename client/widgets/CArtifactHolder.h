@@ -80,7 +80,7 @@ public:
 	bool isMarked() const;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 	void setArtifact(const CArtifactInstance * art) override;
 	void addCombinedArtInfo(std::map<const CArtifact*, int> & arts);
 

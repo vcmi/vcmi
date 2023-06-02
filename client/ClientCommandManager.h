@@ -45,9 +45,6 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	// Redraw the current screen
 	void handleRedrawCommand();
 
-	// Prints information about current screen, and saves both screens as .bmp in root folder
-	void handleScreenCommand();
-
 	// Set the state indicating if dialog box is active to "no"
 	void handleNotDialogCommand();
 

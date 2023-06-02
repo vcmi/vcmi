@@ -54,7 +54,7 @@ public:
 
 	CMenuScreen(const JsonNode & configNode);
 
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 	void activate() override;
 	void deactivate() override;
 
@@ -187,7 +187,7 @@ public:
 	CLoadingScreen(std::function<void()> loader);
 	~CLoadingScreen();
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 };
 
 extern std::shared_ptr<CMainMenu> CMM;

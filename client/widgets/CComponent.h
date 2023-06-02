@@ -76,7 +76,7 @@ public:
 	bool selected; //if true, this component is selected
 	std::function<void()> onSelect; //function called on selection change
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 	void select(bool on);
 
 	void clickLeft(tribool down, bool previousState) override; //call-in

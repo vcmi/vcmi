@@ -25,7 +25,6 @@
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../render/CAnimation.h"
 
 #include "../../CCallback.h"

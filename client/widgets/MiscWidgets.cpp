@@ -20,7 +20,7 @@
 #include "../widgets/TextControls.h"
 #include "../windows/CCastleInterface.h"
 #include "../windows/InfoWindows.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 
 #include "../../CCallback.h"
 
@@ -180,7 +180,7 @@ LRClickableAreaOpenTown::LRClickableAreaOpenTown(const Rect & Pos, const CGTownI
 {
 }
 
-void CMinorResDataBar::show(SDL_Surface * to)
+void CMinorResDataBar::show(Canvas & to)
 {
 }
 
@@ -196,7 +196,7 @@ std::string CMinorResDataBar::buildDateString()
 	return boost::str(formatted);
 }
 
-void CMinorResDataBar::showAll(SDL_Surface * to)
+void CMinorResDataBar::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
@@ -204,9 +204,14 @@ void CMinorResDataBar::showAll(SDL_Surface * to)
 	{
 		std::string text = std::to_string(LOCPLINT->cb->getResourceAmount(i));
 
-		graphics->fonts[FONT_SMALL]->renderTextCenter(to, text, Colors::WHITE, Point(pos.x + 50 + 76 * GameResID(i), pos.y + pos.h/2));
+		Point target(pos.x + 50 + 76 * GameResID(i), pos.y + pos.h/2);
+
+		to.drawText(target, FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, text);
 	}
-	graphics->fonts[FONT_SMALL]->renderTextCenter(to, buildDateString(), Colors::WHITE, Point(pos.x+545+(pos.w-545)/2,pos.y+pos.h/2));
+
+	Point target(pos.x+545+(pos.w-545)/2,pos.y+pos.h/2);
+
+	to.drawText(target, FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, buildDateString());
 }
 
 CMinorResDataBar::CMinorResDataBar()
@@ -466,7 +471,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 	pos.h = bg->pos.h;
 }
 
-void CCreaturePic::show(SDL_Surface * to)
+void CCreaturePic::show(Canvas & to)
 {
 	// redraw everything in a proper order
 	bg->showAll(to);

@@ -45,8 +45,8 @@ public:
 	void print(const std::string & txt);
 
 	void tick(uint32_t msPassed) override;
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
+	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
 	void keyPressed(EShortcut key) override;
 	void textInputed(const std::string & enteredText) override;
 	void textEdited(const std::string & enteredText) override;

@@ -23,7 +23,6 @@ class CGHeroInstance;
 VCMI_LIB_NAMESPACE_END
 
 class CButton;
-struct SDL_Surface;
 class CHeroWindow;
 class LClickableAreaHero;
 class LRClickableAreaWText;

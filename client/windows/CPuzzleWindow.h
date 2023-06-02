@@ -33,8 +33,8 @@ private:
 	ui8 currentAlpha;
 
 public:
-	void showAll(SDL_Surface * to) override;
-	void show(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
+	void show(Canvas & to) override;
 
 	CPuzzleWindow(const int3 & grailPos, double discoveredRatio);
 };

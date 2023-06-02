@@ -16,7 +16,7 @@
 #include "../CVideoHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/TextControls.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 
 #include "../../lib/mapping/CCampaignHandler.h"
 
@@ -38,13 +38,13 @@ CPrologEpilogVideo::CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog 
 	text->scrollTextTo(-100);
 }
 
-void CPrologEpilogVideo::show(SDL_Surface * to)
+void CPrologEpilogVideo::show(Canvas & to)
 {
-	CSDL_Ext::fillRect(to, pos, Colors::BLACK);
+	to.drawColor(pos, Colors::BLACK);
 	//BUG: some videos are 800x600 in size while some are 800x400
 	//VCMI should center them in the middle of the screen. Possible but needs modification
 	//of video player API which I'd like to avoid until we'll get rid of Windows-specific player
-	CCS->videoh->update(pos.x, pos.y, to, true, false);
+	CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false);
 
 	//move text every 5 calls/frames; seems to be good enough
 	++positionCounter;

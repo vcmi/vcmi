@@ -68,23 +68,21 @@ void BasicMapView::tick(uint32_t msPassed)
 	controller->tick(msPassed);
 }
 
-void BasicMapView::show(SDL_Surface * to)
+void BasicMapView::show(Canvas & to)
 {
-	Canvas target(to);
-	CSDL_Ext::CClipRectGuard guard(to, pos);
-	render(target, false);
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
+	render(to, false);
 
 	controller->afterRender();
 }
 
-void BasicMapView::showAll(SDL_Surface * to)
+void BasicMapView::showAll(Canvas & to)
 {
-	Canvas target(to);
-	CSDL_Ext::CClipRectGuard guard(to, pos);
-	render(target, true);
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
+	render(to, true);
 }
 
-void MapView::show(SDL_Surface * to)
+void MapView::show(Canvas & to)
 {
 	actions->setContext(controller->getContext());
 	BasicMapView::show(to);

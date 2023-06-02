@@ -38,8 +38,8 @@ public:
 	~BasicMapView() override;
 
 	void tick(uint32_t msPassed) override;
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
+	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
 };
 
 /// Main class that represents visible section of adventure map
@@ -51,7 +51,7 @@ class MapView : public BasicMapView
 	bool isSwiping;
 
 public:
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 
 	MapView(const Point & offset, const Point & dimensions);
 

@@ -36,7 +36,7 @@ class CSimpleWindow : public WindowBase
 {
 public:
 	SDL_Surface * bitmap; //background
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 	CSimpleWindow():bitmap(nullptr){};
 	virtual ~CSimpleWindow();
 };
@@ -54,8 +54,8 @@ public:
 
 	virtual void close();
 
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
+	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
 	void sliderMoved(int to);
 
 	CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo & comps = TCompsInfo(), const TButtonsInfo & Buttons = TButtonsInfo());
@@ -102,7 +102,7 @@ public:
 	bool free; //TODO: comment me
 	SDL_Surface * bitmap; //popup background
 	void close() override;
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false);
 	CInfoPopup(SDL_Surface * Bitmap, const Point &p, ETextAlignment alignment, bool Free=false);
 	CInfoPopup(SDL_Surface * Bitmap = nullptr, bool Free = false);

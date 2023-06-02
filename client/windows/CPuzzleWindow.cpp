@@ -69,12 +69,12 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 	}
 }
 
-void CPuzzleWindow::showAll(SDL_Surface * to)
+void CPuzzleWindow::showAll(Canvas & to)
 {
 	CWindowObject::showAll(to);
 }
 
-void CPuzzleWindow::show(SDL_Surface * to)
+void CPuzzleWindow::show(Canvas & to)
 {
 	static int animSpeed = 2;
 

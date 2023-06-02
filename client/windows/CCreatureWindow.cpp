@@ -23,7 +23,6 @@
 #include "../widgets/ObjectLists.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
-#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"

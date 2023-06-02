@@ -19,6 +19,7 @@
 #include "../windows/CMessage.h"
 #include "../adventureMap/CInGameConsole.h"
 #include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 
 #include "../../lib/TextOperations.h"
 
@@ -34,7 +35,7 @@ std::string CLabel::visibleText()
 	return text;
 }
 
-void CLabel::showAll(SDL_Surface * to)
+void CLabel::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
@@ -137,7 +138,7 @@ void CMultiLineLabel::setText(const std::string & Txt)
 	CLabel::setText(Txt);
 }
 
-void CTextContainer::blitLine(SDL_Surface * to, Rect destRect, std::string what)
+void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 {
 	const auto f = graphics->fonts[font];
 	Point where = destRect.topLeft();
@@ -180,9 +181,10 @@ void CTextContainer::blitLine(SDL_Surface * to, Rect destRect, std::string what)
 			std::string toPrint = what.substr(begin, end - begin);
 
 			if(currDelimeter % 2) // Enclosed in {} text - set to yellow
-				f->renderTextLeft(to, toPrint, Colors::YELLOW, where);
+				to.drawText(where, font, Colors::YELLOW, ETextAlignment::TOPLEFT, toPrint);
 			else // Non-enclosed text, use default color
-				f->renderTextLeft(to, toPrint, color, where);
+				to.drawText(where, font, color, ETextAlignment::TOPLEFT, toPrint);
+
 			begin = end;
 
 			where.x += (int)f->getStringWidth(toPrint);
@@ -198,7 +200,7 @@ CTextContainer::CTextContainer(ETextAlignment alignment, EFonts font, SDL_Color 
 {
 }
 
-void CMultiLineLabel::showAll(SDL_Surface * to)
+void CMultiLineLabel::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
@@ -224,7 +226,7 @@ void CMultiLineLabel::showAll(SDL_Surface * to)
 	Point lineStart = getTextLocation().topLeft() - visibleSize + Point(0, beginLine * (int)f->getLineHeight());
 	Point lineSize = Point(getTextLocation().w, (int)f->getLineHeight());
 
-	CSDL_Ext::CClipRectGuard guard(to, getTextLocation()); // to properly trim text that is too big to fit
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), getTextLocation()); // to properly trim text that is too big to fit
 
 	for(int i = beginLine; i < std::min(totalLines, endLine); i++)
 	{
@@ -437,7 +439,7 @@ CGStatusBar::~CGStatusBar()
 	assert(GH.statusbar().get() != this);
 }
 
-void CGStatusBar::show(SDL_Surface * to)
+void CGStatusBar::show(Canvas & to)
 {
 	showAll(to);
 }

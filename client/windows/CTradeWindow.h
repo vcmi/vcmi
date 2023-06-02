@@ -54,11 +54,11 @@ public:
 		CFunctionList<void()> callback;
 		bool downSelection;
 
-		void showAllAt(const Point & dstPos, const std::string & customSub, SDL_Surface * to);
+		void showAllAt(const Point & dstPos, const std::string & customSub, Canvas & to);
 
 		void clickRight(tribool down, bool previousState) override;
 		void hover(bool on) override;
-		void showAll(SDL_Surface * to) override;
+		void showAll(Canvas & to) override;
 		void clickLeft(tribool down, bool previousState) override;
 		std::string getName(int number = -1) const;
 		CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial);
@@ -86,7 +86,7 @@ public:
 
 	CTradeWindow(std::string bgName, const IMarket * Market, const CGHeroInstance * Hero, EMarketMode::EMarketMode Mode); //c
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 
 	void initSubs(bool Left);
 	void initTypes();
@@ -169,7 +169,7 @@ public:
 	void putOnAltar(int backpackIndex);
 	bool putOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const CArtifactInstance * art);
 	void makeDeal();
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 
 	void blockTrade();
 	void sliderMoved(int to);

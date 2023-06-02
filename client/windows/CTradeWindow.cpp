@@ -13,7 +13,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../widgets/Images.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
@@ -127,7 +127,7 @@ int CTradeWindow::CTradeableItem::getIndex()
 	}
 }
 
-void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
+void CTradeWindow::CTradeableItem::showAll(Canvas & to)
 {
 	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
 	assert(mw);
@@ -168,7 +168,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 		CIntObject::showAll(to);
 	}
 
-	printAtMiddleLoc(subtitle, posToSubCenter, FONT_SMALL, Colors::WHITE, to);
+	to.drawText(pos.topLeft() + posToSubCenter, FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, subtitle);
 }
 
 void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
@@ -224,7 +224,7 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CTradeWindow::CTradeableItem::showAllAt(const Point &dstPos, const std::string &customSub, SDL_Surface * to)
+void CTradeWindow::CTradeableItem::showAllAt(const Point &dstPos, const std::string &customSub, Canvas & to)
 {
 	Rect oldPos = pos;
 	std::string oldSub = subtitle;
@@ -576,14 +576,14 @@ void CTradeWindow::initSubs(bool Left)
 	}
 }
 
-void CTradeWindow::showAll(SDL_Surface * to)
+void CTradeWindow::showAll(Canvas & to)
 {
 	CWindowObject::showAll(to);
 
 	if(hRight)
-		CSDL_Ext::drawBorder(to, hRight->pos.x-1, hRight->pos.y-1, hRight->pos.w+2, hRight->pos.h+2, Colors::BRIGHT_YELLOW);
+		to.drawBorder(Rect::createAround(hRight->pos, 1), Colors::BRIGHT_YELLOW, 2);
 	if(hLeft && hLeft->type != ARTIFACT_INSTANCE)
-		CSDL_Ext::drawBorder(to, hLeft->pos.x-1, hLeft->pos.y-1, hLeft->pos.w+2, hLeft->pos.h+2, Colors::BRIGHT_YELLOW);
+		to.drawBorder(Rect::createAround(hLeft->pos, 1), Colors::BRIGHT_YELLOW, 2);
 
 	if(readyToTrade)
 	{
@@ -1466,7 +1466,7 @@ void CAltarWindow::artifactPicked()
 	redraw();
 }
 
-void CAltarWindow::showAll(SDL_Surface * to)
+void CAltarWindow::showAll(Canvas & to)
 {
 	CTradeWindow::showAll(to);
 	if(mode == EMarketMode::ARTIFACT_EXP && arts)
@@ -1479,7 +1479,8 @@ void CAltarWindow::showAll(SDL_Surface * to)
 			int dmp, val;
 			market->getOffer(pickedArt->getTypeId(), 0, dmp, val, EMarketMode::ARTIFACT_EXP);
 			val = static_cast<int>(hero->calculateXp(val));
-			printAtMiddleLoc(std::to_string(val), Point(304, 498), FONT_SMALL, Colors::WHITE, to);
+
+			to.drawText(Point(304, 498), FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, std::to_string(val));
 		}
 	}
 }

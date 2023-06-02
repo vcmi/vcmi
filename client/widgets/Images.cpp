@@ -16,6 +16,7 @@
 #include "../renderSDL/SDL_Extensions.h"
 #include "../render/IImage.h"
 #include "../render/CAnimation.h"
+#include "../render/Canvas.h"
 #include "../render/ColorFilter.h"
 
 #include "../battle/BattleInterface.h"
@@ -77,16 +78,21 @@ CPicture::CPicture(std::shared_ptr<IImage> image, const Rect &SrcRect, int x, in
 	pos.h = srcRect->h;
 }
 
-void CPicture::show(SDL_Surface * to)
+void CPicture::show(Canvas & to)
 {
 	if (visible && needRefresh)
 		showAll(to);
 }
 
-void CPicture::showAll(SDL_Surface * to)
+void CPicture::showAll(Canvas & to)
 {
 	if(bg && visible)
-		bg->draw(to, pos.x, pos.y, srcRect.has_value() ? &srcRect.value() : nullptr);
+	{
+		if (srcRect.has_value())
+			to.draw(bg, pos.topLeft(), *srcRect);
+		else
+			to.draw(bg, pos.topLeft());
+	}
 }
 
 void CPicture::setAlpha(int value)
@@ -125,14 +131,14 @@ CFilledTexture::CFilledTexture(std::shared_ptr<IImage> image, Rect position, Rec
 	pos.h = position.h;
 }
 
-void CFilledTexture::showAll(SDL_Surface *to)
+void CFilledTexture::showAll(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to, pos);
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
 
 	for (int y=pos.top(); y < pos.bottom(); y+= imageArea.h)
 	{
 		for (int x=pos.left(); x < pos.right(); x+= imageArea.w)
-			texture->draw(to, x, y, &imageArea);
+			to.draw(texture, Point(x,y), imageArea);
 	}
 }
 
@@ -241,7 +247,7 @@ CAnimImage::~CAnimImage()
 {
 }
 
-void CAnimImage::showAll(SDL_Surface * to)
+void CAnimImage::showAll(Canvas & to)
 {
 	if(!visible)
 		return;
@@ -260,10 +266,10 @@ void CAnimImage::showAll(SDL_Surface * to)
 			if(isScaled())
 			{
 				auto scaled = img->scaleFast(scaledSize);
-				scaled->draw(to, pos.x, pos.y);
+				to.draw(scaled, pos.topLeft());
 			}
 			else
-				img->draw(to, pos.x, pos.y);
+				to.draw(img, pos.topLeft());
 		}
 	}
 }
@@ -388,7 +394,7 @@ void CShowableAnim::clipRect(int posX, int posY, int width, int height)
 	pos.h = height;
 }
 
-void CShowableAnim::show(SDL_Surface * to)
+void CShowableAnim::show(Canvas & to)
 {
 	if ( flags & BASE )// && frame != first) // FIXME: results in graphical glytch in Fortress, upgraded hydra's dwelling
 		blitImage(first, group, to);
@@ -410,22 +416,21 @@ void CShowableAnim::tick(uint32_t msPassed)
 	}
 }
 
-void CShowableAnim::showAll(SDL_Surface * to)
+void CShowableAnim::showAll(Canvas & to)
 {
 	if ( flags & BASE )// && frame != first)
 		blitImage(first, group, to);
 	blitImage(frame, group, to);
 }
 
-void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
+void CShowableAnim::blitImage(size_t frame, size_t group, Canvas & to)
 {
-	assert(to);
 	Rect src( xOffset, yOffset, pos.w, pos.h);
 	auto img = anim->getImage(frame, group);
 	if(img)
 	{
 		img->setAlpha(alpha);
-		img->draw(to, pos.x, pos.y, &src);
+		to.draw(img, pos.topLeft(), src);
 	}
 }
 

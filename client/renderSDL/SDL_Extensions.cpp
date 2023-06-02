@@ -110,8 +110,6 @@ SDL_Surface * CSDL_Ext::createSurfaceWithBpp(int width, int height)
 
 void CSDL_Ext::blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst)
 {
-	if(!dst)
-		dst = screen;
 	CSDL_Ext::blitSurface(src, dst, Point(x, y));
 }
 
