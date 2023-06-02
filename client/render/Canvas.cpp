@@ -127,7 +127,7 @@ void Canvas::drawLineDashed(const Point & from, const Point & dest, const ColorR
 	CSDL_Ext::drawLineDashed(surface, renderArea.topLeft() + from, renderArea.topLeft() + dest, CSDL_Ext::toSDL(color));
 }
 
-void Canvas::drawBorder(const Rect & target, const SDL_Color & color, uint width)
+void Canvas::drawBorder(const Rect & target, const SDL_Color & color, int width)
 {
 	Rect realTarget = target + renderArea.topLeft();
 

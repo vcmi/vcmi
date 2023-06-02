@@ -83,7 +83,7 @@ public:
 	void drawLineDashed(const Point & from, const Point & dest, const ColorRGBA & color);
 
 	/// renders rectangular, solid-color border in specified location
-	void drawBorder(const Rect & target, const SDL_Color & color, uint width = 1);
+	void drawBorder(const Rect & target, const SDL_Color & color, int width = 1);
 
 	/// renders rectangular, dashed border in specified location
 	void drawBorderDashed(const Rect & target, const ColorRGBA & color);
