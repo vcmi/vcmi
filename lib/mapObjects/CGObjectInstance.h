@@ -141,3 +141,5 @@ protected:
 
 	void serializeJsonOwner(JsonSerializeFormat & handler);
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -18,6 +18,8 @@
 
 #include "../VCMI_Lib.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMarketMode mode) const
 {
 	switch(mode)
@@ -173,3 +175,5 @@ std::vector<EMarketMode::EMarketMode> IMarket::availableModes() const
 
 	return ret;
 }
+
+VCMI_LIB_NAMESPACE_END

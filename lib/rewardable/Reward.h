@@ -11,6 +11,8 @@
 #pragma once
 
 #include "../ResourceSet.h"
+#include "../bonuses/Bonus.h"
+#include "../CCreatureSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

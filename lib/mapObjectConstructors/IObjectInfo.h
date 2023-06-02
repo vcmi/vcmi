@@ -56,3 +56,5 @@ public:
 
 	virtual ~IObjectInfo() = default;
 };
+
+VCMI_LIB_NAMESPACE_END

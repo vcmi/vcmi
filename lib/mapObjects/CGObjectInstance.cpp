@@ -25,6 +25,8 @@
 #include "../mapping/CMap.h"
 #include "../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 //TODO: remove constructor
 CGObjectInstance::CGObjectInstance():
 	pos(-1,-1,-1),
@@ -342,3 +344,5 @@ BattleField CGObjectInstance::getBattlefield() const
 {
 	return VLC->objtypeh->getHandlerFor(ID, subID)->getBattlefield();
 }
+
+VCMI_LIB_NAMESPACE_END
