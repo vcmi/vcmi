@@ -52,9 +52,9 @@
 #include "../lib/serializer/BinarySerializer.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CTownHandler.h"
-#include "../lib/mapObjects/CObjectClassesHandler.h" // For displaying correct UI when interacting with objects
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
+#include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/CStack.h"
 #include "../lib/JsonNode.h"
 #include "CMusicHandler.h"

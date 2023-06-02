@@ -10,9 +10,10 @@
 
 #include "StdInc.h"
 #include "ObstacleProxy.h"
-#include "../mapObjects/CObjectClassesHandler.h"
-#include "../mapObjects/CObjectHandler.h"
 #include "../mapping/CMap.h"
+#include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjects/ObjectTemplate.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

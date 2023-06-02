@@ -10,9 +10,13 @@
 
 #pragma once
 
-#include "../mapObjects/CGHeroInstance.h"
+#include "../GameConstants.h"
+#include "../ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+class CGHeroInstance;
+class CStackBasicDescriptor;
 
 namespace Rewardable {
 
@@ -66,15 +70,8 @@ struct DLL_LINKAGE Limiter
 	/// sub-limiters, none should pass for this limiter to pass
 	LimitersList noneOf;
 
-	Limiter():
-		dayOfWeek(0),
-		daysPassed(0),
-		heroExperience(0),
-		heroLevel(0),
-		manaPercentage(0),
-		manaPoints(0),
-		primary(GameConstants::PRIMARY_SKILLS, 0)
-	{}
+	Limiter();
+	~Limiter();
 
 	bool heroAllowed(const CGHeroInstance * hero) const;
 

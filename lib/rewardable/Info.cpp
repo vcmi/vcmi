@@ -14,15 +14,18 @@
 #include "Reward.h"
 #include "Configuration.h"
 
+#include "../CCreatureSet.h"
 #include "../CRandomGenerator.h"
 #include "../StringConstants.h"
 #include "../CCreatureHandler.h"
 #include "../CModHandler.h"
+#include "../NetPacksBase.h"
 #include "../JsonRandom.h"
 #include "../IGameCallback.h"
 #include "../CGeneralTextHandler.h"
 #include "../JsonNode.h"
 #include "../IGameCallback.h"
+#include "../mapObjects/IObjectInterface.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

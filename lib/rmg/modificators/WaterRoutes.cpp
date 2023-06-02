@@ -14,7 +14,6 @@
 #include "../CMapGenerator.h"
 #include "../RmgMap.h"
 #include "../../mapping/CMapEditManager.h"
-#include "../../mapObjects/CObjectClassesHandler.h"
 #include "../RmgPath.h"
 #include "../RmgObject.h"
 #include "ObjectManager.h"

@@ -13,7 +13,9 @@
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CRandomGenerator.h"
-#include "../lib/mapObjects/CObjectClassesHandler.h"
+#include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/mapping/CMap.h"
 
 #include "townbulidingswidget.h"

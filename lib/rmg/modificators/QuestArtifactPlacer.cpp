@@ -15,8 +15,8 @@
 #include "TreasurePlacer.h"
 #include "../CZonePlacer.h"
 #include "../../VCMI_Lib.h"
-#include "../../mapObjects/CObjectHandler.h"
-#include "../../mapObjects/CommonConstructors.h"
+#include "../../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapObjects/MapObjects.h" 
 
 VCMI_LIB_NAMESPACE_BEGIN

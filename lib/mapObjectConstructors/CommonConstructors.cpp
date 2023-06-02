@@ -10,18 +10,19 @@
 #include "StdInc.h"
 #include "CommonConstructors.h"
 
-#include "CGTownInstance.h"
-#include "CGHeroInstance.h"
-#include "CBank.h"
-#include "../TerrainHandler.h"
-#include "../mapping/CMapDefines.h"
-#include "../CHeroHandler.h"
-#include "../CGeneralTextHandler.h"
 #include "../CCreatureHandler.h"
-#include "JsonRandom.h"
+#include "../CGeneralTextHandler.h"
+#include "../CHeroHandler.h"
 #include "../CModHandler.h"
 #include "../IGameCallback.h"
 #include "../StringConstants.h"
+#include "../TerrainHandler.h"
+#include "../mapObjects/CBank.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/ObjectTemplate.h"
+#include "../mapping/CMapDefines.h"
+#include "JsonRandom.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

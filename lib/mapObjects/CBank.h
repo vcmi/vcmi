@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "CObjectHandler.h"
 #include "CArmedInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

@@ -24,7 +24,6 @@
 #include "../CSoundBase.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
-#include "CObjectClassesHandler.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 #include "../CCreatureHandler.h"
@@ -32,6 +31,8 @@
 #include "../mapping/CMap.h"
 #include "CGTownInstance.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../StringConstants.h"
 #include "../battle/Unit.h"
 

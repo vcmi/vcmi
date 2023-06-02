@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 #include "CModHandler.h"
-#include "mapObjects/CObjectClassesHandler.h"
 #include "rmg/CRmgTemplateStorage.h"
 #include "filesystem/FileStream.h"
 #include "filesystem/AdapterLoaders.h"
@@ -20,7 +19,6 @@
 #include "CArtHandler.h"
 #include "CTownHandler.h"
 #include "CHeroHandler.h"
-#include "mapObjects/CObjectHandler.h"
 #include "StringConstants.h"
 #include "CStopWatch.h"
 #include "IHandlerBase.h"
@@ -35,6 +33,7 @@
 #include "TerrainHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
+#include "mapObjectConstructors/CObjectClassesHandler.h"
 
 #include <vstd/StringUtils.h>
 

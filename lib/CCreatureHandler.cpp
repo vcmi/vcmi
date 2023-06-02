@@ -23,7 +23,8 @@
 #include "bonuses/Updaters.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
-#include "mapObjects/CObjectClassesHandler.h"
+#include "mapObjectConstructors/AObjectTypeHandler.h"
+#include "mapObjectConstructors/CObjectClassesHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

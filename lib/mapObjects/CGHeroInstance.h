@@ -11,11 +11,9 @@
 
 #include <vcmi/spells/Caster.h>
 
-#include "CObjectHandler.h"
 #include "CArmedInstance.h"
 
 #include "../CArtHandler.h" // For CArtifactSet
-#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

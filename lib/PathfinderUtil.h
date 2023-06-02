@@ -10,7 +10,8 @@
 #pragma once
 
 #include "TerrainHandler.h"
-#include "mapObjects/CObjectHandler.h"
+#include "mapObjects/CGObjectInstance.h"
+#include "mapping/CMapDefines.h"
 #include "CGameState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

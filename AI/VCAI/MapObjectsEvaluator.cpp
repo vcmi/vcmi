@@ -4,6 +4,7 @@
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CHeroHandler.h"
+#include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"

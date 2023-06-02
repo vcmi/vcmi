@@ -22,7 +22,6 @@
 #include "../CTownHandler.h"
 #include "../mapping/CCampaignHandler.h"
 #include "../NetPacks.h"
-#include "../mapObjects/CObjectClassesHandler.h"
 
 #include "../serializer/BinaryDeserializer.h"
 #include "../serializer/BinarySerializer.h"

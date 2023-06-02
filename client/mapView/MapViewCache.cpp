@@ -20,6 +20,7 @@
 #include "../render/IImage.h"
 
 #include "../../lib/mapObjects/CObjectHandler.h"
+#include "../../lib/int3.h"
 
 MapViewCache::~MapViewCache() = default;
 

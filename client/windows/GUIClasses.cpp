@@ -46,7 +46,9 @@
 #include "../../CCallback.h"
 
 #include "../lib/mapObjects/CGHeroInstance.h"
+#include "../lib/mapObjects/CGMarket.h"
 #include "../lib/mapObjects/CGTownInstance.h"
+#include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CBuildingHandler.h"
 #include "../lib/CConfigHandler.h"

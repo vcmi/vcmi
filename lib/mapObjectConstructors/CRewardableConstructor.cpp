@@ -9,7 +9,8 @@
  */
 #include "StdInc.h"
 #include "CRewardableConstructor.h"
-#include "CRewardableObject.h"
+
+#include "../mapObjects/CRewardableObject.h"
 #include "../CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 

@@ -12,7 +12,6 @@
 
 #include "CGameState.h" // PlayerState
 #include "CGeneralTextHandler.h"
-#include "mapObjects/CObjectHandler.h" // for CGObjectInstance
 #include "StartInfo.h" // for StartInfo
 #include "battle/BattleInfo.h" // for BattleInfo
 #include "NetPacks.h" // for InfoWindow

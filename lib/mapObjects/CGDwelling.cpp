@@ -10,8 +10,9 @@
 
 #include "StdInc.h"
 #include "CGDwelling.h"
-#include "CObjectClassesHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../CTownHandler.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"

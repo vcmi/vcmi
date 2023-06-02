@@ -12,6 +12,7 @@
 
 #include "Limiter.h"
 #include "Reward.h"
+#include "NetPacksBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

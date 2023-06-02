@@ -15,8 +15,10 @@
 #include "../VCMI_Lib.h"
 #include "../CModHandler.h"
 #include "../CTownHandler.h"
-#include "../mapObjects/CObjectClassesHandler.h"
 #include "../filesystem/Filesystem.h"
+#include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjects/ObjectTemplate.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

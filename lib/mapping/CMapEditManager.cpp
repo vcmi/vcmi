@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "CMapEditManager.h"
 
-
-#include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../VCMI_Lib.h"
 #include "CDrawRoadsOperation.h"

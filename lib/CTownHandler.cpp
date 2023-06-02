@@ -22,11 +22,11 @@
 #include "TerrainHandler.h"
 #include "spells/CSpellHandler.h"
 #include "filesystem/Filesystem.h"
-#include "mapObjects/CObjectClassesHandler.h"
-#include "mapObjects/CObjectHandler.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/Propagators.h"
 #include "ResourceSet.h"
+#include "mapObjectConstructors/AObjectTypeHandler.h"
+#include "mapObjectConstructors/CObjectClassesHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

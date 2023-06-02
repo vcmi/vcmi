@@ -9,17 +9,12 @@
  */
 #pragma once
 
-#include "CObjectHandler.h"
 #include "CArmedInstance.h"
-
 #include "../ResourceSet.h"
-#include "../CCreatureSet.h"
-#include "../NetPacksBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGCreature;
-
 
 class DLL_LINKAGE CQuest final
 {

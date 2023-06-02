@@ -19,7 +19,6 @@
 #include "../CModHandler.h"
 #include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
-#include "CObjectClassesHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"

@@ -19,8 +19,10 @@
 #include "../TileInfo.h"
 #include "../CZonePlacer.h"
 #include "QuestArtifactPlacer.h"
-#include "../../mapObjects/CommonConstructors.h"
-#include "../../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
+#include "../../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../mapObjectConstructors/CommonConstructors.h"
+#include "../../mapObjects/CGPandoraBox.h"
 #include "../../CCreatureHandler.h"
 #include "../../spells/CSpellHandler.h" //for choosing random spells
 #include "../../mapping/CMap.h"

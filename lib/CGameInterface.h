@@ -15,8 +15,6 @@
 
 #include "spells/ViewSpellInt.h"
 
-#include "mapObjects/CObjectHandler.h"
-
 class CBattleCallback;
 class CCallback;
 
@@ -68,6 +66,7 @@ namespace scripting
 }
 #endif
 
+using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 
 class DLL_LINKAGE CBattleGameInterface : public IBattleEventsReceiver
 {

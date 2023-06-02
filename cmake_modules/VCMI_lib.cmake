@@ -65,20 +65,25 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/logging/CBasicLogConfigurator.cpp
 		${MAIN_LIB_DIR}/logging/CLogger.cpp
 
+		${MAIN_LIB_DIR}/mapObjectConstructors/AObjectTypeHandler.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/CObjectClassesHandler.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/CommonConstructors.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/CRewardableConstructor.cpp
+
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CBank.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGDwelling.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGHeroInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGMarket.cpp
+		${MAIN_LIB_DIR}/mapObjects/CGObjectInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGPandoraBox.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGTownBuilding.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGTownInstance.cpp
-		${MAIN_LIB_DIR}/mapObjects/CObjectClassesHandler.cpp
 		${MAIN_LIB_DIR}/mapObjects/CObjectHandler.cpp
-		${MAIN_LIB_DIR}/mapObjects/CommonConstructors.cpp
 		${MAIN_LIB_DIR}/mapObjects/CQuest.cpp
-		${MAIN_LIB_DIR}/mapObjects/CRewardableConstructor.cpp
 		${MAIN_LIB_DIR}/mapObjects/CRewardableObject.cpp
+		${MAIN_LIB_DIR}/mapObjects/IMarket.cpp
+		${MAIN_LIB_DIR}/mapObjects/IObjectInterface.cpp
 		${MAIN_LIB_DIR}/mapObjects/MiscObjects.cpp
 		${MAIN_LIB_DIR}/mapObjects/ObjectTemplate.cpp
 
@@ -362,20 +367,28 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/logging/CBasicLogConfigurator.h
 		${MAIN_LIB_DIR}/logging/CLogger.h
 
+		${MAIN_LIB_DIR}/mapObjectConstructors/AObjectTypeHandler.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/CObjectClassesHandler.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/CommonConstructors.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/CRewardableConstructor.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/IObjectInfo.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/RandomMapInfo.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/SObjectSounds.h
+
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CBank.h
 		${MAIN_LIB_DIR}/mapObjects/CGDwelling.h
 		${MAIN_LIB_DIR}/mapObjects/CGHeroInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CGMarket.h
+		${MAIN_LIB_DIR}/mapObjects/CGObjectInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CGPandoraBox.h
 		${MAIN_LIB_DIR}/mapObjects/CGTownBuilding.h
 		${MAIN_LIB_DIR}/mapObjects/CGTownInstance.h
-		${MAIN_LIB_DIR}/mapObjects/CObjectClassesHandler.h
 		${MAIN_LIB_DIR}/mapObjects/CObjectHandler.h
-		${MAIN_LIB_DIR}/mapObjects/CommonConstructors.h
 		${MAIN_LIB_DIR}/mapObjects/CQuest.h
-		${MAIN_LIB_DIR}/mapObjects/CRewardableConstructor.h
 		${MAIN_LIB_DIR}/mapObjects/CRewardableObject.h
+		${MAIN_LIB_DIR}/mapObjects/IMarket.h
+		${MAIN_LIB_DIR}/mapObjects/IObjectInterface.h
 		${MAIN_LIB_DIR}/mapObjects/MapObjects.h
 		${MAIN_LIB_DIR}/mapObjects/MiscObjects.h
 		${MAIN_LIB_DIR}/mapObjects/ObjectTemplate.h

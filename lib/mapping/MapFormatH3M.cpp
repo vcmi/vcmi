@@ -29,8 +29,10 @@
 #include "../VCMI_Lib.h"
 #include "../filesystem/CBinaryReader.h"
 #include "../filesystem/Filesystem.h"
-#include "../mapObjects/CObjectClassesHandler.h"
+#include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/MapObjects.h"
+#include "../mapObjects/ObjectTemplate.h"
 #include "../spells/CSpellHandler.h"
 
 #include <boost/crc.hpp>

@@ -21,8 +21,8 @@
 #include "MinePlacer.h"
 #include "QuestArtifactPlacer.h"
 #include "../../CCreatureHandler.h"
-#include "../../mapObjects/CommonConstructors.h"
-#include "../../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
+#include "../../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
 #include "../Functions.h"

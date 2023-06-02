@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "CGTownInstance.h"
 #include "CGTownBuilding.h"
-#include "CObjectClassesHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../bonuses/Bonus.h"
 #include "../battle/IBattleInfoCallback.h"
@@ -24,6 +23,8 @@
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
 #include "../TerrainHandler.h"
+#include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

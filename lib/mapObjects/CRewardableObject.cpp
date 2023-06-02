@@ -10,12 +10,13 @@
 
 #include "StdInc.h"
 #include "CRewardableObject.h"
-#include "../mapObjects/CObjectClassesHandler.h"
 #include "../CGameState.h"
 #include "../CGeneralTextHandler.h"
 #include "../CPlayerState.h"
 #include "../IGameCallback.h"
 #include "../NetPacks.h"
+#include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
