@@ -238,7 +238,8 @@ std::shared_ptr<CCreatureSet> ArmyManager::getArmyAvailableToBuyAsCCreatureSet(
 ui64 ArmyManager::howManyReinforcementsCanBuy(
 	const CCreatureSet * targetArmy,
 	const CGDwelling * dwelling,
-	const TResources & availableResources) const
+	const TResources & availableResources,
+	uint8_t turn) const
 {
 	ui64 aivalue = 0;
 	auto army = getArmyAvailableToBuy(targetArmy, dwelling, availableResources);
@@ -259,17 +260,29 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(const CCreatureSet * her
 std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 	const CCreatureSet * hero,
 	const CGDwelling * dwelling,
-	TResources availableRes) const
+	TResources availableRes,
+	uint8_t turn) const
 {
 	std::vector<creInfo> creaturesInDwellings;
 	int freeHeroSlots = GameConstants::ARMY_SIZE - hero->stacksCount();
+	bool countGrowth = (cb->getDate(Date::DAY_OF_WEEK) + turn) > 7;
+
+	const CGTownInstance * town = dwelling->ID == CGTownInstance::TOWN
+		? dynamic_cast<const CGTownInstance *>(dwelling)
+		: nullptr;
 
 	for(int i = dwelling->creatures.size() - 1; i >= 0; i--)
 	{
 		auto ci = infoFromDC(dwelling->creatures[i]);
 
-		if(!ci.count || ci.creID == -1)
-			continue;
+		if(ci.creID == -1) continue;
+
+		if(i < GameConstants::CREATURES_PER_TOWN && countGrowth)
+		{
+			ci.count += town ? town->creatureGrowth(i) : ci.cre->getGrowth();
+		}
+
+		if(!ci.count) continue;
 
 		SlotID dst = hero->getSlotFor(ci.creID);
 		if(!hero->hasStackAtSlot(dst)) //need another new slot for this stack
@@ -282,8 +295,7 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 
 		vstd::amin(ci.count, availableRes / ci.cre->getFullRecruitCost()); //max count we can afford
 
-		if(!ci.count)
-			continue;
+		if(!ci.count) continue;
 
 		ci.level = i; //this is important for Dungeon Summoning Portal
 		creaturesInDwellings.push_back(ci);

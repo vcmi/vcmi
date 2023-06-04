@@ -45,20 +45,32 @@ public:
 	virtual	ui64 howManyReinforcementsCanBuy(
 		const CCreatureSet * targetArmy,
 		const CGDwelling * dwelling,
-		const TResources & availableResources) const = 0;
+		const TResources & availableResources,
+		uint8_t turn = 0) const = 0;
+
 	virtual ui64 howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const = 0;
-	virtual ui64 howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const = 0;
+	virtual ui64 howManyReinforcementsCanGet(
+		const IBonusBearer * armyCarrier,
+		const CCreatureSet * target,
+		const CCreatureSet * source) const = 0;
+
 	virtual std::vector<SlotInfo> getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const = 0;
 	virtual std::vector<SlotInfo>::iterator getWeakestCreature(std::vector<SlotInfo> & army) const = 0;
 	virtual std::vector<SlotInfo> getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const = 0;
-	virtual std::vector<creInfo> getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling, TResources availableRes) const = 0;
+
+	virtual std::vector<creInfo> getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling) const = 0;
+	virtual std::vector<creInfo> getArmyAvailableToBuy(
+		const CCreatureSet * hero,
+		const CGDwelling * dwelling,
+		TResources availableRes,
+		uint8_t turn = 0) const = 0;
+
 	virtual uint64_t evaluateStackPower(const CCreature * creature, int count) const = 0;
 	virtual SlotInfo getTotalCreaturesAvailable(CreatureID creatureID) const = 0;
 	virtual ArmyUpgradeInfo calculateCreaturesUpgrade(
 		const CCreatureSet * army,
 		const CGObjectInstance * upgrader,
 		const TResources & availableResources) const = 0;
-	virtual std::vector<creInfo> getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling) const = 0;
 	virtual std::shared_ptr<CCreatureSet> getArmyAvailableToBuyAsCCreatureSet(const CGDwelling * dwelling, TResources availableRes) const = 0;
 };
 
@@ -74,18 +86,27 @@ private:
 public:
 	ArmyManager(CPlayerSpecificInfoCallback * CB, const Nullkiller * ai): cb(CB), ai(ai) {}
 	void update() override;
+
 	ui64 howManyReinforcementsCanBuy(const CCreatureSet * target, const CGDwelling * source) const override;
 	ui64 howManyReinforcementsCanBuy(
 		const CCreatureSet * targetArmy,
 		const CGDwelling * dwelling,
-		const TResources & availableResources) const override;
+		const TResources & availableResources,
+		uint8_t turn = 0) const override;
+
 	ui64 howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const override;
 	ui64 howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const override;
 	std::vector<SlotInfo> getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const override;
 	std::vector<SlotInfo>::iterator getWeakestCreature(std::vector<SlotInfo> & army) const override;
 	std::vector<SlotInfo> getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const override;
-	std::vector<creInfo> getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling, TResources availableRes) const override;
+
 	std::vector<creInfo> getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling) const override;
+	std::vector<creInfo> getArmyAvailableToBuy(
+		const CCreatureSet * hero,
+		const CGDwelling * dwelling,
+		TResources availableRes,
+		uint8_t turn = 0) const override;
+
 	std::shared_ptr<CCreatureSet> getArmyAvailableToBuyAsCCreatureSet(const CGDwelling * dwelling, TResources availableRes) const override;
 	uint64_t evaluateStackPower(const CCreature * creature, int count) const override;
 	SlotInfo getTotalCreaturesAvailable(CreatureID creatureID) const override;

@@ -11,7 +11,7 @@
 #pragma once
 
 #define NKAI_PATHFINDER_TRACE_LEVEL 0
-#define NKAI_TRACE_LEVEL 0
+#define NKAI_TRACE_LEVEL 2
 
 #include "../../../lib/pathfinder/CGPathNode.h"
 #include "../../../lib/pathfinder/INodeStorage.h"
@@ -24,8 +24,8 @@
 
 namespace NKAI
 {
-	const int SCOUT_TURN_DISTANCE_LIMIT = 3;
-	const int MAIN_TURN_DISTANCE_LIMIT = 5;
+	const int SCOUT_TURN_DISTANCE_LIMIT = 5;
+	const int MAIN_TURN_DISTANCE_LIMIT = 10;
 
 namespace AIPathfinding
 {

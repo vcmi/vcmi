@@ -16,6 +16,7 @@
 #include "../Markers/ArmyUpgrade.h"
 #include "GatherArmyBehavior.h"
 #include "../AIUtility.h"
+#include "../Goals/ExchangeSwapTownHeroes.h"
 
 namespace NKAI
 {
@@ -78,20 +79,27 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 	for(const AIPath & path : paths)
 	{
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("Path found %s", path.toString());
+		logAi->trace("Path found %s, %s, %lld", path.toString(), path.targetHero->getObjectName(), path.heroArmy->getArmyStrength());
 #endif
 		
-		if(path.containsHero(hero)) continue;
-
-		if(path.turn() == 0 && hero->inTownGarrison)
+		if(path.containsHero(hero))
 		{
-#if NKAI_TRACE_LEVEL >= 1
-			logAi->trace("Skipping garnisoned hero %s, %s", hero->getObjectName(), pos.toString());
+#if NKAI_TRACE_LEVEL >= 2
+			logAi->trace("Selfcontaining path. Ignore");
 #endif
 			continue;
 		}
 
-		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
+		bool garrisoned = false;
+
+		if(path.turn() == 0 && hero->inTownGarrison)
+		{
+#if NKAI_TRACE_LEVEL >= 1
+			garrisoned = true;
+#endif
+		}
+
+		if(path.turn() > 0 && ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
@@ -172,7 +180,21 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 			exchangePath.closestWayRatio = 1;
 
 			composition.addNext(heroExchange);
-			composition.addNext(exchangePath);
+
+			if(garrisoned && path.turn() == 0)
+			{
+				auto lockReason = ai->nullkiller->getHeroLockedReason(hero);
+
+				composition.addNextSequence({
+					sptr(ExchangeSwapTownHeroes(hero->visitedTown)),
+					sptr(exchangePath),
+					sptr(ExchangeSwapTownHeroes(hero->visitedTown, hero, lockReason))
+				});
+			}
+			else
+			{
+				composition.addNext(exchangePath);
+			}
 
 			auto blockedAction = path.getFirstBlockedAction();
 
@@ -221,7 +243,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 	for(const AIPath & path : paths)
 	{
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("Path found %s", path.toString());
+		logAi->trace("Path found %s, %s, %lld", path.toString(), path.targetHero->getObjectName(), path.heroArmy->getArmyStrength());
 #endif
 		if(upgrader->visitingHero && upgrader->visitingHero.get() != path.targetHero)
 		{
@@ -267,7 +289,14 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 				ai->nullkiller->armyManager->howManyReinforcementsCanGet(
 					path.targetHero,
 					path.heroArmy,
-					upgrader->getUpperArmy());	
+					upgrader->getUpperArmy());
+
+			upgrade.upgradeValue +=
+				ai->nullkiller->armyManager->howManyReinforcementsCanBuy(
+					path.heroArmy,
+					upgrader,
+					ai->nullkiller->getFreeResources(),
+					path.turn());
 		}
 
 		auto armyValue = (float)upgrade.upgradeValue / path.getHeroStrength();

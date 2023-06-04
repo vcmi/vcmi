@@ -18,6 +18,7 @@
 #include "../Analyzers/ArmyManager.h"
 #include "../Analyzers/HeroManager.h"
 #include "../Analyzers/ObjectClusterizer.h"
+#include "../Helpers/ArmyFormation.h"
 
 namespace NKAI
 {
@@ -67,6 +68,7 @@ public:
 	std::unique_ptr<AIMemory> memory;
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;
 	std::unique_ptr<DeepDecomposer> decomposer;
+	std::unique_ptr<ArmyFormation> armyFormation;
 	PlayerColor playerID;
 	std::shared_ptr<CCallback> cb;
 

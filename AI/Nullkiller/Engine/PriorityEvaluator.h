@@ -66,6 +66,8 @@ struct DLL_EXPORT EvaluationContext
 	float enemyHeroDangerRatio;
 
 	EvaluationContext(const Nullkiller * ai);
+
+	void addNonCriticalStrategicalValue(float value);
 };
 
 class IEvaluationContextBuilder

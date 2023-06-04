@@ -23,6 +23,7 @@
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/BuildThis.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
+#include "../Goals/DismissHero.h"
 #include "../Markers/UnlockCluster.h"
 #include "../Markers/HeroExchange.h"
 #include "../Markers/ArmyUpgrade.h"
@@ -33,6 +34,7 @@ namespace NKAI
 
 #define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
+const float MIN_CRITICAL_VALUE = 2.0f;
 
 EvaluationContext::EvaluationContext(const Nullkiller * ai)
 	: movementCost(0.0),
@@ -52,6 +54,11 @@ EvaluationContext::EvaluationContext(const Nullkiller * ai)
 	enemyHeroDangerRatio(0),
 	armyGrowth(0)
 {
+}
+
+void EvaluationContext::addNonCriticalStrategicalValue(float value)
+{
+	vstd::amax(strategicalValue, std::min(value, MIN_CRITICAL_VALUE));
 }
 
 PriorityEvaluator::~PriorityEvaluator()
@@ -399,7 +406,7 @@ float RewardEvaluator::getEnemyHeroStrategicalValue(const CGHeroInstance * enemy
 	  2. The formula quickly approaches 1.0 as hero level increases,
 	  but higher level always means higher value and the minimal value for level 1 hero is 0.5
 	*/
-	return std::min(1.0f, objectValue * 0.9f + (1.0f - (1.0f / (1 + enemy->level))));
+	return std::min(1.5f, objectValue * 0.9f + (1.5f - (1.5f / (1 + enemy->level))));
 }
 
 float RewardEvaluator::getResourceRequirementStrength(int resType) const
@@ -640,7 +647,8 @@ public:
 
 		uint64_t armyStrength = heroExchange.getReinforcementArmyStrength();
 
-		evaluationContext.strategicalValue += 0.5f * armyStrength / heroExchange.hero.get()->getArmyStrength();
+		evaluationContext.addNonCriticalStrategicalValue(2.0f * armyStrength / (float)heroExchange.hero.get()->getArmyStrength());
+		evaluationContext.heroRole = evaluationContext.evaluator.ai->heroManager->getHeroRole(heroExchange.hero.get());
 	}
 };
 
@@ -657,7 +665,7 @@ public:
 		uint64_t upgradeValue = armyUpgrade.getUpgradeValue();
 
 		evaluationContext.armyReward += upgradeValue;
-		evaluationContext.strategicalValue += upgradeValue / (float)armyUpgrade.hero->getArmyStrength();
+		evaluationContext.addNonCriticalStrategicalValue(upgradeValue / (float)armyUpgrade.hero->getArmyStrength());
 	}
 };
 
@@ -712,19 +720,21 @@ public:
 		auto armyIncome = townArmyIncome(town);
 		auto dailyIncome = town->dailyIncome()[EGameResID::GOLD];
 
-		auto strategicalValue = std::sqrt(armyIncome / 20000.0f) + dailyIncome / 3000.0f;
+		auto strategicalValue = std::sqrt(armyIncome / 60000.0f) + dailyIncome / 10000.0f;
 
 		if(evaluationContext.evaluator.ai->buildAnalyzer->getDevelopmentInfo().size() == 1)
-			strategicalValue = 1;
+			vstd::amax(evaluationContext.strategicalValue, 10.0);
 
 		float multiplier = 1;
 
 		if(treat.turn < defendTown.getTurn())
 			multiplier /= 1 + (defendTown.getTurn() - treat.turn);
 
-		evaluationContext.armyReward += armyIncome * multiplier;
+		multiplier /= 1.0f + treat.turn / 5.0f;
+
+		evaluationContext.armyGrowth += armyIncome * multiplier;
 		evaluationContext.goldReward += dailyIncome * 5 * multiplier;
-		evaluationContext.strategicalValue += strategicalValue * multiplier;
+		evaluationContext.addNonCriticalStrategicalValue(strategicalValue * multiplier);
 		vstd::amax(evaluationContext.danger, defendTown.getTreat().danger);
 		addTileDanger(evaluationContext, town->visitablePos(), defendTown.getTurn(), defendTown.getDefenceStrength());
 	}
@@ -770,19 +780,22 @@ public:
 		auto army = path.heroArmy;
 
 		const CGObjectInstance * target = ai->cb->getObj((ObjectInstanceID)task->objid, false);
+		auto heroRole = evaluationContext.evaluator.ai->heroManager->getHeroRole(heroPtr);
+
+		if(heroRole == HeroRole::MAIN)
+			evaluationContext.heroRole = heroRole;
 
 		if (target && ai->cb->getPlayerRelations(target->tempOwner, hero->tempOwner) == PlayerRelations::ENEMIES)
 		{
 			evaluationContext.goldReward += evaluationContext.evaluator.getGoldReward(target, hero);
 			evaluationContext.armyReward += evaluationContext.evaluator.getArmyReward(target, hero, army, checkGold);
 			evaluationContext.armyGrowth += evaluationContext.evaluator.getArmyGrowth(target, hero, army);
-			evaluationContext.skillReward += evaluationContext.evaluator.getSkillReward(target, hero, evaluationContext.heroRole);
-			evaluationContext.strategicalValue += evaluationContext.evaluator.getStrategicalValue(target);
+			evaluationContext.skillReward += evaluationContext.evaluator.getSkillReward(target, hero, heroRole);
+			evaluationContext.addNonCriticalStrategicalValue(evaluationContext.evaluator.getStrategicalValue(target));
 			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army);
 		}
 
 		vstd::amax(evaluationContext.armyLossPersentage, path.getTotalArmyLoss() / (double)path.getHeroStrength());
-		evaluationContext.heroRole = evaluationContext.evaluator.ai->heroManager->getHeroRole(heroPtr);
 		addTileDanger(evaluationContext, path.targetTile(), path.turn(), path.getHeroStrength());
 		vstd::amax(evaluationContext.turn, path.turn());
 	}
@@ -822,7 +835,7 @@ public:
 			evaluationContext.goldReward += evaluationContext.evaluator.getGoldReward(target, hero) / boost;
 			evaluationContext.armyReward += evaluationContext.evaluator.getArmyReward(target, hero, army, checkGold) / boost;
 			evaluationContext.skillReward += evaluationContext.evaluator.getSkillReward(target, hero, role) / boost;
-			evaluationContext.strategicalValue += evaluationContext.evaluator.getStrategicalValue(target) / boost;
+			evaluationContext.addNonCriticalStrategicalValue(evaluationContext.evaluator.getStrategicalValue(target) / boost);
 			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army) / boost;
 			evaluationContext.movementCostByRole[role] += objInfo.second.movementCost / boost;
 			evaluationContext.movementCost += objInfo.second.movementCost / boost;
@@ -860,6 +873,31 @@ public:
 	}
 };
 
+class DismissHeroContextBuilder : public IEvaluationContextBuilder
+{
+private:
+	const Nullkiller * ai;
+
+public:
+	DismissHeroContextBuilder(const Nullkiller * ai) : ai(ai) {}
+
+	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	{
+		if(task->goalType != Goals::DISMISS_HERO)
+			return;
+
+		Goals::DismissHero & dismissCommand = dynamic_cast<Goals::DismissHero &>(*task);
+		const CGHeroInstance * dismissedHero = dismissCommand.getHero().get();
+
+		auto role = ai->heroManager->getHeroRole(dismissedHero);
+		auto mpLeft = dismissedHero->movement;
+			
+		evaluationContext.movementCost += mpLeft;
+		evaluationContext.movementCostByRole[role] += mpLeft;
+		evaluationContext.goldCost += GameConstants::HERO_GOLD_COST + getArmyCost(dismissedHero);
+	}
+};
+
 class BuildThisEvaluationContextBuilder : public IEvaluationContextBuilder
 {
 public:
@@ -878,31 +916,31 @@ public:
 
 		if(bi.creatureID != CreatureID::NONE)
 		{
-			evaluationContext.strategicalValue += buildThis.townInfo.armyStrength / 50000.0;
+			evaluationContext.addNonCriticalStrategicalValue(buildThis.townInfo.armyStrength / 50000.0);
 
 			if(bi.baseCreatureID == bi.creatureID)
 			{
-				evaluationContext.strategicalValue += (0.5f + 0.1f * bi.creatureLevel) / (float)bi.prerequisitesCount;
+				evaluationContext.addNonCriticalStrategicalValue((0.5f + 0.1f * bi.creatureLevel) / (float)bi.prerequisitesCount);
 				evaluationContext.armyReward += bi.armyStrength;
 			}
 			else
 			{
 				auto potentialUpgradeValue = evaluationContext.evaluator.getUpgradeArmyReward(buildThis.town, bi);
 				
-				evaluationContext.strategicalValue += potentialUpgradeValue / 10000.0f / (float)bi.prerequisitesCount;
+				evaluationContext.addNonCriticalStrategicalValue(potentialUpgradeValue / 10000.0f / (float)bi.prerequisitesCount);
 				evaluationContext.armyReward += potentialUpgradeValue / (float)bi.prerequisitesCount;
 			}
 		}
 		else if(bi.id == BuildingID::CITADEL || bi.id == BuildingID::CASTLE)
 		{
-			evaluationContext.strategicalValue += buildThis.town->creatures.size() * 0.2f;
+			evaluationContext.addNonCriticalStrategicalValue(buildThis.town->creatures.size() * 0.2f);
 			evaluationContext.armyReward += buildThis.townInfo.armyStrength / 2;
 		}
 		else
 		{
 			auto goldPreasure = evaluationContext.evaluator.ai->buildAnalyzer->getGoldPreasure();
 
-			evaluationContext.strategicalValue += evaluationContext.goldReward * goldPreasure / 3500.0f / bi.prerequisitesCount;
+			evaluationContext.addNonCriticalStrategicalValue(evaluationContext.goldReward * goldPreasure / 3500.0f / bi.prerequisitesCount);
 		}
 
 		if(bi.notEnoughRes && bi.prerequisitesCount == 1)
@@ -934,6 +972,7 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * ai)
 	evaluationContextBuilders.push_back(std::make_shared<ArmyUpgradeEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<DefendTownEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ExchangeSwapTownHeroesContextBuilder>());
+	evaluationContextBuilders.push_back(std::make_shared<DismissHeroContextBuilder>(ai));
 }
 
 EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal) const
