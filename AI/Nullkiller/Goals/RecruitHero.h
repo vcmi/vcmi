@@ -22,18 +22,20 @@ namespace Goals
 {
 	class DLL_EXPORT RecruitHero : public ElementarGoal<RecruitHero>
 	{
+	private:
+		const CGHeroInstance * heroToBuy;
+
 	public:
 		RecruitHero(const CGTownInstance * townWithTavern, const CGHeroInstance * heroToBuy)
-			: RecruitHero(townWithTavern)
+			: ElementarGoal(Goals::RECRUIT_HERO), heroToBuy(heroToBuy)
 		{
-			objid = heroToBuy->id.getNum();
+			town = townWithTavern;
+			priority = 1;
 		}
 
 		RecruitHero(const CGTownInstance * townWithTavern)
-			: ElementarGoal(Goals::RECRUIT_HERO)
+			: RecruitHero(townWithTavern, nullptr)
 		{
-			priority = 1;
-			town = townWithTavern;
 		}
 
 		virtual bool operator==(const RecruitHero & other) const override

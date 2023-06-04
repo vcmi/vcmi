@@ -29,7 +29,7 @@ namespace NKAI
 {
 
 // our to enemy strength ratio constants
-const float SAFE_ATTACK_CONSTANT = 1.2f;
+const float SAFE_ATTACK_CONSTANT = 1.1f;
 const float RETREAT_THRESHOLD = 0.3f;
 const double RETREAT_ABSOLUTE_THRESHOLD = 10000.;
 
@@ -90,8 +90,10 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
-	validateObject(details.id); //enemy hero may have left visible area
 	auto hero = cb->getHero(details.id);
+
+	if(!hero)
+		validateObject(details.id); //enemy hero may have left visible area
 
 	const int3 from = hero ? hero->convertToVisitablePos(details.start) : (details.start - int3(0,1,0));;
 	const int3 to   = hero ? hero->convertToVisitablePos(details.end)   : (details.end   - int3(0,1,0));
@@ -794,10 +796,7 @@ void AIGateway::makeTurn()
 
 	cb->sendMessage("vcmieagles");
 
-	if(cb->getDate(Date::DAY) == 1)
-	{
-		retrieveVisitableObjs();
-	}
+	retrieveVisitableObjs();
 
 #if NKAI_TRACE_LEVEL == 0
 	try

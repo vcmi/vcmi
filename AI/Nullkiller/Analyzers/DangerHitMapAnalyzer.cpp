@@ -19,12 +19,12 @@ HitMapInfo HitMapInfo::NoTreat;
 
 void DangerHitMapAnalyzer::updateHitMap()
 {
-	if(upToDate)
+	if(hitMapUpToDate)
 		return;
 
 	logAi->trace("Update danger hitmap");
 
-	upToDate = true;
+	hitMapUpToDate = true;
 	auto start = std::chrono::high_resolution_clock::now();
 
 	auto cb = ai->cb.get();
@@ -71,8 +71,10 @@ void DangerHitMapAnalyzer::updateHitMap()
 				auto turn = path.turn();
 				auto & node = hitMap[pos.x][pos.y][pos.z];
 
-				if(tileDanger / (turn / 3 + 1) > node.maximumDanger.danger / (node.maximumDanger.turn / 3 + 1)
-					|| (tileDanger == node.maximumDanger.danger && node.maximumDanger.turn > turn))
+				auto newMaxDanger = tileDanger / std::sqrt(turn / 3.0f + 1);
+				auto currentMaxDanger = node.maximumDanger.danger / std::sqrt(node.maximumDanger.turn / 3.0f + 1);
+
+				if(newMaxDanger > currentMaxDanger)
 				{
 					node.maximumDanger.danger = tileDanger;
 					node.maximumDanger.turn = turn;
@@ -102,6 +104,94 @@ void DangerHitMapAnalyzer::updateHitMap()
 	}
 
 	logAi->trace("Danger hit map updated in %ld", timeElapsed(start));
+}
+
+void DangerHitMapAnalyzer::calculateTileOwners()
+{
+	if(tileOwnersUpToDate) return;
+
+	tileOwnersUpToDate = true;
+
+	auto cb = ai->cb.get();
+	auto mapSize = ai->cb->getMapSize();
+
+	tileOwners.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);
+
+	std::map<const CGHeroInstance *, HeroRole> townHeroes;
+	std::map<const CGHeroInstance *, const CGTownInstance *> heroTownMap;
+	PathfinderSettings pathfinderSettings;
+
+	pathfinderSettings.mainTurnDistanceLimit = 3;
+
+	auto addTownHero = [&](const CGTownInstance * town)
+	{
+			auto townHero = new CGHeroInstance();
+			CRandomGenerator rng;
+			
+			townHero->pos = town->pos;
+			townHero->setOwner(ai->playerID); // lets avoid having multiple colors
+			townHero->initHero(rng, static_cast<HeroTypeID>(0));
+			townHero->initObj(rng);
+			
+			heroTownMap[townHero] = town;
+			townHeroes[townHero] = HeroRole::MAIN;
+	};
+
+	for(auto obj : ai->memory->visitableObjs)
+	{
+		if(obj && obj->ID == Obj::TOWN)
+		{
+			addTownHero(dynamic_cast<const CGTownInstance *>(obj));
+		}
+	}
+
+	for(auto town : cb->getTownsInfo())
+	{
+		addTownHero(town);
+	}
+
+	ai->pathfinder->updatePaths(townHeroes, PathfinderSettings());
+
+	pforeachTilePos(mapSize, [&](const int3 & pos)
+		{
+			float ourDistance = std::numeric_limits<float>::max();
+			float enemyDistance = std::numeric_limits<float>::max();
+			const CGTownInstance * enemyTown = nullptr;
+
+			for(AIPath & path : ai->pathfinder->getPathInfo(pos))
+			{
+				if(!path.targetHero || path.getFirstBlockedAction())
+					continue;
+
+				auto town = heroTownMap[path.targetHero];
+
+				if(town->getOwner() == ai->playerID)
+				{
+					vstd::amin(ourDistance, path.movementCost());
+				}
+				else
+				{
+					if(enemyDistance > path.movementCost())
+					{
+						enemyDistance = path.movementCost();
+						enemyTown = town;
+					}
+				}
+			}
+
+			if(ourDistance == enemyDistance)
+			{
+				tileOwners[pos.x][pos.y][pos.z] = PlayerColor::NEUTRAL;
+			}
+			else if(!enemyTown || ourDistance < enemyDistance)
+			{
+				tileOwners[pos.x][pos.y][pos.z] = ai->playerID;
+			}
+			else
+			{
+				tileOwners[pos.x][pos.y][pos.z] = enemyTown->getOwner();
+			}
+		});
 }
 
 uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & path) const
@@ -144,7 +234,7 @@ const std::set<const CGObjectInstance *> & DangerHitMapAnalyzer::getOneTurnAcces
 
 void DangerHitMapAnalyzer::reset()
 {
-	upToDate = false;
+	hitMapUpToDate = false;
 }
 
 }

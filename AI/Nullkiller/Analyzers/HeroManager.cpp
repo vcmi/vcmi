@@ -180,6 +180,15 @@ float HeroManager::evaluateHero(const CGHeroInstance * hero) const
 	return evaluateFightingStrength(hero);
 }
 
+bool HeroManager::heroCapReached() const
+{
+	const bool includeGarnisoned = true;
+	int heroCount = cb->getHeroCount(ai->playerID, includeGarnisoned);
+
+	return heroCount >= ALLOWED_ROAMING_HEROES
+		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
+}
+
 bool HeroManager::canRecruitHero(const CGTownInstance * town) const
 {
 	if(!town)
@@ -191,13 +200,7 @@ bool HeroManager::canRecruitHero(const CGTownInstance * town) const
 	if(cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST)
 		return false;
 
-	const bool includeGarnisoned = true;
-	int heroCount = cb->getHeroCount(ai->playerID, includeGarnisoned);
-
-	if(heroCount >= ALLOWED_ROAMING_HEROES)
-		return false;
-
-	if(heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
+	if(heroCapReached())
 		return false;
 
 	if(!cb->getAvailableHeroes(town).size())

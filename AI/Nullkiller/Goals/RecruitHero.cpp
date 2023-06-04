@@ -24,7 +24,10 @@ using namespace Goals;
 
 std::string RecruitHero::toString() const
 {
-	return "Recruit hero at " + town->getNameTranslated();
+	if(heroToBuy)
+		return "Recruit " + heroToBuy->getNameTranslated() + " at " + town->getNameTranslated();
+	else
+		return "Recruit hero at " + town->getNameTranslated();
 }
 
 void RecruitHero::accept(AIGateway * ai)
@@ -45,19 +48,19 @@ void RecruitHero::accept(AIGateway * ai)
 		throw cannotFulfillGoalException("No available heroes in tavern in " + t->nodeName());
 	}
 
-	auto heroToHire = heroes[0];
+	auto heroToHire = heroToBuy;
 
-	for(auto hero : heroes)
+	if(!heroToHire)
 	{
-		if(objid == hero->id.getNum())
+		for(auto hero : heroes)
 		{
-			heroToHire = hero;
-			break;
+			if(!heroToHire || hero->getTotalStrength() > heroToHire->getTotalStrength())
+				heroToHire = hero;
 		}
-
-		if(hero->getTotalStrength() > heroToHire->getTotalStrength())
-			heroToHire = hero;
 	}
+
+	if(!heroToHire)
+		throw cannotFulfillGoalException("No hero to hire!");
 
 	if(t->visitingHero)
 	{

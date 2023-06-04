@@ -15,8 +15,12 @@
 
 namespace NKAI
 {
+
+struct HitMapInfo;
+
 namespace Goals
 {
+
 	class DefenceBehavior : public CGoal<DefenceBehavior>
 	{
 	public:
@@ -35,6 +39,7 @@ namespace Goals
 
 	private:
 		void evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town) const;
+		void evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & treat, const CGTownInstance * town) const;
 	};
 }
 

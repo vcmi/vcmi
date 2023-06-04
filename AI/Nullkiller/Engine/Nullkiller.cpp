@@ -61,6 +61,7 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 	armyManager.reset(new ArmyManager(cb.get(), this));
 	heroManager.reset(new HeroManager(cb.get(), this));
 	decomposer.reset(new DeepDecomposer());
+	armyFormation.reset(new ArmyFormation(cb, this));
 }
 
 Goals::TTask Nullkiller::choseBestTask(Goals::TTaskVec & tasks) const
@@ -137,6 +138,7 @@ void Nullkiller::updateAiState(int pass, bool fast)
 	{
 		memory->removeInvisibleObjects(cb.get());
 
+		dangerHitMap->calculateTileOwners();
 		dangerHitMap->updateHitMap();
 
 		boost::this_thread::interruption_point();
@@ -222,7 +224,7 @@ void Nullkiller::makeTurn()
 	boost::lock_guard<boost::mutex> sharedStorageLock(AISharedStorage::locker);
 
 	const int MAX_DEPTH = 10;
-	const float FAST_TASK_MINIMAL_PRIORITY = 0.7;
+	const float FAST_TASK_MINIMAL_PRIORITY = 0.7f;
 
 	resetAiState();
 

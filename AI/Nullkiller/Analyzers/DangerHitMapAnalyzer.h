@@ -55,19 +55,23 @@ class DangerHitMapAnalyzer
 {
 private:
 	boost::multi_array<HitMapNode, 3> hitMap;
+	boost::multi_array<PlayerColor, 3> tileOwners;
 	std::map<const CGHeroInstance *, std::set<const CGObjectInstance *>> enemyHeroAccessibleObjects;
-	bool upToDate;
+	bool hitMapUpToDate = false;
+	bool tileOwnersUpToDate = false;
 	const Nullkiller * ai;
 
 public:
 	DangerHitMapAnalyzer(const Nullkiller * ai) :ai(ai) {}
 
 	void updateHitMap();
+	void calculateTileOwners();
 	uint64_t enemyCanKillOurHeroesAlongThePath(const AIPath & path) const;
 	const HitMapNode & getObjectTreat(const CGObjectInstance * obj) const;
 	const HitMapNode & getTileTreat(const int3 & tile) const;
 	const std::set<const CGObjectInstance *> & getOneTurnAccessibleObjects(const CGHeroInstance * enemy) const;
 	void reset();
+	void resetTileOwners() { tileOwnersUpToDate = false; }
 };
 
 }
