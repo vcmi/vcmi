@@ -100,7 +100,13 @@ void BattleFieldController::panning(bool on, const Point & initialPosition, cons
 
 void BattleFieldController::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
-	hoveredHex = getHexAtPosition(initialPosition);
+	Point distance = currentPosition - initialPosition;
+
+	if (distance.length() < settings["battle"]["swipeAttackDistance"].Float())
+		hoveredHex = getHexAtPosition(initialPosition);
+	else
+		hoveredHex = BattleHex::INVALID;
+
 	currentAttackOriginPoint = currentPosition;
 
 	if (pos.isInside(initialPosition))

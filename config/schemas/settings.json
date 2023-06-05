@@ -286,7 +286,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "showQueue", "queueSize" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -311,6 +311,10 @@
 				"showQueue" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"swipeAttackDistance" : {
+					"type" : "number",
+					"default" : 250
 				},
 				"queueSize" : {
 					"type" : "string",
