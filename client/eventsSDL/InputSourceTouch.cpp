@@ -15,6 +15,8 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../CMT.h"
+#include "../CGameInfo.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/MouseButton.h"
@@ -52,6 +54,9 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 			};
 
 			GH.input().moveCursorPosition(moveDistance);
+			if (CCS && CCS->curh)
+				CCS->curh->cursorMove(GH.getCursorPosition().x, GH.getCursorPosition().y);
+
 			break;
 		}
 		case TouchState::IDLE:

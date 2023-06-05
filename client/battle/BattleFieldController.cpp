@@ -633,7 +633,7 @@ void BattleFieldController::show(Canvas & to)
 		auto cursorIndex = CCS->curh->get<Cursor::Combat>();
 		auto imageIndex = static_cast<size_t>(cursorIndex);
 
-		canvas.draw(attackCursors->getImage(imageIndex), hexPositionAbsolute(getHoveredHex()).center() - CCS->curh->getPivotOffsetCombat(imageIndex));
+		to.draw(attackCursors->getImage(imageIndex), hexPositionAbsolute(getHoveredHex()).center() - CCS->curh->getPivotOffsetCombat(imageIndex));
 	}
 }
 
