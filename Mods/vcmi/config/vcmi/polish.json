@@ -52,8 +52,6 @@
 	"vcmi.adventureOptions.forceMovementInfo.help" : "{Zawsze pokazuj koszt ruchu}\n\n Zastępuje domyślne informacje paska statusu danymi o ruchu bez potrzeby przytrzymywania klawisza ALT.",
 	"vcmi.adventureOptions.showGrid.hover" : "Pokaż siatkę",
 	"vcmi.adventureOptions.showGrid.help" : "{Pokaż siatkę}\n\n Włącza siatkę pokazującą brzegi pól mapy przygody.",
-	"vcmi.adventureOptions.mapSwipe.hover" : "Przeciąganie mapy",
-	"vcmi.adventureOptions.mapSwipe.help" : "{Przeciąganie mapy}\n\n Pozwala przesuwać mapę przygody palcem dla systemów z ekranami dotykowymi. Obecnie pozwala też przesuwać mapę lewym przyciskiem myszy.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",

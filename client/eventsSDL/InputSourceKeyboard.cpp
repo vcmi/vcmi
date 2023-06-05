@@ -83,3 +83,22 @@ void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 
 	GH.events().dispatchShortcutReleased(shortcutsVector);
 }
+
+bool InputSourceKeyboard::isKeyboardCtrlDown() const
+{
+#ifdef VCMI_MAC
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LGUI] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RGUI];
+#else
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LCTRL] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RCTRL];
+#endif
+}
+
+bool InputSourceKeyboard::isKeyboardAltDown() const
+{
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LALT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RALT];
+}
+
+bool InputSourceKeyboard::isKeyboardShiftDown() const
+{
+	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RSHIFT];
+}

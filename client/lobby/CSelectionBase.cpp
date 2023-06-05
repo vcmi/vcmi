@@ -28,10 +28,11 @@
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../mainmenu/CMainMenu.h"
-#include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
@@ -201,7 +202,7 @@ void InfoCard::changeSelection()
 
 	mapDescription->label->scrollTextTo(0, false);
 	if(mapDescription->slider)
-		mapDescription->slider->moveToMin();
+		mapDescription->slider->scrollToMin();
 
 	if(SEL->screenType == ESelectionScreen::campaignList)
 		return;
@@ -336,7 +337,7 @@ void CChatBox::addNewMessage(const std::string & text)
 	CCS->soundh->playSound("CHAT");
 	chatHistory->setText(chatHistory->label->getText() + text + "\n");
 	if(chatHistory->slider)
-		chatHistory->slider->moveToMax();
+		chatHistory->slider->scrollToMax();
 }
 
 CFlagBox::CFlagBox(const Rect & rect)

@@ -29,7 +29,6 @@
 #include "../../lib/CConfigHandler.h"
 
 #include <SDL_events.h>
-#include <SDL_hints.h>
 
 InputHandler::InputHandler()
 	: mouseHandler(std::make_unique<InputSourceMouse>())
@@ -37,8 +36,6 @@ InputHandler::InputHandler()
 	, fingerHandler(std::make_unique<InputSourceTouch>())
 	, textHandler(std::make_unique<InputSourceText>())
 	, userHandler(std::make_unique<UserEventHandler>())
-	, mouseButtonsMask(0)
-	, pointerSpeedMultiplier(settings["general"]["relativePointerSpeedMultiplier"].Float())
 {
 }
 
@@ -56,14 +53,14 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			return mouseHandler->handleEventMouseMotion(current.motion);
 		case SDL_MOUSEBUTTONDOWN:
 			return mouseHandler->handleEventMouseButtonDown(current.button);
+		case SDL_MOUSEBUTTONUP:
+			return mouseHandler->handleEventMouseButtonUp(current.button);
 		case SDL_MOUSEWHEEL:
 			return mouseHandler->handleEventMouseWheel(current.wheel);
 		case SDL_TEXTINPUT:
 			return textHandler->handleEventTextInput(current.text);
 		case SDL_TEXTEDITING:
 			return textHandler->handleEventTextEditing(current.edit);
-		case SDL_MOUSEBUTTONUP:
-			return mouseHandler->handleEventMouseButtonUp(current.button);
 		case SDL_FINGERMOTION:
 			return fingerHandler->handleEventFingerMotion(current.tfinger);
 		case SDL_FINGERDOWN:
@@ -77,15 +74,10 @@ void InputHandler::processEvents()
 {
 	boost::unique_lock<boost::mutex> lock(eventsMutex);
 	for (auto const & currentEvent : eventsQueue)
-	{
-		if (currentEvent.type == SDL_MOUSEMOTION)
-		{
-			cursorPosition = Point(currentEvent.motion.x, currentEvent.motion.y);
-			mouseButtonsMask = currentEvent.motion.state;
-		}
 		handleCurrentEvent(currentEvent);
-	}
+
 	eventsQueue.clear();
+	fingerHandler->handleUpdate();
 }
 
 bool InputHandler::ignoreEventsUntilInput()
@@ -169,14 +161,31 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	{
 		boost::unique_lock<boost::mutex> lock(eventsMutex);
 
-		if(ev.type == SDL_MOUSEMOTION && !eventsQueue.empty() && eventsQueue.back().type == SDL_MOUSEMOTION)
+		// In a sequence of motion events, skip all but the last one.
+		// This prevents freezes when every motion event takes longer to handle than interval at which
+		// the events arrive (like dragging on the minimap in world view, with redraw at every event)
+		// so that the events would start piling up faster than they can be processed.
+		if (!eventsQueue.empty())
 		{
-			// In a sequence of mouse motion events, skip all but the last one.
-			// This prevents freezes when every motion event takes longer to handle than interval at which
-			// the events arrive (like dragging on the minimap in world view, with redraw at every event)
-			// so that the events would start piling up faster than they can be processed.
-			eventsQueue.back() = ev;
-			return;
+			const SDL_Event & prev = eventsQueue.back();
+
+			if(ev.type == SDL_MOUSEMOTION && prev.type == SDL_MOUSEMOTION)
+			{
+				SDL_Event accumulated = ev;
+				accumulated.motion.xrel += prev.motion.xrel;
+				accumulated.motion.yrel += prev.motion.yrel;
+				eventsQueue.back() = accumulated;
+				return;
+			}
+
+			if(ev.type == SDL_FINGERMOTION && prev.type == SDL_FINGERMOTION && ev.tfinger.fingerId == prev.tfinger.fingerId)
+			{
+				SDL_Event accumulated = ev;
+				accumulated.tfinger.dx += prev.tfinger.dx;
+				accumulated.tfinger.dy += prev.tfinger.dy;
+				eventsQueue.back() = accumulated;
+				return;
+			}
 		}
 		eventsQueue.push_back(ev);
 	}
@@ -194,42 +203,28 @@ void InputHandler::fetchEvents()
 
 bool InputHandler::isKeyboardCtrlDown() const
 {
-#ifdef VCMI_MAC
-	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LGUI] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RGUI];
-#else
-	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LCTRL] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RCTRL];
-#endif
+	return keyboardHandler->isKeyboardCtrlDown();
 }
 
 bool InputHandler::isKeyboardAltDown() const
 {
-	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LALT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RALT];
+	return keyboardHandler->isKeyboardAltDown();
 }
 
 bool InputHandler::isKeyboardShiftDown() const
 {
-	return SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(nullptr)[SDL_SCANCODE_RSHIFT];
+	return keyboardHandler->isKeyboardShiftDown();
 }
 
-
-void InputHandler::fakeMoveCursor(float dx, float dy)
+void InputHandler::moveCursorPosition(const Point & distance)
 {
-	int x, y, w, h;
+	setCursorPosition(getCursorPosition() + distance);
+}
 
-	SDL_Event event;
-	SDL_MouseMotionEvent sme = {SDL_MOUSEMOTION, 0, 0, 0, 0, 0, 0, 0, 0};
-
-	sme.state = SDL_GetMouseState(&x, &y);
-	SDL_GetWindowSize(mainWindow, &w, &h);
-
-	sme.x = GH.getCursorPosition().x + (int)(pointerSpeedMultiplier * w * dx);
-	sme.y = GH.getCursorPosition().y + (int)(pointerSpeedMultiplier * h * dy);
-
-	vstd::abetween(sme.x, 0, w);
-	vstd::abetween(sme.y, 0, h);
-
-	event.motion = sme;
-	SDL_PushEvent(&event);
+void InputHandler::setCursorPosition(const Point & position)
+{
+	cursorPosition = position;
+	GH.events().dispatchMouseMoved(position);
 }
 
 void InputHandler::startTextInput(const Rect & where)
@@ -242,16 +237,14 @@ void InputHandler::stopTextInput()
 	textHandler->stopTextInput();
 }
 
+bool InputHandler::hasTouchInputDevice() const
+{
+	return fingerHandler->hasTouchInputDevice();
+}
+
 bool InputHandler::isMouseButtonPressed(MouseButton button) const
 {
-	static_assert(static_cast<uint32_t>(MouseButton::LEFT)   == SDL_BUTTON_LEFT,   "mismatch between VCMI and SDL enum!");
-	static_assert(static_cast<uint32_t>(MouseButton::MIDDLE) == SDL_BUTTON_MIDDLE, "mismatch between VCMI and SDL enum!");
-	static_assert(static_cast<uint32_t>(MouseButton::RIGHT)  == SDL_BUTTON_RIGHT,  "mismatch between VCMI and SDL enum!");
-	static_assert(static_cast<uint32_t>(MouseButton::EXTRA1) == SDL_BUTTON_X1,     "mismatch between VCMI and SDL enum!");
-	static_assert(static_cast<uint32_t>(MouseButton::EXTRA2) == SDL_BUTTON_X2,     "mismatch between VCMI and SDL enum!");
-
-	uint32_t index = static_cast<uint32_t>(button);
-	return mouseButtonsMask & SDL_BUTTON(index);
+	return mouseHandler->isMouseButtonPressed(button) || fingerHandler->isMouseButtonPressed(button);
 }
 
 void InputHandler::pushUserEvent(EUserEvent usercode, void * userdata)

@@ -20,4 +20,8 @@ public:
 
 	void handleEventKeyDown(const SDL_KeyboardEvent & current);
 	void handleEventKeyUp(const SDL_KeyboardEvent & current);
+
+	bool isKeyboardAltDown() const;
+	bool isKeyboardCtrlDown() const;
+	bool isKeyboardShiftDown() const;
 };

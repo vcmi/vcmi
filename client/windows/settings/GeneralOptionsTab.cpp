@@ -16,6 +16,7 @@
 #include "../../gui/CGuiHandler.h"
 #include "../../gui/WindowHandler.h"
 #include "../../widgets/Buttons.h"
+#include "../../widgets/Slider.h"
 #include "../../widgets/TextControls.h"
 #include "../../widgets/Images.h"
 #include "CGameInfo.h"
@@ -78,11 +79,12 @@ GeneralOptionsTab::GeneralOptionsTab()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	type |= REDRAW_PARENT;
 
-	addConditional("mobile", false);
-	addConditional("desktop", true);
 #ifdef VCMI_MOBILE
 	addConditional("mobile", true);
 	addConditional("desktop", false);
+#else
+	addConditional("mobile", false);
+	addConditional("desktop", true);
 #endif
 
 	const JsonNode config(ResourceID("config/widgets/settings/generalOptionsTab.json"));
@@ -163,10 +165,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	framerateCheckbox->setSelected(settings["video"]["showfps"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
-	musicSlider->moveTo(CCS->musich->getVolume());
+	musicSlider->scrollTo(CCS->musich->getVolume());
 
 	std::shared_ptr<CSlider> volumeSlider = widget<CSlider>("soundVolumeSlider");
-	volumeSlider->moveTo(CCS->soundh->getVolume());
+	volumeSlider->scrollTo(CCS->soundh->getVolume());
 
 	std::shared_ptr<CToggleGroup> creatureGrowthAsDwellingPicker = widget<CToggleGroup>("availableCreaturesAsDwellingPicker");
 	creatureGrowthAsDwellingPicker->setSelected(settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].Bool());

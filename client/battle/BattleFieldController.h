@@ -10,14 +10,12 @@
 #pragma once
 
 #include "../../lib/battle/BattleHex.h"
+#include "../../lib/Point.h"
 #include "../gui/CIntObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
 class CStack;
 class Rect;
-class Point;
-
 VCMI_LIB_NAMESPACE_END
 
 class BattleHero;
@@ -36,11 +34,16 @@ class BattleFieldController : public CIntObject
 	std::shared_ptr<IImage> cellUnitMaxMovementHighlight;
 	std::shared_ptr<IImage> cellShade;
 
+	std::shared_ptr<CAnimation> attackCursors;
+
 	/// Canvas that contains background, hex grid (if enabled), absolute obstacles and movement range of active stack
 	std::unique_ptr<Canvas> backgroundWithHexes;
 
-	/// hex from which the stack would perform attack with current cursor
-	BattleHex attackingHex;
+	/// direction which will be used to perform attack with current cursor position
+	Point currentAttackOriginPoint;
+
+	/// hex currently under mouse hover
+	BattleHex hoveredHex;
 
 	/// hexes to which currently active stack can move
 	std::vector<BattleHex> occupiableHexes;
@@ -61,8 +64,14 @@ class BattleFieldController : public CIntObject
 	void showHighlightedHexes(Canvas & canvas);
 	void updateAccessibleHexes();
 
-	BattleHex::EDir selectAttackDirection(BattleHex myNumber, const Point & point);
+	BattleHex getHexAtPosition(Point hoverPosition);
 
+	/// Checks whether selected pixel is transparent, uses local coordinates of a hex
+	bool isPixelInHex(Point const & position);
+	size_t selectBattleCursor(BattleHex myNumber);
+
+	void panning(bool on, const Point & initialPosition, const Point & finalPosition) override;
+	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void mouseMoved(const Point & cursorPosition) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
@@ -71,6 +80,9 @@ class BattleFieldController : public CIntObject
 	void showAll(Canvas & to) override;
 	void show(Canvas & to) override;
 	void tick(uint32_t msPassed) override;
+
+	bool receiveEvent(const Point & position, int eventType) const override;
+
 public:
 	BattleFieldController(BattleInterface & owner);
 
@@ -85,9 +97,6 @@ public:
 	/// Returns position of hex relative to game window
 	Rect hexPositionAbsolute(BattleHex hex) const;
 
-	/// Checks whether selected pixel is transparent, uses local coordinates of a hex
-	bool isPixelInHex(Point const & position);
-
 	/// Returns ID of currently hovered hex or BattleHex::INVALID if none
 	BattleHex getHoveredHex();
 
@@ -97,6 +106,7 @@ public:
 	/// returns true if stack should render its stack count image in default position - outside own hex
 	bool stackCountOutsideHex(const BattleHex & number) const;
 
-	void setBattleCursor(BattleHex myNumber);
+	BattleHex::EDir selectAttackDirection(BattleHex myNumber);
+
 	BattleHex fromWhichHexAttack(BattleHex myNumber);
 };

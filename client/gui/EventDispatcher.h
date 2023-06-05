@@ -25,7 +25,6 @@ class EventDispatcher
 	/// list of UI elements that are interested in particular event
 	EventReceiversList lclickable;
 	EventReceiversList rclickable;
-	EventReceiversList mclickable;
 	EventReceiversList hoverable;
 	EventReceiversList keyinterested;
 	EventReceiversList motioninterested;
@@ -33,6 +32,7 @@ class EventDispatcher
 	EventReceiversList wheelInterested;
 	EventReceiversList doubleClickInterested;
 	EventReceiversList textInterested;
+	EventReceiversList panningInterested;
 
 	EventReceiversList & getListForMouseButton(MouseButton button);
 
@@ -60,7 +60,12 @@ public:
 	void dispatchMouseButtonReleased(const MouseButton & button, const Point & position);
 	void dispatchMouseScrolled(const Point & distance, const Point & position);
 	void dispatchMouseDoubleClick(const Point & position);
-	void dispatchMouseMoved(const Point & position);
+	void dispatchMouseMoved(const Point & distance);
+
+	void dispatchGesturePanningStarted(const Point & initialPosition);
+	void dispatchGesturePanningEnded(const Point & initialPosition, const Point & finalPosition);
+	void dispatchGesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance);
+	void dispatchGesturePinch(const Point & initialPosition, double distance);
 
 	/// Text input events
 	void dispatchTextInput(const std::string & text);

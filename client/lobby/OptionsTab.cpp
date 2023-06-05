@@ -20,6 +20,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
@@ -48,6 +49,8 @@ OptionsTab::OptionsTab() : humanPlayers(0)
 	if(SEL->screenType == ESelectionScreen::newGame || SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::scenarioInfo)
 	{
 		sliderTurnDuration = std::make_shared<CSlider>(Point(55, 551), 194, std::bind(&IServerAPI::setTurnLength, CSH, _1), 1, (int)GameConstants::POSSIBLE_TURNTIME.size(), (int)GameConstants::POSSIBLE_TURNTIME.size(), true, CSlider::BLUE);
+		sliderTurnDuration->setScrollBounds(Rect(-3, -25, 337, 43));
+		sliderTurnDuration->setPanningStep(20);
 		labelPlayerTurnDuration = std::make_shared<CLabel>(222, 538, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[521]);
 		labelTurnDurationValue = std::make_shared<CLabel>(319, 559, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	}
@@ -69,7 +72,7 @@ void OptionsTab::recreate()
 
 	if(sliderTurnDuration)
 	{
-		sliderTurnDuration->moveTo(vstd::find_pos(GameConstants::POSSIBLE_TURNTIME, SEL->getStartInfo()->turnTime));
+		sliderTurnDuration->scrollTo(vstd::find_pos(GameConstants::POSSIBLE_TURNTIME, SEL->getStartInfo()->turnTime));
 		labelTurnDurationValue->setText(CGI->generaltexth->turnDurations[sliderTurnDuration->getValue()]);
 	}
 }
@@ -410,7 +413,8 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 }
 
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, SelType type)
-	: CIntObject(RCLICK, position), CPlayerSettingsHelper(settings, type)
+	: Scrollable(RCLICK, position, Orientation::HORIZONTAL)
+	, CPlayerSettingsHelper(settings, type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -418,6 +422,8 @@ OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, 
 	subtitle = std::make_shared<CLabel>(23, 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, getName());
 
 	pos = image->pos;
+
+	setPanningStep(pos.w);
 }
 
 void OptionsTab::SelectedBox::update()
@@ -438,6 +444,29 @@ void OptionsTab::SelectedBox::clickRight(tribool down, bool previousState)
 
 		GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
 	}
+}
+
+void OptionsTab::SelectedBox::scrollBy(int distance)
+{
+	// FIXME: currently options tab is completely recreacted from scratch whenever we receive any information from server
+	// because of that, panning event gets interrupted (due to destruction of element)
+	// so, currently, gesture will always move selection only by 1, and then wait for recreation from server info
+	distance = std::clamp(distance, -1, 1);
+
+	switch(CPlayerSettingsHelper::type)
+	{
+		case TOWN:
+			CSH->setPlayerOption(LobbyChangePlayerOption::TOWN, distance, settings.color);
+			break;
+		case HERO:
+			CSH->setPlayerOption(LobbyChangePlayerOption::HERO, distance, settings.color);
+			break;
+		case BONUS:
+			CSH->setPlayerOption(LobbyChangePlayerOption::BONUS, distance, settings.color);
+			break;
+	}
+
+	setScrollingEnabled(false);
 }
 
 OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, const OptionsTab & parent)

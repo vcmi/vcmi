@@ -28,7 +28,6 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 
 	processList(AEventsReceiver::LCLICK, lclickable);
 	processList(AEventsReceiver::RCLICK, rclickable);
-	processList(AEventsReceiver::MCLICK, mclickable);
 	processList(AEventsReceiver::HOVER, hoverable);
 	processList(AEventsReceiver::MOVE, motioninterested);
 	processList(AEventsReceiver::KEYBOARD, keyinterested);
@@ -36,6 +35,7 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 	processList(AEventsReceiver::WHEEL, wheelInterested);
 	processList(AEventsReceiver::DOUBLECLICK, doubleClickInterested);
 	processList(AEventsReceiver::TEXTINPUT, textInterested);
+	processList(AEventsReceiver::GESTURE_PANNING, panningInterested);
 }
 
 void EventDispatcher::activateElement(AEventsReceiver * elem, ui16 activityFlag)
@@ -120,8 +120,6 @@ EventDispatcher::EventReceiversList & EventDispatcher::getListForMouseButton(Mou
 			return lclickable;
 		case MouseButton::RIGHT:
 			return rclickable;
-		case MouseButton::MIDDLE:
-			return mclickable;
 	}
 	throw std::runtime_error("Invalid mouse button in getListForMouseButton");
 }
@@ -136,9 +134,9 @@ void EventDispatcher::dispatchMouseDoubleClick(const Point & position)
 		if(!vstd::contains(doubleClickInterested, i))
 			continue;
 
-		if(i->isInside(position))
+		if(i->receiveEvent(position, AEventsReceiver::DOUBLECLICK))
 		{
-			i->onDoubleClick();
+			i->clickDouble();
 			doubleClicked = true;
 		}
 	}
@@ -166,16 +164,29 @@ void EventDispatcher::handleMouseButtonClick(EventReceiversList & interestedObjs
 			continue;
 
 		auto prev = i->isMouseButtonPressed(btn);
+
 		if(!isPressed)
 			i->currentMouseState[btn] = isPressed;
-		if(i->isInside(GH.getCursorPosition()))
+
+		if( btn == MouseButton::LEFT && i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
 		{
 			if(isPressed)
 				i->currentMouseState[btn] = isPressed;
-			i->click(btn, isPressed, prev);
+			i->clickLeft(isPressed, prev);
+		}
+		else if( btn == MouseButton::RIGHT && i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::RCLICK))
+		{
+			if(isPressed)
+				i->currentMouseState[btn] = isPressed;
+			i->clickRight(isPressed, prev);
 		}
 		else if(!isPressed)
-			i->click(btn, boost::logic::indeterminate, prev);
+		{
+			if (btn == MouseButton::LEFT)
+				i->clickLeft(boost::logic::indeterminate, prev);
+			if (btn == MouseButton::RIGHT)
+				i->clickRight(boost::logic::indeterminate, prev);
+		}
 	}
 }
 
@@ -186,7 +197,9 @@ void EventDispatcher::dispatchMouseScrolled(const Point & distance, const Point 
 	{
 		if(!vstd::contains(wheelInterested,i))
 			continue;
-		i->wheelScrolled(distance.y < 0, i->isInside(position));
+
+		if (i->receiveEvent(position, AEventsReceiver::WHEEL))
+			i->wheelScrolled(distance.y);
 	}
 }
 
@@ -206,27 +219,79 @@ void EventDispatcher::dispatchTextEditing(const std::string & text)
 	}
 }
 
+void EventDispatcher::dispatchGesturePanningStarted(const Point & initialPosition)
+{
+	auto copied = panningInterested;
+
+	for(auto it : copied)
+	{
+		if (it->receiveEvent(initialPosition, AEventsReceiver::GESTURE_PANNING))
+		{
+			it->panning(true, initialPosition, initialPosition);
+			it->panningState = true;
+		}
+	}
+}
+
+void EventDispatcher::dispatchGesturePanningEnded(const Point & initialPosition, const Point & finalPosition)
+{
+	auto copied = panningInterested;
+
+	for(auto it : copied)
+	{
+		if (it->isPanning())
+		{
+			it->panning(false, initialPosition, finalPosition);
+			it->panningState = false;
+		}
+	}
+}
+
+void EventDispatcher::dispatchGesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
+{
+	auto copied = panningInterested;
+
+	for(auto it : copied)
+	{
+		if (it->isPanning())
+			it->gesturePanning(initialPosition, currentPosition, lastUpdateDistance);
+	}
+}
+
+void EventDispatcher::dispatchGesturePinch(const Point & initialPosition, double distance)
+{
+	for(auto it : panningInterested)
+	{
+		if (it->isPanning())
+			it->gesturePinch(initialPosition, distance);
+	}
+}
+
 void EventDispatcher::dispatchMouseMoved(const Point & position)
 {
-	//sending active, hovered hoverable objects hover() call
-	EventReceiversList hlp;
+	EventReceiversList newlyHovered;
 
 	auto hoverableCopy = hoverable;
 	for(auto & elem : hoverableCopy)
 	{
-		if(elem->isInside(GH.getCursorPosition()))
+		if(elem->receiveEvent(position, AEventsReceiver::HOVER))
 		{
-			if (!(elem)->isHovered())
-				hlp.push_back((elem));
+			if (!elem->isHovered())
+			{
+				newlyHovered.push_back((elem));
+			}
 		}
-		else if ((elem)->isHovered())
+		else
 		{
-			(elem)->hover(false);
-			(elem)->hoveredState = false;
+			if (elem->isHovered())
+			{
+				(elem)->hover(false);
+				(elem)->hoveredState = false;
+			}
 		}
 	}
 
-	for(auto & elem : hlp)
+	for(auto & elem : newlyHovered)
 	{
 		elem->hover(true);
 		elem->hoveredState = true;
@@ -236,7 +301,7 @@ void EventDispatcher::dispatchMouseMoved(const Point & position)
 	EventReceiversList miCopy = motioninterested;
 	for(auto & elem : miCopy)
 	{
-		if(elem->strongInterestState || elem->isInside(position)) //checking bounds including border fixes bug #2476
+		if(elem->receiveEvent(position, AEventsReceiver::HOVER))
 		{
 			(elem)->mouseMoved(position);
 		}

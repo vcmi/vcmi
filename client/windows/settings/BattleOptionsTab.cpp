@@ -8,13 +8,12 @@
  *
  */
 #include "StdInc.h"
-
 #include "BattleOptionsTab.h"
-#include "CConfigHandler.h"
 
 #include "../../battle/BattleInterface.h"
-#include "../../battle/BattleActionsController.h"
 #include "../../gui/CGuiHandler.h"
+#include "../../eventsSDL/InputHandler.h"
+#include "../../../lib/CConfigHandler.h"
 #include "../../../lib/filesystem/ResourceID.h"
 #include "../../../lib/CGeneralTextHandler.h"
 #include "../../widgets/Buttons.h"
@@ -24,6 +23,8 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	type |= REDRAW_PARENT;
+
+	//addConditional("touchscreen", GH.input().hasTouchInputDevice());
 
 	const JsonNode config(ResourceID("config/widgets/settings/battleOptionsTab.json"));
 	addCallback("viewGridChanged", [this, owner](bool value)
@@ -58,10 +59,6 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	{
 		skipBattleIntroMusicChangedCallback(value);
 	});
-	addCallback("touchscreenModeChanged", [this, owner](bool value)
-	{
-		touchscreenModeChangedCallback(value, owner);
-	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> animationSpeedToggle = widget<CToggleGroup>("animationSpeedPicker");
@@ -81,9 +78,6 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 
 	std::shared_ptr<CToggleButton> mouseShadowCheckbox = widget<CToggleButton>("mouseShadowCheckbox");
 	mouseShadowCheckbox->setSelected(settings["battle"]["mouseShadow"].Bool());
-	
-	std::shared_ptr<CToggleButton> touchscreenModeCheckbox = widget<CToggleButton>("touchscreenModeCheckbox");
-	touchscreenModeCheckbox->setSelected(settings["battle"]["touchscreenMode"].Bool());
 
 	std::shared_ptr<CToggleButton> skipBattleIntroMusicCheckbox = widget<CToggleButton>("skipBattleIntroMusicCheckbox");
 	skipBattleIntroMusicCheckbox->setSelected(settings["gameTweaks"]["skipBattleIntroMusic"].Bool());
@@ -162,14 +156,6 @@ void BattleOptionsTab::mouseShadowChangedCallback(bool value)
 {
 	Settings shadow = settings.write["battle"]["mouseShadow"];
 	shadow->Bool() = value;
-}
-
-void BattleOptionsTab::touchscreenModeChangedCallback(bool value, BattleInterface * parentBattleInterface)
-{
-	Settings touchcreenMode = settings.write["battle"]["touchscreenMode"];
-	touchcreenMode->Bool() = value;
-	if(parentBattleInterface)
-		parentBattleInterface->actionsController->setTouchScreenMode(value);
 }
 
 void BattleOptionsTab::animationSpeedChangedCallback(int value)

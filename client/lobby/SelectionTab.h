@@ -68,7 +68,7 @@ public:
 	void clickLeft(tribool down, bool previousState) override;
 	void keyPressed(EShortcut key) override;
 
-	void onDoubleClick() override;
+	void clickDouble() override;
 
 	void filter(int size, bool selectFirst = false); //0 - all
 	void sortBy(int criteria);

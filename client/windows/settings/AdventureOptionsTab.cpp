@@ -102,17 +102,13 @@ AdventureOptionsTab::AdventureOptionsTab()
 	{
 		return setBoolSetting("gameTweaks", "showGrid", value);
 	});
-	addCallback("mapSwipeChanged", [](bool value)
-	{
-#if defined(VCMI_MOBILE)
-		return setBoolSetting("general", "swipe", value);
-#else
-		return setBoolSetting("general", "swipeDesktop", value);
-#endif
-	});
 	addCallback("infoBarPickChanged", [](bool value)
 	{
 		return setBoolSetting("gameTweaks", "infoBarPick", value);
+	});
+	addCallback("borderScrollChanged", [](bool value)
+	{
+		return setBoolSetting("adventure", "borderScroll", value);
 	});
 	build(config);
 
@@ -140,12 +136,9 @@ AdventureOptionsTab::AdventureOptionsTab()
 	std::shared_ptr<CToggleButton> showGridCheckbox = widget<CToggleButton>("showGridCheckbox");
 	showGridCheckbox->setSelected(settings["gameTweaks"]["showGrid"].Bool());
 
-	std::shared_ptr<CToggleButton> mapSwipeCheckbox = widget<CToggleButton>("mapSwipeCheckbox");
-#if defined(VCMI_MOBILE)
-	mapSwipeCheckbox->setSelected(settings["general"]["swipe"].Bool());
-#else
-	mapSwipeCheckbox->setSelected(settings["general"]["swipeDesktop"].Bool());
-#endif
 	std::shared_ptr<CToggleButton> infoBarPickCheckbox = widget<CToggleButton>("infoBarPickCheckbox");
 	infoBarPickCheckbox->setSelected(settings["gameTweaks"]["infoBarPick"].Bool());
+
+	std::shared_ptr<CToggleButton> borderScrollCheckbox = widget<CToggleButton>("borderScrollCheckbox");
+	borderScrollCheckbox->setSelected(settings["adventure"]["borderScroll"].Bool());
 }

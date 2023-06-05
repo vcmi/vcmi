@@ -112,9 +112,6 @@
 				},
 				{
 					"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
-				},
-				{
-					"text": "vcmi.battleOptions.touchscreenMode.hover",
 				}
 			]
 		},
@@ -148,12 +145,7 @@
 					"name": "skipBattleIntroMusicCheckbox",
 					"help": "vcmi.battleOptions.skipBattleIntroMusic",
 					"callback": "skipBattleIntroMusicChanged"
-				},
-				{
-					"name": "touchscreenModeCheckbox",
-					"help": "vcmi.battleOptions.touchscreenMode",
-					"callback": "touchscreenModeChanged"
-				},
+				}
 			]
 		},
 /////////////////////////////////////// Bottom section - Animation Speed and Turn Order

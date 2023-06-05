@@ -22,6 +22,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../renderSDL/SDL_Extensions.h"
@@ -39,13 +40,15 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	owner(owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	setMoveEventStrongInterest(true);
 
 	//preparing cells and hexes
 	cellBorder = IImage::createFromFile("CCELLGRD.BMP", EImageBlitMode::COLORKEY);
 	cellShade = IImage::createFromFile("CCELLSHD.BMP");
 	cellUnitMovementHighlight = IImage::createFromFile("UnitMovementHighlight.PNG", EImageBlitMode::COLORKEY);
 	cellUnitMaxMovementHighlight = IImage::createFromFile("UnitMaxMovementHighlight.PNG", EImageBlitMode::COLORKEY);
+
+	attackCursors = std::make_shared<CAnimation>("CRCOMBAT");
+	attackCursors->preload();
 
 	if(!owner.siegeController)
 	{
@@ -68,7 +71,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()));
 
 	updateAccessibleHexes();
-	addUsedEvents(LCLICK | RCLICK | MOVE | TIME);
+	addUsedEvents(LCLICK | RCLICK | MOVE | TIME | GESTURE_PANNING);
 }
 
 void BattleFieldController::activate()
@@ -89,16 +92,36 @@ void BattleFieldController::createHeroes()
 		owner.defendingHero = std::make_shared<BattleHero>(owner, owner.defendingHeroInstance, true);
 }
 
+void BattleFieldController::panning(bool on, const Point & initialPosition, const Point & finalPosition)
+{
+	if (!on && pos.isInside(finalPosition))
+		clickLeft(false, false);
+}
+
+void BattleFieldController::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
+{
+	Point distance = currentPosition - initialPosition;
+
+	if (distance.length() < settings["battle"]["swipeAttackDistance"].Float())
+		hoveredHex = getHexAtPosition(initialPosition);
+	else
+		hoveredHex = BattleHex::INVALID;
+
+	currentAttackOriginPoint = currentPosition;
+
+	if (pos.isInside(initialPosition))
+		owner.actionsController->onHexHovered(getHoveredHex());
+}
+
 void BattleFieldController::mouseMoved(const Point & cursorPosition)
 {
-	if (!pos.isInside(cursorPosition))
-	{
-		owner.actionsController->onHoverEnded();
-		return;
-	}
+	hoveredHex = getHexAtPosition(cursorPosition);
+	currentAttackOriginPoint = cursorPosition;
 
-	BattleHex selectedHex = getHoveredHex();
-	owner.actionsController->onHexHovered(selectedHex);
+	if (pos.isInside(cursorPosition))
+		owner.actionsController->onHexHovered(getHoveredHex());
+	else
+		owner.actionsController->onHoverEnded();
 }
 
 void BattleFieldController::clickLeft(tribool down, bool previousState)
@@ -139,7 +162,7 @@ void BattleFieldController::renderBattlefield(Canvas & canvas)
 
 void BattleFieldController::showBackground(Canvas & canvas)
 {
-	if (owner.stacksController->getActiveStack() != nullptr ) //&& creAnims[stacksController->getActiveStack()->unitId()]->isIdle() //show everything with range
+	if (owner.stacksController->getActiveStack() != nullptr )
 		showBackgroundImageWithHexes(canvas);
 	else
 		showBackgroundImage(canvas);
@@ -171,7 +194,7 @@ void BattleFieldController::showBackgroundImage(Canvas & canvas)
 
 void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
 {
-	canvas.draw(*backgroundWithHexes.get(), Point(0, 0));
+	canvas.draw(*backgroundWithHexes, Point(0, 0));
 }
 
 void BattleFieldController::redrawBackgroundWithHexes()
@@ -234,7 +257,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForActiveStack()
 
 	auto hoveredHex = getHoveredHex();
 
-	std::set<BattleHex> set = owner.curInt->cb->battleGetAttackedHexes(owner.stacksController->getActiveStack(), hoveredHex, attackingHex);
+	std::set<BattleHex> set = owner.curInt->cb->battleGetAttackedHexes(owner.stacksController->getActiveStack(), hoveredHex);
 	for(BattleHex hex : set)
 		result.insert(hex);
 
@@ -391,8 +414,11 @@ bool BattleFieldController::isPixelInHex(Point const & position)
 
 BattleHex BattleFieldController::getHoveredHex()
 {
-	Point hoverPos = GH.getCursorPosition();
+	return hoveredHex;
+}
 
+BattleHex BattleFieldController::getHexAtPosition(Point hoverPos)
+{
 	if (owner.attackingHero)
 	{
 		if (owner.attackingHero->pos.isInside(hoverPos))
@@ -404,7 +430,6 @@ BattleHex BattleFieldController::getHoveredHex()
 		if (owner.attackingHero->pos.isInside(hoverPos))
 			return BattleHex::HERO_DEFENDER;
 	}
-
 
 	for (int h = 0; h < GameConstants::BFIELD_SIZE; ++h)
 	{
@@ -420,29 +445,7 @@ BattleHex BattleFieldController::getHoveredHex()
 	return BattleHex::INVALID;
 }
 
-void BattleFieldController::setBattleCursor(BattleHex myNumber)
-{
-	Point cursorPos = CCS->curh->position();
-
-	std::vector<Cursor::Combat> sectorCursor = {
-		Cursor::Combat::HIT_SOUTHEAST,
-		Cursor::Combat::HIT_SOUTHWEST,
-		Cursor::Combat::HIT_WEST,
-		Cursor::Combat::HIT_NORTHWEST,
-		Cursor::Combat::HIT_NORTHEAST,
-		Cursor::Combat::HIT_EAST,
-		Cursor::Combat::HIT_SOUTH,
-		Cursor::Combat::HIT_NORTH,
-	};
-
-	auto direction = static_cast<size_t>(selectAttackDirection(myNumber, cursorPos));
-
-	assert(direction != -1);
-	if (direction != -1)
-		CCS->curh->set(sectorCursor[direction]);
-}
-
-BattleHex::EDir BattleFieldController::selectAttackDirection(BattleHex myNumber, const Point & cursorPos)
+BattleHex::EDir BattleFieldController::selectAttackDirection(BattleHex myNumber)
 {
 	const bool doubleWide = owner.stacksController->getActiveStack()->doubleWide();
 	auto neighbours = myNumber.allNeighbouringTiles();
@@ -505,7 +508,7 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(BattleHex myNumber,
 
 	for (size_t i = 0; i < 8; ++i)
 		if (attackAvailability[i])
-			distance2[i] = (testPoint[i].y - cursorPos.y)*(testPoint[i].y - cursorPos.y) + (testPoint[i].x - cursorPos.x)*(testPoint[i].x - cursorPos.x);
+			distance2[i] = (testPoint[i].y - currentAttackOriginPoint.y)*(testPoint[i].y - currentAttackOriginPoint.y) + (testPoint[i].x - currentAttackOriginPoint.x)*(testPoint[i].x - currentAttackOriginPoint.x);
 
 	size_t nearest = -1;
 	for (size_t i = 0; i < 8; ++i)
@@ -518,7 +521,7 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(BattleHex myNumber,
 
 BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
 {
-	BattleHex::EDir direction = selectAttackDirection(attackTarget, CCS->curh->position());
+	BattleHex::EDir direction = selectAttackDirection(getHoveredHex());
 
 	const CStack * attacker = owner.stacksController->getActiveStack();
 
@@ -624,4 +627,19 @@ void BattleFieldController::show(Canvas & to)
 	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
 
 	renderBattlefield(to);
+
+	if (isActive() && isPanning() && getHoveredHex() != BattleHex::INVALID)
+	{
+		auto cursorIndex = CCS->curh->get<Cursor::Combat>();
+		auto imageIndex = static_cast<size_t>(cursorIndex);
+
+		to.draw(attackCursors->getImage(imageIndex), hexPositionAbsolute(getHoveredHex()).center() - CCS->curh->getPivotOffsetCombat(imageIndex));
+	}
+}
+
+bool BattleFieldController::receiveEvent(const Point & position, int eventType) const
+{
+	if (eventType == HOVER)
+		return true;
+	return CIntObject::receiveEvent(position, eventType);
 }

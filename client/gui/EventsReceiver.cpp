@@ -17,13 +17,18 @@
 AEventsReceiver::AEventsReceiver()
 	: activeState(0)
 	, hoveredState(false)
-	, strongInterestState(false)
+	, panningState(false)
 {
 }
 
 bool AEventsReceiver::isHovered() const
 {
 	return hoveredState;
+}
+
+bool AEventsReceiver::isPanning() const
+{
+	return panningState;
 }
 
 bool AEventsReceiver::isActive() const
@@ -34,11 +39,6 @@ bool AEventsReceiver::isActive() const
 bool AEventsReceiver::isMouseButtonPressed(MouseButton btn) const
 {
 	return currentMouseState.count(btn) ? currentMouseState.at(btn) : false;
-}
-
-void AEventsReceiver::setMoveEventStrongInterest(bool on)
-{
-	strongInterestState = on;
 }
 
 void AEventsReceiver::activateEvents(ui16 what)
@@ -54,21 +54,4 @@ void AEventsReceiver::deactivateEvents(ui16 what)
 	if (what & GENERAL)
 		activeState &= ~GENERAL;
 	GH.events().deactivateElement(this, what & activeState);
-}
-
-void AEventsReceiver::click(MouseButton btn, tribool down, bool previousState)
-{
-	switch(btn)
-	{
-	default:
-	case MouseButton::LEFT:
-		clickLeft(down, previousState);
-		break;
-	case MouseButton::MIDDLE:
-		clickMiddle(down, previousState);
-		break;
-	case MouseButton::RIGHT:
-		clickRight(down, previousState);
-		break;
-	}
 }

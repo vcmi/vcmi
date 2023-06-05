@@ -229,7 +229,7 @@ void CIntObject::redraw()
 	}
 }
 
-bool CIntObject::isInside(const Point & position)
+bool CIntObject::receiveEvent(const Point & position, int eventType) const
 {
 	return pos.isInside(position);
 }

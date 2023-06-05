@@ -22,6 +22,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
@@ -132,7 +133,7 @@ static ESortBy getSortBySelectionScreen(ESelectionScreen Type)
 }
 
 SelectionTab::SelectionTab(ESelectionScreen Type)
-	: CIntObject(LCLICK | WHEEL | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}
+	: CIntObject(LCLICK | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}
 {
 	OBJ_CONSTRUCTION;
 
@@ -205,6 +206,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 	labelTabTitle = std::make_shared<CLabel>(205, 28, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, tabTitle);
 	slider = std::make_shared<CSlider>(Point(372, 86), tabType != ESelectionScreen::saveGame ? 480 : 430, std::bind(&SelectionTab::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, false, CSlider::BLUE);
+	slider->setPanningStep(24);
 	filter(0);
 }
 
@@ -313,10 +315,11 @@ void SelectionTab::keyPressed(EShortcut key)
 	select((int)selectionPos - slider->getValue() + moveBy);
 }
 
-void SelectionTab::onDoubleClick()
+void SelectionTab::clickDouble()
 {
 	if(getLine() != -1) //double clicked scenarios list
 	{
+		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickLeft(true, false);
 		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickLeft(false, true);
 	}
 }
@@ -348,7 +351,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 		sort();
 		if(selectFirst)
 		{
-			slider->moveTo(0);
+			slider->scrollTo(0);
 			callOnSelect(curItems[0]);
 			selectAbs(0);
 		}
@@ -403,9 +406,9 @@ void SelectionTab::select(int position)
 	selectionPos = py;
 
 	if(position < 0)
-		slider->moveBy(position);
+		slider->scrollBy(position);
 	else if(position >= listItems.size())
-		slider->moveBy(position - (int)listItems.size() + 1);
+		slider->scrollBy(position - (int)listItems.size() + 1);
 
 	rememberCurrentSelection();
 
@@ -479,7 +482,7 @@ void SelectionTab::selectFileName(std::string fname)
 	{
 		if(curItems[i]->fileURI == fname)
 		{
-			slider->moveTo(i);
+			slider->scrollTo(i);
 			selectAbs(i);
 			return;
 		}

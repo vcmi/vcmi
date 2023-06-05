@@ -102,7 +102,6 @@ void FirstLaunchView::on_comboBoxLanguage_currentIndexChanged(int index)
 
 void FirstLaunchView::enterSetup()
 {
-	setupPlatformSettings();
 	Languages::fillLanguages(ui->listWidgetLanguage, false);
 }
 
@@ -157,19 +156,6 @@ void FirstLaunchView::exitSetup()
 {
 	if(auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow()))
 		mainWindow->exitSetup();
-}
-
-// Initial platform-dependend settings
-void FirstLaunchView::setupPlatformSettings()
-{
-#if defined(VCMI_MOBILE)
-	bool touchscreenMode = true;
-#else
-	bool touchscreenMode = false;
-#endif
-	
-	Settings node = settings.write["battle"]["touchscreenMode"];
-	node->Bool() = touchscreenMode;
 }
 
 // Tab Language

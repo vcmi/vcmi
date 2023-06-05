@@ -18,6 +18,7 @@
 #include "../gui/WindowHandler.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../mainmenu/CPrologEpilogVideo.h"
+#include "../gui/EventDispatcher.h"
 
 #include <SDL_events.h>
 
@@ -80,6 +81,9 @@ void UserEventHandler::handleUserEvent(const SDL_UserEvent & user)
 			GH.onScreenResize();
 			break;
 		}
+		case EUserEvent::FAKE_MOUSE_MOVE:
+			GH.events().dispatchMouseMoved(GH.getCursorPosition());
+			break;
 		default:
 			logGlobal->error("Unknown user event. Code %d", user.code);
 			break;

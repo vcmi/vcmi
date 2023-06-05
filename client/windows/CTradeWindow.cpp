@@ -18,6 +18,7 @@
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../windows/InfoWindows.h"
 
@@ -784,7 +785,7 @@ CMarketplaceWindow::~CMarketplaceWindow() = default;
 
 void CMarketplaceWindow::setMax()
 {
-	slider->moveToMax();
+	slider->scrollToMax();
 }
 
 void CMarketplaceWindow::makeDeal()
@@ -824,7 +825,7 @@ void CMarketplaceWindow::makeDeal()
 		if(slider)
 		{
 			LOCPLINT->cb->trade(market, mode, leftIdToSend, hRight->id, slider->getValue() * r1, hero);
-			slider->moveTo(0);
+			slider->scrollTo(0);
 		}
 		else
 		{
@@ -868,7 +869,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 				assert(0);
 
 			slider->setAmount(newAmount / r1);
-			slider->moveTo(0);
+			slider->scrollTo(0);
 			max->block(false);
 			deal->block(false);
 		}
@@ -885,7 +886,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 		{
 			max->block(true);
 			slider->setAmount(0);
-			slider->moveTo(0);
+			slider->scrollTo(0);
 		}
 		deal->block(true);
 	}
@@ -1120,7 +1121,7 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 		new CTextBox(CGI->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW);
 
 		slider = std::make_shared<CSlider>(Point(231,481),137,std::bind(&CAltarWindow::sliderMoved,this,_1),0,0);
-		max = std::make_shared<CButton>(Point(147, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[578], std::bind(&CSlider::moveToMax, slider));
+		max = std::make_shared<CButton>(Point(147, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[578], std::bind(&CSlider::scrollToMax, slider));
 
 		sacrificedUnits.resize(GameConstants::ARMY_SIZE, 0);
 		sacrificeAll = std::make_shared<CButton>(Point(393, 520), "ALTARMY.DEF", CGI->generaltexth->zelp[579], std::bind(&CAltarWindow::SacrificeAll,this));
@@ -1213,7 +1214,7 @@ void CAltarWindow::makeDeal()
 	if(mode == EMarketMode::CREATURE_EXP)
 	{
 		blockTrade();
-		slider->moveTo(0);
+		slider->scrollTo(0);
 
 		std::vector<ui32> ids;
 		std::vector<ui32> toSacrifice;
@@ -1310,7 +1311,7 @@ void CAltarWindow::selectionChanged(bool side)
 
 	slider->setAmount(hero->getStackCount(SlotID(hLeft->serial)) - (stackCount == 1));
 	slider->block(!slider->getAmount());
-	slider->moveTo(sacrificedUnits[hLeft->serial]);
+	slider->scrollTo(sacrificedUnits[hLeft->serial]);
 	max->block(!slider->getAmount());
 	selectOppositeItem(side);
 	readyToTrade = true;

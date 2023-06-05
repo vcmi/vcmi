@@ -25,7 +25,10 @@ std::unique_ptr<ICursor> CursorHandler::createCursor()
 	if (settings["video"]["cursor"].String() == "auto")
 	{
 #if defined(VCMI_MOBILE)
-		return std::make_unique<CursorSoftware>();
+		if (settings["general"]["userRelativePointer"].Bool())
+			return std::make_unique<CursorSoftware>();
+		else
+			return std::make_unique<CursorHardware>();
 #else
 		return std::make_unique<CursorHardware>();
 #endif
@@ -62,10 +65,7 @@ CursorHandler::CursorHandler()
 	set(Cursor::Map::POINTER);
 }
 
-Point CursorHandler::position() const
-{
-	return pos;
-}
+CursorHandler::~CursorHandler() = default;
 
 void CursorHandler::changeGraphic(Cursor::Type type, size_t index)
 {

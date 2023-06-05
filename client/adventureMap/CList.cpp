@@ -38,9 +38,7 @@ CList::CListItem::CListItem(CList * Parent)
 	defActions = 255-DISPOSE;
 }
 
-CList::CListItem::~CListItem()
-{
-}
+CList::CListItem::~CListItem() = default;
 
 void CList::CListItem::clickRight(tribool down, bool previousState)
 {
@@ -84,7 +82,7 @@ void CList::CListItem::onSelect(bool on)
 }
 
 CList::CList(int Size, Rect widgetDimensions)
-	: CIntObject(0, widgetDimensions.topLeft()),
+	: Scrollable(0, widgetDimensions.topLeft(), Orientation::VERTICAL),
 	size(Size),
 	selected(nullptr)
 {
@@ -109,8 +107,7 @@ void CList::setScrollUpButton(std::shared_ptr<CButton> button)
 	addChild(button.get());
 
 	scrollUp = button;
-	scrollUp->addCallback(std::bind(&CListBox::moveToPrev, listBox));
-	scrollUp->addCallback(std::bind(&CList::update, this));
+	scrollUp->addCallback(std::bind(&CList::scrollPrev, this));
 	update();
 }
 
@@ -119,8 +116,29 @@ void CList::setScrollDownButton(std::shared_ptr<CButton> button)
 	addChild(button.get());
 
 	scrollDown = button;
-	scrollDown->addCallback(std::bind(&CList::update, this));
-	scrollDown->addCallback(std::bind(&CListBox::moveToNext, listBox));
+	scrollDown->addCallback(std::bind(&CList::scrollNext, this));
+	update();
+}
+
+void CList::scrollBy(int distance)
+{
+	if (distance < 0 && listBox->getPos() < -distance)
+		listBox->moveToPos(0);
+	else
+		listBox->moveToPos(static_cast<int>(listBox->getPos()) + distance);
+
+	update();
+}
+
+void CList::scrollPrev()
+{
+	listBox->moveToPrev();
+	update();
+}
+
+void CList::scrollNext()
+{
+	listBox->moveToNext();
 	update();
 }
 

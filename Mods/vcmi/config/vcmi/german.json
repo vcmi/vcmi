@@ -78,8 +78,6 @@
 	"vcmi.adventureOptions.forceMovementInfo.help" : "{Bewegungskosten immer anzeigen}\n\n Ersetzt die Standardinformationen in der Statusleiste durch die Daten der Bewegungspunkte, ohne dass die ALT-Taste gedrückt werden muss.",
 	"vcmi.adventureOptions.showGrid.hover" : "Raster anzeigen",
 	"vcmi.adventureOptions.showGrid.help" : "{Raster anzeigen}\n\n Zeigt eine Rasterüberlagerung, die die Grenzen zwischen den Kacheln der Abenteuerkarte anzeigt.",
-	"vcmi.adventureOptions.mapSwipe.hover" : "Karte wischen",
-	"vcmi.adventureOptions.mapSwipe.help" : "{Karte wischen}\n\n Ermöglicht auf Systemen mit Touchscreen das Verschieben der Karte per Fingerwisch-Geste. Ab sofort kann auch über die linke Maustaste zugegriffen werden.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",

@@ -28,8 +28,6 @@ class InputHandler
 	boost::mutex eventsMutex;
 
 	Point cursorPosition;
-	float pointerSpeedMultiplier;
-	int mouseButtonsMask;
 
 	void preprocessEvent(const SDL_Event & event);
 	void handleCurrentEvent(const SDL_Event & current);
@@ -53,13 +51,20 @@ public:
 	/// returns true if input event has been found
 	bool ignoreEventsUntilInput();
 
-	void fakeMoveCursor(float dx, float dy);
+	/// Moves cursor by specified distance
+	void moveCursorPosition(const Point & distance);
+
+	/// Moves cursor to a specified position
+	void setCursorPosition(const Point & position);
 
 	/// Initiates text input in selected area, potentially creating IME popup (mobile systems only at the moment)
 	void startTextInput(const Rect & where);
 
 	/// Ends any existing text input state
 	void stopTextInput();
+
+	/// returns true if system has active touchscreen
+	bool hasTouchInputDevice() const;
 
 	/// Returns true if selected mouse button is pressed at the moment
 	bool isMouseButtonPressed(MouseButton button) const;

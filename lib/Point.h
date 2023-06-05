@@ -101,6 +101,16 @@ public:
 		return x > std::numeric_limits<int>::min() && y > std::numeric_limits<int>::min();
 	}
 
+	constexpr int lengthSquared() const
+	{
+		return x * x + y * y;
+	}
+
+	int length() const
+	{
+		return std::sqrt(lengthSquared());
+	}
+
 	template <typename Handler>
 	void serialize(Handler &h, const int version)
 	{

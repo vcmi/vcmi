@@ -10,12 +10,6 @@
 			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
 		},
 		{
-			"name": "lineCreatureNumbersToggleGroupEnd",
-			"type": "texture",
-			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 383, "w": 220, "h": 3}
-		},
-		{
 			"type" : "labelTitle",
 			"position": {"x": 10, "y": 55},
 			"text": "vcmi.systemOptions.videoGroup"
@@ -187,7 +181,7 @@
 			"name": "compactTownCreatureInfoLabel",
 			"type" : "verticalLayout",
 			"customType" : "labelDescription",
-			"position": {"x": 45, "y": 391},
+			"position": {"x": 45, "y": 385},
 			"items" : [
 				{
 					"text": "vcmi.otherOptions.compactTownCreatureInfo.hover",
@@ -198,7 +192,7 @@
 			"name": "compactTownCreatureInfoCheckbox",
 			"type": "checkbox",
 			"help": "vcmi.otherOptions.compactTownCreatureInfo",
-			"position": {"x": 10, "y": 389},
+			"position": {"x": 10, "y": 383},
 			"callback": "compactTownCreatureInfoChanged"
 		}
 	]

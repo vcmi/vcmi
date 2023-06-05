@@ -13,6 +13,7 @@
 #include "../CPlayerInterface.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CreatureCostBox.h"
+#include "../widgets/Slider.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../../CCallback.h"
@@ -88,11 +89,11 @@ void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePur
 		i->slider->setAmount(maxAmount);
 
 		if(i->slider->getValue() != maxAmount)
-			i->slider->moveTo(maxAmount);
+			i->slider->scrollTo(maxAmount);
 		else
 			i->sliderMoved(maxAmount);
 
-		i->slider->moveToMax();
+		i->slider->scrollToMax();
 		allAvailableResources -= (i->creatureOnTheCard->getFullRecruitCost() * maxAmount);
 	}
 	maxButton->block(allAvailableResources == LOCPLINT->cb->getResourceAmount());
@@ -140,7 +141,7 @@ void QuickRecruitmentWindow::updateAllSliders()
 			i->slider->setAmount(i->slider->getValue() + maxAmount);
 		else
 			i->slider->setAmount(i->maxAmount);
-		i->slider->moveTo(i->slider->getValue());
+		i->slider->scrollTo(i->slider->getValue());
 	}
 	totalCost->createItems(LOCPLINT->cb->getResourceAmount() - allAvailableResources);
 	totalCost->set(LOCPLINT->cb->getResourceAmount() - allAvailableResources);

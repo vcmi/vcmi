@@ -117,7 +117,6 @@ BattleActionsController::BattleActionsController(BattleInterface & owner):
 	selectedStack(nullptr),
 	heroSpellToCast(nullptr)
 {
-	touchscreenMode = settings["battle"]["touchscreenMode"].Bool();
 }
 
 void BattleActionsController::endCastingSpell()
@@ -161,7 +160,7 @@ void BattleActionsController::enterCreatureCastingMode()
 	if (!isActiveStackSpellcaster())
 		return;
 
-	for (auto const & action : possibleActions)
+	for(const auto & action : possibleActions)
 	{
 		if (action.get() != PossiblePlayerBattleAction::NO_LOCATION)
 			continue;
@@ -204,7 +203,7 @@ std::vector<PossiblePlayerBattleAction> BattleActionsController::getPossibleActi
 {
 	BattleClientInterfaceData data; //hard to get rid of these things so for now they're required data to pass
 
-	for (auto const & spell : creatureSpells)
+	for(const auto & spell : creatureSpells)
 		data.creatureSpellsToCast.push_back(spell->id);
 
 	data.tacticsMode = owner.tacticsMode;
@@ -220,49 +219,62 @@ void BattleActionsController::reorderPossibleActionsPriority(const CStack * stac
 {
 	if(owner.tacticsMode || possibleActions.empty()) return; //this function is not supposed to be called in tactics mode or before getPossibleActionsForStack
 
-	auto assignPriority = [&](PossiblePlayerBattleAction const & item) -> uint8_t //large lambda assigning priority which would have to be part of possibleActions without it
+	auto assignPriority = [&](const PossiblePlayerBattleAction & item
+						  ) -> uint8_t //large lambda assigning priority which would have to be part of possibleActions without it
 	{
 		switch(item.get())
 		{
-		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-		case PossiblePlayerBattleAction::ANY_LOCATION:
-		case PossiblePlayerBattleAction::NO_LOCATION:
-		case PossiblePlayerBattleAction::FREE_LOCATION:
-		case PossiblePlayerBattleAction::OBSTACLE:
-			if(!stack->hasBonusOfType(BonusType::NO_SPELLCAST_BY_DEFAULT) && context == MouseHoveredHexContext::OCCUPIED_HEX)
-				return 1;
-			else
-				return 100;//bottom priority
-			break;
-		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
-			return 2; break;
-		case PossiblePlayerBattleAction::SHOOT:
-			return 4; break;
-		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
-			return 5; break;
-		case PossiblePlayerBattleAction::ATTACK:
-			return 6; break;
-		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
-			return 7; break;
-		case PossiblePlayerBattleAction::MOVE_STACK:
-			return 8; break;
-		case PossiblePlayerBattleAction::CATAPULT:
-			return 9; break;
-		case PossiblePlayerBattleAction::HEAL:
-			return 10; break;
-		case PossiblePlayerBattleAction::CREATURE_INFO:
-			return 11; break;
-		case PossiblePlayerBattleAction::HERO_INFO:
-			return 12; break;
-		case PossiblePlayerBattleAction::TELEPORT:
-			return 13; break;
-		default:
-			assert(0);
-			return 200; break;
+			case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
+			case PossiblePlayerBattleAction::ANY_LOCATION:
+			case PossiblePlayerBattleAction::NO_LOCATION:
+			case PossiblePlayerBattleAction::FREE_LOCATION:
+			case PossiblePlayerBattleAction::OBSTACLE:
+				if(!stack->hasBonusOfType(BonusType::NO_SPELLCAST_BY_DEFAULT) && context == MouseHoveredHexContext::OCCUPIED_HEX)
+					return 1;
+				else
+					return 100; //bottom priority
+				break;
+			case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
+				return 2;
+				break;
+			case PossiblePlayerBattleAction::SHOOT:
+				return 4;
+				break;
+			case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
+				return 5;
+				break;
+			case PossiblePlayerBattleAction::ATTACK:
+				return 6;
+				break;
+			case PossiblePlayerBattleAction::WALK_AND_ATTACK:
+				return 7;
+				break;
+			case PossiblePlayerBattleAction::MOVE_STACK:
+				return 8;
+				break;
+			case PossiblePlayerBattleAction::CATAPULT:
+				return 9;
+				break;
+			case PossiblePlayerBattleAction::HEAL:
+				return 10;
+				break;
+			case PossiblePlayerBattleAction::CREATURE_INFO:
+				return 11;
+				break;
+			case PossiblePlayerBattleAction::HERO_INFO:
+				return 12;
+				break;
+			case PossiblePlayerBattleAction::TELEPORT:
+				return 13;
+				break;
+			default:
+				assert(0);
+				return 200;
+				break;
 		}
 	};
 
-	auto comparer = [&](PossiblePlayerBattleAction const & lhs, PossiblePlayerBattleAction const & rhs)
+	auto comparer = [&](const PossiblePlayerBattleAction & lhs, const PossiblePlayerBattleAction & rhs)
 	{
 		return assignPriority(lhs) < assignPriority(rhs);
 	};
@@ -359,8 +371,26 @@ void BattleActionsController::actionSetCursor(PossiblePlayerBattleAction action,
 		case PossiblePlayerBattleAction::ATTACK:
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
-			owner.fieldController->setBattleCursor(targetHex);
+		{
+			static const std::map<BattleHex::EDir, Cursor::Combat> sectorCursor = {
+				{BattleHex::TOP_LEFT,     Cursor::Combat::HIT_SOUTHEAST},
+				{BattleHex::TOP_RIGHT,    Cursor::Combat::HIT_SOUTHWEST},
+				{BattleHex::RIGHT,        Cursor::Combat::HIT_WEST     },
+				{BattleHex::BOTTOM_RIGHT, Cursor::Combat::HIT_NORTHWEST},
+				{BattleHex::BOTTOM_LEFT,  Cursor::Combat::HIT_NORTHEAST},
+				{BattleHex::LEFT,         Cursor::Combat::HIT_EAST     },
+				{BattleHex::TOP,          Cursor::Combat::HIT_SOUTH    },
+				{BattleHex::BOTTOM,       Cursor::Combat::HIT_NORTH    }
+			};
+
+			auto direction = owner.fieldController->selectAttackDirection(targetHex);
+
+			assert(sectorCursor.count(direction) > 0);
+			if (sectorCursor.count(direction))
+				CCS->curh->set(sectorCursor.at(direction));
+
 			return;
+		}
 
 		case PossiblePlayerBattleAction::SHOOT:
 			if (owner.curInt->cb->battleHasShootingPenalty(owner.stacksController->getActiveStack(), targetHex))
@@ -826,10 +856,6 @@ void BattleActionsController::onHoverEnded()
 
 void BattleActionsController::onHexLeftClicked(BattleHex clickedHex)
 {
-	static BattleHex lastSelectedHex;
-	static BattleHex lastDirectionalHex;
-	static PossiblePlayerBattleAction::Actions lastSelectedAction;
-	
 	if (owner.stacksController->getActiveStack() == nullptr)
 		return;
 
@@ -840,24 +866,8 @@ void BattleActionsController::onHexLeftClicked(BattleHex clickedHex)
 	if (!actionIsLegal(action, clickedHex))
 		return;
 	
-	auto directionalHex = lastDirectionalHex;
-	if(action.get() == PossiblePlayerBattleAction::ATTACK
-	   || action.get() == PossiblePlayerBattleAction::WALK_AND_ATTACK
-	   || action.get() == PossiblePlayerBattleAction::ATTACK_AND_RETURN)
-		directionalHex = owner.fieldController->fromWhichHexAttack(clickedHex);
-
-	if(!touchscreenMode || (lastSelectedAction == action.get() && lastSelectedHex == clickedHex && lastDirectionalHex == directionalHex))
-	{
-		actionRealize(action, clickedHex);
-
-		GH.statusbar()->clear();
-	}
-	else
-	{
-		lastSelectedAction = action.get();
-		lastSelectedHex = clickedHex;
-		lastDirectionalHex = directionalHex;
-	}
+	actionRealize(action, clickedHex);
+	GH.statusbar()->clear();
 }
 
 void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterStack)
@@ -877,7 +887,7 @@ void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterS
 
 	TConstBonusListPtr bl = casterStack->getBonuses(Selector::type()(BonusType::SPELLCASTER));
 
-	for (auto const & bonus : *bl)
+	for(const auto & bonus : *bl)
 	{
 		if (bonus->additionalInfo[0] <= 0)
 			creatureSpells.push_back(SpellID(bonus->subtype).toSpell());
@@ -971,6 +981,9 @@ void BattleActionsController::activateStack()
 
 void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 {
+	if (spellcastingModeActive())
+		endCastingSpell();
+
 	auto selectedStack = owner.curInt->cb->battleGetStackByPos(clickedHex, true);
 
 	if (selectedStack != nullptr)
@@ -1014,9 +1027,4 @@ void BattleActionsController::removePossibleAction(PossiblePlayerBattleAction ac
 void BattleActionsController::pushFrontPossibleAction(PossiblePlayerBattleAction action)
 {
 	possibleActions.insert(possibleActions.begin(), action);
-}
-
-void BattleActionsController::setTouchScreenMode(bool enabled)
-{
-	touchscreenMode = enabled;
 }

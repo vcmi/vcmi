@@ -87,7 +87,7 @@ void CGuiHandler::handleEvents()
 
 void CGuiHandler::fakeMouseMove()
 {
-	input().fakeMoveCursor(0, 0);
+	pushUserEvent(EUserEvent::FAKE_MOUSE_MOVE);
 }
 
 void CGuiHandler::startTextInput(const Rect & whereInput)

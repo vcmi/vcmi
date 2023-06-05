@@ -23,8 +23,6 @@
 				"sound",
 				"language",
 				"gameDataLanguage",
-				"swipe",
-				"swipeDesktop",
 				"saveRandomMaps",
 				"saveFrequency",
 				"notifications",
@@ -45,14 +43,6 @@
 				"sound" : {
 					"type" : "number",
 					"default" : 88
-				},
-				"swipe" : {
-					"type" : "boolean",
-					"default" : true
-				},
-				"swipeDesktop" : {
-					"type" : "boolean",
-					"default" : false
 				},
 				"saveRandomMaps" : {
 					"type" : "boolean",
@@ -183,7 +173,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "alwaysSkipCombat" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "alwaysSkipCombat", "borderScroll" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -216,7 +206,12 @@
 				"alwaysSkipCombat" : {
 					"type" : "boolean",
 					"default" : false
-				}
+				},
+				"borderScroll" : 
+				{
+					"type" : "boolean",
+					"default" : true
+				},
 			}
 		},
 		"pathfinder" : {
@@ -291,7 +286,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "showQueue", "queueSize", "touchscreenMode" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -302,10 +297,6 @@
 					"default" : true
 				},
 				"cellBorders" : {
-					"type" : "boolean",
-					"default" : false
-				},
-				"touchscreenMode" : {
 					"type" : "boolean",
 					"default" : false
 				},
@@ -320,6 +311,10 @@
 				"showQueue" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"swipeAttackDistance" : {
+					"type" : "number",
+					"default" : 250
 				},
 				"queueSize" : {
 					"type" : "string",

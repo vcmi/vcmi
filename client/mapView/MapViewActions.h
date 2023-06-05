@@ -18,19 +18,13 @@ class MapView;
 
 class MapViewActions : public CIntObject
 {
-	bool isSwiping;
-
-	Point swipeInitialViewPos;
-	Point swipeInitialRealPos;
-
 	MapView & owner;
 	std::shared_ptr<MapViewModel> model;
 	std::shared_ptr<IMapRendererContext> context;
 
+	double pinchZoomFactor;
+
 	void handleHover(const Point & cursorPosition);
-	void handleSwipeMove(const Point & cursorPosition);
-	bool handleSwipeStateChange(bool btnPressed);
-	bool swipeEnabled() const;
 
 public:
 	MapViewActions(MapView & owner, const std::shared_ptr<MapViewModel> & model);
@@ -39,8 +33,10 @@ public:
 
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
-	void clickMiddle(tribool down, bool previousState) override;
+	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
+	void gesturePinch(const Point & centerPosition, double lastUpdateFactor) override;
 	void hover(bool on) override;
+	void panning(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void mouseMoved(const Point & cursorPosition) override;
-	void wheelScrolled(bool down, bool in) override;
+	void wheelScrolled(int distance) override;
 };

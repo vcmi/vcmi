@@ -20,26 +20,20 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/MouseButton.h"
 
+#include "../CPlayerInterface.h"
+#include "../adventureMap/CInGameConsole.h"
+
 #include "../../lib/CConfigHandler.h"
 
 MapViewActions::MapViewActions(MapView & owner, const std::shared_ptr<MapViewModel> & model)
 	: model(model)
 	, owner(owner)
-	, isSwiping(false)
+	, pinchZoomFactor(1.0)
 {
 	pos.w = model->getPixelsVisibleDimensions().x;
 	pos.h = model->getPixelsVisibleDimensions().y;
 
-	addUsedEvents(LCLICK | RCLICK | MCLICK | HOVER | MOVE | WHEEL);
-}
-
-bool MapViewActions::swipeEnabled() const
-{
-#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
-	return settings["general"]["swipe"].Bool();
-#else
-	return settings["general"]["swipeDesktop"].Bool();
-#endif
+	addUsedEvents(LCLICK | RCLICK | GESTURE_PANNING | HOVER | MOVE | WHEEL);
 }
 
 void MapViewActions::setContext(const std::shared_ptr<IMapRendererContext> & context)
@@ -52,18 +46,8 @@ void MapViewActions::clickLeft(tribool down, bool previousState)
 	if(indeterminate(down))
 		return;
 
-	if(swipeEnabled())
-	{
-		if(handleSwipeStateChange(static_cast<bool>(down)))
-		{
-			return; // if swipe is enabled, we don't process "down" events and wait for "up" (to make sure this wasn't a swiping gesture)
-		}
-	}
-	else
-	{
-		if(down == false)
-			return;
-	}
+	if(down == false)
+		return;
 
 	int3 tile = model->getTileAtPoint(GH.getCursorPosition() - pos.topLeft());
 
@@ -73,76 +57,43 @@ void MapViewActions::clickLeft(tribool down, bool previousState)
 
 void MapViewActions::clickRight(tribool down, bool previousState)
 {
-	if(isSwiping)
-		return;
-
 	int3 tile = model->getTileAtPoint(GH.getCursorPosition() - pos.topLeft());
 
 	if(down && context->isInMap(tile))
 		adventureInt->onTileRightClicked(tile);
 }
 
-void MapViewActions::clickMiddle(tribool down, bool previousState)
-{
-	handleSwipeStateChange(static_cast<bool>(down));
-}
-
 void MapViewActions::mouseMoved(const Point & cursorPosition)
 {
 	handleHover(cursorPosition);
-	handleSwipeMove(cursorPosition);
 }
 
-void MapViewActions::wheelScrolled(bool down, bool in)
+void MapViewActions::wheelScrolled(int distance)
 {
-	if (!in)
-		return;
-	adventureInt->hotkeyZoom(down ? -1 : +1);
+	adventureInt->hotkeyZoom(distance * 4);
 }
 
-void MapViewActions::handleSwipeMove(const Point & cursorPosition)
+void MapViewActions::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
-	// unless swipe is enabled, swipe move only works with middle mouse button
-	if(!swipeEnabled() && !GH.isMouseButtonPressed(MouseButton::MIDDLE))
-		return;
-
-	// on mobile platforms with enabled swipe we use left button
-	if(swipeEnabled() && !GH.isMouseButtonPressed(MouseButton::LEFT))
-		return;
-
-	if(!isSwiping)
-	{
-		static constexpr int touchSwipeSlop = 16;
-		Point distance = (cursorPosition - swipeInitialRealPos);
-
-		// try to distinguish if this touch was meant to be a swipe or just fat-fingering press
-		if(std::abs(distance.x) + std::abs(distance.y) > touchSwipeSlop)
-			isSwiping = true;
-	}
-
-	if(isSwiping)
-	{
-		Point swipeTargetPosition = swipeInitialViewPos + swipeInitialRealPos - cursorPosition;
-		owner.onMapSwiped(swipeTargetPosition);
-	}
+	owner.onMapSwiped(lastUpdateDistance);
 }
 
-bool MapViewActions::handleSwipeStateChange(bool btnPressed)
+void MapViewActions::gesturePinch(const Point & centerPosition, double lastUpdateFactor)
 {
-	if(btnPressed)
-	{
-		swipeInitialRealPos = GH.getCursorPosition();
-		swipeInitialViewPos = model->getMapViewCenter();
-		return true;
-	}
+	double newZoom = pinchZoomFactor * lastUpdateFactor;
 
-	if(isSwiping) // only accept this touch if it wasn't a swipe
-	{
-		owner.onMapSwipeEnded();
-		isSwiping = false;
-		return true;
-	}
-	return false;
+	int newZoomSteps = std::round(std::log(newZoom) / std::log(1.01));
+	int oldZoomSteps = std::round(std::log(pinchZoomFactor) / std::log(1.01));
+
+	if (newZoomSteps != oldZoomSteps)
+		adventureInt->hotkeyZoom(newZoomSteps - oldZoomSteps);
+
+	pinchZoomFactor = newZoom;
+}
+
+void MapViewActions::panning(bool on, const Point & initialPosition, const Point & finalPosition)
+{
+	pinchZoomFactor = 1.0;
 }
 
 void MapViewActions::handleHover(const Point & cursorPosition)

@@ -19,6 +19,7 @@
 #include "../gui/TextAlignment.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/CreatureCostBox.h"
 
@@ -34,12 +35,12 @@ void CreaturePurchaseCard::initButtons()
 
 void CreaturePurchaseCard::initMaxButton()
 {
-	maxButton = std::make_shared<CButton>(Point(pos.x + 52, pos.y + 180), "QuickRecruitmentWindow/QuickRecruitmentAllButton.def", CButton::tooltip(), std::bind(&CSlider::moveToMax,slider), EShortcut::RECRUITMENT_MAX);
+	maxButton = std::make_shared<CButton>(Point(pos.x + 52, pos.y + 180), "QuickRecruitmentWindow/QuickRecruitmentAllButton.def", CButton::tooltip(), std::bind(&CSlider::scrollToMax,slider), EShortcut::RECRUITMENT_MAX);
 }
 
 void CreaturePurchaseCard::initMinButton()
 {
-	minButton = std::make_shared<CButton>(Point(pos.x, pos.y + 180), "QuickRecruitmentWindow/QuickRecruitmentNoneButton.def", CButton::tooltip(), std::bind(&CSlider::moveToMin,slider), EShortcut::RECRUITMENT_MIN);
+	minButton = std::make_shared<CButton>(Point(pos.x, pos.y + 180), "QuickRecruitmentWindow/QuickRecruitmentNoneButton.def", CButton::tooltip(), std::bind(&CSlider::scrollToMin,slider), EShortcut::RECRUITMENT_MIN);
 }
 
 void CreaturePurchaseCard::initCreatureSwitcherButton()

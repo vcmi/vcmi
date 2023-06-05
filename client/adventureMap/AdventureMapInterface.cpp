@@ -54,7 +54,6 @@ AdventureMapInterface::AdventureMapInterface():
 	pos.x = pos.y = 0;
 	pos.w = GH.screenDimensions().x;
 	pos.h = GH.screenDimensions().y;
-	setMoveEventStrongInterest(true); // handle all mouse move events to prevent dead mouse move space in fullscreen mode
 
 	shortcuts = std::make_shared<AdventureMapShortcuts>(*this);
 
@@ -182,7 +181,7 @@ void AdventureMapInterface::handleMapScrollingUpdate(uint32_t timePassed)
 
 	bool cursorInScrollArea = scrollDelta != Point(0,0);
 	bool scrollingActive = cursorInScrollArea && isActive() && shortcuts->optionSidePanelActive() && !scrollingWasBlocked;
-	bool scrollingBlocked = GH.isKeyboardCtrlDown();
+	bool scrollingBlocked = GH.isKeyboardCtrlDown() || !settings["adventure"]["borderScroll"].Bool();
 
 	if (!scrollingWasActive && scrollingBlocked)
 	{

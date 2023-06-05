@@ -62,9 +62,6 @@ public:
 	CIntObject(int used=0, Point offset=Point());
 	virtual ~CIntObject();
 
-	//hover handling
-	void hover (bool on) override{}
-
 	//keyboard handling
 	bool captureAllKeys; //if true, only this object should get info about pressed keys
 
@@ -100,7 +97,7 @@ public:
 	/// default behavior is to re-center, can be overriden
 	void onScreenResize() override;
 
-	bool isInside(const Point & position) override;
+	bool receiveEvent(const Point & position, int eventType) const override;
 
 	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
 	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center

@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "TextControls.h"
 
-#include "Buttons.h"
+#include "Slider.h"
 #include "Images.h"
 
 #include "../CPlayerInterface.h"
