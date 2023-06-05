@@ -22,6 +22,7 @@
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
 
+#include "../../lib/ArtifactUtils.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 

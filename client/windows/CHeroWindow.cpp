@@ -29,6 +29,7 @@
 
 #include "../../CCallback.h"
 
+#include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"

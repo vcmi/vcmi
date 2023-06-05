@@ -11,6 +11,7 @@
 #include "CGameState.h"
 
 #include "mapping/CCampaignHandler.h"
+#include "ArtifactUtils.h"
 #include "CArtHandler.h"
 #include "CBuildingHandler.h"
 #include "CGeneralTextHandler.h"
@@ -1593,7 +1594,7 @@ void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 			break;
 		case CScenarioTravel::STravelBonus::SPELL_SCROLL:
 			{
-				CArtifactInstance * scroll = CArtifactInstance::createScroll(SpellID(curBonus->info2));
+				CArtifactInstance * scroll = ArtifactUtils::createScroll(SpellID(curBonus->info2));
 				const auto slot = ArtifactUtils::getArtAnyPosition(hero, scroll->getTypeId());
 				if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
 					scroll->putAt(ArtifactLocation(hero, slot));
@@ -2826,7 +2827,7 @@ void CGameState::attachArmedObjects()
 bool CGameState::giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid)
 {
 	 CArtifact * const artifact = VLC->arth->objects[aid]; //pointer to constant object
-	 CArtifactInstance * ai = CArtifactInstance::createNewArtifactInstance(artifact);
+	 CArtifactInstance * ai = ArtifactUtils::createNewArtifactInstance(artifact);
 	 map->addNewArtifactInstance(ai);
 	 auto slot = ArtifactUtils::getArtAnyPosition(h, aid);
 	 if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))

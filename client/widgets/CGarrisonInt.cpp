@@ -22,6 +22,7 @@
 
 #include "../../CCallback.h"
 
+#include "../../lib/ArtifactUtils.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"

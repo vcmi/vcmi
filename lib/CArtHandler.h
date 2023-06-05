@@ -141,14 +141,12 @@ class DLL_LINKAGE CArtifactInstance : public CBonusSystemNode
 {
 protected:
 	void init();
-	CArtifactInstance(CArtifact *Art);
 public:
+	CArtifactInstance(CArtifact * Art);
 	CArtifactInstance();
 
 	ConstTransitivePtr<CArtifact> artType;
 	ArtifactInstanceID id;
-
-	//CArtifactInstance(int aid);
 
 	std::string nodeName() const override;
 	void deserializationFix();
@@ -160,12 +158,12 @@ public:
 	ArtifactID getTypeId() const;
 	bool canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved = false) const;  //forwards to the above one
 	virtual bool canBeDisassembled() const;
-	virtual void putAt(ArtifactLocation al);
-	virtual void removeFrom(ArtifactLocation al);
 	/// Checks if this a part of this artifact: artifact instance is a part
 	/// of itself, additionally truth is returned for constituents of combined arts
 	virtual bool isPart(const CArtifactInstance *supposedPart) const;
 
+	void putAt(ArtifactLocation al);
+	void removeFrom(ArtifactLocation al);
 	void move(const ArtifactLocation & src,const ArtifactLocation & dst);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -175,25 +173,12 @@ public:
 		h & id;
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
-
-	static CArtifactInstance * createScroll(const SpellID & sid);
-	static CArtifactInstance *createNewArtifactInstance(CArtifact *Art);
-	static CArtifactInstance * createNewArtifactInstance(const ArtifactID & aid);
-
-	/**
-	 * Creates an artifact instance.
-	 *
-	 * @param aid the id of the artifact
-	 * @param spellID optional. the id of a spell if a spell scroll object should be created
-	 * @return the created artifact instance
-	 */
-	static CArtifactInstance * createArtifact(CMap * map, const ArtifactID & aid, int spellID = -1);
 };
 
 class DLL_LINKAGE CCombinedArtifactInstance : public CArtifactInstance
 {
-	CCombinedArtifactInstance(CArtifact *Art);
 public:
+	CCombinedArtifactInstance(CArtifact * Art);
 	struct ConstituentInfo
 	{
 		ConstTransitivePtr<CArtifactInstance> art;
@@ -210,13 +195,9 @@ public:
 
 	std::vector<ConstituentInfo> constituentsInfo;
 
-	void putAt(ArtifactLocation al) override;
-	void removeFrom(ArtifactLocation al) override;
 	bool isPart(const CArtifactInstance *supposedPart) const override;
-
 	void createConstituents();
 	void addAsConstituent(CArtifactInstance * art, const ArtifactPosition & slot);
-	CArtifactInstance * figureMainConstituent(const ArtifactLocation & al); //main constituent is replaced with us (combined art), not lock
 
 	CCombinedArtifactInstance() = default;
 
@@ -314,7 +295,6 @@ public:
 	std::map<ArtifactPosition, ArtSlotInfo> artifactsWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::vector<ArtSlotInfo> artifactsTransitionPos; // Used as transition position for dragAndDrop artifact exchange
 
-	ArtSlotInfo & retrieveNewArtSlot(const ArtifactPosition & slot);
 	void setNewArtSlot(const ArtifactPosition & slot, CArtifactInstance * art, bool locked);
 	void eraseArtSlot(const ArtifactPosition & slot);
 
@@ -340,7 +320,8 @@ public:
 	unsigned getArtPosCount(const ArtifactID & aid, bool onlyWorn = true, bool searchBackpackAssemblies = true, bool allowLocked = true) const;
 
 	virtual ArtBearer::ArtBearer bearerType() const = 0;
-	virtual void putArtifact(ArtifactPosition pos, CArtifactInstance * art) = 0;
+	virtual void putArtifact(ArtifactPosition slot, CArtifactInstance * art);
+	virtual void removeArtifact(ArtifactPosition slot);
 	virtual ~CArtifactSet();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -368,28 +349,10 @@ class DLL_LINKAGE CArtifactFittingSet : public CArtifactSet
 {
 public:
 	CArtifactFittingSet(ArtBearer::ArtBearer Bearer);
-	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;
-	void removeArtifact(ArtifactPosition pos);
 	ArtBearer::ArtBearer bearerType() const override;
 
 protected:
 	ArtBearer::ArtBearer Bearer;
 };
-
-namespace ArtifactUtils
-{
-	// Calculates where an artifact gets placed when it gets transferred from one hero to another.
-	DLL_LINKAGE ArtifactPosition getArtAnyPosition(const CArtifactSet * target, const ArtifactID & aid);
-	DLL_LINKAGE ArtifactPosition getArtBackpackPosition(const CArtifactSet * target, const ArtifactID & aid);
-	// TODO: Make this constexpr when the toolset is upgraded
-	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & unmovableSlots();
-	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & constituentWornSlots();
-	DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot);
-	DLL_LINKAGE bool checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, const ArtifactID & artID, const ArtifactPosition & slot);
-	DLL_LINKAGE bool isSlotBackpack(const ArtifactPosition & slot);
-	DLL_LINKAGE bool isSlotEquipment(const ArtifactPosition & slot);
-	DLL_LINKAGE bool isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots = 1);
-	DLL_LINKAGE std::vector<const CArtifact*> assemblyPossibilities(const CArtifactSet * artSet, const ArtifactID & aid, bool equipped);
-}
 
 VCMI_LIB_NAMESPACE_END

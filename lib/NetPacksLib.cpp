@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "ArtifactUtils.h"
 #include "NetPacks.h"
 #include "NetPackVisitor.h"
 #include "CGeneralTextHandler.h"
@@ -1798,7 +1799,6 @@ void PutArtifact::applyGs(CGameState *gs)
 	assert(vstd::contains(gs->map->artInstances, art));
 	assert(!art->getParentNodes().empty());
 	art->putAt(al);
-	//al.hero->putArtifact(al.slot, art);
 }
 
 void EraseArtifact::applyGs(CGameState *gs)
@@ -1936,7 +1936,6 @@ void AssembledArtifact::applyGs(CGameState *gs)
 
 		//move constituent from hero to be part of new, combined artifact
 		constituentInstance->removeFrom(ArtifactLocation(al.artHolder, pos));
-		combinedArt->addAsConstituent(constituentInstance, pos);
 		if(combineEquipped)
 		{
 			if(!vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], al.slot)
@@ -1947,6 +1946,9 @@ void AssembledArtifact::applyGs(CGameState *gs)
 		{
 			al.slot = std::min(al.slot, pos);
 		}
+		if(al.slot == pos)
+			pos = ArtifactPosition::PRE_FIRST;
+		combinedArt->addAsConstituent(constituentInstance, pos);
 	}
 
 	//put new combined artifacts

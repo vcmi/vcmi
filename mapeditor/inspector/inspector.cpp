@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "inspector.h"
+#include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CHeroHandler.h"
@@ -173,7 +174,7 @@ void Initializer::initialize(CGArtifact * o)
 				out.push_back(spell->id);
 			}
 		}
-		auto a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
+		auto a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
 		o->storedArtifact = a;
 	}
 }
@@ -530,7 +531,7 @@ void Inspector::setProperty(CGArtifact * o, const QString & key, const QVariant 
 		{
 			if(spell->getJsonKey() == value.toString().toStdString())
 			{
-				o->storedArtifact = CArtifactInstance::createScroll(spell->getId());
+				o->storedArtifact = ArtifactUtils::createScroll(spell->getId());
 				break;
 			}
 		}

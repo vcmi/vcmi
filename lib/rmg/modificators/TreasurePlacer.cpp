@@ -19,6 +19,7 @@
 #include "../TileInfo.h"
 #include "../CZonePlacer.h"
 #include "QuestArtifactPlacer.h"
+#include "../../ArtifactUtils.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapObjectConstructors/CommonConstructors.h"
@@ -210,7 +211,7 @@ void TreasurePlacer::addAllPossibleObjects()
 					out.push_back(spell->id);
 				}
 			}
-			auto * a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, zone.getRand()));
+			auto * a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, zone.getRand()));
 			obj->storedArtifact = a;
 			return obj;
 		};

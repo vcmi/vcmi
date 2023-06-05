@@ -21,6 +21,7 @@
 
 #include "../../CCallback.h"
 
+#include "../../lib/ArtifactUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 CArtifactsOfHeroBase::CArtifactsOfHeroBase()

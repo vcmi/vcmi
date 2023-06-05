@@ -25,6 +25,7 @@
 #include "../gui/Shortcut.h"
 
 #include "../../CCallback.h"
+#include "../../lib/ArtifactUtils.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CBonusTypeHandler.h"
 #include "../../lib/CGeneralTextHandler.h"

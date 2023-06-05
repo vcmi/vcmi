@@ -196,6 +196,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/vstd/StringUtils.cpp
 
+		${MAIN_LIB_DIR}/ArtifactUtils.cpp
 		${MAIN_LIB_DIR}/BasicTypes.cpp
 		${MAIN_LIB_DIR}/BattleFieldHandler.cpp
 		${MAIN_LIB_DIR}/CAndroidVMHelper.cpp
@@ -500,6 +501,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/effects/Sacrifice.h
 
 		${MAIN_LIB_DIR}/AI_Base.h
+		${MAIN_LIB_DIR}/ArtifactUtils.h
 		${MAIN_LIB_DIR}/BattleFieldHandler.h
 		${MAIN_LIB_DIR}/CAndroidVMHelper.h
 		${MAIN_LIB_DIR}/CArtHandler.h

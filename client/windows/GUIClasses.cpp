@@ -47,6 +47,7 @@
 
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGMarket.h"
+#include "../lib/ArtifactUtils.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/CArtHandler.h"

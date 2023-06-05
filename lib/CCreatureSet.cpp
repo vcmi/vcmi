@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CCreatureSet.h"
 
+#include "ArtifactUtils.h"
 #include "CConfigHandler.h"
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
@@ -870,7 +871,20 @@ ArtBearer::ArtBearer CStackInstance::bearerType() const
 void CStackInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
 {
 	assert(!getArt(pos));
-	art->putAt(ArtifactLocation(this, pos));
+	assert(art->artType->canBePutAt(this, pos));
+
+	CArtifactSet::putArtifact(pos, art);
+	if(ArtifactUtils::isSlotEquipment(pos))
+		attachTo(*art);
+}
+
+void CStackInstance::removeArtifact(ArtifactPosition pos)
+{
+	assert(getArt(pos));
+
+	CArtifactSet::removeArtifact(pos);
+	if(ArtifactUtils::isSlotEquipment(pos))
+		detachFrom(*getArt(pos));
 }
 
 void CStackInstance::serializeJson(JsonSerializeFormat & handler)
