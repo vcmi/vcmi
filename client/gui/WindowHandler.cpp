@@ -16,6 +16,7 @@
 
 #include "../CMT.h"
 #include "../CGameInfo.h"
+#include "../render/Canvas.h"
 #include "../render/Colors.h"
 #include "../renderSDL/SDL_Extensions.h"
 
@@ -92,8 +93,10 @@ void WindowHandler::totalRedraw()
 {
 	CSDL_Ext::fillSurface(screen2, Colors::BLACK);
 
+	Canvas target = Canvas::createFromSurface(screen2);
+
 	for(auto & elem : windowsStack)
-		elem->showAll(screen2);
+		elem->showAll(target);
 	CSDL_Ext::blitAt(screen2, 0, 0, screen);
 }
 
@@ -102,8 +105,11 @@ void WindowHandler::simpleRedraw()
 	//update only top interface and draw background
 	if(windowsStack.size() > 1)
 		CSDL_Ext::blitAt(screen2, 0, 0, screen); //blit background
+
+	Canvas target = Canvas::createFromSurface(screen);
+
 	if(!windowsStack.empty())
-		windowsStack.back()->show(screen); //blit active interface/window
+		windowsStack.back()->show(target); //blit active interface/window
 }
 
 void WindowHandler::onScreenResize()

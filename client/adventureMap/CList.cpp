@@ -21,7 +21,7 @@
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
@@ -92,9 +92,9 @@ CList::CList(int Size, Rect widgetDimensions)
 	pos.h = widgetDimensions.h;
 }
 
-void CList::showAll(SDL_Surface * to)
+void CList::showAll(Canvas & to)
 {
-	CSDL_Ext::fillRect(to, pos, Colors::BLACK);
+	to.drawColor(pos, Colors::BLACK);
 	CIntObject::showAll(to);
 }
 

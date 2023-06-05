@@ -91,7 +91,7 @@ public:
 	void selectNext();
 	void selectPrev();
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 };
 
 /// List of heroes which is shown at the right of the adventure map screen

@@ -28,6 +28,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
+#include "../render/Canvas.h"
 #include "../CMT.h"
 #include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
@@ -133,13 +134,13 @@ void AdventureMapInterface::deactivate()
 	CCS->curh->set(Cursor::Map::POINTER);
 }
 
-void AdventureMapInterface::showAll(SDL_Surface * to)
+void AdventureMapInterface::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 	LOCPLINT->cingconsole->show(to);
 }
 
-void AdventureMapInterface::show(SDL_Surface * to)
+void AdventureMapInterface::show(Canvas & to)
 {
 	CIntObject::show(to);
 	LOCPLINT->cingconsole->show(to);
@@ -396,7 +397,8 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 	widget->getInfoBar()->showDate();
 
 	onHeroChanged(nullptr);
-	showAll(screen);
+	Canvas canvas = Canvas::createFromSurface(screen);
+	showAll(canvas);
 	mapAudio->onPlayerTurnStarted();
 
 	if(settings["session"]["autoSkip"].Bool() && !GH.isKeyboardShiftDown())

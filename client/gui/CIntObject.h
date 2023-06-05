@@ -13,9 +13,9 @@
 #include "../../lib/Rect.h"
 #include "EventsReceiver.h"
 
-struct SDL_Surface;
 class CGuiHandler;
 class CPicture;
+class Canvas;
 
 class IUpdateable
 {
@@ -31,8 +31,8 @@ public:
 	virtual void deactivate()=0;
 
 	virtual void redraw()=0;
-	virtual void show(SDL_Surface * to) = 0;
-	virtual void showAll(SDL_Surface * to) = 0;
+	virtual void show(Canvas & to) = 0;
+	virtual void showAll(Canvas & to) = 0;
 
 	virtual void onScreenResize() = 0;
 	virtual ~IShowActivatable() = default;
@@ -90,9 +90,9 @@ public:
 	void deactivate() override;
 
 	//called each frame to update screen
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 	//called on complete redraw only
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 	//request complete redraw of this object
 	void redraw() override;
 
@@ -112,10 +112,6 @@ public:
 	void addChild(CIntObject *child, bool adjustPosition = false);
 	void removeChild(CIntObject *child, bool adjustPosition = false);
 
-	/// functions for printing text.
-	/// Deprecated. Use CLabel where possible instead
-	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, const SDL_Color & color, SDL_Surface * dst);
-	void printAtMiddleWBLoc(const std::string & text, const Point &p, EFonts font, int charsPerLine, const SDL_Color & color, SDL_Surface * dst);
 };
 
 /// Class for binding keys to left mouse button clicks

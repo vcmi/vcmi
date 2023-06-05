@@ -16,14 +16,13 @@
 #include "CComponent.h"
 
 #include "../windows/GUIClasses.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
+#include "../render/Colors.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
 
 #include "../../CCallback.h"
-
 #include "../../lib/CGeneralTextHandler.h"
-
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 void CArtPlace::setInternals(const CArtifactInstance * artInst)
@@ -206,7 +205,7 @@ void CHeroArtPlace::clickRight(tribool down, bool previousState)
 	}
 }
 
-void CHeroArtPlace::showAll(SDL_Surface* to)
+void CHeroArtPlace::showAll(Canvas & to)
 {
 	if(ourArt)
 	{
@@ -214,21 +213,7 @@ void CHeroArtPlace::showAll(SDL_Surface* to)
 	}
 
 	if(marked && isActive())
-	{
-		// Draw vertical bars.
-		for(int i = 0; i < pos.h; ++i)
-		{
-			CSDL_Ext::putPixelWithoutRefresh(to, pos.x, pos.y + i, 240, 220, 120);
-			CSDL_Ext::putPixelWithoutRefresh(to, pos.x + pos.w - 1, pos.y + i, 240, 220, 120);
-		}
-
-		// Draw horizontal bars.
-		for(int i = 0; i < pos.w; ++i)
-		{
-			CSDL_Ext::putPixelWithoutRefresh(to, pos.x + i, pos.y, 240, 220, 120);
-			CSDL_Ext::putPixelWithoutRefresh(to, pos.x + i, pos.y + pos.h - 1, 240, 220, 120);
-		}
-	}
+		to.drawBorder(pos, Colors::BRIGHT_YELLOW);
 }
 
 void CHeroArtPlace::setArtifact(const CArtifactInstance * art)

@@ -29,7 +29,6 @@ class Unit;
 VCMI_LIB_NAMESPACE_END
 
 class Canvas;
-struct SDL_Surface;
 class BattleInterface;
 class CPicture;
 class CFilledTexture;
@@ -70,7 +69,7 @@ private:
 public:
 	BattleConsole(std::shared_ptr<CPicture> backgroundSource, const Point & objectPos, const Point & imagePos, const Point &size);
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 	void deactivate() override;
 
 	bool addText(const std::string &text); //adds text at the last position; returns false if failed (e.g. text longer than 70 characters)
@@ -158,7 +157,7 @@ public:
 	std::function<void(int result)> resultCallback; //callback receiving which button was pressed
 
 	void activate() override;
-	void show(SDL_Surface * to = 0) override;
+	void show(Canvas & to) override;
 };
 
 /// Shows the stack queue
@@ -181,7 +180,7 @@ class StackQueue : public CIntObject
 		void toggleHighlight(bool value);
 		std::optional<uint32_t> getBoundUnitID() const;
 
-		void show(SDL_Surface * to) override;
+		void show(Canvas & to) override;
 	};
 
 	static const int QUEUE_SIZE = 10;
@@ -200,5 +199,5 @@ public:
 	void update();
 	std::optional<uint32_t> getHoveredUnitIdIfAny() const;
 
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 };

@@ -16,7 +16,6 @@
 
 #include "Buttons.h"
 
-#include "../renderSDL/SDL_Extensions.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
 

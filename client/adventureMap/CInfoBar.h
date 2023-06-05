@@ -46,7 +46,7 @@ private:
 		static constexpr int offset_x = 8;
 		static constexpr int offset_y = 12;
 
-		void show(SDL_Surface * to) override;
+		void show(Canvas & to) override;
 
 	protected:
 		std::shared_ptr<CPicture> background;

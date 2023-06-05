@@ -18,7 +18,6 @@ struct CampaignRegions;
 
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Surface;
 class CButton;
 class CTextBox;
 class CToggleGroup;

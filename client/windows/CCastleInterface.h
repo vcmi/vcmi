@@ -70,8 +70,8 @@ public:
 	void clickRight(tribool down, bool previousState) override;
 	void mouseMoved (const Point & cursorPosition) override;
 	void tick(uint32_t msPassed) override;
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
+	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
 };
 
 /// Dwelling info box - right-click screen for dwellings

@@ -606,7 +606,7 @@ bool BattleFieldController::stackCountOutsideHex(const BattleHex & number) const
 	return stackCountOutsideHexes[number];
 }
 
-void BattleFieldController::showAll(SDL_Surface * to)
+void BattleFieldController::showAll(Canvas & to)
 {
 	show(to);
 }
@@ -619,10 +619,9 @@ void BattleFieldController::tick(uint32_t msPassed)
 	owner.projectilesController->tick(msPassed);
 }
 
-void BattleFieldController::show(SDL_Surface * to)
+void BattleFieldController::show(Canvas & to)
 {
-	Canvas canvas(to);
-	CSDL_Ext::CClipRectGuard guard(to, pos);
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
 
-	renderBattlefield(canvas);
+	renderBattlefield(to);
 }

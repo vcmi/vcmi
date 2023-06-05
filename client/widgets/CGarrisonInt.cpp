@@ -15,7 +15,6 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/GUIClasses.h"
 #include "../CGameInfo.h"

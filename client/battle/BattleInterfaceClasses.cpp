@@ -36,7 +36,6 @@
 #include "../windows/CSpellWindow.h"
 #include "../render/CAnimation.h"
 #include "../adventureMap/CInGameConsole.h"
-#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
@@ -52,7 +51,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/TextOperations.h"
 
-void BattleConsole::showAll(SDL_Surface * to)
+void BattleConsole::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
@@ -62,10 +61,10 @@ void BattleConsole::showAll(SDL_Surface * to)
 	auto visibleText = getVisibleText();
 
 	if(visibleText.size() > 0)
-		graphics->fonts[FONT_SMALL]->renderTextCenter(to, visibleText[0], Colors::WHITE, line1);
+		to.drawText(line1, FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, visibleText[0]);
 
 	if(visibleText.size() > 1)
-		graphics->fonts[FONT_SMALL]->renderTextCenter(to, visibleText[1], Colors::WHITE, line2);
+		to.drawText(line2, FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, visibleText[1]);
 }
 
 std::vector<std::string> BattleConsole::getVisibleText()
@@ -580,10 +579,10 @@ void BattleResultWindow::activate()
 	CIntObject::activate();
 }
 
-void BattleResultWindow::show(SDL_Surface * to)
+void BattleResultWindow::show(Canvas & to)
 {
 	CIntObject::show(to);
-	CCS->videoh->update(pos.x + 107, pos.y + 70, to, true, false);
+	CCS->videoh->update(pos.x + 107, pos.y + 70, to.getInternalSurface(), true, false);
 }
 
 void BattleResultWindow::buttonPressed(int button)
@@ -651,7 +650,7 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	}
 }
 
-void StackQueue::show(SDL_Surface * to)
+void StackQueue::show(Canvas & to)
 {
 	auto unitIdsToHighlight = owner.stacksController->getHoveredStacksUnitIds();
 
@@ -789,10 +788,10 @@ void StackQueue::StackBox::toggleHighlight(bool value)
 	highlighted = value;
 }
 
-void StackQueue::StackBox::show(SDL_Surface *to)
+void StackQueue::StackBox::show(Canvas & to)
 {
 	if(highlighted)
-		CSDL_Ext::drawBorder(to, background->pos.x, background->pos.y, background->pos.w, background->pos.h,  { 0, 255, 255, 255 }, 2);
+		to.drawBorder(background->pos, Colors::CYAN, 2);
 
 	CIntObject::show(to);
 }

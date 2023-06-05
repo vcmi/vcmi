@@ -13,7 +13,7 @@
 #include "CGuiHandler.h"
 #include "WindowHandler.h"
 #include "Shortcut.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 #include "../windows/CMessage.h"
 #include "../CMT.h"
 
@@ -53,7 +53,7 @@ CIntObject::~CIntObject()
 		parent_m->removeChild(this);
 }
 
-void CIntObject::show(SDL_Surface * to)
+void CIntObject::show(Canvas & to)
 {
 	if(defActions & UPDATE)
 		for(auto & elem : children)
@@ -61,7 +61,7 @@ void CIntObject::show(SDL_Surface * to)
 				elem->show(to);
 }
 
-void CIntObject::showAll(SDL_Surface * to)
+void CIntObject::showAll(Canvas & to)
 {
 	if(defActions & SHOWALL)
 	{
@@ -98,16 +98,6 @@ void CIntObject::deactivate()
 		for(auto & elem : children)
 			if(elem->recActions & DEACTIVATE)
 				elem->deactivate();
-}
-
-void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, const SDL_Color & kolor, SDL_Surface * dst)
-{
-	graphics->fonts[font]->renderTextCenter(dst, text, kolor, pos.topLeft() + p);
-}
-
-void CIntObject::printAtMiddleWBLoc( const std::string & text, const Point &p, EFonts font, int charpr, const SDL_Color & kolor, SDL_Surface * dst)
-{
-	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, charpr, font), kolor, pos.topLeft() + p);
 }
 
 void CIntObject::addUsedEvents(ui16 newActions)
@@ -226,9 +216,15 @@ void CIntObject::redraw()
 		}
 		else
 		{
-			showAll(screenBuf);
+			Canvas buffer = Canvas::createFromSurface(screenBuf);
+
+			showAll(buffer);
 			if(screenBuf != screen)
-				showAll(screen);
+			{
+				Canvas screenBuffer = Canvas::createFromSurface(screen);
+
+				showAll(screenBuffer);
+			}
 		}
 	}
 }

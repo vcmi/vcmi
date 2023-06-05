@@ -163,7 +163,7 @@ public:
 
 	const CGHeroInstance *getActiveHero(); //returns hero that can currently cast a spell
 
-	void showInterface(SDL_Surface * to);
+	void showInterface(Canvas & to);
 
 	void setHeroAnimation(ui8 side, EHeroAnimType phase);
 

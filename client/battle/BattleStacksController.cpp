@@ -28,7 +28,6 @@
 #include "../gui/CGuiHandler.h"
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
-#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/spells/ISpellMechanics.h"

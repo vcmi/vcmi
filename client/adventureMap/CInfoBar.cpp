@@ -36,7 +36,7 @@ CInfoBar::CVisibleInfo::CVisibleInfo()
 {
 }
 
-void CInfoBar::CVisibleInfo::show(SDL_Surface * to)
+void CInfoBar::CVisibleInfo::show(Canvas & to)
 {
 	CIntObject::show(to);
 	for(auto object : forceRefresh)

@@ -12,7 +12,6 @@
 #include "../../lib/mapping/CCampaignHandler.h"
 
 class CMultiLineLabel;
-struct SDL_Surface;
 
 class CPrologEpilogVideo : public CWindowObject
 {
@@ -27,5 +26,5 @@ public:
 	CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback);
 
 	void clickLeft(tribool down, bool previousState) override;
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 };

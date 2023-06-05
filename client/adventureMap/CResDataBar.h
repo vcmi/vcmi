@@ -27,7 +27,6 @@ class CResDataBar : public CIntObject
 	std::map<GameResID, Point> resourcePositions;
 	std::optional<Point> datePosition;
 
-	void draw(SDL_Surface * to);
 public:
 
 	/// For dynamically-sized UI windows, e.g. adventure map interface
@@ -40,6 +39,6 @@ public:
 	void setResourcePosition(const GameResID & resource, const Point & position);
 
 	void colorize(PlayerColor player);
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 };
 

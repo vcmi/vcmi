@@ -42,8 +42,6 @@ namespace BitmapHandler
 
 	QImage loadH3PCX(ui8 * pcx, size_t size)
 	{
-		//SDL_Surface * ret;
-		
 		Epcxformat format;
 		int it = 0;
 		

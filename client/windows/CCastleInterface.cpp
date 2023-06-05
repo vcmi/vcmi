@@ -27,7 +27,7 @@
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../render/ColorFilter.h"
 #include "../adventureMap/AdventureMapInterface.h"
@@ -162,7 +162,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 	}
 }
 
-void CBuildingRect::show(SDL_Surface * to)
+void CBuildingRect::show(Canvas & to)
 {
 	uint32_t stageDelay = BUILDING_APPEAR_TIMEPOINT;
 
@@ -182,7 +182,7 @@ void CBuildingRect::show(SDL_Surface * to)
 		if(stateTimeCounter >= BUILD_ANIMATION_FINISHED_TIMEPOINT)
 		{
 			if(parent->selectedBuilding == this)
-				border->draw(to, pos.x, pos.y);
+				to.draw(border, pos.topLeft());
 			return;
 		}
 
@@ -200,7 +200,7 @@ void CBuildingRect::show(SDL_Surface * to)
 		else
 			border->adjustPalette(baseBorder, 0);
 
-		border->draw(to, pos.x, pos.y);
+		to.draw(border, pos.topLeft());
 	}
 }
 
@@ -210,14 +210,14 @@ void CBuildingRect::tick(uint32_t msPassed)
 	stateTimeCounter += msPassed;
 }
 
-void CBuildingRect::showAll(SDL_Surface * to)
+void CBuildingRect::showAll(Canvas & to)
 {
 	if (stateTimeCounter == 0)
 		return;
 
 	CShowableAnim::showAll(to);
 	if(!isActive() && parent->selectedBuilding == this && border)
-		border->draw(to, pos.x, pos.y);
+		to.draw(border, pos.topLeft());
 }
 
 std::string CBuildingRect::getSubtitle()//hover text for building

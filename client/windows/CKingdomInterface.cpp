@@ -23,7 +23,6 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/ObjectLists.h"
-#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 

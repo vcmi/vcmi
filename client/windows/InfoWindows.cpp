@@ -25,6 +25,7 @@
 #include "../battle/BattleInterfaceClasses.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../windows/CMessage.h"
+#include "../render/Canvas.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
@@ -41,10 +42,10 @@
 
 #include <SDL_surface.h>
 
-void CSimpleWindow::show(SDL_Surface * to)
+void CSimpleWindow::show(Canvas & to)
 {
 	if(bitmap)
-		CSDL_Ext::blitAt(bitmap,pos.x,pos.y,to);
+		CSDL_Ext::blitAt(bitmap, pos.x, pos.y, to.getInternalSurface());
 }
 CSimpleWindow::~CSimpleWindow()
 {
@@ -168,14 +169,14 @@ void CInfoWindow::close()
 		LOCPLINT->showingDialog->setn(false);
 }
 
-void CInfoWindow::show(SDL_Surface * to)
+void CInfoWindow::show(Canvas & to)
 {
 	CIntObject::show(to);
 }
 
 CInfoWindow::~CInfoWindow() = default;
 
-void CInfoWindow::showAll(SDL_Surface * to)
+void CInfoWindow::showAll(Canvas & to)
 {
 	CSimpleWindow::show(to);
 	CIntObject::showAll(to);
@@ -261,9 +262,9 @@ void CInfoPopup::close()
 	WindowBase::close();
 }
 
-void CInfoPopup::show(SDL_Surface * to)
+void CInfoPopup::show(Canvas & to)
 {
-	CSDL_Ext::blitAt(bitmap,pos.x,pos.y,to);
+	CSDL_Ext::blitAt(bitmap,pos.x,pos.y,to.getInternalSurface());
 }
 
 CInfoPopup::~CInfoPopup()

@@ -34,7 +34,7 @@ CreditsScreen::CreditsScreen(Rect rect)
 	credits->scrollTextTo(-600); // move all text below the screen
 }
 
-void CreditsScreen::show(SDL_Surface * to)
+void CreditsScreen::show(Canvas & to)
 {
 	CIntObject::show(to);
 	positionCounter++;

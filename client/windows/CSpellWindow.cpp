@@ -30,7 +30,6 @@
 #include "../widgets/TextControls.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../render/CAnimation.h"
-#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 
@@ -307,7 +306,7 @@ void CSpellWindow::fRcornerb()
 	computeSpellsPerArea();
 }
 
-void CSpellWindow::show(SDL_Surface * to)
+void CSpellWindow::show(Canvas & to)
 {
 	statusBar->show(to);
 }

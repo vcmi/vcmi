@@ -92,7 +92,7 @@ class CAdventureMapContainerWidget : public CIntObject
 class CAdventureMapOverlayWidget : public CAdventureMapContainerWidget
 {
 public:
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 };
 
 /// Small helper class that provides player-colorable icon using animation file

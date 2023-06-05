@@ -22,6 +22,7 @@
 #include "../gui/ShortcutHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
+#include "../render/Canvas.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -102,10 +103,10 @@ std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
 		return std::make_shared<CMenuEntry>(this, config["items"].Vector()[index]);
 }
 
-void CMenuScreen::show(SDL_Surface * to)
+void CMenuScreen::show(Canvas & to)
 {
 	if(!config["video"].isNull())
-		CCS->videoh->update((int)config["video"]["x"].Float() + pos.x, (int)config["video"]["y"].Float() + pos.y, to, true, false);
+		CCS->videoh->update((int)config["video"]["x"].Float() + pos.x, (int)config["video"]["y"].Float() + pos.y, to.getInternalSurface(), true, false);
 	CIntObject::show(to);
 }
 
@@ -334,10 +335,12 @@ void CMainMenu::update()
 	// Handles mouse and key input
 	GH.handleEvents();
 
+	Canvas canvas = Canvas::createFromSurface(screen);
+
 	// check for null othervice crash on finishing a campaign
 	// /FIXME: find out why GH.windows().listInt is empty to begin with
 	if(GH.windows().topWindow<CIntObject>())
-		GH.windows().topWindow<CIntObject>()->show(screen);
+		GH.windows().topWindow<CIntObject>()->show(canvas);
 }
 
 void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> * names, ELoadMode loadMode)
@@ -576,7 +579,7 @@ CLoadingScreen::~CLoadingScreen()
 	loadingThread.join();
 }
 
-void CLoadingScreen::showAll(SDL_Surface * to)
+void CLoadingScreen::showAll(Canvas & to)
 {
 	//FIXME: filling screen with transparency? BLACK intended?
 	//Rect rect(0, 0, to->w, to->h);

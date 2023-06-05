@@ -23,6 +23,7 @@
 #include "filesystem/ResourceID.h"
 #include "gui/CGuiHandler.h"
 #include "gui/WindowHandler.h"
+#include "render/Canvas.h"
 #include "lobby/CSavingScreen.h"
 #include "widgets/Buttons.h"
 #include "widgets/Images.h"
@@ -147,14 +148,14 @@ void SettingsMainWindow::closeAndPushEvent(EUserEvent code)
 	GH.pushUserEvent(code);
 }
 
-void SettingsMainWindow::showAll(SDL_Surface *to)
+void SettingsMainWindow::showAll(Canvas & to)
 {
 	auto color = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1);
 	if(settings["session"]["spectate"].Bool())
 		color = PlayerColor(1); // TODO: Spectator shouldn't need special code for UI colors
 
 	CIntObject::showAll(to);
-	CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+	CMessage::drawBorder(color, to.getInternalSurface(), pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
 void SettingsMainWindow::onScreenResize()

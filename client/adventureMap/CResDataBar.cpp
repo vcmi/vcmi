@@ -12,8 +12,10 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../render/Canvas.h"
 #include "../render/Colors.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/TextAlignment.h"
 #include "../widgets/Images.h"
 
 #include "../../CCallback.h"
@@ -67,24 +69,20 @@ std::string CResDataBar::buildDateString()
 	return boost::str(formatted);
 }
 
-void CResDataBar::draw(SDL_Surface * to)
+void CResDataBar::showAll(Canvas & to)
 {
+	CIntObject::showAll(to);
+
 	//TODO: all this should be labels, but they require proper text update on change
 	for (auto & entry : resourcePositions)
 	{
 		std::string text = std::to_string(LOCPLINT->cb->getResourceAmount(entry.first));
 
-		graphics->fonts[FONT_SMALL]->renderTextLeft(to, text, Colors::WHITE, pos.topLeft() + entry.second);
+		to.drawText(pos.topLeft() + entry.second, FONT_SMALL, Colors::WHITE, ETextAlignment::TOPLEFT, text);
 	}
 
 	if (datePosition)
-		graphics->fonts[FONT_SMALL]->renderTextLeft(to, buildDateString(), Colors::WHITE, pos.topLeft() + *datePosition);
-}
-
-void CResDataBar::showAll(SDL_Surface * to)
-{
-	CIntObject::showAll(to);
-	draw(to);
+		to.drawText(pos.topLeft() + *datePosition, FONT_SMALL, Colors::WHITE, ETextAlignment::TOPLEFT, buildDateString());
 }
 
 void CResDataBar::colorize(PlayerColor player)

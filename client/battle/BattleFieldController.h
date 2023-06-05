@@ -68,8 +68,8 @@ class BattleFieldController : public CIntObject
 	void clickRight(tribool down, bool previousState) override;
 	void activate() override;
 
-	void showAll(SDL_Surface * to) override;
-	void show(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
+	void show(Canvas & to) override;
 	void tick(uint32_t msPassed) override;
 public:
 	BattleFieldController(BattleInterface & owner);

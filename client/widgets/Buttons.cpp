@@ -23,7 +23,7 @@
 #include "../gui/Shortcut.h"
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -285,13 +285,13 @@ void CButton::setPlayerColor(PlayerColor player)
 		image->playerColored(player);
 }
 
-void CButton::showAll(SDL_Surface * to)
+void CButton::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
 	auto borderColor = stateToBorderColor[getState()];
 	if (borderColor)
-		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, *borderColor);
+		to.drawBorder(Rect::createAround(pos, 1), *borderColor);
 }
 
 std::pair<std::string, std::string> CButton::tooltip()
@@ -783,9 +783,9 @@ void CSlider::setAmount( int to )
 	vstd::amax(positions, 0);
 }
 
-void CSlider::showAll(SDL_Surface * to)
+void CSlider::showAll(Canvas & to)
 {
-	CSDL_Ext::fillRect(to, pos, Colors::BLACK);
+	to.drawColor(pos, Colors::BLACK);
 	CIntObject::showAll(to);
 }
 

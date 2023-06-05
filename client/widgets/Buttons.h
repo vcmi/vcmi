@@ -19,7 +19,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 class Rect;
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Surface;
 class CAnimImage;
 class CLabel;
 class CAnimation;
@@ -106,7 +105,7 @@ public:
 	void clickRight(tribool down, bool previousState) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void hover (bool on) override;
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 
 	/// generates tooltip that can be passed into constructor
 	static std::pair<std::string, std::string> tooltip();
@@ -274,7 +273,7 @@ public:
 	void wheelScrolled(bool down, bool in) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void mouseMoved (const Point & cursorPosition) override;
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 
 	 /// @param position coordinates of slider
 	 /// @param length length of slider ribbon, including left/right buttons
