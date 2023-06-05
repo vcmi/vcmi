@@ -27,6 +27,7 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+#include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapping/CMapDefines.h"
 
 struct NeighborTilesInfo

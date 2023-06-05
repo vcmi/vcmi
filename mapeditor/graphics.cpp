@@ -32,8 +32,10 @@
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
 #include "../lib/CStopWatch.h"
-#include "../lib/mapObjects/CObjectClassesHandler.h"
-#include "../lib/mapObjects/CObjectHandler.h"
+#include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../lib/mapObjects/CGObjectInstance.h"
+#include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/CHeroHandler.h"
 
 Graphics * graphics = nullptr;

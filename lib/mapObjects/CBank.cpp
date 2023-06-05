@@ -17,7 +17,8 @@
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
-#include "CommonConstructors.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjectConstructors/CommonConstructors.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 

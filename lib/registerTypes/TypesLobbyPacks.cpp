@@ -27,7 +27,6 @@
 #include "../TerrainHandler.h"
 #include "../mapping/CCampaignHandler.h"
 #include "../NetPacks.h"
-#include "../mapObjects/CObjectClassesHandler.h"
 #include "../rmg/CMapGenOptions.h"
 
 #include "../serializer/BinaryDeserializer.h"

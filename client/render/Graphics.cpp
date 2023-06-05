@@ -36,8 +36,6 @@
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"
 #include "../lib/CStopWatch.h"
-#include "../lib/mapObjects/CObjectClassesHandler.h"
-#include "../lib/mapObjects/CObjectHandler.h"
 #include "../lib/CHeroHandler.h"
 
 #include <SDL_surface.h>

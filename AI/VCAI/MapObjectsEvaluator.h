@@ -8,7 +8,8 @@
 *
 */
 #pragma once
-#include "../../lib/mapObjects/CObjectClassesHandler.h"
+
+#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 
 class MapObjectsEvaluator
 {

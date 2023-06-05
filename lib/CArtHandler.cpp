@@ -23,7 +23,8 @@
 #include "StringConstants.h"
 #include "CRandomGenerator.h"
 
-#include "mapObjects/CObjectClassesHandler.h"
+#include "mapObjectConstructors/AObjectTypeHandler.h"
+#include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "mapping/CMap.h"
 #include "serializer/JsonSerializeFormat.h"
 

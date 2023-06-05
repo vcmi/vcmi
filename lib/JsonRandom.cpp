@@ -23,8 +23,8 @@
 #include "CCreatureSet.h"
 #include "spells/CSpellHandler.h"
 #include "CSkillHandler.h"
-#include "mapObjects/CObjectHandler.h"
 #include "IGameCallback.h"
+#include "mapObjects/IObjectInterface.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

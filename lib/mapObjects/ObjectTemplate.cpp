@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "CObjectClassesHandler.h"
+#include "ObjectTemplate.h"
 
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CBinaryReader.h"
@@ -16,12 +16,11 @@
 #include "../GameConstants.h"
 #include "../StringConstants.h"
 #include "../CGeneralTextHandler.h"
-#include "CObjectHandler.h"
 #include "../CModHandler.h"
 #include "../JsonNode.h"
 #include "../TerrainHandler.h"
 
-#include "CRewardableConstructor.h"
+#include "../mapObjectConstructors/CRewardableConstructor.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

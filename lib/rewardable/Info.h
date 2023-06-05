@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../JsonNode.h"
-#include "../mapObjects/CObjectClassesHandler.h"
+#include "../mapObjectConstructors/IObjectInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

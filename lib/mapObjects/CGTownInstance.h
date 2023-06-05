@@ -9,9 +9,7 @@
  */
 #pragma once
 
-#include "CObjectHandler.h"
-#include "CGMarket.h" // For IMarket interface
-#include "CArmedInstance.h"
+#include "IMarket.h"
 #include "CGDwelling.h"
 #include "CGTownBuilding.h"
 

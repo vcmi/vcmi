@@ -11,7 +11,24 @@
 #include "StdInc.h"
 #include "Reward.h"
 
+#include "../mapObjects/CGHeroInstance.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
+
+Rewardable::Reward::Reward()
+	: heroExperience(0)
+	, heroLevel(0)
+	, manaDiff(0)
+	, manaPercentage(-1)
+	, movePoints(0)
+	, movePercentage(-1)
+	, primary(4, 0)
+	, removeObject(false)
+	, spellCast(SpellID::NONE, SecSkillLevel::NONE)
+{
+}
+
+Rewardable::Reward::~Reward() = default;
 
 si32 Rewardable::Reward::calculateManaPoints(const CGHeroInstance * hero) const
 {

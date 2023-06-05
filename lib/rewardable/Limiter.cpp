@@ -10,11 +10,26 @@
 
 #include "StdInc.h"
 #include "Limiter.h"
+
 #include "../IGameCallback.h"
 #include "../CGameStateFwd.h"
 #include "../CPlayerState.h"
+#include "../mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+Rewardable::Limiter::Limiter()
+	: dayOfWeek(0)
+	, daysPassed(0)
+	, heroExperience(0)
+	, heroLevel(0)
+	, manaPercentage(0)
+	, manaPoints(0)
+	, primary(GameConstants::PRIMARY_SKILLS, 0)
+{
+}
+
+Rewardable::Limiter::~Limiter() = default;
 
 bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 {

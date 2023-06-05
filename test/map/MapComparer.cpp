@@ -12,6 +12,7 @@
 #include "MapComparer.h"
 
 #include "../lib/mapping/CMap.h"
+#include "../lib/mapObjects/ObjectTemplate.h"
 
 #define VCMI_CHECK_FIELD_EQUAL_P(field) EXPECT_EQ(actual->field, expected->field)
 

@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "CObjectHandler.h"
+#include "IObjectInterface.h"
 #include "../rewardable/Interface.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

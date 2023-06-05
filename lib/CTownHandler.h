@@ -22,7 +22,7 @@
 #include "bonuses/Bonus.h"
 #include "bonuses/BonusList.h"
 #include "Point.h"
-#include "mapObjects/CRewardableConstructor.h"
+#include "rewardable/Info.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

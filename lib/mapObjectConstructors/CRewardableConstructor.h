@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../mapObjects/CObjectClassesHandler.h"
+#include "AObjectTypeHandler.h"
 #include "../rewardable/Info.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

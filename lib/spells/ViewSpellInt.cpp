@@ -11,8 +11,7 @@
 #include "StdInc.h"
 
 #include "ViewSpellInt.h"
-
-#include "../mapObjects/CObjectHandler.h"
+#include "../mapObjects/CGObjectInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

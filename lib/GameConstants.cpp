@@ -26,7 +26,6 @@
 #include <vcmi/spells/Service.h>
 
 #include "VCMI_Lib.h"
-#include "mapObjects/CObjectClassesHandler.h"//todo: remove
 #include "CArtHandler.h"//todo: remove
 #include "CCreatureHandler.h"//todo: remove
 #include "spells/CSpellHandler.h" //todo: remove

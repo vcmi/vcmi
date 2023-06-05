@@ -10,9 +10,12 @@
 #include "../StdInc.h"
 #include "FuzzyHelper.h"
 
-#include "../../../lib/mapObjects/CommonConstructors.h"
 #include "../Goals/Goals.h"
 #include "Nullkiller.h"
+
+#include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../../lib/mapObjectConstructors/CommonConstructors.h"
 
 namespace NKAI
 {

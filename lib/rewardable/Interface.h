@@ -10,13 +10,14 @@
 
 #pragma once
 
-#include "../mapObjects/CObjectHandler.h"
 #include "../CCreatureSet.h"
 #include "../ResourceSet.h"
 #include "../spells/ExternalCaster.h"
 #include "Configuration.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+class IGameCallback;
 
 namespace Rewardable
 {

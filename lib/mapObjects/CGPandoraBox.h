@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "CObjectHandler.h"
 #include "CArmedInstance.h"
 #include "../ResourceSet.h"
 

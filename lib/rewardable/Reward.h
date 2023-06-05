@@ -10,9 +10,16 @@
 
 #pragma once
 
-#include "../mapObjects/CGHeroInstance.h"
+#include "../ResourceSet.h"
+#include "../bonuses/Bonus.h"
+#include "../CCreatureSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+struct Bonus;
+struct Component;
+class CStackBasicDescriptor;
+class CGHeroInstance;
 
 namespace Rewardable
 {
@@ -78,17 +85,8 @@ struct DLL_LINKAGE Reward
 
 	si32 calculateManaPoints(const CGHeroInstance * h) const;
 
-	Reward() :
-		heroExperience(0),
-		heroLevel(0),
-		manaDiff(0),
-		manaPercentage(-1),
-		movePoints(0),
-		movePercentage(-1),
-		primary(4, 0),
-		removeObject(false),
-		spellCast(SpellID::NONE, SecSkillLevel::NONE)
-	{}
+	Reward();
+	~Reward();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

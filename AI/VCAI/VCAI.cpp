@@ -16,6 +16,7 @@
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjects/MapObjects.h"
+#include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/GameSettings.h"

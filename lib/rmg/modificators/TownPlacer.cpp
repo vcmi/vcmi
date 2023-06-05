@@ -12,9 +12,10 @@
 #include "TownPlacer.h"
 #include "../CMapGenerator.h"
 #include "../RmgMap.h"
+#include "../../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
-#include "../../mapObjects/CObjectClassesHandler.h"
 #include "../../spells/CSpellHandler.h" //for choosing random spells
 #include "../RmgPath.h"
 #include "../RmgObject.h"

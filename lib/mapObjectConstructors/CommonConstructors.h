@@ -9,9 +9,15 @@
 */
 #pragma once
 
-#include "CObjectClassesHandler.h"
-#include "../CTownHandler.h" // for building ID-based filters
-#include "MapObjects.h"
+#include "AObjectTypeHandler.h"
+
+#include "../mapObjects/CGMarket.h"
+#include "../mapObjects/MiscObjects.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/CBank.h"
+#include "../LogicalExpression.h"
+#include "IObjectInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,6 +27,7 @@ class CGHeroInstance;
 class CGDwelling;
 class CHeroClass;
 class CBank;
+class CFaction;
 class CStackBasicDescriptor;
 
 /// Class that is used for objects that do not have dedicated handler

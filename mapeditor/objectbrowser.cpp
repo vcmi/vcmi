@@ -10,7 +10,11 @@
 
 #include "StdInc.h"
 #include "objectbrowser.h"
-#include "../lib/mapObjects/CObjectClassesHandler.h"
+
+#include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../lib/mapObjects/ObjectTemplate.h"
+#include "../lib/VCMI_Lib.h"
 
 ObjectBrowserProxyModel::ObjectBrowserProxyModel(QObject *parent)
 	: QSortFilterProxyModel{parent}, terrain(ETerrainId::ANY_TERRAIN)

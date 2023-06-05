@@ -11,12 +11,12 @@
 #include "StdInc.h"
 #include "RmgObject.h"
 #include "RmgMap.h"
-#include "../mapObjects/CObjectHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
 #include "../VCMI_Lib.h"
-#include "../mapObjects/CommonConstructors.h"
-#include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
+#include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjects/ObjectTemplate.h"
 #include "Functions.h"
 #include "../TerrainHandler.h"
 

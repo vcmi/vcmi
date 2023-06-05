@@ -36,6 +36,7 @@
 #include "../lib/CSoundBase.h"
 #include "../lib/StartInfo.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/mapObjects/CGMarket.h"
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/CStack.h"

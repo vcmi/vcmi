@@ -14,8 +14,8 @@
 #include "StringConstants.h"
 #include "JsonNode.h"
 #include "serializer/JsonSerializeFormat.h"
-#include "VCMI_Lib.h"
 #include "mapObjects/CObjectHandler.h"
+#include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "CObjectHandler.h"
+#include "CGObjectInstance.h"
 #include "../CCreatureSet.h"
 #include "../bonuses/CBonusProxy.h"
 #include "../bonuses/CBonusSystemNode.h"

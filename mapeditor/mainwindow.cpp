@@ -24,6 +24,9 @@
 #include "../lib/CModHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/GameConstants.h"
+#include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapEditManager.h"
@@ -31,7 +34,6 @@
 #include "../lib/RoadHandler.h"
 #include "../lib/RiverHandler.h"
 #include "../lib/TerrainHandler.h"
-#include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/filesystem/CFilesystemLoader.h"
 
 #include "maphandler.h"

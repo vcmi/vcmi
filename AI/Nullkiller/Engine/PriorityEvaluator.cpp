@@ -11,8 +11,10 @@
 #include <limits>
 
 #include "Nullkiller.h"
+#include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../../lib/mapObjectConstructors/CommonConstructors.h"
 #include "../../../lib/mapObjects/MapObjects.h"
-#include "../../../lib/mapObjects/CommonConstructors.h"
 #include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/CGameStateFwd.h"
