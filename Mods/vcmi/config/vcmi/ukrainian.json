@@ -50,6 +50,10 @@
 	"vcmi.systemOptions.resolutionButton.help"  : "{Роздільна здатність}\n\n Зміна розширення екрану в грі. Аби зміни набули чинності необхідно перезавантажити гру.",
 	"vcmi.systemOptions.resolutionMenu.hover"   : "Обрати роздільну здатність",
 	"vcmi.systemOptions.resolutionMenu.help"    : "Змінити роздільну здатність екрану в грі.",
+	"vcmi.systemOptions.scalingButton.hover"   : "Масштабування інтерфейсу: %p%",
+	"vcmi.systemOptions.scalingButton.help"    : "{Масштабування інтерфейсу}\n\nЗмінити масштабування ігрового інтерфейсу",
+	"vcmi.systemOptions.scalingMenu.hover"     : "Виберіть масштабування інтерфейсу",
+	"vcmi.systemOptions.scalingMenu.help"      : "Змінити масштабування ігрового інтерфейсу.",
 	"vcmi.systemOptions.framerateButton.hover"  : "Лічильник кадрів",
 	"vcmi.systemOptions.framerateButton.help"   : "{Лічильник кадрів}\n\n Перемикає видимість лічильника кадрів на секунду у кутку ігрового вікна",
 
@@ -83,6 +87,8 @@
 	"vcmi.battleOptions.animationsSpeed1.help": "Встановити дуже низьку швидкість анімації",
 	"vcmi.battleOptions.animationsSpeed5.help": "Встановити дуже високу швидкість анімації",
 	"vcmi.battleOptions.animationsSpeed6.help": "Встановити миттєву швидкість анімації",
+	"vcmi.battleOptions.movementHighlightOnHover.hover": "Підсвічувати зону руху істоти",
+	"vcmi.battleOptions.movementHighlightOnHover.help": "{Підсвічувати зону руху істоти}\n\nПідсвічувати можливу зону руху істоти при наведенні курсора миші на неї",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Пропускати вступну музику",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Пропускати вступну музику}\n\n Пропускати коротку музику, яка грає на початку кожної битви перед початком дії. Також можна пропустити, натиснувши клавішу ESC.",
 	
