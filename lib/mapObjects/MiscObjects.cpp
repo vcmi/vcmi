@@ -1915,12 +1915,6 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 		}
 	}
 	cb->showInfoDialog(&iw);
-
-}
-
-CGShipyard::CGShipyard()
-	:IShipyard(this)
-{
 }
 
 void CGShipyard::getOutOffsets( std::vector<int3> &offsets ) const
@@ -1933,6 +1927,11 @@ void CGShipyard::getOutOffsets( std::vector<int3> &offsets ) const
 		int3(-3,1,0), int3(1,1,0), int3(-2,1,0), int3(0,1,0), int3(-1,1,0), //CDEFG
 		int3(-3,-1,0), int3(1,-1,0), int3(-2,-1,0), int3(0,-1,0), int3(-1,-1,0) //HIJKL
 	};
+}
+
+const IObjectInterface * CGShipyard::getObject() const
+{
+	return this;
 }
 
 void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
@@ -1958,6 +1957,11 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 void CGShipyard::serializeJsonOptions(JsonSerializeFormat& handler)
 {
 	serializeJsonOwner(handler);
+}
+
+BoatId CGShipyard::getBoatType() const
+{
+	return EBoatId::BOAT_GOOD;
 }
 
 void CCartographer::onHeroVisit( const CGHeroInstance * h ) const

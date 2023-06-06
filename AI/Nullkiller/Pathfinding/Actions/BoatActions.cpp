@@ -32,9 +32,9 @@ namespace AIPathfinding
 
 	Goals::TSubgoal BuildBoatAction::decompose(const CGHeroInstance * hero) const
 	{
-		if(cb->getPlayerRelations(ai->playerID, shipyard->o->tempOwner) == PlayerRelations::ENEMIES)
+		if(cb->getPlayerRelations(ai->playerID, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 		{
-			return Goals::sptr(Goals::CaptureObject(shipyard->o));
+			return Goals::sptr(Goals::CaptureObject(targetObject()));
 		}
 		
 		return Goals::sptr(Goals::Invalid());
@@ -44,7 +44,7 @@ namespace AIPathfinding
 	{
 		auto hero = source->actor->hero;
 
-		if(cb->getPlayerRelations(hero->tempOwner, shipyard->o->tempOwner) == PlayerRelations::ENEMIES)
+		if(cb->getPlayerRelations(hero->tempOwner, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 		{
 #if NKAI_TRACE_LEVEL > 1
 			logAi->trace("Can not build a boat. Shipyard is enemy.");
@@ -70,7 +70,7 @@ namespace AIPathfinding
 
 	const CGObjectInstance * BuildBoatAction::targetObject() const
 	{
-		return shipyard->o;
+		return dynamic_cast<const CGObjectInstance*>(shipyard);
 	}
 
 	const ChainActor * BuildBoatAction::getActor(const ChainActor * sourceActor) const
@@ -101,7 +101,7 @@ namespace AIPathfinding
 
 	std::string BuildBoatAction::toString() const
 	{
-		return "Build Boat at " + shipyard->o->getObjectName();
+		return "Build Boat at " + shipyard->getObject()->visitablePos().toString();
 	}
 
 	bool SummonBoatAction::canAct(const AIPathNode * source) const

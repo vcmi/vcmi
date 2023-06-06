@@ -461,14 +461,11 @@ class DLL_LINKAGE CGShipyard : public CGObjectInstance, public IShipyard
 {
 public:
 	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed
-	CGShipyard();
 	void onHeroVisit(const CGHeroInstance * h) const override;
+	const IObjectInterface * getObject() const override;
+	BoatId getBoatType() const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CGObjectInstance&>(*this);
-		h & static_cast<IShipyard&>(*this);
-	}
+
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };

@@ -225,7 +225,6 @@ int CGHeroInstance::maxMovePointsCached(bool onLand, const TurnInfo * ti) const
 }
 
 CGHeroInstance::CGHeroInstance():
-	IBoatGenerator(this),
 	tacticFormationEnabled(false),
 	inTownGarrison(false),
 	moveDir(4),
@@ -971,6 +970,11 @@ void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
 	{
 		int3(-1,1,0), int3(-1,-1,0), int3(-2,0,0), int3(0,0,0), int3(0,1,0), int3(-2,1,0), int3(0,-1,0), int3(-2,-1,0)
 	};
+}
+
+const IObjectInterface * CGHeroInstance::getObject() const
+{
+	return this;
 }
 
 int32_t CGHeroInstance::getSpellCost(const spells::Spell * sp) const

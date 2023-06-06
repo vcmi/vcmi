@@ -62,7 +62,7 @@ void registerTypesMapObjects1(Serializer &s)
 	s.template registerType<CGObjectInstance, CGBoat>();
 	s.template registerType<CGObjectInstance, CGMagi>();
 	s.template registerType<CGObjectInstance, CGSirens>();
-	s.template registerType<CGObjectInstance, CGShipyard>(); s.template registerType<IShipyard, CGShipyard>();
+	s.template registerType<CGObjectInstance, CGShipyard>();
 	s.template registerType<CGObjectInstance, CGDenOfthieves>();
 	s.template registerType<CGObjectInstance, CGLighthouse>();
 	s.template registerType<CGObjectInstance, CGTerrainPatch>();
@@ -75,9 +75,9 @@ void registerTypesMapObjects1(Serializer &s)
 	s.template registerType<CGObjectInstance, CArmedInstance>(); s.template registerType<CBonusSystemNode, CArmedInstance>(); s.template registerType<CCreatureSet, CArmedInstance>();
 
 	// Armed objects
-	s.template registerType<CArmedInstance, CGHeroInstance>(); s.template registerType<IBoatGenerator, CGHeroInstance>(); s.template registerType<CArtifactSet, CGHeroInstance>();
+	s.template registerType<CArmedInstance, CGHeroInstance>(); s.template registerType<CArtifactSet, CGHeroInstance>();
 	s.template registerType<CArmedInstance, CGDwelling>();
-		s.template registerType<CGDwelling, CGTownInstance>(); s.template registerType<IShipyard, CGTownInstance>();
+		s.template registerType<CGDwelling, CGTownInstance>();
 	s.template registerType<CArmedInstance, CGPandoraBox>();
 		s.template registerType<CGPandoraBox, CGEvent>();
 	s.template registerType<CArmedInstance, CGCreature>();

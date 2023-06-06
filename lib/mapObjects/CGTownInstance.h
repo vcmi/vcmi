@@ -46,6 +46,8 @@ class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public I
 {
 	std::string name; // name of town
 public:
+	using CGDwelling::getPosition;
+
 	enum EFortLevel {NONE = 0, FORT = 1, CITADEL = 2, CASTLE = 3};
 
 	CTownAndVisitingHero townAndVis;
@@ -71,7 +73,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGDwelling&>(*this);
-		h & static_cast<IShipyard&>(*this);
 		h & name;
 		h & builded;
 		h & destroyed;
@@ -134,6 +135,8 @@ public:
 	int getSightRadius() const override; //returns sight distance
 	BoatId getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
 	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed. Parameter will be cleared
+	EGeneratorState shipyardStatus() const override;
+	const IObjectInterface * getObject() const override;
 	int getMarketEfficiency() const override; //=market count
 	bool allowsTrade(EMarketMode::EMarketMode mode) const override;
 	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;

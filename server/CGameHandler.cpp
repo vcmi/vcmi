@@ -5627,12 +5627,6 @@ bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 		complain("Cannot build boat in this shipyard!");
 		return false;
 	}
-	else if (obj->o->ID == Obj::TOWN
-	        && !static_cast<const CGTownInstance*>(obj)->hasBuilt(BuildingID::SHIPYARD))
-	{
-		complain("Cannot build boat in the town - no shipyard!");
-		return false;
-	}
 
 	TResources boatCost;
 	obj->getBoatCost(boatCost);

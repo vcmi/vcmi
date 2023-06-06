@@ -92,10 +92,10 @@ int3 IBoatGenerator::bestLocation() const
 
 	for (auto & offset : offsets)
 	{
-		if(const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offset, false)) //tile is in the map
+		if(const TerrainTile *tile = getObject()->cb->getTile(getObject()->getPosition() + offset, false)) //tile is in the map
 		{
 			if(tile->terType->isWater()  &&  (!tile->blocked || tile->blockingObjects.front()->ID == Obj::BOAT)) //and is water and is not blocked or is blocked by boat
-				return o->pos + offset;
+				return getObject()->getPosition() + offset;
 		}
 	}
 	return int3 (-1,-1,-1);
@@ -107,24 +107,14 @@ IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 	const TerrainTile *t = IObjectInterface::cb->getTile(tile);
 	if(!t)
 		return TILE_BLOCKED; //no available water
-	else if(t->blockingObjects.empty())
+
+	if(t->blockingObjects.empty())
 		return GOOD; //OK
-	else if(t->blockingObjects.front()->ID == Obj::BOAT)
+
+	if(t->blockingObjects.front()->ID == Obj::BOAT)
 		return BOAT_ALREADY_BUILT; //blocked with boat
-	else
-		return TILE_BLOCKED; //blocked
-}
 
-BoatId IBoatGenerator::getBoatType() const
-{
-	//We make good ships by default
-	return EBoatId::BOAT_GOOD;
-}
-
-
-IBoatGenerator::IBoatGenerator(const CGObjectInstance *O)
-: o(O)
-{
+	return TILE_BLOCKED; //blocked
 }
 
 void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visitor) const
@@ -144,7 +134,7 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 			out.addTxt(MetaString::ADVOB_TXT, 189);
 		break;
 	case NO_WATER:
-		logGlobal->error("Shipyard without water! %s \t %d", o->pos.toString(), o->id.getNum());
+		logGlobal->error("Shipyard without water at tile %s! ", getObject()->getPosition().toString());
 		return;
 	}
 }
@@ -155,34 +145,9 @@ void IShipyard::getBoatCost(TResources & cost) const
 	cost[EGameResID::GOLD] = 1000;
 }
 
-IShipyard::IShipyard(const CGObjectInstance *O)
-	: IBoatGenerator(O)
-{
-}
-
-IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
-{
-	if(!obj)
-		return nullptr;
-
-	if(obj->ID == Obj::TOWN)
-	{
-		return dynamic_cast<CGTownInstance *>(obj);
-	}
-	else if(obj->ID == Obj::SHIPYARD)
-	{
-		return dynamic_cast<CGShipyard *>(obj);
-	}
-	else
-	{
-		return nullptr;
-	}
-}
-
 const IShipyard * IShipyard::castFrom( const CGObjectInstance *obj )
 {
-	return castFrom(const_cast<CGObjectInstance*>(obj));
+	return dynamic_cast<const IShipyard *>(obj);
 }
-
 
 VCMI_LIB_NAMESPACE_END

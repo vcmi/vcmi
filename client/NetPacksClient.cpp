@@ -906,7 +906,7 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 	case EOpenWindowMode::SHIPYARD_WINDOW:
 		{
 			const IShipyard *sy = IShipyard::castFrom(cl.getObj(ObjectInstanceID(pack.id1)));
-			callInterfaceIfPresent(cl, sy->o->tempOwner, &IGameEventsReceiver::showShipyardDialog, sy);
+			callInterfaceIfPresent(cl, sy->getObject()->getOwner(), &IGameEventsReceiver::showShipyardDialog, sy);
 		}
 		break;
 	case EOpenWindowMode::THIEVES_GUILD:
