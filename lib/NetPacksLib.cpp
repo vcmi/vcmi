@@ -1941,13 +1941,14 @@ void AssembledArtifact::applyGs(CGameState *gs)
 			if(!vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], al.slot)
 				&& vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], pos))
 				al.slot = pos;
+			if(al.slot == pos)
+				pos = ArtifactPosition::PRE_FIRST;
 		}
 		else
 		{
 			al.slot = std::min(al.slot, pos);
-		}
-		if(al.slot == pos)
 			pos = ArtifactPosition::PRE_FIRST;
+		}
 		combinedArt->addAsConstituent(constituentInstance, pos);
 	}
 

@@ -225,8 +225,8 @@ void CArtifactsOfHeroBase::updateWornSlots()
 
 void CArtifactsOfHeroBase::updateBackpackSlots()
 {
-	for(auto artPlace : backpack)
-		updateSlot(artPlace->slot);
+	if(curHero->artifactsInBackpack.size() <= backpack.size() && backpackPos != 0)
+		backpackPos = 0;
 	scrollBackpackForArtSet(0, *curHero);
 }
 
