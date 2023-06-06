@@ -23,6 +23,7 @@
 
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
+#include "../mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../mapObjects/CQuest.h"
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/ObjectTemplate.h"

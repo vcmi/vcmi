@@ -10,14 +10,13 @@
 #pragma once
 
 #include "AObjectTypeHandler.h"
+#include "CDefaultObjectTypeHandler.h"
 
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../mapObjects/CBank.h"
 #include "../LogicalExpression.h"
-#include "IObjectInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -29,42 +28,6 @@ class CHeroClass;
 class CBank;
 class CFaction;
 class CStackBasicDescriptor;
-
-/// Class that is used for objects that do not have dedicated handler
-template<class ObjectType>
-class CDefaultObjectTypeHandler : public AObjectTypeHandler
-{
-protected:
-	ObjectType * createTyped(std::shared_ptr<const ObjectTemplate> tmpl /* = nullptr */) const
-	{
-		auto obj = new ObjectType();
-		preInitObject(obj);
-
-		//Set custom template or leave null
-		if (tmpl)
-		{
-			obj->appearance = tmpl;
-		}
-
-		return obj;
-	}
-public:
-	CDefaultObjectTypeHandler() {}
-
-	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override
-	{
-		return createTyped(tmpl);
-	}
-
-	virtual void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override
-	{
-	}
-
-	virtual std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override
-	{
-		return nullptr;
-	}
-};
 
 class CObstacleConstructor : public CDefaultObjectTypeHandler<CGObjectInstance>
 {
@@ -175,90 +138,6 @@ public:
 		h & actualAnimation;
 		h & overlayAnimation;
 		h & flagAnimations;
-	}
-};
-
-struct BankConfig
-{
-	ui32 value = 0; //overall value of given things
-	ui32 chance = 0; //chance for this level being chosen
-	ui32 upgradeChance = 0; //chance for creatures to be in upgraded versions
-	ui32 combatValue = 0; //how hard are guards of this level
-	std::vector<CStackBasicDescriptor> guards; //creature ID, amount
-	ResourceSet resources; //resources given in case of victory
-	std::vector<CStackBasicDescriptor> creatures; //creatures granted in case of victory (creature ID, amount)
-	std::vector<ArtifactID> artifacts; //artifacts given in case of victory
-	std::vector<SpellID> spells; // granted spell(s), for Pyramid
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & chance;
-		h & upgradeChance;
-		h & guards;
-		h & combatValue;
-		h & resources;
-		h & creatures;
-		h & artifacts;
-		h & value;
-		h & spells;
-	}
-};
-
-using TPossibleGuards = std::vector<std::pair<ui8, IObjectInfo::CArmyStructure>>;
-
-template <typename T>
-struct DLL_LINKAGE PossibleReward
-{
-	int chance;
-	T data;
-
-	PossibleReward(int chance, const T & data) : chance(chance), data(data) {}
-};
-
-class DLL_LINKAGE CBankInfo : public IObjectInfo
-{
-	const JsonVector & config;
-public:
-	CBankInfo(const JsonVector & Config);
-
-	TPossibleGuards getPossibleGuards() const;
-	std::vector<PossibleReward<TResources>> getPossibleResourcesReward() const;
-	std::vector<PossibleReward<CStackBasicDescriptor>> getPossibleCreaturesReward() const;
-
-	// These functions should try to evaluate minimal possible/max possible guards to give provide information on possible thread to AI
-	CArmyStructure minGuards() const override;
-	CArmyStructure maxGuards() const override;
-
-	bool givesResources() const override;
-	bool givesArtifacts() const override;
-	bool givesCreatures() const override;
-	bool givesSpells() const override;
-};
-
-class CBankInstanceConstructor : public CDefaultObjectTypeHandler<CBank>
-{
-	BankConfig generateConfig(const JsonNode & conf, CRandomGenerator & rng) const;
-
-	JsonVector levels;
-protected:
-	void initTypeData(const JsonNode & input) override;
-
-public:
-	// all banks of this type will be reset N days after clearing,
-	si32 bankResetDuration = 0;
-
-	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
-	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
-
-	bool hasNameTextID() const override;
-
-	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & levels;
-		h & bankResetDuration;
-		h & static_cast<CDefaultObjectTypeHandler<CBank>&>(*this);
 	}
 };
 

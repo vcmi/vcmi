@@ -20,6 +20,7 @@
 #include "../CModHandler.h" //needed?
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
+#include "../mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../mapObjects/MapObjects.h"
 #include "../mapObjects/CGTownBuilding.h"
 #include "../mapObjects/ObjectTemplate.h"

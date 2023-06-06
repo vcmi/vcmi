@@ -66,6 +66,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/logging/CLogger.cpp
 
 		${MAIN_LIB_DIR}/mapObjectConstructors/AObjectTypeHandler.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/CBankInstanceConstructor.cpp
 		${MAIN_LIB_DIR}/mapObjectConstructors/CObjectClassesHandler.cpp
 		${MAIN_LIB_DIR}/mapObjectConstructors/CommonConstructors.cpp
 		${MAIN_LIB_DIR}/mapObjectConstructors/CRewardableConstructor.cpp
@@ -369,6 +370,8 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/logging/CLogger.h
 
 		${MAIN_LIB_DIR}/mapObjectConstructors/AObjectTypeHandler.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/CBankInstanceConstructor.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/CDefaultObjectTypeHandler.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/CObjectClassesHandler.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/CommonConstructors.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/CRewardableConstructor.h

@@ -18,7 +18,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../mapObjectConstructors/CommonConstructors.h"
+#include "../mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 
