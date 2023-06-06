@@ -170,16 +170,19 @@ void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact *> 
 	out.push_back(VLC->arth->objects[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MAJOR)]);
 }
 
-void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, ui16 level)
+void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level)
 {
 	for (ui32 i = 0; i < gs->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
 	{
-
 		const spells::Spell * spell = SpellID(i).toSpell();
-		if(isAllowed(0, spell->getIndex()) && spell->getLevel() == level)
-		{
-			out.push_back(spell->getId());
-		}
+
+		if (!isAllowed(0, spell->getIndex()))
+			continue;
+
+		if (level.has_value() && spell->getLevel() != level)
+			continue;
+
+		out.push_back(spell->getId());
 	}
 }
 

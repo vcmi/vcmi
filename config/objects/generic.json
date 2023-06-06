@@ -311,6 +311,10 @@
 					"value"		: 500,
 					"rarity"	: 100
 				}
+				"visitText" : 127,
+				"spell" : {
+					"level" : 1
+				}
 			}
 		}
 	},
@@ -330,6 +334,10 @@
 				"rmg" : {
 					"value"		: 2000,
 					"rarity"	: 100
+				},
+				"visitText" : 128,
+				"spell" : {
+					"level" : 2
 				}
 			}
 		}
@@ -350,6 +358,10 @@
 				"rmg" : {
 					"value"		: 3000,
 					"rarity"	: 100
+				},
+				"visitText" : 129,
+				"spell" : {
+					"level" : 3
 				}
 			}
 		}

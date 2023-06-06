@@ -26,6 +26,8 @@
 #include "../CPlayerState.h"
 #include "../GameSettings.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -1530,7 +1532,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->getOwner();
-	iw.text.addTxt(MetaString::ADVOB_TXT,127 + ID - 88);
+	iw.text = visitText;
 	iw.text.addTxt(MetaString::SPELL_NAME,spell);
 	iw.text << ".";
 
@@ -1542,7 +1544,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,174);
 	}
-	else if(ID == Obj::SHRINE_OF_MAGIC_THOUGHT  && h->maxSpellLevel() < 3) //it's third level spell and hero doesn't have wisdom
+	else if(spell.toSpell()->getLevel() > h->maxSpellLevel()) //it's third level spell and hero doesn't have wisdom
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,130);
 	}
@@ -1560,20 +1562,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGShrine::initObj(CRandomGenerator & rand)
 {
-	if(spell == SpellID::NONE) //spell not set
-	{
-		int level = ID-87;
-		std::vector<SpellID> possibilities;
-		cb->getAllowedSpells (possibilities, level);
-
-		if(possibilities.empty())
-		{
-			logGlobal->error("Error: cannot init shrine, no allowed spells!");
-			return;
-		}
-
-		spell = *RandomGeneratorUtil::nextItem(possibilities, rand);
-	}
+	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
 }
 
 std::string CGShrine::getHoverText(PlayerColor player) const
@@ -1693,8 +1682,7 @@ void CGScholar::initObj(CRandomGenerator & rand)
 			break;
 		case SPELL:
 			std::vector<SpellID> possibilities;
-			for (int i = 1; i < 6; ++i)
-				cb->getAllowedSpells (possibilities, i);
+			cb->getAllowedSpells (possibilities);
 			bonusID = *RandomGeneratorUtil::nextItem(possibilities, rand);
 			break;
 		}

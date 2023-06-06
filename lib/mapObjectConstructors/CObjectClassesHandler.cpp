@@ -24,6 +24,7 @@
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
+#include "../mapObjectConstructors/ShrineInstanceConstructor.h"
 #include "../mapObjects/CQuest.h"
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/ObjectTemplate.h"
@@ -44,6 +45,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER_CLASS("bank", CBankInstanceConstructor);
 	SET_HANDLER_CLASS("boat", BoatInstanceConstructor);
 	SET_HANDLER_CLASS("market", MarketInstanceConstructor);
+	SET_HANDLER_CLASS("shrine", ShrineInstanceConstructor);
 
 	SET_HANDLER_CLASS("static", CObstacleConstructor);
 	SET_HANDLER_CLASS("", CObstacleConstructor);
@@ -78,7 +80,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("scholar", CGScholar);
 	SET_HANDLER("seerHut", CGSeerHut);
 	SET_HANDLER("shipyard", CGShipyard);
-	SET_HANDLER("shrine", CGShrine);
 	SET_HANDLER("sign", CGSignBottle);
 	SET_HANDLER("siren", CGSirens);
 	SET_HANDLER("monolith", CGMonolith);

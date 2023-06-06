@@ -246,7 +246,9 @@ protected:
 class DLL_LINKAGE CGShrine : public CTeamVisited
 {
 public:
+	MetaString visitText;
 	SpellID spell; //id of spell or NONE if random
+
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
@@ -256,6 +258,7 @@ public:
 	{
 		h & static_cast<CTeamVisited&>(*this);;
 		h & spell;
+		h & visitText;
 	}
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
