@@ -111,6 +111,9 @@ void RmgMap::initTiles(CMapGenerator & generator, CRandomGenerator & rand)
 			options.setType(ETemplateZoneType::WATER);
 			auto zone = std::make_shared<Zone>(*this, generator, rand);
 			zone->setOptions(options);
+			//std::set<FactionID> allowedMonsterFactions({FactionID::CASTLE, FactionID::INFERNO}); // example of filling allowed monster factions
+			//zone->setMonsterTypes(allowedMonsterFactions); // can be set here, probably from template json, along with the treasure ranges and densities
+			zone->monsterStrength = EMonsterStrength::ZONE_NONE; // can be set to other value, probably from a new field in the template json
 			zones[zone->getId()] = zone;
 			break;
 	}

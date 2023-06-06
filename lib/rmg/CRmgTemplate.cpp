@@ -139,7 +139,7 @@ ZoneOptions::ZoneOptions():
 	owner(std::nullopt),
 	matchTerrainToTown(true),
 	townsAreSameType(false),
-	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL),
+	monsterStrength(EMonsterStrength::ZONE_NORMAL),
 	minesLikeZone(NO_ZONE),
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
@@ -161,12 +161,12 @@ void ZoneOptions::setId(TRmgTemplateZoneId value)
 	id = value;
 }
 
-ETemplateZoneType::ETemplateZoneType ZoneOptions::getType() const
+ETemplateZoneType ZoneOptions::getType() const
 {
 	return type;
 }
 	
-void ZoneOptions::setType(ETemplateZoneType::ETemplateZoneType value)
+void ZoneOptions::setType(ETemplateZoneType value)
 {
 	type = value;
 }
@@ -377,24 +377,31 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 
 	{
 		//TODO: add support for std::map to serializeEnum
-		static const std::vector<std::string> STRENGTH =
+		static const std::vector<std::string> zoneMonsterStrengths =
 		{
+			"none",
 			"weak",
 			"normal",
 			"strong"
 		};
 
-		si32 rawStrength = 0;
-		if(handler.saving)
+		int temporaryZoneMonsterStrengthIndex = monsterStrength == EMonsterStrength::ZONE_NONE ? 0 : monsterStrength - EMonsterStrength::ZONE_WEAK + 1 ; // temporary until serializeEnum starts supporting std::map
+		// temporaryZoneMonsterStrengthIndex = 0, 1, 2 and 3 for monsterStrength = ZONE_NONE, ZONE_WEAK, ZONE_NORMAL and ZONE_STRONG respectively
+		handler.serializeEnum("monsters", temporaryZoneMonsterStrengthIndex, 2, zoneMonsterStrengths); // default is normal monsters
+		switch (temporaryZoneMonsterStrengthIndex)
 		{
-			rawStrength = static_cast<decltype(rawStrength)>(zoneMonsterStrength);
-			rawStrength++;
-		}
-		handler.serializeEnum("monsters", rawStrength, EMonsterStrength::ZONE_NORMAL + 1, STRENGTH);
-		if(!handler.saving)
-		{
-			rawStrength--;
-			zoneMonsterStrength = static_cast<decltype(zoneMonsterStrength)>(rawStrength);
+			case 0:
+				monsterStrength = EMonsterStrength::ZONE_NONE;
+				break;
+			case 1:
+				monsterStrength = EMonsterStrength::ZONE_WEAK;
+				break;
+			case 2:
+				monsterStrength = EMonsterStrength::ZONE_NORMAL;
+				break;
+			case 3:
+				monsterStrength = EMonsterStrength::ZONE_STRONG;
+				break;
 		}
 	}
 
@@ -476,7 +483,7 @@ bool CRmgTemplate::matchesSize(const int3 & value) const
 
 bool CRmgTemplate::isWaterContentAllowed(EWaterContent::EWaterContent waterContent) const
 {
-	return waterContent == EWaterContent::EWaterContent::RANDOM || allowedWaterContent.count(waterContent);
+	return waterContent == EWaterContent::RANDOM || allowedWaterContent.count(waterContent);
 }
 
 const std::set<EWaterContent::EWaterContent> & CRmgTemplate::getWaterContentAllowed() const
@@ -764,13 +771,13 @@ void CRmgTemplate::afterLoad()
 		zone2->addConnection(id1);
 	}
 	
-	if(allowedWaterContent.empty() || allowedWaterContent.count(EWaterContent::EWaterContent::RANDOM))
+	if(allowedWaterContent.empty() || allowedWaterContent.count(EWaterContent::RANDOM))
 	{
-		allowedWaterContent.insert(EWaterContent::EWaterContent::NONE);
-		allowedWaterContent.insert(EWaterContent::EWaterContent::NORMAL);
-		allowedWaterContent.insert(EWaterContent::EWaterContent::ISLANDS);
+		allowedWaterContent.insert(EWaterContent::NONE);
+		allowedWaterContent.insert(EWaterContent::NORMAL);
+		allowedWaterContent.insert(EWaterContent::ISLANDS);
 	}
-	allowedWaterContent.erase(EWaterContent::EWaterContent::RANDOM);
+	allowedWaterContent.erase(EWaterContent::RANDOM);
 }
 
 void CRmgTemplate::serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName)

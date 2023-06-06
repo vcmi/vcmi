@@ -449,8 +449,11 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	//precalculate actual (randomized) monster strength based on this post
 	//http://forum.vcmi.eu/viewtopic.php?p=12426#12426
 	
+	if(!zoneGuard && zone.monsterStrength == EMonsterStrength::ZONE_NONE)
+		return nullptr; //no guards inside this zone except for zone guards
+	
 	int mapMonsterStrength = map.getMapGenOptions().getMonsterStrength();
-	int monsterStrength = (zoneGuard ? 0 : zone.zoneMonsterStrength) + mapMonsterStrength - 1; //array index from 0 to 4
+	int monsterStrength = (zoneGuard ? 0 : zone.monsterStrength - EMonsterStrength::ZONE_NORMAL) + mapMonsterStrength - 1; //array index from 0 to 4
 	static const std::array<int, 5> value1{2500, 1500, 1000, 500, 0};
 	static const std::array<int, 5> value2{7500, 7500, 7500, 5000, 5000};
 	static const std::array<float, 5> multiplier1{0.5, 0.75, 1.0, 1.5, 1.5};

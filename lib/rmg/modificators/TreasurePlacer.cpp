@@ -546,8 +546,8 @@ size_t TreasurePlacer::getMaxPrisons() const
 }
 
 bool TreasurePlacer::isGuardNeededForTreasure(int value)
-{
-	return zone.getType() != ETemplateZoneType::WATER && value > minGuardedValue;
+{// no guard in a zone with "monsters: none" and for small treasures; water zones cen get monster strength ZONE_NONE elsewhere if needed
+	return zone.monsterStrength != EMonsterStrength::ZONE_NONE && value > minGuardedValue;
 }
 
 std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo& treasureInfo)
@@ -706,8 +706,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 	const int maxAttempts = 2;
 	
 	int mapMonsterStrength = map.getMapGenOptions().getMonsterStrength();
-	int monsterStrength = zone.zoneMonsterStrength + mapMonsterStrength - 1; //array index from 0 to 4
-	
+	int monsterStrength = (zone.monsterStrength == EMonsterStrength::ZONE_NONE ? 0 : zone.monsterStrength  + mapMonsterStrength - 1); //array index from 0 to 4; pick any correct value for ZONE_NONE, minGuardedValue won't be used in this case anyway
 	static int minGuardedValues[] = { 6500, 4167, 3000, 1833, 1333 };
 	minGuardedValue = minGuardedValues[monsterStrength];
 	

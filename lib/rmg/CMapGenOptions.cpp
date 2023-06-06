@@ -191,7 +191,7 @@ void CMapGenOptions::setStartingTownForPlayer(const PlayerColor & color, si32 to
 	it->second.setStartingTown(town);
 }
 
-void CMapGenOptions::setPlayerTypeForStandardPlayer(const PlayerColor & color, EPlayerType::EPlayerType playerType)
+void CMapGenOptions::setPlayerTypeForStandardPlayer(const PlayerColor & color, EPlayerType playerType)
 {
 	assert(playerType != EPlayerType::COMP_ONLY);
 	auto it = players.find(color);
@@ -526,12 +526,12 @@ void CMapGenOptions::CPlayerSettings::setStartingTown(si32 value)
 	startingTown = value;
 }
 
-EPlayerType::EPlayerType CMapGenOptions::CPlayerSettings::getPlayerType() const
+EPlayerType CMapGenOptions::CPlayerSettings::getPlayerType() const
 {
 	return playerType;
 }
 
-void CMapGenOptions::CPlayerSettings::setPlayerType(EPlayerType::EPlayerType value)
+void CMapGenOptions::CPlayerSettings::setPlayerType(EPlayerType value)
 {
 	playerType = value;
 }
