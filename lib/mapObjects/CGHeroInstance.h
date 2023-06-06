@@ -39,7 +39,7 @@ public:
 };
 
 
-class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public AFactionMember
+class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public AFactionMember, public ICreatureUpgrader
 {
 	// We serialize heroes into JSON for crossover
 	friend class CCampaignState;
@@ -229,6 +229,8 @@ public:
 	ui8 maxlevelsToWisdom() const;
 	void recreateSecondarySkillsBonuses();
 	void updateSkillBonus(const SecondarySkill & which, int val);
+
+	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
 
 	bool hasVisions(const CGObjectInstance * target, const int subtype) const;
 	/// If this hero perishes, the scenario is failed

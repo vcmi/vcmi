@@ -2164,4 +2164,21 @@ void CGLighthouse::serializeJsonOptions(JsonSerializeFormat& handler)
 	serializeJsonOwner(handler);
 }
 
+void HillFort::onHeroVisit(const CGHeroInstance * h) const
+{
+	openWindow(EOpenWindowMode::HILL_FORT_WINDOW,id.getNum(),h->id.getNum());
+}
+
+void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const
+{
+	static const int costModifiers[] = {0, 25, 50, 75, 100}; //we get cheaper upgrades depending on level
+	const int costModifier = costModifiers[std::min<int>(std::max((int)stack.type->getLevel() - 1, 0), std::size(costModifiers) - 1)];
+
+	for(const auto & nid : stack.type->upgrades)
+	{
+		info.newID.push_back(nid);
+		info.cost.push_back((nid.toCreature()->getFullRecruitCost() - stack.type->getFullRecruitCost()) * costModifier / 100);
+	}
+}
+
 VCMI_LIB_NAMESPACE_END

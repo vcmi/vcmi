@@ -553,4 +553,11 @@ public:
 	}
 };
 
+class DLL_LINKAGE HillFort : public CGObjectInstance, public ICreatureUpgrader
+{
+protected:
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
+};
+
 VCMI_LIB_NAMESPACE_END

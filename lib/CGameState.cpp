@@ -2018,54 +2018,28 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 	UpgradeInfo ret;
 	const CCreature *base = stack.type;
 
-	const CGHeroInstance * h = stack.armyObj->ID == Obj::HERO ? dynamic_cast<const CGHeroInstance *>(stack.armyObj) : nullptr;
-	const CGTownInstance *t = nullptr;
-
-	if(stack.armyObj->ID == Obj::TOWN)
-		t = dynamic_cast<const CGTownInstance *>(stack.armyObj);
-	else if(h)
-	{	//hero specialty
-		TConstBonusListPtr lista = h->getBonuses(Selector::typeSubtype(BonusType::SPECIAL_UPGRADE, base->getId()));
-		for(const auto & it : *lista)
-		{
-			auto nid = CreatureID(it->additionalInfo[0]);
-			if (nid != base->getId()) //in very specific case the upgrade is available by default (?)
-			{
-				ret.newID.push_back(nid);
-				ret.cost.push_back(nid.toCreature()->getFullRecruitCost() - base->getFullRecruitCost());
-			}
-		}
-		t = h->visitedTown;
-	}
-	if(t)
+	if (stack.armyObj->ID == Obj::HERO)
 	{
-		for(const CGTownInstance::TCreaturesSet::value_type & dwelling : t->creatures)
+		auto hero = dynamic_cast<const CGHeroInstance *>(stack.armyObj);
+		hero->fillUpgradeInfo(ret, stack);
+
+		if (hero->visitedTown)
 		{
-			if (vstd::contains(dwelling.second, base->getId())) //Dwelling with our creature
-			{
-				for(const auto & upgrID : dwelling.second)
-				{
-					if(vstd::contains(base->upgrades, upgrID)) //possible upgrade
-					{
-						ret.newID.push_back(upgrID);
-						ret.cost.push_back(upgrID.toCreature()->getFullRecruitCost() - base->getFullRecruitCost());
-					}
-				}
-			}
+			hero->visitedTown->fillUpgradeInfo(ret, stack);
+		}
+		else
+		{
+			auto object = vstd::frontOrNull(getVisitableObjs(hero->visitablePos()));
+			auto upgradeSource = dynamic_cast<const ICreatureUpgrader*>(object);
+			if (object != hero && upgradeSource != nullptr)
+				upgradeSource->fillUpgradeInfo(ret, stack);
 		}
 	}
 
-	//hero is visiting Hill Fort
-	if(h && map->getTile(h->visitablePos()).visitableObjects.front()->ID == Obj::HILL_FORT)
+	if (stack.armyObj->ID == Obj::TOWN)
 	{
-		static const int costModifiers[] = {0, 25, 50, 75, 100}; //we get cheaper upgrades depending on level
-		const int costModifier = costModifiers[std::min<int>(std::max((int)base->getLevel() - 1, 0), std::size(costModifiers) - 1)];
-
-		for(const auto & nid : base->upgrades)
-		{
-			ret.newID.push_back(nid);
-			ret.cost.push_back((nid.toCreature()->getFullRecruitCost() - base->getFullRecruitCost()) * costModifier / 100);
-		}
+		auto town = dynamic_cast<const CGTownInstance *>(stack.armyObj);
+		town->fillUpgradeInfo(ret, stack);
 	}
 
 	if(!ret.newID.empty())

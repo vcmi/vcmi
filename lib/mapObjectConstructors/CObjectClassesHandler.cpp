@@ -87,6 +87,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("whirlpool", CGWhirlpool);
 	SET_HANDLER("witch", CGWitchHut);
 	SET_HANDLER("terrain", CGTerrainPatch);
+	SET_HANDLER("hillFort", HillFort);
 
 #undef SET_HANDLER_CLASS
 #undef SET_HANDLER

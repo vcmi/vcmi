@@ -1715,4 +1715,18 @@ bool CGHeroInstance::isMissionCritical() const
 	return false;
 }
 
+void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const
+{
+	TConstBonusListPtr lista = getBonuses(Selector::typeSubtype(BonusType::SPECIAL_UPGRADE, stack.type->getId()));
+	for(const auto & it : *lista)
+	{
+		auto nid = CreatureID(it->additionalInfo[0]);
+		if (nid != stack.type->getId()) //in very specific case the upgrade is available by default (?)
+		{
+			info.newID.push_back(nid);
+			info.cost.push_back(nid.toCreature()->getFullRecruitCost() - stack.type->getFullRecruitCost());
+		}
+	}
+}
+
 VCMI_LIB_NAMESPACE_END

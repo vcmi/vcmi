@@ -842,7 +842,7 @@
 	/// Classes without dedicated object
 	"hillFort" : {
 		"index" :35,
-		"handler": "generic",
+		"handler": "hillFort",
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPSWAR"],

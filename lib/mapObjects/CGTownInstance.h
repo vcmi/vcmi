@@ -42,7 +42,7 @@ struct DLL_LINKAGE GrowthInfo
 	int totalGrowth() const;
 };
 
-class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider
+class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket, public INativeTerrainProvider, public ICreatureUpgrader
 {
 	std::string name; // name of town
 public:
@@ -196,6 +196,8 @@ public:
 	void initObj(CRandomGenerator & rand) override;
 	void battleFinished(const CGHeroInstance * hero, const BattleResult & result) const override;
 	std::string getObjectName() const override;
+
+	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
 
 	void afterAddToMap(CMap * map) override;
 	void afterRemoveFromMap(CMap * map) override;

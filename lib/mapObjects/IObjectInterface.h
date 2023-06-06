@@ -14,6 +14,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct BattleResult;
+struct UpgradeInfo;
 class CGObjectInstance;
 class CRandomGenerator;
 class IGameCallback;
@@ -64,6 +65,14 @@ public:
 	{
 		logGlobal->error("IObjectInterface serialized, unexpected, should not happen!");
 	}
+};
+
+class DLL_LINKAGE ICreatureUpgrader
+{
+public:
+	virtual void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const = 0;
+
+	virtual ~ICreatureUpgrader() = default;
 };
 
 class DLL_LINKAGE IBoatGenerator
