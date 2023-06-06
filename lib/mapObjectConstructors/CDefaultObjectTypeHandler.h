@@ -39,11 +39,11 @@ public:
 		return createTyped(tmpl);
 	}
 
-	virtual void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override
+	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override
 	{
 	}
 
-	virtual std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override
+	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override
 	{
 		return nullptr;
 	}

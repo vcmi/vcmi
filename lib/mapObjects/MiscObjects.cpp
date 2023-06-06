@@ -2169,10 +2169,20 @@ void HillFort::onHeroVisit(const CGHeroInstance * h) const
 	openWindow(EOpenWindowMode::HILL_FORT_WINDOW,id.getNum(),h->id.getNum());
 }
 
+void HillFort::initObj(CRandomGenerator & rand)
+{
+	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
+}
+
 void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const
 {
-	static const int costModifiers[] = {0, 25, 50, 75, 100}; //we get cheaper upgrades depending on level
-	const int costModifier = costModifiers[std::min<int>(std::max((int)stack.type->getLevel() - 1, 0), std::size(costModifiers) - 1)];
+	int32_t level = stack.type->getLevel();
+	int32_t index = std::clamp<int32_t>(level - 1, 0, upgradeCostPercentage.size() - 1);
+
+	int costModifier = upgradeCostPercentage[index];
+
+	if (costModifier < 0)
+		return; // upgrade not allowed
 
 	for(const auto & nid : stack.type->upgrades)
 	{

@@ -15,6 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CMap;
+class HillFortInstanceConstructor;
 
 // This one teleport-specific, but has to be available everywhere in callbacks and netpacks
 // For now it's will be there till teleports code refactored and moved into own file
@@ -555,9 +556,21 @@ public:
 
 class DLL_LINKAGE HillFort : public CGObjectInstance, public ICreatureUpgrader
 {
+	friend class HillFortInstanceConstructor;
+
+	std::vector<int> upgradeCostPercentage;
+
 protected:
+	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
+
+public:
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & upgradeCostPercentage;
+	}
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -25,6 +25,7 @@
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../mapObjectConstructors/ShrineInstanceConstructor.h"
+#include "../mapObjectConstructors/HillFortInstanceConstructor.h"
 #include "../mapObjects/CQuest.h"
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/ObjectTemplate.h"
@@ -46,6 +47,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER_CLASS("boat", BoatInstanceConstructor);
 	SET_HANDLER_CLASS("market", MarketInstanceConstructor);
 	SET_HANDLER_CLASS("shrine", ShrineInstanceConstructor);
+	SET_HANDLER_CLASS("hillFort", HillFortInstanceConstructor);
 
 	SET_HANDLER_CLASS("static", CObstacleConstructor);
 	SET_HANDLER_CLASS("", CObstacleConstructor);
@@ -87,7 +89,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("whirlpool", CGWhirlpool);
 	SET_HANDLER("witch", CGWitchHut);
 	SET_HANDLER("terrain", CGTerrainPatch);
-	SET_HANDLER("hillFort", HillFort);
 
 #undef SET_HANDLER_CLASS
 #undef SET_HANDLER
