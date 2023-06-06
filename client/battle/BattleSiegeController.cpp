@@ -307,7 +307,7 @@ void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 			renderer.insert( EBattleFieldLayer::STACKS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
 				owner.stacksController->showStack(canvas, getTurretStack(wallPiece));
 			});
-			renderer.insert( EBattleFieldLayer::BATTLEMENTS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
+			renderer.insert( EBattleFieldLayer::OBSTACLES_FG, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
 				showWallPiece(canvas, wallPiece);
 			});
 		}
