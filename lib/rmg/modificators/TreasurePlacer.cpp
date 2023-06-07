@@ -93,48 +93,53 @@ void TreasurePlacer::addAllPossibleObjects()
 			}
 		}
 	}
-	
+
+	//Generate Prison on water only if it has a template
+	auto prisonTemplates = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0)->getTemplates(zone.getTerrainType());
+	if (!prisonTemplates.empty())
+	{
+		//prisons
+		//levels 1, 5, 10, 20, 30
+		static int prisonsLevels = std::min(generator.getConfig().prisonExperience.size(), generator.getConfig().prisonValues.size());
+
+		size_t prisonsLeft = getMaxPrisons();
+		for (int i = prisonsLevels - 1; i >= 0; i--)
+		{
+			oi.value = generator.getConfig().prisonValues[i];
+			if (oi.value > zone.getMaxTreasureValue())
+			{
+				continue;
+			}
+
+			oi.generateObject = [i, this]() -> CGObjectInstance*
+			{
+				auto possibleHeroes = generator.getAllPossibleHeroes();
+				HeroTypeID hid = *RandomGeneratorUtil::nextItem(possibleHeroes, zone.getRand());
+
+				auto factory = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0);
+				auto* obj = dynamic_cast<CGHeroInstance*>(factory->create());
+
+				obj->subID = hid; //will be initialized later
+				obj->exp = generator.getConfig().prisonExperience[i];
+				obj->setOwner(PlayerColor::NEUTRAL);
+				generator.banHero(hid);
+				obj->appearance = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0)->getTemplates(zone.getTerrainType()).front(); //can't init template with hero subID
+
+				return obj;
+			};
+			oi.setTemplate(Obj::PRISON, 0, zone.getTerrainType());
+			oi.value = generator.getConfig().prisonValues[i];
+			oi.probability = 30;
+
+			//Distribute all allowed prisons, starting from the most valuable
+			oi.maxPerZone = (std::ceil((float)prisonsLeft / (i + 1)));
+			prisonsLeft -= oi.maxPerZone;
+			addObjectToRandomPool(oi);
+		}
+	}
+
 	if(zone.getType() == ETemplateZoneType::WATER)
 		return;
-	
-	//prisons
-	//levels 1, 5, 10, 20, 30
-	static int prisonsLevels = std::min(generator.getConfig().prisonExperience.size(), generator.getConfig().prisonValues.size());
-	
-	size_t prisonsLeft = getMaxPrisons();
-	for(int i = prisonsLevels - 1; i >= 0 ;i--)
-	{
-		oi.value = generator.getConfig().prisonValues[i];
-		if (oi.value > zone.getMaxTreasureValue())
-		{
-			continue;
-		}
-
-		oi.generateObject = [i, this]() -> CGObjectInstance *
-		{
-			auto possibleHeroes = generator.getAllPossibleHeroes();
-			HeroTypeID hid = *RandomGeneratorUtil::nextItem(possibleHeroes, zone.getRand());
-
-			auto factory = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0);
-			auto * obj = dynamic_cast<CGHeroInstance *>(factory->create());
-
-			obj->subID = hid; //will be initialized later
-			obj->exp = generator.getConfig().prisonExperience[i];
-			obj->setOwner(PlayerColor::NEUTRAL);
-			generator.banHero(hid);
-			obj->appearance = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0)->getTemplates(zone.getTerrainType()).front(); //can't init template with hero subID
-			
-			return obj;
-		};
-		oi.setTemplate(Obj::PRISON, 0, zone.getTerrainType());
-		oi.value = generator.getConfig().prisonValues[i];
-		oi.probability = 30;
-		
-		//Distribute all allowed prisons, starting from the most valuable
-		oi.maxPerZone = (std::ceil((float)prisonsLeft / (i + 1)));
-		prisonsLeft -= oi.maxPerZone;
-		addObjectToRandomPool(oi);
-	}
 	
 	//all following objects are unlimited
 	oi.maxPerZone = std::numeric_limits<ui32>::max();
