@@ -2738,6 +2738,10 @@ void CGameHandler::giveHero(ObjectInstanceID id, PlayerColor player)
 	gh.id = id;
 	gh.player = player;
 	sendAndApply(&gh);
+
+	//Reveal fow around new hero, especially released from Prison
+	auto h = getHero(id);
+	changeFogOfWar(h->pos, h->getSightRadius(), player, false);
 }
 
 void CGameHandler::changeObjPos(ObjectInstanceID objid, int3 newPos)
