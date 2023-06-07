@@ -289,9 +289,23 @@ CGObjectInstance * BoatInstanceConstructor::create(std::shared_ptr<const ObjectT
 	return boat;
 }
 
+std::string BoatInstanceConstructor::getBoatAnimationName() const
+{
+	return actualAnimation;
+}
+
 void BoatInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
 {
 
+}
+
+void BoatInstanceConstructor::afterLoadFinalization()
+{
+	if (layer == EPathfindingLayer::SAIL)
+	{
+		if (getTemplates(TerrainId(ETerrainId::WATER)).empty())
+			logMod->warn("Boat of type %s has no templates suitable for water!", getJsonKey());
+	}
 }
 
 void MarketInstanceConstructor::initTypeData(const JsonNode & input)

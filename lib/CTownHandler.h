@@ -281,6 +281,9 @@ public:
 	GameResID primaryRes;
 	ArtifactID warMachine;
 	SpellID moatAbility;
+
+	/// boat that will be built by town shipyard, if exists
+	BoatId shipyardBoat;
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
 	// resulting chance = sqrt(town.chance * heroClass.chance)
 	ui32 defaultTavernChance;
@@ -346,6 +349,7 @@ public:
 		h & mageLevel;
 		h & primaryRes;
 		h & warMachine;
+		h & shipyardBoat;
 		h & clientInfo;
 		h & moatAbility;
 		h & defaultTavernChance;

@@ -110,7 +110,7 @@ public:
 	}
 };
 
-class BoatInstanceConstructor : public CDefaultObjectTypeHandler<CGBoat>
+class DLL_LINKAGE BoatInstanceConstructor : public CDefaultObjectTypeHandler<CGBoat>
 {
 protected:
 	void initTypeData(const JsonNode & config) override;
@@ -127,6 +127,10 @@ protected:
 public:
 	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
+	void afterLoadFinalization() override;
+
+	/// Returns boat preview animation, for use in Shipyards
+	std::string getBoatAnimationName() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

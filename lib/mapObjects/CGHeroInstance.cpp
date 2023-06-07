@@ -953,13 +953,8 @@ si32 CGHeroInstance::getManaNewTurn() const
 
 BoatId CGHeroInstance::getBoatType() const
 {
-	switch (type->heroClass->getAlignment())
-	{
-		case EAlignment::EVIL: return EBoatId::BOAT_EVIL;
-		case EAlignment::GOOD: return EBoatId::BOAT_GOOD;
-		case EAlignment::NEUTRAL: return EBoatId::BOAT_NEUTRAL;
-		default: return EBoatId::NONE;
-	}
+	// hero can only generate boat via "Summon Boat" spell which always create same boat as in Necropolis shipyard
+	return EBoatId::NECROPOLIS;
 }
 
 void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const

@@ -893,6 +893,16 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 
 	warMachinesToLoad[town] = source["warMachine"];
 
+
+	town->shipyardBoat = EBoatId::NONE;
+	if (!source["boat"].isNull())
+	{
+		VLC->modh->identifiers.requestIdentifier("core:boat", source["boat"], [=](int32_t boatTypeID)
+		{
+			town->shipyardBoat = BoatId(boatTypeID);
+		});
+	}
+
 	town->mageLevel = static_cast<ui32>(source["mageGuild"].Float());
 
 	town->namesCount = 0;
@@ -1148,6 +1158,25 @@ void CTownHandler::afterLoadFinalization()
 	initializeRequirements();
 	initializeOverridden();
 	initializeWarMachines();
+
+	for(auto & faction : objects)
+	{
+		if (!faction->town)
+			continue;
+
+		bool hasBoat = faction->town->shipyardBoat != EBoatId::NONE;
+		bool hasShipyard = faction->town->buildings.count(BuildingID::SHIPYARD);
+
+		if ( hasBoat && !hasShipyard )
+			logMod->warn("Town %s has boat but has no shipyard!", faction->getJsonKey());
+
+		if ( !hasBoat && hasShipyard )
+		{
+			logMod->warn("Town %s has shipyard but has no boat set!", faction->getJsonKey());
+			// Mod compatibility for 1.3
+			faction->town->shipyardBoat = EBoatId::CASTLE;
+		}
+	}
 }
 
 void CTownHandler::initializeRequirements()

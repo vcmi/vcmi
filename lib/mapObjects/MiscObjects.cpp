@@ -1961,7 +1961,8 @@ void CGShipyard::serializeJsonOptions(JsonSerializeFormat& handler)
 
 BoatId CGShipyard::getBoatType() const
 {
-	return EBoatId::BOAT_GOOD;
+	// In H3, external shipyard will always create same boat as castle
+	return EBoatId::CASTLE;
 }
 
 void CCartographer::onHeroVisit( const CGHeroInstance * h ) const

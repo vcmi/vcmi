@@ -310,7 +310,7 @@
 				"rmg" : {
 					"value"		: 500,
 					"rarity"	: 100
-				}
+				},
 				"visitText" : 127,
 				"spell" : {
 					"level" : 1
