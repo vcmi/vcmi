@@ -29,17 +29,12 @@ CGObjectInstance * HillFortInstanceConstructor::create(std::shared_ptr<const Obj
 	if(tmpl)
 		fort->appearance = tmpl;
 
+	fort->upgradeCostPercentage = parameters["upgradeCostFactor"].convertTo<std::vector<int>>();
 	return fort;
 }
 
 void HillFortInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
 {
-	HillFort * fort = dynamic_cast<HillFort *>(object);
-
-	if(!fort)
-		throw std::runtime_error("Unexpected object instance in HillFortInstanceConstructor!");
-
-	fort->upgradeCostPercentage = parameters["upgradeCostFactor"].convertTo<std::vector<int>>();
 }
 
 std::unique_ptr<IObjectInfo> HillFortInstanceConstructor::getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const

@@ -2174,11 +2174,6 @@ void HillFort::onHeroVisit(const CGHeroInstance * h) const
 	openWindow(EOpenWindowMode::HILL_FORT_WINDOW,id.getNum(),h->id.getNum());
 }
 
-void HillFort::initObj(CRandomGenerator & rand)
-{
-	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
-}
-
 void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const
 {
 	int32_t level = stack.type->getLevel();

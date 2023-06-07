@@ -15,7 +15,6 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CMap;
-class HillFortInstanceConstructor;
 
 // This one teleport-specific, but has to be available everywhere in callbacks and netpacks
 // For now it's will be there till teleports code refactored and moved into own file
@@ -459,12 +458,22 @@ public:
 
 class DLL_LINKAGE CGShipyard : public CGObjectInstance, public IShipyard
 {
-public:
-	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed
+	friend class ShipyardInstanceConstructor;
+
+	BoatId createdBoat;
+
+protected:
+	void getOutOffsets(std::vector<int3> & offsets) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	const IObjectInterface * getObject() const override;
 	BoatId getBoatType() const override;
 
+public:
+	template<typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & createdBoat;
+	}
 
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -558,7 +567,6 @@ class DLL_LINKAGE HillFort : public CGObjectInstance, public ICreatureUpgrader
 	std::vector<int> upgradeCostPercentage;
 
 protected:
-	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
 

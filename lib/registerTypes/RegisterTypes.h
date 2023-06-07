@@ -22,6 +22,7 @@
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../mapObjectConstructors/HillFortInstanceConstructor.h"
+#include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
 #include "../mapObjectConstructors/ShrineInstanceConstructor.h"
 #include "../mapObjects/MapObjects.h"
 #include "../mapObjects/CGTownBuilding.h"
@@ -102,6 +103,7 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<AObjectTypeHandler, MarketInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CObstacleConstructor>();
 	s.template registerType<AObjectTypeHandler, ShrineInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, ShipyardInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, HillFortInstanceConstructor>();
 
 #define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()

@@ -488,7 +488,8 @@
 				"index" : 0,
 				"aiValue" : 1000,
 				"rmg" : {
-				}
+				},
+				"boat" : "boatCastle"
 			}
 		}
 	},

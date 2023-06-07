@@ -21,13 +21,14 @@
 #include "../JsonNode.h"
 #include "../CSoundBase.h"
 
+#include "../mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
-#include "../mapObjectConstructors/CBankInstanceConstructor.h"
-#include "../mapObjectConstructors/ShrineInstanceConstructor.h"
 #include "../mapObjectConstructors/HillFortInstanceConstructor.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
+#include "../mapObjectConstructors/ShrineInstanceConstructor.h"
 #include "../mapObjects/CGPandoraBox.h"
+#include "../mapObjects/CQuest.h"
 #include "../mapObjects/ObjectTemplate.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -48,6 +49,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER_CLASS("market", MarketInstanceConstructor);
 	SET_HANDLER_CLASS("shrine", ShrineInstanceConstructor);
 	SET_HANDLER_CLASS("hillFort", HillFortInstanceConstructor);
+	SET_HANDLER_CLASS("shipyard", ShipyardInstanceConstructor);
 
 	SET_HANDLER_CLASS("static", CObstacleConstructor);
 	SET_HANDLER_CLASS("", CObstacleConstructor);
@@ -81,7 +83,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("resource", CGResource);
 	SET_HANDLER("scholar", CGScholar);
 	SET_HANDLER("seerHut", CGSeerHut);
-	SET_HANDLER("shipyard", CGShipyard);
 	SET_HANDLER("sign", CGSignBottle);
 	SET_HANDLER("siren", CGSirens);
 	SET_HANDLER("monolith", CGMonolith);
