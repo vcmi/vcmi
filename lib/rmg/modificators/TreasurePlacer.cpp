@@ -41,6 +41,7 @@ void TreasurePlacer::process()
 
 void TreasurePlacer::init()
 {
+	maxPrisons = 0; //Should be in the constructor, but we use macro for that
 	DEPENDENCY(ObjectManager);
 	DEPENDENCY(ConnectionsPlacer);
 	POSTFUNCTION(RoadPlacer);

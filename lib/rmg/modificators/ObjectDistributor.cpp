@@ -29,6 +29,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 void ObjectDistributor::process()
 {
 	distributeLimitedObjects();
+	distributePrisons();
 	distributeSeerHuts();
 }
 
