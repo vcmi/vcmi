@@ -32,11 +32,6 @@ void CBankInstanceConstructor::initTypeData(const JsonNode & input)
 	bankResetDuration = static_cast<si32>(input["resetDuration"].Float());
 }
 
-CGObjectInstance *CBankInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
-{
-	return createTyped(tmpl);
-}
-
 BankConfig CBankInstanceConstructor::generateConfig(const JsonNode & level, CRandomGenerator & rng) const
 {
 	BankConfig bc;
@@ -60,10 +55,8 @@ BankConfig CBankInstanceConstructor::generateConfig(const JsonNode & level, CRan
 	return bc;
 }
 
-void CBankInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
+void CBankInstanceConstructor::randomizeObject(CBank * bank, CRandomGenerator & rng) const
 {
-	auto * bank = dynamic_cast<CBank *>(object);
-
 	bank->resetDuration = bankResetDuration;
 
 	si32 totalChance = 0;

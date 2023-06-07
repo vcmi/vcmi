@@ -124,6 +124,10 @@
 					"type" : "string",
 					"description" : "Identifier of war machine produced by blacksmith in town"
 				},
+				"boat" : {
+					"type" : "string",
+					"description" : "Identifier of boat type that is produced by shipyard in town, if any"
+				},
 				"horde" : {
 					"type" : "array",
 					"maxItems" : 2,

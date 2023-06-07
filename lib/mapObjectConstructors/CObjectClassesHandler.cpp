@@ -30,6 +30,11 @@
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/CQuest.h"
 #include "../mapObjects/ObjectTemplate.h"
+#include "../mapObjects/CGMarket.h"
+#include "../mapObjects/MiscObjects.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
+
 
 VCMI_LIB_NAMESPACE_BEGIN
 

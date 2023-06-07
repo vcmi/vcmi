@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "AObjectTypeHandler.h"
 
+#include "IObjectInfo.h"
 #include "../CGeneralTextHandler.h"
 #include "../VCMI_Lib.h"
 #include "../mapObjects/CGObjectInstance.h"
@@ -221,5 +222,9 @@ void AObjectTypeHandler::afterLoadFinalization()
 {
 }
 
+std::unique_ptr<IObjectInfo> AObjectTypeHandler::getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const
+{
+	return nullptr;
+}
 
 VCMI_LIB_NAMESPACE_END

@@ -107,7 +107,7 @@ public:
 	virtual void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const = 0;
 
 	/// Returns object configuration, if available. Otherwise returns NULL
-	virtual std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const = 0;
+	virtual std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

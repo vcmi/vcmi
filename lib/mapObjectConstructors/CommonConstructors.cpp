@@ -15,14 +15,18 @@
 #include "../CHeroHandler.h"
 #include "../CModHandler.h"
 #include "../IGameCallback.h"
+#include "../JsonRandom.h"
 #include "../StringConstants.h"
 #include "../TerrainHandler.h"
+
 #include "../mapObjects/CBank.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
+
 #include "../mapping/CMapDefines.h"
-#include "../JsonRandom.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -69,15 +73,13 @@ bool CTownInstanceConstructor::objectFilter(const CGObjectInstance * object, std
 	return filters.count(templ->stringID) != 0 && filters.at(templ->stringID).test(buildTest);
 }
 
-CGObjectInstance * CTownInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
+void CTownInstanceConstructor::initializeObject(CGTownInstance * obj) const
 {
-	CGTownInstance * obj = createTyped(tmpl);
 	obj->town = faction->town;
 	obj->tempOwner = PlayerColor::NEUTRAL;
-	return obj;
 }
 
-void CTownInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
+void CTownInstanceConstructor::randomizeObject(CGTownInstance * object, CRandomGenerator & rng) const
 {
 	auto templ = getOverride(CGObjectInstance::cb->getTile(object->pos)->terType->getId(), object);
 	if(templ)
@@ -121,14 +123,12 @@ bool CHeroInstanceConstructor::objectFilter(const CGObjectInstance * object, std
 	return false;
 }
 
-CGObjectInstance * CHeroInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
+void CHeroInstanceConstructor::initializeObject(CGHeroInstance * obj) const
 {
-	CGHeroInstance * obj = createTyped(tmpl);
 	obj->type = nullptr; //FIXME: set to valid value. somehow.
-	return obj;
 }
 
-void CHeroInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
+void CHeroInstanceConstructor::randomizeObject(CGHeroInstance * object, CRandomGenerator & rng) const
 {
 
 }
@@ -172,20 +172,17 @@ bool CDwellingInstanceConstructor::objectFilter(const CGObjectInstance * obj, st
 	return false;
 }
 
-CGObjectInstance * CDwellingInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
+void CDwellingInstanceConstructor::initializeObject(CGDwelling * obj) const
 {
-	CGDwelling * obj = createTyped(tmpl);
-
 	obj->creatures.resize(availableCreatures.size());
 	for(const auto & entry : availableCreatures)
 	{
 		for(const CCreature * cre : entry)
 			obj->creatures.back().second.push_back(cre->getId());
 	}
-	return obj;
 }
 
-void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator &rng) const
+void CDwellingInstanceConstructor::randomizeObject(CGDwelling * object, CRandomGenerator &rng) const
 {
 	auto * dwelling = dynamic_cast<CGDwelling *>(object);
 
@@ -274,9 +271,8 @@ void BoatInstanceConstructor::initTypeData(const JsonNode & input)
 	bonuses = JsonRandom::loadBonuses(input["bonuses"]);
 }
 
-CGObjectInstance * BoatInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
+void BoatInstanceConstructor::initializeObject(CGBoat * boat) const
 {
-	CGBoat * boat = createTyped(tmpl);
 	boat->layer = layer;
 	boat->actualAnimation = actualAnimation;
 	boat->overlayAnimation = overlayAnimation;
@@ -285,18 +281,11 @@ CGObjectInstance * BoatInstanceConstructor::create(std::shared_ptr<const ObjectT
 	boat->onboardVisitAllowed = onboardVisitAllowed;
 	for(auto & b : bonuses)
 		boat->addNewBonus(std::make_shared<Bonus>(b));
-	
-	return boat;
 }
 
 std::string BoatInstanceConstructor::getBoatAnimationName() const
 {
 	return actualAnimation;
-}
-
-void BoatInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
-{
-
 }
 
 void BoatInstanceConstructor::afterLoadFinalization()
@@ -323,31 +312,25 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 	speech = input["speech"].String();
 }
 
-CGObjectInstance * MarketInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
+CGMarket * MarketInstanceConstructor::createObject() const
 {
-	CGMarket * market = nullptr;
 	if(marketModes.size() == 1)
 	{
 		switch(*marketModes.begin())
 		{
 			case EMarketMode::ARTIFACT_RESOURCE:
 			case EMarketMode::RESOURCE_ARTIFACT:
-				market = new CGBlackMarket;
-				break;
-				
+				return new CGBlackMarket;
+
 			case EMarketMode::RESOURCE_SKILL:
-				market = new CGUniversity;
-				break;
+				return new CGUniversity;
 		}
 	}
-	
-	if(!market)
-		market = new CGMarket;
-	
-	preInitObject(market);
+	return new CGMarket;
+}
 
-	if(tmpl)
-		market->appearance = tmpl;
+void MarketInstanceConstructor::initializeObject(CGMarket * market) const
+{
 	market->marketModes = marketModes;
 	market->marketEfficiency = marketEfficiency;
 	
@@ -357,11 +340,9 @@ CGObjectInstance * MarketInstanceConstructor::create(std::shared_ptr<const Objec
 	
 	if (!speech.empty())
 		market->speech = VLC->generaltexth->translate(speech);
-	
-	return market;
 }
 
-void MarketInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
+void MarketInstanceConstructor::randomizeObject(CGMarket * object, CRandomGenerator & rng) const
 {
 	if(auto * university = dynamic_cast<CGUniversity *>(object))
 	{

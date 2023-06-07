@@ -12,20 +12,19 @@
 #include "AObjectTypeHandler.h"
 #include "CDefaultObjectTypeHandler.h"
 
-#include "../mapObjects/CGMarket.h"
-#include "../mapObjects/MiscObjects.h"
-#include "../mapObjects/CGHeroInstance.h"
-#include "../mapObjects/CGTownInstance.h"
 #include "../LogicalExpression.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class CGArtifact;
 class CGObjectInstance;
 class CGTownInstance;
 class CGHeroInstance;
 class CGDwelling;
+class CGMarket;
 class CHeroClass;
 class CBank;
+class CGBoat;
 class CFaction;
 class CStackBasicDescriptor;
 
@@ -46,8 +45,8 @@ public:
 	CFaction * faction = nullptr;
 	std::map<std::string, LogicalExpression<BuildingID>> filters;
 
-	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
-	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
+	void initializeObject(CGTownInstance * object) const override;
+	void randomizeObject(CGTownInstance * object, CRandomGenerator & rng) const override;
 	void afterLoadFinalization() override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -70,8 +69,8 @@ public:
 	CHeroClass * heroClass = nullptr;
 	std::map<std::string, LogicalExpression<HeroTypeID>> filters;
 
-	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
-	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
+	void initializeObject(CGHeroInstance * object) const override;
+	void randomizeObject(CGHeroInstance * object, CRandomGenerator & rng) const override;
 	void afterLoadFinalization() override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -96,8 +95,8 @@ protected:
 public:
 	bool hasNameTextID() const override;
 
-	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
-	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
+	void initializeObject(CGDwelling * object) const override;
+	void randomizeObject(CGDwelling * object, CRandomGenerator & rng) const override;
 
 	bool producesCreature(const CCreature * crea) const;
 	std::vector<const CCreature *> getProducedCreatures() const;
@@ -125,8 +124,7 @@ protected:
 	std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
 	
 public:
-	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
-	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
+	void initializeObject(CGBoat * object) const override;
 	void afterLoadFinalization() override;
 
 	/// Returns boat preview animation, for use in Shipyards
@@ -157,8 +155,9 @@ protected:
 	std::string title, speech;
 	
 public:
-	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
-	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
+	CGMarket * createObject() const override;
+	void initializeObject(CGMarket * object) const override;
+	void randomizeObject(CGMarket * object, CRandomGenerator & rng) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

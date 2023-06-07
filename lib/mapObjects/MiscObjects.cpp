@@ -1839,8 +1839,15 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 	{
 		h->showInfoDialog(48);
 	}
-
 }
+
+CGBoat::CGBoat()
+{
+	hero = nullptr;
+	direction = 4;
+	layer = EPathfindingLayer::EEPathfindingLayer::SAIL;
+}
+
 void CGBoat::initObj(CRandomGenerator & rand)
 {
 	hero = nullptr;

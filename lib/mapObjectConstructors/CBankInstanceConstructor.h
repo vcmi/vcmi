@@ -87,8 +87,7 @@ public:
 	// all banks of this type will be reset N days after clearing,
 	si32 bankResetDuration = 0;
 
-	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
-	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
+	void randomizeObject(CBank * object, CRandomGenerator & rng) const override;
 
 	bool hasNameTextID() const override;
 

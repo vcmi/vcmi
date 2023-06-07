@@ -146,21 +146,19 @@
 			}
 		},
 		"types" : {
-			"boatNecropolis" : // Necropolis
-			{ 
+			"boatNecropolis" : { 
 				"index" : 0,
 				"actualAnimation" : "AB01_.def",
 				"overlayAnimation" : "ABM01_.def",
 				"flagAnimations" : ["ABF01L", "ABF01G", "ABF01R", "ABF01D", "ABF01B", "ABF01P", "ABF01W", "ABF01K"]
 			},
-			"boatCastle" : // Castle
-			{ 
+			"boatCastle" : { 
 				"index" : 1, 
 				"actualAnimation" : "AB02_.def",
 				"overlayAnimation" : "ABM02_.def",
 				"flagAnimations" : ["ABF02L", "ABF02G", "ABF02R", "ABF02D", "ABF02B", "ABF02P", "ABF02W", "ABF02K"]
 			},
-			"boatFortress" : {  // Fortress
+			"boatFortress" : {
 				"index" : 2, 
 				"actualAnimation" : "AB03_.def",
 				"overlayAnimation" : "ABM03_.def",

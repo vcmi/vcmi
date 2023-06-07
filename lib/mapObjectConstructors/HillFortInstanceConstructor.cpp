@@ -11,7 +11,6 @@
 #include "HillFortInstanceConstructor.h"
 
 #include "../mapObjects/MiscObjects.h"
-#include "IObjectInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -20,26 +19,9 @@ void HillFortInstanceConstructor::initTypeData(const JsonNode & config)
 	parameters = config;
 }
 
-CGObjectInstance * HillFortInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
+void HillFortInstanceConstructor::initializeObject(HillFort * fort) const
 {
-	HillFort * fort = new HillFort;
-
-	preInitObject(fort);
-
-	if(tmpl)
-		fort->appearance = tmpl;
-
 	fort->upgradeCostPercentage = parameters["upgradeCostFactor"].convertTo<std::vector<int>>();
-	return fort;
-}
-
-void HillFortInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
-{
-}
-
-std::unique_ptr<IObjectInfo> HillFortInstanceConstructor::getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const
-{
-	return nullptr;
 }
 
 VCMI_LIB_NAMESPACE_END

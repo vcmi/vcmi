@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "ShrineInstanceConstructor.h"
 
-#include "IObjectInfo.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../JsonRandom.h"
 #include "../IGameCallback.h"
@@ -22,25 +21,8 @@ void ShrineInstanceConstructor::initTypeData(const JsonNode & config)
 	parameters = config;
 }
 
-CGObjectInstance * ShrineInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
+void ShrineInstanceConstructor::randomizeObject(CGShrine * shrine, CRandomGenerator & rng) const
 {
-	CGShrine * shrine = new CGShrine;
-
-	preInitObject(shrine);
-
-	if(tmpl)
-		shrine->appearance = tmpl;
-
-	return shrine;
-}
-
-void ShrineInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
-{
-	CGShrine * shrine = dynamic_cast<CGShrine*>(object);
-
-	if (!shrine)
-		throw std::runtime_error("Unexpected object instance in ShrineInstanceConstructor!");
-
 	auto visitTextParameter = parameters["visitText"];
 
 	if (visitTextParameter.isNumber())
@@ -55,11 +37,6 @@ void ShrineInstanceConstructor::configureObject(CGObjectInstance * object, CRand
 
 		shrine->spell =JsonRandom::loadSpell(parameters["spell"], rng, possibilities);
 	}
-}
-
-std::unique_ptr<IObjectInfo> ShrineInstanceConstructor::getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const
-{
-	return nullptr;
 }
 
 VCMI_LIB_NAMESPACE_END

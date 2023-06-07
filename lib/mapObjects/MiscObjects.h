@@ -432,15 +432,10 @@ public:
 	std::string overlayAnimation; //waves animations
 	std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
 
+	CGBoat();
 	void initObj(CRandomGenerator & rand) override;
 	static int3 translatePos(const int3 &pos, bool reverse = false);
 
-	CGBoat()
-	{
-		hero = nullptr;
-		direction = 4;
-		layer = EPathfindingLayer::EEPathfindingLayer::SAIL;
-	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);

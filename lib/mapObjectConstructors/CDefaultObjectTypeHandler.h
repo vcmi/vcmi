@@ -13,39 +13,40 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-/// Class that is used for objects that do not have dedicated handler
+/// Class that is used as base for multiple object constructors
 template<class ObjectType>
 class CDefaultObjectTypeHandler : public AObjectTypeHandler
 {
+	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const final
+	{
+		ObjectType * castedObject = dynamic_cast<ObjectType*>(object);
+
+		if(castedObject == nullptr)
+			throw std::runtime_error("Unexpected object type!");
+
+		randomizeObject(castedObject, rng);
+	}
+
+	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const final
+	{
+		ObjectType * result = createObject();
+
+		preInitObject(result);
+
+		if(tmpl)
+			result->appearance = tmpl;
+
+		initializeObject(result);
+
+		return result;
+	}
+
 protected:
-	ObjectType * createTyped(std::shared_ptr<const ObjectTemplate> tmpl /* = nullptr */) const
+	virtual void initializeObject(ObjectType * object) const {}
+	virtual void randomizeObject(ObjectType * object, CRandomGenerator & rng) const {}
+	virtual ObjectType * createObject() const
 	{
-		auto obj = new ObjectType();
-		preInitObject(obj);
-
-		//Set custom template or leave null
-		if (tmpl)
-		{
-			obj->appearance = tmpl;
-		}
-
-		return obj;
-	}
-public:
-	CDefaultObjectTypeHandler() {}
-
-	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override
-	{
-		return createTyped(tmpl);
-	}
-
-	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override
-	{
-	}
-
-	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override
-	{
-		return nullptr;
+		return new ObjectType();
 	}
 };
 

@@ -9,19 +9,19 @@
 */
 #pragma once
 
-#include "AObjectTypeHandler.h"
+#include "CDefaultObjectTypeHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class ShipyardInstanceConstructor final : public AObjectTypeHandler
+class CGShipyard;
+
+class ShipyardInstanceConstructor final : public CDefaultObjectTypeHandler<CGShipyard>
 {
 	JsonNode parameters;
 
 protected:
 	void initTypeData(const JsonNode & config) override;
-	CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
-	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
-	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
+	void initializeObject(CGShipyard * object) const override;
 
 public:
 	template <typename Handler> void serialize(Handler &h, const int version)

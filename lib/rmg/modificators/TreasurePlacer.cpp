@@ -23,6 +23,7 @@
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapObjectConstructors/CommonConstructors.h"
+#include "../../mapObjects/CGHeroInstance.h"
 #include "../../mapObjects/CGPandoraBox.h"
 #include "../../CCreatureHandler.h"
 #include "../../spells/CSpellHandler.h" //for choosing random spells
