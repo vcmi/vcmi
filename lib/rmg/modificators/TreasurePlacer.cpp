@@ -704,7 +704,6 @@ ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValu
 void TreasurePlacer::createTreasures(ObjectManager& manager)
 {
 	const int maxAttempts = 2;
-	const int minDistance = 2;
 
 	int mapMonsterStrength = map.getMapGenOptions().getMonsterStrength();
 	int monsterStrength = (zone.monsterStrength == EMonsterStrength::ZONE_NONE ? 0 : zone.monsterStrength + mapMonsterStrength - 1); //array index from 0 to 4; pick any correct value for ZONE_NONE, minGuardedValue won't be used in this case anyway
