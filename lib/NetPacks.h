@@ -690,6 +690,7 @@ struct DLL_LINKAGE HeroRecruited : public CPackForClient
 
 	si32 hid = -1; //subID of hero
 	ObjectInstanceID tid;
+	ObjectInstanceID boatId;
 	int3 tile;
 	PlayerColor player;
 
@@ -699,6 +700,7 @@ struct DLL_LINKAGE HeroRecruited : public CPackForClient
 	{
 		h & hid;
 		h & tid;
+		h & boatId;
 		h & tile;
 		h & player;
 	}
@@ -709,6 +711,7 @@ struct DLL_LINKAGE GiveHero : public CPackForClient
 	void applyGs(CGameState * gs) const;
 
 	ObjectInstanceID id; //object id
+	ObjectInstanceID boatId;
 	PlayerColor player;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
@@ -716,6 +719,7 @@ struct DLL_LINKAGE GiveHero : public CPackForClient
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & id;
+		h & boatId;
 		h & player;
 	}
 };

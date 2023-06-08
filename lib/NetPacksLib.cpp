@@ -1402,14 +1402,31 @@ void HeroRecruited::applyGs(CGameState * gs) const
 	CGTownInstance *t = gs->getTown(tid);
 	PlayerState *p = gs->getPlayerState(player);
 
-	assert(!h->boat);
+	if (boatId >= 0)
+	{
+		CGObjectInstance *obj = gs->getObjInstance(boatId);
+		auto * boat = dynamic_cast<CGBoat *>(obj);
+		if (boat)
+		{
+			h->boat = boat;
+			h->attachTo(*boat);
+			boat->hero = h;
+		}
+	}
 
 	h->setOwner(player);
 	h->pos = tile;
 	bool fresh = !h->isInitialized();
 	if(fresh)
 	{ // this is a fresh hero who hasn't appeared yet
-		h->movement = h->maxMovePoints(true);
+		if (boatId >= 0) //Hero spawns on water
+		{
+			h->movement = h->maxMovePoints(false);
+		}
+		else
+		{
+			h->movement = h->maxMovePoints(true);
+		}
 	}
 
 	gs->hpool.heroesPool.erase(hid);
@@ -1439,6 +1456,18 @@ void HeroRecruited::applyGs(CGameState * gs) const
 void GiveHero::applyGs(CGameState * gs) const
 {
 	CGHeroInstance *h = gs->getHero(id);
+
+	if (boatId >= 0)
+	{
+		CGObjectInstance *obj = gs->getObjInstance(boatId);
+		auto * boat = dynamic_cast<CGBoat *>(obj);
+		if (boat)
+		{
+			h->boat = boat;
+			h->attachTo(*boat);
+			boat->hero = h;
+		}
+	}
 
 	//bonus system
 	h->detachFrom(gs->globalEffects);

@@ -99,6 +99,8 @@ public:
 	std::string getSpecialtyDescriptionTextID() const override;
 	std::string getSpecialtyTooltipTextID() const override;
 
+	BoatId getBoatType() const;
+
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 

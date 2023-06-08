@@ -2732,11 +2732,12 @@ void CGameHandler::setManaPoints(ObjectInstanceID hid, int val)
 	sendAndApply(&sm);
 }
 
-void CGameHandler::giveHero(ObjectInstanceID id, PlayerColor player)
+void CGameHandler::giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId)
 {
 	GiveHero gh;
 	gh.id = id;
 	gh.player = player;
+	gh.boatId = boatId;
 	sendAndApply(&gh);
 
 	//Reveal fow around new hero, especially released from Prison
@@ -4415,6 +4416,17 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 	hr.hid = nh->subID;
 	hr.player = player;
 	hr.tile = nh->convertFromVisitablePos(obj->visitablePos());
+	if (getTile(hr.tile)->isWater())
+	{
+		//Create a new boat for hero
+		NewObject no;
+		no.ID = Obj::BOAT;
+		no.subID = VLC->heroh->objects[nh->subID]->getBoatType().getNum();
+		no.pos = hr.tile + int3(1,0,0);
+		sendAndApply(&no);
+
+		hr.boatId = getTopObj(hr.tile)->id;
+	}
 	sendAndApply(&hr);
 
 	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > pool = gs->unusedHeroesFromPool();
