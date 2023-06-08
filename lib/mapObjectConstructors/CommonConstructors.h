@@ -9,10 +9,10 @@
 */
 #pragma once
 
-#include "AObjectTypeHandler.h"
 #include "CDefaultObjectTypeHandler.h"
-
 #include "../LogicalExpression.h"
+
+#include "../mapObjects/MiscObjects.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -20,7 +20,6 @@ class CGArtifact;
 class CGObjectInstance;
 class CGTownInstance;
 class CGHeroInstance;
-class CGDwelling;
 class CGMarket;
 class CHeroClass;
 class CBank;
@@ -79,33 +78,6 @@ public:
 		h & heroClass;
 		h & filters;
 		h & static_cast<CDefaultObjectTypeHandler<CGHeroInstance>&>(*this);
-	}
-};
-
-class CDwellingInstanceConstructor : public CDefaultObjectTypeHandler<CGDwelling>
-{
-	std::vector<std::vector<const CCreature *>> availableCreatures;
-
-	JsonNode guards;
-
-protected:
-	bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const override;
-	void initTypeData(const JsonNode & input) override;
-
-public:
-	bool hasNameTextID() const override;
-
-	void initializeObject(CGDwelling * object) const override;
-	void randomizeObject(CGDwelling * object, CRandomGenerator & rng) const override;
-
-	bool producesCreature(const CCreature * crea) const;
-	std::vector<const CCreature *> getProducedCreatures() const;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & availableCreatures;
-		h & guards;
-		h & static_cast<CDefaultObjectTypeHandler<CGDwelling>&>(*this);
 	}
 };
 

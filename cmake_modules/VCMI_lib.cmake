@@ -70,6 +70,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapObjectConstructors/CObjectClassesHandler.cpp
 		${MAIN_LIB_DIR}/mapObjectConstructors/CommonConstructors.cpp
 		${MAIN_LIB_DIR}/mapObjectConstructors/CRewardableConstructor.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/DwellingInstanceConstructor.cpp
 		${MAIN_LIB_DIR}/mapObjectConstructors/HillFortInstanceConstructor.cpp
 		${MAIN_LIB_DIR}/mapObjectConstructors/ShipyardInstanceConstructor.cpp
 		${MAIN_LIB_DIR}/mapObjectConstructors/ShrineInstanceConstructor.cpp
@@ -378,6 +379,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapObjectConstructors/CObjectClassesHandler.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/CommonConstructors.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/CRewardableConstructor.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/DwellingInstanceConstructor.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/HillFortInstanceConstructor.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/IObjectInfo.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/RandomMapInfo.h

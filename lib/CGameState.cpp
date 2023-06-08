@@ -621,7 +621,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 				auto dwellingIDs = VLC->objtypeh->knownSubObjects(primaryID);
 				for (si32 entry : dwellingIDs)
 				{
-					const auto * handler = dynamic_cast<const CDwellingInstanceConstructor *>(VLC->objtypeh->getHandlerFor(primaryID, entry).get());
+					const auto * handler = dynamic_cast<const DwellingInstanceConstructor *>(VLC->objtypeh->getHandlerFor(primaryID, entry).get());
 
 					if (handler->producesCreature(VLC->creh->objects[cid]))
 						result = std::make_pair(primaryID, entry);

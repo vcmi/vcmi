@@ -21,6 +21,7 @@
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
+#include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjectConstructors/HillFortInstanceConstructor.h"
 #include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
 #include "../mapObjectConstructors/ShrineInstanceConstructor.h"
@@ -97,7 +98,7 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<AObjectTypeHandler, CRewardableConstructor>();
 	s.template registerType<AObjectTypeHandler, CHeroInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CTownInstanceConstructor>();
-	s.template registerType<AObjectTypeHandler, CDwellingInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, DwellingInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CBankInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, BoatInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, MarketInstanceConstructor>();

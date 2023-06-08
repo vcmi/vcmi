@@ -24,6 +24,7 @@
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
+#include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjectConstructors/HillFortInstanceConstructor.h"
 #include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
 #include "../mapObjectConstructors/ShrineInstanceConstructor.h"
@@ -46,7 +47,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	// list of all known handlers, hardcoded for now since the only way to add new objects is via C++ code
 	//Note: should be in sync with registerTypesMapObjectTypes function
 	SET_HANDLER_CLASS("configurable", CRewardableConstructor);
-	SET_HANDLER_CLASS("dwelling", CDwellingInstanceConstructor);
+	SET_HANDLER_CLASS("dwelling", DwellingInstanceConstructor);
 	SET_HANDLER_CLASS("hero", CHeroInstanceConstructor);
 	SET_HANDLER_CLASS("town", CTownInstanceConstructor);
 	SET_HANDLER_CLASS("bank", CBankInstanceConstructor);
