@@ -562,7 +562,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 	bool hasLargeObject = false;
 	while(currentValue <= static_cast<int>(desiredValue) - 100) //no objects with value below 100 are available
 	{
-		auto * oi = getRandomObject(desiredValue, currentValue, maxValue, !hasLargeObject);
+		auto * oi = getRandomObject(desiredValue, currentValue, !hasLargeObject);
 		if(!oi) //fail
 			break;
 		
@@ -659,13 +659,13 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 	return rmgObject;
 }
 
-ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue, ui32 maxValue, bool allowLargeObjects)
+ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects)
 {
 	std::vector<std::pair<ui32, ObjectInfo*>> thresholds; //handle complex object via pointer
 	ui32 total = 0;
 	
 	//calculate actual treasure value range based on remaining value
-	ui32 maxVal = maxValue - currentValue;
+	ui32 maxVal = desiredValue - currentValue;
 	ui32 minValue = static_cast<ui32>(0.25f * (desiredValue - currentValue));
 	
 	for(ObjectInfo & oi : possibleObjects) //copy constructor turned out to be costly
