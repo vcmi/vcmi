@@ -183,8 +183,15 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 
 		for(const auto & t : obj.getArea().getTilesVector())
 		{
-			if(map.getTileInfo(t).getNearestObjectDistance() < min_dist)
+			auto localDist = map.getTileInfo(t).getNearestObjectDistance();
+			if (localDist < min_dist)
+			{
 				return -1.f;
+			}
+			else
+			{
+				vstd::amin(dist, localDist); //Evaluate object tile which will be closest to another object
+			}
 		}
 		
 		return dist;
