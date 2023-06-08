@@ -161,17 +161,21 @@ const CGObjectInstance & Object::Instance::object() const
 	return dObject;
 }
 
-Object::Object(CGObjectInstance & object, const int3 & position)
+Object::Object(CGObjectInstance & object, const int3 & position):
+	guarded(false)
 {
 	addInstance(object, position);
 }
 
-Object::Object(CGObjectInstance & object)
+Object::Object(CGObjectInstance & object):
+	guarded(false)
 {
 	addInstance(object);
 }
 
-Object::Object(const Object & object): dStrength(object.dStrength)
+Object::Object(const Object & object):
+	dStrength(object.dStrength),
+	guarded(false)
 {
 	for(const auto & i : object.dInstances)
 		addInstance(const_cast<CGObjectInstance &>(i.object()), i.getPosition());
@@ -197,7 +201,9 @@ std::list<const Object::Instance*> Object::instances() const
 void Object::addInstance(Instance & object)
 {
 	//assert(object.dParent == *this);
+	setGuardedIfMonster(object);
 	dInstances.push_back(object);
+
 	dFullAreaCache.clear();
 	dAccessibleAreaCache.clear();
 	dAccessibleAreaFullCache.clear();
@@ -206,6 +212,8 @@ void Object::addInstance(Instance & object)
 Object::Instance & Object::addInstance(CGObjectInstance & object)
 {
 	dInstances.emplace_back(*this, object);
+	setGuardedIfMonster(dInstances.back());
+
 	dFullAreaCache.clear();
 	dAccessibleAreaCache.clear();
 	dAccessibleAreaFullCache.clear();
@@ -215,6 +223,8 @@ Object::Instance & Object::addInstance(CGObjectInstance & object)
 Object::Instance & Object::addInstance(CGObjectInstance & object, const int3 & position)
 {
 	dInstances.emplace_back(*this, object, position);
+	setGuardedIfMonster(dInstances.back());
+
 	dFullAreaCache.clear();
 	dAccessibleAreaCache.clear();
 	dAccessibleAreaFullCache.clear();
@@ -300,6 +310,19 @@ const int3 Object::getVisibleTop() const
 		}
 	}
 	return topTile;
+}
+
+bool rmg::Object::isGuarded() const
+{
+	return guarded;
+}
+
+void rmg::Object::setGuardedIfMonster(const Instance& object)
+{
+	if (object.object().ID == Obj::MONSTER)
+	{
+		guarded = true;
+	}
 }
 
 void Object::Instance::finalize(RmgMap & map)
