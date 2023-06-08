@@ -437,8 +437,6 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else if(ID == Obj::PRISON)
 	{
-		int txt_id;
-
 		if (cb->getHeroCount(h->tempOwner, false) < VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))//free hero slot
 		{
 			//update hero parameters
