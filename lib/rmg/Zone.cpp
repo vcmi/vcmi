@@ -215,10 +215,10 @@ void Zone::fractalize()
 		treasureDensity += t.density;
 	}
 
-	if (treasureValue > 100)
+	if (treasureValue > 200)
 	{
 		//Less obstacles - max span is 1 (no obstacles)
-		spanFactor = 1.0f - ((std::max(0, (1000 - treasureValue)) / 1000.f) * (1 - spanFactor));
+		spanFactor = 1.0f - ((std::max(0, (1000 - treasureValue)) / (1000.f - 200)) * (1 - spanFactor));
 	}
 	else if (treasureValue < 100)
 	{
