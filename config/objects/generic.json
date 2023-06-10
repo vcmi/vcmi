@@ -511,6 +511,7 @@
 				"index" : 0,
 				"aiValue" : 100,
 				"rmg" : {
+					"zoneLimit"	: 1,
 					"mapLimit"	: 32,
 					"value"		: 100,
 					"rarity"	: 20
