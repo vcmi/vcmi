@@ -19,7 +19,7 @@ public:
 	MODIFICATOR(RoadPlacer);
 	
 	void process() override;
-	void init();
+	void init() override;
 	char dump(const int3 &) override;
 	
 	void addRoadNode(const int3 & node);
