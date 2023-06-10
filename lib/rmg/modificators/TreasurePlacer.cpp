@@ -736,7 +736,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 	size_t size = 0;
 	{
 		Zone::Lock lock(zone.areaMutex);
-		size = zone.areaPossible().getTiles().size();
+		size = zone.getArea().getTiles().size();
 	}
 
 	int totalDensity = 0;
@@ -753,10 +753,12 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 		totalDensity += t.density;
 
-		const size_t count = size * t.density / 300;
-
-		//treasure density is inversely proportional to zone size but must be scaled back to map size
-		//also, normalize it to zone count - higher count means relatively smaller zones
+		size_t count = size * t.density / 500;
+		const int averageValue = (t.min + t.max) / 2;
+		if (averageValue > 10000) //Will surely be guarded => larger
+		{
+			vstd::amin(count, size * (10.f/500) / (std::sqrt((float)averageValue / 10000)));
+		}
 		
 		//this is squared distance for optimization purposes
 		const float minDistance = std::max<float>((125.f / totalDensity), 1.0f);
