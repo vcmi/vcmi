@@ -35,14 +35,56 @@ void ObstaclePlacer::process()
 
 	collectPossibleObstacles(zone.getTerrainType());
 	
-	blockedArea = zone.area().getSubarea([this](const int3 & t)
 	{
-		return map.shouldBeBlocked(t);
-	});
-	blockedArea.subtract(zone.areaUsed());
-	zone.areaPossible().subtract(blockedArea);
+		Zone::Lock lock(zone.areaMutex);
+		blockedArea = zone.area().getSubarea([this](const int3& t)
+			{
+				return map.shouldBeBlocked(t);
+			});
+		blockedArea.subtract(zone.areaUsed());
+		zone.areaPossible().subtract(blockedArea);
 
-	prohibitedArea = zone.freePaths() + zone.areaUsed() + manager->getVisitableArea();
+		prohibitedArea = zone.freePaths() + zone.areaUsed() + manager->getVisitableArea();
+
+		//Progressively block tiles, but make sure they don't seal any gap between blocks
+		rmg::Area toBlock;
+		do
+		{
+			toBlock.clear();
+			for (const auto& tile : zone.areaPossible().getTiles())
+			{
+				rmg::Area neighbors;
+				rmg::Area t;
+				t.add(tile);
+
+				for (const auto& n : t.getBorderOutside())
+				{
+					//Area outside the map is also impassable
+					if (!map.isOnMap(n) || map.shouldBeBlocked(n))
+					{
+						neighbors.add(n);
+					}
+				}
+				if (neighbors.empty())
+				{
+					continue;
+				}
+				//Will only be added if it doesn't connect two disjointed blocks
+				if (neighbors.connected(true)) //Do not block diagonal pass
+				{
+					toBlock.add(tile);
+				}
+			}
+			zone.areaPossible().subtract(toBlock);
+			for (const auto& tile : toBlock.getTiles())
+			{
+				map.setOccupied(tile, ETileType::BLOCKED);
+			}
+
+		} while (!toBlock.empty());
+
+		prohibitedArea.unite(zone.areaPossible());
+	}
 
 	auto objs = createObstacles(zone.getRand());
 	mapProxy->insertObjects(objs);
