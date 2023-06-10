@@ -12,7 +12,7 @@
 #include "ObstaclePlacer.h"
 #include "ObjectManager.h"
 #include "TreasurePlacer.h"
-#include "RockPlacer.h"
+#include "RockFiller.h"
 #include "WaterRoutes.h"
 #include "WaterProxy.h"
 #include "RoadPlacer.h"
@@ -94,10 +94,16 @@ void ObstaclePlacer::init()
 {
 	DEPENDENCY(ObjectManager);
 	DEPENDENCY(TreasurePlacer);
-	DEPENDENCY(WaterRoutes);
-	DEPENDENCY(WaterProxy);
 	DEPENDENCY(RoadPlacer);
-	DEPENDENCY_ALL(RockPlacer);
+	if (zone.isUnderground())
+	{
+		DEPENDENCY(RockFiller);
+	}
+	else
+	{
+		DEPENDENCY(WaterRoutes);
+		DEPENDENCY(WaterProxy);
+	}
 }
 
 bool ObstaclePlacer::isInTheMap(const int3& tile)

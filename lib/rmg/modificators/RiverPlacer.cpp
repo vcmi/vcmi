@@ -82,7 +82,10 @@ void RiverPlacer::process()
 
 void RiverPlacer::init()
 {
-	DEPENDENCY_ALL(WaterProxy);
+	if (!zone.isUnderground())
+	{
+		DEPENDENCY_ALL(WaterProxy);
+	}
 	DEPENDENCY(ObjectManager);
 	DEPENDENCY(ObstaclePlacer);
 }

@@ -67,7 +67,17 @@ void RockPlacer::postProcess()
 
 void RockPlacer::init()
 {
-	DEPENDENCY_ALL(TreasurePlacer);
+	for (const auto& zone : map.getZones())
+	{
+		if (zone.second->isUnderground())
+		{
+			auto * tp = zone.second->getModificator<TreasurePlacer>();
+			if (tp)
+			{
+				dependency(tp);
+			}
+		}
+	}
 }
 
 char RockPlacer::dump(const int3 & t)
