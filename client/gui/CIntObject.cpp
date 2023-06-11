@@ -239,6 +239,11 @@ void CIntObject::onScreenResize()
 	center(pos, true);
 }
 
+bool CIntObject::isPopupWindow() const
+{
+	return false;
+}
+
 const Rect & CIntObject::center( const Rect &r, bool propagate )
 {
 	pos.w = r.w;

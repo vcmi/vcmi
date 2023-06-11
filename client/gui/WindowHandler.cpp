@@ -48,6 +48,14 @@ void WindowHandler::pushWindow(std::shared_ptr<IShowActivatable> newInt)
 	totalRedraw();
 }
 
+bool WindowHandler::isTopWindowPopup() const
+{
+	if (windowsStack.empty())
+		return false;
+
+	return windowsStack.back()->isPopupWindow();
+}
+
 void WindowHandler::popWindows(int howMany)
 {
 	if(!howMany)

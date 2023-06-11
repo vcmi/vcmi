@@ -235,10 +235,9 @@ void CWindowObject::showAll(Canvas & to)
 		CMessage::drawBorder(color, to.getInternalSurface(), pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
-void CWindowObject::closePopupWindow()
+bool CWindowObject::isPopupWindow() const
 {
-	close();
-	CCS->curh->show();
+	return options & RCLICK_POPUP;
 }
 
 CStatusbarWindow::CStatusbarWindow(int options, std::string imageName, Point centerAt) : CWindowObject(options, imageName, centerAt)

@@ -34,6 +34,7 @@ public:
 	virtual void show(Canvas & to) = 0;
 	virtual void showAll(Canvas & to) = 0;
 
+	virtual bool isPopupWindow() const = 0;
 	virtual void onScreenResize() = 0;
 	virtual ~IShowActivatable() = default;
 };
@@ -93,10 +94,16 @@ public:
 	//request complete redraw of this object
 	void redraw() override;
 
+	/// returns true if this element is a popup window
+	/// called only for windows
+	bool isPopupWindow() const override;
+
 	/// called only for windows whenever screen size changes
 	/// default behavior is to re-center, can be overriden
 	void onScreenResize() override;
 
+	/// returns true if UI elements wants to handle event of specific type (LCLICK, RCLICK ...)
+	/// by default, usedEvents inside UI elements are always handled
 	bool receiveEvent(const Point & position, int eventType) const override;
 
 	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position

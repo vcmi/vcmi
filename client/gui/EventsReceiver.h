@@ -37,7 +37,6 @@ protected:
 
 	virtual void clickLeft(tribool down, bool previousState) {}
 	virtual void showPopupWindow() {}
-	virtual void closePopupWindow() {}
 	virtual void clickDouble() {}
 
 	/// Called when user pans screen by specified distance

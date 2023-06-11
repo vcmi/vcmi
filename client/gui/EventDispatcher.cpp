@@ -14,6 +14,7 @@
 #include "FramerateManager.h"
 #include "CGuiHandler.h"
 #include "MouseButton.h"
+#include "WindowHandler.h"
 
 #include "../../lib/Point.h"
 
@@ -130,26 +131,20 @@ void EventDispatcher::dispatchMouseDoubleClick(const Point & position)
 	}
 
 	if(!doubleClicked)
-		dispatchMouseButtonPressed(MouseButton::LEFT, position);
-}
-
-void EventDispatcher::dispatchMouseButtonPressed(const MouseButton & button, const Point & position)
-{
-	if (button == MouseButton::LEFT)
 		handleLeftButtonClick(true);
-	if (button == MouseButton::RIGHT)
-		handleRightButtonClick(true);
 }
 
-void EventDispatcher::dispatchMouseButtonReleased(const MouseButton & button, const Point & position)
+void EventDispatcher::dispatchMouseLeftButtonPressed(const Point & position)
 {
-	if (button == MouseButton::LEFT)
-		handleLeftButtonClick(false);
-	if (button == MouseButton::RIGHT)
-		handleRightButtonClick(false);
+	handleLeftButtonClick(true);
 }
 
-void EventDispatcher::handleRightButtonClick(bool isPressed)
+void EventDispatcher::dispatchMouseLeftButtonReleased(const Point & position)
+{
+	handleLeftButtonClick(false);
+}
+
+void EventDispatcher::dispatchShowPopup(const Point & position)
 {
 	auto hlp = rclickable;
 	for(auto & i : hlp)
@@ -157,12 +152,19 @@ void EventDispatcher::handleRightButtonClick(bool isPressed)
 		if(!vstd::contains(rclickable, i))
 			continue;
 
-		if( isPressed && i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
-			i->showPopupWindow();
+		if( !i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
+			continue;
 
-		if(!isPressed)
-			i->closePopupWindow();
+		i->showPopupWindow();
 	}
+}
+
+void EventDispatcher::dispatchClosePopup(const Point & position)
+{
+	if (GH.windows().isTopWindowPopup())
+		GH.windows().popWindows(1);
+
+	assert(!GH.windows().isTopWindowPopup());
 }
 
 void EventDispatcher::handleLeftButtonClick(bool isPressed)
