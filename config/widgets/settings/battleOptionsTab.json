@@ -7,13 +7,13 @@
 			"name": "lineCreatureInfo",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 229, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
 		},
 		{
 			"name": "lineAnimationSpeed",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 319, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 349, "w": 365, "h": 3}
 		},
 		{
 			"type" : "labelTitle",
@@ -23,7 +23,7 @@
 		{
 			"type" : "labelTitle",
 			"text": "core.genrltxt.397", // Creature info
-			"position": {"x": 10, "y": 235}
+			"position": {"x": 10, "y": 265}
 		},
 /////////////////////////////////////// Right section - Auto-combat settings (NOT IMPLEMENTED)
 		{
@@ -69,7 +69,7 @@
 			"name": "creatureInfoLabels",
 			"type" : "verticalLayout",
 			"customType" : "labelDescription",
-			"position": {"x": 45, "y": 265},
+			"position": {"x": 45, "y": 295},
 			"items":
 			[
 				{
@@ -84,7 +84,7 @@
 			"name": "creatureInfoCheckboxes",
 			"type" : "verticalLayout",
 			"customType" : "checkboxFake",
-			"position": {"x": 10, "y": 263},
+			"position": {"x": 10, "y": 293},
 			"items":
 			[
 				{},
@@ -106,6 +106,9 @@
 				},
 				{
 					"text": "vcmi.battleOptions.movementHighlightOnHover.hover",
+				},
+				{
+					"text": "vcmi.battleOptions.rangedFullDamageLimitHighlightOnHover.hover",
 				},
 				{
 					"text": "core.genrltxt.406",
@@ -135,6 +138,11 @@
 					"name": "movementHighlightOnHoverCheckbox",
 					"help": "vcmi.battleOptions.movementHighlightOnHover",
 					"callback": "movementHighlightOnHoverChanged"
+				},
+				{
+					"name": "rangedFullDamageLimitHighlightOnHoverCheckbox",
+					"help": "vcmi.battleOptions.rangedFullDamageLimitHighlightOnHover",
+					"callback": "rangedFullDamageLimitHighlightOnHoverChanged"
 				},
 				{
 					"name": "mouseShadowCheckbox",
