@@ -37,20 +37,6 @@ class BattleFieldController : public CIntObject
 
 	std::shared_ptr<CAnimation> attackCursors;
 
-	// key in image map is a mask that has set to 1 the edges present in the image 0..5
-	/*
-	    /\
-	   0  1
-	  /    \
-	 |      |
-	 5      2
-	 |      |
-	  \    /
-	   4  3
-	    \/
-	*/
-	std::map<uint8_t, std::shared_ptr<IImage>> fullDamageRangeLimitImages; 
-
 	/// Canvas that contains background, hex grid (if enabled), absolute obstacles and movement range of active stack
 	std::unique_ptr<Canvas> backgroundWithHexes;
 

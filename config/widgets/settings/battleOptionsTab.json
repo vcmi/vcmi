@@ -7,7 +7,7 @@
 			"name": "lineCreatureInfo",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 259, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
 		},
 		{
 			"name": "lineAnimationSpeed",
@@ -69,7 +69,7 @@
 			"name": "creatureInfoLabels",
 			"type" : "verticalLayout",
 			"customType" : "labelDescription",
-			"position": {"x": 45, "y": 265},
+			"position": {"x": 45, "y": 295},
 			"items":
 			[
 				{
@@ -84,7 +84,7 @@
 			"name": "creatureInfoCheckboxes",
 			"type" : "verticalLayout",
 			"customType" : "checkboxFake",
-			"position": {"x": 10, "y": 263},
+			"position": {"x": 10, "y": 293},
 			"items":
 			[
 				{},

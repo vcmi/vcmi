@@ -82,6 +82,7 @@ namespace HexMasks
 
 std::map<int, int> hexEdgeMaskToFrameIndex;
 
+// Maps HexEdgesMask to "Frame" indexes for range highligt images
 void initializeHexEdgeMaskToFrameIndex()
 {
 	hexEdgeMaskToFrameIndex[HexMasks::empty] = 0;
@@ -127,8 +128,8 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	attackCursors = std::make_shared<CAnimation>("CRCOMBAT");
 	attackCursors->preload();
 
-	fullDamageRangeLimitImages = std::make_unique<CAnimation>("battle/rangeHighlights/rangeHighlightsGreen.json");
-	fullDamageRangeLimitImages->preload();
+	rangedFullDamageLimitImages = std::make_unique<CAnimation>("battle/rangeHighlights/rangeHighlightsGreen.json");
+	rangedFullDamageLimitImages->preload();
 
 	initializeHexEdgeMaskToFrameIndex();
 	flipRangedFullDamageLimitImagesIntoPositions();
