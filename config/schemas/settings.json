@@ -310,7 +310,7 @@
 				},
 				"rangedFullDamageLimitHighlightOnHover" : {
 					"type" : "boolean",
-					"default" : true
+					"default" : false
 				},
 				"showQueue" : {
 					"type" : "boolean",
