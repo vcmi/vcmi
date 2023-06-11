@@ -54,7 +54,9 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	logAi->trace("Evaluating defence for %s", town->getNameTranslated());
 
 	auto treatNode = ai->nullkiller->dangerHitMap->getObjectTreat(town);
-	auto treats = { treatNode.maximumDanger, treatNode.fastestDanger };
+	std::vector<HitMapInfo> treats = ai->nullkiller->dangerHitMap->getTownTreats(town);
+	
+	treats.push_back(treatNode.fastestDanger); // no guarantee that fastest danger will be there
 
 	int dayOfWeek = cb->getDate(Date::DAY_OF_WEEK);
 
@@ -131,14 +133,24 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 			if(treat.hero.validAndSet()
 				&& treat.turn <= 1
-				&& (treat.danger == treatNode.maximumDanger.danger || treat.turn < treatNode.maximumDanger.turn)
-				&& isSafeToVisit(path.targetHero, path.heroArmy, treat.danger))
+				&& (treat.danger == treatNode.maximumDanger.danger || treat.turn < treatNode.maximumDanger.turn))
 			{
-				Composition composition;
+				auto heroCapturingPaths = ai->nullkiller->pathfinder->getPathInfo(treat.hero->visitablePos());
+				auto goals = CaptureObjectsBehavior::getVisitGoals(heroCapturingPaths, treat.hero.get());
 
-				composition.addNext(DefendTown(town, treat, path)).addNext(CaptureObject(treat.hero.get()));
+				for(int i = 0; i < heroCapturingPaths.size(); i++)
+				{
+					AIPath & path = heroCapturingPaths[i];
+					TSubgoal goal = goals[i];
 
-				tasks.push_back(Goals::sptr(composition));
+					if(!goal || goal->invalid() || !goal->isElementar()) continue;
+
+					Composition composition;
+
+					composition.addNext(DefendTown(town, treat, path, true)).addNext(goal);
+
+					tasks.push_back(Goals::sptr(composition));
+				}
 			}
 
 			bool treatIsWeak = path.getHeroStrength() / (float)treat.danger > TREAT_IGNORE_RATIO;

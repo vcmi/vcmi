@@ -17,6 +17,11 @@ namespace NKAI
 
 HitMapInfo HitMapInfo::NoTreat;
 
+double HitMapInfo::value() const
+{
+	return danger / std::sqrt(turn / 3.0f + 1);
+}
+
 void DangerHitMapAnalyzer::updateHitMap()
 {
 	if(hitMapUpToDate)
@@ -29,8 +34,12 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 	auto cb = ai->cb.get();
 	auto mapSize = ai->cb->getMapSize();
-	hitMap.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);
+	
+	if(hitMap.shape()[0] != mapSize.x || hitMap.shape()[1] != mapSize.y || hitMap.shape()[2] != mapSize.z)
+		hitMap.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);
+
 	enemyHeroAccessibleObjects.clear();
+	townTreats.clear();
 
 	std::map<PlayerColor, std::map<const CGHeroInstance *, HeroRole>> heroes;
 
@@ -67,29 +76,26 @@ void DangerHitMapAnalyzer::updateHitMap()
 				if(path.getFirstBlockedAction())
 					continue;
 
-				auto tileDanger = path.getHeroStrength();
-				auto turn = path.turn();
 				auto & node = hitMap[pos.x][pos.y][pos.z];
 
-				auto newMaxDanger = tileDanger / std::sqrt(turn / 3.0f + 1);
-				auto currentMaxDanger = node.maximumDanger.danger / std::sqrt(node.maximumDanger.turn / 3.0f + 1);
+				HitMapInfo newTreat;
 
-				if(newMaxDanger > currentMaxDanger)
+				newTreat.hero = path.targetHero;
+				newTreat.turn = path.turn();
+				newTreat.danger = path.getHeroStrength();
+
+				if(newTreat.value() > node.maximumDanger.value())
 				{
-					node.maximumDanger.danger = tileDanger;
-					node.maximumDanger.turn = turn;
-					node.maximumDanger.hero = path.targetHero;
+					node.maximumDanger = newTreat;
 				}
 
-				if(turn < node.fastestDanger.turn
-					|| (turn == node.fastestDanger.turn && node.fastestDanger.danger < tileDanger))
+				if(newTreat.turn < node.fastestDanger.turn
+					|| (newTreat.turn == node.fastestDanger.turn && node.fastestDanger.danger < newTreat.danger))
 				{
-					node.fastestDanger.danger = tileDanger;
-					node.fastestDanger.turn = turn;
-					node.fastestDanger.hero = path.targetHero;
+					node.fastestDanger = newTreat;
 				}
 
-				if(turn == 0)
+				if(newTreat.turn == 0)
 				{
 					auto objects = cb->getVisitableObjs(pos, false);
 					
@@ -97,6 +103,26 @@ void DangerHitMapAnalyzer::updateHitMap()
 					{
 						if(cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES)
 							enemyHeroAccessibleObjects[path.targetHero].insert(obj);
+
+						if(obj->ID == Obj::TOWN && obj->getOwner() == ai->playerID)
+						{
+							auto & treats = townTreats[obj->id];
+							auto treat = std::find_if(treats.begin(), treats.end(), [&](const HitMapInfo & i) -> bool
+								{
+									return i.hero.hid == path.targetHero->id;
+								});
+
+							if(treat == treats.end())
+							{
+								treats.emplace_back();
+								treat = std::prev(treats.end(), 1);
+							}
+
+							if(newTreat.value() > treat->value())
+							{
+								*treat = newTreat;
+							}
+						}
 					}
 				}
 			}
@@ -115,7 +141,8 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 	auto cb = ai->cb.get();
 	auto mapSize = ai->cb->getMapSize();
 
-	tileOwners.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);
+	if(hitMap.shape()[0] != mapSize.x || hitMap.shape()[1] != mapSize.y || hitMap.shape()[2] != mapSize.z)
+		hitMap.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);
 
 	std::map<const CGHeroInstance *, HeroRole> townHeroes;
 	std::map<const CGHeroInstance *, const CGTownInstance *> heroTownMap;
@@ -157,6 +184,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 			float ourDistance = std::numeric_limits<float>::max();
 			float enemyDistance = std::numeric_limits<float>::max();
 			const CGTownInstance * enemyTown = nullptr;
+			const CGTownInstance * ourTown = nullptr;
 
 			for(AIPath & path : ai->pathfinder->getPathInfo(pos))
 			{
@@ -167,7 +195,11 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 
 				if(town->getOwner() == ai->playerID)
 				{
-					vstd::amin(ourDistance, path.movementCost());
+					if(ourDistance > path.movementCost())
+					{
+						ourDistance = path.movementCost();
+						ourTown = town;
+					}
 				}
 				else
 				{
@@ -181,17 +213,38 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 
 			if(ourDistance == enemyDistance)
 			{
-				tileOwners[pos.x][pos.y][pos.z] = PlayerColor::NEUTRAL;
+				hitMap[pos.x][pos.y][pos.z].closestTown = nullptr;
 			}
 			else if(!enemyTown || ourDistance < enemyDistance)
 			{
-				tileOwners[pos.x][pos.y][pos.z] = ai->playerID;
+				hitMap[pos.x][pos.y][pos.z].closestTown = ourTown;
 			}
 			else
 			{
-				tileOwners[pos.x][pos.y][pos.z] = enemyTown->getOwner();
+				hitMap[pos.x][pos.y][pos.z].closestTown = enemyTown;
 			}
 		});
+}
+
+const std::vector<HitMapInfo> & DangerHitMapAnalyzer::getTownTreats(const CGTownInstance * town) const
+{
+	static const std::vector<HitMapInfo> empty = {};
+
+	auto result = townTreats.find(town->id);
+
+	return result == townTreats.end() ? empty : result->second;
+}
+
+PlayerColor DangerHitMapAnalyzer::getTileOwner(const int3 & tile) const
+{
+	auto town = hitMap[tile.x][tile.y][tile.z].closestTown;
+
+	return town ? town->getOwner() : PlayerColor::NEUTRAL;
+}
+
+const CGTownInstance * DangerHitMapAnalyzer::getClosestTown(const int3 & tile) const
+{
+	return hitMap[tile.x][tile.y][tile.z].closestTown;
 }
 
 uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & path) const
