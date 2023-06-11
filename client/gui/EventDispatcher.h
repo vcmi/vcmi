@@ -34,9 +34,8 @@ class EventDispatcher
 	EventReceiversList textInterested;
 	EventReceiversList panningInterested;
 
-	EventReceiversList & getListForMouseButton(MouseButton button);
-
-	void handleMouseButtonClick(EventReceiversList & interestedObjs, MouseButton btn, bool isPressed);
+	void handleLeftButtonClick(bool isPressed);
+	void handleRightButtonClick(bool isPressed);
 
 	template<typename Functor>
 	void processLists(ui16 activityFlag, const Functor & cb);

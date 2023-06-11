@@ -112,18 +112,6 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 	}
 }
 
-EventDispatcher::EventReceiversList & EventDispatcher::getListForMouseButton(MouseButton button)
-{
-	switch (button)
-	{
-		case MouseButton::LEFT:
-			return lclickable;
-		case MouseButton::RIGHT:
-			return rclickable;
-	}
-	throw std::runtime_error("Invalid mouse button in getListForMouseButton");
-}
-
 void EventDispatcher::dispatchMouseDoubleClick(const Point & position)
 {
 	bool doubleClicked = false;
@@ -147,49 +135,58 @@ void EventDispatcher::dispatchMouseDoubleClick(const Point & position)
 
 void EventDispatcher::dispatchMouseButtonPressed(const MouseButton & button, const Point & position)
 {
-	handleMouseButtonClick(getListForMouseButton(button), button, true);
+	if (button == MouseButton::LEFT)
+		handleLeftButtonClick(true);
+	if (button == MouseButton::RIGHT)
+		handleRightButtonClick(true);
 }
 
 void EventDispatcher::dispatchMouseButtonReleased(const MouseButton & button, const Point & position)
 {
-	handleMouseButtonClick(getListForMouseButton(button), button, false);
+	if (button == MouseButton::LEFT)
+		handleLeftButtonClick(false);
+	if (button == MouseButton::RIGHT)
+		handleRightButtonClick(false);
 }
 
-void EventDispatcher::handleMouseButtonClick(EventReceiversList & interestedObjs, MouseButton btn, bool isPressed)
+void EventDispatcher::handleRightButtonClick(bool isPressed)
 {
-	auto hlp = interestedObjs;
+	auto hlp = rclickable;
 	for(auto & i : hlp)
 	{
-		if(!vstd::contains(interestedObjs, i))
+		if(!vstd::contains(rclickable, i))
 			continue;
 
-		auto prev = i->isMouseButtonPressed(btn);
+		if( isPressed && i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
+			i->showPopupWindow();
 
 		if(!isPressed)
-			i->currentMouseState[btn] = isPressed;
+			i->closePopupWindow();
+	}
+}
 
-		if( btn == MouseButton::LEFT && i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
+void EventDispatcher::handleLeftButtonClick(bool isPressed)
+{
+	auto hlp = lclickable;
+	for(auto & i : hlp)
+	{
+		if(!vstd::contains(lclickable, i))
+			continue;
+
+		auto prev = i->isMouseButtonPressed(MouseButton::LEFT);
+
+		if(!isPressed)
+			i->currentMouseState[MouseButton::LEFT] = isPressed;
+
+		if( i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
 		{
 			if(isPressed)
-				i->currentMouseState[btn] = isPressed;
+				i->currentMouseState[MouseButton::LEFT] = isPressed;
 			i->clickLeft(isPressed, prev);
-		}
-		else if( btn == MouseButton::RIGHT && i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::RCLICK))
-		{
-			if(isPressed)
-				i->currentMouseState[btn] = isPressed;
-
-			if (isPressed)
-				i->showPopupWindow();
-			else
-				i->closePopupWindow();
 		}
 		else if(!isPressed)
 		{
-			if (btn == MouseButton::LEFT)
-				i->clickLeft(boost::logic::indeterminate, prev);
-			if (btn == MouseButton::RIGHT)
-				i->closePopupWindow();
+			i->clickLeft(boost::logic::indeterminate, prev);
 		}
 	}
 }
