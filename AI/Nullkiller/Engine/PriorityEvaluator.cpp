@@ -282,18 +282,6 @@ uint64_t RewardEvaluator::getArmyReward(
 
 	switch(target->ID)
 	{
-	case Obj::TOWN:
-	{
-		auto town = dynamic_cast<const CGTownInstance *>(target);
-		auto fortLevel = town->fortLevel();
-		auto booster = isAnotherAi(town, *ai->cb) ? 1 : 2;
-
-		if(fortLevel < CGTownInstance::CITADEL)
-			return town->hasFort() ? booster * 500 : 0;
-		else
-			return booster * (fortLevel == CGTownInstance::CASTLE ? 5000 : 2000);
-	}
-
 	case Obj::HILL_FORT:
 		return ai->armyManager->calculateCreaturesUpgrade(army, target, ai->cb->getResourceAmount()).upgradeValue;
 	case Obj::CREATURE_BANK:
@@ -440,6 +428,22 @@ float RewardEvaluator::getTotalResourceRequirementStrength(int resType) const
 	return std::min(ratio, 1.0f);
 }
 
+uint64_t RewardEvaluator::townArmyGrowth(const CGTownInstance * town) const
+{
+	uint64_t result = 0;
+
+	for(auto creatureInfo : town->creatures)
+	{
+		if(creatureInfo.second.empty())
+			continue;
+
+		auto creature = creatureInfo.second.back().toCreature();
+		result += creature->getAIValue() * town->getGrowthInfo(creature->getLevel() - 1).totalGrowth();
+	}
+
+	return result;
+}
+
 float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) const
 {
 	if(!target)
@@ -475,13 +479,22 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 	case Obj::TOWN:
 	{
 		if(ai->buildAnalyzer->getDevelopmentInfo().empty())
-			return 1;
+			return 10.0f;
 
 		auto town = dynamic_cast<const CGTownInstance *>(target);
-		auto fortLevel = town->fortLevel();
-		auto booster = isAnotherAi(town, *ai->cb) ? 0.3 : 1;
 
-		if(town->hasCapitol()) return 1;
+		if(town->getOwner() == ai->playerID)
+		{
+			auto armyIncome = townArmyGrowth(town);
+			auto dailyIncome = town->dailyIncome()[EGameResID::GOLD];
+
+			return std::min(1.0f, std::sqrt(armyIncome / 40000.0f)) + std::min(0.3f, dailyIncome / 10000.0f);
+		}
+
+		auto fortLevel = town->fortLevel();
+		auto booster = isAnotherAi(town, *ai->cb) ? 0.3f : 0.7f;
+
+		if(town->hasCapitol()) return booster;
 
 		if(fortLevel < CGTownInstance::CITADEL)
 			return booster * (town->hasFort() ? 0.6 : 0.4);
@@ -690,23 +703,6 @@ void addTileDanger(EvaluationContext & evaluationContext, const int3 & tile, uin
 
 class DefendTownEvaluator : public IEvaluationContextBuilder
 {
-private:
-	uint64_t townArmyIncome(const CGTownInstance * town) const
-	{
-		uint64_t result = 0;
-
-		for(auto creatureInfo : town->creatures)
-		{
-			if(creatureInfo.second.empty())
-				continue;
-
-			auto creature = creatureInfo.second.back().toCreature();
-			result += creature->getAIValue() * town->getGrowthInfo(creature->getLevel() - 1).totalGrowth();
-		}
-
-		return result;
-	}
-
 public:
 	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
@@ -717,10 +713,7 @@ public:
 		const CGTownInstance * town = defendTown.town;
 		auto & treat = defendTown.getTreat();
 
-		auto armyIncome = townArmyIncome(town);
-		auto dailyIncome = town->dailyIncome()[EGameResID::GOLD];
-
-		auto strategicalValue = std::sqrt(armyIncome / 60000.0f) + dailyIncome / 10000.0f;
+		auto strategicalValue = evaluationContext.evaluator.getStrategicalValue(town);
 
 		if(evaluationContext.evaluator.ai->buildAnalyzer->getDevelopmentInfo().size() == 1)
 			vstd::amax(evaluationContext.strategicalValue, 10.0);
@@ -732,9 +725,20 @@ public:
 
 		multiplier /= 1.0f + treat.turn / 5.0f;
 
-		evaluationContext.armyGrowth += armyIncome * multiplier;
+		if(defendTown.getTurn() > 0 && defendTown.isContrAttack())
+		{
+			auto ourSpeed = defendTown.hero->maxMovePoints(true);
+			auto enemySpeed = treat.hero->maxMovePoints(true);
+
+			if(enemySpeed > ourSpeed) multiplier *= 0.7f;
+		}
+
+		auto dailyIncome = town->dailyIncome()[EGameResID::GOLD];
+		auto armyGrowth = evaluationContext.evaluator.townArmyGrowth(town);
+
+		evaluationContext.armyGrowth += armyGrowth * multiplier;
 		evaluationContext.goldReward += dailyIncome * 5 * multiplier;
-		evaluationContext.addNonCriticalStrategicalValue(strategicalValue * multiplier);
+		evaluationContext.addNonCriticalStrategicalValue(1.7f * multiplier * strategicalValue);
 		vstd::amax(evaluationContext.danger, defendTown.getTreat().danger);
 		addTileDanger(evaluationContext, town->visitablePos(), defendTown.getTurn(), defendTown.getDefenceStrength());
 	}

@@ -12,6 +12,7 @@
 #include "../Engine/Nullkiller.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/Composition.h"
+#include "../Goals/RecruitHero.h"
 #include "../Markers/HeroExchange.h"
 #include "../Markers/ArmyUpgrade.h"
 #include "GatherArmyBehavior.h"
@@ -240,12 +241,22 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 	logAi->trace("Found %d paths", paths.size());
 #endif
 
+	bool hasMainAround = false;
+
+	for(const AIPath & path : paths)
+	{
+		auto heroRole = ai->nullkiller->heroManager->getHeroRole(path.targetHero);
+
+		if(heroRole == HeroRole::MAIN && path.turn() < SCOUT_TURN_DISTANCE_LIMIT)
+			hasMainAround = true;
+	}
+
 	for(const AIPath & path : paths)
 	{
 #if NKAI_TRACE_LEVEL >= 2
 		logAi->trace("Path found %s, %s, %lld", path.toString(), path.targetHero->getObjectName(), path.heroArmy->getArmyStrength());
 #endif
-		if(upgrader->visitingHero && upgrader->visitingHero.get() != path.targetHero)
+		if(upgrader->visitingHero && (upgrader->visitingHero.get() != path.targetHero || path.exchangeCount == 1))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Town has visiting hero.");
@@ -283,25 +294,58 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 		auto upgrade = ai->nullkiller->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
 
-		if(!upgrader->garrisonHero && ai->nullkiller->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN)
+		if(!upgrader->garrisonHero
+			&& (
+				hasMainAround
+				|| ai->nullkiller->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN))
 		{
-			upgrade.upgradeValue +=	
-				ai->nullkiller->armyManager->howManyReinforcementsCanGet(
+			ArmyUpgradeInfo armyToGetOrBuy;
+
+			armyToGetOrBuy.addArmyToGet(
+				ai->nullkiller->armyManager->getBestArmy(
 					path.targetHero,
 					path.heroArmy,
-					upgrader->getUpperArmy());
+					upgrader->getUpperArmy()));
 
-			upgrade.upgradeValue +=
-				ai->nullkiller->armyManager->howManyReinforcementsCanBuy(
-					path.heroArmy,
-					upgrader,
-					ai->nullkiller->getFreeResources(),
-					path.turn());
+			armyToGetOrBuy.addArmyToBuy(
+				ai->nullkiller->armyManager->toSlotInfo(
+					ai->nullkiller->armyManager->getArmyAvailableToBuy(
+						path.heroArmy,
+						upgrader,
+						ai->nullkiller->getFreeResources(),
+						path.turn())));
+
+			upgrade.upgradeValue += armyToGetOrBuy.upgradeValue;
+			upgrade.upgradeCost += armyToGetOrBuy.upgradeCost;
+			vstd::concatenate(upgrade.resultingArmy, armyToGetOrBuy.resultingArmy);
+
+			auto getOrBuyArmyValue = (float)armyToGetOrBuy.upgradeValue / path.getHeroStrength();
+
+			if(!upgrade.upgradeValue
+				&& armyToGetOrBuy.upgradeValue > 20000
+				&& ai->nullkiller->heroManager->canRecruitHero(town)
+				&& path.turn() < SCOUT_TURN_DISTANCE_LIMIT)
+			{
+				for(auto hero : cb->getAvailableHeroes(town))
+				{
+					auto scoutReinforcement =  ai->nullkiller->armyManager->howManyReinforcementsCanBuy(hero, town)
+						+ ai->nullkiller->armyManager->howManyReinforcementsCanGet(hero, town);
+
+					if(scoutReinforcement >= armyToGetOrBuy.upgradeValue
+						&& ai->nullkiller->getFreeGold() >20000
+						&& ai->nullkiller->buildAnalyzer->getGoldPreasure() < MAX_GOLD_PEASURE)
+					{
+						Composition recruitHero;
+
+						recruitHero.addNext(ArmyUpgrade(path.targetHero, town, armyToGetOrBuy)).addNext(RecruitHero(town, hero));
+					}
+				}
+			}
 		}
 
 		auto armyValue = (float)upgrade.upgradeValue / path.getHeroStrength();
 
-		if((armyValue < 0.1f && armyValue < 20000) || upgrade.upgradeValue < 300) // avoid small upgrades
+		if((armyValue < 0.1f && upgrade.upgradeValue < 20000) || upgrade.upgradeValue < 300) // avoid small upgrades
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Army value is too small (%f)", armyValue);

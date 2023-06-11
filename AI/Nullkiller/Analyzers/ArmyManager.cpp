@@ -33,6 +33,45 @@ public:
 	}
 };
 
+void ArmyUpgradeInfo::addArmyToBuy(std::vector<SlotInfo> army)
+{
+	for(auto slot : army)
+	{
+		resultingArmy.push_back(slot);
+
+		upgradeValue += slot.power;
+		upgradeCost += slot.creature->getFullRecruitCost() * slot.count;
+	}
+}
+
+void ArmyUpgradeInfo::addArmyToGet(std::vector<SlotInfo> army)
+{
+	for(auto slot : army)
+	{
+		resultingArmy.push_back(slot);
+
+		upgradeValue += slot.power;
+	}
+}
+
+std::vector<SlotInfo> ArmyManager::toSlotInfo(std::vector<creInfo> army) const
+{
+	std::vector<SlotInfo> result;
+
+	for(auto i : army)
+	{
+		SlotInfo slot;
+
+		slot.creature = VLC->creh->objects[i.cre->getId()];
+		slot.count = i.count;
+		slot.power = evaluateStackPower(i.cre, i.count);
+
+		result.push_back(slot);
+	}
+
+	return result;
+}
+
 uint64_t ArmyManager::howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const
 {
 	return howManyReinforcementsCanGet(hero, hero, source);
@@ -136,7 +175,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 		{
 			if(vstd::contains(allowedFactions, slot.creature->getFaction()))
 			{
-				auto slotID = newArmyInstance.getSlotFor(slot.creature);
+				auto slotID = newArmyInstance.getSlotFor(slot.creature->getId());
 
 				if(slotID.validSlot())
 				{
@@ -319,7 +358,7 @@ ui64 ArmyManager::howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, 
 	return newArmy > oldArmy ? newArmy - oldArmy : 0;
 }
 
-uint64_t ArmyManager::evaluateStackPower(const CCreature * creature, int count) const
+uint64_t ArmyManager::evaluateStackPower(const Creature * creature, int count) const
 {
 	return creature->getAIValue() * count;
 }
