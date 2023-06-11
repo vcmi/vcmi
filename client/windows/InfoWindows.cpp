@@ -289,10 +289,8 @@ void CInfoPopup::init(int x, int y)
 }
 
 
-void CRClickPopup::clickRight(tribool down, bool previousState)
+void CRClickPopup::closePopupWindow()
 {
-	if(down)
-		return;
 	close();
 }
 

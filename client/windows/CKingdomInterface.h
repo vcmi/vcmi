@@ -73,7 +73,7 @@ public:
 	InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IInfoBoxData> Data);
 	~InfoBox();
 
-	void clickRight(tribool down, bool previousState) override;
+	void showPopupWindow() override;
 	void clickLeft(tribool down, bool previousState) override;
 
 	//Update object if data may have changed

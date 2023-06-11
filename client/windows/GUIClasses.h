@@ -60,7 +60,7 @@ class CRecruitmentWindow : public CStatusbarWindow
 		CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount);
 
 		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void showPopupWindow() override;
 		void showAll(Canvas & to) override;
 	};
 
@@ -206,7 +206,7 @@ public:
 		const CGHeroInstance * h;
 
 		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void showPopupWindow() override;
 		void hover (bool on) override;
 		HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H);
 
@@ -418,7 +418,7 @@ class CUniversityWindow : public CStatusbarWindow
 
 		void showAll(Canvas & to) override;
 		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void showPopupWindow() override;
 		void hover(bool on) override;
 		int state();//0=can't learn, 1=learned, 2=can learn
 		CItem(CUniversityWindow * _parent, int _ID, int X, int Y);

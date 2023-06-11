@@ -40,10 +40,9 @@ CList::CListItem::CListItem(CList * Parent)
 
 CList::CListItem::~CListItem() = default;
 
-void CList::CListItem::clickRight(tribool down, bool previousState)
+void CList::CListItem::showPopupWindow()
 {
-	if (down == true)
-		showTooltip();
+	showTooltip();
 }
 
 void CList::CListItem::clickLeft(tribool down, bool previousState)

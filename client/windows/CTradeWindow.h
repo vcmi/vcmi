@@ -56,7 +56,7 @@ public:
 
 		void showAllAt(const Point & dstPos, const std::string & customSub, Canvas & to);
 
-		void clickRight(tribool down, bool previousState) override;
+		void showPopupWindow() override;
 		void hover(bool on) override;
 		void showAll(Canvas & to) override;
 		void clickLeft(tribool down, bool previousState) override;

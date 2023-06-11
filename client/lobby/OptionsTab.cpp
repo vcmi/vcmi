@@ -432,18 +432,15 @@ void OptionsTab::SelectedBox::update()
 	subtitle->setText(getName());
 }
 
-void OptionsTab::SelectedBox::clickRight(tribool down, bool previousState)
+void OptionsTab::SelectedBox::showPopupWindow()
 {
-	if(down)
-	{
-		// cases when we do not need to display a message
-		if(settings.castle == -2 && CPlayerSettingsHelper::type == TOWN)
-			return;
-		if(settings.hero == -2 && !SEL->getPlayerInfo(settings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
-			return;
+	// cases when we do not need to display a message
+	if(settings.castle == -2 && CPlayerSettingsHelper::type == TOWN)
+		return;
+	if(settings.hero == -2 && !SEL->getPlayerInfo(settings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
+		return;
 
-		GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
-	}
+	GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
 }
 
 void OptionsTab::SelectedBox::scrollBy(int distance)

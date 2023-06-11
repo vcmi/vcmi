@@ -28,7 +28,7 @@ protected:
 	std::shared_ptr<CPicture> background;
 
 	//Used only if RCLICK_POPUP was set
-	void clickRight(tribool down, bool previousState) override;
+	void closePopupWindow() override;
 	//To display border
 	void updateShadow();
 	void setBackground(std::string filename);

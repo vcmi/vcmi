@@ -149,10 +149,9 @@ void CMinimap::clickLeft(tribool down, bool previousState)
 		moveAdvMapSelection(GH.getCursorPosition());
 }
 
-void CMinimap::clickRight(tribool down, bool previousState)
+void CMinimap::showPopupWindow()
 {
-	if (down)
-		CRClickPopup::createAndPush(CGI->generaltexth->zelp[291].second);
+	CRClickPopup::createAndPush(CGI->generaltexth->zelp[291].second);
 }
 
 void CMinimap::hover(bool on)

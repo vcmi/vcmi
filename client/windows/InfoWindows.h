@@ -76,7 +76,7 @@ class CRClickPopup : public WindowBase
 {
 public:
 	virtual void close();
-	void clickRight(tribool down, bool previousState) override;
+	void closePopupWindow() override;
 
 	CRClickPopup();
 	virtual ~CRClickPopup();

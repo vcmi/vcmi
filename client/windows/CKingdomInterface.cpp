@@ -90,18 +90,15 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IIn
 
 InfoBox::~InfoBox() = default;
 
-void InfoBox::clickRight(tribool down, bool previousState)
+void InfoBox::showPopupWindow()
 {
-	if (down)
-	{
-		std::shared_ptr<CComponent> comp;
-		std::string text;
-		data->prepareMessage(text, comp);
-		if (comp)
-			CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
-		else if (!text.empty())
-			CRClickPopup::createAndPush(text);
-	}
+	std::shared_ptr<CComponent> comp;
+	std::string text;
+	data->prepareMessage(text, comp);
+	if (comp)
+		CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
+	else if (!text.empty())
+		CRClickPopup::createAndPush(text);
 }
 
 void InfoBox::clickLeft(tribool down, bool previousState)

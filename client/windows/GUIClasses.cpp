@@ -100,10 +100,9 @@ void CRecruitmentWindow::CCreatureCard::clickLeft(tribool down, bool previousSta
 		parent->select(this->shared_from_this());
 }
 
-void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousState)
+void CRecruitmentWindow::CCreatureCard::showPopupWindow()
 {
-	if(down)
-		GH.windows().createAndPushWindow<CStackWindow>(creature, true);
+	GH.windows().createAndPushWindow<CStackWindow>(creature, true);
 }
 
 void CRecruitmentWindow::CCreatureCard::showAll(Canvas & to)
@@ -557,9 +556,9 @@ void CTavernWindow::HeroPortrait::clickLeft(tribool down, bool previousState)
 		*_sel = _id;
 }
 
-void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
+void CTavernWindow::HeroPortrait::showPopupWindow()
 {
-	if(h && down)
+	if(h)
 		GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
 }
 
@@ -1266,12 +1265,9 @@ void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
+void CUniversityWindow::CItem::showPopupWindow()
 {
-	if(down)
-	{
-		CRClickPopup::createAndPush(CGI->skillh->getByIndex(ID)->getDescriptionTranslated(1), std::make_shared<CComponent>(CComponent::secskill, ID, 1));
-	}
+	CRClickPopup::createAndPush(CGI->skillh->getByIndex(ID)->getDescriptionTranslated(1), std::make_shared<CComponent>(CComponent::secskill, ID, 1));
 }
 
 void CUniversityWindow::CItem::hover(bool on)

@@ -20,7 +20,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 
 CreditsScreen::CreditsScreen(Rect rect)
-	: CIntObject(LCLICK | RCLICK), positionCounter(0)
+	: CIntObject(LCLICK), positionCounter(0)
 {
 	pos.w = rect.w;
 	pos.h = rect.h;
@@ -43,15 +43,10 @@ void CreditsScreen::show(Canvas & to)
 
 	//end of credits, close this screen
 	if(credits->textSize.y + 600 < positionCounter / 2)
-		clickRight(false, false);
+		clickLeft(false, false);
 }
 
 void CreditsScreen::clickLeft(tribool down, bool previousState)
-{
-	clickRight(down, previousState);
-}
-
-void CreditsScreen::clickRight(tribool down, bool previousState)
 {
 	CTabbedInt * menu = dynamic_cast<CTabbedInt *>(parent);
 	assert(menu);

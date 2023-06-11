@@ -199,9 +199,9 @@ void CButton::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CButton::clickRight(tribool down, bool previousState)
+void CButton::showPopupWindow()
 {
-	if(down && helpBox.size()) //there is no point to show window with nothing inside...
+	if(helpBox.size()) //there is no point to show window with nothing inside...
 		CRClickPopup::createAndPush(helpBox);
 }
 

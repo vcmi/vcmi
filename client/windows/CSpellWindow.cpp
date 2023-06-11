@@ -57,10 +57,9 @@ void CSpellWindow::InteractiveArea::clickLeft(tribool down, bool previousState)
 		onLeft();
 }
 
-void CSpellWindow::InteractiveArea::clickRight(tribool down, bool previousState)
+void CSpellWindow::InteractiveArea::showPopupWindow()
 {
-	if (down)
-		CRClickPopup::createAndPush(helpText);
+	CRClickPopup::createAndPush(helpText);
 }
 
 void CSpellWindow::InteractiveArea::hover(bool on)
@@ -541,9 +540,9 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
+void CSpellWindow::SpellArea::showPopupWindow()
 {
-	if(mySpell && down)
+	if(mySpell)
 	{
 		std::string dmgInfo;
 		auto causedDmg = owner->myInt->cb->estimateSpellDamage(mySpell, owner->myHero);

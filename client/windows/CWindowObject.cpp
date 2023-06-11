@@ -235,7 +235,7 @@ void CWindowObject::showAll(Canvas & to)
 		CMessage::drawBorder(color, to.getInternalSurface(), pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
-void CWindowObject::clickRight(tribool down, bool previousState)
+void CWindowObject::closePopupWindow()
 {
 	close();
 	CCS->curh->show();

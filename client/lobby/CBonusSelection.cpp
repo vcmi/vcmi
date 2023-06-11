@@ -507,7 +507,7 @@ void CBonusSelection::CRegion::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CBonusSelection::CRegion::clickRight(tribool down, bool previousState)
+void CBonusSelection::CRegion::showPopupWindow()
 {
 	// FIXME: For some reason "down" is only ever contain indeterminate_value
 	auto text = CSH->si->campState->camp->scenarios[idOfMapAndRegion].regionText;

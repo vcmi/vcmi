@@ -263,12 +263,10 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 	}
 }
 
-void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
+void CTradeWindow::CTradeableItem::showPopupWindow()
 {
-	if(down)
+	switch(type)
 	{
-		switch(type)
-		{
 		case CREATURE:
 		case CREATURE_PLACEHOLDER:
 			//GH.statusbar->print(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->namePl));
@@ -279,7 +277,6 @@ void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
 			if(id >= 0)
 				CRClickPopup::createAndPush(CGI->artifacts()->getByIndex(id)->getDescriptionTranslated());
 			break;
-		}
 	}
 }
 

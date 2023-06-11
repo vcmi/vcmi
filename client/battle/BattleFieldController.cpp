@@ -219,16 +219,12 @@ void BattleFieldController::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void BattleFieldController::clickRight(tribool down, bool previousState)
+void BattleFieldController::showPopupWindow()
 {
-	if(down)
-	{
-		BattleHex selectedHex = getHoveredHex();
+	BattleHex selectedHex = getHoveredHex();
 
-		if (selectedHex != BattleHex::INVALID)
-			owner.actionsController->onHexRightClicked(selectedHex);
-
-	}
+	if (selectedHex != BattleHex::INVALID)
+		owner.actionsController->onHexRightClicked(selectedHex);
 }
 
 void BattleFieldController::renderBattlefield(Canvas & canvas)

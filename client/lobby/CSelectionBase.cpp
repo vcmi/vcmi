@@ -378,9 +378,9 @@ void CFlagBox::recreate()
 	}
 }
 
-void CFlagBox::clickRight(tribool down, bool previousState)
+void CFlagBox::showPopupWindow()
 {
-	if(down && SEL->getMapInfo())
+	if(SEL->getMapInfo())
 		GH.windows().createAndPushWindow<CFlagBoxTooltipBox>(iconsTeamFlags);
 }
 

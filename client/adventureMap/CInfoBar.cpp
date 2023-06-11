@@ -284,10 +284,9 @@ void CInfoBar::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CInfoBar::clickRight(tribool down, bool previousState)
+void CInfoBar::showPopupWindow()
 {
-	if (down)
-		CRClickPopup::createAndPush(CGI->generaltexth->allTexts[109]);
+	CRClickPopup::createAndPush(CGI->generaltexth->allTexts[109]);
 }
 
 void CInfoBar::hover(bool on)

@@ -55,11 +55,11 @@ void MapViewActions::clickLeft(tribool down, bool previousState)
 		adventureInt->onTileLeftClicked(tile);
 }
 
-void MapViewActions::clickRight(tribool down, bool previousState)
+void MapViewActions::showPopupWindow()
 {
 	int3 tile = model->getTileAtPoint(GH.getCursorPosition() - pos.topLeft());
 
-	if(down && context->isInMap(tile))
+	if(context->isInMap(tile))
 		adventureInt->onTileRightClicked(tile);
 }
 

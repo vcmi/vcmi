@@ -72,11 +72,6 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 	LRClickableAreaWTextComp::clickLeft(down, previousState);
 }
 
-void CArtPlace::clickRight(tribool down, bool previousState)
-{
-	LRClickableAreaWTextComp::clickRight(down, previousState);
-}
-
 const CArtifactInstance * CArtPlace::getArt()
 {
 	return ourArt;
@@ -132,10 +127,10 @@ void CCommanderArtPlace::clickLeft(tribool down, bool previousState)
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.commanderWindow.artifactMessage"), [this]() { returnArtToHeroCallback(); }, []() {});
 }
 
-void CCommanderArtPlace::clickRight(tribool down, bool previousState)
+void CCommanderArtPlace::showPopupWindow()
 {
-	if(ourArt && text.size() && down)
-		CArtPlace::clickRight(down, previousState);
+	if(ourArt && text.size())
+		CArtPlace::showPopupWindow();
 }
 
 void CCommanderArtPlace::setArtifact(const CArtifactInstance * art)
@@ -197,13 +192,10 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 		leftClickCallback(*this);
 }
 
-void CHeroArtPlace::clickRight(tribool down, bool previousState)
+void CHeroArtPlace::showPopupWindow()
 {
-	if(down)
-	{
-		if(rightClickCallback)
-			rightClickCallback(*this);
-	}
+	if(rightClickCallback)
+		rightClickCallback(*this);
 }
 
 void CHeroArtPlace::showAll(Canvas & to)

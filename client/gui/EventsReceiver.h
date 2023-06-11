@@ -36,7 +36,8 @@ protected:
 	void deactivateEvents(ui16 what);
 
 	virtual void clickLeft(tribool down, bool previousState) {}
-	virtual void clickRight(tribool down, bool previousState) {}
+	virtual void showPopupWindow() {}
+	virtual void closePopupWindow() {}
 	virtual void clickDouble() {}
 
 	/// Called when user pans screen by specified distance

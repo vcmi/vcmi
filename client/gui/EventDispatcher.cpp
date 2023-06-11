@@ -178,14 +178,18 @@ void EventDispatcher::handleMouseButtonClick(EventReceiversList & interestedObjs
 		{
 			if(isPressed)
 				i->currentMouseState[btn] = isPressed;
-			i->clickRight(isPressed, prev);
+
+			if (isPressed)
+				i->showPopupWindow();
+			else
+				i->closePopupWindow();
 		}
 		else if(!isPressed)
 		{
 			if (btn == MouseButton::LEFT)
 				i->clickLeft(boost::logic::indeterminate, prev);
 			if (btn == MouseButton::RIGHT)
-				i->clickRight(boost::logic::indeterminate, prev);
+				i->closePopupWindow();
 		}
 	}
 }

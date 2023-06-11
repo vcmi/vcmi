@@ -286,9 +286,9 @@ bool CGarrisonSlot::mustForceReselection() const
 	return false;
 }
 
-void CGarrisonSlot::clickRight(tribool down, bool previousState)
+void CGarrisonSlot::showPopupWindow()
 {
-	if(creature && down)
+	if(creature)
 	{
 		GH.windows().createAndPushWindow<CStackWindow>(myStack, true);
 	}

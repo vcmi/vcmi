@@ -120,12 +120,6 @@ void CCommanderSkillIcon::clickLeft(tribool down, bool previousState)
 		callback();
 }
 
-void CCommanderSkillIcon::clickRight(tribool down, bool previousState)
-{
-	if(down)
-		LRClickableAreaWText::clickRight(down, previousState);
-}
-
 static std::string skillToFile(int skill, int level, bool selected)
 {
 	// FIXME: is this a correct hadling?
