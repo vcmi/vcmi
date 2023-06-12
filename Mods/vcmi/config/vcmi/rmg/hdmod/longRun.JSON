@@ -18,8 +18,7 @@
 				"treasure" :
 				[
 					{ "min" : 300, "max" : 3000, "density" : 12 },
-					{ "min" : 5000, "max" : 9000, "density" : 6 },
-					{ "min" : 0, "max" : 0, "density" : 1 }
+					{ "min" : 5000, "max" : 9000, "density" : 6 }
 				]
 			},
 			"2" :
@@ -34,8 +33,8 @@
 				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 1 },
 				"treasure" :
 				[
-					{ "min" : 5000, "max" : 7000, "density" : 30 },
 					{ "min" : 10000, "max" : 15000, "density" : 1 },
+					{ "min" : 5000, "max" : 7000, "density" : 30 },
 					{ "min" : 300, "max" : 3000, "density" : 5 }
 				]
 			},
@@ -51,8 +50,8 @@
 				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 0 },
 				"treasure" :
 				[
-					{ "min" : 12000, "max" : 16000, "density" : 5 },
 					{ "min" : 20000, "max" : 21000, "density" : 6 },
+					{ "min" : 12000, "max" : 16000, "density" : 5 },
 					{ "min" : 300, "max" : 3000, "density" : 5 }
 				]
 			},
@@ -69,8 +68,7 @@
 				"treasure" :
 				[
 					{ "min" : 25000, "max" : 30000, "density" : 10 },
-					{ "min" : 300, "max" : 3000, "density" : 10 },
-					{ "min" : 0, "max" : 0, "density" : 1 }
+					{ "min" : 300, "max" : 3000, "density" : 10 }
 				]
 			},
 			"5" :
@@ -85,9 +83,7 @@
 				"mines" : { "wood" : 0, "mercury" : 0, "ore" : 0, "sulfur" : 0, "crystal" : 0, "gems" : 0, "gold" : 4 },
 				"treasure" :
 				[
-					{ "min" : 30000, "max" : 90000, "density" : 25 },
-					{ "min" : 0, "max" : 0, "density" : 1 },
-					{ "min" : 0, "max" : 0, "density" : 1 }
+					{ "min" : 30000, "max" : 90000, "density" : 25 }
 				]
 			},
 			"6" :
@@ -167,8 +163,7 @@
 				"treasure" :
 				[
 					{ "min" : 300, "max" : 3000, "density" : 12 },
-					{ "min" : 5000, "max" : 9000, "density" : 6 },
-					{ "min" : 0, "max" : 0, "density" : 1 }
+					{ "min" : 5000, "max" : 9000, "density" : 6 }
 				]
 			},
 			"2" :
@@ -183,8 +178,8 @@
 				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 1 },
 				"treasure" :
 				[
-					{ "min" : 5000, "max" : 7000, "density" : 10 },
 					{ "min" : 10000, "max" : 15000, "density" : 1 },
+					{ "min" : 5000, "max" : 7000, "density" : 10 },
 					{ "min" : 300, "max" : 3000, "density" : 5 }
 				]
 			},
@@ -200,8 +195,8 @@
 				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 0 },
 				"treasure" :
 				[
-					{ "min" : 12000, "max" : 16000, "density" : 5 },
 					{ "min" : 20000, "max" : 21000, "density" : 6 },
+					{ "min" : 12000, "max" : 16000, "density" : 5 },
 					{ "min" : 300, "max" : 3000, "density" : 5 }
 				]
 			},
@@ -218,8 +213,7 @@
 				"treasure" :
 				[
 					{ "min" : 25000, "max" : 30000, "density" : 10 },
-					{ "min" : 300, "max" : 3000, "density" : 10 },
-					{ "min" : 0, "max" : 0, "density" : 1 }
+					{ "min" : 300, "max" : 3000, "density" : 10 }
 				]
 			},
 			"5" :
