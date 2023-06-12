@@ -763,16 +763,12 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 		//this is squared distance for optimization purposes
 		const float minDistance = std::max<float>((125.f / totalDensity), 1.0f);
 
-		for (size_t i = 0; i < count;)
+		for (size_t i = 0; i < count; i++)
 		{
 			auto treasurePileInfos = prepareTreasurePile(t);
 			if (treasurePileInfos.empty())
 			{
 				continue;
-			}
-			else
-			{
-				i++;
 			}
 
 			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0, [](int v, const ObjectInfo* oi) {return v + oi->value; });
