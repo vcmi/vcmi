@@ -233,9 +233,7 @@
 				"mines" : { "wood" : 0, "mercury" : 0, "ore" : 0, "sulfur" : 0, "crystal" : 0, "gems" : 0, "gold" : 10 },
 				"treasure" :
 				[
-					{ "min" : 30000, "max" : 90000, "density" : 25 },
-					{ "min" : 0, "max" : 0, "density" : 1 },
-					{ "min" : 0, "max" : 0, "density" : 1 }
+					{ "min" : 30000, "max" : 90000, "density" : 25 }
 				]
 			},
 			"6" :
