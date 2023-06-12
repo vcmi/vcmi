@@ -741,33 +741,41 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 	int totalDensity = 0;
 
-	for (auto t : treasureInfo)
+	for (auto t  = treasureInfo.begin(); t != treasureInfo.end(); t++)
 	{
 		std::vector<rmg::Object> treasures;
 
 		//discard objects with too high value to be ever placed
 		vstd::erase_if(possibleObjects, [t](const ObjectInfo& oi) -> bool
 		{
-			return oi.value > t.max;
+			return oi.value > t->max;
 		});
 
-		totalDensity += t.density;
+		totalDensity += t->density;
 
-		size_t count = size * t.density / 500;
-		const int averageValue = (t.min + t.max) / 2;
-		if (averageValue > 10000) //Will surely be guarded => larger
+		size_t count = size * t->density / 500;
+
+		//Assure space for lesser treasures, if there are any left
+		if (t != (treasureInfo.end() - 1))
 		{
-			vstd::amin(count, size * (10.f/500) / (std::sqrt((float)averageValue / 10000)));
+			const int averageValue = (t->min + t->max) / 2;
+			if (averageValue > 10000)
+			{
+				//Will surely be guarded => larger piles => less space inbetween
+				vstd::amin(count, size * (10.f / 500) / (std::sqrt((float)averageValue / 10000)));
+			}
 		}
 		
 		//this is squared distance for optimization purposes
 		const float minDistance = std::max<float>((125.f / totalDensity), 1.0f);
 
-		for (size_t i = 0; i < count; i++)
+		size_t emergencyLoopFinish = 0;
+		while(treasures.size() < count && emergencyLoopFinish < count)
 		{
-			auto treasurePileInfos = prepareTreasurePile(t);
+			auto treasurePileInfos = prepareTreasurePile(*t);
 			if (treasurePileInfos.empty())
 			{
+				emergencyLoopFinish++; //Exit potentially infinite loop for bad settings
 				continue;
 			}
 
