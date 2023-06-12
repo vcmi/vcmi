@@ -1,5 +1,5 @@
 {
-	"basepath" : "battle/rangeHighlights/green/",
+	"basepath" : "battle/rangeHighlights/red/",
 	"images" :
 	[
 		{ "frame" : 00, "file" : "empty.png"},						// 000001 -> 00 empty frame

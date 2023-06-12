@@ -222,6 +222,7 @@ public:
 	void setPosition(BattleHex hex) override;
 	int32_t getInitiative(int turn = 0) const override;
 	uint8_t getRangedFullDamageDistance() const;
+	uint8_t getSootingRangeDistance() const;
 
 	bool canMove(int turn = 0) const override;
 	bool defended(int turn = 0) const override;
