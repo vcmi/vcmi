@@ -70,7 +70,7 @@ public:
 	virtual ~AEventsReceiver() = default;
 
 	/// These are the arguments that can be used to determine what kind of input UI element will receive
-	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, GESTURE_PANNING=1024, ALL=0xffff};
+	enum {LCLICK=1, SHOW_POPUP=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, GESTURE_PANNING=1024, ALL=0xffff};
 
 	/// Returns true if element is currently hovered by mouse
 	bool isHovered() const;

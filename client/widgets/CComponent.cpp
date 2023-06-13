@@ -54,7 +54,7 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts 
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	addUsedEvents(RCLICK);
+	addUsedEvents(SHOW_POPUP);
 
 	compType = Type;
 	subtype = Subtype;

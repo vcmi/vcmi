@@ -75,7 +75,7 @@
 #include "../lib/TextOperations.h"
 
 CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
-	: CIntObject(LCLICK | RCLICK),
+	: CIntObject(LCLICK | SHOW_POPUP),
 	parent(window),
 	selected(false),
 	creature(crea),
@@ -563,7 +563,7 @@ void CTavernWindow::HeroPortrait::showPopupWindow()
 }
 
 CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: CIntObject(LCLICK | SHOW_POPUP | HOVER),
 	h(H), _sel(&sel), _id(id)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1236,7 +1236,7 @@ CTransformerWindow::CTransformerWindow(const IMarket * _market, const CGHeroInst
 }
 
 CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int Y)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: CIntObject(LCLICK | SHOW_POPUP | HOVER),
 	ID(_ID),
 	parent(_parent)
 {

@@ -69,7 +69,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	  area(nullptr),
 	  stateTimeCounter(BUILD_ANIMATION_FINISHED_TIMEPOINT)
 {
-	addUsedEvents(LCLICK | RCLICK | HOVER | TIME);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER | TIME);
 	pos.x += str->pos.x;
 	pos.y += str->pos.y;
 
@@ -328,7 +328,7 @@ CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance * h, HeroS
 
 	set(h);
 
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 }
 
 CHeroGSlot::~CHeroGSlot() = default;
@@ -1007,7 +1007,7 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, boo
 		level = -1;
 		return;//No creature
 	}
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 
 	ui32 creatureID = town->creatures[level].second.back();
 	creature = CGI->creh->objects[creatureID];
@@ -1107,7 +1107,7 @@ CTownInfo::CTownInfo(int posX, int posY, const CGTownInstance * Town, bool townH
 	building(nullptr)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	addUsedEvents(RCLICK | HOVER);
+	addUsedEvents(SHOW_POPUP | HOVER);
 	pos.x += posX;
 	pos.y += posY;
 	int buildID;
@@ -1339,7 +1339,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	building(Building)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 	pos.x += x;
 	pos.y += y;
 	pos.w = 154;
@@ -1798,7 +1798,7 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 	pos += position;
 	image = std::make_shared<CAnimImage>("SPELLSCR", spell->id);
 	pos = image->pos;

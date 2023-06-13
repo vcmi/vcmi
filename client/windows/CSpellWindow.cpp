@@ -43,7 +43,7 @@
 
 CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
 {
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 	pos = myRect;
 	onLeft = funcL;
 	hoverText = CGI->generaltexth->zelp[helpTextId].first;
@@ -452,7 +452,7 @@ CSpellWindow::SpellArea::SpellArea(Rect pos, CSpellWindow * owner)
 {
 	this->pos = pos;
 	this->owner = owner;
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 
 	schoolLevel = -1;
 	mySpell = nullptr;

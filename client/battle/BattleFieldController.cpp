@@ -155,7 +155,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()));
 
 	updateAccessibleHexes();
-	addUsedEvents(LCLICK | RCLICK | MOVE | TIME | GESTURE_PANNING);
+	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | TIME | GESTURE_PANNING);
 }
 
 void BattleFieldController::activate()

@@ -114,7 +114,7 @@ void CreaturePurchaseCard::initView()
 }
 
 CreaturePurchaseCard::CCreatureClickArea::CCreatureClickArea(const Point & position, const std::shared_ptr<CCreaturePic> creaturePic, const CCreature * creatureOnTheCard)
-	: CIntObject(RCLICK),
+	: CIntObject(SHOW_POPUP),
 	creatureOnTheCard(creatureOnTheCard)
 {
 	pos.x += position.x;

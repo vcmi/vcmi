@@ -38,7 +38,7 @@
 #include "../../lib/mapObjects/CGMarket.h"
 
 CTradeWindow::CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial)
-	: CIntObject(LCLICK | HOVER | RCLICK, pos),
+	: CIntObject(LCLICK | HOVER | SHOW_POPUP, pos),
 	type(EType(-1)),// set to invalid, will be corrected in setType
 	id(ID),
 	serial(Serial),

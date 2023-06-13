@@ -298,7 +298,7 @@ void CInfoBar::hover(bool on)
 }
 
 CInfoBar::CInfoBar(const Rect & position)
-	: CIntObject(LCLICK | RCLICK | HOVER, position.topLeft()),
+	: CIntObject(LCLICK | SHOW_POPUP | HOVER, position.topLeft()),
 	timerCounter(0),
 	state(EMPTY)
 {

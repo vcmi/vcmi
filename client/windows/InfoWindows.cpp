@@ -340,7 +340,7 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 
 CRClickPopup::CRClickPopup()
 {
-	addUsedEvents(RCLICK);
+	addUsedEvents(SHOW_POPUP);
 }
 
 CRClickPopup::~CRClickPopup()

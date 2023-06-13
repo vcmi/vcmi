@@ -31,7 +31,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 
 CList::CListItem::CListItem(CList * Parent)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: CIntObject(LCLICK | SHOW_POPUP | HOVER),
 	parent(Parent),
 	selection()
 {

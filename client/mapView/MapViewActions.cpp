@@ -33,7 +33,7 @@ MapViewActions::MapViewActions(MapView & owner, const std::shared_ptr<MapViewMod
 	pos.w = model->getPixelsVisibleDimensions().x;
 	pos.h = model->getPixelsVisibleDimensions().y;
 
-	addUsedEvents(LCLICK | RCLICK | GESTURE_PANNING | HOVER | MOVE | WHEEL);
+	addUsedEvents(LCLICK | SHOW_POPUP | GESTURE_PANNING | HOVER | MOVE | WHEEL);
 }
 
 void MapViewActions::setContext(const std::shared_ptr<IMapRendererContext> & context)

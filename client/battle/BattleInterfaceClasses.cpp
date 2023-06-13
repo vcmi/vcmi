@@ -702,7 +702,7 @@ std::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
 }
 
 StackQueue::StackBox::StackBox(StackQueue * owner):
-	CIntObject(RCLICK | HOVER), owner(owner)
+	CIntObject(SHOW_POPUP | HOVER), owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>(owner->embedded ? "StackQueueSmall" : "StackQueueLarge");

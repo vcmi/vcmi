@@ -341,7 +341,7 @@ void CChatBox::addNewMessage(const std::string & text)
 }
 
 CFlagBox::CFlagBox(const Rect & rect)
-	: CIntObject(RCLICK)
+	: CIntObject(SHOW_POPUP)
 {
 	pos += rect.topLeft();
 	pos.w = rect.w;

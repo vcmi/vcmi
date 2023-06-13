@@ -82,7 +82,7 @@ LRClickableAreaWText::~LRClickableAreaWText()
 
 void LRClickableAreaWText::init()
 {
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 }
 
 void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)

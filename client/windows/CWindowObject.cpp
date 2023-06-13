@@ -110,7 +110,7 @@ void CWindowObject::setBackground(std::string filename)
 int CWindowObject::getUsedEvents(int options)
 {
 	if (options & RCLICK_POPUP)
-		return RCLICK;
+		return SHOW_POPUP;
 	return 0;
 }
 

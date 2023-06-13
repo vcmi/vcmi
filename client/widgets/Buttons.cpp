@@ -236,7 +236,7 @@ CButton::CButton(Point position, const std::string &defName, const std::pair<std
     callback(Callback)
 {
 	defActions = 255-DISPOSE;
-	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
 
 	stateToIndex[0] = 0;
 	stateToIndex[1] = 1;

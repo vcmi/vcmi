@@ -28,7 +28,7 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 	};
 
 	processList(AEventsReceiver::LCLICK, lclickable);
-	processList(AEventsReceiver::RCLICK, rclickable);
+	processList(AEventsReceiver::SHOW_POPUP, rclickable);
 	processList(AEventsReceiver::HOVER, hoverable);
 	processList(AEventsReceiver::MOVE, motioninterested);
 	processList(AEventsReceiver::KEYBOARD, keyinterested);

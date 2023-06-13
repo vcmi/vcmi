@@ -88,7 +88,7 @@ void CMinimapInstance::showAll(Canvas & to)
 }
 
 CMinimap::CMinimap(const Rect & position)
-	: CIntObject(LCLICK | RCLICK | HOVER | MOVE | GESTURE_PANNING, position.topLeft()),
+	: CIntObject(LCLICK | SHOW_POPUP | HOVER | MOVE | GESTURE_PANNING, position.topLeft()),
 	level(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);

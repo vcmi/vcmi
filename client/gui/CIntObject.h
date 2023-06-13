@@ -102,7 +102,7 @@ public:
 	/// default behavior is to re-center, can be overriden
 	void onScreenResize() override;
 
-	/// returns true if UI elements wants to handle event of specific type (LCLICK, RCLICK ...)
+	/// returns true if UI elements wants to handle event of specific type (LCLICK, SHOW_POPUP ...)
 	/// by default, usedEvents inside UI elements are always handled
 	bool receiveEvent(const Point & position, int eventType) const override;
 

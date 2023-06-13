@@ -413,7 +413,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 }
 
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, SelType type)
-	: Scrollable(RCLICK, position, Orientation::HORIZONTAL)
+	: Scrollable(SHOW_POPUP, position, Orientation::HORIZONTAL)
 	, CPlayerSettingsHelper(settings, type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
