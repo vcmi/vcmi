@@ -166,7 +166,6 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 		}
 	}
 	
-	//FIXME: Race condition for tiles? For Area?
 	if(result.valid())
 		obj.setPosition(result);
 	return result;
@@ -183,8 +182,15 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 
 		for(const auto & t : obj.getArea().getTilesVector())
 		{
-			if(map.getTileInfo(t).getNearestObjectDistance() < min_dist)
+			auto localDist = map.getTileInfo(t).getNearestObjectDistance();
+			if (localDist < min_dist)
+			{
 				return -1.f;
+			}
+			else
+			{
+				vstd::amin(dist, localDist); //Evaluate object tile which will be closest to another object
+			}
 		}
 		
 		return dist;
@@ -204,6 +210,55 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 		{
 			if(map.getTileInfo(t).getNearestObjectDistance() < min_dist)
 				return -1.f;
+		}
+		
+		rmg::Area perimeter;
+		rmg::Area areaToBlock;
+		if (obj.isGuarded())
+		{
+			auto guardedArea = obj.instances().back()->getAccessibleArea();
+			guardedArea.add(obj.instances().back()->getVisitablePosition());
+			areaToBlock = obj.getAccessibleArea(true);
+			areaToBlock.subtract(guardedArea);
+		
+			if (!areaToBlock.empty())
+			{
+				perimeter = areaToBlock;
+				perimeter.unite(areaToBlock.getBorderOutside());
+				//We could have added border around guard
+				perimeter.subtract(guardedArea);
+			}
+		}
+		else
+		{
+			perimeter = obj.getArea();
+			perimeter.subtract(obj.getAccessibleArea());
+			if (!perimeter.empty())
+			{
+				perimeter.unite(perimeter.getBorderOutside());
+				perimeter.subtract(obj.getAccessibleArea());
+			}
+		}
+		//Check if perimeter of the object intersects with more than one blocked areas
+
+		auto tiles = perimeter.getTiles();
+		vstd::erase_if(tiles, [this](const int3& tile) -> bool
+		{
+			//Out-of-map area also is an obstacle
+			if (!map.isOnMap(tile))
+				return false;
+			return !(map.isBlocked(tile) || map.isUsed(tile));
+		});
+
+		if (!tiles.empty())
+		{
+			rmg::Area border(tiles);
+			border.subtract(areaToBlock);
+			if (!border.connected())
+			{
+				//We don't want to connect two blocked areas to create impassable obstacle
+				return -1.f;
+			}
 		}
 		
 		return dist;
@@ -230,7 +285,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 			accessibleArea.intersect(guardedArea);
 			accessibleArea.add(obj.instances().back()->getPosition(true));
 		}
-		
+
 		auto path = zone.searchPath(accessibleArea, onlyStraight, [&obj, isGuarded](const int3 & t)
 		{
 			if(isGuarded)

@@ -163,11 +163,14 @@ void TownPlacer::cleanupBoundaries(const rmg::Object & rmgObject)
 	Zone::Lock lock(zone.areaMutex);
 	for(const auto & t : rmgObject.getArea().getBorderOutside())
 	{
-		if(map.isOnMap(t))
+		if (t.y > rmgObject.getVisitablePosition().y) //Line below the town
 		{
-			map.setOccupied(t, ETileType::FREE);
-			zone.areaPossible().erase(t);
-			zone.freePaths().add(t);
+			if (map.isOnMap(t))
+			{
+				map.setOccupied(t, ETileType::FREE);
+				zone.areaPossible().erase(t);
+				zone.freePaths().add(t);
+			}
 		}
 	}
 }

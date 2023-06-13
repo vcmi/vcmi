@@ -13,7 +13,6 @@
 #include "RockPlacer.h"
 #include "TreasurePlacer.h"
 #include "ObjectManager.h"
-#include "RoadPlacer.h"
 #include "RiverPlacer.h"
 #include "../RmgMap.h"
 #include "../CMapGenerator.h"
@@ -63,7 +62,6 @@ void RockFiller::processMap()
 void RockFiller::init()
 {
 	DEPENDENCY_ALL(RockPlacer);
-	POSTFUNCTION_ALL(RoadPlacer);
 }
 
 char RockFiller::dump(const int3 & t)

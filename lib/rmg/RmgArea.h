@@ -44,7 +44,7 @@ namespace rmg
 
 		Area getSubarea(const std::function<bool(const int3 &)> & filter) const;
 
-		bool connected() const; //is connected
+		bool connected(bool noDiagonals = false) const; //is connected
 		bool empty() const;
 		bool contains(const int3 & tile) const;
 		bool contains(const std::vector<int3> & tiles) const;

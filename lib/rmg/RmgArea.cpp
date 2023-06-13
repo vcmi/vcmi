@@ -64,21 +64,35 @@ void Area::invalidate()
 	dBorderOutsideCache.clear();
 }
 
-bool Area::connected() const
+bool Area::connected(bool noDiagonals) const
 {
 	std::list<int3> queue({*dTiles.begin()});
 	Tileset connected = dTiles; //use invalidated cache - ok
+
 	while(!queue.empty())
 	{
 		auto t = queue.front();
 		connected.erase(t);
 		queue.pop_front();
 		
-		for(auto & i : int3::getDirs())
+		if (noDiagonals)
 		{
-			if(connected.count(t + i))
+			for (auto& i : dirs4)
 			{
-				queue.push_back(t + i);
+				if (connected.count(t + i))
+				{
+					queue.push_back(t + i);
+				}
+			}
+		}
+		else
+		{
+			for (auto& i : int3::getDirs())
+			{
+				if (connected.count(t + i))
+				{
+					queue.push_back(t + i);
+				}
 			}
 		}
 	}
