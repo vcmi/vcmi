@@ -142,7 +142,7 @@ void CSlider::clickLeft(tribool down, bool previousState)
 			return;
 		// 		if (rw>1) return;
 		// 		if (rw<0) return;
-		slider->clickLeft(true, slider->isMouseButtonPressed(MouseButton::LEFT));
+		slider->clickLeft(true, slider->isMouseLeftButtonPressed());
 		scrollTo((int)(rw * positions  +  0.5));
 		return;
 	}

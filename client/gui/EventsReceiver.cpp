@@ -18,6 +18,7 @@ AEventsReceiver::AEventsReceiver()
 	: activeState(0)
 	, hoveredState(false)
 	, panningState(false)
+	, mouseClickedState(false)
 {
 }
 
@@ -36,9 +37,9 @@ bool AEventsReceiver::isActive() const
 	return activeState;
 }
 
-bool AEventsReceiver::isMouseButtonPressed(MouseButton btn) const
+bool AEventsReceiver::isMouseLeftButtonPressed() const
 {
-	return currentMouseState.count(btn) ? currentMouseState.at(btn) : false;
+	return mouseClickedState;
 }
 
 void AEventsReceiver::activateEvents(ui16 what)

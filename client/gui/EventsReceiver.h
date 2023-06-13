@@ -14,7 +14,6 @@ class Point;
 VCMI_LIB_NAMESPACE_END
 
 class EventDispatcher;
-enum class MouseButton;
 enum class EShortcut;
 using boost::logic::tribool;
 
@@ -24,10 +23,10 @@ class AEventsReceiver
 {
 	friend class EventDispatcher;
 
-	std::map<MouseButton, bool> currentMouseState;
 	ui16 activeState;
 	bool hoveredState;
 	bool panningState;
+	bool mouseClickedState;
 
 protected:
 	/// Activates particular events for this UI element. Uses unnamed enum from this class
@@ -82,6 +81,6 @@ public:
 	/// Returns true if element is currently active and may receive events
 	bool isActive() const;
 
-	/// Returns true if particular mouse button was pressed when inside this element
-	bool isMouseButtonPressed(MouseButton btn) const;
+	/// Returns true if left mouse button was pressed when inside this element
+	bool isMouseLeftButtonPressed() const;
 };

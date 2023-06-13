@@ -474,7 +474,7 @@ void TemplatesDropBox::clickLeft(tribool down, bool previousState)
 		auto w = widget<CSlider>("slider");
 
 		// pop the interface only if the mouse is not clicking on the slider
-		if (!w || !w->isMouseButtonPressed(MouseButton::LEFT))
+		if (!w || !w->isMouseLeftButtonPressed())
 		{
 			assert(GH.windows().isTopWindow(this));
 			GH.windows().popWindows(1);

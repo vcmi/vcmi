@@ -175,15 +175,15 @@ void EventDispatcher::handleLeftButtonClick(bool isPressed)
 		if(!vstd::contains(lclickable, i))
 			continue;
 
-		auto prev = i->isMouseButtonPressed(MouseButton::LEFT);
+		auto prev = i->isMouseLeftButtonPressed();
 
 		if(!isPressed)
-			i->currentMouseState[MouseButton::LEFT] = isPressed;
+			i->mouseClickedState = isPressed;
 
 		if( i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
 		{
 			if(isPressed)
-				i->currentMouseState[MouseButton::LEFT] = isPressed;
+				i->mouseClickedState = isPressed;
 			i->clickLeft(isPressed, prev);
 		}
 		else if(!isPressed)

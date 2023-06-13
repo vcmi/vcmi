@@ -692,7 +692,7 @@ std::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
 {
 	for(const auto & stackBox : stackBoxes)
 	{
-		if(stackBox->isHovered() || stackBox->isMouseButtonPressed(MouseButton::RIGHT))
+		if(stackBox->isHovered())
 		{
 			return stackBox->getBoundUnitID();
 		}
