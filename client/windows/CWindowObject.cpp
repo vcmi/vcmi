@@ -75,7 +75,11 @@ CWindowObject::CWindowObject(int options_, std::string imageName):
 		setShadow(true);
 }
 
-CWindowObject::~CWindowObject() = default;
+CWindowObject::~CWindowObject()
+{
+	if(options & RCLICK_POPUP)
+		CCS->curh->show();
+}
 
 std::shared_ptr<CPicture> CWindowObject::createBg(std::string imageName, bool playerColored)
 {
