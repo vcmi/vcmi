@@ -406,6 +406,10 @@ void TreasurePlacer::addAllPossibleObjects()
 		}
 		
 		const int questArtsRemaining = qap->getMaxQuestArtifactCount();
+		if (!questArtsRemaining)
+		{
+			return;
+		}
 		
 		//Generate Seer Hut one by one. Duplicated oi possible and should work fine.
 		oi.maxPerZone = 1;
@@ -520,6 +524,10 @@ void TreasurePlacer::addAllPossibleObjects()
 			possibleSeerHuts.push_back(oi);
 		}
 
+		if (possibleSeerHuts.empty())
+		{
+			return;
+		}
 		for (size_t i = 0; i < questArtsRemaining; i++)
 		{
 			addObjectToRandomPool(*RandomGeneratorUtil::nextItem(possibleSeerHuts, zone.getRand()));
