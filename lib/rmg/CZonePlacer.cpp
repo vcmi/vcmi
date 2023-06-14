@@ -326,8 +326,43 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 	TDistanceVector distances;
 	TDistanceVector overlaps;
 
+	auto evaluateSolution = [this, zones, &distances, &overlaps, &bestSolution]() -> bool
+	{
+		bool improvement = false;
+
+		float totalDistance = 0;
+		float totalOverlap = 0;
+		for (const auto& zone : distances) //find most misplaced zone
+		{
+			totalDistance += zone.second;
+			float overlap = overlaps[zone.first];
+			totalOverlap += overlap;
+		}
+
+		//check fitness function
+		if ((totalDistance + 1) * (totalOverlap + 1) < (bestTotalDistance + 1) * (bestTotalOverlap + 1))
+		{
+			//multiplication is better for auto-scaling, but stops working if one factor is 0
+			improvement = true;
+		}
+
+		//Save best solution
+		if (improvement)
+		{
+			bestTotalDistance = totalDistance;
+			bestTotalOverlap = totalOverlap;
+
+			for (const auto& zone : zones)
+				bestSolution[zone.second] = zone.second->getCenter();
+		}
+
+		logGlobal->trace("Total distance between zones after this iteration: %2.4f, Total overlap: %2.4f, Improved: %s", totalDistance, totalOverlap , improvement);
+
+		return improvement;
+	};
+
 	 //Start with low stiffness. Bigger graphs need more time and more flexibility
-	for (stifness = stiffnessConstant / zones.size(); stifness <= stiffnessConstant; stifness *= stiffnessIncreaseFactor)
+	for (stifness = stiffnessConstant / zones.size(); stifness <= stiffnessConstant;)
 	{
 		//1. attract connected zones
 		attractConnectedZones(zones, forces, distances);
@@ -345,42 +380,23 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 			totalForces[zone.first] += zone.second; //accumulate
 		}
 
-		//3. now perform drastic movement of zone that is completely not linked
+		bool improved = evaluateSolution();
 
-		moveOneZone(zones, totalForces, distances, overlaps);
-
-		//4. NOW after everything was moved, re-evaluate zone positions
-		attractConnectedZones(zones, forces, distances);
-		separateOverlappingZones(zones, forces, overlaps);
-
-		float totalDistance = 0;
-		float totalOverlap = 0;
-		for(const auto & zone : distances) //find most misplaced zone
+		if (!improved)
 		{
-			totalDistance += zone.second;
-			float overlap = overlaps[zone.first];
-			totalOverlap += overlap;
+			//3. now perform drastic movement of zone that is completely not linked
+			//TODO: Don't do this is fitness was improved
+			moveOneZone(zones, totalForces, distances, overlaps);
+
+			improved |= evaluateSolution();;
 		}
 
-		//check fitness function
-		bool improvement = false;
-		if ((totalDistance + 1) * (totalOverlap + 1) < (bestTotalDistance + 1) * (bestTotalOverlap + 1))
+		if (!improved)
 		{
-			//multiplication is better for auto-scaling, but stops working if one factor is 0
-			improvement = true;
+			//Only cool down if we didn't see any improvement
+			stifness *= stiffnessIncreaseFactor;
 		}
 
-		logGlobal->trace("Total distance between zones after this iteration: %2.4f, Total overlap: %2.4f, Improved: %s", totalDistance, totalOverlap , improvement);
-
-		//save best solution
-		if (improvement)
-		{
-			bestTotalDistance = totalDistance;
-			bestTotalOverlap = totalOverlap;
-
-			for(const auto & zone : zones)
-				bestSolution[zone.second] = zone.second->getCenter();
-		}
 	}
 
 	logGlobal->trace("Best fitness reached: total distance %2.4f, total overlap %2.4f", bestTotalDistance, bestTotalOverlap);
