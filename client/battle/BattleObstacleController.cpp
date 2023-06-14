@@ -148,7 +148,11 @@ void BattleObstacleController::collectRenderableObjects(BattleRenderer & rendere
 		if (obstacle->obstacleType == CObstacleInstance::MOAT)
 			continue;
 
-		renderer.insert(EBattleFieldLayer::OBSTACLES, obstacle->pos, [this, obstacle]( BattleRenderer::RendererRef canvas ){
+		bool isForeground = obstacle->obstacleType == CObstacleInstance::USUAL && obstacle->getInfo().isForegroundObstacle;
+
+		auto layer = isForeground ? EBattleFieldLayer::OBSTACLES_FG : EBattleFieldLayer::OBSTACLES_BG;
+
+		renderer.insert(layer, obstacle->pos, [this, obstacle]( BattleRenderer::RendererRef canvas ){
 			auto img = getObstacleImage(*obstacle);
 			if(img)
 			{
