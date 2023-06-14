@@ -83,8 +83,11 @@ void WaterProxy::init()
 {
 	for(auto & z : map.getZones())
 	{
-		dependency(z.second->getModificator<TownPlacer>());
-		dependency(z.second->getModificator<WaterAdopter>());
+		if (!zone.isUnderground())
+		{
+			dependency(z.second->getModificator<TownPlacer>());
+			dependency(z.second->getModificator<WaterAdopter>());
+		}
 		postfunction(z.second->getModificator<ConnectionsPlacer>());
 		postfunction(z.second->getModificator<ObjectManager>());
 	}

@@ -568,7 +568,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 	bool hasLargeObject = false;
 	while(currentValue <= static_cast<int>(desiredValue) - 100) //no objects with value below 100 are available
 	{
-		auto * oi = getRandomObject(desiredValue, currentValue, maxValue, !hasLargeObject);
+		auto * oi = getRandomObject(desiredValue, currentValue, !hasLargeObject);
 		if(!oi) //fail
 			break;
 		
@@ -665,13 +665,13 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 	return rmgObject;
 }
 
-ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue, ui32 maxValue, bool allowLargeObjects)
+ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects)
 {
 	std::vector<std::pair<ui32, ObjectInfo*>> thresholds; //handle complex object via pointer
 	ui32 total = 0;
 	
 	//calculate actual treasure value range based on remaining value
-	ui32 maxVal = maxValue - currentValue;
+	ui32 maxVal = desiredValue - currentValue;
 	ui32 minValue = static_cast<ui32>(0.25f * (desiredValue - currentValue));
 	
 	for(ObjectInfo & oi : possibleObjects) //copy constructor turned out to be costly
@@ -707,133 +707,165 @@ ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValu
 	}
 }
 
-void TreasurePlacer::createTreasures(ObjectManager & manager)
+void TreasurePlacer::createTreasures(ObjectManager& manager)
 {
 	const int maxAttempts = 2;
-	
+
 	int mapMonsterStrength = map.getMapGenOptions().getMonsterStrength();
-	int monsterStrength = (zone.monsterStrength == EMonsterStrength::ZONE_NONE ? 0 : zone.monsterStrength  + mapMonsterStrength - 1); //array index from 0 to 4; pick any correct value for ZONE_NONE, minGuardedValue won't be used in this case anyway
+	int monsterStrength = (zone.monsterStrength == EMonsterStrength::ZONE_NONE ? 0 : zone.monsterStrength + mapMonsterStrength - 1); //array index from 0 to 4; pick any correct value for ZONE_NONE, minGuardedValue won't be used in this case anyway
 	static int minGuardedValues[] = { 6500, 4167, 3000, 1833, 1333 };
 	minGuardedValue = minGuardedValues[monsterStrength];
-	
-	auto valueComparator = [](const CTreasureInfo & lhs, const CTreasureInfo & rhs) -> bool
+
+	auto valueComparator = [](const CTreasureInfo& lhs, const CTreasureInfo& rhs) -> bool
 	{
 		return lhs.max > rhs.max;
 	};
-	
-	auto restoreZoneLimits = [](const std::vector<ObjectInfo*> & treasurePile)
+
+	auto restoreZoneLimits = [](const std::vector<ObjectInfo*>& treasurePile)
 	{
-		for(auto * oi : treasurePile)
+		for (auto* oi : treasurePile)
 		{
 			oi->maxPerZone++;
 		}
 	};
-	
+
 	//place biggest treasures first at large distance, place smaller ones inbetween
 	auto treasureInfo = zone.getTreasureInfo();
 	boost::sort(treasureInfo, valueComparator);
-	
+
 	//sort treasures by ascending value so we can stop checking treasures with too high value
 	boost::sort(possibleObjects, [](const ObjectInfo& oi1, const ObjectInfo& oi2) -> bool
 	{
 		return oi1.value < oi2.value;
 	});
-	
-	int totalDensity = 0;
-	for (auto t : treasureInfo)
+
+	size_t size = 0;
 	{
+		Zone::Lock lock(zone.areaMutex);
+		size = zone.getArea().getTiles().size();
+	}
+
+	int totalDensity = 0;
+
+	for (auto t  = treasureInfo.begin(); t != treasureInfo.end(); t++)
+	{
+		std::vector<rmg::Object> treasures;
+
 		//discard objects with too high value to be ever placed
 		vstd::erase_if(possibleObjects, [t](const ObjectInfo& oi) -> bool
 		{
-			return oi.value > t.max;
+			return oi.value > t->max;
 		});
-		
-		totalDensity += t.density;
-		
-		//treasure density is inversely proportional to zone size but must be scaled back to map size
-		//also, normalize it to zone count - higher count means relatively smaller zones
+
+		totalDensity += t->density;
+
+		size_t count = size * t->density / 500;
+
+		//Assure space for lesser treasures, if there are any left
+		if (t != (treasureInfo.end() - 1))
+		{
+			const int averageValue = (t->min + t->max) / 2;
+			if (averageValue > 10000)
+			{
+				//Will surely be guarded => larger piles => less space inbetween
+				vstd::amin(count, size * (10.f / 500) / (std::sqrt((float)averageValue / 10000)));
+			}
+		}
 		
 		//this is squared distance for optimization purposes
-		const float minDistance = std::max<float>((125.f / totalDensity), 2.0f);
-		//distance lower than 2 causes objects to overlap and crash
-		
-		for(int attempt = 0; attempt <= maxAttempts;)
-		{
-			auto treasurePileInfos = prepareTreasurePile(t);
-			if(treasurePileInfos.empty())
-			{
-				++attempt;
-				continue;
-			}
-			
-			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0, [](int v, const ObjectInfo * oi){return v + oi->value;});
-			
-			auto rmgObject = constructTreasurePile(treasurePileInfos, attempt == maxAttempts);
-			if(rmgObject.instances().empty()) //handle incorrect placement
-			{
-				restoreZoneLimits(treasurePileInfos);
-				continue;
-			}
-			
-			//guard treasure pile
-			bool guarded = isGuardNeededForTreasure(value);
-			if(guarded)
-				guarded = manager.addGuard(rmgObject, value);
-			
-			Zone::Lock lock(zone.areaMutex); //We are going to subtract this area
-			//TODO: Don't place 
-			auto possibleArea = zone.areaPossible();
-			
-			auto path = rmg::Path::invalid();
-			if(guarded)
-			{
-				path = manager.placeAndConnectObject(possibleArea, rmgObject, [this, &rmgObject, &minDistance, &manager](const int3 & tile)
-				{
-					auto ti = map.getTileInfo(tile);
-					if(ti.getNearestObjectDistance() < minDistance)
-						return -1.f;
+		const float minDistance = std::max<float>((125.f / totalDensity), 1.0f);
 
-					for(const auto & t : rmgObject.getArea().getTilesVector())
-					{
-						if(map.getTileInfo(t).getNearestObjectDistance() < minDistance)
-							return -1.f;
-					}
-					
-					auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
-					auto areaToBlock = rmgObject.getAccessibleArea(true);
-					areaToBlock.subtract(guardedArea);
-					if(areaToBlock.overlap(zone.freePaths()) || areaToBlock.overlap(manager.getVisitableArea()))
-						return -1.f;
-					
-					return ti.getNearestObjectDistance();
-				}, guarded, false, ObjectManager::OptimizeType::DISTANCE);
-			}
-			else
+		size_t emergencyLoopFinish = 0;
+		while(treasures.size() < count && emergencyLoopFinish < count)
+		{
+			auto treasurePileInfos = prepareTreasurePile(*t);
+			if (treasurePileInfos.empty())
 			{
-				path = manager.placeAndConnectObject(possibleArea, rmgObject, minDistance, guarded, false, ObjectManager::OptimizeType::DISTANCE);
+				emergencyLoopFinish++; //Exit potentially infinite loop for bad settings
+				continue;
 			}
-			
-			if(path.valid())
+
+			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0, [](int v, const ObjectInfo* oi) {return v + oi->value; });
+
+			for (ui32 attempt = 0; attempt <= 2; attempt++)
 			{
-				//debug purposes
-				treasureArea.unite(rmgObject.getArea());
-				if(guarded)
+				auto rmgObject = constructTreasurePile(treasurePileInfos, attempt == maxAttempts);
+
+				if (rmgObject.instances().empty()) //handle incorrect placement
 				{
-					guards.unite(rmgObject.instances().back()->getBlockedArea());
-					auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
-					auto areaToBlock = rmgObject.getAccessibleArea(true);
-					areaToBlock.subtract(guardedArea);
-					treasureBlockArea.unite(areaToBlock);
+					restoreZoneLimits(treasurePileInfos);
+					continue;
 				}
-				zone.connectPath(path);
-				manager.placeObject(rmgObject, guarded, true);
-				attempt = 0;
+
+				//guard treasure pile
+				bool guarded = isGuardNeededForTreasure(value);
+				if (guarded)
+					guarded = manager.addGuard(rmgObject, value);
+
+				treasures.push_back(rmgObject);
+				break;
 			}
-			else
+		}
+
+		for (auto& rmgObject : treasures)
+		{
+			const bool guarded = rmgObject.isGuarded();
+
+			for (int attempt = 0; attempt <= maxAttempts;)
 			{
-				restoreZoneLimits(treasurePileInfos);
-				rmgObject.clear();
-				++attempt;
+				auto path = rmg::Path::invalid();
+
+				Zone::Lock lock(zone.areaMutex); //We are going to subtract this area
+				auto possibleArea = zone.areaPossible();
+
+				if (guarded)
+				{
+					path = manager.placeAndConnectObject(possibleArea, rmgObject, [this, &rmgObject, &minDistance, &manager](const int3& tile)
+						{
+							auto ti = map.getTileInfo(tile);
+							if (ti.getNearestObjectDistance() < minDistance)
+								return -1.f;
+
+							for (const auto& t : rmgObject.getArea().getTilesVector())
+							{
+								if (map.getTileInfo(t).getNearestObjectDistance() < minDistance)
+									return -1.f;
+							}
+
+							auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
+							auto areaToBlock = rmgObject.getAccessibleArea(true);
+							areaToBlock.subtract(guardedArea);
+							if (areaToBlock.overlap(zone.freePaths()) || areaToBlock.overlap(manager.getVisitableArea()))
+								return -1.f;
+
+							return ti.getNearestObjectDistance();
+						}, guarded, false, ObjectManager::OptimizeType::DISTANCE);
+				}
+				else
+				{
+					path = manager.placeAndConnectObject(possibleArea, rmgObject, minDistance, guarded, false, ObjectManager::OptimizeType::DISTANCE);
+				}
+
+				if (path.valid())
+				{
+					//debug purposes
+					treasureArea.unite(rmgObject.getArea());
+					if (guarded)
+					{
+						guards.unite(rmgObject.instances().back()->getBlockedArea());
+						auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
+						auto areaToBlock = rmgObject.getAccessibleArea(true);
+						areaToBlock.subtract(guardedArea);
+						treasureBlockArea.unite(areaToBlock);
+					}
+					zone.connectPath(path);
+					manager.placeObject(rmgObject, guarded, true);
+					break;
+				}
+				else
+				{
+					++attempt;
+				}
 			}
 		}
 	}

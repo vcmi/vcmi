@@ -203,8 +203,34 @@ void Zone::fractalize()
 	rmg::Area possibleTiles(dAreaPossible);
 	rmg::Area tilesToIgnore; //will be erased in this iteration
 
-	const float minDistance = 10 * 10; //squared
-	float blockDistance = minDistance * 0.25f;
+	//Squared
+	float minDistance = 10 * 10;
+	float spanFactor = (pos.z ? 0.25 : 0.5f); //Narrower passages in the Underground
+
+	int treasureValue = 0;
+	int treasureDensity = 0;
+	for (auto t : treasureInfo)
+	{
+		treasureValue += ((t.min + t.max) / 2) * t.density / 1000.f; //Thousands
+		treasureDensity += t.density;
+	}
+
+	if (treasureValue > 200)
+	{
+		//Less obstacles - max span is 1 (no obstacles)
+		spanFactor = 1.0f - ((std::max(0, (1000 - treasureValue)) / (1000.f - 200)) * (1 - spanFactor));
+	}
+	else if (treasureValue < 100)
+	{
+		//Dense obstacles
+		spanFactor *= (treasureValue / 100.f);
+		vstd::amax(spanFactor, 0.2f);
+	}
+	if (treasureDensity <= 10)
+	{
+		vstd::amin(spanFactor, 0.25f); //Add extra obstacles to fill up space
+	}
+	float blockDistance = minDistance * spanFactor; //More obstacles in the Underground
 	
 	if(type != ETemplateZoneType::JUNCTION)
 	{

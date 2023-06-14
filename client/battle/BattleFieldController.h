@@ -33,6 +33,7 @@ class BattleFieldController : public CIntObject
 	std::shared_ptr<IImage> cellUnitMovementHighlight;
 	std::shared_ptr<IImage> cellUnitMaxMovementHighlight;
 	std::shared_ptr<IImage> cellShade;
+	std::unique_ptr<CAnimation> rangedFullDamageLimitImages;
 
 	std::shared_ptr<CAnimation> attackCursors;
 
@@ -57,6 +58,23 @@ class BattleFieldController : public CIntObject
 	std::set<BattleHex> getMovementRangeForHoveredStack();
 	std::set<BattleHex> getHighlightedHexesForSpellRange();
 	std::set<BattleHex> getHighlightedHexesForMovementTarget();
+
+	/// get all hexes where a ranged unit can do full damage
+	std::vector<BattleHex> getRangedFullDamageHexes();
+
+	/// get only hexes at the limit of a ranged unit's full damage range
+	std::vector<BattleHex> getRangedFullDamageLimitHexes(std::vector<BattleHex> rangedFullDamageHexes);
+
+	/// get an array that has for each hex in range, an aray with all directions where an ouside neighbour hex exists
+	std::vector<std::vector<BattleHex::EDir>> getOutsideNeighbourDirectionsForLimitHexes(std::vector<BattleHex> rangedFullDamageHexes, std::vector<BattleHex> rangedFullDamageLimitHexes);
+
+	/// calculates what image to use as range limit, depending on the direction of neighbors
+	/// a mask is used internally to mark the directions of all neighbours
+	/// based on this mask the corresponding image is selected
+	std::vector<std::shared_ptr<IImage>> calculateRangedFullDamageHighlightImages(std::vector<std::vector<BattleHex::EDir>> fullRangeLimitHexesNeighbourDirections);
+
+	/// to reduce the number of source images used, some images will be used as flipped versions of preloaded ones
+	void flipRangedFullDamageLimitImagesIntoPositions();
 
 	void showBackground(Canvas & canvas);
 	void showBackgroundImage(Canvas & canvas);

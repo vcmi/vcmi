@@ -64,6 +64,7 @@ public:
 
 	void horizontalFlip() override;
 	void verticalFlip() override;
+	void doubleFlip() override;
 
 	void shiftPalette(uint32_t firstColorID, uint32_t colorsToMove, uint32_t distanceToMove) override;
 	void adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipMask) override;

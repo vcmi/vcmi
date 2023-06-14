@@ -225,25 +225,25 @@ void CSettingsView::on_comboBoxDisplayIndex_currentIndexChanged(int index)
 	fillValidResolutionsForScreen(index);
 }
 
-void CSettingsView::on_comboBoxPlayerAI_currentIndexChanged(const QString & arg1)
+void CSettingsView::on_comboBoxPlayerAI_currentTextChanged(const QString & arg1)
 {
 	Settings node = settings.write["server"]["playerAI"];
 	node->String() = arg1.toUtf8().data();
 }
 
-void CSettingsView::on_comboBoxFriendlyAI_currentIndexChanged(const QString & arg1)
+void CSettingsView::on_comboBoxFriendlyAI_currentTextChanged(const QString & arg1)
 {
 	Settings node = settings.write["server"]["friendlyAI"];
 	node->String() = arg1.toUtf8().data();
 }
 
-void CSettingsView::on_comboBoxNeutralAI_currentIndexChanged(const QString & arg1)
+void CSettingsView::on_comboBoxNeutralAI_currentTextChanged(const QString & arg1)
 {
 	Settings node = settings.write["server"]["neutralAI"];
 	node->String() = arg1.toUtf8().data();
 }
 
-void CSettingsView::on_comboBoxEnemyAI_currentIndexChanged(const QString & arg1)
+void CSettingsView::on_comboBoxEnemyAI_currentTextChanged(const QString & arg1)
 {
 	Settings node = settings.write["server"]["enemyAI"];
 	node->String() = arg1.toUtf8().data();

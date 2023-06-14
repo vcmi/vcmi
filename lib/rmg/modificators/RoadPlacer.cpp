@@ -12,6 +12,7 @@
 #include "RoadPlacer.h"
 #include "ObjectManager.h"
 #include "ObstaclePlacer.h"
+#include "RockFiller.h"
 #include "../Functions.h"
 #include "../CMapGenerator.h"
 #include "../threadpool/MapProxy.h"
@@ -26,6 +27,14 @@ void RoadPlacer::process()
 		return; //do not generate roads at all
 	
 	connectRoads();
+}
+
+void RoadPlacer::init()
+{
+	if (zone.isUnderground())
+	{
+		DEPENDENCY_ALL(RockFiller);
+	}
 }
 
 rmg::Area & RoadPlacer::areaForRoads()

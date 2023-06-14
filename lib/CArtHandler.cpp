@@ -924,6 +924,16 @@ void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance * art, const 
 	attachTo(*art);
 }
 
+void CCombinedArtifactInstance::removeFrom(ArtifactLocation al)
+{
+	CArtifactInstance::removeFrom(al);
+	for(auto & part : constituentsInfo)
+	{
+		if(part.slot != ArtifactPosition::PRE_FIRST)
+			part.slot = ArtifactPosition::PRE_FIRST;
+	}
+}
+
 void CCombinedArtifactInstance::deserializationFix()
 {
 	for(ConstituentInfo &ci : constituentsInfo)
@@ -1092,7 +1102,8 @@ void CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
 		const CArtifactInstance * mainPart = nullptr;
 		auto & parts = dynamic_cast<CCombinedArtifactInstance*>(art)->constituentsInfo;
 		for(const auto & part : parts)
-			if(vstd::contains(part.art->artType->possibleSlots.at(bearerType()), slot))
+			if(vstd::contains(part.art->artType->possibleSlots.at(bearerType()), slot)
+				&& (part.slot == ArtifactPosition::PRE_FIRST))
 			{
 				mainPart = part.art;
 				break;

@@ -20,11 +20,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE ObstacleInfo : public EntityT<Obstacle>
 {
 public:
-	ObstacleInfo(): obstacle(-1), width(0), height(0), isAbsoluteObstacle(false), iconIndex(0)
+	ObstacleInfo(): obstacle(-1), width(0), height(0), isAbsoluteObstacle(false), iconIndex(0), isForegroundObstacle(false)
 	{}
 	
 	ObstacleInfo(Obstacle obstacle, std::string identifier)
-	: obstacle(obstacle), identifier(identifier), iconIndex(obstacle.getNum()), width(0), height(0), isAbsoluteObstacle(false)
+	: obstacle(obstacle), identifier(identifier), iconIndex(obstacle.getNum()), width(0), height(0), isAbsoluteObstacle(false), isForegroundObstacle(false)
 	{
 	}
 	
@@ -35,10 +35,8 @@ public:
 	std::vector<TerrainId> allowedTerrains;
 	std::vector<std::string> allowedSpecialBfields;
 	
-	//TODO: here is extra field to implement it's logic in the future but save backward compatibility
-	int obstacleType = -1;
-	
-	ui8 isAbsoluteObstacle; //there may only one such obstacle in battle and its position is always the same
+	bool isAbsoluteObstacle; //there may only one such obstacle in battle and its position is always the same
+	bool isForegroundObstacle;
 	si32 width, height; //how much space to the right and up is needed to place obstacle (affects only placement algorithm)
 	std::vector<si16> blockedTiles; //offsets relative to obstacle position (that is its left bottom corner)
 	
@@ -57,7 +55,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & obstacle;
-		h & obstacleType;
 		h & iconIndex;
 		h & identifier;
 		h & animation;
@@ -66,6 +63,7 @@ public:
 		h & allowedTerrains;
 		h & allowedSpecialBfields;
 		h & isAbsoluteObstacle;
+		h & isForegroundObstacle;
 		h & width;
 		h & height;
 		h & blockedTiles;

@@ -50,6 +50,34 @@
 		}
 	},
 
+	"randomResource":
+	{
+		"index" :76,
+		"handler": "resource",
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "+++", "+-+", "+++" ],
+				"mask" : [ "VA" ]
+			}
+		},
+		"types" : {
+			"randomResource" : {
+				"index" : 0,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 2000
+				},
+				"templates" :
+				{
+					"res" :
+					{
+						"animation" : "AVTrndm0.def"
+					}
+				}
+			}
+		}
+	},
+
 	// subtype: resource ID
 	"resource" : {
 		"index" :79,

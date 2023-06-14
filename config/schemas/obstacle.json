@@ -3,7 +3,15 @@
 	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI obstacle format",
 	"description" : "Format used to define new obstacles in VCMI",
-	"required" : [ "animation" ],
+	"required" : [ "animation", "width", "height", "blockedTiles" ],
+	"anyOf" : [
+		{
+			"required" : [ "allowedTerrains" ]
+		},
+		{
+			"required" : [ "specialBattlefields" ]
+		}
+	],
 	"additionalProperties" : false,
 	"properties" : {
 		"allowedTerrains" : {
@@ -41,9 +49,9 @@
 				{ "format" : "imageFile" }
 			]
 		},
-		"unknown" : {
-			"type" : "number",
-			"description" : "Unknown field"
+		"foreground" : {
+			"type" : "boolean",
+			"description" : "If set to true, obstacle will appear in front of units or other battlefield objects"
 		}
 	}
 }
