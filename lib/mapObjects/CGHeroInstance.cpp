@@ -1031,7 +1031,6 @@ std::string CGHeroInstance::getBiographyTextID() const
 
 void CGHeroInstance::putArtifact(ArtifactPosition pos, CArtifactInstance *art)
 {
-	assert(!getArt(pos));
 	assert(art->artType->canBePutAt(this, pos));
 
 	CArtifactSet::putArtifact(pos, art);
