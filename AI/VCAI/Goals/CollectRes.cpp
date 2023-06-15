@@ -133,7 +133,7 @@ TSubgoal CollectRes::whatToDoToTrade()
 	ai->retrieveVisitableObjs(visObjs, true);
 	for(const CGObjectInstance * obj : visObjs)
 	{
-		if(const IMarket * m = IMarket::castFrom(obj, false); m->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
+		if(const IMarket * m = IMarket::castFrom(obj, false); m && m->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
 		{
 			if(obj->ID == Obj::TOWN)
 			{
