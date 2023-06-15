@@ -1497,7 +1497,7 @@ void NewObject::applyGs(CGameState *gs)
 		testObject.pos = pos;
 		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(ETerrainId::WATER).front();
 
-		[[maybe_unused]] const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
+		[[maybe_unused]] const int3 previousXAxisTile = CGBoat::translatePos(pos, true);
 		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile));
 	}
 	else

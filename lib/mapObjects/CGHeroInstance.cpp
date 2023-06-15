@@ -446,19 +446,19 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			cb->setManaPoints (id, manaLimit());		
 			
 			ObjectInstanceID boatId;
-			if (cb->gameState()->map->getTile(pos).isWater())
+			const auto boatPos = visitablePos();
+			if (cb->gameState()->map->getTile(boatPos).isWater())
 			{
 				smp.val = maxMovePoints(false);
 				//Create a new boat for hero
 				NewObject no;
 				no.ID = Obj::BOAT;
-				no.subID = getBoatType().getNum();
-				no.pos = pos + int3(1,0,0); //FIXME: handle this magic offset somehow
+				no.subID = BoatId(EBoatId::BOAT_NEUTRAL);
+				no.pos = CGBoat::translatePos(boatPos);
 				
 				cb->sendAndApply(&no);
 
-				cb->getVisitableObjs(pos);
-				boatId = cb->getTopObj(pos)->id;
+				boatId = cb->getTopObj(boatPos)->id;
 			}
 			else
 			{
@@ -954,7 +954,13 @@ si32 CGHeroInstance::getManaNewTurn() const
 
 BoatId CGHeroInstance::getBoatType() const
 {
-	return type->getBoatType();
+	switch (type->heroClass->getAlignment())
+	{
+		case EAlignment::EVIL: return EBoatId::BOAT_EVIL;
+		case EAlignment::GOOD: return EBoatId::BOAT_GOOD;
+		case EAlignment::NEUTRAL: return EBoatId::BOAT_NEUTRAL;
+		default: return EBoatId::NONE;
+	}
 }
 
 void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const

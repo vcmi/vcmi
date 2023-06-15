@@ -102,17 +102,6 @@ std::string CHero::getSpecialtyTooltipTextID() const
 	return TextIdentifier("hero", modScope, identifier, "specialty", "tooltip").get();
 }
 
-BoatId CHero::getBoatType() const
-{
-	switch(heroClass->getAlignment())
-	{
-		case EAlignment::EVIL : return EBoatId::BOAT_EVIL;
-		case EAlignment::GOOD : return EBoatId::BOAT_GOOD;
-		case EAlignment::NEUTRAL : return EBoatId::BOAT_NEUTRAL;
-		default: return EBoatId::NONE;
-	}
-}
-
 void CHero::registerIcons(const IconRegistar & cb) const
 {
 	cb(getIconIndex(), 0, "UN32", iconSpecSmall);
