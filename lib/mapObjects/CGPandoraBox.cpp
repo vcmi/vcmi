@@ -331,7 +331,7 @@ void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answe
 		else if(message.empty() && resources.empty()
 			&& primskills.empty() && abilities.empty()
 			&& abilityLevels.empty() && artifacts.empty()
-			&& spells.empty() && creatures.stacksCount() > 0
+			&& spells.empty() && creatures.stacksCount() == 0
 			&& gainedExp == 0 && manaDiff == 0 && moraleDiff == 0 && luckDiff == 0) //if it gives nothing without battle
 		{
 			hero->showInfoDialog(15);
