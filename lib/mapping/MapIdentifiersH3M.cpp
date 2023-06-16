@@ -111,6 +111,15 @@ void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
 		objectTemplate.id = mappedType.ID;
 		objectTemplate.subid = mappedType.subID;
 	}
+
+	if (objectTemplate.id == Obj::TOWN || objectTemplate.id == Obj::RANDOM_DWELLING_FACTION)
+		objectTemplate.subid = remap(FactionID(objectTemplate.subid));
+
+	if (objectTemplate.id == Obj::MONSTER)
+		objectTemplate.subid = remap(CreatureID(objectTemplate.subid));
+
+	if (objectTemplate.id == Obj::ARTIFACT)
+		objectTemplate.subid = remap(ArtifactID(objectTemplate.subid));
 }
 
 BuildingID MapIdentifiersH3M::remapBuilding(std::optional<FactionID> owner, BuildingID input) const
