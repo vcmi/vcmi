@@ -148,6 +148,7 @@
 			"mageGuild" : 4,
 			"warMachine" : "ballista",
 			"moatAbility" : "castleMoat",
+			"boat" : "boatCastle",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
 			"buildings" :

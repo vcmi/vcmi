@@ -129,9 +129,10 @@ bool TerrainTile::isWater() const
 }
 
 CMap::CMap()
-	: checksum(0), grailPos(-1, -1, -1), grailRadius(0), terrain(nullptr),
-	guardingCreaturePositions(nullptr),
-	uidCounter(0)
+	: checksum(0)
+	, grailPos(-1, -1, -1)
+	, grailRadius(0)
+	, uidCounter(0)
 {
 	allHeroes.resize(allowedHeroes.size());
 	allowedAbilities = VLC->skillh->getDefaultAllowed();
@@ -142,22 +143,6 @@ CMap::CMap()
 CMap::~CMap()
 {
 	getEditManager()->getUndoManager().clearAll();
-	
-	if(terrain)
-	{
-		for(int z = 0; z < levels(); z++)
-		{
-			for(int x = 0; x < width; x++)
-			{
-				delete[] terrain[z][x];
-				delete[] guardingCreaturePositions[z][x];
-			}
-			delete[] terrain[z];
-			delete[] guardingCreaturePositions[z];
-		}
-		delete [] terrain;
-		delete [] guardingCreaturePositions;
-	}
 
 	for(auto obj : objects)
 		obj.dellNull();
@@ -572,19 +557,8 @@ void CMap::removeObject(CGObjectInstance * obj)
 
 void CMap::initTerrain()
 {
-	int level = levels();
-	terrain = new TerrainTile**[level];
-	guardingCreaturePositions = new int3**[level];
-	for(int z = 0; z < level; ++z)
-	{
-		terrain[z] = new TerrainTile*[width];
-		guardingCreaturePositions[z] = new int3*[width];
-		for(int x = 0; x < width; ++x)
-		{
-			terrain[z][x] = new TerrainTile[height];
-			guardingCreaturePositions[z][x] = new int3[height];
-		}
-	}
+	terrain.resize(boost::extents[levels()][width][height]);
+	guardingCreaturePositions.resize(boost::extents[levels()][width][height]);
 }
 
 CMapEditManager * CMap::getEditManager()

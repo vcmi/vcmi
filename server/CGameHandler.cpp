@@ -4421,7 +4421,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 		//Create a new boat for hero
 		NewObject no;
 		no.ID = Obj::BOAT;
-		no.subID = BoatId(EBoatId::BOAT_NEUTRAL);
+		no.subID = BoatId(EBoatId::CASTLE);
 		no.pos = hr.tile + int3(1,0,0);
 		sendAndApply(&no);
 
@@ -5625,12 +5625,6 @@ bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 	if (obj->shipyardStatus() != IBoatGenerator::GOOD)
 	{
 		complain("Cannot build boat in this shipyard!");
-		return false;
-	}
-	else if (obj->o->ID == Obj::TOWN
-	        && !static_cast<const CGTownInstance*>(obj)->hasBuilt(BuildingID::SHIPYARD))
-	{
-		complain("Cannot build boat in the town - no shipyard!");
 		return false;
 	}
 

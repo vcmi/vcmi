@@ -26,6 +26,15 @@ class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
 	TerrainId id;
 	ui8 passabilityType;
 
+	enum PassabilityType : ui8
+	{
+		LAND = 1,
+		WATER = 2,
+		SURFACE = 4,
+		SUBTERRANEAN = 8,
+		ROCK = 16
+	};
+
 public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
@@ -37,15 +46,6 @@ public:
 	std::string getNameTextID() const override;
 	std::string getNameTranslated() const override;
 
-	enum PassabilityType : ui8
-	{
-		LAND = 1,
-		WATER = 2,
-		SURFACE = 4,
-		SUBTERRANEAN = 8,
-		ROCK = 16
-	};
-	
 	std::vector<BattleField> battleFields;
 	std::vector<TerrainId> prohibitTransitions;
 	ColorRGBA minimapBlocked;

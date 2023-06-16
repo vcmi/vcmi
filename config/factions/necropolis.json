@@ -153,6 +153,7 @@
 			"mageGuild" : 5,
 			"warMachine" : "firstAidTent",
 			"moatAbility" : "necropolisMoat",
+			"boat" : "boatNecropolis",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
 			"buildings" :

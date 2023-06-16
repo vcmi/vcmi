@@ -224,8 +224,6 @@ bool CGTownInstance::hasCapitol() const
 }
 
 CGTownInstance::CGTownInstance():
-	IShipyard(this),
-	IMarket(),
 	town(nullptr),
 	builded(0),
 	destroyed(0),
@@ -590,6 +588,19 @@ void CGTownInstance::getOutOffsets( std::vector<int3> &offsets ) const
 	offsets = {int3(-1,2,0), int3(-3,2,0)};
 }
 
+CGTownInstance::EGeneratorState CGTownInstance::shipyardStatus() const
+{
+	if (!hasBuilt(BuildingID::SHIPYARD))
+		return EGeneratorState::UNKNOWN;
+
+	return IShipyard::shipyardStatus();
+}
+
+const IObjectInterface * CGTownInstance::getObject() const
+{
+	return this;
+}
+
 void CGTownInstance::mergeGarrisonOnSiege() const
 {
 	auto getWeakestStackSlot = [&](ui64 powerLimit)
@@ -671,13 +682,7 @@ void CGTownInstance::clearArmy() const
 
 BoatId CGTownInstance::getBoatType() const
 {
-	switch (town->faction->alignment)
-	{
-		case EAlignment::EVIL : return EBoatId::BOAT_EVIL;
-		case EAlignment::GOOD : return EBoatId::BOAT_GOOD;
-		case EAlignment::NEUTRAL : return EBoatId::BOAT_NEUTRAL;
-		default: return EBoatId::NONE;
-	}
+	return town->shipyardBoat;
 }
 
 int CGTownInstance::getMarketEfficiency() const
@@ -1242,5 +1247,22 @@ int GrowthInfo::totalGrowth() const
 	return ret;
 }
 
+void CGTownInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const
+{
+	for(const CGTownInstance::TCreaturesSet::value_type & dwelling : creatures)
+	{
+		if (vstd::contains(dwelling.second, stack.type->getId())) //Dwelling with our creature
+		{
+			for(const auto & upgrID : dwelling.second)
+			{
+				if(vstd::contains(stack.type->upgrades, upgrID)) //possible upgrade
+				{
+					info.newID.push_back(upgrID);
+					info.cost.push_back(upgrID.toCreature()->getFullRecruitCost() - stack.type->getFullRecruitCost());
+				}
+			}
+		}
+	}
+}
 
 VCMI_LIB_NAMESPACE_END

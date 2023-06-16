@@ -66,9 +66,14 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/logging/CLogger.cpp
 
 		${MAIN_LIB_DIR}/mapObjectConstructors/AObjectTypeHandler.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/CBankInstanceConstructor.cpp
 		${MAIN_LIB_DIR}/mapObjectConstructors/CObjectClassesHandler.cpp
 		${MAIN_LIB_DIR}/mapObjectConstructors/CommonConstructors.cpp
 		${MAIN_LIB_DIR}/mapObjectConstructors/CRewardableConstructor.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/DwellingInstanceConstructor.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/HillFortInstanceConstructor.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/ShipyardInstanceConstructor.cpp
+		${MAIN_LIB_DIR}/mapObjectConstructors/ShrineInstanceConstructor.cpp
 
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CBank.cpp
@@ -369,11 +374,17 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/logging/CLogger.h
 
 		${MAIN_LIB_DIR}/mapObjectConstructors/AObjectTypeHandler.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/CBankInstanceConstructor.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/CDefaultObjectTypeHandler.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/CObjectClassesHandler.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/CommonConstructors.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/CRewardableConstructor.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/DwellingInstanceConstructor.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/HillFortInstanceConstructor.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/IObjectInfo.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/RandomMapInfo.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/ShipyardInstanceConstructor.h
+		${MAIN_LIB_DIR}/mapObjectConstructors/ShrineInstanceConstructor.h
 		${MAIN_LIB_DIR}/mapObjectConstructors/SObjectSounds.h
 
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.h

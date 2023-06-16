@@ -142,14 +142,14 @@ public:
 	std::map<si32, ObjectInstanceID> questIdentifierToId;
 
 	std::unique_ptr<CMapEditManager> editManager;
-
-	int3 ***guardingCreaturePositions;
+	boost::multi_array<int3, 3> guardingCreaturePositions;
 
 	std::map<std::string, ConstTransitivePtr<CGObjectInstance> > instanceNames;
 
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
-	TerrainTile*** terrain;
+	boost::multi_array<TerrainTile, 3> terrain;
+
 	si32 uidCounter; //TODO: initialize when loading an old map
 
 public:
@@ -170,50 +170,8 @@ public:
 		h & questIdentifierToId;
 
 		//TODO: viccondetails
-		const int level = levels();
-		if(h.saving)
-		{
-			// Save terrain
-			for(int z = 0; z < level; ++z)
-			{
-				for(int x = 0; x < width; ++x)
-				{
-					for(int y = 0; y < height; ++y)
-					{
-						h & terrain[z][x][y];
-						h & guardingCreaturePositions[z][x][y];
-					}
-				}
-			}
-		}
-		else
-		{
-			// Load terrain
-			terrain = new TerrainTile**[level];
-			guardingCreaturePositions = new int3**[level];
-			for(int z = 0; z < level; ++z)
-			{
-				terrain[z] = new TerrainTile*[width];
-				guardingCreaturePositions[z] = new int3*[width];
-				for(int x = 0; x < width; ++x)
-				{
-					terrain[z][x] = new TerrainTile[height];
-					guardingCreaturePositions[z][x] = new int3[height];
-				}
-			}
-			for(int z = 0; z < level; ++z)
-			{
-				for(int x = 0; x < width; ++x)
-				{
-					for(int y = 0; y < height; ++y)
-					{
-
-						h & terrain[z][x][y];
-						h & guardingCreaturePositions[z][x][y];
-					}
-				}
-			}
-		}
+		h & terrain;
+		h & guardingCreaturePositions;
 
 		h & objects;
 		h & heroesOnMap;

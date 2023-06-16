@@ -22,7 +22,8 @@
 #include "../../ArtifactUtils.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../mapObjectConstructors/CommonConstructors.h"
+#include "../../mapObjectConstructors/DwellingInstanceConstructor.h"
+#include "../../mapObjects/CGHeroInstance.h"
 #include "../../mapObjects/CGPandoraBox.h"
 #include "../../CCreatureHandler.h"
 #include "../../spells/CSpellHandler.h" //for choosing random spells
@@ -171,7 +172,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		
 		for(auto secondaryID : subObjects)
 		{
-			const auto * dwellingHandler = dynamic_cast<const CDwellingInstanceConstructor *>(VLC->objtypeh->getHandlerFor(dwellingType, secondaryID).get());
+			const auto * dwellingHandler = dynamic_cast<const DwellingInstanceConstructor *>(VLC->objtypeh->getHandlerFor(dwellingType, secondaryID).get());
 			auto creatures = dwellingHandler->getProducedCreatures();
 			if(creatures.empty())
 				continue;

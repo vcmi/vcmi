@@ -20,6 +20,11 @@
 #include "../CModHandler.h" //needed?
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
+#include "../mapObjectConstructors/CBankInstanceConstructor.h"
+#include "../mapObjectConstructors/DwellingInstanceConstructor.h"
+#include "../mapObjectConstructors/HillFortInstanceConstructor.h"
+#include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
+#include "../mapObjectConstructors/ShrineInstanceConstructor.h"
 #include "../mapObjects/MapObjects.h"
 #include "../mapObjects/CGTownBuilding.h"
 #include "../mapObjects/ObjectTemplate.h"
@@ -59,10 +64,11 @@ void registerTypesMapObjects1(Serializer &s)
 	s.template registerType<CGObjectInstance, CGBoat>();
 	s.template registerType<CGObjectInstance, CGMagi>();
 	s.template registerType<CGObjectInstance, CGSirens>();
-	s.template registerType<CGObjectInstance, CGShipyard>(); s.template registerType<IShipyard, CGShipyard>();
+	s.template registerType<CGObjectInstance, CGShipyard>();
 	s.template registerType<CGObjectInstance, CGDenOfthieves>();
 	s.template registerType<CGObjectInstance, CGLighthouse>();
 	s.template registerType<CGObjectInstance, CGTerrainPatch>();
+	s.template registerType<CGObjectInstance, HillFort>();
 	s.template registerType<CGObjectInstance, CGMarket>();
 		s.template registerType<CGMarket, CGBlackMarket>();
 		s.template registerType<CGMarket, CGUniversity>();
@@ -71,9 +77,9 @@ void registerTypesMapObjects1(Serializer &s)
 	s.template registerType<CGObjectInstance, CArmedInstance>(); s.template registerType<CBonusSystemNode, CArmedInstance>(); s.template registerType<CCreatureSet, CArmedInstance>();
 
 	// Armed objects
-	s.template registerType<CArmedInstance, CGHeroInstance>(); s.template registerType<IBoatGenerator, CGHeroInstance>(); s.template registerType<CArtifactSet, CGHeroInstance>();
+	s.template registerType<CArmedInstance, CGHeroInstance>(); s.template registerType<CArtifactSet, CGHeroInstance>();
 	s.template registerType<CArmedInstance, CGDwelling>();
-		s.template registerType<CGDwelling, CGTownInstance>(); s.template registerType<IShipyard, CGTownInstance>();
+		s.template registerType<CGDwelling, CGTownInstance>();
 	s.template registerType<CArmedInstance, CGPandoraBox>();
 		s.template registerType<CGPandoraBox, CGEvent>();
 	s.template registerType<CArmedInstance, CGCreature>();
@@ -92,11 +98,14 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<AObjectTypeHandler, CRewardableConstructor>();
 	s.template registerType<AObjectTypeHandler, CHeroInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CTownInstanceConstructor>();
-	s.template registerType<AObjectTypeHandler, CDwellingInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, DwellingInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CBankInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, BoatInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, MarketInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CObstacleConstructor>();
+	s.template registerType<AObjectTypeHandler, ShrineInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, ShipyardInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, HillFortInstanceConstructor>();
 
 #define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()
 
@@ -137,6 +146,7 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGTownInstance);
 	REGISTER_GENERIC_HANDLER(CGUniversity);
 	REGISTER_GENERIC_HANDLER(CGWitchHut);
+	REGISTER_GENERIC_HANDLER(HillFort);
 
 #undef REGISTER_GENERIC_HANDLER
 

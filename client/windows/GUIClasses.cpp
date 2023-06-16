@@ -45,6 +45,9 @@
 
 #include "../../CCallback.h"
 
+#include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../lib/mapObjectConstructors/CommonConstructors.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGMarket.h"
 #include "../lib/ArtifactUtils.h"
@@ -1093,11 +1096,20 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 
 	bgWater = std::make_shared<CPicture>("TPSHIPBK", 100, 69);
 
-	std::string boatFilenames[3] = {"AB01_", "AB02_", "AB03_"};
+	auto handler = CGI->objtypeh->getHandlerFor(Obj::BOAT, boatType);
 
-	Point waterCenter = Point(bgWater->pos.x+bgWater->pos.w/2, bgWater->pos.y+bgWater->pos.h/2);
-	bgShip = std::make_shared<CAnimImage>(boatFilenames[boatType.getNum()], 0, 7, 120, 96, 0);
-	bgShip->center(waterCenter);
+	auto boatConstructor = std::dynamic_pointer_cast<const BoatInstanceConstructor>(handler);
+
+	assert(boatConstructor);
+
+	if (boatConstructor)
+	{
+		std::string boatFilename = boatConstructor->getBoatAnimationName();
+
+		Point waterCenter = Point(bgWater->pos.x+bgWater->pos.w/2, bgWater->pos.y+bgWater->pos.h/2);
+		bgShip = std::make_shared<CAnimImage>(boatFilename, 0, 7, 120, 96, 0);
+		bgShip->center(waterCenter);
+	}
 
 	// Create resource icons and costs.
 	std::string goldValue = std::to_string(cost[EGameResID::GOLD]);

@@ -15,7 +15,7 @@
 
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../../lib/mapObjectConstructors/CommonConstructors.h"
+#include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
 
 namespace NKAI
 {

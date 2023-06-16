@@ -13,7 +13,7 @@
 #include "Nullkiller.h"
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../../lib/mapObjectConstructors/CommonConstructors.h"
+#include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/CPathfinder.h"

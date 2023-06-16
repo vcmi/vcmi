@@ -153,6 +153,7 @@
 			"primaryResource" : "mercury",
 			"warMachine" : "ballista",
 			"moatAbility" : "castleMoat",
+			"boat" : "boatNecropolis",
 
 			"buildings" :
 			{

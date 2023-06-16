@@ -246,7 +246,9 @@ protected:
 class DLL_LINKAGE CGShrine : public CTeamVisited
 {
 public:
+	MetaString visitText;
 	SpellID spell; //id of spell or NONE if random
+
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
@@ -256,6 +258,7 @@ public:
 	{
 		h & static_cast<CTeamVisited&>(*this);;
 		h & spell;
+		h & visitText;
 	}
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -429,15 +432,10 @@ public:
 	std::string overlayAnimation; //waves animations
 	std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
 
+	CGBoat();
 	void initObj(CRandomGenerator & rand) override;
 	static int3 translatePos(const int3 &pos, bool reverse = false);
 
-	CGBoat()
-	{
-		hero = nullptr;
-		direction = 4;
-		layer = EPathfindingLayer::EEPathfindingLayer::SAIL;
-	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
@@ -455,16 +453,23 @@ public:
 
 class DLL_LINKAGE CGShipyard : public CGObjectInstance, public IShipyard
 {
-public:
-	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed
-	CGShipyard();
-	void onHeroVisit(const CGHeroInstance * h) const override;
+	friend class ShipyardInstanceConstructor;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	BoatId createdBoat;
+
+protected:
+	void getOutOffsets(std::vector<int3> & offsets) const override;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	const IObjectInterface * getObject() const override;
+	BoatId getBoatType() const override;
+
+public:
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-		h & static_cast<IShipyard&>(*this);
+		h & createdBoat;
 	}
+
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
@@ -547,6 +552,24 @@ public:
 	virtual bool isTile2Terrain() const override
 	{
 		return true;
+	}
+};
+
+class DLL_LINKAGE HillFort : public CGObjectInstance, public ICreatureUpgrader
+{
+	friend class HillFortInstanceConstructor;
+
+	std::vector<int> upgradeCostPercentage;
+
+protected:
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
+
+public:
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & upgradeCostPercentage;
 	}
 };
 

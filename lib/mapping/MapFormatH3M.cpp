@@ -1292,9 +1292,9 @@ CGObjectInstance * CMapLoaderH3M::readQuestGuard(const int3 & mapPosition)
 	return guard;
 }
 
-CGObjectInstance * CMapLoaderH3M::readShipyard(const int3 & mapPosition)
+CGObjectInstance * CMapLoaderH3M::readShipyard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto * object = new CGShipyard();
+	auto * object = readGeneric(mapPosition, objectTemplate);
 	setOwnerAndValidate(mapPosition, object, reader->readPlayer32());
 	return object;
 }
@@ -1448,7 +1448,7 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 			return readQuestGuard(mapPosition);
 
 		case Obj::SHIPYARD:
-			return readShipyard(mapPosition);
+			return readShipyard(mapPosition, objectTemplate);
 
 		case Obj::HERO_PLACEHOLDER:
 			return readHeroPlaceholder(mapPosition);

@@ -74,8 +74,7 @@ Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Conf
 void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Limiter & limiter, const JsonNode & source) const
 {
 	std::vector<SpellID> spells;
-	for (size_t i=0; i<6; i++)
-		IObjectInterface::cb->getAllowedSpells(spells, static_cast<ui16>(i));
+	IObjectInterface::cb->getAllowedSpells(spells);
 
 
 	limiter.dayOfWeek = JsonRandom::loadValue(source["dayOfWeek"], rng);
@@ -124,8 +123,7 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRand
 	reward.secondary = JsonRandom::loadSecondary(source["secondary"], rng);
 
 	std::vector<SpellID> spells;
-	for (size_t i=0; i<6; i++)
-		IObjectInterface::cb->getAllowedSpells(spells, static_cast<ui16>(i));
+	IObjectInterface::cb->getAllowedSpells(spells);
 
 	reward.artifacts = JsonRandom::loadArtifacts(source["artifacts"], rng);
 	reward.spells = JsonRandom::loadSpells(source["spells"], rng, spells);

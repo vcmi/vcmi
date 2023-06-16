@@ -225,7 +225,6 @@ int CGHeroInstance::maxMovePointsCached(bool onLand, const TurnInfo * ti) const
 }
 
 CGHeroInstance::CGHeroInstance():
-	IBoatGenerator(this),
 	tacticFormationEnabled(false),
 	inTownGarrison(false),
 	moveDir(4),
@@ -453,7 +452,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 				//Create a new boat for hero
 				NewObject no;
 				no.ID = Obj::BOAT;
-				no.subID = BoatId(EBoatId::BOAT_NEUTRAL);
+				no.subID = BoatId(EBoatId::CASTLE);
 				no.pos = CGBoat::translatePos(boatPos);
 				
 				cb->sendAndApply(&no);
@@ -954,13 +953,8 @@ si32 CGHeroInstance::getManaNewTurn() const
 
 BoatId CGHeroInstance::getBoatType() const
 {
-	switch (type->heroClass->getAlignment())
-	{
-		case EAlignment::EVIL: return EBoatId::BOAT_EVIL;
-		case EAlignment::GOOD: return EBoatId::BOAT_GOOD;
-		case EAlignment::NEUTRAL: return EBoatId::BOAT_NEUTRAL;
-		default: return EBoatId::NONE;
-	}
+	// hero can only generate boat via "Summon Boat" spell which always create same boat as in Necropolis shipyard
+	return EBoatId::NECROPOLIS;
 }
 
 void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
@@ -971,6 +965,11 @@ void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
 	{
 		int3(-1,1,0), int3(-1,-1,0), int3(-2,0,0), int3(0,0,0), int3(0,1,0), int3(-2,1,0), int3(0,-1,0), int3(-2,-1,0)
 	};
+}
+
+const IObjectInterface * CGHeroInstance::getObject() const
+{
+	return this;
 }
 
 int32_t CGHeroInstance::getSpellCost(const spells::Spell * sp) const
@@ -1713,6 +1712,20 @@ bool CGHeroInstance::isMissionCritical() const
 		}
 	}
 	return false;
+}
+
+void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const
+{
+	TConstBonusListPtr lista = getBonuses(Selector::typeSubtype(BonusType::SPECIAL_UPGRADE, stack.type->getId()));
+	for(const auto & it : *lista)
+	{
+		auto nid = CreatureID(it->additionalInfo[0]);
+		if (nid != stack.type->getId()) //in very specific case the upgrade is available by default (?)
+		{
+			info.newID.push_back(nid);
+			info.cost.push_back(nid.toCreature()->getFullRecruitCost() - stack.type->getFullRecruitCost());
+		}
+	}
 }
 
 VCMI_LIB_NAMESPACE_END

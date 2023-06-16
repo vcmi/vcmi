@@ -209,6 +209,8 @@ public:
 
 	int64_t calculateDamage(const spells::Caster * caster) const override;
 
+	bool hasSchool(ESpellSchool school) const override;
+
 	/**
 	 * Calls cb for each school this spell belongs to
 	 *

@@ -310,6 +310,10 @@
 				"rmg" : {
 					"value"		: 500,
 					"rarity"	: 100
+				},
+				"visitText" : 127,
+				"spell" : {
+					"level" : 1
 				}
 			}
 		}
@@ -330,6 +334,10 @@
 				"rmg" : {
 					"value"		: 2000,
 					"rarity"	: 100
+				},
+				"visitText" : 128,
+				"spell" : {
+					"level" : 2
 				}
 			}
 		}
@@ -350,6 +358,10 @@
 				"rmg" : {
 					"value"		: 3000,
 					"rarity"	: 100
+				},
+				"visitText" : 129,
+				"spell" : {
+					"level" : 3
 				}
 			}
 		}
@@ -476,7 +488,8 @@
 				"index" : 0,
 				"aiValue" : 1000,
 				"rmg" : {
-				}
+				},
+				"boat" : "boatCastle"
 			}
 		}
 	},
@@ -639,19 +652,6 @@
 		}
 	},
 	"randomDwelling"				: { "index" :216, "handler": "randomDwelling", "types" : { "object" : { "index" : 0} }  },
-
-	"randomResource" : {
-		"index" :76,
-		"handler": "randomResource",
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"templates" : {
-					"normal" : { "animation" : "AVTrndm0", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
-				}
-			}
-		}
-	},
 
 	"randomArtifact" : {
 		"index" :65,
@@ -830,7 +830,7 @@
 	/// Classes without dedicated object
 	"hillFort" : {
 		"index" :35,
-		"handler": "generic",
+		"handler": "hillFort",
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPSWAR"],
@@ -845,7 +845,14 @@
 					"zoneLimit"	: 1,
 					"value"		: 7000,
 					"rarity"	: 20
-				}
+				},
+				"upgradeCostFactor" : [
+					0,  // level 1
+					25,
+					50,
+					75,
+					100 // level 5+
+				]
 			}
 		}
 	},
@@ -861,7 +868,7 @@
 			}
 		}
 	},
-	"marketOfTime" : { // Unused/not implemented H3 object present on some maps RoE maps
+	"marketOfTime" : { // Unused/not implemented H3 object present on some RoE maps
 		"index" :50,
 		"handler": "generic"
 	},

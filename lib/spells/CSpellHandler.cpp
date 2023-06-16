@@ -127,6 +127,11 @@ int64_t CSpell::calculateDamage(const spells::Caster * caster) const
 	return caster->getSpellBonus(this, rawDamage, nullptr);
 }
 
+bool CSpell::hasSchool(ESpellSchool which) const
+{
+	return school.count(which) && school.at(which);
+}
+
 bool CSpell::canBeCast(const CBattleInfoCallback * cb, spells::Mode mode, const spells::Caster * caster) const
 {
 	//if caller do not interested in description just discard it and do not pollute even debug log

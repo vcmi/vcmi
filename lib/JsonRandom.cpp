@@ -243,21 +243,36 @@ namespace JsonRandom
 		if (value.getType() == JsonNode::JsonType::DATA_STRING)
 			return SpellID(VLC->modh->identifiers.getIdentifier("spell", value).value());
 
-		vstd::erase_if(spells, [=](const SpellID & spell)
+		if (!value["level"].isNull())
 		{
-			return VLC->spellh->getById(spell)->getLevel() != si32(value["level"].Float());
-		});
+			int32_t spellLevel = value["level"].Float();
 
+			vstd::erase_if(spells, [=](const SpellID & spell)
+			{
+				return VLC->spellh->getById(spell)->getLevel() != spellLevel;
+			});
+		}
+
+		if (!value["school"].isNull())
+		{
+			int32_t schoolID = VLC->modh->identifiers.getIdentifier("spellSchool", value["school"]).value();
+
+			vstd::erase_if(spells, [=](const SpellID & spell)
+			{
+				return !VLC->spellh->getById(spell)->hasSchool(ESpellSchool(schoolID));
+			});
+		}
+
+		if (spells.empty())
+		{
+			logMod->warn("Failed to select suitable random spell!");
+			return SpellID::NONE;
+		}
 		return SpellID(*RandomGeneratorUtil::nextItem(spells, rng));
 	}
 
 	std::vector<SpellID> loadSpells(const JsonNode & value, CRandomGenerator & rng, const std::vector<SpellID> & spells)
 	{
-		// possible extensions: (taken from spell json config)
-		// "type": "adventure",//"adventure", "combat", "ability"
-		// "school": {"air":true, "earth":true, "fire":true, "water":true},
-		// "level": 1,
-
 		std::vector<SpellID> ret;
 		for (const JsonNode & entry : value.Vector())
 		{

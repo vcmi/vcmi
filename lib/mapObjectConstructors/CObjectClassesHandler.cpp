@@ -21,11 +21,21 @@
 #include "../JsonNode.h"
 #include "../CSoundBase.h"
 
+#include "../mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjectConstructors/DwellingInstanceConstructor.h"
+#include "../mapObjectConstructors/HillFortInstanceConstructor.h"
+#include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
+#include "../mapObjectConstructors/ShrineInstanceConstructor.h"
 #include "../mapObjects/CGPandoraBox.h"
+#include "../mapObjects/CQuest.h"
 #include "../mapObjects/ObjectTemplate.h"
+#include "../mapObjects/CGMarket.h"
+#include "../mapObjects/MiscObjects.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
+
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -37,12 +47,15 @@ CObjectClassesHandler::CObjectClassesHandler()
 	// list of all known handlers, hardcoded for now since the only way to add new objects is via C++ code
 	//Note: should be in sync with registerTypesMapObjectTypes function
 	SET_HANDLER_CLASS("configurable", CRewardableConstructor);
-	SET_HANDLER_CLASS("dwelling", CDwellingInstanceConstructor);
+	SET_HANDLER_CLASS("dwelling", DwellingInstanceConstructor);
 	SET_HANDLER_CLASS("hero", CHeroInstanceConstructor);
 	SET_HANDLER_CLASS("town", CTownInstanceConstructor);
 	SET_HANDLER_CLASS("bank", CBankInstanceConstructor);
 	SET_HANDLER_CLASS("boat", BoatInstanceConstructor);
 	SET_HANDLER_CLASS("market", MarketInstanceConstructor);
+	SET_HANDLER_CLASS("shrine", ShrineInstanceConstructor);
+	SET_HANDLER_CLASS("hillFort", HillFortInstanceConstructor);
+	SET_HANDLER_CLASS("shipyard", ShipyardInstanceConstructor);
 
 	SET_HANDLER_CLASS("static", CObstacleConstructor);
 	SET_HANDLER_CLASS("", CObstacleConstructor);
@@ -76,8 +89,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("resource", CGResource);
 	SET_HANDLER("scholar", CGScholar);
 	SET_HANDLER("seerHut", CGSeerHut);
-	SET_HANDLER("shipyard", CGShipyard);
-	SET_HANDLER("shrine", CGShrine);
 	SET_HANDLER("sign", CGSignBottle);
 	SET_HANDLER("siren", CGSirens);
 	SET_HANDLER("monolith", CGMonolith);

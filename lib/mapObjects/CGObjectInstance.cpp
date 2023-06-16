@@ -254,11 +254,6 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 {
 	switch(ID)
 	{
-	case Obj::HILL_FORT:
-		{
-			openWindow(EOpenWindowMode::HILL_FORT_WINDOW,id.getNum(),h->id.getNum());
-		}
-		break;
 	case Obj::SANCTUARY:
 		{
 			//You enter the sanctuary and immediately feel as if a great weight has been lifted off your shoulders.  You feel safe here.

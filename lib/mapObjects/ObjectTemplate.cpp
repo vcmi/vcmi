@@ -164,7 +164,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	}
 	
 	//assuming that object can be placed on other land terrains
-	anyTerrain = allowedTerrains.size() >= 8 && !allowedTerrains.count(ETerrainId::WATER);
+	anyLandTerrain = allowedTerrains.size() >= 8 && !allowedTerrains.count(ETerrainId::WATER);
 
 	id    = Obj(boost::lexical_cast<int>(strings[5]));
 	subid = boost::lexical_cast<int>(strings[6]);
@@ -230,7 +230,7 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	}
 	
 	//assuming that object can be placed on other land terrains
-	anyTerrain = allowedTerrains.size() >= 8 && !allowedTerrains.count(ETerrainId::WATER);
+	anyLandTerrain = allowedTerrains.size() >= 8 && !allowedTerrains.count(ETerrainId::WATER);
 
 	id = Obj(reader.readUInt32());
 	subid = reader.readUInt32();
@@ -277,11 +277,11 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 				allowedTerrains.insert(TerrainId(identifier));
 			});
 		}
-		anyTerrain = false;
+		anyLandTerrain = false;
 	}
 	else
 	{
-		anyTerrain = true;
+		anyLandTerrain = true;
 	}
 
 	auto charToTile = [&](const char & ch) -> ui8
@@ -557,7 +557,7 @@ void ObjectTemplate::calculateVisitableOffset()
 
 bool ObjectTemplate::canBePlacedAt(TerrainId terrainID) const
 {
-	if (anyTerrain)
+	if (anyLandTerrain)
 	{
 		const auto & terrain = VLC->terrainTypeHandler->getById(terrainID);
 		return terrain->isLand() && terrain->isPassable();

@@ -301,7 +301,7 @@ void CCallback::sendMessage(const std::string &mess, const CGObjectInstance * cu
 void CCallback::buildBoat( const IShipyard *obj )
 {
 	BuildBoat bb;
-	bb.objid = obj->o->id;
+	bb.objid = dynamic_cast<const CGObjectInstance*>(obj)->id;
 	sendRequest(&bb);
 }
 

@@ -1285,9 +1285,9 @@ class BattleField : public BaseForID<BattleField, si32>
 enum class EBoatId
 {
 	NONE = -1,
-	BOAT_EVIL = 0,
-	BOAT_GOOD,
-	BOAT_NEUTRAL
+	NECROPOLIS = 0,
+	CASTLE,
+	FORTRESS
 };
 
 using BoatId = Identifier<EBoatId>;

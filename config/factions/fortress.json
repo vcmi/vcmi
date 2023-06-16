@@ -148,6 +148,7 @@
 			"mageGuild" : 3,
 			"warMachine" : "firstAidTent",
 			"moatAbility" : "fortressMoat",
+			"boat" : "boatFortress",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
 			"buildings" :

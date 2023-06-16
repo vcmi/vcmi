@@ -14,6 +14,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct BattleResult;
+struct UpgradeInfo;
 class CGObjectInstance;
 class CRandomGenerator;
 class IGameCallback;
@@ -66,42 +67,36 @@ public:
 	}
 };
 
+class DLL_LINKAGE ICreatureUpgrader
+{
+public:
+	virtual void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const = 0;
+
+	virtual ~ICreatureUpgrader() = default;
+};
+
 class DLL_LINKAGE IBoatGenerator
 {
 public:
-	const CGObjectInstance *o;
-
-	IBoatGenerator(const CGObjectInstance *O);
 	virtual ~IBoatGenerator() = default;
 
-	virtual BoatId getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
-	virtual void getOutOffsets(std::vector<int3> &offsets) const =0; //offsets to obj pos when we boat can be placed
+	virtual const IObjectInterface * getObject() const = 0;
+
+	virtual BoatId getBoatType() const = 0; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
+	virtual void getOutOffsets(std::vector<int3> & offsets) const = 0; //offsets to obj pos when we boat can be placed
 	int3 bestLocation() const; //returns location when the boat should be placed
 
-	enum EGeneratorState {GOOD, BOAT_ALREADY_BUILT, TILE_BLOCKED, NO_WATER};
-	EGeneratorState shipyardStatus() const; //0 - can buid, 1 - there is already a boat at dest tile, 2 - dest tile is blocked, 3 - no water
+	enum EGeneratorState {GOOD, BOAT_ALREADY_BUILT, TILE_BLOCKED, NO_WATER, UNKNOWN};
+	virtual EGeneratorState shipyardStatus() const;
 	void getProblemText(MetaString &out, const CGHeroInstance *visitor = nullptr) const;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & o;
-	}
 };
 
 class DLL_LINKAGE IShipyard : public IBoatGenerator
 {
 public:
-	IShipyard(const CGObjectInstance *O);
-
 	virtual void getBoatCost(ResourceSet & cost) const;
 
 	static const IShipyard *castFrom(const CGObjectInstance *obj);
-	static IShipyard *castFrom(CGObjectInstance *obj);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<IBoatGenerator&>(*this);
-	}
 };
 
 VCMI_LIB_NAMESPACE_END
