@@ -652,14 +652,6 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 
 void StackQueue::show(Canvas & to)
 {
-	auto unitIdsToHighlight = owner.stacksController->getHoveredStacksUnitIds();
-
-	for(auto & stackBox : stackBoxes)
-	{
-		bool isBoundUnitCurrentlyHovered = vstd::contains(unitIdsToHighlight, stackBox->getBoundUnitID());
-		stackBox->toggleHighlight(isBoundUnitCurrentlyHovered);
-	}
-
 	if (embedded)
 		showAll(to);
 	CIntObject::show(to);
@@ -783,15 +775,24 @@ std::optional<uint32_t> StackQueue::StackBox::getBoundUnitID() const
 	return boundUnitID;
 }
 
-void StackQueue::StackBox::toggleHighlight(bool value)
+bool StackQueue::StackBox::isBoundUnitHighlighted() const
 {
-	highlighted = value;
+	auto unitIdsToHighlight = owner->owner.stacksController->getHoveredStacksUnitIds();
+	return vstd::contains(unitIdsToHighlight, getBoundUnitID());
+}
+
+void StackQueue::StackBox::showAll(Canvas & to)
+{
+	CIntObject::showAll(to);
+
+	if(isBoundUnitHighlighted())
+		to.drawBorder(background->pos, Colors::CYAN, 2);
 }
 
 void StackQueue::StackBox::show(Canvas & to)
 {
-	if(highlighted)
-		to.drawBorder(background->pos, Colors::CYAN, 2);
-
 	CIntObject::show(to);
+
+	if(isBoundUnitHighlighted())
+		to.drawBorder(background->pos, Colors::CYAN, 2);
 }
