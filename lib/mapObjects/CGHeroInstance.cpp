@@ -452,7 +452,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 				//Create a new boat for hero
 				NewObject no;
 				no.ID = Obj::BOAT;
-				no.subID = BoatId(EBoatId::BOAT_NEUTRAL);
+				no.subID = BoatId(EBoatId::CASTLE);
 				no.pos = CGBoat::translatePos(boatPos);
 				
 				cb->sendAndApply(&no);
