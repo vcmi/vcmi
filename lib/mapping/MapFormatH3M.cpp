@@ -1299,24 +1299,6 @@ CGObjectInstance * CMapLoaderH3M::readShipyard(const int3 & mapPosition, std::sh
 	return object;
 }
 
-CGObjectInstance * CMapLoaderH3M::readBorderGuard()
-{
-	return new CGBorderGuard();
-}
-
-CGObjectInstance * CMapLoaderH3M::readBorderGate(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
-{
-	if(objectTemplate->subid < 1000)
-		return new CGBorderGate();
-
-	//TODO: HotA - grave has same ID as border gate? WTF?
-	if(objectTemplate->subid == 1001)
-		return new CGObjectInstance();
-
-	logGlobal->warn("Map '%s: Quest gates at %s are not implemented!", mapName, mapPosition.toString());
-	return readQuestGuard(mapPosition);
-}
-
 CGObjectInstance * CMapLoaderH3M::readLighthouse(const int3 & mapPosition)
 {
 	auto * object = new CGLighthouse();
@@ -1452,12 +1434,6 @@ CGObjectInstance * CMapLoaderH3M::readObject(std::shared_ptr<const ObjectTemplat
 
 		case Obj::HERO_PLACEHOLDER:
 			return readHeroPlaceholder(mapPosition);
-
-		case Obj::BORDERGUARD:
-			return readBorderGuard();
-
-		case Obj::BORDER_GATE:
-			return readBorderGate(mapPosition, objectTemplate);
 
 		case Obj::PYRAMID:
 			return readPyramid(mapPosition, objectTemplate);
