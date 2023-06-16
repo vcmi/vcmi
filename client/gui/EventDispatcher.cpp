@@ -242,7 +242,7 @@ void EventDispatcher::dispatchGesturePanningEnded(const Point & initialPosition,
 
 	for(auto it : copied)
 	{
-		if (it->isPanning())
+		if (it->isGesturing())
 		{
 			it->gesture(false, initialPosition, finalPosition);
 			it->panningState = false;
@@ -256,7 +256,7 @@ void EventDispatcher::dispatchGesturePanning(const Point & initialPosition, cons
 
 	for(auto it : copied)
 	{
-		if (it->isPanning())
+		if (it->isGesturing())
 			it->gesturePanning(initialPosition, currentPosition, lastUpdateDistance);
 	}
 }
@@ -265,7 +265,7 @@ void EventDispatcher::dispatchGesturePinch(const Point & initialPosition, double
 {
 	for(auto it : panningInterested)
 	{
-		if (it->isPanning())
+		if (it->isGesturing())
 			it->gesturePinch(initialPosition, distance);
 	}
 }

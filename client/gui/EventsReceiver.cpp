@@ -27,7 +27,7 @@ bool AEventsReceiver::isHovered() const
 	return hoveredState;
 }
 
-bool AEventsReceiver::isPanning() const
+bool AEventsReceiver::isGesturing() const
 {
 	return panningState;
 }

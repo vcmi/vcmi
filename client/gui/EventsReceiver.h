@@ -90,7 +90,7 @@ public:
 	bool isHovered() const;
 
 	/// Returns true if panning/swiping gesture is currently active
-	bool isPanning() const;
+	bool isGesturing() const;
 
 	/// Returns true if element is currently active and may receive events
 	bool isActive() const;

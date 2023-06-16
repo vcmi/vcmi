@@ -854,7 +854,7 @@ void BattleFieldController::show(Canvas & to)
 
 	renderBattlefield(to);
 
-	if (isActive() && isPanning() && getHoveredHex() != BattleHex::INVALID)
+	if (isActive() && isGesturing() && getHoveredHex() != BattleHex::INVALID)
 	{
 		auto cursorIndex = CCS->curh->get<Cursor::Combat>();
 		auto imageIndex = static_cast<size_t>(cursorIndex);
