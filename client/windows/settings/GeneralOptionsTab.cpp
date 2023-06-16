@@ -173,7 +173,8 @@ GeneralOptionsTab::GeneralOptionsTab()
 	scalingLabel->setText(scalingToLabelString(currentResolution["scaling"].Integer()));
 
 	std::shared_ptr<CLabel> longTouchLabel = widget<CLabel>("longTouchLabel");
-	longTouchLabel->setText(longTouchToLabelString(settings["general"]["longTouchTimeMilliseconds"].Integer()));
+	if (longTouchLabel)
+		longTouchLabel->setText(longTouchToLabelString(settings["general"]["longTouchTimeMilliseconds"].Integer()));
 
 	std::shared_ptr<CToggleButton> spellbookAnimationCheckbox = widget<CToggleButton>("spellbookAnimationCheckbox");
 	spellbookAnimationCheckbox->setSelected(settings["video"]["spellbookAnimation"].Bool());
