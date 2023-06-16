@@ -709,16 +709,9 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 	majors.clear();
 	relics.clear();
 
-	for (ArtifactID i=ArtifactID::SPELLBOOK; i<ArtifactID::ART_SELECTION; i.advance(1))
+	for (ArtifactID i=ArtifactID::SPELLBOOK; i < ArtifactID(static_cast<si32>(objects.size())); i.advance(1))
 	{
-		//check artifacts allowed on a map
-		//TODO: This line will be different when custom map format is implemented
-		if (allowed[i] && legalArtifact(i))
-			allowedArtifacts.push_back(objects[i]);
-	}
-	for(ArtifactID i = ArtifactID::ART_SELECTION; i < ArtifactID(static_cast<si32>(objects.size())); i.advance(1)) //try to allow all artifacts added by mods
-	{
-		if (legalArtifact(ArtifactID(i)))
+		if (allowed[i] && legalArtifact(ArtifactID(i)))
 			allowedArtifacts.push_back(objects[i]);
 			 //keep im mind that artifact can be worn by more than one type of bearer
 	}
