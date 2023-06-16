@@ -8,24 +8,25 @@
  *
  */
 #include "StdInc.h"
-
 #include "GeneralOptionsTab.h"
 
-#include "../../../lib/CGeneralTextHandler.h"
-#include "../../../lib/filesystem/ResourceID.h"
-#include "../../gui/CGuiHandler.h"
-#include "../../gui/WindowHandler.h"
-#include "../../widgets/Buttons.h"
-#include "../../widgets/Slider.h"
-#include "../../widgets/TextControls.h"
-#include "../../widgets/Images.h"
 #include "CGameInfo.h"
 #include "CMusicHandler.h"
 #include "CPlayerInterface.h"
-#include "windows/GUIClasses.h"
 #include "CServerHandler.h"
 #include "render/IScreenHandler.h"
+#include "windows/GUIClasses.h"
 
+#include "../../eventsSDL/InputHandler.h"
+#include "../../gui/CGuiHandler.h"
+#include "../../gui/WindowHandler.h"
+#include "../../widgets/Buttons.h"
+#include "../../widgets/Images.h"
+#include "../../widgets/Slider.h"
+#include "../../widgets/TextControls.h"
+
+#include "../../../lib/CGeneralTextHandler.h"
+#include "../../../lib/filesystem/ResourceID.h"
 
 static void setIntSetting(std::string group, std::string field, int value)
 {
@@ -48,6 +49,22 @@ static std::string scalingToLabelString( int scaling)
 {
 	std::string string = CGI->generaltexth->translate("vcmi.systemOptions.scalingButton.hover");
 	boost::replace_all(string, "%p", std::to_string(scaling));
+
+	return string;
+}
+
+static std::string longTouchToEntryString( int duration)
+{
+	std::string string = CGI->generaltexth->translate("vcmi.systemOptions.longTouchMenu.entry");
+	boost::replace_all(string, "%d", std::to_string(duration));
+
+	return string;
+}
+
+static std::string longTouchToLabelString( int duration)
+{
+	std::string string = CGI->generaltexth->translate("vcmi.systemOptions.longTouchButton.hover");
+	boost::replace_all(string, "%d", std::to_string(duration));
 
 	return string;
 }
@@ -79,6 +96,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	type |= REDRAW_PARENT;
 
+	addConditional("touchscreen", GH.input().hasTouchInputDevice());
 #ifdef VCMI_MOBILE
 	addConditional("mobile", true);
 	addConditional("desktop", false);
@@ -127,6 +145,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	{
 		selectGameScaling();
 	});
+	addCallback("setLongTouchDuration", [this](int dummyValue)
+	{
+		selectLongTouchDuration();
+	});
 	addCallback("framerateChanged", [](bool value)
 	{
 		setBoolSetting("video", "showfps", value);
@@ -149,6 +171,9 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	std::shared_ptr<CLabel> scalingLabel = widget<CLabel>("scalingLabel");
 	scalingLabel->setText(scalingToLabelString(currentResolution["scaling"].Integer()));
+
+	std::shared_ptr<CLabel> longTouchLabel = widget<CLabel>("longTouchLabel");
+	longTouchLabel->setText(longTouchToLabelString(settings["general"]["longTouchTimeMilliseconds"].Integer()));
 
 	std::shared_ptr<CToggleButton> spellbookAnimationCheckbox = widget<CToggleButton>("spellbookAnimationCheckbox");
 	spellbookAnimationCheckbox->setSelected(settings["video"]["spellbookAnimation"].Bool());
@@ -323,4 +348,49 @@ void GeneralOptionsTab::setGameScaling(int index)
 	gameRes["scaling"].Float() = scaling;
 
 	widget<CLabel>("scalingLabel")->setText(scalingToLabelString(scaling));
+}
+
+void GeneralOptionsTab::selectLongTouchDuration()
+{
+	longTouchDurations = { 500, 750, 1000, 1250, 1500, 1750, 2000 };
+
+	std::vector<std::string> items;
+	size_t currentIndex = 0;
+	size_t i = 0;
+	for(const auto & it : longTouchDurations)
+	{
+		auto resolutionStr = longTouchToEntryString(it);
+		if(widget<CLabel>("longTouchLabel")->getText() == longTouchToLabelString(it))
+			currentIndex = i;
+
+		items.push_back(std::move(resolutionStr));
+		++i;
+	}
+
+	GH.windows().createAndPushWindow<CObjectListWindow>(
+		items,
+		nullptr,
+		CGI->generaltexth->translate("vcmi.systemOptions.longTouchMenu.hover"),
+		CGI->generaltexth->translate("vcmi.systemOptions.longTouchMenu.help"),
+		[this](int index)
+		{
+			setLongTouchDuration(index);
+		},
+		currentIndex
+	);
+}
+
+void GeneralOptionsTab::setLongTouchDuration(int index)
+{
+	assert(index >= 0 && index < longTouchDurations.size());
+
+	if ( index < 0 || index >= longTouchDurations.size() )
+		return;
+
+	int scaling = longTouchDurations[index];
+
+	Settings longTouchTime = settings.write["general"]["longTouchTimeMilliseconds"];
+	longTouchTime->Float() = scaling;
+
+	widget<CLabel>("longTouchLabel")->setText(longTouchToLabelString(scaling));
 }

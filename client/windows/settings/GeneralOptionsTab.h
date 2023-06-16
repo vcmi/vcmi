@@ -20,6 +20,7 @@ private:
 
 	std::vector<Point> supportedResolutions;
 	std::vector<int> supportedScaling;
+	std::vector<int> longTouchDurations;
 
 	void setFullscreenMode( bool on, bool exclusive);
 
@@ -28,6 +29,9 @@ private:
 
 	void selectGameScaling();
 	void setGameScaling(int index);
+
+	void selectLongTouchDuration();
+	void setLongTouchDuration(int index);
 
 public:
 	GeneralOptionsTab();

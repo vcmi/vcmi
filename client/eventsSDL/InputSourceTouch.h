@@ -76,7 +76,7 @@ struct TouchInputParameters
 	double relativeModeSpeedFactor = 1.0;
 
 	/// tap for period longer than specified here will be qualified as "long tap", triggering corresponding gesture
-	uint32_t longPressTimeMilliseconds = 750;
+	uint32_t longTouchTimeMilliseconds = 750;
 
 	/// moving finger for distance larger than specified will be qualified as panning gesture instead of long press
 	uint32_t panningSensitivityThreshold = 10;

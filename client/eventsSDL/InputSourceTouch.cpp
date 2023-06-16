@@ -31,6 +31,7 @@ InputSourceTouch::InputSourceTouch()
 {
 	params.useRelativeMode = settings["general"]["userRelativePointer"].Bool();
 	params.relativeModeSpeedFactor = settings["general"]["relativePointerSpeedMultiplier"].Float();
+	params.longTouchTimeMilliseconds = settings["general"]["longTouchTimeMilliseconds"].Float();
 
 	if (params.useRelativeMode)
 		state = TouchState::RELATIVE_MODE;
@@ -93,6 +94,9 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 
 void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinger)
 {
+	// FIXME: better place to update potentially changed settings?
+	params.longTouchTimeMilliseconds = settings["general"]["longTouchTimeMilliseconds"].Float();
+
 	lastTapTimeTicks = tfinger.timestamp;
 
 	switch(state)
@@ -204,7 +208,7 @@ void InputSourceTouch::handleUpdate()
 	if ( state == TouchState::TAP_DOWN_SHORT)
 	{
 		uint32_t currentTime = SDL_GetTicks();
-		if (currentTime > lastTapTimeTicks + params.longPressTimeMilliseconds)
+		if (currentTime > lastTapTimeTicks + params.longTouchTimeMilliseconds)
 		{
 			GH.events().dispatchShowPopup(GH.getCursorPosition());
 
