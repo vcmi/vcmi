@@ -38,7 +38,11 @@ InputSourceTouch::InputSourceTouch()
 	else
 		state = TouchState::IDLE;
 
+#ifdef VCMI_EMULATE_TOUCHSCREEN_WITH_MOUSE
+	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "1");
+#else
 	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
+#endif
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 }
 
