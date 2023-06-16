@@ -34,7 +34,7 @@
 #include <SDL_surface.h>
 
 CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt):
-	WindowBase(getUsedEvents(options_), Point()),
+	WindowBase(0, Point()),
 	options(options_),
 	background(createBg(imageName, options & PLAYER_COLORED))
 {
@@ -55,7 +55,7 @@ CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt
 }
 
 CWindowObject::CWindowObject(int options_, std::string imageName):
-	WindowBase(getUsedEvents(options_), Point()),
+	WindowBase(0, Point()),
 	options(options_),
 	background(createBg(imageName, options_ & PLAYER_COLORED))
 {
@@ -105,13 +105,6 @@ void CWindowObject::setBackground(std::string filename)
 		pos = background->center(Point(pos.w/2 + pos.x, pos.h/2 + pos.y));
 
 	updateShadow();
-}
-
-int CWindowObject::getUsedEvents(int options)
-{
-	if (options & RCLICK_POPUP)
-		return SHOW_POPUP;
-	return 0;
 }
 
 void CWindowObject::updateShadow()

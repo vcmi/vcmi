@@ -16,7 +16,6 @@ class CGStatusBar;
 class CWindowObject : public WindowBase
 {
 	std::shared_ptr<CPicture> createBg(std::string imageName, bool playerColored);
-	int getUsedEvents(int options);
 
 	std::vector<std::shared_ptr<CPicture>> shadowParts;
 

@@ -36,7 +36,7 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 	processList(AEventsReceiver::WHEEL, wheelInterested);
 	processList(AEventsReceiver::DOUBLECLICK, doubleClickInterested);
 	processList(AEventsReceiver::TEXTINPUT, textInterested);
-	processList(AEventsReceiver::GESTURE_PANNING, panningInterested);
+	processList(AEventsReceiver::GESTURE, panningInterested);
 }
 
 void EventDispatcher::activateElement(AEventsReceiver * elem, ui16 activityFlag)
@@ -228,9 +228,9 @@ void EventDispatcher::dispatchGesturePanningStarted(const Point & initialPositio
 
 	for(auto it : copied)
 	{
-		if (it->receiveEvent(initialPosition, AEventsReceiver::GESTURE_PANNING))
+		if (it->receiveEvent(initialPosition, AEventsReceiver::GESTURE))
 		{
-			it->panning(true, initialPosition, initialPosition);
+			it->gesture(true, initialPosition, initialPosition);
 			it->panningState = true;
 		}
 	}
@@ -244,7 +244,7 @@ void EventDispatcher::dispatchGesturePanningEnded(const Point & initialPosition,
 	{
 		if (it->isPanning())
 		{
-			it->panning(false, initialPosition, finalPosition);
+			it->gesture(false, initialPosition, finalPosition);
 			it->panningState = false;
 		}
 	}

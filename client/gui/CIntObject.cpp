@@ -90,7 +90,7 @@ void CIntObject::deactivate()
 	if (!isActive())
 		return;
 
-	deactivateEvents(ALL);
+	deactivateEvents(used | GENERAL);
 
 	assert(!isActive());
 

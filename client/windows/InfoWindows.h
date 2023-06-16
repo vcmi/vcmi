@@ -78,9 +78,6 @@ public:
 	virtual void close();
 	bool isPopupWindow() const override;
 
-	CRClickPopup();
-	virtual ~CRClickPopup();
-
 	static std::shared_ptr<WindowBase> createInfoWin(Point position, const CGObjectInstance * specific);
 	static void createAndPush(const std::string & txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());
 	static void createAndPush(const std::string & txt, std::shared_ptr<CComponent> component);

@@ -338,15 +338,6 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 	}
 }
 
-CRClickPopup::CRClickPopup()
-{
-	addUsedEvents(SHOW_POPUP);
-}
-
-CRClickPopup::~CRClickPopup()
-{
-}
-
 CRClickPopupInt::CRClickPopupInt(std::shared_ptr<CIntObject> our)
 {
 	CCS->curh->hide();

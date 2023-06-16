@@ -155,7 +155,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()));
 
 	updateAccessibleHexes();
-	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | TIME | GESTURE_PANNING);
+	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | TIME | GESTURE);
 }
 
 void BattleFieldController::activate()
@@ -176,7 +176,7 @@ void BattleFieldController::createHeroes()
 		owner.defendingHero = std::make_shared<BattleHero>(owner, owner.defendingHeroInstance, true);
 }
 
-void BattleFieldController::panning(bool on, const Point & initialPosition, const Point & finalPosition)
+void BattleFieldController::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
 {
 	if (!on && pos.isInside(finalPosition))
 		clickLeft(false, false);

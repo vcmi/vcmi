@@ -151,7 +151,7 @@ void CSlider::clickLeft(tribool down, bool previousState)
 
 bool CSlider::receiveEvent(const Point &position, int eventType) const
 {
-	if (eventType != WHEEL && eventType != GESTURE_PANNING)
+	if (eventType != WHEEL && eventType != GESTURE)
 	{
 		return CIntObject::receiveEvent(position, eventType);
 	}

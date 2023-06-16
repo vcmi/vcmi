@@ -41,6 +41,7 @@ protected:
 	/// Called when user pans screen by specified distance
 	virtual void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) {}
 
+	/// Called when user pitches screen, requesting scaling by specified factor
 	virtual void gesturePinch(const Point & centerPosition, double lastUpdateFactor) {}
 
 	virtual void wheelScrolled(int distance) {}
@@ -49,8 +50,8 @@ protected:
 	/// Called when UI element hover status changes
 	virtual void hover(bool on) {}
 
-	/// Called when UI element panning gesture status changes
-	virtual void panning(bool on, const Point & initialPosition, const Point & finalPosition) {}
+	/// Called when UI element gesture status changes
+	virtual void gesture(bool on, const Point & initialPosition, const Point & finalPosition) {}
 
 	virtual void textInputed(const std::string & enteredText) {}
 	virtual void textEdited(const std::string & enteredText) {}
@@ -70,7 +71,20 @@ public:
 	virtual ~AEventsReceiver() = default;
 
 	/// These are the arguments that can be used to determine what kind of input UI element will receive
-	enum {LCLICK=1, SHOW_POPUP=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, GESTURE_PANNING=1024, ALL=0xffff};
+	enum
+	{
+		LCLICK = 1,
+		SHOW_POPUP = 2,
+		HOVER = 4,
+		MOVE = 8,
+		KEYBOARD = 16,
+		TIME = 32,
+		GENERAL = 64,
+		WHEEL = 128,
+		DOUBLECLICK = 256,
+		TEXTINPUT = 512,
+		GESTURE = 1024,
+	};
 
 	/// Returns true if element is currently hovered by mouse
 	bool isHovered() const;
