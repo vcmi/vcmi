@@ -281,6 +281,8 @@ CGObjectInstance * BoatInstanceConstructor::create(std::shared_ptr<const ObjectT
 	boat->actualAnimation = actualAnimation;
 	boat->overlayAnimation = overlayAnimation;
 	boat->flagAnimations = flagAnimations;
+	boat->onboardAssaultAllowed = onboardAssaultAllowed;
+	boat->onboardVisitAllowed = onboardVisitAllowed;
 	for(auto & b : bonuses)
 		boat->addNewBonus(std::make_shared<Bonus>(b));
 	

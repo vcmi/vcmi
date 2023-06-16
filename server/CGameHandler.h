@@ -195,7 +195,7 @@ public:
 	void giveHeroBonus(GiveBonus * bonus) override;
 	void setMovePoints(SetMovePoints * smp) override;
 	void setManaPoints(ObjectInstanceID hid, int val) override;
-	void giveHero(ObjectInstanceID id, PlayerColor player) override;
+	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override;
 	void changeObjPos(ObjectInstanceID objid, int3 newPos) override;
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override;
 

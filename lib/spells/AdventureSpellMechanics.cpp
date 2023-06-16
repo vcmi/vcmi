@@ -201,7 +201,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	{
 		ChangeObjPos cop;
 		cop.objid = nearest->id;
-		cop.nPos = summonPos + int3(1,0,0);
+		cop.nPos = CGBoat::translatePos(summonPos);
 		env->apply(&cop);
 	}
 	else if(schoolLevel < 2) //none or basic level -> cannot create boat :(
@@ -215,8 +215,8 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	{
 		NewObject no;
 		no.ID = Obj::BOAT;
-		no.subID = parameters.caster->getHeroCaster()->getBoatType().getNum();
-		no.pos = summonPos + int3(1,0,0);
+		no.subID = BoatId(EBoatId::BOAT_EVIL);
+		no.pos = CGBoat::translatePos(summonPos);
 		env->apply(&no);
 	}
 	return ESpellCastResult::OK;

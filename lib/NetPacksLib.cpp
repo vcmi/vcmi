@@ -1402,14 +1402,31 @@ void HeroRecruited::applyGs(CGameState * gs) const
 	CGTownInstance *t = gs->getTown(tid);
 	PlayerState *p = gs->getPlayerState(player);
 
-	assert(!h->boat);
+	if (boatId >= 0)
+	{
+		CGObjectInstance *obj = gs->getObjInstance(boatId);
+		auto * boat = dynamic_cast<CGBoat *>(obj);
+		if (boat)
+		{
+			h->boat = boat;
+			h->attachTo(*boat);
+			boat->hero = h;
+		}
+	}
 
 	h->setOwner(player);
 	h->pos = tile;
 	bool fresh = !h->isInitialized();
 	if(fresh)
 	{ // this is a fresh hero who hasn't appeared yet
-		h->movement = h->maxMovePoints(true);
+		if (boatId >= 0) //Hero spawns on water
+		{
+			h->movement = h->maxMovePoints(false);
+		}
+		else
+		{
+			h->movement = h->maxMovePoints(true);
+		}
 	}
 
 	gs->hpool.heroesPool.erase(hid);
@@ -1440,6 +1457,18 @@ void GiveHero::applyGs(CGameState * gs) const
 {
 	CGHeroInstance *h = gs->getHero(id);
 
+	if (boatId >= 0)
+	{
+		CGObjectInstance *obj = gs->getObjInstance(boatId);
+		auto * boat = dynamic_cast<CGBoat *>(obj);
+		if (boat)
+		{
+			h->boat = boat;
+			h->attachTo(*boat);
+			boat->hero = h;
+		}
+	}
+
 	//bonus system
 	h->detachFrom(gs->globalEffects);
 	h->attachTo(*gs->getPlayerState(player));
@@ -1468,7 +1497,7 @@ void NewObject::applyGs(CGameState *gs)
 		testObject.pos = pos;
 		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(ETerrainId::WATER).front();
 
-		[[maybe_unused]] const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
+		[[maybe_unused]] const int3 previousXAxisTile = CGBoat::translatePos(pos, true);
 		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile));
 	}
 	else

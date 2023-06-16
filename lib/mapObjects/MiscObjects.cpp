@@ -1858,6 +1858,22 @@ void CGBoat::initObj(CRandomGenerator & rand)
 	hero = nullptr;
 }
 
+int3 CGBoat::translatePos(const int3& pos, bool reverse /* = false */)
+{
+	//pos - offset we want to place the boat at the map
+	//returned value - actual position as seen by game mechanics
+
+	//If reverse = true, then it's the opposite.
+	if (!reverse)
+	{
+		return pos + int3(1, 0, 0);
+	}
+	else
+	{
+		return pos - int3(1, 0, 0);
+	}
+}
+
 void CGSirens::initObj(CRandomGenerator & rand)
 {
 	blockVisit = true;

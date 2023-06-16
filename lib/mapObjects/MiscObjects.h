@@ -430,6 +430,7 @@ public:
 	std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
 
 	void initObj(CRandomGenerator & rand) override;
+	static int3 translatePos(const int3 &pos, bool reverse = false);
 
 	CGBoat()
 	{

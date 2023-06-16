@@ -437,28 +437,43 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else if(ID == Obj::PRISON)
 	{
-		int txt_id;
-
 		if (cb->getHeroCount(h->tempOwner, false) < VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))//free hero slot
 		{
 			//update hero parameters
 			SetMovePoints smp;
 			smp.hid = id;
-			smp.val = maxMovePoints (true); //TODO: hota prison on water?
+			
+			cb->setManaPoints (id, manaLimit());		
+			
+			ObjectInstanceID boatId;
+			const auto boatPos = visitablePos();
+			if (cb->gameState()->map->getTile(boatPos).isWater())
+			{
+				smp.val = maxMovePoints(false);
+				//Create a new boat for hero
+				NewObject no;
+				no.ID = Obj::BOAT;
+				no.subID = BoatId(EBoatId::BOAT_NEUTRAL);
+				no.pos = CGBoat::translatePos(boatPos);
+				
+				cb->sendAndApply(&no);
+
+				boatId = cb->getTopObj(boatPos)->id;
+			}
+			else
+			{
+				smp.val = maxMovePoints(true);
+			}
+			cb->giveHero(id, h->tempOwner, boatId); //recreates def and adds hero to player
+			cb->setObjProperty(id, ObjProperty::ID, Obj::HERO); //set ID to 34 AFTER hero gets correct flag color
 			cb->setMovePoints (&smp);
-			cb->setManaPoints (id, manaLimit());
 
-			cb->setObjProperty(id, ObjProperty::ID, Obj::HERO); //set ID to 34
-			cb->giveHero(id,h->tempOwner); //recreates def and adds hero to player
-
-			txt_id = 102;
+			h->showInfoDialog(102);
 		}
 		else //already 8 wandering heroes
 		{
-			txt_id = 103;
+			h->showInfoDialog(103);
 		}
-
-		h->showInfoDialog(txt_id);
 	}
 }
 
@@ -939,11 +954,11 @@ si32 CGHeroInstance::getManaNewTurn() const
 
 BoatId CGHeroInstance::getBoatType() const
 {
-	switch(type->heroClass->getAlignment())
+	switch (type->heroClass->getAlignment())
 	{
-		case EAlignment::EVIL : return EBoatId::BOAT_EVIL;
-		case EAlignment::GOOD : return EBoatId::BOAT_GOOD;
-		case EAlignment::NEUTRAL : return EBoatId::BOAT_NEUTRAL;
+		case EAlignment::EVIL: return EBoatId::BOAT_EVIL;
+		case EAlignment::GOOD: return EBoatId::BOAT_GOOD;
+		case EAlignment::NEUTRAL: return EBoatId::BOAT_NEUTRAL;
 		default: return EBoatId::NONE;
 	}
 }
