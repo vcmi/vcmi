@@ -653,19 +653,6 @@
 	},
 	"randomDwelling"				: { "index" :216, "handler": "randomDwelling", "types" : { "object" : { "index" : 0} }  },
 
-	"randomResource" : {
-		"index" :76,
-		"handler": "randomResource",
-		"types" : {
-			"object" : {
-				"index" : 0,
-				"templates" : {
-					"normal" : { "animation" : "AVTrndm0", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
-				}
-			}
-		}
-	},
-
 	"randomArtifact" : {
 		"index" :65,
 		"handler": "randomArtifact",
