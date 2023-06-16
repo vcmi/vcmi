@@ -133,13 +133,15 @@ void CMapLoaderH3M::readHeader()
 
 		if(hotaVersion > 0)
 		{
-			reader->skipZero(1);
-			//TODO: HotA
+			bool isMirrorMap = reader->readBool();
 			bool isArenaMap = reader->readBool();
+
+			//TODO: HotA
+			if (isMirrorMap)
+				logGlobal->warn("Map '%s': Mirror maps are not yet supported!", mapName);
+
 			if (isArenaMap)
-			{
 				logGlobal->warn("Map '%s': Arena maps are not supported!", mapName);
-			}
 		}
 
 		if(hotaVersion > 1)
