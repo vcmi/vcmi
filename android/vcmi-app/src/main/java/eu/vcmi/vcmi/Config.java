@@ -17,12 +17,8 @@ public class Config
     public static final String DEFAULT_LANGUAGE = "english";
     public static final int DEFAULT_MUSIC_VALUE = 5;
     public static final int DEFAULT_SOUND_VALUE = 5;
-    public static final int DEFAULT_SCREEN_RES_W = 800;
-    public static final int DEFAULT_SCREEN_RES_H = 600;
 
     public String mLanguage;
-    public int mResolutionWidth;
-    public int mResolutionHeight;
     public boolean mSwipeEnabled;
     public int mVolumeSound;
     public int mVolumeMusic;
@@ -41,21 +37,6 @@ public class Config
         }
 
         return baseObj.optJSONObject(type);
-    }
-
-    private static JSONObject accessScreenResNode(final JSONObject baseObj)
-    {
-        if (baseObj == null)
-        {
-            return null;
-        }
-
-        final JSONObject video = baseObj.optJSONObject("video");
-        if (video != null)
-        {
-            return video.optJSONObject("screenRes");
-        }
-        return null;
     }
 
     private static double loadDouble(final JSONObject node, final String key, final double fallback)
@@ -93,10 +74,6 @@ public class Config
         config.mUseRelativePointer = loadEntry(general, "userRelativePointer", false);
         config.mPointerSpeedMultiplier = loadDouble(general, "relativePointerSpeedMultiplier", 1.0);
 
-        final JSONObject screenRes = accessScreenResNode(obj);
-        config.mResolutionWidth = loadEntry(screenRes, "width", DEFAULT_SCREEN_RES_W);
-        config.mResolutionHeight = loadEntry(screenRes, "height", DEFAULT_SCREEN_RES_H);
-
         config.mRawObject = obj;
         return config;
     }
@@ -104,13 +81,6 @@ public class Config
     public void updateLanguage(final String s)
     {
         mLanguage = s;
-        mIsModified = true;
-    }
-
-    public void updateResolution(final int x, final int y)
-    {
-        mResolutionWidth = x;
-        mResolutionHeight = y;
         mIsModified = true;
     }
 
@@ -194,12 +164,9 @@ public class Config
     {
         final JSONObject generalNode = accessNode(mRawObject, "general");
         final JSONObject serverNode = accessNode(mRawObject, "server");
-        final JSONObject screenResNode = accessScreenResNode(mRawObject);
 
         final JSONObject root = mRawObject == null ? new JSONObject() : mRawObject;
         final JSONObject general = generalNode == null ? new JSONObject() : generalNode;
-        final JSONObject video = new JSONObject();
-        final JSONObject screenRes = screenResNode == null ? new JSONObject() : screenResNode;
         final JSONObject server = serverNode == null ? new JSONObject() : serverNode;
 
         if (mLanguage != null)
@@ -218,14 +185,6 @@ public class Config
         {
             server.put("playerAI", this.adventureAi);
             root.put("server", server);
-        }
-
-        if (mResolutionHeight > 0 && mResolutionWidth > 0)
-        {
-            screenRes.put("width", mResolutionWidth);
-            screenRes.put("height", mResolutionHeight);
-            video.put("screenRes", screenRes);
-            root.put("video", video);
         }
 
         return root.toString();

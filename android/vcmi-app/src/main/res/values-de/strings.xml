@@ -2,9 +2,6 @@
 <resources>
     <string name="app_name">VCMI</string>
     <string name="launcher_btn_start_title">VCMI starten</string>
-    <string name="launcher_btn_res_subtitle">Aktuell: %1$dx%2$d</string>
-    <string name="launcher_btn_res_subtitle_unknown">Aktuell: unbekannt (wahrscheinlich 800х600)</string>
-    <string name="launcher_btn_res_title">Bildschirmauflösung ändern</string>
     <string name="launcher_title">VCMI-Starter</string>
     <string name="server_name">VCMI-Server</string>
     <string name="launcher_btn_start_subtitle">Aktuelle VCMI-Version: %1$s</string>

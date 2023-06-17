@@ -202,7 +202,6 @@ public class ActivityLauncher extends ActivityWithToolbar
         (mCtrlCopy = new CopyDataController(this)).init(R.id.launcher_btn_copy);
         (mCtrlExport = new ExportDataController(this)).init(R.id.launcher_btn_export);
         new ModsBtnController(this, v -> startActivity(new Intent(ActivityLauncher.this, ActivityMods.class))).init(R.id.launcher_btn_mods);
-        mCtrlScreenRes = new ScreenResSettingController(this).init(R.id.launcher_btn_res, mConfig);
         mCtrlLanguage = new LanguageSettingController(this).init(R.id.launcher_btn_cp, mConfig);
         mCtrlPointerMode = new PointerModeSettingController(this).init(R.id.launcher_btn_pointer_mode, mConfig);
         mCtrlPointerMulti = new PointerMultiplierSettingController(this).init(R.id.launcher_btn_pointer_multi, mConfig);
@@ -212,7 +211,6 @@ public class ActivityLauncher extends ActivityWithToolbar
 
         mActualSettings.clear();
         mActualSettings.add(mCtrlLanguage);
-        mActualSettings.add(mCtrlScreenRes);
         mActualSettings.add(mCtrlPointerMode);
         mActualSettings.add(mCtrlPointerMulti);
         mActualSettings.add(mCtrlSoundVol);
@@ -266,7 +264,6 @@ public class ActivityLauncher extends ActivityWithToolbar
 
     private void onConfigUpdated()
     {
-        updateCtrlConfig(mCtrlScreenRes, mConfig);
         updateCtrlConfig(mCtrlLanguage, mConfig);
         updateCtrlConfig(mCtrlPointerMode, mConfig);
         updateCtrlConfig(mCtrlPointerMulti, mConfig);

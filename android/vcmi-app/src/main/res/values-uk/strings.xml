@@ -2,9 +2,6 @@
 <resources>
     <string name="app_name">VCMI</string>
     <string name="launcher_btn_start_title">Запустити VCMI</string>
-    <string name="launcher_btn_res_subtitle">Поточне: %1$dx%2$d</string>
-    <string name="launcher_btn_res_subtitle_unknown">Поточне: невідомо (верогідно 800х600)</string>
-    <string name="launcher_btn_res_title">Змінити розмір екрану</string>
     <string name="launcher_title">VCMI лаунчер</string>
     <string name="server_name">VCMI сервер</string>
     <string name="launcher_btn_start_subtitle">Поточна версія VCMI: %1$s</string>
