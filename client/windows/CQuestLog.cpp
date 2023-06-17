@@ -167,7 +167,7 @@ void CQuestLog::recreateLabelList()
 			if (auto seersHut = dynamic_cast<const CGSeerHut *>(quests[i].obj))
 			{
 				MetaString toSeer;
-				toSeer << VLC->generaltexth->allTexts[347];
+				toSeer.addRawString(VLC->generaltexth->allTexts[347]);
 				toSeer.addReplacement(seersHut->seerName);
 				text.addReplacement(toSeer.toString());
 			}

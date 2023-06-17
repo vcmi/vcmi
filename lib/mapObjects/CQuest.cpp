@@ -187,12 +187,14 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 	if(firstVisit)
 	{
 		isCustom = isCustomFirst;
-		iwText << (text = firstVisitText);
+		text = firstVisitText;
+		iwText.addRawString(text);
 	}
 	else if(failRequirements)
 	{
 		isCustom = isCustomNext;
-		iwText << (text = nextVisitText);
+		text = nextVisitText;
+		iwText.addRawString(text);
 	}
 	switch (missionType)
 	{
@@ -209,7 +211,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 				if(m2stats[i])
 				{
 					components.emplace_back(Component::EComponentType::PRIM_SKILL, i, m2stats[i], 0);
-					loot << "%d %s";
+					loot.addRawString("%d %s");
 					loot.addReplacement(m2stats[i]);
 					loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
 				}
@@ -244,7 +246,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			for(const auto & elem : m5arts)
 			{
 				components.emplace_back(Component::EComponentType::ARTIFACT, elem, 0, 0);
-				loot << "%s";
+				loot.addRawString("%s");
 				loot.addReplacement(MetaString::ART_NAMES, elem);
 			}
 			if(!isCustom)
@@ -257,7 +259,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			for(const auto & elem : m6creatures)
 			{
 				components.emplace_back(elem);
-				loot << "%s";
+				loot.addRawString("%s");
 				loot.addReplacement(elem);
 			}
 			if(!isCustom)
@@ -272,7 +274,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 				if(m7resources[i])
 				{
 					components.emplace_back(Component::EComponentType::RESOURCE, i, m7resources[i], 0);
-					loot << "%d %s";
+					loot.addRawString("%d %s");
 					loot.addReplacement(m7resources[i]);
 					loot.addReplacement(MetaString::RES_NAMES, i);
 				}
@@ -295,12 +297,12 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 	assert(missionType != MISSION_NONE);
 
 	if(onHover)
-		ms << "\n\n";
+		ms.addRawString("\n\n");
 
 	std::string questName = missionName(missionType);
 	std::string questState = missionState(onHover ? 3 : 4);
 
-	ms << VLC->generaltexth->translate("core.seerhut.quest", questName, questState,textOption);
+	ms.addRawString(VLC->generaltexth->translate("core.seerhut.quest", questName, questState,textOption));
 
 	switch(missionType)
 	{
@@ -314,7 +316,7 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 				{
 					if (m2stats[i])
 					{
-						loot << "%d %s";
+						loot.addRawString("%d %s");
 						loot.addReplacement(m2stats[i]);
 						loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
 					}
@@ -333,7 +335,7 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 				MetaString loot;
 				for(const auto & elem : m5arts)
 				{
-					loot << "%s";
+					loot.addRawString("%s");
 					loot.addReplacement(MetaString::ART_NAMES, elem);
 				}
 				ms.addReplacement(loot.buildList());
@@ -344,7 +346,7 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 				MetaString loot;
 				for(const auto & elem : m6creatures)
 				{
-					loot << "%s";
+					loot.addRawString("%s");
 					loot.addReplacement(elem);
 				}
 				ms.addReplacement(loot.buildList());
@@ -357,7 +359,7 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 				{
 					if (m7resources[i])
 					{
-						loot << "%d %s";
+						loot.addRawString("%d %s");
 						loot.addReplacement(m7resources[i]);
 						loot.addReplacement(MetaString::RES_NAMES, i);
 					}
@@ -378,7 +380,7 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 
 void CQuest::getCompletionText(MetaString &iwText, std::vector<Component> &components, bool isCustom, const CGHeroInstance * h) const
 {
-	iwText << completedText;
+	iwText.addRawString(completedText);
 	switch(missionType)
 	{
 		case CQuest::MISSION_LEVEL:
@@ -393,7 +395,7 @@ void CQuest::getCompletionText(MetaString &iwText, std::vector<Component> &compo
 				{
 					if (m2stats[i])
 					{
-						loot << "%d %s";
+						loot.addRawString("%d %s");
 						loot.addReplacement(m2stats[i]);
 						loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
 					}
@@ -407,7 +409,7 @@ void CQuest::getCompletionText(MetaString &iwText, std::vector<Component> &compo
 			MetaString loot;
 			for(const auto & elem : m5arts)
 			{
-				loot << "%s";
+				loot.addRawString("%s");
 				loot.addReplacement(MetaString::ART_NAMES, elem);
 			}
 			if (!isCustomComplete)
@@ -419,7 +421,7 @@ void CQuest::getCompletionText(MetaString &iwText, std::vector<Component> &compo
 			MetaString loot;
 			for(const auto & elem : m6creatures)
 			{
-				loot << "%s";
+				loot.addRawString("%s");
 				loot.addReplacement(elem);
 			}
 			if (!isCustomComplete)
@@ -433,7 +435,7 @@ void CQuest::getCompletionText(MetaString &iwText, std::vector<Component> &compo
 			{
 				if (m7resources[i])
 				{
-					loot << "%d %s";
+					loot.addRawString("%d %s");
 					loot.addReplacement(m7resources[i]);
 					loot.addReplacement(MetaString::RES_NAMES, i);
 				}
@@ -747,7 +749,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else
 	{
-		iw.text << VLC->generaltexth->seerEmpty[quest->completedOption];
+		iw.text.addRawString(VLC->generaltexth->seerEmpty[quest->completedOption]);
 		if (ID == Obj::SEER_HUT)
 			iw.text.addReplacement(seerName);
 		cb->showInfoDialog(&iw);
@@ -1161,7 +1163,11 @@ void CGBorderGuard::getVisitText (MetaString &text, std::vector<Component> &comp
 void CGBorderGuard::getRolloverText (MetaString &text, bool onHover) const
 {
 	if (!onHover)
-		text << VLC->generaltexth->tentColors[subID] << " " << VLC->objtypeh->getObjectName(Obj::KEYMASTER, subID);
+	{
+		text.addRawString(VLC->generaltexth->tentColors[subID]);
+		text.addRawString(" ");
+		text.addRawString(VLC->objtypeh->getObjectName(Obj::KEYMASTER, subID));
+	}
 }
 
 bool CGBorderGuard::checkQuest(const CGHeroInstance * h) const

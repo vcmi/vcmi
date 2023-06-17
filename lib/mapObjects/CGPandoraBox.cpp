@@ -259,7 +259,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 		for(const auto & elem : creatures.Slots())
 		{ //build list of joined creatures
 			iw.components.emplace_back(*elem.second);
-			loot << "%s";
+			loot.addRawString("%s");
 			loot.addReplacement(*elem.second);
 		}
 
@@ -276,7 +276,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	}
 	if(!hasGuardians && !msg.empty())
 	{
-		iw.text << msg;
+		iw.text.addRawString(msg);
 		cb->showInfoDialog(&iw);
 	}
 }
@@ -290,7 +290,7 @@ void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int text, const C
 	}
 	else
 	{
-		iw.text << message;
+		iw.text.addRawString(message);
 		afterBattle = true;
 	}
 }
@@ -306,7 +306,7 @@ void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int val, int nega
 	}
 	else
 	{
-		iw.text << message;
+		iw.text.addRawString(message);
 		afterBattle = true;
 	}
 }
@@ -461,7 +461,7 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 		InfoWindow iw;
 		iw.player = h->tempOwner;
 		if(!message.empty())
-			iw.text << message;
+			iw.text.addRawString(message);
 		else
 			iw.text.addTxt(MetaString::ADVOB_TXT, 16);
 		cb->showInfoDialog(&iw);

@@ -28,7 +28,7 @@ void ShrineInstanceConstructor::randomizeObject(CGShrine * shrine, CRandomGenera
 	if (visitTextParameter.isNumber())
 		shrine->visitText.addTxt(MetaString::ADVOB_TXT, static_cast<ui32>(visitTextParameter.Float()));
 	else
-		shrine->visitText << visitTextParameter.String();
+		shrine->visitText.addRawString(visitTextParameter.String());
 
 	if(shrine->spell == SpellID::NONE) // shrine has no predefined spell
 	{

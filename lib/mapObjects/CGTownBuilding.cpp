@@ -156,7 +156,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 				mp.hid = heroID;
 				cb->setMovePoints(&mp);
 
-				iw.text << VLC->generaltexth->allTexts[580];
+				iw.text.addRawString(VLC->generaltexth->allTexts[580]);
 				cb->showInfoDialog(&iw);
 			}
 			break;
@@ -168,7 +168,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 					cb->setManaPoints (heroID, 2 * h->manaLimit());
 				//TODO: investigate line below
 				//cb->setObjProperty (town->id, ObjProperty::VISITED, true);
-				iw.text << getVisitingBonusGreeting();
+				iw.text.addRawString(getVisitingBonusGreeting());
 				cb->showInfoDialog(&iw);
 				//extra visit penalty if hero alredy had double mana points (or even more?!)
 				town->addHeroToStructureVisitors(h, indexOnTV);
@@ -246,7 +246,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 		if(what != PrimarySkill::NONE)
 		{
 			iw.player = cb->getOwner(heroID);
-				iw.text << getVisitingBonusGreeting();
+				iw.text.addRawString(getVisitingBonusGreeting());
 			cb->showInfoDialog(&iw);
 			cb->changePrimSkill (cb->getHero(heroID), what, val);
 				town->addHeroToStructureVisitors(h, indexOnTV);
@@ -278,7 +278,7 @@ void CTownBonus::applyBonuses(CGHeroInstance * h, const BonusList & bonuses) con
 			addToVisitors = true;
 
 		iw.player = cb->getOwner(h->id);
-		iw.text << getCustomBonusGreeting(gb.bonus);
+		iw.text.addRawString(getCustomBonusGreeting(gb.bonus));
 		cb->showInfoDialog(&iw);
 	}
 	if(addToVisitors)

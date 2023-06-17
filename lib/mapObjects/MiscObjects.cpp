@@ -268,7 +268,7 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			BlockingDialog ynd(true,false);
 			ynd.player = h->getOwner();
-			ynd.text << message;
+			ynd.text.addRawString(message);
 			cb->showBlockingDialog(&ynd);
 		}
 		else
@@ -288,7 +288,7 @@ void CGResource::collectRes(const PlayerColor & player) const
 	if(!message.empty())
 	{
 		sii.type = EInfoWindowMode::AUTO;
-		sii.text << message;
+		sii.text.addRawString(message);
 	}
 	else
 	{
@@ -727,7 +727,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 			{
 				iw.components.emplace_back(Component::EComponentType::ARTIFACT, subID, 0, 0);
 				if(message.length())
-					iw.text << message;
+					iw.text.addRawString(message);
 				else
 					iw.text.addTxt(MetaString::ART_EVNTS, subID);
 			}
@@ -737,7 +737,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 				int spellID = storedArtifact->getScrollSpellID();
 				iw.components.emplace_back(Component::EComponentType::SPELL, spellID, 0, 0);
 				if(message.length())
-					iw.text << message;
+					iw.text.addRawString(message);
 				else
 				{
 					iw.text.addTxt(MetaString::ADVOB_TXT,135);
@@ -763,7 +763,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 				BlockingDialog ynd(true,false);
 				ynd.player = h->getOwner();
 				if(message.length())
-					ynd.text << message;
+					ynd.text.addRawString(message);
 				else
 				{
 					// TODO: Guard text is more complex in H3, see mantis issue 2325 for details
@@ -781,7 +781,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 				{
 					BlockingDialog ynd(true,false);
 					ynd.player = h->getOwner();
-					ynd.text << message;
+					ynd.text.addRawString(message);
 					cb->showBlockingDialog(&ynd);
 				}
 				else
@@ -980,7 +980,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	iw.player = h->getOwner();
 	iw.text = visitText;
 	iw.text.addTxt(MetaString::SPELL_NAME,spell);
-	iw.text << ".";
+	iw.text.addRawString(".");
 
 	if(!h->getArt(ArtifactPosition::SPELLBOOK))
 	{
@@ -1055,7 +1055,7 @@ void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
 	iw.player = h->getOwner();
-	iw.text << message;
+	iw.text.addRawString(message);
 	cb->showInfoDialog(&iw);
 
 	if(ID == Obj::OCEAN_BOTTLE)

@@ -161,7 +161,7 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 			//todo: handle newlines in metastring
 			std::string text = VLC->generaltexth->allTexts[343]; //Does %d points of damage.
 			boost::algorithm::trim(text);
-			line << text;
+			line.addRawString(text);
 			line.addReplacement(static_cast<int>(damage)); //no more text afterwards
 			log.push_back(line);
 		}

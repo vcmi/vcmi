@@ -179,15 +179,15 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			{
 			case Obj::SHIPWRECK:
 				textID = 123;
-				gbonus.bdescr << VLC->generaltexth->arraytxt[99];
+				gbonus.bdescr.addRawString(VLC->generaltexth->arraytxt[99]);
 				break;
 			case Obj::DERELICT_SHIP:
 				textID = 42;
-				gbonus.bdescr << VLC->generaltexth->arraytxt[101];
+				gbonus.bdescr.addRawString(VLC->generaltexth->arraytxt[101]);
 				break;
 			case Obj::CRYPT:
 				textID = 120;
-				gbonus.bdescr << VLC->generaltexth->arraytxt[98];
+				gbonus.bdescr.addRawString(VLC->generaltexth->arraytxt[98]);
 				break;
 			}
 			cb->giveHeroBonus(&gbonus);
@@ -208,7 +208,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		case Obj::CREATURE_BANK:
 		case Obj::DRAGON_UTOPIA:
 		default:
-			iw.text << VLC->generaltexth->advobtxt[33];// This was X, now is completely empty
+			iw.text.addRawString(VLC->generaltexth->advobtxt[33]);// This was X, now is completely empty
 			iw.text.addReplacement(getObjectName());
 		}
 		if(textID != -1)
@@ -227,7 +227,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			if (bc->resources[it] != 0)
 			{
 				iw.components.emplace_back(Component::EComponentType::RESOURCE, it, bc->resources[it], 0);
-				loot << "%d %s";
+				loot.addRawString("%d %s");
 				loot.addReplacement(iw.components.back().val);
 				loot.addReplacement(MetaString::RES_NAMES, iw.components.back().subtype);
 				cb->giveResource(hero->getOwner(), static_cast<EGameResID>(it), bc->resources[it]);
@@ -237,7 +237,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		for (auto & elem : bc->artifacts)
 		{
 			iw.components.emplace_back(Component::EComponentType::ARTIFACT, elem, 0, 0);
-			loot << "%s";
+			loot.addRawString("%s");
 			loot.addReplacement(MetaString::ART_NAMES, elem);
 			cb->giveHeroNewArtifact(hero, VLC->arth->objects[elem], ArtifactPosition::FIRST_AVAILABLE);
 		}
@@ -312,7 +312,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		for(const auto & elem : ourArmy.Slots())
 		{
 			iw.components.emplace_back(*elem.second);
-			loot << "%s";
+			loot.addRawString("%s");
 			loot.addReplacement(*elem.second);
 		}
 

@@ -34,10 +34,10 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 	CCreature::CreatureQuantityId monsterQuantityId = stacks.begin()->second->getQuantityID();
 	int quantityTextIndex = 172 + 3 * (int)monsterQuantityId;
 	if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
-		ms << CCreature::getQuantityRangeStringForId(monsterQuantityId);
+		ms.addRawString(CCreature::getQuantityRangeStringForId(monsterQuantityId));
 	else
 		ms.addTxt(MetaString::ARRAY_TXT, quantityTextIndex);
-	ms << " " ;
+	ms.addRawString(" ");
 	ms.addTxt(MetaString::CRE_PL_NAMES,subID);
 	ms.toString(hoverName);
 	return hoverName;
@@ -50,10 +50,10 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 	{
 		MetaString ms;
 		ms << stacks.begin()->second->count;
-		ms << " " ;
+		ms.addRawString(" ");
 		ms.addTxt(MetaString::CRE_PL_NAMES,subID);
 
-		ms << "\n";
+		ms.addRawString("\n");
 
 		int decision = takenAction(hero, true);
 
@@ -69,7 +69,7 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 			ms.addTxt(MetaString::GENERAL_TXT,243);
 			break;
 		default: //decision = cost in gold
-			ms << boost::to_string(boost::format(VLC->generaltexth->allTexts[244]) % decision);
+			ms.addRawString(boost::to_string(boost::format(VLC->generaltexth->allTexts[244]) % decision));
 			break;
 		}
 
@@ -134,7 +134,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(getStackCount(SlotID(0))));
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(action));
 			boost::algorithm::replace_first(tmp,"%s",VLC->creh->objects[subID]->getNamePluralTranslated());
-			ynd.text << tmp;
+			ynd.text.addRawString(tmp);
 			cb->showBlockingDialog(&ynd);
 			break;
 		}

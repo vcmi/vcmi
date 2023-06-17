@@ -1216,7 +1216,7 @@ void CGameHandler::addGenericKilledLog(BattleLogMessage & blm, const CStack * de
 			txt % (multiple ? VLC->generaltexth->allTexts[42] : defender->unitType()->getNameSingularTranslated()); // creature perishes
 		}
 		MetaString line;
-		line << txt.str();
+		line.addRawString(txt.str());
 		blm.lines.push_back(std::move(line));
 	}
 }
@@ -2810,9 +2810,12 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 				iw.text.addTxt(MetaString::SPELL_NAME, it.toEnum());
 				switch (size--)
 				{
-					case 2:	iw.text.addTxt(MetaString::GENERAL_TXT, 141);
-					case 1:	break;
-					default:	iw.text << ", ";
+					case 2:
+						iw.text.addTxt(MetaString::GENERAL_TXT, 141);
+					case 1:
+						break;
+					default:
+						iw.text.addRawString(", ");
 				}
 			}
 			iw.text.addTxt(MetaString::GENERAL_TXT, 142);//from %s
@@ -2835,9 +2838,12 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 				iw.text.addTxt(MetaString::SPELL_NAME, it.toEnum());
 				switch (size--)
 				{
-					case 2:	iw.text.addTxt(MetaString::GENERAL_TXT, 141);
-					case 1:	break;
-					default:	iw.text << ", ";
+					case 2:
+						iw.text.addTxt(MetaString::GENERAL_TXT, 141);
+					case 1:
+						break;
+					default:
+						iw.text.addRawString(", ");
 				}
 			}
 			iw.text.addTxt(MetaString::GENERAL_TXT, 148);//from %s
@@ -5348,7 +5354,7 @@ void CGameHandler::handleTimeEvents()
 				//prepare dialog
 				InfoWindow iw;
 				iw.player = color;
-				iw.text << ev.message;
+				iw.text.addRawString(ev.message);
 
 				for (int i=0; i<ev.resources.size(); i++)
 				{
@@ -5396,12 +5402,10 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 			&& ((ev.computerAffected && !pinfo->human)
 				|| (ev.humanAffected && pinfo->human)))
 		{
-
-
 			// dialog
 			InfoWindow iw;
 			iw.player = player;
-			iw.text << ev.message;
+			iw.text.addRawString(ev.message);
 
 			if (ev.resources.nonZero())
 			{
@@ -5787,9 +5791,9 @@ void CGameHandler::getVictoryLossMessage(PlayerColor player, const EVictoryLossC
 {
 	out.player = player;
 	out.text.clear();
-	out.text << victoryLossCheckResult.messageToSelf;
+	out.text.addRawString(VLC->generaltexth->translate(victoryLossCheckResult.messageToOthers));
 	// hackish, insert one player-specific string, if applicable
-	if (victoryLossCheckResult.messageToSelf.find("%s") != std::string::npos)
+	if (victoryLossCheckResult.messageToOthers.find("%s") != std::string::npos)
 		out.text.addReplacement(MetaString::COLOR, player.getNum());
 
 	out.components.emplace_back(Component::EComponentType::FLAG, player.getNum(), 0, 0);
@@ -7217,7 +7221,7 @@ void CGameHandler::showInfoDialog(const std::string & msg, PlayerColor player)
 {
 	InfoWindow iw;
 	iw.player = player;
-	iw.text << msg;
+	iw.text.addRawString(msg);
 	showInfoDialog(&iw);
 }
 

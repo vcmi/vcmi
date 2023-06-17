@@ -36,7 +36,7 @@ namespace {
 		if (value.isNumber())
 			ret.addTxt(MetaString::ADVOB_TXT, static_cast<ui32>(value.Float()));
 		else
-			ret << value.String();
+			ret.addRawString(value.String());
 		return ret;
 	}
 

@@ -147,17 +147,22 @@ public:
 		localStrings.push_back(txt);
 		return *this;
 	}
-	MetaString& operator<<(const std::string &txt)
-	{
-		message.push_back(TEXACT_STRING);
-		exactStrings.push_back(txt);
-		return *this;
-	}
 	MetaString& operator<<(int64_t txt)
 	{
 		message.push_back(TNUMBER);
 		numbers.push_back(txt);
 		return *this;
+	}
+
+	void addRawString(std::string value)
+	{
+		message.push_back(TEXACT_STRING);
+		exactStrings.push_back(value);
+	}
+	void addNumber(int64_t value)
+	{
+		message.push_back(TNUMBER);
+		numbers.push_back(value);
 	}
 	void addReplacement(ui8 type, ui32 serial)
 	{
