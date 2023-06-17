@@ -60,10 +60,8 @@ class BattleFieldController : public CIntObject
 	std::set<BattleHex> getHighlightedHexesForSpellRange();
 	std::set<BattleHex> getHighlightedHexesForMovementTarget();
 
-	/// get all hexes where a ranged unit can do full damage
-	std::vector<BattleHex> getRangedFullDamageHexes();
-
-	std::vector<BattleHex> getSootingRangeHexes();
+	/// get all hexes within a certain distance of given hex
+	std::vector<BattleHex> getRangeHexes(BattleHex sourceHex, uint8_t distance);
 
 	/// get only hexes at the limit of a range
 	std::vector<BattleHex> getRangeLimitHexes(BattleHex hoveredHex, std::vector<BattleHex> hexRange, uint8_t distanceToLimit);

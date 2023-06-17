@@ -446,60 +446,22 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForMovementTarget(
 	return {};
 }
 
-std::vector<BattleHex> BattleFieldController::getRangedFullDamageHexes()
+std::vector<BattleHex> BattleFieldController::getRangeHexes(BattleHex sourceHex, uint8_t distance)
 {
-	std::vector<BattleHex> rangedFullDamageHexes; // used for return
-
-	// if not a hovered arcer unit -> return
-	auto hoveredHex = getHoveredHex();
-	const CStack * hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+	std::vector<BattleHex> rangeHexes; // used for return
 
 	if (!settings["battle"]["rangedFullDamageLimitHighlightOnHover"].Bool() && !GH.isKeyboardShiftDown())
-		return rangedFullDamageHexes;
+		return rangeHexes;
 
-	if(!(hoveredStack && hoveredStack->isShooter()))
-		return rangedFullDamageHexes;
-
-	auto rangedFullDamageDistance = hoveredStack->getRangedFullDamageDistance();
-
-	// get only battlefield hexes that are in full range damage distance
-	std::set<BattleHex> fullRangeLimit; 
+	// get only battlefield hexes that are within the given distance
 	for(auto i = 0; i < GameConstants::BFIELD_SIZE; i++)
 	{
 		BattleHex hex(i);
-		if(hex.isAvailable() && BattleHex::getDistance(hoveredHex, hex) <= rangedFullDamageDistance)
-			rangedFullDamageHexes.push_back(hex);
+		if(hex.isAvailable() && BattleHex::getDistance(sourceHex, hex) <= distance)
+			rangeHexes.push_back(hex);
 	}
 
-	return rangedFullDamageHexes;
-}
-
-std::vector<BattleHex> BattleFieldController::getSootingRangeHexes()
-{
-	std::vector<BattleHex> sootingRangeHexes; // used for return
-
-	// if not a hovered arcer unit -> return
-	auto hoveredHex = getHoveredHex();
-	const CStack * hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
-
-	if (!settings["battle"]["rangedFullDamageLimitHighlightOnHover"].Bool() && !GH.isKeyboardShiftDown())
-		return sootingRangeHexes;
-
-	if(!(hoveredStack && hoveredStack->isShooter()))
-		return sootingRangeHexes;
-
-	auto shootingRangeDistance = hoveredStack->getSootingRangeDistance();
-
-	// get only battlefield hexes that are in full range damage distance
-	std::set<BattleHex> shootingRangeLimit; 
-	for(auto i = 0; i < GameConstants::BFIELD_SIZE; i++)
-	{
-		BattleHex hex(i);
-		if(hex.isAvailable() && BattleHex::getDistance(hoveredHex, hex) <= shootingRangeDistance)
-			sootingRangeHexes.push_back(hex);
-	}
-
-	return sootingRangeHexes;
+	return rangeHexes;
 }
 
 std::vector<BattleHex> BattleFieldController::getRangeLimitHexes(BattleHex hoveredHex, std::vector<BattleHex> rangeHexes, uint8_t distanceToLimit)
@@ -613,15 +575,15 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	if(hoveredStack && hoveredStack->isShooter())
 	{
 		// calculate array with highlight images for ranged full damage limit
-		std::vector<BattleHex> rangedFullDamageHexes = getRangedFullDamageHexes();
 		auto rangedFullDamageDistance = hoveredStack->getRangedFullDamageDistance();
+		std::vector<BattleHex> rangedFullDamageHexes = getRangeHexes(hoveredHex, rangedFullDamageDistance);
 		rangedFullDamageLimitHexes = getRangeLimitHexes(hoveredHex, rangedFullDamageHexes, rangedFullDamageDistance);
 		std::vector<std::vector<BattleHex::EDir>> rangedFullDamageLimitHexesNeighbourDirections = getOutsideNeighbourDirectionsForLimitHexes(rangedFullDamageHexes, rangedFullDamageLimitHexes);
 		rangedFullDamageLimitHexesHighligts = calculateRangeHighlightImages(rangedFullDamageLimitHexesNeighbourDirections, rangedFullDamageLimitImages);
 
 		// calculate array with highlight images for shooting range limit
-		std::vector<BattleHex> shootingRangeHexes = getSootingRangeHexes();
 		auto shootingRangeDistance = hoveredStack->getSootingRangeDistance();
+		std::vector<BattleHex> shootingRangeHexes = getRangeHexes(hoveredHex, shootingRangeDistance);
 		shootingRangeLimitHexes = getRangeLimitHexes(hoveredHex, shootingRangeHexes, shootingRangeDistance);
 		std::vector<std::vector<BattleHex::EDir>> shootingRangeLimitHexesNeighbourDirections = getOutsideNeighbourDirectionsForLimitHexes(shootingRangeHexes, shootingRangeLimitHexes);
 		shootingRangeLimitHexesHighligts = calculateRangeHighlightImages(shootingRangeLimitHexesNeighbourDirections, shootingRangeLimitImages);
