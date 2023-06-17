@@ -19,7 +19,6 @@ public class Config
     public static final int DEFAULT_SOUND_VALUE = 5;
 
     public String mLanguage;
-    public boolean mSwipeEnabled;
     public int mVolumeSound;
     public int mVolumeMusic;
     private String adventureAi;
@@ -69,7 +68,6 @@ public class Config
         config.mLanguage = loadEntry(general, "language", DEFAULT_LANGUAGE);
         config.mVolumeSound = loadEntry(general, "sound", DEFAULT_SOUND_VALUE);
         config.mVolumeMusic = loadEntry(general, "music", DEFAULT_MUSIC_VALUE);
-        config.mSwipeEnabled = loadEntry(general, "swipe", true);
         config.adventureAi = loadEntry(server, "playerAI", "Nullkiller");
         config.mUseRelativePointer = loadEntry(general, "userRelativePointer", false);
         config.mPointerSpeedMultiplier = loadDouble(general, "relativePointerSpeedMultiplier", 1.0);
@@ -81,12 +79,6 @@ public class Config
     public void updateLanguage(final String s)
     {
         mLanguage = s;
-        mIsModified = true;
-    }
-
-    public void updateSwipe(final boolean b)
-    {
-        mSwipeEnabled = b;
         mIsModified = true;
     }
 
@@ -174,7 +166,6 @@ public class Config
             general.put("language", mLanguage);
         }
 
-        general.put("swipe", mSwipeEnabled);
         general.put("music", mVolumeMusic);
         general.put("sound", mVolumeSound);
         general.put("userRelativePointer", mUseRelativePointer);

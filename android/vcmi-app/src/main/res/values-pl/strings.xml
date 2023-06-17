@@ -32,7 +32,6 @@
     <string name="menu_mods_download_repo">Pobierz dane modów z repozytorium</string>
 
     <string name="misc_pointermode_normal">Normalny</string>
-    <string name="misc_pointermode_swipe">Normalny z przesuwaniem mapy</string>
     <string name="misc_pointermode_relative">Relatywny</string>
     <string name="menu_launcher_about">O programie</string>
 

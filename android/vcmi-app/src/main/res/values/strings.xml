@@ -42,7 +42,6 @@
     <string name="menu_mods_download_repo">Download repository data</string>
 
     <string name="misc_pointermode_normal">Normal</string>
-    <string name="misc_pointermode_swipe">Normal with map dragging</string>
     <string name="misc_pointermode_relative">Relative</string>
     <string name="menu_launcher_about">About</string>
 

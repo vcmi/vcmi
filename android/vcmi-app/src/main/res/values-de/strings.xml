@@ -32,7 +32,6 @@
     <string name="launcher_section_settings">Einstellungen</string>
     <string name="menu_mods_download_repo">Liste der Mods herunterladen</string>
     <string name="misc_pointermode_normal">Normal</string>
-    <string name="misc_pointermode_swipe">Normal mit einer \"Ziehen\"-Geste auf der Karte</string>
     <string name="misc_pointermode_relative">Relativ</string>
     <string name="menu_launcher_about">Über</string>
     <string name="mods_title">Installierte Mods</string>

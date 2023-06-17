@@ -32,7 +32,6 @@
     <string name="launcher_section_settings">Налаштування</string>
     <string name="menu_mods_download_repo">Завантажити список модів</string>
     <string name="misc_pointermode_normal">Звичайне</string>
-    <string name="misc_pointermode_swipe">Звичайне з можливосттю тягати мапу</string>
     <string name="misc_pointermode_relative">Відносне</string>
     <string name="menu_launcher_about">О VCMI</string>
     <string name="mods_title">Встановлені моди</string>
