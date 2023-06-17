@@ -26,7 +26,6 @@ import eu.vcmi.vcmi.settings.ModsBtnController;
 import eu.vcmi.vcmi.settings.MusicSettingController;
 import eu.vcmi.vcmi.settings.PointerModeSettingController;
 import eu.vcmi.vcmi.settings.PointerMultiplierSettingController;
-import eu.vcmi.vcmi.settings.ScreenResSettingController;
 import eu.vcmi.vcmi.settings.SoundSettingController;
 import eu.vcmi.vcmi.settings.StartGameController;
 import eu.vcmi.vcmi.util.FileUtil;
@@ -44,7 +43,6 @@ public class ActivityLauncher extends ActivityWithToolbar
     private View mProgress;
     private TextView mErrorMessage;
     private Config mConfig;
-    private LauncherSettingController<ScreenResSettingController.ScreenRes, Config> mCtrlScreenRes;
     private LauncherSettingController<String, Config> mCtrlLanguage;
     private LauncherSettingController<PointerModeSettingController.PointerMode, Config> mCtrlPointerMode;
     private LauncherSettingController<Void, Void> mCtrlStart;
