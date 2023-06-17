@@ -106,34 +106,45 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 	bool directProhibited = vstd::contains(ourTerrain->prohibitTransitions, otherZone->getTerrainType())
 						 || vstd::contains(otherTerrain->prohibitTransitions, zone.getTerrainType());
 	auto directConnectionIterator = dNeighbourZones.find(otherZoneId);
+
+	float maxDist = -10e6;
 	if(!directProhibited && directConnectionIterator != dNeighbourZones.end())
 	{
 		int3 guardPos(-1, -1, -1);
-		int3 borderPos;
-		while(!directConnectionIterator->second.empty())
+		int3 roadNode;
+		for (auto borderPos : directConnectionIterator->second)
 		{
-			borderPos = *RandomGeneratorUtil::nextItem(directConnectionIterator->second, zone.getRand());
-			guardPos = zone.areaPossible().nearest(borderPos);
-			assert(borderPos != guardPos);
+			int3 potentialPos = zone.areaPossible().nearest(borderPos);
+			assert(borderPos != potentialPos);
 
-			float dist = map.getTileInfo(guardPos).getNearestObjectDistance();
-			if (dist >= 3) //Don't place guards at adjacent tiles
+			//Take into account distance to objects from both sides
+			float dist = std::min(map.getTileInfo(potentialPos).getNearestObjectDistance(),
+				map.getTileInfo(borderPos).getNearestObjectDistance());
+			if (dist > 3) //Don't place guards at adjacent tiles
 			{
 
-				auto safetyGap = rmg::Area({ guardPos });
+				auto safetyGap = rmg::Area({ potentialPos });
 				safetyGap.unite(safetyGap.getBorderOutside());
 				safetyGap.intersect(zone.areaPossible());
 				if (!safetyGap.empty())
 				{
 					safetyGap.intersect(otherZone->areaPossible());
 					if (safetyGap.empty())
-						break; //successfull position
+					{
+						float distanceToCenter = zone.getPos().dist2d(potentialPos) * otherZone->getPos().dist2d(potentialPos);
+
+						auto localDist = (dist - distanceToCenter) * //Prefer close to zone center
+							(std::max(distanceToCenter, dist) / std::min(distanceToCenter, dist));
+						//Distance to center dominates and is negative, so imbalanced proportions will result in huge penalty
+						if (localDist > maxDist)
+						{
+							maxDist = localDist;
+							guardPos = potentialPos;
+							roadNode = borderPos;
+						}
+					}
 				}
 			}
-			
-			//failed position
-			directConnectionIterator->second.erase(borderPos);
-			guardPos = int3(-1, -1, -1);
 		}
 		
 		if(guardPos.valid())
@@ -184,7 +195,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 				zone.getModificator<RoadPlacer>()->addRoadNode(guardPos);
 				
 				assert(otherZone->getModificator<RoadPlacer>());
-				otherZone->getModificator<RoadPlacer>()->addRoadNode(borderPos);
+				otherZone->getModificator<RoadPlacer>()->addRoadNode(roadNode);
 				
 				assert(otherZone->getModificator<ConnectionsPlacer>());
 				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
