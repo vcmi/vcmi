@@ -49,7 +49,7 @@ struct BattleTriggerEffect;
 struct CObstacleInstance;
 struct CPackForServer;
 class EVictoryLossCheckResult;
-struct MetaString;
+class MetaString;
 class ObstacleChanges;
 class UnitChanges;
 

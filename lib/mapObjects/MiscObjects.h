@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CArmedInstance.h"
+#include "../MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

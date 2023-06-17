@@ -238,6 +238,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/LoadProgress.cpp
 		${MAIN_LIB_DIR}/LogicalExpression.cpp
 		${MAIN_LIB_DIR}/NetPacksLib.cpp
+		${MAIN_LIB_DIR}/MetaString.cpp
 		${MAIN_LIB_DIR}/ObstacleHandler.cpp
 		${MAIN_LIB_DIR}/StartInfo.cpp
 		${MAIN_LIB_DIR}/ResourceSet.cpp
@@ -560,6 +561,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/Languages.h
 		${MAIN_LIB_DIR}/LoadProgress.h
 		${MAIN_LIB_DIR}/LogicalExpression.h
+		${MAIN_LIB_DIR}/MetaString.h
 		${MAIN_LIB_DIR}/NetPacksBase.h
 		${MAIN_LIB_DIR}/NetPacks.h
 		${MAIN_LIB_DIR}/NetPacksLobby.h

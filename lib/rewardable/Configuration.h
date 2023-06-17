@@ -11,8 +11,9 @@
 #pragma once
 
 #include "Limiter.h"
-#include "Reward.h"
+#include "MetaString.h"
 #include "NetPacksBase.h"
+#include "Reward.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

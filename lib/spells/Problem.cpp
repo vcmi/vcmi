@@ -8,7 +8,6 @@
  *
  */
 #include "StdInc.h"
-
 #include "Problem.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

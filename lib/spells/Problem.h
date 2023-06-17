@@ -12,7 +12,7 @@
 
 #include <vcmi/spells/Magic.h>
 
-#include "../NetPacksBase.h"
+#include "../MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

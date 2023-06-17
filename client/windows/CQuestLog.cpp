@@ -28,7 +28,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/NetPacksBase.h"
+#include "../../lib/MetaString.h"
 #include "../../lib/mapObjects/CQuest.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

@@ -21,7 +21,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct MetaString;
+class MetaString;
 class JsonNode;
 class JsonSerializeFormat;
 

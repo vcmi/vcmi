@@ -19,6 +19,7 @@
 #include "CGameStateFwd.h"
 #include "mapping/CMapDefines.h"
 #include "battle/CObstacleInstance.h"
+#include "MetaString.h"
 
 #include "spells/ViewSpellInt.h"
 

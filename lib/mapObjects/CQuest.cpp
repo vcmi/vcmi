@@ -1157,7 +1157,7 @@ void CGBorderGuard::initObj(CRandomGenerator & rand)
 
 void CGBorderGuard::getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h) const
 {
-	text << std::pair<ui8,ui32>(11,18);
+	text.addTxt(11,18);
 }
 
 void CGBorderGuard::getRolloverText (MetaString &text, bool onHover) const

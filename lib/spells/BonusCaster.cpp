@@ -13,7 +13,7 @@
 
 #include <vcmi/spells/Spell.h>
 
-#include "../NetPacksBase.h"
+#include "../MetaString.h"
 #include "../battle/Unit.h"
 #include "../bonuses/Bonus.h"
 

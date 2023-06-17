@@ -20,6 +20,7 @@ class CRandomGenerator;
 class IGameCallback;
 class ResourceSet;
 class int3;
+class MetaString;
 
 class DLL_LINKAGE IObjectInterface
 {

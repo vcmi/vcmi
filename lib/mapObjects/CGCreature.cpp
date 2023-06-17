@@ -49,7 +49,7 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 	if(hero->hasVisions(this, 0))
 	{
 		MetaString ms;
-		ms << stacks.begin()->second->count;
+		ms.appendNumber(stacks.begin()->second->count);
 		ms.addRawString(" ");
 		ms.addTxt(MetaString::CRE_PL_NAMES,subID);
 
@@ -324,7 +324,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
-			iw.text << std::pair<ui8,ui32>(1,29);  //You don't have enough gold
+			iw.text.addTxt(1,29);  //You don't have enough gold
 			cb->showInfoDialog(&iw);
 
 			//act as if player refused
