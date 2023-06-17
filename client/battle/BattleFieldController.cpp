@@ -502,50 +502,18 @@ std::vector<BattleHex> BattleFieldController::getSootingRangeHexes()
 	return sootingRangeHexes;
 }
 
-std::vector<BattleHex> BattleFieldController::getRangedFullDamageLimitHexes(std::vector<BattleHex> rangedFullDamageHexes)
+std::vector<BattleHex> BattleFieldController::getRangeLimitHexes(BattleHex hoveredHex, std::vector<BattleHex> rangeHexes, uint8_t distanceToLimit)
 {
-	std::vector<BattleHex> rangedFullDamageLimitHexes; // used for return
+	std::vector<BattleHex> limitHexes; // used for return
 
-	// if not a hovered arcer unit -> return
-	auto hoveredHex = getHoveredHex();
-	const CStack * hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
-
-	if(!(hoveredStack && hoveredStack->isShooter()))
-		return rangedFullDamageLimitHexes;
-
-	auto rangedFullDamageDistance = hoveredStack->getRangedFullDamageDistance();
-
-	// from ranged full damage hexes get only the ones at the limit
-	for(auto & hex : rangedFullDamageHexes)
+	// from range hexes get only the ones at the limit
+	for(auto & hex : rangeHexes)
 	{
-		if(BattleHex::getDistance(hoveredHex, hex) == rangedFullDamageDistance)
-			rangedFullDamageLimitHexes.push_back(hex);
+		if(BattleHex::getDistance(hoveredHex, hex) == distanceToLimit)
+			limitHexes.push_back(hex);
 	}
 
-	return rangedFullDamageLimitHexes;
-}
-
-std::vector<BattleHex> BattleFieldController::getShootingRangeLimitHexes(std::vector<BattleHex> shootingRangeHexes)
-{
-	std::vector<BattleHex> shootingRangeLimitHexes; // used for return
-
-	// if not a hovered arcer unit -> return
-	auto hoveredHex = getHoveredHex();
-	const CStack * hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
-
-	if(!(hoveredStack && hoveredStack->isShooter()))
-		return shootingRangeLimitHexes;
-
-	auto shootingRangeDistance = hoveredStack->getSootingRangeDistance();
-
-	// from ranged full damage hexes get only the ones at the limit
-	for(auto & hex : shootingRangeHexes)
-	{
-		if(BattleHex::getDistance(hoveredHex, hex) == shootingRangeDistance)
-			shootingRangeLimitHexes.push_back(hex);
-	}
-
-	return shootingRangeLimitHexes;
+	return limitHexes;
 }
 
 std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeighbourDirectionsForLimitHexes(std::vector<BattleHex> wholeRangeHexes, std::vector<BattleHex> rangeLimitHexes)
@@ -629,20 +597,35 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	std::set<BattleHex> hoveredSpellHexes = getHighlightedHexesForSpellRange();
 	std::set<BattleHex> hoveredMoveHexes  = getHighlightedHexesForMovementTarget();
 
-	if(getHoveredHex() == BattleHex::INVALID)
+	BattleHex hoveredHex = getHoveredHex();
+	if(hoveredHex == BattleHex::INVALID)
 		return;
 
-	// calculate array with highlight images for ranged full damage limit
-	std::vector<BattleHex> rangedFullDamageHexes = getRangedFullDamageHexes();
-	std::vector<BattleHex> rangedFullDamageLimitHexes = getRangedFullDamageLimitHexes(rangedFullDamageHexes);
-	std::vector<std::vector<BattleHex::EDir>> rangedFullDamageLimitHexesNeighbourDirections = getOutsideNeighbourDirectionsForLimitHexes(rangedFullDamageHexes, rangedFullDamageLimitHexes);
-	std::vector<std::shared_ptr<IImage>> rangedFullDamageLimitHexesHighligts = calculateRangeHighlightImages(rangedFullDamageLimitHexesNeighbourDirections, rangedFullDamageLimitImages);
-	
-	// calculate array with highlight images for shooting range limit
-	std::vector<BattleHex> shootingRangeHexes = getSootingRangeHexes();
-	std::vector<BattleHex> shootingRangeLimitHexes = getShootingRangeLimitHexes(shootingRangeHexes);
-	std::vector<std::vector<BattleHex::EDir>> shootingRangeLimitHexesNeighbourDirections = getOutsideNeighbourDirectionsForLimitHexes(shootingRangeHexes, shootingRangeLimitHexes);
-	std::vector<std::shared_ptr<IImage>> shootingRangeLimitHexesHighligts = calculateRangeHighlightImages(shootingRangeLimitHexesNeighbourDirections, shootingRangeLimitImages);
+	const CStack * hoveredStack = getHoveredStack();
+
+	std::vector<BattleHex> rangedFullDamageLimitHexes;
+	std::vector<BattleHex> shootingRangeLimitHexes;
+
+	std::vector<std::shared_ptr<IImage>> rangedFullDamageLimitHexesHighligts;
+	std::vector<std::shared_ptr<IImage>> shootingRangeLimitHexesHighligts;
+
+	// skip range limit calculations if unit hovered is not a shooter
+	if(hoveredStack && hoveredStack->isShooter())
+	{
+		// calculate array with highlight images for ranged full damage limit
+		std::vector<BattleHex> rangedFullDamageHexes = getRangedFullDamageHexes();
+		auto rangedFullDamageDistance = hoveredStack->getRangedFullDamageDistance();
+		rangedFullDamageLimitHexes = getRangeLimitHexes(hoveredHex, rangedFullDamageHexes, rangedFullDamageDistance);
+		std::vector<std::vector<BattleHex::EDir>> rangedFullDamageLimitHexesNeighbourDirections = getOutsideNeighbourDirectionsForLimitHexes(rangedFullDamageHexes, rangedFullDamageLimitHexes);
+		rangedFullDamageLimitHexesHighligts = calculateRangeHighlightImages(rangedFullDamageLimitHexesNeighbourDirections, rangedFullDamageLimitImages);
+
+		// calculate array with highlight images for shooting range limit
+		std::vector<BattleHex> shootingRangeHexes = getSootingRangeHexes();
+		auto shootingRangeDistance = hoveredStack->getSootingRangeDistance();
+		shootingRangeLimitHexes = getRangeLimitHexes(hoveredHex, shootingRangeHexes, shootingRangeDistance);
+		std::vector<std::vector<BattleHex::EDir>> shootingRangeLimitHexesNeighbourDirections = getOutsideNeighbourDirectionsForLimitHexes(shootingRangeHexes, shootingRangeLimitHexes);
+		shootingRangeLimitHexesHighligts = calculateRangeHighlightImages(shootingRangeLimitHexesNeighbourDirections, shootingRangeLimitImages);
+	}
 
 	auto const & hoveredMouseHexes = owner.actionsController->currentActionSpellcasting(getHoveredHex()) ? hoveredSpellHexes : hoveredMoveHexes;
 
@@ -717,6 +700,14 @@ bool BattleFieldController::isPixelInHex(Point const & position)
 BattleHex BattleFieldController::getHoveredHex()
 {
 	return hoveredHex;
+}
+
+const CStack* BattleFieldController::getHoveredStack()
+{
+	auto hoveredHex = getHoveredHex();
+	const CStack* hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+
+	return hoveredStack;
 }
 
 BattleHex BattleFieldController::getHexAtPosition(Point hoverPos)

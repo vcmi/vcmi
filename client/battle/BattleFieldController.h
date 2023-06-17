@@ -65,10 +65,8 @@ class BattleFieldController : public CIntObject
 
 	std::vector<BattleHex> getSootingRangeHexes();
 
-	/// get only hexes at the limit of a ranged unit's full damage range
-	std::vector<BattleHex> getRangedFullDamageLimitHexes(std::vector<BattleHex> rangedFullDamageHexes);
-
-	std::vector<BattleHex> getShootingRangeLimitHexes(std::vector<BattleHex> shootingRangeHexes);
+	/// get only hexes at the limit of a range
+	std::vector<BattleHex> getRangeLimitHexes(BattleHex hoveredHex, std::vector<BattleHex> hexRange, uint8_t distanceToLimit);
 
 	/// get an array that has for each hex in range, an aray with all directions where an ouside neighbour hex exists
 	std::vector<std::vector<BattleHex::EDir>> getOutsideNeighbourDirectionsForLimitHexes(std::vector<BattleHex> rangedFullDamageHexes, std::vector<BattleHex> rangedFullDamageLimitHexes);
@@ -122,6 +120,9 @@ public:
 
 	/// Returns ID of currently hovered hex or BattleHex::INVALID if none
 	BattleHex getHoveredHex();
+
+	/// Returns the currently hovered stack
+	const CStack* getHoveredStack();
 
 	/// returns true if selected tile can be attacked in melee by current stack
 	bool isTileAttackable(const BattleHex & number) const;
