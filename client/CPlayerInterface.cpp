@@ -1586,7 +1586,7 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 	{
 		if (victoryLossCheckResult.loss() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME) //enemy has lost
 		{
-			std::string str = victoryLossCheckResult.messageToSelf;
+			std::string str = CGI->generaltexth->translate(victoryLossCheckResult.messageToSelf);
 			boost::algorithm::replace_first(str, "%s", CGI->generaltexth->capColors[player.getNum()]);
 			showInfoDialog(str, std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(CComponent::flag, player.getNum(), 0)));
 		}

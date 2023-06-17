@@ -561,19 +561,19 @@ void MapSettings::on_pushButton_clicked()
 	//Victory condition - defeat all
 	TriggeredEvent standardVictory;
 	standardVictory.effect.type = EventEffect::VICTORY;
-	standardVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[5];
+	standardVictory.effect.toOtherMessage = "core.genrltxt.5";
 	standardVictory.identifier = "standardVictory";
 	standardVictory.description.clear(); // TODO: display in quest window
-	standardVictory.onFulfill = VLC->generaltexth->allTexts[659];
+	standardVictory.onFulfill = "core.genrltxt.659";
 	standardVictory.trigger = EventExpression(victoryCondition);
 
 	//Loss condition - 7 days without town
 	TriggeredEvent standardDefeat;
 	standardDefeat.effect.type = EventEffect::DEFEAT;
-	standardDefeat.effect.toOtherMessage = VLC->generaltexth->allTexts[8];
+	standardDefeat.effect.toOtherMessage = "core.genrltxt.8";
 	standardDefeat.identifier = "standardDefeat";
 	standardDefeat.description.clear(); // TODO: display in quest window
-	standardDefeat.onFulfill = VLC->generaltexth->allTexts[7];
+	standardDefeat.onFulfill = "core.genrltxt.7";
 	standardDefeat.trigger = EventExpression(defeatCondition);
 	
 	controller.map()->triggeredEvents.clear();
@@ -603,8 +603,8 @@ void MapSettings::on_pushButton_clicked()
 				EventCondition cond(EventCondition::HAVE_ARTIFACT);
 				assert(victoryTypeWidget);
 				cond.objectType = victoryTypeWidget->currentData().toInt();
-				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[281];
-				specialVictory.onFulfill = VLC->generaltexth->allTexts[280];
+				specialVictory.effect.toOtherMessage = "core.genrltxt.281";
+				specialVictory.onFulfill = "core.genrltxt.280";
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -614,8 +614,8 @@ void MapSettings::on_pushButton_clicked()
 				assert(victoryTypeWidget);
 				cond.objectType = victoryTypeWidget->currentData().toInt();
 				cond.value = victoryValueWidget->text().toInt();
-				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[277];
-				specialVictory.onFulfill = VLC->generaltexth->allTexts[276];
+				specialVictory.effect.toOtherMessage = "core.genrltxt.277";
+				specialVictory.onFulfill = "core.genrltxt.276";
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -625,8 +625,8 @@ void MapSettings::on_pushButton_clicked()
 				assert(victoryTypeWidget);
 				cond.objectType = victoryTypeWidget->currentData().toInt();
 				cond.value = victoryValueWidget->text().toInt();
-				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[279];
-				specialVictory.onFulfill = VLC->generaltexth->allTexts[278];
+				specialVictory.effect.toOtherMessage = "core.genrltxt.279";
+				specialVictory.onFulfill = "core.genrltxt.278";
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -638,8 +638,8 @@ void MapSettings::on_pushButton_clicked()
 				int townIdx = victorySelectWidget->currentData().toInt();
 				if(townIdx > -1)
 					cond.position = controller.map()->objects[townIdx]->pos;
-				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[283];
-				specialVictory.onFulfill = VLC->generaltexth->allTexts[282];
+				specialVictory.effect.toOtherMessage = "core.genrltxt.283";
+				specialVictory.onFulfill = "core.genrltxt.282";
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -650,8 +650,8 @@ void MapSettings::on_pushButton_clicked()
 				cond.objectType = Obj::TOWN;
 				int townIdx = victoryTypeWidget->currentData().toInt();
 				cond.position = controller.map()->objects[townIdx]->pos;
-				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[250];
-				specialVictory.onFulfill = VLC->generaltexth->allTexts[249];
+				specialVictory.effect.toOtherMessage = "core.genrltxt.250";
+				specialVictory.onFulfill = "core.genrltxt.249";
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -662,8 +662,8 @@ void MapSettings::on_pushButton_clicked()
 				cond.objectType = Obj::HERO;
 				int heroIdx = victoryTypeWidget->currentData().toInt();
 				cond.position = controller.map()->objects[heroIdx]->pos;
-				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[253];
-				specialVictory.onFulfill = VLC->generaltexth->allTexts[252];
+				specialVictory.effect.toOtherMessage = "core.genrltxt.253";
+				specialVictory.onFulfill = "core.genrltxt.252";
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -675,8 +675,8 @@ void MapSettings::on_pushButton_clicked()
 				int townIdx = victorySelectWidget->currentData().toInt();
 				if(townIdx > -1)
 					cond.position = controller.map()->objects[townIdx]->pos;
-				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[293];
-				specialVictory.onFulfill = VLC->generaltexth->allTexts[292];
+				specialVictory.effect.toOtherMessage = "core.genrltxt.293";
+				specialVictory.onFulfill = "core.genrltxt.292";
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -733,7 +733,7 @@ void MapSettings::on_pushButton_clicked()
 				int townIdx = loseTypeWidget->currentData().toInt();
 				cond.position = controller.map()->objects[townIdx]->pos;
 				noneOf.expressions.push_back(cond);
-				specialDefeat.onFulfill = VLC->generaltexth->allTexts[251];
+				specialDefeat.onFulfill = "core.genrltxt.251";
 				specialDefeat.trigger = EventExpression(noneOf);
 				break;
 			}
@@ -746,7 +746,7 @@ void MapSettings::on_pushButton_clicked()
 				int townIdx = loseTypeWidget->currentData().toInt();
 				cond.position = controller.map()->objects[townIdx]->pos;
 				noneOf.expressions.push_back(cond);
-				specialDefeat.onFulfill = VLC->generaltexth->allTexts[253];
+				specialDefeat.onFulfill = "core.genrltxt.253";
 				specialDefeat.trigger = EventExpression(noneOf);
 				break;
 			}
@@ -755,7 +755,7 @@ void MapSettings::on_pushButton_clicked()
 				EventCondition cond(EventCondition::DAYS_PASSED);
 				assert(loseValueWidget);
 				cond.value = expiredDate(loseValueWidget->text());
-				specialDefeat.onFulfill = VLC->generaltexth->allTexts[254];
+				specialDefeat.onFulfill = "core.genrltxt.254";
 				specialDefeat.trigger = EventExpression(cond);
 				break;
 			}
@@ -764,7 +764,7 @@ void MapSettings::on_pushButton_clicked()
 				EventCondition cond(EventCondition::DAYS_WITHOUT_TOWN);
 				assert(loseValueWidget);
 				cond.value = loseValueWidget->text().toInt();
-				specialDefeat.onFulfill = VLC->generaltexth->allTexts[7];
+				specialDefeat.onFulfill = "core.genrltxt.7";
 				specialDefeat.trigger = EventExpression(cond);
 				break;
 			}

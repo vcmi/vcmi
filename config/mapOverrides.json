@@ -1,7 +1,7 @@
 {
 	"data/good1:2" : { // Griffin Cliff
 		"defeatIconIndex" : 3,
-		"defeatString" : "Lose All Your Towns and Heroes",
+		"defeatString" : "core.lcdesc.0",
 		"triggeredEvents" : {
 			"specialVictory" : {
 				"condition" : [
@@ -10,26 +10,26 @@
 					[ "control", { "type" : 17 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy's flag flies on the dwelling of every creature. Victory is theirs!",
+					"messageToSend" : "core.genrltxt.289",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! Your flag flies on the dwelling of every creature. Victory is yours!"
+				"message" : "core.genrltxt.288"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 8,
-		"victoryString" : "Flag All Creature Dwellings"
+		"victoryString" : "core.vcdesc.9"
 	},
 	"data/good3:2" : { // For King and Country
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -43,7 +43,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -51,26 +51,26 @@
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			},
 			"standardVictory" : {
 				"condition" : [ "standardWin" ],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! All your enemies have been defeated! Victory is yours!"
+				"message" : "core.genrltxt.659"
 			}
 		},
 		"victoryIconIndex" : 11,
-		"victoryString" : "Defeat All Enemies"
+		"victoryString" : "core.vcdesc.0"
 	},
 	"data/secret1:0" : { // The Grail
 		"defeatIconIndex" : 2,
-		"defeatString" : "Time Expires",
+		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
 			"specialDefeat" : {
 				"condition" : [
@@ -79,10 +79,10 @@
 					[ "daysPassed", { "value" : 56 } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "Alas, time has run out on your quest. All is lost."
+				"message" : "core.genrltxt.254"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -91,26 +91,26 @@
 					[ "haveArtifact", { "type" : 2 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has found the %s, and can claim victory!",
+					"messageToSend" : "core.genrltxt.281",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have found the %s, and can claim victory!"
+				"message" : "core.genrltxt.280"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 0,
-		"victoryString" : "Acquire Artifact"
+		"victoryString" : "core.vcdesc.1"
 	},
 	"data/ab:1" : { // Seeking Armageddon
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"specialDefeat" : {
 				"condition" : [
@@ -119,10 +119,10 @@
 					[ "noneOf", [ "control", { "position" : [ 63, 65, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -133,18 +133,18 @@
 					[ "haveArtifact", { "type" : "artifact.shieldOfTheDamned" } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has found the relics, and can claim victory!",
+					"messageToSend" : "core.genrltxt.281",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have found the relics, and can claim victory!"
+				"message" : "core.genrltxt.763"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 0,
@@ -152,7 +152,7 @@
 	},
 	"data/ab:3" : { // Maker of Sorrows
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"specialDefeat" : {
 				"condition" : [
@@ -161,10 +161,10 @@
 					[ "noneOf", [ "control", { "position" : [ 102, 18, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -173,26 +173,26 @@
 					[ "haveArtifact", { "type" : 128 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has found the %s, and can claim victory!",
+					"messageToSend" : "core.genrltxt.281",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have found the %s, and can claim victory!"
+				"message" : "core.genrltxt.280"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 0,
-		"victoryString" : "Acquire Artifact"
+		"victoryString" : "core.vcdesc.1"
 	},
 	"data/ab:6" : { // To Kill A Hero
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -207,7 +207,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -219,26 +219,26 @@
 					[ "destroy", { "position" : [ 33, 37, 0 ], "type" : 34 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The hero, %s, has suffered defeat - your quest is over!",
+					"messageToSend" : "core.genrltxt.253",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have completed your quest to defeat the enemy hero %s. Victory is yours!"
+				"message" : "core.genrltxt.252"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 5,
-		"victoryString" : "Defeat Hero"
+		"victoryString" : "core.vcdesc.6"
 	},
 	"data/ab:7" : { // Oblivion's Edge
 		"defeatIconIndex" : 2,
-		"defeatString" : "Time Expires",
+		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -253,7 +253,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -265,10 +265,10 @@
 					[ "daysPassed", { "value" : 56 } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "Alas, time has run out on your quest. All is lost."
+				"message" : "core.genrltxt.254"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -277,26 +277,26 @@
 					[ "transport", { "position" : [ 35, 36, 0 ], "type" : 128 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has delivered the precious cargo intact and claims victory!",
+					"messageToSend" : "core.genrltxt.293",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have reached your destination, precious cargo intact, and can claim victory!"
+				"message" : "core.genrltxt.292"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 10,
-		"victoryString" : "Transport Artifact"
+		"victoryString" : "core.vcdesc.11"
 	},
 	"data/slayer:0" : { // Rust Dragons
 		"defeatIconIndex" : 2,
-		"defeatString" : "Time Expires",
+		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
 			"heroMustSurvive" : {
 				"condition" : [
@@ -305,10 +305,10 @@
 					[ "noneOf", [ "control", { "position" : [ 99, 101, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"specialDefeat" : {
 				"condition" : [
@@ -317,10 +317,10 @@
 					[ "daysPassed", { "value" : 168 } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "Alas, time has run out on your quest. All is lost."
+				"message" : "core.genrltxt.254"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -329,26 +329,26 @@
 					[ "control", { "type" : 53 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy's flag flies on every mine. Victory is theirs!",
+					"messageToSend" : "core.genrltxt.291",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! Your flag flies on every mine. Victory is yours!"
+				"message" : "core.genrltxt.290"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 9,
-		"victoryString" : "Flag All Mines"
+		"victoryString" : "core.vcdesc.10"
 	},
 	"data/slayer:1" : { // Faerie Dragons
 		"defeatIconIndex" : 2,
-		"defeatString" : "Time Expires",
+		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
 			"heroMustSurvive" : {
 				"condition" : [
@@ -357,10 +357,10 @@
 					[ "noneOf", [ "control", { "position" : [ 104, 61, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"specialDefeat" : {
 				"condition" : [
@@ -369,34 +369,34 @@
 					[ "daysPassed", { "value" : 168 } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "Alas, time has run out on your quest. All is lost."
+				"message" : "core.genrltxt.254"
 			},
 			"specialVictory" : {
 				"condition" : [ "destroy", { "position" : [ 6, 49, 0 ], "type" : 54 } ],
 				"effect" : {
-					"messageToSend" : "The enemy has beaten you to your quest to kill the fearsome beast, and claims victory!",
+					"messageToSend" : "core.genrltxt.287",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have completed your quest to kill the fearsome beast, and can claim victory!"
+				"message" : "core.genrltxt.286"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 7,
-		"victoryString" : "Defeat Monster"
+		"victoryString" : "core.vcdesc.8"
 	},
 	"data/slayer:2" : { // Azure Dragons
 		"defeatIconIndex" : 2,
-		"defeatString" : "Time Expires",
+		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
 			"heroMustSurvive" : {
 				"condition" : [
@@ -405,10 +405,10 @@
 					[ "noneOf", [ "control", { "position" : [ 88, 82, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"specialDefeat" : {
 				"condition" : [
@@ -417,34 +417,34 @@
 					[ "daysPassed", { "value" : 168 } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "Alas, time has run out on your quest. All is lost."
+				"message" : "core.genrltxt.254"
 			},
 			"specialVictory" : {
 				"condition" : [ "destroy", { "position" : [ 107, 3, 0 ], "type" : 54 } ],
 				"effect" : {
-					"messageToSend" : "The enemy has beaten you to your quest to kill the fearsome beast, and claims victory!",
+					"messageToSend" : "core.genrltxt.287",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have completed your quest to kill the fearsome beast, and can claim victory!"
+				"message" : "core.genrltxt.286"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 7,
-		"victoryString" : "Defeat Monster"
+		"victoryString" : "core.vcdesc.8"
 	},
 	"data/slayer:3" : { // Crystal Dragons
 		"defeatIconIndex" : 2,
-		"defeatString" : "Time Expires",
+		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
 			"heroMustSurvive" : {
 				"condition" : [
@@ -453,10 +453,10 @@
 					[ "noneOf", [ "control", { "position" : [ 23, 1, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"specialDefeat" : {
 				"condition" : [
@@ -465,34 +465,34 @@
 					[ "daysPassed", { "value" : 56 } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "Alas, time has run out on your quest. All is lost."
+				"message" : "core.genrltxt.254"
 			},
 			"specialVictory" : {
 				"condition" : [ "destroy", { "position" : [ 57, 61, 0 ], "type" : 54 } ],
 				"effect" : {
-					"messageToSend" : "The enemy has beaten you to your quest to kill the fearsome beast, and claims victory!",
+					"messageToSend" : "core.genrltxt.287",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have completed your quest to kill the fearsome beast, and can claim victory!"
+				"message" : "core.genrltxt.286"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 7,
-		"victoryString" : "Defeat Monster"
+		"victoryString" : "core.vcdesc.8"
 	},
 	"data/festival:0" : { // For the Throne
 		"defeatIconIndex" : 2,
-		"defeatString" : "Time Expires",
+		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -508,7 +508,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -520,34 +520,34 @@
 					[ "daysPassed", { "value" : 84 } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "Alas, time has run out on your quest. All is lost."
+				"message" : "core.genrltxt.254"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			},
 			"standardVictory" : {
 				"condition" : [ "standardWin" ],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! All your enemies have been defeated! Victory is yours!"
+				"message" : "core.genrltxt.659"
 			}
 		},
 		"victoryIconIndex" : 11,
-		"victoryString" : "Defeat All Enemies"
+		"victoryString" : "core.vcdesc.0"
 	},
 	"data/festival:1" : { // Clan War
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -563,7 +563,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -571,26 +571,26 @@
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			},
 			"standardVictory" : {
 				"condition" : [ "standardWin" ],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! All your enemies have been defeated! Victory is yours!"
+				"message" : "core.genrltxt.659"
 			}
 		},
 		"victoryIconIndex" : 11,
-		"victoryString" : "Defeat All Enemies"
+		"victoryString" : "core.vcdesc.0"
 	},
 	"data/festival:2" : { // Taming of the wild
 		"defeatIconIndex" : 2,
-		"defeatString" : "Time Expires",
+		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -606,7 +606,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -618,34 +618,34 @@
 					[ "daysPassed", { "value" : 112 } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "Alas, time has run out on your quest. All is lost."
+				"message" : "core.genrltxt.254"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			},
 			"specialVictory" : {
 				"condition" : [  "destroy", { "type" : 54} ],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "victory"
 				},
 				"message" : "Congratulations! Area around your town is now secure!"
 			}
 		},
 		"victoryIconIndex" : 7,
-		"victoryString" : "Eliminate all hostile creatures in the area"
+		"victoryString" : "core.vcdesc.12"
 	},
 	"data/festival:3" : { // Razor Claw
 		"defeatIconIndex" : 2,
-		"defeatString" : "Time Expires",
+		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
 			"heroMustSurvive" : {
 				"condition" : [
@@ -654,10 +654,10 @@
 					[ "noneOf", [ "control", { "position" : [ 1, 3, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"specialDefeat" : {
 				"condition" : [
@@ -666,34 +666,34 @@
 					[ "daysPassed", { "value" : 84 } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "Alas, time has run out on your quest. All is lost."
+				"message" : "core.genrltxt.254"
 			},
 			"specialVictory" : {
 				"condition" : [ "destroy", { "position" : [ 62, 5, 1 ], "type" : 54 } ],
 				"effect" : {
-					"messageToSend" : "The enemy has beaten you to your quest to kill the fearsome beast, and claims victory!",
+					"messageToSend" : "core.genrltxt.287",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have completed your quest to kill the fearsome beast, and can claim victory!"
+				"message" : "core.genrltxt.286"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 7,
-		"victoryString" : "Defeat Monster"
+		"victoryString" : "core.vcdesc.8"
 	},
 	"data/fire:0" : { // Farming Towns
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroMustSurvive" : {
 				"condition" : [
@@ -702,26 +702,26 @@
 					[ "noneOf", [ "control", { "position" : [ 69, 69, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			},
 			"standardVictory" : {
 				"condition" : [ "standardWin" ],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! All your enemies have been defeated! Victory is yours!"
+				"message" : "core.genrltxt.659"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -733,16 +733,16 @@
 					"messageToSend" : "You has been vanquished!",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! Area around your lands is now secure!"
+				"message" : "Congratulations! You have defeated all of the monsters plaguing this land!"
 			}
 
 		},
 		"victoryIconIndex" : 11,
-		"victoryString" : "Destroy All Creatures / Defeat All Enemies"
+		"victoryString" : "core.vcdesc.12"
 	},
 	"data/fire:1" : { // March of the Undead
 		"defeatIconIndex" : 2,
-		"defeatString" : "Time Expires",
+		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
 			"specialVictory" : {
 				"condition" : [
@@ -751,10 +751,10 @@
 					[ "control", { "type" : 17 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy's flag flies on the dwelling of every creature. Victory is theirs!",
+					"messageToSend" : "core.genrltxt.289",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! Your flag flies on the dwelling of every creature. Victory is yours!"
+				"message" : "core.genrltxt.288"
 			},
 			"specialDefeat" : {
 				"condition" : [
@@ -763,26 +763,26 @@
 					[ "daysPassed", { "value" : 196 } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "Alas, time has run out on your quest. All is lost."
+				"message" : "core.genrltxt.254"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 8,
-		"victoryString" : "Flag All Creature Dwellings"
+		"victoryString" : "core.vcdesc.9"
 	},
 	"data/fool:2" : { // Hurry Up and Wait
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroMustSurvive" : {
 				"condition" : [
@@ -791,26 +791,26 @@
 					[ "noneOf", [ "control", { "position" : [ 60, 45, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			},
 			"standardVictory" : {
 				"condition" : [ "standardWin" ],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! All your enemies have been defeated! Victory is yours!"
+				"message" : "core.genrltxt.659"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -819,7 +819,7 @@
 					[ "daysPassed", { "value" : 112 } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "victory"
 				},
 				"message" : "Congratulations! You have survived long enough for help to arrive. Victory is yours!"
@@ -827,11 +827,11 @@
 
 		},
 		"victoryIconIndex" : 11,
-		"victoryString" : "Survive for 4 months / Defeat all enemies"
+		"victoryString" : "core.vcdesc.13"
 	},
 	"data/gem:1" : { // After the Amulet
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -845,7 +845,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -853,26 +853,26 @@
 			"specialVictory" : {
 				"condition" : [ "haveArtifact", { "type" : 54 } ],
 				"effect" : {
-					"messageToSend" : "The enemy has found the %s, and can claim victory!",
+					"messageToSend" : "core.genrltxt.281",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have found the %s, and can claim victory!"
+				"message" : "core.genrltxt.280"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 0,
-		"victoryString" : "Acquire Artifact"
+		"victoryString" : "core.vcdesc.1"
 	},
 	"data/gem:2" : { // Retrieving the Cowl
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -886,7 +886,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -898,26 +898,26 @@
 					[ "transport", { "position" : [ 9, 11, 0 ], "type" : 55 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has delivered the precious cargo intact and claims victory!",
+					"messageToSend" : "core.genrltxt.293",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have reached your destination, precious cargo intact, and can claim victory!"
+				"message" : "core.genrltxt.292"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 10,
-		"victoryString" : "Transport Artifact"
+		"victoryString" : "core.vcdesc.11"
 	},
 	"data/gem:3" : { // Driving for the Boots
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -931,7 +931,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -943,26 +943,26 @@
 					[ "transport", { "position" : [ 53, 16, 0 ], "type" : 56 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has delivered the precious cargo intact and claims victory!",
+					"messageToSend" : "core.genrltxt.293",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have reached your destination, precious cargo intact, and can claim victory!"
+				"message" : "core.genrltxt.292"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 10,
-		"victoryString" : "Transport Artifact"
+		"victoryString" : "core.vcdesc.11"
 	},
 	"data/crag:0" : { // Bashing Skulls
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroMustSurvive" : {
 				"condition" : [
@@ -971,10 +971,10 @@
 					[ "noneOf", [ "control", { "position" : [ 58, 70, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -983,26 +983,26 @@
 					[ "haveArtifact", { "type" : 20 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has found the %s, and can claim victory!",
+					"messageToSend" : "core.genrltxt.281",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have found the %s, and can claim victory!"
+				"message" : "core.genrltxt.280"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 0,
-		"victoryString" : "Acquire Artifact"
+		"victoryString" : "core.vcdesc.1"
 	},
 	"data/crag:1" : { // Black Sheep
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroMustSurvive" : {
 				"condition" : [
@@ -1011,10 +1011,10 @@
 					[ "noneOf", [ "control", { "position" : [ 69, 2, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -1023,26 +1023,26 @@
 					[ "haveArtifact", { "type" : 8 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has found the %s, and can claim victory!",
+					"messageToSend" : "core.genrltxt.281",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have found the %s, and can claim victory!"
+				"message" : "core.genrltxt.280"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 0,
-		"victoryString" : "Acquire Artifact"
+		"victoryString" : "core.vcdesc.1"
 	},
 	"data/crag:2" : { // A Cage in the Hand
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroMustSurvive" : {
 				"condition" : [
@@ -1051,10 +1051,10 @@
 					[ "noneOf", [ "control", { "position" : [ 2, 1, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -1063,26 +1063,26 @@
 					[ "haveArtifact", { "type" : 26 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has found the %s, and can claim victory!",
+					"messageToSend" : "core.genrltxt.281",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have found the %s, and can claim victory!"
+				"message" : "core.genrltxt.280"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 0,
-		"victoryString" : "Acquire Artifact"
+		"victoryString" : "core.vcdesc.1"
 	},
 	"data/crag:3" : { // Grave Robber
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroMustSurvive" : {
 				"condition" : [
@@ -1091,10 +1091,10 @@
 					[ "noneOf", [ "control", { "position" : [ 10, 11, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -1103,26 +1103,26 @@
 					[ "haveArtifact", { "type" : 14 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has found the %s, and can claim victory!",
+					"messageToSend" : "core.genrltxt.281",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have found the %s, and can claim victory!"
+				"message" : "core.genrltxt.280"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 0,
-		"victoryString" : "Acquire Artifact"
+		"victoryString" : "core.vcdesc.1"
 	},
 	"data/sandro:2" : { // Finneas Vilmar
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -1136,7 +1136,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -1144,26 +1144,26 @@
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			},
 			"standardVictory" : {
 				"condition" : [ "standardWin" ],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! All your enemies have been defeated! Victory is yours!"
+				"message" : "core.genrltxt.659"
 			}
 		},
 		"victoryIconIndex" : 11,
-		"victoryString" : "Defeat All Enemies"
+		"victoryString" : "core.vcdesc.0"
 	},
 	"data/sandro:3" : { // Duke Alarice
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -1177,7 +1177,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -1185,26 +1185,26 @@
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			},
 			"standardVictory" : {
 				"condition" : [ "standardWin" ],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! All your enemies have been defeated! Victory is yours!"
+				"message" : "core.genrltxt.659"
 			}
 		},
 		"victoryIconIndex" : 11,
-		"victoryString" : "Defeat All Enemies"
+		"victoryString" : "core.vcdesc.0"
 	},
 	"data/yog:0" : { // On the Run
 		"defeatIconIndex" : 2,
-		"defeatString" : "Time Expires",
+		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
 			"heroMustSurvive" : {
 				"condition" : [
@@ -1213,10 +1213,10 @@
 					[ "noneOf", [ "control", { "position" : [ 71, 14, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"specialDefeat" : {
 				"condition" : [
@@ -1225,10 +1225,10 @@
 					[ "daysPassed", { "value" : 140 } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "Alas, time has run out on your quest. All is lost."
+				"message" : "core.genrltxt.254"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -1237,26 +1237,26 @@
 					[ "control", { "position" : [ 68, 4, 0 ], "type" : 98 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has captured %s, and claims victory!",
+					"messageToSend" : "core.genrltxt.250",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You captured %s, and are victorious!"
+				"message" : "core.genrltxt.249"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 6,
-		"victoryString" : "Capture Town"
+		"victoryString" : "core.vcdesc.7"
 	},
 	"data/final:3" : { // Final Peace
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -1270,7 +1270,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -1282,26 +1282,26 @@
 					[ "destroy", { "position" : [ 8, 29, 1 ], "type" : 34 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The hero, %s, has suffered defeat - your quest is over!",
+					"messageToSend" : "core.genrltxt.253",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have completed your quest to defeat the enemy hero %s. Victory is yours!"
+				"message" : "core.genrltxt.252"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 5,
-		"victoryString" : "Defeat Hero"
+		"victoryString" : "core.vcdesc.6"
 	},
 	"data/final:4" : { // Secrets Revealed
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -1315,7 +1315,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -1323,26 +1323,26 @@
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			},
 			"standardVictory" : {
 				"condition" : [ "standardWin" ],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! All your enemies have been defeated! Victory is yours!"
+				"message" : "core.genrltxt.659"
 			}
 		},
 		"victoryIconIndex" : 11,
-		"victoryString" : "Defeat All Enemies"
+		"victoryString" : "core.vcdesc.0"
 	},
 	"data/final:5" : { // Agents of Vengeance
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -1356,7 +1356,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -1368,26 +1368,26 @@
 					[ "control", { "position" : [ 36, 67, 0 ], "type" : 98 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has captured %s, and claims victory!",
+					"messageToSend" : "core.genrltxt.250",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You captured %s, and are victorious!"
+				"message" : "core.genrltxt.249"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 6,
-		"victoryString" : "Capture Town"
+		"victoryString" : "core.vcdesc.7"
 	},
 	"data/final:8" : { // To Strive, To Seek
 		"defeatIconIndex" : 3,
-		"defeatString" : "Lose All Your Towns and Heroes",
+		"defeatString" : "core.lcdesc.0",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -1401,7 +1401,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -1415,18 +1415,18 @@
 					[ "haveArtifact", { "type" : "artifact.helmOfHeavenlyEnlightenment" } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has found the relics, and can claim victory!",
+					"messageToSend" : "core.genrltxt.281",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have found the relics, and can claim victory!"
+				"message" : "core.genrltxt.763"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 0,
@@ -1434,7 +1434,7 @@
 	},
 	"data/final:9" : { // Barbarian Brothers
 		"defeatIconIndex" : 3,
-		"defeatString" : "Lose All Your Towns and Heroes",
+		"defeatString" : "core.lcdesc.0",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -1448,7 +1448,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -1462,18 +1462,18 @@
 					[ "haveArtifact", { "type" : "artifact.swordOfJudgement" } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has found the relics, and can claim victory!",
+					"messageToSend" : "core.genrltxt.281",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have found the relics, and can claim victory!"
+				"message" : "core.genrltxt.737"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 0,
@@ -1481,7 +1481,7 @@
 	},
 	"data/final:10" : { // Union
 		"defeatIconIndex" : 3,
-		"defeatString" : "Lose All Your Towns and Heroes",
+		"defeatString" : "core.lcdesc.0",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -1497,7 +1497,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -1505,10 +1505,10 @@
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -1518,7 +1518,7 @@
 					[ "haveArtifact", { "type" : "artifact.angelicAlliance" } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "victory"
 				},
 				"message" : "Congratulations! All your enemies have been defeated and you have Angelic Alliance! Victory is yours!"
@@ -1529,7 +1529,7 @@
 	},
 	"data/final:11" : { // Fall of Sandro
 		"defeatIconIndex" : 2,
-		"defeatString" : "Time Expires",
+		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -1545,7 +1545,7 @@
 					]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
 				"message" : "One of your heroes has suffered defeat - your quest is over!"
@@ -1557,34 +1557,34 @@
 					[ "daysPassed", { "value" : 112 } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "Alas, time has run out on your quest. All is lost."
+				"message" : "core.genrltxt.254"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			},
 			"standardVictory" : {
 				"condition" : [ "standardWin" ],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! All your enemies have been defeated! Victory is yours!"
+				"message" : "core.genrltxt.659"
 			}
 		},
 		"victoryIconIndex" : 11,
-		"victoryString" : "Defeat All Enemies"
+		"victoryString" : "core.vcdesc.0"
 	},
 	"data/secret:0" : { // Poison Fit for a King
 		"defeatIconIndex" : 2,
-		"defeatString" : "Time Expires",
+		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
 			"heroesMustSurvive" : {
 				"condition" : [
@@ -1593,10 +1593,10 @@
 					[ "noneOf", [ "control", { "position" : [ 68, 13, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"specialDefeat" : {
 				"condition" : [
@@ -1605,10 +1605,10 @@
 					[ "daysPassed", { "value" : 112 } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "Alas, time has run out on your quest. All is lost."
+				"message" : "core.genrltxt.254"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -1617,26 +1617,26 @@
 					[ "control", { "position" : [ 4, 67, 0 ], "type" : 98 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has captured %s, and claims victory!",
+					"messageToSend" : "core.genrltxt.250",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You captured %s, and are victorious!"
+				"message" : "core.genrltxt.249"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 6,
-		"victoryString" : "Capture Town"
+		"victoryString" : "core.vcdesc.7"
 	},
 	"data/secret:1" : { // To Build a Tunnel
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroMustSurvive" : {
 				"condition" : [
@@ -1645,10 +1645,10 @@
 					[ "noneOf", [ "control", { "position" : [ 66, 17, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -1657,26 +1657,26 @@
 					[ "haveResources", { "type" : 6, "value" : 100000 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The enemy has collected over %d %s. Victory is theirs!",
+					"messageToSend" : "core.genrltxt.279",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have collected over %d %s in your treasury. Victory is yours!"
+				"message" : "core.genrltxt.278"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 2,
-		"victoryString" : "Accumulate Resources"
+		"victoryString" : "core.vcdesc.3"
 	},
 	"data/secret:2" : { // Kreegan Alliance
 		"defeatIconIndex" : 2,
-		"defeatString" : "Time Expires",
+		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
 			"heroMustSurvive" : {
 				"condition" : [
@@ -1685,10 +1685,10 @@
 					[ "noneOf", [ "control", { "position" : [ 6, 8, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"specialDefeat" : {
 				"condition" : [
@@ -1697,10 +1697,10 @@
 					[ "daysPassed", { "value" : 84 } ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "Alas, time has run out on your quest. All is lost."
+				"message" : "core.genrltxt.254"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -1709,26 +1709,26 @@
 					[ "destroy", { "position" : [ 31, 26, 0 ], "type" : 34 } ]
 				],
 				"effect" : {
-					"messageToSend" : "The hero, %s, has suffered defeat - your quest is over!",
+					"messageToSend" : "core.genrltxt.253",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have completed your quest to defeat the enemy hero %s. Victory is yours!"
+				"message" : "core.genrltxt.252"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			}
 		},
 		"victoryIconIndex" : 5,
-		"victoryString" : "Defeat Hero"
+		"victoryString" : "core.vcdesc.6"
 	},
 	"data/secret:3" : { // With Blinders On
 		"defeatIconIndex" : 1,
-		"defeatString" : "Lose Hero",
+		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
 			"heroMustSurvive" : {
 				"condition" : [
@@ -1737,29 +1737,29 @@
 					[ "noneOf", [ "control", { "position" : [ 24, 7, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "The hero, %s, has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
-					"messageToSend" : "%s's heroes have abandoned him, and he is banished from this land.",
+					"messageToSend" : "core.genrltxt.8",
 					"type" : "defeat"
 				},
-				"message" : "%s, your heroes abandon you, and you are banished from this land."
+				"message" : "core.genrltxt.7"
 			},
 			"standardVictory" : {
 				"condition" : [ "standardWin" ],
 				"effect" : {
-					"messageToSend" : "%s has been vanquished!",
+					"messageToSend" : "core.genrltxt.5",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! All your enemies have been defeated! Victory is yours!"
+				"message" : "core.genrltxt.659"
 			}
 		},
 		"victoryIconIndex" : 11,
-		"victoryString" : "Defeat All Enemies"
+		"victoryString" : "core.vcdesc.0"
 	}
 }
