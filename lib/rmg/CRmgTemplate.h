@@ -67,17 +67,31 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
+namespace EConnectionType
+{
+	enum class EConnectionType
+	{
+		GUARDED = 0, //default
+		FICTIVE,
+		REPULSIVE,
+		WIDE
+	};
+}
+
 namespace rmg
 {
 
 class DLL_LINKAGE ZoneConnection
 {
 public:
+
 	ZoneConnection();
 
 	TRmgTemplateZoneId getZoneA() const;
 	TRmgTemplateZoneId getZoneB() const;
+	TRmgTemplateZoneId getOtherZoneId(TRmgTemplateZoneId id) const;
 	int getGuardStrength() const;
+	EConnectionType::EConnectionType getConnectionType() const;
 
 	void serializeJson(JsonSerializeFormat & handler);
 	
@@ -86,6 +100,7 @@ private:
 	TRmgTemplateZoneId zoneA;
 	TRmgTemplateZoneId zoneB;
 	int guardStrength;
+	EConnectionType::EConnectionType connectionType;
 };
 
 class DLL_LINKAGE ZoneOptions
@@ -149,8 +164,9 @@ public:
 	TRmgTemplateZoneId getTerrainTypeLikeZone() const;
 	TRmgTemplateZoneId getTreasureLikeZone() const;
 
-	void addConnection(TRmgTemplateZoneId otherZone);
-	std::vector<TRmgTemplateZoneId> getConnections() const;
+	void addConnection(const ZoneConnection & connection);
+	std::vector<ZoneConnection> getConnections() const;
+	std::vector<TRmgTemplateZoneId> getConnectedZoneIds() const;
 
 	void serializeJson(JsonSerializeFormat & handler);
 	
@@ -178,7 +194,8 @@ protected:
 
 	std::vector<CTreasureInfo> treasureInfo;
 
-	std::vector<TRmgTemplateZoneId> connections; //list of adjacent zones
+	std::vector<TRmgTemplateZoneId> connectedZoneIds; //list of adjacent zone ids
+	std::vector<ZoneConnection> connectionDetails; //list of connections linked to that zone
 
 	TRmgTemplateZoneId minesLikeZone;
 	TRmgTemplateZoneId terrainTypeLikeZone;
@@ -223,7 +240,7 @@ public:
 	const CPlayerCountRange & getCpuPlayers() const;
 	std::pair<int3, int3> getMapSizes() const;
 	const Zones & getZones() const;
-	const std::vector<rmg::ZoneConnection> & getConnections() const;
+	const std::vector<rmg::ZoneConnection> & getConnectedZoneIds() const;
 
 	void validate() const; /// Tests template on validity and throws exception on failure
 
@@ -235,7 +252,7 @@ private:
 	int3 minSize, maxSize;
 	CPlayerCountRange players, cpuPlayers;
 	Zones zones;
-	std::vector<rmg::ZoneConnection> connections;
+	std::vector<rmg::ZoneConnection> connectedZoneIds;
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;
 
 	void afterLoad();

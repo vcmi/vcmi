@@ -71,10 +71,16 @@ void CZonePlacer::findPathsBetweenZones()
 			q.pop();
 
 			const auto& currentZone = zones.at(current);
-			const auto& connections = currentZone->getConnections();
+			const auto& connectedZoneIds = currentZone->getConnections();
 
-			for (uint32_t neighbor : connections)
+			for (auto & connection : connectedZoneIds)
 			{
+				//TODO: Access information about connection type
+				if (connection.getConnectionType() == EConnectionType::EConnectionType::REPULSIVE)
+				{
+					continue;
+				}
+				auto neighbor = connection.getOtherZoneId(current);
 				if (!visited[neighbor])
 				{
 					visited[neighbor] = true;
@@ -132,7 +138,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 	{
 		case ETemplateZoneType::PLAYER_START:
 		case ETemplateZoneType::CPU_START:
-			if (firstZone->getConnections().size() > 2)
+			if (firstZone->getConnectedZoneIds().size() > 2)
 			{
 				getRandomEdge(x, y);
 			}
@@ -180,7 +186,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 	for (size_t i = 1; i < zones.size(); i++)
 	{
 		auto zone = zonesVector[i].second;
-		auto connections = zone->getConnections();
+		auto connectedZoneIds = zone->getConnectedZoneIds();
 
 		float maxDistance = -1000.0;
 		int3 mostDistantPlace;
@@ -521,9 +527,14 @@ void CZonePlacer::attractConnectedZones(TZoneMap & zones, TForceVector & forces,
 		float3 pos = zone.second->getCenter();
 		float totalDistance = 0;
 
-		for (auto con : zone.second->getConnections())
+		for (const auto & connection : zone.second->getConnections())
 		{
-			auto otherZone = zones[con];
+			if (connection.getConnectionType() == EConnectionType::EConnectionType::REPULSIVE)
+			{
+				continue;
+			}
+
+			auto otherZone = zones[connection.getOtherZoneId(zone.second->getId())];
 			float3 otherZoneCenter = otherZone->getCenter();
 			auto distance = static_cast<float>(pos.dist2d(otherZoneCenter));
 			
@@ -601,6 +612,24 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 		{
 			pushAwayFromBoundary(pos.x, 1);
 		}
+
+		//Always move repulsive zones away, no matter their distance
+		//TODO: Consider z plane?
+		for (auto& connection : zone.second->getConnections())
+		{
+			if (connection.getConnectionType() == EConnectionType::EConnectionType::REPULSIVE)
+			{
+				auto & otherZone = zones[connection.getOtherZoneId(zone.second->getId())];
+				float3 otherZoneCenter = otherZone->getCenter();
+
+				//TODO: Roll into lambda?
+				auto distance = static_cast<float>(pos.dist2d(otherZoneCenter));
+				float minDistance = (zone.second->getSize() + otherZone->getSize()) / mapSize;
+				float3 localForce = (((otherZoneCenter - pos)*(minDistance / (distance ? distance : 1e-3f))) / getDistance(distance)) * stifness;
+				forceVector -= localForce * (distancesBetweenZones[zone.second->getId()][otherZone->getId()]);
+			}
+		}
+
 		overlaps[zone.second] = overlap;
 		forceVector.z = 0; //operator - doesn't preserve z coordinate :/
 		forces[zone.second] = forceVector;
@@ -656,7 +685,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 			//Only swap zones on the same level
 			//Don't swap zones that should be connected (Jebus)
 			if (misplacedZones[i].second->getCenter().z == level &&
-				!vstd::contains(firstZone->getConnections(), misplacedZones[i].second->getId()))
+				!vstd::contains(firstZone->getConnectedZoneIds(), misplacedZones[i].second->getId()))
 			{
 				secondZone = misplacedZones[i].second;
 				break;
@@ -688,7 +717,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		//Move one zone towards most distant zone to reduce distance
 
 		float maxDistance = 0;
-		for (auto con : misplacedZone->getConnections())
+		for (auto con : misplacedZone->getConnectedZoneIds())
 		{
 			auto otherZone = zones[con];
 			float distance = static_cast<float>(otherZone->getCenter().dist2dSQ(ourCenter));
