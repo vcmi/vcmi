@@ -148,6 +148,11 @@ SObjectSounds AObjectTypeHandler::getSounds() const
 	return sounds;
 }
 
+void AObjectTypeHandler::clearTemplates()
+{
+	templates.clear();
+}
+
 void AObjectTypeHandler::addTemplate(const std::shared_ptr<const ObjectTemplate> & templ)
 {
 	templates.push_back(templ);

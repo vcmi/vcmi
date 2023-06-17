@@ -105,7 +105,7 @@ std::set<int3> CGObjectInstance::getBlockedOffsets() const
 	return appearance->getBlockedOffsets();
 }
 
-void CGObjectInstance::setType(si32 ID, si32 subID)
+void CGObjectInstance::setType(si32 newID, si32 newSubID)
 {
 	auto position = visitablePos();
 	auto oldOffset = getVisitableOffset();
@@ -113,10 +113,10 @@ void CGObjectInstance::setType(si32 ID, si32 subID)
 
 	//recalculate blockvis tiles - new appearance might have different blockmap than before
 	cb->gameState()->map->removeBlockVisTiles(this, true);
-	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
+	auto handler = VLC->objtypeh->getHandlerFor(newID, newSubID);
 	if(!handler)
 	{
-		logGlobal->error("Unknown object type %d:%d at %s", ID, subID, visitablePos().toString());
+		logGlobal->error("Unknown object type %d:%d at %s", newID, newSubID, visitablePos().toString());
 		return;
 	}
 	if(!handler->getTemplates(tile.terType->getId()).empty())
@@ -125,22 +125,26 @@ void CGObjectInstance::setType(si32 ID, si32 subID)
 	}
 	else
 	{
-		logGlobal->warn("Object %d:%d at %s has no templates suitable for terrain %s", ID, subID, visitablePos().toString(), tile.terType->getNameTranslated());
+		logGlobal->warn("Object %d:%d at %s has no templates suitable for terrain %s", newID, newSubID, visitablePos().toString(), tile.terType->getNameTranslated());
 		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
 	}
 
-	if(this->ID == Obj::PRISON && ID == Obj::HERO)
-	{
-		auto newOffset = getVisitableOffset();
-		// FIXME: potentially unused code - setType is NOT called when releasing hero from prison
-		// instead, appearance update & pos adjustment occurs in GiveHero::applyGs
+	bool needToAdjustOffset = false;
 
-		// adjust position since hero and prison may have different visitable offset
+	// FIXME: potentially unused code - setType is NOT called when releasing hero from prison
+	// instead, appearance update & pos adjustment occurs in GiveHero::applyGs
+	needToAdjustOffset |= this->ID == Obj::PRISON && newID == Obj::HERO;
+	needToAdjustOffset |= newID == Obj::MONSTER;
+
+	if(needToAdjustOffset)
+	{
+		// adjust position since object visitable offset might have changed
+		auto newOffset = getVisitableOffset();
 		pos = pos - oldOffset + newOffset;
 	}
 
-	this->ID = Obj(ID);
-	this->subID = subID;
+	this->ID = Obj(newID);
+	this->subID = newSubID;
 
 	cb->gameState()->map->addBlockVisTiles(this);
 }

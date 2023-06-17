@@ -649,7 +649,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	std::pair<Obj,int> ran = pickObject(cur);
 	if(ran.first == Obj::NO_OBJ || ran.second<0) //this is not a random object, or we couldn't find anything
 	{
-		if(cur->ID==Obj::TOWN)
+		if(cur->ID==Obj::TOWN || cur->ID==Obj::MONSTER)
 			cur->setType(cur->ID, cur->subID); // update def, if necessary
 	}
 	else if(ran.first==Obj::HERO)//special code for hero

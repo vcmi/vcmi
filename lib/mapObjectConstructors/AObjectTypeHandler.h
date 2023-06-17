@@ -70,6 +70,7 @@ public:
 
 	void addTemplate(const std::shared_ptr<const ObjectTemplate> & templ);
 	void addTemplate(JsonNode config);
+	void clearTemplates();
 
 	/// returns all templates matching parameters
 	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates() const;

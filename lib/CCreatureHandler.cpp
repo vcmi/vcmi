@@ -625,17 +625,25 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 			registerObject(scope, type_name, extraName.String(), cre->getIndex());
 	}
 
+	JsonNode advMapFile = node["graphics"]["map"];
+	JsonNode advMapMask = node["graphics"]["mapMask"];
+
 	VLC->modh->identifiers.requestIdentifier(scope, "object", "monster", [=](si32 index)
 	{
 		JsonNode conf;
 		conf.setMeta(scope);
 
 		VLC->objtypeh->loadSubObject(cre->identifier, conf, Obj::MONSTER, cre->getId().num);
-		if (!cre->advMapDef.empty())
+		if (!advMapFile.isNull())
 		{
 			JsonNode templ;
-			templ["animation"].String() = cre->advMapDef;
+			templ["animation"] = advMapFile;
+			if (!advMapMask.isNull())
+				templ["mask"] = advMapMask;
 			templ.setMeta(scope);
+
+			// if creature has custom advMapFile, reset any potentially imported H3M templates and use provided file instead
+			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->clearTemplates();
 			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->addTemplate(templ);
 		}
 
@@ -871,7 +879,6 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 	cre->animation.attackClimaxFrame = static_cast<int>(missile["attackClimaxFrame"].Float());
 	cre->animation.missleFrameAngles = missile["frameAngles"].convertTo<std::vector<double> >();
 
-	cre->advMapDef = graphics["map"].String();
 	cre->smallIconName = graphics["iconSmall"].String();
 	cre->largeIconName = graphics["iconLarge"].String();
 }
