@@ -390,7 +390,7 @@ void ConnectionsPlacer::createBorder()
 
 		if (connection.getConnectionType() == EConnectionType::EConnectionType::WIDE)
 		{
-			auto sharedBorder = borderArea.getSubarea([this, otherZone, &connection, &borderOutsideArea](const int3 & t)
+			auto sharedBorder = borderArea.getSubarea([this, otherZone, &borderOutsideArea](const int3 & t)
 			{
 				auto tile = borderOutsideArea.nearest(t);
 				return map.isOnMap(tile) && map.getZones()[map.getZoneID(tile)]->getId() == otherZone;
