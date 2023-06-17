@@ -18,7 +18,7 @@
 #include "../CSoundBase.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
-#include "MiscObjects.h"
+#include "CGCreature.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"

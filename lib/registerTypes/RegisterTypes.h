@@ -26,6 +26,7 @@
 #include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
 #include "../mapObjectConstructors/ShrineInstanceConstructor.h"
 #include "../mapObjects/MapObjects.h"
+#include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGTownBuilding.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../battle/CObstacleInstance.h"

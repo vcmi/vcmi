@@ -27,6 +27,7 @@
 #include "StartInfo.h"
 #include "CPlayerState.h"
 #include "TerrainHandler.h"
+#include "mapObjects/CGCreature.h"
 #include "mapObjects/CGMarket.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"

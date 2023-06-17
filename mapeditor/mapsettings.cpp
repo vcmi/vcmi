@@ -19,7 +19,7 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CModHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
-#include "../lib/mapObjects/MiscObjects.h"
+#include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/StringConstants.h"
 #include "inspector/townbulidingswidget.h" //to convert BuildingID to string

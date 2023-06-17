@@ -77,6 +77,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CBank.cpp
+		${MAIN_LIB_DIR}/mapObjects/CGCreature.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGDwelling.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGHeroInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGMarket.cpp
@@ -389,6 +390,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CBank.h
+		${MAIN_LIB_DIR}/mapObjects/CGCreature.h
 		${MAIN_LIB_DIR}/mapObjects/CGDwelling.h
 		${MAIN_LIB_DIR}/mapObjects/CGHeroInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CGMarket.h

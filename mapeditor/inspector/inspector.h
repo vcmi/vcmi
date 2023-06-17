@@ -15,6 +15,7 @@
 #include <QStyledItemDelegate>
 #include "../lib/int3.h"
 #include "../lib/GameConstants.h"
+#include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/MapObjects.h"
 #include "../lib/ResourceSet.h"
 

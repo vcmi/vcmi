@@ -32,6 +32,7 @@
 #include "../filesystem/Filesystem.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjects/CGCreature.h"
 #include "../mapObjects/MapObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../spells/CSpellHandler.h"
