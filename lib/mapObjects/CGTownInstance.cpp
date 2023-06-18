@@ -320,7 +320,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
-			iw.text.addRawString(h->commander->getName());
+			iw.text.appendRawString(h->commander->getName());
 			iw.components.emplace_back(*h->commander);
 			cb->showInfoDialog(&iw);
 		}

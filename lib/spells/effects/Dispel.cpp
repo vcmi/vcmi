@@ -43,7 +43,7 @@ void Dispel::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 			if(describe && positive && !negative && !neutral)
 			{
 				MetaString line;
-				unit->addText(line, MetaString::GENERAL_TXT, -555, true);
+				unit->addText(line, EMetaText::GENERAL_TXT, -555, true);
 				unit->addNameReplacement(line, true);
 				blm.lines.push_back(std::move(line));
 			}

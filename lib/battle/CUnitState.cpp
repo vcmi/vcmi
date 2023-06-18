@@ -482,10 +482,10 @@ void CUnitState::getCasterName(MetaString & text) const
 
 void CUnitState::getCastDescription(const spells::Spell * spell, const std::vector<const Unit *> & attacked, MetaString & text) const
 {
-	text.addTxt(MetaString::GENERAL_TXT, 565);//The %s casts %s
+	text.appendLocalString(EMetaText::GENERAL_TXT, 565);//The %s casts %s
 	//todo: use text 566 for single creature
 	getCasterName(text);
-	text.addReplacement(MetaString::SPELL_NAME, spell->getIndex());
+	text.replaceLocalString(EMetaText::SPELL_NAME, spell->getIndex());
 }
 
 int32_t CUnitState::manaLimit() const

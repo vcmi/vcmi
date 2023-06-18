@@ -985,7 +985,7 @@ void GiveBonus::applyGs(CGameState *gs)
 
 	std::string &descr = b->description;
 
-	if(bdescr.message.empty() && (bonus.type == BonusType::LUCK || bonus.type == BonusType::MORALE))
+	if(bdescr.empty() && (bonus.type == BonusType::LUCK || bonus.type == BonusType::MORALE))
 	{
 		if (bonus.source == BonusSource::OBJECT)
 		{
@@ -998,12 +998,12 @@ void GiveBonus::applyGs(CGameState *gs)
 		}
 		else
 		{
-			bdescr.toString(descr);
+			descr = bdescr.toString();
 		}
 	}
 	else
 	{
-		bdescr.toString(descr);
+		descr = bdescr.toString();
 	}
 	// Some of(?) versions of H3 use %s here instead of %d. Try to replace both of them
 	boost::replace_first(descr, "%d", std::to_string(std::abs(bonus.val)));

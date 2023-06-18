@@ -82,7 +82,7 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		BlockingDialog ynd(true,false);
 		ynd.player = h->tempOwner;
-		ynd.text.addTxt(MetaString::ADVOB_TXT, subID == 7 ? 84 : 187);
+		ynd.text.appendLocalString(EMetaText::ADVOB_TXT, subID == 7 ? 84 : 187);
 		cb->showBlockingDialog(&ynd);
 		return;
 	}
@@ -156,7 +156,7 @@ void CGMine::flagMine(const PlayerColor & player) const
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
 	iw.soundID = soundBase::FLAGMINE;
-	iw.text.addTxt(MetaString::MINE_EVNTS, producedResource); //not use subID, abandoned mines uses default mine texts
+	iw.text.appendLocalString(EMetaText::MINE_EVNTS, producedResource); //not use subID, abandoned mines uses default mine texts
 	iw.player = player;
 	iw.components.emplace_back(Component::EComponentType::RESOURCE, producedResource, producedQuantity, -1);
 	cb->showInfoDialog(&iw);
@@ -268,7 +268,7 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			BlockingDialog ynd(true,false);
 			ynd.player = h->getOwner();
-			ynd.text.addRawString(message);
+			ynd.text.appendRawString(message);
 			cb->showBlockingDialog(&ynd);
 		}
 		else
@@ -288,13 +288,13 @@ void CGResource::collectRes(const PlayerColor & player) const
 	if(!message.empty())
 	{
 		sii.type = EInfoWindowMode::AUTO;
-		sii.text.addRawString(message);
+		sii.text.appendRawString(message);
 	}
 	else
 	{
 		sii.type = EInfoWindowMode::INFO;
-		sii.text.addTxt(MetaString::ADVOB_TXT,113);
-		sii.text.addReplacement(MetaString::RES_NAMES, subID);
+		sii.text.appendLocalString(EMetaText::ADVOB_TXT,113);
+		sii.text.replaceLocalString(EMetaText::RES_NAMES, subID);
 	}
 	sii.components.emplace_back(Component::EComponentType::RESOURCE,subID,amount,0);
 	sii.soundID = soundBase::pickup01 + CRandomGenerator::getDefault().nextInt(6);
@@ -635,7 +635,7 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 		InfoWindow iw;
 		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
-		iw.text.addTxt(MetaString::ADVOB_TXT, 168);
+		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 168);
 		iw.components.emplace_back(CStackBasicDescriptor(h->getCreature(targetstack), -countToTake));
 		cb->showInfoDialog(&iw);
 		cb->changeStackCount(StackLocation(h, targetstack), -countToTake);
@@ -727,9 +727,9 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 			{
 				iw.components.emplace_back(Component::EComponentType::ARTIFACT, subID, 0, 0);
 				if(message.length())
-					iw.text.addRawString(message);
+					iw.text.appendRawString(message);
 				else
-					iw.text.addTxt(MetaString::ART_EVNTS, subID);
+					iw.text.appendLocalString(EMetaText::ART_EVNTS, subID);
 			}
 			break;
 			case Obj::SPELL_SCROLL:
@@ -737,11 +737,11 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 				int spellID = storedArtifact->getScrollSpellID();
 				iw.components.emplace_back(Component::EComponentType::SPELL, spellID, 0, 0);
 				if(message.length())
-					iw.text.addRawString(message);
+					iw.text.appendRawString(message);
 				else
 				{
-					iw.text.addTxt(MetaString::ADVOB_TXT,135);
-					iw.text.addReplacement(MetaString::SPELL_NAME, spellID);
+					iw.text.appendLocalString(EMetaText::ADVOB_TXT,135);
+					iw.text.replaceLocalString(EMetaText::SPELL_NAME, spellID);
 				}
 			}
 			break;
@@ -749,7 +749,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 		}
 		else
 		{
-			iw.text.addTxt(MetaString::ADVOB_TXT, 2);
+			iw.text.appendLocalString(EMetaText::ADVOB_TXT, 2);
 		}
 		cb->showInfoDialog(&iw);
 		pick(h);
@@ -763,14 +763,14 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 				BlockingDialog ynd(true,false);
 				ynd.player = h->getOwner();
 				if(message.length())
-					ynd.text.addRawString(message);
+					ynd.text.appendRawString(message);
 				else
 				{
 					// TODO: Guard text is more complex in H3, see mantis issue 2325 for details
-					ynd.text.addTxt(MetaString::GENERAL_TXT, 420);
-					ynd.text.addReplacement("");
-					ynd.text.addReplacement(getArmyDescription());
-					ynd.text.addReplacement(MetaString::GENERAL_TXT, 43); // creatures
+					ynd.text.appendLocalString(EMetaText::GENERAL_TXT, 420);
+					ynd.text.replaceRawString("");
+					ynd.text.replaceRawString(getArmyDescription());
+					ynd.text.replaceLocalString(EMetaText::GENERAL_TXT, 43); // creatures
 				}
 				cb->showBlockingDialog(&ynd);
 			}
@@ -781,7 +781,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 				{
 					BlockingDialog ynd(true,false);
 					ynd.player = h->getOwner();
-					ynd.text.addRawString(message);
+					ynd.text.appendRawString(message);
 					cb->showBlockingDialog(&ynd);
 				}
 				else
@@ -878,8 +878,8 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 		cb->changeSecSkill(h, SecondarySkill(ability), 1, true);
 	}
 
-	iw.text.addTxt(MetaString::ADVOB_TXT,txt_id);
-	iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
+	iw.text.appendLocalString(EMetaText::ADVOB_TXT,txt_id);
+	iw.text.replaceLocalString(EMetaText::SEC_SKILL_NAME, ability);
 	cb->showInfoDialog(&iw);
 }
 
@@ -940,7 +940,7 @@ void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 	case Obj::REDWOOD_OBSERVATORY:
 	case Obj::PILLAR_OF_FIRE:
 	{
-		iw.text.addTxt(MetaString::ADVOB_TXT,98 + (ID==Obj::PILLAR_OF_FIRE));
+		iw.text.appendLocalString(EMetaText::ADVOB_TXT,98 + (ID==Obj::PILLAR_OF_FIRE));
 
 		FoWChange fw;
 		fw.player = h->tempOwner;
@@ -951,7 +951,7 @@ void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	case Obj::COVER_OF_DARKNESS:
 	{
-		iw.text.addTxt (MetaString::ADVOB_TXT, 31);
+		iw.text.appendLocalString (EMetaText::ADVOB_TXT, 31);
 		for (auto & player : cb->gameState()->players)
 		{
 			if (cb->getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
@@ -979,20 +979,20 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->getOwner();
 	iw.text = visitText;
-	iw.text.addTxt(MetaString::SPELL_NAME,spell);
-	iw.text.addRawString(".");
+	iw.text.appendLocalString(EMetaText::SPELL_NAME,spell);
+	iw.text.appendRawString(".");
 
 	if(!h->getArt(ArtifactPosition::SPELLBOOK))
 	{
-		iw.text.addTxt(MetaString::ADVOB_TXT,131);
+		iw.text.appendLocalString(EMetaText::ADVOB_TXT,131);
 	}
 	else if(h->spellbookContainsSpell(spell))//hero already knows the spell
 	{
-		iw.text.addTxt(MetaString::ADVOB_TXT,174);
+		iw.text.appendLocalString(EMetaText::ADVOB_TXT,174);
 	}
 	else if(spell.toSpell()->getLevel() > h->maxSpellLevel()) //it's third level spell and hero doesn't have wisdom
 	{
-		iw.text.addTxt(MetaString::ADVOB_TXT,130);
+		iw.text.appendLocalString(EMetaText::ADVOB_TXT,130);
 	}
 	else //give spell
 	{
@@ -1055,7 +1055,7 @@ void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
 	iw.player = h->getOwner();
-	iw.text.addRawString(message);
+	iw.text.appendRawString(message);
 	cb->showInfoDialog(&iw);
 
 	if(ID == Obj::OCEAN_BOTTLE)
@@ -1083,7 +1083,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->getOwner();
-	iw.text.addTxt(MetaString::ADVOB_TXT,115);
+	iw.text.appendLocalString(EMetaText::ADVOB_TXT,115);
 
 	switch (type)
 	{
@@ -1332,7 +1332,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 	if(h->hasBonusFrom(BonusSource::OBJECT,ID)) //has already visited Sirens
 	{
 		iw.type = EInfoWindowMode::AUTO;
-		iw.text.addTxt(MetaString::ADVOB_TXT,133);
+		iw.text.appendLocalString(EMetaText::ADVOB_TXT,133);
 	}
 	else
 	{
@@ -1358,13 +1358,13 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 		if(xp)
 		{
 			xp = h->calculateXp(static_cast<int>(xp));
-			iw.text.addTxt(MetaString::ADVOB_TXT,132);
-			iw.text.addReplacement(static_cast<int>(xp));
+			iw.text.appendLocalString(EMetaText::ADVOB_TXT,132);
+			iw.text.replaceNumber(static_cast<int>(xp));
 			cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, xp, false);
 		}
 		else
 		{
-			iw.text.addTxt(MetaString::ADVOB_TXT,134);
+			iw.text.appendLocalString(EMetaText::ADVOB_TXT,134);
 		}
 	}
 	cb->showInfoDialog(&iw);
@@ -1444,7 +1444,7 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 			assert(text);
 			BlockingDialog bd (true, false);
 			bd.player = h->getOwner();
-			bd.text.addTxt (MetaString::ADVOB_TXT, text);
+			bd.text.appendLocalString (EMetaText::ADVOB_TXT, text);
 			cb->showBlockingDialog (&bd);
 		}
 		else //if he cannot afford
@@ -1507,7 +1507,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 
 	if(!wasVisited(team))
 	{
-		iw.text.addTxt(MetaString::ADVOB_TXT, 96);
+		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 96);
 		cb->sendAndApply(&iw);
 
 		// increment general visited obelisks counter
@@ -1523,7 +1523,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		iw.text.addTxt(MetaString::ADVOB_TXT, 97);
+		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 97);
 		cb->sendAndApply(&iw);
 	}
 

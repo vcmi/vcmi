@@ -34,12 +34,12 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 	CCreature::CreatureQuantityId monsterQuantityId = stacks.begin()->second->getQuantityID();
 	int quantityTextIndex = 172 + 3 * (int)monsterQuantityId;
 	if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
-		ms.addRawString(CCreature::getQuantityRangeStringForId(monsterQuantityId));
+		ms.appendRawString(CCreature::getQuantityRangeStringForId(monsterQuantityId));
 	else
-		ms.addTxt(MetaString::ARRAY_TXT, quantityTextIndex);
-	ms.addRawString(" ");
-	ms.addTxt(MetaString::CRE_PL_NAMES,subID);
-	ms.toString(hoverName);
+		ms.appendLocalString(EMetaText::ARRAY_TXT, quantityTextIndex);
+	ms.appendRawString(" ");
+	ms.appendLocalString(EMetaText::CRE_PL_NAMES,subID);
+	hoverName = ms.toString();
 	return hoverName;
 }
 
@@ -50,30 +50,30 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 	{
 		MetaString ms;
 		ms.appendNumber(stacks.begin()->second->count);
-		ms.addRawString(" ");
-		ms.addTxt(MetaString::CRE_PL_NAMES,subID);
+		ms.appendRawString(" ");
+		ms.appendLocalString(EMetaText::CRE_PL_NAMES,subID);
 
-		ms.addRawString("\n");
+		ms.appendRawString("\n");
 
 		int decision = takenAction(hero, true);
 
 		switch (decision)
 		{
 		case FIGHT:
-			ms.addTxt(MetaString::GENERAL_TXT,246);
+			ms.appendLocalString(EMetaText::GENERAL_TXT,246);
 			break;
 		case FLEE:
-			ms.addTxt(MetaString::GENERAL_TXT,245);
+			ms.appendLocalString(EMetaText::GENERAL_TXT,245);
 			break;
 		case JOIN_FOR_FREE:
-			ms.addTxt(MetaString::GENERAL_TXT,243);
+			ms.appendLocalString(EMetaText::GENERAL_TXT,243);
 			break;
 		default: //decision = cost in gold
-			ms.addRawString(boost::to_string(boost::format(VLC->generaltexth->allTexts[244]) % decision));
+			ms.appendRawString(boost::to_string(boost::format(VLC->generaltexth->allTexts[244]) % decision));
 			break;
 		}
 
-		ms.toString(hoverName);
+		hoverName = ms.toString();
 	}
 	else
 	{
@@ -118,8 +118,8 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
-			ynd.text.addTxt(MetaString::ADVOB_TXT, 86);
-			ynd.text.addReplacement(MetaString::CRE_PL_NAMES, subID);
+			ynd.text.appendLocalString(EMetaText::ADVOB_TXT, 86);
+			ynd.text.replaceLocalString(EMetaText::CRE_PL_NAMES, subID);
 			cb->showBlockingDialog(&ynd);
 			break;
 		}
@@ -134,7 +134,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(getStackCount(SlotID(0))));
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(action));
 			boost::algorithm::replace_first(tmp,"%s",VLC->creh->objects[subID]->getNamePluralTranslated());
-			ynd.text.addRawString(tmp);
+			ynd.text.appendRawString(tmp);
 			cb->showBlockingDialog(&ynd);
 			break;
 		}
@@ -324,7 +324,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
-			iw.text.addTxt(1,29);  //You don't have enough gold
+			iw.text.appendLocalString(EMetaText::GENERAL_TXT,29);  //You don't have enough gold
 			cb->showInfoDialog(&iw);
 
 			//act as if player refused
@@ -390,8 +390,8 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 {
 	BlockingDialog ynd(true,false);
 	ynd.player = h->tempOwner;
-	ynd.text.addTxt(MetaString::ADVOB_TXT,91);
-	ynd.text.addReplacement(MetaString::CRE_PL_NAMES, subID);
+	ynd.text.appendLocalString(EMetaText::ADVOB_TXT,91);
+	ynd.text.replaceLocalString(EMetaText::CRE_PL_NAMES, subID);
 	cb->showBlockingDialog(&ynd);
 }
 
@@ -529,8 +529,8 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 	if(!iw.components.empty())
 	{
 		iw.type = EInfoWindowMode::AUTO;
-		iw.text.addTxt(MetaString::ADVOB_TXT, 183); // % has found treasure
-		iw.text.addReplacement(h->getNameTranslated());
+		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 183); // % has found treasure
+		iw.text.replaceRawString(h->getNameTranslated());
 		cb->showInfoDialog(&iw);
 	}
 }

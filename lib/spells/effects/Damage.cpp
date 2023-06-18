@@ -135,13 +135,13 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 		MetaString line;
 		if(kills > 1)
 		{
-			line.addTxt(MetaString::GENERAL_TXT, 119); //%d %s die under the terrible gaze of the %s.
-			line.addReplacement(kills);
+			line.appendLocalString(EMetaText::GENERAL_TXT, 119); //%d %s die under the terrible gaze of the %s.
+			line.replaceNumber(kills);
 			firstTarget->addNameReplacement(line, true);
 		}
 		else
 		{
-			line.addTxt(MetaString::GENERAL_TXT, 118); //One %s dies under the terrible gaze of the %s.
+			line.appendLocalString(EMetaText::GENERAL_TXT, 118); //One %s dies under the terrible gaze of the %s.
 			firstTarget->addNameReplacement(line, false);
 		}
 		m->caster->getCasterName(line);
@@ -151,7 +151,7 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 	{
 		{
 			MetaString line;
-			firstTarget->addText(line, MetaString::GENERAL_TXT, -367, true);
+			firstTarget->addText(line, EMetaText::GENERAL_TXT, -367, true);
 			firstTarget->addNameReplacement(line, true);
 			log.push_back(line);
 		}
@@ -161,8 +161,8 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 			//todo: handle newlines in metastring
 			std::string text = VLC->generaltexth->allTexts[343]; //Does %d points of damage.
 			boost::algorithm::trim(text);
-			line.addRawString(text);
-			line.addReplacement(static_cast<int>(damage)); //no more text afterwards
+			line.appendRawString(text);
+			line.replaceNumber(static_cast<int>(damage)); //no more text afterwards
 			log.push_back(line);
 		}
 	}
@@ -170,9 +170,9 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 	{
 		{
 			MetaString line;
-			line.addTxt(MetaString::GENERAL_TXT, 376); // Spell %s does %d damage
-			line.addReplacement(MetaString::SPELL_NAME, m->getSpellIndex());
-			line.addReplacement(static_cast<int>(damage));
+			line.appendLocalString(EMetaText::GENERAL_TXT, 376); // Spell %s does %d damage
+			line.replaceLocalString(EMetaText::SPELL_NAME, m->getSpellIndex());
+			line.replaceNumber(static_cast<int>(damage));
 
 			log.push_back(line);
 		}
@@ -183,19 +183,19 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 
 			if(kills > 1)
 			{
-				line.addTxt(MetaString::GENERAL_TXT, 379); // %d %s perishes
-				line.addReplacement(kills);
+				line.appendLocalString(EMetaText::GENERAL_TXT, 379); // %d %s perishes
+				line.replaceNumber(kills);
 
 				if(multiple)
-					line.addReplacement(MetaString::GENERAL_TXT, 43); // creatures
+					line.replaceLocalString(EMetaText::GENERAL_TXT, 43); // creatures
 				else
 					firstTarget->addNameReplacement(line, true);
 			}
 			else // single creature killed
 			{
-				line.addTxt(MetaString::GENERAL_TXT, 378); // one %s perishes
+				line.appendLocalString(EMetaText::GENERAL_TXT, 378); // one %s perishes
 				if(multiple)
-					line.addReplacement(MetaString::GENERAL_TXT, 42); // creature
+					line.replaceLocalString(EMetaText::GENERAL_TXT, 42); // creature
 				else
 					firstTarget->addNameReplacement(line, false);
 			}

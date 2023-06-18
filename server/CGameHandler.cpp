@@ -516,8 +516,8 @@ void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill::Pr
 
 				InfoWindow iw;
 				iw.player = hero->tempOwner;
-				iw.text.addTxt(MetaString::GENERAL_TXT, 1); //can gain no more XP
-				iw.text.addReplacement(hero->getNameTranslated());
+				iw.text.appendLocalString(EMetaText::GENERAL_TXT, 1); //can gain no more XP
+				iw.text.replaceRawString(hero->getNameTranslated());
 				sendAndApply(&iw);
 			}
 		}
@@ -725,7 +725,7 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 		InfoWindow iw;
 		iw.player = finishingBattle->winnerHero->tempOwner;
 
-		iw.text.addTxt (MetaString::GENERAL_TXT, 30); //You have captured enemy artifact
+		iw.text.appendLocalString (EMetaText::GENERAL_TXT, 30); //You have captured enemy artifact
 
 		for (auto art : arts) //TODO; separate function to display loot for various ojects?
 		{
@@ -751,8 +751,8 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 
 		InfoWindow iw;
 		iw.player = finishingBattle->winnerHero->tempOwner;
-		iw.text.addTxt(MetaString::GENERAL_TXT, 221); //Through eagle-eyed observation, %s is able to learn %s
-		iw.text.addReplacement(finishingBattle->winnerHero->getNameTranslated());
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 221); //Through eagle-eyed observation, %s is able to learn %s
+		iw.text.replaceRawString(finishingBattle->winnerHero->getNameTranslated());
 
 		std::ostringstream names;
 		for (int i = 0; i < cs.spells.size(); i++)
@@ -765,14 +765,14 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 		}
 		names << ".";
 
-		iw.text.addReplacement(names.str());
+		iw.text.replaceRawString(names.str());
 
 		auto it = cs.spells.begin();
 		for (int i = 0; i < cs.spells.size(); i++, it++)
 		{
-			iw.text.addReplacement(MetaString::SPELL_NAME, it->toEnum());
+			iw.text.replaceLocalString(EMetaText::SPELL_NAME, it->toEnum());
 			if (i == cs.spells.size() - 2) //we just added pre-last name
-				iw.text.addReplacement(MetaString::GENERAL_TXT, 141); // " and "
+				iw.text.replaceLocalString(EMetaText::GENERAL_TXT, 141); // " and "
 			iw.components.emplace_back(Component::EComponentType::SPELL, *it, 0, 0);
 		}
 		sendAndApply(&iw);
@@ -1042,9 +1042,9 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 		{
 			MetaString text;
-			attacker->addText(text, MetaString::GENERAL_TXT, 376);
+			attacker->addText(text, EMetaText::GENERAL_TXT, 376);
 			attacker->addNameReplacement(text);
-			text.addReplacement(totalDamage);
+			text.replaceNumber(totalDamage);
 			blm.lines.push_back(text);
 		}
 
@@ -1055,9 +1055,9 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	if(drainedLife > 0)
 	{
 		MetaString text;
-		attackerState->addText(text, MetaString::GENERAL_TXT, 361);
+		attackerState->addText(text, EMetaText::GENERAL_TXT, 361);
 		attackerState->addNameReplacement(text, false);
-		text.addReplacement(drainedLife);
+		text.replaceNumber(drainedLife);
 		defender->addNameReplacement(text, true);
 		blm.lines.push_back(std::move(text));
 	}
@@ -1105,9 +1105,9 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 			// TODO: this is already implemented in Damage::describeEffect()
 			{
 				MetaString text;
-				text.addTxt(MetaString::GENERAL_TXT, 376);
-				text.addReplacement(MetaString::SPELL_NAME, SpellID::FIRE_SHIELD);
-				text.addReplacement(totalDamage);
+				text.appendLocalString(EMetaText::GENERAL_TXT, 376);
+				text.replaceLocalString(EMetaText::SPELL_NAME, SpellID::FIRE_SHIELD);
+				text.replaceNumber(totalDamage);
 				blm.lines.push_back(std::move(text));
 			}
 			addGenericKilledLog(blm, attacker, bsa.killedAmount, false);
@@ -1216,7 +1216,7 @@ void CGameHandler::addGenericKilledLog(BattleLogMessage & blm, const CStack * de
 			txt % (multiple ? VLC->generaltexth->allTexts[42] : defender->unitType()->getNameSingularTranslated()); // creature perishes
 		}
 		MetaString line;
-		line.addRawString(txt.str());
+		line.appendRawString(txt.str());
 		blm.lines.push_back(std::move(line));
 	}
 }
@@ -1988,36 +1988,36 @@ void CGameHandler::newTurn()
 			switch (n.specialWeek)
 			{
 				case NewTurn::DOUBLE_GROWTH:
-					iw.text.addTxt(MetaString::ARRAY_TXT, 131);
-					iw.text.addReplacement(MetaString::CRE_SING_NAMES, n.creatureid);
-					iw.text.addReplacement(MetaString::CRE_SING_NAMES, n.creatureid);
+					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 131);
+					iw.text.replaceLocalString(EMetaText::CRE_SING_NAMES, n.creatureid);
+					iw.text.replaceLocalString(EMetaText::CRE_SING_NAMES, n.creatureid);
 					break;
 				case NewTurn::PLAGUE:
-					iw.text.addTxt(MetaString::ARRAY_TXT, 132);
+					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 132);
 					break;
 				case NewTurn::BONUS_GROWTH:
-					iw.text.addTxt(MetaString::ARRAY_TXT, 134);
-					iw.text.addReplacement(MetaString::CRE_SING_NAMES, n.creatureid);
-					iw.text.addReplacement(MetaString::CRE_SING_NAMES, n.creatureid);
+					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 134);
+					iw.text.replaceLocalString(EMetaText::CRE_SING_NAMES, n.creatureid);
+					iw.text.replaceLocalString(EMetaText::CRE_SING_NAMES, n.creatureid);
 					break;
 				case NewTurn::DEITYOFFIRE:
-					iw.text.addTxt(MetaString::ARRAY_TXT, 135);
-					iw.text.addReplacement(MetaString::CRE_SING_NAMES, 42); //%s imp
-					iw.text.addReplacement(MetaString::CRE_SING_NAMES, 42); //%s imp
-					iw.text.addReplacement2(15);							//%+d 15
-					iw.text.addReplacement(MetaString::CRE_SING_NAMES, 43); //%s familiar
-					iw.text.addReplacement2(15);							//%+d 15
+					iw.text.appendLocalString(EMetaText::ARRAY_TXT, 135);
+					iw.text.replaceLocalString(EMetaText::CRE_SING_NAMES, 42); //%s imp
+					iw.text.replaceLocalString(EMetaText::CRE_SING_NAMES, 42); //%s imp
+					iw.text.replacePositiveNumber(15);							//%+d 15
+					iw.text.replaceLocalString(EMetaText::CRE_SING_NAMES, 43); //%s familiar
+					iw.text.replacePositiveNumber(15);							//%+d 15
 					break;
 				default:
 					if (newMonth)
 					{
-						iw.text.addTxt(MetaString::ARRAY_TXT, (130));
-						iw.text.addReplacement(MetaString::ARRAY_TXT, getRandomGenerator().nextInt(32, 41));
+						iw.text.appendLocalString(EMetaText::ARRAY_TXT, (130));
+						iw.text.replaceLocalString(EMetaText::ARRAY_TXT, getRandomGenerator().nextInt(32, 41));
 					}
 					else
 					{
-						iw.text.addTxt(MetaString::ARRAY_TXT, (133));
-						iw.text.addReplacement(MetaString::ARRAY_TXT, getRandomGenerator().nextInt(43, 57));
+						iw.text.appendLocalString(EMetaText::ARRAY_TXT, (133));
+						iw.text.replaceLocalString(EMetaText::ARRAY_TXT, getRandomGenerator().nextInt(43, 57));
 					}
 			}
 			for (auto & elem : gs->players)
@@ -2496,8 +2496,8 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 			{
 				InfoWindow iw;
 				iw.player = oldOwner;
-				iw.text.addTxt(MetaString::GENERAL_TXT, 6); //%s, you have lost your last town. If you do not conquer another town in the next week, you will be eliminated.
-				iw.text.addReplacement(MetaString::COLOR, oldOwner.getNum());
+				iw.text.appendLocalString(EMetaText::GENERAL_TXT, 6); //%s, you have lost your last town. If you do not conquer another town in the next week, you will be eliminated.
+				iw.text.replaceLocalString(EMetaText::COLOR, oldOwner.getNum());
 				sendAndApply(&iw);
 			}
 		}
@@ -2797,57 +2797,57 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 		iw.player = h1->tempOwner;
 		iw.components.emplace_back(Component::EComponentType::SEC_SKILL, 18, ScholarSkillLevel, 0);
 
-		iw.text.addTxt(MetaString::GENERAL_TXT, 139);//"%s, who has studied magic extensively,
-		iw.text.addReplacement(h1->getNameTranslated());
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 139);//"%s, who has studied magic extensively,
+		iw.text.replaceRawString(h1->getNameTranslated());
 
 		if (!cs2.spells.empty())//if found new spell - apply
 		{
-			iw.text.addTxt(MetaString::GENERAL_TXT, 140);//learns
+			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 140);//learns
 			int size = static_cast<int>(cs2.spells.size());
 			for (auto it : cs2.spells)
 			{
 				iw.components.emplace_back(Component::EComponentType::SPELL, it, 1, 0);
-				iw.text.addTxt(MetaString::SPELL_NAME, it.toEnum());
+				iw.text.appendLocalString(EMetaText::SPELL_NAME, it.toEnum());
 				switch (size--)
 				{
 					case 2:
-						iw.text.addTxt(MetaString::GENERAL_TXT, 141);
+						iw.text.appendLocalString(EMetaText::GENERAL_TXT, 141);
 					case 1:
 						break;
 					default:
-						iw.text.addRawString(", ");
+						iw.text.appendRawString(", ");
 				}
 			}
-			iw.text.addTxt(MetaString::GENERAL_TXT, 142);//from %s
-			iw.text.addReplacement(h2->getNameTranslated());
+			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 142);//from %s
+			iw.text.replaceRawString(h2->getNameTranslated());
 			sendAndApply(&cs2);
 		}
 
 		if (!cs1.spells.empty() && !cs2.spells.empty())
 		{
-			iw.text.addTxt(MetaString::GENERAL_TXT, 141);//and
+			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 141);//and
 		}
 
 		if (!cs1.spells.empty())
 		{
-			iw.text.addTxt(MetaString::GENERAL_TXT, 147);//teaches
+			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 147);//teaches
 			int size = static_cast<int>(cs1.spells.size());
 			for (auto it : cs1.spells)
 			{
 				iw.components.emplace_back(Component::EComponentType::SPELL, it, 1, 0);
-				iw.text.addTxt(MetaString::SPELL_NAME, it.toEnum());
+				iw.text.appendLocalString(EMetaText::SPELL_NAME, it.toEnum());
 				switch (size--)
 				{
 					case 2:
-						iw.text.addTxt(MetaString::GENERAL_TXT, 141);
+						iw.text.appendLocalString(EMetaText::GENERAL_TXT, 141);
 					case 1:
 						break;
 					default:
-						iw.text.addRawString(", ");
+						iw.text.appendRawString(", ");
 				}
 			}
-			iw.text.addTxt(MetaString::GENERAL_TXT, 148);//from %s
-			iw.text.addReplacement(h2->getNameTranslated());
+			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 148);//from %s
+			iw.text.replaceRawString(h2->getNameTranslated());
 			sendAndApply(&cs1);
 		}
 		sendAndApply(&iw);
@@ -4673,9 +4673,9 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			BattleLogMessage message;
 
 			MetaString text;
-			stack->addText(text, MetaString::GENERAL_TXT, 120);
+			stack->addText(text, EMetaText::GENERAL_TXT, 120);
 			stack->addNameReplacement(text);
-			text.addReplacement(difference);
+			text.replaceNumber(difference);
 
 			message.lines.push_back(text);
 
@@ -5354,7 +5354,7 @@ void CGameHandler::handleTimeEvents()
 				//prepare dialog
 				InfoWindow iw;
 				iw.player = color;
-				iw.text.addRawString(ev.message);
+				iw.text.appendRawString(ev.message);
 
 				for (int i=0; i<ev.resources.size(); i++)
 				{
@@ -5405,7 +5405,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 			// dialog
 			InfoWindow iw;
 			iw.player = player;
-			iw.text.addRawString(ev.message);
+			iw.text.appendRawString(ev.message);
 
 			if (ev.resources.nonZero())
 			{
@@ -5791,10 +5791,10 @@ void CGameHandler::getVictoryLossMessage(PlayerColor player, const EVictoryLossC
 {
 	out.player = player;
 	out.text.clear();
-	out.text.addRawString(VLC->generaltexth->translate(victoryLossCheckResult.messageToOthers));
+	out.text.appendRawString(VLC->generaltexth->translate(victoryLossCheckResult.messageToOthers));
 	// hackish, insert one player-specific string, if applicable
 	if (victoryLossCheckResult.messageToOthers.find("%s") != std::string::npos)
-		out.text.addReplacement(MetaString::COLOR, player.getNum());
+		out.text.replaceLocalString(EMetaText::COLOR, player.getNum());
 
 	out.components.emplace_back(Component::EComponentType::FLAG, player.getNum(), 0, 0);
 }
@@ -5822,8 +5822,8 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	iw.player = h->tempOwner;
 	if (gs->map->grailPos == h->visitablePos())
 	{
-		iw.text.addTxt(MetaString::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the "
-		iw.text.addTxt(MetaString::ART_NAMES, ArtifactID::GRAIL);
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the "
+		iw.text.appendLocalString(EMetaText::ART_NAMES, ArtifactID::GRAIL);
 		iw.soundID = soundBase::ULTIMATEARTIFACT;
 		giveHeroNewArtifact(h, VLC->arth->objects[ArtifactID::GRAIL], ArtifactPosition::FIRST_AVAILABLE); //give grail
 		sendAndApply(&iw);
@@ -5831,12 +5831,12 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 		iw.soundID = soundBase::invalid;
 		iw.components.emplace_back(Component::EComponentType::ARTIFACT, ArtifactID::GRAIL, 0, 0);
 		iw.text.clear();
-		iw.text.addTxt(MetaString::ART_DESCR, ArtifactID::GRAIL);
+		iw.text.appendLocalString(EMetaText::ART_DESCR, ArtifactID::GRAIL);
 		sendAndApply(&iw);
 	}
 	else
 	{
-		iw.text.addTxt(MetaString::GENERAL_TXT, 59); //"Nothing here. \n Where could it be?"
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 59); //"Nothing here. \n Where could it be?"
 		iw.soundID = soundBase::Dig;
 		sendAndApply(&iw);
 	}
@@ -7221,7 +7221,7 @@ void CGameHandler::showInfoDialog(const std::string & msg, PlayerColor player)
 {
 	InfoWindow iw;
 	iw.player = player;
-	iw.text.addRawString(msg);
+	iw.text.appendRawString(msg);
 	showInfoDialog(&iw);
 }
 

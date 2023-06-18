@@ -123,9 +123,9 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	BlockingDialog bd(true, false);
 	bd.player = h->getOwner();
 	bd.soundID = soundBase::invalid; // Sound is handled in json files, else two sounds are played
-	bd.text.addTxt(MetaString::ADVOB_TXT, banktext);
+	bd.text.appendLocalString(EMetaText::ADVOB_TXT, banktext);
 	if (banktext == 32)
-		bd.text.addReplacement(getObjectName());
+		bd.text.replaceRawString(getObjectName());
 	cb->showBlockingDialog(&bd);
 }
 
@@ -179,15 +179,15 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			{
 			case Obj::SHIPWRECK:
 				textID = 123;
-				gbonus.bdescr.addRawString(VLC->generaltexth->arraytxt[99]);
+				gbonus.bdescr.appendRawString(VLC->generaltexth->arraytxt[99]);
 				break;
 			case Obj::DERELICT_SHIP:
 				textID = 42;
-				gbonus.bdescr.addRawString(VLC->generaltexth->arraytxt[101]);
+				gbonus.bdescr.appendRawString(VLC->generaltexth->arraytxt[101]);
 				break;
 			case Obj::CRYPT:
 				textID = 120;
-				gbonus.bdescr.addRawString(VLC->generaltexth->arraytxt[98]);
+				gbonus.bdescr.appendRawString(VLC->generaltexth->arraytxt[98]);
 				break;
 			}
 			cb->giveHeroBonus(&gbonus);
@@ -208,12 +208,12 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		case Obj::CREATURE_BANK:
 		case Obj::DRAGON_UTOPIA:
 		default:
-			iw.text.addRawString(VLC->generaltexth->advobtxt[33]);// This was X, now is completely empty
-			iw.text.addReplacement(getObjectName());
+			iw.text.appendRawString(VLC->generaltexth->advobtxt[33]);// This was X, now is completely empty
+			iw.text.replaceRawString(getObjectName());
 		}
 		if(textID != -1)
 		{
-			iw.text.addTxt(MetaString::ADVOB_TXT, textID);
+			iw.text.appendLocalString(EMetaText::ADVOB_TXT, textID);
 		}
 		cb->showInfoDialog(&iw);
 	}
@@ -227,9 +227,9 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			if (bc->resources[it] != 0)
 			{
 				iw.components.emplace_back(Component::EComponentType::RESOURCE, it, bc->resources[it], 0);
-				loot.addRawString("%d %s");
-				loot.addReplacement(iw.components.back().val);
-				loot.addReplacement(MetaString::RES_NAMES, iw.components.back().subtype);
+				loot.appendRawString("%d %s");
+				loot.replaceNumber(iw.components.back().val);
+				loot.replaceLocalString(EMetaText::RES_NAMES, iw.components.back().subtype);
 				cb->giveResource(hero->getOwner(), static_cast<EGameResID>(it), bc->resources[it]);
 			}
 		}
@@ -237,14 +237,14 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		for (auto & elem : bc->artifacts)
 		{
 			iw.components.emplace_back(Component::EComponentType::ARTIFACT, elem, 0, 0);
-			loot.addRawString("%s");
-			loot.addReplacement(MetaString::ART_NAMES, elem);
+			loot.appendRawString("%s");
+			loot.replaceLocalString(EMetaText::ART_NAMES, elem);
 			cb->giveHeroNewArtifact(hero, VLC->arth->objects[elem], ArtifactPosition::FIRST_AVAILABLE);
 		}
 		//display loot
 		if (!iw.components.empty())
 		{
-			iw.text.addTxt(MetaString::ADVOB_TXT, textID);
+			iw.text.appendLocalString(EMetaText::ADVOB_TXT, textID);
 			if (textID == 34)
 			{
 				const auto * strongest = boost::range::max_element(bc->guards, [](const CStackBasicDescriptor & a, const CStackBasicDescriptor & b)
@@ -252,8 +252,8 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 					return a.type->getFightValue() < b.type->getFightValue();
 				})->type;
 
-				iw.text.addReplacement(MetaString::CRE_PL_NAMES, strongest->getId());
-				iw.text.addReplacement(loot.buildList());
+				iw.text.replaceLocalString(EMetaText::CRE_PL_NAMES, strongest->getId());
+				iw.text.replaceRawString(loot.buildList());
 			}
 			cb->showInfoDialog(&iw);
 		}
@@ -269,12 +269,12 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			bool noWisdom = false;
 			if(textID == 106)
 			{
-				iw.text.addTxt(MetaString::ADVOB_TXT, textID); //pyramid
+				iw.text.appendLocalString(EMetaText::ADVOB_TXT, textID); //pyramid
 			}
 			for(const SpellID & spellId : bc->spells)
 			{
 				const auto * spell = spellId.toSpell(VLC->spells());
-				iw.text.addTxt(MetaString::SPELL_NAME, spellId);
+				iw.text.appendLocalString(EMetaText::SPELL_NAME, spellId);
 				if(spell->getLevel() <= hero->maxSpellLevel())
 				{
 					if(hero->canLearnSpell(spell))
@@ -288,9 +288,9 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			}
 
 			if (!hero->getArt(ArtifactPosition::SPELLBOOK))
-				iw.text.addTxt(MetaString::ADVOB_TXT, 109); //no spellbook
+				iw.text.appendLocalString(EMetaText::ADVOB_TXT, 109); //no spellbook
 			else if(noWisdom)
-				iw.text.addTxt(MetaString::ADVOB_TXT, 108); //no expert Wisdom
+				iw.text.appendLocalString(EMetaText::ADVOB_TXT, 108); //no expert Wisdom
 
 			if(!iw.components.empty() || !iw.text.toString().empty())
 				cb->showInfoDialog(&iw);
@@ -312,19 +312,19 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		for(const auto & elem : ourArmy.Slots())
 		{
 			iw.components.emplace_back(*elem.second);
-			loot.addRawString("%s");
-			loot.addReplacement(*elem.second);
+			loot.appendRawString("%s");
+			loot.replaceCreatureName(*elem.second);
 		}
 
 		if(ourArmy.stacksCount())
 		{
 			if(ourArmy.stacksCount() == 1 && ourArmy.Slots().begin()->second->count == 1)
-				iw.text.addTxt(MetaString::ADVOB_TXT, 185);
+				iw.text.appendLocalString(EMetaText::ADVOB_TXT, 185);
 			else
-				iw.text.addTxt(MetaString::ADVOB_TXT, 186);
+				iw.text.appendLocalString(EMetaText::ADVOB_TXT, 186);
 
-			iw.text.addReplacement(loot.buildList());
-			iw.text.addReplacement(hero->getNameTranslated());
+			iw.text.replaceRawString(loot.buildList());
+			iw.text.replaceRawString(hero->getNameTranslated());
 			cb->showInfoDialog(&iw);
 			cb->giveCreatures(this, hero, ourArmy, false);
 		}

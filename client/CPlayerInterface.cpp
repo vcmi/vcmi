@@ -270,14 +270,14 @@ void CPlayerInterface::acceptTurn()
 			auto daysWithoutCastle = optDaysWithoutCastle.value();
 			if (daysWithoutCastle < 6)
 			{
-				text.addTxt(MetaString::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.
-				text.addReplacement(MetaString::COLOR, playerColor.getNum());
-				text.addReplacement(7 - daysWithoutCastle);
+				text.appendLocalString(EMetaText::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.
+				text.replaceLocalString(EMetaText::COLOR, playerColor.getNum());
+				text.replaceNumber(7 - daysWithoutCastle);
 			}
 			else if (daysWithoutCastle == 6)
 			{
-				text.addTxt(MetaString::ARRAY_TXT,129); //%s, this is your last day to capture a town or you will be banished from this land.
-				text.addReplacement(MetaString::COLOR, playerColor.getNum());
+				text.appendLocalString(EMetaText::ARRAY_TXT,129); //%s, this is your last day to capture a town or you will be banished from this land.
+				text.replaceLocalString(EMetaText::COLOR, playerColor.getNum());
 			}
 
 			showInfoDialogAndWait(components, text);
@@ -1048,8 +1048,7 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-	std::string str;
-	text.toString(str);
+	std::string str = text.toString();
 
 	showInfoDialog(EInfoWindowMode::MODAL, str, components, 0);
 	waitWhileDialog();

@@ -680,7 +680,7 @@ PlayerColor CGHeroInstance::getCasterOwner() const
 void CGHeroInstance::getCasterName(MetaString & text) const
 {
 	//FIXME: use local name, MetaString need access to gamestate as hero name is part of map object
-	text.addReplacement(getNameTranslated());
+	text.replaceRawString(getNameTranslated());
 }
 
 void CGHeroInstance::getCastDescription(const spells::Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const
@@ -688,9 +688,9 @@ void CGHeroInstance::getCastDescription(const spells::Spell * spell, const std::
 	const bool singleTarget = attacked.size() == 1;
 	const int textIndex = singleTarget ? 195 : 196;
 
-	text.addTxt(MetaString::GENERAL_TXT, textIndex);
+	text.appendLocalString(EMetaText::GENERAL_TXT, textIndex);
 	getCasterName(text);
-	text.addReplacement(MetaString::SPELL_NAME, spell->getIndex());
+	text.replaceLocalString(EMetaText::SPELL_NAME, spell->getIndex());
 	if(singleTarget)
 		attacked.at(0)->addNameReplacement(text, true);
 }
@@ -896,14 +896,14 @@ void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedSta
 
 	if (raisedStack.count > 1) // Practicing the dark arts of necromancy, ... (plural)
 	{
-		iw.text.addTxt(MetaString::GENERAL_TXT, 145);
-		iw.text.addReplacement(raisedStack.count);
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 145);
+		iw.text.replaceNumber(raisedStack.count);
 	}
 	else // Practicing the dark arts of necromancy, ... (singular)
 	{
-		iw.text.addTxt(MetaString::GENERAL_TXT, 146);
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 146);
 	}
-	iw.text.addReplacement(raisedStack);
+	iw.text.replaceCreatureName(raisedStack);
 
 	cb->showInfoDialog(&iw);
 }
