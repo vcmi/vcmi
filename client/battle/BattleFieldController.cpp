@@ -446,7 +446,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForMovementTarget(
 	return {};
 }
 
-#pragma region Range limit highlight helpers
+// Range limit highlight helpers
 
 std::vector<BattleHex> BattleFieldController::getRangeHexes(BattleHex sourceHex, uint8_t distance)
 {
@@ -576,8 +576,6 @@ void BattleFieldController::flipRangeLimitImagesIntoPositions(std::shared_ptr<CA
 	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomRightCorner])->doubleFlip();
 	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomLeftCorner])->horizontalFlip();
 }
-
-#pragma endregion
 
 void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 {

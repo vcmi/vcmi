@@ -60,7 +60,7 @@ class BattleFieldController : public CIntObject
 	std::set<BattleHex> getHighlightedHexesForSpellRange();
 	std::set<BattleHex> getHighlightedHexesForMovementTarget();
 
-#pragma region Range limit highlight helpers
+	// Range limit highlight helpers
 
 	/// get all hexes within a certain distance of given hex
 	std::vector<BattleHex> getRangeHexes(BattleHex sourceHex, uint8_t distance);
@@ -84,8 +84,6 @@ class BattleFieldController : public CIntObject
 
 	/// to reduce the number of source images used, some images will be used as flipped versions of preloaded ones
 	void flipRangeLimitImagesIntoPositions(std::shared_ptr<CAnimation> images);
-
-#pragma endregion
 
 	void showBackground(Canvas & canvas);
 	void showBackgroundImage(Canvas & canvas);
