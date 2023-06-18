@@ -36,13 +36,13 @@ public class ScreenScaleSettingDialog extends LauncherSettingDialog<ScreenScaleS
     }
 
     public static int[] getSupportedScalingRange() {
-        Point screenRealSize = Point()
+        Point screenRealSize = Point();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val windowMetrics = activity.windowManager.currentWindowMetrics
-            screenRealSize.x = windowMetrics.bounds.width()
-            screenRealSize.y = windowMetrics.bounds.height()
+            val windowMetrics = activity.windowManager.currentWindowMetrics;
+            screenRealSize.x = windowMetrics.bounds.width();
+            screenRealSize.y = windowMetrics.bounds.height();
         } else {
-            activity.windowManager.defaultDisplay.getRealSize(screenRealSize)
+            activity.windowManager.defaultDisplay.getRealSize(screenRealSize);
         }
 
         if (screenRealSize.x < screenRealSize.y) {
@@ -61,7 +61,7 @@ public class ScreenScaleSettingDialog extends LauncherSettingDialog<ScreenScaleS
         double maximalScalingHeight = 100.0 * renderResolution.y / minResolution.y;
         double maximalScaling = Math.min(maximalScalingWidth, maximalScalingHeight);
 
-        return { minimalScaling, maximalScaling };
+        return new int[] { minimalScaling, maximalScaling };
     }
 
     private static List<ScreenScaleSettingController.ScreenScale> loadScales(Activity activity)
