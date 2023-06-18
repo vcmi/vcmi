@@ -8,6 +8,9 @@
     <string name="app_name">VCMI</string>
     <string name="server_name">VCMI Server</string>
     <string name="launcher_title">VCMI Launcher</string>
+    <string name="launcher_btn_scale_title">Change game scale</string>
+    <string name="launcher_btn_scale_subtitle_unknown">Currently: unknown</string>
+    <string name="launcher_btn_scale_subtitle">Currently: %1$d</string>
     <string name="launcher_btn_start_title">Start VCMI</string>
     <string name="launcher_btn_start_subtitle">Current VCMI version: %1$s</string>
     <string name="launcher_btn_mods_title">Mods</string>

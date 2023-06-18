@@ -9,6 +9,8 @@ import java.io.IOException;
 import eu.vcmi.vcmi.util.FileUtil;
 import eu.vcmi.vcmi.util.Log;
 
+import eu.vcmi.vcmi.settings.ScreenScaleSettingDialog;
+
 /**
  * @author F
  */
@@ -19,6 +21,7 @@ public class Config
     public static final int DEFAULT_SOUND_VALUE = 5;
 
     public String mLanguage;
+    public int mScreenScale;
     public int mVolumeSound;
     public int mVolumeMusic;
     private String adventureAi;
@@ -36,6 +39,21 @@ public class Config
         }
 
         return baseObj.optJSONObject(type);
+    }
+
+    private static JSONObject accessResolutionNode(final JSONObject baseObj)
+    {
+        if (baseObj == null)
+        {
+            return null;
+        }
+
+        final JSONObject video = baseObj.optJSONObject("video");
+        if (video != null)
+        {
+            return video.optJSONObject("resolution");
+        }
+        return null;
     }
 
     private static double loadDouble(final JSONObject node, final String key, final double fallback)
@@ -65,12 +83,18 @@ public class Config
         final Config config = new Config();
         final JSONObject general = accessNode(obj, "general");
         final JSONObject server = accessNode(obj, "server");
+        final JSONObject resolution = accessResolutionNode(obj);
         config.mLanguage = loadEntry(general, "language", DEFAULT_LANGUAGE);
+        config.mScreenScale = loadEntry(resolution, "scaling", -1);
         config.mVolumeSound = loadEntry(general, "sound", DEFAULT_SOUND_VALUE);
         config.mVolumeMusic = loadEntry(general, "music", DEFAULT_MUSIC_VALUE);
         config.adventureAi = loadEntry(server, "playerAI", "Nullkiller");
         config.mUseRelativePointer = loadEntry(general, "userRelativePointer", false);
         config.mPointerSpeedMultiplier = loadDouble(general, "relativePointerSpeedMultiplier", 1.0);
+
+        if (config.mScreenScale == -1) {
+            config.mScreenScale = ScreenScaleSettingDialog.getSupportedScalingRange()[1];
+        }
 
         config.mRawObject = obj;
         return config;
@@ -79,6 +103,12 @@ public class Config
     public void updateLanguage(final String s)
     {
         mLanguage = s;
+        mIsModified = true;
+    }
+
+    public void updateScreenScale(final int scale)
+    {
+        mScreenScale = scale;
         mIsModified = true;
     }
 
@@ -156,9 +186,12 @@ public class Config
     {
         final JSONObject generalNode = accessNode(mRawObject, "general");
         final JSONObject serverNode = accessNode(mRawObject, "server");
+        final JSONObject resolutionNode = accessResolutionNode(mRawObject);
 
         final JSONObject root = mRawObject == null ? new JSONObject() : mRawObject;
         final JSONObject general = generalNode == null ? new JSONObject() : generalNode;
+        final JSONObject video = new JSONObject();
+        final JSONObject resolution = resolutionNode == null ? new JSONObject() : resolutionNode;
         final JSONObject server = serverNode == null ? new JSONObject() : serverNode;
 
         if (mLanguage != null)
@@ -176,6 +209,13 @@ public class Config
         {
             server.put("playerAI", this.adventureAi);
             root.put("server", server);
+        }
+
+        if (mScreenScale > 0)
+        {
+            resolution.put("scaling", mScreenScale);
+            video.put("resolution", resolution);
+            root.put("video", video);
         }
 
         return root.toString();

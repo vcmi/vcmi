@@ -26,6 +26,7 @@ import eu.vcmi.vcmi.settings.ModsBtnController;
 import eu.vcmi.vcmi.settings.MusicSettingController;
 import eu.vcmi.vcmi.settings.PointerModeSettingController;
 import eu.vcmi.vcmi.settings.PointerMultiplierSettingController;
+import eu.vcmi.vcmi.settings.ScreenScaleSettingController;
 import eu.vcmi.vcmi.settings.SoundSettingController;
 import eu.vcmi.vcmi.settings.StartGameController;
 import eu.vcmi.vcmi.util.FileUtil;
@@ -47,6 +48,7 @@ public class ActivityLauncher extends ActivityWithToolbar
     private LauncherSettingController<PointerModeSettingController.PointerMode, Config> mCtrlPointerMode;
     private LauncherSettingController<Void, Void> mCtrlStart;
     private LauncherSettingController<Float, Config> mCtrlPointerMulti;
+    private LauncherSettingController<ScreenScaleSettingController.ScreenScale, Config> mCtrlScreenScale;
     private LauncherSettingController<Integer, Config> mCtrlSoundVol;
     private LauncherSettingController<Integer, Config> mCtrlMusicVol;
     private LauncherSettingController<String, Config> mAiController;
@@ -203,6 +205,7 @@ public class ActivityLauncher extends ActivityWithToolbar
         mCtrlLanguage = new LanguageSettingController(this).init(R.id.launcher_btn_cp, mConfig);
         mCtrlPointerMode = new PointerModeSettingController(this).init(R.id.launcher_btn_pointer_mode, mConfig);
         mCtrlPointerMulti = new PointerMultiplierSettingController(this).init(R.id.launcher_btn_pointer_multi, mConfig);
+        mCtrlScreenScale = new ScreenScaleSettingController(this).init(R.id.launcher_btn_scale, mConfig);
         mCtrlSoundVol = new SoundSettingController(this).init(R.id.launcher_btn_volume_sound, mConfig);
         mCtrlMusicVol = new MusicSettingController(this).init(R.id.launcher_btn_volume_music, mConfig);
         mAiController = new AdventureAiController(this).init(R.id.launcher_btn_adventure_ai, mConfig);
@@ -211,6 +214,7 @@ public class ActivityLauncher extends ActivityWithToolbar
         mActualSettings.add(mCtrlLanguage);
         mActualSettings.add(mCtrlPointerMode);
         mActualSettings.add(mCtrlPointerMulti);
+        mActualSettings.add(mCtrlScreenScale);
         mActualSettings.add(mCtrlSoundVol);
         mActualSettings.add(mCtrlMusicVol);
         mActualSettings.add(mAiController);
@@ -265,6 +269,7 @@ public class ActivityLauncher extends ActivityWithToolbar
         updateCtrlConfig(mCtrlLanguage, mConfig);
         updateCtrlConfig(mCtrlPointerMode, mConfig);
         updateCtrlConfig(mCtrlPointerMulti, mConfig);
+        updateCtrlConfig(mCtrlScreenScale, mConfig);
         updateCtrlConfig(mCtrlSoundVol, mConfig);
         updateCtrlConfig(mCtrlMusicVol, mConfig);
         updateCtrlConfig(mAiController, mConfig);
