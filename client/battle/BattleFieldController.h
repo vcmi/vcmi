@@ -74,6 +74,9 @@ class BattleFieldController : public CIntObject
 	/// based on this mask the corresponding image is selected
 	std::vector<std::shared_ptr<IImage>> calculateRangeHighlightImages(std::vector<std::vector<BattleHex::EDir>> hexesNeighbourDirections, std::shared_ptr<CAnimation> limitImages);
 
+	/// calculates all hexes for a range limit and what images to be shown as highlight for each of the hexes
+	void calculateRangeLimitAndHighlightImages(uint8_t distance, std::shared_ptr<CAnimation> rangedFullDamageLimitImages, std::vector<BattleHex> & rangedFullDamageLimitHexes, std::vector<std::shared_ptr<IImage>> & rangedFullDamageLimitHexesHighligts);
+
 	/// to reduce the number of source images used, some images will be used as flipped versions of preloaded ones
 	void flipRangedFullDamageLimitImagesIntoPositions(std::shared_ptr<CAnimation> images);
 
