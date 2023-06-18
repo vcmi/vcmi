@@ -27,6 +27,7 @@ import eu.vcmi.vcmi.settings.MusicSettingController;
 import eu.vcmi.vcmi.settings.PointerModeSettingController;
 import eu.vcmi.vcmi.settings.PointerMultiplierSettingController;
 import eu.vcmi.vcmi.settings.ScreenScaleSettingController;
+import eu.vcmi.vcmi.settings.ScreenScaleSettingDialog;
 import eu.vcmi.vcmi.settings.SoundSettingController;
 import eu.vcmi.vcmi.settings.StartGameController;
 import eu.vcmi.vcmi.util.FileUtil;
@@ -266,6 +267,9 @@ public class ActivityLauncher extends ActivityWithToolbar
 
     private void onConfigUpdated()
     {
+        if(mConfig.mScreenScale == -1)
+            mConfig.updateScreenScale(ScreenScaleSettingDialog.getSupportedScalingRange(ActivityLauncher.this)[1]);
+
         updateCtrlConfig(mCtrlLanguage, mConfig);
         updateCtrlConfig(mCtrlPointerMode, mConfig);
         updateCtrlConfig(mCtrlPointerMulti, mConfig);
