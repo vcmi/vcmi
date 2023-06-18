@@ -218,7 +218,6 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<CBonusSystemNode, BattleInfo>();
 	//s.template registerType<QuestInfo>();
 	s.template registerType<CBonusSystemNode, CArtifactInstance>();
-	s.template registerType<CArtifactInstance, CCombinedArtifactInstance>();
 
 	//s.template registerType<CObstacleInstance>();
 		s.template registerType<CObstacleInstance, SpellCreatedObstacle>();

@@ -137,12 +137,33 @@ public:
 	}
 };
 
-class DLL_LINKAGE CArtifactInstance : public CBonusSystemNode
+class CCombinedArtifactInstance
+{
+protected:
+	CCombinedArtifactInstance() = default;
+public:
+	struct PartInfo
+	{
+		ConstTransitivePtr<CArtifactInstance> art;
+		ArtifactPosition slot;
+		template <typename Handler> void serialize(Handler & h, const int version)
+		{
+			h & art;
+			h & slot;
+		}
+		PartInfo(CArtifactInstance * art = nullptr, const ArtifactPosition & slot = ArtifactPosition::PRE_FIRST)
+			: art(art), slot(slot) {};
+	};
+	std::vector<PartInfo> partsInfo;
+	void addArtInstAsPart(CArtifactInstance * art, const ArtifactPosition & slot);
+};
+
+class DLL_LINKAGE CArtifactInstance : public CBonusSystemNode, public CCombinedArtifactInstance
 {
 protected:
 	void init();
 public:
-	CArtifactInstance(CArtifact * Art);
+	CArtifactInstance(CArtifact * art);
 	CArtifactInstance();
 
 	ConstTransitivePtr<CArtifact> artType;
@@ -150,66 +171,27 @@ public:
 
 	std::string nodeName() const override;
 	void deserializationFix();
-	void setType(CArtifact *Art);
+	void setType(CArtifact * art);
 
 	std::string getDescription() const;
 	SpellID getScrollSpellID() const; //to be used with scrolls (and similar arts), -1 if none
 
 	ArtifactID getTypeId() const;
-	bool canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved = false) const;  //forwards to the above one
-	virtual bool canBeDisassembled() const;
+	bool canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved = false) const;
+	bool canBeDisassembled() const;
 	/// Checks if this a part of this artifact: artifact instance is a part
 	/// of itself, additionally truth is returned for constituents of combined arts
-	virtual bool isPart(const CArtifactInstance *supposedPart) const;
-
-	virtual void putAt(const ArtifactLocation & al);
-	virtual void removeFrom(const ArtifactLocation & al);
-	virtual void move(const ArtifactLocation & src, const ArtifactLocation & dst);
+	bool isPart(const CArtifactInstance * supposedPart) const;
+	void putAt(const ArtifactLocation & al);
+	void removeFrom(const ArtifactLocation & al);
+	void move(const ArtifactLocation & src, const ArtifactLocation & dst);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & artType;
 		h & id;
-		BONUS_TREE_DESERIALIZATION_FIX
-	}
-};
-
-class DLL_LINKAGE CCombinedArtifactInstance : public CArtifactInstance
-{
-public:
-	CCombinedArtifactInstance(CArtifact * Art);
-	struct ConstituentInfo
-	{
-		ConstTransitivePtr<CArtifactInstance> art;
-		ArtifactPosition slot;
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & art;
-			h & slot;
-		}
-
-		bool operator==(const ConstituentInfo &rhs) const;
-		ConstituentInfo(CArtifactInstance * art = nullptr, const ArtifactPosition & slot = ArtifactPosition::PRE_FIRST);
-	};
-
-	std::vector<ConstituentInfo> constituentsInfo;
-
-	bool isPart(const CArtifactInstance *supposedPart) const override;
-	void createConstituents();
-	void addAsConstituent(CArtifactInstance * art, const ArtifactPosition & slot);
-	void removeFrom(const ArtifactLocation & al) override;
-
-	CCombinedArtifactInstance() = default;
-
-	void deserializationFix();
-
-	friend class CArtifactInstance;
-	friend struct AssembledArtifact;
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CArtifactInstance&>(*this);
-		h & constituentsInfo;
+		h & partsInfo;
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 };
@@ -313,7 +295,7 @@ public:
 	const ArtifactPosition getSlotByInstance(const CArtifactInstance * artInst) const;
 	/// Search for constituents of assemblies in backpack which do not have an ArtifactPosition
 	const CArtifactInstance * getHiddenArt(const ArtifactID & aid) const;
-	const CCombinedArtifactInstance * getAssemblyByConstituent(const ArtifactID & aid) const;
+	const CArtifactInstance * getAssemblyByConstituent(const ArtifactID & aid) const;
 	/// Checks if hero possess artifact of given id (either in backack or worn)
 	bool hasArt(const ArtifactID & aid, bool onlyWorn = false, bool searchBackpackAssemblies = false, bool allowLocked = true) const;
 	bool hasArtBackpack(const ArtifactID & aid) const;
@@ -335,7 +317,7 @@ public:
 
 	void serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName, CMap * map);
 protected:
-	std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *> searchForConstituent(const ArtifactID & aid) const;
+	std::pair<const CArtifactInstance *, const CArtifactInstance *> searchForConstituent(const ArtifactID & aid) const;
 
 private:
 	void serializeJsonHero(JsonSerializeFormat & handler, CMap * map);

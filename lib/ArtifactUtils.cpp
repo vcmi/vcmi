@@ -165,24 +165,23 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createScroll(const SpellID & sid)
 
 DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(CArtifact * art)
 {
+	assert(art);
+
+	auto * artInst = new CArtifactInstance(art);
 	if(art->canBeDisassembled())
 	{
-		auto * ret = new CCombinedArtifactInstance(art);
-		ret->createConstituents();
-		return ret;
+		assert(art->constituents);
+		for(const auto & part : *art->constituents)
+			artInst->addArtInstAsPart(ArtifactUtils::createNewArtifactInstance(part), ArtifactPosition::PRE_FIRST);
 	}
-	else
+	if(dynamic_cast<CGrowingArtifact*>(art))
 	{
-		auto * ret = new CArtifactInstance(art);
-		if(dynamic_cast<CGrowingArtifact*>(art))
-		{
-			auto bonus = std::make_shared<Bonus>();
-			bonus->type = BonusType::LEVEL_COUNTER;
-			bonus->val = 0;
-			ret->addNewBonus(bonus);
-		}
-		return ret;
+		auto bonus = std::make_shared<Bonus>();
+		bonus->type = BonusType::LEVEL_COUNTER;
+		bonus->val = 0;
+		artInst->addNewBonus(bonus);
 	}
+	return artInst;
 }
 
 DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(const ArtifactID & aid)
@@ -211,10 +210,9 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const 
 	map->addNewArtifactInstance(art);
 	if(art->artType && art->canBeDisassembled())
 	{
-		auto * combined = dynamic_cast<CCombinedArtifactInstance*>(art);
-		for(CCombinedArtifactInstance::ConstituentInfo & ci : combined->constituentsInfo)
+		for(auto & part : art->partsInfo)
 		{
-			map->addNewArtifactInstance(ci.art);
+			map->addNewArtifactInstance(part.art);
 		}
 	}
 	return art;

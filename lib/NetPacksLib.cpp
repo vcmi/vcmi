@@ -1524,12 +1524,17 @@ void NewObject::applyGs(CGameState *gs)
 void NewArtifact::applyGs(CGameState *gs)
 {
 	assert(!vstd::contains(gs->map->artInstances, art));
-	gs->map->addNewArtifactInstance(art);
-
 	assert(!art->getParentNodes().size());
+	assert(art->artType);
+
 	art->setType(art->artType);
-	if(auto * cart = dynamic_cast<CCombinedArtifactInstance *>(art.get()))
-		cart->createConstituents();
+	if(art->canBeDisassembled())
+	{
+		assert(art->artType->constituents);
+		for(const auto & part : *art->artType->constituents)
+			art->addArtInstAsPart(ArtifactUtils::createNewArtifactInstance(part), ArtifactPosition::PRE_FIRST);
+	}
+	gs->map->addNewArtifactInstance(art);
 }
 
 const CStackInstance * StackLocation::getStack()
@@ -1930,7 +1935,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 			return art->getId() == builtArt->getId();
 		}));
 
-	auto * combinedArt = new CCombinedArtifactInstance(builtArt);
+	auto * combinedArt = new CArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
 	// Retrieve all constituents
 	for(const CArtifact * constituent : *builtArt->constituents)
@@ -1955,7 +1960,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 			al.slot = std::min(al.slot, pos);
 			pos = ArtifactPosition::PRE_FIRST;
 		}
-		combinedArt->addAsConstituent(constituentInstance, pos);
+		combinedArt->addArtInstAsPart(constituentInstance, pos);
 	}
 
 	//put new combined artifacts
@@ -1964,19 +1969,19 @@ void AssembledArtifact::applyGs(CGameState *gs)
 
 void DisassembledArtifact::applyGs(CGameState *gs)
 {
-	auto * disassembled = dynamic_cast<CCombinedArtifactInstance *>(al.getArt());
+	auto * disassembled = al.getArt();
 	assert(disassembled);
 
-	std::vector<CCombinedArtifactInstance::ConstituentInfo> constituents = disassembled->constituentsInfo;
+	auto parts = disassembled->partsInfo;
 	disassembled->removeFrom(al);
-	for(CCombinedArtifactInstance::ConstituentInfo &ci : constituents)
+	for(auto & part : parts)
 	{
-		ArtifactLocation constituentLoc = al;
-		constituentLoc.slot = (ci.slot >= 0 ? ci.slot : al.slot); //-1 is slot of main constituent -> it'll replace combined artifact in its pos
-		disassembled->detachFrom(*ci.art);
-		ci.art->putAt(constituentLoc);
+		ArtifactLocation partLoc = al;
+		// ArtifactPosition::PRE_FIRST is value of main part slot -> it'll replace combined artifact in its pos
+		partLoc.slot = (ArtifactUtils::isSlotEquipment(part.slot) ? part.slot : al.slot);
+		disassembled->detachFrom(*part.art);
+		part.art->putAt(partLoc);
 	}
-
 	gs->map->eraseArtifactInstance(disassembled);
 }
 

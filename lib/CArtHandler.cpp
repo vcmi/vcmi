@@ -854,6 +854,11 @@ void CArtifactInstance::putAt(const ArtifactLocation & al)
 void CArtifactInstance::removeFrom(const ArtifactLocation & al)
 {
 	al.getHolderArtSet()->removeArtifact(al.slot);
+	for(auto & part : partsInfo)
+	{
+		if(part.slot != ArtifactPosition::PRE_FIRST)
+			part.slot = ArtifactPosition::PRE_FIRST;
+	}
 }
 
 bool CArtifactInstance::canBeDisassembled() const
@@ -870,6 +875,8 @@ void CArtifactInstance::move(const ArtifactLocation & src, const ArtifactLocatio
 void CArtifactInstance::deserializationFix()
 {
 	setType(artType);
+	for(PartInfo & part : partsInfo)
+		attachTo(*part.art);
 }
 
 SpellID CArtifactInstance::getScrollSpellID() const
@@ -885,74 +892,28 @@ SpellID CArtifactInstance::getScrollSpellID() const
 
 bool CArtifactInstance::isPart(const CArtifactInstance *supposedPart) const
 {
-	return supposedPart == this;
-}
-
-CCombinedArtifactInstance::CCombinedArtifactInstance(CArtifact *Art)
-	: CArtifactInstance(Art) //TODO: seems unused, but need to be written
-{
-}
-
-void CCombinedArtifactInstance::createConstituents()
-{
-	assert(artType);
-	assert(artType->constituents);
-
-	for(const CArtifact * art : *artType->constituents)
-	{
-		addAsConstituent(ArtifactUtils::createNewArtifactInstance(art->getId()), ArtifactPosition::PRE_FIRST);
-	}
-}
-
-void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance * art, const ArtifactPosition & slot)
-{
-	assert(vstd::contains_if(*artType->constituents, [=](const CArtifact * constituent){
-		return constituent->getId() == art->artType->getId();
-	}));
-	assert(art->getParentNodes().size() == 1  &&  art->getParentNodes().front() == art->artType);
-	constituentsInfo.emplace_back(art, slot);
-	attachTo(*art);
-}
-
-void CCombinedArtifactInstance::removeFrom(const ArtifactLocation & al)
-{
-	CArtifactInstance::removeFrom(al);
-	for(auto & part : constituentsInfo)
-	{
-		if(part.slot != ArtifactPosition::PRE_FIRST)
-			part.slot = ArtifactPosition::PRE_FIRST;
-	}
-}
-
-void CCombinedArtifactInstance::deserializationFix()
-{
-	for(ConstituentInfo &ci : constituentsInfo)
-		attachTo(*ci.art);
-}
-
-bool CCombinedArtifactInstance::isPart(const CArtifactInstance *supposedPart) const
-{
-	bool me = CArtifactInstance::isPart(supposedPart);
-	if(me)
+	if(supposedPart == this)
 		return true;
 
 	//check for constituents
-	for(const ConstituentInfo &constituent : constituentsInfo)
+	for(const PartInfo & constituent : partsInfo)
 		if(constituent.art == supposedPart)
 			return true;
 
 	return false;
 }
 
-CCombinedArtifactInstance::ConstituentInfo::ConstituentInfo(CArtifactInstance * Art, const ArtifactPosition & Slot):
-	art(Art),
-	slot(Slot)
+void CCombinedArtifactInstance::addArtInstAsPart(CArtifactInstance * art, const ArtifactPosition & slot)
 {
-}
-
-bool CCombinedArtifactInstance::ConstituentInfo::operator==(const ConstituentInfo &rhs) const
-{
-	return art == rhs.art && slot == rhs.slot;
+	auto artInst = static_cast<CArtifactInstance*>(this);
+	assert(vstd::contains_if(*artInst->artType->constituents,
+		[=](const CArtifact * partType)
+		{
+			return partType->getId() == art->getTypeId();
+		}));
+	assert(art->getParentNodes().size() == 1  &&  art->getParentNodes().front() == art->artType);
+	partsInfo.emplace_back(art, slot);
+	artInst->attachTo(*art);
 }
 
 CArtifactSet::~CArtifactSet() = default;
@@ -1090,8 +1051,7 @@ void CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
 	if(art->artType->canBeDisassembled() && ArtifactUtils::isSlotEquipment(slot))
 	{
 		const CArtifactInstance * mainPart = nullptr;
-		auto & parts = dynamic_cast<CCombinedArtifactInstance*>(art)->constituentsInfo;
-		for(const auto & part : parts)
+		for(const auto & part : art->partsInfo)
 			if(vstd::contains(part.art->artType->possibleSlots.at(bearerType()), slot)
 				&& (part.slot == ArtifactPosition::PRE_FIRST))
 			{
@@ -1099,7 +1059,7 @@ void CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
 				break;
 			}
 
-		for(auto & part : parts)
+		for(auto & part : art->partsInfo)
 		{
 			if(part.art != mainPart)
 			{
@@ -1120,8 +1080,7 @@ void CArtifactSet::removeArtifact(ArtifactPosition slot)
 	{
 		if(art->canBeDisassembled())
 		{
-			auto combinedArt = dynamic_cast<CCombinedArtifactInstance*>(art);
-			for(auto & part : combinedArt->constituentsInfo)
+			for(auto & part : art->partsInfo)
 			{
 				if(getArt(part.slot, false))
 					eraseArtSlot(part.slot);
@@ -1131,19 +1090,18 @@ void CArtifactSet::removeArtifact(ArtifactPosition slot)
 	}
 }
 
-std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *> CArtifactSet::searchForConstituent(const ArtifactID & aid) const
+std::pair<const CArtifactInstance *, const CArtifactInstance *> CArtifactSet::searchForConstituent(const ArtifactID & aid) const
 {
 	for(const auto & slot : artifactsInBackpack)
 	{
 		auto art = slot.artifact;
 		if(art->canBeDisassembled())
 		{
-			auto * ass = dynamic_cast<CCombinedArtifactInstance *>(art.get());
-			for(auto& ci : ass->constituentsInfo)
+			for(auto& ci : art->partsInfo)
 			{
 				if(ci.art->getTypeId() == aid)
 				{
-					return {ass, ci.art};
+					return {art, ci.art};
 				}
 			}
 		}
@@ -1156,7 +1114,7 @@ const CArtifactInstance * CArtifactSet::getHiddenArt(const ArtifactID & aid) con
 	return searchForConstituent(aid).second;
 }
 
-const CCombinedArtifactInstance * CArtifactSet::getAssemblyByConstituent(const ArtifactID & aid) const
+const CArtifactInstance * CArtifactSet::getAssemblyByConstituent(const ArtifactID & aid) const
 {
 	return searchForConstituent(aid).first;
 }

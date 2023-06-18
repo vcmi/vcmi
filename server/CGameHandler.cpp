@@ -6806,17 +6806,12 @@ bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact
 		COMPLAIN_RET_FALSE_IF(!artType->canBePutAt(h, pos, false), "Cannot put artifact in that slot!");
 	}
 
-	CArtifactInstance * newArtInst = nullptr;
-	if(artType->canBeDisassembled())
-		newArtInst = new CCombinedArtifactInstance();
-	else
-		newArtInst = new CArtifactInstance();
-
+	auto * newArtInst = new CArtifactInstance();
 	newArtInst->artType = artType; // *NOT* via settype -> all bonus-related stuff must be done by NewArtifact apply
 
 	NewArtifact na;
 	na.art = newArtInst;
-	sendAndApply(&na); // -> updates a!!!, will create a on other machines
+	sendAndApply(&na); // -> updates newArtInst!!!
 
 	if(giveHeroArtifact(h, newArtInst, pos))
 		return true;
