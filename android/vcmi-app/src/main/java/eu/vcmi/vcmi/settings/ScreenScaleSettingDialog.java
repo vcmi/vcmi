@@ -1,8 +1,8 @@
 package eu.vcmi.vcmi.settings;
 
 import android.app.Activity;
-import android.graphics;
-import android.view;
+import android.graphics.Point;
+import android.view.WindowMetrics;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
