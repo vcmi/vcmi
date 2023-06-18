@@ -38,7 +38,7 @@ public class ScreenScaleSettingDialog extends LauncherSettingDialog<ScreenScaleS
     }
 
     public static int[] getSupportedScalingRange(Activity activity) {
-        Point screenRealSize = Point();
+        Point screenRealSize = new Point();
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
             WindowMetrics windowMetrics = activity.getWindowManager().getCurrentWindowMetrics();
             screenRealSize.x = windowMetrics.getBounds().width();
@@ -54,7 +54,7 @@ public class ScreenScaleSettingDialog extends LauncherSettingDialog<ScreenScaleS
         }
 
         // H3 resolution, any resolution smaller than that is not correctly supported
-        Point minResolution = Point(800, 600);
+        Point minResolution = new Point(800, 600);
         // arbitrary limit on *downscaling*. Allow some downscaling, if requested by user. Should be generally limited to 100+ for all but few devices
         double minimalScaling = 50;
 
