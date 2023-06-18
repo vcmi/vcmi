@@ -60,11 +60,16 @@ class BattleFieldController : public CIntObject
 	std::set<BattleHex> getHighlightedHexesForSpellRange();
 	std::set<BattleHex> getHighlightedHexesForMovementTarget();
 
+#pragma region Range limit highlight helpers
+
 	/// get all hexes within a certain distance of given hex
 	std::vector<BattleHex> getRangeHexes(BattleHex sourceHex, uint8_t distance);
 
 	/// get only hexes at the limit of a range
 	std::vector<BattleHex> getRangeLimitHexes(BattleHex hoveredHex, std::vector<BattleHex> hexRange, uint8_t distanceToLimit);
+
+	/// calculate if a hex is in range limit and return its index in range
+	bool IsHexInRangeLimit(BattleHex hex, std::vector<BattleHex> & rangedFullDamageLimitHexes, int * hexIndexInRangeLimit);
 
 	/// get an array that has for each hex in range, an aray with all directions where an ouside neighbour hex exists
 	std::vector<std::vector<BattleHex::EDir>> getOutsideNeighbourDirectionsForLimitHexes(std::vector<BattleHex> rangedFullDamageHexes, std::vector<BattleHex> rangedFullDamageLimitHexes);
@@ -72,13 +77,15 @@ class BattleFieldController : public CIntObject
 	/// calculates what image to use as range limit, depending on the direction of neighbors
 	/// a mask is used internally to mark the directions of all neighbours
 	/// based on this mask the corresponding image is selected
-	std::vector<std::shared_ptr<IImage>> calculateRangeHighlightImages(std::vector<std::vector<BattleHex::EDir>> hexesNeighbourDirections, std::shared_ptr<CAnimation> limitImages);
+	std::vector<std::shared_ptr<IImage>> calculateRangeLimitHighlightImages(std::vector<std::vector<BattleHex::EDir>> hexesNeighbourDirections, std::shared_ptr<CAnimation> limitImages);
 
 	/// calculates all hexes for a range limit and what images to be shown as highlight for each of the hexes
 	void calculateRangeLimitAndHighlightImages(uint8_t distance, std::shared_ptr<CAnimation> rangedFullDamageLimitImages, std::vector<BattleHex> & rangedFullDamageLimitHexes, std::vector<std::shared_ptr<IImage>> & rangedFullDamageLimitHexesHighligts);
 
 	/// to reduce the number of source images used, some images will be used as flipped versions of preloaded ones
-	void flipRangedFullDamageLimitImagesIntoPositions(std::shared_ptr<CAnimation> images);
+	void flipRangeLimitImagesIntoPositions(std::shared_ptr<CAnimation> images);
+
+#pragma endregion
 
 	void showBackground(Canvas & canvas);
 	void showBackgroundImage(Canvas & canvas);

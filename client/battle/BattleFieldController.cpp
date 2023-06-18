@@ -136,8 +136,8 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	shootingRangeLimitImages = std::make_shared<CAnimation>("battle/rangeHighlights/rangeHighlightsRed.json");
 	shootingRangeLimitImages->preload();
 
-	flipRangedFullDamageLimitImagesIntoPositions(rangedFullDamageLimitImages);
-	flipRangedFullDamageLimitImagesIntoPositions(shootingRangeLimitImages);
+	flipRangeLimitImagesIntoPositions(rangedFullDamageLimitImages);
+	flipRangeLimitImagesIntoPositions(shootingRangeLimitImages);
 
 	if(!owner.siegeController)
 	{
@@ -446,6 +446,8 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForMovementTarget(
 	return {};
 }
 
+#pragma region Range limit highlight helpers
+
 std::vector<BattleHex> BattleFieldController::getRangeHexes(BattleHex sourceHex, uint8_t distance)
 {
 	std::vector<BattleHex> rangeHexes; // used for return
@@ -476,6 +478,20 @@ std::vector<BattleHex> BattleFieldController::getRangeLimitHexes(BattleHex hover
 	}
 
 	return limitHexes;
+}
+
+bool BattleFieldController::IsHexInRangeLimit(BattleHex hex, std::vector<BattleHex> & rangeLimitHexes, int * hexIndexInRangeLimit)
+{
+	bool  hexInRangeLimit = false;
+
+	if(!rangeLimitHexes.empty())
+	{
+		auto pos = std::find(rangeLimitHexes.begin(), rangeLimitHexes.end(), hex);
+		*hexIndexInRangeLimit = std::distance(rangeLimitHexes.begin(), pos);
+		hexInRangeLimit = pos != rangeLimitHexes.end();
+	}
+
+	return hexInRangeLimit;
 }
 
 std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeighbourDirectionsForLimitHexes(std::vector<BattleHex> wholeRangeHexes, std::vector<BattleHex> rangeLimitHexes)
@@ -511,7 +527,7 @@ std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeigh
 	return output;
 }
 
-std::vector<std::shared_ptr<IImage>> BattleFieldController::calculateRangeHighlightImages(std::vector<std::vector<BattleHex::EDir>> hexesNeighbourDirections, std::shared_ptr<CAnimation> limitImages)
+std::vector<std::shared_ptr<IImage>> BattleFieldController::calculateRangeLimitHighlightImages(std::vector<std::vector<BattleHex::EDir>> hexesNeighbourDirections, std::shared_ptr<CAnimation> limitImages)
 {
 	std::vector<std::shared_ptr<IImage>> output; // if no image is to be shown an empty image is still added to help with traverssing the range
 
@@ -538,10 +554,10 @@ void BattleFieldController::calculateRangeLimitAndHighlightImages(uint8_t distan
 		std::vector<BattleHex> rangeHexes = getRangeHexes(hoveredHex, distance);
 		rangeLimitHexes = getRangeLimitHexes(hoveredHex, rangeHexes, distance);
 		std::vector<std::vector<BattleHex::EDir>> rangeLimitNeighbourDirections = getOutsideNeighbourDirectionsForLimitHexes(rangeHexes, rangeLimitHexes);
-		rangeLimitHexesHighligts = calculateRangeHighlightImages(rangeLimitNeighbourDirections, rangeLimitImages);
+		rangeLimitHexesHighligts = calculateRangeLimitHighlightImages(rangeLimitNeighbourDirections, rangeLimitImages);
 }
 
-void BattleFieldController::flipRangedFullDamageLimitImagesIntoPositions(std::shared_ptr<CAnimation> images)
+void BattleFieldController::flipRangeLimitImagesIntoPositions(std::shared_ptr<CAnimation> images)
 {
 	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::topRight])->verticalFlip();
 	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::right])->verticalFlip();
@@ -561,8 +577,16 @@ void BattleFieldController::flipRangedFullDamageLimitImagesIntoPositions(std::sh
 	images->getImage(hexEdgeMaskToFrameIndex[HexMasks::bottomLeftCorner])->horizontalFlip();
 }
 
+#pragma endregion
+
 void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 {
+	std::vector<BattleHex> rangedFullDamageLimitHexes;
+	std::vector<BattleHex> shootingRangeLimitHexes;
+
+	std::vector<std::shared_ptr<IImage>> rangedFullDamageLimitHexesHighligts;
+	std::vector<std::shared_ptr<IImage>> shootingRangeLimitHexesHighligts;
+
 	std::set<BattleHex> hoveredStackMovementRangeHexes = getMovementRangeForHoveredStack();
 	std::set<BattleHex> hoveredSpellHexes = getHighlightedHexesForSpellRange();
 	std::set<BattleHex> hoveredMoveHexes  = getHighlightedHexesForMovementTarget();
@@ -572,12 +596,6 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 		return;
 
 	const CStack * hoveredStack = getHoveredStack();
-
-	std::vector<BattleHex> rangedFullDamageLimitHexes;
-	std::vector<BattleHex> shootingRangeLimitHexes;
-
-	std::vector<std::shared_ptr<IImage>> rangedFullDamageLimitHexesHighligts;
-	std::vector<std::shared_ptr<IImage>> shootingRangeLimitHexesHighligts;
 
 	// skip range limit calculations if unit hovered is not a shooter
 	if(hoveredStack && hoveredStack->isShooter())
@@ -599,24 +617,12 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 		bool mouse = hoveredMouseHexes.count(hex);
 
 		// calculate if hex is Ranged Full Damage Limit and its position in highlight array
-		bool isRangedFullDamageLimit = false;
 		int hexIndexInRangedFullDamageLimit = 0;
-		if(!rangedFullDamageLimitHexes.empty())
-		{
-			auto pos = std::find(rangedFullDamageLimitHexes.begin(), rangedFullDamageLimitHexes.end(), hex);
-			hexIndexInRangedFullDamageLimit = std::distance(rangedFullDamageLimitHexes.begin(), pos);
-			isRangedFullDamageLimit = pos != rangedFullDamageLimitHexes.end();
-		}
+		bool hexInRangedFullDamageLimit = IsHexInRangeLimit(hex, rangedFullDamageLimitHexes, &hexIndexInRangedFullDamageLimit);
 
 		// calculate if hex is Shooting Range Limit and its position in highlight array
-		bool isShootingRangeLimit = false;
 		int hexIndexInShootingRangeLimit = 0;
-		if(!shootingRangeLimitHexes.empty())
-		{
-			auto pos = std::find(shootingRangeLimitHexes.begin(), shootingRangeLimitHexes.end(), hex);
-			hexIndexInShootingRangeLimit = std::distance(shootingRangeLimitHexes.begin(), pos);
-			isShootingRangeLimit = pos != shootingRangeLimitHexes.end();
-		}
+		bool hexInShootingRangeLimit = IsHexInRangeLimit(hex, shootingRangeLimitHexes, &hexIndexInShootingRangeLimit);
 
 		if(stackMovement && mouse) // area where hovered stackMovement can move shown with highlight. Because also affected by mouse cursor, shade as well
 		{
@@ -631,11 +637,11 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 		{
 			showHighlightedHex(canvas, cellUnitMovementHighlight, hex, false);
 		}
-		if(isRangedFullDamageLimit)
+		if(hexInRangedFullDamageLimit)
 		{
 			showHighlightedHex(canvas, rangedFullDamageLimitHexesHighligts[hexIndexInRangedFullDamageLimit], hex, false);
 		}
-		if(isShootingRangeLimit)
+		if(hexInShootingRangeLimit)
 		{
 			showHighlightedHex(canvas, shootingRangeLimitHexesHighligts[hexIndexInShootingRangeLimit], hex, false);
 		}
