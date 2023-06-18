@@ -76,10 +76,6 @@
             layout="@layout/inc_launcher_btn" />
 
         <include
-            android:id="@+id/launcher_btn_res"
-            layout="@layout/inc_launcher_btn" />
-
-        <include
             android:id="@+id/launcher_btn_adventure_ai"
             layout="@layout/inc_launcher_btn" />
 
