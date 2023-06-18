@@ -1,10 +1,10 @@
 package eu.vcmi.vcmi.settings;
 
 import android.app.Activity;
+import android.graphics.Point;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.awt.Point;
 import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
