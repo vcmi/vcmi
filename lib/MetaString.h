@@ -109,6 +109,8 @@ public:
 	/// Returns true if current string is empty
 	bool empty() const;
 
+	bool operator == (const MetaString & other) const;
+
 	void jsonSerialize(JsonNode & dest) const;
 	void jsonDeserialize(const JsonNode & dest);
 

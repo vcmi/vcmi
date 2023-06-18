@@ -300,6 +300,11 @@ void MetaString::replaceCreatureName(const CStackBasicDescriptor & stack)
 	replaceCreatureName(stack.type->getId(), stack.count);
 }
 
+bool MetaString::operator == (const MetaString & other) const
+{
+	return message == other.message && localStrings == other.localStrings && exactStrings == other.exactStrings && stringsTextID == other.stringsTextID && numbers == other.numbers;
+}
+
 void MetaString::jsonSerialize(JsonNode & dest) const
 {
 	JsonNode jsonMessage;
