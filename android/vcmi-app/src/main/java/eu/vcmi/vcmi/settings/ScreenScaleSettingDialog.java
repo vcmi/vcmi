@@ -63,7 +63,7 @@ public class ScreenScaleSettingDialog extends LauncherSettingDialog<ScreenScaleS
         double maximalScalingHeight = 100.0 * renderResolution.y / minResolution.y;
         double maximalScaling = Math.min(maximalScalingWidth, maximalScalingHeight);
 
-        return new int[] { minimalScaling, maximalScaling };
+        return new int[] { (int)minimalScaling, (int)maximalScaling };
     }
 
     private static List<ScreenScaleSettingController.ScreenScale> loadScales(Activity activity)
