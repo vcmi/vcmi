@@ -54,7 +54,7 @@ bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::share
 			return (a->version < b->version);
 			break;
 		case _loscon: //by loss conditions
-			return (a->defeatMessage < b->defeatMessage);
+			return (a->defeatIconIndex < b->defeatIconIndex);
 			break;
 		case _playerAm: //by player amount
 			int playerAmntB, humenPlayersB, playerAmntA, humenPlayersA;
@@ -89,7 +89,7 @@ bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::share
 			return (a->width < b->width);
 			break;
 		case _viccon: //by victory conditions
-			return (a->victoryMessage < b->victoryMessage);
+			return (a->victoryIconIndex < b->victoryIconIndex);
 			break;
 		case _name: //by name
 			return boost::ilexicographical_compare(a->name, b->name);

@@ -300,6 +300,8 @@ enum class ELossConditionType : uint8_t
 void CMapLoaderH3M::readVictoryLossConditions()
 {
 	mapHeader->triggeredEvents.clear();
+	mapHeader->victoryMessage.clear();
+	mapHeader->defeatMessage.clear();
 
 	auto vicCondition = static_cast<EVictoryConditionType>(reader->readUInt8());
 
@@ -309,18 +311,18 @@ void CMapLoaderH3M::readVictoryLossConditions()
 
 	TriggeredEvent standardVictory;
 	standardVictory.effect.type = EventEffect::VICTORY;
-	standardVictory.effect.toOtherMessage = "core.genrltxt.5";
+	standardVictory.effect.toOtherMessage.appendTextID("core.genrltxt.5");
 	standardVictory.identifier = "standardVictory";
 	standardVictory.description.clear(); // TODO: display in quest window
-	standardVictory.onFulfill = "core.genrltxt.659";
+	standardVictory.onFulfill.appendTextID("core.genrltxt.659");
 	standardVictory.trigger = EventExpression(victoryCondition);
 
 	TriggeredEvent standardDefeat;
 	standardDefeat.effect.type = EventEffect::DEFEAT;
-	standardDefeat.effect.toOtherMessage = "core.genrltxt.8";
+	standardDefeat.effect.toOtherMessage.appendTextID("core.genrltxt.8");
 	standardDefeat.identifier = "standardDefeat";
 	standardDefeat.description.clear(); // TODO: display in quest window
-	standardDefeat.onFulfill = "core.genrltxt.7";
+	standardDefeat.onFulfill.appendTextID("core.genrltxt.7");
 	standardDefeat.trigger = EventExpression(defeatCondition);
 
 	// Specific victory conditions
@@ -329,7 +331,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		// create normal condition
 		mapHeader->triggeredEvents.push_back(standardVictory);
 		mapHeader->victoryIconIndex = 11;
-		mapHeader->victoryMessage = VLC->generaltexth->victoryConditions[0];
+		mapHeader->victoryMessage.appendTextID("core.vcdesc.0");
 	}
 	else
 	{
@@ -339,7 +341,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		specialVictory.description.clear(); // TODO: display in quest window
 
 		mapHeader->victoryIconIndex = static_cast<ui16>(vicCondition);
-		mapHeader->victoryMessage = VLC->generaltexth->victoryConditions[static_cast<size_t>(vicCondition) + 1];
+		mapHeader->victoryMessage.appendTextID(TextIdentifier("core.vcdesc", static_cast<size_t>(vicCondition) + 1).get());
 
 		bool allowNormalVictory = reader->readBool();
 		bool appliesToAI = reader->readBool();
@@ -368,8 +370,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				EventCondition cond(EventCondition::HAVE_ARTIFACT);
 				cond.objectType = reader->readArtifact();
 
-				specialVictory.effect.toOtherMessage = "core.genrltxt.281";
-				specialVictory.onFulfill = "core.genrltxt.280";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.281");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.280");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -379,8 +381,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				cond.objectType = reader->readCreature();
 				cond.value = reader->readInt32();
 
-				specialVictory.effect.toOtherMessage = "core.genrltxt.277";
-				specialVictory.onFulfill = "core.genrltxt.6";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.277");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.6");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -390,8 +392,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				cond.objectType = reader->readUInt8();
 				cond.value = reader->readInt32();
 
-				specialVictory.effect.toOtherMessage = "core.genrltxt.279";
-				specialVictory.onFulfill = "core.genrltxt.278";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.279");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.278");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -405,8 +407,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				cond.objectType = BuildingID::FORT + reader->readUInt8();
 				oper.expressions.emplace_back(cond);
 
-				specialVictory.effect.toOtherMessage = "core.genrltxt.283";
-				specialVictory.onFulfill = "core.genrltxt.282";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.283");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.282");
 				specialVictory.trigger = EventExpression(oper);
 				break;
 			}
@@ -418,8 +420,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				if(cond.position.z > 2)
 					cond.position = int3(-1, -1, -1);
 
-				specialVictory.effect.toOtherMessage = "core.genrltxt.285";
-				specialVictory.onFulfill = "core.genrltxt.284";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.285");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.284");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -429,8 +431,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				cond.objectType = Obj::HERO;
 				cond.position = reader->readInt3();
 
-				specialVictory.effect.toOtherMessage = "core.genrltxt.253";
-				specialVictory.onFulfill = "core.genrltxt.252";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.253");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.252");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -440,8 +442,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				cond.objectType = Obj::TOWN;
 				cond.position = reader->readInt3();
 
-				specialVictory.effect.toOtherMessage = "core.genrltxt.250";
-				specialVictory.onFulfill = "core.genrltxt.249";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.250");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.249");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -451,8 +453,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				cond.objectType = Obj::MONSTER;
 				cond.position = reader->readInt3();
 
-				specialVictory.effect.toOtherMessage = "core.genrltxt.287";
-				specialVictory.onFulfill = "core.genrltxt.286";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.287");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.286");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -462,8 +464,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL, 0, Obj::CREATURE_GENERATOR1));
 				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL, 0, Obj::CREATURE_GENERATOR4));
 
-				specialVictory.effect.toOtherMessage = "core.genrltxt.289";
-				specialVictory.onFulfill = "core.genrltxt.288";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.289");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.288");
 				specialVictory.trigger = EventExpression(oper);
 				break;
 			}
@@ -472,8 +474,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				EventCondition cond(EventCondition::CONTROL);
 				cond.objectType = Obj::MINE;
 
-				specialVictory.effect.toOtherMessage = "core.genrltxt.291";
-				specialVictory.onFulfill = "core.genrltxt.290";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.291");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.290");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -483,8 +485,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				cond.objectType = reader->readUInt8();
 				cond.position = reader->readInt3();
 
-				specialVictory.effect.toOtherMessage = "core.genrltxt.293";
-				specialVictory.onFulfill = "core.genrltxt.292";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.293");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.292");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -493,8 +495,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				EventCondition cond(EventCondition::DESTROY);
 				cond.objectType = Obj::MONSTER;
 
-				specialVictory.effect.toOtherMessage = "Defeat all monsters"; // Eliminate all monsters on the map
-				specialVictory.onFulfill = "You have defeated all of the monsters plaguing this land!";
+				specialVictory.effect.toOtherMessage.appendRawString("Defeat all monsters"); // Eliminate all monsters on the map
+				specialVictory.onFulfill.appendRawString("You have defeated all of the monsters plaguing this land!");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -503,8 +505,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				EventCondition cond(EventCondition::DAYS_PASSED);
 				cond.value = reader->readUInt32();
 
-				specialVictory.effect.toOtherMessage = "Survive beyond a time limit"; // Survive by month %d, week %d, day %d.
-				specialVictory.onFulfill = "You have managed to survive!";
+				specialVictory.effect.toOtherMessage.appendRawString("Survive beyond a time limit"); // Survive by month %d, week %d, day %d.
+				specialVictory.onFulfill.appendRawString("You have managed to survive!");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -526,8 +528,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		// if normal victory allowed - add one more quest
 		if(allowNormalVictory)
 		{
-			mapHeader->victoryMessage += " / ";
-			mapHeader->victoryMessage += VLC->generaltexth->victoryConditions[0];
+			mapHeader->victoryMessage.appendRawString(" / ");
+			mapHeader->victoryMessage.appendTextID("core.vcdesc.0");
 			mapHeader->triggeredEvents.push_back(standardVictory);
 		}
 		mapHeader->triggeredEvents.push_back(specialVictory);
@@ -538,18 +540,17 @@ void CMapLoaderH3M::readVictoryLossConditions()
 	if(lossCond == ELossConditionType::LOSSSTANDARD)
 	{
 		mapHeader->defeatIconIndex = 3;
-		mapHeader->defeatMessage = VLC->generaltexth->lossCondtions[0];
+		mapHeader->defeatMessage.appendTextID("core.lcdesc.0");
 	}
 	else
 	{
 		TriggeredEvent specialDefeat;
 		specialDefeat.effect.type = EventEffect::DEFEAT;
-		specialDefeat.effect.toOtherMessage = "core.genrltxt.5";
+		specialDefeat.effect.toOtherMessage.appendTextID("core.genrltxt.5");
 		specialDefeat.identifier = "specialDefeat";
 		specialDefeat.description.clear(); // TODO: display in quest window
 
 		mapHeader->defeatIconIndex = static_cast<ui16>(lossCond);
-		mapHeader->defeatMessage = VLC->generaltexth->lossCondtions[static_cast<size_t>(lossCond) + 1];
 
 		switch(lossCond)
 		{
@@ -561,8 +562,10 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				cond.position = reader->readInt3();
 
 				noneOf.expressions.emplace_back(cond);
-				specialDefeat.onFulfill = "core.genrltxt.251";
+				specialDefeat.onFulfill.appendTextID("core.genrltxt.251");
 				specialDefeat.trigger = EventExpression(noneOf);
+
+				mapHeader->defeatMessage.appendTextID("core.lcdesc.1");
 				break;
 			}
 			case ELossConditionType::LOSSHERO:
@@ -573,8 +576,10 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				cond.position = reader->readInt3();
 
 				noneOf.expressions.emplace_back(cond);
-				specialDefeat.onFulfill = "core.genrltxt.253";
+				specialDefeat.onFulfill.appendTextID("core.genrltxt.253");
 				specialDefeat.trigger = EventExpression(noneOf);
+
+				mapHeader->defeatMessage.appendTextID("core.lcdesc.2");
 				break;
 			}
 			case ELossConditionType::TIMEEXPIRES:
@@ -582,8 +587,10 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				EventCondition cond(EventCondition::DAYS_PASSED);
 				cond.value = reader->readUInt16();
 
-				specialDefeat.onFulfill = "core.genrltxt.254";
+				specialDefeat.onFulfill.appendTextID("core.genrltxt.254");
 				specialDefeat.trigger = EventExpression(cond);
+
+				mapHeader->defeatMessage.appendTextID("core.lcdesc.3");
 				break;
 			}
 		}

@@ -13,6 +13,7 @@
 #include "../CModVersion.h"
 #include "../LogicalExpression.h"
 #include "../int3.h"
+#include "../MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -159,7 +160,7 @@ struct DLL_LINKAGE EventEffect
 	si8 type;
 
 	/// message that will be sent to other players
-	std::string toOtherMessage;
+	MetaString toOtherMessage;
 
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
@@ -178,10 +179,10 @@ struct DLL_LINKAGE TriggeredEvent
 	std::string identifier;
 
 	/// string-description, for use in UI (capture town to win)
-	std::string description;
+	MetaString description;
 
 	/// Message that will be displayed when this event is triggered (You captured town. You won!)
-	std::string onFulfill;
+	MetaString onFulfill;
 
 	/// Effect of this event. TODO: refactor into something more flexible
 	EventEffect effect;
@@ -229,8 +230,8 @@ public:
 	///	maximum level for heroes. This is the default value.
 	ui8 levelLimit;
 
-	std::string victoryMessage;
-	std::string defeatMessage;
+	MetaString victoryMessage;
+	MetaString defeatMessage;
 	ui16 victoryIconIndex;
 	ui16 defeatIconIndex;
 

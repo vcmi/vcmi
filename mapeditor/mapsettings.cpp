@@ -166,8 +166,8 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	};
 	
 	//victory & loss messages
-	ui->victoryMessageEdit->setText(QString::fromStdString(controller.map()->victoryMessage));
-	ui->defeatMessageEdit->setText(QString::fromStdString(controller.map()->defeatMessage));
+	ui->victoryMessageEdit->setText(QString::fromStdString(controller.map()->victoryMessage.toString()));
+	ui->defeatMessageEdit->setText(QString::fromStdString(controller.map()->defeatMessage.toString()));
 	
 	//victory & loss conditions
 	const std::array<std::string, 8> conditionStringsWin = {
@@ -550,8 +550,8 @@ void MapSettings::on_pushButton_clicked()
 	
 	//victory & loss messages
 	
-	controller.map()->victoryMessage = ui->victoryMessageEdit->text().toStdString();
-	controller.map()->defeatMessage = ui->defeatMessageEdit->text().toStdString();
+	controller.map()->victoryMessage = MetaString::createFromRawString(ui->victoryMessageEdit->text().toStdString());
+	controller.map()->defeatMessage = MetaString::createFromRawString(ui->defeatMessageEdit->text().toStdString());
 	
 	//victory & loss conditions
 	EventCondition victoryCondition(EventCondition::STANDARD_WIN);
@@ -561,19 +561,19 @@ void MapSettings::on_pushButton_clicked()
 	//Victory condition - defeat all
 	TriggeredEvent standardVictory;
 	standardVictory.effect.type = EventEffect::VICTORY;
-	standardVictory.effect.toOtherMessage = "core.genrltxt.5";
+	standardVictory.effect.toOtherMessage.appendTextID("core.genrltxt.5");
 	standardVictory.identifier = "standardVictory";
 	standardVictory.description.clear(); // TODO: display in quest window
-	standardVictory.onFulfill = "core.genrltxt.659";
+	standardVictory.onFulfill.appendTextID("core.genrltxt.659");
 	standardVictory.trigger = EventExpression(victoryCondition);
 
 	//Loss condition - 7 days without town
 	TriggeredEvent standardDefeat;
 	standardDefeat.effect.type = EventEffect::DEFEAT;
-	standardDefeat.effect.toOtherMessage = "core.genrltxt.8";
+	standardDefeat.effect.toOtherMessage.appendTextID("core.genrltxt.8");
 	standardDefeat.identifier = "standardDefeat";
 	standardDefeat.description.clear(); // TODO: display in quest window
-	standardDefeat.onFulfill = "core.genrltxt.7";
+	standardDefeat.onFulfill.appendTextID("core.genrltxt.7");
 	standardDefeat.trigger = EventExpression(defeatCondition);
 	
 	controller.map()->triggeredEvents.clear();
@@ -583,7 +583,7 @@ void MapSettings::on_pushButton_clicked()
 	{
 		controller.map()->triggeredEvents.push_back(standardVictory);
 		controller.map()->victoryIconIndex = 11;
-		controller.map()->victoryMessage = VLC->generaltexth->victoryConditions[0];
+		controller.map()->victoryMessage.appendTextID(VLC->generaltexth->victoryConditions[0]);
 	}
 	else
 	{
@@ -595,7 +595,7 @@ void MapSettings::on_pushButton_clicked()
 		specialVictory.description.clear(); // TODO: display in quest window
 		
 		controller.map()->victoryIconIndex = vicCondition;
-		controller.map()->victoryMessage = VLC->generaltexth->victoryConditions[size_t(vicCondition) + 1];
+		controller.map()->victoryMessage.appendTextID(VLC->generaltexth->victoryConditions[size_t(vicCondition) + 1]);
 		
 		switch(vicCondition)
 		{
@@ -603,8 +603,8 @@ void MapSettings::on_pushButton_clicked()
 				EventCondition cond(EventCondition::HAVE_ARTIFACT);
 				assert(victoryTypeWidget);
 				cond.objectType = victoryTypeWidget->currentData().toInt();
-				specialVictory.effect.toOtherMessage = "core.genrltxt.281";
-				specialVictory.onFulfill = "core.genrltxt.280";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.281");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.280");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -614,8 +614,8 @@ void MapSettings::on_pushButton_clicked()
 				assert(victoryTypeWidget);
 				cond.objectType = victoryTypeWidget->currentData().toInt();
 				cond.value = victoryValueWidget->text().toInt();
-				specialVictory.effect.toOtherMessage = "core.genrltxt.277";
-				specialVictory.onFulfill = "core.genrltxt.276";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.277");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.276");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -625,8 +625,8 @@ void MapSettings::on_pushButton_clicked()
 				assert(victoryTypeWidget);
 				cond.objectType = victoryTypeWidget->currentData().toInt();
 				cond.value = victoryValueWidget->text().toInt();
-				specialVictory.effect.toOtherMessage = "core.genrltxt.279";
-				specialVictory.onFulfill = "core.genrltxt.278";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.279");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.278");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -638,8 +638,8 @@ void MapSettings::on_pushButton_clicked()
 				int townIdx = victorySelectWidget->currentData().toInt();
 				if(townIdx > -1)
 					cond.position = controller.map()->objects[townIdx]->pos;
-				specialVictory.effect.toOtherMessage = "core.genrltxt.283";
-				specialVictory.onFulfill = "core.genrltxt.282";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.283");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.282");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -650,8 +650,8 @@ void MapSettings::on_pushButton_clicked()
 				cond.objectType = Obj::TOWN;
 				int townIdx = victoryTypeWidget->currentData().toInt();
 				cond.position = controller.map()->objects[townIdx]->pos;
-				specialVictory.effect.toOtherMessage = "core.genrltxt.250";
-				specialVictory.onFulfill = "core.genrltxt.249";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.250");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.249");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -662,8 +662,8 @@ void MapSettings::on_pushButton_clicked()
 				cond.objectType = Obj::HERO;
 				int heroIdx = victoryTypeWidget->currentData().toInt();
 				cond.position = controller.map()->objects[heroIdx]->pos;
-				specialVictory.effect.toOtherMessage = "core.genrltxt.253";
-				specialVictory.onFulfill = "core.genrltxt.252";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.253");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.252");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -675,8 +675,8 @@ void MapSettings::on_pushButton_clicked()
 				int townIdx = victorySelectWidget->currentData().toInt();
 				if(townIdx > -1)
 					cond.position = controller.map()->objects[townIdx]->pos;
-				specialVictory.effect.toOtherMessage = "core.genrltxt.293";
-				specialVictory.onFulfill = "core.genrltxt.292";
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.293");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.292");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -697,8 +697,8 @@ void MapSettings::on_pushButton_clicked()
 		// if normal victory allowed - add one more quest
 		if(ui->standardVictoryCheck->isChecked())
 		{
-			controller.map()->victoryMessage += " / ";
-			controller.map()->victoryMessage += VLC->generaltexth->victoryConditions[0];
+			controller.map()->victoryMessage.appendRawString(" / ");
+			controller.map()->victoryMessage.appendTextID(VLC->generaltexth->victoryConditions[0]);
 			controller.map()->triggeredEvents.push_back(standardVictory);
 		}
 		controller.map()->triggeredEvents.push_back(specialVictory);
@@ -709,7 +709,7 @@ void MapSettings::on_pushButton_clicked()
 	{
 		controller.map()->triggeredEvents.push_back(standardDefeat);
 		controller.map()->defeatIconIndex = 3;
-		controller.map()->defeatMessage = VLC->generaltexth->lossCondtions[0];
+		controller.map()->defeatMessage.appendTextID("core.lcdesc.0");
 	}
 	else
 	{
@@ -721,7 +721,6 @@ void MapSettings::on_pushButton_clicked()
 		specialDefeat.description.clear(); // TODO: display in quest window
 		
 		controller.map()->defeatIconIndex = lossCondition;
-		controller.map()->defeatMessage = VLC->generaltexth->lossCondtions[size_t(lossCondition) + 1];
 		
 		switch(lossCondition)
 		{
@@ -733,8 +732,9 @@ void MapSettings::on_pushButton_clicked()
 				int townIdx = loseTypeWidget->currentData().toInt();
 				cond.position = controller.map()->objects[townIdx]->pos;
 				noneOf.expressions.push_back(cond);
-				specialDefeat.onFulfill = "core.genrltxt.251";
+				specialDefeat.onFulfill.appendTextID("core.genrltxt.251");
 				specialDefeat.trigger = EventExpression(noneOf);
+				controller.map()->defeatMessage.appendTextID("core.lcdesc.1");
 				break;
 			}
 				
@@ -746,8 +746,9 @@ void MapSettings::on_pushButton_clicked()
 				int townIdx = loseTypeWidget->currentData().toInt();
 				cond.position = controller.map()->objects[townIdx]->pos;
 				noneOf.expressions.push_back(cond);
-				specialDefeat.onFulfill = "core.genrltxt.253";
+				specialDefeat.onFulfill.appendTextID("core.genrltxt.253");
 				specialDefeat.trigger = EventExpression(noneOf);
+				controller.map()->defeatMessage.appendTextID("core.lcdesc.2");
 				break;
 			}
 				
@@ -755,8 +756,9 @@ void MapSettings::on_pushButton_clicked()
 				EventCondition cond(EventCondition::DAYS_PASSED);
 				assert(loseValueWidget);
 				cond.value = expiredDate(loseValueWidget->text());
-				specialDefeat.onFulfill = "core.genrltxt.254";
+				specialDefeat.onFulfill.appendTextID("core.genrltxt.254");
 				specialDefeat.trigger = EventExpression(cond);
+				controller.map()->defeatMessage.appendTextID("core.lcdesc.3");
 				break;
 			}
 				
@@ -764,7 +766,7 @@ void MapSettings::on_pushButton_clicked()
 				EventCondition cond(EventCondition::DAYS_WITHOUT_TOWN);
 				assert(loseValueWidget);
 				cond.value = loseValueWidget->text().toInt();
-				specialDefeat.onFulfill = "core.genrltxt.7";
+				specialDefeat.onFulfill.appendTextID("core.genrltxt.7");
 				specialDefeat.trigger = EventExpression(cond);
 				break;
 			}

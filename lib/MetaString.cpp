@@ -22,16 +22,36 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+MetaString MetaString::createFromRawString(const std::string & value)
+{
+	MetaString result;
+	result.appendRawString(value);
+	return result;
+}
+
+MetaString MetaString::createFromTextID(const std::string & value)
+{
+	MetaString result;
+	result.appendTextID(value);
+	return result;
+}
+
 void MetaString::appendLocalString(EMetaText type, ui32 serial)
 {
 	message.push_back(EMessage::APPEND_LOCAL_STRING);
 	localStrings.emplace_back(type, serial);
 }
 
-void MetaString::appendRawString(std::string value)
+void MetaString::appendRawString(const std::string & value)
 {
 	message.push_back(EMessage::APPEND_RAW_STRING);
 	exactStrings.push_back(value);
+}
+
+void MetaString::appendTextID(const std::string & value)
+{
+	message.push_back(EMessage::APPEND_TEXTID_STRING);
+	stringsTextID.push_back(value);
 }
 
 void MetaString::appendNumber(int64_t value)
@@ -52,6 +72,12 @@ void MetaString::replaceRawString(const std::string &txt)
 	exactStrings.push_back(txt);
 }
 
+void MetaString::replaceTextID(const std::string & value)
+{
+	message.push_back(EMessage::REPLACE_TEXTID_STRING);
+	stringsTextID.push_back(value);
+}
+
 void MetaString::replaceNumber(int64_t txt)
 {
 	message.push_back(EMessage::REPLACE_NUMBER);
@@ -68,6 +94,7 @@ void MetaString::clear()
 {
 	exactStrings.clear();
 	localStrings.clear();
+	stringsTextID.clear();
 	message.clear();
 	numbers.clear();
 }
@@ -167,93 +194,94 @@ DLL_LINKAGE std::string MetaString::toString() const
 	size_t exSt = 0;
 	size_t loSt = 0;
 	size_t nums = 0;
+	size_t textID = 0;
 	dst.clear();
 
 	for(const auto & elem : message)
 	{
 		switch(elem)
 		{
-		case EMessage::APPEND_RAW_STRING:
-			dst += exactStrings[exSt++];
-			break;
-		case EMessage::APPEND_LOCAL_STRING:
-			{
-				std::string hlp = getLocalString(localStrings[loSt++]);
-				dst += hlp;
-			}
-			break;
-		case EMessage::APPEND_NUMBER:
-			dst += std::to_string(numbers[nums++]);
-			break;
-		case EMessage::REPLACE_RAW_STRING:
-			boost::replace_first(dst, "%s", exactStrings[exSt++]);
-			break;
-		case EMessage::REPLACE_LOCAL_STRING:
-			{
-				std::string hlp = getLocalString(localStrings[loSt++]);
-				boost::replace_first(dst, "%s", hlp);
-			}
-			break;
-		case EMessage::REPLACE_NUMBER:
-			boost::replace_first(dst, "%d", std::to_string(numbers[nums++]));
-			break;
-		case EMessage::REPLACE_POSITIVE_NUMBER:
-			boost::replace_first(dst, "%+d", '+' + std::to_string(numbers[nums++]));
-			break;
-		default:
-			logGlobal->error("MetaString processing error! Received message of type %d", static_cast<int>(elem));
-			assert(0);
-			break;
+			case EMessage::APPEND_RAW_STRING:
+				dst += exactStrings[exSt++];
+				break;
+			case EMessage::APPEND_LOCAL_STRING:
+				dst += getLocalString(localStrings[loSt++]);
+				break;
+			case EMessage::APPEND_TEXTID_STRING:
+				dst += VLC->generaltexth->translate(stringsTextID[textID++]);
+				break;
+			case EMessage::APPEND_NUMBER:
+				dst += std::to_string(numbers[nums++]);
+				break;
+			case EMessage::REPLACE_RAW_STRING:
+				boost::replace_first(dst, "%s", exactStrings[exSt++]);
+				break;
+			case EMessage::REPLACE_LOCAL_STRING:
+				boost::replace_first(dst, "%s", getLocalString(localStrings[loSt++]));
+				break;
+			case EMessage::REPLACE_TEXTID_STRING:
+				boost::replace_first(dst, "%s", VLC->generaltexth->translate(stringsTextID[textID++]));
+				break;
+			case EMessage::REPLACE_NUMBER:
+				boost::replace_first(dst, "%d", std::to_string(numbers[nums++]));
+				break;
+			case EMessage::REPLACE_POSITIVE_NUMBER:
+				boost::replace_first(dst, "%+d", '+' + std::to_string(numbers[nums++]));
+				break;
+			default:
+				logGlobal->error("MetaString processing error! Received message of type %d", static_cast<int>(elem));
+				assert(0);
+				break;
 		}
 	}
 	return dst;
 }
 
-DLL_LINKAGE std::string MetaString::buildList () const
+DLL_LINKAGE std::string MetaString::buildList() const
 {
 	size_t exSt = 0;
 	size_t loSt = 0;
 	size_t nums = 0;
+	size_t textID = 0;
 	std::string lista;
-	for (int i = 0; i < message.size(); ++i)
+	for(int i = 0; i < message.size(); ++i)
 	{
-		if (i > 0 && (message[i] == EMessage::APPEND_RAW_STRING || message[i] == EMessage::APPEND_LOCAL_STRING))
+		if(i > 0 && (message[i] == EMessage::APPEND_RAW_STRING || message[i] == EMessage::APPEND_LOCAL_STRING))
 		{
-			if (exSt == exactStrings.size() - 1)
+			if(exSt == exactStrings.size() - 1)
 				lista += VLC->generaltexth->allTexts[141]; //" and "
 			else
 				lista += ", ";
 		}
-		switch (message[i])
+		switch(message[i])
 		{
 			case EMessage::APPEND_RAW_STRING:
 				lista += exactStrings[exSt++];
 				break;
 			case EMessage::APPEND_LOCAL_STRING:
-			{
-				std::string hlp = getLocalString (localStrings[loSt++]);
-				lista += hlp;
-			}
+				lista += getLocalString(localStrings[loSt++]);
+				break;
+			case EMessage::APPEND_TEXTID_STRING:
+				lista += VLC->generaltexth->translate(stringsTextID[textID++]);
 				break;
 			case EMessage::APPEND_NUMBER:
 				lista += std::to_string(numbers[nums++]);
 				break;
 			case EMessage::REPLACE_RAW_STRING:
-				lista.replace (lista.find("%s"), 2, exactStrings[exSt++]);
+				lista.replace(lista.find("%s"), 2, exactStrings[exSt++]);
 				break;
 			case EMessage::REPLACE_LOCAL_STRING:
-			{
-				std::string hlp = getLocalString (localStrings[loSt++]);
-				lista.replace (lista.find("%s"), 2, hlp);
-			}
+				lista.replace(lista.find("%s"), 2, getLocalString(localStrings[loSt++]));
+				break;
+			case EMessage::REPLACE_TEXTID_STRING:
+				lista.replace(lista.find("%s"), 2, VLC->generaltexth->translate(stringsTextID[textID++]));
 				break;
 			case EMessage::REPLACE_NUMBER:
-				lista.replace (lista.find("%d"), 2, std::to_string(numbers[nums++]));
+				lista.replace(lista.find("%d"), 2, std::to_string(numbers[nums++]));
 				break;
 			default:
-				logGlobal->error("MetaString processing error! Received message of type %d",int(message[i]));
+				logGlobal->error("MetaString processing error! Received message of type %d", int(message[i]));
 		}
-
 	}
 	return lista;
 }

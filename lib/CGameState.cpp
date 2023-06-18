@@ -2035,10 +2035,10 @@ bool CGameState::checkForVisitableDir(const int3 & src, const int3 & dst) const
 
 EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(const PlayerColor & player) const
 {
-	const std::string & messageWonSelf = VLC->generaltexth->allTexts[659];
-	const std::string & messageWonOther = VLC->generaltexth->allTexts[5];
-	const std::string & messageLostSelf = VLC->generaltexth->allTexts[7];
-	const std::string & messageLostOther = VLC->generaltexth->allTexts[8];
+	const MetaString messageWonSelf = MetaString::createFromTextID("core.genrltxt.659");
+	const MetaString messageWonOther = MetaString::createFromTextID("core.genrltxt.5");
+	const MetaString messageLostSelf = MetaString::createFromTextID("core.genrltxt.7");
+	const MetaString messageLostOther = MetaString::createFromTextID("core.genrltxt.8");
 
 	auto evaluateEvent = [=](const EventCondition & condition)
 	{

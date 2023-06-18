@@ -5790,12 +5790,8 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 void CGameHandler::getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const
 {
 	out.player = player;
-	out.text.clear();
-	out.text.appendRawString(VLC->generaltexth->translate(victoryLossCheckResult.messageToOthers));
-	// hackish, insert one player-specific string, if applicable
-	if (victoryLossCheckResult.messageToOthers.find("%s") != std::string::npos)
-		out.text.replaceLocalString(EMetaText::COLOR, player.getNum());
-
+	out.text = victoryLossCheckResult.messageToOthers;
+	out.text.replaceLocalString(EMetaText::COLOR, player.getNum());
 	out.components.emplace_back(Component::EComponentType::FLAG, player.getNum(), 0, 0);
 }
 
