@@ -104,7 +104,6 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 	GridType grid(boost::extents[gridSize][gridSize]);
 
 	TZoneVector zonesVector(zones.begin(), zones.end());
-	RandomGeneratorUtil::randomShuffle(zonesVector, *rand);
 
 	//Place first zone
 
