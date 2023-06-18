@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.awt.Point;
 import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class ScreenScaleSettingDialog extends LauncherSettingDialog<ScreenScaleS
     }
 
     @Override
-    protected int dialogTitleScaleId()
+    protected int dialogTitleResId()
     {
         return R.string.launcher_btn_scale_title;
     }
@@ -37,8 +38,8 @@ public class ScreenScaleSettingDialog extends LauncherSettingDialog<ScreenScaleS
 
     public static int[] getSupportedScalingRange(Activity activity) {
         Point screenRealSize = Point();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val windowMetrics = activity.windowManager.currentWindowMetrics;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            WindowMetrics windowMetrics = activity.windowManager.getCurrentWindowMetrics();
             screenRealSize.x = windowMetrics.bounds.width();
             screenRealSize.y = windowMetrics.bounds.height();
         } else {
