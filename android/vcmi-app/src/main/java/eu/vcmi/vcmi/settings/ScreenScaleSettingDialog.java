@@ -1,7 +1,8 @@
 package eu.vcmi.vcmi.settings;
 
 import android.app.Activity;
-import android.graphics.Point;
+import android.graphics;
+import android.view;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -39,11 +40,11 @@ public class ScreenScaleSettingDialog extends LauncherSettingDialog<ScreenScaleS
     public static int[] getSupportedScalingRange(Activity activity) {
         Point screenRealSize = Point();
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            WindowMetrics windowMetrics = activity.windowManager.getCurrentWindowMetrics();
-            screenRealSize.x = windowMetrics.bounds.width();
-            screenRealSize.y = windowMetrics.bounds.height();
+            WindowMetrics windowMetrics = activity.getWindowManager().getCurrentWindowMetrics();
+            screenRealSize.x = windowMetrics.getBounds().width();
+            screenRealSize.y = windowMetrics.getBounds().height();
         } else {
-            activity.windowManager.defaultDisplay.getRealSize(screenRealSize);
+            activity.getWindowManager().getDefaultDisplay().getRealSize(screenRealSize);
         }
 
         if (screenRealSize.x < screenRealSize.y) {

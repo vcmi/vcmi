@@ -15,7 +15,7 @@ public class ScreenScaleSettingController extends LauncherSettingWithDialogContr
         super(activity);
 
         if(mConfig.mScreenScale == -1) {
-            mConfig.updateScale(ScreenScaleSettingDialog.getSupportedScalingRange(activity)[1]);
+            mConfig.updateScreenScale(ScreenScaleSettingDialog.getSupportedScalingRange(activity)[1]);
             updateContent();
         }
     }
@@ -29,7 +29,7 @@ public class ScreenScaleSettingController extends LauncherSettingWithDialogContr
     @Override
     public void onItemChosen(final ScreenScale item)
     {
-        mConfig.updateScale(item.mScreenScale);
+        mConfig.updateScreenScale(item.mScreenScale);
         updateContent();
     }
 
