@@ -35,7 +35,7 @@ public class ScreenScaleSettingDialog extends LauncherSettingDialog<ScreenScaleS
         return item.toString();
     }
 
-    public static int[] getSupportedScalingRange() {
+    public static int[] getSupportedScalingRange(Activity activity) {
         Point screenRealSize = Point();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val windowMetrics = activity.windowManager.currentWindowMetrics;
@@ -70,7 +70,7 @@ public class ScreenScaleSettingDialog extends LauncherSettingDialog<ScreenScaleS
 
         try
         {
-            int[] supportedScalingRange = getSupportedScalingRange();
+            int[] supportedScalingRange = getSupportedScalingRange(activity);
             for (int i = 0; i <= supportedScalingRange[1] + 10 - 1; i += 10)
             {
                 if (i >= supportedScalingRange[0])

@@ -9,8 +9,6 @@ import java.io.IOException;
 import eu.vcmi.vcmi.util.FileUtil;
 import eu.vcmi.vcmi.util.Log;
 
-import eu.vcmi.vcmi.settings.ScreenScaleSettingDialog;
-
 /**
  * @author F
  */
@@ -91,10 +89,6 @@ public class Config
         config.adventureAi = loadEntry(server, "playerAI", "Nullkiller");
         config.mUseRelativePointer = loadEntry(general, "userRelativePointer", false);
         config.mPointerSpeedMultiplier = loadDouble(general, "relativePointerSpeedMultiplier", 1.0);
-
-        if (config.mScreenScale == -1) {
-            config.mScreenScale = ScreenScaleSettingDialog.getSupportedScalingRange()[1];
-        }
 
         config.mRawObject = obj;
         return config;
