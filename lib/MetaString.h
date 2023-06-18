@@ -11,6 +11,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class JsonNode;
 class CreatureID;
 class CStackBasicDescriptor;
 using TQuantity = si32;
@@ -107,6 +108,9 @@ public:
 
 	/// Returns true if current string is empty
 	bool empty() const;
+
+	void jsonSerialize(JsonNode & dest) const;
+	void jsonDeserialize(const JsonNode & dest);
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{

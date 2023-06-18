@@ -5790,7 +5790,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 void CGameHandler::getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const
 {
 	out.player = player;
-	out.text = victoryLossCheckResult.messageToOthers;
+	out.text = victoryLossCheckResult.messageToSelf;
 	out.text.replaceLocalString(EMetaText::COLOR, player.getNum());
 	out.components.emplace_back(Component::EComponentType::FLAG, player.getNum(), 0, 0);
 }

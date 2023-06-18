@@ -300,4 +300,84 @@ void MetaString::replaceCreatureName(const CStackBasicDescriptor & stack)
 	replaceCreatureName(stack.type->getId(), stack.count);
 }
 
+void MetaString::jsonSerialize(JsonNode & dest) const
+{
+	JsonNode jsonMessage;
+	JsonNode jsonLocalStrings;
+	JsonNode jsonExactStrings;
+	JsonNode jsonStringsTextID;
+	JsonNode jsonNumbers;
+
+	for (const auto & entry : message )
+	{
+		JsonNode value;
+		value.Float() = static_cast<int>(entry);
+		jsonMessage.Vector().push_back(value);
+	}
+
+	for (const auto & entry : localStrings )
+	{
+		JsonNode value;
+		value.Float() = static_cast<int>(entry.first) * 10000 + entry.second;
+		jsonLocalStrings.Vector().push_back(value);
+	}
+
+	for (const auto & entry : exactStrings )
+	{
+		JsonNode value;
+		value.String() = entry;
+		jsonExactStrings.Vector().push_back(value);
+	}
+
+	for (const auto & entry : stringsTextID )
+	{
+		JsonNode value;
+		value.String() = entry;
+		jsonStringsTextID.Vector().push_back(value);
+	}
+
+	for (const auto & entry : numbers )
+	{
+		JsonNode value;
+		value.Float() = entry;
+		jsonNumbers.Vector().push_back(value);
+	}
+
+	dest["message"] = jsonMessage;
+	dest["localStrings"] = jsonLocalStrings;
+	dest["exactStrings"] = jsonExactStrings;
+	dest["stringsTextID"] = jsonStringsTextID;
+	dest["numbers"] = jsonNumbers;
+}
+
+void MetaString::jsonDeserialize(const JsonNode & source)
+{
+	clear();
+
+	if (source.isString())
+	{
+		// compatibility with fields that were converted from string to MetaString
+		if(boost::starts_with(source.String(), "core.") || boost::starts_with(source.String(), "vcmi."))
+			appendTextID(source.String());
+		else
+			appendRawString(source.String());
+		return;
+	}
+
+	for (const auto & entry : source["message"].Vector() )
+		message.push_back(static_cast<EMessage>(entry.Integer()));
+
+	for (const auto & entry : source["localStrings"].Vector() )
+		localStrings.push_back({ static_cast<EMetaText>(entry.Integer() / 10000), entry.Integer() % 10000 });
+
+	for (const auto & entry : source["exactStrings"].Vector() )
+		exactStrings.push_back(entry.String());
+
+	for (const auto & entry : source["stringsTextID"].Vector() )
+		stringsTextID.push_back(entry.String());
+
+	for (const auto & entry : source["numbers"].Vector() )
+		numbers.push_back(entry.Integer());
+}
+
 VCMI_LIB_NAMESPACE_END

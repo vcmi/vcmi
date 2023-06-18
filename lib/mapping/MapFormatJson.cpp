@@ -683,10 +683,10 @@ void CMapFormatJson::readTriggeredEvent(TriggeredEvent & event, const JsonNode &
 {
 	using namespace TriggeredEventsDetail;
 
-//	event.onFulfill = source["message"].String();
-//	event.description = source["description"].String();
+	event.onFulfill.jsonDeserialize(source["message"]);
+	event.description.jsonDeserialize(source["description"]);
 	event.effect.type = vstd::find_pos(typeNames, source["effect"]["type"].String());
-//	event.effect.toOtherMessage = source["effect"]["messageToSend"].String();
+	event.effect.toOtherMessage.jsonDeserialize(source["effect"]["messageToSend"]);
 	event.trigger = EventExpression(source["condition"], JsonToCondition); // logical expression
 }
 
@@ -704,16 +704,16 @@ void CMapFormatJson::writeTriggeredEvent(const TriggeredEvent & event, JsonNode 
 {
 	using namespace TriggeredEventsDetail;
 
-//	if(!event.onFulfill.empty())
-//		dest["message"].String() = event.onFulfill;
+	if(!event.onFulfill.empty())
+		event.onFulfill.jsonSerialize(dest["message"]);
 
-//	if(!event.description.empty())
-//		dest["description"].String() = event.description;
+	if(!event.description.empty())
+		event.description.jsonSerialize(dest["description"]);
 
 	dest["effect"]["type"].String() = typeNames.at(static_cast<size_t>(event.effect.type));
 
-//	if(!event.effect.toOtherMessage.empty())
-//		dest["effect"]["messageToSend"].String() = event.effect.toOtherMessage;
+	if(!event.effect.toOtherMessage.empty())
+		event.description.jsonSerialize(dest["effect"]["messageToSend"]);
 
 	dest["condition"] = event.trigger.toJson(ConditionToJson);
 }
