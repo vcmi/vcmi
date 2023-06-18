@@ -341,7 +341,6 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		specialVictory.description.clear(); // TODO: display in quest window
 
 		mapHeader->victoryIconIndex = static_cast<ui16>(vicCondition);
-		mapHeader->victoryMessage.appendTextID(TextIdentifier("core.vcdesc", static_cast<size_t>(vicCondition) + 1).get());
 
 		bool allowNormalVictory = reader->readBool();
 		bool appliesToAI = reader->readBool();
@@ -373,6 +372,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.281");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.280");
 				specialVictory.trigger = EventExpression(cond);
+
+				mapHeader->victoryMessage.appendTextID("core.vcdesc.1");
 				break;
 			}
 			case EVictoryConditionType::GATHERTROOP:
@@ -384,6 +385,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.277");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.6");
 				specialVictory.trigger = EventExpression(cond);
+
+				mapHeader->victoryMessage.appendTextID("core.vcdesc.2");
 				break;
 			}
 			case EVictoryConditionType::GATHERRESOURCE:
@@ -395,6 +398,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.279");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.278");
 				specialVictory.trigger = EventExpression(cond);
+
+				mapHeader->victoryMessage.appendTextID("core.vcdesc.3");
 				break;
 			}
 			case EVictoryConditionType::BUILDCITY:
@@ -410,6 +415,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.283");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.282");
 				specialVictory.trigger = EventExpression(oper);
+
+				mapHeader->victoryMessage.appendTextID("core.vcdesc.4");
 				break;
 			}
 			case EVictoryConditionType::BUILDGRAIL:
@@ -423,6 +430,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.285");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.284");
 				specialVictory.trigger = EventExpression(cond);
+
+				mapHeader->victoryMessage.appendTextID("core.vcdesc.5");
 				break;
 			}
 			case EVictoryConditionType::BEATHERO:
@@ -434,6 +443,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.253");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.252");
 				specialVictory.trigger = EventExpression(cond);
+
+				mapHeader->victoryMessage.appendTextID("core.vcdesc.6");
 				break;
 			}
 			case EVictoryConditionType::CAPTURECITY:
@@ -445,6 +456,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.250");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.249");
 				specialVictory.trigger = EventExpression(cond);
+
+				mapHeader->victoryMessage.appendTextID("core.vcdesc.7");
 				break;
 			}
 			case EVictoryConditionType::BEATMONSTER:
@@ -456,6 +469,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.287");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.286");
 				specialVictory.trigger = EventExpression(cond);
+
+				mapHeader->victoryMessage.appendTextID("core.vcdesc.8");
 				break;
 			}
 			case EVictoryConditionType::TAKEDWELLINGS:
@@ -467,6 +482,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.289");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.288");
 				specialVictory.trigger = EventExpression(oper);
+
+				mapHeader->victoryMessage.appendTextID("core.vcdesc.9");
 				break;
 			}
 			case EVictoryConditionType::TAKEMINES:
@@ -477,6 +494,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.291");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.290");
 				specialVictory.trigger = EventExpression(cond);
+
+				mapHeader->victoryMessage.appendTextID("core.vcdesc.10");
 				break;
 			}
 			case EVictoryConditionType::TRANSPORTITEM:
@@ -488,6 +507,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.293");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.292");
 				specialVictory.trigger = EventExpression(cond);
+
+				mapHeader->victoryMessage.appendTextID("core.vcdesc.11");
 				break;
 			}
 			case EVictoryConditionType::HOTA_ELIMINATE_ALL_MONSTERS:
@@ -495,9 +516,12 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				EventCondition cond(EventCondition::DESTROY);
 				cond.objectType = Obj::MONSTER;
 
-				specialVictory.effect.toOtherMessage.appendRawString("Defeat all monsters"); // Eliminate all monsters on the map
-				specialVictory.onFulfill.appendRawString("You have defeated all of the monsters plaguing this land!");
+				specialVictory.effect.toOtherMessage.appendTextID("vcmi.map.victoryCondition.eliminateMonsters.toOthers");
+				specialVictory.onFulfill.appendTextID("vcmi.map.victoryCondition.eliminateMonsters.toSelf");
 				specialVictory.trigger = EventExpression(cond);
+
+				mapHeader->victoryMessage.appendTextID("core.vcdesc.12");
+				mapHeader->victoryIconIndex = 12;
 				break;
 			}
 			case EVictoryConditionType::HOTA_SURVIVE_FOR_DAYS:
@@ -505,9 +529,12 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				EventCondition cond(EventCondition::DAYS_PASSED);
 				cond.value = reader->readUInt32();
 
-				specialVictory.effect.toOtherMessage.appendRawString("Survive beyond a time limit"); // Survive by month %d, week %d, day %d.
-				specialVictory.onFulfill.appendRawString("You have managed to survive!");
+				specialVictory.effect.toOtherMessage.appendTextID("vcmi.map.victoryCondition.daysPassed.toOthers");
+				specialVictory.onFulfill.appendTextID("vcmi.map.victoryCondition.daysPassed.toSelf");
 				specialVictory.trigger = EventExpression(cond);
+
+				mapHeader->victoryMessage.appendTextID("core.vcdesc.13");
+				mapHeader->victoryIconIndex = 13;
 				break;
 			}
 			default:

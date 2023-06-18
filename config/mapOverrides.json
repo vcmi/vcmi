@@ -31,22 +31,29 @@
 		"defeatIconIndex" : 1,
 		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [  9, 64, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 13, 63, 0 ], "type" : 34 } ]
-						]
-					]
+					[ "noneOf", [ "control", { "position" : [  9, 64, 0 ], "type" : 34 } ] ]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf", [ "control", { "position" : [ 13, 63, 0 ], "type" : 34 } ] ]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
@@ -148,7 +155,7 @@
 			}
 		},
 		"victoryIconIndex" : 0,
-		"victoryString" : "Acquire sword, breastplate and shield"
+		"victoryString" : "vcmi.map.victoryCondition.collectArtifacts.message"
 	},
 	"data/ab:3" : { // Maker of Sorrows
 		"defeatIconIndex" : 1,
@@ -194,23 +201,47 @@
 		"defeatIconIndex" : 1,
 		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [  7, 66, 0 ], "type" : 34 } ], // Catherine
-							[ "control", { "position" : [ 18, 68, 0 ], "type" : 34 } ], // Roland
-							[ "control", { "position" : [ 58, 12, 0 ], "type" : 34 } ]  //Gelu
-						]
+						[ "control", { "position" : [  7, 66, 0 ], "type" : 34 } ] // Catherine
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 18, 68, 0 ], "type" : 34 } ] // Roland
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive3" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 58, 12, 0 ], "type" : 34 } ]  //Gelu
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -240,23 +271,47 @@
 		"defeatIconIndex" : 2,
 		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [  4,  3, 0 ], "type" : 34 } ], // Gelu
-							[ "control", { "position" : [ 12, 63, 0 ], "type" : 34 } ], // Catherine
-							[ "control", { "position" : [ 63, 51, 0 ], "type" : 34 } ]  // Roland
-						]
+						[ "control", { "position" : [  4,  3, 0 ], "type" : 34 } ] // Gelu
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 12, 63, 0 ], "type" : 34 } ] // Catherine
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive3" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 63, 51, 0 ], "type" : 34 } ]  // Roland
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"specialDefeat" : {
 				"condition" : [
@@ -494,24 +549,61 @@
 		"defeatIconIndex" : 2,
 		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [ 10, 59, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [  4, 63, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 15, 63, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 10, 66, 0 ], "type" : 34 } ]
-						]
+						[ "control", { "position" : [ 10, 59, 0 ], "type" : 34 } ]
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [  4, 63, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive3" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 15, 63, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive4" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 10, 66, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"specialDefeat" : {
 				"condition" : [
@@ -549,24 +641,61 @@
 		"defeatIconIndex" : 1,
 		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [ 94, 60, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 93, 51, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 85, 64, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [100, 63, 0 ], "type" : 34 } ]
-						]
+						[ "control", { "position" : [ 94, 60, 0 ], "type" : 34 } ]
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 93, 51, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive3" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 85, 64, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive4" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [100, 63, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
@@ -592,24 +721,61 @@
 		"defeatIconIndex" : 2,
 		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [ 34, 38, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 32,  7, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [  8, 63, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 65, 63, 0 ], "type" : 34 } ]
-						]
+						[ "control", { "position" : [ 34, 38, 0 ], "type" : 34 } ]
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 32,  7, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive3" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [  8, 63, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive4" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 65, 63, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"specialDefeat" : {
 				"condition" : [
@@ -634,10 +800,10 @@
 			"specialVictory" : {
 				"condition" : [  "destroy", { "type" : 54} ],
 				"effect" : {
-					"messageToSend" : "core.genrltxt.5",
+					"messageToSend" : "vcmi.map.victoryCondition.eliminateMonsters.toOthers",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! Area around your town is now secure!"
+				"message" : "vcmi.map.victoryCondition.eliminateMonsters.toSelf"
 			}
 		},
 		"victoryIconIndex" : 7,
@@ -730,10 +896,10 @@
 					[  "destroy", { "type" : 54} ]
 				],
 				"effect" : {
-					"messageToSend" : "You has been vanquished!",
+					"messageToSend" : "vcmi.map.victoryCondition.eliminateMonsters.toOthers",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have defeated all of the monsters plaguing this land!"
+				"message" : "vcmi.map.victoryCondition.eliminateMonsters.toSelf"
 			}
 
 		},
@@ -819,10 +985,10 @@
 					[ "daysPassed", { "value" : 112 } ]
 				],
 				"effect" : {
-					"messageToSend" : "core.genrltxt.5",
+					"messageToSend" : "vcmi.map.victoryCondition.daysPassed.toOthers",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! You have survived long enough for help to arrive. Victory is yours!"
+				"message" : "vcmi.map.victoryCondition.daysPassed.toSelf"
 			},
 
 		},
@@ -833,22 +999,33 @@
 		"defeatIconIndex" : 1,
 		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [ 19, 60, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 17, 60, 0 ], "type" : 34 } ]
-						]
+						[ "control", { "position" : [ 19, 60, 0 ], "type" : 34 } ]
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 17, 60, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
 				"condition" : [ "haveArtifact", { "type" : 54 } ],
@@ -874,22 +1051,33 @@
 		"defeatIconIndex" : 1,
 		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [ 25, 30, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 25, 30, 0 ], "type" : 34 } ]
-						]
+						[ "control", { "position" : [ 25, 30, 0 ], "type" : 34 } ]
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 25, 30, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -919,22 +1107,33 @@
 		"defeatIconIndex" : 1,
 		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [ 55, 17, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 53, 17, 0 ], "type" : 34 } ]
-						]
+						[ "control", { "position" : [ 55, 17, 0 ], "type" : 34 } ]
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 53, 17, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -1124,22 +1323,33 @@
 		"defeatIconIndex" : 1,
 		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [ 56, 54, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 65, 53, 0 ], "type" : 34 } ]
-						]
+						[ "control", { "position" : [ 56, 54, 0 ], "type" : 34 } ]
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 65, 53, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
@@ -1165,22 +1375,33 @@
 		"defeatIconIndex" : 1,
 		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [ 65, 25, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 67, 25, 0 ], "type" : 34 } ]
-						]
+						[ "control", { "position" : [ 65, 25, 0 ], "type" : 34 } ]
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 67, 25, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
@@ -1258,22 +1479,33 @@
 		"defeatIconIndex" : 1,
 		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [ 57, 12, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 25, 11, 0 ], "type" : 34 } ]
-						]
+						[ "control", { "position" : [ 57, 12, 0 ], "type" : 34 } ]
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 25, 11, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -1303,22 +1535,33 @@
 		"defeatIconIndex" : 1,
 		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [ 54,  6, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 13,  6, 0 ], "type" : 34 } ]
-						]
+						[ "control", { "position" : [ 54,  6, 0 ], "type" : 34 } ]
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 13,  6, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
@@ -1344,22 +1587,33 @@
 		"defeatIconIndex" : 1,
 		"defeatString" : "core.lcdesc.2",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [ 34, 10, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 36, 10, 0 ], "type" : 34 } ]
-						]
+						[ "control", { "position" : [ 34, 10, 0 ], "type" : 34 } ]
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 36, 10, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -1389,22 +1643,33 @@
 		"defeatIconIndex" : 3,
 		"defeatString" : "core.lcdesc.0",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [ 21, 10, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 44,  9, 0 ], "type" : 34 } ]
-						]
+						[ "control", { "position" : [ 21, 10, 0 ], "type" : 34 } ]
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 44,  9, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -1430,28 +1695,39 @@
 			}
 		},
 		"victoryIconIndex" : 0,
-		"victoryString" : "Acquire Three Artifacts"
+		"victoryString" : "vcmi.map.victoryCondition.collectArtifacts.message"
 	},
 	"data/final:9" : { // Barbarian Brothers
 		"defeatIconIndex" : 3,
 		"defeatString" : "core.lcdesc.0",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [ 66, 70, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 70, 66, 0 ], "type" : 34 } ]
-						]
+						[ "control", { "position" : [ 66, 70, 0 ], "type" : 34 } ]
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 70, 66, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
 				"condition" : [
@@ -1477,30 +1753,67 @@
 			}
 		},
 		"victoryIconIndex" : 0,
-		"victoryString" : "Acquire Three Artifacts"
+		"victoryString" : "vcmi.map.victoryCondition.collectArtifacts.message"
 	},
 	"data/final:10" : { // Union
 		"defeatIconIndex" : 3,
 		"defeatString" : "core.lcdesc.0",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [  7, 13, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [  9, 15, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 6, 103, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 9, 105, 0 ], "type" : 34 } ]
-						]
+						[ "control", { "position" : [  7, 13, 0 ], "type" : 34 } ]
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [  9, 15, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive3" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 6, 103, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive4" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 9, 105, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
@@ -1521,34 +1834,71 @@
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "victory"
 				},
-				"message" : "Congratulations! All your enemies have been defeated and you have Angelic Alliance! Victory is yours!"
+				"message" : "vcmi.map.victoryCondition.angelicAlliance.toSelf"
 			}
 		},
 		"victoryIconIndex" : 11,
-		"victoryString" : "Defeat All Enemies and create Angelic Alliance"
+		"victoryString" : "vcmi.map.victoryCondition.angelicAlliance.message"
 	},
 	"data/final:11" : { // Fall of Sandro
 		"defeatIconIndex" : 2,
 		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroesMustSurvive1" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "allOf",
-							[ "control", { "position" : [ 14, 53, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 21, 69, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 38, 59, 0 ], "type" : 34 } ],
-							[ "control", { "position" : [ 66, 60, 0 ], "type" : 34 } ]
-						]
+						[ "control", { "position" : [ 14, 53, 0 ], "type" : 34 } ]
 					]
 				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.5",
 					"type" : "defeat"
 				},
-				"message" : "One of your heroes has suffered defeat - your quest is over!"
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive2" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 21, 69, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive3" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 38, 59, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"heroesMustSurvive4" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 66, 60, 0 ], "type" : 34 } ]
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
 			},
 			"specialDefeat" : {
 				"condition" : [
@@ -1586,7 +1936,7 @@
 		"defeatIconIndex" : 2,
 		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
-			"heroesMustSurvive" : {
+			"heroMustSurvive" : {
 				"condition" : [
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
