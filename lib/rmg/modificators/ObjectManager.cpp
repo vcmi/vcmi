@@ -86,6 +86,18 @@ void ObjectManager::updateDistances(const rmg::Object & obj)
 	}
 }
 
+void ObjectManager::updateDistances(const int3 & pos)
+{
+	RecursiveLock lock(externalAccessMutex);
+	tilesByDistance.clear();
+	for (auto tile : zone.areaPossible().getTiles()) //don't need to mark distance for not possible tiles
+	{
+		ui32 d = pos.dist2dSQ(tile); //optimization, only relative distance is interesting
+		map.setNearestObjectDistance(tile, std::min(static_cast<float>(d), map.getNearestObjectDistance(tile)));
+		tilesByDistance.push(std::make_pair(tile, map.getNearestObjectDistance(tile)));
+	}
+}
+
 const rmg::Area & ObjectManager::getVisitableArea() const
 {
 	RecursiveLock lock(externalAccessMutex);

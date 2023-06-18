@@ -147,6 +147,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 						{
 							zone.connectPath(ourPath);
 							otherZone->connectPath(theirPath);
+							otherZone->getModificator<ObjectManager>()->updateDistances(potentialPos);
 
 							success = true;
 							break;

@@ -62,6 +62,7 @@ public:
 	void placeObject(rmg::Object & object, bool guarded, bool updateDistance);
 
 	void updateDistances(const rmg::Object & obj);
+	void updateDistances(const int3& pos);
 	void createDistancesPriorityQueue();
 
 	const rmg::Area & getVisitableArea() const;
