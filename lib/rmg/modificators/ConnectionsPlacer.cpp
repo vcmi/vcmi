@@ -157,6 +157,14 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 		}
 	}
 
+	if (connection.getConnectionType() == EConnectionType::EConnectionType::FICTIVE || 
+		connection.getConnectionType() == EConnectionType::EConnectionType::REPULSIVE)
+	{
+		//Fictive or repulsive connections are not real, take no action
+		dCompleted.push_back(connection);
+		return;
+	}
+
 	float maxDist = -10e6;
 	if(!success && !directProhibited && directConnectionIterator != dNeighbourZones.end())
 	{
