@@ -54,5 +54,11 @@ public class ScreenScaleSettingController extends LauncherSettingWithDialogContr
         {
             mScreenScale = scale;
         }
+
+        @Override
+        public String toString()
+        {
+            return mScreenScale + "%";
+        }
     }
 }
