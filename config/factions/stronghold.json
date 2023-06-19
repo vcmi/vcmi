@@ -9,6 +9,7 @@
 			"120px" : "TPCASSTR",
 			"130px" : "CRBKGSTR"
 		},
+		"boat" : "boatCastle",
 		"puzzleMap" :
 		{
 			"prefix" : "PUZSTR",

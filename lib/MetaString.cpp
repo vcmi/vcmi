@@ -323,7 +323,7 @@ void MetaString::jsonSerialize(JsonNode & dest) const
 	for (const auto & entry : localStrings )
 	{
 		JsonNode value;
-		value.Float() = static_cast<int>(entry.first) * 10000 + entry.second;
+		value.Integer() = static_cast<int>(entry.first) * 10000 + entry.second;
 		jsonLocalStrings.Vector().push_back(value);
 	}
 
@@ -344,7 +344,7 @@ void MetaString::jsonSerialize(JsonNode & dest) const
 	for (const auto & entry : numbers )
 	{
 		JsonNode value;
-		value.Float() = entry;
+		value.Integer() = entry;
 		jsonNumbers.Vector().push_back(value);
 	}
 

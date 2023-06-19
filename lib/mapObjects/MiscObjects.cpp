@@ -1294,11 +1294,6 @@ CGBoat::CGBoat()
 	layer = EPathfindingLayer::EEPathfindingLayer::SAIL;
 }
 
-void CGBoat::initObj(CRandomGenerator & rand)
-{
-	hero = nullptr;
-}
-
 int3 CGBoat::translatePos(const int3& pos, bool reverse /* = false */)
 {
 	//pos - offset we want to place the boat at the map

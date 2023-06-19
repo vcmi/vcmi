@@ -682,7 +682,7 @@ void CGTownInstance::clearArmy() const
 
 BoatId CGTownInstance::getBoatType() const
 {
-	return town->shipyardBoat;
+	return town->faction->boatType;
 }
 
 int CGTownInstance::getMarketEfficiency() const

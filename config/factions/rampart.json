@@ -9,6 +9,7 @@
 			"120px" : "TPCASRAM",
 			"130px" : "CRBKGRAM"
 		},
+		"boat" : "boatCastle",
 		"puzzleMap" :
 		{
 			"prefix" : "PUZRAM",

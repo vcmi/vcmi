@@ -1250,6 +1250,31 @@ void CGameState::initHeroes()
 		map->allHeroes[hero->type->getIndex()] = hero;
 	}
 
+	// generate boats for all heroes on water
+	for(auto hero : map->heroesOnMap)
+	{
+		assert(map->isInTheMap(hero->visitablePos()));
+		const auto & tile = map->getTile(hero->visitablePos());
+		if (tile.terType->isWater())
+		{
+			auto handler = VLC->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
+			CGBoat * boat = dynamic_cast<CGBoat*>(handler->create());
+			handler->configureObject(boat, gs->getRandomGenerator());
+
+			boat->ID = Obj::BOAT;
+			boat->subID = hero->getBoatType().getNum();
+			boat->pos = hero->pos;
+			boat->appearance = handler->getTemplates().front();
+			boat->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
+
+			map->objects.emplace_back(boat);
+			map->addBlockVisTiles(boat);
+
+			boat->hero = hero;
+			hero->boat = boat;
+		}
+	}
+
 	for(auto obj : map->objects) //prisons
 	{
 		if(obj && obj->ID == Obj::PRISON)
@@ -2535,6 +2560,10 @@ void CGameState::buildBonusSystemTree()
 	}
 	// CStackInstance <-> CCreature, CStackInstance <-> CArmedInstance, CArtifactInstance <-> CArtifact
 	// are provided on initializing / deserializing
+
+	// NOTE: calling deserializationFix() might be more correct option, but might lead to side effects
+	for (auto hero : map->heroesOnMap)
+		hero->boatDeserializationFix();
 }
 
 void CGameState::deserializationFix()

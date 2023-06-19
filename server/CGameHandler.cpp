@@ -4428,7 +4428,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 		//Create a new boat for hero
 		NewObject no;
 		no.ID = Obj::BOAT;
-		no.subID = BoatId(EBoatId::CASTLE);
+		no.subID = nh->getBoatType().getNum();
 		no.pos = hr.tile + int3(1,0,0);
 		sendAndApply(&no);
 

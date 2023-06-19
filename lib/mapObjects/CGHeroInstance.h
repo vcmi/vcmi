@@ -274,6 +274,7 @@ public:
 	void getCastDescription(const spells::Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const override;
 	void spendMana(ServerCallback * server, const int spellCost) const override;
 
+	void boatDeserializationFix();
 	void deserializationFix();
 
 	void initObj(CRandomGenerator & rand) override;

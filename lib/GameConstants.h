@@ -1282,7 +1282,7 @@ class BattleField : public BaseForID<BattleField, si32>
 	DLL_LINKAGE static BattleField fromString(const std::string & identifier);
 };
 
-enum class EBoatId
+enum class EBoatId : int32_t
 {
 	NONE = -1,
 	NECROPOLIS = 0,

@@ -452,9 +452,8 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 				//Create a new boat for hero
 				NewObject no;
 				no.ID = Obj::BOAT;
-				no.subID = BoatId(EBoatId::CASTLE);
-				no.pos = CGBoat::translatePos(boatPos);
-				
+				no.subID = getBoatType().getNum();
+
 				cb->sendAndApply(&no);
 
 				boatId = cb->getTopObj(boatPos)->id;
@@ -953,8 +952,7 @@ si32 CGHeroInstance::getManaNewTurn() const
 
 BoatId CGHeroInstance::getBoatType() const
 {
-	// hero can only generate boat via "Summon Boat" spell which always create same boat as in Necropolis shipyard
-	return EBoatId::NECROPOLIS;
+	return BoatId(VLC->townh->getById(type->heroClass->faction)->getBoatType());
 }
 
 void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
@@ -1105,6 +1103,13 @@ int CGHeroInstance::maxSpellLevel() const
 void CGHeroInstance::deserializationFix()
 {
 	artDeserializationFix(this);
+	boatDeserializationFix();
+}
+
+void CGHeroInstance::boatDeserializationFix()
+{
+	if (boat)
+		attachTo(const_cast<CGBoat&>(*boat));
 }
 
 CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const
