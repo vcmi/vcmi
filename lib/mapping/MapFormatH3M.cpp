@@ -1977,7 +1977,7 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 
 			if(missionSubID == 0)
 			{
-				guard->quest->missionType = CQuest::MISSION_HOTA_HERO_CLASS;
+				guard->quest->missionType = CQuest::MISSION_NONE; //TODO: CQuest::MISSION_HOTA_HERO_CLASS;
 				std::set<HeroClassID> heroClasses;
 				reader->readBitmaskHeroClassesSized(heroClasses, false);
 
@@ -1986,7 +1986,7 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
 			}
 			if(missionSubID == 1)
 			{
-				guard->quest->missionType = CQuest::MISSION_HOTA_REACH_DATE;
+				guard->quest->missionType = CQuest::MISSION_NONE; //TODO: CQuest::MISSION_HOTA_REACH_DATE;
 				uint32_t daysPassed = reader->readUInt32();
 
 				logGlobal->warn("Map '%s': Quest at %s 'Wait till %d days passed' is not implemented!", mapName, position.toString(), daysPassed);
