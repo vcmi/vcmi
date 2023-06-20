@@ -301,6 +301,9 @@ void EventDispatcher::dispatchMouseMoved(const Point & position)
 	EventReceiversList miCopy = motioninterested;
 	for(auto & elem : miCopy)
 	{
+		if (!vstd::contains(motioninterested, elem))
+			continue;
+
 		if(elem->receiveEvent(position, AEventsReceiver::HOVER))
 		{
 			(elem)->mouseMoved(position);
