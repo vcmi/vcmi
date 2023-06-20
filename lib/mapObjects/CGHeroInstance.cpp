@@ -454,6 +454,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 				NewObject no;
 				no.ID = Obj::BOAT;
 				no.subID = getBoatType().getNum();
+				no.targetPos = boatPos;
 
 				cb->sendAndApply(&no);
 

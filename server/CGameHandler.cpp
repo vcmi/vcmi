@@ -4432,7 +4432,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 		NewObject no;
 		no.ID = Obj::BOAT;
 		no.subID = nh->getBoatType().getNum();
-		no.pos = hr.tile + int3(1,0,0);
+		no.targetPos = obj->visitablePos();
 		sendAndApply(&no);
 
 		hr.boatId = getTopObj(hr.tile)->id;
@@ -5660,7 +5660,7 @@ bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 	NewObject no;
 	no.ID = Obj::BOAT;
 	no.subID = obj->getBoatType().getNum();
-	no.pos = tile + int3(1,0,0);
+	no.targetPos = tile;
 	sendAndApply(&no);
 
 	return true;
@@ -5806,7 +5806,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	//create a hole
 	NewObject no;
 	no.ID = Obj::HOLE;
-	no.pos = h->visitablePos();
+	no.targetPos = h->visitablePos();
 	no.subID = 0;
 	sendAndApply(&no);
 
@@ -7409,7 +7409,7 @@ const ObjectInstanceID CGameHandler::putNewObject(Obj ID, int subID, int3 pos)
 	NewObject no;
 	no.ID = ID; //creature
 	no.subID= subID;
-	no.pos = pos;
+	no.targetPos = pos;
 	sendAndApply(&no);
-	return no.id; //id field will be filled during applying on gs
+	return no.createdObjectID; //id field will be filled during applying on gs
 }

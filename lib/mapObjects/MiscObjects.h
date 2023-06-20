@@ -359,7 +359,6 @@ public:
 	std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
 
 	CGBoat();
-	static int3 translatePos(const int3 &pos, bool reverse = false);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

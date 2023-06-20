@@ -1294,22 +1294,6 @@ CGBoat::CGBoat()
 	layer = EPathfindingLayer::EEPathfindingLayer::SAIL;
 }
 
-int3 CGBoat::translatePos(const int3& pos, bool reverse /* = false */)
-{
-	//pos - offset we want to place the boat at the map
-	//returned value - actual position as seen by game mechanics
-
-	//If reverse = true, then it's the opposite.
-	if (!reverse)
-	{
-		return pos + int3(1, 0, 0);
-	}
-	else
-	{
-		return pos - int3(1, 0, 0);
-	}
-}
-
 void CGSirens::initObj(CRandomGenerator & rand)
 {
 	blockVisit = true;
@@ -1409,8 +1393,7 @@ void CGShipyard::serializeJsonOptions(JsonSerializeFormat& handler)
 
 BoatId CGShipyard::getBoatType() const
 {
-	// In H3, external shipyard will always create same boat as castle
-	return EBoatId::CASTLE;
+	return createdBoat;
 }
 
 void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
