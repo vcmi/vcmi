@@ -135,20 +135,18 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 	if(hotaVersion < 3)
 	{
 		result.artifactsCount = 163; // + HotA artifacts
-		result.heroesCount = 177; // + Cove
-		result.heroesPortraitsCount = 187; // + Cove
+		result.heroesCount = 178; // + Cove
+		result.heroesPortraitsCount = 185; // + Cove
 	}
 	if(hotaVersion == 3)
 	{
 		result.artifactsCount = 165; // + HotA artifacts
-		result.heroesCount = 177; // + Cove + Giselle
+		result.heroesCount = 179; // + Cove + Giselle
 		result.heroesPortraitsCount = 188; // + Cove + Giselle
 	}
 
 	assert((result.heroesCount + 7) / 8 == result.heroesBytes);
 	assert((result.artifactsCount + 7) / 8 == result.artifactsBytes);
-
-	result.heroesCount = 179; // + Cove
 
 	return result;
 }

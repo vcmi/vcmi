@@ -251,7 +251,7 @@ void CMapLoaderH3M::readPlayerInfo()
 
 		if(playerInfo.mainCustomHeroId != -1)
 		{
-			playerInfo.mainCustomHeroPortrait = reader->readHero().getNum();
+			playerInfo.mainCustomHeroPortrait = reader->readHeroPortrait();
 			playerInfo.mainCustomHeroName = readLocalizedString(TextIdentifier("header", "player", i, "mainHeroName"));
 		}
 
@@ -686,7 +686,7 @@ void CMapLoaderH3M::readDisposedHeroes()
 		for(int g = 0; g < disp; ++g)
 		{
 			map->disposedHeroes[g].heroId = reader->readHero().getNum();
-			map->disposedHeroes[g].portrait = reader->readHero().getNum();
+			map->disposedHeroes[g].portrait = reader->readHeroPortrait();
 			map->disposedHeroes[g].name = readLocalizedString(TextIdentifier("header", "heroes", map->disposedHeroes[g].heroId));
 			map->disposedHeroes[g].players = reader->readUInt8();
 		}
@@ -1623,7 +1623,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 	}
 
 	PlayerColor owner = reader->readPlayer();
-	object->subID = reader->readUInt8();
+	object->subID = reader->readHero().getNum();
 
 	//If hero of this type has been predefined, use that as a base.
 	//Instance data will overwrite the predefined values where appropriate.
@@ -1639,7 +1639,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 	}
 
 	setOwnerAndValidate(mapPosition, object, owner);
-	object->portrait = object->subID;
+	object->portrait = CGHeroInstance::UNINITIALIZED_PORTRAIT;
 
 	for(auto & elem : map->disposedHeroes)
 	{
@@ -1674,7 +1674,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 	bool hasPortrait = reader->readBool();
 	if(hasPortrait)
-		object->portrait = reader->readHero().getNum();
+		object->portrait = reader->readHeroPortrait();
 
 	bool hasSecSkills = reader->readBool();
 	if(hasSecSkills)
