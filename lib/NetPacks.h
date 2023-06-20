@@ -384,7 +384,9 @@ struct DLL_LINKAGE ChangeObjPos : public CPackForClient
 {
 	void applyGs(CGameState * gs);
 
+	/// Object to move
 	ObjectInstanceID objid;
+	/// New position of visitable tile of an object
 	int3 nPos;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;

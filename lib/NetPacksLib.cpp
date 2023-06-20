@@ -1019,7 +1019,7 @@ void ChangeObjPos::applyGs(CGameState *gs)
 		return;
 	}
 	gs->map->removeBlockVisTiles(obj);
-	obj->pos = nPos;
+	obj->pos = nPos + obj->getVisitableOffset();
 	gs->map->addBlockVisTiles(obj);
 }
 
@@ -1528,7 +1528,7 @@ void NewObject::applyGs(CGameState *gs)
 	o->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
 	o->ID = ID;
 	o->subID = subID;
-	o->pos = targetPos - o->getVisitableOffset();
+	o->pos = targetPos + o->getVisitableOffset();
 
 	gs->map->objects.emplace_back(o);
 	gs->map->addBlockVisTiles(o);
