@@ -4429,11 +4429,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 	if (getTile(hr.tile)->isWater())
 	{
 		//Create a new boat for hero
-		NewObject no;
-		no.ID = Obj::BOAT;
-		no.subID = nh->getBoatType().getNum();
-		no.targetPos = obj->visitablePos();
-		sendAndApply(&no);
+		createObject(obj->visitablePos(), Obj::BOAT, BoatId(EBoatId::CASTLE));
 
 		hr.boatId = getTopObj(hr.tile)->id;
 	}
@@ -5653,16 +5649,8 @@ bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 		return false;
 	}
 
-	//take boat cost
 	giveResources(playerID, -boatCost);
-
-	//create boat
-	NewObject no;
-	no.ID = Obj::BOAT;
-	no.subID = obj->getBoatType().getNum();
-	no.targetPos = tile;
-	sendAndApply(&no);
-
+	createObject(tile, Obj::BOAT, obj->getBoatType().getNum());
 	return true;
 }
 
@@ -5803,12 +5791,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	if (h->diggingStatus() != EDiggingStatus::CAN_DIG) //checks for terrain and movement
 		COMPLAIN_RETF("Hero cannot dig (error code %d)!", h->diggingStatus());
 
-	//create a hole
-	NewObject no;
-	no.ID = Obj::HOLE;
-	no.targetPos = h->visitablePos();
-	no.subID = 0;
-	sendAndApply(&no);
+	createObject(h->visitablePos(), Obj::HOLE, 0 );
 
 	//take MPs
 	SetMovePoints smp;
@@ -6875,7 +6858,9 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 		{
 			auto count = cre->getRandomAmount(std::rand);
 
-			auto monsterId  = putNewObject(Obj::MONSTER, creatureID, *tile);
+			createObject(*tile, Obj::MONSTER, creatureID);
+			auto monsterId = getTopObj(*tile)->id;
+
 			setObjProperty(monsterId, ObjProperty::MONSTER_COUNT, count);
 			setObjProperty(monsterId, ObjProperty::MONSTER_POWER, (si64)1000*count);
 		}
@@ -7404,12 +7389,11 @@ scripting::Pool * CGameHandler::getContextPool() const
 }
 #endif
 
-const ObjectInstanceID CGameHandler::putNewObject(Obj ID, int subID, int3 pos)
+void CGameHandler::createObject(const int3 & visitablePosition, Obj type, int32_t subtype)
 {
 	NewObject no;
-	no.ID = ID; //creature
-	no.subID= subID;
-	no.targetPos = pos;
+	no.ID = type;
+	no.subID= subtype;
+	no.targetPos = visitablePosition;
 	sendAndApply(&no);
-	return no.createdObjectID; //id field will be filled during applying on gs
 }
