@@ -97,7 +97,6 @@ protected:
 	
 public:
 	void initializeObject(CGBoat * object) const override;
-	void afterLoadFinalization() override;
 
 	/// Returns boat preview animation, for use in Shipyards
 	std::string getBoatAnimationName() const;
