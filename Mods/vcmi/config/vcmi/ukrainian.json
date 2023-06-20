@@ -151,7 +151,16 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Налаштувати...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Розподіл команд",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Види доріг",
-	
+
+	// Custom victory conditions for H3 campaigns and HotA maps
+	"vcmi.map.victoryCondition.daysPassed.toOthers" : "The enemy has managed to survive till this day. Victory is theirs!",
+	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Congratulations! You have managed to survive. Victory is yours!",
+	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "The enemy has defeated all of the monsters plaguing this land and claims victory!",
+	"vcmi.map.victoryCondition.eliminateMonsters.toSelf" : "Congratulations! You have defeated all of the monsters plaguing this land and can claim victory!",
+	"vcmi.map.victoryCondition.collectArtifacts.message" : "Acquire Three Artifacts",
+	"vcmi.map.victoryCondition.angelicAlliance.toSelf" : "Congratulations! All your enemies have been defeated and you have Angelic Alliance! Victory is yours!",
+	"vcmi.map.victoryCondition.angelicAlliance.message" : "Defeat All Enemies and create Angelic Alliance",
+
 	"core.bonus.ADDITIONAL_ATTACK.name" : "Подвійний удар",
 	"core.bonus.ADDITIONAL_ATTACK.description" : "Атакує двічі",
 	"core.bonus.ADDITIONAL_RETALIATION.name" : "Додаткові відплати",

@@ -170,13 +170,13 @@
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Road Types",
 	
 	// Custom victory conditions for H3 campaigns and HotA maps
-	"vcmi.map.victoryCondition.daysPassed.toOthers" : "The enemy has managed to survive till this day. Victory is theirs!",
-	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Congratulations! You have managed to survive. Victory is yours!",
-	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "The enemy has defeated all of the monsters plaguing this land and claims victory!",
-	"vcmi.map.victoryCondition.eliminateMonsters.toSelf" : "Congratulations! You have defeated all of the monsters plaguing this land and can claim victory!",
-	"vcmi.map.victoryCondition.collectArtifacts.message" : "Acquire Three Artifacts"
-	"vcmi.map.victoryCondition.angelicAlliance.toSelf" : "Congratulations! All your enemies have been defeated and you have Angelic Alliance! Victory is yours!"
-	"vcmi.map.victoryCondition.angelicAlliance.message" : "Defeat All Enemies and create Angelic Alliance"
+	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Ворогу вдалося вижити до сьогоднішнього дня. Він переміг!",
+	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Вітаємо! Вам вдалося залишитися в живих. Перемога за вами!",
+	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Ворог переміг усіх звірів, що заполонили цю землю, і святкує перемогу!",
+	"vcmi.map.victoryCondition.eliminateMonsters.toSelf" : "Вітаємо! Ви перемогли усіх звірів, що заполонили цю землю, і можете святкувати перемогу!",
+	"vcmi.map.victoryCondition.collectArtifacts.message" : "Здобути три артефакти",
+	"vcmi.map.victoryCondition.angelicAlliance.toSelf" : "Вітаємо! Усі ваші вороги переможені, і ви маєте Альянс Ангелів! Перемога ваша!",
+	"vcmi.map.victoryCondition.angelicAlliance.message" : "Перемогти всіх ворогів і створити Альянс Ангелів",
 	
 	// few strings from WoG used by vcmi
 	"vcmi.stackExperience.description" : "» S t a c k   E x p e r i e n c e   D e t a i l s «\n\nCreature Type ................... : %s\nExperience Rank ................. : %s (%i)\nExperience Points ............... : %i\nExperience Points to Next Rank .. : %i\nMaximum Experience per Battle ... : %i%% (%i)\nNumber of Creatures in stack .... : %i\nMaximum New Recruits\n without losing current Rank .... : %i\nExperience Multiplier ........... : %.2f\nUpgrade Multiplier .............. : %.2f\nExperience after Rank 10 ........ : %i\nMaximum New Recruits to remain at\n Rank 10 if at Maximum Experience : %i",
