@@ -92,7 +92,9 @@ int3 IBoatGenerator::bestLocation() const
 
 	for (auto & offset : offsets)
 	{
-		if(const TerrainTile *tile = getObject()->cb->getTile(getObject()->getPosition() + offset, false)) //tile is in the map
+		const TerrainTile *tile = getObject()->cb->getTile(getObject()->visitablePos() + offset, false);
+
+		if(tile) //tile is in the map
 		{
 			if(tile->terType->isWater()  &&  (!tile->blocked || tile->blockingObjects.front()->ID == Obj::BOAT)) //and is water and is not blocked or is blocked by boat
 				return getObject()->getPosition() + offset;

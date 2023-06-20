@@ -953,11 +953,15 @@ BoatId CGHeroInstance::getBoatType() const
 
 void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
 {
-	// FIXME: Offsets need to be fixed once we get rid of convertPosition
-	// Check issue 515 for details
-	offsets =
-	{
-		int3(-1,1,0), int3(-1,-1,0), int3(-2,0,0), int3(0,0,0), int3(0,1,0), int3(-2,1,0), int3(0,-1,0), int3(-2,-1,0)
+	offsets = {
+		{0, -1, 0},
+		{+1, -1, 0},
+		{+1, 0, 0},
+		{+1, +1, 0},
+		{0, +1, 0},
+		{-1, +1, 0},
+		{-1, 0, 0},
+		{-1, -1, 0},
 	};
 }
 
