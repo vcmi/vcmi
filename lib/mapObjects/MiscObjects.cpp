@@ -1377,11 +1377,10 @@ const IObjectInterface * CGShipyard::getObject() const
 
 void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 {
-	if(!cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner))
+	if(cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner) == PlayerRelations::ENEMIES)
 		cb->setOwner(this, h->tempOwner);
 
-	auto s = shipyardStatus();
-	if(s != IBoatGenerator::GOOD)
+	if(shipyardStatus() != IBoatGenerator::GOOD)
 	{
 		InfoWindow iw;
 		iw.type = EInfoWindowMode::AUTO;

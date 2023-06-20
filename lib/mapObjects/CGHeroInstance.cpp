@@ -451,7 +451,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			{
 				smp.val = maxMovePoints(false);
 				//Create a new boat for hero
-				cb->createObject(boatPos, Obj::BOAT, BoatId(EBoatId::CASTLE));
+				cb->createObject(boatPos, Obj::BOAT, getBoatType().getNum());
 				boatId = cb->getTopObj(boatPos)->id;
 			}
 			else

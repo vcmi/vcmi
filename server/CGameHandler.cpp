@@ -4429,7 +4429,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 	if (getTile(hr.tile)->isWater())
 	{
 		//Create a new boat for hero
-		createObject(obj->visitablePos(), Obj::BOAT, BoatId(EBoatId::CASTLE));
+		createObject(obj->visitablePos(), Obj::BOAT, nh->getBoatType().getNum());
 
 		hr.boatId = getTopObj(hr.tile)->id;
 	}
