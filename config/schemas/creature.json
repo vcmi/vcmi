@@ -144,6 +144,11 @@
 					"description" : ".def file with animation of this creature on adventure map",
 					"format" : "defFile"
 				},
+				"mapMask" : {
+					"type" : "array",
+					"items" : { "type" : "string" },
+					"description" : "Object mask that describes on which tiles object is visible/blocked/activatable"
+				},
 				"iconLarge" : {
 					"type" : "string",
 					"description" : "Large icon for this creature, used for example in town screen",
