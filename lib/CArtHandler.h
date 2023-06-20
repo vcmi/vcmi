@@ -137,7 +137,7 @@ public:
 	}
 };
 
-class CCombinedArtifactInstance
+class DLL_LINKAGE CCombinedArtifactInstance
 {
 protected:
 	CCombinedArtifactInstance() = default;
@@ -158,7 +158,16 @@ public:
 	void addArtInstAsPart(CArtifactInstance * art, const ArtifactPosition & slot);
 };
 
-class DLL_LINKAGE CArtifactInstance : public CBonusSystemNode, public CCombinedArtifactInstance
+class DLL_LINKAGE CScrollArtifactInstance
+{
+protected:
+	CScrollArtifactInstance() = default;
+public:
+	SpellID getScrollSpellID() const;
+};
+
+class DLL_LINKAGE CArtifactInstance
+	: public CBonusSystemNode, public CCombinedArtifactInstance, public CScrollArtifactInstance
 {
 protected:
 	void init();
@@ -174,7 +183,6 @@ public:
 	void setType(CArtifact * art);
 
 	std::string getDescription() const;
-	SpellID getScrollSpellID() const; //to be used with scrolls (and similar arts), -1 if none
 
 	ArtifactID getTypeId() const;
 	bool canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved = false) const;

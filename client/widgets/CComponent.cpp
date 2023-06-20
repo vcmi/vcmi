@@ -169,16 +169,12 @@ std::string CComponent::getDescription()
 	case artifact:
 	{
 		auto artID = ArtifactID(subtype);
-		std::unique_ptr<CArtifactInstance> art;
-		if (artID != ArtifactID::SPELL_SCROLL)
+		auto description = VLC->arth->objects[artID]->getDescriptionTranslated();
+		if(artID == ArtifactID::SPELL_SCROLL)
 		{
-			art.reset(ArtifactUtils::createNewArtifactInstance(artID));
+			ArtifactUtils::insertScrrollSpellName(description, SpellID(val));
 		}
-		else
-		{
-			art.reset(ArtifactUtils::createScroll(SpellID(val)));
-		}
-		return art->getDescription();
+		return description;
 	}
 	case experience: return CGI->generaltexth->allTexts[241];
 	case spell:      return (*CGI->spellh)[subtype]->getDescriptionTranslated(val);

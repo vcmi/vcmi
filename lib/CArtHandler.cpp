@@ -820,19 +820,7 @@ std::string CArtifactInstance::getDescription() const
 {
 	std::string text = artType->getDescriptionTranslated();
 	if(artType->getId() == ArtifactID::SPELL_SCROLL)
-	{
-		// we expect scroll description to be like this: This scroll contains the [spell name] spell which is added into your spell book for as long as you carry the scroll.
-		// so we want to replace text in [...] with a spell name
-		// however other language versions don't have name placeholder at all, so we have to be careful
-		SpellID spellID = getScrollSpellID();
-		size_t nameStart = text.find_first_of('[');
-		size_t nameEnd = text.find_first_of(']', nameStart);
-		if(spellID.getNum() >= 0)
-		{
-			if(nameStart != std::string::npos  &&  nameEnd != std::string::npos)
-				text = text.replace(nameStart, nameEnd - nameStart + 1, spellID.toSpell(VLC->spells())->getNameTranslated());
-		}
-	}
+		ArtifactUtils::insertScrrollSpellName(text, getScrollSpellID());
 	return text;
 }
 
@@ -879,17 +867,6 @@ void CArtifactInstance::deserializationFix()
 		attachTo(*part.art);
 }
 
-SpellID CArtifactInstance::getScrollSpellID() const
-{
-	const auto b = getBonusLocalFirst(Selector::type()(BonusType::SPELL));
-	if(!b)
-	{
-		logMod->warn("Warning: %s doesn't bear any spell!", nodeName());
-		return SpellID::NONE;
-	}
-	return SpellID(b->subtype);
-}
-
 bool CArtifactInstance::isPart(const CArtifactInstance *supposedPart) const
 {
 	if(supposedPart == this)
@@ -914,6 +891,18 @@ void CCombinedArtifactInstance::addArtInstAsPart(CArtifactInstance * art, const 
 	assert(art->getParentNodes().size() == 1  &&  art->getParentNodes().front() == art->artType);
 	partsInfo.emplace_back(art, slot);
 	artInst->attachTo(*art);
+}
+
+SpellID CScrollArtifactInstance::getScrollSpellID() const
+{
+	auto artInst = static_cast<const CArtifactInstance*>(this);
+	const auto bonus = artInst->getBonusLocalFirst(Selector::type()(BonusType::SPELL));
+	if (!bonus)
+	{
+		logMod->warn("Warning: %s doesn't bear any spell!", artInst->nodeName());
+		return SpellID::NONE;
+	}
+	return SpellID(bonus->subtype);
 }
 
 CArtifactSet::~CArtifactSet() = default;

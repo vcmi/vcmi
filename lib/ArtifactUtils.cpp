@@ -12,6 +12,7 @@
 
 #include "CArtHandler.h"
 #include "GameSettings.h"
+#include "spells/CSpellHandler.h"
 
 #include "mapping/CMap.h"
 #include "mapObjects/CGHeroInstance.h"
@@ -216,6 +217,20 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const 
 		}
 	}
 	return art;
+}
+
+DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description, SpellID & sid)
+{
+	// We expect scroll description to be like this: This scroll contains the [spell name] spell which is added
+	// into spell book for as long as hero carries the scroll. So we want to replace text in [...] with a spell name.
+	// However other language versions don't have name placeholder at all, so we have to be careful
+	auto nameStart = description.find_first_of('[');
+	auto nameEnd = description.find_first_of(']', nameStart);
+	if(sid.getNum() >= 0)
+	{
+		if(nameStart != std::string::npos && nameEnd != std::string::npos)
+			description = description.replace(nameStart, nameEnd - nameStart + 1, sid.toSpell(VLC->spells())->getNameTranslated());
+	}
 }
 
 VCMI_LIB_NAMESPACE_END
