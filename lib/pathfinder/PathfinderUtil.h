@@ -70,8 +70,7 @@ namespace PathfinderUtil
 			break;
 
 		case ELayer::AIR:
-			if(tinfo.blocked || tinfo.terType->isLand())
-				return EPathAccessibility::FLYABLE;
+			return EPathAccessibility::FLYABLE;
 
 			break;
 		}
