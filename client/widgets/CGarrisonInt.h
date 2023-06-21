@@ -58,7 +58,7 @@ public:
 	bool our() const;
 	SlotID getSlot() const { return ID; }
 	bool ally() const;
-	void clickRight(tribool down, bool previousState) override;
+	void showPopupWindow() override;
 	void clickLeft(tribool down, bool previousState) override;
 	void update();
 	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, EGarrisonType Upg=EGarrisonType::UP, const CStackInstance * creature_ = nullptr);

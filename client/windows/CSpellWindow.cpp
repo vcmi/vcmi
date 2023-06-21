@@ -43,7 +43,7 @@
 
 CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
 {
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 	pos = myRect;
 	onLeft = funcL;
 	hoverText = CGI->generaltexth->zelp[helpTextId].first;
@@ -57,10 +57,9 @@ void CSpellWindow::InteractiveArea::clickLeft(tribool down, bool previousState)
 		onLeft();
 }
 
-void CSpellWindow::InteractiveArea::clickRight(tribool down, bool previousState)
+void CSpellWindow::InteractiveArea::showPopupWindow()
 {
-	if (down)
-		CRClickPopup::createAndPush(helpText);
+	CRClickPopup::createAndPush(helpText);
 }
 
 void CSpellWindow::InteractiveArea::hover(bool on)
@@ -453,7 +452,7 @@ CSpellWindow::SpellArea::SpellArea(Rect pos, CSpellWindow * owner)
 {
 	this->pos = pos;
 	this->owner = owner;
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 
 	schoolLevel = -1;
 	mySpell = nullptr;
@@ -541,9 +540,9 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
+void CSpellWindow::SpellArea::showPopupWindow()
 {
-	if(mySpell && down)
+	if(mySpell)
 	{
 		std::string dmgInfo;
 		auto causedDmg = owner->myInt->cb->estimateSpellDamage(mySpell, owner->myHero);

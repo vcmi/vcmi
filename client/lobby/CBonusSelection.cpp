@@ -447,7 +447,7 @@ void CBonusSelection::decreaseDifficulty()
 }
 
 CBonusSelection::CRegion::CRegion(int id, bool accessible, bool selectable, const CampaignRegions & campDsc)
-	: CIntObject(LCLICK | RCLICK), idOfMapAndRegion(id), accessible(accessible), selectable(selectable)
+	: CIntObject(LCLICK | SHOW_POPUP), idOfMapAndRegion(id), accessible(accessible), selectable(selectable)
 {
 	OBJ_CONSTRUCTION;
 	static const std::string colors[2][8] =
@@ -507,7 +507,7 @@ void CBonusSelection::CRegion::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CBonusSelection::CRegion::clickRight(tribool down, bool previousState)
+void CBonusSelection::CRegion::showPopupWindow()
 {
 	// FIXME: For some reason "down" is only ever contain indeterminate_value
 	auto text = CSH->si->campState->camp->scenarios[idOfMapAndRegion].regionText;

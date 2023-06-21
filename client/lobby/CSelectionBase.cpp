@@ -341,7 +341,7 @@ void CChatBox::addNewMessage(const std::string & text)
 }
 
 CFlagBox::CFlagBox(const Rect & rect)
-	: CIntObject(RCLICK)
+	: CIntObject(SHOW_POPUP)
 {
 	pos += rect.topLeft();
 	pos.w = rect.w;
@@ -378,9 +378,9 @@ void CFlagBox::recreate()
 	}
 }
 
-void CFlagBox::clickRight(tribool down, bool previousState)
+void CFlagBox::showPopupWindow()
 {
-	if(down && SEL->getMapInfo())
+	if(SEL->getMapInfo())
 		GH.windows().createAndPushWindow<CFlagBoxTooltipBox>(iconsTeamFlags);
 }
 

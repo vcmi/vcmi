@@ -69,7 +69,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	  area(nullptr),
 	  stateTimeCounter(BUILD_ANIMATION_FINISHED_TIMEPOINT)
 {
-	addUsedEvents(LCLICK | RCLICK | HOVER | TIME);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER | TIME);
 	pos.x += str->pos.x;
 	pos.y += str->pos.y;
 
@@ -141,9 +141,9 @@ void CBuildingRect::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CBuildingRect::clickRight(tribool down, bool previousState)
+void CBuildingRect::showPopupWindow()
 {
-	if((!area) || (!((bool)down)) || (this!=parent->selectedBuilding) || getBuilding() == nullptr)
+	if((!area) || (this!=parent->selectedBuilding) || getBuilding() == nullptr)
 		return;
 	if( !area->isTransparent(GH.getCursorPosition() - pos.topLeft()) ) //inside building image
 	{
@@ -328,7 +328,7 @@ CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance * h, HeroS
 
 	set(h);
 
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 }
 
 CHeroGSlot::~CHeroGSlot() = default;
@@ -415,9 +415,9 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CHeroGSlot::clickRight(tribool down, bool previousState)
+void CHeroGSlot::showPopupWindow()
 {
-	if(hero && down)
+	if(hero)
 	{
 		GH.windows().createAndPushWindow<CInfoBoxPopup>(Point(pos.x + 175, pos.y + 100), hero);
 	}
@@ -1007,7 +1007,7 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, boo
 		level = -1;
 		return;//No creature
 	}
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 
 	ui32 creatureID = town->creatures[level].second.back();
 	creature = CGI->creh->objects[creatureID];
@@ -1089,15 +1089,12 @@ std::string CCreaInfo::genGrowthText()
 	return descr;
 }
 
-void CCreaInfo::clickRight(tribool down, bool previousState)
+void CCreaInfo::showPopupWindow()
 {
-	if(down)
-	{
-		if (showAvailable)
-			GH.windows().createAndPushWindow<CDwellingInfoBox>(GH.screenDimensions().x / 2, GH.screenDimensions().y / 2, town, level);
-		else
-			CRClickPopup::createAndPush(genGrowthText(), std::make_shared<CComponent>(CComponent::creature, creature->getId()));
-	}
+	if (showAvailable)
+		GH.windows().createAndPushWindow<CDwellingInfoBox>(GH.screenDimensions().x / 2, GH.screenDimensions().y / 2, town, level);
+	else
+		CRClickPopup::createAndPush(genGrowthText(), std::make_shared<CComponent>(CComponent::creature, creature->getId()));
 }
 
 bool CCreaInfo::getShowAvailable()
@@ -1110,7 +1107,7 @@ CTownInfo::CTownInfo(int posX, int posY, const CGTownInstance * Town, bool townH
 	building(nullptr)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	addUsedEvents(RCLICK | HOVER);
+	addUsedEvents(SHOW_POPUP | HOVER);
 	pos.x += posX;
 	pos.y += posY;
 	int buildID;
@@ -1144,9 +1141,9 @@ void CTownInfo::hover(bool on)
 	}
 }
 
-void CTownInfo::clickRight(tribool down, bool previousState)
+void CTownInfo::showPopupWindow()
 {
-	if(building && down)
+	if(building)
 	{
 		auto c =  std::make_shared<CComponent>(CComponent::building, building->town->faction->getIndex(), building->bid);
 		CRClickPopup::createAndPush(CInfoWindow::genText(building->getNameTranslated(), building->getDescriptionTranslated()), c);
@@ -1342,7 +1339,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	building(Building)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 	pos.x += x;
 	pos.y += y;
 	pos.w = 154;
@@ -1396,10 +1393,9 @@ void CHallInterface::CBuildingBox::clickLeft(tribool down, bool previousState)
 		GH.windows().createAndPushWindow<CBuildWindow>(town,building,state,0);
 }
 
-void CHallInterface::CBuildingBox::clickRight(tribool down, bool previousState)
+void CHallInterface::CBuildingBox::showPopupWindow()
 {
-	if(down)
-		GH.windows().createAndPushWindow<CBuildWindow>(town,building,state,1);
+	GH.windows().createAndPushWindow<CBuildWindow>(town,building,state,1);
 }
 
 CHallInterface::CHallInterface(const CGTownInstance * Town):
@@ -1668,7 +1664,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	pos.h = 126;
 
 	if(!town->creatures[level].second.empty())
-		addUsedEvents(LCLICK | RCLICK | HOVER);//Activate only if dwelling is present
+		addUsedEvents(LCLICK | HOVER);//Activate only if dwelling is present
 
 	icons = std::make_shared<CPicture>("TPCAINFO", 261, 3);
 
@@ -1758,11 +1754,6 @@ void CFortScreen::RecruitArea::clickLeft(tribool down, bool previousState)
 		LOCPLINT->castleInt->builds->enterDwelling(level);
 }
 
-void CFortScreen::RecruitArea::clickRight(tribool down, bool previousState)
-{
-	clickLeft(down, false); //r-click does same as l-click - opens recr. window
-}
-
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem)
 	: CStatusbarWindow(BORDERED, imagem)
 {
@@ -1807,7 +1798,7 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 	pos += position;
 	image = std::make_shared<CAnimImage>("SPELLSCR", spell->id);
 	pos = image->pos;
@@ -1819,10 +1810,9 @@ void CMageGuildScreen::Scroll::clickLeft(tribool down, bool previousState)
 		LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
 }
 
-void CMageGuildScreen::Scroll::clickRight(tribool down, bool previousState)
+void CMageGuildScreen::Scroll::showPopupWindow()
 {
-	if(down)
-		CRClickPopup::createAndPush(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
+	CRClickPopup::createAndPush(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
 }
 
 void CMageGuildScreen::Scroll::hover(bool on)

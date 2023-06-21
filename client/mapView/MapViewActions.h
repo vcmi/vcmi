@@ -32,11 +32,11 @@ public:
 	void setContext(const std::shared_ptr<IMapRendererContext> & context);
 
 	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void showPopupWindow() override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void gesturePinch(const Point & centerPosition, double lastUpdateFactor) override;
 	void hover(bool on) override;
-	void panning(bool on, const Point & initialPosition, const Point & finalPosition) override;
+	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void mouseMoved(const Point & cursorPosition) override;
 	void wheelScrolled(int distance) override;
 };

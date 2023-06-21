@@ -34,9 +34,8 @@ class EventDispatcher
 	EventReceiversList textInterested;
 	EventReceiversList panningInterested;
 
-	EventReceiversList & getListForMouseButton(MouseButton button);
+	void handleLeftButtonClick(bool isPressed);
 
-	void handleMouseButtonClick(EventReceiversList & interestedObjs, MouseButton btn, bool isPressed);
 
 	template<typename Functor>
 	void processLists(ui16 activityFlag, const Functor & cb);
@@ -56,11 +55,14 @@ public:
 	void dispatchShortcutReleased(const std::vector<EShortcut> & shortcuts);
 
 	/// Mouse events
-	void dispatchMouseButtonPressed(const MouseButton & button, const Point & position);
-	void dispatchMouseButtonReleased(const MouseButton & button, const Point & position);
+	void dispatchMouseLeftButtonPressed(const Point & position);
+	void dispatchMouseLeftButtonReleased(const Point & position);
 	void dispatchMouseScrolled(const Point & distance, const Point & position);
 	void dispatchMouseDoubleClick(const Point & position);
 	void dispatchMouseMoved(const Point & distance);
+
+	void dispatchShowPopup(const Point & position);
+	void dispatchClosePopup(const Point & position);
 
 	void dispatchGesturePanningStarted(const Point & initialPosition);
 	void dispatchGesturePanningEnded(const Point & initialPosition, const Point & finalPosition);

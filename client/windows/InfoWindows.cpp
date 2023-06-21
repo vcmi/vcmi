@@ -288,12 +288,9 @@ void CInfoPopup::init(int x, int y)
 	vstd::amin(pos.y, GH.screenDimensions().y - bitmap->h);
 }
 
-
-void CRClickPopup::clickRight(tribool down, bool previousState)
+bool CRClickPopup::isPopupWindow() const
 {
-	if(down)
-		return;
-	close();
+	return true;
 }
 
 void CRClickPopup::close()
@@ -309,9 +306,8 @@ void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCom
 
 	auto temp = std::make_shared<CInfoWindow>(txt, player, comps);
 	temp->center(GH.getCursorPosition()); //center on mouse
-#ifdef VCMI_IOS
-    // TODO: enable also for android?
-    temp->moveBy({0, -temp->pos.h / 2});
+#ifdef VCMI_MOBILE
+	temp->moveBy({0, -temp->pos.h / 2});
 #endif
 	temp->fitToScreen(10);
 
@@ -340,15 +336,6 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 		else
 			CRClickPopup::createAndPush(obj->getHoverText(LOCPLINT->playerID));
 	}
-}
-
-CRClickPopup::CRClickPopup()
-{
-	addUsedEvents(RCLICK);
-}
-
-CRClickPopup::~CRClickPopup()
-{
 }
 
 CRClickPopupInt::CRClickPopupInt(std::shared_ptr<CIntObject> our)

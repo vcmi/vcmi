@@ -75,7 +75,7 @@
 #include "../lib/TextOperations.h"
 
 CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
-	: CIntObject(LCLICK | RCLICK),
+	: CIntObject(LCLICK | SHOW_POPUP),
 	parent(window),
 	selected(false),
 	creature(crea),
@@ -100,10 +100,9 @@ void CRecruitmentWindow::CCreatureCard::clickLeft(tribool down, bool previousSta
 		parent->select(this->shared_from_this());
 }
 
-void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousState)
+void CRecruitmentWindow::CCreatureCard::showPopupWindow()
 {
-	if(down)
-		GH.windows().createAndPushWindow<CStackWindow>(creature, true);
+	GH.windows().createAndPushWindow<CStackWindow>(creature, true);
 }
 
 void CRecruitmentWindow::CCreatureCard::showAll(Canvas & to)
@@ -557,14 +556,14 @@ void CTavernWindow::HeroPortrait::clickLeft(tribool down, bool previousState)
 		*_sel = _id;
 }
 
-void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
+void CTavernWindow::HeroPortrait::showPopupWindow()
 {
-	if(h && down)
+	if(h)
 		GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
 }
 
 CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: CIntObject(LCLICK | SHOW_POPUP | HOVER),
 	h(H), _sel(&sel), _id(id)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1237,7 +1236,7 @@ CTransformerWindow::CTransformerWindow(const IMarket * _market, const CGHeroInst
 }
 
 CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int Y)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: CIntObject(LCLICK | SHOW_POPUP | HOVER),
 	ID(_ID),
 	parent(_parent)
 {
@@ -1266,12 +1265,9 @@ void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
+void CUniversityWindow::CItem::showPopupWindow()
 {
-	if(down)
-	{
-		CRClickPopup::createAndPush(CGI->skillh->getByIndex(ID)->getDescriptionTranslated(1), std::make_shared<CComponent>(CComponent::secskill, ID, 1));
-	}
+	CRClickPopup::createAndPush(CGI->skillh->getByIndex(ID)->getDescriptionTranslated(1), std::make_shared<CComponent>(CComponent::secskill, ID, 1));
 }
 
 void CUniversityWindow::CItem::hover(bool on)

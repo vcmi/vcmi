@@ -284,10 +284,9 @@ void CInfoBar::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CInfoBar::clickRight(tribool down, bool previousState)
+void CInfoBar::showPopupWindow()
 {
-	if (down)
-		CRClickPopup::createAndPush(CGI->generaltexth->allTexts[109]);
+	CRClickPopup::createAndPush(CGI->generaltexth->allTexts[109]);
 }
 
 void CInfoBar::hover(bool on)
@@ -299,7 +298,7 @@ void CInfoBar::hover(bool on)
 }
 
 CInfoBar::CInfoBar(const Rect & position)
-	: CIntObject(LCLICK | RCLICK | HOVER, position.topLeft()),
+	: CIntObject(LCLICK | SHOW_POPUP | HOVER, position.topLeft()),
 	timerCounter(0),
 	state(EMPTY)
 {

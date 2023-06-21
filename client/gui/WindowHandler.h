@@ -43,6 +43,9 @@ public:
 	/// pops one or more windows - deactivates top, deletes and removes given number of windows, activates new front
 	void popWindows(int howMany);
 
+	/// returns true if current top window is a right-click popup
+	bool isTopWindowPopup() const;
+
 	/// removes given windows from the top and activates next
 	void popWindow(std::shared_ptr<IShowActivatable> top);
 

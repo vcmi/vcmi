@@ -167,20 +167,21 @@ class StackQueue : public CIntObject
 	{
 		StackQueue * owner;
 		std::optional<uint32_t> boundUnitID;
-		bool highlighted = false;
 
-	public:
 		std::shared_ptr<CPicture> background;
 		std::shared_ptr<CAnimImage> icon;
 		std::shared_ptr<CLabel> amount;
 		std::shared_ptr<CAnimImage> stateIcon;
 
+		void show(Canvas & to) override;
+		void showAll(Canvas & to) override;
+
+		bool isBoundUnitHighlighted() const;
+	public:
 		StackBox(StackQueue * owner);
 		void setUnit(const battle::Unit * unit, size_t turn = 0);
-		void toggleHighlight(bool value);
 		std::optional<uint32_t> getBoundUnitID() const;
 
-		void show(Canvas & to) override;
 	};
 
 	static const int QUEUE_SIZE = 10;

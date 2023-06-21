@@ -12,7 +12,6 @@
 
 #include "../../battle/BattleInterface.h"
 #include "../../gui/CGuiHandler.h"
-#include "../../eventsSDL/InputHandler.h"
 #include "../../../lib/CConfigHandler.h"
 #include "../../../lib/filesystem/ResourceID.h"
 #include "../../../lib/CGeneralTextHandler.h"
@@ -23,8 +22,6 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	type |= REDRAW_PARENT;
-
-	//addConditional("touchscreen", GH.input().hasTouchInputDevice());
 
 	const JsonNode config(ResourceID("config/widgets/settings/battleOptionsTab.json"));
 	addCallback("viewGridChanged", [this, owner](bool value)

@@ -286,9 +286,9 @@ bool CGarrisonSlot::mustForceReselection() const
 	return false;
 }
 
-void CGarrisonSlot::clickRight(tribool down, bool previousState)
+void CGarrisonSlot::showPopupWindow()
 {
-	if(creature && down)
+	if(creature)
 	{
 		GH.windows().createAndPushWindow<CStackWindow>(myStack, true);
 	}
@@ -357,13 +357,13 @@ void CGarrisonSlot::update()
 {
 	if(getObj() != nullptr)
 	{
-		addUsedEvents(LCLICK | RCLICK | HOVER);
+		addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 		myStack = getObj()->getStackPtr(ID);
 		creature = myStack ? myStack->type : nullptr;
 	}
 	else
 	{
-		removeUsedEvents(LCLICK | RCLICK | HOVER);
+		removeUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 		myStack = nullptr;
 		creature = nullptr;
 	}

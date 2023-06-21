@@ -102,7 +102,7 @@ public:
 	void setPlayerColor(PlayerColor player);
 
 	/// CIntObject overrides
-	void clickRight(tribool down, bool previousState) override;
+	void showPopupWindow() override;
 	void clickLeft(tribool down, bool previousState) override;
 	void hover (bool on) override;
 	void showAll(Canvas & to) override;

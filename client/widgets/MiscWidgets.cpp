@@ -57,9 +57,9 @@ void LRClickableAreaWText::clickLeft(tribool down, bool previousState)
 		LOCPLINT->showInfoDialog(text);
 	}
 }
-void LRClickableAreaWText::clickRight(tribool down, bool previousState)
+void LRClickableAreaWText::showPopupWindow()
 {
-	if (down && !text.empty())
+	if (!text.empty())
 		CRClickPopup::createAndPush(text);
 }
 
@@ -82,7 +82,7 @@ LRClickableAreaWText::~LRClickableAreaWText()
 
 void LRClickableAreaWText::init()
 {
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 }
 
 void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
@@ -108,22 +108,19 @@ std::shared_ptr<CComponent> LRClickableAreaWTextComp::createComponent() const
 		return std::shared_ptr<CComponent>();
 }
 
-void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
+void LRClickableAreaWTextComp::showPopupWindow()
 {
-	if(down)
+	if(auto comp = createComponent())
 	{
-		if(auto comp = createComponent())
-		{
-			CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
-			return;
-		}
+		CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
+		return;
 	}
 
-	LRClickableAreaWText::clickRight(down, previousState); //only if with-component variant not occurred
+	LRClickableAreaWText::showPopupWindow(); //only if with-component variant not occurred
 }
 
 CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: CIntObject(LCLICK | HOVER),
 	hero(_hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -138,12 +135,6 @@ CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero)
 }
 
 void CHeroArea::clickLeft(tribool down, bool previousState)
-{
-	if(hero && (!down) && previousState)
-		LOCPLINT->openHeroWindow(hero);
-}
-
-void CHeroArea::clickRight(tribool down, bool previousState)
 {
 	if(hero && (!down) && previousState)
 		LOCPLINT->openHeroWindow(hero);
@@ -167,12 +158,6 @@ void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)
 		else if ( type == 3 && town->fortLevel() )
 			LOCPLINT->castleInt->builds->buildingClicked(BuildingID::FORT);
 	}
-}
-
-void LRClickableAreaOpenTown::clickRight(tribool down, bool previousState)
-{
-	if(town && (!down) && previousState)
-		LOCPLINT->openTownWindow(town);//TODO: popup?
 }
 
 LRClickableAreaOpenTown::LRClickableAreaOpenTown(const Rect & Pos, const CGTownInstance * Town)

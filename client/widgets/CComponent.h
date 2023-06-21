@@ -65,7 +65,7 @@ public:
 	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large, EFonts font = FONT_SMALL);
 	CComponent(const Component &c, ESize imageSize=large, EFonts font = FONT_SMALL);
 
-	void clickRight(tribool down, bool previousState) override; //call-in
+	void showPopupWindow() override; //call-in
 };
 
 /// component that can be selected or deselected

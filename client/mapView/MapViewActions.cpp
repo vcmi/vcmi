@@ -33,7 +33,7 @@ MapViewActions::MapViewActions(MapView & owner, const std::shared_ptr<MapViewMod
 	pos.w = model->getPixelsVisibleDimensions().x;
 	pos.h = model->getPixelsVisibleDimensions().y;
 
-	addUsedEvents(LCLICK | RCLICK | GESTURE_PANNING | HOVER | MOVE | WHEEL);
+	addUsedEvents(LCLICK | SHOW_POPUP | GESTURE | HOVER | MOVE | WHEEL);
 }
 
 void MapViewActions::setContext(const std::shared_ptr<IMapRendererContext> & context)
@@ -55,11 +55,11 @@ void MapViewActions::clickLeft(tribool down, bool previousState)
 		adventureInt->onTileLeftClicked(tile);
 }
 
-void MapViewActions::clickRight(tribool down, bool previousState)
+void MapViewActions::showPopupWindow()
 {
 	int3 tile = model->getTileAtPoint(GH.getCursorPosition() - pos.topLeft());
 
-	if(down && context->isInMap(tile))
+	if(context->isInMap(tile))
 		adventureInt->onTileRightClicked(tile);
 }
 
@@ -91,7 +91,7 @@ void MapViewActions::gesturePinch(const Point & centerPosition, double lastUpdat
 	pinchZoomFactor = newZoom;
 }
 
-void MapViewActions::panning(bool on, const Point & initialPosition, const Point & finalPosition)
+void MapViewActions::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
 {
 	pinchZoomFactor = 1.0;
 }

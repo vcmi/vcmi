@@ -12,6 +12,9 @@
 
 #include "../../lib/Point.h"
 
+// Debug option. If defined, mouse events will instead generate touch events, allowing testing of touch input on desktop
+// #define VCMI_EMULATE_TOUCHSCREEN_WITH_MOUSE
+
 enum class MouseButton;
 struct SDL_TouchFingerEvent;
 
@@ -33,7 +36,7 @@ enum class TouchState
 	// DOWN -> transition to TAP_DOWN_DOUBLE
 	// MOTION -> transition to TAP_DOWN_PANNING
 	// UP -> transition to IDLE, emit onLeftClickDown and onLeftClickUp
-	// on timer -> transition to TAP_DOWN_LONG, emit onRightClickDown event
+	// on timer -> transition to TAP_DOWN_LONG, emit showPopup() event
 	TAP_DOWN_SHORT,
 
 	// single finger is moving across screen
@@ -57,17 +60,8 @@ enum class TouchState
 	// right-click popup is active, waiting for new tap to hide popup
 	// DOWN -> ignored
 	// MOTION -> ignored
-	// UP -> transition to IDLE, generate onRightClickUp() event
+	// UP -> transition to IDLE, generate closePopup() event
 	TAP_DOWN_LONG_AWAIT,
-
-
-	// Possible transitions:
-	//                               -> DOUBLE
-	//                    -> PANNING -> IDLE
-	// IDLE -> DOWN_SHORT -> IDLE
-	//                    -> LONG -> IDLE
-	//                    -> DOUBLE -> PANNING
-	//                              -> IDLE
 };
 
 struct TouchInputParameters
@@ -76,7 +70,7 @@ struct TouchInputParameters
 	double relativeModeSpeedFactor = 1.0;
 
 	/// tap for period longer than specified here will be qualified as "long tap", triggering corresponding gesture
-	uint32_t longPressTimeMilliseconds = 750;
+	uint32_t longTouchTimeMilliseconds = 750;
 
 	/// moving finger for distance larger than specified will be qualified as panning gesture instead of long press
 	uint32_t panningSensitivityThreshold = 10;

@@ -42,10 +42,10 @@ void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & b
 			if(button.clicks > 1)
 				GH.events().dispatchMouseDoubleClick(position);
 			else
-				GH.events().dispatchMouseButtonPressed(MouseButton::LEFT, position);
+				GH.events().dispatchMouseLeftButtonPressed(position);
 			break;
 		case SDL_BUTTON_RIGHT:
-			GH.events().dispatchMouseButtonPressed(MouseButton::RIGHT, position);
+			GH.events().dispatchShowPopup(position);
 			break;
 		case SDL_BUTTON_MIDDLE:
 			middleClickPosition = position;
@@ -66,10 +66,10 @@ void InputSourceMouse::handleEventMouseButtonUp(const SDL_MouseButtonEvent & but
 	switch(button.button)
 	{
 		case SDL_BUTTON_LEFT:
-			GH.events().dispatchMouseButtonReleased(MouseButton::LEFT, position);
+			GH.events().dispatchMouseLeftButtonReleased(position);
 			break;
 		case SDL_BUTTON_RIGHT:
-			GH.events().dispatchMouseButtonReleased(MouseButton::RIGHT, position);
+			GH.events().dispatchClosePopup(position);
 			break;
 		case SDL_BUTTON_MIDDLE:
 			GH.events().dispatchGesturePanningEnded(middleClickPosition, position);

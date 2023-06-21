@@ -49,6 +49,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			return keyboardHandler->handleEventKeyDown(current.key);
 		case SDL_KEYUP:
 			return keyboardHandler->handleEventKeyUp(current.key);
+#ifndef VCMI_EMULATE_TOUCHSCREEN_WITH_MOUSE
 		case SDL_MOUSEMOTION:
 			return mouseHandler->handleEventMouseMotion(current.motion);
 		case SDL_MOUSEBUTTONDOWN:
@@ -57,6 +58,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 			return mouseHandler->handleEventMouseButtonUp(current.button);
 		case SDL_MOUSEWHEEL:
 			return mouseHandler->handleEventMouseWheel(current.wheel);
+#endif
 		case SDL_TEXTINPUT:
 			return textHandler->handleEventTextInput(current.text);
 		case SDL_TEXTEDITING:

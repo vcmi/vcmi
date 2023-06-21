@@ -54,7 +54,7 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts 
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	addUsedEvents(RCLICK);
+	addUsedEvents(SHOW_POPUP);
 
 	compType = Type;
 	subtype = Subtype;
@@ -258,9 +258,9 @@ void CComponent::setSurface(std::string defName, int imgPos)
 	image = std::make_shared<CAnimImage>(defName, imgPos);
 }
 
-void CComponent::clickRight(tribool down, bool previousState)
+void CComponent::showPopupWindow()
 {
-	if(down && !getDescription().empty())
+	if(!getDescription().empty())
 		CRClickPopup::createAndPush(getDescription());
 }
 

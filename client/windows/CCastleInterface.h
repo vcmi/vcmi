@@ -67,7 +67,7 @@ public:
 	bool operator<(const CBuildingRect & p2) const;
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void showPopupWindow() override;
 	void mouseMoved (const Point & cursorPosition) override;
 	void tick(uint32_t msPassed) override;
 	void show(Canvas & to) override;
@@ -112,7 +112,7 @@ public:
 
 	void hover (bool on) override;
 	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void showPopupWindow() override;
 	void deactivate() override;
 };
 
@@ -192,7 +192,7 @@ public:
 	void update();
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void showPopupWindow() override;
 	bool getShowAvailable();
 };
 
@@ -207,7 +207,7 @@ public:
 	CTownInfo(int posX, int posY, const CGTownInstance * town, bool townHall);
 
 	void hover(bool on) override;
-	void clickRight(tribool down, bool previousState) override;
+	void showPopupWindow() override;
 };
 
 /// Class which manages the castle window
@@ -274,7 +274,7 @@ class CHallInterface : public CStatusbarWindow
 		CBuildingBox(int x, int y, const CGTownInstance * Town, const CBuilding * Building);
 		void hover(bool on) override;
 		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void showPopupWindow() override;
 	};
 	const CGTownInstance * town;
 
@@ -346,7 +346,6 @@ class CFortScreen : public CStatusbarWindow
 		void creaturesChangedEventHandler();
 		void hover(bool on) override;
 		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
 	};
 	std::shared_ptr<CLabel> title;
 	std::vector<std::shared_ptr<RecruitArea>> recAreas;
@@ -372,7 +371,7 @@ class CMageGuildScreen : public CStatusbarWindow
 	public:
 		Scroll(Point position, const CSpell *Spell);
 		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void showPopupWindow() override;
 		void hover(bool on) override;
 	};
 	std::shared_ptr<CPicture> window;

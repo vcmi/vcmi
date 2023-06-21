@@ -413,7 +413,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 }
 
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, SelType type)
-	: Scrollable(RCLICK, position, Orientation::HORIZONTAL)
+	: Scrollable(SHOW_POPUP, position, Orientation::HORIZONTAL)
 	, CPlayerSettingsHelper(settings, type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -432,18 +432,15 @@ void OptionsTab::SelectedBox::update()
 	subtitle->setText(getName());
 }
 
-void OptionsTab::SelectedBox::clickRight(tribool down, bool previousState)
+void OptionsTab::SelectedBox::showPopupWindow()
 {
-	if(down)
-	{
-		// cases when we do not need to display a message
-		if(settings.castle == -2 && CPlayerSettingsHelper::type == TOWN)
-			return;
-		if(settings.hero == -2 && !SEL->getPlayerInfo(settings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
-			return;
+	// cases when we do not need to display a message
+	if(settings.castle == -2 && CPlayerSettingsHelper::type == TOWN)
+		return;
+	if(settings.hero == -2 && !SEL->getPlayerInfo(settings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
+		return;
 
-		GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
-	}
+	GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
 }
 
 void OptionsTab::SelectedBox::scrollBy(int distance)

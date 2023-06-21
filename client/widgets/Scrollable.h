@@ -33,7 +33,7 @@ class Scrollable : public CIntObject
 protected:
 	Scrollable(int used, Point position, Orientation orientation);
 
-	void panning(bool on, const Point & initialPosition, const Point & finalPosition) override;
+	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void wheelScrolled(int distance) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 

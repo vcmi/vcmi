@@ -49,7 +49,7 @@ private:
 	{
 	public:
 		CCreatureClickArea(const Point & pos, const std::shared_ptr<CCreaturePic> creaturePic, const CCreature * creatureOnTheCard);
-		void clickRight(tribool down, bool previousState) override;
+		void showPopupWindow() override;
 		const CCreature * creatureOnTheCard;
 
 		// These are obtained by guessing and checking. I'm not sure how the other numbers

@@ -21,15 +21,19 @@
 				"playerName",
 				"music",
 				"sound",
+				"saveRandomMaps",
+				"lastMap",
 				"language",
 				"gameDataLanguage",
-				"saveRandomMaps",
+				"lastSave",
+				"lastSettingsTab"
+				"lastCampaign",
 				"saveFrequency",
 				"notifications",
 				"extraDump",
 				"userRelativePointer",
 				"relativePointerSpeedMultiplier",
-				"lastSettingsTab"
+				"longTouchTimeMilliseconds"
 			],
 			"properties" : {
 				"playerName" : {
@@ -93,6 +97,10 @@
 				"relativePointerSpeedMultiplier" : {
 					"type" : "number",
 					"default" : 1
+				},
+				"longTouchTimeMilliseconds" : {
+					"type" : "number",
+					"default" : 1000
 				}
 			}
 		},
@@ -102,13 +110,12 @@
 			"default" : {},
 			"required" : [ 
 				"resolution", 
-				"bitsPerPixel", 
 				"fullscreen", 
 				"realFullscreen", 
 				"cursor", 
+				"showIntro", 
 				"spellbookAnimation", 
 				"driver", 
-				"showIntro", 
 				"displayIndex",
 				"showfps",
 				"targetfps"
@@ -124,10 +131,6 @@
 						"scaling" : { "type" : "number" }
 					},
 					"default" : {"width" : 800, "height" : 600, "scaling" : 100 }
-				},
-				"bitsPerPixel" : {
-					"type" : "number",
-					"default" : 32
 				},
 				"fullscreen" : {
 					"type" : "boolean",

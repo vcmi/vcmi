@@ -90,7 +90,7 @@ void CIntObject::deactivate()
 	if (!isActive())
 		return;
 
-	deactivateEvents(ALL);
+	deactivateEvents(used | GENERAL);
 
 	assert(!isActive());
 
@@ -237,6 +237,11 @@ bool CIntObject::receiveEvent(const Point & position, int eventType) const
 void CIntObject::onScreenResize()
 {
 	center(pos, true);
+}
+
+bool CIntObject::isPopupWindow() const
+{
+	return false;
 }
 
 const Rect & CIntObject::center( const Rect &r, bool propagate )

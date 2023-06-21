@@ -76,10 +76,7 @@ class CRClickPopup : public WindowBase
 {
 public:
 	virtual void close();
-	void clickRight(tribool down, bool previousState) override;
-
-	CRClickPopup();
-	virtual ~CRClickPopup();
+	bool isPopupWindow() const override;
 
 	static std::shared_ptr<WindowBase> createInfoWin(Point position, const CGObjectInstance * specific);
 	static void createAndPush(const std::string & txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());

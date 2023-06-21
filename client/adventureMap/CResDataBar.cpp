@@ -34,8 +34,6 @@ CResDataBar::CResDataBar(const std::string & imageName, const Point & position)
 
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
-
-	addUsedEvents(RCLICK);
 }
 
 CResDataBar::CResDataBar(const std::string & defname, int x, int y, int offx, int offy, int resdist, int datedist):

@@ -199,9 +199,9 @@ void CButton::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CButton::clickRight(tribool down, bool previousState)
+void CButton::showPopupWindow()
 {
-	if(down && helpBox.size()) //there is no point to show window with nothing inside...
+	if(helpBox.size()) //there is no point to show window with nothing inside...
 		CRClickPopup::createAndPush(helpBox);
 }
 
@@ -236,7 +236,7 @@ CButton::CButton(Point position, const std::string &defName, const std::pair<std
     callback(Callback)
 {
 	defActions = 255-DISPOSE;
-	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
 
 	stateToIndex[0] = 0;
 	stateToIndex[1] = 1;

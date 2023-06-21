@@ -20,6 +20,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/MouseButton.h"
+#include "../gui/WindowHandler.h"
 
 #include <SDL_events.h>
 #include <SDL_hints.h>
@@ -30,13 +31,18 @@ InputSourceTouch::InputSourceTouch()
 {
 	params.useRelativeMode = settings["general"]["userRelativePointer"].Bool();
 	params.relativeModeSpeedFactor = settings["general"]["relativePointerSpeedMultiplier"].Float();
+	params.longTouchTimeMilliseconds = settings["general"]["longTouchTimeMilliseconds"].Float();
 
 	if (params.useRelativeMode)
 		state = TouchState::RELATIVE_MODE;
 	else
 		state = TouchState::IDLE;
 
+#ifdef VCMI_EMULATE_TOUCHSCREEN_WITH_MOUSE
+	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "1");
+#else
 	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
+#endif
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 }
 
@@ -92,6 +98,9 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 
 void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinger)
 {
+	// FIXME: better place to update potentially changed settings?
+	params.longTouchTimeMilliseconds = settings["general"]["longTouchTimeMilliseconds"].Float();
+
 	lastTapTimeTicks = tfinger.timestamp;
 
 	switch(state)
@@ -100,8 +109,10 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 		{
 			if(tfinger.x > 0.5)
 			{
-				MouseButton button =  tfinger.y < 0.5 ? MouseButton::RIGHT : MouseButton::LEFT;
-				GH.events().dispatchMouseButtonPressed(button, GH.getCursorPosition());
+				if (tfinger.y < 0.5)
+					GH.events().dispatchShowPopup(GH.getCursorPosition());
+				else
+					GH.events().dispatchMouseLeftButtonPressed(GH.getCursorPosition());
 			}
 			break;
 		}
@@ -138,8 +149,10 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 		{
 			if(tfinger.x > 0.5)
 			{
-				MouseButton button =  tfinger.y < 0.5 ? MouseButton::RIGHT : MouseButton::LEFT;
-				GH.events().dispatchMouseButtonReleased(button, GH.getCursorPosition());
+				if (tfinger.y < 0.5)
+					GH.events().dispatchClosePopup(GH.getCursorPosition());
+				else
+					GH.events().dispatchMouseLeftButtonReleased(GH.getCursorPosition());
 			}
 			break;
 		}
@@ -151,8 +164,8 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 		case TouchState::TAP_DOWN_SHORT:
 		{
 			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
-			GH.events().dispatchMouseButtonPressed(MouseButton::LEFT, convertTouchToMouse(tfinger));
-			GH.events().dispatchMouseButtonReleased(MouseButton::LEFT, convertTouchToMouse(tfinger));
+			GH.events().dispatchMouseLeftButtonPressed(convertTouchToMouse(tfinger));
+			GH.events().dispatchMouseLeftButtonReleased(convertTouchToMouse(tfinger));
 			state = TouchState::IDLE;
 			break;
 		}
@@ -186,7 +199,7 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 			if (SDL_GetNumTouchFingers(tfinger.touchId) == 0)
 			{
 				GH.input().setCursorPosition(convertTouchToMouse(tfinger));
-				GH.events().dispatchMouseButtonReleased(MouseButton::RIGHT, convertTouchToMouse(tfinger));
+				GH.events().dispatchClosePopup(convertTouchToMouse(tfinger));
 				state = TouchState::IDLE;
 			}
 			break;
@@ -199,10 +212,12 @@ void InputSourceTouch::handleUpdate()
 	if ( state == TouchState::TAP_DOWN_SHORT)
 	{
 		uint32_t currentTime = SDL_GetTicks();
-		if (currentTime > lastTapTimeTicks + params.longPressTimeMilliseconds)
+		if (currentTime > lastTapTimeTicks + params.longTouchTimeMilliseconds)
 		{
-			state = TouchState::TAP_DOWN_LONG;
-			GH.events().dispatchMouseButtonPressed(MouseButton::RIGHT, GH.getCursorPosition());
+			GH.events().dispatchShowPopup(GH.getCursorPosition());
+
+			if (GH.windows().isTopWindowPopup())
+				state = TouchState::TAP_DOWN_LONG;
 		}
 	}
 }

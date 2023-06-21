@@ -12,7 +12,7 @@
 #include "Scrollable.h"
 
 Scrollable::Scrollable(int used, Point position, Orientation orientation)
-	: CIntObject(used | WHEEL | GESTURE_PANNING, position)
+	: CIntObject(used | WHEEL | GESTURE, position)
 	, scrollStep(1)
 	, panningDistanceSingle(32)
 	, panningDistanceAccumulated(0)
@@ -20,7 +20,7 @@ Scrollable::Scrollable(int used, Point position, Orientation orientation)
 {
 }
 
-void Scrollable::panning(bool on, const Point & initialPosition, const Point & finalPosition)
+void Scrollable::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
 {
 	panningDistanceAccumulated = 0;
 }
@@ -88,7 +88,7 @@ void Scrollable::setPanningStep(int to)
 void Scrollable::setScrollingEnabled(bool on)
 {
 	if (on)
-		addUsedEvents(WHEEL | GESTURE_PANNING);
+		addUsedEvents(WHEEL | GESTURE);
 	else
-		removeUsedEvents(WHEEL | GESTURE_PANNING);
+		removeUsedEvents(WHEEL | GESTURE);
 }

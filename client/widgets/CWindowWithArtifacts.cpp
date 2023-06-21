@@ -200,7 +200,7 @@ void CWindowWithArtifacts::rightClickArtPlaceHero(CArtifactsOfHeroBase & artsIns
 						return;
 					}
 					if(artPlace.text.size())
-						artPlace.LRClickableAreaWTextComp::clickRight(boost::logic::tribool::true_value, false);
+						artPlace.LRClickableAreaWTextComp::showPopupWindow();
 				}
 			}
 			// Altar window, Market window right click handler
@@ -209,7 +209,7 @@ void CWindowWithArtifacts::rightClickArtPlaceHero(CArtifactsOfHeroBase & artsIns
 				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroMarket>>)
 			{
 				if(artPlace.getArt() && artPlace.text.size())
-					artPlace.LRClickableAreaWTextComp::clickRight(boost::logic::tribool::true_value, false);
+					artPlace.LRClickableAreaWTextComp::showPopupWindow();
 			}
 		}, artSetWeak.value());
 }

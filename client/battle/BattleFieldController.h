@@ -88,11 +88,11 @@ class BattleFieldController : public CIntObject
 	bool isPixelInHex(Point const & position);
 	size_t selectBattleCursor(BattleHex myNumber);
 
-	void panning(bool on, const Point & initialPosition, const Point & finalPosition) override;
+	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void mouseMoved(const Point & cursorPosition) override;
 	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void showPopupWindow() override;
 	void activate() override;
 
 	void showAll(Canvas & to) override;

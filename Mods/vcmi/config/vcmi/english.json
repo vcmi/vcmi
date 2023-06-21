@@ -67,6 +67,11 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Interface Scaling}\n\nChanges scaling of in-game interface",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Select Interface Scaling",
 	"vcmi.systemOptions.scalingMenu.help"      : "Change in-game interface scaling.",
+	"vcmi.systemOptions.longTouchButton.hover"   : "Long Touch Interval: %d ms", // Translation note: "ms" = "milliseconds"
+	"vcmi.systemOptions.longTouchButton.help"    : "{Long Touch Interval}\n\nWhen using touchscreen, popup windows will appear after touching screen for specified duration, in milliseconds",
+	"vcmi.systemOptions.longTouchMenu.hover"     : "Select Long Touch Interval",
+	"vcmi.systemOptions.longTouchMenu.help"      : "Change duration of long touch interval.",
+	"vcmi.systemOptions.longTouchMenu.entry"     : "%d milliseconds",
 	"vcmi.systemOptions.framerateButton.hover"  : "Show FPS",
 	"vcmi.systemOptions.framerateButton.help"   : "{Show FPS}\n\nToggle the visibility of the Frames Per Second counter in the corner of the game window",
 

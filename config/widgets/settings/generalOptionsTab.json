@@ -52,6 +52,11 @@
 				},
 				{
 					"text": "core.genrltxt.577"
+				},
+				{
+					"name": "longTouchLabel",
+					"text": "vcmi.systemOptions.longTouchButton.hover",
+					"created" : "touchscreen"
 				}
 			]
 		},
@@ -95,6 +100,13 @@
 					"help": "core.help.364",
 					"callback": "spellbookAnimationChanged"
 				},
+				{
+					"name": "longTouchButton",
+					"type": "buttonGear",
+					"help": "vcmi.systemOptions.longTouchButton",
+					"callback": "setLongTouchDuration",
+					"created" : "touchscreen"
+				}
 			]
 		},
 /////////////////////////////////////// Right section - Audio Settings

@@ -45,7 +45,7 @@ class CMinimap : public CIntObject
 
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void showPopupWindow() override;
 	void hover (bool on) override;
 	void mouseMoved (const Point & cursorPosition) override;
 

@@ -155,7 +155,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()));
 
 	updateAccessibleHexes();
-	addUsedEvents(LCLICK | RCLICK | MOVE | TIME | GESTURE_PANNING);
+	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | TIME | GESTURE);
 }
 
 void BattleFieldController::activate()
@@ -176,7 +176,7 @@ void BattleFieldController::createHeroes()
 		owner.defendingHero = std::make_shared<BattleHero>(owner, owner.defendingHeroInstance, true);
 }
 
-void BattleFieldController::panning(bool on, const Point & initialPosition, const Point & finalPosition)
+void BattleFieldController::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
 {
 	if (!on && pos.isInside(finalPosition))
 		clickLeft(false, false);
@@ -219,16 +219,12 @@ void BattleFieldController::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void BattleFieldController::clickRight(tribool down, bool previousState)
+void BattleFieldController::showPopupWindow()
 {
-	if(down)
-	{
-		BattleHex selectedHex = getHoveredHex();
+	BattleHex selectedHex = getHoveredHex();
 
-		if (selectedHex != BattleHex::INVALID)
-			owner.actionsController->onHexRightClicked(selectedHex);
-
-	}
+	if (selectedHex != BattleHex::INVALID)
+		owner.actionsController->onHexRightClicked(selectedHex);
 }
 
 void BattleFieldController::renderBattlefield(Canvas & canvas)
@@ -858,7 +854,7 @@ void BattleFieldController::show(Canvas & to)
 
 	renderBattlefield(to);
 
-	if (isActive() && isPanning() && getHoveredHex() != BattleHex::INVALID)
+	if (isActive() && isGesturing() && getHoveredHex() != BattleHex::INVALID)
 	{
 		auto cursorIndex = CCS->curh->get<Cursor::Combat>();
 		auto imageIndex = static_cast<size_t>(cursorIndex);

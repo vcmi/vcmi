@@ -22,5 +22,4 @@ public:
 	CreditsScreen(Rect rect);
 	void show(Canvas & to) override;
 	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
 };

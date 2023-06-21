@@ -18,6 +18,7 @@ AEventsReceiver::AEventsReceiver()
 	: activeState(0)
 	, hoveredState(false)
 	, panningState(false)
+	, mouseClickedState(false)
 {
 }
 
@@ -26,7 +27,7 @@ bool AEventsReceiver::isHovered() const
 	return hoveredState;
 }
 
-bool AEventsReceiver::isPanning() const
+bool AEventsReceiver::isGesturing() const
 {
 	return panningState;
 }
@@ -36,9 +37,9 @@ bool AEventsReceiver::isActive() const
 	return activeState;
 }
 
-bool AEventsReceiver::isMouseButtonPressed(MouseButton btn) const
+bool AEventsReceiver::isMouseLeftButtonPressed() const
 {
-	return currentMouseState.count(btn) ? currentMouseState.at(btn) : false;
+	return mouseClickedState;
 }
 
 void AEventsReceiver::activateEvents(ui16 what)
@@ -52,6 +53,13 @@ void AEventsReceiver::activateEvents(ui16 what)
 void AEventsReceiver::deactivateEvents(ui16 what)
 {
 	if (what & GENERAL)
+	{
+		assert((what & activeState) == activeState);
 		activeState &= ~GENERAL;
+
+		// sanity check to avoid unexpected behavior if assertion above fails (e.g. in release)
+		// if element is deactivated (has GENERAL flag) then all existing active events should also be deactivated
+		what = activeState;
+	}
 	GH.events().deactivateElement(this, what & activeState);
 }

@@ -46,7 +46,7 @@ public:
 		CRegion(int id, bool accessible, bool selectable, const CampaignRegions & campDsc);
 		void updateState();
 		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void showPopupWindow() override;
 	};
 
 	void createBonusesIcons();

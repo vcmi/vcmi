@@ -14,6 +14,7 @@
 #include "FramerateManager.h"
 #include "CGuiHandler.h"
 #include "MouseButton.h"
+#include "WindowHandler.h"
 
 #include "../../lib/Point.h"
 
@@ -27,7 +28,7 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 	};
 
 	processList(AEventsReceiver::LCLICK, lclickable);
-	processList(AEventsReceiver::RCLICK, rclickable);
+	processList(AEventsReceiver::SHOW_POPUP, rclickable);
 	processList(AEventsReceiver::HOVER, hoverable);
 	processList(AEventsReceiver::MOVE, motioninterested);
 	processList(AEventsReceiver::KEYBOARD, keyinterested);
@@ -35,7 +36,7 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 	processList(AEventsReceiver::WHEEL, wheelInterested);
 	processList(AEventsReceiver::DOUBLECLICK, doubleClickInterested);
 	processList(AEventsReceiver::TEXTINPUT, textInterested);
-	processList(AEventsReceiver::GESTURE_PANNING, panningInterested);
+	processList(AEventsReceiver::GESTURE, panningInterested);
 }
 
 void EventDispatcher::activateElement(AEventsReceiver * elem, ui16 activityFlag)
@@ -112,18 +113,6 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 	}
 }
 
-EventDispatcher::EventReceiversList & EventDispatcher::getListForMouseButton(MouseButton button)
-{
-	switch (button)
-	{
-		case MouseButton::LEFT:
-			return lclickable;
-		case MouseButton::RIGHT:
-			return rclickable;
-	}
-	throw std::runtime_error("Invalid mouse button in getListForMouseButton");
-}
-
 void EventDispatcher::dispatchMouseDoubleClick(const Point & position)
 {
 	bool doubleClicked = false;
@@ -142,50 +131,64 @@ void EventDispatcher::dispatchMouseDoubleClick(const Point & position)
 	}
 
 	if(!doubleClicked)
-		dispatchMouseButtonPressed(MouseButton::LEFT, position);
+		handleLeftButtonClick(true);
 }
 
-void EventDispatcher::dispatchMouseButtonPressed(const MouseButton & button, const Point & position)
+void EventDispatcher::dispatchMouseLeftButtonPressed(const Point & position)
 {
-	handleMouseButtonClick(getListForMouseButton(button), button, true);
+	handleLeftButtonClick(true);
 }
 
-void EventDispatcher::dispatchMouseButtonReleased(const MouseButton & button, const Point & position)
+void EventDispatcher::dispatchMouseLeftButtonReleased(const Point & position)
 {
-	handleMouseButtonClick(getListForMouseButton(button), button, false);
+	handleLeftButtonClick(false);
 }
 
-void EventDispatcher::handleMouseButtonClick(EventReceiversList & interestedObjs, MouseButton btn, bool isPressed)
+void EventDispatcher::dispatchShowPopup(const Point & position)
 {
-	auto hlp = interestedObjs;
+	auto hlp = rclickable;
 	for(auto & i : hlp)
 	{
-		if(!vstd::contains(interestedObjs, i))
+		if(!vstd::contains(rclickable, i))
 			continue;
 
-		auto prev = i->isMouseButtonPressed(btn);
+		if( !i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
+			continue;
+
+		i->showPopupWindow();
+	}
+}
+
+void EventDispatcher::dispatchClosePopup(const Point & position)
+{
+	if (GH.windows().isTopWindowPopup())
+		GH.windows().popWindows(1);
+
+	assert(!GH.windows().isTopWindowPopup());
+}
+
+void EventDispatcher::handleLeftButtonClick(bool isPressed)
+{
+	auto hlp = lclickable;
+	for(auto & i : hlp)
+	{
+		if(!vstd::contains(lclickable, i))
+			continue;
+
+		auto prev = i->isMouseLeftButtonPressed();
 
 		if(!isPressed)
-			i->currentMouseState[btn] = isPressed;
+			i->mouseClickedState = isPressed;
 
-		if( btn == MouseButton::LEFT && i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
+		if( i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
 		{
 			if(isPressed)
-				i->currentMouseState[btn] = isPressed;
+				i->mouseClickedState = isPressed;
 			i->clickLeft(isPressed, prev);
-		}
-		else if( btn == MouseButton::RIGHT && i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::RCLICK))
-		{
-			if(isPressed)
-				i->currentMouseState[btn] = isPressed;
-			i->clickRight(isPressed, prev);
 		}
 		else if(!isPressed)
 		{
-			if (btn == MouseButton::LEFT)
-				i->clickLeft(boost::logic::indeterminate, prev);
-			if (btn == MouseButton::RIGHT)
-				i->clickRight(boost::logic::indeterminate, prev);
+			i->clickLeft(boost::logic::indeterminate, prev);
 		}
 	}
 }
@@ -225,9 +228,9 @@ void EventDispatcher::dispatchGesturePanningStarted(const Point & initialPositio
 
 	for(auto it : copied)
 	{
-		if (it->receiveEvent(initialPosition, AEventsReceiver::GESTURE_PANNING))
+		if (it->receiveEvent(initialPosition, AEventsReceiver::GESTURE))
 		{
-			it->panning(true, initialPosition, initialPosition);
+			it->gesture(true, initialPosition, initialPosition);
 			it->panningState = true;
 		}
 	}
@@ -239,9 +242,9 @@ void EventDispatcher::dispatchGesturePanningEnded(const Point & initialPosition,
 
 	for(auto it : copied)
 	{
-		if (it->isPanning())
+		if (it->isGesturing())
 		{
-			it->panning(false, initialPosition, finalPosition);
+			it->gesture(false, initialPosition, finalPosition);
 			it->panningState = false;
 		}
 	}
@@ -253,7 +256,7 @@ void EventDispatcher::dispatchGesturePanning(const Point & initialPosition, cons
 
 	for(auto it : copied)
 	{
-		if (it->isPanning())
+		if (it->isGesturing())
 			it->gesturePanning(initialPosition, currentPosition, lastUpdateDistance);
 	}
 }
@@ -262,7 +265,7 @@ void EventDispatcher::dispatchGesturePinch(const Point & initialPosition, double
 {
 	for(auto it : panningInterested)
 	{
-		if (it->isPanning())
+		if (it->isGesturing())
 			it->gesturePinch(initialPosition, distance);
 	}
 }

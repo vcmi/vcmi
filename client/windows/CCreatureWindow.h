@@ -38,7 +38,6 @@ public:
 	std::function<void()> callback;
 
 	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
 
 	void setObject(std::shared_ptr<CIntObject> object);
 };

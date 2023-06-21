@@ -114,7 +114,7 @@ void CreaturePurchaseCard::initView()
 }
 
 CreaturePurchaseCard::CCreatureClickArea::CCreatureClickArea(const Point & position, const std::shared_ptr<CCreaturePic> creaturePic, const CCreature * creatureOnTheCard)
-	: CIntObject(RCLICK),
+	: CIntObject(SHOW_POPUP),
 	creatureOnTheCard(creatureOnTheCard)
 {
 	pos.x += position.x;
@@ -123,8 +123,7 @@ CreaturePurchaseCard::CCreatureClickArea::CCreatureClickArea(const Point & posit
 	pos.h = CREATURE_HEIGHT;
 }
 
-void CreaturePurchaseCard::CCreatureClickArea::clickRight(tribool down, bool previousState)
+void CreaturePurchaseCard::CCreatureClickArea::showPopupWindow()
 {
-	if (down)
-		GH.windows().createAndPushWindow<CStackWindow>(creatureOnTheCard, true);
+	GH.windows().createAndPushWindow<CStackWindow>(creatureOnTheCard, true);
 }

@@ -16,7 +16,6 @@ class CGStatusBar;
 class CWindowObject : public WindowBase
 {
 	std::shared_ptr<CPicture> createBg(std::string imageName, bool playerColored);
-	int getUsedEvents(int options);
 
 	std::vector<std::shared_ptr<CPicture>> shadowParts;
 
@@ -28,7 +27,7 @@ protected:
 	std::shared_ptr<CPicture> background;
 
 	//Used only if RCLICK_POPUP was set
-	void clickRight(tribool down, bool previousState) override;
+	bool isPopupWindow() const override;
 	//To display border
 	void updateShadow();
 	void setBackground(std::string filename);
