@@ -15,6 +15,8 @@
 #include "PathfindingRules.h"
 #include "CPathfinder.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 PathfinderOptions::PathfinderOptions()
 {
 	useFlying = settings["pathfinder"]["layers"]["flying"].Bool();
@@ -61,3 +63,5 @@ CPathfinderHelper * SingleHeroPathfinderConfig::getOrCreatePathfinderHelper(cons
 {
 	return pathfinderHelper.get();
 }
+
+VCMI_LIB_NAMESPACE_END
