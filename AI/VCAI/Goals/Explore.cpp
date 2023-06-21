@@ -267,7 +267,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 			if(!ai->isAbleToExplore(h))
 				return true;
 
-			return !h->movement; //saves time, immobile heroes are useless anyway
+			return !h->movementPointsRemaining(); //saves time, immobile heroes are useless anyway
 		});
 	}
 

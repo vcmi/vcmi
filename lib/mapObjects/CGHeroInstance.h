@@ -49,6 +49,7 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 private:
 	std::set<SpellID> spells; //known spells (spell IDs)
 	mutable int lowestCreatureSpeed;
+	ui32 movement; //remaining movement points
 
 public:
 
@@ -67,7 +68,6 @@ public:
 	si32 portrait; //may be custom
 	si32 mana; // remaining spell points
 	std::vector<std::pair<SecondarySkill,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
-	ui32 movement; //remaining movement points
 	EHeroGender gender;
 
 	std::string nameCustom;
@@ -155,7 +155,6 @@ public:
 	EAlignment getAlignment() const;
 	bool needsLastStack()const override;
 
-	ui32 getTileCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
 	//INativeTerrainProvider
 	FactionID getFaction() const override;
 	TerrainId getNativeTerrain() const override;
@@ -196,9 +195,14 @@ public:
 	void setSecSkillLevel(const SecondarySkill & which, int val, bool abs); // abs == 0 - changes by value; 1 - sets to value
 	void levelUp(const std::vector<SecondarySkill> & skills);
 
-	int maxMovePoints(bool onLand) const;
+	/// returns base movement cost for movement between specific tiles. Does not accounts for diagonal movement or last tile exception
+	ui32 getTileMovementCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const;
+
+	void setMovementPoints(int points);
+	int movementPointsRemaining() const;
+	int movementPointsLimit(bool onLand) const;
 	//cached version is much faster, TurnInfo construction is costly
-	int maxMovePointsCached(bool onLand, const TurnInfo * ti) const;
+	int movementPointsLimitCached(bool onLand, const TurnInfo * ti) const;
 	//update army movement bonus
 	void updateArmyMovementBonus(bool onLand, const TurnInfo * ti) const;
 

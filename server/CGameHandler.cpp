@@ -1773,9 +1773,9 @@ void CGameHandler::newTurn()
 		if (hero->isInitialized() && hero->stacks.size())
 		{
 			// reset retreated or surrendered heroes
-			auto maxmove = hero->maxMovePoints(true);
+			auto maxmove = hero->movementPointsLimit(true);
 			// if movement is greater than maxmove, we should decrease it
-			if (hero->movement != maxmove || hero->mana < hero->manaLimit())
+			if (hero->movementPointsRemaining() != maxmove || hero->mana < hero->manaLimit())
 			{
 				NewTurn::Hero hth;
 				hth.id = hero->id;
@@ -1864,7 +1864,7 @@ void CGameHandler::newTurn()
 			hth.id = h->id;
 			auto ti = std::make_unique<TurnInfo>(h, 1);
 			// TODO: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
-			hth.move = h->maxMovePointsCached(gs->map->getTile(h->visitablePos()).terType->isLand(), ti.get());
+			hth.move = h->movementPointsLimitCached(gs->map->getTile(h->visitablePos()).terType->isLand(), ti.get());
 			hth.mana = h->getManaNewTurn();
 
 			n.heroes.insert(hth);
@@ -2280,7 +2280,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	tmh.start = h->pos;
 	tmh.end = dst;
 	tmh.result = TryMoveHero::FAILED;
-	tmh.movePoints = h->movement;
+	tmh.movePoints = h->movementPointsRemaining();
 
 	//check if destination tile is available
 	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, h, PathfinderOptions());
@@ -2288,7 +2288,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 	const bool canFly = pathfinderHelper->hasBonusOfType(BonusType::FLYING_MOVEMENT) || (h->boat && h->boat->layer == EPathfindingLayer::AIR);
 	const bool canWalkOnSea = pathfinderHelper->hasBonusOfType(BonusType::WATER_WALKING) || (h->boat && h->boat->layer == EPathfindingLayer::WATER);
-	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movement);
+	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movementPointsRemaining());
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
@@ -2302,7 +2302,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 			&& complain("Tiles are not neighboring!"))
 		|| ((h->inTownGarrison)
 			&& complain("Can not move garrisoned hero!"))
-		|| (((int)h->movement < cost  &&  dst != h->pos  &&  !teleporting)
+		|| (((int)h->movementPointsRemaining() < cost  &&  dst != h->pos  &&  !teleporting)
 			&& complain("Hero doesn't have any movement points left!"))
 		|| ((transit && !canFly && !CGTeleport::isTeleport(t.topVisitableObj()))
 			&& complain("Hero cannot transit over this tile!"))
@@ -2387,14 +2387,14 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 	if (!transit && embarking)
 	{
-		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, false, ti);
+		tmh.movePoints = h->movementPointsAfterEmbark(h->movementPointsRemaining(), cost, false, ti);
 		return doMove(TryMoveHero::EMBARK, IGNORE_GUARDS, DONT_VISIT_DEST, LEAVING_TILE);
 		// In H3 embark ignore guards
 	}
 
 	if (disembarking)
 	{
-		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, true, ti);
+		tmh.movePoints = h->movementPointsAfterEmbark(h->movementPointsRemaining(), cost, true, ti);
 		return doMove(TryMoveHero::DISEMBARK, CHECK_FOR_GUARDS, VISIT_DEST, LEAVING_TILE);
 	}
 
@@ -2420,8 +2420,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 	//still here? it is standard movement!
 	{
-		tmh.movePoints = (int)h->movement >= cost
-						? h->movement - cost
+		tmh.movePoints = (int)h->movementPointsRemaining() >= cost
+						? h->movementPointsRemaining() - cost
 						: 0;
 
 		EGuardLook lookForGuards = CHECK_FOR_GUARDS;

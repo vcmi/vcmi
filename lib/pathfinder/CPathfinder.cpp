@@ -621,7 +621,7 @@ int CPathfinderHelper::getMovementCost(
 	
 	bool isAirLayer = (hero->boat && hero->boat->layer == EPathfindingLayer::AIR) || ti->hasBonusOfType(BonusType::FLYING_MOVEMENT);
 
-	int ret = hero->getTileCost(*dt, *ct, ti);
+	int ret = hero->getTileMovementCost(*dt, *ct, ti);
 	if(isSailLayer)
 	{
 		if(ct->hasFavorableWinds())

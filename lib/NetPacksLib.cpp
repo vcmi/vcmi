@@ -903,11 +903,9 @@ void SetMovePoints::applyGs(CGameState * gs) const
 	assert(hero);
 
 	if(absolute)
-		hero->movement = val;
+		hero->setMovementPoints(val);
 	else
-		hero->movement += val;
-
-	vstd::amax(hero->movement, 0); //not less than 0
+		hero->setMovementPoints(hero->movementPointsRemaining() + val);
 }
 
 void FoWChange::applyGs(CGameState *gs)
@@ -1276,7 +1274,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 		return;
 	}
 
-	h->movement = movePoints;
+	h->setMovementPoints(movePoints);
 
 	if((result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK || result == DISEMBARK) && start != end)
 	{
@@ -1422,11 +1420,11 @@ void HeroRecruited::applyGs(CGameState * gs) const
 	{ // this is a fresh hero who hasn't appeared yet
 		if (boatId >= 0) //Hero spawns on water
 		{
-			h->movement = h->maxMovePoints(false);
+			h->setMovementPoints(h->movementPointsLimit(false));
 		}
 		else
 		{
-			h->movement = h->maxMovePoints(true);
+			h->setMovementPoints(h->movementPointsLimit(true));
 		}
 	}
 
@@ -1479,7 +1477,7 @@ void GiveHero::applyGs(CGameState * gs) const
 	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->getIndex())->getTemplates().front();
 
 	h->setOwner(player);
-	h->movement =  h->maxMovePoints(true);
+	h->setMovementPoints(h->movementPointsLimit(true));
 	h->pos = h->convertFromVisitablePos(oldVisitablePos);
 	gs->map->heroesOnMap.emplace_back(h);
 	gs->getPlayerState(h->getOwner())->heroes.emplace_back(h);
@@ -2052,7 +2050,7 @@ void NewTurn::applyGs(CGameState *gs)
 			logGlobal->error("Hero %d not found in NewTurn::applyGs", h.id.getNum());
 			continue;
 		}
-		hero->movement = h.move;
+		hero->setMovementPoints(h.move);
 		hero->mana = h.mana;
 	}
 

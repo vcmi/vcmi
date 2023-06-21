@@ -65,7 +65,7 @@ static int lowestSpeed(const CGHeroInstance * chi)
 	return ret;
 }
 
-ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const
+ui32 CGHeroInstance::getTileMovementCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const
 {
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
@@ -201,10 +201,20 @@ bool CGHeroInstance::canLearnSkill(const SecondarySkill & which) const
 	return true;
 }
 
-int CGHeroInstance::maxMovePoints(bool onLand) const
+int CGHeroInstance::movementPointsRemaining() const
+{
+	return movement;
+}
+
+void CGHeroInstance::setMovementPoints(int points)
+{
+	movement = std::max(0, points);
+}
+
+int CGHeroInstance::movementPointsLimit(bool onLand) const
 {
 	TurnInfo ti(this);
-	return maxMovePointsCached(onLand, &ti);
+	return movementPointsLimitCached(onLand, &ti);
 }
 
 int CGHeroInstance::getLowestCreatureSpeed() const
@@ -224,7 +234,7 @@ void CGHeroInstance::updateArmyMovementBonus(bool onLand, const TurnInfo * ti) c
 	}
 }
 
-int CGHeroInstance::maxMovePointsCached(bool onLand, const TurnInfo * ti) const
+int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) const
 {
 	updateArmyMovementBonus(onLand, ti);
 	return ti->valOfBonuses(BonusType::MOVEMENT, !!onLand);
@@ -454,14 +464,14 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			const auto boatPos = visitablePos();
 			if (cb->gameState()->map->getTile(boatPos).isWater())
 			{
-				smp.val = maxMovePoints(false);
+				smp.val = movementPointsLimit(false);
 				//Create a new boat for hero
 				cb->createObject(boatPos, Obj::BOAT, getBoatType().getNum());
 				boatId = cb->getTopObj(boatPos)->id;
 			}
 			else
 			{
-				smp.val = maxMovePoints(true);
+				smp.val = movementPointsLimit(true);
 			}
 			cb->giveHero(id, h->tempOwner, boatId); //recreates def and adds hero to player
 			cb->setObjProperty(id, ObjProperty::ID, Obj::HERO); //set ID to 34 AFTER hero gets correct flag color
@@ -1170,7 +1180,7 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 
 EDiggingStatus CGHeroInstance::diggingStatus() const
 {
-	if(static_cast<int>(movement) < maxMovePoints(true))
+	if(static_cast<int>(movement) < movementPointsLimit(true))
 		return EDiggingStatus::LACK_OF_MOVEMENT;
 	if(!VLC->arth->objects[ArtifactID::GRAIL]->canBePutAt(this))
 		return EDiggingStatus::BACKPACK_IS_FULL;

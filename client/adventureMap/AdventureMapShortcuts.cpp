@@ -224,7 +224,7 @@ void AdventureMapShortcuts::endTurn()
 	{
 		for(auto hero : LOCPLINT->localState->getWanderingHeroes())
 		{
-			if(!LOCPLINT->localState->isHeroSleeping(hero) && hero->movement > 0)
+			if(!LOCPLINT->localState->isHeroSleeping(hero) && hero->movementPointsRemaining() > 0)
 			{
 				// Only show hero reminder if conditions met:
 				// - There still movement points
@@ -418,7 +418,7 @@ bool AdventureMapShortcuts::optionHeroSelected()
 bool AdventureMapShortcuts::optionHeroCanMove()
 {
 	const auto * hero = LOCPLINT->localState->getCurrentHero();
-	return optionInMapView() && hero && hero->movement != 0 && LOCPLINT->localState->hasPath(hero);
+	return optionInMapView() && hero && hero->movementPointsRemaining() != 0 && LOCPLINT->localState->hasPath(hero);
 }
 
 bool AdventureMapShortcuts::optionHasNextHero()

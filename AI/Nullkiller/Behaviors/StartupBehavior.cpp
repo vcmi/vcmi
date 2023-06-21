@@ -206,7 +206,7 @@ Goals::TGoalVec StartupBehavior::decompose() const
 		for(const CGTownInstance * town : towns)
 		{
 			if(town->garrisonHero
-				&& town->garrisonHero->movement
+				&& town->garrisonHero->movementPointsRemaining()
 				&& !town->visitingHero
 				&& ai->nullkiller->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE)
 			{

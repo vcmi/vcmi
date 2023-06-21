@@ -187,7 +187,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 							if(ai->nullkiller->isHeroLocked(existingHero)
 								|| existingHero->getArmyStrength() > hero->getArmyStrength()
 								|| ai->nullkiller->heroManager->getHeroRole(existingHero) == HeroRole::MAIN
-								|| existingHero->movement
+								|| existingHero->movementPointsRemaining()
 								|| existingHero->artifactsWorn.size() > (existingHero->hasSpellbook() ? 2 : 1))
 								continue;
 

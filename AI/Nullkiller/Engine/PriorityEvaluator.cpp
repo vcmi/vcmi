@@ -790,7 +790,7 @@ public:
 		if(garrisonHero && swapCommand.getLockingReason() == HeroLockedReason::DEFENCE)
 		{
 			auto defenderRole = evaluationContext.evaluator.ai->heroManager->getHeroRole(garrisonHero);
-			auto mpLeft = garrisonHero->movement / (float)garrisonHero->maxMovePoints(true);
+			auto mpLeft = garrisonHero->movementPointsRemaining() / (float)garrisonHero->movementPointsLimit(true);
 
 			evaluationContext.movementCost += mpLeft;
 			evaluationContext.movementCostByRole[defenderRole] += mpLeft;
