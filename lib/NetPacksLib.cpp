@@ -2223,7 +2223,7 @@ void BattleResultAccepted::applyGs(CGameState * gs) const
 			{
 				for (auto art : h->commander->artifactsWorn) //increment bonuses for commander artifacts
 				{
-					art.second.artifact->artType->levelUpArtifact (art.second.artifact);
+					art.second.artifact->growingUp();
 				}
 			}
 		}

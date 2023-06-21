@@ -89,8 +89,6 @@ public:
 	std::string nodeName() const override;
 	void addNewBonus(const std::shared_ptr<Bonus>& b) override;
 
-	virtual void levelUpArtifact (CArtifactInstance * art){};
-
 	virtual bool canBeDisassembled() const;
 	virtual bool canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot = ArtifactPosition::FIRST_AVAILABLE,
 		bool assumeDestRemoved = false) const;
@@ -126,8 +124,6 @@ class DLL_LINKAGE CGrowingArtifact : public CArtifact //for example commander ar
 public:
 	std::vector <std::pair <ui16, Bonus> > bonusesPerLevel; //bonus given each n levels
 	std::vector <std::pair <ui16, Bonus> > thresholdBonuses; //after certain level they will be added once
-
-	void levelUpArtifact(CArtifactInstance * art) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -166,8 +162,16 @@ public:
 	SpellID getScrollSpellID() const;
 };
 
+class DLL_LINKAGE CGrowingArtifactInstance
+{
+protected:
+	CGrowingArtifactInstance() = default;
+public:
+	void growingUp();
+};
+
 class DLL_LINKAGE CArtifactInstance
-	: public CBonusSystemNode, public CCombinedArtifactInstance, public CScrollArtifactInstance
+	: public CBonusSystemNode, public CCombinedArtifactInstance, public CScrollArtifactInstance, public CGrowingArtifactInstance
 {
 protected:
 	void init();

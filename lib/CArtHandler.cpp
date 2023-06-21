@@ -269,30 +269,6 @@ void CArtifact::serializeJson(JsonSerializeFormat & handler)
 
 }
 
-void CGrowingArtifact::levelUpArtifact (CArtifactInstance * art)
-{
-	auto b = std::make_shared<Bonus>();
-	b->type = BonusType::LEVEL_COUNTER;
-	b->val = 1;
-	b->duration = BonusDuration::COMMANDER_KILLED;
-	art->accumulateBonus(b);
-
-	for(const auto & bonus : bonusesPerLevel)
-	{
-		if (art->valOfBonuses(BonusType::LEVEL_COUNTER) % bonus.first == 0) //every n levels
-		{
-			art->accumulateBonus(std::make_shared<Bonus>(bonus.second));
-		}
-	}
-	for(const auto & bonus : thresholdBonuses)
-	{
-		if (art->valOfBonuses(BonusType::LEVEL_COUNTER) == bonus.first) //every n levels
-		{
-			art->addNewBonus(std::make_shared<Bonus>(bonus.second));
-		}
-	}
-}
-
 CArtHandler::~CArtHandler() = default;
 
 std::vector<JsonNode> CArtHandler::loadLegacyData()
