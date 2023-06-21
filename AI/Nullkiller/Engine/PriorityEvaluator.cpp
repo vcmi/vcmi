@@ -16,7 +16,6 @@
 #include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/CCreatureHandler.h"
-#include "../../../lib/CPathfinder.h"
 #include "../../../lib/CGameStateFwd.h"
 #include "../../../lib/VCMI_Lib.h"
 #include "../../../lib/StartInfo.h"

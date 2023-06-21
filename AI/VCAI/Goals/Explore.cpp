@@ -15,7 +15,6 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
 #include "../../../lib/CPlayerState.h"
 

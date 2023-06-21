@@ -15,6 +15,7 @@
 #include "CArtHandler.h"
 #include "CBuildingHandler.h"
 #include "CGeneralTextHandler.h"
+#include "CPathfinder.h"
 #include "CTownHandler.h"
 #include "spells/CSpellHandler.h"
 #include "CHeroHandler.h"

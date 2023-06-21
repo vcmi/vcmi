@@ -19,6 +19,7 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/CBuildingHandler.h"
 #include "../lib/CHeroHandler.h"
+#include "../lib/CPathfinder.h"
 #include "../lib/spells/AbilityCaster.h"
 #include "../lib/spells/BonusCaster.h"
 #include "../lib/spells/CSpellHandler.h"

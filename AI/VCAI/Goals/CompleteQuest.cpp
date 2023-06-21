@@ -13,7 +13,6 @@
 #include "../FuzzyHelper.h"
 #include "../AIhelper.h"
 #include "../../../lib/mapObjects/CQuest.h"
-#include "../../../lib/CPathfinder.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;

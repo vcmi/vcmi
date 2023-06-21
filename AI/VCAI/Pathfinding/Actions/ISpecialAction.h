@@ -14,6 +14,8 @@
 #include "../../Goals/AbstractGoal.h"
 
 struct AIPathNode;
+struct PathNodeInfo;
+struct CDestinationNodeInfo;
 
 class ISpecialAction
 {

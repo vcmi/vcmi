@@ -13,6 +13,9 @@
 #include "../../AIUtility.h"
 #include "../../Goals/AbstractGoal.h"
 
+struct PathNodeInfo;
+struct CDestinationNodeInfo;
+
 namespace NKAI
 {
 
