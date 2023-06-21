@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "AIPreviousNodeRule.h"
 
+#include "../../../../lib/pathfinder/CPathfinder.h"
+
 namespace NKAI
 {
 namespace AIPathfinding

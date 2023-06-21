@@ -14,7 +14,9 @@
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
-#include "../../../lib/PathfinderUtil.h"
+#include "../../../lib/pathfinder/CPathfinder.h"
+#include "../../../lib/pathfinder/PathfinderOptions.h"
+#include "../../../lib/pathfinder/PathfinderUtil.h"
 #include "../../../lib/CPlayerState.h"
 
 AINodeStorage::AINodeStorage(const int3 & Sizes)

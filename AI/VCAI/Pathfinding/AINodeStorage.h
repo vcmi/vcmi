@@ -10,8 +10,9 @@
 
 #pragma once
 
-#include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
+#include "../../../lib/pathfinder/CGPathNode.h"
+#include "../../../lib/pathfinder/INodeStorage.h"
 #include "../AIUtility.h"
 #include "../FuzzyHelper.h"
 #include "../Goals/AbstractGoal.h"

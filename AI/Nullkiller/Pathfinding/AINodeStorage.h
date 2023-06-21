@@ -13,7 +13,8 @@
 #define NKAI_PATHFINDER_TRACE_LEVEL 0
 #define NKAI_TRACE_LEVEL 0
 
-#include "../../../lib/CPathfinder.h"
+#include "../../../lib/pathfinder/CGPathNode.h"
+#include "../../../lib/pathfinder/INodeStorage.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../AIUtility.h"
 #include "../Engine/FuzzyHelper.h"

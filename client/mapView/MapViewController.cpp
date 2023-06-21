@@ -22,9 +22,9 @@
 #include "../gui/WindowHandler.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CPathfinder.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+#include "../../lib/pathfinder/CGPathNode.h"
 #include "../../lib/spells/ViewSpellInt.h"
 
 void MapViewController::setViewCenter(const int3 & position)

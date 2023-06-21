@@ -39,8 +39,8 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-#include "../../lib/CPathfinder.h"
 #include "../../lib/mapping/CMapDefines.h"
+#include "../../lib/pathfinder/CGPathNode.h"
 
 std::shared_ptr<AdventureMapInterface> adventureInt;
 
