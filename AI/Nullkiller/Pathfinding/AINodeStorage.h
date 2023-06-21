@@ -13,7 +13,8 @@
 #define NKAI_PATHFINDER_TRACE_LEVEL 0
 #define NKAI_TRACE_LEVEL 0
 
-#include "../../../lib/CPathfinder.h"
+#include "../../../lib/pathfinder/CGPathNode.h"
+#include "../../../lib/pathfinder/INodeStorage.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../AIUtility.h"
 #include "../Engine/FuzzyHelper.h"
@@ -52,8 +53,8 @@ struct AIPathNode : public CGPathNode
 	STRONG_INLINE
 	bool blocked() const
 	{
-		return accessible == CGPathNode::EAccessibility::NOT_SET
-			|| accessible == CGPathNode::EAccessibility::BLOCKED;
+		return accessible == EPathAccessibility::NOT_SET
+			|| accessible == EPathAccessibility::BLOCKED;
 	}
 
 	void addSpecialAction(std::shared_ptr<const SpecialAction> action);
@@ -195,7 +196,7 @@ public:
 	void commit(
 		AIPathNode * destination,
 		const AIPathNode * source,
-		CGPathNode::ENodeAction action,
+		EPathNodeAction action,
 		int turn,
 		int movementLeft,
 		float cost) const;
@@ -261,7 +262,7 @@ public:
 	}
 
 	STRONG_INLINE
-	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
+	void resetTile(const int3 & tile, EPathfindingLayer layer, EPathAccessibility accessibility);
 
 	STRONG_INLINE int getBucket(const ChainActor * actor) const
 	{

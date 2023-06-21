@@ -11,7 +11,6 @@
 #include "Composition.h"
 #include "../AIGateway.h"
 #include "../AIUtility.h"
-#include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
 
 

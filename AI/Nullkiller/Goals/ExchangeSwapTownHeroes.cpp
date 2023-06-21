@@ -11,7 +11,6 @@
 #include "ExchangeSwapTownHeroes.h"
 #include "ExecuteHeroChain.h"
 #include "../AIGateway.h"
-#include "../../../lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"
 
 namespace NKAI

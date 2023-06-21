@@ -55,6 +55,7 @@
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
+#include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/CStack.h"
 #include "../lib/JsonNode.h"
 #include "CMusicHandler.h"
@@ -70,7 +71,6 @@
 #include "gui/WindowHandler.h"
 #include "windows/InfoWindows.h"
 #include "../lib/UnlockGuard.h"
-#include "../lib/CPathfinder.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/TerrainHandler.h"
 #include "CServerHandler.h"
@@ -1884,11 +1884,11 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		return cb->getTile(h->convertToVisitablePos(coord))->topVisitableObj(ignoreHero);
 	};
 
-	auto isTeleportAction = [&](CGPathNode::ENodeAction action) -> bool
+	auto isTeleportAction = [&](EPathNodeAction action) -> bool
 	{
-		if (action != CGPathNode::TELEPORT_NORMAL &&
-			action != CGPathNode::TELEPORT_BLOCKING_VISIT &&
-			action != CGPathNode::TELEPORT_BATTLE)
+		if (action != EPathNodeAction::TELEPORT_NORMAL &&
+			action != EPathNodeAction::TELEPORT_BLOCKING_VISIT &&
+			action != EPathNodeAction::TELEPORT_BATTLE)
 		{
 			return false;
 		}
@@ -1933,7 +1933,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 			if (node->layer == EPathfindingLayer::LAND || node->layer == EPathfindingLayer::SAIL)
 				return true;
 
-			if (node->accessible == CGPathNode::ACCESSIBLE)
+			if (node->accessible == EPathAccessibility::ACCESSIBLE)
 				return true;
 
 			return false;
@@ -1959,8 +1959,8 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				destinationTeleport = destTeleportObj->id;
 				destinationTeleportPos = nextCoord;
 				doMovement(h->pos, false);
-				if (path.nodes[i-1].action == CGPathNode::TELEPORT_BLOCKING_VISIT
-					|| path.nodes[i-1].action == CGPathNode::TELEPORT_BATTLE)
+				if (path.nodes[i-1].action == EPathNodeAction::TELEPORT_BLOCKING_VISIT
+					|| path.nodes[i-1].action == EPathNodeAction::TELEPORT_BATTLE)
 				{
 					destinationTeleport = ObjectInstanceID();
 					destinationTeleportPos = int3(-1);

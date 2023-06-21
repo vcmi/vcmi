@@ -11,9 +11,9 @@
 #include "PlayerLocalState.h"
 
 #include "../CCallback.h"
-#include "../lib/CPathfinder.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGTownInstance.h"
+#include "../lib/pathfinder/CGPathNode.h"
 #include "CPlayerInterface.h"
 #include "adventureMap/AdventureMapInterface.h"
 

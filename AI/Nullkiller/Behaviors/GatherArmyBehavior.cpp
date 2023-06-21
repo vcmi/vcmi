@@ -16,7 +16,6 @@
 #include "../Markers/ArmyUpgrade.h"
 #include "GatherArmyBehavior.h"
 #include "../AIUtility.h"
-#include "lib/CPathfinder.h"
 
 namespace NKAI
 {

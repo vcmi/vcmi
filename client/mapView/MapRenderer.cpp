@@ -21,7 +21,6 @@
 
 #include "../../CCallback.h"
 
-#include "../../lib/CPathfinder.h"
 #include "../../lib/RiverHandler.h"
 #include "../../lib/RoadHandler.h"
 #include "../../lib/TerrainHandler.h"
@@ -29,6 +28,7 @@
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapping/CMapDefines.h"
+#include "../../lib/pathfinder/CGPathNode.h"
 
 struct NeighborTilesInfo
 {
@@ -714,7 +714,7 @@ size_t MapRendererPath::selectImage(IMapRendererContext & context, const int3 & 
 		return std::numeric_limits<size_t>::max();
 
 	bool pathContinuous = iter->coord.areNeighbours(next->coord) && iter->coord.areNeighbours(prev->coord);
-	bool embarking = iter->action == CGPathNode::EMBARK || iter->action == CGPathNode::DISEMBARK;
+	bool embarking = iter->action == EPathNodeAction::EMBARK || iter->action == EPathNodeAction::DISEMBARK;
 
 	if(pathContinuous && !embarking)
 		return selectImageArrow(reachableToday, iter->coord, prev->coord, next->coord);

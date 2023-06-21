@@ -9,10 +9,11 @@
  */
 #pragma once
 
-#include "TerrainHandler.h"
-#include "mapObjects/CGObjectInstance.h"
-#include "mapping/CMapDefines.h"
-#include "CGameState.h"
+#include "../TerrainHandler.h"
+#include "../mapObjects/CGObjectInstance.h"
+#include "../mapping/CMapDefines.h"
+#include "../CGameState.h"
+#include "CGPathNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -22,10 +23,10 @@ namespace PathfinderUtil
 	using ELayer = EPathfindingLayer;
 
 	template<EPathfindingLayer::EEPathfindingLayer layer>
-	CGPathNode::EAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile & tinfo, FoW fow, const PlayerColor player, const CGameState * gs)
+	EPathAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile & tinfo, FoW fow, const PlayerColor player, const CGameState * gs)
 	{
 		if(!(*fow)[pos.z][pos.x][pos.y])
-			return CGPathNode::BLOCKED;
+			return EPathAccessibility::BLOCKED;
 
 		switch(layer)
 		{
@@ -35,47 +36,47 @@ namespace PathfinderUtil
 			{
 				if(tinfo.visitableObjects.front()->ID == Obj::SANCTUARY && tinfo.visitableObjects.back()->ID == Obj::HERO && tinfo.visitableObjects.back()->tempOwner != player) //non-owned hero stands on Sanctuary
 				{
-					return CGPathNode::BLOCKED;
+					return EPathAccessibility::BLOCKED;
 				}
 				else
 				{
 					for(const CGObjectInstance * obj : tinfo.visitableObjects)
 					{
 						if(obj->blockVisit)
-							return CGPathNode::BLOCKVIS;
+							return EPathAccessibility::BLOCKVIS;
 						else if(obj->passableFor(player))
-							return CGPathNode::ACCESSIBLE;
+							return EPathAccessibility::ACCESSIBLE;
 						else if(obj->ID != Obj::EVENT)
-							return CGPathNode::VISITABLE;
+							return EPathAccessibility::VISITABLE;
 					}
 				}
 			}
 			else if(tinfo.blocked)
 			{
-				return CGPathNode::BLOCKED;
+				return EPathAccessibility::BLOCKED;
 			}
 			else if(gs->guardingCreaturePosition(pos).valid())
 			{
 				// Monster close by; blocked visit for battle
-				return CGPathNode::BLOCKVIS;
+				return EPathAccessibility::BLOCKVIS;
 			}
 
 			break;
 
 		case ELayer::WATER:
 			if(tinfo.blocked || tinfo.terType->isLand())
-				return CGPathNode::BLOCKED;
+				return EPathAccessibility::BLOCKED;
 
 			break;
 
 		case ELayer::AIR:
 			if(tinfo.blocked || tinfo.terType->isLand())
-				return CGPathNode::FLYABLE;
+				return EPathAccessibility::FLYABLE;
 
 			break;
 		}
 
-		return CGPathNode::ACCESSIBLE;
+		return EPathAccessibility::ACCESSIBLE;
 	}
 }
 

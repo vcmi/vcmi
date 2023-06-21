@@ -20,7 +20,6 @@
 #include "int3.h"
 #include "CRandomGenerator.h"
 #include "CGameStateFwd.h"
-#include "CPathfinder.h"
 
 namespace boost
 {

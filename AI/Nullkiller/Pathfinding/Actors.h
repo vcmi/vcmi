@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../AIUtility.h"
 #include "Actions/SpecialAction.h"
@@ -83,7 +82,7 @@ public:
 	ExchangeResult tryExchangeNoLock(const ChainActor * other) const { return tryExchangeNoLock(this, other); }
 	void setBaseActor(HeroActor * base);
 	virtual const CGObjectInstance * getActorObject() const	{ return hero; }
-	int maxMovePoints(CGPathNode::ELayer layer);
+	int maxMovePoints(EPathfindingLayer layer);
 
 protected:
 	virtual ExchangeResult tryExchangeNoLock(const ChainActor * specialActor, const ChainActor * other) const;

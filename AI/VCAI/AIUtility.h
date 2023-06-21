@@ -16,7 +16,6 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/CPathfinder.h"
 #include "../../CCallback.h"
 
 class CCallback;

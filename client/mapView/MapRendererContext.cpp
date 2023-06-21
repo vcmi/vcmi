@@ -19,11 +19,11 @@
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 
-#include "../../lib/CPathfinder.h"
 #include "../../lib/Point.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapping/CMap.h"
+#include "../../lib/pathfinder/CGPathNode.h"
 
 MapRendererBaseContext::MapRendererBaseContext(const MapRendererContextState & viewState)
 	: viewState(viewState)

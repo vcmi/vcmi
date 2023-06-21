@@ -13,7 +13,6 @@
 #include "../AIUtility.h"
 #include "../Goals/RecruitHero.h"
 #include "../Goals/ExecuteHeroChain.h"
-#include "lib/CPathfinder.h"
 
 namespace NKAI
 {

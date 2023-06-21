@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "ExecuteHeroChain.h"
 #include "../AIGateway.h"
-#include "../../../lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"
 
 namespace NKAI
@@ -104,9 +103,9 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 				{
 					auto targetNode = cb->getPathsInfo(hero)->getPathInfo(node.coord);
 
-					if(targetNode->accessible == CGPathNode::EAccessibility::NOT_SET
-						|| targetNode->accessible == CGPathNode::EAccessibility::BLOCKED
-						|| targetNode->accessible == CGPathNode::EAccessibility::FLYABLE
+					if(targetNode->accessible == EPathAccessibility::NOT_SET
+						|| targetNode->accessible == EPathAccessibility::BLOCKED
+						|| targetNode->accessible == EPathAccessibility::FLYABLE
 						|| targetNode->turns != 0)
 					{
 						logAi->error(

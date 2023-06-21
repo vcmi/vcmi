@@ -17,7 +17,6 @@
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
-#include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
 
 

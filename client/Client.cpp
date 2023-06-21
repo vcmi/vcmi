@@ -29,6 +29,7 @@
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/serializer/BinaryDeserializer.h"
 #include "../lib/mapping/CMapService.h"
+#include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "../lib/serializer/Connection.h"

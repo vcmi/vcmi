@@ -29,7 +29,7 @@ namespace AIPathfinding
 			return;
 
 		if(blocker == BlockingReason::DESTINATION_BLOCKED
-			&& destination.action == CGPathNode::EMBARK
+			&& destination.action == EPathNodeAction::EMBARK
 			&& nodeStorage->getAINode(destination.node)->specialAction)
 		{
 			return;

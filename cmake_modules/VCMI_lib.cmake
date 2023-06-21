@@ -108,6 +108,13 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.cpp
 		${MAIN_LIB_DIR}/mapping/ObstacleProxy.cpp
 
+		${MAIN_LIB_DIR}/pathfinder/CGPathNode.cpp
+		${MAIN_LIB_DIR}/pathfinder/CPathfinder.cpp
+		${MAIN_LIB_DIR}/pathfinder/NodeStorage.cpp
+		${MAIN_LIB_DIR}/pathfinder/PathfinderOptions.cpp
+		${MAIN_LIB_DIR}/pathfinder/PathfindingRules.cpp
+		${MAIN_LIB_DIR}/pathfinder/TurnInfo.cpp
+
 		${MAIN_LIB_DIR}/registerTypes/RegisterTypes.cpp
 		${MAIN_LIB_DIR}/registerTypes/TypesClientPacks1.cpp
 		${MAIN_LIB_DIR}/registerTypes/TypesClientPacks2.cpp
@@ -219,7 +226,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CHeroHandler.cpp
 		${MAIN_LIB_DIR}/CModHandler.cpp
 		${MAIN_LIB_DIR}/CModVersion.cpp
-		${MAIN_LIB_DIR}/CPathfinder.cpp
 		${MAIN_LIB_DIR}/CPlayerState.cpp
 		${MAIN_LIB_DIR}/CRandomGenerator.cpp
 		${MAIN_LIB_DIR}/CScriptingModule.cpp
@@ -423,6 +429,15 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.h
 		${MAIN_LIB_DIR}/mapping/ObstacleProxy.h
 
+		${MAIN_LIB_DIR}/pathfinder/INodeStorage.h
+		${MAIN_LIB_DIR}/pathfinder/CGPathNode.h
+		${MAIN_LIB_DIR}/pathfinder/CPathfinder.h
+		${MAIN_LIB_DIR}/pathfinder/NodeStorage.h
+		${MAIN_LIB_DIR}/pathfinder/PathfinderOptions.h
+		${MAIN_LIB_DIR}/pathfinder/PathfinderUtil.h
+		${MAIN_LIB_DIR}/pathfinder/PathfindingRules.h
+		${MAIN_LIB_DIR}/pathfinder/TurnInfo.h
+
 		${MAIN_LIB_DIR}/registerTypes/RegisterTypes.h
 
 		${MAIN_LIB_DIR}/rewardable/Configuration.h
@@ -533,7 +548,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CondSh.h
 		${MAIN_LIB_DIR}/ConstTransitivePtr.h
 		${MAIN_LIB_DIR}/Color.h
-		${MAIN_LIB_DIR}/CPathfinder.h
 		${MAIN_LIB_DIR}/CPlayerState.h
 		${MAIN_LIB_DIR}/CRandomGenerator.h
 		${MAIN_LIB_DIR}/CScriptingModule.h
@@ -563,7 +577,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/NetPacksLobby.h
 		${MAIN_LIB_DIR}/NetPackVisitor.h
 		${MAIN_LIB_DIR}/ObstacleHandler.h
-		${MAIN_LIB_DIR}/PathfinderUtil.h
 		${MAIN_LIB_DIR}/Point.h
 		${MAIN_LIB_DIR}/Rect.h
 		${MAIN_LIB_DIR}/Rect.cpp

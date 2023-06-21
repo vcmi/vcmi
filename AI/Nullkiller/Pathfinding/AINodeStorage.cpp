@@ -16,7 +16,9 @@
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
-#include "../../../lib/PathfinderUtil.h"
+#include "../../../lib/pathfinder/CPathfinder.h"
+#include "../../../lib/pathfinder/PathfinderUtil.h"
+#include "../../../lib/pathfinder/PathfinderOptions.h"
 #include "../../../lib/CPlayerState.h"
 
 namespace NKAI
@@ -204,7 +206,7 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 		initialNode->moveRemains = actor->initialMovement;
 		initialNode->danger = 0;
 		initialNode->setCost(actor->initialTurn);
-		initialNode->action = CGPathNode::ENodeAction::NORMAL;
+		initialNode->action = EPathNodeAction::NORMAL;
 
 		if(actor->isMovable)
 		{
@@ -222,7 +224,7 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 	return initialNodes;
 }
 
-void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility)
+void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, EPathAccessibility accessibility)
 {
 	for(AIPathNode & heroNode : nodes.get(coord, layer))
 {
@@ -260,7 +262,7 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 void AINodeStorage::commit(
 	AIPathNode * destination, 
 	const AIPathNode * source, 
-	CGPathNode::ENodeAction action, 
+	EPathNodeAction action, 
 	int turn, 
 	int movementLeft, 
 	float cost) const
@@ -310,7 +312,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 		{
 			auto nextNode = getOrCreateNode(neighbour, i, srcNode->actor);
 
-			if(!nextNode || nextNode.value()->accessible == CGPathNode::NOT_SET)
+			if(!nextNode || nextNode.value()->accessible == EPathAccessibility::NOT_SET)
 				continue;
 
 			neighbours.push_back(nextNode.value());
@@ -340,7 +342,7 @@ bool AINodeStorage::increaseHeroChainTurnLimit()
 			{
 				for(AIPathNode & node : chains)
 				{
-					if(node.turns <= heroChainTurn && node.action != CGPathNode::ENodeAction::UNKNOWN)
+					if(node.turns <= heroChainTurn && node.action != EPathNodeAction::UNKNOWN)
 					{
 						commitedTiles.insert(pos);
 						break;
@@ -370,7 +372,7 @@ bool AINodeStorage::calculateHeroChainFinal()
 				{
 					if(node.turns > heroChainTurn
 						&& !node.locked
-						&& node.action != CGPathNode::ENodeAction::UNKNOWN
+						&& node.action != EPathNodeAction::UNKNOWN
 						&& node.actor->actorExchangeCount > 1
 						&& !hasBetterChain(&node, &node, chains))
 					{
@@ -442,7 +444,7 @@ public:
 
 				for(AIPathNode & node : chains)
 				{
-					if(node.turns <= heroChainTurn && node.action != CGPathNode::ENodeAction::UNKNOWN)
+					if(node.turns <= heroChainTurn && node.action != EPathNodeAction::UNKNOWN)
 						existingChains.push_back(&node);
 				}
 
@@ -642,16 +644,16 @@ void HeroChainCalculationTask::calculateHeroChain(
 		if(node->actor->actorExchangeCount + srcNode->actor->actorExchangeCount > CHAIN_MAX_DEPTH)
 			continue;
 
-		if(node->action == CGPathNode::ENodeAction::BATTLE
-			|| node->action == CGPathNode::ENodeAction::TELEPORT_BATTLE
-			|| node->action == CGPathNode::ENodeAction::TELEPORT_NORMAL
-			|| node->action == CGPathNode::ENodeAction::TELEPORT_BLOCKING_VISIT)
+		if(node->action == EPathNodeAction::BATTLE
+			|| node->action == EPathNodeAction::TELEPORT_BATTLE
+			|| node->action == EPathNodeAction::TELEPORT_NORMAL
+			|| node->action == EPathNodeAction::TELEPORT_BLOCKING_VISIT)
 		{
 			continue;
 		}
 
 		if(node->turns > heroChainTurn 
-			|| (node->action == CGPathNode::ENodeAction::UNKNOWN && node->actor->hero)
+			|| (node->action == EPathNodeAction::UNKNOWN && node->actor->hero)
 			|| (node->actor->chainMask & srcNode->actor->chainMask) != 0)
 		{
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 2
@@ -664,7 +666,7 @@ void HeroChainCalculationTask::calculateHeroChain(
 				srcNode->coord.toString(),
 				(node->turns > heroChainTurn 
 					? "turn limit" 
-					: (node->action == CGPathNode::ENodeAction::UNKNOWN && node->actor->hero)
+					: (node->action == EPathNodeAction::UNKNOWN && node->actor->hero)
 						? "action unknown"
 						: "chain mask"));
 #endif
@@ -691,8 +693,8 @@ void HeroChainCalculationTask::calculateHeroChain(
 	std::vector<ExchangeCandidate> & result)
 {	
 	if(carrier->armyLoss < carrier->actor->armyValue
-		&& (carrier->action != CGPathNode::BATTLE || (carrier->actor->allowBattle && carrier->specialAction))
-		&& carrier->action != CGPathNode::BLOCKING_VISIT
+		&& (carrier->action != EPathNodeAction::BATTLE || (carrier->actor->allowBattle && carrier->specialAction))
+		&& carrier->action != EPathNodeAction::BLOCKING_VISIT
 		&& (other->armyLoss == 0 || other->armyLoss < other->actor->armyValue))
 	{
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 2
@@ -745,7 +747,7 @@ void HeroChainCalculationTask::addHeroChain(const std::vector<ExchangeCandidate>
 
 		auto exchangeNode = chainNodeOptional.value();
 
-		if(exchangeNode->action != CGPathNode::ENodeAction::UNKNOWN)
+		if(exchangeNode->action != EPathNodeAction::UNKNOWN)
 		{
 #if NKAI_PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
@@ -1055,12 +1057,12 @@ struct TowmPortalFinder
 
 		movementCost += bestNode->getCost();
 
-		if(node->action == CGPathNode::UNKNOWN || node->getCost() > movementCost)
+		if(node->action == EPathNodeAction::UNKNOWN || node->getCost() > movementCost)
 		{
 			nodeStorage->commit(
 				node,
 				nodeStorage->getAINode(bestNode),
-				CGPathNode::TELEPORT_NORMAL,
+				EPathNodeAction::TELEPORT_NORMAL,
 				bestNode->turns,
 				bestNode->moveRemains - movementNeeded,
 				movementCost);
@@ -1188,7 +1190,7 @@ bool AINodeStorage::hasBetterChain(
 	{
 		auto sameNode = node.actor == candidateNode->actor;
 
-		if(sameNode	|| node.action == CGPathNode::ENodeAction::UNKNOWN || !node.actor || !node.actor->hero)
+		if(sameNode	|| node.action == EPathNodeAction::UNKNOWN || !node.actor || !node.actor->hero)
 		{
 			continue;
 		}
@@ -1271,7 +1273,7 @@ bool AINodeStorage::isTileAccessible(const HeroPtr & hero, const int3 & pos, con
 
 	for(const AIPathNode & node : chains)
 	{
-		if(node.action != CGPathNode::ENodeAction::UNKNOWN 
+		if(node.action != EPathNodeAction::UNKNOWN 
 			&& node.actor && node.actor->hero == hero.h)
 		{
 			return true;
@@ -1291,7 +1293,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 
 	for(const AIPathNode & node : chains)
 	{
-		if(node.action == CGPathNode::ENodeAction::UNKNOWN || !node.actor || !node.actor->hero)
+		if(node.action == EPathNodeAction::UNKNOWN || !node.actor || !node.actor->hero)
 		{
 			continue;
 		}

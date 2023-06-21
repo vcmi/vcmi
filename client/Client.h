@@ -18,7 +18,6 @@
 #include "../lib/CStopWatch.h"
 #include "../lib/int3.h"
 #include "../lib/CondSh.h"
-#include "../lib/CPathfinder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

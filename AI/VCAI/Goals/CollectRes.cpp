@@ -16,7 +16,6 @@
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
 #include "../../../lib/mapObjects/CGMarket.h"
-#include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
 
 

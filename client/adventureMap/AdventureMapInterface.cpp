@@ -39,8 +39,8 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-#include "../../lib/CPathfinder.h"
 #include "../../lib/mapping/CMapDefines.h"
+#include "../../lib/pathfinder/CGPathNode.h"
 
 std::shared_ptr<AdventureMapInterface> adventureInt;
 
@@ -615,17 +615,17 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 		vstd::amin(turns, 3);
 		switch(pathNode->action)
 		{
-		case CGPathNode::NORMAL:
-		case CGPathNode::TELEPORT_NORMAL:
+		case EPathNodeAction::NORMAL:
+		case EPathNodeAction::TELEPORT_NORMAL:
 			if(pathNode->layer == EPathfindingLayer::LAND)
 				CCS->curh->set(cursorMove[turns]);
 			else
 				CCS->curh->set(cursorSailVisit[turns]);
 			break;
 
-		case CGPathNode::VISIT:
-		case CGPathNode::BLOCKING_VISIT:
-		case CGPathNode::TELEPORT_BLOCKING_VISIT:
+		case EPathNodeAction::VISIT:
+		case EPathNodeAction::BLOCKING_VISIT:
+		case EPathNodeAction::TELEPORT_BLOCKING_VISIT:
 			if(objAtTile && objAtTile->ID == Obj::HERO)
 			{
 				if(LOCPLINT->localState->getCurrentArmy()  == objAtTile)
@@ -639,16 +639,16 @@ void AdventureMapInterface::onTileHovered(const int3 &mapPos)
 				CCS->curh->set(cursorSailVisit[turns]);
 			break;
 
-		case CGPathNode::BATTLE:
-		case CGPathNode::TELEPORT_BATTLE:
+		case EPathNodeAction::BATTLE:
+		case EPathNodeAction::TELEPORT_BATTLE:
 			CCS->curh->set(cursorAttack[turns]);
 			break;
 
-		case CGPathNode::EMBARK:
+		case EPathNodeAction::EMBARK:
 			CCS->curh->set(cursorSail[turns]);
 			break;
 
-		case CGPathNode::DISEMBARK:
+		case EPathNodeAction::DISEMBARK:
 			CCS->curh->set(cursorDisembark[turns]);
 			break;
 

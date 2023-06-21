@@ -15,7 +15,6 @@
 #include "../Goals/Composition.h"
 #include "../Goals/BuildThis.h"
 #include "../Goals/SaveResources.h"
-#include "lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"
 
 namespace NKAI

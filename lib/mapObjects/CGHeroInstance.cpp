@@ -31,6 +31,7 @@
 #include "../CTownHandler.h"
 #include "../mapping/CMap.h"
 #include "CGTownInstance.h"
+#include "../pathfinder/TurnInfo.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"

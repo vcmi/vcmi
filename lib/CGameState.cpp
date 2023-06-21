@@ -27,6 +27,8 @@
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "StartInfo.h"
 #include "NetPacks.h"
+#include "pathfinder/CPathfinder.h"
+#include "pathfinder/PathfinderOptions.h"
 #include "registerTypes/RegisterTypes.h"
 #include "battle/BattleInfo.h"
 #include "JsonNode.h"

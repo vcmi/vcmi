@@ -14,6 +14,8 @@
 #include "Rules/AIMovementToDestinationRule.h"
 #include "Rules/AIPreviousNodeRule.h"
 
+#include "../../../lib/pathfinder/CPathfinder.h"
+
 namespace AIPathfinding
 {
 	std::vector<std::shared_ptr<IPathfindingRule>> makeRuleset(
@@ -40,6 +42,8 @@ namespace AIPathfinding
 		:PathfinderConfig(nodeStorage, makeRuleset(cb, ai, nodeStorage)), hero(nodeStorage->getHero())
 	{
 	}
+
+	AIPathfinderConfig::~AIPathfinderConfig() = default;
 
 	CPathfinderHelper * AIPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs)
 	{
