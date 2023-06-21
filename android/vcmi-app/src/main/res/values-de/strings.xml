@@ -2,10 +2,10 @@
 <resources>
     <string name="app_name">VCMI</string>
     <string name="launcher_btn_start_title">VCMI starten</string>
-    <string name="launcher_btn_res_subtitle">Aktuell: %1$dx%2$d</string>
-    <string name="launcher_btn_res_subtitle_unknown">Aktuell: unbekannt (wahrscheinlich 800х600)</string>
-    <string name="launcher_btn_res_title">Bildschirmauflösung ändern</string>
     <string name="launcher_title">VCMI-Starter</string>
+    <string name="launcher_btn_scale_title">Skalierung der Spielauflösung</string>
+    <string name="launcher_btn_scale_subtitle_unknown">Aktuell: unbekannt</string>
+    <string name="launcher_btn_scale_subtitle">Aktuell: %1$d%%</string>
     <string name="server_name">VCMI-Server</string>
     <string name="launcher_btn_start_subtitle">Aktuelle VCMI-Version: %1$s</string>
     <string name="launcher_btn_mods_title">Mods</string>
@@ -35,7 +35,6 @@
     <string name="launcher_section_settings">Einstellungen</string>
     <string name="menu_mods_download_repo">Liste der Mods herunterladen</string>
     <string name="misc_pointermode_normal">Normal</string>
-    <string name="misc_pointermode_swipe">Normal mit einer \"Ziehen\"-Geste auf der Karte</string>
     <string name="misc_pointermode_relative">Relativ</string>
     <string name="menu_launcher_about">Über</string>
     <string name="mods_title">Installierte Mods</string>

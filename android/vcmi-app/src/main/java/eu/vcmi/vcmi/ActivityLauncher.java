@@ -26,7 +26,8 @@ import eu.vcmi.vcmi.settings.ModsBtnController;
 import eu.vcmi.vcmi.settings.MusicSettingController;
 import eu.vcmi.vcmi.settings.PointerModeSettingController;
 import eu.vcmi.vcmi.settings.PointerMultiplierSettingController;
-import eu.vcmi.vcmi.settings.ScreenResSettingController;
+import eu.vcmi.vcmi.settings.ScreenScaleSettingController;
+import eu.vcmi.vcmi.settings.ScreenScaleSettingDialog;
 import eu.vcmi.vcmi.settings.SoundSettingController;
 import eu.vcmi.vcmi.settings.StartGameController;
 import eu.vcmi.vcmi.util.FileUtil;
@@ -44,11 +45,11 @@ public class ActivityLauncher extends ActivityWithToolbar
     private View mProgress;
     private TextView mErrorMessage;
     private Config mConfig;
-    private LauncherSettingController<ScreenResSettingController.ScreenRes, Config> mCtrlScreenRes;
     private LauncherSettingController<String, Config> mCtrlLanguage;
     private LauncherSettingController<PointerModeSettingController.PointerMode, Config> mCtrlPointerMode;
     private LauncherSettingController<Void, Void> mCtrlStart;
     private LauncherSettingController<Float, Config> mCtrlPointerMulti;
+    private LauncherSettingController<ScreenScaleSettingController.ScreenScale, Config> mCtrlScreenScale;
     private LauncherSettingController<Integer, Config> mCtrlSoundVol;
     private LauncherSettingController<Integer, Config> mCtrlMusicVol;
     private LauncherSettingController<String, Config> mAiController;
@@ -202,19 +203,19 @@ public class ActivityLauncher extends ActivityWithToolbar
         (mCtrlCopy = new CopyDataController(this)).init(R.id.launcher_btn_copy);
         (mCtrlExport = new ExportDataController(this)).init(R.id.launcher_btn_export);
         new ModsBtnController(this, v -> startActivity(new Intent(ActivityLauncher.this, ActivityMods.class))).init(R.id.launcher_btn_mods);
-        mCtrlScreenRes = new ScreenResSettingController(this).init(R.id.launcher_btn_res, mConfig);
         mCtrlLanguage = new LanguageSettingController(this).init(R.id.launcher_btn_cp, mConfig);
         mCtrlPointerMode = new PointerModeSettingController(this).init(R.id.launcher_btn_pointer_mode, mConfig);
         mCtrlPointerMulti = new PointerMultiplierSettingController(this).init(R.id.launcher_btn_pointer_multi, mConfig);
+        mCtrlScreenScale = new ScreenScaleSettingController(this).init(R.id.launcher_btn_scale, mConfig);
         mCtrlSoundVol = new SoundSettingController(this).init(R.id.launcher_btn_volume_sound, mConfig);
         mCtrlMusicVol = new MusicSettingController(this).init(R.id.launcher_btn_volume_music, mConfig);
         mAiController = new AdventureAiController(this).init(R.id.launcher_btn_adventure_ai, mConfig);
 
         mActualSettings.clear();
         mActualSettings.add(mCtrlLanguage);
-        mActualSettings.add(mCtrlScreenRes);
         mActualSettings.add(mCtrlPointerMode);
         mActualSettings.add(mCtrlPointerMulti);
+        mActualSettings.add(mCtrlScreenScale);
         mActualSettings.add(mCtrlSoundVol);
         mActualSettings.add(mCtrlMusicVol);
         mActualSettings.add(mAiController);
@@ -266,10 +267,13 @@ public class ActivityLauncher extends ActivityWithToolbar
 
     private void onConfigUpdated()
     {
-        updateCtrlConfig(mCtrlScreenRes, mConfig);
+        if(mConfig.mScreenScale == -1)
+            mConfig.updateScreenScale(ScreenScaleSettingDialog.getSupportedScalingRange(ActivityLauncher.this)[1]);
+
         updateCtrlConfig(mCtrlLanguage, mConfig);
         updateCtrlConfig(mCtrlPointerMode, mConfig);
         updateCtrlConfig(mCtrlPointerMulti, mConfig);
+        updateCtrlConfig(mCtrlScreenScale, mConfig);
         updateCtrlConfig(mCtrlSoundVol, mConfig);
         updateCtrlConfig(mCtrlMusicVol, mConfig);
         updateCtrlConfig(mAiController, mConfig);

@@ -8,9 +8,9 @@
     <string name="app_name">VCMI</string>
     <string name="server_name">VCMI Server</string>
     <string name="launcher_title">VCMI Launcher</string>
-    <string name="launcher_btn_res_title">Change game native resolution</string>
-    <string name="launcher_btn_res_subtitle_unknown">Currently: unknown (probably 800x600)</string>
-    <string name="launcher_btn_res_subtitle">Currently: %1$dx%2$d</string>
+    <string name="launcher_btn_scale_title">Game resolution scale</string>
+    <string name="launcher_btn_scale_subtitle_unknown">Currently: unknown</string>
+    <string name="launcher_btn_scale_subtitle">Currently: %1$d%%</string>
     <string name="launcher_btn_start_title">Start VCMI</string>
     <string name="launcher_btn_start_subtitle">Current VCMI version: %1$s</string>
     <string name="launcher_btn_mods_title">Mods</string>
@@ -45,7 +45,6 @@
     <string name="menu_mods_download_repo">Download repository data</string>
 
     <string name="misc_pointermode_normal">Normal</string>
-    <string name="misc_pointermode_swipe">Normal with map dragging</string>
     <string name="misc_pointermode_relative">Relative</string>
     <string name="menu_launcher_about">About</string>
 

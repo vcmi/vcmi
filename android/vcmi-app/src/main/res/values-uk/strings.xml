@@ -2,9 +2,6 @@
 <resources>
     <string name="app_name">VCMI</string>
     <string name="launcher_btn_start_title">Запустити VCMI</string>
-    <string name="launcher_btn_res_subtitle">Поточне: %1$dx%2$d</string>
-    <string name="launcher_btn_res_subtitle_unknown">Поточне: невідомо (верогідно 800х600)</string>
-    <string name="launcher_btn_res_title">Змінити розмір екрану</string>
     <string name="launcher_title">VCMI лаунчер</string>
     <string name="server_name">VCMI сервер</string>
     <string name="launcher_btn_start_subtitle">Поточна версія VCMI: %1$s</string>
@@ -35,7 +32,6 @@
     <string name="launcher_section_settings">Налаштування</string>
     <string name="menu_mods_download_repo">Завантажити список модів</string>
     <string name="misc_pointermode_normal">Звичайне</string>
-    <string name="misc_pointermode_swipe">Звичайне з можливосттю тягати мапу</string>
     <string name="misc_pointermode_relative">Відносне</string>
     <string name="menu_launcher_about">О VCMI</string>
     <string name="mods_title">Встановлені моди</string>
