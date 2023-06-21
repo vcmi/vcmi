@@ -131,11 +131,11 @@ namespace AIPathfinding
 			{
 				AIPathNode * boatNode = boatNodeOptional.value();
 
-				if(boatNode->action == CGPathNode::UNKNOWN)
+				if(boatNode->action == EPathNodeAction::UNKNOWN)
 				{
 					boatNode->addSpecialAction(virtualBoat);
 					destination.blocked = false;
-					destination.action = CGPathNode::ENodeAction::EMBARK;
+					destination.action = EPathNodeAction::EMBARK;
 					destination.node = boatNode;
 					result = true;
 				}

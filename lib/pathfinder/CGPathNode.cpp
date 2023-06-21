@@ -138,7 +138,7 @@ bool PathNodeInfo::isNodeObjectVisitable() const
 
 CDestinationNodeInfo::CDestinationNodeInfo():
 	blocked(false),
-	action(CGPathNode::ENodeAction::UNKNOWN)
+	action(EPathNodeAction::UNKNOWN)
 {
 }
 
@@ -147,7 +147,7 @@ void CDestinationNodeInfo::setNode(CGameState * gs, CGPathNode * n)
 	PathNodeInfo::setNode(gs, n);
 
 	blocked = false;
-	action = CGPathNode::ENodeAction::UNKNOWN;
+	action = EPathNodeAction::UNKNOWN;
 }
 
 bool CDestinationNodeInfo::isBetterWay() const

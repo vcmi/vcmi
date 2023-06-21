@@ -70,7 +70,7 @@ private:
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;
 
 	STRONG_INLINE
-	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
+	void resetTile(const int3 & tile, EPathfindingLayer layer, EPathAccessibility accessibility);
 
 public:
 	/// more than 1 chain layer allows us to have more than 1 path to each tile so we can chose more optimal one.

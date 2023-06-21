@@ -120,7 +120,7 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 	return {initialNode};
 }
 
-void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility)
+void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, EPathAccessibility accessibility)
 {
 	for(int i = 0; i < NUM_CHAINS; i++)
 	{
@@ -171,7 +171,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 		{
 			auto nextNode = getOrCreateNode(neighbour, i, srcNode->chainMask);
 
-			if(!nextNode || nextNode.value()->accessible == CGPathNode::NOT_SET)
+			if(!nextNode || nextNode.value()->accessible == EPathAccessibility::NOT_SET)
 				continue;
 
 			neighbours.push_back(nextNode.value());
@@ -294,7 +294,7 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 	for(const AIPathNode & node : chains)
 	{
 		auto sameNode = node.chainMask == destinationNode->chainMask;
-		if(sameNode	|| node.action == CGPathNode::ENodeAction::UNKNOWN)
+		if(sameNode	|| node.action == EPathNodeAction::UNKNOWN)
 		{
 			continue;
 		}
@@ -323,7 +323,7 @@ bool AINodeStorage::isTileAccessible(const int3 & pos, const EPathfindingLayer l
 {
 	const AIPathNode & node = nodes[layer][pos.z][pos.x][pos.y][0];
 
-	return node.action != CGPathNode::ENodeAction::UNKNOWN;
+	return node.action != EPathNodeAction::UNKNOWN;
 }
 
 std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand) const
@@ -334,7 +334,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 
 	for(const AIPathNode & node : chains)
 	{
-		if(node.action == CGPathNode::ENodeAction::UNKNOWN)
+		if(node.action == EPathNodeAction::UNKNOWN)
 		{
 			continue;
 		}

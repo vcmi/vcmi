@@ -20,7 +20,7 @@ private:
 	CPathsInfo & out;
 
 	STRONG_INLINE
-	void resetTile(const int3 & tile, const EPathfindingLayer & layer, CGPathNode::EAccessibility accessibility);
+	void resetTile(const int3 & tile, const EPathfindingLayer & layer, EPathAccessibility accessibility);
 
 public:
 	NodeStorage(CPathsInfo & pathsInfo, const CGHeroInstance * hero);

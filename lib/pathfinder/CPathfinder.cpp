@@ -183,7 +183,7 @@ void CPathfinder::calculatePaths()
 			/// Objects are usually visible on FoW border anyway so it's not cheating.
 			///
 			/// For now it's disabled as it's will cause crashes in movement code.
-			if(teleportNode->accessible == CGPathNode::BLOCKED)
+			if(teleportNode->accessible == EPathAccessibility::BLOCKED)
 				continue;
 
 			destination.setNode(gamestate, teleportNode);
@@ -196,7 +196,7 @@ void CPathfinder::calculatePaths()
 				destination.action = getTeleportDestAction();
 				config->nodeStorage->commit(destination, source);
 
-				if(destination.node->action == CGPathNode::TELEPORT_NORMAL)
+				if(destination.node->action == EPathNodeAction::TELEPORT_NORMAL)
 					push(destination.node);
 			}
 		}
@@ -293,7 +293,7 @@ bool CPathfinder::isLayerTransitionPossible() const
 	ELayer destLayer = destination.node->layer;
 
 	/// No layer transition allowed when previous node action is BATTLE
-	if(source.node->action == CGPathNode::BATTLE)
+	if(source.node->action == EPathNodeAction::BATTLE)
 		return false;
 
 	switch(source.node->layer)
@@ -336,16 +336,16 @@ bool CPathfinder::isLayerTransitionPossible() const
 	return false;
 }
 
-CGPathNode::ENodeAction CPathfinder::getTeleportDestAction() const
+EPathNodeAction CPathfinder::getTeleportDestAction() const
 {
-	CGPathNode::ENodeAction action = CGPathNode::TELEPORT_NORMAL;
+	EPathNodeAction action = EPathNodeAction::TELEPORT_NORMAL;
 
 	if(destination.isNodeObjectVisitable() && destination.nodeHero)
 	{
 		if(destination.heroRelations == PlayerRelations::ENEMIES)
-			action = CGPathNode::TELEPORT_BATTLE;
+			action = EPathNodeAction::TELEPORT_BATTLE;
 		else
-			action = CGPathNode::TELEPORT_BLOCKING_VISIT;
+			action = EPathNodeAction::TELEPORT_BLOCKING_VISIT;
 	}
 
 	return action;
@@ -449,7 +449,7 @@ bool CPathfinderHelper::passOneTurnLimitCheck(const PathNodeInfo & source) const
 		return false;
 	if(source.node->layer == EPathfindingLayer::AIR)
 	{
-		return options.originalMovementRules && source.node->accessible == CGPathNode::ACCESSIBLE;
+		return options.originalMovementRules && source.node->accessible == EPathAccessibility::ACCESSIBLE;
 	}
 
 	return true;

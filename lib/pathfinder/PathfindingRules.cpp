@@ -48,11 +48,11 @@ void MovementCostRule::process(
 		remains = moveAtNextTile - cost;
 	}
 
-	if(destination.action == CGPathNode::EMBARK || destination.action == CGPathNode::DISEMBARK)
+	if(destination.action == EPathNodeAction::EMBARK || destination.action == EPathNodeAction::DISEMBARK)
 	{
 		/// FREE_SHIP_BOARDING bonus only remove additional penalty
 		/// land <-> sail transition still cost movement points as normal movement
-		remains = pathfinderHelper->movementPointsAfterEmbark(moveAtNextTile, cost, (destination.action == CGPathNode::DISEMBARK));
+		remains = pathfinderHelper->movementPointsAfterEmbark(moveAtNextTile, cost, (destination.action == EPathNodeAction::DISEMBARK));
 		cost = moveAtNextTile - remains;
 	}
 
@@ -90,7 +90,7 @@ void DestinationActionRule::process(
 	const PathfinderConfig * pathfinderConfig,
 	CPathfinderHelper * pathfinderHelper) const
 {
-	if(destination.action != CGPathNode::ENodeAction::UNKNOWN)
+	if(destination.action != EPathNodeAction::UNKNOWN)
 	{
 #ifdef VCMI_TRACE_PATHFINDER
 		logAi->trace("Accepted precalculated action at %s", destination.coord.toString());
@@ -98,7 +98,7 @@ void DestinationActionRule::process(
 		return;
 	}
 
-	CGPathNode::ENodeAction action = CGPathNode::NORMAL;
+	EPathNodeAction action = EPathNodeAction::NORMAL;
 	const auto * hero = pathfinderHelper->hero;
 
 	switch(destination.node->layer)
@@ -107,7 +107,7 @@ void DestinationActionRule::process(
 		if(source.node->layer == EPathfindingLayer::SAIL)
 		{
 			// TODO: Handle dismebark into guarded areaa
-			action = CGPathNode::DISEMBARK;
+			action = EPathNodeAction::DISEMBARK;
 			break;
 		}
 
@@ -120,56 +120,56 @@ void DestinationActionRule::process(
 			auto objRel = destination.objectRelations;
 
 			if(destination.nodeObject->ID == Obj::BOAT)
-				action = CGPathNode::EMBARK;
+				action = EPathNodeAction::EMBARK;
 			else if(destination.nodeHero)
 			{
 				if(destination.heroRelations == PlayerRelations::ENEMIES)
-					action = CGPathNode::BATTLE;
+					action = EPathNodeAction::BATTLE;
 				else
-					action = CGPathNode::BLOCKING_VISIT;
+					action = EPathNodeAction::BLOCKING_VISIT;
 			}
 			else if(destination.nodeObject->ID == Obj::TOWN)
 			{
 				if(destination.nodeObject->passableFor(hero->tempOwner))
-					action = CGPathNode::VISIT;
+					action = EPathNodeAction::VISIT;
 				else if(objRel == PlayerRelations::ENEMIES)
-					action = CGPathNode::BATTLE;
+					action = EPathNodeAction::BATTLE;
 			}
 			else if(destination.nodeObject->ID == Obj::GARRISON || destination.nodeObject->ID == Obj::GARRISON2)
 			{
 				if(destination.nodeObject->passableFor(hero->tempOwner))
 				{
 					if(destination.guarded)
-						action = CGPathNode::BATTLE;
+						action = EPathNodeAction::BATTLE;
 				}
 				else if(objRel == PlayerRelations::ENEMIES)
-					action = CGPathNode::BATTLE;
+					action = EPathNodeAction::BATTLE;
 			}
 			else if(destination.nodeObject->ID == Obj::BORDER_GATE)
 			{
 				if(destination.nodeObject->passableFor(hero->tempOwner))
 				{
 					if(destination.guarded)
-						action = CGPathNode::BATTLE;
+						action = EPathNodeAction::BATTLE;
 				}
 				else
-					action = CGPathNode::BLOCKING_VISIT;
+					action = EPathNodeAction::BLOCKING_VISIT;
 			}
 			else if(destination.isGuardianTile)
-				action = CGPathNode::BATTLE;
+				action = EPathNodeAction::BATTLE;
 			else if(destination.nodeObject->blockVisit && !(pathfinderConfig->options.useCastleGate && destination.nodeObject->ID == Obj::TOWN))
-				action = CGPathNode::BLOCKING_VISIT;
+				action = EPathNodeAction::BLOCKING_VISIT;
 
-			if(action == CGPathNode::NORMAL)
+			if(action == EPathNodeAction::NORMAL)
 			{
 				if(destination.guarded)
-					action = CGPathNode::BATTLE;
+					action = EPathNodeAction::BATTLE;
 				else
-					action = CGPathNode::VISIT;
+					action = EPathNodeAction::VISIT;
 			}
 		}
 		else if(destination.guarded)
-			action = CGPathNode::BATTLE;
+			action = EPathNodeAction::BATTLE;
 
 		break;
 	}
@@ -185,7 +185,7 @@ void MovementAfterDestinationRule::process(
 {
 	auto blocker = getBlockingReason(source, destination, config, pathfinderHelper);
 
-	if(blocker == BlockingReason::DESTINATION_GUARDED && destination.action == CGPathNode::ENodeAction::BATTLE)
+	if(blocker == BlockingReason::DESTINATION_GUARDED && destination.action == EPathNodeAction::BATTLE)
 	{
 		return; // allow bypass guarded tile but only in direction of guard, a bit UI related thing
 	}
@@ -204,7 +204,7 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 	{
 	/// TODO: Investigate what kind of limitation is possible to apply on movement from visitable tiles
 	/// Likely in many cases we don't need to add visitable tile to queue when hero doesn't fly
-	case CGPathNode::VISIT:
+	case EPathNodeAction::VISIT:
 	{
 		/// For now we only add visitable tile into queue when it's teleporter that allow transit
 		/// Movement from visitable tile when hero is standing on it is possible into any layer
@@ -226,27 +226,27 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 		return BlockingReason::DESTINATION_VISIT;
 	}
 
-	case CGPathNode::BLOCKING_VISIT:
+	case EPathNodeAction::BLOCKING_VISIT:
 		return destination.guarded
 			? BlockingReason::DESTINATION_GUARDED
 			: BlockingReason::DESTINATION_BLOCKVIS;
 
-	case CGPathNode::NORMAL:
+	case EPathNodeAction::NORMAL:
 		return BlockingReason::NONE;
 
-	case CGPathNode::EMBARK:
+	case EPathNodeAction::EMBARK:
 		if(pathfinderHelper->options.useEmbarkAndDisembark)
 			return BlockingReason::NONE;
 
 		return BlockingReason::DESTINATION_BLOCKED;
 
-	case CGPathNode::DISEMBARK:
+	case EPathNodeAction::DISEMBARK:
 		if(pathfinderHelper->options.useEmbarkAndDisembark)
 			return destination.guarded ? BlockingReason::DESTINATION_GUARDED : BlockingReason::NONE;
 
 		return BlockingReason::DESTINATION_BLOCKED;
 
-	case CGPathNode::BATTLE:
+	case EPathNodeAction::BATTLE:
 		/// Movement after BATTLE action only possible from guarded tile to guardian tile
 		if(destination.guarded)
 			return BlockingReason::DESTINATION_GUARDED;
@@ -265,7 +265,7 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 	const CPathfinderHelper * pathfinderHelper) const
 {
 
-	if(destination.node->accessible == CGPathNode::BLOCKED)
+	if(destination.node->accessible == EPathAccessibility::BLOCKED)
 		return BlockingReason::DESTINATION_BLOCKED;
 
 	switch(destination.node->layer)
@@ -292,7 +292,7 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 		if(source.guarded)
 		{
 			// Hero embarked a boat standing on a guarded tile -> we must allow to move away from that tile
-			if(source.node->action != CGPathNode::EMBARK && !destination.isGuardianTile)
+			if(source.node->action != EPathNodeAction::EMBARK && !destination.isGuardianTile)
 				return BlockingReason::SOURCE_GUARDED;
 		}
 
@@ -314,7 +314,7 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 
 	case EPathfindingLayer::WATER:
 		if(!pathfinderHelper->canMoveBetween(source.coord, destination.coord)
-			|| destination.node->accessible != CGPathNode::ACCESSIBLE)
+			|| destination.node->accessible != EPathAccessibility::ACCESSIBLE)
 		{
 			return BlockingReason::DESTINATION_BLOCKED;
 		}
@@ -343,7 +343,7 @@ void LayerTransitionRule::process(
 		if(destination.node->layer == EPathfindingLayer::SAIL)
 		{
 			/// Cannot enter empty water tile from land -> it has to be visitable
-			if(destination.node->accessible == CGPathNode::ACCESSIBLE)
+			if(destination.node->accessible == EPathAccessibility::ACCESSIBLE)
 				destination.blocked = true;
 		}
 
@@ -351,7 +351,7 @@ void LayerTransitionRule::process(
 
 	case EPathfindingLayer::SAIL:
 		//tile must be accessible -> exception: unblocked blockvis tiles -> clear but guarded by nearby monster coast
-		if((destination.node->accessible != CGPathNode::ACCESSIBLE && (destination.node->accessible != CGPathNode::BLOCKVIS || destination.tile->blocked))
+		if((destination.node->accessible != EPathAccessibility::ACCESSIBLE && (destination.node->accessible != EPathAccessibility::BLOCKVIS || destination.tile->blocked))
 			|| destination.tile->visitable)  //TODO: passableness problem -> town says it's passable (thus accessible) but we obviously can't disembark onto town gate
 		{
 			destination.blocked = true;
@@ -362,15 +362,15 @@ void LayerTransitionRule::process(
 	case EPathfindingLayer::AIR:
 		if(pathfinderConfig->options.originalMovementRules)
 		{
-			if((source.node->accessible != CGPathNode::ACCESSIBLE &&
-				source.node->accessible != CGPathNode::VISITABLE) &&
-				(destination.node->accessible != CGPathNode::VISITABLE &&
-				 destination.node->accessible != CGPathNode::ACCESSIBLE))
+			if((source.node->accessible != EPathAccessibility::ACCESSIBLE &&
+				source.node->accessible != EPathAccessibility::VISITABLE) &&
+				(destination.node->accessible != EPathAccessibility::VISITABLE &&
+				 destination.node->accessible != EPathAccessibility::ACCESSIBLE))
 			{
 				destination.blocked = true;
 			}
 		}
-		else if(destination.node->accessible != CGPathNode::ACCESSIBLE)
+		else if(destination.node->accessible != EPathAccessibility::ACCESSIBLE)
 		{
 			/// Hero that fly can only land on accessible tiles
 			if(destination.nodeObject)
@@ -380,7 +380,7 @@ void LayerTransitionRule::process(
 		break;
 
 	case EPathfindingLayer::WATER:
-		if(destination.node->accessible != CGPathNode::ACCESSIBLE && destination.node->accessible != CGPathNode::VISITABLE)
+		if(destination.node->accessible != EPathAccessibility::ACCESSIBLE && destination.node->accessible != EPathAccessibility::VISITABLE)
 		{
 			/// Hero that walking on water can transit to accessible and visitable tiles
 			/// Though hero can't interact with blocking visit objects while standing on water

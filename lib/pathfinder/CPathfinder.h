@@ -43,7 +43,7 @@ private:
 	CDestinationNodeInfo destination; //destination node -> it's a neighbour of source that we consider
 
 	bool isLayerTransitionPossible() const;
-	CGPathNode::ENodeAction getTeleportDestAction() const;
+	EPathNodeAction getTeleportDestAction() const;
 
 	bool isDestinationGuardian() const;
 

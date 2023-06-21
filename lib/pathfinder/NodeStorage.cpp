@@ -74,7 +74,7 @@ std::vector<CGPathNode *> NodeStorage::calculateNeighbours(
 		{
 			auto * node = getNode(neighbour, i);
 
-			if(node->accessible == CGPathNode::NOT_SET)
+			if(node->accessible == EPathAccessibility::NOT_SET)
 				continue;
 
 			neighbours.push_back(node);
@@ -113,7 +113,7 @@ NodeStorage::NodeStorage(CPathsInfo & pathsInfo, const CGHeroInstance * hero)
 	out.hpos = hero->visitablePos();
 }
 
-void NodeStorage::resetTile(const int3 & tile, const EPathfindingLayer & layer, CGPathNode::EAccessibility accessibility)
+void NodeStorage::resetTile(const int3 & tile, const EPathfindingLayer & layer, EPathAccessibility accessibility)
 {
 	getNode(tile, layer)->update(tile, layer, accessibility);
 }

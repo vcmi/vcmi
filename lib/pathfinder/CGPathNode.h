@@ -32,33 +32,33 @@ struct DLL_LINKAGE NodeComparer
 	}
 };
 
+enum class EPathAccessibility : ui8
+{
+	NOT_SET,
+	ACCESSIBLE, //tile can be entered and passed
+	VISITABLE, //tile can be entered as the last tile in path
+	BLOCKVIS,  //visitable from neighboring tile but not passable
+	FLYABLE, //can only be accessed in air layer
+	BLOCKED //tile can be neither entered nor visited
+};
+
+enum class EPathNodeAction : ui8
+{
+	UNKNOWN,
+	EMBARK,
+	DISEMBARK,
+	NORMAL,
+	BATTLE,
+	VISIT,
+	BLOCKING_VISIT,
+	TELEPORT_NORMAL,
+	TELEPORT_BLOCKING_VISIT,
+	TELEPORT_BATTLE
+};
+
 struct DLL_LINKAGE CGPathNode
 {
 	using ELayer = EPathfindingLayer;
-
-	enum ENodeAction : ui8
-	{
-		UNKNOWN = 0,
-		EMBARK = 1,
-		DISEMBARK,
-		NORMAL,
-		BATTLE,
-		VISIT,
-		BLOCKING_VISIT,
-		TELEPORT_NORMAL,
-		TELEPORT_BLOCKING_VISIT,
-		TELEPORT_BATTLE
-	};
-
-	enum EAccessibility : ui8
-	{
-		NOT_SET = 0,
-		ACCESSIBLE = 1, //tile can be entered and passed
-		VISITABLE, //tile can be entered as the last tile in path
-		BLOCKVIS,  //visitable from neighboring tile but not passable
-		FLYABLE, //can only be accessed in air layer
-		BLOCKED //tile can be neither entered nor visited
-	};
 
 	CGPathNode * theNodeBefore;
 	int3 coord; //coordinates
@@ -66,8 +66,8 @@ struct DLL_LINKAGE CGPathNode
 	ui32 moveRemains; //remaining movement points after hero reaches the tile
 	ui8 turns; //how many turns we have to wait before reaching the tile - 0 means current turn
 
-	EAccessibility accessible;
-	ENodeAction action;
+	EPathAccessibility accessible;
+	EPathNodeAction action;
 	bool locked;
 	bool inPQ;
 
@@ -83,12 +83,12 @@ struct DLL_LINKAGE CGPathNode
 	void reset()
 	{
 		locked = false;
-		accessible = NOT_SET;
+		accessible = EPathAccessibility::NOT_SET;
 		moveRemains = 0;
 		cost = std::numeric_limits<float>::max();
 		turns = 255;
 		theNodeBefore = nullptr;
-		action = UNKNOWN;
+		action = EPathNodeAction::UNKNOWN;
 		inPQ = false;
 		pq = nullptr;
 	}
@@ -122,7 +122,7 @@ struct DLL_LINKAGE CGPathNode
 	}
 
 	STRONG_INLINE
-	void update(const int3 & Coord, const ELayer Layer, const EAccessibility Accessible)
+	void update(const int3 & Coord, const ELayer Layer, const EPathAccessibility Accessible)
 	{
 		if(layer == ELayer::WRONG)
 		{
@@ -205,7 +205,7 @@ struct DLL_LINKAGE PathNodeInfo
 
 struct DLL_LINKAGE CDestinationNodeInfo : public PathNodeInfo
 {
-	CGPathNode::ENodeAction action;
+	EPathNodeAction action;
 	int turn;
 	int movementLeft;
 	float cost; //same as CGPathNode::cost

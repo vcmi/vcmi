@@ -714,7 +714,7 @@ size_t MapRendererPath::selectImage(IMapRendererContext & context, const int3 & 
 		return std::numeric_limits<size_t>::max();
 
 	bool pathContinuous = iter->coord.areNeighbours(next->coord) && iter->coord.areNeighbours(prev->coord);
-	bool embarking = iter->action == CGPathNode::EMBARK || iter->action == CGPathNode::DISEMBARK;
+	bool embarking = iter->action == EPathNodeAction::EMBARK || iter->action == EPathNodeAction::DISEMBARK;
 
 	if(pathContinuous && !embarking)
 		return selectImageArrow(reachableToday, iter->coord, prev->coord, next->coord);

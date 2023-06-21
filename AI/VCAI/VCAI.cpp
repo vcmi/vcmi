@@ -1849,11 +1849,11 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			//return cb->getTile(coord,false)->topVisitableObj(ignoreHero);
 		};
 
-		auto isTeleportAction = [&](CGPathNode::ENodeAction action) -> bool
+		auto isTeleportAction = [&](EPathNodeAction action) -> bool
 		{
-			if(action != CGPathNode::TELEPORT_NORMAL && action != CGPathNode::TELEPORT_BLOCKING_VISIT)
+			if(action != EPathNodeAction::TELEPORT_NORMAL && action != EPathNodeAction::TELEPORT_BLOCKING_VISIT)
 			{
-				if(action != CGPathNode::TELEPORT_BATTLE)
+				if(action != EPathNodeAction::TELEPORT_BATTLE)
 				{
 					return false;
 				}
@@ -1964,7 +1964,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 				doChannelProbing();
 		}
 
-		if(path.nodes[0].action == CGPathNode::BLOCKING_VISIT)
+		if(path.nodes[0].action == EPathNodeAction::BLOCKING_VISIT)
 		{
 			ret = h && i == 0; // when we take resource we do not reach its position. We even might not move
 		}
