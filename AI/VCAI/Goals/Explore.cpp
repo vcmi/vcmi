@@ -155,7 +155,7 @@ namespace Goals
 
 					// picking up resources does not yield any exploration at all.
 					// if it blocks the way to some explorable tile AIPathfinder will take care of it
-					if(obj && obj->blockVisit)
+					if(obj && obj->isBlockedVisitable())
 					{
 						continue;
 					}

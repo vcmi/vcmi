@@ -2294,7 +2294,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
 	if (((!t.terType->isPassable()  ||  (t.blocked && !t.visitable && !canFly))
 			&& complain("Cannot move hero, destination tile is blocked!"))
-		|| ((!h->boat && !canWalkOnSea && !canFly && t.terType->isWater() && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != Obj::BOAT && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
+		|| ((!h->boat && !canWalkOnSea && !canFly && t.terType->isWater() && (t.visitableObjects.size() < 1 || !t.visitableObjects.back()->isCoastVisitable()))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!"))
 		|| ((h->boat && h->boat->layer == EPathfindingLayer::SAIL && t.terType->isLand() && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!"))
@@ -2369,10 +2369,10 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	{
 		for (CGObjectInstance *obj : t.visitableObjects)
 		{
-			if(h->boat && !obj->blockVisit && !h->boat->onboardVisitAllowed)
+			if(h->boat && !obj->isBlockedVisitable() && !h->boat->onboardVisitAllowed)
 				return doMove(TryMoveHero::SUCCESS, this->IGNORE_GUARDS, DONT_VISIT_DEST, REMAINING_ON_TILE);
 			
-			if (obj != h && obj->blockVisit && !obj->passableFor(h->tempOwner))
+			if (obj != h && obj->isBlockedVisitable() && !obj->passableFor(h->tempOwner))
 			{
 				EVisitDest visitDest = VISIT_DEST;
 				if(h->boat && !h->boat->onboardVisitAllowed)

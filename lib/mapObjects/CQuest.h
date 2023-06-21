@@ -246,7 +246,6 @@ public:
 	{
 		h & static_cast<IQuestObject&>(*this);
 		h & static_cast<CGObjectInstance&>(*this);
-		h & blockVisit;
 	}
 };
 

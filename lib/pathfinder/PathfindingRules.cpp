@@ -157,7 +157,7 @@ void DestinationActionRule::process(
 			}
 			else if(destination.isGuardianTile)
 				action = EPathNodeAction::BATTLE;
-			else if(destination.nodeObject->blockVisit && !(pathfinderConfig->options.useCastleGate && destination.nodeObject->ID == Obj::TOWN))
+			else if(destination.nodeObject->isBlockedVisitable() && !(pathfinderConfig->options.useCastleGate && destination.nodeObject->ID == Obj::TOWN))
 				action = EPathNodeAction::BLOCKING_VISIT;
 
 			if(action == EPathNodeAction::NORMAL)
@@ -301,7 +301,7 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 			if(!destination.isNodeObjectVisitable())
 				return BlockingReason::DESTINATION_BLOCKED;
 
-			if(destination.nodeObject->ID != Obj::BOAT && !destination.nodeHero)
+			if(!destination.nodeHero && !destination.nodeObject->isCoastVisitable())
 				return BlockingReason::DESTINATION_BLOCKED;
 		}
 		else if(destination.isNodeObjectVisitable() && destination.nodeObject->ID == Obj::BOAT)

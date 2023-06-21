@@ -266,7 +266,7 @@ bool isBlockVisitObj(const int3 & pos)
 {
 	if(auto obj = cb->getTopObj(pos))
 	{
-		if(obj->blockVisit) //we can't stand on that object
+		if(obj->isBlockedVisitable()) //we can't stand on that object
 			return true;
 	}
 

@@ -1900,7 +1900,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 	{
 		for (CGObjectInstance* obj : posTile.visitableObjects)
 		{
-			if(obj->blockVisit)
+			if(obj->isBlockedVisitable())
 			{
 				if (obj->ID == Obj::MONSTER) // Monster
 					guards.push_back(obj);

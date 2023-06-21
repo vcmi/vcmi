@@ -122,6 +122,11 @@ TerrainId CGHeroInstance::getNativeTerrain() const
 	return nativeTerrain;
 }
 
+bool CGHeroInstance::isCoastVisitable() const
+{
+	return true;
+}
+
 BattleField CGHeroInstance::getBattlefield() const
 {
 	return BattleField::NONE;
