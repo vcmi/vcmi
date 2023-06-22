@@ -125,6 +125,12 @@ void AdventureMapInterface::activate()
 	}
 
 	GH.fakeMouseMove(); //to restore the cursor
+
+	// workaround for an edge case:
+	// if player unequips Angel Wings / Boots of Levitation of currently active hero
+	// game will correctly invalidate paths but current route will not be updated since verifyPath() is not called for current hero
+	if (LOCPLINT->makingTurn && LOCPLINT->localState->getCurrentHero())
+		LOCPLINT->localState->verifyPath(LOCPLINT->localState->getCurrentHero());
 }
 
 void AdventureMapInterface::deactivate()
