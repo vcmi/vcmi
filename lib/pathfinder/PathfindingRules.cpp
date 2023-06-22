@@ -27,43 +27,65 @@ void MovementCostRule::process(
 	const PathfinderConfig * pathfinderConfig,
 	CPathfinderHelper * pathfinderHelper) const
 {
-	float costAtNextTile = destination.cost;
-	int turnAtNextTile = destination.turn;
-	int moveAtNextTile = destination.movementLeft;
-	int cost = pathfinderHelper->getMovementCost(source, destination, moveAtNextTile);
-	int remains = moveAtNextTile - cost;
-	int sourceLayerMaxMovePoints = pathfinderHelper->getMaxMovePoints(source.node->layer);
+	const float currentCost = destination.cost;
+	const int currentTurnsUsed = destination.turn;
+	const int currentMovePointsLeft = destination.movementLeft;
+	const int sourceLayerMaxMovePoints = pathfinderHelper->getMaxMovePoints(source.node->layer);
 
-	if(remains < 0)
+	int moveCostPoints = pathfinderHelper->getMovementCost(source, destination, currentMovePointsLeft);
+	float destinationCost = currentCost;
+	int destTurnsUsed = currentTurnsUsed;
+	int destMovePointsLeft = currentMovePointsLeft;
+
+	if(currentMovePointsLeft < moveCostPoints)
 	{
-		//occurs rarely, when hero with low movepoints tries to leave the road
-		costAtNextTile += static_cast<float>(moveAtNextTile) / sourceLayerMaxMovePoints;//we spent all points of current turn
-		pathfinderHelper->updateTurnInfo(++turnAtNextTile);
+		// occurs rarely, when hero with low movepoints tries to leave the road
+		// in this case, all remaining movement points from current turn are spent
+		// and actual movement will happen on next turn, spending points from next turn pool
 
-		int destinationLayerMaxMovePoints = pathfinderHelper->getMaxMovePoints(destination.node->layer);
+		destinationCost += static_cast<float>(currentMovePointsLeft) / sourceLayerMaxMovePoints;
+		destTurnsUsed += 1;
+		destMovePointsLeft = sourceLayerMaxMovePoints;
 
-		moveAtNextTile = destinationLayerMaxMovePoints;
+		// update move cost - it might have changed since hero now makes next turn and replenished his pool
+		moveCostPoints = pathfinderHelper->getMovementCost(source, destination, destMovePointsLeft);
 
-		cost = pathfinderHelper->getMovementCost(source, destination, moveAtNextTile); //cost must be updated, movement points changed :(
-		remains = moveAtNextTile - cost;
+		pathfinderHelper->updateTurnInfo(destTurnsUsed);
 	}
 
 	if(destination.action == EPathNodeAction::EMBARK || destination.action == EPathNodeAction::DISEMBARK)
 	{
-		/// FREE_SHIP_BOARDING bonus only remove additional penalty
-		/// land <-> sail transition still cost movement points as normal movement
-		remains = pathfinderHelper->movementPointsAfterEmbark(moveAtNextTile, cost, (destination.action == EPathNodeAction::DISEMBARK));
-		cost = moveAtNextTile - remains;
+		// FREE_SHIP_BOARDING bonus only remove additional penalty
+		// land <-> sail transition still cost movement points as normal movement
+
+		const int movementPointsAfterEmbark = pathfinderHelper->movementPointsAfterEmbark(destMovePointsLeft, moveCostPoints, (destination.action == EPathNodeAction::DISEMBARK));
+
+		const int destinationLayerMaxMovePoints = pathfinderHelper->getMaxMovePoints(destination.node->layer);
+		const float costBeforeConversion = static_cast<float>(destMovePointsLeft) / sourceLayerMaxMovePoints;
+		const float costAfterConversion = static_cast<float>(movementPointsAfterEmbark) / destinationLayerMaxMovePoints;
+		const float costDelta = costBeforeConversion - costAfterConversion;
+
+		assert(costDelta >= 0);
+		destMovePointsLeft = movementPointsAfterEmbark;
+		destinationCost += costDelta;
+	}
+	else
+	{
+		// Standard movement
+		assert(destMovePointsLeft >= moveCostPoints);
+		destMovePointsLeft -= moveCostPoints;
+		destinationCost += static_cast<float>(moveCostPoints) / sourceLayerMaxMovePoints;
 	}
 
-	costAtNextTile += static_cast<float>(cost) / sourceLayerMaxMovePoints;
+	// pathfinder / priority queue does not supports negative costs
+	assert(destinationCost >= currentCost);
 
-	destination.cost = costAtNextTile;
-	destination.turn = turnAtNextTile;
-	destination.movementLeft = remains;
+	destination.cost = destinationCost;
+	destination.turn = destTurnsUsed;
+	destination.movementLeft = destMovePointsLeft;
 
 	if(destination.isBetterWay() &&
-		((source.node->turns == turnAtNextTile && remains) || pathfinderHelper->passOneTurnLimitCheck(source)))
+		((source.node->turns == destTurnsUsed && destMovePointsLeft) || pathfinderHelper->passOneTurnLimitCheck(source)))
 	{
 		pathfinderConfig->nodeStorage->commit(destination, source);
 
