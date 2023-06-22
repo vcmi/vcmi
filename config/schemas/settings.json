@@ -26,7 +26,7 @@
 				"language",
 				"gameDataLanguage",
 				"lastSave",
-				"lastSettingsTab"
+				"lastSettingsTab",
 				"lastCampaign",
 				"saveFrequency",
 				"notifications",
@@ -214,7 +214,7 @@
 				{
 					"type" : "boolean",
 					"default" : true
-				},
+				}
 			}
 		},
 		"pathfinder" : {
