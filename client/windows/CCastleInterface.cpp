@@ -69,7 +69,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	  area(nullptr),
 	  stateTimeCounter(BUILD_ANIMATION_FINISHED_TIMEPOINT)
 {
-	addUsedEvents(LCLICK | SHOW_POPUP | HOVER | TIME);
+	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | HOVER | TIME);
 	pos.x += str->pos.x;
 	pos.y += str->pos.y;
 
@@ -108,19 +108,24 @@ const CBuilding * CBuildingRect::getBuilding()
 bool CBuildingRect::operator<(const CBuildingRect & p2) const
 {
 	return (str->pos.z) < (p2.str->pos.z);
-
 }
 
 void CBuildingRect::hover(bool on)
 {
+	if (!area)
+		return;
+
 	if(on)
 	{
-		addUsedEvents(MOVE);
+		if(! parent->selectedBuilding //no building hovered
+		  || (*parent->selectedBuilding)<(*this)) //or we are on top
+		{
+			parent->selectedBuilding = this;
+			GH.statusbar()->write(getSubtitle());
+		}
 	}
 	else
 	{
-		removeUsedEvents(MOVE);
-
 		if(parent->selectedBuilding == this)
 		{
 			parent->selectedBuilding = nullptr;
@@ -133,11 +138,8 @@ void CBuildingRect::clickLeft(tribool down, bool previousState)
 {
 	if(previousState && getBuilding() && area && !down && (parent->selectedBuilding==this))
 	{
-		if(!area->isTransparent(GH.getCursorPosition() - pos.topLeft())) //inside building image
-		{
-			auto building = getBuilding();
-			parent->buildingClicked(building->bid, building->subId, building->upgrade);
-		}
+		auto building = getBuilding();
+		parent->buildingClicked(building->bid, building->subId, building->upgrade);
 	}
 }
 
@@ -145,20 +147,18 @@ void CBuildingRect::showPopupWindow()
 {
 	if((!area) || (this!=parent->selectedBuilding) || getBuilding() == nullptr)
 		return;
-	if( !area->isTransparent(GH.getCursorPosition() - pos.topLeft()) ) //inside building image
+
+	BuildingID bid = getBuilding()->bid;
+	const CBuilding *bld = town->town->buildings.at(bid);
+	if (bid < BuildingID::DWELL_FIRST)
 	{
-		BuildingID bid = getBuilding()->bid;
-		const CBuilding *bld = town->town->buildings.at(bid);
-		if (bid < BuildingID::DWELL_FIRST)
-		{
-			CRClickPopup::createAndPush(CInfoWindow::genText(bld->getNameTranslated(), bld->getDescriptionTranslated()),
-				std::make_shared<CComponent>(CComponent::building, bld->town->faction->getIndex(), bld->bid));
-		}
-		else
-		{
-			int level = ( bid - BuildingID::DWELL_FIRST ) % GameConstants::CREATURES_PER_TOWN;
-			GH.windows().createAndPushWindow<CDwellingInfoBox>(parent->pos.x+parent->pos.w / 2, parent->pos.y+parent->pos.h  /2, town, level);
-		}
+		CRClickPopup::createAndPush(CInfoWindow::genText(bld->getNameTranslated(), bld->getDescriptionTranslated()),
+									std::make_shared<CComponent>(CComponent::building, bld->town->faction->getIndex(), bld->bid));
+	}
+	else
+	{
+		int level = ( bid - BuildingID::DWELL_FIRST ) % GameConstants::CREATURES_PER_TOWN;
+		GH.windows().createAndPushWindow<CDwellingInfoBox>(parent->pos.x+parent->pos.w / 2, parent->pos.y+parent->pos.h  /2, town, level);
 	}
 }
 
@@ -245,28 +245,20 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 	}
 }
 
-void CBuildingRect::mouseMoved (const Point & cursorPosition)
+void CBuildingRect::mouseMoved (const Point & cursorPosition, const Point & lastUpdateDistance)
 {
-	if(area && pos.isInside(cursorPosition.x, cursorPosition.y))
-	{
-		if(area->isTransparent(cursorPosition - pos.topLeft())) //hovered pixel is inside this building
-		{
-			if(parent->selectedBuilding == this)
-			{
-				parent->selectedBuilding = nullptr;
-				GH.statusbar()->clear();
-			}
-		}
-		else //inside the area of this building
-		{
-			if(! parent->selectedBuilding //no building hovered
-			  || (*parent->selectedBuilding)<(*this)) //or we are on top
-			{
-				parent->selectedBuilding = this;
-				GH.statusbar()->write(getSubtitle());
-			}
-		}
-	}
+	hover(true);
+}
+
+bool CBuildingRect::receiveEvent(const Point & position, int eventType) const
+{
+	if (!pos.isInside(position.x, position.y))
+		return false;
+
+	if(area && area->isTransparent(position - pos.topLeft()))
+		return false;
+
+	return CIntObject::receiveEvent(position, eventType);
 }
 
 CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstance * Town, int level)

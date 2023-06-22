@@ -68,7 +68,8 @@ public:
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void showPopupWindow() override;
-	void mouseMoved (const Point & cursorPosition) override;
+	void mouseMoved (const Point & cursorPosition, const Point & lastUpdateDistance) override;
+	bool receiveEvent(const Point & position, int eventType) const override;
 	void tick(uint32_t msPassed) override;
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;

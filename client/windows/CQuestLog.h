@@ -66,7 +66,7 @@ class CQuestMinimap : public CMinimap
 
 	void clickLeft(tribool down, bool previousState) override{}; //minimap ignores clicking on its surface
 	void iconClicked();
-	void mouseMoved (const Point & cursorPosition) override{};
+	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override{};
 
 public:
 	const QuestInfo * currentQuest;

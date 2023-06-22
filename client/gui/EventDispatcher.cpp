@@ -31,6 +31,7 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 	processList(AEventsReceiver::SHOW_POPUP, rclickable);
 	processList(AEventsReceiver::HOVER, hoverable);
 	processList(AEventsReceiver::MOVE, motioninterested);
+	processList(AEventsReceiver::DRAG, draginterested);
 	processList(AEventsReceiver::KEYBOARD, keyinterested);
 	processList(AEventsReceiver::TIME, timeinterested);
 	processList(AEventsReceiver::WHEEL, wheelInterested);
@@ -63,7 +64,7 @@ void EventDispatcher::dispatchTimer(uint32_t msPassed)
 	for (auto & elem : hlp)
 	{
 		if(!vstd::contains(timeinterested,elem)) continue;
-		(elem)->tick(msPassed);
+		elem->tick(msPassed);
 	}
 }
 
@@ -270,7 +271,7 @@ void EventDispatcher::dispatchGesturePinch(const Point & initialPosition, double
 	}
 }
 
-void EventDispatcher::dispatchMouseMoved(const Point & position)
+void EventDispatcher::dispatchMouseMoved(const Point & distance, const Point & position)
 {
 	EventReceiversList newlyHovered;
 
@@ -288,8 +289,8 @@ void EventDispatcher::dispatchMouseMoved(const Point & position)
 		{
 			if (elem->isHovered())
 			{
-				(elem)->hover(false);
-				(elem)->hoveredState = false;
+				elem->hover(false);
+				elem->hoveredState = false;
 			}
 		}
 	}
@@ -305,8 +306,16 @@ void EventDispatcher::dispatchMouseMoved(const Point & position)
 	for(auto & elem : miCopy)
 	{
 		if(elem->receiveEvent(position, AEventsReceiver::HOVER))
-		{
-			(elem)->mouseMoved(position);
-		}
+			elem->mouseMoved(position, distance);
+	}
+}
+
+void EventDispatcher::dispatchMouseDragged(const Point & currentPosition, const Point & lastUpdateDistance)
+{
+	EventReceiversList diCopy = draginterested;
+	for(auto & elem : diCopy)
+	{
+		if (elem->mouseClickedState)
+			elem->mouseDragged(currentPosition, lastUpdateDistance);
 	}
 }

@@ -197,7 +197,7 @@ void BattleFieldController::gesturePanning(const Point & initialPosition, const 
 		owner.actionsController->onHexHovered(getHoveredHex());
 }
 
-void BattleFieldController::mouseMoved(const Point & cursorPosition)
+void BattleFieldController::mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
 	hoveredHex = getHexAtPosition(cursorPosition);
 	currentAttackOriginPoint = cursorPosition;

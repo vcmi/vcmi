@@ -28,6 +28,7 @@ class EventDispatcher
 	EventReceiversList hoverable;
 	EventReceiversList keyinterested;
 	EventReceiversList motioninterested;
+	EventReceiversList draginterested;
 	EventReceiversList timeinterested;
 	EventReceiversList wheelInterested;
 	EventReceiversList doubleClickInterested;
@@ -59,7 +60,9 @@ public:
 	void dispatchMouseLeftButtonReleased(const Point & position);
 	void dispatchMouseScrolled(const Point & distance, const Point & position);
 	void dispatchMouseDoubleClick(const Point & position);
-	void dispatchMouseMoved(const Point & distance);
+	void dispatchMouseMoved(const Point & distance, const Point & position);
+
+	void dispatchMouseDragged(const Point & currentPosition, const Point & lastUpdateDistance);
 
 	void dispatchShowPopup(const Point & position);
 	void dispatchClosePopup(const Point & position);

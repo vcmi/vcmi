@@ -37,7 +37,6 @@ class CSlider : public Scrollable
 	CFunctionList<void(int)> moved;
 
 	void updateSliderPos();
-	void sliderClicked();
 
 public:
 	enum EStyle
@@ -71,7 +70,7 @@ public:
 	bool receiveEvent(const Point & position, int eventType) const override;
 	void keyPressed(EShortcut key) override;
 	void clickLeft(tribool down, bool previousState) override;
-	void mouseMoved (const Point & cursorPosition) override;
+	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void showAll(Canvas & to) override;
 
 	 /// @param position coordinates of slider

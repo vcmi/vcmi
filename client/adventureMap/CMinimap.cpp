@@ -88,7 +88,7 @@ void CMinimapInstance::showAll(Canvas & to)
 }
 
 CMinimap::CMinimap(const Rect & position)
-	: CIntObject(LCLICK | SHOW_POPUP | HOVER | MOVE | GESTURE, position.topLeft()),
+	: CIntObject(LCLICK | SHOW_POPUP | DRAG | MOVE | GESTURE, position.topLeft()),
 	level(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -162,10 +162,9 @@ void CMinimap::hover(bool on)
 		GH.statusbar()->clear();
 }
 
-void CMinimap::mouseMoved(const Point & cursorPosition)
+void CMinimap::mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
-	if(isMouseLeftButtonPressed())
-		moveAdvMapSelection(cursorPosition);
+	moveAdvMapSelection(cursorPosition);
 }
 
 void CMinimap::showAll(Canvas & to)

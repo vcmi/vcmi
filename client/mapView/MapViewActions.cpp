@@ -63,7 +63,7 @@ void MapViewActions::showPopupWindow()
 		adventureInt->onTileRightClicked(tile);
 }
 
-void MapViewActions::mouseMoved(const Point & cursorPosition)
+void MapViewActions::mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
 	handleHover(cursorPosition);
 }
