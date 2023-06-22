@@ -716,7 +716,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 
 	if(sliderNeeded)
 	{
-		slider = std::make_shared<CSlider>(Point(231, 490),137, std::bind(&CMarketplaceWindow::sliderMoved,this,_1),0,0);
+		slider = std::make_shared<CSlider>(Point(231, 490), 137, std::bind(&CMarketplaceWindow::sliderMoved, this, _1), 0, 0, 0, Orientation::HORIZONTAL);
 		max = std::make_shared<CButton>(Point(229, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[596], [&](){ setMax(); });
 		max->block(true);
 	}
@@ -1117,7 +1117,7 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 		 //To sacrifice creatures, move them from your army on to the Altar and click Sacrifice
 		new CTextBox(CGI->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW);
 
-		slider = std::make_shared<CSlider>(Point(231,481),137,std::bind(&CAltarWindow::sliderMoved,this,_1),0,0);
+		slider = std::make_shared<CSlider>(Point(231, 481), 137, std::bind(&CAltarWindow::sliderMoved, this, _1), 0, 0, 0, Orientation::HORIZONTAL);
 		max = std::make_shared<CButton>(Point(147, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[578], std::bind(&CSlider::scrollToMax, slider));
 
 		sacrificedUnits.resize(GameConstants::ARMY_SIZE, 0);

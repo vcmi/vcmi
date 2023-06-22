@@ -71,6 +71,7 @@ public:
 	void keyPressed(EShortcut key) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override;
+	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void showAll(Canvas & to) override;
 
 	 /// @param position coordinates of slider
@@ -80,6 +81,6 @@ public:
 	 /// @param Amount total amount of elements, including not visible
 	 /// @param Value starting position
 	CSlider(Point position, int length, std::function<void(int)> Moved, int Capacity, int Amount,
-		int Value=0, bool Horizontal=true, EStyle style = BROWN);
+		int Value, Orientation orientation, EStyle style = BROWN);
 	~CSlider();
 };

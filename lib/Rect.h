@@ -109,6 +109,11 @@ public:
 		return Rect(x+p.x,y+p.y,w,h);
 	}
 
+	Rect operator-(const Point &p) const
+	{
+		return Rect(x-p.x,y-p.y,w,h);
+	}
+
 	Rect& operator=(const Rect &p)
 	{
 		x = p.x;

@@ -92,8 +92,16 @@ CListBox::CListBox(CreateFunc create, Point Pos, Point ItemOffset, size_t Visibl
 	if(Slider & 1)
 	{
 		OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-		slider = std::make_shared<CSlider>(SliderPos.topLeft(), SliderPos.w, std::bind(&CListBox::moveToPos, this, _1),
-			(int)VisibleSize, (int)TotalSize, (int)InitialPos, Slider & 2, Slider & 4 ? CSlider::BLUE : CSlider::BROWN);
+		slider = std::make_shared<CSlider>(
+			SliderPos.topLeft(),
+			SliderPos.w,
+			std::bind(&CListBox::moveToPos, this, _1),
+			(int)VisibleSize,
+			(int)TotalSize,
+			(int)InitialPos,
+			Slider & 2 ? Orientation::HORIZONTAL : Orientation::VERTICAL,
+			Slider & 4 ? CSlider::BLUE : CSlider::BROWN
+		);
 
 		slider->setPanningStep(itemOffset.x + itemOffset.y);
 	}

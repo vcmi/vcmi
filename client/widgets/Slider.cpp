@@ -40,6 +40,14 @@ void CSlider::mouseDragged(const Point & cursorPosition, const Point & lastUpdat
 	}
 }
 
+void CSlider::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
+{
+	if (getOrientation() == Orientation::VERTICAL)
+		Scrollable::gesturePanning(initialPosition, currentPosition, lastUpdateDistance);
+	else
+		mouseDragged(currentPosition, lastUpdateDistance);
+}
+
 void CSlider::setScrollBounds(const Rect & bounds )
 {
 	scrollBounds = bounds;
@@ -151,8 +159,8 @@ bool CSlider::receiveEvent(const Point &position, int eventType) const
 	return testTarget.isInside(position);
 }
 
-CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, CSlider::EStyle style)
-	: Scrollable(LCLICK | DRAG, position, Horizontal ? Orientation::HORIZONTAL : Orientation::VERTICAL ),
+CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, Orientation orientation, CSlider::EStyle style)
+	: Scrollable(LCLICK | DRAG, position, orientation ),
 	capacity(Capacity),
 	amount(Amount),
 	value(Value),
