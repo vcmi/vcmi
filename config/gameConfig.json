@@ -329,6 +329,20 @@
 			"commanders": false
 		},
 		
+		"pathfinder" :
+		{
+			// if enabled, pathfinder will take use of any available boats
+			"useBoat" : true,
+			// if enabled, pathfinder will take use of any bidirectional monoliths 
+			"useMonolithTwoWay" : true,
+			// if enabled, pathfinder will take use of one-way monolith that only have one known exit
+			"useMonolithOneWayUnique" : false,
+			// if enabled, pathfinder will take use of one-way monoliths with multiple exits.
+			"useMonolithOneWayRandom" : false,
+			// if enabled and hero has whirlpool protection effect, pathfinder will take use of whirpools
+			"useWhirlpool" : true
+		},
+		
 		"bonuses" : 
 		{
 			"global" : 

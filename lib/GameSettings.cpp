@@ -91,6 +91,11 @@ void GameSettings::load(const JsonNode & input)
 		{EGameSettings::TEXTS_ROAD,                             "textData",  "road"                       },
 		{EGameSettings::TEXTS_SPELL,                            "textData",  "spell"                      },
 		{EGameSettings::TEXTS_TERRAIN,                          "textData",  "terrain"                    },
+		{EGameSettings::PATHFINDER_USE_BOAT,                    "pathfinder", "useBoat"                   },
+		{EGameSettings::PATHFINDER_USE_MONOLITH_TWO_WAY,        "pathfinder", "useMonolithTwoWay"         },
+		{EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_UNIQUE, "pathfinder", "useMonolithOneWayUnique"   },
+		{EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_RANDOM, "pathfinder", "useMonolithOneWayRandom"   },
+		{EGameSettings::PATHFINDER_USE_WHIRLPOOL,               "pathfinder", "useWhirlpool"              },
 		{EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP,           "towns",     "buildingsPerTurnCap"        },
 		{EGameSettings::TOWNS_STARTING_DWELLING_CHANCES,        "towns",     "startingDwellingChances"    },
 	};
