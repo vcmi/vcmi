@@ -20,9 +20,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CArtHandler;
-class CArtifact;
 class CGHeroInstance;
-struct ArtifactLocation;
 class CArtifactSet;
 class CArtifactInstance;
 class CRandomGenerator;
@@ -130,81 +128,6 @@ public:
 		h & static_cast<CArtifact&>(*this);
 		h & bonusesPerLevel;
 		h & thresholdBonuses;
-	}
-};
-
-class DLL_LINKAGE CCombinedArtifactInstance
-{
-protected:
-	CCombinedArtifactInstance() = default;
-public:
-	struct PartInfo
-	{
-		ConstTransitivePtr<CArtifactInstance> art;
-		ArtifactPosition slot;
-		template <typename Handler> void serialize(Handler & h, const int version)
-		{
-			h & art;
-			h & slot;
-		}
-		PartInfo(CArtifactInstance * art = nullptr, const ArtifactPosition & slot = ArtifactPosition::PRE_FIRST)
-			: art(art), slot(slot) {};
-	};
-	std::vector<PartInfo> partsInfo;
-	void addArtInstAsPart(CArtifactInstance * art, const ArtifactPosition & slot);
-};
-
-class DLL_LINKAGE CScrollArtifactInstance
-{
-protected:
-	CScrollArtifactInstance() = default;
-public:
-	SpellID getScrollSpellID() const;
-};
-
-class DLL_LINKAGE CGrowingArtifactInstance
-{
-protected:
-	CGrowingArtifactInstance() = default;
-public:
-	void growingUp();
-};
-
-class DLL_LINKAGE CArtifactInstance
-	: public CBonusSystemNode, public CCombinedArtifactInstance, public CScrollArtifactInstance, public CGrowingArtifactInstance
-{
-protected:
-	void init();
-public:
-	CArtifactInstance(CArtifact * art);
-	CArtifactInstance();
-
-	ConstTransitivePtr<CArtifact> artType;
-	ArtifactInstanceID id;
-
-	std::string nodeName() const override;
-	void deserializationFix();
-	void setType(CArtifact * art);
-
-	std::string getDescription() const;
-
-	ArtifactID getTypeId() const;
-	bool canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved = false) const;
-	bool canBeDisassembled() const;
-	/// Checks if this a part of this artifact: artifact instance is a part
-	/// of itself, additionally truth is returned for constituents of combined arts
-	bool isPart(const CArtifactInstance * supposedPart) const;
-	void putAt(const ArtifactLocation & al);
-	void removeFrom(const ArtifactLocation & al);
-	void move(const ArtifactLocation & src, const ArtifactLocation & dst);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CBonusSystemNode&>(*this);
-		h & artType;
-		h & id;
-		h & partsInfo;
-		BONUS_TREE_DESERIALIZATION_FIX
 	}
 };
 

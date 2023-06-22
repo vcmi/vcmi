@@ -34,6 +34,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/CArtHandler.h"
+#include "../../lib/CArtifactInstance.h"
 
 CComponent::CComponent(Etype Type, int Subtype, int Val, ESize imageSize, EFonts font):
 	perDay(false)

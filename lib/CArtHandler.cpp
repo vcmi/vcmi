@@ -15,9 +15,7 @@
 #include "CGeneralTextHandler.h"
 #include "CModHandler.h"
 #include "GameSettings.h"
-#include "spells/CSpellHandler.h"
 #include "mapObjects/MapObjects.h"
-#include "NetPacksBase.h"
 #include "StringConstants.h"
 
 #include "mapObjectConstructors/AObjectTypeHandler.h"
@@ -763,129 +761,11 @@ void CArtHandler::afterLoadFinalization()
 	CBonusSystemNode::treeHasChanged();
 }
 
-CArtifactInstance::CArtifactInstance()
-{
-	init();
-}
-
-CArtifactInstance::CArtifactInstance( CArtifact *Art)
-{
-	init();
-	setType(Art);
-}
-
-void CArtifactInstance::setType( CArtifact *Art )
-{
-	artType = Art;
-	attachTo(*Art);
-}
-
-std::string CArtifactInstance::nodeName() const
-{
-	return "Artifact instance of " + (artType ? artType->getJsonKey() : std::string("uninitialized")) + " type";
-}
-
-void CArtifactInstance::init()
-{
-	id = ArtifactInstanceID();
-	id = static_cast<ArtifactInstanceID>(ArtifactID::NONE); //to be randomized
-	setNodeType(ARTIFACT_INSTANCE);
-}
-
-std::string CArtifactInstance::getDescription() const
-{
-	std::string text = artType->getDescriptionTranslated();
-	if(artType->getId() == ArtifactID::SPELL_SCROLL)
-		ArtifactUtils::insertScrrollSpellName(text, getScrollSpellID());
-	return text;
-}
-
-ArtifactID CArtifactInstance::getTypeId() const
-{
-	return artType->getId();
-}
-
-bool CArtifactInstance::canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved) const
-{
-	return artType->canBePutAt(al.getHolderArtSet(), al.slot, assumeDestRemoved);
-}
-
-void CArtifactInstance::putAt(const ArtifactLocation & al)
-{
-	al.getHolderArtSet()->putArtifact(al.slot, this);
-}
-
-void CArtifactInstance::removeFrom(const ArtifactLocation & al)
-{
-	al.getHolderArtSet()->removeArtifact(al.slot);
-	for(auto & part : partsInfo)
-	{
-		if(part.slot != ArtifactPosition::PRE_FIRST)
-			part.slot = ArtifactPosition::PRE_FIRST;
-	}
-}
-
-bool CArtifactInstance::canBeDisassembled() const
-{
-	return artType->canBeDisassembled();
-}
-
-void CArtifactInstance::move(const ArtifactLocation & src, const ArtifactLocation & dst)
-{
-	removeFrom(src);
-	putAt(dst);
-}
-
-void CArtifactInstance::deserializationFix()
-{
-	setType(artType);
-	for(PartInfo & part : partsInfo)
-		attachTo(*part.art);
-}
-
-bool CArtifactInstance::isPart(const CArtifactInstance *supposedPart) const
-{
-	if(supposedPart == this)
-		return true;
-
-	//check for constituents
-	for(const PartInfo & constituent : partsInfo)
-		if(constituent.art == supposedPart)
-			return true;
-
-	return false;
-}
-
-void CCombinedArtifactInstance::addArtInstAsPart(CArtifactInstance * art, const ArtifactPosition & slot)
-{
-	auto artInst = static_cast<CArtifactInstance*>(this);
-	assert(vstd::contains_if(*artInst->artType->constituents,
-		[=](const CArtifact * partType)
-		{
-			return partType->getId() == art->getTypeId();
-		}));
-	assert(art->getParentNodes().size() == 1  &&  art->getParentNodes().front() == art->artType);
-	partsInfo.emplace_back(art, slot);
-	artInst->attachTo(*art);
-}
-
-SpellID CScrollArtifactInstance::getScrollSpellID() const
-{
-	auto artInst = static_cast<const CArtifactInstance*>(this);
-	const auto bonus = artInst->getBonusLocalFirst(Selector::type()(BonusType::SPELL));
-	if (!bonus)
-	{
-		logMod->warn("Warning: %s doesn't bear any spell!", artInst->nodeName());
-		return SpellID::NONE;
-	}
-	return SpellID(bonus->subtype);
-}
-
 CArtifactSet::~CArtifactSet() = default;
 
 const CArtifactInstance * CArtifactSet::getArt(const ArtifactPosition & pos, bool excludeLocked) const
 {
-	if(const ArtSlotInfo *si = getSlot(pos))
+	if(const ArtSlotInfo * si = getSlot(pos))
 	{
 		if(si->artifact && (!excludeLocked || !si->locked))
 			return si->artifact;
