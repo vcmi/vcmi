@@ -189,11 +189,6 @@ Point CGuiHandler::screenDimensions() const
 	return Point(screen->w, screen->h);
 }
 
-bool CGuiHandler::isMouseButtonPressed(MouseButton button) const
-{
-	return inputHandlerInstance->isMouseButtonPressed(button);
-}
-
 void CGuiHandler::drawFPSCounter()
 {
 	static SDL_Rect overlay = { 0, 0, 64, 32};
