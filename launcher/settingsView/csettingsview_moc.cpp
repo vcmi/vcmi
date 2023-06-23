@@ -38,7 +38,6 @@ QString resolutionToString(const QSize & resolution)
 
 static const std::string cursorTypesList[] =
 {
-	"auto",
 	"hardware",
 	"software"
 };

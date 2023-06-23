@@ -1135,73 +1135,76 @@ Key reverseMapFirst(const Val & val, const std::map<Key, Val> & map)
 	return "";
 }
 
-void minimizeNode(JsonNode & node, const JsonNode & schema)
+static JsonNode getDefaultValue(const JsonNode & schema, std::string fieldName)
 {
-	if (schema["type"].String() == "object")
+	const JsonNode & fieldProps = schema["properties"][fieldName];
+
+#if defined(VCMI_IOS)
+	if (!fieldProps["defaultIOS"].isNull())
+		return fieldProps["defaultIOS"];
+#elif defined(VCMI_ANDROID)
+	if (!fieldProps["defaultAndroid"].isNull())
+		return fieldProps["defaultAndroid"];
+#elif !defined(VCMI_MOBILE)
+	if (!fieldProps["defaultDesktop"].isNull())
+		return fieldProps["defaultDesktop"];
+#endif
+	return fieldProps["default"];
+}
+
+static void eraseOptionalNodes(JsonNode & node, const JsonNode & schema)
+{
+	assert(schema["type"].String() == "object");
+
+	std::set<std::string> foundEntries;
+
+	for(const auto & entry : schema["required"].Vector())
+		foundEntries.insert(entry.String());
+
+	vstd::erase_if(node.Struct(), [&](const auto & node){
+		return !vstd::contains(foundEntries, node.first);
+	});
+}
+
+static void minimizeNode(JsonNode & node, const JsonNode & schema)
+{
+	if (schema["type"].String() != "object")
+		return;
+
+	for(const auto & entry : schema["required"].Vector())
 	{
-		std::set<std::string> foundEntries;
+		const std::string & name = entry.String();
+		minimizeNode(node[name], schema["properties"][name]);
 
-		for(const auto & entry : schema["required"].Vector())
-		{
-			const std::string & name = entry.String();
-			foundEntries.insert(name);
-
-			minimizeNode(node[name], schema["properties"][name]);
-
-			if (vstd::contains(node.Struct(), name) &&
-				node[name] == schema["properties"][name]["default"])
-			{
-				node.Struct().erase(name);
-			}
-		}
-
-		// erase all unhandled entries
-		for (auto it = node.Struct().begin(); it != node.Struct().end();)
-		{
-			if (!vstd::contains(foundEntries, it->first))
-				it = node.Struct().erase(it);
-			else
-				it++;
-		}
+		if (vstd::contains(node.Struct(), name) && node[name] == getDefaultValue(schema, name))
+			node.Struct().erase(name);
 	}
+	eraseOptionalNodes(node, schema);
+}
+
+static void maximizeNode(JsonNode & node, const JsonNode & schema)
+{
+	// "required" entry can only be found in object/struct
+	if (schema["type"].String() != "object")
+		return;
+
+	// check all required entries that have default version
+	for(const auto & entry : schema["required"].Vector())
+	{
+		const std::string & name = entry.String();
+
+		if (node[name].isNull() && !getDefaultValue(schema, name).isNull())
+			node[name] = getDefaultValue(schema, name);
+
+		maximizeNode(node[name], schema["properties"][name]);
+	}
+
+	eraseOptionalNodes(node, schema);
 }
 
 void JsonUtils::minimize(JsonNode & node, const std::string & schemaName)
 {
 	minimizeNode(node, getSchema(schemaName));
-}
-
-// FIXME: except for several lines function is identical to minimizeNode. Some way to reduce duplication?
-void maximizeNode(JsonNode & node, const JsonNode & schema)
-{
-	// "required" entry can only be found in object/struct
-	if (schema["type"].String() == "object")
-	{
-		std::set<std::string> foundEntries;
-
-		// check all required entries that have default version
-		for(const auto & entry : schema["required"].Vector())
-		{
-			const std::string & name = entry.String();
-			foundEntries.insert(name);
-
-			if (node[name].isNull() &&
-				!schema["properties"][name]["default"].isNull())
-			{
-				node[name] = schema["properties"][name]["default"];
-			}
-			maximizeNode(node[name], schema["properties"][name]);
-		}
-
-		// erase all unhandled entries
-		for (auto it = node.Struct().begin(); it != node.Struct().end();)
-		{
-			if (!vstd::contains(foundEntries, it->first))
-				it = node.Struct().erase(it);
-			else
-				it++;
-		}
-	}
 }
 
 void JsonUtils::maximize(JsonNode & node, const std::string & schemaName)

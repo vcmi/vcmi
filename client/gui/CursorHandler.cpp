@@ -22,17 +22,10 @@
 
 std::unique_ptr<ICursor> CursorHandler::createCursor()
 {
-	if (settings["video"]["cursor"].String() == "auto")
-	{
 #if defined(VCMI_MOBILE)
-		if (settings["general"]["userRelativePointer"].Bool())
-			return std::make_unique<CursorSoftware>();
-		else
-			return std::make_unique<CursorHardware>();
-#else
-		return std::make_unique<CursorHardware>();
+	if (settings["general"]["userRelativePointer"].Bool())
+		return std::make_unique<CursorSoftware>();
 #endif
-	}
 
 	if (settings["video"]["cursor"].String() == "hardware")
 		return std::make_unique<CursorHardware>();

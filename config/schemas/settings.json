@@ -130,6 +130,8 @@
 						"height" : { "type" : "number" },
 						"scaling" : { "type" : "number" }
 					},
+					"defaultIOS" : {"width" : 800, "height" : 600, "scaling" : 200 },
+					"defaultAndroid" : {"width" : 800, "height" : 600, "scaling" : 200 },
 					"default" : {"width" : 800, "height" : 600, "scaling" : 100 }
 				},
 				"fullscreen" : {
@@ -142,8 +144,8 @@
 				},
 				"cursor" :  {
 					"type" : "string",
-					"enum" : [ "auto", "hardware", "software" ],
-					"default" : "auto"
+					"enum" : [ "hardware", "software" ],
+					"default" : "hardware"
 				},
 				"showIntro" : {
 					"type" : "boolean",
@@ -213,6 +215,8 @@
 				"borderScroll" : 
 				{
 					"type" : "boolean",
+					"defaultIOS" : false,
+					"defaultAndroid" : false,
 					"default" : true
 				}
 			}
@@ -461,7 +465,7 @@
 			"type" : "object",
 			"default" : {},
 			"additionalProperties" : false,
-			"required" : [ "setupCompleted", "repositoryURL", "enableInstalledMods", "extraResolutionsModPath", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl", "lobbyUrl", "lobbyPort", "lobbyUsername", "connectionTimeout" ],
+			"required" : [ "setupCompleted", "repositoryURL", "enableInstalledMods", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl", "lobbyUrl", "lobbyPort", "lobbyUsername", "connectionTimeout" ],
 			"properties" : {
 				"repositoryURL" : {
 					"type" : "array",
@@ -479,10 +483,6 @@
 				"enableInstalledMods" : {
 					"type" : "boolean",
 					"default" : true
-				},
-				"extraResolutionsModPath" : {
-					"type" : "string",
-					"default" : "/vcmi-extras/Mods/extraResolutions/Content/config/resolutions.json"
 				},
 				"autoCheckRepositories" : {
 					"type" : "boolean",
