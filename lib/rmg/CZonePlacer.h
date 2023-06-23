@@ -40,6 +40,7 @@ public:
 	void placeZones(CRandomGenerator * rand);
 	void findPathsBetweenZones();
 	void placeOnGrid(CRandomGenerator* rand);
+	float scaleForceBetweenZones(const std::shared_ptr<Zone> zoneA, const std::shared_ptr<Zone> zoneB) const;
 	void assignZones(CRandomGenerator * rand);
 
 	const TDistanceMap & getDistanceMap();
