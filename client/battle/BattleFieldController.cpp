@@ -450,7 +450,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForMovementTarget(
 
 std::vector<BattleHex> BattleFieldController::getRangeHexes(BattleHex sourceHex, uint8_t distance)
 {
-	std::vector<BattleHex> rangeHexes; // used for return
+	std::vector<BattleHex> rangeHexes;
 
 	if (!settings["battle"]["rangeLimitHighlightOnHover"].Bool() && !GH.isKeyboardShiftDown())
 		return rangeHexes;
@@ -468,16 +468,16 @@ std::vector<BattleHex> BattleFieldController::getRangeHexes(BattleHex sourceHex,
 
 std::vector<BattleHex> BattleFieldController::getRangeLimitHexes(BattleHex hoveredHex, std::vector<BattleHex> rangeHexes, uint8_t distanceToLimit)
 {
-	std::vector<BattleHex> limitHexes; // used for return
+	std::vector<BattleHex> rangeLimitHexes;
 
 	// from range hexes get only the ones at the limit
 	for(auto & hex : rangeHexes)
 	{
 		if(BattleHex::getDistance(hoveredHex, hex) == distanceToLimit)
-			limitHexes.push_back(hex);
+			rangeLimitHexes.push_back(hex);
 	}
 
-	return limitHexes;
+	return rangeLimitHexes;
 }
 
 bool BattleFieldController::IsHexInRangeLimit(BattleHex hex, std::vector<BattleHex> & rangeLimitHexes, int * hexIndexInRangeLimit)
@@ -603,7 +603,7 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 		calculateRangeLimitAndHighlightImages(rangedFullDamageDistance, rangedFullDamageLimitImages, rangedFullDamageLimitHexes, rangedFullDamageLimitHexesHighligts);
 
 		// calculate array with highlight images for shooting range limit
-		auto shootingRangeDistance = hoveredStack->getSootingRangeDistance();
+		auto shootingRangeDistance = hoveredStack->getShootingRangeDistance();
 		calculateRangeLimitAndHighlightImages(shootingRangeDistance, shootingRangeLimitImages, shootingRangeLimitHexes, shootingRangeLimitHexesHighligts);
 	}
 

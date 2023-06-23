@@ -609,7 +609,7 @@ uint8_t CUnitState::getRangedFullDamageDistance() const
 	return rangedFullDamageDistance;
 }
 
-uint8_t CUnitState::getSootingRangeDistance() const
+uint8_t CUnitState::getShootingRangeDistance() const
 {
 	if(!isShooter())
 		return 0;
