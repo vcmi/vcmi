@@ -28,6 +28,7 @@ class CHeroClass;
 struct EventCondition;
 class CScenarioTravel;
 class CStackInstance;
+class CGameStateCampaign;
 
 template<typename T> class CApplier;
 class CBaseForGSApply;
@@ -105,6 +106,7 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheck
 
 class DLL_LINKAGE CGameState : public CNonConstInfoCallback
 {
+	friend class CGameStateCampaign;
 public:
 	struct DLL_LINKAGE HeroesPool
 	{
@@ -200,29 +202,15 @@ public:
 		h & globalEffects;
 		h & rand;
 		h & rumor;
+		h & campaign;
 
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 
 private:
-	struct CrossoverHeroesList
-	{
-		std::vector<CGHeroInstance *> heroesFromPreviousScenario, heroesFromAnyPreviousScenarios;
-		void addHeroToBothLists(CGHeroInstance * hero);
-		void removeHeroFromBothLists(CGHeroInstance * hero);
-	};
-
-	struct CampaignHeroReplacement
-	{
-		CampaignHeroReplacement(CGHeroInstance * hero, const ObjectInstanceID & heroPlaceholderId);
-		CGHeroInstance * hero;
-		ObjectInstanceID heroPlaceholderId;
-	};
-
 	// ----- initialization -----
 	void preInitAuto();
 	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap);
-	void initCampaign();
 	void checkMapChecksum();
 	void initGlobalBonuses();
 	void initGrailPosition();
@@ -230,27 +218,17 @@ private:
 	void randomizeMapObjects();
 	void randomizeObject(CGObjectInstance *cur);
 	void initPlayerStates();
-	void placeCampaignHeroes();
-
-
-	/// returns heroes and placeholders in where heroes will be put
-	std::vector<CampaignHeroReplacement> generateCampaignHeroesToReplace(CrossoverHeroesList & crossoverHeroes);
-
-	/// gets prepared and copied hero instances with crossover heroes from prev. scenario and travel options from current scenario
-	void prepareCrossoverHeroes(std::vector<CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions);
-
-	void replaceHeroesPlaceholders(const std::vector<CampaignHeroReplacement> & campaignHeroReplacements);
 	void placeStartingHeroes();
 	void placeStartingHero(const PlayerColor & playerColor, const HeroTypeID & heroTypeId, int3 townPos);
 	void initStartingResources();
 	void initHeroes();
 	void placeHeroesInTowns();
-	void giveCampaignBonusToHero(CGHeroInstance * hero);
 	void initFogOfWar();
 	void initStartingBonus();
 	void initTowns();
 	void initMapObjects();
 	void initVisitingAndGarrisonedHeroes();
+	void initCampaign();
 
 	// ----- bonus system handling -----
 
@@ -273,6 +251,9 @@ private:
 	std::shared_ptr<CApplier<CBaseForGSApply>> applier;
 	CRandomGenerator rand;
 	Services * services;
+
+	/// Ponter to campaign state manager. Nullptr for single scenarios
+	std::unique_ptr<CGameStateCampaign> campaign;
 
 	friend class IGameCallback;
 	friend class CMapHandler;
