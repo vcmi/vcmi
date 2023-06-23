@@ -32,7 +32,6 @@
 #include "../../CCallback.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/battle/BattleHex.h"
-#include "../../lib/CGameState.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/TextOperations.h"

@@ -15,7 +15,7 @@
 #include "PathfindingRules.h"
 #include "TurnInfo.h"
 
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
 #include "../CPlayerState.h"
 #include "../TerrainHandler.h"
 #include "../mapObjects/CGHeroInstance.h"

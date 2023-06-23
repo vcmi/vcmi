@@ -23,7 +23,7 @@
 
 #include "../CCallback.h"
 #include "../lib/CConfigHandler.h"
-#include "../lib/CGameState.h"
+#include "../lib/gameState/CGameState.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/battle/BattleInfo.h"

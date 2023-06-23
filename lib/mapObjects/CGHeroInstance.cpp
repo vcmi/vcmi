@@ -26,7 +26,7 @@
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
 #include "../IGameCallback.h"
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
 #include "../CCreatureHandler.h"
 #include "../CTownHandler.h"
 #include "../mapping/CMap.h"

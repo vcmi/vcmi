@@ -10,36 +10,38 @@
 #include "StdInc.h"
 #include "CGameState.h"
 
-#include "mapping/CCampaignHandler.h"
-#include "ArtifactUtils.h"
-#include "CArtHandler.h"
-#include "CBuildingHandler.h"
-#include "CGeneralTextHandler.h"
-#include "CTownHandler.h"
-#include "spells/CSpellHandler.h"
-#include "CHeroHandler.h"
-#include "CModHandler.h"
-#include "GameSettings.h"
-#include "TerrainHandler.h"
-#include "CSkillHandler.h"
-#include "mapping/CMap.h"
-#include "mapping/CMapService.h"
-#include "mapObjectConstructors/CObjectClassesHandler.h"
-#include "StartInfo.h"
-#include "NetPacks.h"
-#include "pathfinder/CPathfinder.h"
-#include "pathfinder/PathfinderOptions.h"
-#include "registerTypes/RegisterTypes.h"
-#include "battle/BattleInfo.h"
-#include "JsonNode.h"
-#include "filesystem/Filesystem.h"
-#include "GameConstants.h"
-#include "rmg/CMapGenerator.h"
-#include "CStopWatch.h"
-#include "mapping/CMapEditManager.h"
-#include "serializer/CTypeList.h"
-#include "serializer/CMemorySerializer.h"
-#include "VCMIDirs.h"
+#include "EVictoryLossCheckResult.h"
+#include "InfoAboutArmy.h"
+
+#include "../ArtifactUtils.h"
+#include "../CBuildingHandler.h"
+#include "../CGeneralTextHandler.h"
+#include "../CHeroHandler.h"
+#include "../CPlayerState.h"
+#include "../CStopWatch.h"
+#include "../GameSettings.h"
+#include "../StartInfo.h"
+#include "../TerrainHandler.h"
+#include "../VCMIDirs.h"
+#include "../VCMI_Lib.h"
+#include "../battle/BattleInfo.h"
+#include "../filesystem/ResourceID.h"
+#include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjectConstructors/DwellingInstanceConstructor.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
+#include "../mapping/CCampaignHandler.h"
+#include "../mapping/CMap.h"
+#include "../mapping/CMapEditManager.h"
+#include "../mapping/CMapService.h"
+#include "../pathfinder/CPathfinder.h"
+#include "../pathfinder/PathfinderOptions.h"
+#include "../registerTypes/RegisterTypes.h"
+#include "../rmg/CMapGenerator.h"
+#include "../serializer/CMemorySerializer.h"
+#include "../serializer/CTypeList.h"
+#include "../spells/CSpellHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -950,191 +952,6 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 	CGObjectInstance * hero = createObject(Obj::HERO, heroTypeId.getNum(), townPos, playerColor);
 	hero->pos += hero->getVisitableOffset();
 	map->getEditManager()->insertObject(hero);
-}
-
-CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenarios() const
-{
-	CrossoverHeroesList crossoverHeroes;
-
-	auto campaignState = scenarioOps->campState;
-	auto bonus = campaignState->getBonusForCurrentMap();
-	if(bonus && bonus->type == CScenarioTravel::STravelBonus::HEROES_FROM_PREVIOUS_SCENARIO)
-	{
-		std::vector<CGHeroInstance *> heroes;
-		for(auto & node : campaignState->camp->scenarios[bonus->info2].crossoverHeroes)
-		{
-			auto * h = CCampaignState::crossoverDeserialize(node);
-			heroes.push_back(h);
-		}
-		crossoverHeroes.heroesFromAnyPreviousScenarios = crossoverHeroes.heroesFromPreviousScenario = heroes;
-	}
-	else
-	{
-		if(!campaignState->mapsConquered.empty())
-		{
-			std::vector<CGHeroInstance *> heroes = {};
-
-			crossoverHeroes.heroesFromAnyPreviousScenarios = crossoverHeroes.heroesFromPreviousScenario = heroes;
-			crossoverHeroes.heroesFromPreviousScenario = heroes;
-
-			for(auto mapNr : campaignState->mapsConquered)
-			{
-				// create a list of deleted heroes
-				auto & scenario = campaignState->camp->scenarios[mapNr];
-				auto lostCrossoverHeroes = scenario.getLostCrossoverHeroes();
-
-				// remove heroes which didn't reached the end of the scenario, but were available at the start
-				for(auto * hero : lostCrossoverHeroes)
-				{
-					//					auto hero = CCampaignState::crossoverDeserialize(node);
-					vstd::erase_if(crossoverHeroes.heroesFromAnyPreviousScenarios, [hero](CGHeroInstance * h)
-					{
-						return hero->subID == h->subID;
-					});
-				}
-
-				// now add heroes which completed the scenario
-				for(auto node : scenario.crossoverHeroes)
-				{
-					auto * hero = CCampaignState::crossoverDeserialize(node);
-					// add new heroes and replace old heroes with newer ones
-					auto it = range::find_if(crossoverHeroes.heroesFromAnyPreviousScenarios, [hero](CGHeroInstance * h)
-					{
-						return hero->subID == h->subID;
-					});
-
-					if(it != crossoverHeroes.heroesFromAnyPreviousScenarios.end())
-					{
-						// replace old hero with newer one
-						crossoverHeroes.heroesFromAnyPreviousScenarios[it - crossoverHeroes.heroesFromAnyPreviousScenarios.begin()] = hero;
-					}
-					else
-					{
-						// add new hero
-						crossoverHeroes.heroesFromAnyPreviousScenarios.push_back(hero);
-					}
-
-					if(mapNr == campaignState->mapsConquered.back())
-					{
-						crossoverHeroes.heroesFromPreviousScenario.push_back(hero);
-					}
-				}
-			}
-		}
-	}
-
-	return crossoverHeroes;
-}
-
-void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions)
-{
-	// create heroes list for convenience iterating
-	std::vector<CGHeroInstance *> crossoverHeroes;
-	crossoverHeroes.reserve(campaignHeroReplacements.size());
-	for(auto & campaignHeroReplacement : campaignHeroReplacements)
-	{
-		crossoverHeroes.push_back(campaignHeroReplacement.hero);
-	}
-
-	// TODO replace magic numbers with named constants
-	// TODO this logic (what should be kept) should be part of CScenarioTravel and be exposed via some clean set of methods
-	if(!travelOptions.whatHeroKeeps.experience)
-	{
-		//trimming experience
-		for(CGHeroInstance * cgh : crossoverHeroes)
-		{
-			cgh->initExp(getRandomGenerator());
-		}
-	}
-
-	if(!travelOptions.whatHeroKeeps.primarySkills)
-	{
-		//trimming prim skills
-		for(CGHeroInstance * cgh : crossoverHeroes)
-		{
-			for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
-			{
-				auto sel = Selector::type()(BonusType::PRIMARY_SKILL)
-					.And(Selector::subtype()(g))
-					.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
-
-				cgh->getBonusLocalFirst(sel)->val = cgh->type->heroClass->primarySkillInitial[g];
-			}
-		}
-	}
-
-	if(!travelOptions.whatHeroKeeps.secondarySkills)
-	{
-		//trimming sec skills
-		for(CGHeroInstance * cgh : crossoverHeroes)
-		{
-			cgh->secSkills = cgh->type->secSkillsInit;
-			cgh->recreateSecondarySkillsBonuses();
-		}
-	}
-
-	if(!travelOptions.whatHeroKeeps.spells)
-	{
-		for(CGHeroInstance * cgh : crossoverHeroes)
-		{
-			cgh->removeSpellbook();
-		}
-	}
-
-	if(!travelOptions.whatHeroKeeps.artifacts)
-	{
-		//trimming artifacts
-		for(CGHeroInstance * hero : crossoverHeroes)
-		{
-			size_t totalArts = GameConstants::BACKPACK_START + hero->artifactsInBackpack.size();
-			for (size_t i = 0; i < totalArts; i++ )
-			{
-				auto artifactPosition = ArtifactPosition((si32)i);
-				if(artifactPosition == ArtifactPosition::SPELLBOOK) continue; // do not handle spellbook this way
-
-				const ArtSlotInfo *info = hero->getSlot(artifactPosition);
-				if(!info)
-					continue;
-
-				// TODO: why would there be nullptr artifacts?
-				const CArtifactInstance *art = info->artifact;
-				if(!art)
-					continue;
-
-				bool takeable = travelOptions.artifactsKeptByHero.count(art->artType->getId());
-
-				ArtifactLocation al(hero, artifactPosition);
-				if(!takeable  &&  !al.getSlot()->locked)  //don't try removing locked artifacts -> it crashes #1719
-					al.removeArtifact();
-			}
-		}
-	}
-
-	//trimming creatures
-	for(CGHeroInstance * cgh : crossoverHeroes)
-	{
-		auto shouldSlotBeErased = [&](const std::pair<SlotID, CStackInstance *> & j) -> bool
-		{
-			CreatureID::ECreatureID crid = j.second->getCreatureID().toEnum();
-			return !travelOptions.monstersKeptByHero.count(crid);
-		};
-
-		auto stacksCopy = cgh->stacks; //copy of the map, so we can iterate iover it and remove stacks
-		for(auto &slotPair : stacksCopy)
-			if(shouldSlotBeErased(slotPair))
-				cgh->eraseStack(slotPair.first);
-	}
-
-	// Removing short-term bonuses
-	for(CGHeroInstance * cgh : crossoverHeroes)
-	{
-		cgh->removeBonusesRecursive(CSelector(Bonus::OneDay)
-			.Or(CSelector(Bonus::OneWeek))
-			.Or(CSelector(Bonus::NTurns))
-			.Or(CSelector(Bonus::NDays))
-			.Or(CSelector(Bonus::OneBattle)));
-	}
-
 }
 
 void CGameState::placeStartingHeroes()
@@ -2799,170 +2616,6 @@ bool RumorState::update(int id, int extra)
 		last[type] = std::make_pair(id, extra);
 
 	return true;
-}
-
-InfoAboutArmy::InfoAboutArmy():
-	owner(PlayerColor::NEUTRAL)
-{}
-
-InfoAboutArmy::InfoAboutArmy(const CArmedInstance *Army, bool detailed)
-{
-	initFromArmy(Army, detailed);
-}
-
-void InfoAboutArmy::initFromArmy(const CArmedInstance *Army, bool detailed)
-{
-	army = ArmyDescriptor(Army, detailed);
-	owner = Army->tempOwner;
-	name = Army->getObjectName();
-}
-
-void InfoAboutHero::assign(const InfoAboutHero & iah)
-{
-	vstd::clear_pointer(details);
-	InfoAboutArmy::operator = (iah);
-
-	details = (iah.details ? new Details(*iah.details) : nullptr);
-	hclass = iah.hclass;
-	portrait = iah.portrait;
-}
-
-InfoAboutHero::InfoAboutHero(): portrait(-1) {}
-
-InfoAboutHero::InfoAboutHero(const InfoAboutHero & iah): InfoAboutArmy(iah)
-{
-	assign(iah);
-}
-
-InfoAboutHero::InfoAboutHero(const CGHeroInstance * h, InfoAboutHero::EInfoLevel infoLevel):
-	portrait(-1)
-{
-	initFromHero(h, infoLevel);
-}
-
-InfoAboutHero::~InfoAboutHero()
-{
-	vstd::clear_pointer(details);
-}
-
-InfoAboutHero & InfoAboutHero::operator=(const InfoAboutHero & iah)
-{
-	assign(iah);
-	return *this;
-}
-
-void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLevel infoLevel)
-{
-	vstd::clear_pointer(details);
-	if(!h)
-		return;
-
-	bool detailed = ( (infoLevel == EInfoLevel::DETAILED) || (infoLevel == EInfoLevel::INBATTLE) );
-
-	initFromArmy(h, detailed);
-
-	hclass = h->type->heroClass;
-	name = h->getNameTranslated();
-	portrait = h->portrait;
-
-	if(detailed)
-	{
-		//include details about hero
-		details = new Details();
-		details->luck = h->luckVal();
-		details->morale = h->moraleVal();
-		details->mana = h->mana;
-		details->primskills.resize(GameConstants::PRIMARY_SKILLS);
-
-		for (int i = 0; i < GameConstants::PRIMARY_SKILLS ; i++)
-		{
-			details->primskills[i] = h->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(i));
-		}
-		if (infoLevel == EInfoLevel::INBATTLE)
-			details->manaLimit = h->manaLimit();
-		else
-			details->manaLimit = -1; //we do not want to leak max mana info outside battle so set to meaningless value
-	}
-}
-
-InfoAboutTown::InfoAboutTown():
-	details(nullptr),
-	tType(nullptr),
-	built(0),
-	fortLevel(0)
-{
-
-}
-
-InfoAboutTown::InfoAboutTown(const CGTownInstance *t, bool detailed):
-	details(nullptr),
-	tType(nullptr),
-	built(0),
-	fortLevel(0)
-{
-	initFromTown(t, detailed);
-}
-
-InfoAboutTown::~InfoAboutTown()
-{
-	vstd::clear_pointer(details);
-}
-
-void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
-{
-	initFromArmy(t, detailed);
-	army = ArmyDescriptor(t->getUpperArmy(), detailed);
-	built = t->builded;
-	fortLevel = t->fortLevel();
-	name = t->getNameTranslated();
-	tType = t->getTown();
-
-	vstd::clear_pointer(details);
-
-	if(detailed)
-	{
-		//include details about hero
-		details = new Details();
-		TResources income = t->dailyIncome();
-		details->goldIncome = income[EGameResID::GOLD];
-		details->customRes = t->hasBuilt(BuildingID::RESOURCE_SILO);
-		details->hallLevel = t->hallLevel();
-		details->garrisonedHero = t->garrisonHero;
-	}
-}
-
-ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
-	: isDetailed(detailed)
-{
-	for(const auto & elem : army->Slots())
-	{
-		if(detailed)
-			(*this)[elem.first] = *elem.second;
-		else
-			(*this)[elem.first] = CStackBasicDescriptor(elem.second->type, (int)elem.second->getQuantityID());
-	}
-}
-
-ArmyDescriptor::ArmyDescriptor()
-	: isDetailed(false)
-{
-
-}
-
-int ArmyDescriptor::getStrength() const
-{
-	ui64 ret = 0;
-	if(isDetailed)
-	{
-		for(const auto & elem : *this)
-			ret += elem.second.type->getAIValue() * elem.second.count;
-	}
-	else
-	{
-		for(const auto & elem : *this)
-			ret += elem.second.type->getAIValue() * CCreature::estimateCreatureCount(elem.second.count);
-	}
-	return static_cast<int>(ret);
 }
 
 TeamState::TeamState()

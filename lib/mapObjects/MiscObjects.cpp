@@ -19,7 +19,7 @@
 #include "../CSkillHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../IGameCallback.h"
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
 #include "../serializer/JsonSerializeFormat.h"

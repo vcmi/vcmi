@@ -32,7 +32,7 @@
 #include "../../lib/CModHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/CGameState.h"
+#include "../../lib/gameState/CGameState.h"
 #include "../../lib/TextOperations.h"
 
 class CCreatureArtifactInstance;

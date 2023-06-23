@@ -9,17 +9,8 @@
  */
 #pragma once
 
-#include "CCreatureHandler.h"
-#include "VCMI_Lib.h"
-
-#include "bonuses/Bonus.h"
-#include "CCreatureSet.h"
-#include "ConstTransitivePtr.h"
+#include "bonuses/CBonusSystemNode.h"
 #include "IGameCallback.h"
-#include "ResourceSet.h"
-#include "int3.h"
-#include "CRandomGenerator.h"
-#include "CGameStateFwd.h"
 
 namespace boost
 {
@@ -28,36 +19,15 @@ class shared_mutex;
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CTown;
-class IGameCallback;
-class CCreatureSet;
-class CQuest;
-class CGHeroInstance;
-class CGTownInstance;
-class CArmedInstance;
-class CGDwelling;
-class CObjectScript;
-class CGObjectInstance;
-class CCreature;
+class EVictoryLossCheckResult;
+class Services;
+class IMapService;
 class CMap;
-struct StartInfo;
-struct SetObjectProperty;
-class MetaString;
 struct CPack;
-class CSpell;
-struct TerrainTile;
 class CHeroClass;
-class CCampaign;
-class CCampaignState;
-class IModableArt;
-class CGGarrison;
-struct QuestInfo;
-class CQuest;
-class CCampaignScenario;
 struct EventCondition;
 class CScenarioTravel;
-class IMapService;
-
+class CStackInstance;
 
 template<typename T> class CApplier;
 class CBaseForGSApply;
@@ -125,7 +95,7 @@ struct UpgradeInfo
 {
 	CreatureID oldID; //creature to be upgraded
 	std::vector<CreatureID> newID; //possible upgrades
-	std::vector<TResources> cost; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>; cost is for single unit (not entire stack)
+	std::vector<ResourceSet> cost; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>; cost is for single unit (not entire stack)
 	UpgradeInfo(){oldID = CreatureID::NONE;};
 };
 
@@ -261,7 +231,7 @@ private:
 	void randomizeObject(CGObjectInstance *cur);
 	void initPlayerStates();
 	void placeCampaignHeroes();
-	CrossoverHeroesList getCrossoverHeroesFromPreviousScenarios() const;
+
 
 	/// returns heroes and placeholders in where heroes will be put
 	std::vector<CampaignHeroReplacement> generateCampaignHeroesToReplace(CrossoverHeroesList & crossoverHeroes);

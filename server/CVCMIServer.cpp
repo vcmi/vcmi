@@ -57,7 +57,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
-#include "../lib/CGameState.h"
+#include "../lib/gameState/CGameState.h"
 
 template<typename T> class CApplyOnServer;
 

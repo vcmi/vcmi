@@ -12,7 +12,7 @@
 
 #include "../mapping/CMapInfo.h"
 #include "../StartInfo.h"
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
 #include "../mapping/CMap.h"
 #include "../CModHandler.h"
 #include "../mapObjects/CObjectHandler.h"

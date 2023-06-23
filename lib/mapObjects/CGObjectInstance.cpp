@@ -14,7 +14,7 @@
 #include "CGHeroInstance.h"
 #include "ObjectTemplate.h"
 
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
 #include "../CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../NetPacks.h"

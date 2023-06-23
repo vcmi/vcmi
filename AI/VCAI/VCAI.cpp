@@ -20,7 +20,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/GameSettings.h"
-#include "../../lib/CGameState.h"
+#include "../../lib/gameState/CGameState.h"
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/bonuses/CBonusSystemNode.h"

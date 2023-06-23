@@ -12,7 +12,7 @@
 
 #include "CPathfinder.h"
 
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapping/CMapDefines.h"
 

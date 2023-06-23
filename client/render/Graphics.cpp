@@ -32,7 +32,6 @@
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"
 #include "../lib/CStopWatch.h"

@@ -10,7 +10,7 @@
 #include "StdInc.h"
 
 #include "CPlayerState.h"
-#include "CGameStateFwd.h"
+#include "gameState/QuestInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

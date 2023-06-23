@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 #include "CRewardableObject.h"
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
 #include "../CGeneralTextHandler.h"
 #include "../CPlayerState.h"
 #include "../IGameCallback.h"
