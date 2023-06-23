@@ -33,6 +33,8 @@ std::vector<int> IGameSettings::getVector(EGameSettings option) const
 	return getValue(option).convertTo<std::vector<int>>();
 }
 
+GameSettings::~GameSettings() = default;
+
 GameSettings::GameSettings()
 	: gameSettings(static_cast<size_t>(EGameSettings::OPTIONS_COUNT))
 {

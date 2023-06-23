@@ -73,6 +73,7 @@ class DLL_LINKAGE IGameSettings
 {
 public:
 	virtual const JsonNode & getValue(EGameSettings option) const = 0;
+	virtual ~IGameSettings() = default;
 
 	bool getBoolean(EGameSettings option) const;
 	int64_t getInteger(EGameSettings option) const;
@@ -80,12 +81,14 @@ public:
 	std::vector<int> getVector(EGameSettings option) const;
 };
 
-class DLL_LINKAGE GameSettings final : public IGameSettings
+class DLL_LINKAGE GameSettings final : public IGameSettings, boost::noncopyable
 {
 	std::vector<JsonNode> gameSettings;
 
 public:
 	GameSettings();
+	~GameSettings();
+
 	void load(const JsonNode & input);
 	const JsonNode & getValue(EGameSettings option) const override;
 
