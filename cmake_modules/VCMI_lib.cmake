@@ -62,6 +62,10 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/filesystem/MinizipExtensions.cpp
 		${MAIN_LIB_DIR}/filesystem/ResourceID.cpp
 
+		${MAIN_LIB_DIR}/gameState/CGameState.cpp
+		${MAIN_LIB_DIR}/gameState/CGameStateCampaign.cpp
+		${MAIN_LIB_DIR}/gameState/InfoAboutArmy.cpp
+
 		${MAIN_LIB_DIR}/logging/CBasicLogConfigurator.cpp
 		${MAIN_LIB_DIR}/logging/CLogger.cpp
 
@@ -222,7 +226,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CCreatureSet.cpp
 		${MAIN_LIB_DIR}/CGameInfoCallback.cpp
 		${MAIN_LIB_DIR}/CGameInterface.cpp
-		${MAIN_LIB_DIR}/CGameState.cpp
 		${MAIN_LIB_DIR}/CGeneralTextHandler.cpp
 		${MAIN_LIB_DIR}/CHeroHandler.cpp
 		${MAIN_LIB_DIR}/CModHandler.cpp
@@ -377,6 +380,12 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/filesystem/ISimpleResourceLoader.h
 		${MAIN_LIB_DIR}/filesystem/MinizipExtensions.h
 		${MAIN_LIB_DIR}/filesystem/ResourceID.h
+
+		${MAIN_LIB_DIR}/gameState/CGameState.h
+		${MAIN_LIB_DIR}/gameState/CGameStateCampaign.h
+		${MAIN_LIB_DIR}/gameState/EVictoryLossCheckResult.h
+		${MAIN_LIB_DIR}/gameState/InfoAboutArmy.h
+		${MAIN_LIB_DIR}/gameState/QuestInfo.h
 
 		${MAIN_LIB_DIR}/logging/CBasicLogConfigurator.h
 		${MAIN_LIB_DIR}/logging/CLogger.h
@@ -542,8 +551,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CCreatureSet.h
 		${MAIN_LIB_DIR}/CGameInfoCallback.h
 		${MAIN_LIB_DIR}/CGameInterface.h
-		${MAIN_LIB_DIR}/CGameStateFwd.h
-		${MAIN_LIB_DIR}/CGameState.h
 		${MAIN_LIB_DIR}/CGeneralTextHandler.h
 		${MAIN_LIB_DIR}/CHeroHandler.h
 		${MAIN_LIB_DIR}/CModHandler.h

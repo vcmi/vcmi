@@ -29,7 +29,6 @@
 #include "../CCallback.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "BitmapHandler.h"
-#include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"

@@ -15,7 +15,6 @@
 #include "../CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../CCreatureHandler.h"
-#include "../CGameState.h"
 #include "CGTownInstance.h"
 #include "../GameSettings.h"
 #include "../CSkillHandler.h"

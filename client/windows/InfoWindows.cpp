@@ -32,13 +32,13 @@
 
 #include "../../CCallback.h"
 
-#include "../../lib/CGameState.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
 
 #include <SDL_surface.h>
 

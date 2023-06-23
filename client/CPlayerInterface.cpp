@@ -75,7 +75,7 @@
 #include "../lib/TerrainHandler.h"
 #include "CServerHandler.h"
 // FIXME: only needed for CGameState::mutex
-#include "../lib/CGameState.h"
+#include "../lib/gameState/CGameState.h"
 #include "eventsSDL/NotificationHandler.h"
 #include "adventureMap/CInGameConsole.h"
 

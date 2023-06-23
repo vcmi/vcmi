@@ -20,7 +20,6 @@
 #include "../CHeroHandler.h"
 #include "CGCreature.h"
 #include "../IGameCallback.h"
-#include "../CGameState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../CModHandler.h"

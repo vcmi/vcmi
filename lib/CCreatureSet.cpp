@@ -18,7 +18,6 @@
 #include "GameSettings.h"
 #include "mapObjects/CGHeroInstance.h"
 #include "IGameCallback.h"
-#include "CGameState.h"
 #include "CGeneralTextHandler.h"
 #include "spells/CSpellHandler.h"
 #include "CHeroHandler.h"

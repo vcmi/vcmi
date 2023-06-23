@@ -13,7 +13,6 @@
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/CHeroHandler.h"
 #include "../../../lib/GameSettings.h"
-#include "../../../lib/CGameState.h"
 
 namespace NKAI
 {

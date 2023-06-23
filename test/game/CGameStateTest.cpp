@@ -15,7 +15,7 @@
 #include "mock/mock_spells_Problem.h"
 
 #include "../../lib/VCMIDirs.h"
-#include "../../lib/CGameState.h"
+#include "../../lib/gameState/CGameState.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/TerrainHandler.h"

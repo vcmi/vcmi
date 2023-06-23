@@ -38,7 +38,7 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/mapObjects/CGMarket.h"
 #include "../lib/mapping/CCampaignHandler.h"
-#include "../lib/CGameState.h"
+#include "../lib/gameState/CGameState.h"
 #include "../lib/CStack.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/GameConstants.h"

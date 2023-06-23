@@ -41,7 +41,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CGameState.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"

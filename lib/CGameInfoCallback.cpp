@@ -10,7 +10,8 @@
 #include "StdInc.h"
 #include "CGameInfoCallback.h"
 
-#include "CGameState.h" // PlayerState
+#include "gameState/CGameState.h"
+#include "gameState/InfoAboutArmy.h"
 #include "CGeneralTextHandler.h"
 #include "StartInfo.h" // for StartInfo
 #include "battle/BattleInfo.h" // for BattleInfo

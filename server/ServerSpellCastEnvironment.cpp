@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "../lib/CGameState.h"
+#include "../lib/gameState/CGameState.h"
 #include "CGameHandler.h"
 #include "ServerSpellCastEnvironment.h"
 

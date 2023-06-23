@@ -20,7 +20,7 @@
 #include "../lib/NetPacks.h"
 #include "ClientNetPackVisitors.h"
 #include "../lib/CConfigHandler.h"
-#include "../lib/CGameState.h"
+#include "../lib/gameState/CGameState.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/StringConstants.h"
 #include "../lib/mapping/CMapService.h"

@@ -11,7 +11,7 @@
 #include "CCallback.h"
 
 #include "lib/CCreatureHandler.h"
-#include "lib/CGameState.h"
+#include "lib/gameState/CGameState.h"
 #include "client/CPlayerInterface.h"
 #include "client/Client.h"
 #include "lib/mapping/CMap.h"

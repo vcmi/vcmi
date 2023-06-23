@@ -27,8 +27,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/TextOperations.h"
-
-#include "../../lib/CGameState.h"
+#include "../../lib/gameState/CGameState.h"
 
 void CGarrisonSlot::setHighlight(bool on)
 {

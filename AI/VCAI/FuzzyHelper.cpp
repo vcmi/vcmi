@@ -19,6 +19,7 @@
 #include "../../lib/mapObjects/CBank.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGDwelling.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
 
 FuzzyHelper * fh;
 

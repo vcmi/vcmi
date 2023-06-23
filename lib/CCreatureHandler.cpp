@@ -14,7 +14,6 @@
 #include "ResourceSet.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
-#include "CGameState.h"
 #include "CTownHandler.h"
 #include "CModHandler.h"
 #include "GameSettings.h"

@@ -12,7 +12,6 @@
 #include "Limiter.h"
 
 #include "../IGameCallback.h"
-#include "../CGameStateFwd.h"
 #include "../CPlayerState.h"
 #include "../mapObjects/CGHeroInstance.h"
 

@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CPlayerBattleCallback.h"
 #include "../CStack.h"
-#include "../CGameState.h"
+#include "../gameState/InfoAboutArmy.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -34,7 +34,7 @@
 #include "mapObjects/ObjectTemplate.h"
 #include "mapping/CCampaignHandler.h"
 #include "StartInfo.h"
-#include "CGameState.h"
+#include "gameState/CGameState.h"
 #include "mapping/CMap.h"
 #include "CPlayerState.h"
 #include "GameSettings.h"

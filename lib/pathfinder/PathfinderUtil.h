@@ -12,7 +12,7 @@
 #include "../TerrainHandler.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapping/CMapDefines.h"
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
 #include "CGPathNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

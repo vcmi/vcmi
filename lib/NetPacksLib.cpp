@@ -19,7 +19,7 @@
 #include "mapping/CMap.h"
 #include "spells/CSpellHandler.h"
 #include "CCreatureHandler.h"
-#include "CGameState.h"
+#include "gameState/CGameState.h"
 #include "CStack.h"
 #include "battle/BattleInfo.h"
 #include "CTownHandler.h"

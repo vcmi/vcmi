@@ -19,7 +19,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../CModHandler.h"
 #include "../IGameCallback.h"
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
 #include "../TerrainHandler.h"

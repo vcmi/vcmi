@@ -29,6 +29,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/VCMIDirs.h"
+#include "../lib/VCMI_Lib.h"
 #include "../lib/CConfigHandler.h"
 
 #include "../lib/logging/CBasicLogConfigurator.h"
