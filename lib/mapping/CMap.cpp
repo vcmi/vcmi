@@ -398,17 +398,17 @@ void CMap::checkForObjectives()
 			switch (cond.condition)
 			{
 				case EventCondition::HAVE_ARTIFACT:
-					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->arth->objects[cond.objectType]->getNameTranslated());
+					event.onFulfill.replaceTextID(VLC->artifacts()->getByIndex(cond.objectType)->getNameTextID());
 					break;
 
 				case EventCondition::HAVE_CREATURES:
-					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->creh->objects[cond.objectType]->getNameSingularTranslated());
-					boost::algorithm::replace_first(event.onFulfill, "%d", std::to_string(cond.value));
+					event.onFulfill.replaceTextID(VLC->creatures()->getByIndex(cond.objectType)->getNameSingularTextID());
+					event.onFulfill.replaceNumber(cond.value);
 					break;
 
 				case EventCondition::HAVE_RESOURCES:
-					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->generaltexth->restypes[cond.objectType]);
-					boost::algorithm::replace_first(event.onFulfill, "%d", std::to_string(cond.value));
+					event.onFulfill.replaceLocalString(EMetaText::RES_NAMES, cond.objectType);
+					event.onFulfill.replaceNumber(cond.value);
 					break;
 
 				case EventCondition::HAVE_BUILDING:
@@ -424,10 +424,10 @@ void CMap::checkForObjectives()
 					{
 						const auto * town = dynamic_cast<const CGTownInstance *>(cond.object);
 						if (town)
-							boost::algorithm::replace_first(event.onFulfill, "%s", town->getNameTranslated());
+							event.onFulfill.replaceRawString(town->getNameTranslated());
 						const auto * hero = dynamic_cast<const CGHeroInstance *>(cond.object);
 						if (hero)
-							boost::algorithm::replace_first(event.onFulfill, "%s", hero->getNameTranslated());
+							event.onFulfill.replaceRawString(hero->getNameTranslated());
 					}
 					break;
 
@@ -439,7 +439,7 @@ void CMap::checkForObjectives()
 					{
 						const auto * hero = dynamic_cast<const CGHeroInstance *>(cond.object);
 						if (hero)
-							boost::algorithm::replace_first(event.onFulfill, "%s", hero->getNameTranslated());
+							event.onFulfill.replaceRawString(hero->getNameTranslated());
 					}
 					break;
 				case EventCondition::TRANSPORT:
@@ -499,7 +499,6 @@ void CMap::removeQuestInstance(CQuest * quest)
 }
 
 void CMap::setUniqueInstanceName(CGObjectInstance * obj)
-
 {
 	//this gives object unique name even if objects are removed later
 

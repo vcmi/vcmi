@@ -147,7 +147,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
-		iw.text.addTxt(MetaString::GENERAL_TXT, 333);//%s is already in boat
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 333);//%s is already in boat
 		parameters.caster->getCasterName(iw.text);
 		env->apply(&iw);
 		return ESpellCastResult::CANCEL;
@@ -159,7 +159,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
-		iw.text.addTxt(MetaString::GENERAL_TXT, 334);//There is no place to put the boat.
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 334);//There is no place to put the boat.
 		env->apply(&iw);
 		return ESpellCastResult::CANCEL;
 	}
@@ -171,7 +171,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
-		iw.text.addTxt(MetaString::GENERAL_TXT, 336); //%s tried to summon a boat, but failed.
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 336); //%s tried to summon a boat, but failed.
 		parameters.caster->getCasterName(iw.text);
 		env->apply(&iw);
 		return ESpellCastResult::OK;
@@ -208,7 +208,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
-		iw.text.addTxt(MetaString::GENERAL_TXT, 335); //There are no boats to summon.
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 335); //There are no boats to summon.
 		env->apply(&iw);
 	}
 	else //create boat
@@ -236,7 +236,7 @@ ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(SpellCastEnvironmen
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
-		iw.text.addTxt(MetaString::GENERAL_TXT, 337); //%s tried to scuttle the boat, but failed
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 337); //%s tried to scuttle the boat, but failed
 		parameters.caster->getCasterName(iw.text);
 		env->apply(&iw);
 		return ESpellCastResult::OK;
@@ -313,7 +313,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
-		iw.text.addTxt(MetaString::GENERAL_TXT, 338); //%s is not skilled enough to cast this spell again today.
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 338); //%s is not skilled enough to cast this spell again today.
 		parameters.caster->getCasterName(iw.text);
 		env->apply(&iw);
 		return ESpellCastResult::CANCEL;
@@ -328,7 +328,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
-		iw.text.addTxt(MetaString::GENERAL_TXT, 70); //Dimension Door failed!
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 70); //Dimension Door failed!
 		env->apply(&iw);
 	}
 	else if(env->moveHero(ObjectInstanceID(parameters.caster->getCasterUnitId()), parameters.caster->getHeroCaster()->convertFromVisitablePos(parameters.pos), true))
@@ -376,7 +376,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 		{
 			InfoWindow iw;
 			iw.player = parameters.caster->getCasterOwner();
-			iw.text.addTxt(MetaString::GENERAL_TXT, 123);
+			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 123);
 			env->apply(&iw);
 			return ESpellCastResult::CANCEL;
 		}
@@ -461,7 +461,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
-		iw.text.addTxt(MetaString::GENERAL_TXT, 124);
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 124);
 		env->apply(&iw);
 		return ESpellCastResult::CANCEL;
 	}
@@ -472,7 +472,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
-		iw.text.addTxt(MetaString::GENERAL_TXT, 125);
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 125);
 		env->apply(&iw);
 		return ESpellCastResult::CANCEL;
 	}
@@ -517,14 +517,14 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 		{
 			InfoWindow iw;
 			iw.player = parameters.caster->getCasterOwner();
-			iw.text.addTxt(MetaString::GENERAL_TXT, 124);
+			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 124);
 			env->apply(&iw);
 			return ESpellCastResult::CANCEL;
 		}
 
 		request.player = parameters.caster->getCasterOwner();
-		request.title.addTxt(MetaString::JK_TXT, 40);
-		request.description.addTxt(MetaString::JK_TXT, 41);
+		request.title.appendLocalString(EMetaText::JK_TXT, 40);
+		request.description.appendLocalString(EMetaText::JK_TXT, 41);
 		request.icon.id = Component::EComponentType::SPELL;
 		request.icon.subtype = owner->id.toEnum();
 

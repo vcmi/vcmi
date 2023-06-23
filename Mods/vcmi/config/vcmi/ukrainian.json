@@ -156,7 +156,16 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Налаштувати...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Розподіл команд",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Види доріг",
-	
+
+	// Custom victory conditions for H3 campaigns and HotA maps
+	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Ворогу вдалося вижити до сьогоднішнього дня. Він переміг!",
+	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Вітаємо! Вам вдалося залишитися в живих. Перемога за вами!",
+	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Ворог переміг усіх звірів, що заполонили цю землю, і святкує перемогу!",
+	"vcmi.map.victoryCondition.eliminateMonsters.toSelf" : "Вітаємо! Ви перемогли усіх звірів, що заполонили цю землю, і можете святкувати перемогу!",
+	"vcmi.map.victoryCondition.collectArtifacts.message" : "Здобути три артефакти",
+	"vcmi.map.victoryCondition.angelicAlliance.toSelf" : "Вітаємо! Усі ваші вороги переможені, і ви маєте Альянс Ангелів! Перемога ваша!",
+	"vcmi.map.victoryCondition.angelicAlliance.message" : "Перемогти всіх ворогів і створити Альянс Ангелів",
+
 	"core.bonus.ADDITIONAL_ATTACK.name" : "Подвійний удар",
 	"core.bonus.ADDITIONAL_ATTACK.description" : "Атакує двічі",
 	"core.bonus.ADDITIONAL_RETALIATION.name" : "Додаткові відплати",

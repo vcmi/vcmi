@@ -10,6 +10,7 @@
 			"120px" : "TPCASINF",
 			"130px" : "CRBKGINF"
 		},
+		"boat" : "boatCastle",
 		"puzzleMap" :
 		{
 			"prefix" : "PUZINF",

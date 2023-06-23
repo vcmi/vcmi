@@ -34,9 +34,9 @@ namespace {
 	{
 		MetaString ret;
 		if (value.isNumber())
-			ret.addTxt(MetaString::ADVOB_TXT, static_cast<ui32>(value.Float()));
+			ret.appendLocalString(EMetaText::ADVOB_TXT, static_cast<ui32>(value.Float()));
 		else
-			ret << value.String();
+			ret.appendRawString(value.String());
 		return ret;
 	}
 
@@ -191,10 +191,10 @@ void Rewardable::Info::configureRewards(
 		info.message = loadMessage(reward["message"]);
 
 		for (const auto & artifact : info.reward.artifacts )
-			info.message.addReplacement(MetaString::ART_NAMES, artifact.getNum());
+			info.message.replaceLocalString(EMetaText::ART_NAMES, artifact.getNum());
 
 		for (const auto & artifact : info.reward.spells )
-			info.message.addReplacement(MetaString::SPELL_NAME, artifact.getNum());
+			info.message.replaceLocalString(EMetaText::SPELL_NAME, artifact.getNum());
 
 		object.info.push_back(info);
 	}

@@ -12,7 +12,7 @@
 
 #include <vcmi/spells/Magic.h>
 
-#include "../../lib/NetPacksBase.h"
+#include "../../lib/MetaString.h"
 
 namespace spells
 {

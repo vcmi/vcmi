@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CCreatureSet.h"
+#include "MetaString.h"
 #include "int3.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -101,12 +102,12 @@ struct DLL_LINKAGE InfoAboutTown : public InfoAboutArmy
 class DLL_LINKAGE EVictoryLossCheckResult
 {
 public:
-	static EVictoryLossCheckResult victory(std::string toSelf, std::string toOthers)
+	static EVictoryLossCheckResult victory(MetaString toSelf, MetaString toOthers)
 	{
 		return EVictoryLossCheckResult(VICTORY, toSelf, toOthers);
 	}
 
-	static EVictoryLossCheckResult defeat(std::string toSelf, std::string toOthers)
+	static EVictoryLossCheckResult defeat(MetaString toSelf, MetaString toOthers)
 	{
 		return EVictoryLossCheckResult(DEFEAT, toSelf, toOthers);
 	}
@@ -140,8 +141,8 @@ public:
 		return EVictoryLossCheckResult(-intValue, messageToOthers, messageToSelf);
 	}
 
-	std::string messageToSelf;
-	std::string messageToOthers;
+	MetaString messageToSelf;
+	MetaString messageToOthers;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -157,7 +158,7 @@ private:
 		VICTORY= +1
 	};
 
-	EVictoryLossCheckResult(si32 intValue, std::string toSelf, std::string toOthers):
+	EVictoryLossCheckResult(si32 intValue, MetaString toSelf, MetaString toOthers):
 		messageToSelf(toSelf),
 		messageToOthers(toOthers),
 		intValue(intValue)

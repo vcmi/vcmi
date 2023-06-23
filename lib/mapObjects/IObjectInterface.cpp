@@ -38,7 +38,7 @@ void IObjectInterface::showInfoDialog(const ui32 txtID, const ui16 soundID, EInf
 	iw.soundID = soundID;
 	iw.player = getOwner();
 	iw.type = mode;
-	iw.text.addTxt(MetaString::ADVOB_TXT,txtID);
+	iw.text.appendLocalString(EMetaText::ADVOB_TXT,txtID);
 	IObjectInterface::cb->sendAndApply(&iw);
 }
 
@@ -122,16 +122,16 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 	switch(shipyardStatus())
 	{
 	case BOAT_ALREADY_BUILT:
-		out.addTxt(MetaString::GENERAL_TXT, 51);
+		out.appendLocalString(EMetaText::GENERAL_TXT, 51);
 		break;
 	case TILE_BLOCKED:
 		if(visitor)
 		{
-			out.addTxt(MetaString::GENERAL_TXT, 134);
-			out.addReplacement(visitor->getNameTranslated());
+			out.appendLocalString(EMetaText::GENERAL_TXT, 134);
+			out.replaceRawString(visitor->getNameTranslated());
 		}
 		else
-			out.addTxt(MetaString::ADVOB_TXT, 189);
+			out.appendLocalString(EMetaText::ADVOB_TXT, 189);
 		break;
 	case NO_WATER:
 		logGlobal->error("Shipyard without water at tile %s! ", getObject()->getPosition().toString());

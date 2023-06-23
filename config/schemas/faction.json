@@ -32,7 +32,7 @@
 	"description" : "Json format for defining new faction (aka towns) in VCMI",
 	"required" : [ "name", "alignment", "nativeTerrain", "creatureBackground" ],
 	"dependencies" : {
-		"town" : [ "puzzleMap" ]
+		"town" : [ "puzzleMap", "boat" ]
 	},
 	"additionalProperties" : false,
 	"properties" : {
@@ -49,6 +49,11 @@
 			"type" : "string",
 			"description" : "Native terrain for creatures. Creatures fighting on native terrain receive several bonuses"
 		},
+		"boat" : {
+			"type" : "string",
+			"description" : "Identifier of boat type that is produced by shipyard in town, if any"
+		},
+
 		"preferUndergroundPlacement" : {
 			"type" : "boolean",
 			"description" : "Random map generator places player/cpu-owned towns underground if true is specified and on the ground otherwise. Parameter is unused for maps without underground. False by default."
@@ -123,10 +128,6 @@
 				"warMachine" : {
 					"type" : "string",
 					"description" : "Identifier of war machine produced by blacksmith in town"
-				},
-				"boat" : {
-					"type" : "string",
-					"description" : "Identifier of boat type that is produced by shipyard in town, if any"
 				},
 				"horde" : {
 					"type" : "array",

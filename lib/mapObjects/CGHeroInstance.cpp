@@ -453,9 +453,8 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 				//Create a new boat for hero
 				NewObject no;
 				no.ID = Obj::BOAT;
-				no.subID = BoatId(EBoatId::CASTLE);
-				no.pos = CGBoat::translatePos(boatPos);
-				
+				no.subID = getBoatType().getNum();
+
 				cb->sendAndApply(&no);
 
 				boatId = cb->getTopObj(boatPos)->id;
@@ -681,7 +680,7 @@ PlayerColor CGHeroInstance::getCasterOwner() const
 void CGHeroInstance::getCasterName(MetaString & text) const
 {
 	//FIXME: use local name, MetaString need access to gamestate as hero name is part of map object
-	text.addReplacement(getNameTranslated());
+	text.replaceRawString(getNameTranslated());
 }
 
 void CGHeroInstance::getCastDescription(const spells::Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const
@@ -689,9 +688,9 @@ void CGHeroInstance::getCastDescription(const spells::Spell * spell, const std::
 	const bool singleTarget = attacked.size() == 1;
 	const int textIndex = singleTarget ? 195 : 196;
 
-	text.addTxt(MetaString::GENERAL_TXT, textIndex);
+	text.appendLocalString(EMetaText::GENERAL_TXT, textIndex);
 	getCasterName(text);
-	text.addReplacement(MetaString::SPELL_NAME, spell->getIndex());
+	text.replaceLocalString(EMetaText::SPELL_NAME, spell->getIndex());
 	if(singleTarget)
 		attacked.at(0)->addNameReplacement(text, true);
 }
@@ -897,14 +896,14 @@ void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedSta
 
 	if (raisedStack.count > 1) // Practicing the dark arts of necromancy, ... (plural)
 	{
-		iw.text.addTxt(MetaString::GENERAL_TXT, 145);
-		iw.text.addReplacement(raisedStack.count);
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 145);
+		iw.text.replaceNumber(raisedStack.count);
 	}
 	else // Practicing the dark arts of necromancy, ... (singular)
 	{
-		iw.text.addTxt(MetaString::GENERAL_TXT, 146);
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 146);
 	}
-	iw.text.addReplacement(raisedStack);
+	iw.text.replaceCreatureName(raisedStack);
 
 	cb->showInfoDialog(&iw);
 }
@@ -954,8 +953,7 @@ si32 CGHeroInstance::getManaNewTurn() const
 
 BoatId CGHeroInstance::getBoatType() const
 {
-	// hero can only generate boat via "Summon Boat" spell which always create same boat as in Necropolis shipyard
-	return EBoatId::NECROPOLIS;
+	return BoatId(VLC->townh->getById(type->heroClass->faction)->getBoatType());
 }
 
 void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
@@ -1106,6 +1104,13 @@ int CGHeroInstance::maxSpellLevel() const
 void CGHeroInstance::deserializationFix()
 {
 	artDeserializationFix(this);
+	boatDeserializationFix();
+}
+
+void CGHeroInstance::boatDeserializationFix()
+{
+	if (boat)
+		attachTo(const_cast<CGBoat&>(*boat));
 }
 
 CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const

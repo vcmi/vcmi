@@ -17,6 +17,7 @@
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../../lib/mapObjects/CBank.h"
+#include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGDwelling.h"
 
 FuzzyHelper * fh;

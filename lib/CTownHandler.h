@@ -204,6 +204,11 @@ public:
 	EAlignment alignment = EAlignment::NEUTRAL;
 	bool preferUndergroundPlacement = false;
 
+	/// Boat that will be used by town shipyard (if any)
+	/// and for placing heroes directly on boat (in map editor, water prisons & taverns)
+	BoatId boatType;
+
+
 	CTown * town = nullptr; //NOTE: can be null
 
 	std::string creatureBg120;
@@ -226,6 +231,7 @@ public:
 	bool hasTown() const override;
 	TerrainId getNativeTerrain() const override;
 	EAlignment getAlignment() const override;
+	EBoatId getBoatType() const override;
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
@@ -236,6 +242,7 @@ public:
 		h & identifier;
 		h & index;
 		h & nativeTerrain;
+		h & boatType;
 		h & alignment;
 		h & town;
 		h & creatureBg120;
@@ -282,8 +289,6 @@ public:
 	ArtifactID warMachine;
 	SpellID moatAbility;
 
-	/// boat that will be built by town shipyard, if exists
-	BoatId shipyardBoat;
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
 	// resulting chance = sqrt(town.chance * heroClass.chance)
 	ui32 defaultTavernChance;
@@ -349,7 +354,6 @@ public:
 		h & mageLevel;
 		h & primaryRes;
 		h & warMachine;
-		h & shipyardBoat;
 		h & clientInfo;
 		h & moatAbility;
 		h & defaultTavernChance;

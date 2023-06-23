@@ -28,6 +28,7 @@
 #include "../mapObjectConstructors/HillFortInstanceConstructor.h"
 #include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
 #include "../mapObjectConstructors/ShrineInstanceConstructor.h"
+#include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/CQuest.h"
 #include "../mapObjects/ObjectTemplate.h"

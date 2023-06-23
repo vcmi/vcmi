@@ -145,11 +145,13 @@ CDefFile::CDefFile(std::string Name):
 		palette[i].a = SDL_ALPHA_OPAQUE;
 	}
 
-	// first color seems to be used unconditionally as 100% transparency
+	// these colors seems to be used unconditionally
 	palette[0] = targetPalette[0];
+	palette[1] = targetPalette[1];
+	palette[4] = targetPalette[4];
 
 	// rest of special colors are used only if their RGB values are close to H3
-	for (uint32_t i = 1; i < 8; ++i)
+	for (uint32_t i = 0; i < 8; ++i)
 	{
 		if (colorsSimilar(sourcePalette[i], palette[i]))
 			palette[i] = targetPalette[i];

@@ -13,7 +13,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class PlayerColor;
-struct MetaString;
+class MetaString;
 class ServerCallback;
 class CGHeroInstance;
 

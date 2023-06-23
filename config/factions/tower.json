@@ -9,6 +9,7 @@
 			"120px" : "TPCASTOW",
 			"130px" : "CRBKGTOW"
 		},
+		"boat" : "boatCastle",
 		"puzzleMap" :
 		{
 			"prefix" : "PUZTOW",

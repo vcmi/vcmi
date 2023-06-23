@@ -28,7 +28,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/NetPacksBase.h"
+#include "../../lib/MetaString.h"
 #include "../../lib/mapObjects/CQuest.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -167,12 +167,12 @@ void CQuestLog::recreateLabelList()
 			if (auto seersHut = dynamic_cast<const CGSeerHut *>(quests[i].obj))
 			{
 				MetaString toSeer;
-				toSeer << VLC->generaltexth->allTexts[347];
-				toSeer.addReplacement(seersHut->seerName);
-				text.addReplacement(toSeer.toString());
+				toSeer.appendRawString(VLC->generaltexth->allTexts[347]);
+				toSeer.replaceRawString(seersHut->seerName);
+				text.replaceRawString(toSeer.toString());
 			}
 			else
-				text.addReplacement(quests[i].obj->getObjectName()); //get name of the object
+				text.replaceRawString(quests[i].obj->getObjectName()); //get name of the object
 		}
 		auto label = std::make_shared<CQuestLabel>(Rect(13, 195, 149,31), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, text.toString());
 		label->disable();

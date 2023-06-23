@@ -96,29 +96,29 @@ void CMapHeader::setupEvents()
 	//Victory condition - defeat all
 	TriggeredEvent standardVictory;
 	standardVictory.effect.type = EventEffect::VICTORY;
-	standardVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[5];
+	standardVictory.effect.toOtherMessage.appendTextID("core.genrltxt.5");
 	standardVictory.identifier = "standardVictory";
 	standardVictory.description.clear(); // TODO: display in quest window
-	standardVictory.onFulfill = VLC->generaltexth->allTexts[659];
+	standardVictory.onFulfill.appendTextID("core.genrltxt.659");
 	standardVictory.trigger = EventExpression(victoryCondition);
 
 	//Loss condition - 7 days without town
 	TriggeredEvent standardDefeat;
 	standardDefeat.effect.type = EventEffect::DEFEAT;
-	standardDefeat.effect.toOtherMessage = VLC->generaltexth->allTexts[8];
+	standardDefeat.effect.toOtherMessage.appendTextID("core.genrltxt.8");
 	standardDefeat.identifier = "standardDefeat";
 	standardDefeat.description.clear(); // TODO: display in quest window
-	standardDefeat.onFulfill = VLC->generaltexth->allTexts[7];
+	standardDefeat.onFulfill.appendTextID("core.genrltxt.7");
 	standardDefeat.trigger = EventExpression(defeatCondition);
 
 	triggeredEvents.push_back(standardVictory);
 	triggeredEvents.push_back(standardDefeat);
 
 	victoryIconIndex = 11;
-	victoryMessage = VLC->generaltexth->victoryConditions[0];
+	victoryMessage.appendTextID("core.vcdesc.0");
 
 	defeatIconIndex = 3;
-	defeatMessage = VLC->generaltexth->lossCondtions[0];
+	defeatMessage.appendTextID("core.lcdesc.0");
 }
 
 CMapHeader::CMapHeader() : version(EMapFormat::VCMI), height(72), width(72),

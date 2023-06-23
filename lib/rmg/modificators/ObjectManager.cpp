@@ -23,6 +23,7 @@
 #include "../../CCreatureHandler.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../mapObjects/CGCreature.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
 #include "../Functions.h"

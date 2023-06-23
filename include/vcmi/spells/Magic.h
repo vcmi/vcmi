@@ -12,7 +12,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct MetaString;
+class MetaString;
 
 namespace battle
 {

@@ -15,6 +15,7 @@
 #include "../VCMI_Lib.h"
 #include "../CModHandler.h"
 #include "../CTownHandler.h"
+#include "../CHeroHandler.h"
 #include "../filesystem/Filesystem.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -86,6 +87,15 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 		}
 	}
 
+	for (auto entry : mapping["portraits"].Struct())
+	{
+		int32_t sourceID = entry.second.Integer();
+		int32_t targetID = *VLC->modh->identifiers.getIdentifier(VLC->modh->scopeGame(), "hero", entry.first);
+		int32_t iconID = VLC->heroTypes()->getByIndex(targetID)->getIconIndex();
+
+		mappingHeroPortrait[sourceID] = iconID;
+	}
+
 	loadMapping(mappingBuilding, mapping["buildingsCommon"], "building.core:random");
 	loadMapping(mappingFaction, mapping["factions"], "faction");
 	loadMapping(mappingCreature, mapping["creatures"], "creature");
@@ -111,6 +121,15 @@ void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
 		objectTemplate.id = mappedType.ID;
 		objectTemplate.subid = mappedType.subID;
 	}
+
+	if (objectTemplate.id == Obj::TOWN || objectTemplate.id == Obj::RANDOM_DWELLING_FACTION)
+		objectTemplate.subid = remap(FactionID(objectTemplate.subid));
+
+	if (objectTemplate.id == Obj::MONSTER)
+		objectTemplate.subid = remap(CreatureID(objectTemplate.subid));
+
+	if (objectTemplate.id == Obj::ARTIFACT)
+		objectTemplate.subid = remap(ArtifactID(objectTemplate.subid));
 }
 
 BuildingID MapIdentifiersH3M::remapBuilding(std::optional<FactionID> owner, BuildingID input) const
@@ -146,6 +165,13 @@ HeroTypeID MapIdentifiersH3M::remap(HeroTypeID input) const
 {
 	if (mappingHeroType.count(input))
 		return mappingHeroType.at(input);
+	return input;
+}
+
+int32_t MapIdentifiersH3M::remapPortrrait(int32_t input) const
+{
+	if (mappingHeroPortrait.count(input))
+		return mappingHeroPortrait.at(input);
 	return input;
 }
 

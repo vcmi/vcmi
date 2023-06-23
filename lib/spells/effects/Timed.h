@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct Bonus;
 struct SetStackEffect;
-struct MetaString;
+class MetaString;
 
 namespace spells
 {

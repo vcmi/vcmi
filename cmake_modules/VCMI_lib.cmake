@@ -77,6 +77,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CBank.cpp
+		${MAIN_LIB_DIR}/mapObjects/CGCreature.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGDwelling.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGHeroInstance.cpp
 		${MAIN_LIB_DIR}/mapObjects/CGMarket.cpp
@@ -243,6 +244,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/LoadProgress.cpp
 		${MAIN_LIB_DIR}/LogicalExpression.cpp
 		${MAIN_LIB_DIR}/NetPacksLib.cpp
+		${MAIN_LIB_DIR}/MetaString.cpp
 		${MAIN_LIB_DIR}/ObstacleHandler.cpp
 		${MAIN_LIB_DIR}/StartInfo.cpp
 		${MAIN_LIB_DIR}/ResourceSet.cpp
@@ -395,6 +397,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/mapObjects/CArmedInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CBank.h
+		${MAIN_LIB_DIR}/mapObjects/CGCreature.h
 		${MAIN_LIB_DIR}/mapObjects/CGDwelling.h
 		${MAIN_LIB_DIR}/mapObjects/CGHeroInstance.h
 		${MAIN_LIB_DIR}/mapObjects/CGMarket.h
@@ -572,6 +575,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/Languages.h
 		${MAIN_LIB_DIR}/LoadProgress.h
 		${MAIN_LIB_DIR}/LogicalExpression.h
+		${MAIN_LIB_DIR}/MetaString.h
 		${MAIN_LIB_DIR}/NetPacksBase.h
 		${MAIN_LIB_DIR}/NetPacks.h
 		${MAIN_LIB_DIR}/NetPacksLobby.h

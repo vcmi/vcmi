@@ -96,8 +96,19 @@ HeroTypeID MapReaderH3M::readHero()
 	if(result.getNum() == features.heroIdentifierInvalid)
 		return HeroTypeID(-1);
 
+	assert(result.getNum() < features.heroesCount);
+	return remapIdentifier(result);
+}
+
+int32_t MapReaderH3M::readHeroPortrait()
+{
+	HeroTypeID result(reader->readUInt8());
+
+	if(result.getNum() == features.heroIdentifierInvalid)
+		return int32_t(-1);
+
 	assert(result.getNum() < features.heroesPortraitsCount);
-	return remapIdentifier(result);;
+	return remapper.remapPortrrait(result);
 }
 
 CreatureID MapReaderH3M::readCreature()

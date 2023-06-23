@@ -30,7 +30,7 @@ static void describeEffect(std::vector<MetaString> & log, const Mechanics * m, c
 	auto addLogLine = [&](const int32_t baseTextID, const boost::logic::tribool & plural)
 	{
 		MetaString line;
-		target->addText(line, MetaString::GENERAL_TXT, baseTextID, plural);
+		target->addText(line, EMetaText::GENERAL_TXT, baseTextID, plural);
 		target->addNameReplacement(line, plural);
 		log.push_back(std::move(line));
 	};
@@ -78,10 +78,10 @@ static void describeEffect(std::vector<MetaString> & log, const Mechanics * m, c
 
 					//"The %s shrivel with age, and lose %d hit points."
 					MetaString line;
-					target->addText(line, MetaString::GENERAL_TXT, 551);
+					target->addText(line, EMetaText::GENERAL_TXT, 551);
 					target->addNameReplacement(line);
 
-					line.addReplacement(oldHealth - newHealth);
+					line.replaceNumber(oldHealth - newHealth);
 					log.push_back(std::move(line));
 					return;
 				}

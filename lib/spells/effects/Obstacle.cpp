@@ -259,8 +259,8 @@ bool Obstacle::isHexAvailable(const CBattleInfoCallback * cb, const BattleHex & 
 bool Obstacle::noRoomToPlace(Problem & problem, const Mechanics * m)
 {
 	MetaString text;
-	text.addTxt(MetaString::GENERAL_TXT, 181);//No room to place %s here
-	text.addReplacement(m->getSpellName());
+	text.appendLocalString(EMetaText::GENERAL_TXT, 181);//No room to place %s here
+	text.replaceRawString(m->getSpellName());
 	problem.add(std::move(text));
 	return false;
 }

@@ -309,7 +309,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 		{
 			MetaString line;
 			caster->getCastDescription(owner, affectedUnits, line);
-			if(!line.message.empty())
+			if(!line.empty())
 				castDescription.lines.push_back(line);
 		}
 		break;

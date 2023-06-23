@@ -210,9 +210,9 @@ void InfoCard::changeSelection()
 	iconsMapSizes->setFrame(mapInfo->getMapSizeIconId());
 	const CMapHeader * header = mapInfo->mapHeader.get();
 	iconsVictoryCondition->setFrame(header->victoryIconIndex);
-	labelVictoryConditionText->setText(header->victoryMessage);
+	labelVictoryConditionText->setText(header->victoryMessage.toString());
 	iconsLossCondition->setFrame(header->defeatIconIndex);
-	labelLossConditionText->setText(header->defeatMessage);
+	labelLossConditionText->setText(header->defeatMessage.toString());
 	flagbox->recreate();
 	labelDifficulty->setText(CGI->generaltexth->arraytxt[142 + mapInfo->mapHeader->difficulty]);
 	iconDifficulty->setSelected(SEL->getCurrentDifficulty());

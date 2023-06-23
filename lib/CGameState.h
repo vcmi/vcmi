@@ -42,7 +42,7 @@ class CCreature;
 class CMap;
 struct StartInfo;
 struct SetObjectProperty;
-struct MetaString;
+class MetaString;
 struct CPack;
 class CSpell;
 struct TerrainTile;

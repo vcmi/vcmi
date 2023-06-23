@@ -320,7 +320,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
-			iw.text << h->commander->getName();
+			iw.text.appendRawString(h->commander->getName());
 			iw.components.emplace_back(*h->commander);
 			cb->showInfoDialog(&iw);
 		}
@@ -682,7 +682,7 @@ void CGTownInstance::clearArmy() const
 
 BoatId CGTownInstance::getBoatType() const
 {
-	return town->shipyardBoat;
+	return town->faction->boatType;
 }
 
 int CGTownInstance::getMarketEfficiency() const

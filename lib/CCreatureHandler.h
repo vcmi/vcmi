@@ -58,7 +58,6 @@ public:
 	std::set<CreatureID> upgrades; // IDs of creatures to which this creature can be upgraded
 
 	std::string animDefName; // creature animation used during battles
-	std::string advMapDef; //for new creatures only, image for adventure map
 
 	si32 iconIndex = -1; // index of icon in files like twcrport, used in tests now.
 	/// names of files with appropriate icons. Used only during loading
@@ -230,7 +229,6 @@ public:
 		h & ammMax;
 		h & level;
 		h & animDefName;
-		h & advMapDef;
 		h & iconIndex;
 		h & smallIconName;
 		h & largeIconName;

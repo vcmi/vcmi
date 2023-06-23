@@ -21,7 +21,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct MetaString;
+enum class EMetaText : uint8_t;
+class MetaString;
 class JsonNode;
 class JsonSerializeFormat;
 
@@ -122,7 +123,7 @@ public:
 	static BattleHex occupiedHex(BattleHex assumedPos, bool twoHex, ui8 side);
 
 	///MetaStrings
-	void addText(MetaString & text, ui8 type, int32_t serial, const boost::logic::tribool & plural = boost::logic::indeterminate) const;
+	void addText(MetaString & text, EMetaText type, int32_t serial, const boost::logic::tribool & plural = boost::logic::indeterminate) const;
 	void addNameReplacement(MetaString & text, const boost::logic::tribool & plural = boost::logic::indeterminate) const;
 	std::string formatGeneralMessage(const int32_t baseTextId) const;
 

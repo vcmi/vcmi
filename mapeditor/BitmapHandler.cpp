@@ -131,6 +131,7 @@ namespace BitmapHandler
 						c = qRgb(qRed(c), qGreen(c), qBlue(c));
 					image.setColorTable(colorTable);
 				}
+				return image;
 			}
 			else
 			{

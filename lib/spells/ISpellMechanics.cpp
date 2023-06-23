@@ -460,7 +460,7 @@ bool BaseMechanics::adaptGenericProblem(Problem & target) const
 {
 	MetaString text;
 	// %s recites the incantations but they seem to have no effect.
-	text.addTxt(MetaString::GENERAL_TXT, 541);
+	text.appendLocalString(EMetaText::GENERAL_TXT, 541);
 	assert(caster);
 	caster->getCasterName(text);
 
@@ -489,14 +489,14 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Pr
 			if(b && b->val == 2 && b->source == BonusSource::ARTIFACT)
 			{
 				//The %s prevents %s from casting 3rd level or higher spells.
-				text.addTxt(MetaString::GENERAL_TXT, 536);
-				text.addReplacement(MetaString::ART_NAMES, b->sid);
+				text.appendLocalString(EMetaText::GENERAL_TXT, 536);
+				text.replaceLocalString(EMetaText::ART_NAMES, b->sid);
 				caster->getCasterName(text);
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
 			else if(b && b->source == BonusSource::TERRAIN_OVERLAY && VLC->battlefields()->getByIndex(b->sid)->identifier == "cursed_ground")
 			{
-				text.addTxt(MetaString::GENERAL_TXT, 537);
+				text.appendLocalString(EMetaText::GENERAL_TXT, 537);
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
 			else
@@ -510,14 +510,14 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Pr
 	case ESpellCastProblem::NO_APPROPRIATE_TARGET:
 		{
 			MetaString text;
-			text.addTxt(MetaString::GENERAL_TXT, 185);
+			text.appendLocalString(EMetaText::GENERAL_TXT, 185);
 			target.add(std::move(text), spells::Problem::NORMAL);
 		}
 		break;
 	case ESpellCastProblem::INVALID:
 		{
 			MetaString text;
-			text.addReplacement("Internal error during check of spell cast.");
+			text.appendRawString("Internal error during check of spell cast.");
 			target.add(std::move(text), spells::Problem::CRITICAL);
 		}
 		break;

@@ -9,6 +9,7 @@
 			"120px" : "TPCASELE",
 			"130px" : "CRBKGELE"
 		},
+		"boat" : "boatNecropolis",
 		"puzzleMap" :
 		{
 			"prefix" : "PUZELE",
@@ -153,7 +154,6 @@
 			"primaryResource" : "mercury",
 			"warMachine" : "ballista",
 			"moatAbility" : "castleMoat",
-			"boat" : "boatNecropolis",
 
 			"buildings" :
 			{
