@@ -27,7 +27,8 @@ struct CampaignHeroReplacement
 
 struct CrossoverHeroesList
 {
-	std::vector<CGHeroInstance *> heroesFromPreviousScenario, heroesFromAnyPreviousScenarios;
+	std::vector<CGHeroInstance *> heroesFromPreviousScenario;
+	std::vector<CGHeroInstance *> heroesFromAnyPreviousScenarios;
 	void addHeroToBothLists(CGHeroInstance * hero);
 	void removeHeroFromBothLists(CGHeroInstance * hero);
 };
