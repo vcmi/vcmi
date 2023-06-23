@@ -451,12 +451,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			{
 				smp.val = maxMovePoints(false);
 				//Create a new boat for hero
-				NewObject no;
-				no.ID = Obj::BOAT;
-				no.subID = getBoatType().getNum();
-
-				cb->sendAndApply(&no);
-
+				cb->createObject(boatPos, Obj::BOAT, getBoatType().getNum());
 				boatId = cb->getTopObj(boatPos)->id;
 			}
 			else
@@ -958,11 +953,15 @@ BoatId CGHeroInstance::getBoatType() const
 
 void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
 {
-	// FIXME: Offsets need to be fixed once we get rid of convertPosition
-	// Check issue 515 for details
-	offsets =
-	{
-		int3(-1,1,0), int3(-1,-1,0), int3(-2,0,0), int3(0,0,0), int3(0,1,0), int3(-2,1,0), int3(0,-1,0), int3(-2,-1,0)
+	offsets = {
+		{0, -1, 0},
+		{+1, -1, 0},
+		{+1, 0, 0},
+		{+1, +1, 0},
+		{0, +1, 0},
+		{-1, +1, 0},
+		{-1, 0, 0},
+		{-1, -1, 0},
 	};
 }
 

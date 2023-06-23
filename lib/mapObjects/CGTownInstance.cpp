@@ -585,7 +585,7 @@ bool CGTownInstance::passableFor(PlayerColor color) const
 
 void CGTownInstance::getOutOffsets( std::vector<int3> &offsets ) const
 {
-	offsets = {int3(-1,2,0), int3(-3,2,0)};
+	offsets = {int3(-1,2,0), int3(+1,2,0)};
 }
 
 CGTownInstance::EGeneratorState CGTownInstance::shipyardStatus() const

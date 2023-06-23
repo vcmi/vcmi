@@ -1294,22 +1294,6 @@ CGBoat::CGBoat()
 	layer = EPathfindingLayer::EEPathfindingLayer::SAIL;
 }
 
-int3 CGBoat::translatePos(const int3& pos, bool reverse /* = false */)
-{
-	//pos - offset we want to place the boat at the map
-	//returned value - actual position as seen by game mechanics
-
-	//If reverse = true, then it's the opposite.
-	if (!reverse)
-	{
-		return pos + int3(1, 0, 0);
-	}
-	else
-	{
-		return pos - int3(1, 0, 0);
-	}
-}
-
 void CGSirens::initObj(CRandomGenerator & rand)
 {
 	blockVisit = true;
@@ -1371,9 +1355,18 @@ void CGShipyard::getOutOffsets( std::vector<int3> &offsets ) const
 	// A x S x B
 	// C E G F D
 	offsets = {
-		int3(-3,0,0), int3(1,0,0), //AB
-		int3(-3,1,0), int3(1,1,0), int3(-2,1,0), int3(0,1,0), int3(-1,1,0), //CDEFG
-		int3(-3,-1,0), int3(1,-1,0), int3(-2,-1,0), int3(0,-1,0), int3(-1,-1,0) //HIJKL
+		{-2, 0,  0}, // A
+		{+2, 0,  0}, // B
+		{-2, 1,  0}, // C
+		{+2, 1,  0}, // D
+		{-1, 1,  0}, // E
+		{+1, 1,  0}, // F
+		{0,  1,  0}, // G
+		{-2, -1, 0}, // H
+		{+2, -1, 0}, // I
+		{-1, -1, 0}, // G
+		{+1, -1, 0}, // K
+		{0,  -1, 0}, // L
 	};
 }
 
@@ -1384,11 +1377,10 @@ const IObjectInterface * CGShipyard::getObject() const
 
 void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 {
-	if(!cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner))
+	if(cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner) == PlayerRelations::ENEMIES)
 		cb->setOwner(this, h->tempOwner);
 
-	auto s = shipyardStatus();
-	if(s != IBoatGenerator::GOOD)
+	if(shipyardStatus() != IBoatGenerator::GOOD)
 	{
 		InfoWindow iw;
 		iw.type = EInfoWindowMode::AUTO;
@@ -1409,8 +1401,7 @@ void CGShipyard::serializeJsonOptions(JsonSerializeFormat& handler)
 
 BoatId CGShipyard::getBoatType() const
 {
-	// In H3, external shipyard will always create same boat as castle
-	return EBoatId::CASTLE;
+	return createdBoat;
 }
 
 void CCartographer::onHeroVisit( const CGHeroInstance * h ) const

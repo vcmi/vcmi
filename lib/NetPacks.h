@@ -384,7 +384,9 @@ struct DLL_LINKAGE ChangeObjPos : public CPackForClient
 {
 	void applyGs(CGameState * gs);
 
+	/// Object to move
 	ObjectInstanceID objid;
+	/// New position of visitable tile of an object
 	int3 nPos;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
@@ -745,11 +747,14 @@ struct DLL_LINKAGE NewObject : public CPackForClient
 {
 	void applyGs(CGameState * gs);
 
+	/// Object ID to create
 	Obj ID;
+	/// Object secondary ID to create
 	ui32 subID = 0;
-	int3 pos;
+	/// Position of visitable tile of created object
+	int3 targetPos;
 
-	ObjectInstanceID id; //used locally, filled during applyGs
+	ObjectInstanceID createdObjectID; //used locally, filled during applyGs
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
@@ -757,7 +762,7 @@ struct DLL_LINKAGE NewObject : public CPackForClient
 	{
 		h & ID;
 		h & subID;
-		h & pos;
+		h & targetPos;
 	}
 };
 

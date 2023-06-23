@@ -1019,7 +1019,7 @@ void ChangeObjPos::applyGs(CGameState *gs)
 		return;
 	}
 	gs->map->removeBlockVisTiles(obj);
-	obj->pos = nPos;
+	obj->pos = nPos + obj->getVisitableOffset();
 	gs->map->addBlockVisTiles(obj);
 }
 
@@ -1492,57 +1492,52 @@ void NewObject::applyGs(CGameState *gs)
 {
 	TerrainId terrainType = ETerrainId::NONE;
 
-	if(ID == Obj::BOAT && !gs->isInTheMap(pos)) //special handling for bug #3060 - pos outside map but visitablePos is not
+	if (!gs->isInTheMap(targetPos))
 	{
-		CGObjectInstance testObject = CGObjectInstance();
-		testObject.pos = pos;
-		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(ETerrainId::WATER).front();
+		logGlobal->error("Attempt to create object outside map at %s!", targetPos.toString());
+		return;
+	}
 
-		[[maybe_unused]] const int3 previousXAxisTile = CGBoat::translatePos(pos, true);
-		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile));
-	}
-	else
-	{
-		const TerrainTile & t = gs->map->getTile(pos);
-		terrainType = t.terType->getId();
-	}
+	const TerrainTile & t = gs->map->getTile(targetPos);
+	terrainType = t.terType->getId();
 
 	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
 	CGObjectInstance * o = handler->create();
 	handler->configureObject(o, gs->getRandomGenerator());
 	
-	switch(ID)
+	if (ID == Obj::MONSTER) //probably more options will be needed
 	{
-	case Obj::BOAT:
-		terrainType = ETerrainId::WATER; //TODO: either boat should only spawn on water, or all water objects should be handled this way
-		break;
-			
-	case Obj::MONSTER: //probably more options will be needed
-		{
-			//CStackInstance hlp;
-			auto * cre = dynamic_cast<CGCreature *>(o);
-			//cre->slots[0] = hlp;
-			assert(cre);
-			cre->notGrowingTeam = cre->neverFlees = false;
-			cre->character = 2;
-			cre->gainedArtifact = ArtifactID::NONE;
-			cre->identifier = -1;
-			cre->addToSlot(SlotID(0), new CStackInstance(CreatureID(subID), -1)); //add placeholder stack
-		}
-		break;
+		//CStackInstance hlp;
+		auto * cre = dynamic_cast<CGCreature *>(o);
+		//cre->slots[0] = hlp;
+		assert(cre);
+		cre->notGrowingTeam = cre->neverFlees = false;
+		cre->character = 2;
+		cre->gainedArtifact = ArtifactID::NONE;
+		cre->identifier = -1;
+		cre->addToSlot(SlotID(0), new CStackInstance(CreatureID(subID), -1)); //add placeholder stack
 	}
+
+	assert(!handler->getTemplates(terrainType).empty());
+
+	if (!handler->getTemplates(terrainType).empty())
+		o->appearance = handler->getTemplates(terrainType).front();
+	else
+		o->appearance = handler->getTemplates().front();
+
+	o->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
 	o->ID = ID;
 	o->subID = subID;
-	o->pos = pos;
-	o->appearance = handler->getTemplates(terrainType).front();
-	id = o->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
+	o->pos = targetPos + o->getVisitableOffset();
 
 	gs->map->objects.emplace_back(o);
 	gs->map->addBlockVisTiles(o);
 	o->initObj(gs->getRandomGenerator());
 	gs->map->calculateGuardingGreaturePositions();
 
-	logGlobal->debug("Added object id=%d; address=%x; name=%s", id, (intptr_t)o, o->getObjectName());
+	createdObjectID = o->id;
+
+	logGlobal->debug("Added object id=%d; address=%x; name=%s", o->id, (intptr_t)o, o->getObjectName());
 }
 
 void NewArtifact::applyGs(CGameState *gs)
