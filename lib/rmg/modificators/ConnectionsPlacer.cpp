@@ -245,9 +245,12 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 				}
 				else
 				{
+					//Update distances from empty passage, too
 					zone.areaPossible().erase(guardPos);
 					zone.freePaths().add(guardPos);
 					map.setOccupied(guardPos, ETileType::FREE);
+					manager.updateDistances(guardPos);
+					otherZone->getModificator<ObjectManager>()->updateDistances(guardPos);
 				}
 				
 				assert(zone.getModificator<RoadPlacer>());
