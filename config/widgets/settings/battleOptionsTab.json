@@ -108,7 +108,7 @@
 					"text": "vcmi.battleOptions.movementHighlightOnHover.hover",
 				},
 				{
-					"text": "vcmi.battleOptions.rangedFullDamageLimitHighlightOnHover.hover",
+					"text": "vcmi.battleOptions.rangeLimitHighlightOnHover.hover",
 				},
 				{
 					"text": "core.genrltxt.406",
@@ -140,9 +140,9 @@
 					"callback": "movementHighlightOnHoverChanged"
 				},
 				{
-					"name": "rangedFullDamageLimitHighlightOnHoverCheckbox",
-					"help": "vcmi.battleOptions.rangedFullDamageLimitHighlightOnHover",
-					"callback": "rangedFullDamageLimitHighlightOnHoverChanged"
+					"name": "rangeLimitHighlightOnHoverCheckbox",
+					"help": "vcmi.battleOptions.rangeLimitHighlightOnHover",
+					"callback": "rangeLimitHighlightOnHoverChanged"
 				},
 				{
 					"name": "mouseShadowCheckbox",

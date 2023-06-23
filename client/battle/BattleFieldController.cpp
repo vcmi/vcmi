@@ -452,7 +452,7 @@ std::vector<BattleHex> BattleFieldController::getRangeHexes(BattleHex sourceHex,
 {
 	std::vector<BattleHex> rangeHexes; // used for return
 
-	if (!settings["battle"]["rangedFullDamageLimitHighlightOnHover"].Bool() && !GH.isKeyboardShiftDown())
+	if (!settings["battle"]["rangeLimitHighlightOnHover"].Bool() && !GH.isKeyboardShiftDown())
 		return rangeHexes;
 
 	// get only battlefield hexes that are within the given distance
@@ -509,7 +509,7 @@ std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeigh
 
 		std::vector<BattleHex::EDir> outsideNeighbourDirections;
 
-		// for each neighbour add to output only the valid ones and only that are not found in rangedFullDamageHexes
+		// for each neighbour add to output only the valid ones and only that are not found in range Hexes
 		for(auto direction = 0; direction < 6; direction++)
 		{
 			if(!neighbouringTiles[direction].isAvailable())
