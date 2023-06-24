@@ -1110,7 +1110,7 @@ void CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
 					part.slot = ArtifactUtils::getArtAnyPosition(this, part.art->getTypeId());
 
 				assert(ArtifactUtils::isSlotEquipment(part.slot));
-				setNewArtSlot(part.slot, art, true);
+				setNewArtSlot(part.slot, part.art, true);
 			}
 		}
 	}

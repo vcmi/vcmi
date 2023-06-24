@@ -882,9 +882,8 @@ void CStackInstance::removeArtifact(ArtifactPosition pos)
 {
 	assert(getArt(pos));
 
+	detachFrom(*getArt(pos));
 	CArtifactSet::removeArtifact(pos);
-	if(ArtifactUtils::isSlotEquipment(pos))
-		detachFrom(*getArt(pos));
 }
 
 void CStackInstance::serializeJson(JsonSerializeFormat & handler)
