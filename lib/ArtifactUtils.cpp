@@ -204,7 +204,7 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const 
 			art = ArtifactUtils::createScroll(SpellID(spellID));
 		}
 	}
-	else //TODO: create combined artifact instance for random artifacts, just in case
+	else
 	{
 		art = new CArtifactInstance(); // random, empty
 	}

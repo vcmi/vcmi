@@ -819,9 +819,6 @@ void CArtifactInstance::init()
 std::string CArtifactInstance::getDescription() const
 {
 	std::string text = artType->getDescriptionTranslated();
-	if (!vstd::contains(text, '{'))
-		text = '{' + artType->getNameTranslated() + "}\n\n" + text; //workaround for new artifacts with single name, turns it to H3-style
-
 	if(artType->getId() == ArtifactID::SPELL_SCROLL)
 	{
 		// we expect scroll description to be like this: This scroll contains the [spell name] spell which is added into your spell book for as long as you carry the scroll.

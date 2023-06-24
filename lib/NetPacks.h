@@ -782,20 +782,6 @@ struct DLL_LINKAGE SetAvailableArtifacts : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE NewArtifact : public CPackForClient
-{
-	void applyGs(CGameState * gs);
-
-	ConstTransitivePtr<CArtifactInstance> art;
-
-	virtual void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & art;
-	}
-};
-
 struct DLL_LINKAGE CGarrisonOperationPack : CPackForClient
 {
 };
@@ -981,6 +967,19 @@ struct DLL_LINKAGE PutArtifact : CArtifactOperationPack
 	{
 		h & al;
 		h & askAssemble;
+		h & art;
+	}
+};
+
+struct DLL_LINKAGE NewArtifact : public CArtifactOperationPack
+{
+	ConstTransitivePtr<CArtifactInstance> art;
+
+	void applyGs(CGameState * gs);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
 		h & art;
 	}
 };
