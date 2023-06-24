@@ -849,12 +849,12 @@ bool CArtifactInstance::canBePutAt(const ArtifactLocation & al, bool assumeDestR
 	return artType->canBePutAt(al.getHolderArtSet(), al.slot, assumeDestRemoved);
 }
 
-void CArtifactInstance::putAt(ArtifactLocation al)
+void CArtifactInstance::putAt(const ArtifactLocation & al)
 {
 	al.getHolderArtSet()->putArtifact(al.slot, this);
 }
 
-void CArtifactInstance::removeFrom(ArtifactLocation al)
+void CArtifactInstance::removeFrom(const ArtifactLocation & al)
 {
 	al.getHolderArtSet()->removeArtifact(al.slot);
 }
@@ -917,7 +917,7 @@ void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance * art, const 
 	attachTo(*art);
 }
 
-void CCombinedArtifactInstance::removeFrom(ArtifactLocation al)
+void CCombinedArtifactInstance::removeFrom(const ArtifactLocation & al)
 {
 	CArtifactInstance::removeFrom(al);
 	for(auto & part : constituentsInfo)

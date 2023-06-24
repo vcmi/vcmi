@@ -162,8 +162,8 @@ public:
 	/// of itself, additionally truth is returned for constituents of combined arts
 	virtual bool isPart(const CArtifactInstance *supposedPart) const;
 
-	virtual void putAt(ArtifactLocation al);
-	virtual void removeFrom(ArtifactLocation al);
+	virtual void putAt(const ArtifactLocation & al);
+	virtual void removeFrom(const ArtifactLocation & al);
 	virtual void move(const ArtifactLocation & src, const ArtifactLocation & dst);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -198,7 +198,7 @@ public:
 	bool isPart(const CArtifactInstance *supposedPart) const override;
 	void createConstituents();
 	void addAsConstituent(CArtifactInstance * art, const ArtifactPosition & slot);
-	void removeFrom(ArtifactLocation al) override;
+	void removeFrom(const ArtifactLocation & al) override;
 
 	CCombinedArtifactInstance() = default;
 

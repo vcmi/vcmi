@@ -1620,7 +1620,7 @@ const CArtifactInstance *ArtifactLocation::getArt() const
 		return nullptr;
 }
 
-const CArtifactSet * ArtifactLocation::getHolderArtSet() const
+CArtifactSet * ArtifactLocation::getHolderArtSet() const
 {
 	auto * t = const_cast<ArtifactLocation *>(this);
 	return t->getHolderArtSet();
