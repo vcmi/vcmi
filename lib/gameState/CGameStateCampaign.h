@@ -13,7 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CScenarioTravel;
+class CampaignTravel;
 class CGHeroInstance;
 class CGameState;
 class CMap;
@@ -43,7 +43,7 @@ class CGameStateCampaign
 	std::vector<CampaignHeroReplacement> generateCampaignHeroesToReplace(CrossoverHeroesList & crossoverHeroes);
 
 	/// Trims hero parameters that should not transfer between scenarios according to travelOptions flags
-	void trimCrossoverHeroesParameters(std::vector<CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions);
+	void trimCrossoverHeroesParameters(std::vector<CampaignHeroReplacement> & campaignHeroReplacements, const CampaignTravel & travelOptions);
 
 	void replaceHeroesPlaceholders(const std::vector<CampaignHeroReplacement> & campaignHeroReplacements);
 
@@ -59,7 +59,7 @@ public:
 	void initTowns();
 
 	bool playerHasStartingHero(PlayerColor player) const;
-	CMap * getCurrentMap() const;
+	std::unique_ptr<CMap> getCurrentMap() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

@@ -42,7 +42,7 @@ public:
 class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public AFactionMember, public ICreatureUpgrader
 {
 	// We serialize heroes into JSON for crossover
-	friend class CCampaignState;
+	friend class CampaignState;
 	friend class CMapLoaderH3M;
 	friend class CMapFormatJson;
 

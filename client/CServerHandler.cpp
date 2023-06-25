@@ -442,7 +442,7 @@ void CServerHandler::sendClientDisconnecting()
 	sendLobbyPack(lcd);
 }
 
-void CServerHandler::setCampaignState(std::shared_ptr<CCampaignState> newCampaign)
+void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign)
 {
 	state = EClientState::LOBBY_CAMPAIGN;
 	LobbySetCampaign lsc;
@@ -450,7 +450,7 @@ void CServerHandler::setCampaignState(std::shared_ptr<CCampaignState> newCampaig
 	sendLobbyPack(lsc);
 }
 
-void CServerHandler::setCampaignMap(int mapId) const
+void CServerHandler::setCampaignMap(CampaignScenarioID mapId) const
 {
 	if(state == EClientState::GAMEPLAY) // FIXME: UI shouldn't sent commands in first place
 		return;
@@ -660,7 +660,7 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	saveSession->Bool() = false;
 }
 
-void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)
+void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 {
 	if(cs)
 		GH.pushUserEvent(EUserEvent::CAMPAIGN_START_SCENARIO, CMemorySerializer::deepCopy(*cs.get()).release());

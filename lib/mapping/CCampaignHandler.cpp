@@ -71,19 +71,23 @@ CampaignRegions CampaignRegions::getLegacy(int campId)
 }
 
 
-bool CScenarioTravel::STravelBonus::isBonusForHero() const
+bool CampaignBonus::isBonusForHero() const
 {
-	return type == SPELL || type == MONSTER || type == ARTIFACT || type == SPELL_SCROLL || type == PRIMARY_SKILL
-		|| type == SECONDARY_SKILL;
+	return type == CampaignBonusType::SPELL ||
+		   type == CampaignBonusType::MONSTER ||
+		   type == CampaignBonusType::ARTIFACT ||
+		   type == CampaignBonusType::SPELL_SCROLL ||
+		   type == CampaignBonusType::PRIMARY_SKILL ||
+		   type == CampaignBonusType::SECONDARY_SKILL;
 }
 
-void CCampaignHeader::loadLegacyData(ui8 campId)
+void CampaignHeader::loadLegacyData(ui8 campId)
 {
 	campaignRegions = CampaignRegions::getLegacy(campId);
 	numberOfScenarios = VLC->generaltexth->getCampaignLength(campId);
 }
 
-CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
+CampaignHeader CampaignHandler::getHeader( const std::string & name)
 {
 	ResourceID resourceID(name, EResType::CAMPAIGN);
 	std::string modName = VLC->modh->findResourceOrigin(resourceID);
@@ -105,14 +109,14 @@ CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
 	return readHeaderFromJson(jsonCampaign, resourceID.getName(), modName, encoding);
 }
 
-std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & name )
+std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string & name )
 {
 	ResourceID resourceID(name, EResType::CAMPAIGN);
 	std::string modName = VLC->modh->findResourceOrigin(resourceID);
 	std::string language = VLC->modh->getModLanguage(modName);
 	std::string encoding = Languages::getLanguageOptions(language).encoding;
 	
-	auto ret = std::make_unique<CCampaign>();
+	auto ret = std::make_unique<CampaignState>();
 	
 	auto fileStream = CResourceHandler::get(modName)->load(resourceID);
 
@@ -125,20 +129,30 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 		ret->header = readHeaderFromMemory(reader, resourceID.getName(), modName, encoding);
 		
 		for(int g = 0; g < ret->header.numberOfScenarios; ++g)
-			ret->scenarios.emplace_back(readScenarioFromMemory(reader, ret->header));
+		{
+			auto scenarioID = static_cast<CampaignScenarioID>(ret->scenarios.size());
+			ret->scenarios[scenarioID] = readScenarioFromMemory(reader, ret->header);
+		}
 	}
 	else // text format (json)
 	{
 		JsonNode jsonCampaign((const char*)files[0].data(), files[0].size());
 		ret->header = readHeaderFromJson(jsonCampaign, resourceID.getName(), modName, encoding);
+
+
 		for(auto & scenario : jsonCampaign["scenarios"].Vector())
-			ret->scenarios.emplace_back(readScenarioFromJson(scenario));
+		{
+			auto scenarioID = static_cast<CampaignScenarioID>(ret->scenarios.size());
+			ret->scenarios[scenarioID] = readScenarioFromJson(scenario);
+		}
 	}
 	
 	//first entry is campaign header. start loop from 1
 	for(int scenarioID = 0, g = 1; g < files.size() && scenarioID < ret->header.numberOfScenarios; ++g)
 	{
-		while(!ret->scenarios[scenarioID].isNotVoid()) //skip void scenarios
+		auto id = static_cast<CampaignScenarioID>(scenarioID);
+
+		while(!ret->scenarios[id].isNotVoid()) //skip void scenarios
 			scenarioID++;
 
 		std::string scenarioName = resourceID.getName();
@@ -146,30 +160,24 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 		scenarioName += ':' + std::to_string(g - 1);
 
 		//set map piece appropriately, convert vector to string
-		ret->mapPieces[scenarioID].assign(reinterpret_cast<const char*>(files[g].data()), files[g].size());
+		ret->mapPieces[id].assign(reinterpret_cast<const char*>(files[g].data()), files[g].size());
 		CMapService mapService;
 		auto hdr = mapService.loadMapHeader(
-			reinterpret_cast<const ui8 *>(ret->mapPieces[scenarioID].c_str()),
-			static_cast<int>(ret->mapPieces[scenarioID].size()),
+			reinterpret_cast<const ui8 *>(ret->mapPieces[id].c_str()),
+			static_cast<int>(ret->mapPieces[id].size()),
 			scenarioName,
 			modName,
 			encoding);
-		ret->scenarios[scenarioID].scenarioName = hdr->name;
+		ret->scenarios[id].scenarioName = hdr->name;
 		scenarioID++;
 	}
 
-	// handle campaign specific discrepancies
-	if(resourceID.getName() == "DATA/AB")
+	for(int i = 0; i < ret->scenarios.size(); i++)
 	{
-		ret->scenarios[6].keepHeroes.emplace_back(155); // keep hero Xeron for map 7 To Kill A Hero
-	}
-	else if(resourceID.getName() == "DATA/FINAL")
-	{
-		// keep following heroes for map 8 Final H
-		ret->scenarios[7].keepHeroes.emplace_back(148); // Gelu
-		ret->scenarios[7].keepHeroes.emplace_back(27); // Gem
-		ret->scenarios[7].keepHeroes.emplace_back(102); // Crag Hack
-		ret->scenarios[7].keepHeroes.emplace_back(96); // Yog
+		auto scenarioID = static_cast<CampaignScenarioID>(i);
+
+		if(vstd::contains(ret->mapPieces, scenarioID)) //not all maps must be present in a campaign
+			ret->mapsRemaining.push_back(scenarioID);
 	}
 
 	return ret;
@@ -188,7 +196,7 @@ static std::string convertMapName(std::string input)
 	return input;
 }
 
-std::string CCampaignHandler::readLocalizedString(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier)
+std::string CampaignHandler::readLocalizedString(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier)
 {
 	TextIdentifier stringID( "campaign", convertMapName(filename), identifier);
 
@@ -201,14 +209,14 @@ std::string CCampaignHandler::readLocalizedString(CBinaryReader & reader, std::s
 	return VLC->generaltexth->translate(stringID.get());
 }
 
-CCampaignHeader CCampaignHandler::readHeaderFromJson(JsonNode & reader, std::string filename, std::string modName, std::string encoding)
+CampaignHeader CampaignHandler::readHeaderFromJson(JsonNode & reader, std::string filename, std::string modName, std::string encoding)
 {
-	CCampaignHeader ret;
+	CampaignHeader ret;
 
-	ret.version = reader["version"].Integer();
+	ret.version = static_cast<CampaignVersion>(reader["version"].Integer());
 	if(ret.version < CampaignVersion::VCMI_MIN || ret.version > CampaignVersion::VCMI_MAX)
 	{
-		logGlobal->info("VCMP Loading: Unsupported campaign %s version %d", filename, ret.version);
+		logGlobal->info("VCMP Loading: Unsupported campaign %s version %d", filename, static_cast<int>(ret.version));
 		return ret;
 	}
 	
@@ -226,11 +234,11 @@ CCampaignHeader CCampaignHandler::readHeaderFromJson(JsonNode & reader, std::str
 	return ret;
 }
 
-CCampaignScenario CCampaignHandler::readScenarioFromJson(JsonNode & reader)
+CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 {
-	auto prologEpilogReader = [](JsonNode & identifier) -> CCampaignScenario::SScenarioPrologEpilog
+	auto prologEpilogReader = [](JsonNode & identifier) -> CampaignScenarioPrologEpilog
 	{
-		CCampaignScenario::SScenarioPrologEpilog ret;
+		CampaignScenarioPrologEpilog ret;
 		ret.hasPrologEpilog = !identifier.isNull();
 		if(ret.hasPrologEpilog)
 		{
@@ -241,11 +249,11 @@ CCampaignScenario CCampaignHandler::readScenarioFromJson(JsonNode & reader)
 		return ret;
 	};
 
-	CCampaignScenario ret;
+	CampaignScenario ret;
 	ret.conquered = false;
 	ret.mapName = reader["map"].String();
 	for(auto & g : reader["preconditions"].Vector())
-		ret.preconditionRegions.insert(g.Integer());
+		ret.preconditionRegions.insert(static_cast<CampaignScenarioID>(g.Integer()));
 
 	ret.regionColor = reader["color"].Integer();
 	ret.difficulty = reader["difficulty"].Integer();
@@ -258,26 +266,26 @@ CCampaignScenario CCampaignHandler::readScenarioFromJson(JsonNode & reader)
 	return ret;
 }
 
-CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
+CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 {
-	CScenarioTravel ret;
+	CampaignTravel ret;
 
-	std::map<std::string, ui8> startOptionsMap = {
-		{"none", 0},
-		{"bonus", 1},
-		{"crossover", 2},
-		{"hero", 3}
+	std::map<std::string, CampaignStartOptions> startOptionsMap = {
+		{"none", CampaignStartOptions::NONE},
+		{"bonus", CampaignStartOptions::START_BONUS},
+		{"crossover", CampaignStartOptions::HERO_CROSSOVER},
+		{"hero", CampaignStartOptions::HERO_OPTIONS}
 	};
 	
-	std::map<std::string, CScenarioTravel::STravelBonus::EBonusType> bonusTypeMap = {
-		{"spell", CScenarioTravel::STravelBonus::EBonusType::SPELL},
-		{"creature", CScenarioTravel::STravelBonus::EBonusType::MONSTER},
-		{"building", CScenarioTravel::STravelBonus::EBonusType::BUILDING},
-		{"artifact", CScenarioTravel::STravelBonus::EBonusType::ARTIFACT},
-		{"scroll", CScenarioTravel::STravelBonus::EBonusType::SPELL_SCROLL},
-		{"primarySkill", CScenarioTravel::STravelBonus::EBonusType::PRIMARY_SKILL},
-		{"secondarySkill", CScenarioTravel::STravelBonus::EBonusType::SECONDARY_SKILL},
-		{"resource", CScenarioTravel::STravelBonus::EBonusType::RESOURCE},
+	std::map<std::string, CampaignBonusType> bonusTypeMap = {
+		{"spell", CampaignBonusType::SPELL},
+		{"creature", CampaignBonusType::MONSTER},
+		{"building", CampaignBonusType::BUILDING},
+		{"artifact", CampaignBonusType::ARTIFACT},
+		{"scroll", CampaignBonusType::SPELL_SCROLL},
+		{"primarySkill", CampaignBonusType::PRIMARY_SKILL},
+		{"secondarySkill", CampaignBonusType::SECONDARY_SKILL},
+		{"resource", CampaignBonusType::RESOURCE},
 		//{"prevHero", CScenarioTravel::STravelBonus::EBonusType::HEROES_FROM_PREVIOUS_SCENARIO},
 		//{"hero", CScenarioTravel::STravelBonus::EBonusType::HERO},
 	};
@@ -336,24 +344,24 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 	ret.startOptions = startOptionsMap[reader["startOptions"].String()];
 	switch(ret.startOptions)
 	{
-	case 0:
+	case CampaignStartOptions::NONE:
 		//no bonuses. Seems to be OK
 		break;
-	case 1: //reading of bonuses player can choose
+	case CampaignStartOptions::START_BONUS: //reading of bonuses player can choose
 		{
 			ret.playerColor = reader["playerColor"].Integer();
 			for(auto & bjson : reader["bonuses"].Vector())
 			{
-				CScenarioTravel::STravelBonus bonus;
+				CampaignBonus bonus;
 				bonus.type = bonusTypeMap[bjson["what"].String()];
 				switch (bonus.type)
 				{
-					case CScenarioTravel::STravelBonus::EBonusType::RESOURCE:
+					case CampaignBonusType::RESOURCE:
 						bonus.info1 = resourceTypeMap[bjson["type"].String()];
 						bonus.info2 = bjson["amount"].Integer();
 						break;
 						
-					case CScenarioTravel::STravelBonus::EBonusType::BUILDING:
+					case CampaignBonusType::BUILDING:
 						bonus.info1 = vstd::find_pos(EBuildingType::names, bjson["type"].String());
 						if(bonus.info1 == -1)
 							logGlobal->warn("VCMP Loading: unresolved building identifier %s", bjson["type"].String());
@@ -372,24 +380,24 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 						
 						switch(bonus.type)
 						{
-							case CScenarioTravel::STravelBonus::EBonusType::SPELL:
-							case CScenarioTravel::STravelBonus::EBonusType::MONSTER:
-							case CScenarioTravel::STravelBonus::EBonusType::SECONDARY_SKILL:
-							case CScenarioTravel::STravelBonus::EBonusType::ARTIFACT:
+							case CampaignBonusType::SPELL:
+							case CampaignBonusType::MONSTER:
+							case CampaignBonusType::SECONDARY_SKILL:
+							case CampaignBonusType::ARTIFACT:
 								if(auto identifier  = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), bjson["what"].String(), bjson["type"].String()))
 									bonus.info2 = identifier.value();
 								else
 									logGlobal->warn("VCMP Loading: unresolved %s identifier %s", bjson["what"].String(), bjson["type"].String());
 								break;
 								
-							case CScenarioTravel::STravelBonus::EBonusType::SPELL_SCROLL:
+							case CampaignBonusType::SPELL_SCROLL:
 								if(auto Identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "spell", bjson["type"].String()))
 									bonus.info2 = Identifier.value();
 								else
 									logGlobal->warn("VCMP Loading: unresolved spell scroll identifier %s", bjson["type"].String());
 								break;
 								
-							case CScenarioTravel::STravelBonus::EBonusType::PRIMARY_SKILL:
+							case CampaignBonusType::PRIMARY_SKILL:
 								for(auto & ps : primarySkillsMap)
 									bonus.info2 |= bjson[ps.first].Integer() << ps.second;
 								break;
@@ -403,24 +411,24 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 			}
 			break;
 		}
-	case 2: //reading of players (colors / scenarios ?) player can choose
+	case CampaignStartOptions::HERO_CROSSOVER: //reading of players (colors / scenarios ?) player can choose
 		{
 			for(auto & bjson : reader["bonuses"].Vector())
 			{
-				CScenarioTravel::STravelBonus bonus;
-				bonus.type = CScenarioTravel::STravelBonus::HEROES_FROM_PREVIOUS_SCENARIO;
+				CampaignBonus bonus;
+				bonus.type = CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO;
 				bonus.info1 = bjson["playerColor"].Integer(); //player color
 				bonus.info2 = bjson["scenario"].Integer(); //from what scenario
 				ret.bonusesToChoose.push_back(bonus);
 			}
 			break;
 		}
-	case 3: //heroes player can choose between
+	case CampaignStartOptions::HERO_OPTIONS: //heroes player can choose between
 		{
 			for(auto & bjson : reader["bonuses"].Vector())
 			{
-				CScenarioTravel::STravelBonus bonus;
-				bonus.type = CScenarioTravel::STravelBonus::HERO;
+				CampaignBonus bonus;
+				bonus.type = CampaignBonusType::HERO;
 				bonus.info1 = bjson["playerColor"].Integer(); //player color
 				
 				if(int heroId = heroSpecialMap[bjson["hero"].String()])
@@ -446,11 +454,11 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 }
 
 
-CCampaignHeader CCampaignHandler::readHeaderFromMemory( CBinaryReader & reader, std::string filename, std::string modName, std::string encoding )
+CampaignHeader CampaignHandler::readHeaderFromMemory( CBinaryReader & reader, std::string filename, std::string modName, std::string encoding )
 {
-	CCampaignHeader ret;
+	CampaignHeader ret;
 
-	ret.version = reader.readUInt32();
+	ret.version = static_cast<CampaignVersion>(reader.readUInt32());
 	ui8 campId = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
 	ret.loadLegacyData(campId);
 	ret.name = readLocalizedString(reader, filename, modName, encoding, "name");
@@ -467,22 +475,22 @@ CCampaignHeader CCampaignHandler::readHeaderFromMemory( CBinaryReader & reader, 
 	return ret;
 }
 
-CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & reader, const CCampaignHeader & header)
+CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader, const CampaignHeader & header)
 {
-	auto prologEpilogReader = [&](const std::string & identifier) -> CCampaignScenario::SScenarioPrologEpilog
+	auto prologEpilogReader = [&](const std::string & identifier) -> CampaignScenarioPrologEpilog
 	{
-		CCampaignScenario::SScenarioPrologEpilog ret;
+		CampaignScenarioPrologEpilog ret;
 		ret.hasPrologEpilog = reader.readUInt8();
 		if(ret.hasPrologEpilog)
 		{
-			ret.prologVideo = CCampaignHandler::prologVideoName(reader.readUInt8());
-			ret.prologMusic = CCampaignHandler::prologMusicName(reader.readUInt8());
+			ret.prologVideo = CampaignHandler::prologVideoName(reader.readUInt8());
+			ret.prologMusic = CampaignHandler::prologMusicName(reader.readUInt8());
 			ret.prologText = readLocalizedString(reader, header.filename, header.modName, header.encoding, identifier);
 		}
 		return ret;
 	};
 
-	CCampaignScenario ret;
+	CampaignScenario ret;
 	ret.conquered = false;
 	ret.mapName = reader.readBaseString();
 	reader.readUInt32(); //packedMapSize - not used
@@ -505,18 +513,30 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( CBinaryReader & read
 	return ret;
 }
 
-void CCampaignScenario::loadPreconditionRegions(ui32 regions)
+void CampaignScenario::loadPreconditionRegions(ui32 regions)
 {
 	for (int i=0; i<32; i++) //for each bit in region. h3c however can only hold up to 16
 	{
 		if ( (1 << i) & regions)
-			preconditionRegions.insert(i);
+			preconditionRegions.insert(static_cast<CampaignScenarioID>(i));
 	}
 }
 
-CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & reader, int version )
+template<typename Identifier>
+static void readContainer(std::set<Identifier> container, CBinaryReader & reader, int sizeBytes)
 {
-	CScenarioTravel ret;
+	for(int iId = 0, byte = 0; iId < sizeBytes * 8; ++iId)
+	{
+		if(iId % 8 == 0)
+			byte = reader.readUInt8();
+		if(byte & (1 << iId % 8))
+			container.insert(Identifier(iId));
+	}
+}
+
+CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & reader, CampaignVersion version )
+{
+	CampaignTravel ret;
 
 	ui8 whatHeroKeeps = reader.readUInt8();
 	ret.whatHeroKeeps.experience = whatHeroKeeps & 1;
@@ -525,83 +545,71 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & r
 	ret.whatHeroKeeps.spells = whatHeroKeeps & 8;
 	ret.whatHeroKeeps.artifacts = whatHeroKeeps & 16;
 	
-	//TODO: replace with template lambda form C++20 and make typed containers
-	auto bitMaskToId = [&reader](std::set<int> & container, int size)
-	{
-		for(int iId = 0, byte = 0; iId < size * 8; ++iId)
-		{
-			if(iId % 8 == 0)
-				byte = reader.readUInt8();
-			if(byte & (1 << iId % 8))
-				container.insert(iId);
-		}
-	};
-	
-	bitMaskToId(ret.monstersKeptByHero, 19);
-	bitMaskToId(ret.artifactsKeptByHero, version < CampaignVersion::SoD ? 17 : 18);
+	readContainer(ret.monstersKeptByHero, reader, 19);
+	readContainer(ret.artifactsKeptByHero, reader, version < CampaignVersion::SoD ? 17 : 18);
 
-	ret.startOptions = reader.readUInt8();
+	ret.startOptions = static_cast<CampaignStartOptions>(reader.readUInt8());
 
 	switch(ret.startOptions)
 	{
-	case 0:
+	case CampaignStartOptions::NONE:
 		//no bonuses. Seems to be OK
 		break;
-	case 1: //reading of bonuses player can choose
+	case CampaignStartOptions::START_BONUS: //reading of bonuses player can choose
 		{
 			ret.playerColor = reader.readUInt8();
 			ui8 numOfBonuses = reader.readUInt8();
 			for (int g=0; g<numOfBonuses; ++g)
 			{
-				CScenarioTravel::STravelBonus bonus;
-				bonus.type = static_cast<CScenarioTravel::STravelBonus::EBonusType>(reader.readUInt8());
+				CampaignBonus bonus;
+				bonus.type = static_cast<CampaignBonusType>(reader.readUInt8());
 				//hero: FFFD means 'most powerful' and FFFE means 'generated'
 				switch(bonus.type)
 				{
-				case CScenarioTravel::STravelBonus::SPELL:
+				case CampaignBonusType::SPELL:
 					{
 						bonus.info1 = reader.readUInt16(); //hero
 						bonus.info2 = reader.readUInt8(); //spell ID
 						break;
 					}
-				case CScenarioTravel::STravelBonus::MONSTER:
+				case CampaignBonusType::MONSTER:
 					{
 						bonus.info1 = reader.readUInt16(); //hero
 						bonus.info2 = reader.readUInt16(); //monster type
 						bonus.info3 = reader.readUInt16(); //monster count
 						break;
 					}
-				case CScenarioTravel::STravelBonus::BUILDING:
+				case CampaignBonusType::BUILDING:
 					{
 						bonus.info1 = reader.readUInt8(); //building ID (0 - town hall, 1 - city hall, 2 - capitol, etc)
 						break;
 					}
-				case CScenarioTravel::STravelBonus::ARTIFACT:
+				case CampaignBonusType::ARTIFACT:
 					{
 						bonus.info1 = reader.readUInt16(); //hero
 						bonus.info2 = reader.readUInt16(); //artifact ID
 						break;
 					}
-				case CScenarioTravel::STravelBonus::SPELL_SCROLL:
+				case CampaignBonusType::SPELL_SCROLL:
 					{
 						bonus.info1 = reader.readUInt16(); //hero
 						bonus.info2 = reader.readUInt8(); //spell ID
 						break;
 					}
-				case CScenarioTravel::STravelBonus::PRIMARY_SKILL:
+				case CampaignBonusType::PRIMARY_SKILL:
 					{
 						bonus.info1 = reader.readUInt16(); //hero
 						bonus.info2 = reader.readUInt32(); //bonuses (4 bytes for 4 skills)
 						break;
 					}
-				case CScenarioTravel::STravelBonus::SECONDARY_SKILL:
+				case CampaignBonusType::SECONDARY_SKILL:
 					{
 						bonus.info1 = reader.readUInt16(); //hero
 						bonus.info2 = reader.readUInt8(); //skill ID
 						bonus.info3 = reader.readUInt8(); //skill level
 						break;
 					}
-				case CScenarioTravel::STravelBonus::RESOURCE:
+				case CampaignBonusType::RESOURCE:
 					{
 						bonus.info1 = reader.readUInt8(); //type
 						//FD - wood+ore
@@ -617,13 +625,13 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & r
 			}
 			break;
 		}
-	case 2: //reading of players (colors / scenarios ?) player can choose
+	case CampaignStartOptions::HERO_CROSSOVER: //reading of players (colors / scenarios ?) player can choose
 		{
 			ui8 numOfBonuses = reader.readUInt8();
 			for (int g=0; g<numOfBonuses; ++g)
 			{
-				CScenarioTravel::STravelBonus bonus;
-				bonus.type = CScenarioTravel::STravelBonus::HEROES_FROM_PREVIOUS_SCENARIO;
+				CampaignBonus bonus;
+				bonus.type = CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO;
 				bonus.info1 = reader.readUInt8(); //player color
 				bonus.info2 = reader.readUInt8(); //from what scenario
 
@@ -631,13 +639,13 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & r
 			}
 			break;
 		}
-	case 3: //heroes player can choose between
+	case CampaignStartOptions::HERO_OPTIONS: //heroes player can choose between
 		{
 			ui8 numOfBonuses = reader.readUInt8();
 			for (int g=0; g<numOfBonuses; ++g)
 			{
-				CScenarioTravel::STravelBonus bonus;
-				bonus.type = CScenarioTravel::STravelBonus::HERO;
+				CampaignBonus bonus;
+				bonus.type = CampaignBonusType::HERO;
 				bonus.info1 = reader.readUInt8(); //player color
 				bonus.info2 = reader.readUInt16(); //hero, FF FF - random
 
@@ -655,7 +663,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & r
 	return ret;
 }
 
-std::vector< std::vector<ui8> > CCampaignHandler::getFile(std::unique_ptr<CInputStream> file, bool headerOnly)
+std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputStream> file, bool headerOnly)
 {
 	CCompressedStream stream(std::move(file), true);
 
@@ -671,38 +679,37 @@ std::vector< std::vector<ui8> > CCampaignHandler::getFile(std::unique_ptr<CInput
 	return ret;
 }
 
-bool CCampaign::conquerable( int whichScenario ) const
+bool CampaignState::conquerable(CampaignScenarioID whichScenario) const
 {
 	//check for void scenraio
-	if (!scenarios[whichScenario].isNotVoid())
+	if (!scenarios.at(whichScenario).isNotVoid())
 	{
 		return false;
 	}
 
-	if (scenarios[whichScenario].conquered)
+	if (scenarios.at(whichScenario).conquered)
 	{
 		return false;
 	}
 	//check preconditioned regions
-	for (int g=0; g<scenarios.size(); ++g)
+	for (auto const & it : scenarios.at(whichScenario).preconditionRegions)
 	{
-		if( vstd::contains(scenarios[whichScenario].preconditionRegions, g) && !scenarios[g].conquered)
-			return false; //prerequisite does not met
-
+		if (!scenarios.at(it).conquered)
+			return false;
 	}
 	return true;
 }
 
-bool CCampaignScenario::isNotVoid() const
+bool CampaignScenario::isNotVoid() const
 {
 	return !mapName.empty();
 }
 
-const CGHeroInstance * CCampaignScenario::strongestHero(const PlayerColor & owner)
+const CGHeroInstance * CampaignScenario::strongestHero(const PlayerColor & owner)
 {
 	std::function<bool(JsonNode & node)> isOwned = [owner](JsonNode & node)
 	{
-		auto * h = CCampaignState::crossoverDeserialize(node);
+		auto * h = CampaignState::crossoverDeserialize(node);
 		bool result = h->tempOwner == owner;
 		vstd::clear_pointer(h);
 		return result;
@@ -711,25 +718,25 @@ const CGHeroInstance * CCampaignScenario::strongestHero(const PlayerColor & owne
 
 	auto i = vstd::maxElementByFun(ownedHeroes, [](JsonNode & node)
 	{
-		auto * h = CCampaignState::crossoverDeserialize(node);
+		auto * h = CampaignState::crossoverDeserialize(node);
 		double result = h->getHeroStrength();
 		vstd::clear_pointer(h);
 		return result;
 	});
-	return i == ownedHeroes.end() ? nullptr : CCampaignState::crossoverDeserialize(*i);
+	return i == ownedHeroes.end() ? nullptr : CampaignState::crossoverDeserialize(*i);
 }
 
-std::vector<CGHeroInstance *> CCampaignScenario::getLostCrossoverHeroes()
+std::vector<CGHeroInstance *> CampaignScenario::getLostCrossoverHeroes()
 {
 	std::vector<CGHeroInstance *> lostCrossoverHeroes;
 	if(conquered)
 	{
 		for(auto node2 : placedCrossoverHeroes)
 		{
-			auto * hero = CCampaignState::crossoverDeserialize(node2);
+			auto * hero = CampaignState::crossoverDeserialize(node2);
 			auto it = range::find_if(crossoverHeroes, [hero](JsonNode node)
 			{
-				auto * h = CCampaignState::crossoverDeserialize(node);
+				auto * h = CampaignState::crossoverDeserialize(node);
 				bool result = hero->subID == h->subID;
 				vstd::clear_pointer(h);
 				return result;
@@ -743,96 +750,87 @@ std::vector<CGHeroInstance *> CCampaignScenario::getLostCrossoverHeroes()
 	return lostCrossoverHeroes;
 }
 
-void CCampaignState::setCurrentMapAsConquered(const std::vector<CGHeroInstance *> & heroes)
+void CampaignState::setCurrentMapAsConquered(const std::vector<CGHeroInstance *> & heroes)
 {
-	camp->scenarios[*currentMap].crossoverHeroes.clear();
+	scenarios.at(*currentMap).crossoverHeroes.clear();
 	for(CGHeroInstance * hero : heroes)
 	{
-		camp->scenarios[*currentMap].crossoverHeroes.push_back(crossoverSerialize(hero));
+		scenarios.at(*currentMap).crossoverHeroes.push_back(crossoverSerialize(hero));
 	}
 
 	mapsConquered.push_back(*currentMap);
 	mapsRemaining -= *currentMap;
-	camp->scenarios[*currentMap].conquered = true;
+	scenarios.at(*currentMap).conquered = true;
 }
 
-std::optional<CScenarioTravel::STravelBonus> CCampaignState::getBonusForCurrentMap() const
+std::optional<CampaignBonus> CampaignState::getBonusForCurrentMap() const
 {
 	auto bonuses = getCurrentScenario().travelOptions.bonusesToChoose;
 	assert(chosenCampaignBonuses.count(*currentMap) || bonuses.size() == 0);
 
 	if(bonuses.empty())
-		return std::optional<CScenarioTravel::STravelBonus>();
+		return std::optional<CampaignBonus>();
 	else
 		return bonuses[currentBonusID()];
 }
 
-const CCampaignScenario & CCampaignState::getCurrentScenario() const
+const CampaignScenario & CampaignState::getCurrentScenario() const
 {
-	return camp->scenarios[*currentMap];
+	return scenarios.at(*currentMap);
 }
 
-CCampaignScenario & CCampaignState::getCurrentScenario()
+CampaignScenario & CampaignState::getCurrentScenario()
 {
-	return camp->scenarios[*currentMap];
+	return scenarios.at(*currentMap);
 }
 
-ui8 CCampaignState::currentBonusID() const
+ui8 CampaignState::currentBonusID() const
 {
 	return chosenCampaignBonuses.at(*currentMap);
 }
 
-CCampaignState::CCampaignState( std::unique_ptr<CCampaign> _camp ) : camp(std::move(_camp))
-{
-	for(int i = 0; i < camp->scenarios.size(); i++)
-	{
-		if(vstd::contains(camp->mapPieces, i)) //not all maps must be present in a campaign
-			mapsRemaining.push_back(i);
-	}
-}
-
-CMap * CCampaignState::getMap(int scenarioId) const
+std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId) const
 {
 	// FIXME: there is certainly better way to handle maps inside campaigns
-	if(scenarioId == -1)
+	if(scenarioId == CampaignScenarioID::NONE)
 		scenarioId = currentMap.value();
 	
 	CMapService mapService;
-	std::string scenarioName = camp->header.filename.substr(0, camp->header.filename.find('.'));
+	std::string scenarioName = header.filename.substr(0, header.filename.find('.'));
 	boost::to_lower(scenarioName);
-	scenarioName += ':' + std::to_string(scenarioId);
-	std::string & mapContent = camp->mapPieces.find(scenarioId)->second;
+	scenarioName += ':' + std::to_string(static_cast<int>(scenarioId));
+	const std::string & mapContent = mapPieces.find(scenarioId)->second;
 	const auto * buffer = reinterpret_cast<const ui8 *>(mapContent.data());
-	return mapService.loadMap(buffer, static_cast<int>(mapContent.size()), scenarioName, camp->header.modName, camp->header.encoding).release();
+	return mapService.loadMap(buffer, static_cast<int>(mapContent.size()), scenarioName, header.modName, header.encoding);
 }
 
-std::unique_ptr<CMapHeader> CCampaignState::getHeader(int scenarioId) const
+std::unique_ptr<CMapHeader> CampaignState::getHeader(CampaignScenarioID scenarioId) const
 {
-	if(scenarioId == -1)
+	if(scenarioId == CampaignScenarioID::NONE)
 		scenarioId = currentMap.value();
 	
 	CMapService mapService;
-	std::string scenarioName = camp->header.filename.substr(0, camp->header.filename.find('.'));
+	std::string scenarioName = header.filename.substr(0, header.filename.find('.'));
 	boost::to_lower(scenarioName);
-	scenarioName += ':' + std::to_string(scenarioId);
-	std::string & mapContent = camp->mapPieces.find(scenarioId)->second;
+	scenarioName += ':' + std::to_string(static_cast<int>(scenarioId));
+	const std::string & mapContent = mapPieces.find(scenarioId)->second;
 	const auto * buffer = reinterpret_cast<const ui8 *>(mapContent.data());
-	return mapService.loadMapHeader(buffer, static_cast<int>(mapContent.size()), scenarioName, camp->header.modName, camp->header.encoding);
+	return mapService.loadMapHeader(buffer, static_cast<int>(mapContent.size()), scenarioName, header.modName, header.encoding);
 }
 
-std::shared_ptr<CMapInfo> CCampaignState::getMapInfo(int scenarioId) const
+std::shared_ptr<CMapInfo> CampaignState::getMapInfo(CampaignScenarioID scenarioId) const
 {
-	if(scenarioId == -1)
+	if(scenarioId == CampaignScenarioID::NONE)
 		scenarioId = currentMap.value();
 
 	auto mapInfo = std::make_shared<CMapInfo>();
-	mapInfo->fileURI = camp->header.filename;
+	mapInfo->fileURI = header.filename;
 	mapInfo->mapHeader = getHeader(scenarioId);
 	mapInfo->countPlayers();
 	return mapInfo;
 }
 
-JsonNode CCampaignState::crossoverSerialize(CGHeroInstance * hero)
+JsonNode CampaignState::crossoverSerialize(CGHeroInstance * hero)
 {
 	JsonNode node;
 	JsonSerializer handler(nullptr, node);
@@ -840,7 +838,7 @@ JsonNode CCampaignState::crossoverSerialize(CGHeroInstance * hero)
 	return node;
 }
 
-CGHeroInstance * CCampaignState::crossoverDeserialize(JsonNode & node)
+CGHeroInstance * CampaignState::crossoverDeserialize(JsonNode & node)
 {
 	JsonDeserializer handler(nullptr, node);
 	auto * hero = new CGHeroInstance();
@@ -849,7 +847,7 @@ CGHeroInstance * CCampaignState::crossoverDeserialize(JsonNode & node)
 	return hero;
 }
 
-std::string CCampaignHandler::prologVideoName(ui8 index)
+std::string CampaignHandler::prologVideoName(ui8 index)
 {
 	JsonNode config(ResourceID(std::string("CONFIG/campaignMedia"), EResType::TEXT));
 	auto vids = config["videos"].Vector();
@@ -858,13 +856,13 @@ std::string CCampaignHandler::prologVideoName(ui8 index)
 	return "";
 }
 
-std::string CCampaignHandler::prologMusicName(ui8 index)
+std::string CampaignHandler::prologMusicName(ui8 index)
 {
 	std::vector<std::string> music;
 	return VLC->generaltexth->translate("core.cmpmusic." + std::to_string(static_cast<int>(index)));
 }
 
-std::string CCampaignHandler::prologVoiceName(ui8 index)
+std::string CampaignHandler::prologVoiceName(ui8 index)
 {
 	JsonNode config(ResourceID(std::string("CONFIG/campaignMedia"), EResType::TEXT));
 	auto audio = config["voice"].Vector();

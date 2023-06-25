@@ -18,7 +18,7 @@ class CVCMIServer;
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CCampaignState;
+class CampaignState;
 class CMapInfo;
 struct StartInfo;
 class CMapGenOptions;
@@ -175,7 +175,7 @@ struct DLL_LINKAGE LobbySetMap : public CLobbyPackToServer
 
 struct DLL_LINKAGE LobbySetCampaign : public CLobbyPackToServer
 {
-	std::shared_ptr<CCampaignState> ourCampaign;
+	std::shared_ptr<CampaignState> ourCampaign;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
@@ -187,7 +187,7 @@ struct DLL_LINKAGE LobbySetCampaign : public CLobbyPackToServer
 
 struct DLL_LINKAGE LobbySetCampaignMap : public CLobbyPackToServer
 {
-	int mapId = -1;
+	CampaignScenarioID mapId = CampaignScenarioID::NONE;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 

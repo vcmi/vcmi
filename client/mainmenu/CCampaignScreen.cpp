@@ -96,7 +96,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 
 	status = config["open"].Bool() ? CCampaignScreen::ENABLED : CCampaignScreen::DISABLED;
 
-	CCampaignHeader header = CCampaignHandler::getHeader(campFile);
+	CampaignHeader header = CampaignHandler::getHeader(campFile);
 	hoverText = header.name;
 
 	if(status != CCampaignScreen::DISABLED)

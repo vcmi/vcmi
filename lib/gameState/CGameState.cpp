@@ -684,7 +684,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 void CGameState::initCampaign()
 {
 	campaign = std::make_unique<CGameStateCampaign>(this);
-	map = campaign->getCurrentMap();
+	map = campaign->getCurrentMap().release();
 }
 
 void CGameState::checkMapChecksum()

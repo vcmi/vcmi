@@ -48,8 +48,8 @@ void UserEventHandler::handleUserEvent(const SDL_UserEvent & user)
 		{
 			CSH->campaignServerRestartLock.set(true);
 			CSH->endGameplay();
-			auto ourCampaign = std::shared_ptr<CCampaignState>(reinterpret_cast<CCampaignState *>(user.data1));
-			auto & epilogue = ourCampaign->camp->scenarios[ourCampaign->mapsConquered.back()].epilog;
+			auto ourCampaign = std::shared_ptr<CampaignState>(reinterpret_cast<CampaignState *>(user.data1));
+			auto & epilogue = ourCampaign->scenarios[ourCampaign->mapsConquered.back()].epilog;
 			auto finisher = [=]()
 			{
 				if(!ourCampaign->mapsRemaining.empty())

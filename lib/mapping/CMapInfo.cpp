@@ -66,7 +66,7 @@ void CMapInfo::saveInit(const ResourceID & file)
 
 void CMapInfo::campaignInit()
 {
-	campaignHeader = std::make_unique<CCampaignHeader>(CCampaignHandler::getHeader(fileURI));
+	campaignHeader = std::make_unique<CampaignHeader>(CampaignHandler::getHeader(fileURI));
 	if(!campaignHeader->valid)
 		campaignHeader.reset();
 }

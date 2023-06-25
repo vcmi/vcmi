@@ -870,10 +870,10 @@ void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 		s.bonus = PlayerSettings::RANDOM;
 }
 
-void CVCMIServer::setCampaignMap(int mapId)
+void CVCMIServer::setCampaignMap(CampaignScenarioID mapId)
 {
 	campaignMap = mapId;
-	si->difficulty = si->campState->camp->scenarios[mapId].difficulty;
+	si->difficulty = si->campState->scenarios[mapId].difficulty;
 	campaignBonus = -1;
 	updateStartInfoOnMapChange(si->campState->getMapInfo(mapId));
 }
@@ -882,9 +882,9 @@ void CVCMIServer::setCampaignBonus(int bonusId)
 {
 	campaignBonus = bonusId;
 
-	const CCampaignScenario & scenario = si->campState->camp->scenarios[campaignMap];
-	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
-	if(bonDescs[bonusId].type == CScenarioTravel::STravelBonus::HERO)
+	const CampaignScenario & scenario = si->campState->scenarios[campaignMap];
+	const std::vector<CampaignBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
+	if(bonDescs[bonusId].type == CampaignBonusType::HERO)
 	{
 		for(auto & elem : si->playerInfos)
 		{

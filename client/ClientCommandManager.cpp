@@ -209,9 +209,9 @@ void ClientCommandManager::handleConvertTextCommand()
 	logGlobal->info("Loading campaigns for export");
 	for (auto const & campaignName : campaignList)
 	{
-		CCampaignState state(CCampaignHandler::getCampaign(campaignName.getName()));
-		for (auto const & part : state.camp->mapPieces)
-			delete state.getMap(part.first);
+		auto state = CampaignHandler::getCampaign(campaignName.getName());
+		for (auto const & part : state->mapPieces)
+			state->getMap(part.first);
 	}
 
 	VLC->generaltexth->dumpAllTexts();
