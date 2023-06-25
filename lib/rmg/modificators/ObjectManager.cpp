@@ -76,23 +76,27 @@ void ObjectManager::addNearbyObject(CGObjectInstance * obj, CGObjectInstance * n
 
 void ObjectManager::updateDistances(const rmg::Object & obj)
 {
-	RecursiveLock lock(externalAccessMutex);
-	tilesByDistance.clear();
-	for (auto tile : zone.areaPossible().getTiles()) //don't need to mark distance for not possible tiles
+	updateDistances([obj](const int3& tile) -> ui32
 	{
-		ui32 d = obj.getArea().distanceSqr(tile); //optimization, only relative distance is interesting
-		map.setNearestObjectDistance(tile, std::min(static_cast<float>(d), map.getNearestObjectDistance(tile)));
-		tilesByDistance.push(std::make_pair(tile, map.getNearestObjectDistance(tile)));
-	}
+		return obj.getArea().distanceSqr(tile); //optimization, only relative distance is interesting
+	});
 }
 
 void ObjectManager::updateDistances(const int3 & pos)
+{
+	updateDistances([pos](const int3& tile) -> ui32
+	{
+		return pos.dist2dSQ(tile); //optimization, only relative distance is interesting
+	});
+}
+
+void ObjectManager::updateDistances(std::function<ui32(const int3 & tile)> distanceFunction)
 {
 	RecursiveLock lock(externalAccessMutex);
 	tilesByDistance.clear();
 	for (auto tile : zone.areaPossible().getTiles()) //don't need to mark distance for not possible tiles
 	{
-		ui32 d = pos.dist2dSQ(tile); //optimization, only relative distance is interesting
+		ui32 d = distanceFunction(tile);
 		map.setNearestObjectDistance(tile, std::min(static_cast<float>(d), map.getNearestObjectDistance(tile)));
 		tilesByDistance.push(std::make_pair(tile, map.getNearestObjectDistance(tile)));
 	}
