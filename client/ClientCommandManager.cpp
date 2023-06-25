@@ -210,8 +210,8 @@ void ClientCommandManager::handleConvertTextCommand()
 	for (auto const & campaignName : campaignList)
 	{
 		auto state = CampaignHandler::getCampaign(campaignName.getName());
-		for (auto const & part : state->mapPieces)
-			state->getMap(part.first);
+		for (auto const & part : state->allScenarios())
+			state->getMap(part);
 	}
 
 	VLC->generaltexth->dumpAllTexts();

@@ -111,14 +111,6 @@ std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string &
 		scenarioID++;
 	}
 
-	for(int i = 0; i < ret->scenarios.size(); i++)
-	{
-		auto scenarioID = static_cast<CampaignScenarioID>(i);
-
-		if(vstd::contains(ret->mapPieces, scenarioID)) //not all maps must be present in a campaign
-			ret->mapsRemaining.push_back(scenarioID);
-	}
-
 	return ret;
 }
 
@@ -188,7 +180,6 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 	};
 
 	CampaignScenario ret;
-	ret.conquered = false;
 	ret.mapName = reader["map"].String();
 	for(auto & g : reader["preconditions"].Vector())
 		ret.preconditionRegions.insert(static_cast<CampaignScenarioID>(g.Integer()));
@@ -428,7 +419,6 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 	};
 
 	CampaignScenario ret;
-	ret.conquered = false;
 	ret.mapName = reader.readBaseString();
 	reader.readUInt32(); //packedMapSize - not used
 	if(header.numberOfScenarios > 8) //unholy alliance

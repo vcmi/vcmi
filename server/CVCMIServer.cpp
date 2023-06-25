@@ -296,8 +296,8 @@ bool CVCMIServer::prepareToStartGame()
 	{
 	case StartInfo::CAMPAIGN:
 		logNetwork->info("Preparing to start new campaign");
-		si->campState->currentMap = std::make_optional(campaignMap);
-		si->campState->chosenCampaignBonuses[campaignMap] = campaignBonus;
+		si->campState->setCurrentMap(campaignMap);
+		si->campState->setCurrentMapBonus(campaignBonus);
 		gh->init(si.get());
 		break;
 
@@ -668,7 +668,7 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 		si = CMemorySerializer::deepCopy(*mi->scenarioOptionsOfSave);
 		si->mode = StartInfo::LOAD_GAME;
 		if(si->campState)
-			campaignMap = si->campState->currentMap.value();
+			campaignMap = si->campState->currentScenario().value();
 
 		for(auto & ps : si->playerInfos)
 		{
@@ -873,7 +873,7 @@ void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 void CVCMIServer::setCampaignMap(CampaignScenarioID mapId)
 {
 	campaignMap = mapId;
-	si->difficulty = si->campState->scenarios[mapId].difficulty;
+	si->difficulty = si->campState->scenario(mapId).difficulty;
 	campaignBonus = -1;
 	updateStartInfoOnMapChange(si->campState->getMapInfo(mapId));
 }
@@ -882,7 +882,7 @@ void CVCMIServer::setCampaignBonus(int bonusId)
 {
 	campaignBonus = bonusId;
 
-	const CampaignScenario & scenario = si->campState->scenarios[campaignMap];
+	const CampaignScenario & scenario = si->campState->scenario(campaignMap);
 	const std::vector<CampaignBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 	if(bonDescs[bonusId].type == CampaignBonusType::HERO)
 	{

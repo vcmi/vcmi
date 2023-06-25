@@ -1076,21 +1076,7 @@ void PlayerEndsGame::applyGs(CGameState * gs) const
 					// keep all heroes from the winning player
 					crossoverHeroes.push_back(hero);
 				}
-				else if (vstd::contains(gs->scenarioOps->campState->getCurrentScenario().keepHeroes, HeroTypeID(hero->subID)))
-				{
-					// keep hero whether lost or won (like Xeron in AB campaign)
-					crossoverHeroes.push_back(hero);
-				}
 			}
-			// keep lost heroes which are in heroes pool
-			for (auto & heroPair : gs->hpool.heroesPool)
-			{
-				if (vstd::contains(gs->scenarioOps->campState->getCurrentScenario().keepHeroes, HeroTypeID(heroPair.first)))
-				{
-					crossoverHeroes.push_back(heroPair.second.get());
-				}
-			}
-
 			gs->scenarioOps->campState->setCurrentMapAsConquered(crossoverHeroes);
 		}
 	}

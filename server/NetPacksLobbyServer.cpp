@@ -211,18 +211,18 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 
 void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 {
-	srv.si->mapname = pack.ourCampaign->header.filename;
+	srv.si->mapname = pack.ourCampaign->getHeader().filename;
 	srv.si->mode = StartInfo::CAMPAIGN;
 	srv.si->campState = pack.ourCampaign;
 	srv.si->turnTime = 0;
-	bool isCurrentMapConquerable = pack.ourCampaign->currentMap && pack.ourCampaign->conquerable(*pack.ourCampaign->currentMap);
-	for(int i = 0; i < pack.ourCampaign->scenarios.size(); i++)
-	{
-		auto scenarioID = static_cast<CampaignScenarioID>(i);
 
-		if(pack.ourCampaign->conquerable(scenarioID))
+	bool isCurrentMapConquerable = pack.ourCampaign->currentScenario() && pack.ourCampaign->isAvailable(*pack.ourCampaign->currentScenario());
+
+	for(auto scenarioID : pack.ourCampaign->allScenarios())
+	{
+		if(pack.ourCampaign->isAvailable(scenarioID))
 		{
-			if(!isCurrentMapConquerable || (isCurrentMapConquerable && scenarioID == *pack.ourCampaign->currentMap))
+			if(!isCurrentMapConquerable || (isCurrentMapConquerable && scenarioID == *pack.ourCampaign->currentScenario()))
 			{
 				srv.setCampaignMap(scenarioID);
 			}

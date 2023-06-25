@@ -83,7 +83,12 @@ void CampaignHeader::loadLegacyData(ui8 campId)
 	numberOfScenarios = VLC->generaltexth->getCampaignLength(campId);
 }
 
-bool CampaignState::conquerable(CampaignScenarioID whichScenario) const
+bool CampaignState::isConquered(CampaignScenarioID whichScenario) const
+{
+	return vstd::contains(mapsConquered, whichScenario);
+}
+
+bool CampaignState::isAvailable(CampaignScenarioID whichScenario) const
 {
 	//check for void scenraio
 	if (!scenarios.at(whichScenario).isNotVoid())
@@ -91,14 +96,14 @@ bool CampaignState::conquerable(CampaignScenarioID whichScenario) const
 		return false;
 	}
 
-	if (scenarios.at(whichScenario).conquered)
+	if (vstd::contains(mapsConquered, whichScenario))
 	{
 		return false;
 	}
 	//check preconditioned regions
 	for (auto const & it : scenarios.at(whichScenario).preconditionRegions)
 	{
-		if (!scenarios.at(it).conquered)
+		if (!vstd::contains(mapsConquered, it))
 			return false;
 	}
 	return true;
@@ -109,18 +114,18 @@ bool CampaignScenario::isNotVoid() const
 	return !mapName.empty();
 }
 
-const CGHeroInstance * CampaignScenario::strongestHero(const PlayerColor & owner)
+const CGHeroInstance * CampaignState::strongestHero(CampaignScenarioID scenarioId, const PlayerColor & owner) const
 {
-	std::function<bool(JsonNode & node)> isOwned = [owner](JsonNode & node)
+	std::function<bool(const JsonNode & node)> isOwned = [owner](const JsonNode & node)
 	{
 		auto * h = CampaignState::crossoverDeserialize(node);
 		bool result = h->tempOwner == owner;
 		vstd::clear_pointer(h);
 		return result;
 	};
-	auto ownedHeroes = crossoverHeroes | boost::adaptors::filtered(isOwned);
+	auto ownedHeroes = crossover.placedHeroes.at(scenarioId) | boost::adaptors::filtered(isOwned);
 
-	auto i = vstd::maxElementByFun(ownedHeroes, [](JsonNode & node)
+	auto i = vstd::maxElementByFun(ownedHeroes, [](const JsonNode & node)
 	{
 		auto * h = CampaignState::crossoverDeserialize(node);
 		double result = h->getHeroStrength();
@@ -130,41 +135,43 @@ const CGHeroInstance * CampaignScenario::strongestHero(const PlayerColor & owner
 	return i == ownedHeroes.end() ? nullptr : CampaignState::crossoverDeserialize(*i);
 }
 
-std::vector<CGHeroInstance *> CampaignScenario::getLostCrossoverHeroes()
+std::vector<CGHeroInstance *> CampaignState::getLostCrossoverHeroes(CampaignScenarioID scenarioId) const
 {
 	std::vector<CGHeroInstance *> lostCrossoverHeroes;
-	if(conquered)
+
+	for(auto node2 :  crossover.placedHeroes.at(scenarioId))
 	{
-		for(auto node2 : placedCrossoverHeroes)
+		auto * hero = CampaignState::crossoverDeserialize(node2);
+		auto it = range::find_if(crossover.crossoverHeroes.at(scenarioId), [hero](JsonNode node)
 		{
-			auto * hero = CampaignState::crossoverDeserialize(node2);
-			auto it = range::find_if(crossoverHeroes, [hero](JsonNode node)
-			{
-				auto * h = CampaignState::crossoverDeserialize(node);
-				bool result = hero->subID == h->subID;
-				vstd::clear_pointer(h);
-				return result;
-			});
-			if(it == crossoverHeroes.end())
-			{
-				lostCrossoverHeroes.push_back(hero);
-			}
+				  auto * h = CampaignState::crossoverDeserialize(node);
+				  bool result = hero->subID == h->subID;
+				  vstd::clear_pointer(h);
+				  return result;
+	});
+		if(it == crossover.crossoverHeroes.at(scenarioId).end())
+		{
+			lostCrossoverHeroes.push_back(hero);
 		}
 	}
+
 	return lostCrossoverHeroes;
+}
+
+std::vector<JsonNode> CampaignState::getCrossoverHeroes(CampaignScenarioID scenarioId) const
+{
+	return crossover.crossoverHeroes.at(scenarioId);
 }
 
 void CampaignState::setCurrentMapAsConquered(const std::vector<CGHeroInstance *> & heroes)
 {
-	scenarios.at(*currentMap).crossoverHeroes.clear();
+	crossover.crossoverHeroes[*currentMap].clear();
 	for(CGHeroInstance * hero : heroes)
 	{
-		scenarios.at(*currentMap).crossoverHeroes.push_back(crossoverSerialize(hero));
+		crossover.crossoverHeroes[*currentMap].push_back(crossoverSerialize(hero));
 	}
 
 	mapsConquered.push_back(*currentMap);
-	mapsRemaining -= *currentMap;
-	scenarios.at(*currentMap).conquered = true;
 }
 
 std::optional<CampaignBonus> CampaignState::getBonusForCurrentMap() const
@@ -183,9 +190,12 @@ const CampaignScenario & CampaignState::getCurrentScenario() const
 	return scenarios.at(*currentMap);
 }
 
-CampaignScenario & CampaignState::getCurrentScenario()
+std::optional<ui8> CampaignState::getBonusID(CampaignScenarioID & which) const
 {
-	return scenarios.at(*currentMap);
+	if (!chosenCampaignBonuses.count(which))
+		return std::nullopt;
+
+	return chosenCampaignBonuses.at(which);
 }
 
 ui8 CampaignState::currentBonusID() const
@@ -242,11 +252,74 @@ JsonNode CampaignState::crossoverSerialize(CGHeroInstance * hero)
 	return node;
 }
 
-CGHeroInstance * CampaignState::crossoverDeserialize(JsonNode & node)
+CGHeroInstance * CampaignState::crossoverDeserialize(const JsonNode & node)
 {
-	JsonDeserializer handler(nullptr, node);
+	JsonDeserializer handler(nullptr, const_cast<JsonNode&>(node));
 	auto * hero = new CGHeroInstance();
 	hero->ID = Obj::HERO;
 	hero->serializeJsonOptions(handler);
 	return hero;
+}
+
+void CampaignState::setCurrentMap(CampaignScenarioID which)
+{
+	assert(scenarios.count(which));
+	assert(scenarios.at(which).isNotVoid());
+
+	currentMap = which;
+}
+
+void CampaignState::setCurrentMapBonus(ui8 which)
+{
+	chosenCampaignBonuses[*currentMap] = which;
+}
+
+std::optional<CampaignScenarioID> CampaignState::currentScenario() const
+{
+	return currentMap;
+}
+
+std::optional<CampaignScenarioID> CampaignState::lastScenario() const
+{
+	if (mapsConquered.empty())
+		return std::nullopt;
+	return mapsConquered.back();
+}
+
+std::set<CampaignScenarioID> CampaignState::conqueredScenarios() const
+{
+	std::set<CampaignScenarioID> result;
+	result.insert(mapsConquered.begin(), mapsConquered.end());
+	return result;
+}
+
+std::set<CampaignScenarioID> CampaignState::allScenarios() const
+{
+	std::set<CampaignScenarioID> result;
+
+	for (auto const & entry : scenarios)
+	{
+		if (entry.second.isNotVoid())
+			result.insert(entry.first);
+	}
+
+	return result;
+}
+
+const CampaignScenario & CampaignState::scenario(CampaignScenarioID which) const
+{
+	assert(scenarios.count(which));
+	assert(scenarios.at(which).isNotVoid());
+
+	return scenarios.at(which);
+}
+
+bool CampaignState::isCampaignFinished() const
+{
+	return conqueredScenarios() == allScenarios();
+}
+
+const CampaignHeader & CampaignState::getHeader() const
+{
+	return header;
 }

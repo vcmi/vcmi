@@ -65,7 +65,7 @@ CrossoverHeroesList CGameStateCampaign::getCrossoverHeroesFromPreviousScenarios(
 		auto scenarioID = static_cast<CampaignScenarioID>(bonus->info2);
 
 		std::vector<CGHeroInstance *> heroes;
-		for(auto & node : campaignState->scenarios.at(scenarioID).crossoverHeroes)
+		for(auto & node : campaignState->getCrossoverHeroes(scenarioID))
 		{
 			auto * h = CampaignState::crossoverDeserialize(node);
 			heroes.push_back(h);
@@ -76,14 +76,13 @@ CrossoverHeroesList CGameStateCampaign::getCrossoverHeroesFromPreviousScenarios(
 		return crossoverHeroes;
 	}
 
-	if(campaignState->mapsConquered.empty())
+	if(!campaignState->lastScenario())
 		return crossoverHeroes;
 
-	for(auto mapNr : campaignState->mapsConquered)
+	for(auto mapNr : campaignState->conqueredScenarios())
 	{
 		// create a list of deleted heroes
-		auto & scenario = campaignState->scenarios[mapNr];
-		auto lostCrossoverHeroes = scenario.getLostCrossoverHeroes();
+		auto lostCrossoverHeroes = campaignState->getLostCrossoverHeroes(mapNr);
 
 		// remove heroes which didn't reached the end of the scenario, but were available at the start
 		for(auto * hero : lostCrossoverHeroes)
@@ -96,7 +95,7 @@ CrossoverHeroesList CGameStateCampaign::getCrossoverHeroesFromPreviousScenarios(
 		}
 
 		// now add heroes which completed the scenario
-		for(auto node : scenario.crossoverHeroes)
+		for(auto node : campaignState->getCrossoverHeroes(mapNr))
 		{
 			auto * hero = CampaignState::crossoverDeserialize(node);
 			// add new heroes and replace old heroes with newer ones
@@ -116,7 +115,7 @@ CrossoverHeroesList CGameStateCampaign::getCrossoverHeroesFromPreviousScenarios(
 				crossoverHeroes.heroesFromAnyPreviousScenarios.push_back(hero);
 			}
 
-			if(mapNr == campaignState->mapsConquered.back())
+			if(mapNr == campaignState->lastScenario())
 			{
 				crossoverHeroes.heroesFromPreviousScenario.push_back(hero);
 			}
@@ -392,7 +391,7 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 					continue;
 				}
 				auto bb = std::make_shared<Bonus>(
-					BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CAMPAIGN_BONUS, val, static_cast<int>(*gameState->scenarioOps->campState->currentMap), g
+					BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CAMPAIGN_BONUS, val, static_cast<int>(*gameState->scenarioOps->campState->currentScenario()), g
 				);
 				hero->addNewBonus(bb);
 			}
@@ -445,8 +444,6 @@ void CGameStateCampaign::replaceHeroesPlaceholders(const std::vector<CampaignHer
 		gameState->map->instanceNames[heroToPlace->instanceName] = heroToPlace;
 
 		delete heroPlaceholder;
-
-		gameState->scenarioOps->campState->getCurrentScenario().placedCrossoverHeroes.push_back(CampaignState::crossoverSerialize(heroToPlace));
 	}
 }
 
@@ -628,7 +625,7 @@ void CGameStateCampaign::initTowns()
 					gameState->map->towns[g]->pos == pi.posOfMainTown)
 				{
 					BuildingID buildingId;
-					if(gameState->scenarioOps->campState->header.version == CampaignVersion::VCMI)
+					if(gameState->scenarioOps->campState->getHeader().version == CampaignVersion::VCMI)
 						buildingId = BuildingID(chosenBonus->info1);
 					else
 						buildingId = CBuildingHandler::campToERMU(chosenBonus->info1, gameState->map->towns[g]->subID, gameState->map->towns[g]->builtBuildings);
