@@ -404,7 +404,7 @@ void TreasurePlacer::addAllPossibleObjects()
 	
 	//Seer huts with creatures or generic rewards
 
-	if(zone.getConnections().size()) //Unlikely, but...
+	if(zone.getConnectedZoneIds().size()) //Unlikely, but...
 	{
 		auto * qap = zone.getModificator<QuestArtifactPlacer>();
 		if(!qap)

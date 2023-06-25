@@ -12,6 +12,7 @@
 #include <vstd/ContainerUtils.h>
 #include <boost/bimap.hpp>
 #include "CRmgTemplate.h"
+#include "Functions.h"
 
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
@@ -285,14 +286,20 @@ TRmgTemplateZoneId ZoneOptions::getTreasureLikeZone() const
     return treasureLikeZone;
 }
 
-void ZoneOptions::addConnection(TRmgTemplateZoneId otherZone)
+void ZoneOptions::addConnection(const ZoneConnection & connection)
 {
-	connections.push_back (otherZone);
+	connectedZoneIds.push_back(connection.getOtherZoneId(getId()));
+	connectionDetails.push_back(connection);
 }
 
-std::vector<TRmgTemplateZoneId> ZoneOptions::getConnections() const
+std::vector<ZoneConnection> ZoneOptions::getConnections() const
 {
-	return connections;
+	return connectionDetails;
+}
+
+std::vector<TRmgTemplateZoneId> ZoneOptions::getConnectedZoneIds() const
+{
+	return connectedZoneIds;
 }
 
 bool ZoneOptions::areTownsSameType() const
@@ -429,7 +436,8 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 ZoneConnection::ZoneConnection()
 	: zoneA(-1),
 	zoneB(-1),
-	guardStrength(0)
+	guardStrength(0),
+	connectionType(EConnectionType::EConnectionType::GUARDED)
 {
 
 }
@@ -444,9 +452,30 @@ TRmgTemplateZoneId ZoneConnection::getZoneB() const
 	return zoneB;
 }
 
+TRmgTemplateZoneId ZoneConnection::getOtherZoneId(TRmgTemplateZoneId id) const
+{
+	if (id == zoneA)
+	{
+		return zoneB;
+	}
+	else if (id == zoneB)
+	{
+		return zoneA;
+	}
+	else
+	{
+		throw rmgException("Zone does not belong to this connection");
+	}
+}
+
 int ZoneConnection::getGuardStrength() const
 {
 	return guardStrength;
+}
+
+EConnectionType::EConnectionType ZoneConnection::getConnectionType() const
+{
+	return connectionType;
 }
 	
 bool operator==(const ZoneConnection & l, const ZoneConnection & r)
@@ -456,9 +485,18 @@ bool operator==(const ZoneConnection & l, const ZoneConnection & r)
 
 void ZoneConnection::serializeJson(JsonSerializeFormat & handler)
 {
+	static const std::vector<std::string> connectionTypes =
+	{
+		"guarded",
+		"fictive",
+		"repulsive",
+		"wide"
+	};
+
 	handler.serializeId<TRmgTemplateZoneId, TRmgTemplateZoneId, ZoneEncoder>("a", zoneA, -1);
 	handler.serializeId<TRmgTemplateZoneId, TRmgTemplateZoneId, ZoneEncoder>("b", zoneB, -1);
 	handler.serializeInt("guard", guardStrength, 0);
+	handler.serializeEnum("type", connectionType, connectionTypes);
 }
 
 }
@@ -526,9 +564,9 @@ const CRmgTemplate::Zones & CRmgTemplate::getZones() const
 	return zones;
 }
 
-const std::vector<ZoneConnection> & CRmgTemplate::getConnections() const
+const std::vector<ZoneConnection> & CRmgTemplate::getConnectedZoneIds() const
 {
-	return connections;
+	return connectedZoneIds;
 }
 
 void CRmgTemplate::validate() const
@@ -644,7 +682,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 
 	{
 		auto connectionsData = handler.enterArray("connections");
-		connectionsData.serializeStruct(connections);
+		connectionsData.serializeStruct(connectedZoneIds);
 	}
 	
 	{
@@ -759,16 +797,18 @@ void CRmgTemplate::afterLoad()
 		inheritTreasureInfo(zone);
 	}
 
-	for(const auto & connection : connections)
+	for(const auto & connection : connectedZoneIds)
 	{
+		//TODO: Remember connection details and allow to access them from anywhere
+
 		auto id1 = connection.getZoneA();
 		auto id2 = connection.getZoneB();
 
 		auto zone1 = zones.at(id1);
 		auto zone2 = zones.at(id2);
 
-		zone1->addConnection(id2);
-		zone2->addConnection(id1);
+		zone1->addConnection(connection);
+		zone2->addConnection(connection);
 	}
 	
 	if(allowedWaterContent.empty() || allowedWaterContent.count(EWaterContent::RANDOM))

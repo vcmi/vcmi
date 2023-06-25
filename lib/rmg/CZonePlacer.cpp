@@ -71,10 +71,16 @@ void CZonePlacer::findPathsBetweenZones()
 			q.pop();
 
 			const auto& currentZone = zones.at(current);
-			const auto& connections = currentZone->getConnections();
+			const auto& connectedZoneIds = currentZone->getConnections();
 
-			for (uint32_t neighbor : connections)
+			for (auto & connection : connectedZoneIds)
 			{
+				if (connection.getConnectionType() == EConnectionType::EConnectionType::REPULSIVE)
+				{
+					//Do not consider virtual connections for graph distance
+					continue;
+				}
+				auto neighbor = connection.getOtherZoneId(current);
 				if (!visited[neighbor])
 				{
 					visited[neighbor] = true;
@@ -98,7 +104,6 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 	GridType grid(boost::extents[gridSize][gridSize]);
 
 	TZoneVector zonesVector(zones.begin(), zones.end());
-	RandomGeneratorUtil::randomShuffle(zonesVector, *rand);
 
 	//Place first zone
 
@@ -132,7 +137,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 	{
 		case ETemplateZoneType::PLAYER_START:
 		case ETemplateZoneType::CPU_START:
-			if (firstZone->getConnections().size() > 2)
+			if (firstZone->getConnectedZoneIds().size() > 2)
 			{
 				getRandomEdge(x, y);
 			}
@@ -180,7 +185,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 	for (size_t i = 1; i < zones.size(); i++)
 	{
 		auto zone = zonesVector[i].second;
-		auto connections = zone->getConnections();
+		auto connectedZoneIds = zone->getConnectedZoneIds();
 
 		float maxDistance = -1000.0;
 		int3 mostDistantPlace;
@@ -220,16 +225,7 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 									localDistance = -potentialPos.dist2d(int3(existingX, existingY, 0));
 								}
 
-								//Spread apart player starting zones
-								if (zone->getOwner() && existingZone->getOwner()) //Players participate in game
-								{
-									int firstPlayer = zone->getOwner().value();
-									int secondPlayer = existingZone->getOwner().value();
-
-									//Players with lower indexes (especially 1 and 2) will be placed further apart
-
-									localDistance *= (1.0f + (2.0f / (firstPlayer * secondPlayer)));
-								}
+								localDistance *= scaleForceBetweenZones(zone, existingZone);
 
 								distance += localDistance;
 							}
@@ -284,6 +280,23 @@ void CZonePlacer::placeOnGrid(CRandomGenerator* rand)
 				zone->setCenter(float3(targetX / gridSize, targetY / gridSize, zone->getPos().z));
 			}
 		}
+	}
+}
+
+float CZonePlacer::scaleForceBetweenZones(const std::shared_ptr<Zone> zoneA, const std::shared_ptr<Zone> zoneB) const
+{
+	if (zoneA->getOwner() && zoneB->getOwner()) //Players participate in game
+	{
+		int firstPlayer = zoneA->getOwner().value();
+		int secondPlayer = zoneB->getOwner().value();
+
+		//Players with lower indexes (especially 1 and 2) will be placed further apart
+
+		return (1.0f + (2.0f / (firstPlayer * secondPlayer)));
+	}
+	else
+	{
+		return 1;
 	}
 }
 
@@ -521,13 +534,18 @@ void CZonePlacer::attractConnectedZones(TZoneMap & zones, TForceVector & forces,
 		float3 pos = zone.second->getCenter();
 		float totalDistance = 0;
 
-		for (auto con : zone.second->getConnections())
+		for (const auto & connection : zone.second->getConnections())
 		{
-			auto otherZone = zones[con];
+			if (connection.getConnectionType() == EConnectionType::EConnectionType::REPULSIVE)
+			{
+				continue;
+			}
+
+			auto otherZone = zones[connection.getOtherZoneId(zone.second->getId())];
 			float3 otherZoneCenter = otherZone->getCenter();
 			auto distance = static_cast<float>(pos.dist2d(otherZoneCenter));
 			
-			forceVector += (otherZoneCenter - pos) * distance * gravityConstant; //positive value
+			forceVector += (otherZoneCenter - pos) * distance * gravityConstant * scaleForceBetweenZones(zone.second, otherZone); //positive value
 
 			//Attract zone centers always
 
@@ -569,6 +587,7 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 			{
 				float3 localForce = (((otherZoneCenter - pos)*(minDistance / (distance ? distance : 1e-3f))) / getDistance(distance)) * stifness;
 				//negative value
+				localForce *= scaleForceBetweenZones(zone.second, otherZone.second);
 				forceVector -= localForce * (distancesBetweenZones[zone.second->getId()][otherZone.second->getId()] / 2.0f);
 				overlap += (minDistance - distance); //overlapping of small zones hurts us more
 			}
@@ -601,6 +620,25 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 		{
 			pushAwayFromBoundary(pos.x, 1);
 		}
+
+		//Always move repulsive zones away, no matter their distance
+		//TODO: Consider z plane?
+		for (auto& connection : zone.second->getConnections())
+		{
+			if (connection.getConnectionType() == EConnectionType::EConnectionType::REPULSIVE)
+			{
+				auto & otherZone = zones[connection.getOtherZoneId(zone.second->getId())];
+				float3 otherZoneCenter = otherZone->getCenter();
+
+				//TODO: Roll into lambda?
+				auto distance = static_cast<float>(pos.dist2d(otherZoneCenter));
+				float minDistance = (zone.second->getSize() + otherZone->getSize()) / mapSize;
+				float3 localForce = (((otherZoneCenter - pos)*(minDistance / (distance ? distance : 1e-3f))) / getDistance(distance)) * stifness;
+				localForce *= (distancesBetweenZones[zone.second->getId()][otherZone->getId()]);
+				forceVector -= localForce * scaleForceBetweenZones(zone.second, otherZone);
+			}
+		}
+
 		overlaps[zone.second] = overlap;
 		forceVector.z = 0; //operator - doesn't preserve z coordinate :/
 		forces[zone.second] = forceVector;
@@ -609,7 +647,9 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 
 void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDistanceVector& distances, TDistanceVector& overlaps)
 {
-	const int maxDistanceMovementRatio = zones.size() * zones.size(); //The more zones, the greater total distance expected
+	//The more zones, the greater total distance expected
+	//Also, higher stiffness make expected movement lower
+	const int maxDistanceMovementRatio = zones.size() * zones.size() * (stiffnessConstant / stifness);
 
 	typedef std::pair<float, std::shared_ptr<Zone>> Misplacement;
 	std::vector<Misplacement> misplacedZones;
@@ -638,7 +678,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 
 	boost::sort(misplacedZones, [](const Misplacement& lhs, Misplacement& rhs)
 	{
-		return lhs.first > rhs.first; //Biggest first
+		return lhs.first > rhs.first; //Largest dispalcement first
 	});
 
 	logGlobal->trace("Worst misplacement/movement ratio: %3.2f", misplacedZones.front().first);
@@ -649,14 +689,24 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 
 		auto firstZone = misplacedZones.front().second;
 		std::shared_ptr<Zone> secondZone;
+		std::set<TRmgTemplateZoneId> connectedZones;
+		for (const auto& connection : firstZone->getConnections())
+		{
+			//FIXME: Should we also exclude fictive connections?
+			if (connection.getConnectionType() != EConnectionType::EConnectionType::REPULSIVE)
+			{
+				connectedZones.insert(connection.getOtherZoneId(firstZone->getId()));
+			}
+		}
 
 		auto level = firstZone->getCenter().z;
 		for (size_t i = 1; i < misplacedZones.size(); i++)
 		{
 			//Only swap zones on the same level
 			//Don't swap zones that should be connected (Jebus)
+
 			if (misplacedZones[i].second->getCenter().z == level &&
-				!vstd::contains(firstZone->getConnections(), misplacedZones[i].second->getId()))
+				!vstd::contains(connectedZones, misplacedZones[i].second->getId()))
 			{
 				secondZone = misplacedZones[i].second;
 				break;
@@ -690,7 +740,12 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		float maxDistance = 0;
 		for (auto con : misplacedZone->getConnections())
 		{
-			auto otherZone = zones[con];
+			if (con.getConnectionType() == EConnectionType::EConnectionType::REPULSIVE)
+			{
+				continue;
+			}
+
+			auto otherZone = zones[con.getOtherZoneId(misplacedZone->getId())];
 			float distance = static_cast<float>(otherZone->getCenter().dist2dSQ(ourCenter));
 			if (distance > maxDistance)
 			{

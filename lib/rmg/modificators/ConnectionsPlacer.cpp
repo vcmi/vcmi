@@ -79,7 +79,7 @@ void ConnectionsPlacer::init()
 	POSTFUNCTION(RoadPlacer);
 	POSTFUNCTION(ObjectManager);
 	
-	for(auto c : map.getMapGenOptions().getMapTemplate()->getConnections())
+	for(auto c : map.getMapGenOptions().getMapTemplate()->getConnectedZoneIds())
 		addConnection(c);
 }
 
@@ -108,8 +108,67 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 						 || vstd::contains(otherTerrain->prohibitTransitions, zone.getTerrainType());
 	auto directConnectionIterator = dNeighbourZones.find(otherZoneId);
 
+	if (directConnectionIterator != dNeighbourZones.end())
+	{
+		if (connection.getConnectionType() == EConnectionType::EConnectionType::WIDE)
+		{
+			for (auto borderPos : directConnectionIterator->second)
+			{
+				//TODO: Refactor common code with direct connection
+				int3 potentialPos = zone.areaPossible().nearest(borderPos);
+				assert(borderPos != potentialPos);
+
+				auto safetyGap = rmg::Area({ potentialPos });
+				safetyGap.unite(safetyGap.getBorderOutside());
+				safetyGap.intersect(zone.areaPossible());
+				if (!safetyGap.empty())
+				{
+					safetyGap.intersect(otherZone->areaPossible());
+					if (safetyGap.empty())
+					{
+						rmg::Area border(zone.getArea().getBorder());
+						border.unite(otherZone->getArea().getBorder());
+
+						auto costFunction = [&border](const int3& s, const int3& d)
+						{
+							return 1.f / (1.f + border.distanceSqr(d));
+						};
+
+						auto ourArea = zone.areaPossible() + zone.freePaths();
+						auto theirArea = otherZone->areaPossible() + otherZone->freePaths();
+						theirArea.add(potentialPos);
+						rmg::Path ourPath(ourArea);
+						rmg::Path theirPath(theirArea);
+						ourPath.connect(zone.freePaths());
+						ourPath = ourPath.search(potentialPos, true, costFunction);
+						theirPath.connect(otherZone->freePaths());
+						theirPath = theirPath.search(potentialPos, true, costFunction);
+
+						if (ourPath.valid() && theirPath.valid())
+						{
+							zone.connectPath(ourPath);
+							otherZone->connectPath(theirPath);
+							otherZone->getModificator<ObjectManager>()->updateDistances(potentialPos);
+
+							success = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (connection.getConnectionType() == EConnectionType::EConnectionType::FICTIVE || 
+		connection.getConnectionType() == EConnectionType::EConnectionType::REPULSIVE)
+	{
+		//Fictive or repulsive connections are not real, take no action
+		dCompleted.push_back(connection);
+		return;
+	}
+
 	float maxDist = -10e6;
-	if(!directProhibited && directConnectionIterator != dNeighbourZones.end())
+	if(!success && !directProhibited && directConnectionIterator != dNeighbourZones.end())
 	{
 		int3 guardPos(-1, -1, -1);
 		int3 roadNode;
@@ -187,9 +246,12 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 				}
 				else
 				{
+					//Update distances from empty passage, too
 					zone.areaPossible().erase(guardPos);
 					zone.freePaths().add(guardPos);
 					map.setOccupied(guardPos, ETileType::FREE);
+					manager.updateDistances(guardPos);
+					otherZone->getModificator<ObjectManager>()->updateDistances(guardPos);
 				}
 				
 				assert(zone.getModificator<RoadPlacer>());
@@ -333,6 +395,23 @@ void ConnectionsPlacer::createBorder()
 		auto tile = borderOutsideArea.nearest(t);
 		return map.isOnMap(tile) && map.getZones()[map.getZoneID(tile)]->getType() != ETemplateZoneType::WATER;
 	});
+
+	//No border for wide connections
+	for (auto& connection : zone.getConnections()) // We actually placed that connection already
+	{
+		auto otherZone = connection.getOtherZoneId(zone.getId());
+
+		if (connection.getConnectionType() == EConnectionType::EConnectionType::WIDE)
+		{
+			auto sharedBorder = borderArea.getSubarea([this, otherZone, &borderOutsideArea](const int3 & t)
+			{
+				auto tile = borderOutsideArea.nearest(t);
+				return map.isOnMap(tile) && map.getZones()[map.getZoneID(tile)]->getId() == otherZone;
+			});
+
+			blockBorder.subtract(sharedBorder);
+		}
+	};
 
 	Zone::Lock lock(zone.areaMutex); //Protect from erasing same tiles again
 	for(const auto & tile : blockBorder.getTilesVector())

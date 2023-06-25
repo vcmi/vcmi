@@ -62,6 +62,8 @@ public:
 	void placeObject(rmg::Object & object, bool guarded, bool updateDistance);
 
 	void updateDistances(const rmg::Object & obj);
+	void updateDistances(const int3& pos);
+	void updateDistances(std::function<ui32(const int3 & tile)> distanceFunction);
 	void createDistancesPriorityQueue();
 
 	const rmg::Area & getVisitableArea() const;
