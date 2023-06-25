@@ -123,7 +123,7 @@ std::vector<CGPathNode *> NodeStorage::getInitialNodes()
 	auto * initialNode = getNode(out.hpos, out.hero->boat ? out.hero->boat->layer : EPathfindingLayer::LAND);
 
 	initialNode->turns = 0;
-	initialNode->moveRemains = out.hero->movement;
+	initialNode->moveRemains = out.hero->movementPointsRemaining();
 	initialNode->setCost(0.0);
 
 	if(!initialNode->coord.valid())

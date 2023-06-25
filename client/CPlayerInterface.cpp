@@ -1922,10 +1922,27 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		for (auto & elem : path.nodes)
 			elem.coord = h->convertFromVisitablePos(elem.coord);
 
-		TerrainId currentTerrain = ETerrainId::NONE;
-		TerrainId newTerrain;
-		bool wasOnRoad = true;
-		int sh = -1;
+		int soundChannel = -1;
+		std::string soundName;
+
+		auto getMovementSoundFor = [&](const CGHeroInstance * hero, int3 posPrev, int3 posNext) -> std::string
+		{
+			// flying movement sound
+			if (hero->hasBonusOfType(BonusType::FLYING_MOVEMENT))
+				return "HORSE10.wav";
+
+			auto prevTile = cb->getTile(h->convertToVisitablePos(posPrev));
+			auto nextTile = cb->getTile(h->convertToVisitablePos(posNext));
+
+			auto prevRoad = prevTile->roadType;
+			auto nextRoad = nextTile->roadType;
+			bool movingOnRoad = prevRoad->getId() != Road::NO_ROAD && nextRoad->getId() != Road::NO_ROAD;
+
+			if (movingOnRoad)
+				return nextTile->terType->horseSound;
+			else
+				return nextTile->terType->horseSoundPenalty;
+		};
 
 		auto canStop = [&](CGPathNode * node) -> bool
 		{
@@ -1943,18 +1960,13 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 			int3 prevCoord = path.nodes[i].coord;
 			int3 nextCoord = path.nodes[i-1].coord;
 
-			auto prevRoad = cb->getTile(h->convertToVisitablePos(prevCoord))->roadType;
-			auto nextRoad = cb->getTile(h->convertToVisitablePos(nextCoord))->roadType;
-
-			bool movingOnRoad = prevRoad->getId() != Road::NO_ROAD && nextRoad->getId() != Road::NO_ROAD;
-
 			auto prevObject = getObj(prevCoord, prevCoord == h->pos);
 			auto nextObjectTop = getObj(nextCoord, false);
 			auto nextObject = getObj(nextCoord, true);
 			auto destTeleportObj = getDestTeleportObj(prevObject, nextObjectTop, nextObject);
 			if (isTeleportAction(path.nodes[i-1].action) && destTeleportObj != nullptr)
 			{
-				CCS->soundh->stopSound(sh);
+				CCS->soundh->stopSound(soundChannel);
 				destinationTeleport = destTeleportObj->id;
 				destinationTeleportPos = nextCoord;
 				doMovement(h->pos, false);
@@ -1966,10 +1978,8 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				}
 				if(i != path.nodes.size() - 1)
 				{
-					if (movingOnRoad)
-						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(currentTerrain)->horseSound, -1);
-					else
-						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(currentTerrain)->horseSoundPenalty, -1);
+					soundName = getMovementSoundFor(h, prevCoord, nextCoord);
+					soundChannel = CCS->soundh->playSound(soundName, -1);
 				}
 				continue;
 			}
@@ -1980,23 +1990,16 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				break;
 			}
 
-			// Start a new sound for the hero movement or let the existing one carry on.
-#if 0
-			// TODO
-			if (hero is flying && sh == -1)
-				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
-#endif
 			{
-				newTerrain = cb->getTile(h->convertToVisitablePos(prevCoord))->terType->getId();
-				if(newTerrain != currentTerrain || wasOnRoad != movingOnRoad)
+				// Start a new sound for the hero movement or let the existing one carry on.
+				std::string newSoundName = getMovementSoundFor(h, prevCoord, nextCoord);
+
+				if(newSoundName != soundName)
 				{
-					CCS->soundh->stopSound(sh);
-					if (movingOnRoad)
-						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(newTerrain)->horseSound, -1);
-					else
-						sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(newTerrain)->horseSoundPenalty, -1);
-					currentTerrain = newTerrain;
-					wasOnRoad = movingOnRoad;
+					soundName = newSoundName;
+
+					CCS->soundh->stopSound(soundChannel);
+					soundChannel = CCS->soundh->playSound(soundName, -1);
 				}
 			}
 
@@ -2022,7 +2025,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				break;
 		}
 
-		CCS->soundh->stopSound(sh);
+		CCS->soundh->stopSound(soundChannel);
 	}
 
 	//Update cursor so icon can change if needed when it reappears; doesn;'t apply if a dialog box pops up at the end of the movement

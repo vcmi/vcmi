@@ -124,7 +124,7 @@ const CGHeroInstance * PlayerLocalState::getNextWanderingHero(const CGHeroInstan
 		if (isHeroSleeping(hero))
 			continue;
 
-		if (hero->movement == 0)
+		if (hero->movementPointsRemaining() == 0)
 			continue;
 
 		if (!firstSuitable)

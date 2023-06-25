@@ -43,7 +43,7 @@ ChainActor::ChainActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t 
 {
 	initialPosition = hero->visitablePos();
 	layer = hero->boat ? hero->boat->layer : EPathfindingLayer::LAND;
-	initialMovement = hero->movement;
+	initialMovement = hero->movementPointsRemaining();
 	initialTurn = 0;
 	armyValue = hero->getArmyStrength();
 	heroFightingStrength = hero->getFightingStrength();
@@ -75,7 +75,7 @@ int ChainActor::maxMovePoints(CGPathNode::ELayer layer)
 		throw std::logic_error("Asking movement points for static actor");
 #endif
 
-	return hero->maxMovePointsCached(layer, tiCache.get());
+	return hero->movementPointsLimitCached(layer, tiCache.get());
 }
 
 std::string ChainActor::toString() const

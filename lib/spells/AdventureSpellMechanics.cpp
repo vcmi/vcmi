@@ -297,7 +297,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 		return ESpellCastResult::ERROR;
 	}
 
-	if(parameters.caster->getHeroCaster()->movement <= 0) //unlike town portal non-zero MP is enough
+	if(parameters.caster->getHeroCaster()->movementPointsRemaining() <= 0) //unlike town portal non-zero MP is enough
 	{
 		env->complain("Hero needs movement points to cast Dimension Door!");
 		return ESpellCastResult::ERROR;
@@ -335,8 +335,8 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 	{
 		SetMovePoints smp;
 		smp.hid = ObjectInstanceID(parameters.caster->getCasterUnitId());
-		if(movementCost < static_cast<int>(parameters.caster->getHeroCaster()->movement))
-			smp.val = parameters.caster->getHeroCaster()->movement - movementCost;
+		if(movementCost < static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()))
+			smp.val = parameters.caster->getHeroCaster()->movementPointsRemaining() - movementCost;
 		else
 			smp.val = 0;
 		env->apply(&smp);
@@ -369,7 +369,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 		if(nullptr == destination)
 			return ESpellCastResult::ERROR;
 
-		if(static_cast<int>(parameters.caster->getHeroCaster()->movement) < moveCost)
+		if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < moveCost)
 			return ESpellCastResult::ERROR;
 
 		if(destination->visitingHero)
@@ -419,7 +419,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 			return ESpellCastResult::ERROR;
 		}
 
-		if(static_cast<int>(parameters.caster->getHeroCaster()->movement) < moveCost)
+		if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < moveCost)
 		{
 			env->complain("This hero has not enough movement points!");
 			return ESpellCastResult::ERROR;
@@ -441,7 +441,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 	{
 		SetMovePoints smp;
 		smp.hid = ObjectInstanceID(parameters.caster->getCasterUnitId());
-		smp.val = std::max<ui32>(0, parameters.caster->getHeroCaster()->movement - moveCost);
+		smp.val = std::max<ui32>(0, parameters.caster->getHeroCaster()->movementPointsRemaining() - moveCost);
 		env->apply(&smp);
 	}
 	return ESpellCastResult::OK;
@@ -468,7 +468,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 
 	const int moveCost = movementCost(parameters);
 
-	if(static_cast<int>(parameters.caster->getHeroCaster()->movement) < moveCost)
+	if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < moveCost)
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();

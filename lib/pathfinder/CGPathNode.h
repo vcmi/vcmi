@@ -63,7 +63,7 @@ struct DLL_LINKAGE CGPathNode
 	CGPathNode * theNodeBefore;
 	int3 coord; //coordinates
 	ELayer layer;
-	ui32 moveRemains; //remaining movement points after hero reaches the tile
+	int moveRemains; //remaining movement points after hero reaches the tile
 	ui8 turns; //how many turns we have to wait before reaching the tile - 0 means current turn
 
 	EPathAccessibility accessible;

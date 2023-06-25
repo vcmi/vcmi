@@ -888,7 +888,7 @@ void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
 		if(actor->hero->tempOwner != ai->playerID)
 		{
 			bool onLand = !actor->hero->boat || actor->hero->boat->layer != EPathfindingLayer::SAIL;
-			actor->initialMovement = actor->hero->maxMovePoints(onLand);
+			actor->initialMovement = actor->hero->movementPointsLimit(onLand);
 		}
 
 		playerID = actor->hero->tempOwner;
@@ -1053,7 +1053,7 @@ struct TowmPortalFinder
 			return std::nullopt;
 
 		AIPathNode * node = nodeOptional.value();
-		float movementCost = (float)movementNeeded / (float)hero->maxMovePoints(EPathfindingLayer::LAND);
+		float movementCost = (float)movementNeeded / (float)hero->movementPointsLimit(EPathfindingLayer::LAND);
 
 		movementCost += bestNode->getCost();
 

@@ -80,12 +80,18 @@ class CBankInstanceConstructor : public CDefaultObjectTypeHandler<CBank>
 	BankConfig generateConfig(const JsonNode & conf, CRandomGenerator & rng) const;
 
 	JsonVector levels;
+
+	// all banks of this type will be reset N days after clearing,
+	si32 bankResetDuration = 0;
+
+	// bank is only visitable from adjacent tile
+	bool blockVisit;
+	// bank is visitable from land even when bank is on water tile
+	bool coastVisitable;
 protected:
 	void initTypeData(const JsonNode & input) override;
 
 public:
-	// all banks of this type will be reset N days after clearing,
-	si32 bankResetDuration = 0;
 
 	void randomizeObject(CBank * object, CRandomGenerator & rng) const override;
 
@@ -97,6 +103,8 @@ public:
 	{
 		h & levels;
 		h & bankResetDuration;
+		h & blockVisit;
+		h & coastVisitable;
 		h & static_cast<CDefaultObjectTypeHandler<CBank>&>(*this);
 	}
 };

@@ -57,6 +57,11 @@ enum class EGameSettings
 	MAP_FORMAT_HORN_OF_THE_ABYSS,
 	MAP_FORMAT_JSON_VCMI,
 	MAP_FORMAT_IN_THE_WAKE_OF_GODS,
+	PATHFINDER_USE_BOAT,
+	PATHFINDER_USE_MONOLITH_TWO_WAY,
+	PATHFINDER_USE_MONOLITH_ONE_WAY_UNIQUE,
+	PATHFINDER_USE_MONOLITH_ONE_WAY_RANDOM,
+	PATHFINDER_USE_WHIRLPOOL,
 	TOWNS_BUILDINGS_PER_TURN_CAP,
 	TOWNS_STARTING_DWELLING_CHANCES,
 	COMBAT_ONE_HEX_TRIGGERS_OBSTACLES,
@@ -68,6 +73,7 @@ class DLL_LINKAGE IGameSettings
 {
 public:
 	virtual const JsonNode & getValue(EGameSettings option) const = 0;
+	virtual ~IGameSettings() = default;
 
 	bool getBoolean(EGameSettings option) const;
 	int64_t getInteger(EGameSettings option) const;
@@ -75,12 +81,14 @@ public:
 	std::vector<int> getVector(EGameSettings option) const;
 };
 
-class DLL_LINKAGE GameSettings final : public IGameSettings
+class DLL_LINKAGE GameSettings final : public IGameSettings, boost::noncopyable
 {
 	std::vector<JsonNode> gameSettings;
 
 public:
 	GameSettings();
+	~GameSettings();
+
 	void load(const JsonNode & input);
 	const JsonNode & getValue(EGameSettings option) const override;
 

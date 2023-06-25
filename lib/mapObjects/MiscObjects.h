@@ -359,6 +359,7 @@ public:
 	std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
 
 	CGBoat();
+	bool isCoastVisitable() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

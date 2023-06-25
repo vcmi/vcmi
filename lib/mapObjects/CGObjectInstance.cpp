@@ -282,6 +282,16 @@ bool CGObjectInstance::isVisitable() const
 	return appearance->isVisitable();
 }
 
+bool CGObjectInstance::isBlockedVisitable() const
+{
+	return blockVisit;
+}
+
+bool CGObjectInstance::isCoastVisitable() const
+{
+	return false;
+}
+
 bool CGObjectInstance::passableFor(PlayerColor color) const
 {
 	return false;

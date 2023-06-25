@@ -33,6 +33,8 @@ std::vector<int> IGameSettings::getVector(EGameSettings option) const
 	return getValue(option).convertTo<std::vector<int>>();
 }
 
+GameSettings::~GameSettings() = default;
+
 GameSettings::GameSettings()
 	: gameSettings(static_cast<size_t>(EGameSettings::OPTIONS_COUNT))
 {
@@ -91,6 +93,11 @@ void GameSettings::load(const JsonNode & input)
 		{EGameSettings::TEXTS_ROAD,                             "textData",  "road"                       },
 		{EGameSettings::TEXTS_SPELL,                            "textData",  "spell"                      },
 		{EGameSettings::TEXTS_TERRAIN,                          "textData",  "terrain"                    },
+		{EGameSettings::PATHFINDER_USE_BOAT,                    "pathfinder", "useBoat"                   },
+		{EGameSettings::PATHFINDER_USE_MONOLITH_TWO_WAY,        "pathfinder", "useMonolithTwoWay"         },
+		{EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_UNIQUE, "pathfinder", "useMonolithOneWayUnique"   },
+		{EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_RANDOM, "pathfinder", "useMonolithOneWayRandom"   },
+		{EGameSettings::PATHFINDER_USE_WHIRLPOOL,               "pathfinder", "useWhirlpool"              },
 		{EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP,           "towns",     "buildingsPerTurnCap"        },
 		{EGameSettings::TOWNS_STARTING_DWELLING_CHANCES,        "towns",     "startingDwellingChances"    },
 	};

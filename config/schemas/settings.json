@@ -3,7 +3,7 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "pathfinder", "battle", "server", "logging", "launcher", "gameTweaks" ],
+	"required" : [ "general", "video", "adventure", "battle", "server", "logging", "launcher", "gameTweaks" ],
 	"definitions" : {
 		"logLevelEnum" : {
 			"type" : "string",
@@ -218,74 +218,6 @@
 					"defaultIOS" : false,
 					"defaultAndroid" : false,
 					"default" : true
-				}
-			}
-		},
-		"pathfinder" : {
-			"type" : "object",
-			"additionalProperties" : false,
-			"default" : {},
-			"required" : [ "teleports", "layers", "oneTurnSpecialLayersLimit", "originalMovementRules", "lightweightFlyingMode" ],
-			"properties" : {
-				"layers" : {
-					"type" : "object",
-					"additionalProperties" : false,
-					"default" : {},
-					"required" : [ "sailing", "waterWalking", "flying" ],
-					"properties" : {
-						"sailing" : {
-							"type" : "boolean",
-							"default" : true
-						},
-						"waterWalking" : {
-							"type" : "boolean",
-							"default" : true
-						},
-						"flying" : {
-							"type" : "boolean",
-							"default" : true
-						}
-					}
-				},
-				"teleports" : {
-					"type" : "object",
-					"additionalProperties" : false,
-					"default" : {},
-					"required" : [ "twoWay", "oneWay", "oneWayRandom", "whirlpool", "castleGate" ],
-					"properties" : {
-						"twoWay" : {
-							"type" : "boolean",
-							"default" : true
-						},
-						"oneWay" : {
-							"type" : "boolean",
-							"default" : true
-						},
-						"oneWayRandom" : {
-							"type" : "boolean",
-							"default" : false
-						},
-						"whirlpool" : {
-							"type" : "boolean",
-							"default" : true
-						},
-						"castleGate" : {
-							"type" : "boolean",
-							"default" : false
-						}
-					}
-				},
-				"oneTurnSpecialLayersLimit" : {
-					"type" : "boolean",
-					"default" : true
-				},
-				"originalMovementRules" : {
-					"type" : "boolean",
-					"default" : false
-				},
-				"lightweightFlyingMode" : {
-					"type" : "boolean",
-					"default" : false
 				}
 			}
 		},

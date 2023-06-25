@@ -1294,6 +1294,11 @@ CGBoat::CGBoat()
 	layer = EPathfindingLayer::EEPathfindingLayer::SAIL;
 }
 
+bool CGBoat::isCoastVisitable() const
+{
+	return true;
+}
+
 void CGSirens::initObj(CRandomGenerator & rand)
 {
 	blockVisit = true;

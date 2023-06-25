@@ -43,6 +43,11 @@ void CBank::initObj(CRandomGenerator & rand)
 	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
 }
 
+bool CBank::isCoastVisitable() const
+{
+	return coastVisitable;
+}
+
 std::string CBank::getHoverText(PlayerColor player) const
 {
 	// TODO: record visited players

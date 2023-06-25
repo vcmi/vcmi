@@ -80,10 +80,10 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameCallback * cb, const Re
 	{
 		SetMovePoints smp;
 		smp.hid = hero->id;
-		smp.val = hero->movement;
+		smp.val = hero->movementPointsRemaining();
 
 		if (info.reward.movePercentage >= 0) // percent from max
-			smp.val = hero->maxMovePoints(hero->boat && hero->boat->layer == EPathfindingLayer::SAIL) * info.reward.movePercentage / 100;
+			smp.val = hero->movementPointsLimit(hero->boat && hero->boat->layer == EPathfindingLayer::SAIL) * info.reward.movePercentage / 100;
 		smp.val = std::max<si32>(0, smp.val + info.reward.movePoints);
 
 		cb->setMovePoints(&smp);

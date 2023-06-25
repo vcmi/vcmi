@@ -813,8 +813,8 @@ void VCAI::makeTurn()
 		//for debug purpose
 		for (auto h : cb->getHeroesInfo())
 		{
-			if (h->movement)
-				logAi->warn("Hero %s has %d MP left", h->getNameTranslated(), h->movement);
+			if (h->movementPointsRemaining())
+				logAi->warn("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
 		}
 	}
 	catch (boost::thread_interrupted & e)
@@ -949,7 +949,7 @@ void VCAI::mainLoop()
 			if (bestGoal->hero) //lock this hero to fulfill goal
 			{
 				setGoal(bestGoal->hero, bestGoal);
-				if (!bestGoal->hero->movement || vstd::contains(invalidPathHeroes, bestGoal->hero))
+				if (!bestGoal->hero->movementPointsRemaining() || vstd::contains(invalidPathHeroes, bestGoal->hero))
 				{
 					if (!vstd::erase_if_present(possibleGoals, bestGoal))
 					{
@@ -1354,7 +1354,7 @@ void VCAI::wander(HeroPtr h)
 
 	TimeCheck tc("looking for wander destination");
 
-	while(h->movement)
+	while(h->movementPointsRemaining())
 	{
 		validateVisitableObjs();
 		ah->updatePaths(getMyHeroes());
@@ -2031,7 +2031,7 @@ void VCAI::tryRealize(Goals::RecruitHero & g)
 
 void VCAI::tryRealize(Goals::VisitTile & g)
 {
-	if(!g.hero->movement)
+	if(!g.hero->movementPointsRemaining())
 		throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
 	if(g.tile == g.hero->visitablePos() && cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
 	{
@@ -2047,7 +2047,7 @@ void VCAI::tryRealize(Goals::VisitTile & g)
 void VCAI::tryRealize(Goals::VisitObj & g)
 {
 	auto position = g.tile;
-	if(!g.hero->movement)
+	if(!g.hero->movementPointsRemaining())
 		throw cannotFulfillGoalException("Cannot visit object: hero is out of MPs!");
 	if(position == g.hero->visitablePos() && cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
 	{
@@ -2062,7 +2062,7 @@ void VCAI::tryRealize(Goals::VisitObj & g)
 
 void VCAI::tryRealize(Goals::VisitHero & g)
 {
-	if(!g.hero->movement)
+	if(!g.hero->movementPointsRemaining())
 		throw cannotFulfillGoalException("Cannot visit target hero: hero is out of MPs!");
 
 	const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(g.objid));
@@ -2263,7 +2263,7 @@ bool VCAI::canAct(HeroPtr h) const
 			return false;
 	}
 
-	return h->movement;
+	return h->movementPointsRemaining();
 }
 
 HeroPtr VCAI::primaryHero() const
@@ -2412,7 +2412,7 @@ void VCAI::performTypicalActions()
 		if(!h) //hero might be lost. getUnblockedHeroes() called once on start of turn
 			continue;
 
-		logAi->debug("Hero %s started wandering, MP=%d", h->getNameTranslated(), h->movement);
+		logAi->debug("Hero %s started wandering, MP=%d", h->getNameTranslated(), h->movementPointsRemaining());
 		makePossibleUpgrades(*h);
 		pickBestArtifacts(*h);
 		try

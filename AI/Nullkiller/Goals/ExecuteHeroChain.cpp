@@ -78,7 +78,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 
 		try
 		{
-			if(hero->movement)
+			if(hero->movementPointsRemaining() > 0)
 			{
 				ai->nullkiller->setActive(hero, node.coord);
 
@@ -117,7 +117,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 					}
 				}
 
-				if(hero->movement)
+				if(hero->movementPointsRemaining())
 				{
 					try
 					{
@@ -135,14 +135,14 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 							return;
 						}
 
-						if(hero->movement > 0)
+						if(hero->movementPointsRemaining() > 0)
 						{
 							CGPath path;
 							bool isOk = cb->getPathsInfo(hero)->getPath(path, node.coord);
 
 							if(isOk && path.nodes.back().turns > 0)
 							{
-								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTranslated(), hero->movement, node.coord.toString());
+								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTranslated(), hero->movementPointsRemaining(), node.coord.toString());
 
 								ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 								return;

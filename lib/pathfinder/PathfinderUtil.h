@@ -42,7 +42,7 @@ namespace PathfinderUtil
 				{
 					for(const CGObjectInstance * obj : tinfo.visitableObjects)
 					{
-						if(obj->blockVisit)
+						if(obj->isBlockedVisitable())
 							return EPathAccessibility::BLOCKVIS;
 						else if(obj->passableFor(player))
 							return EPathAccessibility::ACCESSIBLE;
@@ -70,8 +70,7 @@ namespace PathfinderUtil
 			break;
 
 		case ELayer::AIR:
-			if(tinfo.blocked || tinfo.terType->isLand())
-				return EPathAccessibility::FLYABLE;
+			return EPathAccessibility::FLYABLE;
 
 			break;
 		}

@@ -388,7 +388,7 @@ void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffe
 void ClientCommandManager::handleMpCommand()
 {
 	if(const CGHeroInstance* h = LOCPLINT->localState->getCurrentHero())
-		printCommandMessage(std::to_string(h->movement) + "; max: " + std::to_string(h->maxMovePoints(true)) + "/" + std::to_string(h->maxMovePoints(false)) + "\n");
+		printCommandMessage(std::to_string(h->movementPointsRemaining()) + "; max: " + std::to_string(h->movementPointsLimit(true)) + "/" + std::to_string(h->movementPointsLimit(false)) + "\n");
 }
 
 void ClientCommandManager::handleSetCommand(std::istringstream& singleWordBuffer)

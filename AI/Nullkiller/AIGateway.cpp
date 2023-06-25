@@ -802,8 +802,8 @@ void AIGateway::makeTurn()
 		//for debug purpose
 		for (auto h : cb->getHeroesInfo())
 		{
-			if (h->movement)
-				logAi->warn("Hero %s has %d MP left", h->getNameTranslated(), h->movement);
+			if (h->movementPointsRemaining())
+				logAi->warn("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
 		}
 #if NKAI_TRACE_LEVEL == 0
 	}

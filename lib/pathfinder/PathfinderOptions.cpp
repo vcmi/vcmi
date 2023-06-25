@@ -10,7 +10,8 @@
 #include "StdInc.h"
 #include "PathfinderOptions.h"
 
-#include "../CConfigHandler.h"
+#include "../GameSettings.h"
+#include "../VCMI_Lib.h"
 #include "NodeStorage.h"
 #include "PathfindingRules.h"
 #include "CPathfinder.h"
@@ -18,20 +19,18 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 PathfinderOptions::PathfinderOptions()
+	: useFlying(true)
+	, useWaterWalking(true)
+	, useEmbarkAndDisembark(VLC->settings()->getBoolean(EGameSettings::PATHFINDER_USE_BOAT))
+	, useTeleportTwoWay(VLC->settings()->getBoolean(EGameSettings::PATHFINDER_USE_MONOLITH_TWO_WAY))
+	, useTeleportOneWay(VLC->settings()->getBoolean(EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_UNIQUE))
+	, useTeleportOneWayRandom(VLC->settings()->getBoolean(EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_RANDOM))
+	, useTeleportWhirlpool(VLC->settings()->getBoolean(EGameSettings::PATHFINDER_USE_WHIRLPOOL))
+	, useCastleGate(false)
+	, lightweightFlyingMode(false)
+	, oneTurnSpecialLayersLimit(true)
+	, originalMovementRules(false)
 {
-	useFlying = settings["pathfinder"]["layers"]["flying"].Bool();
-	useWaterWalking = settings["pathfinder"]["layers"]["waterWalking"].Bool();
-	useEmbarkAndDisembark = settings["pathfinder"]["layers"]["sailing"].Bool();
-	useTeleportTwoWay = settings["pathfinder"]["teleports"]["twoWay"].Bool();
-	useTeleportOneWay = settings["pathfinder"]["teleports"]["oneWay"].Bool();
-	useTeleportOneWayRandom = settings["pathfinder"]["teleports"]["oneWayRandom"].Bool();
-	useTeleportWhirlpool = settings["pathfinder"]["teleports"]["whirlpool"].Bool();
-
-	useCastleGate = settings["pathfinder"]["teleports"]["castleGate"].Bool();
-
-	lightweightFlyingMode = settings["pathfinder"]["lightweightFlyingMode"].Bool();
-	oneTurnSpecialLayersLimit = settings["pathfinder"]["oneTurnSpecialLayersLimit"].Bool();
-	originalMovementRules = settings["pathfinder"]["originalMovementRules"].Bool();
 }
 
 PathfinderConfig::PathfinderConfig(std::shared_ptr<INodeStorage> nodeStorage, std::vector<std::shared_ptr<IPathfindingRule>> rules):

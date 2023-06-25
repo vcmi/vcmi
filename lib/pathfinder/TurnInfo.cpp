@@ -107,9 +107,9 @@ int TurnInfo::valOfBonuses(BonusType type, int subtype) const
 int TurnInfo::getMaxMovePoints(const EPathfindingLayer & layer) const
 {
 	if(maxMovePointsLand == -1)
-		maxMovePointsLand = hero->maxMovePointsCached(true, this);
+		maxMovePointsLand = hero->movementPointsLimitCached(true, this);
 	if(maxMovePointsWater == -1)
-		maxMovePointsWater = hero->maxMovePointsCached(false, this);
+		maxMovePointsWater = hero->movementPointsLimitCached(false, this);
 
 	return layer == EPathfindingLayer::SAIL ? maxMovePointsWater : maxMovePointsLand;
 }

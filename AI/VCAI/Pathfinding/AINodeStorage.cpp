@@ -113,7 +113,7 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 	auto initialNode = getOrCreateNode(hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, NORMAL_CHAIN).value();
 
 	initialNode->turns = 0;
-	initialNode->moveRemains = hero->movement;
+	initialNode->moveRemains = hero->movementPointsRemaining();
 	initialNode->danger = 0;
 	initialNode->setCost(0.0);
 
@@ -245,7 +245,7 @@ void AINodeStorage::calculateTownPortalTeleportations(
 		auto skillLevel = hero->getSpellSchoolLevel(townPortal);
 		auto movementCost = GameConstants::BASE_MOVEMENT_COST * (skillLevel >= 3 ? 2 : 3);
 
-		if(hero->movement < movementCost)
+		if(hero->movementPointsRemaining() < movementCost)
 		{
 			return;
 		}

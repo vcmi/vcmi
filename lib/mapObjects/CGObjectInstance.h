@@ -34,8 +34,6 @@ public:
 	ObjectInstanceID id;
 	/// Defines appearance of object on map (animation, blocked tiles, blit order, etc)
 	std::shared_ptr<const ObjectTemplate> appearance;
-	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
-	bool blockVisit;
 
 	std::string instanceName;
 	std::string typeName;
@@ -49,6 +47,8 @@ public:
 
 	/// "center" tile from which the sight distance is calculated
 	int3 getSightCenter() const;
+	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
+	bool blockVisit;
 
 	PlayerColor getOwner() const override
 	{
@@ -68,7 +68,15 @@ public:
 	bool coveringAt(int x, int y) const; //returns true if object covers with picture location (x, y) (h3m pos)
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
 	std::set<int3> getBlockedOffsets() const; //returns set of relative positions blocked by this object
-	bool isVisitable() const; //returns true if object is visitable
+
+	/// returns true if object is visitable
+	bool isVisitable() const;
+
+	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
+	virtual bool isBlockedVisitable() const;
+
+	/// If true this object can be visited by hero standing on the coast
+	virtual bool isCoastVisitable() const;
 
 	virtual BattleField getBattlefield() const;
 
