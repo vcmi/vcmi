@@ -668,11 +668,15 @@ void CMapLoaderH3M::readAllowedHeroes()
 	else
 		reader->readBitmaskHeroes(mapHeader->allowedHeroes, false);
 
-	//TODO: unknown value. Check meaning? Only present in campaign maps.
 	if(features.levelAB)
 	{
 		uint32_t placeholdersQty = reader->readUInt32();
-		reader->skipUnused(placeholdersQty * 1);
+
+		for (uint32_t i = 0; i < placeholdersQty; ++i)
+		{
+			auto heroID = reader->readHero();
+			mapHeader->reservedCampaignHeroes.push_back(heroID);
+		}
 	}
 }
 
@@ -861,6 +865,8 @@ void CMapLoaderH3M::readPredefinedHeroes()
 			}
 		}
 		map->predefinedHeroes.emplace_back(hero);
+
+		logGlobal->debug("Map '%s': Hero predefined in map: %s", mapName, VLC->heroh->getByIndex(hero->subID)->getJsonKey());
 	}
 }
 
@@ -1288,12 +1294,12 @@ CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 	if(htid.getNum() == -1)
 	{
 		object->power = reader->readUInt8();
-		logGlobal->debug("Hero placeholder: by power at %s", mapPosition.toString());
+		logGlobal->debug("Map '%s': Hero placeholder: by power at %s, owned by %s", mapName, mapPosition.toString(), object->getOwner().getStr());
 	}
 	else
 	{
 		object->power = 0;
-		logGlobal->debug("Hero placeholder: %s at %s", VLC->heroh->getById(htid)->getNameTranslated(), mapPosition.toString());
+		logGlobal->debug("Map '%s': Hero placeholder: %s at %s, owned by %s", mapName, VLC->heroh->getById(htid)->getJsonKey(), mapPosition.toString(), object->getOwner().getStr());
 	}
 
 	return object;
@@ -1765,6 +1771,12 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 			}
 		}
 	}
+
+	if (object->subID != -1)
+		logGlobal->debug("Map '%s': Hero on map: %s at %s, owned by %s", mapName, VLC->heroh->getByIndex(object->subID)->getJsonKey(), mapPosition.toString(), object->getOwner().getStr());
+	else
+		logGlobal->debug("Map '%s': Hero on map: (random) at %s, owned by %s", mapName, mapPosition.toString(), object->getOwner().getStr());
+
 	reader->skipZero(16);
 	return object;
 }

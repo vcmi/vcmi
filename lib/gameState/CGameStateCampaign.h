@@ -42,8 +42,8 @@ class CGameStateCampaign
 	/// returns heroes and placeholders in where heroes will be put
 	std::vector<CampaignHeroReplacement> generateCampaignHeroesToReplace(CrossoverHeroesList & crossoverHeroes);
 
-	/// gets prepared and copied hero instances with crossover heroes from prev. scenario and travel options from current scenario
-	void prepareCrossoverHeroes(std::vector<CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions);
+	/// Trims hero parameters that should not transfer between scenarios according to travelOptions flags
+	void trimCrossoverHeroesParameters(std::vector<CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions);
 
 	void replaceHeroesPlaceholders(const std::vector<CampaignHeroReplacement> & campaignHeroReplacements);
 

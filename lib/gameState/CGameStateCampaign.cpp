@@ -123,7 +123,7 @@ CrossoverHeroesList CGameStateCampaign::getCrossoverHeroesFromPreviousScenarios(
 	return crossoverHeroes;
 }
 
-void CGameStateCampaign::prepareCrossoverHeroes(std::vector<CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions)
+void CGameStateCampaign::trimCrossoverHeroesParameters(std::vector<CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions)
 {
 	// create heroes list for convenience iterating
 	std::vector<CGHeroInstance *> crossoverHeroes;
@@ -133,7 +133,6 @@ void CGameStateCampaign::prepareCrossoverHeroes(std::vector<CampaignHeroReplacem
 		crossoverHeroes.push_back(campaignHeroReplacement.hero);
 	}
 
-	// TODO replace magic numbers with named constants
 	// TODO this logic (what should be kept) should be part of CScenarioTravel and be exposed via some clean set of methods
 	if(!travelOptions.whatHeroKeeps.experience)
 	{
@@ -235,6 +234,23 @@ void CGameStateCampaign::prepareCrossoverHeroes(std::vector<CampaignHeroReplacem
 
 void CGameStateCampaign::placeCampaignHeroes()
 {
+	// WARNING: CURRENT CODE IS LIKELY INCORRECT AND LEADS TO MULTIPLE ISSUES WITH HERO TRANSFER
+	// Approximate behavior according to testing H3 game logic.
+	// 1) definitions:
+	// - 'reserved heroes' are heroes that have fixed placeholder in unfinished maps. See CMapHeader::reservedCampaignHeroes
+	// - 'campaign pool' are serialized heroes and is unique to a campaign
+	// - 'scenario pool' are serialized heroes and is unique to a scenario
+	//
+	// 2) scenario end logic:
+	// - at end of scenario, all 'reserved heroes' of a player go to 'campaign pool'
+	// - at end of scenario, rest of player's heroes go to 'scenario pool'
+	//
+	// 3) scenario start logic
+	// - at scenario start, all heroes that are placed on map but already exist in 'campaign pool' and are still 'reserved heroes' are replaced with other, randomly selected heroes (and probably marked as unavailable in map)
+	// - at scenario start, all fixed placeholders are replaced with heroes from 'campaign pool', if exist
+	// - at scenario start, all power placeholders owned by player are replaced by heroes from 'scenario pool' of last complete map, if exist
+	// - exception: if starting bonus is 'select player' then power placeholders are taken from 'scenario pool' of linked map
+
 	// place bonus hero
 	auto campaignBonus = gameState->scenarioOps->campState->getBonusForCurrentMap();
 	bool campaignGiveHero = campaignBonus && campaignBonus->type == CScenarioTravel::STravelBonus::HERO;
@@ -264,7 +280,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 		auto campaignHeroReplacements = generateCampaignHeroesToReplace(crossoverHeroes);
 
 		logGlobal->debug("\tPrepare crossover heroes");
-		prepareCrossoverHeroes(campaignHeroReplacements, gameState->scenarioOps->campState->getCurrentScenario().travelOptions);
+		trimCrossoverHeroesParameters(campaignHeroReplacements, gameState->scenarioOps->campState->getCurrentScenario().travelOptions);
 
 		// remove same heroes on the map which will be added through crossover heroes
 		// INFO: we will remove heroes because later it may be possible that the API doesn't allow having heroes
