@@ -16,7 +16,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CampaignState;
-struct CampaignRegions;
+class CampaignRegions;
 
 VCMI_LIB_NAMESPACE_END
 

@@ -26,7 +26,7 @@ class CMap;
 struct CPack;
 class CHeroClass;
 struct EventCondition;
-class CampaignTravel;
+struct CampaignTravel;
 class CStackInstance;
 class CGameStateCampaign;
 

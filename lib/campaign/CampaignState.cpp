@@ -66,6 +66,47 @@ CampaignRegions CampaignRegions::getLegacy(int campId)
 	return campDescriptions.at(campId);
 }
 
+std::string CampaignRegions::getBackgroundName() const
+{
+	return campPrefix + "_BG.BMP";
+}
+
+Point CampaignRegions::getPosition(CampaignScenarioID which) const
+{
+	auto const & region = regions[static_cast<int>(which)];
+	return Point(region.xpos, region.ypos);
+}
+
+std::string CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex, std::string type) const
+{
+	auto const & region = regions[static_cast<int>(which)];
+
+	static const std::string colors[2][8] =
+	{
+		{"R", "B", "N", "G", "O", "V", "T", "P"},
+		{"Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi"}
+	};
+
+	std::string color = colors[colorSuffixLength - 1][colorIndex];
+
+	return campPrefix + region.infix + "_" + type + color + ".BMP";
+}
+
+std::string CampaignRegions::getAvailableName(CampaignScenarioID which, int color) const
+{
+	return getNameFor(which, color, "En");
+}
+
+std::string CampaignRegions::getSelectedName(CampaignScenarioID which, int color) const
+{
+	return getNameFor(which, color, "Se");
+}
+
+std::string CampaignRegions::getConqueredName(CampaignScenarioID which, int color) const
+{
+	return getNameFor(which, color, "Co");
+}
+
 
 bool CampaignBonus::isBonusForHero() const
 {

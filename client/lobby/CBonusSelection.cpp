@@ -64,7 +64,7 @@ CBonusSelection::CBonusSelection()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	std::string bgName = getCampaign()->getRegions().campPrefix + "_BG.BMP";
+	std::string bgName = getCampaign()->getRegions().getBackgroundName();
 	setBackground(bgName);
 
 	panelBackground = std::make_shared<CPicture>("CAMPBRF.BMP", 456, 6);
@@ -449,27 +449,19 @@ CBonusSelection::CRegion::CRegion(CampaignScenarioID id, bool accessible, bool s
 	: CIntObject(LCLICK | SHOW_POPUP), idOfMapAndRegion(id), accessible(accessible), selectable(selectable)
 {
 	OBJ_CONSTRUCTION;
-	static const std::string colors[2][8] =
-	{
-		{"R", "B", "N", "G", "O", "V", "T", "P"},
-		{"Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi"}
-	};
 
-	const CampaignRegions::RegionDescription & desc = campDsc.regions[static_cast<int>(idOfMapAndRegion)];
-	pos.x += desc.xpos;
-	pos.y += desc.ypos;
+	pos += campDsc.getPosition(id);
 
-	std::string prefix = campDsc.campPrefix + desc.infix + "_";
-	std::string suffix = colors[campDsc.colorSuffixLength - 1][CSH->si->campState->scenario(idOfMapAndRegion).regionColor];
-	graphicsNotSelected = std::make_shared<CPicture>(prefix + "En" + suffix + ".BMP");
+	auto color = CSH->si->campState->scenario(idOfMapAndRegion).regionColor;
+
+	graphicsNotSelected = std::make_shared<CPicture>(campDsc.getAvailableName(id, color));
 	graphicsNotSelected->disable();
-	graphicsSelected = std::make_shared<CPicture>(prefix + "Se" + suffix + ".BMP");
+	graphicsSelected = std::make_shared<CPicture>(campDsc.getSelectedName(id, color));
 	graphicsSelected->disable();
-	graphicsStriped = std::make_shared<CPicture>(prefix + "Co" + suffix + ".BMP");
+	graphicsStriped = std::make_shared<CPicture>(campDsc.getConqueredName(id, color));
 	graphicsStriped->disable();
 	pos.w = graphicsNotSelected->pos.w;
 	pos.h = graphicsNotSelected->pos.h;
-
 }
 
 void CBonusSelection::CRegion::updateState()

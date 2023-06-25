@@ -23,8 +23,9 @@ class CMap;
 class CMapHeader;
 class CMapInfo;
 class JsonNode;
+class Point;
 
-struct DLL_LINKAGE CampaignRegions
+class DLL_LINKAGE CampaignRegions
 {
 	std::string campPrefix;
 	int colorSuffixLength;
@@ -45,6 +46,15 @@ struct DLL_LINKAGE CampaignRegions
 	};
 
 	std::vector<RegionDescription> regions;
+
+	std::string getNameFor(CampaignScenarioID which, int color, std::string type) const;
+
+public:
+	std::string getBackgroundName() const;
+	Point getPosition(CampaignScenarioID which) const;
+	std::string getAvailableName(CampaignScenarioID which, int color) const;
+	std::string getSelectedName(CampaignScenarioID which, int color) const;
+	std::string getConqueredName(CampaignScenarioID which, int color) const;
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
@@ -101,7 +111,7 @@ public:
 
 struct DLL_LINKAGE CampaignBonus
 {
-	CampaignBonusType type = CampaignBonusType::NONE; //uses EBonusType
+	CampaignBonusType type = CampaignBonusType::NONE;
 
 	//purpose depends on type
 	int32_t info1 = 0;
@@ -119,10 +129,8 @@ struct DLL_LINKAGE CampaignBonus
 	}
 };
 
-class DLL_LINKAGE CampaignTravel
+struct DLL_LINKAGE CampaignTravel
 {
-public:
-
 	struct DLL_LINKAGE WhatHeroKeeps
 	{
 		bool experience = false;
@@ -160,9 +168,8 @@ public:
 	}
 };
 
-class DLL_LINKAGE CampaignScenario
+struct DLL_LINKAGE CampaignScenario
 {
-public:
 	std::string mapName; //*.h3m
 	std::string scenarioName; //from header. human-readble
 	std::set<CampaignScenarioID> preconditionRegions; //what we need to conquer to conquer this one (stored as bitfield in h3c)
@@ -242,12 +249,16 @@ class DLL_LINKAGE CampaignState : public Campaign
 	CampaignHeroes crossover;
 
 public:
+	/// Returns last completed scenario, if any
 	std::optional<CampaignScenarioID> lastScenario() const;
+
 	std::optional<CampaignScenarioID> currentScenario() const;
 	std::set<CampaignScenarioID> conqueredScenarios() const;
 
+	/// Returns bonus selected for specific scenario
 	std::optional<CampaignBonus> getBonus(CampaignScenarioID which) const;
 
+	/// Returns index of selected bonus for specified scenario
 	std::optional<ui8> getBonusID(CampaignScenarioID which) const;
 
 	/// Returns true if selected scenario can be selected and started by player
