@@ -47,7 +47,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/StartInfo.h"
 
-#include "../../lib/mapping/CCampaignHandler.h"
+#include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMapService.h"
 #include "../../lib/mapping/CMapInfo.h"
 

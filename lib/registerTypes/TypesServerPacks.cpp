@@ -19,7 +19,6 @@
 #include "../CHeroHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../CTownHandler.h"
-#include "../mapping/CCampaignHandler.h"
 #include "../NetPacks.h"
 
 #include "../serializer/BinaryDeserializer.h"

@@ -10,7 +10,7 @@
 #pragma once
 
 #include "GameConstants.h"
-#include "../lib/mapping/CCampaignHandler.h"
+#include "campaign/CampaignConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

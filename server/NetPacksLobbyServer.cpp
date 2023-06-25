@@ -18,9 +18,7 @@
 #include "../lib/StartInfo.h"
 
 // Campaigns
-#include "../lib/mapping/CCampaignHandler.h"
-#include "../lib/mapping/CMapService.h"
-#include "../lib/mapping/CMapInfo.h"
+#include "../lib/campaign/CampaignState.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {

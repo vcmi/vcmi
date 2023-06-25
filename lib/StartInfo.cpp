@@ -15,7 +15,7 @@
 #include "VCMI_Lib.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapping/CMapInfo.h"
-#include "mapping/CCampaignHandler.h"
+#include "campaign/CampaignState.h"
 #include "mapping/CMapHeader.h"
 #include "mapping/CMapService.h"
 

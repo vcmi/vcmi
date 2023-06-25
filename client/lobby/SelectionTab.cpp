@@ -36,10 +36,10 @@
 #include "../../lib/CModHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
-#include "../../lib/mapping/CCampaignHandler.h"
 #include "../../lib/serializer/Connection.h"
 
 bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::shared_ptr<CMapInfo> bbb)

@@ -42,7 +42,7 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CCreatureHandler.h"
 
-#include "../../lib/mapping/CCampaignHandler.h"
+#include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/mapping/CMapService.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -96,8 +96,8 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 
 	status = config["open"].Bool() ? CCampaignScreen::ENABLED : CCampaignScreen::DISABLED;
 
-	CampaignHeader header = CampaignHandler::getHeader(campFile);
-	hoverText = header.name;
+	auto header = CampaignHandler::getHeader(campFile);
+	hoverText = header->name;
 
 	if(status != CCampaignScreen::DISABLED)
 	{

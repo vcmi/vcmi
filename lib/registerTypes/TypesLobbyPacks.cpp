@@ -26,7 +26,7 @@
 #include "../RoadHandler.h"
 #include "../RiverHandler.h"
 #include "../TerrainHandler.h"
-#include "../mapping/CCampaignHandler.h"
+#include "../campaign/CampaignState.h"
 #include "../NetPacks.h"
 #include "../rmg/CMapGenOptions.h"
 

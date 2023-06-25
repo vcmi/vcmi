@@ -11,7 +11,7 @@
 #include <boost/asio.hpp>
 
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/mapping/CCampaignHandler.h"
+#include "../lib/campaign/CampaignState.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/CModHandler.h"

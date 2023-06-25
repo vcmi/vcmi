@@ -10,7 +10,8 @@
 #pragma once
 
 #include "../windows/CWindowObject.h"
-#include "../lib/mapping/CCampaignHandler.h"
+
+#include "../lib/campaign/CampaignConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

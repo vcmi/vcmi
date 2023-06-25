@@ -20,6 +20,8 @@
 #include "../mainmenu/CPrologEpilogVideo.h"
 #include "../gui/EventDispatcher.h"
 
+#include "../../lib/campaign/CampaignState.h"
+
 #include <SDL_events.h>
 
 void UserEventHandler::handleUserEvent(const SDL_UserEvent & user)

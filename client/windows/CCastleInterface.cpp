@@ -45,7 +45,7 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/StartInfo.h"
-#include "../../lib/mapping/CCampaignHandler.h"
+#include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 

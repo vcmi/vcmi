@@ -31,7 +31,7 @@
 #include "mapObjects/CGMarket.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
-#include "mapping/CCampaignHandler.h"
+#include "campaign/CampaignState.h"
 #include "GameSettings.h"
 
 

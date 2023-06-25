@@ -39,6 +39,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/bonuses/Propagators.cpp
 		${MAIN_LIB_DIR}/bonuses/Updaters.cpp
 
+		${MAIN_LIB_DIR}/campaign/CampaignHandler.cpp
+		${MAIN_LIB_DIR}/campaign/CampaignState.cpp
+
 		${MAIN_LIB_DIR}/events/ApplyDamage.cpp
 		${MAIN_LIB_DIR}/events/GameResumed.cpp
 		${MAIN_LIB_DIR}/events/ObjectVisitEnded.cpp
@@ -97,7 +100,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapObjects/MiscObjects.cpp
 		${MAIN_LIB_DIR}/mapObjects/ObjectTemplate.cpp
 
-		${MAIN_LIB_DIR}/mapping/CCampaignHandler.cpp
 		${MAIN_LIB_DIR}/mapping/CDrawRoadsOperation.cpp
 		${MAIN_LIB_DIR}/mapping/CMap.cpp
 		${MAIN_LIB_DIR}/mapping/CMapHeader.cpp
@@ -353,6 +355,11 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/bonuses/Propagators.h
 		${MAIN_LIB_DIR}/bonuses/Updaters.h
 
+		${MAIN_LIB_DIR}/campaign/CampaignConstants.h
+		${MAIN_LIB_DIR}/campaign/CampaignHandler.h
+		${MAIN_LIB_DIR}/campaign/CampaignScenarioPrologEpilog.h
+		${MAIN_LIB_DIR}/campaign/CampaignState.h
+
 		${MAIN_LIB_DIR}/events/ApplyDamage.h
 		${MAIN_LIB_DIR}/events/GameResumed.h
 		${MAIN_LIB_DIR}/events/ObjectVisitEnded.h
@@ -423,7 +430,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapObjects/MiscObjects.h
 		${MAIN_LIB_DIR}/mapObjects/ObjectTemplate.h
 
-		${MAIN_LIB_DIR}/mapping/CCampaignHandler.h
 		${MAIN_LIB_DIR}/mapping/CDrawRoadsOperation.h
 		${MAIN_LIB_DIR}/mapping/CMapDefines.h
 		${MAIN_LIB_DIR}/mapping/CMapEditManager.h

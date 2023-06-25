@@ -32,7 +32,7 @@
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "mapObjects/ObjectTemplate.h"
-#include "mapping/CCampaignHandler.h"
+#include "campaign/CampaignState.h"
 #include "StartInfo.h"
 #include "gameState/CGameState.h"
 #include "gameState/CGameStateCampaign.h"

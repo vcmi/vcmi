@@ -42,6 +42,7 @@
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/JsonNode.h"
+#include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/serializer/Connection.h"
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/filesystem/Filesystem.h"
@@ -54,7 +55,6 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CondSh.h"
-#include "../../lib/mapping/CCampaignHandler.h"
 
 #if defined(SINGLE_PROCESS_APP) && defined(VCMI_ANDROID)
 #include "../../server/CVCMIServer.h"

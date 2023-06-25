@@ -9,7 +9,8 @@
  */
 #pragma once
 #include "../windows/CWindowObject.h"
-#include "../../lib/mapping/CCampaignHandler.h"
+
+#include "../../lib/campaign/CampaignScenarioPrologEpilog.h"
 
 class CMultiLineLabel;
 

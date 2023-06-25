@@ -13,8 +13,8 @@
 #include "CGameState.h"
 #include "QuestInfo.h"
 
+#include "../campaign/CampaignState.h"
 #include "../mapping/CMapEditManager.h"
-#include "../mapping/CCampaignHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../registerTypes/RegisterTypes.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"

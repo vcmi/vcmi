@@ -15,9 +15,9 @@
 #include "../GameConstants.h"
 #include "CMapService.h"
 #include "CMapHeader.h"
-#include "CCampaignHandler.h"
 #include "MapFormat.h"
 
+#include "../campaign/CampaignHandler.h"
 #include "../filesystem/Filesystem.h"
 #include "../serializer/CMemorySerializer.h"
 #include "../CGeneralTextHandler.h"
@@ -66,9 +66,7 @@ void CMapInfo::saveInit(const ResourceID & file)
 
 void CMapInfo::campaignInit()
 {
-	campaignHeader = std::make_unique<CampaignHeader>(CampaignHandler::getHeader(fileURI));
-	if(!campaignHeader->valid)
-		campaignHeader.reset();
+	campaignHeader = CampaignHandler::getHeader(fileURI);
 }
 
 void CMapInfo::countPlayers()
@@ -94,7 +92,7 @@ void CMapInfo::countPlayers()
 
 std::string CMapInfo::getName() const
 {
-	if(campaignHeader && campaignHeader->name.length())
+	if(campaignHeader && !campaignHeader->name.empty())
 		return campaignHeader->name;
 	else if(mapHeader && mapHeader->name.length())
 		return mapHeader->name;
