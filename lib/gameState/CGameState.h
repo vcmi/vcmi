@@ -220,6 +220,7 @@ private:
 	void initPlayerStates();
 	void placeStartingHeroes();
 	void placeStartingHero(const PlayerColor & playerColor, const HeroTypeID & heroTypeId, int3 townPos);
+	void removeHeroPlaceholders();
 	void initStartingResources();
 	void initHeroes();
 	void placeHeroesInTowns();
