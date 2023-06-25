@@ -33,7 +33,8 @@ class BattleFieldController : public CIntObject
 	std::shared_ptr<IImage> cellUnitMovementHighlight;
 	std::shared_ptr<IImage> cellUnitMaxMovementHighlight;
 	std::shared_ptr<IImage> cellShade;
-	std::unique_ptr<CAnimation> rangedFullDamageLimitImages;
+	std::shared_ptr<CAnimation> rangedFullDamageLimitImages;
+	std::shared_ptr<CAnimation> shootingRangeLimitImages;
 
 	std::shared_ptr<CAnimation> attackCursors;
 
@@ -59,22 +60,30 @@ class BattleFieldController : public CIntObject
 	std::set<BattleHex> getHighlightedHexesForSpellRange();
 	std::set<BattleHex> getHighlightedHexesForMovementTarget();
 
-	/// get all hexes where a ranged unit can do full damage
-	std::vector<BattleHex> getRangedFullDamageHexes();
+	// Range limit highlight helpers
 
-	/// get only hexes at the limit of a ranged unit's full damage range
-	std::vector<BattleHex> getRangedFullDamageLimitHexes(std::vector<BattleHex> rangedFullDamageHexes);
+	/// get all hexes within a certain distance of given hex
+	std::vector<BattleHex> getRangeHexes(BattleHex sourceHex, uint8_t distance);
+
+	/// get only hexes at the limit of a range
+	std::vector<BattleHex> getRangeLimitHexes(BattleHex hoveredHex, std::vector<BattleHex> hexRange, uint8_t distanceToLimit);
+
+	/// calculate if a hex is in range limit and return its index in range
+	bool IsHexInRangeLimit(BattleHex hex, std::vector<BattleHex> & rangeLimitHexes, int * hexIndexInRangeLimit);
 
 	/// get an array that has for each hex in range, an aray with all directions where an ouside neighbour hex exists
-	std::vector<std::vector<BattleHex::EDir>> getOutsideNeighbourDirectionsForLimitHexes(std::vector<BattleHex> rangedFullDamageHexes, std::vector<BattleHex> rangedFullDamageLimitHexes);
+	std::vector<std::vector<BattleHex::EDir>> getOutsideNeighbourDirectionsForLimitHexes(std::vector<BattleHex> rangeHexes, std::vector<BattleHex> rangeLimitHexes);
 
 	/// calculates what image to use as range limit, depending on the direction of neighbors
 	/// a mask is used internally to mark the directions of all neighbours
 	/// based on this mask the corresponding image is selected
-	std::vector<std::shared_ptr<IImage>> calculateRangedFullDamageHighlightImages(std::vector<std::vector<BattleHex::EDir>> fullRangeLimitHexesNeighbourDirections);
+	std::vector<std::shared_ptr<IImage>> calculateRangeLimitHighlightImages(std::vector<std::vector<BattleHex::EDir>> hexesNeighbourDirections, std::shared_ptr<CAnimation> limitImages);
+
+	/// calculates all hexes for a range limit and what images to be shown as highlight for each of the hexes
+	void calculateRangeLimitAndHighlightImages(uint8_t distance, std::shared_ptr<CAnimation> rangeLimitImages, std::vector<BattleHex> & rangeLimitHexes, std::vector<std::shared_ptr<IImage>> & rangeLimitHexesHighligts);
 
 	/// to reduce the number of source images used, some images will be used as flipped versions of preloaded ones
-	void flipRangedFullDamageLimitImagesIntoPositions();
+	void flipRangeLimitImagesIntoPositions(std::shared_ptr<CAnimation> images);
 
 	void showBackground(Canvas & canvas);
 	void showBackgroundImage(Canvas & canvas);
@@ -117,6 +126,9 @@ public:
 
 	/// Returns ID of currently hovered hex or BattleHex::INVALID if none
 	BattleHex getHoveredHex();
+
+	/// Returns the currently hovered stack
+	const CStack* getHoveredStack();
 
 	/// returns true if selected tile can be attacked in melee by current stack
 	bool isTileAttackable(const BattleHex & number) const;

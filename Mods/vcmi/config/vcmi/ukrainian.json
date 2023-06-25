@@ -92,8 +92,8 @@
 	"vcmi.battleOptions.animationsSpeed6.help": "Встановити миттєву швидкість анімації",
 	"vcmi.battleOptions.movementHighlightOnHover.hover": "Підсвічувати зону руху істоти",
 	"vcmi.battleOptions.movementHighlightOnHover.help": "{Підсвічувати зону руху істоти}\n\nПідсвічувати можливу зону руху істоти при наведенні курсора миші на неї",
-	"vcmi.battleOptions.rangedFullDamageLimitHighlightOnHover.hover": "Межа повного шкоди пострілом",
-	"vcmi.battleOptions.rangedFullDamageLimitHighlightOnHover.help": "{Межа повного шкоди пострілом}\n\nПідсвічувати зону у якій створіння може завдавати максимальної шкоди пострілом при наведенні на неї курсору миші.",
+	"vcmi.battleOptions.rangeLimitHighlightOnHover.hover": "Межа повного шкоди пострілом",
+	"vcmi.battleOptions.rangeLimitHighlightOnHover.help": "{Межа повного шкоди пострілом}\n\nПідсвічувати зону у якій створіння може завдавати максимальної шкоди пострілом при наведенні на неї курсору миші.",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Пропускати вступну музику",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Пропускати вступну музику}\n\n Пропускати коротку музику, яка грає на початку кожної битви перед початком дії. Також можна пропустити, натиснувши клавішу ESC.",
 	

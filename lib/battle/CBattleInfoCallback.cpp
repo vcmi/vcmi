@@ -1456,7 +1456,7 @@ bool CBattleInfoCallback::battleHasDistancePenalty(const IBonusBearer * shooter,
 	if(const auto * target = battleGetUnitByPos(destHex, true))
 	{
 		//If any hex of target creature is within range, there is no penalty
-		int range = GameConstants::BATTLE_PENALTY_DISTANCE;
+		int range = GameConstants::BATTLE_SHOOTING_PENALTY_DISTANCE;
 
 		auto bonus = shooter->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
 		if(bonus != nullptr && bonus->additionalInfo != CAddInfo::NONE)
@@ -1467,7 +1467,7 @@ bool CBattleInfoCallback::battleHasDistancePenalty(const IBonusBearer * shooter,
 	}
 	else
 	{
-		if(BattleHex::getDistance(shooterPosition, destHex) <= GameConstants::BATTLE_PENALTY_DISTANCE)
+		if(BattleHex::getDistance(shooterPosition, destHex) <= GameConstants::BATTLE_SHOOTING_PENALTY_DISTANCE)
 			return false;
 	}
 

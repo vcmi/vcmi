@@ -596,7 +596,7 @@ uint8_t CUnitState::getRangedFullDamageDistance() const
 	if(!isShooter())
 		return 0;
 
-	uint8_t rangedFullDamageDistance = GameConstants::BATTLE_PENALTY_DISTANCE;
+	uint8_t rangedFullDamageDistance = GameConstants::BATTLE_SHOOTING_PENALTY_DISTANCE;
 
 	// overwrite full ranged damage distance with the value set in Additional info field of LIMITED_SHOOTING_RANGE bonus
 	if(this->hasBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE)))
@@ -607,6 +607,24 @@ uint8_t CUnitState::getRangedFullDamageDistance() const
 	}
 
 	return rangedFullDamageDistance;
+}
+
+uint8_t CUnitState::getShootingRangeDistance() const
+{
+	if(!isShooter())
+		return 0;
+
+	uint8_t shootingRangeDistance = GameConstants::BATTLE_SHOOTING_RANGE_DISTANCE;
+
+	// overwrite full ranged damage distance with the value set in Additional info field of LIMITED_SHOOTING_RANGE bonus
+	if(this->hasBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE)))
+	{
+		auto bonus = this->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
+		if(bonus != nullptr)
+			shootingRangeDistance = bonus->val;
+	}
+
+	return shootingRangeDistance;
 }
 
 bool CUnitState::canMove(int turn) const
