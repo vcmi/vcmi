@@ -512,6 +512,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, bool allow
 	initPlayerStates();
 	if (campaign)
 		campaign->placeCampaignHeroes();
+	removeHeroPlaceholders();
 	initGrailPosition();
 	initRandomFactionsForPlayers();
 	randomizeMapObjects();
@@ -854,6 +855,22 @@ void CGameState::placeStartingHeroes()
 				playerSettingPair.second.hero = heroTypeId;
 
 			placeStartingHero(playerColor, HeroTypeID(heroTypeId), playerInfo.posOfMainTown);
+		}
+	}
+}
+
+void CGameState::removeHeroPlaceholders()
+{
+	// remove any hero placeholders that remain on map after (potential) campaign heroes placement
+	for(auto obj : map->objects)
+	{
+		if(obj && obj->ID == Obj::HERO_PLACEHOLDER)
+		{
+			auto heroPlaceholder = dynamic_cast<CGHeroPlaceholder *>(obj.get());
+			map->removeBlockVisTiles(heroPlaceholder, true);
+			map->instanceNames.erase(obj->instanceName);
+			map->objects[heroPlaceholder->id.getNum()] = nullptr;
+			delete heroPlaceholder;
 		}
 	}
 }

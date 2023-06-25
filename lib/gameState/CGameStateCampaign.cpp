@@ -333,19 +333,6 @@ void CGameStateCampaign::placeCampaignHeroes()
 			gameState->map->getEditManager()->insertObject(hero);
 		}
 	}
-
-	// remove hero placeholders on map
-	for(auto obj : gameState->map->objects)
-	{
-		if(obj && obj->ID == Obj::HERO_PLACEHOLDER)
-		{
-			auto heroPlaceholder = dynamic_cast<CGHeroPlaceholder *>(obj.get());
-			gameState->map->removeBlockVisTiles(heroPlaceholder, true);
-			gameState->map->instanceNames.erase(obj->instanceName);
-			gameState->map->objects[heroPlaceholder->id.getNum()] = nullptr;
-			delete heroPlaceholder;
-		}
-	}
 }
 
 void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
