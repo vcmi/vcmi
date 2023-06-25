@@ -82,7 +82,7 @@ void UserEventHandler::handleUserEvent(const SDL_UserEvent & user)
 			break;
 		}
 		case EUserEvent::FAKE_MOUSE_MOVE:
-			GH.events().dispatchMouseMoved(GH.getCursorPosition());
+			GH.events().dispatchMouseMoved(Point(0, 0), GH.getCursorPosition());
 			break;
 		default:
 			logGlobal->error("Unknown user event. Code %d", user.code);

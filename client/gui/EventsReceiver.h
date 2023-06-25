@@ -45,7 +45,8 @@ protected:
 	virtual void gesturePinch(const Point & centerPosition, double lastUpdateFactor) {}
 
 	virtual void wheelScrolled(int distance) {}
-	virtual void mouseMoved(const Point & cursorPosition) {}
+	virtual void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) {}
+	virtual void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) {}
 
 	/// Called when UI element hover status changes
 	virtual void hover(bool on) {}
@@ -84,6 +85,7 @@ public:
 		DOUBLECLICK = 256,
 		TEXTINPUT = 512,
 		GESTURE = 1024,
+		DRAG = 2048,
 	};
 
 	/// Returns true if element is currently hovered by mouse

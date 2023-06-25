@@ -75,7 +75,7 @@ void CreaturePurchaseCard::updateAmountInfo(int value)
 
 void CreaturePurchaseCard::initSlider()
 {
-	slider = std::make_shared<CSlider>(Point(pos.x, pos.y + 158), 102, std::bind(&CreaturePurchaseCard::sliderMoved, this , _1), 0, maxAmount, 0);
+	slider = std::make_shared<CSlider>(Point(pos.x, pos.y + 158), 102, std::bind(&CreaturePurchaseCard::sliderMoved, this, _1), 0, maxAmount, 0, Orientation::HORIZONTAL);
 }
 
 void CreaturePurchaseCard::initCostBox()

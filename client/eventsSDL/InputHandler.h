@@ -66,9 +66,6 @@ public:
 	/// returns true if system has active touchscreen
 	bool hasTouchInputDevice() const;
 
-	/// Returns true if selected mouse button is pressed at the moment
-	bool isMouseButtonPressed(MouseButton button) const;
-
 	/// Generates new user event that will be processed on next frame
 	void pushUserEvent(EUserEvent usercode, void * userdata);
 

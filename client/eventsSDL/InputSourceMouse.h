@@ -28,6 +28,4 @@ public:
 	void handleEventMouseButtonDown(const SDL_MouseButtonEvent & current);
 	void handleEventMouseWheel(const SDL_MouseWheelEvent & current);
 	void handleEventMouseButtonUp(const SDL_MouseButtonEvent & current);
-
-	bool isMouseButtonPressed(MouseButton button) const;
 };

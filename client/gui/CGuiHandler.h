@@ -70,9 +70,6 @@ public:
 	/// May not match size of window if user has UI scaling different from 100%
 	Point screenDimensions() const;
 
-	/// returns true if specified mouse button is pressed
-	bool isMouseButtonPressed(MouseButton button) const;
-
 	/// returns true if chosen keyboard key is currently pressed down
 	bool isKeyboardAltDown() const;
 	bool isKeyboardCtrlDown() const;

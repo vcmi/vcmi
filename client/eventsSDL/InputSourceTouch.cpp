@@ -237,17 +237,6 @@ bool InputSourceTouch::hasTouchInputDevice() const
 	return SDL_GetNumTouchDevices() > 0;
 }
 
-bool InputSourceTouch::isMouseButtonPressed(MouseButton button) const
-{
-	if (state == TouchState::TAP_DOWN_LONG)
-	{
-		if (button == MouseButton::RIGHT)
-			return true;
-	}
-
-	return false;
-}
-
 void InputSourceTouch::emitPanningEvent(const SDL_TouchFingerEvent & tfinger)
 {
 	Point distance = convertTouchToMouse(-tfinger.dx, -tfinger.dy);

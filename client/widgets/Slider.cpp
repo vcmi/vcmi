@@ -18,26 +18,17 @@
 #include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
 
-void CSlider::sliderClicked()
-{
-	addUsedEvents(MOVE);
-}
-
-void CSlider::mouseMoved (const Point & cursorPosition)
+void CSlider::mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
 	double v = 0;
 	if(getOrientation() == Orientation::HORIZONTAL)
 	{
-		if(	std::abs(cursorPosition.y-(pos.y+pos.h/2)) > pos.h/2+40  ||  std::abs(cursorPosition.x-(pos.x+pos.w/2)) > pos.w/2  )
-			return;
 		v = cursorPosition.x - pos.x - 24;
 		v *= positions;
 		v /= (pos.w - 48);
 	}
 	else
 	{
-		if(std::abs(cursorPosition.x-(pos.x+pos.w/2)) > pos.w/2+40  ||  std::abs(cursorPosition.y-(pos.y+pos.h/2)) > pos.h/2  )
-			return;
 		v = cursorPosition.y - pos.y - 24;
 		v *= positions;
 		v /= (pos.h - 48);
@@ -47,6 +38,14 @@ void CSlider::mouseMoved (const Point & cursorPosition)
 	{
 		scrollTo(static_cast<int>(v));
 	}
+}
+
+void CSlider::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
+{
+	if (getOrientation() == Orientation::VERTICAL)
+		Scrollable::gesturePanning(initialPosition, currentPosition, lastUpdateDistance);
+	else
+		mouseDragged(currentPosition, lastUpdateDistance);
 }
 
 void CSlider::setScrollBounds(const Rect & bounds )
@@ -138,20 +137,16 @@ void CSlider::clickLeft(tribool down, bool previousState)
 			pw = GH.getCursorPosition().y-pos.y-24;
 			rw = pw / (pos.h-48);
 		}
-		if(pw < -8  ||  pw > (getOrientation() == Orientation::HORIZONTAL ? pos.w : pos.h) - 40)
-			return;
-		// 		if (rw>1) return;
-		// 		if (rw<0) return;
+
 		slider->clickLeft(true, slider->isMouseLeftButtonPressed());
 		scrollTo((int)(rw * positions  +  0.5));
 		return;
 	}
-	removeUsedEvents(MOVE);
 }
 
 bool CSlider::receiveEvent(const Point &position, int eventType) const
 {
-	if (eventType != WHEEL && eventType != GESTURE)
+	if(eventType != WHEEL && eventType != GESTURE)
 	{
 		return CIntObject::receiveEvent(position, eventType);
 	}
@@ -164,8 +159,8 @@ bool CSlider::receiveEvent(const Point &position, int eventType) const
 	return testTarget.isInside(position);
 }
 
-CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, CSlider::EStyle style)
-	: Scrollable(LCLICK, position, Horizontal ? Orientation::HORIZONTAL : Orientation::VERTICAL ),
+CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, Orientation orientation, CSlider::EStyle style)
+	: Scrollable(LCLICK | DRAG, position, orientation ),
 	capacity(Capacity),
 	amount(Amount),
 	value(Value),
@@ -207,7 +202,6 @@ CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int
 
 	left->addCallback(std::bind(&CSlider::scrollPrev,this));
 	right->addCallback(std::bind(&CSlider::scrollNext,this));
-	slider->addCallback(std::bind(&CSlider::sliderClicked,this));
 
 	if(getOrientation() == Orientation::HORIZONTAL)
 	{

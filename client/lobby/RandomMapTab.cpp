@@ -447,6 +447,11 @@ TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
 	{
 		w->setAmount(curItems.size());
 	}
+
+	//FIXME: this should be done by InterfaceObjectConfigurable, but might have side-effects
+	pos = children.front()->pos;
+	for (auto const & child : children)
+		pos = pos.include(child->pos);
 	
 	updateListItems();
 }
@@ -469,16 +474,10 @@ void TemplatesDropBox::sliderMove(int slidPos)
 
 void TemplatesDropBox::clickLeft(tribool down, bool previousState)
 {
-	if(down && !isActive())
+	if (!pos.isInside(GH.getCursorPosition()))
 	{
-		auto w = widget<CSlider>("slider");
-
-		// pop the interface only if the mouse is not clicking on the slider
-		if (!w || !w->isMouseLeftButtonPressed())
-		{
-			assert(GH.windows().isTopWindow(this));
-			GH.windows().popWindows(1);
-		}
+		assert(GH.windows().isTopWindow(this));
+		GH.windows().popWindows(1);
 	}
 }
 

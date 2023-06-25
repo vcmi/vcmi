@@ -37,6 +37,6 @@ public:
 	void gesturePinch(const Point & centerPosition, double lastUpdateFactor) override;
 	void hover(bool on) override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
-	void mouseMoved(const Point & cursorPosition) override;
+	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void wheelScrolled(int distance) override;
 };

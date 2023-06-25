@@ -349,8 +349,10 @@ void CTextBox::setText(const std::string & text)
 
 		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 		slider = std::make_shared<CSlider>(Point(pos.w - 32, 0), pos.h, std::bind(&CTextBox::sliderMoved, this, _1),
-			label->pos.h, label->textSize.y, 0, false, CSlider::EStyle(sliderStyle));
+			label->pos.h, label->textSize.y, 0, Orientation::VERTICAL, CSlider::EStyle(sliderStyle));
 		slider->setScrollStep((int)graphics->fonts[label->font]->getLineHeight());
+		slider->setPanningStep(1);
+		slider->setScrollBounds(pos - slider->pos.topLeft());
 	}
 }
 

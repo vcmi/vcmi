@@ -26,6 +26,8 @@ void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motio
 
 	if (mouseButtonsMask & SDL_BUTTON(SDL_BUTTON_MIDDLE))
 		GH.events().dispatchGesturePanning(middleClickPosition, newPosition, distance);
+	else if (mouseButtonsMask & SDL_BUTTON(SDL_BUTTON_LEFT))
+		GH.events().dispatchMouseDragged(newPosition, distance);
 	else
 		GH.input().setCursorPosition(newPosition);
 
@@ -75,16 +77,4 @@ void InputSourceMouse::handleEventMouseButtonUp(const SDL_MouseButtonEvent & but
 			GH.events().dispatchGesturePanningEnded(middleClickPosition, position);
 			break;
 	}
-}
-
-bool InputSourceMouse::isMouseButtonPressed(MouseButton button) const
-{
-	static_assert(static_cast<uint32_t>(MouseButton::LEFT)   == SDL_BUTTON_LEFT,   "mismatch between VCMI and SDL enum!");
-	static_assert(static_cast<uint32_t>(MouseButton::MIDDLE) == SDL_BUTTON_MIDDLE, "mismatch between VCMI and SDL enum!");
-	static_assert(static_cast<uint32_t>(MouseButton::RIGHT)  == SDL_BUTTON_RIGHT,  "mismatch between VCMI and SDL enum!");
-	static_assert(static_cast<uint32_t>(MouseButton::EXTRA1) == SDL_BUTTON_X1,     "mismatch between VCMI and SDL enum!");
-	static_assert(static_cast<uint32_t>(MouseButton::EXTRA2) == SDL_BUTTON_X2,     "mismatch between VCMI and SDL enum!");
-
-	uint32_t index = static_cast<uint32_t>(button);
-	return mouseButtonsMask & SDL_BUTTON(index);
 }

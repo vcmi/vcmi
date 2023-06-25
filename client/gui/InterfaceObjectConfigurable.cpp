@@ -453,7 +453,7 @@ std::shared_ptr<CSlider> InterfaceObjectConfigurable::buildSlider(const JsonNode
 	auto value = config["selected"].Integer();
 	bool horizontal = config["orientation"].String() == "horizontal";
 	const auto & result =
-		std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal, style);
+		std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal ? Orientation::HORIZONTAL : Orientation::VERTICAL, style);
 
 	if (!config["scrollBounds"].isNull())
 	{

@@ -75,7 +75,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 void InputHandler::processEvents()
 {
 	boost::unique_lock<boost::mutex> lock(eventsMutex);
-	for (auto const & currentEvent : eventsQueue)
+	for(const auto & currentEvent : eventsQueue)
 		handleCurrentEvent(currentEvent);
 
 	eventsQueue.clear();
@@ -87,7 +87,7 @@ bool InputHandler::ignoreEventsUntilInput()
 	bool inputFound = false;
 
 	boost::unique_lock<boost::mutex> lock(eventsMutex);
-	for (auto const & event : eventsQueue)
+	for(const auto & event : eventsQueue)
 	{
 		switch(event.type)
 		{
@@ -226,7 +226,7 @@ void InputHandler::moveCursorPosition(const Point & distance)
 void InputHandler::setCursorPosition(const Point & position)
 {
 	cursorPosition = position;
-	GH.events().dispatchMouseMoved(position);
+	GH.events().dispatchMouseMoved(Point(0, 0), position);
 }
 
 void InputHandler::startTextInput(const Rect & where)
@@ -242,11 +242,6 @@ void InputHandler::stopTextInput()
 bool InputHandler::hasTouchInputDevice() const
 {
 	return fingerHandler->hasTouchInputDevice();
-}
-
-bool InputHandler::isMouseButtonPressed(MouseButton button) const
-{
-	return mouseHandler->isMouseButtonPressed(button) || fingerHandler->isMouseButtonPressed(button);
 }
 
 void InputHandler::pushUserEvent(EUserEvent usercode, void * userdata)
