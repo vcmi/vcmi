@@ -64,7 +64,7 @@ CBonusSelection::CBonusSelection()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	std::string bgName = getCampaign()->getHeader().campaignRegions.campPrefix + "_BG.BMP";
+	std::string bgName = getCampaign()->getRegions().campPrefix + "_BG.BMP";
 	setBackground(bgName);
 
 	panelBackground = std::make_shared<CPicture>("CAMPBRF.BMP", 456, 6);
@@ -78,7 +78,7 @@ CBonusSelection::CBonusSelection()
 	iconsMapSizes = std::make_shared<CAnimImage>("SCNRMPSZ", 4, 0, 735, 26);
 
 	labelCampaignDescription = std::make_shared<CLabel>(481, 63, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[38]);
-	campaignDescription = std::make_shared<CTextBox>(getCampaign()->getHeader().description, Rect(480, 86, 286, 117), 1);
+	campaignDescription = std::make_shared<CTextBox>(getCampaign()->getDescription(), Rect(480, 86, 286, 117), 1);
 
 	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->mi->getName());
 	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
@@ -99,7 +99,7 @@ CBonusSelection::CBonusSelection()
 		difficultyIcons[b] = std::make_shared<CAnimImage>("GSPBUT" + std::to_string(b + 3) + ".DEF", 0, 0, 709, 455);
 	}
 
-	if(getCampaign()->getHeader().difficultyChoosenByPlayer)
+	if(getCampaign()->playerSelectedDifficulty())
 	{
 		buttonDifficultyLeft = std::make_shared<CButton>(Point(694, 508), "SCNRBLF.DEF", CButton::tooltip(), std::bind(&CBonusSelection::decreaseDifficulty, this));
 		buttonDifficultyRight = std::make_shared<CButton>(Point(738, 508), "SCNRBRT.DEF", CButton::tooltip(), std::bind(&CBonusSelection::increaseDifficulty, this));
@@ -108,9 +108,9 @@ CBonusSelection::CBonusSelection()
 	for(auto scenarioID : getCampaign()->allScenarios())
 	{
 		if(getCampaign()->isAvailable(scenarioID))
-			regions.push_back(std::make_shared<CRegion>(scenarioID, true, true, getCampaign()->getHeader().campaignRegions));
+			regions.push_back(std::make_shared<CRegion>(scenarioID, true, true, getCampaign()->getRegions()));
 		else if(getCampaign()->isConquered(scenarioID)) //display as striped
-			regions.push_back(std::make_shared<CRegion>(scenarioID, false, false, getCampaign()->getHeader().campaignRegions));
+			regions.push_back(std::make_shared<CRegion>(scenarioID, false, false, getCampaign()->getRegions()));
 	}
 }
 
@@ -170,7 +170,7 @@ void CBonusSelection::createBonusesIcons()
 			assert(faction != -1);
 
 			BuildingID buildID;
-			if(getCampaign()->getHeader().version == CampaignVersion::VCMI)
+			if(getCampaign()->formatVCMI())
 				buildID = BuildingID(bonDescs[i].info1);
 			else
 				buildID = CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<BuildingID>());

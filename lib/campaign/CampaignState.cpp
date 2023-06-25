@@ -83,6 +83,36 @@ void CampaignHeader::loadLegacyData(ui8 campId)
 	numberOfScenarios = VLC->generaltexth->getCampaignLength(campId);
 }
 
+bool CampaignHeader::playerSelectedDifficulty() const
+{
+	return difficultyChoosenByPlayer;
+}
+
+bool CampaignHeader::formatVCMI() const
+{
+	return version == CampaignVersion::VCMI;
+}
+
+std::string CampaignHeader::getDescription() const
+{
+	return description;
+}
+
+std::string CampaignHeader::getName() const
+{
+	return name;
+}
+
+std::string CampaignHeader::getFilename() const
+{
+	return filename;
+}
+
+const CampaignRegions & CampaignHeader::getRegions() const
+{
+	return campaignRegions;
+}
+
 bool CampaignState::isConquered(CampaignScenarioID whichScenario) const
 {
 	return vstd::contains(mapsConquered, whichScenario);
@@ -91,7 +121,7 @@ bool CampaignState::isConquered(CampaignScenarioID whichScenario) const
 bool CampaignState::isAvailable(CampaignScenarioID whichScenario) const
 {
 	//check for void scenraio
-	if (!scenarios.at(whichScenario).isNotVoid())
+	if (!scenario(whichScenario).isNotVoid())
 	{
 		return false;
 	}
@@ -101,7 +131,7 @@ bool CampaignState::isAvailable(CampaignScenarioID whichScenario) const
 		return false;
 	}
 	//check preconditioned regions
-	for (auto const & it : scenarios.at(whichScenario).preconditionRegions)
+	for (auto const & it : scenario(whichScenario).preconditionRegions)
 	{
 		if (!vstd::contains(mapsConquered, it))
 			return false;
@@ -174,33 +204,26 @@ void CampaignState::setCurrentMapAsConquered(const std::vector<CGHeroInstance *>
 	mapsConquered.push_back(*currentMap);
 }
 
-std::optional<CampaignBonus> CampaignState::getBonusForCurrentMap() const
+std::optional<CampaignBonus> CampaignState::getBonus(CampaignScenarioID which) const
 {
-	auto bonuses = getCurrentScenario().travelOptions.bonusesToChoose;
+	auto bonuses = scenario(which).travelOptions.bonusesToChoose;
 	assert(chosenCampaignBonuses.count(*currentMap) || bonuses.size() == 0);
 
 	if(bonuses.empty())
 		return std::optional<CampaignBonus>();
-	else
-		return bonuses[currentBonusID()];
+
+	if (!getBonusID(which))
+		return std::optional<CampaignBonus>();
+
+	return bonuses[getBonusID(which).value()];
 }
 
-const CampaignScenario & CampaignState::getCurrentScenario() const
-{
-	return scenarios.at(*currentMap);
-}
-
-std::optional<ui8> CampaignState::getBonusID(CampaignScenarioID & which) const
+std::optional<ui8> CampaignState::getBonusID(CampaignScenarioID which) const
 {
 	if (!chosenCampaignBonuses.count(which))
 		return std::nullopt;
 
 	return chosenCampaignBonuses.at(which);
-}
-
-ui8 CampaignState::currentBonusID() const
-{
-	return chosenCampaignBonuses.at(*currentMap);
 }
 
 std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId) const
@@ -210,12 +233,12 @@ std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId) const
 		scenarioId = currentMap.value();
 
 	CMapService mapService;
-	std::string scenarioName = header.filename.substr(0, header.filename.find('.'));
+	std::string scenarioName = filename.substr(0, filename.find('.'));
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(static_cast<int>(scenarioId));
 	const std::string & mapContent = mapPieces.find(scenarioId)->second;
 	const auto * buffer = reinterpret_cast<const ui8 *>(mapContent.data());
-	return mapService.loadMap(buffer, static_cast<int>(mapContent.size()), scenarioName, header.modName, header.encoding);
+	return mapService.loadMap(buffer, static_cast<int>(mapContent.size()), scenarioName, modName, encoding);
 }
 
 std::unique_ptr<CMapHeader> CampaignState::getMapHeader(CampaignScenarioID scenarioId) const
@@ -224,12 +247,12 @@ std::unique_ptr<CMapHeader> CampaignState::getMapHeader(CampaignScenarioID scena
 		scenarioId = currentMap.value();
 
 	CMapService mapService;
-	std::string scenarioName = header.filename.substr(0, header.filename.find('.'));
+	std::string scenarioName = filename.substr(0, filename.find('.'));
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(static_cast<int>(scenarioId));
 	const std::string & mapContent = mapPieces.find(scenarioId)->second;
 	const auto * buffer = reinterpret_cast<const ui8 *>(mapContent.data());
-	return mapService.loadMapHeader(buffer, static_cast<int>(mapContent.size()), scenarioName, header.modName, header.encoding);
+	return mapService.loadMapHeader(buffer, static_cast<int>(mapContent.size()), scenarioName, modName, encoding);
 }
 
 std::shared_ptr<CMapInfo> CampaignState::getMapInfo(CampaignScenarioID scenarioId) const
@@ -238,7 +261,7 @@ std::shared_ptr<CMapInfo> CampaignState::getMapInfo(CampaignScenarioID scenarioI
 		scenarioId = currentMap.value();
 
 	auto mapInfo = std::make_shared<CMapInfo>();
-	mapInfo->fileURI = header.filename;
+	mapInfo->fileURI = filename;
 	mapInfo->mapHeader = getMapHeader(scenarioId);
 	mapInfo->countPlayers();
 	return mapInfo;
@@ -263,8 +286,7 @@ CGHeroInstance * CampaignState::crossoverDeserialize(const JsonNode & node)
 
 void CampaignState::setCurrentMap(CampaignScenarioID which)
 {
-	assert(scenarios.count(which));
-	assert(scenarios.at(which).isNotVoid());
+	assert(scenario(which).isNotVoid());
 
 	currentMap = which;
 }
@@ -293,7 +315,7 @@ std::set<CampaignScenarioID> CampaignState::conqueredScenarios() const
 	return result;
 }
 
-std::set<CampaignScenarioID> CampaignState::allScenarios() const
+std::set<CampaignScenarioID> Campaign::allScenarios() const
 {
 	std::set<CampaignScenarioID> result;
 
@@ -306,7 +328,12 @@ std::set<CampaignScenarioID> CampaignState::allScenarios() const
 	return result;
 }
 
-const CampaignScenario & CampaignState::scenario(CampaignScenarioID which) const
+int Campaign::scenariosCount() const
+{
+	return allScenarios().size();
+}
+
+const CampaignScenario & Campaign::scenario(CampaignScenarioID which) const
 {
 	assert(scenarios.count(which));
 	assert(scenarios.at(which).isNotVoid());
@@ -317,9 +344,4 @@ const CampaignScenario & CampaignState::scenario(CampaignScenarioID which) const
 bool CampaignState::isCampaignFinished() const
 {
 	return conqueredScenarios() == allScenarios();
-}
-
-const CampaignHeader & CampaignState::getHeader() const
-{
-	return header;
 }

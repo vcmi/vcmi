@@ -13,6 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+struct CampaignBonus;
 class CampaignTravel;
 class CGHeroInstance;
 class CGameState;
@@ -41,6 +42,8 @@ class CGameStateCampaign
 
 	/// returns heroes and placeholders in where heroes will be put
 	std::vector<CampaignHeroReplacement> generateCampaignHeroesToReplace(CrossoverHeroesList & crossoverHeroes);
+
+	std::optional<CampaignBonus> currentBonus() const;
 
 	/// Trims hero parameters that should not transfer between scenarios according to travelOptions flags
 	void trimCrossoverHeroesParameters(std::vector<CampaignHeroReplacement> & campaignHeroReplacements, const CampaignTravel & travelOptions);

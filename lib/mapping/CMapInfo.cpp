@@ -66,7 +66,7 @@ void CMapInfo::saveInit(const ResourceID & file)
 
 void CMapInfo::campaignInit()
 {
-	campaignHeader = CampaignHandler::getHeader(fileURI);
+	campaign = CampaignHandler::getHeader(fileURI);
 }
 
 void CMapInfo::countPlayers()
@@ -92,8 +92,8 @@ void CMapInfo::countPlayers()
 
 std::string CMapInfo::getName() const
 {
-	if(campaignHeader && !campaignHeader->name.empty())
-		return campaignHeader->name;
+	if(campaign && !campaign->getName().empty())
+		return campaign->getName();
 	else if(mapHeader && mapHeader->name.length())
 		return mapHeader->name;
 	else
@@ -117,8 +117,8 @@ std::string CMapInfo::getNameForList() const
 
 std::string CMapInfo::getDescription() const
 {
-	if(campaignHeader)
-		return campaignHeader->description;
+	if(campaign)
+		return campaign->getDescription();
 	else
 		return mapHeader->description;
 }

@@ -62,8 +62,8 @@ PlayerSettings * StartInfo::getPlayersSettings(const ui8 connectedPlayerId)
 
 std::string StartInfo::getCampaignName() const
 {
-	if(campState->getHeader().name.empty())
-		return campState->getHeader().name;
+	if(campState->getName().empty())
+		return campState->getName();
 	else
 		return VLC->generaltexth->allTexts[508];
 }

@@ -923,7 +923,7 @@ void CCastleBuildings::enterMagesGuild()
 		const StartInfo *si = LOCPLINT->cb->getStartInfo();
 		// it would be nice to find a way to move this hack to config/mapOverrides.json
 		if(si && si->campState && si->campState &&                // We're in campaign,
-			(si->campState->getHeader().filename == "DATA/YOG.H3C") && // which is "Birth of a Barbarian",
+			(si->campState->getFilename() == "DATA/YOG.H3C") && // which is "Birth of a Barbarian",
 			(hero->subID == 45))                                        // and the hero is Yog (based on Solmyr)
 		{
 			// "Yog has given up magic in all its forms..."

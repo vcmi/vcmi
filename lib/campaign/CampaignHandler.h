@@ -16,14 +16,16 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CampaignHandler
 {
 	static std::string readLocalizedString(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier);
-	
+
+	static void readCampaign(Campaign * target, const std::vector<ui8> & stream, std::string filename, std::string modName, std::string encoding);
+
 	//parsers for VCMI campaigns (*.vcmp)
-	static CampaignHeader readHeaderFromJson(JsonNode & reader, std::string filename, std::string modName, std::string encoding);
+	static void readHeaderFromJson(CampaignHeader & target, JsonNode & reader, std::string filename, std::string modName, std::string encoding);
 	static CampaignScenario readScenarioFromJson(JsonNode & reader);
 	static CampaignTravel readScenarioTravelFromJson(JsonNode & reader);
 
 	//parsers for original H3C campaigns
-	static CampaignHeader readHeaderFromMemory(CBinaryReader & reader, std::string filename, std::string modName, std::string encoding);
+	static void readHeaderFromMemory(CampaignHeader & target, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding);
 	static CampaignScenario readScenarioFromMemory(CBinaryReader & reader, const CampaignHeader & header);
 	static CampaignTravel readScenarioTravelFromMemory(CBinaryReader & reader, CampaignVersion version);
 	/// returns h3c split in parts. 0 = h3c header, 1-end - maps (binary h3m)
@@ -35,7 +37,7 @@ class DLL_LINKAGE CampaignHandler
 	static std::string prologVoiceName(ui8 index);
 
 public:
-	static std::unique_ptr<CampaignHeader> getHeader( const std::string & name); //name - name of appropriate file
+	static std::unique_ptr<Campaign> getHeader( const std::string & name); //name - name of appropriate file
 
 	static std::shared_ptr<CampaignState> getCampaign(const std::string & name); //name - name of appropriate file
 };

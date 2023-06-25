@@ -27,26 +27,49 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-std::unique_ptr<CampaignHeader> CampaignHandler::getHeader( const std::string & name)
+void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & input, std::string filename, std::string modName, std::string encoding)
+{
+	if (input.front() < uint8_t(' ')) // binary format
+	{
+		CMemoryStream stream(input.data(), input.size());
+		CBinaryReader reader(&stream);
+
+		readHeaderFromMemory(*ret, reader, filename, modName, encoding);
+
+		for(int g = 0; g < ret->numberOfScenarios; ++g)
+		{
+			auto scenarioID = static_cast<CampaignScenarioID>(ret->scenarios.size());
+			ret->scenarios[scenarioID] = readScenarioFromMemory(reader, *ret);
+		}
+	}
+	else // text format (json)
+	{
+		JsonNode jsonCampaign((const char*)input.data(), input.size());
+		readHeaderFromJson(*ret, jsonCampaign, filename, modName, encoding);
+
+		for(auto & scenario : jsonCampaign["scenarios"].Vector())
+		{
+			auto scenarioID = static_cast<CampaignScenarioID>(ret->scenarios.size());
+			ret->scenarios[scenarioID] = readScenarioFromJson(scenario);
+		}
+	}
+}
+
+std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 {
 	ResourceID resourceID(name, EResType::CAMPAIGN);
 	std::string modName = VLC->modh->findResourceOrigin(resourceID);
 	std::string language = VLC->modh->getModLanguage(modName);
 	std::string encoding = Languages::getLanguageOptions(language).encoding;
 	
+	auto ret = std::make_unique<Campaign>();
 	auto fileStream = CResourceHandler::get(modName)->load(resourceID);
 	std::vector<ui8> cmpgn = getFile(std::move(fileStream), true)[0];
 	JsonNode jsonCampaign((const char*)cmpgn.data(), cmpgn.size());
-	if(jsonCampaign.isNull())
-	{
-		//legacy OH3 campaign (*.h3c)
-		CMemoryStream stream(cmpgn.data(), cmpgn.size());
-		CBinaryReader reader(&stream);
-		return std::make_unique<CampaignHeader>(readHeaderFromMemory(reader, resourceID.getName(), modName, encoding));
-	}
-	
-	//VCMI (*.vcmp)
-	return std::make_unique<CampaignHeader>(readHeaderFromJson(jsonCampaign, resourceID.getName(), modName, encoding));
+
+	readCampaign(ret.get(), cmpgn, resourceID.getName(), modName, encoding);
+
+	return ret;
 }
 
 std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string & name )
@@ -62,32 +85,10 @@ std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string &
 
 	std::vector<std::vector<ui8>> files = getFile(std::move(fileStream), false);
 
-	if (files[0].front() < uint8_t(' ')) // binary format
-	{
-		CMemoryStream stream(files[0].data(), files[0].size());
-		CBinaryReader reader(&stream);
-		ret->header = readHeaderFromMemory(reader, resourceID.getName(), modName, encoding);
-		
-		for(int g = 0; g < ret->header.numberOfScenarios; ++g)
-		{
-			auto scenarioID = static_cast<CampaignScenarioID>(ret->scenarios.size());
-			ret->scenarios[scenarioID] = readScenarioFromMemory(reader, ret->header);
-		}
-	}
-	else // text format (json)
-	{
-		JsonNode jsonCampaign((const char*)files[0].data(), files[0].size());
-		ret->header = readHeaderFromJson(jsonCampaign, resourceID.getName(), modName, encoding);
-
-		for(auto & scenario : jsonCampaign["scenarios"].Vector())
-		{
-			auto scenarioID = static_cast<CampaignScenarioID>(ret->scenarios.size());
-			ret->scenarios[scenarioID] = readScenarioFromJson(scenario);
-		}
-	}
+	readCampaign(ret.get(), files[0], resourceID.getName(), modName, encoding);
 	
 	//first entry is campaign header. start loop from 1
-	for(int scenarioID = 0, g = 1; g < files.size() && scenarioID < ret->header.numberOfScenarios; ++g)
+	for(int scenarioID = 0, g = 1; g < files.size() && scenarioID < ret->numberOfScenarios; ++g)
 	{
 		auto id = static_cast<CampaignScenarioID>(scenarioID);
 
@@ -140,15 +141,13 @@ std::string CampaignHandler::readLocalizedString(CBinaryReader & reader, std::st
 	return VLC->generaltexth->translate(stringID.get());
 }
 
-CampaignHeader CampaignHandler::readHeaderFromJson(JsonNode & reader, std::string filename, std::string modName, std::string encoding)
+void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader, std::string filename, std::string modName, std::string encoding)
 {
-	CampaignHeader ret;
-
 	ret.version = static_cast<CampaignVersion>(reader["version"].Integer());
 	if(ret.version < CampaignVersion::VCMI_MIN || ret.version > CampaignVersion::VCMI_MAX)
 	{
 		logGlobal->info("VCMP Loading: Unsupported campaign %s version %d", filename, static_cast<int>(ret.version));
-		return ret;
+		return;
 	}
 	
 	ret.version = CampaignVersion::VCMI;
@@ -161,7 +160,6 @@ CampaignHeader CampaignHandler::readHeaderFromJson(JsonNode & reader, std::strin
 	ret.filename = filename;
 	ret.modName = modName;
 	ret.encoding = encoding;
-	return ret;
 }
 
 CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
@@ -383,10 +381,8 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 }
 
 
-CampaignHeader CampaignHandler::readHeaderFromMemory( CBinaryReader & reader, std::string filename, std::string modName, std::string encoding )
+void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding )
 {
-	CampaignHeader ret;
-
 	ret.version = static_cast<CampaignVersion>(reader.readUInt32());
 	ui8 campId = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
 	ret.loadLegacyData(campId);
@@ -400,7 +396,6 @@ CampaignHeader CampaignHandler::readHeaderFromMemory( CBinaryReader & reader, st
 	ret.filename = filename;
 	ret.modName = modName;
 	ret.encoding = encoding;
-	return ret;
 }
 
 CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader, const CampaignHeader & header)

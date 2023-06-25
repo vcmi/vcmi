@@ -57,9 +57,10 @@ struct DLL_LINKAGE CampaignRegions
 	static CampaignRegions getLegacy(int campId);
 };
 
-class DLL_LINKAGE CampaignHeader
+class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 {
-public:
+	friend class CampaignHandler;
+
 	int numberOfScenarios = 0;
 	CampaignVersion version = CampaignVersion::NONE;
 	CampaignRegions campaignRegions;
@@ -69,9 +70,20 @@ public:
 
 	void loadLegacyData(ui8 campId);
 
+protected:
 	std::string filename;
 	std::string modName;
 	std::string encoding;
+
+public:
+	bool playerSelectedDifficulty() const;
+	bool formatVCMI() const;
+
+	std::string getDescription() const;
+	std::string getName() const;
+	std::string getFilename() const;
+
+	const CampaignRegions & getRegions() const;
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
@@ -195,34 +207,48 @@ struct DLL_LINKAGE CampaignHeroes
 	}
 };
 
-class DLL_LINKAGE CampaignState
+/// Class that represents loaded campaign information
+class DLL_LINKAGE Campaign : public CampaignHeader
+{
+	friend class CampaignHandler;
+
+	std::map<CampaignScenarioID, CampaignScenario> scenarios;
+
+public:
+	const CampaignScenario & scenario(CampaignScenarioID which) const;
+	std::set<CampaignScenarioID> allScenarios() const;
+	int scenariosCount() const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CampaignHeader&>(*this);
+		h & scenarios;
+	}
+};
+
+/// Class that represent campaign that is being played at
+/// Contains campaign itself as well as current state of the campaign
+class DLL_LINKAGE CampaignState : public Campaign
 {
 	friend class CampaignHandler;
 
 	/// List of all maps completed by player, in order of their completion
 	std::vector<CampaignScenarioID> mapsConquered;
 
-	std::map<CampaignScenarioID, CampaignScenario> scenarios;
 	std::map<CampaignScenarioID, std::string > mapPieces; //binary h3ms, scenario number -> map data
 	std::map<CampaignScenarioID, ui8> chosenCampaignBonuses;
 	std::optional<CampaignScenarioID> currentMap;
 
-	CampaignHeader header;
 	CampaignHeroes crossover;
 
 public:
 	std::optional<CampaignScenarioID> lastScenario() const;
 	std::optional<CampaignScenarioID> currentScenario() const;
-	std::set<CampaignScenarioID> allScenarios() const;
 	std::set<CampaignScenarioID> conqueredScenarios() const;
 
-	const CampaignScenario & scenario(CampaignScenarioID which) const;
+	std::optional<CampaignBonus> getBonus(CampaignScenarioID which) const;
 
-	std::optional<CampaignBonus> getBonusForCurrentMap() const;
-	const CampaignScenario & getCurrentScenario() const;
-
-	std::optional<ui8> getBonusID(CampaignScenarioID & which) const;
-	ui8 currentBonusID() const;
+	std::optional<ui8> getBonusID(CampaignScenarioID which) const;
 
 	/// Returns true if selected scenario can be selected and started by player
 	bool isAvailable(CampaignScenarioID whichScenario) const;
@@ -232,8 +258,6 @@ public:
 
 	/// Returns true if all available scenarios have been completed and campaign is finished
 	bool isCampaignFinished() const;
-
-	const CampaignHeader & getHeader() const;
 
 	std::unique_ptr<CMap> getMap(CampaignScenarioID scenarioId) const;
 	std::unique_ptr<CMapHeader> getMapHeader(CampaignScenarioID scenarioId) const;
@@ -257,8 +281,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & header;
-		h & scenarios;
+		h & static_cast<Campaign&>(*this);
 		h & crossover;
 		h & mapPieces;
 		h & mapsConquered;

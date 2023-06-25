@@ -54,12 +54,19 @@ CGameStateCampaign::CGameStateCampaign(CGameState * owner):
 	assert(gameState->scenarioOps->campState != nullptr);
 }
 
+std::optional<CampaignBonus> CGameStateCampaign::currentBonus() const
+{
+	auto campaignState = gameState->scenarioOps->campState;
+	return campaignState->getBonus(*campaignState->currentScenario());
+
+}
+
 CrossoverHeroesList CGameStateCampaign::getCrossoverHeroesFromPreviousScenarios() const
 {
 	CrossoverHeroesList crossoverHeroes;
 
 	auto campaignState = gameState->scenarioOps->campState;
-	auto bonus = campaignState->getBonusForCurrentMap();
+	auto bonus = currentBonus();
 	if(bonus && bonus->type == CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO)
 	{
 		auto scenarioID = static_cast<CampaignScenarioID>(bonus->info2);
@@ -253,7 +260,8 @@ void CGameStateCampaign::placeCampaignHeroes()
 	// - exception: if starting bonus is 'select player' then power placeholders are taken from 'scenario pool' of linked map
 
 	// place bonus hero
-	auto campaignBonus = gameState->scenarioOps->campState->getBonusForCurrentMap();
+	auto campaignState = gameState->scenarioOps->campState;
+	auto campaignBonus = campaignState->getBonus(*campaignState->currentScenario());
 	bool campaignGiveHero = campaignBonus && campaignBonus->type == CampaignBonusType::HERO;
 
 	if(campaignGiveHero)
@@ -281,7 +289,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 		auto campaignHeroReplacements = generateCampaignHeroesToReplace(crossoverHeroes);
 
 		logGlobal->debug("\tPrepare crossover heroes");
-		trimCrossoverHeroesParameters(campaignHeroReplacements, gameState->scenarioOps->campState->getCurrentScenario().travelOptions);
+		trimCrossoverHeroesParameters(campaignHeroReplacements, campaignState->scenario(*campaignState->currentScenario()).travelOptions);
 
 		// remove same heroes on the map which will be added through crossover heroes
 		// INFO: we will remove heroes because later it may be possible that the API doesn't allow having heroes
@@ -338,7 +346,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 
 void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 {
-	const std::optional<CampaignBonus> & curBonus = gameState->scenarioOps->campState->getBonusForCurrentMap();
+	auto curBonus = currentBonus();
 	if(!curBonus)
 		return;
 
@@ -513,7 +521,7 @@ std::vector<CampaignHeroReplacement> CGameStateCampaign::generateCampaignHeroesT
 
 void CGameStateCampaign::initHeroes()
 {
-	auto chosenBonus = gameState->scenarioOps->campState->getBonusForCurrentMap();
+	auto chosenBonus = currentBonus();
 	if (chosenBonus && chosenBonus->isBonusForHero() && chosenBonus->info1 != 0xFFFE) //exclude generated heroes
 	{
 		//find human player
@@ -573,7 +581,7 @@ void CGameStateCampaign::initStartingResources()
 		return ret;
 	};
 
-	auto chosenBonus = gameState->scenarioOps->campState->getBonusForCurrentMap();
+	auto chosenBonus = currentBonus();
 	if(chosenBonus && chosenBonus->type == CampaignBonusType::RESOURCE)
 	{
 		std::vector<const PlayerSettings *> people = getHumanPlayerInfo(); //players we will give resource bonus
@@ -610,7 +618,7 @@ void CGameStateCampaign::initStartingResources()
 
 void CGameStateCampaign::initTowns()
 {
-	auto chosenBonus = gameState->scenarioOps->campState->getBonusForCurrentMap();
+	auto chosenBonus = currentBonus();
 
 	if (chosenBonus && chosenBonus->type == CampaignBonusType::BUILDING)
 	{
@@ -625,7 +633,7 @@ void CGameStateCampaign::initTowns()
 					gameState->map->towns[g]->pos == pi.posOfMainTown)
 				{
 					BuildingID buildingId;
-					if(gameState->scenarioOps->campState->getHeader().version == CampaignVersion::VCMI)
+					if(gameState->scenarioOps->campState->formatVCMI())
 						buildingId = BuildingID(chosenBonus->info1);
 					else
 						buildingId = CBuildingHandler::campToERMU(chosenBonus->info1, gameState->map->towns[g]->subID, gameState->map->towns[g]->builtBuildings);
@@ -640,7 +648,7 @@ void CGameStateCampaign::initTowns()
 
 bool CGameStateCampaign::playerHasStartingHero(PlayerColor playerColor) const
 {
-	auto campaignBonus = gameState->scenarioOps->campState->getBonusForCurrentMap();
+	auto campaignBonus = currentBonus();
 
 	if (!campaignBonus)
 		return false;

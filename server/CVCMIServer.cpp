@@ -684,7 +684,7 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 	}
 	else if(si->mode == StartInfo::NEW_GAME || si->mode == StartInfo::CAMPAIGN)
 	{
-		if(mi->campaignHeader)
+		if(mi->campaign)
 			return;
 
 		for(int i = 0; i < mi->mapHeader->players.size(); i++)

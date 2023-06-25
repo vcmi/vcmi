@@ -104,13 +104,11 @@ bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::share
 		switch(sortBy)
 		{
 		case _numOfMaps: //by number of maps in campaign
-			return aaa->campaignHeader->numberOfScenarios <
-				   bbb->campaignHeader->numberOfScenarios;
-			break;
+			return aaa->campaign->scenariosCount() < bbb->campaign->scenariosCount();
 		case _name: //by name
-			return boost::ilexicographical_compare(aaa->campaignHeader->name, bbb->campaignHeader->name);
+			return boost::ilexicographical_compare(aaa->campaign->getName(), bbb->campaign->getName());
 		default:
-			return boost::ilexicographical_compare(aaa->campaignHeader->name, bbb->campaignHeader->name);
+			return boost::ilexicographical_compare(aaa->campaign->getName(), bbb->campaign->getName());
 		}
 	}
 }
@@ -623,7 +621,7 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourceID> & files)
 		//allItems[i].date = std::asctime(std::localtime(&files[i].date));
 		info->fileURI = file.getName();
 		info->campaignInit();
-		if(info->campaignHeader)
+		if(info->campaign)
 			allItems.push_back(info);
 	}
 }
@@ -677,7 +675,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<CMapInfo> info, bool sel
 	}
 
 	auto color = selected ? Colors::YELLOW : Colors::WHITE;
-	if(info->campaignHeader)
+	if(info->campaign)
 	{
 		labelAmountOfPlayers->disable();
 		labelMapSizeLetter->disable();
@@ -686,7 +684,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<CMapInfo> info, bool sel
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->enable();
 		std::ostringstream ostr(std::ostringstream::out);
-		ostr << info->campaignHeader->numberOfScenarios;
+		ostr << info->campaign->scenariosCount();
 		labelNumberOfCampaignMaps->setText(ostr.str());
 		labelNumberOfCampaignMaps->setColor(color);
 	}
