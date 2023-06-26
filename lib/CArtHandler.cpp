@@ -819,9 +819,6 @@ void CArtifactInstance::init()
 std::string CArtifactInstance::getDescription() const
 {
 	std::string text = artType->getDescriptionTranslated();
-	if (!vstd::contains(text, '{'))
-		text = '{' + artType->getNameTranslated() + "}\n\n" + text; //workaround for new artifacts with single name, turns it to H3-style
-
 	if(artType->getId() == ArtifactID::SPELL_SCROLL)
 	{
 		// we expect scroll description to be like this: This scroll contains the [spell name] spell which is added into your spell book for as long as you carry the scroll.
@@ -849,12 +846,12 @@ bool CArtifactInstance::canBePutAt(const ArtifactLocation & al, bool assumeDestR
 	return artType->canBePutAt(al.getHolderArtSet(), al.slot, assumeDestRemoved);
 }
 
-void CArtifactInstance::putAt(ArtifactLocation al)
+void CArtifactInstance::putAt(const ArtifactLocation & al)
 {
 	al.getHolderArtSet()->putArtifact(al.slot, this);
 }
 
-void CArtifactInstance::removeFrom(ArtifactLocation al)
+void CArtifactInstance::removeFrom(const ArtifactLocation & al)
 {
 	al.getHolderArtSet()->removeArtifact(al.slot);
 }
@@ -917,7 +914,7 @@ void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance * art, const 
 	attachTo(*art);
 }
 
-void CCombinedArtifactInstance::removeFrom(ArtifactLocation al)
+void CCombinedArtifactInstance::removeFrom(const ArtifactLocation & al)
 {
 	CArtifactInstance::removeFrom(al);
 	for(auto & part : constituentsInfo)
@@ -1110,7 +1107,7 @@ void CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
 					part.slot = ArtifactUtils::getArtAnyPosition(this, part.art->getTypeId());
 
 				assert(ArtifactUtils::isSlotEquipment(part.slot));
-				setNewArtSlot(part.slot, art, true);
+				setNewArtSlot(part.slot, part.art, true);
 			}
 		}
 	}

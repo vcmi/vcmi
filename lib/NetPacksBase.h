@@ -192,7 +192,7 @@ struct ArtifactLocation
 	DLL_LINKAGE PlayerColor owningPlayer() const;
 	DLL_LINKAGE CArtifactSet *getHolderArtSet();
 	DLL_LINKAGE CBonusSystemNode *getHolderNode();
-	DLL_LINKAGE const CArtifactSet *getHolderArtSet() const;
+	DLL_LINKAGE CArtifactSet *getHolderArtSet() const;
 	DLL_LINKAGE const CBonusSystemNode *getHolderNode() const;
 
 	DLL_LINKAGE const CArtifactInstance *getArt() const;
