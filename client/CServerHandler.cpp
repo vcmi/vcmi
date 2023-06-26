@@ -322,6 +322,7 @@ void CServerHandler::applyPacksOnLobbyScreen()
 	boost::unique_lock<boost::recursive_mutex> lock(*mx);
 	while(!packsForLobbyScreen.empty())
 	{
+		boost::unique_lock<boost::recursive_mutex> guiLock(*CPlayerInterface::pim);
 		CPackForLobby * pack = packsForLobbyScreen.front();
 		packsForLobbyScreen.pop_front();
 		CBaseForLobbyApply * apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier
