@@ -16,6 +16,7 @@
 #include "GeneralOptionsTab.h"
 #include "OtherOptionsTab.h"
 
+#include "CMT.h"
 #include "CGameInfo.h"
 #include "CGeneralTextHandler.h"
 #include "CPlayerInterface.h"
@@ -112,7 +113,18 @@ void SettingsMainWindow::close()
 
 void SettingsMainWindow::quitGameButtonCallback()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(EUserEvent::FORCE_QUIT); }, 0);
+	LOCPLINT->showYesNoDialog(
+		CGI->generaltexth->allTexts[578],
+		[this]()
+		{
+			close();
+			GH.dispatchMainThread( []()
+			{
+				handleQuit(false);
+			});
+		},
+		0
+	);
 }
 
 void SettingsMainWindow::backButtonCallback()
@@ -122,7 +134,20 @@ void SettingsMainWindow::backButtonCallback()
 
 void SettingsMainWindow::mainMenuButtonCallback()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(EUserEvent::RETURN_TO_MAIN_MENU); }, 0);
+	LOCPLINT->showYesNoDialog(
+		CGI->generaltexth->allTexts[578],
+		[this]()
+		{
+			close();
+			GH.dispatchMainThread( []()
+			{
+				CSH->endGameplay();
+				GH.defActionsDef = 63;
+				CMM->menu->switchToTab("main");
+			});
+		},
+		0
+	);
 }
 
 void SettingsMainWindow::loadGameButtonCallback()
@@ -139,13 +164,17 @@ void SettingsMainWindow::saveGameButtonCallback()
 
 void SettingsMainWindow::restartGameButtonCallback()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(EUserEvent::RESTART_GAME); }, 0);
-}
-
-void SettingsMainWindow::closeAndPushEvent(EUserEvent code)
-{
-	close();
-	GH.pushUserEvent(code);
+	LOCPLINT->showYesNoDialog(
+		CGI->generaltexth->allTexts[67],
+		[this]()
+		{
+			close();
+			GH.dispatchMainThread([](){
+				CSH->sendRestartGame();
+			});
+		},
+		0
+	);
 }
 
 void SettingsMainWindow::showAll(Canvas & to)

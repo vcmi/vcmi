@@ -27,18 +27,6 @@ class WindowHandler;
 class EventDispatcher;
 class InputHandler;
 
-// TODO: event handling need refactoring. Perhaps convert into delayed function call?
-enum class EUserEvent
-{
-	RETURN_TO_MAIN_MENU,
-	RESTART_GAME,
-	RETURN_TO_MENU_LOAD,
-	FULLSCREEN_TOGGLED,
-	CAMPAIGN_START_SCENARIO,
-	FORCE_QUIT,
-	FAKE_MOUSE_MOVE,
-};
-
 // Handles GUI logic and drawing
 class CGuiHandler
 {
@@ -108,8 +96,9 @@ public:
 	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen
 
 	bool amIGuiThread();
-	void pushUserEvent(EUserEvent usercode);
-	void pushUserEvent(EUserEvent usercode, void * userdata);
+
+	/// Calls provided functor in main thread on next execution frame
+	void dispatchMainThread(const std::function<void()> & functor);
 
 	CondSh<bool> * terminate_cond; // confirm termination
 };

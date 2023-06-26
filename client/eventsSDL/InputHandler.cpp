@@ -16,7 +16,6 @@
 #include "InputSourceKeyboard.h"
 #include "InputSourceTouch.h"
 #include "InputSourceText.h"
-#include "UserEventHandler.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
@@ -35,7 +34,6 @@ InputHandler::InputHandler()
 	, keyboardHandler(std::make_unique<InputSourceKeyboard>())
 	, fingerHandler(std::make_unique<InputSourceTouch>())
 	, textHandler(std::make_unique<InputSourceText>())
-	, userHandler(std::make_unique<UserEventHandler>())
 {
 }
 
@@ -127,7 +125,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	}
 	else if(ev.type == SDL_USEREVENT)
 	{
-		userHandler->handleUserEvent(ev.user);
+		handleUserEvent(ev.user);
 
 		return;
 	}
@@ -244,13 +242,23 @@ bool InputHandler::hasTouchInputDevice() const
 	return fingerHandler->hasTouchInputDevice();
 }
 
-void InputHandler::pushUserEvent(EUserEvent usercode, void * userdata)
+void InputHandler::dispatchMainThread(const std::function<void()> & functor)
 {
+	auto heapFunctor = new std::function<void()>(functor);
+
 	SDL_Event event;
 	event.type = SDL_USEREVENT;
-	event.user.code = static_cast<int32_t>(usercode);
-	event.user.data1 = userdata;
+	event.user.code = 0;
+	event.user.data1 = static_cast <void*>(heapFunctor);
+	event.user.data2 = nullptr;
 	SDL_PushEvent(&event);
+}
+
+void InputHandler::handleUserEvent(const SDL_UserEvent & current)
+{
+	auto heapFunctor = static_cast<std::function<void()>*>(current.data1);
+
+	(*heapFunctor)();
 }
 
 const Point & InputHandler::getCursorPosition() const

@@ -30,7 +30,6 @@ private:
 	void openTab(size_t index);
 
 	void close(); //TODO: copypaste of WindowBase::close(), consider changing Windowbase to IWindowbase with default close() implementation and changing WindowBase inheritance to CIntObject + IWindowBase
-	void closeAndPushEvent(EUserEvent code);
 
 	void loadGameButtonCallback();
 	void saveGameButtonCallback();

@@ -68,7 +68,10 @@ ISelectionScreenInfo * SEL;
 
 static void do_quit()
 {
-	GH.pushUserEvent(EUserEvent::FORCE_QUIT);
+	GH.dispatchMainThread([]()
+	{
+		handleQuit(false);
+	});
 }
 
 CMenuScreen::CMenuScreen(const JsonNode & configNode)
@@ -562,10 +565,13 @@ void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
 	else
 		CSH->justConnectToServer(addr, port);
 
-	if(GH.windows().isTopWindow(this))
-	{
-		close();
-	}
+	// async call to prevent thread race
+	GH.dispatchMainThread([this](){
+		if(GH.windows().isTopWindow(this))
+		{
+			close();
+		}
+	});
 }
 
 CLoadingScreen::CLoadingScreen(std::function<void()> loader)

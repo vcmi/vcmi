@@ -21,6 +21,7 @@
 #include "windows/InfoWindows.h"
 
 #include "mainmenu/CMainMenu.h"
+#include "mainmenu/CPrologEpilogVideo.h"
 
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
@@ -662,10 +663,36 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 
 void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 {
-	if(cs)
-		GH.pushUserEvent(EUserEvent::CAMPAIGN_START_SCENARIO, CMemorySerializer::deepCopy(*cs.get()).release());
-	else
-		GH.pushUserEvent(EUserEvent::CAMPAIGN_START_SCENARIO, CMemorySerializer::deepCopy(*si->campState.get()).release());
+	std::shared_ptr<CampaignState> ourCampaign = cs;
+
+	if (!cs)
+		ourCampaign = si->campState;
+
+	GH.dispatchMainThread([ourCampaign]()
+	{
+		CSH->campaignServerRestartLock.set(true);
+		CSH->endGameplay();
+
+		auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
+		auto finisher = [=]()
+		{
+			if(!ourCampaign->isCampaignFinished())
+			{
+				GH.windows().pushWindow(CMM);
+				GH.windows().pushWindow(CMM->menu);
+				CMM->openCampaignLobby(ourCampaign);
+			}
+		};
+		if(epilogue.hasPrologEpilog)
+		{
+			GH.windows().createAndPushWindow<CPrologEpilogVideo>(epilogue, finisher);
+		}
+		else
+		{
+			CSH->campaignServerRestartLock.waitUntil(false);
+			finisher();
+		}
+	});
 }
 
 void CServerHandler::showServerError(std::string txt)
@@ -842,7 +869,13 @@ void CServerHandler::threadHandleConnection()
 			if(client)
 			{
 				state = EClientState::DISCONNECTING;
-				GH.pushUserEvent(EUserEvent::RETURN_TO_MAIN_MENU);
+
+				GH.dispatchMainThread([]()
+				{
+					CSH->endGameplay();
+					GH.defActionsDef = 63;
+					CMM->menu->switchToTab("main");
+				});
 			}
 			else
 			{

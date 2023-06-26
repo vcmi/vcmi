@@ -13,6 +13,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../CServerHandler.h"
 #include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
@@ -293,8 +294,19 @@ void AdventureMapShortcuts::viewPuzzleMap()
 
 void AdventureMapShortcuts::restartGame()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.adventureMap.confirmRestartGame"),
-		[](){ GH.pushUserEvent(EUserEvent::RESTART_GAME); }, nullptr);
+	LOCPLINT->showYesNoDialog(
+		CGI->generaltexth->translate("vcmi.adventureMap.confirmRestartGame"),
+		[]()
+		{
+			GH.dispatchMainThread(
+				[]()
+				{
+					CSH->sendRestartGame();
+				}
+			);
+		},
+		nullptr
+	);
 }
 
 void AdventureMapShortcuts::visitObject()

@@ -427,10 +427,19 @@ void CBonusSelection::startMap()
 void CBonusSelection::restartMap()
 {
 	close();
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [=]()
-	{
-		GH.pushUserEvent(EUserEvent::RESTART_GAME);
-	}, 0);
+	LOCPLINT->showYesNoDialog(
+		CGI->generaltexth->allTexts[67],
+		[=]()
+		{
+			GH.dispatchMainThread(
+				[]()
+				{
+					CSH->sendRestartGame();
+				}
+			);
+		},
+		0
+	);
 }
 
 void CBonusSelection::increaseDifficulty()

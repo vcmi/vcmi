@@ -23,6 +23,7 @@
 #include "../CCallback.h"
 #include "windows/CCastleInterface.h"
 #include "eventsSDL/InputHandler.h"
+#include "mainmenu/CMainMenu.h"
 #include "gui/CursorHandler.h"
 #include "windows/CKingdomInterface.h"
 #include "CGameInfo.h"
@@ -1744,7 +1745,16 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 	if(won && cb->getStartInfo()->campState)
 		CSH->startCampaignScenario(cb->getStartInfo()->campState);
 	else
-		GH.pushUserEvent(EUserEvent::RETURN_TO_MAIN_MENU);
+	{
+		GH.dispatchMainThread(
+			[]()
+			{
+				CSH->endGameplay();
+				GH.defActionsDef = 63;
+				CMM->menu->switchToTab("main");
+			}
+		);
+	}
 }
 
 void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
@@ -1840,7 +1850,21 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim)
 
 void CPlayerInterface::proposeLoadingGame()
 {
-	showYesNoDialog(CGI->generaltexth->allTexts[68], [](){ GH.pushUserEvent(EUserEvent::RETURN_TO_MENU_LOAD); }, nullptr);
+	showYesNoDialog(
+		CGI->generaltexth->allTexts[68],
+		[]()
+		{
+			GH.dispatchMainThread(
+				[]()
+				{
+					CSH->endGameplay();
+					GH.defActionsDef = 63;
+					CMM->menu->switchToTab("load");
+				}
+			);
+		},
+		nullptr
+	);
 }
 
 bool CPlayerInterface::capturedAllEvents()

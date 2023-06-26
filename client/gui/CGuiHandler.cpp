@@ -87,7 +87,9 @@ void CGuiHandler::handleEvents()
 
 void CGuiHandler::fakeMouseMove()
 {
-	pushUserEvent(EUserEvent::FAKE_MOUSE_MOVE);
+	dispatchMainThread([](){
+		GH.events().dispatchMouseMoved(Point(0, 0), GH.getCursorPosition());
+	});
 }
 
 void CGuiHandler::startTextInput(const Rect & whereInput)
@@ -203,14 +205,9 @@ bool CGuiHandler::amIGuiThread()
 	return inGuiThread.get() && *inGuiThread;
 }
 
-void CGuiHandler::pushUserEvent(EUserEvent usercode)
+void CGuiHandler::dispatchMainThread(const std::function<void()> & functor)
 {
-	inputHandlerInstance->pushUserEvent(usercode, nullptr);
-}
-
-void CGuiHandler::pushUserEvent(EUserEvent usercode, void * userdata)
-{
-	inputHandlerInstance->pushUserEvent(usercode, userdata);
+	inputHandlerInstance->dispatchMainThread(functor);
 }
 
 IScreenHandler & CGuiHandler::screenHandler()
