@@ -418,3 +418,5 @@ bool CampaignState::isCampaignFinished() const
 {
 	return conqueredScenarios() == allScenarios();
 }
+
+VCMI_LIB_NAMESPACE_END

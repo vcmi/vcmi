@@ -81,3 +81,5 @@ private:
 
 	si32 intValue; // uses EResultult
 };
+
+VCMI_LIB_NAMESPACE_END

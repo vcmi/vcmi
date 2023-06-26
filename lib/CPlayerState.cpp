@@ -40,6 +40,8 @@ PlayerState::PlayerState(PlayerState && other) noexcept:
 	std::swap(quests, other.quests);
 }
 
+PlayerState::~PlayerState() = default;
+
 std::string PlayerState::nodeName() const
 {
 	return "Player " + color.getStrCap(false);

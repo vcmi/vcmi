@@ -55,6 +55,7 @@
 #include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/gameState/InfoAboutArmy.h"
+#include "../lib/gameState/SThievesGuildInfo.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CBuildingHandler.h"
 #include "../lib/CConfigHandler.h"

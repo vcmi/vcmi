@@ -12,6 +12,7 @@
 
 #include "gameState/CGameState.h"
 #include "gameState/InfoAboutArmy.h"
+#include "gameState/SThievesGuildInfo.h"
 #include "CGeneralTextHandler.h"
 #include "StartInfo.h" // for StartInfo
 #include "battle/BattleInfo.h" // for BattleInfo

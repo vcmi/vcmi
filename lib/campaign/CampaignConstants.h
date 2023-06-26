@@ -54,5 +54,4 @@ enum class CampaignScenarioID : int8_t
 	// no members - fake enum to create integer type that is not implicitly convertible to int
 };
 
-
 VCMI_LIB_NAMESPACE_END

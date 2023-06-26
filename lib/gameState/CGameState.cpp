@@ -13,6 +13,7 @@
 #include "EVictoryLossCheckResult.h"
 #include "InfoAboutArmy.h"
 #include "CGameStateCampaign.h"
+#include "SThievesGuildInfo.h"
 
 #include "../ArtifactUtils.h"
 #include "../CBuildingHandler.h"
