@@ -487,7 +487,14 @@ class InterfaceLayoutWidget : public CIntObject
 {
 public:
 	std::vector<std::shared_ptr<CIntObject>> ownedChildren;
+	InterfaceLayoutWidget();
 };
+
+InterfaceLayoutWidget::InterfaceLayoutWidget()
+	:CIntObject() 
+{
+	type |= REDRAW_PARENT;
+}
 
 std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildLayout(const JsonNode & config)
 {

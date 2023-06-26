@@ -53,13 +53,13 @@
 			"items":
 			[
 				{
-					"name": "heroSpeedValueLabel",
+					"name": "heroSpeedValueLabel"
 				},
 				{
-					"name": "enemySpeedValueLabel",
+					"name": "enemySpeedValueLabel"
 				},
 				{
-					"name": "mapScrollingValueLabel",
+					"name": "mapScrollingValueLabel"
 				}
 			]
 		},
