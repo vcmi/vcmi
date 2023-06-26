@@ -1066,17 +1066,14 @@ void PlayerEndsGame::applyGs(CGameState * gs) const
 		p->status = EPlayerStatus::WINNER;
 
 		// TODO: Campaign-specific code might as well go somewhere else
+		// keep all heroes from the winning player
 		if(p->human && gs->scenarioOps->campState)
 		{
 			std::vector<CGHeroInstance *> crossoverHeroes;
 			for (CGHeroInstance * hero : gs->map->heroesOnMap)
-			{
 				if (hero->tempOwner == player)
-				{
-					// keep all heroes from the winning player
 					crossoverHeroes.push_back(hero);
-				}
-			}
+
 			gs->scenarioOps->campState->setCurrentMapAsConquered(crossoverHeroes);
 		}
 	}

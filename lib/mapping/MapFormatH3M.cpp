@@ -1289,16 +1289,15 @@ CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 	setOwnerAndValidate(mapPosition, object, reader->readPlayer());
 
 	HeroTypeID htid = reader->readHero(); //hero type id
-	object->subID = htid.getNum();
 
 	if(htid.getNum() == -1)
 	{
-		object->power = reader->readUInt8();
+		object->powerRank = reader->readUInt8();
 		logGlobal->debug("Map '%s': Hero placeholder: by power at %s, owned by %s", mapName, mapPosition.toString(), object->getOwner().getStr());
 	}
 	else
 	{
-		object->power = 0;
+		object->heroType = htid;
 		logGlobal->debug("Map '%s': Hero placeholder: %s at %s, owned by %s", mapName, VLC->heroh->getById(htid)->getJsonKey(), mapPosition.toString(), object->getOwner().getStr());
 	}
 

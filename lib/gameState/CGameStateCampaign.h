@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../GameConstants.h"
+#include "../campaign/CampaignConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -26,22 +27,15 @@ struct CampaignHeroReplacement
 	ObjectInstanceID heroPlaceholderId;
 };
 
-struct CrossoverHeroesList
-{
-	std::vector<CGHeroInstance *> heroesFromPreviousScenario;
-	std::vector<CGHeroInstance *> heroesFromAnyPreviousScenarios;
-	void addHeroToBothLists(CGHeroInstance * hero);
-	void removeHeroFromBothLists(CGHeroInstance * hero);
-};
-
 class CGameStateCampaign
 {
 	CGameState * gameState;
 
-	CrossoverHeroesList getCrossoverHeroesFromPreviousScenarios() const;
+	/// Returns ID of scenario from which hero placeholders should be selected
+	std::optional<CampaignScenarioID> getHeroesSourceScenario() const;
 
 	/// returns heroes and placeholders in where heroes will be put
-	std::vector<CampaignHeroReplacement> generateCampaignHeroesToReplace(CrossoverHeroesList & crossoverHeroes);
+	std::vector<CampaignHeroReplacement> generateCampaignHeroesToReplace();
 
 	std::optional<CampaignBonus> currentBonus() const;
 

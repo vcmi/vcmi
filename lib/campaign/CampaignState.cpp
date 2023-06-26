@@ -185,70 +185,100 @@ bool CampaignScenario::isNotVoid() const
 	return !mapName.empty();
 }
 
+std::set<HeroTypeID> CampaignState::getReservedHeroes() const
+{
+	std::set<HeroTypeID> result;
+
+	for (auto const & scenarioID : allScenarios())
+	{
+		if (isConquered(scenarioID))
+			continue;
+
+		auto header = getMapHeader(scenarioID);
+
+		result.insert(header->reservedCampaignHeroes.begin(), header->reservedCampaignHeroes.end());
+	}
+
+	return result;
+}
+
 const CGHeroInstance * CampaignState::strongestHero(CampaignScenarioID scenarioId, const PlayerColor & owner) const
 {
 	std::function<bool(const JsonNode & node)> isOwned = [owner](const JsonNode & node)
 	{
-		auto * h = CampaignState::crossoverDeserialize(node);
+		auto * h = CampaignState::crossoverDeserialize(node, nullptr);
 		bool result = h->tempOwner == owner;
 		vstd::clear_pointer(h);
 		return result;
 	};
-	auto ownedHeroes = crossover.placedHeroes.at(scenarioId) | boost::adaptors::filtered(isOwned);
+	auto ownedHeroes = scenarioHeroPool.at(scenarioId) | boost::adaptors::filtered(isOwned);
 
-	auto i = vstd::maxElementByFun(ownedHeroes, [](const JsonNode & node)
+	if (ownedHeroes.empty())
+		return nullptr;
+
+	return CampaignState::crossoverDeserialize(ownedHeroes.front(), nullptr);
+}
+
+/// Returns heroes that can be instantiated as hero placeholders by power
+const std::vector<JsonNode> & CampaignState::getHeroesByPower(CampaignScenarioID scenarioId) const
+{
+	static const std::vector<JsonNode> emptyVector;
+
+	if (scenarioHeroPool.count(scenarioId))
+		return scenarioHeroPool.at(scenarioId);
+
+	return emptyVector;
+}
+
+/// Returns hero for instantiation as placeholder by type
+/// May return empty JsonNode if such hero was not found
+const JsonNode & CampaignState::getHeroByType(HeroTypeID heroID) const
+{
+	static const JsonNode emptyNode;
+
+	if (!getReservedHeroes().count(heroID))
+		return emptyNode;
+
+	if (!globalHeroPool.count(heroID))
+		return emptyNode;
+
+	return globalHeroPool.at(heroID);
+}
+
+void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroes)
+{
+	range::sort(heroes, [](const CGHeroInstance * a, const CGHeroInstance * b)
 	{
-		auto * h = CampaignState::crossoverDeserialize(node);
-		double result = h->getHeroStrength();
-		vstd::clear_pointer(h);
-		return result;
+		return a->getHeroStrength() > b->getHeroStrength();
 	});
-	return i == ownedHeroes.end() ? nullptr : CampaignState::crossoverDeserialize(*i);
-}
 
-std::vector<CGHeroInstance *> CampaignState::getLostCrossoverHeroes(CampaignScenarioID scenarioId) const
-{
-	std::vector<CGHeroInstance *> lostCrossoverHeroes;
-
-	for(auto node2 :  crossover.placedHeroes.at(scenarioId))
-	{
-		auto * hero = CampaignState::crossoverDeserialize(node2);
-		auto it = range::find_if(crossover.crossoverHeroes.at(scenarioId), [hero](JsonNode node)
-		{
-				  auto * h = CampaignState::crossoverDeserialize(node);
-				  bool result = hero->subID == h->subID;
-				  vstd::clear_pointer(h);
-				  return result;
-	});
-		if(it == crossover.crossoverHeroes.at(scenarioId).end())
-		{
-			lostCrossoverHeroes.push_back(hero);
-		}
-	}
-
-	return lostCrossoverHeroes;
-}
-
-std::vector<JsonNode> CampaignState::getCrossoverHeroes(CampaignScenarioID scenarioId) const
-{
-	return crossover.crossoverHeroes.at(scenarioId);
-}
-
-void CampaignState::setCurrentMapAsConquered(const std::vector<CGHeroInstance *> & heroes)
-{
-	crossover.crossoverHeroes[*currentMap].clear();
-	for(CGHeroInstance * hero : heroes)
-	{
-		crossover.crossoverHeroes[*currentMap].push_back(crossoverSerialize(hero));
-	}
+	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", static_cast<int>(*currentMap), getFilename(), getName());
 
 	mapsConquered.push_back(*currentMap);
+	auto reservedHeroes = getReservedHeroes();
+
+	for (auto * hero : heroes)
+	{
+		HeroTypeID heroType(hero->subID);
+		JsonNode node = CampaignState::crossoverSerialize(hero);
+
+		if (reservedHeroes.count(heroType))
+		{
+			logGlobal->info("Hero crossover: %d (%s) exported to global pool", hero->subID, hero->getNameTranslated());
+			globalHeroPool[heroType] = node;
+		}
+		else
+		{
+			logGlobal->info("Hero crossover: %d (%s) exported to scenario pool", hero->subID, hero->getNameTranslated());
+			scenarioHeroPool[*currentMap].push_back(node);
+		}
+	}
 }
 
 std::optional<CampaignBonus> CampaignState::getBonus(CampaignScenarioID which) const
 {
 	auto bonuses = scenario(which).travelOptions.bonusesToChoose;
-	assert(chosenCampaignBonuses.count(*currentMap) || bonuses.size() == 0);
+	assert(chosenCampaignBonuses.count(*currentMap) || bonuses.empty());
 
 	if(bonuses.empty())
 		return std::optional<CampaignBonus>();
@@ -316,12 +346,14 @@ JsonNode CampaignState::crossoverSerialize(CGHeroInstance * hero)
 	return node;
 }
 
-CGHeroInstance * CampaignState::crossoverDeserialize(const JsonNode & node)
+CGHeroInstance * CampaignState::crossoverDeserialize(const JsonNode & node, CMap * map)
 {
 	JsonDeserializer handler(nullptr, const_cast<JsonNode&>(node));
 	auto * hero = new CGHeroInstance();
 	hero->ID = Obj::HERO;
 	hero->serializeJsonOptions(handler);
+	if (map)
+		hero->serializeJsonArtifacts(handler, "artifacts", map);
 	return hero;
 }
 

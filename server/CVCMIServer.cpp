@@ -408,51 +408,51 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 	setThreadName("CVCMIServer::handleConnection");
 	c->enterLobbyConnectionMode();
 
-#ifndef _MSC_VER
-	try
-	{
-#endif
+//#ifndef _MSC_VER
+//	try
+//	{
+//#endif
 		while(c->connected)
 		{
 			CPack * pack;
 			
-			try
-			{
+			//try
+			//{
 				pack = c->retrievePack();
-			}
-			catch(boost::system::system_error & e)
-			{
-				logNetwork->error("Network error receiving a pack. Connection %s dies. What happened: %s", c->toString(), e.what());
-				hangingConnections.insert(c);
-				connections.erase(c);
-				if(connections.empty() || hostClient == c)
-					state = EServerState::SHUTDOWN;
-				
-				if(gh && state == EServerState::GAMEPLAY)
-				{
-					gh->handleClientDisconnection(c);
-				}
-				break;
-			}
+			//}
+			//catch(boost::system::system_error & e)
+			//{
+			//	logNetwork->error("Network error receiving a pack. Connection %s dies. What happened: %s", c->toString(), e.what());
+			//	hangingConnections.insert(c);
+			//	connections.erase(c);
+			//	if(connections.empty() || hostClient == c)
+			//		state = EServerState::SHUTDOWN;
+			//
+			//	if(gh && state == EServerState::GAMEPLAY)
+			//	{
+			//		gh->handleClientDisconnection(c);
+			//	}
+			//	break;
+			//}
 
 			CVCMIServerPackVisitor visitor(*this, this->gh);
 			pack->visit(visitor);
 		}
-#ifndef _MSC_VER
-	 }
-	catch(const std::exception & e)
-	{
-        (void)e;
-		boost::unique_lock<boost::recursive_mutex> queueLock(mx);
-		logNetwork->error("%s dies... \nWhat happened: %s", c->toString(), e.what());
-	}
-	catch(...)
-	{
-		state = EServerState::SHUTDOWN;
-		handleException();
-		throw;
-	}
-#endif
+//#ifndef _MSC_VER
+//	 }
+//	catch(const std::exception & e)
+//	{
+//        (void)e;
+//		boost::unique_lock<boost::recursive_mutex> queueLock(mx);
+//		logNetwork->error("%s dies... \nWhat happened: %s", c->toString(), e.what());
+//	}
+//	catch(...)
+//	{
+//		state = EServerState::SHUTDOWN;
+//		handleException();
+//		throw;
+//	}
+//#endif
 
 	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
 //	if(state != ENDING_AND_STARTING_GAME)

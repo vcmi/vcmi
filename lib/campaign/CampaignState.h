@@ -199,21 +199,6 @@ struct DLL_LINKAGE CampaignScenario
 	}
 };
 
-struct DLL_LINKAGE CampaignHeroes
-{
-	using ScenarioHeroesList = std::vector<JsonNode>;
-	using CampaignHeroesList = std::map<CampaignScenarioID, ScenarioHeroesList>;
-
-	CampaignHeroesList crossoverHeroes; // contains all heroes with the same state when the campaign scenario was finished
-	CampaignHeroesList placedHeroes; // contains all placed crossover heroes defined by hero placeholders when the scenario was started
-
-	template <typename Handler> void serialize(Handler &h, const int formatVersion)
-	{
-		h & crossoverHeroes;
-		h & placedHeroes;
-	}
-};
-
 /// Class that represents loaded campaign information
 class DLL_LINKAGE Campaign : public CampaignHeader
 {
@@ -238,6 +223,9 @@ public:
 class DLL_LINKAGE CampaignState : public Campaign
 {
 	friend class CampaignHandler;
+	using ScenarioPoolType = std::vector<JsonNode>;
+	using CampaignPoolType = std::map<CampaignScenarioID, ScenarioPoolType>;
+	using GlobalPoolType = std::map<HeroTypeID, JsonNode>;
 
 	/// List of all maps completed by player, in order of their completion
 	std::vector<CampaignScenarioID> mapsConquered;
@@ -246,9 +234,15 @@ class DLL_LINKAGE CampaignState : public Campaign
 	std::map<CampaignScenarioID, ui8> chosenCampaignBonuses;
 	std::optional<CampaignScenarioID> currentMap;
 
-	CampaignHeroes crossover;
+	/// Heroes from specific scenario, ordered by descending strength
+	CampaignPoolType scenarioHeroPool;
+
+	/// Pool of heroes currently reserved for usage in campaign
+	GlobalPoolType globalHeroPool;
 
 public:
+	CampaignState() = default;
+
 	/// Returns last completed scenario, if any
 	std::optional<CampaignScenarioID> lastScenario() const;
 
@@ -276,24 +270,29 @@ public:
 
 	void setCurrentMap(CampaignScenarioID which);
 	void setCurrentMapBonus(ui8 which);
-	void setCurrentMapAsConquered(const std::vector<CGHeroInstance*> & heroes);
+	void setCurrentMapAsConquered(std::vector<CGHeroInstance*> heroes);
 
+	/// Returns list of heroes that must be reserved for campaign and can only be used for hero placeholders
+	std::set<HeroTypeID> getReservedHeroes() const;
+
+	/// Returns strongest hero from specified scenario, or null if none found
 	const CGHeroInstance * strongestHero(CampaignScenarioID scenarioId, const PlayerColor & owner) const;
 
-	/// returns a list of crossover heroes which started the scenario, but didn't complete it
-	std::vector<CGHeroInstance *> getLostCrossoverHeroes(CampaignScenarioID scenarioId) const;
+	/// Returns heroes that can be instantiated as hero placeholders by power
+	const std::vector<JsonNode> & getHeroesByPower(CampaignScenarioID scenarioId) const;
 
-	std::vector<JsonNode> getCrossoverHeroes(CampaignScenarioID scenarioId) const;
+	/// Returns hero for instantiation as placeholder by type
+	/// May return empty JsonNode if such hero was not found
+	const JsonNode & getHeroByType(HeroTypeID heroID) const;
 
 	static JsonNode crossoverSerialize(CGHeroInstance * hero);
-	static CGHeroInstance * crossoverDeserialize(const JsonNode & node);
-
-	CampaignState() = default;
+	static CGHeroInstance * crossoverDeserialize(const JsonNode & node, CMap * map);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<Campaign&>(*this);
-		h & crossover;
+		h & scenarioHeroPool;
+		h & globalHeroPool;
 		h & mapPieces;
 		h & mapsConquered;
 		h & currentMap;

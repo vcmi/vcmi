@@ -65,7 +65,6 @@ std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 	auto ret = std::make_unique<Campaign>();
 	auto fileStream = CResourceHandler::get(modName)->load(resourceID);
 	std::vector<ui8> cmpgn = getFile(std::move(fileStream), true)[0];
-	JsonNode jsonCampaign((const char*)cmpgn.data(), cmpgn.size());
 
 	readCampaign(ret.get(), cmpgn, resourceID.getName(), modName, encoding);
 
@@ -436,7 +435,7 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 }
 
 template<typename Identifier>
-static void readContainer(std::set<Identifier> container, CBinaryReader & reader, int sizeBytes)
+static void readContainer(std::set<Identifier> & container, CBinaryReader & reader, int sizeBytes)
 {
 	for(int iId = 0, byte = 0; iId < sizeBytes * 8; ++iId)
 	{
