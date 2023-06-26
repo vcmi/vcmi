@@ -526,29 +526,49 @@ void CGameStateCampaign::initTowns()
 {
 	auto chosenBonus = currentBonus();
 
-	if (chosenBonus && chosenBonus->type == CampaignBonusType::BUILDING)
+	if (!chosenBonus)
+		return;
+
+	if (chosenBonus->type != CampaignBonusType::BUILDING)
+		return;
+
+	for (int g=0; g<gameState->map->towns.size(); ++g)
 	{
-		for (int g=0; g<gameState->map->towns.size(); ++g)
+		CGTownInstance * town = gameState->map->towns[g];
+
+		PlayerState * owner = gameState->getPlayerState(town->getOwner());
+		if (!owner)
+			continue;
+
+		PlayerInfo & pi = gameState->map->players[owner->color.getNum()];
+
+		if (!owner->human)
+			continue;
+
+		if (town->pos != pi.posOfMainTown)
+			continue;
+
+		BuildingID newBuilding;
+		if(gameState->scenarioOps->campState->formatVCMI())
+			newBuilding = BuildingID(chosenBonus->info1);
+		else
+			newBuilding = CBuildingHandler::campToERMU(chosenBonus->info1, town->subID, town->builtBuildings);
+
+		// Build granted building & all prerequisites - e.g. Mages Guild Lvl 3 should also give Mages Guild Lvl 1 & 2
+		while(true)
 		{
-			PlayerState * owner = gameState->getPlayerState(gameState->map->towns[g]->getOwner());
-			if (owner)
-			{
-				PlayerInfo & pi = gameState->map->players[owner->color.getNum()];
+			if (newBuilding == BuildingID::NONE)
+				break;
 
-				if (owner->human && //human-owned
-					gameState->map->towns[g]->pos == pi.posOfMainTown)
-				{
-					BuildingID buildingId;
-					if(gameState->scenarioOps->campState->formatVCMI())
-						buildingId = BuildingID(chosenBonus->info1);
-					else
-						buildingId = CBuildingHandler::campToERMU(chosenBonus->info1, gameState->map->towns[g]->subID, gameState->map->towns[g]->builtBuildings);
+			if (town->builtBuildings.count(newBuilding) != 0)
+				break;
 
-					gameState->map->towns[g]->builtBuildings.insert(buildingId);
-					break;
-				}
-			}
+			town->builtBuildings.insert(newBuilding);
+
+			auto building = town->town->buildings.at(newBuilding);
+			newBuilding = building->upgrade;
 		}
+		break;
 	}
 }
 
