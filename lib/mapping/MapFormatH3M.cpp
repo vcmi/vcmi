@@ -1665,8 +1665,6 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 		bool hasCustomExperience = reader->readBool();
 		if(hasCustomExperience)
 			object->exp = reader->readUInt32();
-		else
-			object->exp = CGHeroInstance::UNINITIALIZED_EXPERIENCE;
 	}
 	else
 	{
