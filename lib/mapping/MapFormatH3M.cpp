@@ -878,6 +878,9 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 	if(!hasArtSet)
 		return;
 
+	// Workaround - if hero has customized artifacts game should not attempt to add spellbook based on hero type
+	hero->spells.insert(SpellID::SPELLBOOK_PRESET);
+
 	if(!hero->artifactsWorn.empty() || !hero->artifactsInBackpack.empty())
 	{
 		logGlobal->warn("Hero %s at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getNameTranslated(), hero->pos.toString());
