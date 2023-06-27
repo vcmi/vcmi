@@ -248,7 +248,6 @@ bool CModManager::doEnableMod(QString mod, bool on)
 	modList->setModSettings(modSettings["activeMods"]);
 	modList->modChanged(mod);
 
-
 	JsonUtils::JsonToFile(settingsPath(), modSettings);
 
 	return true;

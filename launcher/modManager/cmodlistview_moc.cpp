@@ -603,8 +603,8 @@ void CModListView::downloadFile(QString file, QString url, QString description)
 void CModListView::downloadProgress(qint64 current, qint64 max)
 {
 	// display progress, in kilobytes
-	ui->progressBar->setValue(current / 1024);
 	ui->progressBar->setMaximum(max / 1024);
+	ui->progressBar->setValue(current / 1024);
 }
 
 void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors)
@@ -680,7 +680,7 @@ void CModListView::installFiles(QStringList files)
 					auto modjson = repodata[key].toMap().value("mod");
 					if(!modjson.isNull())
 					{
-						downloadFile(key + ".json", modjson.toString(), "mod json");
+						downloadFile(key + ".json", modjson.toString(), "repository index");
 					}
 				}
 			}
