@@ -111,8 +111,6 @@ MainWindow::MainWindow(QWidget * parent)
 		enterSetup();
 
 	ui->settingsView->setDisplayList();
-	connect(ui->modlistView, &CModListView::extraResolutionsEnabledChanged,
-		ui->settingsView, &CSettingsView::fillValidResolutions);
 	
 	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);

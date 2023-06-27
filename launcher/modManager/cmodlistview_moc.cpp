@@ -30,9 +30,6 @@ void CModListView::setupModModel()
 {
 	modModel = new CModListModel(this);
 	manager = std::make_unique<CModManager>(modModel);
-
-	connect(manager.get(), &CModManager::extraResolutionsEnabledChanged,
-		this, &CModListView::extraResolutionsEnabledChanged);
 }
 
 void CModListView::changeEvent(QEvent *event)
@@ -389,11 +386,6 @@ void CModListView::selectMod(const QModelIndex & index)
 
 		loadScreenshots();
 	}
-}
-
-bool CModListView::isExtraResolutionsModEnabled() const
-{
-	return manager->isExtraResolutionsModEnabled();
 }
 
 void CModListView::modSelected(const QModelIndex & current, const QModelIndex &)

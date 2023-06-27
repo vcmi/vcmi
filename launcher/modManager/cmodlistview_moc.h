@@ -67,8 +67,6 @@ class CModListView : public QWidget
 
 	void changeEvent(QEvent *event) override;
 signals:
-	void extraResolutionsEnabledChanged(bool enabled);
-	
 	void modsChanged();
 
 public:
@@ -80,7 +78,6 @@ public:
 	void disableModInfo();
 
 	void selectMod(const QModelIndex & index);
-	bool isExtraResolutionsModEnabled() const;
 
 	const CModList & getModList() const;
 	
