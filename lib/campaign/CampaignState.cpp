@@ -149,6 +149,21 @@ std::string CampaignHeader::getFilename() const
 	return filename;
 }
 
+std::string CampaignHeader::getModName() const
+{
+	return modName;
+}
+
+std::string CampaignHeader::getEncoding() const
+{
+	return encoding;
+}
+
+std::string CampaignHeader::getMusic() const
+{
+	return music;
+}
+
 const CampaignRegions & CampaignHeader::getRegions() const
 {
 	return campaignRegions;
@@ -304,11 +319,11 @@ std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId) const
 		scenarioId = currentMap.value();
 
 	CMapService mapService;
-	std::string scenarioName = filename.substr(0, filename.find('.'));
+	std::string scenarioName = getFilename().substr(0, getFilename().find('.'));
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(static_cast<int>(scenarioId));
 	const auto & mapContent = mapPieces.find(scenarioId)->second;
-	return mapService.loadMap(mapContent.data(), mapContent.size(), scenarioName, modName, encoding);
+	return mapService.loadMap(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding());
 }
 
 std::unique_ptr<CMapHeader> CampaignState::getMapHeader(CampaignScenarioID scenarioId) const
@@ -317,11 +332,11 @@ std::unique_ptr<CMapHeader> CampaignState::getMapHeader(CampaignScenarioID scena
 		scenarioId = currentMap.value();
 
 	CMapService mapService;
-	std::string scenarioName = filename.substr(0, filename.find('.'));
+	std::string scenarioName = getFilename().substr(0, getFilename().find('.'));
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(static_cast<int>(scenarioId));
 	const auto & mapContent = mapPieces.find(scenarioId)->second;
-	return mapService.loadMapHeader(mapContent.data(), mapContent.size(), scenarioName, modName, encoding);
+	return mapService.loadMapHeader(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding());
 }
 
 std::shared_ptr<CMapInfo> CampaignState::getMapInfo(CampaignScenarioID scenarioId) const
@@ -330,7 +345,7 @@ std::shared_ptr<CMapInfo> CampaignState::getMapInfo(CampaignScenarioID scenarioI
 		scenarioId = currentMap.value();
 
 	auto mapInfo = std::make_shared<CMapInfo>();
-	mapInfo->fileURI = filename;
+	mapInfo->fileURI = getFilename();
 	mapInfo->mapHeader = getMapHeader(scenarioId);
 	mapInfo->countPlayers();
 	return mapInfo;

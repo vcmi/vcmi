@@ -73,6 +73,13 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config)
 		campButtons.push_back(std::make_shared<CCampaignButton>(node));
 }
 
+void CCampaignScreen::activate()
+{
+	CCS->musich->playMusic("Music/MainMenu", true, false);
+
+	CWindowObject::activate();
+}
+
 std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & button)
 {
 	std::pair<std::string, std::string> help;

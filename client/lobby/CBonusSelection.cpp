@@ -112,6 +112,9 @@ CBonusSelection::CBonusSelection()
 		else if(getCampaign()->isConquered(scenarioID)) //display as striped
 			regions.push_back(std::make_shared<CRegion>(scenarioID, false, false, getCampaign()->getRegions()));
 	}
+
+	if (!getCampaign()->getMusic().empty())
+		CCS->musich->playMusic( "Music/" + getCampaign()->getMusic(), true, false);
 }
 
 void CBonusSelection::createBonusesIcons()

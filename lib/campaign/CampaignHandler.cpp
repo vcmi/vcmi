@@ -150,7 +150,7 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.name = reader["name"].String();
 	ret.description = reader["description"].String();
 	ret.difficultyChoosenByPlayer = reader["allowDifficultySelection"].Bool();
-	//skip ret.music because it's unused in vcmi
+	ret.music = reader["music"].String();
 	ret.filename = filename;
 	ret.modName = modName;
 	ret.encoding = encoding;
@@ -386,7 +386,8 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 		ret.difficultyChoosenByPlayer = reader.readInt8();
 	else
 		ret.difficultyChoosenByPlayer = false;
-	reader.readInt8(); //music - skip as unused
+
+	ret.music = prologMusicName(reader.readInt8());
 	ret.filename = filename;
 	ret.modName = modName;
 	ret.encoding = encoding;

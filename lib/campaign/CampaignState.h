@@ -71,19 +71,19 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 {
 	friend class CampaignHandler;
 
-	int numberOfScenarios = 0;
 	CampaignVersion version = CampaignVersion::NONE;
 	CampaignRegions campaignRegions;
 	std::string name;
 	std::string description;
-	bool difficultyChoosenByPlayer = false;
-
-	void loadLegacyData(ui8 campId);
-
-protected:
+	std::string music;
 	std::string filename;
 	std::string modName;
 	std::string encoding;
+
+	int numberOfScenarios = 0;
+	bool difficultyChoosenByPlayer = false;
+
+	void loadLegacyData(ui8 campId);
 
 public:
 	bool playerSelectedDifficulty() const;
@@ -92,6 +92,9 @@ public:
 	std::string getDescription() const;
 	std::string getName() const;
 	std::string getFilename() const;
+	std::string getModName() const;
+	std::string getEncoding() const;
+	std::string getMusic() const;
 
 	const CampaignRegions & getRegions() const;
 
@@ -105,6 +108,7 @@ public:
 		h & difficultyChoosenByPlayer;
 		h & filename;
 		h & modName;
+		h & music;
 		h & encoding;
 	}
 };
