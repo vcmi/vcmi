@@ -230,7 +230,7 @@ class DLL_LINKAGE CampaignState : public Campaign
 	/// List of all maps completed by player, in order of their completion
 	std::vector<CampaignScenarioID> mapsConquered;
 
-	std::map<CampaignScenarioID, std::string > mapPieces; //binary h3ms, scenario number -> map data
+	std::map<CampaignScenarioID, std::vector<uint8_t> > mapPieces; //binary h3ms, scenario number -> map data
 	std::map<CampaignScenarioID, ui8> chosenCampaignBonuses;
 	std::optional<CampaignScenarioID> currentMap;
 

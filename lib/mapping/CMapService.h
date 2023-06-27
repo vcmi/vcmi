@@ -56,7 +56,7 @@ public:
 	 * @param name indicates name of file that will be used during map header patching
 	 * @return a unique ptr to the loaded map class
 	 */
-	virtual std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const = 0;
+	virtual std::unique_ptr<CMap> loadMap(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const = 0;
 
 	/**
 	 * Loads the VCMI/H3 map header from a buffer. This method is temporarily
@@ -65,7 +65,7 @@ public:
 	 * @param name indicates name of file that will be used during map header patching
 	 * @return a unique ptr to the loaded map class
 	 */
-	virtual std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const = 0;
+	virtual std::unique_ptr<CMapHeader> loadMapHeader(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const = 0;
 
 	/**
 	 * Saves map into VCMI format with name specified
@@ -83,8 +83,8 @@ public:
 
 	std::unique_ptr<CMap> loadMap(const ResourceID & name) const override;
 	std::unique_ptr<CMapHeader> loadMapHeader(const ResourceID & name) const override;
-	std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
-	std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
+	std::unique_ptr<CMap> loadMap(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
+	std::unique_ptr<CMapHeader> loadMapHeader(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
 	void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const override;
 	
 	/**
@@ -110,7 +110,7 @@ private:
 	 * @param size the size of the buffer
 	 * @return a unique ptr to the input stream class
 	 */
-	static std::unique_ptr<CInputStream> getStreamFromMem(const ui8 * buffer, int size);
+	static std::unique_ptr<CInputStream> getStreamFromMem(const uint8_t * buffer, int size);
 
 	/**
 	 * Gets a map loader from the given stream. It performs checks to test

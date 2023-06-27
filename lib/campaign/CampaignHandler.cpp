@@ -85,30 +85,25 @@ std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string &
 	std::vector<std::vector<ui8>> files = getFile(std::move(fileStream), false);
 
 	readCampaign(ret.get(), files[0], resourceID.getName(), modName, encoding);
-	
-	//first entry is campaign header. start loop from 1
-	for(int scenarioID = 0, g = 1; g < files.size() && scenarioID < ret->numberOfScenarios; ++g)
-	{
-		auto id = static_cast<CampaignScenarioID>(scenarioID);
 
-		while(!ret->scenarios[id].isNotVoid()) //skip void scenarios
-			scenarioID++;
+	//first entry is campaign header. start loop from 1
+	for(int scenarioIndex = 0, fileIndex = 1; fileIndex < files.size() && scenarioIndex < ret->numberOfScenarios; scenarioIndex++)
+	{
+		auto scenarioID = static_cast<CampaignScenarioID>(scenarioIndex);
+
+		if(!ret->scenarios[scenarioID].isNotVoid()) //skip void scenarios
+			continue;
 
 		std::string scenarioName = resourceID.getName();
 		boost::to_lower(scenarioName);
-		scenarioName += ':' + std::to_string(g - 1);
+		scenarioName += ':' + std::to_string(fileIndex - 1);
 
 		//set map piece appropriately, convert vector to string
-		ret->mapPieces[id].assign(reinterpret_cast<const char*>(files[g].data()), files[g].size());
-		CMapService mapService;
-		auto hdr = mapService.loadMapHeader(
-			reinterpret_cast<const ui8 *>(ret->mapPieces[id].c_str()),
-			static_cast<int>(ret->mapPieces[id].size()),
-			scenarioName,
-			modName,
-			encoding);
-		ret->scenarios[id].scenarioName = hdr->name;
-		scenarioID++;
+		ret->mapPieces[scenarioID] = files[fileIndex];
+
+		auto hdr = ret->getMapHeader(scenarioID);
+		ret->scenarios[scenarioID].scenarioName = hdr->name;
+		fileIndex++;
 	}
 
 	return ret;
@@ -585,6 +580,7 @@ std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputS
 		std::vector<ui8> block(stream.getSize());
 		stream.read(block.data(), block.size());
 		ret.push_back(block);
+		ret.back().shrink_to_fit();
 	}
 	while (!headerOnly && stream.getNextBlock());
 

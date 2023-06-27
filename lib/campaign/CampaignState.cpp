@@ -307,9 +307,8 @@ std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId) const
 	std::string scenarioName = filename.substr(0, filename.find('.'));
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(static_cast<int>(scenarioId));
-	const std::string & mapContent = mapPieces.find(scenarioId)->second;
-	const auto * buffer = reinterpret_cast<const ui8 *>(mapContent.data());
-	return mapService.loadMap(buffer, static_cast<int>(mapContent.size()), scenarioName, modName, encoding);
+	const auto & mapContent = mapPieces.find(scenarioId)->second;
+	return mapService.loadMap(mapContent.data(), mapContent.size(), scenarioName, modName, encoding);
 }
 
 std::unique_ptr<CMapHeader> CampaignState::getMapHeader(CampaignScenarioID scenarioId) const
@@ -321,9 +320,8 @@ std::unique_ptr<CMapHeader> CampaignState::getMapHeader(CampaignScenarioID scena
 	std::string scenarioName = filename.substr(0, filename.find('.'));
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(static_cast<int>(scenarioId));
-	const std::string & mapContent = mapPieces.find(scenarioId)->second;
-	const auto * buffer = reinterpret_cast<const ui8 *>(mapContent.data());
-	return mapService.loadMapHeader(buffer, static_cast<int>(mapContent.size()), scenarioName, modName, encoding);
+	const auto & mapContent = mapPieces.find(scenarioId)->second;
+	return mapService.loadMapHeader(mapContent.data(), mapContent.size(), scenarioName, modName, encoding);
 }
 
 std::shared_ptr<CMapInfo> CampaignState::getMapInfo(CampaignScenarioID scenarioId) const
