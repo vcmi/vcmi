@@ -177,18 +177,18 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native,
 	return ret;
 }
 
-int CGameState::pickNextHeroType(const PlayerColor & owner)
+HeroTypeID CGameState::pickNextHeroType(const PlayerColor & owner)
 {
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
 	if(ps.hero >= 0 && !isUsedHero(HeroTypeID(ps.hero))) //we haven't used selected hero
 	{
-		return ps.hero;
+		return HeroTypeID(ps.hero);
 	}
 
 	return pickUnusedHeroTypeRandomly(owner);
 }
 
-int CGameState::pickUnusedHeroTypeRandomly(const PlayerColor & owner)
+HeroTypeID CGameState::pickUnusedHeroTypeRandomly(const PlayerColor & owner)
 {
 	//list of available heroes for this faction and others
 	std::vector<HeroTypeID> factionHeroes;
@@ -206,23 +206,23 @@ int CGameState::pickUnusedHeroTypeRandomly(const PlayerColor & owner)
 	// select random hero native to "our" faction
 	if(!factionHeroes.empty())
 	{
-		return RandomGeneratorUtil::nextItem(factionHeroes, getRandomGenerator())->getNum();
+		return *RandomGeneratorUtil::nextItem(factionHeroes, getRandomGenerator());
 	}
 
 	logGlobal->warn("Cannot find free hero of appropriate faction for player %s - trying to get first available...", owner.getStr());
 	if(!otherHeroes.empty())
 	{
-		return RandomGeneratorUtil::nextItem(otherHeroes, getRandomGenerator())->getNum();
+		return *RandomGeneratorUtil::nextItem(otherHeroes, getRandomGenerator());
 	}
 
 	logGlobal->error("No free allowed heroes!");
 	auto notAllowedHeroesButStillBetterThanCrash = getUnusedAllowedHeroes(true);
 	if(!notAllowedHeroesButStillBetterThanCrash.empty())
-		return notAllowedHeroesButStillBetterThanCrash.begin()->getNum();
+		return *notAllowedHeroesButStillBetterThanCrash.begin();
 
 	logGlobal->error("No free heroes at all!");
 	assert(0); //current code can't handle this situation
-	return -1; // no available heroes at all
+	return HeroTypeID::NONE; // no available heroes at all
 }
 
 std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)

@@ -82,7 +82,7 @@ CBonusSelection::CBonusSelection()
 
 	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->mi->getName());
 	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
-	mapDescription = std::make_shared<CTextBox>("", Rect(480, 280, 286, 117), 1);
+	mapDescription = std::make_shared<CTextBox>("", Rect(480, 278, 292, 108), 1);
 
 	labelChooseBonus = std::make_shared<CLabel>(511, 432, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[71]);
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, CSH, _1));

@@ -329,6 +329,8 @@ class HeroTypeID : public BaseForID<HeroTypeID, si32>
 	///json serialization helpers
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
+
+	DLL_LINKAGE static const HeroTypeID NONE;
 };
 
 class SlotID : public BaseForID<SlotID, si32>
