@@ -351,6 +351,7 @@ void CBonusSelection::updateAfterStateChange()
 	if(!CSH->mi)
 		return;
 	iconsMapSizes->setFrame(CSH->mi->getMapSizeIconId());
+	mapName->setText(CSH->mi->getName());
 	mapDescription->setText(CSH->mi->getDescription());
 	for(size_t i = 0; i < difficultyIcons.size(); i++)
 	{
