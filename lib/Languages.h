@@ -46,6 +46,9 @@ struct Options
 	/// encoding that is used by H3 for this language
 	std::string encoding;
 
+	/// primary IETF language tag
+	std::string tagIETF;
+
 	/// VCMI is capable of detecting H3 install in this language
 	bool hasDetection = false;
 
@@ -57,19 +60,19 @@ inline const auto & getLanguageList()
 {
 	static const std::array<Options, 12> languages
 	{ {
-		{ "chinese",   "Chinese",   "简体中文",       "GBK",    true,  true }, // Note: actually Simplified Chinese
-		{ "english",   "English",   "English",    "CP1252", true,  true },
-		{ "french",    "French",    "Français",   "CP1252", true,  true },
-		{ "german",    "German",    "Deutsch",    "CP1252", true,  true },
-		{ "korean",    "Korean",    "한국어",        "CP949",  false, false },
-		{ "polish",    "Polish",    "Polski",     "CP1250", true,  true },
-		{ "russian",   "Russian",   "Русский",    "CP1251", true,  true },
-		{ "spanish",   "Spanish",   "Español",    "CP1252", false, true },
-		{ "ukrainian", "Ukrainian", "Українська", "CP1251", true,  true },
+		{ "chinese",   "Chinese",   "简体中文",       "GBK",    "zh", true,  true }, // Note: actually Simplified Chinese
+		{ "english",   "English",   "English",    "CP1252", "en", true,  true },
+		{ "french",    "French",    "Français",   "CP1252", "fr", true,  true },
+		{ "german",    "German",    "Deutsch",    "CP1252", "de", true,  true },
+		{ "korean",    "Korean",    "한국어",        "CP949",  "ko", false, false },
+		{ "polish",    "Polish",    "Polski",     "CP1250", "pl", true,  true },
+		{ "russian",   "Russian",   "Русский",    "CP1251", "ru", true,  true },
+		{ "spanish",   "Spanish",   "Español",    "CP1252", "es", false, true },
+		{ "ukrainian", "Ukrainian", "Українська", "CP1251", "uk", true,  true },
 
-		{ "other_cp1250", "Other (East European)",   "", "CP1251", false, false },
-		{ "other_cp1251", "Other (Cyrillic Script)", "", "CP1250", false, false },
-		{ "other_cp1252", "Other (West European)",   "", "CP1252", false, false }
+		{ "other_cp1250", "Other (East European)",   "", "CP1251", "", false, false },
+		{ "other_cp1251", "Other (Cyrillic Script)", "", "CP1250", "", false, false },
+		{ "other_cp1252", "Other (West European)",   "", "CP1252", "", false, false }
 	} };
 	static_assert(languages.size() == static_cast<size_t>(ELanguages::COUNT), "Languages array is missing a value!");
 

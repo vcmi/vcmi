@@ -53,6 +53,7 @@ public:
 	void updateTranslation();
 	void computeSidePanelSizes();
 	
+	void detectPreferredLanguage();
 	void enterSetup();
 	void exitSetup();
 	void switchToModsTab();

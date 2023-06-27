@@ -15,6 +15,7 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/VCMIDirs.h"
+#include "../lib/Languages.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 
@@ -74,6 +75,12 @@ MainWindow::MainWindow(QWidget * parent)
 	: QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	load(); // load FS before UI
+
+	bool setupCompleted = settings["launcher"]["setupCompleted"].Bool();
+
+	if (!setupCompleted)
+		detectPreferredLanguage();
+
 	updateTranslation(); // load translation
 
 	ui->setupUi(this);
@@ -103,7 +110,6 @@ MainWindow::MainWindow(QWidget * parent)
 	computeSidePanelSizes();
 
 	bool h3DataFound = CResourceHandler::get()->existsResource(ResourceID("DATA/GENRLTXT.TXT"));
-	bool setupCompleted = settings["launcher"]["setupCompleted"].Bool();
 
 	if (h3DataFound && setupCompleted)
 		ui->tabListWidget->setCurrentIndex(TabRows::MODS);
@@ -114,6 +120,30 @@ MainWindow::MainWindow(QWidget * parent)
 	
 	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);
+}
+
+void MainWindow::detectPreferredLanguage()
+{
+	auto preferredLanguages = QLocale::system().uiLanguages();
+
+	std::string selectedLanguage;
+
+	for (auto const & userLang : preferredLanguages)
+	{
+		logGlobal->info("Preferred language: %s", userLang.toStdString());
+
+		for (auto const & vcmiLang : Languages::getLanguageList())
+			if (vcmiLang.tagIETF == userLang.toStdString())
+				selectedLanguage = vcmiLang.identifier;
+	}
+
+	logGlobal->info("Selected language: %s", selectedLanguage);
+
+	if (!selectedLanguage.empty())
+	{
+		Settings node = settings.write["general"]["language"];
+		node->String() = selectedLanguage;
+	}
 }
 
 void MainWindow::enterSetup()
