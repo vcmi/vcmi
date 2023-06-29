@@ -354,62 +354,62 @@
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="199"/>
         <source>Interface Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Масштабування інтерфейсу</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="243"/>
         <source>Neutral AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>Нейтральний ШІ в боях</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="263"/>
         <source>Enemy AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>Ворожий ШІ в боях</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="358"/>
         <source>Additional repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Додатковий репозиторій</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="365"/>
         <source>Game data directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Тека даних гри</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="473"/>
         <source>Adventure Map Allies</source>
-        <translation type="unfinished"></translation>
+        <translation>Союзники на мапі пригод</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="517"/>
         <source>Adventure Map Enemies</source>
-        <translation type="unfinished"></translation>
+        <translation>Вороги на мапі пригод</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="537"/>
         <source>Windowed</source>
-        <translation type="unfinished"></translation>
+        <translation>У вікні</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="542"/>
         <source>Borderless fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Повноекранне вікно</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="547"/>
         <source>Exclusive fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Повноекранний (ексклюзивно)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="562"/>
         <source>Friendly AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>Дружній ШІ в боях</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="586"/>
         <source>Default repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Стандартний репозиторій</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="653"/>
@@ -442,7 +442,13 @@ Windowed - game will run inside a window that covers part of your screen
 Borderless Windowed Mode - game will run in a window that covers entirely of your screen, using same resolution as your screen.
 
 Fullscreen Exclusive Mode - game will cover entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished"></translation>
+        <translation>Виберіть режим відображення гри
+
+Віконний - гра запускатиметься у вікні, що займає частину екрана
+
+Безмежний віконний режим - гра запускається у вікні, яке займає весь екран, з тією ж роздільною здатністю, що і ваш екран.
+
+Повноекранний ексклюзивний режим - гра займатиме весь екран і використовуватиме вибрану роздільну здатність.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="573"/>
@@ -753,7 +759,7 @@ Heroes® of Might and Magic® III HD наразі не підтримуєтьс�
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Czech</source>
-        <translation type="unfinished"></translation>
+        <translation>Чеська</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
@@ -778,7 +784,7 @@ Heroes® of Might and Magic® III HD наразі не підтримуєтьс�
     <message>
         <location filename="../languages.cpp" line="28"/>
         <source>Italian</source>
-        <translation type="unfinished"></translation>
+        <translation>Італійська</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
