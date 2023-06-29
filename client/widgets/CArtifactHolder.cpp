@@ -290,7 +290,7 @@ bool ArtifactUtilsClient::askToDisassemble(const CGHeroInstance * hero, const Ar
 	const auto art = hero->getArt(slot);
 	assert(art);
 
-	if(art->canBeDisassembled())
+	if(art->isCombined())
 	{
 		if(ArtifactUtils::isSlotBackpack(slot) && !ArtifactUtils::isBackpackFreeSlots(hero, art->artType->constituents->size() - 1))
 			return false;

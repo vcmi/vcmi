@@ -120,10 +120,10 @@ DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
 {
 	std::vector<const CArtifact*> arts;
 	const auto * art = aid.toArtifact();
-	if(art->canBeDisassembled())
+	if(art->isCombined())
 		return arts;
 
-	for(const auto artifact : art->constituentOf)
+	for(const auto artifact : art->partOf)
 	{
 		assert(artifact->constituents);
 		bool possible = true;
@@ -169,13 +169,13 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(CArtifa
 	assert(art);
 
 	auto * artInst = new CArtifactInstance(art);
-	if(art->canBeDisassembled())
+	if(art->isCombined())
 	{
 		assert(art->constituents);
 		for(const auto & part : *art->constituents)
 			artInst->addArtInstAsPart(ArtifactUtils::createNewArtifactInstance(part), ArtifactPosition::PRE_FIRST);
 	}
-	if(dynamic_cast<CGrowingArtifact*>(art))
+	if(art->isGrowing())
 	{
 		auto bonus = std::make_shared<Bonus>();
 		bonus->type = BonusType::LEVEL_COUNTER;
@@ -209,7 +209,7 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const 
 		art = new CArtifactInstance(); // random, empty
 	}
 	map->addNewArtifactInstance(art);
-	if(art->artType && art->canBeDisassembled())
+	if(art->artType && art->isCombined())
 	{
 		for(auto & part : art->partsInfo)
 		{

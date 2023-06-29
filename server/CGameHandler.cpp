@@ -4102,7 +4102,7 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 	}
 	else
 	{
-		if(!destArtifact->canBeDisassembled())
+		if(!destArtifact->isCombined())
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble is not a combined artifact!");
 
 		if(ArtifactUtils::isSlotBackpack(artifactSlot)

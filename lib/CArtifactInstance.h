@@ -37,6 +37,11 @@ public:
 	void addArtInstAsPart(CArtifactInstance * art, const ArtifactPosition & slot);
 	// Checks if supposed part inst is part of this combined art inst
 	bool isPart(const CArtifactInstance * supposedPart) const;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & partsInfo;
+	}
 };
 
 class DLL_LINKAGE CScrollArtifactInstance
@@ -72,7 +77,7 @@ public:
 	ArtifactID getTypeId() const;
 
 	bool canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved = false) const;
-	bool canBeDisassembled() const;
+	bool isCombined() const;
 	void putAt(const ArtifactLocation & al);
 	void removeFrom(const ArtifactLocation & al);
 	void move(const ArtifactLocation & src, const ArtifactLocation & dst);
@@ -81,9 +86,9 @@ public:
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
+		h & static_cast<CCombinedArtifactInstance&>(*this);
 		h & artType;
 		h & id;
-		h & partsInfo;
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 };

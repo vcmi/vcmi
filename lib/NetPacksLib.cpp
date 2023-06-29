@@ -1528,7 +1528,7 @@ void NewArtifact::applyGs(CGameState *gs)
 	assert(art->artType);
 
 	art->setType(art->artType);
-	if(art->canBeDisassembled())
+	if(art->isCombined())
 	{
 		assert(art->artType->constituents);
 		for(const auto & part : *art->artType->constituents)
@@ -1827,7 +1827,7 @@ void EraseArtifact::applyGs(CGameState *gs)
 		for(auto& p : aset->artifactsWorn)
 		{
 			auto art = p.second.artifact;
-			if(art->canBeDisassembled() && art->isPart(slot->artifact))
+			if(art->isCombined() && art->isPart(slot->artifact))
 			{
 				dis.al.slot = aset->getArtPos(art);
 				#ifndef NDEBUG
@@ -2225,6 +2225,10 @@ void BattleResultAccepted::applyGs(CGameState * gs) const
 				{
 					art.second.artifact->growingUp();
 				}
+			}
+			for(auto & art : h->artifactsWorn)
+			{
+				art.second.artifact->growingUp();
 			}
 		}
 	}

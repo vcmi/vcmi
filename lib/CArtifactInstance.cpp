@@ -58,15 +58,16 @@ void CGrowingArtifactInstance::growingUp()
 {
 	auto artInst = static_cast<CArtifactInstance*>(this);
 	
-	if(auto growingArtType = dynamic_cast<const CGrowingArtifact*>(static_cast<const CArtifact*>(artInst->artType)))
+	if(artInst->artType->isGrowing())
 	{
+
 		auto bonus = std::make_shared<Bonus>();
 		bonus->type = BonusType::LEVEL_COUNTER;
 		bonus->val = 1;
 		bonus->duration = BonusDuration::COMMANDER_KILLED;
 		artInst->accumulateBonus(bonus);
 
-		for(const auto & bonus : growingArtType->bonusesPerLevel)
+		for(const auto & bonus : artInst->artType->bonusesPerLevel)
 		{
 			// Every n levels
 			if(artInst->valOfBonuses(BonusType::LEVEL_COUNTER) % bonus.first == 0)
@@ -74,7 +75,7 @@ void CGrowingArtifactInstance::growingUp()
 				artInst->accumulateBonus(std::make_shared<Bonus>(bonus.second));
 			}
 		}
-		for(const auto & bonus : growingArtType->thresholdBonuses)
+		for(const auto & bonus : artInst->artType->thresholdBonuses)
 		{
 			// At n level
 			if(artInst->valOfBonuses(BonusType::LEVEL_COUNTER) == bonus.first)
@@ -117,7 +118,7 @@ std::string CArtifactInstance::nodeName() const
 std::string CArtifactInstance::getDescription() const
 {
 	std::string text = artType->getDescriptionTranslated();
-	if(artType->getId() == ArtifactID::SPELL_SCROLL)
+	if(artType->isScroll())
 		ArtifactUtils::insertScrrollSpellName(text, getScrollSpellID());
 	return text;
 }
@@ -132,9 +133,9 @@ bool CArtifactInstance::canBePutAt(const ArtifactLocation & al, bool assumeDestR
 	return artType->canBePutAt(al.getHolderArtSet(), al.slot, assumeDestRemoved);
 }
 
-bool CArtifactInstance::canBeDisassembled() const
+bool CArtifactInstance::isCombined() const
 {
-	return artType->canBeDisassembled();
+	return artType->isCombined();
 }
 
 void CArtifactInstance::putAt(const ArtifactLocation & al)

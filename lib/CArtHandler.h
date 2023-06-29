@@ -42,7 +42,51 @@ namespace ArtBearer
 	};
 }
 
-class DLL_LINKAGE CArtifact : public Artifact, public CBonusSystemNode //container for artifacts
+class DLL_LINKAGE CCombinedArtifact
+{
+protected:
+	CCombinedArtifact() = default;
+public:
+	std::unique_ptr<std::vector<CArtifact*>> constituents; // Artifacts IDs a combined artifact consists of, or nullptr.
+	std::vector<CArtifact*> partOf; // Reverse map of constituents - combined arts that include this art
+
+	bool isCombined() const;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & constituents;
+		h & partOf;
+	}
+};
+
+class DLL_LINKAGE CScrollArtifact
+{
+protected:
+	CScrollArtifact() = default;
+public:
+	bool isScroll() const;
+};
+
+class DLL_LINKAGE CGrowingArtifact
+{
+protected:
+	CGrowingArtifact() = default;
+public:
+	std::vector <std::pair<ui16, Bonus>> bonusesPerLevel; // Bonus given each n levels
+	std::vector <std::pair<ui16, Bonus>> thresholdBonuses; // After certain level they will be added once
+
+	bool isGrowing() const;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & bonusesPerLevel;
+		h & thresholdBonuses;
+	}
+};
+
+// Container for artifacts. Not for instances.
+class DLL_LINKAGE CArtifact
+	: public Artifact, public CBonusSystemNode, public CCombinedArtifact, public CScrollArtifact, public CGrowingArtifact
 {
 	ArtifactID id;
 
@@ -58,8 +102,6 @@ public:
 	si32 iconIndex = ArtifactID::NONE;
 	ui32 price = 0;
 	std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
-	std::unique_ptr<std::vector<CArtifact *> > constituents; // Artifacts IDs a combined artifact consists of, or nullptr.
-	std::vector<CArtifact *> constituentOf; // Reverse map of constituents - combined arts that include this art
 	EartClass aClass = ART_SPECIAL;
 	CreatureID warMachine;
 
@@ -87,23 +129,22 @@ public:
 	std::string nodeName() const override;
 	void addNewBonus(const std::shared_ptr<Bonus>& b) override;
 
-	virtual bool canBeDisassembled() const;
 	virtual bool canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot = ArtifactPosition::FIRST_AVAILABLE,
 		bool assumeDestRemoved = false) const;
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
+		h & static_cast<CCombinedArtifact&>(*this);
+		h & static_cast<CGrowingArtifact&>(*this);
 		h & image;
 		h & large;
 		h & advMapDef;
 		h & iconIndex;
 		h & price;
 		h & possibleSlots;
-		h & constituents;
-		h & constituentOf;
 		h & aClass;
 		h & id;
 		h & modScope;
@@ -115,20 +156,6 @@ public:
 	~CArtifact();
 
 	friend class CArtHandler;
-};
-
-class DLL_LINKAGE CGrowingArtifact : public CArtifact //for example commander artifacts getting bonuses after battle
-{
-public:
-	std::vector <std::pair <ui16, Bonus> > bonusesPerLevel; //bonus given each n levels
-	std::vector <std::pair <ui16, Bonus> > thresholdBonuses; //after certain level they will be added once
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CArtifact&>(*this);
-		h & bonusesPerLevel;
-		h & thresholdBonuses;
-	}
 };
 
 class DLL_LINKAGE CArtHandler : public CHandlerBase<ArtifactID, Artifact, CArtifact, ArtifactService>
@@ -186,7 +213,6 @@ private:
 	void loadClass(CArtifact * art, const JsonNode & node) const;
 	void loadType(CArtifact * art, const JsonNode & node) const;
 	void loadComponents(CArtifact * art, const JsonNode & node);
-	void loadGrowingArt(CGrowingArtifact * art, const JsonNode & node) const;
 
 	void erasePickedArt(const ArtifactID & id);
 };

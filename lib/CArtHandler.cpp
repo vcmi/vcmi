@@ -46,6 +46,21 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+bool CCombinedArtifact::isCombined() const
+{
+	return !(constituents == nullptr);
+}
+
+bool CScrollArtifact::isScroll() const
+{
+	return static_cast<const CArtifact*>(this)->getId() == ArtifactID::SPELL_SCROLL;
+}
+
+bool CGrowingArtifact::isGrowing() const
+{
+	return !bonusesPerLevel.empty() || !thresholdBonuses.empty();
+}
+
 int32_t CArtifact::getIndex() const
 {
 	return id.toEnum();
@@ -134,11 +149,6 @@ bool CArtifact::isTradable() const
 	}
 }
 
-bool CArtifact::canBeDisassembled() const
-{
-	return !(constituents == nullptr);
-}
-
 bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, bool assumeDestRemoved) const
 {
 	auto simpleArtCanBePutAt = [this](const CArtifactSet * artSet, ArtifactPosition slot, bool assumeDestRemoved) -> bool
@@ -158,7 +168,7 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 
 	auto artCanBePutAt = [this, simpleArtCanBePutAt](const CArtifactSet * artSet, ArtifactPosition slot, bool assumeDestRemoved) -> bool
 	{
-		if(canBeDisassembled())
+		if(isCombined())
 		{
 			if(!simpleArtCanBePutAt(artSet, slot, assumeDestRemoved))
 				return false;
@@ -350,17 +360,19 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
 
-	CArtifact * art = nullptr;
-
-	if(!VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS) || node["growing"].isNull())
+	CArtifact * art = new CArtifact();
+	if(!node["growing"].isNull())
 	{
-		art = new CArtifact();
-	}
-	else
-	{
-		auto * growing = new CGrowingArtifact();
-		loadGrowingArt(growing, node);
-		art = growing;
+		for(auto bonus : node["growing"]["bonusesPerLevel"].Vector())
+		{
+			art->bonusesPerLevel.emplace_back(static_cast<ui16>(bonus["level"].Float()), Bonus());
+			JsonUtils::parseBonus(bonus["bonus"], &art->bonusesPerLevel.back().second);
+		}
+		for(auto bonus : node["growing"]["thresholdBonuses"].Vector())
+		{
+			art->thresholdBonuses.emplace_back(static_cast<ui16>(bonus["level"].Float()), Bonus());
+			JsonUtils::parseBonus(bonus["bonus"], &art->thresholdBonuses.back().second);
+		}
 	}
 	art->id = ArtifactID(index);
 	art->identifier = identifier;
@@ -553,23 +565,9 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 				// when this code is called both combinational art as well as component are loaded
 				// so it is safe to access any of them
 				art->constituents->push_back(objects[id]);
-				objects[id]->constituentOf.push_back(art);
+				objects[id]->partOf.push_back(art);
 			});
 		}
-	}
-}
-
-void CArtHandler::loadGrowingArt(CGrowingArtifact * art, const JsonNode & node) const
-{
-	for (auto b : node["growing"]["bonusesPerLevel"].Vector())
-	{
-		art->bonusesPerLevel.emplace_back(static_cast<ui16>(b["level"].Float()), Bonus());
-		JsonUtils::parseBonus(b["bonus"], &art->bonusesPerLevel.back().second);
-	}
-	for (auto b : node["growing"]["thresholdBonuses"].Vector())
-	{
-		art->thresholdBonuses.emplace_back(static_cast<ui16>(b["level"].Float()), Bonus());
-		JsonUtils::parseBonus(b["bonus"], &art->thresholdBonuses.back().second);
 	}
 }
 
@@ -893,7 +891,7 @@ unsigned CArtifactSet::getArtPosCount(const ArtifactID & aid, bool onlyWorn, boo
 void CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
 {
 	setNewArtSlot(slot, art, false);
-	if(art->artType->canBeDisassembled() && ArtifactUtils::isSlotEquipment(slot))
+	if(art->artType->isCombined() && ArtifactUtils::isSlotEquipment(slot))
 	{
 		const CArtifactInstance * mainPart = nullptr;
 		for(const auto & part : art->partsInfo)
@@ -923,7 +921,7 @@ void CArtifactSet::removeArtifact(ArtifactPosition slot)
 	auto art = getArt(slot, false);
 	if(art)
 	{
-		if(art->canBeDisassembled())
+		if(art->isCombined())
 		{
 			for(auto & part : art->partsInfo)
 			{
@@ -940,7 +938,7 @@ std::pair<const CArtifactInstance *, const CArtifactInstance *> CArtifactSet::se
 	for(const auto & slot : artifactsInBackpack)
 	{
 		auto art = slot.artifact;
-		if(art->canBeDisassembled())
+		if(art->isCombined())
 		{
 			for(auto& ci : art->partsInfo)
 			{
