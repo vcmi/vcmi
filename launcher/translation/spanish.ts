@@ -116,204 +116,204 @@
 <context>
     <name>CModListView</name>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="58"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="43"/>
         <source>Filter</source>
         <translation>Filtrar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="81"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="66"/>
         <source>All mods</source>
         <translation>Todos los mods</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="86"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="71"/>
         <source>Downloadable</source>
         <translation>Descargables</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="91"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="76"/>
         <source>Installed</source>
         <translation>Instalado</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="96"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="81"/>
         <source>Updatable</source>
         <translation>Actualizables</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="101"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="86"/>
         <source>Active</source>
         <translation>Activo</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="106"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="91"/>
         <source>Inactive</source>
         <translation>Inactivo</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="120"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="105"/>
         <source>Download &amp;&amp; refresh repositories</source>
         <translation>Descargar y actualizar repositorios</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="163"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="160"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="307"/>
         <source>Description</source>
         <translation>Descripción</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="208"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="206"/>
         <source>Changelog</source>
         <translation>Registro de cambios</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="230"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="228"/>
         <source>Screenshots</source>
         <translation>Capturas de pantalla</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="389"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="386"/>
         <source>Uninstall</source>
         <translation>Desinstalar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="424"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="421"/>
         <source>Enable</source>
         <translation>Activar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="456"/>
         <source>Disable</source>
         <translation>Desactivar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="494"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="491"/>
         <source>Update</source>
         <translation>Actualizar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="529"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="526"/>
         <source>Install</source>
         <translation>Instalar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="327"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="324"/>
         <source> %p% (%v KB out of %m KB)</source>
         <translation> %p% (%v KB de %m KB)</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="340"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="337"/>
         <source>Abort</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="250"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="242"/>
         <source>Mod name</source>
         <translation>Nombre del mod</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="243"/>
         <source>Installed version</source>
         <translation>Versión instalada</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="252"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="244"/>
         <source>Latest version</source>
         <translation>Última versión</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="255"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="247"/>
         <source>Download size</source>
         <translation>Tamaño de descarga</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="256"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="248"/>
         <source>Authors</source>
         <translation>Autores</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="259"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
         <source>License</source>
         <translation>Licencia</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="262"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="254"/>
         <source>Contact</source>
         <translation>Contacto</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="271"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="263"/>
         <source>Compatibility</source>
         <translation>Compatibilidad</translation>
     </message>
     <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="265"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="273"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="281"/>
         <source>Required VCMI version</source>
         <translation>Versión de VCMI requerida</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="279"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="271"/>
         <source>Supported VCMI version</source>
         <translation>Versión de VCMI compatible</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="284"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="276"/>
         <source>Supported VCMI versions</source>
         <translation>Versiones de VCMI compatibles</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="303"/>
         <source>Languages</source>
         <translation>Idiomas</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="305"/>
         <source>Required mods</source>
         <translation>Mods requeridos</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="314"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="306"/>
         <source>Conflicting mods</source>
         <translation>Mods conflictivos</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="319"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
         <source>This mod can not be installed or enabled because the following dependencies are not present</source>
         <translation>Este mod no se puede instalar o habilitar porque no están presentes las siguientes dependencias</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="312"/>
         <source>This mod can not be enabled because the following mods are incompatible with it</source>
         <translation>Este mod no se puede habilitar porque los siguientes mods son incompatibles con él</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
         <source>This mod cannot be disabled because it is required by the following mods</source>
         <translation>No se puede desactivar este mod porque es necesario para ejecutar los siguientes mods</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="314"/>
         <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
         <translation>No se puede desinstalar o actualizar este mod porque es necesario para ejecutar los siguientes mods</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>Este es un submod y no se puede instalar o desinstalar por separado del mod principal</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="330"/>
         <source>Notes</source>
         <translation>Notas</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="840"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="827"/>
         <source>Screenshot %1</source>
         <translation>Captura de pantalla %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="245"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="237"/>
         <source>Mod is incompatible</source>
         <translation>El mod es incompatible</translation>
     </message>
@@ -321,236 +321,234 @@
 <context>
     <name>CSettingsView</name>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="327"/>
-        <source>Change</source>
-        <translation>Cambiar</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="222"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="287"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="473"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="386"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="433"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="555"/>
         <source>Open</source>
         <translation>Abrir</translation>
     </message>
     <message>
-            <location filename="../settingsView/csettingsview_moc.ui" line="590"/>
-            <source>Adventure Map AI</source>
-            <translation>IA del Mapa de Aventuras</translation>
+        <location filename="../settingsView/csettingsview_moc.ui" line="178"/>
+        <source>User data directory</source>
+        <translation>Directorio de datos del usuario</translation>
     </message>
     <message>
-            <location filename="../settingsView/csettingsview_moc.ui" line="334"/>
-            <source>User data directory</source>
-            <translation>Directorio de datos del usuario</translation>
-    </message>
-    <message>
-            <location filename="../settingsView/csettingsview_moc.ui" line="256"/>
-            <location filename="../settingsView/csettingsview_moc.ui" line="298"/>
-            <location filename="../settingsView/csettingsview_moc.ui" line="440"/>
-            <location filename="../settingsView/csettingsview_moc.ui" line="487"/>
-            <source>Off</source>
-            <translation>Desactivado</translation>
+        <location filename="../settingsView/csettingsview_moc.ui" line="210"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="640"/>
+        <source>Off</source>
+        <translation>Desactivado</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="79"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="576"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="171"/>
         <source>Artificial Intelligence</source>
         <translation>Inteligencia Artificial</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="89"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="415"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="602"/>
         <source>Mod Repositories</source>
         <translation>Repositorios de Mods</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="368"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="199"/>
+        <source>Interface Scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="243"/>
+        <source>Neutral AI in battles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="263"/>
+        <source>Enemy AI in battles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="358"/>
+        <source>Additional repository</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="365"/>
+        <source>Game data directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="473"/>
+        <source>Adventure Map Allies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="517"/>
+        <source>Adventure Map Enemies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="537"/>
+        <source>Windowed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="542"/>
+        <source>Borderless fullscreen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="547"/>
+        <source>Exclusive fullscreen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="562"/>
+        <source>Friendly AI in battles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="586"/>
+        <source>Default repository</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="653"/>
         <source>Update now</source>
         <translation>Actualizar ahora</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="261"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="303"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="445"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="492"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="215"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="489"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="645"/>
         <source>On</source>
         <translation>Encendido</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="215"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="379"/>
         <source>Cursor</source>
         <translation>Cursor</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="334"/>
-        <source>User data directory</source>
-        <translation>Directorio de datos de usuario</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="590"/>
-        <source>Adventure Map AI</source>
-        <translation>Mapa de Aventuras IA</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="597"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="185"/>
         <source>Heroes III Translation</source>
         <translation>Traducción de Heroes III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="256"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="298"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="440"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="487"/>
-        <source>Off</source>
-        <translation>Apagado</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="261"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="303"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="445"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="492"/>
-        <source>On</source>
-        <translation>Encendido</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="158"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="223"/>
         <source>Fullscreen</source>
         <translation>Pantalla completa</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="172"/>
-        <source>Neutral AI</source>
-        <translation>IA Neutral</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="266"/>
-        <source>Real</source>
-        <translation>Realista</translation>
-    </message>
-    <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="69"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="354"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="236"/>
         <source>General</source>
         <translation>General</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="144"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="151"/>
         <source>VCMI Language</source>
         <translation>Idioma de VCMI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="422"/>
-        <source>Friendly AI</source>
-        <translation>IA amistosa</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="165"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="277"/>
         <source>Resolution</source>
         <translation>Resolución</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="179"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="270"/>
         <source>Autosave</source>
         <translation>Autoguardado</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="368"/>
-        <source>Update now</source>
-        <translation>Actualiza ahora</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="375"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="609"/>
         <source>Display index</source>
         <translation>Mostrar índice</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="151"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="335"/>
         <source>Network port</source>
         <translation>Puerto de red</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="84"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="317"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="130"/>
         <source>Data Directories</source>
         <translation>Directorios de datos</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="74"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="192"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="446"/>
         <source>Video</source>
         <translation>Vídeo</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="466"/>
-        <source>Extra data directory</source>
-        <translation>Directorio de datos extra</translation>
+        <location filename="../settingsView/csettingsview_moc.ui" line="524"/>
+        <source>Select display mode for game
+
+Windowed - game will run inside a window that covers part of your screen
+
+Borderless Windowed Mode - game will run in a window that covers entirely of your screen, using same resolution as your screen.
+
+Fullscreen Exclusive Mode - game will cover entirety of your screen and will use selected resolution.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="552"/>
-        <source>Default</source>
-        <translation>Defecto</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="557"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="573"/>
         <source>Hardware</source>
         <translation>Hardware</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="562"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="578"/>
         <source>Software</source>
         <translation>Software</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="583"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="158"/>
         <source>Log files directory</source>
         <translation>Directorio de archivos de registro</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="361"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="372"/>
         <source>Show intro</source>
         <translation>Mostrar introducción</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="341"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="192"/>
         <source>Build version</source>
         <translation>Versión</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="429"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="393"/>
         <source>Check on startup</source>
         <translation>Comprovar al inicio</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="500"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="144"/>
         <source>Heroes III Data Language</source>
         <translation>Idioma de los datos de Heroes III.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="534"/>
-        <source>Enemy AI</source>
-        <translation>IA enemiga</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="385"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="428"/>
         <source>Active</source>
         <translation>Activado</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="390"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="433"/>
         <source>Disabled</source>
         <translation>Desactivado</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="391"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="434"/>
         <source>Enable</source>
         <translation>Activar</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="396"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="439"/>
         <source>Not Installed</source>
         <translation>No Instalado</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="397"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="440"/>
         <source>Install</source>
         <translation>Instalar</translation>
     </message>
@@ -573,73 +571,68 @@
         <translation>Preajustes de los mods</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="111"/>
-        <source>Step %v out of %m</source>
-        <translation>Paso %v de %m</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="175"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="156"/>
         <source>VCMI on Github</source>
         <translation>VCMI en Github</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="182"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="163"/>
         <source>VCMI on Slack</source>
         <translation>VCMI en Slack</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="189"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="170"/>
         <source>VCMI on Discord</source>
         <translation>VCMI en Discord</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="239"/>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="554"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="220"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="535"/>
         <source>Next</source>
         <translation>Siguiente</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="307"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="288"/>
         <source>Open help in browser</source>
         <translation>Abrir la ayuda en el navegador</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="320"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="301"/>
         <source>Search again</source>
         <translation>Buscar de nuevo</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="403"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="384"/>
         <source>Heroes III data files</source>
         <translation>ficheros de datos de Heroes III</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="432"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="413"/>
         <source>Copy existing data</source>
         <translation>Copiar datos existentes</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="445"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="426"/>
         <source>Your Heroes III data files have been successfully found.</source>
         <translation>Se han encontrado con éxito tus archivos de datos de Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="475"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="456"/>
         <source>Your Heroes III language has been successfully detected.</source>
         <translation>Se ha detectado con éxito el idioma de tu Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="146"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="127"/>
         <source>Select your language</source>
         <translation>Selecciona el Idioma</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="196"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="177"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
         <translation>¿Tienes alguna pregunta? ¿Encontraste algún error? ¿Quieres ayudar? ¡Únete a nosotros!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="205"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="186"/>
         <source>Thank you for installing VCMI!
 
 Before you can start playing, there are a few more steps that need to be completed.
@@ -656,187 +649,95 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
 ¡Heroes® of Might and Magic® III HD actualmente no es compatible!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="276"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="257"/>
         <source>Locate Heroes III data files</source>
         <translation>Localizar los archivos de datos de Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="365"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="346"/>
         <source>If you don&apos;t have a copy of Heroes III installed, you can use our automatic installation tool &apos;vcmibuilder&apos;, which only requires the GoG.com Heroes III installer. Please visit our wiki for detailed instructions.</source>
-        <translation>Si no tienes una copia de Heroes III instalada, puedes usar nuestra herramienta de instalación automática 'vcmibuilder', que solo requiere el instalador de GoG.com de Heroes III. Por favor, visita nuestra wiki para obtener instrucciones detalladas.</translation>
+        <translation>Si no tienes una copia de Heroes III instalada, puedes usar nuestra herramienta de instalación automática &apos;vcmibuilder&apos;, que solo requiere el instalador de GoG.com de Heroes III. Por favor, visita nuestra wiki para obtener instrucciones detalladas.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="381"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="362"/>
         <source>To run VCMI, Heroes III data files need to be present in one of the specified locations. Please copy the Heroes III data to one of these directories.</source>
         <translation>Para ejecutar VCMI, los archivos de datos de Heroes III deben estar presentes en una de las ubicaciones especificadas. Por favor, copia los datos de Heroes III en uno de estos directorios.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="416"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="397"/>
         <source>Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically.</source>
         <translation>Alternativamente, puedes proporcionar el directorio donde se instaló Heroes III y VCMI copiará automáticamente los datos existentes.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="445"/>
-        <source>Your Heroes III data files have been successfully found.</source>
-        <translation>Se han encontrado tus archivos de datos de Heroes III con éxito.</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="485"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="466"/>
         <source>The automatic detection of the Heroes III language has failed. Please select the language of your Heroes III manually</source>
         <translation>La detección automática del idioma de Heroes III ha fallado. Por favor, selecciona manualmente el idioma de tu Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="485"/>
         <source>Heroes III language</source>
         <translation>Idioma de Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="547"/>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="863"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="528"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="844"/>
         <source>Back</source>
         <translation>Volver</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="585"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="566"/>
         <source>Install VCMI Mod Preset</source>
         <translation>Instalar ajuste preestablecido de mod VCMI</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="635"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="616"/>
         <source>Horn of the Abyss</source>
         <translation>Horn of the Abyss</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="657"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="638"/>
         <source>Heroes III Translation</source>
         <translation>Traducción de Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="721"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
         <source>High Definition Support</source>
         <translation>Soporte para resoluciones en Alta Definición</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="743"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="724"/>
         <source>In The Wake of Gods</source>
         <translation>In The Wake of Gods</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="759"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="740"/>
         <source>Install a translation of Heroes III in your preferred language</source>
         <translation>Instalar una traducción de Heroes III en tu idioma preferido.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="775"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="756"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
         <translation>Opcionalmente, puedes instalar mods adicionales ya sea ahora o en cualquier momento posterior, utilizando el lanzador de VCMI.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="791"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
         <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
         <translation>Instalar soporte para jugar Heroes III en resoluciones superiores a 800x600</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="807"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
         <translation>Instalar la versión compatible de &quot;Horn of the Abyss&quot;, una expansión de Heroes III hecha por fans y adaptada por el equipo de VCMI.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="823"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="804"/>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
         <translation>Instalar la versión compatible de &quot;In The Wake of Gods&quot;, una expansión de Heroes III hecha por fans.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="870"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="851"/>
         <source>Finish</source>
         <translation>Finalizar</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="111"/>
-        <source>Step %v out of %m</source>
-        <translation>Paso %v de %m</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="175"/>
-        <source>VCMI on Github</source>
-        <translation>VCMI en Github</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="182"/>
-        <source>VCMI on Slack</source>
-        <translation>VCMI en Slack</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="189"/>
-        <source>VCMI on Discord</source>
-        <translation>VCMI en Discord</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="239"/>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="554"/>
-        <source>Next</source>
-        <translation>Siguiente</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="307"/>
-        <source>Open help in browser</source>
-        <translation>Abrir ayuda en el navegador</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="320"/>
-        <source>Search again</source>
-        <translation>Buscar de nuevo</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="403"/>
-        <source>Heroes III data files</source>
-        <translation>Archivos de datos de Heroes III</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="432"/>
-        <source>Copy existing data</source>
-        <translation>Copiar datos existentes</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="475"/>
-        <source>Your Heroes III language has been successfully detected.</source>
-        <translation>Su idioma de Heroes III se ha detectado correctamente.</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
-        <source>Heroes III language</source>
-        <translation>Idioma de Heroes III</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="547"/>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="863"/>
-        <source>Back</source>
-        <translation>Atrás</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="585"/>
-        <source>Install VCMI Mod Preset</source>
-        <translation>Instalar preset de mod VCMI</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="635"/>
-        <source>Horn of the Abyss</source>
-        <translation>El Cuerno del Abismo</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="657"/>
-        <source>Heroes III Translation</source>
-        <translation>Traducción de Heroes III</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="721"/>
-        <source>High Definition Support</source>
-        <translation>Resolución de alta definición</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="743"/>
-        <source>In The Wake of Gods</source>
-        <translation>In The Wake of Gods</translation>
     </message>
 </context>
 <context>
@@ -856,16 +757,21 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
+        <source>Chinese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="25"/>
         <source>English</source>
         <translation>English (Inglés)</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="25"/>
+        <location filename="../languages.cpp" line="26"/>
         <source>French</source>
         <translation>French (Francés)</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="26"/>
+        <location filename="../languages.cpp" line="27"/>
         <source>German</source>
         <translation>German (Alemán)</translation>
     </message>
@@ -910,7 +816,7 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
         <translation></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="56"/>
+        <location filename="../languages.cpp" line="58"/>
         <source>Auto (%1)</source>
         <translation>Automático (%1)</translation>
     </message>

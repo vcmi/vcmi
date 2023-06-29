@@ -112,7 +112,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-345</y>
         <width>610</width>
         <height>786</height>
        </rect>
@@ -240,7 +240,7 @@
        <item row="19" column="0">
         <widget class="QLabel" name="labelNeutralAI">
          <property name="text">
-          <string>Neutral AI</string>
+          <string>Neutral AI in battles</string>
          </property>
         </widget>
        </item>
@@ -260,7 +260,7 @@
        <item row="21" column="0">
         <widget class="QLabel" name="labelEnemyAI">
          <property name="text">
-          <string>Enemy AI</string>
+          <string>Enemy AI in battles</string>
          </property>
         </widget>
        </item>
@@ -559,7 +559,7 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
        <item row="20" column="0">
         <widget class="QLabel" name="labelFriendlyAI">
          <property name="text">
-          <string>Friendly AI</string>
+          <string>Friendly AI in battles</string>
          </property>
         </widget>
        </item>

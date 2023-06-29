@@ -117,204 +117,204 @@
 <context>
     <name>CModListView</name>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="58"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="43"/>
         <source>Filter</source>
         <translation>过滤器</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="81"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="66"/>
         <source>All mods</source>
         <translation>所有模组</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="86"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="71"/>
         <source>Downloadable</source>
         <translation>可下载</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="91"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="76"/>
         <source>Installed</source>
         <translation>已安装</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="96"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="81"/>
         <source>Updatable</source>
         <translation>可更新</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="101"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="86"/>
         <source>Active</source>
         <translation>激活</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="106"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="91"/>
         <source>Inactive</source>
         <translation>未激活</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="120"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="105"/>
         <source>Download &amp;&amp; refresh repositories</source>
         <translation>下载并刷新仓库</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="163"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="160"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="307"/>
         <source>Description</source>
         <translation>详细介绍</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="208"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="206"/>
         <source>Changelog</source>
         <translation>修改日志</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="230"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="228"/>
         <source>Screenshots</source>
         <translation>截图</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="389"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="386"/>
         <source>Uninstall</source>
         <translation>卸载</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="424"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="421"/>
         <source>Enable</source>
         <translation>激活</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="456"/>
         <source>Disable</source>
         <translation>禁用</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="494"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="491"/>
         <source>Update</source>
         <translation>更新</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="529"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="526"/>
         <source>Install</source>
         <translation>安装</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="327"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="324"/>
         <source> %p% (%v KB out of %m KB)</source>
         <translation> %p% (%v KB 完成，总共 %m KB)</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="340"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="337"/>
         <source>Abort</source>
         <translation>终止</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="250"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="242"/>
         <source>Mod name</source>
         <translation>MOD名称</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="243"/>
         <source>Installed version</source>
         <translation>已安装的版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="252"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="244"/>
         <source>Latest version</source>
         <translation>最新版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="255"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="247"/>
         <source>Download size</source>
         <translation>下载大小</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="256"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="248"/>
         <source>Authors</source>
         <translation>作者</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="259"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="251"/>
         <source>License</source>
         <translation>授权许可</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="262"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="254"/>
         <source>Contact</source>
         <translation>联系方式</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="271"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="263"/>
         <source>Compatibility</source>
         <translation>兼容性</translation>
     </message>
     <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="265"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="273"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="281"/>
         <source>Required VCMI version</source>
         <translation>需要VCMI版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="279"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="271"/>
         <source>Supported VCMI version</source>
         <translation>支持的VCMI版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="284"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="276"/>
         <source>Supported VCMI versions</source>
         <translation>支持的VCMI版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="303"/>
         <source>Languages</source>
         <translation>语言</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="305"/>
         <source>Required mods</source>
         <translation>前置MODs</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="314"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="306"/>
         <source>Conflicting mods</source>
         <translation>冲突的MODs</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="319"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
         <source>This mod can not be installed or enabled because the following dependencies are not present</source>
         <translation>这个模组无法被安装或者激活，因为下列依赖项未满足</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="312"/>
         <source>This mod can not be enabled because the following mods are incompatible with it</source>
         <translation>这个模组无法被激活，因为下列模组与其不兼容</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
         <source>This mod cannot be disabled because it is required by the following mods</source>
         <translation>这个模组无法被禁用，因为它被下列模组所依赖</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="314"/>
         <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
         <translation>这个模组无法被卸载或者更新，因为它被下列模组所依赖</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>这是一个附属模组它无法在所属模组外被直接被安装或者卸载</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="330"/>
         <source>Notes</source>
         <translation>笔记注释</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="840"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="827"/>
         <source>Screenshot %1</source>
         <translation>截图 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="245"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="237"/>
         <source>Mod is incompatible</source>
         <translation>MOD不兼容</translation>
     </message>
@@ -322,207 +322,235 @@
 <context>
     <name>CSettingsView</name>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="327"/>
-        <source>Change</source>
-        <translation>更改</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="222"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="287"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="473"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="386"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="433"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="555"/>
         <source>Open</source>
         <translation>打开</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="590"/>
-        <source>Adventure Map AI</source>
-        <translation>冒险地图AI</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="334"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="178"/>
         <source>User data directory</source>
         <translation>用户数据目录</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="256"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="298"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="440"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="487"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="210"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="640"/>
         <source>Off</source>
         <translation>关闭</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="79"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="576"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="171"/>
         <source>Artificial Intelligence</source>
         <translation>人工智能</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="89"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="415"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="602"/>
         <source>Mod Repositories</source>
         <translation>模组仓库</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="368"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="199"/>
+        <source>Interface Scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="243"/>
+        <source>Neutral AI in battles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="263"/>
+        <source>Enemy AI in battles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="358"/>
+        <source>Additional repository</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="365"/>
+        <source>Game data directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="473"/>
+        <source>Adventure Map Allies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="517"/>
+        <source>Adventure Map Enemies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="537"/>
+        <source>Windowed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="542"/>
+        <source>Borderless fullscreen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="547"/>
+        <source>Exclusive fullscreen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="562"/>
+        <source>Friendly AI in battles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="586"/>
+        <source>Default repository</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="653"/>
         <source>Update now</source>
         <translation>立即更新</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="261"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="303"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="445"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="492"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="215"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="489"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="645"/>
         <source>On</source>
         <translation>开启</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="215"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="379"/>
         <source>Cursor</source>
         <translation>鼠标指针</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="500"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="144"/>
         <source>Heroes III Data Language</source>
         <translation>英雄无敌3数据语言</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="552"/>
-        <source>Default</source>
-        <translation>默认</translation>
+        <location filename="../settingsView/csettingsview_moc.ui" line="524"/>
+        <source>Select display mode for game
+
+Windowed - game will run inside a window that covers part of your screen
+
+Borderless Windowed Mode - game will run in a window that covers entirely of your screen, using same resolution as your screen.
+
+Fullscreen Exclusive Mode - game will cover entirety of your screen and will use selected resolution.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="557"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="573"/>
         <source>Hardware</source>
         <translation>硬件</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="562"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="578"/>
         <source>Software</source>
         <translation>软件</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="597"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="185"/>
         <source>Heroes III Translation</source>
         <translatorcomment>发布版本里找不到这个项，不太清楚意义</translatorcomment>
         <translation>英雄无敌3翻译</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="429"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="393"/>
         <source>Check on startup</source>
         <translation>启动时检查更新</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="158"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="223"/>
         <source>Fullscreen</source>
         <translation>全屏</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="172"/>
-        <source>Neutral AI</source>
-        <translation>中立AI</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="266"/>
-        <source>Real</source>
-        <translatorcomment>该模式下将以非窗口化全屏模式运行</translatorcomment>
-        <translation>真全屏</translation>
-    </message>
-    <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="69"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="354"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="236"/>
         <source>General</source>
         <translation>通用设置</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="144"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="151"/>
         <source>VCMI Language</source>
         <translation>VCMI语言</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="422"/>
-        <source>Friendly AI</source>
-        <translation>友军AI</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="165"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="277"/>
         <source>Resolution</source>
         <translation>分辨率</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="179"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="270"/>
         <source>Autosave</source>
         <translation>自动存档</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="375"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="609"/>
         <source>Display index</source>
         <translation>显示器序号</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="151"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="335"/>
         <source>Network port</source>
         <translation>网络端口</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="84"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="317"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="130"/>
         <source>Data Directories</source>
         <translation>数据目录</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="74"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="192"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="446"/>
         <source>Video</source>
         <translation>视频设置</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="466"/>
-        <source>Extra data directory</source>
-        <translation>额外数据目录</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="583"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="158"/>
         <source>Log files directory</source>
         <translation>日志文件目录</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="361"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="372"/>
         <source>Show intro</source>
         <translation>显示开场动画</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="341"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="192"/>
         <source>Build version</source>
         <translation>版本号</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="534"/>
-        <source>Enemy AI</source>
-        <translation>敌军AI</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="385"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="428"/>
         <source>Active</source>
         <translation>激活</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="390"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="433"/>
         <source>Disabled</source>
         <translation>禁用</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="391"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="434"/>
         <source>Enable</source>
         <translation>启用</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="396"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="439"/>
         <source>Not Installed</source>
         <translation>未安装</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="397"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="440"/>
         <source>Install</source>
         <translation>安装</translation>
     </message>
@@ -545,17 +573,17 @@
         <translation>预设模组</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="146"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="127"/>
         <source>Select your language</source>
         <translation>选择您的语言</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="196"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="177"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
         <translation>有疑问？找到BUG？需要帮助？加入我们！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="205"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="186"/>
         <source>Thank you for installing VCMI!
 
 Before you can start playing, there are a few more steps that need to be completed.
@@ -572,149 +600,144 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
 目前不支持《英雄无敌3高清版》！</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="276"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="257"/>
         <source>Locate Heroes III data files</source>
         <translation>定位英雄无敌3数据文件</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="365"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="346"/>
         <source>If you don&apos;t have a copy of Heroes III installed, you can use our automatic installation tool &apos;vcmibuilder&apos;, which only requires the GoG.com Heroes III installer. Please visit our wiki for detailed instructions.</source>
         <translation>如果你还没有安装《英雄无敌3》的游戏，你可以使用我们的自动安装工具“vcmibuilder”，它只需要GoG.com的《英雄无敌3》安装程序。请访问我们的维基了解详细说明。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="381"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="362"/>
         <source>To run VCMI, Heroes III data files need to be present in one of the specified locations. Please copy the Heroes III data to one of these directories.</source>
         <translation>要运行VCMI，英雄无敌3的数据文件需要存在于指定位置之一。请将英雄III的数据复制到这些目录之一。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="416"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="397"/>
         <source>Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically.</source>
         <translation>除此之外，您也可以提供安装英雄无敌3数据的目录，VCMI将自动复制现有数据。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="445"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="426"/>
         <source>Your Heroes III data files have been successfully found.</source>
         <translation>成功的找到英雄无敌3数据文件。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="485"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="466"/>
         <source>The automatic detection of the Heroes III language has failed. Please select the language of your Heroes III manually</source>
         <translation>自动检测英雄无敌3语言失败。请手动选择英雄无敌3语言</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="759"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="740"/>
         <source>Install a translation of Heroes III in your preferred language</source>
         <translation>安装与您英雄无敌3语言相符的翻译</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="775"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="756"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
         <translation>你可以现在选择安装额外模组或是以后使用VCMI启动器安装模组</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="791"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
         <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
         <translation>安装英雄无敌3的800x600以上分辨率支持</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="807"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
         <translation>安装兼容版本的“深渊的号角”，一个由爱好者制作的英雄无敌3扩展包，由VCMI团队移植</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="823"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="804"/>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
         <translation>安装兼容版本的“追随神迹”，一个由爱好者制作的英雄无敌3扩展包</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="870"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="851"/>
         <source>Finish</source>
         <translation>完成</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="111"/>
-        <source>Step %v out of %m</source>
-        <translation>步骤%v/%m</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="175"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="156"/>
         <source>VCMI on Github</source>
         <translation>访问VCMI的GUTHUB</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="182"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="163"/>
         <source>VCMI on Slack</source>
         <translation>访问VCMI的Slack</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="189"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="170"/>
         <source>VCMI on Discord</source>
         <translation>访问VCMI的Discord</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="239"/>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="554"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="220"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="535"/>
         <source>Next</source>
         <translation>下一步</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="307"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="288"/>
         <source>Open help in browser</source>
         <translation>在浏览器中打开帮助</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="320"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="301"/>
         <source>Search again</source>
         <translation>再次搜索</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="403"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="384"/>
         <source>Heroes III data files</source>
         <translation>英雄无敌3数据文件</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="432"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="413"/>
         <source>Copy existing data</source>
         <translation>复制已存在的数据</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="475"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="456"/>
         <source>Your Heroes III language has been successfully detected.</source>
         <translation>已经成功检测英雄无敌3语言。</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="485"/>
         <source>Heroes III language</source>
         <translation>英雄无敌3语言</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="547"/>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="863"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="528"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="844"/>
         <source>Back</source>
         <translation>返回</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="585"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="566"/>
         <source>Install VCMI Mod Preset</source>
         <translation>安装VCMI预设MOD</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="635"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="616"/>
         <source>Horn of the Abyss</source>
         <translation>深渊的号角</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="657"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="638"/>
         <source>Heroes III Translation</source>
         <translation>英雄无敌3翻译</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="721"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
         <source>High Definition Support</source>
         <translation>高分辨率支持</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="743"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="724"/>
         <source>In The Wake of Gods</source>
         <translation>追随神迹</translation>
     </message>
@@ -731,66 +754,76 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <name>Language</name>
     <message>
         <location filename="../languages.cpp" line="23"/>
+        <source>Czech</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="24"/>
         <source>Chinese</source>
         <translation>简体中文</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="24"/>
+        <location filename="../languages.cpp" line="25"/>
         <source>English</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="25"/>
+        <location filename="../languages.cpp" line="26"/>
         <source>French</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="26"/>
+        <location filename="../languages.cpp" line="27"/>
         <source>German</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="27"/>
+        <location filename="../languages.cpp" line="28"/>
+        <source>Italian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="29"/>
         <source>Korean</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="28"/>
+        <location filename="../languages.cpp" line="30"/>
         <source>Polish</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="29"/>
+        <location filename="../languages.cpp" line="31"/>
         <source>Russian</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="30"/>
+        <location filename="../languages.cpp" line="32"/>
         <source>Spanish</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="31"/>
+        <location filename="../languages.cpp" line="33"/>
         <source>Ukrainian</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="32"/>
+        <location filename="../languages.cpp" line="34"/>
         <source>Other (East European)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="33"/>
+        <location filename="../languages.cpp" line="35"/>
         <source>Other (Cyrillic Script)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="34"/>
+        <location filename="../languages.cpp" line="36"/>
         <source>Other (West European)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="56"/>
+        <location filename="../languages.cpp" line="58"/>
         <source>Auto (%1)</source>
         <translation>自动 (%1)</translation>
     </message>
