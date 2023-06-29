@@ -79,22 +79,25 @@ void CSettingsView::loadSettings()
 	else
 		ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
 #endif
+	ui->spinBoxInterfaceScaling->setValue(settings["video"]["resolution"]["scaling"].Float());
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
 	ui->comboBoxNeutralAI->setCurrentText(QString::fromStdString(settings["server"]["neutralAI"].String()));
 	ui->comboBoxEnemyAI->setCurrentText(QString::fromStdString(settings["server"]["enemyAI"].String()));
-	ui->comboBoxPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["playerAI"].String()));
+	ui->comboBoxEnemyPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["playerAI"].String()));
 
 	ui->spinBoxNetworkPort->setValue(settings["server"]["port"].Integer());
 
 	ui->comboBoxAutoCheck->setCurrentIndex(settings["launcher"]["autoCheckRepositories"].Bool());
 
-	JsonNode urls = settings["launcher"]["repositoryURL"];
-	ui->plainTextEditRepos->blockSignals(true); // Do not report loading as change of data
-	ui->plainTextEditRepos->clear();
-	for(auto entry : urls.Vector())
-		ui->plainTextEditRepos->appendPlainText(QString::fromUtf8(entry.String().c_str()));
-	ui->plainTextEditRepos->blockSignals(false);
+	ui->lineEditRepositoryDefault->setText(QString::fromStdString(settings["launcher"]["defaultRepositoryURL"].String()));
+	ui->lineEditRepositoryExtra->setText(QString::fromStdString(settings["launcher"]["extraRepositoryURL"].String()));
+
+	ui->lineEditRepositoryDefault->setEnabled(settings["launcher"]["defaultRepositoryEnabled"].Bool());
+	ui->lineEditRepositoryExtra->setEnabled(settings["launcher"]["extraRepositoryEnabled"].Bool());
+
+	ui->checkBoxRepositoryDefault->setChecked(settings["launcher"]["defaultRepositoryEnabled"].Bool());
+	ui->checkBoxRepositoryExtra->setChecked(settings["launcher"]["extraRepositoryEnabled"].Bool());
 
 	ui->lineEditUserDataDir->setText(pathToQString(VCMIDirs::get().userDataPath()));
 	ui->lineEditGameDir->setText(pathToQString(VCMIDirs::get().binaryPath()));
@@ -254,24 +257,6 @@ void CSettingsView::on_spinBoxNetworkPort_valueChanged(int arg1)
 	node->Float() = arg1;
 }
 
-void CSettingsView::on_plainTextEditRepos_textChanged()
-{
-	Settings node = settings.write["launcher"]["repositoryURL"];
-
-	QStringList list = ui->plainTextEditRepos->toPlainText().split('\n');
-
-	node->Vector().clear();
-	for(QString line : list)
-	{
-		if(line.trimmed().size() > 0)
-		{
-			JsonNode entry;
-			entry.String() = line.trimmed().toUtf8().data();
-			node->Vector().push_back(entry);
-		}
-	}
-}
-
 void CSettingsView::on_openTempDir_clicked()
 {
 	QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(ui->lineEditTempDir->text()).absoluteFilePath()));
@@ -291,11 +276,6 @@ void CSettingsView::on_comboBoxShowIntro_currentIndexChanged(int index)
 {
 	Settings node = settings.write["video"]["showIntro"];
 	node->Bool() = index;
-}
-
-void CSettingsView::on_changeGameDataDir_clicked()
-{
-
 }
 
 void CSettingsView::on_comboBoxAutoSave_currentIndexChanged(int index)
@@ -441,3 +421,31 @@ void CSettingsView::on_comboBoxLanguageBase_currentIndexChanged(int index)
 	QString selectedLanguage = ui->comboBoxLanguageBase->itemData(index).toString();
 	node->String() = selectedLanguage.toStdString();
 }
+
+void CSettingsView::on_checkBoxRepositoryDefault_stateChanged(int arg1)
+{
+	Settings node = settings.write["launcher"]["defaultRepositoryEnabled"];
+	node->Bool() = arg1;
+	ui->lineEditRepositoryDefault->setEnabled(arg1);
+}
+
+void CSettingsView::on_checkBoxRepositoryExtra_stateChanged(int arg1)
+{
+	Settings node = settings.write["launcher"]["extraRepositoryEnabled"];
+	node->Bool() = arg1;
+	ui->lineEditRepositoryExtra->setEnabled(arg1);
+}
+
+void CSettingsView::on_lineEditRepositoryExtra_textEdited(const QString &arg1)
+{
+	Settings node = settings.write["launcher"]["extraRepositoryURL"];
+	node->String() = arg1.toStdString();
+}
+
+
+void CSettingsView::on_spinBoxInterfaceScaling_valueChanged(int arg1)
+{
+	Settings node = settings.write["video"]["resolution"]["scaling"];
+	node->Float() = arg1;
+}
+

@@ -35,11 +35,6 @@ class CModListView : public QWidget
 	CModFilterModel * filterModel;
 	CDownloadManager * dlManager;
 
-	SettingsListener settingsListener;
-	bool repositoriesChanged;
-
-	void showEvent(QShowEvent * event) override;
-
 	void setupModModel();
 	void setupFilterModel();
 	void setupModsView();

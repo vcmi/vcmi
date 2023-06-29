@@ -40,12 +40,10 @@ private slots:
 	void on_comboBoxNeutralAI_currentTextChanged(const QString & arg1);
 	void on_comboBoxEnemyAI_currentTextChanged(const QString & arg1);
 	void on_spinBoxNetworkPort_valueChanged(int arg1);
-	void on_plainTextEditRepos_textChanged();
 	void on_openTempDir_clicked();
 	void on_openUserDataDir_clicked();
 	void on_openGameDataDir_clicked();
 	void on_comboBoxShowIntro_currentIndexChanged(int index);
-	void on_changeGameDataDir_clicked();
 	void on_comboBoxAutoCheck_currentIndexChanged(int index);
 	void on_comboBoxDisplayIndex_currentIndexChanged(int index);
 	void on_comboBoxAutoSave_currentIndexChanged(int index);
@@ -56,6 +54,14 @@ private slots:
 	void on_pushButtonTranslation_clicked();
 
 	void on_comboBoxLanguageBase_currentIndexChanged(int index);
+
+	void on_checkBoxRepositoryDefault_stateChanged(int arg1);
+
+	void on_checkBoxRepositoryExtra_stateChanged(int arg1);
+
+	void on_lineEditRepositoryExtra_textEdited(const QString &arg1);
+
+	void on_spinBoxInterfaceScaling_valueChanged(int arg1);
 
 private:
 	Ui::CSettingsView * ui;

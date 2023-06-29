@@ -270,7 +270,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "server", "port", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI", "reconnect", "uuid", "names" ],
+			"required" : [ "server", "port", "localInformation", "playerAI", "alliedAI", "friendlyAI", "neutralAI", "enemyAI", "reconnect", "uuid", "names" ],
 			"properties" : {
 				"server" : {
 					"type" : "string",
@@ -287,6 +287,10 @@
 				"playerAI" : {
 					"type" : "string",
 					"default" : "Nullkiller"
+				},
+				"alliedAI" : {
+					"type" : "string",
+					"default" : "VCAI"
 				},
 				"friendlyAI" : {
 					"type" : "string",
@@ -397,16 +401,37 @@
 			"type" : "object",
 			"default" : {},
 			"additionalProperties" : false,
-			"required" : [ "setupCompleted", "repositoryURL", "enableInstalledMods", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl", "lobbyUrl", "lobbyPort", "lobbyUsername", "connectionTimeout" ],
+			"required" : [ 
+				"setupCompleted", 
+				"defaultRepositoryEnabled", 
+				"defaultRepositoryURL", 
+				"extraRepositoryURL", 
+				"extraRepositoryEnabled", 
+				"enableInstalledMods", 
+				"autoCheckRepositories", 
+				"updateOnStartup", 
+				"updateConfigUrl", 
+				"lobbyUrl", 
+				"lobbyPort", 
+				"lobbyUsername", 
+				"connectionTimeout"
+			],
 			"properties" : {
-				"repositoryURL" : {
-					"type" : "array",
-					"default" : [
-						"https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.3.json"
-					],
-					"items" : {
-						"type" : "string"
-					}
+				"defaultRepositoryEnabled" : {
+					"type" : "boolean",
+					"default" : true,
+				},
+				"defaultRepositoryURL" : {
+					"type" : "string",
+					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.3.json",
+				},
+				"extraRepositoryEnabled" : {
+					"type" : "boolean",
+					"default" : false,
+				},
+				"extraRepositoryURL" : {
+					"type" : "string",
+					"default" : "",
 				},
 				"setupCompleted" : {
 					"type" : "boolean",
