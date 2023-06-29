@@ -325,7 +325,7 @@ void CTownTooltip::init(const InfoAboutTown & town)
 
 	if(town.details)
 	{
-		fort = std::make_shared<CAnimImage>("ITMTLS", town.details->hallLevel, 0, 67, 31);
+		hall = std::make_shared<CAnimImage>("ITMTLS", town.details->hallLevel, 0, 67, 31);
 
 		if(town.details->goldIncome)
 		{
