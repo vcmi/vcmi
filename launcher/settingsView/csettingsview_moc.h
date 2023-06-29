@@ -67,4 +67,6 @@ private:
 	Ui::CSettingsView * ui;
 
 	void fillValidResolutionsForScreen(int screenIndex);
+	void fillValidScalingRange();
+	QSize getPreferredRenderingResolution();
 };

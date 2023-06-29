@@ -79,6 +79,8 @@ void CSettingsView::loadSettings()
 	else
 		ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
 #endif
+	fillValidScalingRange();
+
 	ui->spinBoxInterfaceScaling->setValue(settings["video"]["resolution"]["scaling"].Float());
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
@@ -151,6 +153,39 @@ static QVector<QSize> findAvailableResolutions(int displayIndex)
 	return result;
 }
 
+QSize CSettingsView::getPreferredRenderingResolution()
+{
+#ifndef VCMI_MOBILE
+	bool fullscreen = settings["video"]["fullscreen"].Bool();
+	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
+
+	if (!fullscreen || realFullscreen)
+	{
+		int resX = settings["video"]["resolution"]["width"].Integer();
+		int resY = settings["video"]["resolution"]["height"].Integer();
+		return QSize(resX, resY);
+	}
+#endif
+	return QApplication::primaryScreen()->geometry().size();
+}
+
+void CSettingsView::fillValidScalingRange()
+{
+	//FIXME: this code is copy of ScreenHandler::getSupportedScalingRange
+
+	// H3 resolution, any resolution smaller than that is not correctly supported
+	static const QSize minResolution = {800, 600};
+	// arbitrary limit on *downscaling*. Allow some downscaling, if requested by user. Should be generally limited to 100+ for all but few devices
+	static const double minimalScaling = 50;
+
+	QSize renderResolution = getPreferredRenderingResolution();
+	double maximalScalingWidth = 100.0 * renderResolution.width() / minResolution.width();
+	double maximalScalingHeight = 100.0 * renderResolution.height() / minResolution.height();
+	double maximalScaling = std::min(maximalScalingWidth, maximalScalingHeight);
+
+	ui->spinBoxInterfaceScaling->setRange(minimalScaling, maximalScaling);
+}
+
 void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 {
 	ui->comboBoxResolution->blockSignals(true); // avoid saving wrong resolution after adding first item from the list
@@ -195,7 +230,6 @@ CSettingsView::~CSettingsView()
 	delete ui;
 }
 
-
 void CSettingsView::on_comboBoxResolution_currentTextChanged(const QString & arg1)
 {
 	QStringList list = arg1.split("x");
@@ -203,6 +237,8 @@ void CSettingsView::on_comboBoxResolution_currentTextChanged(const QString & arg
 	Settings node = settings.write["video"]["resolution"];
 	node["width"].Float() = list[0].toInt();
 	node["height"].Float() = list[1].toInt();
+
+	fillValidScalingRange();
 }
 
 void CSettingsView::on_comboBoxFullScreen_currentIndexChanged(int index)
@@ -211,6 +247,8 @@ void CSettingsView::on_comboBoxFullScreen_currentIndexChanged(int index)
 	Settings nodeRealFullscreen = settings.write["video"]["realFullscreen"];
 	nodeFullscreen->Bool() = (index != 0);
 	nodeRealFullscreen->Bool() = (index == 2);
+
+	fillValidScalingRange();
 }
 
 void CSettingsView::on_comboBoxAutoCheck_currentIndexChanged(int index)
