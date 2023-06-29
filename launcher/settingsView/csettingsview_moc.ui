@@ -520,6 +520,15 @@
        </item>
        <item row="11" column="1" colspan="4">
         <widget class="QComboBox" name="comboBoxFullScreen">
+         <property name="toolTip">
+          <string>Select display mode for game
+
+Windowed - game will run inside a window that covers part of your screen
+
+Borderless Windowed Mode - game will run in a window that covers entirely of your screen, using same resolution as your screen.
+
+Fullscreen Exclusive Mode - game will cover entirety of your screen and will use selected resolution.</string>
+         </property>
          <property name="currentIndex">
           <number>0</number>
          </property>

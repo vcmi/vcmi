@@ -191,21 +191,33 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 	ui->comboBoxResolution->blockSignals(true); // avoid saving wrong resolution after adding first item from the list
 	ui->comboBoxResolution->clear();
 
-	QVector<QSize> resolutions = findAvailableResolutions(screenIndex);
+	bool fullscreen = settings["video"]["fullscreen"].Bool();
+	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
 
-	for(const auto & entry : resolutions)
-		ui->comboBoxResolution->addItem(resolutionToString(entry));
+
+	if (!fullscreen || realFullscreen)
+	{
+		QVector<QSize> resolutions = findAvailableResolutions(screenIndex);
+
+		for(const auto & entry : resolutions)
+			ui->comboBoxResolution->addItem(resolutionToString(entry));
+	}
+	else
+	{
+		ui->comboBoxResolution->addItem(resolutionToString(getPreferredRenderingResolution()));
+	}
+	ui->comboBoxResolution->setEnabled(ui->comboBoxResolution->count() > 1);
 
 	int resX = settings["video"]["resolution"]["width"].Integer();
 	int resY = settings["video"]["resolution"]["height"].Integer();
 	int resIndex = ui->comboBoxResolution->findText(resolutionToString({resX, resY}));
 	ui->comboBoxResolution->setCurrentIndex(resIndex);
 
-	ui->comboBoxResolution->blockSignals(false);
-
 	// if selected resolution no longer exists, force update value to the largest (last) resolution
 	if(resIndex == -1)
 		ui->comboBoxResolution->setCurrentIndex(ui->comboBoxResolution->count() - 1);
+
+	ui->comboBoxResolution->blockSignals(false);
 }
 #else
 void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
@@ -238,6 +250,7 @@ void CSettingsView::on_comboBoxResolution_currentTextChanged(const QString & arg
 	node["width"].Float() = list[0].toInt();
 	node["height"].Float() = list[1].toInt();
 
+	fillValidResolutions();
 	fillValidScalingRange();
 }
 
@@ -248,6 +261,7 @@ void CSettingsView::on_comboBoxFullScreen_currentIndexChanged(int index)
 	nodeFullscreen->Bool() = (index != 0);
 	nodeRealFullscreen->Bool() = (index == 2);
 
+	fillValidResolutions();
 	fillValidScalingRange();
 }
 
