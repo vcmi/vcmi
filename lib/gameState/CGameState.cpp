@@ -658,7 +658,6 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 			{
 				PlayerSettings & playerSettings = scenarioOps->playerInfos[PlayerColor(i)];
 				playerSettings.compOnly = !playerInfo.canHumanPlay;
-				playerSettings.team = playerInfo.team;
 				playerSettings.castle = playerInfo.defaultCastle();
 				if(playerSettings.isControlledByAI() && playerSettings.name.empty())
 				{

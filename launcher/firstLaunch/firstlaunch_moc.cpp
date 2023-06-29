@@ -107,13 +107,9 @@ void FirstLaunchView::enterSetup()
 
 void FirstLaunchView::setSetupProgress(int progress)
 {
-	int value = std::max(progress, ui->setupProgressBar->value());
-
-	ui->setupProgressBar->setValue(value);
-
-	ui->buttonTabLanguage->setDisabled(value < 1);
-	ui->buttonTabHeroesData->setDisabled(value < 2);
-	ui->buttonTabModPreset->setDisabled(value < 3);
+	ui->buttonTabLanguage->setDisabled(progress < 1);
+	ui->buttonTabHeroesData->setDisabled(progress < 2);
+	ui->buttonTabModPreset->setDisabled(progress < 3);
 }
 
 void FirstLaunchView::activateTabLanguage()

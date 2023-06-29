@@ -161,8 +161,8 @@ public:
 	void initMapHandler();
 	void initPlayerEnvironments();
 	void initPlayerInterfaces();
-	std::string aiNameForPlayer(const PlayerSettings & ps, bool battleAI); //empty means no AI -> human
-	std::string aiNameForPlayer(bool battleAI);
+	std::string aiNameForPlayer(const PlayerSettings & ps, bool battleAI, bool alliedToHuman); //empty means no AI -> human
+	std::string aiNameForPlayer(bool battleAI, bool alliedToHuman);
 	void installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, PlayerColor color, bool battlecb = false);
 	void installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, PlayerColor color, bool needCallback = true);
 
