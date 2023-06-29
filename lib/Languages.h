@@ -14,11 +14,13 @@ namespace Languages
 
 enum class ELanguages
 {
+	CZECH,
 	CHINESE,
 	ENGLISH,
 	FRENCH,
 	GERMAN,
-	KOREAN, // currently has no translations or detection
+	ITALIAN,
+	KOREAN,
 	POLISH,
 	RUSSIAN,
 	SPANISH,
@@ -49,30 +51,29 @@ struct Options
 	/// primary IETF language tag
 	std::string tagIETF;
 
-	/// VCMI is capable of detecting H3 install in this language
-	bool hasDetection = false;
-
 	/// VCMI supports translations into this language
 	bool hasTranslation = false;
 };
 
 inline const auto & getLanguageList()
 {
-	static const std::array<Options, 12> languages
+	static const std::array<Options, 14> languages
 	{ {
-		{ "chinese",   "Chinese",   "简体中文",       "GBK",    "zh", true,  true }, // Note: actually Simplified Chinese
-		{ "english",   "English",   "English",    "CP1252", "en", true,  true },
-		{ "french",    "French",    "Français",   "CP1252", "fr", true,  true },
-		{ "german",    "German",    "Deutsch",    "CP1252", "de", true,  true },
-		{ "korean",    "Korean",    "한국어",        "CP949",  "ko", false, false },
-		{ "polish",    "Polish",    "Polski",     "CP1250", "pl", true,  true },
-		{ "russian",   "Russian",   "Русский",    "CP1251", "ru", true,  true },
-		{ "spanish",   "Spanish",   "Español",    "CP1252", "es", false, true },
-		{ "ukrainian", "Ukrainian", "Українська", "CP1251", "uk", true,  true },
+		{ "czech",     "Czech",     "Čeština",    "CP1250", "cs", true },
+		{ "chinese",   "Chinese",   "简体中文",       "GBK",    "zh", true }, // Note: actually Simplified Chinese
+		{ "english",   "English",   "English",    "CP1252", "en", true },
+		{ "french",    "French",    "Français",   "CP1252", "fr", true },
+		{ "german",    "German",    "Deutsch",    "CP1252", "de", true },
+		{ "italian",   "Italian",   "Italiano",   "CP1250", "it", true },
+		{ "korean",    "Korean",    "한국어",        "CP949",  "ko", true },
+		{ "polish",    "Polish",    "Polski",     "CP1250", "pl", true },
+		{ "russian",   "Russian",   "Русский",    "CP1251", "ru", true },
+		{ "spanish",   "Spanish",   "Español",    "CP1252", "es", true },
+		{ "ukrainian", "Ukrainian", "Українська", "CP1251", "uk", true },
 
-		{ "other_cp1250", "Other (East European)",   "", "CP1251", "", false, false },
-		{ "other_cp1251", "Other (Cyrillic Script)", "", "CP1250", "", false, false },
-		{ "other_cp1252", "Other (West European)",   "", "CP1252", "", false, false }
+		{ "other_cp1250", "Other (East European)",   "", "CP1251", "", false },
+		{ "other_cp1251", "Other (Cyrillic Script)", "", "CP1250", "", false },
+		{ "other_cp1252", "Other (West European)",   "", "CP1252", "", false }
 	} };
 	static_assert(languages.size() == static_cast<size_t>(ELanguages::COUNT), "Languages array is missing a value!");
 
