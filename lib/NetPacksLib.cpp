@@ -2214,36 +2214,32 @@ void BattleUpdateGateState::applyGs(CGameState * gs) const
 
 void BattleResultAccepted::applyGs(CGameState * gs) const
 {
-	for(auto * h : {hero1, hero2})
+	// Remove any "until next battle" bonuses
+	for(auto & res : heroResult)
 	{
-		if(h)
-		{
-			h->removeBonusesRecursive(Bonus::OneBattle); 	//remove any "until next battle" bonuses
-			if (h->commander && h->commander->alive)
-			{
-				for (auto art : h->commander->artifactsWorn) //increment bonuses for commander artifacts
-				{
-					art.second.artifact->growingUp();
-				}
-			}
-			for(auto & art : h->artifactsWorn)
-			{
-				art.second.artifact->growingUp();
-			}
-		}
+		if(res.hero)
+			res.hero->removeBonusesRecursive(Bonus::OneBattle);
 	}
 
+	// Grow up growing artifacts
+	if(const auto hero = heroResult[winnerSide].hero)
+	{
+		if(hero->commander && hero->commander->alive)
+		{
+			for(auto & art : hero->commander->artifactsWorn)
+				art.second.artifact->growingUp();
+		}
+		for(auto & art : hero->artifactsWorn)
+		{
+			art.second.artifact->growingUp();
+		}
+	}
 	if(VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
-		for(int i = 0; i < 2; i++)
-		{
-			if(exp[i])
-			{
-				if(auto * army = (i == 0 ? army1 : army2))
-					army->giveStackExp(exp[i]);
-			}
-		}
-
+		if(heroResult[0].army)
+			heroResult[0].army->giveStackExp(heroResult[0].exp);
+		if(heroResult[1].army)
+			heroResult[1].army->giveStackExp(heroResult[1].exp);
 		CBonusSystemNode::treeHasChanged();
 	}
 

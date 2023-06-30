@@ -807,12 +807,13 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 		changePrimSkill(finishingBattle->winnerHero, PrimarySkill::EXPERIENCE, battleResult.data->exp[finishingBattle->winnerSide]);
 	
 	BattleResultAccepted raccepted;
-	raccepted.army1 = const_cast<CArmedInstance*>(bEndArmy1);
-	raccepted.army2 = const_cast<CArmedInstance*>(bEndArmy2);
-	raccepted.hero1 = const_cast<CGHeroInstance*>(battleInfo->sides.at(0).hero);
-	raccepted.hero2 = const_cast<CGHeroInstance*>(battleInfo->sides.at(1).hero);
-	raccepted.exp[0] = battleResult.data->exp[0];
-	raccepted.exp[1] = battleResult.data->exp[1];
+	raccepted.heroResult[0].army = const_cast<CArmedInstance*>(bEndArmy1);
+	raccepted.heroResult[1].army = const_cast<CArmedInstance*>(bEndArmy2);
+	raccepted.heroResult[0].hero = const_cast<CGHeroInstance*>(battleInfo->sides.at(0).hero);
+	raccepted.heroResult[1].hero = const_cast<CGHeroInstance*>(battleInfo->sides.at(1).hero);
+	raccepted.heroResult[0].exp = battleResult.data->exp[0];
+	raccepted.heroResult[1].exp = battleResult.data->exp[1];
+	raccepted.winnerSide = finishingBattle->winnerSide;
 	sendAndApply(&raccepted);
 
 	queries.popIfTop(battleQuery);
