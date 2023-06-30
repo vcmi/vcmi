@@ -119,6 +119,39 @@ void CSettingsView::fillValidResolutions()
 	fillValidResolutionsForScreen(ui->comboBoxDisplayIndex->isVisible() ? ui->comboBoxDisplayIndex->currentIndex() : 0);
 }
 
+QSize CSettingsView::getPreferredRenderingResolution()
+{
+#ifndef VCMI_MOBILE
+	bool fullscreen = settings["video"]["fullscreen"].Bool();
+	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
+
+	if (!fullscreen || realFullscreen)
+	{
+		int resX = settings["video"]["resolution"]["width"].Integer();
+		int resY = settings["video"]["resolution"]["height"].Integer();
+		return QSize(resX, resY);
+	}
+#endif
+	return QApplication::primaryScreen()->geometry().size();
+}
+
+void CSettingsView::fillValidScalingRange()
+{
+	//FIXME: this code is copy of ScreenHandler::getSupportedScalingRange
+
+	// H3 resolution, any resolution smaller than that is not correctly supported
+	static const QSize minResolution = {800, 600};
+	// arbitrary limit on *downscaling*. Allow some downscaling, if requested by user. Should be generally limited to 100+ for all but few devices
+	static const double minimalScaling = 50;
+
+	QSize renderResolution = getPreferredRenderingResolution();
+	double maximalScalingWidth = 100.0 * renderResolution.width() / minResolution.width();
+	double maximalScalingHeight = 100.0 * renderResolution.height() / minResolution.height();
+	double maximalScaling = std::min(maximalScalingWidth, maximalScalingHeight);
+
+	ui->spinBoxInterfaceScaling->setRange(minimalScaling, maximalScaling);
+}
+
 #ifndef VCMI_MOBILE
 
 static QVector<QSize> findAvailableResolutions(int displayIndex)
@@ -151,39 +184,6 @@ static QVector<QSize> findAvailableResolutions(int displayIndex)
 	SDL_Quit();
 
 	return result;
-}
-
-QSize CSettingsView::getPreferredRenderingResolution()
-{
-#ifndef VCMI_MOBILE
-	bool fullscreen = settings["video"]["fullscreen"].Bool();
-	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
-
-	if (!fullscreen || realFullscreen)
-	{
-		int resX = settings["video"]["resolution"]["width"].Integer();
-		int resY = settings["video"]["resolution"]["height"].Integer();
-		return QSize(resX, resY);
-	}
-#endif
-	return QApplication::primaryScreen()->geometry().size();
-}
-
-void CSettingsView::fillValidScalingRange()
-{
-	//FIXME: this code is copy of ScreenHandler::getSupportedScalingRange
-
-	// H3 resolution, any resolution smaller than that is not correctly supported
-	static const QSize minResolution = {800, 600};
-	// arbitrary limit on *downscaling*. Allow some downscaling, if requested by user. Should be generally limited to 100+ for all but few devices
-	static const double minimalScaling = 50;
-
-	QSize renderResolution = getPreferredRenderingResolution();
-	double maximalScalingWidth = 100.0 * renderResolution.width() / minResolution.width();
-	double maximalScalingHeight = 100.0 * renderResolution.height() / minResolution.height();
-	double maximalScaling = std::min(maximalScalingWidth, maximalScalingHeight);
-
-	ui->spinBoxInterfaceScaling->setRange(minimalScaling, maximalScaling);
 }
 
 void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
