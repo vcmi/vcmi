@@ -29,7 +29,6 @@ set(client_SRCS
 
 	eventsSDL/NotificationHandler.cpp
 	eventsSDL/InputHandler.cpp
-	eventsSDL/UserEventHandler.cpp
 	eventsSDL/InputSourceKeyboard.cpp
 	eventsSDL/InputSourceMouse.cpp
 	eventsSDL/InputSourceText.cpp
@@ -173,7 +172,6 @@ set(client_HEADERS
 
 	eventsSDL/NotificationHandler.h
 	eventsSDL/InputHandler.h
-	eventsSDL/UserEventHandler.h
 	eventsSDL/InputSourceKeyboard.h
 	eventsSDL/InputSourceMouse.h
 	eventsSDL/InputSourceText.h

@@ -38,6 +38,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CondSh.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/UnlockGuard.h"

@@ -48,7 +48,7 @@ std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourceID & name) 
 	return getMapLoader(stream, name.getName(), modName, encoding)->loadMapHeader();
 }
 
-std::unique_ptr<CMap> CMapService::loadMap(const ui8 * buffer, int size, const std::string & name,  const std::string & modName, const std::string & encoding) const
+std::unique_ptr<CMap> CMapService::loadMap(const uint8_t * buffer, int size, const std::string & name,  const std::string & modName, const std::string & encoding) const
 {
 	auto stream = getStreamFromMem(buffer, size);
 	std::unique_ptr<CMap> map(getMapLoader(stream, name, modName, encoding)->loadMap());
@@ -61,7 +61,7 @@ std::unique_ptr<CMap> CMapService::loadMap(const ui8 * buffer, int size, const s
 	return map;
 }
 
-std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const
+std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const
 {
 	auto stream = getStreamFromMem(buffer, size);
 	std::unique_ptr<CMapHeader> header = getMapLoader(stream, name, modName, encoding)->loadMapHeader();
@@ -111,7 +111,7 @@ std::unique_ptr<CInputStream> CMapService::getStreamFromFS(const ResourceID & na
 	return CResourceHandler::get()->load(name);
 }
 
-std::unique_ptr<CInputStream> CMapService::getStreamFromMem(const ui8 * buffer, int size)
+std::unique_ptr<CInputStream> CMapService::getStreamFromMem(const uint8_t * buffer, int size)
 {
 	return std::unique_ptr<CInputStream>(new CMemoryStream(buffer, size));
 }

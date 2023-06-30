@@ -20,7 +20,7 @@
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../IGameCallback.h"
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

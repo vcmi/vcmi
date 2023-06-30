@@ -27,8 +27,8 @@
 #include "../../lib/CModHandler.h"
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
-#include "../../lib/mapping/CCampaignHandler.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 
 CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
@@ -119,7 +119,7 @@ void CLobbyScreen::startCampaign()
 {
 	if(CSH->mi)
 	{
-		auto ourCampaign = std::make_shared<CCampaignState>(CCampaignHandler::getCampaign(CSH->mi->fileURI));
+		auto ourCampaign = CampaignHandler::getCampaign(CSH->mi->fileURI);
 		CSH->setCampaignState(ourCampaign);
 	}
 }

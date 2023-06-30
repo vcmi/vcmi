@@ -29,6 +29,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/VCMIDirs.h"
+#include "../lib/VCMI_Lib.h"
 #include "../lib/CConfigHandler.h"
 
 #include "../lib/logging/CBasicLogConfigurator.h"
@@ -450,8 +451,16 @@ static void mainLoop()
 {
 	SettingsListener resChanged = settings.listen["video"]["resolution"];
 	SettingsListener fsChanged = settings.listen["video"]["fullscreen"];
-	resChanged([](const JsonNode &newState){  GH.pushUserEvent(EUserEvent::FULLSCREEN_TOGGLED); });
-	fsChanged([](const JsonNode &newState){  GH.pushUserEvent(EUserEvent::FULLSCREEN_TOGGLED); });
+
+	auto functor = [](const JsonNode &newState){
+		GH.dispatchMainThread([](){
+			boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
+			GH.onScreenResize();
+		});
+	};
+
+	resChanged(functor);
+	fsChanged(functor);
 
 	inGuiThread.reset(new bool(true));
 

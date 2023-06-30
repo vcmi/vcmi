@@ -25,7 +25,7 @@
 #include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGameState.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/GameSettings.h"

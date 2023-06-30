@@ -42,6 +42,7 @@
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/JsonNode.h"
+#include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/serializer/Connection.h"
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/filesystem/Filesystem.h"
@@ -54,7 +55,6 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CondSh.h"
-#include "../../lib/mapping/CCampaignHandler.h"
 
 #if defined(SINGLE_PROCESS_APP) && defined(VCMI_ANDROID)
 #include "../../server/CVCMIServer.h"
@@ -68,7 +68,10 @@ ISelectionScreenInfo * SEL;
 
 static void do_quit()
 {
-	GH.pushUserEvent(EUserEvent::FORCE_QUIT);
+	GH.dispatchMainThread([]()
+	{
+		handleQuit(false);
+	});
 }
 
 CMenuScreen::CMenuScreen(const JsonNode & configNode)
@@ -354,11 +357,11 @@ void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vec
 
 void CMainMenu::openCampaignLobby(const std::string & campaignFileName)
 {
-	auto ourCampaign = std::make_shared<CCampaignState>(CCampaignHandler::getCampaign(campaignFileName));
+	auto ourCampaign = CampaignHandler::getCampaign(campaignFileName);
 	openCampaignLobby(ourCampaign);
 }
 
-void CMainMenu::openCampaignLobby(std::shared_ptr<CCampaignState> campaign)
+void CMainMenu::openCampaignLobby(std::shared_ptr<CampaignState> campaign)
 {
 	CSH->resetStateForLobby(StartInfo::CAMPAIGN);
 	CSH->screenType = ESelectionScreen::campaignList;
@@ -562,10 +565,13 @@ void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
 	else
 		CSH->justConnectToServer(addr, port);
 
-	if(GH.windows().isTopWindow(this))
-	{
-		close();
-	}
+	// async call to prevent thread race
+	GH.dispatchMainThread([this](){
+		if(GH.windows().isTopWindow(this))
+		{
+			close();
+		}
+	});
 }
 
 CLoadingScreen::CLoadingScreen(std::function<void()> loader)

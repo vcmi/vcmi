@@ -43,6 +43,7 @@ public:
 
 	PlayerState();
 	PlayerState(PlayerState && other) noexcept;
+	~PlayerState();
 
 	std::string nodeName() const override;
 

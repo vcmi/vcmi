@@ -33,6 +33,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"

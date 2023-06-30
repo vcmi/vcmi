@@ -11,7 +11,6 @@
 
 #include "battle/BattleAction.h"
 #include "IGameEventsReceiver.h"
-#include "CGameStateFwd.h"
 
 #include "spells/ViewSpellInt.h"
 

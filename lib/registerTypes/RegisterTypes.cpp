@@ -13,11 +13,9 @@
 
 #include "../mapping/CMapInfo.h"
 #include "../StartInfo.h"
-#include "../CGameState.h"
 #include "../mapObjects/CObjectHandler.h"
 #include "../CCreatureHandler.h"
 #include "../spells/CSpellHandler.h"
-#include "../mapping/CCampaignHandler.h"
 
 #include "../serializer/BinaryDeserializer.h"
 #include "../serializer/BinarySerializer.h"

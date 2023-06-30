@@ -38,6 +38,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+const HeroTypeID HeroTypeID::NONE = HeroTypeID(-1);
+
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
 const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER = SlotID(-3);
 const SlotID SlotID::WAR_MACHINES_SLOT = SlotID(-4);

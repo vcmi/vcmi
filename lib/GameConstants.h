@@ -329,6 +329,8 @@ class HeroTypeID : public BaseForID<HeroTypeID, si32>
 	///json serialization helpers
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
+
+	DLL_LINKAGE static const HeroTypeID NONE;
 };
 
 class SlotID : public BaseForID<SlotID, si32>
@@ -1223,6 +1225,7 @@ class SpellID
 public:
 	enum ESpellID
 	{
+		SPELLBOOK_PRESET = -3,
 		PRESET = -2,
 		NONE = -1,
 		SUMMON_BOAT=0, SCUTTLE_BOAT=1, VISIONS=2, VIEW_EARTH=3, DISGUISE=4, VIEW_AIR=5,

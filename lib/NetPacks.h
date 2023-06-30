@@ -11,16 +11,17 @@
 
 #include "NetPacksBase.h"
 
-#include "battle/BattleAction.h"
-#include "mapObjects/CGHeroInstance.h"
 #include "ConstTransitivePtr.h"
-#include "int3.h"
-#include "ResourceSet.h"
-#include "CGameStateFwd.h"
-#include "mapping/CMapDefines.h"
-#include "battle/CObstacleInstance.h"
 #include "MetaString.h"
+#include "ResourceSet.h"
+#include "int3.h"
 
+#include "battle/BattleAction.h"
+#include "battle/CObstacleInstance.h"
+#include "gameState/EVictoryLossCheckResult.h"
+#include "gameState/QuestInfo.h"
+#include "mapObjects/CGHeroInstance.h"
+#include "mapping/CMapDefines.h"
 #include "spells/ViewSpellInt.h"
 
 class CClient;

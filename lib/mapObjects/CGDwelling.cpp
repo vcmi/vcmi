@@ -15,7 +15,7 @@
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../CTownHandler.h"
 #include "../IGameCallback.h"
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
 #include "../CPlayerState.h"
 #include "../NetPacks.h"
 #include "../GameSettings.h"

@@ -10,11 +10,12 @@
 #pragma once
 
 #include "GameConstants.h"
+#include "campaign/CampaignConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CMapGenOptions;
-class CCampaignState;
+class CampaignState;
 class CMapInfo;
 struct PlayerInfo;
 class PlayerColor;
@@ -87,7 +88,7 @@ struct DLL_LINKAGE StartInfo
 	bool createRandomMap() const { return mapGenOptions != nullptr; }
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
 
-	std::shared_ptr<CCampaignState> campState;
+	std::shared_ptr<CampaignState> campState;
 
 	PlayerSettings & getIthPlayersSettings(const PlayerColor & no);
 	const PlayerSettings & getIthPlayersSettings(const PlayerColor & no) const;
@@ -138,10 +139,10 @@ struct DLL_LINKAGE LobbyState
 	int hostClientId;
 	// TODO: Campaign-only and we don't really need either of them.
 	// Before start both go into CCampaignState that is part of StartInfo
-	int campaignMap;
+	CampaignScenarioID campaignMap;
 	int campaignBonus;
 
-	LobbyState() : si(new StartInfo()), hostClientId(-1), campaignMap(-1), campaignBonus(-1) {}
+	LobbyState() : si(new StartInfo()), hostClientId(-1), campaignMap(CampaignScenarioID::NONE), campaignBonus(-1) {}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

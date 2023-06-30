@@ -26,7 +26,7 @@
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
 #include "../IGameCallback.h"
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
 #include "../CCreatureHandler.h"
 #include "../CTownHandler.h"
 #include "../mapping/CMap.h"
@@ -287,16 +287,23 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	if (ID == Obj::HERO)
 		appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
 
-	if(!vstd::contains(spells, SpellID::PRESET)) //hero starts with a spell
+	if(!vstd::contains(spells, SpellID::PRESET))
 	{
+		// hero starts with default spells
 		for(const auto & spellID : type->spells)
 			spells.insert(spellID);
 	}
 	else //remove placeholder
 		spells -= SpellID::PRESET;
 
-	if(!getArt(ArtifactPosition::MACH4) && !getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook) //no catapult means we haven't read pre-existent set -> use default rules for spellbook
-		putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createNewArtifactInstance(ArtifactID::SPELLBOOK));
+	if(!vstd::contains(spells, SpellID::SPELLBOOK_PRESET))
+	{
+		// hero starts with default spellbook presence status
+		if(!getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook)
+			putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createNewArtifactInstance(ArtifactID::SPELLBOOK));
+	}
+	else
+		spells -= SpellID::SPELLBOOK_PRESET;
 
 	if(!getArt(ArtifactPosition::MACH4))
 		putArtifact(ArtifactPosition::MACH4, ArtifactUtils::createNewArtifactInstance(ArtifactID::CATAPULT)); //everyone has a catapult

@@ -14,7 +14,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct StartInfo;
 
 class CMapHeader;
-class CCampaignHeader;
+class Campaign;
 class ResourceID;
 
 /**
@@ -25,7 +25,7 @@ class DLL_LINKAGE CMapInfo
 {
 public:
 	std::unique_ptr<CMapHeader> mapHeader; //may be nullptr if campaign
-	std::unique_ptr<CCampaignHeader> campaignHeader; //may be nullptr if scenario
+	std::unique_ptr<Campaign> campaign; //may be nullptr if scenario
 	StartInfo * scenarioOptionsOfSave; // Options with which scenario has been started (used only with saved games)
 	std::string fileURI;
 	std::string date;
@@ -58,7 +58,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int Version)
 	{
 		h & mapHeader;
-		h & campaignHeader;
+		h & campaign;
 		h & scenarioOptionsOfSave;
 		h & fileURI;
 		h & date;

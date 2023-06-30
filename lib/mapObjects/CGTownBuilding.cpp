@@ -14,7 +14,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../NetPacks.h"
 #include "../IGameCallback.h"
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

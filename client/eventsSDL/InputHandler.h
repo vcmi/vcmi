@@ -15,12 +15,12 @@
 enum class EUserEvent;
 enum class MouseButton;
 union SDL_Event;
+struct SDL_UserEvent;
 
 class InputSourceMouse;
 class InputSourceKeyboard;
 class InputSourceTouch;
 class InputSourceText;
-class UserEventHandler;
 
 class InputHandler
 {
@@ -31,12 +31,12 @@ class InputHandler
 
 	void preprocessEvent(const SDL_Event & event);
 	void handleCurrentEvent(const SDL_Event & current);
+	void handleUserEvent(const SDL_UserEvent & current);
 
 	std::unique_ptr<InputSourceMouse> mouseHandler;
 	std::unique_ptr<InputSourceKeyboard> keyboardHandler;
 	std::unique_ptr<InputSourceTouch> fingerHandler;
 	std::unique_ptr<InputSourceText> textHandler;
-	std::unique_ptr<UserEventHandler> userHandler;
 
 public:
 	InputHandler();
@@ -66,8 +66,8 @@ public:
 	/// returns true if system has active touchscreen
 	bool hasTouchInputDevice() const;
 
-	/// Generates new user event that will be processed on next frame
-	void pushUserEvent(EUserEvent usercode, void * userdata);
+	/// Calls provided functor in main thread on next execution frame
+	void dispatchMainThread(const std::function<void()> & functor);
 
 	/// Returns current position of cursor, in VCMI logical screen coordinates
 	const Point & getCursorPosition() const;

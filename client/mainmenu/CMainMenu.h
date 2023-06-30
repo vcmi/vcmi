@@ -14,7 +14,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CCampaignState;
+class CampaignState;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -147,7 +147,7 @@ public:
 	void update() override;
 	static void openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> * names, ELoadMode loadMode);
 	static void openCampaignLobby(const std::string & campaignFileName);
-	static void openCampaignLobby(std::shared_ptr<CCampaignState> campaign);
+	static void openCampaignLobby(std::shared_ptr<CampaignState> campaign);
 	void openCampaignScreen(std::string name);
 
 	static std::shared_ptr<CMainMenu> create();

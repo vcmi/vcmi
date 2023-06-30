@@ -23,7 +23,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct CPack;
 struct CPackForServer;
-class CCampaignState;
+class CampaignState;
 class IGameEventsReceiver;
 class IBattleEventsReceiver;
 class CBattleGameInterface;

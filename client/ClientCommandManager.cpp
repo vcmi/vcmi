@@ -20,12 +20,12 @@
 #include "../lib/NetPacks.h"
 #include "ClientNetPackVisitors.h"
 #include "../lib/CConfigHandler.h"
-#include "../lib/CGameState.h"
+#include "../lib/gameState/CGameState.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/StringConstants.h"
+#include "../lib/campaign/CampaignHandler.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
-#include "../lib/mapping/CCampaignHandler.h"
 #include "windows/CCastleInterface.h"
 #include "render/CAnimation.h"
 #include "../CCallback.h"
@@ -209,9 +209,9 @@ void ClientCommandManager::handleConvertTextCommand()
 	logGlobal->info("Loading campaigns for export");
 	for (auto const & campaignName : campaignList)
 	{
-		CCampaignState state(CCampaignHandler::getCampaign(campaignName.getName()));
-		for (auto const & part : state.camp->mapPieces)
-			delete state.getMap(part.first);
+		auto state = CampaignHandler::getCampaign(campaignName.getName());
+		for (auto const & part : state->allScenarios())
+			state->getMap(part);
 	}
 
 	VLC->generaltexth->dumpAllTexts();

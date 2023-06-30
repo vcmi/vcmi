@@ -58,4 +58,6 @@ public:
 	enum CampaignSet {ROE, AB, SOD, WOG};
 
 	CCampaignScreen(const JsonNode & config);
+
+	void activate() override;
 };

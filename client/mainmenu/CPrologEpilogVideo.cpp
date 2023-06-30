@@ -18,10 +18,8 @@
 #include "../widgets/TextControls.h"
 #include "../render/Canvas.h"
 
-#include "../../lib/mapping/CCampaignHandler.h"
 
-
-CPrologEpilogVideo::CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback)
+CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback)
 	: CWindowObject(BORDERED), spe(_spe), positionCounter(0), voiceSoundHandle(-1), exitCb(callback)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;

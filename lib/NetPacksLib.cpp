@@ -19,7 +19,7 @@
 #include "mapping/CMap.h"
 #include "spells/CSpellHandler.h"
 #include "CCreatureHandler.h"
-#include "CGameState.h"
+#include "gameState/CGameState.h"
 #include "CStack.h"
 #include "battle/BattleInfo.h"
 #include "CTownHandler.h"
@@ -31,7 +31,7 @@
 #include "mapObjects/CGMarket.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
-#include "mapping/CCampaignHandler.h"
+#include "campaign/CampaignState.h"
 #include "GameSettings.h"
 
 
@@ -1066,30 +1066,13 @@ void PlayerEndsGame::applyGs(CGameState * gs) const
 		p->status = EPlayerStatus::WINNER;
 
 		// TODO: Campaign-specific code might as well go somewhere else
+		// keep all heroes from the winning player
 		if(p->human && gs->scenarioOps->campState)
 		{
 			std::vector<CGHeroInstance *> crossoverHeroes;
 			for (CGHeroInstance * hero : gs->map->heroesOnMap)
-			{
 				if (hero->tempOwner == player)
-				{
-					// keep all heroes from the winning player
 					crossoverHeroes.push_back(hero);
-				}
-				else if (vstd::contains(gs->scenarioOps->campState->getCurrentScenario().keepHeroes, HeroTypeID(hero->subID)))
-				{
-					// keep hero whether lost or won (like Xeron in AB campaign)
-					crossoverHeroes.push_back(hero);
-				}
-			}
-			// keep lost heroes which are in heroes pool
-			for (auto & heroPair : gs->hpool.heroesPool)
-			{
-				if (vstd::contains(gs->scenarioOps->campState->getCurrentScenario().keepHeroes, HeroTypeID(heroPair.first)))
-				{
-					crossoverHeroes.push_back(heroPair.second.get());
-				}
-			}
 
 			gs->scenarioOps->campState->setCurrentMapAsConquered(crossoverHeroes);
 		}

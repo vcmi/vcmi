@@ -13,6 +13,7 @@
 #include "BattleInfo.h"
 #include "../NetPacks.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../gameState/InfoAboutArmy.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -42,7 +42,7 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CCreatureHandler.h"
 
-#include "../../lib/mapping/CCampaignHandler.h"
+#include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/mapping/CMapService.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -73,6 +73,13 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config)
 		campButtons.push_back(std::make_shared<CCampaignButton>(node));
 }
 
+void CCampaignScreen::activate()
+{
+	CCS->musich->playMusic("Music/MainMenu", true, false);
+
+	CWindowObject::activate();
+}
+
 std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & button)
 {
 	std::pair<std::string, std::string> help;
@@ -96,8 +103,8 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 
 	status = config["open"].Bool() ? CCampaignScreen::ENABLED : CCampaignScreen::DISABLED;
 
-	CCampaignHeader header = CCampaignHandler::getHeader(campFile);
-	hoverText = header.name;
+	auto header = CampaignHandler::getHeader(campFile);
+	hoverText = header->getName();
 
 	if(status != CCampaignScreen::DISABLED)
 	{

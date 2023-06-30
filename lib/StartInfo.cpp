@@ -15,7 +15,7 @@
 #include "VCMI_Lib.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapping/CMapInfo.h"
-#include "mapping/CCampaignHandler.h"
+#include "campaign/CampaignState.h"
 #include "mapping/CMapHeader.h"
 #include "mapping/CMapService.h"
 
@@ -62,8 +62,8 @@ PlayerSettings * StartInfo::getPlayersSettings(const ui8 connectedPlayerId)
 
 std::string StartInfo::getCampaignName() const
 {
-	if(campState->camp->header.name.length())
-		return campState->camp->header.name;
+	if(!campState->getName().empty())
+		return campState->getName();
 	else
 		return VLC->generaltexth->allTexts[508];
 }

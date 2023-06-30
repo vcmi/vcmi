@@ -9,17 +9,8 @@
  */
 #pragma once
 
-#include "CCreatureHandler.h"
-#include "VCMI_Lib.h"
-
-#include "bonuses/Bonus.h"
-#include "CCreatureSet.h"
-#include "ConstTransitivePtr.h"
+#include "bonuses/CBonusSystemNode.h"
 #include "IGameCallback.h"
-#include "ResourceSet.h"
-#include "int3.h"
-#include "CRandomGenerator.h"
-#include "CGameStateFwd.h"
 
 namespace boost
 {
@@ -28,69 +19,20 @@ class shared_mutex;
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CTown;
-class IGameCallback;
-class CCreatureSet;
-class CQuest;
-class CGHeroInstance;
-class CGTownInstance;
-class CArmedInstance;
-class CGDwelling;
-class CObjectScript;
-class CGObjectInstance;
-class CCreature;
-class CMap;
-struct StartInfo;
-struct SetObjectProperty;
-class MetaString;
-struct CPack;
-class CSpell;
-struct TerrainTile;
-class CHeroClass;
-class CCampaign;
-class CCampaignState;
-class IModableArt;
-class CGGarrison;
-struct QuestInfo;
-class CQuest;
-class CCampaignScenario;
-struct EventCondition;
-class CScenarioTravel;
+class EVictoryLossCheckResult;
+class Services;
 class IMapService;
-
+class CMap;
+struct CPack;
+class CHeroClass;
+struct EventCondition;
+struct CampaignTravel;
+class CStackInstance;
+class CGameStateCampaign;
+struct SThievesGuildInfo;
 
 template<typename T> class CApplier;
 class CBaseForGSApply;
-
-struct DLL_LINKAGE SThievesGuildInfo
-{
-	std::vector<PlayerColor> playerColors; //colors of players that are in-game
-
-	std::vector< std::vector< PlayerColor > > numOfTowns, numOfHeroes, gold, woodOre, mercSulfCrystGems, obelisks, artifacts, army, income; // [place] -> [colours of players]
-
-	std::map<PlayerColor, InfoAboutHero> colorToBestHero; //maps player's color to his best heros'
-
-    std::map<PlayerColor, EAiTactic::EAiTactic> personality; // color to personality // ai tactic
-	std::map<PlayerColor, si32> bestCreature; // color to ID // id or -1 if not known
-
-//	template <typename Handler> void serialize(Handler &h, const int version)
-//	{
-//		h & playerColors;
-//		h & numOfTowns;
-//		h & numOfHeroes;
-//		h & gold;
-//		h & woodOre;
-//		h & mercSulfCrystGems;
-//		h & obelisks;
-//		h & artifacts;
-//		h & army;
-//		h & income;
-//		h & colorToBestHero;
-//		h & personality;
-//		h & bestCreature;
-//	}
-
-};
 
 struct DLL_LINKAGE RumorState
 {
@@ -125,7 +67,7 @@ struct UpgradeInfo
 {
 	CreatureID oldID; //creature to be upgraded
 	std::vector<CreatureID> newID; //possible upgrades
-	std::vector<TResources> cost; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>; cost is for single unit (not entire stack)
+	std::vector<ResourceSet> cost; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>; cost is for single unit (not entire stack)
 	UpgradeInfo(){oldID = CreatureID::NONE;};
 };
 
@@ -135,6 +77,7 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheck
 
 class DLL_LINKAGE CGameState : public CNonConstInfoCallback
 {
+	friend class CGameStateCampaign;
 public:
 	struct DLL_LINKAGE HeroesPool
 	{
@@ -230,29 +173,15 @@ public:
 		h & globalEffects;
 		h & rand;
 		h & rumor;
+		h & campaign;
 
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 
 private:
-	struct CrossoverHeroesList
-	{
-		std::vector<CGHeroInstance *> heroesFromPreviousScenario, heroesFromAnyPreviousScenarios;
-		void addHeroToBothLists(CGHeroInstance * hero);
-		void removeHeroFromBothLists(CGHeroInstance * hero);
-	};
-
-	struct CampaignHeroReplacement
-	{
-		CampaignHeroReplacement(CGHeroInstance * hero, const ObjectInstanceID & heroPlaceholderId);
-		CGHeroInstance * hero;
-		ObjectInstanceID heroPlaceholderId;
-	};
-
 	// ----- initialization -----
 	void preInitAuto();
 	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap);
-	void initCampaign();
 	void checkMapChecksum();
 	void initGlobalBonuses();
 	void initGrailPosition();
@@ -260,27 +189,18 @@ private:
 	void randomizeMapObjects();
 	void randomizeObject(CGObjectInstance *cur);
 	void initPlayerStates();
-	void placeCampaignHeroes();
-	CrossoverHeroesList getCrossoverHeroesFromPreviousScenarios() const;
-
-	/// returns heroes and placeholders in where heroes will be put
-	std::vector<CampaignHeroReplacement> generateCampaignHeroesToReplace(CrossoverHeroesList & crossoverHeroes);
-
-	/// gets prepared and copied hero instances with crossover heroes from prev. scenario and travel options from current scenario
-	void prepareCrossoverHeroes(std::vector<CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions);
-
-	void replaceHeroesPlaceholders(const std::vector<CampaignHeroReplacement> & campaignHeroReplacements);
 	void placeStartingHeroes();
 	void placeStartingHero(const PlayerColor & playerColor, const HeroTypeID & heroTypeId, int3 townPos);
+	void removeHeroPlaceholders();
 	void initStartingResources();
 	void initHeroes();
 	void placeHeroesInTowns();
-	void giveCampaignBonusToHero(CGHeroInstance * hero);
 	void initFogOfWar();
 	void initStartingBonus();
 	void initTowns();
 	void initMapObjects();
 	void initVisitingAndGarrisonedHeroes();
+	void initCampaign();
 
 	// ----- bonus system handling -----
 
@@ -295,14 +215,17 @@ private:
 	bool isUsedHero(const HeroTypeID & hid) const; //looks in heroes and prisons
 	std::set<HeroTypeID> getUnusedAllowedHeroes(bool alsoIncludeNotAllowed = false) const;
 	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
-	int pickUnusedHeroTypeRandomly(const PlayerColor & owner); // picks a unused hero type randomly
-	int pickNextHeroType(const PlayerColor & owner); // picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
+	HeroTypeID pickUnusedHeroTypeRandomly(const PlayerColor & owner); // picks a unused hero type randomly
+	HeroTypeID pickNextHeroType(const PlayerColor & owner); // picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
 	UpgradeInfo fillUpgradeInfo(const CStackInstance &stack) const;
 
 	// ---- data -----
 	std::shared_ptr<CApplier<CBaseForGSApply>> applier;
 	CRandomGenerator rand;
 	Services * services;
+
+	/// Ponter to campaign state manager. Nullptr for single scenarios
+	std::unique_ptr<CGameStateCampaign> campaign;
 
 	friend class IGameCallback;
 	friend class CMapHandler;

@@ -28,13 +28,17 @@ enum class EHeroGender : uint8_t;
 class CGHeroPlaceholder : public CGObjectInstance
 {
 public:
-	//subID stores id of hero type. If it's 0xff then following field is used
-	ui8 power;
+	/// if this is placeholder by power, then power rank of desired hero
+	std::optional<ui8> powerRank;
+
+	/// if this is placeholder by type, then hero type of desired hero
+	std::optional<HeroTypeID> heroType;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-		h & power;
+		h & powerRank;
+		h & heroType;
 	}
 };
 
@@ -42,7 +46,7 @@ public:
 class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public AFactionMember, public ICreatureUpgrader
 {
 	// We serialize heroes into JSON for crossover
-	friend class CCampaignState;
+	friend class CampaignState;
 	friend class CMapLoaderH3M;
 	friend class CMapFormatJson;
 

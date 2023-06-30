@@ -11,10 +11,12 @@
 
 #include "../windows/CWindowObject.h"
 
+#include "../lib/campaign/CampaignConstants.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CCampaignState;
-struct CampaignRegions;
+class CampaignState;
+class CampaignRegions;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -30,7 +32,7 @@ class ISelectionScreenInfo;
 class CBonusSelection : public CWindowObject
 {
 public:
-	std::shared_ptr<CCampaignState> getCampaign();
+	std::shared_ptr<CampaignState> getCampaign();
 	CBonusSelection();
 
 	class CRegion
@@ -39,11 +41,11 @@ public:
 		std::shared_ptr<CPicture> graphicsNotSelected;
 		std::shared_ptr<CPicture> graphicsSelected;
 		std::shared_ptr<CPicture> graphicsStriped;
-		int idOfMapAndRegion;
+		CampaignScenarioID idOfMapAndRegion;
 		bool accessible; // false if region should be striped
 		bool selectable; // true if region should be selectable
 	public:
-		CRegion(int id, bool accessible, bool selectable, const CampaignRegions & campDsc);
+		CRegion(CampaignScenarioID id, bool accessible, bool selectable, const CampaignRegions & campDsc);
 		void updateState();
 		void clickLeft(tribool down, bool previousState) override;
 		void showPopupWindow() override;

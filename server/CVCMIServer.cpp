@@ -11,7 +11,7 @@
 #include <boost/asio.hpp>
 
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/mapping/CCampaignHandler.h"
+#include "../lib/campaign/CampaignState.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/CModHandler.h"
@@ -57,7 +57,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
-#include "../lib/CGameState.h"
+#include "../lib/gameState/CGameState.h"
 
 template<typename T> class CApplyOnServer;
 
@@ -296,8 +296,8 @@ bool CVCMIServer::prepareToStartGame()
 	{
 	case StartInfo::CAMPAIGN:
 		logNetwork->info("Preparing to start new campaign");
-		si->campState->currentMap = std::make_optional(campaignMap);
-		si->campState->chosenCampaignBonuses[campaignMap] = campaignBonus;
+		si->campState->setCurrentMap(campaignMap);
+		si->campState->setCurrentMapBonus(campaignBonus);
 		gh->init(si.get());
 		break;
 
@@ -427,7 +427,7 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 				connections.erase(c);
 				if(connections.empty() || hostClient == c)
 					state = EServerState::SHUTDOWN;
-				
+
 				if(gh && state == EServerState::GAMEPLAY)
 				{
 					gh->handleClientDisconnection(c);
@@ -439,10 +439,10 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 			pack->visit(visitor);
 		}
 #ifndef _MSC_VER
-	 }
+	}
 	catch(const std::exception & e)
 	{
-        (void)e;
+		(void)e;
 		boost::unique_lock<boost::recursive_mutex> queueLock(mx);
 		logNetwork->error("%s dies... \nWhat happened: %s", c->toString(), e.what());
 	}
@@ -455,7 +455,7 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 #endif
 
 	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
-//	if(state != ENDING_AND_STARTING_GAME)
+
 	if(c->connected)
 	{
 		auto lcd = std::make_unique<LobbyClientDisconnected>();
@@ -668,7 +668,7 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 		si = CMemorySerializer::deepCopy(*mi->scenarioOptionsOfSave);
 		si->mode = StartInfo::LOAD_GAME;
 		if(si->campState)
-			campaignMap = si->campState->currentMap.value();
+			campaignMap = si->campState->currentScenario().value();
 
 		for(auto & ps : si->playerInfos)
 		{
@@ -684,7 +684,7 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 	}
 	else if(si->mode == StartInfo::NEW_GAME || si->mode == StartInfo::CAMPAIGN)
 	{
-		if(mi->campaignHeader)
+		if(mi->campaign)
 			return;
 
 		for(int i = 0; i < mi->mapHeader->players.size(); i++)
@@ -870,10 +870,10 @@ void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 		s.bonus = PlayerSettings::RANDOM;
 }
 
-void CVCMIServer::setCampaignMap(int mapId)
+void CVCMIServer::setCampaignMap(CampaignScenarioID mapId)
 {
 	campaignMap = mapId;
-	si->difficulty = si->campState->camp->scenarios[mapId].difficulty;
+	si->difficulty = si->campState->scenario(mapId).difficulty;
 	campaignBonus = -1;
 	updateStartInfoOnMapChange(si->campState->getMapInfo(mapId));
 }
@@ -882,9 +882,9 @@ void CVCMIServer::setCampaignBonus(int bonusId)
 {
 	campaignBonus = bonusId;
 
-	const CCampaignScenario & scenario = si->campState->camp->scenarios[campaignMap];
-	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
-	if(bonDescs[bonusId].type == CScenarioTravel::STravelBonus::HERO)
+	const CampaignScenario & scenario = si->campState->scenario(campaignMap);
+	const std::vector<CampaignBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
+	if(bonDescs[bonusId].type == CampaignBonusType::HERO)
 	{
 		for(auto & elem : si->playerInfos)
 		{

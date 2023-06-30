@@ -10,7 +10,7 @@
 #include "StdInc.h"
 
 #include "CPlayerState.h"
-#include "CGameStateFwd.h"
+#include "gameState/QuestInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -39,6 +39,8 @@ PlayerState::PlayerState(PlayerState && other) noexcept:
 	std::swap(dwellings, other.dwellings);
 	std::swap(quests, other.quests);
 }
+
+PlayerState::~PlayerState() = default;
 
 std::string PlayerState::nodeName() const
 {
