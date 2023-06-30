@@ -59,6 +59,8 @@ private slots:
 
 	void on_spinBoxInterfaceScaling_valueChanged(int arg1);
 
+	void on_refreshRepositoriesButton_clicked();
+
 private:
 	Ui::CSettingsView * ui;
 

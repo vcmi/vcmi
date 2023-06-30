@@ -219,10 +219,14 @@
         <property name="text">
          <string>About</string>
         </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>icons:about-project.png</normaloff>icons:about-project.png</iconset>
+        </property>
         <property name="iconSize">
          <size>
-          <width>0</width>
-          <height>0</height>
+          <width>30</width>
+          <height>30</height>
          </size>
         </property>
         <property name="checkable">

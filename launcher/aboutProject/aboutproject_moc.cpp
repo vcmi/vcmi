@@ -26,6 +26,7 @@ AboutProjectView::AboutProjectView(QWidget * parent)
 	ui->lineEditGameDir->setText(pathToQString(VCMIDirs::get().binaryPath()));
 	ui->lineEditTempDir->setText(pathToQString(VCMIDirs::get().userLogsPath()));
 	ui->lineEditBuildVersion->setText(QString::fromStdString(GameConstants::VCMI_VERSION));
+	ui->lineEditOperatingSystem->setText(QSysInfo::prettyProductName());
 }
 
 void AboutProjectView::on_updatesButton_clicked()

@@ -38,7 +38,6 @@ class CModListView : public QWidget
 	void setupModModel();
 	void setupFilterModel();
 	void setupModsView();
-	void loadRepositories();
 
 	void checkManagerErrors();
 
@@ -69,6 +68,7 @@ public:
 	~CModListView();
 
 	void loadScreenshots();
+	void loadRepositories();
 
 	void disableModInfo();
 

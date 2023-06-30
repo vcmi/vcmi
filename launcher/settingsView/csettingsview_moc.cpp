@@ -473,3 +473,15 @@ void CSettingsView::on_spinBoxInterfaceScaling_valueChanged(int arg1)
 	node->Float() = arg1;
 }
 
+
+void CSettingsView::on_refreshRepositoriesButton_clicked()
+{
+	auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow());
+
+	assert(mainWindow);
+	if (!mainWindow)
+		return;
+
+	mainWindow->getModView()->loadRepositories();
+}
+
