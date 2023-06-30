@@ -282,29 +282,29 @@
             <source>This mod can not be installed or enabled because the following dependencies are not present</source>
             <translation>Ce mod ne peut pas être installé ou activé car les dépendances suivantes ne sont pas présents
             </translation>
-        </message>
-        <message>
-            <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
-            <source>This mod can not be enabled because the following mods are incompatible with it</source>
-            <translation>Ce mod ne peut pas être installé ou activé, car les dépendances suivantes sont incompatibles avec lui
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="312"/>
+        <source>This mod can not be enabled because the following mods are incompatible with it</source>
+        <translation>Ce mod ne peut pas être installé ou activé, car les dépendances suivantes sont incompatibles avec lui
             </translation>
-        </message>
-        <message>
-            <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
-            <source>This mod cannot be disabled because it is required by the following mods</source>
-            <translation>Ce mod ne peut pas être désactivé car il est requis pour les dépendances suivantes
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
+        <source>This mod cannot be disabled because it is required by the following mods</source>
+        <translation>Ce mod ne peut pas être désactivé car il est requis pour les dépendances suivantes
             </translation>
-        </message>
-        <message>
-            <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
-            <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
-            <translation>Ce mod ne peut pas être désinstallé ou mis à jour car il est requis pour les dépendances suivantes
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="314"/>
+        <source>This mod cannot be uninstalled or updated because it is required by the following mods</source>
+        <translation>Ce mod ne peut pas être désinstallé ou mis à jour car il est requis pour les dépendances suivantes
             </translation>
-        </message>
-        <message>
-            <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
-            <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
-            <translation>Ce sous-mod ne peut pas être installé ou mis à jour séparément du mod parent
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
+        <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
+        <translation>Ce sous-mod ne peut pas être installé ou mis à jour séparément du mod parent
             </translation>
         </message>
         <message>
@@ -567,7 +567,7 @@
 
                 Heroes® of Might and Magic® III HD is currently not supported!
             </source>
-            <translation>Merci d&apos;avoir installé VCMI !
+        <translation type="vanished">Merci d&apos;avoir installé VCMI !
 
                 Avant que vous ne commenciez à jouer, il y a encore quelques étapes qui ont besoin d&apos;être complétées.
 
@@ -576,87 +576,80 @@
 
                 Heroes® of Might and Magic® III HD n&apos;est pas supporté actuellement !
             </translation>
-        </message>
-        <message>
-            <location filename="../firstLaunch/firstlaunch_moc.ui" line="276"/>
-            <source>Locate Heroes III data files</source>
-            <translation>Localiser les fichiers de données de Heroes III</translation>
-        </message>
-        <message>
-            <location filename="../firstLaunch/firstlaunch_moc.ui" line="365"/>
-            <source>If you don&apos;t have a copy of Heroes III installed, you can use our automatic installation tool
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="257"/>
+        <source>Locate Heroes III data files</source>
+        <translation>Localiser les fichiers de données de Heroes III</translation>
+    </message>
+    <message>
+        <source>If you don&apos;t have a copy of Heroes III installed, you can use our automatic installation tool
                 &apos;vcmibuilder&apos;, which only requires the GoG.com Heroes III installer. Please visit our wiki for
                 detailed instructions.
             </source>
-            <translation>Si vous n&apos;avez pas de copie de Heroes III d&apos;installé, vous pouvez utiliser notre
+        <translation type="vanished">Si vous n&apos;avez pas de copie de Heroes III d&apos;installé, vous pouvez utiliser notre
                 outil d&apos;installation automatique &apos;vcmibuilder&apos;, qui ne nécessite que l&apos;installeur Heroes III de GoG.com.
                 Veuillez visiter notre wiki pour plus d&apos;informations.
             </translation>
-        </message>
-        <message>
-            <location filename="../firstLaunch/firstlaunch_moc.ui" line="381"/>
-            <source>To run VCMI, Heroes III data files need to be present in one of the specified locations. Please copy
+    </message>
+    <message>
+        <source>To run VCMI, Heroes III data files need to be present in one of the specified locations. Please copy
                 the Heroes III data to one of these directories.
             </source>
-            <translation>Pour lancer VCMI, les fichiers de données de Heroes III ont besoin d&apos;être présent dans un des emplacements spécifiés.
+        <translation type="vanished">Pour lancer VCMI, les fichiers de données de Heroes III ont besoin d&apos;être présent dans un des emplacements spécifiés.
                 Veuillez copier les données de Heroes III vers un de ces dossiers.
             </translation>
-        </message>
-        <message>
-            <location filename="../firstLaunch/firstlaunch_moc.ui" line="416"/>
-            <source>Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy
+    </message>
+    <message>
+        <source>Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy
                 the existing data automatically.
             </source>
-            <translation>Ou sinon, vous pouvez indiquer le dossier où les données de Heroes III sont installées et VCMI va copier les données existantes automatiquement.
+        <translation type="vanished">Ou sinon, vous pouvez indiquer le dossier où les données de Heroes III sont installées et VCMI va copier les données existantes automatiquement.
             </translation>
-        </message>
-        <message>
-            <location filename="../firstLaunch/firstlaunch_moc.ui" line="445"/>
-            <source>Your Heroes III data files have been successfully found.</source>
-            <translation>Vos fichiers de données de Heroes III ont été trouvés.</translation>
-        </message>
-        <message>
-            <location filename="../firstLaunch/firstlaunch_moc.ui" line="485"/>
-            <source>The automatic detection of the Heroes III language has failed. Please select the language of your
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="426"/>
+        <source>Your Heroes III data files have been successfully found.</source>
+        <translation>Vos fichiers de données de Heroes III ont été trouvés.</translation>
+    </message>
+    <message>
+        <source>The automatic detection of the Heroes III language has failed. Please select the language of your
                 Heroes III manually
             </source>
-            <translation>La détection automatique de la langue de Heroes III a échoué. Veuillez sélectionner
+        <translation type="vanished">La détection automatique de la langue de Heroes III a échoué. Veuillez sélectionner
                 la langue de votre Heroes III manuellement
             </translation>
-        </message>
-        <message>
-            <location filename="../firstLaunch/firstlaunch_moc.ui" line="759"/>
-            <source>Install a translation of Heroes III in your preferred language</source>
-            <translation>Installer une traduction de Heroes III dans la langue de votre choix</translation>
-        </message>
-        <message>
-            <location filename="../firstLaunch/firstlaunch_moc.ui" line="775"/>
-            <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="740"/>
+        <source>Install a translation of Heroes III in your preferred language</source>
+        <translation>Installer une traduction de Heroes III dans la langue de votre choix</translation>
+    </message>
+    <message>
+        <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI
                 Launcher
             </source>
-            <translation>Éventuellement, vous pouvez installer des mods supplémentaires soit maintenant, soit plus tard, en utilisant le lanceur VCMI
+        <translation type="vanished">Éventuellement, vous pouvez installer des mods supplémentaires soit maintenant, soit plus tard, en utilisant le lanceur VCMI
             </translation>
-        </message>
-        <message>
-            <location filename="../firstLaunch/firstlaunch_moc.ui" line="791"/>
-            <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
-            <translation>Installer un support pour jouer à Heroes III avec des résolutions supérieures à 800x600
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
+        <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
+        <translation>Installer un support pour jouer à Heroes III avec des résolutions supérieures à 800x600
             </translation>
-        </message>
-        <message>
-            <location filename="../firstLaunch/firstlaunch_moc.ui" line="807"/>
-            <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported
+    </message>
+    <message>
+        <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported
                 by the VCMI team
             </source>
-            <translation>Installer une version compatible de &quot;Horn of the Abyss&quot;, une extension de
+        <translation type="vanished">Installer une version compatible de &quot;Horn of the Abyss&quot;, une extension de
                 Heroes III fait par des fans porté par l&apos;équipe VCMI
             </translation>
-        </message>
-        <message>
-            <location filename="../firstLaunch/firstlaunch_moc.ui" line="823"/>
-            <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion
+    </message>
+    <message>
+        <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion
             </source>
-            <translation>Installer une version compatible de &quot;In The Wake of Gods&quot;, une extension de
+        <translation type="vanished">Installer une version compatible de &quot;In The Wake of Gods&quot;, une extension de
                 Heroes III fait par des fans
             </translation>
         </message>
