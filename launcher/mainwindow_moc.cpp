@@ -54,6 +54,7 @@ void MainWindow::computeSidePanelSizes()
 		ui->modslistButton,
 		ui->settingsButton,
 		ui->lobbyButton,
+		ui->aboutButton,
 		ui->startEditorButton,
 		ui->startGameButton
 	};
@@ -229,6 +230,12 @@ void MainWindow::on_lobbyButton_clicked()
 {
 	ui->startGameButton->setEnabled(false);
 	ui->tabListWidget->setCurrentIndex(TabRows::LOBBY);
+}
+
+void MainWindow::on_aboutButton_clicked()
+{
+	ui->startGameButton->setEnabled(true);
+	ui->tabListWidget->setCurrentIndex(TabRows::ABOUT);
 }
 
 void MainWindow::updateTranslation()

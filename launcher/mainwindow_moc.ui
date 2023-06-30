@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>490</height>
+    <width>900</width>
+    <height>536</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -197,6 +197,52 @@
        </spacer>
       </item>
       <item>
+       <widget class="QToolButton" name="aboutButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>10</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>About</string>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextUnderIcon</enum>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="startEditorButton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -322,6 +368,7 @@
       <widget class="CSettingsView" name="settingsView"/>
       <widget class="Lobby" name="lobbyView"/>
       <widget class="FirstLaunchView" name="setupView"/>
+      <widget class="AboutProjectView" name="aboutView"/>
      </widget>
     </item>
    </layout>
@@ -351,6 +398,12 @@
    <class>FirstLaunchView</class>
    <extends>QWidget</extends>
    <header>firstLaunch/firstlaunch_moc.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AboutProjectView</class>
+   <extends>QWidget</extends>
+   <header>aboutProject/aboutproject_moc.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

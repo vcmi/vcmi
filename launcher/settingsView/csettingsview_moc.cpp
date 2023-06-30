@@ -17,13 +17,11 @@
 #include "../jsonutils.h"
 #include "../languages.h"
 #include "../launcherdirs.h"
-#include "../updatedialog_moc.h"
 
 #include <QFileInfo>
 #include <QGuiApplication>
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/VCMIDirs.h"
 
 #ifndef VCMI_MOBILE
 #include <SDL2/SDL.h>
@@ -100,10 +98,6 @@ void CSettingsView::loadSettings()
 
 	ui->checkBoxRepositoryDefault->setChecked(settings["launcher"]["defaultRepositoryEnabled"].Bool());
 	ui->checkBoxRepositoryExtra->setChecked(settings["launcher"]["extraRepositoryEnabled"].Bool());
-
-	ui->lineEditUserDataDir->setText(pathToQString(VCMIDirs::get().userDataPath()));
-	ui->lineEditGameDir->setText(pathToQString(VCMIDirs::get().binaryPath()));
-	ui->lineEditTempDir->setText(pathToQString(VCMIDirs::get().userLogsPath()));
 
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
 
@@ -233,7 +227,6 @@ CSettingsView::CSettingsView(QWidget * parent)
 {
 	ui->setupUi(this);
 
-	ui->lineEditBuildVersion->setText(QString::fromStdString(GameConstants::VCMI_VERSION));
 	loadSettings();
 }
 
@@ -309,21 +302,6 @@ void CSettingsView::on_spinBoxNetworkPort_valueChanged(int arg1)
 	node->Float() = arg1;
 }
 
-void CSettingsView::on_openTempDir_clicked()
-{
-	QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(ui->lineEditTempDir->text()).absoluteFilePath()));
-}
-
-void CSettingsView::on_openUserDataDir_clicked()
-{
-	QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(ui->lineEditUserDataDir->text()).absoluteFilePath()));
-}
-
-void CSettingsView::on_openGameDataDir_clicked()
-{
-	QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(ui->lineEditGameDir->text()).absoluteFilePath()));
-}
-
 void CSettingsView::on_comboBoxShowIntro_currentIndexChanged(int index)
 {
 	Settings node = settings.write["video"]["showIntro"];
@@ -334,11 +312,6 @@ void CSettingsView::on_comboBoxAutoSave_currentIndexChanged(int index)
 {
 	Settings node = settings.write["general"]["saveFrequency"];
 	node->Integer() = index;
-}
-
-void CSettingsView::on_updatesButton_clicked()
-{
-	UpdateDialog::showUpdateDialog(true);
 }
 
 void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
@@ -380,7 +353,6 @@ void CSettingsView::on_listWidgetSettings_currentRowChanged(int currentRow)
 		ui->labelGeneral,
 		ui->labelVideo,
 		ui->labelArtificialIntelligence,
-		ui->labelDataDirs,
 		ui->labelRepositories
 	};
 

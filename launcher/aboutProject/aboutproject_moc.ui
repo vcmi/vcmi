@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AboutProjectView</class>
+ <widget class="QWidget" name="AboutProjectView">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>745</width>
+    <height>389</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string/>
+  </property>
+  <widget class="QPushButton" name="pushButtonSlack">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>300</y>
+     <width>229</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>VCMI on Slack</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButtonDiscord">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>270</y>
+     <width>229</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>VCMI on Discord</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButtonGithub">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>340</y>
+     <width>229</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>VCMI on Github</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelLanguageSocial">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>230</y>
+     <width>331</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Have a question? Found a bug? Want to help? Join us!</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelGameDir">
+   <property name="geometry">
+    <rect>
+     <x>97</x>
+     <y>112</y>
+     <width>277</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Game data directory</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="openTempDir">
+   <property name="geometry">
+    <rect>
+     <x>597</x>
+     <y>170</y>
+     <width>92</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelTempDir">
+   <property name="geometry">
+    <rect>
+     <x>97</x>
+     <y>170</y>
+     <width>277</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Log files directory</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="openUserDataDir">
+   <property name="geometry">
+    <rect>
+     <x>597</x>
+     <y>141</y>
+     <width>92</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEditUserDataDir">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>380</x>
+     <y>141</y>
+     <width>211</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string notr="true">/home/user/.vcmi</string>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="openGameDataDir">
+   <property name="geometry">
+    <rect>
+     <x>597</x>
+     <y>112</y>
+     <width>92</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEditGameDir">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>380</x>
+     <y>112</y>
+     <width>211</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string notr="true">/usr/share/vcmi</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelUserDataDir">
+   <property name="geometry">
+    <rect>
+     <x>97</x>
+     <y>141</y>
+     <width>277</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>User data directory</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEditTempDir">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>380</x>
+     <y>170</y>
+     <width>211</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string notr="true">/home/user/.vcmi</string>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelDataDirs">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>90</y>
+     <width>277</width>
+     <height>15</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Data Directories</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEditBuildVersion">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>40</y>
+     <width>162</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string notr="true"/>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelBuildVersionDesc">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>40</y>
+     <width>151</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Build version</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="updatesButton">
+   <property name="geometry">
+    <rect>
+     <x>540</x>
+     <y>60</y>
+     <width>151</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Check for updates</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelDataDirs_2">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>210</y>
+     <width>277</width>
+     <height>15</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Our Community</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

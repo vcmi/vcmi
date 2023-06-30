@@ -1,5 +1,6 @@
 set(launcher_SRCS
 		StdInc.cpp
+		aboutProject/aboutproject_moc.cpp
 		modManager/cdownloadmanager_moc.cpp
 		modManager/cmodlist.cpp
 		modManager/cmodlistmodel_moc.cpp
@@ -21,6 +22,7 @@ set(launcher_SRCS
 
 set(launcher_HEADERS
 		StdInc.h
+		aboutProject/aboutproject_moc.h
 		modManager/cdownloadmanager_moc.h
 		modManager/cmodlist.h
 		modManager/cmodlistmodel_moc.h
@@ -41,6 +43,7 @@ set(launcher_HEADERS
 )
 
 set(launcher_FORMS
+		aboutProject/aboutproject_moc.ui
 		modManager/cmodlistview_moc.ui
 		modManager/imageviewer_moc.ui
 		settingsView/csettingsview_moc.ui
