@@ -17,13 +17,17 @@ enum class ELanguages
 	CZECH,
 	CHINESE,
 	ENGLISH,
+	FINNISH,
 	FRENCH,
 	GERMAN,
 	ITALIAN,
 	KOREAN,
 	POLISH,
+	PORTUGUESE,
 	RUSSIAN,
 	SPANISH,
+	SWEDISH,
+	TURKISH,
 	UKRAINIAN,
 
 	// Pseudo-languages, that have no translations but can define H3 encoding to use
@@ -57,19 +61,23 @@ struct Options
 
 inline const auto & getLanguageList()
 {
-	static const std::array<Options, 14> languages
+	static const std::array<Options, 18> languages
 	{ {
-		{ "czech",     "Czech",     "Čeština",    "CP1250", "cs", true },
-		{ "chinese",   "Chinese",   "简体中文",       "GBK",    "zh", true }, // Note: actually Simplified Chinese
-		{ "english",   "English",   "English",    "CP1252", "en", true },
-		{ "french",    "French",    "Français",   "CP1252", "fr", true },
-		{ "german",    "German",    "Deutsch",    "CP1252", "de", true },
-		{ "italian",   "Italian",   "Italiano",   "CP1250", "it", true },
-		{ "korean",    "Korean",    "한국어",        "CP949",  "ko", true },
-		{ "polish",    "Polish",    "Polski",     "CP1250", "pl", true },
-		{ "russian",   "Russian",   "Русский",    "CP1251", "ru", true },
-		{ "spanish",   "Spanish",   "Español",    "CP1252", "es", true },
-		{ "ukrainian", "Ukrainian", "Українська", "CP1251", "uk", true },
+		{ "czech",      "Czech",      "Čeština",    "CP1250", "cs", true },
+		{ "chinese",    "Chinese",    "简体中文",       "GBK",    "zh", true }, // Note: actually Simplified Chinese
+		{ "english",    "English",    "English",    "CP1252", "en", true },
+		{ "finnish",    "Finnish",    "Suomi",      "CP1252", "fi", true },
+		{ "french",     "French",     "Français",   "CP1252", "fr", true },
+		{ "german",     "German",     "Deutsch",    "CP1252", "de", true },
+		{ "italian",    "Italian",    "Italiano",   "CP1250", "it", true },
+		{ "korean",     "Korean",     "한국어",        "CP949",  "ko", true },
+		{ "polish",     "Polish",     "Polski",     "CP1250", "pl", true },
+		{ "portuguese", "Portuguese", "Português",  "CP1252", "pt", true }, // Note: actually Brazilian Portuguese
+		{ "russian",    "Russian",    "Русский",    "CP1251", "ru", true },
+		{ "spanish",    "Spanish",    "Español",    "CP1252", "es", true },
+		{ "swedish",    "Swedish",    "Svenska",    "CP1252", "sv", true },
+		{ "turkish",    "Turkish",    "Türkçe",     "CP1254", "tr", true },
+		{ "ukrainian",  "Ukrainian",  "Українська", "CP1251", "uk", true },
 
 		{ "other_cp1250", "Other (East European)",   "", "CP1251", "", false },
 		{ "other_cp1251", "Other (Cyrillic Script)", "", "CP1250", "", false },
