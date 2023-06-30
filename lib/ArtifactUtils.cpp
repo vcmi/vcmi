@@ -219,7 +219,7 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const 
 	return art;
 }
 
-DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description, SpellID & sid)
+DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description, const SpellID & sid)
 {
 	// We expect scroll description to be like this: This scroll contains the [spell name] spell which is added
 	// into spell book for as long as hero carries the scroll. So we want to replace text in [...] with a spell name.

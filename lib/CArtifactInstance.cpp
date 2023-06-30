@@ -15,6 +15,8 @@
 #include "CArtHandler.h"
 #include "NetPacksBase.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void CCombinedArtifactInstance::addArtInstAsPart(CArtifactInstance * art, const ArtifactPosition & slot)
 {
 	auto artInst = static_cast<CArtifactInstance*>(this);
@@ -165,3 +167,5 @@ void CArtifactInstance::deserializationFix()
 	for(PartInfo & part : partsInfo)
 		attachTo(*part.art);
 }
+
+VCMI_LIB_NAMESPACE_END

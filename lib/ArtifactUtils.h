@@ -41,7 +41,7 @@ namespace ArtifactUtils
 	DLL_LINKAGE CArtifactInstance * createNewArtifactInstance(CArtifact * art);
 	DLL_LINKAGE CArtifactInstance * createNewArtifactInstance(const ArtifactID & aid);
 	DLL_LINKAGE CArtifactInstance * createArtifact(CMap * map, const ArtifactID & aid, int spellID = -1);
-	DLL_LINKAGE void insertScrrollSpellName(std::string & description, SpellID & sid);
+	DLL_LINKAGE void insertScrrollSpellName(std::string & description, const SpellID & sid);
 }
 
 VCMI_LIB_NAMESPACE_END
