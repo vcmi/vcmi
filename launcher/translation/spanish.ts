@@ -882,7 +882,7 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
         <translation></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="62"/>
+        <location filename="../languages.cpp" line="63"/>
         <source>Auto (%1)</source>
         <translation>Automático (%1)</translation>
     </message>

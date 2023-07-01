@@ -70,7 +70,7 @@ inline const auto & getLanguageList()
 		{ "finnish",    "Finnish",    "Suomi",      "CP1252", "fi", true },
 		{ "french",     "French",     "Français",   "CP1252", "fr", true },
 		{ "german",     "German",     "Deutsch",    "CP1252", "de", true },
-		{ "hungarian",  "Hungarian",  "Magyar",     "CP1252", "hu", true },
+		{ "hungarian",  "Hungarian",  "Magyar",     "CP1250", "hu", true },
 		{ "italian",    "Italian",    "Italiano",   "CP1250", "it", true },
 		{ "korean",     "Korean",     "한국어",        "CP949",  "ko", true },
 		{ "polish",     "Polish",     "Polski",     "CP1250", "pl", true },

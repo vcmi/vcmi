@@ -818,66 +818,71 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
-        <source>Italian</source>
+        <source>Hungarian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
-        <source>Korean</source>
+        <source>Italian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
-        <source>Polish</source>
+        <source>Korean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
-        <source>Portuguese</source>
+        <source>Polish</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="33"/>
-        <source>Russian</source>
+        <source>Portuguese</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="34"/>
-        <source>Spanish</source>
+        <source>Russian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="35"/>
-        <source>Swedish</source>
+        <source>Spanish</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="36"/>
-        <source>Turkish</source>
+        <source>Swedish</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
-        <source>Ukrainian</source>
+        <source>Turkish</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="38"/>
-        <source>Other (East European)</source>
+        <source>Ukrainian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="39"/>
-        <source>Other (Cyrillic Script)</source>
+        <source>Other (East European)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
+        <source>Other (Cyrillic Script)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="41"/>
         <source>Other (West European)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="62"/>
+        <location filename="../languages.cpp" line="63"/>
         <source>Auto (%1)</source>
         <translation type="unfinished"></translation>
     </message>
