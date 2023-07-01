@@ -570,7 +570,7 @@
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="78"/>
         <source>Mods Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Preajustes de los mods</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="111"/>
@@ -580,17 +580,17 @@
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="175"/>
         <source>VCMI on Github</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI en Github</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="182"/>
         <source>VCMI on Slack</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI en Slack</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="189"/>
         <source>VCMI on Discord</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI en Discord</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="239"/>
@@ -699,12 +699,12 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="585"/>
         <source>Install VCMI Mod Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalar ajuste preestablecido de mod VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="635"/>
         <source>Horn of the Abyss</source>
-        <translation type="unfinished"></translation>
+        <translation>Horn of the Abyss</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="657"/>
@@ -719,7 +719,7 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="743"/>
         <source>In The Wake of Gods</source>
-        <translation type="unfinished"></translation>
+        <translation>In The Wake of Gods</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="759"/>
@@ -852,67 +852,67 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Chinese (Chino)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
         <source>English</source>
-        <translation type="unfinished">English (Inglés)</translation>
+        <translation>English (Inglés)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="25"/>
         <source>French</source>
-        <translation type="unfinished"></translation>
+        <translation>French (Francés)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>German</source>
-        <translation type="unfinished"></translation>
+        <translation>German (Alemán)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>Korean</source>
-        <translation type="unfinished"></translation>
+        <translation>Korean (Coreano)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
         <source>Polish</source>
-        <translation type="unfinished"></translation>
+        <translation>Polish (Polaco)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>Russian</source>
-        <translation type="unfinished"></translation>
+        <translation>Russian (Ruso)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
         <source>Spanish</source>
-        <translation type="unfinished"></translation>
+        <translation>Spanish (Español)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
         <source>Ukrainian</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukrainian (Ucraniano)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
         <source>Other (East European)</source>
-        <translation type="unfinished"></translation>
+        <translation>Otro (Europa del Este)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="33"/>
-        <source>Other (Cyrillic Script)</source>
-        <translation type="unfinished"></translation>
+        <source>Otro (alfabeto cirílico)</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="34"/>
-        <source>Other (West European)</source>
-        <translation type="unfinished"></translation>
+        <source>Otro (Europa occidental)</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="56"/>
         <source>Auto (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Automático (%1)</translation>
     </message>
 </context>
 <context>
@@ -936,7 +936,7 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     <message>
         <location filename="../lobby/lobby_moc.ui" line="114"/>
         <source>Lobby chat</source>
-        <translation type="unfinished"></translation>
+        <translation>Charlar en la sala</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="194"/>

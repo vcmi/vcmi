@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fr">
+<TS version="2.1" language="fr_FR">
     <context>
         <name>CModListModel</name>
         <message>
@@ -41,7 +41,7 @@
         <message>
             <location filename="../modManager/cmodlistmodel_moc.cpp" line="49"/>
             <source>Skills</source>
-            <translation>Compétence</translation>
+            <translation>Compétences</translation>
         </message>
         <message>
             <location filename="../modManager/cmodlistmodel_moc.cpp" line="50"/>
@@ -75,12 +75,12 @@
             <location filename="../modManager/cmodlistmodel_moc.cpp" line="57"/>
             <location filename="../modManager/cmodlistmodel_moc.cpp" line="58"/>
             <source>Graphical</source>
-            <translation>Graphique</translation>
+            <translation>Graphisme</translation>
         </message>
         <message>
             <location filename="../modManager/cmodlistmodel_moc.cpp" line="59"/>
             <source>Expansion</source>
-            <translation>Expansion</translation>
+            <translation>Extension</translation>
         </message>
         <message>
             <location filename="../modManager/cmodlistmodel_moc.cpp" line="60"/>
@@ -90,7 +90,7 @@
         <message>
             <location filename="../modManager/cmodlistmodel_moc.cpp" line="61"/>
             <source>Artifacts</source>
-            <translation>Artifacts</translation>
+            <translation>Artéfacts</translation>
         </message>
         <message>
             <location filename="../modManager/cmodlistmodel_moc.cpp" line="62"/>
@@ -128,32 +128,32 @@
         <message>
             <location filename="../modManager/cmodlistview_moc.ui" line="86"/>
             <source>Downloadable</source>
-            <translation>Téléchargeable</translation>
+            <translation>Téléchargeables</translation>
         </message>
         <message>
             <location filename="../modManager/cmodlistview_moc.ui" line="91"/>
             <source>Installed</source>
-            <translation>Installé</translation>
+            <translation>Installés</translation>
         </message>
         <message>
             <location filename="../modManager/cmodlistview_moc.ui" line="96"/>
             <source>Updatable</source>
-            <translation>Actualisable</translation>
+            <translation>Actualisables</translation>
         </message>
         <message>
             <location filename="../modManager/cmodlistview_moc.ui" line="101"/>
             <source>Active</source>
-            <translation>Actif</translation>
+            <translation>Actifs</translation>
         </message>
         <message>
             <location filename="../modManager/cmodlistview_moc.ui" line="106"/>
             <source>Inactive</source>
-            <translation>Inactif</translation>
+            <translation>Inactifs</translation>
         </message>
         <message>
             <location filename="../modManager/cmodlistview_moc.ui" line="120"/>
             <source>Download &amp;&amp; refresh repositories</source>
-            <translation>Téléchargement &amp;&amp; rafraîchir les dépôts</translation>
+            <translation>Télécharger et rafraîchir les dépôts</translation>
         </message>
         <message>
             <location filename="../modManager/cmodlistview_moc.ui" line="163"/>
@@ -197,7 +197,7 @@
             <translation>Installer</translation>
         </message>
         <message>
-            <location filename="../modManager/cmodlistview_moc.ui" line="327"/>
+            <location filename="../modManager/cmodlistview_moc.ui" line="324"/>
             <source>%p% (%v KB out of %m KB)</source>
             <translation>%p% (%v Ko sur %m Ko)</translation>
         </message>
@@ -229,7 +229,7 @@
         <message>
             <location filename="../modManager/cmodlistview_moc.cpp" line="256"/>
             <source>Authors</source>
-            <translation>Auteurs</translation>
+            <translation>Auteur(s)</translation>
         </message>
         <message>
             <location filename="../modManager/cmodlistview_moc.cpp" line="259"/>
@@ -328,7 +328,7 @@
         <message>
             <location filename="../settingsView/csettingsview_moc.ui" line="327"/>
             <source>Change</source>
-            <translation>Changement</translation>
+            <translation>Changer</translation>
         </message>
         <message>
             <location filename="../settingsView/csettingsview_moc.ui" line="222"/>
@@ -933,7 +933,7 @@
         <message>
             <location filename="../lobby/lobbyroomrequest_moc.ui" line="17"/>
             <source>Room settings</source>
-            <translation>Configuration de salon</translation>
+            <translation>Paramètres de salon</translation>
         </message>
         <message>
             <location filename="../lobby/lobbyroomrequest_moc.ui" line="32"/>
@@ -966,7 +966,7 @@
         <message>
             <location filename="../mainwindow_moc.ui" line="107"/>
             <source>Settings</source>
-            <translation>Configuration</translation>
+            <translation>Paramètres</translation>
         </message>
         <message>
             <location filename="../mainwindow_moc.ui" line="157"/>
