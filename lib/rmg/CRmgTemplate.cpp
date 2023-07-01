@@ -194,8 +194,6 @@ const std::set<TerrainId> & ZoneOptions::getTerrainTypes() const
 
 void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 {
-	//assert(value.find(ETerrainType::NONE) == value.end() &&
-	//	   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());
 	terrainTypes = value;
 }
 
@@ -379,8 +377,8 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	}
 
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
-	handler.serializeIdArray<FactionID, FactionID>("allowedMonsters", monsterTypes, VLC->townh->getAllowedFactions(false));
-	handler.serializeIdArray<FactionID, FactionID>("allowedTowns", townTypes, VLC->townh->getAllowedFactions(true));
+	handler.serializeIdArray<FactionID, FactionID>("allowedMonsters", monsterTypes, std::set<FactionID>());
+	handler.serializeIdArray<FactionID, FactionID>("allowedTowns", townTypes, std::set<FactionID>());
 
 	{
 		//TODO: add support for std::map to serializeEnum
@@ -795,6 +793,13 @@ void CRmgTemplate::afterLoad()
 		inheritTerrainType(zone);
 		inheritMineTypes(zone);
 		inheritTreasureInfo(zone);
+
+		//TODO: Inherit monster types as well
+		auto monsterTypes = zone->getMonsterTypes();
+		if (monsterTypes.empty())
+		{
+			zone->setMonsterTypes(VLC->townh->getAllowedFactions(false));
+		}
 	}
 
 	for(const auto & connection : connectedZoneIds)
