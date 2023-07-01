@@ -20,6 +20,7 @@ enum class ELanguages
 	FINNISH,
 	FRENCH,
 	GERMAN,
+	HUNGARIAN,
 	ITALIAN,
 	KOREAN,
 	POLISH,
@@ -61,7 +62,7 @@ struct Options
 
 inline const auto & getLanguageList()
 {
-	static const std::array<Options, 18> languages
+	static const std::array<Options, 19> languages
 	{ {
 		{ "czech",      "Czech",      "Čeština",    "CP1250", "cs", true },
 		{ "chinese",    "Chinese",    "简体中文",       "GBK",    "zh", true }, // Note: actually Simplified Chinese
@@ -69,6 +70,7 @@ inline const auto & getLanguageList()
 		{ "finnish",    "Finnish",    "Suomi",      "CP1252", "fi", true },
 		{ "french",     "French",     "Français",   "CP1252", "fr", true },
 		{ "german",     "German",     "Deutsch",    "CP1252", "de", true },
+		{ "hungarian",  "Hungarian",  "Magyar",     "CP1252", "hu", true },
 		{ "italian",    "Italian",    "Italiano",   "CP1250", "it", true },
 		{ "korean",     "Korean",     "한국어",        "CP949",  "ko", true },
 		{ "polish",     "Polish",     "Polski",     "CP1250", "pl", true },
