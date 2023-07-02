@@ -145,7 +145,7 @@ public:
 	const CTownInfo & getPlayerTowns() const;
 	const CTownInfo & getNeutralTowns() const;
 	std::set<FactionID> getDefaultTownTypes() const;
-	const std::set<FactionID> & getTownTypes() const;
+	const std::set<FactionID> getTownTypes() const;
 	const std::set<FactionID> & getMonsterTypes() const;
 
 	void setTownTypes(const std::set<FactionID> & value);
@@ -188,6 +188,7 @@ protected:
 	bool townsAreSameType;
 
 	std::set<FactionID> townTypes;
+	std::set<FactionID> bannedTownTypes;
 	std::set<FactionID> monsterTypes;
 
 	std::map<TResource, ui16> mines; //obligatory mines to spawn in this zone

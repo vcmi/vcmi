@@ -205,9 +205,17 @@ std::set<FactionID> ZoneOptions::getDefaultTownTypes() const
 	return defaultTowns;
 }
 
-const std::set<FactionID> & ZoneOptions::getTownTypes() const
+const std::set<FactionID> ZoneOptions::getTownTypes() const
 {
-	return townTypes;
+	if (townTypes.empty())
+	{
+		//Assume that all towns are allowed, unless banned
+		return vstd::difference(getDefaultTownTypes(), bannedTownTypes);
+	}
+	else 
+	{
+		return vstd::difference(townTypes, bannedTownTypes);
+	}
 }
 
 void ZoneOptions::setTownTypes(const std::set<FactionID> & value)
@@ -376,6 +384,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
 	handler.serializeIdArray<FactionID, FactionID>("allowedMonsters", monsterTypes, std::set<FactionID>());
 	handler.serializeIdArray<FactionID, FactionID>("allowedTowns", townTypes, std::set<FactionID>());
+	handler.serializeIdArray<FactionID, FactionID>("bannedTowns", bannedTownTypes, std::set<FactionID>());
 
 	{
 		//TODO: add support for std::map to serializeEnum
