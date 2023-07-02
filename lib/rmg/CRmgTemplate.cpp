@@ -728,8 +728,6 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 			}
 		}
 	}
-	if(!handler.saving)
-		afterLoad();
 }
 
 std::set<TerrainId> CRmgTemplate::inheritTerrainType(std::shared_ptr<ZoneOptions> zone, uint32_t iteration /* = 0 */)

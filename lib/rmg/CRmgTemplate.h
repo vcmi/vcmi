@@ -245,6 +245,7 @@ public:
 	void validate() const; /// Tests template on validity and throws exception on failure
 
 	void serializeJson(JsonSerializeFormat & handler);
+	void afterLoad();
 
 private:
 	std::string id;
@@ -255,7 +256,6 @@ private:
 	std::vector<rmg::ZoneConnection> connectedZoneIds;
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;
 
-	void afterLoad();
 	std::set<TerrainId> inheritTerrainType(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	std::map<TResource, ui16> inheritMineTypes(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	std::vector<CTreasureInfo> inheritTreasureInfo(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);

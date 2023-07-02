@@ -79,8 +79,8 @@ void TerrainPainter::initTerrainType()
 					{
 						if (terrain->isLand() && terrain->isPassable())
 						{
-							if (terrain->isSurface() && !zone.isUnderground() ||
-								terrain->isUnderground() && zone.isUnderground())
+							if ((terrain->isSurface() && !zone.isUnderground()) ||
+								(terrain->isUnderground() && zone.isUnderground()))
 							{
 								terrainTypes.insert(terrain->getId());
 							}
