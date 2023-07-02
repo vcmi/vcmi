@@ -23,11 +23,11 @@ InputVariable: goldReward
   enabled: true
   range: 0.000 5000.000
   lock-range: true
-  term: LOW Triangle 10.000 500.000 2000.000
-  term: MEDIUM Triangle 500.000 2000.000 5000.000
-  term: HIGH Ramp 2000.000 5000.000
-  term: NONE Ramp 100.000 0.000
-  term: LOWEST Triangle 0.000 100.000 500.000
+  term: LOWEST Triangle 0.000 100.000 200.000
+  term: SMALL Triangle 100.000 200.000 400.000
+  term: MEDIUM Triangle 200.000 400.000 1000.000
+  term: BIG Triangle 400.000 1000.000 5000.000
+  term: HUGE Ramp 1000.000 5000.000
 InputVariable: armyReward
   enabled: true
   range: 0.000 10000.000
@@ -97,7 +97,7 @@ InputVariable: goldPreasure
   range: 0.000 1.000
   lock-range: false
   term: LOW Ramp 0.300 0.000
-  term: HIGH Discrete 0.100 0.000 0.250 0.100 0.300 0.200 0.400 0.700 1.000 1.000
+  term: HIGH Discrete 0.100 0.000 0.250 0.200 0.300 0.300 0.400 0.700 1.000 1.000
 InputVariable: goldCost
   description: Action cost in gold
   enabled: true
@@ -215,3 +215,22 @@ RuleBlock: armyReward
   rule: if heroRole is MAIN and armyReward is MEDIUM and mainTurnDistance is LONG and fear is not HIGH then Value is MEDIUM
   rule: if heroRole is MAIN and armyReward is LOW and mainTurnDistance is LOW and fear is not HIGH then Value is MEDIUM
   rule: if heroRole is MAIN and armyReward is LOW and mainTurnDistance is MEDIUM and fear is not HIGH then Value is SMALL
+RuleBlock: gold
+  enabled: true
+  conjunction: AlgebraicProduct
+  disjunction: AlgebraicSum
+  implication: AlgebraicProduct
+  activation: General
+  rule: if goldReward is HUGE and goldPreasure is HIGH and heroRole is SCOUT and danger is NONE then Value is HIGHEST
+  rule: if goldReward is HUGE and goldPreasure is HIGH and heroRole is SCOUT and danger is not NONE and armyLoss is LOW then Value is BITHIGH
+  rule: if goldReward is HUGE and heroRole is MAIN and danger is not NONE and armyLoss is LOW then Value is HIGHEST
+  rule: if goldReward is HUGE and goldPreasure is HIGH and heroRole is MAIN and danger is NONE then Value is HIGH
+  rule: if goldReward is BIG and goldPreasure is HIGH and heroRole is SCOUT and danger is NONE then Value is HIGH
+  rule: if goldReward is BIG and goldPreasure is HIGH and heroRole is SCOUT and danger is not NONE then Value is MEDIUM
+  rule: if goldReward is BIG and goldPreasure is HIGH and heroRole is MAIN and danger is not NONE and armyLoss is LOW then Value is HIGH
+  rule: if goldReward is BIG and goldPreasure is HIGH and heroRole is MAIN and danger is NONE then Value is MEDIUM
+  rule: if goldReward is MEDIUM and goldPreasure is HIGH and heroRole is SCOUT and danger is NONE then Value is BITHIGH
+  rule: if goldReward is MEDIUM and goldPreasure is HIGH and heroRole is SCOUT and danger is not NONE then Value is SMALL
+  rule: if goldReward is MEDIUM and goldPreasure is HIGH and heroRole is MAIN and danger is not NONE and armyLoss is LOW then Value is BITHIGH
+  rule: if goldReward is SMALL and goldPreasure is HIGH and heroRole is SCOUT and danger is NONE then Value is MEDIUM
+  rule: if goldReward is SMALL and goldPreasure is HIGH and heroRole is MAIN and danger is not NONE and armyLoss is LOW then Value is SMALL

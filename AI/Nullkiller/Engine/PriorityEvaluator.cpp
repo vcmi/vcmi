@@ -1014,6 +1014,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		+ (evaluationContext.armyReward > 0 ? 1 : 0)
 		+ (evaluationContext.skillReward > 0 ? 1 : 0)
 		+ (evaluationContext.strategicalValue > 0 ? 1 : 0);
+
+	auto goldRewardPerTurn = evaluationContext.goldReward / std::log2f(evaluationContext.movementCost * 10);
 	
 	double result = 0;
 
@@ -1023,7 +1025,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		heroRoleVariable->setValue(evaluationContext.heroRole);
 		mainTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::MAIN]);
 		scoutTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::SCOUT]);
-		goldRewardVariable->setValue(evaluationContext.goldReward);
+		goldRewardVariable->setValue(goldRewardPerTurn);
 		armyRewardVariable->setValue(evaluationContext.armyReward);
 		armyGrowthVariable->setValue(evaluationContext.armyGrowth);
 		skillRewardVariable->setValue(evaluationContext.skillReward);
