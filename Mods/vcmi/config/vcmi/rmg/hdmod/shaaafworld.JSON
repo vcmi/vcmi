@@ -13,7 +13,6 @@
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 2 },
-				"bannedTowns" : ["necropolis", "conflux"],
 				"matchTerrainToTown" : false,
 				"terrainTypes" : [ "grass" ],
 				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 1 },
@@ -32,7 +31,6 @@
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 2 },
-				"bannedTowns" : ["necropolis", "conflux"],
 				"terrainTypeLikeZone" : 1,
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1

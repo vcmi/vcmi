@@ -14,7 +14,6 @@
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
 				"bannedTowns" : ["tower", "necropolis", "conflux"],
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 2 },
 				"treasure" :
 				[
@@ -31,7 +30,6 @@
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
 				"bannedTowns" : ["tower", "necropolis", "conflux"],
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -43,7 +41,6 @@
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
 				"bannedTowns" : ["tower", "necropolis", "conflux"],
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -55,7 +52,6 @@
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
 				"bannedTowns" : ["tower", "necropolis", "conflux"],
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},

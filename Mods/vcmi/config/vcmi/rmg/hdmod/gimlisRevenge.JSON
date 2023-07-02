@@ -13,7 +13,6 @@
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 1 },
-				"bannedTowns" : ["necropolis", "conflux"],
 				"mines" : { "wood" : 1, "ore" : 1, "gold" : 1 },
 				"treasure" :
 				[
@@ -30,7 +29,6 @@
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 1 },
-				"bannedTowns" : ["necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -39,7 +37,6 @@
 				"type" : "treasure",
 				"size" : 15,
 				"monsters" : "normal",
-				"bannedTowns" : ["necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -48,7 +45,6 @@
 				"type" : "treasure",
 				"size" : 15,
 				"monsters" : "normal",
-				"bannedTowns" : ["necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -57,7 +53,6 @@
 				"type" : "treasure",
 				"size" : 12,
 				"monsters" : "strong",
-				"bannedTowns" : ["necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -66,7 +61,6 @@
 				"type" : "treasure",
 				"size" : 12,
 				"monsters" : "strong",
-				"bannedTowns" : ["necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -75,7 +69,6 @@
 				"type" : "treasure",
 				"size" : 12,
 				"monsters" : "strong",
-				"bannedTowns" : ["necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},

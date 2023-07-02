@@ -12,8 +12,6 @@
 				"owner" : 1,
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
-				"bannedTowns" : ["necropolis", "conflux"],
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"mines" : { "wood" : 1, "ore" : 1 },
 				"treasure" :
 				[
@@ -29,8 +27,6 @@
 				"owner" : 2,
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
-				"bannedTowns" : ["necropolis", "conflux"],
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -42,7 +38,6 @@
 				"neutralTowns" : { "towns" : 1 },
 				"allowedTowns" : [ "necropolis" ],
 				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"mines" : { "mercury" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1 },
 				"treasure" :
 				[
@@ -59,7 +54,6 @@
 				"neutralTowns" : { "towns" : 1 },
 				"allowedTowns" : [ "necropolis" ],
 				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"minesLikeZone" : 3,
 				"treasureLikeZone" : 3
 			},
@@ -70,7 +64,6 @@
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
 				"matchTerrainToTown" : false,
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"treasure" :
 				[
 					{ "min" : 6000, "max" : 8000, "density" : 6 },
@@ -84,7 +77,6 @@
 				"size" : 12,
 				"monsters" : "strong",
 				"neutralTowns" : { "castles" : 1 },
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"mines" : { "gold" : 1 },
 				"treasure" :
 				[
@@ -116,7 +108,6 @@
 				"size" : 12,
 				"monsters" : "strong",
 				"neutralTowns" : { "castles" : 1 },
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"minesLikeZone" : 6,
 				"treasureLikeZone" : 6
 			},
@@ -144,7 +135,6 @@
 				"size" : 12,
 				"monsters" : "strong",
 				"neutralTowns" : { "castles" : 1 },
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"minesLikeZone" : 6,
 				"treasureLikeZone" : 6
 			},
