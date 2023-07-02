@@ -145,9 +145,6 @@ ZoneOptions::ZoneOptions():
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
 {
-	for(const auto & terr : VLC->terrainTypeHandler->objects)
-		if(terr->isLand() && terr->isPassable())
-			terrainTypes.insert(terr->getId());
 }
 
 TRmgTemplateZoneId ZoneOptions::getId() const
@@ -804,8 +801,6 @@ void CRmgTemplate::afterLoad()
 
 	for(const auto & connection : connectedZoneIds)
 	{
-		//TODO: Remember connection details and allow to access them from anywhere
-
 		auto id1 = connection.getZoneA();
 		auto id2 = connection.getZoneB();
 

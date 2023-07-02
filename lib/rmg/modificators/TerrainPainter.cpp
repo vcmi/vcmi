@@ -73,13 +73,22 @@ void TerrainPainter::initTerrainType()
 			auto terrainTypes = zone.getTerrainTypes();
 			if (terrainTypes.empty())
 			{
-				logGlobal->warn("No terrain types found, falling back to DIRT");
-				zone.setTerrainType(ETerrainId::DIRT);
+				//Fill with all terain types by default
+				{
+					for (auto terrain : VLC->terrainTypeHandler->objects)
+					{
+						if (terrain->isLand() && terrain->isPassable())
+						{
+							if (terrain->isSurface() && !zone.isUnderground() ||
+								terrain->isUnderground() && zone.isUnderground())
+							{
+								terrainTypes.insert(terrain->getId());
+							}
+						}
+					}
+				}
 			}
-			else
-			{
-				zone.setTerrainType(*RandomGeneratorUtil::nextItem(terrainTypes, zone.getRand()));
-			}
+			zone.setTerrainType(*RandomGeneratorUtil::nextItem(terrainTypes, zone.getRand()));
 		}
 
 		//Now, replace disallowed terrains on surface and in the underground
