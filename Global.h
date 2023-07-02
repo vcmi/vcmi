@@ -633,6 +633,14 @@ namespace vstd
 		return v3;
 	}
 
+	template <typename T>
+	std::set<T> difference(const std::set<T> &s1, const std::set<T> s2)
+	{
+		std::set<T> s3;
+		std::set_difference(s1.begin(), s1.end(), s2.begin(), s2.end(), std::inserter(s3, s3.end()));
+		return s3;
+	}
+
 	template <typename Key, typename V>
 	bool containsMapping(const std::multimap<Key,V> & map, const std::pair<const Key,V> & mapping)
 	{
