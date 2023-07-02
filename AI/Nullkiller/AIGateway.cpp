@@ -699,7 +699,7 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 	//you can't request action from action-response thread
 	requestActionASAP([=]()
 	{
-		if(removableUnits)
+		if(removableUnits && up->tempOwner == down->tempOwner)
 			pickBestCreatures(down, up);
 
 		answerQuery(queryID, 0);
