@@ -307,6 +307,8 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 					path.heroArmy,
 					upgrader->getUpperArmy()));
 
+			armyToGetOrBuy.upgradeValue -= path.heroArmy->getArmyStrength();
+
 			armyToGetOrBuy.addArmyToBuy(
 				ai->nullkiller->armyManager->toSlotInfo(
 					ai->nullkiller->armyManager->getArmyAvailableToBuy(
