@@ -13,7 +13,7 @@
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"mines" : { "wood" : 1, "mercury" : 0, "ore" : 1, "sulfur" : 0, "crystal" : 0, "gems" : 0, "gold" : 1 },
 				"treasure" :
 				[
@@ -27,7 +27,7 @@
 				"size" : 60,
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"matchTerrainToTown" : false,
 				"terrainTypes" : [ "sand", "subterra" ],
 				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 1 },
@@ -44,7 +44,7 @@
 				"size" : 100,
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1, "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"matchTerrainToTown" : false,
 				"terrainTypes" : [ "grass" ],
 				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 0 },
@@ -61,7 +61,7 @@
 				"size" : 100,
 				"monsters" : "strong",
 				"neutralTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"matchTerrainToTown" : false,
 				"terrainTypes" : [ "subterra" ],
 				"mines" : { "wood" : 0, "mercury" : 1, "ore" : 0, "sulfur" : 0, "crystal" : 0, "gems" : 0, "gold" : 2 },
@@ -94,7 +94,7 @@
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -104,7 +104,7 @@
 				"size" : 60,
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"terrainTypeLikeZone" : 2,
 				"minesLikeZone" : 2,
 				"treasureLikeZone" : 2
@@ -115,7 +115,7 @@
 				"size" : 100,
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1, "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"terrainTypeLikeZone" : 3,
 				"minesLikeZone" : 3,
 				"treasureLikeZone" : 3
@@ -126,7 +126,7 @@
 				"size" : 100,
 				"monsters" : "strong",
 				"neutralTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"terrainTypeLikeZone" : 4,
 				"minesLikeZone" : 4,
 				"treasureLikeZone" : 4
@@ -158,7 +158,7 @@
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 2 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"mines" : { "wood" : 1, "mercury" : 0, "ore" : 1, "sulfur" : 0, "crystal" : 0, "gems" : 0, "gold" : 1 },
 				"treasure" :
 				[
@@ -172,7 +172,7 @@
 				"size" : 60,
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"matchTerrainToTown" : false,
 				"terrainTypes" : [ "sand" ],
 				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 1 },
@@ -189,7 +189,7 @@
 				"size" : 70,
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 2, "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"matchTerrainToTown" : false,
 				"terrainTypes" : [ "grass" ],
 				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 0 },
@@ -206,7 +206,7 @@
 				"size" : 80,
 				"monsters" : "strong",
 				"neutralTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"matchTerrainToTown" : false,
 				"terrainTypes" : [ "dirt" ],
 				"mines" : { "wood" : 0, "mercury" : 1, "ore" : 0, "sulfur" : 0, "crystal" : 0, "gems" : 0, "gold" : 5 },
@@ -238,7 +238,7 @@
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 2 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -248,7 +248,7 @@
 				"size" : 60,
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"terrainTypeLikeZone" : 2,
 				"minesLikeZone" : 2,
 				"treasureLikeZone" : 2
@@ -259,7 +259,7 @@
 				"size" : 70,
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 2, "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"terrainTypeLikeZone" : 3,
 				"minesLikeZone" : 3,
 				"treasureLikeZone" : 3
@@ -270,7 +270,7 @@
 				"size" : 80,
 				"monsters" : "strong",
 				"neutralTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["necropolis"],
 				"terrainTypeLikeZone" : 4,
 				"minesLikeZone" : 4,
 				"treasureLikeZone" : 4

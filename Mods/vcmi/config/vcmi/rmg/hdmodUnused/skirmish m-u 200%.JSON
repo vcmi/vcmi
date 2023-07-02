@@ -12,7 +12,7 @@
 				"owner" : 1,
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"bannedTowns" : ["necropolis", "conflux"],
 				"mines" : { "wood" : 1, "ore" : 1 },
 				"treasure" :
 				[
@@ -28,7 +28,7 @@
 				"owner" : 2,
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"bannedTowns" : ["necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},

@@ -13,8 +13,7 @@
 				"owner" : 1,
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "inferno", "dungeon", "stronghold", "fortress" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
+				"bannedTowns" : ["tower", "necropolis", "conflux"],
 				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 2 },
 				"treasure" :
@@ -31,8 +30,7 @@
 				"owner" : 2,
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "inferno", "dungeon", "stronghold", "fortress" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
+				"bannedTowns" : ["tower", "necropolis", "conflux"],
 				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
@@ -44,8 +42,7 @@
 				"owner" : 3,
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "inferno", "dungeon", "stronghold", "fortress" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
+				"bannedTowns" : ["tower", "necropolis", "conflux"],
 				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
@@ -57,8 +54,7 @@
 				"owner" : 4,
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "inferno", "dungeon", "stronghold", "fortress" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
+				"bannedTowns" : ["tower", "necropolis", "conflux"],
 				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
@@ -69,7 +65,6 @@
 				"size" : 4,
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
 				"treasure" :
 				[
 					{ "min" : 18000, "max" : 21000, "density" : 2 },
@@ -83,7 +78,6 @@
 				"size" : 4,
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
 				"treasureLikeZone" : 5
 			},
 			"7" :
@@ -92,7 +86,6 @@
 				"size" : 4,
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
 				"treasureLikeZone" : 5
 			},
 			"8" :
@@ -101,7 +94,6 @@
 				"size" : 4,
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
 				"treasureLikeZone" : 5
 			},
 			"9" :

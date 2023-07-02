@@ -13,7 +13,7 @@
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"bannedTowns" : ["necropolis", "conflux"],
 				"mines" : { "wood" : 1, "ore" : 1, "gold" : 1 },
 				"treasure" :
 				[
@@ -30,7 +30,7 @@
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"bannedTowns" : ["necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -39,7 +39,7 @@
 				"type" : "treasure",
 				"size" : 15,
 				"monsters" : "normal",
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"bannedTowns" : ["necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -48,7 +48,7 @@
 				"type" : "treasure",
 				"size" : 15,
 				"monsters" : "normal",
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"bannedTowns" : ["necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -57,7 +57,7 @@
 				"type" : "treasure",
 				"size" : 12,
 				"monsters" : "strong",
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"bannedTowns" : ["necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -66,7 +66,7 @@
 				"type" : "treasure",
 				"size" : 12,
 				"monsters" : "strong",
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"bannedTowns" : ["necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -75,7 +75,7 @@
 				"type" : "treasure",
 				"size" : 12,
 				"monsters" : "strong",
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"bannedTowns" : ["necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},

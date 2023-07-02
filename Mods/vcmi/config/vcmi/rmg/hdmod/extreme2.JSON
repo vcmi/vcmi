@@ -13,8 +13,7 @@
 				"owner" : 1,
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["castle", "necropolis", "conflux"],
 				"mines" : { "wood" : 1, "ore" : 1, "gold" : 3 },
 				"treasure" :
 				[
@@ -30,8 +29,7 @@
 				"owner" : 2,
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["castle", "necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -42,7 +40,6 @@
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"matchTerrainToTown" : false,
 				"terrainTypes" : [ "grass", "subterra" ],
 				"mines" : { "mercury" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1 },
@@ -59,7 +56,6 @@
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"matchTerrainToTown" : false,
 				"terrainTypes" : [ "subterra", "lava" ],
 				"minesLikeZone" : 3,
@@ -72,7 +68,6 @@
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"matchTerrainToTown" : false,
 				"terrainTypes" : [ "sand" ],
 				"treasure" :
@@ -89,7 +84,6 @@
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"terrainTypeLikeZone" : 5,
 				"treasureLikeZone" : 5
 			},
@@ -100,7 +94,6 @@
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"terrainTypeLikeZone" : 5,
 				"treasureLikeZone" : 5
 			},
@@ -111,7 +104,6 @@
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"terrainTypeLikeZone" : 5,
 				"treasureLikeZone" : 5
 			},
@@ -121,7 +113,6 @@
 				"size" : 15,
 				"monsters" : "strong",
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"terrainTypeLikeZone" : 5,
 				"treasure" :
 				[
@@ -136,7 +127,6 @@
 				"size" : 15,
 				"monsters" : "strong",
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"terrainTypeLikeZone" : 5,
 				"treasureLikeZone" : 9
 			}
@@ -177,8 +167,7 @@
 				"owner" : 1,
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["castle", "necropolis", "conflux"],
 				"mines" : { "wood" : 1, "ore" : 1, "gold" : 3 },
 				"treasure" :
 				[
@@ -194,8 +183,7 @@
 				"owner" : 2,
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["castle", "necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -206,7 +194,6 @@
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"matchTerrainToTown" : false,
 				"terrainTypes" : [ "grass", "subterra" ],
 				"mines" : { "mercury" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1 },
@@ -223,7 +210,6 @@
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"matchTerrainToTown" : false,
 				"terrainTypes" : [ "subterra", "lava" ],
 				"minesLikeZone" : 3,
@@ -236,7 +222,6 @@
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"matchTerrainToTown" : false,
 				"terrainTypes" : [ "sand" ],
 				"treasure" :
@@ -253,7 +238,6 @@
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"terrainTypeLikeZone" : 5,
 				"treasureLikeZone" : 5
 			},
@@ -264,7 +248,6 @@
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"terrainTypeLikeZone" : 5,
 				"treasureLikeZone" : 5
 			},
@@ -275,7 +258,6 @@
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"terrainTypeLikeZone" : 5,
 				"treasureLikeZone" : 5
 			},
@@ -285,7 +267,6 @@
 				"size" : 25,
 				"monsters" : "strong",
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"terrainTypeLikeZone" : 5,
 				"treasure" :
 				[
@@ -300,7 +281,6 @@
 				"size" : 25,
 				"monsters" : "strong",
 				"allowedTowns" : [ "necropolis" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
 				"terrainTypeLikeZone" : 5,
 				"treasureLikeZone" : 9
 			}
