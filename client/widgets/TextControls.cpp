@@ -47,7 +47,7 @@ void CLabel::showAll(Canvas & to)
 CLabel::CLabel(int x, int y, EFonts Font, ETextAlignment Align, const SDL_Color & Color, const std::string & Text)
 	: CTextContainer(Align, Font, Color), text(Text)
 {
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	autoRedraw = true;
 	pos.x += x;
 	pos.y += y;
@@ -299,7 +299,7 @@ CTextBox::CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts 
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	label = std::make_shared<CMultiLineLabel>(rect, Font, Align, Color);
 
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	pos.x += rect.x;
 	pos.y += rect.y;
 	pos.h = rect.h;
@@ -492,7 +492,7 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(c
 	cb(CB),
 	CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	pos.h = Pos.h;
 	pos.w = Pos.w;
 	captureAllKeys = true;

@@ -21,7 +21,7 @@
 BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 
 	const JsonNode config(ResourceID("config/widgets/settings/battleOptionsTab.json"));
 	addCallback("viewGridChanged", [this, owner](bool value)

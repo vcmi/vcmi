@@ -179,7 +179,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		break;
 	case ESelectionScreen::campaignList:
 		tabTitle = CGI->generaltexth->allTexts[726];
-		type |= REDRAW_PARENT; // we use parent background so we need to make sure it's will be redrawn too
+		setRedrawParent(true); // we use parent background so we need to make sure it's will be redrawn too
 		pos.w = parent->pos.w;
 		pos.h = parent->pos.h;
 		pos.x += 3;

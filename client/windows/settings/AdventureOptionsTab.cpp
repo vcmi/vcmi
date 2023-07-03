@@ -34,7 +34,7 @@ AdventureOptionsTab::AdventureOptionsTab()
 		: InterfaceObjectConfigurable()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 
 	const JsonNode config(ResourceID("config/widgets/settings/adventureOptionsTab.json"));
 	addCallback("playerHeroSpeedChanged", [this](int value)

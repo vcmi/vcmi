@@ -1776,7 +1776,7 @@ CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::st
 	border = std::make_shared<CPicture>("TPGATES");
 	pos = border->pos;
 
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 
 	text = std::make_shared<CLabel>(pos.w/2, pos.h/2, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, _text);
 	select(index == parent->selected);
@@ -1850,7 +1850,7 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 	}
 	list = std::make_shared<CListBox>(std::bind(&CObjectListWindow::genItem, this, _1),
 		Point(14, 151), Point(0, 25), 9, items.size(), 0, 1, Rect(262, -32, 256, 256) );
-	list->type |= REDRAW_PARENT;
+	list->setRedrawParent(true);
 
 	ok = std::make_shared<CButton>(Point(15, 402), "IOKAY.DEF", CButton::tooltip(), std::bind(&CObjectListWindow::elementSelected, this), EShortcut::GLOBAL_ACCEPT);
 	ok->block(!list->size());

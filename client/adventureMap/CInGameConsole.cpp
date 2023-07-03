@@ -34,7 +34,7 @@ CInGameConsole::CInGameConsole()
 	: CIntObject(KEYBOARD | TIME | TEXTINPUT)
 	, prevEntDisp(-1)
 {
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 }
 
 void CInGameConsole::showAll(Canvas & to)

@@ -1160,7 +1160,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	updateShadow();
 
 	garr = std::make_shared<CGarrisonInt>(305, 387, 4, Point(0,96), town->getUpperArmy(), town->visitingHero);
-	garr->type |= REDRAW_PARENT;
+	garr->setRedrawParent(true);
 
 	heroes = std::make_shared<HeroSlots>(town, Point(241, 387), Point(241, 483), garr, true);
 	title = std::make_shared<CLabel>(85, 387, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, town->getNameTranslated());

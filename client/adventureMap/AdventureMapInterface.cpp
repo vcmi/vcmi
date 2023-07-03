@@ -318,7 +318,6 @@ void AdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID)
 	widget->getMinimap()->setAIRadar(true);
 	widget->getInfoBar()->startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
 	setState(EAdventureState::ENEMY_TURN);
-
 }
 
 void AdventureMapInterface::setState(EAdventureState state)
@@ -333,17 +332,8 @@ void AdventureMapInterface::adjustActiveness()
 	bool widgetMustBeActive = isActive() && shortcuts->optionSidePanelActive();
 	bool mapViewMustBeActive = isActive() && (shortcuts->optionMapViewActive());
 
-	if (widgetMustBeActive && !widget->isActive())
-		widget->activate();
-
-	if (!widgetMustBeActive && widget->isActive())
-		widget->deactivate();
-
-	if (mapViewMustBeActive && !widget->getMapView()->isActive())
-		widget->getMapView()->activate();
-
-	if (!mapViewMustBeActive && widget->getMapView()->isActive())
-		widget->getMapView()->deactivate();
+	widget->setInputEnabled(widgetMustBeActive);
+	widget->getMapView()->setInputEnabled(mapViewMustBeActive);
 }
 
 void AdventureMapInterface::onCurrentPlayerChanged(PlayerColor playerID)

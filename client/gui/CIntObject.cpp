@@ -20,18 +20,14 @@
 CIntObject::CIntObject(int used_, Point pos_):
 	parent_m(nullptr),
 	parent(parent_m),
-	type(0)
+	redrawParent(false),
+	inputEnabled(true),
+	captureAllKeys(false),
+	used(used_),
+	recActions(GH.defActionsDef),
+	defActions(GH.defActionsDef),
+	pos(pos_, Point())
 {
-	captureAllKeys = false;
-	used = used_;
-
-	recActions = defActions = GH.defActionsDef;
-
-	pos.x = pos_.x;
-	pos.y = pos_.y;
-	pos.w = 0;
-	pos.h = 0;
-
 	if(GH.captureChildren)
 		GH.createdObj.front()->addChild(this, true);
 }
@@ -76,7 +72,11 @@ void CIntObject::activate()
 	if (isActive())
 		return;
 
-	activateEvents(used | GENERAL);
+	if (inputEnabled)
+		activateEvents(used | GENERAL);
+	else
+		activateEvents(GENERAL);
+
 	assert(isActive());
 
 	if(defActions & ACTIVATE)
@@ -139,6 +139,32 @@ void CIntObject::setEnabled(bool on)
 		enable();
 	else
 		disable();
+}
+
+void CIntObject::setInputEnabled(bool on)
+{
+	if (inputEnabled == on)
+		return;
+
+	inputEnabled = on;
+
+	if (!isActive())
+		return;
+
+	assert((used & GENERAL) == 0);
+
+	if (on)
+		activateEvents(used);
+	else
+		deactivateEvents(used);
+
+	for(auto & elem : children)
+		elem->setInputEnabled(on);
+}
+
+void CIntObject::setRedrawParent(bool on)
+{
+	redrawParent = on;
 }
 
 void CIntObject::fitToScreen(int borderWidth, bool propagate)
@@ -210,7 +236,7 @@ void CIntObject::redraw()
 	//it should fix glitches when called by inactive elements located below active window
 	if (isActive())
 	{
-		if (parent_m && (type & REDRAW_PARENT))
+		if (parent_m && redrawParent)
 		{
 			parent_m->redraw();
 		}

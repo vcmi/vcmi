@@ -94,7 +94,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 		  onFullscreenChanged(settings.listen["video"]["fullscreen"])
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 
 	addConditional("touchscreen", GH.input().hasTouchInputDevice());
 #ifdef VCMI_MOBILE
