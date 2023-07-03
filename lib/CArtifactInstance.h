@@ -68,9 +68,10 @@ class DLL_LINKAGE CArtifactInstance
 {
 protected:
 	void init();
+
+	ArtifactInstanceID id;
 public:
 	ConstTransitivePtr<CArtifact> artType;
-	ArtifactInstanceID id;
 
 	CArtifactInstance(CArtifact * art);
 	CArtifactInstance();
@@ -78,6 +79,8 @@ public:
 	std::string nodeName() const override;
 	std::string getDescription() const;
 	ArtifactID getTypeId() const;
+	ArtifactInstanceID getId() const;
+	void setId(ArtifactInstanceID id);
 
 	bool canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved = false) const;
 	bool isCombined() const;

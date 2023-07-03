@@ -800,7 +800,7 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 	bool possible = LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= price;
 	if(possible)
 	{
-		for(auto slot : art->possibleSlots.at(ArtBearer::HERO))
+		for(auto slot : art->getPossibleSlots().at(ArtBearer::HERO))
 		{
 			if(hero->getArt(slot) == nullptr)
 			{

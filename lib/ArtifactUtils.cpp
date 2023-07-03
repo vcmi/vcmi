@@ -22,7 +22,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtAnyPosition(const CArtifactSet * target, const ArtifactID & aid)
 {
 	const auto * art = aid.toArtifact();
-	for(const auto & slot : art->possibleSlots.at(target->bearerType()))
+	for(const auto & slot : art->getPossibleSlots().at(target->bearerType()))
 	{
 		if(art->canBePutAt(target, slot))
 			return slot;

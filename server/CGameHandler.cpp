@@ -4160,9 +4160,9 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 	{
 		const CArtifact * art = aid.toArtifact();
 		COMPLAIN_RET_FALSE_IF(nullptr == art, "Invalid artifact index to buy");
-		COMPLAIN_RET_FALSE_IF(art->warMachine == CreatureID::NONE, "War machine artifact required");
+		COMPLAIN_RET_FALSE_IF(art->getWarMachine() == CreatureID::NONE, "War machine artifact required");
 		COMPLAIN_RET_FALSE_IF(hero->hasArt(aid),"Hero already has this machine!");
-		const int price = art->price;
+		const int price = art->getPrice();
 		COMPLAIN_RET_FALSE_IF(getPlayerState(hero->getOwner())->resources[EGameResID::GOLD] < price, "Not enough gold!");
 
 		if ((town->hasBuilt(BuildingID::BLACKSMITH) && town->town->warMachine == aid)

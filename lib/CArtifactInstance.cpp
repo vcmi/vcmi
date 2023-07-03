@@ -46,6 +46,7 @@ bool CCombinedArtifactInstance::isPart(const CArtifactInstance * supposedPart) c
 
 std::vector<CCombinedArtifactInstance::PartInfo> & CCombinedArtifactInstance::getPartsInfo()
 {
+	// TODO romove this func. encapsulation violation
 	return partsInfo;
 }
 
@@ -138,6 +139,16 @@ std::string CArtifactInstance::getDescription() const
 ArtifactID CArtifactInstance::getTypeId() const
 {
 	return artType->getId();
+}
+
+ArtifactInstanceID CArtifactInstance::getId() const
+{
+	return id;
+}
+
+void CArtifactInstance::setId(ArtifactInstanceID id)
+{
+	this->id = id;
 }
 
 bool CArtifactInstance::canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved) const

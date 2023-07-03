@@ -1949,8 +1949,8 @@ void AssembledArtifact::applyGs(CGameState *gs)
 		constituentInstance->removeFrom(ArtifactLocation(al.artHolder, pos));
 		if(combineEquipped)
 		{
-			if(!vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], al.slot)
-				&& vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], pos))
+			if(!vstd::contains(combinedArt->artType->getPossibleSlots().at(artSet->bearerType()), al.slot)
+				&& vstd::contains(combinedArt->artType->getPossibleSlots().at(artSet->bearerType()), pos))
 				al.slot = pos;
 			if(al.slot == pos)
 				pos = ArtifactPosition::PRE_FIRST;

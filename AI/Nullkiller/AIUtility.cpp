@@ -306,10 +306,10 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 	auto art1 = a1->artType;
 	auto art2 = a2->artType;
 
-	if(art1->price == art2->price)
+	if(art1->getPrice() == art2->getPrice())
 		return art1->valOfBonuses(BonusType::PRIMARY_SKILL) > art2->valOfBonuses(BonusType::PRIMARY_SKILL);
 	else
-		return art1->price > art2->price;
+		return art1->getPrice() > art2->getPrice();
 }
 
 bool isWeeklyRevisitable(const CGObjectInstance * obj)

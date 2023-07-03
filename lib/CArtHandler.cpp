@@ -51,19 +51,9 @@ bool CCombinedArtifact::isCombined() const
 	return !(constituents.empty());
 }
 
-std::vector<CArtifact*> & CCombinedArtifact::getConstituents()
-{
-	return constituents;
-}
-
 const std::vector<CArtifact*> & CCombinedArtifact::getConstituents() const
 {
 	return constituents;
-}
-
-std::vector<CArtifact*> & CCombinedArtifact::getPartOf()
-{
-	return partOf;
 }
 
 const std::vector<CArtifact*> & CCombinedArtifact::getPartOf() const
@@ -263,6 +253,8 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 }
 
 CArtifact::CArtifact()
+	: iconIndex(ArtifactID::NONE),
+	price(0)
 {
 	setNodeType(ARTIFACT);
 	possibleSlots[ArtBearer::HERO]; //we want to generate map entry even if it will be empty
@@ -307,14 +299,21 @@ void CArtifact::addNewBonus(const std::shared_ptr<Bonus>& b)
 	CBonusSystemNode::addNewBonus(b);
 }
 
+const std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition>> & CArtifact::getPossibleSlots() const
+{
+	return possibleSlots;
+}
+
 void CArtifact::updateFrom(const JsonNode& data)
 {
 	//TODO:CArtifact::updateFrom
 }
 
-void CArtifact::serializeJson(JsonSerializeFormat & handler)
+void CArtifact::setImage(int32_t iconIndex, std::string image, std::string large)
 {
-
+	this->iconIndex = iconIndex;
+	this->image = image;
+	this->large = large;
 }
 
 CArtHandler::~CArtHandler() = default;
@@ -876,11 +875,11 @@ ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance *art) const
 const CArtifactInstance * CArtifactSet::getArtByInstanceId(const ArtifactInstanceID & artInstId) const
 {
 	for(auto i : artifactsWorn)
-		if(i.second.artifact->id == artInstId)
+		if(i.second.artifact->getId() == artInstId)
 			return i.second.artifact;
 
 	for(auto i : artifactsInBackpack)
-		if(i.artifact->id == artInstId)
+		if(i.artifact->getId() == artInstId)
 			return i.artifact;
 
 	return nullptr;
@@ -890,7 +889,7 @@ const ArtifactPosition CArtifactSet::getSlotByInstance(const CArtifactInstance *
 {
 	if(artInst)
 	{
-		for(auto & slot : artInst->artType->possibleSlots.at(bearerType()))
+		for(const auto & slot : artInst->artType->getPossibleSlots().at(bearerType()))
 			if(getArt(slot) == artInst)
 				return slot;
 
@@ -934,7 +933,7 @@ void CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
 	{
 		const CArtifactInstance * mainPart = nullptr;
 		for(const auto & part : art->getPartsInfo())
-			if(vstd::contains(part.art->artType->possibleSlots.at(bearerType()), slot)
+			if(vstd::contains(part.art->artType->getPossibleSlots().at(bearerType()), slot)
 				&& (part.slot == ArtifactPosition::PRE_FIRST))
 			{
 				mainPart = part.art;

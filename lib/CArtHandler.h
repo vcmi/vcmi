@@ -51,9 +51,7 @@ protected:
 	std::vector<CArtifact*> partOf; // Reverse map of constituents - combined arts that include this art
 public:
 	bool isCombined() const;
-	std::vector<CArtifact*> & getConstituents();
 	const std::vector<CArtifact*> & getConstituents() const;
-	std::vector<CArtifact*> & getPartOf();
 	const std::vector<CArtifact*> & getPartOf() const;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
@@ -98,21 +96,21 @@ class DLL_LINKAGE CArtifact
 	: public Artifact, public CBonusSystemNode, public CCombinedArtifact, public CScrollArtifact, public CGrowingArtifact
 {
 	ArtifactID id;
-
+	std::string image;
+	std::string large; // big image for custom artifacts, used in drag & drop
+	std::string advMapDef; // used for adventure map object
 	std::string modScope;
 	std::string identifier;
+	int32_t iconIndex;
+	uint32_t price;
+	CreatureID warMachine;
+	// Bearer Type => ids of slots where artifact can be placed
+	std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition>> possibleSlots;
 
 public:
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
 
-	std::string image;
-	std::string large; // big image for custom artifacts, used in drag & drop
-	std::string advMapDef; //used for adventure map object
-	si32 iconIndex = ArtifactID::NONE;
-	ui32 price = 0;
-	std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
 	EartClass aClass = ART_SPECIAL;
-	CreatureID warMachine;
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
@@ -137,11 +135,13 @@ public:
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const override;
 	void addNewBonus(const std::shared_ptr<Bonus>& b) override;
+	const std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition>> & getPossibleSlots() const;
 
 	virtual bool canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot = ArtifactPosition::FIRST_AVAILABLE,
 		bool assumeDestRemoved = false) const;
 	void updateFrom(const JsonNode & data);
-	void serializeJson(JsonSerializeFormat & handler);
+	// Is used for testing purposes only
+	void setImage(int32_t iconIndex, std::string image, std::string large);
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
