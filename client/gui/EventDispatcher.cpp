@@ -63,7 +63,9 @@ void EventDispatcher::dispatchTimer(uint32_t msPassed)
 	EventReceiversList hlp = timeinterested;
 	for (auto & elem : hlp)
 	{
-		if(!vstd::contains(timeinterested,elem)) continue;
+		if(!vstd::contains(timeinterested,elem))
+			continue;
+
 		elem->tick(msPassed);
 	}
 }

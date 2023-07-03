@@ -90,7 +90,6 @@ void MapView::show(Canvas & to)
 
 MapView::MapView(const Point & offset, const Point & dimensions)
 	: BasicMapView(offset, dimensions)
-	, isSwiping(false)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	actions = std::make_shared<MapViewActions>(*this, model);
@@ -110,19 +109,13 @@ void MapView::onMapLevelSwitched()
 
 void MapView::onMapScrolled(const Point & distance)
 {
-	if(!isSwiping)
+	if(!isGesturing())
 		controller->setViewCenter(model->getMapViewCenter() + distance, model->getLevel());
 }
 
 void MapView::onMapSwiped(const Point & viewPosition)
 {
-	isSwiping = true;
 	controller->setViewCenter(model->getMapViewCenter() + viewPosition, model->getLevel());
-}
-
-void MapView::onMapSwipeEnded()
-{
-	isSwiping = false;
 }
 
 void MapView::onCenteredTile(const int3 & tile)
