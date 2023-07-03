@@ -4980,12 +4980,6 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 {
 	bool cheated = false;
 	
-	if(!getPlayerSettings(player)->isControlledByAI())
-	{
-		PlayerMessageClient temp_message(player, message);
-		sendAndApply(&temp_message);
-	}
-
 	std::vector<std::string> words;
 	boost::split(words, message, boost::is_any_of(" "));
 	
@@ -5105,6 +5099,14 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 
 		if(!player.isSpectator())
 			checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
+	}
+	else
+	{
+		if(!getPlayerSettings(player)->isControlledByAI())
+		{
+			PlayerMessageClient temp_message(player, message);
+			sendAndApply(&temp_message);
+		}
 	}
 }
 
