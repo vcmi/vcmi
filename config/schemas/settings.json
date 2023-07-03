@@ -58,12 +58,12 @@
 				},
 				"language" : {
 					"type" : "string",
-					"enum" : [ "english", "czech", "chinese", "german", "italian", "korean", "polish", "russian", "spanish", "ukrainian" ],
+					"enum" : [ "english", "czech", "chinese", "german", "hungarian", "italian", "korean", "polish", "russian", "spanish", "ukrainian" ],
 					"default" : "english"
 				},
 				"gameDataLanguage" : {
 					"type" : "string",
-					"enum" : [ "auto", "english", "czech", "chinese", "german", "italian", "korean", "polish", "russian", "spanish", "ukrainian", "other_cp1250", "other_cp1251", "other_cp1252" ],
+					"enum" : [ "auto", "english", "czech", "chinese", "german", "hungarian", "italian", "korean", "polish", "russian", "spanish", "ukrainian", "other_cp1250", "other_cp1251", "other_cp1252" ],
 					"default" : "auto"
 				},
 				"lastSave" : {
@@ -170,6 +170,8 @@
 				},
 				"targetfps" : {
 					"type" : "number",
+					"defaultIOS" : 30, // reduce battery usage
+					"defaultAndroid" : 30, // reduce battery usage
 					"default" : 60
 				}
 			}

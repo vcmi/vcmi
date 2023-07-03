@@ -80,6 +80,7 @@ void CSettingsView::loadSettings()
 	fillValidScalingRange();
 
 	ui->spinBoxInterfaceScaling->setValue(settings["video"]["resolution"]["scaling"].Float());
+	ui->spinBoxFramerateLimit->setValue(settings["video"]["targetfps"].Float());
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
 	ui->comboBoxNeutralAI->setCurrentText(QString::fromStdString(settings["server"]["neutralAI"].String()));
@@ -483,5 +484,12 @@ void CSettingsView::on_refreshRepositoriesButton_clicked()
 		return;
 
 	mainWindow->getModView()->loadRepositories();
+}
+
+
+void CSettingsView::on_spinBoxFramerateLimit_valueChanged(int arg1)
+{
+	Settings node = settings.write["video"]["targetfps"];
+	node->Float() = arg1;
 }
 

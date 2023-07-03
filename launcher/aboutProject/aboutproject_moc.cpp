@@ -63,3 +63,15 @@ void AboutProjectView::on_pushButtonGithub_clicked()
 {
 	QDesktopServices::openUrl(QUrl("https://github.com/vcmi/vcmi"));
 }
+
+void AboutProjectView::on_pushButtonHomepage_clicked()
+{
+	QDesktopServices::openUrl(QUrl("https://vcmi.eu/"));
+}
+
+
+void AboutProjectView::on_pushButtonBugreport_clicked()
+{
+	QDesktopServices::openUrl(QUrl("https://github.com/vcmi/vcmi/issues"));
+}
+

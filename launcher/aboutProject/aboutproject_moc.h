@@ -43,6 +43,10 @@ private slots:
 
 	void on_pushButtonGithub_clicked();
 
+	void on_pushButtonHomepage_clicked();
+
+	void on_pushButtonBugreport_clicked();
+
 private:
 	Ui::AboutProjectView * ui;
 

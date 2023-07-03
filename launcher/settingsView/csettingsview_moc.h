@@ -61,6 +61,8 @@ private slots:
 
 	void on_refreshRepositoriesButton_clicked();
 
+	void on_spinBoxFramerateLimit_valueChanged(int arg1);
+
 private:
 	Ui::CSettingsView * ui;
 
