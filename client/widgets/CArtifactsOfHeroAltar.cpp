@@ -98,7 +98,7 @@ void CArtifactsOfHeroAltar::deleteFromVisible(const CArtifactInstance * artInst)
 	}
 	else
 	{
-		for(const auto & part : artInst->partsInfo)
+		for(const auto & part : artInst->getPartsInfo())
 		{
 			if(part.slot != ArtifactPosition::PRE_FIRST)
 				getArtPlace(part.slot)->setArtifact(nullptr);

@@ -261,10 +261,10 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 		{
 			// If the artifact is part of at least one combined artifact, add additional information
 			std::map<const CArtifact*, int> arts;
-			for(const auto combinedArt : slotInfo->artifact->artType->partOf)
+			for(const auto combinedArt : slotInfo->artifact->artType->getPartOf())
 			{
 				arts.insert(std::pair(combinedArt, 0));
-				for(const auto part : *combinedArt->constituents)
+				for(const auto part : combinedArt->getConstituents())
 					if(artSet.hasArt(part->getId(), true))
 						arts.at(combinedArt)++;
 			}

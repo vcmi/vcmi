@@ -123,12 +123,12 @@ DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
 	if(art->isCombined())
 		return arts;
 
-	for(const auto artifact : art->partOf)
+	for(const auto artifact : art->getPartOf())
 	{
 		assert(artifact->constituents);
 		bool possible = true;
 
-		for(const auto constituent : *artifact->constituents) //check if all constituents are available
+		for(const auto constituent : artifact->getConstituents()) //check if all constituents are available
 		{
 			if(equipped)
 			{
@@ -172,8 +172,8 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(CArtifa
 	if(art->isCombined())
 	{
 		assert(art->constituents);
-		for(const auto & part : *art->constituents)
-			artInst->addArtInstAsPart(ArtifactUtils::createNewArtifactInstance(part), ArtifactPosition::PRE_FIRST);
+		for(const auto & part : art->getConstituents())
+			artInst->addPart(ArtifactUtils::createNewArtifactInstance(part), ArtifactPosition::PRE_FIRST);
 	}
 	if(art->isGrowing())
 	{
@@ -211,7 +211,7 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const 
 	map->addNewArtifactInstance(art);
 	if(art->artType && art->isCombined())
 	{
-		for(auto & part : art->partsInfo)
+		for(auto & part : art->getPartsInfo())
 		{
 			map->addNewArtifactInstance(part.art);
 		}

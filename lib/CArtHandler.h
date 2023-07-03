@@ -46,11 +46,15 @@ class DLL_LINKAGE CCombinedArtifact
 {
 protected:
 	CCombinedArtifact() = default;
-public:
-	std::unique_ptr<std::vector<CArtifact*>> constituents; // Artifacts IDs a combined artifact consists of, or nullptr.
-	std::vector<CArtifact*> partOf; // Reverse map of constituents - combined arts that include this art
 
+	std::vector<CArtifact*> constituents; // Artifacts IDs a combined artifact consists of, or nullptr.
+	std::vector<CArtifact*> partOf; // Reverse map of constituents - combined arts that include this art
+public:
 	bool isCombined() const;
+	std::vector<CArtifact*> & getConstituents();
+	const std::vector<CArtifact*> & getConstituents() const;
+	std::vector<CArtifact*> & getPartOf();
+	const std::vector<CArtifact*> & getPartOf() const;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
@@ -71,11 +75,16 @@ class DLL_LINKAGE CGrowingArtifact
 {
 protected:
 	CGrowingArtifact() = default;
-public:
+
 	std::vector <std::pair<ui16, Bonus>> bonusesPerLevel; // Bonus given each n levels
 	std::vector <std::pair<ui16, Bonus>> thresholdBonuses; // After certain level they will be added once
-
+public:
 	bool isGrowing() const;
+
+	std::vector <std::pair<ui16, Bonus>> & getBonusesPerLevel();
+	const std::vector <std::pair<ui16, Bonus>> & getBonusesPerLevel() const;
+	std::vector <std::pair<ui16, Bonus>> & getThresholdBonuses();
+	const std::vector <std::pair<ui16, Bonus>> & getThresholdBonuses() const;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{

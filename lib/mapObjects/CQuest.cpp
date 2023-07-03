@@ -153,7 +153,7 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 				if(h->getArtPosCount(elem.first, false, true, true) < elem.second)
 					return false;
 				if(!h->hasArt(elem.first))
-					reqSlots += h->getAssemblyByConstituent(elem.first)->partsInfo.size() - 2;
+					reqSlots += h->getAssemblyByConstituent(elem.first)->getPartsInfo().size() - 2;
 			}
 			if(ArtifactUtils::isBackpackFreeSlots(h, reqSlots))
 				return true;
@@ -804,7 +804,7 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 					{
 						const auto * assembly = h->getAssemblyByConstituent(elem);
 						assert(assembly);
-						auto parts = assembly->partsInfo;
+						auto parts = assembly->getPartsInfo();
 
 						// Remove the assembly
 						cb->removeArtifact(ArtifactLocation(h, h->getArtPos(assembly)));

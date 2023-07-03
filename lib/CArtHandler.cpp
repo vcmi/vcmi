@@ -48,7 +48,27 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 bool CCombinedArtifact::isCombined() const
 {
-	return !(constituents == nullptr);
+	return !(constituents.empty());
+}
+
+std::vector<CArtifact*> & CCombinedArtifact::getConstituents()
+{
+	return constituents;
+}
+
+const std::vector<CArtifact*> & CCombinedArtifact::getConstituents() const
+{
+	return constituents;
+}
+
+std::vector<CArtifact*> & CCombinedArtifact::getPartOf()
+{
+	return partOf;
+}
+
+const std::vector<CArtifact*> & CCombinedArtifact::getPartOf() const
+{
+	return partOf;
 }
 
 bool CScrollArtifact::isScroll() const
@@ -59,6 +79,26 @@ bool CScrollArtifact::isScroll() const
 bool CGrowingArtifact::isGrowing() const
 {
 	return !bonusesPerLevel.empty() || !thresholdBonuses.empty();
+}
+
+std::vector <std::pair<ui16, Bonus>> & CGrowingArtifact::getBonusesPerLevel()
+{
+	return bonusesPerLevel;
+}
+
+const std::vector <std::pair<ui16, Bonus>> & CGrowingArtifact::getBonusesPerLevel() const
+{
+	return bonusesPerLevel;
+}
+
+std::vector <std::pair<ui16, Bonus>> & CGrowingArtifact::getThresholdBonuses()
+{
+	return thresholdBonuses;
+}
+
+const std::vector <std::pair<ui16, Bonus>> & CGrowingArtifact::getThresholdBonuses() const
+{
+	return thresholdBonuses;
 }
 
 int32_t CArtifact::getIndex() const
@@ -180,7 +220,7 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 			if(assumeDestRemoved)
 				fittingSet.removeArtifact(slot);
 			assert(constituents);
-			for(const auto art : *constituents)
+			for(const auto art : constituents)
 			{
 				auto possibleSlot = ArtifactUtils::getArtAnyPosition(&fittingSet, art->getId());
 				if(ArtifactUtils::isSlotEquipment(possibleSlot))
@@ -557,14 +597,13 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 {
 	if (!node["components"].isNull())
 	{
-		art->constituents = std::make_unique<std::vector<CArtifact *>>();
 		for(const auto & component : node["components"].Vector())
 		{
 			VLC->modh->identifiers.requestIdentifier("artifact", component, [=](si32 id)
 			{
 				// when this code is called both combinational art as well as component are loaded
 				// so it is safe to access any of them
-				art->constituents->push_back(objects[id]);
+				art->constituents.push_back(objects[id]);
 				objects[id]->partOf.push_back(art);
 			});
 		}
@@ -655,7 +694,7 @@ bool CArtHandler::legalArtifact(const ArtifactID & id)
 	auto art = objects[id];
 	//assert ( (!art->constituents) || art->constituents->size() ); //artifacts is not combined or has some components
 
-	if(art->constituents)
+	if(art->isCombined())
 		return false; //no combo artifacts spawning
 
 	if(art->aClass < CArtifact::ART_TREASURE || art->aClass > CArtifact::ART_RELIC)
@@ -894,7 +933,7 @@ void CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
 	if(art->artType->isCombined() && ArtifactUtils::isSlotEquipment(slot))
 	{
 		const CArtifactInstance * mainPart = nullptr;
-		for(const auto & part : art->partsInfo)
+		for(const auto & part : art->getPartsInfo())
 			if(vstd::contains(part.art->artType->possibleSlots.at(bearerType()), slot)
 				&& (part.slot == ArtifactPosition::PRE_FIRST))
 			{
@@ -902,7 +941,7 @@ void CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
 				break;
 			}
 
-		for(auto & part : art->partsInfo)
+		for(auto & part : art->getPartsInfo())
 		{
 			if(part.art != mainPart)
 			{
@@ -923,7 +962,7 @@ void CArtifactSet::removeArtifact(ArtifactPosition slot)
 	{
 		if(art->isCombined())
 		{
-			for(auto & part : art->partsInfo)
+			for(auto & part : art->getPartsInfo())
 			{
 				if(getArt(part.slot, false))
 					eraseArtSlot(part.slot);
@@ -940,7 +979,7 @@ std::pair<const CArtifactInstance *, const CArtifactInstance *> CArtifactSet::se
 		auto art = slot.artifact;
 		if(art->isCombined())
 		{
-			for(auto& ci : art->partsInfo)
+			for(auto & ci : art->getPartsInfo())
 			{
 				if(ci.art->getTypeId() == aid)
 				{

@@ -33,15 +33,18 @@ public:
 		PartInfo(CArtifactInstance * art = nullptr, const ArtifactPosition & slot = ArtifactPosition::PRE_FIRST)
 			: art(art), slot(slot) {};
 	};
-	std::vector<PartInfo> partsInfo;
-	void addArtInstAsPart(CArtifactInstance * art, const ArtifactPosition & slot);
+	void addPart(CArtifactInstance * art, const ArtifactPosition & slot);
 	// Checks if supposed part inst is part of this combined art inst
 	bool isPart(const CArtifactInstance * supposedPart) const;
+	std::vector<PartInfo> & getPartsInfo();
+	const std::vector<PartInfo> & getPartsInfo() const;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & partsInfo;
 	}
+protected:
+	std::vector<PartInfo> partsInfo;
 };
 
 class DLL_LINKAGE CScrollArtifactInstance

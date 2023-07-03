@@ -17,7 +17,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void CCombinedArtifactInstance::addArtInstAsPart(CArtifactInstance * art, const ArtifactPosition & slot)
+void CCombinedArtifactInstance::addPart(CArtifactInstance * art, const ArtifactPosition & slot)
 {
 	auto artInst = static_cast<CArtifactInstance*>(this);
 	assert(vstd::contains_if(*artInst->artType->constituents,
@@ -42,6 +42,16 @@ bool CCombinedArtifactInstance::isPart(const CArtifactInstance * supposedPart) c
 	}
 
 	return false;
+}
+
+std::vector<CCombinedArtifactInstance::PartInfo> & CCombinedArtifactInstance::getPartsInfo()
+{
+	return partsInfo;
+}
+
+const std::vector<CCombinedArtifactInstance::PartInfo> & CCombinedArtifactInstance::getPartsInfo() const
+{
+	return partsInfo;
 }
 
 SpellID CScrollArtifactInstance::getScrollSpellID() const
@@ -69,7 +79,7 @@ void CGrowingArtifactInstance::growingUp()
 		bonus->duration = BonusDuration::COMMANDER_KILLED;
 		artInst->accumulateBonus(bonus);
 
-		for(const auto & bonus : artInst->artType->bonusesPerLevel)
+		for(const auto & bonus : artInst->artType->getBonusesPerLevel())
 		{
 			// Every n levels
 			if(artInst->valOfBonuses(BonusType::LEVEL_COUNTER) % bonus.first == 0)
@@ -77,7 +87,7 @@ void CGrowingArtifactInstance::growingUp()
 				artInst->accumulateBonus(std::make_shared<Bonus>(bonus.second));
 			}
 		}
-		for(const auto & bonus : artInst->artType->thresholdBonuses)
+		for(const auto & bonus : artInst->artType->getThresholdBonuses())
 		{
 			// At n level
 			if(artInst->valOfBonuses(BonusType::LEVEL_COUNTER) == bonus.first)

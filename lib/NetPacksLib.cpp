@@ -1530,9 +1530,9 @@ void NewArtifact::applyGs(CGameState *gs)
 	art->setType(art->artType);
 	if(art->isCombined())
 	{
-		assert(art->artType->constituents);
-		for(const auto & part : *art->artType->constituents)
-			art->addArtInstAsPart(ArtifactUtils::createNewArtifactInstance(part), ArtifactPosition::PRE_FIRST);
+		assert(art->artType->getConstituents());
+		for(const auto & part : art->artType->getConstituents())
+			art->addPart(ArtifactUtils::createNewArtifactInstance(part), ArtifactPosition::PRE_FIRST);
 	}
 	gs->map->addNewArtifactInstance(art);
 }
@@ -1938,7 +1938,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 	auto * combinedArt = new CArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
 	// Retrieve all constituents
-	for(const CArtifact * constituent : *builtArt->constituents)
+	for(const CArtifact * constituent : builtArt->getConstituents())
 	{
 		ArtifactPosition pos = combineEquipped ? artSet->getArtPos(constituent->getId(), true, false) :
 			artSet->getArtBackpackPos(constituent->getId());
@@ -1960,7 +1960,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 			al.slot = std::min(al.slot, pos);
 			pos = ArtifactPosition::PRE_FIRST;
 		}
-		combinedArt->addArtInstAsPart(constituentInstance, pos);
+		combinedArt->addPart(constituentInstance, pos);
 	}
 
 	//put new combined artifacts
@@ -1972,7 +1972,7 @@ void DisassembledArtifact::applyGs(CGameState *gs)
 	auto * disassembled = al.getArt();
 	assert(disassembled);
 
-	auto parts = disassembled->partsInfo;
+	auto parts = disassembled->getPartsInfo();
 	disassembled->removeFrom(al);
 	for(auto & part : parts)
 	{

@@ -236,11 +236,11 @@ void CHeroArtPlace::addCombinedArtInfo(std::map<const CArtifact*, int> & arts)
 		text += "{" + combinedArt.first->getNameTranslated() + "}";
 		if(arts.size() == 1)
 		{
-			for(const auto part : *combinedArt.first->constituents)
+			for(const auto part : combinedArt.first->getConstituents())
 				artList += "\n" + part->getNameTranslated();
 		}
 		text += " (" + boost::str(boost::format("%d") % combinedArt.second) + " / " +
-			boost::str(boost::format("%d") % combinedArt.first->constituents->size()) + ")" + artList;
+			boost::str(boost::format("%d") % combinedArt.first->getConstituents().size()) + ")" + artList;
 	}
 }
 
@@ -292,7 +292,7 @@ bool ArtifactUtilsClient::askToDisassemble(const CGHeroInstance * hero, const Ar
 
 	if(art->isCombined())
 	{
-		if(ArtifactUtils::isSlotBackpack(slot) && !ArtifactUtils::isBackpackFreeSlots(hero, art->artType->constituents->size() - 1))
+		if(ArtifactUtils::isSlotBackpack(slot) && !ArtifactUtils::isBackpackFreeSlots(hero, art->artType->getConstituents().size() - 1))
 			return false;
 
 		LOCPLINT->showArtifactAssemblyDialog(
