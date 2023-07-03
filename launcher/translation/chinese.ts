@@ -4,75 +4,85 @@
 <context>
     <name>AboutProjectView</name>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="35"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="22"/>
         <source>VCMI on Discord</source>
         <translation type="unfinished">访问VCMI的Discord</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="42"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
         <translation type="unfinished">有疑问？找到BUG？需要帮助？加入我们！</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="49"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
         <source>VCMI on Github</source>
         <translation type="unfinished">访问VCMI的GUTHUB</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="68"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="55"/>
         <source>Our Community</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="75"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="62"/>
         <source>VCMI on Slack</source>
         <translation type="unfinished">访问VCMI的Slack</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="111"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="98"/>
         <source>Build Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="128"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="115"/>
         <source>User data directory</source>
         <translation type="unfinished">用户数据目录</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="135"/>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="142"/>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="206"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="122"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="129"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="193"/>
         <source>Open</source>
         <translation type="unfinished">打开</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="149"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="136"/>
         <source>Check for updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="169"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="156"/>
         <source>Game version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="176"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="163"/>
         <source>Log files directory</source>
         <translation type="unfinished">日志文件目录</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="189"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="176"/>
         <source>Data Directories</source>
         <translation type="unfinished">数据目录</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="226"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="213"/>
         <source>Game data directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.ui" line="233"/>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="220"/>
         <source>Operating System</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="273"/>
+        <source>Project homepage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="286"/>
+        <source>Report a bug</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -405,81 +415,86 @@
         <translation type="vanished">用户数据目录</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="153"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="282"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="329"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="190"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="245"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="262"/>
         <source>Off</source>
         <translation>关闭</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="79"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="426"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="563"/>
         <source>Artificial Intelligence</source>
         <translation>人工智能</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="84"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="439"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="179"/>
         <source>Mod Repositories</source>
         <translation>模组仓库</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="482"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="448"/>
         <source>Interface Scaling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="517"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="398"/>
         <source>Neutral AI in battles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="475"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="203"/>
         <source>Enemy AI in battles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="342"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="509"/>
         <source>Additional repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="349"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="482"/>
         <source>Adventure Map Allies</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="583"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="441"/>
         <source>Adventure Map Enemies</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="369"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="316"/>
         <source>Windowed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="374"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="321"/>
         <source>Borderless fullscreen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="379"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="326"/>
         <source>Exclusive fullscreen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="531"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="530"/>
         <source>Friendly AI in battles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="538"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="590"/>
+        <source>Framerate Limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="523"/>
         <source>Refresh now</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="545"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="234"/>
         <source>Default repository</source>
         <translation type="unfinished"></translation>
     </message>
@@ -488,24 +503,24 @@
         <translation type="vanished">立即更新</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="158"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="287"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="334"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="195"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="250"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="267"/>
         <source>On</source>
         <translation>开启</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="119"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="455"/>
         <source>Cursor</source>
         <translation>鼠标指针</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="271"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="475"/>
         <source>Heroes III Data Language</source>
         <translation>英雄无敌3数据语言</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="356"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="303"/>
         <source>Select display mode for game
 
 Windowed - game will run inside a window that covers part of your screen
@@ -516,59 +531,59 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="504"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="290"/>
         <source>Hardware</source>
         <translation>硬件</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="509"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="295"/>
         <source>Software</source>
         <translation>软件</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="524"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="227"/>
         <source>Heroes III Translation</source>
         <translatorcomment>发布版本里找不到这个项，不太清楚意义</translatorcomment>
         <translation>英雄无敌3翻译</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="200"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="516"/>
         <source>Check on startup</source>
         <translation>启动时检查更新</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="126"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="537"/>
         <source>Fullscreen</source>
         <translation>全屏</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="69"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="465"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="414"/>
         <source>General</source>
         <translation>通用设置</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="166"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="344"/>
         <source>VCMI Language</source>
         <translation>VCMI语言</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="193"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="421"/>
         <source>Resolution</source>
         <translation>分辨率</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="552"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="550"/>
         <source>Autosave</source>
         <translation>自动存档</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="489"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="282"/>
         <source>Display index</source>
         <translation>显示器序号</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="186"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="166"/>
         <source>Network port</source>
         <translation>网络端口</translation>
     </message>
@@ -578,7 +593,7 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="74"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="179"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="125"/>
         <source>Video</source>
         <translation>视频设置</translation>
     </message>
@@ -587,7 +602,7 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <translation type="vanished">日志文件目录</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="576"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="364"/>
         <source>Show intro</source>
         <translation>显示开场动画</translation>
     </message>
@@ -596,27 +611,27 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <translation type="vanished">版本号</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="400"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="401"/>
         <source>Active</source>
         <translation>激活</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="405"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="406"/>
         <source>Disabled</source>
         <translation>禁用</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="406"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="407"/>
         <source>Enable</source>
         <translation>启用</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="411"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="412"/>
         <source>Not Installed</source>
         <translation>未安装</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="412"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="413"/>
         <source>Install</source>
         <translation>安装</translation>
     </message>
@@ -1054,7 +1069,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="220"/>
+        <location filename="../mainwindow_moc.ui" line="207"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
