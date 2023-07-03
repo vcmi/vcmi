@@ -231,7 +231,7 @@ void CMinimap::setAIRadar(bool on)
 	redraw();
 }
 
-void CMinimap::updateTiles(std::unordered_set<int3> positions)
+void CMinimap::updateTiles(const std::unordered_set<int3> & positions)
 {
 	if(minimap)
 	{

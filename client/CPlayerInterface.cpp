@@ -183,7 +183,10 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 	if (player != playerID && LOCPLINT == this)
 	{
 		waitWhileDialog();
-		adventureInt->onEnemyTurnStarted(player);
+
+		bool isHuman = cb->getStartInfo()->playerInfos.count(player) && cb->getStartInfo()->playerInfos.at(player).isControlledByHuman();
+
+		adventureInt->onEnemyTurnStarted(player, isHuman);
 	}
 }
 
