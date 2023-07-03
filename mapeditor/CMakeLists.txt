@@ -72,6 +72,7 @@ set(editor_FORMS
 
 set(editor_TS
 	translation/english.ts
+	translation/french.ts
 	translation/german.ts
 	translation/polish.ts
 	translation/russian.ts
