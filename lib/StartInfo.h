@@ -43,7 +43,6 @@ struct DLL_LINKAGE PlayerSettings
 	PlayerColor color; //from 0 -
 	enum EHandicap {NO_HANDICAP, MILD, SEVERE};
 	EHandicap handicap;//0-no, 1-mild, 2-severe
-	TeamID team;
 
 	std::string name;
 	std::set<ui8> connectedPlayerIDs; //Empty - AI, or connectrd player ids
@@ -60,7 +59,6 @@ struct DLL_LINKAGE PlayerSettings
 		h & handicap;
 		h & name;
 		h & connectedPlayerIDs;
-		h & team;
 		h & compOnly;
 	}
 

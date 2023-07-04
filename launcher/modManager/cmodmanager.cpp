@@ -20,8 +20,6 @@
 
 namespace
 {
-const QLatin1String extraResolutionsMod{"vcmi-extras.extraresolutions"};
-
 QString detectModArchive(QString path, QString modName)
 {
 	auto files = ZipArchive::listFiles(qstringToPath(path));
@@ -223,11 +221,6 @@ bool CModManager::canDisableMod(QString modname)
 	return true;
 }
 
-bool CModManager::isExtraResolutionsModEnabled() const
-{
-	return modList->hasMod(extraResolutionsMod) && modList->getMod(extraResolutionsMod).isEnabled();
-}
-
 static QVariant writeValue(QString path, QVariantMap input, QVariant value)
 {
 	if(path.size() > 1)
@@ -254,9 +247,6 @@ bool CModManager::doEnableMod(QString mod, bool on)
 	modSettings = writeValue(path, modSettings, QVariant(on)).toMap();
 	modList->setModSettings(modSettings["activeMods"]);
 	modList->modChanged(mod);
-
-	if(mod == extraResolutionsMod)
-		sendExtraResolutionsEnabledChanged(on);
 
 	JsonUtils::JsonToFile(settingsPath(), modSettings);
 
@@ -298,9 +288,6 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	loadMods();
 	modList->reloadRepositories();
 
-	if(modname == extraResolutionsMod)
-		sendExtraResolutionsEnabledChanged(true);
-
 	return true;
 }
 
@@ -320,9 +307,6 @@ bool CModManager::doUninstallMod(QString modname)
 	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
 	loadMods();
 	modList->reloadRepositories();
-
-	if(modname == extraResolutionsMod)
-		sendExtraResolutionsEnabledChanged(false);
 
 	return true;
 }
@@ -346,9 +330,4 @@ bool CModManager::removeModDir(QString path)
 		return false;
 
 	return dir.removeRecursively();
-}
-
-void CModManager::sendExtraResolutionsEnabledChanged(bool enabled)
-{
-	emit extraResolutionsEnabledChanged(enabled);
 }

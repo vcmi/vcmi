@@ -430,18 +430,23 @@ void CClient::initPlayerEnvironments()
 
 void CClient::initPlayerInterfaces()
 {
-	for(auto & elem : gs->scenarioOps->playerInfos)
+	for(auto & playerInfo : gs->scenarioOps->playerInfos)
 	{
-		PlayerColor color = elem.first;
+		PlayerColor color = playerInfo.first;
 		if(!vstd::contains(CSH->getAllClientPlayers(CSH->c->connectionID), color))
 			continue;
 
 		if(!vstd::contains(playerint, color))
 		{
 			logNetwork->info("Preparing interface for player %s", color.getStr());
-			if(elem.second.isControlledByAI())
+			if(playerInfo.second.isControlledByAI())
 			{
-				auto AiToGive = aiNameForPlayer(elem.second, false);
+				bool alliedToHuman = false;
+				for(auto & allyInfo : gs->scenarioOps->playerInfos)
+					if (gs->getPlayerTeam(allyInfo.first) == gs->getPlayerTeam(playerInfo.first) && allyInfo.second.isControlledByHuman())
+						alliedToHuman = true;
+
+				auto AiToGive = aiNameForPlayer(playerInfo.second, false, alliedToHuman);
 				logNetwork->info("Player %s will be lead by %s", color.getStr(), AiToGive);
 				installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
 			}
@@ -464,7 +469,7 @@ void CClient::initPlayerInterfaces()
 	logNetwork->trace("Initialized player interfaces %d ms", CSH->th->getDiff());
 }
 
-std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI)
+std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI, bool alliedToHuman)
 {
 	if(ps.name.size())
 	{
@@ -473,13 +478,15 @@ std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI)
 			return ps.name;
 	}
 
-	return aiNameForPlayer(battleAI);
+	return aiNameForPlayer(battleAI, alliedToHuman);
 }
 
-std::string CClient::aiNameForPlayer(bool battleAI)
+std::string CClient::aiNameForPlayer(bool battleAI, bool alliedToHuman)
 {
 	const int sensibleAILimit = settings["session"]["oneGoodAI"].Bool() ? 1 : PlayerColor::PLAYER_LIMIT_I;
-	std::string goodAI = battleAI ? settings["server"]["neutralAI"].String() : settings["server"]["playerAI"].String();
+	std::string goodAdventureAI = alliedToHuman ? settings["server"]["alliedAI"].String() : settings["server"]["playerAI"].String();
+	std::string goodBattleAI = settings["server"]["neutralAI"].String();
+	std::string goodAI = battleAI ? goodBattleAI : goodAdventureAI;
 	std::string badAI = battleAI ? "StupidAI" : "EmptyAI";
 
 	//TODO what about human players

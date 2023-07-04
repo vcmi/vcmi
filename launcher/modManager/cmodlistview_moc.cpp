@@ -30,9 +30,6 @@ void CModListView::setupModModel()
 {
 	modModel = new CModListModel(this);
 	manager = std::make_unique<CModManager>(modModel);
-
-	connect(manager.get(), &CModManager::extraResolutionsEnabledChanged,
-		this, &CModListView::extraResolutionsEnabledChanged);
 }
 
 void CModListView::changeEvent(QEvent *event)
@@ -93,11 +90,8 @@ void CModListView::setupModsView()
 
 CModListView::CModListView(QWidget * parent)
 	: QWidget(parent)
-	, settingsListener(settings.listen["launcher"]["repositoryURL"])
 	, ui(new Ui::CModListView)
-	, repositoriesChanged(false)
 {
-	settingsListener([&](const JsonNode &){ repositoriesChanged = true; });
 	ui->setupUi(this);
 
 	setupModModel();
@@ -131,15 +125,25 @@ CModListView::CModListView(QWidget * parent)
 void CModListView::loadRepositories()
 {
 	manager->resetRepositories();
-	for(auto entry : settings["launcher"]["repositoryURL"].Vector())
+
+	QStringList repositories;
+
+	if (settings["launcher"]["defaultRepositoryEnabled"].Bool())
+		repositories.push_back(QString::fromStdString(settings["launcher"]["defaultRepositoryURL"].String()));
+
+	if (settings["launcher"]["extraRepositoryEnabled"].Bool())
+		repositories.push_back(QString::fromStdString(settings["launcher"]["extraRepositoryURL"].String()));
+
+	for(auto entry : repositories)
 	{
-		QString str = QString::fromUtf8(entry.String().c_str());
+		if (entry.isEmpty())
+			continue;
 
 		// URL must be encoded to something else to get rid of symbols illegal in file names
-		auto hashed = QCryptographicHash::hash(str.toUtf8(), QCryptographicHash::Md5);
+		auto hashed = QCryptographicHash::hash(entry.toUtf8(), QCryptographicHash::Md5);
 		auto hashedStr = QString::fromUtf8(hashed.toHex());
 
-		downloadFile(hashedStr + ".json", str, "repository index");
+		downloadFile(hashedStr + ".json", entry, "repository index");
 	}
 }
 
@@ -149,19 +153,6 @@ CModListView::~CModListView()
 	s.setValue("AllModsView/State", ui->allModsView->header()->saveState());
 
 	delete ui;
-}
-
-void CModListView::showEvent(QShowEvent * event)
-{
-	QWidget::showEvent(event);
-	if(repositoriesChanged)
-	{
-		repositoriesChanged = false;
-		if(settings["launcher"]["autoCheckRepositories"].Bool())
-		{
-			loadRepositories();
-		}
-	}
 }
 
 static QString replaceIfNotEmpty(QVariant value, QString pattern)
@@ -391,11 +382,6 @@ void CModListView::selectMod(const QModelIndex & index)
 	}
 }
 
-bool CModListView::isExtraResolutionsModEnabled() const
-{
-	return manager->isExtraResolutionsModEnabled();
-}
-
 void CModListView::modSelected(const QModelIndex & current, const QModelIndex &)
 {
 	selectMod(current);
@@ -611,8 +597,8 @@ void CModListView::downloadFile(QString file, QString url, QString description)
 void CModListView::downloadProgress(qint64 current, qint64 max)
 {
 	// display progress, in kilobytes
-	ui->progressBar->setValue(current / 1024);
 	ui->progressBar->setMaximum(max / 1024);
+	ui->progressBar->setValue(current / 1024);
 }
 
 void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors)
@@ -688,7 +674,7 @@ void CModListView::installFiles(QStringList files)
 					auto modjson = repodata[key].toMap().value("mod");
 					if(!modjson.isNull())
 					{
-						downloadFile(key + ".json", modjson.toString(), "mod json");
+						downloadFile(key + ".json", modjson.toString(), "repository index");
 					}
 				}
 			}
