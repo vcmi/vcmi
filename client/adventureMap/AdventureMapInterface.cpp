@@ -137,6 +137,9 @@ void AdventureMapInterface::deactivate()
 {
 	CIntObject::deactivate();
 	CCS->curh->set(Cursor::Map::POINTER);
+
+	if(LOCPLINT)
+		LOCPLINT->cingconsole->deactivate();
 }
 
 void AdventureMapInterface::showAll(Canvas & to)
