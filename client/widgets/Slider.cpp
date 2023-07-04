@@ -214,6 +214,10 @@ CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int
 		pos.h = totalw;
 	}
 
+	// for horizontal sliders that act as values selection - add keyboard event to receive left/right click
+	if (getOrientation() == Orientation::HORIZONTAL)
+		addUsedEvents(KEYBOARD);
+
 	updateSliderPos();
 }
 

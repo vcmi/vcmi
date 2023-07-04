@@ -460,7 +460,7 @@ void SelectionTab::updateListItems()
 bool SelectionTab::receiveEvent(const Point & position, int eventType) const
 {
 	// FIXME: widget should instead have well-defined pos so events will be filtered using standard routine
-	return getLine(position) != -1;
+	return getLine(position - pos.topLeft()) != -1;
 }
 
 int SelectionTab::getLine() const
