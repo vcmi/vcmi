@@ -24,6 +24,8 @@ class InputSourceMouse
 	Point middleClickPosition;
 	int mouseButtonsMask = 0;
 public:
+	InputSourceMouse();
+
 	void handleEventMouseMotion(const SDL_MouseMotionEvent & current);
 	void handleEventMouseButtonDown(const SDL_MouseButtonEvent & current);
 	void handleEventMouseWheel(const SDL_MouseWheelEvent & current);
