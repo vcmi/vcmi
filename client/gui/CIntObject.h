@@ -62,10 +62,8 @@ public:
 	CIntObject(int used=0, Point offset=Point());
 	virtual ~CIntObject();
 
-	//keyboard handling
-	bool captureAllKeys; //if true, only this object should get info about pressed keys
-
-	bool captureThisKey(EShortcut key) override; //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
+	/// allows capturing key input so it will be delivered only to this element
+	bool captureThisKey(EShortcut key) override;
 
 	void addUsedEvents(ui16 newActions);
 	void removeUsedEvents(ui16 newActions);

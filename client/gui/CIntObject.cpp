@@ -12,6 +12,7 @@
 
 #include "CGuiHandler.h"
 #include "WindowHandler.h"
+#include "EventDispatcher.h"
 #include "Shortcut.h"
 #include "../render/Canvas.h"
 #include "../windows/CMessage.h"
@@ -22,7 +23,6 @@ CIntObject::CIntObject(int used_, Point pos_):
 	parent(parent_m),
 	redrawParent(false),
 	inputEnabled(true),
-	captureAllKeys(false),
 	used(used_),
 	recActions(GH.defActionsDef),
 	defActions(GH.defActionsDef),
@@ -36,6 +36,8 @@ CIntObject::~CIntObject()
 {
 	if(isActive())
 		deactivate();
+
+	GH.events().assertElementInactive(this);
 
 	while(!children.empty())
 	{
@@ -148,15 +150,15 @@ void CIntObject::setInputEnabled(bool on)
 
 	inputEnabled = on;
 
-	if (!isActive())
-		return;
+	if (isActive())
+	{
+		assert((used & GENERAL) == 0);
 
-	assert((used & GENERAL) == 0);
-
-	if (on)
-		activateEvents(used);
-	else
-		deactivateEvents(used);
+		if (on)
+			activateEvents(used);
+		else
+			deactivateEvents(used);
+	}
 
 	for(auto & elem : children)
 		elem->setInputEnabled(on);
@@ -206,6 +208,9 @@ void CIntObject::addChild(CIntObject * child, bool adjustPosition)
 	child->parent_m = this;
 	if(adjustPosition)
 		child->moveBy(pos.topLeft(), adjustPosition);
+
+	if (inputEnabled != child->inputEnabled)
+		child->setInputEnabled(inputEnabled);
 
 	if (!isActive() && child->isActive())
 		child->deactivate();
@@ -292,7 +297,7 @@ const Rect & CIntObject::center(const Point & p, bool propagate)
 
 bool CIntObject::captureThisKey(EShortcut key)
 {
-	return captureAllKeys;
+	return false;
 }
 
 CKeyShortcut::CKeyShortcut()

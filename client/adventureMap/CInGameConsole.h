@@ -50,6 +50,7 @@ public:
 	void keyPressed(EShortcut key) override;
 	void textInputed(const std::string & enteredText) override;
 	void textEdited(const std::string & enteredText) override;
+	bool captureThisKey(EShortcut key) override;
 
 	void startEnteringText();
 	void endEnteringText(bool processEnteredText);

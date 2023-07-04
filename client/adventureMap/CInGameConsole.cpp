@@ -96,7 +96,7 @@ void CInGameConsole::print(const std::string & txt)
 
 		auto splitText = CMessage::breakText(txt, maxWidth, FONT_MEDIUM);
 
-		for (auto const & entry : splitText)
+		for(const auto & entry : splitText)
 			texts.push_back({entry, 0});
 
 		while(texts.size() > maxDisplayedTexts)
@@ -107,23 +107,43 @@ void CInGameConsole::print(const std::string & txt)
 	CCS->soundh->playSound("CHAT");
 }
 
+bool CInGameConsole::captureThisKey(EShortcut key)
+{
+	if (enteredText.empty())
+		return false;
+
+	switch (key)
+	{
+		case EShortcut::GLOBAL_ACCEPT:
+		case EShortcut::GLOBAL_CANCEL:
+		case EShortcut::GAME_ACTIVATE_CONSOLE:
+		case EShortcut::GLOBAL_BACKSPACE:
+		case EShortcut::MOVE_UP:
+		case EShortcut::MOVE_DOWN:
+			return true;
+
+		default:
+			return false;
+	}
+}
+
 void CInGameConsole::keyPressed (EShortcut key)
 {
 	if (LOCPLINT->cingconsole != this)
 		return;
 
-	if(!captureAllKeys && key != EShortcut::GAME_ACTIVATE_CONSOLE)
+	if(enteredText.empty() && key != EShortcut::GAME_ACTIVATE_CONSOLE)
 		return; //because user is not entering any text
 
 	switch(key)
 	{
 	case EShortcut::GLOBAL_CANCEL:
-		if(captureAllKeys)
+		if(!enteredText.empty())
 			endEnteringText(false);
 		break;
 
 	case EShortcut::GAME_ACTIVATE_CONSOLE:
-		if(captureAllKeys)
+		if(!enteredText.empty())
 			endEnteringText(false);
 		else
 			startEnteringText();
@@ -131,7 +151,7 @@ void CInGameConsole::keyPressed (EShortcut key)
 
 	case EShortcut::GLOBAL_ACCEPT:
 		{
-			if(!enteredText.empty() && captureAllKeys)
+			if(!enteredText.empty())
 			{
 				bool anyTextExceptCaret = enteredText.size() > 1;
 				endEnteringText(anyTextExceptCaret);
@@ -191,8 +211,9 @@ void CInGameConsole::textInputed(const std::string & inputtedText)
 	if (LOCPLINT->cingconsole != this)
 		return;
 
-	if(!captureAllKeys || enteredText.empty())
+	if(enteredText.empty())
 		return;
+
 	enteredText.resize(enteredText.size()-1);
 
 	enteredText += inputtedText;
@@ -211,14 +232,10 @@ void CInGameConsole::startEnteringText()
 	if (!isActive())
 		return;
 
-	if (captureAllKeys)
-		return;
-
 	assert(currentStatusBar.expired());//effectively, nullptr check
 
 	currentStatusBar = GH.statusbar();
 
-	captureAllKeys = true;
 	enteredText = "_";
 
 	GH.statusbar()->setEnteringMode(true);
@@ -227,7 +244,6 @@ void CInGameConsole::startEnteringText()
 
 void CInGameConsole::endEnteringText(bool processEnteredText)
 {
-	captureAllKeys = false;
 	prevEntDisp = -1;
 	if(processEnteredText)
 	{

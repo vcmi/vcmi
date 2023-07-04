@@ -495,7 +495,6 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(c
 	setRedrawParent(true);
 	pos.h = Pos.h;
 	pos.w = Pos.w;
-	captureAllKeys = true;
 	background.reset();
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 
@@ -511,7 +510,6 @@ CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::stri
 	pos.h = Pos.h;
 	pos.w = Pos.w;
 
-	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>(bgName, bgOffset.x, bgOffset.y);
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
@@ -525,7 +523,6 @@ CTextInput::CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf)
 	:CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
 	pos += Pos.topLeft();
-	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>(srf, Pos);
 	pos.w = background->pos.w;
@@ -618,17 +615,6 @@ void CTextInput::setText(const std::string & nText, bool callCb)
 	CLabel::setText(nText);
 	if(callCb)
 		cb(text);
-}
-
-bool CTextInput::captureThisKey(EShortcut key)
-{
-	if(key == EShortcut::GLOBAL_RETURN)
-		return false;
-
-	if (!focus)
-		return false;
-
-	return true;
 }
 
 void CTextInput::textInputed(const std::string & enteredText)

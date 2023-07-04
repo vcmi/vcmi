@@ -310,7 +310,6 @@ CChatBox::CChatBox(const Rect & rect)
 {
 	OBJ_CONSTRUCTION;
 	pos += rect.topLeft();
-	captureAllKeys = true;
 	setRedrawParent(true);
 
 	const int height = static_cast<int>(graphics->fonts[FONT_SMALL]->getLineHeight());
