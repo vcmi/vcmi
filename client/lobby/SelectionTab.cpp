@@ -457,10 +457,21 @@ void SelectionTab::updateListItems()
 	}
 }
 
-int SelectionTab::getLine()
+bool SelectionTab::receiveEvent(const Point & position, int eventType) const
+{
+	// FIXME: widget should instead have well-defined pos so events will be filtered using standard routine
+	return getLine(position) != -1;
+}
+
+int SelectionTab::getLine() const
+{
+	Point clickPos = GH.getCursorPosition() - pos.topLeft();
+	return getLine(clickPos);
+}
+
+int SelectionTab::getLine(const Point & clickPos) const
 {
 	int line = -1;
-	Point clickPos = GH.getCursorPosition() - pos.topLeft();
 
 	// Ignore clicks on save name area
 	int maxPosY;

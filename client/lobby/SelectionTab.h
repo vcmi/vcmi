@@ -67,8 +67,8 @@ public:
 
 	void clickLeft(tribool down, bool previousState) override;
 	void keyPressed(EShortcut key) override;
-
 	void clickDouble() override;
+	bool receiveEvent(const Point & position, int eventType) const override;
 
 	void filter(int size, bool selectFirst = false); //0 - all
 	void sortBy(int criteria);
@@ -77,7 +77,8 @@ public:
 	void selectAbs(int position); //position: absolute position in curItems vector
 	void sliderMove(int slidPos);
 	void updateListItems();
-	int getLine();
+	int getLine() const;
+	int getLine(const Point & position) const;
 	void selectFileName(std::string fname);
 	std::shared_ptr<CMapInfo> getSelectedMapInfo() const;
 	void rememberCurrentSelection();
