@@ -144,6 +144,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void requestRealized(PackageApplied *pa) override;
 	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
 	void centerView (int3 pos, int focusTime) override;
+	void beforeObjectPropertyChanged(const SetObjectProperty * sop) override;
 	void objectPropertyChanged(const SetObjectProperty * sop) override;
 	void objectRemoved(const CGObjectInstance *obj) override;
 	void objectRemovedAfter() override;

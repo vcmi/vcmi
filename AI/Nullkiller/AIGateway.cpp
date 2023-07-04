@@ -448,6 +448,12 @@ void AIGateway::battleResultsApplied()
 	status.setBattle(NO_BATTLE);
 }
 
+void AIGateway::beforeObjectPropertyChanged(const SetObjectProperty * sop)
+{
+
+}
+
+
 void AIGateway::objectPropertyChanged(const SetObjectProperty * sop)
 {
 	LOG_TRACE(logAi);
