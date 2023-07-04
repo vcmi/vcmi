@@ -138,6 +138,9 @@ void CListBox::reset()
 
 void CListBox::resize(size_t newSize)
 {
+	if (totalSize == newSize)
+		return;
+
 	totalSize = newSize;
 	if (slider)
 		slider->setAmount((int)totalSize);

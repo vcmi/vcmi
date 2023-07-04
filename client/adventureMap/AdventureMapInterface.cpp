@@ -83,8 +83,11 @@ void AdventureMapInterface::onAudioPaused()
 
 void AdventureMapInterface::onHeroMovementStarted(const CGHeroInstance * hero)
 {
-	widget->getInfoBar()->popAll();
-	widget->getInfoBar()->showSelection();
+	if (shortcuts->optionMapViewActive())
+	{
+		widget->getInfoBar()->popAll();
+		widget->getInfoBar()->showSelection();
+	}
 }
 
 void AdventureMapInterface::onHeroChanged(const CGHeroInstance *h)

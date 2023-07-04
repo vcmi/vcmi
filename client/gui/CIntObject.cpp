@@ -37,8 +37,6 @@ CIntObject::~CIntObject()
 	if(isActive())
 		deactivate();
 
-	GH.events().assertElementInactive(this);
-
 	while(!children.empty())
 	{
 		if((defActions & DISPOSE) && (children.front()->recActions & DISPOSE))
@@ -104,7 +102,7 @@ void CIntObject::deactivate()
 
 void CIntObject::addUsedEvents(ui16 newActions)
 {
-	if (isActive())
+	if (isActive() && inputEnabled)
 		activateEvents(~used & newActions);
 	used |= newActions;
 }
