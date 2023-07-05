@@ -1,0 +1,143 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - platform: linux-qt6
+            os: ubuntu-22.04
+            preset: linux-clang-release
+          - platform: linux
+            os: ubuntu-20.04
+            preset: linux-gcc-release
+          - platform: mac-intel
+            os: macos-12
+            pack: 1
+            extension: dmg
+            preset: macos-conan-ninja-release
+            conan_profile: macos-intel
+            conan_options: --options with_apple_system_libs=True
+            artifact_platform: intel
+          - platform: mac-arm
+            os: macos-12
+            pack: 1
+            extension: dmg
+            preset: macos-arm-conan-ninja-release
+            conan_profile: macos-arm
+            conan_options: --options with_apple_system_libs=True
+            artifact_platform: arm
+            rust_target: aarch64-apple-darwin
+            corrosion_args: -DRust_CARGO_TARGET=aarch64-apple-darwin
+          - platform: msvc
+            os: windows-latest
+            pack: 1
+            extension: exe
+            preset: windows-msvc-release
+          - platform: mingw-ubuntu
+            os: ubuntu-22.04
+            pack: 1
+            extension: exe
+            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
+            cmake_args: -G Ninja
+            preset: windows-mingw-conan-linux
+            conan_profile: mingw64-linux.jinja
+            rust_target: x86_64-pc-windows-gnu
+            corrosion_args: -DRust_CARGO_TARGET=x86_64-pc-windows-gnu
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Setup Rust toolchain
+      if: matrix.rust_target != ''
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ matrix.rust_target }}
+
+    - name: Dependencies
+      run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
+      env:
+        VCMI_BUILD_PLATFORM: x64
+
+    - uses: actions/setup-python@v4
+      if: "${{ matrix.conan_profile != '' }}"
+      with:
+        python-version: '3.10'
+    - name: Conan setup
+      if: "${{ matrix.conan_profile != '' }}"
+      run: |
+        pip3 install 'conan<2.0'
+        conan profile new default --detect
+        conan install . \
+          --install-folder=conan-generated \
+          --no-imports \
+          --build=never \
+          --profile:build=default \
+          --profile:host=CI/conan/${{ matrix.conan_profile }} \
+          ${{ matrix.conan_options }}
+      env:
+        GENERATE_ONLY_BUILT_CONFIG: 1
+
+    - name: Build Number
+      run: |
+        source '${{github.workspace}}/CI/get_package_name.sh'
+        if [ '${{ matrix.artifact_platform }}' ]; then
+          VCMI_PACKAGE_FILE_NAME+="-${{ matrix.artifact_platform }}"
+        fi
+        echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_NAME_SUFFIX="$VCMI_PACKAGE_NAME_SUFFIX" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_GITVERSION="$VCMI_PACKAGE_GITVERSION" >> $GITHUB_ENV
+      env:
+        PULL_REQUEST: ${{ github.event.pull_request.number }}
+
+    - name: Cache build
+      uses: actions/cache@v3
+      with:
+        path: ${{github.workspace}}/out/build/${{matrix.preset}}
+        key: ${{ matrix.preset }}-build
+        restore-keys: ${{ matrix.preset }}-build
+
+    - name: CMake Preset
+      run: cmake --preset ${{ matrix.preset }} ${{ matrix.corrosion_args }}
+
+    - name: Build Preset
+      run: cmake --build --preset ${{matrix.preset}}
+
+    - name: List artifacts
+      run: |
+        ls -la '${{github.workspace}}/out/build/${{matrix.preset}}'
+        ls -la '${{github.workspace}}/out/build/${{matrix.preset}}/bin'
+
+    - name: Pack
+      id: cpack
+      if: ${{ matrix.pack == 1 }}
+      run: |
+        cd '${{github.workspace}}/out/build/${{matrix.preset}}'
+        CPACK_PATH=`which -a cpack | grep -m1 -v -i chocolatey`
+        "$CPACK_PATH" -C ${{env.BUILD_TYPE}} ${{ matrix.cpack_args }}
+        test -f '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' \
+          && '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' '${{github.workspace}}' "$(ls '${{ env.VCMI_PACKAGE_FILE_NAME }}'.*)"
+        rm -rf _CPack_Packages
+
+    - name: Artifacts
+      if: ${{ matrix.pack == 1 }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
+        path: |
+          ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}

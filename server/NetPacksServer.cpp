@@ -36,7 +36,7 @@ void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 
 	const std::string vcgmPath = VCMIDirs::get().userDataPath().string() + '/' + stem + ".vcgm1";
 	const std::string vsgmPath = VCMIDirs::get().userDataPath().string() + '/' + stem + ".vsgm1";
-	auto result = save_files_onchain(vcgmPath, vsgmPath);
+	save_files_onchain(vcgmPath, vsgmPath);
 }
 
 void ApplyGhNetPackVisitor::visitEndTurn(EndTurn & pack)

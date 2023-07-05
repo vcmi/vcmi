@@ -1,3 +1,5 @@
+#![allow(non_camel_case_types, unreachable_patterns)]
+
 mod io;
 mod utils;
 
@@ -25,6 +27,7 @@ use zip::{
     ZipArchive,
 };
 
+#[allow(dead_code)]
 struct Connection {
     runtime: tokio::runtime::Runtime,
     need_stop: Arc<AtomicBool>,
@@ -309,6 +312,7 @@ mod ffi {
 
     #[derive(Debug, Clone)]
     #[repr(i32)]
+
     enum RTerrain {
         NATIVE_TERRAIN = -4,
         ANY_TERRAIN = -3,
@@ -701,21 +705,22 @@ impl From<ffi::RBattleInfo> for BattleInfo {
 impl From<ffi::RTerrain> for Terrain {
     fn from(value: ffi::RTerrain) -> Self {
         match value {
-            NATIVE_TERRAIN => Terrain::NativeTerrain,
-            ANY_TERRAIN => Terrain::AnyTerrain,
-            NONE => Terrain::None,
-            FIRST_REGULAR_TERRAIN => Terrain::FirstRegularTerrain,
-            DIRT => Terrain::Dirt,
-            SAND => Terrain::Sand,
-            GRASS => Terrain::Grass,
-            SNOW => Terrain::Snow,
-            SWAMP => Terrain::Swamp,
-            ROUGH => Terrain::Rough,
-            SUBTERRANEAN => Terrain::Subterranean,
-            LAVA => Terrain::Lava,
-            WATER => Terrain::Water,
-            ROCK => Terrain::Rock,
-            ORIGINAL_REGULAR_TERRAIN_COUNT => Terrain::OriginalRegularTerrainCount,
+            ffi::RTerrain::NATIVE_TERRAIN => Terrain::NativeTerrain,
+            ffi::RTerrain::ANY_TERRAIN => Terrain::AnyTerrain,
+            ffi::RTerrain::NONE => Terrain::None,
+            ffi::RTerrain::FIRST_REGULAR_TERRAIN => Terrain::FirstRegularTerrain,
+            ffi::RTerrain::DIRT => Terrain::Dirt,
+            ffi::RTerrain::SAND => Terrain::Sand,
+            ffi::RTerrain::GRASS => Terrain::Grass,
+            ffi::RTerrain::SNOW => Terrain::Snow,
+            ffi::RTerrain::SWAMP => Terrain::Swamp,
+            ffi::RTerrain::ROUGH => Terrain::Rough,
+            ffi::RTerrain::SUBTERRANEAN => Terrain::Subterranean,
+            ffi::RTerrain::LAVA => Terrain::Lava,
+            ffi::RTerrain::WATER => Terrain::Water,
+            ffi::RTerrain::ROCK => Terrain::Rock,
+            ffi::RTerrain::ORIGINAL_REGULAR_TERRAIN_COUNT => Terrain::OriginalRegularTerrainCount,
+            _ => todo!("Unknown terrain type"),
         }
     }
 }

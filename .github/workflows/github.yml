@@ -1,14 +1,14 @@
 name: VCMI
-
 on:
-  push:
-    branches:
-      - features/*
-      - beta
-      - master
-  pull_request:
-  schedule:
-    - cron: '0 2 * * *'
+  # Disabled in favor of the `build.yml` workflow
+  # push:
+  #   branches:
+  #     - features/*
+  #     - beta
+  #     - master
+  # pull_request:
+  # schedule:
+  #   - cron: '0 2 * * *'
   workflow_dispatch:
 
 env:
@@ -225,7 +225,7 @@ jobs:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: |
           ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
-          
+
     - name: Android artifacts
       if: ${{ startsWith(matrix.platform, 'android') }}
       uses: actions/upload-artifact@v3
@@ -263,10 +263,10 @@ jobs:
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       if: always()
-  
+
   # copy-pasted mostly
   bundle_release:
-    
+
     needs: build
     if: always() && github.ref == 'refs/heads/master'
     strategy:
@@ -342,7 +342,7 @@ jobs:
       with:
         name: Android JNI android-64
         path: ${{ github.workspace }}/android/vcmi-app/src/main/jniLibs/
- 
+
     - name: Create android package
       run: |
         cd android
