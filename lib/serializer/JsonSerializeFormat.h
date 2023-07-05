@@ -334,6 +334,8 @@ public:
 	}
 
 	///si32-convertible identifier set <-> Json array of string
+	///Type U is only used for code & decode
+	///TODO: Auto deduce U based on T?
 	template <typename T, typename U = T>
 	void serializeIdArray(const std::string & fieldName, std::set<T> & value, const std::set<T> & defaultValue)
 	{
@@ -348,12 +350,14 @@ public:
 				si32 item = static_cast<si32>(vitem);
 				temp.push_back(item);
 			}
+			serializeInternal(fieldName, temp, &U::decode, &U::encode);
 		}
 
-		serializeInternal(fieldName, temp, &U::decode, &U::encode);
 		if(!saving)
 		{
-			if(temp.empty())
+			JsonNode node;
+			serializeRaw(fieldName, node, std::nullopt);
+			if(node.Vector().empty())
 			{
 				value = defaultValue;
 			}
@@ -361,10 +365,12 @@ public:
 			{
 				value.clear();
 
-				for(const si32 item : temp)
+				for(const auto & id : node.Vector())
 				{
-					T vitem = static_cast<T>(item);
-					value.insert(vitem);
+					VLC->modh->identifiers.requestIdentifier(U::scope(), id, [&value](int32_t identifier)
+					{
+						value.emplace(identifier);
+					});
 				}
 			}
 		}

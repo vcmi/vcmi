@@ -82,7 +82,7 @@ void TerrainPainter::initTerrainType()
 							if ((terrain->isSurface() && !zone.isUnderground()) ||
 								(terrain->isUnderground() && zone.isUnderground()))
 							{
-								terrainTypes.insert(terrain->getId());
+								terrainTypes.insert(TerrainId(terrain->getId()));
 							}
 						}
 					}

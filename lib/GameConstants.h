@@ -459,11 +459,19 @@ class FactionID : public BaseForID<FactionID, int32_t>
 	DLL_LINKAGE static const FactionID CONFLUX;
 	DLL_LINKAGE static const FactionID NEUTRAL;
 
-	///json serialization helpers
-	static si32 decode(const std::string & identifier);
+	static si32 decode(const std::string& identifier);
 	static std::string encode(const si32 index);
+	static std::string scope();
 };
 
+class TerrainID
+{
+	//Dummy class used only for serialization
+public:
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+	static std::string scope();
+};
 
 class BuildingID
 {

@@ -353,38 +353,13 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 
 	if(terrainTypeLikeZone == NO_ZONE)
 	{
-		JsonNode node;
-		if(handler.saving)
-		{
-			node.setType(JsonNode::JsonType::DATA_VECTOR);
-			for(const auto & ttype : terrainTypes)
-			{
-				JsonNode n;
-				n.String() = VLC->terrainTypeHandler->getById(ttype)->getJsonKey();
-				node.Vector().push_back(n);
-			}
-		}
-		handler.serializeRaw("terrainTypes", node, std::nullopt);
-		if(!handler.saving)
-		{
-			if(!node.Vector().empty())
-			{
-				terrainTypes.clear();
-				for(const auto & ttype : node.Vector())
-				{
-					VLC->modh->identifiers.requestIdentifier("terrain", ttype, [this](int32_t identifier)
-					{
-						terrainTypes.emplace(identifier);
-					});
-				}
-			}
-		}
+		handler.serializeIdArray<TerrainId, TerrainID>("terrainTypes", terrainTypes, std::set<TerrainId>());
 	}
 
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
-	handler.serializeIdArray<FactionID, FactionID>("allowedMonsters", monsterTypes, std::set<FactionID>());
-	handler.serializeIdArray<FactionID, FactionID>("allowedTowns", townTypes, std::set<FactionID>());
-	handler.serializeIdArray<FactionID, FactionID>("bannedTowns", bannedTownTypes, std::set<FactionID>());
+	handler.serializeIdArray<FactionID>("allowedMonsters", monsterTypes, std::set<FactionID>());
+	handler.serializeIdArray<FactionID>("allowedTowns", townTypes, std::set<FactionID>());
+	handler.serializeIdArray<FactionID>("bannedTowns", bannedTownTypes, std::set<FactionID>());
 
 	{
 		//TODO: add support for std::map to serializeEnum
