@@ -49,12 +49,12 @@
     <message>
         <location filename="../mainwindow.ui" line="78"/>
         <source>Edit</source>
-        <translation>Modifier</translation>
+        <translation>Édition</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="89"/>
         <source>View</source>
-        <translation>Afficher</translation>
+        <translation>Affichage</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="97"/>
@@ -149,18 +149,18 @@
     <message>
         <location filename="../mainwindow.ui" line="933"/>
         <source>U/G</source>
-        <translation>U/G</translation>
+        <translation>Sous-sol/Surface</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="936"/>
         <location filename="../mainwindow.cpp" line="746"/>
         <source>View underground</source>
-        <translation>Voir le sous terrain</translation>
+        <translation>Voir le sous-sol</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="951"/>
         <source>Pass</source>
-        <translation>Passer</translation>
+        <translation>Passage</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="963"/>
@@ -277,6 +277,11 @@
         <location filename="../mainwindow.ui" line="1214"/>
         <source>Player 7</source>
         <translation>Joueur 7</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="1233"/>
+        <source>Export as</source>
+        <translation>Exporter sous</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1225"/>
@@ -671,7 +676,7 @@
     <message>
         <location filename="../windownewmap.ui" line="268"/>
         <source>Human/Computer</source>
-        <translation>Human/Ordinateur</translation>
+        <translation>Humain/Ordinateur</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="288"/>
@@ -710,12 +715,12 @@
     <message>
         <location filename="../windownewmap.ui" line="569"/>
         <source>Water content</source>
-        <translation>Proportion des eaux</translation>
+        <translation>Proportion en eau</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="618"/>
         <source>None</source>
-        <translation>Aucun</translation>
+        <translation>Aucune</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="656"/>

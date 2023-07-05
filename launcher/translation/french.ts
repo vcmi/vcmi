@@ -6,84 +6,84 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="22"/>
         <source>VCMI on Discord</source>
-        <translation type="unfinished">VCMI sur Discord</translation>
+        <translation>VCMI sur Discord</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation type="unfinished">Avez-vous une question ? Avez-vous trouvé un bogue ? Besoin d&apos;aide ? Rejoignez-nous !</translation>
+        <translation>Avez-vous une question ? Avez-vous trouvé un bogue ? Besoin d&apos;aide ? Rejoignez-nous !</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
         <source>VCMI on Github</source>
-        <translation type="unfinished">VCMI sur Github</translation>
+        <translation>VCMI sur Github</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="55"/>
         <source>Our Community</source>
-        <translation type="unfinished"></translation>
+        <translation>Notre communauté</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="62"/>
         <source>VCMI on Slack</source>
-        <translation type="unfinished">VCMI sur Slack</translation>
+        <translation>VCMI sur Slack</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="98"/>
         <source>Build Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Information de construction</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="115"/>
         <source>User data directory</source>
-        <translation type="unfinished">Dossier de donnée utilisateur</translation>
+        <translation>Dossier de donnée utilisateur</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="122"/>
         <location filename="../aboutProject/aboutproject_moc.ui" line="129"/>
         <location filename="../aboutProject/aboutproject_moc.ui" line="193"/>
         <source>Open</source>
-        <translation type="unfinished">Ouvrir</translation>
+        <translation>Ouvrir</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="136"/>
         <source>Check for updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Rechercher des mises à jour</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="156"/>
         <source>Game version</source>
-        <translation type="unfinished"></translation>
+        <translation>Version de jeu</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="163"/>
         <source>Log files directory</source>
-        <translation type="unfinished">Dossier de journalisation</translation>
+        <translation>Dossier de journalisation</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="176"/>
         <source>Data Directories</source>
-        <translation type="unfinished">Dossier de Données</translation>
+        <translation>Dossier de Données</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="213"/>
         <source>Game data directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Dossier de données du jeu</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="220"/>
         <source>Operating System</source>
-        <translation type="unfinished"></translation>
+        <translation>Système d&quot;exploitation</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="273"/>
         <source>Project homepage</source>
-        <translation type="unfinished"></translation>
+        <translation>Page d&quot;accueil du projet</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="286"/>
         <source>Report a bug</source>
-        <translation type="unfinished"></translation>
+        <translation>Signaler un bug</translation>
     </message>
 </context>
 <context>
@@ -257,9 +257,9 @@
         <translation>Impressions écran</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="324"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="323"/>
         <source> %p% (%v KB out of %m KB)</source>
-        <translation type="unfinished"></translation>
+        <translation> %p% (%v Ko sur %m Ko)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="386"/>
@@ -463,12 +463,12 @@
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="203"/>
         <source>Enemy AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>IA ennemie dans les batailles</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="234"/>
         <source>Default repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Dépôt par défaut</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="303"/>
@@ -479,37 +479,43 @@ Windowed - game will run inside a window that covers part of your screen
 Borderless Windowed Mode - game will run in a window that covers entirely of your screen, using same resolution as your screen.
 
 Fullscreen Exclusive Mode - game will cover entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionnez le mode d&quot;affichage pour le jeu
+
+Fenêtré - le jeu s&quot;exécutera à l&quot;intérieur d&quot;une fenêtre qui couvre une partie de votre écran
+
+Mode fenêtré sans bord - le jeu s&quot;exécutera dans une fenêtre qui couvre entièrement votre écran, en utilisant la même résolution que votre écran.
+
+Mode exclusif plein écran - le jeu couvrira l&quot;intégralité de votre écran et utilisera la résolution sélectionnée.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="316"/>
         <source>Windowed</source>
-        <translation type="unfinished"></translation>
+        <translation>Fenêtré</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="321"/>
         <source>Borderless fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Fenêtré sans bord</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="326"/>
         <source>Exclusive fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Plein écran exclusif</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="398"/>
         <source>Neutral AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>IA neutre dans les batailles</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="441"/>
         <source>Adventure Map Enemies</source>
-        <translation type="unfinished"></translation>
+        <translation>Ennemis de la carte d&quot;aventure</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="448"/>
         <source>Interface Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Mise à l&quot;échelle de l&quot;interface</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="455"/>
@@ -524,11 +530,7 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="590"/>
         <source>Framerate Limit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">Défaut</translation>
+        <translation>Limite de fréquence d&quot;images</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="290"/>
@@ -548,12 +550,12 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="482"/>
         <source>Adventure Map Allies</source>
-        <translation type="unfinished"></translation>
+        <translation>Alliés de la carte d&quot;aventure</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="509"/>
         <source>Additional repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Dépôt supplémentaire</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="516"/>
@@ -563,12 +565,12 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="523"/>
         <source>Refresh now</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualiser maintenant</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="530"/>
         <source>Friendly AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>IA amicale dans les batailles</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="537"/>
@@ -596,7 +598,7 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
     </message>
     <message>
         <source>Friendly AI</source>
-        <translation type="vanished">IA sympa</translation>
+        <translation type="vanished">IA amicale</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="421"/>
@@ -831,7 +833,13 @@ Before you can start playing, there are a few more steps that need to be complet
 Please keep in mind that in order to use VCMI you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation type="unfinished"></translation>
+        <translation>Merci d&quot;avoir installé VCMI !
+
+Avant de pouvoir commencer à jouer, il reste quelques étapes à franchir.
+
+Veuillez garder à l&quot;esprit que pour utiliser VCMI, vous devez posséder les fichiers de données originaux pour Heroes® of Might and Magic® III: Complete ou The Shadow of Death.
+
+Heroes® of Might and Magic® III HD n&quot;est actuellement pas pris en charge !</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="220"/>
@@ -852,12 +860,12 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="346"/>
         <source>If you don&apos;t have a copy of Heroes III installed, you can use our automatic installation tool &apos;vcmibuilder&apos;, which only requires the GoG.com Heroes III installer. Please visit our wiki for detailed instructions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Si vous n&quot;avez pas installé de copie de Heroes III, vous pouvez utiliser notre outil d&quot;installation automatique "vcmibuilder", qui ne nécessite que le programme d&quot;installation de GoG.com Heroes III. Veuillez visiter notre wiki pour des instructions détaillées.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="362"/>
         <source>To run VCMI, Heroes III data files need to be present in one of the specified locations. Please copy the Heroes III data to one of these directories.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pour exécuter VCMI, les fichiers de données Heroes III doivent être présents dans l&quot;un des emplacements spécifiés. Veuillez copier les données de Heroes III dans l&quot;un de ces dossiers.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="384"/>
@@ -867,7 +875,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="397"/>
         <source>Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alternativement, vous pouvez fournir le répertoire où les données Heroes III sont installées et VCMI copiera automatiquement les données existantes.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="413"/>
@@ -882,7 +890,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="466"/>
         <source>The automatic detection of the Heroes III language has failed. Please select the language of your Heroes III manually</source>
-        <translation type="unfinished"></translation>
+        <translation>La détection automatique de la langue de Heroes III a échoué. Veuillez sélectionner la langue de votre Heroes III manuellement</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="485"/>
@@ -923,17 +931,17 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="756"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>En option, vous pouvez installer des mods supplémentaires soit maintenant, soit à tout moment plus tard, à l&quot;aide du lanceur VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
-        <translation type="unfinished"></translation>
+        <translation>Installer une version compatible de &quot;Horn of the Abyss&quot;, une extension Heroes III conçue par des fans et portée par l&quot;équipe VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="804"/>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
-        <translation type="unfinished"></translation>
+        <translation>Installer une version compatible de &quot;In The Wake of Gods&quot;, une extension Heroes III créée par des fans</translation>
     </message>
 </context>
 <context>
@@ -949,7 +957,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Czech</source>
-        <translation type="unfinished"></translation>
+        <translation>Tchèque</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
@@ -964,7 +972,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>Finnish</source>
-        <translation type="unfinished"></translation>
+        <translation>Finlandais</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
@@ -979,12 +987,12 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>Hungarian</source>
-        <translation type="unfinished"></translation>
+        <translation>Hongrois</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
         <source>Italian</source>
-        <translation type="unfinished"></translation>
+        <translation>Italien</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
@@ -999,7 +1007,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../languages.cpp" line="33"/>
         <source>Portuguese</source>
-        <translation type="unfinished"></translation>
+        <translation>Portugais</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="34"/>
@@ -1014,12 +1022,12 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../languages.cpp" line="36"/>
         <source>Swedish</source>
-        <translation type="unfinished"></translation>
+        <translation>Suédois</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
         <source>Turkish</source>
-        <translation type="unfinished"></translation>
+        <translation>Turc</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="38"/>
@@ -1034,7 +1042,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../languages.cpp" line="40"/>
         <source>Other (Cyrillic Script)</source>
-        <translation>Autre (Script Cyrillique)</translation>
+        <translation>Autre (Alphabet Cyrillique)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>
@@ -1052,98 +1060,98 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="26"/>
         <source>Username</source>
-        <translation type="unfinished">Nom d&apos;utilisateur</translation>
+        <translation>Nom d&apos;utilisateur</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="39"/>
         <location filename="../lobby/lobby_moc.cpp" line="401"/>
         <source>Connect</source>
-        <translation type="unfinished">Connecter</translation>
+        <translation>Connecter</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="56"/>
         <source>Server</source>
-        <translation type="unfinished">Serveur</translation>
+        <translation>Serveur</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="76"/>
         <source>Players in lobby</source>
-        <translation type="unfinished">Joueurs à la salle d&apos;attente</translation>
+        <translation>Joueurs à la salle d&apos;attente</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="114"/>
         <source>Lobby chat</source>
-        <translation type="unfinished">Discussion de salle d&apos;attente</translation>
+        <translation>Discussion de salle d&apos;attente</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="149"/>
         <source>New room</source>
-        <translation type="unfinished">Nouveau salon</translation>
+        <translation>Nouveau salon</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="159"/>
         <source>Join room</source>
-        <translation type="unfinished">Rejoindre le salon</translation>
+        <translation>Rejoindre le salon</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="194"/>
         <source>Session</source>
-        <translation type="unfinished">Session</translation>
+        <translation>Session</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="199"/>
         <source>Players</source>
-        <translation type="unfinished">Joueurs</translation>
+        <translation>Joueurs</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="216"/>
         <source>Kick player</source>
-        <translation type="unfinished">Jeter le joueur</translation>
+        <translation>Jeter le joueur</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="236"/>
         <source>Players in the room</source>
-        <translation type="unfinished">Joueurs dans le salon</translation>
+        <translation>Joueurs dans le salon</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="243"/>
         <source>Leave</source>
-        <translation type="unfinished">Quitter</translation>
+        <translation>Quitter</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="250"/>
         <source>Mods mismatch</source>
-        <translation type="unfinished">Incohérence de mods</translation>
+        <translation>Incohérence de mods</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="267"/>
         <source>Ready</source>
-        <translation type="unfinished">Prêt</translation>
+        <translation>Prêt</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="274"/>
         <source>Resolve</source>
-        <translation type="unfinished">Résoudre</translation>
+        <translation>Résoudre</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="286"/>
         <source>New game</source>
-        <translation type="unfinished">Nouvelle partie</translation>
+        <translation>Nouvelle partie</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.ui" line="293"/>
         <source>Load game</source>
-        <translation type="unfinished">Charger une partie</translation>
+        <translation>Charger une partie</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.cpp" line="369"/>
         <source>Disconnect</source>
-        <translation type="unfinished">Déconnecter</translation>
+        <translation>Déconnecter</translation>
     </message>
     <message>
         <location filename="../lobby/lobby_moc.cpp" line="461"/>
         <source>No issues detected</source>
-        <translation type="unfinished">Pas de problème détecté</translation>
+        <translation>Pas de problème détecté</translation>
     </message>
 </context>
 <context>
@@ -1194,7 +1202,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../mainwindow_moc.ui" line="207"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Aide</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="276"/>
