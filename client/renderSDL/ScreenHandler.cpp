@@ -220,6 +220,9 @@ void ScreenHandler::updateWindowState()
 	{
 		case EWindowMode::FULLSCREEN_EXCLUSIVE:
 		{
+			// for some reason, VCMI fails to switch from FULLSCREEN_BORDERLESS_WINDOWED to FULLSCREEN_EXCLUSIVE directly
+			// Switch to windowed mode first to avoid this bug
+			SDL_SetWindowFullscreen(mainWindow, 0);
 			SDL_SetWindowFullscreen(mainWindow, SDL_WINDOW_FULLSCREEN);
 
 			SDL_DisplayMode mode;
