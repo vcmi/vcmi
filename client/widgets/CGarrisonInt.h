@@ -24,10 +24,47 @@ class CButton;
 class CAnimImage;
 class CGarrisonSlot;
 class CLabel;
+class IImage;
+
+class RadialMenuItem : public CIntObject
+{
+	std::shared_ptr<IImage> image;
+	std::shared_ptr<CPicture> picture;
+public:
+	std::function<void()> callback;
+
+	RadialMenuItem(std::string imageName, std::function<void()> callback);
+
+	bool isInside(const Point & position);
+
+	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
+	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
+};
+
+class RadialMenu : public CIntObject
+{
+	static constexpr Point ITEM_NW = Point( -35, -85);
+	static constexpr Point ITEM_NE = Point( +35, -85);
+	static constexpr Point ITEM_WW = Point( -85, 0);
+	static constexpr Point ITEM_EE = Point( +85, 0);
+	static constexpr Point ITEM_SW = Point( -35, +85);
+	static constexpr Point ITEM_SE = Point( +35, +85);
+
+	std::vector<std::shared_ptr<RadialMenuItem>> items;
+
+	void addItem(const Point & offset, const std::string & path, std::function<void()> callback );
+public:
+	RadialMenu(CGarrisonInt * army, CGarrisonSlot * slot);
+
+	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
+	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
+	void show(Canvas & to) override;
+};
 
 /// A single garrison slot which holds one creature of a specific amount
 class CGarrisonSlot : public CIntObject
 {
+public:
 	SlotID ID; //for identification
 	CGarrisonInt *owner;
 	const CStackInstance * myStack; //nullptr if slot is empty
@@ -43,7 +80,9 @@ class CGarrisonSlot : public CIntObject
 	std::shared_ptr<CAnimImage> creatureImage;
 	std::shared_ptr<CAnimImage> selectionImage; // image for selection, not always visible
 	std::shared_ptr<CLabel> stackCount;
+	std::shared_ptr<RadialMenu> radialMenu;
 
+public:
 	bool viewInfo();
 	bool highlightOrDropArtifact();
 	bool split();
@@ -52,7 +91,6 @@ class CGarrisonSlot : public CIntObject
 	void setHighlight(bool on);
 	std::function<void()> getDismiss() const;
 
-public:
 	virtual void hover (bool on) override; //call-in
 	const CArmedInstance * getObj() const;
 	bool our() const;
@@ -60,6 +98,10 @@ public:
 	bool ally() const;
 	void showPopupWindow(const Point & cursorPosition) override;
 	void clickPressed(const Point & cursorPosition) override;
+
+	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
+	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
+
 	void update();
 	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, EGarrisonType Upg=EGarrisonType::UP, const CStackInstance * creature_ = nullptr);
 
@@ -92,11 +134,10 @@ public:
 	Point garOffset;  ///< Offset between garrisons (not used if only one hero)
 	std::vector<std::shared_ptr<CButton>> splitButtons;  ///< May be empty if no buttons
 
-	SlotID p2; ///< TODO: comment me
-	bool pb,
-		 smallIcons,      ///< true - 32x32 imgs, false - 58x64
-		 removableUnits,  ///< player Can remove units from up
-		 owned[2];        ///< player Owns up or down army ([0] upper, [1] lower)
+	bool smallIcons;      ///< true - 32x32 imgs, false - 58x64
+	bool removableUnits;  ///< player Can remove units from up
+	bool twoRows;         ///< slots Will be placed in 2 rows
+	bool owned[2];        ///< player Owns up or down army ([0] upper, [1] lower)
 
 	ESlotsLayout layout;
 
@@ -117,7 +158,7 @@ public:
 	void recreateSlots();
 
 	void splitClick();  ///< handles click on split button
-	void splitStacks(int amountLeft, int amountRight);  ///< TODO: comment me
+	void splitStacks(const CGarrisonSlot * from, const CArmedInstance * armyDest, SlotID slotDest, int amount);  ///< TODO: comment me
 	void moveStackToAnotherArmy(const CGarrisonSlot * selected);
 	void bulkMoveArmy(const CGarrisonSlot * selected);
 	void bulkMergeStacks(const CGarrisonSlot * selected); // Gather all creatures of selected type to the selected slot from other hero/garrison slots

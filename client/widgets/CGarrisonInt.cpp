@@ -15,6 +15,7 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../render/IImage.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/GUIClasses.h"
 #include "../CGameInfo.h"
@@ -28,6 +29,90 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/TextOperations.h"
 #include "../../lib/gameState/CGameState.h"
+
+RadialMenuItem::RadialMenuItem(std::string imageName, std::function<void()> callback)
+	: callback(callback)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	image = IImage::createFromFile("radialMenu/" + imageName);
+	picture = std::make_shared<CPicture>(image, Point(0,0));
+	pos = picture->pos;
+}
+
+bool RadialMenuItem::isInside(const Point & position)
+{
+	Point localPosition = position - pos.topLeft();
+
+	return !image->isTransparent(localPosition);
+}
+
+void RadialMenuItem::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
+{
+
+}
+
+void RadialMenuItem::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
+{
+
+}
+
+RadialMenu::RadialMenu(CGarrisonInt * army, CGarrisonSlot * slot)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	bool isExchange = army->armedObjs[0] && army->armedObjs[1]; // two armies exist
+
+	addItem(ITEM_NW, "stackMerge", [=](){army->bulkMergeStacks(slot);});
+	addItem(ITEM_NE, "stackInfo", [=](){slot->viewInfo();});
+
+	addItem(ITEM_WW, "stackSplitOne", [=](){slot->splitIntoParts(slot->upg, 1); });
+	addItem(ITEM_EE, "stackSplitEqual", [=](){army->bulkSmartSplitStack(slot);});
+
+	if (isExchange)
+	{
+		addItem(ITEM_SW, "stackMove", [=](){army->moveStackToAnotherArmy(slot);});
+		//FIXME: addItem(ITEM_SE, "stackSplitDialog", [=](){slot->split();});
+	}
+
+	for(const auto & item : items)
+		pos = pos.include(item->pos);
+
+}
+
+void RadialMenu::addItem(const Point & offset, const std::string & path, std::function<void()> callback )
+{
+	auto item = std::make_shared<RadialMenuItem>(path, callback);
+
+	item->moveBy(offset);
+
+	items.push_back(item);
+}
+
+void RadialMenu::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
+{
+
+}
+
+void RadialMenu::show(Canvas & to)
+{
+	showAll(to);
+}
+
+void RadialMenu::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
+{
+	if (!on)
+	{
+		for(const auto & item : items)
+		{
+			if (item->isInside(finalPosition))
+			{
+				item->callback();
+				return;
+			}
+		}
+	}
+}
 
 void CGarrisonSlot::setHighlight(bool on)
 {
@@ -227,8 +312,6 @@ bool CGarrisonSlot::highlightOrDropArtifact()
 bool CGarrisonSlot::split()
 {
 	const CGarrisonSlot * selection = owner->getSelection();
-	owner->p2 = ID;   // store the second stack pos
-	owner->pb = upg;  // store the second stack owner (up or down army)
 	owner->setSplittingMode(false);
 
 	int minLeft=0, minRight=0;
@@ -252,8 +335,12 @@ bool CGarrisonSlot::split()
 	int countLeft = selection->myStack ? selection->myStack->count : 0;
 	int countRight = myStack ? myStack->count : 0;
 
-	GH.windows().createAndPushWindow<CSplitWindow>(selection->creature, std::bind(&CGarrisonInt::splitStacks, owner, _1, _2),
-		minLeft, minRight, countLeft, countRight);
+	auto splitFunctor = [this, selection](int amountLeft, int amountRight)
+	{
+		owner->splitStacks(selection, owner->armedObjs[upg], ID, amountRight);
+	};
+
+	GH.windows().createAndPushWindow<CSplitWindow>(selection->creature,  splitFunctor, minLeft, minRight, countLeft, countRight);
 	return true;
 }
 
@@ -349,17 +436,50 @@ void CGarrisonSlot::clickPressed(const Point & cursorPosition)
 		}
 }
 
+void CGarrisonSlot::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
+{
+	assert(radialMenu);
+
+	if (radialMenu)
+		radialMenu->gesturePanning(initialPosition, currentPosition, lastUpdateDistance);
+}
+
+void CGarrisonSlot::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
+{
+	if (on)
+	{
+		OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+		radialMenu = std::make_shared<RadialMenu>(owner, this);
+		radialMenu->center(pos.center());
+
+		auto topParent = parent;
+		while (topParent->parent)
+			topParent = topParent->parent;
+
+		// Add radial menu to current window / topmost parent for proper rendering order
+		topParent->addChild(radialMenu.get(), false);
+	}
+	else
+	{
+		radialMenu->gesture(on, initialPosition, finalPosition);
+		radialMenu.reset();
+	}
+
+	GH.windows().totalRedraw();
+}
+
 void CGarrisonSlot::update()
 {
 	if(getObj() != nullptr)
 	{
-		addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
+		addUsedEvents(LCLICK | SHOW_POPUP | GESTURE | HOVER);
 		myStack = getObj()->getStackPtr(ID);
 		creature = myStack ? myStack->type : nullptr;
 	}
 	else
 	{
-		removeUsedEvents(LCLICK | SHOW_POPUP | HOVER);
+		removeUsedEvents(LCLICK | SHOW_POPUP | GESTURE | HOVER);
 		myStack = nullptr;
 		creature = nullptr;
 	}
@@ -434,9 +554,7 @@ void CGarrisonSlot::splitIntoParts(CGarrisonSlot::EGarrisonType type, int amount
 	if(empty == SlotID())
 		return;
 
-	owner->pb = type;
-	owner->p2 = empty;
-	owner->splitStacks(1, amount);
+	owner->splitStacks(this, owner->armedObjs[type], empty, amount);
 }
 
 bool CGarrisonSlot::handleSplittingShortcuts()
@@ -555,9 +673,9 @@ void CGarrisonInt::splitClick()
 	setSplittingMode(!getSplittingMode());
 	redraw();
 }
-void CGarrisonInt::splitStacks(int, int amountRight)
+void CGarrisonInt::splitStacks(const CGarrisonSlot * from, const CArmedInstance * armyDest, SlotID slotDest, int amount )
 {
-	LOCPLINT->cb->splitStack(armedObjs[getSelection()->upg], armedObjs[pb], getSelection()->ID, p2, amountRight);
+	LOCPLINT->cb->splitStack(armedObjs[from->upg], armyDest, from->ID, slotDest, amount);
 }
 
 bool CGarrisonInt::checkSelected(const CGarrisonSlot * selected, TQuantity min) const
@@ -669,17 +787,14 @@ void CGarrisonInt::bulkSmartSplitStack(const CGarrisonSlot * selected)
 	LOCPLINT->cb->bulkSmartSplitStack(armedObjs[type]->id, selected->ID);
 }
 
-CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point & garsOffset,
-						   const CArmedInstance * s1, const CArmedInstance * s2,
-						   bool _removableUnits, bool smallImgs, ESlotsLayout _layout)
-		: highlighted(nullptr),
-		  inSplittingMode(false),
-		  interx(inx),
-		  garOffset(garsOffset),
-		  pb(false),
-		  smallIcons(smallImgs),
-		  removableUnits(_removableUnits),
-		  layout(_layout)
+CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point & garsOffset, const CArmedInstance * s1, const CArmedInstance * s2, bool _removableUnits, bool smallImgs, ESlotsLayout _layout)
+	: highlighted(nullptr)
+	, inSplittingMode(false)
+	, interx(inx)
+	, garOffset(garsOffset)
+	, smallIcons(smallImgs)
+	, removableUnits(_removableUnits)
+	, layout(_layout)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
