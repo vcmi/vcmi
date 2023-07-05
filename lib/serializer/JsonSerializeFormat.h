@@ -11,6 +11,7 @@
 
 #include "../JsonNode.h"
 #include "../CModHandler.h"
+#include "../VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
