@@ -122,7 +122,10 @@
 		"battleFields" : ["lava"],
 		"rockTerrain" : "rock",
 		"horseSound" : "horse07",
-		"horseSoundPenalty" : "horse27"
+		"horseSoundPenalty" : "horse27",
+		"paletteAnimation" : [
+			{ "start" : 246, "length" : 9 }
+		]
 	},
 	"water" :
 	{
@@ -139,6 +142,10 @@
 		"terrainViewPatterns" : "water",
 		"horseSound" : "horse08",
 		"horseSoundPenalty" : "horse08",
+		"paletteAnimation" : [
+			{ "start" : 229, "length" : 12 },
+			{ "start" : 242, "length" : 12 }
+		],
 		"sounds": {
 			"ambient": ["LOOPOCEA"]
 		}

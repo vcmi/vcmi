@@ -47,6 +47,23 @@
 			"type" : "string",
 			"description" : "River type which should be used for that terrain"
 		},
+		"paletteAnimation" : {
+			"type" : "array",
+			"description" : "If defined, terrain will be animated using palette color cycling effect",
+			"items" :
+			{
+				"type" : "object",
+				"additionalProperties" : false,
+				"properties" : {
+					"start" : {
+						"type" : "number"
+					},
+					"length" : {
+						"type" : "number"
+					}
+				}
+			}
+		},
 		"battleFields" :
 		{
 			"type" : "array",
