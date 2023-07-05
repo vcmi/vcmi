@@ -162,7 +162,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		}
 
 		HypotheticBattle hb(env.get(), cb);
-		
+
 		PotentialTargets targets(stack, hb);
 		BattleExchangeEvaluator scoreEvaluator(cb, env);
 		auto moveTarget = scoreEvaluator.findMoveTowardsUnreachable(stack, targets, hb);
@@ -795,7 +795,7 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 	bs.canFlee = cb->battleCanFlee();
 	bs.canSurrender = cb->battleCanSurrender(playerID);
 	bs.ourSide = cb->battleGetMySide();
-	bs.ourHero = cb->battleGetMyHero(); 
+	bs.ourHero = cb->battleGetMyHero();
 	bs.enemyHero = nullptr;
 
 	for(auto stack : cb->battleGetAllStacks(false))
@@ -828,6 +828,3 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 
 	return result;
 }
-
-
-

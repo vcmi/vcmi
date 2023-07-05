@@ -1,0 +1,17 @@
+.form-wrapper {
+  margin: 10rem auto;
+  max-width: 30rem;
+}
+
+.accordion-body {
+  --bs-accordion-body-padding-x: 0.5em;
+  --bs-accordion-body-padding-y: 0.5em;
+}
+
+.navbar-toggler-icon {
+  background-image: none;
+}
+
+.navbar-toggler-icon::before {
+  content: "..."; /* fa-bars, fa-navicon */
+}

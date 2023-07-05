@@ -2874,5 +2874,3 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 
 	return true;
 }
-
-

@@ -1,3 +1,6 @@
+corrosion_import_crate(MANIFEST_PATH ../rust_vcmi/Cargo.toml PROFILE release)
+corrosion_add_cxxbridge(rusty_bridge CRATE rust_vcmi MANIFEST_PATH ../rust_vcmi FILES lib.rs)
+
 if(ENABLE_STATIC_AI_LIBS)
 	add_main_lib(${VCMI_LIB_TARGET} STATIC)
 	target_compile_definitions(${VCMI_LIB_TARGET} PRIVATE STATIC_AI)
@@ -6,6 +9,7 @@ if(ENABLE_STATIC_AI_LIBS)
 		EmptyAI
 		StupidAI
 		VCAI
+		rusty_bridge
 	)
 	if(ENABLE_NULLKILLER_AI)
 		target_link_libraries(${VCMI_LIB_TARGET} PRIVATE Nullkiller)

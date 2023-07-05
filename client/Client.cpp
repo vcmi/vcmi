@@ -32,6 +32,8 @@
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "../lib/serializer/Connection.h"
 
+#include "rusty_bridge/lib.h"
+
 #include <memory>
 #include <vcmi/events/EventBus.h>
 
@@ -203,7 +205,7 @@ void CClient::loadGame(CGameState * initializedGameState)
 	reinitScripting();
 
 	initPlayerEnvironments();
-	
+
 	// Loading of client state - disabled for now
 	// Since client no longer writes or loads its own state and instead receives it from server
 	// client state serializer will serialize its own copies of all pointers, e.g. heroes/towns/objects
@@ -347,6 +349,105 @@ void CClient::save(const std::string & fname)
 
 	SaveGame save_game(fname);
 	sendRequest(&save_game, PlayerColor::NEUTRAL);
+
+	const std::vector<std::string> contentNames = {"heroClasses", "artifacts", "creatures", "factions", "objects", "heroes", "spells", "skills"};
+	const boost::filesystem::path outPath =
+		VCMIDirs::get().userExtractedPath() / "configuration";
+
+	boost::filesystem::create_directories(outPath);
+
+	std::string current_player = gs->currentPlayer.getStr();
+	ui32 day = gs->day;
+	const auto& players = gs->players;
+
+	rust::Vec<RPlayerState> rplayers;
+	for (const auto& pair : players)
+	{
+		std::string player_color = pair.first.getStr();
+		const auto& player_state = pair.second;
+
+		auto rust_player_state = RPlayerState {};
+		rust_player_state.color = player_state.color.getStr();
+		rust_player_state.team_id = player_state.team.getNum();
+		rust_player_state.resources = player_state.resources.toString();
+		rust_player_state.is_human = player_state.isHuman();
+		if (player_state.daysWithoutCastle)
+		{
+			rust_player_state.days_without_castle = *player_state.daysWithoutCastle;
+		}
+		else
+		{
+			rust_player_state.days_without_castle = -1;
+		}
+		for (const auto hero : player_state.heroes)
+		{
+			RHero rhero {};
+			rhero.level = hero->level;
+			rhero.mana = hero->mana;
+			rhero.sex = hero->sex;
+			rhero.name = hero->getNameTranslated();
+
+			for (const auto& pair: hero->stacks)
+			{
+				auto slot_id = pair.first.getNum();
+				auto stack_instance = pair.second;
+				if (stack_instance != nullptr)
+				{
+					RStack rstack = {};
+					rstack.name = stack_instance->getName();
+					rstack.level = stack_instance->getLevel();
+					rstack.count = stack_instance->getCount();
+					rhero.stacks[slot_id] = rstack;
+				}
+			}
+
+			for (const std::pair<SecondarySkill, ui8>& pair : hero->secSkills)
+			{
+				SecondarySkillInfo info {};
+				info.skill = static_cast<RSecondarySkill>(pair.first.num);
+				info.value = pair.second;
+				rhero.secondary_skills.push_back(info);
+			}
+			rust_player_state.heroes.push_back(rhero);
+		}
+
+		for (const auto town : player_state.towns)
+		{
+			TownInstance rtown {};
+			rtown.level = town->getTownLevel();
+			rtown.name = town->getNameTranslated();
+			rtown.hall_level = static_cast<RHallLevel>(town->hallLevel());
+			rtown.fort_level = static_cast<RFortLevel>(town->fortLevel());
+			rtown.mage_guild_level = town->mageGuildLevel();
+			rust_player_state.towns.push_back(rtown);
+		}
+
+		rplayers.push_back(rust_player_state);
+	}
+	save_game_state(day, current_player, rplayers);
+
+	for(auto contentName : contentNames)
+	{
+		auto & content = (*VLC->modh->content)[contentName];
+
+		auto contentOutPath = outPath / contentName;
+		boost::filesystem::create_directories(contentOutPath);
+
+		for(auto & iter : content.modData) {
+			const JsonNode & modData = iter.second.modData;
+			for(auto & nameAndObject : modData.Struct())
+			{
+				const JsonNode & object = nameAndObject.second;
+
+				std::string name = CModHandler::makeFullIdentifier(object.meta, contentName, nameAndObject.first);
+				boost::algorithm::replace_all(name,":","_");
+
+				const boost::filesystem::path filePath = contentOutPath / (name + ".json");
+				boost::filesystem::ofstream file(filePath);
+				file << object.toJson();
+			}
+		}
+	}
 }
 
 void CClient::endGame()

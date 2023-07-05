@@ -285,6 +285,11 @@ void CHealth::reset()
 	resurrected = 0;
 }
 
+void CHealth::setCount(int32_t fullUnits) 
+{
+	this->fullUnits = fullUnits;
+}
+
 int32_t CHealth::getCount() const
 {
 	return fullUnits + (firstHPleft > 0 ? 1 : 0);

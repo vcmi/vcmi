@@ -57,6 +57,8 @@
 #include <vcmi/events/GenericEvents.h>
 #include <vcmi/events/AdventureEvents.h>
 
+#include "rusty_bridge/lib.h"
+
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
 #endif
@@ -906,8 +908,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 		sendAndApply(&ro);
 	}
 
-	if(battleResult.data->winner == BattleSide::DEFENDER 
-		&& heroDefender 
+	if(battleResult.data->winner == BattleSide::DEFENDER
+		&& heroDefender
 		&& heroDefender->visitedTown
 		&& !heroDefender->inTownGarrison
 		&& heroDefender->visitedTown->garrisonHero == heroDefender)
@@ -1329,14 +1331,14 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 {
 	if(lobby->state == EServerState::SHUTDOWN || !gs || !gs->scenarioOps)
 		return;
-	
+
 	for(auto & playerConnections : connections)
 	{
 		PlayerColor playerId = playerConnections.first;
 		auto * playerSettings = gs->scenarioOps->getPlayersSettings(playerId.getNum());
 		if(!playerSettings)
 			continue;
-		
+
 		auto playerConnection = vstd::find(playerConnections.second, c);
 		if(playerConnection != playerConnections.second.end())
 		{
@@ -4116,7 +4118,7 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 		if(!vstd::contains(destArtifact->assemblyPossibilities(hero, combineEquipped), combinedArt))
 			COMPLAIN_RET("assembleArtifacts: It's impossible to assemble requested artifact!");
 
-		
+
 		if(ArtifactUtils::checkSpellbookIsNeeded(hero, assembleTo, artifactSlot))
 			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 
@@ -4975,7 +4977,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 void CGameHandler::playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj)
 {
 	bool cheated = false;
-	
+
 	if(!getPlayerSettings(player)->isControlledByAI())
 	{
 		PlayerMessageClient temp_message(player, message);
@@ -4984,12 +4986,12 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 
 	std::vector<std::string> words;
 	boost::split(words, message, boost::is_any_of(" "));
-	
+
 	bool isHost = false;
 	for(auto & c : connections[player])
 		if(lobby->isClientHost(c->connectionID))
 			isHost = true;
-	
+
 	if(isHost && words.size() >= 2 && words[0] == "game")
 	{
 		if(words[1] == "exit" || words[1] == "quit" || words[1] == "end")
@@ -5020,7 +5022,7 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 						playerToKick = c.first;
 				}
 			}
-			
+
 			if(playerToKick != PlayerColor::CANNOT_DETERMINE)
 			{
 				PlayerCheated pc;
@@ -5032,7 +5034,7 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 			return;
 		}
 	}
-	
+
 	int obj = 0;
 	if (words.size() == 2 && words[0] != "vcmiexp" && words[0] != "vcmiolorin")
 	{
@@ -5408,7 +5410,7 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 
 	if(stackIsMoving)
 		return curStack->alive() && !movementStopped;
-	
+
 	return curStack->alive();
 }
 
@@ -6441,6 +6443,62 @@ void CGameHandler::runBattle()
 {
 	setBattle(gs->curB);
 	assert(gs->curB);
+	// if(settings["adventure"]["quickCombat"].Bool()) {
+		logGlobal->warn("AZOYAN CGameHandler::runBattle()");
+
+		if (gs != nullptr && gs->curB != nullptr) {
+			RBattleInfo rbattle {};
+			rbattle.round = gs->curB->round;
+			rbattle.active_stack = gs->curB->activeStack;
+			rbattle.terrain_type = static_cast<RTerrain>(gs->curB->terrainType.getNum());
+
+			for (auto stack : gs->curB->stacks) {
+				if (stack != nullptr) {
+					RStack rstack {};
+					rstack.name = stack->getName();
+					rstack.level = stack->level();
+					rstack.count = stack->getCount();
+					rbattle.stacks.push_back(rstack);
+				}
+			}
+
+			for (int i = 0; i < gs->curB->sides.size(); ++i) {
+				const auto& side =  gs->curB->sides[i];
+				RBattleSide rside {};
+				rside.color = side.color.getStr();
+				if (side.hero != nullptr) {
+					RHero rhero {};
+					rhero.level = side.hero->level;
+					rhero.mana = side.hero->mana;
+					rhero.sex = side.hero->sex;
+					rhero.name = side.hero->getNameTranslated();
+
+					rside.hero = rhero;
+				}
+				rbattle.sides[i] = rside;
+			}
+			simulate_battle_onchain(rbattle);
+			int totalCount[2] = {0, 0};
+			for (int i = 0; i < gs->curB->stacks.size(); ++i) {
+				if (gs->curB->stacks[i] != nullptr) {
+					// gs->curB->stacks[i]->name = rbattle.stacks[i].name;
+					// gs->curB->stacks[i]->level = rbattle.stacks[i].level;
+					gs->curB->stacks[i]->health.setCount(rbattle.stacks[i].count);
+					totalCount[i] = rbattle.stacks[i].count;
+				}
+			}
+			int victoriusSide = 0;
+			if (totalCount[1] > totalCount[0]) {
+				victoriusSide = 1;
+			}
+			setBattleResult(BattleResult::EResult::NORMAL, victoriusSide);
+			if (lobby->state != EServerState::SHUTDOWN) {
+				endBattle(gs->curB->tile, gs->curB->battleGetFightingHero(0), gs->curB->battleGetFightingHero(1));
+			}
+			logGlobal->warn("AZOYAN simulate_battle_onchain done");
+			return;
+		}
+	// }
 	//TODO: pre-tactic stuff, call scripts etc.
 
 	//tactic round

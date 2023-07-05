@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+  <script src="assets/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+  <title>Gear Connect</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script type="module" src="/main.js" defer></script>
+  <style>
+    .logo.vanilla:hover {
+      filter: drop-shadow(0 0 2em #ffe21c);
+    }
+  </style>
+</head>
+
+<body class="bg-dark" id="main">
+  <div data-tauri-drag-region class="container container-sm justify-content-center text-center">
+    <div class="row pt-5">
+      <h1>Heroes III of blockchain might and magic</h1>
+    </div>
+
+    <div data-tauri-drag-region class="row pt-3">
+      <div data-tauri-drag-region class="btn-group">
+        <div class="dropdown-center">
+          <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            aria-expanded="false" id="address">
+            wss://testnet.vara.rs</button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">ws://localhost:9944/</a></li>
+            <li><a class="dropdown-item" href="#">wss://testnet.vara.rs</a></li>
+            <li><a class="dropdown-item" href="#">wss://rpc-node.gear-tech.io</a></li>
+            <li><a class="dropdown-item" href="#">wss://rpc.vara-network.io</a></li>
+            <li><a class="dropdown-item" href="#">wss://node-workshop.gear.rs:443</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div data-tauri-drag-region class="row pt-3 text-start">
+      <label data-tauri-drag-region class="form-label">Mnemonic phrase</label>
+      <input class="form-control " type="text" id="account-id" placeholder="Mnemonic phrase"
+        aria-label=".form-control-lg example" value="">
+    </div>
+    <div data-tauri-drag-region class="row pt-3 text-start">
+      <label data-tauri-drag-region class="form-label">Password</label>
+      <input type="password" class="form-control " id="password" placeholder="Password">
+    </div>
+    <div data-tauri-drag-region class="row py-3 text-start">
+      <label data-tauri-drag-region class="form-label">Program ID</label>
+      <input class="form-control" type="text" id="program-id" placeholder="Program ID"
+        aria-label=".form-control-lg example"
+        value="0x6b2316deb5c7f019f0c12074d1d68a6f316a5952c98a6aef38530554a001391e">
+    </div>
+    <div data-tauri-drag-region class="row pt-1">
+      <div class="alert alert-warning text-start text-wrap text-break" role="alert" id="alert" hidden>
+        <text class="fs-6" id="connection-message"></text>
+      </div>
+    </div>
+    <div data-tauri-drag-region class="row pt-1 justify-content-center text-center">
+      <div data-tauri-drag-region class="d-grid gap-2 col-6 mx-2">
+        <button id="connect-button" type="button" class="btn btn-lg btn-success"><text class="fs-2">Connect</text>
+        </button>
+      </div>
+    </div>
+    <div data-tauri-drag-region class="row pt-3 justify-content-center text-center">
+      <div data-tauri-drag-region class="col col-md-auto">
+        <button id="skip-button" type="button" class="btn btn-warning">Skip</button>
+      </div>
+    </div>
+
+  </div>
+</body>
+
+</html>

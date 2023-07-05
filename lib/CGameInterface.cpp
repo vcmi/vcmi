@@ -180,6 +180,7 @@ void CAdventureAI::battleStart(const CCreatureSet * army1, const CCreatureSet * 
 {
 	assert(!battleAI);
 	assert(cbc);
+	logGlobal->warn("AZOYAN CAdventureAI::battleStar");
 	battleAI = CDynLibHandler::getNewBattleAI(getBattleAIName());
 	battleAI->initBattleInterface(env, cbc);
 	battleAI->battleStart(army1, army2, tile, hero1, hero2, side);

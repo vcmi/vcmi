@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <title>Gear Connect</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script type="module" src="/connection.js" defer></script>
+</head>
+
+<body data-tauri-drag-region>
+    <nav data-tauri-drag-region class="navbar bg-body-tertiary sticky-top ps-2 pe-2 py-3">
+        <div data-tauri-drag-region class="col-auto m-1">
+            <button class=" btn btn-sm btn-outline  disabled"" aria-current=" page" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="yellowgreen"
+                    class="bi bi-circle-fill" viewBox="0 0 10 10">
+                    <circle cx="5" cy="5" r="5" />
+                </svg>
+                Vcmi
+            </button>
+        </div>
+        <div data-tauri-drag-region class="col-auto m-1">
+            <button class="btn btn-sm btn-outline disabled"" href=" #">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="yellowgreen"
+                    class="bi bi-circle-fill" viewBox="0 0 10 10">
+                    <circle cx="5" cy="5" r="5" />
+                </svg>
+                Gear
+            </button>
+        </div>
+        <div data-tauri-drag-region class="col-auto me-auto m-1">
+            <button class="btn btn-sm btn-outline disabled"" href=" #" id="balance">Balance
+                <text id="balance-value"></text>
+            </button>
+        </div>
+        <div data-tauri-drag-region class="col-auto me-auto m-1">
+            <button class="btn btn-sm btn-outline disabled"" href=" #" id="account-id">Account
+                <text id="account-id-value"></text>
+            </button>
+        </div>
+    </nav>
+    <div data-tauri-drag-region id="navbarToggleExternalContent">
+        <div data-tauri-drag-region class="bg-dark p-4">
+            <ul data-tauri-drag-region class="list-group" id="log">
+            </ul>
+        </div>
+    </div>
+</body>

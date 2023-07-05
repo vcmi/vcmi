@@ -47,9 +47,9 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	pos = center();
 
 	REGISTER_BUILDER("battleConsole", &BattleWindow::buildBattleConsole);
-	
+
 	const JsonNode config(ResourceID("config/widgets/BattleWindow.json"));
-	
+
 	addCallback("options", std::bind(&BattleWindow::bOptionsf, this));
 	addCallback("surrender", std::bind(&BattleWindow::bSurrenderf, this));
 	addCallback("flee", std::bind(&BattleWindow::bFleef, this));
@@ -62,9 +62,9 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	addCallback("tacticNext", std::bind(&BattleWindow::bTacticNextStack, this));
 	addCallback("tacticEnd", std::bind(&BattleWindow::bTacticPhaseEnd, this));
 	addCallback("alternativeAction", std::bind(&BattleWindow::bSwitchActionf, this));
-	
+
 	build(config);
-	
+
 	console = widget<BattleConsole>("console");
 
 	GH.statusbar = console;
@@ -335,36 +335,36 @@ void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 	auto w = widget<CButton>("alternativeAction");
 	if(!w)
 		return;
-	
+
 	std::string iconName = variables["actionIconDefault"].String();
 	switch(action.get())
 	{
 		case PossiblePlayerBattleAction::ATTACK:
 			iconName = variables["actionIconAttack"].String();
 			break;
-			
+
 		case PossiblePlayerBattleAction::SHOOT:
 			iconName = variables["actionIconShoot"].String();
 			break;
-			
+
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
 			iconName = variables["actionIconSpell"].String();
 			break;
-			
+
 		//TODO: figure out purpose of this icon
 		//case PossiblePlayerBattleAction::???:
 			//iconName = variables["actionIconWalk"].String();
 			//break;
-			
+
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
 			iconName = variables["actionIconReturn"].String();
 			break;
-			
+
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 			iconName = variables["actionIconNoReturn"].String();
 			break;
 	}
-		
+
 	auto anim = std::make_shared<CAnimation>(iconName);
 	w->setImage(anim, false);
 	w->redraw();
@@ -455,13 +455,13 @@ void BattleWindow::bSwitchActionf()
 {
 	if(alternativeActions.empty())
 		return;
-	
+
 	if(alternativeActions.front() == defaultAction)
 	{
 		alternativeActions.push_back(alternativeActions.front());
 		alternativeActions.pop_front();
 	}
-	
+
 	auto actions = owner.actionsController->getPossibleActions();
 	if(!actions.empty() && actions.front() == alternativeActions.front())
 	{
@@ -473,7 +473,7 @@ void BattleWindow::bSwitchActionf()
 		owner.actionsController->pushFrontPossibleAction(alternativeActions.front());
 		showAlternativeActionIcon(alternativeActions.front());
 	}
-	
+
 	alternativeActions.push_back(alternativeActions.front());
 	alternativeActions.pop_front();
 }

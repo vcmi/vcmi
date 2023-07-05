@@ -22,11 +22,21 @@
 #include "../lib/spells/ISpellMechanics.h"
 #include "../lib/serializer/Cast.h"
 
+#include "../lib/filesystem/FileInfo.h"
+#include "../lib/VCMIDirs.h"
+#include "rusty_bridge/lib.h"
+
 void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 {
+	const std::string stem = FileInfo::GetPathStem(pack.fname).to_string();
+
 	gh.save(pack.fname);
 	logGlobal->info("Game has been saved as %s", pack.fname);
 	result = true;
+
+	const std::string vcgmPath = VCMIDirs::get().userDataPath().string() + '/' + stem + ".vcgm1";
+	const std::string vsgmPath = VCMIDirs::get().userDataPath().string() + '/' + stem + ".vsgm1";
+	auto result = save_files_onchain(vcgmPath, vsgmPath);
 }
 
 void ApplyGhNetPackVisitor::visitEndTurn(EndTurn & pack)
@@ -345,7 +355,7 @@ void ApplyGhNetPackVisitor::visitPlayerMessage(PlayerMessage & pack)
 {
 	if(!pack.player.isSpectator()) // TODO: clearly not a great way to verify permissions
 		gh.throwOnWrongPlayer(&pack, pack.player);
-	
+
 	gh.playerMessage(pack.player, pack.text, pack.currObj);
 	result = true;
 }

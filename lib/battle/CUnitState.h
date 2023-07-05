@@ -104,6 +104,7 @@ public:
 
 	void init();
 	void reset();
+	void setCount(int32_t fullUnits);
 
 	void damage(int64_t & amount);
 	void heal(int64_t & amount, EHealLevel level, EHealPower power);

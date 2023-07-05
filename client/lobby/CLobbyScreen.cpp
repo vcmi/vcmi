@@ -29,6 +29,8 @@
 #include "../../lib/mapping/CCampaignHandler.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 
+#include "rusty_bridge/lib.h"
+
 CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 	: CSelectionBase(screenType), bonusSel(nullptr)
 {
@@ -78,6 +80,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 		tabOpt = std::make_shared<OptionsTab>();
 		buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRLOD.DEF", CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, false), SDLK_l);
 		initLobby();
+		load_all_from_chain();
 		break;
 	}
 	case ESelectionScreen::campaignList:
@@ -134,10 +137,10 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 	catch(std::exception & e)
 	{
 		logGlobal->error("Exception during startScenario: %s", e.what());
-		
+
 		if(std::string(e.what()) == "ExceptionNoHuman")
 			CInfoWindow::showInfoDialog(CGI->generaltexth->allTexts[530], CInfoWindow::TCompsInfo(), PlayerColor(1));
-		
+
 		if(std::string(e.what()) == "ExceptionNoTemplate")
 			CInfoWindow::showInfoDialog(CGI->generaltexth->allTexts[751], CInfoWindow::TCompsInfo(), PlayerColor(1));
 	}
@@ -196,7 +199,7 @@ void CLobbyScreen::updateAfterStateChange()
 			card->iconDifficulty->setSelected(CSH->si->difficulty);
 		}
 	}
-	
+
 	if(curTab && curTab == tabRand && CSH->si->mapGenOptions)
 		tabRand->setMapGenOptions(CSH->si->mapGenOptions);
 }

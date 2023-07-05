@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css" />
+    <title>Gear Connect</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script type="module" src="/lobby.js" defer></script>
+    <style>
+        .logo.vanilla:hover {
+            filter: drop-shadow(0 0 2em #ffe21c);
+        }
+    </style>
+</head>
+
+<body class="bg-dark" id="lobby">
+    <div data-tauri-drag-region class="container container-sm justify-content-center text-center">
+        <div class="row pt-5">
+            <h1>Heroes III of blockchain might and magic</h1>
+        </div>
+
+        <div data-tauri-drag-region class="row pt-3">
+            <div class="col mx-1">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="lobby-address" placeholder="Address"
+                        aria-label="Address" aria-describedby="basic-addon3 basic-addon4" value="ec2-18-185-125-25.eu-central-1.compute.amazonaws.com:5002">
+                    <span class="input-group-text" id="basic-addon3">Lobby</span>
+                </div>
+            </div>
+            <div class="col mx-1 col-4">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="username" aria-label="Username"
+                        aria-describedby="button-addon2" value="Ivan">
+                    <span class="input-group-text" id="basic-addon3">Username</span>
+                </div>
+            </div>
+        </div>
+
+        <div data-tauri-drag-region class="row py-1 text-start">
+            <div data-tauri-drag-region class="col mx-1">
+                <div data-tauri-drag-region class="input-group mb-3">
+                    <div data-tauri-drag-region class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="node-address"
+                            data-bs-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false">wss://testnet.vara.rs</button>
+                        <div class="dropdown-menu" id="node-addresses" aria-labelledby="node-address">
+                            <a class="dropdown-item" href="#">ws://localhost:9944/</a>
+                            <a class="dropdown-item" href="#">wss://testnet.vara.rs</a>
+                            <a class="dropdown-item" href="#">wss://rpc-node.gear-tech.io</a>
+                            <a class="dropdown-item" href="#">wss://rpc.vara-network.io</a>
+                            <a class="dropdown-item" href="#">wss://node-workshop.gear.rs</a>
+                        </div>
+                    </div>
+
+                    <input class="form-control" type="text" id="program-id" placeholder="Program ID"
+                        aria-label=".form-control-lg example"
+                        value="0x06a07d5c399af5e41fddb3c23209136c8ab38a1864e3a1607f4591825b0f1f08">
+                    <span class="input-group-text">Saved Games Archives Contract</span>
+                </div>
+            </div>
+        </div>
+
+        <div data-tauri-drag-region class="row py-1 text-start">
+            <div data-tauri-drag-region class="col mx-1">
+                <div data-tauri-drag-region class="input-group mb-3">
+                    <input class="form-control" type="text" id="program-id-meta" placeholder="Program ID"
+                        aria-label=".form-control-lg example"
+                        value="0x8aa397ec9c5eff7fac6d97963ca941029ef229a48bfe008f932cc3ed8db425b7">
+                    <span class="input-group-text">Game States Contract</span>
+                </div>
+            </div>
+        </div>
+
+        <div data-tauri-drag-region class="row py-1 text-start">
+            <div data-tauri-drag-region class="col mx-1">
+                <div data-tauri-drag-region class="input-group mb-3">
+                    <input class="form-control" type="text" id="program-id-battle" placeholder="Program ID"
+                        aria-label=".form-control-lg example"
+                        value="0x2daec8e695ba66de7af85e3f861139046f3bee463e701ea4fb981d7fe8e98494">
+                    <span class="input-group-text">Battle Contract</span>
+                </div>
+            </div>
+        </div>
+
+        <div data-tauri-drag-region class="row pt-1 text-start">
+            <div data-tauri-drag-region class="collapse multi-collapse" id="collapseRoom">
+                <div data-tauri-drag-region class="row py-1">
+                    <div data-tauri-drag-region class="col">
+                        <label class="form-label">Players in lobby</label>
+                        <div style="height: 150px;" class="bg-dark-subtle rounded-2 overflow-y-auto">
+                            <ul class="list-group list-group-flush" id="users"></ul>
+                        </div>
+                    </div>
+                    <div data-tauri-drag-region class="col" id="room">
+                        <label class="form-label">Rooms</label>
+                        <div class="row">
+                            <div class="col">
+                                <div style="height: 150px;" class="bg-dark-subtle rounded-2 overflow-y-auto">
+                                    <ul class="list-group list-group-flush" id="sessions"></ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pt-3 align-items-start justify-content-start">
+                            <div class="col col-auto">
+                                <!-- Button trigger modal -->
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#roomModal">
+                                    <i class="bi bi-plus"></i>New room
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div data-tauri-drag-region class="row py-1">
+                    <div data-tauri-drag-region class="col">
+                        <label data-tauri-drag-region class="form-label">Lobby chat</label>
+                        <div data-tauri-drag-region style="height: 150px;"
+                            class="bg-dark-subtle rounded-2 overflow-y-auto">
+                            <ul class="list-group list-group-flush" id="messages"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div data-tauri-drag-region class="row mt-1">
+            <div class="alert alert-warning text-start text-wrap text-break" role="alert" id="alert" hidden>
+                <text class="fs-6" id="connection-message"></text>
+            </div>
+        </div>
+        <div data-tauri-drag-region class="row mt-1 justify-content-center text-center">
+            <div data-tauri-drag-region class="gap-2 mx-2">
+                <button id="connect-button" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#passwordModal"><text>Connect</text>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Room -->
+    <div class="modal fade" id="roomModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Room settings</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="input-group mb-3">
+                            <input class="form-control" type="text" id="room-name"
+                                aria-label=".form-control-lg example">
+                            <span class="input-group-text">Room name</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-group mb-3">
+                            <button class="btn btn-outline-primary" style="pointer-events: none; cursor: default;"
+                                type="button">Maximum players</button>
+                            <button class="btn btn-outline-primary dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false" id="room-max-players">2</button>
+                            <div class="dropdown-menu" id="players-count" aria-labelledby="room-max-players">
+                                <a class="dropdown-item" href="#">2</a>
+                                <a class="dropdown-item" href="#">3</a>
+                                <a class="dropdown-item" href="#">4</a>
+                                <a class="dropdown-item" href="#">5</a>
+                                <a class="dropdown-item" href="#">6</a>
+                                <a class="dropdown-item" href="#">7</a>
+                                <a class="dropdown-item" href="#">8</a>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="input-group mb-3" hidden>
+                            <input class="form-control" type="text" id="room-password"
+                                aria-label=".form-control-lg example">
+                            <span class="input-group-text">Password (optional)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="new-room-button">Ok</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Password -->
+    <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Password</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="input-group mb-3">
+                            <input class="form-control" type="text" id="user-password"
+                                aria-label=".form-control-lg example">
+                            <span class="input-group-text">Password</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="password-ok">Ok</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

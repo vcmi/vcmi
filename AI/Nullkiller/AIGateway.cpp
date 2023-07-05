@@ -532,7 +532,7 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	myCb->unlockGsWhenWaiting = true;
 
 	nullkiller->init(CB, playerID);
-	
+
 	retrieveVisitableObjs();
 }
 
@@ -553,7 +553,7 @@ void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimaryS
 	HeroPtr hPtr = hero;
 
 	requestActionASAP([=]()
-	{ 
+	{
 		if(hPtr.validAndSet())
 		{
 			nullkiller->heroManager->update();
@@ -906,7 +906,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 						&& (!destinationArmy->hasStackAtSlot(i) || destinationArmy->getCreature(i) == targetCreature))
 					{
 						auto weakest = nullkiller->armyManager->getWeakestCreature(bestArmy);
-						
+
 						if(weakest->creature == targetCreature)
 						{
 							if(1 == source->getStackCount(j))

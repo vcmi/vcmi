@@ -1,21 +1,37 @@
-[![GitHub](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg)](https://github.com/vcmi/vcmi/actions/workflows/github.yml)
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/vcmi/badge.svg)](https://scan.coverity.com/projects/vcmi)
-[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.1.1/total)](https://github.com/vcmi/vcmi/releases/tag/1.1.1)
-[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.1.0/total)](https://github.com/vcmi/vcmi/releases/tag/1.1.0)
-[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/total)](https://github.com/vcmi/vcmi/releases)
-# VCMI Project
-VCMI is work-in-progress attempt to recreate engine for Heroes III, giving it new and extended possibilities.
+### What this version do
++ Works with gear protocal via gear-connector
++ Saves game states to chain
++ Load game states from chain
 
-## Links
+# Installation guide
+## Contract
+1. Download contract from https://github.com/gear-dapps/homm3
+2. Upload contract .wasm file with IDEA to https://idea.gear-tech.io/programs?node=wss%3A%2F%2Ftestnet.vara.rs
 
- * Homepage:   https://vcmi.eu/
- * Wiki:       https://wiki.vcmi.eu/
- * Forums:     https://forum.vcmi.eu/
- * Bugtracker: https://github.com/vcmi/vcmi/issues
- * Slack:      https://slack.vcmi.eu/
- * Discord:    https://discord.gg/chBT42V
+## Game (for Ubuntu https://ubuntu.com/download/desktop)
+1. Clone this repository
+2. Install needed dependencies for tauri gui framework  
 
-## Installation guides
+   ### Install dependencies for tauri.  
+
+   Example for Ubuntu:  
+  ```Ubuntu
+    sudo apt update
+    sudo apt install libwebkit2gtk-4.0-dev \
+    build-essential \
+    curl \
+    wget \
+    libssl-dev \
+    libgtk-3-dev \
+    libayatana-appindicator3-dev \
+    librsvg2-dev
+  ```
+For Windows, macOS look at [official tauri docs](https://tauri.app/v1/guides/getting-started/prerequisites)
+
+For another Linux distribution look at https://tauri.app/v1/guides/getting-started/prerequisites#setting-up-linux
+
+3. Install VCMI 
+## VCMI Installation guides
 
 To use VCMI you need to own original data files.
 
@@ -36,10 +52,3 @@ Platform support is constantly tested by continuous integration and CMake config
  * [On Windows using MSVC and Vcpkg](https://wiki.vcmi.eu/How_to_build_VCMI_(Windows/Vcpkg))
  * [iOS on macOS](https://wiki.vcmi.eu/How_to_build_VCMI_(iOS))
  * [Android on any OS](https://wiki.vcmi.eu/How_to_build_VCMI_(Android))
-
-## Copyright and license
-
-VCMI Project source code is licensed under GPL version 2 or later.
-VCMI Project assets are licensed under CC-BY-SA 4.0. Assets sources and information about contributors are available under following link: [https://github.com/vcmi/vcmi-assets]
-
-Copyright (C) 2007-2023  VCMI Team (check AUTHORS file for the contributors list)
