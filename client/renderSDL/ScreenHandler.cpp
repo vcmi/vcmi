@@ -50,6 +50,32 @@ std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
 	return { minimalScaling, maximalScaling };
 }
 
+Rect ScreenHandler::convertLogicalPointsToWindow(const Rect & input) const
+{
+	Rect result;
+
+	// FIXME: use SDL_RenderLogicalToWindow instead? Needs to be tested on ios
+
+	float scaleX, scaleY;
+	SDL_Rect viewport;
+	SDL_RenderGetScale(mainRenderer, &scaleX, &scaleY);
+	SDL_RenderGetViewport(mainRenderer, &viewport);
+
+#ifdef VCMI_IOS
+	// TODO ios: looks like SDL bug actually, try fixing there
+	const auto nativeScale = iOS_utils::screenScale();
+	scaleX /= nativeScale;
+	scaleY /= nativeScale;
+#endif
+
+	result.x = (viewport.x + input.x) * scaleX;
+	result.y = (viewport.y + input.y) * scaleY;
+	result.w = input.w * scaleX;
+	result.h = input.h * scaleY;
+
+	return result;
+}
+
 Point ScreenHandler::getPreferredLogicalResolution() const
 {
 	Point renderResolution = getPreferredRenderingResolution();

@@ -86,4 +86,5 @@ public:
 	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;
 	std::tuple<int, int> getSupportedScalingRange() const final;
+	Rect convertLogicalPointsToWindow(const Rect & input) const final;
 };
