@@ -25,7 +25,7 @@
 #include <SDL.h>
 
 // TODO: should be made into a private members of ScreenHandler
-SDL_Window * mainWindow = nullptr;
+static SDL_Window * mainWindow = nullptr;
 SDL_Renderer * mainRenderer = nullptr;
 SDL_Texture * screenTexture = nullptr;
 SDL_Surface * screen = nullptr; //main screen surface
@@ -42,9 +42,12 @@ std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
 	// arbitrary limit on *downscaling*. Allow some downscaling, if requested by user. Should be generally limited to 100+ for all but few devices
 	static const double minimalScaling = 50;
 
-	Point renderResolution = getPreferredRenderingResolution();
-	double maximalScalingWidth = 100.0 * renderResolution.x / minResolution.x;
-	double maximalScalingHeight = 100.0 * renderResolution.y / minResolution.y;
+	Point renderResolution = getActualRenderResolution();
+	double reservedAreaWidth = settings["video"]["reservedWidth"].Float();
+	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
+
+	double maximalScalingWidth = 100.0 * availableResolution.x / minResolution.x;
+	double maximalScalingHeight = 100.0 * availableResolution.y / minResolution.y;
 	double maximalScaling = std::min(maximalScalingWidth, maximalScalingHeight);
 
 	return { minimalScaling, maximalScaling };
@@ -78,18 +81,31 @@ Rect ScreenHandler::convertLogicalPointsToWindow(const Rect & input) const
 
 Point ScreenHandler::getPreferredLogicalResolution() const
 {
-	Point renderResolution = getPreferredRenderingResolution();
+	Point renderResolution = getActualRenderResolution();
+	double reservedAreaWidth = settings["video"]["reservedWidth"].Float();
+	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
+
 	auto [minimalScaling, maximalScaling] = getSupportedScalingRange();
 
 	int userScaling = settings["video"]["resolution"]["scaling"].Integer();
 	int scaling = std::clamp(userScaling, minimalScaling, maximalScaling);
 
-	Point logicalResolution = renderResolution * 100.0 / scaling;
+	Point logicalResolution = availableResolution * 100.0 / scaling;
 
 	return logicalResolution;
 }
 
-Point ScreenHandler::getPreferredRenderingResolution() const
+Point ScreenHandler::getActualRenderResolution() const
+{
+	assert(mainRenderer != nullptr);
+
+	Point result;
+	SDL_GetRendererOutputSize(mainRenderer, &result.x, &result.y);
+
+	return result;
+}
+
+Point ScreenHandler::getPreferredWindowResolution() const
 {
 	if (getPreferredWindowMode() == EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED)
 	{
@@ -208,7 +224,7 @@ void ScreenHandler::updateWindowState()
 
 			SDL_DisplayMode mode;
 			SDL_GetDesktopDisplayMode(displayIndex, &mode);
-			Point resolution = getPreferredRenderingResolution();
+			Point resolution = getPreferredWindowResolution();
 
 			mode.w = resolution.x;
 			mode.h = resolution.y;
@@ -226,7 +242,7 @@ void ScreenHandler::updateWindowState()
 		}
 		case EWindowMode::WINDOWED:
 		{
-			Point resolution = getPreferredRenderingResolution();
+			Point resolution = getPreferredWindowResolution();
 			SDL_SetWindowFullscreen(mainWindow, 0);
 			SDL_SetWindowSize(mainWindow, resolution.x, resolution.y);
 			SDL_SetWindowPosition(mainWindow, SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex), SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex));
@@ -316,7 +332,7 @@ SDL_Window * ScreenHandler::createWindowImpl(Point dimensions, int flags, bool c
 SDL_Window * ScreenHandler::createWindow()
 {
 #ifndef VCMI_MOBILE
-	Point dimensions = getPreferredRenderingResolution();
+	Point dimensions = getPreferredWindowResolution();
 
 	switch(getPreferredWindowMode())
 	{
@@ -376,7 +392,7 @@ void ScreenHandler::validateSettings()
 	{
 		//we only check that our desired window size fits on screen
 		int displayIndex = getPreferredDisplayIndex();
-		Point resolution = getPreferredRenderingResolution();
+		Point resolution = getPreferredWindowResolution();
 
 		SDL_DisplayMode mode;
 
@@ -394,7 +410,7 @@ void ScreenHandler::validateSettings()
 	if (getPreferredWindowMode() == EWindowMode::FULLSCREEN_EXCLUSIVE)
 	{
 		auto legalOptions = getSupportedResolutions();
-		Point selectedResolution = getPreferredRenderingResolution();
+		Point selectedResolution = getPreferredWindowResolution();
 
 		if(!vstd::contains(legalOptions, selectedResolution))
 		{
