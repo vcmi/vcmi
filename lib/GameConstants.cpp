@@ -204,7 +204,7 @@ const FactionID FactionID::NEUTRAL = FactionID(9);
 
 si32 FactionID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), scope(), identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), entityType(), identifier);
 	if(rawId)
 		return rawId.value();
 	else
@@ -216,7 +216,7 @@ std::string FactionID::encode(const si32 index)
 	return VLC->factions()->getByIndex(index)->getJsonKey();
 }
 
-std::string FactionID::scope()
+std::string FactionID::entityType()
 {
 	return "faction";
 }
@@ -224,7 +224,7 @@ std::string FactionID::scope()
 
 si32 TerrainID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), scope(), identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), entityType(), identifier);
 	if(rawId)
 		return rawId.value();
 	else
@@ -236,7 +236,7 @@ std::string TerrainID::encode(const si32 index)
 	return VLC->terrainTypeHandler->getByIndex(index)->getJsonKey();
 }
 
-std::string TerrainID::scope()
+std::string TerrainID::entityType()
 {
 	return "terrain";
 }

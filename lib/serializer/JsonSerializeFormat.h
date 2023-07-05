@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../JsonNode.h"
+#include "../CModHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -367,7 +368,7 @@ public:
 
 				for(const auto & id : node.Vector())
 				{
-					VLC->modh->identifiers.requestIdentifier(U::scope(), id, [&value](int32_t identifier)
+					VLC->modh->identifiers.requestIdentifier(U::entityType(), id, [&value](int32_t identifier)
 					{
 						value.emplace(identifier);
 					});

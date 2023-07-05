@@ -461,7 +461,7 @@ class FactionID : public BaseForID<FactionID, int32_t>
 
 	static si32 decode(const std::string& identifier);
 	static std::string encode(const si32 index);
-	static std::string scope();
+	static std::string entityType();
 };
 
 class TerrainID
@@ -470,7 +470,7 @@ class TerrainID
 public:
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
-	static std::string scope();
+	static std::string entityType();
 };
 
 class BuildingID
