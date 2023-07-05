@@ -331,11 +331,16 @@ void CToggleBase::setEnabled(bool enabled)
 	// for overrides
 }
 
+void CToggleBase::setSelectedSilent(bool on)
+{
+	selected = on;
+	doSelect(on);
+}
+
 void CToggleBase::setSelected(bool on)
 {
 	bool changed = (on != selected);
-	selected = on;
-	doSelect(on);
+	setSelectedSilent(on);
 	if (changed)
 		callback(on);
 }

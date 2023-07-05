@@ -22,6 +22,10 @@
 #include "../lib/CAndroidVMHelper.h"
 #endif
 
+#ifdef VCMI_IOS
+#	include "ios/utils.h"
+#endif
+
 #include <SDL.h>
 
 // TODO: should be made into a private members of ScreenHandler

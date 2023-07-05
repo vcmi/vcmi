@@ -25,10 +25,6 @@
 #	include <dispatch/dispatch.h>
 #endif
 
-#ifdef VCMI_IOS
-#	include "ios/utils.h"
-#endif
-
 void InputSourceText::handleEventTextInput(const SDL_TextInputEvent & text)
 {
 	GH.events().dispatchTextInput(text.text);
