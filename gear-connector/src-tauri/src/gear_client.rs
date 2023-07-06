@@ -1,6 +1,6 @@
 use crate::utils::convert_state;
 use crossbeam_channel::{Receiver, RecvTimeoutError, Sender};
-use gclient::{EventListener, EventProcessor, GearApi, WSAddress};
+use gclient::{EventListener, GearApi, WSAddress};
 use gear_connector_api::PlayerState;
 use gmeta::Encode;
 use gstd::ActorId;

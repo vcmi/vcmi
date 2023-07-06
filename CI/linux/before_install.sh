@@ -9,3 +9,5 @@ sudo apt-get install qtbase5-dev
 sudo apt-get install ninja-build zlib1g-dev libavformat-dev libswscale-dev libtbb-dev libluajit-5.1-dev
 # Optional dependencies
 sudo apt-get install libminizip-dev libfuzzylite-dev qttools5-dev
+# `gear-connector` dependencies
+sudo apt-get install libgtk-3-dev libjavascriptcoregtk-4.0 libsoup2.4-dev libwebkit2gtk-4.0

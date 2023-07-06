@@ -115,7 +115,7 @@ fn main() {
             tracing::subscriber::set_global_default(subscriber).unwrap();
 
             main_window.center().unwrap();
-            let address = SocketAddr::from_str("127.0.0.1:6666").unwrap();
+            let address = SocketAddr::from_str("127.0.0.1:0").unwrap();
             tauri::async_runtime::spawn(async move {
                 VcmiServer::new(
                     need_stop.clone(),
