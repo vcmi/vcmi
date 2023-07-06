@@ -26,6 +26,14 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 	loadObject(scope, name, data);
 }
 
+void CRmgTemplateStorage::afterLoadFinalization()
+{
+	for (auto& temp : templates)
+	{
+		temp.second.afterLoad();
+	}
+}
+
 void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	try

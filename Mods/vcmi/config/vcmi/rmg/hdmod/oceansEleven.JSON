@@ -11,7 +11,6 @@
 				"size" : 8,
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
 				"terrainTypes" : [ "grass" ],
 				"mines" : { "mercury" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 1 },
 				"treasure" :
@@ -28,7 +27,6 @@
 				"owner" : 1,
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
 				"mines" : { "wood" : 1, "ore" : 1 },
 				"treasure" :
 				[
@@ -42,7 +40,6 @@
 				"type" : "treasure",
 				"size" : 12,
 				"monsters" : "strong",
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
 				"matchTerrainToTown" : false,
 				"treasure" :
 				[
@@ -56,7 +53,6 @@
 				"type" : "treasure",
 				"size" : 10,
 				"monsters" : "strong",
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
 				"matchTerrainToTown" : false,
 				"treasure" :
 				[
@@ -70,7 +66,6 @@
 				"type" : "treasure",
 				"size" : 10,
 				"monsters" : "strong",
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
 				"matchTerrainToTown" : false,
 				"treasureLikeZone" : 4
 			},
@@ -80,7 +75,6 @@
 				"size" : 12,
 				"monsters" : "strong",
 				"neutralTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
 				"matchTerrainToTown" : false,
 				"terrainTypes" : [ "dirt", "sand", "snow", "swamp", "lava" ],
 				"treasure" :
@@ -95,7 +89,6 @@
 				"type" : "treasure",
 				"size" : 10,
 				"monsters" : "strong",
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
 				"matchTerrainToTown" : false,
 				"treasureLikeZone" : 4
 			},
@@ -104,7 +97,6 @@
 				"type" : "treasure",
 				"size" : 10,
 				"monsters" : "strong",
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
 				"matchTerrainToTown" : false,
 				"treasureLikeZone" : 4
 			},
@@ -113,7 +105,6 @@
 				"type" : "treasure",
 				"size" : 12,
 				"monsters" : "strong",
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
 				"matchTerrainToTown" : false,
 				"treasureLikeZone" : 3
 			},
@@ -124,7 +115,6 @@
 				"owner" : 2,
 				"monsters" : "normal",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
 				"minesLikeZone" : 2,
 				"treasureLikeZone" : 2
 			},
@@ -134,7 +124,6 @@
 				"size" : 8,
 				"monsters" : "strong",
 				"neutralTowns" : { "towns" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
 				"terrainTypes" : [ "grass" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1

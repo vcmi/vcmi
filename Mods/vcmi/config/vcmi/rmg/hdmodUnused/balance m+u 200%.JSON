@@ -14,7 +14,7 @@
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 1 },
 				"townsAreSameType" : true,
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"bannedTowns" : ["necropolis", "conflux"],
 				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1 },
 				"treasure" :
 				[
@@ -32,7 +32,7 @@
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 1 },
 				"townsAreSameType" : true,
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"bannedTowns" : ["necropolis", "conflux"],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -103,7 +103,7 @@
 				"size" : 4,
 				"monsters" : "normal",
 				"neutralTowns" : { "towns" : 1 },
-				"allowedTowns" : [ "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["castle"],
 				"mines" : { "crystal" : 1 },
 				"treasureLikeZone" : 6
 			},
@@ -122,7 +122,7 @@
 				"size" : 4,
 				"monsters" : "normal",
 				"neutralTowns" : { "towns" : 1 },
-				"allowedTowns" : [ "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
+				"bannedTowns" : ["castle"],
 				"minesLikeZone" : 6,
 				"treasureLikeZone" : 6
 			},

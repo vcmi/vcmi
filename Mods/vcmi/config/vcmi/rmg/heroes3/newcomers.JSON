@@ -12,7 +12,6 @@
 				"owner" : 1,
 				"monsters" : "weak",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
 				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 1 },
 				"treasure" :
 				[
@@ -27,7 +26,6 @@
 				"owner" : 1,
 				"monsters" : "weak",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -38,7 +36,6 @@
 				"owner" : 2,
 				"monsters" : "weak",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -49,7 +46,6 @@
 				"owner" : 2,
 				"monsters" : "weak",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -60,7 +56,6 @@
 				"owner" : 3,
 				"monsters" : "weak",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -71,7 +66,6 @@
 				"owner" : 3,
 				"monsters" : "weak",
 				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},

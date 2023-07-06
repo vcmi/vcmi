@@ -65,6 +65,7 @@ void CTreasureInfo::serializeJson(JsonSerializeFormat & handler)
 namespace rmg
 {
 
+//FIXME: This is never used, instead TerrainID is used
 class TerrainEncoder
 {
 public:
@@ -145,9 +146,6 @@ ZoneOptions::ZoneOptions():
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
 {
-	for(const auto & terr : VLC->terrainTypeHandler->objects)
-		if(terr->isLand() && terr->isPassable())
-			terrainTypes.insert(terr->getId());
 }
 
 TRmgTemplateZoneId ZoneOptions::getId() const
@@ -187,16 +185,34 @@ std::optional<int> ZoneOptions::getOwner() const
 	return owner;
 }
 
-const std::set<TerrainId> & ZoneOptions::getTerrainTypes() const
+const std::set<TerrainId> ZoneOptions::getTerrainTypes() const
 {
-	return terrainTypes;
+	if (terrainTypes.empty())
+	{
+		return vstd::difference(getDefaultTerrainTypes(), bannedTerrains);
+	}
+	else
+	{
+		return terrainTypes;
+	}
 }
 
 void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 {
-	//assert(value.find(ETerrainType::NONE) == value.end() &&
-	//	   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());
 	terrainTypes = value;
+}
+
+std::set<TerrainId> ZoneOptions::getDefaultTerrainTypes() const
+{
+	std::set<TerrainId> terrains;
+	for (auto terrain : VLC->terrainTypeHandler->objects)
+	{
+		if (terrain->isLand() && terrain->isPassable())
+		{
+			terrains.insert(terrain->getId());
+		}
+	}
+	return terrains;
 }
 
 std::set<FactionID> ZoneOptions::getDefaultTownTypes() const
@@ -210,9 +226,17 @@ std::set<FactionID> ZoneOptions::getDefaultTownTypes() const
 	return defaultTowns;
 }
 
-const std::set<FactionID> & ZoneOptions::getTownTypes() const
+const std::set<FactionID> ZoneOptions::getTownTypes() const
 {
-	return townTypes;
+	if (townTypes.empty())
+	{
+		//Assume that all towns are allowed, unless banned
+		return vstd::difference(getDefaultTownTypes(), bannedTownTypes);
+	}
+	else 
+	{
+		return vstd::difference(townTypes, bannedTownTypes);
+	}
 }
 
 void ZoneOptions::setTownTypes(const std::set<FactionID> & value)
@@ -225,9 +249,9 @@ void ZoneOptions::setMonsterTypes(const std::set<FactionID> & value)
 	monsterTypes = value;
 }
 
-const std::set<FactionID> & ZoneOptions::getMonsterTypes() const
+const std::set<FactionID> ZoneOptions::getMonsterTypes() const
 {
-	return monsterTypes;
+	return vstd::difference(monsterTypes, bannedMonsters);
 }
 
 void ZoneOptions::setMinesInfo(const std::map<TResource, ui16> & value)
@@ -350,37 +374,15 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 
 	if(terrainTypeLikeZone == NO_ZONE)
 	{
-		JsonNode node;
-		if(handler.saving)
-		{
-			node.setType(JsonNode::JsonType::DATA_VECTOR);
-			for(const auto & ttype : terrainTypes)
-			{
-				JsonNode n;
-				n.String() = VLC->terrainTypeHandler->getById(ttype)->getJsonKey();
-				node.Vector().push_back(n);
-			}
-		}
-		handler.serializeRaw("terrainTypes", node, std::nullopt);
-		if(!handler.saving)
-		{
-			if(!node.Vector().empty())
-			{
-				terrainTypes.clear();
-				for(const auto & ttype : node.Vector())
-				{
-					VLC->modh->identifiers.requestIdentifier("terrain", ttype, [this](int32_t identifier)
-					{
-						terrainTypes.emplace(identifier);
-					});
-				}
-			}
-		}
+		handler.serializeIdArray<TerrainId, TerrainID>("terrainTypes", terrainTypes, std::set<TerrainId>());
+		handler.serializeIdArray<TerrainId, TerrainID>("bannedTerrains", bannedTerrains, std::set<TerrainId>());
 	}
 
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
-	handler.serializeIdArray<FactionID, FactionID>("allowedMonsters", monsterTypes, VLC->townh->getAllowedFactions(false));
-	handler.serializeIdArray<FactionID, FactionID>("allowedTowns", townTypes, VLC->townh->getAllowedFactions(true));
+	handler.serializeIdArray<FactionID>("allowedMonsters", monsterTypes, std::set<FactionID>());
+	handler.serializeIdArray<FactionID>("bannedMonsters", bannedMonsters, std::set<FactionID>());
+	handler.serializeIdArray<FactionID>("allowedTowns", townTypes, std::set<FactionID>());
+	handler.serializeIdArray<FactionID>("bannedTowns", bannedTownTypes, std::set<FactionID>());
 
 	{
 		//TODO: add support for std::map to serializeEnum
@@ -733,8 +735,6 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 			}
 		}
 	}
-	if(!handler.saving)
-		afterLoad();
 }
 
 std::set<TerrainId> CRmgTemplate::inheritTerrainType(std::shared_ptr<ZoneOptions> zone, uint32_t iteration /* = 0 */)
@@ -750,6 +750,7 @@ std::set<TerrainId> CRmgTemplate::inheritTerrainType(std::shared_ptr<ZoneOptions
 		const auto otherZone = zones.at(zone->getTerrainTypeLikeZone());
 		zone->setTerrainTypes(inheritTerrainType(otherZone, iteration));
 	}
+	//This implicitely excludes banned terrains
 	return zone->getTerrainTypes();
 }
 
@@ -795,12 +796,17 @@ void CRmgTemplate::afterLoad()
 		inheritTerrainType(zone);
 		inheritMineTypes(zone);
 		inheritTreasureInfo(zone);
+
+		//TODO: Inherit monster types as well
+		auto monsterTypes = zone->getMonsterTypes();
+		if (monsterTypes.empty())
+		{
+			zone->setMonsterTypes(VLC->townh->getAllowedFactions(false));
+		}
 	}
 
 	for(const auto & connection : connectedZoneIds)
 	{
-		//TODO: Remember connection details and allow to access them from anywhere
-
 		auto id1 = connection.getZoneA();
 		auto id2 = connection.getZoneB();
 

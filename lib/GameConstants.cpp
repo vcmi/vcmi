@@ -33,6 +33,7 @@
 #include "StringConstants.h"
 #include "CGeneralTextHandler.h"
 #include "CModHandler.h"//todo: remove
+#include "TerrainHandler.h" //TODO: remove
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 
@@ -203,7 +204,7 @@ const FactionID FactionID::NEUTRAL = FactionID(9);
 
 si32 FactionID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "faction", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), entityType(), identifier);
 	if(rawId)
 		return rawId.value();
 	else
@@ -213,6 +214,31 @@ si32 FactionID::decode(const std::string & identifier)
 std::string FactionID::encode(const si32 index)
 {
 	return VLC->factions()->getByIndex(index)->getJsonKey();
+}
+
+std::string FactionID::entityType()
+{
+	return "faction";
+}
+
+
+si32 TerrainID::decode(const std::string & identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), entityType(), identifier);
+	if(rawId)
+		return rawId.value();
+	else
+		return static_cast<si32>(ETerrainId::NONE);
+}
+
+std::string TerrainID::encode(const si32 index)
+{
+	return VLC->terrainTypeHandler->getByIndex(index)->getJsonKey();
+}
+
+std::string TerrainID::entityType()
+{
+	return "terrain";
 }
 
 std::ostream & operator<<(std::ostream & os, const EActionType actionType)
