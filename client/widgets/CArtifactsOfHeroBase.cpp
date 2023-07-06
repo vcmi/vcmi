@@ -11,7 +11,6 @@
 #include "CArtifactsOfHeroBase.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 
 #include "Buttons.h"
@@ -26,11 +25,12 @@
 
 CArtifactsOfHeroBase::CArtifactsOfHeroBase()
 	: backpackPos(0),
-	curHero(nullptr)
+	curHero(nullptr),
+	putBackPickedArtCallback(nullptr)
 {
 }
 
-CArtifactsOfHeroBase::~CArtifactsOfHeroBase()
+void CArtifactsOfHeroBase::putBackPickedArtifact()
 {
 	// Artifact located in artifactsTransitionPos should be returned
 	if(getPickedArtifact())
@@ -45,6 +45,13 @@ CArtifactsOfHeroBase::~CArtifactsOfHeroBase()
 			LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero, ArtifactPosition::TRANSITION_POS), ArtifactLocation(curHero, slot));
 		}
 	}
+	if(putBackPickedArtCallback)
+		putBackPickedArtCallback();
+}
+
+void CArtifactsOfHeroBase::setPutBackPickedArtifactCallback(PutBackPickedArtCallback callback)
+{
+	putBackPickedArtCallback = callback;
 }
 
 void CArtifactsOfHeroBase::init(
@@ -159,8 +166,10 @@ void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSe
 	}
 
 	// Blocking scrolling if there is not enough artifacts to scroll
-	leftBackpackRoll->block(!scrollingPossible);
-	rightBackpackRoll->block(!scrollingPossible);
+	if(leftBackpackRoll)
+		leftBackpackRoll->block(!scrollingPossible);
+	if(rightBackpackRoll)
+		rightBackpackRoll->block(!scrollingPossible);
 }
 
 void CArtifactsOfHeroBase::safeRedraw()

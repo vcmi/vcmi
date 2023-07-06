@@ -11,6 +11,7 @@
 #include "CHeroWindow.h"
 
 #include "CCreatureWindow.h"
+#include "CHeroBackpackWindow.h"
 #include "CKingdomInterface.h"
 #include "GUIClasses.h"
 
@@ -135,6 +136,8 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 
 	questlogLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[9], Rect(510, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 	questlogButton = std::make_shared<CButton>(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
+
+	backpackButton = std::make_shared<CButton>(Point(380, 429), "hsbtns2.def", CButton::tooltip(""), [=]() { createBackpackWindow(); }, EShortcut::HERO_BACKPACK);
 
 	formations = std::make_shared<CToggleGroup>(0);
 	formations->addToggle(0, std::make_shared<CToggleButton>(Point(481, 483), "hsbtns6.def", std::make_pair(heroscrn[23], heroscrn[29]), 0, EShortcut::HERO_TIGHT_FORMATION));
@@ -355,6 +358,11 @@ void CHeroWindow::dismissCurrent()
 	CFunctionList<void()> ony = [=](){ close(); };
 	ony += [=](){ LOCPLINT->cb->dismissHero(curHero); };
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, nullptr);
+}
+
+void CHeroWindow::createBackpackWindow()
+{
+	GH.windows().createAndPushWindow<CHeroBackpackWindow>(curHero);
 }
 
 void CHeroWindow::commanderWindow()

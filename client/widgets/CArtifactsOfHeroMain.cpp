@@ -23,6 +23,11 @@ CArtifactsOfHeroMain::CArtifactsOfHeroMain(const Point & position)
 		std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, _1));
 }
 
+CArtifactsOfHeroMain::~CArtifactsOfHeroMain()
+{
+	putBackPickedArtifact();
+}
+
 void CArtifactsOfHeroMain::swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc)
 {
 	LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);

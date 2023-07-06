@@ -14,6 +14,7 @@
 #include "CArtifactsOfHeroKingdom.h"
 #include "CArtifactsOfHeroAltar.h"
 #include "CArtifactsOfHeroMarket.h"
+#include "CArtifactsOfHeroBackpack.h"
 
 class CWindowWithArtifacts : public CArtifactHolder
 {
@@ -22,9 +23,9 @@ public:
 		std::weak_ptr<CArtifactsOfHeroMarket>,
 		std::weak_ptr<CArtifactsOfHeroAltar>,
 		std::weak_ptr<CArtifactsOfHeroKingdom>,
-		std::weak_ptr<CArtifactsOfHeroMain>>;
+		std::weak_ptr<CArtifactsOfHeroMain>,
+		std::weak_ptr<CArtifactsOfHeroBackpack>>;
 
-	virtual ~CWindowWithArtifacts();
 	void addSet(CArtifactsOfHeroPtr artSet);
 	const CGHeroInstance * getHeroPickedArtifact();
 	const CArtifactInstance * getPickedArtifact();

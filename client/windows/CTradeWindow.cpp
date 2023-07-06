@@ -370,7 +370,6 @@ void CTradeWindow::initItems(bool Left)
 
 	if(Left && (itemsType[1] == ARTIFACT_TYPE || itemsType[1] == ARTIFACT_INSTANCE))
 	{
-		int xOffset = 0, yOffset = 0;
 		if(mode == EMarketMode::ARTIFACT_RESOURCE)
 		{
 			auto item = std::make_shared<CTradeableItem>(Point(137, 469), itemsType[Left], -1, 1, 0);
@@ -1428,10 +1427,9 @@ int CAltarWindow::firstFreeSlot()
 
 void CAltarWindow::SacrificeBackpack()
 {
-	auto artsAltar = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(arts);
-	while(!artsAltar->visibleArtSet.artifactsInBackpack.empty())
+	while(!arts->visibleArtSet.artifactsInBackpack.empty())
 	{
-		if(!putOnAltar(nullptr, artsAltar->visibleArtSet.artifactsInBackpack[0].artifact))
+		if(!putOnAltar(nullptr, arts->visibleArtSet.artifactsInBackpack[0].artifact))
 			break;
 	};
 	calcTotalExp();

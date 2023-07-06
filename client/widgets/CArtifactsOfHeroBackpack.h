@@ -1,5 +1,5 @@
 /*
- * CArtifactsOfHeroMain.h, part of VCMI engine
+ * CArtifactsOfHeroBackpack.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -17,11 +17,19 @@ struct ArtifactLocation;
 
 VCMI_LIB_NAMESPACE_END
 
-class CArtifactsOfHeroMain : public CArtifactsOfHeroBase
+class CArtifactsOfHeroBackpack : public CArtifactsOfHeroBase
 {
 public:
-	CArtifactsOfHeroMain(const Point & position);
-	~CArtifactsOfHeroMain();
+	using DestroyHandler = std::function<void()>;
+
+	CArtifactsOfHeroBackpack(const Point & position, DestroyHandler destroyThisCallback);
 	void swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc);
 	void pickUpArtifact(CHeroArtPlace & artPlace);
+	void destroyThis();
+	
+private:
+	DestroyHandler destroyThisCallback;
+
+	const size_t HERO_BACKPACK_WINDOW_SLOT_COLUMNS = 8;
+	const size_t HERO_BACKPACK_WINDOW_SLOT_LINES = 8;
 };

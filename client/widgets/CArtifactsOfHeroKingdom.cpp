@@ -41,6 +41,11 @@ CArtifactsOfHeroKingdom::CArtifactsOfHeroKingdom(ArtPlaceMap ArtWorn, std::vecto
 	rightBackpackRoll->addCallback(std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, +1));
 }
 
+CArtifactsOfHeroKingdom::~CArtifactsOfHeroKingdom()
+{
+	putBackPickedArtifact();
+}
+
 void CArtifactsOfHeroKingdom::swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc)
 {
 	LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);

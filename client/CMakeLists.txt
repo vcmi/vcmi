@@ -105,6 +105,7 @@ set(client_SRCS
 	widgets/CArtifactsOfHeroKingdom.cpp
 	widgets/CArtifactsOfHeroAltar.cpp
 	widgets/CArtifactsOfHeroMarket.cpp
+	widgets/CArtifactsOfHeroBackpack.cpp
 	widgets/CWindowWithArtifacts.cpp
 
 	windows/CCastleInterface.cpp
@@ -121,6 +122,7 @@ set(client_SRCS
 	windows/GUIClasses.cpp
 	windows/InfoWindows.cpp
 	windows/QuickRecruitmentWindow.cpp
+	windows/CHeroBackpackWindow.cpp
 	windows/settings/GeneralOptionsTab.cpp
 	windows/settings/OtherOptionsTab.cpp
 	windows/settings/SettingsMainWindow.cpp
@@ -258,6 +260,7 @@ set(client_HEADERS
 	widgets/CArtifactsOfHeroKingdom.h
 	widgets/CArtifactsOfHeroAltar.h
 	widgets/CArtifactsOfHeroMarket.h
+	widgets/CArtifactsOfHeroBackpack.h
 	widgets/CWindowWithArtifacts.h
 
 	windows/CCastleInterface.h
@@ -274,6 +277,7 @@ set(client_HEADERS
 	windows/GUIClasses.h
 	windows/InfoWindows.h
 	windows/QuickRecruitmentWindow.h
+	windows/CHeroBackpackWindow.h
 	windows/settings/GeneralOptionsTab.h
 	windows/settings/OtherOptionsTab.h
 	windows/settings/SettingsMainWindow.h
