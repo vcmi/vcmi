@@ -24,6 +24,7 @@ public:
 		std::weak_ptr<CArtifactsOfHeroKingdom>,
 		std::weak_ptr<CArtifactsOfHeroMain>>;
 
+	virtual ~CWindowWithArtifacts();
 	void addSet(CArtifactsOfHeroPtr artSet);
 	const CGHeroInstance * getHeroPickedArtifact();
 	const CArtifactInstance * getPickedArtifact();

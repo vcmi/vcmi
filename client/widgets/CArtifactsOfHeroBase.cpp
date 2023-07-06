@@ -32,10 +32,6 @@ CArtifactsOfHeroBase::CArtifactsOfHeroBase()
 
 CArtifactsOfHeroBase::~CArtifactsOfHeroBase()
 {
-	// TODO: cursor handling is CWindowWithArtifacts level. Should be moved when trading, kingdom and hero window are reworked
-	// This will interfere with the implementation of a separate backpack window
-	CCS->curh->dragAndDropCursor(nullptr);
-
 	// Artifact located in artifactsTransitionPos should be returned
 	if(getPickedArtifact())
 	{

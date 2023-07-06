@@ -26,6 +26,11 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
+CWindowWithArtifacts::~CWindowWithArtifacts()
+{
+	CCS->curh->dragAndDropCursor(nullptr);
+}
+
 void CWindowWithArtifacts::addSet(CArtifactsOfHeroPtr artSet)
 {
 	artSets.emplace_back(artSet);

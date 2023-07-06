@@ -21,7 +21,6 @@ public:
 	using ArtPlaceMap = std::map<ArtifactPosition, ArtPlacePtr>;
 	using ClickHandler = std::function<void(CArtifactsOfHeroBase&, CHeroArtPlace&)>;
 
-	const CGHeroInstance * curHero;
 	ClickHandler leftClickCallback;
 	ClickHandler rightClickCallback;
 	
@@ -42,6 +41,7 @@ public:
 	virtual const CArtifactInstance * getPickedArtifact();
 
 protected:
+	const CGHeroInstance * curHero;
 	ArtPlaceMap artWorn;
 	std::vector<ArtPlacePtr> backpack;
 	std::shared_ptr<CButton> leftBackpackRoll;
