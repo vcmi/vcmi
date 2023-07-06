@@ -25,6 +25,7 @@
 #include "../gui/WindowHandler.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/CGarrisonInt.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
 #include "../render/Canvas.h"
@@ -1154,7 +1155,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	center();
 	updateShadow();
 
-	garr = std::make_shared<CGarrisonInt>(305, 387, 4, Point(0,96), town->getUpperArmy(), town->visitingHero);
+	garr = std::make_shared<CGarrisonInt>(Point(305, 387), 4, Point(0,96), town->getUpperArmy(), town->visitingHero);
 	garr->setRedrawParent(true);
 
 	heroes = std::make_shared<HeroSlots>(town, Point(241, 387), Point(241, 483), garr, true);

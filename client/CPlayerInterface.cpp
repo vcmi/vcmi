@@ -34,6 +34,7 @@
 #include "windows/CQuestLog.h"
 #include "windows/CPuzzleWindow.h"
 #include "widgets/CComponent.h"
+#include "widgets/CGarrisonInt.h"
 #include "widgets/Buttons.h"
 #include "windows/CTradeWindow.h"
 #include "windows/CSpellWindow.h"
@@ -536,8 +537,8 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	if(castleInt)
 	{
 		castleInt->garr->selectSlot(nullptr);
-		castleInt->garr->setArmy(town->getUpperArmy(), 0);
-		castleInt->garr->setArmy(town->visitingHero, 1);
+		castleInt->garr->setArmy(town->getUpperArmy(), EGarrisonType::UPPER);
+		castleInt->garr->setArmy(town->visitingHero, EGarrisonType::LOWER);
 		castleInt->garr->recreateSlots();
 		castleInt->heroes->update();
 
@@ -601,7 +602,7 @@ void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> ob
 			adventureInt->onTownChanged(town);
 	}
 
-	for (auto cgh : GH.windows().findWindows<CGarrisonHolder>())
+	for (auto cgh : GH.windows().findWindows<IGarrisonHolder>())
 		cgh->updateGarrisons();
 
 	for (auto cmw : GH.windows().findWindows<CTradeWindow>())

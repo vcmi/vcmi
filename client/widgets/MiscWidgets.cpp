@@ -304,7 +304,7 @@ CHeroTooltip::CHeroTooltip(Point pos, const CGHeroInstance * hero):
 }
 
 CInteractableHeroTooltip::CInteractableHeroTooltip(Point pos, const CGHeroInstance * hero):
-		CGarrisonInt(pos.x, pos.y+73, 4, Point(0, 0), hero, nullptr, true, true, CGarrisonInt::ESlotsLayout::REVERSED_TWO_ROWS)
+		CGarrisonInt(pos + Point(0, 73), 4, Point(0, 0), hero, nullptr, true, true, CGarrisonInt::ESlotsLayout::REVERSED_TWO_ROWS)
 {
 	init(InfoAboutHero(hero, InfoAboutHero::EInfoLevel::DETAILED));
 }
@@ -383,7 +383,7 @@ CTownTooltip::CTownTooltip(Point pos, const CGTownInstance * town)
 }
 
 CInteractableTownTooltip::CInteractableTownTooltip(Point pos, const CGTownInstance * town)
-		: CGarrisonInt(pos.x, pos.y+73, 4, Point(0, 0), town->getUpperArmy(), nullptr, true, true, CGarrisonInt::ESlotsLayout::REVERSED_TWO_ROWS)
+		: CGarrisonInt(pos + Point(0, 73), 4, Point(0, 0), town->getUpperArmy(), nullptr, true, true, CGarrisonInt::ESlotsLayout::REVERSED_TWO_ROWS)
 {
 	init(InfoAboutTown(town, true));
 }

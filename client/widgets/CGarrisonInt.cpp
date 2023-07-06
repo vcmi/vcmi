@@ -12,6 +12,7 @@
 
 #include "Buttons.h"
 #include "TextControls.h"
+#include "RadialMenu.h"
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
@@ -29,90 +30,6 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/TextOperations.h"
 #include "../../lib/gameState/CGameState.h"
-
-RadialMenuItem::RadialMenuItem(std::string imageName, std::function<void()> callback)
-	: callback(callback)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-
-	image = IImage::createFromFile("radialMenu/" + imageName);
-	picture = std::make_shared<CPicture>(image, Point(0,0));
-	pos = picture->pos;
-}
-
-bool RadialMenuItem::isInside(const Point & position)
-{
-	Point localPosition = position - pos.topLeft();
-
-	return !image->isTransparent(localPosition);
-}
-
-void RadialMenuItem::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
-{
-
-}
-
-void RadialMenuItem::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
-{
-
-}
-
-RadialMenu::RadialMenu(CGarrisonInt * army, CGarrisonSlot * slot)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-
-	bool isExchange = army->armedObjs[0] && army->armedObjs[1]; // two armies exist
-
-	addItem(ITEM_NW, "stackMerge", [=](){army->bulkMergeStacks(slot);});
-	addItem(ITEM_NE, "stackInfo", [=](){slot->viewInfo();});
-
-	addItem(ITEM_WW, "stackSplitOne", [=](){slot->splitIntoParts(slot->upg, 1); });
-	addItem(ITEM_EE, "stackSplitEqual", [=](){army->bulkSmartSplitStack(slot);});
-
-	if (isExchange)
-	{
-		addItem(ITEM_SW, "stackMove", [=](){army->moveStackToAnotherArmy(slot);});
-		//FIXME: addItem(ITEM_SE, "stackSplitDialog", [=](){slot->split();});
-	}
-
-	for(const auto & item : items)
-		pos = pos.include(item->pos);
-
-}
-
-void RadialMenu::addItem(const Point & offset, const std::string & path, std::function<void()> callback )
-{
-	auto item = std::make_shared<RadialMenuItem>(path, callback);
-
-	item->moveBy(offset);
-
-	items.push_back(item);
-}
-
-void RadialMenu::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
-{
-
-}
-
-void RadialMenu::show(Canvas & to)
-{
-	showAll(to);
-}
-
-void RadialMenu::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
-{
-	if (!on)
-	{
-		for(const auto & item : items)
-		{
-			if (item->isInside(finalPosition))
-			{
-				item->callback();
-				return;
-			}
-		}
-	}
-}
 
 void CGarrisonSlot::setHighlight(bool on)
 {
@@ -157,16 +74,16 @@ void CGarrisonSlot::hover (bool on)
 			}
 			else
 			{
-				const bool isHeroOnMap = owner->armedObjs[0] // Hero is not a visitor and not a garrison defender
-					&& owner->armedObjs[0]->ID == Obj::HERO
-					&& (!owner->armedObjs[1] || owner->armedObjs[1]->ID == Obj::HERO) // one hero or we are in the Heroes exchange window
-					&& !(static_cast<const CGHeroInstance*>(owner->armedObjs[0]))->inTownGarrison;
+				const bool isHeroOnMap = owner->upperArmy() // Hero is not a visitor and not a garrison defender
+					&& owner->upperArmy()->ID == Obj::HERO
+					&& (!owner->lowerArmy() || owner->lowerArmy()->ID == Obj::HERO) // one hero or we are in the Heroes exchange window
+					&& !(static_cast<const CGHeroInstance*>(owner->upperArmy()))->inTownGarrison;
 
 				if(isHeroOnMap)
 				{
 					temp = CGI->generaltexth->allTexts[481]; //Select %s
 				}
-				else if(upg == EGarrisonType::UP)
+				else if(upg == EGarrisonType::UPPER)
 				{
 					temp = CGI->generaltexth->tcommands[12]; //Select %s (in garrison)
 				}
@@ -210,16 +127,14 @@ void CGarrisonSlot::hover (bool on)
 
 const CArmedInstance * CGarrisonSlot::getObj() const
 {
-	return 	owner->armedObjs[upg];
+	return owner->army(upg);
 }
 
-/// @return Whether the unit in the slot belongs to the current player.
 bool CGarrisonSlot::our() const
 {
-	return owner->owned[upg];
+	return owner->isArmyOwned(upg);
 }
 
-/// @return Whether the unit in the slot belongs to an ally but not to the current player.
 bool CGarrisonSlot::ally() const
 {
 	if(!getObj())
@@ -337,19 +252,13 @@ bool CGarrisonSlot::split()
 
 	auto splitFunctor = [this, selection](int amountLeft, int amountRight)
 	{
-		owner->splitStacks(selection, owner->armedObjs[upg], ID, amountRight);
+		owner->splitStacks(selection, owner->army(upg), ID, amountRight);
 	};
 
 	GH.windows().createAndPushWindow<CSplitWindow>(selection->creature,  splitFunctor, minLeft, minRight, countLeft, countRight);
 	return true;
 }
 
-/// If certain creates cannot be moved, the selection should change
-/// Force reselection in these cases
-///     * When attempting to take creatures from ally
-///     * When attempting to swap creatures with an ally
-///     * When attempting to take unremovable units
-/// @return Whether reselection must be done
 bool CGarrisonSlot::mustForceReselection() const
 {
 	const CGarrisonSlot * selection = owner->getSelection();
@@ -364,10 +273,10 @@ bool CGarrisonSlot::mustForceReselection() const
 		return true;
 	if (!owner->removableUnits)
 	{
-		if (selection->upg == EGarrisonType::UP)
+		if (selection->upg == EGarrisonType::UPPER)
 			return true;
 		else
-			return creature || upg == EGarrisonType::UP;
+			return creature || upg == EGarrisonType::UPPER;
 	}
 	return false;
 }
@@ -405,7 +314,7 @@ void CGarrisonSlot::clickPressed(const Point & cursorPosition)
 		}
 		else
 		{
-			const CArmedInstance * selectedObj = owner->armedObjs[selection->upg];
+			const CArmedInstance * selectedObj = owner->army(selection->upg);
 			bool lastHeroStackSelected = false;
 			if(selectedObj->stacksCount() == 1
 				&& owner->getSelection()->upg != upg
@@ -420,13 +329,13 @@ void CGarrisonSlot::clickPressed(const Point & cursorPosition)
 				refr = split();
 			}
 			else if(!creature && lastHeroStackSelected) // split all except last creature
-				LOCPLINT->cb->splitStack(selectedObj, owner->armedObjs[upg], selection->ID, ID, selection->myStack->count - 1);
+				LOCPLINT->cb->splitStack(selectedObj, owner->army(upg), selection->ID, ID, selection->myStack->count - 1);
 			else if(creature != selection->creature) // swap
-				LOCPLINT->cb->swapCreatures(owner->armedObjs[upg], selectedObj, ID, selection->ID);
+				LOCPLINT->cb->swapCreatures(owner->army(upg), selectedObj, ID, selection->ID);
 			else if(lastHeroStackSelected) // merge last stack to other hero stack
 				refr = split();
 			else // merge
-				LOCPLINT->cb->mergeStacks(selectedObj, owner->armedObjs[upg], selection->ID, ID);
+				LOCPLINT->cb->mergeStacks(selectedObj, owner->army(upg), selection->ID, ID);
 		}
 		if(refr)
 		{
@@ -499,7 +408,7 @@ void CGarrisonSlot::update()
 	}
 }
 
-CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, CGarrisonSlot::EGarrisonType Upg, const CStackInstance * creature_)
+CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, EGarrisonType Upg, const CStackInstance * creature_)
 	: ID(IID),
 	owner(Owner),
 	myStack(creature_),
@@ -547,14 +456,14 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, CGa
 	update();
 }
 
-void CGarrisonSlot::splitIntoParts(CGarrisonSlot::EGarrisonType type, int amount)
+void CGarrisonSlot::splitIntoParts(EGarrisonType type, int amount)
 {
 	auto empty = owner->getEmptySlot(type);
 
 	if(empty == SlotID())
 		return;
 
-	owner->splitStacks(this, owner->armedObjs[type], empty, amount);
+	owner->splitStacks(this, owner->army(type), empty, amount);
 }
 
 bool CGarrisonSlot::handleSplittingShortcuts()
@@ -618,21 +527,23 @@ void CGarrisonInt::addSplitBtn(std::shared_ptr<CButton> button)
 void CGarrisonInt::createSlots()
 {
 	int distance = interx + (smallIcons ? 32 : 58);
-	for(int i = 0; i < 2; i++)
+	for(auto i : { EGarrisonType::UPPER, EGarrisonType::LOWER })
 	{
+		Point offset = garOffset * static_cast<int>(i);
+
 		std::vector<std::shared_ptr<CGarrisonSlot>> garrisonSlots;
 		garrisonSlots.resize(7);
-		if(armedObjs[i])
+		if(army(i))
 		{
-			for(auto & elem : armedObjs[i]->Slots())
+			for(auto & elem : army(i)->Slots())
 			{
-				garrisonSlots[elem.first.getNum()] = std::make_shared<CGarrisonSlot>(this, i*garOffset.x + (elem.first.getNum()*distance), i*garOffset.y, elem.first, static_cast<CGarrisonSlot::EGarrisonType>(i), elem.second);
+				garrisonSlots[elem.first.getNum()] = std::make_shared<CGarrisonSlot>(this, offset.x + (elem.first.getNum()*distance), offset.y, elem.first, i, elem.second);
 			}
 		}
 		for(int j = 0; j < 7; j++)
 		{
 			if(!garrisonSlots[j])
-				garrisonSlots[j] = std::make_shared<CGarrisonSlot>(this, i*garOffset.x + (j*distance), i*garOffset.y, SlotID(j), static_cast<CGarrisonSlot::EGarrisonType>(i), nullptr);
+				garrisonSlots[j] = std::make_shared<CGarrisonSlot>(this, offset.x + (j*distance), offset.x, SlotID(j), i, nullptr);
 
 			if(layout == ESlotsLayout::TWO_ROWS && j >= 4)
 			{
@@ -673,6 +584,7 @@ void CGarrisonInt::splitClick()
 	setSplittingMode(!getSplittingMode());
 	redraw();
 }
+
 void CGarrisonInt::splitStacks(const CGarrisonSlot * from, const CArmedInstance * armyDest, SlotID slotDest, int amount )
 {
 	LOCPLINT->cb->splitStack(armedObjs[from->upg], armyDest, from->ID, slotDest, amount);
@@ -689,9 +601,9 @@ void CGarrisonInt::moveStackToAnotherArmy(const CGarrisonSlot * selected)
 		return;
 
 	const auto srcArmyType = selected->upg;
-	const auto destArmyType = srcArmyType == CGarrisonSlot::UP
-		? CGarrisonSlot::DOWN
-		: CGarrisonSlot::UP;
+	const auto destArmyType = srcArmyType == EGarrisonType::UPPER
+		? EGarrisonType::LOWER
+		: EGarrisonType::UPPER;
 
 	auto srcArmy = armedObjs[srcArmyType];
 	auto destArmy = armedObjs[destArmyType];
@@ -733,9 +645,9 @@ void CGarrisonInt::bulkMoveArmy(const CGarrisonSlot * selected)
 		return;
 
 	const auto srcArmyType = selected->upg;
-	const auto destArmyType = (srcArmyType == CGarrisonSlot::UP)
-		? CGarrisonSlot::DOWN
-		: CGarrisonSlot::UP;
+	const auto destArmyType = (srcArmyType == EGarrisonType::UPPER)
+		? EGarrisonType::LOWER
+		: EGarrisonType::UPPER;
 
 	auto srcArmy = armedObjs[srcArmyType];
 	auto destArmy = armedObjs[destArmyType];
@@ -787,7 +699,7 @@ void CGarrisonInt::bulkSmartSplitStack(const CGarrisonSlot * selected)
 	LOCPLINT->cb->bulkSmartSplitStack(armedObjs[type]->id, selected->ID);
 }
 
-CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point & garsOffset, const CArmedInstance * s1, const CArmedInstance * s2, bool _removableUnits, bool smallImgs, ESlotsLayout _layout)
+CGarrisonInt::CGarrisonInt(const Point & position, int inx, const Point & garsOffset, const CArmedInstance * s1, const CArmedInstance * s2, bool _removableUnits, bool smallImgs, ESlotsLayout _layout)
 	: highlighted(nullptr)
 	, inSplittingMode(false)
 	, interx(inx)
@@ -798,10 +710,9 @@ CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point & garsOffset, cons
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	setArmy(s1, false);
-	setArmy(s2, true);
-	pos.x += x;
-	pos.y += y;
+	setArmy(s1, EGarrisonType::UPPER);
+	setArmy(s2, EGarrisonType::LOWER);
+	pos += position;
 	createSlots();
 }
 
@@ -846,19 +757,51 @@ bool CGarrisonInt::getSplittingMode()
 	return inSplittingMode;
 }
 
-SlotID CGarrisonInt::getEmptySlot(CGarrisonSlot::EGarrisonType type) const
+SlotID CGarrisonInt::getEmptySlot(EGarrisonType type) const
 {
-	assert(armedObjs[type]);
-	return armedObjs[type] ? armedObjs[type]->getFreeSlot() : SlotID();
+	assert(army(type));
+	return army(type) ? army(type)->getFreeSlot() : SlotID();
 }
 
-bool CGarrisonInt::hasEmptySlot(CGarrisonSlot::EGarrisonType type) const
+bool CGarrisonInt::hasEmptySlot(EGarrisonType type) const
 {
 	return getEmptySlot(type) != SlotID();
 }
 
-void CGarrisonInt::setArmy(const CArmedInstance * army, bool bottomGarrison)
+const CArmedInstance * CGarrisonInt::upperArmy() const
 {
-	owned[bottomGarrison] =  army ? (army->tempOwner == LOCPLINT->playerID || army->tempOwner == PlayerColor::UNFLAGGABLE) : false;
-	armedObjs[bottomGarrison] = army;
+	return army(EGarrisonType::UPPER);
+}
+
+const CArmedInstance * CGarrisonInt::lowerArmy() const
+{
+	return army(EGarrisonType::LOWER);
+}
+
+const CArmedInstance * CGarrisonInt::army(EGarrisonType which) const
+{
+	if(armedObjs.count(which))
+		return armedObjs.at(which);
+	return nullptr;
+}
+
+bool CGarrisonInt::isArmyOwned(EGarrisonType which) const
+{
+	const auto * object = army(which);
+
+	if (!object)
+		return false;
+
+	if (object->tempOwner == LOCPLINT->playerID)
+		return true;
+
+	if (object->tempOwner == PlayerColor::UNFLAGGABLE)
+		return true;
+
+	return false;
+}
+
+void CGarrisonInt::setArmy(const CArmedInstance * army, EGarrisonType type)
+{
+	armedObjs[type] = army;
 }
