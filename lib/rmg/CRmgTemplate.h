@@ -139,14 +139,15 @@ public:
 	void setSize(int value);
 	std::optional<int> getOwner() const;
 
-	const std::set<TerrainId> & getTerrainTypes() const;
+	const std::set<TerrainId> getTerrainTypes() const;
 	void setTerrainTypes(const std::set<TerrainId> & value);
+	std::set<TerrainId> getDefaultTerrainTypes() const;
 
 	const CTownInfo & getPlayerTowns() const;
 	const CTownInfo & getNeutralTowns() const;
 	std::set<FactionID> getDefaultTownTypes() const;
 	const std::set<FactionID> getTownTypes() const;
-	const std::set<FactionID> & getMonsterTypes() const;
+	const std::set<FactionID> getMonsterTypes() const;
 
 	void setTownTypes(const std::set<FactionID> & value);
 	void setMonsterTypes(const std::set<FactionID> & value);
@@ -185,11 +186,13 @@ protected:
 	CTownInfo neutralTowns;
 	bool matchTerrainToTown;
 	std::set<TerrainId> terrainTypes;
+	std::set<TerrainId> bannedTerrains;
 	bool townsAreSameType;
 
 	std::set<FactionID> townTypes;
 	std::set<FactionID> bannedTownTypes;
 	std::set<FactionID> monsterTypes;
+	std::set<FactionID> bannedMonsters;
 
 	std::map<TResource, ui16> mines; //obligatory mines to spawn in this zone
 

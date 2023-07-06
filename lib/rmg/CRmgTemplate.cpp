@@ -65,6 +65,7 @@ void CTreasureInfo::serializeJson(JsonSerializeFormat & handler)
 namespace rmg
 {
 
+//FIXME: This is never used, instead TerrainID is used
 class TerrainEncoder
 {
 public:
@@ -184,14 +185,34 @@ std::optional<int> ZoneOptions::getOwner() const
 	return owner;
 }
 
-const std::set<TerrainId> & ZoneOptions::getTerrainTypes() const
+const std::set<TerrainId> ZoneOptions::getTerrainTypes() const
 {
-	return terrainTypes;
+	if (terrainTypes.empty())
+	{
+		return vstd::difference(getDefaultTerrainTypes(), bannedTerrains);
+	}
+	else
+	{
+		return terrainTypes;
+	}
 }
 
 void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 {
 	terrainTypes = value;
+}
+
+std::set<TerrainId> ZoneOptions::getDefaultTerrainTypes() const
+{
+	std::set<TerrainId> terrains;
+	for (auto terrain : VLC->terrainTypeHandler->objects)
+	{
+		if (terrain->isLand() && terrain->isPassable())
+		{
+			terrains.insert(terrain->getId());
+		}
+	}
+	return terrains;
 }
 
 std::set<FactionID> ZoneOptions::getDefaultTownTypes() const
@@ -228,9 +249,9 @@ void ZoneOptions::setMonsterTypes(const std::set<FactionID> & value)
 	monsterTypes = value;
 }
 
-const std::set<FactionID> & ZoneOptions::getMonsterTypes() const
+const std::set<FactionID> ZoneOptions::getMonsterTypes() const
 {
-	return monsterTypes;
+	return vstd::difference(monsterTypes, bannedMonsters);
 }
 
 void ZoneOptions::setMinesInfo(const std::map<TResource, ui16> & value)
@@ -354,10 +375,12 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	if(terrainTypeLikeZone == NO_ZONE)
 	{
 		handler.serializeIdArray<TerrainId, TerrainID>("terrainTypes", terrainTypes, std::set<TerrainId>());
+		handler.serializeIdArray<TerrainId, TerrainID>("bannedTerrains", bannedTerrains, std::set<TerrainId>());
 	}
 
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
 	handler.serializeIdArray<FactionID>("allowedMonsters", monsterTypes, std::set<FactionID>());
+	handler.serializeIdArray<FactionID>("bannedMonsters", bannedMonsters, std::set<FactionID>());
 	handler.serializeIdArray<FactionID>("allowedTowns", townTypes, std::set<FactionID>());
 	handler.serializeIdArray<FactionID>("bannedTowns", bannedTownTypes, std::set<FactionID>());
 
@@ -727,6 +750,7 @@ std::set<TerrainId> CRmgTemplate::inheritTerrainType(std::shared_ptr<ZoneOptions
 		const auto otherZone = zones.at(zone->getTerrainTypeLikeZone());
 		zone->setTerrainTypes(inheritTerrainType(otherZone, iteration));
 	}
+	//This implicitely excludes banned terrains
 	return zone->getTerrainTypes();
 }
 
