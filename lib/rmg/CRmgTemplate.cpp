@@ -435,11 +435,12 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-ZoneConnection::ZoneConnection()
-	: zoneA(-1),
+ZoneConnection::ZoneConnection():
+	zoneA(-1),
 	zoneB(-1),
 	guardStrength(0),
-	connectionType(EConnectionType::EConnectionType::GUARDED)
+	connectionType(EConnectionType::EConnectionType::GUARDED),
+	hasRoad(ERoadOption::ERoadOption::ROAD_TRUE)
 {
 
 }
@@ -479,6 +480,11 @@ EConnectionType::EConnectionType ZoneConnection::getConnectionType() const
 {
 	return connectionType;
 }
+
+ERoadOption::ERoadOption ZoneConnection::getRoadOption() const
+{
+	return hasRoad;
+}
 	
 bool operator==(const ZoneConnection & l, const ZoneConnection & r)
 {
@@ -495,10 +501,18 @@ void ZoneConnection::serializeJson(JsonSerializeFormat & handler)
 		"wide"
 	};
 
+	static const std::vector<std::string> roadOptions =
+	{
+		"true",
+		"false",
+		"random"
+	};
+
 	handler.serializeId<TRmgTemplateZoneId, TRmgTemplateZoneId, ZoneEncoder>("a", zoneA, -1);
 	handler.serializeId<TRmgTemplateZoneId, TRmgTemplateZoneId, ZoneEncoder>("b", zoneB, -1);
 	handler.serializeInt("guard", guardStrength, 0);
 	handler.serializeEnum("type", connectionType, connectionTypes);
+	handler.serializeEnum("road", hasRoad, roadOptions);
 }
 
 }

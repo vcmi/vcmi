@@ -294,6 +294,8 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 
 bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, RouteInfo & info)
 {
+	//TODO: Check for road
+
 	auto * manager = land.getModificator<ObjectManager>();
 	if(!manager)
 		return false;
@@ -372,7 +374,9 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 		info.boarding = boardingPosition;
 		info.water = shipPositions;
 		
-		manager->placeObject(rmgObject, guarded, true);
+		//TODO: Check connection properties
+		bool allowRoad = true;
+		manager->placeObject(rmgObject, guarded, true, allowRoad);
 		
 		zone.areaPossible().subtract(shipyardOutToBlock);
 		for(const auto & i : shipyardOutToBlock.getTilesVector())

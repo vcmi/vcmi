@@ -78,6 +78,16 @@ namespace EConnectionType
 	};
 }
 
+namespace ERoadOption
+{
+	enum class ERoadOption
+	{
+		ROAD_TRUE,
+		ROAD_FALSE,
+		ROAD_RANDOM
+	};
+}
+
 namespace rmg
 {
 
@@ -92,6 +102,7 @@ public:
 	TRmgTemplateZoneId getOtherZoneId(TRmgTemplateZoneId id) const;
 	int getGuardStrength() const;
 	EConnectionType::EConnectionType getConnectionType() const;
+	ERoadOption::ERoadOption getRoadOption() const;
 
 	void serializeJson(JsonSerializeFormat & handler);
 	
@@ -101,6 +112,7 @@ private:
 	TRmgTemplateZoneId zoneB;
 	int guardStrength;
 	EConnectionType::EConnectionType connectionType;
+	ERoadOption::ERoadOption hasRoad;
 };
 
 class DLL_LINKAGE ZoneOptions
