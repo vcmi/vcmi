@@ -14,7 +14,10 @@
 				"playerTowns" : {"$ref" : "#/definitions/playerTowns"},				
 				"neuralTowns" : {"$ref" : "#/definitions/neuralTowns"},
 				"townsAreSameType" : {"$ref" : "#/definitions/townsAreSameType"},
+				"terrainTypes": {"$ref" : "#/definitions/terrains"},
+				"bannedTerrains": {"$ref" : "#/definitions/terrains"},
 				"monsters" : {"$ref" : "#/definitions/monsters"},
+				"bannedMonsters" : {"$ref" : "#/definitions/monsters"},
 				"mines" : {"$ref" : "#/definitions/mines"},
 				"treasure" : {
 					"type" : "array",
@@ -42,7 +45,8 @@
 		},
 		"connection" :
 		{
-			"required" : ["a", "b", "guard"],
+			"required" : ["a", "b"],
+			"additionalProperties" : true,
 			"properties" : {
 				"a" : {
 					"type" : "string"
@@ -54,6 +58,12 @@
 				{
 					"type" : "number",
 					"minimum" : 0
+				},
+				"type":
+				{
+					"type" : "string",
+					"additionalProperties" : false,
+					"enum" : ["wide", "fictive", "repulsive"]
 				}
 			}
 		},
@@ -68,6 +78,9 @@
 	{
 		"required" : ["zones", "connections"],
 		"additionalProperties" : false,
+		"description" : {
+			"type": "string"
+		},
 		"zones" : {
 			"type" : "object",
 			"additionalProperties" : {"$ref" : "#/definitions/zone"	}						
