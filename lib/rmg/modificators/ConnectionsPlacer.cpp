@@ -98,6 +98,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 	bool success = false;
 	auto otherZoneId = (connection.getZoneA() == zone.getId() ? connection.getZoneB() : connection.getZoneA());
 	auto & otherZone = map.getZones().at(otherZoneId);
+	bool createRoad = shouldGenerateRoad(connection);
 	
 	//1. Try to make direct connection
 	//Do if it's not prohibited by terrain settings
@@ -254,7 +255,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 					otherZone->getModificator<ObjectManager>()->updateDistances(guardPos);
 				}
 				
-				if (shouldGenerateRoad(connection))
+				if (createRoad)
 				{
 					assert(zone.getModificator<RoadPlacer>());
 					zone.getModificator<RoadPlacer>()->addRoadNode(guardPos);
@@ -277,7 +278,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 	{
 		if(generator.getZoneWater() && generator.getZoneWater()->getModificator<WaterProxy>())
 		{
-			if(generator.getZoneWater()->getModificator<WaterProxy>()->waterKeepConnection(connection.getZoneA(), connection.getZoneB()))
+			if(generator.getZoneWater()->getModificator<WaterProxy>()->waterKeepConnection(connection, createRoad))
 			{
 				assert(otherZone->getModificator<ConnectionsPlacer>());
 				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
