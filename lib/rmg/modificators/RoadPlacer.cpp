@@ -80,18 +80,19 @@ bool RoadPlacer::createRoad(const int3 & dst)
 
 void RoadPlacer::drawRoads(bool secondary)
 {
-	if((secondary && generator.getConfig().secondaryRoadType.empty())
-	   || (!secondary && generator.getConfig().defaultRoadType.empty()))
-		return;
+	//TODO: Check road type set in lobby. If no road, return.
 	
-	//RecursiveLock lock(externalAccessMutex);
 	{
-		//FIXME: double lock - unsafe
+		//Clean space under roads even if they won't be eventually generated
 		Zone::Lock lock(zone.areaMutex);
 
 		zone.areaPossible().subtract(roads);
 		zone.freePaths().unite(roads);
 	}
+
+	if((secondary && generator.getConfig().secondaryRoadType.empty())
+		|| (!secondary && generator.getConfig().defaultRoadType.empty()))
+		return;
 
 	auto tiles = roads.getTilesVector();
 

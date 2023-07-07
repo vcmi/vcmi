@@ -126,6 +126,7 @@ void WaterProxy::collectLakes()
 RouteInfo WaterProxy::waterRoute(Zone & dst)
 {
 	RouteInfo result;
+	result.createRoad = false;
 	
 	auto * adopter = dst.getModificator<WaterAdopter>();
 	if(!adopter)
@@ -162,7 +163,13 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 			int zoneTowns = 0;
 			if(auto * m = dst.getModificator<TownPlacer>())
 				zoneTowns = m->getTotalTowns();
+
+			if (vstd::contains(lake.keepRoads, zone.getId()))
+			{
+				result.createRoad = true;
+			}
 			
+			//FIXME: Why are Shipyards not allowed in zones with no towns?
 			if(dst.getType() == ETemplateZoneType::PLAYER_START || dst.getType() == ETemplateZoneType::CPU_START || zoneTowns)
 			{
 				if(placeShipyard(dst, lake, generator.getConfig().shipyardGuard, result))
@@ -284,7 +291,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 
 		zone.connectPath(path);
 		land.connectPath(landPath);
-		manager->placeObject(rmgObject, false, true);
+		manager->placeObject(rmgObject, false, true, info.createRoad);
 		land.getModificator<ObjectManager>()->updateDistances(rmgObject); //Keep land objects away from the boat
 		break;
 	}
@@ -374,9 +381,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 		info.boarding = boardingPosition;
 		info.water = shipPositions;
 		
-		//TODO: Check connection properties
-		bool allowRoad = true;
-		manager->placeObject(rmgObject, guarded, true, allowRoad);
+		manager->placeObject(rmgObject, guarded, true, info.createRoad);
 		
 		zone.areaPossible().subtract(shipyardOutToBlock);
 		for(const auto & i : shipyardOutToBlock.getTilesVector())

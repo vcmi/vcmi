@@ -19,6 +19,7 @@ struct RouteInfo
 	int3 visitable;
 	int3 boarding;
 	rmg::Area water;
+	bool createRoad; //Road to Shipyard or Boat
 };
 
 class WaterProxy: public Modificator
@@ -34,6 +35,7 @@ public:
 		std::map<int, rmg::Tileset> reverseDistanceMap;
 		std::map<TRmgTemplateZoneId, rmg::Area> neighbourZones; //zones boardered. Area - part of land
 		std::set<TRmgTemplateZoneId> keepConnections;
+		std::set<TRmgTemplateZoneId> keepRoads;
 	};
 		
 	bool waterKeepConnection(TRmgTemplateZoneId zoneA, TRmgTemplateZoneId zoneB);

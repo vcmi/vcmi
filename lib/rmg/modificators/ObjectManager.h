@@ -32,13 +32,13 @@ struct DistanceMaximizeFunctor
 struct RequiredObjectInfo
 {
 	RequiredObjectInfo();
-	RequiredObjectInfo(CGObjectInstance* obj, ui32 guardStrength = 0, bool allowRoad = true, CGObjectInstance* nearbyTarget = nullptr);
+	RequiredObjectInfo(CGObjectInstance* obj, ui32 guardStrength = 0, bool createRoad = false, CGObjectInstance* nearbyTarget = nullptr);
 
 	CGObjectInstance* obj;
 	CGObjectInstance* nearbyTarget;
 	int3 pos;
 	ui32 guardStrength;
-	bool allowRoad;
+	bool createRoad;
 };
 
 class ObjectManager: public Modificator
@@ -71,7 +71,7 @@ public:
 
 	CGCreature * chooseGuard(si32 strength, bool zoneGuard = false);
 	bool addGuard(rmg::Object & object, si32 strength, bool zoneGuard = false);
-	void placeObject(rmg::Object & object, bool guarded, bool updateDistance, bool allowRoad = true);
+	void placeObject(rmg::Object & object, bool guarded, bool updateDistance, bool createRoad = false);
 
 	void updateDistances(const rmg::Object & obj);
 	void updateDistances(const int3& pos);

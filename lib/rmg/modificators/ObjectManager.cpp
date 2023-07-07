@@ -347,7 +347,7 @@ bool ObjectManager::createRequiredObjects()
 		}
 		
 		zone.connectPath(path);
-		placeObject(rmgObject, guarded, true);
+		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 		
 		for(const auto & nearby : nearbyObjects)
 		{
@@ -364,7 +364,7 @@ bool ObjectManager::createRequiredObjects()
 			}
 			
 			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), zone.getRand()));
-			placeObject(rmgNearObject, false, false);
+			placeObject(rmgNearObject, false, false, nearby.createRoad);
 		}
 	}
 	
@@ -430,7 +430,7 @@ bool ObjectManager::createRequiredObjects()
 	return true;
 }
 
-void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateDistance, bool allowRoad/* = true*/)
+void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateDistance, bool createRoad/* = false*/)
 {	
 	object.finalize(map);
 
@@ -487,22 +487,22 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 				break;
 		}
 	}
-	
-	if (allowRoad)
-	{
-		switch (object.instances().front()->object().ID)
-		{
-		case Obj::TOWN:
-		case Obj::RANDOM_TOWN:
-		case Obj::MONOLITH_TWO_WAY:
-		case Obj::MONOLITH_ONE_WAY_ENTRANCE:
-		case Obj::MONOLITH_ONE_WAY_EXIT:
-		case Obj::SUBTERRANEAN_GATE:
-		case Obj::SHIPYARD:
-			if (auto* m = zone.getModificator<RoadPlacer>())
-				m->addRoadNode(object.instances().front()->getVisitablePosition());
-			break;
 
+	if (createRoad)
+	{
+		if (auto* m = zone.getModificator<RoadPlacer>())
+			m->addRoadNode(object.instances().front()->getVisitablePosition());
+	}
+
+	//TODO: Add road node to these objects:
+	/*
+	 	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+	 	case Obj::RANDOM_TOWN:
+		case Obj::MONOLITH_ONE_WAY_EXIT:
+	*/
+
+	switch (object.instances().front()->object().ID)
+	{
 		case Obj::WATER_WHEEL:
 			if (auto* m = zone.getModificator<RiverPlacer>())
 				m->addRiverNode(object.instances().front()->getVisitablePosition());
@@ -510,7 +510,6 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 
 		default:
 			break;
-		}
 	}
 }
 
@@ -617,14 +616,14 @@ RequiredObjectInfo::RequiredObjectInfo():
 	obj(nullptr),
 	nearbyTarget(nullptr),
 	guardStrength(0),
-	allowRoad(true)
+	createRoad(true)
 {}
 
-RequiredObjectInfo::RequiredObjectInfo(CGObjectInstance* obj, ui32 guardStrength, bool allowRoad, CGObjectInstance* nearbyTarget):
+RequiredObjectInfo::RequiredObjectInfo(CGObjectInstance* obj, ui32 guardStrength, bool createRoad, CGObjectInstance* nearbyTarget):
 	obj(obj),
 	nearbyTarget(nearbyTarget),
 	guardStrength(guardStrength),
-	allowRoad(allowRoad)
+	createRoad(createRoad)
 {}
 
 

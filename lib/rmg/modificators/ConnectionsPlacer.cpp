@@ -240,7 +240,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 				{
 					rmg::Object monster(*monsterType);
 					monster.setPosition(guardPos);
-					manager.placeObject(monster, false, true);
+					manager.placeObject(monster, false, true, true);
 					//Place objects away from the monster in the other zone, too
 					otherZone->getModificator<ObjectManager>()->updateDistances(monster);
 				}
@@ -346,9 +346,8 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 				zone.connectPath(path1);
 				otherZone->connectPath(path2);
 				
-				//TODO: Check allowRoad
-				manager.placeObject(rmgGate1, guarded1, true);
-				managerOther.placeObject(rmgGate2, guarded2, true);
+				manager.placeObject(rmgGate1, guarded1, true, allowRoad);
+				managerOther.placeObject(rmgGate2, guarded2, true, allowRoad);
 				
 				assert(otherZone->getModificator<ConnectionsPlacer>());
 				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
