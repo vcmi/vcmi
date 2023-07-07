@@ -149,7 +149,7 @@
     <message>
         <location filename="../mainwindow.ui" line="933"/>
         <source>U/G</source>
-        <translation>U/G</translation>
+        <translation>Subterráneo/Superficie</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="936"/>
