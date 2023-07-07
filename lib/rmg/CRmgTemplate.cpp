@@ -439,8 +439,8 @@ ZoneConnection::ZoneConnection():
 	zoneA(-1),
 	zoneB(-1),
 	guardStrength(0),
-	connectionType(EConnectionType::EConnectionType::GUARDED),
-	hasRoad(ERoadOption::ERoadOption::ROAD_TRUE)
+	connectionType(rmg::EConnectionType::GUARDED),
+	hasRoad(rmg::ERoadOption::ROAD_TRUE)
 {
 
 }
@@ -476,12 +476,12 @@ int ZoneConnection::getGuardStrength() const
 	return guardStrength;
 }
 
-EConnectionType::EConnectionType ZoneConnection::getConnectionType() const
+rmg::EConnectionType ZoneConnection::getConnectionType() const
 {
 	return connectionType;
 }
 
-ERoadOption::ERoadOption ZoneConnection::getRoadOption() const
+rmg::ERoadOption ZoneConnection::getRoadOption() const
 {
 	return hasRoad;
 }

@@ -110,7 +110,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 
 	if (directConnectionIterator != dNeighbourZones.end())
 	{
-		if (connection.getConnectionType() == EConnectionType::EConnectionType::WIDE)
+		if (connection.getConnectionType() == rmg::EConnectionType::WIDE)
 		{
 			for (auto borderPos : directConnectionIterator->second)
 			{
@@ -159,8 +159,8 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 		}
 	}
 
-	if (connection.getConnectionType() == EConnectionType::EConnectionType::FICTIVE || 
-		connection.getConnectionType() == EConnectionType::EConnectionType::REPULSIVE)
+	if (connection.getConnectionType() == rmg::EConnectionType::FICTIVE || 
+		connection.getConnectionType() == rmg::EConnectionType::REPULSIVE)
 	{
 		//Fictive or repulsive connections are not real, take no action
 		dCompleted.push_back(connection);
@@ -396,8 +396,8 @@ void ConnectionsPlacer::collectNeighbourZones()
 
 bool ConnectionsPlacer::shouldGenerateRoad(const rmg::ZoneConnection& connection) const
 {
-	return connection.getRoadOption() == ERoadOption::ERoadOption::ROAD_TRUE ||
-		(connection.getRoadOption() == ERoadOption::ERoadOption::ROAD_RANDOM && zone.getRand().nextDouble() >= 0.5f);
+	return connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE ||
+		(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM && zone.getRand().nextDouble() >= 0.5f);
 }
 
 void ConnectionsPlacer::createBorder()
@@ -415,7 +415,7 @@ void ConnectionsPlacer::createBorder()
 	{
 		auto otherZone = connection.getOtherZoneId(zone.getId());
 
-		if (connection.getConnectionType() == EConnectionType::EConnectionType::WIDE)
+		if (connection.getConnectionType() == rmg::EConnectionType::WIDE)
 		{
 			auto sharedBorder = borderArea.getSubarea([this, otherZone, &borderOutsideArea](const int3 & t)
 			{
