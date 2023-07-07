@@ -179,7 +179,7 @@
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Herzlichen Glückwunsch! Ihr habt es geschafft, zu überleben. Der Sieg ist euer!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Der Feind hat alle Monster besiegt, die das Land heimsuchen, und fordert den Sieg!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toSelf" : "Herzlichen Glückwunsch! Ihr habt alle Monster besiegt, die dieses Land plagen, und könnt den Sieg für euch beanspruchen!",
-	"vcmi.map.victoryCondition.collectArtifacts.message" : "Sammeln Sie drei Artefakte",
+	"vcmi.map.victoryCondition.collectArtifacts.message" : "Sammelt drei Artefakte",
 	"vcmi.map.victoryCondition.angelicAlliance.toSelf" : "Herzlichen Glückwunsch! Alle eure Feinde wurden besiegt und ihr habt die Engelsallianz! Der Sieg ist euer!",
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Besiege alle Feinde und gründe eine Engelsallianz",
 
