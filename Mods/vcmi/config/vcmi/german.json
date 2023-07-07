@@ -184,7 +184,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Besiege alle Feinde und gründe eine Engelsallianz",
 
 	// few strings from WoG used by vcmi
-	"vcmi.stackExperience.description" : "» S t a c k   E x p e r i e n c e   D e t a i l s «\n\nCreature Type ................... : %s\nExperience Rank ................. : %s (%i)\nExperience Points ............... : %i\nExperience Points to Next Rank .. : %i\nMaximum Experience per Battle ... : %i%% (%i)\nNumber of Creatures in stack .... : %i\nMaximum New Recruits\n without losing current Rank .... : %i\nExperience Multiplier ........... : %.2f\nUpgrade Multiplier .............. : %.2f\nExperience after Rank 10 ........ : %i\nMaximum New Recruits to remain at\n Rank 10 if at Maximum Experience : %i",
+	"vcmi.stackExperience.description" : "» D e t a i l s   z u r   S t a p e l e r f a h r u n g «\n\nKreatur-Typ ................... : %s\nErfahrungsrang ................. : %s (%i)\nErfahrungspunkte ............... : %i\nErfahrungspunkte für den nächsten Rang .. : %i\nMaximale Erfahrung pro Kampf ... : %i%% (%i)\nAnzahl der Kreaturen im Stapel .... : %i\nMaximale Anzahl neuer Rekruten\n ohne Verlust von aktuellem Rang .... : %i\nErfahrungs-Multiplikator ........... : %.2f\nUpgrade-Multiplikator .............. : %.2f\nErfahrung nach Rang 10 ........ : %i\nMaximale Anzahl der neuen Rekruten, die bei\n Rang 10 bei maximaler Erfahrung übrig sind : %i",
 	"vcmi.stackExperience.rank.0" : "Grundlagen",
 	"vcmi.stackExperience.rank.1" : "Neuling",
 	"vcmi.stackExperience.rank.2" : "Ausgebildet",
