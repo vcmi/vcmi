@@ -62,10 +62,10 @@ CDownloadManager::FileEntry & CDownloadManager::getEntry(QNetworkReply * reply)
 void CDownloadManager::downloadFinished(QNetworkReply * reply)
 {
 	FileEntry & file = getEntry(reply);
-	
+
 	QVariant possibleRedirectUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
 	QUrl qurl = possibleRedirectUrl.toUrl();
-	
+
 	if(possibleRedirectUrl.isValid())
 	{
 		QString filename;
@@ -135,7 +135,7 @@ void CDownloadManager::downloadProgressChanged(qint64 bytesReceived, qint64 byte
 
 	quint64 total = 0;
 	for(auto & entry : currentDownloads)
-		total += entry.totalSize > 0 ? entry.totalSize : 0;
+		total += entry.totalSize > 0 ? entry.totalSize : entry.bytesReceived;
 
 	quint64 received = 0;
 	for(auto & entry : currentDownloads)

@@ -17,13 +17,11 @@
 #include "../jsonutils.h"
 #include "../languages.h"
 #include "../launcherdirs.h"
-#include "../updatedialog_moc.h"
 
 #include <QFileInfo>
 #include <QGuiApplication>
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/VCMIDirs.h"
 
 #ifndef VCMI_MOBILE
 #include <SDL2/SDL.h>
@@ -79,26 +77,28 @@ void CSettingsView::loadSettings()
 	else
 		ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
 #endif
+	fillValidScalingRange();
+
+	ui->spinBoxInterfaceScaling->setValue(settings["video"]["resolution"]["scaling"].Float());
+	ui->spinBoxFramerateLimit->setValue(settings["video"]["targetfps"].Float());
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
 	ui->comboBoxNeutralAI->setCurrentText(QString::fromStdString(settings["server"]["neutralAI"].String()));
 	ui->comboBoxEnemyAI->setCurrentText(QString::fromStdString(settings["server"]["enemyAI"].String()));
-	ui->comboBoxPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["playerAI"].String()));
+	ui->comboBoxEnemyPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["playerAI"].String()));
 
 	ui->spinBoxNetworkPort->setValue(settings["server"]["port"].Integer());
 
 	ui->comboBoxAutoCheck->setCurrentIndex(settings["launcher"]["autoCheckRepositories"].Bool());
 
-	JsonNode urls = settings["launcher"]["repositoryURL"];
-	ui->plainTextEditRepos->blockSignals(true); // Do not report loading as change of data
-	ui->plainTextEditRepos->clear();
-	for(auto entry : urls.Vector())
-		ui->plainTextEditRepos->appendPlainText(QString::fromUtf8(entry.String().c_str()));
-	ui->plainTextEditRepos->blockSignals(false);
+	ui->lineEditRepositoryDefault->setText(QString::fromStdString(settings["launcher"]["defaultRepositoryURL"].String()));
+	ui->lineEditRepositoryExtra->setText(QString::fromStdString(settings["launcher"]["extraRepositoryURL"].String()));
 
-	ui->lineEditUserDataDir->setText(pathToQString(VCMIDirs::get().userDataPath()));
-	ui->lineEditGameDir->setText(pathToQString(VCMIDirs::get().binaryPath()));
-	ui->lineEditTempDir->setText(pathToQString(VCMIDirs::get().userLogsPath()));
+	ui->lineEditRepositoryDefault->setEnabled(settings["launcher"]["defaultRepositoryEnabled"].Bool());
+	ui->lineEditRepositoryExtra->setEnabled(settings["launcher"]["extraRepositoryEnabled"].Bool());
+
+	ui->checkBoxRepositoryDefault->setChecked(settings["launcher"]["defaultRepositoryEnabled"].Bool());
+	ui->checkBoxRepositoryExtra->setChecked(settings["launcher"]["extraRepositoryEnabled"].Bool());
 
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
 
@@ -112,6 +112,39 @@ void CSettingsView::loadSettings()
 void CSettingsView::fillValidResolutions()
 {
 	fillValidResolutionsForScreen(ui->comboBoxDisplayIndex->isVisible() ? ui->comboBoxDisplayIndex->currentIndex() : 0);
+}
+
+QSize CSettingsView::getPreferredRenderingResolution()
+{
+#ifndef VCMI_MOBILE
+	bool fullscreen = settings["video"]["fullscreen"].Bool();
+	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
+
+	if (!fullscreen || realFullscreen)
+	{
+		int resX = settings["video"]["resolution"]["width"].Integer();
+		int resY = settings["video"]["resolution"]["height"].Integer();
+		return QSize(resX, resY);
+	}
+#endif
+	return QApplication::primaryScreen()->geometry().size();
+}
+
+void CSettingsView::fillValidScalingRange()
+{
+	//FIXME: this code is copy of ScreenHandler::getSupportedScalingRange
+
+	// H3 resolution, any resolution smaller than that is not correctly supported
+	static const QSize minResolution = {800, 600};
+	// arbitrary limit on *downscaling*. Allow some downscaling, if requested by user. Should be generally limited to 100+ for all but few devices
+	static const double minimalScaling = 50;
+
+	QSize renderResolution = getPreferredRenderingResolution();
+	double maximalScalingWidth = 100.0 * renderResolution.width() / minResolution.width();
+	double maximalScalingHeight = 100.0 * renderResolution.height() / minResolution.height();
+	double maximalScaling = std::min(maximalScalingWidth, maximalScalingHeight);
+
+	ui->spinBoxInterfaceScaling->setRange(minimalScaling, maximalScaling);
 }
 
 #ifndef VCMI_MOBILE
@@ -153,21 +186,33 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 	ui->comboBoxResolution->blockSignals(true); // avoid saving wrong resolution after adding first item from the list
 	ui->comboBoxResolution->clear();
 
-	QVector<QSize> resolutions = findAvailableResolutions(screenIndex);
+	bool fullscreen = settings["video"]["fullscreen"].Bool();
+	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
 
-	for(const auto & entry : resolutions)
-		ui->comboBoxResolution->addItem(resolutionToString(entry));
+
+	if (!fullscreen || realFullscreen)
+	{
+		QVector<QSize> resolutions = findAvailableResolutions(screenIndex);
+
+		for(const auto & entry : resolutions)
+			ui->comboBoxResolution->addItem(resolutionToString(entry));
+	}
+	else
+	{
+		ui->comboBoxResolution->addItem(resolutionToString(getPreferredRenderingResolution()));
+	}
+	ui->comboBoxResolution->setEnabled(ui->comboBoxResolution->count() > 1);
 
 	int resX = settings["video"]["resolution"]["width"].Integer();
 	int resY = settings["video"]["resolution"]["height"].Integer();
 	int resIndex = ui->comboBoxResolution->findText(resolutionToString({resX, resY}));
 	ui->comboBoxResolution->setCurrentIndex(resIndex);
 
-	ui->comboBoxResolution->blockSignals(false);
-
 	// if selected resolution no longer exists, force update value to the largest (last) resolution
 	if(resIndex == -1)
 		ui->comboBoxResolution->setCurrentIndex(ui->comboBoxResolution->count() - 1);
+
+	ui->comboBoxResolution->blockSignals(false);
 }
 #else
 void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
@@ -183,7 +228,6 @@ CSettingsView::CSettingsView(QWidget * parent)
 {
 	ui->setupUi(this);
 
-	ui->lineEditBuildVersion->setText(QString::fromStdString(GameConstants::VCMI_VERSION));
 	loadSettings();
 }
 
@@ -192,7 +236,6 @@ CSettingsView::~CSettingsView()
 	delete ui;
 }
 
-
 void CSettingsView::on_comboBoxResolution_currentTextChanged(const QString & arg1)
 {
 	QStringList list = arg1.split("x");
@@ -200,6 +243,9 @@ void CSettingsView::on_comboBoxResolution_currentTextChanged(const QString & arg
 	Settings node = settings.write["video"]["resolution"];
 	node["width"].Float() = list[0].toInt();
 	node["height"].Float() = list[1].toInt();
+
+	fillValidResolutions();
+	fillValidScalingRange();
 }
 
 void CSettingsView::on_comboBoxFullScreen_currentIndexChanged(int index)
@@ -208,6 +254,9 @@ void CSettingsView::on_comboBoxFullScreen_currentIndexChanged(int index)
 	Settings nodeRealFullscreen = settings.write["video"]["realFullscreen"];
 	nodeFullscreen->Bool() = (index != 0);
 	nodeRealFullscreen->Bool() = (index == 2);
+
+	fillValidResolutions();
+	fillValidScalingRange();
 }
 
 void CSettingsView::on_comboBoxAutoCheck_currentIndexChanged(int index)
@@ -254,59 +303,16 @@ void CSettingsView::on_spinBoxNetworkPort_valueChanged(int arg1)
 	node->Float() = arg1;
 }
 
-void CSettingsView::on_plainTextEditRepos_textChanged()
-{
-	Settings node = settings.write["launcher"]["repositoryURL"];
-
-	QStringList list = ui->plainTextEditRepos->toPlainText().split('\n');
-
-	node->Vector().clear();
-	for(QString line : list)
-	{
-		if(line.trimmed().size() > 0)
-		{
-			JsonNode entry;
-			entry.String() = line.trimmed().toUtf8().data();
-			node->Vector().push_back(entry);
-		}
-	}
-}
-
-void CSettingsView::on_openTempDir_clicked()
-{
-	QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(ui->lineEditTempDir->text()).absoluteFilePath()));
-}
-
-void CSettingsView::on_openUserDataDir_clicked()
-{
-	QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(ui->lineEditUserDataDir->text()).absoluteFilePath()));
-}
-
-void CSettingsView::on_openGameDataDir_clicked()
-{
-	QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(ui->lineEditGameDir->text()).absoluteFilePath()));
-}
-
 void CSettingsView::on_comboBoxShowIntro_currentIndexChanged(int index)
 {
 	Settings node = settings.write["video"]["showIntro"];
 	node->Bool() = index;
 }
 
-void CSettingsView::on_changeGameDataDir_clicked()
-{
-
-}
-
 void CSettingsView::on_comboBoxAutoSave_currentIndexChanged(int index)
 {
 	Settings node = settings.write["general"]["saveFrequency"];
 	node->Integer() = index;
-}
-
-void CSettingsView::on_updatesButton_clicked()
-{
-	UpdateDialog::showUpdateDialog(true);
 }
 
 void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
@@ -348,7 +354,6 @@ void CSettingsView::on_listWidgetSettings_currentRowChanged(int currentRow)
 		ui->labelGeneral,
 		ui->labelVideo,
 		ui->labelArtificialIntelligence,
-		ui->labelDataDirs,
 		ui->labelRepositories
 	};
 
@@ -441,3 +446,50 @@ void CSettingsView::on_comboBoxLanguageBase_currentIndexChanged(int index)
 	QString selectedLanguage = ui->comboBoxLanguageBase->itemData(index).toString();
 	node->String() = selectedLanguage.toStdString();
 }
+
+void CSettingsView::on_checkBoxRepositoryDefault_stateChanged(int arg1)
+{
+	Settings node = settings.write["launcher"]["defaultRepositoryEnabled"];
+	node->Bool() = arg1;
+	ui->lineEditRepositoryDefault->setEnabled(arg1);
+}
+
+void CSettingsView::on_checkBoxRepositoryExtra_stateChanged(int arg1)
+{
+	Settings node = settings.write["launcher"]["extraRepositoryEnabled"];
+	node->Bool() = arg1;
+	ui->lineEditRepositoryExtra->setEnabled(arg1);
+}
+
+void CSettingsView::on_lineEditRepositoryExtra_textEdited(const QString &arg1)
+{
+	Settings node = settings.write["launcher"]["extraRepositoryURL"];
+	node->String() = arg1.toStdString();
+}
+
+
+void CSettingsView::on_spinBoxInterfaceScaling_valueChanged(int arg1)
+{
+	Settings node = settings.write["video"]["resolution"]["scaling"];
+	node->Float() = arg1;
+}
+
+
+void CSettingsView::on_refreshRepositoriesButton_clicked()
+{
+	auto * mainWindow = dynamic_cast<MainWindow *>(qApp->activeWindow());
+
+	assert(mainWindow);
+	if (!mainWindow)
+		return;
+
+	mainWindow->getModView()->loadRepositories();
+}
+
+
+void CSettingsView::on_spinBoxFramerateLimit_valueChanged(int arg1)
+{
+	Settings node = settings.write["video"]["targetfps"];
+	node->Float() = arg1;
+}
+

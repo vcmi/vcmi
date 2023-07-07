@@ -35,15 +35,9 @@ class CModListView : public QWidget
 	CModFilterModel * filterModel;
 	CDownloadManager * dlManager;
 
-	SettingsListener settingsListener;
-	bool repositoriesChanged;
-
-	void showEvent(QShowEvent * event) override;
-
 	void setupModModel();
 	void setupFilterModel();
 	void setupModsView();
-	void loadRepositories();
 
 	void checkManagerErrors();
 
@@ -67,8 +61,6 @@ class CModListView : public QWidget
 
 	void changeEvent(QEvent *event) override;
 signals:
-	void extraResolutionsEnabledChanged(bool enabled);
-	
 	void modsChanged();
 
 public:
@@ -76,11 +68,11 @@ public:
 	~CModListView();
 
 	void loadScreenshots();
+	void loadRepositories();
 
 	void disableModInfo();
 
 	void selectMod(const QModelIndex & index);
-	bool isExtraResolutionsModEnabled() const;
 
 	const CModList & getModList() const;
 	

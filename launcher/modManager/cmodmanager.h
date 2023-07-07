@@ -31,11 +31,6 @@ class CModManager : public QObject
 	bool addError(QString modname, QString message);
 	bool removeModDir(QString mod);
 
-	void sendExtraResolutionsEnabledChanged(bool enabled);
-
-signals:
-	void extraResolutionsEnabledChanged(bool enabled);
-
 public:
 	CModManager(CModList * modList);
 
@@ -58,6 +53,4 @@ public:
 	bool canUninstallMod(QString mod);
 	bool canEnableMod(QString mod);
 	bool canDisableMod(QString mod);
-
-	bool isExtraResolutionsModEnabled() const;
 };
