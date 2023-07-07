@@ -610,8 +610,6 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 	return true;
 }
 
-VCMI_LIB_NAMESPACE_END
-
 RequiredObjectInfo::RequiredObjectInfo():
 	obj(nullptr),
 	nearbyTarget(nullptr),
@@ -625,5 +623,7 @@ RequiredObjectInfo::RequiredObjectInfo(CGObjectInstance* obj, ui32 guardStrength
 	guardStrength(guardStrength),
 	createRoad(createRoad)
 {}
+
+VCMI_LIB_NAMESPACE_END
 
 
