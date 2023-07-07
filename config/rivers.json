@@ -1,34 +1,46 @@
 {
-    "waterRiver":
-    {
-        "index": 1,
-        "text" : "Water river",
-        "shortIdentifier": "rw", //must be 2 characters
-        "tilesFilename": "clrrvr",
-        "delta": "clrdelt"
-    },
-    "iceRiver":
-    {
-        "index": 2,
-        "text" : "Ice river",
-        "shortIdentifier": "ri",
-        "tilesFilename": "icyrvr",
-        "delta": "icedelt"
-    },
-    "mudRiver":
-    {
-        "index": 3,
-        "text" : "Mud river",
-        "shortIdentifier": "rm",
-        "tilesFilename": "mudrvr",
-        "delta": "muddelt"
-    },
-    "lavaRiver":
-    {
-        "index": 4,
-        "text" : "Lava river",
-        "shortIdentifier": "rl",
-        "tilesFilename": "lavrvr",
-        "delta": "lavdelt"
-    }
+	"waterRiver":
+	{
+		"index": 1,
+		"text" : "Water river",
+		"shortIdentifier": "rw", //must be 2 characters
+		"tilesFilename": "clrrvr",
+		"delta": "clrdelt",
+		"paletteAnimation" : [
+			{ "start" : 183, "length" : 12 },
+			{ "start" : 195, "length" : 6 }
+		]
+	},
+	"iceRiver":
+	{
+		"index": 2,
+		"text" : "Ice river",
+		"shortIdentifier": "ri",
+		"tilesFilename": "icyrvr",
+		"delta": "icedelt"
+	},
+	"mudRiver":
+	{
+		"index": 3,
+		"text" : "Mud river",
+		"shortIdentifier": "rm",
+		"tilesFilename": "mudrvr",
+		"delta": "muddelt",
+		"paletteAnimation" : [
+			{ "start" : 228, "length" : 12 },
+			{ "start" : 183, "length" : 6 },
+			{ "start" : 240, "length" : 6 }
+		]
+	},
+	"lavaRiver":
+	{
+		"index": 4,
+		"text" : "Lava river",
+		"shortIdentifier": "rl",
+		"tilesFilename": "lavrvr",
+		"delta": "lavdelt",
+		"paletteAnimation" : [
+			{ "start" : 240, "length" : 9 }
+		]
+	}
 }

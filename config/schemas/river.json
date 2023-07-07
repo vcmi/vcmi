@@ -27,6 +27,23 @@
 			"type" : "string",
 			"description" : "Name of file with river delta graphics"
 		},
+		"paletteAnimation" : {
+			"type" : "array",
+			"description" : "If defined, terrain will be animated using palette color cycling effect",
+			"items" :
+			{
+				"type" : "object",
+				"additionalProperties" : false,
+				"properties" : {
+					"start" : {
+						"type" : "number"
+					},
+					"length" : {
+						"type" : "number"
+					}
+				}
+			}
+		},
 		"index" : 
 		{
 			"type" : "number",

@@ -17,6 +17,20 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+struct DLL_LINKAGE RiverPaletteAnimation
+{
+	/// index of first color to cycle
+	int32_t start;
+	/// total numbers of colors to cycle
+	int32_t length;
+
+	template <typename Handler> void serialize(Handler& h, const int version)
+	{
+		h & start;
+		h & length;
+	}
+};
+
 class DLL_LINKAGE RiverType : public EntityT<RiverId>
 {
 	friend class RiverTypeHandler;
@@ -39,6 +53,8 @@ public:
 	std::string shortIdentifier;
 	std::string deltaName;
 
+	std::vector<RiverPaletteAnimation> paletteAnimation;
+
 	RiverType();
 
 	template <typename Handler> void serialize(Handler& h, const int version)
@@ -48,6 +64,7 @@ public:
 		h & modScope;
 		h & deltaName;
 		h & id;
+		h & paletteAnimation;
 	}
 };
 

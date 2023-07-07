@@ -73,6 +73,15 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 		});
 	}
 
+	for(const auto & t : json["paletteAnimation"].Vector())
+	{
+		TerrainPaletteAnimation element{
+			static_cast<int>(t["start"].Integer()),
+			static_cast<int>(t["length"].Integer())
+		};
+		info->paletteAnimation.push_back(element);
+	}
+
 	info->shortIdentifier = json["shortIdentifier"].String();
 	assert(info->shortIdentifier.length() == 2);
 
