@@ -227,7 +227,7 @@ public:
 	void clickLeft(tribool down, bool previousState) override;
 	void keyPressed(EShortcut key) override;
 
-	bool captureThisKey(EShortcut key) override;
+	//bool captureThisKey(EShortcut key) override;
 
 	void textInputed(const std::string & enteredText) override;
 	void textEdited(const std::string & enteredText) override;

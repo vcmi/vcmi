@@ -179,7 +179,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		break;
 	case ESelectionScreen::campaignList:
 		tabTitle = CGI->generaltexth->allTexts[726];
-		type |= REDRAW_PARENT; // we use parent background so we need to make sure it's will be redrawn too
+		setRedrawParent(true); // we use parent background so we need to make sure it's will be redrawn too
 		pos.w = parent->pos.w;
 		pos.h = parent->pos.h;
 		pos.x += 3;
@@ -457,10 +457,21 @@ void SelectionTab::updateListItems()
 	}
 }
 
-int SelectionTab::getLine()
+bool SelectionTab::receiveEvent(const Point & position, int eventType) const
+{
+	// FIXME: widget should instead have well-defined pos so events will be filtered using standard routine
+	return getLine(position - pos.topLeft()) != -1;
+}
+
+int SelectionTab::getLine() const
+{
+	Point clickPos = GH.getCursorPosition() - pos.topLeft();
+	return getLine(clickPos);
+}
+
+int SelectionTab::getLine(const Point & clickPos) const
 {
 	int line = -1;
-	Point clickPos = GH.getCursorPosition() - pos.topLeft();
 
 	// Ignore clicks on save name area
 	int maxPosY;

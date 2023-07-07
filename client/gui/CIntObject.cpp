@@ -12,6 +12,7 @@
 
 #include "CGuiHandler.h"
 #include "WindowHandler.h"
+#include "EventDispatcher.h"
 #include "Shortcut.h"
 #include "../render/Canvas.h"
 #include "../windows/CMessage.h"
@@ -20,18 +21,13 @@
 CIntObject::CIntObject(int used_, Point pos_):
 	parent_m(nullptr),
 	parent(parent_m),
-	type(0)
+	redrawParent(false),
+	inputEnabled(true),
+	used(used_),
+	recActions(GH.defActionsDef),
+	defActions(GH.defActionsDef),
+	pos(pos_, Point())
 {
-	captureAllKeys = false;
-	used = used_;
-
-	recActions = defActions = GH.defActionsDef;
-
-	pos.x = pos_.x;
-	pos.y = pos_.y;
-	pos.w = 0;
-	pos.h = 0;
-
 	if(GH.captureChildren)
 		GH.createdObj.front()->addChild(this, true);
 }
@@ -76,7 +72,11 @@ void CIntObject::activate()
 	if (isActive())
 		return;
 
-	activateEvents(used | GENERAL);
+	if (inputEnabled)
+		activateEvents(used | GENERAL);
+	else
+		activateEvents(GENERAL);
+
 	assert(isActive());
 
 	if(defActions & ACTIVATE)
@@ -102,7 +102,7 @@ void CIntObject::deactivate()
 
 void CIntObject::addUsedEvents(ui16 newActions)
 {
-	if (isActive())
+	if (isActive() && inputEnabled)
 		activateEvents(~used & newActions);
 	used |= newActions;
 }
@@ -139,6 +139,32 @@ void CIntObject::setEnabled(bool on)
 		enable();
 	else
 		disable();
+}
+
+void CIntObject::setInputEnabled(bool on)
+{
+	if (inputEnabled == on)
+		return;
+
+	inputEnabled = on;
+
+	if (isActive())
+	{
+		assert((used & GENERAL) == 0);
+
+		if (on)
+			activateEvents(used);
+		else
+			deactivateEvents(used);
+	}
+
+	for(auto & elem : children)
+		elem->setInputEnabled(on);
+}
+
+void CIntObject::setRedrawParent(bool on)
+{
+	redrawParent = on;
 }
 
 void CIntObject::fitToScreen(int borderWidth, bool propagate)
@@ -181,6 +207,9 @@ void CIntObject::addChild(CIntObject * child, bool adjustPosition)
 	if(adjustPosition)
 		child->moveBy(pos.topLeft(), adjustPosition);
 
+	if (inputEnabled != child->inputEnabled)
+		child->setInputEnabled(inputEnabled);
+
 	if (!isActive() && child->isActive())
 		child->deactivate();
 	if (isActive()&& !child->isActive())
@@ -210,7 +239,7 @@ void CIntObject::redraw()
 	//it should fix glitches when called by inactive elements located below active window
 	if (isActive())
 	{
-		if (parent_m && (type & REDRAW_PARENT))
+		if (parent_m && redrawParent)
 		{
 			parent_m->redraw();
 		}
@@ -266,7 +295,7 @@ const Rect & CIntObject::center(const Point & p, bool propagate)
 
 bool CIntObject::captureThisKey(EShortcut key)
 {
-	return captureAllKeys;
+	return false;
 }
 
 CKeyShortcut::CKeyShortcut()

@@ -48,8 +48,6 @@ class MapView : public BasicMapView
 {
 	std::shared_ptr<MapViewActions> actions;
 
-	bool isSwiping;
-
 public:
 	void show(Canvas & to) override;
 
@@ -63,9 +61,6 @@ public:
 
 	/// Moves current view to specified position, in pixels
 	void onMapSwiped(const Point & viewPosition);
-
-	/// Ends swiping mode and allows normal map scrolling once again
-	void onMapSwipeEnded();
 
 	/// Moves current view to specified tile
 	void onCenteredTile(const int3 & tile);

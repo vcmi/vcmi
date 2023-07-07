@@ -68,6 +68,6 @@ public:
 
 	void showAll(Canvas & to) override;
 
-	void updateTiles(std::unordered_set<int3> positions);
+	void updateTiles(const std::unordered_set<int3> & positions);
 };
 

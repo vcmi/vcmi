@@ -115,7 +115,7 @@ public:
 	void onHotseatWaitStarted(PlayerColor playerID);
 
 	/// Called by PlayerInterface when AI or remote human player starts his turn
-	void onEnemyTurnStarted(PlayerColor playerID);
+	void onEnemyTurnStarted(PlayerColor playerID, bool isHuman);
 
 	/// Called by PlayerInterface when local human player starts his turn
 	void onPlayerTurnStarted(PlayerColor playerID);

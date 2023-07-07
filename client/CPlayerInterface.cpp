@@ -183,7 +183,10 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 	if (player != playerID && LOCPLINT == this)
 	{
 		waitWhileDialog();
-		adventureInt->onEnemyTurnStarted(player);
+
+		bool isHuman = cb->getStartInfo()->playerInfos.count(player) && cb->getStartInfo()->playerInfos.at(player).isControlledByHuman();
+
+		adventureInt->onEnemyTurnStarted(player, isHuman);
 	}
 }
 
@@ -1314,11 +1317,8 @@ void CPlayerInterface::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanc
 	GH.windows().createAndPushWindow<CExchangeWindow>(hero1, hero2, query);
 }
 
-void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
+void CPlayerInterface::beforeObjectPropertyChanged(const SetObjectProperty * sop)
 {
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-
-	//redraw minimap if owner changed
 	if (sop->what == ObjProperty::OWNER)
 	{
 		const CGObjectInstance * obj = cb->getObj(sop->id);
@@ -1328,13 +1328,34 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 			auto town = static_cast<const CGTownInstance *>(obj);
 
 			if(obj->tempOwner == playerID)
-				localState->addOwnedTown(town);
-			else
+			{
 				localState->removeOwnedTown(town);
+				adventureInt->onTownChanged(town);
+			}
+		}
+	}
+}
 
-			adventureInt->onTownChanged(town);
+void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+
+	if (sop->what == ObjProperty::OWNER)
+	{
+		const CGObjectInstance * obj = cb->getObj(sop->id);
+
+		if(obj->ID == Obj::TOWN)
+		{
+			auto town = static_cast<const CGTownInstance *>(obj);
+
+			if(obj->tempOwner == playerID)
+			{
+				localState->addOwnedTown(town);
+				adventureInt->onTownChanged(town);
+			}
 		}
 
+		//redraw minimap if owner changed
 		std::set<int3> pos = obj->getBlockedPos();
 		std::unordered_set<int3> upos(pos.begin(), pos.end());
 		adventureInt->onMapTilesChanged(upos);

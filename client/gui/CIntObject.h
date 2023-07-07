@@ -47,11 +47,10 @@ class CIntObject : public IShowActivatable, public AEventsReceiver //interface o
 	//non-const versions of fields to allow changing them in CIntObject
 	CIntObject *parent_m; //parent object
 
-public:
-	//redraw parent flag - this int may be semi-transparent and require redraw of parent window
-	enum {REDRAW_PARENT=8};
-	int type; //bin flags using etype
+	bool inputEnabled;
+	bool redrawParent;
 
+public:
 	std::vector<CIntObject *> children;
 
 	/// read-only parent access. May not be a "clean" solution but allows some compatibility
@@ -63,10 +62,8 @@ public:
 	CIntObject(int used=0, Point offset=Point());
 	virtual ~CIntObject();
 
-	//keyboard handling
-	bool captureAllKeys; //if true, only this object should get info about pressed keys
-
-	bool captureThisKey(EShortcut key) override; //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
+	/// allows capturing key input so it will be delivered only to this element
+	bool captureThisKey(EShortcut key) override;
 
 	void addUsedEvents(ui16 newActions);
 	void removeUsedEvents(ui16 newActions);
@@ -81,6 +78,13 @@ public:
 	void enable();
 	/// deactivates or activates UI element based on flag
 	void setEnabled(bool on);
+
+	/// Block (or allow) all user input, e.g. mouse/keyboard/touch without hiding element
+	void setInputEnabled(bool on);
+
+	/// Mark this input as one that requires parent redraw on update,
+	/// for example if current control might have semi-transparent elements and requires redrawing of background
+	void setRedrawParent(bool on);
 
 	// activate or deactivate object. Inactive object won't receive any input events (keyboard\mouse)
 	// usually used automatically by parent

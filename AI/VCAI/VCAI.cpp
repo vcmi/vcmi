@@ -538,6 +538,11 @@ void VCAI::battleResultsApplied()
 	status.setBattle(NO_BATTLE);
 }
 
+void VCAI::beforeObjectPropertyChanged(const SetObjectProperty * sop)
+{
+
+}
+
 void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 {
 	LOG_TRACE(logAi);

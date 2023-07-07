@@ -371,7 +371,7 @@ TemplatesDropBox::ListItem::ListItem(const JsonNode & config, TemplatesDropBox &
 		pos.w = w->pos.w;
 		pos.h = w->pos.h;
 	}
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 }
 
 void TemplatesDropBox::ListItem::updateItem(int idx, const CRmgTemplate * _item)

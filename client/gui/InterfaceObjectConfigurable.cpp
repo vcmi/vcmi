@@ -493,7 +493,7 @@ public:
 InterfaceLayoutWidget::InterfaceLayoutWidget()
 	:CIntObject() 
 {
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 }
 
 std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildLayout(const JsonNode & config)
