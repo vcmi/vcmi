@@ -145,12 +145,11 @@ public class NativeMethods
     @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
     public static void hapticFeedback()
     {
-        int duration_ms = 30;
         final Context ctx = SDL.getContext();
         if (Build.VERSION.SDK_INT >= 26) {
-            ((Vibrator) ctx.getSystemService(ctx.VIBRATOR_SERVICE)).vibrate(VibrationEffect.createOneShot(duration_ms, 5));
+            ((Vibrator) ctx.getSystemService(ctx.VIBRATOR_SERVICE)).vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK));
         } else {
-            ((Vibrator) ctx.getSystemService(ctx.VIBRATOR_SERVICE)).vibrate(duration_ms);
+            ((Vibrator) ctx.getSystemService(ctx.VIBRATOR_SERVICE)).vibrate(30);
         }
     }
 
