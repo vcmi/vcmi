@@ -80,7 +80,7 @@ struct TouchInputParameters
 
 	bool useRelativeMode = false;
 
-	bool hapticFeedback = false;
+	bool hapticFeedbackEnabled = false;
 };
 
 /// Class that handles touchscreen input from SDL events
