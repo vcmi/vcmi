@@ -25,6 +25,9 @@
 #ifdef VCMI_ANDROID
 #include "../../lib/CAndroidVMHelper.h"
 #endif
+#ifdef VCMI_IOS
+#include "../ios/utils.h"
+#endif
 
 #include <SDL_events.h>
 #include <SDL_hints.h>
@@ -298,5 +301,8 @@ void InputSourceTouch::hapticFeedback() {
 #if defined(VCMI_ANDROID)
     CAndroidVMHelper vmHelper;
     vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hapticFeedback");
+#endif
+#if defined(VCMI_IOS)
+    iOS_utils::hapticFeedback();
 #endif
 }

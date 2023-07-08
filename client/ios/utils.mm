@@ -43,4 +43,11 @@ void hideLoadingIndicator()
 	[indicator removeFromSuperview];
 	indicator = nil;
 }
+
+void hapticFeedback()
+{
+	UIImpactFeedbackGenerator *hapticGen = [[UIImpactFeedbackGenerator alloc] initWithStyle:(UIImpactFeedbackStyleLight)];
+	[hapticGen impactOccurred];
+	hapticGen = NULL;
+}
 }
