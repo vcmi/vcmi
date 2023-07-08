@@ -108,6 +108,7 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 {
 	// FIXME: better place to update potentially changed settings?
 	params.longTouchTimeMilliseconds = settings["general"]["longTouchTimeMilliseconds"].Float();
+	params.hapticFeedbackEnabled = settings["general"]["hapticFeedback"].Bool();
 
 	lastTapTimeTicks = tfinger.timestamp;
 
@@ -298,7 +299,7 @@ void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 }
 
 void InputSourceTouch::hapticFeedback() {
-	if(hapticFeedbackEnabled)
+	if(hapticFeedbackEnabled) {
 #if defined(VCMI_ANDROID)
 		CAndroidVMHelper vmHelper;
 		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hapticFeedback");

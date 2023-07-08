@@ -60,7 +60,7 @@
 				},
 				{
 					"text": "vcmi.systemOptions.hapticFeedbackButton.hover",
-					"created" : "touchscreen"
+					"created" : "mobile"
 				}
 			]
 		},
