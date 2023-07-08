@@ -128,23 +128,23 @@ void EventDispatcher::dispatchMouseDoubleClick(const Point & position)
 
 		if(i->receiveEvent(position, AEventsReceiver::DOUBLECLICK))
 		{
-			i->clickDouble();
+			i->clickDouble(position);
 			doubleClicked = true;
 		}
 	}
 
 	if(!doubleClicked)
-		handleLeftButtonClick(true);
+		handleLeftButtonClick(position, true);
 }
 
 void EventDispatcher::dispatchMouseLeftButtonPressed(const Point & position)
 {
-	handleLeftButtonClick(true);
+	handleLeftButtonClick(position, true);
 }
 
 void EventDispatcher::dispatchMouseLeftButtonReleased(const Point & position)
 {
-	handleLeftButtonClick(false);
+	handleLeftButtonClick(position, false);
 }
 
 void EventDispatcher::dispatchShowPopup(const Point & position)
@@ -158,7 +158,7 @@ void EventDispatcher::dispatchShowPopup(const Point & position)
 		if( !i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
 			continue;
 
-		i->showPopupWindow();
+		i->showPopupWindow(position);
 	}
 }
 
@@ -170,7 +170,7 @@ void EventDispatcher::dispatchClosePopup(const Point & position)
 	assert(!GH.windows().isTopWindowPopup());
 }
 
-void EventDispatcher::handleLeftButtonClick(bool isPressed)
+void EventDispatcher::handleLeftButtonClick(const Point & position, bool isPressed)
 {
 	auto hlp = lclickable;
 	for(auto & i : hlp)
@@ -178,20 +178,22 @@ void EventDispatcher::handleLeftButtonClick(bool isPressed)
 		if(!vstd::contains(lclickable, i))
 			continue;
 
-		auto prev = i->isMouseLeftButtonPressed();
-
-		if(!isPressed)
-			i->mouseClickedState = isPressed;
-
 		if( i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
 		{
+			i->mouseClickedState = isPressed;
+
 			if(isPressed)
-				i->mouseClickedState = isPressed;
-			i->clickLeft(isPressed, prev);
+				i->clickPressed(position);
+			else
+				i->clickReleased(position);
 		}
-		else if(!isPressed)
+		else
 		{
-			i->clickLeft(boost::logic::indeterminate, prev);
+			if(i->mouseClickedState && !isPressed)
+			{
+				i->mouseClickedState = isPressed;
+				i->clickCancel(position);
+			}
 		}
 	}
 }

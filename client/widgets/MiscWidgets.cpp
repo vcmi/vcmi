@@ -50,14 +50,12 @@ CHoverableArea::~CHoverableArea()
 {
 }
 
-void LRClickableAreaWText::clickLeft(tribool down, bool previousState)
+void LRClickableAreaWText::clickReleased(const Point & cursorPosition)
 {
-	if(!down && previousState && !text.empty())
-	{
+	if(!text.empty())
 		LOCPLINT->showInfoDialog(text);
-	}
 }
-void LRClickableAreaWText::showPopupWindow()
+void LRClickableAreaWText::showPopupWindow(const Point & cursorPosition)
 {
 	if (!text.empty())
 		CRClickPopup::createAndPush(text);
@@ -85,13 +83,10 @@ void LRClickableAreaWText::init()
 	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 }
 
-void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
+void LRClickableAreaWTextComp::clickReleased(const Point & cursorPosition)
 {
-	if((!down) && previousState)
-	{
-		std::vector<std::shared_ptr<CComponent>> comp(1, createComponent());
-		LOCPLINT->showInfoDialog(text, comp);
-	}
+	std::vector<std::shared_ptr<CComponent>> comp(1, createComponent());
+	LOCPLINT->showInfoDialog(text, comp);
 }
 
 LRClickableAreaWTextComp::LRClickableAreaWTextComp(const Rect &Pos, int BaseType)
@@ -108,7 +103,7 @@ std::shared_ptr<CComponent> LRClickableAreaWTextComp::createComponent() const
 		return std::shared_ptr<CComponent>();
 }
 
-void LRClickableAreaWTextComp::showPopupWindow()
+void LRClickableAreaWTextComp::showPopupWindow(const Point & cursorPosition)
 {
 	if(auto comp = createComponent())
 	{
@@ -116,7 +111,7 @@ void LRClickableAreaWTextComp::showPopupWindow()
 		return;
 	}
 
-	LRClickableAreaWText::showPopupWindow(); //only if with-component variant not occurred
+	LRClickableAreaWText::showPopupWindow(cursorPosition); //only if with-component variant not occurred
 }
 
 CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero)
@@ -134,9 +129,9 @@ CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero)
 		portrait = std::make_shared<CAnimImage>("PortraitsLarge", hero->portrait);
 }
 
-void CHeroArea::clickLeft(tribool down, bool previousState)
+void CHeroArea::clickReleased(const Point & cursorPosition)
 {
-	if(hero && (!down) && previousState)
+	if(hero)
 		LOCPLINT->openHeroWindow(hero);
 }
 
@@ -148,9 +143,9 @@ void CHeroArea::hover(bool on)
 		GH.statusbar()->clear();
 }
 
-void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)
+void LRClickableAreaOpenTown::clickReleased(const Point & cursorPosition)
 {
-	if(town && (!down) && previousState)
+	if(town)
 	{
 		LOCPLINT->openTownWindow(town);
 		if ( type == 2 )

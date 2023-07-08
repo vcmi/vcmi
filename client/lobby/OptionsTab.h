@@ -101,7 +101,7 @@ public:
 		std::shared_ptr<CLabel> subtitle;
 
 		SelectedBox(Point position, PlayerSettings & settings, SelType type);
-		void showPopupWindow() override;
+		void showPopupWindow(const Point & cursorPosition) override;
 		void scrollBy(int distance) override;
 
 		void update();

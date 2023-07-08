@@ -51,13 +51,12 @@ CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::functio
 	owner = _owner;
 }
 
-void CSpellWindow::InteractiveArea::clickLeft(tribool down, bool previousState)
+void CSpellWindow::InteractiveArea::clickReleased(const Point & cursorPosition)
 {
-	if(!down)
-		onLeft();
+	onLeft();
 }
 
-void CSpellWindow::InteractiveArea::showPopupWindow()
+void CSpellWindow::InteractiveArea::showPopupWindow(const Point & cursorPosition)
 {
 	CRClickPopup::createAndPush(helpText);
 }
@@ -472,9 +471,9 @@ CSpellWindow::SpellArea::SpellArea(Rect pos, CSpellWindow * owner)
 
 CSpellWindow::SpellArea::~SpellArea() = default;
 
-void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
+void CSpellWindow::SpellArea::clickReleased(const Point & cursorPosition)
 {
-	if(mySpell && !down)
+	if(mySpell)
 	{
 		auto spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 		if(spellCost > owner->myHero->mana) //insufficient mana
@@ -540,7 +539,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CSpellWindow::SpellArea::showPopupWindow()
+void CSpellWindow::SpellArea::showPopupWindow(const Point & cursorPosition)
 {
 	if(mySpell)
 	{

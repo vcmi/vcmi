@@ -171,13 +171,10 @@ void CTradeWindow::CTradeableItem::showAll(Canvas & to)
 	to.drawText(pos.topLeft() + posToSubCenter, FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, subtitle);
 }
 
-void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
+void CTradeWindow::CTradeableItem::clickPressed(const Point & cursorPosition)
 {
 	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
 	assert(mw);
-	if(down)
-	{
-
 		if(type == ARTIFACT_PLACEHOLDER)
 		{
 			CAltarWindow *aw = static_cast<CAltarWindow *>(mw);
@@ -221,7 +218,6 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 				return;
 		}
 		mw->selectionChanged(left);
-	}
 }
 
 void CTradeWindow::CTradeableItem::showAllAt(const Point &dstPos, const std::string &customSub, Canvas & to)
@@ -262,7 +258,7 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 	}
 }
 
-void CTradeWindow::CTradeableItem::showPopupWindow()
+void CTradeWindow::CTradeableItem::showPopupWindow(const Point & cursorPosition)
 {
 	switch(type)
 	{

@@ -35,7 +35,7 @@ class EventDispatcher
 	EventReceiversList textInterested;
 	EventReceiversList panningInterested;
 
-	void handleLeftButtonClick(bool isPressed);
+	void handleLeftButtonClick(const Point & position, bool isPressed);
 
 
 	template<typename Functor>

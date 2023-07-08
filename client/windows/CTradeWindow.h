@@ -56,10 +56,10 @@ public:
 
 		void showAllAt(const Point & dstPos, const std::string & customSub, Canvas & to);
 
-		void showPopupWindow() override;
+		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
 		void showAll(Canvas & to) override;
-		void clickLeft(tribool down, bool previousState) override;
+		void clickPressed(const Point & cursorPosition) override;
 		std::string getName(int number = -1) const;
 		CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial);
 	};

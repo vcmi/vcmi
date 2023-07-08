@@ -258,19 +258,16 @@ void CComponent::setSurface(std::string defName, int imgPos)
 	image = std::make_shared<CAnimImage>(defName, imgPos);
 }
 
-void CComponent::showPopupWindow()
+void CComponent::showPopupWindow(const Point & cursorPosition)
 {
 	if(!getDescription().empty())
 		CRClickPopup::createAndPush(getDescription());
 }
 
-void CSelectableComponent::clickLeft(tribool down, bool previousState)
+void CSelectableComponent::clickPressed(const Point & cursorPosition)
 {
-	if (down)
-	{
-		if(onSelect)
-			onSelect();
-	}
+	if(onSelect)
+		onSelect();
 }
 
 void CSelectableComponent::init()

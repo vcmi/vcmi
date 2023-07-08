@@ -90,7 +90,7 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IIn
 
 InfoBox::~InfoBox() = default;
 
-void InfoBox::showPopupWindow()
+void InfoBox::showPopupWindow(const Point & cursorPosition)
 {
 	std::shared_ptr<CComponent> comp;
 	std::string text;
@@ -101,26 +101,15 @@ void InfoBox::showPopupWindow()
 		CRClickPopup::createAndPush(text);
 }
 
-void InfoBox::clickLeft(tribool down, bool previousState)
+void InfoBox::clickReleased(const Point & cursorPosition)
 {
-	if((!down) && previousState)
-	{
-		std::shared_ptr<CComponent> comp;
-		std::string text;
-		data->prepareMessage(text, comp);
+	std::shared_ptr<CComponent> comp;
+	std::string text;
+	data->prepareMessage(text, comp);
 
-		if(comp)
-			LOCPLINT->showInfoDialog(text, CInfoWindow::TCompsInfo(1, comp));
-	}
+	if(comp)
+		LOCPLINT->showInfoDialog(text, CInfoWindow::TCompsInfo(1, comp));
 }
-
-//TODO?
-/*
-void InfoBox::update()
-{
-
-}
-*/
 
 IInfoBoxData::IInfoBoxData(InfoType Type)
 	: type(Type)

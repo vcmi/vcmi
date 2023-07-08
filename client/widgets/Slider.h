@@ -69,7 +69,7 @@ public:
 
 	bool receiveEvent(const Point & position, int eventType) const override;
 	void keyPressed(EShortcut key) override;
-	void clickLeft(tribool down, bool previousState) override;
+	void clickPressed(const Point & cursorPosition) override;
 	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void showAll(Canvas & to) override;

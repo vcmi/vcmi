@@ -154,8 +154,8 @@ private:
 
 	void tick(uint32_t msPassed) override;
 
-	void clickLeft(tribool down, bool previousState) override;
-	void showPopupWindow() override;
+	void clickPressed(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 	void hover(bool on) override;
 
 	void playNewDaySound();

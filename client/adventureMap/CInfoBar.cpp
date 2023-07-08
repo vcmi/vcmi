@@ -271,20 +271,17 @@ void CInfoBar::tick(uint32_t msPassed)
 	}
 }
 
-void CInfoBar::clickLeft(tribool down, bool previousState)
+void CInfoBar::clickPressed(const Point & cursorPosition)
 {
-	if(down)
-	{
-		if(state == HERO || state == TOWN)
-			showGameStatus();
-		else if(state == GAME)
-			showDate();
-		else
-			popComponents(true);
-	}
+	if(state == HERO || state == TOWN)
+		showGameStatus();
+	else if(state == GAME)
+		showDate();
+	else
+		popComponents(true);
 }
 
-void CInfoBar::showPopupWindow()
+void CInfoBar::showPopupWindow(const Point & cursorPosition)
 {
 	CRClickPopup::createAndPush(CGI->generaltexth->allTexts[109]);
 }

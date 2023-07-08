@@ -121,20 +121,20 @@ void CSlider::scrollTo(int to)
 	moved(to);
 }
 
-void CSlider::clickLeft(tribool down, bool previousState)
+void CSlider::clickPressed(const Point & cursorPosition)
 {
-	if(down && !slider->isBlocked())
+	if(!slider->isBlocked())
 	{
 		double pw = 0;
 		double rw = 0;
 		if(getOrientation() == Orientation::HORIZONTAL)
 		{
-			pw = GH.getCursorPosition().x-pos.x-25;
+			pw = cursorPosition.x-pos.x-25;
 			rw = pw / static_cast<double>(pos.w - 48);
 		}
 		else
 		{
-			pw = GH.getCursorPosition().y-pos.y-24;
+			pw = cursorPosition.y-pos.y-24;
 			rw = pw / (pos.h-48);
 		}
 
@@ -142,7 +142,7 @@ void CSlider::clickLeft(tribool down, bool previousState)
 		if (!vstd::iswithin(rw, 0, 1))
 			return;
 
-		slider->clickLeft(true, slider->isMouseLeftButtonPressed());
+		slider->clickPressed(cursorPosition);
 		scrollTo((int)(rw * positions  +  0.5));
 		return;
 	}

@@ -39,10 +39,9 @@ VCMI_LIB_NAMESPACE_END
 
 class CAdvmapInterface;
 
-void CQuestLabel::clickLeft(tribool down, bool previousState)
+void CQuestLabel::clickPressed(const Point & cursorPosition)
 {
-	if (down)
-		callback();
+	callback();
 }
 
 void CQuestLabel::showAll(Canvas & to)
@@ -56,10 +55,9 @@ CQuestIcon::CQuestIcon (const std::string &defname, int index, int x, int y) :
 	addUsedEvents(LCLICK);
 }
 
-void CQuestIcon::clickLeft(tribool down, bool previousState)
+void CQuestIcon::clickPressed(const Point & cursorPosition)
 {
-	if (down)
-		callback();
+	callback();
 }
 
 void CQuestIcon::showAll(Canvas & to)

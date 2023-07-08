@@ -143,13 +143,12 @@ void CMinimap::gesturePanning(const Point & initialPosition, const Point & curre
 		moveAdvMapSelection(currentPosition);
 }
 
-void CMinimap::clickLeft(tribool down, bool previousState)
+void CMinimap::clickPressed(const Point & cursorPosition)
 {
-	if(down)
-		moveAdvMapSelection(GH.getCursorPosition());
+	moveAdvMapSelection(cursorPosition);
 }
 
-void CMinimap::showPopupWindow()
+void CMinimap::showPopupWindow(const Point & cursorPosition)
 {
 	CRClickPopup::createAndPush(CGI->generaltexth->zelp[291].second);
 }

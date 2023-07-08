@@ -141,13 +141,10 @@ void CCampaignScreen::CCampaignButton::show(Canvas & to)
 	}
 }
 
-void CCampaignScreen::CCampaignButton::clickLeft(tribool down, bool previousState)
+void CCampaignScreen::CCampaignButton::clickPressed(const Point & cursorPosition)
 {
-	if(down)
-	{
-		CCS->videoh->close();
-		CMainMenu::openCampaignLobby(campFile);
-	}
+	CCS->videoh->close();
+	CMainMenu::openCampaignLobby(campFile);
 }
 
 void CCampaignScreen::CCampaignButton::hover(bool on)

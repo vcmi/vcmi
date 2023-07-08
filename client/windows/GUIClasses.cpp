@@ -96,13 +96,12 @@ void CRecruitmentWindow::CCreatureCard::select(bool on)
 	redraw();
 }
 
-void CRecruitmentWindow::CCreatureCard::clickLeft(tribool down, bool previousState)
+void CRecruitmentWindow::CCreatureCard::clickPressed(const Point & cursorPosition)
 {
-	if(down)
-		parent->select(this->shared_from_this());
+	parent->select(this->shared_from_this());
 }
 
-void CRecruitmentWindow::CCreatureCard::showPopupWindow()
+void CRecruitmentWindow::CCreatureCard::showPopupWindow(const Point & cursorPosition)
 {
 	GH.windows().createAndPushWindow<CStackWindow>(creature, true);
 }
@@ -552,13 +551,13 @@ void CTavernWindow::show(Canvas & to)
 	CCS->videoh->update(pos.x+70, pos.y+56, to.getInternalSurface(), true, false);
 }
 
-void CTavernWindow::HeroPortrait::clickLeft(tribool down, bool previousState)
+void CTavernWindow::HeroPortrait::clickReleased(const Point & cursorPosition)
 {
-	if(h && previousState && !down)
+	if(h)
 		*_sel = _id;
 }
 
-void CTavernWindow::HeroPortrait::showPopupWindow()
+void CTavernWindow::HeroPortrait::showPopupWindow(const Point & cursorPosition)
 {
 	if(h)
 		GH.windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
@@ -1150,13 +1149,10 @@ void CTransformerWindow::CItem::move()
 	left = !left;
 }
 
-void CTransformerWindow::CItem::clickLeft(tribool down, bool previousState)
+void CTransformerWindow::CItem::clickReleased(const Point & cursorPosition)
 {
-	if(previousState && (!down))
-	{
-		move();
-		parent->redraw();
-	}
+	move();
+	parent->redraw();
 }
 
 void CTransformerWindow::CItem::update()
@@ -1258,16 +1254,13 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 	pos.w = icon->pos.w;
 }
 
-void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
+void CUniversityWindow::CItem::clickReleased(const Point & cursorPosition)
 {
-	if(previousState && (!down))
-	{
-		if(state() == 2)
-			GH.windows().createAndPushWindow<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
-	}
+	if(state() == 2)
+		GH.windows().createAndPushWindow<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
 }
 
-void CUniversityWindow::CItem::showPopupWindow()
+void CUniversityWindow::CItem::showPopupWindow(const Point & cursorPosition)
 {
 	CRClickPopup::createAndPush(CGI->skillh->getByIndex(ID)->getDescriptionTranslated(1), std::make_shared<CComponent>(CComponent::secskill, ID, 1));
 }
@@ -1792,13 +1785,12 @@ void CObjectListWindow::CItem::select(bool on)
 	redraw();//???
 }
 
-void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
+void CObjectListWindow::CItem::clickReleased(const Point & cursorPosition)
 {
-	if( previousState && !down)
-		parent->changeSelection(index);
+	parent->changeSelection(index);
 }
 
-void CObjectListWindow::CItem::clickDouble()
+void CObjectListWindow::CItem::clickDouble(const Point & cursorPosition)
 {
 	parent->elementSelected();
 }

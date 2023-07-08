@@ -270,22 +270,20 @@ void SelectionTab::toggleMode()
 	redraw();
 }
 
-void SelectionTab::clickLeft(tribool down, bool previousState)
+void SelectionTab::clickPressed(const Point & cursorPosition)
 {
-	if(down)
-	{
-		int line = getLine();
+	int line = getLine();
 
-		if(line != -1)
-		{
-			select(line);
-		}
-#ifdef VCMI_IOS
-		// focus input field if clicked inside it
-		else if(inputName && inputName->isActive() && inputNameRect.isInside(GH.getCursorPosition()))
-			inputName->giveFocus();
-#endif
+	if(line != -1)
+	{
+		select(line);
 	}
+#ifdef VCMI_IOS
+	// focus input field if clicked inside it
+	else if(inputName && inputName->isActive() && inputNameRect.isInside(cursorPosition))
+		inputName->giveFocus();
+#endif
+
 }
 
 void SelectionTab::keyPressed(EShortcut key)
@@ -317,12 +315,12 @@ void SelectionTab::keyPressed(EShortcut key)
 	select((int)selectionPos - slider->getValue() + moveBy);
 }
 
-void SelectionTab::clickDouble()
+void SelectionTab::clickDouble(const Point & cursorPosition)
 {
 	if(getLine() != -1) //double clicked scenarios list
 	{
-		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickLeft(true, false);
-		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickLeft(false, true);
+		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickPressed(cursorPosition);
+		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickReleased(cursorPosition);
 	}
 }
 

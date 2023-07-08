@@ -446,13 +446,10 @@ void CGStatusBar::show(Canvas & to)
 	showAll(to);
 }
 
-void CGStatusBar::clickLeft(tribool down, bool previousState)
+void CGStatusBar::clickReleased(const Point & cursorPosition)
 {
-	if(!down)
-	{
-		if(LOCPLINT && LOCPLINT->cingconsole->isActive())
-			LOCPLINT->cingconsole->startEnteringText();
-	}
+	if(LOCPLINT && LOCPLINT->cingconsole->isActive())
+		LOCPLINT->cingconsole->startEnteringText();
 }
 
 void CGStatusBar::activate()
@@ -561,9 +558,9 @@ std::string CTextInput::visibleText()
 	return focus ? text + newText + "_" : text;
 }
 
-void CTextInput::clickLeft(tribool down, bool previousState)
+void CTextInput::clickPressed(const Point & cursorPosition)
 {
-	if(down && !focus)
+	if(!focus)
 		giveFocus();
 }
 

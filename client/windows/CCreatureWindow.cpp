@@ -114,10 +114,9 @@ void CCommanderSkillIcon::setObject(std::shared_ptr<CIntObject> newObject)
 	redraw();
 }
 
-void CCommanderSkillIcon::clickLeft(tribool down, bool previousState)
+void CCommanderSkillIcon::clickPressed(const Point & cursorPosition)
 {
-	if(down)
-		callback();
+	callback();
 }
 
 static std::string skillToFile(int skill, int level, bool selected)

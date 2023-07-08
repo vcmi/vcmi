@@ -41,23 +41,17 @@ void MapViewActions::setContext(const std::shared_ptr<IMapRendererContext> & con
 	this->context = context;
 }
 
-void MapViewActions::clickLeft(tribool down, bool previousState)
+void MapViewActions::clickPressed(const Point & cursorPosition)
 {
-	if(indeterminate(down))
-		return;
-
-	if(down == false)
-		return;
-
-	int3 tile = model->getTileAtPoint(GH.getCursorPosition() - pos.topLeft());
+	int3 tile = model->getTileAtPoint(cursorPosition - pos.topLeft());
 
 	if(context->isInMap(tile))
 		adventureInt->onTileLeftClicked(tile);
 }
 
-void MapViewActions::showPopupWindow()
+void MapViewActions::showPopupWindow(const Point & cursorPosition)
 {
-	int3 tile = model->getTileAtPoint(GH.getCursorPosition() - pos.topLeft());
+	int3 tile = model->getTileAtPoint(cursorPosition - pos.topLeft());
 
 	if(context->isInMap(tile))
 		adventureInt->onTileRightClicked(tile);

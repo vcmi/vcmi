@@ -313,7 +313,7 @@ void CKeyShortcut::keyPressed(EShortcut key)
 	if( assignedKey == key && assignedKey != EShortcut::NONE && !shortcutPressed)
 	{
 		shortcutPressed = true;
-		clickLeft(true, false);
+		clickPressed(GH.getCursorPosition());
 	}
 }
 
@@ -322,7 +322,7 @@ void CKeyShortcut::keyReleased(EShortcut key)
 	if( assignedKey == key && assignedKey != EShortcut::NONE && shortcutPressed)
 	{
 		shortcutPressed = false;
-		clickLeft(false, true);
+		clickReleased(GH.getCursorPosition());
 	}
 }
 

@@ -407,18 +407,17 @@ void TemplatesDropBox::ListItem::hover(bool on)
 	redraw();
 }
 
-void TemplatesDropBox::ListItem::clickLeft(tribool down, bool previousState)
+void TemplatesDropBox::ListItem::clickPressed(const Point & cursorPosition)
 {
-	if(down && isHovered())
-	{
+	if(isHovered())
 		dropBox.setTemplate(item);
-	}
-	else 
-	{
-		dropBox.clickLeft(true, true);
-	}
 }
 
+void TemplatesDropBox::ListItem::clickReleased(const Point & cursorPosition)
+{
+	dropBox.clickPressed(cursorPosition);
+	dropBox.clickReleased(cursorPosition);
+}
 
 TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
 	InterfaceObjectConfigurable(LCLICK | HOVER),
@@ -472,9 +471,9 @@ void TemplatesDropBox::sliderMove(int slidPos)
 	redraw();
 }
 
-void TemplatesDropBox::clickLeft(tribool down, bool previousState)
+void TemplatesDropBox::clickPressed(const Point & cursorPosition)
 {
-	if (!pos.isInside(GH.getCursorPosition()))
+	if (!pos.isInside(cursorPosition))
 	{
 		assert(GH.windows().isTopWindow(this));
 		GH.windows().popWindows(1);
