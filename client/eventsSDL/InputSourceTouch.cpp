@@ -39,6 +39,7 @@ InputSourceTouch::InputSourceTouch()
 	params.useRelativeMode = settings["general"]["userRelativePointer"].Bool();
 	params.relativeModeSpeedFactor = settings["general"]["relativePointerSpeedMultiplier"].Float();
 	params.longTouchTimeMilliseconds = settings["general"]["longTouchTimeMilliseconds"].Float();
+	params.hapticFeedback = settings["general"]["hapticFeedback"].Bool();
 
 	if (params.useRelativeMode)
 		state = TouchState::RELATIVE_MODE;
@@ -298,11 +299,13 @@ void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 }
 
 void InputSourceTouch::hapticFeedback() {
+	if(hapticFeedback)
 #if defined(VCMI_ANDROID)
-    CAndroidVMHelper vmHelper;
-    vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hapticFeedback");
+		CAndroidVMHelper vmHelper;
+		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hapticFeedback");
 #endif
 #if defined(VCMI_IOS)
-    iOS_utils::hapticFeedback();
+    	iOS_utils::hapticFeedback();
 #endif
+	}
 }

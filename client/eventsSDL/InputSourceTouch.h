@@ -79,6 +79,8 @@ struct TouchInputParameters
 	uint32_t pinchSensitivityThreshold = 10;
 
 	bool useRelativeMode = false;
+
+	bool hapticFeedback = false;
 };
 
 /// Class that handles touchscreen input from SDL events

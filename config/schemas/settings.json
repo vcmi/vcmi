@@ -33,7 +33,8 @@
 				"extraDump",
 				"userRelativePointer",
 				"relativePointerSpeedMultiplier",
-				"longTouchTimeMilliseconds"
+				"longTouchTimeMilliseconds",
+				"hapticFeedback"
 			],
 			"properties" : {
 				"playerName" : {
@@ -101,6 +102,10 @@
 				"longTouchTimeMilliseconds" : {
 					"type" : "number",
 					"default" : 1000
+				},
+				"hapticFeedback" : {
+					"type" : "boolean",
+					"default" : false
 				}
 			}
 		},
