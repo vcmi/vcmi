@@ -119,11 +119,10 @@ RandomMapTab::RandomMapTab():
 		std::string cbRoadType = "selectRoad_" + road->getJsonKey();
 		addCallback(cbRoadType, [&, road](bool on)
 		{
-			mapGenOptions->setRoadEnabled(road->getJsonKey(), on);
+			mapGenOptions->setRoadEnabled(road->getId(), on);
 			updateMapInfoByHost();
 		});
 	}
-	
 	
 	build(config);
 	
@@ -313,7 +312,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	{
 		if(auto w = widget<CToggleButton>(r->getJsonKey()))
 		{
-			w->setSelected(opts->isRoadEnabled(r->getJsonKey()));
+			w->setSelected(opts->isRoadEnabled(r->getId()));
 		}
 	}
 }

@@ -1,3 +1,4 @@
+#include "CMapGenOptions.h"
 /*
  * CMapGenOptions.cpp, part of VCMI engine
  *
@@ -26,6 +27,9 @@ CMapGenOptions::CMapGenOptions()
 	waterContent(EWaterContent::RANDOM), monsterStrength(EMonsterStrength::RANDOM), mapTemplate(nullptr)
 {
 	resetPlayersMap();
+	setRoadEnabled(RoadId(Road::DIRT_ROAD), true);
+	setRoadEnabled(RoadId(Road::GRAVEL_ROAD), true);
+	setRoadEnabled(RoadId(Road::COBBLESTONE_ROAD), true);
 }
 
 si32 CMapGenOptions::getWidth() const
@@ -233,17 +237,26 @@ void CMapGenOptions::setMapTemplate(const std::string & name)
 		setMapTemplate(VLC->tplh->getTemplate(name));
 }
 
-void CMapGenOptions::setRoadEnabled(const std::string & roadName, bool enable)
+void CMapGenOptions::setRoadEnabled(const RoadId & roadType, bool enable)
 {
-	if(enable)
-		disabledRoads.erase(roadName);
+	if (enable)
+	{
+		enabledRoads.insert(roadType);
+	}
 	else
-		disabledRoads.insert(roadName);
+	{
+		enabledRoads.erase(roadType);
+	}	
 }
 
-bool CMapGenOptions::isRoadEnabled(const std::string & roadName) const
+bool CMapGenOptions::isRoadEnabled(const RoadId & roadType) const
 {
-	return !disabledRoads.count(roadName);
+	return enabledRoads.count(roadType);
+}
+
+bool CMapGenOptions::isRoadEnabled() const
+{
+	return !enabledRoads.empty();
 }
 
 void CMapGenOptions::setPlayerTeam(const PlayerColor & color, const TeamID & team)
