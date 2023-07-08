@@ -65,7 +65,7 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 
 			if (!i && (res == EGameResID::WOOD || res == EGameResID::ORE))
 			{
-				//only first wood&ore mines are close
+				//only first wood & ore mines are close
 				manager.addCloseObject(RequiredObjectInfo(mine, rmginfo.value));
 			}
 			else

@@ -10,7 +10,6 @@
  */
 
 #include "StdInc.h"
-#include "CMapGenOptions.h"
 
 #include "../mapping/CMapHeader.h"
 #include "CRmgTemplateStorage.h"
