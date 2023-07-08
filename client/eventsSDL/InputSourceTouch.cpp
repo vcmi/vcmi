@@ -174,7 +174,6 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
 			GH.events().dispatchMouseLeftButtonPressed(convertTouchToMouse(tfinger));
 			GH.events().dispatchMouseLeftButtonReleased(convertTouchToMouse(tfinger));
-			hapticFeedback();
 			state = TouchState::IDLE;
 			break;
 		}
