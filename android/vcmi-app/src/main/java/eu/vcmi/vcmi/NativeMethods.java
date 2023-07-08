@@ -3,11 +3,14 @@ package eu.vcmi.vcmi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 
 import org.libsdl.app.SDL;
 import org.libsdl.app.SDLActivity;
@@ -137,6 +140,18 @@ public class NativeMethods
     public static void hideProgress()
     {
         internalProgressDisplay(false);
+    }
+    
+    @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
+    public static void hapticFeedback()
+    {
+        int duration_ms = 30;
+        final Context ctx = SDL.getContext();
+        if (Build.VERSION.SDK_INT >= 26) {
+            ((Vibrator) ctx.getSystemService(ctx.VIBRATOR_SERVICE)).vibrate(VibrationEffect.createOneShot(duration_ms, 5));
+        } else {
+            ((Vibrator) ctx.getSystemService(ctx.VIBRATOR_SERVICE)).vibrate(duration_ms);
+        }
     }
 
     private static void internalProgressDisplay(final boolean show)
