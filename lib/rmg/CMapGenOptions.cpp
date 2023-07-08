@@ -1,4 +1,3 @@
-#include "CMapGenOptions.h"
 /*
  * CMapGenOptions.cpp, part of VCMI engine
  *
@@ -10,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "CMapGenOptions.h"
 
 #include "../mapping/CMapHeader.h"
 #include "CRmgTemplateStorage.h"
