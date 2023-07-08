@@ -46,8 +46,7 @@ void hideLoadingIndicator()
 
 void hapticFeedback()
 {
-	UIImpactFeedbackGenerator *hapticGen = [[UIImpactFeedbackGenerator alloc] initWithStyle:(UIImpactFeedbackStyleLight)];
-	[hapticGen impactOccurred];
-	hapticGen = NULL;
+    auto hapticGen = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight];
+    [hapticGen impactOccurred];
 }
 }

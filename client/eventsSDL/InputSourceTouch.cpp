@@ -22,10 +22,9 @@
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 
-#ifdef VCMI_ANDROID
+#if defined(VCMI_ANDROID)
 #include "../../lib/CAndroidVMHelper.h"
-#endif
-#ifdef VCMI_IOS
+#elif defined(VCMI_IOS)
 #include "../ios/utils.h"
 #endif
 
@@ -299,12 +298,11 @@ void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 }
 
 void InputSourceTouch::hapticFeedback() {
-	if(hapticFeedbackEnabled) {
+	if(params.hapticFeedbackEnabled) {
 #if defined(VCMI_ANDROID)
-		CAndroidVMHelper vmHelper;
-		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hapticFeedback");
-#endif
-#if defined(VCMI_IOS)
+        CAndroidVMHelper vmHelper;
+        vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hapticFeedback");
+#elif defined(VCMI_IOS)
     	iOS_utils::hapticFeedback();
 #endif
 	}
