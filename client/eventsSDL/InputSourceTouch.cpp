@@ -22,6 +22,10 @@
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 
+#ifdef VCMI_ANDROID
+#include "../../lib/CAndroidVMHelper.h"
+#endif
+
 #include <SDL_events.h>
 #include <SDL_hints.h>
 #include <SDL_timer.h>
@@ -166,6 +170,7 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
 			GH.events().dispatchMouseLeftButtonPressed(convertTouchToMouse(tfinger));
 			GH.events().dispatchMouseLeftButtonReleased(convertTouchToMouse(tfinger));
+			hapticFeedback();
 			state = TouchState::IDLE;
 			break;
 		}
@@ -215,6 +220,7 @@ void InputSourceTouch::handleUpdate()
 		if (currentTime > lastTapTimeTicks + params.longTouchTimeMilliseconds)
 		{
 			GH.events().dispatchShowPopup(GH.getCursorPosition());
+			hapticFeedback();
 
 			if (GH.windows().isTopWindowPopup())
 				state = TouchState::TAP_DOWN_LONG;
@@ -286,4 +292,11 @@ void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 
 	if (distanceOld > params.pinchSensitivityThreshold)
 		GH.events().dispatchGesturePinch(lastTapPosition, distanceNew / distanceOld);
+}
+
+void InputSourceTouch::hapticFeedback() {
+#if defined(VCMI_ANDROID)
+    CAndroidVMHelper vmHelper;
+    vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hapticFeedback");
+#endif
 }
