@@ -33,7 +33,10 @@
 				"extraDump",
 				"userRelativePointer",
 				"relativePointerSpeedMultiplier",
-				"longTouchTimeMilliseconds"
+				"longTouchTimeMilliseconds",
+				"autosaveCountLimit",
+				"useSavePrefix",
+				"savePrefix"
 			],
 			"properties" : {
 				"playerName" : {
@@ -101,6 +104,18 @@
 				"longTouchTimeMilliseconds" : {
 					"type" : "number",
 					"default" : 1000
+				},
+				"autosaveCountLimit" : {
+					"type" : "number",
+					"default": 5
+				},
+				"useSavePrefix" : {
+					"type": "boolean",
+					"default": false
+				},
+				"savePrefix" : {
+					"type": "string",
+					"default": ""
 				}
 			}
 		},

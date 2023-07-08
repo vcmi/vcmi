@@ -64,7 +64,6 @@ class CPlayerInterface : public CGameInterface, public IUpdateable
 	// -1 - just loaded game; 1 - just started game; 0 otherwise
 	int firstCall;
 	int autosaveCount;
-	static const int SAVES_COUNT = 5;
 
 	std::pair<const CCreatureSet *, const CCreatureSet *> lastBattleArmies;
 	bool allowBattleReplay = false;
