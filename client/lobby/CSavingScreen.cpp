@@ -36,10 +36,10 @@ CSavingScreen::CSavingScreen()
 	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*LOCPLINT->cb->getMapHeader()));
 
 	tabSel = std::make_shared<SelectionTab>(screenType);
-	curTab = tabSel;
-	tabSel->toggleMode();
-
 	tabSel->callOnSelect = std::bind(&CSavingScreen::changeSelection, this, _1);
+	tabSel->toggleMode();
+	curTab = tabSel;
+		
 	buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRSAV.DEF", CGI->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
 }
 
