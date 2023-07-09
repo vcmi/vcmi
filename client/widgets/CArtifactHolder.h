@@ -58,6 +58,7 @@ protected:
 public:
 	CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * Art = nullptr);
 	void clickPressed(const Point & cursorPosition) override;
+	void clickReleased(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 	void setArtifact(const CArtifactInstance * art) override;
 };
@@ -77,6 +78,7 @@ public:
 	void selectSlot(bool on);
 	bool isMarked() const;
 	void clickPressed(const Point & cursorPosition) override;
+	void clickReleased(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 	void showAll(Canvas & to) override;
 	void setArtifact(const CArtifactInstance * art) override;

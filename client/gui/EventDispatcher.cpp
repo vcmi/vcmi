@@ -180,12 +180,13 @@ void EventDispatcher::handleLeftButtonClick(const Point & position, bool isPress
 
 		if( i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
 		{
-			i->mouseClickedState = isPressed;
-
 			if(isPressed)
 				i->clickPressed(position);
-			else
+
+			if (i->mouseClickedState && !isPressed)
 				i->clickReleased(position);
+
+			i->mouseClickedState = isPressed;
 		}
 		else
 		{

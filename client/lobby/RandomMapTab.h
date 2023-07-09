@@ -71,6 +71,7 @@ class TemplatesDropBox : public InterfaceObjectConfigurable
 public:
 	TemplatesDropBox(RandomMapTab & randomMapTab, int3 size);
 	
+	bool receiveEvent(const Point & position, int eventType) const override;
 	void clickPressed(const Point & cursorPosition) override;
 	void setTemplate(const CRmgTemplate *);
 	

@@ -471,6 +471,14 @@ void TemplatesDropBox::sliderMove(int slidPos)
 	redraw();
 }
 
+bool TemplatesDropBox::receiveEvent(const Point & position, int eventType) const
+{
+	if (eventType == LCLICK)
+		return true; // we want drop box to close when clicking outside drop box borders
+
+	return CIntObject::receiveEvent(position, eventType);
+}
+
 void TemplatesDropBox::clickPressed(const Point & cursorPosition)
 {
 	if (!pos.isInside(cursorPosition))
