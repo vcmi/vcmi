@@ -554,6 +554,32 @@ void CMap::removeObject(CGObjectInstance * obj)
 	//TOOD: Clean artifact instances (mostly worn by hero?) and quests related to this object
 }
 
+bool CMap::isWaterMap() const
+{
+	return waterMap;
+}
+
+bool CMap::calculateWaterContent()
+{
+	size_t totalTiles = height * width * levels();
+	size_t waterTiles = 0;
+
+	for(auto tile = terrain.origin(); tile < (terrain.origin() + terrain.num_elements()); ++tile) 
+	{
+		if (tile->isWater())
+		{
+			waterTiles++;
+		}
+	}
+
+	if (waterTiles >= totalTiles / 100) //At least 1% of area is water
+	{
+		waterMap = true;
+	}
+
+	return waterMap;
+}
+
 void CMap::initTerrain()
 {
 	terrain.resize(boost::extents[levels()][width][height]);

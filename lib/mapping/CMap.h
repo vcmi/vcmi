@@ -106,6 +106,8 @@ public:
 	void moveObject(CGObjectInstance * obj, const int3 & dst);
 	void removeObject(CGObjectInstance * obj);
 
+	bool isWaterMap() const;
+	bool calculateWaterContent();
 
 	/// Gets object of specified type on requested position
 	const CGObjectInstance * getObjectiveObjectFrom(const int3 & pos, Obj::EObj type);
@@ -145,6 +147,8 @@ public:
 	boost::multi_array<int3, 3> guardingCreaturePositions;
 
 	std::map<std::string, ConstTransitivePtr<CGObjectInstance> > instanceNames;
+
+	bool waterMap;
 
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground

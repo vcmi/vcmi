@@ -1115,6 +1115,7 @@ void CMapLoaderJson::readTerrain()
 		readTerrainLevel(underground, 1);
 	}
 
+	map->calculateWaterContent();
 }
 
 CMapLoaderJson::MapObjectLoader::MapObjectLoader(CMapLoaderJson * _owner, JsonMap::value_type & json):

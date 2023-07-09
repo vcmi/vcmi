@@ -969,6 +969,7 @@ void CMapLoaderH3M::readTerrain()
 			}
 		}
 	}
+	map->calculateWaterContent();
 }
 
 void CMapLoaderH3M::readObjectTemplates()
