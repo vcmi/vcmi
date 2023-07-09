@@ -727,8 +727,8 @@ public:
 
 		if(defendTown.getTurn() > 0 && defendTown.isContrAttack())
 		{
-			auto ourSpeed = defendTown.hero->maxMovePoints(true);
-			auto enemySpeed = treat.hero->maxMovePoints(true);
+			auto ourSpeed = defendTown.hero->movementPointsLimit(true);
+			auto enemySpeed = treat.hero->movementPointsLimit(true);
 
 			if(enemySpeed > ourSpeed) multiplier *= 0.7f;
 		}
@@ -894,7 +894,7 @@ public:
 		const CGHeroInstance * dismissedHero = dismissCommand.getHero().get();
 
 		auto role = ai->heroManager->getHeroRole(dismissedHero);
-		auto mpLeft = dismissedHero->movement;
+		auto mpLeft = dismissedHero->movementPointsRemaining();
 			
 		evaluationContext.movementCost += mpLeft;
 		evaluationContext.movementCostByRole[role] += mpLeft;
