@@ -271,7 +271,7 @@ void CInfoBar::tick(uint32_t msPassed)
 	}
 }
 
-void CInfoBar::clickPressed(const Point & cursorPosition)
+void CInfoBar::clickReleased(const Point & cursorPosition)
 {
 	if(state == HERO || state == TOWN)
 		showGameStatus();

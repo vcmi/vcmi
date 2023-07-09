@@ -270,7 +270,7 @@ void SelectionTab::toggleMode()
 	redraw();
 }
 
-void SelectionTab::clickPressed(const Point & cursorPosition)
+void SelectionTab::clickReleased(const Point & cursorPosition)
 {
 	int line = getLine();
 

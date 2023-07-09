@@ -40,7 +40,7 @@ private:
 		std::string video; // the resource name of the video
 		std::string hoverText;
 
-		void clickPressed(const Point & cursorPosition) override;
+		void clickReleased(const Point & cursorPosition) override;
 		void hover(bool on) override;
 
 	public:

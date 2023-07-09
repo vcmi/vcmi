@@ -65,7 +65,7 @@ public:
 	SelectionTab(ESelectionScreen Type);
 	void toggleMode();
 
-	void clickPressed(const Point & cursorPosition) override;
+	void clickReleased(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;
 	void clickDouble(const Point & cursorPosition) override;
 	bool receiveEvent(const Point & position, int eventType) const override;

@@ -141,7 +141,7 @@ void CCampaignScreen::CCampaignButton::show(Canvas & to)
 	}
 }
 
-void CCampaignScreen::CCampaignButton::clickPressed(const Point & cursorPosition)
+void CCampaignScreen::CCampaignButton::clickReleased(const Point & cursorPosition)
 {
 	CCS->videoh->close();
 	CMainMenu::openCampaignLobby(campFile);
