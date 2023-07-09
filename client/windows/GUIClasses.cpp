@@ -551,7 +551,7 @@ void CTavernWindow::show(Canvas & to)
 	CCS->videoh->update(pos.x+70, pos.y+56, to.getInternalSurface(), true, false);
 }
 
-void CTavernWindow::HeroPortrait::clickReleased(const Point & cursorPosition)
+void CTavernWindow::HeroPortrait::clickPressed(const Point & cursorPosition)
 {
 	if(h)
 		*_sel = _id;
@@ -1149,7 +1149,7 @@ void CTransformerWindow::CItem::move()
 	left = !left;
 }
 
-void CTransformerWindow::CItem::clickReleased(const Point & cursorPosition)
+void CTransformerWindow::CItem::clickPressed(const Point & cursorPosition)
 {
 	move();
 	parent->redraw();
@@ -1254,7 +1254,7 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 	pos.w = icon->pos.w;
 }
 
-void CUniversityWindow::CItem::clickReleased(const Point & cursorPosition)
+void CUniversityWindow::CItem::clickPressed(const Point & cursorPosition)
 {
 	if(state() == 2)
 		GH.windows().createAndPushWindow<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= 2000);
@@ -1785,7 +1785,7 @@ void CObjectListWindow::CItem::select(bool on)
 	redraw();//???
 }
 
-void CObjectListWindow::CItem::clickReleased(const Point & cursorPosition)
+void CObjectListWindow::CItem::clickPressed(const Point & cursorPosition)
 {
 	parent->changeSelection(index);
 }

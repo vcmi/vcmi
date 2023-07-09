@@ -50,7 +50,7 @@ CHoverableArea::~CHoverableArea()
 {
 }
 
-void LRClickableAreaWText::clickReleased(const Point & cursorPosition)
+void LRClickableAreaWText::clickPressed(const Point & cursorPosition)
 {
 	if(!text.empty())
 		LOCPLINT->showInfoDialog(text);
@@ -83,7 +83,7 @@ void LRClickableAreaWText::init()
 	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 }
 
-void LRClickableAreaWTextComp::clickReleased(const Point & cursorPosition)
+void LRClickableAreaWTextComp::clickPressed(const Point & cursorPosition)
 {
 	std::vector<std::shared_ptr<CComponent>> comp(1, createComponent());
 	LOCPLINT->showInfoDialog(text, comp);
@@ -129,7 +129,7 @@ CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero)
 		portrait = std::make_shared<CAnimImage>("PortraitsLarge", hero->portrait);
 }
 
-void CHeroArea::clickReleased(const Point & cursorPosition)
+void CHeroArea::clickPressed(const Point & cursorPosition)
 {
 	if(hero)
 		LOCPLINT->openHeroWindow(hero);
@@ -143,7 +143,7 @@ void CHeroArea::hover(bool on)
 		GH.statusbar()->clear();
 }
 
-void LRClickableAreaOpenTown::clickReleased(const Point & cursorPosition)
+void LRClickableAreaOpenTown::clickPressed(const Point & cursorPosition)
 {
 	if(town)
 	{

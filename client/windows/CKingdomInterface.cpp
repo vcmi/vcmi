@@ -101,7 +101,7 @@ void InfoBox::showPopupWindow(const Point & cursorPosition)
 		CRClickPopup::createAndPush(text);
 }
 
-void InfoBox::clickReleased(const Point & cursorPosition)
+void InfoBox::clickPressed(const Point & cursorPosition)
 {
 	std::shared_ptr<CComponent> comp;
 	std::string text;

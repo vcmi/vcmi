@@ -446,7 +446,7 @@ void CGStatusBar::show(Canvas & to)
 	showAll(to);
 }
 
-void CGStatusBar::clickReleased(const Point & cursorPosition)
+void CGStatusBar::clickPressed(const Point & cursorPosition)
 {
 	if(LOCPLINT && LOCPLINT->cingconsole->isActive())
 		LOCPLINT->cingconsole->startEnteringText();

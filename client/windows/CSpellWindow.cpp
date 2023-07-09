@@ -51,7 +51,7 @@ CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::functio
 	owner = _owner;
 }
 
-void CSpellWindow::InteractiveArea::clickReleased(const Point & cursorPosition)
+void CSpellWindow::InteractiveArea::clickPressed(const Point & cursorPosition)
 {
 	onLeft();
 }
@@ -471,7 +471,7 @@ CSpellWindow::SpellArea::SpellArea(Rect pos, CSpellWindow * owner)
 
 CSpellWindow::SpellArea::~SpellArea() = default;
 
-void CSpellWindow::SpellArea::clickReleased(const Point & cursorPosition)
+void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 {
 	if(mySpell)
 	{

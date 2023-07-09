@@ -184,7 +184,7 @@ void BattleFieldController::createHeroes()
 void BattleFieldController::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
 {
 	if (!on && pos.isInside(finalPosition))
-		clickReleased(finalPosition);
+		clickPressed(finalPosition);
 }
 
 void BattleFieldController::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
@@ -213,7 +213,7 @@ void BattleFieldController::mouseMoved(const Point & cursorPosition, const Point
 		owner.actionsController->onHoverEnded();
 }
 
-void BattleFieldController::clickReleased(const Point & cursorPosition)
+void BattleFieldController::clickPressed(const Point & cursorPosition)
 {
 	BattleHex selectedHex = getHoveredHex();
 

@@ -138,7 +138,7 @@ class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusB
 protected:
 	Point getBorderSize() override;
 
-	void clickReleased(const Point & cursorPosition) override;
+	void clickPressed(const Point & cursorPosition) override;
 
 public:
 	~CGStatusBar();

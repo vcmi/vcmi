@@ -41,7 +41,7 @@ class CHeroSwitcher : public CIntObject
 	std::shared_ptr<CAnimImage> image;
 	CHeroWindow * owner;
 public:
-	void clickReleased(const Point & cursorPosition) override;
+	void clickPressed(const Point & cursorPosition) override;
 
 	CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInstance * hero_);
 };

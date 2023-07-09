@@ -134,7 +134,7 @@ void CBuildingRect::hover(bool on)
 	}
 }
 
-void CBuildingRect::clickReleased(const Point & cursorPosition)
+void CBuildingRect::clickPressed(const Point & cursorPosition)
 {
 	if(getBuilding() && area && (parent->selectedBuilding==this))
 	{
@@ -377,7 +377,7 @@ void CHeroGSlot::hover(bool on)
 		GH.statusbar()->write(temp);
 }
 
-void CHeroGSlot::clickReleased(const Point & cursorPosition)
+void CHeroGSlot::clickPressed(const Point & cursorPosition)
 {
 	std::shared_ptr<CHeroGSlot> other = upg ? owner->garrisonedHero : owner->visitingHero;
 
@@ -1055,7 +1055,7 @@ void CCreaInfo::hover(bool on)
 	}
 }
 
-void CCreaInfo::clickReleased(const Point & cursorPosition)
+void CCreaInfo::clickPressed(const Point & cursorPosition)
 {
 	int offset = LOCPLINT->castleInt? (-87) : 0;
 	auto recruitCb = [=](CreatureID id, int count)
@@ -1374,7 +1374,7 @@ void CHallInterface::CBuildingBox::hover(bool on)
 	}
 }
 
-void CHallInterface::CBuildingBox::clickReleased(const Point & cursorPosition)
+void CHallInterface::CBuildingBox::clickPressed(const Point & cursorPosition)
 {
 	GH.windows().createAndPushWindow<CBuildWindow>(town,building,state,0);
 }
@@ -1734,7 +1734,7 @@ void CFortScreen::RecruitArea::creaturesChangedEventHandler()
 	}
 }
 
-void CFortScreen::RecruitArea::clickReleased(const Point & cursorPosition)
+void CFortScreen::RecruitArea::clickPressed(const Point & cursorPosition)
 {
 	LOCPLINT->castleInt->builds->enterDwelling(level);
 }

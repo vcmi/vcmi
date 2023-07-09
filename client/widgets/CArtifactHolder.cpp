@@ -122,11 +122,6 @@ void CCommanderArtPlace::clickPressed(const Point & cursorPosition)
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.commanderWindow.artifactMessage"), [this]() { returnArtToHeroCallback(); }, []() {});
 }
 
-void CCommanderArtPlace::clickReleased(const Point & cursorPosition)
-{
-	// No-op override
-}
-
 void CCommanderArtPlace::showPopupWindow(const Point & cursorPosition)
 {
 	if(ourArt && text.size())
@@ -187,11 +182,6 @@ void CHeroArtPlace::clickPressed(const Point & cursorPosition)
 {
 	if(leftClickCallback)
 		leftClickCallback(*this);
-}
-
-void CHeroArtPlace::clickReleased(const Point & cursorPosition)
-{
-	// No-op override
 }
 
 void CHeroArtPlace::showPopupWindow(const Point & cursorPosition)

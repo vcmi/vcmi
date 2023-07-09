@@ -48,7 +48,7 @@ public:
 	virtual ~LRClickableAreaWText();
 	void init();
 
-	void clickReleased(const Point & cursorPosition) override;
+	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 };
 
@@ -135,7 +135,7 @@ class CHeroArea: public CIntObject
 public:
 	CHeroArea(int x, int y, const CGHeroInstance * _hero);
 
-	void clickReleased(const Point & cursorPosition) override;
+	void clickPressed(const Point & cursorPosition) override;
 	void hover(bool on) override;
 };
 
@@ -146,7 +146,7 @@ public:
 	int type;
 	int baseType;
 	int bonusValue;
-	void clickReleased(const Point & cursorPosition) override;
+	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 
 	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
@@ -158,7 +158,7 @@ class LRClickableAreaOpenTown: public LRClickableAreaWTextComp
 {
 public:
 	const CGTownInstance * town;
-	void clickReleased(const Point & cursorPosition) override;
+	void clickPressed(const Point & cursorPosition) override;
 	LRClickableAreaOpenTown(const Rect & Pos, const CGTownInstance * Town);
 };
 

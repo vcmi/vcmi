@@ -44,7 +44,7 @@ class CSpellWindow : public CWindowObject
 		~SpellArea();
 		void setSpell(const CSpell * spell);
 
-		void clickReleased(const Point & cursorPosition) override;
+		void clickPressed(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
 	};
@@ -57,7 +57,7 @@ class CSpellWindow : public CWindowObject
 		std::string hoverText;
 		std::string helpText;
 	public:
-		void clickReleased(const Point & cursorPosition) override;
+		void clickPressed(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
 

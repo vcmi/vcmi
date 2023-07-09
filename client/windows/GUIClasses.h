@@ -161,7 +161,7 @@ class CObjectListWindow : public CWindowObject
 		CItem(CObjectListWindow * parent, size_t id, std::string text);
 
 		void select(bool on);
-		void clickReleased(const Point & cursorPosition) override;
+		void clickPressed(const Point & cursorPosition) override;
 		void clickDouble(const Point & cursorPosition) override;
 	};
 
@@ -205,7 +205,7 @@ public:
 		std::string description; // "XXX is a level Y ZZZ with N artifacts"
 		const CGHeroInstance * h;
 
-		void clickReleased(const Point & cursorPosition) override;
+		void clickPressed(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
 		void hover (bool on) override;
 		HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H);
@@ -376,7 +376,7 @@ class CTransformerWindow : public CStatusbarWindow, public CGarrisonHolder
 		std::shared_ptr<CLabel> count;
 
 		void move();
-		void clickReleased(const Point & cursorPosition) override;
+		void clickPressed(const Point & cursorPosition) override;
 		void update();
 		CItem(CTransformerWindow * parent, int size, int id);
 	};
@@ -417,7 +417,7 @@ class CUniversityWindow : public CStatusbarWindow
 		CUniversityWindow * parent;
 
 		void showAll(Canvas & to) override;
-		void clickReleased(const Point & cursorPosition) override;
+		void clickPressed(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
 		int state();//0=can't learn, 1=learned, 2=can learn

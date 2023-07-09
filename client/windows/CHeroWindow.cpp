@@ -85,7 +85,7 @@ CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts 
 {
 }
 
-void CHeroSwitcher::clickReleased(const Point & cursorPosition)
+void CHeroSwitcher::clickPressed(const Point & cursorPosition)
 {
 	//TODO: do not recreate window
 	if (false)

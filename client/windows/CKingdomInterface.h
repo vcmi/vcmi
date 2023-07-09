@@ -74,10 +74,7 @@ public:
 	~InfoBox();
 
 	void showPopupWindow(const Point & cursorPosition) override;
-	void clickReleased(const Point & cursorPosition) override;
-
-	//Update object if data may have changed
-	//void update();
+	void clickPressed(const Point & cursorPosition) override;
 };
 
 class IInfoBoxData
