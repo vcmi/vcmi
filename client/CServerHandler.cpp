@@ -761,7 +761,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	if(save)
 	{
 		resetStateForLobby(StartInfo::LOAD_GAME);
-		mapInfo->saveInit(ResourceID(filename, EResType::CLIENT_SAVEGAME));
+		mapInfo->saveInit(ResourceID(filename, EResType::SAVEGAME));
 		screenType = ESelectionScreen::loadGame;
 	}
 	else

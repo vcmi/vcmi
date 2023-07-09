@@ -232,11 +232,11 @@ void SelectionTab::toggleMode()
 
 		case ESelectionScreen::loadGame:
 			inputName->disable();
-			parseSaves(getFiles("Saves/", EResType::SERVER_SAVEGAME));
+			parseSaves(getFiles("Saves/", EResType::SAVEGAME));
 			break;
 
 		case ESelectionScreen::saveGame:
-			parseSaves(getFiles("Saves/", EResType::SERVER_SAVEGAME));
+			parseSaves(getFiles("Saves/", EResType::SAVEGAME));
 			inputName->enable();
 			restoreLastSelection();
 			break;
@@ -416,7 +416,7 @@ void SelectionTab::select(int position)
 
 	if(inputName && inputName->isActive())
 	{
-		auto filename = *CResourceHandler::get("local")->getResourceName(ResourceID(curItems[py]->fileURI, EResType::CLIENT_SAVEGAME));
+		auto filename = *CResourceHandler::get("local")->getResourceName(ResourceID(curItems[py]->fileURI, EResType::SAVEGAME));
 		inputName->setText(filename.stem().string());
 	}
 	updateListItems();
