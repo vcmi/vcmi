@@ -13,6 +13,7 @@
 #include "../Engine/Nullkiller.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapObjects/MapObjects.h"
+#include "../../../lib/GameConstants.h"
 
 namespace NKAI
 {
@@ -306,7 +307,7 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 	int freeHeroSlots = GameConstants::ARMY_SIZE - hero->stacksCount();
 	bool countGrowth = (cb->getDate(Date::DAY_OF_WEEK) + turn) > 7;
 
-	const CGTownInstance * town = dwelling->ID == CGTownInstance::TOWN
+	const CGTownInstance * town = dwelling->ID == Obj::TOWN
 		? dynamic_cast<const CGTownInstance *>(dwelling)
 		: nullptr;
 

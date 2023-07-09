@@ -166,6 +166,11 @@ RuleBlock: basic
   rule: if closestHeroRatio is LOWEST and heroRole is SCOUT then Value is WORST
   rule: if closestHeroRatio is LOW and heroRole is SCOUT then Value is BAD
   rule: if closestHeroRatio is LOWEST and heroRole is MAIN then Value is BAD
+  rule: if heroRole is SCOUT and turn is NOW and mainTurnDistance is LONG then Value is WORST
+  rule: if heroRole is SCOUT and turn is NOW and mainTurnDistance is MEDIUM then Value is BAD
+  rule: if heroRole is SCOUT and turn is NEXT and mainTurnDistance is LONG then Value is BAD
+  rule: if heroRole is SCOUT and turn is NOW and scoutTurnDistance is LONG then Value is BAD
+  rule: if heroRole is SCOUT and turn is NOW and scoutTurnDistance is MEDIUM then Value is BAD with 0.3
 RuleBlock: strategicalValue
   enabled: true
   conjunction: AlgebraicProduct
