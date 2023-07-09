@@ -155,7 +155,7 @@ void EventDispatcher::dispatchShowPopup(const Point & position)
 		if(!vstd::contains(rclickable, i))
 			continue;
 
-		if( !i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
+		if( !i->receiveEvent(position, AEventsReceiver::LCLICK))
 			continue;
 
 		i->showPopupWindow(position);
@@ -178,7 +178,7 @@ void EventDispatcher::handleLeftButtonClick(const Point & position, bool isPress
 		if(!vstd::contains(lclickable, i))
 			continue;
 
-		if( i->receiveEvent(GH.getCursorPosition(), AEventsReceiver::LCLICK))
+		if( i->receiveEvent(position, AEventsReceiver::LCLICK))
 		{
 			if(isPressed)
 				i->clickPressed(position);
