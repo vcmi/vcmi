@@ -101,20 +101,13 @@ jobs:
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
 
-    - name: Cache build
-      uses: actions/cache@v3
-      with:
-        path: out/build/${{ matrix.preset }}
-        key: ${{ matrix.preset }}-build
-        restore-keys: ${{ matrix.preset }}-build
-
     - name: CMake Preset
       run: cmake --preset ${{ matrix.preset }} ${{ env.cmakeTargetFlag }}
 
     - name: Build Preset
       run: cmake --build --preset ${{ matrix.preset }}
 
-    - name: Cache
+    - name: Cache Rust target
       uses: Swatinem/rust-cache@v2
       with:
         workspaces: |
@@ -131,6 +124,7 @@ jobs:
       run: ls -la out/build/${{matrix.preset}}/bin
 
     - name: Pack
+      if: github.event_name == 'push'
       run: |
         cd out/build/${{ matrix.preset }}/bin
         tar -cvJf ../../../../${{ matrix.platform }}.tar.xz *

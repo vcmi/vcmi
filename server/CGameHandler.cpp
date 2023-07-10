@@ -6443,62 +6443,74 @@ void CGameHandler::runBattle()
 {
 	setBattle(gs->curB);
 	assert(gs->curB);
-	// if(settings["adventure"]["quickCombat"].Bool()) {
-		logGlobal->warn("AZOYAN CGameHandler::runBattle()");
 
-		if (gs != nullptr && gs->curB != nullptr) {
-			RBattleInfo rbattle {};
-			rbattle.round = gs->curB->round;
-			rbattle.active_stack = gs->curB->activeStack;
-			rbattle.terrain_type = static_cast<RTerrain>(gs->curB->terrainType.getNum());
+	// TODO: Check whether we are use `if(settings["adventure"]["quickCombat"].Bool())`
 
-			for (auto stack : gs->curB->stacks) {
-				if (stack != nullptr) {
-					RStack rstack {};
-					rstack.name = stack->getName();
-					rstack.level = stack->level();
-					rstack.count = stack->getCount();
-					rbattle.stacks.push_back(rstack);
-				}
-			}
+	auto battle = gs->curB;
 
-			for (int i = 0; i < gs->curB->sides.size(); ++i) {
-				const auto& side =  gs->curB->sides[i];
-				RBattleSide rside {};
-				rside.color = side.color.getStr();
-				if (side.hero != nullptr) {
-					RHero rhero {};
-					rhero.level = side.hero->level;
-					rhero.mana = side.hero->mana;
-					rhero.sex = side.hero->sex;
-					rhero.name = side.hero->getNameTranslated();
+	// Copy battle info from C++ to Rust
+	RBattleInfo rbattle;
+	rbattle.round = battle->round;
+	rbattle.active_stack = battle->activeStack;
+	rbattle.terrain_type = static_cast<RTerrain>(battle->terrainType.getNum());
 
-					rside.hero = rhero;
-				}
-				rbattle.sides[i] = rside;
-			}
-			simulate_battle_onchain(rbattle);
-			int totalCount[2] = {0, 0};
-			for (int i = 0; i < gs->curB->stacks.size(); ++i) {
-				if (gs->curB->stacks[i] != nullptr) {
-					// gs->curB->stacks[i]->name = rbattle.stacks[i].name;
-					// gs->curB->stacks[i]->level = rbattle.stacks[i].level;
-					gs->curB->stacks[i]->health.setCount(rbattle.stacks[i].count);
-					totalCount[i] = rbattle.stacks[i].count;
-				}
-			}
-			int victoriusSide = 0;
-			if (totalCount[1] > totalCount[0]) {
-				victoriusSide = 1;
-			}
-			setBattleResult(BattleResult::EResult::NORMAL, victoriusSide);
-			if (lobby->state != EServerState::SHUTDOWN) {
-				endBattle(gs->curB->tile, gs->curB->battleGetFightingHero(0), gs->curB->battleGetFightingHero(1));
-			}
-			logGlobal->warn("AZOYAN simulate_battle_onchain done");
-			return;
+	for (auto stack : battle->stacks)
+	{
+		if (stack)
+		{
+			RStack rstack;
+			rstack.name = stack->getName();
+			rstack.level = stack->level();
+			rstack.count = stack->getCount();
+			rbattle.stacks.push_back(rstack);
 		}
-	// }
+	}
+
+	for (int i = 0; i < battle->sides.size(); ++i)
+	{
+		const auto& side =  battle->sides[i];
+		RBattleSide rside;
+		rside.color = side.color.getStr();
+		if (side.hero)
+		{
+			RHero rhero;
+			rhero.level = side.hero->level;
+			rhero.mana = side.hero->mana;
+			rhero.sex = side.hero->sex;
+			rhero.name = side.hero->getNameTranslated();
+
+			rside.hero = rhero;
+		}
+		rbattle.sides[i] = rside;
+	}
+
+	// Run Gear program to simulate battle
+	simulate_battle_onchain(rbattle);
+
+	// Copy battle info from Rust to C++
+	int totalCount[2] = { 0 };
+	// TODO: Check whether stack count is no more than 2
+	for (int i = 0; i < battle->stacks.size(); ++i)
+	{
+		if (battle->stacks[i])
+		{
+			// battle->stacks[i]->name = rbattle.stacks[i].name;
+			// battle->stacks[i]->level = rbattle.stacks[i].level;
+			battle->stacks[i]->health.setCount(rbattle.stacks[i].count);
+			totalCount[i] = rbattle.stacks[i].count;
+		}
+	}
+	int victoriusSide = totalCount[1] > totalCount[0] ? 1 : 0;
+	setBattleResult(BattleResult::EResult::NORMAL, victoriusSide);
+	if (lobby->state != EServerState::SHUTDOWN)
+	{
+		endBattle(battle->tile, battle->battleGetFightingHero(0), battle->battleGetFightingHero(1));
+	}
+	// No more to do here, the battle is over.
+	return;
+
+	// Below is the original code, which is not used anymore.
+
 	//TODO: pre-tactic stuff, call scripts etc.
 
 	//tactic round
