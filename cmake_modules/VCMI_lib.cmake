@@ -220,6 +220,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/BattleFieldHandler.cpp
 		${MAIN_LIB_DIR}/CAndroidVMHelper.cpp
 		${MAIN_LIB_DIR}/CArtHandler.cpp
+		${MAIN_LIB_DIR}/CArtifactInstance.cpp
 		${MAIN_LIB_DIR}/CBonusTypeHandler.cpp
 		${MAIN_LIB_DIR}/CBuildingHandler.cpp
 		${MAIN_LIB_DIR}/CConfigHandler.cpp
@@ -550,6 +551,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/BattleFieldHandler.h
 		${MAIN_LIB_DIR}/CAndroidVMHelper.h
 		${MAIN_LIB_DIR}/CArtHandler.h
+		${MAIN_LIB_DIR}/CArtifactInstance.h
 		${MAIN_LIB_DIR}/CBonusTypeHandler.h
 		${MAIN_LIB_DIR}/CBuildingHandler.h
 		${MAIN_LIB_DIR}/CConfigHandler.h

@@ -807,12 +807,13 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 		changePrimSkill(finishingBattle->winnerHero, PrimarySkill::EXPERIENCE, battleResult.data->exp[finishingBattle->winnerSide]);
 	
 	BattleResultAccepted raccepted;
-	raccepted.army1 = const_cast<CArmedInstance*>(bEndArmy1);
-	raccepted.army2 = const_cast<CArmedInstance*>(bEndArmy2);
-	raccepted.hero1 = const_cast<CGHeroInstance*>(battleInfo->sides.at(0).hero);
-	raccepted.hero2 = const_cast<CGHeroInstance*>(battleInfo->sides.at(1).hero);
-	raccepted.exp[0] = battleResult.data->exp[0];
-	raccepted.exp[1] = battleResult.data->exp[1];
+	raccepted.heroResult[0].army = const_cast<CArmedInstance*>(bEndArmy1);
+	raccepted.heroResult[1].army = const_cast<CArmedInstance*>(bEndArmy2);
+	raccepted.heroResult[0].hero = const_cast<CGHeroInstance*>(battleInfo->sides.at(0).hero);
+	raccepted.heroResult[1].hero = const_cast<CGHeroInstance*>(battleInfo->sides.at(1).hero);
+	raccepted.heroResult[0].exp = battleResult.data->exp[0];
+	raccepted.heroResult[1].exp = battleResult.data->exp[1];
+	raccepted.winnerSide = finishingBattle->winnerSide;
 	sendAndApply(&raccepted);
 
 	queries.popIfTop(battleQuery);
@@ -4083,7 +4084,7 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 	if(assemble)
 	{
 		CArtifact * combinedArt = VLC->arth->objects[assembleTo];
-		if(!combinedArt->constituents)
+		if(!combinedArt->isCombined())
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to assemble is not a combined artifacts!");
 		if (!vstd::contains(ArtifactUtils::assemblyPossibilities(hero, destArtifact->getTypeId(),
 			ArtifactUtils::isSlotEquipment(artifactSlot)), combinedArt))
@@ -4102,11 +4103,11 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 	}
 	else
 	{
-		if(!destArtifact->canBeDisassembled())
+		if(!destArtifact->isCombined())
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble is not a combined artifact!");
 
 		if(ArtifactUtils::isSlotBackpack(artifactSlot)
-			&& !ArtifactUtils::isBackpackFreeSlots(hero, destArtifact->artType->constituents->size() - 1))
+			&& !ArtifactUtils::isBackpackFreeSlots(hero, destArtifact->artType->getConstituents().size() - 1))
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble but backpack is full!");
 
 		DisassembledArtifact da;
@@ -4159,9 +4160,9 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 	{
 		const CArtifact * art = aid.toArtifact();
 		COMPLAIN_RET_FALSE_IF(nullptr == art, "Invalid artifact index to buy");
-		COMPLAIN_RET_FALSE_IF(art->warMachine == CreatureID::NONE, "War machine artifact required");
+		COMPLAIN_RET_FALSE_IF(art->getWarMachine() == CreatureID::NONE, "War machine artifact required");
 		COMPLAIN_RET_FALSE_IF(hero->hasArt(aid),"Hero already has this machine!");
-		const int price = art->price;
+		const int price = art->getPrice();
 		COMPLAIN_RET_FALSE_IF(getPlayerState(hero->getOwner())->resources[EGameResID::GOLD] < price, "Not enough gold!");
 
 		if ((town->hasBuilt(BuildingID::BLACKSMITH) && town->town->warMachine == aid)
@@ -6808,17 +6809,12 @@ bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact
 		COMPLAIN_RET_FALSE_IF(!artType->canBePutAt(h, pos, false), "Cannot put artifact in that slot!");
 	}
 
-	CArtifactInstance * newArtInst = nullptr;
-	if(artType->canBeDisassembled())
-		newArtInst = new CCombinedArtifactInstance();
-	else
-		newArtInst = new CArtifactInstance();
-
+	auto * newArtInst = new CArtifactInstance();
 	newArtInst->artType = artType; // *NOT* via settype -> all bonus-related stuff must be done by NewArtifact apply
 
 	NewArtifact na;
 	na.art = newArtInst;
-	sendAndApply(&na); // -> updates a!!!, will create a on other machines
+	sendAndApply(&na); // -> updates newArtInst!!!
 
 	if(giveHeroArtifact(h, newArtInst, pos))
 		return true;

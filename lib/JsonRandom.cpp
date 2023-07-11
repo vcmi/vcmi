@@ -206,7 +206,7 @@ namespace JsonRandom
 		{
 			CArtifact * art = VLC->arth->objects[artID];
 
-			if(!vstd::iswithin(art->price, minValue, maxValue))
+			if(!vstd::iswithin(art->getPrice(), minValue, maxValue))
 				return false;
 
 			if(!allowedClasses.empty() && !allowedClasses.count(art->aClass))
@@ -217,7 +217,7 @@ namespace JsonRandom
 
 			if(!allowedPositions.empty())
 			{
-				for(const auto & pos : art->possibleSlots[ArtBearer::HERO])
+				for(const auto & pos : art->getPossibleSlots().at(ArtBearer::HERO))
 				{
 					if(allowedPositions.count(pos))
 						return true;

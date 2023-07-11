@@ -820,7 +820,7 @@ void CGArtifact::afterAddToMap(CMap * map)
 	//Artifacts from map objects are never removed
 	//FIXME: This should be revertible in map editor
 
-	if(ID == Obj::SPELL_SCROLL && storedArtifact && storedArtifact->id.getNum() < 0)
+	if(ID == Obj::SPELL_SCROLL && storedArtifact && storedArtifact->getId().getNum() < 0)
         map->addNewArtifactInstance(storedArtifact);
 }
 
