@@ -209,7 +209,7 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 			fittingSet.artifactsWorn = artSet->artifactsWorn;
 			if(assumeDestRemoved)
 				fittingSet.removeArtifact(slot);
-			assert(constituents);
+
 			for(const auto art : constituents)
 			{
 				auto possibleSlot = ArtifactUtils::getArtAnyPosition(&fittingSet, art->getId());

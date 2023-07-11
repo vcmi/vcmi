@@ -76,6 +76,10 @@ jobs:
             os: ubuntu-20.04
             test: 0
             preset: linux-gcc-test
+          - platform: linux
+            os: ubuntu-20.04
+            test: 0
+            preset: linux-gcc-debug
           - platform: mac-intel
             os: macos-12
             test: 0
