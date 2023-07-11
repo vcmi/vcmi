@@ -28,15 +28,20 @@ class HeroPoolProcessor : boost::noncopyable
 {
 	CGameHandler * gameHandler;
 
+	/// per-player random generators
+	std::map<PlayerColor, CRandomGenerator> playerSeed;
+
 	void clearHeroFromSlot(const PlayerColor & color, TavernHeroSlot slot);
 	void selectNewHeroForSlot(const PlayerColor & color, TavernHeroSlot slot, bool needNativeHero, bool giveStartingArmy);
 
 	std::set<const CHeroClass *> findAvailableClassesFor(const PlayerColor & player) const;
 	std::set<CGHeroInstance *> findAvailableHeroesFor(const PlayerColor & player, const CHeroClass * heroClass) const;
 
-	const CHeroClass * pickClassFor(bool isNative, const PlayerColor & player, const FactionID & faction, CRandomGenerator & rand) const;
+	const CHeroClass * pickClassFor(bool isNative, const PlayerColor & player);
 
-	CGHeroInstance * pickHeroFor(bool isNative, const PlayerColor & player, const FactionID & faction, CRandomGenerator & rand, const CHeroClass * bannedClass) const;
+	CGHeroInstance * pickHeroFor(bool isNative, const PlayerColor & player);
+
+	CRandomGenerator & getRandomGenerator(const PlayerColor & player);
 public:
 	HeroPoolProcessor();
 	HeroPoolProcessor(CGameHandler * gameHandler);
@@ -51,5 +56,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & gameHandler;
+		h & playerSeed;
 	}
 };

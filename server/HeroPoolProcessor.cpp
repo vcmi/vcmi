@@ -68,7 +68,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 	sah.slotID = static_cast<int>(slot);
 
 	//first hero - native if possible, second hero -> any other class
-	CGHeroInstance *h = pickHeroFor(needNativeHero, color, gameHandler->getPlayerSettings(color)->castle, gameHandler->getRandomGenerator(), nullptr);
+	CGHeroInstance *h = pickHeroFor(needNativeHero, color);
 
 	if (h)
 	{
@@ -76,7 +76,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 
 		if (giveArmy)
 		{
-			h->initArmy(gameHandler->getRandomGenerator(), &sah.army);
+			h->initArmy(getRandomGenerator(color), &sah.army);
 		}
 		else
 		{
@@ -212,7 +212,7 @@ std::set<CGHeroInstance *> HeroPoolProcessor::findAvailableHeroesFor(const Playe
 	return result;
 }
 
-const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerColor & player, const FactionID & factionID, CRandomGenerator & rand) const
+const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerColor & player)
 {
 	if(player >= PlayerColor::PLAYER_LIMIT)
 	{
@@ -220,6 +220,7 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 		return nullptr;
 	}
 
+	FactionID factionID = gameHandler->getPlayerSettings(player)->castle;
 	const auto & hpool = gameHandler->gameState()->hpool;
 	const auto & currentTavern = hpool->getHeroesFor(player);
 
@@ -257,7 +258,7 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 	for(const auto & heroClass : possibleClasses)
 		totalWeight += heroClass->selectionProbability.at(factionID);
 
-	int roll = rand.nextInt(totalWeight - 1);
+	int roll = getRandomGenerator(player).nextInt(totalWeight - 1);
 	for(const auto & heroClass : possibleClasses)
 	{
 		roll -= heroClass->selectionProbability.at(factionID);
@@ -268,13 +269,9 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 	return *possibleClasses.rbegin();
 }
 
-CGHeroInstance * HeroPoolProcessor::pickHeroFor(bool isNative,
-													 const PlayerColor & player,
-													 const FactionID & factionID,
-													 CRandomGenerator & rand,
-													 const CHeroClass * bannedClass) const
+CGHeroInstance * HeroPoolProcessor::pickHeroFor(bool isNative, const PlayerColor & player)
 {
-	const CHeroClass * heroClass = pickClassFor(isNative, player, factionID, rand);
+	const CHeroClass * heroClass = pickClassFor(isNative, player);
 
 	if(!heroClass)
 		return nullptr;
@@ -285,5 +282,13 @@ CGHeroInstance * HeroPoolProcessor::pickHeroFor(bool isNative,
 	if(possibleHeroes.empty())
 		return nullptr;
 
-	return *RandomGeneratorUtil::nextItem(possibleHeroes, rand);
+	return *RandomGeneratorUtil::nextItem(possibleHeroes, getRandomGenerator(player));
+}
+
+CRandomGenerator & HeroPoolProcessor::getRandomGenerator(const PlayerColor & player)
+{
+	if (playerSeed.count(player) == 0)
+		playerSeed.emplace(player, CRandomGenerator(gameHandler->getRandomGenerator().nextInt()));
+
+	return playerSeed.at(player);
 }

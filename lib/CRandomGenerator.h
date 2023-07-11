@@ -30,6 +30,9 @@ public:
 	/// current thread ID.
 	CRandomGenerator();
 
+	/// Seeds the generator with provided initial seed
+	explicit CRandomGenerator(int seed);
+
 	void setSeed(int seed);
 
 	/// Resets the seed to the product of the current time in milliseconds and the
