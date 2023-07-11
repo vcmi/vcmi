@@ -20,6 +20,7 @@
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/gameState/TavernHeroesPool.h"
+#include "../lib/gameState/TavernSlot.h"
 
 HeroPoolProcessor::HeroPoolProcessor()
 	: gameHandler(nullptr)
@@ -31,10 +32,43 @@ HeroPoolProcessor::HeroPoolProcessor(CGameHandler * gameHandler)
 {
 }
 
+TavernHeroSlot HeroPoolProcessor::selectSlotForRole(const PlayerColor & player, TavernSlotRole roleID)
+{
+	const auto & hpool = gameHandler->gameState()->hpool;
+
+	const auto & heroes = hpool->getHeroesFor(player);
+
+	// if tavern has empty slot - use it
+	if (heroes.size() == 0)
+		return TavernHeroSlot::NATIVE;
+
+	if (heroes.size() == 1)
+		return TavernHeroSlot::RANDOM;
+
+	// try to find "better" slot to overwrite
+	// we want to avoid overwriting retreated heroes when tavern still has slot with random hero
+	// as well as avoid overwriting surrendered heroes if we can overwrite retreated hero
+	auto roleLeft = hpool->getSlotRole(HeroTypeID(heroes[0]->subID));
+	auto roleRight = hpool->getSlotRole(HeroTypeID(heroes[1]->subID));
+
+	if (roleLeft > roleRight)
+		return TavernHeroSlot::RANDOM;
+
+	if (roleLeft < roleRight)
+		return TavernHeroSlot::NATIVE;
+
+	// both slots are equal in "value", so select randomly
+	if (getRandomGenerator(player).nextInt(100) > 50)
+		return TavernHeroSlot::RANDOM;
+	else
+		return TavernHeroSlot::NATIVE;
+}
+
 void HeroPoolProcessor::onHeroSurrendered(const PlayerColor & color, const CGHeroInstance * hero)
 {
 	SetAvailableHero sah;
-	sah.slotID = 0;
+	sah.slotID = selectSlotForRole(color, TavernSlotRole::SURRENDERED);
+	sah.roleID = TavernSlotRole::SURRENDERED;
 	sah.player = color;
 	sah.hid = hero->subID;
 	sah.army.clear();
@@ -45,7 +79,8 @@ void HeroPoolProcessor::onHeroSurrendered(const PlayerColor & color, const CGHer
 void HeroPoolProcessor::onHeroEscaped(const PlayerColor & color, const CGHeroInstance * hero)
 {
 	SetAvailableHero sah;
-	sah.slotID = 0;
+	sah.slotID = selectSlotForRole(color, TavernSlotRole::RETREATED);
+	sah.roleID = TavernSlotRole::RETREATED;
 	sah.player = color;
 	sah.hid = hero->subID;
 
@@ -56,7 +91,8 @@ void HeroPoolProcessor::clearHeroFromSlot(const PlayerColor & color, TavernHeroS
 {
 	SetAvailableHero sah;
 	sah.player = color;
-	sah.slotID = static_cast<int>(slot);
+	sah.roleID = TavernSlotRole::NONE;
+	sah.slotID = slot;
 	sah.hid = HeroTypeID::NONE;
 	gameHandler->sendAndApply(&sah);
 }
@@ -65,7 +101,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 {
 	SetAvailableHero sah;
 	sah.player = color;
-	sah.slotID = static_cast<int>(slot);
+	sah.slotID = slot;
 
 	//first hero - native if possible, second hero -> any other class
 	CGHeroInstance *h = pickHeroFor(needNativeHero, color);
@@ -76,10 +112,12 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 
 		if (giveArmy)
 		{
+			sah.roleID = TavernSlotRole::FULL_ARMY;
 			h->initArmy(getRandomGenerator(color), &sah.army);
 		}
 		else
 		{
+			sah.roleID = TavernSlotRole::SINGLE_UNIT;
 			sah.army.clear();
 			sah.army.setCreature(SlotID(0), h->type->initialArmy[0].creature, 1);
 		}

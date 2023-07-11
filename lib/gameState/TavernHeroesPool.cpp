@@ -23,17 +23,27 @@ TavernHeroesPool::~TavernHeroesPool()
 std::map<HeroTypeID, CGHeroInstance*> TavernHeroesPool::unusedHeroesFromPool() const
 {
 	std::map<HeroTypeID, CGHeroInstance*> pool = heroesPool;
-	for(const auto & player : currentTavern)
-		for(auto availableHero : player.second)
-			if(availableHero.second)
-				pool.erase(HeroTypeID(availableHero.second->subID));
+	for(const auto & slot : currentTavern)
+		pool.erase(HeroTypeID(slot.hero->subID));
 
 	return pool;
 }
 
-void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot, HeroTypeID hero, CSimpleArmy & army)
+TavernSlotRole TavernHeroesPool::getSlotRole(HeroTypeID hero) const
 {
-	currentTavern[player].erase(slot);
+	for (auto const & slot : currentTavern)
+	{
+		if (HeroTypeID(slot.hero->subID) == hero)
+			return slot.role;
+	}
+	return TavernSlotRole::NONE;
+}
+
+void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot, HeroTypeID hero, CSimpleArmy & army, TavernSlotRole role)
+{
+	vstd::erase_if(currentTavern, [&](const TavernSlot & entry){
+		return entry.player == player && entry.slot == slot;
+	});
 
 	if (hero == HeroTypeID::NONE)
 		return;
@@ -43,7 +53,21 @@ void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot,
 	if (h && army)
 		h->setToArmy(army);
 
-	currentTavern[player][slot] = h;
+	TavernSlot newSlot;
+	newSlot.hero = h;
+	newSlot.player = player;
+	newSlot.role = TavernSlotRole::SINGLE_UNIT; // TODO
+	newSlot.slot = slot;
+
+	currentTavern.push_back(newSlot);
+
+	boost::range::sort(currentTavern, [](const TavernSlot & left, const TavernSlot & right)
+	{
+		if (left.slot == right.slot)
+			return left.player < right.player;
+		else
+			return left.slot < right.slot;
+	});
 }
 
 bool TavernHeroesPool::isHeroAvailableFor(HeroTypeID hero, PlayerColor color) const
@@ -58,11 +82,11 @@ std::vector<const CGHeroInstance *> TavernHeroesPool::getHeroesFor(PlayerColor c
 {
 	std::vector<const CGHeroInstance *> result;
 
-	if(!currentTavern.count(color))
-		return result;
-
-	for(const auto & hero : currentTavern.at(color))
-		result.push_back(hero.second);
+	for(const auto & slot : currentTavern)
+	{
+		if (slot.player == color)
+			result.push_back(slot.hero);
+	}
 
 	return result;
 }

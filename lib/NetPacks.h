@@ -19,6 +19,7 @@
 #include "battle/BattleAction.h"
 #include "battle/CObstacleInstance.h"
 #include "gameState/EVictoryLossCheckResult.h"
+#include "gameState/TavernSlot.h"
 #include "gameState/QuestInfo.h"
 #include "mapObjects/CGHeroInstance.h"
 #include "mapping/CMapDefines.h"
@@ -338,7 +339,8 @@ struct DLL_LINKAGE SetAvailableHero : public CPackForClient
 	}
 	void applyGs(CGameState * gs);
 
-	uint8_t slotID;
+	TavernHeroSlot slotID;
+	TavernSlotRole roleID;
 	PlayerColor player;
 	HeroTypeID hid; //-1 if no hero
 	CSimpleArmy army;
@@ -348,6 +350,7 @@ struct DLL_LINKAGE SetAvailableHero : public CPackForClient
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & slotID;
+		h & roleID;
 		h & player;
 		h & hid;
 		h & army;

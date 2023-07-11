@@ -396,6 +396,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/gameState/InfoAboutArmy.h
 		${MAIN_LIB_DIR}/gameState/SThievesGuildInfo.h
 		${MAIN_LIB_DIR}/gameState/TavernHeroesPool.h
+		${MAIN_LIB_DIR}/gameState/TavernSlot.h
 		${MAIN_LIB_DIR}/gameState/QuestInfo.h
 
 		${MAIN_LIB_DIR}/logging/CBasicLogConfigurator.h

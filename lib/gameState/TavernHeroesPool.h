@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include "../ConstTransitivePtr.h"
 #include "../GameConstants.h"
+#include "TavernSlot.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,14 +21,24 @@ class CHeroClass;
 class CGameState;
 class CSimpleArmy;
 
-enum class TavernHeroSlot
-{
-	NATIVE, // 1st / left slot in tavern, contains hero native to player's faction on new week
-	RANDOM  // 2nd / right slot in tavern, contains hero of random class
-};
-
 class DLL_LINKAGE TavernHeroesPool
 {
+	struct TavernSlot
+	{
+		CGHeroInstance * hero;
+		TavernHeroSlot slot;
+		TavernSlotRole role;
+		PlayerColor player;
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & hero;
+			h & slot;
+			h & role;
+			h & player;
+		}
+	};
+
 	/// list of all heroes in pool, including those currently present in taverns
 	std::map<HeroTypeID, CGHeroInstance* > heroesPool;
 
@@ -36,8 +46,8 @@ class DLL_LINKAGE TavernHeroesPool
 	/// if hero is not present in list, he is available for everyone
 	std::map<HeroTypeID, PlayerColor::Mask> pavailable;
 
-	/// list of heroes currently available in a tavern of a specific player
-	std::map<PlayerColor, std::map<TavernHeroSlot, CGHeroInstance*> > currentTavern;
+	/// list of heroes currently available in taverns
+	std::vector<TavernSlot> currentTavern;
 
 public:
 	~TavernHeroesPool();
@@ -51,6 +61,8 @@ public:
 	/// Returns true if hero is available to a specific player
 	bool isHeroAvailableFor(HeroTypeID hero, PlayerColor color) const;
 
+	TavernSlotRole getSlotRole(HeroTypeID hero) const;
+
 	CGHeroInstance * takeHero(HeroTypeID hero);
 
 	/// reset mana and movement points for all heroes in pool
@@ -58,7 +70,7 @@ public:
 
 	void addHeroToPool(CGHeroInstance * hero);
 	void setAvailability(HeroTypeID hero, PlayerColor::Mask mask);
-	void setHeroForPlayer(PlayerColor player, TavernHeroSlot slot, HeroTypeID hero, CSimpleArmy & army);
+	void setHeroForPlayer(PlayerColor player, TavernHeroSlot slot, HeroTypeID hero, CSimpleArmy & army, TavernSlotRole role);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

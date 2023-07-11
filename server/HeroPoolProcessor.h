@@ -11,7 +11,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-enum class TavernHeroSlot;
+enum class TavernHeroSlot : int8_t;
+enum class TavernSlotRole : int8_t;
 class PlayerColor;
 class CGHeroInstance;
 class HeroTypeID;
@@ -41,6 +42,7 @@ class HeroPoolProcessor : boost::noncopyable
 
 	CRandomGenerator & getRandomGenerator(const PlayerColor & player);
 
+	TavernHeroSlot selectSlotForRole(const PlayerColor & player, TavernSlotRole roleID);
 public:
 	CGameHandler * gameHandler;
 

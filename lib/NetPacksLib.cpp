@@ -942,7 +942,7 @@ void FoWChange::applyGs(CGameState *gs)
 
 void SetAvailableHero::applyGs(CGameState *gs)
 {
-	gs->hpool->setHeroForPlayer(player, TavernHeroSlot(slotID), hid, army);
+	gs->hpool->setHeroForPlayer(player, slotID, hid, army, roleID);
 }
 
 void GiveBonus::applyGs(CGameState *gs)
