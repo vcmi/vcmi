@@ -6,7 +6,7 @@
     <message>
         <location filename="../inspector/armywidget.ui" line="20"/>
         <source>Army settings</source>
-        <translation>Paramètres de l'armée</translation>
+        <translation>Paramètres de l&apos;armée</translation>
     </message>
     <message>
         <location filename="../inspector/armywidget.ui" line="162"/>
@@ -64,7 +64,7 @@
     <message>
         <location filename="../mainwindow.ui" line="117"/>
         <source>Toolbar</source>
-        <translation>Barre d'outils</translation>
+        <translation>Barre d&apos;outils</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="163"/>
@@ -139,7 +139,7 @@
     <message>
         <location filename="../mainwindow.ui" line="921"/>
         <source>Save as</source>
-        <translation>Enregistrer sous</translation>
+        <translation>Enregistrer sous...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="924"/>
@@ -185,7 +185,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1002"/>
         <source>Fills the selection with obstacles</source>
-        <translation>Remplir la sélection d'obstacles</translation>
+        <translation>Remplir la sélection d&apos;obstacles</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1017"/>
@@ -236,7 +236,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1126"/>
         <source>Update appearance</source>
-        <translation>Mettre à jour l'apparence</translation>
+        <translation>Mettre à jour l&apos;apparence</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1137"/>
@@ -281,7 +281,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1233"/>
         <source>Export as</source>
-        <translation>Exporter sous</translation>
+        <translation>Exporter sous...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1225"/>
@@ -427,7 +427,7 @@
     <message>
         <location filename="../mapsettings.cpp" line="164"/>
         <source>Capture artifact</source>
-        <translation>Récupérer l'artefact</translation>
+        <translation>Récupérer l&apos;artefact</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="165"/>
@@ -606,9 +606,104 @@
         <translation>Résultats de la validation de la carte</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="101"/>
+        <location filename="../validator.cpp" line="50"/>
+        <source>Map is not loaded</source>
+        <translation>Aucune carte n&apos;est chargée</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="73"/>
+        <source>No players allowed to play this map</source>
+        <translation>Aucun joueur autorisé à jouer sur cette carte</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="75"/>
+        <source>Map is allowed for one player and cannot be started</source>
+        <translation>La carte est autorisée pour un joueur et ne peut pas être démarrée</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="77"/>
+        <source>No human players allowed to play this map</source>
+        <translation>Aucun joueur humain n&apos;est autorisé à jouer sur cette carte</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="93"/>
+        <source>Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
+        <translation>L&apos;instance blindée %1 est IMMARQUABLE mais doit avoir un propriétaire NEUTRE ou joueur</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="99"/>
+        <source>Object %1 is assigned to non-playable player %2</source>
+        <translation>L&apos;objet %1 est attribué au joueur non jouable %2</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="106"/>
         <source>Town %1 has undefined owner %2</source>
         <translation>La ville %1 a le propriétaire indéfini %2</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="116"/>
+        <source>Prison %1 must be a NEUTRAL</source>
+        <translation>La prison %1 doit être NEUTRE</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="122"/>
+        <source>Hero %1 must have an owner</source>
+        <translation>Le héros %1 doit avoir un propriétaire</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="127"/>
+        <source>Hero %1 is prohibited by map settings</source>
+        <translation>Le héros %1 est interdit par les paramètres de la carte</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="130"/>
+        <source>Hero %1 has duplicate on map</source>
+        <translation>Le héros %1 a un doublon sur la carte</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="133"/>
+        <source>Hero %1 has an empty type and must be removed</source>
+        <translation>Le héros %1 a un type vide et doit être supprimé</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="144"/>
+        <source>Spell scroll %1 is prohibited by map settings</source>
+        <translation>Le défilement des sorts %1 est interdit par les paramètres de la carte</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="147"/>
+        <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
+        <translation>Le parchemin de sort %1 n&apos;a pas d&apos;instance assignée et doit être supprimé</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="153"/>
+        <source>Artifact %1 is prohibited by map settings</source>
+        <translation>L&apos;artefact %1 est interdit par les paramètres de la carte</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="162"/>
+        <source>Player %1 doesn&apos;t have any starting town</source>
+        <translation>Le joueur %1 n&apos;a pas de ville de départ</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="166"/>
+        <source>Map name is not specified</source>
+        <translation>Le nom de la carte n&apos;est pas spécifié</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="168"/>
+        <source>Map description is not specified</source>
+        <translation>La description de la carte n&apos;est pas spécifiée</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="181"/>
+        <source>Exception occurs during validation: %1</source>
+        <translation>Une exception se produit lors de la validation : %1</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="185"/>
+        <source>Unknown exception occurs during validation</source>
+        <translation>Une exception inconnue se produit lors de la validation</translation>
     </message>
 </context>
 <context>
@@ -679,10 +774,10 @@
         <translation>Humain/Ordinateur</translation>
     </message>
     <message>
+        <location filename="../windownewmap.ui" line="220"/>
         <location filename="../windownewmap.ui" line="288"/>
-        <location filename="../windownewmap.ui" line="357"/>
-        <location filename="../windownewmap.ui" line="455"/>
-        <location filename="../windownewmap.ui" line="596"/>
+        <location filename="../windownewmap.ui" line="442"/>
+        <location filename="../windownewmap.ui" line="583"/>
         <source>Random</source>
         <translation>Aléatoire</translation>
     </message>
@@ -690,6 +785,16 @@
         <location filename="../windownewmap.ui" line="336"/>
         <source>Computer only</source>
         <translation>Ordinateur uniquement</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="379"/>
+        <source>Human teams</source>
+        <translation>Équipes humaines</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="398"/>
+        <source>Computer teams</source>
+        <translation>Équipes d&apos;ordinateur</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="428"/>
@@ -763,22 +868,22 @@
     <message>
         <location filename="../mainwindow.cpp" line="101"/>
         <source>Extract original H3 archives into a separate folder.</source>
-        <translation>Extraire les archives H3 d'origine dans un dossier séparé.</translation>
+        <translation>Extraire les archives H3 d&apos;origine dans un dossier séparé.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="102"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
-        <translation>À partir d'une archive extraite, il divise TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 et Un44 en fichiers PNG individuels.</translation>
+        <translation>À partir d&apos;une archive extraite, il divise TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 et Un44 en fichiers PNG individuels.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="103"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
-        <translation>À partir d'une archive extraite, convertit des images uniques (trouvées dans le dossier Images) de .pcx en png.</translation>
+        <translation>À partir d&apos;une archive extraite, convertit des images uniques (trouvées dans le dossier Images) de .pcx en png.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="104"/>
         <source>Delete original files, for the ones splitted / converted.</source>
-        <translation>Supprimer les fichiers d'origine, pour ceux fractionnés/convertis.</translation>
+        <translation>Supprimer les fichiers d&apos;origine, pour ceux fractionnés/convertis.</translation>
     </message>
 </context>
 </TS>

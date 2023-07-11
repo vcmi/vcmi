@@ -96,7 +96,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 			if(o->getOwner() != PlayerColor::NEUTRAL && o->getOwner().getNum() < map->players.size())
 			{
 				if(!map->players[o->getOwner().getNum()].canAnyonePlay())
-					issues.emplace_back(QString("Object %1 is assinged to non-playable player %2").arg(o->instanceName.c_str(), o->getOwner().getStr().c_str()), true);
+					issues.emplace_back(QString("Object %1 is assigned to non-playable player %2").arg(o->instanceName.c_str(), o->getOwner().getStr().c_str()), true);
 			}
 			//checking towns
 			if(auto * ins = dynamic_cast<CGTownInstance*>(o.get()))
