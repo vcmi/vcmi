@@ -34,9 +34,10 @@ public:
 		std::map<int, rmg::Tileset> reverseDistanceMap;
 		std::map<TRmgTemplateZoneId, rmg::Area> neighbourZones; //zones boardered. Area - part of land
 		std::set<TRmgTemplateZoneId> keepConnections;
+		std::set<TRmgTemplateZoneId> keepRoads;
 	};
 		
-	bool waterKeepConnection(TRmgTemplateZoneId zoneA, TRmgTemplateZoneId zoneB);
+	bool waterKeepConnection(const rmg::ZoneConnection & connection, bool createRoad);
 	RouteInfo waterRoute(Zone & dst);
 	
 	void process() override;
@@ -47,8 +48,8 @@ public:
 protected:
 	void collectLakes();
 	
-	bool placeShipyard(Zone & land, const Lake & lake, si32 guard, RouteInfo & info);
-	bool placeBoat(Zone & land, const Lake & lake, RouteInfo & info);
+	bool placeShipyard(Zone & land, const Lake & lake, si32 guard, bool createRoad, RouteInfo & info);
+	bool placeBoat(Zone & land, const Lake & lake, bool createRoad, RouteInfo & info);
 
 protected:
 	std::vector<Lake> lakes; //disconnected parts of zone. Used to work with water zones

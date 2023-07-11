@@ -110,8 +110,9 @@ public:
 	EMonsterStrength::EMonsterStrength getMonsterStrength() const;
 	void setMonsterStrength(EMonsterStrength::EMonsterStrength value);
 	
-	bool isRoadEnabled(const std::string & roadName) const;
-	void setRoadEnabled(const std::string & roadName, bool enable);
+	bool isRoadEnabled(const RoadId & roadType) const;
+	bool isRoadEnabled() const;
+	void setRoadEnabled(const RoadId & roadType, bool enable);
 
 	/// The first player colors belong to standard players and the last player colors belong to comp only players.
 	/// All standard players are by default of type EPlayerType::AI.
@@ -156,7 +157,7 @@ private:
 	EWaterContent::EWaterContent waterContent;
 	EMonsterStrength::EMonsterStrength monsterStrength;
 	std::map<PlayerColor, CPlayerSettings> players;
-	std::set<std::string> disabledRoads;
+	std::set<RoadId> enabledRoads;
 	
 	const CRmgTemplate * mapTemplate;
 
@@ -187,7 +188,7 @@ public:
 				setMapTemplate(templateName);
 			}
 			
-			h & disabledRoads;
+			h & enabledRoads;
 		}
 	}
 };

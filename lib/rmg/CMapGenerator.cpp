@@ -80,11 +80,6 @@ void CMapGenerator::loadConfig()
 	config.pandoraMultiplierSpells = randomMapJson["pandoras"]["valueMultiplierSpells"].Integer();
 	config.pandoraSpellSchool = randomMapJson["pandoras"]["valueSpellSchool"].Integer();
 	config.pandoraSpell60 = randomMapJson["pandoras"]["valueSpell60"].Integer();
-	//override config with game options
-	if(!mapGenOptions.isRoadEnabled(config.secondaryRoadType))
-		config.secondaryRoadType = "";
-	if(!mapGenOptions.isRoadEnabled(config.defaultRoadType))
-		config.defaultRoadType = config.secondaryRoadType;
 	config.singleThread = randomMapJson["singleThread"].Bool();
 }
 

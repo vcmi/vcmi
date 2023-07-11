@@ -28,6 +28,8 @@ public:
 	void selfSideIndirectConnection(const rmg::ZoneConnection & connection);
 	void otherSideConnection(const rmg::ZoneConnection & connection);
 	void createBorder();
+
+	bool shouldGenerateRoad(const rmg::ZoneConnection& connection) const;
 	
 protected:
 	void collectNeighbourZones();
