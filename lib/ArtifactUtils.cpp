@@ -125,7 +125,7 @@ DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
 
 	for(const auto artifact : art->getPartOf())
 	{
-		assert(artifact->constituents);
+		assert(artifact->isCombined());
 		bool possible = true;
 
 		for(const auto constituent : artifact->getConstituents()) //check if all constituents are available
@@ -171,7 +171,7 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(CArtifa
 	auto * artInst = new CArtifactInstance(art);
 	if(art->isCombined())
 	{
-		assert(art->constituents);
+		assert(art->isCombined());
 		for(const auto & part : art->getConstituents())
 			artInst->addPart(ArtifactUtils::createNewArtifactInstance(part), ArtifactPosition::PRE_FIRST);
 	}

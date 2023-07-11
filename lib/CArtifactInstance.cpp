@@ -20,7 +20,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 void CCombinedArtifactInstance::addPart(CArtifactInstance * art, const ArtifactPosition & slot)
 {
 	auto artInst = static_cast<CArtifactInstance*>(this);
-	assert(vstd::contains_if(*artInst->artType->constituents,
+	assert(vstd::contains_if(artInst->artType->getConstituents(),
 		[=](const CArtifact * partType)
 		{
 			return partType->getId() == art->getTypeId();

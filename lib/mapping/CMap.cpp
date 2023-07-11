@@ -473,7 +473,7 @@ void CMap::addNewArtifactInstance(CArtifactInstance * art)
 void CMap::eraseArtifactInstance(CArtifactInstance * art)
 {
 	//TODO: handle for artifacts removed in map editor
-	assert(artInstances[art->id.getNum()] == art);
+	assert(artInstances[art->getId().getNum()] == art);
 	artInstances[art->getId().getNum()].dellNull();
 }
 

@@ -1530,7 +1530,6 @@ void NewArtifact::applyGs(CGameState *gs)
 	art->setType(art->artType);
 	if(art->isCombined())
 	{
-		assert(art->artType->getConstituents());
 		for(const auto & part : art->artType->getConstituents())
 			art->addPart(ArtifactUtils::createNewArtifactInstance(part), ArtifactPosition::PRE_FIRST);
 	}
