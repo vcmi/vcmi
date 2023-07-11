@@ -99,8 +99,6 @@ class CGameHandler : public IGameCallback, public CBattleInfoCallback, public En
 	std::shared_ptr<CApplier<CBaseForGHApply>> applier;
 	std::unique_ptr<boost::thread> battleThread;
 
-	void deserializationFix();
-
 public:
 	std::unique_ptr<HeroPoolProcessor> heroPool;
 
@@ -365,6 +363,8 @@ public:
 	scripting::Pool * getContextPool() const override;
 #endif
 
+	std::list<PlayerColor> generatePlayerTurnOrder() const;
+
 	friend class CVCMIServer;
 private:
 	std::unique_ptr<events::EventBus> serverEventBus;
@@ -373,8 +373,9 @@ private:
 #endif
 
 	void reinitScripting();
+	void deserializationFix();
 
-	std::list<PlayerColor> generatePlayerTurnOrder() const;
+
 	void makeStackDoNothing(const CStack * next);
 	void getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const;
 

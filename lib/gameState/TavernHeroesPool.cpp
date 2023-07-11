@@ -113,6 +113,15 @@ void TavernHeroesPool::onNewDay()
 		hero.second->setMovementPoints(hero.second->movementPointsLimit(true));
 		hero.second->mana = hero.second->manaLimit();
 	}
+
+	for (auto & slot : currentTavern)
+	{
+		if (slot.role == TavernSlotRole::RETREATED_TODAY)
+			slot.role = TavernSlotRole::RETREATED;
+
+		if (slot.role == TavernSlotRole::SURRENDERED_TODAY)
+			slot.role = TavernSlotRole::SURRENDERED;
+	}
 }
 
 void TavernHeroesPool::addHeroToPool(CGHeroInstance * hero)

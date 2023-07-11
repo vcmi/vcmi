@@ -17,7 +17,6 @@ class PlayerColor;
 class CGHeroInstance;
 class HeroTypeID;
 class CGObjectInstance;
-class FactionID;
 class CRandomGenerator;
 class CHeroClass;
 
@@ -43,6 +42,8 @@ class HeroPoolProcessor : boost::noncopyable
 	CRandomGenerator & getRandomGenerator(const PlayerColor & player);
 
 	TavernHeroSlot selectSlotForRole(const PlayerColor & player, TavernSlotRole roleID);
+
+	bool playerEndedTurn(const PlayerColor & player);
 public:
 	CGameHandler * gameHandler;
 
