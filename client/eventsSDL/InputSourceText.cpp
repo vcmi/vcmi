@@ -14,18 +14,15 @@
 #include "../CMT.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/EventDispatcher.h"
+#include "../render/IScreenHandler.h"
+#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../lib/Rect.h"
 
 #include <SDL_events.h>
-#include <SDL_render.h>
 
 #ifdef VCMI_APPLE
 #	include <dispatch/dispatch.h>
-#endif
-
-#ifdef VCMI_IOS
-#	include "ios/utils.h"
 #endif
 
 void InputSourceText::handleEventTextInput(const SDL_TextInputEvent & text)
@@ -40,30 +37,15 @@ void InputSourceText::handleEventTextEditing(const SDL_TextEditingEvent & text)
 
 void InputSourceText::startTextInput(const Rect & whereInput)
 {
+
 #ifdef VCMI_APPLE
 	dispatch_async(dispatch_get_main_queue(), ^{
 #endif
 
-	// TODO ios: looks like SDL bug actually, try fixing there
-	auto renderer = SDL_GetRenderer(mainWindow);
-	float scaleX, scaleY;
-	SDL_Rect viewport;
-	SDL_RenderGetScale(renderer, &scaleX, &scaleY);
-	SDL_RenderGetViewport(renderer, &viewport);
+	Rect rectInScreenCoordinates = GH.screenHandler().convertLogicalPointsToWindow(whereInput);
+	SDL_Rect textInputRect = CSDL_Ext::toSDL(rectInScreenCoordinates);
 
-#ifdef VCMI_IOS
-	const auto nativeScale = iOS_utils::screenScale();
-	scaleX /= nativeScale;
-	scaleY /= nativeScale;
-#endif
-
-	SDL_Rect rectInScreenCoordinates;
-	rectInScreenCoordinates.x = (viewport.x + whereInput.x) * scaleX;
-	rectInScreenCoordinates.y = (viewport.y + whereInput.y) * scaleY;
-	rectInScreenCoordinates.w = whereInput.w * scaleX;
-	rectInScreenCoordinates.h = whereInput.h * scaleY;
-
-	SDL_SetTextInputRect(&rectInScreenCoordinates);
+	SDL_SetTextInputRect(&textInputRect);
 
 	if (SDL_IsTextInputActive() == SDL_FALSE)
 	{
