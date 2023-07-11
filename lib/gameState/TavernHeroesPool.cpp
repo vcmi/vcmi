@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 TavernHeroesPool::~TavernHeroesPool()
 {
-	for(auto ptr : heroesPool) // clean hero pool
+	for(const auto & ptr : heroesPool) // clean hero pool
 		delete ptr.second;
 }
 
