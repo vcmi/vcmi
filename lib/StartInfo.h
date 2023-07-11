@@ -35,9 +35,9 @@ struct DLL_LINKAGE PlayerSettings
 	};
 
 	Ebonus bonus;
-	si16 castle;
-	si32 hero,
-		 heroPortrait; //-1 if default, else ID
+	FactionID castle;
+	HeroTypeID hero;
+	HeroTypeID heroPortrait; //-1 if default, else ID
 
 	std::string heroName;
 	PlayerColor color; //from 0 -

@@ -2,6 +2,7 @@ set(server_SRCS
 		StdInc.cpp
 
 		CGameHandler.cpp
+		HeroPoolProcessor.cpp
 		ServerSpellCastEnvironment.cpp
 		CQuery.cpp
 		CVCMIServer.cpp
@@ -13,6 +14,7 @@ set(server_HEADERS
 		StdInc.h
 
 		CGameHandler.h
+		HeroPoolProcessor.h
 		ServerSpellCastEnvironment.h
 		CQuery.h
 		CVCMIServer.h

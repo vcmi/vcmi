@@ -822,7 +822,7 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 {
 	PlayerSettings & s = si->playerInfos[player];
-	si16 & cur = s.castle;
+	FactionID & cur = s.castle;
 	auto & allowed = getPlayerInfo(player.getNum()).allowedFactions;
 	const bool allowRandomTown = getPlayerInfo(player.getNum()).isFactionRandom;
 
@@ -856,7 +856,7 @@ void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 		else
 		{
 			assert(dir >= -1 && dir <= 1); //othervice std::advance may go out of range
-			auto iter = allowed.find(FactionID(cur));
+			auto iter = allowed.find(cur);
 			std::advance(iter, dir);
 			cur = *iter;
 		}

@@ -33,7 +33,6 @@ public:
 	std::set<ObjectInstanceID> visitedObjects; // as a std::set, since most accesses here will be from visited status checks
 	std::vector<ConstTransitivePtr<CGHeroInstance> > heroes;
 	std::vector<ConstTransitivePtr<CGTownInstance> > towns;
-	std::vector<ConstTransitivePtr<CGHeroInstance> > availableHeroes; //heroes available in taverns
 	std::vector<ConstTransitivePtr<CGDwelling> > dwellings; //used for town growth
 	std::vector<QuestInfo> quests; //store info about all received quests
 
@@ -74,7 +73,6 @@ public:
 		h & status;
 		h & heroes;
 		h & towns;
-		h & availableHeroes;
 		h & dwellings;
 		h & quests;
 		h & visitedObjects;

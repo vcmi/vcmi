@@ -11,6 +11,8 @@
 #include "ServerNetPackVisitors.h"
 
 #include "CGameHandler.h"
+#include "HeroPoolProcessor.h"
+
 #include "../lib/IGameCallback.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/gameState/CGameState.h"
@@ -251,7 +253,7 @@ void ApplyGhNetPackVisitor::visitHireHero(HireHero & pack)
 	if(town && PlayerRelations::ENEMIES == gh.getPlayerRelations(obj->tempOwner, gh.getPlayerAt(pack.c)))
 		gh.throwAndComplain(&pack, "Can't buy hero in enemy town!");
 
-	result = gh.hireHero(obj, pack.hid, pack.player);
+	result = gh.heroPool->hireHero(obj, pack.hid, pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitBuildBoat(BuildBoat & pack)

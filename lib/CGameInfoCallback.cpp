@@ -13,6 +13,7 @@
 #include "gameState/CGameState.h"
 #include "gameState/InfoAboutArmy.h"
 #include "gameState/SThievesGuildInfo.h"
+#include "gameState/TavernHeroesPool.h"
 #include "CGeneralTextHandler.h"
 #include "StartInfo.h" // for StartInfo
 #include "battle/BattleInfo.h" // for BattleInfo
@@ -97,13 +98,6 @@ const PlayerState * CGameInfoCallback::getPlayerState(PlayerColor color, bool ve
 			logGlobal->error("Cannot find player %d info!", color);
 		return nullptr;
 	}
-}
-
-const CTown * CGameInfoCallback::getNativeTown(PlayerColor color) const
-{
-	const PlayerSettings *ps = getPlayerSettings(color);
-	ERROR_RET_VAL_IF(!ps, "There is no such player!", nullptr);
-	return (*VLC->townh)[ps->castle]->town;
 }
 
 const CGObjectInstance * CGameInfoCallback::getObjByQuestIdentifier(int identifier) const
@@ -486,13 +480,10 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 	//ERROR_RET_VAL_IF(!isOwnedOrVisited(townOrTavern), "Town or tavern must be owned or visited!", ret);
 	//TODO: town needs to be owned, advmap tavern needs to be visited; to be reimplemented when visit tracking is done
 	const CGTownInstance * town = getTown(townOrTavern->id);
+
 	if(townOrTavern->ID == Obj::TAVERN || (town && town->hasBuilt(BuildingID::TAVERN)))
-	{
-		range::copy(gs->players[*player].availableHeroes, std::back_inserter(ret));
-		vstd::erase_if(ret, [](const CGHeroInstance * h) {
-			return h == nullptr;
-		});
-	}
+		return gs->hpool->getHeroesFor(*player);
+
 	return ret;
 }
 

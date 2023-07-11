@@ -357,8 +357,11 @@ class PlayerColor : public BaseForID<PlayerColor, ui8>
 
 	enum EPlayerColor
 	{
-		PLAYER_LIMIT_I = 8
+		PLAYER_LIMIT_I = 8,
+		ALL_PLAYERS_MASK = 0xff
 	};
+
+	using Mask = uint8_t;
 
 	DLL_LINKAGE static const PlayerColor SPECTATOR; //252
 	DLL_LINKAGE static const PlayerColor CANNOT_DETERMINE; //253

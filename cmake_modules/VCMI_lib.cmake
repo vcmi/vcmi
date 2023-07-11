@@ -68,6 +68,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/gameState/CGameState.cpp
 		${MAIN_LIB_DIR}/gameState/CGameStateCampaign.cpp
 		${MAIN_LIB_DIR}/gameState/InfoAboutArmy.cpp
+		${MAIN_LIB_DIR}/gameState/TavernHeroesPool.cpp
 
 		${MAIN_LIB_DIR}/logging/CBasicLogConfigurator.cpp
 		${MAIN_LIB_DIR}/logging/CLogger.cpp
@@ -394,6 +395,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/gameState/EVictoryLossCheckResult.h
 		${MAIN_LIB_DIR}/gameState/InfoAboutArmy.h
 		${MAIN_LIB_DIR}/gameState/SThievesGuildInfo.h
+		${MAIN_LIB_DIR}/gameState/TavernHeroesPool.h
 		${MAIN_LIB_DIR}/gameState/QuestInfo.h
 
 		${MAIN_LIB_DIR}/logging/CBasicLogConfigurator.h
