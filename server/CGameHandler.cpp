@@ -7242,3 +7242,10 @@ void CGameHandler::createObject(const int3 & visitablePosition, Obj type, int32_
 	no.targetPos = visitablePosition;
 	sendAndApply(&no);
 }
+
+void CGameHandler::deserializationFix()
+{
+	//FIXME: pointer to GameHandler itself can't be deserialized at the moment since GameHandler is top-level entity in serialization
+	// restore any places that requires such pointer manually
+	heroPool->gameHandler = this;
+}

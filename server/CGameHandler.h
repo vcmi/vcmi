@@ -99,6 +99,8 @@ class CGameHandler : public IGameCallback, public CBattleInfoCallback, public En
 	std::shared_ptr<CApplier<CBaseForGHApply>> applier;
 	std::unique_ptr<boost::thread> battleThread;
 
+	void deserializationFix();
+
 public:
 	std::unique_ptr<HeroPoolProcessor> heroPool;
 
@@ -289,6 +291,9 @@ public:
 		h & finishingBattle;
 		h & heroPool;
 		h & getRandomGenerator();
+
+		if (!h.saving)
+			deserializationFix();
 
 #if SCRIPTING_ENABLED
 		JsonNode scriptsState;

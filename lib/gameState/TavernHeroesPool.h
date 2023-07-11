@@ -64,6 +64,7 @@ public:
 	{
 		h & heroesPool;
 		h & pavailable;
+		h & currentTavern;
 	}
 };
 

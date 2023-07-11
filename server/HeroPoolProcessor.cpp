@@ -175,38 +175,43 @@ bool HeroPoolProcessor::hireHero(const CGObjectInstance *obj, const HeroTypeID &
 	return true;
 }
 
-std::set<const CHeroClass *> HeroPoolProcessor::findAvailableClassesFor(const PlayerColor & player) const
+std::vector<const CHeroClass *> HeroPoolProcessor::findAvailableClassesFor(const PlayerColor & player) const
 {
-	std::set<const CHeroClass *> result;
+	std::vector<const CHeroClass *> result;
 
 	const auto & hpool = gameHandler->gameState()->hpool;
 	FactionID factionID = gameHandler->getPlayerSettings(player)->castle;
 
 	for(auto & elem : hpool->unusedHeroesFromPool())
 	{
+		if (vstd::contains(result, elem.second->type->heroClass))
+			continue;
+
 		bool heroAvailable = hpool->isHeroAvailableFor(elem.first, player);
 		bool heroClassBanned = elem.second->type->heroClass->selectionProbability[factionID] == 0;
 
 		if(heroAvailable && !heroClassBanned)
-			result.insert(elem.second->type->heroClass);
+			result.push_back(elem.second->type->heroClass);
 	}
 
 	return result;
 }
 
-std::set<CGHeroInstance *> HeroPoolProcessor::findAvailableHeroesFor(const PlayerColor & player, const CHeroClass * heroClass) const
+std::vector<CGHeroInstance *> HeroPoolProcessor::findAvailableHeroesFor(const PlayerColor & player, const CHeroClass * heroClass) const
 {
-	std::set<CGHeroInstance *> result;
+	std::vector<CGHeroInstance *> result;
 
 	const auto & hpool = gameHandler->gameState()->hpool;
 
 	for(auto & elem : hpool->unusedHeroesFromPool())
 	{
+		assert(!vstd::contains(result, elem.second));
+
 		bool heroAvailable = hpool->isHeroAvailableFor(elem.first, player);
 		bool heroClassMatches = elem.second->type->heroClass == heroClass;
 
 		if(heroAvailable && heroClassMatches)
-			result.insert(elem.second);
+			result.push_back(elem.second);
 	}
 
 	return result;
@@ -224,8 +229,8 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 	const auto & hpool = gameHandler->gameState()->hpool;
 	const auto & currentTavern = hpool->getHeroesFor(player);
 
-	std::set<const CHeroClass *> potentialClasses = findAvailableClassesFor(player);
-	std::set<const CHeroClass *> possibleClasses;
+	std::vector<const CHeroClass *> potentialClasses = findAvailableClassesFor(player);
+	std::vector<const CHeroClass *> possibleClasses;
 
 	if(potentialClasses.empty())
 	{
@@ -245,7 +250,7 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 		if (hasSameClass)
 			continue;
 
-		possibleClasses.insert(heroClass);
+		possibleClasses.push_back(heroClass);
 	}
 
 	if (possibleClasses.empty())
@@ -259,6 +264,7 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 		totalWeight += heroClass->selectionProbability.at(factionID);
 
 	int roll = getRandomGenerator(player).nextInt(totalWeight - 1);
+
 	for(const auto & heroClass : possibleClasses)
 	{
 		roll -= heroClass->selectionProbability.at(factionID);
@@ -276,7 +282,7 @@ CGHeroInstance * HeroPoolProcessor::pickHeroFor(bool isNative, const PlayerColor
 	if(!heroClass)
 		return nullptr;
 
-	std::set<CGHeroInstance *> possibleHeroes = findAvailableHeroesFor(player, heroClass);
+	std::vector<CGHeroInstance *> possibleHeroes = findAvailableHeroesFor(player, heroClass);
 
 	assert(!possibleHeroes.empty());
 	if(possibleHeroes.empty())
@@ -288,7 +294,10 @@ CGHeroInstance * HeroPoolProcessor::pickHeroFor(bool isNative, const PlayerColor
 CRandomGenerator & HeroPoolProcessor::getRandomGenerator(const PlayerColor & player)
 {
 	if (playerSeed.count(player) == 0)
-		playerSeed.emplace(player, CRandomGenerator(gameHandler->getRandomGenerator().nextInt()));
+	{
+		int seed = gameHandler->getRandomGenerator().nextInt();
+		playerSeed.emplace(player, std::make_unique<CRandomGenerator>(seed));
+	}
 
-	return playerSeed.at(player);
+	return *playerSeed.at(player);
 }
