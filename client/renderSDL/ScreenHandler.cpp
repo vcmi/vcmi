@@ -476,7 +476,7 @@ void ScreenHandler::clearScreen()
 
 std::vector<Point> ScreenHandler::getSupportedResolutions() const
 {
-	int displayID = SDL_GetWindowDisplayIndex(mainWindow);
+	int displayID = getPreferredDisplayIndex();
 	return getSupportedResolutions(displayID);
 }
 
