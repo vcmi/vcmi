@@ -23,37 +23,33 @@ class CSimpleArmy;
 
 enum class TavernHeroSlot
 {
-	NATIVE,
-	RANDOM
+	NATIVE, // 1st / left slot in tavern, contains hero native to player's faction on new week
+	RANDOM  // 2nd / right slot in tavern, contains hero of random class
 };
 
 class DLL_LINKAGE TavernHeroesPool
 {
-	CGameState * gameState;
-
-	//[subID] - heroes available to buy; nullptr if not available
+	/// list of all heroes in pool, including those currently present in taverns
 	std::map<HeroTypeID, CGHeroInstance* > heroesPool;
 
-	// [subid] -> which players can recruit hero (binary flags)
+	/// list of which players are able to purchase specific hero
+	/// if hero is not present in list, he is available for everyone
 	std::map<HeroTypeID, PlayerColor::Mask> pavailable;
 
-	std::map<HeroTypeID, CGHeroInstance* > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
-
+	/// list of heroes currently available in a tavern of a specific player
 	std::map<PlayerColor, std::map<TavernHeroSlot, CGHeroInstance*> > currentTavern;
 
-	bool isHeroAvailableFor(HeroTypeID hero, PlayerColor color) const;
 public:
-	TavernHeroesPool();
-	TavernHeroesPool(CGameState * gameState);
 	~TavernHeroesPool();
 
-	CGHeroInstance * pickHeroFor(TavernHeroSlot slot,
-								 const PlayerColor & player,
-								 const FactionID & faction,
-								 CRandomGenerator & rand,
-								 const CHeroClass * bannedClass = nullptr) const;
-
+	/// Returns heroes currently availabe in tavern of a specific player
 	std::vector<const CGHeroInstance *> getHeroesFor(PlayerColor color) const;
+
+	/// returns heroes in pool without heroes that are available in taverns
+	std::map<HeroTypeID, CGHeroInstance* > unusedHeroesFromPool() const;
+
+	/// Returns true if hero is available to a specific player
+	bool isHeroAvailableFor(HeroTypeID hero, PlayerColor color) const;
 
 	CGHeroInstance * takeHero(HeroTypeID hero);
 
@@ -66,7 +62,6 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & gameState;
 		h & heroesPool;
 		h & pavailable;
 	}

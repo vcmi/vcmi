@@ -385,7 +385,7 @@ int CGameState::getDate(Date::EDateType mode) const
 CGameState::CGameState()
 {
 	gs = this;
-	hpool = std::make_unique<TavernHeroesPool>(this);
+	hpool = std::make_unique<TavernHeroesPool>();
 	applier = std::make_shared<CApplier<CBaseForGSApply>>();
 	registerTypesClientPacks1(*applier);
 	registerTypesClientPacks2(*applier);

@@ -10,18 +10,9 @@
 #include "StdInc.h"
 #include "TavernHeroesPool.h"
 
-#include "CGameState.h"
-#include "CPlayerState.h"
-
 #include "../mapObjects/CGHeroInstance.h"
-#include "../CHeroHandler.h"
 
-TavernHeroesPool::TavernHeroesPool() = default;
-
-TavernHeroesPool::TavernHeroesPool(CGameState * gameState)
-	: gameState(gameState)
-{
-}
+VCMI_LIB_NAMESPACE_BEGIN
 
 TavernHeroesPool::~TavernHeroesPool()
 {
@@ -29,7 +20,7 @@ TavernHeroesPool::~TavernHeroesPool()
 		delete ptr.second;
 }
 
-std::map<HeroTypeID, CGHeroInstance*> TavernHeroesPool::unusedHeroesFromPool()
+std::map<HeroTypeID, CGHeroInstance*> TavernHeroesPool::unusedHeroesFromPool() const
 {
 	std::map<HeroTypeID, CGHeroInstance*> pool = heroesPool;
 	for(const auto & player : currentTavern)
@@ -61,71 +52,6 @@ bool TavernHeroesPool::isHeroAvailableFor(HeroTypeID hero, PlayerColor color) co
 		return pavailable.at(hero) & (1 << color.getNum());
 
 	return true;
-}
-
-CGHeroInstance * TavernHeroesPool::pickHeroFor(TavernHeroSlot slot,
-													 const PlayerColor & player,
-													 const FactionID & factionID,
-													 CRandomGenerator & rand,
-													 const CHeroClass * bannedClass) const
-{
-	if(player>=PlayerColor::PLAYER_LIMIT)
-	{
-		logGlobal->error("Cannot pick hero for player %d. Wrong owner!", player.getStr());
-		return nullptr;
-	}
-
-	if(slot == TavernHeroSlot::NATIVE)
-	{
-		std::vector<CGHeroInstance *> pool;
-
-		for(auto & elem : heroesPool)
-		{
-			//get all available heroes
-			bool heroAvailable = isHeroAvailableFor(elem.first, player);
-			bool heroClassNative = elem.second->type->heroClass->faction == factionID;
-
-			if(heroAvailable && heroClassNative)
-				pool.push_back(elem.second);
-		}
-
-		if(!pool.empty())
-			return *RandomGeneratorUtil::nextItem(pool, rand);
-
-		logGlobal->error("Cannot pick native hero for %s. Picking any...", player.getStr());
-	}
-
-	std::vector<CGHeroInstance *> pool;
-	int totalWeight = 0;
-
-	for(auto & elem : heroesPool)
-	{
-		bool heroAvailable = isHeroAvailableFor(elem.first, player);
-		bool heroClassBanned = bannedClass && elem.second->type->heroClass == bannedClass;
-
-		if ( heroAvailable && !heroClassBanned)
-		{
-			pool.push_back(elem.second);
-			totalWeight += elem.second->type->heroClass->selectionProbability[factionID]; //total weight
-		}
-	}
-	if(pool.empty() || totalWeight == 0)
-	{
-		logGlobal->error("There are no heroes available for player %s!", player.getStr());
-		return nullptr;
-	}
-
-	int roll = rand.nextInt(totalWeight - 1);
-	for (auto & elem : pool)
-	{
-		roll -= elem->type->heroClass->selectionProbability[factionID];
-		if(roll < 0)
-		{
-			return elem;
-		}
-	}
-
-	return pool.back();
 }
 
 std::vector<const CGHeroInstance *> TavernHeroesPool::getHeroesFor(PlayerColor color) const
@@ -174,3 +100,5 @@ void TavernHeroesPool::setAvailability(HeroTypeID hero, PlayerColor::Mask mask)
 {
 	pavailable[hero] = mask;
 }
+
+VCMI_LIB_NAMESPACE_END

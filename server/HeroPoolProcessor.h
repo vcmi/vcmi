@@ -16,6 +16,9 @@ class PlayerColor;
 class CGHeroInstance;
 class HeroTypeID;
 class CGObjectInstance;
+class FactionID;
+class CRandomGenerator;
+class CHeroClass;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -26,7 +29,9 @@ class HeroPoolProcessor : boost::noncopyable
 	CGameHandler * gameHandler;
 
 	void clearHeroFromSlot(const PlayerColor & color, TavernHeroSlot slot);
-	void selectNewHeroForSlot(const PlayerColor & color, TavernHeroSlot slot);
+	void selectNewHeroForSlot(const PlayerColor & color, TavernHeroSlot slot, bool needNativeHero, bool giveStartingArmy);
+
+	CGHeroInstance * pickHeroFor(bool isNative, const PlayerColor & player, const FactionID & faction, CRandomGenerator & rand, const CHeroClass * bannedClass) const;
 public:
 	HeroPoolProcessor();
 	HeroPoolProcessor(CGameHandler * gameHandler);

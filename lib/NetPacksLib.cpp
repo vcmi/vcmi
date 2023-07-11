@@ -2012,6 +2012,9 @@ void NewTurn::applyGs(CGameState *gs)
 			logGlobal->error("Hero %d not found in NewTurn::applyGs", h.id.getNum());
 			continue;
 		}
+
+		hero->setMovementPoints(h.move);
+		hero->mana = h.mana;
 	}
 
 	gs->hpool->onNewDay();
