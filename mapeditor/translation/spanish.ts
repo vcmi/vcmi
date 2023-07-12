@@ -601,9 +601,104 @@
         <translation>Resultados de la validación del mapa</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="101"/>
+        <location filename="../validator.cpp" line="50"/>
+        <source>Map is not loaded</source>
+        <translation>No se ha cargado ningún mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="73"/>
+        <source>No players allowed to play this map</source>
+        <translation>No hay jugadores autorizados a jugar en este mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="75"/>
+        <source>Map is allowed for one player and cannot be started</source>
+        <translation>El mapa está autorizado para un jugador y no se puede iniciar</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="77"/>
+        <source>No human players allowed to play this map</source>
+        <translation>Ningún jugador humano puede jugar en este mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="93"/>
+        <source>Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
+        <translation>La instancia protegida %1 NOSEPUEDEMARCAR, pero debe tener un propietario NEUTRAL o jugador</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="99"/>
+        <source>Object %1 is assigned to non-playable player %2</source>
+        <translation>El artículo %1 está asignado al jugador no jugable %2</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="106"/>
         <source>Town %1 has undefined owner %2</source>
         <translation>La ciudad %1 no tiene un propietario definido %2</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="116"/>
+        <source>Prison %1 must be a NEUTRAL</source>
+        <translation>%1 prisión debe ser NEUTRA</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="122"/>
+        <source>Hero %1 must have an owner</source>
+        <translation>El héroe %1 debe tener un propietario</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="127"/>
+        <source>Hero %1 is prohibited by map settings</source>
+        <translation>El héroe %1 está prohibido por la configuración del mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="130"/>
+        <source>Hero %1 has duplicate on map</source>
+        <translation>El héroe %1 tiene un duplicado en el mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="133"/>
+        <source>Hero %1 has an empty type and must be removed</source>
+        <translation>El héroe %1 tiene un tipo vacío y debe eliminarse</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="144"/>
+        <source>Spell scroll %1 is prohibited by map settings</source>
+        <translation>%1 desplazamiento de hechizos está prohibido por la configuración del mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="147"/>
+        <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
+        <translation>Pergamino ortográfico %1 no tiene una instancia asignada y debe eliminarse</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="153"/>
+        <source>Artifact %1 is prohibited by map settings</source>
+        <translation>El artefacto %1 está prohibido por la configuración del mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="162"/>
+        <source>Player %1 doesn&apos;t have any starting town</source>
+        <translation>El jugador %1 no tiene ciudad inicial</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="166"/>
+        <source>Map name is not specified</source>
+        <translation>No se especifica el nombre del mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="168"/>
+        <source>Map description is not specified</source>
+        <translation>No se especifica la descripción del mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="181"/>
+        <source>Exception occurs during validation: %1</source>
+        <translation>Se produce una excepción durante la validación: %1</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="185"/>
+        <source>Unknown exception occurs during validation</source>
+        <translation>Se produce una excepción desconocida durante la validación</translation>
     </message>
 </context>
 <context>

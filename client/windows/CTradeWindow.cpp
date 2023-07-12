@@ -803,7 +803,7 @@ void CMarketplaceWindow::makeDeal()
 			leftIdToSend = hLeft->serial;
 			break;
 		case EMarketMode::ARTIFACT_RESOURCE:
-			leftIdToSend = hLeft->getArtInstance()->id.getNum();
+			leftIdToSend = hLeft->getArtInstance()->getId().getNum();
 			break;
 		case EMarketMode::RESOURCE_ARTIFACT:
 			if(!ArtifactID(hRight->id).toArtifact()->canBePutAt(hero))

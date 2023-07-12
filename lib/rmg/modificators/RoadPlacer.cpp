@@ -79,25 +79,41 @@ bool RoadPlacer::createRoad(const int3 & dst)
 }
 
 void RoadPlacer::drawRoads(bool secondary)
-{
-	if((secondary && generator.getConfig().secondaryRoadType.empty())
-	   || (!secondary && generator.getConfig().defaultRoadType.empty()))
-		return;
-	
-	//RecursiveLock lock(externalAccessMutex);
+{	
 	{
-		//FIXME: double lock - unsafe
+		//Clean space under roads even if they won't be eventually generated
 		Zone::Lock lock(zone.areaMutex);
 
 		zone.areaPossible().subtract(roads);
 		zone.freePaths().unite(roads);
 	}
 
+	if (!generator.getMapGenOptions().isRoadEnabled())
+	{
+		return;
+	}
+
+	if((secondary && generator.getConfig().secondaryRoadType.empty())
+		|| (!secondary && generator.getConfig().defaultRoadType.empty()))
+		return;
+
+	//TODO: Allow custom road type for object
+	//TODO: Remove these default types
+
 	auto tiles = roads.getTilesVector();
 
 	std::string roadName = (secondary ? generator.getConfig().secondaryRoadType : generator.getConfig().defaultRoadType);
 	RoadId roadType(*VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "road", roadName));
-	mapProxy->drawRoads(zone.getRand(), tiles, roadType);
+
+	//If our road type is not enabled, choose highest below it
+	for (int8_t bestRoad = roadType.getNum(); bestRoad > RoadId(Road::NO_ROAD).getNum(); bestRoad--)
+	{
+		if (generator.getMapGenOptions().isRoadEnabled(RoadId(bestRoad)))
+		{
+			mapProxy->drawRoads(zone.getRand(), tiles, RoadId(bestRoad));
+			return;
+		}
+	}
 }
 
 void RoadPlacer::addRoadNode(const int3& node)

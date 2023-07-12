@@ -109,13 +109,14 @@
 			"additionalProperties" : false,
 			"default" : {},
 			"required" : [ 
-				"resolution", 
-				"fullscreen", 
-				"realFullscreen", 
-				"cursor", 
-				"showIntro", 
-				"spellbookAnimation", 
-				"driver", 
+				"resolution",
+				"reservedWidth",
+				"fullscreen",
+				"realFullscreen",
+				"cursor",
+				"showIntro",
+				"spellbookAnimation",
+				"driver",
 				"displayIndex",
 				"showfps",
 				"targetfps"
@@ -133,6 +134,11 @@
 					"defaultIOS" : {"width" : 800, "height" : 600, "scaling" : 200 },
 					"defaultAndroid" : {"width" : 800, "height" : 600, "scaling" : 200 },
 					"default" : {"width" : 800, "height" : 600, "scaling" : 100 }
+				},
+				"reservedWidth" : {
+					"type" : "number",
+					"defaultIOS" : 0.1, // iOS camera cutout / notch is excluded from available area by SDL
+					"default" : 0
 				},
 				"fullscreen" : {
 					"type" : "boolean",

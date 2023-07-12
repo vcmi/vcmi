@@ -406,10 +406,10 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 			ArtifactID aid = creature->warMachine;
 			const CArtifact * art = aid.toArtifact();
 
-			if(art != nullptr && !art->possibleSlots.at(ArtBearer::HERO).empty())
+			if(art != nullptr && !art->getPossibleSlots().at(ArtBearer::HERO).empty())
 			{
 				//TODO: should we try another possible slots?
-				ArtifactPosition slot = art->possibleSlots.at(ArtBearer::HERO).front();
+				ArtifactPosition slot = art->getPossibleSlots().at(ArtBearer::HERO).front();
 
 				if(!getArt(slot))
 					putArtifact(slot, ArtifactUtils::createNewArtifactInstance(aid));

@@ -30,14 +30,17 @@ enum class EWindowMode
 };
 
 /// This class is responsible for management of game window and its main rendering surface
-class ScreenHandler : public IScreenHandler
+class ScreenHandler final : public IScreenHandler
 {
 	/// Dimensions of target surfaces/textures, this value is what game logic views as screen size
 	Point getPreferredLogicalResolution() const;
 
 	/// Dimensions of output window, if different from logicalResolution SDL will perform scaling
 	/// This value is what player views as window size
-	Point getPreferredRenderingResolution() const;
+	Point getPreferredWindowResolution() const;
+
+	/// Dimensions of render output, usually same as window size except for high-DPI screens on macOS / iOS
+	Point getActualRenderResolution() const;
 
 	EWindowMode getPreferredWindowMode() const;
 
@@ -86,4 +89,5 @@ public:
 	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;
 	std::tuple<int, int> getSupportedScalingRange() const final;
+	Rect convertLogicalPointsToWindow(const Rect & input) const final;
 };

@@ -466,15 +466,15 @@ void CMap::checkForObjectives()
 
 void CMap::addNewArtifactInstance(CArtifactInstance * art)
 {
-	art->id = ArtifactInstanceID(static_cast<si32>(artInstances.size()));
+	art->setId(static_cast<ArtifactInstanceID>(artInstances.size()));
 	artInstances.emplace_back(art);
 }
 
 void CMap::eraseArtifactInstance(CArtifactInstance * art)
 {
 	//TODO: handle for artifacts removed in map editor
-	assert(artInstances[art->id.getNum()] == art);
-	artInstances[art->id.getNum()].dellNull();
+	assert(artInstances[art->getId().getNum()] == art);
+	artInstances[art->getId().getNum()].dellNull();
 }
 
 void CMap::addNewQuestInstance(CQuest* quest)

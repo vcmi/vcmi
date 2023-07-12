@@ -80,11 +80,6 @@ void CMapGenerator::loadConfig()
 	config.pandoraMultiplierSpells = randomMapJson["pandoras"]["valueMultiplierSpells"].Integer();
 	config.pandoraSpellSchool = randomMapJson["pandoras"]["valueSpellSchool"].Integer();
 	config.pandoraSpell60 = randomMapJson["pandoras"]["valueSpell60"].Integer();
-	//override config with game options
-	if(!mapGenOptions.isRoadEnabled(config.secondaryRoadType))
-		config.secondaryRoadType = "";
-	if(!mapGenOptions.isRoadEnabled(config.defaultRoadType))
-		config.defaultRoadType = config.secondaryRoadType;
 	config.singleThread = randomMapJson["singleThread"].Bool();
 }
 
@@ -118,7 +113,7 @@ void CMapGenerator::initQuestArtsRemaining()
 	for (auto art : VLC->arth->objects)
 	{
 		//Don't use parts of combined artifacts
-		if (art->aClass == CArtifact::ART_TREASURE && VLC->arth->legalArtifact(art->getId()) && art->constituentOf.empty())
+		if (art->aClass == CArtifact::ART_TREASURE && VLC->arth->legalArtifact(art->getId()) && art->getPartOf().empty())
 			questArtifacts.push_back(art->getId());
 	}
 }

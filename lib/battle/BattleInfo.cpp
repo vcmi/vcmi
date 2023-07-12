@@ -378,7 +378,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 
 			if(nullptr != warMachineArt)
 			{
-				CreatureID cre = warMachineArt->artType->warMachine;
+				CreatureID cre = warMachineArt->artType->getWarMachine();
 
 				if(cre != CreatureID::NONE)
 					curB->generateNewStack(curB->nextUnitId(), CStackBasicDescriptor(cre, 1), side, SlotID::WAR_MACHINES_SLOT, hex);

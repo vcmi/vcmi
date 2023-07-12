@@ -29,6 +29,18 @@ struct DistanceMaximizeFunctor
 	}
 };
 
+struct RequiredObjectInfo
+{
+	RequiredObjectInfo();
+	RequiredObjectInfo(CGObjectInstance* obj, ui32 guardStrength = 0, bool createRoad = false, CGObjectInstance* nearbyTarget = nullptr);
+
+	CGObjectInstance* obj;
+	CGObjectInstance* nearbyTarget;
+	int3 pos;
+	ui32 guardStrength;
+	bool createRoad;
+};
+
 class ObjectManager: public Modificator
 {
 public:
@@ -45,9 +57,9 @@ public:
 	void process() override;
 	void init() override;
 
-	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
-	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);
-	void addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget);
+	void addRequiredObject(const RequiredObjectInfo & info);
+	void addCloseObject(const RequiredObjectInfo & info);
+	void addNearbyObject(const RequiredObjectInfo & info);
 
 	bool createRequiredObjects();
 
@@ -59,7 +71,7 @@ public:
 
 	CGCreature * chooseGuard(si32 strength, bool zoneGuard = false);
 	bool addGuard(rmg::Object & object, si32 strength, bool zoneGuard = false);
-	void placeObject(rmg::Object & object, bool guarded, bool updateDistance);
+	void placeObject(rmg::Object & object, bool guarded, bool updateDistance, bool createRoad = false);
 
 	void updateDistances(const rmg::Object & obj);
 	void updateDistances(const int3& pos);
@@ -72,10 +84,10 @@ public:
 	
 protected:
 	//content info
-	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
-	std::vector<std::pair<CGObjectInstance*, ui32>> closeObjects;
-	std::vector<std::pair<CGObjectInstance*, int3>> instantObjects;
-	std::vector<std::pair<CGObjectInstance*, CGObjectInstance*>> nearbyObjects;
+	std::vector<RequiredObjectInfo> requiredObjects;
+	std::vector<RequiredObjectInfo> closeObjects;
+	std::vector<RequiredObjectInfo> instantObjects;
+	std::vector<RequiredObjectInfo> nearbyObjects;
 	std::vector<CGObjectInstance*> objects;
 	rmg::Area objectsVisitableArea;
 	

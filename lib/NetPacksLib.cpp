@@ -1524,12 +1524,16 @@ void NewObject::applyGs(CGameState *gs)
 void NewArtifact::applyGs(CGameState *gs)
 {
 	assert(!vstd::contains(gs->map->artInstances, art));
-	gs->map->addNewArtifactInstance(art);
-
 	assert(!art->getParentNodes().size());
+	assert(art->artType);
+
 	art->setType(art->artType);
-	if(auto * cart = dynamic_cast<CCombinedArtifactInstance *>(art.get()))
-		cart->createConstituents();
+	if(art->isCombined())
+	{
+		for(const auto & part : art->artType->getConstituents())
+			art->addPart(ArtifactUtils::createNewArtifactInstance(part), ArtifactPosition::PRE_FIRST);
+	}
+	gs->map->addNewArtifactInstance(art);
 }
 
 const CStackInstance * StackLocation::getStack()
@@ -1822,7 +1826,7 @@ void EraseArtifact::applyGs(CGameState *gs)
 		for(auto& p : aset->artifactsWorn)
 		{
 			auto art = p.second.artifact;
-			if(art->canBeDisassembled() && art->isPart(slot->artifact))
+			if(art->isCombined() && art->isPart(slot->artifact))
 			{
 				dis.al.slot = aset->getArtPos(art);
 				#ifndef NDEBUG
@@ -1930,10 +1934,10 @@ void AssembledArtifact::applyGs(CGameState *gs)
 			return art->getId() == builtArt->getId();
 		}));
 
-	auto * combinedArt = new CCombinedArtifactInstance(builtArt);
+	auto * combinedArt = new CArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
 	// Retrieve all constituents
-	for(const CArtifact * constituent : *builtArt->constituents)
+	for(const CArtifact * constituent : builtArt->getConstituents())
 	{
 		ArtifactPosition pos = combineEquipped ? artSet->getArtPos(constituent->getId(), true, false) :
 			artSet->getArtBackpackPos(constituent->getId());
@@ -1944,8 +1948,8 @@ void AssembledArtifact::applyGs(CGameState *gs)
 		constituentInstance->removeFrom(ArtifactLocation(al.artHolder, pos));
 		if(combineEquipped)
 		{
-			if(!vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], al.slot)
-				&& vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], pos))
+			if(!vstd::contains(combinedArt->artType->getPossibleSlots().at(artSet->bearerType()), al.slot)
+				&& vstd::contains(combinedArt->artType->getPossibleSlots().at(artSet->bearerType()), pos))
 				al.slot = pos;
 			if(al.slot == pos)
 				pos = ArtifactPosition::PRE_FIRST;
@@ -1955,7 +1959,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 			al.slot = std::min(al.slot, pos);
 			pos = ArtifactPosition::PRE_FIRST;
 		}
-		combinedArt->addAsConstituent(constituentInstance, pos);
+		combinedArt->addPart(constituentInstance, pos);
 	}
 
 	//put new combined artifacts
@@ -1964,19 +1968,19 @@ void AssembledArtifact::applyGs(CGameState *gs)
 
 void DisassembledArtifact::applyGs(CGameState *gs)
 {
-	auto * disassembled = dynamic_cast<CCombinedArtifactInstance *>(al.getArt());
+	auto * disassembled = al.getArt();
 	assert(disassembled);
 
-	std::vector<CCombinedArtifactInstance::ConstituentInfo> constituents = disassembled->constituentsInfo;
+	auto parts = disassembled->getPartsInfo();
 	disassembled->removeFrom(al);
-	for(CCombinedArtifactInstance::ConstituentInfo &ci : constituents)
+	for(auto & part : parts)
 	{
-		ArtifactLocation constituentLoc = al;
-		constituentLoc.slot = (ci.slot >= 0 ? ci.slot : al.slot); //-1 is slot of main constituent -> it'll replace combined artifact in its pos
-		disassembled->detachFrom(*ci.art);
-		ci.art->putAt(constituentLoc);
+		ArtifactLocation partLoc = al;
+		// ArtifactPosition::PRE_FIRST is value of main part slot -> it'll replace combined artifact in its pos
+		partLoc.slot = (ArtifactUtils::isSlotEquipment(part.slot) ? part.slot : al.slot);
+		disassembled->detachFrom(*part.art);
+		part.art->putAt(partLoc);
 	}
-
 	gs->map->eraseArtifactInstance(disassembled);
 }
 
@@ -2209,32 +2213,32 @@ void BattleUpdateGateState::applyGs(CGameState * gs) const
 
 void BattleResultAccepted::applyGs(CGameState * gs) const
 {
-	for(auto * h : {hero1, hero2})
+	// Remove any "until next battle" bonuses
+	for(auto & res : heroResult)
 	{
-		if(h)
-		{
-			h->removeBonusesRecursive(Bonus::OneBattle); 	//remove any "until next battle" bonuses
-			if (h->commander && h->commander->alive)
-			{
-				for (auto art : h->commander->artifactsWorn) //increment bonuses for commander artifacts
-				{
-					art.second.artifact->artType->levelUpArtifact (art.second.artifact);
-				}
-			}
-		}
+		if(res.hero)
+			res.hero->removeBonusesRecursive(Bonus::OneBattle);
 	}
 
+	// Grow up growing artifacts
+	if(const auto hero = heroResult[winnerSide].hero)
+	{
+		if(hero->commander && hero->commander->alive)
+		{
+			for(auto & art : hero->commander->artifactsWorn)
+				art.second.artifact->growingUp();
+		}
+		for(auto & art : hero->artifactsWorn)
+		{
+			art.second.artifact->growingUp();
+		}
+	}
 	if(VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
-		for(int i = 0; i < 2; i++)
-		{
-			if(exp[i])
-			{
-				if(auto * army = (i == 0 ? army1 : army2))
-					army->giveStackExp(exp[i]);
-			}
-		}
-
+		if(heroResult[0].army)
+			heroResult[0].army->giveStackExp(heroResult[0].exp);
+		if(heroResult[1].army)
+			heroResult[1].army->giveStackExp(heroResult[1].exp);
 		CBonusSystemNode::treeHasChanged();
 	}
 

@@ -75,7 +75,7 @@ void CZonePlacer::findPathsBetweenZones()
 
 			for (auto & connection : connectedZoneIds)
 			{
-				if (connection.getConnectionType() == EConnectionType::EConnectionType::REPULSIVE)
+				if (connection.getConnectionType() == rmg::EConnectionType::REPULSIVE)
 				{
 					//Do not consider virtual connections for graph distance
 					continue;
@@ -536,7 +536,7 @@ void CZonePlacer::attractConnectedZones(TZoneMap & zones, TForceVector & forces,
 
 		for (const auto & connection : zone.second->getConnections())
 		{
-			if (connection.getConnectionType() == EConnectionType::EConnectionType::REPULSIVE)
+			if (connection.getConnectionType() == rmg::EConnectionType::REPULSIVE)
 			{
 				continue;
 			}
@@ -625,7 +625,7 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 		//TODO: Consider z plane?
 		for (auto& connection : zone.second->getConnections())
 		{
-			if (connection.getConnectionType() == EConnectionType::EConnectionType::REPULSIVE)
+			if (connection.getConnectionType() == rmg::EConnectionType::REPULSIVE)
 			{
 				auto & otherZone = zones[connection.getOtherZoneId(zone.second->getId())];
 				float3 otherZoneCenter = otherZone->getCenter();
@@ -693,7 +693,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		for (const auto& connection : firstZone->getConnections())
 		{
 			//FIXME: Should we also exclude fictive connections?
-			if (connection.getConnectionType() != EConnectionType::EConnectionType::REPULSIVE)
+			if (connection.getConnectionType() != rmg::EConnectionType::REPULSIVE)
 			{
 				connectedZones.insert(connection.getOtherZoneId(firstZone->getId()));
 			}
@@ -740,7 +740,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		float maxDistance = 0;
 		for (auto con : misplacedZone->getConnections())
 		{
-			if (con.getConnectionType() == EConnectionType::EConnectionType::REPULSIVE)
+			if (con.getConnectionType() == rmg::EConnectionType::REPULSIVE)
 			{
 				continue;
 			}

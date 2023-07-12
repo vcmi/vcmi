@@ -63,8 +63,11 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 			createdMines.push_back(mine);
 
 
-			if(!i && (res == EGameResID::WOOD || res == EGameResID::ORE))
-				manager.addCloseObject(mine, rmginfo.value); //only first wood&ore mines are close
+			if (!i && (res == EGameResID::WOOD || res == EGameResID::ORE))
+			{
+				//only first wood & ore mines are close
+				manager.addCloseObject(RequiredObjectInfo(mine, rmginfo.value));
+			}
 			else
 				requiredObjects.push_back(std::pair<CGObjectInstance*, ui32>(mine, rmginfo.value));
 		}
@@ -74,7 +77,7 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 	RandomGeneratorUtil::randomShuffle(requiredObjects, zone.getRand());
 	for (const auto& obj : requiredObjects)
 	{
-		manager.addRequiredObject(obj.first, obj.second);
+		manager.addRequiredObject(RequiredObjectInfo(obj.first, obj.second));
 	}
 
 	//create extra resources
@@ -84,9 +87,13 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 		{
 			for(int rc = zone.getRand().nextInt(1, extraRes); rc > 0; --rc)
 			{
-				auto * resourse = dynamic_cast<CGResource *>(VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create());
-				resourse->amount = CGResource::RANDOM_AMOUNT;
-				manager.addNearbyObject(resourse, mine);
+				auto * resource = dynamic_cast<CGResource *>(VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create());
+				resource->amount = CGResource::RANDOM_AMOUNT;
+
+				RequiredObjectInfo roi;
+				roi.obj = resource;
+				roi.nearbyTarget = mine;
+				manager.addNearbyObject(roi);
 			}
 		}
 	}

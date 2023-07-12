@@ -57,22 +57,22 @@ void ObjectManager::createDistancesPriorityQueue()
 	}
 }
 
-void ObjectManager::addRequiredObject(CGObjectInstance * obj, si32 strength)
+void ObjectManager::addRequiredObject(const RequiredObjectInfo & info)
 {
 	RecursiveLock lock(externalAccessMutex);
-	requiredObjects.emplace_back(obj, strength);
+	requiredObjects.emplace_back(info);
 }
 
-void ObjectManager::addCloseObject(CGObjectInstance * obj, si32 strength)
+void ObjectManager::addCloseObject(const RequiredObjectInfo & info)
 {
 	RecursiveLock lock(externalAccessMutex);
-	closeObjects.emplace_back(obj, strength);
+	closeObjects.emplace_back(info);
 }
 
-void ObjectManager::addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget)
+void ObjectManager::addNearbyObject(const RequiredObjectInfo & info)
 {
 	RecursiveLock lock(externalAccessMutex);
-	nearbyObjects.emplace_back(obj, nearbyTarget);
+	nearbyObjects.emplace_back(info);
 }
 
 void ObjectManager::updateDistances(const rmg::Object & obj)
@@ -331,13 +331,11 @@ bool ObjectManager::createRequiredObjects()
 	logGlobal->trace("Creating required objects");
 	
 	//RecursiveLock lock(externalAccessMutex); //Why could requiredObjects be modified during the loop?
-	for(const auto & object : requiredObjects)
+	for(const auto & objInfo : requiredObjects)
 	{
-		auto * obj = object.first;
-		//FIXME: Invalid dObject inside object?
-		rmg::Object rmgObject(*obj);
+		rmg::Object rmgObject(*objInfo.obj);
 		rmgObject.setTemplate(zone.getTerrainType());
-		bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
+		bool guarded = addGuard(rmgObject, objInfo.guardStrength, (objInfo.obj->ID == Obj::MONOLITH_TWO_WAY));
 
 		Zone::Lock lock(zone.areaMutex);
 		auto path = placeAndConnectObject(zone.areaPossible(), rmgObject, 3, guarded, false, OptimizeType::DISTANCE);
@@ -349,14 +347,14 @@ bool ObjectManager::createRequiredObjects()
 		}
 		
 		zone.connectPath(path);
-		placeObject(rmgObject, guarded, true);
+		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 		
 		for(const auto & nearby : nearbyObjects)
 		{
-			if(nearby.second != obj)
+			if(nearby.nearbyTarget != nearby.obj)
 				continue;
 			
-			rmg::Object rmgNearObject(*nearby.first);
+			rmg::Object rmgNearObject(*nearby.obj);
 			rmg::Area possibleArea(rmgObject.instances().front()->getBlockedArea().getBorderOutside());
 			possibleArea.intersect(zone.areaPossible());
 			if(possibleArea.empty())
@@ -366,21 +364,18 @@ bool ObjectManager::createRequiredObjects()
 			}
 			
 			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), zone.getRand()));
-			placeObject(rmgNearObject, false, false);
+			placeObject(rmgNearObject, false, false, nearby.createRoad);
 		}
 	}
 	
-	for(const auto & object : closeObjects)
+	for(const auto & objInfo : closeObjects)
 	{
-		auto * obj = object.first;
-
-		//TODO: Wrap into same area proxy?
 		Zone::Lock lock(zone.areaMutex);
 		auto possibleArea = zone.areaPossible();
 
-		rmg::Object rmgObject(*obj);
+		rmg::Object rmgObject(*objInfo.obj);
 		rmgObject.setTemplate(zone.getTerrainType());
-		bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
+		bool guarded = addGuard(rmgObject, objInfo.guardStrength, (objInfo.obj->ID == Obj::MONOLITH_TWO_WAY));
 		auto path = placeAndConnectObject(zone.areaPossible(), rmgObject,
 										  [this, &rmgObject](const int3 & tile)
 		{
@@ -401,10 +396,10 @@ bool ObjectManager::createRequiredObjects()
 		
 		for(const auto & nearby : nearbyObjects)
 		{
-			if(nearby.second != obj)
+			if(nearby.nearbyTarget != objInfo.obj)
 				continue;
 			
-			rmg::Object rmgNearObject(*nearby.first);
+			rmg::Object rmgNearObject(*nearby.obj);
 			rmg::Area possibleArea(rmgObject.instances().front()->getBlockedArea().getBorderOutside());
 			possibleArea.intersect(zone.areaPossible());
 			if(possibleArea.empty())
@@ -420,10 +415,10 @@ bool ObjectManager::createRequiredObjects()
 	
 	//create object on specific positions
 	//TODO: implement guards
-	for (const auto &obj : instantObjects)
+	for (const auto &objInfo : instantObjects)
 	{
-		rmg::Object rmgObject(*obj.first);
-		rmgObject.setPosition(obj.second);
+		rmg::Object rmgObject(*objInfo.obj);
+		rmgObject.setPosition(objInfo.pos);
 		placeObject(rmgObject, false, false);
 	}
 	
@@ -435,7 +430,7 @@ bool ObjectManager::createRequiredObjects()
 	return true;
 }
 
-void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateDistance)
+void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateDistance, bool createRoad/* = false*/)
 {	
 	object.finalize(map);
 
@@ -492,25 +487,27 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 				break;
 		}
 	}
-	
-	switch(object.instances().front()->object().ID)
+
+	if (createRoad)
 	{
-		case Obj::TOWN:
-		case Obj::RANDOM_TOWN:
-		case Obj::MONOLITH_TWO_WAY:
-		case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+		if (auto* m = zone.getModificator<RoadPlacer>())
+			m->addRoadNode(object.instances().front()->getVisitablePosition());
+	}
+
+	//TODO: Add road node to these objects:
+	/*
+	 	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+	 	case Obj::RANDOM_TOWN:
 		case Obj::MONOLITH_ONE_WAY_EXIT:
-		case Obj::SUBTERRANEAN_GATE:
-		case Obj::SHIPYARD:
-			if(auto * m = zone.getModificator<RoadPlacer>())
-				m->addRoadNode(object.instances().front()->getVisitablePosition());
-			break;
-			
+	*/
+
+	switch (object.instances().front()->object().ID)
+	{
 		case Obj::WATER_WHEEL:
-			if(auto * m = zone.getModificator<RiverPlacer>())
+			if (auto* m = zone.getModificator<RiverPlacer>())
 				m->addRiverNode(object.instances().front()->getVisitablePosition());
 			break;
-			
+
 		default:
 			break;
 	}
@@ -613,4 +610,20 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 	return true;
 }
 
+RequiredObjectInfo::RequiredObjectInfo():
+	obj(nullptr),
+	nearbyTarget(nullptr),
+	guardStrength(0),
+	createRoad(true)
+{}
+
+RequiredObjectInfo::RequiredObjectInfo(CGObjectInstance* obj, ui32 guardStrength, bool createRoad, CGObjectInstance* nearbyTarget):
+	obj(obj),
+	nearbyTarget(nearbyTarget),
+	guardStrength(guardStrength),
+	createRoad(createRoad)
+{}
+
 VCMI_LIB_NAMESPACE_END
+
+

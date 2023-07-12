@@ -136,6 +136,9 @@ public:
 	/// Changes selection to "on", and calls callback
 	void setSelected(bool on);
 
+	/// Changes selection to "on" without calling callback
+	void setSelectedSilent(bool on);
+
 	void addCallback(std::function<void(bool)> callback);
 
 	/// Set whether the toggle is currently enabled for user to use, this is only inplemented in ToggleButton, not for other toggles yet.

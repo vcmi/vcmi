@@ -746,7 +746,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
 	if(!features.levelSOD)
 	{
 		for(CArtifact * artifact : VLC->arth->objects)
-			if(artifact->constituents)
+			if(artifact->isCombined())
 				map->allowedArtifact[artifact->getId()] = false;
 	}
 

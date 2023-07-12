@@ -13,6 +13,7 @@
 #include "bonuses/CBonusSystemNode.h"
 #include "GameConstants.h"
 #include "CArtHandler.h"
+#include "CArtifactInstance.h"
 #include "CCreatureHandler.h"
 
 #include <vcmi/Entity.h>
