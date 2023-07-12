@@ -50,6 +50,7 @@ class HeroPoolProcessor;
 class CGameHandler;
 class CVCMIServer;
 class CBaseForGHApply;
+class PlayerMessageProcessor;
 
 struct PlayerStatus
 {
@@ -108,6 +109,8 @@ public:
 	enum EVisitDest {VISIT_DEST, DONT_VISIT_DEST};
 	enum ELEaveTile {LEAVING_TILE, REMAINING_ON_TILE};
 
+	std::unique_ptr<PlayerMessageProcessor> playerMessages;
+
 	std::map<PlayerColor, std::set<std::shared_ptr<CConnection>>> connections; //player color -> connection to client with interface of that player
 	PlayerStatuses states; //player color -> player state
 
@@ -123,6 +126,7 @@ public:
 	const GameCb * game() const override;
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
+	CVCMIServer * gameLobby() const;
 
 	bool isValidObject(const CGObjectInstance *obj) const;
 	bool isBlockedByQueries(const CPack *pack, PlayerColor player);
@@ -235,7 +239,6 @@ public:
 	PlayerColor getPlayerAt(std::shared_ptr<CConnection> c) const;
 	bool hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const;
 
-	void playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj);
 	void updateGateState();
 	bool makeBattleAction(BattleAction &ba);
 	bool makeAutomaticAction(const CStack *stack, BattleAction &ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
@@ -289,6 +292,7 @@ public:
 		h & finishingBattle;
 		h & heroPool;
 		h & getRandomGenerator();
+		h & playerMessages;
 
 		if (!h.saving)
 			deserializationFix();
@@ -303,8 +307,6 @@ public:
 #endif
 	}
 
-	void sendMessageToAll(const std::string &message);
-	void sendMessageTo(std::shared_ptr<CConnection> c, const std::string &message);
 	void sendToAllClients(CPackForClient * pack);
 	void sendAndApply(CPackForClient * pack) override;
 	void applyAndSend(CPackForClient * pack);
@@ -354,7 +356,11 @@ public:
 	void attackCasting(bool ranged, BonusType attackMode, const battle::Unit * attacker, const battle::Unit * defender);
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactPosition> & slot);
 	void spawnWanderingMonsters(CreatureID creatureID);
-	void handleCheatCode(std::string & cheat, PlayerColor player, const CGHeroInstance * hero, const CGTownInstance * town, bool & cheated);
+
+	// Check for victory and loss conditions
+	void checkVictoryLossConditionsForPlayer(PlayerColor player);
+	void checkVictoryLossConditions(const std::set<PlayerColor> & playerColors);
+	void checkVictoryLossConditionsForAll();
 
 	CRandomGenerator & getRandomGenerator();
 
@@ -378,11 +384,6 @@ private:
 
 	void makeStackDoNothing(const CStack * next);
 	void getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const;
-
-	// Check for victory and loss conditions
-	void checkVictoryLossConditionsForPlayer(PlayerColor player);
-	void checkVictoryLossConditions(const std::set<PlayerColor> & playerColors);
-	void checkVictoryLossConditionsForAll();
 
 	const std::string complainNoCreatures;
 	const std::string complainNotEnoughCreatures;

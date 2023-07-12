@@ -39,6 +39,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 #include "CGameHandler.h"
+#include "PlayerMessageProcessor.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/GameConstants.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
@@ -605,7 +606,7 @@ void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
 		
 		if(gh && si && state == EServerState::GAMEPLAY)
 		{
-			gh->playerMessage(playerSettings->color, playerLeftMsgText, ObjectInstanceID{});
+			gh->playerMessages->broadcastMessage(playerSettings->color, playerLeftMsgText);
 			gh->connections[playerSettings->color].insert(hostClient);
 			startAiPack.players.push_back(playerSettings->color);
 		}
@@ -633,7 +634,7 @@ void CVCMIServer::reconnectPlayer(int connId)
 				continue;
 			
 			std::string messageText = boost::str(boost::format("%s (cid %d) is connected") % playerSettings->name % connId);
-			gh->playerMessage(playerSettings->color, messageText, ObjectInstanceID{});
+			gh->playerMessages->broadcastMessage(playerSettings->color, messageText);
 			
 			startAiPack.players.push_back(playerSettings->color);
 		}
