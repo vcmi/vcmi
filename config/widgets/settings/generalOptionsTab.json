@@ -115,7 +115,7 @@
 					"name": "hapticFeedbackCheckbox",
 					"help": "vcmi.systemOptions.hapticFeedbackButton",
 					"callback": "hapticFeedbackChanged",
-					"created" : "touchscreen"
+					"created" : "mobile"
 				}
 			]
 		},
