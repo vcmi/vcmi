@@ -195,7 +195,8 @@ GeneralOptionsTab::GeneralOptionsTab()
 	framerateCheckbox->setSelected(settings["video"]["showfps"].Bool());
 
 	std::shared_ptr<CToggleButton> hapticFeedbackCheckbox = widget<CToggleButton>("hapticFeedbackCheckbox");
-	hapticFeedbackCheckbox->setSelected(settings["general"]["hapticFeedback"].Bool());
+	if (hapticFeedbackCheckbox)
+		hapticFeedbackCheckbox->setSelected(settings["general"]["hapticFeedback"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
 	musicSlider->scrollTo(CCS->musich->getVolume());
