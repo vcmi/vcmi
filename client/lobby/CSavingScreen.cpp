@@ -62,6 +62,7 @@ void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
 
 	localMi = to;
 	card->changeSelection();
+	card->redraw();
 }
 
 void CSavingScreen::saveGame()

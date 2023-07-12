@@ -415,11 +415,13 @@ void SelectionTab::select(int position)
 	rememberCurrentSelection();
 
 	if(inputName && inputName->isActive())
-	{
+	{	
 		auto filename = *CResourceHandler::get("local")->getResourceName(ResourceID(curItems[py]->fileURI, EResType::CLIENT_SAVEGAME));
 		inputName->setText(filename.stem().string());
 	}
+
 	updateListItems();
+	redraw();
 	if(callOnSelect)
 		callOnSelect(curItems[py]);
 }
