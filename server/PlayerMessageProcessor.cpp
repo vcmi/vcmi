@@ -383,6 +383,9 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 
 	for (const auto & i : gameHandler->gameState()->players)
 	{
+		if (words.empty())
+			break;
+
 		if (i.first == PlayerColor::NEUTRAL)
 			continue;
 
