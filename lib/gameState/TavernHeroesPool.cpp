@@ -11,6 +11,7 @@
 #include "TavernHeroesPool.h"
 
 #include "../mapObjects/CGHeroInstance.h"
+#include "../CHeroHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -56,7 +57,7 @@ void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot,
 	TavernSlot newSlot;
 	newSlot.hero = h;
 	newSlot.player = player;
-	newSlot.role = TavernSlotRole::SINGLE_UNIT; // TODO
+	newSlot.role = role;
 	newSlot.slot = slot;
 
 	currentTavern.push_back(newSlot);
@@ -72,8 +73,8 @@ void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot,
 
 bool TavernHeroesPool::isHeroAvailableFor(HeroTypeID hero, PlayerColor color) const
 {
-	if (pavailable.count(hero))
-		return pavailable.at(hero) & (1 << color.getNum());
+	if (perPlayerAvailability.count(hero))
+		return perPlayerAvailability.at(hero) & (1 << color.getNum());
 
 	return true;
 }
@@ -91,12 +92,16 @@ std::vector<const CGHeroInstance *> TavernHeroesPool::getHeroesFor(PlayerColor c
 	return result;
 }
 
-CGHeroInstance * TavernHeroesPool::takeHero(HeroTypeID hero)
+CGHeroInstance * TavernHeroesPool::takeHeroFromPool(HeroTypeID hero)
 {
 	assert(heroesPool.count(hero));
 
 	CGHeroInstance * result = heroesPool[hero];
 	heroesPool.erase(hero);
+
+	vstd::erase_if(currentTavern, [&](const TavernSlot & entry){
+		return entry.hero->type->getId() == hero;
+	});
 
 	assert(result);
 	return result;
@@ -131,7 +136,7 @@ void TavernHeroesPool::addHeroToPool(CGHeroInstance * hero)
 
 void TavernHeroesPool::setAvailability(HeroTypeID hero, PlayerColor::Mask mask)
 {
-	pavailable[hero] = mask;
+	perPlayerAvailability[hero] = mask;
 }
 
 VCMI_LIB_NAMESPACE_END

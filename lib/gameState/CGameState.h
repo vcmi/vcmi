@@ -82,7 +82,7 @@ class DLL_LINKAGE CGameState : public CNonConstInfoCallback
 
 public:
 	//we have here all heroes available on this map that are not hired
-	std::unique_ptr<TavernHeroesPool> hpool;
+	std::unique_ptr<TavernHeroesPool> heroesPool;
 
 	CGameState();
 	virtual ~CGameState();
@@ -154,7 +154,7 @@ public:
 		h & map;
 		h & players;
 		h & teams;
-		h & hpool;
+		h & heroesPool;
 		h & globalEffects;
 		h & rand;
 		h & rumor;

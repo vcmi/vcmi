@@ -385,7 +385,7 @@ int CGameState::getDate(Date::EDateType mode) const
 CGameState::CGameState()
 {
 	gs = this;
-	hpool = std::make_unique<TavernHeroesPool>();
+	heroesPool = std::make_unique<TavernHeroesPool>();
 	applier = std::make_shared<CApplier<CBaseForGSApply>>();
 	registerTypesClientPacks1(*applier);
 	registerTypesClientPacks2(*applier);
@@ -875,7 +875,7 @@ void CGameState::initHeroes()
 		if(!vstd::contains(heroesToCreate, HeroTypeID(ph->subID)))
 			continue;
 		ph->initHero(getRandomGenerator());
-		hpool->addHeroToPool(ph);
+		heroesPool->addHeroToPool(ph);
 		heroesToCreate.erase(ph->type->getId());
 
 		map->allHeroes[ph->subID] = ph;
@@ -888,11 +888,11 @@ void CGameState::initHeroes()
 
 		int typeID = htype.getNum();
 		map->allHeroes[typeID] = vhi;
-		hpool->addHeroToPool(vhi);
+		heroesPool->addHeroToPool(vhi);
 	}
 
 	for(auto & elem : map->disposedHeroes)
-		hpool->setAvailability(elem.heroId, elem.players);
+		heroesPool->setAvailability(elem.heroId, elem.players);
 
 	if (campaign)
 		campaign->initHeroes();

@@ -342,7 +342,7 @@ struct DLL_LINKAGE SetAvailableHero : public CPackForClient
 	TavernHeroSlot slotID;
 	TavernSlotRole roleID;
 	PlayerColor player;
-	HeroTypeID hid; //-1 if no hero
+	HeroTypeID hid; //HeroTypeID::NONE if no hero
 	CSimpleArmy army;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;

@@ -482,7 +482,7 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 	const CGTownInstance * town = getTown(townOrTavern->id);
 
 	if(townOrTavern->ID == Obj::TAVERN || (town && town->hasBuilt(BuildingID::TAVERN)))
-		return gs->hpool->getHeroesFor(*player);
+		return gs->heroesPool->getHeroesFor(*player);
 
 	return ret;
 }

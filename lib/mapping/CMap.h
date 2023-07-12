@@ -57,7 +57,7 @@ struct DLL_LINKAGE DisposedHero
 	DisposedHero();
 
 	HeroTypeID heroId;
-	ui32 portrait; /// The portrait id of the hero, -1 is default.
+	HeroTypeID portrait; /// The portrait id of the hero, -1 is default.
 	std::string name;
 	PlayerColor::Mask players; /// Who can hire this hero (bitfield).
 

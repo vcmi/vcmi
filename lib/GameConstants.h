@@ -358,7 +358,6 @@ class PlayerColor : public BaseForID<PlayerColor, ui8>
 	enum EPlayerColor
 	{
 		PLAYER_LIMIT_I = 8,
-		ALL_PLAYERS_MASK = 0xff
 	};
 
 	using Mask = uint8_t;

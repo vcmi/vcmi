@@ -942,7 +942,7 @@ void FoWChange::applyGs(CGameState *gs)
 
 void SetAvailableHero::applyGs(CGameState *gs)
 {
-	gs->hpool->setHeroForPlayer(player, slotID, hid, army, roleID);
+	gs->heroesPool->setHeroForPlayer(player, slotID, hid, army, roleID);
 }
 
 void GiveBonus::applyGs(CGameState *gs)
@@ -1143,7 +1143,7 @@ void RemoveObject::applyGs(CGameState *gs)
 		}
 		//return hero to the pool, so he may reappear in tavern
 
-		gs->hpool->addHeroToPool(beatenHero);
+		gs->heroesPool->addHeroToPool(beatenHero);
 		gs->map->objects[id.getNum()] = nullptr;
 
 		//If hero on Boat is removed, the Boat disappears
@@ -1368,7 +1368,7 @@ void SetHeroesInTown::applyGs(CGameState * gs) const
 
 void HeroRecruited::applyGs(CGameState * gs) const
 {
-	CGHeroInstance *h = gs->hpool->takeHero(hid);
+	CGHeroInstance *h = gs->heroesPool->takeHeroFromPool(hid);
 	CGTownInstance *t = gs->getTown(tid);
 	PlayerState *p = gs->getPlayerState(player);
 
@@ -2017,7 +2017,7 @@ void NewTurn::applyGs(CGameState *gs)
 		hero->mana = h.mana;
 	}
 
-	gs->hpool->onNewDay();
+	gs->heroesPool->onNewDay();
 
 	for(const auto & re : res)
 	{

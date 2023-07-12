@@ -44,7 +44,7 @@ class DLL_LINKAGE TavernHeroesPool
 
 	/// list of which players are able to purchase specific hero
 	/// if hero is not present in list, he is available for everyone
-	std::map<HeroTypeID, PlayerColor::Mask> pavailable;
+	std::map<HeroTypeID, PlayerColor::Mask> perPlayerAvailability;
 
 	/// list of heroes currently available in taverns
 	std::vector<TavernSlot> currentTavern;
@@ -63,19 +63,23 @@ public:
 
 	TavernSlotRole getSlotRole(HeroTypeID hero) const;
 
-	CGHeroInstance * takeHero(HeroTypeID hero);
+	CGHeroInstance * takeHeroFromPool(HeroTypeID hero);
 
 	/// reset mana and movement points for all heroes in pool
 	void onNewDay();
 
 	void addHeroToPool(CGHeroInstance * hero);
+
+	/// Marks hero as available to only specific set of players
 	void setAvailability(HeroTypeID hero, PlayerColor::Mask mask);
+
+	/// Makes hero available in tavern of specified player
 	void setHeroForPlayer(PlayerColor player, TavernHeroSlot slot, HeroTypeID hero, CSimpleArmy & army, TavernSlotRole role);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & heroesPool;
-		h & pavailable;
+		h & perPlayerAvailability;
 		h & currentTavern;
 	}
 };

@@ -16,7 +16,7 @@ enum class TavernSlotRole : int8_t;
 class PlayerColor;
 class CGHeroInstance;
 class HeroTypeID;
-class CGObjectInstance;
+class ObjectInstanceID;
 class CRandomGenerator;
 class CHeroClass;
 
@@ -55,10 +55,12 @@ public:
 
 	void onNewWeek(const PlayerColor & color);
 
-	bool hireHero(const CGObjectInstance *obj, const HeroTypeID & hid, const PlayerColor & player);
+	/// Incoming net pack handling
+	bool hireHero(const ObjectInstanceID & objectID, const HeroTypeID & hid, const PlayerColor & player);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		// h & gameHandler; // FIXME: make this work instead of using deserializationFix in gameHandler
 		h & playerSeed;
 	}
 };
