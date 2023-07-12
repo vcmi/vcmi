@@ -415,7 +415,7 @@ void SelectionTab::select(int position)
 	rememberCurrentSelection();
 
 	if(inputName && inputName->isActive())
-	{	
+	{
 		auto filename = *CResourceHandler::get("local")->getResourceName(ResourceID(curItems[py]->fileURI, EResType::CLIENT_SAVEGAME));
 		inputName->setText(filename.stem().string());
 	}
@@ -444,9 +444,6 @@ void SelectionTab::updateListItems()
 	// elemIdx is the index of the maps or saved game to display on line 0
 	// slider->capacity contains the number of available screen lines
 	// slider->positionsAmnt is the number of elements after filtering
-
-	logGlobal->trace("updateListItems called, selectionPos: %d", selectionPos);
-
 	int elemIdx = slider->getValue();
 	for(auto item : listItems)
 	{
