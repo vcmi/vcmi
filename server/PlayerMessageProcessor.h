@@ -9,9 +9,9 @@
  */
 #pragma once
 
+#include "../lib/GameConstants.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
-class PlayerColor;
-class ObjectInstanceID;
 class CGHeroInstance;
 class CGTownInstance;
 class CConnection;
@@ -21,6 +21,8 @@ class CGameHandler;
 
 class PlayerMessageProcessor
 {
+	std::set<PlayerColor> cheaters;
+
 	void executeCheatCode(const std::string & cheatName, PlayerColor player, ObjectInstanceID currObj, const std::vector<std::string> & arguments );
 	bool handleCheatCode(const std::string & cheatFullCommand, PlayerColor player, ObjectInstanceID currObj);
 	bool handleHostCommand(PlayerColor player, const std::string & message);
@@ -58,6 +60,6 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-
+		h & cheaters;
 	}
 };
