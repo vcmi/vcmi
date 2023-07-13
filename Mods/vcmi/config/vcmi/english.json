@@ -74,6 +74,8 @@
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d milliseconds",
 	"vcmi.systemOptions.framerateButton.hover"  : "Show FPS",
 	"vcmi.systemOptions.framerateButton.help"   : "{Show FPS}\n\nToggle the visibility of the Frames Per Second counter in the corner of the game window",
+	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Haptic feedback",
+	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Haptic feedback}\n\nToggle the haptic feedback on touch inputs",
 
 	"vcmi.adventureOptions.infoBarPick.hover" : "Show Messages in Info Panel",
 	"vcmi.adventureOptions.infoBarPick.help" : "{Show Messages in Info Panel}\n\nWhenever possible, game messages from visiting map objects will be shown in the info panel, instead of popping up in a separate window.",

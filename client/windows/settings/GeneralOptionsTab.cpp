@@ -153,6 +153,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	{
 		setBoolSetting("video", "showfps", value);
 	});
+	addCallback("hapticFeedbackChanged", [](bool value)
+	{
+		setBoolSetting("general", "hapticFeedback", value);
+	});
 
 	//moved from "other" tab that is disabled for now to avoid excessible tabs with barely any content
 	addCallback("availableCreaturesAsDwellingChanged", [=](int value)
@@ -189,6 +193,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	std::shared_ptr<CToggleButton> framerateCheckbox = widget<CToggleButton>("framerateCheckbox");
 	framerateCheckbox->setSelected(settings["video"]["showfps"].Bool());
+
+	std::shared_ptr<CToggleButton> hapticFeedbackCheckbox = widget<CToggleButton>("hapticFeedbackCheckbox");
+	if (hapticFeedbackCheckbox)
+		hapticFeedbackCheckbox->setSelected(settings["general"]["hapticFeedback"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
 	musicSlider->scrollTo(CCS->musich->getVolume());
