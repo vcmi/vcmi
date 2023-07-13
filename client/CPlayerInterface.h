@@ -202,7 +202,7 @@ public: // public interface for use by client via LOCPLINT access
 	void stopMovement();
 	void moveHero(const CGHeroInstance *h, const CGPath& path);
 
-	void tryDiggging(const CGHeroInstance *h);
+	void tryDigging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
 	void proposeLoadingGame();
 

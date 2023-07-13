@@ -284,7 +284,7 @@ void AdventureMapShortcuts::digGrail()
 	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
 
 	if(h && LOCPLINT->makingTurn)
-		LOCPLINT->tryDiggging(h);
+		LOCPLINT->tryDigging(h);
 }
 
 void AdventureMapShortcuts::viewPuzzleMap()

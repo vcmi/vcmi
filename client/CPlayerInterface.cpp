@@ -1667,7 +1667,7 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 		CCS->soundh->playSound(castSoundPath);
 }
 
-void CPlayerInterface::tryDiggging(const CGHeroInstance * h)
+void CPlayerInterface::tryDigging(const CGHeroInstance * h)
 {
 	int msgToShow = -1;
 
