@@ -235,7 +235,10 @@ void CPlayerInterface::yourTurn()
 		GH.curInt = this;
 
 		NotificationHandler::notify("Your turn");
-		performAutosave();
+		if(settings["general"]["startTurnAutosave"].Bool())
+		{
+			performAutosave();
+		}
 
 		if (CSH->howManyPlayerInterfaces() > 1) //hot seat message
 		{

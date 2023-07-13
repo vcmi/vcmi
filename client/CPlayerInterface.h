@@ -205,6 +205,7 @@ public: // public interface for use by client via LOCPLINT access
 	void tryDigging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
 	void proposeLoadingGame();
+	void performAutosave();
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
@@ -236,8 +237,6 @@ private:
 	void doMoveHero(const CGHeroInstance *h, CGPath path);
 	void setMovementStatus(bool value);
 
-	/// Performs autosave, if needed according to settings
-	void performAutosave();
 };
 
 /// Provides global access to instance of interface of currently active player

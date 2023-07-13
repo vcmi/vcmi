@@ -37,7 +37,8 @@
 				"longTouchTimeMilliseconds",
 				"autosaveCountLimit",
 				"useSavePrefix",
-				"savePrefix"
+				"savePrefix",
+				"startTurnAutosave"
 			],
 			"properties" : {
 				"playerName" : {
@@ -121,6 +122,10 @@
 				"savePrefix" : {
 					"type": "string",
 					"default": ""
+				},
+				"startTurnAutosave" : {
+					"type": "boolean",
+					"default": false
 				}
 			}
 		},
