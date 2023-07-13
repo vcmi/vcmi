@@ -287,14 +287,8 @@ void CHeroList::updateElement(const CGHeroInstance * hero)
 
 void CHeroList::updateWidget()
 {
-	for(auto & elem : listBox->getItems())
-	{
-		auto item = std::dynamic_pointer_cast<CHeroItem>(elem);
-		if (item)
-			item->update();
-	}
-
 	listBox->resize(LOCPLINT->localState->getWanderingHeroes().size());
+	listBox->reset();
 	if (LOCPLINT->localState->getCurrentHero())
 		select(LOCPLINT->localState->getCurrentHero());
 
@@ -370,14 +364,8 @@ void CTownList::updateElement(const CGTownInstance * town)
 
 void CTownList::updateWidget()
 {
-	for(auto & elem : listBox->getItems())
-	{
-		auto item = std::dynamic_pointer_cast<CTownItem>(elem);
-		if (item)
-			item->update();
-	}
-
 	listBox->resize(LOCPLINT->localState->getOwnedTowns().size());
+	listBox->reset();
 	if (LOCPLINT->localState->getCurrentTown())
 		select(LOCPLINT->localState->getCurrentTown());
 

@@ -500,7 +500,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	if(town->garrisonHero) //wandering hero moved to the garrison
 	{
 		// This method also gets called on hero recruitment -> garrisoned hero is already in garrison
-		if(town->garrisonHero->tempOwner == playerID && !vstd::contains(localState->getWanderingHeroes(), town->visitingHero))
+		if(town->garrisonHero->tempOwner == playerID && vstd::contains(localState->getWanderingHeroes(), town->garrisonHero))
 			localState->removeWanderingHero(town->garrisonHero);
 	}
 
@@ -520,7 +520,9 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		castleInt->garr->setArmy(town->visitingHero, 1);
 		castleInt->garr->recreateSlots();
 		castleInt->heroes->update();
-		castleInt->redraw();
+
+		// Perform totalRedraw to update hero list on adventure map
+		GH.windows().totalRedraw();
 	}
 
 	for (auto ki : GH.windows().findWindows<CKingdomInterface>())
