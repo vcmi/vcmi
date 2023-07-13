@@ -167,39 +167,48 @@ void CButton::onButtonClicked()
 	callback();
 }
 
-void CButton::clickLeft(tribool down, bool previousState)
+void CButton::clickPressed(const Point & cursorPosition)
 {
 	if(isBlocked())
 		return;
 
-	if (down)
+	if (getState() != PRESSED)
 	{
-		if (getState() != PRESSED)
-		{
-			if (!soundDisabled)
-				CCS->soundh->playSound(soundBase::button);
-			setState(PRESSED);
+		if (!soundDisabled)
+			CCS->soundh->playSound(soundBase::button);
+		setState(PRESSED);
 
-			if (actOnDown)
-				onButtonClicked();
-		}
-	}
-	else
-	{
-		if (getState() == PRESSED)
-		{
-			if(hoverable && isHovered())
-				setState(HIGHLIGHTED);
-			else
-				setState(NORMAL);
-
-			if (!actOnDown && previousState && (down == false))
-				onButtonClicked();
-		}
+		if (actOnDown)
+			onButtonClicked();
 	}
 }
 
-void CButton::showPopupWindow()
+void CButton::clickReleased(const Point & cursorPosition)
+{
+	if (getState() == PRESSED)
+	{
+		if(hoverable && isHovered())
+			setState(HIGHLIGHTED);
+		else
+			setState(NORMAL);
+
+		if (!actOnDown)
+			onButtonClicked();
+	}
+}
+
+void CButton::clickCancel(const Point & cursorPosition)
+{
+	if (getState() == PRESSED)
+	{
+		if(hoverable && isHovered())
+			setState(HIGHLIGHTED);
+		else
+			setState(NORMAL);
+	}
+}
+
+void CButton::showPopupWindow(const Point & cursorPosition)
 {
 	if(helpBox.size()) //there is no point to show window with nothing inside...
 		CRClickPopup::createAndPush(helpBox);
@@ -331,11 +340,16 @@ void CToggleBase::setEnabled(bool enabled)
 	// for overrides
 }
 
+void CToggleBase::setSelectedSilent(bool on)
+{
+	selected = on;
+	doSelect(on);
+}
+
 void CToggleBase::setSelected(bool on)
 {
 	bool changed = (on != selected);
-	selected = on;
-	doSelect(on);
+	setSelectedSilent(on);
 	if (changed)
 		callback(on);
 }
@@ -377,7 +391,7 @@ void CToggleButton::setEnabled(bool enabled)
 	setState(enabled ? NORMAL : BLOCKED);
 }
 
-void CToggleButton::clickLeft(tribool down, bool previousState)
+void CToggleButton::clickPressed(const Point & cursorPosition)
 {
 	// force refresh
 	hover(false);
@@ -386,22 +400,41 @@ void CToggleButton::clickLeft(tribool down, bool previousState)
 	if(isBlocked())
 		return;
 
-	if (down && canActivate())
+	if (canActivate())
 	{
 		CCS->soundh->playSound(soundBase::button);
 		setState(PRESSED);
 	}
+}
 
-	if(previousState)//mouse up
+void CToggleButton::clickReleased(const Point & cursorPosition)
+{
+	// force refresh
+	hover(false);
+	hover(true);
+
+	if(isBlocked())
+		return;
+
+	if (getState() == PRESSED && canActivate())
 	{
-		if(down == false && getState() == PRESSED && canActivate())
-		{
-			onButtonClicked();
-			setSelected(!selected);
-		}
-		else
-			doSelect(selected); // restore
+		onButtonClicked();
+		setSelected(!selected);
 	}
+	else
+		doSelect(selected); // restore
+}
+
+void CToggleButton::clickCancel(const Point & cursorPosition)
+{
+	// force refresh
+	hover(false);
+	hover(true);
+
+	if(isBlocked())
+		return;
+
+	doSelect(selected);
 }
 
 void CToggleGroup::addCallback(std::function<void(int)> callback)

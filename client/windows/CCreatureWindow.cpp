@@ -114,10 +114,9 @@ void CCommanderSkillIcon::setObject(std::shared_ptr<CIntObject> newObject)
 	redraw();
 }
 
-void CCommanderSkillIcon::clickLeft(tribool down, bool previousState)
+void CCommanderSkillIcon::clickPressed(const Point & cursorPosition)
 {
-	if(down)
-		callback();
+	callback();
 }
 
 static std::string skillToFile(int skill, int level, bool selected)
@@ -588,7 +587,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		auto art = parent->info->stackNode->getArt(ArtifactPosition::CREATURE_SLOT);
 		if(art)
 		{
-			parent->stackArtifactIcon = std::make_shared<CAnimImage>("ARTIFACT", art->artType->iconIndex, 0, pos.x, pos.y);
+			parent->stackArtifactIcon = std::make_shared<CAnimImage>("ARTIFACT", art->artType->getIconIndex(), 0, pos.x, pos.y);
 			parent->stackArtifactHelp = std::make_shared<LRClickableAreaWTextComp>(Rect(pos, Point(44, 44)), CComponent::artifact);
 			parent->stackArtifactHelp->type = art->artType->getId();
 

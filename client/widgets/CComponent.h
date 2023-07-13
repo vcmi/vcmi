@@ -65,7 +65,7 @@ public:
 	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large, EFonts font = FONT_SMALL);
 	CComponent(const Component &c, ESize imageSize=large, EFonts font = FONT_SMALL);
 
-	void showPopupWindow() override; //call-in
+	void showPopupWindow(const Point & cursorPosition) override; //call-in
 };
 
 /// component that can be selected or deselected
@@ -79,7 +79,7 @@ public:
 	void showAll(Canvas & to) override;
 	void select(bool on);
 
-	void clickLeft(tribool down, bool previousState) override; //call-in
+	void clickPressed(const Point & cursorPosition) override; //call-in
 	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = nullptr);
 	CSelectableComponent(const Component & c, std::function<void()> OnSelect = nullptr);
 };

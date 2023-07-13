@@ -22,6 +22,12 @@
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 
+#if defined(VCMI_ANDROID)
+#include "../../lib/CAndroidVMHelper.h"
+#elif defined(VCMI_IOS)
+#include "../ios/utils.h"
+#endif
+
 #include <SDL_events.h>
 #include <SDL_hints.h>
 #include <SDL_timer.h>
@@ -32,6 +38,7 @@ InputSourceTouch::InputSourceTouch()
 	params.useRelativeMode = settings["general"]["userRelativePointer"].Bool();
 	params.relativeModeSpeedFactor = settings["general"]["relativePointerSpeedMultiplier"].Float();
 	params.longTouchTimeMilliseconds = settings["general"]["longTouchTimeMilliseconds"].Float();
+	params.hapticFeedbackEnabled = settings["general"]["hapticFeedback"].Bool();
 
 	if (params.useRelativeMode)
 		state = TouchState::RELATIVE_MODE;
@@ -100,6 +107,7 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 {
 	// FIXME: better place to update potentially changed settings?
 	params.longTouchTimeMilliseconds = settings["general"]["longTouchTimeMilliseconds"].Float();
+	params.hapticFeedbackEnabled = settings["general"]["hapticFeedback"].Bool();
 
 	lastTapTimeTicks = tfinger.timestamp;
 
@@ -215,6 +223,7 @@ void InputSourceTouch::handleUpdate()
 		if (currentTime > lastTapTimeTicks + params.longTouchTimeMilliseconds)
 		{
 			GH.events().dispatchShowPopup(GH.getCursorPosition());
+			hapticFeedback();
 
 			if (GH.windows().isTopWindowPopup())
 				state = TouchState::TAP_DOWN_LONG;
@@ -286,4 +295,15 @@ void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 
 	if (distanceOld > params.pinchSensitivityThreshold)
 		GH.events().dispatchGesturePinch(lastTapPosition, distanceNew / distanceOld);
+}
+
+void InputSourceTouch::hapticFeedback() {
+	if(params.hapticFeedbackEnabled) {
+#if defined(VCMI_ANDROID)
+        CAndroidVMHelper vmHelper;
+        vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hapticFeedback");
+#elif defined(VCMI_IOS)
+    	iOS_utils::hapticFeedback();
+#endif
+	}
 }

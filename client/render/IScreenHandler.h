@@ -12,6 +12,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 class Point;
+class Rect;
 VCMI_LIB_NAMESPACE_END
 
 class IScreenHandler
@@ -33,4 +34,7 @@ public:
 
 	/// Returns <min, max> range of possible values for screen scaling percentage
 	virtual std::tuple<int, int> getSupportedScalingRange() const = 0;
+
+	/// Converts provided rect from logical coordinates into coordinates within window, accounting for scaling and viewport
+	virtual Rect convertLogicalPointsToWindow(const Rect & input) const = 0;
 };

@@ -135,7 +135,7 @@ class CFlagBox : public CIntObject
 public:
 	CFlagBox(const Rect & rect);
 	void recreate();
-	void showPopupWindow() override;
+	void showPopupWindow(const Point & cursorPosition) override;
 	void showTeamsPopup();
 
 	class CFlagBoxTooltipBox : public CWindowObject

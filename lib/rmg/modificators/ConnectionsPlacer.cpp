@@ -98,6 +98,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 	bool success = false;
 	auto otherZoneId = (connection.getZoneA() == zone.getId() ? connection.getZoneB() : connection.getZoneA());
 	auto & otherZone = map.getZones().at(otherZoneId);
+	bool createRoad = shouldGenerateRoad(connection);
 	
 	//1. Try to make direct connection
 	//Do if it's not prohibited by terrain settings
@@ -110,7 +111,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 
 	if (directConnectionIterator != dNeighbourZones.end())
 	{
-		if (connection.getConnectionType() == EConnectionType::EConnectionType::WIDE)
+		if (connection.getConnectionType() == rmg::EConnectionType::WIDE)
 		{
 			for (auto borderPos : directConnectionIterator->second)
 			{
@@ -159,8 +160,8 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 		}
 	}
 
-	if (connection.getConnectionType() == EConnectionType::EConnectionType::FICTIVE || 
-		connection.getConnectionType() == EConnectionType::EConnectionType::REPULSIVE)
+	if (connection.getConnectionType() == rmg::EConnectionType::FICTIVE || 
+		connection.getConnectionType() == rmg::EConnectionType::REPULSIVE)
 	{
 		//Fictive or repulsive connections are not real, take no action
 		dCompleted.push_back(connection);
@@ -254,15 +255,18 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 					otherZone->getModificator<ObjectManager>()->updateDistances(guardPos);
 				}
 				
-				assert(zone.getModificator<RoadPlacer>());
-				zone.getModificator<RoadPlacer>()->addRoadNode(guardPos);
-				
-				assert(otherZone->getModificator<RoadPlacer>());
-				otherZone->getModificator<RoadPlacer>()->addRoadNode(roadNode);
-				
-				assert(otherZone->getModificator<ConnectionsPlacer>());
-				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
-				
+				if (createRoad)
+				{
+					assert(zone.getModificator<RoadPlacer>());
+					zone.getModificator<RoadPlacer>()->addRoadNode(guardPos);
+
+					assert(otherZone->getModificator<RoadPlacer>());
+					otherZone->getModificator<RoadPlacer>()->addRoadNode(roadNode);
+
+					assert(otherZone->getModificator<ConnectionsPlacer>());
+					otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
+				}
+
 				success = true;
 			}
 		}
@@ -274,7 +278,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 	{
 		if(generator.getZoneWater() && generator.getZoneWater()->getModificator<WaterProxy>())
 		{
-			if(generator.getZoneWater()->getModificator<WaterProxy>()->waterKeepConnection(connection.getZoneA(), connection.getZoneB()))
+			if(generator.getZoneWater()->getModificator<WaterProxy>()->waterKeepConnection(connection, createRoad))
 			{
 				assert(otherZone->getModificator<ConnectionsPlacer>());
 				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
@@ -292,6 +296,8 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 	bool success = false;
 	auto otherZoneId = (connection.getZoneA() == zone.getId() ? connection.getZoneB() : connection.getZoneA());
 	auto & otherZone = map.getZones().at(otherZoneId);
+
+	bool allowRoad = shouldGenerateRoad(connection);
 	
 	//3. place subterrain gates
 	if(zone.isUnderground() != otherZone->isUnderground())
@@ -341,8 +347,8 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 				zone.connectPath(path1);
 				otherZone->connectPath(path2);
 				
-				manager.placeObject(rmgGate1, guarded1, true);
-				managerOther.placeObject(rmgGate2, guarded2, true);
+				manager.placeObject(rmgGate1, guarded1, true, allowRoad);
+				managerOther.placeObject(rmgGate2, guarded2, true, allowRoad);
 				
 				assert(otherZone->getModificator<ConnectionsPlacer>());
 				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
@@ -359,8 +365,10 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 		auto * teleport1 = factory->create();
 		auto * teleport2 = factory->create();
 
-		zone.getModificator<ObjectManager>()->addRequiredObject(teleport1, connection.getGuardStrength());
-		otherZone->getModificator<ObjectManager>()->addRequiredObject(teleport2, connection.getGuardStrength());
+		RequiredObjectInfo obj1(teleport1, connection.getGuardStrength(), allowRoad);
+		RequiredObjectInfo obj2(teleport2, connection.getGuardStrength(), allowRoad);
+		zone.getModificator<ObjectManager>()->addRequiredObject(obj1);
+		otherZone->getModificator<ObjectManager>()->addRequiredObject(obj2);
 		
 		assert(otherZone->getModificator<ConnectionsPlacer>());
 		otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
@@ -386,6 +394,12 @@ void ConnectionsPlacer::collectNeighbourZones()
 	}
 }
 
+bool ConnectionsPlacer::shouldGenerateRoad(const rmg::ZoneConnection& connection) const
+{
+	return connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE ||
+		(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM && zone.getRand().nextDouble() >= 0.5f);
+}
+
 void ConnectionsPlacer::createBorder()
 {
 	rmg::Area borderArea(zone.getArea().getBorder());
@@ -401,7 +415,7 @@ void ConnectionsPlacer::createBorder()
 	{
 		auto otherZone = connection.getOtherZoneId(zone.getId());
 
-		if (connection.getConnectionType() == EConnectionType::EConnectionType::WIDE)
+		if (connection.getConnectionType() == rmg::EConnectionType::WIDE)
 		{
 			auto sharedBorder = borderArea.getSubarea([this, otherZone, &borderOutsideArea](const int3 & t)
 			{

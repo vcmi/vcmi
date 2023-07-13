@@ -67,11 +67,6 @@ CArtPlace::CArtPlace(Point position, const CArtifactInstance * Art)
 	pos.w = pos.h = 44;
 }
 
-void CArtPlace::clickLeft(tribool down, bool previousState)
-{
-	LRClickableAreaWTextComp::clickLeft(down, previousState);
-}
-
 const CArtifactInstance * CArtPlace::getArt()
 {
 	return ourArt;
@@ -121,16 +116,16 @@ void CCommanderArtPlace::returnArtToHeroCallback()
 	}
 }
 
-void CCommanderArtPlace::clickLeft(tribool down, bool previousState)
+void CCommanderArtPlace::clickPressed(const Point & cursorPosition)
 {
-	if(ourArt && text.size() && down)
+	if(ourArt && text.size())
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->translate("vcmi.commanderWindow.artifactMessage"), [this]() { returnArtToHeroCallback(); }, []() {});
 }
 
-void CCommanderArtPlace::showPopupWindow()
+void CCommanderArtPlace::showPopupWindow(const Point & cursorPosition)
 {
 	if(ourArt && text.size())
-		CArtPlace::showPopupWindow();
+		CArtPlace::showPopupWindow(cursorPosition);
 }
 
 void CCommanderArtPlace::setArtifact(const CArtifactInstance * art)
@@ -183,16 +178,13 @@ bool CHeroArtPlace::isMarked() const
 	return marked;
 }
 
-void CHeroArtPlace::clickLeft(tribool down, bool previousState)
+void CHeroArtPlace::clickPressed(const Point & cursorPosition)
 {
-	if(down || !previousState)
-		return;
-
 	if(leftClickCallback)
 		leftClickCallback(*this);
 }
 
-void CHeroArtPlace::showPopupWindow()
+void CHeroArtPlace::showPopupWindow(const Point & cursorPosition)
 {
 	if(rightClickCallback)
 		rightClickCallback(*this);
@@ -236,11 +228,11 @@ void CHeroArtPlace::addCombinedArtInfo(std::map<const CArtifact*, int> & arts)
 		text += "{" + combinedArt.first->getNameTranslated() + "}";
 		if(arts.size() == 1)
 		{
-			for(const auto part : *combinedArt.first->constituents)
+			for(const auto part : combinedArt.first->getConstituents())
 				artList += "\n" + part->getNameTranslated();
 		}
 		text += " (" + boost::str(boost::format("%d") % combinedArt.second) + " / " +
-			boost::str(boost::format("%d") % combinedArt.first->constituents->size()) + ")" + artList;
+			boost::str(boost::format("%d") % combinedArt.first->getConstituents().size()) + ")" + artList;
 	}
 }
 
@@ -290,9 +282,9 @@ bool ArtifactUtilsClient::askToDisassemble(const CGHeroInstance * hero, const Ar
 	const auto art = hero->getArt(slot);
 	assert(art);
 
-	if(art->canBeDisassembled())
+	if(art->isCombined())
 	{
-		if(ArtifactUtils::isSlotBackpack(slot) && !ArtifactUtils::isBackpackFreeSlots(hero, art->artType->constituents->size() - 1))
+		if(ArtifactUtils::isSlotBackpack(slot) && !ArtifactUtils::isBackpackFreeSlots(hero, art->artType->getConstituents().size() - 1))
 			return false;
 
 		LOCPLINT->showArtifactAssemblyDialog(

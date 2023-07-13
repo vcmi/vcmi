@@ -133,6 +133,8 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 	
 	if(adopter->getCoastTiles().empty())
 		return result;
+
+	bool createRoad = false;
 	
 	//block zones are not connected by template
 	for(auto& lake : lakes)
@@ -162,17 +164,23 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 			int zoneTowns = 0;
 			if(auto * m = dst.getModificator<TownPlacer>())
 				zoneTowns = m->getTotalTowns();
+
+			if (vstd::contains(lake.keepRoads, dst.getId()))
+			{
+				createRoad = true;
+			}
 			
+			//FIXME: Why are Shipyards not allowed in zones with no towns?
 			if(dst.getType() == ETemplateZoneType::PLAYER_START || dst.getType() == ETemplateZoneType::CPU_START || zoneTowns)
 			{
-				if(placeShipyard(dst, lake, generator.getConfig().shipyardGuard, result))
+				if(placeShipyard(dst, lake, generator.getConfig().shipyardGuard, createRoad, result))
 				{
 					logGlobal->info("Shipyard successfully placed at zone %d", dst.getId());
 				}
 				else
 				{
 					logGlobal->warn("Shipyard placement failed, trying boat at zone %d", dst.getId());
-					if(placeBoat(dst, lake, result))
+					if(placeBoat(dst, lake, createRoad, result))
 					{
 						logGlobal->warn("Boat successfully placed at zone %d", dst.getId());
 					}
@@ -184,7 +192,7 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 			}
 			else
 			{
-				if(placeBoat(dst, lake, result))
+				if(placeBoat(dst, lake,  createRoad, result))
 				{
 					logGlobal->info("Boat successfully placed at zone %d", dst.getId());
 				}
@@ -199,21 +207,29 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 	return result;
 }
 
-bool WaterProxy::waterKeepConnection(TRmgTemplateZoneId zoneA, TRmgTemplateZoneId zoneB)
+bool WaterProxy::waterKeepConnection(const rmg::ZoneConnection & connection, bool createRoad)
 {
+	const auto & zoneA = connection.getZoneA();
+	const auto & zoneB = connection.getZoneB();
+
 	for(auto & lake : lakes)
 	{
 		if(lake.neighbourZones.count(zoneA) && lake.neighbourZones.count(zoneB))
 		{
 			lake.keepConnections.insert(zoneA);
 			lake.keepConnections.insert(zoneB);
+			if (createRoad)
+			{
+				lake.keepRoads.insert(zoneA);
+				lake.keepRoads.insert(zoneB);
+			}
 			return true;
 		}
 	}
 	return false;
 }
 
-bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
+bool WaterProxy::placeBoat(Zone & land, const Lake & lake, bool createRoad, RouteInfo & info)
 {
 	auto * manager = zone.getModificator<ObjectManager>();
 	if(!manager)
@@ -284,7 +300,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 
 		zone.connectPath(path);
 		land.connectPath(landPath);
-		manager->placeObject(rmgObject, false, true);
+		manager->placeObject(rmgObject, false, true, createRoad);
 		land.getModificator<ObjectManager>()->updateDistances(rmgObject); //Keep land objects away from the boat
 		break;
 	}
@@ -292,7 +308,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 	return !boardingPositions.empty();
 }
 
-bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, RouteInfo & info)
+bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, bool createRoad, RouteInfo & info)
 {
 	auto * manager = land.getModificator<ObjectManager>();
 	if(!manager)
@@ -372,7 +388,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 		info.boarding = boardingPosition;
 		info.water = shipPositions;
 		
-		manager->placeObject(rmgObject, guarded, true);
+		manager->placeObject(rmgObject, guarded, true, createRoad);
 		
 		zone.areaPossible().subtract(shipyardOutToBlock);
 		for(const auto & i : shipyardOutToBlock.getTilesVector())

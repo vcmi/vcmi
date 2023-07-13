@@ -67,19 +67,23 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
-namespace EConnectionType
-{
-	enum class EConnectionType
-	{
-		GUARDED = 0, //default
-		FICTIVE,
-		REPULSIVE,
-		WIDE
-	};
-}
-
 namespace rmg
 {
+
+enum class EConnectionType
+{
+	GUARDED = 0, //default
+	FICTIVE,
+	REPULSIVE,
+	WIDE
+};
+
+enum class ERoadOption
+{
+	ROAD_TRUE,
+	ROAD_FALSE,
+	ROAD_RANDOM
+};
 
 class DLL_LINKAGE ZoneConnection
 {
@@ -91,7 +95,8 @@ public:
 	TRmgTemplateZoneId getZoneB() const;
 	TRmgTemplateZoneId getOtherZoneId(TRmgTemplateZoneId id) const;
 	int getGuardStrength() const;
-	EConnectionType::EConnectionType getConnectionType() const;
+	rmg::EConnectionType getConnectionType() const;
+	rmg::ERoadOption getRoadOption() const;
 
 	void serializeJson(JsonSerializeFormat & handler);
 	
@@ -100,7 +105,8 @@ private:
 	TRmgTemplateZoneId zoneA;
 	TRmgTemplateZoneId zoneB;
 	int guardStrength;
-	EConnectionType::EConnectionType connectionType;
+	rmg::EConnectionType connectionType;
+	rmg::ERoadOption hasRoad;
 };
 
 class DLL_LINKAGE ZoneOptions

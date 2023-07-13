@@ -73,11 +73,8 @@ public:
 	InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IInfoBoxData> Data);
 	~InfoBox();
 
-	void showPopupWindow() override;
-	void clickLeft(tribool down, bool previousState) override;
-
-	//Update object if data may have changed
-	//void update();
+	void showPopupWindow(const Point & cursorPosition) override;
+	void clickPressed(const Point & cursorPosition) override;
 };
 
 class IInfoBoxData

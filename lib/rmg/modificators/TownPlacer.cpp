@@ -152,7 +152,7 @@ int3 TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
 			}, ObjectManager::OptimizeType::WEIGHT);
 	}
 	rmgObject.setPosition(position + int3(2, 2, 0)); //place visitable tile in the exact center of a zone
-	manager.placeObject(rmgObject, false, true);
+	manager.placeObject(rmgObject, false, true, true);
 	cleanupBoundaries(rmgObject);
 	zone.setPos(rmgObject.getVisitablePosition()); //roads lead to main town
 	return position;
@@ -216,7 +216,9 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 			placeMainTown(manager, *town);
 		}
 		else
-			manager.addRequiredObject(town);
+		{
+			manager.addRequiredObject(RequiredObjectInfo(town, 0, true));
+		}
 		totalTowns++;
 	}
 }

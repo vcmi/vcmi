@@ -102,8 +102,10 @@ public:
 	void setPlayerColor(PlayerColor player);
 
 	/// CIntObject overrides
-	void showPopupWindow() override;
-	void clickLeft(tribool down, bool previousState) override;
+	void showPopupWindow(const Point & cursorPosition) override;
+	void clickPressed(const Point & cursorPosition) override;
+	void clickReleased(const Point & cursorPosition) override;
+	void clickCancel(const Point & cursorPosition) override;
 	void hover (bool on) override;
 	void showAll(Canvas & to) override;
 
@@ -136,6 +138,9 @@ public:
 	/// Changes selection to "on", and calls callback
 	void setSelected(bool on);
 
+	/// Changes selection to "on" without calling callback
+	void setSelectedSilent(bool on);
+
 	void addCallback(std::function<void(bool)> callback);
 
 	/// Set whether the toggle is currently enabled for user to use, this is only inplemented in ToggleButton, not for other toggles yet.
@@ -151,7 +156,10 @@ class CToggleButton : public CButton, public CToggleBase
 public:
 	CToggleButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help,
 				  CFunctionList<void(bool)> Callback = 0, EShortcut key = {}, bool playerColoredButton = false );
-	void clickLeft(tribool down, bool previousState) override;
+
+	void clickPressed(const Point & cursorPosition) override;
+	void clickReleased(const Point & cursorPosition) override;
+	void clickCancel(const Point & cursorPosition) override;
 
 	// bring overrides into scope
 	//using CButton::addCallback;

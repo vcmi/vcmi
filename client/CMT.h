@@ -10,13 +10,10 @@
 #pragma once
 
 struct SDL_Texture;
-struct SDL_Window;
 struct SDL_Renderer;
 struct SDL_Surface;
 
 extern SDL_Texture * screenTexture;
-
-extern SDL_Window * mainWindow;
 extern SDL_Renderer * mainRenderer;
 
 extern SDL_Surface *screen;      // main screen surface

@@ -181,7 +181,7 @@ void CObjectVisitQuery::onExposure(QueryPtr topQuery)
 
 void Queries::popQuery(PlayerColor player, QueryPtr query)
 {
-	//LOG_TRACE_PARAMS(logGlobal, "player='%s', query='%s'", player % query);
+	LOG_TRACE_PARAMS(logGlobal, "player='%s', query='%s'", player % query);
 	if(topQuery(player) != query)
 	{
 		logGlobal->trace("Cannot remove, not a top!");
@@ -200,7 +200,7 @@ void Queries::popQuery(PlayerColor player, QueryPtr query)
 
 void Queries::popQuery(const CQuery &query)
 {
-	//LOG_TRACE_PARAMS(logGlobal, "query='%s'", query);
+	LOG_TRACE_PARAMS(logGlobal, "query='%s'", query);
 
 	assert(query.players.size());
 	for(auto player : query.players)
@@ -209,7 +209,14 @@ void Queries::popQuery(const CQuery &query)
 		if(top.get() == &query)
 			popQuery(top);
 		else
+		{
 			logGlobal->trace("Cannot remove query %s", query.toString());
+			logGlobal->trace("Queries found:");
+			for(auto q : queries[player])
+			{
+				logGlobal->trace(q->toString());
+			}
+		}
 	}
 }
 
@@ -230,7 +237,7 @@ void Queries::addQuery(QueryPtr query)
 
 void Queries::addQuery(PlayerColor player, QueryPtr query)
 {
-	//LOG_TRACE_PARAMS(logGlobal, "player='%d', query='%s'", player.getNum() % query);
+	LOG_TRACE_PARAMS(logGlobal, "player='%d', query='%s'", player.getNum() % query);
 	query->onAdding(player);
 	queries[player].push_back(query);
 }
@@ -242,7 +249,7 @@ QueryPtr Queries::topQuery(PlayerColor player)
 
 void Queries::popIfTop(QueryPtr query)
 {
-	//LOG_TRACE_PARAMS(logGlobal, "query='%d'", query);
+	LOG_TRACE_PARAMS(logGlobal, "query='%d'", query);
 	if(!query)
 		logGlobal->error("The query is nullptr! Ignoring.");
 

@@ -52,10 +52,10 @@ void CPrologEpilogVideo::show(Canvas & to)
 		text->showAll(to); // blit text over video, if needed
 
 	if(text->textSize.y + 100 < positionCounter / 5)
-		clickLeft(false, false);
+		clickPressed(GH.getCursorPosition());
 }
 
-void CPrologEpilogVideo::clickLeft(tribool down, bool previousState)
+void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
 {
 	close();
 	CCS->soundh->stopSound(voiceSoundHandle);

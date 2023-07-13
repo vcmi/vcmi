@@ -62,7 +62,6 @@ public:
 	CIntObject(int used=0, Point offset=Point());
 	virtual ~CIntObject();
 
-	/// allows capturing key input so it will be delivered only to this element
 	bool captureThisKey(EShortcut key) override;
 
 	void addUsedEvents(ui16 newActions);

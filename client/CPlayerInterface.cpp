@@ -1116,7 +1116,8 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 		if (pom.size() > 1)
 			charperline = 50;
 		GH.windows().createAndPushWindow<CSelWindow>(text, playerID, charperline, intComps, pom, askID);
-		intComps[0]->clickLeft(true, false);
+		intComps[0]->clickPressed(GH.getCursorPosition());
+		intComps[0]->clickReleased(GH.getCursorPosition());
 	}
 }
 

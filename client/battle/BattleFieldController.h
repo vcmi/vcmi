@@ -100,8 +100,8 @@ class BattleFieldController : public CIntObject
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void showPopupWindow() override;
+	void clickPressed(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 	void activate() override;
 
 	void showAll(Canvas & to) override;

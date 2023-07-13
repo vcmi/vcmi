@@ -12,6 +12,7 @@
 
 #include "CArtHandler.h"
 #include "GameSettings.h"
+#include "spells/CSpellHandler.h"
 
 #include "mapping/CMap.h"
 #include "mapObjects/CGHeroInstance.h"
@@ -21,7 +22,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtAnyPosition(const CArtifactSet * target, const ArtifactID & aid)
 {
 	const auto * art = aid.toArtifact();
-	for(const auto & slot : art->possibleSlots.at(target->bearerType()))
+	for(const auto & slot : art->getPossibleSlots().at(target->bearerType()))
 	{
 		if(art->canBePutAt(target, slot))
 			return slot;
@@ -119,15 +120,15 @@ DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
 {
 	std::vector<const CArtifact*> arts;
 	const auto * art = aid.toArtifact();
-	if(art->canBeDisassembled())
+	if(art->isCombined())
 		return arts;
 
-	for(const auto artifact : art->constituentOf)
+	for(const auto artifact : art->getPartOf())
 	{
-		assert(artifact->constituents);
+		assert(artifact->isCombined());
 		bool possible = true;
 
-		for(const auto constituent : *artifact->constituents) //check if all constituents are available
+		for(const auto constituent : artifact->getConstituents()) //check if all constituents are available
 		{
 			if(equipped)
 			{
@@ -165,24 +166,23 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createScroll(const SpellID & sid)
 
 DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(CArtifact * art)
 {
-	if(art->canBeDisassembled())
+	assert(art);
+
+	auto * artInst = new CArtifactInstance(art);
+	if(art->isCombined())
 	{
-		auto * ret = new CCombinedArtifactInstance(art);
-		ret->createConstituents();
-		return ret;
+		assert(art->isCombined());
+		for(const auto & part : art->getConstituents())
+			artInst->addPart(ArtifactUtils::createNewArtifactInstance(part), ArtifactPosition::PRE_FIRST);
 	}
-	else
+	if(art->isGrowing())
 	{
-		auto * ret = new CArtifactInstance(art);
-		if(dynamic_cast<CGrowingArtifact*>(art))
-		{
-			auto bonus = std::make_shared<Bonus>();
-			bonus->type = BonusType::LEVEL_COUNTER;
-			bonus->val = 0;
-			ret->addNewBonus(bonus);
-		}
-		return ret;
+		auto bonus = std::make_shared<Bonus>();
+		bonus->type = BonusType::LEVEL_COUNTER;
+		bonus->val = 0;
+		artInst->addNewBonus(bonus);
 	}
+	return artInst;
 }
 
 DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(const ArtifactID & aid)
@@ -209,15 +209,28 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const 
 		art = new CArtifactInstance(); // random, empty
 	}
 	map->addNewArtifactInstance(art);
-	if(art->artType && art->canBeDisassembled())
+	if(art->artType && art->isCombined())
 	{
-		auto * combined = dynamic_cast<CCombinedArtifactInstance*>(art);
-		for(CCombinedArtifactInstance::ConstituentInfo & ci : combined->constituentsInfo)
+		for(auto & part : art->getPartsInfo())
 		{
-			map->addNewArtifactInstance(ci.art);
+			map->addNewArtifactInstance(part.art);
 		}
 	}
 	return art;
+}
+
+DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description, const SpellID & sid)
+{
+	// We expect scroll description to be like this: This scroll contains the [spell name] spell which is added
+	// into spell book for as long as hero carries the scroll. So we want to replace text in [...] with a spell name.
+	// However other language versions don't have name placeholder at all, so we have to be careful
+	auto nameStart = description.find_first_of('[');
+	auto nameEnd = description.find_first_of(']', nameStart);
+	if(sid.getNum() >= 0)
+	{
+		if(nameStart != std::string::npos && nameEnd != std::string::npos)
+			description = description.replace(nameStart, nameEnd - nameStart + 1, sid.toSpell(VLC->spells())->getNameTranslated());
+	}
 }
 
 VCMI_LIB_NAMESPACE_END

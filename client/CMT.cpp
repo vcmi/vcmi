@@ -449,19 +449,6 @@ void playIntro()
 
 static void mainLoop()
 {
-	SettingsListener resChanged = settings.listen["video"]["resolution"];
-	SettingsListener fsChanged = settings.listen["video"]["fullscreen"];
-
-	auto functor = [](const JsonNode &newState){
-		GH.dispatchMainThread([](){
-			boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
-			GH.onScreenResize();
-		});
-	};
-
-	resChanged(functor);
-	fsChanged(functor);
-
 	inGuiThread.reset(new bool(true));
 
 	while(1) //main SDL events loop

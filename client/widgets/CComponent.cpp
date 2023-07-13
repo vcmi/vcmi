@@ -34,6 +34,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/CArtHandler.h"
+#include "../../lib/CArtifactInstance.h"
 
 CComponent::CComponent(Etype Type, int Subtype, int Val, ESize imageSize, EFonts font):
 	perDay(false)
@@ -169,16 +170,12 @@ std::string CComponent::getDescription()
 	case artifact:
 	{
 		auto artID = ArtifactID(subtype);
-		std::unique_ptr<CArtifactInstance> art;
-		if (artID != ArtifactID::SPELL_SCROLL)
+		auto description = VLC->arth->objects[artID]->getDescriptionTranslated();
+		if(artID == ArtifactID::SPELL_SCROLL)
 		{
-			art.reset(ArtifactUtils::createNewArtifactInstance(artID));
+			ArtifactUtils::insertScrrollSpellName(description, SpellID(val));
 		}
-		else
-		{
-			art.reset(ArtifactUtils::createScroll(SpellID(val)));
-		}
-		return art->getDescription();
+		return description;
 	}
 	case experience: return CGI->generaltexth->allTexts[241];
 	case spell:      return (*CGI->spellh)[subtype]->getDescriptionTranslated(val);
@@ -258,19 +255,16 @@ void CComponent::setSurface(std::string defName, int imgPos)
 	image = std::make_shared<CAnimImage>(defName, imgPos);
 }
 
-void CComponent::showPopupWindow()
+void CComponent::showPopupWindow(const Point & cursorPosition)
 {
 	if(!getDescription().empty())
 		CRClickPopup::createAndPush(getDescription());
 }
 
-void CSelectableComponent::clickLeft(tribool down, bool previousState)
+void CSelectableComponent::clickPressed(const Point & cursorPosition)
 {
-	if (down)
-	{
-		if(onSelect)
-			onSelect();
-	}
+	if(onSelect)
+		onSelect();
 }
 
 void CSelectableComponent::init()
