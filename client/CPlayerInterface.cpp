@@ -1977,8 +1977,17 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		int soundChannel = -1;
 		std::string soundName;
 
-		auto getMovementSoundFor = [&](const CGHeroInstance * hero, int3 posPrev, int3 posNext) -> std::string
+		auto getMovementSoundFor = [&](const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType) -> std::string
 		{
+			if (moveType == EPathNodeAction::TELEPORT_BATTLE || moveType == EPathNodeAction::TELEPORT_BLOCKING_VISIT || moveType == EPathNodeAction::TELEPORT_NORMAL)
+				return "";
+
+			if (moveType == EPathNodeAction::EMBARK || moveType == EPathNodeAction::DISEMBARK)
+				return "";
+
+			if (moveType == EPathNodeAction::BLOCKING_VISIT)
+				return "";
+
 			// flying movement sound
 			if (hero->hasBonusOfType(BonusType::FLYING_MOVEMENT))
 				return "HORSE10.wav";
@@ -2030,8 +2039,11 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				}
 				if(i != path.nodes.size() - 1)
 				{
-					soundName = getMovementSoundFor(h, prevCoord, nextCoord);
-					soundChannel = CCS->soundh->playSound(soundName, -1);
+					soundName = getMovementSoundFor(h, prevCoord, nextCoord, path.nodes[i-1].action);
+					if (!soundName.empty())
+						soundChannel = CCS->soundh->playSound(soundName, -1);
+					else
+						soundChannel = -1;
 				}
 				continue;
 			}
@@ -2044,14 +2056,17 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 			{
 				// Start a new sound for the hero movement or let the existing one carry on.
-				std::string newSoundName = getMovementSoundFor(h, prevCoord, nextCoord);
+				std::string newSoundName = getMovementSoundFor(h, prevCoord, nextCoord, path.nodes[i-1].action);
 
 				if(newSoundName != soundName)
 				{
 					soundName = newSoundName;
 
 					CCS->soundh->stopSound(soundChannel);
-					soundChannel = CCS->soundh->playSound(soundName, -1);
+					if (!soundName.empty())
+						soundChannel = CCS->soundh->playSound(soundName, -1);
+					else
+						soundChannel = -1;
 				}
 			}
 
