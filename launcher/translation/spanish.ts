@@ -703,6 +703,16 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <translation>Se ha detectado con éxito el idioma de tu Heroes III.</translation>
     </message>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
+        <source>Interface Improvements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
+        <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="127"/>
         <source>Select your language</source>
         <translation>Selecciona el Idioma</translation>
@@ -781,9 +791,8 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
         <translation>Traducción de Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
         <source>High Definition Support</source>
-        <translation>Soporte para resoluciones en Alta Definición</translation>
+        <translation type="vanished">Soporte para resoluciones en Alta Definición</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="724"/>
@@ -801,9 +810,8 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
         <translation>Opcionalmente, puedes instalar mods adicionales ya sea ahora o en cualquier momento posterior, utilizando el lanzador de VCMI.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
         <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
-        <translation>Instalar soporte para jugar Heroes III en resoluciones superiores a 800x600</translation>
+        <translation type="vanished">Instalar soporte para jugar Heroes III en resoluciones superiores a 800x600</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>

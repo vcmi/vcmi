@@ -679,6 +679,11 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
+        <source>Interface Improvements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="740"/>
         <source>Install a translation of Heroes III in your preferred language</source>
         <translation type="unfinished"></translation>
@@ -690,7 +695,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
-        <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
+        <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -778,11 +783,6 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="638"/>
         <source>Heroes III Translation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
-        <source>High Definition Support</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

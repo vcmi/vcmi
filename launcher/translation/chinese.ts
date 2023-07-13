@@ -711,6 +711,11 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <translation>自动检测英雄无敌3语言失败。请手动选择英雄无敌3语言</translation>
     </message>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
+        <source>Interface Improvements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="740"/>
         <source>Install a translation of Heroes III in your preferred language</source>
         <translation>安装与您英雄无敌3语言相符的翻译</translation>
@@ -722,8 +727,12 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
+        <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
-        <translation>安装英雄无敌3的800x600以上分辨率支持</translation>
+        <translation type="vanished">安装英雄无敌3的800x600以上分辨率支持</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
@@ -813,9 +822,8 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <translation>英雄无敌3翻译</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
         <source>High Definition Support</source>
-        <translation>高分辨率支持</translation>
+        <translation type="vanished">高分辨率支持</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="724"/>
