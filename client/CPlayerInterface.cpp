@@ -587,9 +587,11 @@ void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> ob
 void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID buildingID, int what) //what: 1 - built, 2 - demolished
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	adventureInt->onTownChanged(town);
+
 	if (castleInt)
 	{
-		castleInt->townlist->update(town);
+		castleInt->townlist->updateElement(town);
 
 		if (castleInt->town == town)
 		{
@@ -604,8 +606,10 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID build
 				break;
 			}
 		}
+
+		// Perform totalRedraw in order to force redraw of updated town list icon from adventure map
+		GH.windows().totalRedraw();
 	}
-	adventureInt->onTownChanged(town);
 }
 
 void CPlayerInterface::battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)

@@ -280,19 +280,19 @@ void CHeroList::select(const CGHeroInstance * hero)
 	selectIndex(vstd::find_pos(LOCPLINT->localState->getWanderingHeroes(), hero));
 }
 
-void CHeroList::update(const CGHeroInstance * hero)
+void CHeroList::updateElement(const CGHeroInstance * hero)
 {
-	//this hero is already present, update its status
+	updateWidget();
+}
+
+void CHeroList::updateWidget()
+{
 	for(auto & elem : listBox->getItems())
 	{
 		auto item = std::dynamic_pointer_cast<CHeroItem>(elem);
-		if(item && item->hero == hero && vstd::contains(LOCPLINT->localState->getWanderingHeroes(), hero))
-		{
+		if (item)
 			item->update();
-			return;
-		}
 	}
-	//simplest solution for now: reset list and restore selection
 
 	listBox->resize(LOCPLINT->localState->getWanderingHeroes().size());
 	if (LOCPLINT->localState->getCurrentHero())
@@ -363,9 +363,19 @@ void CTownList::select(const CGTownInstance * town)
 	selectIndex(vstd::find_pos(LOCPLINT->localState->getOwnedTowns(), town));
 }
 
-void CTownList::update(const CGTownInstance *)
+void CTownList::updateElement(const CGTownInstance * town)
 {
-	//simplest solution for now: reset list and restore selection
+	updateWidget();
+}
+
+void CTownList::updateWidget()
+{
+	for(auto & elem : listBox->getItems())
+	{
+		auto item = std::dynamic_pointer_cast<CTownItem>(elem);
+		if (item)
+			item->update();
+	}
 
 	listBox->resize(LOCPLINT->localState->getOwnedTowns().size());
 	if (LOCPLINT->localState->getCurrentTown())
@@ -373,4 +383,3 @@ void CTownList::update(const CGTownInstance *)
 
 	CList::update();
 }
-
