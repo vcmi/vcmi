@@ -218,9 +218,7 @@ void CPlayerInterface::performAutosave()
 		}
 		else
 		{
-			std::string stringifiedDate = (cb->getDate(Date::MONTH) < 10
-				? std::string("0") + std::to_string(cb->getDate(Date::MONTH))
-				: std::to_string(cb->getDate(Date::MONTH)))
+			std::string stringifiedDate = std::to_string(cb->getDate(Date::MONTH))
 					+ std::to_string(cb->getDate(Date::WEEK))
 					+ std::to_string(cb->getDate(Date::DAY_OF_WEEK));
 

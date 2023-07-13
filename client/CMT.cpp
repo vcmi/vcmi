@@ -137,7 +137,6 @@ int main(int argc, char * argv[])
 		("nointro,i", "skips intro movies")
 		("donotstartserver,d","do not attempt to start server and just connect to it instead server")
 		("serverport", po::value<si64>(), "override port specified in config file")
-		("saveprefix", po::value<std::string>(), "prefix for auto save files")
 		("savefrequency", po::value<si64>(), "limit auto save creation to each N days")
 		("lobby", "parameters address, port, uuid to connect ro remote lobby session")
 		("lobby-address", po::value<std::string>(), "address to remote lobby")
@@ -256,7 +255,6 @@ int main(int argc, char * argv[])
 
 	// Init special testing settings
 	setSettingInteger("session/serverport", "serverport", 0);
-	setSettingString("session/saveprefix", "saveprefix", "");
 	setSettingInteger("general/saveFrequency", "savefrequency", 1);
 
 	// Initialize logging based on settings
