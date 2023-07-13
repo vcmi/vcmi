@@ -245,7 +245,7 @@
 					]
 				},
 				{
-					"index": 12,
+					"index": 9,
 					"type": "toggleButton",
 					"image": "settingsWindow/button46",
 					"help": "vcmi.battleOptions.animationsSpeed5",
@@ -261,7 +261,7 @@
 					]
 				},
 				{
-					"index": 24,
+					"index": 18,
 					"type": "toggleButton",
 					"image": "settingsWindow/button46",
 					"help": "vcmi.battleOptions.animationsSpeed6",
