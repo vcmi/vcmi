@@ -134,16 +134,16 @@ void CBuildingRect::hover(bool on)
 	}
 }
 
-void CBuildingRect::clickLeft(tribool down, bool previousState)
+void CBuildingRect::clickPressed(const Point & cursorPosition)
 {
-	if(previousState && getBuilding() && area && !down && (parent->selectedBuilding==this))
+	if(getBuilding() && area && (parent->selectedBuilding==this))
 	{
 		auto building = getBuilding();
 		parent->buildingClicked(building->bid, building->subId, building->upgrade);
 	}
 }
 
-void CBuildingRect::showPopupWindow()
+void CBuildingRect::showPopupWindow(const Point & cursorPosition)
 {
 	if((!area) || (this!=parent->selectedBuilding) || getBuilding() == nullptr)
 		return;
@@ -377,37 +377,35 @@ void CHeroGSlot::hover(bool on)
 		GH.statusbar()->write(temp);
 }
 
-void CHeroGSlot::clickLeft(tribool down, bool previousState)
+void CHeroGSlot::clickPressed(const Point & cursorPosition)
 {
 	std::shared_ptr<CHeroGSlot> other = upg ? owner->garrisonedHero : owner->visitingHero;
-	if(!down)
+
+	owner->garr->setSplittingMode(false);
+	owner->garr->selectSlot(nullptr);
+
+	if(hero && isSelected())
 	{
-		owner->garr->setSplittingMode(false);
-		owner->garr->selectSlot(nullptr);
-
-		if(hero && isSelected())
-		{
-			setHighlight(false);
-			LOCPLINT->openHeroWindow(hero);
-		}
-		else if(other->hero && other->isSelected())
-		{
-			owner->swapArmies();
-		}
-		else if(hero)
-		{
-			setHighlight(true);
-			owner->garr->selectSlot(nullptr);
-			redraw();
-		}
-
-		//refresh statusbar
-		hover(false);
-		hover(true);
+		setHighlight(false);
+		LOCPLINT->openHeroWindow(hero);
 	}
+	else if(other->hero && other->isSelected())
+	{
+		owner->swapArmies();
+	}
+	else if(hero)
+	{
+		setHighlight(true);
+		owner->garr->selectSlot(nullptr);
+		redraw();
+	}
+
+	//refresh statusbar
+	hover(false);
+	hover(true);
 }
 
-void CHeroGSlot::showPopupWindow()
+void CHeroGSlot::showPopupWindow(const Point & cursorPosition)
 {
 	if(hero)
 	{
@@ -1057,17 +1055,14 @@ void CCreaInfo::hover(bool on)
 	}
 }
 
-void CCreaInfo::clickLeft(tribool down, bool previousState)
+void CCreaInfo::clickPressed(const Point & cursorPosition)
 {
-	if(previousState && (!down))
+	int offset = LOCPLINT->castleInt? (-87) : 0;
+	auto recruitCb = [=](CreatureID id, int count)
 	{
-		int offset = LOCPLINT->castleInt? (-87) : 0;
-		auto recruitCb = [=](CreatureID id, int count)
-		{
-			LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
-		};
-		GH.windows().createAndPushWindow<CRecruitmentWindow>(town, level, town, recruitCb, offset);
-	}
+		LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
+	};
+	GH.windows().createAndPushWindow<CRecruitmentWindow>(town, level, town, recruitCb, offset);
 }
 
 std::string CCreaInfo::genGrowthText()
@@ -1081,7 +1076,7 @@ std::string CCreaInfo::genGrowthText()
 	return descr;
 }
 
-void CCreaInfo::showPopupWindow()
+void CCreaInfo::showPopupWindow(const Point & cursorPosition)
 {
 	if (showAvailable)
 		GH.windows().createAndPushWindow<CDwellingInfoBox>(GH.screenDimensions().x / 2, GH.screenDimensions().y / 2, town, level);
@@ -1133,7 +1128,7 @@ void CTownInfo::hover(bool on)
 	}
 }
 
-void CTownInfo::showPopupWindow()
+void CTownInfo::showPopupWindow(const Point & cursorPosition)
 {
 	if(building)
 	{
@@ -1379,13 +1374,12 @@ void CHallInterface::CBuildingBox::hover(bool on)
 	}
 }
 
-void CHallInterface::CBuildingBox::clickLeft(tribool down, bool previousState)
+void CHallInterface::CBuildingBox::clickPressed(const Point & cursorPosition)
 {
-	if(previousState && (!down))
-		GH.windows().createAndPushWindow<CBuildWindow>(town,building,state,0);
+	GH.windows().createAndPushWindow<CBuildWindow>(town,building,state,0);
 }
 
-void CHallInterface::CBuildingBox::showPopupWindow()
+void CHallInterface::CBuildingBox::showPopupWindow(const Point & cursorPosition)
 {
 	GH.windows().createAndPushWindow<CBuildWindow>(town,building,state,1);
 }
@@ -1740,10 +1734,9 @@ void CFortScreen::RecruitArea::creaturesChangedEventHandler()
 	}
 }
 
-void CFortScreen::RecruitArea::clickLeft(tribool down, bool previousState)
+void CFortScreen::RecruitArea::clickPressed(const Point & cursorPosition)
 {
-	if(!down && previousState)
-		LOCPLINT->castleInt->builds->enterDwelling(level);
+	LOCPLINT->castleInt->builds->enterDwelling(level);
 }
 
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem)
@@ -1796,13 +1789,12 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
 	pos = image->pos;
 }
 
-void CMageGuildScreen::Scroll::clickLeft(tribool down, bool previousState)
+void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 {
-	if(down)
-		LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
+	LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
 }
 
-void CMageGuildScreen::Scroll::showPopupWindow()
+void CMageGuildScreen::Scroll::showPopupWindow(const Point & cursorPosition)
 {
 	CRClickPopup::createAndPush(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
 }

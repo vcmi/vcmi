@@ -48,8 +48,8 @@ public:
 	virtual ~LRClickableAreaWText();
 	void init();
 
-	virtual void clickLeft(tribool down, bool previousState) override;
-	virtual void showPopupWindow() override;
+	void clickPressed(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 };
 
 /// base class for hero/town/garrison tooltips
@@ -135,7 +135,7 @@ class CHeroArea: public CIntObject
 public:
 	CHeroArea(int x, int y, const CGHeroInstance * _hero);
 
-	void clickLeft(tribool down, bool previousState) override;
+	void clickPressed(const Point & cursorPosition) override;
 	void hover(bool on) override;
 };
 
@@ -146,8 +146,8 @@ public:
 	int type;
 	int baseType;
 	int bonusValue;
-	virtual void clickLeft(tribool down, bool previousState) override;
-	virtual void showPopupWindow() override;
+	void clickPressed(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 
 	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
 	std::shared_ptr<CComponent> createComponent() const;
@@ -158,7 +158,7 @@ class LRClickableAreaOpenTown: public LRClickableAreaWTextComp
 {
 public:
 	const CGTownInstance * town;
-	void clickLeft(tribool down, bool previousState) override;
+	void clickPressed(const Point & cursorPosition) override;
 	LRClickableAreaOpenTown(const Rect & Pos, const CGTownInstance * Town);
 };
 

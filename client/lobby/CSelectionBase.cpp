@@ -377,7 +377,7 @@ void CFlagBox::recreate()
 	}
 }
 
-void CFlagBox::showPopupWindow()
+void CFlagBox::showPopupWindow(const Point & cursorPosition)
 {
 	if(SEL->getMapInfo())
 		GH.windows().createAndPushWindow<CFlagBoxTooltipBox>(iconsTeamFlags);

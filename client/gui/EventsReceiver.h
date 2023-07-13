@@ -15,7 +15,6 @@ VCMI_LIB_NAMESPACE_END
 
 class EventDispatcher;
 enum class EShortcut;
-using boost::logic::tribool;
 
 /// Class that is capable of subscribing and receiving input events
 /// Acts as base class for all UI elements
@@ -34,9 +33,18 @@ protected:
 	/// Deactivates particular events for this UI element. Uses unnamed enum from this class
 	void deactivateEvents(ui16 what);
 
-	virtual void clickLeft(tribool down, bool previousState) {}
-	virtual void showPopupWindow() {}
-	virtual void clickDouble() {}
+	/// allows capturing key input so it will be delivered only to this element
+	virtual bool captureThisKey(EShortcut key) = 0;
+
+	/// If true, event of selected type in selected position will be processed by this element
+	virtual bool receiveEvent(const Point & position, int eventType) const= 0;
+
+public:
+	virtual void clickPressed(const Point & cursorPosition) {}
+	virtual void clickReleased(const Point & cursorPosition) {}
+	virtual void clickCancel(const Point & cursorPosition) {}
+	virtual void showPopupWindow(const Point & cursorPosition) {}
+	virtual void clickDouble(const Point & cursorPosition) {}
 
 	/// Called when user pans screen by specified distance
 	virtual void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) {}
@@ -61,11 +69,6 @@ protected:
 	virtual void keyReleased(EShortcut key) {}
 
 	virtual void tick(uint32_t msPassed) {}
-
-	virtual bool captureThisKey(EShortcut key) = 0;
-
-	/// If true, event of selected type in selected position will be processed by this element
-	virtual bool receiveEvent(const Point & position, int eventType) const= 0;
 
 public:
 	AEventsReceiver();

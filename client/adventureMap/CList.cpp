@@ -40,25 +40,22 @@ CList::CListItem::CListItem(CList * Parent)
 
 CList::CListItem::~CListItem() = default;
 
-void CList::CListItem::showPopupWindow()
+void CList::CListItem::showPopupWindow(const Point & cursorPosition)
 {
 	showTooltip();
 }
 
-void CList::CListItem::clickLeft(tribool down, bool previousState)
+void CList::CListItem::clickPressed(const Point & cursorPosition)
 {
-	if(down == true)
+	//second click on already selected item
+	if(parent->selected == this->shared_from_this())
 	{
-		//second click on already selected item
-		if(parent->selected == this->shared_from_this())
-		{
-			open();
-		}
-		else
-		{
-			//first click - switch selection
-			parent->select(this->shared_from_this());
-		}
+		open();
+	}
+	else
+	{
+		//first click - switch selection
+		parent->select(this->shared_from_this());
 	}
 }
 

@@ -85,21 +85,18 @@ CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts 
 {
 }
 
-void CHeroSwitcher::clickLeft(tribool down, bool previousState)
+void CHeroSwitcher::clickPressed(const Point & cursorPosition)
 {
-	if(!down)
+	//TODO: do not recreate window
+	if (false)
 	{
-		//TODO: do not recreate window
-		if (false)
-		{
-			owner->update(hero, true);
-		}
-		else
-		{
-			const CGHeroInstance * buf = hero;
-			GH.windows().popWindows(1);
-			GH.windows().createAndPushWindow<CHeroWindow>(buf);
-		}
+		owner->update(hero, true);
+	}
+	else
+	{
+		const CGHeroInstance * buf = hero;
+		GH.windows().popWindows(1);
+		GH.windows().createAndPushWindow<CHeroWindow>(buf);
 	}
 }
 

@@ -26,6 +26,6 @@ class CPrologEpilogVideo : public CWindowObject
 public:
 	CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback);
 
-	void clickLeft(tribool down, bool previousState) override;
+	void clickPressed(const Point & cursorPosition) override;
 	void show(Canvas & to) override;
 };

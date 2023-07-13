@@ -35,8 +35,8 @@ protected:
 		CListItem(CList * parent);
 		~CListItem();
 
-		void showPopupWindow() override;
-		void clickLeft(tribool down, bool previousState) override;
+		void showPopupWindow(const Point & cursorPosition) override;
+		void clickPressed(const Point & cursorPosition) override;
 		void hover(bool on) override;
 		void onSelect(bool on);
 

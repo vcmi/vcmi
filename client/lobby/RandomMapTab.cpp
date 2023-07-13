@@ -406,18 +406,17 @@ void TemplatesDropBox::ListItem::hover(bool on)
 	redraw();
 }
 
-void TemplatesDropBox::ListItem::clickLeft(tribool down, bool previousState)
+void TemplatesDropBox::ListItem::clickPressed(const Point & cursorPosition)
 {
-	if(down && isHovered())
-	{
+	if(isHovered())
 		dropBox.setTemplate(item);
-	}
-	else 
-	{
-		dropBox.clickLeft(true, true);
-	}
 }
 
+void TemplatesDropBox::ListItem::clickReleased(const Point & cursorPosition)
+{
+	dropBox.clickPressed(cursorPosition);
+	dropBox.clickReleased(cursorPosition);
+}
 
 TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
 	InterfaceObjectConfigurable(LCLICK | HOVER),
@@ -471,9 +470,17 @@ void TemplatesDropBox::sliderMove(int slidPos)
 	redraw();
 }
 
-void TemplatesDropBox::clickLeft(tribool down, bool previousState)
+bool TemplatesDropBox::receiveEvent(const Point & position, int eventType) const
 {
-	if (!pos.isInside(GH.getCursorPosition()))
+	if (eventType == LCLICK)
+		return true; // we want drop box to close when clicking outside drop box borders
+
+	return CIntObject::receiveEvent(position, eventType);
+}
+
+void TemplatesDropBox::clickPressed(const Point & cursorPosition)
+{
+	if (!pos.isInside(cursorPosition))
 	{
 		assert(GH.windows().isTopWindow(this));
 		GH.windows().popWindows(1);
