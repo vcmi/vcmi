@@ -370,6 +370,11 @@ void GeneralOptionsTab::setGameScaling(int index)
 	gameRes["scaling"].Float() = scaling;
 
 	widget<CLabel>("scalingLabel")->setText(scalingToLabelString(scaling));
+
+	GH.dispatchMainThread([](){
+		boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
+		GH.onScreenResize();
+	});
 }
 
 void GeneralOptionsTab::selectLongTouchDuration()
