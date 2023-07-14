@@ -225,8 +225,10 @@ void InputSourceTouch::handleUpdate()
 			GH.events().dispatchShowPopup(GH.getCursorPosition());
 
 			if (GH.windows().isTopWindowPopup())
+			{
 				hapticFeedback();
 				state = TouchState::TAP_DOWN_LONG;
+			}
 		}
 	}
 }
