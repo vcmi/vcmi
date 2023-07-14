@@ -1097,7 +1097,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'F':
 				b.type = BonusType::FLYING; break;
 			case 'm':
-				b.type = BonusType::MORALE; break;
+				b.type = BonusType::MORALE;
 				b.val = 1;
 				b.valType = BonusValueType::INDEPENDENT_MAX;
 				break;
