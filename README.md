@@ -8,7 +8,7 @@
 
 ## Contract
 
-1. Download the contract from https://github.com/gear-dapps/homm3
+1. Download the contract from https://github.com/gear-foundation/dapps-homm3
 2. Upload contracts `.opt.wasm` files with IDEA to https://idea.gear-tech.io/programs?node=wss%3A%2F%2Ftestnet.vara.rs
 
 ## IPFS daemon
@@ -20,14 +20,14 @@ ipfs daemon
 
 ## Game
 
-1. Download the binaries package from the [Releases](https://github.com/gear-dapps/vcmi/releases) section according to your OS.
+1. Download the binaries package from the [Releases](https://github.com/gear-foundation/dapps-vcmi/releases) section according to your OS.
 2. Unpack the archive and run:
 
 ```bash
 VCMICLIENT_PATH=./vcmiclient ./gear-connector
 ```
 
-## VCMI Installation guides
+## VCMI Installation guides (optional)
 
 To use VCMI you need to own original data files.
 
@@ -37,19 +37,19 @@ To use VCMI you need to own original data files.
  * [Windows](https://wiki.vcmi.eu/Installation_on_Windows)
  * [iOS](https://wiki.vcmi.eu/Installation_on_iOS)
 
- # Building from source
+# Building from source
 
 ## Clone this repository
 
 ```bash
-git clone https://github.com/gear-dapps/vcmi
-cd vcmi
+git clone https://github.com/gear-foundation/dapps-vcmi
+cd dapps-vcmi
 ```
 
 ## Install dependencies
 
 ```bash
-cd vcmi
+cd dapps-vcmi
 ./CI/<platform>/before_install.sh
 ```
 
