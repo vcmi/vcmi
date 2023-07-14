@@ -223,9 +223,9 @@ void InputSourceTouch::handleUpdate()
 		if (currentTime > lastTapTimeTicks + params.longTouchTimeMilliseconds)
 		{
 			GH.events().dispatchShowPopup(GH.getCursorPosition());
-			hapticFeedback();
 
 			if (GH.windows().isTopWindowPopup())
+				hapticFeedback();
 				state = TouchState::TAP_DOWN_LONG;
 		}
 	}
