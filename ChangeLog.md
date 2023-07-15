@@ -67,6 +67,16 @@
 * Fixed frequent crash on moving to next scenario during campaign
 
 ### RANDOM MAP GENERATOR:
+* Improved zone placement, shape and connections
+* Improved zone passability for better gameplay
+* Improved treasure distribution and treasure values to match SoD closely
+* RMG will now respect road settings set in menu
+* Tweaked many original templates so they allow new terrains and factions
+* Added "bannedTowns", "bannedTerrains", "bannedMonsters" zone properties
+* Added "road" property to connections
+* Support for "wide" connections
+* Support for new "fictive" and "repulsive" connections
+* RMG will now run faster, utilizing many CPU cores
 
 ### INTERFACE:
 * Adventure map is now scalable and can be used with any resolution without mods
