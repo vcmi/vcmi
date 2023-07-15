@@ -1132,7 +1132,16 @@ void RemoveObject::applyGs(CGameState *gs)
 		PlayerState * p = gs->getPlayerState(beatenHero->tempOwner);
 		gs->map->heroesOnMap -= beatenHero;
 		p->heroes -= beatenHero;
-		beatenHero->detachFrom(*beatenHero->whereShouldBeAttachedOnSiege(gs));
+
+
+		auto * siegeNode = beatenHero->whereShouldBeAttachedOnSiege(gs);
+
+		// FIXME: workaround:
+		// hero should be attached to siegeNode after battle
+		// however this code might also be called on dismissing hero while in town
+		if (siegeNode && vstd::contains(beatenHero->getParentNodes(), siegeNode))
+				beatenHero->detachFrom(*siegeNode);
+
 		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
 		vstd::erase_if(beatenHero->artifactsInBackpack, [](const ArtSlotInfo& asi)
 		{

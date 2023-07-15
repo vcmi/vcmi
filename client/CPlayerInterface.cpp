@@ -398,7 +398,10 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", hero->getNameTranslated() % playerID);
 
-	localState->removeWanderingHero(hero);
+	// if hero is not in town garrison
+	if (vstd::contains(localState->getWanderingHeroes(), hero))
+		localState->removeWanderingHero(hero);
+
 	adventureInt->onHeroChanged(hero);
 	localState->erasePath(hero);
 
@@ -1482,6 +1485,10 @@ void CPlayerInterface::objectRemovedAfter()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onMapTilesChanged(boost::none);
+
+	// visiting or garrisoned hero removed - recreate castle window
+	if (castleInt)
+		openTownWindow(castleInt->town);
 }
 
 void CPlayerInterface::playerBlocked(int reason, bool start)

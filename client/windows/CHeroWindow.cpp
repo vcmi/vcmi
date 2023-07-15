@@ -326,9 +326,6 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	if(curHero->isMissionCritical())
 		noDismiss = true;
 
-	if (curHero->visitedTown)
-		noDismiss = true;
-
 	dismissButton->block(noDismiss);
 
 	if(curHero->valOfBonuses(Selector::type()(BonusType::BEFORE_BATTLE_REPOSITION)) == 0)
