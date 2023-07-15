@@ -221,13 +221,6 @@ int main(int argc, char * argv[])
 		else if(s->isNull())
 			s->Integer() = defaultValue;
 	};
-	auto setSettingString = [](std::string key, std::string arg, std::string defaultValue) {
-		Settings s = settings.write(vstd::split(key, "/"));
-		if(::vm.count(arg))
-			s->String() = ::vm[arg].as<std::string>();
-		else if(s->isNull())
-			s->String() = defaultValue;
-	};
 
 	setSettingBool("session/onlyai", "onlyAI");
 	if(vm.count("headless"))
