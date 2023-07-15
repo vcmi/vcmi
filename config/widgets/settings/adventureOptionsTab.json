@@ -373,6 +373,11 @@
 					"name": "borderScrollCheckbox",
 					"help": "vcmi.adventureOptions.borderScroll",
 					"callback": "borderScrollChanged"
+				},
+				{
+					"name": "infoBoxCreatureManagementCheckbox",
+					"help": "vcmi.adventureOptions.infoBoxCreatureManagement",
+					"callback": "infoBoxCreatureManagementChanged"
 				}
 			]
 		}

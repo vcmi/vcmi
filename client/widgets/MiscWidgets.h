@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "CGarrisonInt.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -78,6 +79,20 @@ class CHeroTooltip : public CArmyTooltip
 public:
 	CHeroTooltip(Point pos, const InfoAboutHero & hero);
 	CHeroTooltip(Point pos, const CGHeroInstance * hero);
+};
+
+/// Class for HD mod-like interactable infobox tooltip. Does not have any background!
+class CInteractableHeroTooltip : public CGarrisonInt
+{
+	std::shared_ptr<CLabel> title;
+	std::shared_ptr<CAnimImage> portrait;
+	std::vector<std::shared_ptr<CLabel>> labels;
+	std::shared_ptr<CAnimImage> morale;
+	std::shared_ptr<CAnimImage> luck;
+
+	void init(const InfoAboutHero & hero);
+public:
+	CInteractableHeroTooltip(Point pos, const CGHeroInstance * hero);
 };
 
 /// Class for town tooltip. Does not have any background!

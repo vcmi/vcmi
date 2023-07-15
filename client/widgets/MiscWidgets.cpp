@@ -303,6 +303,31 @@ CHeroTooltip::CHeroTooltip(Point pos, const CGHeroInstance * hero):
 	init(InfoAboutHero(hero, InfoAboutHero::EInfoLevel::DETAILED));
 }
 
+CInteractableHeroTooltip::CInteractableHeroTooltip(Point pos, const CGHeroInstance * hero):
+		CGarrisonInt(pos.x, pos.y+73, 4, Point(0, 0), hero, nullptr, true, true, CGarrisonInt::EGarrisonIntSlotsLayout::REVERSED_TWO_ROWS)
+{
+	init(InfoAboutHero(hero, InfoAboutHero::EInfoLevel::DETAILED));
+}
+
+void CInteractableHeroTooltip::init(const InfoAboutHero & hero)
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	portrait = std::make_shared<CAnimImage>("PortraitsLarge", hero.portrait, 0, 3, 2-73);
+	title = std::make_shared<CLabel>(66, 2-73, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero.name);
+
+	if(hero.details)
+	{
+		for(size_t i = 0; i < hero.details->primskills.size(); i++)
+			labels.push_back(std::make_shared<CLabel>(75 + 28 * (int)i, 58-73, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
+													  std::to_string(hero.details->primskills[i])));
+
+		labels.push_back(std::make_shared<CLabel>(158, 98-73, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->mana)));
+
+		morale = std::make_shared<CAnimImage>("IMRL22", hero.details->morale + 3, 0, 5, 74-73);
+		luck = std::make_shared<CAnimImage>("ILCK22", hero.details->luck + 3, 0, 5, 91-73);
+	}
+}
+
 void CTownTooltip::init(const InfoAboutTown & town)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);

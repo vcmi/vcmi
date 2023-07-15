@@ -110,6 +110,10 @@ AdventureOptionsTab::AdventureOptionsTab()
 	{
 		return setBoolSetting("adventure", "borderScroll", value);
 	});
+	addCallback("infoBoxCreatureManagementChanged", [](bool value)
+	{
+		return setBoolSetting("gameTweaks", "infoBoxCreatureManagement", value);
+	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> playerHeroSpeedToggle = widget<CToggleGroup>("heroMovementSpeedPicker");
@@ -141,4 +145,7 @@ AdventureOptionsTab::AdventureOptionsTab()
 
 	std::shared_ptr<CToggleButton> borderScrollCheckbox = widget<CToggleButton>("borderScrollCheckbox");
 	borderScrollCheckbox->setSelected(settings["adventure"]["borderScroll"].Bool());
+
+	std::shared_ptr<CToggleButton> infoBoxCreatureManagementCheckbox = widget<CToggleButton>("infoBoxCreatureManagementCheckbox");
+	infoBoxCreatureManagementCheckbox->setSelected(settings["gameTweaks"]["infoBoxCreatureManagement"].Bool());
 }

@@ -25,6 +25,7 @@ class CShowableAnim;
 class CComponent;
 class CComponentBox;
 class CHeroTooltip;
+class CInteractableHeroTooltip;
 class CTownTooltip;
 class CLabel;
 class CMultiLineLabel;
@@ -66,7 +67,7 @@ private:
 
 	class VisibleHeroInfo : public CVisibleInfo
 	{
-		std::shared_ptr<CHeroTooltip> heroTooltip;
+		std::variant<std::shared_ptr<CHeroTooltip>, std::shared_ptr<CInteractableHeroTooltip>> heroTooltip;
 	public:
 		VisibleHeroInfo(const CGHeroInstance * hero);
 	};

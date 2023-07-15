@@ -51,7 +51,11 @@ CInfoBar::VisibleHeroInfo::VisibleHeroInfo(const CGHeroInstance * hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>("ADSTATHR");
-	heroTooltip = std::make_shared<CHeroTooltip>(Point(0,0), hero);
+
+	if(settings["gameTweaks"]["infoBoxCreatureManagement"].Bool())
+		heroTooltip = std::make_shared<CInteractableHeroTooltip>(Point(0,0), hero);
+	else
+		heroTooltip = std::make_shared<CHeroTooltip>(Point(0,0), hero);
 }
 
 CInfoBar::VisibleTownInfo::VisibleTownInfo(const CGTownInstance * town)
@@ -274,7 +278,12 @@ void CInfoBar::tick(uint32_t msPassed)
 void CInfoBar::clickReleased(const Point & cursorPosition)
 {
 	if(state == HERO || state == TOWN)
+	{
+		if(settings["gameTweaks"]["infoBoxCreatureManagement"].Bool())
+		return;
+
 		showGameStatus();
+	}
 	else if(state == GAME)
 		showDate();
 	else
