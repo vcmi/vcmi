@@ -46,6 +46,7 @@ template<typename T> class CApplier;
 
 VCMI_LIB_NAMESPACE_END
 
+class HeroPoolProcessor;
 class CGameHandler;
 class CVCMIServer;
 class CBaseForGHApply;
@@ -97,7 +98,10 @@ class CGameHandler : public IGameCallback, public CBattleInfoCallback, public En
 	CVCMIServer * lobby;
 	std::shared_ptr<CApplier<CBaseForGHApply>> applier;
 	std::unique_ptr<boost::thread> battleThread;
+
 public:
+	std::unique_ptr<HeroPoolProcessor> heroPool;
+
 	using FireShieldInfo = std::vector<std::pair<const CStack *, int64_t>>;
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
 	enum EGuardLook {CHECK_FOR_GUARDS, IGNORE_GUARDS};
@@ -145,6 +149,7 @@ public:
 	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
 	void setBattleResult(BattleResult::EResult resultType, int victoriusSide);
 
+	CGameHandler() = default;
 	CGameHandler(CVCMIServer * lobby);
 	~CGameHandler();
 
@@ -240,7 +245,6 @@ public:
 
 	void removeObstacle(const CObstacleInstance &obstacle);
 	bool queryReply( QueryID qid, const JsonNode & answer, PlayerColor player );
-	bool hireHero( const CGObjectInstance *obj, ui8 hid, PlayerColor player );
 	bool buildBoat( ObjectInstanceID objid, PlayerColor player );
 	bool setFormation( ObjectInstanceID hid, ui8 formation );
 	bool tradeResources(const IMarket *market, ui32 val, PlayerColor player, ui32 id1, ui32 id2);
@@ -283,7 +287,11 @@ public:
 		h & QID;
 		h & states;
 		h & finishingBattle;
+		h & heroPool;
 		h & getRandomGenerator();
+
+		if (!h.saving)
+			deserializationFix();
 
 #if SCRIPTING_ENABLED
 		JsonNode scriptsState;
@@ -355,6 +363,8 @@ public:
 	scripting::Pool * getContextPool() const override;
 #endif
 
+	std::list<PlayerColor> generatePlayerTurnOrder() const;
+
 	friend class CVCMIServer;
 private:
 	std::unique_ptr<events::EventBus> serverEventBus;
@@ -363,8 +373,9 @@ private:
 #endif
 
 	void reinitScripting();
+	void deserializationFix();
 
-	std::list<PlayerColor> generatePlayerTurnOrder() const;
+
 	void makeStackDoNothing(const CStack * next);
 	void getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const;
 

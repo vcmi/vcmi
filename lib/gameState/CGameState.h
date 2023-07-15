@@ -29,6 +29,7 @@ struct EventCondition;
 struct CampaignTravel;
 class CStackInstance;
 class CGameStateCampaign;
+class TavernHeroesPool;
 struct SThievesGuildInfo;
 
 template<typename T> class CApplier;
@@ -78,25 +79,10 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheck
 class DLL_LINKAGE CGameState : public CNonConstInfoCallback
 {
 	friend class CGameStateCampaign;
+
 public:
-	struct DLL_LINKAGE HeroesPool
-	{
-		std::map<ui32, ConstTransitivePtr<CGHeroInstance> > heroesPool; //[subID] - heroes available to buy; nullptr if not available
-		std::map<ui32,ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
-
-		CGHeroInstance * pickHeroFor(bool native,
-									 const PlayerColor & player,
-									 const CTown * town,
-									 std::map<ui32, ConstTransitivePtr<CGHeroInstance>> & available,
-									 CRandomGenerator & rand,
-									 const CHeroClass * bannedClass = nullptr) const;
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & heroesPool;
-			h & pavailable;
-		}
-	} hpool; //we have here all heroes available on this map that are not hired
+	//we have here all heroes available on this map that are not hired
+	std::unique_ptr<TavernHeroesPool> heroesPool;
 
 	CGameState();
 	virtual ~CGameState();
@@ -142,7 +128,6 @@ public:
 	bool checkForStandardLoss(const PlayerColor & player) const; //checks if given player lost the game
 
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
-	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
 
 	bool isVisible(int3 pos, const std::optional<PlayerColor> & player) const override;
 	bool isVisible(const CGObjectInstance * obj, const std::optional<PlayerColor> & player) const override;
@@ -169,7 +154,7 @@ public:
 		h & map;
 		h & players;
 		h & teams;
-		h & hpool;
+		h & heroesPool;
 		h & globalEffects;
 		h & rand;
 		h & rumor;

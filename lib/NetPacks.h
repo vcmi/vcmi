@@ -19,6 +19,7 @@
 #include "battle/BattleAction.h"
 #include "battle/CObstacleInstance.h"
 #include "gameState/EVictoryLossCheckResult.h"
+#include "gameState/TavernSlot.h"
 #include "gameState/QuestInfo.h"
 #include "mapObjects/CGHeroInstance.h"
 #include "mapping/CMapDefines.h"
@@ -330,23 +331,26 @@ struct DLL_LINKAGE FoWChange : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE SetAvailableHeroes : public CPackForClient
+struct DLL_LINKAGE SetAvailableHero : public CPackForClient
 {
-	SetAvailableHeroes()
+	SetAvailableHero()
 	{
-		for(auto & i : army)
-			i.clear();
+		army.clear();
 	}
 	void applyGs(CGameState * gs);
 
+	TavernHeroSlot slotID;
+	TavernSlotRole roleID;
 	PlayerColor player;
-	si32 hid[GameConstants::AVAILABLE_HEROES_PER_PLAYER]; //-1 if no hero
-	CSimpleArmy army[GameConstants::AVAILABLE_HEROES_PER_PLAYER];
+	HeroTypeID hid; //HeroTypeID::NONE if no hero
+	CSimpleArmy army;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
+		h & slotID;
+		h & roleID;
 		h & player;
 		h & hid;
 		h & army;
@@ -692,7 +696,7 @@ struct DLL_LINKAGE HeroRecruited : public CPackForClient
 {
 	void applyGs(CGameState * gs) const;
 
-	si32 hid = -1; //subID of hero
+	HeroTypeID hid; //subID of hero
 	ObjectInstanceID tid;
 	ObjectInstanceID boatId;
 	int3 tile;
@@ -2437,12 +2441,12 @@ struct DLL_LINKAGE SetFormation : public CPackForServer
 struct DLL_LINKAGE HireHero : public CPackForServer
 {
 	HireHero() = default;
-	HireHero(si32 HID, const ObjectInstanceID & TID)
+	HireHero(HeroTypeID HID, const ObjectInstanceID & TID)
 		: hid(HID)
 		, tid(TID)
 	{
 	}
-	si32 hid = 0; //available hero serial
+	HeroTypeID hid; //available hero serial
 	ObjectInstanceID tid; //town (tavern) id
 	PlayerColor player;
 

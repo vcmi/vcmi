@@ -12,6 +12,7 @@
 
 #include "EVictoryLossCheckResult.h"
 #include "InfoAboutArmy.h"
+#include "TavernHeroesPool.h"
 #include "CGameStateCampaign.h"
 #include "SThievesGuildInfo.h"
 
@@ -100,81 +101,6 @@ static CGObjectInstance * createObject(const Obj & id, int subid, const int3 & p
 		nobj->appearance = VLC->objtypeh->getHandlerFor(id, subid)->getTemplates().front();
 
 	return nobj;
-}
-
-CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native,
-													 const PlayerColor & player,
-													 const CTown * town,
-													 std::map<ui32, ConstTransitivePtr<CGHeroInstance>> & available,
-													 CRandomGenerator & rand,
-													 const CHeroClass * bannedClass) const
-{
-	CGHeroInstance *ret = nullptr;
-
-	if(player>=PlayerColor::PLAYER_LIMIT)
-	{
-		logGlobal->error("Cannot pick hero for faction %s. Wrong owner!", town->faction->getJsonKey());
-		return nullptr;
-	}
-
-	std::vector<CGHeroInstance *> pool;
-
-	if(native)
-	{
-		for(auto & elem : available)
-		{
-			if(pavailable.find(elem.first)->second & 1<<player.getNum()
-				&& elem.second->type->heroClass->faction == town->faction->getIndex())
-			{
-				pool.push_back(elem.second); //get all available heroes
-			}
-		}
-		if(pool.empty())
-		{
-			logGlobal->error("Cannot pick native hero for %s. Picking any...", player.getStr());
-			return pickHeroFor(false, player, town, available, rand);
-		}
-		else
-		{
-			ret = *RandomGeneratorUtil::nextItem(pool, rand);
-		}
-	}
-	else
-	{
-		int sum = 0;
-		int r;
-
-		for(auto & elem : available)
-		{
-			if (pavailable.find(elem.first)->second & (1<<player.getNum()) &&    // hero is available
-			    ( !bannedClass || elem.second->type->heroClass != bannedClass) ) // and his class is not same as other hero
-			{
-				pool.push_back(elem.second);
-				sum += elem.second->type->heroClass->selectionProbability[town->faction->getId()]; //total weight
-			}
-		}
-		if(pool.empty() || sum == 0)
-		{
-			logGlobal->error("There are no heroes available for player %s!", player.getStr());
-			return nullptr;
-		}
-
-		r = rand.nextInt(sum - 1);
-		for (auto & elem : pool)
-		{
-			r -= elem->type->heroClass->selectionProbability[town->faction->getId()];
-			if(r < 0)
-			{
-				ret = elem;
-				break;
-			}
-		}
-		if(!ret)
-			ret = pool.back();
-	}
-
-	available.erase(ret->subID);
-	return ret;
 }
 
 HeroTypeID CGameState::pickNextHeroType(const PlayerColor & owner)
@@ -459,6 +385,7 @@ int CGameState::getDate(Date::EDateType mode) const
 CGameState::CGameState()
 {
 	gs = this;
+	heroesPool = std::make_unique<TavernHeroesPool>();
 	applier = std::make_shared<CApplier<CBaseForGSApply>>();
 	registerTypesClientPacks1(*applier);
 	registerTypesClientPacks2(*applier);
@@ -469,9 +396,6 @@ CGameState::~CGameState()
 {
 	map.dellNull();
 	curB.dellNull();
-
-	for(auto ptr : hpool.heroesPool) // clean hero pool
-		ptr.second.dellNull();
 }
 
 void CGameState::preInit(Services * services)
@@ -951,8 +875,7 @@ void CGameState::initHeroes()
 		if(!vstd::contains(heroesToCreate, HeroTypeID(ph->subID)))
 			continue;
 		ph->initHero(getRandomGenerator());
-		hpool.heroesPool[ph->subID] = ph;
-		hpool.pavailable[ph->subID] = 0xff;
+		heroesPool->addHeroToPool(ph);
 		heroesToCreate.erase(ph->type->getId());
 
 		map->allHeroes[ph->subID] = ph;
@@ -965,14 +888,11 @@ void CGameState::initHeroes()
 
 		int typeID = htype.getNum();
 		map->allHeroes[typeID] = vhi;
-		hpool.heroesPool[typeID] = vhi;
-		hpool.pavailable[typeID] = 0xff;
+		heroesPool->addHeroToPool(vhi);
 	}
 
 	for(auto & elem : map->disposedHeroes)
-	{
-		hpool.pavailable[elem.heroId] = elem.players;
-	}
+		heroesPool->setAvailability(elem.heroId, elem.players);
 
 	if (campaign)
 		campaign->initHeroes();
@@ -2065,17 +1985,6 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 
 #undef FILL_FIELD
-}
-
-std::map<ui32, ConstTransitivePtr<CGHeroInstance> > CGameState::unusedHeroesFromPool()
-{
-	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > pool = hpool.heroesPool;
-	for(const auto & player : players)
-		for(auto availableHero : player.second.availableHeroes)
-			if(availableHero)
-				pool.erase((*availableHero).subID);
-
-	return pool;
 }
 
 void CGameState::buildBonusSystemTree()

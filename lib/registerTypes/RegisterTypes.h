@@ -239,7 +239,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, SetMana>();
 	s.template registerType<CPackForClient, SetMovePoints>();
 	s.template registerType<CPackForClient, FoWChange>();
-	s.template registerType<CPackForClient, SetAvailableHeroes>();
+	s.template registerType<CPackForClient, SetAvailableHero>();
 	s.template registerType<CPackForClient, GiveBonus>();
 	s.template registerType<CPackForClient, ChangeObjPos>();
 	s.template registerType<CPackForClient, PlayerEndsGame>();
