@@ -35,7 +35,6 @@ public slots:
 private slots:
 	void on_comboBoxResolution_currentTextChanged(const QString & arg1);
 	void on_comboBoxFullScreen_currentIndexChanged(int index);
-	void on_comboBoxPlayerAI_currentTextChanged(const QString & arg1);
 	void on_comboBoxFriendlyAI_currentTextChanged(const QString & arg1);
 	void on_comboBoxNeutralAI_currentTextChanged(const QString & arg1);
 	void on_comboBoxEnemyAI_currentTextChanged(const QString & arg1);
@@ -62,6 +61,10 @@ private slots:
 	void on_refreshRepositoriesButton_clicked();
 
 	void on_spinBoxFramerateLimit_valueChanged(int arg1);
+
+	void on_comboBoxEnemyPlayerAI_currentTextChanged(const QString &arg1);
+
+	void on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &arg1);
 
 private:
 	Ui::CSettingsView * ui;
