@@ -3628,7 +3628,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	sendAndApply(&fw);
 
 	if(t->visitingHero)
-		objectVisited(t, t->visitingHero);
+		visitCastleObjects(t, t->visitingHero);
 	if(t->garrisonHero)
 		visitCastleObjects(t, t->garrisonHero);
 
@@ -4465,7 +4465,8 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 
 	if(t)
 	{
-		objectVisited(t, nh);
+		visitCastleObjects(t, nh);
+		giveSpells (t,nh);
 	}
 	return true;
 }
