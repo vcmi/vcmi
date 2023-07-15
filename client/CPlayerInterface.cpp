@@ -404,9 +404,6 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 
 	adventureInt->onHeroChanged(hero);
 	localState->erasePath(hero);
-
-	for (auto ki : GH.windows().findWindows<CKingdomInterface>())
-		ki->heroRemoved();
 }
 
 void CPlayerInterface::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start)
@@ -1489,6 +1486,9 @@ void CPlayerInterface::objectRemovedAfter()
 	// visiting or garrisoned hero removed - recreate castle window
 	if (castleInt)
 		openTownWindow(castleInt->town);
+
+	for (auto ki : GH.windows().findWindows<CKingdomInterface>())
+		ki->heroRemoved();
 }
 
 void CPlayerInterface::playerBlocked(int reason, bool start)
