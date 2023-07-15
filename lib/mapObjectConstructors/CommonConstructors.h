@@ -13,6 +13,7 @@
 #include "../LogicalExpression.h"
 
 #include "../mapObjects/MiscObjects.h"
+#include "../mapObjects/CGCreature.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

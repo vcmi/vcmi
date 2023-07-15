@@ -20,7 +20,6 @@
 #include "../TerrainHandler.h"
 #include "../VCMI_Lib.h"
 
-#include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGTownInstance.h"
