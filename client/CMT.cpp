@@ -443,7 +443,8 @@ void playIntro()
 {
 	if(CCS->videoh->openAndPlayVideo("3DOLOGO.SMK", 0, 1, true, true))
 	{
-		CCS->videoh->openAndPlayVideo("AZVS.SMK", 0, 1, true, true);
+		if (CCS->videoh->openAndPlayVideo("NWCLOGO.SMK", 0, 1, true, true))
+			CCS->videoh->openAndPlayVideo("H3INTRO.SMK", 0, 1, true, true);
 	}
 }
 

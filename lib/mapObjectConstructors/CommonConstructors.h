@@ -13,6 +13,7 @@
 #include "../LogicalExpression.h"
 
 #include "../mapObjects/MiscObjects.h"
+#include "../mapObjects/CGCreature.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -22,6 +23,7 @@ class CGTownInstance;
 class CGHeroInstance;
 class CGMarket;
 class CHeroClass;
+class CGCreature;
 class CBank;
 class CGBoat;
 class CFaction;
@@ -31,6 +33,20 @@ class CObstacleConstructor : public CDefaultObjectTypeHandler<CGObjectInstance>
 {
 public:
 	bool isStaticObject() override;
+};
+
+class CreatureInstanceConstructor : public CDefaultObjectTypeHandler<CGCreature>
+{
+public:
+	bool hasNameTextID() const override;
+	std::string getNameTextID() const override;
+};
+
+class ResourceInstanceConstructor : public CDefaultObjectTypeHandler<CGResource>
+{
+public:
+	bool hasNameTextID() const override;
+	std::string getNameTextID() const override;
 };
 
 class CTownInstanceConstructor : public CDefaultObjectTypeHandler<CGTownInstance>
@@ -47,6 +63,9 @@ public:
 	void initializeObject(CGTownInstance * object) const override;
 	void randomizeObject(CGTownInstance * object, CRandomGenerator & rng) const override;
 	void afterLoadFinalization() override;
+
+	bool hasNameTextID() const override;
+	std::string getNameTextID() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -71,6 +90,9 @@ public:
 	void initializeObject(CGHeroInstance * object) const override;
 	void randomizeObject(CGHeroInstance * object, CRandomGenerator & rng) const override;
 	void afterLoadFinalization() override;
+
+	bool hasNameTextID() const override;
+	std::string getNameTextID() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

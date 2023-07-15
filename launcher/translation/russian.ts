@@ -709,6 +709,11 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <translation>Язык Героев III не был определен. Пожалуйста, выберите язык вашей копии Героев III</translation>
     </message>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
+        <source>Interface Improvements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="740"/>
         <source>Install a translation of Heroes III in your preferred language</source>
         <translation>Установить перевод Героев III на выбранный вами язык</translation>
@@ -720,8 +725,12 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
+        <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
-        <translation>Установить поддержку запуска Героев III в разрешениях, отличных от 800x600</translation>
+        <translation type="vanished">Установить поддержку запуска Героев III в разрешениях, отличных от 800x600</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
@@ -811,9 +820,8 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
         <translation>Перевод Героев III</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
         <source>High Definition Support</source>
-        <translation>Поддержка высоких разрешений</translation>
+        <translation type="vanished">Поддержка высоких разрешений</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="724"/>

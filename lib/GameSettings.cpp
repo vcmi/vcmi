@@ -68,6 +68,7 @@ void GameSettings::load(const JsonNode & input)
 		{EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT,        "creatures", "weeklyGrowthPercent"        },
 		{EGameSettings::DWELLINGS_ACCUMULATE_WHEN_NEUTRAL,      "dwellings", "accumulateWhenNeutral"      },
 		{EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED,        "dwellings", "accumulateWhenOwned"        },
+		{EGameSettings::DWELLINGS_MERGE_ON_RECRUIT,             "dwellings", "mergeOnRecruit"             },
 		{EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP,           "heroes",    "perPlayerOnMapCap"          },
 		{EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP,            "heroes",    "perPlayerTotalCap"          },
 		{EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS,   "heroes",    "retreatOnWinWithoutTroops"  },

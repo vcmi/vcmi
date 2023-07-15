@@ -324,6 +324,21 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 	{
 		if(count) //there are available creatures
 		{
+
+			if (VLC->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED))
+			{
+				SlotID testSlot = h->getSlotFor(crid);
+				if(!testSlot.validSlot()) //no available slot - try merging army of visiting hero
+				{
+					std::pair<SlotID, SlotID> toMerge;
+					if (h->mergableStacks(toMerge))
+					{
+						cb->moveStack(StackLocation(h, toMerge.first), StackLocation(h, toMerge.second), -1); //merge toMerge.first into toMerge.second
+						assert(!h->hasStackAtSlot(toMerge.first)); //we have now a new free slot
+					}
+				}
+			}
+
 			SlotID slot = h->getSlotFor(crid);
 			if(!slot.validSlot()) //no available slot
 			{

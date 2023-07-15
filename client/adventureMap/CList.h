@@ -77,6 +77,9 @@ protected:
 
 	virtual std::shared_ptr<CIntObject> createItem(size_t index) = 0;
 
+	/// should be called when list is invalidated
+	void update();
+
 public:
 	/// functions that will be called when selection changes
 	CFunctionList<void()> onSelect;
@@ -87,8 +90,6 @@ public:
 	void setScrollUpButton(std::shared_ptr<CButton> button);
 	void setScrollDownButton(std::shared_ptr<CButton> button);
 
-	/// should be called when list is invalidated
-	void update();
 
 	/// set of methods to switch selection
 	void selectIndex(int which);
@@ -137,7 +138,10 @@ public:
 	void select(const CGHeroInstance * hero = nullptr);
 
 	/// Update hero. Will add or remove it from the list if needed
-	void update(const CGHeroInstance * hero = nullptr);
+	void updateElement(const CGHeroInstance * hero);
+
+	/// Update all heroes
+	void updateWidget();
 };
 
 /// List of towns which is shown at the right of the adventure map screen or in the town screen
@@ -167,6 +171,9 @@ public:
 	void select(const CGTownInstance * town = nullptr);
 
 	/// Update town. Will add or remove it from the list if needed
-	void update(const CGTownInstance * town = nullptr);
+	void updateElement(const CGTownInstance * town);
+
+	/// Update all towns
+	void updateWidget();
 };
 

@@ -92,7 +92,7 @@ void AdventureMapInterface::onHeroMovementStarted(const CGHeroInstance * hero)
 
 void AdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 {
-	widget->getHeroList()->update(h);
+	widget->getHeroList()->updateElement(h);
 
 	if (h && h == LOCPLINT->localState->getCurrentHero() && !widget->getInfoBar()->showingComponents())
 		widget->getInfoBar()->showSelection();
@@ -102,7 +102,7 @@ void AdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
 
 void AdventureMapInterface::onTownChanged(const CGTownInstance * town)
 {
-	widget->getTownList()->update(town);
+	widget->getTownList()->updateElement(town);
 
 	if (town && town == LOCPLINT->localState->getCurrentTown() && !widget->getInfoBar()->showingComponents())
 		widget->getInfoBar()->showSelection();
@@ -365,8 +365,8 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 		widget->getInfoBar()->showSelection();
 	}
 
-	widget->getHeroList()->update();
-	widget->getTownList()->update();
+	widget->getHeroList()->updateWidget();
+	widget->getTownList()->updateWidget();
 
 	const CGHeroInstance * heroToSelect = nullptr;
 
@@ -826,6 +826,9 @@ void AdventureMapInterface::onScreenResize()
 	widget->updateActiveState();
 	widget->getMinimap()->update();
 	widget->getInfoBar()->showSelection();
+
+	if (LOCPLINT && LOCPLINT->localState->getCurrentArmy())
+		widget->getMapView()->onCenteredObject(LOCPLINT->localState->getCurrentArmy());
 
 	adjustActiveness();
 }

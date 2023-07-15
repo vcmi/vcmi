@@ -311,6 +311,8 @@
 			"accumulateWhenNeutral" : false,
 			// if enabled, dwellings owned by players will accumulate creatures 
 			"accumulateWhenOwned" : false
+			// if enabled, game will attempt to merge slots in army on recruit if all slots in hero army are in use
+			"mergeOnRecruit" : true
 		},
 		
 		"markets" : 
