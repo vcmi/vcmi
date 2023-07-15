@@ -827,5 +827,8 @@ void AdventureMapInterface::onScreenResize()
 	widget->getMinimap()->update();
 	widget->getInfoBar()->showSelection();
 
+	if (LOCPLINT && LOCPLINT->localState->getCurrentArmy())
+		widget->getMapView()->onCenteredObject(LOCPLINT->localState->getCurrentArmy());
+
 	adjustActiveness();
 }
