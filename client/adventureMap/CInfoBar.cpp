@@ -277,6 +277,9 @@ void CInfoBar::tick(uint32_t msPassed)
 
 void CInfoBar::clickReleased(const Point & cursorPosition)
 {
+	timerCounter = 0;
+	removeUsedEvents(TIME); //expiration trigger from just clicked element is not valid anymore
+
 	if(state == HERO || state == TOWN)
 	{
 		if(settings["gameTweaks"]["infoBoxCreatureManagement"].Bool())
