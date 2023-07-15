@@ -12,6 +12,7 @@
 
 #include "CGameHandler.h"
 #include "HeroPoolProcessor.h"
+#include "PlayerMessageProcessor.h"
 
 #include "../lib/IGameCallback.h"
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -352,6 +353,6 @@ void ApplyGhNetPackVisitor::visitPlayerMessage(PlayerMessage & pack)
 	if(!pack.player.isSpectator()) // TODO: clearly not a great way to verify permissions
 		gh.throwOnWrongPlayer(&pack, pack.player);
 	
-	gh.playerMessage(pack.player, pack.text, pack.currObj);
+	gh.playerMessages->playerMessage(pack.player, pack.text, pack.currObj);
 	result = true;
 }
