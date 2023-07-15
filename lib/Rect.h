@@ -160,7 +160,7 @@ public:
 		h & x;
 		h & y;
 		h & w;
-		h & h;
+		h & this->h;
 	}
 };
 
