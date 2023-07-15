@@ -250,7 +250,10 @@ void Timed::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 			auto guard = handler.enterStruct(p.first);
 			const JsonNode & bonusNode = handler.getCurrent();
 			auto b = JsonUtils::parseBonus(bonusNode);
-			bonus.push_back(b);
+			if (b)
+				bonus.push_back(b);
+			else
+				logMod->error("Failed to parse bonus '%s'!", p.first);
 		}
 	}
 }
