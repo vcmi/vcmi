@@ -107,6 +107,8 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<AObjectTypeHandler, ShrineInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, ShipyardInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, HillFortInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, CreatureInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, ResourceInstanceConstructor>();
 
 #define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()
 

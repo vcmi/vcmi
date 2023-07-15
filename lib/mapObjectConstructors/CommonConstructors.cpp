@@ -20,6 +20,7 @@
 #include "../TerrainHandler.h"
 #include "../VCMI_Lib.h"
 
+#include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGTownInstance.h"
@@ -33,6 +34,26 @@ VCMI_LIB_NAMESPACE_BEGIN
 bool CObstacleConstructor::isStaticObject()
 {
 	return true;
+}
+
+bool CreatureInstanceConstructor::hasNameTextID() const
+{
+	return true;
+}
+
+std::string CreatureInstanceConstructor::getNameTextID() const
+{
+	return VLC->creatures()->getByIndex(getSubIndex())->getNamePluralTextID();
+}
+
+bool ResourceInstanceConstructor::hasNameTextID() const
+{
+	return true;
+}
+
+std::string ResourceInstanceConstructor::getNameTextID() const
+{
+	return TextIdentifier("core", "restypes", getSubIndex()).get();
 }
 
 void CTownInstanceConstructor::initTypeData(const JsonNode & input)
@@ -86,6 +107,16 @@ void CTownInstanceConstructor::randomizeObject(CGTownInstance * object, CRandomG
 		object->appearance = templ;
 }
 
+bool CTownInstanceConstructor::hasNameTextID() const
+{
+	return true;
+}
+
+std::string CTownInstanceConstructor::getNameTextID() const
+{
+	return faction->getNameTextID();
+}
+
 void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
 {
 	VLC->modh->identifiers.requestIdentifier(
@@ -131,6 +162,16 @@ void CHeroInstanceConstructor::initializeObject(CGHeroInstance * obj) const
 void CHeroInstanceConstructor::randomizeObject(CGHeroInstance * object, CRandomGenerator & rng) const
 {
 
+}
+
+bool CHeroInstanceConstructor::hasNameTextID() const
+{
+	return true;
+}
+
+std::string CHeroInstanceConstructor::getNameTextID() const
+{
+	return heroClass->getNameTextID();
 }
 
 void BoatInstanceConstructor::initTypeData(const JsonNode & input)
