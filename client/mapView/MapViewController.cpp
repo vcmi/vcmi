@@ -185,9 +185,16 @@ void MapViewController::tick(uint32_t timeDelta)
 		fadingInContext->progress = std::min( 1.0, fadingInContext->progress);
 	}
 
+	if (adventureContext)
+		adventureContext->animationTime += timeDelta;
+
+	updateState();
+}
+
+void MapViewController::updateState()
+{
 	if(adventureContext)
 	{
-		adventureContext->animationTime += timeDelta;
 		adventureContext->settingsSessionSpectate = settings["session"]["spectate"].Bool();
 		adventureContext->settingsAdventureObjectAnimation = settings["adventure"]["objectAnimation"].Bool();
 		adventureContext->settingsAdventureTerrainAnimation = settings["adventure"]["terrainAnimation"].Bool();
@@ -511,6 +518,7 @@ void MapViewController::activateAdventureContext(uint32_t animationTime)
 	adventureContext = std::make_shared<MapRendererAdventureContext>(*state);
 	adventureContext->animationTime = animationTime;
 	context = adventureContext;
+	updateState();
 }
 
 void MapViewController::activateAdventureContext()

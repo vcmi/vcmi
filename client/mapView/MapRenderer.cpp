@@ -145,16 +145,8 @@ void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & targ
 
 	const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
 
-	if(mapTile.terType->getId() == ETerrainId::LAVA)
-	{
-		image->shiftPalette(246, 9, context.terrainImageIndex(9));
-	}
-
-	if(mapTile.terType->getId() == ETerrainId::WATER)
-	{
-		image->shiftPalette(229, 12, context.terrainImageIndex(12));
-		image->shiftPalette(242, 14, context.terrainImageIndex(14));
-	}
+	for( auto const & element : mapTile.terType->paletteAnimation)
+		image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
 
 	target.draw(image, Point(0, 0));
 }
@@ -163,7 +155,7 @@ uint8_t MapRendererTerrain::checksum(IMapRendererContext & context, const int3 &
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
-	if(mapTile.terType->getId() == ETerrainId::LAVA || mapTile.terType->getId() == ETerrainId::WATER)
+	if(!mapTile.terType->paletteAnimation.empty())
 		return context.terrainImageIndex(250);
 	return 0xff - 1;
 }
@@ -188,23 +180,8 @@ void MapRendererRiver::renderTile(IMapRendererContext & context, Canvas & target
 
 	const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
 
-	if(mapTile.riverType->getId() == River::WATER_RIVER)
-	{
-		image->shiftPalette(183, 12, context.terrainImageIndex(12));
-		image->shiftPalette(195, 6, context.terrainImageIndex(6));
-	}
-
-	if(mapTile.riverType->getId() == River::MUD_RIVER)
-	{
-		image->shiftPalette(228, 12, context.terrainImageIndex(12));
-		image->shiftPalette(183, 6, context.terrainImageIndex(6));
-		image->shiftPalette(240, 6, context.terrainImageIndex(6));
-	}
-
-	if(mapTile.riverType->getId() == River::LAVA_RIVER)
-	{
-		image->shiftPalette(240, 9, context.terrainImageIndex(9));
-	}
+	for( auto const & element : mapTile.riverType->paletteAnimation)
+		image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
 
 	target.draw(image, Point(0, 0));
 }
@@ -213,9 +190,7 @@ uint8_t MapRendererRiver::checksum(IMapRendererContext & context, const int3 & c
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
-	if(mapTile.riverType->getId() == River::WATER_RIVER ||
-	   mapTile.riverType->getId() == River::MUD_RIVER ||
-	   mapTile.riverType->getId() == River::LAVA_RIVER)
+	if(!mapTile.riverType->paletteAnimation.empty())
 		return context.terrainImageIndex(250);
 	return 0xff-1;
 }

@@ -41,7 +41,6 @@ protected:
 
 public:
 	CArtPlace(Point position, const CArtifactInstance * Art = nullptr);
-	void clickLeft(tribool down, bool previousState) override;
 	const CArtifactInstance * getArt();
 
 	virtual void setArtifact(const CArtifactInstance * art)=0;
@@ -58,8 +57,8 @@ protected:
 
 public:
 	CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * Art = nullptr);
-	void clickLeft(tribool down, bool previousState) override;
-	void showPopupWindow() override;
+	void clickPressed(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 	void setArtifact(const CArtifactInstance * art) override;
 };
 
@@ -77,8 +76,8 @@ public:
 	bool isLocked();
 	void selectSlot(bool on);
 	bool isMarked() const;
-	void clickLeft(tribool down, bool previousState) override;
-	void showPopupWindow() override;
+	void clickPressed(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 	void showAll(Canvas & to) override;
 	void setArtifact(const CArtifactInstance * art) override;
 	void addCombinedArtInfo(std::map<const CArtifact*, int> & arts);

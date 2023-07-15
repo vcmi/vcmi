@@ -499,23 +499,19 @@ void CBonusSelection::CRegion::updateState()
 	}
 }
 
-void CBonusSelection::CRegion::clickLeft(tribool down, bool previousState)
+void CBonusSelection::CRegion::clickReleased(const Point & cursorPosition)
 {
-	//select if selectable & clicked inside our graphic
-	if(indeterminate(down))
-		return;
-
-	if(!down && selectable && !graphicsNotSelected->getSurface()->isTransparent(GH.getCursorPosition() - pos.topLeft()))
+	if(selectable && !graphicsNotSelected->getSurface()->isTransparent(cursorPosition - pos.topLeft()))
 	{
 		CSH->setCampaignMap(idOfMapAndRegion);
 	}
 }
 
-void CBonusSelection::CRegion::showPopupWindow()
+void CBonusSelection::CRegion::showPopupWindow(const Point & cursorPosition)
 {
 	// FIXME: For some reason "down" is only ever contain indeterminate_value
 	auto text = CSH->si->campState->scenario(idOfMapAndRegion).regionText;
-	if(!graphicsNotSelected->getSurface()->isTransparent(GH.getCursorPosition() - pos.topLeft()) && text.size())
+	if(!graphicsNotSelected->getSurface()->isTransparent(cursorPosition - pos.topLeft()) && text.size())
 	{
 		CRClickPopup::createAndPush(text);
 	}

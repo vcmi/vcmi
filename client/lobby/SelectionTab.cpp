@@ -179,7 +179,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		break;
 	case ESelectionScreen::campaignList:
 		tabTitle = CGI->generaltexth->allTexts[726];
-		type |= REDRAW_PARENT; // we use parent background so we need to make sure it's will be redrawn too
+		setRedrawParent(true); // we use parent background so we need to make sure it's will be redrawn too
 		pos.w = parent->pos.w;
 		pos.h = parent->pos.h;
 		pos.x += 3;
@@ -270,22 +270,20 @@ void SelectionTab::toggleMode()
 	redraw();
 }
 
-void SelectionTab::clickLeft(tribool down, bool previousState)
+void SelectionTab::clickReleased(const Point & cursorPosition)
 {
-	if(down)
-	{
-		int line = getLine();
+	int line = getLine();
 
-		if(line != -1)
-		{
-			select(line);
-		}
-#ifdef VCMI_IOS
-		// focus input field if clicked inside it
-		else if(inputName && inputName->isActive() && inputNameRect.isInside(GH.getCursorPosition()))
-			inputName->giveFocus();
-#endif
+	if(line != -1)
+	{
+		select(line);
 	}
+#ifdef VCMI_IOS
+	// focus input field if clicked inside it
+	else if(inputName && inputName->isActive() && inputNameRect.isInside(cursorPosition))
+		inputName->giveFocus();
+#endif
+
 }
 
 void SelectionTab::keyPressed(EShortcut key)
@@ -317,12 +315,12 @@ void SelectionTab::keyPressed(EShortcut key)
 	select((int)selectionPos - slider->getValue() + moveBy);
 }
 
-void SelectionTab::clickDouble()
+void SelectionTab::clickDouble(const Point & cursorPosition)
 {
 	if(getLine() != -1) //double clicked scenarios list
 	{
-		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickLeft(true, false);
-		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickLeft(false, true);
+		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickPressed(cursorPosition);
+		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickReleased(cursorPosition);
 	}
 }
 
@@ -419,7 +417,9 @@ void SelectionTab::select(int position)
 		auto filename = *CResourceHandler::get("local")->getResourceName(ResourceID(curItems[py]->fileURI, EResType::CLIENT_SAVEGAME));
 		inputName->setText(filename.stem().string());
 	}
+
 	updateListItems();
+	redraw();
 	if(callOnSelect)
 		callOnSelect(curItems[py]);
 }
@@ -457,10 +457,21 @@ void SelectionTab::updateListItems()
 	}
 }
 
-int SelectionTab::getLine()
+bool SelectionTab::receiveEvent(const Point & position, int eventType) const
+{
+	// FIXME: widget should instead have well-defined pos so events will be filtered using standard routine
+	return getLine(position - pos.topLeft()) != -1;
+}
+
+int SelectionTab::getLine() const
+{
+	Point clickPos = GH.getCursorPosition() - pos.topLeft();
+	return getLine(clickPos);
+}
+
+int SelectionTab::getLine(const Point & clickPos) const
 {
 	int line = -1;
-	Point clickPos = GH.getCursorPosition() - pos.topLeft();
 
 	// Ignore clicks on save name area
 	int maxPosY;

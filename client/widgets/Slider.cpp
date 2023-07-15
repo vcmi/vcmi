@@ -121,24 +121,28 @@ void CSlider::scrollTo(int to)
 	moved(to);
 }
 
-void CSlider::clickLeft(tribool down, bool previousState)
+void CSlider::clickPressed(const Point & cursorPosition)
 {
-	if(down && !slider->isBlocked())
+	if(!slider->isBlocked())
 	{
 		double pw = 0;
 		double rw = 0;
 		if(getOrientation() == Orientation::HORIZONTAL)
 		{
-			pw = GH.getCursorPosition().x-pos.x-25;
+			pw = cursorPosition.x-pos.x-25;
 			rw = pw / static_cast<double>(pos.w - 48);
 		}
 		else
 		{
-			pw = GH.getCursorPosition().y-pos.y-24;
+			pw = cursorPosition.y-pos.y-24;
 			rw = pw / (pos.h-48);
 		}
 
-		slider->clickLeft(true, slider->isMouseLeftButtonPressed());
+		// click on area covered by buttons -> ignore, will be handled by left/right buttons
+		if (!vstd::iswithin(rw, 0, 1))
+			return;
+
+		slider->clickPressed(cursorPosition);
 		scrollTo((int)(rw * positions  +  0.5));
 		return;
 	}
@@ -213,6 +217,10 @@ CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int
 		pos.w = slider->pos.w;
 		pos.h = totalw;
 	}
+
+	// for horizontal sliders that act as values selection - add keyboard event to receive left/right click
+	if (getOrientation() == Orientation::HORIZONTAL)
+		addUsedEvents(KEYBOARD);
 
 	updateSliderPos();
 }

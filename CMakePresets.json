@@ -71,6 +71,18 @@
             "inherits": "linux-release",
             "cacheVariables": {
                 "ENABLE_LUA" : "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "linux-gcc-debug",
+            "displayName": "GCC x86_64-pc-linux-gnu (debug)",
+            "description": "VCMI Linux GCC (Debug)",
+            "inherits": "linux-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "ENABLE_LUA" : "ON",
                 "ENABLE_PCH" : "OFF",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
@@ -93,7 +105,6 @@
             "inherits": "linux-test",
             "cacheVariables": {
                 "ENABLE_LUA" : "OFF",
-                "ENABLE_PCH" : "OFF",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
             }
@@ -240,6 +251,11 @@
             "configuration": "RelWithDebInfo"
         },
         {
+            "name": "default-debug",
+            "hidden": true,
+            "configuration": "Debug"
+        },
+        {
             "name": "linux-clang-release",
             "configurePreset": "linux-clang-release",
             "inherits": "default-release"
@@ -258,6 +274,11 @@
             "name": "linux-gcc-release",
             "configurePreset": "linux-gcc-release",
             "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-debug",
+            "configurePreset": "linux-gcc-debug",
+            "inherits": "default-debug"
         },
         {
             "name": "macos-xcode-release",

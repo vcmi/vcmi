@@ -17,7 +17,7 @@ CreatureCostBox::CreatureCostBox(Rect position, std::string titleText)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	pos = position + pos.topLeft();
 
 	title = std::make_shared<CLabel>(pos.w/2, 10, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, titleText);

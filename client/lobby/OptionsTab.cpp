@@ -432,7 +432,7 @@ void OptionsTab::SelectedBox::update()
 	subtitle->setText(getName());
 }
 
-void OptionsTab::SelectedBox::showPopupWindow()
+void OptionsTab::SelectedBox::showPopupWindow(const Point & cursorPosition)
 {
 	// cases when we do not need to display a message
 	if(settings.castle == -2 && CPlayerSettingsHelper::type == TOWN)

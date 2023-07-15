@@ -194,6 +194,7 @@ public:
 	void heroManaPointsChanged(const CGHeroInstance * hero) override;
 	void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val) override;
 	void battleResultsApplied() override;
+	void beforeObjectPropertyChanged(const SetObjectProperty * sop) override;
 	void objectPropertyChanged(const SetObjectProperty * sop) override;
 	void buildChanged(const CGTownInstance * town, BuildingID buildingID, int what) override;
 	void heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain) override;

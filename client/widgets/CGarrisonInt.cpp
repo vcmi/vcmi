@@ -285,7 +285,7 @@ bool CGarrisonSlot::mustForceReselection() const
 	return false;
 }
 
-void CGarrisonSlot::showPopupWindow()
+void CGarrisonSlot::showPopupWindow(const Point & cursorPosition)
 {
 	if(creature)
 	{
@@ -293,10 +293,8 @@ void CGarrisonSlot::showPopupWindow()
 	}
 }
 
-void CGarrisonSlot::clickLeft(tribool down, bool previousState)
+void CGarrisonSlot::clickPressed(const Point & cursorPosition)
 {
-	if(down)
-	{
 		bool refr = false;
 		const CGarrisonSlot * selection = owner->getSelection();
 
@@ -349,7 +347,6 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 			hover(false);
 			hover(true);
 		}
-	}
 }
 
 void CGarrisonSlot::update()

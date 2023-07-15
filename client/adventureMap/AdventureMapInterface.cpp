@@ -83,8 +83,11 @@ void AdventureMapInterface::onAudioPaused()
 
 void AdventureMapInterface::onHeroMovementStarted(const CGHeroInstance * hero)
 {
-	widget->getInfoBar()->popAll();
-	widget->getInfoBar()->showSelection();
+	if (shortcuts->optionMapViewActive())
+	{
+		widget->getInfoBar()->popAll();
+		widget->getInfoBar()->showSelection();
+	}
 }
 
 void AdventureMapInterface::onHeroChanged(const CGHeroInstance *h)
@@ -137,6 +140,9 @@ void AdventureMapInterface::deactivate()
 {
 	CIntObject::deactivate();
 	CCS->curh->set(Cursor::Map::POINTER);
+
+	if(LOCPLINT)
+		LOCPLINT->cingconsole->deactivate();
 }
 
 void AdventureMapInterface::showAll(Canvas & to)
@@ -309,16 +315,15 @@ void AdventureMapInterface::onHotseatWaitStarted(PlayerColor playerID)
 	setState(EAdventureState::HOTSEAT_WAIT);
 }
 
-void AdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID)
+void AdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID, bool isHuman)
 {
 	if(settings["session"]["spectate"].Bool())
 		return;
 
 	mapAudio->onEnemyTurnStarted();
-	widget->getMinimap()->setAIRadar(true);
+	widget->getMinimap()->setAIRadar(!isHuman);
 	widget->getInfoBar()->startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
 	setState(EAdventureState::ENEMY_TURN);
-
 }
 
 void AdventureMapInterface::setState(EAdventureState state)
@@ -333,17 +338,8 @@ void AdventureMapInterface::adjustActiveness()
 	bool widgetMustBeActive = isActive() && shortcuts->optionSidePanelActive();
 	bool mapViewMustBeActive = isActive() && (shortcuts->optionMapViewActive());
 
-	if (widgetMustBeActive && !widget->isActive())
-		widget->activate();
-
-	if (!widgetMustBeActive && widget->isActive())
-		widget->deactivate();
-
-	if (mapViewMustBeActive && !widget->getMapView()->isActive())
-		widget->getMapView()->activate();
-
-	if (!mapViewMustBeActive && widget->getMapView()->isActive())
-		widget->getMapView()->deactivate();
+	widget->setInputEnabled(widgetMustBeActive);
+	widget->getMapView()->setInputEnabled(mapViewMustBeActive);
 }
 
 void AdventureMapInterface::onCurrentPlayerChanged(PlayerColor playerID)

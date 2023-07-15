@@ -599,9 +599,104 @@
         <translation>Результаты проверки карты</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="101"/>
+        <location filename="../validator.cpp" line="50"/>
+        <source>Map is not loaded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="73"/>
+        <source>No players allowed to play this map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="75"/>
+        <source>Map is allowed for one player and cannot be started</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="77"/>
+        <source>No human players allowed to play this map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="93"/>
+        <source>Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="99"/>
+        <source>Object %1 is assigned to non-playable player %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="106"/>
         <source>Town %1 has undefined owner %2</source>
         <translation>У города %1 неопределенный владелец %2</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="116"/>
+        <source>Prison %1 must be a NEUTRAL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="122"/>
+        <source>Hero %1 must have an owner</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="127"/>
+        <source>Hero %1 is prohibited by map settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="130"/>
+        <source>Hero %1 has duplicate on map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="133"/>
+        <source>Hero %1 has an empty type and must be removed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="144"/>
+        <source>Spell scroll %1 is prohibited by map settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="147"/>
+        <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="153"/>
+        <source>Artifact %1 is prohibited by map settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="162"/>
+        <source>Player %1 doesn&apos;t have any starting town</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="166"/>
+        <source>Map name is not specified</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="168"/>
+        <source>Map description is not specified</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="181"/>
+        <source>Exception occurs during validation: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="185"/>
+        <source>Unknown exception occurs during validation</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

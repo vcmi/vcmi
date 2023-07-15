@@ -20,9 +20,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CArtHandler;
-class CArtifact;
 class CGHeroInstance;
-struct ArtifactLocation;
 class CArtifactSet;
 class CArtifactInstance;
 class CRandomGenerator;
@@ -44,26 +42,75 @@ namespace ArtBearer
 	};
 }
 
-class DLL_LINKAGE CArtifact : public Artifact, public CBonusSystemNode //container for artifacts
+class DLL_LINKAGE CCombinedArtifact
+{
+protected:
+	CCombinedArtifact() = default;
+
+	std::vector<CArtifact*> constituents; // Artifacts IDs a combined artifact consists of, or nullptr.
+	std::vector<CArtifact*> partOf; // Reverse map of constituents - combined arts that include this art
+public:
+	bool isCombined() const;
+	const std::vector<CArtifact*> & getConstituents() const;
+	const std::vector<CArtifact*> & getPartOf() const;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & constituents;
+		h & partOf;
+	}
+};
+
+class DLL_LINKAGE CScrollArtifact
+{
+protected:
+	CScrollArtifact() = default;
+public:
+	bool isScroll() const;
+};
+
+class DLL_LINKAGE CGrowingArtifact
+{
+protected:
+	CGrowingArtifact() = default;
+
+	std::vector <std::pair<ui16, Bonus>> bonusesPerLevel; // Bonus given each n levels
+	std::vector <std::pair<ui16, Bonus>> thresholdBonuses; // After certain level they will be added once
+public:
+	bool isGrowing() const;
+
+	std::vector <std::pair<ui16, Bonus>> & getBonusesPerLevel();
+	const std::vector <std::pair<ui16, Bonus>> & getBonusesPerLevel() const;
+	std::vector <std::pair<ui16, Bonus>> & getThresholdBonuses();
+	const std::vector <std::pair<ui16, Bonus>> & getThresholdBonuses() const;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & bonusesPerLevel;
+		h & thresholdBonuses;
+	}
+};
+
+// Container for artifacts. Not for instances.
+class DLL_LINKAGE CArtifact
+	: public Artifact, public CBonusSystemNode, public CCombinedArtifact, public CScrollArtifact, public CGrowingArtifact
 {
 	ArtifactID id;
-
+	std::string image;
+	std::string large; // big image for custom artifacts, used in drag & drop
+	std::string advMapDef; // used for adventure map object
 	std::string modScope;
 	std::string identifier;
+	int32_t iconIndex;
+	uint32_t price;
+	CreatureID warMachine;
+	// Bearer Type => ids of slots where artifact can be placed
+	std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition>> possibleSlots;
 
 public:
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
 
-	std::string image;
-	std::string large; // big image for custom artifacts, used in drag & drop
-	std::string advMapDef; //used for adventure map object
-	si32 iconIndex = ArtifactID::NONE;
-	ui32 price = 0;
-	std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
-	std::unique_ptr<std::vector<CArtifact *> > constituents; // Artifacts IDs a combined artifact consists of, or nullptr.
-	std::vector<CArtifact *> constituentOf; // Reverse map of constituents - combined arts that include this art
 	EartClass aClass = ART_SPECIAL;
-	CreatureID warMachine;
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
@@ -88,26 +135,25 @@ public:
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const override;
 	void addNewBonus(const std::shared_ptr<Bonus>& b) override;
+	const std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition>> & getPossibleSlots() const;
 
-	virtual void levelUpArtifact (CArtifactInstance * art){};
-
-	virtual bool canBeDisassembled() const;
 	virtual bool canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot = ArtifactPosition::FIRST_AVAILABLE,
 		bool assumeDestRemoved = false) const;
 	void updateFrom(const JsonNode & data);
-	void serializeJson(JsonSerializeFormat & handler);
+	// Is used for testing purposes only
+	void setImage(int32_t iconIndex, std::string image, std::string large);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
+		h & static_cast<CCombinedArtifact&>(*this);
+		h & static_cast<CGrowingArtifact&>(*this);
 		h & image;
 		h & large;
 		h & advMapDef;
 		h & iconIndex;
 		h & price;
 		h & possibleSlots;
-		h & constituents;
-		h & constituentOf;
 		h & aClass;
 		h & id;
 		h & modScope;
@@ -119,99 +165,6 @@ public:
 	~CArtifact();
 
 	friend class CArtHandler;
-};
-
-class DLL_LINKAGE CGrowingArtifact : public CArtifact //for example commander artifacts getting bonuses after battle
-{
-public:
-	std::vector <std::pair <ui16, Bonus> > bonusesPerLevel; //bonus given each n levels
-	std::vector <std::pair <ui16, Bonus> > thresholdBonuses; //after certain level they will be added once
-
-	void levelUpArtifact(CArtifactInstance * art) override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CArtifact&>(*this);
-		h & bonusesPerLevel;
-		h & thresholdBonuses;
-	}
-};
-
-class DLL_LINKAGE CArtifactInstance : public CBonusSystemNode
-{
-protected:
-	void init();
-public:
-	CArtifactInstance(CArtifact * Art);
-	CArtifactInstance();
-
-	ConstTransitivePtr<CArtifact> artType;
-	ArtifactInstanceID id;
-
-	std::string nodeName() const override;
-	void deserializationFix();
-	void setType(CArtifact *Art);
-
-	std::string getDescription() const;
-	SpellID getScrollSpellID() const; //to be used with scrolls (and similar arts), -1 if none
-
-	ArtifactID getTypeId() const;
-	bool canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved = false) const;  //forwards to the above one
-	virtual bool canBeDisassembled() const;
-	/// Checks if this a part of this artifact: artifact instance is a part
-	/// of itself, additionally truth is returned for constituents of combined arts
-	virtual bool isPart(const CArtifactInstance *supposedPart) const;
-
-	virtual void putAt(const ArtifactLocation & al);
-	virtual void removeFrom(const ArtifactLocation & al);
-	virtual void move(const ArtifactLocation & src, const ArtifactLocation & dst);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CBonusSystemNode&>(*this);
-		h & artType;
-		h & id;
-		BONUS_TREE_DESERIALIZATION_FIX
-	}
-};
-
-class DLL_LINKAGE CCombinedArtifactInstance : public CArtifactInstance
-{
-public:
-	CCombinedArtifactInstance(CArtifact * Art);
-	struct ConstituentInfo
-	{
-		ConstTransitivePtr<CArtifactInstance> art;
-		ArtifactPosition slot;
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & art;
-			h & slot;
-		}
-
-		bool operator==(const ConstituentInfo &rhs) const;
-		ConstituentInfo(CArtifactInstance * art = nullptr, const ArtifactPosition & slot = ArtifactPosition::PRE_FIRST);
-	};
-
-	std::vector<ConstituentInfo> constituentsInfo;
-
-	bool isPart(const CArtifactInstance *supposedPart) const override;
-	void createConstituents();
-	void addAsConstituent(CArtifactInstance * art, const ArtifactPosition & slot);
-	void removeFrom(const ArtifactLocation & al) override;
-
-	CCombinedArtifactInstance() = default;
-
-	void deserializationFix();
-
-	friend class CArtifactInstance;
-	friend struct AssembledArtifact;
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CArtifactInstance&>(*this);
-		h & constituentsInfo;
-		BONUS_TREE_DESERIALIZATION_FIX
-	}
 };
 
 class DLL_LINKAGE CArtHandler : public CHandlerBase<ArtifactID, Artifact, CArtifact, ArtifactService>
@@ -269,7 +222,6 @@ private:
 	void loadClass(CArtifact * art, const JsonNode & node) const;
 	void loadType(CArtifact * art, const JsonNode & node) const;
 	void loadComponents(CArtifact * art, const JsonNode & node);
-	void loadGrowingArt(CGrowingArtifact * art, const JsonNode & node) const;
 
 	void erasePickedArt(const ArtifactID & id);
 };
@@ -313,7 +265,7 @@ public:
 	const ArtifactPosition getSlotByInstance(const CArtifactInstance * artInst) const;
 	/// Search for constituents of assemblies in backpack which do not have an ArtifactPosition
 	const CArtifactInstance * getHiddenArt(const ArtifactID & aid) const;
-	const CCombinedArtifactInstance * getAssemblyByConstituent(const ArtifactID & aid) const;
+	const CArtifactInstance * getAssemblyByConstituent(const ArtifactID & aid) const;
 	/// Checks if hero possess artifact of given id (either in backack or worn)
 	bool hasArt(const ArtifactID & aid, bool onlyWorn = false, bool searchBackpackAssemblies = false, bool allowLocked = true) const;
 	bool hasArtBackpack(const ArtifactID & aid) const;
@@ -335,7 +287,7 @@ public:
 
 	void serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName, CMap * map);
 protected:
-	std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *> searchForConstituent(const ArtifactID & aid) const;
+	std::pair<const CArtifactInstance *, const CArtifactInstance *> searchForConstituent(const ArtifactID & aid) const;
 
 private:
 	void serializeJsonHero(JsonSerializeFormat & handler, CMap * map);

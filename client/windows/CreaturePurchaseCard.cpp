@@ -123,7 +123,7 @@ CreaturePurchaseCard::CCreatureClickArea::CCreatureClickArea(const Point & posit
 	pos.h = CREATURE_HEIGHT;
 }
 
-void CreaturePurchaseCard::CCreatureClickArea::showPopupWindow()
+void CreaturePurchaseCard::CCreatureClickArea::showPopupWindow(const Point & cursorPosition)
 {
 	GH.windows().createAndPushWindow<CStackWindow>(creatureOnTheCard, true);
 }

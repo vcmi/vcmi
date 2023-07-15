@@ -96,7 +96,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 			if(o->getOwner() != PlayerColor::NEUTRAL && o->getOwner().getNum() < map->players.size())
 			{
 				if(!map->players[o->getOwner().getNum()].canAnyonePlay())
-					issues.emplace_back(QString("Object %1 is assinged to non-playable player %2").arg(o->instanceName.c_str(), o->getOwner().getStr().c_str()), true);
+					issues.emplace_back(QString("Object %1 is assigned to non-playable player %2").arg(o->instanceName.c_str(), o->getOwner().getStr().c_str()), true);
 			}
 			//checking towns
 			if(auto * ins = dynamic_cast<CGTownInstance*>(o.get()))
@@ -140,7 +140,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 				{
 					if(ins->storedArtifact)
 					{
-						if(!map->allowedSpell[ins->storedArtifact->id.getNum()])
+						if(!map->allowedSpell[ins->storedArtifact->getId().getNum()])
 							issues.emplace_back(QString("Spell scroll %1 is prohibited by map settings").arg(ins->getObjectName().c_str()), false);
 					}
 					else

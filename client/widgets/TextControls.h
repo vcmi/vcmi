@@ -138,7 +138,7 @@ class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusB
 protected:
 	Point getBorderSize() override;
 
-	void clickLeft(tribool down, bool previousState) override;
+	void clickPressed(const Point & cursorPosition) override;
 
 public:
 	~CGStatusBar();
@@ -224,10 +224,10 @@ public:
 	CTextInput(const Rect & Pos, const Point & bgOffset, const std::string & bgName, const CFunctionList<void(const std::string &)> & CB);
 	CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf);
 
-	void clickLeft(tribool down, bool previousState) override;
+	void clickPressed(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;
 
-	bool captureThisKey(EShortcut key) override;
+	//bool captureThisKey(EShortcut key) override;
 
 	void textInputed(const std::string & enteredText) override;
 	void textEdited(const std::string & enteredText) override;

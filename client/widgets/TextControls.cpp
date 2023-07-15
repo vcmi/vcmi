@@ -47,7 +47,7 @@ void CLabel::showAll(Canvas & to)
 CLabel::CLabel(int x, int y, EFonts Font, ETextAlignment Align, const SDL_Color & Color, const std::string & Text)
 	: CTextContainer(Align, Font, Color), text(Text)
 {
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	autoRedraw = true;
 	pos.x += x;
 	pos.y += y;
@@ -299,7 +299,7 @@ CTextBox::CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts 
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	label = std::make_shared<CMultiLineLabel>(rect, Font, Align, Color);
 
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	pos.x += rect.x;
 	pos.y += rect.y;
 	pos.h = rect.h;
@@ -446,13 +446,10 @@ void CGStatusBar::show(Canvas & to)
 	showAll(to);
 }
 
-void CGStatusBar::clickLeft(tribool down, bool previousState)
+void CGStatusBar::clickPressed(const Point & cursorPosition)
 {
-	if(!down)
-	{
-		if(LOCPLINT && LOCPLINT->cingconsole->isActive())
-			LOCPLINT->cingconsole->startEnteringText();
-	}
+	if(LOCPLINT && LOCPLINT->cingconsole->isActive())
+		LOCPLINT->cingconsole->startEnteringText();
 }
 
 void CGStatusBar::activate()
@@ -492,10 +489,9 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(c
 	cb(CB),
 	CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	pos.h = Pos.h;
 	pos.w = Pos.w;
-	captureAllKeys = true;
 	background.reset();
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 
@@ -511,7 +507,6 @@ CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::stri
 	pos.h = Pos.h;
 	pos.w = Pos.w;
 
-	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>(bgName, bgOffset.x, bgOffset.y);
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
@@ -525,7 +520,6 @@ CTextInput::CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf)
 	:CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
 	pos += Pos.topLeft();
-	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>(srf, Pos);
 	pos.w = background->pos.w;
@@ -564,9 +558,9 @@ std::string CTextInput::visibleText()
 	return focus ? text + newText + "_" : text;
 }
 
-void CTextInput::clickLeft(tribool down, bool previousState)
+void CTextInput::clickPressed(const Point & cursorPosition)
 {
-	if(down && !focus)
+	if(!focus)
 		giveFocus();
 }
 
@@ -618,17 +612,6 @@ void CTextInput::setText(const std::string & nText, bool callCb)
 	CLabel::setText(nText);
 	if(callCb)
 		cb(text);
-}
-
-bool CTextInput::captureThisKey(EShortcut key)
-{
-	if(key == EShortcut::GLOBAL_RETURN)
-		return false;
-
-	if (!focus)
-		return false;
-
-	return true;
 }
 
 void CTextInput::textInputed(const std::string & enteredText)

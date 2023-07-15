@@ -1491,20 +1491,30 @@ struct DLL_LINKAGE BattleSetActiveStack : public CPackForClient
 struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 {
 	void applyGs(CGameState * gs) const;
-	
-	CGHeroInstance * hero1 = nullptr;
-	CGHeroInstance * hero2 = nullptr;
-	CArmedInstance * army1 = nullptr;
-	CArmedInstance * army2 = nullptr;
-	TExpType exp[2];
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	struct HeroBattleResults
 	{
-		h & hero1;
-		h & hero2;
-		h & army1;
-		h & army2;
-		h & exp;
+		HeroBattleResults()
+			: hero(nullptr), army(nullptr), exp(0) {}
+
+		CGHeroInstance * hero;
+		CArmedInstance * army;
+		TExpType exp;
+
+		template <typename Handler> void serialize(Handler & h, const int version)
+		{
+			h & hero;
+			h & army;
+			h & exp;
+		}
+	};
+	std::array<HeroBattleResults, 2> heroResult;
+	ui8 winnerSide;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & heroResult;
+		h & winnerSide;
 	}
 };
 

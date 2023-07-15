@@ -115,7 +115,7 @@ InfoCard::InfoCard()
 	: showChat(true)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	CIntObject::type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	pos.x += 393;
 	pos.y += 6;
 
@@ -310,8 +310,7 @@ CChatBox::CChatBox(const Rect & rect)
 {
 	OBJ_CONSTRUCTION;
 	pos += rect.topLeft();
-	captureAllKeys = true;
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 
 	const int height = static_cast<int>(graphics->fonts[FONT_SMALL]->getLineHeight());
 	inputBox = std::make_shared<CTextInput>(Rect(0, rect.h - height, rect.w, height), EFonts::FONT_SMALL, 0);
@@ -378,7 +377,7 @@ void CFlagBox::recreate()
 	}
 }
 
-void CFlagBox::showPopupWindow()
+void CFlagBox::showPopupWindow(const Point & cursorPosition)
 {
 	if(SEL->getMapInfo())
 		GH.windows().createAndPushWindow<CFlagBoxTooltipBox>(iconsTeamFlags);

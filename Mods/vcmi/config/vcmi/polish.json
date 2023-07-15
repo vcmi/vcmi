@@ -21,9 +21,27 @@
 	"vcmi.adventureMap.moveCostDetails"        : "Punkty ruchu - Koszt: %TURNS tury + %POINTS punkty, Pozostałe punkty: %REMAINING",
 	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Punkty ruchu - Koszt: %POINTS punkty, Pozostałe punkty: %REMAINING",
 
-	"vcmi.server.errors.existingProcess"     : "Inny proces vcmiserver został już uruchomiony, zakończ go nim przejdziesz dalej",
-	"vcmi.server.errors.modsIncompatibility" : "Mody wymagane do wczytania gry:",
-	"vcmi.server.confirmReconnect"           : "Połączyć z ostatnią sesją?",
+	"vcmi.capitalColors.0" : "Czerwony",
+	"vcmi.capitalColors.1" : "Niebieski",
+	"vcmi.capitalColors.2" : "Brązowy",
+	"vcmi.capitalColors.3" : "Zielony",
+	"vcmi.capitalColors.4" : "Pomarańczowy",
+	"vcmi.capitalColors.5" : "Fioletowy",
+	"vcmi.capitalColors.6" : "Jasnoniebieski",
+	"vcmi.capitalColors.7" : "Różowy",
+
+	"vcmi.mainMenu.tutorialNotImplemented" : "Przepraszamy, trening nie został jeszcze zaimplementowany\n",
+	"vcmi.mainMenu.highscoresNotImplemented" : "Przepraszamy, najlepsze wyniki nie zostały jeszcze zaimplementowane\n",
+	"vcmi.mainMenu.serverConnecting" : "Łączenie...",
+	"vcmi.mainMenu.serverAddressEnter" : "Wprowadź adres:",
+	"vcmi.mainMenu.serverClosing" : "Zamykanie...",
+	"vcmi.mainMenu.hostTCP" : "Hostuj grę TCP/IP",
+	"vcmi.mainMenu.joinTCP" : "Dołącz do gry TCP/IP",
+	"vcmi.mainMenu.playerName" : "Gracz",
+
+	"vcmi.server.errors.existingProcess"     : "Inny proces 'vcmiserver' został już uruchomiony, zakończ go nim przejdziesz dalej",
+	"vcmi.server.errors.modsIncompatibility" : "Następujące mody są wymagane do wczytania gry:",
+	"vcmi.server.confirmReconnect"           : "Połączyć ponownie z ostatnią sesją?",
 
 	"vcmi.settingsMainWindow.generalTab.hover"   : "Ogólne",
 	"vcmi.settingsMainWindow.generalTab.help"    : "Przełącza do zakładki opcji ogólnych, która zawiera ustawienia związane z ogólnym działaniem gry",
@@ -37,10 +55,23 @@
 	"vcmi.systemOptions.otherGroup" : "Inne ustawienia", // unused right now
 	"vcmi.systemOptions.townsGroup" : "Ekran miasta",
 
+	"vcmi.systemOptions.fullscreenBorderless.hover" : "Pełny ekran (borderless/okno pełnoekranowe)",
+	"vcmi.systemOptions.fullscreenBorderless.help"  : "{Pełny ekran w trybie okna}\n\nPo wybraniu VCMI będzie działać w trybie okna pełnoekranowego. W tym trybie gra będzie zawsze używać rozdzielczości pulpitu, ignorując wybraną rozdzielczość.",
+	"vcmi.systemOptions.fullscreenExclusive.hover"  : "Pełny ekran (tradycyjny)",
+	"vcmi.systemOptions.fullscreenExclusive.help"   : "{Pełny ekran}\n\nPo wybraniu VCMI będzie działać w trybie ekskluzywnego pełnego ekranu. W tym trybie gra zmieni rozdzielczość monitora do wybranej rozdzielczości.",
 	"vcmi.systemOptions.resolutionButton.hover" : "Rozdzielczość: %wx%h",
-	"vcmi.systemOptions.resolutionButton.help"  : "{Wybierz rozdzielczość}\n\n Zmień rozdzielczość ekranu w grze. Restart gry jest wymagany, by zmiany zostały uwzględnione.",
+	"vcmi.systemOptions.resolutionButton.help"  : "{Wybierz rozdzielczość}\n\n Zmień rozdzielczość ekranu w grze.",
 	"vcmi.systemOptions.resolutionMenu.hover"   : "Wybierz rozdzielczość",
 	"vcmi.systemOptions.resolutionMenu.help"    : "Zmień rozdzielczość ekranu w grze.",
+	"vcmi.systemOptions.scalingButton.hover"   : "Skalowanie interfejsu: %p%",
+	"vcmi.systemOptions.scalingButton.help"    : "{Skalowanie interfejsu}\n\nZmienia skalę interfejsu gry",
+	"vcmi.systemOptions.scalingMenu.hover"     : "Wybierz skalowanie interfejsu",
+	"vcmi.systemOptions.scalingMenu.help"      : "Zmień skalę interfejsu w grze.",
+	"vcmi.systemOptions.longTouchButton.hover"   : "Czas długiego dotyku: %d ms", // Translation note: "ms" = "milliseconds"
+	"vcmi.systemOptions.longTouchButton.help"    : "{Czas długiego dotyku}\n\nPodczas używania ekranu dotykowego, wyskakujące okienka pojawią się po dotknięciu ekranu przez określony czas, w milisekundach",
+	"vcmi.systemOptions.longTouchMenu.hover"     : "Wybierz czas długiego dotyku",
+	"vcmi.systemOptions.longTouchMenu.help"      : "Zmienia czas wymagany do aktywacji długiego dotyku.",
+	"vcmi.systemOptions.longTouchMenu.entry"     : "%d milisekund",
 	"vcmi.systemOptions.framerateButton.hover"  : "Pokaż FPS",
 	"vcmi.systemOptions.framerateButton.help"   : "{Pokaż FPS}\n\n Przełącza widoczność licznika klatek na sekundę (FPS) w rogu okna gry.",
 
@@ -52,6 +83,8 @@
 	"vcmi.adventureOptions.forceMovementInfo.help" : "{Zawsze pokazuj koszt ruchu}\n\n Zastępuje domyślne informacje paska statusu danymi o ruchu bez potrzeby przytrzymywania klawisza ALT.",
 	"vcmi.adventureOptions.showGrid.hover" : "Pokaż siatkę",
 	"vcmi.adventureOptions.showGrid.help" : "{Pokaż siatkę}\n\n Włącza siatkę pokazującą brzegi pól mapy przygody.",
+	"vcmi.adventureOptions.borderScroll.hover" : "Przewijanie na brzegu mapy",
+	"vcmi.adventureOptions.borderScroll.help" : "{Przewijanie na brzegu mapy}\n\nPrzewijanie mapy przygody gdy kursor najeżdża na brzeg okna gry. Może być wyłączone poprzez przytrzymanie klawisza CTRL.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",
@@ -74,9 +107,12 @@
 	"vcmi.battleOptions.animationsSpeed1.help": "Ustawia szybkość animacji na bardzo wolną",
 	"vcmi.battleOptions.animationsSpeed5.help": "Ustawia szybkość animacji na bardzo szybką",
 	"vcmi.battleOptions.animationsSpeed6.help": "Ustawia szybkość animacji na błyskawiczną",
+	"vcmi.battleOptions.movementHighlightOnHover.hover": "Pokaż możliwości ruchu po najechaniu",
+	"vcmi.battleOptions.movementHighlightOnHover.help": "{Pokaż możliwości ruchu po najechaniu}\n\nPodświetla zasięg ruchu jednostki gdy najedziesz na nią myszą.",
+	"vcmi.battleOptions.rangeLimitHighlightOnHover.hover": "Pokaż limit zasięgu dla strzelców",
+	"vcmi.battleOptions.rangeLimitHighlightOnHover.help": "{Pokaż limit zasięgu dla strzelców po najechaniu}\n\nPokazuje limity zasięgu jednostki strzeleckiej gdy najedziesz na nią myszą.",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Pomiń czekanie startowe",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Pomiń czekanie startowe}\n\n Pomija konieczność czekania podczas muzyki startowej, która jest odtwarzana na początku każdej bitwy przed rozpoczęciem akcji.",
-
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Naciśnij dowolny klawisz by rozpocząć bitwę natychmiastowo",
 
 	"vcmi.battleWindow.damageEstimation.melee" : "Atakuj %CREATURE (%DAMAGE).",
@@ -89,6 +125,8 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "obrażenia: %d",
 	"vcmi.battleWindow.damageEstimation.kills" : "zginie: %d",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "zginie: %d",
+
+	"vcmi.battleResultsWindow.applyResultsLabel" : "Zatwierdź wynik bitwy",
 
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Pokaż dostępne stworzenia",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Pokaż dostępne stworzenia}\n\n Pokazuje dostępne stworzenia zamiast tygodniowego przyrostu w podsumowaniu miasta (lewy dolny róg).",
@@ -135,6 +173,15 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Ustaw...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Sojusze",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Typy dróg",
+
+	// Custom victory conditions for H3 campaigns and HotA maps
+	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Wróg dał radę przetrwać do dzisiejszego dnia. Zwycięstwo należy do niego!",
+	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Gratulacje! Dałeś radę przetrwać. Zwycięstwo jest twoje!",
+	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Wróg zdołał pokonać wszystkie potwory pustoszące te ziemie i odnosi zwycięstwo!",
+	"vcmi.map.victoryCondition.eliminateMonsters.toSelf" : "Gratulacje! Pokonałeś wszystkie potwory pustoszące te ziemie i odnosisz zwycięstwo!",
+	"vcmi.map.victoryCondition.collectArtifacts.message" : "Zdobądź trzy artefakty",
+	"vcmi.map.victoryCondition.angelicAlliance.toSelf" : "Gratulacje! Wszyscy wrogowie zostali pokonani, a ty masz Miecz Anielskiego Sojuszu! Zwycięstwo jest twoje!",
+	"vcmi.map.victoryCondition.angelicAlliance.message" : "Pokonaj wszystkich wrogów i stwórz Miecz Anielskiego Sojuszu",
 
 	//WoG strings translations missing here - should be taken from polish WoG translation
 

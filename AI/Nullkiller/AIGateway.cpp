@@ -448,6 +448,12 @@ void AIGateway::battleResultsApplied()
 	status.setBattle(NO_BATTLE);
 }
 
+void AIGateway::beforeObjectPropertyChanged(const SetObjectProperty * sop)
+{
+
+}
+
+
 void AIGateway::objectPropertyChanged(const SetObjectProperty * sop)
 {
 	LOG_TRACE(logAi);
@@ -699,7 +705,7 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 	//you can't request action from action-response thread
 	requestActionASAP([=]()
 	{
-		if(removableUnits)
+		if(removableUnits && up->tempOwner == down->tempOwner)
 			pickBestCreatures(down, up);
 
 		answerQuery(queryID, 0);
@@ -1000,7 +1006,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 				//FIXME: why are the above possible to be null?
 
 				bool emptySlotFound = false;
-				for(auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
+				for(auto slot : artifact->artType->getPossibleSlots().at(target->bearerType()))
 				{
 					ArtifactLocation destLocation(target, slot);
 					if(target->isPositionFree(slot) && artifact->canBePutAt(destLocation, true)) //combined artifacts are not always allowed to move
@@ -1013,7 +1019,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 				}
 				if(!emptySlotFound) //try to put that atifact in already occupied slot
 				{
-					for(auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
+					for(auto slot : artifact->artType->getPossibleSlots().at(target->bearerType()))
 					{
 						auto otherSlot = target->getSlot(slot);
 						if(otherSlot && otherSlot->artifact) //we need to exchange artifact for better one

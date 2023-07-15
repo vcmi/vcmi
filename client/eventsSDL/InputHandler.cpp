@@ -121,6 +121,8 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	{
 		Settings full = settings.write["video"]["fullscreen"];
 		full->Bool() = !full->Bool();
+
+		GH.onScreenResize();
 		return;
 	}
 	else if(ev.type == SDL_USEREVENT)

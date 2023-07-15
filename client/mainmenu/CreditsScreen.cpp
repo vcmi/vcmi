@@ -24,7 +24,7 @@ CreditsScreen::CreditsScreen(Rect rect)
 {
 	pos.w = rect.w;
 	pos.h = rect.h;
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	auto textFile = CResourceHandler::get()->load(ResourceID("DATA/CREDITS.TXT"))->readAll();
 	std::string text((char *)textFile.first.get(), textFile.second);
@@ -43,10 +43,10 @@ void CreditsScreen::show(Canvas & to)
 
 	//end of credits, close this screen
 	if(credits->textSize.y + 600 < positionCounter / 2)
-		clickLeft(false, false);
+		clickPressed(GH.getCursorPosition());
 }
 
-void CreditsScreen::clickLeft(tribool down, bool previousState)
+void CreditsScreen::clickPressed(const Point & cursorPosition)
 {
 	CTabbedInt * menu = dynamic_cast<CTabbedInt *>(parent);
 	assert(menu);

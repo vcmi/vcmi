@@ -18,6 +18,12 @@
 #include "../gui/MouseButton.h"
 
 #include <SDL_events.h>
+#include <SDL_hints.h>
+
+InputSourceMouse::InputSourceMouse()
+{
+	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+}
 
 void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motion)
 {

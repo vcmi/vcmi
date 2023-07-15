@@ -32,9 +32,7 @@ protected:
 
 TEST_F(CArtifactTest, RegistersIcons)
 {
-	subject->iconIndex = 4242;
-	subject->image = "Test1";
-	subject->large = "Test2";
+        subject-> setImage(4242, "Test1", "Test2");
 
 	auto cb = [this](auto && PH1, auto && PH2, auto && PH3, auto && PH4) 
 	{

@@ -11,6 +11,17 @@
 			"config/vcmi/chinese.json"
 		]
 	},
+
+	"french" : {
+		"name" : "VCMI - fichiers nécessaires",
+		"description" : "Fichiers nécessaires pour exécuter correctement VCMI",
+		"author" : "L'équipe VCMI",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/vcmi/french.json"
+		]
+	},
 	
 	"german" : {
 		"name" : "VCMI - grundlegende Dateien",
@@ -60,7 +71,7 @@
 		"name" : "VCMI - ficheros necesarios",
 		"description" : "Ficheros necesarios para ejecutar VCMI correctamente",
 		"author" : "Abel Rivas",
-		
+
 		"skipValidation" : true,
 		"translations" : [
 			"config/vcmi/spanish.json"

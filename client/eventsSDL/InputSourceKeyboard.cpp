@@ -33,6 +33,12 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 	if(key.repeat != 0)
 		return; // ignore periodic event resends
 
+	if (SDL_IsTextInputActive() == SDL_TRUE)
+	{
+		if (key.keysym.sym >= ' ' && key.keysym.sym < 0x80)
+			return; // printable character - will be handled as text input
+	}
+
 	assert(key.state == SDL_PRESSED);
 
 	if(key.keysym.sym >= SDLK_F1 && key.keysym.sym <= SDLK_F15 && settings["session"]["spectate"].Bool())
@@ -76,6 +82,12 @@ void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 {
 	if(key.repeat != 0)
 		return; // ignore periodic event resends
+
+	if (SDL_IsTextInputActive() == SDL_TRUE)
+	{
+		if (key.keysym.sym >= ' ' && key.keysym.sym < 0x80)
+			return; // printable character - will be handled as text input
+	}
 
 	assert(key.state == SDL_RELEASED);
 

@@ -128,4 +128,5 @@ public:
 	virtual void visitBattleStackMoved(BattleStackMoved & pack) override;
 	virtual void visitBattleAttack(BattleAttack & pack) override;
 	virtual void visitStartAction(StartAction & pack) override;
+	virtual void visitSetObjectProperty(SetObjectProperty & pack) override;
 };

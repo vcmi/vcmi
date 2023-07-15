@@ -611,6 +611,20 @@ void ApplyClientNetPackVisitor::visitInfoWindow(InfoWindow & pack)
 		logNetwork->warn("We received InfoWindow for not our player...");
 }
 
+void ApplyFirstClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
+{
+	//inform all players that see this object
+	for(auto it = cl.playerint.cbegin(); it != cl.playerint.cend(); ++it)
+	{
+		if(gs.isVisible(gs.getObjInstance(pack.id), it->first))
+			callInterfaceIfPresent(cl, it->first, &IGameEventsReceiver::beforeObjectPropertyChanged, &pack);
+	}
+
+	// invalidate section of map view with our object and force an update with new flag color
+	if (pack.what == ObjProperty::OWNER)
+		CGI->mh->onObjectInstantRemove(gs.getObjInstance(pack.id));
+}
+
 void ApplyClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 {
 	//inform all players that see this object
@@ -620,12 +634,9 @@ void ApplyClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 			callInterfaceIfPresent(cl, it->first, &IGameEventsReceiver::objectPropertyChanged, &pack);
 	}
 
+	// invalidate section of map view with our object and force an update with new flag color
 	if (pack.what == ObjProperty::OWNER)
-	{
-		// invalidate section of map view with our object and force an update with new flag color
-		CGI->mh->onObjectInstantRemove(gs.getObjInstance(pack.id));
 		CGI->mh->onObjectInstantAdd(gs.getObjInstance(pack.id));
-	}
 }
 
 void ApplyClientNetPackVisitor::visitHeroLevelUp(HeroLevelUp & pack)

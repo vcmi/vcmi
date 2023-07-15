@@ -95,7 +95,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	menuNameToEntry.push_back("credits");
 
 	tabs = std::make_shared<CTabbedInt>(std::bind(&CMenuScreen::createTab, this, _1));
-	tabs->type |= REDRAW_PARENT;
+	tabs->setRedrawParent(true);
 }
 
 std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
@@ -248,7 +248,7 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	pos = parent->pos;
 
 	for(const JsonNode & node : config["images"].Vector())
@@ -258,7 +258,7 @@ CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
 	{
 		buttons.push_back(createButton(parent, node));
 		buttons.back()->hoverable = true;
-		buttons.back()->type |= REDRAW_PARENT;
+		buttons.back()->setRedrawParent(true);
 	}
 }
 

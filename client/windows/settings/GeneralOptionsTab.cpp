@@ -94,7 +94,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 		  onFullscreenChanged(settings.listen["video"]["fullscreen"])
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 
 	addConditional("touchscreen", GH.input().hasTouchInputDevice());
 #ifdef VCMI_MOBILE
@@ -153,6 +153,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	{
 		setBoolSetting("video", "showfps", value);
 	});
+	addCallback("hapticFeedbackChanged", [](bool value)
+	{
+		setBoolSetting("general", "hapticFeedback", value);
+	});
 
 	//moved from "other" tab that is disabled for now to avoid excessible tabs with barely any content
 	addCallback("availableCreaturesAsDwellingChanged", [=](int value)
@@ -189,6 +193,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 
 	std::shared_ptr<CToggleButton> framerateCheckbox = widget<CToggleButton>("framerateCheckbox");
 	framerateCheckbox->setSelected(settings["video"]["showfps"].Bool());
+
+	std::shared_ptr<CToggleButton> hapticFeedbackCheckbox = widget<CToggleButton>("hapticFeedbackCheckbox");
+	if (hapticFeedbackCheckbox)
+		hapticFeedbackCheckbox->setSelected(settings["general"]["hapticFeedback"].Bool());
 
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
 	musicSlider->scrollTo(CCS->musich->getVolume());
@@ -277,10 +285,18 @@ void GeneralOptionsTab::setGameResolution(int index)
 	gameRes["height"].Float() = resolution.y;
 
 	widget<CLabel>("resolutionLabel")->setText(resolutionToLabelString(resolution.x, resolution.y));
+
+	GH.dispatchMainThread([](){
+		boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
+		GH.onScreenResize();
+	});
 }
 
 void GeneralOptionsTab::setFullscreenMode(bool on, bool exclusive)
 {
+	if (on == settings["video"]["fullscreen"].Bool() && exclusive == settings["video"]["realFullscreen"].Bool())
+		return;
+
 	setBoolSetting("video", "realFullscreen", exclusive);
 	setBoolSetting("video", "fullscreen", on);
 
@@ -288,12 +304,17 @@ void GeneralOptionsTab::setFullscreenMode(bool on, bool exclusive)
 	std::shared_ptr<CToggleButton> fullscreenBorderlessCheckbox = widget<CToggleButton>("fullscreenBorderlessCheckbox");
 
 	if (fullscreenBorderlessCheckbox)
-		fullscreenBorderlessCheckbox->setSelected(on && !exclusive);
+		fullscreenBorderlessCheckbox->setSelectedSilent(on && !exclusive);
 
 	if (fullscreenExclusiveCheckbox)
-		fullscreenExclusiveCheckbox->setSelected(on && exclusive);
+		fullscreenExclusiveCheckbox->setSelectedSilent(on && exclusive);
 
 	updateResolutionSelector();
+
+	GH.dispatchMainThread([](){
+		boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
+		GH.onScreenResize();
+	});
 }
 
 void GeneralOptionsTab::selectGameScaling()

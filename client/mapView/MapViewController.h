@@ -74,6 +74,7 @@ private:
 	void onAfterHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
 
 	void resetContext();
+	void updateState();
 
 public:
 	MapViewController(std::shared_ptr<MapViewModel> model, std::shared_ptr<MapViewCache> view);

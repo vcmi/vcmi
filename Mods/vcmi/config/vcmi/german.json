@@ -10,7 +10,7 @@
 	"vcmi.adventureMap.monsterThreat.levels.7"  : "Sehr Stark",
 	"vcmi.adventureMap.monsterThreat.levels.8"  : "Herausfordernd",
 	"vcmi.adventureMap.monsterThreat.levels.9"  : "Überwältigend",
-	"vcmi.adventureMap.monsterThreat.levels.10" : "Tötlich",
+	"vcmi.adventureMap.monsterThreat.levels.10" : "Tödlich",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Unmöglich",
 
 	"vcmi.adventureMap.confirmRestartGame"     : "Seid Ihr sicher, dass Ihr das Spiel neu starten wollt?",
@@ -67,8 +67,15 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Interface-Skalierung}\n\nÄndern der Skalierung des Interfaces im Spiel",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Skalierung des Interfaces auswählen",
 	"vcmi.systemOptions.scalingMenu.help"      : "Ändern der Skalierung des Interfaces im Spiel.",
+	"vcmi.systemOptions.longTouchButton.hover"   : "Berührungsdauer für langer Touch: %d ms", // Translation note: "ms" = "milliseconds"
+	"vcmi.systemOptions.longTouchButton.help"    : "{Berührungsdauer für langer Touch}\n\nBei Verwendung des Touchscreens erscheinen Popup-Fenster nach Berührung des Bildschirms für die angegebene Dauer (in Millisekunden)",
+	"vcmi.systemOptions.longTouchMenu.hover"     : "Wähle Berührungsdauer für langer Touch",
+	"vcmi.systemOptions.longTouchMenu.help"      : "Ändere die Berührungsdauer für den langen Touch",
+	"vcmi.systemOptions.longTouchMenu.entry"     : "%d Millisekunden",
 	"vcmi.systemOptions.framerateButton.hover"  : "FPS anzeigen",
 	"vcmi.systemOptions.framerateButton.help"   : "{FPS anzeigen}\n\n Schaltet die Sichtbarkeit des Zählers für die Bilder pro Sekunde in der Ecke des Spielfensters um.",
+	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Haptisches Feedback",
+	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Haptisches Feedback}\n\nHaptisches Feedback bei Touch-Eingaben.",
 
 	"vcmi.adventureOptions.infoBarPick.hover" : "Meldungen im Infobereich anzeigen",
 	"vcmi.adventureOptions.infoBarPick.help" : "{Meldungen im Infobereich anzeigen}\n\nWann immer möglich, werden Spielnachrichten von besuchten Kartenobjekten in der Infoleiste angezeigt, anstatt als Popup-Fenster zu erscheinen",
@@ -78,6 +85,8 @@
 	"vcmi.adventureOptions.forceMovementInfo.help" : "{Bewegungskosten immer anzeigen}\n\n Ersetzt die Standardinformationen in der Statusleiste durch die Daten der Bewegungspunkte, ohne dass die ALT-Taste gedrückt werden muss.",
 	"vcmi.adventureOptions.showGrid.hover" : "Raster anzeigen",
 	"vcmi.adventureOptions.showGrid.help" : "{Raster anzeigen}\n\n Zeigt eine Rasterüberlagerung, die die Grenzen zwischen den Kacheln der Abenteuerkarte anzeigt.",
+	"vcmi.adventureOptions.borderScroll.hover" : "Scrollen am Rand",
+	"vcmi.adventureOptions.borderScroll.help" : "{Scrollen am Rand}\n\nScrollt die Abenteuerkarte, wenn sich der Cursor neben dem Fensterrand befindet. Kann mit gedrückter STRG-Taste deaktiviert werden.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",
@@ -100,10 +109,10 @@
 	"vcmi.battleOptions.animationsSpeed1.help": "Setzt die Animationsgeschwindigkeit auf sehr langsam",
 	"vcmi.battleOptions.animationsSpeed5.help": "Setzt die Animationsgeschwindigkeit auf sehr schnell",
 	"vcmi.battleOptions.animationsSpeed6.help": "Setzt die Animationsgeschwindigkeit auf sofort",
-	"vcmi.battleOptions.touchscreenMode.hover": "Touchscreen-Modus",
-	"vcmi.battleOptions.touchscreenMode.help": "{Touchscreen-Modus}\n\nFalls aktiviert, ist ein zweiter Klick erforderlich, um die Aktion zu bestätigen und auszuführen. Dies ist besser für Touchscreen-Geräte geeignet.",
 	"vcmi.battleOptions.movementHighlightOnHover.hover": "Hervorhebung der Bewegung bei Hover",
 	"vcmi.battleOptions.movementHighlightOnHover.help": "{Hervorhebung der Bewegung bei Hover}\n\nHebt die Bewegungsreichweite der Einheit hervor, wenn man mit dem Mauszeiger über sie fährt.",
+	"vcmi.battleOptions.rangeLimitHighlightOnHover.hover": "Bereichsgrenzen für Schützen anzeigen",
+	"vcmi.battleOptions.rangeLimitHighlightOnHover.help": "{Bereichsgrenzen für Schützen anzeigen}\n\nZeigt die Entfernungsgrenzen des Schützen an, wenn man mit dem Mauszeiger über ihn fährt.",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Intro-Musik überspringen",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Intro-Musik überspringen}\n\n Überspringe die kurze Musik, die zu Beginn eines jeden Kampfes gespielt wird, bevor die Action beginnt. Kann auch durch Drücken der ESC-Taste übersprungen werden.",
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Beliebige Taste drücken, um das Kampf-Intro zu überspringen",
@@ -118,6 +127,7 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "%d Schaden",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d werden verenden",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d werden verenden",
+
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Kampfergebnis übernehmen",
 
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Verfügbare Kreaturen anzeigen",
@@ -165,7 +175,16 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Einrichtung...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Team-Zuordnungen",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Straßentypen",
-	
+
+	// Custom victory conditions for H3 campaigns and HotA maps
+	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Der Feind hat es geschafft, bis zum heutigen Tag zu überleben. Der Sieg gehört ihm!",
+	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Herzlichen Glückwunsch! Ihr habt es geschafft, zu überleben. Der Sieg ist euer!",
+	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Der Feind hat alle Monster besiegt, die das Land heimsuchen, und fordert den Sieg!",
+	"vcmi.map.victoryCondition.eliminateMonsters.toSelf" : "Herzlichen Glückwunsch! Ihr habt alle Monster besiegt, die dieses Land plagen, und könnt den Sieg für euch beanspruchen!",
+	"vcmi.map.victoryCondition.collectArtifacts.message" : "Sammelt drei Artefakte",
+	"vcmi.map.victoryCondition.angelicAlliance.toSelf" : "Herzlichen Glückwunsch! Alle eure Feinde wurden besiegt und ihr habt die Engelsallianz! Der Sieg ist euer!",
+	"vcmi.map.victoryCondition.angelicAlliance.message" : "Besiege alle Feinde und gründe eine Engelsallianz",
+
 	// few strings from WoG used by vcmi
 	"vcmi.stackExperience.description" : "» D e t a i l s   z u r   S t a p e l e r f a h r u n g «\n\nKreatur-Typ ................... : %s\nErfahrungsrang ................. : %s (%i)\nErfahrungspunkte ............... : %i\nErfahrungspunkte für den nächsten Rang .. : %i\nMaximale Erfahrung pro Kampf ... : %i%% (%i)\nAnzahl der Kreaturen im Stapel .... : %i\nMaximale Anzahl neuer Rekruten\n ohne Verlust von aktuellem Rang .... : %i\nErfahrungs-Multiplikator ........... : %.2f\nUpgrade-Multiplikator .............. : %.2f\nErfahrung nach Rang 10 ........ : %i\nMaximale Anzahl der neuen Rekruten, die bei\n Rang 10 bei maximaler Erfahrung übrig sind : %i",
 	"vcmi.stackExperience.rank.0" : "Grundlagen",
@@ -199,8 +218,8 @@
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.name": "Zauberdämpfer (${val})",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.description": "Erhöht die Kosten von gegnerischen Zaubern",
 	"core.bonus.CHARGE_IMMUNITY.name": "Immun gegen Aufladung",
-	"core.bonus.CHARGE_IMMUNITY.description": "Immune to Champion charge",
-	"core.bonus.DARKNESS.name": "Darkness cover",
+	"core.bonus.CHARGE_IMMUNITY.description": "Immun gegen Aufladung",
+	"core.bonus.DARKNESS.name": "Abdeckung der Dunkelheit",
 	"core.bonus.DARKNESS.description": "Fügt ${val} Dunkelheitsradius hinzu",
 	"core.bonus.DEATH_STARE.name": "Todesstarren (${val}%)",
 	"core.bonus.DEATH_STARE.description": "${val}% Chance, eine einzelne Kreatur zu töten",

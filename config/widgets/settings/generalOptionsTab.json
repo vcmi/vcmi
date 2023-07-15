@@ -57,6 +57,10 @@
 					"name": "longTouchLabel",
 					"text": "vcmi.systemOptions.longTouchButton.hover",
 					"created" : "touchscreen"
+				},
+				{
+					"text": "vcmi.systemOptions.hapticFeedbackButton.hover",
+					"created" : "mobile"
 				}
 			]
 		},
@@ -76,7 +80,7 @@
 					"name": "scalingButton",
 					"type": "buttonGear",
 					"help": "vcmi.systemOptions.scalingButton",
-					"callback": "setGameScaling",
+					"callback": "setGameScaling"
 				},
 				{
 					"name": "fullscreenBorderlessCheckbox",
@@ -106,6 +110,12 @@
 					"help": "vcmi.systemOptions.longTouchButton",
 					"callback": "setLongTouchDuration",
 					"created" : "touchscreen"
+				},
+				{
+					"name": "hapticFeedbackCheckbox",
+					"help": "vcmi.systemOptions.hapticFeedbackButton",
+					"callback": "hapticFeedbackChanged",
+					"created" : "mobile"
 				}
 			]
 		},
