@@ -401,6 +401,9 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 	localState->removeWanderingHero(hero);
 	adventureInt->onHeroChanged(hero);
 	localState->erasePath(hero);
+
+	for (auto ki : GH.windows().findWindows<CKingdomInterface>())
+		ki->heroRemoved();
 }
 
 void CPlayerInterface::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start)

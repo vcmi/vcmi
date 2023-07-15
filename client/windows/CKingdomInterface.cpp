@@ -15,6 +15,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../adventureMap/CResDataBar.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
@@ -638,6 +639,11 @@ void CKingdomInterface::townChanged(const CGTownInstance *town)
 		townList->townChanged(town);
 }
 
+void CKingdomInterface::heroRemoved()
+{
+	tabArea->reset();
+}
+
 void CKingdomInterface::updateGarrisons()
 {
 	if(auto garrison = std::dynamic_pointer_cast<CGarrisonHolder>(tabArea->getItem()))
@@ -694,11 +700,12 @@ void CKingdHeroList::updateGarrisons()
 std::shared_ptr<CIntObject> CKingdHeroList::createHeroItem(size_t index)
 {
 	ui32 picCount = 4; // OVSLOT contains 4 images
-	size_t heroesCount = LOCPLINT->cb->howManyHeroes(false);
 
-	if(index < heroesCount)
+	auto heroesList = LOCPLINT->localState->getWanderingHeroes();
+
+	if(index < heroesList.size())
 	{
-		auto hero = std::make_shared<CHeroItem>(LOCPLINT->cb->getHeroBySerial((int)index, false));
+		auto hero = std::make_shared<CHeroItem>(heroesList[index]);
 		addSet(hero->heroArts);
 		return hero;
 	}
@@ -745,10 +752,11 @@ void CKingdTownList::updateGarrisons()
 std::shared_ptr<CIntObject> CKingdTownList::createTownItem(size_t index)
 {
 	ui32 picCount = 4; // OVSLOT contains 4 images
-	size_t townsCount = LOCPLINT->cb->howManyTowns();
 
-	if(index < townsCount)
-		return std::make_shared<CTownItem>(LOCPLINT->cb->getTownBySerial((int)index));
+	auto townsList = LOCPLINT->localState->getOwnedTowns();
+
+	if(index < townsList.size())
+		return std::make_shared<CTownItem>(townsList[index]);
 	else
 		return std::make_shared<CAnimImage>("OVSLOT", (index-2) % picCount );
 }
