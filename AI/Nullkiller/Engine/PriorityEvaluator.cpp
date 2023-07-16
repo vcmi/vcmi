@@ -316,8 +316,6 @@ uint64_t RewardEvaluator::getArmyGrowth(
 	const CGHeroInstance * hero,
 	const CCreatureSet * army) const
 {
-	const float enemyArmyEliminationRewardRatio = 0.5f;
-
 	if(!target)
 		return 0;
 
