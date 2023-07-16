@@ -116,7 +116,7 @@ void CArtifactsOfHeroBase::setHero(const CGHeroInstance * hero)
 	{
 		setSlotData(slot.second, slot.first, *curHero);
 	}
-	scrollBackpackForArtSet(0, *curHero);
+	scrollBackpack(0);
 }
 
 const CGHeroInstance * CArtifactsOfHeroBase::getHero() const

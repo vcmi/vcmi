@@ -19,4 +19,5 @@ public:
 	
 private:
 	std::shared_ptr<CArtifactsOfHeroBackpack> arts;
+	std::shared_ptr<CArtifactsOfHeroBackpack> arts_straight;
 };

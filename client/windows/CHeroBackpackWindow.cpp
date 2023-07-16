@@ -17,7 +17,14 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	
-	arts = std::make_shared<CArtifactsOfHeroBackpack>(Point(-100, -170), std::bind(&CHeroBackpackWindow::close, this));
+	arts = std::make_shared<CArtifactsOfHeroBackpack>(Point(-100, -170));
 	arts->setHero(hero);
 	addSet(arts);
+
+	arts_straight = std::make_shared<CArtifactsOfHeroBackpack>(Point(-500, -170));
+	arts_straight->setHero(hero);
+	arts_straight->isScrollStraight = true;
+	addSet(arts_straight);
+
+	addCloseCallback(std::bind(&CHeroBackpackWindow::close, this));
 }

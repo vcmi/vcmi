@@ -20,16 +20,13 @@ VCMI_LIB_NAMESPACE_END
 class CArtifactsOfHeroBackpack : public CArtifactsOfHeroBase
 {
 public:
-	using DestroyHandler = std::function<void()>;
-
-	CArtifactsOfHeroBackpack(const Point & position, DestroyHandler destroyThisCallback);
+	CArtifactsOfHeroBackpack(const Point & position);
 	void swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc);
 	void pickUpArtifact(CHeroArtPlace & artPlace);
-	void destroyThis();
-	
-private:
-	DestroyHandler destroyThisCallback;
+	void scrollBackpack(int offset);
 
+	bool isScrollStraight = false;
+private:
 	const size_t HERO_BACKPACK_WINDOW_SLOT_COLUMNS = 8;
 	const size_t HERO_BACKPACK_WINDOW_SLOT_LINES = 8;
 };

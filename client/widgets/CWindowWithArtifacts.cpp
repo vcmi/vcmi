@@ -43,6 +43,11 @@ void CWindowWithArtifacts::addSet(CArtifactsOfHeroPtr artSet)
 		}, artSet);
 }
 
+void CWindowWithArtifacts::addCloseCallback(CloseCallback callback)
+{
+	closeCallback = callback;
+}
+
 const CGHeroInstance * CWindowWithArtifacts::getHeroPickedArtifact()
 {
 	auto res = getState();
@@ -161,7 +166,10 @@ void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst
 				if constexpr(std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroBackpack>>)
 				{
 					if(!isTransferAllowed)
-						artSetPtr->destroyThis();
+					{
+						if(closeCallback)
+							closeCallback();
+					}
 				}
 				else
 				{

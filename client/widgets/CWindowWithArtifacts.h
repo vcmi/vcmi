@@ -25,8 +25,10 @@ public:
 		std::weak_ptr<CArtifactsOfHeroKingdom>,
 		std::weak_ptr<CArtifactsOfHeroMain>,
 		std::weak_ptr<CArtifactsOfHeroBackpack>>;
+	using CloseCallback = std::function<void()>;
 
 	void addSet(CArtifactsOfHeroPtr artSet);
+	void addCloseCallback(CloseCallback callback);
 	const CGHeroInstance * getHeroPickedArtifact();
 	const CArtifactInstance * getPickedArtifact();
 	void leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst, CHeroArtPlace & artPlace);
@@ -39,6 +41,7 @@ public:
 
 private:
 	std::vector<CArtifactsOfHeroPtr> artSets;
+	CloseCallback closeCallback;
 
 	void updateSlots(const ArtifactPosition & slot);
 	std::optional<std::tuple<const CGHeroInstance*, const CArtifactInstance*>> getState();
