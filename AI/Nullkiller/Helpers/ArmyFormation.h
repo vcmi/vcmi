@@ -30,7 +30,7 @@ private:
 	std::shared_ptr<CCallback> cb; //this is enough, but we downcast from CCallback
 
 public:
-	ArmyFormation(std::shared_ptr<CCallback> CB, const Nullkiller * ai): cb(CB), ai(ai) {}
+	ArmyFormation(std::shared_ptr<CCallback> CB, const Nullkiller * ai): cb(CB) {}
 
 	void rearrangeArmyForSiege(const CGTownInstance * town, const CGHeroInstance * attacker);
 };
