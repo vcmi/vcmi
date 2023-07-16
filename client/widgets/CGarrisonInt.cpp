@@ -347,8 +347,18 @@ void CGarrisonSlot::clickPressed(const Point & cursorPosition)
 
 void CGarrisonSlot::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
 {
-	if (on)
-		GH.windows().createAndPushWindow<RadialMenu>(pos.center(), owner, this);
+	if (!on)
+		return;
+
+	std::vector<RadialMenuConfig> menuElements = {
+		{ RadialMenuConfig::ITEM_NW, "stackMerge", "", [this](){owner->bulkMergeStacks(this);} },
+		{ RadialMenuConfig::ITEM_NE, "stackInfo", "", [this](){viewInfo();} },
+		{ RadialMenuConfig::ITEM_WW, "stackSplitOne", "", [this](){splitIntoParts(this->getGarrison(), 1); } },
+		{ RadialMenuConfig::ITEM_EE, "stackSplitEqual", "", [this](){owner->bulkSmartSplitStack(this);} },
+		{ RadialMenuConfig::ITEM_SW, "heroMove", "", [this](){owner->moveStackToAnotherArmy(this);} },
+	};
+
+	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
 }
 
 void CGarrisonSlot::update()

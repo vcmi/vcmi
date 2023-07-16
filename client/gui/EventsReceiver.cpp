@@ -37,11 +37,6 @@ bool AEventsReceiver::isActive() const
 	return activeState;
 }
 
-bool AEventsReceiver::isMouseLeftButtonPressed() const
-{
-	return mouseClickedState;
-}
-
 void AEventsReceiver::activateEvents(ui16 what)
 {
 	assert((what & GENERAL) || (activeState & GENERAL));
@@ -62,4 +57,14 @@ void AEventsReceiver::deactivateEvents(ui16 what)
 		what = activeState;
 	}
 	GH.events().deactivateElement(this, what & activeState);
+
+	if (!(activeState & GESTURE) && panningState)
+		panningState = false;
+
+	if (!(activeState & LCLICK) && mouseClickedState)
+		mouseClickedState = false;
+
+// FIXME: might lead to regressions, recheck before enabling
+//	if (!(activeState & HOVER))
+//		hoveredState = false;
 }

@@ -15,44 +15,49 @@ class IImage;
 
 class CGarrisonInt;
 class CGarrisonSlot;
-class CFilledTexture;
 class CGStatusBar;
 
+struct RadialMenuConfig
+{
+	static constexpr Point ITEM_NW = Point(-40, -70);
+	static constexpr Point ITEM_NE = Point(+40, -70);
+	static constexpr Point ITEM_WW = Point(-80, 0);
+	static constexpr Point ITEM_EE = Point(+80, 0);
+	static constexpr Point ITEM_SW = Point(-40, +70);
+	static constexpr Point ITEM_SE = Point(+40, +70);
+
+	Point itemPosition;
+	std::string imageName;
+	std::string hoverText;
+	std::function<void()> callback;
+};
 
 class RadialMenuItem : public CIntObject
 {
+	friend class RadialMenu;
+
 	std::shared_ptr<IImage> image;
 	std::shared_ptr<CPicture> picture;
-public:
 	std::function<void()> callback;
+	std::string hoverText;
 
-	RadialMenuItem(const std::string& imageName, const std::function<void()>& callback);
+public:
+	RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback);
 
 	bool isInside(const Point & position);
-
-	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
-	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 };
 
 class RadialMenu : public CIntObject
 {
-	static constexpr Point ITEM_NW = Point( -40, -70);
-	static constexpr Point ITEM_NE = Point( +40, -70);
-	static constexpr Point ITEM_WW = Point( -80, 0);
-	static constexpr Point ITEM_EE = Point( +80, 0);
-	static constexpr Point ITEM_SW = Point( -40, +70);
-	static constexpr Point ITEM_SE = Point( +40, +70);
-
 	std::vector<std::shared_ptr<RadialMenuItem>> items;
 
-	std::shared_ptr<CFilledTexture> statusBarBackground;
 	std::shared_ptr<CGStatusBar> statusBar;
 
-	void addItem(const Point & offset, const std::string & path, const std::function<void()>& callback );
+	void addItem(const Point & offset, const std::string & path, const std::string & hoverText, const std::function<void()> & callback);
+
 public:
-	RadialMenu(const Point & positionToCenter, CGarrisonInt * army, CGarrisonSlot * slot);
+	RadialMenu(const Point & positionToCenter, const std::vector<RadialMenuConfig> & menuConfig);
 
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
-	void show(Canvas & to) override;
 };

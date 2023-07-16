@@ -16,10 +16,10 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../render/IImage.h"
-#include "CGarrisonInt.h"
 
-RadialMenuItem::RadialMenuItem(const std::string & imageName, const std::function<void()> & callback)
+RadialMenuItem::RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback)
 	: callback(callback)
+	, hoverText(hoverText)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -35,42 +35,20 @@ bool RadialMenuItem::isInside(const Point & position)
 	return !image->isTransparent(localPosition);
 }
 
-void RadialMenuItem::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
-{
-
-}
-
-void RadialMenuItem::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
-{
-
-}
-
-RadialMenu::RadialMenu(const Point & positionToCenter, CGarrisonInt * army, CGarrisonSlot * slot)
+RadialMenu::RadialMenu(const Point & positionToCenter, const std::vector<RadialMenuConfig> & menuConfig)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos += positionToCenter;
 
-	bool isExchange = army->upperArmy() && army->lowerArmy(); // two armies exist
-
-	addItem(Point(0,0), "stackEmpty", [](){});
+	addItem(Point(0,0), "itemEmpty", "", [](){});
 
 	Point itemSize = items.back()->pos.dimensions();
 	moveBy(-itemSize / 2);
 
-	addItem(ITEM_NW, "stackMerge", [=](){army->bulkMergeStacks(slot);});
-	addItem(ITEM_NE, "stackInfo", [=](){slot->viewInfo();});
+	for (auto const & item : menuConfig)
+		addItem(item.itemPosition, item.imageName, item.hoverText, item.callback);
 
-	addItem(ITEM_WW, "stackSplitOne", [=](){slot->splitIntoParts(slot->getGarrison(), 1); });
-	addItem(ITEM_EE, "stackSplitEqual", [=](){army->bulkSmartSplitStack(slot);});
-
-	if (isExchange)
-	{
-		addItem(ITEM_SW, "stackMove", [=](){army->moveStackToAnotherArmy(slot);});
-		//FIXME: addItem(ITEM_SE, "stackSplitDialog", [=](){slot->split();});
-	}
-
-	//statusBarBackground = std::make_shared<CFilledTexture>("DiBoxBck", Rect(-itemSize.x * 2, -100, itemSize.x * 4, 20));
-	//statusBar = CGStatusBar::create(statusBarBackground);
+	statusBar = CGStatusBar::create(-80, -100, "radialMenu/statusBar");
 
 	for(const auto & item : items)
 		pos = pos.include(item->pos);
@@ -80,9 +58,9 @@ RadialMenu::RadialMenu(const Point & positionToCenter, CGarrisonInt * army, CGar
 	addUsedEvents(GESTURE);
 }
 
-void RadialMenu::addItem(const Point & offset, const std::string & path, const std::function<void()>& callback )
+void RadialMenu::addItem(const Point & offset, const std::string & path, const std::string & hoverText, const std::function<void()>& callback )
 {
-	auto item = std::make_shared<RadialMenuItem>(path, callback);
+	auto item = std::make_shared<RadialMenuItem>(path, hoverText, callback);
 
 	item->moveBy(offset);
 
@@ -92,11 +70,6 @@ void RadialMenu::addItem(const Point & offset, const std::string & path, const s
 void RadialMenu::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
 
-}
-
-void RadialMenu::show(Canvas & to)
-{
-	showAll(to);
 }
 
 void RadialMenu::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
