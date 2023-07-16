@@ -8,6 +8,14 @@
  *
  */
 #include "StdInc.h"
+#include "CGameHandler.h"
+
+#include "HeroPoolProcessor.h"
+#include "ServerNetPackVisitors.h"
+#include "ServerSpellCastEnvironment.h"
+#include "CVCMIServer.h"
+
+#include "PlayerMessageProcessor.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/FileInfo.h"
@@ -35,7 +43,6 @@
 #include "../lib/GameSettings.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/CondSh.h"
-#include "ServerNetPackVisitors.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
@@ -44,9 +51,6 @@
 #include "../lib/ScopeGuard.h"
 #include "../lib/CSoundBase.h"
 #include "../lib/TerrainHandler.h"
-#include "CGameHandler.h"
-#include "ServerSpellCastEnvironment.h"
-#include "CVCMIServer.h"
 #include "../lib/CCreatureSet.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/GameConstants.h"
@@ -292,6 +296,11 @@ vstd::CLoggerBase * CGameHandler::logger() const
 events::EventBus * CGameHandler::eventBus() const
 {
 	return serverEventBus.get();
+}
+
+CVCMIServer * CGameHandler::gameLobby() const
+{
+	return lobby;
 }
 
 void CGameHandler::levelUpHero(const CGHeroInstance * hero, SecondarySkill skill)
@@ -868,24 +877,12 @@ void CGameHandler::battleAfterLevelUp(const BattleResult &result)
 	std::set<PlayerColor> playerColors = {finishingBattle->loser, finishingBattle->victor};
 	checkVictoryLossConditions(playerColors);
 
-	if (result.result == BattleResult::SURRENDER || result.result == BattleResult::ESCAPE) //loser has escaped or surrendered
-	{
-		SetAvailableHeroes sah;
-		sah.player = finishingBattle->loser;
-		sah.hid[0] = finishingBattle->loserHero->subID;
-		if (result.result == BattleResult::ESCAPE) //retreat
-		{
-			sah.army[0].clear();
-			sah.army[0].setCreature(SlotID(0), finishingBattle->loserHero->type->initialArmy.at(0).creature, 1);
-		}
+	if (result.result == BattleResult::SURRENDER)
+		heroPool->onHeroSurrendered(finishingBattle->loser, finishingBattle->loserHero);
 
-		if (const CGHeroInstance *another = getPlayerState(finishingBattle->loser)->availableHeroes.at(0))
-			sah.hid[1] = another->subID;
-		else
-			sah.hid[1] = -1;
+	if (result.result == BattleResult::ESCAPE)
+		heroPool->onHeroEscaped(finishingBattle->loser, finishingBattle->loserHero);
 
-		sendAndApply(&sah);
-	}
 	if (result.winner != 2 && finishingBattle->winnerHero && finishingBattle->winnerHero->stacks.empty()
 		&& (!finishingBattle->winnerHero->commander || !finishingBattle->winnerHero->commander->alive))
 	{
@@ -893,20 +890,7 @@ void CGameHandler::battleAfterLevelUp(const BattleResult &result)
 		sendAndApply(&ro);
 
 		if (VLC->settings()->getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))
-		{
-			SetAvailableHeroes sah;
-			sah.player = finishingBattle->victor;
-			sah.hid[0] = finishingBattle->winnerHero->subID;
-			sah.army[0].clear();
-			sah.army[0].setCreature(SlotID(0), finishingBattle->winnerHero->type->initialArmy.at(0).creature, 1);
-
-			if (const CGHeroInstance *another = getPlayerState(finishingBattle->victor)->availableHeroes.at(0))
-				sah.hid[1] = another->subID;
-			else
-				sah.hid[1] = -1;
-
-			sendAndApply(&sah);
-		}
+			heroPool->onHeroEscaped(finishingBattle->victor, finishingBattle->winnerHero);
 	}
 	
 	finishingBattle.reset();
@@ -1240,7 +1224,7 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 		if(playerConnection != playerConnections.second.end())
 		{
 			std::string messageText = boost::str(boost::format("%s (cid %d) was disconnected") % playerSettings->name % c->connectionID);
-			playerMessage(playerId, messageText, ObjectInstanceID{});
+			playerMessages->broadcastMessage(playerId, messageText);
 		}
 	}
 }
@@ -1576,6 +1560,8 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 CGameHandler::CGameHandler(CVCMIServer * lobby)
 	: lobby(lobby)
+	, heroPool(std::make_unique<HeroPoolProcessor>(this))
+	, playerMessages(std::make_unique<PlayerMessageProcessor>(this))
 	, complainNoCreatures("No creatures to split")
 	, complainNotEnoughCreatures("Cannot split that stack, not enough creatures!")
 	, complainInvalidSlot("Invalid slot accessed!")
@@ -1765,27 +1751,6 @@ void CGameHandler::newTurn()
 		}
 	}
 
-	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > pool = gs->hpool.heroesPool;
-
-	for (auto& hp : pool)
-	{
-		auto hero = hp.second;
-		if (hero->isInitialized() && hero->stacks.size())
-		{
-			// reset retreated or surrendered heroes
-			auto maxmove = hero->movementPointsLimit(true);
-			// if movement is greater than maxmove, we should decrease it
-			if (hero->movementPointsRemaining() != maxmove || hero->mana < hero->manaLimit())
-			{
-				NewTurn::Hero hth;
-				hth.id = hero->id;
-				hth.move = maxmove;
-				hth.mana = hero->getManaNewTurn();
-				n.heroes.insert(hth);
-			}
-		}
-	}
-
 	for (auto & elem : gs->players)
 	{
 		if (elem.first == PlayerColor::NEUTRAL)
@@ -1797,29 +1762,7 @@ void CGameHandler::newTurn()
 		hadGold.insert(playerGold);
 
 		if (newWeek) //new heroes in tavern
-		{
-			SetAvailableHeroes sah;
-			sah.player = elem.first;
-
-			//pick heroes and their armies
-			CHeroClass *banned = nullptr;
-			for (int j = 0; j < GameConstants::AVAILABLE_HEROES_PER_PLAYER; j++)
-			{
-				//first hero - native if possible, second hero -> any other class
-				if (CGHeroInstance *h = gs->hpool.pickHeroFor(j == 0, elem.first, getNativeTown(elem.first), pool, getRandomGenerator(), banned))
-				{
-					sah.hid[j] = h->subID;
-					h->initArmy(getRandomGenerator(), &sah.army[j]);
-					banned = h->type->heroClass;
-				}
-				else
-				{
-					sah.hid[j] = -1;
-				}
-			}
-
-			sendAndApply(&sah);
-		}
+			heroPool->onNewWeek(elem.first);
 
 		n.res[elem.first] = elem.second.resources;
 
@@ -2709,14 +2652,6 @@ void CGameHandler::changeSpells(const CGHeroInstance * hero, bool give, const st
 	sendAndApply(&cs);
 }
 
-void CGameHandler::sendMessageTo(std::shared_ptr<CConnection> c, const std::string &message)
-{
-	SystemMessage sm;
-	sm.text = message;
-	boost::unique_lock<boost::mutex> lock(*c->mutexWrite);
-	*(c.get()) << &sm;
-}
-
 void CGameHandler::giveHeroBonus(GiveBonus * bonus)
 {
 	sendAndApply(bonus);
@@ -2927,10 +2862,8 @@ bool CGameHandler::isPlayerOwns(CPackForServer * pack, ObjectInstanceID id)
 void CGameHandler::throwNotAllowedAction(CPackForServer * pack)
 {
 	if(pack->c)
-	{
-		SystemMessage temp_message("You are not allowed to perform this action!");
-		pack->c->sendPack(&temp_message);
-	}
+		playerMessages->sendSystemMessage(pack->c, "You are not allowed to perform this action!");
+
 	logNetwork->error("Player is not allowed to perform this action!");
 	throw ExceptionNotAllowedAction();
 }
@@ -2940,11 +2873,9 @@ void CGameHandler::wrongPlayerMessage(CPackForServer * pack, PlayerColor expecte
 	std::ostringstream oss;
 	oss << "You were identified as player " << getPlayerAt(pack->c) << " while expecting " << expectedplayer;
 	logNetwork->error(oss.str());
+
 	if(pack->c)
-	{
-		SystemMessage temp_message(oss.str());
-		pack->c->sendPack(&temp_message);
-	}
+		playerMessages->sendSystemMessage(pack->c, oss.str());
 }
 
 void CGameHandler::throwOnWrongOwner(CPackForServer * pack, ObjectInstanceID id)
@@ -3657,13 +3588,6 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 // 		sendAndApply(&rb);
 // 	}
 	return true;
-}
-
-void CGameHandler::sendMessageToAll(const std::string &message)
-{
-	SystemMessage sm;
-	sm.text = message;
-	sendToAllClients(&sm);
 }
 
 bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dstid, CreatureID crid, ui32 cram, si32 fromLvl)
@@ -4383,94 +4307,6 @@ bool CGameHandler::setFormation(ObjectInstanceID hid, ui8 formation)
 	return true;
 }
 
-bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor player)
-{
-	const PlayerState * p = getPlayerState(player);
-	const CGTownInstance * t = getTown(obj->id);
-
-	//common preconditions
-//	if ((p->resources.at(EGameResID::GOLD)<GOLD_NEEDED  && complain("Not enough gold for buying hero!"))
-//		|| (getHeroCount(player, false) >= GameConstants::MAX_HEROES_PER_PLAYER && complain("Cannot hire hero, only 8 wandering heroes are allowed!")))
-	if ((p->resources[EGameResID::GOLD] < GameConstants::HERO_GOLD_COST && complain("Not enough gold for buying hero!"))
-		|| ((getHeroCount(player, false) >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP) && complain("Cannot hire hero, too many wandering heroes already!")))
-		|| ((getHeroCount(player, true) >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP) && complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))))
-	{
-		return false;
-	}
-
-	if (t) //tavern in town
-	{
-		if ((!t->hasBuilt(BuildingID::TAVERN) && complain("No tavern!"))
-			 || (t->visitingHero  && complain("There is visiting hero - no place!")))
-		{
-			return false;
-		}
-	}
-	else if (obj->ID == Obj::TAVERN)
-	{
-		if (getTile(obj->visitablePos())->visitableObjects.back() != obj && complain("Tavern entry must be unoccupied!"))
-		{
-			return false;
-		}
-	}
-
-	const CGHeroInstance *nh = p->availableHeroes.at(hid);
-	if (!nh)
-	{
-		complain ("Hero is not available for hiring!");
-		return false;
-	}
-
-	HeroRecruited hr;
-	hr.tid = obj->id;
-	hr.hid = nh->subID;
-	hr.player = player;
-	hr.tile = nh->convertFromVisitablePos(obj->visitablePos());
-	if (getTile(hr.tile)->isWater())
-	{
-		//Create a new boat for hero
-		createObject(obj->visitablePos(), Obj::BOAT, nh->getBoatType().getNum());
-
-		hr.boatId = getTopObj(hr.tile)->id;
-	}
-	sendAndApply(&hr);
-
-	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > pool = gs->unusedHeroesFromPool();
-
-	const CGHeroInstance *theOtherHero = p->availableHeroes.at(!hid);
-	const CGHeroInstance *newHero = nullptr;
-	if (theOtherHero) //on XXL maps all heroes can be imprisoned :(
-	{
-		newHero = gs->hpool.pickHeroFor(false, player, getNativeTown(player), pool, getRandomGenerator(), theOtherHero->type->heroClass);
-	}
-
-	SetAvailableHeroes sah;
-	sah.player = player;
-
-	if (newHero)
-	{
-		sah.hid[hid] = newHero->subID;
-		sah.army[hid].clear();
-		sah.army[hid].setCreature(SlotID(0), newHero->type->initialArmy[0].creature, 1);
-	}
-	else
-	{
-		sah.hid[hid] = -1;
-	}
-
-	sah.hid[!hid] = theOtherHero ? theOtherHero->subID : -1;
-	sendAndApply(&sah);
-
-	giveResource(player, EGameResID::GOLD, -GameConstants::HERO_GOLD_COST);
-
-	if(t)
-	{
-		visitCastleObjects(t, nh);
-		giveSpells (t,nh);
-	}
-	return true;
-}
-
 bool CGameHandler::queryReply(QueryID qid, const JsonNode & answer, PlayerColor player)
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
@@ -4978,140 +4814,6 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 	return ok;
 }
 
-void CGameHandler::playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj)
-{
-	bool cheated = false;
-	
-	std::vector<std::string> words;
-	boost::split(words, message, boost::is_any_of(" "));
-	
-	bool isHost = false;
-	for(auto & c : connections[player])
-		if(lobby->isClientHost(c->connectionID))
-			isHost = true;
-	
-	if(isHost && words.size() >= 2 && words[0] == "game")
-	{
-		if(words[1] == "exit" || words[1] == "quit" || words[1] == "end")
-		{
-			SystemMessage temp_message("game was terminated");
-			sendAndApply(&temp_message);
-			lobby->state = EServerState::SHUTDOWN;
-			return;
-		}
-		if(words.size() == 3 && words[1] == "save")
-		{
-			save("Saves/" + words[2]);
-			SystemMessage temp_message("game saved as " + words[2]);
-			sendAndApply(&temp_message);
-			return;
-		}
-		if(words.size() == 3 && words[1] == "kick")
-		{
-			auto playername = words[2];
-			PlayerColor playerToKick(PlayerColor::CANNOT_DETERMINE);
-			if(std::all_of(playername.begin(), playername.end(), ::isdigit))
-				playerToKick = PlayerColor(std::stoi(playername));
-			else
-			{
-				for(auto & c : connections)
-				{
-					if(c.first.getStr(false) == playername)
-						playerToKick = c.first;
-				}
-			}
-			
-			if(playerToKick != PlayerColor::CANNOT_DETERMINE)
-			{
-				PlayerCheated pc;
-				pc.player = playerToKick;
-				pc.losingCheatCode = true;
-				sendAndApply(&pc);
-				checkVictoryLossConditionsForPlayer(playerToKick);
-			}
-			return;
-		}
-	}
-	
-	int obj = 0;
-	if (words.size() == 2 && words[0] != "vcmiexp" && words[0] != "vcmiolorin")
-	{
-		obj = std::atoi(words[1].c_str());
-		if (obj)
-			currObj = ObjectInstanceID(obj);
-	}
-
-	const CGHeroInstance * hero = getHero(currObj);
-	const CGTownInstance * town = getTown(currObj);
-	if (!town && hero)
-		town = hero->visitedTown;
-
-	if(words.size() > 1 && (words[0] == "vcmiarmy" || words[0] == "vcminissi" || words[0] == "vcmiexp" || words[0] == "vcmiolorin"))
-	{
-		std::string cheatCodeWithOneParameter = std::string(words[0]) + " " + words[1];
-		handleCheatCode(cheatCodeWithOneParameter, player, hero, town, cheated);
-	}
-	else if (words.size() == 1 || obj)
-	{
-		handleCheatCode(words[0], player, hero, town, cheated);
-	}
-	else
-	{
-		for (const auto & i : gs->players)
-		{
-			if (i.first == PlayerColor::NEUTRAL)
-				continue;
-			if (words[1] == "ai")
-			{
-				if (i.second.human)
-					continue;
-			}
-			else if (words[1] != "all" && words[1] != i.first.getStr())
-				continue;
-
-			if (words[0] == "vcmiformenos" || words[0] == "vcmieagles" || words[0] == "vcmiungoliant"
-				|| words[0] == "vcmiresources" || words[0] == "vcmimap" || words[0] == "vcmihidemap")
-			{
-				handleCheatCode(words[0], i.first, nullptr, nullptr, cheated);
-			}
-			else if (words[0] == "vcmiarmenelos" || words[0] == "vcmibuild")
-			{
-				for (const auto & t : i.second.towns)
-				{
-					handleCheatCode(words[0], i.first, nullptr, t, cheated);
-				}
-			}
-			else
-			{
-				for (const auto & h : i.second.heroes)
-				{
-					handleCheatCode(words[0], i.first, h, nullptr, cheated);
-				}
-			}
-		}
-	}
-
-	if (cheated)
-	{
-		if(!getPlayerSettings(player)->isControlledByAI())
-		{
-			SystemMessage temp_message(VLC->generaltexth->allTexts[260]);
-			sendAndApply(&temp_message);
-		}
-
-		if(!player.isSpectator())
-			checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
-	}
-	else
-	{
-		if(!getPlayerSettings(player)->isControlledByAI())
-		{
-			PlayerMessageClient temp_message(player, message);
-			sendAndApply(&temp_message);
-		}
-	}
-}
-
 bool CGameHandler::makeCustomAction(BattleAction & ba)
 {
 	switch(ba.actionType)
@@ -5474,7 +5176,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 
 bool CGameHandler::complain(const std::string &problem)
 {
-	sendMessageToAll("Server encountered a problem: " + problem);
+	playerMessages->broadcastSystemMessage("Server encountered a problem: " + problem);
 	logGlobal->error(problem);
 	return true;
 }
@@ -6866,225 +6568,6 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 	}
 }
 
-void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, const CGHeroInstance * hero, const CGTownInstance * town, bool & cheated)
-{
-	//Make cheat case-insensitive
-	std::transform(cheat.begin(), cheat.end(), cheat.begin(), [](unsigned char c){ return std::tolower(c); });
-	
-	if (cheat == "vcmiistari" || cheat == "vcmispells")
-	{
-		cheated = true;
-		if (!hero) return;
-		///Give hero spellbook
-		if (!hero->hasSpellbook())
-			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
-
-		///Give all spells with bonus (to allow banned spells)
-		GiveBonus giveBonus(GiveBonus::ETarget::HERO);
-		giveBonus.id = hero->id.getNum();
-		giveBonus.bonus = Bonus(BonusDuration::PERMANENT, BonusType::SPELLS_OF_LEVEL, BonusSource::OTHER, 0, 0);
-		//start with level 0 to skip abilities
-		for (int level = 1; level <= GameConstants::SPELL_LEVELS; level++)
-		{
-			giveBonus.bonus.subtype = level;
-			sendAndApply(&giveBonus);
-		}
-
-		///Give mana
-		SetMana sm;
-		sm.hid = hero->id;
-		sm.val = 999;
-		sm.absolute = true;
-		sendAndApply(&sm);
-	}
-	else if (cheat == "vcmiarmenelos" || cheat == "vcmibuild")
-	{
-		cheated = true;
-		if (!town) return;
-		///Build all buildings in selected town
-		for (auto & build : town->town->buildings)
-		{
-			if (!town->hasBuilt(build.first)
-				&& !build.second->getNameTranslated().empty()
-				&& build.first != BuildingID::SHIP)
-			{
-				buildStructure(town->id, build.first, true);
-			}
-		}
-	}
-	else if (cheat == "vcmiainur" || cheat == "vcmiangband" || cheat == "vcmiglaurung" || cheat == "vcmiarchangel"
-		|| cheat == "vcmiblackknight" || cheat == "vcmicrystal" || cheat == "vcmiazure" || cheat == "vcmifaerie")
-	{
-		cheated = true;
-		if (!hero) return;
-		///Gives N creatures into each slot
-		std::map<std::string, std::pair<std::string, int>> creatures;
-		creatures.insert(std::make_pair("vcmiainur", std::make_pair("archangel", 5))); //5 archangels
-		creatures.insert(std::make_pair("vcmiangband", std::make_pair("blackKnight", 10))); //10 black knights
-		creatures.insert(std::make_pair("vcmiglaurung", std::make_pair("crystalDragon", 5000))); //5000 crystal dragons
-		creatures.insert(std::make_pair("vcmiarchangel", std::make_pair("archangel", 5))); //5 archangels
-		creatures.insert(std::make_pair("vcmiblackknight", std::make_pair("blackKnight", 10))); //10 black knights
-		creatures.insert(std::make_pair("vcmicrystal", std::make_pair("crystalDragon", 5000))); //5000 crystal dragons
-		creatures.insert(std::make_pair("vcmiazure", std::make_pair("azureDragon", 5000))); //5000 azure dragons
-		creatures.insert(std::make_pair("vcmifaerie", std::make_pair("fairieDragon", 5000))); //5000 faerie dragons
-
-		const int32_t creatureIdentifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", creatures[cheat].first, false).value();
-		const CCreature * creature = VLC->creh->objects.at(creatureIdentifier);
-		for (int i = 0; i < GameConstants::ARMY_SIZE; i++)
-			if (!hero->hasStackAtSlot(SlotID(i)))
-				insertNewStack(StackLocation(hero, SlotID(i)), creature, creatures[cheat].second);
-	}
-	else if (boost::starts_with(cheat, "vcmiarmy") || boost::starts_with(cheat, "vcminissi"))
-	{
-		cheated = true;
-		if (!hero) return;
-
-		std::vector<std::string> words;
-		boost::split(words, cheat, boost::is_any_of(" "));
-
-		if(words.size() < 2)
-			return;
-
-		std::string creatureIdentifier = words[1];
-
-		std::optional<int32_t> creatureId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", creatureIdentifier, false);
-
-		if(creatureId.has_value())
-		{
-			const auto * creature = CreatureID(creatureId.value()).toCreature();
-
-			for (int i = 0; i < GameConstants::ARMY_SIZE; i++)
-				if (!hero->hasStackAtSlot(SlotID(i)))
-					insertNewStack(StackLocation(hero, SlotID(i)), creature, 5 * std::pow(10, i));
-		}
-	}
-	else if (cheat == "vcminoldor" || cheat == "vcmimachines")
-	{
-		cheated = true;
-		if (!hero) return;
-		///Give all war machines to hero
-		if (!hero->getArt(ArtifactPosition::MACH1))
-			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::BALLISTA], ArtifactPosition::MACH1);
-		if (!hero->getArt(ArtifactPosition::MACH2))
-			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::AMMO_CART], ArtifactPosition::MACH2);
-		if (!hero->getArt(ArtifactPosition::MACH3))
-			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::FIRST_AID_TENT], ArtifactPosition::MACH3);
-	}
-	else if (cheat == "vcmiforgeofnoldorking" || cheat == "vcmiartifacts")
-	{
-		cheated = true;
-		if (!hero) return;
-		///Give hero all artifacts except war machines, spell scrolls and spell book
-		for(int g = 7; g < VLC->arth->objects.size(); ++g) //including artifacts from mods
-		{
-			if(VLC->arth->objects[g]->canBePutAt(hero))
-				giveHeroNewArtifact(hero, VLC->arth->objects[g], ArtifactPosition::FIRST_AVAILABLE);
-		}
-	}
-	else if (cheat == "vcmiglorfindel" || cheat == "vcmilevel")
-	{
-		cheated = true;
-		if (!hero) return;
-		///selected hero gains a new level
-		changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level + 1) - VLC->heroh->reqExp(hero->level));
-	}
-	else if (boost::starts_with(cheat, "vcmiexp") || boost::starts_with(cheat, "vcmiolorin"))
-	{
-		cheated = true;
-		if (!hero) return;
-
-		std::vector<std::string> words;
-		boost::split(words, cheat, boost::is_any_of(" "));
-
-		if(words.size() < 2)
-			return;
-
-		std::string expAmount = words[1];
-		long expAmountProcessed = 0;
-
-		try
-		{
-			expAmountProcessed = std::stol(expAmount);
-		}
-		catch(std::exception&)
-		{
-			logGlobal->error("Could not parse experience amount for vcmiexp cheat");
-		}
-
-		if(expAmountProcessed > 1)
-		{
-			changePrimSkill(hero, PrimarySkill::EXPERIENCE, expAmountProcessed);
-		}
-	}
-	else if (cheat == "vcminahar" || cheat == "vcmimove")
-	{
-		cheated = true;
-		if (!hero) return;
-		///Give 1000000 movement points to hero
-		SetMovePoints smp;
-		smp.hid = hero->id;
-		smp.val = 1000000;
-		sendAndApply(&smp);
-
-		GiveBonus gb(GiveBonus::ETarget::HERO);
-		gb.bonus.type = BonusType::FREE_SHIP_BOARDING;
-		gb.bonus.duration = BonusDuration::ONE_DAY;
-		gb.bonus.source = BonusSource::OTHER;
-		gb.id = hero->id.getNum();
-		giveHeroBonus(&gb);
-	}
-	else if (cheat == "vcmiformenos" || cheat == "vcmiresources")
-	{
-		cheated = true;
-		///Give resources to player
-		TResources resources;
-		resources[EGameResID::GOLD] = 100000;
-		for (GameResID i = EGameResID::WOOD; i < EGameResID::GOLD; ++i)
-			resources[i] = 100;
-
-		giveResources(player, resources);
-	}
-	else if (cheat == "vcmisilmaril" || cheat == "vcmiwin")
-	{
-		cheated = true;
-		///Player wins
-		PlayerCheated pc;
-		pc.player = player;
-		pc.winningCheatCode = true;
-		sendAndApply(&pc);
-	}
-	else if (cheat == "vcmimelkor" || cheat == "vcmilose")
-	{
-		cheated = true;
-		///Player looses
-		PlayerCheated pc;
-		pc.player = player;
-		pc.losingCheatCode = true;
-		sendAndApply(&pc);
-	}
-	else if (cheat == "vcmieagles" || cheat == "vcmiungoliant" || cheat == "vcmimap" || cheat == "vcmihidemap")
-	{
-		cheated = true;
-		///Reveal or conceal FoW
-		FoWChange fc;
-		fc.mode = ((cheat == "vcmieagles" || cheat == "vcmimap") ? 1 : 0);
-		fc.player = player;
-		const auto & fowMap = gs->getPlayerTeam(player)->fogOfWarMap;
-		auto hlp_tab = new int3[gs->map->width * gs->map->height * (gs->map->levels())];
-		int lastUnc = 0;
-
-		for(int z = 0; z < gs->map->levels(); z++)
-			for(int x = 0; x < gs->map->width; x++)
-				for(int y = 0; y < gs->map->height; y++)
-					if(!(*fowMap)[z][x][y] || !fc.mode)
-						hlp_tab[lastUnc++] = int3(x, y, z);
-
-		fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);
-		delete [] hlp_tab;
-		sendAndApply(&fc);
-	}
-}
-
 void CGameHandler::removeObstacle(const CObstacleInstance & obstacle)
 {
 	BattleObstaclesChanged obsRem;
@@ -7394,4 +6877,12 @@ void CGameHandler::createObject(const int3 & visitablePosition, Obj type, int32_
 	no.subID= subtype;
 	no.targetPos = visitablePosition;
 	sendAndApply(&no);
+}
+
+void CGameHandler::deserializationFix()
+{
+	//FIXME: pointer to GameHandler itself can't be deserialized at the moment since GameHandler is top-level entity in serialization
+	// restore any places that requires such pointer manually
+	heroPool->gameHandler = this;
+	playerMessages->gameHandler = this;
 }

@@ -715,6 +715,11 @@ Heroes III: HD Edition wird derzeit nicht unterstützt</translation>
         <translation>Automatische Erkennung der Sprache fehlgeschlagen. Bitte wählen Sie die Sprache Ihrer Heroes III Kopie</translation>
     </message>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
+        <source>Interface Improvements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="740"/>
         <source>Install a translation of Heroes III in your preferred language</source>
         <translation>Übersetzung von Heroes III für Ihre Sprache installieren</translation>
@@ -726,8 +731,12 @@ Heroes III: HD Edition wird derzeit nicht unterstützt</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
+        <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
-        <translation>Installieren Sie Unterstützung für das Spielen von Heroes III in anderen Auflösungen als 800x600</translation>
+        <translation type="vanished">Installieren Sie Unterstützung für das Spielen von Heroes III in anderen Auflösungen als 800x600</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
@@ -817,9 +826,8 @@ Heroes III: HD Edition wird derzeit nicht unterstützt</translation>
         <translation>Heroes III Übersetzung</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
         <source>High Definition Support</source>
-        <translation>Unterstützung für hohe Auflösungen</translation>
+        <translation type="vanished">Unterstützung für hohe Auflösungen</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="724"/>

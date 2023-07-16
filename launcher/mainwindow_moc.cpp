@@ -153,6 +153,7 @@ void MainWindow::enterSetup()
 	ui->startEditorButton->setEnabled(false);
 	ui->lobbyButton->setEnabled(false);
 	ui->settingsButton->setEnabled(false);
+	ui->aboutButton->setEnabled(false);
 	ui->modslistButton->setEnabled(false);
 	ui->tabListWidget->setCurrentIndex(TabRows::SETUP);
 }
@@ -166,6 +167,7 @@ void MainWindow::exitSetup()
 	ui->startEditorButton->setEnabled(true);
 	ui->lobbyButton->setEnabled(true);
 	ui->settingsButton->setEnabled(true);
+	ui->aboutButton->setEnabled(true);
 	ui->modslistButton->setEnabled(true);
 	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
 }

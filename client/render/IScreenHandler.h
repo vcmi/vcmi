@@ -37,4 +37,7 @@ public:
 
 	/// Converts provided rect from logical coordinates into coordinates within window, accounting for scaling and viewport
 	virtual Rect convertLogicalPointsToWindow(const Rect & input) const = 0;
+
+	/// Dimensions of render output
+	virtual Point getRenderResolution() const = 0;
 };

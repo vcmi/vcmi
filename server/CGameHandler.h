@@ -46,9 +46,11 @@ template<typename T> class CApplier;
 
 VCMI_LIB_NAMESPACE_END
 
+class HeroPoolProcessor;
 class CGameHandler;
 class CVCMIServer;
 class CBaseForGHApply;
+class PlayerMessageProcessor;
 
 struct PlayerStatus
 {
@@ -97,12 +99,17 @@ class CGameHandler : public IGameCallback, public CBattleInfoCallback, public En
 	CVCMIServer * lobby;
 	std::shared_ptr<CApplier<CBaseForGHApply>> applier;
 	std::unique_ptr<boost::thread> battleThread;
+
 public:
+	std::unique_ptr<HeroPoolProcessor> heroPool;
+
 	using FireShieldInfo = std::vector<std::pair<const CStack *, int64_t>>;
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
 	enum EGuardLook {CHECK_FOR_GUARDS, IGNORE_GUARDS};
 	enum EVisitDest {VISIT_DEST, DONT_VISIT_DEST};
 	enum ELEaveTile {LEAVING_TILE, REMAINING_ON_TILE};
+
+	std::unique_ptr<PlayerMessageProcessor> playerMessages;
 
 	std::map<PlayerColor, std::set<std::shared_ptr<CConnection>>> connections; //player color -> connection to client with interface of that player
 	PlayerStatuses states; //player color -> player state
@@ -119,6 +126,7 @@ public:
 	const GameCb * game() const override;
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
+	CVCMIServer * gameLobby() const;
 
 	bool isValidObject(const CGObjectInstance *obj) const;
 	bool isBlockedByQueries(const CPack *pack, PlayerColor player);
@@ -145,6 +153,7 @@ public:
 	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
 	void setBattleResult(BattleResult::EResult resultType, int victoriusSide);
 
+	CGameHandler() = default;
 	CGameHandler(CVCMIServer * lobby);
 	~CGameHandler();
 
@@ -230,7 +239,6 @@ public:
 	PlayerColor getPlayerAt(std::shared_ptr<CConnection> c) const;
 	bool hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const;
 
-	void playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj);
 	void updateGateState();
 	bool makeBattleAction(BattleAction &ba);
 	bool makeAutomaticAction(const CStack *stack, BattleAction &ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
@@ -240,7 +248,6 @@ public:
 
 	void removeObstacle(const CObstacleInstance &obstacle);
 	bool queryReply( QueryID qid, const JsonNode & answer, PlayerColor player );
-	bool hireHero( const CGObjectInstance *obj, ui8 hid, PlayerColor player );
 	bool buildBoat( ObjectInstanceID objid, PlayerColor player );
 	bool setFormation( ObjectInstanceID hid, ui8 formation );
 	bool tradeResources(const IMarket *market, ui32 val, PlayerColor player, ui32 id1, ui32 id2);
@@ -283,7 +290,12 @@ public:
 		h & QID;
 		h & states;
 		h & finishingBattle;
+		h & heroPool;
 		h & getRandomGenerator();
+		h & playerMessages;
+
+		if (!h.saving)
+			deserializationFix();
 
 #if SCRIPTING_ENABLED
 		JsonNode scriptsState;
@@ -295,8 +307,6 @@ public:
 #endif
 	}
 
-	void sendMessageToAll(const std::string &message);
-	void sendMessageTo(std::shared_ptr<CConnection> c, const std::string &message);
 	void sendToAllClients(CPackForClient * pack);
 	void sendAndApply(CPackForClient * pack) override;
 	void applyAndSend(CPackForClient * pack);
@@ -346,7 +356,11 @@ public:
 	void attackCasting(bool ranged, BonusType attackMode, const battle::Unit * attacker, const battle::Unit * defender);
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactPosition> & slot);
 	void spawnWanderingMonsters(CreatureID creatureID);
-	void handleCheatCode(std::string & cheat, PlayerColor player, const CGHeroInstance * hero, const CGTownInstance * town, bool & cheated);
+
+	// Check for victory and loss conditions
+	void checkVictoryLossConditionsForPlayer(PlayerColor player);
+	void checkVictoryLossConditions(const std::set<PlayerColor> & playerColors);
+	void checkVictoryLossConditionsForAll();
 
 	CRandomGenerator & getRandomGenerator();
 
@@ -354,6 +368,8 @@ public:
 	scripting::Pool * getGlobalContextPool() const override;
 	scripting::Pool * getContextPool() const override;
 #endif
+
+	std::list<PlayerColor> generatePlayerTurnOrder() const;
 
 	friend class CVCMIServer;
 private:
@@ -363,15 +379,11 @@ private:
 #endif
 
 	void reinitScripting();
+	void deserializationFix();
 
-	std::list<PlayerColor> generatePlayerTurnOrder() const;
+
 	void makeStackDoNothing(const CStack * next);
 	void getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const;
-
-	// Check for victory and loss conditions
-	void checkVictoryLossConditionsForPlayer(PlayerColor player);
-	void checkVictoryLossConditions(const std::set<PlayerColor> & playerColors);
-	void checkVictoryLossConditionsForAll();
 
 	const std::string complainNoCreatures;
 	const std::string complainNotEnoughCreatures;

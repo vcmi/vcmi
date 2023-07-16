@@ -11,6 +11,9 @@
 #include "ServerNetPackVisitors.h"
 
 #include "CGameHandler.h"
+#include "HeroPoolProcessor.h"
+#include "PlayerMessageProcessor.h"
+
 #include "../lib/IGameCallback.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/gameState/CGameState.h"
@@ -246,12 +249,10 @@ void ApplyGhNetPackVisitor::visitSetFormation(SetFormation & pack)
 
 void ApplyGhNetPackVisitor::visitHireHero(HireHero & pack)
 {
-	const CGObjectInstance * obj = gh.getObj(pack.tid);
-	const CGTownInstance * town = dynamic_ptr_cast<CGTownInstance>(obj);
-	if(town && PlayerRelations::ENEMIES == gh.getPlayerRelations(obj->tempOwner, gh.getPlayerAt(pack.c)))
-		gh.throwAndComplain(&pack, "Can't buy hero in enemy town!");
+	if (!gh.hasPlayerAt(pack.player, pack.c))
+		gh.throwAndComplain(&pack, "No such pack.player!");
 
-	result = gh.hireHero(obj, pack.hid, pack.player);
+	result = gh.heroPool->hireHero(pack.tid, pack.hid, pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitBuildBoat(BuildBoat & pack)
@@ -352,6 +353,6 @@ void ApplyGhNetPackVisitor::visitPlayerMessage(PlayerMessage & pack)
 	if(!pack.player.isSpectator()) // TODO: clearly not a great way to verify permissions
 		gh.throwOnWrongPlayer(&pack, pack.player);
 	
-	gh.playerMessage(pack.player, pack.text, pack.currObj);
+	gh.playerMessages->playerMessage(pack.player, pack.text, pack.currObj);
 	result = true;
 }

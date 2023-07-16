@@ -20,6 +20,7 @@
 #include "spells/CSpellHandler.h"
 #include "CCreatureHandler.h"
 #include "gameState/CGameState.h"
+#include "gameState/TavernHeroesPool.h"
 #include "CStack.h"
 #include "battle/BattleInfo.h"
 #include "CTownHandler.h"
@@ -151,7 +152,7 @@ void FoWChange::visitTyped(ICPackVisitor & visitor)
 	visitor.visitFoWChange(*this);
 }
 
-void SetAvailableHeroes::visitTyped(ICPackVisitor & visitor)
+void SetAvailableHero::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitSetAvailableHeroes(*this);
 }
@@ -939,18 +940,9 @@ void FoWChange::applyGs(CGameState *gs)
 	}
 }
 
-void SetAvailableHeroes::applyGs(CGameState *gs)
+void SetAvailableHero::applyGs(CGameState *gs)
 {
-	PlayerState *p = gs->getPlayerState(player);
-	p->availableHeroes.clear();
-
-	for (int i = 0; i < GameConstants::AVAILABLE_HEROES_PER_PLAYER; i++)
-	{
-		CGHeroInstance *h = (hid[i]>=0 ?  gs->hpool.heroesPool[hid[i]].get() : nullptr);
-		if(h && army[i])
-			h->setToArmy(army[i]);
-		p->availableHeroes.emplace_back(h);
-	}
+	gs->heroesPool->setHeroForPlayer(player, slotID, hid, army, roleID);
 }
 
 void GiveBonus::applyGs(CGameState *gs)
@@ -1132,7 +1124,16 @@ void RemoveObject::applyGs(CGameState *gs)
 		PlayerState * p = gs->getPlayerState(beatenHero->tempOwner);
 		gs->map->heroesOnMap -= beatenHero;
 		p->heroes -= beatenHero;
-		beatenHero->detachFrom(*beatenHero->whereShouldBeAttachedOnSiege(gs));
+
+
+		auto * siegeNode = beatenHero->whereShouldBeAttachedOnSiege(gs);
+
+		// FIXME: workaround:
+		// hero should be attached to siegeNode after battle
+		// however this code might also be called on dismissing hero while in town
+		if (siegeNode && vstd::contains(beatenHero->getParentNodes(), siegeNode))
+				beatenHero->detachFrom(*siegeNode);
+
 		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
 		vstd::erase_if(beatenHero->artifactsInBackpack, [](const ArtSlotInfo& asi)
 		{
@@ -1150,11 +1151,8 @@ void RemoveObject::applyGs(CGameState *gs)
 			beatenHero->inTownGarrison = false;
 		}
 		//return hero to the pool, so he may reappear in tavern
-		gs->hpool.heroesPool[beatenHero->subID] = beatenHero;
 
-		if(!vstd::contains(gs->hpool.pavailable, beatenHero->subID))
-			gs->hpool.pavailable[beatenHero->subID] = 0xff;
-
+		gs->heroesPool->addHeroToPool(beatenHero);
 		gs->map->objects[id.getNum()] = nullptr;
 
 		//If hero on Boat is removed, the Boat disappears
@@ -1379,8 +1377,7 @@ void SetHeroesInTown::applyGs(CGameState * gs) const
 
 void HeroRecruited::applyGs(CGameState * gs) const
 {
-	assert(vstd::contains(gs->hpool.heroesPool, hid));
-	CGHeroInstance *h = gs->hpool.heroesPool[hid];
+	CGHeroInstance *h = gs->heroesPool->takeHeroFromPool(hid);
 	CGTownInstance *t = gs->getTown(tid);
 	PlayerState *p = gs->getPlayerState(player);
 
@@ -1411,7 +1408,6 @@ void HeroRecruited::applyGs(CGameState * gs) const
 		}
 	}
 
-	gs->hpool.heroesPool.erase(hid);
 	if(h->id == ObjectInstanceID())
 	{
 		h->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
@@ -2022,24 +2018,15 @@ void NewTurn::applyGs(CGameState *gs)
 		CGHeroInstance *hero = gs->getHero(h.id);
 		if(!hero)
 		{
-			// retreated or surrendered hero who has not been reset yet
-			for(auto& hp : gs->hpool.heroesPool)
-			{
-				if(hp.second->id == h.id)
-				{
-					hero = hp.second;
-					break;
-				}
-			}
-		}
-		if(!hero)
-		{
 			logGlobal->error("Hero %d not found in NewTurn::applyGs", h.id.getNum());
 			continue;
 		}
+
 		hero->setMovementPoints(h.move);
 		hero->mana = h.mana;
 	}
+
+	gs->heroesPool->onNewDay();
 
 	for(const auto & re : res)
 	{

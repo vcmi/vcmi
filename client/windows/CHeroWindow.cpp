@@ -319,9 +319,6 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 				noDismiss = true;
 	}
 
-	for(auto ki : GH.windows().findWindows<CKingdomInterface>())
-		noDismiss = true;
-
 	//if player only have one hero and no towns
 	if(!LOCPLINT->cb->howManyTowns() && LOCPLINT->cb->howManyHeroes() == 1)
 		noDismiss = true;
@@ -329,7 +326,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	if(curHero->isMissionCritical())
 		noDismiss = true;
 
-	dismissButton->block(!!curHero->visitedTown || noDismiss);
+	dismissButton->block(noDismiss);
 
 	if(curHero->valOfBonuses(Selector::type()(BonusType::BEFORE_BATTLE_REPOSITION)) == 0)
 	{

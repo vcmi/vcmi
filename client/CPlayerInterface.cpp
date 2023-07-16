@@ -398,7 +398,10 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	LOG_TRACE_PARAMS(logGlobal, "Hero %s killed handler for player %s", hero->getNameTranslated() % playerID);
 
-	localState->removeWanderingHero(hero);
+	// if hero is not in town garrison
+	if (vstd::contains(localState->getWanderingHeroes(), hero))
+		localState->removeWanderingHero(hero);
+
 	adventureInt->onHeroChanged(hero);
 	localState->erasePath(hero);
 }
@@ -500,7 +503,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	if(town->garrisonHero) //wandering hero moved to the garrison
 	{
 		// This method also gets called on hero recruitment -> garrisoned hero is already in garrison
-		if(town->garrisonHero->tempOwner == playerID && !vstd::contains(localState->getWanderingHeroes(), town->visitingHero))
+		if(town->garrisonHero->tempOwner == playerID && vstd::contains(localState->getWanderingHeroes(), town->garrisonHero))
 			localState->removeWanderingHero(town->garrisonHero);
 	}
 
@@ -520,7 +523,9 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		castleInt->garr->setArmy(town->visitingHero, 1);
 		castleInt->garr->recreateSlots();
 		castleInt->heroes->update();
-		castleInt->redraw();
+
+		// Perform totalRedraw to update hero list on adventure map
+		GH.windows().totalRedraw();
 	}
 
 	for (auto ki : GH.windows().findWindows<CKingdomInterface>())
@@ -587,9 +592,11 @@ void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> ob
 void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID buildingID, int what) //what: 1 - built, 2 - demolished
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	adventureInt->onTownChanged(town);
+
 	if (castleInt)
 	{
-		castleInt->townlist->update(town);
+		castleInt->townlist->updateElement(town);
 
 		if (castleInt->town == town)
 		{
@@ -604,8 +611,10 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID build
 				break;
 			}
 		}
+
+		// Perform totalRedraw in order to force redraw of updated town list icon from adventure map
+		GH.windows().totalRedraw();
 	}
-	adventureInt->onTownChanged(town);
 }
 
 void CPlayerInterface::battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
@@ -1473,6 +1482,13 @@ void CPlayerInterface::objectRemovedAfter()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onMapTilesChanged(boost::none);
+
+	// visiting or garrisoned hero removed - recreate castle window
+	if (castleInt)
+		openTownWindow(castleInt->town);
+
+	for (auto ki : GH.windows().findWindows<CKingdomInterface>())
+		ki->heroRemoved();
 }
 
 void CPlayerInterface::playerBlocked(int reason, bool start)
@@ -1971,8 +1987,17 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		int soundChannel = -1;
 		std::string soundName;
 
-		auto getMovementSoundFor = [&](const CGHeroInstance * hero, int3 posPrev, int3 posNext) -> std::string
+		auto getMovementSoundFor = [&](const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType) -> std::string
 		{
+			if (moveType == EPathNodeAction::TELEPORT_BATTLE || moveType == EPathNodeAction::TELEPORT_BLOCKING_VISIT || moveType == EPathNodeAction::TELEPORT_NORMAL)
+				return "";
+
+			if (moveType == EPathNodeAction::EMBARK || moveType == EPathNodeAction::DISEMBARK)
+				return "";
+
+			if (moveType == EPathNodeAction::BLOCKING_VISIT)
+				return "";
+
 			// flying movement sound
 			if (hero->hasBonusOfType(BonusType::FLYING_MOVEMENT))
 				return "HORSE10.wav";
@@ -2024,8 +2049,11 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				}
 				if(i != path.nodes.size() - 1)
 				{
-					soundName = getMovementSoundFor(h, prevCoord, nextCoord);
-					soundChannel = CCS->soundh->playSound(soundName, -1);
+					soundName = getMovementSoundFor(h, prevCoord, nextCoord, path.nodes[i-1].action);
+					if (!soundName.empty())
+						soundChannel = CCS->soundh->playSound(soundName, -1);
+					else
+						soundChannel = -1;
 				}
 				continue;
 			}
@@ -2038,14 +2066,17 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 			{
 				// Start a new sound for the hero movement or let the existing one carry on.
-				std::string newSoundName = getMovementSoundFor(h, prevCoord, nextCoord);
+				std::string newSoundName = getMovementSoundFor(h, prevCoord, nextCoord, path.nodes[i-1].action);
 
 				if(newSoundName != soundName)
 				{
 					soundName = newSoundName;
 
 					CCS->soundh->stopSound(soundChannel);
-					soundChannel = CCS->soundh->playSound(soundName, -1);
+					if (!soundName.empty())
+						soundChannel = CCS->soundh->playSound(soundName, -1);
+					else
+						soundChannel = -1;
 				}
 			}
 

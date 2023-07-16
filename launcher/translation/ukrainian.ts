@@ -719,6 +719,11 @@ Heroes® of Might and Magic® III HD наразі не підтримуєтьс�
         <translation>Не вдалося визначити мову гри. Будь ласка, виберіть мову вашої копії Heroes III</translation>
     </message>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
+        <source>Interface Improvements</source>
+        <translation>Удосконалення нтерфейсу</translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="740"/>
         <source>Install a translation of Heroes III in your preferred language</source>
         <translation>Встановити переклад Heroes III на вашу мову</translation>
@@ -730,8 +735,12 @@ Heroes® of Might and Magic® III HD наразі не підтримуєтьс�
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
+        <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
+        <translation>Встановити різноманітні покращення інтерфейсу, такі як покращений інтерфейс випадкових карт та вибір варіантів дій у боях</translation>
+    </message>
+    <message>
         <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
-        <translation>Встановити підтримку для гри в Heroes III у роздільних здатностях, більших за 800x600</translation>
+        <translation type="vanished">Встановити підтримку для гри в Heroes III у роздільних здатностях, більших за 800x600</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
@@ -821,9 +830,8 @@ Heroes® of Might and Magic® III HD наразі не підтримуєтьс�
         <translation>Переклад Heroes III</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
         <source>High Definition Support</source>
-        <translation>Підтримка високих роздільних здатностей</translation>
+        <translation type="vanished">Підтримка високих роздільних здатностей</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="724"/>

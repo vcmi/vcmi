@@ -305,6 +305,7 @@ CKeyShortcut::CKeyShortcut()
 
 CKeyShortcut::CKeyShortcut(EShortcut key)
 	: assignedKey(key)
+	, shortcutPressed(false)
 {
 }
 

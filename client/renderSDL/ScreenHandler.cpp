@@ -46,7 +46,7 @@ std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
 	// arbitrary limit on *downscaling*. Allow some downscaling, if requested by user. Should be generally limited to 100+ for all but few devices
 	static const double minimalScaling = 50;
 
-	Point renderResolution = getActualRenderResolution();
+	Point renderResolution = getRenderResolution();
 	double reservedAreaWidth = settings["video"]["reservedWidth"].Float();
 	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
 
@@ -85,7 +85,7 @@ Rect ScreenHandler::convertLogicalPointsToWindow(const Rect & input) const
 
 Point ScreenHandler::getPreferredLogicalResolution() const
 {
-	Point renderResolution = getActualRenderResolution();
+	Point renderResolution = getRenderResolution();
 	double reservedAreaWidth = settings["video"]["reservedWidth"].Float();
 	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
 
@@ -99,7 +99,7 @@ Point ScreenHandler::getPreferredLogicalResolution() const
 	return logicalResolution;
 }
 
-Point ScreenHandler::getActualRenderResolution() const
+Point ScreenHandler::getRenderResolution() const
 {
 	assert(mainRenderer != nullptr);
 

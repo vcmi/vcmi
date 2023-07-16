@@ -36,6 +36,7 @@
 #include "StartInfo.h"
 #include "gameState/CGameState.h"
 #include "gameState/CGameStateCampaign.h"
+#include "gameState/TavernHeroesPool.h"
 #include "mapping/CMap.h"
 #include "CPlayerState.h"
 #include "GameSettings.h"
