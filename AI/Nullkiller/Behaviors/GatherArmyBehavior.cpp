@@ -321,8 +321,6 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 			upgrade.upgradeCost += armyToGetOrBuy.upgradeCost;
 			vstd::concatenate(upgrade.resultingArmy, armyToGetOrBuy.resultingArmy);
 
-			auto getOrBuyArmyValue = (float)armyToGetOrBuy.upgradeValue / path.getHeroStrength();
-
 			if(!upgrade.upgradeValue
 				&& armyToGetOrBuy.upgradeValue > 20000
 				&& ai->nullkiller->heroManager->canRecruitHero(town)
