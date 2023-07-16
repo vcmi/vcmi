@@ -499,7 +499,8 @@
 				"availableCreaturesAsDwellingLabel",
 				"compactTownCreatureInfo",
 				"infoBarPick",
-				"skipBattleIntroMusic"
+				"skipBattleIntroMusic",
+				"infoBarCreatureManagement"
 			],
 			"properties" : {
 				"showGrid" : {
@@ -527,6 +528,10 @@
 					"default" : false
 				},
 				"skipBattleIntroMusic" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"infoBarCreatureManagement": {
 					"type" : "boolean",
 					"default" : false
 				}

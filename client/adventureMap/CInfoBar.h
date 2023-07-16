@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "CConfigHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -142,6 +143,7 @@ private:
 	EState state;
 	uint32_t timerCounter;
 	bool shouldPopAll = false;
+	SettingsListener listener;
 
 	std::queue<std::pair<VisibleComponentInfo::Cache, int>> componentsQueue;
 
@@ -193,5 +195,8 @@ public:
 
 	/// check if infobar is showed something about pickups
 	bool showingComponents();
+
+	/// event handler for custom listening on game setting change
+	void OnInfoBarCreatureManagementChanged();
 };
 

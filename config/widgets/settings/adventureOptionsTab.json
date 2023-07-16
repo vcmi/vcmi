@@ -375,9 +375,9 @@
 					"callback": "borderScrollChanged"
 				},
 				{
-					"name": "infoBoxCreatureManagementCheckbox",
-					"help": "vcmi.adventureOptions.infoBoxCreatureManagement",
-					"callback": "infoBoxCreatureManagementChanged"
+					"name": "infoBarCreatureManagementCheckbox",
+					"help": "vcmi.adventureOptions.infoBarCreatureManagement",
+					"callback": "infoBarCreatureManagementChanged"
 				}
 			]
 		}
