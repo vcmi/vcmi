@@ -158,23 +158,33 @@ void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
 void CRecruitmentWindow::buy()
 {
 	CreatureID crid =  selected->creature->getId();
-	SlotID dstslot = dst-> getSlotFor(crid);
+	SlotID dstslot = dst->getSlotFor(crid);
 
 	if(!dstslot.validSlot() && (selected->creature->warMachine == ArtifactID::NONE)) //no available slot
 	{
-		std::string txt;
-		if(dst->ID == Obj::HERO)
+		std::pair<SlotID, SlotID> toMerge;
+		bool allowMerge = CGI->settings()->getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED);
+
+		if (allowMerge && dst->mergableStacks(toMerge))
 		{
-			txt = CGI->generaltexth->allTexts[425]; //The %s would join your hero, but there aren't enough provisions to support them.
-			boost::algorithm::replace_first(txt, "%s", slider->getValue() > 1 ? CGI->creh->objects[crid]->getNamePluralTranslated() : CGI->creh->objects[crid]->getNameSingularTranslated());
+			LOCPLINT->cb->mergeStacks( dst, dst, toMerge.first, toMerge.second);
 		}
 		else
 		{
-			txt = CGI->generaltexth->allTexts[17]; //There is no room in the garrison for this army.
-		}
+			std::string txt;
+			if(dst->ID == Obj::HERO)
+			{
+				txt = CGI->generaltexth->allTexts[425]; //The %s would join your hero, but there aren't enough provisions to support them.
+				boost::algorithm::replace_first(txt, "%s", slider->getValue() > 1 ? CGI->creh->objects[crid]->getNamePluralTranslated() : CGI->creh->objects[crid]->getNameSingularTranslated());
+			}
+			else
+			{
+				txt = CGI->generaltexth->allTexts[17]; //There is no room in the garrison for this army.
+			}
 
-		LOCPLINT->showInfoDialog(txt);
-		return;
+			LOCPLINT->showInfoDialog(txt);
+			return;
+		}
 	}
 
 	onRecruit(crid, slider->getValue());

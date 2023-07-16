@@ -246,6 +246,7 @@ public:
 	CKingdomInterface();
 
 	void townChanged(const CGTownInstance *town);
+	void heroRemoved();
 	void updateGarrisons() override;
 	void artifactRemoved(const ArtifactLocation &artLoc) override;
 	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc, bool withRedraw) override;

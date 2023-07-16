@@ -257,7 +257,7 @@
         <translation>Impressions écran</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="323"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="324"/>
         <source> %p% (%v KB out of %m KB)</source>
         <translation> %p% (%v Ko sur %m Ko)</translation>
     </message>
@@ -780,9 +780,8 @@ Mode exclusif plein écran - le jeu couvrira l&quot;intégralité de votre écra
             </translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
         <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
-        <translation>Installer un support pour jouer à Heroes III avec des résolutions supérieures à 800x600
+        <translation type="vanished">Installer un support pour jouer à Heroes III avec des résolutions supérieures à 800x600
             </translation>
     </message>
     <message>
@@ -860,7 +859,7 @@ Heroes® of Might and Magic® III HD n&quot;est actuellement pas pris en charge 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="346"/>
         <source>If you don&apos;t have a copy of Heroes III installed, you can use our automatic installation tool &apos;vcmibuilder&apos;, which only requires the GoG.com Heroes III installer. Please visit our wiki for detailed instructions.</source>
-        <translation>Si vous n&quot;avez pas installé de copie de Heroes III, vous pouvez utiliser notre outil d&quot;installation automatique "vcmibuilder", qui ne nécessite que le programme d&quot;installation de GoG.com Heroes III. Veuillez visiter notre wiki pour des instructions détaillées.</translation>
+        <translation>Si vous n&quot;avez pas installé de copie de Heroes III, vous pouvez utiliser notre outil d&quot;installation automatique &quot;vcmibuilder&quot;, qui ne nécessite que le programme d&quot;installation de GoG.com Heroes III. Veuillez visiter notre wiki pour des instructions détaillées.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="362"/>
@@ -920,8 +919,12 @@ Heroes® of Might and Magic® III HD n&quot;est actuellement pas pris en charge 
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
+        <source>Interface Improvements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>High Definition Support</source>
-        <translation>Support de Haute Définition</translation>
+        <translation type="vanished">Support de Haute Définition</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="724"/>
@@ -932,6 +935,11 @@ Heroes® of Might and Magic® III HD n&quot;est actuellement pas pris en charge 
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="756"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
         <translation>En option, vous pouvez installer des mods supplémentaires soit maintenant, soit à tout moment plus tard, à l&quot;aide du lanceur VCMI</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
+        <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>

@@ -224,25 +224,19 @@ void GeneralOptionsTab::updateResolutionSelector()
 	std::shared_ptr<CButton> resolutionButton = widget<CButton>("resolutionButton");
 	std::shared_ptr<CLabel> resolutionLabel = widget<CLabel>("resolutionLabel");
 
-	if (settings["video"]["fullscreen"].Bool() && !settings["video"]["realFullscreen"].Bool())
+	if (resolutionButton)
 	{
-		if (resolutionButton)
+		if (settings["video"]["fullscreen"].Bool() && !settings["video"]["realFullscreen"].Bool())
 			resolutionButton->disable();
-
-		if (resolutionLabel)
-			resolutionLabel->setText(resolutionToLabelString(GH.screenDimensions().x, GH.screenDimensions().y));
-	}
-	else
-	{
-		const auto & currentResolution = settings["video"]["resolution"];
-
-		if (resolutionButton)
+		else
 			resolutionButton->enable();
-
-		if (resolutionLabel)
-			resolutionLabel->setText(resolutionToLabelString(currentResolution["width"].Integer(), currentResolution["height"].Integer()));
 	}
 
+	if (resolutionLabel)
+	{
+		Point resolution = GH.screenHandler().getRenderResolution();
+		resolutionLabel->setText(resolutionToLabelString(resolution.x, resolution.y));
+	}
 }
 
 void GeneralOptionsTab::selectGameResolution()
@@ -370,6 +364,11 @@ void GeneralOptionsTab::setGameScaling(int index)
 	gameRes["scaling"].Float() = scaling;
 
 	widget<CLabel>("scalingLabel")->setText(scalingToLabelString(scaling));
+
+	GH.dispatchMainThread([](){
+		boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
+		GH.onScreenResize();
+	});
 }
 
 void GeneralOptionsTab::selectLongTouchDuration()

@@ -39,9 +39,6 @@ class ScreenHandler final : public IScreenHandler
 	/// This value is what player views as window size
 	Point getPreferredWindowResolution() const;
 
-	/// Dimensions of render output, usually same as window size except for high-DPI screens on macOS / iOS
-	Point getActualRenderResolution() const;
-
 	EWindowMode getPreferredWindowMode() const;
 
 	/// Returns index of display on which window should be created
@@ -85,6 +82,9 @@ public:
 
 	/// Fills screen with black color, erasing any existing content
 	void clearScreen() final;
+
+	/// Dimensions of render output, usually same as window size except for high-DPI screens on macOS / iOS
+	Point getRenderResolution() const final;
 
 	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;

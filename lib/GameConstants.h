@@ -313,6 +313,8 @@ class ObjectInstanceID : public BaseForID<ObjectInstanceID, si32>
 {
 	INSTID_LIKE_CLASS_COMMON(ObjectInstanceID, si32)
 
+	DLL_LINKAGE static const ObjectInstanceID NONE;
+
 	friend class CGameInfoCallback;
 	friend class CNonConstInfoCallback;
 };
@@ -357,8 +359,10 @@ class PlayerColor : public BaseForID<PlayerColor, ui8>
 
 	enum EPlayerColor
 	{
-		PLAYER_LIMIT_I = 8
+		PLAYER_LIMIT_I = 8,
 	};
+
+	using Mask = uint8_t;
 
 	DLL_LINKAGE static const PlayerColor SPECTATOR; //252
 	DLL_LINKAGE static const PlayerColor CANNOT_DETERMINE; //253

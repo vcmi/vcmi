@@ -280,12 +280,6 @@ void CSettingsView::on_comboBoxDisplayIndex_currentIndexChanged(int index)
 	fillValidResolutionsForScreen(index);
 }
 
-void CSettingsView::on_comboBoxPlayerAI_currentTextChanged(const QString & arg1)
-{
-	Settings node = settings.write["server"]["playerAI"];
-	node->String() = arg1.toUtf8().data();
-}
-
 void CSettingsView::on_comboBoxFriendlyAI_currentTextChanged(const QString & arg1)
 {
 	Settings node = settings.write["server"]["friendlyAI"];
@@ -498,6 +492,19 @@ void CSettingsView::on_spinBoxFramerateLimit_valueChanged(int arg1)
 {
 	Settings node = settings.write["video"]["targetfps"];
 	node->Float() = arg1;
+}
+
+void CSettingsView::on_comboBoxEnemyPlayerAI_currentTextChanged(const QString &arg1)
+{
+	Settings node = settings.write["server"]["playerAI"];
+	node->String() = arg1.toUtf8().data();
+}
+
+
+void CSettingsView::on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &arg1)
+{
+	Settings node = settings.write["server"]["alliedAI"];
+	node->String() = arg1.toUtf8().data();
 }
 
 

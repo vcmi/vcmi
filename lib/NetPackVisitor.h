@@ -36,7 +36,7 @@ public:
 	virtual void visitSetMana(SetMana & pack) {}
 	virtual void visitSetMovePoints(SetMovePoints & pack) {}
 	virtual void visitFoWChange(FoWChange & pack) {}
-	virtual void visitSetAvailableHeroes(SetAvailableHeroes & pack) {}
+	virtual void visitSetAvailableHeroes(SetAvailableHero & pack) {}
 	virtual void visitGiveBonus(GiveBonus & pack) {}
 	virtual void visitChangeObjPos(ChangeObjPos & pack) {}
 	virtual void visitPlayerEndsGame(PlayerEndsGame & pack) {}

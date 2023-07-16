@@ -9,25 +9,25 @@
 	{
 		"DATA/" :
 		[
-			{"type" : "lod", "path" : "Data/H3ab_bmp.lod"},
-			{"type" : "lod", "path" : "Data/H3bitmap.lod"},
-			{"type" : "lod", "path" : "Data/h3abp_bm.lod"}, // Polish version of H3 only
-			{"type" : "lod", "path" : "Data/H3pbitma.lod"}, // Polish version of H3 only
+			{"type" : "lod", "path" : "Data/H3ab_bmp.lod"}, // Contains H3:AB data
+			{"type" : "lod", "path" : "Data/h3abp_bm.lod"}, // Localized versions only, contains H3:AB patch data
+			{"type" : "lod", "path" : "Data/H3bitmap.lod"}, // Contains H3:SoD data (overrides H3:AB data)
+			{"type" : "lod", "path" : "Data/H3pbitma.lod"}, // Localized versions only, contains H3:SoD patch data
 			{"type" : "dir",  "path" : "Data"}
 		],
 		"SPRITES/":
 		[
-			{"type" : "lod", "path" : "Data/H3ab_spr.lod"},
-			{"type" : "lod", "path" : "Data/H3sprite.lod"},
-			{"type" : "lod", "path" : "Data/h3abp_sp.lod"}, // Polish version of H3 only
-			{"type" : "lod", "path" : "Data/H3psprit.lod"}, // Polish version of H3 only
+			{"type" : "lod", "path" : "Data/H3ab_spr.lod"}, // Contains H3:AB data
+			{"type" : "lod", "path" : "Data/H3sprite.lod"}, // Localized versions only, contains H3:AB patch data
+			{"type" : "lod", "path" : "Data/h3abp_sp.lod"}, // Contains H3:SoD data (overrides H3:AB data)
+//			{"type" : "lod", "path" : "Data/H3psprit.lod"}, // Localized versions only, contains H3:SoD patch data. Unused? Has corrupted data, e.g. lock icon for artifacts
 			{"type" : "dir",  "path" : "Sprites"}
 		],
 		"SOUNDS/":
 		[
 			{"type" : "snd", "path" : "Data/H3ab_ahd.snd"},
-			{"type" : "snd", "path" : "Data/Heroes3-cd2.snd"},
 			{"type" : "snd", "path" : "Data/Heroes3.snd"},
+			{"type" : "snd", "path" : "Data/Heroes3-cd2.snd"},
 			//WoG have overriden sounds with .82m extension in Data
 			{"type" : "dir",  "path" : "Data", "depth": 0}
 		],

@@ -107,6 +107,8 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<AObjectTypeHandler, ShrineInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, ShipyardInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, HillFortInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, CreatureInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, ResourceInstanceConstructor>();
 
 #define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()
 
@@ -239,7 +241,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, SetMana>();
 	s.template registerType<CPackForClient, SetMovePoints>();
 	s.template registerType<CPackForClient, FoWChange>();
-	s.template registerType<CPackForClient, SetAvailableHeroes>();
+	s.template registerType<CPackForClient, SetAvailableHero>();
 	s.template registerType<CPackForClient, GiveBonus>();
 	s.template registerType<CPackForClient, ChangeObjPos>();
 	s.template registerType<CPackForClient, PlayerEndsGame>();

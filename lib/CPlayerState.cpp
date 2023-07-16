@@ -35,7 +35,6 @@ PlayerState::PlayerState(PlayerState && other) noexcept:
 	std::swap(visitedObjects, other.visitedObjects);
 	std::swap(heroes, other.heroes);
 	std::swap(towns, other.towns);
-	std::swap(availableHeroes, other.availableHeroes);
 	std::swap(dwellings, other.dwellings);
 	std::swap(quests, other.quests);
 }

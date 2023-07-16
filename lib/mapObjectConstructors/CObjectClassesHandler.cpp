@@ -57,6 +57,8 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER_CLASS("shrine", ShrineInstanceConstructor);
 	SET_HANDLER_CLASS("hillFort", HillFortInstanceConstructor);
 	SET_HANDLER_CLASS("shipyard", ShipyardInstanceConstructor);
+	SET_HANDLER_CLASS("monster", CreatureInstanceConstructor);
+	SET_HANDLER_CLASS("resource", ResourceInstanceConstructor);
 
 	SET_HANDLER_CLASS("static", CObstacleConstructor);
 	SET_HANDLER_CLASS("", CObstacleConstructor);
@@ -73,7 +75,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("artifact", CGArtifact);
 	SET_HANDLER("borderGate", CGBorderGate);
 	SET_HANDLER("borderGuard", CGBorderGuard);
-	SET_HANDLER("monster", CGCreature);
 	SET_HANDLER("denOfThieves", CGDenOfthieves);
 	SET_HANDLER("event", CGEvent);
 	SET_HANDLER("garrison", CGGarrison);
@@ -87,7 +88,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("pandora", CGPandoraBox);
 	SET_HANDLER("prison", CGHeroInstance);
 	SET_HANDLER("questGuard", CGQuestGuard);
-	SET_HANDLER("resource", CGResource);
 	SET_HANDLER("scholar", CGScholar);
 	SET_HANDLER("seerHut", CGSeerHut);
 	SET_HANDLER("sign", CGSignBottle);

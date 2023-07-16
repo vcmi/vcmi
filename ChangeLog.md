@@ -1,6 +1,129 @@
 # 1.2.1 -> 1.3.0
 (unreleased)
 
+### GENERAL:
+* Implemented automatic interface scaling to any resolution supported by monitor
+* Implemented UI scaling option to scale game interface
+* Game resolution and UI scaling can now be changed without game restart
+* Fixed multiple issues with borderless fullscreen mode
+* On mobile systems game will now always run at native resolution with configurable UI scaling
+* Implemented support for Horn of the Abyss map format
+* Implemented option to replay results of quick combat
+* Added translations to French and Chinese
+* All in-game cheats are now case-insensitive
+* Added high-definition icon for Windows
+* Fix crash on connecting to server on FreeBSD and Flatpak builds
+
+### TOUCHSCREEN SUPPORT:
+* VCMI will now properly recognizes touch screen input
+* Implemented long tap gesture that shows popup window. Tap once more to close popup
+* Long tap gesture duration can now be configured in settings
+* Implemented swipe gesture for scrolling through lists
+* All windows that have sliders in UI can now be scrolled using swipe gesture
+* Implemented swipe gesture for attack direction selection: swipe from enemy position to position you want to attack from
+* Implemented pinch gesture for zooming adventure map
+* Implemented haptic feedback (vibration) for long press gesture
+
+### LAUNCHER:
+* Launcher will now attempt to automatically detect language of OS on first launch
+* Added "About" tab with information about project and environment
+* Added separate options for Allied AI and Enemy AI for adventure map
+* Patially fixed displaying of download progress for mods
+* Fixed potential crash on opening mod information for mods with a changelog
+
+### MAP EDITOR:
+* Fixed crash on cutting random town
+* Added option to export entire map as an image
+* Added validation for placing multiple heroes into starting town
+* It is now possible to have single player on a map
+* It is now possible to configure teams in editor
+
+### AI PLAYER:
+* Fixed potential crash on accessing market (VCAI)
+* Fixed potentially infinite turns (VCAI)
+
+### GAME MECHANICS
+* Implemented hero backpack limit (disabled by default)
+* Fixed Admiral's Hat movement points calculation
+* It is now possible to access Shipwrecks from coast
+* Hero path will now be correctly updated on equipping/unequipping Levitation Boots or Angel Wings
+* It is no longer possible to abort movement while hero is flying over water
+* Fixed digging for Grail
+* Implemented "Survive beyond a time limit" victory condition
+* Implemented "Defeat all monsters" victory condition
+* 100% damage resistance or damage reduction will make unit immune to a spell
+* Game will now randomly select obligatory skill for hero on levelup instead of always picking Fire Magic
+* Fixed duration of bonuses from visitable object such as Idol of Fortune
+* Rescued hero from prison will now correctly reveal map around him
+* Lighthouses will no longer give movement bonus on land
+
+### CAMPAIGNS:
+* Fixed transfer of artifacts into next scenario
+* Fixed crash on advancing to next scenario with heroes from mods
+* Fixed handling of "Start with building" campaign bonus
+* Fixed incorrect starting level of heroes in campaigns
+* Game will now play correct music track on scenario selection window
+* Dracon woll now correctly start without spellbook in Dragon Slayer campaign
+* Fixed frequent crash on moving to next scenario during campaign
+
+### RANDOM MAP GENERATOR:
+* Improved zone placement, shape and connections
+* Improved zone passability for better gameplay
+* Improved treasure distribution and treasure values to match SoD closely
+* RMG will now respect road settings set in menu
+* Tweaked many original templates so they allow new terrains and factions
+* Added "bannedTowns", "bannedTerrains", "bannedMonsters" zone properties
+* Added "road" property to connections
+* Support for "wide" connections
+* Support for new "fictive" and "repulsive" connections
+* RMG will now run faster, utilizing many CPU cores
+
+### INTERFACE:
+* Adventure map is now scalable and can be used with any resolution without mods
+* Adventure map interface is now correctly blocked during enemy turn
+* It is now possible to zoom in or out using mouse wheel or pinch gesture
+* It is now possible to reset zoom via Backspace hotkey
+* Receiving a message in chat will now play sound
+* Map grid will now correctly display on map start
+* Fixed multiple issues with incorrect updates of save/load game screen
+* Fixed missing fortifications level icon in town tooltip
+* Fixed positioning of resource label in Blacksmith window
+* Status bar on inactive windows will no longer show any tooltip from active window
+* Fixed highlighting of possible artifact placements when exchanging with allied hero
+* Implemented sound of flying movement (for Fly spell or Angel Wings)
+* Last symbol of entered cheat/chat message will no longer trigger hotkey
+
+### BATTLES:
+* Implemented Tower moat (Land Mines)
+* Implemented defence reduction for units in moat
+* Fixed movement through moat of double-hexed units
+* Fixed removal of Land Mines and Fire Walls
+* Obstacles will now corectly show up either below or above unit
+* It is now possible to teleport a unit through destroyed walls
+* Added distinct overlay image for showing movement range of highlighted unit
+* Added overlay for displaying shooting range penalties of units
+
+### MODDING:
+* Implemented initial version of VCMI campaign format
+* Implemented spell cast as possible reward for configurable object
+* Implemented support for configurable buildings in towns
+* Implemented support for placing prison, tavern and heroes on water
+* Implemented support for new boat types
+* It is now possible for boats to use other movement layers, such as "air"
+* It is now possible to use growing artifacts on artifacts that can be used by hero
+* It is now possible to configure town moat
+* Palette-cycling animation of terrains and rivers can now be configured in json
+* Game will now correctly resolve identifier in unexpected form (e.g. 'bless' vs 'spell.bless' vs 'core:bless')
+* Creature specialties that use short form ( "creature" : "pikeman" ) will now correctly affect all creature upgrades
+* It is now possible to configure spells for Shrines
+* It is now possible to configure upgrade costs per level for Hill Forts
+* It is now possible to configure boat type for Shipyards on adventure map and in town
+* Implemented support for HotA-style adventure map images for monsters, with offset
+* Replaced (SCHOOL)_SPELL_DMG_PREMY with SPELL_DAMAGE bonus (uses school as subtype).
+* Removed bonuses (SCHOOL)_SPELLS - replaced with SPELLS_OF_SCHOOL
+* Removed DIRECT_DAMAGE_IMMUNITY bonus - replaced by 100% spell damage resistance
+* MAGIC_SCHOOL_SKILL subtype has been changed for consistency with other spell school bonuses
+
 # 1.2.0 -> 1.2.1
 
 ### GENERAL:

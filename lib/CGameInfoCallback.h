@@ -108,7 +108,6 @@ public:
 //	std::string getTavernRumor(const CGObjectInstance * townOrTavern) const;
 //	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 //	virtual bool getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject = nullptr) const;
-//	const CTown *getNativeTown(PlayerColor color) const;
 
 	//from gs
 //	const TeamState *getTeam(TeamID teamID) const;
@@ -206,7 +205,6 @@ public:
 	virtual std::string getTavernRumor(const CGObjectInstance * townOrTavern) const;
 	virtual EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	virtual bool getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject = nullptr) const;
-	virtual const CTown *getNativeTown(PlayerColor color) const;
 
 	//from gs
 	virtual const TeamState *getTeam(TeamID teamID) const;

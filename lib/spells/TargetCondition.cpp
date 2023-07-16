@@ -541,7 +541,7 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 
 			CModHandler::parseIdentifier(keyValue.first, scope, type, identifier);
 
-			item = itemFactory->createConfigurable(scope, type, identifier);
+			item = itemFactory->createConfigurable(keyValue.second.meta, type, identifier);
 		}
 
 		if(item)
