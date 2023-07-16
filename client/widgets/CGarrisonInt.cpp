@@ -345,37 +345,10 @@ void CGarrisonSlot::clickPressed(const Point & cursorPosition)
 		}
 }
 
-void CGarrisonSlot::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
-{
-	assert(radialMenu);
-
-	if (radialMenu)
-		radialMenu->gesturePanning(initialPosition, currentPosition, lastUpdateDistance);
-}
-
 void CGarrisonSlot::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
 {
 	if (on)
-	{
-		OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-
-		radialMenu = std::make_shared<RadialMenu>(owner, this);
-		radialMenu->center(pos.center());
-
-		auto topParent = parent;
-		while (topParent->parent)
-			topParent = topParent->parent;
-
-		// Add radial menu to current window / topmost parent for proper rendering order
-		topParent->addChild(radialMenu.get(), false);
-	}
-	else
-	{
-		radialMenu->gesture(on, initialPosition, finalPosition);
-		radialMenu.reset();
-	}
-
-	GH.windows().totalRedraw();
+		GH.windows().createAndPushWindow<RadialMenu>(pos.center(), owner, this);
 }
 
 void CGarrisonSlot::update()

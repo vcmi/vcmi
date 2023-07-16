@@ -22,7 +22,6 @@ class CGarrisonInt;
 class CButton;
 class CAnimImage;
 class CLabel;
-class RadialMenu;
 
 enum class EGarrisonType
 {
@@ -42,7 +41,6 @@ class CGarrisonSlot : public CIntObject
 	std::shared_ptr<CAnimImage> creatureImage;
 	std::shared_ptr<CAnimImage> selectionImage; // image for selection, not always visible
 	std::shared_ptr<CLabel> stackCount;
-	std::shared_ptr<RadialMenu> radialMenu;
 
 public:
 	bool viewInfo();
@@ -70,7 +68,6 @@ public:
 	void showPopupWindow(const Point & cursorPosition) override;
 	void clickPressed(const Point & cursorPosition) override;
 	void hover (bool on) override; //call-in
-	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 
 	void update();

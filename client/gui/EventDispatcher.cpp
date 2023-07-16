@@ -271,6 +271,12 @@ void EventDispatcher::dispatchGesturePanning(const Point & initialPosition, cons
 
 	for(auto it : copied)
 	{
+		if (!it->isGesturing() && it->receiveEvent(initialPosition, AEventsReceiver::GESTURE))
+		{
+			it->gesture(true, initialPosition, initialPosition);
+			it->panningState = true;
+		}
+
 		if (it->isGesturing())
 			it->gesturePanning(initialPosition, currentPosition, lastUpdateDistance);
 	}

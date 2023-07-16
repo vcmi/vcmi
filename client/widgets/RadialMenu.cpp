@@ -11,18 +11,20 @@
 #include "RadialMenu.h"
 
 #include "Images.h"
+#include "TextControls.h"
 
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 #include "../render/IImage.h"
 #include "CGarrisonInt.h"
 
-RadialMenuItem::RadialMenuItem(std::string imageName, std::function<void()> callback)
+RadialMenuItem::RadialMenuItem(const std::string & imageName, const std::function<void()> & callback)
 	: callback(callback)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	image = IImage::createFromFile("radialMenu/" + imageName);
-	picture = std::make_shared<CPicture>(image, Point(0,0));
+	picture = std::make_shared<CPicture>(image, Point(0, 0));
 	pos = picture->pos;
 }
 
@@ -43,11 +45,17 @@ void RadialMenuItem::gesture(bool on, const Point & initialPosition, const Point
 
 }
 
-RadialMenu::RadialMenu(CGarrisonInt * army, CGarrisonSlot * slot)
+RadialMenu::RadialMenu(const Point & positionToCenter, CGarrisonInt * army, CGarrisonSlot * slot)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	pos += positionToCenter;
 
 	bool isExchange = army->upperArmy() && army->lowerArmy(); // two armies exist
+
+	addItem(Point(0,0), "stackEmpty", [](){});
+
+	Point itemSize = items.back()->pos.dimensions();
+	moveBy(-itemSize / 2);
 
 	addItem(ITEM_NW, "stackMerge", [=](){army->bulkMergeStacks(slot);});
 	addItem(ITEM_NE, "stackInfo", [=](){slot->viewInfo();});
@@ -61,12 +69,18 @@ RadialMenu::RadialMenu(CGarrisonInt * army, CGarrisonSlot * slot)
 		//FIXME: addItem(ITEM_SE, "stackSplitDialog", [=](){slot->split();});
 	}
 
+	//statusBarBackground = std::make_shared<CFilledTexture>("DiBoxBck", Rect(-itemSize.x * 2, -100, itemSize.x * 4, 20));
+	//statusBar = CGStatusBar::create(statusBarBackground);
+
 	for(const auto & item : items)
 		pos = pos.include(item->pos);
 
+	fitToScreen(10);
+
+	addUsedEvents(GESTURE);
 }
 
-void RadialMenu::addItem(const Point & offset, const std::string & path, std::function<void()> callback )
+void RadialMenu::addItem(const Point & offset, const std::string & path, const std::function<void()>& callback )
 {
 	auto item = std::make_shared<RadialMenuItem>(path, callback);
 
@@ -89,12 +103,15 @@ void RadialMenu::gesture(bool on, const Point & initialPosition, const Point & f
 {
 	if (!on)
 	{
+		// we need to close this window first so if action spawns a new window it won't be closed instead
+		GH.windows().popWindows(1);
+
 		for(const auto & item : items)
 		{
 			if (item->isInside(finalPosition))
 			{
 				item->callback();
-				return;
+				break;
 			}
 		}
 	}
