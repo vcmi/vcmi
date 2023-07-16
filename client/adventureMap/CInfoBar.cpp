@@ -288,7 +288,7 @@ void CInfoBar::clickReleased(const Point & cursorPosition)
 	if(state == HERO || state == TOWN)
 	{
 		if(settings["gameTweaks"]["infoBarCreatureManagement"].Bool())
-		return;
+			return;
 
 		showGameStatus();
 	}
