@@ -28,7 +28,6 @@ class DLL_EXPORT ArmyFormation
 {
 private:
 	std::shared_ptr<CCallback> cb; //this is enough, but we downcast from CCallback
-	const Nullkiller * ai;
 
 public:
 	ArmyFormation(std::shared_ptr<CCallback> CB, const Nullkiller * ai): cb(CB), ai(ai) {}
