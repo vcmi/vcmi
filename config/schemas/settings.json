@@ -191,7 +191,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "alwaysSkipCombat", "borderScroll" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "alwaysSkipCombat", "borderScroll", "leftButtonDrag" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -231,6 +231,10 @@
 					"defaultIOS" : false,
 					"defaultAndroid" : false,
 					"default" : true
+				},
+				"leftButtonDrag" : {
+					"type" : "boolean",
+					"default" : false
 				}
 			}
 		},

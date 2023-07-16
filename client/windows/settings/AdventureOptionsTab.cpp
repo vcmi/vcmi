@@ -36,6 +36,14 @@ AdventureOptionsTab::AdventureOptionsTab()
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	setRedrawParent(true);
 
+#ifdef VCMI_MOBILE
+	addConditional("mobile", true);
+	addConditional("desktop", false);
+#else
+	addConditional("mobile", false);
+	addConditional("desktop", true);
+#endif
+
 	const JsonNode config(ResourceID("config/widgets/settings/adventureOptionsTab.json"));
 	addCallback("playerHeroSpeedChanged", [this](int value)
 	{
@@ -110,6 +118,10 @@ AdventureOptionsTab::AdventureOptionsTab()
 	{
 		return setBoolSetting("adventure", "borderScroll", value);
 	});
+	addCallback("leftButtonDragChanged", [](bool value)
+	{
+		return setBoolSetting("adventure", "leftButtonDrag", value);
+	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> playerHeroSpeedToggle = widget<CToggleGroup>("heroMovementSpeedPicker");
@@ -141,4 +153,8 @@ AdventureOptionsTab::AdventureOptionsTab()
 
 	std::shared_ptr<CToggleButton> borderScrollCheckbox = widget<CToggleButton>("borderScrollCheckbox");
 	borderScrollCheckbox->setSelected(settings["adventure"]["borderScroll"].Bool());
+
+	std::shared_ptr<CToggleButton> leftButtonDragCheckbox = widget<CToggleButton>("leftButtonDragCheckbox");
+	if (leftButtonDragCheckbox)
+		leftButtonDragCheckbox->setSelected(settings["adventure"]["leftButtonDrag"].Bool());
 }
