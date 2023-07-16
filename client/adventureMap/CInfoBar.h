@@ -27,6 +27,7 @@ class CComponentBox;
 class CHeroTooltip;
 class CInteractableHeroTooltip;
 class CTownTooltip;
+class CInteractableTownTooltip;
 class CLabel;
 class CMultiLineLabel;
 
@@ -74,7 +75,7 @@ private:
 
 	class VisibleTownInfo : public CVisibleInfo
 	{
-		std::shared_ptr<CTownTooltip> townTooltip;
+		std::variant<std::shared_ptr<CTownTooltip>, std::shared_ptr<CInteractableTownTooltip>> townTooltip;
 	public:
 		VisibleTownInfo(const CGTownInstance * town);
 	};

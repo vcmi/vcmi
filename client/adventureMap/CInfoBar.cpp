@@ -62,7 +62,11 @@ CInfoBar::VisibleTownInfo::VisibleTownInfo(const CGTownInstance * town)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>("ADSTATCS");
-	townTooltip = std::make_shared<CTownTooltip>(Point(0,0), town);
+
+	if(settings["gameTweaks"]["infoBoxCreatureManagement"].Bool())
+		townTooltip = std::make_shared<CInteractableTownTooltip>(Point(0,0), town);
+	else
+		townTooltip = std::make_shared<CTownTooltip>(Point(0,0), town);
 }
 
 CInfoBar::VisibleDateInfo::VisibleDateInfo()

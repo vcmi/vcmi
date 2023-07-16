@@ -114,6 +114,23 @@ public:
 	CTownTooltip(Point pos, const CGTownInstance * town);
 };
 
+/// Class for HD mod-like interactable infobox tooltip. Does not have any background!
+class CInteractableTownTooltip : public CGarrisonInt
+{
+	std::shared_ptr<CLabel> title;
+	std::shared_ptr<CAnimImage> fort;
+	std::shared_ptr<CAnimImage> hall;
+	std::shared_ptr<CAnimImage> build;
+	std::shared_ptr<CLabel> income;
+	std::shared_ptr<CPicture> garrisonedHero;
+	std::shared_ptr<CAnimImage> res1;
+	std::shared_ptr<CAnimImage> res2;
+
+	void init(const InfoAboutTown & town);
+public:
+	CInteractableTownTooltip(Point pos, const CGTownInstance * town);
+};
+
 /// draws picture with creature on background, use Animated=true to get animation
 class CCreaturePic : public CIntObject
 {
