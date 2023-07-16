@@ -413,12 +413,12 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, CGa
 	int labelPosW = pos.w;
 	int labelPosH = pos.h;
 
-	if(Owner->layout == CGarrisonInt::EGarrisonIntSlotsLayout::REVERSED_TWO_ROWS) //labels under icon
+	if(Owner->layout == CGarrisonInt::ESlotsLayout::REVERSED_TWO_ROWS) //labels under icon
 	{
 		labelPosW = pos.w / 2 + 1;
 		labelPosH += 7;
 	}
-	ETextAlignment labelAlignment = Owner->layout == CGarrisonInt::EGarrisonIntSlotsLayout::REVERSED_TWO_ROWS
+	ETextAlignment labelAlignment = Owner->layout == CGarrisonInt::ESlotsLayout::REVERSED_TWO_ROWS
 			? ETextAlignment::CENTER
 			: ETextAlignment::BOTTOMRIGHT;
 
@@ -516,11 +516,11 @@ void CGarrisonInt::createSlots()
 			if(!garrisonSlots[j])
 				garrisonSlots[j] = std::make_shared<CGarrisonSlot>(this, i*garOffset.x + (j*distance), i*garOffset.y, SlotID(j), static_cast<CGarrisonSlot::EGarrisonType>(i), nullptr);
 
-			if(layout == EGarrisonIntSlotsLayout::TWO_ROWS && j >= 4)
+			if(layout == ESlotsLayout::TWO_ROWS && j >= 4)
 			{
 				garrisonSlots[j]->moveBy(Point(-126, 37));
 			}
-			else if(layout == EGarrisonIntSlotsLayout::REVERSED_TWO_ROWS)
+			else if(layout == ESlotsLayout::REVERSED_TWO_ROWS)
 			{
 				if(j >= 3)
 				{
@@ -671,7 +671,7 @@ void CGarrisonInt::bulkSmartSplitStack(const CGarrisonSlot * selected)
 
 CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point & garsOffset,
 						   const CArmedInstance * s1, const CArmedInstance * s2,
-						   bool _removableUnits, bool smallImgs, EGarrisonIntSlotsLayout _layout)
+						   bool _removableUnits, bool smallImgs, ESlotsLayout _layout)
 		: highlighted(nullptr),
 		  inSplittingMode(false),
 		  interx(inx),

@@ -69,14 +69,14 @@ private:
 
 	class VisibleHeroInfo : public CVisibleInfo
 	{
-		std::variant<std::shared_ptr<CHeroTooltip>, std::shared_ptr<CInteractableHeroTooltip>> heroTooltip;
+		std::shared_ptr<CIntObject> heroTooltip; //should have CHeroTooltip or CInteractableHeroTooltip;
 	public:
 		VisibleHeroInfo(const CGHeroInstance * hero);
 	};
 
 	class VisibleTownInfo : public CVisibleInfo
 	{
-		std::variant<std::shared_ptr<CTownTooltip>, std::shared_ptr<CInteractableTownTooltip>> townTooltip;
+		std::shared_ptr<CIntObject> townTooltip; //should have CTownTooltip or CInteractableTownTooltip;
 	public:
 		VisibleTownInfo(const CGTownInstance * town);
 	};

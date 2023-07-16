@@ -81,7 +81,7 @@ class CGarrisonInt :public CIntObject
 	bool checkSelected(const CGarrisonSlot * selected, TQuantity min = 0) const;
 
 public:
-	enum class EGarrisonIntSlotsLayout
+	enum class ESlotsLayout
 	{
 		ONE_ROW,
 		TWO_ROWS,
@@ -98,7 +98,7 @@ public:
 		 removableUnits,  ///< player Can remove units from up
 		 owned[2];        ///< player Owns up or down army ([0] upper, [1] lower)
 
-	EGarrisonIntSlotsLayout layout;
+	ESlotsLayout layout;
 
 	void selectSlot(CGarrisonSlot * slot); ///< @param slot null = deselect
 	const CGarrisonSlot * getSelection() const;
@@ -133,11 +133,11 @@ public:
 	/// @param smallImgs Units images size 64x58 or 32x32
 	/// @param _layout - when TWO_ROWS - Display slots in 2 rows (1st row = 4 slots, 2nd = 3 slots), REVERSED_TWO_ROWS = 3 slots in 1st row
 	CGarrisonInt(int x, int y, int inx,
-			const Point & garsOffset,
-			const CArmedInstance * s1, const CArmedInstance * s2 = nullptr,
-			bool _removableUnits = true,
-			bool smallImgs = false,
-			EGarrisonIntSlotsLayout _layout = EGarrisonIntSlotsLayout::ONE_ROW);
+				 const Point & garsOffset,
+				 const CArmedInstance * s1, const CArmedInstance * s2 = nullptr,
+				 bool _removableUnits = true,
+				 bool smallImgs = false,
+				 ESlotsLayout _layout = ESlotsLayout::ONE_ROW);
 };
 
 class CGarrisonHolder
