@@ -23,7 +23,7 @@ RadialMenuItem::RadialMenuItem(const std::string & imageName, const std::string 
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	image = IImage::createFromFile("radialMenu/" + imageName);
+	image = IImage::createFromFile("radialMenu/" + imageName, EImageBlitMode::COLORKEY);
 	picture = std::make_shared<CPicture>(image, Point(0, 0));
 	pos = picture->pos;
 }
