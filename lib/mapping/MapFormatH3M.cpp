@@ -1735,7 +1735,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 			if(!object->spells.empty())
 			{
 				object->clear();
-				logGlobal->warn("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", object->getNameTextID(), object->subID);
+				logGlobal->debug("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", object->getNameTextID(), object->subID);
 			}
 
 			object->spells.insert(SpellID::PRESET); //placeholder "preset spells"
