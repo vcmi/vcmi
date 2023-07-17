@@ -29,6 +29,14 @@ AboutProjectView::AboutProjectView(QWidget * parent)
 	ui->lineEditOperatingSystem->setText(QSysInfo::prettyProductName());
 }
 
+void AboutProjectView::changeEvent(QEvent *event)
+{
+	if(event->type() == QEvent::LanguageChange)
+		ui->retranslateUi(this);
+
+	QWidget::changeEvent(event);
+}
+
 void AboutProjectView::on_updatesButton_clicked()
 {
 	UpdateDialog::showUpdateDialog(true);

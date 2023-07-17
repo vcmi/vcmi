@@ -21,6 +21,7 @@ class AboutProjectView : public QWidget
 {
 	Q_OBJECT
 
+	void changeEvent(QEvent *event) override;
 public:
 	explicit AboutProjectView(QWidget * parent = 0);
 
