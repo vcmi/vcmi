@@ -29,7 +29,7 @@ void MapIdentifiersH3M::loadMapping(std::map<IdentifierID, IdentifierID> & resul
 	for (auto entry : mapping.Struct())
 	{
 		IdentifierID sourceID (entry.second.Integer());
-		IdentifierID targetID (*VLC->modh->identifiers.getIdentifier(VLC->modh->scopeGame(), identifierName, entry.first));
+		IdentifierID targetID (*VLC->modh->identifiers.getIdentifier(entry.second.meta, identifierName, entry.first));
 
 		result[sourceID] = targetID;
 	}
@@ -39,13 +39,13 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 {
 	for (auto entryFaction : mapping["buildings"].Struct())
 	{
-		FactionID factionID (*VLC->modh->identifiers.getIdentifier(VLC->modh->scopeGame(), "faction", entryFaction.first));
+		FactionID factionID (*VLC->modh->identifiers.getIdentifier(entryFaction.second.meta, "faction", entryFaction.first));
 		auto buildingMap = entryFaction.second;
 
 		for (auto entryBuilding : buildingMap.Struct())
 		{
 			BuildingID sourceID (entryBuilding.second.Integer());
-			BuildingID targetID (*VLC->modh->identifiers.getIdentifier(VLC->modh->scopeGame(), "building." + VLC->factions()->getById(factionID)->getJsonKey(), entryBuilding.first));
+			BuildingID targetID (*VLC->modh->identifiers.getIdentifier(entryBuilding.second.meta, "building." + VLC->factions()->getById(factionID)->getJsonKey(), entryBuilding.first));
 
 			mappingFactionBuilding[factionID][sourceID] = targetID;
 		}
@@ -68,7 +68,7 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 		{
 			for (auto entryInner : entryOuter.second.Struct())
 			{
-				auto handler = VLC->objtypeh->getHandlerFor( VLC->modh->scopeGame(), entryOuter.first, entryInner.first);
+				auto handler = VLC->objtypeh->getHandlerFor( entryInner.second.meta, entryOuter.first, entryInner.first);
 
 				auto entryValues = entryInner.second.Vector();
 				ObjectTypeIdentifier h3mID{Obj(entryValues[0].Integer()), int32_t(entryValues[1].Integer())};
@@ -78,7 +78,7 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 		}
 		else
 		{
-			auto handler = VLC->objtypeh->getHandlerFor( VLC->modh->scopeGame(), entryOuter.first, entryOuter.first);
+			auto handler = VLC->objtypeh->getHandlerFor( entryOuter.second.meta, entryOuter.first, entryOuter.first);
 
 			auto entryValues = entryOuter.second.Vector();
 			ObjectTypeIdentifier h3mID{Obj(entryValues[0].Integer()), int32_t(entryValues[1].Integer())};
@@ -90,7 +90,7 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 	for (auto entry : mapping["portraits"].Struct())
 	{
 		int32_t sourceID = entry.second.Integer();
-		int32_t targetID = *VLC->modh->identifiers.getIdentifier(VLC->modh->scopeGame(), "hero", entry.first);
+		int32_t targetID = *VLC->modh->identifiers.getIdentifier(entry.second.meta, "hero", entry.first);
 		int32_t iconID = VLC->heroTypes()->getByIndex(targetID)->getIconIndex();
 
 		mappingHeroPortrait[sourceID] = iconID;
