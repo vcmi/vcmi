@@ -413,6 +413,7 @@ void CMapGenerator::addHeaderInfo()
 	m.difficulty = 1;
 	addPlayerInfo();
 	m.waterMap = (mapGenOptions.getWaterContent() != EWaterContent::EWaterContent::NONE);
+	banWaterHeroes();
 }
 
 int CMapGenerator::getNextMonlithIndex()
@@ -450,6 +451,24 @@ std::shared_ptr<CZonePlacer> CMapGenerator::getZonePlacer() const
 const std::vector<ArtifactID> & CMapGenerator::getAllPossibleQuestArtifacts() const
 {
 	return questArtifacts;
+}
+
+void CMapGenerator::banWaterHeroes()
+{
+	//This also bans only-land heroes on wazter maps
+	auto isWaterMap = map->getMap(this).isWaterMap();
+
+	for (int j = 0; j < map->getMap(this).allowedHeroes.size(); j++)
+	{
+		if (map->getMap(this).allowedHeroes[j])
+		{
+			auto* h = dynamic_cast<const CHero*>(VLC->heroTypes()->getByIndex(j));
+			if ((h->onlyOnWaterMap && !isWaterMap) || (h->onlyOnMapWithoutWater && isWaterMap)) //TODO: Refactor? Move to hero?
+			{
+				banHero(HeroTypeID(j));
+			}
+		}
+	}
 }
 
 const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
