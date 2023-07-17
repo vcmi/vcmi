@@ -232,7 +232,7 @@ void CArtifactsOfHeroBase::updateBackpackSlots()
 {
 	if(curHero->artifactsInBackpack.size() <= backpack.size() && backpackPos != 0)
 		backpackPos = 0;
-	scrollBackpackForArtSet(0, *curHero);
+	scrollBackpack(0);
 }
 
 void CArtifactsOfHeroBase::updateSlot(const ArtifactPosition & slot)

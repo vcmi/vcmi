@@ -11,6 +11,9 @@
 #include "CHeroBackpackWindow.h"
 
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
+
+#include "../widgets/Buttons.h"
 
 CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
 	: CWindowObject(PLAYER_COLORED)
@@ -21,10 +24,7 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
 	arts->setHero(hero);
 	addSet(arts);
 
-	arts_straight = std::make_shared<CArtifactsOfHeroBackpack>(Point(-500, -170));
-	arts_straight->setHero(hero);
-	arts_straight->isScrollStraight = true;
-	addSet(arts_straight);
-
 	addCloseCallback(std::bind(&CHeroBackpackWindow::close, this));
+
+	quitButton = std::make_shared<CButton>(Point(242, 200), "hsbtns.def", CButton::tooltip(""), [this]() { close(); }, EShortcut::GLOBAL_RETURN);
 }

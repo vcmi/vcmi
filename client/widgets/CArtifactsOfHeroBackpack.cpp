@@ -16,6 +16,7 @@
 #include "Buttons.h"
 #include "GameSettings.h"
 #include "IHandlerBase.h"
+#include "ObjectLists.h"
 
 #include "../CPlayerInterface.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -43,13 +44,20 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(const Point & position)
 		artPlace->rightClickCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
 		artPlaceIdx++;
 	}
+
 	if(backpackCap < 0 || visibleCapasityMax < backpackCap)
 	{
-		auto scrollHandler = std::bind(&CArtifactsOfHeroBackpack::scrollBackpack, this, _1);
-		leftBackpackRoll = std::make_shared<CButton>(Point(-20, 0), "hsbtns3.def", CButton::tooltip(), [=]() { scrollHandler(-HERO_BACKPACK_WINDOW_SLOT_COLUMNS); }, EShortcut::MOVE_LEFT);
-		rightBackpackRoll = std::make_shared<CButton>(Point(368, 318), "hsbtns5.def", CButton::tooltip(), [=]() { scrollHandler(HERO_BACKPACK_WINDOW_SLOT_COLUMNS); }, EShortcut::MOVE_RIGHT);
-		leftBackpackRoll->block(true);
-		rightBackpackRoll->block(true);
+		auto onCreate = [](size_t index) -> std::shared_ptr<CIntObject>
+		{
+			return std::make_shared<CIntObject>();
+		};
+		CListBoxWithCallback::MovedPosCallback posMoved = [this](size_t pos) -> void
+		{
+			scrollBackpack(static_cast<int>(pos) * HERO_BACKPACK_WINDOW_SLOT_COLUMNS - backpackPos);
+		};
+		backpackListBox = std::make_shared<CListBoxWithCallback>(
+			posMoved, onCreate, Point(0, 0), Point(0, 0), HERO_BACKPACK_WINDOW_SLOT_LINES, 0, 0, 1,
+			Rect(HERO_BACKPACK_WINDOW_SLOT_COLUMNS * 46 + 10, 0, HERO_BACKPACK_WINDOW_SLOT_LINES * 46 - 5, 0));
 	}
 }
 
@@ -66,26 +74,26 @@ void CArtifactsOfHeroBackpack::pickUpArtifact(CHeroArtPlace & artPlace)
 
 void CArtifactsOfHeroBackpack::scrollBackpack(int offset)
 {
-	if(isScrollStraight)
+	if(backpackListBox)
+		backpackListBox->resize(getActiveSlotLinesNum());
+	backpackPos += offset;
+	auto slot = ArtifactPosition(GameConstants::BACKPACK_START + backpackPos);
+	for(auto artPlace : backpack)
 	{
-		// offset==-1 => to up; offset==1 => to down
-		backpackPos += offset;
-		auto slot = ArtifactPosition(GameConstants::BACKPACK_START + backpackPos);
-		for(auto artPlace : backpack)
-		{
-			setSlotData(artPlace, slot, *curHero);
-			slot = slot + 1;
-		}
+		setSlotData(artPlace, slot, *curHero);
+		slot = slot + 1;
+	}
+	redraw();
+}
 
-		// Blocking scrolling if there is not enough artifacts to scroll
-		if(leftBackpackRoll)
-			leftBackpackRoll->block(backpackPos <= 0);
-		if(rightBackpackRoll)
-			rightBackpackRoll->block(backpackPos + backpack.size() >= curHero->artifactsInBackpack.size());
-		redraw();
-	}
-	else
-	{
-		CArtifactsOfHeroBase::scrollBackpack(offset);
-	}
+void CArtifactsOfHeroBackpack::updateBackpackSlots()
+{
+	if(backpackListBox)
+		backpackListBox->resize(getActiveSlotLinesNum());
+	CArtifactsOfHeroBase::updateBackpackSlots();
+}
+
+size_t CArtifactsOfHeroBackpack::getActiveSlotLinesNum()
+{
+	return (curHero->artifactsInBackpack.size() + HERO_BACKPACK_WINDOW_SLOT_COLUMNS - 1) / HERO_BACKPACK_WINDOW_SLOT_COLUMNS;
 }
