@@ -46,24 +46,6 @@ public:
 	CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInstance * hero_);
 };
 
-//helper class for calculating values of hero bonuses without bonuses from picked up artifact
-class CHeroWithMaybePickedArtifact : public IBonusBearer, public AFactionMember
-{
-public:
-	const CGHeroInstance * hero;
-	CWindowWithArtifacts * cww;
-
-	CHeroWithMaybePickedArtifact(CWindowWithArtifacts * Cww, const CGHeroInstance * Hero);
-	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root = nullptr, const std::string & cachingStr = "") const override;
-
-	const IBonusBearer * getBonusBearer() const override;
-	FactionID getFaction() const override; 
-
-	int64_t getTreeVersion() const override;
-
-	si32 manaLimit() const;
-};
-
 class CHeroWindow : public CStatusbarWindow, public CGarrisonHolder, public CWindowWithArtifacts
 {
 	std::shared_ptr<CLabel> name;

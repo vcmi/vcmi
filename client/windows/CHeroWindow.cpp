@@ -38,53 +38,6 @@
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/NetPacksBase.h"
 
-TConstBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root, const std::string & cachingStr) const
-{
-	TBonusListPtr out(new BonusList());
-	TConstBonusListPtr heroBonuses = hero->getAllBonuses(selector, limit, hero, cachingStr);
-	TConstBonusListPtr bonusesFromPickedUpArtifact;
-
-	const auto pickedArtInst = cww->getPickedArtifact();
-
-	if(pickedArtInst)
-		bonusesFromPickedUpArtifact = pickedArtInst->getAllBonuses(selector, limit, hero);
-	else
-		bonusesFromPickedUpArtifact = TBonusListPtr(new BonusList());
-
-	for(const auto & b : *heroBonuses)
-		out->push_back(b);
-
-	for(const auto & b : *bonusesFromPickedUpArtifact)
-		*out -= b;
-	return out;
-}
-
-int64_t CHeroWithMaybePickedArtifact::getTreeVersion() const
-{
-	return hero->getTreeVersion();  //this assumes that hero and artifact belongs to main bonus tree
-}
-
-si32 CHeroWithMaybePickedArtifact::manaLimit() const
-{
-	//TODO: reduplicate code with CGHeroInstance
-	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE) * (valOfBonuses(BonusType::MANA_PER_KNOWLEDGE)));
-}
-
-const IBonusBearer * CHeroWithMaybePickedArtifact::getBonusBearer() const 
-{
-	return this;
-}
-
-FactionID CHeroWithMaybePickedArtifact::getFaction() const
-{
-	return hero->getFaction();
-} 
-
-CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts * Cww, const CGHeroInstance * Hero)
-	: hero(Hero), cww(Cww)
-{
-}
-
 void CHeroSwitcher::clickPressed(const Point & cursorPosition)
 {
 	//TODO: do not recreate window

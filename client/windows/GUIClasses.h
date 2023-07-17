@@ -247,18 +247,6 @@ public:
 class CCallback;
 class CExchangeWindow;
 
-struct HeroArtifact
-{
-	const CGHeroInstance * hero;
-	const CArtifactInstance * artifact;
-	ArtifactPosition artPosition;
-
-	HeroArtifact(const CGHeroInstance * hero, const CArtifactInstance * artifact, ArtifactPosition artPosition)
-		:hero(hero), artifact(artifact), artPosition(artPosition)
-	{
-	}
-};
-
 class CExchangeController
 {
 private:
