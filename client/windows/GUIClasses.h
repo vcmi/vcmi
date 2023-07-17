@@ -38,7 +38,6 @@ class CToggleButton;
 class CGStatusBar;
 class CTextBox;
 class CResDataBar;
-class CHeroWithMaybePickedArtifact;
 
 enum class EUserEvent;
 
@@ -288,8 +287,6 @@ private:
 
 class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public CWindowWithArtifacts
 {
-	std::array<std::shared_ptr<CHeroWithMaybePickedArtifact>, 2> herosWArt;
-
 	std::array<std::shared_ptr<CLabel>, 2> titles;
 	std::vector<std::shared_ptr<CAnimImage>> primSkillImages;//shared for both heroes
 	std::array<std::vector<std::shared_ptr<CLabel>>, 2> primSkillValues;

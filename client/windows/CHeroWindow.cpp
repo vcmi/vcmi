@@ -114,8 +114,7 @@ CHeroSwitcher::CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInsta
 }
 
 CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
-	: CStatusbarWindow(PLAYER_COLORED, "HeroScr4"),
-	heroWArt(this, hero)
+	: CStatusbarWindow(PLAYER_COLORED, "HeroScr4")
 {
 	auto & heroscrn = CGI->generaltexth->heroscrn;
 
@@ -268,7 +267,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	//primary skills support
 	for(size_t g=0; g<primSkillAreas.size(); ++g)
 	{
-		primSkillAreas[g]->bonusValue = heroWArt.getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(g));
+		primSkillAreas[g]->bonusValue = curHero->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(g));
 		primSkillValues[g]->setText(std::to_string(primSkillAreas[g]->bonusValue));
 	}
 
@@ -294,7 +293,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	expValue->setText(expstr.str());
 
 	std::ostringstream manastr;
-	manastr << curHero->mana << '/' << heroWArt.manaLimit();
+	manastr << curHero->mana << '/' << curHero->manaLimit();
 	manaValue->setText(manastr.str());
 
 	//printing experience - original format does not support ui64
@@ -307,7 +306,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	spellPointsArea->text = CGI->generaltexth->allTexts[205];
 	boost::replace_first(spellPointsArea->text, "%s", curHero->getNameTranslated());
 	boost::replace_first(spellPointsArea->text, "%d", std::to_string(curHero->mana));
-	boost::replace_first(spellPointsArea->text, "%d", std::to_string(heroWArt.manaLimit()));
+	boost::replace_first(spellPointsArea->text, "%d", std::to_string(curHero->manaLimit()));
 
 	//if we have exchange window with this curHero open
 	bool noDismiss=false;
@@ -343,8 +342,8 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	formations->setSelected(curHero->formation == EArmyFormation::TIGHT ? 1 : 0);
 	formations->addCallback([=](int value){ LOCPLINT->cb->setFormation(curHero, value);});
 
-	morale->set(&heroWArt);
-	luck->set(&heroWArt);
+	morale->set(curHero);
+	luck->set(curHero);
 
 	if(redrawNeeded)
 		redraw();
@@ -390,5 +389,5 @@ void CHeroWindow::commanderWindow()
 void CHeroWindow::updateGarrisons()
 {
 	garr->recreateSlots();
-	morale->set(&heroWArt);
+	morale->set(curHero);
 }

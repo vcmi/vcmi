@@ -912,8 +912,6 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	{
 		const CGHeroInstance * hero = heroInst.at(leftRight);
 
-		herosWArt[leftRight] = std::make_shared<CHeroWithMaybePickedArtifact>(this, hero);
-
 		for(int m=0; m<GameConstants::PRIMARY_SKILLS; ++m)
 			primSkillValues[leftRight].push_back(std::make_shared<CLabel>(352 + (qeLayout ? 96 : 93) * leftRight, (qeLayout ? 22 : 35) + (qeLayout ? 26 : 36) * m, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE));
 
@@ -1079,7 +1077,7 @@ void CExchangeWindow::updateWidgets()
 
 		for(int m=0; m<GameConstants::PRIMARY_SKILLS; ++m)
 		{
-			auto value = herosWArt[leftRight]->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(m));
+			auto value = heroInst[leftRight]->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(m));
 			primSkillValues[leftRight][m]->setText(std::to_string(value));
 		}
 

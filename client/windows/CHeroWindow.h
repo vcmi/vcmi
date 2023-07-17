@@ -97,8 +97,6 @@ class CHeroWindow : public CStatusbarWindow, public CGarrisonHolder, public CWin
 	std::vector<std::shared_ptr<CLabel>> secSkillNames;
 	std::vector<std::shared_ptr<CLabel>> secSkillValues;
 
-	CHeroWithMaybePickedArtifact heroWArt;
-
 	std::shared_ptr<CButton> quitButton;
 	std::shared_ptr<CTextBox> dismissLabel;
 	std::shared_ptr<CButton> dismissButton;
