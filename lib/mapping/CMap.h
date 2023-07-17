@@ -108,6 +108,11 @@ public:
 
 	bool isWaterMap() const;
 	bool calculateWaterContent();
+	void banWaterArtifacts();
+	void banWaterHeroes();
+	void banHero(const HeroTypeID& id);
+	void banWaterSpells();
+	void banWaterContent();
 
 	/// Gets object of specified type on requested position
 	const CGObjectInstance * getObjectiveObjectFrom(const int3 & pos, Obj::EObj type);
@@ -122,7 +127,7 @@ public:
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;
-	std::vector<bool> allowedSpell;
+	std::vector<bool> allowedSpells;
 	std::vector<bool> allowedArtifact;
 	std::vector<bool> allowedAbilities;
 	std::list<CMapEvent> events;
@@ -163,7 +168,7 @@ public:
 		h & static_cast<CMapHeader&>(*this);
 		h & triggeredEvents; //from CMapHeader
 		h & rumors;
-		h & allowedSpell;
+		h & allowedSpells;
 		h & allowedAbilities;
 		h & allowedArtifact;
 		h & events;

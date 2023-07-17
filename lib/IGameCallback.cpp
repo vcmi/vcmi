@@ -174,7 +174,7 @@ void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact *> 
 
 void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level)
 {
-	for (ui32 i = 0; i < gs->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
+	for (ui32 i = 0; i < gs->map->allowedSpells.size(); i++) //spellh size appears to be greater (?)
 	{
 		const spells::Spell * spell = SpellID(i).toSpell();
 

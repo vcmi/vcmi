@@ -57,7 +57,7 @@ bool CGameInfoCallback::isAllowed(int32_t type, int32_t id) const
 	switch(type)
 	{
 	case 0:
-		return gs->map->allowedSpell[id];
+		return gs->map->allowedSpells[id];
 	case 1:
 		return gs->map->allowedArtifact[id];
 	case 2:

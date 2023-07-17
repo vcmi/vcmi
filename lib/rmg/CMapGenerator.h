@@ -63,7 +63,6 @@ public:
 	int getPrisonsRemaning() const;
 	std::shared_ptr<CZonePlacer> getZonePlacer() const;
 	const std::vector<ArtifactID> & getAllPossibleQuestArtifacts() const;
-	void banWaterHeroes();
 	const std::vector<HeroTypeID> getAllPossibleHeroes() const;
 	void banQuestArt(const ArtifactID & id);
 	void banHero(const HeroTypeID& id);

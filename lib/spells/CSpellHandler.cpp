@@ -784,6 +784,8 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 
 	spell->special = flags["special"].Bool();
 
+	spell->onlyOnWaterMap = json["onlyOnWaterMap"].Bool();
+
 	auto findBonus = [&](const std::string & name, std::vector<BonusType> & vec)
 	{
 		auto it = bonusNameMap.find(name);

@@ -434,6 +434,7 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 	art->advMapDef = graphics["map"].String();
 
 	art->price = static_cast<ui32>(node["value"].Float());
+	art->onlyOnWaterMap = node["onlyOnWaterMap"].Bool();
 
 	loadSlots(art, node);
 	loadClass(art, node);

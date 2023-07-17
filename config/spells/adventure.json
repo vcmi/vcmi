@@ -13,7 +13,8 @@
 		},
 		"flags" : {
 			"indifferent": true
-		}
+		},
+		"onlyOnWaterMap" : true
 	},
 	"scuttleBoat" : {
 		"index" : 1,
@@ -29,7 +30,8 @@
 		},
 		"flags" : {
 			"indifferent": true
-		}
+		},
+		"onlyOnWaterMap" : true
 	},
 	"visions" : {
 		"index" : 2,
@@ -237,7 +239,8 @@
 		},
 		"flags" : {
 			"indifferent": true
-		}
+		},
+		"onlyOnWaterMap" : true
 	},
 	"dimensionDoor" : {
 		"index" : 8,

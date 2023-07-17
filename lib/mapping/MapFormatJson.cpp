@@ -834,7 +834,7 @@ void CMapFormatJson::serializeOptions(JsonSerializeFormat & handler)
 
 	handler.serializeLIC("allowedArtifacts",  &ArtifactID::decode, &ArtifactID::encode, VLC->arth->getDefaultAllowed(), map->allowedArtifact);
 
-	handler.serializeLIC("allowedSpells", &SpellID::decode, &SpellID::encode, VLC->spellh->getDefaultAllowed(), map->allowedSpell);
+	handler.serializeLIC("allowedSpells", &SpellID::decode, &SpellID::encode, VLC->spellh->getDefaultAllowed(), map->allowedSpells);
 
 	//todo:events
 }

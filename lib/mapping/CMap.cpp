@@ -137,7 +137,7 @@ CMap::CMap()
 	allHeroes.resize(allowedHeroes.size());
 	allowedAbilities = VLC->skillh->getDefaultAllowed();
 	allowedArtifact = VLC->arth->getDefaultAllowed();
-	allowedSpell = VLC->spellh->getDefaultAllowed();
+	allowedSpells = VLC->spellh->getDefaultAllowed();
 }
 
 CMap::~CMap()
@@ -578,6 +578,63 @@ bool CMap::calculateWaterContent()
 	}
 
 	return waterMap;
+}
+
+void CMap::banWaterContent()
+{
+	banWaterHeroes();
+	banWaterArtifacts();
+	banWaterSpells();
+}
+
+void CMap::banWaterSpells()
+{
+	for (int j = 0; j < allowedSpells.size(); j++)
+	{
+		if (allowedSpells[j])
+		{
+			auto* spell = dynamic_cast<const CSpell*>(VLC->spells()->getByIndex(j));
+			if (spell->onlyOnWaterMap && !isWaterMap())
+			{
+				allowedSpells[j] = false;
+			}
+		}
+	}
+}
+
+void CMap::banWaterArtifacts()
+{
+	for (int j = 0; j < allowedArtifact.size(); j++)
+	{
+		if (allowedArtifact[j])
+		{
+			auto* art = dynamic_cast<const CArtifact*>(VLC->artifacts()->getByIndex(j));
+			if (art->onlyOnWaterMap && !isWaterMap())
+			{
+				allowedArtifact[j] = false;
+			}
+		}
+	}
+}
+
+void CMap::banWaterHeroes()
+{
+	for (int j = 0; j < allowedHeroes.size(); j++)
+	{
+		if (allowedHeroes[j])
+		{
+			auto* h = dynamic_cast<const CHero*>(VLC->heroTypes()->getByIndex(j));
+			if ((h->onlyOnWaterMap && !isWaterMap()) || (h->onlyOnMapWithoutWater && isWaterMap()))
+			{
+				banHero(HeroTypeID(j));
+			}
+		}
+	}
+}
+
+void CMap::banHero(const HeroTypeID & id)
+{
+	allowedHeroes.at(id) = false;
 }
 
 void CMap::initTerrain()
