@@ -111,6 +111,9 @@
 					"text": "vcmi.battleOptions.rangeLimitHighlightOnHover.hover",
 				},
 				{
+					"text": "vcmi.battleOptions.showStickyHeroInfoWindows.hover",
+				},
+				{
 					"text": "core.genrltxt.406",
 				},
 				{
@@ -143,6 +146,11 @@
 					"name": "rangeLimitHighlightOnHoverCheckbox",
 					"help": "vcmi.battleOptions.rangeLimitHighlightOnHover",
 					"callback": "rangeLimitHighlightOnHoverChanged"
+				},
+				{
+					"name": "showStickyHeroInfoWindowsCheckbox",
+					"help": "vcmi.battleOptions.showStickyHeroInfoWindows",
+					"callback": "showStickyHeroWindowsChanged"
 				},
 				{
 					"name": "mouseShadowCheckbox",

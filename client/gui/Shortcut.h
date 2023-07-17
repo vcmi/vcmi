@@ -133,6 +133,7 @@ enum class EShortcut
 	BATTLE_TACTICS_NEXT,
 	BATTLE_TACTICS_END,
 	BATTLE_SELECT_ACTION, // Alternative actions toggle
+	BATTLE_TOGGLE_HEROES_STATS,
 
 	// Town screen
 	TOWN_OPEN_TAVERN,

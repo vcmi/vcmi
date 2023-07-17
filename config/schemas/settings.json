@@ -238,7 +238,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -276,6 +276,10 @@
 					"type" : "string",
 					"default" : "auto",
 					"enum" : [ "auto", "small", "big" ]
+				},
+				"stickyHeroInfoWindows" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},

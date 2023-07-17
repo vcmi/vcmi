@@ -60,6 +60,10 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	{
 		skipBattleIntroMusicChangedCallback(value);
 	});
+	addCallback("showStickyHeroWindowsChanged", [this, owner](bool value)
+	{
+		showStickyHeroWindowsChangedCallback(value, owner);
+	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> animationSpeedToggle = widget<CToggleGroup>("animationSpeedPicker");
@@ -79,6 +83,9 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 
 	std::shared_ptr<CToggleButton> rangeLimitHighlightOnHoverCheckbox = widget<CToggleButton>("rangeLimitHighlightOnHoverCheckbox");
 	rangeLimitHighlightOnHoverCheckbox->setSelected(settings["battle"]["rangeLimitHighlightOnHover"].Bool());
+
+	std::shared_ptr<CToggleButton> showStickyHeroInfoWindowsCheckbox = widget<CToggleButton>("showStickyHeroInfoWindowsCheckbox");
+	showStickyHeroInfoWindowsCheckbox->setSelected(settings["battle"]["stickyHeroInfoWindows"].Bool());
 
 	std::shared_ptr<CToggleButton> mouseShadowCheckbox = widget<CToggleButton>("mouseShadowCheckbox");
 	mouseShadowCheckbox->setSelected(settings["battle"]["mouseShadow"].Bool());
@@ -191,6 +198,19 @@ void BattleOptionsTab::showQueueChangedCallback(bool value, BattleInterface * pa
 	else
 	{
 		parentBattleInterface->setBattleQueueVisibility(value);
+	}
+}
+
+void BattleOptionsTab::showStickyHeroWindowsChangedCallback(bool value, BattleInterface * parentBattleInterface)
+{
+	if(!parentBattleInterface)
+	{
+		Settings showStickyWindows = settings.write["battle"]["stickyHeroInfoWindows"];
+		showStickyWindows->Bool() = value;
+	}
+	else
+	{
+		parentBattleInterface->setStickyHeroWindowsVisibility(value);
 	}
 }
 

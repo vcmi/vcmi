@@ -134,6 +134,7 @@ std::vector<EShortcut> ShortcutHandler::translateKeycode(SDL_Keycode key) const
 		{SDLK_RETURN,    EShortcut::BATTLE_TACTICS_END        },
 		{SDLK_KP_ENTER,  EShortcut::BATTLE_TACTICS_END        },
 		{SDLK_s,         EShortcut::BATTLE_SELECT_ACTION      },
+		{SDLK_i,         EShortcut::BATTLE_TOGGLE_HEROES_STATS},
 		{SDLK_t,         EShortcut::TOWN_OPEN_TAVERN          },
 		{SDLK_SPACE,     EShortcut::TOWN_SWAP_ARMIES          },
 		{SDLK_END,       EShortcut::RECRUITMENT_MAX           },
