@@ -163,6 +163,7 @@ BattleInterface::~BattleInterface()
 	if (adventureInt)
 		adventureInt->onAudioResumed();
 
+	awaitingEvents.clear();
 	onAnimationsFinished();
 }
 
@@ -781,8 +782,19 @@ void BattleInterface::onAnimationsFinished()
 
 void BattleInterface::waitForAnimations()
 {
-	auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
-	ongoingAnimationsState.waitUntil(false);
+	{
+		auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
+		ongoingAnimationsState.waitUntil(false);
+	}
+
+	assert(!hasAnimations());
+	assert(awaitingEvents.empty());
+
+	if (!awaitingEvents.empty())
+	{
+		logGlobal->error("Wait for animations finished but we still have awaiting events!");
+		awaitingEvents.clear();
+	}
 }
 
 bool BattleInterface::hasAnimations()

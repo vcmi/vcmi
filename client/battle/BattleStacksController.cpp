@@ -375,13 +375,11 @@ void BattleStacksController::updateBattleAnimations(uint32_t msPassed)
 	tickFrameBattleAnimations(msPassed);
 	vstd::erase(currentAnimations, nullptr);
 
-	if (hadAnimations && currentAnimations.empty())
-	{
-		//stackAmountBoxHidden.clear();
+	if (currentAnimations.empty())
 		owner.executeStagedAnimations();
-		if (currentAnimations.empty())
-			owner.onAnimationsFinished();
-	}
+
+	if (hadAnimations && currentAnimations.empty())
+		owner.onAnimationsFinished();
 
 	initializeBattleAnimations();
 }
