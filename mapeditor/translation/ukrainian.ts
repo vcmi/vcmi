@@ -136,7 +136,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="921"/>
-        <source>Save as</source>
+        <source>Save as...</source>
         <translation>Зберегти як</translation>
     </message>
     <message>
@@ -280,6 +280,11 @@
         <location filename="../mainwindow.ui" line="1225"/>
         <source>Player 8</source>
         <translation>Гравець 8</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="1233"/>
+        <source>Export as...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="346"/>
