@@ -240,11 +240,6 @@ void BattleWindow::showStickyHeroWindows()
 	Settings showStickyHeroInfoWIndows = settings.write["battle"]["stickyHeroInfoWindows"];
 	showStickyHeroInfoWIndows->Bool() = true;
 
-//	if(attackerHeroWindow)
-//		attackerHeroWindow->enable();
-//
-//	if(defenderHeroWindow)
-//		defenderHeroWindow->enable();
 
 	createStickyHeroInfoWindows();
 	GH.windows().totalRedraw();
