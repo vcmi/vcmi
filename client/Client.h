@@ -60,9 +60,8 @@ namespace boost { class thread; }
 template<typename T>
 class ThreadSafeVector
 {
-	using TVector = std::vector<T>;
 	using TLock = boost::unique_lock<boost::mutex>;
-	TVector items;
+	std::vector<T> items;
 	boost::mutex mx;
 	boost::condition_variable cond;
 
@@ -81,28 +80,16 @@ public:
 		cond.notify_all();
 	}
 
-// 	//to access list, caller must present a lock used to lock mx
-// 	TVector &getList(TLock &lockedLock)
-// 	{
-// 		assert(lockedLock.owns_lock() && lockedLock.mutex() == &mx);
-// 		return items;
-// 	}
-
-	TLock getLock()
-	{
-		return TLock(mx);
-	}
-
 	void waitWhileContains(const T & item)
 	{
-		auto lock = getLock();
+		TLock lock(mx);
 		while(vstd::contains(items, item))
 			cond.wait(lock);
 	}
 
 	bool tryRemovingElement(const T & item) //returns false if element was not present
 	{
-		auto lock = getLock();
+		TLock lock(mx);
 		auto itr = vstd::find(items, item);
 		if(itr == items.end()) //not in container
 		{

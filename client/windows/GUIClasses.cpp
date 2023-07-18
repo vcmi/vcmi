@@ -621,51 +621,6 @@ static bool isQuickExchangeLayoutAvailable()
 	return CResourceHandler::get()->existsResource(ResourceID(std::string("SPRITES/") + QUICK_EXCHANGE_BG, EResType::IMAGE));
 }
 
-// Runs a task asynchronously with gamestate locking and waitTillRealize set to true
-class GsThread
-{
-private:
-	std::function<void()> action;
-	std::shared_ptr<CCallback> cb;
-
-public:
-
-	static void run(std::function<void()> action)
-	{
-		std::shared_ptr<GsThread> instance(new GsThread(action));
-
-
-		boost::thread(std::bind(&GsThread::staticRun, instance));
-	}
-
-private:
-	GsThread(std::function<void()> action)
-		:action(action), cb(LOCPLINT->cb)
-	{
-	}
-
-	static void staticRun(std::shared_ptr<GsThread> instance)
-	{
-		instance->run();
-	}
-
-	void run()
-	{
-		boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
-
-		auto originalWaitTillRealize = cb->waitTillRealize;
-		auto originalUnlockGsWhenWating = cb->unlockGsWhenWaiting;
-
-		cb->waitTillRealize = true;
-		cb->unlockGsWhenWaiting = true;
-
-		action();
-
-		cb->waitTillRealize = originalWaitTillRealize;
-		cb->unlockGsWhenWaiting = originalUnlockGsWhenWating;
-	}
-};
-
 CExchangeController::CExchangeController(CExchangeWindow * view, ObjectInstanceID hero1, ObjectInstanceID hero2)
 	:left(LOCPLINT->cb->getHero(hero1)), right(LOCPLINT->cb->getHero(hero2)), cb(LOCPLINT->cb), view(view)
 {
@@ -697,10 +652,7 @@ std::function<void()> CExchangeController::onSwapArtifacts()
 {
 	return [&]()
 	{
-		GsThread::run([=]
-		{
-			cb->bulkMoveArtifacts(left->id, right->id, true);
-		});
+		cb->bulkMoveArtifacts(left->id, right->id, true);
 	};
 }
 
@@ -725,39 +677,42 @@ std::function<void()> CExchangeController::onSwapArmy()
 {
 	return [&]()
 	{
-		GsThread::run([=]
+		if(left->tempOwner != cb->getMyColor()
+		   || right->tempOwner != cb->getMyColor())
 		{
-			if(left->tempOwner != cb->getMyColor()
-				|| right->tempOwner != cb->getMyColor())
-			{
-				return;
-			}
+			return;
+		}
 
-			auto leftSlots = getStacks(left);
-			auto rightSlots = getStacks(right);
+		auto leftSlots = getStacks(left);
+		auto rightSlots = getStacks(right);
 
-			auto i = leftSlots.begin(), j = rightSlots.begin();
+		auto i = leftSlots.begin(), j = rightSlots.begin();
 
-			for(; i != leftSlots.end() && j != rightSlots.end(); i++, j++)
-			{
-				cb->swapCreatures(left, right, i->first, j->first);
-			}
+		for(; i != leftSlots.end() && j != rightSlots.end(); i++, j++)
+		{
+			cb->swapCreatures(left, right, i->first, j->first);
+		}
 
-			if(i != leftSlots.end())
+		if(i != leftSlots.end())
+		{
+			auto freeSlots = right->getFreeSlots();
+			auto slot = freeSlots.begin();
+
+			for(; i != leftSlots.end() && slot != freeSlots.end(); i++, slot++)
 			{
-				for(; i != leftSlots.end(); i++)
-				{
-					cb->swapCreatures(left, right, i->first, right->getFreeSlot());
-				}
+				cb->swapCreatures(left, right, i->first, *slot);
 			}
-			else if(j != rightSlots.end())
+		}
+		else if(j != rightSlots.end())
+		{
+			auto freeSlots = left->getFreeSlots();
+			auto slot = freeSlots.begin();
+
+			for(; j != rightSlots.end() && slot != freeSlots.end(); j++, slot++)
 			{
-				for(; j != rightSlots.end(); j++)
-				{
-					cb->swapCreatures(left, right, left->getFreeSlot(), j->first);
-				}
+				cb->swapCreatures(left, right, *slot, j->first);
 			}
-		});
+		}
 	};
 }
 
@@ -854,10 +809,7 @@ void CExchangeController::moveArtifacts(bool leftToRight)
 		return;
 	}
 
-	GsThread::run([=]
-	{
-		cb->bulkMoveArtifacts(source->id, target->id, false);
-	});
+	cb->bulkMoveArtifacts(source->id, target->id, false);
 }
 
 void CExchangeController::moveArtifact(
