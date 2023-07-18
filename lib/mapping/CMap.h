@@ -112,6 +112,7 @@ public:
 	void banWaterHeroes();
 	void banHero(const HeroTypeID& id);
 	void banWaterSpells();
+	void banWaterSkills();
 	void banWaterContent();
 
 	/// Gets object of specified type on requested position

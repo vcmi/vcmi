@@ -585,6 +585,7 @@ void CMap::banWaterContent()
 	banWaterHeroes();
 	banWaterArtifacts();
 	banWaterSpells();
+	banWaterSkills();
 }
 
 void CMap::banWaterSpells()
@@ -612,6 +613,21 @@ void CMap::banWaterArtifacts()
 			if (art->onlyOnWaterMap && !isWaterMap())
 			{
 				allowedArtifact[j] = false;
+			}
+		}
+	}
+}
+
+void CMap::banWaterSkills()
+{
+	for (int j = 0; j < allowedAbilities.size(); j++)
+	{
+		if (allowedAbilities[j])
+		{
+			auto* skill = dynamic_cast<const CSkill*>(VLC->skills()->getByIndex(j));
+			if (skill->onlyOnWaterMap && !isWaterMap())
+			{
+				allowedAbilities[j] = false;
 			}
 		}
 	}
