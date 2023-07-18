@@ -89,6 +89,8 @@
 	"vcmi.adventureOptions.borderScroll.help" : "{Border Scrolling}\n\nScroll adventure map when cursor is adjacent to window edge. Can be disabled by holding down CTRL key.",
 	"vcmi.adventureOptions.infoBarCreatureManagement.hover" : "Info Panel Creature Management",
 	"vcmi.adventureOptions.infoBarCreatureManagement.help" : "{Info Panel Creature Management}\n\nAllows rearranging creatures in info panel instead of cycling between default components",
+	"vcmi.adventureOptions.leftButtonDrag.hover" : "Left Click Drag Map",
+	"vcmi.adventureOptions.leftButtonDrag.help" : "{Left Click Drag Map}\n\nWhen enabled, moving mouse with left button pressed will drag adventure map view",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",

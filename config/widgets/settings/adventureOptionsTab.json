@@ -340,6 +340,10 @@
 				},
 				{
 					"text": "vcmi.adventureOptions.borderScroll.hover"
+				},
+				{
+					"text": "vcmi.adventureOptions.leftButtonDrag.hover",
+					"created" : "desktop"
 				}
 			]
 		},
@@ -378,6 +382,12 @@
 					"name": "infoBarCreatureManagementCheckbox",
 					"help": "vcmi.adventureOptions.infoBarCreatureManagement",
 					"callback": "infoBarCreatureManagementChanged"
+				},
+				{
+					"name": "leftButtonDragCheckbox",
+					"help": "vcmi.adventureOptions.leftButtonDrag",
+					"callback": "leftButtonDragChanged",
+					"created" : "desktop"
 				}
 			]
 		}

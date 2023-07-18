@@ -29,11 +29,12 @@ MapViewActions::MapViewActions(MapView & owner, const std::shared_ptr<MapViewMod
 	: model(model)
 	, owner(owner)
 	, pinchZoomFactor(1.0)
+	, dragActive(false)
 {
 	pos.w = model->getPixelsVisibleDimensions().x;
 	pos.h = model->getPixelsVisibleDimensions().y;
 
-	addUsedEvents(LCLICK | SHOW_POPUP | GESTURE | HOVER | MOVE | WHEEL);
+	addUsedEvents(LCLICK | SHOW_POPUP | DRAG | GESTURE | HOVER | MOVE | WHEEL);
 }
 
 void MapViewActions::setContext(const std::shared_ptr<IMapRendererContext> & context)
@@ -43,10 +44,32 @@ void MapViewActions::setContext(const std::shared_ptr<IMapRendererContext> & con
 
 void MapViewActions::clickPressed(const Point & cursorPosition)
 {
-	int3 tile = model->getTileAtPoint(cursorPosition - pos.topLeft());
+	if (!settings["adventure"]["leftButtonDrag"].Bool())
+	{
+		int3 tile = model->getTileAtPoint(cursorPosition - pos.topLeft());
 
-	if(context->isInMap(tile))
-		adventureInt->onTileLeftClicked(tile);
+		if(context->isInMap(tile))
+			adventureInt->onTileLeftClicked(tile);
+	}
+}
+
+void MapViewActions::clickReleased(const Point & cursorPosition)
+{
+	if (!dragActive && settings["adventure"]["leftButtonDrag"].Bool())
+	{
+		int3 tile = model->getTileAtPoint(cursorPosition - pos.topLeft());
+
+		if(context->isInMap(tile))
+			adventureInt->onTileLeftClicked(tile);
+	}
+	dragActive = false;
+	dragDistance = Point(0,0);
+}
+
+void MapViewActions::clickCancel(const Point & cursorPosition)
+{
+	dragActive = false;
+	dragDistance = Point(0,0);
 }
 
 void MapViewActions::showPopupWindow(const Point & cursorPosition)
@@ -65,6 +88,17 @@ void MapViewActions::mouseMoved(const Point & cursorPosition, const Point & last
 void MapViewActions::wheelScrolled(int distance)
 {
 	adventureInt->hotkeyZoom(distance * 4);
+}
+
+void MapViewActions::mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance)
+{
+	dragDistance += lastUpdateDistance;
+
+	if (dragDistance.length() > 16)
+		dragActive = true;
+
+	if (dragActive && settings["adventure"]["leftButtonDrag"].Bool())
+		owner.onMapSwiped(lastUpdateDistance);
 }
 
 void MapViewActions::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
