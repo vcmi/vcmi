@@ -334,7 +334,17 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 				if(dist < minDist || otherDist < minDist)
 					return -1.f;
 				
+				//This could fail is accessibleArea is below the map
 				rmg::Area toPlace(rmgGate1.getArea() + rmgGate1.getAccessibleArea());
+				auto inTheMap = toPlace.getTilesVector();
+				toPlace.clear();
+				for (const int3& tile : inTheMap)
+				{
+					if (map.isOnMap(tile))
+					{
+						toPlace.add(tile);
+					}
+				}
 				toPlace.translate(-zShift);
 				
 				path2 = managerOther.placeAndConnectObject(toPlace, rmgGate2, minDist, guarded2, true, ObjectManager::OptimizeType::NONE);
