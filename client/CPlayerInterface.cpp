@@ -640,7 +640,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	//quick combat with neutral creatures only
 	auto * army2_object = dynamic_cast<const CGObjectInstance *>(army2);
 	if((!autoBattleResultRefused && !allowBattleReplay && army2_object
-		&& army2_object->getOwner() == PlayerColor::UNFLAGGABLE
+		&& (army2_object->getOwner() == PlayerColor::UNFLAGGABLE || army2_object->getOwner() == PlayerColor::NEUTRAL)
 		&& settings["adventure"]["quickCombat"].Bool())
 		|| settings["adventure"]["alwaysSkipCombat"].Bool())
 	{
@@ -785,7 +785,10 @@ void CPlayerInterface::activeStack(const CStack * stack) //called when it's turn
 	if (autofightingAI)
 	{
 		if (isAutoFightOn)
+		{
 			autofightingAI->activeStack(stack);
+			return;
+		}
 
 		cb->unregisterBattleInterface(autofightingAI);
 		autofightingAI.reset();
