@@ -72,6 +72,7 @@ public:
 	void evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps); //for offensive damaging spells only
 
 	void activeStack(const CStack * stack) override; //called when it's turn of that stack
+	void yourTacticPhase(int distance) override;
 
 	std::optional<BattleAction> considerFleeingOrSurrendering();
 

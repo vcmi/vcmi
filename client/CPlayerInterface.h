@@ -176,7 +176,6 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
 	void battleGateStateChanged(const EGateState state) override;
 	void yourTacticPhase(int distance) override;
-	void forceEndTacticPhase() override;
 
 public: // public interface for use by client via LOCPLINT access
 

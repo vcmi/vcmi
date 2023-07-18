@@ -629,6 +629,11 @@ void BattleInterface::tacticPhaseEnd()
 {
 	stacksController->setActiveStack(nullptr);
 	tacticsMode = false;
+
+	auto side = tacticianInterface->cb->playerToSide(tacticianInterface->playerID);
+	auto action = BattleAction::makeEndOFTacticPhase(*side);
+
+	tacticianInterface->cb->battleMakeTacticAction(action);
 }
 
 static bool immobile(const CStack *s)
@@ -709,8 +714,8 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 			// the AI can take any action except end tactics phase (AI actions won't be triggered)
 			//TODO implement the possibility that the AI will be triggered for further actions
 			//TODO any solution to merge tactics phase & normal phase in the way it is handled by the player and battle interface?
+			tacticPhaseEnd();
 			stacksController->setActiveStack(nullptr);
-			tacticsMode = false;
 		}
 		else
 		{

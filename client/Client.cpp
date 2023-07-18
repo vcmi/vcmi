@@ -597,6 +597,13 @@ void CClient::battleStarted(const BattleInfo * info)
 	//Remove player interfaces for auto battle (quickCombat option)
 	if(att && att->isAutoFightOn)
 	{
+		if (att->cb->battleGetTacticDist())
+		{
+			auto side = att->cb->playerToSide(att->playerID);
+			auto action = BattleAction::makeEndOFTacticPhase(*side);
+			att->cb->battleMakeTacticAction(action);
+		}
+
 		att.reset();
 		def.reset();
 	}

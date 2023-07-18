@@ -152,14 +152,6 @@ std::shared_ptr<scripting::Module> CDynLibHandler::getNewScriptingModule(const b
 }
 #endif
 
-void CGlobalAI::activeStack(const CStack * stack)
-{
-	BattleAction ba;
-	ba.actionType = EActionType::DEFEND;
-	ba.stackNumber = stack->unitId();
-	assert(0);
-}
-
 CGlobalAI::CGlobalAI()
 {
 	human = false;

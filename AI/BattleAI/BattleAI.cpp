@@ -249,6 +249,11 @@ BattleAction CBattleAI::selectStackAction(const CStack * stack)
 	return BattleAction::makeDefend(stack);
 }
 
+void CBattleAI::yourTacticPhase(int distance)
+{
+	cb->battleMakeUnitAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
+}
+
 void CBattleAI::activeStack( const CStack * stack )
 {
 	LOG_TRACE_PARAMS(logAi, "stack: %s", stack->nodeName());
