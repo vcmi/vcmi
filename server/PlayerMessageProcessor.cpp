@@ -299,7 +299,7 @@ void PlayerMessageProcessor::cheatResources(PlayerColor player, std::vector<std:
 	}
 
 	TResources resources;
-	resources[EGameResID::GOLD] = baseResourceAmount * 100;
+	resources[EGameResID::GOLD] = baseResourceAmount * 1000;
 	for (GameResID i = EGameResID::WOOD; i < EGameResID::GOLD; ++i)
 		resources[i] = baseResourceAmount;
 

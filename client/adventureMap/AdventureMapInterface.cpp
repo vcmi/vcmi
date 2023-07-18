@@ -394,8 +394,9 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 		LOCPLINT->localState->setSelection(LOCPLINT->localState->getWanderingHero(0));
 	}
 
-	//show new day animation and sound on infobar
-	widget->getInfoBar()->showDate();
+	//show new day animation and sound on infobar, except for 1st day of the game
+	if (LOCPLINT->cb->getDate(Date::DAY) != 1)
+		widget->getInfoBar()->showDate();
 
 	onHeroChanged(nullptr);
 	Canvas canvas = Canvas::createFromSurface(screen);

@@ -127,7 +127,7 @@ QSize CSettingsView::getPreferredRenderingResolution()
 		return QSize(resX, resY);
 	}
 #endif
-	return QApplication::primaryScreen()->geometry().size();
+	return QApplication::primaryScreen()->geometry().size() * QApplication::primaryScreen()->devicePixelRatio();
 }
 
 void CSettingsView::fillValidScalingRange()
