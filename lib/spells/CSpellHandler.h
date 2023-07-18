@@ -305,7 +305,7 @@ public:
 		h & school;
 		h & animationInfo;
 		h & nonMagical;
-		h& onlyOnWaterMap;
+		h & onlyOnWaterMap;
 	}
 	friend class CSpellHandler;
 	friend class Graphics;
