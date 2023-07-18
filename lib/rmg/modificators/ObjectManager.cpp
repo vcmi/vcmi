@@ -606,8 +606,6 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 	auto & instance = object.addInstance(*guard);
 	instance.setPosition(guardPos - object.getPosition());
 	instance.setAnyTemplate(); //terrain is irrelevant for monsters, but monsters need some template now
-	//Make up for extra offset in HotA creature templates
-	instance.setPosition(instance.getPosition() + instance.object().getVisitableOffset());
 		
 	return true;
 }

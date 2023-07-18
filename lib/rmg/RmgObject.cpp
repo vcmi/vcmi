@@ -344,6 +344,16 @@ void Object::Instance::finalize(RmgMap & map)
 			setTemplate(terrainType->getId());
 		}
 	}
+	if (dObject.ID == Obj::MONSTER)
+	{
+		//Make up for extra offset in HotA creature templates
+		auto visitableOffset = dObject.getVisitableOffset();
+		auto fixedPos = getPosition(true) + visitableOffset;
+		vstd::abetween(fixedPos.x, visitableOffset.x, map.width() - 1);
+		vstd::abetween(fixedPos.y, visitableOffset.y, map.height() - 1);
+		int3 parentPos = getPosition(true) - getPosition(false);
+		setPosition(fixedPos - parentPos);
+	}
 
 	if (dObject.isVisitable() && !map.isOnMap(dObject.visitablePos()))
 		throw rmgException(boost::to_string(boost::format("Visitable tile %s of object %d at %s is outside the map") % dObject.visitablePos().toString() % dObject.id % dObject.pos.toString()));
