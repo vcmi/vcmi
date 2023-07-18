@@ -774,6 +774,14 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	logGlobal->trace("Awaiting command for %s", stack->nodeName());
 	auto stackId = stack->unitId();
 	auto stackName = stack->nodeName();
+
+	assert(!cb->battleIsFinished());
+	if (cb->battleIsFinished())
+	{
+		logGlobal->error("Received CPlayerInterface::activeStack after battle is finished!");
+		return BattleAction::makeDefend(stack);
+	}
+
 	if (autofightingAI)
 	{
 		if (isAutoFightOn)

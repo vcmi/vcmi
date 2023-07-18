@@ -683,7 +683,6 @@ void CClient::stopPlayerBattleAction(PlayerColor color)
 		}
 		playerActionThreads.erase(color);
 	}
-
 }
 
 void CClient::stopAllBattleActions()
