@@ -99,6 +99,12 @@ bool WindowHandler::isTopWindow(IShowActivatable * window) const
 
 void WindowHandler::totalRedraw()
 {
+	totalRedrawRequested = true;
+}
+
+void WindowHandler::totalRedrawImpl()
+{
+	logGlobal->debug("totalRedraw requested!");
 	CSDL_Ext::fillSurface(screen2, Colors::BLACK);
 
 	Canvas target = Canvas::createFromSurface(screen2);
@@ -109,6 +115,16 @@ void WindowHandler::totalRedraw()
 }
 
 void WindowHandler::simpleRedraw()
+{
+	if (totalRedrawRequested)
+		totalRedrawImpl();
+	else
+		simpleRedrawImpl();
+
+	totalRedrawRequested = false;
+}
+
+void WindowHandler::simpleRedrawImpl()
 {
 	//update only top interface and draw background
 	if(windowsStack.size() > 1)

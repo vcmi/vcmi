@@ -337,13 +337,7 @@ void CMainMenu::update()
 
 	// Handles mouse and key input
 	GH.handleEvents();
-
-	Canvas canvas = Canvas::createFromSurface(screen);
-
-	// check for null othervice crash on finishing a campaign
-	// /FIXME: find out why GH.windows().listInt is empty to begin with
-	if(GH.windows().topWindow<CIntObject>())
-		GH.windows().topWindow<CIntObject>()->show(canvas);
+	GH.windows().simpleRedraw();
 }
 
 void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> * names, ELoadMode loadMode)
