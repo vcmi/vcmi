@@ -27,6 +27,7 @@
 #include "../gui/WindowHandler.h"
 
 #include "../../CCallback.h"
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -51,14 +52,22 @@ CInfoBar::VisibleHeroInfo::VisibleHeroInfo(const CGHeroInstance * hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>("ADSTATHR");
-	heroTooltip = std::make_shared<CHeroTooltip>(Point(0,0), hero);
+
+	if(settings["gameTweaks"]["infoBarCreatureManagement"].Bool())
+		heroTooltip = std::make_shared<CInteractableHeroTooltip>(Point(0,0), hero);
+	else
+		heroTooltip = std::make_shared<CHeroTooltip>(Point(0,0), hero);
 }
 
 CInfoBar::VisibleTownInfo::VisibleTownInfo(const CGTownInstance * town)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>("ADSTATCS");
-	townTooltip = std::make_shared<CTownTooltip>(Point(0,0), town);
+
+	if(settings["gameTweaks"]["infoBarCreatureManagement"].Bool())
+		townTooltip = std::make_shared<CInteractableTownTooltip>(Point(0,0), town);
+	else
+		townTooltip = std::make_shared<CTownTooltip>(Point(0,0), town);
 }
 
 CInfoBar::VisibleDateInfo::VisibleDateInfo()
@@ -273,8 +282,16 @@ void CInfoBar::tick(uint32_t msPassed)
 
 void CInfoBar::clickReleased(const Point & cursorPosition)
 {
+	timerCounter = 0;
+	removeUsedEvents(TIME); //expiration trigger from just clicked element is not valid anymore
+
 	if(state == HERO || state == TOWN)
+	{
+		if(settings["gameTweaks"]["infoBarCreatureManagement"].Bool())
+			return;
+
 		showGameStatus();
+	}
 	else if(state == GAME)
 		showDate();
 	else
@@ -297,11 +314,13 @@ void CInfoBar::hover(bool on)
 CInfoBar::CInfoBar(const Rect & position)
 	: CIntObject(LCLICK | SHOW_POPUP | HOVER, position.topLeft()),
 	timerCounter(0),
-	state(EMPTY)
+	state(EMPTY),
+	listener(settings.listen["gameTweaks"]["infoBarCreatureManagement"])
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	pos.w = position.w;
 	pos.h = position.h;
+	listener(std::bind(&CInfoBar::OnInfoBarCreatureManagementChanged, this));
 	reset();
 }
 
@@ -309,6 +328,10 @@ CInfoBar::CInfoBar(const Point & position): CInfoBar(Rect(position.x, position.y
 {
 }
 
+void CInfoBar::OnInfoBarCreatureManagementChanged()
+{
+	showSelection();
+}
 
 void CInfoBar::setTimer(uint32_t msToTrigger)
 {

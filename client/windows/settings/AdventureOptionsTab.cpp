@@ -118,6 +118,10 @@ AdventureOptionsTab::AdventureOptionsTab()
 	{
 		return setBoolSetting("adventure", "borderScroll", value);
 	});
+	addCallback("infoBarCreatureManagementChanged", [](bool value)
+	{
+		return setBoolSetting("gameTweaks", "infoBarCreatureManagement", value);
+	});
 	addCallback("leftButtonDragChanged", [](bool value)
 	{
 		return setBoolSetting("adventure", "leftButtonDrag", value);
@@ -153,6 +157,9 @@ AdventureOptionsTab::AdventureOptionsTab()
 
 	std::shared_ptr<CToggleButton> borderScrollCheckbox = widget<CToggleButton>("borderScrollCheckbox");
 	borderScrollCheckbox->setSelected(settings["adventure"]["borderScroll"].Bool());
+
+	std::shared_ptr<CToggleButton> infoBarCreatureManagementCheckbox = widget<CToggleButton>("infoBarCreatureManagementCheckbox");
+	infoBarCreatureManagementCheckbox->setSelected(settings["gameTweaks"]["infoBarCreatureManagement"].Bool());
 
 	std::shared_ptr<CToggleButton> leftButtonDragCheckbox = widget<CToggleButton>("leftButtonDragCheckbox");
 	if (leftButtonDragCheckbox)

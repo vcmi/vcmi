@@ -379,6 +379,11 @@
 					"callback": "borderScrollChanged"
 				},
 				{
+					"name": "infoBarCreatureManagementCheckbox",
+					"help": "vcmi.adventureOptions.infoBarCreatureManagement",
+					"callback": "infoBarCreatureManagementChanged"
+				},
+				{
 					"name": "leftButtonDragCheckbox",
 					"help": "vcmi.adventureOptions.leftButtonDrag",
 					"callback": "leftButtonDragChanged",
