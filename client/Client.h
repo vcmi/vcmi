@@ -15,22 +15,14 @@
 #include "../lib/IGameCallback.h"
 #include "../lib/battle/BattleAction.h"
 #include "../lib/battle/CBattleInfoCallback.h"
-#include "../lib/CStopWatch.h"
-#include "../lib/int3.h"
-#include "../lib/CondSh.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct CPack;
 struct CPackForServer;
-class CampaignState;
-class IGameEventsReceiver;
 class IBattleEventsReceiver;
 class CBattleGameInterface;
-class CGameState;
 class CGameInterface;
-class BattleAction;
-struct CPathsInfo;
 class BinaryDeserializer;
 class BinarySerializer;
 
@@ -159,11 +151,8 @@ public:
 	int sendRequest(const CPackForServer * request, PlayerColor player); //returns ID given to that request
 
 	void battleStarted(const BattleInfo * info);
-	void commenceTacticPhaseForInt(std::shared_ptr<CBattleGameInterface> battleInt); //will be called as separate thread
 	void battleFinished();
 	void startPlayerBattleAction(PlayerColor color);
-	void stopPlayerBattleAction(PlayerColor color);
-	void stopAllBattleActions();
 
 	void invalidatePaths();
 	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
@@ -230,8 +219,6 @@ public:
 	void showInfoDialog(const std::string & msg, PlayerColor player) override {};
 	void removeGUI();
 
-	void cleanThreads();
-
 #if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
 	scripting::Pool * getContextPool() const override;
@@ -251,10 +238,5 @@ private:
 	mutable boost::mutex pathCacheMutex;
 	std::map<const CGHeroInstance *, std::shared_ptr<CPathsInfo>> pathCache;
 
-	std::map<PlayerColor, std::shared_ptr<boost::thread>> playerActionThreads;
-
-	std::map<PlayerColor, std::unique_ptr<boost::thread>> playerTacticThreads;
-
-	void waitForMoveAndSend(PlayerColor color);
 	void reinitScripting();
 };

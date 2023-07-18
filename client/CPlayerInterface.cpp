@@ -768,52 +768,34 @@ void CPlayerInterface::actionFinished(const BattleAction &action)
 	curAction = nullptr;
 }
 
-BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when it's turn of that stack
+void CPlayerInterface::activeStack(const CStack * stack) //called when it's turn of that stack
 {
-	THREAD_CREATED_BY_CLIENT;
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	logGlobal->trace("Awaiting command for %s", stack->nodeName());
-	auto stackId = stack->unitId();
-	auto stackName = stack->nodeName();
 
 	assert(!cb->battleIsFinished());
 	if (cb->battleIsFinished())
 	{
 		logGlobal->error("Received CPlayerInterface::activeStack after battle is finished!");
-		return BattleAction::makeDefend(stack);
+
+		cb->battleMakeUnitAction(BattleAction::makeDefend(stack));
+		return ;
 	}
 
 	if (autofightingAI)
 	{
 		if (isAutoFightOn)
-		{
-			auto ret = autofightingAI->activeStack(stack);
-
-			if(cb->battleIsFinished())
-			{
-				return BattleAction::makeDefend(stack); // battle finished with spellcast
-			}
-
-			if (isAutoFightOn)
-			{
-				return ret;
-			}
-		}
+			autofightingAI->activeStack(stack);
 
 		cb->unregisterBattleInterface(autofightingAI);
 		autofightingAI.reset();
 	}
 
 	assert(battleInt);
-
 	if(!battleInt)
 	{
-		return BattleAction::makeDefend(stack); // probably battle is finished already
-	}
-
-	if(BattleInterface::givenCommand.get())
-	{
-		logGlobal->error("Command buffer must be clean! (we don't want to use old command)");
-		vstd::clear_pointer(BattleInterface::givenCommand.data);
+		// probably battle is finished already
+		cb->battleMakeUnitAction(BattleAction::makeDefend(stack));
 	}
 
 	{
@@ -821,29 +803,6 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 		battleInt->stackActivated(stack);
 		//Regeneration & mana drain go there
 	}
-	//wait till BattleInterface sets its command
-	boost::unique_lock<boost::mutex> lock(BattleInterface::givenCommand.mx);
-	while(!BattleInterface::givenCommand.data)
-	{
-		BattleInterface::givenCommand.cond.wait(lock);
-		if (!battleInt) //battle ended while we were waiting for movement (eg. because of spell)
-			throw boost::thread_interrupted(); //will shut the thread peacefully
-	}
-
-	//tidy up
-	BattleAction ret = *(BattleInterface::givenCommand.data);
-	vstd::clear_pointer(BattleInterface::givenCommand.data);
-
-	if(ret.actionType == EActionType::CANCEL)
-	{
-		if(stackId != ret.stackNumber)
-			logGlobal->error("Not current active stack action canceled");
-		logGlobal->trace("Canceled command for %s", stackName);
-	}
-	else
-		logGlobal->trace("Giving command for %s", stackName);
-
-	return ret;
 }
 
 void CPlayerInterface::battleEnd(const BattleResult *br, QueryID queryID)

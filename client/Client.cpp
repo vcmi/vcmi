@@ -373,9 +373,6 @@ void CClient::endGame()
 		logNetwork->info("Deleted mapHandler and gameState.");
 	}
 
-	//threads cleanup has to be after gs cleanup and before battleints cleanup to stop tacticThread
-	cleanThreads();
-
 	CPlayerInterface::battleInt.reset();
 	playerint.clear();
 	battleints.clear();
@@ -606,7 +603,7 @@ void CClient::battleStarted(const BattleInfo * info)
 
 	if(!settings["session"]["headless"].Bool())
 	{
-		if(!!att || !!def)
+		if(att || def)
 		{
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def);
@@ -620,35 +617,10 @@ void CClient::battleStarted(const BattleInfo * info)
 			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def, spectratorInt);
 		}
 	}
-
-	if(info->tacticDistance && vstd::contains(battleints, info->sides[info->tacticsSide].color))
-	{
-		PlayerColor color = info->sides[info->tacticsSide].color;
-		playerTacticThreads[color] = std::make_unique<boost::thread>(&CClient::commenceTacticPhaseForInt, this, battleints[color]);
-	}
-}
-
-void CClient::commenceTacticPhaseForInt(std::shared_ptr<CBattleGameInterface> battleInt)
-{
-	setThreadName("CClient::commenceTacticPhaseForInt");
-	try
-	{
-		battleInt->yourTacticPhase(gs->curB->tacticDistance);
-		if(gs && !!gs->curB && gs->curB->tacticDistance) //while awaiting for end of tactics phase, many things can happen (end of battle... or game)
-		{
-			MakeAction ma(BattleAction::makeEndOFTacticPhase(gs->curB->playerToSide(battleInt->playerID).value()));
-			sendRequest(&ma, battleInt->playerID);
-		}
-	}
-	catch(...)
-	{
-		handleException();
-	}
 }
 
 void CClient::battleFinished()
 {
-	stopAllBattleActions();
 	for(auto & side : gs->curB->sides)
 		if(battleCallbacks.count(side.color))
 			battleCallbacks[side.color]->setBattle(nullptr);
@@ -662,56 +634,12 @@ void CClient::battleFinished()
 
 void CClient::startPlayerBattleAction(PlayerColor color)
 {
-	stopPlayerBattleAction(color);
+	assert(vstd::contains(battleints, color));
 
 	if(vstd::contains(battleints, color))
 	{
-		auto thread = std::make_shared<boost::thread>(std::bind(&CClient::waitForMoveAndSend, this, color));
-		playerActionThreads[color] = thread;
-	}
-}
-
-void CClient::stopPlayerBattleAction(PlayerColor color)
-{
-	if(vstd::contains(playerActionThreads, color))
-	{
-		auto thread = playerActionThreads.at(color);
-		if(thread->joinable())
-		{
-			thread->interrupt();
-			thread->join();
-		}
-		playerActionThreads.erase(color);
-	}
-}
-
-void CClient::stopAllBattleActions()
-{
-	while(!playerActionThreads.empty())
-		stopPlayerBattleAction(playerActionThreads.begin()->first);
-}
-
-void CClient::waitForMoveAndSend(PlayerColor color)
-{
-	try
-	{
-		setThreadName("CClient::waitForMoveAndSend");
 		assert(vstd::contains(battleints, color));
-		BattleAction ba = battleints[color]->activeStack(gs->curB->battleGetStackByID(gs->curB->activeStack, false));
-		if(ba.actionType != EActionType::CANCEL)
-		{
-			logNetwork->trace("Send battle action to server: %s", ba.toString());
-			MakeAction temp_action(ba);
-			sendRequest(&temp_action, color);
-		}
-	}
-	catch(boost::thread_interrupted &)
-	{
-		logNetwork->debug("Wait for move thread was interrupted and no action will be send. Was a battle ended by spell?");
-	}
-	catch(...)
-	{
-		handleException();
+		battleints[color]->activeStack(gs->curB->battleGetStackByID(gs->curB->activeStack, false));
 	}
 }
 
@@ -779,23 +707,6 @@ void CClient::removeGUI()
 	logGlobal->info("Removed GUI.");
 
 	LOCPLINT = nullptr;
-}
-
-void CClient::cleanThreads()
-{
-	stopAllBattleActions();
-
-	while (!playerTacticThreads.empty())
-	{
-		PlayerColor color = playerTacticThreads.begin()->first;
-
-		//set tacticcMode of the players to false to stop tacticThread
-		if (vstd::contains(battleints, color))
-			battleints[color]->forceEndTacticPhase();
-
-		playerTacticThreads[color]->join();
-		playerTacticThreads.erase(color);
-	}
 }
 
 #ifdef VCMI_ANDROID

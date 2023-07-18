@@ -158,7 +158,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	//for battles
 	void actionFinished(const BattleAction& action) override;//occurs AFTER action taken by active stack or by the hero
 	void actionStarted(const BattleAction& action) override;//occurs BEFORE action taken by active stack or by the hero
-	BattleAction activeStack(const CStack * stack) override; //called when it's turn of that stack
+	void activeStack(const CStack * stack) override; //called when it's turn of that stack
 	void battleAttack(const BattleAttack *ba) override; //stack performs attack
 	void battleEnd(const BattleResult *br, QueryID queryID) override; //end of battle
 	void battleNewRoundFirst(int round) override; //called at the beginning of each turn before changes are applied; used for HP regen handling

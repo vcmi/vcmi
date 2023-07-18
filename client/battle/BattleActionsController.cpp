@@ -298,7 +298,7 @@ void BattleActionsController::castThisSpell(SpellID spellID)
 	if (spellSelMode.get() == PossiblePlayerBattleAction::NO_LOCATION) //user does not have to select location
 	{
 		heroSpellToCast->aimToHex(BattleHex::INVALID);
-		owner.curInt->cb->battleMakeAction(heroSpellToCast.get());
+		owner.curInt->cb->battleMakeSpellAction(*heroSpellToCast);
 		endCastingSpell();
 	}
 	else
@@ -673,7 +673,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 			BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(targetHex);
 			if(attackFromHex.isValid()) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
 			{
-				auto command = new BattleAction(BattleAction::makeMeleeAttack(owner.stacksController->getActiveStack(), targetHex, attackFromHex, returnAfterAttack));
+				BattleAction command = BattleAction::makeMeleeAttack(owner.stacksController->getActiveStack(), targetHex, attackFromHex, returnAfterAttack);
 				owner.sendCommand(command, owner.stacksController->getActiveStack());
 			}
 			return;
@@ -763,7 +763,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, B
 						heroSpellToCast->aimToHex(targetHex);
 						break;
 				}
-				owner.curInt->cb->battleMakeAction(heroSpellToCast.get());
+				owner.curInt->cb->battleMakeSpellAction(*heroSpellToCast);
 				endCastingSpell();
 			}
 			selectedStack = nullptr;

@@ -88,7 +88,7 @@ void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	playerID = *CB->getPlayerID(); //TODO should be sth in callback
 	wasWaitingForRealize = CB->waitTillRealize;
 	wasUnlockingGs = CB->unlockGsWhenWaiting;
-	CB->waitTillRealize = true;
+	CB->waitTillRealize = false;
 	CB->unlockGsWhenWaiting = false;
 	movesSkippedByDefense = 0;
 }
@@ -249,7 +249,7 @@ BattleAction CBattleAI::selectStackAction(const CStack * stack)
 	return BattleAction::makeDefend(stack);
 }
 
-BattleAction CBattleAI::activeStack( const CStack * stack )
+void CBattleAI::activeStack( const CStack * stack )
 {
 	LOG_TRACE_PARAMS(logAi, "stack: %s", stack->nodeName());
 
@@ -259,9 +259,15 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 	try
 	{
 		if(stack->creatureId() == CreatureID::CATAPULT)
-			return useCatapult(stack);
+		{
+			cb->battleMakeUnitAction(useCatapult(stack));
+			return;
+		}
 		if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON) && stack->hasBonusOfType(BonusType::HEALER))
-			return useHealingTent(stack);
+		{
+			cb->battleMakeUnitAction(useHealingTent(stack));
+			return;
+		}
 
 		attemptCastingSpell();
 
@@ -271,11 +277,15 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			//send special preudo-action
 			BattleAction cancel;
 			cancel.actionType = EActionType::CANCEL;
-			return cancel;
+			cb->battleMakeUnitAction(cancel);
+			return;
 		}
 
 		if(auto action = considerFleeingOrSurrendering())
-			return *action;
+		{
+			cb->battleMakeUnitAction(*action);
+			return;
+		}
 
 		result = selectStackAction(stack);
 	}
@@ -297,7 +307,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		movesSkippedByDefense = 0;
 	}
 
-	return result;
+	cb->battleMakeUnitAction(result);
 }
 
 BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes) const
@@ -751,7 +761,7 @@ void CBattleAI::attemptCastingSpell()
 		spellcast.setTarget(castToPerform.dest);
 		spellcast.side = side;
 		spellcast.stackNumber = (!side) ? -1 : -2;
-		cb->battleMakeAction(&spellcast);
+		cb->battleMakeUnitAction(spellcast);
 		movesSkippedByDefense = 0;
 	}
 	else

@@ -401,11 +401,12 @@ void BattleStacksController::stackRemoved(uint32_t stackID)
 {
 	if (getActiveStack() && getActiveStack()->unitId() == stackID)
 	{
-		BattleAction *action = new BattleAction();
-		action->side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
-		action->actionType = EActionType::CANCEL;
-		action->stackNumber = getActiveStack()->unitId();
-		owner.givenCommand.setn(action);
+		BattleAction action;
+		action.side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
+		action.actionType = EActionType::CANCEL;
+		action.stackNumber = getActiveStack()->unitId();
+
+		LOCPLINT->cb->battleMakeUnitAction(action);
 		setActiveStack(nullptr);
 	}
 }

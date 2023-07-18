@@ -44,8 +44,6 @@
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/TerrainHandler.h"
 
-CondSh<BattleAction *> BattleInterface::givenCommand(nullptr);
-
 BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2,
 		const CGHeroInstance *hero1, const CGHeroInstance *hero2,
 		std::shared_ptr<CPlayerInterface> att,
@@ -67,8 +65,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 		//May happen when we are defending during network MP game -> attacker interface is just not present
 		curInt = defenderInt;
 	}
-
-	givenCommand.setn(nullptr);
 
 	//hot-seat -> check tactics for both players (defender may be local human)
 	if(attackerInt && attackerInt->cb->battleGetTacticDist())
@@ -158,7 +154,6 @@ void BattleInterface::openingEnd()
 BattleInterface::~BattleInterface()
 {
 	CPlayerInterface::battleInt = nullptr;
-	givenCommand.cond.notify_all(); //that two lines should make any stacksController->getActiveStack() waiting thread to finish
 
 	if (adventureInt)
 		adventureInt->onAudioResumed();
@@ -254,29 +249,28 @@ void BattleInterface::giveCommand(EActionType action, BattleHex tile, si32 addit
 		return;
 	}
 
-	auto ba = new BattleAction(); //is deleted in CPlayerInterface::stacksController->getActiveStack()()
-	ba->side = side.value();
-	ba->actionType = action;
-	ba->aimToHex(tile);
-	ba->actionSubtype = additional;
+	BattleAction ba;
+	ba.side = side.value();
+	ba.actionType = action;
+	ba.aimToHex(tile);
+	ba.actionSubtype = additional;
 
 	sendCommand(ba, actor);
 }
 
-void BattleInterface::sendCommand(BattleAction *& command, const CStack * actor)
+void BattleInterface::sendCommand(BattleAction command, const CStack * actor)
 {
-	command->stackNumber = actor ? actor->unitId() : ((command->side == BattleSide::ATTACKER) ? -1 : -2);
+	command.stackNumber = actor ? actor->unitId() : ((command.side == BattleSide::ATTACKER) ? -1 : -2);
 
 	if(!tacticsMode)
 	{
 		logGlobal->trace("Setting command for %s", (actor ? actor->nodeName() : "hero"));
 		stacksController->setActiveStack(nullptr);
-		givenCommand.setn(command);
+		LOCPLINT->cb->battleMakeUnitAction(command);
 	}
 	else
 	{
 		curInt->cb->battleMakeTacticAction(command);
-		vstd::clear_pointer(command);
 		stacksController->setActiveStack(nullptr);
 		//next stack will be activated when action ends
 	}
@@ -724,10 +718,7 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 
 			// If enemy is moving, activeStack can be null
 			if (activeStack)
-			{
-				auto ba = std::make_unique<BattleAction>(curInt->autofightingAI->activeStack(activeStack));
-				givenCommand.setn(ba.release());
-			}
+				curInt->autofightingAI->activeStack(activeStack);
 
 			stacksController->setActiveStack(nullptr);
 		}

@@ -71,7 +71,7 @@ public:
 
 	void evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps); //for offensive damaging spells only
 
-	BattleAction activeStack(const CStack * stack) override; //called when it's turn of that stack
+	void activeStack(const CStack * stack) override; //called when it's turn of that stack
 
 	std::optional<BattleAction> considerFleeingOrSurrendering();
 

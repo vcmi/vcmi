@@ -203,12 +203,11 @@ bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 	return true;
 }
 
-int CBattleCallback::battleMakeAction(const BattleAction * action)
+void CBattleCallback::battleMakeSpellAction(const BattleAction & action)
 {
-	assert(action->actionType == EActionType::HERO_SPELL);
-	MakeCustomAction mca(*action);
+	assert(action.actionType == EActionType::HERO_SPELL);
+	MakeCustomAction mca(action);
 	sendRequest(&mca);
-	return 0;
 }
 
 int CBattleCallback::sendRequest(const CPackForServer * request)
@@ -378,13 +377,20 @@ CBattleCallback::CBattleCallback(std::optional<PlayerColor> Player, CClient * C)
 	cl = C;
 }
 
-bool CBattleCallback::battleMakeTacticAction( BattleAction * action )
+void CBattleCallback::battleMakeUnitAction(const BattleAction & action)
+{
+	assert(!cl->gs->curB->tacticDistance);
+	MakeAction ma;
+	ma.ba = action;
+	sendRequest(&ma);
+}
+
+void CBattleCallback::battleMakeTacticAction( const BattleAction & action )
 {
 	assert(cl->gs->curB->tacticDistance);
 	MakeAction ma;
-	ma.ba = *action;
+	ma.ba = action;
 	sendRequest(&ma);
-	return true;
 }
 
 std::optional<BattleAction> CBattleCallback::makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
