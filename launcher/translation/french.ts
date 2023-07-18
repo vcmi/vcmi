@@ -199,6 +199,118 @@
     </message>
 </context>
 <context>
+    <name>CModListModel</name>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="42"/>
+        <source>Translation</source>
+        <translation>Traduction</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="43"/>
+        <source>Town</source>
+        <translation>Ville</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="44"/>
+        <source>Test</source>
+        <translation>Test</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="45"/>
+        <source>Templates</source>
+        <translation>Modèles</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="46"/>
+        <source>Spells</source>
+        <translation>Sorts</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="47"/>
+        <source>Music</source>
+        <translation>Musique</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="48"/>
+        <source>Sounds</source>
+        <translation>Sons</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="49"/>
+        <source>Skills</source>
+        <translation>Compétences</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="50"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="67"/>
+        <source>Other</source>
+        <translation>Autre</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="51"/>
+        <source>Objects</source>
+        <translation>Objets</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="52"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="53"/>
+        <source>Mechanics</source>
+        <translation>Mécanique</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="54"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="55"/>
+        <source>Interface</source>
+        <translation>Interface</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="56"/>
+        <source>Heroes</source>
+        <translation>Héros</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="57"/>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="58"/>
+        <source>Graphical</source>
+        <translation>Graphique</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="59"/>
+        <source>Expansion</source>
+        <translation>Extension</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="60"/>
+        <source>Creatures</source>
+        <translation>Créatures</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="61"/>
+        <source>Artifacts</source>
+        <translation>Artefacts</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="62"/>
+        <source>AI</source>
+        <translation>IA</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="170"/>
+        <source>Name</source>
+        <translation>Nom</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="173"/>
+        <source>Type</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistmodel_moc.cpp" line="174"/>
+        <source>Version</source>
+        <translation>Version</translation>
+    </message>
+</context>
+<context>
     <name>CModListView</name>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="43"/>
@@ -920,7 +1032,7 @@ Heroes® of Might and Magic® III HD n&quot;est actuellement pas pris en charge 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
         <source>Interface Improvements</source>
-        <translation type="unfinished"></translation>
+        <translation>Améliorations de l'interface</translation>
     </message>
     <message>
         <source>High Definition Support</source>
@@ -939,7 +1051,7 @@ Heroes® of Might and Magic® III HD n&quot;est actuellement pas pris en charge 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
         <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>Installer le mod qui fournit diverses améliorations d'interface, telles qu'une meilleure interface pour les cartes aléatoires et des actions sélectionnables dans les batailles</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
