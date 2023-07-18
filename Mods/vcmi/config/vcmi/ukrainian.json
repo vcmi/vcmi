@@ -68,6 +68,8 @@
 	"vcmi.adventureOptions.showGrid.help" : "{Показувати сітку}\n\n Відображає сітку, що показує межі між клітинками на мапі пригод.",
 	"vcmi.adventureOptions.borderScroll.hover" : "Прокрутка по краю",
 	"vcmi.adventureOptions.borderScroll.help" : "{{Прокрутка по краю}\n\nПрокручувати мапу пригод, коли курсор знаходиться біля краю вікна. Цю функцію можна вимкнути, утримуючи клавішу CTRL.",
+	"vcmi.adventureOptions.leftButtonDrag.hover" : "Переміщення мапи лівою кнопкою",
+	"vcmi.adventureOptions.leftButtonDrag.help" : "{Переміщення мапи лівою кнопкою}\n\nЯкщо увімкнено, переміщення миші з натиснутою лівою кнопкою буде перетягувати мапу пригод",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",
