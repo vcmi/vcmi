@@ -120,6 +120,10 @@
 		"index" : {
 			"type" : "number",
 			"description" : "Private field to break things, do not use."
+		},
+		"onlyOnWaterMap" : {
+			"type" : "boolean",
+			"description" : "It true, artifact won't spawn on a map with water"
 		}
 	}
 }

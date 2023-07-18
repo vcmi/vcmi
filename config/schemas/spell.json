@@ -309,5 +309,9 @@
 				}
 			}
 		}
+	},
+	"onlyOnWaterMap" : {
+		"type" : "boolean",
+		"description" : "It true, spell won't be available on a map without water"
 	}
 }
