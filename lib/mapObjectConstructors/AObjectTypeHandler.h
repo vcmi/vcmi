@@ -89,6 +89,9 @@ public:
 	/// returns true if this class provides custom text ID's instead of generic per-object name
 	virtual bool hasNameTextID() const;
 
+	/// returns base prefix for all translatable strings of this object
+	std::string getBaseTextID() const;
+
 	/// returns object's name in form of translatable text ID
 	virtual std::string getNameTextID() const;
 

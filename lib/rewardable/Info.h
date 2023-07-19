@@ -30,8 +30,9 @@ enum class EEventType;
 class DLL_LINKAGE Info : public IObjectInfo
 {
 	JsonNode parameters;
+	std::string objectTextID;
 
-	void configureRewards(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source, std::map<si32, si32> & thrownDice, Rewardable::EEventType mode) const;
+	void configureRewards(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source, std::map<si32, si32> & thrownDice, Rewardable::EEventType mode, const std::string & textPrefix) const;
 
 	void configureLimiter(Rewardable::Configuration & object, CRandomGenerator & rng, Rewardable::Limiter & limiter, const JsonNode & source) const;
 	Rewardable::LimitersList configureSublimiters(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const;
@@ -58,7 +59,7 @@ public:
 
 	void configureObject(Rewardable::Configuration & object, CRandomGenerator & rng) const;
 
-	void init(const JsonNode & objectConfig);
+	void init(const JsonNode & objectConfig, const std::string & objectTextID);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

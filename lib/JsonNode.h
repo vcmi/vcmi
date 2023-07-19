@@ -129,6 +129,9 @@ public:
 	JsonNode & operator[](const std::string & child);
 	const JsonNode & operator[](const std::string & child) const;
 
+	JsonNode & operator[](size_t child);
+	const JsonNode & operator[](size_t  child) const;
+
 	std::string toJson(bool compact = false) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
