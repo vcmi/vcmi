@@ -33,13 +33,13 @@ RadialMenu::RadialMenu(const Point & positionToCenter, const std::vector<RadialM
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos += positionToCenter;
 
-	addItem(Point(0,0), "itemEmpty", "", [](){});
+	addItem(Point(0,0), true, "itemEmpty", "", [](){});
 
 	Point itemSize = items.back()->pos.dimensions();
 	moveBy(-itemSize / 2);
 
 	for (auto const & item : menuConfig)
-		addItem(item.itemPosition, item.imageName, item.hoverText, item.callback);
+		addItem(item.itemPosition, item.enabled, item.imageName, item.hoverText, item.callback);
 
 	statusBar = CGStatusBar::create(-80, -100, "radialMenu/statusBar");
 
@@ -51,8 +51,11 @@ RadialMenu::RadialMenu(const Point & positionToCenter, const std::vector<RadialM
 	addUsedEvents(GESTURE);
 }
 
-void RadialMenu::addItem(const Point & offset, const std::string & path, const std::string & hoverText, const std::function<void()>& callback )
+void RadialMenu::addItem(const Point & offset, bool enabled, const std::string & path, const std::string & hoverText, const std::function<void()>& callback )
 {
+	if (!enabled)
+		return;
+
 	auto item = std::make_shared<RadialMenuItem>(path, hoverText, callback);
 
 	item->moveBy(offset);

@@ -27,6 +27,7 @@ struct RadialMenuConfig
 	static constexpr Point ITEM_SE = Point(+40, +70);
 
 	Point itemPosition;
+	bool enabled;
 	std::string imageName;
 	std::string hoverText;
 	std::function<void()> callback;
@@ -51,7 +52,7 @@ class RadialMenu : public CIntObject
 
 	std::shared_ptr<CGStatusBar> statusBar;
 
-	void addItem(const Point & offset, const std::string & path, const std::string & hoverText, const std::function<void()> & callback);
+	void addItem(const Point & offset, bool enabled, const std::string & path, const std::string & hoverText, const std::function<void()> & callback);
 
 	std::shared_ptr<RadialMenuItem> findNearestItem(const Point & cursorPosition) const;
 public:

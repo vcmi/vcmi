@@ -350,13 +350,26 @@ void CGarrisonSlot::gesture(bool on, const Point & initialPosition, const Point 
 	if (!on)
 		return;
 
+	if (!myStack)
+		return;
+
+	bool stackExists = myStack != nullptr;
+	bool hasSameUnit = stackExists && !owner->army(upg)->getCreatureSlots(myStack->type, ID).empty();
+	bool hasEmptySlots = stackExists && owner->army(upg)->getFreeSlot() != SlotID();
+	bool exchangeMode = stackExists && owner->upperArmy() && owner->lowerArmy();
+
 	std::vector<RadialMenuConfig> menuElements = {
-		{ RadialMenuConfig::ITEM_NW, "stackMerge", "Merge same units", [this](){owner->bulkMergeStacks(this);} },
-		{ RadialMenuConfig::ITEM_NE, "stackInfo", "Show unit information", [this](){viewInfo();} },
-		{ RadialMenuConfig::ITEM_WW, "stackSplitOne", "Split off single unit", [this](){splitIntoParts(this->getGarrison(), 1); } },
-		{ RadialMenuConfig::ITEM_EE, "stackSplitEqual", "Split unit equally", [this](){owner->bulkSmartSplitStack(this);} },
-		{ RadialMenuConfig::ITEM_SW, "heroMove", "Move unit to another army", [this](){owner->moveStackToAnotherArmy(this);} },
+		{ RadialMenuConfig::ITEM_NW, hasSameUnit, "stackMerge", "Merge same units", [this](){owner->bulkMergeStacks(this);} },
+		{ RadialMenuConfig::ITEM_NE, stackExists, "stackInfo", "Show unit information", [this](){viewInfo();} },
+		{ RadialMenuConfig::ITEM_WW, hasEmptySlots, "stackSplitOne", "Split off single unit", [this](){splitIntoParts(this->getGarrison(), 1); } },
+		{ RadialMenuConfig::ITEM_EE, hasEmptySlots, "stackSplitEqual", "Split unit equally", [this](){owner->bulkSmartSplitStack(this);} },
+		{ RadialMenuConfig::ITEM_SW, exchangeMode, "heroMove", "Move unit to another army", [this](){owner->moveStackToAnotherArmy(this);} },
 	};
+
+	// additional options to consider:
+	// - Ctrl + Shift + Click - splits from current stack, stacks of 1 in all free slots
+	// - Alt + Shift + Click - dismiss stack with confirmation window
+	// Split unit (same as button)
 
 	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
 }
