@@ -154,11 +154,6 @@ void BattleStacksController::collectRenderableObjects(BattleRenderer & renderer)
 
 void BattleStacksController::stackReset(const CStack * stack)
 {
-	owner.checkForAnimations();
-
-	//reset orientation?
-	//stackFacingRight[stack->unitId()] = stack->unitSide() == BattleSide::ATTACKER;
-
 	auto iter = stackAnimation.find(stack->unitId());
 
 	if(iter == stackAnimation.end())
