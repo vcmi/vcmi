@@ -526,7 +526,7 @@ void CGarrisonInt::createSlots()
 		for(int j = 0; j < 7; j++)
 		{
 			if(!garrisonSlots[j])
-				garrisonSlots[j] = std::make_shared<CGarrisonSlot>(this, offset.x + (j*distance), offset.x, SlotID(j), i, nullptr);
+				garrisonSlots[j] = std::make_shared<CGarrisonSlot>(this, offset.x + (j*distance), offset.y, SlotID(j), i, nullptr);
 
 			if(layout == ESlotsLayout::TWO_ROWS && j >= 4)
 			{
