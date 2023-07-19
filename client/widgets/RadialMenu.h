@@ -37,13 +37,16 @@ class RadialMenuItem : public CIntObject
 {
 	friend class RadialMenu;
 
-	std::shared_ptr<IImage> image;
-	std::shared_ptr<CPicture> picture;
+	std::shared_ptr<CPicture> iconImage;
+	std::shared_ptr<CPicture> selectedImage;
+	std::shared_ptr<CPicture> inactiveImage;
 	std::function<void()> callback;
 	std::string hoverText;
 
 public:
 	RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback);
+
+	void setSelected(bool selected);
 };
 
 class RadialMenu : public CIntObject
@@ -51,6 +54,8 @@ class RadialMenu : public CIntObject
 	std::vector<std::shared_ptr<RadialMenuItem>> items;
 
 	std::shared_ptr<CGStatusBar> statusBar;
+
+	std::shared_ptr<RadialMenuItem> selectedItem;
 
 	void addItem(const Point & offset, bool enabled, const std::string & path, const std::string & hoverText, const std::function<void()> & callback);
 

@@ -23,9 +23,19 @@ RadialMenuItem::RadialMenuItem(const std::string & imageName, const std::string 
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	image = IImage::createFromFile("radialMenu/" + imageName, EImageBlitMode::COLORKEY);
-	picture = std::make_shared<CPicture>(image, Point(0, 0));
-	pos = picture->pos;
+	inactiveImage = std::make_shared<CPicture>("radialMenu/itemInactive", Point(0, 0));
+	selectedImage = std::make_shared<CPicture>("radialMenu/itemEmpty", Point(0, 0));
+
+	iconImage = std::make_shared<CPicture>("radialMenu/" + imageName, Point(0, 0));
+
+	pos = selectedImage->pos;
+	selectedImage->setEnabled(false);
+}
+
+void RadialMenuItem::setSelected(bool selected)
+{
+	selectedImage->setEnabled(selected);
+	inactiveImage->setEnabled(!selected);
 }
 
 RadialMenu::RadialMenu(const Point & positionToCenter, const std::vector<RadialMenuConfig> & menuConfig)
@@ -33,10 +43,10 @@ RadialMenu::RadialMenu(const Point & positionToCenter, const std::vector<RadialM
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos += positionToCenter;
 
-	addItem(Point(0,0), true, "itemEmpty", "", [](){});
-
-	Point itemSize = items.back()->pos.dimensions();
+	Point itemSize = Point(70, 80);
 	moveBy(-itemSize / 2);
+	pos.w = itemSize.x;
+	pos.h = itemSize.y;
 
 	for (auto const & item : menuConfig)
 		addItem(item.itemPosition, item.enabled, item.imageName, item.hoverText, item.callback);
@@ -87,6 +97,17 @@ void RadialMenu::gesturePanning(const Point & initialPosition, const Point & cur
 {
 	auto item = findNearestItem(currentPosition);
 	GH.statusbar()->write(item->hoverText);
+
+	if (item != selectedItem)
+	{
+		if (selectedItem)
+			selectedItem->setSelected(false);
+
+		item->setSelected(true);
+		selectedItem = item;
+
+		GH.windows().totalRedraw();
+	}
 }
 
 void RadialMenu::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
