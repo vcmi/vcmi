@@ -296,9 +296,20 @@ void BattleHero::heroLeftClicked()
 
 void BattleHero::heroRightClicked()
 {
+	if(settings["battle"]["stickyHeroInfoWindows"].Bool())
+		return;
+
 	Point windowPosition;
-	windowPosition.x = (!defender) ? owner.fieldController->pos.left() + 1 : owner.fieldController->pos.right() - 79;
-	windowPosition.y = owner.fieldController->pos.y + 135;
+	if(GH.screenDimensions().x < 1000)
+	{
+		windowPosition.x = (!defender) ? owner.fieldController->pos.left() + 1 : owner.fieldController->pos.right() - 79;
+		windowPosition.y = owner.fieldController->pos.y + 135;
+	}
+	else
+	{
+		windowPosition.x = (!defender) ? owner.fieldController->pos.left() - 93 : owner.fieldController->pos.right() + 15;
+		windowPosition.y = owner.fieldController->pos.y;
+	}
 
 	InfoAboutHero targetHero;
 	if(owner.makingTurn() || settings["session"]["spectate"].Bool())
@@ -364,13 +375,19 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	addUsedEvents(TIME);
 }
 
-HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
-	: CWindowObject(RCLICK_POPUP | SHADOW_DISABLED, "CHRPOP")
+HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, Point * position, bool initializeBackground)
+	: CIntObject(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	if (position != nullptr)
 		moveTo(*position);
-	background->colorize(hero.owner); //maybe add this functionality to base class?
+
+	if(initializeBackground)
+	{
+		background = std::make_shared<CPicture>("CHRPOP");
+		background->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
+		background->colorize(hero.owner);
+	}
 
 	auto attack = hero.details->primskills[0];
 	auto defense = hero.details->primskills[1];
@@ -404,6 +421,24 @@ HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
 	//spell points
 	labels.push_back(std::make_shared<CLabel>(39, 174, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[387]));
 	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
+}
+
+void HeroInfoBasicPanel::show(Canvas & to)
+{
+	showAll(to);
+	CIntObject::show(to);
+}
+
+HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
+	: CWindowObject(RCLICK_POPUP | SHADOW_DISABLED, "CHRPOP")
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	if (position != nullptr)
+		moveTo(*position);
+
+	background->colorize(hero.owner); //maybe add this functionality to base class?
+
+	content = std::make_shared<HeroInfoBasicPanel>(hero, nullptr, false);
 }
 
 BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface & _owner, bool allowReplay)

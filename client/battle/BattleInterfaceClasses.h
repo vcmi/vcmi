@@ -127,11 +127,22 @@ public:
 	BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender);
 };
 
+class HeroInfoBasicPanel : public CIntObject //extracted from InfoWindow to fit better as non-popup embed element
+{
+private:
+	std::shared_ptr<CPicture> background;
+	std::vector<std::shared_ptr<CLabel>> labels;
+	std::vector<std::shared_ptr<CAnimImage>> icons;
+public:
+	HeroInfoBasicPanel(const InfoAboutHero & hero, Point * position, bool initializeBackground = true);
+
+	void show(Canvas & to) override;
+};
+
 class HeroInfoWindow : public CWindowObject
 {
 private:
-	std::vector<std::shared_ptr<CLabel>> labels;
-	std::vector<std::shared_ptr<CAnimImage>> icons;
+	std::shared_ptr<HeroInfoBasicPanel> content;
 public:
 	HeroInfoWindow(const InfoAboutHero & hero, Point * position);
 };

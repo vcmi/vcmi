@@ -178,6 +178,7 @@ public:
 	void tacticPhaseEnd();
 
 	void setBattleQueueVisibility(bool visible);
+	void setStickyHeroWindowsVisibility(bool visible);
 
 	void executeStagedAnimations();
 	void executeAnimationStage( EAnimationEvents event);

@@ -810,3 +810,10 @@ void BattleInterface::setBattleQueueVisibility(bool visible)
 	if(visible)
 		windowObject->showQueue();
 }
+
+void BattleInterface::setStickyHeroWindowsVisibility(bool visible)
+{
+	windowObject->hideStickyHeroWindows();
+	if(visible)
+		windowObject->showStickyHeroWindows();
+}

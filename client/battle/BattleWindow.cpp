@@ -67,6 +67,7 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	addShortcut(EShortcut::BATTLE_SELECT_ACTION, std::bind(&BattleWindow::bSwitchActionf, this));
 
 	addShortcut(EShortcut::BATTLE_TOGGLE_QUEUE, [this](){ this->toggleQueueVisibility();});
+	addShortcut(EShortcut::BATTLE_TOGGLE_HEROES_STATS, [this](){ this->toggleStickyHeroWindowsVisibility();});
 	addShortcut(EShortcut::BATTLE_USE_CREATURE_SPELL, [this](){ this->owner.actionsController->enterCreatureCastingMode(); });
 	addShortcut(EShortcut::GLOBAL_CANCEL, [this](){ this->owner.actionsController->endCastingSpell(); });
 
@@ -80,6 +81,7 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	owner.fieldController->createHeroes();
 
 	createQueue();
+	createStickyHeroInfoWindows();
 
 	if ( owner.tacticsMode )
 		tacticPhaseStarted();
@@ -114,6 +116,41 @@ void BattleWindow::createQueue()
 
 	if (!showQueue)
 		queue->disable();
+}
+
+void BattleWindow::createStickyHeroInfoWindows()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	if(owner.defendingHeroInstance)
+	{
+		InfoAboutHero info;
+		info.initFromHero(owner.defendingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
+		Point position = (GH.screenDimensions().x >= 1000)
+				? Point(pos.x + pos.w + 15, pos.y)
+				: Point(pos.x + pos.w -79, pos.y + 135);
+		defenderHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, &position);
+	}
+	if(owner.attackingHeroInstance)
+	{
+		InfoAboutHero info;
+		info.initFromHero(owner.attackingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
+		Point position = (GH.screenDimensions().x >= 1000)
+				? Point(pos.x - 93, pos.y)
+				: Point(pos.x + 1, pos.y + 135);
+		attackerHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, &position);
+	}
+
+	bool showInfoWindows = settings["battle"]["stickyHeroInfoWindows"].Bool();
+
+	if(!showInfoWindows)
+	{
+		if(attackerHeroWindow)
+			attackerHeroWindow->disable();
+
+		if(defenderHeroWindow)
+			defenderHeroWindow->disable();
+	}
 }
 
 BattleWindow::~BattleWindow()
@@ -167,6 +204,44 @@ void BattleWindow::showQueue()
 
 	createQueue();
 	updateQueue();
+	GH.windows().totalRedraw();
+}
+
+void BattleWindow::toggleStickyHeroWindowsVisibility()
+{
+	if(settings["battle"]["stickyHeroInfoWindows"].Bool())
+		hideStickyHeroWindows();
+	else
+		showStickyHeroWindows();
+}
+
+void BattleWindow::hideStickyHeroWindows()
+{
+	if(settings["battle"]["stickyHeroInfoWindows"].Bool() == false)
+		return;
+
+	Settings showStickyHeroInfoWindows = settings.write["battle"]["stickyHeroInfoWindows"];
+	showStickyHeroInfoWindows->Bool() = false;
+
+	if(attackerHeroWindow)
+		attackerHeroWindow->disable();
+
+	if(defenderHeroWindow)
+		defenderHeroWindow->disable();
+
+	GH.windows().totalRedraw();
+}
+
+void BattleWindow::showStickyHeroWindows()
+{
+	if(settings["battle"]["stickyHeroInfoWindows"].Bool() == true)
+		return;
+
+	Settings showStickyHeroInfoWIndows = settings.write["battle"]["stickyHeroInfoWindows"];
+	showStickyHeroInfoWIndows->Bool() = true;
+
+
+	createStickyHeroInfoWindows();
 	GH.windows().totalRedraw();
 }
 

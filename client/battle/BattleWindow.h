@@ -24,6 +24,7 @@ class BattleInterface;
 class BattleConsole;
 class BattleRenderer;
 class StackQueue;
+class HeroInfoBasicPanel;
 
 /// GUI object that handles functionality of panel at the bottom of combat screen
 class BattleWindow : public InterfaceObjectConfigurable
@@ -32,6 +33,8 @@ class BattleWindow : public InterfaceObjectConfigurable
 
 	std::shared_ptr<StackQueue> queue;
 	std::shared_ptr<BattleConsole> console;
+	std::shared_ptr<HeroInfoBasicPanel> attackerHeroWindow;
+	std::shared_ptr<HeroInfoBasicPanel> defenderHeroWindow;
 
 	/// button press handling functions
 	void bOptionsf();
@@ -60,6 +63,9 @@ class BattleWindow : public InterfaceObjectConfigurable
 	void toggleQueueVisibility();
 	void createQueue();
 
+	void toggleStickyHeroWindowsVisibility();
+	void createStickyHeroInfoWindows();
+
 	std::shared_ptr<BattleConsole> buildBattleConsole(const JsonNode &) const;
 
 public:
@@ -72,6 +78,9 @@ public:
 	/// Toggle StackQueue visibility
 	void hideQueue();
 	void showQueue();
+
+	void hideStickyHeroWindows();
+	void showStickyHeroWindows();
 
 	/// block all UI elements when player is not allowed to act, e.g. during enemy turn
 	void blockUI(bool on);
