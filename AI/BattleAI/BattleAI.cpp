@@ -766,7 +766,7 @@ void CBattleAI::attemptCastingSpell()
 		spellcast.setTarget(castToPerform.dest);
 		spellcast.side = side;
 		spellcast.stackNumber = (!side) ? -1 : -2;
-		cb->battleMakeUnitAction(spellcast);
+		cb->battleMakeSpellAction(spellcast);
 		movesSkippedByDefense = 0;
 	}
 	else
