@@ -2585,23 +2585,6 @@ struct DLL_LINKAGE SaveGame : public CPackForServer
 	}
 };
 
-// TODO: Eventually we should re-merge both SaveGame and PlayerMessage
-struct DLL_LINKAGE SaveGameClient : public CPackForClient
-{
-	SaveGameClient() = default;
-	SaveGameClient(std::string Fname)
-		: fname(std::move(Fname))
-	{
-	}
-	std::string fname;
-	virtual void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & fname;
-	}
-};
-
 struct DLL_LINKAGE PlayerMessage : public CPackForServer
 {
 	PlayerMessage() = default;

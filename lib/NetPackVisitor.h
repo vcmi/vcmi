@@ -138,7 +138,6 @@ public:
 	virtual void visitDigWithHero(DigWithHero & pack) {}
 	virtual void visitCastAdvSpell(CastAdvSpell & pack) {}
 	virtual void visitSaveGame(SaveGame & pack) {}
-	virtual void visitSaveGameClient(SaveGameClient & pack) {}
 	virtual void visitPlayerMessage(PlayerMessage & pack) {}
 	virtual void visitPlayerMessageClient(PlayerMessageClient & pack) {}
 	virtual void visitCenterView(CenterView & pack) {}

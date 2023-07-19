@@ -657,11 +657,6 @@ void SaveGame::visitTyped(ICPackVisitor & visitor)
 	visitor.visitSaveGame(*this);
 }
 
-void SaveGameClient::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitSaveGameClient(*this);
-}
-
 void PlayerMessage::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitPlayerMessage(*this);

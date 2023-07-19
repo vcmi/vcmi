@@ -80,7 +80,7 @@ void CSavingScreen::saveGame()
 		close();
 	};
 
-	if(CResourceHandler::get("local")->existsResource(ResourceID(path, EResType::CLIENT_SAVEGAME)))
+	if(CResourceHandler::get("local")->existsResource(ResourceID(path, EResType::SAVEGAME)))
 	{
 		std::string hlp = CGI->generaltexth->allTexts[493]; //%s exists. Overwrite?
 		boost::algorithm::replace_first(hlp, "%s", tabSel->inputName->getText());

@@ -856,26 +856,6 @@ void ApplyClientNetPackVisitor::visitYourTurn(YourTurn & pack)
 	callOnlyThatInterface(cl, pack.player, &CGameInterface::yourTurn);
 }
 
-void ApplyClientNetPackVisitor::visitSaveGameClient(SaveGameClient & pack)
-{
-	const auto stem = FileInfo::GetPathStem(pack.fname);
-	if(!CResourceHandler::get("local")->createResource(stem.to_string() + ".vcgm1"))
-	{
-		logNetwork->error("Failed to create resource %s", stem.to_string() + ".vcgm1");
-		return;
-	}
-
-	try
-	{
-		CSaveFile save(*CResourceHandler::get()->getResourceName(ResourceID(stem.to_string(), EResType::CLIENT_SAVEGAME)));
-		save << cl;
-	}
-	catch(std::exception &e)
-	{
-		logNetwork->error("Failed to save game:%s", e.what());
-	}
-}
-
 void ApplyClientNetPackVisitor::visitPlayerMessageClient(PlayerMessageClient & pack)
 {
 	logNetwork->debug("pack.player %s sends a message: %s", pack.player.getStr(), pack.text);

@@ -326,7 +326,6 @@ void registerTypesClientPacks2(Serializer &s)
 	s.template registerType<CArtifactOperationPack, DisassembledArtifact>();
 	s.template registerType<CArtifactOperationPack, BulkMoveArtifacts>();
 
-	s.template registerType<CPackForClient, SaveGameClient>();
 	s.template registerType<CPackForClient, PlayerMessageClient>();
 	s.template registerType<CGarrisonOperationPack, BulkRebalanceStacks>();
 	s.template registerType<CGarrisonOperationPack, BulkSmartRebalanceStacks>();

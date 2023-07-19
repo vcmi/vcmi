@@ -153,8 +153,7 @@ EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)
 		{".VID",   EResType::ARCHIVE_VID},
 		{".SND",   EResType::ARCHIVE_SND},
 		{".PAL",   EResType::PALETTE},
-		{".VCGM1", EResType::CLIENT_SAVEGAME},
-		{".VSGM1", EResType::SERVER_SAVEGAME},
+		{".VSGM1", EResType::SAVEGAME},
 		{".ERM",   EResType::ERM},
 		{".ERT",   EResType::ERT},
 		{".ERS",   EResType::ERS},
@@ -191,8 +190,7 @@ std::string EResTypeHelper::getEResTypeAsString(EResType::Type type)
 		MAP_ENUM(ARCHIVE_SND)
 		MAP_ENUM(ARCHIVE_VID)
 		MAP_ENUM(PALETTE)
-		MAP_ENUM(CLIENT_SAVEGAME)
-		MAP_ENUM(SERVER_SAVEGAME)
+		MAP_ENUM(SAVEGAME)
 		MAP_ENUM(DIRECTORY)
 		MAP_ENUM(ERM)
 		MAP_ENUM(ERT)
