@@ -320,6 +320,12 @@
 			// period between restocking of "Black Market" object found on adventure map
 			"blackMarketRestockPeriod" : 0
 		},
+		
+		"banks" : 
+		{
+			// show guards composition when visiting creature banks
+			"showGuardsComposition" : true
+		},
 
 		"modules":
 		{
