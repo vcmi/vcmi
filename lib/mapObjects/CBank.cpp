@@ -137,8 +137,9 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	{
 		std::map<CreatureID, int> guardsAmounts;
 
-		for (auto const & guard : bc->guards)
-			guardsAmounts[guard.getType()->getId()] += guard.getCount();
+		for (auto const & slot : Slots())
+			if (slot.second)
+				guardsAmounts[slot.second->getCreatureID()] += slot.second->getCount();
 
 		for (auto const & guard : guardsAmounts)
 		{
