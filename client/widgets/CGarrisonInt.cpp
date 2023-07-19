@@ -347,29 +347,29 @@ void CGarrisonSlot::clickPressed(const Point & cursorPosition)
 
 void CGarrisonSlot::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
 {
-	if (!on)
+	if(!on)
 		return;
 
-	if (!myStack)
+	if(!myStack)
 		return;
+
+	const auto * otherArmy = upg == EGarrisonType::UPPER ? owner->lowerArmy() : owner->upperArmy();
 
 	bool stackExists = myStack != nullptr;
 	bool hasSameUnit = stackExists && !owner->army(upg)->getCreatureSlots(myStack->type, ID).empty();
-	bool hasEmptySlots = stackExists && owner->army(upg)->getFreeSlot() != SlotID();
+	bool hasOwnEmptySlots = stackExists && owner->army(upg)->getFreeSlot() != SlotID();
 	bool exchangeMode = stackExists && owner->upperArmy() && owner->lowerArmy();
+	bool hasOtherEmptySlots = exchangeMode && otherArmy->getFreeSlot() != SlotID();
+	bool hasAnyEmptySlots = hasOtherEmptySlots || hasOwnEmptySlots;
 
 	std::vector<RadialMenuConfig> menuElements = {
 		{ RadialMenuConfig::ITEM_NW, hasSameUnit, "stackMerge", "Merge same units", [this](){owner->bulkMergeStacks(this);} },
 		{ RadialMenuConfig::ITEM_NE, stackExists, "stackInfo", "Show unit information", [this](){viewInfo();} },
-		{ RadialMenuConfig::ITEM_WW, hasEmptySlots, "stackSplitOne", "Split off single unit", [this](){splitIntoParts(this->getGarrison(), 1); } },
-		{ RadialMenuConfig::ITEM_EE, hasEmptySlots, "stackSplitEqual", "Split unit equally", [this](){owner->bulkSmartSplitStack(this);} },
-		{ RadialMenuConfig::ITEM_SW, exchangeMode, "heroMove", "Move unit to another army", [this](){owner->moveStackToAnotherArmy(this);} },
+		{ RadialMenuConfig::ITEM_WW, hasOwnEmptySlots, "stackSplitOne", "Split off single unit", [this](){splitIntoParts(this->getGarrison(), 1); } },
+		{ RadialMenuConfig::ITEM_EE, hasOwnEmptySlots, "stackSplitEqual", "Split unit equally", [this](){owner->bulkSmartSplitStack(this);} },
+		{ RadialMenuConfig::ITEM_SW, hasOtherEmptySlots, "heroMove", "Move unit to another army", [this](){owner->moveStackToAnotherArmy(this);} },
+		{ RadialMenuConfig::ITEM_SE, hasAnyEmptySlots, "heroSwap", "Split unit to another slot", [this](){ owner->selectSlot(this); owner->splitClick();} },
 	};
-
-	// additional options to consider:
-	// - Ctrl + Shift + Click - splits from current stack, stacks of 1 in all free slots
-	// - Alt + Shift + Click - dismiss stack with confirmation window
-	// Split unit (same as button)
 
 	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
 }
