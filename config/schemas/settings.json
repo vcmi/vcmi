@@ -33,8 +33,12 @@
 				"extraDump",
 				"userRelativePointer",
 				"relativePointerSpeedMultiplier",
+				"hapticFeedback",
 				"longTouchTimeMilliseconds",
-				"hapticFeedback"
+				"autosaveCountLimit",
+				"useSavePrefix",
+				"savePrefix",
+				"startTurnAutosave"
 			],
 			"properties" : {
 				"playerName" : {
@@ -106,6 +110,22 @@
 				"hapticFeedback" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"autosaveCountLimit" : {
+					"type" : "number",
+					"default": 5
+				},
+				"useSavePrefix" : {
+					"type": "boolean",
+					"default": false
+				},
+				"savePrefix" : {
+					"type": "string",
+					"default": ""
+				},
+				"startTurnAutosave" : {
+					"type": "boolean",
+					"default": false
 				}
 			}
 		},

@@ -102,6 +102,13 @@ void CSettingsView::loadSettings()
 
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
 
+    ui->spinBoxAutoSaveLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
+
+    ui->checkBoxAutoSavePrefix->setChecked(settings["general"]["useSavePrefix"].Bool());
+
+    ui->lineEditAutoSavePrefix->setText(QString::fromStdString(settings["general"]["savePrefix"].String()));
+    ui->lineEditAutoSavePrefix->setEnabled(settings["general"]["useSavePrefix"].Bool());
+
 	Languages::fillLanguages(ui->comboBoxLanguage, false);
 
 	std::string cursorType = settings["video"]["cursor"].String();
@@ -498,5 +505,27 @@ void CSettingsView::on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &
 {
 	Settings node = settings.write["server"]["alliedAI"];
 	node->String() = arg1.toUtf8().data();
+}
+
+
+void CSettingsView::on_checkBoxAutoSavePrefix_stateChanged(int arg1)
+{
+    Settings node = settings.write["general"]["useSavePrefix"];
+    node->Bool() = arg1;
+    ui->lineEditAutoSavePrefix->setEnabled(arg1);
+}
+
+
+void CSettingsView::on_spinBoxAutoSaveLimit_valueChanged(int arg1)
+{
+    Settings node = settings.write["general"]["autosaveCountLimit"];
+    node->Float() = arg1;
+}
+
+
+void CSettingsView::on_lineEditAutoSavePrefix_textEdited(const QString &arg1)
+{
+    Settings node = settings.write["general"]["savePrefix"];
+    node->String() = arg1.toStdString();
 }
 

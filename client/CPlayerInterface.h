@@ -64,7 +64,6 @@ class CPlayerInterface : public CGameInterface, public IUpdateable
 	// -1 - just loaded game; 1 - just started game; 0 otherwise
 	int firstCall;
 	int autosaveCount;
-	static const int SAVES_COUNT = 5;
 
 	std::pair<const CCreatureSet *, const CCreatureSet *> lastBattleArmies;
 	bool allowBattleReplay = false;
@@ -203,9 +202,10 @@ public: // public interface for use by client via LOCPLINT access
 	void stopMovement();
 	void moveHero(const CGHeroInstance *h, const CGPath& path);
 
-	void tryDiggging(const CGHeroInstance *h);
+	void tryDigging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
 	void proposeLoadingGame();
+	void performAutosave();
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
@@ -237,8 +237,6 @@ private:
 	void doMoveHero(const CGHeroInstance *h, CGPath path);
 	void setMovementStatus(bool value);
 
-	/// Performs autosave, if needed according to settings
-	void performAutosave();
 };
 
 /// Provides global access to instance of interface of currently active player

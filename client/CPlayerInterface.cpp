@@ -56,6 +56,7 @@
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
+#include "../lib/mapping/CMapHeader.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/CStack.h"
 #include "../lib/JsonNode.h"
@@ -192,24 +193,37 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 
 void CPlayerInterface::performAutosave()
 {
-	std::string prefix = settings["session"]["saveprefix"].String();
 	int frequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
-	if(firstCall)
+	if(frequency > 0 && cb->getDate() % frequency == 0)
 	{
-		autosaveCount = getLastIndex(prefix + "Autosave_");
+		bool usePrefix = settings["general"]["useSavePrefix"].Bool();
+		std::string prefix = std::string();
 
-		if(firstCall > 0) //new game, not loaded
+		if(usePrefix)
 		{
-			int index = getLastIndex(prefix + "Newgame_");
-			index %= SAVES_COUNT;
-			cb->save("Saves/" + prefix + "Newgame_Autosave_" + std::to_string(index + 1));
+			prefix = settings["general"]["savePrefix"].String();
+			if(prefix.empty())
+			{
+				prefix = cb->getMapHeader()->name.substr(0, 5) + "_";
+			}
 		}
-		firstCall = 0;
-	}
-	else if(frequency > 0 && cb->getDate() % frequency == 0)
-	{
-		cb->save("Saves/" + prefix + "Autosave_" + std::to_string(autosaveCount++ + 1));
-		autosaveCount %= 5;
+
+		autosaveCount++;
+
+		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer();
+		if(autosaveCountLimit > 0)
+		{
+			cb->save("Saves/" + prefix + "Autosave_" + std::to_string(autosaveCount));
+			autosaveCount %= autosaveCountLimit;
+		}
+		else
+		{
+			std::string stringifiedDate = std::to_string(cb->getDate(Date::MONTH))
+					+ std::to_string(cb->getDate(Date::WEEK))
+					+ std::to_string(cb->getDate(Date::DAY_OF_WEEK));
+
+			cb->save("Saves/" + prefix + "Autosave_" + stringifiedDate);
+		}
 	}
 }
 
@@ -221,7 +235,10 @@ void CPlayerInterface::yourTurn()
 		GH.curInt = this;
 
 		NotificationHandler::notify("Your turn");
-		performAutosave();
+		if(settings["general"]["startTurnAutosave"].Bool())
+		{
+			performAutosave();
+		}
 
 		if (CSH->howManyPlayerInterfaces() > 1) //hot seat message
 		{
@@ -1676,7 +1693,7 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 		CCS->soundh->playSound(castSoundPath);
 }
 
-void CPlayerInterface::tryDiggging(const CGHeroInstance * h)
+void CPlayerInterface::tryDigging(const CGHeroInstance * h)
 {
 	int msgToShow = -1;
 

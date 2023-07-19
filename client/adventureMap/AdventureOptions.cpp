@@ -42,7 +42,7 @@ AdventureOptions::AdventureOptions()
 
 	dig = std::make_shared<CButton>(Point(24, 139), "ADVDIG.DEF", CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_DIG_GRAIL);
 	if(const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero())
-		dig->addCallback(std::bind(&CPlayerInterface::tryDiggging, LOCPLINT, h));
+		dig->addCallback(std::bind(&CPlayerInterface::tryDigging, LOCPLINT, h));
 	else
 		dig->block(true);
 }
