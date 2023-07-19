@@ -43,8 +43,6 @@ class RadialMenuItem : public CIntObject
 
 public:
 	RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback);
-
-	bool isInside(const Point & position);
 };
 
 class RadialMenu : public CIntObject
@@ -55,6 +53,7 @@ class RadialMenu : public CIntObject
 
 	void addItem(const Point & offset, const std::string & path, const std::string & hoverText, const std::function<void()> & callback);
 
+	std::shared_ptr<RadialMenuItem> findNearestItem(const Point & cursorPosition) const;
 public:
 	RadialMenu(const Point & positionToCenter, const std::vector<RadialMenuConfig> & menuConfig);
 

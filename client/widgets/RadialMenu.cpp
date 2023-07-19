@@ -28,13 +28,6 @@ RadialMenuItem::RadialMenuItem(const std::string & imageName, const std::string 
 	pos = picture->pos;
 }
 
-bool RadialMenuItem::isInside(const Point & position)
-{
-	Point localPosition = position - pos.topLeft();
-
-	return !image->isTransparent(localPosition);
-}
-
 RadialMenu::RadialMenu(const Point & positionToCenter, const std::vector<RadialMenuConfig> & menuConfig)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -67,34 +60,40 @@ void RadialMenu::addItem(const Point & offset, const std::string & path, const s
 	items.push_back(item);
 }
 
-void RadialMenu::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
+std::shared_ptr<RadialMenuItem> RadialMenu::findNearestItem(const Point & cursorPosition) const
 {
-	GH.statusbar()->clear();
+	int bestDistance = std::numeric_limits<int>::max();
+	std::shared_ptr<RadialMenuItem> bestItem;
 
 	for(const auto & item : items)
 	{
-		if (item->isInside(currentPosition))
+		Point vector = item->pos.center() - cursorPosition;
+
+		if (vector.length() < bestDistance)
 		{
-			GH.statusbar()->write(item->hoverText);
-			break;
+			bestDistance = vector.length();
+			bestItem = item;
 		}
 	}
+
+	assert(bestItem);
+	return bestItem;
+}
+
+void RadialMenu::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
+{
+	auto item = findNearestItem(currentPosition);
+	GH.statusbar()->write(item->hoverText);
 }
 
 void RadialMenu::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
 {
-	if (!on)
-	{
-		// we need to close this window first so if action spawns a new window it won't be closed instead
-		GH.windows().popWindows(1);
+	if (on)
+		return;
 
-		for(const auto & item : items)
-		{
-			if (item->isInside(finalPosition))
-			{
-				item->callback();
-				break;
-			}
-		}
-	}
+	auto item = findNearestItem(finalPosition);
+
+	// we need to close this window first so if action spawns a new window it won't be closed instead
+	GH.windows().popWindows(1);
+	item->callback();
 }
