@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "CGarrisonInt.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -80,6 +81,20 @@ public:
 	CHeroTooltip(Point pos, const CGHeroInstance * hero);
 };
 
+/// Class for HD mod-like interactable infobox tooltip. Does not have any background!
+class CInteractableHeroTooltip : public CGarrisonInt
+{
+	std::shared_ptr<CLabel> title;
+	std::shared_ptr<CAnimImage> portrait;
+	std::vector<std::shared_ptr<CLabel>> labels;
+	std::shared_ptr<CAnimImage> morale;
+	std::shared_ptr<CAnimImage> luck;
+
+	void init(const InfoAboutHero & hero);
+public:
+	CInteractableHeroTooltip(Point pos, const CGHeroInstance * hero);
+};
+
 /// Class for town tooltip. Does not have any background!
 /// background for infoBox: ADSTATCS
 /// background for tooltip: TOWNQVBK
@@ -97,6 +112,23 @@ class CTownTooltip : public CArmyTooltip
 public:
 	CTownTooltip(Point pos, const InfoAboutTown & town);
 	CTownTooltip(Point pos, const CGTownInstance * town);
+};
+
+/// Class for HD mod-like interactable infobox tooltip. Does not have any background!
+class CInteractableTownTooltip : public CGarrisonInt
+{
+	std::shared_ptr<CLabel> title;
+	std::shared_ptr<CAnimImage> fort;
+	std::shared_ptr<CAnimImage> hall;
+	std::shared_ptr<CAnimImage> build;
+	std::shared_ptr<CLabel> income;
+	std::shared_ptr<CPicture> garrisonedHero;
+	std::shared_ptr<CAnimImage> res1;
+	std::shared_ptr<CAnimImage> res2;
+
+	void init(const InfoAboutTown & town);
+public:
+	CInteractableTownTooltip(Point pos, const CGTownInstance * town);
 };
 
 /// draws picture with creature on background, use Animated=true to get animation

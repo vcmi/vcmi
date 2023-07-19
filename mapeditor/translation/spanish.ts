@@ -138,8 +138,8 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="921"/>
-        <source>Save as</source>
-        <translation>Guardar como</translation>
+        <source>Save as...</source>
+        <translation>Guardar como...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="924"/>
@@ -282,6 +282,11 @@
         <location filename="../mainwindow.ui" line="1225"/>
         <source>Player 8</source>
         <translation>Jugador 8</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="1233"/>
+        <source>Export as...</source>
+        <translation>Exportar como...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="346"/>

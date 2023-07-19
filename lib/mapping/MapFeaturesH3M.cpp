@@ -136,7 +136,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 	{
 		result.artifactsCount = 163; // + HotA artifacts
 		result.heroesCount = 178; // + Cove
-		result.heroesPortraitsCount = 185; // + Cove
+		result.heroesPortraitsCount = 186; // + Cove
 	}
 	if(hotaVersion == 3)
 	{

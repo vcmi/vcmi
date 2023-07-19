@@ -172,6 +172,15 @@ void EventDispatcher::dispatchClosePopup(const Point & position)
 
 void EventDispatcher::handleLeftButtonClick(const Point & position, bool isPressed)
 {
+	// WARNING: this approach is NOT SAFE
+	// 1) We allow (un)registering elements when list itself is being processed/iterated
+	// 2) To avoid iterator invalidation we create a copy of this list for processing
+	// HOWEVER it is completely possible (as in, actually happen, no just theory) to:
+	// 1) element gets unregistered and deleted from lclickable
+	// 2) element is completely deleted, as in - destructor called, memory freed
+	// 3) new element is created *with exactly same address(!)
+	// 4) new element is registered and code will incorrectly assume that this element is still registered
+	// POSSIBLE SOLUTION: make EventReceivers inherit from create_shared_from this and store weak_ptr's in lists
 	auto hlp = lclickable;
 	for(auto & i : hlp)
 	{

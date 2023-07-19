@@ -572,7 +572,14 @@ void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> ob
 		auto * town = dynamic_cast<const CGTownInstance*>(object);
 
 		if (hero)
+		{
 			adventureInt->onHeroChanged(hero);
+
+			if(hero->inTownGarrison)
+			{
+				adventureInt->onTownChanged(hero->visitedTown);
+			}
+		}
 		if (town)
 			adventureInt->onTownChanged(town);
 	}

@@ -86,7 +86,7 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	else
 		tacticPhaseEnded();
 
-	addUsedEvents(KEYBOARD);
+	addUsedEvents(LCLICK | KEYBOARD);
 }
 
 void BattleWindow::createQueue()
@@ -202,6 +202,16 @@ void BattleWindow::keyPressed(EShortcut key)
 		return;
 	}
 	InterfaceObjectConfigurable::keyPressed(key);
+}
+
+void BattleWindow::clickPressed(const Point & cursorPosition)
+{
+	if (owner.openingPlaying())
+	{
+		owner.openingEnd();
+		return;
+	}
+	InterfaceObjectConfigurable::clickPressed(cursorPosition);
 }
 
 void BattleWindow::tacticPhaseStarted()

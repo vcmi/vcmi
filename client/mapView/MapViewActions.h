@@ -22,7 +22,9 @@ class MapViewActions : public CIntObject
 	std::shared_ptr<MapViewModel> model;
 	std::shared_ptr<IMapRendererContext> context;
 
+	Point dragDistance;
 	double pinchZoomFactor;
+	bool dragActive;
 
 	void handleHover(const Point & cursorPosition);
 
@@ -32,11 +34,14 @@ public:
 	void setContext(const std::shared_ptr<IMapRendererContext> & context);
 
 	void clickPressed(const Point & cursorPosition) override;
+	void clickReleased(const Point & cursorPosition) override;
+	void clickCancel(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void gesturePinch(const Point & centerPosition, double lastUpdateFactor) override;
 	void hover(bool on) override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
+	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void wheelScrolled(int distance) override;
 };
