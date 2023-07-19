@@ -786,6 +786,9 @@ void CPlayerInterface::activeStack(const CStack * stack) //called when it's turn
 	{
 		if (isAutoFightOn)
 		{
+			//FIXME: we want client rendering to proceed while AI is making actions
+			// so unlock mutex while AI is busy since this might take quite a while, especially if hero has many spells
+			auto unlockPim = vstd::makeUnlockGuard(*pim);
 			autofightingAI->activeStack(stack);
 			return;
 		}

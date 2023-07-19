@@ -701,35 +701,39 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 {
 	assert(curInt->isAutoFightOn);
 
-	boost::thread aiThread([&]()
+	if(curInt->cb->battleIsFinished())
 	{
-		if(curInt->cb->battleIsFinished())
-		{
-			return; // battle finished with spellcast
-		}
+		return; // battle finished with spellcast
+	}
 
-		if (tacticsMode)
+	if (tacticsMode)
+	{
+		// Always end tactics mode. Player interface is blocked currently, so it's not possible that
+		// the AI can take any action except end tactics phase (AI actions won't be triggered)
+		//TODO implement the possibility that the AI will be triggered for further actions
+		//TODO any solution to merge tactics phase & normal phase in the way it is handled by the player and battle interface?
+		tacticPhaseEnd();
+		stacksController->setActiveStack(nullptr);
+	}
+	else
+	{
+		const CStack* activeStack = stacksController->getActiveStack();
+
+		// If enemy is moving, activeStack can be null
+		if (activeStack)
 		{
-			// Always end tactics mode. Player interface is blocked currently, so it's not possible that
-			// the AI can take any action except end tactics phase (AI actions won't be triggered)
-			//TODO implement the possibility that the AI will be triggered for further actions
-			//TODO any solution to merge tactics phase & normal phase in the way it is handled by the player and battle interface?
-			tacticPhaseEnd();
 			stacksController->setActiveStack(nullptr);
-		}
-		else
-		{
-			const CStack* activeStack = stacksController->getActiveStack();
 
-			// If enemy is moving, activeStack can be null
-			if (activeStack)
+			// FIXME: unsafe
+			// Run task in separate thread to avoid UI lock while AI is making turn (which might take some time)
+			// HOWEVER this thread won't atttempt to lock game state, potentially leading to races
+			boost::thread aiThread([&]()
+			{
 				curInt->autofightingAI->activeStack(activeStack);
-
-			stacksController->setActiveStack(nullptr);
+			});
+			aiThread.detach();
 		}
-	});
-
-	aiThread.detach();
+	}
 }
 
 void BattleInterface::castThisSpell(SpellID spellID)
