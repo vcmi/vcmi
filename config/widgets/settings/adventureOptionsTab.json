@@ -342,6 +342,9 @@
 					"text": "vcmi.adventureOptions.borderScroll.hover"
 				},
 				{
+					"text": "vcmi.adventureOptions.infoBarCreatureManagement.hover"
+				},
+				{
 					"text": "vcmi.adventureOptions.leftButtonDrag.hover",
 					"created" : "desktop"
 				}
