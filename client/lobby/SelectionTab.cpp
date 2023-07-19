@@ -131,7 +131,7 @@ static ESortBy getSortBySelectionScreen(ESelectionScreen Type)
 }
 
 SelectionTab::SelectionTab(ESelectionScreen Type)
-	: CIntObject(LCLICK | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}
+	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}
 {
 	OBJ_CONSTRUCTION;
 
@@ -322,6 +322,22 @@ void SelectionTab::clickDouble(const Point & cursorPosition)
 		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickPressed(cursorPosition);
 		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickReleased(cursorPosition);
 	}
+}
+
+void SelectionTab::showPopupWindow(const Point & cursorPosition)
+{
+    if(!curItems.size())
+		return;
+		
+    int position = getLine();
+	int py = position + slider->getValue();
+	
+	std::string text = "{" + curItems[py]->getName() + "}\n\n" + curItems[py]->fileURI;
+	
+	if(curItems[py]->date != "")
+	     text += "\n\n" + curItems[py]->date;
+	
+	CRClickPopup::createAndPush(text);
 }
 
 // A new size filter (Small, Medium, ...) has been selected. Populate
