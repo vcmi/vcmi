@@ -123,7 +123,7 @@
 		},
 		"onlyOnWaterMap" : {
 			"type" : "boolean",
-			"description" : "It true, artifact won't spawn on a map with water"
+			"description" : "It true, artifact won't spawn on a map without water"
 		}
 	}
 }
