@@ -69,7 +69,16 @@ void RadialMenu::addItem(const Point & offset, const std::string & path, const s
 
 void RadialMenu::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
+	GH.statusbar()->clear();
 
+	for(const auto & item : items)
+	{
+		if (item->isInside(currentPosition))
+		{
+			GH.statusbar()->write(item->hoverText);
+			break;
+		}
+	}
 }
 
 void RadialMenu::gesture(bool on, const Point & initialPosition, const Point & finalPosition)

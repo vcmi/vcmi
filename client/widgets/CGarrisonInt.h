@@ -106,7 +106,6 @@ public:
 
 	bool smallIcons;      ///< true - 32x32 imgs, false - 58x64
 	bool removableUnits;  ///< player Can remove units from up
-	bool twoRows;         ///< slots Will be placed in 2 rows
 
 	ESlotsLayout layout;
 
