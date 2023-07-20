@@ -332,10 +332,9 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 	if(py >= curItems.size())
 		return;
 	
-	std::string text = "{" + curItems[py]->getName() + "}\r\n\r\n";
-	text += CGI->generaltexth->translate("vcmi.lobby.filename") + ":\r\n" + curItems[py]->fileURI;
+	std::string text = boost::str(boost::format("{%1%}\r\n\r\n%2%:\r\n%3%") % curItems[py]->getName() % CGI->generaltexth->translate("vcmi.lobby.filename") % curItems[py]->fileURI);
 	if(curItems[py]->date != "")
-	     text += "\r\n\r\n" + CGI->generaltexth->translate("vcmi.lobby.creationDate") + ":\r\n" + curItems[py]->date;
+	    text += boost::str(boost::format("\r\n\r\n%1%:\r\n%2%") % CGI->generaltexth->translate("vcmi.lobby.creationDate") % curItems[py]->date);
 	
 	CRClickPopup::createAndPush(text);
 }
