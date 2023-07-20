@@ -190,6 +190,7 @@ void RandomMapTab::updateMapInfoByHost()
 			{
 				player.team = team;
 				occupiedTeams.insert(team);
+				break; //First assigned team is ok
 			}
 		}
 	}
@@ -206,8 +207,14 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	{
 		playerCountAllowed.insert(i);
 		compCountAllowed.insert(i);
-		playerTeamsAllowed.insert(i);
-		compTeamsAllowed.insert(i);
+		if (i >= 2)
+		{
+			playerTeamsAllowed.insert(i);
+		}
+		if (i >= 1)
+		{
+			compTeamsAllowed.insert(i);
+		}
 	}
 	auto * tmpl = mapGenOptions->getMapTemplate();
 	if(tmpl)
@@ -514,6 +521,25 @@ void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
 	GH.windows().popWindows(1);
 }
 
+void TeamAlignmentsWidget::checkTeamCount()
+{
+	//Do not allow to select one team only
+	std::set<TeamID> teams;
+	for (int plId = 0; plId < players.size(); ++plId)
+	{
+		teams.insert(TeamID(players[plId]->getSelected()));
+	}
+	if (teams.size() < 2)
+	{
+		//Do not let player close the window
+		buttonOk->block(true);
+	}
+	else
+	{
+		buttonOk->block(false);
+	}
+}
+
 TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	InterfaceObjectConfigurable()
 {
@@ -580,6 +606,10 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 				{
 					button->addOverlay(nullptr);
 				}
+				button->addCallback([this](bool)
+				{
+					checkTeamCount();
+				});
 			}
 		}));
 		
@@ -598,4 +628,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 		else
 			players.back()->setSelected(team.getNum());
 	}
+
+	buttonOk = widget<CButton>("buttonOK");
+	buttonCancel = widget<CButton>("buttonCancel");
 }
