@@ -326,10 +326,10 @@ void SelectionTab::clickDouble(const Point & cursorPosition)
 
 void SelectionTab::showPopupWindow(const Point & cursorPosition)
 {
-    if(!curItems.size())
+	if(!curItems.size())
 		return;
 		
-    int position = getLine();
+	int position = getLine();
 	int py = position + slider->getValue();
 	
 	std::string text = "{" + curItems[py]->getName() + "}\n\n" + curItems[py]->fileURI;
