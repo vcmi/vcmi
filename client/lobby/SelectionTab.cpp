@@ -326,17 +326,17 @@ void SelectionTab::clickDouble(const Point & cursorPosition)
 
 void SelectionTab::showPopupWindow(const Point & cursorPosition)
 {
-	if(!curItems.size())
-		return;
-		
 	int position = getLine();
 	int py = position + slider->getValue();
-	
+
+	if(py >= curItems.size())
+		return;
+
 	std::string text = "{" + curItems[py]->getName() + "}\n\n" + curItems[py]->fileURI;
-	
+
 	if(curItems[py]->date != "")
 	     text += "\n\n" + curItems[py]->date;
-	
+
 	CRClickPopup::createAndPush(text);
 }
 
