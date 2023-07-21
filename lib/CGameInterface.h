@@ -78,9 +78,8 @@ public:
 	virtual void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB){};
 
 	//battle call-ins
-	virtual BattleAction activeStack(const CStack * stack)=0; //called when it's turn of that stack
-	virtual void yourTacticPhase(int distance){}; //called when interface has opportunity to use Tactics skill -> use cb->battleMakeTacticAction from this function
-	virtual void forceEndTacticPhase(){}; //force the tatic phase to end to clean up the tactic phase thread
+	virtual void activeStack(const CStack * stack)=0; //called when it's turn of that stack
+	virtual void yourTacticPhase(int distance)=0; //called when interface has opportunity to use Tactics skill -> use cb->battleMakeTacticAction from this function
 };
 
 /// Central class for managing human player / AI interface logic
@@ -132,7 +131,6 @@ class DLL_LINKAGE CGlobalAI : public CGameInterface // AI class (to derivate)
 public:
 	std::shared_ptr<Environment> env;
 	CGlobalAI();
-	virtual BattleAction activeStack(const CStack * stack) override;
 };
 
 //class to  be inherited by adventure-only AIs, it cedes battle actions to given battle-AI
@@ -147,7 +145,7 @@ public:
 	virtual std::string getBattleAIName() const = 0; //has to return name of the battle AI to be used
 
 	//battle interface
-	virtual BattleAction activeStack(const CStack * stack) override;
+	virtual void activeStack(const CStack * stack) override;
 	virtual void yourTacticPhase(int distance) override;
 	virtual void battleNewRound(int round) override;
 	virtual void battleCatapultAttacked(const CatapultAttack & ca) override;

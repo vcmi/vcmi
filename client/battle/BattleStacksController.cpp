@@ -375,13 +375,11 @@ void BattleStacksController::updateBattleAnimations(uint32_t msPassed)
 	tickFrameBattleAnimations(msPassed);
 	vstd::erase(currentAnimations, nullptr);
 
-	if (hadAnimations && currentAnimations.empty())
-	{
-		//stackAmountBoxHidden.clear();
+	if (currentAnimations.empty())
 		owner.executeStagedAnimations();
-		if (currentAnimations.empty())
-			owner.onAnimationsFinished();
-	}
+
+	if (hadAnimations && currentAnimations.empty())
+		owner.onAnimationsFinished();
 
 	initializeBattleAnimations();
 }
@@ -403,11 +401,12 @@ void BattleStacksController::stackRemoved(uint32_t stackID)
 {
 	if (getActiveStack() && getActiveStack()->unitId() == stackID)
 	{
-		BattleAction *action = new BattleAction();
-		action->side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
-		action->actionType = EActionType::CANCEL;
-		action->stackNumber = getActiveStack()->unitId();
-		owner.givenCommand.setn(action);
+		BattleAction action;
+		action.side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
+		action.actionType = EActionType::CANCEL;
+		action.stackNumber = getActiveStack()->unitId();
+
+		LOCPLINT->cb->battleMakeUnitAction(action);
 		setActiveStack(nullptr);
 	}
 }

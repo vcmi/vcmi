@@ -28,7 +28,8 @@ public:
 	void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB) override;
 	void actionFinished(const BattleAction &action) override;//occurs AFTER every action taken by any stack or by the hero
 	void actionStarted(const BattleAction &action) override;//occurs BEFORE every action taken by any stack or by the hero
-	BattleAction activeStack(const CStack * stack) override; //called when it's turn of that stack
+	void activeStack(const CStack * stack) override; //called when it's turn of that stack
+	void yourTacticPhase(int distance) override;
 
 	void battleAttack(const BattleAttack *ba) override; //called when stack is performing attack
 	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged) override; //called when stack receives damage (after battleAttack())

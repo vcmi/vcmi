@@ -1474,6 +1474,7 @@ void NewObject::applyGs(CGameState *gs)
 	terrainType = t.terType->getId();
 
 	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
+
 	CGObjectInstance * o = handler->create();
 	handler->configureObject(o, gs->getRandomGenerator());
 	
@@ -1491,6 +1492,11 @@ void NewObject::applyGs(CGameState *gs)
 	}
 
 	assert(!handler->getTemplates(terrainType).empty());
+	if (handler->getTemplates().empty())
+	{
+		logGlobal->error("Attempt to create object (%d %d) with no templates!", ID, subID);
+		return;
+	}
 
 	if (!handler->getTemplates(terrainType).empty())
 		o->appearance = handler->getTemplates(terrainType).front();

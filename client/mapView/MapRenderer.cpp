@@ -145,6 +145,13 @@ void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & targ
 
 	const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
 
+	assert(image);
+	if (!image)
+	{
+		logGlobal->error("Failed to find image %d for terrain %s on tile %s", imageIndex, mapTile.terType->getNameTranslated(), coordinates.toString());
+		return;
+	}
+
 	for( auto const & element : mapTile.terType->paletteAnimation)
 		image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
 
