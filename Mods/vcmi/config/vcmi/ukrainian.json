@@ -13,14 +13,41 @@
 	"vcmi.adventureMap.monsterThreat.levels.10" : "Смертельна",
 	"vcmi.adventureMap.monsterThreat.levels.11" : "Неможлива",
 
-	"vcmi.adventureMap.moveCostDetails" : "Очки руху - Вартість: %TURNS ходів + %POINTS очок. Залишок очок: %REMAINING",
-	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Очки руху - Вартість: %POINTS очок, Залишок очок: %REMAINING",
-
 	"vcmi.adventureMap.confirmRestartGame"  : "Ви впевнені, що хочете перезапустити гру?",
 	"vcmi.adventureMap.noTownWithMarket"    : "Немає доступних ринків!",
 	"vcmi.adventureMap.noTownWithTavern"    : "Немає доступного міста з таверною!",
 	"vcmi.adventureMap.spellUnknownProblem" : "Невідома проблема з цим заклинанням, більше інформації немає.",
 	"vcmi.adventureMap.playerAttacked"      : "Гравця атаковано: %s",
+	"vcmi.adventureMap.moveCostDetails" : "Очки руху - Вартість: %TURNS ходів + %POINTS очок. Залишок очок: %REMAINING",
+	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Очки руху - Вартість: %POINTS очок, Залишок очок: %REMAINING",
+
+	"vcmi.capitalColors.0" : "Червоний",
+	"vcmi.capitalColors.1" : "Синій",
+	"vcmi.capitalColors.2" : "Сірий",
+	"vcmi.capitalColors.3" : "Зелений",
+	"vcmi.capitalColors.4" : "Оранжевий",
+	"vcmi.capitalColors.5" : "Бордовий",
+	"vcmi.capitalColors.6" : "Сизий",
+	"vcmi.capitalColors.7" : "Рожевий",
+
+	"vcmi.radialWheel.mergeSameUnit" : "Об'єднати однакових істот",
+	"vcmi.radialWheel.showUnitInformation" : "Показати відомості про істоту",
+	"vcmi.radialWheel.splitSingleUnit" : "Відділити одну істоту",
+	"vcmi.radialWheel.splitUnitEqually" : "Розділити істот порівну",
+	"vcmi.radialWheel.moveUnit" : "Перемістити істоту до іншої армії",
+	"vcmi.radialWheel.splitUnit" : "Розділити істоту в інший слот",
+
+	"vcmi.mainMenu.tutorialNotImplemented" : "Вибачте, навчання ще не реалізовано\n",
+	"vcmi.mainMenu.highscoresNotImplemented" : "Вибачте, таблицю рекордів ще не реалізовано\n",
+	"vcmi.mainMenu.serverConnecting" : "Підключення...",
+	"vcmi.mainMenu.serverAddressEnter" : "Вкажіть адресу:",
+	"vcmi.mainMenu.serverClosing" : "Завершення...",
+	"vcmi.mainMenu.hostTCP" : "Створити TCP/IP гру",
+	"vcmi.mainMenu.joinTCP" : "Приєднатися до TCP/IP гри",
+	"vcmi.mainMenu.playerName" : "Гравець",
+	
+	"vcmi.lobby.filename" : "Назва файлу",
+	"vcmi.lobby.creationDate" : "Дата створення",
 
 	"vcmi.server.errors.existingProcess"     : "Працює інший процес vcmiserver, будь ласка, спочатку завершіть його",
 	"vcmi.server.errors.modsIncompatibility" : "Потрібні модифікації для завантаження гри:",
@@ -57,6 +84,8 @@
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d мілісекунд",
 	"vcmi.systemOptions.framerateButton.hover"  : "Лічильник кадрів",
 	"vcmi.systemOptions.framerateButton.help"   : "{Лічильник кадрів}\n\n Перемикає видимість лічильника кадрів на секунду у кутку ігрового вікна",
+	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Тактильний відгук",
+	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Тактильний відгук}\n\Використовувати вібрацію при використанні сенсорного екрану",
 
 	"vcmi.adventureOptions.infoBarPick.help" : "{Повідомлення у панелі статусу}\n\nЗа можливості, повідомлення про відвідування об'єктів карти пригод будуть відображені у панелі статусу замість окремого вікна",
 	"vcmi.adventureOptions.infoBarPick.hover" : "Повідомлення у панелі статусу",
@@ -68,6 +97,8 @@
 	"vcmi.adventureOptions.showGrid.help" : "{Показувати сітку}\n\n Відображає сітку, що показує межі між клітинками на мапі пригод.",
 	"vcmi.adventureOptions.borderScroll.hover" : "Прокрутка по краю",
 	"vcmi.adventureOptions.borderScroll.help" : "{{Прокрутка по краю}\n\nПрокручувати мапу пригод, коли курсор знаходиться біля краю вікна. Цю функцію можна вимкнути, утримуючи клавішу CTRL.",
+	"vcmi.adventureOptions.infoBarCreatureManagement.hover" : "Керування істотами у вікні статусу",
+	"vcmi.adventureOptions.infoBarCreatureManagement.help" : "{Керування істотами у вікні статусу}\n\nДозволяє впорядковувати істот у вікні статусу замість циклічного перемикання між типовими компонентами",
 	"vcmi.adventureOptions.leftButtonDrag.hover" : "Переміщення мапи лівою кнопкою",
 	"vcmi.adventureOptions.leftButtonDrag.help" : "{Переміщення мапи лівою кнопкою}\n\nЯкщо увімкнено, переміщення миші з натиснутою лівою кнопкою буде перетягувати мапу пригод",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
@@ -96,11 +127,12 @@
 	"vcmi.battleOptions.movementHighlightOnHover.help": "{Підсвічувати зону руху істоти}\n\nПідсвічувати можливу зону руху істоти при наведенні курсора миші на неї",
 	"vcmi.battleOptions.rangeLimitHighlightOnHover.hover": "Межа повного шкоди пострілом",
 	"vcmi.battleOptions.rangeLimitHighlightOnHover.help": "{Межа повного шкоди пострілом}\n\nПідсвічувати зону у якій створіння може завдавати максимальної шкоди пострілом при наведенні на неї курсору миші.",
+	"vcmi.battleOptions.showStickyHeroInfoWindows.hover": "Показувати вікно інформації героя",
+	"vcmi.battleOptions.showStickyHeroInfoWindows.help": "{Показувати вікно інформації героя}\n\nЗавжди показувати вікно статистики героїв, що відображає первинні параметри та очки заклинань.",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Пропускати вступну музику",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Пропускати вступну музику}\n\n Пропускати коротку музику, яка грає на початку кожної битви перед початком дії. Також можна пропустити, натиснувши клавішу ESC.",
-	
+
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Натисніть будь-яку клавішу, щоб розпочати бій",
-	
 	"vcmi.battleWindow.damageEstimation.melee" : "Атакувати %CREATURE (%DAMAGE).",
 	"vcmi.battleWindow.damageEstimation.meleeKills" : "Атакувати %CREATURE (%DAMAGE, %KILLS).",
 	"vcmi.battleWindow.damageEstimation.ranged" : "Стріляти в %CREATURE (%SHOTS, %DAMAGE).",
@@ -112,11 +144,12 @@
 	"vcmi.battleWindow.damageEstimation.kills" : "%d загинуть",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d загине",
 
+	"vcmi.battleResultsWindow.applyResultsLabel" : "Прийняти результат бою",
+
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Показувати доступних істот",
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.help" : "{Показувати доступних істот}\n\n Показує істот, яких можна придбати, замість їхнього приросту у зведенні по місту (нижній лівий кут).",
 	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover" : "Показувати приріст істот",
 	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.help" : "{Показувати приріст істот}\n\n Показує щотижневий приріст істот, замість кількості яку можна придбати у зведенні по місту (нижній лівий кут).",
-
 	"vcmi.otherOptions.compactTownCreatureInfo.hover": "Компактне відображення істот у місті",
 	"vcmi.otherOptions.compactTownCreatureInfo.help": "{Компактне відображення істот у місті}\n\n Показує інформацію про істот у місті у зведенні по місту у більш компактному вигляді.",
 
