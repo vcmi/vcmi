@@ -52,10 +52,10 @@ public:
 class RadialMenu : public CIntObject
 {
 	std::vector<std::shared_ptr<RadialMenuItem>> items;
-
 	std::shared_ptr<CGStatusBar> statusBar;
-
 	std::shared_ptr<RadialMenuItem> selectedItem;
+
+	Point centerPosition;
 
 	void addItem(const Point & offset, bool enabled, const std::string & path, const std::string & hoverText, const std::function<void()> & callback);
 

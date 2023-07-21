@@ -41,7 +41,8 @@ void RadialMenuItem::setSelected(bool selected)
 	inactiveImage->setEnabled(!selected);
 }
 
-RadialMenu::RadialMenu(const Point & positionToCenter, const std::vector<RadialMenuConfig> & menuConfig)
+RadialMenu::RadialMenu(const Point & positionToCenter, const std::vector<RadialMenuConfig> & menuConfig):
+	centerPosition(positionToCenter)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos += positionToCenter;
@@ -78,6 +79,12 @@ void RadialMenu::addItem(const Point & offset, bool enabled, const std::string &
 
 std::shared_ptr<RadialMenuItem> RadialMenu::findNearestItem(const Point & cursorPosition) const
 {
+	static const int requiredDistanceFromCenter = 45;
+
+	// cursor is inside centeral area -> no selection
+	if ((centerPosition - cursorPosition).length() < requiredDistanceFromCenter)
+		return nullptr;
+
 	int bestDistance = std::numeric_limits<int>::max();
 	std::shared_ptr<RadialMenuItem> bestItem;
 
@@ -98,16 +105,23 @@ std::shared_ptr<RadialMenuItem> RadialMenu::findNearestItem(const Point & cursor
 
 void RadialMenu::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
-	auto item = findNearestItem(currentPosition);
-	GH.statusbar()->write(item->hoverText);
+	auto newSelection = findNearestItem(currentPosition);
 
-	if (item != selectedItem)
+
+	if (newSelection != selectedItem)
 	{
 		if (selectedItem)
 			selectedItem->setSelected(false);
 
-		item->setSelected(true);
-		selectedItem = item;
+		if (newSelection)
+		{
+			GH.statusbar()->write(newSelection->hoverText);
+			newSelection->setSelected(true);
+		}
+		else
+			GH.statusbar()->clear();
+
+		selectedItem = newSelection;
 
 		GH.windows().totalRedraw();
 	}
@@ -122,5 +136,6 @@ void RadialMenu::gesture(bool on, const Point & initialPosition, const Point & f
 
 	// we need to close this window first so if action spawns a new window it won't be closed instead
 	GH.windows().popWindows(1);
-	item->callback();
+	if (item)
+		item->callback();
 }
