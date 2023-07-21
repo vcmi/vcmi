@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../widgets/CWindowWithArtifacts.h"
-#include "../widgets/CGarrisonInt.h"
+#include "CWindowObject.h"
 
 class CButton;
 class CAnimImage;
@@ -27,6 +27,7 @@ class MoraleLuckBox;
 class CListBox;
 class CTabbedInt;
 class CGStatusBar;
+class CGarrisonInt;
 
 class CKingdHeroList;
 class CKingdTownList;
@@ -195,7 +196,7 @@ public:
 };
 
 /// Class which holds all parts of kingdom overview window
-class CKingdomInterface : public CWindowObject, public CGarrisonHolder, public CArtifactHolder
+class CKingdomInterface : public CWindowObject, public IGarrisonHolder, public CArtifactHolder
 {
 private:
 	struct OwnedObjectInfo
@@ -255,7 +256,7 @@ public:
 };
 
 /// List item with town
-class CTownItem : public CIntObject, public CGarrisonHolder
+class CTownItem : public CIntObject, public IGarrisonHolder
 {
 	std::shared_ptr<CAnimImage> background;
 	std::shared_ptr<CAnimImage> picture;
@@ -282,7 +283,7 @@ public:
 };
 
 /// List item with hero
-class CHeroItem : public CIntObject, public CGarrisonHolder
+class CHeroItem : public CIntObject, public IGarrisonHolder
 {
 	const CGHeroInstance * hero;
 
@@ -315,7 +316,7 @@ public:
 };
 
 /// Tab with all hero-specific data
-class CKingdHeroList : public CIntObject, public CGarrisonHolder, public CWindowWithArtifacts
+class CKingdHeroList : public CIntObject, public IGarrisonHolder, public CWindowWithArtifacts
 {
 private:
 	std::shared_ptr<CListBox> heroes;
@@ -331,7 +332,7 @@ public:
 };
 
 /// Tab with all town-specific data
-class CKingdTownList : public CIntObject, public CGarrisonHolder
+class CKingdTownList : public CIntObject, public IGarrisonHolder
 {
 private:
 	std::shared_ptr<CListBox> towns;

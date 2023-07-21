@@ -31,6 +31,7 @@
 #include "../gui/WindowHandler.h"
 
 #include "../widgets/CComponent.h"
+#include "../widgets/CGarrisonInt.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CreatureCostBox.h"
 #include "../widgets/Buttons.h"
@@ -968,7 +969,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	//garrison interface
 
-	garr = std::make_shared<CGarrisonInt>(69, qeLayout ? 122 : 131, 4, Point(418,0), heroInst[0], heroInst[1], true, true);
+	garr = std::make_shared<CGarrisonInt>(Point(69, qeLayout ? 122 : 131), 4, Point(418,0), heroInst[0], heroInst[1], true, true);
 	auto splitButtonCallback = [&](){ garr->splitClick(); };
 	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, qeLayout ? 122 : 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
 	garr->addSplitBtn(std::make_shared<CButton>( Point(744, qeLayout ? 122 : 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
@@ -1351,7 +1352,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	garr = std::make_shared<CGarrisonInt>(92, 127, 4, Point(0,96), up, down, removableUnits);
+	garr = std::make_shared<CGarrisonInt>(Point(92, 127), 4, Point(0,96), up, down, removableUnits);
 	{
 		auto split = std::make_shared<CButton>(Point(88, 314), "IDV6432.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3], ""), [&](){ garr->splitClick(); } );
 		garr->addSplitBtn(split);
@@ -1424,7 +1425,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 	quit = std::make_shared<CButton>(Point(294, 275), "IOKAY.DEF", CButton::tooltip(), std::bind(&CHillFortWindow::close, this), EShortcut::GLOBAL_ACCEPT);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	garr = std::make_shared<CGarrisonInt>(108, 60, 18, Point(), hero, nullptr);
+	garr = std::make_shared<CGarrisonInt>(Point(108, 60), 18, Point(), hero, nullptr);
 	updateGarrisons();
 }
 

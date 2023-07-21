@@ -20,6 +20,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/CGarrisonInt.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Buttons.h"
@@ -646,7 +647,7 @@ void CKingdomInterface::heroRemoved()
 
 void CKingdomInterface::updateGarrisons()
 {
-	if(auto garrison = std::dynamic_pointer_cast<CGarrisonHolder>(tabArea->getItem()))
+	if(auto garrison = std::dynamic_pointer_cast<IGarrisonHolder>(tabArea->getItem()))
 		garrison->updateGarrisons();
 }
 
@@ -692,7 +693,7 @@ void CKingdHeroList::updateGarrisons()
 {
 	for(std::shared_ptr<CIntObject> object : heroes->getItems())
 	{
-		if(CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(object.get()))
+		if(IGarrisonHolder * garrison = dynamic_cast<IGarrisonHolder*>(object.get()))
 			garrison->updateGarrisons();
 	}
 }
@@ -744,7 +745,7 @@ void CKingdTownList::updateGarrisons()
 {
 	for(std::shared_ptr<CIntObject> object : towns->getItems())
 	{
-		if(CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(object.get()))
+		if(IGarrisonHolder * garrison = dynamic_cast<IGarrisonHolder*>(object.get()))
 			garrison->updateGarrisons();
 	}
 }
@@ -772,7 +773,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	hall = std::make_shared<CTownInfo>( 69, 31, town, true);
 	fort = std::make_shared<CTownInfo>(111, 31, town, false);
 
-	garr = std::make_shared<CGarrisonInt>(313, 3, 4, Point(232,0), town->getUpperArmy(), town->visitingHero, true, true, CGarrisonInt::ESlotsLayout::TWO_ROWS);
+	garr = std::make_shared<CGarrisonInt>(Point(313, 3), 4, Point(232,0), town->getUpperArmy(), town->visitingHero, true, true, CGarrisonInt::ESlotsLayout::TWO_ROWS);
 	heroes = std::make_shared<HeroSlots>(town, Point(244,6), Point(475,6), garr, false);
 
 	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
@@ -790,8 +791,8 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 void CTownItem::updateGarrisons()
 {
 	garr->selectSlot(nullptr);
-	garr->setArmy(town->getUpperArmy(), 0);
-	garr->setArmy(town->visitingHero, 1);
+	garr->setArmy(town->getUpperArmy(), EGarrisonType::UPPER);
+	garr->setArmy(town->visitingHero, EGarrisonType::LOWER);
 	garr->recreateSlots();
 }
 
@@ -913,7 +914,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	artButtons->addCallback(std::bind(&CHeroItem::onArtChange, this, _1));
 	artButtons->setSelected(0);
 
-	garr = std::make_shared<CGarrisonInt>(6, 78, 4, Point(), hero, nullptr, true, true);
+	garr = std::make_shared<CGarrisonInt>(Point(6, 78), 4, Point(), hero, nullptr, true, true);
 
 	portrait = std::make_shared<CAnimImage>("PortraitsLarge", hero->portrait, 0, 5, 6);
 	heroArea = std::make_shared<CHeroArea>(5, 6, hero);

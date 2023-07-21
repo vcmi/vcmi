@@ -143,6 +143,12 @@ protected:
 	void close();
 };
 
+class IGarrisonHolder
+{
+public:
+	virtual void updateGarrisons() = 0;
+};
+
 class IStatusBar
 {
 public:

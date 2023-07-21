@@ -107,6 +107,7 @@ set(client_SRCS
 	widgets/CArtifactsOfHeroMarket.cpp
 	widgets/CArtifactsOfHeroBackpack.cpp
 	widgets/CWindowWithArtifacts.cpp
+	widgets/RadialMenu.cpp
 
 	windows/CCastleInterface.cpp
 	windows/CCreatureWindow.cpp
@@ -262,6 +263,7 @@ set(client_HEADERS
 	widgets/CArtifactsOfHeroMarket.h
 	widgets/CArtifactsOfHeroBackpack.h
 	widgets/CWindowWithArtifacts.h
+	widgets/RadialMenu.h
 
 	windows/CCastleInterface.h
 	windows/CCreatureWindow.h

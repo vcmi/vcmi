@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../widgets/CGarrisonInt.h"
+#include "../windows/CWindowObject.h"
 
 class CButton;
 class CreatureCostBox;

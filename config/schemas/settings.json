@@ -3,7 +3,7 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "battle", "server", "logging", "launcher", "gameTweaks" ],
+	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "gameTweaks" ],
 	"definitions" : {
 		"logLevelEnum" : {
 			"type" : "string",
@@ -204,6 +204,18 @@
 					"defaultIOS" : 30, // reduce battery usage
 					"defaultAndroid" : 30, // reduce battery usage
 					"default" : 60
+				}
+			}
+		},
+		"input" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"default" : {},
+			"required" : [ "radialWheelGarrisonSwipe" ],
+			"properties" : {
+				"radialWheelGarrisonSwipe" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},

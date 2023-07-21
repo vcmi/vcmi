@@ -67,6 +67,11 @@ public:
 		return *this;
 	}
 
+	constexpr Point operator-() const
+	{
+		return Point(-x, -y);
+	}
+
 	template<typename T>
 	constexpr Point operator-(const T &b) const
 	{

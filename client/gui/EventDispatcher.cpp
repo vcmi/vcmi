@@ -243,34 +243,42 @@ void EventDispatcher::dispatchGesturePanningStarted(const Point & initialPositio
 
 	for(auto it : copied)
 	{
-		if (it->receiveEvent(initialPosition, AEventsReceiver::GESTURE))
+		if (!vstd::contains(panningInterested, it))
+			continue;
+
+		if (!it->isGesturing() && it->receiveEvent(initialPosition, AEventsReceiver::GESTURE))
 		{
-			it->gesture(true, initialPosition, initialPosition);
 			it->panningState = true;
+			it->gesture(true, initialPosition, initialPosition);
 		}
 	}
 }
 
 void EventDispatcher::dispatchGesturePanningEnded(const Point & initialPosition, const Point & finalPosition)
 {
+	dispatchGesturePanningStarted(initialPosition);
 	auto copied = panningInterested;
 
 	for(auto it : copied)
 	{
 		if (it->isGesturing())
 		{
-			it->gesture(false, initialPosition, finalPosition);
 			it->panningState = false;
+			it->gesture(false, initialPosition, finalPosition);
 		}
 	}
 }
 
 void EventDispatcher::dispatchGesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
+	dispatchGesturePanningStarted(initialPosition);
 	auto copied = panningInterested;
 
 	for(auto it : copied)
 	{
+		if (!vstd::contains(panningInterested, it))
+			continue;
+
 		if (it->isGesturing())
 			it->gesturePanning(initialPosition, currentPosition, lastUpdateDistance);
 	}
@@ -303,16 +311,16 @@ void EventDispatcher::dispatchMouseMoved(const Point & distance, const Point & p
 		{
 			if (elem->isHovered())
 			{
-				elem->hover(false);
 				elem->hoveredState = false;
+				elem->hover(false);
 			}
 		}
 	}
 
 	for(auto & elem : newlyHovered)
 	{
-		elem->hover(true);
 		elem->hoveredState = true;
+		elem->hover(true);
 	}
 
 	//sending active, MotionInterested objects mouseMoved() call
