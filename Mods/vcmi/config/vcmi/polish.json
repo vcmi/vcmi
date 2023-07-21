@@ -168,7 +168,7 @@
 	"vcmi.questLog.hideComplete.hover" : "Ukryj ukończone misje",
 	"vcmi.questLog.hideComplete.help"  : "Ukrywa wszystkie misje, które zostały zakończone",
 
-	"vcmi.randomMapTab.widgets.defaultTemplate"      : "domyślny",
+	"vcmi.randomMapTab.widgets.defaultTemplate"      : "(Losowy)",
 	"vcmi.randomMapTab.widgets.templateLabel"        : "Szablon",
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Ustaw...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Sojusze",
