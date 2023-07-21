@@ -297,7 +297,10 @@ CTownRewardableBuilding::CTownRewardableBuilding(const BuildingID & index, Build
 void CTownRewardableBuilding::initObj(CRandomGenerator & rand)
 {
 	assert(town && town->town);
-	town->town->buildings.at(bID)->rewardableObjectInfo.configureObject(configuration, rand);
+
+	auto building = town->town->buildings.at(bID);
+
+	building->rewardableObjectInfo.configureObject(configuration, rand);
 	for(auto & rewardInfo : configuration.info)
 	{
 		for (auto & bonus : rewardInfo.reward.bonuses)

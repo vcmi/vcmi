@@ -18,7 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void CRewardableConstructor::initTypeData(const JsonNode & config)
 {
-	objectInfo.init(config);
+	objectInfo.init(config, getBaseTextID());
 	blockVisit = config["blockedVisitable"].Bool();
 
 	if (!config["name"].isNull())

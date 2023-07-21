@@ -460,6 +460,21 @@ const JsonNode & JsonNode::operator[](const std::string & child) const
 	return nullNode;
 }
 
+JsonNode & JsonNode::operator[](size_t child)
+{
+	if (child >= Vector().size() )
+		Vector().resize(child + 1);
+	return Vector()[child];
+}
+
+const JsonNode & JsonNode::operator[](size_t child) const
+{
+	if (child < Vector().size() )
+		return Vector()[child];
+
+	return nullNode;
+}
+
 const JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer) const
 {
 	return ::resolvePointer(*this, jsonPointer);

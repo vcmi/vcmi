@@ -10,33 +10,33 @@
 
 #include "StdInc.h"
 #include "Info.h"
+
+#include "Configuration.h"
 #include "Limiter.h"
 #include "Reward.h"
-#include "Configuration.h"
 
-#include "../CCreatureSet.h"
-#include "../CRandomGenerator.h"
-#include "../StringConstants.h"
-#include "../CCreatureHandler.h"
-#include "../CModHandler.h"
-#include "../NetPacksBase.h"
-#include "../JsonRandom.h"
-#include "../IGameCallback.h"
 #include "../CGeneralTextHandler.h"
-#include "../JsonNode.h"
+#include "../CModHandler.h"
 #include "../IGameCallback.h"
+#include "../JsonRandom.h"
 #include "../mapObjects/IObjectInterface.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace {
-	MetaString loadMessage(const JsonNode & value)
+	MetaString loadMessage(const JsonNode & value, const TextIdentifier & textIdentifier )
 	{
 		MetaString ret;
 		if (value.isNumber())
+		{
 			ret.appendLocalString(EMetaText::ADVOB_TXT, static_cast<ui32>(value.Float()));
-		else
-			ret.appendRawString(value.String());
+			return ret;
+		}
+
+		if (value.String().empty())
+			return ret;
+
+		ret.appendTextID(textIdentifier.get());
 		return ret;
 	}
 
@@ -51,9 +51,38 @@ namespace {
 	}
 }
 
-void Rewardable::Info::init(const JsonNode & objectConfig)
+void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & objectName)
 {
+	objectTextID = objectName;
+
+	auto loadString = [&](const JsonNode & entry, const TextIdentifier & textID){
+		if (entry.isString() && !entry.String().empty())
+			VLC->generaltexth->registerString(entry.meta, textID, entry.String());
+	};
+
 	parameters = objectConfig;
+
+	for(size_t i = 0; i < parameters["rewards"].Vector().size(); ++i)
+	{
+		const JsonNode message = parameters["rewards"][i]["message"];
+		loadString(message, TextIdentifier(objectName, "rewards", i));
+	}
+
+	for(size_t i = 0; i < parameters["onVisited"].Vector().size(); ++i)
+	{
+		const JsonNode message = parameters["onVisited"][i]["message"];
+		loadString(message, TextIdentifier(objectName, "onVisited", i));
+	}
+
+	for(size_t i = 0; i < parameters["onEmpty"].Vector().size(); ++i)
+	{
+		const JsonNode message = parameters["onEmpty"][i]["message"];
+		loadString(message, TextIdentifier(objectName, "onEmpty", i));
+	}
+
+	loadString(parameters["onSelectMessage"], TextIdentifier(objectName, "onSelect"));
+	loadString(parameters["onVisitedMessage"], TextIdentifier(objectName, "onVisited"));
+	loadString(parameters["onEmptyMessage"], TextIdentifier(objectName, "onEmpty"));
 }
 
 Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Configuration & object, CRandomGenerator & rng, const JsonNode & source) const
@@ -157,10 +186,13 @@ void Rewardable::Info::configureRewards(
 		CRandomGenerator & rng, const
 		JsonNode & source,
 		std::map<si32, si32> & thrownDice,
-		Rewardable::EEventType event ) const
+		Rewardable::EEventType event,
+		const std::string & modeName) const
 {
-	for (const JsonNode & reward : source.Vector())
+	for(size_t i = 0; i < source.Vector().size(); ++i)
 	{
+		const JsonNode reward = source.Vector()[i];
+
 		if (!reward["appearChance"].isNull())
 		{
 			JsonNode chance = reward["appearChance"];
@@ -188,7 +220,7 @@ void Rewardable::Info::configureRewards(
 		configureReward(object, rng, info.reward, reward);
 
 		info.visitType = event;
-		info.message = loadMessage(reward["message"]);
+		info.message = loadMessage(reward["message"], TextIdentifier(objectTextID, modeName, i));
 
 		for (const auto & artifact : info.reward.artifacts )
 			info.message.replaceLocalString(EMetaText::ART_NAMES, artifact.getNum());
@@ -206,17 +238,17 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 
 	std::map<si32, si32> thrownDice;
 
-	configureRewards(object, rng, parameters["rewards"], thrownDice, Rewardable::EEventType::EVENT_FIRST_VISIT);
-	configureRewards(object, rng, parameters["onVisited"], thrownDice, Rewardable::EEventType::EVENT_ALREADY_VISITED);
-	configureRewards(object, rng, parameters["onEmpty"], thrownDice, Rewardable::EEventType::EVENT_NOT_AVAILABLE);
+	configureRewards(object, rng, parameters["rewards"], thrownDice, Rewardable::EEventType::EVENT_FIRST_VISIT, "rewards");
+	configureRewards(object, rng, parameters["onVisited"], thrownDice, Rewardable::EEventType::EVENT_ALREADY_VISITED, "onVisited");
+	configureRewards(object, rng, parameters["onEmpty"], thrownDice, Rewardable::EEventType::EVENT_NOT_AVAILABLE, "onEmpty");
 
-	object.onSelect   = loadMessage(parameters["onSelectMessage"]);
+	object.onSelect   = loadMessage(parameters["onSelectMessage"], TextIdentifier(objectTextID, "onSelect"));
 
 	if (!parameters["onVisitedMessage"].isNull())
 	{
 		Rewardable::VisitInfo onVisited;
 		onVisited.visitType = Rewardable::EEventType::EVENT_ALREADY_VISITED;
-		onVisited.message = loadMessage(parameters["onVisitedMessage"]);
+		onVisited.message = loadMessage(parameters["onVisitedMessage"], TextIdentifier(objectTextID, "onVisited"));
 		object.info.push_back(onVisited);
 	}
 
@@ -224,7 +256,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, CRand
 	{
 		Rewardable::VisitInfo onEmpty;
 		onEmpty.visitType = Rewardable::EEventType::EVENT_NOT_AVAILABLE;
-		onEmpty.message = loadMessage(parameters["onEmptyMessage"]);
+		onEmpty.message = loadMessage(parameters["onEmptyMessage"], TextIdentifier(objectTextID, "onEmpty"));
 		object.info.push_back(onEmpty);
 	}
 
