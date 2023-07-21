@@ -81,6 +81,7 @@ void GameSettings::load(const JsonNode & input)
 		{EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS,         "mapFormat", "inTheWakeOfGods"            },
 		{EGameSettings::MAP_FORMAT_JSON_VCMI,                   "mapFormat", "jsonVCMI"                   },
 		{EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD,    "markets",   "blackMarketRestockPeriod"   },
+		{EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION,          "banks",     "showGuardsComposition"      },
 		{EGameSettings::MODULE_COMMANDERS,                      "modules",   "commanders"                 },
 		{EGameSettings::MODULE_STACK_ARTIFACT,                  "modules",   "stackArtifact"              },
 		{EGameSettings::MODULE_STACK_EXPERIENCE,                "modules",   "stackExperience"            },

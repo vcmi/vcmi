@@ -17,6 +17,7 @@
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
+#include "../GameSettings.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../IGameCallback.h"
@@ -131,6 +132,26 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	bd.text.appendLocalString(EMetaText::ADVOB_TXT, banktext);
 	if (banktext == 32)
 		bd.text.replaceRawString(getObjectName());
+
+	if (VLC->settings()->getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION))
+	{
+		std::map<CreatureID, int> guardsAmounts;
+
+		for (auto const & slot : Slots())
+			if (slot.second)
+				guardsAmounts[slot.second->getCreatureID()] += slot.second->getCount();
+
+		for (auto const & guard : guardsAmounts)
+		{
+			Component comp;
+			comp.id = Component::EComponentType::CREATURE;
+			comp.subtype = guard.first.getNum();
+			comp.val = guard.second;
+
+			bd.components.push_back(comp);
+		}
+	}
+
 	cb->showBlockingDialog(&bd);
 }
 
