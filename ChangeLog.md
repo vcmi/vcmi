@@ -13,11 +13,16 @@
 * All in-game cheats are now case-insensitive
 * Added high-definition icon for Windows
 * Fix crash on connecting to server on FreeBSD and Flatpak builds
+* Save games now consist of a single file
+* Added H3:SOD cheat codes as alternative to vcmi cheats
+* Fixed several possible crashes caused by autocombat activation
+* Fixed artifact lock icon in localized versions of the game
 
 ### TOUCHSCREEN SUPPORT:
 * VCMI will now properly recognizes touch screen input
 * Implemented long tap gesture that shows popup window. Tap once more to close popup
 * Long tap gesture duration can now be configured in settings
+* Implemented radial menu for army management, activated via swiping creature icon
 * Implemented swipe gesture for scrolling through lists
 * All windows that have sliders in UI can now be scrolled using swipe gesture
 * Implemented swipe gesture for attack direction selection: swipe from enemy position to position you want to attack from
@@ -30,6 +35,7 @@
 * Added separate options for Allied AI and Enemy AI for adventure map
 * Patially fixed displaying of download progress for mods
 * Fixed potential crash on opening mod information for mods with a changelog
+* Added option to configure number of autosaves
 
 ### MAP EDITOR:
 * Fixed crash on cutting random town
@@ -43,6 +49,7 @@
 * Fixed potentially infinite turns (VCAI)
 
 ### GAME MECHANICS
+* Hero retreating after end of 7th turn will now correctly appear in tavern
 * Implemented hero backpack limit (disabled by default)
 * Fixed Admiral's Hat movement points calculation
 * It is now possible to access Shipwrecks from coast
@@ -70,10 +77,12 @@
 * Improved zone placement, shape and connections
 * Improved zone passability for better gameplay
 * Improved treasure distribution and treasure values to match SoD closely
+* Navigation and water-specific spells are now banned on maps without water
 * RMG will now respect road settings set in menu
 * Tweaked many original templates so they allow new terrains and factions
 * Added "bannedTowns", "bannedTerrains", "bannedMonsters" zone properties
 * Added "road" property to connections
+* Added monster strength "none"
 * Support for "wide" connections
 * Support for new "fictive" and "repulsive" connections
 * RMG will now run faster, utilizing many CPU cores
@@ -81,6 +90,8 @@
 ### INTERFACE:
 * Adventure map is now scalable and can be used with any resolution without mods
 * Adventure map interface is now correctly blocked during enemy turn
+* Visiting creature banks will now show amount of guards in bank
+* It is now possible to arrange army using status window
 * It is now possible to zoom in or out using mouse wheel or pinch gesture
 * It is now possible to reset zoom via Backspace hotkey
 * Receiving a message in chat will now play sound
@@ -92,10 +103,14 @@
 * Fixed highlighting of possible artifact placements when exchanging with allied hero
 * Implemented sound of flying movement (for Fly spell or Angel Wings)
 * Last symbol of entered cheat/chat message will no longer trigger hotkey
+* Right-clicking map name in scenario selection will now show file name
+* Right-clicking save game in save/load screen will now show file name and creation date
 
 ### BATTLES:
 * Implemented Tower moat (Land Mines)
 * Implemented defence reduction for units in moat
+* Added option to always show hero status window
+* Battle opening sound can now be skipped with mouse click
 * Fixed movement through moat of double-hexed units
 * Fixed removal of Land Mines and Fire Walls
 * Obstacles will now corectly show up either below or above unit
@@ -123,6 +138,7 @@
 * Removed bonuses (SCHOOL)_SPELLS - replaced with SPELLS_OF_SCHOOL
 * Removed DIRECT_DAMAGE_IMMUNITY bonus - replaced by 100% spell damage resistance
 * MAGIC_SCHOOL_SKILL subtype has been changed for consistency with other spell school bonuses
+* Configurable objects can now be translated
 
 # 1.2.0 -> 1.2.1
 
