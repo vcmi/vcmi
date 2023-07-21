@@ -171,6 +171,14 @@
 		"index" : {
 			"type" : "number",
 			"description" : "Private field to break things, do not use."
+		},
+		"onlyOnWaterMap" : {
+			"type" : "boolean",
+			"description" : "It true, hero won't show up on a map with water"
+		},
+		"onlyOnMapWithoutWater" : {
+			"type" : "boolean",
+			"description" : "It true, hero will show up only if the map contains no water"
 		}
 	}
 }

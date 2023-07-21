@@ -199,6 +199,8 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 	auto * skill = new CSkill(SecondarySkill((si32)index), identifier, major, minor);
 	skill->modScope = scope;
 
+	skill->onlyOnWaterMap = json["onlyOnWaterMap"].Bool();
+
 	VLC->generaltexth->registerString(scope, skill->getNameTextID(), json["name"].String());
 	switch(json["gainChance"].getType())
 	{

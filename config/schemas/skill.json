@@ -97,5 +97,9 @@
 		"expert" : {
 			"$ref" : "#/definitions/skillBonus"
 		}
+	},
+	"onlyOnWaterMap" : {
+		"type" : "boolean",
+		"description" : "It true, skill won't be available on a map without water"
 	}
 }

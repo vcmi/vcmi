@@ -106,6 +106,14 @@ public:
 	void moveObject(CGObjectInstance * obj, const int3 & dst);
 	void removeObject(CGObjectInstance * obj);
 
+	bool isWaterMap() const;
+	bool calculateWaterContent();
+	void banWaterArtifacts();
+	void banWaterHeroes();
+	void banHero(const HeroTypeID& id);
+	void banWaterSpells();
+	void banWaterSkills();
+	void banWaterContent();
 
 	/// Gets object of specified type on requested position
 	const CGObjectInstance * getObjectiveObjectFrom(const int3 & pos, Obj::EObj type);
@@ -120,7 +128,7 @@ public:
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;
-	std::vector<bool> allowedSpell;
+	std::vector<bool> allowedSpells;
 	std::vector<bool> allowedArtifact;
 	std::vector<bool> allowedAbilities;
 	std::list<CMapEvent> events;
@@ -146,6 +154,8 @@ public:
 
 	std::map<std::string, ConstTransitivePtr<CGObjectInstance> > instanceNames;
 
+	bool waterMap;
+
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
 	boost::multi_array<TerrainTile, 3> terrain;
@@ -159,7 +169,7 @@ public:
 		h & static_cast<CMapHeader&>(*this);
 		h & triggeredEvents; //from CMapHeader
 		h & rumors;
-		h & allowedSpell;
+		h & allowedSpells;
 		h & allowedAbilities;
 		h & allowedArtifact;
 		h & events;

@@ -18,6 +18,7 @@
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../CTownHandler.h"
+#include "../CHeroHandler.h"
 #include "../StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "CZonePlacer.h"
@@ -411,6 +412,8 @@ void CMapGenerator::addHeaderInfo()
 	m.description = getMapDescription();
 	m.difficulty = 1;
 	addPlayerInfo();
+	m.waterMap = (mapGenOptions.getWaterContent() != EWaterContent::EWaterContent::NONE);
+	m.banWaterContent();
 }
 
 int CMapGenerator::getNextMonlithIndex()
@@ -452,12 +455,23 @@ const std::vector<ArtifactID> & CMapGenerator::getAllPossibleQuestArtifacts() co
 
 const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 {
+	auto isWaterMap = map->getMap(this).isWaterMap();
 	//Skip heroes that were banned, including the ones placed in prisons
 	std::vector<HeroTypeID> ret;
 	for (int j = 0; j < map->getMap(this).allowedHeroes.size(); j++)
 	{
 		if (map->getMap(this).allowedHeroes[j])
-			ret.push_back(HeroTypeID(j));
+		{
+			auto * h = dynamic_cast<const CHero*>(VLC->heroTypes()->getByIndex(j));
+			if ((h->onlyOnWaterMap && !isWaterMap) || (h->onlyOnMapWithoutWater && isWaterMap))
+			{
+				continue;
+			}
+			else
+			{
+				ret.push_back(HeroTypeID(j));
+			}
+		}
 	}
 	return ret;
 }
@@ -471,7 +485,7 @@ void CMapGenerator::banQuestArt(const ArtifactID & id)
 void CMapGenerator::banHero(const HeroTypeID & id)
 {
 	//TODO: Protect with mutex
-	map->getMap(this).allowedHeroes[id] = false;
+	map->getMap(this).banHero(id);
 }
 
 Zone * CMapGenerator::getZoneWater() const

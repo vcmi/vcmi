@@ -834,7 +834,7 @@ void CMapFormatJson::serializeOptions(JsonSerializeFormat & handler)
 
 	handler.serializeLIC("allowedArtifacts",  &ArtifactID::decode, &ArtifactID::encode, VLC->arth->getDefaultAllowed(), map->allowedArtifact);
 
-	handler.serializeLIC("allowedSpells", &SpellID::decode, &SpellID::encode, VLC->spellh->getDefaultAllowed(), map->allowedSpell);
+	handler.serializeLIC("allowedSpells", &SpellID::decode, &SpellID::encode, VLC->spellh->getDefaultAllowed(), map->allowedSpells);
 
 	//todo:events
 }
@@ -1115,6 +1115,7 @@ void CMapLoaderJson::readTerrain()
 		readTerrainLevel(underground, 1);
 	}
 
+	map->calculateWaterContent();
 }
 
 CMapLoaderJson::MapObjectLoader::MapObjectLoader(CMapLoaderJson * _owner, JsonMap::value_type & json):
