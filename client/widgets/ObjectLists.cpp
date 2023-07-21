@@ -245,3 +245,38 @@ const std::list<std::shared_ptr<CIntObject>> & CListBox::getItems()
 {
 	return items;
 }
+
+CListBoxWithCallback::CListBoxWithCallback(CListBoxWithCallback::MovedPosCallback callback, CreateFunc create, Point pos, Point itemOffset, 
+	size_t visibleSize,	size_t totalSize, size_t initialPos, int slider, Rect sliderPos)
+	: CListBox(create, pos, itemOffset, visibleSize, totalSize, initialPos, slider, sliderPos)
+{
+	movedPosCallback = callback;
+}
+
+void CListBoxWithCallback::scrollTo(size_t pos)
+{
+	CListBox::scrollTo(pos);
+	if(movedPosCallback)
+		movedPosCallback(getPos());
+}
+
+void CListBoxWithCallback::moveToPos(size_t pos)
+{
+	CListBox::moveToPos(pos);
+	if(movedPosCallback)
+		movedPosCallback(getPos());
+}
+
+void CListBoxWithCallback::moveToNext()
+{
+	CListBox::moveToNext();
+	if(movedPosCallback)
+		movedPosCallback(getPos());
+}
+
+void CListBoxWithCallback::moveToPrev()
+{
+	CListBox::moveToPrev();
+	if(movedPosCallback)
+		movedPosCallback(getPos());
+}

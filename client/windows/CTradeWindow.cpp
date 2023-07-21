@@ -180,24 +180,23 @@ void CTradeWindow::CTradeableItem::clickPressed(const Point & cursorPosition)
 			CAltarWindow *aw = static_cast<CAltarWindow *>(mw);
 			const auto pickedArtInst = aw->getPickedArtifact();
 
-			auto artifactsOfHero = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(aw->arts);
 			if(pickedArtInst)
 			{
-				artifactsOfHero->pickedArtMoveToAltar(ArtifactPosition::TRANSITION_POS);
+				aw->arts->pickedArtMoveToAltar(ArtifactPosition::TRANSITION_POS);
 				aw->moveArtToAltar(this->shared_from_this(), pickedArtInst);
 			}
 			else if(const CArtifactInstance *art = getArtInstance())
 			{
-				const auto hero = artifactsOfHero->getHero();
+				const auto hero = aw->arts->getHero();
 				const auto slot = hero->getSlotByInstance(art);
 				assert(slot != ArtifactPosition::PRE_FIRST);
 				LOCPLINT->cb->swapArtifacts(ArtifactLocation(hero, slot),
 					ArtifactLocation(hero, ArtifactPosition::TRANSITION_POS));
-				artifactsOfHero->pickedArtFromSlot = slot;
-				artifactsOfHero->artifactsOnAltar.erase(art);
+				aw->arts->pickedArtFromSlot = slot;
+				aw->arts->artifactsOnAltar.erase(art);
 				setID(-1);
 				subtitle.clear();
-				aw->deal->block(!artifactsOfHero->artifactsOnAltar.size());
+				aw->deal->block(!aw->arts->artifactsOnAltar.size());
 			}
 
 			aw->calcTotalExp();
@@ -371,36 +370,11 @@ void CTradeWindow::initItems(bool Left)
 
 	if(Left && (itemsType[1] == ARTIFACT_TYPE || itemsType[1] == ARTIFACT_INSTANCE))
 	{
-		int xOffset = 0, yOffset = 0;
 		if(mode == EMarketMode::ARTIFACT_RESOURCE)
 		{
-			xOffset = -361;
-			yOffset = +46;
-
 			auto item = std::make_shared<CTradeableItem>(Point(137, 469), itemsType[Left], -1, 1, 0);
 			item->recActions &= ~(UPDATE | SHOWALL);
 			items[Left].push_back(item);
-		}
-		else //ARTIFACT_EXP
-		{
-			xOffset = -365;
-			yOffset = -12;
-		}
-
-		if(mode == EMarketMode::ARTIFACT_RESOURCE)
-		{
-			auto artifactsOfHero = std::make_shared<CArtifactsOfHeroMarket>(Point(xOffset, yOffset));
-			artifactsOfHero->selectArtCallback = std::bind(&CTradeWindow::artifactSelected, this, _1);
-			artifactsOfHero->setHero(hero);
-			addSet(artifactsOfHero);
-			arts = artifactsOfHero;
-		}
-		else
-		{
-			auto artifactsOfHero = std::make_shared<CArtifactsOfHeroAltar>(Point(xOffset, yOffset));
-			artifactsOfHero->setHero(hero);
-			addSet(artifactsOfHero);
-			arts = artifactsOfHero;
 		}
 	}
 	else
@@ -701,7 +675,13 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 	}
 
 	titleLabel = std::make_shared<CLabel>(300, 27, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title);
-
+	if(mode == EMarketMode::ARTIFACT_RESOURCE)
+	{
+		arts = std::make_shared<CArtifactsOfHeroMarket>(Point(-361, 46));
+		arts->selectArtCallback = std::bind(&CTradeWindow::artifactSelected, this, _1);
+		arts->setHero(hero);
+		addSet(arts);
+	}
 	initItems(false);
 	initItems(true);
 
@@ -1133,6 +1113,10 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 		sacrificeBackpack = std::make_shared<CButton>(Point(147, 520), "ALTEMBK.DEF", CGI->generaltexth->zelp[570], std::bind(&CAltarWindow::SacrificeBackpack,this));
 		sacrificeBackpack->block(hero->artifactsInBackpack.empty());
 
+		arts = std::make_shared<CArtifactsOfHeroAltar>(Point(-365, -12));
+		arts->setHero(hero);
+		addSet(arts);
+
 		initItems(true);
 		initItems(false);
 		artIcon = std::make_shared<CAnimImage>("ARTIFACT", 0, 0, 281, 442);
@@ -1234,15 +1218,14 @@ void CAltarWindow::makeDeal()
 	else
 	{
 		std::vector<ui32> positions;
-		auto artifactsOfHero = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(arts);
-		for(const CArtifactInstance * art : artifactsOfHero->artifactsOnAltar)
+		for(const CArtifactInstance * art : arts->artifactsOnAltar)
 		{
 			positions.push_back(hero->getSlotByInstance(art));
 		}
 		std::sort(positions.begin(), positions.end(), std::greater<>());
 
 		LOCPLINT->cb->trade(market, mode, positions, {}, {}, hero);
-		artifactsOfHero->artifactsOnAltar.clear();
+		arts->artifactsOnAltar.clear();
 
 		for(auto item : items[0])
 		{
@@ -1279,13 +1262,12 @@ void CAltarWindow::SacrificeAll()
 	}
 	else
 	{
-		auto artifactsOfHero = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(arts);
-		for(const auto & aw : artifactsOfHero->visibleArtSet.artifactsWorn)
+		for(const auto & aw : arts->visibleArtSet.artifactsWorn)
 		{
 			if(!aw.second.locked)
 				moveArtToAltar(nullptr, aw.second.artifact);
 		}
-		artifactsOfHero->updateWornSlots();
+		arts->updateWornSlots();
 		SacrificeBackpack();
 	}
 	redraw();
@@ -1445,10 +1427,9 @@ int CAltarWindow::firstFreeSlot()
 
 void CAltarWindow::SacrificeBackpack()
 {
-	auto artsAltar = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(arts);
-	while(!artsAltar->visibleArtSet.artifactsInBackpack.empty())
+	while(!arts->visibleArtSet.artifactsInBackpack.empty())
 	{
-		if(!putOnAltar(nullptr, artsAltar->visibleArtSet.artifactsInBackpack[0].artifact))
+		if(!putOnAltar(nullptr, arts->visibleArtSet.artifactsInBackpack[0].artifact))
 			break;
 	};
 	calcTotalExp();
@@ -1501,9 +1482,8 @@ bool CAltarWindow::putOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const C
 	market->getOffer(art->artType->getId(), 0, dmp, val, EMarketMode::ARTIFACT_EXP);
 	val = static_cast<int>(hero->calculateXp(val));
 
-	auto artsAltar = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(arts);
-	artsAltar->artifactsOnAltar.insert(art);
-	artsAltar->deleteFromVisible(art);
+	arts->artifactsOnAltar.insert(art);
+	arts->deleteFromVisible(art);
 	altarSlot->setArtInstance(art);
 	altarSlot->subtitle = std::to_string(val);
 

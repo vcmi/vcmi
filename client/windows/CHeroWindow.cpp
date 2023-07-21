@@ -11,6 +11,7 @@
 #include "CHeroWindow.h"
 
 #include "CCreatureWindow.h"
+#include "CHeroBackpackWindow.h"
 #include "CKingdomInterface.h"
 #include "GUIClasses.h"
 
@@ -307,6 +308,11 @@ void CHeroWindow::dismissCurrent()
 	CFunctionList<void()> ony = [=](){ close(); };
 	ony += [=](){ LOCPLINT->cb->dismissHero(curHero); };
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, nullptr);
+}
+
+void CHeroWindow::createBackpackWindow()
+{
+	GH.windows().createAndPushWindow<CHeroBackpackWindow>(curHero);
 }
 
 void CHeroWindow::commanderWindow()

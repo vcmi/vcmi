@@ -28,6 +28,11 @@ CArtifactsOfHeroAltar::CArtifactsOfHeroAltar(const Point & position)
 	pickedArtFromSlot = ArtifactPosition::PRE_FIRST;
 };
 
+CArtifactsOfHeroAltar::~CArtifactsOfHeroAltar()
+{
+	putBackPickedArtifact();
+}
+
 void CArtifactsOfHeroAltar::setHero(const CGHeroInstance * hero)
 {
 	if(hero)

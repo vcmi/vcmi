@@ -28,13 +28,24 @@
 
 void CWindowWithArtifacts::addSet(CArtifactsOfHeroPtr artSet)
 {
+	CArtifactsOfHeroBase::PutBackPickedArtCallback artPutBackHandler = []() -> void
+	{
+		CCS->curh->dragAndDropCursor(nullptr);
+	};
+
 	artSets.emplace_back(artSet);
-	std::visit([this](auto artSetWeak)
+	std::visit([this, artPutBackHandler](auto artSetWeak)
 		{
 			auto artSet = artSetWeak.lock();
 			artSet->leftClickCallback = std::bind(&CWindowWithArtifacts::leftClickArtPlaceHero, this, _1, _2);
 			artSet->rightClickCallback = std::bind(&CWindowWithArtifacts::rightClickArtPlaceHero, this, _1, _2);
+			artSet->setPutBackPickedArtifactCallback(artPutBackHandler);
 		}, artSet);
+}
+
+void CWindowWithArtifacts::addCloseCallback(CloseCallback callback)
+{
+	closeCallback = callback;
 }
 
 const CGHeroInstance * CWindowWithArtifacts::getHeroPickedArtifact()
@@ -85,35 +96,37 @@ void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst
 		{
 			const auto artSetPtr = artSetWeak.lock();
 
-			// Hero(Main, Exchange) window, Kingdom window, Altar window left click handler
+			// Hero(Main, Exchange) window, Kingdom window, Altar window, Backpack window left click handler
 			if constexpr(
 				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroMain>> || 
 				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroKingdom>> ||
-				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroAltar>>)
+				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroAltar>> ||
+				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroBackpack>>)
 			{
 				const auto pickedArtInst = getPickedArtifact();
 				const auto heroPickedArt = getHeroPickedArtifact();
 				const auto hero = artSetPtr->getHero();
+				auto isTransferAllowed = false;
+				std::string msg;
 
 				if(pickedArtInst)
 				{
 					auto srcLoc = ArtifactLocation(heroPickedArt, ArtifactPosition::TRANSITION_POS);
 					auto dstLoc = ArtifactLocation(hero, artPlace.slot);
-					auto isTransferAllowed = false;
 
 					if(ArtifactUtils::isSlotBackpack(artPlace.slot))
 					{
 						if(pickedArtInst->artType->isBig())
 						{
 							// War machines cannot go to backpack
-							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % pickedArtInst->artType->getNameTranslated()));
+							msg = boost::str(boost::format(CGI->generaltexth->allTexts[153]) % pickedArtInst->artType->getNameTranslated());
 						}
 						else
 						{
 							if(ArtifactUtils::isBackpackFreeSlots(heroPickedArt))
 								isTransferAllowed = true;
 							else
-								LOCPLINT->showInfoDialog(CGI->generaltexth->translate("core.genrltxt.152"));
+								msg = CGI->generaltexth->translate("core.genrltxt.152");
 						}
 					}
 					// Check if artifact transfer is possible
@@ -132,7 +145,7 @@ void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst
 				else
 				{
 					if(artPlace.getArt())
-					{			
+					{
 						if(artSetPtr->getHero()->tempOwner == LOCPLINT->playerID)
 						{
 							if(checkSpecialArts(hero, artPlace))
@@ -143,11 +156,25 @@ void CWindowWithArtifacts::leftClickArtPlaceHero(CArtifactsOfHeroBase & artsInst
 							for(const auto artSlot : ArtifactUtils::unmovableSlots())
 								if(artPlace.slot == artSlot)
 								{
-									LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21]);
+									msg = CGI->generaltexth->allTexts[21];
 									break;
 								}
 						}
 					}
+				}
+
+				if constexpr(std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroBackpack>>)
+				{
+					if(!isTransferAllowed)
+					{
+						if(closeCallback)
+							closeCallback();
+					}
+				}
+				else
+				{
+					if(!msg.empty())
+						LOCPLINT->showInfoDialog(msg);
 				}
 			}
 			// Market window left click handler
@@ -184,10 +211,11 @@ void CWindowWithArtifacts::rightClickArtPlaceHero(CArtifactsOfHeroBase & artsIns
 		{
 			const auto artSetPtr = artSetWeak.lock();
 
-			// Hero(Main, Exchange) window, Kingdom window right click handler
+			// Hero (Main, Exchange) window, Kingdom window, Backpack window right click handler
 			if constexpr(
 				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroMain>> ||
-				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroKingdom>>)
+				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroKingdom>> ||
+				std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroBackpack>>)
 			{
 				if(artPlace.getArt())
 				{
@@ -239,19 +267,19 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 		if(artSetPtr)
 		{
 			const auto hero = artSetPtr->getHero();
-			if(artSetPtr->isActive())
+			if(pickedArtInst)
 			{
-				if(pickedArtInst)
+				if(artSetPtr->isActive())
 				{
 					CCS->curh->dragAndDropCursor("artifact", pickedArtInst->artType->getIconIndex());
 					if(srcLoc.isHolder(hero) || !std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroKingdom>>)
 						artSetPtr->markPossibleSlots(pickedArtInst, hero->tempOwner == LOCPLINT->playerID);
 				}
-				else
-				{
-					artSetPtr->unmarkSlots();
-					CCS->curh->dragAndDropCursor(nullptr);
-				}
+			}
+			else
+			{
+				artSetPtr->unmarkSlots();
+				CCS->curh->dragAndDropCursor(nullptr);
 			}
 			if(withRedraw)
 			{
@@ -316,19 +344,21 @@ void CWindowWithArtifacts::updateSlots(const ArtifactPosition & slot)
 std::optional<std::tuple<const CGHeroInstance*, const CArtifactInstance*>> CWindowWithArtifacts::getState()
 {
 	const CArtifactInstance * artInst = nullptr;
-	const CGHeroInstance * hero = nullptr;
-	size_t pickedCnt = 0;
+	std::map<const CGHeroInstance*, size_t> pickedCnt;
 
-	auto getHeroArtBody = [&hero, &artInst, &pickedCnt](auto artSetWeak) -> void
+	auto getHeroArtBody = [&artInst, &pickedCnt](auto artSetWeak) -> void
 	{
 		auto artSetPtr = artSetWeak.lock();
 		if(artSetPtr)
 		{
 			if(const auto art = artSetPtr->getPickedArtifact())
 			{
-				artInst = art;
-				hero = artSetPtr->getHero();
-				pickedCnt += hero->artifactsTransitionPos.size();
+				const auto hero = artSetPtr->getHero();
+				if(pickedCnt.count(hero) == 0)
+				{
+					pickedCnt.insert({ hero, hero->artifactsTransitionPos.size() });
+					artInst = art;
+				}
 			}
 		}
 	};
@@ -338,10 +368,13 @@ std::optional<std::tuple<const CGHeroInstance*, const CArtifactInstance*>> CWind
 	// The state is possible when the hero has placed an artifact in the ArtifactPosition::TRANSITION_POS,
 	// and the previous artifact has not yet removed from the ArtifactPosition::TRANSITION_POS.
 	// This is a transitional state. Then return nullopt.
-	if(pickedCnt > 1)
+	if(std::accumulate(std::begin(pickedCnt), std::end(pickedCnt), 0, [](size_t accum, const auto & value)
+		{
+			return accum + value.second;
+		}) > 1)
 		return std::nullopt;
 	else
-		return std::make_tuple(hero, artInst);
+		return std::make_tuple(pickedCnt.begin()->first, artInst);
 }
 
 std::optional<CWindowWithArtifacts::CArtifactsOfHeroPtr> CWindowWithArtifacts::findAOHbyRef(CArtifactsOfHeroBase & artsInst)

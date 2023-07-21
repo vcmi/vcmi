@@ -85,6 +85,7 @@ class CHeroWindow : public CStatusbarWindow, public CGarrisonHolder, public CWin
 	std::shared_ptr<CTextBox> questlogLabel;
 	std::shared_ptr<CButton> questlogButton;
 	std::shared_ptr<CButton> commanderButton;
+	std::shared_ptr<CButton> backpackButton;
 
 	std::shared_ptr<CToggleButton> tacticsButton;
 	std::shared_ptr<CToggleGroup> formations;
@@ -105,6 +106,7 @@ public:
 	void commanderWindow();
 	void switchHero(); //changes displayed hero
 	void updateGarrisons() override;
+	void createBackpackWindow();
 
 	//friends
 	friend void CHeroArtPlace::clickPressed(const Point & cursorPosition);
