@@ -131,7 +131,7 @@ static ESortBy getSortBySelectionScreen(ESelectionScreen Type)
 }
 
 SelectionTab::SelectionTab(ESelectionScreen Type)
-	: CIntObject(LCLICK | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}
+	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}
 {
 	OBJ_CONSTRUCTION;
 
@@ -322,6 +322,21 @@ void SelectionTab::clickDouble(const Point & cursorPosition)
 		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickPressed(cursorPosition);
 		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickReleased(cursorPosition);
 	}
+}
+
+void SelectionTab::showPopupWindow(const Point & cursorPosition)
+{
+	int position = getLine();
+	int py = position + slider->getValue();
+
+	if(py >= curItems.size())
+		return;
+
+	std::string text = boost::str(boost::format("{%1%}\r\n\r\n%2%:\r\n%3%") % curItems[py]->getName() % CGI->generaltexth->translate("vcmi.lobby.filename") % curItems[py]->fileURI);
+	if(curItems[py]->date != "")
+	    text += boost::str(boost::format("\r\n\r\n%1%:\r\n%2%") % CGI->generaltexth->translate("vcmi.lobby.creationDate") % curItems[py]->date);
+
+	CRClickPopup::createAndPush(text);
 }
 
 // A new size filter (Small, Medium, ...) has been selected. Populate
