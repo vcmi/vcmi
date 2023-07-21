@@ -29,6 +29,13 @@
 	"vcmi.capitalColors.5" : "Purple",
 	"vcmi.capitalColors.6" : "Teal",
 	"vcmi.capitalColors.7" : "Pink",
+	
+	"vcmi.radialWheel.mergeSameUnit" : "Merge same creatures",
+	"vcmi.radialWheel.showUnitInformation" : "Show creature information",
+	"vcmi.radialWheel.splitSingleUnit" : "Split off single creature",
+	"vcmi.radialWheel.splitUnitEqually" : "Split creaturess equally",
+	"vcmi.radialWheel.moveUnit" : "Move creatures to another army",
+	"vcmi.radialWheel.splitUnit" : "Split creature to another slot",
 
 	"vcmi.mainMenu.tutorialNotImplemented" : "Sorry, tutorial is not implemented yet\n",
 	"vcmi.mainMenu.highscoresNotImplemented" : "Sorry, high scores menu is not implemented yet\n",
