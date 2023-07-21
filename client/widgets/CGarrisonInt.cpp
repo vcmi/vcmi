@@ -27,6 +27,7 @@
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/TextOperations.h"
 #include "../../lib/gameState/CGameState.h"
@@ -351,6 +352,9 @@ void CGarrisonSlot::gesture(bool on, const Point & initialPosition, const Point 
 		return;
 
 	if(!myStack)
+		return;
+
+	if (!settings["input"]["radialWheelGarrisonSwipe"].Bool())
 		return;
 
 	const auto * otherArmy = upg == EGarrisonType::UPPER ? owner->lowerArmy() : owner->upperArmy();
