@@ -31,7 +31,7 @@ void RoadPlacer::process()
 
 void RoadPlacer::init()
 {
-	if (zone.isUnderground())
+	if(zone.isUnderground())
 	{
 		DEPENDENCY_ALL(RockFiller);
 	}
@@ -118,7 +118,7 @@ void RoadPlacer::drawRoads(bool secondary)
 		zone.freePaths().unite(roads);
 	}
 
-	if (!generator.getMapGenOptions().isRoadEnabled())
+	if(!generator.getMapGenOptions().isRoadEnabled())
 	{
 		return;
 	}
@@ -138,7 +138,7 @@ void RoadPlacer::drawRoads(bool secondary)
 	//If our road type is not enabled, choose highest below it
 	for (int8_t bestRoad = roadType.getNum(); bestRoad > RoadId(Road::NO_ROAD).getNum(); bestRoad--)
 	{
-		if (generator.getMapGenOptions().isRoadEnabled(RoadId(bestRoad)))
+		if(generator.getMapGenOptions().isRoadEnabled(RoadId(bestRoad)))
 		{
 			mapProxy->drawRoads(zone.getRand(), tiles, RoadId(bestRoad));
 			return;
@@ -156,11 +156,11 @@ void RoadPlacer::connectRoads()
 {
 	bool noRoadNodes = false;
 	//Assumes objects are already placed
-	if (roadNodes.size() < 2)
+	if(roadNodes.size() < 2)
 	{
 		//If there are no nodes, draw roads to mines
 		noRoadNodes = true;
-		if (auto* m = zone.getModificator<ObjectManager>())
+		if(auto* m = zone.getModificator<ObjectManager>())
 		{
 			for(auto * object : m->getMines())
 			{
