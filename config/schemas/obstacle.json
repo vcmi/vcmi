@@ -30,11 +30,11 @@
 		},
 		"width" : {
 			"type" : "number",
-			"description" : "Width ob obstacle"
+			"description" : "Width of obstacle"
 		},
 		"height" : {
 			"type" : "number",
-			"description" : "height if obstacle"
+			"description" : "height of obstacle"
 		},
 		"blockedTiles" : {
 			"type" : "array",
