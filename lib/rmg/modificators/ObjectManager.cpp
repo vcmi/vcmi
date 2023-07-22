@@ -464,6 +464,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		objects.push_back(&instance->object());
 		if(auto * m = zone.getModificator<RoadPlacer>())
 		{
+			//FIXME: Objects that can be removed, can be trespassed. Does not include Corpse
 			if(instance->object().appearance->isVisitableFromTop())
 				m->areaForRoads().add(instance->getVisitablePosition());
 			else
