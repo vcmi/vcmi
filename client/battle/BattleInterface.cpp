@@ -584,7 +584,15 @@ void BattleInterface::endAction(const BattleAction* action)
 
 	//we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
 	if(action->actionType == EActionType::HERO_SPELL)
+	{
 		fieldController->redrawBackgroundWithHexes();
+
+		//update casting hero info window
+		auto hero = action->side == 0 ? attackingHero : defendingHero;
+		InfoAboutHero heroInfo = InfoAboutHero();
+		heroInfo.initFromHero(hero->instance(), InfoAboutHero::INBATTLE);
+		windowObject->updateHeroInfoWindow(action->side, heroInfo);
+	}
 }
 
 void BattleInterface::appendBattleLog(const std::string & newEntry)

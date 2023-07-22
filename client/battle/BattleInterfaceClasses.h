@@ -137,6 +137,9 @@ public:
 	HeroInfoBasicPanel(const InfoAboutHero & hero, Point * position, bool initializeBackground = true);
 
 	void show(Canvas & to) override;
+
+	void initializeData(const InfoAboutHero & hero);
+	void update(const InfoAboutHero & updatedInfo);
 };
 
 class HeroInfoWindow : public CWindowObject

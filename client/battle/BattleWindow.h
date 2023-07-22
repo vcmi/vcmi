@@ -88,6 +88,9 @@ public:
 	/// Refresh queue after turn order changes
 	void updateQueue();
 
+	/// Refresh sticky variant of hero info window after spellcast, side same as in BattleSpellCast::side
+	void updateHeroInfoWindow(uint8_t side, const InfoAboutHero & hero);
+
 	/// Get mouse-hovered battle queue unit ID if any found
 	std::optional<uint32_t> getQueueHoveredUnitId();
 

@@ -237,8 +237,8 @@ void BattleWindow::showStickyHeroWindows()
 	if(settings["battle"]["stickyHeroInfoWindows"].Bool() == true)
 		return;
 
-	Settings showStickyHeroInfoWIndows = settings.write["battle"]["stickyHeroInfoWindows"];
-	showStickyHeroInfoWIndows->Bool() = true;
+	Settings showStickyHeroInfoWindows = settings.write["battle"]["stickyHeroInfoWindows"];
+	showStickyHeroInfoWindows->Bool() = true;
 
 
 	createStickyHeroInfoWindows();
@@ -248,6 +248,12 @@ void BattleWindow::showStickyHeroWindows()
 void BattleWindow::updateQueue()
 {
 	queue->update();
+}
+
+void BattleWindow::updateHeroInfoWindow(uint8_t side, const InfoAboutHero & hero)
+{
+	std::shared_ptr<HeroInfoBasicPanel> panelToUpdate = side == 0 ? attackerHeroWindow : defenderHeroWindow;
+	panelToUpdate->update(hero);
 }
 
 void BattleWindow::activate()
