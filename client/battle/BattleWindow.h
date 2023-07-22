@@ -79,8 +79,12 @@ public:
 	void hideQueue();
 	void showQueue();
 
+	/// Toggle permanent hero info windows visibility (HD mod feature)
 	void hideStickyHeroWindows();
 	void showStickyHeroWindows();
+
+	/// Event handler for netpack changing hero mana points
+	void heroManaPointsChanged(const CGHeroInstance * hero);
 
 	/// block all UI elements when player is not allowed to act, e.g. during enemy turn
 	void blockUI(bool on);

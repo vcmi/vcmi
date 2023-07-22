@@ -256,6 +256,21 @@ void BattleWindow::updateHeroInfoWindow(uint8_t side, const InfoAboutHero & hero
 	panelToUpdate->update(hero);
 }
 
+void BattleWindow::heroManaPointsChanged(const CGHeroInstance * hero)
+{
+	if(hero == owner.attackingHeroInstance || hero == owner.defendingHeroInstance)
+	{
+		InfoAboutHero heroInfo = InfoAboutHero();
+		heroInfo.initFromHero(hero, InfoAboutHero::INBATTLE);
+
+		updateHeroInfoWindow(hero == owner.attackingHeroInstance ? 0 : 1, heroInfo);
+	}
+	else
+	{
+		logGlobal->error("BattleWindow::heroManaPointsChanged: 'Mana points changed' called for hero not belonging to current battle window");
+	}
+}
+
 void BattleWindow::activate()
 {
 	GH.setStatusbar(console);
