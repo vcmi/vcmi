@@ -81,7 +81,10 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 		{
 			Point distance = convertTouchToMouse(tfinger) - lastTapPosition;
 			if ( std::abs(distance.x) > params.panningSensitivityThreshold || std::abs(distance.y) > params.panningSensitivityThreshold)
+			{
 				state = TouchState::TAP_DOWN_PANNING;
+				GH.events().dispatchGesturePanningStarted(lastTapPosition);
+			}
 			break;
 		}
 		case TouchState::TAP_DOWN_PANNING:
@@ -128,7 +131,6 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 		{
 			lastTapPosition = convertTouchToMouse(tfinger);
 			GH.input().setCursorPosition(lastTapPosition);
-			GH.events().dispatchGesturePanningStarted(lastTapPosition);
 			state = TouchState::TAP_DOWN_SHORT;
 			break;
 		}
