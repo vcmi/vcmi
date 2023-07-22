@@ -235,6 +235,9 @@ void BattleStacksController::setActiveStack(const CStack *stack)
 		stackAnimation[activeStack->unitId()]->setBorderColor(AnimationControls::getGoldBorder());
 
 	owner.windowObject->blockUI(activeStack == nullptr);
+
+	if (activeStack)
+		stackAmountBoxHidden.clear();
 }
 
 bool BattleStacksController::stackNeedsAmountBox(const CStack * stack) const
