@@ -192,7 +192,7 @@ void MapComparer::compareOptions()
 
 	checkEqual(actual->allowedAbilities, expected->allowedAbilities);
 	checkEqual(actual->allowedArtifact, expected->allowedArtifact);
-	checkEqual(actual->allowedSpell, expected->allowedSpell);
+	checkEqual(actual->allowedSpells, expected->allowedSpells);
 
 	//todo: compareOptions events
 }

@@ -20,8 +20,16 @@ class WindowHandler
 	/// Temporary list of recently popped windows
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;
 
+	bool totalRedrawRequested = false;
+
 	/// returns top windows
 	std::shared_ptr<IShowActivatable> topWindowImpl() const;
+
+	/// forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering
+	void totalRedrawImpl();
+
+	/// update only top windows and draw background from buffer, sets a flag, method gets called at the end of the rendering
+	void simpleRedrawImpl();
 
 public:
 	/// forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering

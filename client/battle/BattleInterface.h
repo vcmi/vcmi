@@ -144,8 +144,6 @@ public:
 	std::shared_ptr<BattleHero> attackingHero;
 	std::shared_ptr<BattleHero> defendingHero;
 
-	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
-
 	bool openingPlaying();
 	void openingEnd();
 
@@ -159,7 +157,7 @@ public:
 	void requestAutofightingAIToTakeAction();
 
 	void giveCommand(EActionType action, BattleHex tile = BattleHex(), si32 additional = -1);
-	void sendCommand(BattleAction *& command, const CStack * actor = nullptr);
+	void sendCommand(BattleAction command, const CStack * actor = nullptr);
 
 	const CGHeroInstance *getActiveHero(); //returns hero that can currently cast a spell
 

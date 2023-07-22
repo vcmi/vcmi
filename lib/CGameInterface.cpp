@@ -152,14 +152,6 @@ std::shared_ptr<scripting::Module> CDynLibHandler::getNewScriptingModule(const b
 }
 #endif
 
-BattleAction CGlobalAI::activeStack(const CStack * stack)
-{
-	BattleAction ba;
-	ba.actionType = EActionType::DEFEND;
-	ba.stackNumber = stack->unitId();
-	return ba;
-}
-
 CGlobalAI::CGlobalAI()
 {
 	human = false;
@@ -241,9 +233,9 @@ void CAdventureAI::battleUnitsChanged(const std::vector<UnitChanges> & units)
 	battleAI->battleUnitsChanged(units);
 }
 
-BattleAction CAdventureAI::activeStack(const CStack * stack)
+void CAdventureAI::activeStack(const CStack * stack)
 {
-	return battleAI->activeStack(stack);
+	battleAI->activeStack(stack);
 }
 
 void CAdventureAI::yourTacticPhase(int distance)

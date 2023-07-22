@@ -111,6 +111,7 @@ public:
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
 
 	EartClass aClass = ART_SPECIAL;
+	bool onlyOnWaterMap;
 
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
@@ -159,6 +160,7 @@ public:
 		h & modScope;
 		h & identifier;
 		h & warMachine;
+		h & onlyOnWaterMap;
 	}
 
 	CArtifact();

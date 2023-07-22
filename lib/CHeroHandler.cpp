@@ -424,6 +424,9 @@ CHero * CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & n
 	hero->modScope = scope;
 	hero->gender = node["female"].Bool() ? EHeroGender::FEMALE : EHeroGender::MALE;
 	hero->special = node["special"].Bool();
+	//Default - both false
+	hero->onlyOnWaterMap = node["onlyOnWaterMap"].Bool();
+	hero->onlyOnMapWithoutWater = node["onlyOnMapWithoutWater"].Bool();
 
 	VLC->generaltexth->registerString(scope, hero->getNameTextID(), node["texts"]["name"].String());
 	VLC->generaltexth->registerString(scope, hero->getBiographyTextID(), node["texts"]["biography"].String());

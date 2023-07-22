@@ -119,6 +119,7 @@ void CMapLoaderH3M::init()
 
 	map->calculateGuardingGreaturePositions();
 	afterRead();
+	//map->banWaterContent(); //Not sure if force this for custom scenarios
 }
 
 void CMapLoaderH3M::readHeader()
@@ -774,12 +775,12 @@ void CMapLoaderH3M::readAllowedArtifacts()
 
 void CMapLoaderH3M::readAllowedSpellsAbilities()
 {
-	map->allowedSpell = VLC->spellh->getDefaultAllowed();
+	map->allowedSpells = VLC->spellh->getDefaultAllowed();
 	map->allowedAbilities = VLC->skillh->getDefaultAllowed();
 
 	if(features.levelSOD)
 	{
-		reader->readBitmaskSpells(map->allowedSpell, true);
+		reader->readBitmaskSpells(map->allowedSpells, true);
 		reader->readBitmaskSkills(map->allowedAbilities, true);
 	}
 }
@@ -969,6 +970,7 @@ void CMapLoaderH3M::readTerrain()
 			}
 		}
 	}
+	map->calculateWaterContent();
 }
 
 void CMapLoaderH3M::readObjectTemplates()

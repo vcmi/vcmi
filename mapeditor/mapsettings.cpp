@@ -116,12 +116,12 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 		item->setCheckState(controller.map()->allowedAbilities[i] ? Qt::Checked : Qt::Unchecked);
 		ui->listAbilities->addItem(item);
 	}
-	for(int i = 0; i < controller.map()->allowedSpell.size(); ++i)
+	for(int i = 0; i < controller.map()->allowedSpells.size(); ++i)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(VLC->spellh->objects[i]->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-		item->setCheckState(controller.map()->allowedSpell[i] ? Qt::Checked : Qt::Unchecked);
+		item->setCheckState(controller.map()->allowedSpells[i] ? Qt::Checked : Qt::Unchecked);
 		ui->listSpells->addItem(item);
 	}
 	for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
@@ -525,10 +525,10 @@ void MapSettings::on_pushButton_clicked()
 		auto * item = ui->listAbilities->item(i);
 		controller.map()->allowedAbilities[i] = item->checkState() == Qt::Checked;
 	}
-	for(int i = 0; i < controller.map()->allowedSpell.size(); ++i)
+	for(int i = 0; i < controller.map()->allowedSpells.size(); ++i)
 	{
 		auto * item = ui->listSpells->item(i);
-		controller.map()->allowedSpell[i] = item->checkState() == Qt::Checked;
+		controller.map()->allowedSpells[i] = item->checkState() == Qt::Checked;
 	}
 	for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
 	{

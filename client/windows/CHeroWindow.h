@@ -9,12 +9,12 @@
  */
 #pragma once
 
-#include <vcmi/FactionMember.h>
-
-#include "../../lib/bonuses/Bonus.h"
-#include "../../lib/bonuses/IBonusBearer.h"
 #include "../widgets/CWindowWithArtifacts.h"
-#include "../widgets/CGarrisonInt.h"
+#include "CWindowObject.h"
+
+#include "../../lib/bonuses/IBonusBearer.h"
+
+#include <vcmi/FactionMember.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -33,6 +33,7 @@ class CToggleButton;
 class CToggleGroup;
 class CGStatusBar;
 class CTextBox;
+class CGarrisonInt;
 
 /// Button which switches hero selection
 class CHeroSwitcher : public CIntObject
@@ -46,7 +47,7 @@ public:
 	CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInstance * hero_);
 };
 
-class CHeroWindow : public CStatusbarWindow, public CGarrisonHolder, public CWindowWithArtifacts
+class CHeroWindow : public CStatusbarWindow, public IGarrisonHolder, public CWindowWithArtifacts
 {
 	std::shared_ptr<CLabel> name;
 	std::shared_ptr<CLabel> title;
@@ -85,6 +86,7 @@ class CHeroWindow : public CStatusbarWindow, public CGarrisonHolder, public CWin
 	std::shared_ptr<CTextBox> questlogLabel;
 	std::shared_ptr<CButton> questlogButton;
 	std::shared_ptr<CButton> commanderButton;
+	std::shared_ptr<CButton> backpackButton;
 
 	std::shared_ptr<CToggleButton> tacticsButton;
 	std::shared_ptr<CToggleGroup> formations;
@@ -105,6 +107,7 @@ public:
 	void commanderWindow();
 	void switchHero(); //changes displayed hero
 	void updateGarrisons() override;
+	void createBackpackWindow();
 
 	//friends
 	friend void CHeroArtPlace::clickPressed(const Point & cursorPosition);

@@ -88,6 +88,7 @@ public:
 	std::string getNameTranslated() const;
 	std::string getDescriptionTranslated() const;
 
+	std::string getBaseTextID() const;
 	std::string getNameTextID() const;
 	std::string getDescriptionTextID() const;
 

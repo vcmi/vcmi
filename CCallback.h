@@ -50,11 +50,12 @@ class IBattleCallback
 public:
 	virtual ~IBattleCallback() = default;
 
-	bool waitTillRealize; //if true, request functions will return after they are realized by server
-	bool unlockGsWhenWaiting;//if true after sending each request, gs mutex will be unlocked so the changes can be applied; NOTICE caller must have gs mx locked prior to any call to actiob callback!
+	bool waitTillRealize = false; //if true, request functions will return after they are realized by server
+	bool unlockGsWhenWaiting = false;//if true after sending each request, gs mutex will be unlocked so the changes can be applied; NOTICE caller must have gs mx locked prior to any call to actiob callback!
 	//battle
-	virtual int battleMakeAction(const BattleAction * action) = 0;//for casting spells by hero - DO NOT use it for moving active stack
-	virtual bool battleMakeTacticAction(BattleAction * action) = 0; // performs tactic phase actions
+	virtual void battleMakeSpellAction(const BattleAction & action) = 0;
+	virtual void battleMakeUnitAction(const BattleAction & action) = 0;
+	virtual void battleMakeTacticAction(const BattleAction & action) = 0;
 	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) = 0;
 };
 
@@ -115,8 +116,9 @@ protected:
 
 public:
 	CBattleCallback(std::optional<PlayerColor> Player, CClient * C);
-	int battleMakeAction(const BattleAction * action) override;//for casting spells by hero - DO NOT use it for moving active stack
-	bool battleMakeTacticAction(BattleAction * action) override; // performs tactic phase actions
+	void battleMakeSpellAction(const BattleAction & action) override;//for casting spells by hero - DO NOT use it for moving active stack
+	void battleMakeUnitAction(const BattleAction & action) override;
+	void battleMakeTacticAction(const BattleAction & action) override; // performs tactic phase actions
 	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
 
 #if SCRIPTING_ENABLED

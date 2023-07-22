@@ -68,6 +68,7 @@ public:
 	void clickReleased(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;
 	void clickDouble(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 	bool receiveEvent(const Point & position, int eventType) const override;
 
 	void filter(int size, bool selectFirst = false); //0 - all

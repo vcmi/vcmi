@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../widgets/CGarrisonInt.h"
+#include "../windows/CWindowObject.h"
 #include "../widgets/Images.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -212,7 +212,7 @@ public:
 };
 
 /// Class which manages the castle window
-class CCastleInterface : public CStatusbarWindow, public CGarrisonHolder
+class CCastleInterface : public CStatusbarWindow, public IGarrisonHolder
 {
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CLabel> income;

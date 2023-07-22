@@ -11,7 +11,6 @@
 #include "CArtifactsOfHeroBase.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 
 #include "Buttons.h"
@@ -26,16 +25,13 @@
 
 CArtifactsOfHeroBase::CArtifactsOfHeroBase()
 	: backpackPos(0),
-	curHero(nullptr)
+	curHero(nullptr),
+	putBackPickedArtCallback(nullptr)
 {
 }
 
-CArtifactsOfHeroBase::~CArtifactsOfHeroBase()
+void CArtifactsOfHeroBase::putBackPickedArtifact()
 {
-	// TODO: cursor handling is CWindowWithArtifacts level. Should be moved when trading, kingdom and hero window are reworked
-	// This will interfere with the implementation of a separate backpack window
-	CCS->curh->dragAndDropCursor(nullptr);
-
 	// Artifact located in artifactsTransitionPos should be returned
 	if(getPickedArtifact())
 	{
@@ -49,6 +45,13 @@ CArtifactsOfHeroBase::~CArtifactsOfHeroBase()
 			LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero, ArtifactPosition::TRANSITION_POS), ArtifactLocation(curHero, slot));
 		}
 	}
+	if(putBackPickedArtCallback)
+		putBackPickedArtCallback();
+}
+
+void CArtifactsOfHeroBase::setPutBackPickedArtifactCallback(PutBackPickedArtCallback callback)
+{
+	putBackPickedArtCallback = callback;
 }
 
 void CArtifactsOfHeroBase::init(
@@ -113,7 +116,7 @@ void CArtifactsOfHeroBase::setHero(const CGHeroInstance * hero)
 	{
 		setSlotData(slot.second, slot.first, *curHero);
 	}
-	scrollBackpackForArtSet(0, *curHero);
+	scrollBackpack(0);
 }
 
 const CGHeroInstance * CArtifactsOfHeroBase::getHero() const
@@ -163,8 +166,10 @@ void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSe
 	}
 
 	// Blocking scrolling if there is not enough artifacts to scroll
-	leftBackpackRoll->block(!scrollingPossible);
-	rightBackpackRoll->block(!scrollingPossible);
+	if(leftBackpackRoll)
+		leftBackpackRoll->block(!scrollingPossible);
+	if(rightBackpackRoll)
+		rightBackpackRoll->block(!scrollingPossible);
 }
 
 void CArtifactsOfHeroBase::safeRedraw()
@@ -227,7 +232,7 @@ void CArtifactsOfHeroBase::updateBackpackSlots()
 {
 	if(curHero->artifactsInBackpack.size() <= backpack.size() && backpackPos != 0)
 		backpackPos = 0;
-	scrollBackpackForArtSet(0, *curHero);
+	scrollBackpack(0);
 }
 
 void CArtifactsOfHeroBase::updateSlot(const ArtifactPosition & slot)

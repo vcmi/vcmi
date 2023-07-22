@@ -44,8 +44,6 @@
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/TerrainHandler.h"
 
-CondSh<BattleAction *> BattleInterface::givenCommand(nullptr);
-
 BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2,
 		const CGHeroInstance *hero1, const CGHeroInstance *hero2,
 		std::shared_ptr<CPlayerInterface> att,
@@ -67,8 +65,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 		//May happen when we are defending during network MP game -> attacker interface is just not present
 		curInt = defenderInt;
 	}
-
-	givenCommand.setn(nullptr);
 
 	//hot-seat -> check tactics for both players (defender may be local human)
 	if(attackerInt && attackerInt->cb->battleGetTacticDist())
@@ -158,11 +154,11 @@ void BattleInterface::openingEnd()
 BattleInterface::~BattleInterface()
 {
 	CPlayerInterface::battleInt = nullptr;
-	givenCommand.cond.notify_all(); //that two lines should make any stacksController->getActiveStack() waiting thread to finish
 
 	if (adventureInt)
 		adventureInt->onAudioResumed();
 
+	awaitingEvents.clear();
 	onAnimationsFinished();
 }
 
@@ -253,29 +249,28 @@ void BattleInterface::giveCommand(EActionType action, BattleHex tile, si32 addit
 		return;
 	}
 
-	auto ba = new BattleAction(); //is deleted in CPlayerInterface::stacksController->getActiveStack()()
-	ba->side = side.value();
-	ba->actionType = action;
-	ba->aimToHex(tile);
-	ba->actionSubtype = additional;
+	BattleAction ba;
+	ba.side = side.value();
+	ba.actionType = action;
+	ba.aimToHex(tile);
+	ba.actionSubtype = additional;
 
 	sendCommand(ba, actor);
 }
 
-void BattleInterface::sendCommand(BattleAction *& command, const CStack * actor)
+void BattleInterface::sendCommand(BattleAction command, const CStack * actor)
 {
-	command->stackNumber = actor ? actor->unitId() : ((command->side == BattleSide::ATTACKER) ? -1 : -2);
+	command.stackNumber = actor ? actor->unitId() : ((command.side == BattleSide::ATTACKER) ? -1 : -2);
 
 	if(!tacticsMode)
 	{
 		logGlobal->trace("Setting command for %s", (actor ? actor->nodeName() : "hero"));
 		stacksController->setActiveStack(nullptr);
-		givenCommand.setn(command);
+		LOCPLINT->cb->battleMakeUnitAction(command);
 	}
 	else
 	{
 		curInt->cb->battleMakeTacticAction(command);
-		vstd::clear_pointer(command);
 		stacksController->setActiveStack(nullptr);
 		//next stack will be activated when action ends
 	}
@@ -634,6 +629,11 @@ void BattleInterface::tacticPhaseEnd()
 {
 	stacksController->setActiveStack(nullptr);
 	tacticsMode = false;
+
+	auto side = tacticianInterface->cb->playerToSide(tacticianInterface->playerID);
+	auto action = BattleAction::makeEndOFTacticPhase(*side);
+
+	tacticianInterface->cb->battleMakeTacticAction(action);
 }
 
 static bool immobile(const CStack *s)
@@ -701,38 +701,39 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 {
 	assert(curInt->isAutoFightOn);
 
-	boost::thread aiThread([&]()
+	if(curInt->cb->battleIsFinished())
 	{
-		if(curInt->cb->battleIsFinished())
-		{
-			return; // battle finished with spellcast
-		}
+		return; // battle finished with spellcast
+	}
 
-		if (tacticsMode)
+	if (tacticsMode)
+	{
+		// Always end tactics mode. Player interface is blocked currently, so it's not possible that
+		// the AI can take any action except end tactics phase (AI actions won't be triggered)
+		//TODO implement the possibility that the AI will be triggered for further actions
+		//TODO any solution to merge tactics phase & normal phase in the way it is handled by the player and battle interface?
+		tacticPhaseEnd();
+		stacksController->setActiveStack(nullptr);
+	}
+	else
+	{
+		const CStack* activeStack = stacksController->getActiveStack();
+
+		// If enemy is moving, activeStack can be null
+		if (activeStack)
 		{
-			// Always end tactics mode. Player interface is blocked currently, so it's not possible that
-			// the AI can take any action except end tactics phase (AI actions won't be triggered)
-			//TODO implement the possibility that the AI will be triggered for further actions
-			//TODO any solution to merge tactics phase & normal phase in the way it is handled by the player and battle interface?
 			stacksController->setActiveStack(nullptr);
-			tacticsMode = false;
-		}
-		else
-		{
-			const CStack* activeStack = stacksController->getActiveStack();
 
-			// If enemy is moving, activeStack can be null
-			if (activeStack)
+			// FIXME: unsafe
+			// Run task in separate thread to avoid UI lock while AI is making turn (which might take some time)
+			// HOWEVER this thread won't atttempt to lock game state, potentially leading to races
+			boost::thread aiThread([&]()
 			{
-				auto ba = std::make_unique<BattleAction>(curInt->autofightingAI->activeStack(activeStack));
-				givenCommand.setn(ba.release());
-			}
-
-			stacksController->setActiveStack(nullptr);
+				curInt->autofightingAI->activeStack(activeStack);
+			});
+			aiThread.detach();
 		}
-	});
-
-	aiThread.detach();
+	}
 }
 
 void BattleInterface::castThisSpell(SpellID spellID)
@@ -781,8 +782,19 @@ void BattleInterface::onAnimationsFinished()
 
 void BattleInterface::waitForAnimations()
 {
-	auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
-	ongoingAnimationsState.waitUntil(false);
+	{
+		auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
+		ongoingAnimationsState.waitUntil(false);
+	}
+
+	assert(!hasAnimations());
+	assert(awaitingEvents.empty());
+
+	if (!awaitingEvents.empty())
+	{
+		logGlobal->error("Wait for animations finished but we still have awaiting events!");
+		awaitingEvents.clear();
+	}
 }
 
 bool BattleInterface::hasAnimations()

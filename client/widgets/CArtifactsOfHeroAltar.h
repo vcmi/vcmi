@@ -21,6 +21,7 @@ public:
 	CArtifactFittingSet visibleArtSet;
 
 	CArtifactsOfHeroAltar(const Point & position);
+	~CArtifactsOfHeroAltar();
 	void setHero(const CGHeroInstance * hero) override;
 	void updateWornSlots() override;
 	void updateBackpackSlots() override;

@@ -69,6 +69,8 @@ public:
 	std::set<SpellID> spells;
 	bool haveSpellBook = false;
 	bool special = false; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
+	bool onlyOnWaterMap; // hero will be placed only if the map contains water
+	bool onlyOnMapWithoutWater; // hero will be placed only if the map does not contain water
 	EHeroGender gender = EHeroGender::MALE; // default sex: 0=male, 1=female
 
 	/// Graphics
@@ -114,6 +116,8 @@ public:
 		h & haveSpellBook;
 		h & gender;
 		h & special;
+		h & onlyOnWaterMap;
+		h & onlyOnMapWithoutWater;
 		h & iconSpecSmall;
 		h & iconSpecLarge;
 		h & portraitSmall;

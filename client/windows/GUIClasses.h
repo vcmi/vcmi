@@ -14,7 +14,6 @@
 #include "../lib/ResourceSet.h"
 #include "../lib/int3.h"
 #include "../widgets/CWindowWithArtifacts.h"
-#include "../widgets/CGarrisonInt.h"
 #include "../widgets/Images.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -38,6 +37,8 @@ class CToggleButton;
 class CGStatusBar;
 class CTextBox;
 class CResDataBar;
+class CGarrisonInt;
+class CGarrisonSlot;
 
 enum class EUserEvent;
 
@@ -273,7 +274,7 @@ private:
 	void moveStack(const CGHeroInstance * source, const CGHeroInstance * target, SlotID sourceSlot);
 };
 
-class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public CWindowWithArtifacts
+class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public CWindowWithArtifacts
 {
 	std::array<std::shared_ptr<CLabel>, 2> titles;
 	std::vector<std::shared_ptr<CAnimImage>> primSkillImages;//shared for both heroes
@@ -348,7 +349,7 @@ public:
 };
 
 /// Creature transformer window
-class CTransformerWindow : public CStatusbarWindow, public CGarrisonHolder
+class CTransformerWindow : public CStatusbarWindow, public IGarrisonHolder
 {
 	class CItem : public CIntObject
 	{
@@ -449,7 +450,7 @@ public:
 };
 
 /// Garrison window where you can take creatures out of the hero to place it on the garrison
-class CGarrisonWindow : public CWindowObject, public CGarrisonHolder
+class CGarrisonWindow : public CWindowObject, public IGarrisonHolder
 {
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CAnimImage> banner;
@@ -466,7 +467,7 @@ public:
 };
 
 /// Hill fort is the building where you can upgrade units
-class CHillFortWindow : public CStatusbarWindow, public CGarrisonHolder
+class CHillFortWindow : public CStatusbarWindow, public IGarrisonHolder
 {
 private:
 	static const int slotsCount = 7;

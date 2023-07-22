@@ -80,6 +80,8 @@ public:
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 
+	bool onlyOnWaterMap;
+
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & id;
@@ -88,6 +90,7 @@ public:
 		h & levels;
 		h & obligatoryMajor;
 		h & obligatoryMinor;
+		h & onlyOnWaterMap;
 	}
 
 	friend class CSkillHandler;

@@ -88,7 +88,12 @@ static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const Battl
 	return shooters[0] < shooters[1];
 }
 
-BattleAction CStupidAI::activeStack( const CStack * stack )
+void CStupidAI::yourTacticPhase(int distance)
+{
+	cb->battleMakeUnitAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
+}
+
+void CStupidAI::activeStack( const CStack * stack )
 {
 	//boost::this_thread::sleep(boost::posix_time::seconds(2));
 	print("activeStack called for " + stack->nodeName());
@@ -105,11 +110,13 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		attack.side = side;
 		attack.stackNumber = stack->unitId();
 
-		return attack;
+		cb->battleMakeUnitAction(attack);
+		return;
 	}
 	else if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON))
 	{
-		return BattleAction::makeDefend(stack);
+		cb->battleMakeUnitAction(BattleAction::makeDefend(stack));
+		return;
 	}
 
 	for (const CStack *s : cb->battleGetStacks(CBattleCallback::ONLY_ENEMY))
@@ -151,12 +158,14 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	if(enemiesShootable.size())
 	{
 		const EnemyInfo &ei= *std::max_element(enemiesShootable.begin(), enemiesShootable.end(), isMoreProfitable);
-		return BattleAction::makeShotAttack(stack, ei.s);
+		cb->battleMakeUnitAction(BattleAction::makeShotAttack(stack, ei.s));
+		return;
 	}
 	else if(enemiesReachable.size())
 	{
 		const EnemyInfo &ei= *std::max_element(enemiesReachable.begin(), enemiesReachable.end(), &isMoreProfitable);
-		return BattleAction::makeMeleeAttack(stack, ei.s->getPosition(), *std::max_element(ei.attackFrom.begin(), ei.attackFrom.end(), &willSecondHexBlockMoreEnemyShooters));
+		cb->battleMakeUnitAction(BattleAction::makeMeleeAttack(stack, ei.s->getPosition(), *std::max_element(ei.attackFrom.begin(), ei.attackFrom.end(), &willSecondHexBlockMoreEnemyShooters)));
+		return;
 	}
 	else if(enemiesUnreachable.size()) //due to #955 - a buggy battle may occur when there are no enemies
 	{
@@ -167,11 +176,13 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 
 		if(dists.distToNearestNeighbour(stack, closestEnemy->s) < GameConstants::BFIELD_SIZE)
 		{
-			return goTowards(stack, closestEnemy->s->getAttackableHexes(stack));
+			cb->battleMakeUnitAction(goTowards(stack, closestEnemy->s->getAttackableHexes(stack)));
+			return;
 		}
 	}
 
-	return BattleAction::makeDefend(stack);
+	cb->battleMakeUnitAction(BattleAction::makeDefend(stack));
+	return;
 }
 
 void CStupidAI::battleAttack(const BattleAttack *ba)

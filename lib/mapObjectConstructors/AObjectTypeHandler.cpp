@@ -133,9 +133,14 @@ bool AObjectTypeHandler::hasNameTextID() const
 	return false;
 }
 
+std::string AObjectTypeHandler::getBaseTextID() const
+{
+	return TextIdentifier("mapObject", modScope, typeName, subTypeName).get();
+}
+
 std::string AObjectTypeHandler::getNameTextID() const
 {
-	return TextIdentifier("mapObject", modScope, typeName, subTypeName, "name").get();
+	return TextIdentifier(getBaseTextID(), "name").get();
 }
 
 std::string AObjectTypeHandler::getNameTranslated() const

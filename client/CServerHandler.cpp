@@ -887,11 +887,6 @@ void CServerHandler::threadHandleConnection()
 			}
 		}
 	}
-	catch(...)
-	{
-		handleException();
-		throw;
-	}
 }
 
 void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)

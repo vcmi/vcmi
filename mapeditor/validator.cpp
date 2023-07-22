@@ -140,7 +140,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 				{
 					if(ins->storedArtifact)
 					{
-						if(!map->allowedSpell[ins->storedArtifact->getId().getNum()])
+						if(!map->allowedSpells[ins->storedArtifact->getId().getNum()])
 							issues.emplace_back(QString("Spell scroll %1 is prohibited by map settings").arg(ins->getObjectName().c_str()), false);
 					}
 					else

@@ -30,14 +30,14 @@ void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motio
 	Point newPosition(motion.x, motion.y);
 	Point distance(-motion.xrel, -motion.yrel);
 
+	mouseButtonsMask = motion.state;
+
 	if (mouseButtonsMask & SDL_BUTTON(SDL_BUTTON_MIDDLE))
 		GH.events().dispatchGesturePanning(middleClickPosition, newPosition, distance);
 	else if (mouseButtonsMask & SDL_BUTTON(SDL_BUTTON_LEFT))
 		GH.events().dispatchMouseDragged(newPosition, distance);
 	else
 		GH.input().setCursorPosition(newPosition);
-
-	mouseButtonsMask = motion.state;
 }
 
 void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & button)

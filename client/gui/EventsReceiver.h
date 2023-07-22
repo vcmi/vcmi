@@ -99,7 +99,4 @@ public:
 
 	/// Returns true if element is currently active and may receive events
 	bool isActive() const;
-
-	/// Returns true if left mouse button was pressed when inside this element
-	bool isMouseLeftButtonPressed() const;
 };

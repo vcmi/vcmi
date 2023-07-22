@@ -67,7 +67,6 @@ public:
 	const IMarket * market;
 	const CGHeroInstance * hero;
 
-	std::shared_ptr<CArtifactsOfHeroBase> arts;
 	//all indexes: 1 = left, 0 = right
 	std::array<std::vector<std::shared_ptr<CTradeableItem>>, 2> items;
 
@@ -117,6 +116,7 @@ protected:
 class CMarketplaceWindow : public CTradeWindow
 {
 	std::shared_ptr<CLabel> titleLabel;
+	std::shared_ptr<CArtifactsOfHeroMarket> arts;
 
 	bool printButtonFor(EMarketMode::EMarketMode M) const;
 
@@ -155,6 +155,7 @@ public:
 	std::shared_ptr<CButton> sacrificeBackpack;
 	std::shared_ptr<CLabel> expToLevel;
 	std::shared_ptr<CLabel> expOnAltar;
+	std::shared_ptr<CArtifactsOfHeroAltar> arts;
 
 	CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, EMarketMode::EMarketMode Mode);
 	~CAltarWindow();

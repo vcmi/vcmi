@@ -88,9 +88,9 @@ QList<QString> RewardsWidget::getListForType(RewardType typeId)
 			break;
 			
 		case RewardType::SPELL:
-			for(int i = 0; i < map.allowedSpell.size(); ++i)
+			for(int i = 0; i < map.allowedSpells.size(); ++i)
 			{
-				if(map.allowedSpell[i])
+				if(map.allowedSpells[i])
 					result.append(QString::fromStdString(VLC->spells()->getByIndex(i)->getNameTranslated()));
 			}
 			break;

@@ -11,6 +11,7 @@
 #include "CHeroWindow.h"
 
 #include "CCreatureWindow.h"
+#include "CHeroBackpackWindow.h"
 #include "CKingdomInterface.h"
 #include "GUIClasses.h"
 
@@ -23,6 +24,7 @@
 #include "../gui/WindowHandler.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/CGarrisonInt.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
 #include "../render/CAnimation.h"
@@ -199,7 +201,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 			std::string helpBox = heroscrn[32];
 			boost::algorithm::replace_first(helpBox, "%s", CGI->generaltexth->allTexts[43]);
 
-			garr = std::make_shared<CGarrisonInt>(15, 485, 8, Point(), curHero);
+			garr = std::make_shared<CGarrisonInt>(Point(15, 485), 8, Point(), curHero);
 			auto split = std::make_shared<CButton>(Point(539, 519), "hsbtns9.def", CButton::tooltip(CGI->generaltexth->allTexts[256], helpBox), [&](){ garr->splitClick(); });
 			garr->addSplitBtn(split);
 		}
@@ -307,6 +309,11 @@ void CHeroWindow::dismissCurrent()
 	CFunctionList<void()> ony = [=](){ close(); };
 	ony += [=](){ LOCPLINT->cb->dismissHero(curHero); };
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, nullptr);
+}
+
+void CHeroWindow::createBackpackWindow()
+{
+	GH.windows().createAndPushWindow<CHeroBackpackWindow>(curHero);
 }
 
 void CHeroWindow::commanderWindow()

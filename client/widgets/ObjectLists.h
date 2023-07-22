@@ -99,12 +99,28 @@ public:
 	size_t getIndexOf(std::shared_ptr<CIntObject> item);
 
 	//scroll list to make item which visible
-	void scrollTo(size_t which);
+	virtual void scrollTo(size_t which);
 
 	//scroll list to specified position
-	void moveToPos(size_t which);
-	void moveToNext();
-	void moveToPrev();
+	virtual void moveToPos(size_t which);
+	virtual void moveToNext();
+	virtual void moveToPrev();
 
 	size_t getPos();
+};
+
+class CListBoxWithCallback : public CListBox
+{
+public:
+	using MovedPosCallback = std::function<void(size_t)>;
+
+	CListBoxWithCallback(MovedPosCallback callback, CreateFunc create, Point pos, Point itemOffset, size_t visibleSize,
+		size_t totalSize, size_t initialPos = 0, int slider = 0, Rect sliderPos = Rect());
+	void scrollTo(size_t pos) override;
+	void moveToPos(size_t pos) override;
+	void moveToNext() override;
+	void moveToPrev() override;
+
+private:
+	MovedPosCallback movedPosCallback;
 };

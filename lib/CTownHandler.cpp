@@ -63,14 +63,19 @@ std::string CBuilding::getDescriptionTranslated() const
 	return VLC->generaltexth->translate(getDescriptionTextID());
 }
 
+std::string CBuilding::getBaseTextID() const
+{
+	return TextIdentifier("building", modScope, town->faction->identifier, identifier).get();
+}
+
 std::string CBuilding::getNameTextID() const
 {
-	return TextIdentifier("building", modScope, town->faction->identifier, identifier, "name").get();
+	return TextIdentifier(getBaseTextID(), "name").get();
 }
 
 std::string CBuilding::getDescriptionTextID() const
 {
-	return TextIdentifier("building", modScope, town->faction->identifier, identifier, "description").get();
+	return TextIdentifier(getBaseTextID(), "description").get();
 }
 
 BuildingID CBuilding::getBase() const
@@ -639,7 +644,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		if(source["type"].String() == "configurable" && ret->subId == BuildingSubID::NONE)
 		{
 			ret->subId = BuildingSubID::CUSTOM_VISITING_REWARD;
-			ret->rewardableObjectInfo.init(source);
+			ret->rewardableObjectInfo.init(source, ret->getBaseTextID());
 		}
 	}
 	//MODS COMPATIBILITY FOR 0.96

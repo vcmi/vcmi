@@ -94,9 +94,9 @@ void MapController::repairMap()
 	{
 		map()->allowedArtifact.resize(VLC->arth->getDefaultAllowed().size());
 	}
-	if(VLC->spellh->getDefaultAllowed().size() > map()->allowedSpell.size())
+	if(VLC->spellh->getDefaultAllowed().size() > map()->allowedSpells.size())
 	{
-		map()->allowedSpell.resize(VLC->spellh->getDefaultAllowed().size());
+		map()->allowedSpells.resize(VLC->spellh->getDefaultAllowed().size());
 	}
 	if(VLC->heroh->getDefaultAllowed().size() > map()->allowedHeroes.size())
 	{

@@ -199,7 +199,7 @@ public:
 	bool combat; //is this spell combat (true) or adventure (false)
 	bool creatureAbility; //if true, only creatures can use this spell
 	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
-
+	bool onlyOnWaterMap; //Spell will be banned on maps without water
 	std::vector<SpellID> counteredSpells; //spells that are removed when effect of this spell is placed on creature (for bless-curse, haste-slow, and similar pairs)
 
 	JsonNode targetCondition; //custom condition on what spell can affect
@@ -305,6 +305,7 @@ public:
 		h & school;
 		h & animationInfo;
 		h & nonMagical;
+		h & onlyOnWaterMap;
 	}
 	friend class CSpellHandler;
 	friend class Graphics;

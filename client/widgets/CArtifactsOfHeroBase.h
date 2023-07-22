@@ -20,13 +20,14 @@ protected:
 public:
 	using ArtPlaceMap = std::map<ArtifactPosition, ArtPlacePtr>;
 	using ClickHandler = std::function<void(CArtifactsOfHeroBase&, CHeroArtPlace&)>;
+	using PutBackPickedArtCallback = std::function<void()>;
 
-	const CGHeroInstance * curHero;
 	ClickHandler leftClickCallback;
 	ClickHandler rightClickCallback;
 	
 	CArtifactsOfHeroBase();
-	virtual ~CArtifactsOfHeroBase();
+	virtual void putBackPickedArtifact();
+	virtual void setPutBackPickedArtifactCallback(PutBackPickedArtCallback callback);
 	virtual void leftClickArtPlace(CHeroArtPlace & artPlace);
 	virtual void rightClickArtPlace(CHeroArtPlace & artPlace);
 	virtual void setHero(const CGHeroInstance * hero);
@@ -42,11 +43,13 @@ public:
 	virtual const CArtifactInstance * getPickedArtifact();
 
 protected:
+	const CGHeroInstance * curHero;
 	ArtPlaceMap artWorn;
 	std::vector<ArtPlacePtr> backpack;
 	std::shared_ptr<CButton> leftBackpackRoll;
 	std::shared_ptr<CButton> rightBackpackRoll;
 	int backpackPos; // Position to display artifacts in heroes backpack
+	PutBackPickedArtCallback putBackPickedArtCallback;
 
 	const std::vector<Point> slotPos =
 	{

@@ -89,7 +89,7 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 	{
 		auto & bestAp = possibleAttacks[0];
 
-		logGlobal->info("Battle AI best: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
+		logGlobal->debug("Battle AI best: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
 			bestAp.attack.attacker->unitType()->getJsonKey(),
 			state.battleGetUnitByPos(bestAp.dest)->unitType()->getJsonKey(),
 			(int)bestAp.dest, (int)bestAp.from, (int)bestAp.affectedUnits.size(),

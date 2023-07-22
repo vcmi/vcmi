@@ -484,6 +484,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			}
 
 			oi.probability = 10;
+			oi.maxPerZone = 1;
 			
 			oi.generateObject = [i, randomAppearance, this, qap]() -> CGObjectInstance *
 			{
