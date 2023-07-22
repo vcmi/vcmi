@@ -33,7 +33,7 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 {
 	if (SDL_IsTextInputActive() == SDL_TRUE)
 	{
-		if(key.keysym.sym == SDLK_v) {
+		if(key.keysym.sym == SDLK_v && isKeyboardCtrlDown()) {
 		        std::string clipboardContent = SDL_GetClipboardText();
 		        boost::erase_all(clipboardContent, "\r");
 		        boost::erase_all(clipboardContent, "\n");
