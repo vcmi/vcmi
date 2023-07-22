@@ -133,10 +133,16 @@ private:
 	std::shared_ptr<CPicture> background;
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CAnimImage>> icons;
+
+	const CGHeroInstance * relatedHero;
+	int lastSpellPointsValue;
 public:
-	HeroInfoBasicPanel(const InfoAboutHero & hero, Point * position, bool initializeBackground = true);
+	HeroInfoBasicPanel(const CGHeroInstance * hero, Point * position, bool initializeBackground = true);
 
 	void show(Canvas & to) override;
+	void update();
+
+	void InitializePanel();
 };
 
 class HeroInfoWindow : public CWindowObject
@@ -144,7 +150,7 @@ class HeroInfoWindow : public CWindowObject
 private:
 	std::shared_ptr<HeroInfoBasicPanel> content;
 public:
-	HeroInfoWindow(const InfoAboutHero & hero, Point * position);
+	HeroInfoWindow(const CGHeroInstance & hero, Point * position);
 };
 
 /// Class which is responsible for showing the battle result window

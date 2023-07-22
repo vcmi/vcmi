@@ -124,21 +124,17 @@ void BattleWindow::createStickyHeroInfoWindows()
 
 	if(owner.defendingHeroInstance)
 	{
-		InfoAboutHero info;
-		info.initFromHero(owner.defendingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
 		Point position = (GH.screenDimensions().x >= 1000)
 				? Point(pos.x + pos.w + 15, pos.y)
 				: Point(pos.x + pos.w -79, pos.y + 135);
-		defenderHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, &position);
+		defenderHeroWindow = std::make_shared<HeroInfoBasicPanel>(owner.defendingHeroInstance, &position);
 	}
 	if(owner.attackingHeroInstance)
 	{
-		InfoAboutHero info;
-		info.initFromHero(owner.attackingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
 		Point position = (GH.screenDimensions().x >= 1000)
 				? Point(pos.x - 93, pos.y)
 				: Point(pos.x + 1, pos.y + 135);
-		attackerHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, &position);
+		attackerHeroWindow = std::make_shared<HeroInfoBasicPanel>(owner.attackingHeroInstance, &position);
 	}
 
 	bool showInfoWindows = settings["battle"]["stickyHeroInfoWindows"].Bool();
