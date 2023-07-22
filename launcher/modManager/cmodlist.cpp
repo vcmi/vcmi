@@ -280,7 +280,7 @@ CModEntry CModList::getMod(QString modname) const
 
 	if(conf.isNull())
 	{
-		settings["active"] = true; // default
+		settings["active"] = !local.value("keepDisabled").toBool();
 	}
 	else
 	{
@@ -288,7 +288,7 @@ CModEntry CModList::getMod(QString modname) const
 		{
 			settings = conf.toMap();
 			if(settings.value("active").isNull())
-				settings["active"] = true; // default
+				settings["active"] = !local.value("keepDisabled").toBool();
 		}
 		else
 			settings.insert("active", conf);
