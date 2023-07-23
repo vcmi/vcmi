@@ -676,13 +676,13 @@ Before you can start playing, there are a few more steps that need to be complet
 Please keep in mind that in order to use VCMI you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation>Vielen Dank für die Installation von VCMI.
+        <translation>Vielen Dank für die Installation von VCMI!
 
 Es sind noch ein paar Schritte notwendig, bevor Sie mit dem Spielen beginnen können.
 
 Denken Sie daran, dass Sie die Originaldateien, Heroes III: Complete Edition oder Shadow of Death besitzen müssen, um VCMI verwenden zu können.
 
-Heroes III: HD Edition wird derzeit nicht unterstützt</translation>
+Heroes III: HD Edition wird derzeit nicht unterstützt!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="257"/>
@@ -717,7 +717,7 @@ Heroes III: HD Edition wird derzeit nicht unterstützt</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
         <source>Interface Improvements</source>
-        <translation type="unfinished"></translation>
+        <translation>Interface-Verbesserungen</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="740"/>
@@ -732,7 +732,7 @@ Heroes III: HD Edition wird derzeit nicht unterstützt</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
         <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere Mod, die verschiedene Interface-Verbesserungen bietet, wie z.B. ein besseres Interface für zufällige Karten und wählbare Aktionen in Kämpfen</translation>
     </message>
     <message>
         <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
