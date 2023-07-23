@@ -62,17 +62,17 @@
     <message>
         <location filename="../mainwindow.ui" line="117"/>
         <source>Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Werkzeugleiste</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="163"/>
         <source>Minimap</source>
-        <translation type="unfinished"></translation>
+        <translation>Minikarte</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="239"/>
         <source>Map Objects View</source>
-        <translation type="unfinished"></translation>
+        <translation>Kartenobjekte-Ansicht</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="283"/>
@@ -97,7 +97,7 @@
     <message>
         <location filename="../mainwindow.ui" line="432"/>
         <source>Terrains View</source>
-        <translation type="unfinished"></translation>
+        <translation>Terrain-Ansicht</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="484"/>
@@ -137,7 +137,7 @@
     <message>
         <location filename="../mainwindow.ui" line="921"/>
         <source>Save as...</source>
-        <translation>Speichern unter</translation>
+        <translation>Speichern unter...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="924"/>
@@ -284,7 +284,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1233"/>
         <source>Export as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportieren als...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="346"/>
@@ -344,53 +344,53 @@
     <message>
         <location filename="../mapsettings.ui" line="66"/>
         <source>Difficulty</source>
-        <translation type="unfinished"></translation>
+        <translation>Schwierigkeit</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="111"/>
         <source>Events</source>
-        <translation type="unfinished"></translation>
+        <translation>Ereignisse</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="121"/>
         <source>Victory</source>
-        <translation type="unfinished"></translation>
+        <translation>Sieg</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="135"/>
         <source>Victory message</source>
-        <translation type="unfinished"></translation>
+        <translation>Sieg-Nachricht</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="150"/>
         <source>Only for human players</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur für menschliche Spieler</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="157"/>
         <source>Allow standard victory</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardsieg zulassen</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="170"/>
         <location filename="../mapsettings.ui" line="218"/>
         <source>Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Parameter</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="186"/>
         <source>Loss</source>
-        <translation type="unfinished"></translation>
+        <translation>Niederlage</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="195"/>
         <source>7 days without town</source>
-        <translation type="unfinished"></translation>
+        <translation>7 Tage ohne Stadt</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="202"/>
         <source>Defeat message</source>
-        <translation type="unfinished"></translation>
+        <translation>Niederlage-Nachricht</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="235"/>
@@ -420,67 +420,67 @@
     <message>
         <location filename="../mapsettings.cpp" line="163"/>
         <source>No special victory</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein besonderer Sieg</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="164"/>
         <source>Capture artifact</source>
-        <translation type="unfinished"></translation>
+        <translation>Artefakt sammeln</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="165"/>
         <source>Hire creatures</source>
-        <translation type="unfinished"></translation>
+        <translation>Kreaturen anheuern</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="166"/>
         <source>Accumulate resources</source>
-        <translation type="unfinished"></translation>
+        <translation>Ressourcen ansammeln</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="167"/>
         <source>Construct building</source>
-        <translation type="unfinished"></translation>
+        <translation>Gebäude errichten</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="168"/>
         <source>Capture town</source>
-        <translation type="unfinished"></translation>
+        <translation>Stadt einnehmen</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="169"/>
         <source>Defeat hero</source>
-        <translation type="unfinished"></translation>
+        <translation>Held besiegen</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="170"/>
         <source>Transport artifact</source>
-        <translation type="unfinished"></translation>
+        <translation>Artefakt transportieren</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="173"/>
         <source>No special loss</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine besondere Niederlage</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="174"/>
         <source>Lose castle</source>
-        <translation type="unfinished"></translation>
+        <translation>Schloss verlieren</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="175"/>
         <source>Lose hero</source>
-        <translation type="unfinished"></translation>
+        <translation>Held verlieren</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="176"/>
         <source>Time expired</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeit abgelaufen</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="177"/>
         <source>Days without town</source>
-        <translation type="unfinished"></translation>
+        <translation>Tage ohne Stadt</translation>
     </message>
 </context>
 <context>
@@ -606,32 +606,32 @@
     <message>
         <location filename="../validator.cpp" line="50"/>
         <source>Map is not loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>Karte ist nicht geladen</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="73"/>
         <source>No players allowed to play this map</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Spieler dürfen diese Karte spielen</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="75"/>
         <source>Map is allowed for one player and cannot be started</source>
-        <translation type="unfinished"></translation>
+        <translation>Karte ist für einen Spieler erlaubt und kann nicht gestartet werden</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="77"/>
         <source>No human players allowed to play this map</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine menschlichen Spieler dürfen diese Karte spielen</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="93"/>
         <source>Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translation type="unfinished"></translation>
+        <translation>Gepanzerte Instanz %1 ist UNFLAGGABLE, muss aber NEUTRAL oder Spielerbesitzer haben</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="99"/>
         <source>Object %1 is assigned to non-playable player %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Objekt %1 ist dem nicht spielbaren Spieler %2 zugewiesen</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="106"/>
@@ -641,67 +641,67 @@
     <message>
         <location filename="../validator.cpp" line="116"/>
         <source>Prison %1 must be a NEUTRAL</source>
-        <translation type="unfinished"></translation>
+        <translation>Gefängnis %1 muss NEUTRAL sein</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="122"/>
         <source>Hero %1 must have an owner</source>
-        <translation type="unfinished"></translation>
+        <translation>Held %1 muss einen Besitzer haben</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="127"/>
         <source>Hero %1 is prohibited by map settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Held %1 ist durch Karteneinstellungen verboten</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="130"/>
         <source>Hero %1 has duplicate on map</source>
-        <translation type="unfinished"></translation>
+        <translation>Held %1 hat Duplikat auf Karte</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="133"/>
         <source>Hero %1 has an empty type and must be removed</source>
-        <translation type="unfinished"></translation>
+        <translation>Held %1 hat einen leeren Typ und muss entfernt werden</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="144"/>
         <source>Spell scroll %1 is prohibited by map settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Zauberschriftrolle %1 ist durch Karteneinstellungen verboten</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="147"/>
         <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
-        <translation type="unfinished"></translation>
+        <translation>Zauberschriftrolle %1 hat keine Instanz zugewiesen und muss entfernt werden</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="153"/>
         <source>Artifact %1 is prohibited by map settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Artefakt %1 ist durch Karteneinstellungen verboten</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="162"/>
         <source>Player %1 doesn&apos;t have any starting town</source>
-        <translation type="unfinished"></translation>
+        <translation>Spieler %1 hat keine Startstadt</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="166"/>
         <source>Map name is not specified</source>
-        <translation type="unfinished"></translation>
+        <translation>Kartenname ist nicht angegeben</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="168"/>
         <source>Map description is not specified</source>
-        <translation type="unfinished"></translation>
+        <translation>Kartenbeschreibung ist nicht angegeben</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="181"/>
         <source>Exception occurs during validation: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Bei der Validierung ist eine Ausnahme aufgetreten: %1</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="185"/>
         <source>Unknown exception occurs during validation</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Ausnahme trat während der Validierung auf</translation>
     </message>
 </context>
 <context>
