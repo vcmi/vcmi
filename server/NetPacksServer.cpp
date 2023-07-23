@@ -11,6 +11,7 @@
 #include "ServerNetPackVisitors.h"
 
 #include "CGameHandler.h"
+#include "BattleProcessor.h"
 #include "HeroPoolProcessor.h"
 #include "PlayerMessageProcessor.h"
 
@@ -280,8 +281,6 @@ void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)
 
 void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 {
-	boost::unique_lock lock(gh.battleActionMutex);
-
 	const BattleInfo * b = gs.curB;
 	if(!b)
 		gh.throwAndComplain(&pack, "Can not make action - there is no battle ongoing!");
@@ -304,13 +303,11 @@ void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 			gh.throwAndComplain(&pack, "Can not make actions in battles you are not part of!");
 	}
 
-	result = gh.makeBattleAction(pack.ba);
+	result = gh.battles->makeBattleAction(pack.ba);
 }
 
 void ApplyGhNetPackVisitor::visitMakeCustomAction(MakeCustomAction & pack)
 {
-	boost::unique_lock lock(gh.battleActionMutex);
-
 	const BattleInfo * b = gs.curB;
 	if(!b)
 		gh.throwNotAllowedAction(&pack);
@@ -325,7 +322,7 @@ void ApplyGhNetPackVisitor::visitMakeCustomAction(MakeCustomAction & pack)
 	if(pack.ba.actionType != EActionType::HERO_SPELL)
 		gh.throwNotAllowedAction(&pack);
 
-	result = gh.makeCustomAction(pack.ba);
+	result = gh.battles->makeCustomAction(pack.ba);
 }
 
 void ApplyGhNetPackVisitor::visitDigWithHero(DigWithHero & pack)

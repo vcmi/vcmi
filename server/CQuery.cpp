@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CQuery.h"
 #include "CGameHandler.h"
+#include "BattleProcessor.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/serializer/Cast.h"
@@ -326,7 +327,7 @@ bool CBattleQuery::blocksPack(const CPack * pack) const
 void CBattleQuery::onRemoval(PlayerColor color)
 {
 	if(result)
-		gh->battleAfterLevelUp(*result);
+		gh->battles->battleAfterLevelUp(*result);
 }
 
 void CGarrisonDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
@@ -418,7 +419,7 @@ void CBattleDialogQuery::onRemoval(PlayerColor color)
 	}
 	else
 	{
-		gh->endBattleConfirm(bi);
+		gh->battles->endBattleConfirm(bi);
 	}
 }
 

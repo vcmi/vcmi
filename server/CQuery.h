@@ -8,13 +8,13 @@
  *
  */
 #pragma once
+
 #include "../lib/GameConstants.h"
-#include "../lib/int3.h"
 #include "../lib/NetPacks.h"
-#include "JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class JsonNode;
 class CGObjectInstance;
 class CGHeroInstance;
 class CArmedInstance;

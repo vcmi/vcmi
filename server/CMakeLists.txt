@@ -1,6 +1,7 @@
 set(server_SRCS
 		StdInc.cpp
 
+		BattleProcessor.cpp
 		CGameHandler.cpp
 		HeroPoolProcessor.cpp
 		PlayerMessageProcessor.cpp
@@ -14,6 +15,7 @@ set(server_SRCS
 set(server_HEADERS
 		StdInc.h
 
+		BattleProcessor.h
 		CGameHandler.h
 		HeroPoolProcessor.h
 		PlayerMessageProcessor.h
