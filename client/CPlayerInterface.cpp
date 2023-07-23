@@ -476,6 +476,9 @@ void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
 	adventureInt->onHeroChanged(hero);
 	if (makingTurn && hero->tempOwner == playerID)
 		adventureInt->onHeroChanged(hero);
+
+	for (auto window : GH.windows().findWindows<BattleWindow>())
+		window->heroManaPointsChanged(hero);
 }
 void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 {
