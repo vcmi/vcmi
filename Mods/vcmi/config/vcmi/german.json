@@ -29,6 +29,13 @@
 	"vcmi.capitalColors.5" : "Violett",
 	"vcmi.capitalColors.6" : "Türkis",
 	"vcmi.capitalColors.7" : "Rosa",
+	
+	"vcmi.radialWheel.mergeSameUnit" : "Gleiche Kreaturen zusammenführen",
+	"vcmi.radialWheel.showUnitInformation" : "Informationen zur Kreatur anzeigen",
+	"vcmi.radialWheel.splitSingleUnit" : "Wegtrennen einzelner Kreaturen",
+	"vcmi.radialWheel.splitUnitEqually" : "Gleichmäßiges trennen der Kreaturen",
+	"vcmi.radialWheel.moveUnit" : "Verschieben der Kreatur in andere Armee",
+	"vcmi.radialWheel.splitUnit" : "Aufsplitten der Kreatur in anderen Slot",
 
 	"vcmi.mainMenu.tutorialNotImplemented" : "Das Tutorial ist aktuell noch nicht implementiert\n",
 	"vcmi.mainMenu.highscoresNotImplemented" : "Die Highscores sind aktuell noch nicht implementiert\n",
@@ -38,6 +45,9 @@
 	"vcmi.mainMenu.hostTCP" : "Hoste TCP/IP Spiel",
 	"vcmi.mainMenu.joinTCP" : "Trete TCP/IP Spiel bei",
 	"vcmi.mainMenu.playerName" : "Spieler",
+	
+	"vcmi.lobby.filename" : "Dateiname",
+	"vcmi.lobby.creationDate" : "Erstellungsdatum",
 
 	"vcmi.server.errors.existingProcess"     : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
 	"vcmi.server.errors.modsIncompatibility" : "Erforderliche Mods um das Spiel zu laden:",
@@ -87,6 +97,10 @@
 	"vcmi.adventureOptions.showGrid.help" : "{Raster anzeigen}\n\n Zeigt eine Rasterüberlagerung, die die Grenzen zwischen den Kacheln der Abenteuerkarte anzeigt.",
 	"vcmi.adventureOptions.borderScroll.hover" : "Scrollen am Rand",
 	"vcmi.adventureOptions.borderScroll.help" : "{Scrollen am Rand}\n\nScrollt die Abenteuerkarte, wenn sich der Cursor neben dem Fensterrand befindet. Kann mit gedrückter STRG-Taste deaktiviert werden.",
+	"vcmi.adventureOptions.infoBarCreatureManagement.hover" : "Info-Panel Kreaturenmanagement",
+	"vcmi.adventureOptions.infoBarCreatureManagement.help" : "{Info-Panel Kreaturenmanagement}\n\nErmöglicht die Neuanordnung von Kreaturen im Info-Panel, anstatt zwischen den Standardkomponenten zu wechseln",
+	"vcmi.adventureOptions.leftButtonDrag.hover" : "Ziehen der Karte mit Links",
+	"vcmi.adventureOptions.leftButtonDrag.help" : "{Ziehen der Karte mit Links}\n\nWenn aktiviert, wird die Maus bei gedrückter linker Taste in die Kartenansicht gezogen",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",
@@ -113,10 +127,12 @@
 	"vcmi.battleOptions.movementHighlightOnHover.help": "{Hervorhebung der Bewegung bei Hover}\n\nHebt die Bewegungsreichweite der Einheit hervor, wenn man mit dem Mauszeiger über sie fährt.",
 	"vcmi.battleOptions.rangeLimitHighlightOnHover.hover": "Bereichsgrenzen für Schützen anzeigen",
 	"vcmi.battleOptions.rangeLimitHighlightOnHover.help": "{Bereichsgrenzen für Schützen anzeigen}\n\nZeigt die Entfernungsgrenzen des Schützen an, wenn man mit dem Mauszeiger über ihn fährt.",
+	"vcmi.battleOptions.showStickyHeroInfoWindows.hover": "Statistikfenster für Helden anzeigen",
+	"vcmi.battleOptions.showStickyHeroInfoWindows.help": "{Statistikfenster für Helden anzeigen}\n\nDauerhaftes Einschalten des Statistikfenster für Helden, das die primären Werte und Zauberpunkte anzeigt.",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Intro-Musik überspringen",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Intro-Musik überspringen}\n\n Überspringe die kurze Musik, die zu Beginn eines jeden Kampfes gespielt wird, bevor die Action beginnt. Kann auch durch Drücken der ESC-Taste übersprungen werden.",
-	"vcmi.battleWindow.pressKeyToSkipIntro" : "Beliebige Taste drücken, um das Kampf-Intro zu überspringen",
 
+	"vcmi.battleWindow.pressKeyToSkipIntro" : "Beliebige Taste drücken, um das Kampf-Intro zu überspringen",
 	"vcmi.battleWindow.damageEstimation.melee" : "Angriff auf %CREATURE (%DAMAGE).",
 	"vcmi.battleWindow.damageEstimation.meleeKills" : "Angriff auf %CREATURE (%DAMAGE, %KILLS).",
 	"vcmi.battleWindow.damageEstimation.ranged" : "Schuss auf %CREATURE (%SHOTS, %DAMAGE).",
