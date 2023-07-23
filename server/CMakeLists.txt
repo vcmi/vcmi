@@ -3,7 +3,10 @@ set(server_SRCS
 
 		battles/BattleProcessor.cpp
 
+		queries/BattleQueries.cpp
 		queries/CQuery.cpp
+		queries/MapQueries.cpp
+		queries/QueriesProcessor.cpp
 
 		processors/HeroPoolProcessor.cpp
 		processors/PlayerMessageProcessor.cpp
@@ -20,7 +23,10 @@ set(server_HEADERS
 
 		battles/BattleProcessor.h
 
+		queries/BattleQueries.h
 		queries/CQuery.h
+		queries/MapQueries.h
+		queries/QueriesProcessor.h
 
 		processors/HeroPoolProcessor.h
 		processors/PlayerMessageProcessor.h

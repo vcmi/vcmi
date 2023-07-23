@@ -11,9 +11,11 @@
 #include "ServerSpellCastEnvironment.h"
 
 #include "CGameHandler.h"
+#include "queries/QueriesProcessor.h"
 #include "queries/CQuery.h"
 
 #include "../lib/gameState/CGameState.h"
+#include "../lib/NetPacks.h"
 
 ///ServerSpellCastEnvironment
 ServerSpellCastEnvironment::ServerSpellCastEnvironment(CGameHandler * gh)

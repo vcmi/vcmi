@@ -14,7 +14,7 @@
 #include "battles/BattleProcessor.h"
 #include "processors/HeroPoolProcessor.h"
 #include "processors/PlayerMessageProcessor.h"
-#include "queries/CQuery.h"
+#include "queries/QueriesProcessor.h"
 
 #include "../lib/IGameCallback.h"
 #include "../lib/mapObjects/CGTownInstance.h"

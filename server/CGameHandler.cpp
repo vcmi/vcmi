@@ -16,7 +16,8 @@
 #include "battles/BattleProcessor.h"
 #include "processors/HeroPoolProcessor.h"
 #include "processors/PlayerMessageProcessor.h"
-#include "queries/CQuery.h"
+#include "queries/QueriesProcessor.h"
+#include "queries/MapQueries.h"
 
 #include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"
@@ -544,7 +545,7 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	: lobby(lobby)
 	, heroPool(std::make_unique<HeroPoolProcessor>(this))
 	, battles(std::make_unique<BattleProcessor>(this))
-	, queries(std::make_unique<Queries>())
+	, queries(std::make_unique<QueriesProcessor>())
 	, playerMessages(std::make_unique<PlayerMessageProcessor>(this))
 	, complainNoCreatures("No creatures to split")
 	, complainNotEnoughCreatures("Cannot split that stack, not enough creatures!")

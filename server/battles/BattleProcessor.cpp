@@ -13,21 +13,23 @@
 #include "../CGameHandler.h"
 #include "../CVCMIServer.h"
 #include "../processors/HeroPoolProcessor.h"
-#include "../queries/CQuery.h"
+#include "../queries/QueriesProcessor.h"
+#include "../queries/BattleQueries.h"
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/CModHandler.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/ScopeGuard.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/UnlockGuard.h"
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/battle/CUnitState.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/CMap.h"
+#include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/serializer/Cast.h"
 #include "../../lib/spells/AbilityCaster.h"
 #include "../../lib/spells/BonusCaster.h"
@@ -350,7 +352,7 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 
 	setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 
-	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries.topQuery(gameHandler->gameState()->curB->sides[0].color));
+	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(gameHandler->gameState()->curB->sides[0].color));
 
 	//existing battle query for retying auto-combat
 	if(lastBattleQuery)
@@ -2001,7 +2003,7 @@ void BattleProcessor::setupBattle(int3 tile, const CArmedInstance *armies[2], co
 	engageIntoBattle(bs.info->sides[0].color);
 	engageIntoBattle(bs.info->sides[1].color);
 
-	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries.topQuery(bs.info->sides[0].color));
+	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(bs.info->sides[0].color));
 	bs.info->replayAllowed = lastBattleQuery == nullptr && !bs.info->sides[1].color.isValidPlayer();
 
 	gameHandler->sendAndApply(&bs);
@@ -2019,7 +2021,6 @@ void BattleProcessor::checkBattleStateChanges()
 		setBattleResult(BattleResult::NORMAL, *result);
 	}
 }
-
 
 bool BattleProcessor::makeBattleAction(BattleAction &ba)
 {

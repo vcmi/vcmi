@@ -16,7 +16,7 @@
 #include "../../lib/serializer/Connection.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/CModHandler.h"
+#include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/NetPacks.h"

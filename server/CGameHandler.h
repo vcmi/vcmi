@@ -47,7 +47,7 @@ class CVCMIServer;
 class CBaseForGHApply;
 class PlayerMessageProcessor;
 class BattleProcessor;
-class Queries;
+class QueriesProcessor;
 class CObjectVisitQuery;
 
 struct PlayerStatus
@@ -87,7 +87,7 @@ public:
 
 	std::unique_ptr<HeroPoolProcessor> heroPool;
 	std::unique_ptr<BattleProcessor> battles;
-	std::unique_ptr<Queries> queries;
+	std::unique_ptr<QueriesProcessor> queries;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
 	enum EGuardLook {CHECK_FOR_GUARDS, IGNORE_GUARDS};

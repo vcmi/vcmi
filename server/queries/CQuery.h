@@ -10,21 +10,17 @@
 #pragma once
 
 #include "../../lib/GameConstants.h"
-#include "../../lib/NetPacks.h"
+#include "../../lib/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class JsonNode;
-class CGObjectInstance;
-class CGHeroInstance;
-class CArmedInstance;
+struct CPack;
 
 VCMI_LIB_NAMESPACE_END
 
-class CGameHandler;
 class CObjectVisitQuery;
+class QueriesProcessor;
 class CQuery;
-class Queries;
 
 using QueryPtr = std::shared_ptr<CQuery>;
 
@@ -42,7 +38,7 @@ public:
 	std::vector<PlayerColor> players; //players that are affected (often "blocked") by query
 	QueryID queryID;
 
-	CQuery(Queries * Owner);
+	CQuery(QueriesProcessor * Owner);
 
 
 	virtual bool blocksPack(const CPack *pack) const; //query can block attempting actions by player. Eg. he can't move hero during the battle.
@@ -60,7 +56,7 @@ public:
 
 	virtual ~CQuery();
 protected:
-	Queries * owner;
+	QueriesProcessor * owner;
 	void addPlayer(PlayerColor color);
 	bool blockAllButReply(const CPack * pack) const;
 };
@@ -76,55 +72,6 @@ protected:
 	CGameHandler * gh;
 };
 
-//Created when hero visits object.
-//Removed when query above is resolved (or immediately after visit if no queries were created)
-class CObjectVisitQuery : public CGhQuery
-{
-public:
-	const CGObjectInstance *visitedObject;
-	const CGHeroInstance *visitingHero;
-	int3 tile; //may be different than hero pos -> eg. visit via teleport
-	bool removeObjectAfterVisit;
-
-	CObjectVisitQuery(CGameHandler * owner, const CGObjectInstance *Obj, const CGHeroInstance *Hero, int3 Tile);
-
-	virtual bool blocksPack(const CPack *pack) const override;
-	virtual void onRemoval(PlayerColor color) override;
-	virtual void onExposure(QueryPtr topQuery) override;
-};
-
-class CBattleQuery : public CGhQuery
-{
-public:
-	std::array<const CArmedInstance *,2> belligerents;
-	std::array<int, 2> initialHeroMana;
-
-	const BattleInfo *bi;
-	std::optional<BattleResult> result;
-
-	CBattleQuery(CGameHandler * owner);
-	CBattleQuery(CGameHandler * owner, const BattleInfo * Bi); //TODO
-	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
-	virtual bool blocksPack(const CPack *pack) const override;
-	virtual void onRemoval(PlayerColor color) override;
-};
-
-//Created when hero attempts move and something happens
-//(not necessarily position change, could be just an object interaction).
-class CHeroMovementQuery : public CGhQuery
-{
-public:
-	TryMoveHero tmh;
-	bool visitDestAfterVictory; //if hero moved to guarded tile and it should be visited once guard is defeated
-	const CGHeroInstance *hero;
-
-	virtual void onExposure(QueryPtr topQuery) override;
-
-	CHeroMovementQuery(CGameHandler * owner, const TryMoveHero & Tmh, const CGHeroInstance * Hero, bool VisitDestAfterVictory = false);
-	virtual void onAdding(PlayerColor color) override;
-	virtual void onRemoval(PlayerColor color) override;
-};
-
 class CDialogQuery : public CGhQuery
 {
 public:
@@ -136,75 +83,10 @@ protected:
 	std::optional<ui32> answer;
 };
 
-class CGarrisonDialogQuery : public CDialogQuery //used also for hero exchange dialogs
-{
-public:
-	std::array<const CArmedInstance *,2> exchangingArmies;
-
-	CGarrisonDialogQuery(CGameHandler * owner, const CArmedInstance *up, const CArmedInstance *down);
-	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
-	virtual bool blocksPack(const CPack *pack) const override;
-};
-
-class CBattleDialogQuery : public CDialogQuery
-{
-public:
-	CBattleDialogQuery(CGameHandler * owner, const BattleInfo * Bi);
-
-	const BattleInfo * bi;
-
-	virtual void onRemoval(PlayerColor color) override;
-};
-
-//yes/no and component selection dialogs
-class CBlockingDialogQuery : public CDialogQuery
-{
-public:
-	BlockingDialog bd; //copy of pack... debug purposes
-
-	CBlockingDialogQuery(CGameHandler * owner, const BlockingDialog &bd);
-
-	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
-};
-
-class CTeleportDialogQuery : public CDialogQuery
-{
-public:
-	TeleportDialog td; //copy of pack... debug purposes
-
-	CTeleportDialogQuery(CGameHandler * owner, const TeleportDialog &td);
-
-	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
-};
-
-class CHeroLevelUpDialogQuery : public CDialogQuery
-{
-public:
-	CHeroLevelUpDialogQuery(CGameHandler * owner, const HeroLevelUp &Hlu, const CGHeroInstance * Hero);
-
-	virtual void onRemoval(PlayerColor color) override;
-	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
-
-	HeroLevelUp hlu;
-	const CGHeroInstance * hero;
-};
-
-class CCommanderLevelUpDialogQuery : public CDialogQuery
-{
-public:
-	CCommanderLevelUpDialogQuery(CGameHandler * owner, const CommanderLevelUp &Clu, const CGHeroInstance * Hero);
-
-	virtual void onRemoval(PlayerColor color) override;
-	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
-
-	CommanderLevelUp clu;
-	const CGHeroInstance * hero;
-};
-
 class CGenericQuery : public CQuery
 {
 public:
-	CGenericQuery(Queries * Owner, PlayerColor color, std::function<void(const JsonNode &)> Callback);
+	CGenericQuery(QueriesProcessor * Owner, PlayerColor color, std::function<void(const JsonNode &)> Callback);
 
 	bool blocksPack(const CPack * pack) const override;
 	bool endsByPlayerAnswer() const override;
@@ -214,29 +96,4 @@ public:
 private:
 	std::function<void(const JsonNode &)> callback;
 	JsonNode reply;
-};
-
-class Queries
-{
-private:
-	void addQuery(PlayerColor player, QueryPtr query);
-	void popQuery(PlayerColor player, QueryPtr query);
-
-	std::map<PlayerColor, std::vector<QueryPtr>> queries; //player => stack of queries
-
-public:
-	static boost::mutex mx;
-
-	void addQuery(QueryPtr query);
-	void popQuery(const CQuery &query);
-	void popQuery(QueryPtr query);
-	void popIfTop(const CQuery &query); //removes this query if it is at the top (otherwise, do nothing)
-	void popIfTop(QueryPtr query); //removes this query if it is at the top (otherwise, do nothing)
-
-	QueryPtr topQuery(PlayerColor player);
-
-	std::vector<std::shared_ptr<const CQuery>> allQueries() const;
-	std::vector<QueryPtr> allQueries();
-	QueryPtr getQuery(QueryID queryID);
-	//void removeQuery
 };
