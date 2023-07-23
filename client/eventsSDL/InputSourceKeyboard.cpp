@@ -17,6 +17,7 @@
 #include "../gui/EventDispatcher.h"
 #include "../gui/ShortcutHandler.h"
 
+#include <SDL_clipboard.h>
 #include <SDL_events.h>
 #include <SDL_hints.h>
 
@@ -30,13 +31,24 @@ InputSourceKeyboard::InputSourceKeyboard()
 
 void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 {
-	if(key.repeat != 0)
-		return; // ignore periodic event resends
-
 	if (SDL_IsTextInputActive() == SDL_TRUE)
 	{
+		if(key.keysym.sym == SDLK_v && isKeyboardCtrlDown()) 
+		{
+			char * clipboardBuffer = SDL_GetClipboardText();
+			std::string clipboardContent = clipboardBuffer;
+			boost::erase_all(clipboardContent, "\r");
+			boost::erase_all(clipboardContent, "\n");
+			GH.events().dispatchTextInput(clipboardContent);
+			SDL_free(clipboardBuffer);
+			return;
+	 	}
+
 		if (key.keysym.sym >= ' ' && key.keysym.sym < 0x80)
 			return; // printable character - will be handled as text input
+	} else {
+		if(key.repeat != 0)
+			return; // ignore periodic event resends
 	}
 
 	assert(key.state == SDL_PRESSED);
