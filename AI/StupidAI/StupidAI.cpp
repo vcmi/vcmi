@@ -90,7 +90,7 @@ static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const Battl
 
 void CStupidAI::yourTacticPhase(int distance)
 {
-	cb->battleMakeUnitAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
+	cb->battleMakeTacticAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
 }
 
 void CStupidAI::activeStack( const CStack * stack )

@@ -26,6 +26,7 @@
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/VCMIDirs.h"
+#include "../lib/UnlockGuard.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/serializer/BinaryDeserializer.h"
 #include "../lib/mapping/CMapService.h"
@@ -624,6 +625,14 @@ void CClient::battleStarted(const BattleInfo * info)
 			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def, spectratorInt);
 		}
 	}
+
+	if(info->tacticDistance)
+	{
+		auto tacticianColor = info->sides[info->tacticsSide].color;
+
+		if (vstd::contains(battleints, tacticianColor))
+			battleints[tacticianColor]->yourTacticPhase(info->tacticDistance);
+	}
 }
 
 void CClient::battleFinished()
@@ -645,6 +654,9 @@ void CClient::startPlayerBattleAction(PlayerColor color)
 
 	if(vstd::contains(battleints, color))
 	{
+		// we want to avoid locking gamestate and causing UI to freeze while AI is making turn
+		auto unlock = vstd::makeUnlockGuardIf(*CPlayerInterface::pim, !battleints[color]->human);
+
 		assert(vstd::contains(battleints, color));
 		battleints[color]->activeStack(gs->curB->battleGetStackByID(gs->curB->activeStack, false));
 	}
