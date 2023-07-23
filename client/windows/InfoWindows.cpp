@@ -90,6 +90,15 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 		//buttons.back()->addCallback(std::bind(&CCallback::selectionMade, LOCPLINT->cb.get(), 0, askID));
 	}
 
+	if(buttons.size() == 1)
+		buttons.front()->assignedKey = EShortcut::GLOBAL_RETURN;
+
+	if(buttons.size() == 2)
+	{
+		buttons.front()->assignedKey = EShortcut::GLOBAL_ACCEPT;
+		buttons.back()->assignedKey = EShortcut::GLOBAL_CANCEL;
+	}
+
 	for(int i=0;i<comps.size();i++)
 	{
 		comps[i]->recActions = 255-DISPOSE;

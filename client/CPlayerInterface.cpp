@@ -1907,8 +1907,9 @@ bool CPlayerInterface::capturedAllEvents()
 	}
 
 	bool needToLockAdventureMap = adventureInt && adventureInt->isActive() && CGI->mh->hasOngoingAnimations();
+	bool quickCombatOngoing = isAutoFightOn && !battleInt;
 
-	if (ignoreEvents || needToLockAdventureMap || isAutoFightOn)
+	if (ignoreEvents || needToLockAdventureMap || quickCombatOngoing )
 	{
 		GH.input().ignoreEventsUntilInput();
 		return true;

@@ -255,6 +255,7 @@ CGHeroInstance::CGHeroInstance():
 	setNodeType(HERO);
 	ID = Obj::HERO;
 	secSkills.emplace_back(SecondarySkill::DEFAULT, -1);
+	blockVisit = true;
 }
 
 PlayerColor CGHeroInstance::getOwner() const
@@ -364,8 +365,19 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 		commander->giveStackExp (exp); //after our exp is set
 	}
 
-	if (mana < 0)
-		mana = manaLimit();
+	skillsInfo.rand.setSeed(rand.nextInt());
+	skillsInfo.resetMagicSchoolCounter();
+	skillsInfo.resetWisdomCounter();
+
+	//copy active (probably growing) bonuses from hero prototype to hero object
+	for(const std::shared_ptr<Bonus> & b : type->specialty)
+		addNewBonus(b);
+
+	//initialize bonuses
+	recreateSecondarySkillsBonuses();
+
+	movement = movementPointsLimit(true);
+	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
 }
 
 void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
@@ -533,14 +545,8 @@ void CGHeroInstance::SecondarySkillsInfo::resetWisdomCounter()
 
 void CGHeroInstance::initObj(CRandomGenerator & rand)
 {
-	blockVisit = true;
-
 	if(!type)
 		initHero(rand); //TODO: set up everything for prison before specialties are configured
-
-	skillsInfo.rand.setSeed(rand.nextInt());
-	skillsInfo.resetMagicSchoolCounter();
-	skillsInfo.resetWisdomCounter();
 
 	if (ID != Obj::PRISON)
 	{
@@ -549,15 +555,6 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 		if (customApp)
 			appearance = customApp;
 	}
-
-	//copy active (probably growing) bonuses from hero prototype to hero object
-	for(const std::shared_ptr<Bonus> & b : type->specialty)
-		addNewBonus(b);
-
-	//initialize bonuses
-	recreateSecondarySkillsBonuses();
-
-	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
 }
 
 void CGHeroInstance::recreateSecondarySkillsBonuses()

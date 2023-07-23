@@ -251,7 +251,7 @@ BattleAction CBattleAI::selectStackAction(const CStack * stack)
 
 void CBattleAI::yourTacticPhase(int distance)
 {
-	cb->battleMakeUnitAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
+	cb->battleMakeTacticAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
 }
 
 void CBattleAI::activeStack( const CStack * stack )
