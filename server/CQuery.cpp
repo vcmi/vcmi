@@ -143,7 +143,7 @@ bool CQuery::blockAllButReply(const CPack * pack) const
 }
 
 CGhQuery::CGhQuery(CGameHandler * owner):
-	CQuery(&owner->queries), gh(owner)
+	CQuery(owner->queries.get()), gh(owner)
 {
 
 }

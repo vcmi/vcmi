@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "../lib/gameState/CGameState.h"
+#include "CQuery.h"
 #include "CGameHandler.h"
 #include "ServerSpellCastEnvironment.h"
 
@@ -90,8 +91,8 @@ bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, bool t
 
 void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode&)> callback)
 {
-	auto query = std::make_shared<CGenericQuery>(&gh->queries, color, callback);
+	auto query = std::make_shared<CGenericQuery>(gh->queries.get(), color, callback);
 	request->queryID = query->queryID;
-	gh->queries.addQuery(query);
+	gh->queries->addQuery(query);
 	gh->sendAndApply(request);
 }

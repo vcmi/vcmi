@@ -16,6 +16,7 @@
 #include "PlayerMessageProcessor.h"
 #include "ServerNetPackVisitors.h"
 #include "ServerSpellCastEnvironment.h"
+#include "CQuery.h"
 
 #include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"
@@ -255,7 +256,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	{
 		auto levelUpQuery = std::make_shared<CHeroLevelUpDialogQuery>(this, hlu, hero);
 		hlu.queryID = levelUpQuery->queryID;
-		queries.addQuery(levelUpQuery);
+		queries->addQuery(levelUpQuery);
 		sendAndApply(&hlu);
 		//level up will be called on query reply
 	}
@@ -396,7 +397,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	{
 		auto commanderLevelUp = std::make_shared<CCommanderLevelUpDialogQuery>(this, clu, hero);
 		clu.queryID = commanderLevelUp->queryID;
-		queries.addQuery(commanderLevelUp);
+		queries->addQuery(commanderLevelUp);
 		sendAndApply(&clu);
 	}
 }
@@ -539,11 +540,11 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 	vstd::clear_pointer(pack);
 }
 
-
 CGameHandler::CGameHandler(CVCMIServer * lobby)
 	: lobby(lobby)
 	, heroPool(std::make_unique<HeroPoolProcessor>(this))
 	, battles(std::make_unique<BattleProcessor>(this))
+	, queries(std::make_unique<Queries>())
 	, playerMessages(std::make_unique<PlayerMessageProcessor>(this))
 	, complainNoCreatures("No creatures to split")
 	, complainNotEnoughCreatures("Cannot split that stack, not enough creatures!")
@@ -1219,7 +1220,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		LOG_TRACE_PARAMS(logGlobal, "Hero %s starts movement from %s to %s", h->getNameTranslated() % tmh.start.toString() % tmh.end.toString());
 
 		auto moveQuery = std::make_shared<CHeroMovementQuery>(this, tmh, h);
-		queries.addQuery(moveQuery);
+		queries->addQuery(moveQuery);
 
 		if (leavingTile == LEAVING_TILE)
 			leaveTile();
@@ -1246,7 +1247,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 			visitObjectOnTile(t, h);
 		}
 
-		queries.popIfTop(moveQuery);
+		queries->popIfTop(moveQuery);
 		logGlobal->trace("Hero %s ends movement", h->getNameTranslated());
 		return result != TryMoveHero::FAILED;
 	};
@@ -1408,7 +1409,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 void CGameHandler::showBlockingDialog(BlockingDialog *iw)
 {
 	auto dialogQuery = std::make_shared<CBlockingDialogQuery>(this, *iw);
-	queries.addQuery(dialogQuery);
+	queries->addQuery(dialogQuery);
 	iw->queryID = dialogQuery->queryID;
 	sendToAllClients(iw);
 }
@@ -1416,7 +1417,7 @@ void CGameHandler::showBlockingDialog(BlockingDialog *iw)
 void CGameHandler::showTeleportDialog(TeleportDialog *iw)
 {
 	auto dialogQuery = std::make_shared<CTeleportDialogQuery>(this, *iw);
-	queries.addQuery(dialogQuery);
+	queries->addQuery(dialogQuery);
 	iw->queryID = dialogQuery->queryID;
 	sendToAllClients(iw);
 }
@@ -1685,7 +1686,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 		sendAndApply(&hex);
 
 		useScholarSkill(hero1,hero2);
-		queries.addQuery(exchange);
+		queries->addQuery(exchange);
 	}
 }
 
@@ -3186,13 +3187,13 @@ bool CGameHandler::queryReply(QueryID qid, const JsonNode & answer, PlayerColor 
 	logGlobal->trace("Player %s attempts answering query %d with answer:", player, qid);
 	logGlobal->trace(answer.toJson());
 
-	auto topQuery = queries.topQuery(player);
+	auto topQuery = queries->topQuery(player);
 
 	COMPLAIN_RET_FALSE_IF(!topQuery, "This player doesn't have any queries!");
 
 	if(topQuery->queryID != qid)
 	{
-		auto currentQuery = queries.getQuery(qid);
+		auto currentQuery = queries->getQuery(qid);
 
 		if(currentQuery != nullptr && currentQuery->endsByPlayerAnswer())
 			currentQuery->setReply(answer);
@@ -3202,7 +3203,7 @@ bool CGameHandler::queryReply(QueryID qid, const JsonNode & answer, PlayerColor 
 	COMPLAIN_RET_FALSE_IF(!topQuery->endsByPlayerAnswer(), "This query cannot be ended by player's answer!");
 
 	topQuery->setReply(answer);
-	queries.popQuery(topQuery);
+	queries->popQuery(topQuery);
 	return true;
 }
 
@@ -3365,7 +3366,7 @@ void CGameHandler::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID h
 	assert(upperArmy);
 
 	auto garrisonQuery = std::make_shared<CGarrisonDialogQuery>(this, upperArmy, lowerArmy);
-	queries.addQuery(garrisonQuery);
+	queries->addQuery(garrisonQuery);
 
 	GarrisonDialog gd;
 	gd.hid = hid;
@@ -3419,10 +3420,10 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 		}
 
 		//Ongoing garrison exchange - usually picking from top garison (from o1 to o2), but who knows
-		auto dialog = std::dynamic_pointer_cast<CGarrisonDialogQuery>(queries.topQuery(o1->tempOwner));
+		auto dialog = std::dynamic_pointer_cast<CGarrisonDialogQuery>(queries->topQuery(o1->tempOwner));
 		if (!dialog)
 		{
-			dialog = std::dynamic_pointer_cast<CGarrisonDialogQuery>(queries.topQuery(o2->tempOwner));
+			dialog = std::dynamic_pointer_cast<CGarrisonDialogQuery>(queries->topQuery(o2->tempOwner));
 		}
 		if (dialog)
 		{
@@ -3463,7 +3464,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 			}
 		}
 		visitQuery = std::make_shared<CObjectVisitQuery>(this, visitedObject, h, visitedObject->visitablePos());
-		queries.addQuery(visitQuery); //TODO real visit pos
+		queries->addQuery(visitQuery); //TODO real visit pos
 
 		HeroVisit hv;
 		hv.objId = obj->id;
@@ -3478,7 +3479,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 	ObjectVisitStarted::defaultExecute(serverEventBus.get(), startVisit, h->tempOwner, h->id, obj->id);
 
 	if(visitQuery)
-		queries.popIfTop(visitQuery); //visit ends here if no queries were created
+		queries->popIfTop(visitQuery); //visit ends here if no queries were created
 }
 
 void CGameHandler::objectVisitEnded(const CObjectVisitQuery & query)
@@ -4084,7 +4085,7 @@ bool CGameHandler::isBlockedByQueries(const CPack *pack, PlayerColor player)
 	if (!strcmp(typeid(*pack).name(), typeid(PlayerMessage).name()))
 		return false;
 
-	auto query = queries.topQuery(player);
+	auto query = queries->topQuery(player);
 	if (query && query->blocksPack(pack))
 	{
 		complain(boost::str(boost::format(
@@ -4101,7 +4102,7 @@ bool CGameHandler::isBlockedByQueries(const CPack *pack, PlayerColor player)
 void CGameHandler::removeAfterVisit(const CGObjectInstance *object)
 {
 	//If the object is being visited, there must be a matching query
-	for (const auto &query : queries.allQueries())
+	for (const auto &query : queries->allQueries())
 	{
 		if (auto someVistQuery = std::dynamic_pointer_cast<CObjectVisitQuery>(query))
 		{
@@ -4150,7 +4151,7 @@ void CGameHandler::changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor p
 
 bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)
 {
-	if (auto topQuery = queries.topQuery(hero->getOwner()))
+	if (auto topQuery = queries->topQuery(hero->getOwner()))
 		if (auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(topQuery))
 			return !(visit->visitedObject == obj && visit->visitingHero == hero);
 

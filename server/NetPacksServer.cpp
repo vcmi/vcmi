@@ -12,6 +12,7 @@
 
 #include "CGameHandler.h"
 #include "BattleProcessor.h"
+#include "CQuery.h"
 #include "HeroPoolProcessor.h"
 #include "PlayerMessageProcessor.h"
 
@@ -48,7 +49,7 @@ void ApplyGhNetPackVisitor::visitEndTurn(EndTurn & pack)
 	}
 
 	gh.throwOnWrongPlayer(&pack, pack.player);
-	if(gh.queries.topQuery(pack.player))
+	if(gh.queries->topQuery(pack.player))
 		gh.throwAndComplain(&pack, "Cannot end turn before resolving queries!");
 
 	gh.states.setFlag(gs.currentPlayer, &PlayerStatus::makingTurn, false);

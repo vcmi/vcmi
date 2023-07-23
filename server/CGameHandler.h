@@ -14,13 +14,22 @@
 #include "../lib/IGameCallback.h"
 #include "../lib/battle/CBattleInfoCallback.h"
 #include "../lib/ScriptHandler.h"
-#include "CQuery.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct SideInBattle;
 class IMarket;
 class SpellCastEnvironment;
+class CConnection;
+class CCommanderInstance;
+class EVictoryLossCheckResult;
+
+struct CPack;
+struct CPackForServer;
+struct NewTurn;
+struct CGarrisonOperationPack;
+struct SetResources;
+struct NewStructures;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -38,6 +47,8 @@ class CVCMIServer;
 class CBaseForGHApply;
 class PlayerMessageProcessor;
 class BattleProcessor;
+class Queries;
+class CObjectVisitQuery;
 
 struct PlayerStatus
 {
@@ -76,6 +87,7 @@ public:
 
 	std::unique_ptr<HeroPoolProcessor> heroPool;
 	std::unique_ptr<BattleProcessor> battles;
+	std::unique_ptr<Queries> queries;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
 	enum EGuardLook {CHECK_FOR_GUARDS, IGNORE_GUARDS};
@@ -90,7 +102,7 @@ public:
 	//queries stuff
 	boost::recursive_mutex gsm;
 	ui32 QID;
-	Queries queries;
+
 
 	SpellCastEnvironment * spellEnv;
 

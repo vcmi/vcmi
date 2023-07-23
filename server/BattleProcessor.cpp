@@ -381,7 +381,7 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 			nextBattleQuery->initialHeroMana[i] = heroes[i]->mana;
 		}
 	}
-	gameHandler->queries.addQuery(nextBattleQuery);
+	gameHandler->queries->addQuery(nextBattleQuery);
 
 	this->battleThread = std::make_unique<boost::thread>(boost::thread(&BattleProcessor::runBattle, this));
 }
@@ -1384,7 +1384,7 @@ void BattleProcessor::endBattle(int3 tile, const CGHeroInstance * heroAttacker, 
 	if(heroDefender)
 		battleResult.data->exp[1] = heroDefender->calculateXp(battleResult.data->exp[1]);
 
-	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries.topQuery(gameHandler->gameState()->curB->sides[0].color));
+	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(gameHandler->gameState()->curB->sides[0].color));
 	if (!battleQuery)
 	{
 		logGlobal->error("Cannot find battle query!");
@@ -1395,7 +1395,7 @@ void BattleProcessor::endBattle(int3 tile, const CGHeroInstance * heroAttacker, 
 	battleQuery->result = std::make_optional(*battleResult.data);
 
 	//Check how many battle gameHandler->queries were created (number of players blocked by battle)
-	const int queriedPlayers = battleQuery ? (int)boost::count(gameHandler->queries.allQueries(), battleQuery) : 0;
+	const int queriedPlayers = battleQuery ? (int)boost::count(gameHandler->queries->allQueries(), battleQuery) : 0;
 	finishingBattle = std::make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
 
 	// in battles against neutrals, 1st player can ask to replay battle manually
@@ -1403,13 +1403,13 @@ void BattleProcessor::endBattle(int3 tile, const CGHeroInstance * heroAttacker, 
 	{
 		auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(gameHandler, gameHandler->gameState()->curB);
 		battleResult.data->queryID = battleDialogQuery->queryID;
-		gameHandler->queries.addQuery(battleDialogQuery);
+		gameHandler->queries->addQuery(battleDialogQuery);
 	}
 	else
 		battleResult.data->queryID = -1;
 
 	//set same battle result for all gameHandler->queries
-	for(auto q : gameHandler->queries.allQueries())
+	for(auto q : gameHandler->queries->allQueries())
 	{
 		auto otherBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(q);
 		if(otherBattleQuery)
@@ -1424,7 +1424,7 @@ void BattleProcessor::endBattle(int3 tile, const CGHeroInstance * heroAttacker, 
 
 void BattleProcessor::endBattleConfirm(const BattleInfo * battleInfo)
 {
-	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries.topQuery(battleInfo->sides.at(0).color));
+	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battleInfo->sides.at(0).color));
 	if(!battleQuery)
 	{
 		logGlobal->trace("No battle query, battle end was confirmed by another player");
@@ -1619,7 +1619,7 @@ void BattleProcessor::endBattleConfirm(const BattleInfo * battleInfo)
 	raccepted.winnerSide = finishingBattle->winnerSide;
 	gameHandler->sendAndApply(&raccepted);
 
-	gameHandler->queries.popIfTop(battleQuery);
+	gameHandler->queries->popIfTop(battleQuery);
 	//--> continuation (battleAfterLevelUp) occurs after level-up gameHandler->queries are handled or on removing query
 }
 
