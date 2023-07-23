@@ -96,8 +96,6 @@ class InputSourceTouch
 
 	void emitPanningEvent(const SDL_TouchFingerEvent & tfinger);
 	void emitPinchEvent(const SDL_TouchFingerEvent & tfinger);
-	
-	void hapticFeedback();
 
 public:
 	InputSourceTouch();
@@ -105,6 +103,8 @@ public:
 	void handleEventFingerMotion(const SDL_TouchFingerEvent & current);
 	void handleEventFingerDown(const SDL_TouchFingerEvent & current);
 	void handleEventFingerUp(const SDL_TouchFingerEvent & current);
+
+	void hapticFeedback();
 
 	void handleUpdate();
 

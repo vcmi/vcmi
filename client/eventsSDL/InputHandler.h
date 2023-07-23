@@ -63,6 +63,9 @@ public:
 	/// Ends any existing text input state
 	void stopTextInput();
 
+	/// do a haptic feedback
+	void hapticFeedback();
+
 	/// returns true if system has active touchscreen
 	bool hasTouchInputDevice() const;
 

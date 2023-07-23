@@ -239,6 +239,11 @@ void InputHandler::stopTextInput()
 	textHandler->stopTextInput();
 }
 
+void InputHandler::hapticFeedback()
+{
+	fingerHandler->hapticFeedback();
+}
+
 bool InputHandler::hasTouchInputDevice() const
 {
 	return fingerHandler->hasTouchInputDevice();
