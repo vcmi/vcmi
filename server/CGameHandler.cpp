@@ -10,13 +10,13 @@
 #include "StdInc.h"
 #include "CGameHandler.h"
 
-#include "BattleProcessor.h"
 #include "CVCMIServer.h"
-#include "HeroPoolProcessor.h"
-#include "PlayerMessageProcessor.h"
 #include "ServerNetPackVisitors.h"
 #include "ServerSpellCastEnvironment.h"
-#include "CQuery.h"
+#include "battles/BattleProcessor.h"
+#include "processors/HeroPoolProcessor.h"
+#include "processors/PlayerMessageProcessor.h"
+#include "queries/CQuery.h"
 
 #include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"

@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include "../lib/GameConstants.h"
-#include "../lib/NetPacks.h"
+#include "../../lib/GameConstants.h"
+#include "../../lib/NetPacks.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

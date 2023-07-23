@@ -9,11 +9,13 @@
  */
 #include "StdInc.h"
 #include "CQuery.h"
-#include "CGameHandler.h"
-#include "BattleProcessor.h"
-#include "../lib/battle/BattleInfo.h"
-#include "../lib/mapObjects/MiscObjects.h"
-#include "../lib/serializer/Cast.h"
+
+#include "../CGameHandler.h"
+#include "../battles/BattleProcessor.h"
+
+#include "../../lib/battle/BattleInfo.h"
+#include "../../lib/mapObjects/MiscObjects.h"
+#include "../../lib/serializer/Cast.h"
 
 boost::mutex Queries::mx;
 

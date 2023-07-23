@@ -11,10 +11,10 @@
 #include "ServerNetPackVisitors.h"
 
 #include "CGameHandler.h"
-#include "BattleProcessor.h"
-#include "CQuery.h"
-#include "HeroPoolProcessor.h"
-#include "PlayerMessageProcessor.h"
+#include "battles/BattleProcessor.h"
+#include "processors/HeroPoolProcessor.h"
+#include "processors/PlayerMessageProcessor.h"
+#include "queries/CQuery.h"
 
 #include "../lib/IGameCallback.h"
 #include "../lib/mapObjects/CGTownInstance.h"

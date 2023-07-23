@@ -8,10 +8,12 @@
  *
  */
 #include "StdInc.h"
-#include "../lib/gameState/CGameState.h"
-#include "CQuery.h"
-#include "CGameHandler.h"
 #include "ServerSpellCastEnvironment.h"
+
+#include "CGameHandler.h"
+#include "queries/CQuery.h"
+
+#include "../lib/gameState/CGameState.h"
 
 ///ServerSpellCastEnvironment
 ServerSpellCastEnvironment::ServerSpellCastEnvironment(CGameHandler * gh)
