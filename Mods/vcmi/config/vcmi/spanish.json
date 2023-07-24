@@ -142,7 +142,6 @@
 	"vcmi.questLog.hideComplete.hover" : "Ocultar misiones completas",
 	"vcmi.questLog.hideComplete.help" : "Ocultar todas las misiones que ya han sido completadas",
 
-	"vcmi.randomMapTab.widgets.defaultTemplate"      : "(predeterminado)",
 	"vcmi.randomMapTab.widgets.templateLabel"        : "Plantilla",
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Configurar...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Alineaciones de equipos",

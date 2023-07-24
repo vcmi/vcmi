@@ -119,7 +119,7 @@
 	"vcmi.questLog.hideComplete.hover" : "Скрыть завершенное",
 	"vcmi.questLog.hideComplete.help"  : "Скрыть все завершенные квесты",
 
-	"vcmi.randomMapTab.widgets.defaultTemplate"      : "(Случайный)",
+	"vcmi.randomMapTab.widgets.randomTemplate"      : "(Случайный)",
 	"vcmi.randomMapTab.widgets.templateLabel"        : "Шаблон",
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Настройка...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Распределение команд",

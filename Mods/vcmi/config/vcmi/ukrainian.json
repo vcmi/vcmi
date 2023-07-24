@@ -153,7 +153,7 @@
 	"vcmi.questLog.hideComplete.hover" : "Приховати завершені квести",
 	"vcmi.questLog.hideComplete.help"  : "Приховує всі квести, які вже мають стан виконаних",
 	
-	"vcmi.randomMapTab.widgets.defaultTemplate"      : "(Випадковий)",
+	"vcmi.randomMapTab.widgets.randomTemplate"      : "(Випадковий)",
 	"vcmi.randomMapTab.widgets.templateLabel"        : "Шаблон",
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Налаштувати...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Розподіл команд",

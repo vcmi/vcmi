@@ -170,7 +170,7 @@
 	"vcmi.questLog.hideComplete.hover" : "Verstecke abgeschlossene Quests",
 	"vcmi.questLog.hideComplete.help"  : "Verstecke alle Quests die bereits abgeschlossen sind",
 
-	"vcmi.randomMapTab.widgets.defaultTemplate"      : "(Zufällig)",
+	"vcmi.randomMapTab.widgets.randomTemplate"      : "(Zufällig)",
 	"vcmi.randomMapTab.widgets.templateLabel"        : "Template",
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Einrichtung...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Team-Zuordnungen",
