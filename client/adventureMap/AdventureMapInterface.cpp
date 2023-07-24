@@ -417,13 +417,13 @@ void AdventureMapInterface::hotkeyEndingTurn()
 	if(settings["session"]["spectate"].Bool())
 		return;
 
-	LOCPLINT->makingTurn = false;
-	LOCPLINT->cb->endTurn();
-
 	if(!settings["general"]["startTurnAutosave"].Bool())
 	{
 		LOCPLINT->performAutosave();
 	}
+
+	LOCPLINT->makingTurn = false;
+	LOCPLINT->cb->endTurn();
 
 	mapAudio->onPlayerTurnEnded();
 }
