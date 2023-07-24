@@ -145,7 +145,7 @@
 	"vcmi.questLog.hideComplete.hover" : "隐藏完成任务",
 	"vcmi.questLog.hideComplete.help"  : "隐藏所有完成的任务",
 
-	"vcmi.randomMapTab.widgets.defaultTemplate"      : "默认",
+	"vcmi.randomMapTab.widgets.defaultTemplate"      : "(随机)",
 	"vcmi.randomMapTab.widgets.templateLabel"        : "模板",
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "设定...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "同盟关系",
