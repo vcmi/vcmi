@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 #include "BinarySerializer.h"
-#include "../filesystem/FileStream.h"
 
 #include "../registerTypes/RegisterTypes.h"
 
@@ -38,7 +37,7 @@ void CSaveFile::openNextFile(const boost::filesystem::path &fname)
 	fName = fname;
 	try
 	{
-		sfile = std::make_unique<FileStream>(fname, std::ios::out | std::ios::binary);
+		sfile = std::make_unique<boost::filesystem::fstream>(fname, std::ios::out | std::ios::binary);
 		sfile->exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
 
 		if(!(*sfile))

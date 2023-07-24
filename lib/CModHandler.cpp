@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "CModHandler.h"
 #include "rmg/CRmgTemplateStorage.h"
-#include "filesystem/FileStream.h"
 #include "filesystem/AdapterLoaders.h"
 #include "filesystem/CFilesystemLoader.h"
 #include "filesystem/Filesystem.h"
@@ -1158,7 +1157,7 @@ void CModHandler::afterLoad(bool onlyEssential)
 
 	if(!onlyEssential)
 	{
-		FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::out | std::ofstream::trunc);
+		boost::filesystem::fstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::out | std::ofstream::trunc);
 		file << modSettings.toJson();
 	}
 

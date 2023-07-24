@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 #include "jsonutils.h"
-#include "../lib/filesystem/FileStream.h"
 
 static QVariantMap JsonToMap(const JsonMap & json)
 {
@@ -120,7 +119,7 @@ JsonNode toJson(QVariant object)
 
 void JsonToFile(QString filename, QVariant object)
 {
-	FileStream file(qstringToPath(filename), std::ios::out | std::ios_base::binary);
+	boost::filesystem::fstream file(qstringToPath(filename), std::ios::out | std::ios_base::binary);
 	file << toJson(object).toJson();
 }
 

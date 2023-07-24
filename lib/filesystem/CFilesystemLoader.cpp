@@ -11,7 +11,6 @@
 #include "CFilesystemLoader.h"
 
 #include "CFileInputStream.h"
-#include "FileStream.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -88,7 +87,10 @@ bool CFilesystemLoader::createResource(std::string filename, bool update)
 
 	if (!update)
 	{
-		if (!FileStream::createFile(baseDirectory / filename))
+		// create file, if not exists
+		boost::filesystem::fstream file(baseDirectory / filename);
+
+		if (!file.is_open())
 			return false;
 	}
 	fileList[resID] = filename;

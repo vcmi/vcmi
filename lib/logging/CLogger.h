@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../CConsoleHandler.h"
-#include "../filesystem/FileStream.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

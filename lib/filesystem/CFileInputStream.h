@@ -10,7 +10,6 @@
 #pragma once
 
 #include "CInputStream.h"
-#include "FileStream.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -75,7 +74,7 @@ private:
 	si64 dataSize;
 
 	/** Native c++ input file stream object. */
-	FileStream fileStream;
+	boost::filesystem::fstream fileStream;
 };
 
 VCMI_LIB_NAMESPACE_END

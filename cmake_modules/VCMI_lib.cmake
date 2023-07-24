@@ -60,7 +60,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/filesystem/CZipLoader.cpp
 		${MAIN_LIB_DIR}/filesystem/CZipSaver.cpp
 		${MAIN_LIB_DIR}/filesystem/FileInfo.cpp
-		${MAIN_LIB_DIR}/filesystem/FileStream.cpp
 		${MAIN_LIB_DIR}/filesystem/Filesystem.cpp
 		${MAIN_LIB_DIR}/filesystem/MinizipExtensions.cpp
 		${MAIN_LIB_DIR}/filesystem/ResourceID.cpp
@@ -384,7 +383,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/filesystem/CZipLoader.h
 		${MAIN_LIB_DIR}/filesystem/CZipSaver.h
 		${MAIN_LIB_DIR}/filesystem/FileInfo.h
-		${MAIN_LIB_DIR}/filesystem/FileStream.h
 		${MAIN_LIB_DIR}/filesystem/Filesystem.h
 		${MAIN_LIB_DIR}/filesystem/ISimpleResourceLoader.h
 		${MAIN_LIB_DIR}/filesystem/MinizipExtensions.h
