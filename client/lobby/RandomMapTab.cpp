@@ -160,6 +160,10 @@ void RandomMapTab::updateMapInfoByHost()
 
 	mapInfo->mapHeader->howManyTeams = playersToGen;
 
+	//FIXME: Assign all human-controlled colors in first place
+	//TODO: Where are human / CPU players toggled in player configuration?
+	//TODO: Get human player count
+
 	std::set<TeamID> occupiedTeams;
 	for(int i = 0; i < playersToGen; ++i)
 	{

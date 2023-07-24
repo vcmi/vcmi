@@ -171,6 +171,7 @@ void CMapGenOptions::resetPlayersMap()
 		else if((getPlayerCount() != RANDOM_SIZE && color >= realPlayersCnt)
 		   || (compOnlyPlayerCount != RANDOM_SIZE && color >= (PlayerColor::PLAYER_LIMIT_I-compOnlyPlayerCount)))
 		{
+			//FIXME: Allow humans to choose any color, even from the end of teh list
 			playerType = EPlayerType::COMP_ONLY;
 		}
 		player.setPlayerType(playerType);
