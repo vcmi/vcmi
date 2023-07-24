@@ -229,7 +229,7 @@ public:
 	void initHero(CRandomGenerator & rand);
 	void initHero(CRandomGenerator & rand, const HeroTypeID & SUBID);
 
-	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;
+	ArtPlacementMap putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;
 	void removeArtifact(ArtifactPosition pos) override;
 	void initExp(CRandomGenerator & rand);
 	void initArmy(CRandomGenerator & rand, IArmyDescriptor *dst = nullptr);

@@ -9,7 +9,6 @@
  */
 
 #include "StdInc.h"
-#include "CArtHandler.h"
 
 #include "ArtifactUtils.h"
 #include "CGeneralTextHandler.h"
@@ -925,8 +924,10 @@ unsigned CArtifactSet::getArtPosCount(const ArtifactID & aid, bool onlyWorn, boo
 	return 0;
 }
 
-void CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
+CArtifactSet::ArtPlacementMap CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
 {
+	ArtPlacementMap resArtPlacement;
+
 	setNewArtSlot(slot, art, false);
 	if(art->artType->isCombined() && ArtifactUtils::isSlotEquipment(slot))
 	{
@@ -938,19 +939,26 @@ void CArtifactSet::putArtifact(ArtifactPosition slot, CArtifactInstance * art)
 				mainPart = part.art;
 				break;
 			}
-
-		for(auto & part : art->getPartsInfo())
+		
+		for(const auto & part : art->getPartsInfo())
 		{
 			if(part.art != mainPart)
 			{
-				if(!part.art->artType->canBePutAt(this, part.slot))
-					part.slot = ArtifactUtils::getArtAnyPosition(this, part.art->getTypeId());
+				auto partSlot = part.slot;
+				if(!part.art->artType->canBePutAt(this, partSlot))
+					partSlot = ArtifactUtils::getArtAnyPosition(this, part.art->getTypeId());
 
-				assert(ArtifactUtils::isSlotEquipment(part.slot));
-				setNewArtSlot(part.slot, part.art, true);
+				assert(ArtifactUtils::isSlotEquipment(partSlot));
+				setNewArtSlot(partSlot, part.art, true);
+				resArtPlacement.emplace(std::make_pair(part.art, partSlot));
+			}
+			else
+			{
+				resArtPlacement.emplace(std::make_pair(part.art, part.slot));
 			}
 		}
 	}
+	return resArtPlacement;
 }
 
 void CArtifactSet::removeArtifact(ArtifactPosition slot)
@@ -1031,7 +1039,7 @@ bool CArtifactSet::isPositionFree(const ArtifactPosition & pos, bool onlyLockChe
 	return true; //no slot means not used
 }
 
-void CArtifactSet::setNewArtSlot(const ArtifactPosition & slot, CArtifactInstance * art, bool locked)
+void CArtifactSet::setNewArtSlot(const ArtifactPosition & slot, ConstTransitivePtr<CArtifactInstance> art, bool locked)
 {
 	assert(!vstd::contains(artifactsWorn, slot));
 

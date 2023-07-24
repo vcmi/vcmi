@@ -246,11 +246,13 @@ struct DLL_LINKAGE ArtSlotInfo
 class DLL_LINKAGE CArtifactSet
 {
 public:
+	using ArtPlacementMap = std::map<CArtifactInstance*, ArtifactPosition>;
+
 	std::vector<ArtSlotInfo> artifactsInBackpack; //hero's artifacts from bag
 	std::map<ArtifactPosition, ArtSlotInfo> artifactsWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::vector<ArtSlotInfo> artifactsTransitionPos; // Used as transition position for dragAndDrop artifact exchange
 
-	void setNewArtSlot(const ArtifactPosition & slot, CArtifactInstance * art, bool locked);
+	void setNewArtSlot(const ArtifactPosition & slot, ConstTransitivePtr<CArtifactInstance> art, bool locked);
 	void eraseArtSlot(const ArtifactPosition & slot);
 
 	const ArtSlotInfo * getSlot(const ArtifactPosition & pos) const;
@@ -275,7 +277,7 @@ public:
 	unsigned getArtPosCount(const ArtifactID & aid, bool onlyWorn = true, bool searchBackpackAssemblies = true, bool allowLocked = true) const;
 
 	virtual ArtBearer::ArtBearer bearerType() const = 0;
-	virtual void putArtifact(ArtifactPosition slot, CArtifactInstance * art);
+	virtual ArtPlacementMap putArtifact(ArtifactPosition slot, CArtifactInstance * art);
 	virtual void removeArtifact(ArtifactPosition slot);
 	virtual ~CArtifactSet();
 

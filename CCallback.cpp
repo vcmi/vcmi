@@ -174,9 +174,9 @@ void CCallback::assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition 
 	sendRequest(&aa);
 }
 
-void CCallback::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap)
+void CCallback::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap, bool equipped, bool backpack)
 {
-	BulkExchangeArtifacts bma(srcHero, dstHero, swap);
+	BulkExchangeArtifacts bma(srcHero, dstHero, swap, equipped, backpack);
 	sendRequest(&bma);
 }
 

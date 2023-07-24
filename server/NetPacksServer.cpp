@@ -132,7 +132,7 @@ void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 void ApplyGhNetPackVisitor::visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack)
 {
 	gh.throwIfWrongOwner(&pack, pack.srcHero);
-	result = gh.bulkMoveArtifacts(pack.srcHero, pack.dstHero, pack.swap);
+	result = gh.bulkMoveArtifacts(pack.srcHero, pack.dstHero, pack.swap, pack.equipped, pack.backpack);
 }
 
 void ApplyGhNetPackVisitor::visitAssembleArtifacts(AssembleArtifacts & pack)

@@ -654,7 +654,12 @@ std::function<void()> CExchangeController::onSwapArtifacts()
 {
 	return [&]()
 	{
-		cb->bulkMoveArtifacts(left->id, right->id, true);
+		if(GH.isKeyboardCtrlDown())
+			cb->bulkMoveArtifacts(left->id, right->id, true, true, false);
+		else if(GH.isKeyboardShiftDown())
+			cb->bulkMoveArtifacts(left->id, right->id, true, false, true);
+		else
+			cb->bulkMoveArtifacts(left->id, right->id, true);
 	};
 }
 
@@ -810,11 +815,14 @@ void CExchangeController::moveArtifacts(bool leftToRight)
 	const CGHeroInstance * target = leftToRight ? right : left;
 
 	if(source->tempOwner != cb->getPlayerID())
-	{
 		return;
-	}
 
-	cb->bulkMoveArtifacts(source->id, target->id, false);
+	if(GH.isKeyboardCtrlDown())
+		cb->bulkMoveArtifacts(source->id, target->id, false, true, false);
+	else if(GH.isKeyboardShiftDown())
+		cb->bulkMoveArtifacts(source->id, target->id, false, false, true);
+	else
+		cb->bulkMoveArtifacts(source->id, target->id, false);
 }
 
 void CExchangeController::moveArtifact(
