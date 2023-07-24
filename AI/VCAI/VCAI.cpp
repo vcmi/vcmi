@@ -14,6 +14,7 @@
 #include "BuildingManager.h"
 #include "Goals/Goals.h"
 
+#include "../../lib/ArtifactUtils.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
@@ -1195,7 +1196,7 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				if(location.slot == ArtifactPosition::MACH4 || location.slot == ArtifactPosition::SPELLBOOK)
 					continue; // don't attempt to move catapult and spellbook
 
-				if(location.relatedObj() == target && location.slot < ArtifactPosition::AFTER_LAST)
+				if(location.relatedObj() == target && ArtifactUtils::isSlotEquipment(location.slot))
 					continue; //don't reequip artifact we already wear
 
 				auto s = location.getSlot();

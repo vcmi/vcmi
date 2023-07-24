@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 
+#include "../../lib/ArtifactUtils.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
@@ -1021,7 +1022,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 
 			for(auto location : allArtifacts)
 			{
-				if(location.relatedObj() == target && location.slot < ArtifactPosition::AFTER_LAST)
+				if(location.relatedObj() == target && ArtifactUtils::isSlotEquipment(location.slot))
 					continue; //don't reequip artifact we already wear
 
 				if(location.slot == ArtifactPosition::MACH4) // don't attempt to move catapult

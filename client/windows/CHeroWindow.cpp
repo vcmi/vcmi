@@ -334,7 +334,7 @@ void CHeroWindow::commanderWindow()
 	if(pickedArtInst)
 	{
 		const auto freeSlot = ArtifactUtils::getArtAnyPosition(curHero->commander, pickedArtInst->getTypeId());
-		if(freeSlot < ArtifactPosition::COMMANDER_AFTER_LAST) //we don't want to put it in commander's backpack!
+		if(vstd::contains(ArtifactUtils::commanderSlots(), freeSlot)) // We don't want to put it in commander's backpack!
 		{
 			ArtifactLocation src(hero, ArtifactPosition::TRANSITION_POS);
 			ArtifactLocation dst(curHero->commander.get(), freeSlot);

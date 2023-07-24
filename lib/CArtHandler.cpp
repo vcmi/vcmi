@@ -693,8 +693,8 @@ void CArtHandler::makeItCommanderArt(CArtifact * a, bool onlyCommander)
 		a->possibleSlots[ArtBearer::HERO].clear();
 		a->possibleSlots[ArtBearer::CREATURE].clear();
 	}
-	for (int i = ArtifactPosition::COMMANDER1; i <= ArtifactPosition::COMMANDER6; ++i)
-		a->possibleSlots[ArtBearer::COMMANDER].push_back(ArtifactPosition(i));
+	for(auto & slot : ArtifactUtils::commanderSlots())
+		a->possibleSlots[ArtBearer::COMMANDER].push_back(ArtifactPosition(slot));
 }
 
 bool CArtHandler::legalArtifact(const ArtifactID & id)
@@ -975,9 +975,9 @@ const ArtSlotInfo * CArtifactSet::getSlot(const ArtifactPosition & pos) const
 	}
 	if(vstd::contains(artifactsWorn, pos))
 		return &artifactsWorn.at(pos);
-	if(pos >= ArtifactPosition::AFTER_LAST )
+	if(ArtifactUtils::isSlotBackpack(pos))
 	{
-		int backpackPos = (int)pos - ArtifactPosition::BACKPACK_START;
+		auto backpackPos = pos - ArtifactPosition::BACKPACK_START;
 		if(backpackPos < 0 || backpackPos >= artifactsInBackpack.size())
 			return nullptr;
 		else
@@ -1080,9 +1080,9 @@ void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const s
 
 void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
 {
-	for(ArtifactPosition ap = ArtifactPosition::HEAD; ap < ArtifactPosition::AFTER_LAST; ap.advance(1))
+	for(auto & slot : ArtifactUtils::allWornSlots())
 	{
-		serializeJsonSlot(handler, ap, map);
+		serializeJsonSlot(handler, slot, map);
 	}
 
 	std::vector<ArtifactID> backpackTemp;
