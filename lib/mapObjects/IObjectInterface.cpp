@@ -107,6 +107,10 @@ int3 IBoatGenerator::bestLocation() const
 IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 {
 	int3 tile = bestLocation();
+
+	if(!tile.valid())
+		return TILE_BLOCKED; //no available water
+
 	const TerrainTile *t = IObjectInterface::cb->getTile(tile);
 	if(!t)
 		return TILE_BLOCKED; //no available water

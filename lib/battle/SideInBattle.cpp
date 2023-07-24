@@ -19,6 +19,14 @@ void SideInBattle::init(const CGHeroInstance * Hero, const CArmedInstance * Army
 	armyObject = Army;
 	color = armyObject->getOwner();
 
+	if(armyObject->ID == Obj::CREATURE_GENERATOR1
+		|| armyObject->ID == Obj::CREATURE_GENERATOR2
+		|| armyObject->ID == Obj::CREATURE_GENERATOR3
+		|| armyObject->ID == Obj::CREATURE_GENERATOR4)
+	{
+		color = PlayerColor::NEUTRAL;
+	}
+
 	if(color == PlayerColor::UNFLAGGABLE)
 		color = PlayerColor::NEUTRAL;
 }
