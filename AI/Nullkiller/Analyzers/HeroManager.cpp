@@ -125,6 +125,7 @@ void HeroManager::update()
 	}
 
 	std::sort(myHeroes.begin(), myHeroes.end(), scoreSort);
+	heroRoles.clear();
 
 	for(auto hero : myHeroes)
 	{
