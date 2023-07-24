@@ -569,7 +569,6 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 			catch(...)
 			{
 				logGlobal->error("Saving random map failed with exception");
-				handleException();
 			}
 		}
 

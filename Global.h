@@ -253,26 +253,6 @@ using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void inline handleException()
-{
-	try
-	{
-		throw;
-	}
-	catch(const std::exception & ex)
-	{
-		logGlobal->error(ex.what());
-	}
-	catch(const std::string & ex)
-	{
-		logGlobal->error(ex);
-	}
-	catch(...)
-	{
-		logGlobal->error("Sorry, caught unknown exception type. No more info available.");
-	}
-}
-
 namespace vstd
 {
 	// combine hashes. Present in boost but not in std

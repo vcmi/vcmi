@@ -109,10 +109,6 @@ public:
             (void)e;
 			return false;
 		}
-		catch(...)
-		{
-			throw;
-		}
 	}
 };
 

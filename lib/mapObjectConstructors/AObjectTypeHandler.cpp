@@ -77,15 +77,8 @@ void AObjectTypeHandler::init(const JsonNode & input)
 		tmpl->id = Obj(type);
 		tmpl->subid = subtype;
 		tmpl->stringID = entry.first; // FIXME: create "fullID" - type.object.template?
-		try
-		{
-			tmpl->readJson(entry.second);
-			templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
-		}
-		catch (const std::exception & e)
-		{
-			logGlobal->warn("Failed to load terrains for object %s: %s", entry.first, e.what());
-		}
+		tmpl->readJson(entry.second);
+		templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
 	}
 
 	for(const JsonNode & node : input["sounds"]["ambient"].Vector())
