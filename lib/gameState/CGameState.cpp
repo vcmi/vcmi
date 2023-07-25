@@ -394,8 +394,8 @@ CGameState::CGameState()
 
 CGameState::~CGameState()
 {
-	map.dellNull();
 	curB.dellNull();
+	map.dellNull();
 }
 
 void CGameState::preInit(Services * services)
