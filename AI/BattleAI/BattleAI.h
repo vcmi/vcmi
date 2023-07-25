@@ -59,7 +59,8 @@ class CBattleAI : public CBattleGameInterface
 	std::shared_ptr<Environment> env;
 
 	//Previous setting of cb
-	bool wasWaitingForRealize, wasUnlockingGs;
+	bool wasWaitingForRealize;
+	bool wasUnlockingGs;
 	int movesSkippedByDefense;
 
 public:

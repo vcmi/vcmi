@@ -70,13 +70,22 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 	}
 }
 
-void InputHandler::processEvents()
+std::vector<SDL_Event> InputHandler::acquireEvents()
 {
 	boost::unique_lock<boost::mutex> lock(eventsMutex);
-	for(const auto & currentEvent : eventsQueue)
+
+	std::vector<SDL_Event> result;
+	std::swap(result, eventsQueue);
+	return result;
+}
+
+void InputHandler::processEvents()
+{
+	std::vector<SDL_Event> eventsToProcess = acquireEvents();
+
+	for(const auto & currentEvent : eventsToProcess)
 		handleCurrentEvent(currentEvent);
 
-	eventsQueue.clear();
 	fingerHandler->handleUpdate();
 }
 
