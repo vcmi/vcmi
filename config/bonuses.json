@@ -35,6 +35,14 @@
 		}
 	},
 
+	"BLOCKS_RANGED_RETALIATION":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/RANGEDBLOCK"
+		}
+	},
+
 	"BLOCKS_RETALIATION":
 	{
 		"graphics":
@@ -97,6 +105,14 @@
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/E_DEFBON"
+		}
+	},
+
+	"DESTRUCTION":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/DESTROYER"
 		}
 	},
 
@@ -168,7 +184,15 @@
 			"icon":  "zvs/Lib1.res/FireShield"
 		}
 	},
-	
+
+	"FIRST_STRIKE":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/FIRSTSTRIKE"
+		}
+	},
+
 	"FEAR":
 	{
 		"graphics":
@@ -396,6 +420,14 @@
 		"hidden": true
 	},
 
+	"RANGED_RETALIATION":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/RANGEDCOUNTER"
+		}
+	},
+
 	"RECEPTIVE":
 	{
 		"graphics":
@@ -425,6 +457,14 @@
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/E_SHOOT"
+		}
+	},
+
+	"SHOOTS_ALL_ADJACENT":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/AREASHOT"
 		}
 	},
 	
@@ -492,6 +532,14 @@
 		}
 	},
 
+	"SUMMON_GUARDIANS":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/SUMMONGUARDS"
+		}
+	},
+
 	"TWO_HEX_ATTACK_BREATH":
 	{
 		"graphics":
@@ -542,6 +590,14 @@
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/E_SPWATER1"
+		}
+	},
+
+	"WIDE_BREATH":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/MEGABREATH"
 		}
 	}
 }
