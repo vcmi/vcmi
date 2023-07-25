@@ -194,11 +194,8 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	}
 
 	iconsMapFormats = std::make_shared<CAnimation>("SCSELC.DEF");
-	iconsMapFormats->preload();
 	iconsVictoryCondition = std::make_shared<CAnimation>("SCNRVICT.DEF");
-	iconsVictoryCondition->preload();
 	iconsLossCondition = std::make_shared<CAnimation>("SCNRLOSS.DEF");
-	iconsLossCondition->preload();
 	for(int i = 0; i < positionsToShow; i++)
 		listItems.push_back(std::make_shared<ListItem>(Point(30, 129 + i * 25), iconsMapFormats, iconsVictoryCondition, iconsLossCondition));
 
