@@ -865,8 +865,11 @@ void CServerHandler::threadHandleConnection()
 		}
 		else
 		{
-			logNetwork->error("Lost connection to server, ending listening thread!");
-			logNetwork->error(e.what());
+			if (e.code() == boost::asio::error::eof)
+				logNetwork->error("Lost connection to server, ending listening thread! Connection has been closed");
+			else
+				logNetwork->error("Lost connection to server, ending listening thread! Reason: %s", e.what());
+
 			if(client)
 			{
 				state = EClientState::DISCONNECTING;

@@ -409,51 +409,36 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 	setThreadName("CVCMIServer::handleConnection");
 	c->enterLobbyConnectionMode();
 
-#ifndef _MSC_VER
-	try
+	while(c->connected)
 	{
-#endif
-		while(c->connected)
+		CPack * pack;
+
+		try
 		{
-			CPack * pack;
-			
-			try
-			{
-				pack = c->retrievePack();
-			}
-			catch(boost::system::system_error & e)
-			{
-				logNetwork->error("Network error receiving a pack. Connection %s dies. What happened: %s", c->toString(), e.what());
-				hangingConnections.insert(c);
-				connections.erase(c);
-				if(connections.empty() || hostClient == c)
-					state = EServerState::SHUTDOWN;
-
-				if(gh && state == EServerState::GAMEPLAY)
-				{
-					gh->handleClientDisconnection(c);
-				}
-				break;
-			}
-
-			CVCMIServerPackVisitor visitor(*this, this->gh);
-			pack->visit(visitor);
+			pack = c->retrievePack();
 		}
-#ifndef _MSC_VER
+		catch(boost::system::system_error & e)
+		{
+			if (e.code() == boost::asio::error::eof)
+				logNetwork->error("Network error receiving a pack. Connection has been closed");
+			else
+				logNetwork->error("Network error receiving a pack. Connection %s dies. What happened: %s", c->toString(), e.what());
+
+			hangingConnections.insert(c);
+			connections.erase(c);
+			if(connections.empty() || hostClient == c)
+				state = EServerState::SHUTDOWN;
+
+			if(gh && state == EServerState::GAMEPLAY)
+			{
+				gh->handleClientDisconnection(c);
+			}
+			break;
+		}
+
+		CVCMIServerPackVisitor visitor(*this, this->gh);
+		pack->visit(visitor);
 	}
-	catch(const std::exception & e)
-	{
-		(void)e;
-		boost::unique_lock<boost::recursive_mutex> queueLock(mx);
-		logNetwork->error("%s dies... \nWhat happened: %s", c->toString(), e.what());
-	}
-	catch(...)
-	{
-		state = EServerState::SHUTDOWN;
-		handleException();
-		throw;
-	}
-#endif
 
 	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
 
@@ -1022,7 +1007,7 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 		{
 			po::store(po::parse_command_line(argc, argv, opts), options);
 		}
-		catch(std::exception & e)
+		catch(po::error & e)
 		{
 			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
@@ -1112,10 +1097,6 @@ int main(int argc, const char * argv[])
 		{
 			logNetwork->error(e.what());
 			server.state = EServerState::SHUTDOWN;
-		}
-		catch(...)
-		{
-			handleException();
 		}
 	}
 	catch(boost::system::system_error & e)
