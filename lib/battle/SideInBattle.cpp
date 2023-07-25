@@ -17,14 +17,17 @@ void SideInBattle::init(const CGHeroInstance * Hero, const CArmedInstance * Army
 {
 	hero = Hero;
 	armyObject = Army;
-	color = armyObject->getOwner();
 
-	if(armyObject->ID == Obj::CREATURE_GENERATOR1
-		|| armyObject->ID == Obj::CREATURE_GENERATOR2
-		|| armyObject->ID == Obj::CREATURE_GENERATOR3
-		|| armyObject->ID == Obj::CREATURE_GENERATOR4)
+	switch(armyObject->ID)
 	{
-		color = PlayerColor::NEUTRAL;
+		case Obj::CREATURE_GENERATOR1:
+		case Obj::CREATURE_GENERATOR2:
+		case Obj::CREATURE_GENERATOR3:
+		case Obj::CREATURE_GENERATOR4:
+			color = PlayerColor::NEUTRAL;
+			break;
+		default:
+			color = armyObject->getOwner();
 	}
 
 	if(color == PlayerColor::UNFLAGGABLE)
