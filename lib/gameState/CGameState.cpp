@@ -1244,7 +1244,7 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r
 	}
 
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
-		return BattleField(*VLC->modh->identifiers.getIdentifier("core", "battlefield", "sand_shore"));
+		return BattleField(*VLC->modh->identifiers.getIdentifier("core", "battlefield.sand_shore"));
 	
 	return BattleField(*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
 }
