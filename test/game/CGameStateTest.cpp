@@ -195,7 +195,7 @@ public:
 		const auto & t = *gameCallback->getTile(tile);
 
 		auto terrain = t.terType->getId();
-		BattleField terType = BattleField::fromString("grass_hills");
+		BattleField terType(0);
 
 		//send info about battles
 

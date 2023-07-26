@@ -34,7 +34,7 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 	SObjectSounds sounds;
 
 	std::optional<si32> aiValue;
-	std::optional<std::string> battlefield;
+	BattleField battlefield;
 
 	std::string modScope;
 	std::string typeName;

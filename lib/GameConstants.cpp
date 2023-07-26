@@ -305,44 +305,14 @@ bool operator<(const BattleField & l, const BattleField & r)
 	return l.num < r.num;
 }
 
-BattleField::operator std::string() const
-{
-	return getInfo()->identifier;
-}
-
 const BattleFieldInfo * BattleField::getInfo() const
 {
 	return VLC->battlefields()->getById(*this);
 }
 
-BattleField BattleField::fromString(const std::string & identifier)
-{
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "battlefield", identifier);
-
-	if(rawId)
-		return BattleField(rawId.value());
-	else
-		return BattleField::NONE;
-}
-		
 const ObstacleInfo * Obstacle::getInfo() const
 {
 	return VLC->obstacles()->getById(*this);
-}
-
-Obstacle::operator std::string() const
-{
-	return getInfo()->identifier;
-}
-
-Obstacle Obstacle::fromString(const std::string & identifier)
-{
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "obstacle", identifier);
-
-	if(rawId)
-		return Obstacle(rawId.value());
-	else
-		return Obstacle(-1);
 }
 
 VCMI_LIB_NAMESPACE_END

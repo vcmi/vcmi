@@ -1292,10 +1292,7 @@ class BattleField : public BaseForID<BattleField, si32>
 	DLL_LINKAGE friend bool operator!=(const BattleField & l, const BattleField & r);
 	DLL_LINKAGE friend bool operator<(const BattleField & l, const BattleField & r);
 
-	DLL_LINKAGE operator std::string() const;
 	DLL_LINKAGE const BattleFieldInfo * getInfo() const;
-
-	DLL_LINKAGE static BattleField fromString(const std::string & identifier);
 };
 
 enum class EBoatId : int32_t
@@ -1336,8 +1333,6 @@ class Obstacle : public BaseForID<Obstacle, si32>
 	INSTID_LIKE_CLASS_COMMON(Obstacle, si32)
 
 	DLL_LINKAGE const ObstacleInfo * getInfo() const;
-	DLL_LINKAGE operator std::string() const;
-	DLL_LINKAGE static Obstacle fromString(const std::string & identifier);
 };
 
 enum class ESpellSchool: int8_t
