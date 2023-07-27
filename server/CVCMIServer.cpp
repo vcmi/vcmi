@@ -33,8 +33,6 @@
 #include <jni.h>
 #include <android/log.h>
 #include "lib/CAndroidVMHelper.h"
-#elif !defined(VCMI_IOS)
-#include "../lib/Interprocess.h"
 #endif
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
@@ -142,9 +140,9 @@ CVCMIServer::CVCMIServer(boost::program_options::variables_map & opts)
 	catch(...)
 	{
 		logNetwork->info("Port %d is busy, trying to use random port instead", port);
-		if(cmdLineOptions.count("run-by-client") && !cmdLineOptions.count("enable-shm"))
+		if(cmdLineOptions.count("run-by-client"))
 		{
-			logNetwork->error("Cant pass port number to client without shared memory!", port);
+			logNetwork->error("Port must be specified when run-by-client is used!!");
 			exit(0);
 		}
 		acceptor = std::make_shared<TAcceptor>(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 0));
@@ -166,17 +164,6 @@ void CVCMIServer::run()
 	if(!restartGameplay)
 	{
 		this->announceLobbyThread = std::make_unique<boost::thread>(&CVCMIServer::threadAnnounceLobby, this);
-#if !defined(VCMI_MOBILE)
-		if(cmdLineOptions.count("enable-shm"))
-		{
-			std::string sharedMemoryName = "vcmi_memory";
-			if(cmdLineOptions.count("enable-shm-uuid") && cmdLineOptions.count("uuid"))
-			{
-				sharedMemoryName += "_" + cmdLineOptions["uuid"].as<std::string>();
-			}
-			shm = std::make_shared<SharedMemory>(sharedMemoryName);
-		}
-#endif
 
 		startAsyncAccept();
 		if(!remoteConnectionsThread && cmdLineOptions.count("lobby"))
@@ -189,11 +176,6 @@ void CVCMIServer::run()
 		CAndroidVMHelper vmHelper;
 		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
 #endif
-#elif !defined(VCMI_IOS)
-		if(shm)
-		{
-			shm->sr->setToReadyAndNotify(port);
-		}
 #endif
 	}
 
@@ -993,8 +975,6 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 	("version,v", "display version information and exit")
 	("run-by-client", "indicate that server launched by client on same machine")
 	("uuid", po::value<std::string>(), "")
-	("enable-shm-uuid", "use UUID for shared memory identifier")
-	("enable-shm", "enable usage of shared memory")
 	("port", po::value<ui16>(), "port at which server will listen to connections from client")
 	("lobby", po::value<std::string>(), "address to remote lobby")
 	("lobby-port", po::value<ui16>(), "port at which server connect to remote lobby")

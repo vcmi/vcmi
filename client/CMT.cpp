@@ -117,8 +117,6 @@ int main(int argc, char * argv[])
 	opts.add_options()
 		("help,h", "display help and exit")
 		("version,v", "display version information and exit")
-		("disable-shm", "force disable shared memory usage")
-		("enable-shm-uuid", "use UUID for shared memory identifier")
 		("testmap", po::value<std::string>(), "")
 		("testsave", po::value<std::string>(), "")
 		("spectate,s", "enable spectator interface for AI-only games")
@@ -240,10 +238,6 @@ int main(int argc, char * argv[])
 	}
 	// Server settings
 	setSettingBool("session/donotstartserver", "donotstartserver");
-
-	// Shared memory options
-	setSettingBool("session/disable-shm", "disable-shm");
-	setSettingBool("session/enable-shm-uuid", "enable-shm-uuid");
 
 	// Init special testing settings
 	setSettingInteger("session/serverport", "serverport", 0);

@@ -19,7 +19,6 @@ class CampaignState;
 class CMapInfo;
 struct PlayerInfo;
 class PlayerColor;
-struct SharedMemory;
 
 /// Struct which describes the name, the color, the starting bonus of a player
 struct DLL_LINKAGE PlayerSettings
@@ -157,7 +156,6 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 {
 	boost::mutex stateMutex;
 	std::string uuid;
-	std::shared_ptr<SharedMemory> shm;
 
 	LobbyInfo() {}
 
