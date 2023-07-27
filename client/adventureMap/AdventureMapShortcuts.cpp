@@ -36,14 +36,6 @@
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/pathfinder/CGPathNode.h"
 
-bool isCurrentPlayerHuman()
-{
-	PlayerColor currentPlayer = LOCPLINT->cb->getCurrentPlayer();
-	bool isHuman = LOCPLINT->cb->getStartInfo()->playerInfos.count(currentPlayer)
-				   && LOCPLINT->cb->getStartInfo()->playerInfos.at(currentPlayer).isControlledByHuman();
-	return isHuman;
-}
-
 AdventureMapShortcuts::AdventureMapShortcuts(AdventureMapInterface & owner)
 	: owner(owner)
 	, state(EAdventureState::NOT_INITIALIZED)
@@ -471,11 +463,11 @@ bool AdventureMapShortcuts::optionSidePanelActive()
 
 bool AdventureMapShortcuts::optionMapScrollingActive()
 {
-	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || (state == EAdventureState::ENEMY_TURN && isCurrentPlayerHuman());
+	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || (state == EAdventureState::OTHER_HUMAN_PLAYER_TURN);
 }
 
 bool AdventureMapShortcuts::optionMapViewActive()
 {
 	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::CASTING_SPELL
-		|| (state == EAdventureState::ENEMY_TURN && isCurrentPlayerHuman());
+		|| (state == EAdventureState::OTHER_HUMAN_PLAYER_TURN);
 }
