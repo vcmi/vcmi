@@ -1058,6 +1058,11 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 		int count = d->creatures[i].first;
 		CreatureID creID = d->creatures[i].second.back();
 
+		if(!recruiter->getSlotFor(creID).validSlot())
+		{
+			continue;
+		}
+
 		vstd::amin(count, cb->getResourceAmount() / creID.toCreature()->getFullRecruitCost());
 		if(count > 0)
 			cb->recruitCreatures(d, recruiter, creID, count, i);

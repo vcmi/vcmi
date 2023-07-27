@@ -68,19 +68,22 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo)
 	logAi->trace("Checking other buildings");
 
 	std::vector<std::vector<BuildingID>> otherBuildings = {
-		{BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL}
+		{BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL},
+		{BuildingID::MAGES_GUILD_3, BuildingID::MAGES_GUILD_5}
 	};
 
 	if(developmentInfo.existingDwellings.size() >= 2 && ai->cb->getDate(Date::DAY_OF_WEEK) > boost::date_time::Friday)
 	{
 		otherBuildings.push_back({BuildingID::CITADEL, BuildingID::CASTLE});
+		otherBuildings.push_back({BuildingID::HORDE_1});
+		otherBuildings.push_back({BuildingID::HORDE_2});
 	}
 
 	for(auto & buildingSet : otherBuildings)
 	{
 		for(auto & buildingID : buildingSet)
 		{
-			if(!developmentInfo.town->hasBuilt(buildingID))
+			if(!developmentInfo.town->hasBuilt(buildingID) && developmentInfo.town->town->buildings.count(buildingID))
 			{
 				developmentInfo.addBuildingToBuild(getBuildingOrPrerequisite(developmentInfo.town, buildingID));
 
@@ -190,12 +193,28 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	const CCreature * creature = nullptr;
 	CreatureID baseCreatureID;
 
+	int creatureLevel = -1;
+	int creatureUpgrade = 0;
+
 	if(BuildingID::DWELL_FIRST <= toBuild && toBuild <= BuildingID::DWELL_UP_LAST)
 	{
-		int level = toBuild - BuildingID::DWELL_FIRST;
-		auto creatures = townInfo->creatures.at(level % GameConstants::CREATURES_PER_TOWN);
-		auto creatureID = creatures.size() > level / GameConstants::CREATURES_PER_TOWN
-			? creatures.at(level / GameConstants::CREATURES_PER_TOWN)
+		creatureLevel = (toBuild - BuildingID::DWELL_FIRST) % GameConstants::CREATURES_PER_TOWN;
+		creatureUpgrade = (toBuild - BuildingID::DWELL_FIRST) / GameConstants::CREATURES_PER_TOWN;
+	}
+	else if(toBuild == BuildingID::HORDE_1 || toBuild == BuildingID::HORDE_1_UPGR)
+	{
+		creatureLevel = townInfo->hordeLvl.at(0);
+	}
+	else if(toBuild == BuildingID::HORDE_2 || toBuild == BuildingID::HORDE_2_UPGR)
+	{
+		creatureLevel = townInfo->hordeLvl.at(1);
+	}
+
+	if(creatureLevel >=  0)
+	{
+		auto creatures = townInfo->creatures.at(creatureLevel);
+		auto creatureID = creatures.size() > creatureUpgrade
+			? creatures.at(creatureUpgrade)
 			: creatures.front();
 
 		baseCreatureID = creatures.front();
@@ -366,12 +385,19 @@ BuildingInfo::BuildingInfo(
 		}
 		else
 		{
-			creatureGrows = creature->getGrowth();
+			if(BuildingID::DWELL_FIRST <= id && id <= BuildingID::DWELL_UP_LAST)
+			{
+				creatureGrows = creature->getGrowth();
 
-			if(town->hasBuilt(BuildingID::CASTLE))
-				creatureGrows *= 2;
-			else if(town->hasBuilt(BuildingID::CITADEL))
-				creatureGrows += creatureGrows / 2;
+				if(town->hasBuilt(BuildingID::CASTLE))
+					creatureGrows *= 2;
+				else if(town->hasBuilt(BuildingID::CITADEL))
+					creatureGrows += creatureGrows / 2;
+			}
+			else
+			{
+				creatureGrows = creature->getHorde();
+			}
 		}
 
 		armyStrength = ai->armyManager->evaluateStackPower(creature, creatureGrows);

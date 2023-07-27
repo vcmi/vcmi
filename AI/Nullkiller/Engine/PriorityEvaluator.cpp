@@ -915,6 +915,7 @@ public:
 		evaluationContext.heroRole = HeroRole::MAIN;
 		evaluationContext.movementCostByRole[evaluationContext.heroRole] += bi.prerequisitesCount;
 		evaluationContext.goldCost += bi.buildCostWithPrerequisits[EGameResID::GOLD];
+		evaluationContext.closestWayRatio = 1;
 
 		if(bi.creatureID != CreatureID::NONE)
 		{
@@ -938,7 +939,12 @@ public:
 			evaluationContext.addNonCriticalStrategicalValue(buildThis.town->creatures.size() * 0.2f);
 			evaluationContext.armyReward += buildThis.townInfo.armyStrength / 2;
 		}
-		else
+		else if(bi.id >= BuildingID::MAGES_GUILD_1 && bi.id <= BuildingID::MAGES_GUILD_5)
+		{
+			evaluationContext.skillReward += 2 * (bi.id - BuildingID::MAGES_GUILD_1);
+		}
+		
+		if(evaluationContext.goldReward)
 		{
 			auto goldPreasure = evaluationContext.evaluator.ai->buildAnalyzer->getGoldPreasure();
 

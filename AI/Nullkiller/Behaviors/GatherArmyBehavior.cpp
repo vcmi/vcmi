@@ -16,6 +16,7 @@
 #include "../Markers/HeroExchange.h"
 #include "../Markers/ArmyUpgrade.h"
 #include "GatherArmyBehavior.h"
+#include "CaptureObjectsBehavior.h"
 #include "../AIUtility.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
 
@@ -235,6 +236,8 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 #endif
 	
 	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
+	auto goals = CaptureObjectsBehavior::getVisitGoals(paths);
+
 	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 
 #if NKAI_TRACE_LEVEL >= 1
@@ -251,11 +254,23 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 			hasMainAround = true;
 	}
 
-	for(const AIPath & path : paths)
+	for(int i = 0; i < paths.size(); i++)
 	{
+		auto & path = paths[i];
+		auto visitGoal = goals[i];
+
 #if NKAI_TRACE_LEVEL >= 2
 		logAi->trace("Path found %s, %s, %lld", path.toString(), path.targetHero->getObjectName(), path.heroArmy->getArmyStrength());
 #endif
+
+		if(visitGoal->invalid())
+		{
+#if NKAI_TRACE_LEVEL >= 2
+			logAi->trace("Ignore path. Not valid way.");
+#endif
+			continue;
+		}
+
 		if(upgrader->visitingHero && (upgrader->visitingHero.get() != path.targetHero || path.exchangeCount == 1))
 		{
 #if NKAI_TRACE_LEVEL >= 2
@@ -370,11 +385,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 		if(isSafe)
 		{
-			ExecuteHeroChain newWay(path, upgrader);
-			
-			newWay.closestWayRatio = 1;
-
-			tasks.push_back(sptr(Composition().addNext(ArmyUpgrade(path, upgrader, upgrade)).addNext(newWay)));
+			tasks.push_back(sptr(Composition().addNext(ArmyUpgrade(path, upgrader, upgrade)).addNext(visitGoal)));
 		}
 	}
 

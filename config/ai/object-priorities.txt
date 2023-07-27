@@ -5,7 +5,7 @@ InputVariable: mainTurnDistance
   enabled: true
   range: 0.000 10.000
   lock-range: true
-  term: LOWEST Ramp 0.250 0.000
+  term: LOWEST Ramp 0.400 0.000
   term: LOW Discrete 0.000 1.000 0.500 0.800 0.800 0.300 2.000 0.000
   term: MEDIUM Discrete 0.000 0.000 0.500 0.200 0.800 0.700 2.000 1.000 6.000 0.000
   term: LONG Discrete 2.000 0.000 6.000 1.000 10.000 0.800
@@ -239,3 +239,21 @@ RuleBlock: gold
   rule: if goldReward is MEDIUM and goldPreasure is HIGH and heroRole is MAIN and danger is not NONE and armyLoss is LOW then Value is BITHIGH
   rule: if goldReward is SMALL and goldPreasure is HIGH and heroRole is SCOUT and danger is NONE then Value is MEDIUM
   rule: if goldReward is SMALL and goldPreasure is HIGH and heroRole is MAIN and danger is not NONE and armyLoss is LOW then Value is SMALL
+RuleBlock: skill reward
+  enabled: true
+  conjunction: AlgebraicProduct
+  disjunction: AlgebraicSum
+  implication: AlgebraicProduct
+  activation: General
+  rule: if heroRole is MAIN and skillReward is LOW and mainTurnDistance is LOWEST and fear is not HIGH then Value is HIGH
+  rule: if heroRole is MAIN and skillReward is MEDIUM and mainTurnDistance is LOWEST and fear is not HIGH then Value is HIGHEST
+  rule: if heroRole is MAIN and skillReward is HIGH and mainTurnDistance is LOWEST and fear is not HIGH then Value is HIGHEST
+  rule: if heroRole is MAIN and skillReward is LOW and mainTurnDistance is LOW and fear is not HIGH then Value is BITHIGH
+  rule: if heroRole is MAIN and skillReward is MEDIUM and mainTurnDistance is LOW and fear is not HIGH then Value is HIGH
+  rule: if heroRole is MAIN and skillReward is HIGH and mainTurnDistance is LOW and fear is not HIGH then Value is HIGHEST
+  rule: if heroRole is MAIN and skillReward is LOW and mainTurnDistance is MEDIUM and fear is not HIGH then Value is MEDIUM
+  rule: if heroRole is MAIN and skillReward is MEDIUM and mainTurnDistance is MEDIUM and fear is not HIGH then Value is BITHIGH
+  rule: if heroRole is MAIN and skillReward is HIGH and mainTurnDistance is MEDIUM and fear is not HIGH then Value is HIGH
+  rule: if heroRole is MAIN and skillReward is LOW and mainTurnDistance is LONG and fear is not HIGH then Value is SMALL
+  rule: if heroRole is MAIN and skillReward is MEDIUM and mainTurnDistance is LONG and fear is not HIGH then Value is MEDIUM
+  rule: if heroRole is MAIN and skillReward is HIGH and mainTurnDistance is LONG and fear is not HIGH then Value is BITHIGH

@@ -40,9 +40,11 @@ enum class HeroLockedReason
 
 enum class ScanDepth
 {
-	FULL = 0,
+	MAIN_FULL = 0,
 
-	SMALL = 1
+	SMALL = 1,
+
+	ALL_FULL = 2
 };
 
 class Nullkiller

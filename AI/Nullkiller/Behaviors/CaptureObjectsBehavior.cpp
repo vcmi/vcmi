@@ -213,7 +213,7 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 	{
 		captureObjects(ai->nullkiller->objectClusterizer->getNearbyObjects());
 
-		if(tasks.empty() || ai->nullkiller->getScanDepth() == ScanDepth::FULL)
+		if(tasks.empty() || ai->nullkiller->getScanDepth() != ScanDepth::SMALL)
 			captureObjects(ai->nullkiller->objectClusterizer->getFarObjects());
 	}
 
