@@ -30,6 +30,7 @@ public class LanguageSettingDialog extends LauncherSettingDialog<String>
         AVAILABLE_LANGUAGES.add("swedish");
         AVAILABLE_LANGUAGES.add("turkish");
         AVAILABLE_LANGUAGES.add("ukrainian");
+        AVAILABLE_LANGUAGES.add("vietnamese");
         AVAILABLE_LANGUAGES.add("other_cp1250");
         AVAILABLE_LANGUAGES.add("other_cp1251");
         AVAILABLE_LANGUAGES.add("other_cp1252");
