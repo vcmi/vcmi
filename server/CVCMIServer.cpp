@@ -987,7 +987,7 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 		{
 			po::store(po::parse_command_line(argc, argv, opts), options);
 		}
-		catch(po::error & e)
+		catch(boost::program_options::error & e)
 		{
 			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}

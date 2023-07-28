@@ -151,7 +151,7 @@ int main(int argc, char * argv[])
 		{
 			po::store(po::parse_command_line(argc, argv, opts, po_style::unix_style|po_style::case_insensitive), vm);
 		}
-		catch(std::exception &e)
+		catch(boost::program_options::error &e)
 		{
 			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}

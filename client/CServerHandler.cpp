@@ -169,7 +169,7 @@ void CServerHandler::startLocalServerAndConnect()
 		CInfoWindow::showInfoDialog(errorMsg, {});
 		return;
 	}
-	catch(...)
+	catch(std::runtime_error & error)
 	{
 		//no connection means that port is not busy and we can start local server
 	}
@@ -236,9 +236,7 @@ void CServerHandler::startLocalServerAndConnect()
 
 	th->update(); //put breakpoint here to attach to server before it does something stupid
 
-	const ui16 port = 0;
-
-	justConnectToServer(localhostAddress, port);
+	justConnectToServer(localhostAddress, 0);
 
 	logNetwork->trace("\tConnecting to the server: %d ms", th->getDiff());
 }
@@ -256,9 +254,9 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 					port ? port : getHostPort(),
 					NAME, uuid);
 		}
-		catch(...)
+		catch(std::runtime_error & error)
 		{
-			logNetwork->error("\nCannot establish connection! Retrying within 1 second");
+			logNetwork->warn("\nCannot establish connection. %s Retrying in 1 second", error.what());
 			boost::this_thread::sleep(boost::posix_time::seconds(1));
 		}
 	}

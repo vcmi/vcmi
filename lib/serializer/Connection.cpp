@@ -82,7 +82,7 @@ CConnection::CConnection(const std::string & host, ui16 port, std::string Name, 
 	if(error)
 	{
 		logNetwork->error("Problem with resolving: \n%s", error.message());
-		throw std::runtime_error("Can't establish connection: Problem with resolving");
+		throw std::runtime_error("Problem with resolving");
 	}
 	pom = endpoint_iterator;
 	if(pom != end)
@@ -90,7 +90,7 @@ CConnection::CConnection(const std::string & host, ui16 port, std::string Name, 
 	else
 	{
 		logNetwork->error("Critical problem: No endpoints found!");
-		throw std::runtime_error("Can't establish connection: No endpoints found!");
+		throw std::runtime_error("No endpoints found!");
 	}
 	while(pom != end)
 	{
@@ -109,7 +109,7 @@ CConnection::CConnection(const std::string & host, ui16 port, std::string Name, 
 		}
 		else
 		{
-			throw std::runtime_error("Can't establish connection: Failed to connect!");
+			throw std::runtime_error("Failed to connect!");
 		}
 		endpoint_iterator++;
 	}
