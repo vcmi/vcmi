@@ -63,7 +63,7 @@ struct Options
 
 inline const auto & getLanguageList()
 {
-	static const std::array<Options, 19> languages
+	static const std::array<Options, 20> languages
 	{ {
 		{ "czech",      "Czech",      "Čeština",    "CP1250", "cs", true },
 		{ "chinese",    "Chinese",    "简体中文",       "GBK",    "zh", true }, // Note: actually Simplified Chinese
