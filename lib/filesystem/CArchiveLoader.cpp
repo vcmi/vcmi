@@ -24,7 +24,7 @@ ArchiveEntry::ArchiveEntry()
 
 }
 
-CArchiveLoader::CArchiveLoader(std::string _mountPoint, bfs::path _archive, bool _extractArchives) :
+CArchiveLoader::CArchiveLoader(std::string _mountPoint, boost::filesystem::path _archive, bool _extractArchives) :
     archive(std::move(_archive)),
     mountPoint(std::move(_mountPoint)),
 	extractArchives(_extractArchives)
@@ -217,7 +217,7 @@ void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, CInput
 	fileStream.seek(entry.offset);
 	fileStream.read(data.data(), entry.fullSize);
 
-	bfs::path extractedFilePath = createExtractedFilePath(outputSubFolder, entry.name);
+	boost::filesystem::path extractedFilePath = createExtractedFilePath(outputSubFolder, entry.name);
 
 	// writeToOutputFile
 	std::ofstream out(extractedFilePath.string(), std::ofstream::binary);
@@ -235,12 +235,12 @@ void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, const 
 	extractToFolder(outputSubFolder, *inputStream, entry);
 }
 
-bfs::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName)
+boost::filesystem::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName)
 {
-	bfs::path extractionFolderPath = VCMIDirs::get().userExtractedPath() / outputSubFolder;
-	bfs::path extractedFilePath = extractionFolderPath / entryName;
+	boost::filesystem::path extractionFolderPath = VCMIDirs::get().userExtractedPath() / outputSubFolder;
+	boost::filesystem::path extractedFilePath = extractionFolderPath / entryName;
 
-	bfs::create_directories(extractionFolderPath);
+	boost::filesystem::create_directories(extractionFolderPath);
 
 	return extractedFilePath;
 }

@@ -113,7 +113,7 @@ JsonNode toJson(QVariant object)
 
 void JsonToFile(QString filename, QVariant object)
 {
-	boost::filesystem::fstream file(qstringToPath(filename), std::ios::out | std::ios_base::binary);
+	std::fstream file(qstringToPath(filename).c_str(), std::ios::out | std::ios_base::binary);
 	file << toJson(object).toJson();
 }
 

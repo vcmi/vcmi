@@ -580,7 +580,7 @@ public:
 	BinaryDeserializer serializer;
 
 	std::string fName;
-	std::unique_ptr<boost::filesystem::fstream> sfile;
+	std::unique_ptr<std::fstream> sfile;
 
 	CLoadFile(const boost::filesystem::path & fname, int minimalVersion = SERIALIZATION_VERSION); //throws!
 	virtual ~CLoadFile();

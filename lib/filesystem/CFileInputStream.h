@@ -74,7 +74,7 @@ private:
 	si64 dataSize;
 
 	/** Native c++ input file stream object. */
-	boost::filesystem::fstream fileStream;
+	std::fstream fileStream;
 };
 
 VCMI_LIB_NAMESPACE_END

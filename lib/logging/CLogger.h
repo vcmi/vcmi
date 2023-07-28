@@ -219,7 +219,7 @@ public:
 	void write(const LogRecord & record) override;
 
 private:
-	boost::filesystem::fstream file;
+	std::fstream file;
 	CLogFormatter formatter;
 	mutable std::mutex mx;
 };

@@ -14,9 +14,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-namespace bfs = boost::filesystem;
-
-CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, bfs::path baseDirectory, size_t depth, bool initial):
+CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, boost::filesystem::path baseDirectory, size_t depth, bool initial):
 	baseDirectory(std::move(baseDirectory)),
 	mountPoint(std::move(_mountPoint)),
 	fileList(listFiles(mountPoint, depth, initial)),
@@ -28,7 +26,7 @@ CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, bfs::path baseDire
 std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourceID & resourceName) const
 {
 	assert(fileList.count(resourceName));
-	bfs::path file = baseDirectory / fileList.at(resourceName);
+	boost::filesystem::path file = baseDirectory / fileList.at(resourceName);
 	logGlobal->trace("loading %s", file.string());
 	return std::make_unique<CFileInputStream>(file);
 }
@@ -88,7 +86,7 @@ bool CFilesystemLoader::createResource(std::string filename, bool update)
 	if (!update)
 	{
 		// create file, if not exists
-		boost::filesystem::fstream file(baseDirectory / filename);
+		std::fstream file((baseDirectory / filename).c_str());
 
 		if (!file.is_open())
 			return false;
@@ -97,7 +95,7 @@ bool CFilesystemLoader::createResource(std::string filename, bool update)
 	return true;
 }
 
-std::unordered_map<ResourceID, bfs::path> CFilesystemLoader::listFiles(const std::string &mountPoint, size_t depth, bool initial) const
+std::unordered_map<ResourceID, boost::filesystem::path> CFilesystemLoader::listFiles(const std::string &mountPoint, size_t depth, bool initial) const
 {
 	static const EResType::Type initArray[] = {
 		EResType::DIRECTORY,
@@ -108,16 +106,16 @@ std::unordered_map<ResourceID, bfs::path> CFilesystemLoader::listFiles(const std
 		EResType::ARCHIVE_ZIP };
 	static const std::set<EResType::Type> initialTypes(initArray, initArray + std::size(initArray));
 
-	assert(bfs::is_directory(baseDirectory));
-	std::unordered_map<ResourceID, bfs::path> fileList;
+	assert(boost::filesystem::is_directory(baseDirectory));
+	std::unordered_map<ResourceID, boost::filesystem::path> fileList;
 
-	std::vector<bfs::path> path; //vector holding relative path to our file
+	std::vector<boost::filesystem::path> path; //vector holding relative path to our file
 
-	bfs::recursive_directory_iterator enddir;
+	boost::filesystem::recursive_directory_iterator enddir;
 #if BOOST_VERSION >= 107200 // 1.72
-	bfs::recursive_directory_iterator it(baseDirectory, bfs::directory_options::follow_directory_symlink);
+	boost::filesystem::recursive_directory_iterator it(baseDirectory, boost::filesystem::directory_options::follow_directory_symlink);
 #else
-	bfs::recursive_directory_iterator it(baseDirectory, bfs::symlink_option::recurse);
+	boost::filesystem::recursive_directory_iterator it(baseDirectory, boost::filesystem::symlink_option::recurse);
 #endif
 
 	for(; it != enddir; ++it)
@@ -129,7 +127,7 @@ std::unordered_map<ResourceID, bfs::path> CFilesystemLoader::listFiles(const std
 		const auto currentDepth = it.level();
 #endif
 
-		if (bfs::is_directory(it->status()))
+		if (boost::filesystem::is_directory(it->status()))
 		{
 			path.resize(currentDepth + 1);
 			path.back() = it->path().filename();
@@ -148,7 +146,7 @@ std::unordered_map<ResourceID, bfs::path> CFilesystemLoader::listFiles(const std
 		if (!initial || vstd::contains(initialTypes, type))
 		{
 			//reconstruct relative filename (not possible via boost AFAIK)
-			bfs::path filename;
+			boost::filesystem::path filename;
 			const size_t iterations = std::min(static_cast<size_t>(currentDepth), path.size());
 			if (iterations)
 			{
@@ -161,13 +159,13 @@ std::unordered_map<ResourceID, bfs::path> CFilesystemLoader::listFiles(const std
 				filename = it->path().filename();
 
 			std::string resName;
-			if (bfs::path::preferred_separator != '/')
+			if (boost::filesystem::path::preferred_separator != '/')
 			{
 				// resource names are using UNIX slashes (/)
 				resName.reserve(resName.size() + filename.native().size());
 				resName = mountPoint;
 				for (const char c : filename.string())
-					if (c != bfs::path::preferred_separator)
+					if (c != boost::filesystem::path::preferred_separator)
 						resName.push_back(c);
 					else
 						resName.push_back('/');

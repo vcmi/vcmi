@@ -214,7 +214,7 @@ bool ZipArchive::extract(const boost::filesystem::path & from, const boost::file
 		if (boost::algorithm::ends_with(file, "/"))
 			continue;
 
-		boost::filesystem::fstream destFile(fullName, std::ios::out | std::ios::binary);
+		std::fstream destFile(fullName.c_str(), std::ios::out | std::ios::binary);
 		if (!destFile.good())
 			return false;
 

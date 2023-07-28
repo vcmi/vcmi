@@ -76,7 +76,7 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 	savedConf.Struct().erase("session");
 	JsonUtils::minimize(savedConf, "vcmi:settings");
 
-	boost::filesystem::fstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/settings.json")), std::ofstream::out | std::ofstream::trunc);
+	std::fstream file(CResourceHandler::get()->getResourceName(ResourceID("config/settings.json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
 	file << savedConf.toJson();
 }
 

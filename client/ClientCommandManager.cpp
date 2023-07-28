@@ -247,7 +247,7 @@ void ClientCommandManager::handleGetConfigCommand()
 				boost::algorithm::replace_all(name, ":", "_");
 
 				const boost::filesystem::path filePath = contentOutPath / (name + ".json");
-				boost::filesystem::ofstream file(filePath);
+				std::ofstream file(filePath.c_str());
 				file << object.toJson();
 			}
 		}
@@ -273,7 +273,7 @@ void ClientCommandManager::handleGetScriptsCommand()
 
 		const scripting::ScriptImpl * script = kv.second.get();
 		boost::filesystem::path filePath = outPath / (name + ".lua");
-		boost::filesystem::ofstream file(filePath);
+		std::ofstream file(filePath.c_str());
 		file << script->getSource();
 	}
 	printCommandMessage("\rExtracting done :)\n");
@@ -300,7 +300,7 @@ void ClientCommandManager::handleGetTextCommand()
 
 		boost::filesystem::create_directories(filePath.parent_path());
 
-		boost::filesystem::ofstream file(filePath);
+		std::ofstream file(filePath.c_str());
 		auto text = CResourceHandler::get()->load(filename)->readAll();
 
 		file.write((char*)text.first.get(), text.second);
@@ -331,7 +331,7 @@ void ClientCommandManager::handleExtractCommand(std::istringstream& singleWordBu
 		auto data = CResourceHandler::get()->load(ResourceID(URI))->readAll();
 
 		boost::filesystem::create_directories(outPath.parent_path());
-		boost::filesystem::ofstream outFile(outPath, boost::filesystem::ofstream::binary);
+		std::ofstream outFile(outPath.c_str(), std::ofstream::binary);
 		outFile.write((char*)data.first.get(), data.second);
 	}
 	else

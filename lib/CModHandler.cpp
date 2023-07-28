@@ -1157,7 +1157,7 @@ void CModHandler::afterLoad(bool onlyEssential)
 
 	if(!onlyEssential)
 	{
-		boost::filesystem::fstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::out | std::ofstream::trunc);
+		std::fstream file(CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
 		file << modSettings.toJson();
 	}
 

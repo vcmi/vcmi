@@ -390,7 +390,7 @@ public:
 	BinarySerializer serializer;
 
 	boost::filesystem::path fName;
-	std::unique_ptr<boost::filesystem::fstream> sfile;
+	std::unique_ptr<std::fstream> sfile;
 
 	CSaveFile(const boost::filesystem::path &fname); //throws!
 	~CSaveFile();
