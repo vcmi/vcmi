@@ -81,6 +81,7 @@ public:
 	bool optionInMapView();
 	bool optionInWorldView();
 	bool optionSidePanelActive();
+	bool optionMapScrollingActive();
 	bool optionMapViewActive();
 
 	void setState(EAdventureState newState);

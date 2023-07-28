@@ -192,7 +192,7 @@ void AdventureMapInterface::handleMapScrollingUpdate(uint32_t timePassed)
 	Point scrollDelta = scrollDirection * scrollDistance;
 
 	bool cursorInScrollArea = scrollDelta != Point(0,0);
-	bool scrollingActive = cursorInScrollArea && isActive() && shortcuts->optionSidePanelActive() && !scrollingWasBlocked;
+	bool scrollingActive = cursorInScrollArea && shortcuts->optionMapScrollingActive() && !scrollingWasBlocked;
 	bool scrollingBlocked = GH.isKeyboardCtrlDown() || !settings["adventure"]["borderScroll"].Bool();
 
 	if (!scrollingWasActive && scrollingBlocked)
@@ -323,7 +323,7 @@ void AdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID, bool isHuma
 	mapAudio->onEnemyTurnStarted();
 	widget->getMinimap()->setAIRadar(!isHuman);
 	widget->getInfoBar()->startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
-	setState(EAdventureState::ENEMY_TURN);
+	setState(isHuman ? EAdventureState::OTHER_HUMAN_PLAYER_TURN : EAdventureState::AI_PLAYER_TURN);
 }
 
 void AdventureMapInterface::setState(EAdventureState state)
