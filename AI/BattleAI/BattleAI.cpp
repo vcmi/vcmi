@@ -826,7 +826,7 @@ void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcas
 	ps.value = totalGain;
 }
 
-void CBattleAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side)
+void CBattleAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side, bool replayAllowed)
 {
 	LOG_TRACE(logAi);
 	side = Side;

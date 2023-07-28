@@ -168,13 +168,13 @@ void CAdventureAI::battleCatapultAttacked(const CatapultAttack & ca)
 }
 
 void CAdventureAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile,
-							   const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side)
+							   const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
 {
 	assert(!battleAI);
 	assert(cbc);
 	battleAI = CDynLibHandler::getNewBattleAI(getBattleAIName());
 	battleAI->initBattleInterface(env, cbc);
-	battleAI->battleStart(army1, army2, tile, hero1, hero2, side);
+	battleAI->battleStart(army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
 
 void CAdventureAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged)
