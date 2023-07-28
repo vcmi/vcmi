@@ -2118,6 +2118,9 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 	//send info about battles
 	BattleStart bs;
 	bs.info = BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
+
+	engageIntoBattle(bs.info->sides[0].color);
+	engageIntoBattle(bs.info->sides[1].color);
 	sendAndApply(&bs);
 }
 
@@ -2577,9 +2580,6 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 	if(gs->curB)
 		gs->curB.dellNull();
 	
-	engageIntoBattle(army1->tempOwner);
-	engageIntoBattle(army2->tempOwner);
-
 	static const CArmedInstance *armies[2];
 	armies[0] = army1;
 	armies[1] = army2;
