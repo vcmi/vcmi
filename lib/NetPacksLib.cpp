@@ -1390,18 +1390,7 @@ void HeroRecruited::applyGs(CGameState * gs) const
 
 	h->setOwner(player);
 	h->pos = tile;
-	bool fresh = !h->isInitialized();
-	if(fresh)
-	{ // this is a fresh hero who hasn't appeared yet
-		if (boatId >= 0) //Hero spawns on water
-		{
-			h->setMovementPoints(h->movementPointsLimit(false));
-		}
-		else
-		{
-			h->setMovementPoints(h->movementPointsLimit(true));
-		}
-	}
+	h->initObj(gs->getRandomGenerator());
 
 	if(h->id == ObjectInstanceID())
 	{
@@ -1414,16 +1403,10 @@ void HeroRecruited::applyGs(CGameState * gs) const
 	gs->map->heroesOnMap.emplace_back(h);
 	p->heroes.emplace_back(h);
 	h->attachTo(*p);
-	if(fresh)
-	{
-		h->initObj(gs->getRandomGenerator());
-	}
 	gs->map->addBlockVisTiles(h);
 
 	if(t)
-	{
 		t->setVisitingHero(h);
-	}
 }
 
 void GiveHero::applyGs(CGameState * gs) const
@@ -2208,19 +2191,25 @@ void BattleResultAccepted::applyGs(CGameState * gs) const
 			res.hero->removeBonusesRecursive(Bonus::OneBattle);
 	}
 
-	// Grow up growing artifacts
-	if(const auto hero = heroResult[winnerSide].hero)
+	if(winnerSide != 2)
 	{
-		if(hero->commander && hero->commander->alive)
+		// Grow up growing artifacts
+		const auto hero = heroResult[winnerSide].hero;
+
+		if (hero)
 		{
-			for(auto & art : hero->commander->artifactsWorn)
+			if(hero->commander && hero->commander->alive)
+			{
+				for(auto & art : hero->commander->artifactsWorn)
+					art.second.artifact->growingUp();
+			}
+			for(auto & art : hero->artifactsWorn)
+			{
 				art.second.artifact->growingUp();
-		}
-		for(auto & art : hero->artifactsWorn)
-		{
-			art.second.artifact->growingUp();
+			}
 		}
 	}
+
 	if(VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
 		if(heroResult[0].army)

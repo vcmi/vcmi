@@ -330,8 +330,6 @@ bool BattleSiegeController::isAttackableByCatapult(BattleHex hex) const
 
 void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 {
-	owner.checkForAnimations();
-
 	if (ca.attacker != -1)
 	{
 		const CStack *stack = owner.curInt->cb->battleGetStackByID(ca.attacker);

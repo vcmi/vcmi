@@ -109,10 +109,6 @@ public:
             (void)e;
 			return false;
 		}
-		catch(...)
-		{
-			throw;
-		}
 	}
 };
 
@@ -635,11 +631,9 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 		return;
 	}
 	
-	const CArmedInstance *bEndArmy1 = battleInfo->sides.at(0).armyObject;
-	const CArmedInstance *bEndArmy2 = battleInfo->sides.at(1).armyObject;
 	const BattleResult::EResult result = battleResult.get()->result;
 	
-	CasualtiesAfterBattle cab1(bEndArmy1, battleInfo), cab2(bEndArmy2, battleInfo); //calculate casualties before deleting battle
+	CasualtiesAfterBattle cab1(battleInfo->sides.at(0), battleInfo), cab2(battleInfo->sides.at(1), battleInfo); //calculate casualties before deleting battle
 	ChangeSpells cs; //for Eagle Eye
 
 	if(!finishingBattle->isDraw() && finishingBattle->winnerHero)
@@ -816,8 +810,8 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 		changePrimSkill(finishingBattle->winnerHero, PrimarySkill::EXPERIENCE, battleResult.data->exp[finishingBattle->winnerSide]);
 	
 	BattleResultAccepted raccepted;
-	raccepted.heroResult[0].army = const_cast<CArmedInstance*>(bEndArmy1);
-	raccepted.heroResult[1].army = const_cast<CArmedInstance*>(bEndArmy2);
+	raccepted.heroResult[0].army = const_cast<CArmedInstance*>(battleInfo->sides.at(0).armyObject);
+	raccepted.heroResult[1].army = const_cast<CArmedInstance*>(battleInfo->sides.at(1).armyObject);
 	raccepted.heroResult[0].hero = const_cast<CGHeroInstance*>(battleInfo->sides.at(0).hero);
 	raccepted.heroResult[1].hero = const_cast<CGHeroInstance*>(battleInfo->sides.at(1).hero);
 	raccepted.heroResult[0].exp = battleResult.data->exp[0];
@@ -2119,7 +2113,7 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 
 	BattleField terType = gs->battleGetBattlefieldType(tile, getRandomGenerator());
 	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
-		terType = BattleField::fromString("ship_to_ship");
+		terType = BattleField(*VLC->modh->identifiers.getIdentifier("core", "battlefield", "ship_to_ship"));
 
 	//send info about battles
 	BattleStart bs;
@@ -6684,14 +6678,12 @@ void CGameHandler::showInfoDialog(const std::string & msg, PlayerColor player)
 	showInfoDialog(&iw);
 }
 
-CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, const BattleInfo * bat):
-	army(_army)
+CasualtiesAfterBattle::CasualtiesAfterBattle(const SideInBattle & battleSide, const BattleInfo * bat):
+	army(battleSide.armyObject)
 {
 	heroWithDeadCommander = ObjectInstanceID();
 
-	PlayerColor color = army->tempOwner;
-	if(color == PlayerColor::UNFLAGGABLE)
-		color = PlayerColor::NEUTRAL;
+	PlayerColor color = battleSide.color;
 
 	for(CStack * st : bat->stacks)
 	{

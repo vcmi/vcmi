@@ -23,6 +23,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGameState;
 struct StartInfo;
 struct BattleResult;
+struct SideInBattle;
 struct BattleAttack;
 struct BattleStackAttacked;
 struct CPack;
@@ -90,7 +91,7 @@ struct CasualtiesAfterBattle
 	TSummoned summoned;
 	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack locations
 
-	CasualtiesAfterBattle(const CArmedInstance * _army, const BattleInfo * bat);
+	CasualtiesAfterBattle(const SideInBattle & battleSide, const BattleInfo * bat);
 	void updateArmy(CGameHandler *gh);
 };
 

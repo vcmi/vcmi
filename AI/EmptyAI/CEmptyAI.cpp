@@ -41,7 +41,7 @@ void CEmptyAI::activeStack(const CStack * stack)
 
 void CEmptyAI::yourTacticPhase(int distance)
 {
-	cb->battleMakeUnitAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
+	cb->battleMakeTacticAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
 }
 
 void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID)

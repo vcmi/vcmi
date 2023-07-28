@@ -42,7 +42,7 @@ android {
 				applicationLabel: '@string/app_name',
 			]
 			ndk {
-				debugSymbolLevel 'symbol_table'
+				debugSymbolLevel 'full'
 			}
 		}
 		daily {

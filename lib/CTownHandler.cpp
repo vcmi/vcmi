@@ -595,7 +595,8 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 	if(ret->bid == BuildingID::NONE && !source["id"].isNull())
 	{
-		logMod->warn("Building %s: id field is deprecated", stringID);
+		// FIXME: A lot of false-positives with no clear way to handle them in mods
+		//logMod->warn("Building %s: id field is deprecated", stringID);
 		ret->bid = source["id"].isNull() ? BuildingID(BuildingID::NONE) : BuildingID(source["id"].Float());
 	}
 

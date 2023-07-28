@@ -85,7 +85,7 @@
 	"vcmi.systemOptions.framerateButton.hover"  : "Лічильник кадрів",
 	"vcmi.systemOptions.framerateButton.help"   : "{Лічильник кадрів}\n\n Перемикає видимість лічильника кадрів на секунду у кутку ігрового вікна",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Тактильний відгук",
-	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Тактильний відгук}\n\Використовувати вібрацію при використанні сенсорного екрану",
+	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Тактильний відгук}\n\nВикористовувати вібрацію при використанні сенсорного екрану",
 
 	"vcmi.adventureOptions.infoBarPick.help" : "{Повідомлення у панелі статусу}\n\nЗа можливості, повідомлення про відвідування об'єктів карти пригод будуть відображені у панелі статусу замість окремого вікна",
 	"vcmi.adventureOptions.infoBarPick.hover" : "Повідомлення у панелі статусу",
@@ -186,7 +186,7 @@
 	"vcmi.questLog.hideComplete.hover" : "Приховати завершені квести",
 	"vcmi.questLog.hideComplete.help"  : "Приховує всі квести, які вже мають стан виконаних",
 	
-	"vcmi.randomMapTab.widgets.defaultTemplate"      : "(за замовчуванням)",
+	"vcmi.randomMapTab.widgets.randomTemplate"      : "(Випадковий)",
 	"vcmi.randomMapTab.widgets.templateLabel"        : "Шаблон",
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Налаштувати...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Розподіл команд",

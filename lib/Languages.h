@@ -30,6 +30,7 @@ enum class ELanguages
 	SWEDISH,
 	TURKISH,
 	UKRAINIAN,
+	VIETNAMESE,
 
 	// Pseudo-languages, that have no translations but can define H3 encoding to use
 	OTHER_CP1250,
@@ -62,7 +63,7 @@ struct Options
 
 inline const auto & getLanguageList()
 {
-	static const std::array<Options, 19> languages
+	static const std::array<Options, 20> languages
 	{ {
 		{ "czech",      "Czech",      "Čeština",    "CP1250", "cs", true },
 		{ "chinese",    "Chinese",    "简体中文",       "GBK",    "zh", true }, // Note: actually Simplified Chinese
@@ -80,6 +81,7 @@ inline const auto & getLanguageList()
 		{ "swedish",    "Swedish",    "Svenska",    "CP1252", "sv", true },
 		{ "turkish",    "Turkish",    "Türkçe",     "CP1254", "tr", true },
 		{ "ukrainian",  "Ukrainian",  "Українська", "CP1251", "uk", true },
+		{ "vietnamese",  "Vietnamese",  "Tiếng Việt", "UTF-8", "vi", true }, // Fan translation uses special encoding
 
 		{ "other_cp1250", "Other (East European)",   "", "CP1250", "", false },
 		{ "other_cp1251", "Other (Cyrillic Script)", "", "CP1251", "", false },

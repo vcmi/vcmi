@@ -186,7 +186,7 @@
 	"vcmi.questLog.hideComplete.hover" : "Hide complete quests",
 	"vcmi.questLog.hideComplete.help"  : "Hide all completed quests",
 
-	"vcmi.randomMapTab.widgets.defaultTemplate"      : "(default)",
+	"vcmi.randomMapTab.widgets.randomTemplate"      : "(Random)",
 	"vcmi.randomMapTab.widgets.templateLabel"        : "Template",
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Setup...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Team Alignments",

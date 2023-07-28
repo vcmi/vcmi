@@ -476,6 +476,9 @@ void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
 	adventureInt->onHeroChanged(hero);
 	if (makingTurn && hero->tempOwner == playerID)
 		adventureInt->onHeroChanged(hero);
+
+	for (auto window : GH.windows().findWindows<BattleWindow>())
+		window->heroManaPointsChanged(hero);
 }
 void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 {
@@ -1904,8 +1907,9 @@ bool CPlayerInterface::capturedAllEvents()
 	}
 
 	bool needToLockAdventureMap = adventureInt && adventureInt->isActive() && CGI->mh->hasOngoingAnimations();
+	bool quickCombatOngoing = isAutoFightOn && !battleInt;
 
-	if (ignoreEvents || needToLockAdventureMap || isAutoFightOn)
+	if (ignoreEvents || needToLockAdventureMap || quickCombatOngoing )
 	{
 		GH.input().ignoreEventsUntilInput();
 		return true;

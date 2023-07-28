@@ -406,124 +406,123 @@
 <context>
     <name>CSettingsView</name>
     <message>
-        <source>Open</source>
-        <translation type="vanished">Відкрити</translation>
-    </message>
-    <message>
-        <source>User data directory</source>
-        <translation type="vanished">Тека даних користувача</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="190"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="245"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="262"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="244"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="414"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="599"/>
         <source>Off</source>
         <translation>Вимкнено</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="79"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="563"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="78"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="123"/>
         <source>Artificial Intelligence</source>
         <translation>Штучний інтелект</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="84"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="179"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="83"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="233"/>
         <source>Mod Repositories</source>
         <translation>Репозиторії модифікацій</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="448"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="305"/>
         <source>Interface Scaling</source>
         <translation>Масштабування інтерфейсу</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="398"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="278"/>
         <source>Neutral AI in battles</source>
         <translation>Нейтральний ШІ в боях</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="203"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="465"/>
         <source>Enemy AI in battles</source>
         <translation>Ворожий ШІ в боях</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="509"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="271"/>
         <source>Additional repository</source>
         <translation>Додатковий репозиторій</translation>
     </message>
     <message>
-        <source>Game data directory</source>
-        <translation type="vanished">Тека даних гри</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="482"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="201"/>
         <source>Adventure Map Allies</source>
         <translation>Союзники на мапі пригод</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="441"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="383"/>
         <source>Adventure Map Enemies</source>
         <translation>Вороги на мапі пригод</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="316"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="176"/>
         <source>Windowed</source>
         <translation>У вікні</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="321"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="181"/>
         <source>Borderless fullscreen</source>
         <translation>Повноекранне вікно</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="326"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="186"/>
         <source>Exclusive fullscreen</source>
         <translation>Повноекранний (ексклюзивно)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="530"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="319"/>
+        <source>Autosave limit (0 = off)</source>
+        <translation>Кількість автозбережень</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="329"/>
         <source>Friendly AI in battles</source>
         <translation>Дружній ШІ в боях</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="590"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="588"/>
         <source>Framerate Limit</source>
         <translation>Обмеження частоти кадрів</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="523"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="612"/>
+        <source>Autosave prefix</source>
+        <translation>Префікс назв автозбережень</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="629"/>
+        <source>empty = map name prefix</source>
+        <translation>(використовувати назву карти)</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="508"/>
         <source>Refresh now</source>
         <translation>Оновити зараз</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="234"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="264"/>
         <source>Default repository</source>
         <translation>Стандартний репозиторій</translation>
     </message>
     <message>
-        <source>Update now</source>
-        <translation type="vanished">Оновити зараз</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="195"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="250"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="267"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="249"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="419"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="604"/>
         <source>On</source>
         <translation>Увімкнено</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="455"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="451"/>
         <source>Cursor</source>
         <translation>Курсор</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="475"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="312"/>
         <source>Heroes III Data Language</source>
         <translation>Мова Heroes III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="303"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="163"/>
         <source>Select display mode for game
 
 Windowed - game will run inside a window that covers part of your screen
@@ -540,106 +539,94 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
 Повноекранний ексклюзивний режим - гра займатиме весь екран і використовуватиме вибрану роздільну здатність.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="290"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="431"/>
         <source>Hardware</source>
         <translation>Апаратний</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="295"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="436"/>
         <source>Software</source>
         <translation>Програмний</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="227"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="535"/>
         <source>Heroes III Translation</source>
         <translation>Переклад Heroes III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="516"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="472"/>
         <source>Check on startup</source>
         <translation>Перевіряти на старті</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="537"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="444"/>
         <source>Fullscreen</source>
         <translation>Повноекранний режим</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="69"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="414"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="68"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
         <source>General</source>
         <translation>Загальні налаштування</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="344"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="542"/>
         <source>VCMI Language</source>
         <translation>Мова VCMI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="421"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="194"/>
         <source>Resolution</source>
         <translation>Роздільна здатність</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="550"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="549"/>
         <source>Autosave</source>
         <translation>Автозбереження</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="282"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="376"/>
         <source>Display index</source>
         <translation>Дісплей</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="166"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="528"/>
         <source>Network port</source>
         <translation>Мережевий порт</translation>
     </message>
     <message>
-        <source>Data Directories</source>
-        <translation type="vanished">Теки даних гри</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="74"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="125"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="73"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="561"/>
         <source>Video</source>
         <translation>Графіка</translation>
     </message>
     <message>
-        <source>Log files directory</source>
-        <translation type="vanished">Тека файлів журналу</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="364"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="403"/>
         <source>Show intro</source>
         <translation>Вступні відео</translation>
     </message>
     <message>
-        <source>Build version</source>
-        <translation type="vanished">Версія збірки</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="401"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="402"/>
         <source>Active</source>
         <translation>Активні</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="406"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="407"/>
         <source>Disabled</source>
         <translation>Деактивований</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="407"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="408"/>
         <source>Enable</source>
         <translation>Активувати</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="412"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="413"/>
         <source>Not Installed</source>
         <translation>Не встановлено</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="413"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="414"/>
         <source>Install</source>
         <translation>Встановити</translation>
     </message>
@@ -739,10 +726,6 @@ Heroes® of Might and Magic® III HD наразі не підтримуєтьс�
         <translation>Встановити різноманітні покращення інтерфейсу, такі як покращений інтерфейс випадкових карт та вибір варіантів дій у боях</translation>
     </message>
     <message>
-        <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
-        <translation type="vanished">Встановити підтримку для гри в Heroes III у роздільних здатностях, більших за 800x600</translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
         <translation>Встановити сумісну версію доповнення &quot;Horn of the Abyss&quot;, фанатське доповнення Heroes III, портоване командою VCMI</translation>
@@ -828,10 +811,6 @@ Heroes® of Might and Magic® III HD наразі не підтримуєтьс�
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="638"/>
         <source>Heroes III Translation</source>
         <translation>Переклад Heroes III</translation>
-    </message>
-    <message>
-        <source>High Definition Support</source>
-        <translation type="vanished">Підтримка високих роздільних здатностей</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="724"/>
@@ -931,21 +910,26 @@ Heroes® of Might and Magic® III HD наразі не підтримуєтьс�
     </message>
     <message>
         <location filename="../languages.cpp" line="39"/>
+        <source>Vietnamese</source>
+        <translation>В&apos;єтнамська</translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="40"/>
         <source>Other (East European)</source>
         <translation>Інша (східноєвропейська)</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="40"/>
+        <location filename="../languages.cpp" line="41"/>
         <source>Other (Cyrillic Script)</source>
         <translation>Інша (кирилиця)</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="41"/>
+        <location filename="../languages.cpp" line="42"/>
         <source>Other (West European)</source>
         <translation>Інша (західноєвропейська)</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="63"/>
+        <location filename="../languages.cpp" line="64"/>
         <source>Auto (%1)</source>
         <translation>Авто (%1)</translation>
     </message>

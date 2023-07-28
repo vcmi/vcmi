@@ -394,8 +394,8 @@ CGameState::CGameState()
 
 CGameState::~CGameState()
 {
-	map.dellNull();
 	curB.dellNull();
+	map.dellNull();
 }
 
 void CGameState::preInit(Services * services)
@@ -569,7 +569,6 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 			catch(...)
 			{
 				logGlobal->error("Saving random map failed with exception");
-				handleException();
 			}
 		}
 
@@ -1245,11 +1244,10 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r
 	}
 
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
-		return BattleField::fromString("sand_shore");
+		return BattleField(*VLC->modh->identifiers.getIdentifier("core", "battlefield.sand_shore"));
 	
 	return BattleField(*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
 }
-
 
 void CGameState::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
 {

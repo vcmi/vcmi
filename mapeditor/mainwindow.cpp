@@ -249,7 +249,7 @@ bool MainWindow::getAnswerAboutUnsavedChanges()
 {
 	if(unsaved)
 	{
-		auto sure = QMessageBox::question(this, "Confirmation", "Unsaved changes will be lost, are you sure?");
+		auto sure = QMessageBox::question(this, tr("Confirmation"), tr("Unsaved changes will be lost, are you sure?"));
 		if(sure == QMessageBox::No)
 		{
 			return false;
@@ -326,7 +326,7 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	
 	if(!CResourceHandler::get("mapEditor")->existsResource(resId))
 	{
-		QMessageBox::warning(this, "Failed to open map", "Cannot open map from this folder");
+		QMessageBox::warning(this, tr("Failed to open map"), tr("Cannot open map from this folder"));
 		return false;
 	}
 	
@@ -1125,11 +1125,11 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 	
 	if(controller.scene(mapLevel)->selectionObjectsView.getSelection().empty())
 	{
-		QMessageBox::information(this, "Update appearance", "No objects selected");
+		QMessageBox::information(this, tr("Update appearance"), tr("No objects selected"));
 		return;
 	}
 	
-	if(QMessageBox::Yes != QMessageBox::question(this, "Update appearance", "This operation is irreversible. Do you want to continue?"))
+	if(QMessageBox::Yes != QMessageBox::question(this, tr("Update appearance"), tr("This operation is irreversible. Do you want to continue?")))
 		return;
 	
 	controller.scene(mapLevel)->selectionTerrainView.clear();
@@ -1188,7 +1188,7 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 	
 	
 	if(errors)
-		QMessageBox::warning(this, "Update appearance", QString("Errors occured. %1 objects were not updated").arg(errors));
+		QMessageBox::warning(this, tr("Update appearance"), QString(tr("Errors occured. %1 objects were not updated")).arg(errors));
 }
 
 
@@ -1228,7 +1228,7 @@ void MainWindow::on_actionPaste_triggered()
 
 void MainWindow::on_actionExport_triggered()
 {
-	QString fileName = QFileDialog::getSaveFileName(this, "Save to image", QCoreApplication::applicationDirPath(), "BMP (*.bmp);;JPEG (*.jpeg);;PNG (*.png)");
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save to image"), QCoreApplication::applicationDirPath(), "BMP (*.bmp);;JPEG (*.jpeg);;PNG (*.png)");
 	if(!fileName.isNull())
 	{
 		QImage image(ui->mapView->scene()->sceneRect().size().toSize(), QImage::Format_RGB888);

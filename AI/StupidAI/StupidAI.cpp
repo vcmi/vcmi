@@ -18,14 +18,21 @@ static std::shared_ptr<CBattleCallback> cbc;
 
 CStupidAI::CStupidAI()
 	: side(-1)
+	, wasWaitingForRealize(false)
+	, wasUnlockingGs(false)
 {
 	print("created");
 }
 
-
 CStupidAI::~CStupidAI()
 {
 	print("destroyed");
+	if(cb)
+	{
+		//Restore previous state of CB - it may be shared with the main AI (like VCAI)
+		cb->waitTillRealize = wasWaitingForRealize;
+		cb->unlockGsWhenWaiting = wasUnlockingGs;
+	}
 }
 
 void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB)
@@ -33,6 +40,11 @@ void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	print("init called, saving ptr to IBattleCallback");
 	env = ENV;
 	cbc = cb = CB;
+
+	wasWaitingForRealize = CB->waitTillRealize;
+	wasUnlockingGs = CB->unlockGsWhenWaiting;
+	CB->waitTillRealize = false;
+	CB->unlockGsWhenWaiting = false;
 }
 
 void CStupidAI::actionFinished(const BattleAction &action)
@@ -90,7 +102,7 @@ static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const Battl
 
 void CStupidAI::yourTacticPhase(int distance)
 {
-	cb->battleMakeUnitAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
+	cb->battleMakeTacticAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
 }
 
 void CStupidAI::activeStack( const CStack * stack )

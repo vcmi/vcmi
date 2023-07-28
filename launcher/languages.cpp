@@ -18,7 +18,7 @@
 #include <QListWidget>
 
 // list of language names, for generation of translations. Do not use directly, use Languages namespace instead
-static const std::array<std::string, 19> languageTranslatedNamesGenerator = {
+static const std::array<std::string, 20> languageTranslatedNamesGenerator = {
 	{
 		QT_TRANSLATE_NOOP("Language", "Czech"),
 		QT_TRANSLATE_NOOP("Language", "Chinese"),
@@ -36,6 +36,7 @@ static const std::array<std::string, 19> languageTranslatedNamesGenerator = {
 		QT_TRANSLATE_NOOP("Language", "Swedish"),
 		QT_TRANSLATE_NOOP("Language", "Turkish"),
 		QT_TRANSLATE_NOOP("Language", "Ukrainian"),
+		QT_TRANSLATE_NOOP("Language", "Vietnamese"),
 		QT_TRANSLATE_NOOP("Language", "Other (East European)"),
 		QT_TRANSLATE_NOOP("Language", "Other (Cyrillic Script)"),
 		QT_TRANSLATE_NOOP("Language", "Other (West European)"),

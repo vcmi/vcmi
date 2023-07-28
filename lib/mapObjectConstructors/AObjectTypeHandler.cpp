@@ -13,6 +13,7 @@
 
 #include "IObjectInfo.h"
 #include "../CGeneralTextHandler.h"
+#include "../CModHandler.h"
 #include "../VCMI_Lib.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/ObjectTemplate.h"
@@ -77,15 +78,8 @@ void AObjectTypeHandler::init(const JsonNode & input)
 		tmpl->id = Obj(type);
 		tmpl->subid = subtype;
 		tmpl->stringID = entry.first; // FIXME: create "fullID" - type.object.template?
-		try
-		{
-			tmpl->readJson(entry.second);
-			templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
-		}
-		catch (const std::exception & e)
-		{
-			logGlobal->warn("Failed to load terrains for object %s: %s", entry.first, e.what());
-		}
+		tmpl->readJson(entry.second);
+		templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
 	}
 
 	for(const JsonNode & node : input["sounds"]["ambient"].Vector())
@@ -102,10 +96,15 @@ void AObjectTypeHandler::init(const JsonNode & input)
 	else
 		aiValue = static_cast<std::optional<si32>>(input["aiValue"].Integer());
 
-	if(input["battleground"].getType() == JsonNode::JsonType::DATA_STRING)
-		battlefield = input["battleground"].String();
-	else
-		battlefield = std::nullopt;
+	battlefield = BattleField::NONE;
+
+	if(!input["battleground"].isNull())
+	{
+		VLC->modh->identifiers.requestIdentifier("battlefield", input["battleground"], [this](int32_t identifier)
+		{
+			battlefield = BattleField(identifier);
+		});
+	}
 
 	initTypeData(input);
 }
@@ -182,7 +181,7 @@ std::vector<std::shared_ptr<const ObjectTemplate>> AObjectTypeHandler::getTempla
 
 BattleField AObjectTypeHandler::getBattlefield() const
 {
-	return battlefield ? BattleField::fromString(battlefield.value()) : BattleField::NONE;
+	return battlefield;
 }
 
 std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplates(TerrainId terrainType) const

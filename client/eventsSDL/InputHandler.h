@@ -29,6 +29,8 @@ class InputHandler
 
 	Point cursorPosition;
 
+	std::vector<SDL_Event> acquireEvents();
+
 	void preprocessEvent(const SDL_Event & event);
 	void handleCurrentEvent(const SDL_Event & current);
 	void handleUserEvent(const SDL_UserEvent & current);
@@ -62,6 +64,9 @@ public:
 
 	/// Ends any existing text input state
 	void stopTextInput();
+
+	/// do a haptic feedback
+	void hapticFeedback();
 
 	/// returns true if system has active touchscreen
 	bool hasTouchInputDevice() const;

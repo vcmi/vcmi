@@ -31,7 +31,7 @@ void RoadPlacer::process()
 
 void RoadPlacer::init()
 {
-	if (zone.isUnderground())
+	if(zone.isUnderground())
 	{
 		DEPENDENCY_ALL(RockFiller);
 	}
@@ -54,22 +54,52 @@ const rmg::Area & RoadPlacer::getRoads() const
 
 bool RoadPlacer::createRoad(const int3 & dst)
 {
-	auto searchArea = zone.areaPossible() + areaRoads + zone.freePaths() - isolated + roads;
-	
+	auto searchArea = zone.areaPossible() + zone.freePaths() + areaRoads + roads;
+
 	rmg::Path path(searchArea);
 	path.connect(roads);
+
+	auto simpleRoutig = [this](const int3& src, const int3& dst)
+	{
+		if(areaIsolated().contains(dst))
+		{
+			return 1000.0f; //Do not route road behind objects that are not visitable from top
+		}
+		else
+		{
+			return 1.0f;
+		}
+	};
 	
-	auto res = path.search(dst, true);
+	auto res = path.search(dst, true, simpleRoutig);
 	if(!res.valid())
 	{
-		res = path.search(dst, false, [](const int3 & src, const int3 & dst)
+		auto desperateRoutig = [this](const int3& src, const int3& dst) -> float
 		{
+			//Do not allow connections straight up through object not visitable from top
+			if(std::abs((src - dst).y) == 1)
+			{
+				if(areaIsolated().contains(dst) || areaIsolated().contains(src))
+				{
+					return 1e30;
+				}
+			}
+			else
+			{
+				if(areaIsolated().contains(dst))
+				{
+					return 1e6;
+				}
+			}
+
 			float weight = dst.dist2dSQ(src);
 			return weight * weight;
-		});
+		};
+		res = path.search(dst, false, desperateRoutig);
+
 		if(!res.valid())
 		{
-			logGlobal->warn("Failed to create road");
+			logGlobal->warn("Failed to create road to node %s", dst.toString());
 			return false;
 		}
 	}
@@ -88,7 +118,7 @@ void RoadPlacer::drawRoads(bool secondary)
 		zone.freePaths().unite(roads);
 	}
 
-	if (!generator.getMapGenOptions().isRoadEnabled())
+	if(!generator.getMapGenOptions().isRoadEnabled())
 	{
 		return;
 	}
@@ -108,7 +138,7 @@ void RoadPlacer::drawRoads(bool secondary)
 	//If our road type is not enabled, choose highest below it
 	for (int8_t bestRoad = roadType.getNum(); bestRoad > RoadId(Road::NO_ROAD).getNum(); bestRoad--)
 	{
-		if (generator.getMapGenOptions().isRoadEnabled(RoadId(bestRoad)))
+		if(generator.getMapGenOptions().isRoadEnabled(RoadId(bestRoad)))
 		{
 			mapProxy->drawRoads(zone.getRand(), tiles, RoadId(bestRoad));
 			return;
@@ -126,11 +156,11 @@ void RoadPlacer::connectRoads()
 {
 	bool noRoadNodes = false;
 	//Assumes objects are already placed
-	if (roadNodes.size() < 2)
+	if(roadNodes.size() < 2)
 	{
 		//If there are no nodes, draw roads to mines
 		noRoadNodes = true;
-		if (auto* m = zone.getModificator<ObjectManager>())
+		if(auto* m = zone.getModificator<ObjectManager>())
 		{
 			for(auto * object : m->getMines())
 			{
@@ -149,7 +179,19 @@ void RoadPlacer::connectRoads()
 
 	for(const auto & node : roadNodes)
 	{
-		createRoad(node);
+		try
+		{
+			createRoad(node);
+		}
+		catch (const rmgException& e)
+		{
+			logGlobal->warn("Handled exception while drawing road to node %s: %s", node.toString(), e.what());
+		}
+		catch (const std::exception & e)
+		{
+			logGlobal->error("Unhandled exception while drawing road to node %s: %s", node.toString(), e.what());
+			throw e;
+		}
 	}
 	
 	//Draw dirt roads if there are only mines

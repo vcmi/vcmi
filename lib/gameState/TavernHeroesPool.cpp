@@ -109,10 +109,16 @@ CGHeroInstance * TavernHeroesPool::takeHeroFromPool(HeroTypeID hero)
 
 void TavernHeroesPool::onNewDay()
 {
+	auto unusedHeroes = unusedHeroesFromPool();
+
 	for(auto & hero : heroesPool)
 	{
 		assert(hero.second);
 		if(!hero.second)
+			continue;
+
+		// do not access heroes who are not present in tavern of any players
+		if (vstd::contains(unusedHeroes, hero.first))
 			continue;
 
 		hero.second->setMovementPoints(hero.second->movementPointsLimit(true));
