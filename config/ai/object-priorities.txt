@@ -171,6 +171,10 @@ RuleBlock: basic
   rule: if heroRole is SCOUT and turn is NEXT and mainTurnDistance is LONG then Value is BAD
   rule: if heroRole is SCOUT and turn is NOW and scoutTurnDistance is LONG then Value is BAD
   rule: if heroRole is SCOUT and turn is NOW and scoutTurnDistance is MEDIUM then Value is BAD with 0.3
+  rule: if heroRole is SCOUT and fear is HIGH then Value is BAD with 0.8
+  rule: if heroRole is SCOUT and fear is MEDIUM then Value is BAD with 0.5
+  rule: if heroRole is MAIN and fear is HIGH then Value is BAD with 0.5
+  rule: if heroRole is MAIN and fear is MEDIUM then Value is BAD with 0.2
 RuleBlock: strategicalValue
   enabled: true
   conjunction: AlgebraicProduct
@@ -205,7 +209,8 @@ RuleBlock: strategicalValue
   rule: if heroRole is SCOUT and strategicalValue is LOW and danger is NONE and scoutTurnDistance is MEDIUM and fear is not HIGH then Value is SMALL
   rule: if armyLoss is HIGH and strategicalValue is LOW then Value is BAD
   rule: if armyLoss is HIGH and strategicalValue is MEDIUM then Value is BAD with 0.7
-  rule: if strategicalValue is CRITICAL then Value is CRITICAL
+  rule: if strategicalValue is CRITICAL and heroRole is MAIN then Value is CRITICAL
+  rule: if strategicalValue is CRITICAL and heroRole is SCOUT then Value is CRITICAL with 0.7
 RuleBlock: armyReward
   enabled: true
   conjunction: AlgebraicProduct
@@ -220,6 +225,14 @@ RuleBlock: armyReward
   rule: if heroRole is MAIN and armyReward is MEDIUM and mainTurnDistance is LONG and fear is not HIGH then Value is MEDIUM
   rule: if heroRole is MAIN and armyReward is LOW and mainTurnDistance is LOW and fear is not HIGH then Value is MEDIUM
   rule: if heroRole is MAIN and armyReward is LOW and mainTurnDistance is MEDIUM and fear is not HIGH then Value is SMALL
+  rule: if heroRole is SCOUT and armyReward is HIGH and danger is NONE and scoutTurnDistance is LOW and fear is not HIGH then Value is HIGH
+  rule: if heroRole is SCOUT and armyReward is HIGH and danger is NONE and scoutTurnDistance is MEDIUM and fear is not HIGH then Value is HIGH with 0.7
+  rule: if heroRole is SCOUT and armyReward is HIGH and danger is NONE and scoutTurnDistance is LONG and fear is not HIGH then Value is BITHIGH
+  rule: if heroRole is SCOUT and armyReward is MEDIUM and danger is NONE and scoutTurnDistance is LOW then Value is HIGH with 0.7
+  rule: if heroRole is SCOUT and armyReward is MEDIUM and danger is NONE and scoutTurnDistance is MEDIUM and fear is not HIGH then Value is BITHIGH
+  rule: if heroRole is SCOUT and armyReward is MEDIUM and danger is NONE and scoutTurnDistance is LONG and fear is not HIGH then Value is MEDIUM
+  rule: if heroRole is SCOUT and armyReward is LOW and danger is NONE and scoutTurnDistance is LOW and fear is not HIGH then Value is MEDIUM
+  rule: if heroRole is SCOUT and armyReward is LOW and danger is NONE and scoutTurnDistance is MEDIUM and fear is not HIGH then Value is SMALL
 RuleBlock: gold
   enabled: true
   conjunction: AlgebraicProduct

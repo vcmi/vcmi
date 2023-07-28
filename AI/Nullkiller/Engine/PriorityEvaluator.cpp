@@ -592,7 +592,6 @@ int32_t getArmyCost(const CArmedInstance * army)
 	return value;
 }
 
-/// Gets aproximated reward in gold. Daily income is multiplied by 5
 int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CGHeroInstance * hero) const
 {
 	if(!target)
@@ -713,9 +712,6 @@ public:
 
 		auto strategicalValue = evaluationContext.evaluator.getStrategicalValue(town);
 
-		if(evaluationContext.evaluator.ai->buildAnalyzer->getDevelopmentInfo().size() == 1)
-			vstd::amax(evaluationContext.strategicalValue, 10.0);
-
 		float multiplier = 1;
 
 		if(treat.turn < defendTown.getTurn())
@@ -736,7 +732,12 @@ public:
 
 		evaluationContext.armyGrowth += armyGrowth * multiplier;
 		evaluationContext.goldReward += dailyIncome * 5 * multiplier;
-		evaluationContext.addNonCriticalStrategicalValue(1.7f * multiplier * strategicalValue);
+
+		if(evaluationContext.evaluator.ai->buildAnalyzer->getDevelopmentInfo().size() == 1)
+			vstd::amax(evaluationContext.strategicalValue, 2.5f * multiplier * strategicalValue);
+		else
+			evaluationContext.addNonCriticalStrategicalValue(1.7f * multiplier * strategicalValue);
+
 		vstd::amax(evaluationContext.danger, defendTown.getTreat().danger);
 		addTileDanger(evaluationContext, town->visitablePos(), defendTown.getTurn(), defendTown.getDefenceStrength());
 	}

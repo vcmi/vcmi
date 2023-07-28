@@ -33,6 +33,7 @@ public:
 	virtual bool canRecruitHero(const CGTownInstance * t = nullptr) const = 0;
 	virtual bool heroCapReached() const = 0;
 	virtual const CGHeroInstance * findHeroWithGrail() const = 0;
+	virtual const CGHeroInstance * findWeakHeroToDismiss(uint64_t armyLimit) const = 0;
 };
 
 class DLL_EXPORT ISecondarySkillRule
@@ -74,6 +75,7 @@ public:
 	bool canRecruitHero(const CGTownInstance * t = nullptr) const override;
 	bool heroCapReached() const override;
 	const CGHeroInstance * findHeroWithGrail() const override;
+	const CGHeroInstance * findWeakHeroToDismiss(uint64_t armyLimit) const override;
 
 private:
 	float evaluateFightingStrength(const CGHeroInstance * hero) const;

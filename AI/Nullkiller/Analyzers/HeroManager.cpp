@@ -229,6 +229,31 @@ const CGHeroInstance * HeroManager::findHeroWithGrail() const
 	return nullptr;
 }
 
+const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit) const
+{
+	const CGHeroInstance * weakestHero = nullptr;
+	auto myHeroes = ai->cb->getHeroesInfo();
+
+	for(auto existingHero : myHeroes)
+	{
+		if(ai->isHeroLocked(existingHero)
+			|| existingHero->getArmyStrength() >armyLimit
+			|| getHeroRole(existingHero) == HeroRole::MAIN
+			|| existingHero->movementPointsRemaining()
+			|| existingHero->artifactsWorn.size() > (existingHero->hasSpellbook() ? 2 : 1))
+		{
+			continue;
+		}
+
+		if(!weakestHero || weakestHero->getFightingStrength() > existingHero->getFightingStrength())
+		{
+			weakestHero = existingHero;
+		}
+	}
+
+	return weakestHero;
+}
+
 SecondarySkillScoreMap::SecondarySkillScoreMap(std::map<SecondarySkill, float> scoreMap)
 	:scoreMap(scoreMap)
 {

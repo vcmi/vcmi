@@ -121,16 +121,31 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 		return true;
 	}
 
-	if(!town->visitingHero && cb->getHeroCount(ai->playerID, false) < GameConstants::MAX_HEROES_PER_PLAYER)
+	if(!town->visitingHero)
 	{
-		logAi->trace(
-			"Extracting hero %s from garrison of town %s",
-			town->garrisonHero->getNameTranslated(),
-			town->getNameTranslated());
+		if(cb->getHeroCount(ai->playerID, false) < GameConstants::MAX_HEROES_PER_PLAYER)
+		{
+			logAi->trace(
+				"Extracting hero %s from garrison of town %s",
+				town->garrisonHero->getNameTranslated(),
+				town->getNameTranslated());
 
-		tasks.push_back(Goals::sptr(Goals::ExchangeSwapTownHeroes(town, nullptr).setpriority(5)));
+			tasks.push_back(Goals::sptr(Goals::ExchangeSwapTownHeroes(town, nullptr).setpriority(5)));
 
-		return true;
+			return true;
+		}
+		else if(ai->nullkiller->heroManager->getHeroRole(town->garrisonHero.get()) == HeroRole::MAIN)
+		{
+			auto armyDismissLimit = 1000;
+			auto heroToDismiss = ai->nullkiller->heroManager->findWeakHeroToDismiss(armyDismissLimit);
+
+			if(heroToDismiss)
+			{
+				tasks.push_back(Goals::sptr(Goals::DismissHero(heroToDismiss).setpriority(5)));
+
+				return true;
+			}
+		}
 	}
 
 	return false;
@@ -141,20 +156,19 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	logAi->trace("Evaluating defence for %s", town->getNameTranslated());
 
 	auto treatNode = ai->nullkiller->dangerHitMap->getObjectTreat(town);
-
-	if(!treatNode.fastestDanger.hero)
-	{
-		logAi->trace("No treat found for town %s", town->getNameTranslated());
-
-		return;
-	}
-
 	std::vector<HitMapInfo> treats = ai->nullkiller->dangerHitMap->getTownTreats(town);
 	
 	treats.push_back(treatNode.fastestDanger); // no guarantee that fastest danger will be there
 
 	if(town->garrisonHero && handleGarrisonHeroFromPreviousTurn(town, tasks))
 	{
+		return;
+	}
+
+	if(!treatNode.fastestDanger.hero)
+	{
+		logAi->trace("No treat found for town %s", town->getNameTranslated());
+
 		return;
 	}
 	
@@ -222,11 +236,6 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			else if(town->garrisonHero && path.targetHero == town->garrisonHero.get())
 			{
 				if(path.getHeroStrength() < townDefenseStrength)
-					continue;
-			}
-			else
-			{
-				if(town->visitingHero)
 					continue;
 			}
 
@@ -440,27 +449,10 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 			}
 			else if(ai->nullkiller->heroManager->heroCapReached())
 			{
-				const CGHeroInstance * weakestHero = nullptr;
+				heroToDismiss = ai->nullkiller->heroManager->findWeakHeroToDismiss(hero->getArmyStrength());
 
-				for(auto existingHero : myHeroes)
-				{
-					if(ai->nullkiller->isHeroLocked(existingHero)
-						|| existingHero->getArmyStrength() > hero->getArmyStrength()
-						|| ai->nullkiller->heroManager->getHeroRole(existingHero) == HeroRole::MAIN
-						|| existingHero->movementPointsRemaining()
-						|| existingHero->artifactsWorn.size() > (existingHero->hasSpellbook() ? 2 : 1))
-						continue;
-
-					if(!weakestHero || weakestHero->getFightingStrength() > existingHero->getFightingStrength())
-					{
-						weakestHero = existingHero;
-					}
-				}
-
-				if(!weakestHero)
+				if(!heroToDismiss)
 					continue;
-				
-				heroToDismiss = weakestHero;
 			}
 
 			TGoalVec sequence;
