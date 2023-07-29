@@ -360,7 +360,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 		auto armyValue = (float)upgrade.upgradeValue / path.getHeroStrength();
 
-		if((armyValue < 0.1f && upgrade.upgradeValue < 20000) || upgrade.upgradeValue < 300) // avoid small upgrades
+		if((armyValue < 0.25f && upgrade.upgradeValue < 40000) || upgrade.upgradeValue < 2000) // avoid small upgrades
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Army value is too small (%f)", armyValue);

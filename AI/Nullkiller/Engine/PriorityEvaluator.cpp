@@ -420,10 +420,10 @@ float RewardEvaluator::getTotalResourceRequirementStrength(int resType) const
 		return 0;
 
 	float ratio = dailyIncome[resType] == 0
-		? (float)requiredResources[resType] / 50.0f
-		: (float)requiredResources[resType] / dailyIncome[resType] / 50.0f;
+		? (float)requiredResources[resType] / 10.0f
+		: (float)requiredResources[resType] / dailyIncome[resType] / 20.0f;
 
-	return std::min(ratio, 1.0f);
+	return std::min(ratio, 2.0f);
 }
 
 uint64_t RewardEvaluator::townArmyGrowth(const CGTownInstance * town) const
@@ -954,7 +954,9 @@ public:
 
 		if(bi.notEnoughRes && bi.prerequisitesCount == 1)
 		{
-			evaluationContext.strategicalValue /= 2;
+			evaluationContext.strategicalValue /= 3;
+			evaluationContext.movementCostByRole[evaluationContext.heroRole] += 5;
+			evaluationContext.turn += 5;
 		}
 	}
 };

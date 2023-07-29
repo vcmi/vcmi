@@ -134,6 +134,9 @@ void Nullkiller::updateAiState(int pass, bool fast)
 	activeHero = nullptr;
 	setTargetObject(-1);
 
+	decomposer->reset();
+	buildAnalyzer->update();
+
 	if(!fast)
 	{
 		memory->removeInvisibleObjects(cb.get());
@@ -179,8 +182,6 @@ void Nullkiller::updateAiState(int pass, bool fast)
 	}
 
 	armyManager->update();
-	buildAnalyzer->update();
-	decomposer->reset();
 
 	logAi->debug("AI state updated in %ld", timeElapsed(start));
 }

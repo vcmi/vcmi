@@ -23,7 +23,7 @@
 namespace NKAI
 {
 
-const float MAX_GOLD_PEASURE = 0.3f;
+const float MAX_GOLD_PEASURE = 0.6f;
 const float MIN_PRIORITY = 0.01f;
 const float SMALL_SCAN_MIN_PRIORITY = 0.4f;
 
