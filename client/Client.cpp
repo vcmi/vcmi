@@ -580,7 +580,7 @@ void CClient::battleStarted(const BattleInfo * info)
 	auto callBattleStart = [&](PlayerColor color, ui8 side)
 	{
 		if(vstd::contains(battleints, color))
-			battleints[color]->battleStart(leftSide.armyObject, rightSide.armyObject, info->tile, leftSide.hero, rightSide.hero, side);
+			battleints[color]->battleStart(leftSide.armyObject, rightSide.armyObject, info->tile, leftSide.hero, rightSide.hero, side, info->replayAllowed);
 	};
 	
 	callBattleStart(leftSide.color, 0);

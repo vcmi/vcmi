@@ -461,7 +461,13 @@ bool AdventureMapShortcuts::optionSidePanelActive()
 	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW;
 }
 
+bool AdventureMapShortcuts::optionMapScrollingActive()
+{
+	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || (state == EAdventureState::OTHER_HUMAN_PLAYER_TURN);
+}
+
 bool AdventureMapShortcuts::optionMapViewActive()
 {
-	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::CASTING_SPELL;
+	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::CASTING_SPELL
+		|| (state == EAdventureState::OTHER_HUMAN_PLAYER_TURN);
 }

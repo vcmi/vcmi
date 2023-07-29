@@ -63,12 +63,12 @@
 				},
 				"language" : {
 					"type" : "string",
-					"enum" : [ "english", "czech", "chinese", "finnish", "french", "german", "hungarian", "italian", "korean", "polish", "portuguese", "russian", "spanish", "swedish", "turkish", "ukrainian" ],
+					"enum" : [ "english", "czech", "chinese", "finnish", "french", "german", "hungarian", "italian", "korean", "polish", "portuguese", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
 					"default" : "english"
 				},
 				"gameDataLanguage" : {
 					"type" : "string",
-					"enum" : [ "auto", "english", "czech", "chinese", "finnish", "french", "german", "hungarian", "italian", "korean", "polish", "portuguese", "russian", "spanish", "swedish", "turkish", "ukrainian", "other_cp1250", "other_cp1251", "other_cp1252" ],
+					"enum" : [ "auto", "english", "czech", "chinese", "finnish", "french", "german", "hungarian", "italian", "korean", "polish", "portuguese", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese", "other_cp1250", "other_cp1251", "other_cp1252" ],
 					"default" : "auto"
 				},
 				"lastSave" : {
@@ -223,7 +223,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "alwaysSkipCombat", "borderScroll", "leftButtonDrag" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -253,7 +253,7 @@
 					"type" : "boolean",
 					"default" : true
 				},
-				"alwaysSkipCombat" : {
+				"forceQuickCombat" : {
 					"type" : "boolean",
 					"default" : false
 				},

@@ -819,7 +819,7 @@ void VCAI::makeTurn()
 		for (auto h : cb->getHeroesInfo())
 		{
 			if (h->movementPointsRemaining())
-				logAi->warn("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
+				logAi->info("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
 		}
 	}
 	catch (boost::thread_interrupted & e)
@@ -1575,14 +1575,14 @@ void VCAI::completeGoal(Goals::TSubgoal goal)
 
 }
 
-void VCAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side)
+void VCAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
 {
 	NET_EVENT_HANDLER;
 	assert(playerID > PlayerColor::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
 	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTranslated() : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
-	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side);
+	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
 
 void VCAI::battleEnd(const BattleResult * br, QueryID queryID)
@@ -1593,12 +1593,16 @@ void VCAI::battleEnd(const BattleResult * br, QueryID queryID)
 	bool won = br->winner == myCb->battleGetMySide();
 	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.getStr(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
-	status.addQuery(queryID, "Combat result dialog");
-	const int confirmAction = 0;
-	requestActionASAP([=]()
+
+	if (queryID != -1)
 	{
-		answerQuery(queryID, confirmAction);
-	});
+		status.addQuery(queryID, "Combat result dialog");
+		const int confirmAction = 0;
+		requestActionASAP([=]()
+		{
+			answerQuery(queryID, confirmAction);
+		});
+	}
 	CAdventureAI::battleEnd(br, queryID);
 }
 

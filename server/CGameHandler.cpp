@@ -607,9 +607,15 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 	const int queriedPlayers = battleQuery ? (int)boost::count(queries.allQueries(), battleQuery) : 0;
 	finishingBattle = std::make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
 	
-	auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(this, gs->curB);
-	battleResult.data->queryID = battleDialogQuery->queryID;
-	queries.addQuery(battleDialogQuery);
+	// in battles against neutrals, 1st player can ask to replay battle manually
+	if (!gs->curB->sides[1].color.isValidPlayer())
+	{
+		auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(this, gs->curB);
+		battleResult.data->queryID = battleDialogQuery->queryID;
+		queries.addQuery(battleDialogQuery);
+	}
+	else
+		battleResult.data->queryID = -1;
 	
 	//set same battle result for all queries
 	for(auto q : queries.allQueries())
@@ -620,6 +626,9 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 	}
 	
 	sendAndApply(battleResult.data); //after this point casualties objects are destroyed
+
+	if (battleResult.data->queryID == -1)
+		endBattleConfirm(gs->curB);
 }
 
 void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
@@ -2121,6 +2130,10 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 
 	engageIntoBattle(bs.info->sides[0].color);
 	engageIntoBattle(bs.info->sides[1].color);
+
+	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(queries.topQuery(bs.info->sides[0].color));
+	bs.info->replayAllowed = lastBattleQuery == nullptr && !bs.info->sides[1].color.isValidPlayer();
+
 	sendAndApply(&bs);
 }
 
@@ -2587,39 +2600,39 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 	heroes[0] = hero1;
 	heroes[1] = hero2;
 
-
 	setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 
+	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(queries.topQuery(gs->curB->sides[0].color));
+
 	//existing battle query for retying auto-combat
-	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(queries.topQuery(gs->curB->sides[0].color));
-	if(battleQuery)
+	if(lastBattleQuery)
 	{
 		for(int i : {0, 1})
 		{
 			if(heroes[i])
 			{
 				SetMana restoreInitialMana;
-				restoreInitialMana.val = battleQuery->initialHeroMana[i];
+				restoreInitialMana.val = lastBattleQuery->initialHeroMana[i];
 				restoreInitialMana.hid = heroes[i]->id;
 				sendAndApply(&restoreInitialMana);
 			}
 		}
 		
-		battleQuery->bi = gs->curB;
-		battleQuery->result = std::nullopt;
-		battleQuery->belligerents[0] = gs->curB->sides[0].armyObject;
-		battleQuery->belligerents[1] = gs->curB->sides[1].armyObject;
+		lastBattleQuery->bi = gs->curB;
+		lastBattleQuery->result = std::nullopt;
+		lastBattleQuery->belligerents[0] = gs->curB->sides[0].armyObject;
+		lastBattleQuery->belligerents[1] = gs->curB->sides[1].armyObject;
 	}
 
-	battleQuery = std::make_shared<CBattleQuery>(this, gs->curB);
+	auto nextBattleQuery = std::make_shared<CBattleQuery>(this, gs->curB);
 	for(int i : {0, 1})
 	{
 		if(heroes[i])
 		{
-			battleQuery->initialHeroMana[i] = heroes[i]->mana;
+			nextBattleQuery->initialHeroMana[i] = heroes[i]->mana;
 		}
 	}
-	queries.addQuery(battleQuery);
+	queries.addQuery(nextBattleQuery);
 
 	this->battleThread = std::make_unique<boost::thread>(boost::thread(&CGameHandler::runBattle, this));
 }
