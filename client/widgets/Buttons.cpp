@@ -18,6 +18,7 @@
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
+#include "../eventsSDL/InputHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/MouseButton.h"
 #include "../gui/Shortcut.h"
@@ -175,7 +176,10 @@ void CButton::clickPressed(const Point & cursorPosition)
 	if (getState() != PRESSED)
 	{
 		if (!soundDisabled)
+		{
 			CCS->soundh->playSound(soundBase::button);
+			GH.input().hapticFeedback();
+		}
 		setState(PRESSED);
 
 		if (actOnDown)
@@ -403,6 +407,7 @@ void CToggleButton::clickPressed(const Point & cursorPosition)
 	if (canActivate())
 	{
 		CCS->soundh->playSound(soundBase::button);
+		GH.input().hapticFeedback();
 		setState(PRESSED);
 	}
 }
