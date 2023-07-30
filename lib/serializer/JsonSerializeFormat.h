@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../JsonNode.h"
-#include "../CModHandler.h"
+#include "../modding/IdentifierStorage.h"
 #include "../VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -369,7 +369,7 @@ public:
 
 				for(const auto & id : node.Vector())
 				{
-					VLC->modh->identifiers.requestIdentifier(U::entityType(), id, [&value](int32_t identifier)
+					VLC->identifiers()->requestIdentifier(U::entityType(), id, [&value](int32_t identifier)
 					{
 						value.emplace(identifier);
 					});

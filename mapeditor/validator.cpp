@@ -14,8 +14,9 @@
 #include "ui_validator.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapObjects/MapObjects.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/CModInfo.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/CModHandler.h"
 
 Validator::Validator(const CMap * map, QWidget *parent) :
 	QDialog(parent),

@@ -25,7 +25,6 @@
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/CModHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"

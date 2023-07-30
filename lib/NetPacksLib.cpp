@@ -14,7 +14,6 @@
 #include "CGeneralTextHandler.h"
 #include "CArtHandler.h"
 #include "CHeroHandler.h"
-#include "CModHandler.h"
 #include "VCMI_Lib.h"
 #include "mapping/CMap.h"
 #include "spells/CSpellHandler.h"

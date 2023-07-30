@@ -15,7 +15,9 @@
 #include "../filesystem/CCompressedStream.h"
 #include "../filesystem/CMemoryStream.h"
 #include "../filesystem/CMemoryBuffer.h"
-#include "../CModHandler.h"
+#include "../modding/CModHandler.h"
+#include "../modding/ModScope.h"
+#include "../modding/CModInfo.h"
 #include "../Languages.h"
 #include "../VCMI_Lib.h"
 
@@ -158,7 +160,7 @@ static JsonNode loadPatches(std::string path)
 	for (auto & entry : node.Struct())
 		JsonUtils::validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
 
-	node.setMeta(CModHandler::scopeMap());
+	node.setMeta(ModScope::scopeMap());
 	return node;
 }
 

@@ -13,7 +13,7 @@
 #include "maphandler.h"
 #include "mapview.h"
 
-#include "../lib/CModVersion.h"
+#include "../lib/modding/CModVersion.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 using ModCompatibilityInfo = std::map<std::string, CModVersion>;

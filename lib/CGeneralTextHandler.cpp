@@ -12,9 +12,9 @@
 
 #include "filesystem/Filesystem.h"
 #include "CConfigHandler.h"
-#include "CModHandler.h"
 #include "GameSettings.h"
 #include "mapObjects/CQuest.h"
+#include "modding/CModHandler.h"
 #include "VCMI_Lib.h"
 #include "Languages.h"
 #include "TextOperations.h"

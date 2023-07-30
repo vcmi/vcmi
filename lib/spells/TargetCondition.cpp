@@ -18,9 +18,10 @@
 #include "../bonuses/BonusParams.h"
 #include "../bonuses/BonusList.h"
 
+#include "../modding/IdentifierStorage.h"
+#include "../modding/ModUtility.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../VCMI_Lib.h"
-#include "../CModHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -371,7 +372,7 @@ public:
 		}
 		else if(type == "creature")
 		{
-			auto rawId = VLC->modh->identifiers.getIdentifier(scope, type, identifier, true);
+			auto rawId = VLC->identifiers()->getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
 				return std::make_shared<CreatureCondition>(CreatureID(rawId.value()));
@@ -380,7 +381,7 @@ public:
 		}
 		else if(type == "spell")
 		{
-			auto rawId = VLC->modh->identifiers.getIdentifier(scope, type, identifier, true);
+			auto rawId = VLC->identifiers()->getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
 				return std::make_shared<SpellEffectCondition>(SpellID(rawId.value()));
@@ -539,7 +540,7 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 			std::string type;
 			std::string identifier;
 
-			CModHandler::parseIdentifier(keyValue.first, scope, type, identifier);
+			ModUtility::parseIdentifier(keyValue.first, scope, type, identifier);
 
 			item = itemFactory->createConfigurable(keyValue.second.meta, type, identifier);
 		}

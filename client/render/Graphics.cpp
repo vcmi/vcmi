@@ -27,7 +27,8 @@
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CBinaryReader.h"
-#include "../lib/CModHandler.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ModScope.h"
 #include "CGameInfo.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
@@ -100,7 +101,7 @@ void Graphics::loadPaletteAndColors()
 void Graphics::initializeBattleGraphics()
 {
 	auto allConfigs = VLC->modh->getActiveMods();
-	allConfigs.insert(allConfigs.begin(), CModHandler::scopeBuiltin());
+	allConfigs.insert(allConfigs.begin(), ModScope::scopeBuiltin());
 	for(auto & mod : allConfigs)
 	{
 		if(!CResourceHandler::get(mod)->existsResource(ResourceID("config/battles_graphics.json")))

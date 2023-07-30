@@ -38,6 +38,7 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMapService.h"
+#include "../modding/IdentifierStorage.h"
 #include "../pathfinder/CPathfinder.h"
 #include "../pathfinder/PathfinderOptions.h"
 #include "../registerTypes/RegisterTypes.h"
@@ -1244,7 +1245,7 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r
 	}
 
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
-		return BattleField(*VLC->modh->identifiers.getIdentifier("core", "battlefield.sand_shore"));
+		return BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield.sand_shore"));
 	
 	return BattleField(*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
 }

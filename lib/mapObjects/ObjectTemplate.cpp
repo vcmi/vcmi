@@ -16,11 +16,11 @@
 #include "../GameConstants.h"
 #include "../StringConstants.h"
 #include "../CGeneralTextHandler.h"
-#include "../CModHandler.h"
 #include "../JsonNode.h"
 #include "../TerrainHandler.h"
 
 #include "../mapObjectConstructors/CRewardableConstructor.h"
+#include "../modding/IdentifierStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -273,7 +273,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	{
 		for(const auto & entry : node["allowedTerrains"].Vector())
 		{
-			VLC->modh->identifiers.requestIdentifier("terrain", entry, [this](int32_t identifier){
+			VLC->identifiers()->requestIdentifier("terrain", entry, [this](int32_t identifier){
 				allowedTerrains.insert(TerrainId(identifier));
 			});
 		}

@@ -13,9 +13,10 @@
 
 #include "VCMI_Lib.h"
 #include "TextOperations.h"
-#include "CModHandler.h"
 
 #include "filesystem/Filesystem.h"
+#include "modding/ModScope.h"
+#include "modding/CModHandler.h"
 #include "ScopeGuard.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -1007,7 +1008,7 @@ namespace
 		bool testFilePresence(const std::string & scope, const ResourceID & resource)
 		{
 			std::set<std::string> allowedScopes;
-			if(scope != CModHandler::scopeBuiltin() && !scope.empty()) // all real mods may have dependencies
+			if(scope != ModScope::scopeBuiltin() && !scope.empty()) // all real mods may have dependencies
 			{
 				//NOTE: recursive dependencies are not allowed at the moment - update code if this changes
 				bool found = true;
@@ -1016,7 +1017,7 @@ namespace
 				if(!found)
 					return false;
 
-				allowedScopes.insert(CModHandler::scopeBuiltin()); // all mods can use H3 files
+				allowedScopes.insert(ModScope::scopeBuiltin()); // all mods can use H3 files
 			}
 			allowedScopes.insert(scope); // mods can use their own files
 

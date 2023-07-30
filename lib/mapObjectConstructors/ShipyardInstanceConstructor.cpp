@@ -11,7 +11,7 @@
 #include "ShipyardInstanceConstructor.h"
 
 #include "../mapObjects/MiscObjects.h"
-#include "../CModHandler.h"
+#include "../modding/IdentifierStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -22,7 +22,7 @@ void ShipyardInstanceConstructor::initTypeData(const JsonNode & config)
 
 void ShipyardInstanceConstructor::initializeObject(CGShipyard * shipyard) const
 {
-	shipyard->createdBoat = BoatId(*VLC->modh->identifiers.getIdentifier("core:boat", parameters["boat"]));
+	shipyard->createdBoat = BoatId(*VLC->identifiers()->getIdentifier("core:boat", parameters["boat"]));
 }
 
 VCMI_LIB_NAMESPACE_END

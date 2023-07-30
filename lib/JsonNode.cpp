@@ -19,8 +19,8 @@
 #include "bonuses/Propagators.h"
 #include "bonuses/Updaters.h"
 #include "filesystem/Filesystem.h"
+#include "modding/IdentifierStorage.h"
 #include "VCMI_Lib.h" //for identifier resolution
-#include "CModHandler.h"
 #include "CGeneralTextHandler.h"
 #include "JsonDetail.h"
 #include "StringConstants.h"
@@ -565,7 +565,7 @@ void JsonUtils::resolveIdentifier(si32 & var, const JsonNode & node, const std::
 				var = static_cast<si32>(value.Float());
 				break;
 			case JsonNode::JsonType::DATA_STRING:
-				VLC->modh->identifiers.requestIdentifier(value, [&](si32 identifier)
+				VLC->identifiers()->requestIdentifier(value, [&](si32 identifier)
 				{
 					var = identifier;
 				});
@@ -590,7 +590,7 @@ void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
 			var = static_cast<si32>(value.Float());
 			break;
 		case JsonNode::JsonType::DATA_STRING:
-			VLC->modh->identifiers.requestIdentifier(value, [&](si32 identifier)
+			VLC->identifiers()->requestIdentifier(value, [&](si32 identifier)
 			{
 				var = identifier;
 			});
@@ -610,7 +610,7 @@ void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
 							var[i] = static_cast<si32>(vec[i].Float());
 							break;
 						case JsonNode::JsonType::DATA_STRING:
-							VLC->modh->identifiers.requestIdentifier(vec[i], [&var,i](si32 identifier)
+							VLC->identifiers()->requestIdentifier(vec[i], [&var,i](si32 identifier)
 							{
 								var[i] = identifier;
 							});
@@ -638,7 +638,7 @@ void JsonUtils::resolveIdentifier(const JsonNode &node, si32 &var)
 			var = static_cast<si32>(node.Float());
 			break;
 		case JsonNode::JsonType::DATA_STRING:
-			VLC->modh->identifiers.requestIdentifier(node, [&](si32 identifier)
+			VLC->identifiers()->requestIdentifier(node, [&](si32 identifier)
 			{
 				var = identifier;
 			});
@@ -699,7 +699,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 			if(limiterType == "CREATURE_TYPE_LIMITER")
 			{
 				std::shared_ptr<CCreatureTypeLimiter> creatureLimiter = std::make_shared<CCreatureTypeLimiter>();
-				VLC->modh->identifiers.requestIdentifier("creature", parameters[0], [=](si32 creature)
+				VLC->identifiers()->requestIdentifier("creature", parameters[0], [=](si32 creature)
 				{
 					creatureLimiter->setCreature(CreatureID(creature));
 				});
@@ -771,7 +771,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 			else if(limiterType == "FACTION_LIMITER" || limiterType == "CREATURE_FACTION_LIMITER") //Second name is deprecated, 1.2 compat
 			{
 				std::shared_ptr<FactionLimiter> factionLimiter = std::make_shared<FactionLimiter>();
-				VLC->modh->identifiers.requestIdentifier("faction", parameters[0], [=](si32 faction)
+				VLC->identifiers()->requestIdentifier("faction", parameters[0], [=](si32 faction)
 				{
 					factionLimiter->faction = FactionID(faction);
 				});
@@ -793,7 +793,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 				std::shared_ptr<CreatureTerrainLimiter> terrainLimiter = std::make_shared<CreatureTerrainLimiter>();
 				if(!parameters.empty())
 				{
-					VLC->modh->identifiers.requestIdentifier("terrain", parameters[0], [=](si32 terrain)
+					VLC->identifiers()->requestIdentifier("terrain", parameters[0], [=](si32 terrain)
 					{
 						//TODO: support limiters
 						//terrainLimiter->terrainType = terrain;

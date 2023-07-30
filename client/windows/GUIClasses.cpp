@@ -63,7 +63,6 @@
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/CModHandler.h"
 #include "../lib/GameSettings.h"
 #include "../lib/CondSh.h"
 #include "../lib/CSkillHandler.h"

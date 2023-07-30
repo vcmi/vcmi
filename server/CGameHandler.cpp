@@ -22,7 +22,6 @@
 #include "../lib/int3.h"
 #include "../lib/ArtifactUtils.h"
 #include "../lib/StartInfo.h"
-#include "../lib/CModHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CBuildingHandler.h"
 #include "../lib/CHeroHandler.h"
@@ -46,6 +45,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
+#include "../lib/modding/ModIncompatibility.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/ScopeGuard.h"
@@ -2113,7 +2113,7 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 
 	BattleField terType = gs->battleGetBattlefieldType(tile, getRandomGenerator());
 	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
-		terType = BattleField(*VLC->modh->identifiers.getIdentifier("core", "battlefield", "ship_to_ship"));
+		terType = BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield", "ship_to_ship"));
 
 	//send info about battles
 	BattleStart bs;
@@ -2936,7 +2936,7 @@ bool CGameHandler::load(const std::string & filename)
 		}
 		logGlobal->info("Game has been successfully loaded!");
 	}
-	catch(const CModHandler::Incompatibility & e)
+	catch(const ModIncompatibility & e)
 	{
 		logGlobal->error("Failed to load game: %s", e.what());
 		auto errorMsg = VLC->generaltexth->translate("vcmi.server.errors.modsIncompatibility") + '\n';

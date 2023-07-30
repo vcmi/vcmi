@@ -22,11 +22,12 @@
 #include "../IGameCallback.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
-#include "../CModHandler.h"
 #include "../GameConstants.h"
 #include "../StringConstants.h"
 #include "../CSkillHandler.h"
 #include "../mapping/CMap.h"
+#include "../modding/ModScope.h"
+#include "../modding/ModUtility.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -1003,7 +1004,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		}
 		if(rewardType != NOTHING)
 		{
-			fullIdentifier = CModHandler::makeFullIdentifier(scope, metaTypeName, identifier);
+			fullIdentifier = ModUtility::makeFullIdentifier(scope, metaTypeName, identifier);
 			handler.serializeInt(fullIdentifier, amount);
 		}
 	}
@@ -1023,7 +1024,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 			fullIdentifier = iter->first;
 		}
 
-		CModHandler::parseIdentifier(fullIdentifier, scope, metaTypeName, identifier);
+		ModUtility::parseIdentifier(fullIdentifier, scope, metaTypeName, identifier);
 
 		auto it = REWARD_RMAP.find(metaTypeName);
 
@@ -1065,7 +1066,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 
 		if(doRequest)
 		{
-			auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), fullIdentifier, false);
+			auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
 
 			if(rawId)
 			{

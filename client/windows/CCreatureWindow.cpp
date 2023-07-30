@@ -29,7 +29,6 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CBonusTypeHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/CModHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/gameState/CGameState.h"

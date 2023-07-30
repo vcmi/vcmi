@@ -17,7 +17,6 @@
 #include "../NetPacks.h"
 #include "../CConfigHandler.h"
 #include "../CGeneralTextHandler.h"
-#include "../CModHandler.h"
 #include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../mapping/CMap.h"
@@ -25,6 +24,7 @@
 #include "../TerrainHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../modding/ModScope.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -1097,7 +1097,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		auto decodeBuilding = [this](const std::string & identifier) -> si32
 		{
-			auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), getTown()->getBuildingScope(), identifier);
+			auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), getTown()->getBuildingScope(), identifier);
 
 			if(rawId)
 				return rawId.value();

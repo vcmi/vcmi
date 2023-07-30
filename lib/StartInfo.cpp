@@ -11,13 +11,13 @@
 #include "StartInfo.h"
 
 #include "CGeneralTextHandler.h"
-#include "CModHandler.h"
 #include "VCMI_Lib.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapping/CMapInfo.h"
 #include "campaign/CampaignState.h"
 #include "mapping/CMapHeader.h"
 #include "mapping/CMapService.h"
+#include "modding/ModIncompatibility.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -74,12 +74,12 @@ void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 		throw std::domain_error("ExceptionMapMissing");
 	
 	auto missingMods = CMapService::verifyMapHeaderMods(*mi->mapHeader);
-	CModHandler::Incompatibility::ModList modList;
+	ModIncompatibility::ModList modList;
 	for(const auto & m : missingMods)
 		modList.push_back({m.first, m.second.toString()});
 	
 	if(!modList.empty())
-		throw CModHandler::Incompatibility(std::move(modList));
+		throw ModIncompatibility(std::move(modList));
 
 	//there must be at least one human player before game can be started
 	std::map<PlayerColor, PlayerSettings>::const_iterator i;

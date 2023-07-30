@@ -38,6 +38,7 @@ class CRmgTemplateStorage;
 class IHandlerBase;
 class IGameSettings;
 class GameSettings;
+class CIdentifierStorage;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -80,6 +81,7 @@ public:
 	spells::effects::Registry * spellEffects() override;
 
 	const IBonusTypeHandler * getBth() const; //deprecated
+	const CIdentifierStorage * identifiers() const;
 
 	CArtHandler * arth;
 	CHeroHandler * heroh;

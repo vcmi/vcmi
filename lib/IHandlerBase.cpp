@@ -10,18 +10,20 @@
 
 #include "StdInc.h"
 #include "IHandlerBase.h"
-#include "CModHandler.h"
+#include "modding/IdentifierStorage.h"
+#include "modding/ModScope.h"
+#include "modding/CModHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 std::string IHandlerBase::getScopeBuiltin()
 {
-	return CModHandler::scopeBuiltin();
+	return ModScope::scopeBuiltin();
 }
 
 void IHandlerBase::registerObject(const std::string & scope, const std::string & type_name, const std::string & name, si32 index)
 {
-	return VLC->modh->identifiers.registerObject(scope, type_name, name, index);
+	return VLC->modh->getIdentifiers().registerObject(scope, type_name, name, index);
 }
 
 VCMI_LIB_NAMESPACE_END

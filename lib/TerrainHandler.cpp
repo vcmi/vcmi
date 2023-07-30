@@ -10,9 +10,10 @@
 
 #include "StdInc.h"
 #include "TerrainHandler.h"
-#include "CModHandler.h"
 #include "CGeneralTextHandler.h"
 #include "GameSettings.h"
+#include "JsonNode.h"
+#include "modding/IdentifierStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -67,7 +68,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	info->river = River::NO_RIVER;
 	if(!json["river"].isNull())
 	{
-		VLC->modh->identifiers.requestIdentifier("river", json["river"], [info](int32_t identifier)
+		VLC->identifiers()->requestIdentifier("river", json["river"], [info](int32_t identifier)
 		{
 			info->river = RiverId(identifier);
 		});
@@ -87,7 +88,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 
 	for(const auto & t : json["battleFields"].Vector())
 	{
-		VLC->modh->identifiers.requestIdentifier("battlefield", t, [info](int32_t identifier)
+		VLC->identifiers()->requestIdentifier("battlefield", t, [info](int32_t identifier)
 		{
 			info->battleFields.emplace_back(identifier);
 		});
@@ -95,7 +96,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 
 	for(const auto & t : json["prohibitTransitions"].Vector())
 	{
-		VLC->modh->identifiers.requestIdentifier("terrain", t, [info](int32_t identifier)
+		VLC->identifiers()->requestIdentifier("terrain", t, [info](int32_t identifier)
 		{
 			info->prohibitTransitions.emplace_back(identifier);
 		});
@@ -105,7 +106,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 
 	if(!json["rockTerrain"].isNull())
 	{
-		VLC->modh->identifiers.requestIdentifier("terrain", json["rockTerrain"], [info](int32_t identifier)
+		VLC->identifiers()->requestIdentifier("terrain", json["rockTerrain"], [info](int32_t identifier)
 		{
 			info->rockTerrain = TerrainId(identifier);
 		});

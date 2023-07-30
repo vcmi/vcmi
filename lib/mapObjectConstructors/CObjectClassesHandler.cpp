@@ -16,7 +16,6 @@
 #include "../GameConstants.h"
 #include "../StringConstants.h"
 #include "../CGeneralTextHandler.h"
-#include "../CModHandler.h"
 #include "../GameSettings.h"
 #include "../JsonNode.h"
 #include "../CSoundBase.h"
@@ -36,7 +35,8 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
-
+#include "../modding/IdentifierStorage.h"
+#include "../modding/CModHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -277,7 +277,7 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 {
 	auto * object = loadFromJson(scope, data, name, objects.size());
 	objects.push_back(object);
-	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
+	VLC->modh->getIdentifiers().registerObject(scope, "object", name, object->id);
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -285,7 +285,7 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 	auto * object = loadFromJson(scope, data, name, index);
 	assert(objects[(si32)index] == nullptr); // ensure that this id was not loaded before
 	objects[static_cast<si32>(index)] = object;
-	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
+	VLC->modh->getIdentifiers().registerObject(scope, "object", name, object->id);
 }
 
 void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, si32 ID, si32 subID)
@@ -325,11 +325,11 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype)
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const
 {
-	std::optional<si32> id = VLC->modh->identifiers.getIdentifier(scope, "object", type);
+	std::optional<si32> id = VLC->identifiers()->getIdentifier(scope, "object", type);
 	if(id)
 	{
 		auto * object = objects[id.value()];
-		std::optional<si32> subID = VLC->modh->identifiers.getIdentifier(scope, object->getJsonKey(), subtype);
+		std::optional<si32> subID = VLC->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
 
 		if (subID)
 			return object->objects[subID.value()];

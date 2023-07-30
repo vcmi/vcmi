@@ -14,9 +14,9 @@
 #include "CConfigHandler.h"
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
-#include "CModHandler.h"
 #include "GameSettings.h"
 #include "mapObjects/CGHeroInstance.h"
+#include "modding/ModScope.h"
 #include "IGameCallback.h"
 #include "CGeneralTextHandler.h"
 #include "spells/CSpellHandler.h"
@@ -1046,7 +1046,7 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 		std::string typeName;
 		handler.serializeString("type", typeName);
 		if(!typeName.empty())
-			setType(VLC->creh->getCreature(CModHandler::scopeMap(), typeName));
+			setType(VLC->creh->getCreature(ModScope::scopeMap(), typeName));
 	}
 }
 

@@ -16,13 +16,14 @@
 #include "../lib/serializer/Connection.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/CModHandler.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/GameConstants.h"
 #include "../lib/NetPacks.h"
 #include "../lib/StartInfo.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/mapObjects/CGTownInstance.h"
+#include "../lib/modding/IdentifierStorage.h"
+#include "../lib/modding/ModScope.h"
 
 PlayerMessageProcessor::PlayerMessageProcessor()
 	:gameHandler(nullptr)
@@ -179,7 +180,7 @@ void PlayerMessageProcessor::cheatGiveArmy(PlayerColor player, const CGHeroInsta
 	{
 	}
 
-	std::optional<int32_t> creatureId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", creatureIdentifier, false);
+	std::optional<int32_t> creatureId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "creature", creatureIdentifier, false);
 
 	if(creatureId.has_value())
 	{

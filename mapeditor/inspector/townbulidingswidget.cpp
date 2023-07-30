@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "townbulidingswidget.h"
 #include "ui_townbulidingswidget.h"
-#include "../lib/CModHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 
 std::string defaultBuildingIdConversion(BuildingID bId)

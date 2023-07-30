@@ -21,7 +21,6 @@
 #include "../CSkillHandler.h"
 #include "../CStack.h"
 #include "../CArtHandler.h"
-#include "../CModHandler.h"
 #include "../TerrainHandler.h"
 #include "../StringConstants.h"
 #include "../battle/BattleInfo.h"

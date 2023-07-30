@@ -116,7 +116,11 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/ObstacleProxy.cpp
 
 		${MAIN_LIB_DIR}/modding/CModHandler.cpp
+		${MAIN_LIB_DIR}/modding/CModInfo.cpp
 		${MAIN_LIB_DIR}/modding/CModVersion.cpp
+		${MAIN_LIB_DIR}/modding/ContentTypeHandler.cpp
+		${MAIN_LIB_DIR}/modding/IdentifierStorage.cpp
+		${MAIN_LIB_DIR}/modding/ModUtility.cpp
 
 		${MAIN_LIB_DIR}/pathfinder/CGPathNode.cpp
 		${MAIN_LIB_DIR}/pathfinder/CPathfinder.cpp
@@ -452,7 +456,13 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/ObstacleProxy.h
 
 		${MAIN_LIB_DIR}/modding/CModHandler.h
+		${MAIN_LIB_DIR}/modding/CModInfo.h
 		${MAIN_LIB_DIR}/modding/CModVersion.h
+		${MAIN_LIB_DIR}/modding/ContentTypeHandler.h
+		${MAIN_LIB_DIR}/modding/IdentifierStorage.h
+		${MAIN_LIB_DIR}/modding/ModIncompatibility.h
+		${MAIN_LIB_DIR}/modding/ModScope.h
+		${MAIN_LIB_DIR}/modding/ModUtility.h
 
 		${MAIN_LIB_DIR}/pathfinder/INodeStorage.h
 		${MAIN_LIB_DIR}/pathfinder/CGPathNode.h

@@ -14,7 +14,6 @@
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/serializer/Connection.h"
-#include "../lib/CModHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"

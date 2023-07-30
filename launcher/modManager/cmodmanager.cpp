@@ -13,7 +13,9 @@
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CZipLoader.h"
-#include "../../lib/CModHandler.h"
+#include "../../lib/modding/CModHandler.h"
+#include "../../lib/modding/CModInfo.h"
+#include "../../lib/modding/IdentifierStorage.h"
 
 #include "../jsonutils.h"
 #include "../launcherdirs.h"

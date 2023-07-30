@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../CModVersion.h"
+#include "../modding/CModVersion.h"
 #include "../LogicalExpression.h"
 #include "../int3.h"
 #include "../MetaString.h"

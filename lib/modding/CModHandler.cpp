@@ -9,559 +9,24 @@
  */
 #include "StdInc.h"
 #include "CModHandler.h"
-#include "rmg/CRmgTemplateStorage.h"
-#include "filesystem/AdapterLoaders.h"
-#include "filesystem/CFilesystemLoader.h"
-#include "filesystem/Filesystem.h"
 
-#include "CCreatureHandler.h"
-#include "CArtHandler.h"
-#include "CTownHandler.h"
-#include "CHeroHandler.h"
-#include "StringConstants.h"
-#include "CStopWatch.h"
-#include "IHandlerBase.h"
-#include "spells/CSpellHandler.h"
-#include "CSkillHandler.h"
-#include "CGeneralTextHandler.h"
-#include "Languages.h"
-#include "ScriptHandler.h"
-#include "RoadHandler.h"
-#include "GameSettings.h"
-#include "RiverHandler.h"
-#include "TerrainHandler.h"
-#include "BattleFieldHandler.h"
-#include "ObstacleHandler.h"
-#include "mapObjectConstructors/CObjectClassesHandler.h"
+#include "CModInfo.h"
+#include "ModScope.h"
+#include "ContentTypeHandler.h"
+#include "IdentifierStorage.h"
+#include "ModIncompatibility.h"
 
-#include <vstd/StringUtils.h>
+#include "../CCreatureHandler.h"
+#include "../CGeneralTextHandler.h"
+#include "../CStopWatch.h"
+#include "../GameSettings.h"
+#include "../Languages.h"
+#include "../ScriptHandler.h"
+#include "../StringConstants.h"
+#include "../filesystem/Filesystem.h"
+#include "../spells/CSpellHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-CIdentifierStorage::CIdentifierStorage():
-	state(LOADING)
-{
-}
-
-void CIdentifierStorage::checkIdentifier(std::string & ID)
-{
-	if (boost::algorithm::ends_with(ID, "."))
-		logMod->warn("BIG WARNING: identifier %s seems to be broken!", ID);
-	else
-	{
-		size_t pos = 0;
-		do
-		{
-			if (std::tolower(ID[pos]) != ID[pos] ) //Not in camelCase
-			{
-				logMod->warn("Warning: identifier %s is not in camelCase!", ID);
-				ID[pos] = std::tolower(ID[pos]);// Try to fix the ID
-			}
-			pos = ID.find('.', pos);
-		}
-		while(pos++ != std::string::npos);
-	}
-}
-
-void CIdentifierStorage::requestIdentifier(ObjectCallback callback)
-{
-	checkIdentifier(callback.type);
-	checkIdentifier(callback.name);
-
-	assert(!callback.localScope.empty());
-
-	if (state != FINISHED) // enqueue request if loading is still in progress
-		scheduledRequests.push_back(callback);
-	else // execute immediately for "late" requests
-		resolveIdentifier(callback);
-}
-
-CIdentifierStorage::ObjectCallback CIdentifierStorage::ObjectCallback::fromNameWithType(const std::string & scope, const std::string & fullName, const std::function<void(si32)> & callback, bool optional)
-{
-	assert(!scope.empty());
-
-	auto scopeAndFullName = vstd::splitStringToPair(fullName, ':');
-	auto typeAndName = vstd::splitStringToPair(scopeAndFullName.second, '.');
-
-	if (scope == scopeAndFullName.first)
-		logMod->debug("Target scope for identifier '%s' is redundant! Identifier already defined in mod '%s'", fullName, scope);
-
-	ObjectCallback result;
-	result.localScope = scope;
-	result.remoteScope = scopeAndFullName.first;
-	result.type = typeAndName.first;
-	result.name = typeAndName.second;
-	result.callback = callback;
-	result.optional = optional;
-	return result;
-}
-
-CIdentifierStorage::ObjectCallback CIdentifierStorage::ObjectCallback::fromNameAndType(const std::string & scope, const std::string & type, const std::string & fullName, const std::function<void(si32)> & callback, bool optional)
-{
-	assert(!scope.empty());
-
-	auto scopeAndFullName = vstd::splitStringToPair(fullName, ':');
-	auto typeAndName = vstd::splitStringToPair(scopeAndFullName.second, '.');
-
-	if(!typeAndName.first.empty())
-	{
-		if (typeAndName.first != type)
-			logMod->error("Identifier '%s' from mod '%s' requested with different type! Type '%s' expected!", fullName, scope, type);
-		else
-			logMod->debug("Target type for identifier '%s' defined in mod '%s' is redundant!", fullName, scope);
-	}
-
-	if (scope == scopeAndFullName.first)
-		logMod->debug("Target scope for identifier '%s' is redundant! Identifier already defined in mod '%s'", fullName, scope);
-
-	ObjectCallback result;
-	result.localScope = scope;
-	result.remoteScope = scopeAndFullName.first;
-	result.type = type;
-	result.name = typeAndName.second;
-	result.callback = callback;
-	result.optional = optional;
-	return result;
-}
-
-void CIdentifierStorage::requestIdentifier(const std::string & scope, const std::string & type, const std::string & name, const std::function<void(si32)> & callback)
-{
-	requestIdentifier(ObjectCallback::fromNameAndType(scope, type, name, callback, false));
-}
-
-void CIdentifierStorage::requestIdentifier(const std::string & scope, const std::string & fullName, const std::function<void(si32)> & callback)
-{
-	requestIdentifier(ObjectCallback::fromNameWithType(scope, fullName, callback, false));
-}
-
-void CIdentifierStorage::requestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback)
-{
-	requestIdentifier(ObjectCallback::fromNameAndType(name.meta, type, name.String(), callback, false));
-}
-
-void CIdentifierStorage::requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback)
-{
-	requestIdentifier(ObjectCallback::fromNameWithType(name.meta, name.String(), callback, false));
-}
-
-void CIdentifierStorage::tryRequestIdentifier(const std::string & scope, const std::string & type, const std::string & name, const std::function<void(si32)> & callback)
-{
-	requestIdentifier(ObjectCallback::fromNameAndType(scope, type, name, callback, true));
-}
-
-void CIdentifierStorage::tryRequestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback)
-{
-	requestIdentifier(ObjectCallback::fromNameAndType(name.meta, type, name.String(), callback, true));
-}
-
-std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent)
-{
-	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameAndType(scope, type, name, std::function<void(si32)>(), silent));
-
-	if (idList.size() == 1)
-		return idList.front().id;
-	if (!silent)
-		logMod->error("Failed to resolve identifier %s of type %s from mod %s", name , type ,scope);
-
-	return std::optional<si32>();
-}
-
-std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & type, const JsonNode & name, bool silent)
-{
-	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameAndType(name.meta, type, name.String(), std::function<void(si32)>(), silent));
-
-	if (idList.size() == 1)
-		return idList.front().id;
-	if (!silent)
-		logMod->error("Failed to resolve identifier %s of type %s from mod %s", name.String(), type, name.meta);
-
-	return std::optional<si32>();
-}
-
-std::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, bool silent)
-{
-	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameWithType(name.meta, name.String(), std::function<void(si32)>(), silent));
-
-	if (idList.size() == 1)
-		return idList.front().id;
-	if (!silent)
-		logMod->error("Failed to resolve identifier %s from mod %s", name.String(), name.meta);
-
-	return std::optional<si32>();
-}
-
-std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & fullName, bool silent)
-{
-	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameWithType(scope, fullName, std::function<void(si32)>(), silent));
-
-	if (idList.size() == 1)
-		return idList.front().id;
-	if (!silent)
-		logMod->error("Failed to resolve identifier %s from mod %s", fullName, scope);
-
-	return std::optional<si32>();
-}
-
-void CIdentifierStorage::registerObject(const std::string & scope, const std::string & type, const std::string & name, si32 identifier)
-{
-	ObjectData data;
-	data.scope = scope;
-	data.id = identifier;
-
-	std::string fullID = type + '.' + name;
-	checkIdentifier(fullID);
-
-	std::pair<const std::string, ObjectData> mapping = std::make_pair(fullID, data);
-	if(!vstd::containsMapping(registeredObjects, mapping))
-	{
-		logMod->trace("registered %s as %s:%s", fullID, scope, identifier);
-		registeredObjects.insert(mapping);
-	}
-}
-
-std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdentifiers(const ObjectCallback & request)
-{
-	std::set<std::string> allowedScopes;
-	bool isValidScope = true;
-
-	// called have not specified destination mod explicitly
-	if (request.remoteScope.empty())
-	{
-		// special scope that should have access to all in-game objects
-		if (request.localScope == CModHandler::scopeGame())
-		{
-			for(const auto & modName : VLC->modh->getActiveMods())
-				allowedScopes.insert(modName);
-		}
-
-		// normally ID's from all required mods, own mod and virtual built-in mod are allowed
-		else if(request.localScope != CModHandler::scopeBuiltin() && !request.localScope.empty())
-		{
-			allowedScopes = VLC->modh->getModDependencies(request.localScope, isValidScope);
-
-			if(!isValidScope)
-				return std::vector<ObjectData>();
-
-			allowedScopes.insert(request.localScope);
-		}
-
-		// all mods can access built-in mod
-		allowedScopes.insert(CModHandler::scopeBuiltin());
-	}
-	else
-	{
-		//if destination mod was specified explicitly, restrict lookup to this mod
-		if(request.remoteScope == CModHandler::scopeBuiltin() )
-		{
-			//built-in mod is an implicit dependency for all mods, allow access into it
-			allowedScopes.insert(request.remoteScope);
-		}
-		else if ( request.localScope == CModHandler::scopeGame() )
-		{
-			// allow access, this is special scope that should have access to all in-game objects
-			allowedScopes.insert(request.remoteScope);
-		}
-		else if(request.remoteScope == request.localScope )
-		{
-			// allow self-access
-			allowedScopes.insert(request.remoteScope);
-		}
-		else
-		{
-			// allow access only if mod is in our dependencies
-			auto myDeps = VLC->modh->getModDependencies(request.localScope, isValidScope);
-
-			if(!isValidScope)
-				return std::vector<ObjectData>();
-
-			if(myDeps.count(request.remoteScope))
-				allowedScopes.insert(request.remoteScope);
-		}
-	}
-
-	std::string fullID = request.type + '.' + request.name;
-
-	auto entries = registeredObjects.equal_range(fullID);
-	if (entries.first != entries.second)
-	{
-		std::vector<ObjectData> locatedIDs;
-
-		for (auto it = entries.first; it != entries.second; it++)
-		{
-			if (vstd::contains(allowedScopes, it->second.scope))
-			{
-				locatedIDs.push_back(it->second);
-			}
-		}
-		return locatedIDs;
-	}
-	return std::vector<ObjectData>();
-}
-
-bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
-{
-	auto identifiers = getPossibleIdentifiers(request);
-	if (identifiers.size() == 1) // normally resolved ID
-	{
-		request.callback(identifiers.front().id);
-		return true;
-	}
-
-	if (request.optional && identifiers.empty()) // failed to resolve optinal ID
-	{
-		return true;
-	}
-
-	// error found. Try to generate some debug info
-	if(identifiers.empty())
-		logMod->error("Unknown identifier!");
-	else
-		logMod->error("Ambiguous identifier request!");
-
-	 logMod->error("Request for %s.%s from mod %s", request.type, request.name, request.localScope);
-
-	for(const auto & id : identifiers)
-	{
-		logMod->error("\tID is available in mod %s", id.scope);
-	}
-	return false;
-}
-
-void CIdentifierStorage::finalize()
-{
-	state = FINALIZING;
-	bool errorsFound = false;
-
-	while ( !scheduledRequests.empty() )
-	{
-		// Use local copy since new requests may appear during resolving, invalidating any iterators
-		auto request = scheduledRequests.back();
-		scheduledRequests.pop_back();
-
-		if (!resolveIdentifier(request))
-			errorsFound = true;
-	}
-
-	if (errorsFound)
-	{
-		for(const auto & object : registeredObjects)
-		{
-			logMod->trace("%s : %s -> %d", object.second.scope, object.first, object.second.id);
-		}
-		logMod->error("All known identifiers were dumped into log file");
-	}
-	assert(errorsFound == false);
-	state = FINISHED;
-}
-
-ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string & objectName):
-	handler(handler),
-	objectName(objectName),
-	originalData(handler->loadLegacyData())
-{
-	for(auto & node : originalData)
-	{
-		node.setMeta(CModHandler::scopeBuiltin());
-	}
-}
-
-bool ContentTypeHandler::preloadModData(const std::string & modName, const std::vector<std::string> & fileList, bool validate)
-{
-	bool result = false;
-	JsonNode data = JsonUtils::assembleFromFiles(fileList, result);
-	data.setMeta(modName);
-
-	ModInfo & modInfo = modData[modName];
-
-	for(auto entry : data.Struct())
-	{
-		size_t colon = entry.first.find(':');
-
-		if (colon == std::string::npos)
-		{
-			// normal object, local to this mod
-			modInfo.modData[entry.first].swap(entry.second);
-		}
-		else
-		{
-			std::string remoteName = entry.first.substr(0, colon);
-			std::string objectName = entry.first.substr(colon + 1);
-
-			// patching this mod? Send warning and continue - this situation can be handled normally
-			if (remoteName == modName)
-				logMod->warn("Redundant namespace definition for %s", objectName);
-
-			logMod->trace("Patching object %s (%s) from %s", objectName, remoteName, modName);
-			JsonNode & remoteConf = modData[remoteName].patches[objectName];
-
-			JsonUtils::merge(remoteConf, entry.second);
-		}
-	}
-	return result;
-}
-
-bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
-{
-	ModInfo & modInfo = modData[modName];
-	bool result = true;
-
-	auto performValidate = [&,this](JsonNode & data, const std::string & name){
-		handler->beforeValidate(data);
-		if (validate)
-			result &= JsonUtils::validate(data, "vcmi:" + objectName, name);
-	};
-
-	// apply patches
-	if (!modInfo.patches.isNull())
-		JsonUtils::merge(modInfo.modData, modInfo.patches);
-
-	for(auto & entry : modInfo.modData.Struct())
-	{
-		const std::string & name = entry.first;
-		JsonNode & data = entry.second;
-
-		if (data.meta != modName)
-			logMod->warn("Mod %s is attempting to inject object %s into mod %s! This may not be supported in future versions!", data.meta, name, modName);
-
-		if (vstd::contains(data.Struct(), "index") && !data["index"].isNull())
-		{
-			if (modName != "core")
-				logMod->warn("Mod %s is attempting to load original data! This should be reserved for built-in mod.", modName);
-
-			// try to add H3 object data
-			size_t index = static_cast<size_t>(data["index"].Float());
-
-			if(originalData.size() > index)
-			{
-				logMod->trace("found original data in loadMod(%s) at index %d", name, index);
-				JsonUtils::merge(originalData[index], data);
-				std::swap(originalData[index], data);
-				originalData[index].clear(); // do not use same data twice (same ID)
-			}
-			else
-			{
-				logMod->trace("no original data in loadMod(%s) at index %d", name, index);
-			}
-			performValidate(data, name);
-			handler->loadObject(modName, name, data, index);
-		}
-		else
-		{
-			// normal new object
-			logMod->trace("no index in loadMod(%s)", name);
-			performValidate(data,name);
-			handler->loadObject(modName, name, data);
-		}
-	}
-	return result;
-}
-
-void ContentTypeHandler::loadCustom()
-{
-	handler->loadCustom();
-}
-
-void ContentTypeHandler::afterLoadFinalization()
-{
-	handler->afterLoadFinalization();
-}
-
-void CContentHandler::init()
-{
-	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(&VLC->heroh->classes, "heroClass")));
-	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth, "artifact")));
-	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh, "creature")));
-	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh, "faction")));
-	handlers.insert(std::make_pair("objects", ContentTypeHandler(VLC->objtypeh, "object")));
-	handlers.insert(std::make_pair("heroes", ContentTypeHandler(VLC->heroh, "hero")));
-	handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh, "spell")));
-	handlers.insert(std::make_pair("skills", ContentTypeHandler(VLC->skillh, "skill")));
-	handlers.insert(std::make_pair("templates", ContentTypeHandler(VLC->tplh, "template")));
-#if SCRIPTING_ENABLED
-	handlers.insert(std::make_pair("scripts", ContentTypeHandler(VLC->scriptHandler, "script")));
-#endif
-	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(VLC->battlefieldsHandler, "battlefield")));
-	handlers.insert(std::make_pair("terrains", ContentTypeHandler(VLC->terrainTypeHandler, "terrain")));
-	handlers.insert(std::make_pair("rivers", ContentTypeHandler(VLC->riverTypeHandler, "river")));
-	handlers.insert(std::make_pair("roads", ContentTypeHandler(VLC->roadTypeHandler, "road")));
-	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(VLC->obstacleHandler, "obstacle")));
-	//TODO: any other types of moddables?
-}
-
-bool CContentHandler::preloadModData(const std::string & modName, JsonNode modConfig, bool validate)
-{
-	bool result = true;
-	for(auto & handler : handlers)
-	{
-		result &= handler.second.preloadModData(modName, modConfig[handler.first].convertTo<std::vector<std::string> >(), validate);
-	}
-	return result;
-}
-
-bool CContentHandler::loadMod(const std::string & modName, bool validate)
-{
-	bool result = true;
-	for(auto & handler : handlers)
-	{
-		result &= handler.second.loadMod(modName, validate);
-	}
-	return result;
-}
-
-void CContentHandler::loadCustom()
-{
-	for(auto & handler : handlers)
-	{
-		handler.second.loadCustom();
-	}
-}
-
-void CContentHandler::afterLoadFinalization()
-{
-	for(auto & handler : handlers)
-	{
-		handler.second.afterLoadFinalization();
-	}
-}
-
-void CContentHandler::preloadData(CModInfo & mod)
-{
-	bool validate = (mod.validation != CModInfo::PASSED);
-
-	// print message in format [<8-symbols checksum>] <modname>
-	logMod->info("\t\t[%08x]%s", mod.checksum, mod.name);
-
-	if (validate && mod.identifier != CModHandler::scopeBuiltin())
-	{
-		if (!JsonUtils::validate(mod.config, "vcmi:mod", mod.identifier))
-			mod.validation = CModInfo::FAILED;
-	}
-	if (!preloadModData(mod.identifier, mod.config, validate))
-		mod.validation = CModInfo::FAILED;
-}
-
-void CContentHandler::load(CModInfo & mod)
-{
-	bool validate = (mod.validation != CModInfo::PASSED);
-
-	if (!loadMod(mod.identifier, validate))
-		mod.validation = CModInfo::FAILED;
-
-	if (validate)
-	{
-		if (mod.validation != CModInfo::FAILED)
-			logMod->info("\t\t[DONE] %s", mod.name);
-		else
-			logMod->error("\t\t[FAIL] %s", mod.name);
-	}
-	else
-		logMod->info("\t\t[SKIP] %s", mod.name);
-}
-
-const ContentTypeHandler & CContentHandler::operator[](const std::string & name) const
-{
-	return handlers.at(name);
-}
 
 static JsonNode loadModSettings(const std::string & path)
 {
@@ -574,148 +39,30 @@ static JsonNode loadModSettings(const std::string & path)
 	return JsonNode();
 }
 
-JsonNode addMeta(JsonNode config, const std::string & meta)
-{
-	config.setMeta(meta);
-	return config;
-}
-
-CModInfo::CModInfo():
-	checksum(0),
-	explicitlyEnabled(false),
-	implicitlyEnabled(true),
-	validation(PENDING)
-{
-
-}
-
-CModInfo::CModInfo(const std::string & identifier, const JsonNode & local, const JsonNode & config):
-	identifier(identifier),
-	name(config["name"].String()),
-	description(config["description"].String()),
-	dependencies(config["depends"].convertTo<std::set<std::string>>()),
-	conflicts(config["conflicts"].convertTo<std::set<std::string>>()),
-	checksum(0),
-	explicitlyEnabled(false),
-	implicitlyEnabled(true),
-	validation(PENDING),
-	config(addMeta(config, identifier))
-{
-	version = CModVersion::fromString(config["version"].String());
-	if(!config["compatibility"].isNull())
-	{
-		vcmiCompatibleMin = CModVersion::fromString(config["compatibility"]["min"].String());
-		vcmiCompatibleMax = CModVersion::fromString(config["compatibility"]["max"].String());
-	}
-
-	if (!config["language"].isNull())
-		baseLanguage = config["language"].String();
-	else
-		baseLanguage = "english";
-
-	loadLocalData(local);
-}
-
-JsonNode CModInfo::saveLocalData() const
-{
-	std::ostringstream stream;
-	stream << std::noshowbase << std::hex << std::setw(8) << std::setfill('0') << checksum;
-
-	JsonNode conf;
-	conf["active"].Bool() = explicitlyEnabled;
-	conf["validated"].Bool() = validation != FAILED;
-	conf["checksum"].String() = stream.str();
-	return conf;
-}
-
-std::string CModInfo::getModDir(const std::string & name)
-{
-	return "MODS/" + boost::algorithm::replace_all_copy(name, ".", "/MODS/");
-}
-
-std::string CModInfo::getModFile(const std::string & name)
-{
-	return getModDir(name) + "/mod.json";
-}
-
-void CModInfo::updateChecksum(ui32 newChecksum)
-{
-	// comment-out next line to force validation of all mods ignoring checksum
-	if (newChecksum != checksum)
-	{
-		checksum = newChecksum;
-		validation = PENDING;
-	}
-}
-
-void CModInfo::loadLocalData(const JsonNode & data)
-{
-	bool validated = false;
-	implicitlyEnabled = true;
-	explicitlyEnabled = !config["keepDisabled"].Bool();
-	checksum = 0;
-	if (data.getType() == JsonNode::JsonType::DATA_BOOL)
-	{
-		explicitlyEnabled = data.Bool();
-	}
-	if (data.getType() == JsonNode::JsonType::DATA_STRUCT)
-	{
-		explicitlyEnabled = data["active"].Bool();
-		validated = data["validated"].Bool();
-		checksum  = strtol(data["checksum"].String().c_str(), nullptr, 16);
-	}
-
-	//check compatibility
-	implicitlyEnabled &= (vcmiCompatibleMin.isNull() || CModVersion::GameVersion().compatible(vcmiCompatibleMin));
-	implicitlyEnabled &= (vcmiCompatibleMax.isNull() || vcmiCompatibleMax.compatible(CModVersion::GameVersion()));
-
-	if(!implicitlyEnabled)
-		logGlobal->warn("Mod %s is incompatible with current version of VCMI and cannot be enabled", name);
-
-	if (boost::iequals(config["modType"].String(), "translation")) // compatibility code - mods use "Translation" type at the moment
-	{
-		if (baseLanguage != VLC->generaltexth->getPreferredLanguage())
-		{
-			logGlobal->warn("Translation mod %s was not loaded: language mismatch!", name);
-			implicitlyEnabled = false;
-		}
-	}
-
-	if (isEnabled())
-		validation = validated ? PASSED : PENDING;
-	else
-		validation = validated ? PASSED : FAILED;
-}
-
-bool CModInfo::isEnabled() const
-{
-	return implicitlyEnabled && explicitlyEnabled;
-}
-
-void CModInfo::setEnabled(bool on)
-{
-	explicitlyEnabled = on;
-}
-
-CModHandler::CModHandler() : content(std::make_shared<CContentHandler>())
+CModHandler::CModHandler()
+	: content(std::make_shared<CContentHandler>())
+	, identifiers(std::make_unique<CIdentifierStorage>())
+	, coreMod(std::make_unique<CModInfo>())
 {
 	//TODO: moddable spell schools
 	for (auto i = 0; i < GameConstants::DEFAULT_SCHOOLS; ++i)
-		identifiers.registerObject(CModHandler::scopeBuiltin(), "spellSchool", SpellConfig::SCHOOL[i].jsonName, SpellConfig::SCHOOL[i].id);
+		identifiers->registerObject(ModScope::scopeBuiltin(), "spellSchool", SpellConfig::SCHOOL[i].jsonName, SpellConfig::SCHOOL[i].id);
 
-	identifiers.registerObject(CModHandler::scopeBuiltin(), "spellSchool", "any", SpellSchool(ESpellSchool::ANY));
+	identifiers->registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool(ESpellSchool::ANY));
 
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
-		identifiers.registerObject(CModHandler::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);
+		identifiers->registerObject(ModScope::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);
 	}
 
 	for(int i=0; i<GameConstants::PRIMARY_SKILLS; ++i)
 	{
-		identifiers.registerObject(CModHandler::scopeBuiltin(), "primSkill", PrimarySkill::names[i], i);
-		identifiers.registerObject(CModHandler::scopeBuiltin(), "primarySkill", PrimarySkill::names[i], i);
+		identifiers->registerObject(ModScope::scopeBuiltin(), "primSkill", PrimarySkill::names[i], i);
+		identifiers->registerObject(ModScope::scopeBuiltin(), "primarySkill", PrimarySkill::names[i], i);
 	}
 }
+
+CModHandler::~CModHandler() = default;
 
 // currentList is passed by value to get current list of depending mods
 bool CModHandler::hasCircularDependency(const TModID & modID, std::set<TModID> currentList) const
@@ -834,35 +181,7 @@ std::vector<std::string> CModHandler::getModList(const std::string & path) const
 	return foundMods;
 }
 
-bool CModHandler::isScopeReserved(const TModID & scope)
-{
-	//following scopes are reserved - either in use by mod system or by filesystem
-	static const std::array<TModID, 9> reservedScopes = {
-		"core", "map", "game", "root", "saves", "config", "local", "initial", "mapEditor"
-	};
 
-	return std::find(reservedScopes.begin(), reservedScopes.end(), scope) != reservedScopes.end();
-}
-
-const TModID & CModHandler::scopeBuiltin()
-{
-	static const TModID scope = "core";
-	return scope;
-}
-
-const TModID & CModHandler::scopeGame()
-{
-	static const TModID scope = "game";
-	return scope;
-}
-
-const TModID & CModHandler::scopeMap()
-{
-	//TODO: implement accessing map dependencies for both H3 and VCMI maps
-	// for now, allow access to any identifiers
-	static const TModID scope = "game";
-	return scope;
-}
 
 void CModHandler::loadMods(const std::string & path, const std::string & parent, const JsonNode & modSettings, bool enableMods)
 {
@@ -875,7 +194,7 @@ void CModHandler::loadOneMod(std::string modName, const std::string & parent, co
 	boost::to_lower(modName);
 	std::string modFullName = parent.empty() ? modName : parent + '.' + modName;
 
-	if ( isScopeReserved(modFullName))
+	if ( ModScope::isScopeReserved(modFullName))
 	{
 		logMod->error("Can not load mod %s - this name is reserved for internal use!", modFullName);
 		return;
@@ -909,8 +228,8 @@ void CModHandler::loadMods(bool onlyEssential)
 		loadMods("", "", modConfig["activeMods"], true);
 	}
 
-	coreMod = CModInfo(CModHandler::scopeBuiltin(), modConfig[CModHandler::scopeBuiltin()], JsonNode(ResourceID("config/gameConfig.json")));
-	coreMod.name = "Original game files";
+	coreMod = std::make_unique<CModInfo>(ModScope::scopeBuiltin(), modConfig[ModScope::scopeBuiltin()], JsonNode(ResourceID("config/gameConfig.json")));
+	coreMod->name = "Original game files";
 }
 
 std::vector<std::string> CModHandler::getAllMods()
@@ -962,7 +281,7 @@ static ui32 calculateModChecksum(const std::string & modName, ISimpleResourceLoa
 
 	// second - add mod.json into checksum because filesystem does not contains this file
 	// FIXME: remove workaround for core mod
-	if (modName != CModHandler::scopeBuiltin())
+	if (modName != ModScope::scopeBuiltin())
 	{
 		ResourceID modConfFile(CModInfo::getModFile(modName), EResType::TEXT);
 		ui32 configChecksum = CResourceHandler::get("initial")->load(modConfFile)->calculateCRC32();
@@ -990,7 +309,7 @@ void CModHandler::loadModFilesystems()
 
 	activeMods = validateAndSortDependencies(activeMods);
 
-	coreMod.updateChecksum(calculateModChecksum(CModHandler::scopeBuiltin(), CResourceHandler::get(CModHandler::scopeBuiltin())));
+	coreMod->updateChecksum(calculateModChecksum(ModScope::scopeBuiltin(), CResourceHandler::get(ModScope::scopeBuiltin())));
 
 	for(std::string & modName : activeMods)
 	{
@@ -1038,7 +357,7 @@ std::set<TModID> CModHandler::getModDependencies(const TModID & modId, bool & is
 
 void CModHandler::initializeConfig()
 {
-	VLC->settingsHandler->load(coreMod.config["settings"]);
+	VLC->settingsHandler->load(coreMod->config["settings"]);
 
 	for(const TModID & modName : activeMods)
 	{
@@ -1046,6 +365,13 @@ void CModHandler::initializeConfig()
 		if (!mod.config["settings"].isNull())
 			VLC->settingsHandler->load(mod.config["settings"]);
 	}
+}
+
+CModVersion CModHandler::getModVersion(TModID modName) const
+{
+	if (allMods.count(modName))
+		return allMods.at(modName).version;
+	return {};
 }
 
 bool CModHandler::validateTranslations(TModID modName) const
@@ -1112,12 +438,12 @@ void CModHandler::load()
 
 	// first - load virtual builtin mod that contains all data
 	// TODO? move all data into real mods? RoE, AB, SoD, WoG
-	content->preloadData(coreMod);
+	content->preloadData(*coreMod);
 	for(const TModID & modName : activeMods)
 		content->preloadData(allMods[modName]);
 	logMod->info("\tParsing mod data: %d ms", timer.getDiff());
 
-	content->load(coreMod);
+	content->load(*coreMod);
 	for(const TModID & modName : activeMods)
 		content->load(allMods[modName]);
 
@@ -1136,7 +462,7 @@ void CModHandler::load()
 
 	logMod->info("\tLoading mod data: %d ms", timer.getDiff());
 	VLC->creh->loadCrExpMod();
-	identifiers.finalize();
+	identifiers->finalize();
 	logMod->info("\tResolving identifiers: %d ms", timer.getDiff());
 
 	content->afterLoadFinalization();
@@ -1153,7 +479,7 @@ void CModHandler::afterLoad(bool onlyEssential)
 
 		modSettings["activeMods"].resolvePointer(pointer) = modEntry.second.saveLocalData();
 	}
-	modSettings[CModHandler::scopeBuiltin()] = coreMod.saveLocalData();
+	modSettings[ModScope::scopeBuiltin()] = coreMod->saveLocalData();
 
 	if(!onlyEssential)
 	{
@@ -1163,64 +489,28 @@ void CModHandler::afterLoad(bool onlyEssential)
 
 }
 
-std::string CModHandler::normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier)
+void CModHandler::trySetActiveMods(const std::map<TModID, CModVersion> & modList)
 {
-	auto p = vstd::splitStringToPair(identifier, ':');
+	ModIncompatibility::ModList missingMods;
 
-	if(p.first.empty())
-		p.first = scope;
+	for(const auto & mod : modList)
+	{
+		auto m = mod.first;
+		auto mver = mod.second;
 
-	if(p.first == remoteScope)
-		p.first.clear();
+		if(allMods.count(m) && (allMods[m].version.isNull() || mver.isNull() || allMods[m].version.compatible(mver)))
+			allMods[m].setEnabled(true);
+		else
+			missingMods.emplace_back(m, mver.toString());
+	}
 
-	return p.first.empty() ? p.second : p.first + ":" + p.second;
+	if(!missingMods.empty())
+		throw ModIncompatibility(std::move(missingMods));
 }
 
-void CModHandler::parseIdentifier(const std::string & fullIdentifier, std::string & scope, std::string & type, std::string & identifier)
+CIdentifierStorage & CModHandler::getIdentifiers()
 {
-	auto p = vstd::splitStringToPair(fullIdentifier, ':');
-
-	scope = p.first;
-
-	auto p2 = vstd::splitStringToPair(p.second, '.');
-
-	if(!p2.first.empty())
-	{
-		type = p2.first;
-		identifier = p2.second;
-	}
-	else
-	{
-		type = p.second;
-		identifier.clear();
-	}
-}
-
-std::string CModHandler::makeFullIdentifier(const std::string & scope, const std::string & type, const std::string & identifier)
-{
-	if(type.empty())
-		logGlobal->error("Full identifier (%s %s) requires type name", scope, identifier);
-
-	std::string actualScope = scope;
-	std::string actualName = identifier;
-
-	//ignore scope if identifier is scoped
-	auto scopeAndName = vstd::splitStringToPair(identifier, ':');
-
-	if(!scopeAndName.first.empty())
-	{
-		actualScope = scopeAndName.first;
-		actualName = scopeAndName.second;
-	}
-
-	if(actualScope.empty())
-	{
-		return actualName.empty() ? type : type + "." + actualName;
-	}
-	else
-	{
-		return actualName.empty() ? actualScope+ ":" + type : actualScope + ":" + type + "." + actualName;
-	}
+	return *identifiers;
 }
 
 VCMI_LIB_NAMESPACE_END

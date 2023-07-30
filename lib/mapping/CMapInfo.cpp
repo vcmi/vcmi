@@ -25,7 +25,6 @@
 #include "../CCreatureHandler.h"
 #include "../GameSettings.h"
 #include "../CHeroHandler.h"
-#include "../CModHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
