@@ -141,8 +141,11 @@ class DLL_LINKAGE CGeneralTextHandler
 	std::vector<size_t> scenariosCountPerCampaign;
 
 	std::string getModLanguage(const std::string & modContext);
-public:
 
+	/// add selected string to internal storage as high-priority strings
+	void registerStringOverride(const std::string & modContext, const std::string & language, const TextIdentifier & UID, const std::string & localized);
+
+public:
 	/// validates translation of specified language for specified mod
 	/// returns true if localization is valid and complete
 	/// any error messages will be written to log file
@@ -154,9 +157,6 @@ public:
 
 	/// add selected string to internal storage
 	void registerString(const std::string & modContext, const TextIdentifier & UID, const std::string & localized);
-
-	/// add selected string to internal storage as high-priority strings
-	void registerStringOverride(const std::string & modContext, const std::string & language, const TextIdentifier & UID, const std::string & localized);
 
 	// returns true if identifier with such name was registered, even if not translated to current language
 	// not required right now, can be added if necessary
