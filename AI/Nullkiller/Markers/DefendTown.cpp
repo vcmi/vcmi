@@ -18,8 +18,8 @@ namespace NKAI
 
 using namespace Goals;
 
-DefendTown::DefendTown(const CGTownInstance * town, const HitMapInfo & treat, const AIPath & defencePath, bool isContrattack)
-	: CGoal(Goals::DEFEND_TOWN), treat(treat), defenceArmyStrength(defencePath.getHeroStrength()), turn(defencePath.turn()), contrattack(isContrattack)
+DefendTown::DefendTown(const CGTownInstance * town, const HitMapInfo & treat, const AIPath & defencePath, bool isCounterAttack)
+	: CGoal(Goals::DEFEND_TOWN), treat(treat), defenceArmyStrength(defencePath.getHeroStrength()), turn(defencePath.turn()), counterattack(isCounterAttack)
 {
 	settown(town);
 	sethero(defencePath.targetHero);

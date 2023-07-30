@@ -55,10 +55,6 @@ struct HitMapNode
 	}
 };
 
-struct TileOwner
-{
-};
-
 class DangerHitMapAnalyzer
 {
 private:

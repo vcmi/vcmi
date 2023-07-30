@@ -148,17 +148,19 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 	std::map<const CGHeroInstance *, const CGTownInstance *> heroTownMap;
 	PathfinderSettings pathfinderSettings;
 
-	pathfinderSettings.mainTurnDistanceLimit = 3;
+	pathfinderSettings.mainTurnDistanceLimit = 5;
 
 	auto addTownHero = [&](const CGTownInstance * town)
 	{
 			auto townHero = new CGHeroInstance();
 			CRandomGenerator rng;
+			auto visitablePos = town->visitablePos();
 			
-			townHero->pos = town->pos;
+			townHero->pos = visitablePos;
 			townHero->setOwner(ai->playerID); // lets avoid having multiple colors
 			townHero->initHero(rng, static_cast<HeroTypeID>(0));
 			townHero->initObj(rng);
+			townHero->pos = townHero->convertFromVisitablePos(visitablePos);
 			
 			heroTownMap[townHero] = town;
 			townHeroes[townHero] = HeroRole::MAIN;

@@ -24,10 +24,10 @@ namespace Goals
 		uint64_t defenceArmyStrength;
 		HitMapInfo treat;
 		uint8_t turn;
-		bool contrattack;
+		bool counterattack;
 
 	public:
-		DefendTown(const CGTownInstance * town, const HitMapInfo & treat, const AIPath & defencePath, bool isContrattack = false);
+		DefendTown(const CGTownInstance * town, const HitMapInfo & treat, const AIPath & defencePath, bool isCounterAttack = false);
 		DefendTown(const CGTownInstance * town, const HitMapInfo & treat, const CGHeroInstance * defender);
 
 		virtual bool operator==(const DefendTown & other) const override;
@@ -39,7 +39,7 @@ namespace Goals
 
 		uint8_t getTurn() const { return turn; }
 
-		bool isContrAttack() { return contrattack; }
+		bool isCounterAttack() { return counterattack; }
 	};
 }
 

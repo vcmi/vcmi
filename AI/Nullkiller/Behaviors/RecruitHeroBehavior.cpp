@@ -70,10 +70,10 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 
 			for(auto obj : ai->nullkiller->objectClusterizer->getNearbyObjects())
 			{
-				if((obj->ID == Obj::RESOURCE && obj->subID == GameResID(EGameResID::GOLD))
+				if((obj->ID == Obj::RESOURCE)
 					|| obj->ID == Obj::TREASURE_CHEST
 					|| obj->ID == Obj::CAMPFIRE
-					|| obj->ID == Obj::WATER_WHEEL
+					|| isWeeklyRevisitable(obj)
 					|| obj->ID ==Obj::ARTIFACT)
 				{
 					auto tile = obj->visitablePos();
@@ -84,7 +84,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 				}
 			}
 
-			if(treasureSourcesCount < 10)
+			if(treasureSourcesCount < 5)
 				continue;
 
 			if(cb->getHeroesInfo().size() < cb->getTownsInfo().size() + 1

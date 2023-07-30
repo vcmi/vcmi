@@ -108,7 +108,8 @@ int32_t estimateTownIncome(CCallback * cb, const CGObjectInstance * target, cons
 	auto town = cb->getTown(target->id);
 	auto fortLevel = town->fortLevel();
 
-	if(town->hasCapitol()) return booster * 2000;
+	if(town->hasCapitol())
+		return booster * 2000;
 
 	// probably well developed town will have city hall
 	if(fortLevel == CGTownInstance::CASTLE) return booster * 750;
@@ -497,14 +498,15 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 		}
 
 		auto fortLevel = town->fortLevel();
-		auto booster = isAnotherAi(town, *ai->cb) ? 0.3f : 0.7f;
+		auto booster = isAnotherAi(town, *ai->cb) ? 0.4f : 1.0f;
 
-		if(town->hasCapitol()) return booster;
+		if(town->hasCapitol())
+			return booster * 1.5;
 
 		if(fortLevel < CGTownInstance::CITADEL)
-			return booster * (town->hasFort() ? 0.6 : 0.4);
+			return booster * (town->hasFort() ? 1.0 : 0.8);
 		else
-			return booster * (fortLevel == CGTownInstance::CASTLE ? 0.9 : 0.8);
+			return booster * (fortLevel == CGTownInstance::CASTLE ? 1.4 : 1.2);
 	}
 
 	case Obj::HERO:
@@ -731,7 +733,7 @@ public:
 
 		multiplier /= 1.0f + treat.turn / 5.0f;
 
-		if(defendTown.getTurn() > 0 && defendTown.isContrAttack())
+		if(defendTown.getTurn() > 0 && defendTown.isCounterAttack())
 		{
 			auto ourSpeed = defendTown.hero->movementPointsLimit(true);
 			auto enemySpeed = treat.hero->movementPointsLimit(true);
