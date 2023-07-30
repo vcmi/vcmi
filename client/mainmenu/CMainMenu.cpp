@@ -61,8 +61,6 @@
 #include <SDL.h>
 #endif
 
-namespace fs = boost::filesystem;
-
 std::shared_ptr<CMainMenu> CMM;
 ISelectionScreenInfo * SEL;
 

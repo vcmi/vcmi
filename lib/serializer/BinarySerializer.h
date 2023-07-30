@@ -14,8 +14,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class FileStream;
-
 class DLL_LINKAGE CSaverBase
 {
 protected:
@@ -392,7 +390,7 @@ public:
 	BinarySerializer serializer;
 
 	boost::filesystem::path fName;
-	std::unique_ptr<FileStream> sfile;
+	std::unique_ptr<std::fstream> sfile;
 
 	CSaveFile(const boost::filesystem::path &fname); //throws!
 	~CSaveFile();

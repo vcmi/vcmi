@@ -31,7 +31,7 @@ static void saveTestMap(CMemoryBuffer & serializeBuffer, const std::string & fil
 {
 	auto path = VCMIDirs::get().userDataPath() / filename;
 	boost::filesystem::remove(path);
-	boost::filesystem::ofstream tmp(path, boost::filesystem::ofstream::binary);
+	std::ofstream tmp(path.c_str(), std::ofstream::binary);
 
 	tmp.write((const char *)serializeBuffer.getBuffer().data(), serializeBuffer.getSize());
 	tmp.flush();

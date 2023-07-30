@@ -80,7 +80,7 @@ void CMapService::saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::
 	}
 	{
 		boost::filesystem::remove(fullPath);
-		boost::filesystem::ofstream tmp(fullPath, boost::filesystem::ofstream::binary);
+		std::ofstream tmp(fullPath.c_str(), std::ofstream::binary);
 
 		tmp.write(reinterpret_cast<const char *>(serializeBuffer.getBuffer().data()), serializeBuffer.getSize());
 		tmp.flush();

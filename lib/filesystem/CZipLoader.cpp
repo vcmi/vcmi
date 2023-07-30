@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 #include "CZipLoader.h"
-#include "FileStream.h"
 
 #include "../ScopeGuard.h"
 
@@ -155,7 +154,10 @@ std::vector<std::string> ZipArchive::listFiles(const boost::filesystem::path & f
 {
 	std::vector<std::string> ret;
 
-	unzFile file = unzOpen2_64(filename.c_str(), FileStream::GetMinizipFilefunc());
+	CDefaultIOApi zipAPI;
+	auto zipStructure = zipAPI.getApiStructure();
+
+	unzFile file = unzOpen2_64(filename.c_str(), &zipStructure);
 
 	if (unzGoToFirstFile(file) == UNZ_OK)
 	{
@@ -188,7 +190,10 @@ bool ZipArchive::extract(const boost::filesystem::path & from, const boost::file
 
 bool ZipArchive::extract(const boost::filesystem::path & from, const boost::filesystem::path & where, const std::vector<std::string> & what)
 {
-	unzFile archive = unzOpen2_64(from.c_str(), FileStream::GetMinizipFilefunc());
+	CDefaultIOApi zipAPI;
+	auto zipStructure = zipAPI.getApiStructure();
+
+	unzFile archive = unzOpen2_64(from.c_str(), &zipStructure);
 
 	auto onExit = vstd::makeScopeGuard([&]()
 	{
@@ -209,7 +214,7 @@ bool ZipArchive::extract(const boost::filesystem::path & from, const boost::file
 		if (boost::algorithm::ends_with(file, "/"))
 			continue;
 
-		FileStream destFile(fullName, std::ios::out | std::ios::binary);
+		std::fstream destFile(fullName.c_str(), std::ios::out | std::ios::binary);
 		if (!destFile.good())
 			return false;
 

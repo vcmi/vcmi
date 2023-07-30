@@ -50,7 +50,6 @@
 
 namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
-namespace bfs = boost::filesystem;
 
 extern boost::thread_specific_ptr<bool> inGuiThread;
 
@@ -196,7 +195,7 @@ int main(int argc, char * argv[])
 	console->start();
 #endif
 
-	const bfs::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
+	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
 	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_VERSION);

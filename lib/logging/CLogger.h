@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../CConsoleHandler.h"
-#include "../filesystem/FileStream.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -220,7 +219,7 @@ public:
 	void write(const LogRecord & record) override;
 
 private:
-	boost::filesystem::fstream file;
+	std::fstream file;
 	CLogFormatter formatter;
 	mutable std::mutex mx;
 };

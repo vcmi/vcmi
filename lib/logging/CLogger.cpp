@@ -425,7 +425,7 @@ const CColorMapping & CLogConsoleTarget::getColorMapping() const { return colorM
 void CLogConsoleTarget::setColorMapping(const CColorMapping & colorMapping) { this->colorMapping = colorMapping; }
 
 CLogFileTarget::CLogFileTarget(const boost::filesystem::path & filePath, bool append):
-	file(filePath, append ? std::ios_base::app : std::ios_base::out)
+	file(filePath.c_str(), append ? std::ios_base::app : std::ios_base::out)
 {
 //	formatter.setPattern("%d %l %n [%t] - %m");
 	formatter.setPattern("%l %n [%t] - %m");
