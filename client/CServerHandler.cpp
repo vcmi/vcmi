@@ -28,8 +28,6 @@
 #elif defined(VCMI_IOS)
 #include "ios/utils.h"
 #include <dispatch/dispatch.h>
-#else
-#include "../lib/Interprocess.h"
 #endif
 
 #ifdef SINGLE_PROCESS_APP
@@ -154,29 +152,6 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 		myNames = *names;
 	else
 		myNames.push_back(settings["general"]["playerName"].String());
-
-#if !defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
-	shm.reset();
-
-	if(!settings["session"]["disable-shm"].Bool())
-	{
-		std::string sharedMemoryName = "vcmi_memory";
-		if(settings["session"]["enable-shm-uuid"].Bool())
-		{
-			//used or automated testing when multiple clients start simultaneously
-			sharedMemoryName += "_" + uuid;
-		}
-		try
-		{
-			shm = std::make_shared<SharedMemory>(sharedMemoryName, true);
-		}
-		catch(...)
-		{
-			shm.reset();
-			logNetwork->error("Cannot open interprocess memory. Continue without it...");
-		}
-	}
-#endif
 }
 
 void CServerHandler::startLocalServerAndConnect()
@@ -194,7 +169,7 @@ void CServerHandler::startLocalServerAndConnect()
 		CInfoWindow::showInfoDialog(errorMsg, {});
 		return;
 	}
-	catch(...)
+	catch(std::runtime_error & error)
 	{
 		//no connection means that port is not busy and we can start local server
 	}
@@ -256,20 +231,12 @@ void CServerHandler::startLocalServerAndConnect()
 	}
 	logNetwork->info("waiting for server finished...");
 	androidTestServerReadyFlag = false;
-#else
-	if(shm)
-		shm->sr->waitTillReady();
 #endif
 	logNetwork->trace("Waiting for server: %d ms", th->getDiff());
 
 	th->update(); //put breakpoint here to attach to server before it does something stupid
 
-#if !defined(VCMI_MOBILE)
-	const ui16 port = shm ? shm->sr->port : 0;
-#else
-	const ui16 port = 0;
-#endif
-	justConnectToServer(localhostAddress, port);
+	justConnectToServer(localhostAddress, 0);
 
 	logNetwork->trace("\tConnecting to the server: %d ms", th->getDiff());
 }
@@ -287,9 +254,9 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 					port ? port : getHostPort(),
 					NAME, uuid);
 		}
-		catch(...)
+		catch(std::runtime_error & error)
 		{
-			logNetwork->error("\nCannot establish connection! Retrying within 1 second");
+			logNetwork->warn("\nCannot establish connection. %s Retrying in 1 second", error.what());
 			boost::this_thread::sleep(boost::posix_time::seconds(1));
 		}
 	}
@@ -925,13 +892,7 @@ void CServerHandler::threadRunServer()
 		comm += " --lobby-port=" + std::to_string(settings["session"]["port"].Integer());
 		comm += " --lobby-uuid=" + settings["session"]["hostUuid"].String();
 	}
-		
-	if(shm)
-	{
-		comm += " --enable-shm";
-		if(settings["session"]["enable-shm-uuid"].Bool())
-			comm += " --enable-shm-uuid";
-	}
+
 	comm += " > \"" + logName + '\"';
     logGlobal->info("Server command line: %s", comm);
 

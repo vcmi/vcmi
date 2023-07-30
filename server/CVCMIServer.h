@@ -23,7 +23,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CMapInfo;
 
 struct CPackForLobby;
-struct SharedMemory;
 
 struct StartInfo;
 struct LobbyInfo;

@@ -25,7 +25,6 @@
 #include "WaterAdopter.h"
 #include "WaterProxy.h"
 #include "TownPlacer.h"
-#include <boost/interprocess/sync/scoped_lock.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 

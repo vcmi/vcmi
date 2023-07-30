@@ -115,7 +115,7 @@ public:
 
 	void resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names = nullptr);
 	void startLocalServerAndConnect();
-	void justConnectToServer(const std::string &addr = "", const ui16 port = 0);
+	void justConnectToServer(const std::string & addr, const ui16 port);
 	void applyPacksOnLobbyScreen();
 	void stopServerConnection();
 

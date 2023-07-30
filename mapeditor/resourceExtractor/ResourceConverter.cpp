@@ -19,8 +19,8 @@
 #include "BitmapHandler.h"
 #include "Animation.h"
 
-#include "boost/filesystem/path.hpp"
-#include "boost/locale.hpp"
+#include <boost/filesystem/path.hpp>
+#include <boost/locale.hpp>
 
 void ResourceConverter::convertExtractedResourceFiles(ConversionOptions conversionOptions)
 {

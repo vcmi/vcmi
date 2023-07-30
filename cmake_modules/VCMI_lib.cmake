@@ -585,7 +585,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/IGameEventsReceiver.h
 		${MAIN_LIB_DIR}/IHandlerBase.h
 		${MAIN_LIB_DIR}/int3.h
-		${MAIN_LIB_DIR}/Interprocess.h
 		${MAIN_LIB_DIR}/JsonDetail.h
 		${MAIN_LIB_DIR}/JsonNode.h
 		${MAIN_LIB_DIR}/JsonRandom.h
