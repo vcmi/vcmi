@@ -15,6 +15,7 @@
 #include "InfoWindows.h"
 #include "GUIClasses.h"
 #include "QuickRecruitmentWindow.h"
+#include "CCreatureWindow.h"
 
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
@@ -1653,6 +1654,8 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	if(!town->creatures[level].second.empty())
 		addUsedEvents(LCLICK | HOVER);//Activate only if dwelling is present
 
+	addUsedEvents(SHOW_POPUP);
+
 	icons = std::make_shared<CPicture>("TPCAINFO", 261, 3);
 
 	if(getMyBuilding() != nullptr)
@@ -1738,6 +1741,12 @@ void CFortScreen::RecruitArea::creaturesChangedEventHandler()
 void CFortScreen::RecruitArea::clickPressed(const Point & cursorPosition)
 {
 	LOCPLINT->castleInt->builds->enterDwelling(level);
+}
+
+void CFortScreen::RecruitArea::showPopupWindow(const Point & cursorPosition)
+{
+	if (getMyCreature() != nullptr)
+		GH.windows().createAndPushWindow<CStackWindow>(getMyCreature(), true);
 }
 
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem)

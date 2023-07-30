@@ -347,6 +347,8 @@ class CFortScreen : public CStatusbarWindow
 		void creaturesChangedEventHandler();
 		void hover(bool on) override;
 		void clickPressed(const Point & cursorPosition) override;
+		void showPopupWindow(const Point & cursorPosition) override;
+
 	};
 	std::shared_ptr<CLabel> title;
 	std::vector<std::shared_ptr<RecruitArea>> recAreas;
