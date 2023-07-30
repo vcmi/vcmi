@@ -867,6 +867,19 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 
 	auto bestArmy = nullkiller->armyManager->getBestArmy(destinationArmy, destinationArmy, source);
 
+	for(auto army : armies)
+	{
+		// move first stack at first slot if empty to avoid can not take away last creature
+		if(!army->hasStackAtSlot(SlotID(0)) && army->stacksCount() > 0)
+		{
+			cb->mergeOrSwapStacks(
+				army,
+				army,
+				SlotID(0),
+				army->Slots().begin()->first);
+		}
+	}
+
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
 	for(SlotID i = SlotID(0); i.validSlot(); i.advance(1)) //i-th strongest creature type will go to i-th slot
 	{

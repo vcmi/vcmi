@@ -119,10 +119,11 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 
 		HeroExchange heroExchange(hero, path);
 
-		float armyValue = (float)heroExchange.getReinforcementArmyStrength() / hero->getArmyStrength();
+		uint64_t armyValue = heroExchange.getReinforcementArmyStrength();
+		float armyRatio = (float)armyValue / hero->getArmyStrength();
 
 		// avoid transferring very small amount of army
-		if(armyValue < 0.1f && armyValue < 20000)
+		if((armyRatio < 0.1f && armyValue < 20000) || armyValue < 500)
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Army value is too small.");

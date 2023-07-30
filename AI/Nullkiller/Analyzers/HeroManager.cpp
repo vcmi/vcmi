@@ -236,7 +236,7 @@ const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit) co
 
 	for(auto existingHero : myHeroes)
 	{
-		if(ai->isHeroLocked(existingHero) && ai->getHeroLockedReason(existingHero) == HeroLockedReason::DEFENCE
+		if(ai->getHeroLockedReason(existingHero) == HeroLockedReason::DEFENCE
 			|| existingHero->getArmyStrength() >armyLimit
 			|| getHeroRole(existingHero) == HeroRole::MAIN
 			|| existingHero->movementPointsRemaining()
