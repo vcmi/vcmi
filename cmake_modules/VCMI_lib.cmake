@@ -115,6 +115,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.cpp
 		${MAIN_LIB_DIR}/mapping/ObstacleProxy.cpp
 
+		${MAIN_LIB_DIR}/modding/CModHandler.cpp
+		${MAIN_LIB_DIR}/modding/CModVersion.cpp
+
 		${MAIN_LIB_DIR}/pathfinder/CGPathNode.cpp
 		${MAIN_LIB_DIR}/pathfinder/CPathfinder.cpp
 		${MAIN_LIB_DIR}/pathfinder/NodeStorage.cpp
@@ -231,8 +234,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CGameInterface.cpp
 		${MAIN_LIB_DIR}/CGeneralTextHandler.cpp
 		${MAIN_LIB_DIR}/CHeroHandler.cpp
-		${MAIN_LIB_DIR}/CModHandler.cpp
-		${MAIN_LIB_DIR}/CModVersion.cpp
 		${MAIN_LIB_DIR}/CPlayerState.cpp
 		${MAIN_LIB_DIR}/CRandomGenerator.cpp
 		${MAIN_LIB_DIR}/CScriptingModule.cpp
@@ -450,6 +451,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/mapping/MapFormatJson.h
 		${MAIN_LIB_DIR}/mapping/ObstacleProxy.h
 
+		${MAIN_LIB_DIR}/modding/CModHandler.h
+		${MAIN_LIB_DIR}/modding/CModVersion.h
+
 		${MAIN_LIB_DIR}/pathfinder/INodeStorage.h
 		${MAIN_LIB_DIR}/pathfinder/CGPathNode.h
 		${MAIN_LIB_DIR}/pathfinder/CPathfinder.h
@@ -563,8 +567,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CGameInterface.h
 		${MAIN_LIB_DIR}/CGeneralTextHandler.h
 		${MAIN_LIB_DIR}/CHeroHandler.h
-		${MAIN_LIB_DIR}/CModHandler.h
-		${MAIN_LIB_DIR}/CModVersion.h
 		${MAIN_LIB_DIR}/CondSh.h
 		${MAIN_LIB_DIR}/ConstTransitivePtr.h
 		${MAIN_LIB_DIR}/Color.h
