@@ -170,7 +170,6 @@ RuleBlock: basic
   rule: if heroRole is SCOUT and turn is NOW and mainTurnDistance is MEDIUM then Value is BAD
   rule: if heroRole is SCOUT and turn is NEXT and mainTurnDistance is LONG then Value is BAD
   rule: if heroRole is SCOUT and turn is NOW and scoutTurnDistance is LONG then Value is BAD
-  rule: if heroRole is SCOUT and turn is NOW and scoutTurnDistance is MEDIUM then Value is BAD with 0.3
   rule: if heroRole is SCOUT and fear is HIGH then Value is BAD with 0.8
   rule: if heroRole is SCOUT and fear is MEDIUM then Value is BAD with 0.5
   rule: if heroRole is MAIN and fear is HIGH then Value is BAD with 0.5
@@ -252,6 +251,11 @@ RuleBlock: gold
   rule: if goldReward is MEDIUM and goldPreasure is HIGH and heroRole is MAIN and danger is not NONE and armyLoss is LOW then Value is BITHIGH
   rule: if goldReward is SMALL and goldPreasure is HIGH and heroRole is SCOUT and danger is NONE then Value is MEDIUM
   rule: if goldReward is SMALL and goldPreasure is HIGH and heroRole is MAIN and danger is not NONE and armyLoss is LOW then Value is SMALL
+  rule: if goldReward is LOWEST then Value is SMALL with 0.1
+  rule: if goldReward is SMALL then Value is SMALL with 0.2
+  rule: if goldReward is MEDIUM then Value is SMALL with 0.5
+  rule: if goldReward is BIG then Value is SMALL
+  rule: if goldReward is HUGE then Value is BITHIGH
 RuleBlock: skill reward
   enabled: true
   conjunction: AlgebraicProduct

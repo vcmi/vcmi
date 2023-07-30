@@ -779,24 +779,20 @@ void AIGateway::makeTurn()
 	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 	setThreadName("AIGateway::makeTurn");
 
+	cb->sendMessage("vcmieagles");
+
+	retrieveVisitableObjs();
+
 	if(cb->getDate(Date::DAY_OF_WEEK) == 1)
 	{
-		std::vector<const CGObjectInstance *> objs;
-		retrieveVisitableObjs(objs, true);
-
-		for(const CGObjectInstance * obj : objs)
+		for(const CGObjectInstance * obj : nullkiller->memory->visitableObjs)
 		{
 			if(isWeeklyRevisitable(obj))
 			{
-				addVisitableObj(obj);
 				nullkiller->memory->markObjectUnvisited(obj);
 			}
 		}
 	}
-
-	cb->sendMessage("vcmieagles");
-
-	retrieveVisitableObjs();
 
 #if NKAI_TRACE_LEVEL == 0
 	try
@@ -1106,26 +1102,13 @@ void AIGateway::waitTillFree()
 	status.waitTillFree();
 }
 
-void AIGateway::retrieveVisitableObjs(std::vector<const CGObjectInstance *> & out, bool includeOwned) const
-{
-	foreach_tile_pos([&](const int3 & pos)
-	{
-		for(const CGObjectInstance * obj : myCb->getVisitableObjs(pos, false))
-		{
-			if(includeOwned || obj->tempOwner != playerID)
-				out.push_back(obj);
-		}
-	});
-}
-
 void AIGateway::retrieveVisitableObjs()
 {
 	foreach_tile_pos([&](const int3 & pos)
 	{
 		for(const CGObjectInstance * obj : myCb->getVisitableObjs(pos, false))
 		{
-			if(obj->tempOwner != playerID)
-				addVisitableObj(obj);
+			addVisitableObj(obj);
 		}
 	});
 }

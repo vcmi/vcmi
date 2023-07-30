@@ -167,7 +167,7 @@ void BuildAnalyzer::update()
 	else
 	{
 		goldPreasure = ai->getLockedResources()[EGameResID::GOLD] / 5000.0f
-			+ (float)armyCost[EGameResID::GOLD] / (1 + ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * 7.0f);
+			+ (float)armyCost[EGameResID::GOLD] / (1 + 2 * ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * 7.0f);
 	}
 
 	logAi->trace("Gold preasure: %f", goldPreasure);

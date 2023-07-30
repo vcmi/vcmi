@@ -863,7 +863,7 @@ std::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 
 	bs.turnsSkippedByDefense = movesSkippedByDefense / bs.ourStacks.size();
 
-	if(!bs.canFlee || !bs.canSurrender)
+	if(!bs.canFlee && !bs.canSurrender)
 	{
 		return std::nullopt;
 	}

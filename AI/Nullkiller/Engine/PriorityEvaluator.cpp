@@ -162,11 +162,11 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 		{
 			result += (c.data.type->getAIValue() * c.data.count) * c.chance;
 		}
-		else
+		/*else
 		{
 			//we will need to discard the weakest stack
 			result += (c.data.type->getAIValue() * c.data.count - weakestStackPower) * c.chance;
-		}
+		}*/
 	}
 	result /= 100; //divide by total chance
 
@@ -277,6 +277,8 @@ uint64_t RewardEvaluator::getArmyReward(
 {
 	const float enemyArmyEliminationRewardRatio = 0.5f;
 
+	auto relations = ai->cb->getPlayerRelations(target->tempOwner, ai->playerID);
+
 	if(!target)
 		return 0;
 
@@ -301,7 +303,7 @@ uint64_t RewardEvaluator::getArmyReward(
 	case Obj::DRAGON_UTOPIA:
 		return 10000;
 	case Obj::HERO:
-		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
+		return  relations == PlayerRelations::ENEMIES
 			? enemyArmyEliminationRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->getArmyStrength()
 			: 0;
 	case Obj::PANDORAS_BOX:
@@ -317,6 +319,11 @@ uint64_t RewardEvaluator::getArmyGrowth(
 	const CCreatureSet * army) const
 {
 	if(!target)
+		return 0;
+
+	auto relations = ai->cb->getPlayerRelations(target->tempOwner, hero->tempOwner);
+
+	if(relations != PlayerRelations::ENEMIES)
 		return 0;
 
 	switch(target->ID)
@@ -542,15 +549,18 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 	case Obj::GARDEN_OF_REVELATION:
 	case Obj::MARLETTO_TOWER:
 	case Obj::MERCENARY_CAMP:
-	case Obj::SHRINE_OF_MAGIC_GESTURE:
-	case Obj::SHRINE_OF_MAGIC_INCANTATION:
 	case Obj::TREE_OF_KNOWLEDGE:
 		return 1;
 	case Obj::LEARNING_STONE:
 		return 1.0f / std::sqrt(hero->level);
 	case Obj::ARENA:
-	case Obj::SHRINE_OF_MAGIC_THOUGHT:
 		return 2;
+	case Obj::SHRINE_OF_MAGIC_INCANTATION:
+		return 0.2f;
+	case Obj::SHRINE_OF_MAGIC_GESTURE:
+		return 0.3f;
+	case Obj::SHRINE_OF_MAGIC_THOUGHT:
+		return 0.5f;
 	case Obj::LIBRARY_OF_ENLIGHTENMENT:
 		return 8;
 	case Obj::WITCH_HUT:
@@ -597,6 +607,8 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 	if(!target)
 		return 0;
 
+	auto relations = ai->cb->getPlayerRelations(target->tempOwner, hero->tempOwner);
+
 	const int dailyIncomeMultiplier = 5;
 	const float enemyArmyEliminationGoldRewardRatio = 0.2f;
 	const int32_t heroEliminationBonus = GameConstants::HERO_GOLD_COST / 2;
@@ -637,7 +649,7 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 		//Objectively saves us 2500 to hire hero
 		return GameConstants::HERO_GOLD_COST;
 	case Obj::HERO:
-		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
+		return relations == PlayerRelations::ENEMIES
 			? heroEliminationBonus + enemyArmyEliminationGoldRewardRatio * getArmyCost(dynamic_cast<const CGHeroInstance *>(target))
 			: 0;
 	default:
@@ -788,7 +800,7 @@ public:
 		if(heroRole == HeroRole::MAIN)
 			evaluationContext.heroRole = heroRole;
 
-		if (target && ai->cb->getPlayerRelations(target->tempOwner, hero->tempOwner) == PlayerRelations::ENEMIES)
+		if (target)
 		{
 			evaluationContext.goldReward += evaluationContext.evaluator.getGoldReward(target, hero);
 			evaluationContext.armyReward += evaluationContext.evaluator.getArmyReward(target, hero, army, checkGold);
@@ -1022,7 +1034,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		+ (evaluationContext.skillReward > 0 ? 1 : 0)
 		+ (evaluationContext.strategicalValue > 0 ? 1 : 0);
 
-	auto goldRewardPerTurn = evaluationContext.goldReward / std::log2f(evaluationContext.movementCost * 10);
+	float goldRewardPerTurn = evaluationContext.goldReward / std::log2f(2 + evaluationContext.movementCost * 10);
 	
 	double result = 0;
 
@@ -1055,13 +1067,13 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	}
 
 #if NKAI_TRACE_LEVEL >= 2
-	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %d, cost: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, result %f",
+	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %f, cost: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, result %f",
 		task->toString(),
 		evaluationContext.armyLossPersentage,
 		(int)evaluationContext.turn,
 		evaluationContext.movementCostByRole[HeroRole::MAIN],
 		evaluationContext.movementCostByRole[HeroRole::SCOUT],
-		evaluationContext.goldReward,
+		goldRewardPerTurn,
 		evaluationContext.goldCost,
 		evaluationContext.armyReward,
 		evaluationContext.danger,
