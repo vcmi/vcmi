@@ -384,8 +384,8 @@ void MovementAnimation::tick(uint32_t msPassed)
 	progress += float(msPassed) / 1000 * progressPerSecond;
 
 	//moving instructions
-	myAnim->pos.x = static_cast<Sint16>(begX + distanceX * progress );
-	myAnim->pos.y = static_cast<Sint16>(begY + distanceY * progress );
+	myAnim->pos.x = begX + distanceX * progress;
+	myAnim->pos.y = begY + distanceY * progress;
 
 	BattleAnimation::tick(msPassed);
 

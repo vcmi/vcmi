@@ -21,6 +21,8 @@
 #include "../gui/TextAlignment.h"
 #include "../gui/Shortcut.h"
 #include "../render/Canvas.h"
+#include "../render/IFont.h"
+#include "../render/Graphics.h"
 #include "../windows/CMessage.h"
 #include "../windows/InfoWindows.h"
 #include "../widgets/TextControls.h"

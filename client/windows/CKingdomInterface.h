@@ -12,6 +12,10 @@
 #include "../widgets/CWindowWithArtifacts.h"
 #include "CWindowObject.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+class CGObjectInstance;
+VCMI_LIB_NAMESPACE_END
+
 class CButton;
 class CAnimImage;
 class CToggleGroup;

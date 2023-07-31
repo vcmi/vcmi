@@ -14,6 +14,7 @@
 #include "../CPlayerInterface.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
+#include "../render/EFont.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../widgets/Images.h"

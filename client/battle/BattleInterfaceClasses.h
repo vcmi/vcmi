@@ -19,6 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
 struct BattleResult;
+struct InfoAboutHero;
 class CStack;
 
 namespace battle
@@ -28,6 +29,7 @@ class Unit;
 
 VCMI_LIB_NAMESPACE_END
 
+class CAnimation;
 class Canvas;
 class BattleInterface;
 class CPicture;

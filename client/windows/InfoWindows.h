@@ -15,6 +15,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class CGObjectInstance;
+class CGTownInstance;
+class CGHeroInstance;
 class CGGarrison;
 class Rect;
 

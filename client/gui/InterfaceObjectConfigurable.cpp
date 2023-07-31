@@ -185,7 +185,7 @@ ETextAlignment InterfaceObjectConfigurable::readTextAlignment(const JsonNode & c
 	return ETextAlignment::CENTER;
 }
 
-SDL_Color InterfaceObjectConfigurable::readColor(const JsonNode & config) const
+ColorRGBA InterfaceObjectConfigurable::readColor(const JsonNode & config) const
 {
 	logGlobal->debug("Reading color");
 	if(!config.isNull())

@@ -14,11 +14,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 class PlayerColor;
 class Rect;
 class Point;
+class ColorRGBA;
 
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
-struct SDL_Color;
 class ColorFilter;
 
 /// Defines which blit method will be selected when image is used for rendering
@@ -40,7 +40,7 @@ enum class EImageBlitMode : uint8_t
 class IImage
 {
 public:
-	using SpecialPalette = std::vector<SDL_Color>;
+	using SpecialPalette = std::vector<ColorRGBA>;
 	static constexpr int32_t SPECIAL_PALETTE_MASK_CREATURES = 0b11110011;
 
 	//draws image on surface "where" at position

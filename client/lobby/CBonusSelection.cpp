@@ -32,6 +32,7 @@
 #include "../windows/InfoWindows.h"
 #include "../render/IImage.h"
 #include "../render/CAnimation.h"
+#include "../render/Graphics.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"

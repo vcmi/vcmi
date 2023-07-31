@@ -327,7 +327,7 @@ void SDLImage::adjustPalette(const ColorFilter & shifter, uint32_t colorsToSkipM
 		if(i < std::numeric_limits<uint32_t>::digits && ((colorsToSkipMask >> i) & 1) == 1)
 			continue;
 
-		palette->colors[i] = shifter.shiftColor(originalPalette->colors[i]);
+		palette->colors[i] = CSDL_Ext::toSDL(shifter.shiftColor(CSDL_Ext::fromSDL(originalPalette->colors[i])));
 	}
 }
 
@@ -358,7 +358,7 @@ void SDLImage::setSpecialPallete(const IImage::SpecialPalette & specialPalette, 
 		for (size_t i = 0; i < last; ++i)
 		{
 			if(i < std::numeric_limits<uint32_t>::digits && ((colorsToSkipMask >> i) & 1) == 1)
-				surf->format->palette->colors[i] = specialPalette[i];
+				surf->format->palette->colors[i] = CSDL_Ext::toSDL(specialPalette[i]);
 		}
 	}
 }

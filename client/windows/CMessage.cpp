@@ -24,6 +24,8 @@
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
 #include "../render/Canvas.h"
+#include "../render/Graphics.h"
+#include "../render/IFont.h"
 #include "../renderSDL/SDL_Extensions.h"
 
 #include <SDL_surface.h>

@@ -304,9 +304,9 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	if(auto w = widget<CButton>("templateButton"))
 	{
 		if(tmpl)
-			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL);
+			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL, Colors::WHITE);
 		else
-			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL);
+			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
 	for(auto r : VLC->roadTypeHandler->objects)
 	{
@@ -324,9 +324,9 @@ void RandomMapTab::setTemplate(const CRmgTemplate * tmpl)
 	if(auto w = widget<CButton>("templateButton"))
 	{
 		if(tmpl)
-			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL);
+			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL, Colors::WHITE);
 		else
-			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL);
+			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
 	updateMapInfoByHost();
 }

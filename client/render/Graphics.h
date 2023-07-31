@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include "IFont.h"
 #include "../lib/GameConstants.h"
+#include "../lib/Color.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -27,13 +27,8 @@ class JsonNode;
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
-struct SDL_Color;
 class CAnimation;
-
-enum EFonts : int
-{
-	FONT_BIG, FONT_CALLI, FONT_CREDITS, FONT_HIGH_SCORE, FONT_MEDIUM, FONT_SMALL, FONT_TIMES, FONT_TINY, FONT_VERD
-};
+class IFont;
 
 /// Handles fonts, hero images, town images, various graphics
 class Graphics
@@ -52,11 +47,14 @@ public:
 	static const int FONTS_NUMBER = 9;
 	std::array< std::shared_ptr<IFont>, FONTS_NUMBER> fonts;
 
+	using PlayerPalette = std::array<ColorRGBA, 32>;
+
 	//various graphics
-	SDL_Color * playerColors; //array [8]
-	SDL_Color * neutralColor;
-	SDL_Color * playerColorPalette; //palette to make interface colors good - array of size [256]
-	SDL_Color * neutralColorPalette;
+	std::array<ColorRGBA, 8> playerColors;
+	std::array<PlayerPalette, 8> playerColorPalette; //palette to make interface colors good - array of size [256]
+
+	PlayerPalette neutralColorPalette;
+	ColorRGBA neutralColor;
 
 	std::map<std::string, JsonNode> imageLists;
 
@@ -67,7 +65,6 @@ public:
 
 	//functions
 	Graphics();
-	~Graphics();
 
 	void blueToPlayersAdv(SDL_Surface * sur, PlayerColor player); //replaces blue interface colour with a color of player
 };

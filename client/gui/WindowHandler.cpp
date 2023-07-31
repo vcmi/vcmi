@@ -105,7 +105,6 @@ void WindowHandler::totalRedraw()
 void WindowHandler::totalRedrawImpl()
 {
 	logGlobal->debug("totalRedraw requested!");
-	CSDL_Ext::fillSurface(screen2, Colors::BLACK);
 
 	Canvas target = Canvas::createFromSurface(screen2);
 

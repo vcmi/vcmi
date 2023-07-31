@@ -20,8 +20,9 @@
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Colors.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../render/Canvas.h"
+#include "../render/Graphics.h"
+#include "../renderSDL/SDL_Extensions.h"
 #include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"
@@ -30,25 +31,23 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMapDefines.h"
 
-#include <SDL_pixels.h>
-
 ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
 {
 	const TerrainTile * tile = LOCPLINT->cb->getTile(pos, false);
 
 	// if tile is not visible it will be black on minimap
 	if(!tile)
-		return CSDL_Ext::fromSDL(Colors::BLACK);
+		return Colors::BLACK;
 
 	// if object at tile is owned - it will be colored as its owner
 	for (const CGObjectInstance *obj : tile->blockingObjects)
 	{
 		PlayerColor player = obj->getOwner();
 		if(player == PlayerColor::NEUTRAL)
-			return CSDL_Ext::fromSDL(*graphics->neutralColor);
+			return graphics->neutralColor;
 
 		if (player < PlayerColor::PLAYER_LIMIT)
-			return CSDL_Ext::fromSDL(graphics->playerColors[player.getNum()]);
+			return graphics->playerColors[player.getNum()];
 	}
 
 	if (tile->blocked && (!tile->visitable))
@@ -185,7 +184,7 @@ void CMinimap::showAll(Canvas & to)
 		};
 
 		Canvas clippedTarget(to, pos);
-		clippedTarget.drawBorderDashed(radar, CSDL_Ext::fromSDL(Colors::PURPLE));
+		clippedTarget.drawBorderDashed(radar, Colors::PURPLE);
 	}
 }
 

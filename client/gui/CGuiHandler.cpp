@@ -21,6 +21,9 @@
 
 #include "../CGameInfo.h"
 #include "../render/Colors.h"
+#include "../render/Graphics.h"
+#include "../render/IFont.h"
+#include "../render/EFont.h"
 #include "../renderSDL/ScreenHandler.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"

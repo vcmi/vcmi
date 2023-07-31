@@ -16,6 +16,8 @@
 #include "../render/Colors.h"
 #include "../CMT.h"
 
+#include "../../lib/GameConstants.h"
+
 #include <SDL_render.h>
 
 Rect CSDL_Ext::fromSDL(const SDL_Rect & rect)
@@ -506,16 +508,18 @@ void CSDL_Ext::drawBorder( SDL_Surface * sur, const Rect &r, const SDL_Color &co
 	drawBorder(sur, r.x, r.y, r.w, r.h, color, depth);
 }
 
-void CSDL_Ext::setPlayerColor(SDL_Surface * sur, PlayerColor player)
+void CSDL_Ext::setPlayerColor(SDL_Surface * sur, const PlayerColor & player)
 {
 	if(player==PlayerColor::UNFLAGGABLE)
 		return;
 	if(sur->format->BitsPerPixel==8)
 	{
-		SDL_Color *color = (player == PlayerColor::NEUTRAL
+		ColorRGBA color = (player == PlayerColor::NEUTRAL
 							? graphics->neutralColor
-							: &graphics->playerColors[player.getNum()]);
-		CSDL_Ext::setColors(sur, color, 5, 1);
+							: graphics->playerColors[player.getNum()]);
+
+		SDL_Color colorSDL = toSDL(color);
+		CSDL_Ext::setColors(sur, &colorSDL, 5, 1);
 	}
 	else
 		logGlobal->warn("Warning, setPlayerColor called on not 8bpp surface!");
@@ -582,22 +586,6 @@ bool CSDL_Ext::isTransparent( SDL_Surface * srf, int x, int y )
 	bool pixelCyan = (color.r == 0 && color.g == 255 && color.b == 255);
 
 	return pixelTransparent || pixelCyan;
-}
-
-void CSDL_Ext::VflipSurf(SDL_Surface * surf)
-{
-	char buf[4]; //buffer
-	int bpp = surf->format->BytesPerPixel;
-	for (int y=0; y<surf->h; ++y)
-	{
-		char * base = (char*)surf->pixels + y * surf->pitch;
-		for (int x=0; x<surf->w/2; ++x)
-		{
-			memcpy(buf, base  + x * bpp, bpp);
-			memcpy(base + x * bpp, base + (surf->w - x - 1) * bpp, bpp);
-			memcpy(base + (surf->w - x - 1) * bpp, buf, bpp);
-		}
-	}
 }
 
 void CSDL_Ext::putPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const uint8_t & R, const uint8_t & G, const uint8_t & B, uint8_t A)
@@ -808,12 +796,6 @@ void CSDL_Ext::fillRect( SDL_Surface *dst, const Rect & dstrect, const SDL_Color
 	SDL_FillRect(dst, &newRect, sdlColor);
 }
 
-SDL_Color CSDL_Ext::makeColor(ui8 r, ui8 g, ui8 b, ui8 a)
-{
-	SDL_Color ret = {r, g, b, a};
-	return ret;
-}
-
 STRONG_INLINE static uint32_t mapColor(SDL_Surface * surface, SDL_Color color)
 {
 	return SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a);
@@ -827,12 +809,12 @@ void CSDL_Ext::setColorKey(SDL_Surface * surface, SDL_Color color)
 
 void CSDL_Ext::setDefaultColorKey(SDL_Surface * surface)
 {
-	setColorKey(surface, Colors::DEFAULT_KEY_COLOR);
+	setColorKey(surface, toSDL(Colors::DEFAULT_KEY_COLOR));
 }
 
 void CSDL_Ext::setDefaultColorKeyPresize(SDL_Surface * surface)
 {
-	uint32_t key = mapColor(surface, Colors::DEFAULT_KEY_COLOR);
+	uint32_t key = mapColor(surface, toSDL(Colors::DEFAULT_KEY_COLOR));
 	auto & color = surface->format->palette->colors[key];
 
 	// set color key only if exactly such color was found

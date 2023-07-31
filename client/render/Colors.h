@@ -9,44 +9,44 @@
  */
 #pragma once
 
-struct SDL_Color;
+#include "../../lib/Color.h"
 
 /**
- * The colors class defines color constants of type SDL_Color.
+ * The colors class defines color constants of type ColorRGBA.
  */
 class Colors
 {
 public:
 	/** the h3 yellow color, typically used for headlines */
-	static const SDL_Color YELLOW;
+	static const ColorRGBA YELLOW;
 
 	/** the standard h3 white color */
-	static const SDL_Color WHITE;
+	static const ColorRGBA WHITE;
 
 	/** the metallic gold color used mostly as a border around buttons */
-	static const SDL_Color METALLIC_GOLD;
+	static const ColorRGBA METALLIC_GOLD;
 
 	/** green color used for in-game console */
-	static const SDL_Color GREEN;
+	static const ColorRGBA GREEN;
 
 	/** the h3 orange color, used for blocked buttons */
-	static const SDL_Color ORANGE;
+	static const ColorRGBA ORANGE;
 
 	/** the h3 bright yellow color, used for selection border */
-	static const SDL_Color BRIGHT_YELLOW;
+	static const ColorRGBA BRIGHT_YELLOW;
 
 	/** default key color for all 8 & 24 bit graphics */
-	static const SDL_Color DEFAULT_KEY_COLOR;
+	static const ColorRGBA DEFAULT_KEY_COLOR;
 
 	/// Selected creature card
-	static const SDL_Color RED;
+	static const ColorRGBA RED;
 
 	/// Minimap border
-	static const SDL_Color PURPLE;
+	static const ColorRGBA PURPLE;
 
-	static const SDL_Color CYAN;
+	static const ColorRGBA CYAN;
 
-	static const SDL_Color BLACK;
+	static const ColorRGBA BLACK;
 
-	static const SDL_Color TRANSPARENCY;
+	static const ColorRGBA TRANSPARENCY;
 };

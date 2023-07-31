@@ -20,6 +20,7 @@
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../windows/InfoWindows.h"
+#include "../render/Colors.h"
 
 #include "../../CCallback.h"
 
@@ -53,7 +54,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 	};
 
 	buttonChat = std::make_shared<CButton>(Point(619, 80), "GSPBUT2.DEF", CGI->generaltexth->zelp[48], std::bind(&CLobbyScreen::toggleChat, this), EShortcut::LOBBY_HIDE_CHAT);
-	buttonChat->addTextOverlay(CGI->generaltexth->allTexts[532], FONT_SMALL);
+	buttonChat->addTextOverlay(CGI->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
 
 	switch(screenType)
 	{
@@ -182,9 +183,9 @@ void CLobbyScreen::toggleChat()
 {
 	card->toggleChat();
 	if(card->showChat)
-		buttonChat->addTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL);
+		buttonChat->addTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL, Colors::WHITE);
 	else
-		buttonChat->addTextOverlay(CGI->generaltexth->allTexts[532], FONT_SMALL);
+		buttonChat->addTextOverlay(CGI->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
 }
 
 void CLobbyScreen::updateAfterStateChange()

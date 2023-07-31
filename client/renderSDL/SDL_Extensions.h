@@ -9,7 +9,6 @@
  */
 
 #pragma once
-#include "../../lib/GameConstants.h"
 #include "../../lib/Rect.h"
 #include "../../lib/Color.h"
 
@@ -22,6 +21,7 @@ struct SDL_Color;
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class PlayerColor;
 class Rect;
 class Point;
 
@@ -79,21 +79,19 @@ using TColorPutterAlpha = void (*)(uint8_t *&, const uint8_t &, const uint8_t &,
 	int blit8bppAlphaTo24bppT(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint); //blits 8 bpp surface with alpha channel to 24 bpp surface
 	int blit8bppAlphaTo24bpp(const SDL_Surface * src, const Rect & srcRect, SDL_Surface * dst, const Point & dstPoint); //blits 8 bpp surface with alpha channel to 24 bpp surface
 	uint32_t colorTouint32_t(const SDL_Color * color); //little endian only
-	SDL_Color makeColor(ui8 r, ui8 g, ui8 b, ui8 a);
 
 	void drawLine(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color1, const SDL_Color & color2);
 	void drawLineDashed(SDL_Surface * sur, const Point & from, const Point & dest, const SDL_Color & color);
 
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const SDL_Color & color, int depth = 1);
 	void drawBorder(SDL_Surface * sur, const Rect & r, const SDL_Color & color, int depth = 1);
-	void setPlayerColor(SDL_Surface * sur, PlayerColor player); //sets correct color of flags; -1 for neutral
+	void setPlayerColor(SDL_Surface * sur, const PlayerColor & player); //sets correct color of flags; -1 for neutral
 
 	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod); //creates new surface, with flags/format same as in surface given
 	SDL_Surface * newSurface(int w, int h); //creates new surface, with flags/format same as in screen surface
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
 	template<int bpp>
 	SDL_Surface * createSurfaceWithBpp(int width, int height); //create surface with give bits per pixels value
-	void VflipSurf(SDL_Surface * surf); //fluipis given surface by vertical axis
 
 	//scale surface to required size.
 	//nearest neighbour algorithm
