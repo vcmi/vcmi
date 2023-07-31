@@ -433,6 +433,10 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 	}
 
 	logNetwork->info("Thread listening for %s ended", c->toString());
+
+	// This method is inside thread that we want to reset
+	// Detach and remove our own thread from handler
+	c->handler->detach();
 	c->handler.reset();
 }
 

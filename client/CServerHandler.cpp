@@ -929,6 +929,9 @@ void CServerHandler::threadRunServer()
 
 void CServerHandler::onServerFinished()
 {
+	// This method is inside thread that we want to reset
+	// Detach and remove our own thread from handler
+	threadRunLocalServer->detach();
 	threadRunLocalServer.reset();
 	CSH->campaignServerRestartLock.setn(false);
 }

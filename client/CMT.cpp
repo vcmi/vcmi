@@ -351,13 +351,17 @@ int main(int argc, char * argv[])
 	{
 		session["testmap"].String() = vm["testmap"].as<std::string>();
 		session["onlyai"].Bool() = true;
-		std::thread(&CServerHandler::debugStartTest, CSH, session["testmap"].String(), false);
+		std::thread testThread(&CServerHandler::debugStartTest, CSH, session["testmap"].String(), false);
+
+		testThread.detach();
 	}
 	else if(vm.count("testsave"))
 	{
 		session["testsave"].String() = vm["testsave"].as<std::string>();
 		session["onlyai"].Bool() = true;
-		std::thread(&CServerHandler::debugStartTest, CSH, session["testsave"].String(), true);
+		std::thread testThread(&CServerHandler::debugStartTest, CSH, session["testsave"].String(), true);
+
+		testThread.detach();
 	}
 	else
 	{
