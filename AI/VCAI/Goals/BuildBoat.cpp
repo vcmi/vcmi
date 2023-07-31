@@ -13,10 +13,6 @@
 #include "../FuzzyHelper.h"
 #include "../AIhelper.h"
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
-
 using namespace Goals;
 
 bool BuildBoat::operator==(const BuildBoat & other) const

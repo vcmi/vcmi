@@ -51,3 +51,5 @@ public:
 	ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor, const VCAI * ai);
 	ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor);
 };
+
+extern FuzzyHelper * fh;

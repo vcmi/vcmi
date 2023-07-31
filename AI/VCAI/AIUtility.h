@@ -18,6 +18,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../CCallback.h"
 
+class VCAI;
 class CCallback;
 struct creInfo;
 
@@ -33,7 +34,8 @@ const int ALLOWED_ROAMING_HEROES = 8;
 extern const double SAFE_ATTACK_CONSTANT;
 extern const int GOLD_RESERVE;
 
-extern boost::thread_specific_ptr<CCallback> cb;
+extern thread_local CCallback * cb;
+extern thread_local VCAI * ai;
 
 //provisional class for AI to store a reference to an owned hero object
 //checks if it's valid on access, should be used in place of const CGHeroInstance*
@@ -192,7 +194,7 @@ void foreach_tile_pos(CCallback * cbp, const Func & foo) // avoid costly retriev
 template<class Func>
 void foreach_neighbour(const int3 & pos, const Func & foo)
 {
-	CCallback * cbp = cb.get(); // avoid costly retrieval of thread-specific pointer
+	CCallback * cbp = cb; // avoid costly retrieval of thread-specific pointer
 	for(const int3 & dir : int3::getDirs())
 	{
 		const int3 n = pos + dir;

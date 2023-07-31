@@ -24,9 +24,6 @@
 namespace NKAI
 {
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
-
 using namespace Goals;
 
 #if NKAI_TRACE_LEVEL >= 1
@@ -341,7 +338,7 @@ void Nullkiller::executeTask(Goals::TTask task)
 
 	try
 	{
-		task->accept(ai.get());
+		task->accept(ai);
 		logAi->trace("Task %s completed in %lld", taskDescr, timeElapsed(start));
 	}
 	catch(goalFulfilledException &)

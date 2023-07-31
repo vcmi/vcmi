@@ -14,10 +14,6 @@
 #include "../VCAI.h"
 #include "../AIUtility.h"
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
-
 using namespace Goals;
 
 bool FindObj::operator==(const FindObj & other) const

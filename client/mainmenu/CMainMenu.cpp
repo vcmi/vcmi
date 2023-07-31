@@ -562,7 +562,9 @@ void CSimpleJoinScreen::startConnectThread(const std::string & addr, ui16 port)
 	// https://github.com/libsdl-org/SDL/blob/main/docs/README-android.md#threads-and-the-java-vm
 	CVCMIServer::reuseClientJNIEnv(SDL_AndroidGetJNIEnv());
 #endif
-	boost::thread(&CSimpleJoinScreen::connectThread, this, addr, port);
+	boost::thread connector(&CSimpleJoinScreen::connectThread, this, addr, port);
+
+	connector.detach();
 }
 
 void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
