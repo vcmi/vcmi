@@ -32,8 +32,8 @@ public:
     void drawRoads(CRandomGenerator & generator, std::vector<int3> & tiles, RoadId roadType);
 
 private:
-    mutable boost::shared_mutex mx;
-    using Lock = boost::unique_lock<boost::shared_mutex>;
+    mutable std::shared_mutex mx;
+    using Lock = std::unique_lock<std::shared_mutex>;
 
     RmgMap & map;
 };

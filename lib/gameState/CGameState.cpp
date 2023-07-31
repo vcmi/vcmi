@@ -48,7 +48,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-boost::shared_mutex CGameState::mutex;
+std::shared_mutex CGameState::mutex;
 
 template <typename T> class CApplyOnGS;
 
@@ -70,7 +70,7 @@ public:
 	{
 		T *ptr = static_cast<T*>(pack);
 
-		boost::unique_lock<boost::shared_mutex> lock(CGameState::mutex);
+		std::unique_lock<std::shared_mutex> lock(CGameState::mutex);
 		ptr->applyGs(gs);
 	}
 };

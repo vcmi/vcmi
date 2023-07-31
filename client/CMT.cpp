@@ -51,8 +51,6 @@
 namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 
-extern boost::thread_specific_ptr<bool> inGuiThread;
-
 static po::variables_map vm;
 
 #ifndef VCMI_IOS
@@ -302,7 +300,7 @@ int main(int argc, char * argv[])
 
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
-	boost::thread loading(init);
+	std::thread loading(init);
 #else
 	init();
 #endif
@@ -353,13 +351,13 @@ int main(int argc, char * argv[])
 	{
 		session["testmap"].String() = vm["testmap"].as<std::string>();
 		session["onlyai"].Bool() = true;
-		boost::thread(&CServerHandler::debugStartTest, CSH, session["testmap"].String(), false);
+		std::thread(&CServerHandler::debugStartTest, CSH, session["testmap"].String(), false);
 	}
 	else if(vm.count("testsave"))
 	{
 		session["testsave"].String() = vm["testsave"].as<std::string>();
 		session["onlyai"].Bool() = true;
-		boost::thread(&CServerHandler::debugStartTest, CSH, session["testsave"].String(), true);
+		std::thread(&CServerHandler::debugStartTest, CSH, session["testsave"].String(), true);
 	}
 	else
 	{
@@ -416,7 +414,7 @@ int main(int argc, char * argv[])
 	else
 	{
 		while(true)
-			boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 
 	return 0;
@@ -434,8 +432,6 @@ void playIntro()
 
 static void mainLoop()
 {
-	inGuiThread.reset(new bool(true));
-
 	while(1) //main SDL events loop
 	{
 		GH.input().fetchEvents();
@@ -475,7 +471,7 @@ static void quitApplication()
 
 	vstd::clear_pointer(console);// should be removed after everything else since used by logging
 
-	boost::this_thread::sleep(boost::posix_time::milliseconds(750));//???
+	std::this_thread::sleep_for(std::chrono::milliseconds(750));//???
 
 	if(!settings["session"]["headless"].Bool())
 		GH.screenHandler().close();

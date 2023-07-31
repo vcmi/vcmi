@@ -25,7 +25,7 @@ namespace NKAI
 {
 
 std::shared_ptr<boost::multi_array<AIPathNode, 5>> AISharedStorage::shared;
-boost::mutex AISharedStorage::locker;
+std::mutex AISharedStorage::locker;
 std::set<int3> commitedTiles;
 std::set<int3> commitedTilesInitial;
 
@@ -516,7 +516,7 @@ bool AINodeStorage::calculateHeroChain()
 
 	if(data.size() > 100)
 	{
-		boost::mutex resultMutex;
+		std::mutex resultMutex;
 
 		std::shuffle(data.begin(), data.end(), randomEngine);
 
@@ -528,7 +528,7 @@ bool AINodeStorage::calculateHeroChain()
 			task.execute(r);
 
 			{
-				boost::lock_guard<boost::mutex> resultLock(resultMutex);
+				std::lock_guard<std::mutex> resultLock(resultMutex);
 
 				task.flushResult(heroChain);
 			}

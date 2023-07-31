@@ -71,7 +71,7 @@ void ClientCommandManager::handleGoSoloCommand()
 {
 	Settings session = settings.write["session"];
 
-	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+	std::unique_lock<std::recursive_mutex> un(*CPlayerInterface::pim);
 	if(!CSH->client)
 	{
 		printCommandMessage("Game is not in playing state");
@@ -117,7 +117,7 @@ void ClientCommandManager::handleControlaiCommand(std::istringstream& singleWord
 	singleWordBuffer >> colorName;
 	boost::to_lower(colorName);
 
-	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+	std::unique_lock<std::recursive_mutex> un(*CPlayerInterface::pim);
 	if(!CSH->client)
 	{
 		printCommandMessage("Game is not in playing state");
@@ -456,7 +456,7 @@ void ClientCommandManager::printCommandMessage(const std::string &commandMessage
 
 	if(currentCallFromIngameConsole)
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+		std::unique_lock<std::recursive_mutex> un(*CPlayerInterface::pim);
 		if(LOCPLINT && LOCPLINT->cingconsole)
 		{
 			LOCPLINT->cingconsole->print(commandMessage);

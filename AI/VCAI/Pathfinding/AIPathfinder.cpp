@@ -85,7 +85,7 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 	}
 
 	int threadsCount = std::min(
-		boost::thread::hardware_concurrency(),
+		std::thread::hardware_concurrency(),
 		(uint32_t)calculationTasks.size());
 
 	if(threadsCount <= 1)

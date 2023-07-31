@@ -27,22 +27,25 @@ CThreadHelper::CThreadHelper(std::vector<std::function<void()>> * Tasks, int Thr
 	threads(Threads)
 {
 }
+
 void CThreadHelper::run()
 {
-	boost::thread_group grupa;
-	for(int i=0;i<threads;i++)
-		grupa.create_thread(std::bind(&CThreadHelper::processTasks,this));
-	grupa.join_all();
+	std::vector<std::thread> threadPool;
 
-	//thread group deletes threads, do not free manually
+	for(int i=0;i<threads;i++)
+		threadPool.emplace_back(std::bind(&CThreadHelper::processTasks,this));
+
+	for (auto & thread : threadPool)
+		thread.join();
 }
+
 void CThreadHelper::processTasks()
 {
 	while(true)
 	{
 		int pom;
 		{
-			boost::unique_lock<boost::mutex> lock(rtinm);
+			std::unique_lock<std::mutex> lock(rtinm);
 			if((pom = currentTask) >= amount)
 				break;
 			else

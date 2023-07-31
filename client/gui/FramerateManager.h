@@ -12,7 +12,7 @@
 /// Framerate manager controls current game frame rate by constantly trying to reach targeted frame rate
 class FramerateManager
 {
-	using Clock = boost::chrono::high_resolution_clock;
+	using Clock = std::chrono::high_resolution_clock;
 	using TimePoint = Clock::time_point;
 	using Duration = Clock::duration;
 

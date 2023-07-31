@@ -119,7 +119,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 	if (CBonusSystemNode::cachingEnabled && limitOnUs)
 	{
 		// Exclusive access for one thread
-		boost::lock_guard<boost::mutex> lock(sync);
+		std::lock_guard<std::mutex> lock(sync);
 
 		// If the bonus system tree changes(state of a single node or the relations to each other) then
 		// cache all bonus objects. Selector objects doesn't matter.

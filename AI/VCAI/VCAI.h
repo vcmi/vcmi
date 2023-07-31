@@ -36,8 +36,8 @@ class AIhelper;
 
 class AIStatus
 {
-	boost::mutex mx;
-	boost::condition_variable cv;
+	std::mutex mx;
+	std::condition_variable cv;
 
 	BattleState battle;
 	std::map<QueryID, std::string> remainingQueries;
@@ -115,9 +115,9 @@ public:
 
 	std::shared_ptr<CCallback> myCb;
 
-	std::unique_ptr<boost::thread> makingTurn;
+	std::unique_ptr<std::thread> makingTurn;
 private:
-	boost::mutex turnInterruptionMutex;
+	std::mutex turnInterruptionMutex;
 public:
 	ObjectInstanceID selectedObject;
 

@@ -72,7 +72,7 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 
 std::vector<SDL_Event> InputHandler::acquireEvents()
 {
-	boost::unique_lock<boost::mutex> lock(eventsMutex);
+	std::unique_lock<std::mutex> lock(eventsMutex);
 
 	std::vector<SDL_Event> result;
 	std::swap(result, eventsQueue);
@@ -93,7 +93,7 @@ bool InputHandler::ignoreEventsUntilInput()
 {
 	bool inputFound = false;
 
-	boost::unique_lock<boost::mutex> lock(eventsMutex);
+	std::unique_lock<std::mutex> lock(eventsMutex);
 	for(const auto & event : eventsQueue)
 	{
 		switch(event.type)
@@ -146,7 +146,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 		case SDL_WINDOWEVENT_RESTORED:
 #ifndef VCMI_IOS
 			{
-				boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
+				std::unique_lock<std::recursive_mutex> lock(*CPlayerInterface::pim);
 				GH.onScreenResize();
 			}
 #endif
@@ -170,7 +170,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	}
 
 	{
-		boost::unique_lock<boost::mutex> lock(eventsMutex);
+		std::unique_lock<std::mutex> lock(eventsMutex);
 
 		// In a sequence of motion events, skip all but the last one.
 		// This prevents freezes when every motion event takes longer to handle than interval at which

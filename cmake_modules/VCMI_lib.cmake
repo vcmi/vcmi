@@ -621,7 +621,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 	set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
 	target_link_libraries(${TARGET_NAME} PUBLIC
 		minizip::minizip ZLIB::ZLIB
-		${SYSTEM_LIBS} Boost::boost Boost::thread Boost::filesystem Boost::program_options Boost::locale Boost::date_time
+		${SYSTEM_LIBS} Boost::boost Boost::filesystem Boost::program_options Boost::locale Boost::date_time
 	)
 	if(APPLE_IOS)
 		target_link_libraries(${TARGET_NAME} PUBLIC iOS_utils)

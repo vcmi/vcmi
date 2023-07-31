@@ -19,7 +19,7 @@ struct Mix_Chunk;
 
 class CAudioBase {
 protected:
-	boost::mutex mutex;
+	std::mutex mutex;
 	bool initialized;
 	int volume;					// from 0 (mute) to 100
 

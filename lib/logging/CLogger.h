@@ -112,7 +112,7 @@ struct DLL_LINKAGE LogRecord
 		level(level),
 		message(message),
 		timeStamp(boost::posix_time::microsec_clock::local_time()),
-		threadId(boost::lexical_cast<std::string>(boost::this_thread::get_id())) { }
+		threadId(boost::lexical_cast<std::string>(std::this_thread::get_id())) { }
 
 	CLoggerDomain domain;
 	ELogLevel::ELogLevel level;

@@ -76,7 +76,7 @@ class CServerHandler : public IServerAPI, public LobbyInfo
 {
 	std::shared_ptr<CApplier<CBaseForLobbyApply>> applier;
 
-	std::shared_ptr<boost::recursive_mutex> mx;
+	std::shared_ptr<std::recursive_mutex> mx;
 	std::list<CPackForLobby *> packsForLobbyScreen; //protected by mx
 
 	std::vector<std::string> myNames;
@@ -99,7 +99,7 @@ public:
 	////////////////////
 
 	std::unique_ptr<CStopWatch> th;
-	std::shared_ptr<boost::thread> threadRunLocalServer;
+	std::shared_ptr<std::thread> threadRunLocalServer;
 
 	std::shared_ptr<CConnection> c;
 	CClient * client;

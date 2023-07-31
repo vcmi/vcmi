@@ -15,8 +15,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 template <typename T> struct CondSh
 {
 	T data;
-	boost::condition_variable cond;
-	boost::mutex mx;
+	std::condition_variable cond;
+	std::mutex mx;
 
 	CondSh() : data(T()) {}
 
@@ -25,7 +25,7 @@ template <typename T> struct CondSh
 	// set data
 	void set(T t)
 	{
-		boost::unique_lock<boost::mutex> lock(mx);
+		std::unique_lock<std::mutex> lock(mx);
 		data = t;
 	}
 
@@ -39,14 +39,14 @@ template <typename T> struct CondSh
 	// get stored value
 	T get()
 	{
-		boost::unique_lock<boost::mutex> lock(mx);
+		std::unique_lock<std::mutex> lock(mx);
 		return data;
 	}
 
 	// waits until data is set to false
 	void waitWhileTrue()
 	{
-		boost::unique_lock<boost::mutex> un(mx);
+		std::unique_lock<std::mutex> un(mx);
 		while(data)
 			cond.wait(un);
 	}
@@ -54,7 +54,7 @@ template <typename T> struct CondSh
 	// waits while data is set to arg
 	void waitWhile(const T & t)
 	{
-		boost::unique_lock<boost::mutex> un(mx);
+		std::unique_lock<std::mutex> un(mx);
 		while(data == t)
 			cond.wait(un);
 	}
@@ -62,7 +62,7 @@ template <typename T> struct CondSh
 	// waits until data is set to arg
 	void waitUntil(const T & t)
 	{
-		boost::unique_lock<boost::mutex> un(mx);
+		std::unique_lock<std::mutex> un(mx);
 		while(data != t)
 			cond.wait(un);
 	}

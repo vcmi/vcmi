@@ -108,10 +108,12 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <cassert>
 #include <climits>
 #include <cmath>
+#include <condition_variable>
 #include <cstdlib>
 #include <cstdio>
 #include <fstream>
 #include <functional>
+#include <future>
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -121,8 +123,10 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <queue>
 #include <random>
 #include <set>
+#include <shared_mutex>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -132,12 +136,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/version.hpp>
 
 #define BOOST_FILESYSTEM_VERSION 3
-#if BOOST_VERSION > 105000
-#  define BOOST_THREAD_VERSION 3
-#endif
-#define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1
-//need to link boost thread dynamically to avoid https://stackoverflow.com/questions/35978572/boost-thread-interupt-does-not-work-when-crossing-a-dll-boundary
-#define BOOST_THREAD_USE_DLL //for example VCAI::finish() may freeze on thread join after interrupt when linking this statically
 #define BOOST_BIND_NO_PLACEHOLDERS
 
 #if BOOST_VERSION >= 106600
@@ -163,7 +161,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/range/algorithm.hpp>
-#include <boost/thread.hpp>
 
 #ifndef M_PI
 #  define M_PI 3.14159265358979323846
@@ -664,6 +661,21 @@ namespace vstd
 	template< class Enum > constexpr std::underlying_type_t<Enum> to_underlying( Enum e ) noexcept
 	{
 		return static_cast<std::underlying_type_t<Enum>>(e);
+	}
+
+	class ThreadInterrupted : public std::exception
+	{
+
+	};
+
+	inline void interruptThread(std::thread & thread)
+	{
+
+	}
+
+	inline void interruptionPoint()
+	{
+
 	}
 }
 using vstd::operator-=;

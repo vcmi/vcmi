@@ -165,7 +165,7 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientDisconnected(Lobb
 {
 	if(pack.c && pack.c->isOpen())
 	{
-		boost::unique_lock<boost::mutex> lock(*pack.c->mutexWrite);
+		std::unique_lock<std::mutex> lock(*pack.c->mutexWrite);
 		pack.c->close();
 		pack.c->connected = false;
 	}
@@ -265,7 +265,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyEndGame(LobbyEndGame & pack)
 {
-	boost::unique_lock<boost::mutex> stateLock(srv.stateMutex);
+	std::unique_lock<std::mutex> stateLock(srv.stateMutex);
 	for(auto & c : srv.connections)
 	{
 		c->enterLobbyConnectionMode();

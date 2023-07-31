@@ -74,9 +74,9 @@ class DLL_LINKAGE CTypeList: public boost::noncopyable
 		const char *name;
 		std::vector<WeakTypeInfoPtr> children, parents;
 	};
-	using TMutex = boost::shared_mutex;
-	using TUniqueLock = boost::unique_lock<TMutex>;
-	using TSharedLock = boost::shared_lock<TMutex>;
+	using TMutex = std::shared_mutex;
+	using TUniqueLock = std::unique_lock<TMutex>;
+	using TSharedLock = std::shared_lock<TMutex>;
 
 private:
 	mutable TMutex mx;

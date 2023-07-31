@@ -35,7 +35,7 @@ const std::string & Modificator::getName() const
 
 bool Modificator::isReady()
 {
-	Lock lock(mx, boost::try_to_lock_t{});
+	Lock lock(mx, std::try_to_lock_t{});
 	if (!lock.owns_lock())
 	{
 		return false;
@@ -63,7 +63,7 @@ bool Modificator::isReady()
 
 bool Modificator::isFinished()
 {
-	Lock lock(mx, boost::try_to_lock_t{});
+	Lock lock(mx, std::try_to_lock_t{});
 	if (!lock.owns_lock())
 	{
 		return false;
@@ -119,7 +119,7 @@ void Modificator::postfunction(Modificator * modificator)
 
 void Modificator::dump()
 {
-	std::ofstream out(boost::to_string(boost::format("seed_%d_modzone_%d_%s.txt") % generator.getRandomSeed() % zone.getId() % getName()));
+	std::ofstream out(boost::str(boost::format("seed_%d_modzone_%d_%s.txt") % generator.getRandomSeed() % zone.getId() % getName()));
 	int levels = map.levels();
 	int width =  map.width();
 	int height = map.height();

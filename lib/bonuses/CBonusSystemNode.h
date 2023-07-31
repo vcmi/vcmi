@@ -48,7 +48,7 @@ private:
 	// This string needs to be unique, that's why it has to be setted in the following manner:
 	// [property key]_[value] => only for selector
 	mutable std::map<std::string, TBonusListPtr > cachedRequests;
-	mutable boost::mutex sync;
+	mutable std::mutex sync;
 
 	void getAllBonusesRec(BonusList &out, const CSelector & selector) const;
 	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr) const;

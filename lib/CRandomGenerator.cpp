@@ -13,8 +13,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-boost::thread_specific_ptr<CRandomGenerator> CRandomGenerator::defaultRand;
-
 CRandomGenerator::CRandomGenerator()
 {
 	resetSeed();
@@ -33,7 +31,7 @@ void CRandomGenerator::setSeed(int seed)
 void CRandomGenerator::resetSeed()
 {
 	boost::hash<std::string> stringHash;
-	auto threadIdHash = stringHash(boost::lexical_cast<std::string>(boost::this_thread::get_id()));
+	auto threadIdHash = stringHash(boost::lexical_cast<std::string>(std::this_thread::get_id()));
 	setSeed(static_cast<int>(threadIdHash * std::time(nullptr)));
 }
 
@@ -84,11 +82,8 @@ double CRandomGenerator::nextDouble()
 
 CRandomGenerator & CRandomGenerator::getDefault()
 {
-	if(!defaultRand.get())
-	{
-		defaultRand.reset(new CRandomGenerator());
-	}
-	return *defaultRand;
+	static thread_local CRandomGenerator defaultRand;
+	return defaultRand;
 }
 
 TGenerator & CRandomGenerator::getStdGenerator()

@@ -33,7 +33,7 @@
 
 CGuiHandler GH;
 
-boost::thread_specific_ptr<bool> inGuiThread;
+thread_local bool inGuiThread = false;
 
 SObjectConstruction::SObjectConstruction(CIntObject *obj)
 :myObj(obj)
@@ -66,6 +66,8 @@ SSetCaptureState::~SSetCaptureState()
 
 void CGuiHandler::init()
 {
+	inGuiThread = true;
+
 	inputHandlerInstance = std::make_unique<InputHandler>();
 	eventDispatcherInstance = std::make_unique<EventDispatcher>();
 	windowHandlerInstance = std::make_unique<WindowHandler>();
@@ -112,12 +114,12 @@ void CGuiHandler::renderFrame()
 
 	bool acquiredTheLockOnPim = false; //for tracking whether pim mutex locking succeeded
 	while(!terminate_cond->get() && !(acquiredTheLockOnPim = CPlayerInterface::pim->try_lock())) //try acquiring long until it succeeds or we are told to terminate
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
 	if(acquiredTheLockOnPim)
 	{
 		// If we are here, pim mutex has been successfully locked - let's store it in a safe RAII lock.
-		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim, boost::adopt_lock);
+		std::unique_lock<std::recursive_mutex> un(*CPlayerInterface::pim, std::adopt_lock);
 
 		if(nullptr != curInt)
 			curInt->update();
@@ -202,7 +204,7 @@ void CGuiHandler::drawFPSCounter()
 
 bool CGuiHandler::amIGuiThread()
 {
-	return inGuiThread.get() && *inGuiThread;
+	return inGuiThread;
 }
 
 void CGuiHandler::dispatchMainThread(const std::function<void()> & functor)

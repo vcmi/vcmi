@@ -14,7 +14,7 @@
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/serializer/Cast.h"
 
-boost::mutex Queries::mx;
+std::mutex Queries::mx;
 
 template <typename Container>
 std::string formatContainer(const Container & c, std::string delimeter = ", ", std::string opener = "(", std::string closer=")")
@@ -47,7 +47,7 @@ std::ostream & operator<<(std::ostream & out, QueryPtr query)
 CQuery::CQuery(Queries * Owner):
 	owner(Owner)
 {
-	boost::unique_lock<boost::mutex> l(Queries::mx);
+	std::unique_lock<std::mutex> l(Queries::mx);
 
 	static QueryID QID = QueryID(0);
 

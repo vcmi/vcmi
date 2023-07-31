@@ -81,7 +81,7 @@ public: // TODO: make private
 	//minor interfaces
 	CondSh<bool> *showingDialog; //indicates if dialog box is displayed
 
-	static boost::recursive_mutex *pim;
+	static std::recursive_mutex *pim;
 	bool makingTurn; //if player is already making his turn
 
 	CCastleInterface * castleInt; //nullptr if castle window isn't opened

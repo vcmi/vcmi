@@ -80,11 +80,11 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 
 		do
 		{
-			boost::this_thread::interruption_point();
+			vstd::interruptionPoint();
 
 			while(storage->calculateHeroChain())
 			{
-				boost::this_thread::interruption_point();
+				vstd::interruptionPoint();
 
 				logAi->trace("Recalculate paths pass %d", pass++);
 				cb->calculatePaths(config);
@@ -93,11 +93,11 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 			logAi->trace("Select next actor");
 		} while(storage->selectNextActor());
 
-		boost::this_thread::interruption_point();
+		vstd::interruptionPoint();
 
 		if(storage->calculateHeroChainFinal())
 		{
-			boost::this_thread::interruption_point();
+			vstd::interruptionPoint();
 
 			logAi->trace("Recalculate paths pass final");
 			cb->calculatePaths(config);

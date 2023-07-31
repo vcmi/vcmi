@@ -341,9 +341,9 @@ void CMapGenerator::fillZones()
 	else
 	{
 		ThreadPool pool;
-		std::vector<boost::future<void>> futures;
+		std::vector<std::future<void>> futures;
 		//At most one Modificator can run for every zone
-		pool.init(std::min<int>(boost::thread::hardware_concurrency(), numZones));
+		pool.init(std::min<int>(std::thread::hardware_concurrency(), numZones));
 
 		while (!allJobs.empty())
 		{
@@ -421,7 +421,7 @@ int CMapGenerator::getNextMonlithIndex()
 	while (true)
 	{
 		if (monolithIndex >= VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
-			throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
+			throw rmgException(boost::str(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
 		else
 		{
 			//Skip modded Monoliths which can't beplaced on every terrain

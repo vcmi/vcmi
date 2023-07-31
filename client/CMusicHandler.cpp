@@ -268,7 +268,7 @@ int CSoundHandler::ambientGetRange() const
 
 void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> soundsArg)
 {
-	boost::mutex::scoped_lock guard(mutex);
+	std::scoped_lock guard(mutex);
 
 	std::vector<std::string> stoppedSounds;
 	for(auto & pair : ambientChannels)
@@ -313,7 +313,7 @@ void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> soundsArg)
 
 void CSoundHandler::ambientStopAllChannels()
 {
-	boost::mutex::scoped_lock guard(mutex);
+	std::scoped_lock guard(mutex);
 
 	for(auto ch : ambientChannels)
 	{
@@ -385,7 +385,7 @@ void CMusicHandler::release()
 {
 	if (initialized)
 	{
-		boost::mutex::scoped_lock guard(mutex);
+		std::scoped_lock guard(mutex);
 
 		Mix_HookMusicFinished(nullptr);
 		current->stop();
@@ -399,7 +399,7 @@ void CMusicHandler::release()
 
 void CMusicHandler::playMusic(const std::string & musicURI, bool loop, bool fromStart)
 {
-	boost::mutex::scoped_lock guard(mutex);
+	std::scoped_lock guard(mutex);
 
 	if (current && current->isPlaying() && current->isTrack(musicURI))
 		return;
@@ -414,7 +414,7 @@ void CMusicHandler::playMusicFromSet(const std::string & musicSet, const std::st
 
 void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop, bool fromStart)
 {
-	boost::mutex::scoped_lock guard(mutex);
+	std::scoped_lock guard(mutex);
 
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
@@ -454,7 +454,7 @@ void CMusicHandler::stopMusic(int fade_ms)
 	if (!initialized)
 		return;
 
-	boost::mutex::scoped_lock guard(mutex);
+	std::scoped_lock guard(mutex);
 
 	if (current.get() != nullptr)
 		current->stop(fade_ms);
@@ -471,7 +471,7 @@ void CMusicHandler::setVolume(ui32 percent)
 
 void CMusicHandler::musicFinishedCallback()
 {
-	// boost::mutex::scoped_lock guard(mutex);
+	// std::scoped_lock guard(mutex);
 	// FIXME: WORKAROUND FOR A POTENTIAL DEADLOCK
 	// It is possible for:
 	// 1) SDL thread to call this method on end of playback

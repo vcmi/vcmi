@@ -216,7 +216,7 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 	ExchangeResult result;
 
 	{
-		boost::shared_lock<boost::shared_mutex> lock(sync, boost::try_to_lock);
+		std::shared_lock<std::shared_mutex> lock(sync, std::try_to_lock);
 
 		if(!lock.owns_lock())
 		{
@@ -236,7 +236,7 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 	}
 
 	{
-		boost::unique_lock<boost::shared_mutex> uniqueLock(sync, boost::try_to_lock);
+		std::unique_lock<std::shared_mutex> uniqueLock(sync, std::try_to_lock);
 
 		if(!uniqueLock.owns_lock())
 		{

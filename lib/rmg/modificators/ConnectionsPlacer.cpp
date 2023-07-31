@@ -44,8 +44,8 @@ void ConnectionsPlacer::process()
 
 			while (cp)
 			{
-				RecursiveLock lock1(externalAccessMutex, boost::try_to_lock_t{});
-				RecursiveLock lock2(cp->externalAccessMutex, boost::try_to_lock_t{});
+				RecursiveLock lock1(externalAccessMutex, std::try_to_lock_t{});
+				RecursiveLock lock2(cp->externalAccessMutex, std::try_to_lock_t{});
 				if (lock1.owns_lock() && lock2.owns_lock())
 				{
 					if (!vstd::contains(dCompleted, c))

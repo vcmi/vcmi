@@ -74,7 +74,7 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TTaskVec & tasks) const
 
 Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositionMaxDepth) const
 {
-	boost::this_thread::interruption_point();
+	vstd::interruptionPoint();
 
 	logAi->debug("Checking behavior %s", behavior->toString());
 
@@ -83,7 +83,7 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositi
 	Goals::TGoalVec elementarGoals = decomposer->decompose(behavior, decompositionMaxDepth);
 	Goals::TTaskVec tasks;
 
-	boost::this_thread::interruption_point();
+	vstd::interruptionPoint();
 	
 	for(auto goal : elementarGoals)
 	{
@@ -126,7 +126,7 @@ void Nullkiller::resetAiState()
 
 void Nullkiller::updateAiState(int pass, bool fast)
 {
-	boost::this_thread::interruption_point();
+	vstd::interruptionPoint();
 
 	auto start = std::chrono::high_resolution_clock::now();
 
@@ -139,7 +139,7 @@ void Nullkiller::updateAiState(int pass, bool fast)
 
 		dangerHitMap->updateHitMap();
 
-		boost::this_thread::interruption_point();
+		vstd::interruptionPoint();
 
 		heroManager->update();
 		logAi->trace("Updating paths");
@@ -163,11 +163,11 @@ void Nullkiller::updateAiState(int pass, bool fast)
 			cfg.mainTurnDistanceLimit = MAIN_TURN_DISTANCE_LIMIT * ((int)scanDepth + 1);
 		}
 
-		boost::this_thread::interruption_point();
+		vstd::interruptionPoint();
 
 		pathfinder->updatePaths(activeHeroes, cfg);
 
-		boost::this_thread::interruption_point();
+		vstd::interruptionPoint();
 
 		objectClusterizer->clusterize();
 	}
@@ -219,7 +219,7 @@ HeroLockedReason Nullkiller::getHeroLockedReason(const CGHeroInstance * hero) co
 
 void Nullkiller::makeTurn()
 {
-	boost::lock_guard<boost::mutex> sharedStorageLock(AISharedStorage::locker);
+	std::lock_guard<std::mutex> sharedStorageLock(AISharedStorage::locker);
 
 	const int MAX_DEPTH = 10;
 	const float FAST_TASK_MINIMAL_PRIORITY = 0.7;
@@ -302,7 +302,7 @@ void Nullkiller::executeTask(Goals::TTask task)
 	auto start = std::chrono::high_resolution_clock::now();
 	std::string taskDescr = task->toString();
 
-	boost::this_thread::interruption_point();
+	vstd::interruptionPoint();
 	logAi->debug("Trying to realize %s (value %2.3f)", taskDescr, task->priority);
 
 	try

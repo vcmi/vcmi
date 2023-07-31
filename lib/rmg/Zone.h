@@ -88,8 +88,8 @@ public:
 	
 	CRandomGenerator & getRand();
 public:
-	boost::recursive_mutex areaMutex;
-	using Lock = boost::unique_lock<boost::recursive_mutex>;
+	std::recursive_mutex areaMutex;
+	using Lock = std::unique_lock<std::recursive_mutex>;
 	
 protected:
 	CMapGenerator & generator;

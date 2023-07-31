@@ -67,8 +67,8 @@ class PlayerStatuses
 {
 public:
 	std::map<PlayerColor,PlayerStatus> players;
-	boost::mutex mx;
-	boost::condition_variable cv; //notifies when any changes are made
+	std::mutex mx;
+	std::condition_variable cv; //notifies when any changes are made
 
 	void addPlayer(PlayerColor player);
 	PlayerStatus operator[](PlayerColor player);
@@ -99,7 +99,7 @@ class CGameHandler : public IGameCallback, public CBattleInfoCallback, public En
 {
 	CVCMIServer * lobby;
 	std::shared_ptr<CApplier<CBaseForGHApply>> applier;
-	std::unique_ptr<boost::thread> battleThread;
+	std::unique_ptr<std::thread> battleThread;
 
 public:
 	std::unique_ptr<HeroPoolProcessor> heroPool;
@@ -116,7 +116,7 @@ public:
 	PlayerStatuses states; //player color -> player state
 
 	//queries stuff
-	boost::recursive_mutex gsm;
+	std::recursive_mutex gsm;
 	ui32 QID;
 	Queries queries;
 

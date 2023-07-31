@@ -66,10 +66,6 @@
 #include <vcmi/events/GenericEvents.h>
 #include <vcmi/events/AdventureEvents.h>
 
-#ifndef _MSC_VER
-#include <boost/thread/xtime.hpp>
-#endif
-
 #define COMPLAIN_RET_IF(cond, txt) do {if (cond){complain(txt); return;}} while(0)
 #define COMPLAIN_RET_FALSE_IF(cond, txt) do {if (cond){complain(txt); return false;}} while(0)
 #define COMPLAIN_RET(txt) {complain(txt); return false;}
@@ -220,7 +216,7 @@ static void summonGuardiansHelper(std::vector<BattleHex> & output, const BattleH
 
 PlayerStatus PlayerStatuses::operator[](PlayerColor player)
 {
-	boost::unique_lock<boost::mutex> l(mx);
+	std::unique_lock<std::mutex> l(mx);
 	if (players.find(player) != players.end())
 	{
 		return players.at(player);
@@ -232,13 +228,13 @@ PlayerStatus PlayerStatuses::operator[](PlayerColor player)
 }
 void PlayerStatuses::addPlayer(PlayerColor player)
 {
-	boost::unique_lock<boost::mutex> l(mx);
+	std::unique_lock<std::mutex> l(mx);
 	players[player];
 }
 
 bool PlayerStatuses::checkFlag(PlayerColor player, bool PlayerStatus::*flag)
 {
-	boost::unique_lock<boost::mutex> l(mx);
+	std::unique_lock<std::mutex> l(mx);
 	if (players.find(player) != players.end())
 	{
 		return players[player].*flag;
@@ -251,7 +247,7 @@ bool PlayerStatuses::checkFlag(PlayerColor player, bool PlayerStatus::*flag)
 
 void PlayerStatuses::setFlag(PlayerColor player, bool PlayerStatus::*flag, bool val)
 {
-	boost::unique_lock<boost::mutex> l(mx);
+	std::unique_lock<std::mutex> l(mx);
 	if (players.find(player) != players.end())
 	{
 		players[player].*flag = val;
@@ -1983,7 +1979,6 @@ void CGameHandler::run(bool resume)
 {
 	LOG_TRACE_PARAMS(logGlobal, "resume=%d", resume);
 
-	using namespace boost::posix_time;
 	for (auto cc : lobby->connections)
 	{
 		auto players = lobby->getAllClientPlayers(cc->connectionID);
@@ -1993,7 +1988,7 @@ void CGameHandler::run(bool resume)
 		{
 			sbuffer << color << " ";
 			{
-				boost::unique_lock<boost::recursive_mutex> lock(gsm);
+				std::unique_lock<std::recursive_mutex> lock(gsm);
 				connections[color].insert(cc);
 			}
 		}
@@ -2064,11 +2059,10 @@ void CGameHandler::run(bool resume)
 			if(playerColor != PlayerColor::CANNOT_DETERMINE)
 			{
 				//wait till turn is done
-				boost::unique_lock<boost::mutex> lock(states.mx);
+				std::unique_lock<std::mutex> lock(states.mx);
 				while(states.players.at(playerColor).makingTurn && lobby->state == EServerState::GAMEPLAY)
 				{
-					static time_duration p = milliseconds(100);
-					states.cv.timed_wait(lock, p);
+					states.cv.wait_for(lock, std::chrono::milliseconds(100));
 				}
 			}
 		}
@@ -2621,7 +2615,7 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 	}
 	queries.addQuery(battleQuery);
 
-	this->battleThread = std::make_unique<boost::thread>(boost::thread(&CGameHandler::runBattle, this));
+	this->battleThread = std::make_unique<std::thread>(std::thread(&CGameHandler::runBattle, this));
 }
 
 void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank)
@@ -3659,7 +3653,7 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 	const CArmedInstance * obj = static_cast<const CArmedInstance *>(getObjInstance(objid));
 	if (!obj->hasStackAtSlot(pos))
 	{
-		COMPLAIN_RET("Cannot upgrade, no stack at slot " + boost::to_string(pos));
+		COMPLAIN_RET("Cannot upgrade, no stack at slot " + std::to_string(pos));
 	}
 	UpgradeInfo ui;
 	fillUpgradeInfo(obj, pos, ui);
@@ -4297,7 +4291,7 @@ bool CGameHandler::setFormation(ObjectInstanceID hid, ui8 formation)
 
 bool CGameHandler::queryReply(QueryID qid, const JsonNode & answer, PlayerColor player)
 {
-	boost::unique_lock<boost::recursive_mutex> lock(gsm);
+	std::unique_lock<std::recursive_mutex> lock(gsm);
 
 	logGlobal->trace("Player %s attempts answering query %d with answer:", player, qid);
 	logGlobal->trace(answer.toJson());
@@ -6053,7 +6047,7 @@ void CGameHandler::runBattle()
 	//tactic round
 	{
 		while ((lobby->state != EServerState::SHUTDOWN) && gs->curB->tacticDistance && !battleResult.get())
-			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 
 	//initial stacks appearance triggers, e.g. built-in bonus spells
@@ -6372,7 +6366,7 @@ void CGameHandler::runBattle()
 							return !next->alive();//active stack is dead
 						};
 
-						boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
+						std::unique_lock<std::mutex> lock(battleMadeAction.mx);
 						battleMadeAction.data = false;
 						while ((lobby->state != EServerState::SHUTDOWN) && !actionWasMade())
 						{
@@ -6515,7 +6509,7 @@ bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact
 
 void CGameHandler::setBattleResult(BattleResult::EResult resultType, int victoriusSide)
 {
-	boost::unique_lock<boost::mutex> guard(battleResult.mx);
+	std::unique_lock<std::mutex> guard(battleResult.mx);
 	if (battleResult.data)
 	{
 		complain((boost::format("The battle result has been already set (to %d, asked to %d)")

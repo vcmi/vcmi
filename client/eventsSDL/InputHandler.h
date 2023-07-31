@@ -25,7 +25,7 @@ class InputSourceText;
 class InputHandler
 {
 	std::vector<SDL_Event> eventsQueue;
-	boost::mutex eventsMutex;
+	std::mutex eventsMutex;
 
 	Point cursorPosition;
 

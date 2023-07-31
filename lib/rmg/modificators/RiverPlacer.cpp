@@ -387,7 +387,7 @@ void RiverPlacer::connectRiver(const int3 & tile)
 		if(tmplates.size() > 3)
 		{
 			if(tmplates.size() % 4 != 0)
-				throw rmgException(boost::to_string(boost::format("River templates for (%d,%d) at terrain %s, river %s are incorrect") %
+				throw rmgException(boost::str(boost::format("River templates for (%d,%d) at terrain %s, river %s are incorrect") %
 					RIVER_DELTA_ID % RIVER_DELTA_SUBTYPE % zone.getTerrainType() % river->shortIdentifier));
 			
 			std::string targetTemplateName = river->deltaName + std::to_string(deltaOrientations[pos]) + ".def";

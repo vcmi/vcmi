@@ -364,7 +364,7 @@ void CClient::endGame()
 
 	GH.curInt = nullptr;
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+		std::unique_lock<std::recursive_mutex> un(*CPlayerInterface::pim);
 		logNetwork->info("Ending current game!");
 		removeGUI();
 
@@ -496,7 +496,7 @@ std::string CClient::aiNameForPlayer(bool battleAI, bool alliedToHuman)
 
 void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, PlayerColor color, bool battlecb)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+	std::unique_lock<std::recursive_mutex> un(*CPlayerInterface::pim);
 
 	playerint[color] = gameInterface;
 
@@ -510,7 +510,7 @@ void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInte
 
 void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, PlayerColor color, bool needCallback)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+	std::unique_lock<std::recursive_mutex> un(*CPlayerInterface::pim);
 
 	battleints[color] = battleInterface;
 
@@ -528,7 +528,7 @@ void CClient::handlePack(CPack * pack)
 	CBaseForCLApply * apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier
 	if(apply)
 	{
-		boost::unique_lock<boost::recursive_mutex> guiLock(*CPlayerInterface::pim);
+		std::unique_lock<std::recursive_mutex> guiLock(*CPlayerInterface::pim);
 		apply->applyOnClBefore(this, pack);
 		logNetwork->trace("\tMade first apply on cl: %s", typeList.getTypeInfo(pack)->name());
 		gs->apply(pack);
@@ -613,7 +613,7 @@ void CClient::battleStarted(const BattleInfo * info)
 	{
 		if(att || def)
 		{
-			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+			std::unique_lock<std::recursive_mutex> un(*CPlayerInterface::pim);
 			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def);
 		}
 		else if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
@@ -621,7 +621,7 @@ void CClient::battleStarted(const BattleInfo * info)
 			//TODO: This certainly need improvement
 			auto spectratorInt = std::dynamic_pointer_cast<CPlayerInterface>(playerint[PlayerColor::SPECTATOR]);
 			spectratorInt->cb->setBattle(info);
-			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+			std::unique_lock<std::recursive_mutex> un(*CPlayerInterface::pim);
 			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def, spectratorInt);
 		}
 	}
@@ -664,14 +664,14 @@ void CClient::startPlayerBattleAction(PlayerColor color)
 
 void CClient::invalidatePaths()
 {
-	boost::unique_lock<boost::mutex> pathLock(pathCacheMutex);
+	std::unique_lock<std::mutex> pathLock(pathCacheMutex);
 	pathCache.clear();
 }
 
 std::shared_ptr<const CPathsInfo> CClient::getPathsInfo(const CGHeroInstance * h)
 {
 	assert(h);
-	boost::unique_lock<boost::mutex> pathLock(pathCacheMutex);
+	std::unique_lock<std::mutex> pathLock(pathCacheMutex);
 
 	auto iter = pathCache.find(h);
 

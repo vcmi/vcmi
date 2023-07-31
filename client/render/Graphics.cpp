@@ -135,7 +135,7 @@ Graphics::Graphics()
 	tasks += std::bind(&Graphics::loadErmuToPicture,this);
 	tasks += std::bind(&Graphics::initializeImageLists,this);
 
-	CThreadHelper th(&tasks,std::max((ui32)1,boost::thread::hardware_concurrency()));
+	CThreadHelper th(&tasks,std::max((ui32)1,std::thread::hardware_concurrency()));
 	th.run();
 	#else
 	loadFonts();

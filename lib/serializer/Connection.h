@@ -76,8 +76,8 @@ public:
 	BinaryDeserializer iser;
 	BinarySerializer oser;
 
-	std::shared_ptr<boost::mutex> mutexRead;
-	std::shared_ptr<boost::mutex> mutexWrite;
+	std::shared_ptr<std::mutex> mutexRead;
+	std::shared_ptr<std::mutex> mutexWrite;
 	std::shared_ptr<TSocket> socket;
 	bool connected;
 	bool myEndianess, contactEndianess; //true if little endian, if endianness is different we'll have to revert received multi-byte vars
@@ -86,7 +86,7 @@ public:
 	std::string uuid;
 
 	int connectionID;
-	std::shared_ptr<boost::thread> handler;
+	std::shared_ptr<std::thread> handler;
 
 	CConnection(const std::string & host, ui16 port, std::string Name, std::string UUID);
 	CConnection(const std::shared_ptr<TAcceptor> & acceptor, const std::shared_ptr<boost::asio::io_service> & Io_service, std::string Name, std::string UUID);

@@ -154,7 +154,7 @@ struct DLL_LINKAGE LobbyState
 
 struct DLL_LINKAGE LobbyInfo : public LobbyState
 {
-	boost::mutex stateMutex;
+	std::mutex stateMutex;
 	std::string uuid;
 
 	LobbyInfo() {}

@@ -24,7 +24,7 @@ private:
 	std::vector<TextState> texts;
 
 	/// protects texts
-	boost::mutex texts_mx;
+	std::mutex texts_mx;
 
 	/// previously entered texts, for up/down arrows to work
 	std::vector<std::string> previouslyEntered;

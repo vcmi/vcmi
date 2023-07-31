@@ -294,7 +294,7 @@ void CBattleAI::activeStack( const CStack * stack )
 
 		result = selectStackAction(stack);
 	}
-	catch(boost::thread_interrupted &)
+	catch(vstd::ThreadInterrupted &)
 	{
 		throw;
 	}
@@ -729,7 +729,7 @@ void CBattleAI::attemptCastingSpell()
 	for(PossibleSpellcast & psc : possibleCasts)
 		tasks.push_back(std::bind(evaluateSpellcast, &psc, _1));
 
-	uint32_t threadCount = boost::thread::hardware_concurrency();
+	uint32_t threadCount = std::thread::hardware_concurrency();
 
 	if(threadCount == 0)
 	{

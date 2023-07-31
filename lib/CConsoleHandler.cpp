@@ -233,9 +233,9 @@ int CConsoleHandler::run() const
 					(*cb)(buffer, false);
 		}
 		else
-			boost::this_thread::sleep(boost::posix_time::millisec(100));
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-		boost::this_thread::interruption_point();
+		vstd::interruptionPoint();
 #else
 		std::getline(std::cin, buffer);
 		if ( cb && *cb )
@@ -278,7 +278,7 @@ void CConsoleHandler::end()
 	if (thread)
 	{
 #ifndef VCMI_WINDOWS
-		thread->interrupt();
+		vstd::interruptThread(*thread);
 #else
 		TerminateThread(thread->native_handle(),0);
 #endif
@@ -290,7 +290,7 @@ void CConsoleHandler::end()
 
 void CConsoleHandler::start()
 {
-	thread = new boost::thread(std::bind(&CConsoleHandler::run,console));
+	thread = new std::thread(std::bind(&CConsoleHandler::run,console));
 }
 
 VCMI_LIB_NAMESPACE_END

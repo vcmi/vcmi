@@ -11,8 +11,6 @@
 #pragma once
 
 #include "BlockingQueue.h"
-#include <boost/thread/future.hpp>
-#include <boost/thread/condition_variable.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -24,10 +22,10 @@ typedef std::optional<TRMGfunction> TRMGJob;
 class DLL_LINKAGE ThreadPool
 {
 private:
-	using Lock = boost::unique_lock<boost::shared_mutex>;
-	mutable boost::shared_mutex mx;
-	mutable boost::condition_variable_any cv;
-	mutable boost::once_flag once;
+	using Lock = std::unique_lock<std::shared_mutex>;
+	mutable std::shared_mutex mx;
+	mutable std::condition_variable_any cv;
+	mutable std::once_flag once;
 
 	bool isInitialized = false;
 	bool stopping = false;
@@ -49,15 +47,14 @@ private:
 	bool isRunning() const;
 
 public:
-	auto async(std::function<void()>&& f) const -> boost::future<void>;
+	auto async(std::function<void()>&& f) const -> std::future<void>;
 
 private:
-	std::vector<boost::thread> workers;
+	std::vector<std::thread> workers;
 	mutable BlockingQueue<TRMGfunction> tasks;
 };
 
-ThreadPool::ThreadPool() :
-	once(BOOST_ONCE_INIT)
+ThreadPool::ThreadPool()
 {};
 
 ThreadPool::~ThreadPool()
@@ -67,7 +64,7 @@ ThreadPool::~ThreadPool()
 
 inline void ThreadPool::init(size_t numThreads)
 {
-	boost::call_once(once, [this, numThreads]()
+	std::call_once(once, [this, numThreads]()
 	{
 		Lock lock(mx);
 		stopping = false;
@@ -167,9 +164,9 @@ inline void ThreadPool::cancel()
 	}
 }
 
-auto ThreadPool::async(std::function<void()>&& f) const -> boost::future<void>
+auto ThreadPool::async(std::function<void()>&& f) const -> std::future<void>
 {
-    using TaskT = boost::packaged_task<void>;
+	using TaskT = std::packaged_task<void()>;
 
     {
         Lock lock(mx);
@@ -180,7 +177,7 @@ auto ThreadPool::async(std::function<void()>&& f) const -> boost::future<void>
     }
 
     std::shared_ptr<TaskT> task = std::make_shared<TaskT>(f);
-    boost::future<void> fut = task->get_future();
+	std::future<void> fut = task->get_future();
     tasks.emplace([task]() -> void
     {
         (*task)();

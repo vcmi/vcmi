@@ -106,7 +106,7 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 	{
 		if(LOCPLINT->battleInt)
 		{
-			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+			std::unique_lock<std::recursive_mutex> un(*CPlayerInterface::pim);
 			onIntroSoundPlayed();
 		}
 	};
@@ -727,7 +727,7 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 			// FIXME: unsafe
 			// Run task in separate thread to avoid UI lock while AI is making turn (which might take some time)
 			// HOWEVER this thread won't atttempt to lock game state, potentially leading to races
-			boost::thread aiThread([this, activeStack]()
+			std::thread aiThread([this, activeStack]()
 			{
 				curInt->autofightingAI->activeStack(activeStack);
 			});

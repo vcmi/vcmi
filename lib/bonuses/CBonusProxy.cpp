@@ -46,7 +46,7 @@ CBonusProxy::CBonusProxy(CBonusProxy && other) noexcept:
 
 CBonusProxy & CBonusProxy::operator=(const CBonusProxy & other)
 {
-	boost::lock_guard<boost::mutex> lock(swapGuard);
+	std::lock_guard<std::mutex> lock(swapGuard);
 
 	selector = other.selector;
 	swapBonusList(other.bonusList[other.currentBonusListIndex]);
@@ -85,7 +85,7 @@ TConstBonusListPtr CBonusProxy::getBonusList() const
 	// avoid locking if everything is up-to-date
 	if(needUpdateBonusList())
 	{
-		boost::lock_guard<boost::mutex>lock(swapGuard);
+		std::lock_guard<std::mutex>lock(swapGuard);
 
 		if(needUpdateBonusList())
 		{

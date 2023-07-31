@@ -33,7 +33,7 @@ protected:
 	mutable int64_t bonusListCachedLast;
 	mutable TConstBonusListPtr bonusList[2];
 	mutable int currentBonusListIndex;
-	mutable boost::mutex swapGuard;
+	mutable std::mutex swapGuard;
 	void swapBonusList(TConstBonusListPtr other) const;
 };
 

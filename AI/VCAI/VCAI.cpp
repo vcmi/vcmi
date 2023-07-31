@@ -615,7 +615,7 @@ void VCAI::yourTurn()
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	status.startedTurn();
-	makingTurn = std::make_unique<boost::thread>(&VCAI::makeTurn, this);
+	makingTurn = std::make_unique<std::thread>(&VCAI::makeTurn, this);
 }
 
 void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
@@ -779,7 +779,7 @@ void VCAI::makeTurn()
 	auto day = cb->getDate(Date::EDateType::DAY);
 	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.getStr(), day);
 
-	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
+	std::shared_lock<std::shared_mutex> gsLock(CGameState::mutex);
 	setThreadName("VCAI::makeTurn");
 
 	switch(cb->getDate(Date::DAY_OF_WEEK))
@@ -822,7 +822,7 @@ void VCAI::makeTurn()
 				logAi->warn("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
 		}
 	}
-	catch (boost::thread_interrupted & e)
+	catch (vstd::ThreadInterrupted & e)
 	{
 	(void)e;
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
@@ -975,11 +975,11 @@ void VCAI::mainLoop()
 
 			try
 			{
-				boost::this_thread::interruption_point();
+				vstd::interruptionPoint();
 				goalToRealize->accept(this); //visitor pattern
-				boost::this_thread::interruption_point();
+				vstd::interruptionPoint();
 			}
-			catch (boost::thread_interrupted & e)
+			catch (vstd::ThreadInterrupted & e)
 			{
 				(void)e;
 				logAi->debug("Player %d: Making turn thread received an interruption!", playerID);
@@ -2348,11 +2348,11 @@ void VCAI::striveToGoal(Goals::TSubgoal basicGoal)
 
 		try
 		{
-			boost::this_thread::interruption_point();
+			vstd::interruptionPoint();
 			elementarGoal->accept(this); //visitor pattern
-			boost::this_thread::interruption_point();
+			vstd::interruptionPoint();
 		}
-		catch (boost::thread_interrupted & e)
+		catch (vstd::ThreadInterrupted & e)
 		{
 			(void)e;
 			logAi->debug("Player %d: Making turn thread received an interruption!", playerID);
@@ -2393,7 +2393,7 @@ Goals::TSubgoal VCAI::decomposeGoal(Goals::TSubgoal ultimateGoal)
 	int maxGoals = searchDepth; //preventing deadlock for mutually dependent goals
 	while (maxGoals)
 	{
-		boost::this_thread::interruption_point();
+		vstd::interruptionPoint();
 
 		goal = goal->whatToDoToAchieve(); //may throw if decomposition fails
 		--maxGoals;
@@ -2475,10 +2475,10 @@ void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 void VCAI::finish()
 {
 	//we want to lock to avoid multiple threads from calling makingTurn->join() at same time
-	boost::lock_guard<boost::mutex> multipleCleanupGuard(turnInterruptionMutex);
+	std::lock_guard<std::mutex> multipleCleanupGuard(turnInterruptionMutex);
 	if(makingTurn)
 	{
-		makingTurn->interrupt();
+		vstd::interruptThread(*makingTurn);
 		makingTurn->join();
 		makingTurn.reset();
 	}
@@ -2486,11 +2486,11 @@ void VCAI::finish()
 
 void VCAI::requestActionASAP(std::function<void()> whatToDo)
 {
-	boost::thread newThread([this, whatToDo]()
+	std::thread newThread([this, whatToDo]()
 	{
 		setThreadName("VCAI::requestActionASAP::whatToDo");
 		SET_GLOBAL_STATE(this);
-		boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
+		std::shared_lock<std::shared_mutex> gsLock(CGameState::mutex);
 		whatToDo();
 	});
 }
@@ -2604,7 +2604,7 @@ AIStatus::~AIStatus()
 
 void AIStatus::setBattle(BattleState BS)
 {
-	boost::unique_lock<boost::mutex> lock(mx);
+	std::unique_lock<std::mutex> lock(mx);
 	LOG_TRACE_PARAMS(logAi, "battle state=%d", (int)BS);
 	battle = BS;
 	cv.notify_all();
@@ -2612,7 +2612,7 @@ void AIStatus::setBattle(BattleState BS)
 
 BattleState AIStatus::getBattle()
 {
-	boost::unique_lock<boost::mutex> lock(mx);
+	std::unique_lock<std::mutex> lock(mx);
 	return battle;
 }
 
@@ -2625,7 +2625,7 @@ void AIStatus::addQuery(QueryID ID, std::string description)
 	}
 
 	assert(ID.getNum() >= 0);
-	boost::unique_lock<boost::mutex> lock(mx);
+	std::unique_lock<std::mutex> lock(mx);
 
 	assert(!vstd::contains(remainingQueries, ID));
 
@@ -2637,7 +2637,7 @@ void AIStatus::addQuery(QueryID ID, std::string description)
 
 void AIStatus::removeQuery(QueryID ID)
 {
-	boost::unique_lock<boost::mutex> lock(mx);
+	std::unique_lock<std::mutex> lock(mx);
 	assert(vstd::contains(remainingQueries, ID));
 
 	std::string description = remainingQueries[ID];
@@ -2649,40 +2649,40 @@ void AIStatus::removeQuery(QueryID ID)
 
 int AIStatus::getQueriesCount()
 {
-	boost::unique_lock<boost::mutex> lock(mx);
+	std::unique_lock<std::mutex> lock(mx);
 	return static_cast<int>(remainingQueries.size());
 }
 
 void AIStatus::startedTurn()
 {
-	boost::unique_lock<boost::mutex> lock(mx);
+	std::unique_lock<std::mutex> lock(mx);
 	havingTurn = true;
 	cv.notify_all();
 }
 
 void AIStatus::madeTurn()
 {
-	boost::unique_lock<boost::mutex> lock(mx);
+	std::unique_lock<std::mutex> lock(mx);
 	havingTurn = false;
 	cv.notify_all();
 }
 
 void AIStatus::waitTillFree()
 {
-	boost::unique_lock<boost::mutex> lock(mx);
+	std::unique_lock<std::mutex> lock(mx);
 	while(battle != NO_BATTLE || !remainingQueries.empty() || !objectsBeingVisited.empty() || ongoingHeroMovement)
-		cv.timed_wait(lock, boost::posix_time::milliseconds(100));
+		cv.wait_for(lock, std::chrono::milliseconds(100));
 }
 
 bool AIStatus::haveTurn()
 {
-	boost::unique_lock<boost::mutex> lock(mx);
+	std::unique_lock<std::mutex> lock(mx);
 	return havingTurn;
 }
 
 void AIStatus::attemptedAnsweringQuery(QueryID queryID, int answerRequestID)
 {
-	boost::unique_lock<boost::mutex> lock(mx);
+	std::unique_lock<std::mutex> lock(mx);
 	assert(vstd::contains(remainingQueries, queryID));
 	std::string description = remainingQueries[queryID];
 	logAi->debug("Attempted answering query %d - %s. Request id=%d. Waiting for results...", queryID, description, answerRequestID);
@@ -2694,7 +2694,7 @@ void AIStatus::receivedAnswerConfirmation(int answerRequestID, int result)
 	QueryID query;
 
 	{
-		boost::unique_lock<boost::mutex> lock(mx);
+		std::unique_lock<std::mutex> lock(mx);
 
 		assert(vstd::contains(requestToQueryID, answerRequestID));
 		query = requestToQueryID[answerRequestID];
@@ -2715,7 +2715,7 @@ void AIStatus::receivedAnswerConfirmation(int answerRequestID, int result)
 
 void AIStatus::heroVisit(const CGObjectInstance * obj, bool started)
 {
-	boost::unique_lock<boost::mutex> lock(mx);
+	std::unique_lock<std::mutex> lock(mx);
 	if(started)
 	{
 		objectsBeingVisited.push_back(obj);
@@ -2733,14 +2733,14 @@ void AIStatus::heroVisit(const CGObjectInstance * obj, bool started)
 
 void AIStatus::setMove(bool ongoing)
 {
-	boost::unique_lock<boost::mutex> lock(mx);
+	std::unique_lock<std::mutex> lock(mx);
 	ongoingHeroMovement = ongoing;
 	cv.notify_all();
 }
 
 void AIStatus::setChannelProbing(bool ongoing)
 {
-	boost::unique_lock<boost::mutex> lock(mx);
+	std::unique_lock<std::mutex> lock(mx);
 	ongoingChannelProbing = ongoing;
 	cv.notify_all();
 }

@@ -58,8 +58,8 @@ void CConnection::init()
 	oser & std::string("Aiya!\n") & name & uuid & myEndianess; //identify ourselves
 	iser & pom & pom & contactUuid & contactEndianess;
 	logNetwork->info("Established connection with %s. UUID: %s", pom, contactUuid);
-	mutexRead = std::make_shared<boost::mutex>();
-	mutexWrite = std::make_shared<boost::mutex>();
+	mutexRead = std::make_shared<std::mutex>();
+	mutexWrite = std::make_shared<std::mutex>();
 
 	iser.fileVersion = SERIALIZATION_VERSION;
 }
@@ -268,7 +268,7 @@ CPack * CConnection::retrievePack()
 	enableBufferedRead = true;
 
 	CPack * pack = nullptr;
-	boost::unique_lock<boost::mutex> lock(*mutexRead);
+	std::unique_lock<std::mutex> lock(*mutexRead);
 	iser & pack;
 	logNetwork->trace("Received CPack of type %s", (pack ? typeid(*pack).name() : "nullptr"));
 	if(pack == nullptr)
@@ -287,7 +287,7 @@ CPack * CConnection::retrievePack()
 
 void CConnection::sendPack(const CPack * pack)
 {
-	boost::unique_lock<boost::mutex> lock(*mutexWrite);
+	std::unique_lock<std::mutex> lock(*mutexWrite);
 	logNetwork->trace("Sending a pack of type %s", typeid(*pack).name());
 
 	enableBufferedWrite = true;

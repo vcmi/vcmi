@@ -53,9 +53,9 @@ class CVCMIServer : public LobbyInfo
 	std::shared_ptr<TAcceptor> acceptor;
 	std::shared_ptr<TSocket> upcomingConnection;
 	std::list<std::unique_ptr<CPackForLobby>> announceQueue;
-	boost::recursive_mutex mx;
+	std::recursive_mutex mx;
 	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
-	std::unique_ptr<boost::thread> announceLobbyThread, remoteConnectionsThread;
+	std::unique_ptr<std::thread> announceLobbyThread, remoteConnectionsThread;
 
 public:
 	std::shared_ptr<CGameHandler> gh;
@@ -119,7 +119,7 @@ public:
 #if VCMI_ANDROID_DUAL_PROCESS
 	static void create();
 #elif defined(SINGLE_PROCESS_APP)
-	static void create(boost::condition_variable * cond, const std::vector<std::string> & args);
+	static void create(std::condition_variable * cond, const std::vector<std::string> & args);
 # ifdef VCMI_ANDROID
 	static void reuseClientJNIEnv(void * jniEnv);
 # endif // VCMI_ANDROID

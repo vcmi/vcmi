@@ -295,7 +295,7 @@ CMainMenu::CMainMenu()
 
 CMainMenu::~CMainMenu()
 {
-	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
+	std::unique_lock<std::recursive_mutex> lock(*CPlayerInterface::pim);
 
 	if(GH.curInt == this)
 		GH.curInt = nullptr;
@@ -546,7 +546,7 @@ void CSimpleJoinScreen::startConnectThread(const std::string & addr, ui16 port)
 	// https://github.com/libsdl-org/SDL/blob/main/docs/README-android.md#threads-and-the-java-vm
 	CVCMIServer::reuseClientJNIEnv(SDL_AndroidGetJNIEnv());
 #endif
-	boost::thread(&CSimpleJoinScreen::connectThread, this, addr, port);
+	std::thread(&CSimpleJoinScreen::connectThread, this, addr, port);
 }
 
 void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)

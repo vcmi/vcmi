@@ -49,7 +49,7 @@ void CInGameConsole::show(Canvas & to)
 
 	int number = 0;
 
-	boost::unique_lock<boost::mutex> lock(texts_mx);
+	std::unique_lock<std::mutex> lock(texts_mx);
 	for(auto & text : texts)
 	{
 		Point leftBottomCorner(0, pos.h);
@@ -64,7 +64,7 @@ void CInGameConsole::tick(uint32_t msPassed)
 {
 	size_t sizeBefore = texts.size();
 	{
-		boost::unique_lock<boost::mutex> lock(texts_mx);
+		std::unique_lock<std::mutex> lock(texts_mx);
 
 		for(auto & text : texts)
 			text.timeOnScreen += msPassed;
@@ -84,9 +84,9 @@ void CInGameConsole::tick(uint32_t msPassed)
 
 void CInGameConsole::print(const std::string & txt)
 {
-	// boost::unique_lock scope
+	// std::unique_lock scope
 	{
-		boost::unique_lock<boost::mutex> lock(texts_mx);
+		std::unique_lock<std::mutex> lock(texts_mx);
 
 		// Maximum width for a text line is limited by:
 		// 1) width of adventure map terrain area, for when in-game console is on top of advmap
@@ -259,7 +259,7 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 				commandController.processCommand(txt.substr(1), true);
 			};
 
-			boost::thread clientCommandThread(threadFunction);
+			std::thread clientCommandThread(threadFunction);
 			clientCommandThread.detach();
 		}
 		else

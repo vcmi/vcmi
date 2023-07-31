@@ -83,7 +83,7 @@ public:
 
 		if(checker.getResult())
 		{
-			boost::unique_lock<boost::mutex> stateLock(srv->stateMutex);
+			std::unique_lock<std::mutex> stateLock(srv->stateMutex);
 			ApplyOnServerNetPackVisitor applier(*srv);
 			
 			ptr->visit(applier);
@@ -163,12 +163,12 @@ void CVCMIServer::run()
 {
 	if(!restartGameplay)
 	{
-		this->announceLobbyThread = std::make_unique<boost::thread>(&CVCMIServer::threadAnnounceLobby, this);
+		this->announceLobbyThread = std::make_unique<std::thread>(&CVCMIServer::threadAnnounceLobby, this);
 
 		startAsyncAccept();
 		if(!remoteConnectionsThread && cmdLineOptions.count("lobby"))
 		{
-			remoteConnectionsThread = std::make_unique<boost::thread>(&CVCMIServer::establishRemoteConnections, this);
+			remoteConnectionsThread = std::make_unique<std::thread>(&CVCMIServer::establishRemoteConnections, this);
 		}
 
 #if defined(VCMI_ANDROID)
@@ -180,7 +180,7 @@ void CVCMIServer::run()
 	}
 
 	while(state == EServerState::LOBBY || state == EServerState::GAMEPLAY_STARTING)
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 	logNetwork->info("Thread handling connections ended");
 
@@ -189,14 +189,14 @@ void CVCMIServer::run()
 		gh->run(si->mode == StartInfo::LOAD_GAME);
 	}
 	while(state == EServerState::GAMEPLAY_ENDED)
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
 void CVCMIServer::establishRemoteConnections()
 {
 	//wait for host connection
 	while(connections.empty())
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	
 	uuid = cmdLineOptions["lobby-uuid"].as<std::string>();
     int numOfConnections = cmdLineOptions["connections"].as<ui16>();
@@ -224,7 +224,7 @@ void CVCMIServer::connectToRemote(const std::string & addr, int port)
 	if(c)
 	{
 		connections.insert(c);
-		c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
+		c->handler = std::make_shared<std::thread>(&CVCMIServer::threadHandleClient, this, c);
 	}
 }
 
@@ -233,7 +233,7 @@ void CVCMIServer::threadAnnounceLobby()
 	while(state != EServerState::SHUTDOWN)
 	{
 		{
-			boost::unique_lock<boost::recursive_mutex> myLock(mx);
+			std::unique_lock<std::recursive_mutex> myLock(mx);
 			while(!announceQueue.empty())
 			{
 				announcePack(std::move(announceQueue.front()));
@@ -247,7 +247,7 @@ void CVCMIServer::threadAnnounceLobby()
 			}
 		}
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 }
 
@@ -260,7 +260,7 @@ void CVCMIServer::prepareToRestart()
 		si->seedToBeUsed = si->seedPostInit = 0;
 		state = EServerState::LOBBY;
 		// FIXME: dirry hack to make sure old CGameHandler::run is finished
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 	
 	for(auto c : connections)
@@ -268,7 +268,7 @@ void CVCMIServer::prepareToRestart()
 		c->enterLobbyConnectionMode();
 		c->disableStackSendingByID();
 	}
-	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
+	std::unique_lock<std::recursive_mutex> queueLock(mx);
 	gh = nullptr;
 }
 
@@ -342,7 +342,7 @@ void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
 			auto c = std::make_shared<CConnection>(upcomingConnection, SERVER_NAME, uuid);
 			upcomingConnection.reset();
 			connections.insert(c);
-			c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
+			c->handler = std::make_shared<std::thread>(&CVCMIServer::threadHandleClient, this, c);
 		}
 	}
 	catch(std::exception & e)
@@ -422,7 +422,7 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 		pack->visit(visitor);
 	}
 
-	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
+	std::unique_lock<std::recursive_mutex> queueLock(mx);
 
 	if(c->connected)
 	{
@@ -477,7 +477,7 @@ void CVCMIServer::announceTxt(const std::string & txt, const std::string & playe
 
 void CVCMIServer::addToAnnounceQueue(std::unique_ptr<CPackForLobby> pack)
 {
-	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
+	std::unique_lock<std::recursive_mutex> queueLock(mx);
 	announceQueue.push_back(std::move(pack));
 }
 
@@ -701,7 +701,7 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 
 void CVCMIServer::updateAndPropagateLobbyState()
 {
-	boost::unique_lock<boost::mutex> stateLock(stateMutex);
+	std::unique_lock<std::mutex> stateLock(stateMutex);
 	// Update player settings for RMG
 	// TODO: find appropriate location for this code
 	if(si->mapGenOptions && si->mode == StartInfo::NEW_GAME)
@@ -1056,7 +1056,7 @@ int main(int argc, const char * argv[])
 	srand((ui32)time(nullptr));
 
 #ifdef SINGLE_PROCESS_APP
-	boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(const_cast<char *>(argv[0]));
+	std::condition_variable * cond = reinterpret_cast<std::condition_variable *>(const_cast<char *>(argv[0]));
 	cond->notify_one();
 #endif
 
@@ -1112,7 +1112,7 @@ extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_initClassloade
 	CAndroidVMHelper::initClassloader(baseEnv);
 }
 #elif defined(SINGLE_PROCESS_APP)
-void CVCMIServer::create(boost::condition_variable * cond, const std::vector<std::string> & args)
+void CVCMIServer::create(std::condition_variable * cond, const std::vector<std::string> & args)
 {
 	std::vector<const void *> argv = {cond};
 	for(auto & a : args)

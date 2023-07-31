@@ -99,7 +99,7 @@
 		return;						\
 	RETURN_IF_QUICK_COMBAT
 
-boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
+std::recursive_mutex * CPlayerInterface::pim = new std::recursive_mutex;
 
 CPlayerInterface * LOCPLINT;
 
@@ -586,7 +586,7 @@ void CPlayerInterface::garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID i
 
 void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> objs)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	std::unique_lock<std::recursive_mutex> un(*pim);
 	for (auto object : objs)
 	{
 		auto * hero = dynamic_cast<const CGHeroInstance*>(object);
@@ -826,7 +826,7 @@ void CPlayerInterface::activeStack(const CStack * stack) //called when it's turn
 	}
 
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*pim);
+		std::unique_lock<std::recursive_mutex> un(*pim);
 		battleInt->stackActivated(stack);
 		//Regeneration & mana drain go there
 	}
@@ -1062,7 +1062,7 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 
 void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	std::unique_lock<std::recursive_mutex> un(*pim);
 
 	stopMovement();
 	LOCPLINT->showingDialog->setn(true);
@@ -1169,7 +1169,7 @@ void CPlayerInterface::tileHidden(const std::unordered_set<int3> &pos)
 
 void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	std::unique_lock<std::recursive_mutex> un(*pim);
 	GH.windows().createAndPushWindow<CHeroWindow>(hero);
 }
 
@@ -1241,7 +1241,7 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 	if (localState->isHeroSleeping(h))
 		localState->setHeroAwaken(h);
 
-	boost::thread moveHeroTask(std::bind(&CPlayerInterface::doMoveHero,this,h,path));
+	std::thread moveHeroTask(std::bind(&CPlayerInterface::doMoveHero,this,h,path));
 }
 
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
@@ -1408,7 +1408,7 @@ void CPlayerInterface::waitWhileDialog(bool unlockPim)
 	}
 
 	auto unlock = vstd::makeUnlockGuardIf(*pim, unlockPim);
-	boost::unique_lock<boost::mutex> un(showingDialog->mx);
+	std::unique_lock<std::mutex> un(showingDialog->mx);
 	while(showingDialog->data)
 		showingDialog->cond.wait(un);
 }
@@ -1447,7 +1447,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 		{
 			auto unlockPim = vstd::makeUnlockGuard(*pim);
 			IgnoreEvents ignore(*this);
-			boost::this_thread::sleep(boost::posix_time::milliseconds(focusTime));
+			std::this_thread::sleep_for(std::chrono::milliseconds(focusTime));
 		}
 	}
 	CCS->curh->show();
@@ -1508,7 +1508,7 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 void CPlayerInterface::update()
 {
 	// Make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
-	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
+	std::shared_lock<std::shared_mutex> gsLock(CGameState::mutex);
 
 	// While mutexes were locked away we may be have stopped being the active interface
 	if (LOCPLINT != this)
@@ -1874,7 +1874,7 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim)
 	while(!dialogs.empty())
 	{
 		auto unlock = vstd::makeUnlockGuardIf(*pim, unlockPim);
-		boost::this_thread::sleep(boost::posix_time::milliseconds(5));
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 	}
 	waitWhileDialog(unlockPim);
 }
@@ -1964,7 +1964,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		return nullptr;
 	};
 
-	boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
+	std::unique_lock<std::mutex> un(stillMoveHero.mx);
 	stillMoveHero.data = CONTINUE_MOVE;
 	auto doMovement = [&](int3 dst, bool transit)
 	{

@@ -90,7 +90,7 @@ private:
 	/// the logging system.
 	static std::mutex smx;
 
-	boost::thread * thread;
+	std::thread * thread;
 };
 
 extern DLL_LINKAGE CConsoleHandler * console;

@@ -179,7 +179,7 @@ public:
 
 class CLoadingScreen : public CWindowObject
 {
-	boost::thread loadingThread;
+	std::thread loadingThread;
 
 	std::string getBackground();
 

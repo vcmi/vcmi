@@ -21,7 +21,7 @@ public:
 	CThreadHelper(std::vector<std::function<void()> > *Tasks, int Threads);
 	void run();
 private:
-	boost::mutex rtinm;
+	std::mutex rtinm;
 	int currentTask, amount, threads;
 	std::vector<Task> *tasks;
 
@@ -46,20 +46,21 @@ public:
 
 	void run()
 	{
-		boost::thread_group grupa;
+		std::vector<std::thread> threadPool;
+
 		for(size_t i=0; i<threads; i++)
 		{
 			std::shared_ptr<Payload> payload = context.at(i);
 
-			grupa.create_thread(std::bind(&ThreadPool::processTasks, this, payload));
+			threadPool.emplace_back(std::bind(&ThreadPool::processTasks, this, payload));
 		}
 
-		grupa.join_all();
-
-		//thread group deletes threads, do not free manually
+		for (auto & thread : threadPool)
+			thread.join();
 	}
+
 private:
-	boost::mutex rtinm;
+	std::mutex rtinm;
 	size_t currentTask, amount, threads;
 	Tasks * tasks;
 	std::vector<std::shared_ptr<Payload>> context;
@@ -70,7 +71,7 @@ private:
 		{
 			size_t pom;
 			{
-				boost::unique_lock<boost::mutex> lock(rtinm);
+				std::unique_lock<std::mutex> lock(rtinm);
 				if((pom = currentTask) >= amount)
 					break;
 				else

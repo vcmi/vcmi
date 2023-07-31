@@ -126,7 +126,7 @@ static const std::string NAME_AFFIX = "client";
 static const std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 
 CServerHandler::CServerHandler()
-	: state(EClientState::NONE), mx(std::make_shared<boost::recursive_mutex>()), client(nullptr), loadMode(0), campaignStateToSend(nullptr), campaignServerRestartLock(false)
+	: state(EClientState::NONE), mx(std::make_shared<std::recursive_mutex>()), client(nullptr), loadMode(0), campaignStateToSend(nullptr), campaignServerRestartLock(false)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	//read from file to restore last session
@@ -175,7 +175,7 @@ void CServerHandler::startLocalServerAndConnect()
 	}
 	
 #if defined(SINGLE_PROCESS_APP)
-	boost::condition_variable cond;
+	std::condition_variable cond;
 	std::vector<std::string> args{"--uuid=" + uuid, "--port=" + std::to_string(getHostPort())};
 	if(settings["session"]["lobby"].Bool() && settings["session"]["host"].Bool())
 	{
@@ -184,7 +184,7 @@ void CServerHandler::startLocalServerAndConnect()
 		args.push_back("--lobby-port=" + std::to_string(settings["session"]["port"].Integer()));
 		args.push_back("--lobby-uuid=" + settings["session"]["hostUuid"].String());
 	}
-	threadRunLocalServer = std::make_shared<boost::thread>([&cond, args, this] {
+	threadRunLocalServer = std::make_shared<std::thread>([&cond, args, this] {
 		setThreadName("CVCMIServer");
 		CVCMIServer::create(&cond, args);
 		onServerFinished();
@@ -196,7 +196,7 @@ void CServerHandler::startLocalServerAndConnect()
 		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
 	}
 #else
-	threadRunLocalServer = std::make_shared<boost::thread>(&CServerHandler::threadRunServer, this); //runs server executable;
+	threadRunLocalServer = std::make_shared<std::thread>(&CServerHandler::threadRunServer, this); //runs server executable;
 #endif
 	logNetwork->trace("Setting up thread calling server: %d ms", th->getDiff());
 
@@ -210,8 +210,8 @@ void CServerHandler::startLocalServerAndConnect()
 		});
 #endif
 
-		boost::mutex m;
-		boost::unique_lock<boost::mutex> lock{m};
+		std::mutex m;
+		std::unique_lock<std::mutex> lock{m};
 		logNetwork->info("waiting for server");
 		cond.wait(lock);
 		logNetwork->info("server is ready");
@@ -227,7 +227,7 @@ void CServerHandler::startLocalServerAndConnect()
 	while(!androidTestServerReadyFlag.load())
 	{
 		logNetwork->info("still waiting...");
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 	logNetwork->info("waiting for server finished...");
 	androidTestServerReadyFlag = false;
@@ -257,7 +257,7 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 		catch(std::runtime_error & error)
 		{
 			logNetwork->warn("\nCannot establish connection. %s Retrying in 1 second", error.what());
-			boost::this_thread::sleep(boost::posix_time::seconds(1));
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 	}
 
@@ -267,7 +267,7 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 		return;
 	}
 
-	c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
+	c->handler = std::make_shared<std::thread>(&CServerHandler::threadHandleConnection, this);
 
 	if(!addr.empty() && addr != getHostAddress())
 	{
@@ -286,10 +286,10 @@ void CServerHandler::applyPacksOnLobbyScreen()
 	if(!c || !c->handler)
 		return;
 
-	boost::unique_lock<boost::recursive_mutex> lock(*mx);
+	std::unique_lock<std::recursive_mutex> lock(*mx);
 	while(!packsForLobbyScreen.empty())
 	{
-		boost::unique_lock<boost::recursive_mutex> guiLock(*CPlayerInterface::pim);
+		std::unique_lock<std::recursive_mutex> guiLock(*CPlayerInterface::pim);
 		CPackForLobby * pack = packsForLobbyScreen.front();
 		packsForLobbyScreen.pop_front();
 		CBaseForLobbyApply * apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier
@@ -303,7 +303,8 @@ void CServerHandler::stopServerConnection()
 {
 	if(c->handler)
 	{
-		while(!c->handler->timed_join(boost::posix_time::milliseconds(50)))
+		assert(0);
+		//FIXME: while(!c->handler->timed_join(std::chrono::milliseconds(50)))
 			applyPacksOnLobbyScreen();
 		c->handler->join();
 	}
@@ -742,20 +743,20 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	else
 		startLocalServerAndConnect();
 
-	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	while(!settings["session"]["headless"].Bool() && !GH.windows().topWindow<CLobbyScreen>())
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 	while(!mi || mapInfo->fileURI != CSH->mi->fileURI)
 	{
 		setMapInfo(mapInfo);
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 	// "Click" on color to remove us from it
 	setPlayer(myFirstColor());
 	while(myFirstColor() != PlayerColor::CANNOT_DETERMINE)
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 	while(true)
 	{
@@ -768,7 +769,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 		{
 
 		}
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 }
 
@@ -807,7 +808,7 @@ void CServerHandler::threadHandleConnection()
 		while(c->connected)
 		{
 			while(state == EClientState::STARTING)
-				boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 			CPack * pack = c->retrievePack();
 			if(state == EClientState::DISCONNECTING)
@@ -852,7 +853,7 @@ void CServerHandler::threadHandleConnection()
 			{
 				auto lcd = new LobbyClientDisconnected();
 				lcd->clientId = c->connectionID;
-				boost::unique_lock<boost::recursive_mutex> lock(*mx);
+				std::unique_lock<std::recursive_mutex> lock(*mx);
 				packsForLobbyScreen.push_back(lcd);
 			}
 		}
@@ -865,7 +866,7 @@ void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
 	{
 		if(!settings["session"]["headless"].Bool())
 		{
-			boost::unique_lock<boost::recursive_mutex> lock(*mx);
+			std::unique_lock<std::recursive_mutex> lock(*mx);
 			packsForLobbyScreen.push_back(&lobbyPack);
 		}
 	}
