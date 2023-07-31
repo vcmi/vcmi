@@ -118,28 +118,35 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(std::vector<CampaignHeroR
 		//trimming artifacts
 		for(CGHeroInstance * hero : crossoverHeroes)
 		{
-			size_t totalArts = GameConstants::BACKPACK_START + hero->artifactsInBackpack.size();
-			for (size_t i = 0; i < totalArts; i++ )
+			auto const & checkAndRemoveArtifact = [&](const ArtifactPosition & artifactPosition )
 			{
-				auto artifactPosition = ArtifactPosition((si32)i);
 				if(artifactPosition == ArtifactPosition::SPELLBOOK)
-					continue; // do not handle spellbook this way
+					return; // do not handle spellbook this way
 
 				const ArtSlotInfo *info = hero->getSlot(artifactPosition);
 				if(!info)
-					continue;
+					return;
 
 				// TODO: why would there be nullptr artifacts?
 				const CArtifactInstance *art = info->artifact;
 				if(!art)
-					continue;
+					return;
 
 				bool takeable = travelOptions.artifactsKeptByHero.count(art->artType->getId());
 
 				ArtifactLocation al(hero, artifactPosition);
 				if(!takeable  &&  !al.getSlot()->locked)  //don't try removing locked artifacts -> it crashes #1719
 					al.removeArtifact();
-			}
+			};
+
+			// process on copy - removal of artifact will invalidate container
+			auto artifactsWorn = hero->artifactsWorn;
+			for (auto const & art : artifactsWorn)
+				checkAndRemoveArtifact(art.first);
+
+			// process in reverse - removal of artifact will shift all artifacts after this one
+			for(int slotNumber = hero->artifactsInBackpack.size() - 1; slotNumber >= 0; slotNumber--)
+				checkAndRemoveArtifact(ArtifactPosition(GameConstants::BACKPACK_START + slotNumber));
 		}
 	}
 
