@@ -472,7 +472,7 @@
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="319"/>
         <source>Autosave limit (0 = off)</source>
-        <translation type="unfinished"></translation>
+        <translation>Limit für Autospeicherung (0 = aus)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="329"/>
@@ -487,12 +487,12 @@
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="612"/>
         <source>Autosave prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>Präfix für Autospeicherung</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="629"/>
         <source>empty = map name prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>leer = Kartenname als Präfix</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="508"/>
@@ -911,7 +911,7 @@ Heroes III: HD Edition wird derzeit nicht unterstützt!</translation>
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Vietnamese</source>
-        <translation type="unfinished"></translation>
+        <translation>Vietnamesisch</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
