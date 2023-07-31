@@ -18,6 +18,7 @@
 #include "../Analyzers/ArmyManager.h"
 #include "../Analyzers/HeroManager.h"
 #include "../Analyzers/ObjectClusterizer.h"
+#include "../../lib/ThreadInterruption.h"
 
 namespace NKAI
 {
@@ -69,6 +70,8 @@ public:
 	std::unique_ptr<DeepDecomposer> decomposer;
 	PlayerColor playerID;
 	std::shared_ptr<CCallback> cb;
+
+	mutable ThreadInterruption makingTurnInterruptor;
 
 	Nullkiller();
 	void init(std::shared_ptr<CCallback> cb, PlayerColor playerID);

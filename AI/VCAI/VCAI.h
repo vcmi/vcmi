@@ -15,6 +15,7 @@
 #include "../../CCallback.h"
 
 #include "../../lib/CThreadHelper.h"
+#include "../../lib/ThreadInterruption.h"
 
 #include "../../lib/GameConstants.h"
 #include "../../lib/VCMI_Lib.h"
@@ -116,6 +117,8 @@ public:
 	std::shared_ptr<CCallback> myCb;
 
 	std::unique_ptr<std::thread> makingTurn;
+	ThreadInterruption makingTurnInterruptor;
+
 private:
 	std::mutex turnInterruptionMutex;
 public:

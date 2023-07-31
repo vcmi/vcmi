@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "ThreadInterruption.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace EConsoleTextColor
@@ -90,6 +92,7 @@ private:
 	/// the logging system.
 	static std::mutex smx;
 
+	mutable ThreadInterruption threadInterruption;
 	std::thread * thread;
 };
 

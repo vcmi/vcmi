@@ -609,6 +609,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/StringConstants.h
 		${MAIN_LIB_DIR}/TerrainHandler.h
 		${MAIN_LIB_DIR}/TextOperations.h
+		${MAIN_LIB_DIR}/ThreadInterruption.h
 		${MAIN_LIB_DIR}/UnlockGuard.h
 		${MAIN_LIB_DIR}/VCMIDirs.h
 		${MAIN_LIB_DIR}/vcmi_endian.h

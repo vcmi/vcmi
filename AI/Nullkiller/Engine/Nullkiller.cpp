@@ -71,7 +71,7 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TTaskVec & tasks) const
 
 Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositionMaxDepth) const
 {
-	vstd::interruptionPoint();
+	makingTurnInterruptor.interruptionPoint();
 
 	logAi->debug("Checking behavior %s", behavior->toString());
 
@@ -80,7 +80,7 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositi
 	Goals::TGoalVec elementarGoals = decomposer->decompose(behavior, decompositionMaxDepth);
 	Goals::TTaskVec tasks;
 
-	vstd::interruptionPoint();
+	makingTurnInterruptor.interruptionPoint();
 	
 	for(auto goal : elementarGoals)
 	{
@@ -123,7 +123,7 @@ void Nullkiller::resetAiState()
 
 void Nullkiller::updateAiState(int pass, bool fast)
 {
-	vstd::interruptionPoint();
+	makingTurnInterruptor.interruptionPoint();
 
 	auto start = std::chrono::high_resolution_clock::now();
 
@@ -136,7 +136,7 @@ void Nullkiller::updateAiState(int pass, bool fast)
 
 		dangerHitMap->updateHitMap();
 
-		vstd::interruptionPoint();
+		makingTurnInterruptor.interruptionPoint();
 
 		heroManager->update();
 		logAi->trace("Updating paths");
@@ -160,11 +160,11 @@ void Nullkiller::updateAiState(int pass, bool fast)
 			cfg.mainTurnDistanceLimit = MAIN_TURN_DISTANCE_LIMIT * ((int)scanDepth + 1);
 		}
 
-		vstd::interruptionPoint();
+		makingTurnInterruptor.interruptionPoint();
 
 		pathfinder->updatePaths(activeHeroes, cfg);
 
-		vstd::interruptionPoint();
+		makingTurnInterruptor.interruptionPoint();
 
 		objectClusterizer->clusterize();
 	}
@@ -299,7 +299,7 @@ void Nullkiller::executeTask(Goals::TTask task)
 	auto start = std::chrono::high_resolution_clock::now();
 	std::string taskDescr = task->toString();
 
-	vstd::interruptionPoint();
+	makingTurnInterruptor.interruptionPoint();
 	logAi->debug("Trying to realize %s (value %2.3f)", taskDescr, task->priority);
 
 	try

@@ -235,7 +235,7 @@ int CConsoleHandler::run() const
 		else
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-		vstd::interruptionPoint();
+		threadInterruption.interruptionPoint();
 #else
 		std::getline(std::cin, buffer);
 		if ( cb && *cb )
@@ -278,9 +278,9 @@ void CConsoleHandler::end()
 	if (thread)
 	{
 #ifndef VCMI_WINDOWS
-		vstd::interruptThread(*thread);
+		threadInterruption.interruptThread();
 #else
-		TerminateThread(thread->native_handle(),0);
+		TerminateThread((HANDLE)thread->native_handle(),0);
 #endif
 		thread->join();
 		delete thread;

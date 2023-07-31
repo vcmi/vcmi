@@ -15,6 +15,7 @@
 #include "EnemyInfo.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/CThreadHelper.h"
+#include "../../lib/ThreadInterruption.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
@@ -294,7 +295,7 @@ void CBattleAI::activeStack( const CStack * stack )
 
 		result = selectStackAction(stack);
 	}
-	catch(vstd::ThreadInterrupted &)
+	catch(ThreadInterrupted &)
 	{
 		throw;
 	}

@@ -220,7 +220,6 @@ int CBattleCallback::sendRequest(const CPackForServer * request)
 		CClient::waitingRequest.waitWhileContains(requestID);
 	}
 
-	vstd::interruptionPoint();
 	return requestID;
 }
 

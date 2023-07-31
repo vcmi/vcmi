@@ -662,21 +662,6 @@ namespace vstd
 	{
 		return static_cast<std::underlying_type_t<Enum>>(e);
 	}
-
-	class ThreadInterrupted : public std::exception
-	{
-
-	};
-
-	inline void interruptThread(std::thread & thread)
-	{
-
-	}
-
-	inline void interruptionPoint()
-	{
-
-	}
 }
 using vstd::operator-=;
 

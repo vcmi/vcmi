@@ -58,7 +58,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 		ai->pathfinder->updatePaths(pair.second, PathfinderSettings());
 
-		vstd::interruptionPoint();
+		ai->makingTurnInterruptor.interruptionPoint();
 
 		pforeachTilePos(mapSize, [&](const int3 & pos)
 		{

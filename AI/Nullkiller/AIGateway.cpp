@@ -813,7 +813,7 @@ void AIGateway::makeTurn()
 		}
 #if NKAI_TRACE_LEVEL == 0
 	}
-	catch (vstd::ThreadInterrupted & e)
+	catch (ThreadInterrupted & e)
 	{
 	(void)e;
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
@@ -1453,7 +1453,7 @@ void AIGateway::finish()
 
 	if(makingTurn)
 	{
-		vstd::interruptThread(*makingTurn);
+		nullkiller->makingTurnInterruptor.interruptThread();
 		makingTurn->join();
 		makingTurn.reset();
 	}

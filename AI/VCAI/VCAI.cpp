@@ -822,7 +822,7 @@ void VCAI::makeTurn()
 				logAi->warn("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
 		}
 	}
-	catch (vstd::ThreadInterrupted & e)
+	catch (ThreadInterrupted & e)
 	{
 	(void)e;
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
@@ -975,11 +975,11 @@ void VCAI::mainLoop()
 
 			try
 			{
-				vstd::interruptionPoint();
+				makingTurnInterruptor.interruptionPoint();
 				goalToRealize->accept(this); //visitor pattern
-				vstd::interruptionPoint();
+				makingTurnInterruptor.interruptionPoint();
 			}
-			catch (vstd::ThreadInterrupted & e)
+			catch (ThreadInterrupted & e)
 			{
 				(void)e;
 				logAi->debug("Player %d: Making turn thread received an interruption!", playerID);
@@ -2348,11 +2348,11 @@ void VCAI::striveToGoal(Goals::TSubgoal basicGoal)
 
 		try
 		{
-			vstd::interruptionPoint();
+			makingTurnInterruptor.interruptionPoint();
 			elementarGoal->accept(this); //visitor pattern
-			vstd::interruptionPoint();
+			makingTurnInterruptor.interruptionPoint();
 		}
-		catch (vstd::ThreadInterrupted & e)
+		catch (ThreadInterrupted & e)
 		{
 			(void)e;
 			logAi->debug("Player %d: Making turn thread received an interruption!", playerID);
@@ -2393,7 +2393,7 @@ Goals::TSubgoal VCAI::decomposeGoal(Goals::TSubgoal ultimateGoal)
 	int maxGoals = searchDepth; //preventing deadlock for mutually dependent goals
 	while (maxGoals)
 	{
-		vstd::interruptionPoint();
+		makingTurnInterruptor.interruptionPoint();
 
 		goal = goal->whatToDoToAchieve(); //may throw if decomposition fails
 		--maxGoals;
@@ -2478,7 +2478,7 @@ void VCAI::finish()
 	std::lock_guard<std::mutex> multipleCleanupGuard(turnInterruptionMutex);
 	if(makingTurn)
 	{
-		vstd::interruptThread(*makingTurn);
+		makingTurnInterruptor.interruptThread();
 		makingTurn->join();
 		makingTurn.reset();
 	}
