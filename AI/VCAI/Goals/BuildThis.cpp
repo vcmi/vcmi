@@ -18,11 +18,6 @@
 #include "../../../lib/mapObjects/CGTownInstance.h"
 #include "../../../lib/StringConstants.h"
 
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
-
 using namespace Goals;
 
 bool BuildThis::operator==(const BuildThis & other) const

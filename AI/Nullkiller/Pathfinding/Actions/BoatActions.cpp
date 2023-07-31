@@ -20,14 +20,11 @@
 namespace NKAI
 {
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
-
 namespace AIPathfinding
 {
 	void BuildBoatAction::execute(const CGHeroInstance * hero) const
 	{
-		return Goals::BuildBoat(shipyard).accept(ai.get());
+		return Goals::BuildBoat(shipyard).accept(ai);
 	}
 
 	Goals::TSubgoal BuildBoatAction::decompose(const CGHeroInstance * hero) const
@@ -80,7 +77,7 @@ namespace AIPathfinding
 
 	void SummonBoatAction::execute(const CGHeroInstance * hero) const
 	{
-		Goals::AdventureSpellCast(hero, SpellID::SUMMON_BOAT).accept(ai.get());
+		Goals::AdventureSpellCast(hero, SpellID::SUMMON_BOAT).accept(ai);
 	}
 
 	const ChainActor * SummonBoatAction::getActor(const ChainActor * sourceActor) const

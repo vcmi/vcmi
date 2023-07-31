@@ -25,10 +25,6 @@
 namespace NKAI
 {
 
-extern boost::thread_specific_ptr<AIGateway> ai;
-
-//extern static const int3 dirs[8];
-
 const CGObjectInstance * ObjectIdRef::operator->() const
 {
 	return cb->getObj(id, false);

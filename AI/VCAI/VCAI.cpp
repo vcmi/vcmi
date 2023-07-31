@@ -38,8 +38,8 @@ extern FuzzyHelper * fh;
 const double SAFE_ATTACK_CONSTANT = 1.5;
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
-boost::thread_specific_ptr<CCallback> cb;
-boost::thread_specific_ptr<VCAI> ai;
+thread_local CCallback * cb = nullptr;
+thread_local VCAI * ai = nullptr;
 
 //std::map<int, std::map<int, int> > HeroView::infosCount;
 
@@ -48,18 +48,18 @@ struct SetGlobalState
 {
 	SetGlobalState(VCAI * AI)
 	{
-		assert(!ai.get());
-		assert(!cb.get());
+		assert(!ai);
+		assert(!cb);
 
-		ai.reset(AI);
-		cb.reset(AI->myCb.get());
+		ai = AI;
+		cb = AI->myCb.get();
 	}
 	~SetGlobalState()
 	{
 		//TODO: how to handle rm? shouldn't be called after ai is destroyed, hopefully
 		//TODO: to ensure that, make rm unique_ptr
-		ai.release();
-		cb.release();
+		ai = nullptr;
+		cb = nullptr;
 	}
 };
 
@@ -2493,6 +2493,8 @@ void VCAI::requestActionASAP(std::function<void()> whatToDo)
 		std::shared_lock<std::shared_mutex> gsLock(CGameState::mutex);
 		whatToDo();
 	});
+
+	newThread.detach();
 }
 
 void VCAI::lostHero(HeroPtr h)
