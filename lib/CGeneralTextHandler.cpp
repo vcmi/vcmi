@@ -313,6 +313,18 @@ void CGeneralTextHandler::registerStringOverride(const std::string & modContext,
 	assert(!modContext.empty());
 	assert(!language.empty());
 
+	std::string baseModLanguage = getModLanguage(modContext);
+
+	if (baseModLanguage != language)
+	{
+		// this is translation - only add text to existing strings, do not register new ones
+		if (stringsLocalizations.count(UID.get()) == 0)
+		{
+			logMod->warn("Unknown string '%s' in mod '%s' for language '%s'. Ignoring", UID.get(), modContext, language);
+			return;
+		}
+	}
+
 	// NOTE: implicitly creates entry, intended - strings added by vcmi (and potential UI mods) are not registered anywhere at the moment
 	auto & entry = stringsLocalizations[UID.get()];
 
