@@ -25,7 +25,7 @@ CMapGenOptions::CMapGenOptions()
 	playerCount(RANDOM_SIZE), teamCount(RANDOM_SIZE), compOnlyPlayerCount(RANDOM_SIZE), compOnlyTeamCount(RANDOM_SIZE),
 	waterContent(EWaterContent::RANDOM), monsterStrength(EMonsterStrength::RANDOM), mapTemplate(nullptr)
 {
-	resetPlayersMap();
+	initPlayersMap();
 	setRoadEnabled(RoadId(Road::DIRT_ROAD), true);
 	setRoadEnabled(RoadId(Road::GRAVEL_ROAD), true);
 	setRoadEnabled(RoadId(Road::COBBLESTONE_ROAD), true);
@@ -135,16 +135,15 @@ void CMapGenOptions::setMonsterStrength(EMonsterStrength::EMonsterStrength value
  	monsterStrength = value;
 }
 
-void CMapGenOptions::resetPlayersMap()
+void CMapGenOptions::initPlayersMap()
 {
-
 	std::map<PlayerColor, FactionID> rememberTownTypes;
 	std::map<PlayerColor, TeamID> rememberTeam;
 
 	for(const auto & p : players)
 	{
 		auto town = p.second.getStartingTown();
-		if (town != RANDOM_SIZE)
+		if (town != CPlayerSettings::RANDOM_TOWN)
 			rememberTownTypes[p.first] = FactionID(town);
 		rememberTeam[p.first] = p.second.getTeam();
 	}
@@ -157,7 +156,6 @@ void CMapGenOptions::resetPlayersMap()
 	if (getPlayerCount() == RANDOM_SIZE || compOnlyPlayerCount == RANDOM_SIZE)
 		totalPlayersLimit = static_cast<int>(PlayerColor::PLAYER_LIMIT_I);
 
-	//FIXME: what happens with human players here?
 	for(int color = 0; color < totalPlayersLimit; ++color)
 	{
 		CPlayerSettings player;
@@ -171,7 +169,112 @@ void CMapGenOptions::resetPlayersMap()
 		else if((getPlayerCount() != RANDOM_SIZE && color >= realPlayersCnt)
 		   || (compOnlyPlayerCount != RANDOM_SIZE && color >= (PlayerColor::PLAYER_LIMIT_I-compOnlyPlayerCount)))
 		{
-			//FIXME: Allow humans to choose any color, even from the end of teh list
+			playerType = EPlayerType::COMP_ONLY;
+		}
+		player.setPlayerType(playerType);
+		player.setTeam(rememberTeam[pc]);
+		players[pc] = player;
+
+		if (vstd::contains(rememberTownTypes, pc))
+			players[pc].setStartingTown(rememberTownTypes[pc]);
+	}
+}
+
+void CMapGenOptions::resetPlayersMap()
+{
+	//But do not update info about already made selections
+	std::map<PlayerColor, FactionID> rememberTownTypes;
+	std::map<PlayerColor, TeamID> rememberTeam;
+
+	for(const auto & p : players)
+	{
+		auto town = p.second.getStartingTown();
+		if (town != CPlayerSettings::RANDOM_TOWN)
+			rememberTownTypes[p.first] = FactionID(town);
+		rememberTeam[p.first] = p.second.getTeam();
+	}
+
+	//Remove players who have undefined properties
+	boost::remove_if(players, [](std::pair<PlayerColor, CPlayerSettings> & player)
+	{
+		return player.second.getPlayerType() != EPlayerType::AI && player.second.getStartingTown() == CPlayerSettings::RANDOM_TOWN;
+	});
+	
+	int realPlayersCnt = getPlayerCount();
+	if (realPlayersCnt != RANDOM_SIZE)
+	{
+		//Trim the number of AI players, then CPU-only players, finally human players
+		auto eraseLastPlayer = [this](EPlayerType playerType) -> bool
+		{
+			for (auto it = players.rbegin(); it != players.rend(); ++it)
+			{
+				if (it->second.getPlayerType() == playerType)
+				{
+					players.erase(it->first);
+					return true;
+				}
+			}
+			return false;
+		};
+
+		while (players.size() < realPlayersCnt)
+		{
+			if (eraseLastPlayer(EPlayerType::AI))
+				continue;
+			if (eraseLastPlayer(EPlayerType::COMP_ONLY))
+				continue;
+			if (eraseLastPlayer(EPlayerType::HUMAN))
+				continue;
+		}
+	}
+
+	int realCompOnlyPlayersCnt = (compOnlyPlayerCount == RANDOM_SIZE) ? (PlayerColor::PLAYER_LIMIT_I - realPlayersCnt) : compOnlyPlayerCount;
+	int totalPlayersLimit = realPlayersCnt + realCompOnlyPlayersCnt;
+	if (getPlayerCount() == RANDOM_SIZE || compOnlyPlayerCount == RANDOM_SIZE)
+		totalPlayersLimit = static_cast<int>(PlayerColor::PLAYER_LIMIT_I);
+
+	//First colors from the list are assigned to human players, then to CPU players
+	//FIXME: Assign human players colors first
+
+	//TODO: Where is player type is set in void CVCMIServer::updateAndPropagateLobbyState()
+	//in ApplyOnServerAfterAnnounceNetPackVisitor::visitForLobby
+	//CPackForLobby
+	std::vector<PlayerColor> availableColors;
+	for (ui8 color = 0; color < PlayerColor::PLAYER_LIMIT_I; ++color)
+	{
+		availableColors.push_back(PlayerColor(color));
+	}
+
+	auto removeUsedColors = [this, &availableColors](EPlayerType playerType)
+	{
+		for (auto& player : players)
+		{
+			if (player.second.getPlayerType() == playerType)
+			{
+				vstd::erase(availableColors, player.second.getColor());
+			}
+		}
+	};
+	removeUsedColors(EPlayerType::HUMAN);
+	removeUsedColors(EPlayerType::COMP_ONLY);
+	//removeUsedColors(EPlayerType::AI);
+
+	//TODO: Assign the remaining colors to random players (AI players)
+
+	for(int color = 0; color < totalPlayersLimit; ++color)
+	{
+		CPlayerSettings player;
+		auto pc = PlayerColor(color);
+		player.setColor(pc);
+		auto playerType = EPlayerType::AI;
+		if (getPlayerCount() != RANDOM_SIZE && color < realPlayersCnt)
+		{
+			playerType = EPlayerType::HUMAN;
+		}
+		else if((getPlayerCount() != RANDOM_SIZE && color >= realPlayersCnt)
+			|| (compOnlyPlayerCount != RANDOM_SIZE && color >= (PlayerColor::PLAYER_LIMIT_I-compOnlyPlayerCount)))
+		{
+			//FIXME: Allow humans to choose any color, even from the end of the list
 			playerType = EPlayerType::COMP_ONLY;
 		}
 		player.setPlayerType(playerType);

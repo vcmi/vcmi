@@ -143,6 +143,7 @@ public:
 	static const si8 RANDOM_SIZE = -1;
 
 private:
+	void initPlayersMap();
 	void resetPlayersMap();
 	int countHumanPlayers() const;
 	int countCompOnlyPlayers() const;
