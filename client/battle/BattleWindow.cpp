@@ -51,7 +51,7 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 
 	REGISTER_BUILDER("battleConsole", &BattleWindow::buildBattleConsole);
 	
-	const JsonNode config(ResourceID("config/widgets/BattleWindow.json"));
+	const JsonNode config(ResourceID("config/widgets/BattleWindow2.json"));
 	
 	addShortcut(EShortcut::GLOBAL_OPTIONS, std::bind(&BattleWindow::bOptionsf, this));
 	addShortcut(EShortcut::BATTLE_SURRENDER, std::bind(&BattleWindow::bSurrenderf, this));
