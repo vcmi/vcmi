@@ -13,6 +13,7 @@
 #include "../Engine/Nullkiller.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapObjects/MapObjects.h"
+#include "../../../lib/GameConstants.h"
 
 namespace NKAI
 {
@@ -32,6 +33,45 @@ public:
 		upgradeValue = (upgradedCreature.toCreature()->getAIValue() - initialCreature.toCreature()->getAIValue()) * count;
 	}
 };
+
+void ArmyUpgradeInfo::addArmyToBuy(std::vector<SlotInfo> army)
+{
+	for(auto slot : army)
+	{
+		resultingArmy.push_back(slot);
+
+		upgradeValue += slot.power;
+		upgradeCost += slot.creature->getFullRecruitCost() * slot.count;
+	}
+}
+
+void ArmyUpgradeInfo::addArmyToGet(std::vector<SlotInfo> army)
+{
+	for(auto slot : army)
+	{
+		resultingArmy.push_back(slot);
+
+		upgradeValue += slot.power;
+	}
+}
+
+std::vector<SlotInfo> ArmyManager::toSlotInfo(std::vector<creInfo> army) const
+{
+	std::vector<SlotInfo> result;
+
+	for(auto i : army)
+	{
+		SlotInfo slot;
+
+		slot.creature = VLC->creh->objects[i.cre->getId()];
+		slot.count = i.count;
+		slot.power = evaluateStackPower(i.cre, i.count);
+
+		result.push_back(slot);
+	}
+
+	return result;
+}
 
 uint64_t ArmyManager::howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const
 {
@@ -136,7 +176,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 		{
 			if(vstd::contains(allowedFactions, slot.creature->getFaction()))
 			{
-				auto slotID = newArmyInstance.getSlotFor(slot.creature);
+				auto slotID = newArmyInstance.getSlotFor(slot.creature->getId());
 
 				if(slotID.validSlot())
 				{
@@ -238,7 +278,8 @@ std::shared_ptr<CCreatureSet> ArmyManager::getArmyAvailableToBuyAsCCreatureSet(
 ui64 ArmyManager::howManyReinforcementsCanBuy(
 	const CCreatureSet * targetArmy,
 	const CGDwelling * dwelling,
-	const TResources & availableResources) const
+	const TResources & availableResources,
+	uint8_t turn) const
 {
 	ui64 aivalue = 0;
 	auto army = getArmyAvailableToBuy(targetArmy, dwelling, availableResources);
@@ -259,17 +300,29 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(const CCreatureSet * her
 std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 	const CCreatureSet * hero,
 	const CGDwelling * dwelling,
-	TResources availableRes) const
+	TResources availableRes,
+	uint8_t turn) const
 {
 	std::vector<creInfo> creaturesInDwellings;
 	int freeHeroSlots = GameConstants::ARMY_SIZE - hero->stacksCount();
+	bool countGrowth = (cb->getDate(Date::DAY_OF_WEEK) + turn) > 7;
+
+	const CGTownInstance * town = dwelling->ID == Obj::TOWN
+		? dynamic_cast<const CGTownInstance *>(dwelling)
+		: nullptr;
 
 	for(int i = dwelling->creatures.size() - 1; i >= 0; i--)
 	{
 		auto ci = infoFromDC(dwelling->creatures[i]);
 
-		if(!ci.count || ci.creID == -1)
-			continue;
+		if(ci.creID == -1) continue;
+
+		if(i < GameConstants::CREATURES_PER_TOWN && countGrowth)
+		{
+			ci.count += town ? town->creatureGrowth(i) : ci.cre->getGrowth();
+		}
+
+		if(!ci.count) continue;
 
 		SlotID dst = hero->getSlotFor(ci.creID);
 		if(!hero->hasStackAtSlot(dst)) //need another new slot for this stack
@@ -282,8 +335,7 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 
 		vstd::amin(ci.count, availableRes / ci.cre->getFullRecruitCost()); //max count we can afford
 
-		if(!ci.count)
-			continue;
+		if(!ci.count) continue;
 
 		ci.level = i; //this is important for Dungeon Summoning Portal
 		creaturesInDwellings.push_back(ci);
@@ -307,7 +359,7 @@ ui64 ArmyManager::howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, 
 	return newArmy > oldArmy ? newArmy - oldArmy : 0;
 }
 
-uint64_t ArmyManager::evaluateStackPower(const CCreature * creature, int count) const
+uint64_t ArmyManager::evaluateStackPower(const Creature * creature, int count) const
 {
 	return creature->getAIValue() * count;
 }

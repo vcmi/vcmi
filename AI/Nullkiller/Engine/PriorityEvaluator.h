@@ -33,6 +33,7 @@ public:
 	RewardEvaluator(const Nullkiller * ai) : ai(ai) {}
 
 	uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army, bool checkGold) const;
+	uint64_t getArmyGrowth(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
 	int getGoldCost(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
 	float getEnemyHeroStrategicalValue(const CGHeroInstance * enemy) const;
 	float getResourceRequirementStrength(int resType) const;
@@ -43,6 +44,7 @@ public:
 	int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * hero) const;
 	uint64_t getUpgradeArmyReward(const CGTownInstance * town, const BuildingInfo & bi) const;
 	const HitMapInfo & getEnemyHeroDanger(const int3 & tile, uint8_t turn) const;
+	uint64_t townArmyGrowth(const CGTownInstance * town) const;
 };
 
 struct DLL_EXPORT EvaluationContext
@@ -54,6 +56,7 @@ struct DLL_EXPORT EvaluationContext
 	float closestWayRatio;
 	float armyLossPersentage;
 	float armyReward;
+	uint64_t armyGrowth;
 	int32_t goldReward;
 	int32_t goldCost;
 	float skillReward;
@@ -64,6 +67,8 @@ struct DLL_EXPORT EvaluationContext
 	float enemyHeroDangerRatio;
 
 	EvaluationContext(const Nullkiller * ai);
+
+	void addNonCriticalStrategicalValue(float value);
 };
 
 class IEvaluationContextBuilder
@@ -95,6 +100,7 @@ private:
 	fl::InputVariable * turnVariable;
 	fl::InputVariable * goldRewardVariable;
 	fl::InputVariable * armyRewardVariable;
+	fl::InputVariable * armyGrowthVariable;
 	fl::InputVariable * dangerVariable;
 	fl::InputVariable * skillRewardVariable;
 	fl::InputVariable * strategicalValueVariable;

@@ -24,8 +24,8 @@
 
 namespace NKAI
 {
-	const int SCOUT_TURN_DISTANCE_LIMIT = 3;
-	const int MAIN_TURN_DISTANCE_LIMIT = 5;
+	const int SCOUT_TURN_DISTANCE_LIMIT = 5;
+	const int MAIN_TURN_DISTANCE_LIMIT = 10;
 
 namespace AIPathfinding
 {
@@ -258,7 +258,7 @@ public:
 	{
 		double ratio = (double)danger / (armyValue * hero->getFightingStrength());
 
-		return (uint64_t)(armyValue * ratio * ratio * ratio);
+		return (uint64_t)(armyValue * ratio * ratio);
 	}
 
 	STRONG_INLINE

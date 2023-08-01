@@ -52,6 +52,20 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 	ai->nullkiller->setActive(chainPath.targetHero, tile);
 	ai->nullkiller->setTargetObject(objid);
 
+	auto targetObject = ai->myCb->getObj(static_cast<ObjectInstanceID>(objid), false);
+
+	if(chainPath.turn() == 0 && targetObject && targetObject->ID == Obj::TOWN)
+	{
+		auto relations = ai->myCb->getPlayerRelations(ai->playerID, targetObject->getOwner());
+
+		if(relations == PlayerRelations::ENEMIES)
+		{
+			ai->nullkiller->armyFormation->rearrangeArmyForSiege(
+				dynamic_cast<const CGTownInstance *>(targetObject),
+				chainPath.targetHero);
+		}
+	}
+
 	std::set<int> blockedIndexes;
 
 	for(int i = chainPath.nodes.size() - 1; i >= 0; i--)

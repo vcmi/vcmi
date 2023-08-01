@@ -134,6 +134,7 @@ void ChainActor::setBaseActor(HeroActor * base)
 	armyCost = base->armyCost;
 	actorAction = base->actorAction;
 	tiCache = base->tiCache;
+	actorExchangeCount = base->actorExchangeCount;
 }
 
 void HeroActor::setupSpecialActors()

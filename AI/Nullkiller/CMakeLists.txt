@@ -52,6 +52,7 @@ set(Nullkiller_SRCS
 		Behaviors/BuildingBehavior.cpp
 		Behaviors/GatherArmyBehavior.cpp
 		Behaviors/ClusterBehavior.cpp
+		Helpers/ArmyFormation.cpp
 		AIGateway.cpp
 )
 
@@ -114,6 +115,7 @@ set(Nullkiller_HEADERS
 		Behaviors/BuildingBehavior.h
 		Behaviors/GatherArmyBehavior.h
 		Behaviors/ClusterBehavior.h
+		Helpers/ArmyFormation.h
 		AIGateway.h
 )
 
