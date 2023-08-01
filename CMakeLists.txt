@@ -250,6 +250,7 @@ if(MINGW OR MSVC)
 		# Suppress warnings
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+		add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING) # Fix gtest and gmock build
 
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
