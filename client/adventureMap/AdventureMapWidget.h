@@ -11,6 +11,7 @@
 
 #include "../gui/InterfaceObjectConfigurable.h"
 
+class CAnimation;
 class CHeroList;
 class CTownList;
 class CMinimap;

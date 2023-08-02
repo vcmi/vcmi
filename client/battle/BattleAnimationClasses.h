@@ -21,7 +21,6 @@ class Point;
 
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Color;
 class ColorFilter;
 class BattleHero;
 class CAnimation;

@@ -12,6 +12,7 @@
 
 #include "CIntObject.h"
 #include "TextAlignment.h"
+#include "../render/EFont.h"
 
 #include "../../lib/JsonNode.h"
 
@@ -73,7 +74,7 @@ protected:
 	Point readPosition(const JsonNode &) const;
 	Rect readRect(const JsonNode &) const;
 	ETextAlignment readTextAlignment(const JsonNode &) const;
-	SDL_Color readColor(const JsonNode &) const;
+	ColorRGBA readColor(const JsonNode &) const;
 	EFonts readFont(const JsonNode &) const;
 	std::string readText(const JsonNode &) const;
 	std::pair<std::string, std::string> readHintText(const JsonNode &) const;

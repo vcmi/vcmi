@@ -19,6 +19,7 @@ class CSpell;
 VCMI_LIB_NAMESPACE_END
 
 class IImage;
+class CAnimation;
 class CAnimImage;
 class CPicture;
 class CLabel;

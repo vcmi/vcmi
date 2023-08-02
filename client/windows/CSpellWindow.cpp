@@ -590,7 +590,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 			schoolBorder = std::make_shared<CAnimImage>(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab], schoolLevel);
 		}
 
-		SDL_Color firstLineColor, secondLineColor;
+		ColorRGBA firstLineColor, secondLineColor;
 		if(spellCost > owner->myHero->mana) //hero cannot cast this spell
 		{
 			firstLineColor = Colors::WHITE;

@@ -59,21 +59,9 @@ void CButton::update()
 		redraw();
 }
 
-void CButton::setBorderColor(std::optional<SDL_Color> borderColor)
+void CButton::setBorderColor(std::optional<ColorRGBA> newBorderColor)
 {
-	setBorderColor(borderColor, borderColor, borderColor, borderColor);
-}
-
-void CButton::setBorderColor(std::optional<SDL_Color> normalBorderColor,
-							 std::optional<SDL_Color> pressedBorderColor,
-							 std::optional<SDL_Color> blockedBorderColor,
-							 std::optional<SDL_Color> highlightedBorderColor)
-{
-	stateToBorderColor[NORMAL] = normalBorderColor;
-	stateToBorderColor[PRESSED] = pressedBorderColor;
-	stateToBorderColor[BLOCKED] = blockedBorderColor;
-	stateToBorderColor[HIGHLIGHTED] = highlightedBorderColor;
-	update();
+	borderColor = newBorderColor;
 }
 
 void CButton::addCallback(std::function<void()> callback)
@@ -81,7 +69,7 @@ void CButton::addCallback(std::function<void()> callback)
 	this->callback += callback;
 }
 
-void CButton::addTextOverlay(const std::string & Text, EFonts font, SDL_Color color)
+void CButton::addTextOverlay(const std::string & Text, EFonts font, ColorRGBA color)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 	addOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, ETextAlignment::CENTER, color, Text));
@@ -298,7 +286,6 @@ void CButton::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
-	auto borderColor = stateToBorderColor[getState()];
 	if (borderColor)
 		to.drawBorder(Rect::createAround(pos, 1), *borderColor);
 }

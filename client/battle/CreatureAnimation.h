@@ -10,11 +10,10 @@
 #pragma once
 
 #include "../../lib/FunctionList.h"
+#include "../../lib/Color.h"
 #include "../widgets/Images.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
-
-#include <SDL_pixels.h>
 
 class CIntObject;
 class CreatureAnimation;
@@ -23,10 +22,10 @@ class Canvas;
 /// Namespace for some common controls of animations
 namespace AnimationControls
 {
-	/// get SDL_Color for creature selection borders
-	SDL_Color getBlueBorder();
-	SDL_Color getGoldBorder();
-	SDL_Color getNoBorder();
+	/// get color for creature selection borders
+	ColorRGBA getBlueBorder();
+	ColorRGBA getGoldBorder();
+	ColorRGBA getNoBorder();
 
 	/// returns animation speed factor according to game settings,
 	/// slow speed is considered to be "base speed" and will return 1.0
@@ -100,7 +99,7 @@ private:
 	uint8_t shadowAlpha;
 
 	/// border color, disabled if alpha = 0
-	SDL_Color border;
+	ColorRGBA border;
 
 	TSpeedController speedController;
 
@@ -136,7 +135,7 @@ public:
 	/// should be called every frame, return true when animation was reset to beginning
 	bool incrementFrame(float timePassed);
 
-	void setBorderColor(SDL_Color palette);
+	void setBorderColor(ColorRGBA palette);
 
 	/// Gets the current frame ID within current group.
 	float getCurrentFrame() const;

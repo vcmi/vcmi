@@ -14,8 +14,10 @@
 #include "Colors.h"
 #include "IImage.h"
 #include "Graphics.h"
+#include "IFont.h"
 
 #include <SDL_surface.h>
+#include <SDL_pixels.h>
 
 Canvas::Canvas(SDL_Surface * surface):
 	surface(surface),
@@ -48,7 +50,7 @@ Canvas::Canvas(const Point & size):
 	renderArea(Point(0,0), size),
 	surface(CSDL_Ext::newSurface(size.x, size.y))
 {
-	CSDL_Ext::fillSurface(surface, Colors::TRANSPARENCY );
+	CSDL_Ext::fillSurface(surface, CSDL_Ext::toSDL(Colors::TRANSPARENCY) );
 	SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
 }
 
@@ -127,11 +129,11 @@ void Canvas::drawLineDashed(const Point & from, const Point & dest, const ColorR
 	CSDL_Ext::drawLineDashed(surface, renderArea.topLeft() + from, renderArea.topLeft() + dest, CSDL_Ext::toSDL(color));
 }
 
-void Canvas::drawBorder(const Rect & target, const SDL_Color & color, int width)
+void Canvas::drawBorder(const Rect & target, const ColorRGBA & color, int width)
 {
 	Rect realTarget = target + renderArea.topLeft();
 
-	CSDL_Ext::drawBorder(surface, realTarget.x, realTarget.y, realTarget.w, realTarget.h, color, width);
+	CSDL_Ext::drawBorder(surface, realTarget.x, realTarget.y, realTarget.w, realTarget.h, CSDL_Ext::toSDL(color), width);
 }
 
 void Canvas::drawBorderDashed(const Rect & target, const ColorRGBA & color)
@@ -144,7 +146,7 @@ void Canvas::drawBorderDashed(const Rect & target, const ColorRGBA & color)
 	CSDL_Ext::drawLineDashed(surface, realTarget.topRight(),   realTarget.bottomRight(), CSDL_Ext::toSDL(color));
 }
 
-void Canvas::drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::string & text )
+void Canvas::drawText(const Point & position, const EFonts & font, const ColorRGBA & colorDest, ETextAlignment alignment, const std::string & text )
 {
 	switch (alignment)
 	{
@@ -154,7 +156,7 @@ void Canvas::drawText(const Point & position, const EFonts & font, const SDL_Col
 	}
 }
 
-void Canvas::drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::vector<std::string> & text )
+void Canvas::drawText(const Point & position, const EFonts & font, const ColorRGBA & colorDest, ETextAlignment alignment, const std::vector<std::string> & text )
 {
 	switch (alignment)
 	{
@@ -164,11 +166,11 @@ void Canvas::drawText(const Point & position, const EFonts & font, const SDL_Col
 	}
 }
 
-void Canvas::drawColor(const Rect & target, const SDL_Color & color)
+void Canvas::drawColor(const Rect & target, const ColorRGBA & color)
 {
 	Rect realTarget = target + renderArea.topLeft();
 
-	CSDL_Ext::fillRect(surface, realTarget, color);
+	CSDL_Ext::fillRect(surface, realTarget, CSDL_Ext::toSDL(color));
 }
 
 SDL_Surface * Canvas::getInternalSurface()

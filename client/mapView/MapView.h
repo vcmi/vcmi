@@ -13,6 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 struct ObjectPosInfo;
+class CGObjectInstance;
 VCMI_LIB_NAMESPACE_END
 
 class Canvas;

@@ -33,8 +33,8 @@ class CBitmapFont : public IFont
 
 	void loadModFont(const std::string & modName, const ResourceID & resource);
 
-	void renderCharacter(SDL_Surface * surface, const BitmapChar & character, const SDL_Color & color, int &posX, int &posY) const;
-	void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const override;
+	void renderCharacter(SDL_Surface * surface, const BitmapChar & character, const ColorRGBA & color, int &posX, int &posY) const;
+	void renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const override;
 public:
 	explicit CBitmapFont(const std::string & filename);
 

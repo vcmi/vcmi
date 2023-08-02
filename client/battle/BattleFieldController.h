@@ -19,6 +19,7 @@ class Rect;
 VCMI_LIB_NAMESPACE_END
 
 class BattleHero;
+class CAnimation;
 class Canvas;
 class IImage;
 class BattleInterface;

@@ -9,9 +9,11 @@
  */
 #pragma once
 
-#include "../render/Graphics.h"
-#include "../../lib/Rect.h"
 #include "EventsReceiver.h"
+
+#include "../../lib/Rect.h"
+#include "../../lib/Color.h"
+#include "../../lib/GameConstants.h"
 
 class CGuiHandler;
 class CPicture;

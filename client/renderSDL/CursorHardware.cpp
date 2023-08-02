@@ -52,7 +52,7 @@ void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivot
 {
 	auto cursorSurface = CSDL_Ext::newSurface(image->dimensions().x, image->dimensions().y);
 
-	CSDL_Ext::fillSurface(cursorSurface, Colors::TRANSPARENCY);
+	CSDL_Ext::fillSurface(cursorSurface, CSDL_Ext::toSDL(Colors::TRANSPARENCY));
 
 	image->draw(cursorSurface);
 

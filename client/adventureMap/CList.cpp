@@ -22,6 +22,7 @@
 #include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
+#include "../render/Colors.h"
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"

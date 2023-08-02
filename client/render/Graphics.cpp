@@ -46,22 +46,20 @@ void Graphics::loadPaletteAndColors()
 	auto textFile = CResourceHandler::get()->load(ResourceID("DATA/PLAYERS.PAL"))->readAll();
 	std::string pals((char*)textFile.first.get(), textFile.second);
 
-	playerColorPalette = new SDL_Color[256];
-	neutralColor = new SDL_Color;
-	playerColors = new SDL_Color[PlayerColor::PLAYER_LIMIT_I];
 	int startPoint = 24; //beginning byte; used to read
-	for(int i=0; i<256; ++i)
+	for(int i=0; i<8; ++i)
 	{
-		SDL_Color col;
-		col.r = pals[startPoint++];
-		col.g = pals[startPoint++];
-		col.b = pals[startPoint++];
-		col.a = SDL_ALPHA_OPAQUE;
-		startPoint++;
-		playerColorPalette[i] = col;
+		for(int j=0; j<32; ++j)
+		{
+			ColorRGBA col;
+			col.r = pals[startPoint++];
+			col.g = pals[startPoint++];
+			col.b = pals[startPoint++];
+			col.a = SDL_ALPHA_OPAQUE;
+			startPoint++;
+			playerColorPalette[i][j] = col;
+		}
 	}
-
-	neutralColorPalette = new SDL_Color[32];
 
 	auto stream = CResourceHandler::get()->load(ResourceID("config/NEUTRAL.PAL"));
 	CBinaryReader reader(stream.get());
@@ -75,7 +73,7 @@ void Graphics::loadPaletteAndColors()
 		neutralColorPalette[i].a = SDL_ALPHA_OPAQUE;
 	}
 	//colors initialization
-	SDL_Color colors[]  = {
+	ColorRGBA colors[]  = {
 		{0xff,0,  0,    SDL_ALPHA_OPAQUE},
 		{0x31,0x52,0xff,SDL_ALPHA_OPAQUE},
 		{0x9c,0x73,0x52,SDL_ALPHA_OPAQUE},
@@ -91,10 +89,10 @@ void Graphics::loadPaletteAndColors()
 		playerColors[i] = colors[i];
 	}
 	//gray
-	neutralColor->r = 0x84;
-	neutralColor->g = 0x84;
-	neutralColor->b = 0x84;
-	neutralColor->a = SDL_ALPHA_OPAQUE;
+	neutralColor.r = 0x84;
+	neutralColor.g = 0x84;
+	neutralColor.b = 0x84;
+	neutralColor.a = SDL_ALPHA_OPAQUE;
 }
 
 void Graphics::initializeBattleGraphics()
@@ -148,26 +146,20 @@ Graphics::Graphics()
 	//(!) do not load any CAnimation here
 }
 
-Graphics::~Graphics()
-{
-	delete[] playerColors;
-	delete neutralColor;
-	delete[] playerColorPalette;
-	delete[] neutralColorPalette;
-}
-
 void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 {
 	if(sur->format->palette)
 	{
-		SDL_Color * palette = nullptr;
+		SDL_Color palette[32];
 		if(player < PlayerColor::PLAYER_LIMIT)
 		{
-			palette = playerColorPalette + 32*player.getNum();
+			for(int i=0; i<32; ++i)
+				palette[i] = CSDL_Ext::toSDL(playerColorPalette[player][i]);
 		}
 		else if(player == PlayerColor::NEUTRAL)
 		{
-			palette = neutralColorPalette;
+			for(int i=0; i<32; ++i)
+				palette[i] = CSDL_Ext::toSDL(neutralColorPalette[i]);
 		}
 		else
 		{
@@ -176,7 +168,6 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 		}
 //FIXME: not all player colored images have player palette at last 32 indexes
 //NOTE: following code is much more correct but still not perfect (bugged with status bar)
-
 		CSDL_Ext::setColors(sur, palette, 224, 32);
 
 

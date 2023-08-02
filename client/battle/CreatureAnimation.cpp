@@ -15,28 +15,27 @@
 
 #include "../render/Canvas.h"
 #include "../render/ColorFilter.h"
-#include "../renderSDL/SDL_Extensions.h"
 
-static const SDL_Color creatureBlueBorder = { 0, 255, 255, 255 };
-static const SDL_Color creatureGoldBorder = { 255, 255, 0, 255 };
-static const SDL_Color creatureNoBorder  =  { 0, 0, 0, 0 };
+static const ColorRGBA creatureBlueBorder = { 0, 255, 255, 255 };
+static const ColorRGBA creatureGoldBorder = { 255, 255, 0, 255 };
+static const ColorRGBA creatureNoBorder  =  { 0, 0, 0, 0 };
 
-static SDL_Color genShadow(ui8 alpha)
+static ColorRGBA genShadow(ui8 alpha)
 {
-	return CSDL_Ext::makeColor(0, 0, 0, alpha);
+	return ColorRGBA(0, 0, 0, alpha);
 }
 
-SDL_Color AnimationControls::getBlueBorder()
+ColorRGBA AnimationControls::getBlueBorder()
 {
 	return creatureBlueBorder;
 }
 
-SDL_Color AnimationControls::getGoldBorder()
+ColorRGBA AnimationControls::getGoldBorder()
 {
 	return creatureGoldBorder;
 }
 
-SDL_Color AnimationControls::getNoBorder()
+ColorRGBA AnimationControls::getNoBorder()
 {
 	return creatureNoBorder;
 }
@@ -194,7 +193,6 @@ CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController
 	  animationEnd(-1),
 	  elapsedTime(0),
 	  type(ECreatureAnimType::HOLDING),
-	  border(CSDL_Ext::makeColor(0, 0, 0, 0)),
 	  speedController(controller),
 	  once(false)
 {
@@ -288,7 +286,7 @@ bool CreatureAnimation::incrementFrame(float timePassed)
 	return false;
 }
 
-void CreatureAnimation::setBorderColor(SDL_Color palette)
+void CreatureAnimation::setBorderColor(ColorRGBA palette)
 {
 	border = palette;
 }
@@ -321,9 +319,9 @@ inline int getBorderStrength(float time)
 	return static_cast<int>(borderStrength * 155 + 100); // scale to 0-255
 }
 
-static SDL_Color genBorderColor(ui8 alpha, const SDL_Color & base)
+static ColorRGBA genBorderColor(ui8 alpha, const ColorRGBA & base)
 {
-	return CSDL_Ext::makeColor(base.r, base.g, base.b, ui8(base.a * alpha / 256));
+	return ColorRGBA(base.r, base.g, base.b, ui8(base.a * alpha / 256));
 }
 
 static ui8 mixChannels(ui8 c1, ui8 c2, ui8 a1, ui8 a2)
@@ -331,9 +329,9 @@ static ui8 mixChannels(ui8 c1, ui8 c2, ui8 a1, ui8 a2)
 	return c1*a1 / 256 + c2*a2*(255 - a1) / 256 / 256;
 }
 
-static SDL_Color addColors(const SDL_Color & base, const SDL_Color & over)
+static ColorRGBA addColors(const ColorRGBA & base, const ColorRGBA & over)
 {
-	return CSDL_Ext::makeColor(
+	return ColorRGBA(
 			mixChannels(over.r, base.r, over.a, base.a),
 			mixChannels(over.g, base.g, over.a, base.a),
 			mixChannels(over.b, base.b, over.a, base.a),
@@ -355,7 +353,7 @@ void CreatureAnimation::genSpecialPalette(IImage::SpecialPalette & target)
 
 void CreatureAnimation::nextFrame(Canvas & canvas, const ColorFilter & shifter, bool facingRight)
 {
-	SDL_Color shadowTest = shifter.shiftColor(genShadow(128));
+	ColorRGBA shadowTest = shifter.shiftColor(genShadow(128));
 	shadowAlpha = shadowTest.a;
 
 	size_t frame = static_cast<size_t>(floor(currentFrame));

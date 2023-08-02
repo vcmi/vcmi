@@ -10,6 +10,8 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "../render/EFont.h"
+
 
 VCMI_LIB_NAMESPACE_BEGIN
 

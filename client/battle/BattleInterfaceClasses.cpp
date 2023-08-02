@@ -29,6 +29,8 @@
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
+#include "../render/IFont.h"
+#include "../render/Graphics.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"

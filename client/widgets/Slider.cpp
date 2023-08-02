@@ -17,6 +17,7 @@
 #include "../gui/Shortcut.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
+#include "../render/Colors.h"
 
 void CSlider::mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance)
 {

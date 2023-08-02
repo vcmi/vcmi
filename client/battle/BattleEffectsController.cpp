@@ -23,6 +23,7 @@
 #include "../CPlayerInterface.h"
 #include "../render/Canvas.h"
 #include "../render/CAnimation.h"
+#include "../render/Graphics.h"
 
 #include "../../CCallback.h"
 #include "../../lib/battle/BattleAction.h"

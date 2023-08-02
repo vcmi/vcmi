@@ -35,7 +35,7 @@ size_t CBitmapHanFont::getCharacterIndex(ui8 first, ui8 second) const
 	return (first - 0x81) * (12*16 - 2) + (second - 0x40);
 }
 
-void CBitmapHanFont::renderCharacter(SDL_Surface * surface, int characterIndex, const SDL_Color & color, int &posX, int &posY) const
+void CBitmapHanFont::renderCharacter(SDL_Surface * surface, int characterIndex, const ColorRGBA & color, int &posX, int &posY) const
 {
 	//TODO: somewhat duplicated with CBitmapFont::renderCharacter();
 	Rect clipRect;
@@ -76,7 +76,7 @@ void CBitmapHanFont::renderCharacter(SDL_Surface * surface, int characterIndex, 
 	posX += (int)size + 1;
 }
 
-void CBitmapHanFont::renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
+void CBitmapHanFont::renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
 {
 	int posX = pos.x;
 	int posY = pos.y;

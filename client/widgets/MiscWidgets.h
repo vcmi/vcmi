@@ -16,7 +16,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGGarrison;
 struct InfoAboutArmy;
+struct InfoAboutHero;
+struct InfoAboutTown;
 class CArmedInstance;
+class CGTownInstance;
+class CGHeroInstance;
 class AFactionMember;
 
 VCMI_LIB_NAMESPACE_END

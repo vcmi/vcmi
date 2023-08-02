@@ -10,10 +10,9 @@
 
 #pragma once
 
-struct SDL_Color;
-
 VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
+class ColorRGBA;
 VCMI_LIB_NAMESPACE_END
 
 /// Base class for applying palette transformation on images
@@ -32,7 +31,7 @@ class ColorFilter
 		r(r), g(g), b(b), a(a)
 	{}
 public:
-	SDL_Color shiftColor(const SDL_Color & in) const;
+	ColorRGBA shiftColor(const ColorRGBA & in) const;
 
 	bool operator == (const ColorFilter & other) const;
 	bool operator != (const ColorFilter & other) const;

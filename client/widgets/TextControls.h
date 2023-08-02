@@ -12,10 +12,8 @@
 #include "../gui/CIntObject.h"
 #include "../gui/TextAlignment.h"
 #include "../render/Colors.h"
-#include "../render/Graphics.h"
+#include "../render/EFont.h"
 #include "../../lib/FunctionList.h"
-
-#include <SDL_pixels.h>
 
 class IImage;
 class CSlider;
@@ -30,12 +28,12 @@ protected:
 	/// do actual blitting of line. Text "what" will be placed at "where" and aligned according to alignment
 	void blitLine(Canvas & to, Rect where, std::string what);
 
-	CTextContainer(ETextAlignment alignment, EFonts font, SDL_Color color);
+	CTextContainer(ETextAlignment alignment, EFonts font, ColorRGBA color);
 
 public:
 	ETextAlignment alignment;
 	EFonts font;
-	SDL_Color color; // default font color. Can be overridden by placing "{}" into the string
+	ColorRGBA color; // default font color. Can be overridden by placing "{}" into the string
 };
 
 /// Label which shows text
@@ -54,11 +52,11 @@ public:
 	std::string getText();
 	virtual void setAutoRedraw(bool option);
 	virtual void setText(const std::string & Txt);
-	virtual void setColor(const SDL_Color & Color);
+	virtual void setColor(const ColorRGBA & Color);
 	size_t getWidth();
 
 	CLabel(int x = 0, int y = 0, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT,
-		const SDL_Color & Color = Colors::WHITE, const std::string & Text = "");
+		const ColorRGBA & Color = Colors::WHITE, const std::string & Text = "");
 	void showAll(Canvas & to) override; //shows statusbar (with current text)
 };
 
@@ -68,9 +66,9 @@ class CLabelGroup : public CIntObject
 	std::vector<std::shared_ptr<CLabel>> labels;
 	EFonts font;
 	ETextAlignment align;
-	SDL_Color color;
+	ColorRGBA color;
 public:
-	CLabelGroup(EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const SDL_Color & Color = Colors::WHITE);
+	CLabelGroup(EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const ColorRGBA & Color = Colors::WHITE);
 	void add(int x = 0, int y = 0, const std::string & text = "");
 	size_t currentSize() const;
 };
@@ -91,7 +89,7 @@ public:
 	// total size of text, x = longest line of text, y = total height of lines
 	Point textSize;
 
-	CMultiLineLabel(Rect position, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const SDL_Color & Color = Colors::WHITE, const std::string & Text = "");
+	CMultiLineLabel(Rect position, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const ColorRGBA & Color = Colors::WHITE, const std::string & Text = "");
 
 	void setText(const std::string & Txt) override;
 	void showAll(Canvas & to) override;
@@ -111,7 +109,7 @@ public:
 	std::shared_ptr<CMultiLineLabel> label;
 	std::shared_ptr<CSlider> slider;
 
-	CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const SDL_Color & Color = Colors::WHITE);
+	CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const ColorRGBA & Color = Colors::WHITE);
 
 	void resize(Point newSize);
 	void setText(const std::string & Txt);
@@ -125,7 +123,7 @@ class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusB
 	std::string consoleText;
 	bool enteringText;
 
-	CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::CENTER, const SDL_Color & Color = Colors::WHITE);
+	CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::CENTER, const ColorRGBA & Color = Colors::WHITE);
 	CGStatusBar(int x, int y, std::string name, int maxw = -1);
 
 	//make CLabel API private

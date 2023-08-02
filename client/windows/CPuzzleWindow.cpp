@@ -30,7 +30,7 @@
 CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 	: CWindowObject(PLAYER_COLORED | BORDERED, "PUZZLE"),
 	grailPos(GrailPos),
-	currentAlpha(SDL_ALPHA_OPAQUE)
+	currentAlpha(ColorRGBA::ALPHA_OPAQUE)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 

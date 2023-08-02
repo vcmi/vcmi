@@ -16,7 +16,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 class Rect;
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Color;
 class CAnimImage;
 class CLabel;
 class CAnimation;

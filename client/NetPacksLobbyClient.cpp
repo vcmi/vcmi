@@ -68,7 +68,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & 
 		lobby->card->chat->addNewMessage(pack.playerName + ": " + pack.message);
 		lobby->card->setChat(true);
 		if(lobby->buttonChat)
-			lobby->buttonChat->addTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL);
+			lobby->buttonChat->addTextOverlay(CGI->generaltexth->allTexts[531], FONT_SMALL, Colors::WHITE);
 	}
 }
 

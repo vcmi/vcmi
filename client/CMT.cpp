@@ -25,6 +25,7 @@
 #include "ClientCommandManager.h"
 #include "windows/CMessage.h"
 #include "render/IScreenHandler.h"
+#include "render/Graphics.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/CGeneralTextHandler.h"

@@ -13,7 +13,6 @@
 #include "../../lib/Rect.h"
 #include "../../lib/Color.h"
 
-struct SDL_Color;
 struct SDL_Surface;
 class IImage;
 enum EFonts : int;
@@ -83,19 +82,19 @@ public:
 	void drawLineDashed(const Point & from, const Point & dest, const ColorRGBA & color);
 
 	/// renders rectangular, solid-color border in specified location
-	void drawBorder(const Rect & target, const SDL_Color & color, int width = 1);
+	void drawBorder(const Rect & target, const ColorRGBA & color, int width = 1);
 
 	/// renders rectangular, dashed border in specified location
 	void drawBorderDashed(const Rect & target, const ColorRGBA & color);
 
 	/// renders single line of text with specified parameters
-	void drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::string & text );
+	void drawText(const Point & position, const EFonts & font, const ColorRGBA & colorDest, ETextAlignment alignment, const std::string & text );
 
 	/// renders multiple lines of text with specified parameters
-	void drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::vector<std::string> & text );
+	void drawText(const Point & position, const EFonts & font, const ColorRGBA & colorDest, ETextAlignment alignment, const std::vector<std::string> & text );
 
 	/// fills selected area with solid color, ignoring any transparency
-	void drawColor(const Rect & target, const SDL_Color & color);
+	void drawColor(const Rect & target, const ColorRGBA & color);
 
 	/// Compatibility method. AVOID USAGE. To be removed once SDL abstraction layer is finished.
 	SDL_Surface * getInternalSurface();

@@ -20,6 +20,8 @@
 #include "../adventureMap/CInGameConsole.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../render/Canvas.h"
+#include "../render/Graphics.h"
+#include "../render/IFont.h"
 
 #include "../../lib/TextOperations.h"
 
@@ -44,7 +46,7 @@ void CLabel::showAll(Canvas & to)
 
 }
 
-CLabel::CLabel(int x, int y, EFonts Font, ETextAlignment Align, const SDL_Color & Color, const std::string & Text)
+CLabel::CLabel(int x, int y, EFonts Font, ETextAlignment Align, const ColorRGBA & Color, const std::string & Text)
 	: CTextContainer(Align, Font, Color), text(Text)
 {
 	setRedrawParent(true);
@@ -87,7 +89,7 @@ void CLabel::setText(const std::string & Txt)
 	}
 }
 
-void CLabel::setColor(const SDL_Color & Color)
+void CLabel::setColor(const ColorRGBA & Color)
 {
 	color = Color;
 	if(autoRedraw)
@@ -104,7 +106,7 @@ size_t CLabel::getWidth()
 	return graphics->fonts[font]->getStringWidth(visibleText());;
 }
 
-CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, ETextAlignment Align, const SDL_Color & Color, const std::string & Text) :
+CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, ETextAlignment Align, const ColorRGBA & Color, const std::string & Text) :
 	CLabel(position.x, position.y, Font, Align, Color, Text),
 	visibleSize(0, 0, position.w, position.h)
 {
@@ -193,7 +195,7 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 	} while(begin++ != std::string::npos);
 }
 
-CTextContainer::CTextContainer(ETextAlignment alignment, EFonts font, SDL_Color color) :
+CTextContainer::CTextContainer(ETextAlignment alignment, EFonts font, ColorRGBA color) :
 	alignment(alignment),
 	font(font),
 	color(color)
@@ -275,7 +277,7 @@ Rect CMultiLineLabel::getTextLocation()
 	return Rect();
 }
 
-CLabelGroup::CLabelGroup(EFonts Font, ETextAlignment Align, const SDL_Color & Color)
+CLabelGroup::CLabelGroup(EFonts Font, ETextAlignment Align, const ColorRGBA & Color)
 	: font(Font), align(Align), color(Color)
 {
 	defActions = 255 - DISPOSE;
@@ -292,7 +294,7 @@ size_t CLabelGroup::currentSize() const
 	return labels.size();
 }
 
-CTextBox::CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font, ETextAlignment Align, const SDL_Color & Color) :
+CTextBox::CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font, ETextAlignment Align, const ColorRGBA & Color) :
 	sliderStyle(SliderStyle),
 	slider(nullptr)
 {
@@ -403,7 +405,7 @@ void CGStatusBar::clear()
 	write({});
 }
 
-CGStatusBar::CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font, ETextAlignment Align, const SDL_Color & Color)
+CGStatusBar::CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font, ETextAlignment Align, const ColorRGBA & Color)
 	: CLabel(background_->pos.x, background_->pos.y, Font, Align, Color, "")
 	, enteringText(false)
 {

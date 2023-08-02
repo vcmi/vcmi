@@ -112,7 +112,7 @@ bool CBitmapFont::canRepresentString(const std::string & data) const
 	return true;
 }
 
-void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & character, const SDL_Color & color, int &posX, int &posY) const
+void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & character, const ColorRGBA & color, int &posX, int &posY) const
 {
 	Rect clipRect;
 	CSDL_Ext::getClipRect(surface, clipRect);
@@ -162,7 +162,7 @@ void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & char
 	posX += character.rightOffset;
 }
 
-void CBitmapFont::renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
+void CBitmapFont::renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const
 {
 	if (data.empty())
 		return;
