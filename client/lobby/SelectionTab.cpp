@@ -33,7 +33,6 @@
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CModHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/campaign/CampaignState.h"

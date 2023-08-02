@@ -31,7 +31,6 @@
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/rmg/CMapGenOptions.h"
-#include "../../lib/CModHandler.h"
 #include "../../lib/rmg/CRmgTemplateStorage.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/RoadHandler.h"

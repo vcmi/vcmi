@@ -13,7 +13,7 @@
 
 #include "IObjectInfo.h"
 #include "../CGeneralTextHandler.h"
-#include "../CModHandler.h"
+#include "../modding/IdentifierStorage.h"
 #include "../VCMI_Lib.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/ObjectTemplate.h"
@@ -100,7 +100,7 @@ void AObjectTypeHandler::init(const JsonNode & input)
 
 	if(!input["battleground"].isNull())
 	{
-		VLC->modh->identifiers.requestIdentifier("battlefield", input["battleground"], [this](int32_t identifier)
+		VLC->identifiers()->requestIdentifier("battlefield", input["battleground"], [this](int32_t identifier)
 		{
 			battlefield = BattleField(identifier);
 		});

@@ -15,7 +15,6 @@
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
-#include "../CModHandler.h"
 #include "../CSkillHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../IGameCallback.h"
@@ -25,6 +24,7 @@
 #include "../serializer/JsonSerializeFormat.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../modding/ModScope.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -1165,7 +1165,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 		bonusType = RANDOM;
 		if(!json["rewardPrimSkill"].String().empty())
 		{
-			auto raw = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "primSkill", json["rewardPrimSkill"].String());
+			auto raw = VLC->identifiers()->getIdentifier(ModScope::scopeBuiltin(), "primSkill", json["rewardPrimSkill"].String());
 			if(raw)
 			{
 				bonusType = PRIM_SKILL;
@@ -1174,7 +1174,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 		}
 		else if(!json["rewardSkill"].String().empty())
 		{
-			auto raw = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "skill", json["rewardSkill"].String());
+			auto raw = VLC->identifiers()->getIdentifier(ModScope::scopeBuiltin(), "skill", json["rewardSkill"].String());
 			if(raw)
 			{
 				bonusType = SECONDARY_SKILL;
@@ -1183,7 +1183,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 		}
 		else if(!json["rewardSpell"].String().empty())
 		{
-			auto raw = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "spell", json["rewardSpell"].String());
+			auto raw = VLC->identifiers()->getIdentifier(ModScope::scopeBuiltin(), "spell", json["rewardSpell"].String());
 			if(raw)
 			{
 				bonusType = SPELL;

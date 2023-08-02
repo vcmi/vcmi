@@ -15,7 +15,6 @@
 #include "CSkillHandler.h"// for CSkill
 #include "NetPacks.h"
 #include "CBonusTypeHandler.h"
-#include "CModHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 #include "bonuses/CBonusSystemNode.h"
@@ -38,6 +37,10 @@
 #include "gameState/CGameStateCampaign.h"
 #include "gameState/TavernHeroesPool.h"
 #include "mapping/CMap.h"
+#include "modding/CModHandler.h"
+#include "modding/CModInfo.h"
+#include "modding/IdentifierStorage.h"
+#include "modding/CModVersion.h"
 #include "CPlayerState.h"
 #include "GameSettings.h"
 #include "ScriptHandler.h"

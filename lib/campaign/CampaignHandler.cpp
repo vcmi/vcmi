@@ -16,14 +16,16 @@
 #include "../filesystem/CCompressedStream.h"
 #include "../filesystem/CMemoryStream.h"
 #include "../filesystem/CBinaryReader.h"
+#include "../modding/IdentifierStorage.h"
 #include "../VCMI_Lib.h"
 #include "../CGeneralTextHandler.h"
 #include "../TextOperations.h"
-#include "../CModHandler.h"
 #include "../Languages.h"
 #include "../StringConstants.h"
 #include "../mapping/CMapHeader.h"
 #include "../mapping/CMapService.h"
+#include "../modding/CModHandler.h"
+#include "../modding/ModScope.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -249,14 +251,14 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 	
 	for(auto & k : reader["keepCreatures"].Vector())
 	{
-		if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "creature", k.String()))
+		if(auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "creature", k.String()))
 			ret.monstersKeptByHero.insert(CreatureID(identifier.value()));
 		else
 			logGlobal->warn("VCMP Loading: keepCreatures contains unresolved identifier %s", k.String());
 	}
 	for(auto & k : reader["keepArtifacts"].Vector())
 	{
-		if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "artifact", k.String()))
+		if(auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "artifact", k.String()))
 			ret.artifactsKeptByHero.insert(ArtifactID(identifier.value()));
 		else
 			logGlobal->warn("VCMP Loading: keepArtifacts contains unresolved identifier %s", k.String());
@@ -292,7 +294,7 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 						if(int heroId = heroSpecialMap[bjson["hero"].String()])
 							bonus.info1 = heroId;
 						else
-							if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", bjson["hero"].String()))
+							if(auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", bjson["hero"].String()))
 								bonus.info1 = identifier.value();
 							else
 								logGlobal->warn("VCMP Loading: unresolved hero identifier %s", bjson["hero"].String());
@@ -305,14 +307,14 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 							case CampaignBonusType::MONSTER:
 							case CampaignBonusType::SECONDARY_SKILL:
 							case CampaignBonusType::ARTIFACT:
-								if(auto identifier  = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), bjson["what"].String(), bjson["type"].String()))
+								if(auto identifier  = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), bjson["what"].String(), bjson["type"].String()))
 									bonus.info2 = identifier.value();
 								else
 									logGlobal->warn("VCMP Loading: unresolved %s identifier %s", bjson["what"].String(), bjson["type"].String());
 								break;
 								
 							case CampaignBonusType::SPELL_SCROLL:
-								if(auto Identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "spell", bjson["type"].String()))
+								if(auto Identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "spell", bjson["type"].String()))
 									bonus.info2 = Identifier.value();
 								else
 									logGlobal->warn("VCMP Loading: unresolved spell scroll identifier %s", bjson["type"].String());
@@ -355,7 +357,7 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 				if(int heroId = heroSpecialMap[bjson["hero"].String()])
 					bonus.info2 = heroId;
 				else
-					if (auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", bjson["hero"].String()))
+					if (auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", bjson["hero"].String()))
 						bonus.info2 = identifier.value();
 					else
 						logGlobal->warn("VCMP Loading: unresolved hero identifier %s", bjson["hero"].String());

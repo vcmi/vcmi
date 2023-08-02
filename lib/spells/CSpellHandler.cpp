@@ -20,7 +20,6 @@
 #include "../CGeneralTextHandler.h"
 #include "../filesystem/Filesystem.h"
 
-#include "../CModHandler.h"
 #include "../StringConstants.h"
 
 #include "../battle/BattleInfo.h"
@@ -29,6 +28,8 @@
 
 #include "../mapObjects/CGHeroInstance.h" //todo: remove
 #include "../serializer/CSerializer.h"
+#include "../modding/IdentifierStorage.h"
+#include "../modding/ModUtility.h"
 
 #include "ISpellMechanics.h"
 
@@ -458,7 +459,7 @@ JsonNode CSpell::convertTargetCondition(const BTVector & immunity, const BTVecto
 			auto iter = bonusNameRMap.find(bonusType);
 			if(iter != bonusNameRMap.end())
 			{
-				auto fullId = CModHandler::makeFullIdentifier("", "bonus", iter->second);
+				auto fullId = ModUtility::makeFullIdentifier("", "bonus", iter->second);
 				res[targetName][fullId].String() = value;
 			}
 			else
@@ -713,7 +714,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	{
 		const int chance = static_cast<int>(node.second.Integer());
 
-		VLC->modh->identifiers.requestIdentifier(node.second.meta, "faction", node.first, [=](si32 factionID)
+		VLC->identifiers()->requestIdentifier(node.second.meta, "faction", node.first, [=](si32 factionID)
 		{
 			spell->probabilities[FactionID(factionID)] = chance;
 		});
@@ -736,7 +737,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	{
 		if(counteredSpell.second.Bool())
 		{
-			VLC->modh->identifiers.requestIdentifier(counteredSpell.second.meta, counteredSpell.first, [=](si32 id) 
+			VLC->identifiers()->requestIdentifier(counteredSpell.second.meta, counteredSpell.first, [=](si32 id) 
 			{
 				spell->counteredSpells.emplace_back(id);
 			});

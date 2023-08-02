@@ -17,7 +17,6 @@
 #include "CMap.h"
 #include "MapFormat.h"
 #include "../ArtifactUtils.h"
-#include "../CModHandler.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
 #include "../VCMI_Lib.h"
@@ -29,6 +28,8 @@
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../modding/ModScope.h"
+#include "../modding/ModUtility.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
 #include "../StringConstants.h"
@@ -191,7 +192,7 @@ namespace TriggeredEventsDetail
 			break;
 		}
 
-		return CModHandler::makeFullIdentifier("", metaclassName, identifier);
+		return ModUtility::makeFullIdentifier("", metaclassName, identifier);
 	}
 
 	static EventCondition JsonToCondition(const JsonNode & node)
@@ -219,11 +220,11 @@ namespace TriggeredEventsDetail
 					std::string metaTypeName;
 					std::string scope;
 					std::string identifier;
-					CModHandler::parseIdentifier(fullIdentifier, scope, metaTypeName, identifier);
+					ModUtility::parseIdentifier(fullIdentifier, scope, metaTypeName, identifier);
 
 					event.metaType = decodeMetaclass(metaTypeName);
 
-					auto type = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), fullIdentifier, false);
+					auto type = VLC->identifiers()->getIdentifier(ModScope::scopeBuiltin(), fullIdentifier, false);
 
 					if(type)
 						event.objectType = type.value();
@@ -242,7 +243,7 @@ namespace TriggeredEventsDetail
 					//old format
 					if (data["type"].getType() == JsonNode::JsonType::DATA_STRING)
 					{
-						auto identifier = VLC->modh->identifiers.getIdentifier(data["type"]);
+						auto identifier = VLC->identifiers()->getIdentifier(data["type"]);
 						if(identifier)
 							event.objectType = identifier.value();
 						else
@@ -1157,7 +1158,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 		return;
 	}
 
-	auto handler = VLC->objtypeh->getHandlerFor( CModHandler::scopeMap(), typeName, subtypeName);
+	auto handler = VLC->objtypeh->getHandlerFor( ModScope::scopeMap(), typeName, subtypeName);
 
 	auto * appearance = new ObjectTemplate;
 
@@ -1194,7 +1195,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 		if(art->ID == Obj::SPELL_SCROLL)
 		{
 			auto spellIdentifier = configuration["options"]["spell"].String();
-			auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "spell", spellIdentifier);
+			auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeBuiltin(), "spell", spellIdentifier);
 			if(rawId)
 				spellID = rawId.value();
 			else

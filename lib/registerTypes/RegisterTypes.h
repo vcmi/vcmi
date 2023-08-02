@@ -17,7 +17,6 @@
 #include "../CPlayerState.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
-#include "../CModHandler.h" //needed?
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"

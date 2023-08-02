@@ -18,7 +18,6 @@
 #include "StartInfo.h" // for StartInfo
 #include "battle/BattleInfo.h" // for BattleInfo
 #include "NetPacks.h" // for InfoWindow
-#include "CModHandler.h"
 #include "GameSettings.h"
 #include "TerrainHandler.h"
 #include "spells/CSpellHandler.h"

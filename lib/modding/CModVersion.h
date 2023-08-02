@@ -10,6 +10,12 @@
 
 #pragma once
 
+#ifdef __UCLIBC__
+#undef major
+#undef minor
+#undef patch
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct DLL_LINKAGE CModVersion

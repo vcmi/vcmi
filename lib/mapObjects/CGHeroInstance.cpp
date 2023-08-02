@@ -21,7 +21,6 @@
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
 #include "../GameSettings.h"
-#include "../CModHandler.h"
 #include "../CSoundBase.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
@@ -35,6 +34,7 @@
 #include "../serializer/JsonSerializeFormat.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../modding/ModScope.h"
 #include "../StringConstants.h"
 #include "../battle/Unit.h"
 
@@ -1487,7 +1487,7 @@ void CGHeroInstance::setHeroTypeName(const std::string & identifier)
 {
 	if(ID == Obj::HERO || ID == Obj::PRISON)
 	{
-		auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", identifier);
+		auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", identifier);
 
 		if(rawId)
 			subID = rawId.value();

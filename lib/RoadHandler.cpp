@@ -10,9 +10,9 @@
 
 #include "StdInc.h"
 #include "RoadHandler.h"
-#include "CModHandler.h"
 #include "CGeneralTextHandler.h"
 #include "GameSettings.h"
+#include "JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -15,7 +15,6 @@
 #include "JsonNode.h"
 #include "StringConstants.h"
 #include "CCreatureHandler.h"
-#include "CModHandler.h"
 #include "CHeroHandler.h"
 #include "CArtHandler.h"
 #include "GameSettings.h"
@@ -27,6 +26,8 @@
 #include "ResourceSet.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
+#include "modding/IdentifierStorage.h"
+#include "modding/ModScope.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -689,7 +690,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 												stringID % ret->town->faction->getNameTranslated()));
 		}
 
-		VLC->modh->identifiers.requestIdentifier(ret->town->getBuildingScope(), source["upgrades"], [=](si32 identifier)
+		VLC->identifiers()->requestIdentifier(ret->town->getBuildingScope(), source["upgrades"], [=](si32 identifier)
 		{
 			ret->upgrade = BuildingID(identifier);
 		});
@@ -721,21 +722,21 @@ void CTownHandler::loadStructure(CTown &town, const std::string & stringID, cons
 	ret->building = nullptr;
 	ret->buildable = nullptr;
 
-	VLC->modh->identifiers.tryRequestIdentifier( source.meta, "building." + town.faction->getJsonKey(), stringID, [=, &town](si32 identifier) mutable
+	VLC->identifiers()->tryRequestIdentifier( source.meta, "building." + town.faction->getJsonKey(), stringID, [=, &town](si32 identifier) mutable
 	{
 		ret->building = town.buildings[BuildingID(identifier)];
 	});
 
 	if (source["builds"].isNull())
 	{
-		VLC->modh->identifiers.tryRequestIdentifier( source.meta, "building." + town.faction->getJsonKey(), stringID, [=, &town](si32 identifier) mutable
+		VLC->identifiers()->tryRequestIdentifier( source.meta, "building." + town.faction->getJsonKey(), stringID, [=, &town](si32 identifier) mutable
 		{
 			ret->building = town.buildings[BuildingID(identifier)];
 		});
 	}
 	else
 	{
-		VLC->modh->identifiers.requestIdentifier("building." + town.faction->getJsonKey(), source["builds"], [=, &town](si32 identifier) mutable
+		VLC->identifiers()->requestIdentifier("building." + town.faction->getJsonKey(), source["builds"], [=, &town](si32 identifier) mutable
 		{
 			ret->buildable = town.buildings[BuildingID(identifier)];
 		});
@@ -786,7 +787,7 @@ void CTownHandler::loadTownHall(CTown &town, const JsonNode & source) const
 				auto & dst = dstBox[k];
 				const auto & src = srcBox[k];
 
-				VLC->modh->identifiers.requestIdentifier("building." + town.faction->getJsonKey(), src, [&](si32 identifier)
+				VLC->identifiers()->requestIdentifier("building." + town.faction->getJsonKey(), src, [&](si32 identifier)
 				{
 					dst = BuildingID(identifier);
 				});
@@ -812,7 +813,7 @@ void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source) const
 	town.clientInfo.towerIconSmall = source["towerIconSmall"].String();
 	town.clientInfo.towerIconLarge = source["towerIconLarge"].String();
 
-	VLC->modh->identifiers.requestIdentifier("creature", source["shooter"], [&town](si32 creature)
+	VLC->identifiers()->requestIdentifier("creature", source["shooter"], [&town](si32 creature)
 	{
 		auto crId = CreatureID(creature);
 		if((*VLC->creh)[crId]->animation.missleFrameAngles.empty())
@@ -915,14 +916,14 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 
 	if (!source["moatAbility"].isNull()) // VCMI 1.2 compatibility code
 	{
-		VLC->modh->identifiers.requestIdentifier( "spell", source["moatAbility"], [=](si32 ability)
+		VLC->identifiers()->requestIdentifier( "spell", source["moatAbility"], [=](si32 ability)
 		{
 			town->moatAbility = SpellID(ability);
 		});
 	}
 	else
 	{
-		VLC->modh->identifiers.requestIdentifier( source.meta, "spell", "castleMoat", [=](si32 ability)
+		VLC->identifiers()->requestIdentifier( source.meta, "spell", "castleMoat", [=](si32 ability)
 		{
 			town->moatAbility = SpellID(ability);
 		});
@@ -949,7 +950,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 
 		for (size_t j=0; j<level.size(); j++)
 		{
-			VLC->modh->identifiers.requestIdentifier("creature", level[j], [=](si32 creature)
+			VLC->identifiers()->requestIdentifier("creature", level[j], [=](si32 creature)
 			{
 				town->creatures[i][j] = CreatureID(creature);
 			});
@@ -962,7 +963,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	{
 		int chance = static_cast<int>(node.second.Float());
 
-		VLC->modh->identifiers.requestIdentifier(node.second.meta, "heroClass",node.first, [=](si32 classID)
+		VLC->identifiers()->requestIdentifier(node.second.meta, "heroClass",node.first, [=](si32 classID)
 		{
 			VLC->heroh->classes[HeroClassID(classID)]->selectionProbability[town->faction->getId()] = chance;
 		});
@@ -972,7 +973,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	{
 		int chance = static_cast<int>(node.second.Float());
 
-		VLC->modh->identifiers.requestIdentifier(node.second.meta, "spell", node.first, [=](si32 spellID)
+		VLC->identifiers()->requestIdentifier(node.second.meta, "spell", node.first, [=](si32 spellID)
 		{
 			VLC->spellh->objects.at(spellID)->probabilities[town->faction->getId()] = chance;
 		});
@@ -1032,7 +1033,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	faction->boatType = EBoatId::NONE;
 	if (!source["boat"].isNull())
 	{
-		VLC->modh->identifiers.requestIdentifier("core:boat", source["boat"], [=](int32_t boatTypeID)
+		VLC->identifiers()->requestIdentifier("core:boat", source["boat"], [=](int32_t boatTypeID)
 		{
 			faction->boatType = BoatId(boatTypeID);
 		});
@@ -1054,7 +1055,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	faction->nativeTerrain = ETerrainId::NONE;
 	if ( !source["nativeTerrain"].isNull() && source["nativeTerrain"].String() != "none")
 	{
-		VLC->modh->identifiers.requestIdentifier("terrain", source["nativeTerrain"], [=](int32_t index){
+		VLC->identifiers()->requestIdentifier("terrain", source["nativeTerrain"], [=](int32_t index){
 			faction->nativeTerrain = TerrainId(index);
 
 			auto const & terrain = VLC->terrainTypeHandler->getById(faction->nativeTerrain);
@@ -1093,7 +1094,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		info.icons[1][0] = 8 + object->index * 4 + 2;
 		info.icons[1][1] = 8 + object->index * 4 + 3;
 
-		VLC->modh->identifiers.requestIdentifier(scope, "object", "town", [=](si32 index)
+		VLC->identifiers()->requestIdentifier(scope, "object", "town", [=](si32 index)
 		{
 			// register town once objects are loaded
 			JsonNode config = data["town"]["mapObject"];
@@ -1136,7 +1137,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		info.icons[1][0] = object->index * 2 + 0;
 		info.icons[1][1] = object->index * 2 + 1;
 
-		VLC->modh->identifiers.requestIdentifier(scope, "object", "town", [=](si32 index)
+		VLC->identifiers()->requestIdentifier(scope, "object", "town", [=](si32 index)
 		{
 			// register town once objects are loaded
 			JsonNode config = data["town"]["mapObject"];
@@ -1154,7 +1155,7 @@ void CTownHandler::loadRandomFaction()
 	static const ResourceID randomFactionPath("config/factions/random.json");
 
 	JsonNode randomFactionJson(randomFactionPath);
-	randomFactionJson.setMeta(CModHandler::scopeBuiltin(), true);
+	randomFactionJson.setMeta(ModScope::scopeBuiltin(), true);
 	loadBuildings(randomTown, randomFactionJson["random"]["town"]["buildings"]);
 }
 
@@ -1183,7 +1184,7 @@ void CTownHandler::initializeRequirements()
 				logMod->warn("Entry contains: ");
 				logMod->warn(node.toJson());
 			}
-			return BuildingID(VLC->modh->identifiers.getIdentifier(requirement.town->getBuildingScope(), node.Vector()[0]).value());
+			return BuildingID(VLC->identifiers()->getIdentifier(requirement.town->getBuildingScope(), node.Vector()[0]).value());
 		});
 	}
 	requirementsToLoad.clear();
@@ -1198,7 +1199,7 @@ void CTownHandler::initializeOverridden()
 
 		for(const auto & b : jsonNode.Vector())
 		{
-			auto bid = BuildingID(VLC->modh->identifiers.getIdentifier(scope, b).value());
+			auto bid = BuildingID(VLC->identifiers()->getIdentifier(scope, b).value());
 			bidHelper.building->overrideBids.insert(bid);
 		}
 	}
@@ -1213,7 +1214,7 @@ void CTownHandler::initializeWarMachines()
 		CTown * t = p.first;
 		JsonNode creatureKey = p.second;
 
-		auto ret = VLC->modh->identifiers.getIdentifier("creature", creatureKey, false);
+		auto ret = VLC->identifiers()->getIdentifier("creature", creatureKey, false);
 
 		if(ret)
 		{

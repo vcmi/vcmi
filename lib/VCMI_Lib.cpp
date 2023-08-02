@@ -25,7 +25,10 @@
 #include "spells/effects/Registry.h"
 #include "CSkillHandler.h"
 #include "CGeneralTextHandler.h"
-#include "CModHandler.h"
+#include "modding/CModHandler.h"
+#include "modding/CModInfo.h"
+#include "modding/IdentifierStorage.h"
+#include "modding/CModVersion.h"
 #include "IGameEventsReceiver.h"
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
@@ -104,6 +107,11 @@ const SkillService * LibClasses::skills() const
 const IBonusTypeHandler * LibClasses::getBth() const
 {
 	return bth;
+}
+
+const CIdentifierStorage * LibClasses::identifiers() const
+{
+	return &modh->getIdentifiers();
 }
 
 const spells::effects::Registry * LibClasses::spellEffects() const

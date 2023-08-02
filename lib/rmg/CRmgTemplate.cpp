@@ -16,9 +16,9 @@
 
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
-#include "../CModHandler.h"
 #include "../TerrainHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../modding/ModScope.h"
 #include "../StringConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -71,7 +71,7 @@ class TerrainEncoder
 public:
 	static si32 decode(const std::string & identifier)
 	{
-		return *VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "terrain", identifier);
+		return *VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "terrain", identifier);
 	}
 
 	static std::string encode(const si32 index)

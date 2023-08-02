@@ -31,8 +31,10 @@
 #include "../CCallback.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ContentTypeHandler.h"
+#include "../lib/modding/ModUtility.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/CModHandler.h"
 #include "../lib/VCMIDirs.h"
 #include "CMT.h"
 
@@ -229,7 +231,8 @@ void ClientCommandManager::handleGetConfigCommand()
 
 	for(auto contentName : contentNames)
 	{
-		auto& content = (*VLC->modh->content)[contentName];
+		auto const & handler = *VLC->modh->content;
+		auto const & content = handler[contentName];
 
 		auto contentOutPath = outPath / contentName;
 		boost::filesystem::create_directories(contentOutPath);
@@ -242,7 +245,7 @@ void ClientCommandManager::handleGetConfigCommand()
 			{
 				const JsonNode& object = nameAndObject.second;
 
-				std::string name = CModHandler::makeFullIdentifier(object.meta, contentName, nameAndObject.first);
+				std::string name = ModUtility::makeFullIdentifier(object.meta, contentName, nameAndObject.first);
 
 				boost::algorithm::replace_all(name, ":", "_");
 

@@ -21,7 +21,6 @@
 #include "../CHeroHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStopWatch.h"
-#include "../CModHandler.h"
 #include "../GameSettings.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"

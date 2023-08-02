@@ -16,10 +16,12 @@
 
 #include "CGeneralTextHandler.h"
 #include "filesystem/Filesystem.h"
+#include "modding/IdentifierStorage.h"
+#include "modding/ModUtility.h"
+#include "modding/ModScope.h"
 
 #include "JsonNode.h"
 
-#include "CModHandler.h"
 #include "StringConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -262,7 +264,7 @@ std::vector<bool> CSkillHandler::getDefaultAllowed() const
 
 si32 CSkillHandler::decodeSkill(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "skill", identifier);
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "skill", identifier);
 	if(rawId)
 		return rawId.value();
 	else
@@ -276,7 +278,7 @@ std::string CSkillHandler::encodeSkill(const si32 index)
 
 std::string CSkillHandler::encodeSkillWithType(const si32 index)
 {
-	return CModHandler::makeFullIdentifier("", "skill", encodeSkill(index));
+	return ModUtility::makeFullIdentifier("", "skill", encodeSkill(index));
 }
 
 VCMI_LIB_NAMESPACE_END

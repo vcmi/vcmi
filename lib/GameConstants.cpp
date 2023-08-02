@@ -25,6 +25,8 @@
 #include <vcmi/spells/Spell.h>
 #include <vcmi/spells/Service.h>
 
+#include "modding/IdentifierStorage.h"
+#include "modding/ModScope.h"
 #include "VCMI_Lib.h"
 #include "CArtHandler.h"//todo: remove
 #include "CCreatureHandler.h"//todo: remove
@@ -32,7 +34,6 @@
 #include "CSkillHandler.h"//todo: remove
 #include "StringConstants.h"
 #include "CGeneralTextHandler.h"
-#include "CModHandler.h"//todo: remove
 #include "TerrainHandler.h" //TODO: remove
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
@@ -65,7 +66,7 @@ namespace GameConstants
 
 si32 HeroTypeID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", identifier);
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", identifier);
 	if(rawId)
 		return rawId.value();
 	else
@@ -89,7 +90,7 @@ const Artifact * ArtifactID::toArtifact(const ArtifactService * service) const
 
 si32 ArtifactID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "artifact", identifier);
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "artifact", identifier);
 	if(rawId)
 		return rawId.value();
 	else
@@ -113,7 +114,7 @@ const Creature * CreatureID::toCreature(const CreatureService * creatures) const
 
 si32 CreatureID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", identifier);
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "creature", identifier);
 	if(rawId)
 		return rawId.value();
 	else
@@ -142,7 +143,7 @@ const spells::Spell * SpellID::toSpell(const spells::Service * service) const
 
 si32 SpellID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "spell", identifier);
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "spell", identifier);
 	if(rawId)
 		return rawId.value();
 	else
@@ -205,7 +206,7 @@ const FactionID FactionID::NEUTRAL = FactionID(9);
 
 si32 FactionID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), entityType(), identifier);
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
 	if(rawId)
 		return rawId.value();
 	else
@@ -225,7 +226,7 @@ std::string FactionID::entityType()
 
 si32 TerrainID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), entityType(), identifier);
+	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
 	if(rawId)
 		return rawId.value();
 	else

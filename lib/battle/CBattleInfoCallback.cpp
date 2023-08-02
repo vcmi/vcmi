@@ -24,7 +24,6 @@
 #include "../spells/CSpellHandler.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../BattleFieldHandler.h"
-#include "../CModHandler.h"
 #include "../Rect.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

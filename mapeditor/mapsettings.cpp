@@ -17,10 +17,11 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "../lib/CModHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapping/CMapService.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/CModInfo.h"
 #include "../lib/StringConstants.h"
 #include "inspector/townbulidingswidget.h" //to convert BuildingID to string
 

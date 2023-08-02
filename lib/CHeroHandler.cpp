@@ -18,7 +18,6 @@
 #include "battle/BattleHex.h"
 #include "CCreatureHandler.h"
 #include "GameSettings.h"
-#include "CModHandler.h"
 #include "CTownHandler.h"
 #include "CSkillHandler.h"
 #include "BattleFieldHandler.h"
@@ -26,6 +25,7 @@
 #include "bonuses/Updaters.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
+#include "modding/IdentifierStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -269,7 +269,7 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	for(auto skillPair : node["secondarySkills"].Struct())
 	{
 		int probability = static_cast<int>(skillPair.second.Integer());
-		VLC->modh->identifiers.requestIdentifier(skillPair.second.meta, "skill", skillPair.first, [heroClass, probability](si32 skillID)
+		VLC->identifiers()->requestIdentifier(skillPair.second.meta, "skill", skillPair.first, [heroClass, probability](si32 skillID)
 		{
 			if(heroClass->secSkillProbability.size() <= skillID)
 				heroClass->secSkillProbability.resize(skillID + 1, -1); // -1 = override with default later
@@ -277,7 +277,7 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 		});
 	}
 
-	VLC->modh->identifiers.requestIdentifier ("creature", node["commander"],
+	VLC->identifiers()->requestIdentifier ("creature", node["commander"],
 	[=](si32 commanderID)
 	{
 		heroClass->commander = VLC->creh->objects[commanderID];
@@ -288,20 +288,20 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	{
 		int value = static_cast<int>(tavern.second.Float());
 
-		VLC->modh->identifiers.requestIdentifier(tavern.second.meta, "faction", tavern.first,
+		VLC->identifiers()->requestIdentifier(tavern.second.meta, "faction", tavern.first,
 		[=](si32 factionID)
 		{
 			heroClass->selectionProbability[FactionID(factionID)] = value;
 		});
 	}
 
-	VLC->modh->identifiers.requestIdentifier("faction", node["faction"],
+	VLC->identifiers()->requestIdentifier("faction", node["faction"],
 	[=](si32 factionID)
 	{
 		heroClass->faction = factionID;
 	});
 
-	VLC->modh->identifiers.requestIdentifier(scope, "object", "hero", [=](si32 index)
+	VLC->identifiers()->requestIdentifier(scope, "object", "hero", [=](si32 index)
 	{
 		JsonNode classConf = node["mapObject"];
 		classConf["heroClass"].String() = identifier;
@@ -444,7 +444,7 @@ CHero * CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & n
 	loadHeroSkills(hero, node);
 	loadHeroSpecialty(hero, node);
 
-	VLC->modh->identifiers.requestIdentifier("heroClass", node["class"],
+	VLC->identifiers()->requestIdentifier("heroClass", node["class"],
 	[=](si32 classID)
 	{
 		hero->heroClass = classes[HeroClassID(classID)];
@@ -468,7 +468,7 @@ void CHeroHandler::loadHeroArmy(CHero * hero, const JsonNode & node) const
 
 		assert(hero->initialArmy[i].minAmount <= hero->initialArmy[i].maxAmount);
 
-		VLC->modh->identifiers.requestIdentifier("creature", source["creature"], [=](si32 creature)
+		VLC->identifiers()->requestIdentifier("creature", source["creature"], [=](si32 creature)
 		{
 			hero->initialArmy[i].creature = CreatureID(creature);
 		});
@@ -485,7 +485,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 			size_t currentIndex = hero->secSkillsInit.size();
 			hero->secSkillsInit.emplace_back(SecondarySkill(-1), skillLevel);
 
-			VLC->modh->identifiers.requestIdentifier("skill", set["skill"], [=](si32 id)
+			VLC->identifiers()->requestIdentifier("skill", set["skill"], [=](si32 id)
 			{
 				hero->secSkillsInit[currentIndex].first = SecondarySkill(id);
 			});
@@ -501,7 +501,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 
 	for(const JsonNode & spell : node["spellbook"].Vector())
 	{
-		VLC->modh->identifiers.requestIdentifier("spell", spell,
+		VLC->identifiers()->requestIdentifier("spell", spell,
 		[=](si32 spellID)
 		{
 			hero->spells.insert(SpellID(spellID));
@@ -624,7 +624,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 
 		std::function<void()> specialtyLoader = [creatureNode, hero, prepSpec]
 		{
-			VLC->modh->identifiers.requestIdentifier("creature", creatureNode, [hero, prepSpec](si32 creature)
+			VLC->identifiers()->requestIdentifier("creature", creatureNode, [hero, prepSpec](si32 creature)
 			{
 				for (const auto & bonus : createCreatureSpecialty(CreatureID(creature)))
 					hero->specialty.push_back(prepSpec(bonus));

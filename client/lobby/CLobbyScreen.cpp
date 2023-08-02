@@ -25,11 +25,11 @@
 #include "../../CCallback.h"
 
 #include "../CGameInfo.h"
-#include "../../lib/CModHandler.h"
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/modding/ModIncompatibility.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 
 CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
@@ -132,7 +132,7 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 		CSH->sendStartGame(allowOnlyAI);
 		buttonStart->block(true);
 	}
-	catch(CModHandler::Incompatibility & e)
+	catch(ModIncompatibility & e)
 	{
 		logGlobal->warn("Incompatibility exception during start scenario: %s", e.what());
 		

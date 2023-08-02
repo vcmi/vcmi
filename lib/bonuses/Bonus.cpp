@@ -24,10 +24,10 @@
 #include "../CGeneralTextHandler.h"
 #include "../CSkillHandler.h"
 #include "../CArtHandler.h"
-#include "../CModHandler.h"
 #include "../TerrainHandler.h"
 #include "../StringConstants.h"
 #include "../battle/BattleInfo.h"
+#include "../modding/ModUtility.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -146,10 +146,10 @@ static JsonNode subtypeToJson(BonusType type, int subtype)
 	case BonusType::SPECIAL_PECULIAR_ENCHANT:
 	case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
 	case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
-		return JsonUtils::stringNode(CModHandler::makeFullIdentifier("", "spell", SpellID::encode(subtype)));
+		return JsonUtils::stringNode(ModUtility::makeFullIdentifier("", "spell", SpellID::encode(subtype)));
 	case BonusType::IMPROVED_NECROMANCY:
 	case BonusType::SPECIAL_UPGRADE:
-		return JsonUtils::stringNode(CModHandler::makeFullIdentifier("", "creature", CreatureID::encode(subtype)));
+		return JsonUtils::stringNode(ModUtility::makeFullIdentifier("", "creature", CreatureID::encode(subtype)));
 	case BonusType::GENERATE_RESOURCE:
 		return JsonUtils::stringNode("resource." + GameConstants::RESOURCE_NAMES[subtype]);
 	default:
@@ -162,7 +162,7 @@ static JsonNode additionalInfoToJson(BonusType type, CAddInfo addInfo)
 	switch(type)
 	{
 	case BonusType::SPECIAL_UPGRADE:
-		return JsonUtils::stringNode(CModHandler::makeFullIdentifier("", "creature", CreatureID::encode(addInfo[0])));
+		return JsonUtils::stringNode(ModUtility::makeFullIdentifier("", "creature", CreatureID::encode(addInfo[0])));
 	default:
 		return addInfo.toJsonNode();
 	}

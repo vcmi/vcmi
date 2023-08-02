@@ -13,7 +13,6 @@
 
 #include "ArtifactUtils.h"
 #include "CGeneralTextHandler.h"
-#include "CModHandler.h"
 #include "GameSettings.h"
 #include "mapObjects/MapObjects.h"
 #include "StringConstants.h"
@@ -450,7 +449,7 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 	const JsonNode & warMachine = node["warMachine"];
 	if(warMachine.getType() == JsonNode::JsonType::DATA_STRING && !warMachine.String().empty())
 	{
-		VLC->modh->identifiers.requestIdentifier("creature", warMachine, [=](si32 id)
+		VLC->identifiers()->requestIdentifier("creature", warMachine, [=](si32 id)
 		{
 			art->warMachine = CreatureID(id);
 
@@ -459,7 +458,7 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 		});
 	}
 
-	VLC->modh->identifiers.requestIdentifier(scope, "object", "artifact", [=](si32 index)
+	VLC->identifiers()->requestIdentifier(scope, "object", "artifact", [=](si32 index)
 	{
 		JsonNode conf;
 		conf.setMeta(scope);
@@ -599,7 +598,7 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 	{
 		for(const auto & component : node["components"].Vector())
 		{
-			VLC->modh->identifiers.requestIdentifier("artifact", component, [=](si32 id)
+			VLC->identifiers()->requestIdentifier("artifact", component, [=](si32 id)
 			{
 				// when this code is called both combinational art as well as component are loaded
 				// so it is safe to access any of them

@@ -21,7 +21,6 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
-#include "../lib/CModHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/GameConstants.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
@@ -31,6 +30,7 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/MapFormat.h"
+#include "../lib/modding/ModIncompatibility.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/RiverHandler.h"
 #include "../lib/TerrainHandler.h"
@@ -336,17 +336,17 @@ bool MainWindow::openMap(const QString & filenameSelect)
 		if(auto header = mapService.loadMapHeader(resId))
 		{
 			auto missingMods = CMapService::verifyMapHeaderMods(*header);
-			CModHandler::Incompatibility::ModList modList;
+			ModIncompatibility::ModList modList;
 			for(const auto & m : missingMods)
 				modList.push_back({m.first, m.second.toString()});
 			
 			if(!modList.empty())
-				throw CModHandler::Incompatibility(std::move(modList));
+				throw ModIncompatibility(std::move(modList));
 			
 			controller.setMap(mapService.loadMap(resId));
 		}
 	}
-	catch(const CModHandler::Incompatibility & e)
+	catch(const ModIncompatibility & e)
 	{
 		QMessageBox::warning(this, "Mods requiered", e.what());
 		return false;

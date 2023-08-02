@@ -17,7 +17,6 @@
 #include "CRandomGenerator.h"
 #include "StringConstants.h"
 #include "VCMI_Lib.h"
-#include "CModHandler.h"
 #include "CArtHandler.h"
 #include "CCreatureHandler.h"
 #include "CCreatureSet.h"
@@ -25,6 +24,8 @@
 #include "CSkillHandler.h"
 #include "IGameCallback.h"
 #include "mapObjects/IObjectInterface.h"
+#include "modding/IdentifierStorage.h"
+#include "modding/ModScope.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -105,7 +106,7 @@ namespace JsonRandom
 		
 		std::string resourceName = loadKey(value, rng, defaultResources);
 		si32 resourceAmount = loadValue(value, rng, 0);
-		si32 resourceID(VLC->modh->identifiers.getIdentifier(value.meta, "resource", resourceName).value());
+		si32 resourceID(VLC->identifiers()->getIdentifier(value.meta, "resource", resourceName).value());
 
 		TResources ret;
 		ret[resourceID] = resourceAmount;
@@ -146,7 +147,7 @@ namespace JsonRandom
 		{
 			for(const auto & pair : value.Struct())
 			{
-				SecondarySkill id(VLC->modh->identifiers.getIdentifier(pair.second.meta, "skill", pair.first).value());
+				SecondarySkill id(VLC->identifiers()->getIdentifier(pair.second.meta, "skill", pair.first).value());
 				ret[id] = loadValue(pair.second, rng);
 			}
 		}
@@ -157,7 +158,7 @@ namespace JsonRandom
 			{
 				IObjectInterface::cb->isAllowed(2, skill->getIndex());
 				auto scopeAndName = vstd::splitStringToPair(skill->getJsonKey(), ':');
-				if(scopeAndName.first == CModHandler::scopeBuiltin() || scopeAndName.first == value.meta)
+				if(scopeAndName.first == ModScope::scopeBuiltin() || scopeAndName.first == value.meta)
 					defaultSkills.insert(scopeAndName.second);
 				else
 					defaultSkills.insert(skill->getJsonKey());
@@ -167,7 +168,7 @@ namespace JsonRandom
 			{
 				auto key = loadKey(element, rng, defaultSkills);
 				defaultSkills.erase(key); //avoid dupicates
-				if(auto identifier = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "skill", key))
+				if(auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "skill", key))
 				{
 					SecondarySkill id(identifier.value());
 					ret[id] = loadValue(element, rng);
@@ -180,7 +181,7 @@ namespace JsonRandom
 	ArtifactID loadArtifact(const JsonNode & value, CRandomGenerator & rng)
 	{
 		if (value.getType() == JsonNode::JsonType::DATA_STRING)
-			return ArtifactID(VLC->modh->identifiers.getIdentifier("artifact", value).value());
+			return ArtifactID(VLC->identifiers()->getIdentifier("artifact", value).value());
 
 		std::set<CArtifact::EartClass> allowedClasses;
 		std::set<ArtifactPosition> allowedPositions;
@@ -241,7 +242,7 @@ namespace JsonRandom
 	SpellID loadSpell(const JsonNode & value, CRandomGenerator & rng, std::vector<SpellID> spells)
 	{
 		if (value.getType() == JsonNode::JsonType::DATA_STRING)
-			return SpellID(VLC->modh->identifiers.getIdentifier("spell", value).value());
+			return SpellID(VLC->identifiers()->getIdentifier("spell", value).value());
 
 		if (!value["level"].isNull())
 		{
@@ -255,7 +256,7 @@ namespace JsonRandom
 
 		if (!value["school"].isNull())
 		{
-			int32_t schoolID = VLC->modh->identifiers.getIdentifier("spellSchool", value["school"]).value();
+			int32_t schoolID = VLC->identifiers()->getIdentifier("spellSchool", value["school"]).value();
 
 			vstd::erase_if(spells, [=](const SpellID & spell)
 			{
@@ -284,7 +285,7 @@ namespace JsonRandom
 	CStackBasicDescriptor loadCreature(const JsonNode & value, CRandomGenerator & rng)
 	{
 		CStackBasicDescriptor stack;
-		stack.type = VLC->creh->objects[VLC->modh->identifiers.getIdentifier("creature", value["type"]).value()];
+		stack.type = VLC->creh->objects[VLC->identifiers()->getIdentifier("creature", value["type"]).value()];
 		stack.count = loadValue(value, rng);
 		if (!value["upgradeChance"].isNull() && !stack.type->upgrades.empty())
 		{
@@ -320,7 +321,7 @@ namespace JsonRandom
 				info.minAmount = static_cast<si32>(node["min"].Float());
 				info.maxAmount = static_cast<si32>(node["max"].Float());
 			}
-			const CCreature * crea = VLC->creh->objects[VLC->modh->identifiers.getIdentifier("creature", node["type"]).value()];
+			const CCreature * crea = VLC->creh->objects[VLC->identifiers()->getIdentifier("creature", node["type"]).value()];
 			info.allowedCreatures.push_back(crea);
 			if (node["upgradeChance"].Float() > 0)
 			{

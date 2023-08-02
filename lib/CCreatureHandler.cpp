@@ -15,7 +15,6 @@
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
 #include "CTownHandler.h"
-#include "CModHandler.h"
 #include "GameSettings.h"
 #include "StringConstants.h"
 #include "bonuses/Limiters.h"
@@ -24,6 +23,7 @@
 #include "serializer/JsonUpdater.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
+#include "modding/CModHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -405,7 +405,7 @@ CCreatureHandler::CCreatureHandler()
 
 const CCreature * CCreatureHandler::getCreature(const std::string & scope, const std::string & identifier) const
 {
-	std::optional<si32> index = VLC->modh->identifiers.getIdentifier(scope, "creature", identifier);
+	std::optional<si32> index = VLC->identifiers()->getIdentifier(scope, "creature", identifier);
 
 	if(!index)
 		throw std::runtime_error("Creature not found "+identifier);
@@ -627,7 +627,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	JsonNode advMapFile = node["graphics"]["map"];
 	JsonNode advMapMask = node["graphics"]["mapMask"];
 
-	VLC->modh->identifiers.requestIdentifier(scope, "object", "monster", [=](si32 index)
+	VLC->identifiers()->requestIdentifier(scope, "object", "monster", [=](si32 index)
 	{
 		JsonNode conf;
 		conf.setMeta(scope);
@@ -920,14 +920,14 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 		}
 	}
 
-	VLC->modh->identifiers.requestIdentifier("faction", config["faction"], [=](si32 faction)
+	VLC->identifiers()->requestIdentifier("faction", config["faction"], [=](si32 faction)
 	{
 		creature->faction = FactionID(faction);
 	});
 
 	for(const JsonNode &value : config["upgrades"].Vector())
 	{
-		VLC->modh->identifiers.requestIdentifier("creature", value, [=](si32 identifier)
+		VLC->identifiers()->requestIdentifier("creature", value, [=](si32 identifier)
 		{
 			creature->upgrades.insert(CreatureID(identifier));
 		});

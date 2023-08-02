@@ -14,7 +14,6 @@
 #include "CRmgTemplate.h"
 
 #include "../serializer/JsonDeserializer.h"
-#include "../CModHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

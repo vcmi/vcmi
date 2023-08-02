@@ -16,10 +16,10 @@
 #include "Reward.h"
 
 #include "../CGeneralTextHandler.h"
-#include "../CModHandler.h"
 #include "../IGameCallback.h"
 #include "../JsonRandom.h"
 #include "../mapObjects/IObjectInterface.h"
+#include "../modding/IdentifierStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -165,8 +165,8 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, CRand
 
 	for ( auto node : source["changeCreatures"].Struct() )
 	{
-		CreatureID from(VLC->modh->identifiers.getIdentifier(node.second.meta, "creature", node.first).value());
-		CreatureID dest(VLC->modh->identifiers.getIdentifier(node.second.meta, "creature", node.second.String()).value());
+		CreatureID from(VLC->identifiers()->getIdentifier(node.second.meta, "creature", node.first).value());
+		CreatureID dest(VLC->identifiers()->getIdentifier(node.second.meta, "creature", node.second.String()).value());
 
 		reward.extraComponents.emplace_back(Component::EComponentType::CREATURE, dest.getNum(), 0, 0);
 
