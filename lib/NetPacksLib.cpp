@@ -1382,9 +1382,8 @@ void HeroRecruited::applyGs(CGameState * gs) const
 		auto * boat = dynamic_cast<CGBoat *>(obj);
 		if (boat)
 		{
-			h->boat = boat;
-			h->attachTo(*boat);
-			boat->hero = h;
+			gs->map->removeBlockVisTiles(boat);
+			h->attachToBoat(boat);
 		}
 	}
 
@@ -1419,9 +1418,8 @@ void GiveHero::applyGs(CGameState * gs) const
 		auto * boat = dynamic_cast<CGBoat *>(obj);
 		if (boat)
 		{
-			h->boat = boat;
-			h->attachTo(*boat);
-			boat->hero = h;
+			gs->map->removeBlockVisTiles(boat);
+			h->attachToBoat(boat);
 		}
 	}
 

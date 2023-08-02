@@ -484,9 +484,12 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			if (cb->gameState()->map->getTile(boatPos).isWater())
 			{
 				smp.val = movementPointsLimit(false);
-				//Create a new boat for hero
-				cb->createObject(boatPos, Obj::BOAT, getBoatType().getNum());
-				boatId = cb->getTopObj(boatPos)->id;
+				if (!boat)
+				{
+					//Create a new boat for hero
+					cb->createObject(boatPos, Obj::BOAT, getBoatType().getNum());
+					boatId = cb->getTopObj(boatPos)->id;
+				}
 			}
 			else
 			{
@@ -1118,6 +1121,15 @@ int CGHeroInstance::maxSpellLevel() const
 {
 	return std::min(GameConstants::SPELL_LEVELS, valOfBonuses(Selector::type()(BonusType::MAX_LEARNABLE_SPELL_LEVEL)));
 }
+
+void CGHeroInstance::attachToBoat(CGBoat* newBoat)
+{
+	assert(newBoat);
+	boat = newBoat;
+	attachTo(const_cast<CGBoat&>(*boat));
+	const_cast<CGBoat*>(boat)->hero = this;
+}
+
 
 void CGHeroInstance::deserializationFix()
 {
