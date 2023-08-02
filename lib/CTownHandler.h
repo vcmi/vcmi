@@ -207,7 +207,7 @@ public:
 
 	/// Boat that will be used by town shipyard (if any)
 	/// and for placing heroes directly on boat (in map editor, water prisons & taverns)
-	BoatId boatType;
+	BoatId boatType = BoatId(EBoatId::CASTLE);
 
 
 	CTown * town = nullptr; //NOTE: can be null
