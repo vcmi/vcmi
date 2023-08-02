@@ -137,7 +137,7 @@
     <message>
         <location filename="../mainwindow.ui" line="922"/>
         <source>Save as...</source>
-        <translation>Zapisz jako</translation>
+        <translation>Zapisz jako...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="925"/>
@@ -287,27 +287,27 @@
     <message>
         <location filename="../mainwindow.ui" line="1234"/>
         <source>Export as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksportuj jako...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="252"/>
         <source>Confirmation</source>
-        <translation type="unfinished"></translation>
+        <translation>Potwierdzenie</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="252"/>
         <source>Unsaved changes will be lost, are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Niezapisane zmiany zostaną utracone, jesteś pewny?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="329"/>
         <source>Failed to open map</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie udało się otworzyć mapy</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="329"/>
         <source>Cannot open map from this folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można otworzyć mapy z tego folderu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="370"/>
@@ -344,22 +344,22 @@
     <message>
         <location filename="../mainwindow.cpp" line="1128"/>
         <source>No objects selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak wybranych obiektów</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1132"/>
         <source>This operation is irreversible. Do you want to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta operacja jest nieodwracalna. Czy chcesz kontynuować?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1191"/>
         <source>Errors occured. %1 objects were not updated</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpiły błędy. %1 obiektów nie zostało zaktualizowanych</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1231"/>
         <source>Save to image</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz jako obraz</translation>
     </message>
 </context>
 <context>
@@ -387,7 +387,7 @@
     <message>
         <location filename="../mapsettings.ui" line="83"/>
         <source>Limit maximum heroes level</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogranicz maksymalny poziom bohaterów</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="92"/>
@@ -397,47 +397,47 @@
     <message>
         <location filename="../mapsettings.ui" line="137"/>
         <source>Mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Modyfikacje</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="143"/>
         <source>Mandatory mods for playing this map</source>
-        <translation type="unfinished"></translation>
+        <translation>Obowiązkowe modyfikacje do uruchomienia tej mapy</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="157"/>
         <source>Mod name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa modyfikacji</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="162"/>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Wersja</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="172"/>
         <source>Automatic assignment</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatyczne przypisanie</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="179"/>
         <source>Set required mods based on objects placed on the map. This method may cause problems if you have customized rewards, garrisons, etc from mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz wymagane modyfikacje bazując na obiektach umeszczonych na mapie. Ta metoda może stworzyć problemy jeśli masz własne nagrody, garnizony itp. z modyfikacji</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="182"/>
         <source>Map objects mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Mody od nowych obiektów mapy</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="192"/>
         <source>Set all mods having a game content as mandatory</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustaw wszystkie modyfikacje mające nową elementy gry jako obowiązkowe</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="195"/>
         <source>Full content mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Mody od złożonej zawartości</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="208"/>
@@ -513,7 +513,7 @@
     <message>
         <location filename="../mapsettings.cpp" line="174"/>
         <source>No special victory</source>
-        <translation type="unfinished">Bez specjalnych warunków zwycięstwa</translation>
+        <translation>Bez specjalnych warunków zwycięstwa</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="175"/>
@@ -523,57 +523,57 @@
     <message>
         <location filename="../mapsettings.cpp" line="176"/>
         <source>Hire creatures</source>
-        <translation type="unfinished">Zdobądź stworzenia</translation>
+        <translation>Zdobądź stworzenia</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="177"/>
         <source>Accumulate resources</source>
-        <translation type="unfinished">Zbierz zasoby</translation>
+        <translation>Zbierz zasoby</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="178"/>
         <source>Construct building</source>
-        <translation type="unfinished">Zbuduj budynek</translation>
+        <translation>Zbuduj budynek</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="179"/>
         <source>Capture town</source>
-        <translation type="unfinished">Zdobądź miasto</translation>
+        <translation>Zdobądź miasto</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="180"/>
         <source>Defeat hero</source>
-        <translation type="unfinished">Pokonaj bohatera</translation>
+        <translation>Pokonaj bohatera</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="181"/>
         <source>Transport artifact</source>
-        <translation type="unfinished">Przenieś artefakt</translation>
+        <translation>Przenieś artefakt</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="184"/>
         <source>No special loss</source>
-        <translation type="unfinished">Bez specjalnych warunków porażki</translation>
+        <translation>Bez specjalnych warunków porażki</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="185"/>
         <source>Lose castle</source>
-        <translation type="unfinished">Utrata miasta</translation>
+        <translation>Utrata miasta</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="186"/>
         <source>Lose hero</source>
-        <translation type="unfinished">Utrata bohatera</translation>
+        <translation>Utrata bohatera</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="187"/>
         <source>Time expired</source>
-        <translation type="unfinished">Upłynięcie czasu</translation>
+        <translation>Upłynięcie czasu</translation>
     </message>
     <message>
         <location filename="../mapsettings.cpp" line="188"/>
         <source>Days without town</source>
-        <translation type="unfinished">Dni bez miasta</translation>
+        <translation>Dni bez miasta</translation>
     </message>
 </context>
 <context>
@@ -581,7 +581,7 @@
     <message>
         <location filename="../mapview.cpp" line="471"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można umieścić obiektu</translation>
     </message>
 </context>
 <context>
@@ -621,7 +621,7 @@
     <message>
         <location filename="../playerparams.ui" line="179"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="85"/>
@@ -659,7 +659,7 @@
     <message>
         <location filename="../playersettings.ui" line="74"/>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <location filename="../playersettings.ui" line="117"/>
@@ -716,37 +716,37 @@
     <message>
         <location filename="../validator.cpp" line="50"/>
         <source>Map is not loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapa nie została wczytana</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="70"/>
         <source>No factions allowed for player %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak dozwolonych frakcji dla gracza %1</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="73"/>
         <source>No players allowed to play this map</source>
-        <translation type="unfinished"></translation>
+        <translation>Żaden gracz nie jest dozwolony do rozegrania tej mapy</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="75"/>
         <source>Map is allowed for one player and cannot be started</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapa jest dozwolona dla jednego gracza i nie może być rozpoczęta</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="77"/>
         <source>No human players allowed to play this map</source>
-        <translation type="unfinished"></translation>
+        <translation>Żaden gracz ludzki nie został dozwolony by rozegrać tą mapę</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="93"/>
         <source>Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translation type="unfinished"></translation>
+        <translation>Obiekt z armią %1 jest nie do oflagowania, lecz musi mieć właściciela neutralnego lub gracza</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="99"/>
         <source>Object %1 is assigned to non-playable player %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Obiekt %1 został przypisany do niegrywalnego gracza %2</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="106"/>
@@ -756,72 +756,72 @@
     <message>
         <location filename="../validator.cpp" line="116"/>
         <source>Prison %1 must be a NEUTRAL</source>
-        <translation type="unfinished"></translation>
+        <translation>Więzienie %1 musi być neutralne</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="122"/>
         <source>Hero %1 must have an owner</source>
-        <translation type="unfinished"></translation>
+        <translation>Bohater %1 musi mieć właściciela</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="127"/>
         <source>Hero %1 is prohibited by map settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Bohater %1 jest zabroniony przez ustawienia mapy</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="130"/>
         <source>Hero %1 has duplicate on map</source>
-        <translation type="unfinished"></translation>
+        <translation>Bohater %1 posiada duplikat na mapie</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="133"/>
         <source>Hero %1 has an empty type and must be removed</source>
-        <translation type="unfinished"></translation>
+        <translation>Bohater %1 jest pustego typu i musi zostać usunięty</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="144"/>
         <source>Spell scroll %1 is prohibited by map settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwój z zaklęciem %1 jest zabroniony przez ustawienia mapy</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="147"/>
         <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwój z zaklęciem %1 nie ma przypisanej instancji i musi zostać usunięty</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="153"/>
         <source>Artifact %1 is prohibited by map settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Artefakt %1 jest zabroniony przez ustawienia mapy</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="162"/>
         <source>Player %1 doesn&apos;t have any starting town</source>
-        <translation type="unfinished"></translation>
+        <translation>Gracz %1 nie ma żadnego startowego miasta</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="166"/>
         <source>Map name is not specified</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa mapy nie została ustawiona</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="168"/>
         <source>Map description is not specified</source>
-        <translation type="unfinished"></translation>
+        <translation>Opis mapy nie został ustawiony</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="175"/>
         <source>Map contains object from mod &quot;%1&quot;, but doesn&apos;t require it</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapa zawiera obiekt z modyfikacji %1 ale nie wymaga tej modyfikacji</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="181"/>
         <source>Exception occurs during validation: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpił wyjątek podczas walidacji: %1</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="185"/>
         <source>Unknown exception occurs during validation</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpił nieznane wyjątek podczas walidacji</translation>
     </message>
 </context>
 <context>
@@ -907,12 +907,12 @@
     <message>
         <location filename="../windownewmap.ui" line="380"/>
         <source>Human teams</source>
-        <translation type="unfinished"></translation>
+        <translation>Sojusze ludzkie</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="399"/>
         <source>Computer teams</source>
-        <translation type="unfinished"></translation>
+        <translation>Sojusze komputerowe</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="416"/>
@@ -978,17 +978,17 @@
     <message>
         <location filename="../windownewmap.cpp" line="271"/>
         <source>No template</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak szablonu</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="271"/>
         <source>No template for parameters scecified. Random map cannot be generated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak szablonu dla wybranych parametrów. Mapa losowa nie może zostać wygenerowana.</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="291"/>
         <source>RMG failure</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepowodzenie generatora map losowych</translation>
     </message>
 </context>
 <context>

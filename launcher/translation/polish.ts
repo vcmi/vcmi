@@ -472,7 +472,7 @@
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="319"/>
         <source>Autosave limit (0 = off)</source>
-        <translation type="unfinished"></translation>
+        <translation>Limit autozapisów (0 = brak)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="329"/>
@@ -487,12 +487,12 @@
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="612"/>
         <source>Autosave prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>Przedrostek autozapisu</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="629"/>
         <source>empty = map name prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>puste = przedrostek z nazwy mapy</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="508"/>
@@ -708,7 +708,7 @@ Heroes III: HD Edition nie jest obecnie wspierane!</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
         <source>Interface Improvements</source>
-        <translation type="unfinished"></translation>
+        <translation>Ulepszenia interfejsu</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="740"/>
@@ -723,7 +723,7 @@ Heroes III: HD Edition nie jest obecnie wspierane!</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
         <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj modyfikację, która dostarcza różne ulepszenia interfejsu takie jak lepszy ekran ustawień mapy losowej lub wybieralne akcje w bitwach</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
@@ -916,17 +916,17 @@ Heroes III: HD Edition nie jest obecnie wspierane!</translation>
     <message>
         <location filename="../languages.cpp" line="40"/>
         <source>Other (East European)</source>
-        <translation type="unfinished"></translation>
+        <translation>Inne (Wschodnioeuropejski)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>
         <source>Other (Cyrillic Script)</source>
-        <translation type="unfinished"></translation>
+        <translation>Inne (Cyrylica)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="42"/>
         <source>Other (West European)</source>
-        <translation type="unfinished"></translation>
+        <translation>Inne (Zachodnioeuropejski)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="64"/>
