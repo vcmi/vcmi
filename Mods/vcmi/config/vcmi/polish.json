@@ -84,8 +84,8 @@
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d milisekund",
 	"vcmi.systemOptions.framerateButton.hover"  : "Pokaż FPS",
 	"vcmi.systemOptions.framerateButton.help"   : "{Pokaż FPS}\n\n Przełącza widoczność licznika klatek na sekundę (FPS) w rogu okna gry.",
-	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Haptic feedback",
-	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Haptic feedback}\n\nToggle the haptic feedback on touch inputs",
+	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Wibracje urządzenia",
+	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Wibracje urządzenia}\n\nWłącz wibracje na urządzeniu dotykowym",
 
 	"vcmi.adventureOptions.infoBarPick.hover" : "Pokaż komunikaty w panelu informacyjnym",
 	"vcmi.adventureOptions.infoBarPick.help" : "{Pokaż komunikaty w panelu informacyjnym}\n\nGdy to możliwe, wiadomości z odwiedzania obiektów będą pokazywane w panelu informacyjnym zamiast w osobnym okienku.",
