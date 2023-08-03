@@ -25,11 +25,8 @@ namespace GameConstants
 	const std::string PLAYER_COLOR_NAMES [PlayerColor::PLAYER_LIMIT_I] = {
 		"red", "blue", "tan", "green", "orange", "purple", "teal", "pink"
 	};
-}
 
-namespace EAlignment
-{
-	const std::string names [3] = {"good", "evil", "neutral"};
+	const std::string ALIGNMENT_NAMES [3] = {"good", "evil", "neutral"};
 }
 
 namespace PrimarySkill
@@ -59,14 +56,14 @@ namespace EBuildingType
 {
 	const std::string names [44] =
 	{
-		"mageGuild1",       "mageGuild2",       "mageGuild3",       "mageGuild4",       "mageGuild5",
-		"tavern",           "shipyard",         "fort",             "citadel",          "castle",
-		"villageHall",      "townHall",         "cityHall",         "capitol",          "marketplace",
-		"resourceSilo",     "blacksmith",       "special1",         "horde1",           "horde1Upgr",
-		"ship",             "special2",         "special3",         "special4",         "horde2",
-		"horde2Upgr",       "grail",            "extraTownHall",    "extraCityHall",    "extraCapitol",
-		"dwellingLvl1",     "dwellingLvl2",     "dwellingLvl3",     "dwellingLvl4",     "dwellingLvl5",
-		"dwellingLvl6",     "dwellingLvl7",     "dwellingUpLvl1",   "dwellingUpLvl2",   "dwellingUpLvl3",
+		"mageGuild1",       "mageGuild2",       "mageGuild3",       "mageGuild4",       "mageGuild5",       //  5
+		"tavern",           "shipyard",         "fort",             "citadel",          "castle",           // 10
+		"villageHall",      "townHall",         "cityHall",         "capitol",          "marketplace",      // 15
+		"resourceSilo",     "blacksmith",       "special1",         "horde1",           "horde1Upgr",       // 20
+		"ship",             "special2",         "special3",         "special4",         "horde2",           // 25
+		"horde2Upgr",       "grail",            "extraTownHall",    "extraCityHall",    "extraCapitol",     // 30
+		"dwellingLvl1",     "dwellingLvl2",     "dwellingLvl3",     "dwellingLvl4",     "dwellingLvl5",     // 35
+		"dwellingLvl6",     "dwellingLvl7",     "dwellingUpLvl1",   "dwellingUpLvl2",   "dwellingUpLvl3",   // 40
 		"dwellingUpLvl4",   "dwellingUpLvl5",   "dwellingUpLvl6",   "dwellingUpLvl7"
 	};
 }
@@ -115,6 +112,14 @@ namespace NMetaclass
 		"heroClass", "luck", "mana", "morale", "movement",
 		"object", "primarySkill", "secondarySkill", "spell", "resource"
     };
+}
+
+namespace NPathfindingLayer
+{
+	const std::string names[EPathfindingLayer::NUM_LAYERS] =
+	{
+		"land", "sail", "water", "air"
+	};
 }
 
 VCMI_LIB_NAMESPACE_END

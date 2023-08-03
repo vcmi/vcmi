@@ -11,11 +11,9 @@
 
 #include <vcmi/spells/Caster.h>
 
-#include "CObjectHandler.h"
 #include "CArmedInstance.h"
 
 #include "../CArtHandler.h" // For CArtifactSet
-#include "../CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,31 +23,37 @@ class CGTownInstance;
 class CMap;
 struct TerrainTile;
 struct TurnInfo;
+enum class EHeroGender : uint8_t;
 
 class CGHeroPlaceholder : public CGObjectInstance
 {
 public:
-	//subID stores id of hero type. If it's 0xff then following field is used
-	ui8 power;
+	/// if this is placeholder by power, then power rank of desired hero
+	std::optional<ui8> powerRank;
+
+	/// if this is placeholder by type, then hero type of desired hero
+	std::optional<HeroTypeID> heroType;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-		h & power;
+		h & powerRank;
+		h & heroType;
 	}
 };
 
 
-class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster
+class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public AFactionMember, public ICreatureUpgrader
 {
 	// We serialize heroes into JSON for crossover
-	friend class CCampaignState;
+	friend class CampaignState;
 	friend class CMapLoaderH3M;
 	friend class CMapFormatJson;
 
 private:
 	std::set<SpellID> spells; //known spells (spell IDs)
 	mutable int lowestCreatureSpeed;
+	ui32 movement; //remaining movement points
 
 public:
 
@@ -68,8 +72,7 @@ public:
 	si32 portrait; //may be custom
 	si32 mana; // remaining spell points
 	std::vector<std::pair<SecondarySkill,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
-	ui32 movement; //remaining movement points
-	ui8 sex;
+	EHeroGender gender;
 
 	std::string nameCustom;
 	std::string biographyCustom;
@@ -102,20 +105,6 @@ public:
 		}
 	} patrol;
 
-	// deprecated - used only for loading of old saves
-	struct HeroSpecial : CBonusSystemNode
-	{
-		bool growsWithLevel;
-
-		HeroSpecial(){growsWithLevel = false;};
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & static_cast<CBonusSystemNode&>(*this);
-			h & growsWithLevel;
-		}
-	};
-
 	struct DLL_LINKAGE SecondarySkillsInfo
 	{
 		//skills are determined, initialized at map start
@@ -146,8 +135,9 @@ public:
 	int getSightRadius() const override; //sight distance (should be used if player-owned structure)
 	//////////////////////////////////////////////////////////////////////////
 
-	int getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
+	BoatId getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
 	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed
+	const IObjectInterface * getObject() const override;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -166,11 +156,12 @@ public:
 	bool spellbookContainsSpell(const SpellID & spell) const;
 	void removeSpellbook();
 	const std::set<SpellID> & getSpellsInSpellbook() const;
-	EAlignment::EAlignment getAlignment() const;
+	EAlignment getAlignment() const;
 	bool needsLastStack()const override;
 
-	ui32 getTileCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
-	TerrainId getNativeTerrain() const;
+	//INativeTerrainProvider
+	FactionID getFaction() const override;
+	TerrainId getNativeTerrain() const override;
 	int getLowestCreatureSpeed() const;
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
 	si32 getManaNewTurn() const; //calculate how much mana this hero is going to have the next day
@@ -193,7 +184,7 @@ public:
 	PrimarySkill::PrimarySkill nextPrimarySkill(CRandomGenerator & rand) const;
 
 	/// Returns the next secondary skill randomly on level up. Can only be called if hero can gain a level up.
-	boost::optional<SecondarySkill> nextSecondarySkill(CRandomGenerator & rand) const;
+	std::optional<SecondarySkill> nextSecondarySkill(CRandomGenerator & rand) const;
 
 	/// Gets 0, 1 or 2 secondary skills which are proposed on hero level up.
 	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills() const;
@@ -208,9 +199,14 @@ public:
 	void setSecSkillLevel(const SecondarySkill & which, int val, bool abs); // abs == 0 - changes by value; 1 - sets to value
 	void levelUp(const std::vector<SecondarySkill> & skills);
 
-	int maxMovePoints(bool onLand) const;
+	/// returns base movement cost for movement between specific tiles. Does not accounts for diagonal movement or last tile exception
+	ui32 getTileMovementCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const;
+
+	void setMovementPoints(int points);
+	int movementPointsRemaining() const;
+	int movementPointsLimit(bool onLand) const;
 	//cached version is much faster, TurnInfo construction is costly
-	int maxMovePointsCached(bool onLand, const TurnInfo * ti) const;
+	int movementPointsLimitCached(bool onLand, const TurnInfo * ti) const;
 	//update army movement bonus
 	void updateArmyMovementBonus(bool onLand, const TurnInfo * ti) const;
 
@@ -234,15 +230,16 @@ public:
 	void initHero(CRandomGenerator & rand, const HeroTypeID & SUBID);
 
 	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;
-	void putInBackpack(CArtifactInstance *art);
+	void removeArtifact(ArtifactPosition pos) override;
 	void initExp(CRandomGenerator & rand);
 	void initArmy(CRandomGenerator & rand, IArmyDescriptor *dst = nullptr);
-	//void giveArtifact (ui32 aid);
 	void pushPrimSkill(PrimarySkill::PrimarySkill which, int val);
 	ui8 maxlevelsToMagicSchool() const;
 	ui8 maxlevelsToWisdom() const;
 	void recreateSecondarySkillsBonuses();
 	void updateSkillBonus(const SecondarySkill & which, int val);
+
+	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
 
 	bool hasVisions(const CGObjectInstance * target, const int subtype) const;
 	/// If this hero perishes, the scenario is failed
@@ -261,6 +258,9 @@ public:
 	std::string nodeName() const override;
 	si32 manaLimit() const override;
 
+	///IConstBonusProvider
+	const IBonusBearer* getBonusBearer() const override;
+
 	CBonusSystemNode * whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const;
 	CBonusSystemNode * whereShouldBeAttachedOnSiege(CGameState * gs);
 
@@ -276,11 +276,14 @@ public:
 	int64_t getEffectValue(const spells::Spell * spell) const override;
 
 	PlayerColor getCasterOwner() const override;
+	const CGHeroInstance * getHeroCaster() const override;
 
 	void getCasterName(MetaString & text) const override;
 	void getCastDescription(const spells::Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const override;
 	void spendMana(ServerCallback * server, const int spellCost) const override;
 
+	void attachToBoat(CGBoat* newBoat);
+	void boatDeserializationFix();
 	void deserializationFix();
 
 	void initObj(CRandomGenerator & rand) override;
@@ -292,6 +295,7 @@ public:
 
 	void updateFrom(const JsonNode & data) override;
 
+	bool isCoastVisitable() const override;
 	BattleField getBattlefield() const override;
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;//synchr
@@ -321,7 +325,7 @@ public:
 		h & mana;
 		h & secSkills;
 		h & movement;
-		h & sex;
+		h & gender;
 		h & inTownGarrison;
 		h & spells;
 		h & patrol;

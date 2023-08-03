@@ -24,6 +24,9 @@
 #include "../CVideoHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
+#include "../gui/MouseButton.h"
+#include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../widgets/Buttons.h"
@@ -33,13 +36,12 @@
 #include "../windows/CSpellWindow.h"
 #include "../render/CAnimation.h"
 #include "../adventureMap/CInGameConsole.h"
-#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
-#include "../../lib/CGameState.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"
@@ -49,7 +51,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/TextOperations.h"
 
-void BattleConsole::showAll(SDL_Surface * to)
+void BattleConsole::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
@@ -59,16 +61,16 @@ void BattleConsole::showAll(SDL_Surface * to)
 	auto visibleText = getVisibleText();
 
 	if(visibleText.size() > 0)
-		graphics->fonts[FONT_SMALL]->renderTextCenter(to, visibleText[0], Colors::WHITE, line1);
+		to.drawText(line1, FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, visibleText[0]);
 
 	if(visibleText.size() > 1)
-		graphics->fonts[FONT_SMALL]->renderTextCenter(to, visibleText[1], Colors::WHITE, line2);
+		to.drawText(line2, FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, visibleText[1]);
 }
 
 std::vector<std::string> BattleConsole::getVisibleText()
 {
 	// high priority texts that hide battle log entries
-	for (auto const & text : {consoleText, hoverText} )
+	for(const auto & text : {consoleText, hoverText})
 	{
 		if (text.empty())
 			continue;
@@ -94,7 +96,7 @@ std::vector<std::string> BattleConsole::splitText(const std::string &text)
 
 	boost::split(lines, text, boost::is_any_of("\n"));
 
-	for (auto const & line : lines)
+	for(const auto & line : lines)
 	{
 		if (graphics->fonts[FONT_SMALL]->getStringWidth(text) < pos.w)
 		{
@@ -201,6 +203,25 @@ const CGHeroInstance * BattleHero::instance()
 	return hero;
 }
 
+void BattleHero::tick(uint32_t msPassed)
+{
+	size_t groupIndex = static_cast<size_t>(phase);
+
+	float timePassed = msPassed / 1000.f;
+
+	flagCurrentFrame += currentSpeed * timePassed;
+	currentFrame += currentSpeed * timePassed;
+
+	if(flagCurrentFrame >= flagAnimation->size(0))
+		flagCurrentFrame -= flagAnimation->size(0);
+
+	if(currentFrame >= animation->size(groupIndex))
+	{
+		currentFrame -= animation->size(groupIndex);
+		switchToNextPhase();
+	}
+}
+
 void BattleHero::render(Canvas & canvas)
 {
 	size_t groupIndex = static_cast<size_t>(phase);
@@ -218,20 +239,6 @@ void BattleHero::render(Canvas & canvas)
 
 	canvas.draw(flagFrame, flagPosition);
 	canvas.draw(heroFrame, heroPosition);
-
-	float timePassed = float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000.f;
-
-	flagCurrentFrame += currentSpeed * timePassed;
-	currentFrame += currentSpeed * timePassed;
-
-	if(flagCurrentFrame >= flagAnimation->size(0))
-		flagCurrentFrame -= flagAnimation->size(0);
-
-	if(currentFrame >= animation->size(groupIndex))
-	{
-		currentFrame -= animation->size(groupIndex);
-		switchToNextPhase();
-	}
 }
 
 void BattleHero::pause()
@@ -283,22 +290,33 @@ void BattleHero::heroLeftClicked()
 	if(owner.getCurrentPlayerInterface()->cb->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
 		CCS->curh->set(Cursor::Map::POINTER);
-		GH.pushIntT<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
+		GH.windows().createAndPushWindow<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
 	}
 }
 
 void BattleHero::heroRightClicked()
 {
+	if(settings["battle"]["stickyHeroInfoWindows"].Bool())
+		return;
+
 	Point windowPosition;
-	windowPosition.x = (!defender) ? owner.fieldController->pos.left() + 1 : owner.fieldController->pos.right() - 79;
-	windowPosition.y = owner.fieldController->pos.y + 135;
+	if(GH.screenDimensions().x < 1000)
+	{
+		windowPosition.x = (!defender) ? owner.fieldController->pos.left() + 1 : owner.fieldController->pos.right() - 79;
+		windowPosition.y = owner.fieldController->pos.y + 135;
+	}
+	else
+	{
+		windowPosition.x = (!defender) ? owner.fieldController->pos.left() - 93 : owner.fieldController->pos.right() + 15;
+		windowPosition.y = owner.fieldController->pos.y;
+	}
 
 	InfoAboutHero targetHero;
 	if(owner.makingTurn() || settings["session"]["spectate"].Bool())
 	{
 		auto h = defender ? owner.defendingHeroInstance : owner.attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
-		GH.pushIntT<HeroInfoWindow>(targetHero, &windowPosition);
+		GH.windows().createAndPushWindow<HeroInfoWindow>(targetHero, &windowPosition);
 	}
 }
 
@@ -327,7 +345,7 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	if(!hero->type->battleImage.empty())
 		animationPath = hero->type->battleImage;
 	else
-	if(hero->sex)
+	if(hero->gender == EHeroGender::FEMALE)
 		animationPath = hero->type->heroClass->imageBattleFemale;
 	else
 		animationPath = hero->type->heroClass->imageBattleMale;
@@ -353,16 +371,30 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 
 	switchToNextPhase();
 	play();
+
+	addUsedEvents(TIME);
 }
 
-HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
-	: CWindowObject(RCLICK_POPUP | SHADOW_DISABLED, "CHRPOP")
+HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, Point * position, bool initializeBackground)
+	: CIntObject(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	if (position != nullptr)
 		moveTo(*position);
-	background->colorize(hero.owner); //maybe add this functionality to base class?
 
+	if(initializeBackground)
+	{
+		background = std::make_shared<CPicture>("CHRPOP");
+		background->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
+		background->colorize(hero.owner);
+	}
+
+	initializeData(hero);
+}
+
+void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	auto attack = hero.details->primskills[0];
 	auto defense = hero.details->primskills[1];
 	auto power = hero.details->primskills[2];
@@ -397,7 +429,33 @@ HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
 	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
 }
 
-BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface & _owner)
+void HeroInfoBasicPanel::update(const InfoAboutHero & updatedInfo)
+{
+	icons.clear();
+	labels.clear();
+
+	initializeData(updatedInfo);
+}
+
+void HeroInfoBasicPanel::show(Canvas & to)
+{
+	showAll(to);
+	CIntObject::show(to);
+}
+
+HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
+	: CWindowObject(RCLICK_POPUP | SHADOW_DISABLED, "CHRPOP")
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	if (position != nullptr)
+		moveTo(*position);
+
+	background->colorize(hero.owner); //maybe add this functionality to base class?
+
+	content = std::make_shared<HeroInfoBasicPanel>(hero, nullptr, false);
+}
+
+BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface & _owner, bool allowReplay)
 	: owner(_owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -406,8 +464,15 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	background->colorize(owner.playerID);
 	pos = center(background->pos);
 
-	exit = std::make_shared<CButton>(Point(384, 505), "iok6432.def", std::make_pair("", ""), [&](){ bExitf();}, SDLK_RETURN);
+	exit = std::make_shared<CButton>(Point(384, 505), "iok6432.def", std::make_pair("", ""), [&](){ bExitf();}, EShortcut::GLOBAL_ACCEPT);
 	exit->setBorderColor(Colors::METALLIC_GOLD);
+	
+	if(allowReplay)
+	{
+		repeat = std::make_shared<CButton>(Point(24, 505), "icn6432.def", std::make_pair("", ""), [&](){ bRepeatf();}, EShortcut::GLOBAL_CANCEL);
+		repeat->setBorderColor(Colors::METALLIC_GOLD);
+		labels.push_back(std::make_shared<CLabel>(232, 520, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.battleResultsWindow.applyResultsLabel")));
+	}
 
 	if(br.winner == 0) //attacker won
 	{
@@ -448,18 +513,18 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 			auto stacks = owner.cb->battleGetAllStacks();
 			vstd::erase_if(stacks, [i](const CStack * stack) //erase stack of other side and not coming from garrison
 			{
-				return stack->side != i || !stack->base;
+				return stack->unitSide() != i || !stack->base;
 			});
 
 			auto best = vstd::maxElementByFun(stacks, [](const CStack * stack)
 			{
-				return stack->type->AIValue;
+				return stack->unitType()->getAIValue();
 			});
 
 			if(best != stacks.end()) //should be always but to be safe...
 			{
-				icons.push_back(std::make_shared<CAnimImage>("TWCRPORT", (*best)->type->getIconIndex(), 0, xs[i], 38));
-				sideNames[i] = (*best)->type->getNamePluralTranslated();
+				icons.push_back(std::make_shared<CAnimImage>("TWCRPORT", (*best)->unitType()->getIconIndex(), 0, xs[i], 38));
+				sideNames[i] = (*best)->unitType()->getNamePluralTranslated();
 			}
 		}
 	}
@@ -563,25 +628,36 @@ void BattleResultWindow::activate()
 	CIntObject::activate();
 }
 
-void BattleResultWindow::show(SDL_Surface * to)
+void BattleResultWindow::show(Canvas & to)
 {
 	CIntObject::show(to);
-	CCS->videoh->update(pos.x + 107, pos.y + 70, to, true, false);
+	CCS->videoh->update(pos.x + 107, pos.y + 70, to.getInternalSurface(), true, false);
 }
 
-void BattleResultWindow::bExitf()
+void BattleResultWindow::buttonPressed(int button)
 {
+	resultCallback(button);
 	CPlayerInterface &intTmp = owner; //copy reference because "this" will be destructed soon
 
 	close();
 
-	if(dynamic_cast<BattleWindow*>(GH.topInt().get()))
-		GH.popInts(1); //pop battle interface if present
+	if(GH.windows().topWindow<BattleWindow>())
+		GH.windows().popWindows(1); //pop battle interface if present
 
 	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,
 	//so we can be sure that there is no dialogs left on GUI stack.
 	intTmp.showingDialog->setn(false);
 	CCS->videoh->close();
+}
+
+void BattleResultWindow::bExitf()
+{
+	buttonPressed(0);
+}
+
+void BattleResultWindow::bRepeatf()
+{
+	buttonPressed(1);
 }
 
 StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
@@ -623,16 +699,8 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	}
 }
 
-void StackQueue::show(SDL_Surface * to)
+void StackQueue::show(Canvas & to)
 {
-	auto unitIdsToHighlight = owner.stacksController->getHoveredStacksUnitIds();
-
-	for(auto & stackBox : stackBoxes)
-	{
-		bool isBoundUnitCurrentlyHovered = vstd::contains(unitIdsToHighlight, stackBox->getBoundUnitID());
-		stackBox->toggleHighlight(isBoundUnitCurrentlyHovered);
-	}
-
 	if (embedded)
 		showAll(to);
 	CIntObject::show(to);
@@ -661,21 +729,21 @@ int32_t StackQueue::getSiegeShooterIconID()
 	return owner.siegeController->getSiegedTown()->town->faction->getIndex();
 }
 
-boost::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
+std::optional<uint32_t> StackQueue::getHoveredUnitIdIfAny() const
 {
 	for(const auto & stackBox : stackBoxes)
 	{
-		if(stackBox->hovered || stackBox->mouseState(MouseButton::RIGHT))
+		if(stackBox->isHovered())
 		{
 			return stackBox->getBoundUnitID();
 		}
 	}
 
-	return boost::none;
+	return std::nullopt;
 }
 
 StackQueue::StackBox::StackBox(StackQueue * owner):
-	CIntObject(RCLICK | HOVER), owner(owner)
+	CIntObject(SHOW_POPUP | HOVER), owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>(owner->embedded ? "StackQueueSmall" : "StackQueueLarge");
@@ -715,7 +783,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 		// if mod is not up to date and does have arrow tower icon yet - second setFrame call will fail and retain previously set image
 		// for 1.2 release & later next line should be moved into 'else' block
 		icon->setFrame(unit->creatureIconIndex(), 0);
-		if (unit->unitType()->idNumber == CreatureID::ARROW_TOWERS)
+		if (unit->unitType()->getId() == CreatureID::ARROW_TOWERS)
 			icon->setFrame(owner->getSiegeShooterIconID(), 1);
 
 		amount->setText(TextOperations::formatMetric(unit->getCount(), 4));
@@ -740,7 +808,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 	}
 	else
 	{
-		boundUnitID = boost::none;
+		boundUnitID = std::nullopt;
 		background->colorize(PlayerColor::NEUTRAL);
 		icon->visible = false;
 		icon->setFrame(0);
@@ -751,20 +819,29 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 	}
 }
 
-boost::optional<uint32_t> StackQueue::StackBox::getBoundUnitID() const
+std::optional<uint32_t> StackQueue::StackBox::getBoundUnitID() const
 {
 	return boundUnitID;
 }
 
-void StackQueue::StackBox::toggleHighlight(bool value)
+bool StackQueue::StackBox::isBoundUnitHighlighted() const
 {
-	highlighted = value;
+	auto unitIdsToHighlight = owner->owner.stacksController->getHoveredStacksUnitIds();
+	return vstd::contains(unitIdsToHighlight, getBoundUnitID());
 }
 
-void StackQueue::StackBox::show(SDL_Surface *to)
+void StackQueue::StackBox::showAll(Canvas & to)
 {
-	if(highlighted)
-		CSDL_Ext::drawBorder(to, background->pos.x, background->pos.y, background->pos.w, background->pos.h,  { 0, 255, 255, 255 }, 2);
+	CIntObject::showAll(to);
 
+	if(isBoundUnitHighlighted())
+		to.drawBorder(background->pos, Colors::CYAN, 2);
+}
+
+void StackQueue::StackBox::show(Canvas & to)
+{
 	CIntObject::show(to);
+
+	if(isBoundUnitHighlighted())
+		to.drawBorder(background->pos, Colors::CYAN, 2);
 }

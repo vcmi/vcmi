@@ -11,6 +11,7 @@
 #pragma once
 #include "../int3.h"
 #include "../GameConstants.h"
+#include "threadpool/MapProxy.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -20,12 +21,15 @@ class TileInfo;
 class CMapGenOptions;
 class Zone;
 class CMapGenerator;
+class MapProxy;
+class playerInfo;
 
 class RmgMap
 {
 public:
 	mutable std::unique_ptr<CMap> mapInstance;
-	CMap & map() const;
+	std::shared_ptr<MapProxy> getMapProxy() const;
+	CMap & getMap(const CMapGenerator *) const; //limited access
 	
 	RmgMap(const CMapGenOptions& mapGenOptions);
 	~RmgMap() = default;
@@ -44,11 +48,17 @@ public:
 	bool isUsed(const int3 &tile) const;
 	bool isRoad(const int3 &tile) const;
 	bool isOnMap(const int3 & tile) const;
+
+	int levels() const;
+	int width() const;
+	int height() const;
+	PlayerInfo & getPlayer(int playerId);
 	
 	void setOccupied(const int3 &tile, ETileType::ETileType state);
 	void setRoad(const int3 &tile, RoadId roadType);
 	
-	TileInfo getTile(const int3 & tile) const;
+	TileInfo getTileInfo(const int3 & tile) const;
+	TerrainTile & getTile(const int3 & tile) const;
 		
 	float getNearestObjectDistance(const int3 &tile) const;
 	void setNearestObjectDistance(int3 &tile, float value);
@@ -57,13 +67,15 @@ public:
 	void setZoneID(const int3& tile, TRmgTemplateZoneId zid);
 	
 	using Zones = std::map<TRmgTemplateZoneId, std::shared_ptr<Zone>>;
+	using ZonePair = std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>>;
+	using ZoneVector = std::vector<ZonePair>;
 	
 	Zones & getZones();
 	
-	void registerZone(TFaction faction);
-	ui32 getZoneCount(TFaction faction);
+	void registerZone(FactionID faction);
+	ui32 getZoneCount(FactionID faction);
 	ui32 getTotalZoneCount() const;
-	void initTiles(CMapGenerator & generator);
+	void initTiles(CMapGenerator & generator, CRandomGenerator & rand);
 	void addModificators();
 
 	bool isAllowedSpell(const SpellID & sid) const;
@@ -72,10 +84,13 @@ public:
 	
 private:
 	void assertOnMap(const int3 &tile) const; //throws
-	
+
 private:
+
+	std::shared_ptr<MapProxy> mapProxy;
+
 	Zones zones;
-	std::map<TFaction, ui32> zonesPerFaction;
+	std::map<FactionID, ui32> zonesPerFaction;
 	ui32 zonesTotal; //zones that have their main town only
 	const CMapGenOptions& mapGenOptions;
 	boost::multi_array<TileInfo, 3> tiles; //[x][y][z]

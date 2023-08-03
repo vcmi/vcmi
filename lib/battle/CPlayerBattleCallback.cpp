@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CPlayerBattleCallback.h"
 #include "../CStack.h"
-#include "../CGameState.h"
+#include "../gameState/InfoAboutArmy.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -30,8 +30,8 @@ TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose, bool onlyA
 
 	return battleGetStacksIf([=](const CStack * s){
 		const bool ownerMatches = (whose == MINE_AND_ENEMY)
-								|| (whose == ONLY_MINE && s->owner == player)
-								|| (whose == ONLY_ENEMY && s->owner != player);
+								|| (whose == ONLY_MINE && s->unitOwner() == player)
+								|| (whose == ONLY_ENEMY && s->unitOwner() != player);
 
 		return ownerMatches && s->isValidTarget(!onlyAlive);
 	});

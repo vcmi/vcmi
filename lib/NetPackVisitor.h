@@ -36,7 +36,7 @@ public:
 	virtual void visitSetMana(SetMana & pack) {}
 	virtual void visitSetMovePoints(SetMovePoints & pack) {}
 	virtual void visitFoWChange(FoWChange & pack) {}
-	virtual void visitSetAvailableHeroes(SetAvailableHeroes & pack) {}
+	virtual void visitSetAvailableHeroes(SetAvailableHero & pack) {}
 	virtual void visitGiveBonus(GiveBonus & pack) {}
 	virtual void visitChangeObjPos(ChangeObjPos & pack) {}
 	virtual void visitPlayerEndsGame(PlayerEndsGame & pack) {}
@@ -126,6 +126,7 @@ public:
 	virtual void visitExchangeArtifacts(ExchangeArtifacts & pack) {}
 	virtual void visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack) {}
 	virtual void visitAssembleArtifacts(AssembleArtifacts & pack) {}
+	virtual void visitEraseArtifactByClient(EraseArtifactByClient & pack) {}
 	virtual void visitBuyArtifact(BuyArtifact & pack) {}
 	virtual void visitTradeOnMarketplace(TradeOnMarketplace & pack) {}
 	virtual void visitSetFormation(SetFormation & pack) {}
@@ -137,7 +138,6 @@ public:
 	virtual void visitDigWithHero(DigWithHero & pack) {}
 	virtual void visitCastAdvSpell(CastAdvSpell & pack) {}
 	virtual void visitSaveGame(SaveGame & pack) {}
-	virtual void visitSaveGameClient(SaveGameClient & pack) {}
 	virtual void visitPlayerMessage(PlayerMessage & pack) {}
 	virtual void visitPlayerMessageClient(PlayerMessageClient & pack) {}
 	virtual void visitCenterView(CenterView & pack) {}

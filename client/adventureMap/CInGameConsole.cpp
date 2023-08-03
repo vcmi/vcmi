@@ -14,10 +14,16 @@
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../ClientCommandManager.h"
-#include "../adventureMap/CAdvMapInt.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
+#include "../gui/Shortcut.h"
+#include "../gui/TextAlignment.h"
 #include "../render/Colors.h"
+#include "../render/Canvas.h"
+#include "../adventureMap/AdventureMapInterface.h"
+#include "../windows/CMessage.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
@@ -28,15 +34,15 @@ CInGameConsole::CInGameConsole()
 	: CIntObject(KEYBOARD | TIME | TEXTINPUT)
 	, prevEntDisp(-1)
 {
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 }
 
-void CInGameConsole::showAll(SDL_Surface * to)
+void CInGameConsole::showAll(Canvas & to)
 {
 	show(to);
 }
 
-void CInGameConsole::show(SDL_Surface * to)
+void CInGameConsole::show(Canvas & to)
 {
 	if (LOCPLINT->cingconsole != this)
 		return;
@@ -49,8 +55,7 @@ void CInGameConsole::show(SDL_Surface * to)
 		Point leftBottomCorner(0, pos.h);
 		Point textPosition(leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number * 20);
 
-		graphics->fonts[FONT_MEDIUM]->renderTextLeft(to, text.text, Colors::GREEN, textPosition );
-
+		to.drawText(pos.topLeft() + textPosition, FONT_MEDIUM, Colors::GREEN, ETextAlignment::TOPLEFT, text.text);
 		number++;
 	}
 }
@@ -74,7 +79,7 @@ void CInGameConsole::tick(uint32_t msPassed)
 	}
 
 	if(sizeBefore != texts.size())
-		GH.totalRedraw(); // FIXME: ingame console has no parent widget set
+		GH.windows().totalRedraw(); // FIXME: ingame console has no parent widget set
 }
 
 void CInGameConsole::print(const std::string & txt)
@@ -82,70 +87,78 @@ void CInGameConsole::print(const std::string & txt)
 	// boost::unique_lock scope
 	{
 		boost::unique_lock<boost::mutex> lock(texts_mx);
-		int lineLen = conf.go()->ac.outputLineLength;
 
-		if(txt.size() < lineLen)
-		{
-			texts.push_back({txt, 0});
-		}
-		else
-		{
-			assert(lineLen);
-			for(int g = 0; g < txt.size() / lineLen + 1; ++g)
-			{
-				std::string part = txt.substr(g * lineLen, lineLen);
-				if(part.empty())
-					break;
+		// Maximum width for a text line is limited by:
+		// 1) width of adventure map terrain area, for when in-game console is on top of advmap
+		// 2) width of castle/battle window (fixed to 800) when this window is open
+		// 3) arbitrary selected left and right margins
+		int maxWidth = std::min( 800, adventureInt->terrainAreaPixels().w) - 100;
 
-				texts.push_back({part, 0});
-			}
-		}
+		auto splitText = CMessage::breakText(txt, maxWidth, FONT_MEDIUM);
+
+		for(const auto & entry : splitText)
+			texts.push_back({entry, 0});
 
 		while(texts.size() > maxDisplayedTexts)
 			texts.erase(texts.begin());
 	}
 
-	GH.totalRedraw(); // FIXME: ingame console has no parent widget set
+	GH.windows().totalRedraw(); // FIXME: ingame console has no parent widget set
+	CCS->soundh->playSound("CHAT");
 }
 
-void CInGameConsole::keyPressed (const SDL_Keycode & key)
+bool CInGameConsole::captureThisKey(EShortcut key)
+{
+	if (enteredText.empty())
+		return false;
+
+	switch (key)
+	{
+		case EShortcut::GLOBAL_ACCEPT:
+		case EShortcut::GLOBAL_CANCEL:
+		case EShortcut::GAME_ACTIVATE_CONSOLE:
+		case EShortcut::GLOBAL_BACKSPACE:
+		case EShortcut::MOVE_UP:
+		case EShortcut::MOVE_DOWN:
+			return true;
+
+		default:
+			return false;
+	}
+}
+
+void CInGameConsole::keyPressed (EShortcut key)
 {
 	if (LOCPLINT->cingconsole != this)
 		return;
 
-	if(!captureAllKeys && key != SDLK_TAB)
+	if(enteredText.empty() && key != EShortcut::GAME_ACTIVATE_CONSOLE)
 		return; //because user is not entering any text
 
 	switch(key)
 	{
-	case SDLK_TAB:
-	case SDLK_ESCAPE:
+	case EShortcut::GLOBAL_CANCEL:
+		if(!enteredText.empty())
+			endEnteringText(false);
+		break;
+
+	case EShortcut::GAME_ACTIVATE_CONSOLE:
+		if(!enteredText.empty())
+			endEnteringText(false);
+		else
+			startEnteringText();
+		break;
+
+	case EShortcut::GLOBAL_ACCEPT:
 		{
-			if(captureAllKeys)
-			{
-				endEnteringText(false);
-			}
-			else if(SDLK_TAB == key)
-			{
-				startEnteringText();
-			}
-			break;
-		}
-	case SDLK_RETURN: //enter key
-		{
-			if(!enteredText.empty() && captureAllKeys)
+			if(!enteredText.empty())
 			{
 				bool anyTextExceptCaret = enteredText.size() > 1;
 				endEnteringText(anyTextExceptCaret);
-
-				if(anyTextExceptCaret)
-				{
-					CCS->soundh->playSound("CHAT");
-				}
 			}
 			break;
 		}
-	case SDLK_BACKSPACE:
+	case EShortcut::GLOBAL_BACKSPACE:
 		{
 			if(enteredText.size() > 1)
 			{
@@ -155,7 +168,7 @@ void CInGameConsole::keyPressed (const SDL_Keycode & key)
 			}
 			break;
 		}
-	case SDLK_UP: //up arrow
+	case EShortcut::MOVE_UP:
 		{
 			if(previouslyEntered.empty())
 				break;
@@ -174,7 +187,7 @@ void CInGameConsole::keyPressed (const SDL_Keycode & key)
 			}
 			break;
 		}
-	case SDLK_DOWN: //down arrow
+	case EShortcut::MOVE_DOWN:
 		{
 			if(prevEntDisp != -1 && prevEntDisp+1 < previouslyEntered.size())
 			{
@@ -190,10 +203,6 @@ void CInGameConsole::keyPressed (const SDL_Keycode & key)
 			}
 			break;
 		}
-	default:
-		{
-			break;
-		}
 	}
 }
 
@@ -202,8 +211,9 @@ void CInGameConsole::textInputed(const std::string & inputtedText)
 	if (LOCPLINT->cingconsole != this)
 		return;
 
-	if(!captureAllKeys || enteredText.empty())
+	if(enteredText.empty())
 		return;
+
 	enteredText.resize(enteredText.size()-1);
 
 	enteredText += inputtedText;
@@ -219,27 +229,21 @@ void CInGameConsole::textEdited(const std::string & inputtedText)
 
 void CInGameConsole::startEnteringText()
 {
-	if (!active)
+	if (!isActive())
 		return;
 
-	if (captureAllKeys)
-		return;
-
-	assert(GH.statusbar);
 	assert(currentStatusBar.expired());//effectively, nullptr check
 
-	currentStatusBar = GH.statusbar;
+	currentStatusBar = GH.statusbar();
 
-	captureAllKeys = true;
 	enteredText = "_";
 
-	GH.statusbar->setEnteringMode(true);
-	GH.statusbar->setEnteredText(enteredText);
+	GH.statusbar()->setEnteringMode(true);
+	GH.statusbar()->setEnteredText(enteredText);
 }
 
 void CInGameConsole::endEnteringText(bool processEnteredText)
 {
-	captureAllKeys = false;
 	prevEntDisp = -1;
 	if(processEnteredText)
 	{
@@ -259,7 +263,7 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 			clientCommandThread.detach();
 		}
 		else
-			LOCPLINT->cb->sendMessage(txt, adventureInt->curArmy());
+			LOCPLINT->cb->sendMessage(txt, LOCPLINT->localState->getCurrentArmy());
 	}
 	enteredText.clear();
 

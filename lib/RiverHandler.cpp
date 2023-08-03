@@ -40,6 +40,15 @@ RiverType * RiverTypeHandler::loadFromJson(
 	info->shortIdentifier = json["shortIdentifier"].String();
 	info->deltaName       = json["delta"].String();
 
+	for(const auto & t : json["paletteAnimation"].Vector())
+	{
+		RiverPaletteAnimation element{
+			static_cast<int>(t["start"].Integer()),
+			static_cast<int>(t["length"].Integer())
+		};
+		info->paletteAnimation.push_back(element);
+	}
+
 	VLC->generaltexth->registerString(scope, info->getNameTextID(), json["text"].String());
 
 	return info;

@@ -10,16 +10,19 @@
 
 #pragma once
 
+#include <vcmi/Creature.h>
 #include <vcmi/spells/Caster.h>
 
-#include "../HeroBonus.h"
+#include "../bonuses/Bonus.h"
+#include "../bonuses/IBonusBearer.h"
 
 #include "IUnitInfo.h"
 #include "BattleHex.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct MetaString;
+enum class EMetaText : uint8_t;
+class MetaString;
 class JsonNode;
 class JsonSerializeFormat;
 
@@ -40,7 +43,7 @@ namespace BattlePhases
 
 class CUnitState;
 
-class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer
+class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer, public ACreature
 {
 public:
 	virtual ~Unit();
@@ -120,11 +123,14 @@ public:
 	static BattleHex occupiedHex(BattleHex assumedPos, bool twoHex, ui8 side);
 
 	///MetaStrings
-	void addText(MetaString & text, ui8 type, int32_t serial, const boost::logic::tribool & plural = boost::logic::indeterminate) const;
+	void addText(MetaString & text, EMetaText type, int32_t serial, const boost::logic::tribool & plural = boost::logic::indeterminate) const;
 	void addNameReplacement(MetaString & text, const boost::logic::tribool & plural = boost::logic::indeterminate) const;
 	std::string formatGeneralMessage(const int32_t baseTextId) const;
 
 	int getRawSurrenderCost() const;
+
+	//IConstBonusProvider
+	const IBonusBearer* getBonusBearer() const override;
 
 	//NOTE: save could possibly be const, but this requires heavy changes to Json serialization,
 	//also this method should be called only after modifying object

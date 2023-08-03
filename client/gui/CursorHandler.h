@@ -127,9 +127,6 @@ class CursorHandler final
 
 	void changeGraphic(Cursor::Type type, size_t index);
 
-	Point getPivotOffsetDefault(size_t index);
-	Point getPivotOffsetMap(size_t index);
-	Point getPivotOffsetCombat(size_t index);
 	Point getPivotOffsetSpellcast();
 	Point getPivotOffset();
 
@@ -150,9 +147,6 @@ public:
 
 	void dragAndDropCursor(std::string path, size_t index);
 
-	/// Returns current position of the cursor
-	Point position() const;
-
 	/// Changes cursor to specified index
 	void set(Cursor::Default index);
 	void set(Cursor::Map index);
@@ -170,6 +164,10 @@ public:
 
 		return static_cast<Index>(frame);
 	}
+
+	Point getPivotOffsetDefault(size_t index);
+	Point getPivotOffsetMap(size_t index);
+	Point getPivotOffsetCombat(size_t index);
 
 	void render();
 

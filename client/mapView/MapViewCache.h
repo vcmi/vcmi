@@ -41,6 +41,7 @@ class MapViewCache
 	boost::multi_array<TileChecksum, 2> terrainChecksum;
 	boost::multi_array<bool, 2> tilesUpToDate;
 
+	Point cachedSize;
 	Point cachedPosition;
 	int cachedLevel;
 

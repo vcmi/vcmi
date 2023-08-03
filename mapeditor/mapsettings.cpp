@@ -17,8 +17,10 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CGeneralTextHandler.h"
+#include "../lib/CModHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
-#include "../lib/mapObjects/MiscObjects.h"
+#include "../lib/mapObjects/CGCreature.h"
+#include "../lib/mapping/CMapService.h"
 #include "../lib/StringConstants.h"
 #include "inspector/townbulidingswidget.h" //to convert BuildingID to string
 
@@ -82,6 +84,14 @@ std::vector<JsonNode> linearJsonArray(const JsonNode & json)
 	return result;
 }
 
+void traverseNode(QTreeWidgetItem * item, std::function<void(QTreeWidgetItem*)> action)
+{
+	// Do something with item
+	action(item);
+	for (int i = 0; i < item->childCount(); ++i)
+		traverseNode(item->child(i), action);
+}
+
 MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::MapSettings),
@@ -93,9 +103,10 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 
 	ui->mapNameEdit->setText(tr(controller.map()->name.c_str()));
 	ui->mapDescriptionEdit->setPlainText(tr(controller.map()->description.c_str()));
+	ui->heroLevelLimit->setValue(controller.map()->levelLimit);
+	ui->heroLevelLimitCheck->setChecked(controller.map()->levelLimit);
 	
 	show();
-	
 	
 	for(int i = 0; i < controller.map()->allowedAbilities.size(); ++i)
 	{
@@ -105,12 +116,12 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 		item->setCheckState(controller.map()->allowedAbilities[i] ? Qt::Checked : Qt::Unchecked);
 		ui->listAbilities->addItem(item);
 	}
-	for(int i = 0; i < controller.map()->allowedSpell.size(); ++i)
+	for(int i = 0; i < controller.map()->allowedSpells.size(); ++i)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(VLC->spellh->objects[i]->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-		item->setCheckState(controller.map()->allowedSpell[i] ? Qt::Checked : Qt::Unchecked);
+		item->setCheckState(controller.map()->allowedSpells[i] ? Qt::Checked : Qt::Unchecked);
 		ui->listSpells->addItem(item);
 	}
 	for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
@@ -155,8 +166,8 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	};
 	
 	//victory & loss messages
-	ui->victoryMessageEdit->setText(QString::fromStdString(controller.map()->victoryMessage));
-	ui->defeatMessageEdit->setText(QString::fromStdString(controller.map()->defeatMessage));
+	ui->victoryMessageEdit->setText(QString::fromStdString(controller.map()->victoryMessage.toString()));
+	ui->defeatMessageEdit->setText(QString::fromStdString(controller.map()->defeatMessage.toString()));
 	
 	//victory & loss conditions
 	const std::array<std::string, 8> conditionStringsWin = {
@@ -385,6 +396,61 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 			}
 		}
 	}
+	
+	//mods management
+	//collect all active mods
+	QMap<QString, QTreeWidgetItem*> addedMods;
+	QSet<QString> modsToProcess;
+	ui->treeMods->blockSignals(true);
+	
+	auto createModTreeWidgetItem = [&](QTreeWidgetItem * parent, const CModInfo & modInfo)
+	{
+		auto item = new QTreeWidgetItem(parent, {QString::fromStdString(modInfo.name), QString::fromStdString(modInfo.version.toString())});
+		item->setData(0, Qt::UserRole, QVariant(QString::fromStdString(modInfo.identifier)));
+		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+		item->setCheckState(0, controller.map()->mods.count(modInfo.identifier) ? Qt::Checked : Qt::Unchecked);
+		//set parent check
+		if(parent && item->checkState(0) == Qt::Checked)
+			parent->setCheckState(0, Qt::Checked);
+		return item;
+	};
+	
+	for(const auto & modName : VLC->modh->getActiveMods())
+	{
+		QString qmodName = QString::fromStdString(modName);
+		if(qmodName.split(".").size() == 1)
+		{
+			const auto & modInfo = VLC->modh->getModInfo(modName);
+			addedMods[qmodName] = createModTreeWidgetItem(nullptr, modInfo);
+			ui->treeMods->addTopLevelItem(addedMods[qmodName]);
+		}
+		else
+		{
+			modsToProcess.insert(qmodName);
+		}
+	}
+	
+	for(auto qmodIter = modsToProcess.begin(); qmodIter != modsToProcess.end();)
+	{
+		auto qmodName = *qmodIter;
+		auto pieces = qmodName.split(".");
+		assert(pieces.size() > 1);
+		
+		QString qs;
+		for(int i = 0; i < pieces.size() - 1; ++i)
+			qs += pieces[i];
+		
+		if(addedMods.count(qs))
+		{
+			const auto & modInfo = VLC->modh->getModInfo(qmodName.toStdString());
+			addedMods[qmodName] = createModTreeWidgetItem(addedMods[qs], modInfo);
+			modsToProcess.erase(qmodIter);
+			qmodIter = modsToProcess.begin();
+		}
+		else
+			++qmodIter;
+	}
+	ui->treeMods->blockSignals(false);
 }
 
 MapSettings::~MapSettings()
@@ -419,19 +485,39 @@ std::string MapSettings::getHeroName(int townObjectIdx)
 std::string MapSettings::getMonsterName(int monsterObjectIdx)
 {
 	std::string name;
-	if(auto monster = dynamic_cast<CGCreature*>(controller.map()->objects[monsterObjectIdx].get()))
+	[[maybe_unused]] auto monster = dynamic_cast<CGCreature*>(controller.map()->objects[monsterObjectIdx].get());
+	if(monster)
 	{
 		//TODO: get proper name
 		//name = hero->name;
-		MAYBE_UNUSED(monster);
 	}
 	return name;
+}
+
+void MapSettings::updateModWidgetBasedOnMods(const ModCompatibilityInfo & mods)
+{
+	//Mod management
+	auto widgetAction = [&](QTreeWidgetItem * item)
+	{
+		auto modName = item->data(0, Qt::UserRole).toString().toStdString();
+		item->setCheckState(0, mods.count(modName) ? Qt::Checked : Qt::Unchecked);
+	};
+	
+	for (int i = 0; i < ui->treeMods->topLevelItemCount(); ++i)
+	{
+		QTreeWidgetItem *item = ui->treeMods->topLevelItem(i);
+		traverseNode(item, widgetAction);
+	}
 }
 
 void MapSettings::on_pushButton_clicked()
 {
 	controller.map()->name = ui->mapNameEdit->text().toStdString();
 	controller.map()->description = ui->mapDescriptionEdit->toPlainText().toStdString();
+	if(ui->heroLevelLimitCheck->isChecked())
+		controller.map()->levelLimit = ui->heroLevelLimit->value();
+	else
+		controller.map()->levelLimit = 0;
 	controller.commitChangeWithoutRedraw();
 	
 	for(int i = 0; i < controller.map()->allowedAbilities.size(); ++i)
@@ -439,10 +525,10 @@ void MapSettings::on_pushButton_clicked()
 		auto * item = ui->listAbilities->item(i);
 		controller.map()->allowedAbilities[i] = item->checkState() == Qt::Checked;
 	}
-	for(int i = 0; i < controller.map()->allowedSpell.size(); ++i)
+	for(int i = 0; i < controller.map()->allowedSpells.size(); ++i)
 	{
 		auto * item = ui->listSpells->item(i);
-		controller.map()->allowedSpell[i] = item->checkState() == Qt::Checked;
+		controller.map()->allowedSpells[i] = item->checkState() == Qt::Checked;
 	}
 	for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
 	{
@@ -464,8 +550,8 @@ void MapSettings::on_pushButton_clicked()
 	
 	//victory & loss messages
 	
-	controller.map()->victoryMessage = ui->victoryMessageEdit->text().toStdString();
-	controller.map()->defeatMessage = ui->defeatMessageEdit->text().toStdString();
+	controller.map()->victoryMessage = MetaString::createFromRawString(ui->victoryMessageEdit->text().toStdString());
+	controller.map()->defeatMessage = MetaString::createFromRawString(ui->defeatMessageEdit->text().toStdString());
 	
 	//victory & loss conditions
 	EventCondition victoryCondition(EventCondition::STANDARD_WIN);
@@ -475,19 +561,19 @@ void MapSettings::on_pushButton_clicked()
 	//Victory condition - defeat all
 	TriggeredEvent standardVictory;
 	standardVictory.effect.type = EventEffect::VICTORY;
-	standardVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[5];
+	standardVictory.effect.toOtherMessage.appendTextID("core.genrltxt.5");
 	standardVictory.identifier = "standardVictory";
 	standardVictory.description.clear(); // TODO: display in quest window
-	standardVictory.onFulfill = VLC->generaltexth->allTexts[659];
+	standardVictory.onFulfill.appendTextID("core.genrltxt.659");
 	standardVictory.trigger = EventExpression(victoryCondition);
 
 	//Loss condition - 7 days without town
 	TriggeredEvent standardDefeat;
 	standardDefeat.effect.type = EventEffect::DEFEAT;
-	standardDefeat.effect.toOtherMessage = VLC->generaltexth->allTexts[8];
+	standardDefeat.effect.toOtherMessage.appendTextID("core.genrltxt.8");
 	standardDefeat.identifier = "standardDefeat";
 	standardDefeat.description.clear(); // TODO: display in quest window
-	standardDefeat.onFulfill = VLC->generaltexth->allTexts[7];
+	standardDefeat.onFulfill.appendTextID("core.genrltxt.7");
 	standardDefeat.trigger = EventExpression(defeatCondition);
 	
 	controller.map()->triggeredEvents.clear();
@@ -497,7 +583,7 @@ void MapSettings::on_pushButton_clicked()
 	{
 		controller.map()->triggeredEvents.push_back(standardVictory);
 		controller.map()->victoryIconIndex = 11;
-		controller.map()->victoryMessage = VLC->generaltexth->victoryConditions[0];
+		controller.map()->victoryMessage.appendTextID(VLC->generaltexth->victoryConditions[0]);
 	}
 	else
 	{
@@ -509,7 +595,7 @@ void MapSettings::on_pushButton_clicked()
 		specialVictory.description.clear(); // TODO: display in quest window
 		
 		controller.map()->victoryIconIndex = vicCondition;
-		controller.map()->victoryMessage = VLC->generaltexth->victoryConditions[size_t(vicCondition) + 1];
+		controller.map()->victoryMessage.appendTextID(VLC->generaltexth->victoryConditions[size_t(vicCondition) + 1]);
 		
 		switch(vicCondition)
 		{
@@ -517,8 +603,8 @@ void MapSettings::on_pushButton_clicked()
 				EventCondition cond(EventCondition::HAVE_ARTIFACT);
 				assert(victoryTypeWidget);
 				cond.objectType = victoryTypeWidget->currentData().toInt();
-				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[281];
-				specialVictory.onFulfill = VLC->generaltexth->allTexts[280];
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.281");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.280");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -528,8 +614,8 @@ void MapSettings::on_pushButton_clicked()
 				assert(victoryTypeWidget);
 				cond.objectType = victoryTypeWidget->currentData().toInt();
 				cond.value = victoryValueWidget->text().toInt();
-				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[277];
-				specialVictory.onFulfill = VLC->generaltexth->allTexts[276];
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.277");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.276");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -539,8 +625,8 @@ void MapSettings::on_pushButton_clicked()
 				assert(victoryTypeWidget);
 				cond.objectType = victoryTypeWidget->currentData().toInt();
 				cond.value = victoryValueWidget->text().toInt();
-				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[279];
-				specialVictory.onFulfill = VLC->generaltexth->allTexts[278];
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.279");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.278");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -552,8 +638,8 @@ void MapSettings::on_pushButton_clicked()
 				int townIdx = victorySelectWidget->currentData().toInt();
 				if(townIdx > -1)
 					cond.position = controller.map()->objects[townIdx]->pos;
-				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[283];
-				specialVictory.onFulfill = VLC->generaltexth->allTexts[282];
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.283");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.282");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -564,8 +650,8 @@ void MapSettings::on_pushButton_clicked()
 				cond.objectType = Obj::TOWN;
 				int townIdx = victoryTypeWidget->currentData().toInt();
 				cond.position = controller.map()->objects[townIdx]->pos;
-				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[250];
-				specialVictory.onFulfill = VLC->generaltexth->allTexts[249];
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.250");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.249");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -576,8 +662,8 @@ void MapSettings::on_pushButton_clicked()
 				cond.objectType = Obj::HERO;
 				int heroIdx = victoryTypeWidget->currentData().toInt();
 				cond.position = controller.map()->objects[heroIdx]->pos;
-				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[253];
-				specialVictory.onFulfill = VLC->generaltexth->allTexts[252];
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.253");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.252");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -589,8 +675,8 @@ void MapSettings::on_pushButton_clicked()
 				int townIdx = victorySelectWidget->currentData().toInt();
 				if(townIdx > -1)
 					cond.position = controller.map()->objects[townIdx]->pos;
-				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[293];
-				specialVictory.onFulfill = VLC->generaltexth->allTexts[292];
+				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.293");
+				specialVictory.onFulfill.appendTextID("core.genrltxt.292");
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
@@ -611,8 +697,8 @@ void MapSettings::on_pushButton_clicked()
 		// if normal victory allowed - add one more quest
 		if(ui->standardVictoryCheck->isChecked())
 		{
-			controller.map()->victoryMessage += " / ";
-			controller.map()->victoryMessage += VLC->generaltexth->victoryConditions[0];
+			controller.map()->victoryMessage.appendRawString(" / ");
+			controller.map()->victoryMessage.appendTextID(VLC->generaltexth->victoryConditions[0]);
 			controller.map()->triggeredEvents.push_back(standardVictory);
 		}
 		controller.map()->triggeredEvents.push_back(specialVictory);
@@ -623,7 +709,7 @@ void MapSettings::on_pushButton_clicked()
 	{
 		controller.map()->triggeredEvents.push_back(standardDefeat);
 		controller.map()->defeatIconIndex = 3;
-		controller.map()->defeatMessage = VLC->generaltexth->lossCondtions[0];
+		controller.map()->defeatMessage.appendTextID("core.lcdesc.0");
 	}
 	else
 	{
@@ -635,7 +721,6 @@ void MapSettings::on_pushButton_clicked()
 		specialDefeat.description.clear(); // TODO: display in quest window
 		
 		controller.map()->defeatIconIndex = lossCondition;
-		controller.map()->defeatMessage = VLC->generaltexth->lossCondtions[size_t(lossCondition) + 1];
 		
 		switch(lossCondition)
 		{
@@ -647,8 +732,9 @@ void MapSettings::on_pushButton_clicked()
 				int townIdx = loseTypeWidget->currentData().toInt();
 				cond.position = controller.map()->objects[townIdx]->pos;
 				noneOf.expressions.push_back(cond);
-				specialDefeat.onFulfill = VLC->generaltexth->allTexts[251];
+				specialDefeat.onFulfill.appendTextID("core.genrltxt.251");
 				specialDefeat.trigger = EventExpression(noneOf);
+				controller.map()->defeatMessage.appendTextID("core.lcdesc.1");
 				break;
 			}
 				
@@ -660,8 +746,9 @@ void MapSettings::on_pushButton_clicked()
 				int townIdx = loseTypeWidget->currentData().toInt();
 				cond.position = controller.map()->objects[townIdx]->pos;
 				noneOf.expressions.push_back(cond);
-				specialDefeat.onFulfill = VLC->generaltexth->allTexts[253];
+				specialDefeat.onFulfill.appendTextID("core.genrltxt.253");
 				specialDefeat.trigger = EventExpression(noneOf);
+				controller.map()->defeatMessage.appendTextID("core.lcdesc.2");
 				break;
 			}
 				
@@ -669,8 +756,9 @@ void MapSettings::on_pushButton_clicked()
 				EventCondition cond(EventCondition::DAYS_PASSED);
 				assert(loseValueWidget);
 				cond.value = expiredDate(loseValueWidget->text());
-				specialDefeat.onFulfill = VLC->generaltexth->allTexts[254];
+				specialDefeat.onFulfill.appendTextID("core.genrltxt.254");
 				specialDefeat.trigger = EventExpression(cond);
+				controller.map()->defeatMessage.appendTextID("core.lcdesc.3");
 				break;
 			}
 				
@@ -678,7 +766,7 @@ void MapSettings::on_pushButton_clicked()
 				EventCondition cond(EventCondition::DAYS_WITHOUT_TOWN);
 				assert(loseValueWidget);
 				cond.value = loseValueWidget->text().toInt();
-				specialDefeat.onFulfill = VLC->generaltexth->allTexts[7];
+				specialDefeat.onFulfill.appendTextID("core.genrltxt.7");
 				specialDefeat.trigger = EventExpression(cond);
 				break;
 			}
@@ -697,6 +785,23 @@ void MapSettings::on_pushButton_clicked()
 			controller.map()->triggeredEvents.push_back(standardDefeat);
 		}
 		controller.map()->triggeredEvents.push_back(specialDefeat);
+	}
+	
+	//Mod management
+	auto widgetAction = [&](QTreeWidgetItem * item)
+	{
+		if(item->checkState(0) == Qt::Checked)
+		{
+			auto modName = item->data(0, Qt::UserRole).toString().toStdString();
+			controller.map()->mods[modName] = VLC->modh->getModInfo(modName).version;
+		}
+	};
+	
+	controller.map()->mods.clear();
+	for (int i = 0; i < ui->treeMods->topLevelItemCount(); ++i)
+	{
+		QTreeWidgetItem *item = ui->treeMods->topLevelItem(i);
+		traverseNode(item, widgetAction);
 	}
 	
 	close();
@@ -873,5 +978,41 @@ void MapSettings::on_loseComboBox_currentIndexChanged(int index)
 			break;
 		}
 	}
+}
+
+
+void MapSettings::on_heroLevelLimitCheck_toggled(bool checked)
+{
+	ui->heroLevelLimit->setEnabled(checked);
+}
+
+void MapSettings::on_modResolution_map_clicked()
+{
+	updateModWidgetBasedOnMods(MapController::modAssessmentMap(*controller.map()));
+}
+
+
+void MapSettings::on_modResolution_full_clicked()
+{
+	updateModWidgetBasedOnMods(MapController::modAssessmentAll());
+}
+
+void MapSettings::on_treeMods_itemChanged(QTreeWidgetItem *item, int column)
+{
+	//set state for children
+	for (int i = 0; i < item->childCount(); ++i)
+		item->child(i)->setCheckState(0, item->checkState(0));
+	
+	//set state for parent
+	ui->treeMods->blockSignals(true);
+	if(item->checkState(0) == Qt::Checked)
+	{
+		while(item->parent())
+		{
+			item->parent()->setCheckState(0, Qt::Checked);
+			item = item->parent();
+		}
+	}
+	ui->treeMods->blockSignals(false);
 }
 

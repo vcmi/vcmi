@@ -13,8 +13,10 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class PlayerColor;
-struct MetaString;
+class MetaString;
 class ServerCallback;
+class CGHeroInstance;
+class Spell;
 
 namespace battle
 {
@@ -67,6 +69,9 @@ public:
 	virtual void spendMana(ServerCallback * server, const int32_t spellCost) const = 0;
 
 	virtual int32_t manaLimit() const = 0;
+	
+	///used to identify actual hero caster
+	virtual const CGHeroInstance * getHeroCaster() const = 0;
 };
 
 }

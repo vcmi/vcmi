@@ -17,15 +17,12 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CRandomGenerator;
 
-namespace EPlayerType
+enum class EPlayerType
 {
-	enum EPlayerType
-	{
-		HUMAN,
-		AI,
-		COMP_ONLY
-	};
-}
+	HUMAN,
+	AI,
+	COMP_ONLY
+};
 
 /// The map gen options class holds values about general map generation settings
 /// e.g. the size of the map, the count of players,...
@@ -49,8 +46,8 @@ public:
 		void setStartingTown(si32 value);
 
 		/// The default value is EPlayerType::AI.
-		EPlayerType::EPlayerType getPlayerType() const;
-		void setPlayerType(EPlayerType::EPlayerType value);
+		EPlayerType getPlayerType() const;
+		void setPlayerType(EPlayerType value);
 		
 		/// Team id for this player. TeamID::NO_TEAM by default - team will be randomly assigned
 		TeamID getTeam() const;
@@ -62,7 +59,7 @@ public:
 	private:
 		PlayerColor color;
 		si32 startingTown;
-		EPlayerType::EPlayerType playerType;
+		EPlayerType playerType;
 		TeamID team;
 
 	public:
@@ -113,8 +110,9 @@ public:
 	EMonsterStrength::EMonsterStrength getMonsterStrength() const;
 	void setMonsterStrength(EMonsterStrength::EMonsterStrength value);
 	
-	bool isRoadEnabled(const std::string & roadName) const;
-	void setRoadEnabled(const std::string & roadName, bool enable);
+	bool isRoadEnabled(const RoadId & roadType) const;
+	bool isRoadEnabled() const;
+	void setRoadEnabled(const RoadId & roadType, bool enable);
 
 	/// The first player colors belong to standard players and the last player colors belong to comp only players.
 	/// All standard players are by default of type EPlayerType::AI.
@@ -122,7 +120,7 @@ public:
 	void setStartingTownForPlayer(const PlayerColor & color, si32 town);
 	/// Sets a player type for a standard player. A standard player is the opposite of a computer only player. The
 	/// values which can be chosen for the player type are EPlayerType::AI or EPlayerType::HUMAN.
-	void setPlayerTypeForStandardPlayer(const PlayerColor & color, EPlayerType::EPlayerType playerType);
+	void setPlayerTypeForStandardPlayer(const PlayerColor & color, EPlayerType playerType);
 
 	void setPlayerTeam(const PlayerColor & color, const TeamID & team = TeamID::NO_TEAM);
 
@@ -159,7 +157,7 @@ private:
 	EWaterContent::EWaterContent waterContent;
 	EMonsterStrength::EMonsterStrength monsterStrength;
 	std::map<PlayerColor, CPlayerSettings> players;
-	std::set<std::string> disabledRoads;
+	std::set<RoadId> enabledRoads;
 	
 	const CRmgTemplate * mapTemplate;
 
@@ -190,7 +188,7 @@ public:
 				setMapTemplate(templateName);
 			}
 			
-			h & disabledRoads;
+			h & enabledRoads;
 		}
 	}
 };

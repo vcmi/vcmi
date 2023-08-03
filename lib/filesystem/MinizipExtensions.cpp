@@ -67,7 +67,7 @@ inline long streamSeek(voidpf opaque, voidpf stream, ZPOS64_T offset, int origin
 	}
 	if(ret == -1)
 		logGlobal->error("Stream seek failed");
-	return ret;
+	return 0;
 }
 
 template<class Stream>

@@ -9,10 +9,14 @@
  */
 #pragma once
 
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/CBonusSystemNode.h"
 #include "GameConstants.h"
 #include "CArtHandler.h"
+#include "CArtifactInstance.h"
 #include "CCreatureHandler.h"
+
+#include <vcmi/Entity.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -43,7 +47,7 @@ public:
 	{
 		if(h.saving)
 		{
-			CreatureID idNumber = type ? type->idNumber : CreatureID(CreatureID::NONE);
+			auto idNumber = type ? type->getId() : CreatureID(CreatureID::NONE);
 			h & idNumber;
 		}
 		else
@@ -51,7 +55,7 @@ public:
 			CreatureID idNumber;
 			h & idNumber;
 			if(idNumber != CreatureID::NONE)
-				setType(VLC->creh->objects[idNumber]);
+				setType(dynamic_cast<const CCreature*>(VLC->creatures()->getByIndex(idNumber)));
 			else
 				type = nullptr;
 		}
@@ -61,17 +65,19 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
-class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet
+class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public ACreature
 {
 protected:
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
 
 public:
-	// hlp variable used during loading map, when object (hero or town) have creatures that must have same alignment.
-	// idRand < 0 -> normal, non-random creature
-	// idRand / 2 -> level
-	// idRand % 2 -> upgrade number
-	int idRand;
+	struct RandomStackInfo
+	{
+		uint8_t level;
+		uint8_t upgrade;
+	};
+	// helper variable used during loading map, when object (hero or town) have creatures that must have same alignment.
+	std::optional<RandomStackInfo> randomStack;
 
 	const CArmedInstance * const & armyObj; //stack must be part of some army, army must be part of some object
 	TExpType experience;//commander needs same amount of exp as hero
@@ -92,12 +98,16 @@ public:
 	std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const override; // how would bonus description look for this particular type of node
 	std::string bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const; //file name of graphics from StackSkills , in future possibly others
 
+	//IConstBonusProvider
+	const IBonusBearer* getBonusBearer() const override;
+	//INativeTerrainProvider
+	FactionID getFaction() const override;
+
 	virtual ui64 getPower() const;
 	CCreature::CreatureQuantityId getQuantityID() const;
 	std::string getQuantityTXT(bool capitalized = true) const;
 	virtual int getExpRank() const;
 	virtual int getLevel() const; //different for regular stack and commander
-	si32 magicResistance() const override;
 	CreatureID getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
 	virtual void init();
@@ -112,6 +122,7 @@ public:
 	virtual void giveStackExp(TExpType exp);
 	bool valid(bool allowUnrandomized) const;
 	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;//from CArtifactSet
+	void removeArtifact(ArtifactPosition pos) override;
 	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
 	virtual std::string nodeName() const override; //from CBonusSystemnode
 	void deserializationFix();
@@ -154,22 +165,18 @@ public:
 	}
 };
 
-typedef std::map<SlotID, CStackInstance*> TSlots;
-typedef std::map<SlotID, std::pair<CreatureID, TQuantity>> TSimpleSlots;
+using TSlots = std::map<SlotID, CStackInstance *>;
+using TSimpleSlots = std::map<SlotID, std::pair<CreatureID, TQuantity>>;
 
-typedef std::pair<const CCreature*, SlotID> TPairCreatureSlot;
-typedef std::map<const CCreature*, SlotID> TMapCreatureSlot;
+using TPairCreatureSlot = std::pair<const CCreature *, SlotID>;
+using TMapCreatureSlot = std::map<const CCreature *, SlotID>;
 
 struct DLL_LINKAGE CreatureSlotComparer
 {
 	bool operator()(const TPairCreatureSlot & lhs, const TPairCreatureSlot & rhs);
 };
 
-typedef std::priority_queue<
-	TPairCreatureSlot,
-	std::vector<TPairCreatureSlot>,
-	CreatureSlotComparer
-> TCreatureQueue;
+using TCreatureQueue = std::priority_queue<TPairCreatureSlot, std::vector<TPairCreatureSlot>, CreatureSlotComparer>;
 
 class IArmyDescriptor
 {
@@ -193,13 +200,21 @@ public:
 	}
 };
 
+enum class EArmyFormation : uint8_t
+{
+	LOOSE,
+	TIGHT
+};
+
 class DLL_LINKAGE CCreatureSet : public IArmyDescriptor //seven combined creatures
 {
 	CCreatureSet(const CCreatureSet &) = delete;
 	CCreatureSet &operator=(const CCreatureSet&);
 public:
+
+
 	TSlots stacks; //slots[slot_id]->> pair(creature_id,creature_quantity)
-	ui8 formation = 0; //0 - wide, 1 - tight
+	EArmyFormation formation = EArmyFormation::LOOSE; //0 - wide, 1 - tight
 
 	CCreatureSet() = default; //Should be here to avoid compile errors
 	virtual ~CCreatureSet();
@@ -269,7 +284,7 @@ public:
 		h & formation;
 	}
 
-	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName, const boost::optional<int> fixedSize = boost::none);
+	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName, const std::optional<int> fixedSize = std::nullopt);
 
 	operator bool() const
 	{

@@ -18,28 +18,30 @@ class MapView;
 
 class MapViewActions : public CIntObject
 {
-	bool isSwiping;
-
-	Point swipeInitialViewPos;
-	Point swipeInitialRealPos;
-
 	MapView & owner;
 	std::shared_ptr<MapViewModel> model;
 	std::shared_ptr<IMapRendererContext> context;
 
+	Point dragDistance;
+	double pinchZoomFactor;
+	bool dragActive;
+
 	void handleHover(const Point & cursorPosition);
-	void handleSwipeMove(const Point & cursorPosition);
-	bool handleSwipeStateChange(bool btnPressed);
-	bool swipeEnabled() const;
 
 public:
 	MapViewActions(MapView & owner, const std::shared_ptr<MapViewModel> & model);
 
 	void setContext(const std::shared_ptr<IMapRendererContext> & context);
 
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
-	void clickMiddle(tribool down, bool previousState) override;
+	void clickPressed(const Point & cursorPosition) override;
+	void clickReleased(const Point & cursorPosition) override;
+	void clickCancel(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
+	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
+	void gesturePinch(const Point & centerPosition, double lastUpdateFactor) override;
 	void hover(bool on) override;
-	void mouseMoved(const Point & cursorPosition) override;
+	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
+	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
+	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override;
+	void wheelScrolled(int distance) override;
 };

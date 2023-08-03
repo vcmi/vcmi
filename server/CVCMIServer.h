@@ -112,7 +112,7 @@ public:
 	void optionNextCastle(PlayerColor player, int dir); //dir == -1 or +
 
 	// Campaigns
-	void setCampaignMap(int mapId);
+	void setCampaignMap(CampaignScenarioID mapId);
 	void setCampaignBonus(int bonusId);
 
 	ui8 getIdOfFirstUnallocatedPlayer() const;

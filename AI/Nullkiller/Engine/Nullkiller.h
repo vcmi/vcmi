@@ -18,6 +18,7 @@
 #include "../Analyzers/ArmyManager.h"
 #include "../Analyzers/HeroManager.h"
 #include "../Analyzers/ObjectClusterizer.h"
+#include "../Helpers/ArmyFormation.h"
 
 namespace NKAI
 {
@@ -39,9 +40,11 @@ enum class HeroLockedReason
 
 enum class ScanDepth
 {
-	FULL = 0,
+	MAIN_FULL = 0,
 
-	SMALL = 1
+	SMALL = 1,
+
+	ALL_FULL = 2
 };
 
 class Nullkiller
@@ -67,6 +70,7 @@ public:
 	std::unique_ptr<AIMemory> memory;
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;
 	std::unique_ptr<DeepDecomposer> decomposer;
+	std::unique_ptr<ArmyFormation> armyFormation;
 	PlayerColor playerID;
 	std::shared_ptr<CCallback> cb;
 
@@ -85,7 +89,7 @@ public:
 	void unlockHero(const CGHeroInstance * hero) { lockedHeroes.erase(hero); }
 	bool arePathHeroesLocked(const AIPath & path) const;
 	TResources getFreeResources() const;
-	int32_t getFreeGold() const { return getFreeResources()[Res::GOLD]; }
+	int32_t getFreeGold() const { return getFreeResources()[EGameResID::GOLD]; }
 	void lockResources(const TResources & res);
 	const TResources & getLockedResources() const { return lockedResources; }
 	ScanDepth getScanDepth() const { return scanDepth; }

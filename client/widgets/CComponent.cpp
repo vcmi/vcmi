@@ -19,12 +19,14 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/TextAlignment.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../gui/Shortcut.h"
+#include "../render/Canvas.h"
 #include "../windows/CMessage.h"
 #include "../windows/InfoWindows.h"
 #include "../widgets/TextControls.h"
 #include "../CGameInfo.h"
 
+#include "../../lib/ArtifactUtils.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CCreatureHandler.h"
@@ -32,6 +34,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/CArtHandler.h"
+#include "../../lib/CArtifactInstance.h"
 
 CComponent::CComponent(Etype Type, int Subtype, int Val, ESize imageSize, EFonts font):
 	perDay(false)
@@ -52,7 +55,7 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts 
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	addUsedEvents(RCLICK);
+	addUsedEvents(SHOW_POPUP);
 
 	compType = Type;
 	subtype = Subtype;
@@ -167,16 +170,12 @@ std::string CComponent::getDescription()
 	case artifact:
 	{
 		auto artID = ArtifactID(subtype);
-		std::unique_ptr<CArtifactInstance> art;
-		if (artID != ArtifactID::SPELL_SCROLL)
+		auto description = VLC->arth->objects[artID]->getDescriptionTranslated();
+		if(artID == ArtifactID::SPELL_SCROLL)
 		{
-			art.reset(CArtifactInstance::createNewArtifactInstance(artID));
+			ArtifactUtils::insertScrrollSpellName(description, SpellID(val));
 		}
-		else
-		{
-			art.reset(CArtifactInstance::createScroll(SpellID(val)));
-		}
-		return art->getEffectiveDescription();
+		return description;
 	}
 	case experience: return CGI->generaltexth->allTexts[241];
 	case spell:      return (*CGI->spellh)[subtype]->getDescriptionTranslated(val);
@@ -256,19 +255,16 @@ void CComponent::setSurface(std::string defName, int imgPos)
 	image = std::make_shared<CAnimImage>(defName, imgPos);
 }
 
-void CComponent::clickRight(tribool down, bool previousState)
+void CComponent::showPopupWindow(const Point & cursorPosition)
 {
-	if(down && !getDescription().empty())
+	if(!getDescription().empty())
 		CRClickPopup::createAndPush(getDescription());
 }
 
-void CSelectableComponent::clickLeft(tribool down, bool previousState)
+void CSelectableComponent::clickPressed(const Point & cursorPosition)
 {
-	if (down)
-	{
-		if(onSelect)
-			onSelect();
-	}
+	if(onSelect)
+		onSelect();
 }
 
 void CSelectableComponent::init()
@@ -279,7 +275,7 @@ void CSelectableComponent::init()
 CSelectableComponent::CSelectableComponent(const Component &c, std::function<void()> OnSelect):
 	CComponent(c),onSelect(OnSelect)
 {
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	addUsedEvents(LCLICK | KEYBOARD);
 	init();
 }
@@ -287,7 +283,7 @@ CSelectableComponent::CSelectableComponent(const Component &c, std::function<voi
 CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize, std::function<void()> OnSelect):
 	CComponent(Type,Sub,Val, imageSize),onSelect(OnSelect)
 {
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	addUsedEvents(LCLICK | KEYBOARD);
 	init();
 }
@@ -301,12 +297,12 @@ void CSelectableComponent::select(bool on)
 	}
 }
 
-void CSelectableComponent::showAll(SDL_Surface * to)
+void CSelectableComponent::showAll(Canvas & to)
 {
 	CComponent::showAll(to);
 	if(selected)
 	{
-		CSDL_Ext::drawBorder(to, Rect::createAround(image->pos, 1), Colors::BRIGHT_YELLOW);
+		to.drawBorder(Rect::createAround(image->pos, 1), Colors::BRIGHT_YELLOW);
 	}
 }
 
@@ -464,7 +460,7 @@ CComponentBox::CComponentBox(std::vector<std::shared_ptr<CComponent>> _component
 	betweenRows(betweenRows),
 	componentsInRow(componentsInRow)
 {
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	pos = position + pos.topLeft();
 	placeComponents(false);
 }
@@ -482,17 +478,18 @@ CComponentBox::CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> 
 	betweenRows(betweenRows),
 	componentsInRow(componentsInRow)
 {
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	pos = position + pos.topLeft();
 	placeComponents(true);
 
 	assert(!components.empty());
 
-	int key = SDLK_1;
+	auto key = EShortcut::SELECT_INDEX_1;
 	for(auto & comp : _components)
 	{
 		comp->onSelect = std::bind(&CComponentBox::selectionChanged, this, comp);
-		comp->assignedKeys.insert(key++);
+		comp->assignedKey = key;
+		key = vstd::next(key, 1);
 	}
 	selectionChanged(_components.front());
 }

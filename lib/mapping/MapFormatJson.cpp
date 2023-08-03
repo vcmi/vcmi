@@ -15,6 +15,8 @@
 #include "../filesystem/COutputStream.h"
 #include "../JsonDetail.h"
 #include "CMap.h"
+#include "MapFormat.h"
+#include "../ArtifactUtils.h"
 #include "../CModHandler.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
@@ -22,9 +24,9 @@
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
+#include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/ObjectTemplate.h"
-#include "../mapObjects/CObjectHandler.h"
-#include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../spells/CSpellHandler.h"
@@ -224,7 +226,7 @@ namespace TriggeredEventsDetail
 					auto type = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), fullIdentifier, false);
 
 					if(type)
-						event.objectType = type.get();
+						event.objectType = type.value();
 					event.objectInstanceName = data["object"].String();
 					if(data["value"].isNumber())
 						event.value = static_cast<si32>(data["value"].Integer());
@@ -242,7 +244,7 @@ namespace TriggeredEventsDetail
 					{
 						auto identifier = VLC->modh->identifiers.getIdentifier(data["type"]);
 						if(identifier)
-							event.objectType = identifier.get();
+							event.objectType = identifier.value();
 						else
 							throw std::runtime_error("Identifier resolution failed in event condition");
 					}
@@ -339,7 +341,7 @@ namespace TerrainDetail
 
 ///CMapFormatJson
 const int CMapFormatJson::VERSION_MAJOR = 1;
-const int CMapFormatJson::VERSION_MINOR = 0;
+const int CMapFormatJson::VERSION_MINOR = 1;
 
 const std::string CMapFormatJson::HEADER_FILE_NAME = "header.json";
 const std::string CMapFormatJson::OBJECTS_FILE_NAME = "objects.json";
@@ -382,7 +384,7 @@ RoadType * CMapFormatJson::getRoadByCode(const std::string & code)
 	return nullptr;
 }
 
-void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std::set<TFaction> & value) const
+void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std::set<FactionID> & value) const
 {
 	//TODO: unify allowed factions with others - make them std::vector<bool>
 
@@ -404,7 +406,7 @@ void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std
 		value.clear();
 		for (std::size_t i=0; i<temp.size(); i++)
 			if(temp[i])
-				value.insert(static_cast<TFaction>(i));
+				value.insert(static_cast<FactionID>(i));
 	}
 }
 
@@ -421,10 +423,10 @@ void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
 
 	handler.serializeLIC("allowedHeroes", &HeroTypeID::decode, &HeroTypeID::encode, VLC->heroh->getDefaultAllowed(), mapHeader->allowedHeroes);
 
-	handler.serializeString("victoryString", mapHeader->victoryMessage);
+//	handler.serializeString("victoryString", mapHeader->victoryMessage);
 	handler.serializeInt("victoryIconIndex", mapHeader->victoryIconIndex);
 
-	handler.serializeString("defeatString", mapHeader->defeatMessage);
+//	handler.serializeString("defeatString", mapHeader->defeatMessage);
 	handler.serializeInt("defeatIconIndex", mapHeader->defeatIconIndex);
 }
 
@@ -595,9 +597,9 @@ void CMapFormatJson::readTeams(JsonDeserializer & handler)
 			logGlobal->error("Invalid teams field type");
 
 		mapHeader->howManyTeams = 0;
-		for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
-			if(mapHeader->players[i].canComputerPlay || mapHeader->players[i].canHumanPlay)
-				mapHeader->players[i].team = TeamID(mapHeader->howManyTeams++);
+		for(auto & player : mapHeader->players)
+			if(player.canAnyonePlay())
+				player.team = TeamID(mapHeader->howManyTeams++);
 	}
 	else
 	{
@@ -658,7 +660,7 @@ void CMapFormatJson::writeTeams(JsonSerializer & handler)
 			}
 			dest.Vector().push_back(std::move(team));
 		}
-		handler.serializeRaw("teams", dest, boost::none);
+		handler.serializeRaw("teams", dest, std::nullopt);
 	}
 }
 
@@ -681,10 +683,10 @@ void CMapFormatJson::readTriggeredEvent(TriggeredEvent & event, const JsonNode &
 {
 	using namespace TriggeredEventsDetail;
 
-	event.onFulfill = source["message"].String();
-	event.description = source["description"].String();
+	event.onFulfill.jsonDeserialize(source["message"]);
+	event.description.jsonDeserialize(source["description"]);
 	event.effect.type = vstd::find_pos(typeNames, source["effect"]["type"].String());
-	event.effect.toOtherMessage = source["effect"]["messageToSend"].String();
+	event.effect.toOtherMessage.jsonDeserialize(source["effect"]["messageToSend"]);
 	event.trigger = EventExpression(source["condition"], JsonToCondition); // logical expression
 }
 
@@ -695,7 +697,7 @@ void CMapFormatJson::writeTriggeredEvents(JsonSerializer & handler)
 	for(const auto & event : mapHeader->triggeredEvents)
 		writeTriggeredEvent(event, triggeredEvents[event.identifier]);
 
-	handler.serializeRaw("triggeredEvents", triggeredEvents, boost::none);
+	handler.serializeRaw("triggeredEvents", triggeredEvents, std::nullopt);
 }
 
 void CMapFormatJson::writeTriggeredEvent(const TriggeredEvent & event, JsonNode & dest) const
@@ -703,15 +705,15 @@ void CMapFormatJson::writeTriggeredEvent(const TriggeredEvent & event, JsonNode 
 	using namespace TriggeredEventsDetail;
 
 	if(!event.onFulfill.empty())
-		dest["message"].String() = event.onFulfill;
+		event.onFulfill.jsonSerialize(dest["message"]);
 
 	if(!event.description.empty())
-		dest["description"].String() = event.description;
+		event.description.jsonSerialize(dest["description"]);
 
 	dest["effect"]["type"].String() = typeNames.at(static_cast<size_t>(event.effect.type));
 
 	if(!event.effect.toOtherMessage.empty())
-		dest["effect"]["messageToSend"].String() = event.effect.toOtherMessage;
+		event.description.jsonSerialize(dest["effect"]["messageToSend"]);
 
 	dest["condition"] = event.trigger.toJson(ConditionToJson);
 }
@@ -774,7 +776,7 @@ void CMapFormatJson::writeDisposedHeroes(JsonSerializeFormat & handler)
 				players.Vector().push_back(player);
 			}
 		}
-		definition->serializeRaw("availableFor", players, boost::none);
+		definition->serializeRaw("availableFor", players, std::nullopt);
 	}
 }
 
@@ -832,7 +834,7 @@ void CMapFormatJson::serializeOptions(JsonSerializeFormat & handler)
 
 	handler.serializeLIC("allowedArtifacts",  &ArtifactID::decode, &ArtifactID::encode, VLC->arth->getDefaultAllowed(), map->allowedArtifact);
 
-	handler.serializeLIC("allowedSpells", &SpellID::decode, &SpellID::encode, VLC->spellh->getDefaultAllowed(), map->allowedSpell);
+	handler.serializeLIC("allowedSpells", &SpellID::decode, &SpellID::encode, VLC->spellh->getDefaultAllowed(), map->allowedSpells);
 
 	//todo:events
 }
@@ -947,6 +949,13 @@ void CMapLoaderJson::readHeader(const bool complete)
 	JsonDeserializer handler(mapObjectResolver.get(), header);
 
 	mapHeader->version = EMapFormat::VCMI;//todo: new version field
+	
+	//loading mods
+	if(!header["mods"].isNull())
+	{
+		for(auto & mod : header["mods"].Vector())
+			mapHeader->mods[mod["name"].String()] = CModVersion::fromString(mod["version"].String());
+	}
 
 	//todo: multilevel map load support
 	{
@@ -1106,6 +1115,7 @@ void CMapLoaderJson::readTerrain()
 		readTerrainLevel(underground, 1);
 	}
 
+	map->calculateWaterContent();
 }
 
 CMapLoaderJson::MapObjectLoader::MapObjectLoader(CMapLoaderJson * _owner, JsonMap::value_type & json):
@@ -1186,7 +1196,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 			auto spellIdentifier = configuration["options"]["spell"].String();
 			auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "spell", spellIdentifier);
 			if(rawId)
-				spellID = rawId.get();
+				spellID = rawId.value();
 			else
 				spellID = 0;
 			artID = ArtifactID::SPELL_SCROLL;
@@ -1197,7 +1207,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 			artID = ArtifactID(art->subID);
 		}
 
-		art->storedArtifact = CArtifactInstance::createArtifact(owner->map, artID, spellID);
+		art->storedArtifact = ArtifactUtils::createArtifact(owner->map, artID, spellID);
 	}
 
 	if(auto * hero = dynamic_cast<CGHeroInstance *>(instance))
@@ -1279,6 +1289,16 @@ void CMapSaverJson::writeHeader()
 
 	header["versionMajor"].Float() = VERSION_MAJOR;
 	header["versionMinor"].Float() = VERSION_MINOR;
+	
+	//write mods
+	JsonNode & mods = header["mods"];
+	for(const auto & mod : mapHeader->mods)
+	{
+		JsonNode modWriter;
+		modWriter["name"].String() = mod.first;
+		modWriter["version"].String() = mod.second.toString();
+		mods.Vector().push_back(modWriter);
+	}
 
 	//todo: multilevel map save support
 	JsonNode & levels = header["mapLevels"];

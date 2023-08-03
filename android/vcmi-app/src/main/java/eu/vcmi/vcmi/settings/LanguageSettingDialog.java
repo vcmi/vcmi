@@ -15,14 +15,22 @@ public class LanguageSettingDialog extends LauncherSettingDialog<String>
     static
     {
         AVAILABLE_LANGUAGES.add("english");
+        AVAILABLE_LANGUAGES.add("czech");
         AVAILABLE_LANGUAGES.add("chinese");
+        AVAILABLE_LANGUAGES.add("finnish");
         AVAILABLE_LANGUAGES.add("french");
         AVAILABLE_LANGUAGES.add("german");
+        AVAILABLE_LANGUAGES.add("hungarian");
+        AVAILABLE_LANGUAGES.add("italian");
         AVAILABLE_LANGUAGES.add("korean");
         AVAILABLE_LANGUAGES.add("polish");
+        AVAILABLE_LANGUAGES.add("portuguese");
         AVAILABLE_LANGUAGES.add("russian");
         AVAILABLE_LANGUAGES.add("spanish");
+        AVAILABLE_LANGUAGES.add("swedish");
+        AVAILABLE_LANGUAGES.add("turkish");
         AVAILABLE_LANGUAGES.add("ukrainian");
+        AVAILABLE_LANGUAGES.add("vietnamese");
         AVAILABLE_LANGUAGES.add("other_cp1250");
         AVAILABLE_LANGUAGES.add("other_cp1251");
         AVAILABLE_LANGUAGES.add("other_cp1252");

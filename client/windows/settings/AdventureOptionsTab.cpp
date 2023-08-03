@@ -34,7 +34,15 @@ AdventureOptionsTab::AdventureOptionsTab()
 		: InterfaceObjectConfigurable()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
+
+#ifdef VCMI_MOBILE
+	addConditional("mobile", true);
+	addConditional("desktop", false);
+#else
+	addConditional("mobile", false);
+	addConditional("desktop", true);
+#endif
 
 	const JsonNode config(ResourceID("config/widgets/settings/adventureOptionsTab.json"));
 	addCallback("playerHeroSpeedChanged", [this](int value)
@@ -102,17 +110,21 @@ AdventureOptionsTab::AdventureOptionsTab()
 	{
 		return setBoolSetting("gameTweaks", "showGrid", value);
 	});
-	addCallback("mapSwipeChanged", [](bool value)
-	{
-#if defined(VCMI_MOBILE)
-		return setBoolSetting("general", "swipe", value);
-#else
-		return setBoolSetting("general", "swipeDesktop", value);
-#endif
-	});
 	addCallback("infoBarPickChanged", [](bool value)
 	{
 		return setBoolSetting("gameTweaks", "infoBarPick", value);
+	});
+	addCallback("borderScrollChanged", [](bool value)
+	{
+		return setBoolSetting("adventure", "borderScroll", value);
+	});
+	addCallback("infoBarCreatureManagementChanged", [](bool value)
+	{
+		return setBoolSetting("gameTweaks", "infoBarCreatureManagement", value);
+	});
+	addCallback("leftButtonDragChanged", [](bool value)
+	{
+		return setBoolSetting("adventure", "leftButtonDrag", value);
 	});
 	build(config);
 
@@ -140,12 +152,16 @@ AdventureOptionsTab::AdventureOptionsTab()
 	std::shared_ptr<CToggleButton> showGridCheckbox = widget<CToggleButton>("showGridCheckbox");
 	showGridCheckbox->setSelected(settings["gameTweaks"]["showGrid"].Bool());
 
-	std::shared_ptr<CToggleButton> mapSwipeCheckbox = widget<CToggleButton>("mapSwipeCheckbox");
-#if defined(VCMI_MOBILE)
-	mapSwipeCheckbox->setSelected(settings["general"]["swipe"].Bool());
-#else
-	mapSwipeCheckbox->setSelected(settings["general"]["swipeDesktop"].Bool());
-#endif
 	std::shared_ptr<CToggleButton> infoBarPickCheckbox = widget<CToggleButton>("infoBarPickCheckbox");
 	infoBarPickCheckbox->setSelected(settings["gameTweaks"]["infoBarPick"].Bool());
+
+	std::shared_ptr<CToggleButton> borderScrollCheckbox = widget<CToggleButton>("borderScrollCheckbox");
+	borderScrollCheckbox->setSelected(settings["adventure"]["borderScroll"].Bool());
+
+	std::shared_ptr<CToggleButton> infoBarCreatureManagementCheckbox = widget<CToggleButton>("infoBarCreatureManagementCheckbox");
+	infoBarCreatureManagementCheckbox->setSelected(settings["gameTweaks"]["infoBarCreatureManagement"].Bool());
+
+	std::shared_ptr<CToggleButton> leftButtonDragCheckbox = widget<CToggleButton>("leftButtonDragCheckbox");
+	if (leftButtonDragCheckbox)
+		leftButtonDragCheckbox->setSelected(settings["adventure"]["leftButtonDrag"].Bool());
 }

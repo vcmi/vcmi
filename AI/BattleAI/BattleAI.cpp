@@ -19,6 +19,7 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/battle/BattleStateInfoForRetreat.h"
+#include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/CStack.h" // TODO: remove
                               // Eventually only IBattleInfoCallback and battle::Unit should be used,
                               // CUnitState should be private and CStack should be removed completely
@@ -87,12 +88,173 @@ void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	playerID = *CB->getPlayerID(); //TODO should be sth in callback
 	wasWaitingForRealize = CB->waitTillRealize;
 	wasUnlockingGs = CB->unlockGsWhenWaiting;
-	CB->waitTillRealize = true;
+	CB->waitTillRealize = false;
 	CB->unlockGsWhenWaiting = false;
 	movesSkippedByDefense = 0;
 }
 
-BattleAction CBattleAI::activeStack( const CStack * stack )
+BattleAction CBattleAI::useHealingTent(const CStack *stack)
+{
+	auto healingTargets = cb->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);
+	std::map<int, const CStack*> woundHpToStack;
+	for(const auto * stack : healingTargets)
+	{
+		if(auto woundHp = stack->getMaxHealth() - stack->getFirstHPleft())
+			woundHpToStack[woundHp] = stack;
+	}
+
+	if(woundHpToStack.empty())
+		return BattleAction::makeDefend(stack);
+	else
+		return BattleAction::makeHeal(stack, woundHpToStack.rbegin()->second); //last element of the woundHpToStack is the most wounded stack
+}
+
+std::optional<PossibleSpellcast> CBattleAI::findBestCreatureSpell(const CStack *stack)
+{
+	//TODO: faerie dragon type spell should be selected by server
+	SpellID creatureSpellToCast = cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), stack, CBattleInfoCallback::RANDOM_AIMED);
+	if(stack->hasBonusOfType(BonusType::SPELLCASTER) && stack->canCast() && creatureSpellToCast != SpellID::NONE)
+	{
+		const CSpell * spell = creatureSpellToCast.toSpell();
+
+		if(spell->canBeCast(getCbc().get(), spells::Mode::CREATURE_ACTIVE, stack))
+		{
+			std::vector<PossibleSpellcast> possibleCasts;
+			spells::BattleCast temp(getCbc().get(), stack, spells::Mode::CREATURE_ACTIVE, spell);
+			for(auto & target : temp.findPotentialTargets())
+			{
+				PossibleSpellcast ps;
+				ps.dest = target;
+				ps.spell = spell;
+				evaluateCreatureSpellcast(stack, ps);
+				possibleCasts.push_back(ps);
+			}
+
+			std::sort(possibleCasts.begin(), possibleCasts.end(), [&](const PossibleSpellcast & lhs, const PossibleSpellcast & rhs) { return lhs.value > rhs.value; });
+			if(!possibleCasts.empty() && possibleCasts.front().value > 0)
+			{
+				return possibleCasts.front();
+			}
+		}
+	}
+	return std::nullopt;
+}
+
+BattleAction CBattleAI::selectStackAction(const CStack * stack)
+{
+	//evaluate casting spell for spellcasting stack
+	std::optional<PossibleSpellcast> bestSpellcast = findBestCreatureSpell(stack);
+
+	HypotheticBattle hb(env.get(), cb);
+
+	PotentialTargets targets(stack, hb);
+	BattleExchangeEvaluator scoreEvaluator(cb, env);
+	auto moveTarget = scoreEvaluator.findMoveTowardsUnreachable(stack, targets, hb);
+
+	int64_t score = EvaluationResult::INEFFECTIVE_SCORE;
+
+
+	if(targets.possibleAttacks.empty() && bestSpellcast.has_value())
+	{
+		movesSkippedByDefense = 0;
+		return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
+	}
+
+	if(!targets.possibleAttacks.empty())
+	{
+#if BATTLE_TRACE_LEVEL>=1
+		logAi->trace("Evaluating attack for %s", stack->getDescription());
+#endif
+
+		auto evaluationResult = scoreEvaluator.findBestTarget(stack, targets, hb);
+		auto & bestAttack = evaluationResult.bestAttack;
+
+		//TODO: consider more complex spellcast evaluation, f.e. because "re-retaliation" during enemy move in same turn for melee attack etc.
+		if(bestSpellcast.has_value() && bestSpellcast->value > bestAttack.damageDiff())
+		{
+			// return because spellcast value is damage dealt and score is dps reduce
+			movesSkippedByDefense = 0;
+			return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
+		}
+
+		if(evaluationResult.score > score)
+		{
+			score = evaluationResult.score;
+
+			logAi->debug("BattleAI: %s -> %s x %d, from %d curpos %d dist %d speed %d: +%lld -%lld = %lld",
+				bestAttack.attackerState->unitType()->getJsonKey(),
+				bestAttack.affectedUnits[0]->unitType()->getJsonKey(),
+				(int)bestAttack.affectedUnits[0]->getCount(),
+				(int)bestAttack.from,
+				(int)bestAttack.attack.attacker->getPosition().hex,
+				bestAttack.attack.chargeDistance,
+				bestAttack.attack.attacker->speed(0, true),
+				bestAttack.defenderDamageReduce,
+				bestAttack.attackerDamageReduce, bestAttack.attackValue()
+			);
+
+			if (moveTarget.score <= score)
+			{
+				if(evaluationResult.wait)
+				{
+					return BattleAction::makeWait(stack);
+				}
+				else if(bestAttack.attack.shooting)
+				{
+					movesSkippedByDefense = 0;
+					return BattleAction::makeShotAttack(stack, bestAttack.attack.defender);
+				}
+				else
+				{
+					movesSkippedByDefense = 0;
+					return BattleAction::makeMeleeAttack(stack, bestAttack.attack.defender->getPosition(), bestAttack.from);
+				}
+			}
+		}
+	}
+
+	//ThreatMap threatsToUs(stack); // These lines may be usefull but they are't used in the code.
+	if(moveTarget.score > score)
+	{
+		score = moveTarget.score;
+
+		if(stack->waited())
+		{
+			return goTowardsNearest(stack, moveTarget.positions);
+		}
+		else
+		{
+			return BattleAction::makeWait(stack);
+		}
+	}
+
+	if(score <= EvaluationResult::INEFFECTIVE_SCORE
+		&& !stack->hasBonusOfType(BonusType::FLYING)
+		&& stack->unitSide() == BattleSide::ATTACKER
+		&& cb->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
+	{
+		auto brokenWallMoat = getBrokenWallMoatHexes();
+
+		if(brokenWallMoat.size())
+		{
+			movesSkippedByDefense = 0;
+
+			if(stack->doubleWide() && vstd::contains(brokenWallMoat, stack->getPosition()))
+				return BattleAction::makeMove(stack, stack->getPosition().cloneInDirection(BattleHex::RIGHT));
+			else
+				return goTowardsNearest(stack, brokenWallMoat);
+		}
+	}
+
+	return BattleAction::makeDefend(stack);
+}
+
+void CBattleAI::yourTacticPhase(int distance)
+{
+	cb->battleMakeTacticAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
+}
+
+void CBattleAI::activeStack( const CStack * stack )
 {
 	LOG_TRACE_PARAMS(logAi, "stack: %s", stack->nodeName());
 
@@ -101,19 +263,15 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 	try
 	{
-		if(stack->type->idNumber == CreatureID::CATAPULT)
-			return useCatapult(stack);
-		if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->hasBonusOfType(Bonus::HEALER))
+		if(stack->creatureId() == CreatureID::CATAPULT)
 		{
-			auto healingTargets = cb->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);
-			std::map<int, const CStack*> woundHpToStack;
-			for(auto stack : healingTargets)
-				if(auto woundHp = stack->MaxHealth() - stack->getFirstHPleft())
-					woundHpToStack[woundHp] = stack;
-			if(woundHpToStack.empty())
-				return BattleAction::makeDefend(stack);
-			else
-				return BattleAction::makeHeal(stack, woundHpToStack.rbegin()->second); //last element of the woundHpToStack is the most wounded stack
+			cb->battleMakeUnitAction(useCatapult(stack));
+			return;
+		}
+		if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON) && stack->hasBonusOfType(BonusType::HEALER))
+		{
+			cb->battleMakeUnitAction(useHealingTent(stack));
+			return;
 		}
 
 		attemptCastingSpell();
@@ -124,138 +282,17 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			//send special preudo-action
 			BattleAction cancel;
 			cancel.actionType = EActionType::CANCEL;
-			return cancel;
+			cb->battleMakeUnitAction(cancel);
+			return;
 		}
 
 		if(auto action = considerFleeingOrSurrendering())
-			return *action;
-		//best action is from effective owner point if view, we are effective owner as we received "activeStack"
-
-
-		//evaluate casting spell for spellcasting stack
-		boost::optional<PossibleSpellcast> bestSpellcast(boost::none);
-		//TODO: faerie dragon type spell should be selected by server
-		SpellID creatureSpellToCast = cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), stack, CBattleInfoCallback::RANDOM_AIMED);
-		if(stack->hasBonusOfType(Bonus::SPELLCASTER) && stack->canCast() && creatureSpellToCast != SpellID::NONE)
 		{
-			const CSpell * spell = creatureSpellToCast.toSpell();
-
-			if(spell->canBeCast(getCbc().get(), spells::Mode::CREATURE_ACTIVE, stack))
-			{
-				std::vector<PossibleSpellcast> possibleCasts;
-				spells::BattleCast temp(getCbc().get(), stack, spells::Mode::CREATURE_ACTIVE, spell);
-				for(auto & target : temp.findPotentialTargets())
-				{
-					PossibleSpellcast ps;
-					ps.dest = target;
-					ps.spell = spell;
-					evaluateCreatureSpellcast(stack, ps);
-					possibleCasts.push_back(ps);
-				}
-
-				std::sort(possibleCasts.begin(), possibleCasts.end(), [&](const PossibleSpellcast & lhs, const PossibleSpellcast & rhs) { return lhs.value > rhs.value; });
-				if(!possibleCasts.empty() && possibleCasts.front().value > 0)
-				{
-					bestSpellcast = boost::optional<PossibleSpellcast>(possibleCasts.front());
-				}
-			}
+			cb->battleMakeUnitAction(*action);
+			return;
 		}
 
-		HypotheticBattle hb(env.get(), cb);
-		
-		PotentialTargets targets(stack, hb);
-		BattleExchangeEvaluator scoreEvaluator(cb, env);
-		auto moveTarget = scoreEvaluator.findMoveTowardsUnreachable(stack, targets, hb);
-
-		int64_t score = EvaluationResult::INEFFECTIVE_SCORE;
-
-		if(!targets.possibleAttacks.empty())
-		{
-#if BATTLE_TRACE_LEVEL>=1
-			logAi->trace("Evaluating attack for %s", stack->getDescription());
-#endif
-
-			auto evaluationResult = scoreEvaluator.findBestTarget(stack, targets, hb);
-			auto & bestAttack = evaluationResult.bestAttack;
-
-			//TODO: consider more complex spellcast evaluation, f.e. because "re-retaliation" during enemy move in same turn for melee attack etc.
-			if(bestSpellcast.is_initialized() && bestSpellcast->value > bestAttack.damageDiff())
-			{
-				// return because spellcast value is damage dealt and score is dps reduce
-				movesSkippedByDefense = 0;
-				return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
-			}
-
-			if(evaluationResult.score > score)
-			{
-				score = evaluationResult.score;
-				std::string action;
-
-				if(evaluationResult.wait)
-				{
-					result = BattleAction::makeWait(stack);
-					action = "wait";
-				}
-				else if(bestAttack.attack.shooting)
-				{
-					result = BattleAction::makeShotAttack(stack, bestAttack.attack.defender);
-					action = "shot";
-					movesSkippedByDefense = 0;
-				}
-				else
-				{
-					result = BattleAction::makeMeleeAttack(stack, bestAttack.attack.defender->getPosition(), bestAttack.from);
-					action = "melee";
-					movesSkippedByDefense = 0;
-				}
-
-				logAi->debug("BattleAI: %s -> %s x %d, %s, from %d curpos %d dist %d speed %d: +%lld -%lld = %lld",
-					bestAttack.attackerState->unitType()->getJsonKey(),
-					bestAttack.affectedUnits[0]->unitType()->getJsonKey(),
-					(int)bestAttack.affectedUnits[0]->getCount(), action, (int)bestAttack.from, (int)bestAttack.attack.attacker->getPosition().hex,
-					bestAttack.attack.chargeDistance, bestAttack.attack.attacker->Speed(0, true),
-					bestAttack.defenderDamageReduce, bestAttack.attackerDamageReduce, bestAttack.attackValue()
-				);
-			}
-		}
-		else if(bestSpellcast.is_initialized())
-		{
-			movesSkippedByDefense = 0;
-			return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
-		}
-
-			//ThreatMap threatsToUs(stack); // These lines may be usefull but they are't used in the code.
-		if(moveTarget.score > score)
-		{
-			score = moveTarget.score;
-
-			if(stack->waited())
-			{
-				result = goTowardsNearest(stack, moveTarget.positions);
-			}
-			else
-			{
-				result = BattleAction::makeWait(stack);
-			}
-		}
-
-		if(score <= EvaluationResult::INEFFECTIVE_SCORE
-			&& !stack->hasBonusOfType(Bonus::FLYING)
-			&& stack->unitSide() == BattleSide::ATTACKER
-			&& cb->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
-		{
-			auto brokenWallMoat = getBrokenWallMoatHexes();
-
-			if(brokenWallMoat.size())
-			{
-				movesSkippedByDefense = 0;
-
-				if(stack->doubleWide() && vstd::contains(brokenWallMoat, stack->getPosition()))
-					result = BattleAction::makeMove(stack, stack->getPosition().cloneInDirection(BattleHex::RIGHT));
-				else
-					result = goTowardsNearest(stack, brokenWallMoat);
-			}
-		}
+		result = selectStackAction(stack);
 	}
 	catch(boost::thread_interrupted &)
 	{
@@ -275,13 +312,13 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		movesSkippedByDefense = 0;
 	}
 
-	return result;
+	cb->battleMakeUnitAction(result);
 }
 
 BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes) const
 {
 	auto reachability = cb->getReachability(stack);
-	auto avHexes = cb->battleGetAvailableHexes(reachability, stack);
+	auto avHexes = cb->battleGetAvailableHexes(reachability, stack, false);
 
 	if(!avHexes.size() || !hexes.size()) //we are blocked or dest is blocked
 	{
@@ -320,27 +357,39 @@ BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<Battl
 
 	scoreEvaluator.updateReachabilityMap(hb);
 
-	if(stack->hasBonusOfType(Bonus::FLYING))
+	if(stack->hasBonusOfType(BonusType::FLYING))
 	{
-		std::set<BattleHex> moatHexes;
+		std::set<BattleHex> obstacleHexes;
 
-		if(hb.battleGetSiegeLevel() >= BuildingID::CITADEL)
-		{
-			auto townMoat = hb.getDefendedTown()->town->moatHexes;
+		auto insertAffected = [](const CObstacleInstance & spellObst, std::set<BattleHex> obstacleHexes) {
+			auto affectedHexes = spellObst.getAffectedTiles();
+			obstacleHexes.insert(affectedHexes.cbegin(), affectedHexes.cend());
+		};
 
-			moatHexes = std::set<BattleHex>(townMoat.begin(), townMoat.end());
+		const auto & obstacles = hb.battleGetAllObstacles();
+
+		for (const auto & obst: obstacles) {
+
+			if(obst->triggersEffects())
+			{
+				auto triggerAbility =  VLC->spells()->getById(obst->getTrigger());
+				auto triggerIsNegative = triggerAbility->isNegative() || triggerAbility->isDamage();
+
+				if(triggerIsNegative)
+					insertAffected(*obst, obstacleHexes);
+			}
 		}
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
 		// We just check all available hexes and pick the one closest to the target.
 		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [&](BattleHex hex) -> int
 		{
-			const int MOAT_PENALTY = 100; // avoid landing on moat
+			const int NEGATIVE_OBSTACLE_PENALTY = 100; // avoid landing on negative obstacle (moat, fire wall, etc)
 			const int BLOCKED_STACK_PENALTY = 100; // avoid landing on moat
 
 			auto distance = BattleHex::getDistance(bestNeighbor, hex);
 
-			if(vstd::contains(moatHexes, hex))
-				distance += MOAT_PENALTY;
+			if(vstd::contains(obstacleHexes, hex))
+				distance += NEGATIVE_OBSTACLE_PENALTY;
 
 			return scoreEvaluator.checkPositionBlocksOurStacks(hb, stack, hex) ? BLOCKED_STACK_PENALTY + distance : distance;
 		});
@@ -407,7 +456,7 @@ BattleAction CBattleAI::useCatapult(const CStack * stack)
 	attack.aimToHex(targetHex);
 	attack.actionType = EActionType::CATAPULT;
 	attack.side = side;
-	attack.stackNumber = stack->ID;
+	attack.stackNumber = stack->unitId();
 
 	movesSkippedByDefense = 0;
 
@@ -717,7 +766,7 @@ void CBattleAI::attemptCastingSpell()
 		spellcast.setTarget(castToPerform.dest);
 		spellcast.side = side;
 		spellcast.stackNumber = (!side) ? -1 : -2;
-		cb->battleMakeAction(&spellcast);
+		cb->battleMakeSpellAction(spellcast);
 		movesSkippedByDefense = 0;
 	}
 	else
@@ -777,7 +826,7 @@ void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcas
 	ps.value = totalGain;
 }
 
-void CBattleAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side)
+void CBattleAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side, bool replayAllowed)
 {
 	LOG_TRACE(logAi);
 	side = Side;
@@ -788,7 +837,7 @@ void CBattleAI::print(const std::string &text) const
 	logAi->trace("%s Battle AI[%p]: %s", playerID.getStr(), this, text);
 }
 
-boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
+std::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 {
 	BattleStateInfoForRetreat bs;
 
@@ -802,7 +851,7 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 	{
 		if(stack->alive())
 		{
-			if(stack->side == bs.ourSide)
+			if(stack->unitSide() == bs.ourSide)
 				bs.ourStacks.push_back(stack);
 			else
 			{
@@ -814,9 +863,9 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 
 	bs.turnsSkippedByDefense = movesSkippedByDefense / bs.ourStacks.size();
 
-	if(!bs.canFlee || !bs.canSurrender)
+	if(!bs.canFlee && !bs.canSurrender)
 	{
-		return boost::none;
+		return std::nullopt;
 	}
 
 	auto result = cb->makeSurrenderRetreatDecision(bs);

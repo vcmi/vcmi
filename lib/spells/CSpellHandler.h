@@ -19,7 +19,7 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../battle/BattleHex.h"
-#include "../HeroBonus.h"
+#include "../bonuses/Bonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -43,14 +43,16 @@ class IBattleCast;
 
 struct SchoolInfo
 {
-	ESpellSchool id; //backlink
-	Bonus::BonusType damagePremyBonus;
-	Bonus::BonusType immunityBonus;
+	SpellSchool id; //backlink
+	BonusType immunityBonus;
 	std::string jsonName;
-	SecondarySkill::ESecondarySkill skill;
-	Bonus::BonusType knoledgeBonus;
 };
 
+}
+
+namespace SpellConfig
+{
+	extern const spells::SchoolInfo SCHOOL[4];
 }
 
 enum class VerticalPosition : ui8{TOP, CENTER, BOTTOM};
@@ -92,8 +94,8 @@ public:
 		}
 	};
 
-	typedef AnimationItem TAnimation;
-	typedef std::vector<TAnimation> TAnimationQueue;
+	using TAnimation = AnimationItem;
+	using TAnimationQueue = std::vector<TAnimation>;
 
 	struct DLL_LINKAGE AnimationInfo
 	{
@@ -184,20 +186,20 @@ public:
 		TargetInfo(const CSpell * spell, const int32_t level, spells::Mode mode);
 	};
 
-	using BTVector = std::vector<Bonus::BonusType>;
+	using BTVector = std::vector<BonusType>;
 
 	si32 level;
 
-	std::map<ESpellSchool, bool> school;
+	std::map<SpellSchool, bool> school;
 
 	si32 power; //spell's power
 
-	std::map<TFaction, si32> probabilities; //% chance to gain for castles
+	std::map<FactionID, si32> probabilities; //% chance to gain for castles
 
 	bool combat; //is this spell combat (true) or adventure (false)
 	bool creatureAbility; //if true, only creatures can use this spell
 	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
-
+	bool onlyOnWaterMap; //Spell will be banned on maps without water
 	std::vector<SpellID> counteredSpells; //spells that are removed when effect of this spell is placed on creature (for bless-curse, haste-slow, and similar pairs)
 
 	JsonNode targetCondition; //custom condition on what spell can affect
@@ -206,6 +208,8 @@ public:
 	~CSpell();
 
 	int64_t calculateDamage(const spells::Caster * caster) const override;
+
+	bool hasSchool(ESpellSchool school) const override;
 
 	/**
 	 * Calls cb for each school this spell belongs to
@@ -217,13 +221,13 @@ public:
 	spells::AimType getTargetType() const;
 
 	bool hasEffects() const;
-	void getEffects(std::vector<Bonus> & lst, const int level, const bool cumulative, const si32 duration, boost::optional<si32 *> maxDuration = boost::none) const;
+	void getEffects(std::vector<Bonus> & lst, const int level, const bool cumulative, const si32 duration, std::optional<si32 *> maxDuration = std::nullopt) const;
 
 	bool hasBattleEffects() const;
 
 	int32_t getCost(const int32_t skillLevel) const override;
 
-	si32 getProbability(const TFaction factionId) const;
+	si32 getProbability(const FactionID & factionId) const;
 
 	int32_t getBasePower() const override;
 	int32_t getLevelPower(const int32_t skillLevel) const override;
@@ -246,6 +250,7 @@ public:
 	bool isPositive() const override;
 	bool isNegative() const override;
 	bool isNeutral() const override;
+	bool isMagical() const override;
 
 	bool isDamage() const override;
 	bool isOffensive() const override;
@@ -299,6 +304,8 @@ public:
 		h & levels;
 		h & school;
 		h & animationInfo;
+		h & nonMagical;
+		h & onlyOnWaterMap;
 	}
 	friend class CSpellHandler;
 	friend class Graphics;
@@ -340,6 +347,7 @@ private:
 	bool damage;
 	bool offensive;
 	bool special;
+	bool nonMagical; //For creature abilities like bind
 
 	std::string attributes; //reference only attributes //todo: remove or include in configuration format, currently unused
 

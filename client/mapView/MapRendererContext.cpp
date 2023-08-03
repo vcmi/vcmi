@@ -17,13 +17,13 @@
 #include "../../CCallback.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../PlayerLocalState.h"
 
-#include "../../lib/CPathfinder.h"
 #include "../../lib/Point.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapping/CMap.h"
+#include "../../lib/pathfinder/CGPathNode.h"
 
 MapRendererBaseContext::MapRendererBaseContext(const MapRendererContextState & viewState)
 	: viewState(viewState)
@@ -74,9 +74,9 @@ bool MapRendererBaseContext::isActiveHero(const CGObjectInstance * obj) const
 	if(obj->ID == Obj::HERO)
 	{
 		assert(dynamic_cast<const CGHeroInstance *>(obj) != nullptr);
-		if(adventureInt->curHero() != nullptr)
+		if(LOCPLINT->localState->getCurrentHero() != nullptr)
 		{
-			if(obj->id == adventureInt->curHero()->id)
+			if(obj->id == LOCPLINT->localState->getCurrentHero()->id)
 				return true;
 		}
 	}
@@ -212,15 +212,15 @@ MapRendererAdventureContext::MapRendererAdventureContext(const MapRendererContex
 
 const CGPath * MapRendererAdventureContext::currentPath() const
 {
-	const auto * hero = adventureInt->curHero();
+	const auto * hero = LOCPLINT->localState->getCurrentHero();
 
 	if(!hero)
 		return nullptr;
 
-	if(!LOCPLINT->paths.hasPath(hero))
+	if(!LOCPLINT->localState->hasPath(hero))
 		return nullptr;
 
-	return &LOCPLINT->paths.getPath(hero);
+	return &LOCPLINT->localState->getPath(hero);
 }
 
 size_t MapRendererAdventureContext::objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const
@@ -277,7 +277,7 @@ bool MapRendererAdventureContext::showSpellRange(const int3 & position) const
 	if (!settingSpellRange)
 		return false;
 
-	auto hero = adventureInt->curHero();
+	auto hero = LOCPLINT->localState->getCurrentHero();
 
 	if (!hero)
 		return false;

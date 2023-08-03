@@ -15,6 +15,7 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/VCMIDirs.h"
+#include "../lib/Languages.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 
@@ -53,6 +54,7 @@ void MainWindow::computeSidePanelSizes()
 		ui->modslistButton,
 		ui->settingsButton,
 		ui->lobbyButton,
+		ui->aboutButton,
 		ui->startEditorButton,
 		ui->startGameButton
 	};
@@ -74,6 +76,12 @@ MainWindow::MainWindow(QWidget * parent)
 	: QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	load(); // load FS before UI
+
+	bool setupCompleted = settings["launcher"]["setupCompleted"].Bool();
+
+	if (!setupCompleted)
+		detectPreferredLanguage();
+
 	updateTranslation(); // load translation
 
 	ui->setupUi(this);
@@ -103,20 +111,40 @@ MainWindow::MainWindow(QWidget * parent)
 	computeSidePanelSizes();
 
 	bool h3DataFound = CResourceHandler::get()->existsResource(ResourceID("DATA/GENRLTXT.TXT"));
-	bool setupCompleted = settings["launcher"]["setupCompleted"].Bool();
 
 	if (h3DataFound && setupCompleted)
 		ui->tabListWidget->setCurrentIndex(TabRows::MODS);
 	else
 		enterSetup();
 
-	ui->settingsView->isExtraResolutionsModEnabled = ui->modlistView->isExtraResolutionsModEnabled();
 	ui->settingsView->setDisplayList();
-	connect(ui->modlistView, &CModListView::extraResolutionsEnabledChanged,
-		ui->settingsView, &CSettingsView::fillValidResolutions);
 	
 	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);
+}
+
+void MainWindow::detectPreferredLanguage()
+{
+	auto preferredLanguages = QLocale::system().uiLanguages();
+
+	std::string selectedLanguage;
+
+	for (auto const & userLang : preferredLanguages)
+	{
+		logGlobal->info("Preferred language: %s", userLang.toStdString());
+
+		for (auto const & vcmiLang : Languages::getLanguageList())
+			if (vcmiLang.tagIETF == userLang.toStdString())
+				selectedLanguage = vcmiLang.identifier;
+	}
+
+	logGlobal->info("Selected language: %s", selectedLanguage);
+
+	if (!selectedLanguage.empty())
+	{
+		Settings node = settings.write["general"]["language"];
+		node->String() = selectedLanguage;
+	}
 }
 
 void MainWindow::enterSetup()
@@ -125,6 +153,7 @@ void MainWindow::enterSetup()
 	ui->startEditorButton->setEnabled(false);
 	ui->lobbyButton->setEnabled(false);
 	ui->settingsButton->setEnabled(false);
+	ui->aboutButton->setEnabled(false);
 	ui->modslistButton->setEnabled(false);
 	ui->tabListWidget->setCurrentIndex(TabRows::SETUP);
 }
@@ -138,6 +167,7 @@ void MainWindow::exitSetup()
 	ui->startEditorButton->setEnabled(true);
 	ui->lobbyButton->setEnabled(true);
 	ui->settingsButton->setEnabled(true);
+	ui->aboutButton->setEnabled(true);
 	ui->modslistButton->setEnabled(true);
 	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
 }
@@ -202,6 +232,12 @@ void MainWindow::on_lobbyButton_clicked()
 {
 	ui->startGameButton->setEnabled(false);
 	ui->tabListWidget->setCurrentIndex(TabRows::LOBBY);
+}
+
+void MainWindow::on_aboutButton_clicked()
+{
+	ui->startGameButton->setEnabled(true);
+	ui->tabListWidget->setCurrentIndex(TabRows::ABOUT);
 }
 
 void MainWindow::updateTranslation()

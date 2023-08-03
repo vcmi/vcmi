@@ -42,8 +42,6 @@ namespace BitmapHandler
 
 	QImage loadH3PCX(ui8 * pcx, size_t size)
 	{
-		//SDL_Surface * ret;
-		
 		Epcxformat format;
 		int it = 0;
 		
@@ -133,6 +131,7 @@ namespace BitmapHandler
 						c = qRgb(qRed(c), qGreen(c), qBlue(c));
 					image.setColorTable(colorTable);
 				}
+				return image;
 			}
 			else
 			{

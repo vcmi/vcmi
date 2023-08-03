@@ -1,198 +1,168 @@
 {
+	"library" : "config/widgets/settings/library.json",
+
 	"items":
 	[
 		{
 			"name": "lineCreatureInfo",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 199, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
 		},
 		{
 			"name": "lineAnimationSpeed",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 349, "w": 365, "h": 3}
 		},
-
 		{
-			"name": "titlesLabels",
-			"type": "labelGroup",
-			"font": "medium",
-			"alignment": "left",
-			"color": "yellow",
-			"items":
-			[
-				{
-					"text": "core.genrltxt.396", // Auto-combat options
-					"position": {"x": 380, "y": 55}
-				},
-				{
-					"text": "core.genrltxt.397", // Creature info
-					"position": {"x": 10, "y": 205}
-				}
-			]
+			"type" : "labelTitle",
+			"text": "core.genrltxt.396", // Auto-combat options
+			"position": {"x": 380, "y": 55}
+		},
+		{
+			"type" : "labelTitle",
+			"text": "core.genrltxt.397", // Creature info
+			"position": {"x": 10, "y": 265}
 		},
 /////////////////////////////////////// Right section - Auto-combat settings (NOT IMPLEMENTED)
 		{
 			"name": "autoCombatLabels",
-			"type": "labelGroup",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
+			"type" : "verticalLayout",
+			"customType" : "labelDescription",
+			"position": {"x": 415, "y": 85},
 			"items":
 			[
 				{
-					"text": "core.genrltxt.398", // Creatures
-					"position": {"x": 415, "y": 85}
+					"text": "core.genrltxt.398" // Creatures
 				},
 				{
-					"text": "core.genrltxt.399", // Spells
-					"position": {"x": 415, "y": 115}
+					"text": "core.genrltxt.399" // Spells
 				},
 				{
-					"text": "core.genrltxt.400", // Catapult
-					"position": {"x": 415, "y": 145}
+					"text": "core.genrltxt.400" // Catapult
 				},
 				{
-					"text": "core.genrltxt.151", // Ballista
-					"position": {"x": 415, "y": 175}
+					"text": "core.genrltxt.151" // Ballista
 				},
 				{
-					"text": "core.genrltxt.401", // First Aid Tent
-					"position": {"x": 415, "y": 205}
+					"text": "core.genrltxt.401" // First Aid Tent
 				}
 			]
 		},
 		{
-			"name": "autoCombatCreaturesPlaceholder",
-			"type": "picture",
-			"image": "settingsWindow/checkBoxEmpty",
+			"name": "autoCombatCheckboxes",
+			"type" : "verticalLayout",
+			"customType" : "checkboxFake",
 			"position": {"x": 380, "y": 83},
-		},
-		{
-			"name": "autoCombatSpellsPlaceholder",
-			"type": "picture",
-			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 380, "y": 113},
-		},
-		{
-			"name": "autoCombatCatapultPlaceholder",
-			"type": "picture",
-			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 380, "y": 143},
-		},
-		{
-			"name": "autoCombatBallistaPlaceholder",
-			"type": "picture",
-			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 380, "y": 173},
-		},
-		{
-			"name": "autoCombatFirstAidTentPlaceholder",
-			"type": "picture",
-			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 380, "y": 203},
+			"items":
+			[
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
 		},
 /////////////////////////////////////// Left section - checkboxes
 		{
 			"name": "creatureInfoLabels",
-			"type": "labelGroup",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
+			"type" : "verticalLayout",
+			"customType" : "labelDescription",
+			"position": {"x": 45, "y": 295},
 			"items":
 			[
 				{
-					"text": "core.genrltxt.402", // All Stats
-					"position": {"x": 45, "y": 235}
+					"text": "core.genrltxt.402",
 				},
 				{
-					"text": "core.genrltxt.403", // Spells only
-					"position": {"x": 45, "y": 265}
+					"text": "core.genrltxt.403",
 				}
 			]
 		},
 		{
-			"name": "creatureInfoAllPlaceholder",
-			"type": "picture",
-			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 10, "y": 233},
+			"name": "creatureInfoCheckboxes",
+			"type" : "verticalLayout",
+			"customType" : "checkboxFake",
+			"position": {"x": 10, "y": 293},
+			"items":
+			[
+				{},
+				{}
+			]
 		},
-		{
-			"name": "creatureInfoSpellsPlaceholder",
-			"type": "picture",
-			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 10, "y": 263},
-		},
-
 		{
 			"name": "generalOptionsLabels",
-			"type": "labelGroup",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
+			"type" : "verticalLayout",
+			"customType" : "labelDescription",
+			"position": {"x": 45, "y": 55},
 			"items":
 			[
 				{
 					"text": "core.genrltxt.404",
-					"position": {"x": 45, "y": 55}
 				},
 				{
 					"text": "core.genrltxt.405",
-					"position": {"x": 45, "y": 85}
+				},
+				{
+					"text": "vcmi.battleOptions.movementHighlightOnHover.hover",
+				},
+				{
+					"text": "vcmi.battleOptions.rangeLimitHighlightOnHover.hover",
+				},
+				{
+					"text": "vcmi.battleOptions.showStickyHeroInfoWindows.hover",
 				},
 				{
 					"text": "core.genrltxt.406",
-					"position": {"x": 45, "y": 115}
-				},
-				{
-					"text": "core.genrltxt.407",
-					"position": {"x": 45, "y": 145}
 				},
 				{
 					"text": "vcmi.battleOptions.skipBattleIntroMusic.hover",
-					"position": {"x": 45, "y": 175}
 				}
 			]
 		},
-
 		{
-			"name": "viewGridCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "core.help.427",
+			"type" : "verticalLayout",
+			"customType" : "checkbox",
 			"position": {"x": 10, "y": 53},
-			"callback": "viewGridChanged"
-		},
-		{
-			"name": "movementShadowCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "core.help.428",
-			"position": {"x": 10, "y": 83},
-			"callback": "movementShadowChanged"
-		},
-		{
-			"name": "mouseShadowCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "core.help.429",
-			"position": {"x": 10, "y": 113},
-			"callback": "mouseShadowChanged"
-		},
-		{
-			"name": "battleFieldCasualtiesPlaceholder",
-			"type": "picture",
-			"image": "settingsWindow/checkBoxEmpty",
-			"position": {"x": 10, "y": 143},
-		},
-		{
-			"name": "skipBattleIntroMusicCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "vcmi.battleOptions.skipBattleIntroMusic",
-			"position": {"x": 10, "y": 173},
-			"callback": "skipBattleIntroMusicChanged"
+			"items":
+			[
+				{
+					"name": "viewGridCheckbox",
+					"help": "core.help.427",
+					"callback": "viewGridChanged"
+				},
+				{
+					"name": "movementShadowCheckbox",
+					"help": "core.help.428",
+					"callback": "movementShadowChanged"
+				},
+				{
+					"name": "movementHighlightOnHoverCheckbox",
+					"help": "vcmi.battleOptions.movementHighlightOnHover",
+					"callback": "movementHighlightOnHoverChanged"
+				},
+				{
+					"name": "rangeLimitHighlightOnHoverCheckbox",
+					"help": "vcmi.battleOptions.rangeLimitHighlightOnHover",
+					"callback": "rangeLimitHighlightOnHoverChanged"
+				},
+				{
+					"name": "showStickyHeroInfoWindowsCheckbox",
+					"help": "vcmi.battleOptions.showStickyHeroInfoWindows",
+					"callback": "showStickyHeroWindowsChanged"
+				},
+				{
+					"name": "mouseShadowCheckbox",
+					"help": "core.help.429",
+					"callback": "mouseShadowChanged"
+				},
+				{
+					"name": "skipBattleIntroMusicCheckbox",
+					"help": "vcmi.battleOptions.skipBattleIntroMusic",
+					"callback": "skipBattleIntroMusicChanged"
+				}
+			]
 		},
 /////////////////////////////////////// Bottom section - Animation Speed and Turn Order
 		{
@@ -203,19 +173,13 @@
 		},
 		{
 			"name": "animationSpeedLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "center",
-			"color": "yellow",
+			"type": "labelCentered",
 			"text": "core.genrltxt.393",
 			"position": {"x": 150, "y": 362}
 		},
 		{
 			"name": "animationSpeedValueLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "center",
-			"color": "yellow",
+			"type": "labelCentered",
 			"position": {"x": 324, "y": 390}
 		},
 		{
@@ -289,7 +253,7 @@
 					]
 				},
 				{
-					"index": 12,
+					"index": 9,
 					"type": "toggleButton",
 					"image": "settingsWindow/button46",
 					"help": "vcmi.battleOptions.animationsSpeed5",
@@ -305,7 +269,7 @@
 					]
 				},
 				{
-					"index": 24,
+					"index": 18,
 					"type": "toggleButton",
 					"image": "settingsWindow/button46",
 					"help": "vcmi.battleOptions.animationsSpeed6",

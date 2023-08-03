@@ -12,7 +12,8 @@
 #include <vcmi/Player.h>
 #include <vcmi/Team.h>
 
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/CBonusSystemNode.h"
 #include "ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -32,24 +33,31 @@ public:
 	std::set<ObjectInstanceID> visitedObjects; // as a std::set, since most accesses here will be from visited status checks
 	std::vector<ConstTransitivePtr<CGHeroInstance> > heroes;
 	std::vector<ConstTransitivePtr<CGTownInstance> > towns;
-	std::vector<ConstTransitivePtr<CGHeroInstance> > availableHeroes; //heroes available in taverns
 	std::vector<ConstTransitivePtr<CGDwelling> > dwellings; //used for town growth
 	std::vector<QuestInfo> quests; //store info about all received quests
 
 	bool enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
 	EPlayerStatus::EStatus status;
-	boost::optional<ui8> daysWithoutCastle;
+	std::optional<ui8> daysWithoutCastle;
 
 	PlayerState();
 	PlayerState(PlayerState && other) noexcept;
+	~PlayerState();
 
 	std::string nodeName() const override;
 
-	PlayerColor getColor() const override;
+	PlayerColor getId() const override;
 	TeamID getTeam() const override;
 	bool isHuman() const override;
-	const IBonusBearer * accessBonuses() const override;
+	const IBonusBearer * getBonusBearer() const override;
 	int getResourceAmount(int type) const override;
+
+	int32_t getIndex() const override;
+	int32_t getIconIndex() const override;
+	std::string getJsonKey() const override;
+	std::string getNameTranslated() const override;
+	std::string getNameTextID() const override;
+	void registerIcons(const IconRegistar & cb) const override;
 
 	bool checkVanquished() const
 	{
@@ -65,7 +73,6 @@ public:
 		h & status;
 		h & heroes;
 		h & towns;
-		h & availableHeroes;
 		h & dwellings;
 		h & quests;
 		h & visitedObjects;

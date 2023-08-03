@@ -1,37 +1,36 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI road format",
 	"description" : "Format used to define new roads in VCMI",
-	"required" : [ "text", "shortIdentifier", "tilesFilename", "moveCost" ],
-
+	"required" : [ "shortIdentifier", "text", "tilesFilename", "moveCost" ],
 	"additionalProperties" : false,
-	"properties":{
+	"properties" : {
+		"shortIdentifier" :
+		{
+			"type" : "string",
+			"description" : "Two-letters unique indentifier for this road. Used in map format"
+		},
+		"text" :
+		{
+			"type" : "string",
+			"description" : "Human-readable name of the road"
+		},
+		"tilesFilename" :
+		{
+			"type" : "string",
+			"description" : "Name of file with road graphics",
+			"format" : "defFile"
+		},
+		"moveCost" :
+		{
+			"type" : "number",
+			"description" : "How many movement points needed to move hero"
+		},
 		"index" : 
 		{
-			"type": "number",
-			"description": "Internal, do not use"
-		},
-		"text":
-		{
-			"type": "string",
-			"description": "Human-readable name of the road"
-		},
-		"shortIdentifier":
-		{
-			"type": "string",
-			"description": "Two-letters unique indentifier for this road. Used in map format"
-		},
-		"tilesFilename":
-		{
-			"type": "string",
-			"description": "Name of file with road graphics",
-			"format": "defFile"
-		},
-		"moveCost":
-		{
-			"type": "number",
-			"description": "How many movement points needed to move hero"
+			"type" : "number",
+			"description" : "Internal, do not use"
 		}
 	}
 }

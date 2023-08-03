@@ -20,13 +20,17 @@ struct SetMovePoints;
 struct GiveBonus;
 struct BlockingDialog;
 struct TeleportDialog;
-struct MetaString;
+class MetaString;
 struct StackLocation;
 struct ArtifactLocation;
 class CCreatureSet;
 class CStackBasicDescriptor;
 class CGCreature;
-struct ShashInt3;
+
+namespace spells
+{
+	class Caster;
+}
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -54,20 +58,20 @@ public:
 	void getFreeTiles(std::vector<int3> &tiles) const;
 
 	//mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only revealed
-	void getTilesInRange(std::unordered_set<int3, ShashInt3> & tiles,
+	void getTilesInRange(std::unordered_set<int3> & tiles,
 						 const int3 & pos,
 						 int radious,
-						 boost::optional<PlayerColor> player = boost::optional<PlayerColor>(),
+						 std::optional<PlayerColor> player = std::optional<PlayerColor>(),
 						 int mode = 0,
 						 int3::EDistanceFormula formula = int3::DIST_2D) const;
 
 	//returns all tiles on given level (-1 - both levels, otherwise number of level)
-	void getAllTiles(std::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(),
+	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player = std::optional<PlayerColor>(),
 					 int level = -1, MapTerrainFilterMode tileFilterMode = MapTerrainFilterMode::NONE) const;
 
 	//gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
 	void pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand) const; 
-	void getAllowedSpells(std::vector<SpellID> &out, ui16 level);
+	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
 
 	template<typename Saver>
 	void saveCommonState(Saver &out) const; //stores GS and VLC
@@ -86,6 +90,7 @@ public:
 
 	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells)=0;
 	virtual bool removeObject(const CGObjectInstance * obj)=0;
+	virtual void createObject(const int3 & visitablePosition, Obj type, int32_t subtype = 0) = 0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false)=0;
@@ -93,7 +98,7 @@ public:
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) =0; //cb will be called when player closes garrison window
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;
 	virtual void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) =0;
-	virtual void giveResource(PlayerColor player, Res::ERes which, int val)=0;
+	virtual void giveResource(PlayerColor player, GameResID which, int val)=0;
 	virtual void giveResources(PlayerColor player, TResources resources)=0;
 
 	virtual void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;
@@ -109,8 +114,8 @@ public:
 
 	virtual void removeAfterVisit(const CGObjectInstance *object) = 0; //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
 
-	virtual void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) = 0;
-	virtual void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) = 0; //pos==-1 - first free slot in backpack=0; pos==-2 - default if available or backpack
+	virtual bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) = 0;
+	virtual bool giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos) = 0;
 	virtual void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) = 0;
 	virtual void removeArtifact(const ArtifactLocation &al) = 0;
 	virtual bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) = 0;
@@ -126,12 +131,14 @@ public:
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
 	virtual void setManaPoints(ObjectInstanceID hid, int val)=0;
-	virtual void giveHero(ObjectInstanceID id, PlayerColor player)=0;
+	virtual void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) = 0;
 	virtual void changeObjPos(ObjectInstanceID objid, int3 newPos)=0;
 	virtual void sendAndApply(CPackForClient * pack) = 0;
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
 	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) = 0;
-	virtual void changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide) = 0;
+	virtual void changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, bool hide) = 0;
+	
+	virtual void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) = 0;
 };
 
 class DLL_LINKAGE CNonConstInfoCallback : public CPrivilegedInfoCallback

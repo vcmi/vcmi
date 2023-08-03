@@ -21,12 +21,14 @@
 
 #include "../../CCallback.h"
 
-#include "../../lib/CPathfinder.h"
 #include "../../lib/RiverHandler.h"
 #include "../../lib/RoadHandler.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapping/CMap.h"
+#include "../../lib/mapObjects/MiscObjects.h"
+#include "../../lib/mapObjects/ObjectTemplate.h"
+#include "../../lib/mapping/CMapDefines.h"
+#include "../../lib/pathfinder/CGPathNode.h"
 
 struct NeighborTilesInfo
 {
@@ -143,16 +145,15 @@ void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & targ
 
 	const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
 
-	if(mapTile.terType->getId() == ETerrainId::LAVA)
+	assert(image);
+	if (!image)
 	{
-		image->shiftPalette(246, 9, context.terrainImageIndex(9));
+		logGlobal->error("Failed to find image %d for terrain %s on tile %s", imageIndex, mapTile.terType->getNameTranslated(), coordinates.toString());
+		return;
 	}
 
-	if(mapTile.terType->getId() == ETerrainId::WATER)
-	{
-		image->shiftPalette(229, 12, context.terrainImageIndex(12));
-		image->shiftPalette(242, 14, context.terrainImageIndex(14));
-	}
+	for( auto const & element : mapTile.terType->paletteAnimation)
+		image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
 
 	target.draw(image, Point(0, 0));
 }
@@ -161,7 +162,7 @@ uint8_t MapRendererTerrain::checksum(IMapRendererContext & context, const int3 &
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
-	if(mapTile.terType->getId() == ETerrainId::LAVA || mapTile.terType->getId() == ETerrainId::WATER)
+	if(!mapTile.terType->paletteAnimation.empty())
 		return context.terrainImageIndex(250);
 	return 0xff - 1;
 }
@@ -186,23 +187,8 @@ void MapRendererRiver::renderTile(IMapRendererContext & context, Canvas & target
 
 	const auto & image = storage.find(terrainIndex, rotationIndex, imageIndex);
 
-	if(mapTile.riverType->getId() == River::WATER_RIVER)
-	{
-		image->shiftPalette(183, 12, context.terrainImageIndex(12));
-		image->shiftPalette(195, 6, context.terrainImageIndex(6));
-	}
-
-	if(mapTile.riverType->getId() == River::MUD_RIVER)
-	{
-		image->shiftPalette(228, 12, context.terrainImageIndex(12));
-		image->shiftPalette(183, 6, context.terrainImageIndex(6));
-		image->shiftPalette(240, 6, context.terrainImageIndex(6));
-	}
-
-	if(mapTile.riverType->getId() == River::LAVA_RIVER)
-	{
-		image->shiftPalette(240, 9, context.terrainImageIndex(9));
-	}
+	for( auto const & element : mapTile.riverType->paletteAnimation)
+		image->shiftPalette(element.start, element.length, context.terrainImageIndex(element.length));
 
 	target.draw(image, Point(0, 0));
 }
@@ -211,9 +197,7 @@ uint8_t MapRendererRiver::checksum(IMapRendererContext & context, const int3 & c
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
-	if(mapTile.riverType->getId() == River::WATER_RIVER ||
-	   mapTile.riverType->getId() == River::MUD_RIVER ||
-	   mapTile.riverType->getId() == River::LAVA_RIVER)
+	if(!mapTile.riverType->paletteAnimation.empty())
 		return context.terrainImageIndex(250);
 	return 0xff-1;
 }
@@ -394,15 +378,11 @@ std::shared_ptr<CAnimation> MapRendererObjects::getBaseAnimation(const CGObjectI
 
 	bool generateMovementGroups = (info->id == Obj::BOAT) || (info->id == Obj::HERO);
 
-	//TODO: relocate to config file?
 	// Boat appearance files only contain single, unanimated image
 	// proper boat animations are actually in different file
-	static const std::vector<std::string> boatAnimations = {
-		"AB01_.def", "AB02_.def", "AB03_.def"
-	};
-
 	if (info->id == Obj::BOAT)
-		return getAnimation(boatAnimations[info->subid], generateMovementGroups);
+		if(auto boat = dynamic_cast<const CGBoat*>(obj); boat && !boat->actualAnimation.empty())
+			return getAnimation(boat->actualAnimation, generateMovementGroups);
 
 	return getAnimation(info->animationFile, generateMovementGroups);
 }
@@ -438,13 +418,6 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 		"AF00", "AF01", "AF02", "AF03", "AF04", "AF05", "AF06", "AF07"
 	};
 
-	//TODO: relocate to config file?
-	static const std::vector<std::vector<std::string>> boatFlags = {
-		{"ABF01L", "ABF01G", "ABF01R", "ABF01D", "ABF01B", "ABF01P", "ABF01W", "ABF01K"},
-		{"ABF02L", "ABF02G", "ABF02R", "ABF02D", "ABF02B", "ABF02P", "ABF02W", "ABF02K"},
-		{"ABF03L", "ABF03G", "ABF03R", "ABF03D", "ABF03B", "ABF03P", "ABF03W", "ABF03K"}
-	};
-
 	if(obj->ID == Obj::HERO)
 	{
 		assert(dynamic_cast<const CGHeroInstance *>(obj) != nullptr);
@@ -455,12 +428,8 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 	if(obj->ID == Obj::BOAT)
 	{
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
-		assert(boat->subID < boatFlags.size());
-		if (boat->hero)
-		{
-			assert(boat->hero->tempOwner.isValidPlayer());
-			return getAnimation(boatFlags[boat->subID][boat->hero->tempOwner.getNum()], true);
-		}
+		if(boat && boat->hero && !boat->flagAnimations[boat->hero->tempOwner.getNum()].empty())
+			return getAnimation(boat->flagAnimations[boat->hero->tempOwner.getNum()], true);
 	}
 
 	return nullptr;
@@ -470,15 +439,10 @@ std::shared_ptr<CAnimation> MapRendererObjects::getOverlayAnimation(const CGObje
 {
 	if(obj->ID == Obj::BOAT)
 	{
-		//TODO: relocate to config file?
 		// Boats have additional animation with waves around boat
-		static const std::vector<std::string> boatAnimations = {
-			"ABM01_.def", "ABM02_.def", "ABM03_.def"
-		};
-
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
-		if (boat->hero)
-			return getAnimation(boatAnimations[obj->subID], true);
+		if(boat && boat->hero && !boat->overlayAnimation.empty())
+			return getAnimation(boat->overlayAnimation, true);
 	}
 	return nullptr;
 }
@@ -732,7 +696,7 @@ size_t MapRendererPath::selectImage(IMapRendererContext & context, const int3 & 
 		return std::numeric_limits<size_t>::max();
 
 	bool pathContinuous = iter->coord.areNeighbours(next->coord) && iter->coord.areNeighbours(prev->coord);
-	bool embarking = iter->action == CGPathNode::EMBARK || iter->action == CGPathNode::DISEMBARK;
+	bool embarking = iter->action == EPathNodeAction::EMBARK || iter->action == EPathNodeAction::DISEMBARK;
 
 	if(pathContinuous && !embarking)
 		return selectImageArrow(reachableToday, iter->coord, prev->coord, next->coord);

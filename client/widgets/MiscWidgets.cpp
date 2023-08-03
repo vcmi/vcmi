@@ -20,12 +20,12 @@
 #include "../widgets/TextControls.h"
 #include "../windows/CCastleInterface.h"
 #include "../windows/InfoWindows.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 
 #include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGameState.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/GameSettings.h"
@@ -36,9 +36,9 @@
 void CHoverableArea::hover (bool on)
 {
 	if (on)
-		GH.statusbar->write(hoverText);
+		GH.statusbar()->write(hoverText);
 	else
-		GH.statusbar->clearIfMatching(hoverText);
+		GH.statusbar()->clearIfMatching(hoverText);
 }
 
 CHoverableArea::CHoverableArea()
@@ -50,16 +50,14 @@ CHoverableArea::~CHoverableArea()
 {
 }
 
-void LRClickableAreaWText::clickLeft(tribool down, bool previousState)
+void LRClickableAreaWText::clickPressed(const Point & cursorPosition)
 {
-	if(!down && previousState && !text.empty())
-	{
+	if(!text.empty())
 		LOCPLINT->showInfoDialog(text);
-	}
 }
-void LRClickableAreaWText::clickRight(tribool down, bool previousState)
+void LRClickableAreaWText::showPopupWindow(const Point & cursorPosition)
 {
-	if (down && !text.empty())
+	if (!text.empty())
 		CRClickPopup::createAndPush(text);
 }
 
@@ -82,16 +80,13 @@ LRClickableAreaWText::~LRClickableAreaWText()
 
 void LRClickableAreaWText::init()
 {
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 }
 
-void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
+void LRClickableAreaWTextComp::clickPressed(const Point & cursorPosition)
 {
-	if((!down) && previousState)
-	{
-		std::vector<std::shared_ptr<CComponent>> comp(1, createComponent());
-		LOCPLINT->showInfoDialog(text, comp);
-	}
+	std::vector<std::shared_ptr<CComponent>> comp(1, createComponent());
+	LOCPLINT->showInfoDialog(text, comp);
 }
 
 LRClickableAreaWTextComp::LRClickableAreaWTextComp(const Rect &Pos, int BaseType)
@@ -108,22 +103,19 @@ std::shared_ptr<CComponent> LRClickableAreaWTextComp::createComponent() const
 		return std::shared_ptr<CComponent>();
 }
 
-void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
+void LRClickableAreaWTextComp::showPopupWindow(const Point & cursorPosition)
 {
-	if(down)
+	if(auto comp = createComponent())
 	{
-		if(auto comp = createComponent())
-		{
-			CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
-			return;
-		}
+		CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
+		return;
 	}
 
-	LRClickableAreaWText::clickRight(down, previousState); //only if with-component variant not occurred
+	LRClickableAreaWText::showPopupWindow(cursorPosition); //only if with-component variant not occurred
 }
 
 CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: CIntObject(LCLICK | HOVER),
 	hero(_hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -137,29 +129,23 @@ CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero)
 		portrait = std::make_shared<CAnimImage>("PortraitsLarge", hero->portrait);
 }
 
-void CHeroArea::clickLeft(tribool down, bool previousState)
+void CHeroArea::clickPressed(const Point & cursorPosition)
 {
-	if(hero && (!down) && previousState)
-		LOCPLINT->openHeroWindow(hero);
-}
-
-void CHeroArea::clickRight(tribool down, bool previousState)
-{
-	if(hero && (!down) && previousState)
+	if(hero)
 		LOCPLINT->openHeroWindow(hero);
 }
 
 void CHeroArea::hover(bool on)
 {
 	if (on && hero)
-		GH.statusbar->write(hero->getObjectName());
+		GH.statusbar()->write(hero->getObjectName());
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 }
 
-void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)
+void LRClickableAreaOpenTown::clickPressed(const Point & cursorPosition)
 {
-	if(town && (!down) && previousState)
+	if(town)
 	{
 		LOCPLINT->openTownWindow(town);
 		if ( type == 2 )
@@ -169,18 +155,12 @@ void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void LRClickableAreaOpenTown::clickRight(tribool down, bool previousState)
-{
-	if(town && (!down) && previousState)
-		LOCPLINT->openTownWindow(town);//TODO: popup?
-}
-
 LRClickableAreaOpenTown::LRClickableAreaOpenTown(const Rect & Pos, const CGTownInstance * Town)
 	: LRClickableAreaWTextComp(Pos, -1), town(Town)
 {
 }
 
-void CMinorResDataBar::show(SDL_Surface * to)
+void CMinorResDataBar::show(Canvas & to)
 {
 }
 
@@ -196,17 +176,22 @@ std::string CMinorResDataBar::buildDateString()
 	return boost::str(formatted);
 }
 
-void CMinorResDataBar::showAll(SDL_Surface * to)
+void CMinorResDataBar::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
-	for (Res::ERes i=Res::WOOD; i<=Res::GOLD; vstd::advance(i, 1))
+	for (GameResID i=EGameResID::WOOD; i<=EGameResID::GOLD; ++i)
 	{
 		std::string text = std::to_string(LOCPLINT->cb->getResourceAmount(i));
 
-		graphics->fonts[FONT_SMALL]->renderTextCenter(to, text, Colors::WHITE, Point(pos.x + 50 + 76 * i, pos.y + pos.h/2));
+		Point target(pos.x + 50 + 76 * GameResID(i), pos.y + pos.h/2);
+
+		to.drawText(target, FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, text);
 	}
-	graphics->fonts[FONT_SMALL]->renderTextCenter(to, buildDateString(), Colors::WHITE, Point(pos.x+545+(pos.w-545)/2,pos.y+pos.h/2));
+
+	Point target(pos.x+545+(pos.w-545)/2,pos.y+pos.h/2);
+
+	to.drawText(target, FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, buildDateString());
 }
 
 CMinorResDataBar::CMinorResDataBar()
@@ -318,6 +303,31 @@ CHeroTooltip::CHeroTooltip(Point pos, const CGHeroInstance * hero):
 	init(InfoAboutHero(hero, InfoAboutHero::EInfoLevel::DETAILED));
 }
 
+CInteractableHeroTooltip::CInteractableHeroTooltip(Point pos, const CGHeroInstance * hero):
+		CGarrisonInt(pos + Point(0, 73), 4, Point(0, 0), hero, nullptr, true, true, CGarrisonInt::ESlotsLayout::REVERSED_TWO_ROWS)
+{
+	init(InfoAboutHero(hero, InfoAboutHero::EInfoLevel::DETAILED));
+}
+
+void CInteractableHeroTooltip::init(const InfoAboutHero & hero)
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	portrait = std::make_shared<CAnimImage>("PortraitsLarge", hero.portrait, 0, 3, 2-73);
+	title = std::make_shared<CLabel>(66, 2-73, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero.name);
+
+	if(hero.details)
+	{
+		for(size_t i = 0; i < hero.details->primskills.size(); i++)
+			labels.push_back(std::make_shared<CLabel>(75 + 28 * (int)i, 58-73, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
+													  std::to_string(hero.details->primskills[i])));
+
+		labels.push_back(std::make_shared<CLabel>(158, 98-73, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->mana)));
+
+		morale = std::make_shared<CAnimImage>("IMRL22", hero.details->morale + 3, 0, 5, 74-73);
+		luck = std::make_shared<CAnimImage>("ILCK22", hero.details->luck + 3, 0, 5, 91-73);
+	}
+}
+
 void CTownTooltip::init(const InfoAboutTown & town)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -335,7 +345,7 @@ void CTownTooltip::init(const InfoAboutTown & town)
 
 	if(town.details)
 	{
-		fort = std::make_shared<CAnimImage>("ITMTLS", town.details->hallLevel, 0, 67, 31);
+		hall = std::make_shared<CAnimImage>("ITMTLS", town.details->hallLevel, 0, 67, 31);
 
 		if(town.details->goldIncome)
 		{
@@ -347,10 +357,10 @@ void CTownTooltip::init(const InfoAboutTown & town)
 
 		if(town.details->customRes)//silo is built
 		{
-			if(town.tType->primaryRes == Res::WOOD_AND_ORE )// wood & ore
+			if(town.tType->primaryRes == EGameResID::WOOD_AND_ORE )// wood & ore
 			{
-				res1 = std::make_shared<CAnimImage>("SMALRES", Res::WOOD, 0, 7, 75);
-				res2 = std::make_shared<CAnimImage>("SMALRES", Res::ORE , 0, 7, 88);
+				res1 = std::make_shared<CAnimImage>("SMALRES", GameResID(EGameResID::WOOD), 0, 7, 75);
+				res2 = std::make_shared<CAnimImage>("SMALRES", GameResID(EGameResID::ORE), 0, 7, 88);
 			}
 			else
 			{
@@ -372,7 +382,56 @@ CTownTooltip::CTownTooltip(Point pos, const CGTownInstance * town)
 	init(InfoAboutTown(town, true));
 }
 
-void MoraleLuckBox::set(const IBonusBearer * node)
+CInteractableTownTooltip::CInteractableTownTooltip(Point pos, const CGTownInstance * town)
+		: CGarrisonInt(pos + Point(0, 73), 4, Point(0, 0), town->getUpperArmy(), nullptr, true, true, CGarrisonInt::ESlotsLayout::REVERSED_TWO_ROWS)
+{
+	init(InfoAboutTown(town, true));
+}
+
+void CInteractableTownTooltip::init(const InfoAboutTown & town)
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	//order of icons in def: fort, citadel, castle, no fort
+	size_t fortIndex = town.fortLevel ? town.fortLevel - 1 : 3;
+
+	fort = std::make_shared<CAnimImage>("ITMCLS", fortIndex, 0, 105, 31-73);
+
+	assert(town.tType);
+
+	size_t iconIndex = town.tType->clientInfo.icons[town.fortLevel > 0][town.built >= CGI->settings()->getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP)];
+
+	build = std::make_shared<CAnimImage>("itpt", iconIndex, 0, 3, 2-73);
+	title = std::make_shared<CLabel>(66, 2-73, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, town.name);
+
+	if(town.details)
+	{
+		hall = std::make_shared<CAnimImage>("ITMTLS", town.details->hallLevel, 0, 67, 31-73);
+
+		if(town.details->goldIncome)
+		{
+			income = std::make_shared<CLabel>(157, 58-73, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE,
+											  std::to_string(town.details->goldIncome));
+		}
+		if(town.details->garrisonedHero) //garrisoned hero icon
+			garrisonedHero = std::make_shared<CPicture>("TOWNQKGH", 149, 76-73);
+
+		if(town.details->customRes)//silo is built
+		{
+			if(town.tType->primaryRes == EGameResID::WOOD_AND_ORE )// wood & ore
+			{
+				res1 = std::make_shared<CAnimImage>("SMALRES", GameResID(EGameResID::WOOD), 0, 7, 75-73);
+				res2 = std::make_shared<CAnimImage>("SMALRES", GameResID(EGameResID::ORE), 0, 7, 88-73);
+			}
+			else
+			{
+				res1 = std::make_shared<CAnimImage>("SMALRES", town.tType->primaryRes, 0, 7, 81-73);
+			}
+		}
+	}
+}
+
+void MoraleLuckBox::set(const AFactionMember * node)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
@@ -385,7 +444,7 @@ void MoraleLuckBox::set(const IBonusBearer * node)
 	bonusValue = 0;
 
 	if(node)
-		bonusValue = morale ? node->MoraleValAndBonusList(modifierList) : node->LuckValAndBonusList(modifierList);
+		bonusValue = morale ? node->moraleValAndBonusList(modifierList) : node->luckValAndBonusList(modifierList);
 
 	int mrlt = (bonusValue>0)-(bonusValue<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
 	hoverText = CGI->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
@@ -393,21 +452,21 @@ void MoraleLuckBox::set(const IBonusBearer * node)
 	text = CGI->generaltexth->arraytxt[textId[morale]];
 	boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
 
-	if (morale && node && (node->hasBonusOfType(Bonus::UNDEAD)
-			|| node->hasBonusOfType(Bonus::NON_LIVING)))
+	if (morale && node && (node->getBonusBearer()->hasBonusOfType(BonusType::UNDEAD)
+			|| node->getBonusBearer()->hasBonusOfType(BonusType::NON_LIVING)))
 	{
 		text += CGI->generaltexth->arraytxt[113]; //unaffected by morale
 		bonusValue = 0;
 	}
-	else if(morale && node && node->hasBonusOfType(Bonus::NO_MORALE))
+	else if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))
 	{
-		auto noMorale = node->getBonus(Selector::type()(Bonus::NO_MORALE));
+		auto noMorale = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_MORALE));
 		text += "\n" + noMorale->Description();
 		bonusValue = 0;
 	}
-	else if (!morale && node && node->hasBonusOfType(Bonus::NO_LUCK))
+	else if (!morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_LUCK))
 	{
-		auto noLuck = node->getBonus(Selector::type()(Bonus::NO_LUCK));
+		auto noLuck = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_LUCK));
 		text += "\n" + noLuck->Description();
 		bonusValue = 0;
 	}
@@ -448,7 +507,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 	pos.x+=x;
 	pos.y+=y;
 
-	TFaction faction = cre->faction;
+	auto faction = cre->getFaction();
 
 	assert(CGI->townh->size() > faction);
 
@@ -458,7 +517,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 		bg = std::make_shared<CPicture>((*CGI->townh)[faction]->creatureBg120);
 	anim = std::make_shared<CCreatureAnim>(0, 0, cre->animDefName);
 	anim->clipRect(cre->isDoubleWide()?170:150, 155, bg->pos.w, bg->pos.h);
-	anim->startPreview(cre->hasBonusOfType(Bonus::SIEGE_WEAPON));
+	anim->startPreview(cre->hasBonusOfType(BonusType::SIEGE_WEAPON));
 
 	amount = std::make_shared<CLabel>(bg->pos.w, bg->pos.h, FONT_MEDIUM, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
 
@@ -466,7 +525,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 	pos.h = bg->pos.h;
 }
 
-void CCreaturePic::show(SDL_Surface * to)
+void CCreaturePic::show(Canvas & to)
 {
 	// redraw everything in a proper order
 	bg->showAll(to);

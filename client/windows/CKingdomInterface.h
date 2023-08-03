@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include "../widgets/CArtifactHolder.h"
-#include "../widgets/CGarrisonInt.h"
+#include "../widgets/CWindowWithArtifacts.h"
+#include "CWindowObject.h"
 
 class CButton;
 class CAnimImage;
@@ -27,6 +27,7 @@ class MoraleLuckBox;
 class CListBox;
 class CTabbedInt;
 class CGStatusBar;
+class CGarrisonInt;
 
 class CKingdHeroList;
 class CKingdTownList;
@@ -73,11 +74,8 @@ public:
 	InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IInfoBoxData> Data);
 	~InfoBox();
 
-	void clickRight(tribool down, bool previousState) override;
-	void clickLeft(tribool down, bool previousState) override;
-
-	//Update object if data may have changed
-	//void update();
+	void showPopupWindow(const Point & cursorPosition) override;
+	void clickPressed(const Point & cursorPosition) override;
 };
 
 class IInfoBoxData
@@ -198,7 +196,7 @@ public:
 };
 
 /// Class which holds all parts of kingdom overview window
-class CKingdomInterface : public CWindowObject, public CGarrisonHolder, public CArtifactHolder
+class CKingdomInterface : public CWindowObject, public IGarrisonHolder, public CArtifactHolder
 {
 private:
 	struct OwnedObjectInfo
@@ -249,6 +247,7 @@ public:
 	CKingdomInterface();
 
 	void townChanged(const CGTownInstance *town);
+	void heroRemoved();
 	void updateGarrisons() override;
 	void artifactRemoved(const ArtifactLocation &artLoc) override;
 	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc, bool withRedraw) override;
@@ -257,7 +256,7 @@ public:
 };
 
 /// List item with town
-class CTownItem : public CIntObject, public CGarrisonHolder
+class CTownItem : public CIntObject, public IGarrisonHolder
 {
 	std::shared_ptr<CAnimImage> background;
 	std::shared_ptr<CAnimImage> picture;
@@ -284,7 +283,7 @@ public:
 };
 
 /// List item with hero
-class CHeroItem : public CIntObject, public CGarrisonHolder
+class CHeroItem : public CIntObject, public IGarrisonHolder
 {
 	const CGHeroInstance * hero;
 
@@ -309,7 +308,7 @@ class CHeroItem : public CIntObject, public CGarrisonHolder
 	std::shared_ptr<CIntObject> onTabSelected(size_t index);
 
 public:
-	std::shared_ptr<CArtifactsOfHero> heroArts;
+	std::shared_ptr<CArtifactsOfHeroKingdom> heroArts;
 
 	void updateGarrisons() override;
 
@@ -317,7 +316,7 @@ public:
 };
 
 /// Tab with all hero-specific data
-class CKingdHeroList : public CIntObject, public CGarrisonHolder, public CWindowWithArtifacts
+class CKingdHeroList : public CIntObject, public IGarrisonHolder, public CWindowWithArtifacts
 {
 private:
 	std::shared_ptr<CListBox> heroes;
@@ -333,7 +332,7 @@ public:
 };
 
 /// Tab with all town-specific data
-class CKingdTownList : public CIntObject, public CGarrisonHolder
+class CKingdTownList : public CIntObject, public IGarrisonHolder
 {
 private:
 	std::shared_ptr<CListBox> towns;

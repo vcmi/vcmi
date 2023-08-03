@@ -44,7 +44,7 @@ private:
 	bool unloadFrame(size_t frame, size_t group);
 
 	//initialize animation from file
-	//void initFromJson(const JsonNode & input);
+	void initFromJson(const JsonNode & input);
 	void init();
 
 	//to get rid of copy-pasting error message :]

@@ -18,10 +18,12 @@
 #include "../windows/InfoWindows.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
+#include "../render/Canvas.h"
 #include "../renderSDL/SDL_Extensions.h"
 
 #include <SDL_surface.h>
@@ -46,7 +48,7 @@ public:
 	std::shared_ptr<CComponent> comp;
 
 	//blit component with image centered at this position
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 
 	//ComponentResolved();
 	ComponentResolved(std::shared_ptr<CComponent> Comp);
@@ -242,7 +244,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 
 	assert(ret && ret->text);
 	for(int i = 0;
-		i < ARRAY_COUNT(sizes)
+		i < std::size(sizes)
 			&& sizes[i][0] < GH.screenDimensions().x - 150
 			&& sizes[i][1] < GH.screenDimensions().y - 150
 			&& ret->text->slider;
@@ -420,7 +422,7 @@ ComponentResolved::~ComponentResolved()
 	}
 }
 
-void ComponentResolved::showAll(SDL_Surface *to)
+void ComponentResolved::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 	comp->showAll(to);
@@ -500,7 +502,9 @@ void ComponentsToBlit::blitCompsOnSur( bool blitOr, int inter, int &curh, SDL_Su
 			cur->moveTo(Point(curw, curh));
 
 			//blit component
-			cur->showAll(ret);
+			Canvas canvas = Canvas::createFromSurface(ret);
+
+			cur->showAll(canvas);
 			curw += cur->pos.w;
 
 			//if there is subsequent component blit "or"

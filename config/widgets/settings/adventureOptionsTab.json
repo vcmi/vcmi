@@ -1,11 +1,13 @@
 {
+	"library" : "config/widgets/settings/library.json",
+
 	"items":
 	[
 		{
 			"name": "lineLabelsEnd",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 229, "w": 365, "h": 3}
 		},
 /////////////////////////////////////// Left section - Hero Speed and Map Scrolling
 		{
@@ -28,37 +30,39 @@
 		},
 
 		{
-			"name": "topSettingsLabels",
-			"type": "labelGroup",
-			"font": "medium",
-			"alignment": "center",
-			"color": "yellow",
+			"type" : "verticalLayout60",
+			"customType" : "labelCentered",
+			"position": {"x": 150, "y": 62},
 			"items":
 			[
 				{
-					"position": {"x": 150, "y": 62},
 					"text": "core.genrltxt.569" // Hero Speed
 				},
 				{
-					"position": {"x": 150, "y": 122},
 					"text": "core.genrltxt.570" // Enemy Speed
 				},
 				{
-					"position": {"x": 150, "y": 182},
 					"text": "core.genrltxt.571" // Scrolling Speed
 				}
 			]
 		},
-		
 		{
-			"name": "heroSpeedValueLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "center",
-			"color": "yellow",
-			"position": {"x": 324, "y": 90}
+			"type" : "verticalLayout60",
+			"customType" : "labelCentered",
+			"position": {"x": 324, "y": 90},
+			"items":
+			[
+				{
+					"name": "heroSpeedValueLabel"
+				},
+				{
+					"name": "enemySpeedValueLabel"
+				},
+				{
+					"name": "mapScrollingValueLabel"
+				}
+			]
 		},
-
 		{
 			"name": "heroMovementSpeedPicker",
 			"type": "toggleGroup",
@@ -110,16 +114,6 @@
 			],
 			"callback": "playerHeroSpeedChanged"
 		},
-
-		{
-			"name": "enemySpeedValueLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "center",
-			"color": "yellow",
-			"position": {"x": 324, "y": 150}
-		},
-
 		{
 			"name": "enemyMovementSpeedPicker",
 			"type": "toggleGroup",
@@ -175,15 +169,6 @@
 				}
 			],
 			"callback": "enemyHeroSpeedChanged"
-		},
-
-		{
-			"name": "mapScrollingValueLabel",
-			"type": "label",
-			"font": "medium",
-			"alignment": "center",
-			"color": "yellow",
-			"position": {"x": 324, "y": 210}
 		},
 		{
 			"name": "mapScrollSpeedPicker",
@@ -296,120 +281,118 @@
 		
 /////////////////////////////////////// Right section - Original H3 options
 		{
-			"name": "rightCheckboxesLabels",
-			"type": "labelGroup",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
+			"type" : "verticalLayout",
+			"customType" : "labelDescription",
+			"position": {"x": 415, "y": 55},
 			"items":
 			[
 				{
-					"position": {"x": 415, "y": 55},
 					"text": "core.genrltxt.572" // TODO: show move path
 				},
 				{
-					"position": {"x": 415, "y": 85},
 					"text": "core.genrltxt.573" // show hero reminder
 				},
 				{
-					"position": {"x": 415, "y": 115},
 					"text": "core.genrltxt.574" // quick combat
 				}
 			]
 		},
 		{
-			"name": "showMovePathPlaceholder",
-			"type": "picture",
-			"image": "settingsWindow/checkBoxEmpty",
+			"type" : "verticalLayout",
+			"customType" : "checkbox",
 			"position": {"x": 380, "y": 53},
-		},
-		{
-			"name": "heroReminderCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "core.help.361",
-			"position": {"x": 380, "y": 83},
-			"callback": "heroReminderChanged"
-		},
-		{
-			"name": "quickCombatCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "core.help.362",
-			"position": {"x": 380, "y": 113},
-			"callback": "quickCombatChanged"
-		},
-		
-/////////////////////////////////////// Bottom section - VCMI Options
-		{
-			"name": "bottomCheckboxesLabels",
-			"type": "labelGroup",
-			"font": "medium",
-			"alignment": "left",
-			"color": "white",
 			"items":
 			[
 				{
-					"position": {"x": 45, "y": 295},
+					"name": "showMovePathPlaceholder",
+					"type": "checkboxFake",
+				},
+				{
+					"name": "heroReminderCheckbox",
+					"help": "core.help.361",
+					"callback": "heroReminderChanged"
+				},
+				{
+					"name": "quickCombatCheckbox",
+					"help": "core.help.362",
+					"callback": "quickCombatChanged"
+				},
+			]
+		},
+/////////////////////////////////////// Bottom section - VCMI Options
+		{
+			"type": "verticalLayout",
+			"customType": "labelDescription",
+			"position": {"x": 45, "y": 235},
+			"items":
+			[
+				{
 					"text": "vcmi.adventureOptions.numericQuantities.hover"
 				},
 				{
-					"position": {"x": 45, "y": 325},
 					"text": "vcmi.adventureOptions.forceMovementInfo.hover"
 				},
 				{
-					"position": {"x": 45, "y": 355},
 					"text": "vcmi.adventureOptions.showGrid.hover"
 				},
 				{
-					"position": {"x": 45, "y": 385},
-					"text": "vcmi.adventureOptions.mapSwipe.hover"
+					"text": "vcmi.adventureOptions.infoBarPick.hover"
 				},
 				{
-					"position": {"x": 45, "y": 415},
-					"text": "vcmi.adventureOptions.infoBarPick.hover"
+					"text": "vcmi.adventureOptions.borderScroll.hover"
+				},
+				{
+					"text": "vcmi.adventureOptions.infoBarCreatureManagement.hover"
+				},
+				{
+					"text": "vcmi.adventureOptions.leftButtonDrag.hover",
+					"created" : "desktop"
 				}
 			]
 		},
 		{
-			"name": "numericQuantitiesCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "vcmi.adventureOptions.numericQuantities",
-			"position": {"x": 10, "y": 293},
-			"callback": "numericQuantitiesChanged"
-		},
-		{
-			"name": "forceMovementInfoCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "vcmi.adventureOptions.forceMovementInfo",
-			"position": {"x": 10, "y": 323},
-			"callback": "forceMovementInfoChanged"
-		},
-		{
-			"name": "showGridCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "vcmi.adventureOptions.showGrid",
-			"position": {"x": 10, "y": 353},
-			"callback": "showGridChanged"
-		},
-		{
-			"name": "mapSwipeCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "vcmi.adventureOptions.mapSwipe",
-			"position": {"x": 10, "y": 383},
-			"callback": "mapSwipeChanged"
-		},
-		{
-			"name": "infoBarPickCheckbox",
-			"type": "toggleButton",
-			"image": "sysopchk.def",
-			"help": "vcmi.adventureOptions.infoBarPick",
-			"position": {"x": 10, "y": 413},
-			"callback": "infoBarPickChanged"
+			"type": "verticalLayout",
+			"customType": "checkbox",
+			"position": {"x": 10, "y": 233},
+			"items":
+			[
+				{
+					"name": "numericQuantitiesCheckbox",
+					"help": "vcmi.adventureOptions.numericQuantities",
+					"callback": "numericQuantitiesChanged"
+				},
+				{
+					"name": "forceMovementInfoCheckbox",
+					"help": "vcmi.adventureOptions.forceMovementInfo",
+					"callback": "forceMovementInfoChanged"
+				},
+				{
+					"name": "showGridCheckbox",
+					"help": "vcmi.adventureOptions.showGrid",
+					"callback": "showGridChanged"
+				},
+				{
+					"name": "infoBarPickCheckbox",
+					"help": "vcmi.adventureOptions.infoBarPick",
+					"callback": "infoBarPickChanged"
+				},
+				{
+					"name": "borderScrollCheckbox",
+					"help": "vcmi.adventureOptions.borderScroll",
+					"callback": "borderScrollChanged"
+				},
+				{
+					"name": "infoBarCreatureManagementCheckbox",
+					"help": "vcmi.adventureOptions.infoBarCreatureManagement",
+					"callback": "infoBarCreatureManagementChanged"
+				},
+				{
+					"name": "leftButtonDragCheckbox",
+					"help": "vcmi.adventureOptions.leftButtonDrag",
+					"callback": "leftButtonDragChanged",
+					"created" : "desktop"
+				}
+			]
 		}
 	]
 }

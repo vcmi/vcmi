@@ -89,7 +89,7 @@ void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		server->apply(&cloneFlags);
 
 		SetStackEffect sse;
-		Bonus lifeTimeMarker(Bonus::N_TURNS, Bonus::NONE, Bonus::SPELL_EFFECT, 0, SpellID::CLONE); //TODO: use special bonus type
+		Bonus lifeTimeMarker(BonusDuration::N_TURNS, BonusType::NONE, BonusSource::SPELL_EFFECT, 0, SpellID::CLONE); //TODO: use special bonus type
 		lifeTimeMarker.turnsRemain = m->getEffectDuration();
 		std::vector<Bonus> buffer;
 		buffer.push_back(lifeTimeMarker);

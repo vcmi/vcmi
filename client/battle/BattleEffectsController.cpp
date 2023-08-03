@@ -65,21 +65,21 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 		return;
 	}
 	//don't show animation when no HP is regenerated
-	switch(bte.effect)
+	switch(static_cast<BonusType>(bte.effect))
 	{
-		case Bonus::HP_REGENERATION:
+		case BonusType::HP_REGENERATION:
 			displayEffect(EBattleEffect::REGENERATION, "REGENER", stack->getPosition());
 			break;
-		case Bonus::MANA_DRAIN:
+		case BonusType::MANA_DRAIN:
 			displayEffect(EBattleEffect::MANA_DRAIN, "MANADRAI", stack->getPosition());
 			break;
-		case Bonus::POISON:
+		case BonusType::POISON:
 			displayEffect(EBattleEffect::POISON, "POISON", stack->getPosition());
 			break;
-		case Bonus::FEAR:
+		case BonusType::FEAR:
 			displayEffect(EBattleEffect::FEAR, "FEAR", stack->getPosition());
 			break;
-		case Bonus::MORALE:
+		case BonusType::MORALE:
 		{
 			std::string hlp = CGI->generaltexth->allTexts[33];
 			boost::algorithm::replace_first(hlp,"%s",(stack->getName()));
@@ -122,7 +122,7 @@ void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer
 			int currentFrame = static_cast<int>(floor(elem.currentFrame));
 			currentFrame %= elem.animation->size();
 
-			auto img = elem.animation->getImage(currentFrame);
+			auto img = elem.animation->getImage(currentFrame, static_cast<size_t>(elem.type));
 
 			canvas.draw(img, elem.pos);
 		});

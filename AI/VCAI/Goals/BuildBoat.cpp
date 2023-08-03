@@ -12,8 +12,6 @@
 #include "../VCAI.h"
 #include "../FuzzyHelper.h"
 #include "../AIhelper.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
@@ -23,14 +21,14 @@ using namespace Goals;
 
 bool BuildBoat::operator==(const BuildBoat & other) const
 {
-	return shipyard->o->id == other.shipyard->o->id;
+	return shipyard == other.shipyard;
 }
 
 TSubgoal BuildBoat::whatToDoToAchieve()
 {
-	if(cb->getPlayerRelations(ai->playerID, shipyard->o->tempOwner) == PlayerRelations::ENEMIES)
+	if(cb->getPlayerRelations(ai->playerID, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 	{
-		return fh->chooseSolution(ai->ah->howToVisitObj(shipyard->o));
+		return fh->chooseSolution(ai->ah->howToVisitObj(dynamic_cast<const CGObjectInstance*>(shipyard)));
 	}
 
 	if(shipyard->shipyardStatus() != IShipyard::GOOD)
@@ -54,7 +52,7 @@ void BuildBoat::accept(VCAI * ai)
 		throw cannotFulfillGoalException("Can not afford boat");
 	}
 
-	if(cb->getPlayerRelations(ai->playerID, shipyard->o->tempOwner) == PlayerRelations::ENEMIES)
+	if(cb->getPlayerRelations(ai->playerID, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 	{
 		throw cannotFulfillGoalException("Can not build boat in enemy shipyard");
 	}
@@ -65,9 +63,8 @@ void BuildBoat::accept(VCAI * ai)
 	}
 
 	logAi->trace(
-		"Building boat at shipyard %s located at %s, estimated boat position %s", 
-		shipyard->o->getObjectName(),
-		shipyard->o->visitablePos().toString(),
+		"Building boat at shipyard located at %s, estimated boat position %s",
+		shipyard->getObject()->visitablePos().toString(),
 		shipyard->bestLocation().toString());
 
 	cb->buildBoat(shipyard);
@@ -82,5 +79,5 @@ std::string BuildBoat::name() const
 
 std::string BuildBoat::completeMessage() const
 {
-	return "Boat have been built at " + shipyard->o->visitablePos().toString();
+	return "Boat have been built at " + shipyard->getObject()->visitablePos().toString();
 }

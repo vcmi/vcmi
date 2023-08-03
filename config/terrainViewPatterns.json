@@ -34,7 +34,7 @@
 				"N", "N", "T",
 				"N", "T", "T"
 			],
-			"mapping" : { "normal" : "73,74", "dirt" : "45" }
+			"mapping" : { "normal" : "73,74", "dirt" : "45", "hota" : "118,119" }
 		},
 		{
 			"id" : "x2",
@@ -44,7 +44,7 @@
 				"D", "N", "N",
 				"N", "N", "S"
 			],
-			"mapping" : { "normal" : "75" }
+			"mapping" : { "normal" : "75", "hota" : "120" }
 		},
 		{
 			"id" : "x3",
@@ -54,7 +54,7 @@
 				"S", "N", "N",
 				"N", "N", "D"
 			],
-			"mapping" : { "normal" : "76" }
+			"mapping" : { "normal" : "76", "hota" : "121" }
 		},
 		{
 			"id" : "x4",
@@ -64,7 +64,7 @@
 				"N", "N", "D",
 				"S", "D", "D"
 			],
-			"mapping" : { "normal" : "77" }
+			"mapping" : { "normal" : "77", "hota" : "122" }
 		},
 		{
 			"id" : "x5",
@@ -74,7 +74,7 @@
 				"N", "N", "D",
 				"D", "D", "S"
 			],
-			"mapping" : { "normal" : "78" }
+			"mapping" : { "normal" : "78", "hota" : "123" }
 		},
 		// No transition
 		{
@@ -85,7 +85,7 @@
 				"N", "N", "N",
 				"N", "N", "N"
 			],
-			"mapping" : { "normal" : "49-72", "dirt" : "21-44", "sand" : "0-23", "water" : "20-32", "rock": "0-7" }
+			"mapping" : { "normal" : "49-72", "dirt" : "21-44", "sand" : "0-23", "water" : "20-32", "rock": "0-7", "hota" : "77-117" }
 		},
 		// Mixed transitions
 		{
@@ -96,7 +96,7 @@
 				"N", "N", "N",
 				"N", "N", "T"
 			],
-			"mapping" : { "normal" : "40, 42", "dirt" : "20" }
+			"mapping" : { "normal" : "40, 42", "dirt" : "20", "hota" : "68, 70" }
 		},
 		{
 			"id" : "m2",
@@ -106,7 +106,7 @@
 				"N", "N", "N",
 				"N", "N", "S"
 			],
-			"mapping" : { "normal" : "41" }
+			"mapping" : { "normal" : "41", "hota" : "69" }
 		},
 		{
 			"id" : "m3",
@@ -116,7 +116,7 @@
 				"N", "N", "D",
 				"S", "D,N", "D,N"
 			],
-			"mapping" : { "normal" : "43" }
+			"mapping" : { "normal" : "43", "hota" : "71" }
 		},
 		{
 			"id" : "m4",
@@ -126,7 +126,7 @@
 				"N", "N", "D",
 				"D,N", "D", "D,N"
 			],
-			"mapping" : { "normal" : "44" }
+			"mapping" : { "normal" : "44", "hota" : "72" }
 		},
 		{
 			"id" : "m5",
@@ -136,7 +136,7 @@
 				"N", "N", "D",
 				"N", "N", "S"
 			],
-			"mapping" : { "normal" : "45" }
+			"mapping" : { "normal" : "45", "hota" : "73" }
 		},
 		{
 			"id" : "m6",
@@ -146,7 +146,7 @@
 				"N", "N", "N",
 				"D,N", "D", "S"
 			],
-			"mapping" : { "normal" : "46" }
+			"mapping" : { "normal" : "46", "hota" : "74" }
 		},
 		{
 			"id" : "m7",
@@ -157,7 +157,7 @@
 				"D-1,N", "D-1,N", "?"
 			],
 			"minPoints" : 1,
-			"mapping" : { "normal" : "47" }
+			"mapping" : { "normal" : "47", "hota" : "75" }
 		},
 		{
 			"id" : "m8",
@@ -168,7 +168,7 @@
 				"?", "S", "?"
 			],
 			"minPoints" : 1,
-			"mapping" : { "normal" : "48" }
+			"mapping" : { "normal" : "48", "hota" : "76" }
 		},
 		// Standard transitions
 		{
@@ -179,7 +179,7 @@
 				"T", "N", "N",
 				"?", "N", "N"
 			],
-			"mapping" : { "normal" : "4-7, 24-27", "dirt" : "4-7", "water" : "4-7", "rock": "2D:16-19" }
+			"mapping" : { "normal" : "4-7, 24-27", "dirt" : "4-7", "water" : "4-7", "rock": "2D:16-19", "hota" : "6-13, 40-47" }
 		},
 		{
 			"id" : "s3",
@@ -189,7 +189,7 @@
 				"N", "N", "N",
 				"N", "N", "N"
 			],
-			"mapping" : { "normal" : "8-11, 28-31", "dirt" : "8-11", "water" : "8-11", "rock": "2D:20-23" }
+			"mapping" : { "normal" : "8-11, 28-31", "dirt" : "8-11", "water" : "8-11", "rock": "2D:20-23", "hota" : "14-21,48-55" }
 		},
 		{
 			"id" : "s4",
@@ -200,7 +200,7 @@
 				"N", "s2-1,m7-1,m8-1", "T"
 			],
 			"minPoints" : 2,
-			"mapping" : { "normal" : "12-15, 32-35", "dirt" : "12-15", "water" : "12-15", "rock": "4D:24-31" }
+			"mapping" : { "normal" : "12-15, 32-35", "dirt" : "12-15", "water" : "12-15", "rock": "4D:24-31", "hota" : "22-27,56-61" }
 		},
 		{
 			"id" : "s5",
@@ -211,7 +211,7 @@
 				"?,x1-1,s1-1", "s6-1,m1-1,m2-1,N", "N"
 			],
 			"minPoints" : 1,
-			"mapping" : { "normal" : "16-17, 36-37", "dirt" : "16-17", "water" : "16-17", "rock": "4D:32-39" }
+			"mapping" : { "normal" : "16-17, 36-37", "dirt" : "16-17", "water" : "16-17", "rock": "4D:32-39", "hota" : "28-30,62-64" }
 		},
 		{
 			"id" : "s6",
@@ -222,7 +222,7 @@
 				"N", "s5-1,N", "T"
 			],
 			"minPoints" : 1,
-			"mapping" : { "normal" : "18-19, 38-39", "dirt" : "18-19", "water" : "18-19", "rock": "4D:40-47" }
+			"mapping" : { "normal" : "18-19, 38-39", "dirt" : "18-19", "water" : "18-19", "rock": "4D:40-47", "hota" : "31-33,65-67" }
 		},
 		{
 			"id" : "s1",
@@ -232,7 +232,7 @@
 				"?", "N", "N",
 				"T", "N", "N"
 			],
-			"mapping" : { "normal" : "0-3, 20-23", "dirt" : "0-3", "water" : "0-3", "rock": "4D:8-15" }
+			"mapping" : { "normal" : "0-3, 20-23", "dirt" : "0-3", "water" : "0-3", "rock": "4D:8-15", "hota" : "0-5,34-39" }
 		}
 	],
 	"terrainType" :

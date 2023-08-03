@@ -11,15 +11,18 @@
 #include "StartInfo.h"
 
 #include "CGeneralTextHandler.h"
+#include "CModHandler.h"
+#include "VCMI_Lib.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapping/CMapInfo.h"
-#include "mapping/CCampaignHandler.h"
-#include "mapping/CMap.h"
+#include "campaign/CampaignState.h"
+#include "mapping/CMapHeader.h"
+#include "mapping/CMapService.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 PlayerSettings::PlayerSettings()
-	: bonus(RANDOM), castle(NONE), hero(RANDOM), heroPortrait(RANDOM), color(0), handicap(NO_HANDICAP), team(0), compOnly(false)
+	: bonus(RANDOM), castle(NONE), hero(RANDOM), heroPortrait(RANDOM), color(0), handicap(NO_HANDICAP), compOnly(false)
 {
 
 }
@@ -59,16 +62,24 @@ PlayerSettings * StartInfo::getPlayersSettings(const ui8 connectedPlayerId)
 
 std::string StartInfo::getCampaignName() const
 {
-	if(campState->camp->header.name.length())
-		return campState->camp->header.name;
+	if(!campState->getName().empty())
+		return campState->getName();
 	else
 		return VLC->generaltexth->allTexts[508];
 }
 
 void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 {
-	if(!mi)
+	if(!mi || !mi->mapHeader)
 		throw std::domain_error("ExceptionMapMissing");
+	
+	auto missingMods = CMapService::verifyMapHeaderMods(*mi->mapHeader);
+	CModHandler::Incompatibility::ModList modList;
+	for(const auto & m : missingMods)
+		modList.push_back({m.first, m.second.toString()});
+	
+	if(!modList.empty())
+		throw CModHandler::Incompatibility(std::move(modList));
 
 	//there must be at least one human player before game can be started
 	std::map<PlayerColor, PlayerSettings>::const_iterator i;

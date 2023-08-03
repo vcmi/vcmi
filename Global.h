@@ -41,6 +41,10 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  define VCMI_UNIX
 #  define VCMI_XDG
 #  define VCMI_FREEBSD
+#elif defined(__HAIKU__)
+#  define VCMI_UNIX
+#  define VCMI_XDG
+#  define VCMI_HAIKU
 #elif defined(__GNU__) || defined(__gnu_hurd__) || (defined(__MACH__) && !defined(__APPLE__))
 #  define VCMI_UNIX
 #  define VCMI_XDG
@@ -67,22 +71,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define VCMI_MOBILE
 #endif
 
-// Each compiler uses own way to supress fall through warning. Try to find it.
-// TODO: replace with c++17 [[fallthrough]]
-#ifdef __has_cpp_attribute
-#  if __has_cpp_attribute(fallthrough)
-#    define FALLTHROUGH [[fallthrough]];
-#  elif __has_cpp_attribute(gnu::fallthrough)
-#    define FALLTHROUGH [[gnu::fallthrough]];
-#  elif __has_cpp_attribute(clang::fallthrough)
-#    define FALLTHROUGH [[clang::fallthrough]];
-#  else
-#    define FALLTHROUGH
-#  endif
-#else
-#  define FALLTHROUGH
-#endif
-
 /* ---------------------------------------------------------------------------- */
 /* Commonly used C++, Boost headers */
 /* ---------------------------------------------------------------------------- */
@@ -97,10 +85,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #    define _NO_W32_PSEUDO_MODIFIERS // Exclude more macros for compiling with MinGW on Linux.
 #  endif
 #endif
-
-#ifdef VCMI_ANDROID
-#  define NO_STD_TOSTRING // android runtime (gnustl) currently doesn't support std::to_string, so we provide our impl in this case
-#endif // VCMI_ANDROID
 
 /* ---------------------------------------------------------------------------- */
 /* A macro to force inlining some of our functions */
@@ -117,6 +101,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define _USE_MATH_DEFINES
 
 #include <algorithm>
+#include <any>
 #include <array>
 #include <atomic>
 #include <bitset>
@@ -155,23 +140,18 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define BOOST_THREAD_USE_DLL //for example VCAI::finish() may freeze on thread join after interrupt when linking this statically
 #define BOOST_BIND_NO_PLACEHOLDERS
 
-#if defined(_MSC_VER) && (_MSC_VER == 1900 || _MSC_VER == 1910 || _MSC_VER == 1911)
-#define BOOST_NO_CXX11_VARIADIC_TEMPLATES //Variadic templates are buggy in VS2015 and VS2017, so turn this off to avoid compile errors
-#endif
 #if BOOST_VERSION >= 106600
 #define BOOST_ASIO_ENABLE_OLD_SERVICES
 #endif
 
 #include <boost/algorithm/string.hpp>
-#include <boost/any.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/current_function.hpp>
 #include <boost/crc.hpp>
+#include <boost/current_function.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/posix_time/posix_time_io.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/filesystem/path.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem/path.hpp>
 #include <boost/format.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/lexical_cast.hpp>
@@ -179,15 +159,11 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/locale/generator.hpp>
 #endif
 #include <boost/logic/tribool.hpp>
-#include <boost/optional.hpp>
-#include <boost/optional/optional_io.hpp>
+#include <boost/multi_array.hpp>
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/range/algorithm.hpp>
 #include <boost/thread.hpp>
-#include <boost/variant.hpp>
-#include <boost/math/special_functions/round.hpp>
-#include <boost/multi_array.hpp>
 
 #ifndef M_PI
 #  define M_PI 3.14159265358979323846
@@ -213,8 +189,8 @@ typedef int16_t si16; //signed int 16 bits (2 bytes)
 typedef int8_t si8; //signed int 8 bits (1 byte)
 
 // Lock typedefs
-typedef boost::lock_guard<boost::mutex> TLockGuard;
-typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
+using TLockGuard = std::lock_guard<std::mutex>;
+using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 
 /* ---------------------------------------------------------------------------- */
 /* Macros */
@@ -248,14 +224,6 @@ typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
 
 #define THROW_FORMAT(message, formatting_elems)  throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
 
-// can be used for counting arrays
-template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
-#define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))
-
-// should be used for variables that becomes unused in release builds (e.g. only used for assert checks)
-// TODO: replace with c++17 [[maybe_unused]]
-#define MAYBE_UNUSED(VAR) ((void)VAR)
-
 // old iOS SDKs compatibility
 #ifdef VCMI_IOS
 #include <AvailabilityVersions.h>
@@ -275,7 +243,7 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 #define VCMI_LIB_NAMESPACE_BEGIN
 #define VCMI_LIB_NAMESPACE_END
 #define VCMI_LIB_USING_NAMESPACE
-#define VCMI_LIB_WRAP_NAMESPACE(x) x
+#define VCMI_LIB_WRAP_NAMESPACE(x) ::x
 #endif
 
 /* ---------------------------------------------------------------------------- */
@@ -285,29 +253,8 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void inline handleException()
-{
-	try
-	{
-		throw;
-	}
-	catch(const std::exception & ex)
-	{
-		logGlobal->error(ex.what());
-	}
-	catch(const std::string & ex)
-	{
-		logGlobal->error(ex);
-	}
-	catch(...)
-	{
-		logGlobal->error("Sorry, caught unknown exception type. No more info available.");
-	}
-}
-
 namespace vstd
 {
-
 	// combine hashes. Present in boost but not in std
 	template <class T>
 	inline void hash_combine(std::size_t& seed, const T& v)
@@ -441,27 +388,11 @@ namespace vstd
 		}
 	}
 
-	// c++17: makes a to fit the range <b, c>
-	template <typename t1, typename t2, typename t3>
-	t1 clamp(const t1 &value, const t2 &low, const t3 &high)
-	{
-		if ( value > high)
-			return high;
-
-		if ( value < low)
-			return low;
-
-		return value;
-	}
-
-
 	//makes a to fit the range <b, c>
-	template <typename t1, typename t2, typename t3>
-	t1 &abetween(t1 &a, const t2 &b, const t3 &c)
+	template <typename T>
+	void abetween(T &value, const T &min, const T &max)
 	{
-		amax(a,b);
-		amin(a,c);
-		return a;
+		value = std::clamp(value, min, max);
 	}
 
 	//checks if a is between b and c
@@ -492,14 +423,6 @@ namespace vstd
 			op1 = op2;
 		}
 	};
-
-	// Assigns value a2 to a1. The point of time of the real operation can be controlled
-	// with the () operator.
-	template <typename t1, typename t2>
-	assigner<t1,t2> assigno(t1 &a1, const t2 &a2)
-	{
-		return assigner<t1,t2>(a1,a2);
-	}
 
 	//deleted pointer and sets it to nullptr
 	template <typename T>
@@ -561,7 +484,7 @@ namespace vstd
 	template<typename InputRange, typename OutputIterator, typename Predicate>
 	OutputIterator copy_if(const InputRange &input, OutputIterator result, Predicate pred)
 	{
-		return std::copy_if(boost::const_begin(input), std::end(input), result, pred);
+		return std::copy_if(std::cbegin(input), std::end(input), result, pred);
 	}
 
 	template <typename Container>
@@ -600,10 +523,12 @@ namespace vstd
 		});
 	}
 
+	/// Increments value by specific delta
+	/// similar to std::next but works with other types, e.g. enum class
 	template<typename T>
-	void advance(T &obj, int change)
+	T next(const T &obj, int change)
 	{
-		obj = (T)(((int)obj) + change);
+		return static_cast<T>(static_cast<ptrdiff_t>(obj) + change);
 	}
 
 	template <typename Container>
@@ -628,28 +553,6 @@ namespace vstd
 	bool isValidIndex(const Container &c, Index i)
 	{
 		return i >= 0  &&  i < c.size();
-	}
-
-	template <typename Container, typename Index>
-	boost::optional<typename Container::const_reference> tryAt(const Container &c, Index i)
-	{
-		if(isValidIndex(c, i))
-		{
-			auto itr = c.begin();
-			std::advance(itr, i);
-			return *itr;
-		}
-		return boost::none;
-	}
-
-	template <typename Container, typename Pred>
-	static boost::optional<typename Container::const_reference> tryFindIf(const Container &r, const Pred &t)
-	{
-		auto pos = range::find_if(r, t);
-		if(pos == boost::end(r))
-			return boost::none;
-		else
-			return *pos;
 	}
 
 	template <typename Container>
@@ -689,7 +592,7 @@ namespace vstd
 	template<typename T>
 	void removeDuplicates(std::vector<T> &vec)
 	{
-		boost::sort(vec);
+		std::sort(vec.begin(), vec.end());
 		vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
 	}
 
@@ -710,6 +613,14 @@ namespace vstd
 		return v3;
 	}
 
+	template <typename T>
+	std::set<T> difference(const std::set<T> &s1, const std::set<T> s2)
+	{
+		std::set<T> s3;
+		std::set_difference(s1.begin(), s1.end(), s2.begin(), s2.end(), std::inserter(s3, s3.end()));
+		return s3;
+	}
+
 	template <typename Key, typename V>
 	bool containsMapping(const std::multimap<Key,V> & map, const std::pair<const Key,V> & mapping)
 	{
@@ -722,8 +633,8 @@ namespace vstd
 		return false;
 	}
 
-	template <class M, class Key, class F>
-	typename M::mapped_type & getOrCompute(M & m, Key const & k, F f)
+	template<class M, class Key, class F>
+	typename M::mapped_type & getOrCompute(M & m, const Key & k, F f)
 	{
 		typedef typename M::mapped_type V;
 
@@ -743,27 +654,18 @@ namespace vstd
 		return a + (b - a) * f;
 	}
 
-
 	///compile-time version of std::abs for ints for int3, in clang++15 std::abs is constexpr
 	static constexpr int abs(int i) {
 		if(i < 0) return -i;
 		return i;
 	}
+
+	///C++23
+	template< class Enum > constexpr std::underlying_type_t<Enum> to_underlying( Enum e ) noexcept
+	{
+		return static_cast<std::underlying_type_t<Enum>>(e);
+	}
 }
 using vstd::operator-=;
 
 VCMI_LIB_NAMESPACE_END
-
-
-#ifdef NO_STD_TOSTRING
-namespace std
-{
-	template <typename T>
-	inline std::string to_string(const T& value)
-	{
-		std::ostringstream ss;
-		ss << value;
-		return ss.str();
-	}
-}
-#endif // NO_STD_TOSTRING

@@ -29,7 +29,6 @@ public:
 	void spendMana(ServerCallback * server, const int32_t spellCost) const override;
 
 private:
-	const battle::Unit * actualCaster;
 	int32_t baseSpellLevel;
 };
 

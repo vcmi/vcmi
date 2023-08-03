@@ -15,17 +15,15 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CStopWatch.h"
-#include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/CPathfinder.h"
 #include "../../CCallback.h"
 
 class CCallback;
 struct creInfo;
 
-typedef const int3 & crint3;
-typedef const std::string & crstring;
-typedef std::pair<ui32, std::vector<CreatureID>> dwellingContent;
+using crint3 = const int3 &;
+using crstring = const std::string &;
+using dwellingContent = std::pair<ui32, std::vector<CreatureID>>;
 
 const int GOLD_MINE_PRODUCTION = 1000, WOOD_ORE_MINE_PRODUCTION = 2, RESOURCE_MINE_PRODUCTION = 1;
 const int ACTUAL_RESOURCE_COUNT = 7;
@@ -152,7 +150,7 @@ struct creInfo
 {
 	int count;
 	CreatureID creID;
-	CCreature * cre;
+	const Creature * cre;
 	int level;
 };
 creInfo infoFromDC(const dwellingContent & dc);

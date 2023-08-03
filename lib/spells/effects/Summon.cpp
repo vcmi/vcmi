@@ -58,19 +58,19 @@ bool Summon::applicable(Problem & problem, const Mechanics * m) const
 			const auto *elemental = otherSummoned.front();
 
 			MetaString text;
-			text.addTxt(MetaString::GENERAL_TXT, 538);
+			text.appendLocalString(EMetaText::GENERAL_TXT, 538);
 
 			const auto *caster = dynamic_cast<const CGHeroInstance *>(m->caster);
 			if(caster)
 			{
-				text.addReplacement(caster->getNameTranslated());
+				text.replaceRawString(caster->getNameTranslated());
 
-				text.addReplacement(MetaString::CRE_PL_NAMES, elemental->creatureIndex());
+				text.replaceLocalString(EMetaText::CRE_PL_NAMES, elemental->creatureIndex());
 
-				if(caster->type->sex)
-					text.addReplacement(MetaString::GENERAL_TXT, 540);
+				if(caster->type->gender == EHeroGender::FEMALE)
+					text.replaceLocalString(EMetaText::GENERAL_TXT, 540);
 				else
-					text.addReplacement(MetaString::GENERAL_TXT, 539);
+					text.replaceLocalString(EMetaText::GENERAL_TXT, 539);
 
 			}
 			problem.add(std::move(text), Problem::NORMAL);
@@ -94,7 +94,7 @@ void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 		{
 			const battle::Unit * summoned = dest.unitValue;
 			std::shared_ptr<battle::Unit> state = summoned->acquire();
-			int64_t healthValue = (summonByHealth ? valueWithBonus : (valueWithBonus * summoned->MaxHealth()));
+			int64_t healthValue = (summonByHealth ? valueWithBonus : (valueWithBonus * summoned->getMaxHealth()));
 			state->heal(healthValue, EHealLevel::OVERHEAL, (permanent ? EHealPower::PERMANENT : EHealPower::ONE_BATTLE));
 			pack.changedStacks.emplace_back(summoned->unitId(), UnitChanges::EOperation::RESET_STATE);
 			state->save(pack.changedStacks.back().data);

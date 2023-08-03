@@ -14,8 +14,8 @@
 
 #if BOOST_VERSION >= 107000  // Boost version >= 1.70
 #include <boost/asio.hpp>
-typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp > TSocket;
-typedef boost::asio::basic_socket_acceptor < boost::asio::ip::tcp > TAcceptor;
+using TSocket = boost::asio::basic_stream_socket<boost::asio::ip::tcp>;
+using TAcceptor = boost::asio::basic_socket_acceptor<boost::asio::ip::tcp>;
 #else
 namespace boost
 {

@@ -11,7 +11,7 @@
 #include <boost/asio.hpp>
 
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/mapping/CCampaignHandler.h"
+#include "../lib/campaign/CampaignState.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/CModHandler.h"
@@ -25,7 +25,7 @@
 #include "zlib.h"
 #include "CVCMIServer.h"
 #include "../lib/StartInfo.h"
-#include "../lib/mapping/CMap.h"
+#include "../lib/mapping/CMapHeader.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/NetPackVisitor.h"
 #include "LobbyNetPackVisitors.h"
@@ -39,6 +39,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 #include "CGameHandler.h"
+#include "PlayerMessageProcessor.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/GameConstants.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
@@ -57,7 +58,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
-#include "../lib/CGameState.h"
+#include "../lib/gameState/CGameState.h"
 
 template<typename T> class CApplyOnServer;
 
@@ -296,8 +297,8 @@ bool CVCMIServer::prepareToStartGame()
 	{
 	case StartInfo::CAMPAIGN:
 		logNetwork->info("Preparing to start new campaign");
-		si->campState->currentMap = boost::make_optional(campaignMap);
-		si->campState->chosenCampaignBonuses[campaignMap] = campaignBonus;
+		si->campState->setCurrentMap(campaignMap);
+		si->campState->setCurrentMapBonus(campaignBonus);
 		gh->init(si.get());
 		break;
 
@@ -375,10 +376,10 @@ class CVCMIServerPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
 private:
 	CVCMIServer & handler;
-	CGameHandler & gh;
+	std::shared_ptr<CGameHandler> gh;
 
 public:
-	CVCMIServerPackVisitor(CVCMIServer & handler, CGameHandler & gh)
+	CVCMIServerPackVisitor(CVCMIServer & handler, std::shared_ptr<CGameHandler> gh)
 			:handler(handler), gh(gh)
 	{
 	}
@@ -392,7 +393,10 @@ public:
 
 	virtual void visitForServer(CPackForServer & serverPack) override
 	{
-		gh.handleReceivedPack(&serverPack);
+		if (gh)
+			gh->handleReceivedPack(&serverPack);
+		else
+			logNetwork->error("Received pack for game server while in lobby!");
 	}
 
 	virtual void visitForClient(CPackForClient & clientPack) override
@@ -405,54 +409,39 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 	setThreadName("CVCMIServer::handleConnection");
 	c->enterLobbyConnectionMode();
 
-#ifndef _MSC_VER
-	try
+	while(c->connected)
 	{
-#endif
-		while(c->connected)
-		{
-			CPack * pack;
-			
-			try
-			{
-				pack = c->retrievePack();
-			}
-			catch(boost::system::system_error & e)
-			{
-				logNetwork->error("Network error receiving a pack. Connection %s dies. What happened: %s", c->toString(), e.what());
-				hangingConnections.insert(c);
-				connections.erase(c);
-				if(connections.empty() || hostClient == c)
-					state = EServerState::SHUTDOWN;
-				
-				if(gh && state == EServerState::GAMEPLAY)
-				{
-					gh->handleClientDisconnection(c);
-				}
-				break;
-			}
+		CPack * pack;
 
-			CVCMIServerPackVisitor visitor(*this, *this->gh);
-			pack->visit(visitor);
+		try
+		{
+			pack = c->retrievePack();
 		}
-#ifndef _MSC_VER
-	 }
-	catch(const std::exception & e)
-	{
-        (void)e;
-		boost::unique_lock<boost::recursive_mutex> queueLock(mx);
-		logNetwork->error("%s dies... \nWhat happened: %s", c->toString(), e.what());
+		catch(boost::system::system_error & e)
+		{
+			if (e.code() == boost::asio::error::eof)
+				logNetwork->error("Network error receiving a pack. Connection has been closed");
+			else
+				logNetwork->error("Network error receiving a pack. Connection %s dies. What happened: %s", c->toString(), e.what());
+
+			hangingConnections.insert(c);
+			connections.erase(c);
+			if(connections.empty() || hostClient == c)
+				state = EServerState::SHUTDOWN;
+
+			if(gh && state == EServerState::GAMEPLAY)
+			{
+				gh->handleClientDisconnection(c);
+			}
+			break;
+		}
+
+		CVCMIServerPackVisitor visitor(*this, this->gh);
+		pack->visit(visitor);
 	}
-	catch(...)
-	{
-		state = EServerState::SHUTDOWN;
-		handleException();
-		throw;
-	}
-#endif
 
 	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
-//	if(state != ENDING_AND_STARTING_GAME)
+
 	if(c->connected)
 	{
 		auto lcd = std::make_unique<LobbyClientDisconnected>();
@@ -602,7 +591,7 @@ void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
 		
 		if(gh && si && state == EServerState::GAMEPLAY)
 		{
-			gh->playerMessage(playerSettings->color, playerLeftMsgText, ObjectInstanceID{});
+			gh->playerMessages->broadcastMessage(playerSettings->color, playerLeftMsgText);
 			gh->connections[playerSettings->color].insert(hostClient);
 			startAiPack.players.push_back(playerSettings->color);
 		}
@@ -630,7 +619,7 @@ void CVCMIServer::reconnectPlayer(int connId)
 				continue;
 			
 			std::string messageText = boost::str(boost::format("%s (cid %d) is connected") % playerSettings->name % connId);
-			gh->playerMessage(playerSettings->color, messageText, ObjectInstanceID{});
+			gh->playerMessages->broadcastMessage(playerSettings->color, messageText);
 			
 			startAiPack.players.push_back(playerSettings->color);
 		}
@@ -665,7 +654,7 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 		si = CMemorySerializer::deepCopy(*mi->scenarioOptionsOfSave);
 		si->mode = StartInfo::LOAD_GAME;
 		if(si->campState)
-			campaignMap = si->campState->currentMap.get();
+			campaignMap = si->campState->currentScenario().value();
 
 		for(auto & ps : si->playerInfos)
 		{
@@ -681,7 +670,7 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 	}
 	else if(si->mode == StartInfo::NEW_GAME || si->mode == StartInfo::CAMPAIGN)
 	{
-		if(mi->campaignHeader)
+		if(mi->campaign)
 			return;
 
 		for(int i = 0; i < mi->mapHeader->players.size(); i++)
@@ -819,7 +808,7 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 {
 	PlayerSettings & s = si->playerInfos[player];
-	si16 & cur = s.castle;
+	FactionID & cur = s.castle;
 	auto & allowed = getPlayerInfo(player.getNum()).allowedFactions;
 	const bool allowRandomTown = getPlayerInfo(player.getNum()).isFactionRandom;
 
@@ -853,7 +842,7 @@ void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 		else
 		{
 			assert(dir >= -1 && dir <= 1); //othervice std::advance may go out of range
-			auto iter = allowed.find((ui8)cur);
+			auto iter = allowed.find(cur);
 			std::advance(iter, dir);
 			cur = *iter;
 		}
@@ -867,10 +856,10 @@ void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 		s.bonus = PlayerSettings::RANDOM;
 }
 
-void CVCMIServer::setCampaignMap(int mapId)
+void CVCMIServer::setCampaignMap(CampaignScenarioID mapId)
 {
 	campaignMap = mapId;
-	si->difficulty = si->campState->camp->scenarios[mapId].difficulty;
+	si->difficulty = si->campState->scenario(mapId).difficulty;
 	campaignBonus = -1;
 	updateStartInfoOnMapChange(si->campState->getMapInfo(mapId));
 }
@@ -879,9 +868,9 @@ void CVCMIServer::setCampaignBonus(int bonusId)
 {
 	campaignBonus = bonusId;
 
-	const CCampaignScenario & scenario = si->campState->camp->scenarios[campaignMap];
-	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
-	if(bonDescs[bonusId].type == CScenarioTravel::STravelBonus::HERO)
+	const CampaignScenario & scenario = si->campState->scenario(campaignMap);
+	const std::vector<CampaignBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
+	if(bonDescs[bonusId].type == CampaignBonusType::HERO)
 	{
 		for(auto & elem : si->playerInfos)
 		{
@@ -1018,7 +1007,7 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 		{
 			po::store(po::parse_command_line(argc, argv, opts), options);
 		}
-		catch(std::exception & e)
+		catch(po::error & e)
 		{
 			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
@@ -1108,10 +1097,6 @@ int main(int argc, const char * argv[])
 		{
 			logNetwork->error(e.what());
 			server.state = EServerState::SHUTDOWN;
-		}
-		catch(...)
-		{
-			handleException();
 		}
 	}
 	catch(boost::system::system_error & e)

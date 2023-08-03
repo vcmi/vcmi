@@ -12,8 +12,8 @@
 #include <vstd/ContainerUtils.h>
 #include <boost/bimap.hpp>
 #include "CRmgTemplate.h"
+#include "Functions.h"
 
-#include "../mapping/CMap.h"
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
 #include "../CModHandler.h"
@@ -65,6 +65,7 @@ void CTreasureInfo::serializeJson(JsonSerializeFormat & handler)
 namespace rmg
 {
 
+//FIXME: This is never used, instead TerrainID is used
 class TerrainEncoder
 {
 public:
@@ -137,17 +138,14 @@ ZoneOptions::ZoneOptions():
 	type(ETemplateZoneType::PLAYER_START),
 	size(1),
 	maxTreasureValue(0),
-	owner(boost::none),
+	owner(std::nullopt),
 	matchTerrainToTown(true),
 	townsAreSameType(false),
-	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL),
+	monsterStrength(EMonsterStrength::ZONE_NORMAL),
 	minesLikeZone(NO_ZONE),
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
 {
-	for(const auto & terr : VLC->terrainTypeHandler->objects)
-		if(terr->isLand() && terr->isPassable())
-			terrainTypes.insert(terr->getId());
 }
 
 TRmgTemplateZoneId ZoneOptions::getId() const
@@ -162,12 +160,12 @@ void ZoneOptions::setId(TRmgTemplateZoneId value)
 	id = value;
 }
 
-ETemplateZoneType::ETemplateZoneType ZoneOptions::getType() const
+ETemplateZoneType ZoneOptions::getType() const
 {
 	return type;
 }
 	
-void ZoneOptions::setType(ETemplateZoneType::ETemplateZoneType value)
+void ZoneOptions::setType(ETemplateZoneType value)
 {
 	type = value;
 }
@@ -182,52 +180,78 @@ void ZoneOptions::setSize(int value)
 	size = value;
 }
 
-boost::optional<int> ZoneOptions::getOwner() const
+std::optional<int> ZoneOptions::getOwner() const
 {
 	return owner;
 }
 
-const std::set<TerrainId> & ZoneOptions::getTerrainTypes() const
+const std::set<TerrainId> ZoneOptions::getTerrainTypes() const
 {
-	return terrainTypes;
+	if (terrainTypes.empty())
+	{
+		return vstd::difference(getDefaultTerrainTypes(), bannedTerrains);
+	}
+	else
+	{
+		return terrainTypes;
+	}
 }
 
 void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 {
-	//assert(value.find(ETerrainType::NONE) == value.end() &&
-	//	   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());
 	terrainTypes = value;
 }
 
-std::set<TFaction> ZoneOptions::getDefaultTownTypes() const
+std::set<TerrainId> ZoneOptions::getDefaultTerrainTypes() const
 {
-	std::set<TFaction> defaultTowns;
+	std::set<TerrainId> terrains;
+	for (auto terrain : VLC->terrainTypeHandler->objects)
+	{
+		if (terrain->isLand() && terrain->isPassable())
+		{
+			terrains.insert(terrain->getId());
+		}
+	}
+	return terrains;
+}
+
+std::set<FactionID> ZoneOptions::getDefaultTownTypes() const
+{
+	std::set<FactionID> defaultTowns;
 	auto towns = VLC->townh->getDefaultAllowed();
 	for(int i = 0; i < towns.size(); ++i)
 	{
-		if(towns[i]) defaultTowns.insert(i);
+		if(towns[i]) defaultTowns.insert(FactionID(i));
 	}
 	return defaultTowns;
 }
 
-const std::set<TFaction> & ZoneOptions::getTownTypes() const
+const std::set<FactionID> ZoneOptions::getTownTypes() const
 {
-	return townTypes;
+	if (townTypes.empty())
+	{
+		//Assume that all towns are allowed, unless banned
+		return vstd::difference(getDefaultTownTypes(), bannedTownTypes);
+	}
+	else 
+	{
+		return vstd::difference(townTypes, bannedTownTypes);
+	}
 }
 
-void ZoneOptions::setTownTypes(const std::set<TFaction> & value)
+void ZoneOptions::setTownTypes(const std::set<FactionID> & value)
 {
 	townTypes = value;
 }
 
-void ZoneOptions::setMonsterTypes(const std::set<TFaction> & value)
+void ZoneOptions::setMonsterTypes(const std::set<FactionID> & value)
 {
 	monsterTypes = value;
 }
 
-const std::set<TFaction> & ZoneOptions::getMonsterTypes() const
+const std::set<FactionID> ZoneOptions::getMonsterTypes() const
 {
-	return monsterTypes;
+	return vstd::difference(monsterTypes, bannedMonsters);
 }
 
 void ZoneOptions::setMinesInfo(const std::map<TResource, ui16> & value)
@@ -286,14 +310,20 @@ TRmgTemplateZoneId ZoneOptions::getTreasureLikeZone() const
     return treasureLikeZone;
 }
 
-void ZoneOptions::addConnection(TRmgTemplateZoneId otherZone)
+void ZoneOptions::addConnection(const ZoneConnection & connection)
 {
-	connections.push_back (otherZone);
+	connectedZoneIds.push_back(connection.getOtherZoneId(getId()));
+	connectionDetails.push_back(connection);
 }
 
-std::vector<TRmgTemplateZoneId> ZoneOptions::getConnections() const
+std::vector<ZoneConnection> ZoneOptions::getConnections() const
 {
-	return connections;
+	return connectionDetails;
+}
+
+std::vector<TRmgTemplateZoneId> ZoneOptions::getConnectedZoneIds() const
+{
+	return connectedZoneIds;
 }
 
 bool ZoneOptions::areTownsSameType() const
@@ -344,58 +374,43 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 
 	if(terrainTypeLikeZone == NO_ZONE)
 	{
-		JsonNode node;
-		if(handler.saving)
-		{
-			node.setType(JsonNode::JsonType::DATA_VECTOR);
-			for(const auto & ttype : terrainTypes)
-			{
-				JsonNode n;
-				n.String() = VLC->terrainTypeHandler->getById(ttype)->getJsonKey();
-				node.Vector().push_back(n);
-			}
-		}
-		handler.serializeRaw("terrainTypes", node, boost::none);
-		if(!handler.saving)
-		{
-			if(!node.Vector().empty())
-			{
-				terrainTypes.clear();
-				for(const auto & ttype : node.Vector())
-				{
-					VLC->modh->identifiers.requestIdentifier("terrain", ttype, [this](int32_t identifier)
-					{
-						terrainTypes.emplace(identifier);
-					});
-				}
-			}
-		}
+		handler.serializeIdArray<TerrainId, TerrainID>("terrainTypes", terrainTypes, std::set<TerrainId>());
+		handler.serializeIdArray<TerrainId, TerrainID>("bannedTerrains", bannedTerrains, std::set<TerrainId>());
 	}
 
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
-	handler.serializeIdArray<TFaction, FactionID>("allowedMonsters", monsterTypes, VLC->townh->getAllowedFactions(false));
-	handler.serializeIdArray<TFaction, FactionID>("allowedTowns", townTypes, VLC->townh->getAllowedFactions(true));
+	handler.serializeIdArray<FactionID>("allowedMonsters", monsterTypes, std::set<FactionID>());
+	handler.serializeIdArray<FactionID>("bannedMonsters", bannedMonsters, std::set<FactionID>());
+	handler.serializeIdArray<FactionID>("allowedTowns", townTypes, std::set<FactionID>());
+	handler.serializeIdArray<FactionID>("bannedTowns", bannedTownTypes, std::set<FactionID>());
 
 	{
 		//TODO: add support for std::map to serializeEnum
-		static const std::vector<std::string> STRENGTH =
+		static const std::vector<std::string> zoneMonsterStrengths =
 		{
+			"none",
 			"weak",
 			"normal",
 			"strong"
 		};
 
-		si32 rawStrength = 0;
-		if(handler.saving)
+		int temporaryZoneMonsterStrengthIndex = monsterStrength == EMonsterStrength::ZONE_NONE ? 0 : monsterStrength - EMonsterStrength::ZONE_WEAK + 1 ; // temporary until serializeEnum starts supporting std::map
+		// temporaryZoneMonsterStrengthIndex = 0, 1, 2 and 3 for monsterStrength = ZONE_NONE, ZONE_WEAK, ZONE_NORMAL and ZONE_STRONG respectively
+		handler.serializeEnum("monsters", temporaryZoneMonsterStrengthIndex, 2, zoneMonsterStrengths); // default is normal monsters
+		switch (temporaryZoneMonsterStrengthIndex)
 		{
-			rawStrength = static_cast<decltype(rawStrength)>(zoneMonsterStrength);
-			rawStrength++;
-		}
-		handler.serializeEnum("monsters", rawStrength, EMonsterStrength::ZONE_NORMAL + 1, STRENGTH);
-		if(!handler.saving)
-		{
-			rawStrength--;
-			zoneMonsterStrength = static_cast<decltype(zoneMonsterStrength)>(rawStrength);
+			case 0:
+				monsterStrength = EMonsterStrength::ZONE_NONE;
+				break;
+			case 1:
+				monsterStrength = EMonsterStrength::ZONE_WEAK;
+				break;
+			case 2:
+				monsterStrength = EMonsterStrength::ZONE_NORMAL;
+				break;
+			case 3:
+				monsterStrength = EMonsterStrength::ZONE_STRONG;
+				break;
 		}
 	}
 
@@ -420,10 +435,12 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-ZoneConnection::ZoneConnection()
-	: zoneA(-1),
+ZoneConnection::ZoneConnection():
+	zoneA(-1),
 	zoneB(-1),
-	guardStrength(0)
+	guardStrength(0),
+	connectionType(rmg::EConnectionType::GUARDED),
+	hasRoad(rmg::ERoadOption::ROAD_TRUE)
 {
 
 }
@@ -438,9 +455,35 @@ TRmgTemplateZoneId ZoneConnection::getZoneB() const
 	return zoneB;
 }
 
+TRmgTemplateZoneId ZoneConnection::getOtherZoneId(TRmgTemplateZoneId id) const
+{
+	if (id == zoneA)
+	{
+		return zoneB;
+	}
+	else if (id == zoneB)
+	{
+		return zoneA;
+	}
+	else
+	{
+		throw rmgException("Zone does not belong to this connection");
+	}
+}
+
 int ZoneConnection::getGuardStrength() const
 {
 	return guardStrength;
+}
+
+rmg::EConnectionType ZoneConnection::getConnectionType() const
+{
+	return connectionType;
+}
+
+rmg::ERoadOption ZoneConnection::getRoadOption() const
+{
+	return hasRoad;
 }
 	
 bool operator==(const ZoneConnection & l, const ZoneConnection & r)
@@ -450,9 +493,26 @@ bool operator==(const ZoneConnection & l, const ZoneConnection & r)
 
 void ZoneConnection::serializeJson(JsonSerializeFormat & handler)
 {
+	static const std::vector<std::string> connectionTypes =
+	{
+		"guarded",
+		"fictive",
+		"repulsive",
+		"wide"
+	};
+
+	static const std::vector<std::string> roadOptions =
+	{
+		"true",
+		"false",
+		"random"
+	};
+
 	handler.serializeId<TRmgTemplateZoneId, TRmgTemplateZoneId, ZoneEncoder>("a", zoneA, -1);
 	handler.serializeId<TRmgTemplateZoneId, TRmgTemplateZoneId, ZoneEncoder>("b", zoneB, -1);
 	handler.serializeInt("guard", guardStrength, 0);
+	handler.serializeEnum("type", connectionType, connectionTypes);
+	handler.serializeEnum("road", hasRoad, roadOptions);
 }
 
 }
@@ -477,7 +537,7 @@ bool CRmgTemplate::matchesSize(const int3 & value) const
 
 bool CRmgTemplate::isWaterContentAllowed(EWaterContent::EWaterContent waterContent) const
 {
-	return waterContent == EWaterContent::EWaterContent::RANDOM || allowedWaterContent.count(waterContent);
+	return waterContent == EWaterContent::RANDOM || allowedWaterContent.count(waterContent);
 }
 
 const std::set<EWaterContent::EWaterContent> & CRmgTemplate::getWaterContentAllowed() const
@@ -520,9 +580,9 @@ const CRmgTemplate::Zones & CRmgTemplate::getZones() const
 	return zones;
 }
 
-const std::vector<ZoneConnection> & CRmgTemplate::getConnections() const
+const std::vector<ZoneConnection> & CRmgTemplate::getConnectedZoneIds() const
 {
-	return connections;
+	return connectedZoneIds;
 }
 
 void CRmgTemplate::validate() const
@@ -638,7 +698,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 
 	{
 		auto connectionsData = handler.enterArray("connections");
-		connectionsData.serializeStruct(connections);
+		connectionsData.serializeStruct(connectedZoneIds);
 	}
 	
 	{
@@ -657,7 +717,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 				node.Vector().push_back(n);
 			}
 		}
-		handler.serializeRaw("allowedWaterContent", node, boost::none);
+		handler.serializeRaw("allowedWaterContent", node, std::nullopt);
 		if(!handler.saving)
 		{
 			for(auto wc : node.Vector())
@@ -689,8 +749,6 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 			}
 		}
 	}
-	if(!handler.saving)
-		afterLoad();
 }
 
 std::set<TerrainId> CRmgTemplate::inheritTerrainType(std::shared_ptr<ZoneOptions> zone, uint32_t iteration /* = 0 */)
@@ -706,6 +764,7 @@ std::set<TerrainId> CRmgTemplate::inheritTerrainType(std::shared_ptr<ZoneOptions
 		const auto otherZone = zones.at(zone->getTerrainTypeLikeZone());
 		zone->setTerrainTypes(inheritTerrainType(otherZone, iteration));
 	}
+	//This implicitely excludes banned terrains
 	return zone->getTerrainTypes();
 }
 
@@ -751,9 +810,16 @@ void CRmgTemplate::afterLoad()
 		inheritTerrainType(zone);
 		inheritMineTypes(zone);
 		inheritTreasureInfo(zone);
+
+		//TODO: Inherit monster types as well
+		auto monsterTypes = zone->getMonsterTypes();
+		if (monsterTypes.empty())
+		{
+			zone->setMonsterTypes(VLC->townh->getAllowedFactions(false));
+		}
 	}
 
-	for(const auto & connection : connections)
+	for(const auto & connection : connectedZoneIds)
 	{
 		auto id1 = connection.getZoneA();
 		auto id2 = connection.getZoneB();
@@ -761,17 +827,17 @@ void CRmgTemplate::afterLoad()
 		auto zone1 = zones.at(id1);
 		auto zone2 = zones.at(id2);
 
-		zone1->addConnection(id2);
-		zone2->addConnection(id1);
+		zone1->addConnection(connection);
+		zone2->addConnection(connection);
 	}
 	
-	if(allowedWaterContent.empty() || allowedWaterContent.count(EWaterContent::EWaterContent::RANDOM))
+	if(allowedWaterContent.empty() || allowedWaterContent.count(EWaterContent::RANDOM))
 	{
-		allowedWaterContent.insert(EWaterContent::EWaterContent::NONE);
-		allowedWaterContent.insert(EWaterContent::EWaterContent::NORMAL);
-		allowedWaterContent.insert(EWaterContent::EWaterContent::ISLANDS);
+		allowedWaterContent.insert(EWaterContent::NONE);
+		allowedWaterContent.insert(EWaterContent::NORMAL);
+		allowedWaterContent.insert(EWaterContent::ISLANDS);
 	}
-	allowedWaterContent.erase(EWaterContent::EWaterContent::RANDOM);
+	allowedWaterContent.erase(EWaterContent::RANDOM);
 }
 
 void CRmgTemplate::serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName)

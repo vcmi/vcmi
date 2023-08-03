@@ -74,6 +74,7 @@ private:
 	void onAfterHeroDisembark(const CGHeroInstance * obj, const int3 & from, const int3 & dest) override;
 
 	void resetContext();
+	void updateState();
 
 public:
 	MapViewController(std::shared_ptr<MapViewModel> model, std::shared_ptr<MapViewCache> view);
@@ -83,8 +84,9 @@ public:
 	void setViewCenter(const int3 & position);
 	void setViewCenter(const Point & position, int level);
 	void setTileSize(const Point & tileSize);
-	void updateBefore(uint32_t timeDelta);
-	void updateAfter(uint32_t timeDelta);
+	void modifyTileSize(int stepsChange);
+	void tick(uint32_t timePassed);
+	void afterRender();
 
 	void activateAdventureContext(uint32_t animationTime);
 	void activateAdventureContext();

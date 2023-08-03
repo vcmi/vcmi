@@ -34,7 +34,7 @@ enum class MouseHoveredHexContext
 class BattleActionsController
 {
 	BattleInterface & owner;
-
+	
 	/// all actions possible to call at the moment by player
 	std::vector<PossiblePlayerBattleAction> possibleActions;
 
@@ -50,7 +50,7 @@ class BattleActionsController
 	/// stack that has been selected as first target for multi-target spells (Teleport & Sacrifice)
 	const CStack * selectedStack;
 
-	bool isCastingPossibleHere (const CSpell * spell, const CStack *sactive, const CStack *shere, BattleHex myNumber);
+	bool isCastingPossibleHere (const CSpell * spell, const CStack *shere, BattleHex myNumber);
 	bool canStackMoveHere (const CStack *sactive, BattleHex MyNumber) const; //TODO: move to BattleState / callback
 	std::vector<PossiblePlayerBattleAction> getPossibleActionsForStack (const CStack *stack) const; //called when stack gets its turn
 	void reorderPossibleActionsPriority(const CStack * stack, MouseHoveredHexContext context);
@@ -128,5 +128,4 @@ public:
 	
 	/// inserts possible action in the beggining in order to prioritize it
 	void pushFrontPossibleAction(PossiblePlayerBattleAction);
-
 };

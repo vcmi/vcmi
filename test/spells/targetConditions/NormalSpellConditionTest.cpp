@@ -43,7 +43,7 @@ public:
 TEST_P(NormalSpellConditionTest, ChecksAbsoluteCase)
 {
 	setDefaultExpectations();
-	auto bonus = std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::SPELL_IMMUNITY, Bonus::OTHER, 4, 0, immuneSpell);
+	auto bonus = std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_IMMUNITY, BonusSource::OTHER, 4, 0, immuneSpell);
 	bonus->additionalInfo = 1;
 
 	unitBonuses.addNewBonus(bonus);
@@ -57,7 +57,7 @@ TEST_P(NormalSpellConditionTest, ChecksAbsoluteCase)
 TEST_P(NormalSpellConditionTest, ChecksNormalCase)
 {
 	setDefaultExpectations();
-	auto bonus = std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::SPELL_IMMUNITY, Bonus::OTHER, 4, 0, immuneSpell);
+	auto bonus = std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_IMMUNITY, BonusSource::OTHER, 4, 0, immuneSpell);
 	unitBonuses.addNewBonus(bonus);
 	if(immuneSpell == castSpell)
 		EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
@@ -65,7 +65,7 @@ TEST_P(NormalSpellConditionTest, ChecksNormalCase)
 		EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
-INSTANTIATE_TEST_CASE_P
+INSTANTIATE_TEST_SUITE_P
 (
 	BySpells,
 	NormalSpellConditionTest,

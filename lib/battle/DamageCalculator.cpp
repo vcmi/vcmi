@@ -13,7 +13,7 @@
 #include "CBattleInfoCallback.h"
 #include "Unit.h"
 
-#include "../HeroBonus.h"
+#include "../bonuses/Bonus.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../spells/CSpellHandler.h"
 #include "../GameSettings.h"
@@ -46,13 +46,13 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 	}
 
 	const std::string cachingStrSiedgeWeapon = "type_SIEGE_WEAPON";
-	static const auto selectorSiedgeWeapon = Selector::type()(Bonus::SIEGE_WEAPON);
+	static const auto selectorSiedgeWeapon = Selector::type()(BonusType::SIEGE_WEAPON);
 
 	if(info.attacker->hasBonus(selectorSiedgeWeapon, cachingStrSiedgeWeapon) && info.attacker->creatureIndex() != CreatureID::ARROW_TOWERS)
 	{
 		auto retrieveHeroPrimSkill = [&](int skill) -> int
 		{
-			std::shared_ptr<const Bonus> b = info.attacker->getBonus(Selector::sourceTypeSel(Bonus::HERO_BASE_SKILL).And(Selector::typeSubtype(Bonus::PRIMARY_SKILL, skill)));
+			std::shared_ptr<const Bonus> b = info.attacker->getBonus(Selector::sourceTypeSel(BonusSource::HERO_BASE_SKILL).And(Selector::typeSubtype(BonusType::PRIMARY_SKILL, skill)));
 			return b ? b->val : 0;
 		};
 
@@ -66,10 +66,10 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 DamageRange DamageCalculator::getBaseDamageBlessCurse() const
 {
 	const std::string cachingStrForcedMinDamage = "type_ALWAYS_MINIMUM_DAMAGE";
-	static const auto selectorForcedMinDamage = Selector::type()(Bonus::ALWAYS_MINIMUM_DAMAGE);
+	static const auto selectorForcedMinDamage = Selector::type()(BonusType::ALWAYS_MINIMUM_DAMAGE);
 
 	const std::string cachingStrForcedMaxDamage = "type_ALWAYS_MAXIMUM_DAMAGE";
-	static const auto selectorForcedMaxDamage = Selector::type()(Bonus::ALWAYS_MAXIMUM_DAMAGE);
+	static const auto selectorForcedMaxDamage = Selector::type()(BonusType::ALWAYS_MAXIMUM_DAMAGE);
 
 	TConstBonusListPtr curseEffects = info.attacker->getBonuses(selectorForcedMinDamage, cachingStrForcedMinDamage);
 	TConstBonusListPtr blessEffects = info.attacker->getBonuses(selectorForcedMaxDamage, cachingStrForcedMaxDamage);
@@ -130,10 +130,10 @@ int DamageCalculator::getActorAttackEffective() const
 int DamageCalculator::getActorAttackSlayer() const
 {
 	const std::string cachingStrSlayer = "type_SLAYER";
-	static const auto selectorSlayer = Selector::type()(Bonus::SLAYER);
+	static const auto selectorSlayer = Selector::type()(BonusType::SLAYER);
 
 	auto slayerEffects = info.attacker->getBonuses(selectorSlayer, cachingStrSlayer);
-	auto slayerAffected = info.defender->unitType()->valOfBonuses(Selector::type()(Bonus::KING));
+	auto slayerAffected = info.defender->unitType()->valOfBonuses(Selector::type()(BonusType::KING));
 
 	if(std::shared_ptr<const Bonus> slayerEffect = slayerEffects->getFirst(Selector::all))
 	{
@@ -143,9 +143,9 @@ int DamageCalculator::getActorAttackSlayer() const
 		if(isAffected)
 		{
 			int attackBonus = SpellID(SpellID::SLAYER).toSpell()->getLevelPower(spLevel);
-			if(info.attacker->hasBonusOfType(Bonus::SPECIAL_PECULIAR_ENCHANT, SpellID::SLAYER))
+			if(info.attacker->hasBonusOfType(BonusType::SPECIAL_PECULIAR_ENCHANT, SpellID::SLAYER))
 			{
-				ui8 attackerTier = info.attacker->unitType()->level;
+				ui8 attackerTier = info.attacker->unitType()->getLevel();
 				ui8 specialtyBonus = std::max(5 - attackerTier, 0);
 				attackBonus += specialtyBonus;
 			}
@@ -167,7 +167,7 @@ int DamageCalculator::getTargetDefenseEffective() const
 
 int DamageCalculator::getTargetDefenseIgnored() const
 {
-	double multDefenceReduction = battleBonusValue(info.attacker, Selector::type()(Bonus::ENEMY_DEFENCE_REDUCTION)) / 100.0;
+	double multDefenceReduction = battleBonusValue(info.attacker, Selector::type()(BonusType::ENEMY_DEFENCE_REDUCTION)) / 100.0;
 
 	if(multDefenceReduction > 0)
 	{
@@ -195,7 +195,7 @@ double DamageCalculator::getAttackSkillFactor() const
 double DamageCalculator::getAttackBlessFactor() const
 {
 	const std::string cachingStrDamage = "type_GENERAL_DAMAGE_PREMY";
-	static const auto selectorDamage = Selector::type()(Bonus::GENERAL_DAMAGE_PREMY);
+	static const auto selectorDamage = Selector::type()(BonusType::GENERAL_DAMAGE_PREMY);
 	return info.attacker->valOfBonuses(selectorDamage, cachingStrDamage) / 100.0;
 }
 
@@ -205,11 +205,11 @@ double DamageCalculator::getAttackOffenseArcheryFactor() const
 	if(info.shooting)
 	{
 		const std::string cachingStrArchery = "type_PERCENTAGE_DAMAGE_BOOSTs_1";
-		static const auto selectorArchery = Selector::typeSubtype(Bonus::PERCENTAGE_DAMAGE_BOOST, 1);
+		static const auto selectorArchery = Selector::typeSubtype(BonusType::PERCENTAGE_DAMAGE_BOOST, 1);
 		return info.attacker->valOfBonuses(selectorArchery, cachingStrArchery) / 100.0;
 	}
 	const std::string cachingStrOffence = "type_PERCENTAGE_DAMAGE_BOOSTs_0";
-	static const auto selectorOffence = Selector::typeSubtype(Bonus::PERCENTAGE_DAMAGE_BOOST, 0);
+	static const auto selectorOffence = Selector::typeSubtype(BonusType::PERCENTAGE_DAMAGE_BOOST, 0);
 	return info.attacker->valOfBonuses(selectorOffence, cachingStrOffence) / 100.0;
 }
 
@@ -231,7 +231,7 @@ double DamageCalculator::getAttackDoubleDamageFactor() const
 {
 	if(info.doubleDamage) {
 		const auto cachingStr = "type_BONUS_DAMAGE_PERCENTAGEs_" + std::to_string(info.attacker->creatureIndex());
-		const auto selector = Selector::typeSubtype(Bonus::BONUS_DAMAGE_PERCENTAGE, info.attacker->creatureIndex());
+		const auto selector = Selector::typeSubtype(BonusType::BONUS_DAMAGE_PERCENTAGE, info.attacker->creatureIndex());
 		return info.attacker->valOfBonuses(selector, cachingStr) / 100.0;
 	}
 	return 0.0;
@@ -240,10 +240,10 @@ double DamageCalculator::getAttackDoubleDamageFactor() const
 double DamageCalculator::getAttackJoustingFactor() const
 {
 	const std::string cachingStrJousting = "type_JOUSTING";
-	static const auto selectorJousting = Selector::type()(Bonus::JOUSTING);
+	static const auto selectorJousting = Selector::type()(BonusType::JOUSTING);
 
 	const std::string cachingStrChargeImmunity = "type_CHARGE_IMMUNITY";
-	static const auto selectorChargeImmunity = Selector::type()(Bonus::CHARGE_IMMUNITY);
+	static const auto selectorChargeImmunity = Selector::type()(BonusType::CHARGE_IMMUNITY);
 
 	//applying jousting bonus
 	if(info.chargeDistance > 0 && info.attacker->hasBonus(selectorJousting, cachingStrJousting) && !info.defender->hasBonus(selectorChargeImmunity, cachingStrChargeImmunity))
@@ -255,7 +255,7 @@ double DamageCalculator::getAttackHateFactor() const
 {
 	//assume that unit have only few HATE features and cache them all
 	const std::string cachingStrHate = "type_HATE";
-	static const auto selectorHate = Selector::type()(Bonus::HATE);
+	static const auto selectorHate = Selector::type()(BonusType::HATE);
 
 	auto allHateEffects = info.attacker->getBonuses(selectorHate, cachingStrHate);
 
@@ -281,7 +281,7 @@ double DamageCalculator::getDefenseSkillFactor() const
 double DamageCalculator::getDefenseArmorerFactor() const
 {
 	const std::string cachingStrArmorer = "type_GENERAL_DAMAGE_REDUCTIONs_N1_NsrcSPELL_EFFECT";
-	static const auto selectorArmorer = Selector::typeSubtype(Bonus::GENERAL_DAMAGE_REDUCTION, -1).And(Selector::sourceTypeSel(Bonus::SPELL_EFFECT).Not());
+	static const auto selectorArmorer = Selector::typeSubtype(BonusType::GENERAL_DAMAGE_REDUCTION, -1).And(Selector::sourceTypeSel(BonusSource::SPELL_EFFECT).Not());
 	return info.defender->valOfBonuses(selectorArmorer, cachingStrArmorer) / 100.0;
 
 }
@@ -289,10 +289,10 @@ double DamageCalculator::getDefenseArmorerFactor() const
 double DamageCalculator::getDefenseMagicShieldFactor() const
 {
 	const std::string cachingStrMeleeReduction = "type_GENERAL_DAMAGE_REDUCTIONs_0";
-	static const auto selectorMeleeReduction = Selector::typeSubtype(Bonus::GENERAL_DAMAGE_REDUCTION, 0);
+	static const auto selectorMeleeReduction = Selector::typeSubtype(BonusType::GENERAL_DAMAGE_REDUCTION, 0);
 
 	const std::string cachingStrRangedReduction = "type_GENERAL_DAMAGE_REDUCTIONs_1";
-	static const auto selectorRangedReduction = Selector::typeSubtype(Bonus::GENERAL_DAMAGE_REDUCTION, 1);
+	static const auto selectorRangedReduction = Selector::typeSubtype(BonusType::GENERAL_DAMAGE_REDUCTION, 1);
 
 	//handling spell effects - shield and air shield
 	if(info.shooting)
@@ -311,7 +311,7 @@ double DamageCalculator::getDefenseRangePenaltiesFactor() const
 		const std::string cachingStrAdvAirShield = "isAdvancedAirShield";
 		auto isAdvancedAirShield = [](const Bonus* bonus)
 		{
-			return bonus->source == Bonus::SPELL_EFFECT
+			return bonus->source == BonusSource::SPELL_EFFECT
 					&& bonus->sid == SpellID::AIR_SHIELD
 					&& bonus->val >= SecSkillLevel::ADVANCED;
 		};
@@ -325,7 +325,7 @@ double DamageCalculator::getDefenseRangePenaltiesFactor() const
 	else
 	{
 		const std::string cachingStrNoMeleePenalty = "type_NO_MELEE_PENALTY";
-		static const auto selectorNoMeleePenalty = Selector::type()(Bonus::NO_MELEE_PENALTY);
+		static const auto selectorNoMeleePenalty = Selector::type()(BonusType::NO_MELEE_PENALTY);
 
 		if(info.attacker->isShooter() && !info.attacker->hasBonus(selectorNoMeleePenalty, cachingStrNoMeleePenalty))
 			return 0.5;
@@ -356,7 +356,7 @@ double DamageCalculator::getDefenseUnluckyFactor() const
 
 double DamageCalculator::getDefenseBlindParalysisFactor() const
 {
-	double multAttackReduction = battleBonusValue(info.attacker, Selector::type()(Bonus::GENERAL_ATTACK_REDUCTION)) / 100.0;
+	double multAttackReduction = battleBonusValue(info.attacker, Selector::type()(BonusType::GENERAL_ATTACK_REDUCTION)) / 100.0;
 	return multAttackReduction;
 }
 
@@ -366,7 +366,7 @@ double DamageCalculator::getDefenseForgetfulnessFactor() const
 	{
 		//todo: set actual percentage in spell bonus configuration instead of just level; requires non trivial backward compatibility handling
 		//get list first, total value of 0 also counts
-		TConstBonusListPtr forgetfulList = info.attacker->getBonuses(Selector::type()(Bonus::FORGETFULL),"type_FORGETFULL");
+		TConstBonusListPtr forgetfulList = info.attacker->getBonuses(Selector::type()(BonusType::FORGETFULL),"type_FORGETFULL");
 
 		if(!forgetfulList->empty())
 		{
@@ -386,7 +386,7 @@ double DamageCalculator::getDefensePetrificationFactor() const
 {
 	// Creatures that are petrified by a Basilisk's Petrifying attack or a Medusa's Stone gaze take 50% damage (R8 = 0.50) from ranged and melee attacks. Taking damage also deactivates the effect.
 	const std::string cachingStrAllReduction = "type_GENERAL_DAMAGE_REDUCTIONs_N1_srcSPELL_EFFECT";
-	static const auto selectorAllReduction = Selector::typeSubtype(Bonus::GENERAL_DAMAGE_REDUCTION, -1).And(Selector::sourceTypeSel(Bonus::SPELL_EFFECT));
+	static const auto selectorAllReduction = Selector::typeSubtype(BonusType::GENERAL_DAMAGE_REDUCTION, -1).And(Selector::sourceTypeSel(BonusSource::SPELL_EFFECT));
 
 	return info.defender->valOfBonuses(selectorAllReduction, cachingStrAllReduction) / 100.0;
 }
@@ -397,7 +397,7 @@ double DamageCalculator::getDefenseMagicFactor() const
 	if(info.attacker->creatureIndex() == CreatureID::MAGIC_ELEMENTAL)
 	{
 		const std::string cachingStrMagicImmunity = "type_LEVEL_SPELL_IMMUNITY";
-		static const auto selectorMagicImmunity = Selector::type()(Bonus::LEVEL_SPELL_IMMUNITY);
+		static const auto selectorMagicImmunity = Selector::type()(BonusType::LEVEL_SPELL_IMMUNITY);
 
 		if(info.defender->valOfBonuses(selectorMagicImmunity, cachingStrMagicImmunity) >= 5)
 			return 0.5;
@@ -411,7 +411,7 @@ double DamageCalculator::getDefenseMindFactor() const
 	if(info.attacker->creatureIndex() == CreatureID::PSYCHIC_ELEMENTAL)
 	{
 		const std::string cachingStrMindImmunity = "type_MIND_IMMUNITY";
-		static const auto selectorMindImmunity = Selector::type()(Bonus::MIND_IMMUNITY);
+		static const auto selectorMindImmunity = Selector::type()(BonusType::MIND_IMMUNITY);
 
 		if(info.defender->hasBonus(selectorMindImmunity, cachingStrMindImmunity))
 			return 0.5;
@@ -464,17 +464,17 @@ int64_t DamageCalculator::getCasualties(int64_t damageDealt) const
 		return 0;
 
 	int64_t damageLeft = damageDealt - info.defender->getFirstHPleft();
-	int64_t killsLeft = damageLeft / info.defender->MaxHealth();
+	int64_t killsLeft = damageLeft / info.defender->getMaxHealth();
 
 	return 1 + killsLeft;
 }
 
 int DamageCalculator::battleBonusValue(const IBonusBearer * bearer, const CSelector & selector) const
 {
-	auto noLimit = Selector::effectRange()(Bonus::NO_LIMIT);
+	auto noLimit = Selector::effectRange()(BonusLimitEffect::NO_LIMIT);
 	auto limitMatches = info.shooting
-						? Selector::effectRange()(Bonus::ONLY_DISTANCE_FIGHT)
-						: Selector::effectRange()(Bonus::ONLY_MELEE_FIGHT);
+						? Selector::effectRange()(BonusLimitEffect::ONLY_DISTANCE_FIGHT)
+						: Selector::effectRange()(BonusLimitEffect::ONLY_MELEE_FIGHT);
 
 	//any regular bonuses or just ones for melee/ranged
 	return bearer->getBonuses(selector, noLimit.Or(limitMatches))->totalValue();

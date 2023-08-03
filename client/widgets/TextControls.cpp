@@ -10,14 +10,16 @@
 #include "StdInc.h"
 #include "TextControls.h"
 
-#include "Buttons.h"
+#include "Slider.h"
 #include "Images.h"
 
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../windows/CMessage.h"
 #include "../adventureMap/CInGameConsole.h"
 #include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 
 #include "../../lib/TextOperations.h"
 
@@ -33,7 +35,7 @@ std::string CLabel::visibleText()
 	return text;
 }
 
-void CLabel::showAll(SDL_Surface * to)
+void CLabel::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
@@ -45,7 +47,7 @@ void CLabel::showAll(SDL_Surface * to)
 CLabel::CLabel(int x, int y, EFonts Font, ETextAlignment Align, const SDL_Color & Color, const std::string & Text)
 	: CTextContainer(Align, Font, Color), text(Text)
 {
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	autoRedraw = true;
 	pos.x += x;
 	pos.y += y;
@@ -136,7 +138,7 @@ void CMultiLineLabel::setText(const std::string & Txt)
 	CLabel::setText(Txt);
 }
 
-void CTextContainer::blitLine(SDL_Surface * to, Rect destRect, std::string what)
+void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 {
 	const auto f = graphics->fonts[font];
 	Point where = destRect.topLeft();
@@ -179,9 +181,10 @@ void CTextContainer::blitLine(SDL_Surface * to, Rect destRect, std::string what)
 			std::string toPrint = what.substr(begin, end - begin);
 
 			if(currDelimeter % 2) // Enclosed in {} text - set to yellow
-				f->renderTextLeft(to, toPrint, Colors::YELLOW, where);
+				to.drawText(where, font, Colors::YELLOW, ETextAlignment::TOPLEFT, toPrint);
 			else // Non-enclosed text, use default color
-				f->renderTextLeft(to, toPrint, color, where);
+				to.drawText(where, font, color, ETextAlignment::TOPLEFT, toPrint);
+
 			begin = end;
 
 			where.x += (int)f->getStringWidth(toPrint);
@@ -197,7 +200,7 @@ CTextContainer::CTextContainer(ETextAlignment alignment, EFonts font, SDL_Color 
 {
 }
 
-void CMultiLineLabel::showAll(SDL_Surface * to)
+void CMultiLineLabel::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
@@ -223,7 +226,7 @@ void CMultiLineLabel::showAll(SDL_Surface * to)
 	Point lineStart = getTextLocation().topLeft() - visibleSize + Point(0, beginLine * (int)f->getLineHeight());
 	Point lineSize = Point(getTextLocation().w, (int)f->getLineHeight());
 
-	CSDL_Ext::CClipRectGuard guard(to, getTextLocation()); // to properly trim text that is too big to fit
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), getTextLocation()); // to properly trim text that is too big to fit
 
 	for(int i = beginLine; i < std::min(totalLines, endLine); i++)
 	{
@@ -296,7 +299,7 @@ CTextBox::CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts 
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	label = std::make_shared<CMultiLineLabel>(rect, Font, Align, Color);
 
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	pos.x += rect.x;
 	pos.y += rect.y;
 	pos.h = rect.h;
@@ -346,8 +349,10 @@ void CTextBox::setText(const std::string & text)
 
 		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 		slider = std::make_shared<CSlider>(Point(pos.w - 32, 0), pos.h, std::bind(&CTextBox::sliderMoved, this, _1),
-			label->pos.h, label->textSize.y, 0, false, CSlider::EStyle(sliderStyle));
+			label->pos.h, label->textSize.y, 0, Orientation::VERTICAL, CSlider::EStyle(sliderStyle));
 		slider->setScrollStep((int)graphics->fonts[label->font]->getLineHeight());
+		slider->setPanningStep(1);
+		slider->setScrollBounds(pos - slider->pos.topLeft());
 	}
 }
 
@@ -357,14 +362,14 @@ void CGStatusBar::setEnteringMode(bool on)
 
 	if (on)
 	{
-		assert(enteringText == false);
+		//assert(enteringText == false);
 		alignment = ETextAlignment::TOPLEFT;
 		GH.startTextInput(pos);
 		setText(consoleText);
 	}
 	else
 	{
-		assert(enteringText == true);
+		//assert(enteringText == true);
 		alignment = ETextAlignment::CENTER;
 		GH.stopTextInput();
 		setText(hoverText);
@@ -398,7 +403,7 @@ void CGStatusBar::clear()
 	write({});
 }
 
-CGStatusBar::CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font, ETextAlignment Align, const SDL_Color & Color)
+CGStatusBar::CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font, ETextAlignment Align, const SDL_Color & Color)
 	: CLabel(background_->pos.x, background_->pos.y, Font, Align, Color, "")
 	, enteringText(false)
 {
@@ -418,39 +423,46 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 	addUsedEvents(LCLICK);
 
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
-	background = std::make_shared<CPicture>(name);
+	auto backgroundImage = std::make_shared<CPicture>(name);
+	background = backgroundImage;
 	pos = background->pos;
 
 	if((unsigned)maxw < (unsigned)pos.w) //(insigned)-1 > than any correct value of pos.w
 	{
 		//execution of this block when maxw is incorrect breaks text centralization (issue #3151)
 		vstd::amin(pos.w, maxw);
-		background->srcRect = Rect(0, 0, maxw, pos.h);
+		backgroundImage->srcRect = Rect(0, 0, maxw, pos.h);
 	}
 	autoRedraw = false;
 }
 
-void CGStatusBar::show(SDL_Surface * to)
+CGStatusBar::~CGStatusBar()
+{
+	assert(GH.statusbar().get() != this);
+}
+
+void CGStatusBar::show(Canvas & to)
 {
 	showAll(to);
 }
 
-void CGStatusBar::init()
+void CGStatusBar::clickPressed(const Point & cursorPosition)
 {
-	GH.statusbar = shared_from_this();
+	if(LOCPLINT && LOCPLINT->cingconsole->isActive())
+		LOCPLINT->cingconsole->startEnteringText();
 }
 
-void CGStatusBar::clickLeft(tribool down, bool previousState)
+void CGStatusBar::activate()
 {
-	if(!down)
-	{
-		if(LOCPLINT && LOCPLINT->cingconsole->active)
-			LOCPLINT->cingconsole->startEnteringText();
-	}
+	GH.setStatusbar(shared_from_this());
+	CIntObject::activate();
 }
 
 void CGStatusBar::deactivate()
 {
+	assert(GH.statusbar().get() == this);
+	GH.setStatusbar(nullptr);
+
 	if (enteringText)
 		LOCPLINT->cingconsole->endEnteringText(false);
 
@@ -477,10 +489,9 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(c
 	cb(CB),
 	CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	pos.h = Pos.h;
 	pos.w = Pos.w;
-	captureAllKeys = true;
 	background.reset();
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
 
@@ -496,7 +507,6 @@ CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::stri
 	pos.h = Pos.h;
 	pos.w = Pos.w;
 
-	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>(bgName, bgOffset.x, bgOffset.y);
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
@@ -510,7 +520,6 @@ CTextInput::CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf)
 	:CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
 	pos += Pos.topLeft();
-	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>(srf, Pos);
 	pos.w = background->pos.w;
@@ -549,21 +558,20 @@ std::string CTextInput::visibleText()
 	return focus ? text + newText + "_" : text;
 }
 
-void CTextInput::clickLeft(tribool down, bool previousState)
+void CTextInput::clickPressed(const Point & cursorPosition)
 {
-	if(down && !focus)
+	if(!focus)
 		giveFocus();
 }
 
-void CTextInput::keyPressed(const SDL_Keycode & key)
+void CTextInput::keyPressed(EShortcut key)
 {
 	if(!focus)
 		return;
 
-	if(key == SDLK_TAB)
+	if(key == EShortcut::GLOBAL_MOVE_FOCUS)
 	{
 		moveFocus();
-		GH.breakEventHandling();
 		return;
 	}
 
@@ -571,9 +579,7 @@ void CTextInput::keyPressed(const SDL_Keycode & key)
 
 	switch(key)
 	{
-	case SDLK_DELETE: // have index > ' ' so it won't be filtered out by default section
-		return;
-	case SDLK_BACKSPACE:
+	case EShortcut::GLOBAL_BACKSPACE:
 		if(!newText.empty())
 		{
 			TextOperations::trimRightUnicode(newText);
@@ -606,14 +612,6 @@ void CTextInput::setText(const std::string & nText, bool callCb)
 	CLabel::setText(nText);
 	if(callCb)
 		cb(text);
-}
-
-bool CTextInput::captureThisKey(const SDL_Keycode & key)
-{
-	if(key == SDLK_RETURN || key == SDLK_KP_ENTER || key == SDLK_ESCAPE)
-		return false;
-
-	return true;
 }
 
 void CTextInput::textInputed(const std::string & enteredText)
@@ -740,7 +738,7 @@ void CFocusable::moveFocus()
 		if(i == focusables.end())
 			i = focusables.begin();
 
-		if((*i)->active)
+		if((*i)->isActive())
 		{
 			(*i)->giveFocus();
 			break;

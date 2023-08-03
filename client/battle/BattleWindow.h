@@ -24,6 +24,7 @@ class BattleInterface;
 class BattleConsole;
 class BattleRenderer;
 class StackQueue;
+class HeroInfoBasicPanel;
 
 /// GUI object that handles functionality of panel at the bottom of combat screen
 class BattleWindow : public InterfaceObjectConfigurable
@@ -32,6 +33,8 @@ class BattleWindow : public InterfaceObjectConfigurable
 
 	std::shared_ptr<StackQueue> queue;
 	std::shared_ptr<BattleConsole> console;
+	std::shared_ptr<HeroInfoBasicPanel> attackerHeroWindow;
+	std::shared_ptr<HeroInfoBasicPanel> defenderHeroWindow;
 
 	/// button press handling functions
 	void bOptionsf();
@@ -60,6 +63,9 @@ class BattleWindow : public InterfaceObjectConfigurable
 	void toggleQueueVisibility();
 	void createQueue();
 
+	void toggleStickyHeroWindowsVisibility();
+	void createStickyHeroInfoWindows();
+
 	std::shared_ptr<BattleConsole> buildBattleConsole(const JsonNode &) const;
 
 public:
@@ -73,21 +79,32 @@ public:
 	void hideQueue();
 	void showQueue();
 
+	/// Toggle permanent hero info windows visibility (HD mod feature)
+	void hideStickyHeroWindows();
+	void showStickyHeroWindows();
+
+	/// Event handler for netpack changing hero mana points
+	void heroManaPointsChanged(const CGHeroInstance * hero);
+
 	/// block all UI elements when player is not allowed to act, e.g. during enemy turn
 	void blockUI(bool on);
 
 	/// Refresh queue after turn order changes
 	void updateQueue();
 
+	/// Refresh sticky variant of hero info window after spellcast, side same as in BattleSpellCast::side
+	void updateHeroInfoWindow(uint8_t side, const InfoAboutHero & hero);
+
 	/// Get mouse-hovered battle queue unit ID if any found
-	boost::optional<uint32_t> getQueueHoveredUnitId();
+	std::optional<uint32_t> getQueueHoveredUnitId();
 
 	void activate() override;
 	void deactivate() override;
-	void keyPressed(const SDL_Keycode & key) override;
-	void clickRight(tribool down, bool previousState) override;
-	void show(SDL_Surface *to) override;
-	void showAll(SDL_Surface *to) override;
+	void keyPressed(EShortcut key) override;
+	bool captureThisKey(EShortcut key) override;
+	void clickPressed(const Point & cursorPosition) override;
+	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
 
 	/// Toggle UI to displaying tactics phase
 	void tacticPhaseStarted();
@@ -97,6 +114,5 @@ public:
 
 	/// Set possible alternative options. If more than 1 - the last will be considered as default option
 	void setAlternativeActions(const std::list<PossiblePlayerBattleAction> &);
-
 };
 

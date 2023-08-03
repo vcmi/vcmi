@@ -11,7 +11,7 @@
 #include "AIPathfinder.h"
 #include "AIPathfinderConfig.h"
 #include "../../../CCallback.h"
-#include "../../../lib/mapping/CMap.h"
+#include "../../../lib/mapping/CMapDefines.h"
 
 std::vector<std::shared_ptr<AINodeStorage>> AIPathfinder::storagePool;
 std::map<HeroPtr, std::shared_ptr<AINodeStorage>> AIPathfinder::storageMap;

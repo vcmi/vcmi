@@ -11,15 +11,18 @@
 
 #include "NetPacksBase.h"
 
-#include "battle/BattleAction.h"
-#include "mapObjects/CGHeroInstance.h"
 #include "ConstTransitivePtr.h"
-#include "int3.h"
+#include "MetaString.h"
 #include "ResourceSet.h"
-#include "CGameStateFwd.h"
-#include "mapping/CMapDefines.h"
-#include "battle/CObstacleInstance.h"
+#include "int3.h"
 
+#include "battle/BattleAction.h"
+#include "battle/CObstacleInstance.h"
+#include "gameState/EVictoryLossCheckResult.h"
+#include "gameState/TavernSlot.h"
+#include "gameState/QuestInfo.h"
+#include "mapObjects/CGHeroInstance.h"
+#include "mapping/CMapDefines.h"
 #include "spells/ViewSpellInt.h"
 
 class CClient;
@@ -35,6 +38,10 @@ struct StackLocation;
 struct ArtSlotInfo;
 struct QuestInfo;
 class IBattleState;
+
+// This one teleport-specific, but has to be available everywhere in callbacks and netpacks
+// For now it's will be there till teleports code refactored and moved into own file
+using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 
 struct DLL_LINKAGE Query : public CPackForClient
 {
@@ -145,7 +152,7 @@ struct DLL_LINKAGE YourTurn : public CPackForClient
 	void applyGs(CGameState * gs) const;
 
 	PlayerColor player;
-	boost::optional<ui8> daysWithoutCastle;
+	std::optional<ui8> daysWithoutCastle;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
@@ -308,7 +315,7 @@ struct DLL_LINKAGE FoWChange : public CPackForClient
 {
 	void applyGs(CGameState * gs);
 
-	std::unordered_set<int3, struct ShashInt3 > tiles;
+	std::unordered_set<int3> tiles;
 	PlayerColor player;
 	ui8 mode = 0; //mode==0 - hide, mode==1 - reveal
 	bool waitForDialogs = false;
@@ -324,23 +331,26 @@ struct DLL_LINKAGE FoWChange : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE SetAvailableHeroes : public CPackForClient
+struct DLL_LINKAGE SetAvailableHero : public CPackForClient
 {
-	SetAvailableHeroes()
+	SetAvailableHero()
 	{
-		for(auto & i : army)
-			i.clear();
+		army.clear();
 	}
 	void applyGs(CGameState * gs);
 
+	TavernHeroSlot slotID;
+	TavernSlotRole roleID;
 	PlayerColor player;
-	si32 hid[GameConstants::AVAILABLE_HEROES_PER_PLAYER]; //-1 if no hero
-	CSimpleArmy army[GameConstants::AVAILABLE_HEROES_PER_PLAYER];
+	HeroTypeID hid; //HeroTypeID::NONE if no hero
+	CSimpleArmy army;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
+		h & slotID;
+		h & roleID;
 		h & player;
 		h & hid;
 		h & army;
@@ -349,15 +359,16 @@ struct DLL_LINKAGE SetAvailableHeroes : public CPackForClient
 
 struct DLL_LINKAGE GiveBonus : public CPackForClient
 {
-	GiveBonus(ui8 Who = 0)
+	enum class ETarget : ui8 { HERO, PLAYER, TOWN, BATTLE };
+	
+	GiveBonus(ETarget Who = ETarget::HERO)
 		:who(Who)
 	{
 	}
 
 	void applyGs(CGameState * gs);
 
-	enum { HERO, PLAYER, TOWN };
-	ui8 who = 0; //who receives bonus, uses enum above
+	ETarget who = ETarget::HERO; //who receives bonus
 	si32 id = 0; //hero. town or player id - whoever receives it
 	Bonus bonus;
 	MetaString bdescr;
@@ -378,7 +389,9 @@ struct DLL_LINKAGE ChangeObjPos : public CPackForClient
 {
 	void applyGs(CGameState * gs);
 
+	/// Object to move
 	ObjectInstanceID objid;
+	/// New position of visitable tile of an object
 	int3 nPos;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
@@ -424,15 +437,14 @@ struct DLL_LINKAGE PlayerReinitInterface : public CPackForClient
 
 struct DLL_LINKAGE RemoveBonus : public CPackForClient
 {
-	RemoveBonus(ui8 Who = 0)
+	RemoveBonus(GiveBonus::ETarget Who = GiveBonus::ETarget::HERO)
 		:who(Who)
 	{
 	}
 
 	void applyGs(CGameState * gs);
 
-	enum { HERO, PLAYER, TOWN };
-	ui8 who; //who receives bonus, uses enum above
+	GiveBonus::ETarget who; //who receives bonus
 	ui32 whoID = 0; //hero, town or player id - whoever loses bonus
 
 	//vars to identify bonus: its source
@@ -590,8 +602,8 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 	ui32 movePoints = 0;
 	EResult result = FAILED; //uses EResult
 	int3 start, end; //h3m format
-	std::unordered_set<int3, ShashInt3> fowRevealed; //revealed tiles
-	boost::optional<int3> attackedFrom; // Set when stepping into endangered tile.
+	std::unordered_set<int3> fowRevealed; //revealed tiles
+	std::optional<int3> attackedFrom; // Set when stepping into endangered tile.
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
@@ -684,8 +696,9 @@ struct DLL_LINKAGE HeroRecruited : public CPackForClient
 {
 	void applyGs(CGameState * gs) const;
 
-	si32 hid = -1; //subID of hero
+	HeroTypeID hid; //subID of hero
 	ObjectInstanceID tid;
+	ObjectInstanceID boatId;
 	int3 tile;
 	PlayerColor player;
 
@@ -695,6 +708,7 @@ struct DLL_LINKAGE HeroRecruited : public CPackForClient
 	{
 		h & hid;
 		h & tid;
+		h & boatId;
 		h & tile;
 		h & player;
 	}
@@ -705,6 +719,7 @@ struct DLL_LINKAGE GiveHero : public CPackForClient
 	void applyGs(CGameState * gs) const;
 
 	ObjectInstanceID id; //object id
+	ObjectInstanceID boatId;
 	PlayerColor player;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
@@ -712,6 +727,7 @@ struct DLL_LINKAGE GiveHero : public CPackForClient
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & id;
+		h & boatId;
 		h & player;
 	}
 };
@@ -736,11 +752,14 @@ struct DLL_LINKAGE NewObject : public CPackForClient
 {
 	void applyGs(CGameState * gs);
 
+	/// Object ID to create
 	Obj ID;
+	/// Object secondary ID to create
 	ui32 subID = 0;
-	int3 pos;
+	/// Position of visitable tile of created object
+	int3 targetPos;
 
-	ObjectInstanceID id; //used locally, filled during applyGs
+	ObjectInstanceID createdObjectID; //used locally, filled during applyGs
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
@@ -748,7 +767,7 @@ struct DLL_LINKAGE NewObject : public CPackForClient
 	{
 		h & ID;
 		h & subID;
-		h & pos;
+		h & targetPos;
 	}
 };
 
@@ -765,20 +784,6 @@ struct DLL_LINKAGE SetAvailableArtifacts : public CPackForClient
 	{
 		h & id;
 		h & arts;
-	}
-};
-
-struct DLL_LINKAGE NewArtifact : public CPackForClient
-{
-	void applyGs(CGameState * gs);
-
-	ConstTransitivePtr<CArtifactInstance> art;
-
-	virtual void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & art;
 	}
 };
 
@@ -930,17 +935,17 @@ struct DLL_LINKAGE BulkSmartRebalanceStacks : CGarrisonOperationPack
 	}
 };
 
-struct GetEngagedHeroIds : boost::static_visitor<boost::optional<ObjectInstanceID>>
+struct GetEngagedHeroIds
 {
-	boost::optional<ObjectInstanceID> operator()(const ConstTransitivePtr<CGHeroInstance> & h) const
+	std::optional<ObjectInstanceID> operator()(const ConstTransitivePtr<CGHeroInstance> & h) const
 	{
 		return h->id;
 	}
-	boost::optional<ObjectInstanceID> operator()(const ConstTransitivePtr<CStackInstance> & s) const
+	std::optional<ObjectInstanceID> operator()(const ConstTransitivePtr<CStackInstance> & s) const
 	{
 		if(s->armyObj && s->armyObj->ID == Obj::HERO)
 			return s->armyObj->id;
-		return boost::optional<ObjectInstanceID>();
+		return std::optional<ObjectInstanceID>();
 	}
 };
 
@@ -950,7 +955,14 @@ struct DLL_LINKAGE CArtifactOperationPack : CPackForClient
 
 struct DLL_LINKAGE PutArtifact : CArtifactOperationPack
 {
+	PutArtifact() = default;
+	PutArtifact(ArtifactLocation * dst, bool askAssemble = true)
+		: al(*dst), askAssemble(askAssemble)
+	{
+	}
+
 	ArtifactLocation al;
+	bool askAssemble = false;
 	ConstTransitivePtr<CArtifactInstance> art;
 
 	void applyGs(CGameState * gs);
@@ -959,6 +971,20 @@ struct DLL_LINKAGE PutArtifact : CArtifactOperationPack
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & al;
+		h & askAssemble;
+		h & art;
+	}
+};
+
+struct DLL_LINKAGE NewArtifact : public CArtifactOperationPack
+{
+	ConstTransitivePtr<CArtifactInstance> art;
+
+	void applyGs(CGameState * gs);
+	virtual void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
 		h & art;
 	}
 };
@@ -1466,12 +1492,41 @@ struct DLL_LINKAGE BattleSetActiveStack : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE BattleResult : public CPackForClient
+struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
+{
+	void applyGs(CGameState * gs) const;
+
+	struct HeroBattleResults
+	{
+		HeroBattleResults()
+			: hero(nullptr), army(nullptr), exp(0) {}
+
+		CGHeroInstance * hero;
+		CArmedInstance * army;
+		TExpType exp;
+
+		template <typename Handler> void serialize(Handler & h, const int version)
+		{
+			h & hero;
+			h & army;
+			h & exp;
+		}
+	};
+	std::array<HeroBattleResults, 2> heroResult;
+	ui8 winnerSide;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & heroResult;
+		h & winnerSide;
+	}
+};
+
+struct DLL_LINKAGE BattleResult : public Query
 {
 	enum EResult { NORMAL = 0, ESCAPE = 1, SURRENDER = 2 };
 
 	void applyFirstCl(CClient * cl);
-	void applyGs(CGameState * gs);
 
 	EResult result = NORMAL;
 	ui8 winner = 2; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
@@ -1483,6 +1538,7 @@ struct DLL_LINKAGE BattleResult : public CPackForClient
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
+		h & queryID;
 		h & result;
 		h & winner;
 		h & casualties[0];
@@ -2298,6 +2354,24 @@ struct DLL_LINKAGE AssembleArtifacts : public CPackForServer
 	}
 };
 
+struct DLL_LINKAGE EraseArtifactByClient : public CPackForServer
+{
+	EraseArtifactByClient() = default;
+	EraseArtifactByClient(const ArtifactLocation & al)
+		: al(al)
+	{
+	}
+	ArtifactLocation al;
+
+	virtual void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & al;
+	}
+};
+
 struct DLL_LINKAGE BuyArtifact : public CPackForServer
 {
 	BuyArtifact() = default;
@@ -2367,12 +2441,12 @@ struct DLL_LINKAGE SetFormation : public CPackForServer
 struct DLL_LINKAGE HireHero : public CPackForServer
 {
 	HireHero() = default;
-	HireHero(si32 HID, const ObjectInstanceID & TID)
+	HireHero(HeroTypeID HID, const ObjectInstanceID & TID)
 		: hid(HID)
 		, tid(TID)
 	{
 	}
-	si32 hid = 0; //available hero serial
+	HeroTypeID hid; //available hero serial
 	ObjectInstanceID tid; //town (tavern) id
 	PlayerColor player;
 
@@ -2507,23 +2581,6 @@ struct DLL_LINKAGE SaveGame : public CPackForServer
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & static_cast<CPackForServer &>(*this);
-		h & fname;
-	}
-};
-
-// TODO: Eventually we should re-merge both SaveGame and PlayerMessage
-struct DLL_LINKAGE SaveGameClient : public CPackForClient
-{
-	SaveGameClient() = default;
-	SaveGameClient(std::string Fname)
-		: fname(std::move(Fname))
-	{
-	}
-	std::string fname;
-	virtual void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
 		h & fname;
 	}
 };

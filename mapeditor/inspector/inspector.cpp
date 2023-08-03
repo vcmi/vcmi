@@ -9,11 +9,14 @@
  */
 #include "StdInc.h"
 #include "inspector.h"
+#include "../lib/ArtifactUtils.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CRandomGenerator.h"
-#include "../lib/mapObjects/CObjectClassesHandler.h"
+#include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/mapping/CMap.h"
 
 #include "townbulidingswidget.h"
@@ -132,7 +135,7 @@ void Initializer::initialize(CGHeroInstance * o)
 	if(!o->type)
 		o->type = VLC->heroh->objects.at(o->subID);
 	
-	o->sex = o->type->sex;
+	o->gender = o->type->gender;
 	o->portrait = o->type->imageIndex;
 	o->randomizeArmy(o->type->heroClass->faction);
 }
@@ -171,7 +174,7 @@ void Initializer::initialize(CGArtifact * o)
 				out.push_back(spell->id);
 			}
 		}
-		auto a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
+		auto a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
 		o->storedArtifact = a;
 	}
 }
@@ -181,7 +184,7 @@ void Initializer::initialize(CGMine * o)
 	if(!o) return;
 	
 	o->tempOwner = defaultPlayer;
-	o->producedResource = Res::ERes(o->subID);
+	o->producedResource = GameResID(o->subID);
 	o->producedQuantity = o->defaultResProduction();
 }
 
@@ -241,7 +244,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	{ //Sex
 		auto * delegate = new InspectorDelegate;
 		delegate->options << "MALE" << "FEMALE";
-		addProperty<std::string>("Sex", (o->sex ? "FEMALE" : "MALE"), delegate , false);
+		addProperty<std::string>("Gender", (o->gender == EHeroGender::FEMALE ? "FEMALE" : "MALE"), delegate , false);
 	}
 	addProperty("Name", o->nameCustom, false);
 	addProperty("Biography", o->biographyCustom, new MessageDelegate, false);
@@ -280,7 +283,7 @@ void Inspector::updateProperties(CGArtifact * o)
 	CArtifactInstance * instance = o->storedArtifact;
 	if(instance)
 	{
-		SpellID spellId = instance->getGivenSpellID();
+		SpellID spellId = instance->getScrollSpellID();
 		if(spellId != -1)
 		{
 			auto * delegate = new InspectorDelegate;
@@ -289,7 +292,7 @@ void Inspector::updateProperties(CGArtifact * o)
 				//if(map->isAllowedSpell(spell->id))
 				delegate->options << QObject::tr(spell->getJsonKey().c_str());
 			}
-			addProperty("Spell", VLC->spellh->objects[spellId]->getJsonKey(), delegate, false);
+			addProperty("Spell", VLC->spellh->getById(spellId)->getJsonKey(), delegate, false);
 		}
 	}
 }
@@ -528,7 +531,7 @@ void Inspector::setProperty(CGArtifact * o, const QString & key, const QVariant 
 		{
 			if(spell->getJsonKey() == value.toString().toStdString())
 			{
-				o->storedArtifact = CArtifactInstance::createScroll(spell->getId());
+				o->storedArtifact = ArtifactUtils::createScroll(spell->getId());
 				break;
 			}
 		}
@@ -552,8 +555,8 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 {
 	if(!o) return;
 	
-	if(key == "Sex")
-		o->sex = value.toString() == "MALE" ? 0 : 1;
+	if(key == "Gender")
+		o->gender = value.toString() == "MALE" ? EHeroGender::MALE : EHeroGender::FEMALE;
 	
 	if(key == "Name")
 		o->nameCustom = value.toString().toStdString();
@@ -568,7 +571,7 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 			if(t->getNameTranslated() == value.toString().toStdString())
 				o->type = t.get();
 		}
-		o->sex = o->type->sex;
+		o->gender = o->type->gender;
 		o->portrait = o->type->imageIndex;
 		o->randomizeArmy(o->type->heroClass->faction);
 		updateProperties(); //updating other properties after change
@@ -704,29 +707,29 @@ QTableWidgetItem * Inspector::addProperty(const PlayerColor & value)
 	return new QTableWidgetItem(str);
 }
 
-QTableWidgetItem * Inspector::addProperty(const Res::ERes & value)
+QTableWidgetItem * Inspector::addProperty(const GameResID & value)
 {
 	QString str;
-	switch (value) {
-		case Res::ERes::WOOD:
+	switch (value.toEnum()) {
+		case EGameResID::WOOD:
 			str = "WOOD";
 			break;
-		case Res::ERes::ORE:
+		case EGameResID::ORE:
 			str = "ORE";
 			break;
-		case Res::ERes::SULFUR:
+		case EGameResID::SULFUR:
 			str = "SULFUR";
 			break;
-		case Res::ERes::GEMS:
+		case EGameResID::GEMS:
 			str = "GEMS";
 			break;
-		case Res::ERes::MERCURY:
+		case EGameResID::MERCURY:
 			str = "MERCURY";
 			break;
-		case Res::ERes::CRYSTAL:
+		case EGameResID::CRYSTAL:
 			str = "CRYSTAL";
 			break;
-		case Res::ERes::GOLD:
+		case EGameResID::GOLD:
 			str = "GOLD";
 			break;
 		default:

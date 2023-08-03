@@ -19,6 +19,8 @@
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
+#include "../render/Canvas.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -40,7 +42,7 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CCreatureHandler.h"
 
-#include "../../lib/mapping/CCampaignHandler.h"
+#include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/mapping/CMapService.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -71,13 +73,20 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config)
 		campButtons.push_back(std::make_shared<CCampaignButton>(node));
 }
 
+void CCampaignScreen::activate()
+{
+	CCS->musich->playMusic("Music/MainMenu", true, false);
+
+	CWindowObject::activate();
+}
+
 std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & button)
 {
 	std::pair<std::string, std::string> help;
 	if(!button["help"].isNull() && button["help"].Float() > 0)
 		help = CGI->generaltexth->zelp[(size_t)button["help"].Float()];
 
-	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), button["name"].String(), help, [=](){ close();}, (int)button["hotkey"].Float());
+	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), button["name"].String(), help, [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
@@ -94,8 +103,8 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 
 	status = config["open"].Bool() ? CCampaignScreen::ENABLED : CCampaignScreen::DISABLED;
 
-	CCampaignHeader header = CCampaignHandler::getHeader(campFile);
-	hoverText = header.name;
+	auto header = CampaignHandler::getHeader(campFile);
+	hoverText = header->getName();
 
 	if(status != CCampaignScreen::DISABLED)
 	{
@@ -110,7 +119,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 		graphicsCompleted = std::make_shared<CPicture>("CAMPCHK");
 }
 
-void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
+void CCampaignScreen::CCampaignButton::show(Canvas & to)
 {
 	if(status == CCampaignScreen::DISABLED)
 		return;
@@ -118,12 +127,12 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
 	CIntObject::show(to);
 
 	// Play the campaign button video when the mouse cursor is placed over the button
-	if(hovered)
+	if(isHovered())
 	{
 		if(CCS->videoh->fname != video)
 			CCS->videoh->open(video);
 
-		CCS->videoh->update(pos.x, pos.y, to, true, false); // plays sequentially frame by frame, starts at the beginning when the video is over
+		CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false); // plays sequentially frame by frame, starts at the beginning when the video is over
 	}
 	else if(CCS->videoh->fname == video) // When you got out of the bounds of the button then close the video
 	{
@@ -132,13 +141,10 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
 	}
 }
 
-void CCampaignScreen::CCampaignButton::clickLeft(tribool down, bool previousState)
+void CCampaignScreen::CCampaignButton::clickReleased(const Point & cursorPosition)
 {
-	if(down)
-	{
-		CCS->videoh->close();
-		CMainMenu::openCampaignLobby(campFile);
-	}
+	CCS->videoh->close();
+	CMainMenu::openCampaignLobby(campFile);
 }
 
 void CCampaignScreen::CCampaignButton::hover(bool on)

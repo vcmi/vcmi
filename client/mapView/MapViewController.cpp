@@ -17,13 +17,14 @@
 #include "MapViewModel.h"
 
 #include "../CPlayerInterface.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CPathfinder.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+#include "../../lib/pathfinder/CGPathNode.h"
 #include "../../lib/spells/ViewSpellInt.h"
 
 void MapViewController::setViewCenter(const int3 & position)
@@ -58,10 +59,10 @@ void MapViewController::setViewCenter(const Point & position, int level)
 		lowerLimit = actualLowerLimit;
 	}
 
-	Point betterPosition = {vstd::clamp(position.x, lowerLimit.x, upperLimit.x), vstd::clamp(position.y, lowerLimit.y, upperLimit.y)};
+	Point betterPosition = {std::clamp(position.x, lowerLimit.x, upperLimit.x), std::clamp(position.y, lowerLimit.y, upperLimit.y)};
 
 	model->setViewCenter(betterPosition);
-	model->setLevel(vstd::clamp(level, 0, context->getMapSize().z));
+	model->setLevel(std::clamp(level, 0, context->getMapSize().z));
 
 	if(adventureInt && !puzzleMapContext) // may be called before adventureInt is initialized
 		adventureInt->onMapViewMoved(model->getTilesTotalRect(), model->getLevel());
@@ -69,10 +70,49 @@ void MapViewController::setViewCenter(const Point & position, int level)
 
 void MapViewController::setTileSize(const Point & tileSize)
 {
+	Point oldSize = model->getSingleTileSize();
 	model->setTileSize(tileSize);
 
+	double scaleChangeX = 1.0 * tileSize.x / oldSize.x;
+	double scaleChangeY = 1.0 * tileSize.y / oldSize.y;
+
+	Point newViewCenter {
+		static_cast<int>(std::round(model->getMapViewCenter().x * scaleChangeX)),
+		static_cast<int>(std::round(model->getMapViewCenter().y * scaleChangeY))
+	};
+
 	// force update of view center since changing tile size may invalidated it
-	setViewCenter(model->getMapViewCenter(), model->getLevel());
+	setViewCenter(newViewCenter, model->getLevel());
+}
+
+void MapViewController::modifyTileSize(int stepsChange)
+{
+	// we want to zoom in/out in fixed 10% steps, to allow player to return back to exactly 100% zoom just by scrolling
+	// so, zooming in for 5 steps will put game at 1.1^5 = 1.61 scale
+	// try to determine current zooming level and change it by requested number of steps
+	double currentZoomFactor = model->getSingleTileSize().x / 32.0;
+	double currentZoomSteps = std::round(std::log(currentZoomFactor) / std::log(1.01));
+	double newZoomSteps = stepsChange != 0 ? currentZoomSteps + stepsChange : stepsChange;
+	double newZoomFactor = std::pow(1.01, newZoomSteps);
+
+	Point currentZoom = model->getSingleTileSize();
+	Point desiredZoom = Point(32,32) * newZoomFactor;
+
+	if (desiredZoom == currentZoom && stepsChange < 0)
+		desiredZoom -= Point(1,1);
+
+	if (desiredZoom == currentZoom && stepsChange > 0)
+		desiredZoom += Point(1,1);
+
+	Point minimal = model->getSingleTileSizeLowerLimit();
+	Point maximal = model->getSingleTileSizeUpperLimit();
+	Point actualZoom = {
+		std::clamp(desiredZoom.x, minimal.x, maximal.x),
+		std::clamp(desiredZoom.y, minimal.y, maximal.y)
+	};
+
+	if (actualZoom != currentZoom)
+		setTileSize(actualZoom);
 }
 
 MapViewController::MapViewController(std::shared_ptr<MapViewModel> model, std::shared_ptr<MapViewCache> view)
@@ -89,7 +129,7 @@ std::shared_ptr<IMapRendererContext> MapViewController::getContext() const
 	return context;
 }
 
-void MapViewController::updateBefore(uint32_t timeDelta)
+void MapViewController::tick(uint32_t timeDelta)
 {
 	// confirmed to match H3 for
 	// - hero embarking on boat (500 ms)
@@ -145,9 +185,16 @@ void MapViewController::updateBefore(uint32_t timeDelta)
 		fadingInContext->progress = std::min( 1.0, fadingInContext->progress);
 	}
 
+	if (adventureContext)
+		adventureContext->animationTime += timeDelta;
+
+	updateState();
+}
+
+void MapViewController::updateState()
+{
 	if(adventureContext)
 	{
-		adventureContext->animationTime += timeDelta;
 		adventureContext->settingsSessionSpectate = settings["session"]["spectate"].Bool();
 		adventureContext->settingsAdventureObjectAnimation = settings["adventure"]["objectAnimation"].Bool();
 		adventureContext->settingsAdventureTerrainAnimation = settings["adventure"]["terrainAnimation"].Bool();
@@ -158,7 +205,7 @@ void MapViewController::updateBefore(uint32_t timeDelta)
 	}
 }
 
-void MapViewController::updateAfter(uint32_t timeDelta)
+void MapViewController::afterRender()
 {
 	if(movementContext)
 	{
@@ -208,7 +255,7 @@ bool MapViewController::isEventVisible(const CGObjectInstance * obj)
 	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
-	if(GH.topInt() != adventureInt)
+	if(!GH.windows().isTopWindow(adventureInt))
 		return false;
 
 	if(obj->isVisitable())
@@ -225,7 +272,7 @@ bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & 
 	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
-	if(GH.topInt() != adventureInt)
+	if(!GH.windows().isTopWindow(adventureInt))
 		return false;
 
 	if(context->isVisible(obj->convertToVisitablePos(from)))
@@ -471,6 +518,7 @@ void MapViewController::activateAdventureContext(uint32_t animationTime)
 	adventureContext = std::make_shared<MapRendererAdventureContext>(*state);
 	adventureContext->animationTime = animationTime;
 	context = adventureContext;
+	updateState();
 }
 
 void MapViewController::activateAdventureContext()

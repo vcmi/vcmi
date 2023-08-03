@@ -15,19 +15,24 @@
 #include "InfoWindows.h"
 #include "GUIClasses.h"
 #include "QuickRecruitmentWindow.h"
+#include "CCreatureWindow.h"
 
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/CGarrisonInt.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../render/ColorFilter.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../adventureMap/CList.h"
 #include "../adventureMap/CResDataBar.h"
 
@@ -42,7 +47,7 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/StartInfo.h"
-#include "../../lib/mapping/CCampaignHandler.h"
+#include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
@@ -66,7 +71,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	  area(nullptr),
 	  stateTimeCounter(BUILD_ANIMATION_FINISHED_TIMEPOINT)
 {
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | HOVER | TIME);
 	pos.x += str->pos.x;
 	pos.y += str->pos.y;
 
@@ -105,73 +110,61 @@ const CBuilding * CBuildingRect::getBuilding()
 bool CBuildingRect::operator<(const CBuildingRect & p2) const
 {
 	return (str->pos.z) < (p2.str->pos.z);
-
 }
 
 void CBuildingRect::hover(bool on)
 {
+	if (!area)
+		return;
+
 	if(on)
 	{
-		if(!(active & MOVE))
-			addUsedEvents(MOVE);
+		if(! parent->selectedBuilding //no building hovered
+		  || (*parent->selectedBuilding)<(*this)) //or we are on top
+		{
+			parent->selectedBuilding = this;
+			GH.statusbar()->write(getSubtitle());
+		}
 	}
 	else
 	{
-		if(active & MOVE)
-			removeUsedEvents(MOVE);
-
 		if(parent->selectedBuilding == this)
 		{
 			parent->selectedBuilding = nullptr;
-			GH.statusbar->clear();
+			GH.statusbar()->clear();
 		}
 	}
 }
 
-void CBuildingRect::clickLeft(tribool down, bool previousState)
+void CBuildingRect::clickPressed(const Point & cursorPosition)
 {
-	if(previousState && getBuilding() && area && !down && (parent->selectedBuilding==this))
+	if(getBuilding() && area && (parent->selectedBuilding==this))
 	{
-		if(!area->isTransparent(GH.getCursorPosition() - pos.topLeft())) //inside building image
-		{
-			auto building = getBuilding();
-			parent->buildingClicked(building->bid, building->subId, building->upgrade);
-		}
+		auto building = getBuilding();
+		parent->buildingClicked(building->bid, building->subId, building->upgrade);
 	}
 }
 
-void CBuildingRect::clickRight(tribool down, bool previousState)
+void CBuildingRect::showPopupWindow(const Point & cursorPosition)
 {
-	if((!area) || (!((bool)down)) || (this!=parent->selectedBuilding) || getBuilding() == nullptr)
+	if((!area) || (this!=parent->selectedBuilding) || getBuilding() == nullptr)
 		return;
-	if( !area->isTransparent(GH.getCursorPosition() - pos.topLeft()) ) //inside building image
+
+	BuildingID bid = getBuilding()->bid;
+	const CBuilding *bld = town->town->buildings.at(bid);
+	if (bid < BuildingID::DWELL_FIRST)
 	{
-		BuildingID bid = getBuilding()->bid;
-		const CBuilding *bld = town->town->buildings.at(bid);
-		if (bid < BuildingID::DWELL_FIRST)
-		{
-			CRClickPopup::createAndPush(CInfoWindow::genText(bld->getNameTranslated(), bld->getDescriptionTranslated()),
-				std::make_shared<CComponent>(CComponent::building, bld->town->faction->getIndex(), bld->bid));
-		}
-		else
-		{
-			int level = ( bid - BuildingID::DWELL_FIRST ) % GameConstants::CREATURES_PER_TOWN;
-			GH.pushIntT<CDwellingInfoBox>(parent->pos.x+parent->pos.w / 2, parent->pos.y+parent->pos.h  /2, town, level);
-		}
+		CRClickPopup::createAndPush(CInfoWindow::genText(bld->getNameTranslated(), bld->getDescriptionTranslated()),
+									std::make_shared<CComponent>(CComponent::building, bld->town->faction->getIndex(), bld->bid));
+	}
+	else
+	{
+		int level = ( bid - BuildingID::DWELL_FIRST ) % GameConstants::CREATURES_PER_TOWN;
+		GH.windows().createAndPushWindow<CDwellingInfoBox>(parent->pos.x+parent->pos.w / 2, parent->pos.y+parent->pos.h  /2, town, level);
 	}
 }
 
-SDL_Color multiplyColors(const SDL_Color & b, const SDL_Color & a, double f)
-{
-	SDL_Color ret;
-	ret.r = static_cast<uint8_t>(a.r * f + b.r * (1 - f));
-	ret.g = static_cast<uint8_t>(a.g * f + b.g * (1 - f));
-	ret.b = static_cast<uint8_t>(a.b * f + b.b * (1 - f));
-	ret.a = static_cast<uint8_t>(a.a * f + b.b * (1 - f));
-	return ret;
-}
-
-void CBuildingRect::show(SDL_Surface * to)
+void CBuildingRect::show(Canvas & to)
 {
 	uint32_t stageDelay = BUILDING_APPEAR_TIMEPOINT;
 
@@ -191,7 +184,7 @@ void CBuildingRect::show(SDL_Surface * to)
 		if(stateTimeCounter >= BUILD_ANIMATION_FINISHED_TIMEPOINT)
 		{
 			if(parent->selectedBuilding == this)
-				border->draw(to, pos.x, pos.y);
+				to.draw(border, pos.topLeft());
 			return;
 		}
 
@@ -209,21 +202,24 @@ void CBuildingRect::show(SDL_Surface * to)
 		else
 			border->adjustPalette(baseBorder, 0);
 
-		border->draw(to, pos.x, pos.y);
+		to.draw(border, pos.topLeft());
 	}
-
-	if(stateTimeCounter < BUILD_ANIMATION_FINISHED_TIMEPOINT)
-		stateTimeCounter += GH.mainFPSmng->getElapsedMilliseconds();
 }
 
-void CBuildingRect::showAll(SDL_Surface * to)
+void CBuildingRect::tick(uint32_t msPassed)
+{
+	CShowableAnim::tick(msPassed);
+	stateTimeCounter += msPassed;
+}
+
+void CBuildingRect::showAll(Canvas & to)
 {
 	if (stateTimeCounter == 0)
 		return;
 
 	CShowableAnim::showAll(to);
-	if(!active && parent->selectedBuilding == this && border)
-		border->draw(to, pos.x, pos.y);
+	if(!isActive() && parent->selectedBuilding == this && border)
+		to.draw(border, pos.topLeft());
 }
 
 std::string CBuildingRect::getSubtitle()//hover text for building
@@ -251,28 +247,20 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 	}
 }
 
-void CBuildingRect::mouseMoved (const Point & cursorPosition)
+void CBuildingRect::mouseMoved (const Point & cursorPosition, const Point & lastUpdateDistance)
 {
-	if(area && pos.isInside(cursorPosition.x, cursorPosition.y))
-	{
-		if(area->isTransparent(cursorPosition - pos.topLeft())) //hovered pixel is inside this building
-		{
-			if(parent->selectedBuilding == this)
-			{
-				parent->selectedBuilding = nullptr;
-				GH.statusbar->clear();
-			}
-		}
-		else //inside the area of this building
-		{
-			if(! parent->selectedBuilding //no building hovered
-			  || (*parent->selectedBuilding)<(*this)) //or we are on top
-			{
-				parent->selectedBuilding = this;
-				GH.statusbar->write(getSubtitle());
-			}
-		}
-	}
+	hover(true);
+}
+
+bool CBuildingRect::receiveEvent(const Point & position, int eventType) const
+{
+	if (!pos.isInside(position.x, position.y))
+		return false;
+
+	if(area && area->isTransparent(position - pos.topLeft()))
+		return false;
+
+	return CIntObject::receiveEvent(position, eventType);
 }
 
 CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstance * Town, int level)
@@ -292,10 +280,11 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 
 	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
 	{
-		if(creature->cost[i])
+		auto res = static_cast<EGameResID>(i);
+		if(creature->getRecruitCost(res))
 		{
 			resPicture.push_back(std::make_shared<CAnimImage>("RESOURCE", i, 0, 0, 0));
-			resAmount.push_back(std::make_shared<CLabel>(0,0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(creature->cost[i])));
+			resAmount.push_back(std::make_shared<CLabel>(0,0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(creature->getRecruitCost(res))));
 		}
 	}
 
@@ -333,7 +322,7 @@ CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance * h, HeroS
 
 	set(h);
 
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 }
 
 CHeroGSlot::~CHeroGSlot() = default;
@@ -342,7 +331,7 @@ void CHeroGSlot::hover(bool on)
 {
 	if(!on)
 	{
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 		return;
 	}
 	std::shared_ptr<CHeroGSlot> other = upg ? owner->garrisonedHero : owner->visitingHero;
@@ -387,44 +376,42 @@ void CHeroGSlot::hover(bool on)
 		}
 	}
 	if(temp.size())
-		GH.statusbar->write(temp);
+		GH.statusbar()->write(temp);
 }
 
-void CHeroGSlot::clickLeft(tribool down, bool previousState)
+void CHeroGSlot::clickPressed(const Point & cursorPosition)
 {
 	std::shared_ptr<CHeroGSlot> other = upg ? owner->garrisonedHero : owner->visitingHero;
-	if(!down)
+
+	owner->garr->setSplittingMode(false);
+	owner->garr->selectSlot(nullptr);
+
+	if(hero && isSelected())
 	{
-		owner->garr->setSplittingMode(false);
-		owner->garr->selectSlot(nullptr);
-
-		if(hero && isSelected())
-		{
-			setHighlight(false);
-			LOCPLINT->openHeroWindow(hero);
-		}
-		else if(other->hero && other->isSelected())
-		{
-			owner->swapArmies();
-		}
-		else if(hero)
-		{
-			setHighlight(true);
-			owner->garr->selectSlot(nullptr);
-			redraw();
-		}
-
-		//refresh statusbar
-		hover(false);
-		hover(true);
+		setHighlight(false);
+		LOCPLINT->openHeroWindow(hero);
 	}
+	else if(other->hero && other->isSelected())
+	{
+		owner->swapArmies();
+	}
+	else if(hero)
+	{
+		setHighlight(true);
+		owner->garr->selectSlot(nullptr);
+		redraw();
+	}
+
+	//refresh statusbar
+	hover(false);
+	hover(true);
 }
 
-void CHeroGSlot::clickRight(tribool down, bool previousState)
+void CHeroGSlot::showPopupWindow(const Point & cursorPosition)
 {
-	if(hero && down)
+	if(hero)
 	{
-		GH.pushIntT<CInfoBoxPopup>(Point(pos.x + 175, pos.y + 100), hero);
+		GH.windows().createAndPushWindow<CInfoBoxPopup>(Point(pos.x + 175, pos.y + 100), hero);
 	}
 }
 
@@ -494,7 +481,7 @@ void HeroSlots::splitClicked()
 {
 	if(!!town->visitingHero && town->garrisonHero && (visitingHero->isSelected() || garrisonedHero->isSelected()))
 	{
-		LOCPLINT->heroExchangeStarted(town->visitingHero->id, town->garrisonHero->id, QueryID(-1));
+		LOCPLINT->showHeroExchange(town->visitingHero->id, town->garrisonHero->id);
 	}
 }
 
@@ -700,7 +687,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 		case BuildingID::FORT:
 		case BuildingID::CITADEL:
 		case BuildingID::CASTLE:
-				GH.pushIntT<CFortScreen>(town);
+				GH.windows().createAndPushWindow<CFortScreen>(town);
 				break;
 
 		case BuildingID::VILLAGE_HALL:
@@ -711,7 +698,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 				break;
 
 		case BuildingID::MARKETPLACE:
-				GH.pushIntT<CMarketplaceWindow>(town, town->visitingHero);
+				GH.windows().createAndPushWindow<CMarketplaceWindow>(town, town->visitingHero);
 				break;
 
 		case BuildingID::BLACKSMITH:
@@ -737,7 +724,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 
 				case BuildingSubID::ARTIFACT_MERCHANT:
 						if(town->visitingHero)
-							GH.pushIntT<CMarketplaceWindow>(town, town->visitingHero, EMarketMode::RESOURCE_ARTIFACT);
+							GH.windows().createAndPushWindow<CMarketplaceWindow>(town, town->visitingHero, EMarketMode::RESOURCE_ARTIFACT);
 						else
 							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
 						break;
@@ -748,14 +735,14 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 
 				case BuildingSubID::FREELANCERS_GUILD:
 						if(getHero())
-							GH.pushIntT<CMarketplaceWindow>(town, getHero(), EMarketMode::CREATURE_RESOURCE);
+							GH.windows().createAndPushWindow<CMarketplaceWindow>(town, getHero(), EMarketMode::CREATURE_RESOURCE);
 						else
 							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->getNameTranslated())); //Only visiting heroes may use the %s.
 						break;
 
 				case BuildingSubID::MAGIC_UNIVERSITY:
 						if (getHero())
-							GH.pushIntT<CUniversityWindow>(getHero(), town);
+							GH.windows().createAndPushWindow<CUniversityWindow>(getHero(), town);
 						else
 							enterBuilding(building);
 						break;
@@ -772,7 +759,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						break;
 
 				case BuildingSubID::CREATURE_TRANSFORMER: //Skeleton Transformer
-						GH.pushIntT<CTransformerWindow>(getHero(), town);
+						GH.windows().createAndPushWindow<CTransformerWindow>(town, getHero());
 						break;
 
 				case BuildingSubID::PORTAL_OF_SUMMONING:
@@ -807,13 +794,13 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(BuildingID::BLACKSMITH)->second->getNameTranslated()));
 		return;
 	}
-	auto art = dynamic_cast<const CArtifact*>(artifactID.toArtifact(CGI->artifacts()));
+	auto art = artifactID.toArtifact();
 
 	int price = art->getPrice();
-	bool possible = LOCPLINT->cb->getResourceAmount(Res::GOLD) >= price;
+	bool possible = LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) >= price;
 	if(possible)
 	{
-		for(auto slot : art->possibleSlots.at(ArtBearer::HERO))
+		for(auto slot : art->getPossibleSlots().at(ArtBearer::HERO))
 		{
 			if(hero->getArt(slot) == nullptr)
 			{
@@ -827,7 +814,7 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 		}
 	}
 	CreatureID cre = art->getWarMachine();
-	GH.pushIntT<CBlacksmithDialog>(possible, cre, artifactID, hero->id);
+	GH.windows().createAndPushWindow<CBlacksmithDialog>(possible, cre, artifactID, hero->id);
 }
 
 void CCastleBuildings::enterBuilding(BuildingID building)
@@ -856,7 +843,7 @@ void CCastleBuildings::enterCastleGate()
 		}
 	}
 	auto gateIcon = std::make_shared<CAnimImage>(town->town->clientInfo.buildingsIcons, BuildingID::CASTLE_GATE);//will be deleted by selection window
-	GH.pushIntT<CObjectListWindow>(availableTowns, gateIcon, CGI->generaltexth->jktexts[40],
+	GH.windows().createAndPushWindow<CObjectListWindow>(availableTowns, gateIcon, CGI->generaltexth->jktexts[40],
 		CGI->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1));
 }
 
@@ -867,7 +854,7 @@ void CCastleBuildings::enterDwelling(int level)
 	{
 		LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 	};
-	GH.pushIntT<CRecruitmentWindow>(town, level, town, recruitCb, -87);
+	GH.windows().createAndPushWindow<CRecruitmentWindow>(town, level, town, recruitCb, -87);
 }
 
 void CCastleBuildings::enterToTheQuickRecruitmentWindow()
@@ -879,7 +866,7 @@ void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 	const auto hasSomeoneToRecruit = std::any_of(beginIt, afterLastIt,
 		[](const auto & creatureInfo) { return creatureInfo.first > 0; });
 	if(hasSomeoneToRecruit)
-		GH.pushIntT<QuickRecruitmentWindow>(town, pos);
+		GH.windows().createAndPushWindow<QuickRecruitmentWindow>(town, pos);
 	else
 		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.townHall.noCreaturesToRecruit"), {});
 }
@@ -891,7 +878,7 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 	std::string hasNotProduced;
 	std::string hasProduced;
 
-	if(this->town->town->faction->getIndex() == (TFaction)ETownType::RAMPART)
+	if(this->town->town->faction->getIndex() == ETownType::RAMPART)
 	{
 		hasNotProduced = CGI->generaltexth->allTexts[677];
 		hasProduced = CGI->generaltexth->allTexts[678];
@@ -935,14 +922,14 @@ void CCastleBuildings::enterMagesGuild()
 	{
 		const StartInfo *si = LOCPLINT->cb->getStartInfo();
 		// it would be nice to find a way to move this hack to config/mapOverrides.json
-		if(si && si->campState && si->campState->camp &&                // We're in campaign,
-			(si->campState->camp->header.filename == "DATA/YOG.H3C") && // which is "Birth of a Barbarian",
+		if(si && si->campState && si->campState &&                // We're in campaign,
+			(si->campState->getFilename() == "DATA/YOG.H3C") && // which is "Birth of a Barbarian",
 			(hero->subID == 45))                                        // and the hero is Yog (based on Solmyr)
 		{
 			// "Yog has given up magic in all its forms..."
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[736]);
 		}
-		else if(LOCPLINT->cb->getResourceAmount(Res::GOLD) < 500) //not enough gold to buy spellbook
+		else if(LOCPLINT->cb->getResourceAmount(EGameResID::GOLD) < 500) //not enough gold to buy spellbook
 		{
 			openMagesGuild();
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[213]);
@@ -977,7 +964,8 @@ void CCastleBuildings::enterTownHall()
 		else
 		{
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[673]);
-			dynamic_cast<CInfoWindow*>(GH.topInt().get())->buttons[0]->addCallback(std::bind(&CCastleBuildings::openTownHall, this));
+			assert(GH.windows().topWindow<CInfoWindow>() != nullptr);
+			GH.windows().topWindow<CInfoWindow>()->buttons[0]->addCallback(std::bind(&CCastleBuildings::openTownHall, this));
 		}
 	}
 	else
@@ -990,12 +978,12 @@ void CCastleBuildings::openMagesGuild()
 {
 	std::string mageGuildBackground;
 	mageGuildBackground = LOCPLINT->castleInt->town->town->clientInfo.guildBackground;
-	GH.pushIntT<CMageGuildScreen>(LOCPLINT->castleInt,mageGuildBackground);
+	GH.windows().createAndPushWindow<CMageGuildScreen>(LOCPLINT->castleInt,mageGuildBackground);
 }
 
 void CCastleBuildings::openTownHall()
 {
-	GH.pushIntT<CHallInterface>(town);
+	GH.windows().createAndPushWindow<CHallInterface>(town);
 }
 
 CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, bool compact, bool _showAvailable):
@@ -1011,7 +999,7 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, boo
 		level = -1;
 		return;//No creature
 	}
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 
 	ui32 creatureID = town->creatures[level].second.back();
 	creature = CGI->creh->objects[creatureID];
@@ -1061,25 +1049,22 @@ void CCreaInfo::hover(bool on)
 
 	if(on)
 	{
-		GH.statusbar->write(message);
+		GH.statusbar()->write(message);
 	}
 	else
 	{
-		GH.statusbar->clearIfMatching(message);
+		GH.statusbar()->clearIfMatching(message);
 	}
 }
 
-void CCreaInfo::clickLeft(tribool down, bool previousState)
+void CCreaInfo::clickPressed(const Point & cursorPosition)
 {
-	if(previousState && (!down))
+	int offset = LOCPLINT->castleInt? (-87) : 0;
+	auto recruitCb = [=](CreatureID id, int count)
 	{
-		int offset = LOCPLINT->castleInt? (-87) : 0;
-		auto recruitCb = [=](CreatureID id, int count)
-		{
-			LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
-		};
-		GH.pushIntT<CRecruitmentWindow>(town, level, town, recruitCb, offset);
-	}
+		LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
+	};
+	GH.windows().createAndPushWindow<CRecruitmentWindow>(town, level, town, recruitCb, offset);
 }
 
 std::string CCreaInfo::genGrowthText()
@@ -1093,15 +1078,12 @@ std::string CCreaInfo::genGrowthText()
 	return descr;
 }
 
-void CCreaInfo::clickRight(tribool down, bool previousState)
+void CCreaInfo::showPopupWindow(const Point & cursorPosition)
 {
-	if(down)
-	{
-		if (showAvailable)
-			GH.pushIntT<CDwellingInfoBox>(GH.screenDimensions().x / 2, GH.screenDimensions().y / 2, town, level);
-		else
-			CRClickPopup::createAndPush(genGrowthText(), std::make_shared<CComponent>(CComponent::creature, creature->idNumber));
-	}
+	if (showAvailable)
+		GH.windows().createAndPushWindow<CDwellingInfoBox>(GH.screenDimensions().x / 2, GH.screenDimensions().y / 2, town, level);
+	else
+		CRClickPopup::createAndPush(genGrowthText(), std::make_shared<CComponent>(CComponent::creature, creature->getId()));
 }
 
 bool CCreaInfo::getShowAvailable()
@@ -1114,7 +1096,7 @@ CTownInfo::CTownInfo(int posX, int posY, const CGTownInstance * Town, bool townH
 	building(nullptr)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	addUsedEvents(RCLICK | HOVER);
+	addUsedEvents(SHOW_POPUP | HOVER);
 	pos.x += posX;
 	pos.y += posY;
 	int buildID;
@@ -1140,17 +1122,17 @@ void CTownInfo::hover(bool on)
 	if(on)
 	{
 		if(building )
-			GH.statusbar->write(building->getNameTranslated());
+			GH.statusbar()->write(building->getNameTranslated());
 	}
 	else
 	{
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 	}
 }
 
-void CTownInfo::clickRight(tribool down, bool previousState)
+void CTownInfo::showPopupWindow(const Point & cursorPosition)
 {
-	if(building && down)
+	if(building)
 	{
 		auto c =  std::make_shared<CComponent>(CComponent::building, building->town->faction->getIndex(), building->bid);
 		CRClickPopup::createAndPush(CInfoWindow::genText(building->getNameTranslated(), building->getDescriptionTranslated()), c);
@@ -1174,16 +1156,15 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	center();
 	updateShadow();
 
-	garr = std::make_shared<CGarrisonInt>(305, 387, 4, Point(0,96), town->getUpperArmy(), town->visitingHero);
-	garr->type |= REDRAW_PARENT;
+	garr = std::make_shared<CGarrisonInt>(Point(305, 387), 4, Point(0,96), town->getUpperArmy(), town->visitingHero);
+	garr->setRedrawParent(true);
 
 	heroes = std::make_shared<HeroSlots>(town, Point(241, 387), Point(241, 483), garr, true);
 	title = std::make_shared<CLabel>(85, 387, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, town->getNameTranslated());
 	income = std::make_shared<CLabel>(195, 443, FONT_SMALL, ETextAlignment::CENTER);
 	icon = std::make_shared<CAnimImage>("ITPT", 0, 0, 15, 387);
 
-	exit = std::make_shared<CButton>(Point(744, 544), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[8]), [&](){close();}, SDLK_RETURN);
-	exit->assignedKeys.insert(SDLK_ESCAPE);
+	exit = std::make_shared<CButton>(Point(744, 544), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[8]), [&](){close();}, EShortcut::GLOBAL_RETURN);
 	exit->setImageOrder(4, 5, 6, 7);
 
 	auto split = std::make_shared<CButton>(Point(744, 382), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[3]), [&]()
@@ -1196,9 +1177,12 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	Rect barRect(9, 182, 732, 18);
 	auto statusbarBackground = std::make_shared<CPicture>(panel->getSurface(), barRect, 9, 555);
 	statusbar = CGStatusBar::create(statusbarBackground);
-	resdatabar = std::make_shared<CResDataBar>("ARESBAR", 3, 575, 32, 2, 85, 85);
+	resdatabar = std::make_shared<CResDataBar>("ARESBAR", 3, 575, 37, 3, 84, 78);
 
-	townlist = std::make_shared<CTownList>(3, Point(744, 414), "IAM014", "IAM015");
+	townlist = std::make_shared<CTownList>(3, Rect(Point(743, 414), Point(48, 128)), Point(1,16), Point(0, 32), LOCPLINT->localState->getOwnedTowns().size() );
+	townlist->setScrollUpButton( std::make_shared<CButton>( Point(744, 414), "IAM014", CButton::tooltipLocalized("core.help.306")));
+	townlist->setScrollDownButton( std::make_shared<CButton>( Point(744, 526), "IAM015", CButton::tooltipLocalized("core.help.307")));
+
 	if(from)
 		townlist->select(from);
 
@@ -1232,9 +1216,9 @@ void CCastleInterface::close()
 	if(town->tempOwner == LOCPLINT->playerID) //we may have opened window for an allied town
 	{
 		if(town->visitingHero && town->visitingHero->tempOwner == LOCPLINT->playerID)
-			adventureInt->select(town->visitingHero);
+			LOCPLINT->localState->setSelection(town->visitingHero);
 		else
-			adventureInt->select(town);
+			LOCPLINT->localState->setSelection(town);
 	}
 	CWindowObject::close();
 }
@@ -1242,20 +1226,20 @@ void CCastleInterface::close()
 void CCastleInterface::castleTeleport(int where)
 {
 	const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(where));
-	adventureInt->select(town->visitingHero);//according to assert(ho == adventureInt->selection) in the eraseCurrentPathOf
+	LOCPLINT->localState->setSelection(town->visitingHero);//according to assert(ho == adventureInt->selection) in the eraseCurrentPathOf
 	LOCPLINT->cb->teleportHero(town->visitingHero, dest);
-	LOCPLINT->paths.erasePath(town->visitingHero);
+	LOCPLINT->localState->erasePath(town->visitingHero);
 }
 
 void CCastleInterface::townChange()
 {
 	//TODO: do not recreate window
-	const CGTownInstance * dest = LOCPLINT->towns[townlist->getSelectedIndex()];
+	const CGTownInstance * dest = LOCPLINT->localState->getOwnedTown(townlist->getSelectedIndex());
 	const CGTownInstance * town = this->town;// "this" is going to be deleted
 	if ( dest == town )
 		return;
 	close();
-	GH.pushIntT<CCastleInterface>(dest, town);
+	GH.windows().createAndPushWindow<CCastleInterface>(dest, town);
 }
 
 void CCastleInterface::addBuilding(BuildingID bid)
@@ -1283,7 +1267,7 @@ void CCastleInterface::recreateIcons()
 
 	icon->setFrame(iconIndex);
 	TResources townIncome = town->dailyIncome();
-	income->setText(std::to_string(townIncome[Res::GOLD]));
+	income->setText(std::to_string(townIncome[EGameResID::GOLD]));
 
 	hall = std::make_shared<CTownInfo>(80, 413, town, true);
 	fort = std::make_shared<CTownInfo>(122, 413, town, false);
@@ -1306,20 +1290,20 @@ void CCastleInterface::recreateIcons()
 
 }
 
-void CCastleInterface::keyPressed(const SDL_Keycode & key)
+void CCastleInterface::keyPressed(EShortcut key)
 {
 	switch(key)
 	{
-	case SDLK_UP:
+	case EShortcut::MOVE_UP:
 		townlist->selectPrev();
 		break;
-	case SDLK_DOWN:
+	case EShortcut::MOVE_DOWN:
 		townlist->selectNext();
 		break;
-	case SDLK_SPACE:
+	case EShortcut::TOWN_SWAP_ARMIES:
 		heroes->swapArmies();
 		break;
-	case SDLK_t:
+	case EShortcut::TOWN_OPEN_TAVERN:
 		if(town->hasBuilt(BuildingID::TAVERN))
 			LOCPLINT->showTavernWindow(town);
 		break;
@@ -1344,7 +1328,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	building(Building)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 	pos.x += x;
 	pos.y += y;
 	pos.w = 154;
@@ -1384,24 +1368,22 @@ void CHallInterface::CBuildingBox::hover(bool on)
 		else
 			toPrint = CGI->generaltexth->hcommands[state];
 		boost::algorithm::replace_first(toPrint,"%s",building->getNameTranslated());
-		GH.statusbar->write(toPrint);
+		GH.statusbar()->write(toPrint);
 	}
 	else
 	{
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 	}
 }
 
-void CHallInterface::CBuildingBox::clickLeft(tribool down, bool previousState)
+void CHallInterface::CBuildingBox::clickPressed(const Point & cursorPosition)
 {
-	if(previousState && (!down))
-		GH.pushIntT<CBuildWindow>(town,building,state,0);
+	GH.windows().createAndPushWindow<CBuildWindow>(town,building,state,0);
 }
 
-void CHallInterface::CBuildingBox::clickRight(tribool down, bool previousState)
+void CHallInterface::CBuildingBox::showPopupWindow(const Point & cursorPosition)
 {
-	if(down)
-		GH.pushIntT<CBuildWindow>(town,building,state,1);
+	GH.windows().createAndPushWindow<CBuildWindow>(town,building,state,1);
 }
 
 CHallInterface::CHallInterface(const CGTownInstance * Town):
@@ -1418,8 +1400,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 	statusbar = CGStatusBar::create(statusbarBackground);
 
 	title = std::make_shared<CLabel>(399, 12, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, town->town->buildings.at(BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL))->getNameTranslated());
-	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->hcommands[8]), [&](){close();}, SDLK_RETURN);
-	exit->assignedKeys.insert(SDLK_ESCAPE);
+	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->hcommands[8]), [&](){close();}, EShortcut::GLOBAL_RETURN);
 
 	auto & boxList = town->town->clientInfo.hallSlots;
 	boxes.resize(boxList.size());
@@ -1484,11 +1465,11 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		std::string tooltipYes = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->getNameTranslated());
 		std::string tooltipNo  = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->getNameTranslated());
 
-		buy = std::make_shared<CButton>(Point(45, 446), "IBUY30", CButton::tooltip(tooltipYes), [&](){ buyFunc(); }, SDLK_RETURN);
+		buy = std::make_shared<CButton>(Point(45, 446), "IBUY30", CButton::tooltip(tooltipYes), [&](){ buyFunc(); }, EShortcut::GLOBAL_ACCEPT);
 		buy->setBorderColor(Colors::METALLIC_GOLD);
 		buy->block(state!=7 || LOCPLINT->playerID != town->tempOwner);
 
-		cancel = std::make_shared<CButton>(Point(290, 445), "ICANCEL", CButton::tooltip(tooltipNo), [&](){ close();}, SDLK_ESCAPE);
+		cancel = std::make_shared<CButton>(Point(290, 445), "ICANCEL", CButton::tooltip(tooltipNo), [&](){ close();}, EShortcut::GLOBAL_CANCEL);
 		cancel->setBorderColor(Colors::METALLIC_GOLD);
 	}
 }
@@ -1496,7 +1477,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 void CBuildWindow::buyFunc()
 {
 	LOCPLINT->cb->buildBuilding(town,building->bid);
-	GH.popInts(2); //we - build window and hall screen
+	GH.windows().popWindows(2); //we - build window and hall screen
 }
 
 std::string CBuildWindow::getTextForState(int state)
@@ -1573,12 +1554,11 @@ void LabeledValue::hover(bool on)
 {
 	if(on)
 	{
-		GH.statusbar->write(hoverText);
+		GH.statusbar()->write(hoverText);
 	}
 	else
 	{
-		GH.statusbar->clear();
-		parent->hovered = false;
+		GH.statusbar()->clear();
 	}
 }
 
@@ -1594,8 +1574,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 	title = std::make_shared<CLabel>(400, 12, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE, fortBuilding->getNameTranslated());
 
 	std::string text = boost::str(boost::format(CGI->generaltexth->fcommands[6]) % fortBuilding->getNameTranslated());
-	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1", CButton::tooltip(text), [&](){ close(); }, SDLK_RETURN);
-	exit->assignedKeys.insert(SDLK_ESCAPE);
+	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1", CButton::tooltip(text), [&](){ close(); }, EShortcut::GLOBAL_RETURN);
 
 	std::vector<Point> positions =
 	{
@@ -1673,7 +1652,9 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	pos.h = 126;
 
 	if(!town->creatures[level].second.empty())
-		addUsedEvents(LCLICK | RCLICK | HOVER);//Activate only if dwelling is present
+		addUsedEvents(LCLICK | HOVER);//Activate only if dwelling is present
+
+	addUsedEvents(SHOW_POPUP);
 
 	icons = std::make_shared<CPicture>("TPCAINFO", 261, 3);
 
@@ -1703,9 +1684,9 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 		sizes.y+=21;
 		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[199], CGI->generaltexth->fcommands[2], getMyCreature()->getMinDamage(false), getMyCreature()->getMaxDamage(false)));
 		sizes.y+=20;
-		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[388], CGI->generaltexth->fcommands[3], getMyCreature()->MaxHealth()));
+		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[388], CGI->generaltexth->fcommands[3], getMyCreature()->getMaxHealth()));
 		sizes.y+=21;
-		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[193], CGI->generaltexth->fcommands[4], getMyCreature()->valOfBonuses(Bonus::STACKS_SPEED)));
+		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[193], CGI->generaltexth->fcommands[4], getMyCreature()->valOfBonuses(BonusType::STACKS_SPEED)));
 		sizes.y+=20;
 		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[194], CGI->generaltexth->fcommands[5], town->creatureGrowth(level)));
 	}
@@ -1743,9 +1724,9 @@ const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 void CFortScreen::RecruitArea::hover(bool on)
 {
 	if(on)
-		GH.statusbar->write(hoverText);
+		GH.statusbar()->write(hoverText);
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 }
 
 void CFortScreen::RecruitArea::creaturesChangedEventHandler()
@@ -1757,15 +1738,15 @@ void CFortScreen::RecruitArea::creaturesChangedEventHandler()
 	}
 }
 
-void CFortScreen::RecruitArea::clickLeft(tribool down, bool previousState)
+void CFortScreen::RecruitArea::clickPressed(const Point & cursorPosition)
 {
-	if(!down && previousState)
-		LOCPLINT->castleInt->builds->enterDwelling(level);
+	LOCPLINT->castleInt->builds->enterDwelling(level);
 }
 
-void CFortScreen::RecruitArea::clickRight(tribool down, bool previousState)
+void CFortScreen::RecruitArea::showPopupWindow(const Point & cursorPosition)
 {
-	clickLeft(down, false); //r-click does same as l-click - opens recr. window
+	if (getMyCreature() != nullptr)
+		GH.windows().createAndPushWindow<CStackWindow>(getMyCreature(), true);
 }
 
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem)
@@ -1783,8 +1764,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem)
 	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), barRect, 7, 556);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
-	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[593]), [&](){ close(); }, SDLK_RETURN);
-	exit->assignedKeys.insert(SDLK_ESCAPE);
+	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[593]), [&](){ close(); }, EShortcut::GLOBAL_RETURN);
 
 	static const std::vector<std::vector<Point> > positions =
 	{
@@ -1813,30 +1793,28 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 	pos += position;
 	image = std::make_shared<CAnimImage>("SPELLSCR", spell->id);
 	pos = image->pos;
 }
 
-void CMageGuildScreen::Scroll::clickLeft(tribool down, bool previousState)
+void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 {
-	if(down)
-		LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
+	LOCPLINT->showInfoDialog(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
 }
 
-void CMageGuildScreen::Scroll::clickRight(tribool down, bool previousState)
+void CMageGuildScreen::Scroll::showPopupWindow(const Point & cursorPosition)
 {
-	if(down)
-		CRClickPopup::createAndPush(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
+	CRClickPopup::createAndPush(spell->getDescriptionTranslated(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
 }
 
 void CMageGuildScreen::Scroll::hover(bool on)
 {
 	if(on)
-		GH.statusbar->write(spell->getNameTranslated());
+		GH.statusbar()->write(spell->getNameTranslated());
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 
 }
 
@@ -1860,19 +1838,19 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	title = std::make_shared<CLabel>(165, 28, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
 				boost::str(boost::format(CGI->generaltexth->allTexts[274]) % creature->getNameSingularTranslated()));
 	costText = std::make_shared<CLabel>(165, 218, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->jktexts[43]);
-	costValue = std::make_shared<CLabel>(165, 290, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE,
+	costValue = std::make_shared<CLabel>(165, 292, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE,
 	                std::to_string(aid.toArtifact(CGI->artifacts())->getPrice()));
 
 	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->getNameSingularTranslated());
-	buy = std::make_shared<CButton>(Point(42, 312), "IBUY30.DEF", CButton::tooltip(text), [&](){ close(); }, SDLK_RETURN);
+	buy = std::make_shared<CButton>(Point(42, 312), "IBUY30.DEF", CButton::tooltip(text), [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
 
 	text = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % creature->getNameSingularTranslated());
-	cancel = std::make_shared<CButton>(Point(224, 312), "ICANCEL.DEF", CButton::tooltip(text), [&](){ close(); }, SDLK_ESCAPE);
+	cancel = std::make_shared<CButton>(Point(224, 312), "ICANCEL.DEF", CButton::tooltip(text), [&](){ close(); }, EShortcut::GLOBAL_CANCEL);
 
 	if(possible)
 		buy->addCallback([=](){ LOCPLINT->cb->buyArtifact(LOCPLINT->cb->getHero(hid),aid); });
 	else
 		buy->block(true);
 
-	costIcon = std::make_shared<CAnimImage>("RESOURCE", Res::GOLD, 0, 148, 244);
+	costIcon = std::make_shared<CAnimImage>("RESOURCE", GameResID(EGameResID::GOLD), 0, 148, 244);
 }

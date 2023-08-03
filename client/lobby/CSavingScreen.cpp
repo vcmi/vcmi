@@ -15,6 +15,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
 
@@ -24,7 +25,7 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapInfo.h"
-#include "../../lib/mapping/CMap.h"
+#include "../../lib/mapping/CMapHeader.h"
 
 CSavingScreen::CSavingScreen()
 	: CSelectionBase(ESelectionScreen::saveGame)
@@ -35,12 +36,11 @@ CSavingScreen::CSavingScreen()
 	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*LOCPLINT->cb->getMapHeader()));
 
 	tabSel = std::make_shared<SelectionTab>(screenType);
-	curTab = tabSel;
-	tabSel->toggleMode();
-
 	tabSel->callOnSelect = std::bind(&CSavingScreen::changeSelection, this, _1);
-	buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRSAV.DEF", CGI->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), SDLK_s);
-	buttonStart->assignedKeys.insert(SDLK_RETURN);
+	tabSel->toggleMode();
+	curTab = tabSel;
+		
+	buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRSAV.DEF", CGI->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
 }
 
 const CMapInfo * CSavingScreen::getMapInfo()
@@ -62,6 +62,7 @@ void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
 
 	localMi = to;
 	card->changeSelection();
+	card->redraw();
 }
 
 void CSavingScreen::saveGame()
@@ -79,7 +80,7 @@ void CSavingScreen::saveGame()
 		close();
 	};
 
-	if(CResourceHandler::get("local")->existsResource(ResourceID(path, EResType::CLIENT_SAVEGAME)))
+	if(CResourceHandler::get("local")->existsResource(ResourceID(path, EResType::SAVEGAME)))
 	{
 		std::string hlp = CGI->generaltexth->allTexts[493]; //%s exists. Overwrite?
 		boost::algorithm::replace_first(hlp, "%s", tabSel->inputName->getText());

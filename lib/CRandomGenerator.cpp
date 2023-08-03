@@ -20,6 +20,11 @@ CRandomGenerator::CRandomGenerator()
 	resetSeed();
 }
 
+CRandomGenerator::CRandomGenerator(int seed)
+{
+	setSeed(seed);
+}
+
 void CRandomGenerator::setSeed(int seed)
 {
 	rand.seed(seed);

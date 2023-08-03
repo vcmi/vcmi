@@ -18,16 +18,25 @@
 #include "CModHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
+#include "bonuses/CBonusSystemNode.h"
+#include "bonuses/Limiters.h"
+#include "bonuses/Propagators.h"
+#include "bonuses/Updaters.h"
 
 #include "serializer/CSerializer.h" // for SAVEGAME_MAGIC
 #include "serializer/BinaryDeserializer.h"
 #include "serializer/BinarySerializer.h"
 #include "serializer/CLoadIntegrityValidator.h"
 #include "rmg/CMapGenOptions.h"
-#include "mapping/CCampaignHandler.h"
-#include "mapObjects/CObjectClassesHandler.h"
+#include "mapObjectConstructors/AObjectTypeHandler.h"
+#include "mapObjectConstructors/CObjectClassesHandler.h"
+#include "mapObjects/CObjectHandler.h"
+#include "mapObjects/ObjectTemplate.h"
+#include "campaign/CampaignState.h"
 #include "StartInfo.h"
-#include "CGameState.h"
+#include "gameState/CGameState.h"
+#include "gameState/CGameStateCampaign.h"
+#include "gameState/TavernHeroesPool.h"
 #include "mapping/CMap.h"
 #include "CPlayerState.h"
 #include "GameSettings.h"
@@ -63,10 +72,10 @@ void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 	}
 }
 
-void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3> & tiles,
+void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 											  const int3 & pos,
 											  int radious,
-											  boost::optional<PlayerColor> player,
+											  std::optional<PlayerColor> player,
 											  int mode,
 											  int3::EDistanceFormula distanceFormula) const
 {
@@ -100,7 +109,7 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3
 	}
 }
 
-void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> & tiles, boost::optional<PlayerColor> Player, int level, MapTerrainFilterMode tileFilterMode) const
+void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std::optional<PlayerColor> Player, int level, MapTerrainFilterMode tileFilterMode) const
 {
 	if(!!Player && *Player >= PlayerColor::PLAYER_LIMIT)
 	{
@@ -163,16 +172,19 @@ void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact *> 
 	out.push_back(VLC->arth->objects[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MAJOR)]);
 }
 
-void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, ui16 level)
+void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level)
 {
-	for (ui32 i = 0; i < gs->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
+	for (ui32 i = 0; i < gs->map->allowedSpells.size(); i++) //spellh size appears to be greater (?)
 	{
-
 		const spells::Spell * spell = SpellID(i).toSpell();
-		if(isAllowed(0, spell->getIndex()) && spell->getLevel() == level)
-		{
-			out.push_back(spell->getId());
-		}
+
+		if (!isAllowed(0, spell->getIndex()))
+			continue;
+
+		if (level.has_value() && spell->getLevel() != level)
+			continue;
+
+		out.push_back(spell->getId());
 	}
 }
 

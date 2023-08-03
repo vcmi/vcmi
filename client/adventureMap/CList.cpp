@@ -11,14 +11,17 @@
 #include "StdInc.h"
 #include "CList.h"
 
-#include "CAdvMapInt.h"
+#include "AdventureMapInterface.h"
 
 #include "../widgets/Images.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/ObjectLists.h"
 #include "../windows/InfoWindows.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
+#include "../render/Canvas.h"
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
@@ -28,46 +31,40 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 
 CList::CListItem::CListItem(CList * Parent)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: CIntObject(LCLICK | SHOW_POPUP | HOVER),
 	parent(Parent),
 	selection()
 {
 	defActions = 255-DISPOSE;
 }
 
-CList::CListItem::~CListItem()
+CList::CListItem::~CListItem() = default;
+
+void CList::CListItem::showPopupWindow(const Point & cursorPosition)
 {
+	showTooltip();
 }
 
-void CList::CListItem::clickRight(tribool down, bool previousState)
+void CList::CListItem::clickPressed(const Point & cursorPosition)
 {
-	if (down == true)
-		showTooltip();
-}
-
-void CList::CListItem::clickLeft(tribool down, bool previousState)
-{
-	if(down == true)
+	//second click on already selected item
+	if(parent->selected == this->shared_from_this())
 	{
-		//second click on already selected item
-		if(parent->selected == this->shared_from_this())
-		{
-			open();
-		}
-		else
-		{
-			//first click - switch selection
-			parent->select(this->shared_from_this());
-		}
+		open();
+	}
+	else
+	{
+		//first click - switch selection
+		parent->select(this->shared_from_this());
 	}
 }
 
 void CList::CListItem::hover(bool on)
 {
 	if (on)
-		GH.statusbar->write(getHoverText());
+		GH.statusbar()->write(getHoverText());
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 }
 
 void CList::CListItem::onSelect(bool on)
@@ -80,24 +77,64 @@ void CList::CListItem::onSelect(bool on)
 	redraw();
 }
 
-CList::CList(int Size, Point position, std::string btnUp, std::string btnDown, size_t listAmount, int helpUp, int helpDown, CListBox::CreateFunc create)
-	: CIntObject(0, position),
+CList::CList(int Size, Rect widgetDimensions)
+	: Scrollable(0, widgetDimensions.topLeft(), Orientation::VERTICAL),
 	size(Size),
 	selected(nullptr)
 {
+	pos.w = widgetDimensions.w;
+	pos.h = widgetDimensions.h;
+}
+
+void CList::showAll(Canvas & to)
+{
+	to.drawColor(pos, Colors::BLACK);
+	CIntObject::showAll(to);
+}
+
+void CList::createList(Point firstItemPosition, Point itemPositionDelta, size_t listAmount)
+{
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	scrollUp = std::make_shared<CButton>(Point(0, 0), btnUp, CGI->generaltexth->zelp[helpUp]);
-	scrollDown = std::make_shared<CButton>(Point(0, scrollUp->pos.h + 32*(int)size), btnDown, CGI->generaltexth->zelp[helpDown]);
+	listBox = std::make_shared<CListBox>(std::bind(&CList::createItem, this, _1), firstItemPosition, itemPositionDelta, size, listAmount);
+}
 
-	listBox = std::make_shared<CListBox>(create, Point(1,scrollUp->pos.h), Point(0, 32), size, listAmount);
+void CList::setScrollUpButton(std::shared_ptr<CButton> button)
+{
+	addChild(button.get());
 
-	//assign callback only after list was created
-	scrollUp->addCallback(std::bind(&CListBox::moveToPrev, listBox));
-	scrollDown->addCallback(std::bind(&CListBox::moveToNext, listBox));
+	scrollUp = button;
+	scrollUp->addCallback(std::bind(&CList::scrollPrev, this));
+	update();
+}
 
-	scrollUp->addCallback(std::bind(&CList::update, this));
-	scrollDown->addCallback(std::bind(&CList::update, this));
+void CList::setScrollDownButton(std::shared_ptr<CButton> button)
+{
+	addChild(button.get());
 
+	scrollDown = button;
+	scrollDown->addCallback(std::bind(&CList::scrollNext, this));
+	update();
+}
+
+void CList::scrollBy(int distance)
+{
+	if (distance < 0 && listBox->getPos() < -distance)
+		listBox->moveToPos(0);
+	else
+		listBox->moveToPos(static_cast<int>(listBox->getPos()) + distance);
+
+	update();
+}
+
+void CList::scrollPrev()
+{
+	listBox->moveToPrev();
+	update();
+}
+
+void CList::scrollNext()
+{
+	listBox->moveToNext();
 	update();
 }
 
@@ -106,8 +143,11 @@ void CList::update()
 	bool onTop = listBox->getPos() == 0;
 	bool onBottom = listBox->getPos() + size >= listBox->size();
 
-	scrollUp->block(onTop);
-	scrollDown->block(onBottom);
+	if (scrollUp)
+		scrollUp->block(onTop);
+
+	if (scrollDown)
+		scrollDown->block(onBottom);
 }
 
 void CList::select(std::shared_ptr<CListItem> which)
@@ -191,7 +231,7 @@ CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero)
 
 void CHeroList::CHeroItem::update()
 {
-	movement->setFrame(std::min<size_t>(movement->size()-1, hero->movement / 100));
+	movement->setFrame(std::min<size_t>(movement->size()-1, hero->movementPointsRemaining() / 100));
 	mana->setFrame(std::min<size_t>(mana->size()-1, hero->mana / 5));
 	redraw();
 }
@@ -203,8 +243,8 @@ std::shared_ptr<CIntObject> CHeroList::CHeroItem::genSelection()
 
 void CHeroList::CHeroItem::select(bool on)
 {
-	if(on && adventureInt->curHero() != hero)
-		adventureInt->select(hero);
+	if(on)
+		LOCPLINT->localState->setSelection(hero);
 }
 
 void CHeroList::CHeroItem::open()
@@ -222,48 +262,63 @@ std::string CHeroList::CHeroItem::getHoverText()
 	return boost::str(boost::format(CGI->generaltexth->allTexts[15]) % hero->getNameTranslated() % hero->type->heroClass->getNameTranslated());
 }
 
-std::shared_ptr<CIntObject> CHeroList::createHeroItem(size_t index)
+std::shared_ptr<CIntObject> CHeroList::createItem(size_t index)
 {
-	if (LOCPLINT->wanderingHeroes.size() > index)
-		return std::make_shared<CHeroItem>(this, LOCPLINT->wanderingHeroes[index]);
+	if (LOCPLINT->localState->getWanderingHeroes().size() > index)
+		return std::make_shared<CHeroItem>(this, LOCPLINT->localState->getWanderingHero(index));
 	return std::make_shared<CEmptyHeroItem>();
 }
 
-CHeroList::CHeroList(int size, Point position, std::string btnUp, std::string btnDown):
-	CList(size, position, btnUp, btnDown, LOCPLINT->wanderingHeroes.size(), 303, 304, std::bind(&CHeroList::createHeroItem, this, _1))
+CHeroList::CHeroList(int visibleItemsCount, Rect widgetPosition, Point firstItemOffset, Point itemOffsetDelta, size_t initialItemsCount)
+	: CList(visibleItemsCount, widgetPosition)
 {
+	createList(firstItemOffset, itemOffsetDelta, initialItemsCount);
 }
 
 void CHeroList::select(const CGHeroInstance * hero)
 {
-	selectIndex(vstd::find_pos(LOCPLINT->wanderingHeroes, hero));
+	selectIndex(vstd::find_pos(LOCPLINT->localState->getWanderingHeroes(), hero));
 }
 
-void CHeroList::update(const CGHeroInstance * hero)
+void CHeroList::updateElement(const CGHeroInstance * hero)
 {
-	//this hero is already present, update its status
-	for(auto & elem : listBox->getItems())
+	updateWidget();
+}
+
+void CHeroList::updateWidget()
+{
+	auto & heroes = LOCPLINT->localState->getWanderingHeroes();
+
+	listBox->resize(heroes.size());
+
+	for (size_t i = 0; i < heroes.size(); ++i)
 	{
-		auto item = std::dynamic_pointer_cast<CHeroItem>(elem);
-		if(item && item->hero == hero && vstd::contains(LOCPLINT->wanderingHeroes, hero))
+		auto item =  std::dynamic_pointer_cast<CHeroItem>(listBox->getItem(i));
+
+		if (!item)
+			continue;
+
+		if (item->hero == heroes[i])
 		{
 			item->update();
-			return;
+		}
+		else
+		{
+			listBox->reset();
+			break;
 		}
 	}
-	//simplest solution for now: reset list and restore selection
 
-	listBox->resize(LOCPLINT->wanderingHeroes.size());
-	if (adventureInt->curHero())
-		select(adventureInt->curHero());
+	if (LOCPLINT->localState->getCurrentHero())
+		select(LOCPLINT->localState->getCurrentHero());
 
 	CList::update();
 }
 
-std::shared_ptr<CIntObject> CTownList::createTownItem(size_t index)
+std::shared_ptr<CIntObject> CTownList::createItem(size_t index)
 {
-	if (LOCPLINT->towns.size() > index)
-		return std::make_shared<CTownItem>(this, LOCPLINT->towns[index]);
+	if (LOCPLINT->localState->getOwnedTowns().size() > index)
+		return std::make_shared<CTownItem>(this, LOCPLINT->localState->getOwnedTown(index));
 	return std::make_shared<CAnimImage>("ITPA", 0);
 }
 
@@ -292,8 +347,8 @@ void CTownList::CTownItem::update()
 
 void CTownList::CTownItem::select(bool on)
 {
-	if (on && adventureInt->curTown() != town)
-		adventureInt->select(town);
+	if(on)
+		LOCPLINT->localState->setSelection(town);
 }
 
 void CTownList::CTownItem::open()
@@ -311,24 +366,48 @@ std::string CTownList::CTownItem::getHoverText()
 	return town->getObjectName();
 }
 
-CTownList::CTownList(int size, Point position, std::string btnUp, std::string btnDown):
-	CList(size, position, btnUp, btnDown, LOCPLINT->towns.size(),  306, 307, std::bind(&CTownList::createTownItem, this, _1))
+CTownList::CTownList(int visibleItemsCount, Rect widgetPosition, Point firstItemOffset, Point itemOffsetDelta, size_t initialItemsCount)
+	: CList(visibleItemsCount, widgetPosition)
 {
+	createList(firstItemOffset, itemOffsetDelta, initialItemsCount);
 }
 
 void CTownList::select(const CGTownInstance * town)
 {
-	selectIndex(vstd::find_pos(LOCPLINT->towns, town));
+	selectIndex(vstd::find_pos(LOCPLINT->localState->getOwnedTowns(), town));
 }
 
-void CTownList::update(const CGTownInstance *)
+void CTownList::updateElement(const CGTownInstance * town)
 {
-	//simplest solution for now: reset list and restore selection
+	updateWidget();
+}
 
-	listBox->resize(LOCPLINT->towns.size());
-	if (adventureInt->curTown())
-		select(adventureInt->curTown());
+void CTownList::updateWidget()
+{
+	auto & towns = LOCPLINT->localState->getOwnedTowns();
+
+	listBox->resize(towns.size());
+
+	for (size_t i = 0; i < towns.size(); ++i)
+	{
+		auto item =  std::dynamic_pointer_cast<CTownItem>(listBox->getItem(i));
+
+		if (!item)
+			continue;
+
+		if (item->town == towns[i])
+		{
+			item->update();
+		}
+		else
+		{
+			listBox->reset();
+			break;
+		}
+	}
+
+	if (LOCPLINT->localState->getCurrentTown())
+		select(LOCPLINT->localState->getCurrentTown());
 
 	CList::update();
 }
-

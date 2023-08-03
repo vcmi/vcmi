@@ -12,12 +12,13 @@
 #include "../Engine/Nullkiller.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/Composition.h"
+#include "../Goals/RecruitHero.h"
 #include "../Markers/HeroExchange.h"
 #include "../Markers/ArmyUpgrade.h"
 #include "GatherArmyBehavior.h"
+#include "CaptureObjectsBehavior.h"
 #include "../AIUtility.h"
-#include "lib/mapping/CMap.h" //for victory conditions
-#include "lib/CPathfinder.h"
+#include "../Goals/ExchangeSwapTownHeroes.h"
 
 namespace NKAI
 {
@@ -80,20 +81,27 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 	for(const AIPath & path : paths)
 	{
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("Path found %s", path.toString());
+		logAi->trace("Path found %s, %s, %lld", path.toString(), path.targetHero->getObjectName(), path.heroArmy->getArmyStrength());
 #endif
 		
-		if(path.containsHero(hero)) continue;
-
-		if(path.turn() == 0 && hero->inTownGarrison)
+		if(path.containsHero(hero))
 		{
-#if NKAI_TRACE_LEVEL >= 1
-			logAi->trace("Skipping garnisoned hero %s, %s", hero->getObjectName(), pos.toString());
+#if NKAI_TRACE_LEVEL >= 2
+			logAi->trace("Selfcontaining path. Ignore");
 #endif
 			continue;
 		}
 
-		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
+		bool garrisoned = false;
+
+		if(path.turn() == 0 && hero->inTownGarrison)
+		{
+#if NKAI_TRACE_LEVEL >= 1
+			garrisoned = true;
+#endif
+		}
+
+		if(path.turn() > 0 && ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
@@ -111,10 +119,11 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 
 		HeroExchange heroExchange(hero, path);
 
-		float armyValue = (float)heroExchange.getReinforcementArmyStrength() / hero->getArmyStrength();
+		uint64_t armyValue = heroExchange.getReinforcementArmyStrength();
+		float armyRatio = (float)armyValue / hero->getArmyStrength();
 
 		// avoid transferring very small amount of army
-		if(armyValue < 0.1f && armyValue < 20000)
+		if((armyRatio < 0.1f && armyValue < 20000) || armyValue < 500)
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Army value is too small.");
@@ -174,7 +183,21 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 			exchangePath.closestWayRatio = 1;
 
 			composition.addNext(heroExchange);
-			composition.addNext(exchangePath);
+
+			if(garrisoned && path.turn() == 0)
+			{
+				auto lockReason = ai->nullkiller->getHeroLockedReason(hero);
+
+				composition.addNextSequence({
+					sptr(ExchangeSwapTownHeroes(hero->visitedTown)),
+					sptr(exchangePath),
+					sptr(ExchangeSwapTownHeroes(hero->visitedTown, hero, lockReason))
+				});
+			}
+			else
+			{
+				composition.addNext(exchangePath);
+			}
 
 			auto blockedAction = path.getFirstBlockedAction();
 
@@ -214,18 +237,42 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 #endif
 	
 	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
+	auto goals = CaptureObjectsBehavior::getVisitGoals(paths);
+
 	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 
 #if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Found %d paths", paths.size());
 #endif
 
+	bool hasMainAround = false;
+
 	for(const AIPath & path : paths)
 	{
+		auto heroRole = ai->nullkiller->heroManager->getHeroRole(path.targetHero);
+
+		if(heroRole == HeroRole::MAIN && path.turn() < SCOUT_TURN_DISTANCE_LIMIT)
+			hasMainAround = true;
+	}
+
+	for(int i = 0; i < paths.size(); i++)
+	{
+		auto & path = paths[i];
+		auto visitGoal = goals[i];
+
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("Path found %s", path.toString());
+		logAi->trace("Path found %s, %s, %lld", path.toString(), path.targetHero->getObjectName(), path.heroArmy->getArmyStrength());
 #endif
-		if(upgrader->visitingHero && upgrader->visitingHero.get() != path.targetHero)
+
+		if(visitGoal->invalid())
+		{
+#if NKAI_TRACE_LEVEL >= 2
+			logAi->trace("Ignore path. Not valid way.");
+#endif
+			continue;
+		}
+
+		if(upgrader->visitingHero && (upgrader->visitingHero.get() != path.targetHero || path.exchangeCount == 1))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Town has visiting hero.");
@@ -263,18 +310,58 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 		auto upgrade = ai->nullkiller->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
 
-		if(!upgrader->garrisonHero && ai->nullkiller->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN)
+		if(!upgrader->garrisonHero
+			&& (
+				hasMainAround
+				|| ai->nullkiller->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN))
 		{
-			upgrade.upgradeValue +=	
-				ai->nullkiller->armyManager->howManyReinforcementsCanGet(
+			ArmyUpgradeInfo armyToGetOrBuy;
+
+			armyToGetOrBuy.addArmyToGet(
+				ai->nullkiller->armyManager->getBestArmy(
 					path.targetHero,
 					path.heroArmy,
-					upgrader->getUpperArmy());	
+					upgrader->getUpperArmy()));
+
+			armyToGetOrBuy.upgradeValue -= path.heroArmy->getArmyStrength();
+
+			armyToGetOrBuy.addArmyToBuy(
+				ai->nullkiller->armyManager->toSlotInfo(
+					ai->nullkiller->armyManager->getArmyAvailableToBuy(
+						path.heroArmy,
+						upgrader,
+						ai->nullkiller->getFreeResources(),
+						path.turn())));
+
+			upgrade.upgradeValue += armyToGetOrBuy.upgradeValue;
+			upgrade.upgradeCost += armyToGetOrBuy.upgradeCost;
+			vstd::concatenate(upgrade.resultingArmy, armyToGetOrBuy.resultingArmy);
+
+			if(!upgrade.upgradeValue
+				&& armyToGetOrBuy.upgradeValue > 20000
+				&& ai->nullkiller->heroManager->canRecruitHero(town)
+				&& path.turn() < SCOUT_TURN_DISTANCE_LIMIT)
+			{
+				for(auto hero : cb->getAvailableHeroes(town))
+				{
+					auto scoutReinforcement =  ai->nullkiller->armyManager->howManyReinforcementsCanBuy(hero, town)
+						+ ai->nullkiller->armyManager->howManyReinforcementsCanGet(hero, town);
+
+					if(scoutReinforcement >= armyToGetOrBuy.upgradeValue
+						&& ai->nullkiller->getFreeGold() >20000
+						&& ai->nullkiller->buildAnalyzer->getGoldPreasure() < MAX_GOLD_PEASURE)
+					{
+						Composition recruitHero;
+
+						recruitHero.addNext(ArmyUpgrade(path.targetHero, town, armyToGetOrBuy)).addNext(RecruitHero(town, hero));
+					}
+				}
+			}
 		}
 
 		auto armyValue = (float)upgrade.upgradeValue / path.getHeroStrength();
 
-		if((armyValue < 0.1f && armyValue < 20000) || upgrade.upgradeValue < 300) // avoid small upgrades
+		if((armyValue < 0.25f && upgrade.upgradeValue < 40000) || upgrade.upgradeValue < 2000) // avoid small upgrades
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Army value is too small (%f)", armyValue);
@@ -299,11 +386,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 		if(isSafe)
 		{
-			ExecuteHeroChain newWay(path, upgrader);
-			
-			newWay.closestWayRatio = 1;
-
-			tasks.push_back(sptr(Composition().addNext(ArmyUpgrade(path, upgrader, upgrade)).addNext(newWay)));
+			tasks.push_back(sptr(Composition().addNext(ArmyUpgrade(path, upgrader, upgrade)).addNext(visitGoal)));
 		}
 	}
 

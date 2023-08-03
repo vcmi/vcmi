@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "AbstractGoal.h"
 #include "../AIGateway.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
 
 namespace NKAI
@@ -60,7 +58,7 @@ std::string AbstractGoal::toString() const //TODO: virtualize
 		desc = "GATHER TROOPS";
 		break;
 	case GET_ART_TYPE:
-		desc = "GET ARTIFACT OF TYPE " + VLC->arth->objects[aid]->getNameTranslated();
+		desc = "GET ARTIFACT OF TYPE " + VLC->artifacts()->getByIndex(aid)->getNameTranslated();
 		break;
 	case DIG_AT_TILE:
 		desc = "DIG AT TILE " + tile.toString();

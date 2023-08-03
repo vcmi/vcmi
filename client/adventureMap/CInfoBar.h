@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "CConfigHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,7 +26,9 @@ class CShowableAnim;
 class CComponent;
 class CComponentBox;
 class CHeroTooltip;
+class CInteractableHeroTooltip;
 class CTownTooltip;
+class CInteractableTownTooltip;
 class CLabel;
 class CMultiLineLabel;
 
@@ -46,7 +49,7 @@ private:
 		static constexpr int offset_x = 8;
 		static constexpr int offset_y = 12;
 
-		void show(SDL_Surface * to) override;
+		void show(Canvas & to) override;
 
 	protected:
 		std::shared_ptr<CPicture> background;
@@ -66,14 +69,14 @@ private:
 
 	class VisibleHeroInfo : public CVisibleInfo
 	{
-		std::shared_ptr<CHeroTooltip> heroTooltip;
+		std::shared_ptr<CIntObject> heroTooltip; //should have CHeroTooltip or CInteractableHeroTooltip;
 	public:
 		VisibleHeroInfo(const CGHeroInstance * hero);
 	};
 
 	class VisibleTownInfo : public CVisibleInfo
 	{
-		std::shared_ptr<CTownTooltip> townTooltip;
+		std::shared_ptr<CIntObject> townTooltip; //should have CTownTooltip or CInteractableTownTooltip;
 	public:
 		VisibleTownInfo(const CGTownInstance * town);
 	};
@@ -140,6 +143,7 @@ private:
 	EState state;
 	uint32_t timerCounter;
 	bool shouldPopAll = false;
+	SettingsListener listener;
 
 	std::queue<std::pair<VisibleComponentInfo::Cache, int>> componentsQueue;
 
@@ -154,8 +158,8 @@ private:
 
 	void tick(uint32_t msPassed) override;
 
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickReleased(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 	void hover(bool on) override;
 
 	void playNewDaySound();
@@ -191,5 +195,8 @@ public:
 
 	/// check if infobar is showed something about pickups
 	bool showingComponents();
+
+	/// event handler for custom listening on game setting change
+	void OnInfoBarCreatureManagementChanged();
 };
 

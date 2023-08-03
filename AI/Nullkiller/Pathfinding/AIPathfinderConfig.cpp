@@ -15,6 +15,8 @@
 #include "Rules/AIPreviousNodeRule.h"
 #include "../Engine//Nullkiller.h"
 
+#include "../../../lib/pathfinder/CPathfinder.h"
+
 namespace NKAI
 {
 namespace AIPathfinding
@@ -43,6 +45,8 @@ namespace AIPathfinding
 		:PathfinderConfig(nodeStorage, makeRuleset(cb, ai, nodeStorage)), aiNodeStorage(nodeStorage)
 	{
 	}
+
+	AIPathfinderConfig::~AIPathfinderConfig() = default;
 
 	CPathfinderHelper * AIPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs)
 	{

@@ -118,16 +118,21 @@ TEST_F(CatapultApplyTest, DamageToIntactPart)
 	{
 		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
 		config["targetsToAttack"].Integer() = 1;
+		config["chanceToNormalHit"].Integer() = 100;
 		EffectFixture::setupEffect(config);
 	}
 
 	setDefaultExpectations();
 
-	const EWallPart::EWallPart targetPart = EWallPart::BELOW_GATE;
+	const EWallPart targetPart = EWallPart::BELOW_GATE;
+	auto & actualCaster = unitsFake.add(BattleSide::ATTACKER);
 
+	mechanicsMock.caster = &actualCaster;
+	EXPECT_CALL(actualCaster, getCasterUnitId()).WillRepeatedly(Return(-1));
+	EXPECT_CALL(mechanicsMock, isMassive()).WillRepeatedly(Return(true));
 	EXPECT_CALL(*battleFake, getWallState(_)).WillRepeatedly(Return(EWallState::DESTROYED));
-	EXPECT_CALL(*battleFake, getWallState(Eq(int(targetPart)))).WillRepeatedly(Return(EWallState::INTACT));
-	EXPECT_CALL(*battleFake, setWallState(Eq(int(targetPart)), Eq(EWallState::DAMAGED))).Times(1);
+	EXPECT_CALL(*battleFake, getWallState(Eq(targetPart))).WillRepeatedly(Return(EWallState::INTACT));
+	EXPECT_CALL(*battleFake, setWallState(Eq(targetPart), Eq(EWallState::DAMAGED))).Times(1);
 	EXPECT_CALL(serverMock, apply(Matcher<CatapultAttack *>(_))).Times(1);
 
     EffectTarget target;

@@ -640,6 +640,8 @@
 			"shipwreck" : {
 				"index" : 0,
 				"resetDuration" : 0,
+				"blockedVisitable" : true,
+				"coastVisitable" : true,
 				"name" : "Shipwreck",
 				"aiValue" : 2000,
 				"rmg" : {
@@ -732,6 +734,7 @@
 			"derelictShip" : {
 				"index" : 0,
 				"resetDuration" : 0,
+				"blockedVisitable" : true,
 				"name" : "Derelict Ship",
 				"aiValue" : 4000,
 				"rmg" : {

@@ -62,7 +62,8 @@ class TemplatesDropBox : public InterfaceObjectConfigurable
 		void updateItem(int index, const CRmgTemplate * item = nullptr);
 		
 		void hover(bool on) override;
-		void clickLeft(tribool down, bool previousState) override;
+		void clickPressed(const Point & cursorPosition) override;
+		void clickReleased(const Point & cursorPosition) override;
 	};
 	
 	friend struct ListItem;
@@ -70,8 +71,8 @@ class TemplatesDropBox : public InterfaceObjectConfigurable
 public:
 	TemplatesDropBox(RandomMapTab & randomMapTab, int3 size);
 	
-	void hover(bool on) override;
-	void clickLeft(tribool down, bool previousState) override;
+	bool receiveEvent(const Point & position, int eventType) const override;
+	void clickPressed(const Point & cursorPosition) override;
 	void setTemplate(const CRmgTemplate *);
 	
 private:

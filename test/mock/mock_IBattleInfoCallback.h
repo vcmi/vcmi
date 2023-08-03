@@ -16,11 +16,13 @@
 class IBattleInfoCallbackMock : public IBattleInfoCallback
 {
 public:
+#if SCRIPTING_ENABLED
 	MOCK_CONST_METHOD0(getContextPool, scripting::Pool *());
+#endif
 	MOCK_CONST_METHOD0(battleTerrainType, TerrainId());
 	MOCK_CONST_METHOD0(battleGetBattlefieldType, BattleField());
 
-	MOCK_CONST_METHOD0(battleIsFinished, boost::optional<int>());
+	MOCK_CONST_METHOD0(battleIsFinished, std::optional<int>());
 
 	MOCK_CONST_METHOD0(battleTacticDist, si8());
 	MOCK_CONST_METHOD0(battleGetTacticsSide, si8());
@@ -33,8 +35,10 @@ public:
 	MOCK_CONST_METHOD2(battleGetUnitByPos, const battle::Unit *(BattleHex, bool));
 	MOCK_CONST_METHOD0(battleActiveUnit, const battle::Unit *());
 
+	MOCK_CONST_METHOD0(getBonusBearer, IBonusBearer*());
+
 	MOCK_CONST_METHOD2(battleGetAllObstaclesOnPos, std::vector<std::shared_ptr<const CObstacleInstance>>(BattleHex, bool));
-	MOCK_CONST_METHOD1(getAllAffectedObstaclesByStack, std::vector<std::shared_ptr<const CObstacleInstance>>(const battle::Unit *));
+	MOCK_CONST_METHOD2(getAllAffectedObstaclesByStack, std::vector<std::shared_ptr<const CObstacleInstance>>(const battle::Unit *, const std::set<BattleHex> &));
 
 };
 

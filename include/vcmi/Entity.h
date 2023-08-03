@@ -13,6 +13,23 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class IBonusBearer;
+class FactionID;
+enum class ETerrainId;
+template<typename T> class Identifier;
+
+class DLL_LINKAGE IConstBonusProvider
+{
+public:
+	virtual const IBonusBearer * getBonusBearer() const = 0;
+};
+
+class DLL_LINKAGE INativeTerrainProvider
+{
+public:
+	virtual Identifier<ETerrainId> getNativeTerrain() const = 0;
+	virtual FactionID getFaction() const = 0;
+	virtual bool isNativeTerrain(Identifier<ETerrainId> terrain) const;
+};
 
 class DLL_LINKAGE Entity
 {
@@ -38,10 +55,8 @@ public:
 };
 
 template <typename IdType>
-class DLL_LINKAGE EntityWithBonuses : public EntityT<IdType>
+class DLL_LINKAGE EntityWithBonuses : public EntityT<IdType>, public IConstBonusProvider
 {
-public:
-	virtual const IBonusBearer * accessBonuses() const = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

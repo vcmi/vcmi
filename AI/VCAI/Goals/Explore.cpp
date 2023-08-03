@@ -15,8 +15,6 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
 #include "../../../lib/CPlayerState.h"
 
@@ -157,7 +155,7 @@ namespace Goals
 
 					// picking up resources does not yield any exploration at all.
 					// if it blocks the way to some explorable tile AIPathfinder will take care of it
-					if(obj && obj->blockVisit)
+					if(obj && obj->isBlockedVisitable())
 					{
 						continue;
 					}
@@ -269,7 +267,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 			if(!ai->isAbleToExplore(h))
 				return true;
 
-			return !h->movement; //saves time, immobile heroes are useless anyway
+			return !h->movementPointsRemaining(); //saves time, immobile heroes are useless anyway
 		});
 	}
 

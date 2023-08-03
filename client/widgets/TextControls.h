@@ -28,7 +28,7 @@ protected:
 	/// returns size of border, for left- or right-aligned text
 	virtual Point getBorderSize() = 0;
 	/// do actual blitting of line. Text "what" will be placed at "where" and aligned according to alignment
-	void blitLine(SDL_Surface * to, Rect where, std::string what);
+	void blitLine(Canvas & to, Rect where, std::string what);
 
 	CTextContainer(ETextAlignment alignment, EFonts font, SDL_Color color);
 
@@ -45,7 +45,7 @@ protected:
 	Point getBorderSize() override;
 	virtual std::string visibleText();
 
-	std::shared_ptr<CPicture> background;
+	std::shared_ptr<CIntObject> background;
 	std::string text;
 	bool autoRedraw;  //whether control will redraw itself on setTxt
 
@@ -59,7 +59,7 @@ public:
 
 	CLabel(int x = 0, int y = 0, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT,
 		const SDL_Color & Color = Colors::WHITE, const std::string & Text = "");
-	void showAll(SDL_Surface * to) override; //shows statusbar (with current text)
+	void showAll(Canvas & to) override; //shows statusbar (with current text)
 };
 
 /// Small helper class to manage group of similar labels
@@ -94,7 +94,7 @@ public:
 	CMultiLineLabel(Rect position, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const SDL_Color & Color = Colors::WHITE, const std::string & Text = "");
 
 	void setText(const std::string & Txt) override;
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 
 	void setVisibleSize(Rect visibleSize, bool redrawElement = true);
 	// scrolls text visible in widget. Positive value will move text up
@@ -125,9 +125,7 @@ class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusB
 	std::string consoleText;
 	bool enteringText;
 
-	void init();
-
-	CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::CENTER, const SDL_Color & Color = Colors::WHITE);
+	CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::CENTER, const SDL_Color & Color = Colors::WHITE);
 	CGStatusBar(int x, int y, std::string name, int maxw = -1);
 
 	//make CLabel API private
@@ -140,18 +138,20 @@ class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusB
 protected:
 	Point getBorderSize() override;
 
-	void clickLeft(tribool down, bool previousState) override;
+	void clickPressed(const Point & cursorPosition) override;
 
 public:
+	~CGStatusBar();
+
 	template<typename ...Args>
 	static std::shared_ptr<CGStatusBar> create(Args... args)
 	{
 		std::shared_ptr<CGStatusBar> ret{new CGStatusBar{args...}};
-		ret->init();
 		return ret;
 	}
 
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
+	void activate() override;
 	void deactivate() override;
 
 	// IStatusBar interface
@@ -224,10 +224,10 @@ public:
 	CTextInput(const Rect & Pos, const Point & bgOffset, const std::string & bgName, const CFunctionList<void(const std::string &)> & CB);
 	CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf);
 
-	void clickLeft(tribool down, bool previousState) override;
-	void keyPressed(const SDL_Keycode & key) override;
+	void clickPressed(const Point & cursorPosition) override;
+	void keyPressed(EShortcut key) override;
 
-	bool captureThisKey(const SDL_Keycode & key) override;
+	//bool captureThisKey(EShortcut key) override;
 
 	void textInputed(const std::string & enteredText) override;
 	void textEdited(const std::string & enteredText) override;

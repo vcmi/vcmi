@@ -44,7 +44,7 @@ std::string CFilesystemLoader::getMountPoint() const
 	return mountPoint;
 }
 
-boost::optional<boost::filesystem::path> CFilesystemLoader::getResourceName(const ResourceID & resourceName) const
+std::optional<boost::filesystem::path> CFilesystemLoader::getResourceName(const ResourceID & resourceName) const
 {
 	assert(existsResource(resourceName));
 
@@ -104,7 +104,7 @@ std::unordered_map<ResourceID, bfs::path> CFilesystemLoader::listFiles(const std
 		EResType::ARCHIVE_VID,
 		EResType::ARCHIVE_SND,
 		EResType::ARCHIVE_ZIP };
-	static const std::set<EResType::Type> initialTypes(initArray, initArray + ARRAY_COUNT(initArray));
+	static const std::set<EResType::Type> initialTypes(initArray, initArray + std::size(initArray));
 
 	assert(bfs::is_directory(baseDirectory));
 	std::unordered_map<ResourceID, bfs::path> fileList;

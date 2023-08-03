@@ -1,54 +1,55 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI map object type format",
 	"description" : "Description of map object type, used only as sub-schema of object",
-	"required": [ ],
+	"required" : [ ],
 	"additionalProperties" : true, // may have type-dependant properties
-
-	"properties":{
-		"index": {
-			"type":"number"
+	"properties" : {
+		"index" : {
+			"type" : "number"
 		},
-		"aiValue": {
-			"type":"number"
+		"aiValue" : {
+			"type" : "number"
 		},
-		"sounds": {
-			"type":"object",
-			"additionalProperties" : false,
-			"description": "Sounds used by this object",
-			"properties" : {
-				"ambient": {
-					"type":"array",
-					"description": "Background sound of an object",
-					"items": {
-						"type": "string"
-					}
-				},
-				"visit": {
-					"type":"array",
-					"description": "Sound that played on object visit",
-					"items": {
-						"type": "string"
-					}
-				},
-				"removal": {
-					"type":"array",
-					"description": "Sound that played on object removal",
-					"items": {
-						"type": "string"
-					}
-				}
-			}
-		},
-
-		"base": {
+		"base" : {
 			"type" : "object"
 		},
-		"templates": {
-			"type":"object",
-			"additionalProperties": {
+		"templates" : {
+			"type" : "object",
+			"additionalProperties" : {
 				"$ref" : "objectTemplate.json"
+			}
+		},
+		"sounds" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"description" : "Sounds used by this object",
+			"properties" : {
+				"ambient" : {
+					"type" : "array",
+					"description" : "Background sound of an object",
+					"items" : {
+						"type" : "string",
+						"format" : "soundFile"
+					}
+				},
+				"visit" : {
+					"type" : "array",
+					"description" : "Sound that played on object visit",
+					"items" : {
+						"type" : "string",
+						"format" : "soundFile"
+					}
+				},
+				"removal" : {
+					"type" : "array",
+					"description" : "Sound that played on object removal",
+					"items" : {
+						"type" : "string",
+						"format" : "soundFile"
+					}
+				}
 			}
 		}
 	}

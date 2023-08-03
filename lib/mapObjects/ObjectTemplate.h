@@ -36,7 +36,7 @@ class DLL_LINKAGE ObjectTemplate
 	std::set<TerrainId> allowedTerrains;
 
 	/// or, allow placing object on any terrain
-	bool anyTerrain;
+	bool anyLandTerrain;
 
 	void afterLoadFixup();
 
@@ -109,7 +109,7 @@ public:
 
 	inline bool canBePlacedAtAnyTerrain() const
 	{
-		return anyTerrain;
+		return anyLandTerrain;
 	};
 
 	const std::set<TerrainId>& getAllowedTerrains() const
@@ -159,6 +159,7 @@ public:
 	{
 		h & usedTiles;
 		h & allowedTerrains;
+		h & anyLandTerrain;
 		h & animationFile;
 		h & stringID;
 		h & id;

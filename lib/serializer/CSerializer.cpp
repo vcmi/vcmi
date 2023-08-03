@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CSerializer.h"
 
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
 #include "../mapping/CMap.h"
 #include "../CHeroHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
@@ -29,11 +29,11 @@ void CSerializer::addStdVecItems(CGameState *gs, LibClasses *lib)
 	registerVectoredType<CGHeroInstance, HeroTypeID>(&gs->map->allHeroes,
 		[](const CGHeroInstance &h){ return h.type->getId(); });
 	registerVectoredType<CCreature, CreatureID>(&lib->creh->objects,
-		[](const CCreature &cre){ return cre.idNumber; });
+		[](const CCreature &cre){ return cre.getId(); });
 	registerVectoredType<CArtifact, ArtifactID>(&lib->arth->objects,
 		[](const CArtifact &art){ return art.getId(); });
 	registerVectoredType<CArtifactInstance, ArtifactInstanceID>(&gs->map->artInstances,
-		[](const CArtifactInstance &artInst){ return artInst.id; });
+		[](const CArtifactInstance &artInst){ return artInst.getId(); });
 	registerVectoredType<CQuest, si32>(&gs->map->quests,
 		[](const CQuest &q){ return q.qid; });
 

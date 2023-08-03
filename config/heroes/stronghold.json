@@ -135,6 +135,7 @@
 				"sorcery" : {
 					"targetSourceType" : "SECONDARY_SKILL",
 					"type" : "SPELL_DAMAGE",
+					"subtype" : "spellSchool.any",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
 					"valueType" : "PERCENT_TO_TARGET_TYPE"
@@ -239,6 +240,7 @@
 				"sorcery" : {
 					"targetSourceType" : "SECONDARY_SKILL",
 					"type" : "SPELL_DAMAGE",
+					"subtype" : "spellSchool.any",
 					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 5,
 					"valueType" : "PERCENT_TO_TARGET_TYPE"

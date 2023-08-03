@@ -37,13 +37,10 @@
 	"vcmi.systemOptions.otherGroup" : "Иное", // unused right now
 	"vcmi.systemOptions.townsGroup" : "Экран города",
 
-	"vcmi.systemOptions.fullscreenButton.hover" : "Полный экран",
-	"vcmi.systemOptions.fullscreenButton.help"  : "{Полный экран}\n\n Если выбрано, то VCMI будет работать в полноэкранном режиме, если нет - в окне",
 	"vcmi.systemOptions.resolutionButton.hover" : "Разрешение %wx%h",
 	"vcmi.systemOptions.resolutionButton.help"  : "{Разрешение экрана}\n\n Изменение разрешения экрана. Для применения нового разрешения требуется перезапуск игры.",
 	"vcmi.systemOptions.resolutionMenu.hover"   : "Выбрать разрешения экрана",
 	"vcmi.systemOptions.resolutionMenu.help"    : "Изменение разрешения экрана в игре.",
-	"vcmi.systemOptions.fullscreenFailed"       : "{Полный экран}\n\n Невозможно переключиться в полноэкранный режим - выбранное разрешение не поддерживается дисплеем!",
 	"vcmi.systemOptions.framerateButton.hover"  : "Показывать частоту кадров",
 	"vcmi.systemOptions.framerateButton.help"   : "{Показывать частоту кадров}\n\n Включить счетчик частоты кадров в углу игрового клиента",
 
@@ -55,8 +52,6 @@
 	"vcmi.adventureOptions.forceMovementInfo.help" : "{Всегда показывать стоимость перемещения}\n\n Заменить информацию в статусной строке на информацию о перемещении без необходимости нажатия {ALT}",
 	"vcmi.adventureOptions.showGrid.hover" : "Сетка",
 	"vcmi.adventureOptions.showGrid.help" : "{Сетка}\n\n Показывать сетку на видимой части карты.",
-	"vcmi.adventureOptions.mapSwipe.hover" : "Перемещение карты жестами",
-	"vcmi.adventureOptions.mapSwipe.help" : "{Перемещение карты жестами}\n\n Включает перемещение карты жестами на системах с сенсорным экраном. Сейчас также активируется левой кнопкой мыши.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",
@@ -124,7 +119,7 @@
 	"vcmi.questLog.hideComplete.hover" : "Скрыть завершенное",
 	"vcmi.questLog.hideComplete.help"  : "Скрыть все завершенные квесты",
 
-	"vcmi.randomMapTab.widgets.defaultTemplate"      : "(по умолчанию)",
+	"vcmi.randomMapTab.widgets.randomTemplate"      : "(Случайный)",
 	"vcmi.randomMapTab.widgets.templateLabel"        : "Шаблон",
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Настройка...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Распределение команд",
@@ -142,6 +137,16 @@
 	"mapObject.core.dragonUtopia.dragonUtopia.name" : "Утопия драконов",
 	"mapObject.core.pyramid.pyramid.name" : "Пирамида",
 	"mapObject.core.shipwreck.shipwreck.name" : "Кораблекрушение",
+
+	"spell.core.landMineTrigger.name" : "Мина",
+	"spell.core.fireWallTrigger.name" : "Стена огня",
+	"spell.core.castleMoatTrigger.name" : "Ров",
+	"spell.core.rampartMoatTrigger.name" : "Колючий куст",
+	"spell.core.infernoMoatTrigger.name" : "Лава",
+	"spell.core.necropolisMoatTrigger.name" : "Груда костей",
+	"spell.core.dungeonMoatTrigger.name" : "Кипящее масло",
+	"spell.core.strongholdMoatTrigger.name" : "Стена шипов",
+	"spell.core.fortressMoatTrigger.name" : "Кипящая смола",
 
 	// few strings from WoG used by vcmi
 	"vcmi.stackExperience.description" : "» О п ы т   с у щ е с т в «\n\nТип существа ................... : %s\nРанг опыта ................. : %s (%i)\nОчки опыта ............... : %i\nДо следующего .. : %i\nМаксимум за битву ... : %i%% (%i)\nЧисло в отряде .... : %i\nМаксимум новичков\n без потери ранга .... : %i\nМножитель опыта ........... : %.2f\nМножитель улучшения .......... : %.2f\nОпыт после 10 ранга ........ : %i\nМаксимум новичков для сохранения\n ранга 10 при максимальном опыте : %i",
@@ -189,8 +194,6 @@
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "Шанс ${val}% на двойной урон",
 	"core.bonus.DRAGON_NATURE.name": "Дракон",
 	"core.bonus.DRAGON_NATURE.description": "Это существо - дракон",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.name": "Иммунитет к магии прямого урона",
-	"core.bonus.DIRECT_DAMAGE_IMMUNITY.description": "Заклинания прямого урона не могут быть применены",
 	"core.bonus.EARTH_IMMUNITY.name": "Иммунитет к земле",
 	"core.bonus.EARTH_IMMUNITY.description": "Иммунитет ко всем заклинаниям Магии Земли",
 	"core.bonus.ENCHANTER.name": "Заклинатель (массовое)",
@@ -222,7 +225,7 @@
 	"core.bonus.HEALER.name": "Целитель",
 	"core.bonus.HEALER.description": "Исцеляет дружественные юниты",
 	"core.bonus.HP_REGENERATION.name": "Регенерация",
-	"core.bonus.HP_REGENERATION.description": "Исцеляет ${SHval} очков здоровья каждый ход",
+	"core.bonus.HP_REGENERATION.description": "Исцеляет ${val} очков здоровья каждый ход",
 	"core.bonus.JOUSTING.name": "Разгон",
 	"core.bonus.JOUSTING.description": "+${val}% урона за каждую пройденную клетку",
 	"core.bonus.KING.name": "Король",

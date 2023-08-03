@@ -19,6 +19,7 @@
 #include "Effect.h"
 #include "Effects.h"
 #include "Heal.h"
+#include "Moat.h"
 #include "LocationEffect.h"
 #include "Obstacle.h"
 #include "RemoveObstacle.h"
@@ -48,6 +49,7 @@ public:
 		add("core:demonSummon", std::make_shared<EffectFactory<DemonSummon>>());
 		add("core:dispel", std::make_shared<EffectFactory<Dispel>>());
 		add("core:heal", std::make_shared<EffectFactory<Heal>>());
+		add("core:moat", std::make_shared<EffectFactory<Moat>>());
 		add("core:obstacle", std::make_shared<EffectFactory<Obstacle>>());
 		add("core:removeObstacle", std::make_shared<EffectFactory<RemoveObstacle>>());
 		add("core:sacrifice", std::make_shared<EffectFactory<Sacrifice>>());

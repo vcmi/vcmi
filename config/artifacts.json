@@ -1085,6 +1085,7 @@
 	},
 	"necklaceOfOceanGuidance":
 	{
+		"onlyOnWaterMap" : true,
 		"bonuses" : [
 			{
 				"type" : "MOVEMENT",
@@ -1184,7 +1185,8 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "AIR_SPELL_DMG_PREMY",
+				"type" : "SPELL_DAMAGE",
+				"subtype" : "spellSchool.air",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -1196,7 +1198,8 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "EARTH_SPELL_DMG_PREMY",
+				"type" : "SPELL_DAMAGE",
+				"subtype" : "spellSchool.earth",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -1208,7 +1211,8 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "FIRE_SPELL_DMG_PREMY",
+				"type" : "SPELL_DAMAGE",
+				"subtype" : "spellSchool.fire",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -1220,7 +1224,8 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "WATER_SPELL_DMG_PREMY",
+				"type" : "SPELL_DAMAGE",
+				"subtype" : "spellSchool.water",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -1271,7 +1276,8 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "FIRE_SPELLS",
+				"type" : "SPELLS_OF_SCHOOL",
+				"subtype" : 1,
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -1283,7 +1289,8 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "AIR_SPELLS",
+				"type" : "SPELLS_OF_SCHOOL",
+				"subtype" : 0,
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -1295,7 +1302,8 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "WATER_SPELLS",
+				"type" : "SPELLS_OF_SCHOOL",
+				"subtype" : 2,
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -1307,7 +1315,8 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "EARTH_SPELLS",
+				"type" : "SPELLS_OF_SCHOOL",
+				"subtype" : 3,
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
@@ -1317,6 +1326,7 @@
 	},
 	"bootsOfLevitation":
 	{
+		"onlyOnWaterMap" : true,
 		"bonuses" : [
 			{
 				"type" : "WATER_WALKING",
@@ -1788,6 +1798,7 @@
 	},
 	"seaCaptainsHat":
 	{
+		"onlyOnWaterMap" : true,
 		"bonuses" : [
 			{
 				"type" : "WHIRLPOOL_PROTECTION",
@@ -2151,6 +2162,7 @@
 	},
 	"admiralsHat":
 	{
+		"onlyOnWaterMap" : true,
 		"bonuses" : [
 			{
 				"type" : "FREE_SHIP_BOARDING",
@@ -2433,8 +2445,8 @@
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"type" : "DIRECT_DAMAGE_IMMUNITY",
-				"val" : 0,
+				"type" : "SPELL_DAMAGE_REDUCTION",
+				"val" : 100,
 				"valueType" : "BASE_NUMBER"
 			}
 		],

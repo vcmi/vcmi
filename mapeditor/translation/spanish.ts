@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en_US">
+<TS version="2.1" language="es_ES">
 <context>
     <name>ArmyWidget</name>
     <message>
@@ -27,8 +27,6 @@
         <translation>Generando mapa</translation>
     </message>
 </context>
-
-
 <context>
     <name>MainWindow</name>
     <message>
@@ -42,278 +40,326 @@
         <translation>Archivo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="68"/>
+        <location filename="../mainwindow.ui" line="69"/>
         <source>Map</source>
         <translation>Mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="78"/>
+        <location filename="../mainwindow.ui" line="79"/>
         <source>Edit</source>
         <translation>Editar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="89"/>
+        <location filename="../mainwindow.ui" line="90"/>
         <source>View</source>
         <translation>Ver</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="97"/>
+        <location filename="../mainwindow.ui" line="98"/>
         <source>Player</source>
         <translation>Jugador</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="117"/>
+        <location filename="../mainwindow.ui" line="118"/>
         <source>Toolbar</source>
         <translation>Barra de herramientas</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="163"/>
+        <location filename="../mainwindow.ui" line="164"/>
         <source>Minimap</source>
         <translation>Miniatura del mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="239"/>
+        <location filename="../mainwindow.ui" line="240"/>
         <source>Map Objects View</source>
         <translation>Vista de Objetos del Mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="283"/>
+        <location filename="../mainwindow.ui" line="284"/>
         <source>Browser</source>
         <translation>Navegador</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="361"/>
+        <location filename="../mainwindow.ui" line="362"/>
         <source>Inspector</source>
         <translation>Inspector</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="400"/>
+        <location filename="../mainwindow.ui" line="401"/>
         <source>Property</source>
         <translation>Propiedad</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="405"/>
+        <location filename="../mainwindow.ui" line="406"/>
         <source>Value</source>
         <translation>Valor</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="432"/>
+        <location filename="../mainwindow.ui" line="433"/>
         <source>Terrains View</source>
         <translation>Vista de Terrenos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="484"/>
+        <location filename="../mainwindow.ui" line="485"/>
         <source>Brush</source>
         <translation>Pincel</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="763"/>
+        <location filename="../mainwindow.ui" line="764"/>
         <source>Terrains</source>
         <translation>Terrenos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="806"/>
+        <location filename="../mainwindow.ui" line="807"/>
         <source>Roads</source>
         <translation>Caminos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="842"/>
+        <location filename="../mainwindow.ui" line="843"/>
         <source>Rivers</source>
         <translation>Ríos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="889"/>
+        <location filename="../mainwindow.ui" line="890"/>
         <source>Open</source>
         <translation>Abrir</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="901"/>
+        <location filename="../mainwindow.ui" line="902"/>
         <source>Save</source>
         <translation>Guardar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="913"/>
+        <location filename="../mainwindow.ui" line="914"/>
         <source>New</source>
         <translation>Nuevo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="921"/>
-        <source>Save as</source>
-        <translation>Guardar como</translation>
+        <location filename="../mainwindow.ui" line="922"/>
+        <source>Save as...</source>
+        <translation>Guardar como...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="924"/>
+        <location filename="../mainwindow.ui" line="925"/>
         <source>Ctrl+Shift+S</source>
-        <translation></translation>
+        <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="933"/>
+        <location filename="../mainwindow.ui" line="934"/>
         <source>U/G</source>
-        <translation></translation>
+        <translation>Subterráneo/Superficie</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="936"/>
-        <location filename="../mainwindow.cpp" line="746"/>
+        <location filename="../mainwindow.ui" line="937"/>
+        <location filename="../mainwindow.cpp" line="764"/>
         <source>View underground</source>
         <translation>Ver subterráneo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="951"/>
+        <location filename="../mainwindow.ui" line="952"/>
         <source>Pass</source>
         <translation>Pasar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="963"/>
+        <location filename="../mainwindow.ui" line="964"/>
         <source>Cut</source>
         <translation>Cortar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="975"/>
+        <location filename="../mainwindow.ui" line="976"/>
         <source>Copy</source>
         <translation>Copiar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="987"/>
+        <location filename="../mainwindow.ui" line="988"/>
         <source>Paste</source>
         <translation>Pegar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="999"/>
+        <location filename="../mainwindow.ui" line="1000"/>
         <source>Fill</source>
         <translation>Rellenar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1002"/>
+        <location filename="../mainwindow.ui" line="1003"/>
         <source>Fills the selection with obstacles</source>
         <translation>Rellena la selección con obstáculos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1017"/>
+        <location filename="../mainwindow.ui" line="1018"/>
         <source>Grid</source>
         <translation>Rejilla</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1028"/>
+        <location filename="../mainwindow.ui" line="1029"/>
         <source>General</source>
         <translation>General</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1031"/>
+        <location filename="../mainwindow.ui" line="1032"/>
         <source>Map title and description</source>
         <translation>Título y descripción del mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1042"/>
+        <location filename="../mainwindow.ui" line="1043"/>
         <source>Players settings</source>
         <translation>Configuración de jugadores</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1057"/>
-        <location filename="../mainwindow.ui" line="1060"/>
+        <location filename="../mainwindow.ui" line="1058"/>
+        <location filename="../mainwindow.ui" line="1061"/>
         <source>Undo</source>
         <translation>Deshacer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1078"/>
+        <location filename="../mainwindow.ui" line="1079"/>
         <source>Redo</source>
         <translation>Rehacer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1096"/>
+        <location filename="../mainwindow.ui" line="1097"/>
         <source>Erase</source>
         <translation>Borrar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1107"/>
+        <location filename="../mainwindow.ui" line="1108"/>
         <source>Neutral</source>
         <translation>Neutral</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1115"/>
+        <location filename="../mainwindow.ui" line="1116"/>
         <source>Validate</source>
         <translation>Validar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1126"/>
+        <location filename="../mainwindow.ui" line="1127"/>
+        <location filename="../mainwindow.cpp" line="1128"/>
+        <location filename="../mainwindow.cpp" line="1132"/>
+        <location filename="../mainwindow.cpp" line="1191"/>
         <source>Update appearance</source>
         <translation>Actualizar apariencia</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1137"/>
+        <location filename="../mainwindow.ui" line="1138"/>
         <source>Recreate obstacles</source>
         <translation>Recrear obstáculos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1148"/>
+        <location filename="../mainwindow.ui" line="1149"/>
         <source>Player 1</source>
         <translation>Jugador 1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1159"/>
+        <location filename="../mainwindow.ui" line="1160"/>
         <source>Player 2</source>
         <translation>Jugador 2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1170"/>
+        <location filename="../mainwindow.ui" line="1171"/>
         <source>Player 3</source>
         <translation>Jugador 3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1181"/>
+        <location filename="../mainwindow.ui" line="1182"/>
         <source>Player 4</source>
         <translation>Jugador 4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1192"/>
+        <location filename="../mainwindow.ui" line="1193"/>
         <source>Player 5</source>
         <translation>Jugador 5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1203"/>
+        <location filename="../mainwindow.ui" line="1204"/>
         <source>Player 6</source>
         <translation>Jugador 6</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1214"/>
+        <location filename="../mainwindow.ui" line="1215"/>
         <source>Player 7</source>
         <translation>Jugador 7</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1225"/>
+        <location filename="../mainwindow.ui" line="1226"/>
         <source>Player 8</source>
         <translation>Jugador 8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="346"/>
+        <location filename="../mainwindow.ui" line="1234"/>
+        <source>Export as...</source>
+        <translation>Exportar como...</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="252"/>
+        <source>Confirmation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="252"/>
+        <source>Unsaved changes will be lost, are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="329"/>
+        <source>Failed to open map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="329"/>
+        <source>Cannot open map from this folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="370"/>
         <source>Open map</source>
         <translation>Abrir mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="348"/>
+        <location filename="../mainwindow.cpp" line="372"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>Todos los mapas soportados (*.vmap *.h3m);;Mapas VCMI (*.vmap);;Mapas HoMM3 (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="397"/>
-        <location filename="../mainwindow.cpp" line="424"/>
+        <location filename="../mainwindow.cpp" line="421"/>
+        <location filename="../mainwindow.cpp" line="448"/>
         <source>Save map</source>
         <translation>Guardar mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="397"/>
-        <location filename="../mainwindow.cpp" line="424"/>
+        <location filename="../mainwindow.cpp" line="421"/>
+        <location filename="../mainwindow.cpp" line="448"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>Mapas VCMI (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="582"/>
+        <location filename="../mainwindow.cpp" line="606"/>
         <source>Type</source>
         <translation>Tipo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="750"/>
+        <location filename="../mainwindow.cpp" line="768"/>
         <source>View surface</source>
         <translation>Ver superficie</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1128"/>
+        <source>No objects selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1132"/>
+        <source>This operation is irreversible. Do you want to continue?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1191"/>
+        <source>Errors occured. %1 objects were not updated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1231"/>
+        <source>Save to image</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -324,160 +370,218 @@
         <translation>Configuración del mapa</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="40"/>
+        <location filename="../mapsettings.ui" line="33"/>
         <source>General</source>
         <translation>General</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="46"/>
+        <location filename="../mapsettings.ui" line="39"/>
         <source>Map name</source>
         <translation>Nombre del mapa</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="56"/>
+        <location filename="../mapsettings.ui" line="49"/>
         <source>Map description</source>
         <translation>Descripción del mapa</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="66"/>
+        <location filename="../mapsettings.ui" line="83"/>
+        <source>Limit maximum heroes level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="92"/>
         <source>Difficulty</source>
         <translation>Dificultad</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="111"/>
+        <location filename="../mapsettings.ui" line="137"/>
+        <source>Mods</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="143"/>
+        <source>Mandatory mods for playing this map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="157"/>
+        <source>Mod name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="162"/>
+        <source>Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="172"/>
+        <source>Automatic assignment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="179"/>
+        <source>Set required mods based on objects placed on the map. This method may cause problems if you have customized rewards, garrisons, etc from mods</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="182"/>
+        <source>Map objects mods</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="192"/>
+        <source>Set all mods having a game content as mandatory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="195"/>
+        <source>Full content mods</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings.ui" line="208"/>
         <source>Events</source>
         <translation>Eventos</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="121"/>
+        <location filename="../mapsettings.ui" line="218"/>
         <source>Victory</source>
         <translation>Victoria</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="135"/>
+        <location filename="../mapsettings.ui" line="232"/>
         <source>Victory message</source>
         <translation>Mensaje de victoria</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="150"/>
+        <location filename="../mapsettings.ui" line="247"/>
         <source>Only for human players</source>
         <translation>Solo para jugadores humanos</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="157"/>
+        <location filename="../mapsettings.ui" line="254"/>
         <source>Allow standard victory</source>
         <translation>Permitir victoria estándar</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="170"/>
-        <location filename="../mapsettings.ui" line="218"/>
+        <location filename="../mapsettings.ui" line="267"/>
+        <location filename="../mapsettings.ui" line="315"/>
         <source>Parameters</source>
         <translation>Parámetros</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="186"/>
+        <location filename="../mapsettings.ui" line="283"/>
         <source>Loss</source>
         <translation>Derrota</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="195"/>
+        <location filename="../mapsettings.ui" line="292"/>
         <source>7 days without town</source>
         <translation>7 días sin ciudad</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="202"/>
+        <location filename="../mapsettings.ui" line="299"/>
         <source>Defeat message</source>
         <translation>Mensaje de derrota</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="235"/>
+        <location filename="../mapsettings.ui" line="332"/>
         <source>Abilities</source>
         <translation>Habilidades</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="261"/>
+        <location filename="../mapsettings.ui" line="358"/>
         <source>Spells</source>
         <translation>Hechizos</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="287"/>
+        <location filename="../mapsettings.ui" line="384"/>
         <source>Artifacts</source>
         <translation>Artefactos</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="313"/>
+        <location filename="../mapsettings.ui" line="410"/>
         <source>Heroes</source>
         <translation>Héroes</translation>
     </message>
     <message>
-        <location filename="../mapsettings.ui" line="29"/>
+        <location filename="../mapsettings.ui" line="439"/>
         <source>Ok</source>
         <translation>Aceptar</translation>
     </message>
     <message>
-        <location filename="../mapsettings.cpp" line="163"/>
+        <location filename="../mapsettings.cpp" line="174"/>
         <source>No special victory</source>
         <translation>Sin victoria especial</translation>
     </message>
     <message>
-        <location filename="../mapsettings.cpp" line="164"/>
+        <location filename="../mapsettings.cpp" line="175"/>
         <source>Capture artifact</source>
         <translation>Capturar artefacto</translation>
     </message>
     <message>
-        <location filename="../mapsettings.cpp" line="165"/>
+        <location filename="../mapsettings.cpp" line="176"/>
         <source>Hire creatures</source>
         <translation>Contratar criaturas</translation>
     </message>
     <message>
-        <location filename="../mapsettings.cpp" line="166"/>
+        <location filename="../mapsettings.cpp" line="177"/>
         <source>Accumulate resources</source>
         <translation>Acumular recursos</translation>
     </message>
     <message>
-        <location filename="../mapsettings.cpp" line="167"/>
+        <location filename="../mapsettings.cpp" line="178"/>
         <source>Construct building</source>
         <translation>Construir edificio</translation>
     </message>
     <message>
-        <location filename="../mapsettings.cpp" line="168"/>
+        <location filename="../mapsettings.cpp" line="179"/>
         <source>Capture town</source>
         <translation>Capturar ciudad</translation>
     </message>
     <message>
-        <location filename="../mapsettings.cpp" line="169"/>
+        <location filename="../mapsettings.cpp" line="180"/>
         <source>Defeat hero</source>
         <translation>Vencer héroe</translation>
     </message>
     <message>
-        <location filename="../mapsettings.cpp" line="170"/>
+        <location filename="../mapsettings.cpp" line="181"/>
         <source>Transport artifact</source>
         <translation>Transportar artefacto</translation>
     </message>
     <message>
-        <location filename="../mapsettings.cpp" line="173"/>
+        <location filename="../mapsettings.cpp" line="184"/>
         <source>No special loss</source>
         <translation>Sin pérdida especial</translation>
     </message>
     <message>
-        <location filename="../mapsettings.cpp" line="174"/>
+        <location filename="../mapsettings.cpp" line="185"/>
         <source>Lose castle</source>
         <translation>Perder castillo</translation>
     </message>
     <message>
-        <location filename="../mapsettings.cpp" line="175"/>
+        <location filename="../mapsettings.cpp" line="186"/>
         <source>Lose hero</source>
         <translation>Perder héroe</translation>
     </message>
     <message>
-        <location filename="../mapsettings.cpp" line="176"/>
+        <location filename="../mapsettings.cpp" line="187"/>
         <source>Time expired</source>
         <translation>Expiró el tiempo</translation>
     </message>
     <message>
-        <location filename="../mapsettings.cpp" line="177"/>
+        <location filename="../mapsettings.cpp" line="188"/>
         <source>Days without town</source>
         <translation>Días sin ciudad</translation>
+    </message>
+</context>
+<context>
+    <name>MapView</name>
+    <message>
+        <location filename="../mapview.cpp" line="471"/>
+        <source>Can&apos;t place object</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -491,47 +595,51 @@
 <context>
     <name>PlayerParams</name>
     <message>
-        <location filename="../playerparams.ui" line="57"/>
         <source>No team</source>
-        <translation>Sin equipo</translation>
+        <translation type="vanished">Sin equipo</translation>
     </message>
     <message>
-        <location filename="../playerparams.ui" line="65"/>
+        <location filename="../playerparams.ui" line="118"/>
         <source>Human/CPU</source>
         <translation>Humano/CPU</translation>
     </message>
     <message>
-        <location filename="../playerparams.ui" line="72"/>
+        <location filename="../playerparams.ui" line="105"/>
         <source>CPU only</source>
         <translation>Sólo CPU</translation>
     </message>
     <message>
-        <location filename="../playerparams.ui" line="79"/>
+        <location filename="../playerparams.ui" line="92"/>
         <source>Team</source>
         <translation>Equipo</translation>
     </message>
     <message>
-        <location filename="../playerparams.ui" line="86"/>
+        <location filename="../playerparams.ui" line="162"/>
         <source>Main town</source>
         <translation>Ciudad principal</translation>
     </message>
     <message>
-        <location filename="../playerparams.ui" line="93"/>
+        <location filename="../playerparams.ui" line="179"/>
+        <source>Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../playerparams.ui" line="85"/>
         <source>Random faction</source>
         <translation>Facción aleatoria</translation>
     </message>
     <message>
-        <location filename="../playerparams.ui" line="100"/>
+        <location filename="../playerparams.ui" line="72"/>
         <source>Generate hero at main</source>
         <translation>Generar héroe en la ciudad principal</translation>
     </message>
     <message>
-        <location filename="../playerparams.ui" line="108"/>
+        <location filename="../playerparams.ui" line="154"/>
         <source>(default)</source>
         <translation>(predeterminado)</translation>
     </message>
     <message>
-        <location filename="../playerparams.cpp" line="86"/>
+        <location filename="../playerparams.cpp" line="109"/>
         <source>Player ID: %1</source>
         <translation>ID de jugador: %1</translation>
     </message>
@@ -549,7 +657,12 @@
         <translation>Jugadores</translation>
     </message>
     <message>
-        <location filename="../playersettings.ui" line="112"/>
+        <location filename="../playersettings.ui" line="74"/>
+        <source>1</source>
+        <translation type="unfinished">1</translation>
+    </message>
+    <message>
+        <location filename="../playersettings.ui" line="117"/>
         <source>Ok</source>
         <translation>Aceptar</translation>
     </message>
@@ -601,9 +714,114 @@
         <translation>Resultados de la validación del mapa</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="101"/>
+        <location filename="../validator.cpp" line="50"/>
+        <source>Map is not loaded</source>
+        <translation>No se ha cargado ningún mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="70"/>
+        <source>No factions allowed for player %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="73"/>
+        <source>No players allowed to play this map</source>
+        <translation>No hay jugadores autorizados a jugar en este mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="75"/>
+        <source>Map is allowed for one player and cannot be started</source>
+        <translation>El mapa está autorizado para un jugador y no se puede iniciar</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="77"/>
+        <source>No human players allowed to play this map</source>
+        <translation>Ningún jugador humano puede jugar en este mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="93"/>
+        <source>Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
+        <translation>La instancia protegida %1 NOSEPUEDEMARCAR, pero debe tener un propietario NEUTRAL o jugador</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="99"/>
+        <source>Object %1 is assigned to non-playable player %2</source>
+        <translation>El artículo %1 está asignado al jugador no jugable %2</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="106"/>
         <source>Town %1 has undefined owner %2</source>
         <translation>La ciudad %1 no tiene un propietario definido %2</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="116"/>
+        <source>Prison %1 must be a NEUTRAL</source>
+        <translation>%1 prisión debe ser NEUTRA</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="122"/>
+        <source>Hero %1 must have an owner</source>
+        <translation>El héroe %1 debe tener un propietario</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="127"/>
+        <source>Hero %1 is prohibited by map settings</source>
+        <translation>El héroe %1 está prohibido por la configuración del mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="130"/>
+        <source>Hero %1 has duplicate on map</source>
+        <translation>El héroe %1 tiene un duplicado en el mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="133"/>
+        <source>Hero %1 has an empty type and must be removed</source>
+        <translation>El héroe %1 tiene un tipo vacío y debe eliminarse</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="144"/>
+        <source>Spell scroll %1 is prohibited by map settings</source>
+        <translation>%1 desplazamiento de hechizos está prohibido por la configuración del mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="147"/>
+        <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
+        <translation>Pergamino ortográfico %1 no tiene una instancia asignada y debe eliminarse</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="153"/>
+        <source>Artifact %1 is prohibited by map settings</source>
+        <translation>El artefacto %1 está prohibido por la configuración del mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="162"/>
+        <source>Player %1 doesn&apos;t have any starting town</source>
+        <translation>El jugador %1 no tiene ciudad inicial</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="166"/>
+        <source>Map name is not specified</source>
+        <translation>No se especifica el nombre del mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="168"/>
+        <source>Map description is not specified</source>
+        <translation>No se especifica la descripción del mapa</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="175"/>
+        <source>Map contains object from mod &quot;%1&quot;, but doesn&apos;t require it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="181"/>
+        <source>Exception occurs during validation: %1</source>
+        <translation>Se produce una excepción durante la validación: %1</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="185"/>
+        <source>Unknown exception occurs during validation</source>
+        <translation>Se produce una excepción desconocida durante la validación</translation>
     </message>
 </context>
 <context>
@@ -664,114 +882,139 @@
         <translation>Jugadores</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="736"/>
+        <location filename="../windownewmap.ui" line="724"/>
         <source>0</source>
         <translation>0</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="268"/>
+        <location filename="../windownewmap.ui" line="349"/>
         <source>Human/Computer</source>
         <translation>Humano/Ordenador</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="288"/>
-        <location filename="../windownewmap.ui" line="357"/>
-        <location filename="../windownewmap.ui" line="455"/>
-        <location filename="../windownewmap.ui" line="596"/>
+        <location filename="../windownewmap.ui" line="221"/>
+        <location filename="../windownewmap.ui" line="289"/>
+        <location filename="../windownewmap.ui" line="443"/>
+        <location filename="../windownewmap.ui" line="584"/>
         <source>Random</source>
         <translation>Aleatorio</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="336"/>
+        <location filename="../windownewmap.ui" line="269"/>
         <source>Computer only</source>
         <translation>Sólo ordenador</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="428"/>
+        <location filename="../windownewmap.ui" line="380"/>
+        <source>Human teams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="399"/>
+        <source>Computer teams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="416"/>
         <source>Monster strength</source>
         <translation>Fuerza de monstruos</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="477"/>
+        <location filename="../windownewmap.ui" line="465"/>
         <source>Weak</source>
         <translation>Débil</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="496"/>
-        <location filename="../windownewmap.ui" line="637"/>
+        <location filename="../windownewmap.ui" line="484"/>
+        <location filename="../windownewmap.ui" line="625"/>
         <source>Normal</source>
         <translation>Normal</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="515"/>
+        <location filename="../windownewmap.ui" line="503"/>
         <source>Strong</source>
         <translation>Fuerte</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="569"/>
+        <location filename="../windownewmap.ui" line="557"/>
         <source>Water content</source>
         <translation>Contenido del agua</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="618"/>
+        <location filename="../windownewmap.ui" line="606"/>
         <source>None</source>
         <translation>Ninguno</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="656"/>
+        <location filename="../windownewmap.ui" line="644"/>
         <source>Islands</source>
         <translation>Islas</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="701"/>
+        <location filename="../windownewmap.ui" line="689"/>
         <source>Template</source>
         <translation>Plantilla</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="749"/>
+        <location filename="../windownewmap.ui" line="737"/>
         <source>Custom seed</source>
         <translation>Semilla personalizada</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="763"/>
+        <location filename="../windownewmap.ui" line="751"/>
         <source>Generate random map</source>
         <translation>Generar un mapa aleatorio</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="797"/>
+        <location filename="../windownewmap.ui" line="785"/>
         <source>Ok</source>
         <translation>Aceptar</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="816"/>
+        <location filename="../windownewmap.ui" line="804"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.cpp" line="271"/>
+        <source>No template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.cpp" line="271"/>
+        <source>No template for parameters scecified. Random map cannot be generated.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.cpp" line="291"/>
+        <source>RMG failure</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>main</name>
     <message>
-        <location filename="../mainwindow.cpp" line="98"/>
+        <location filename="../mainwindow.cpp" line="101"/>
         <source>Filepath of the map to open.</source>
         <translation>Ruta del archivo del mapa a abrir.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="101"/>
+        <location filename="../mainwindow.cpp" line="104"/>
         <source>Extract original H3 archives into a separate folder.</source>
         <translation>Extraer archivos originales de H3 en una carpeta separada.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="102"/>
+        <location filename="../mainwindow.cpp" line="105"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
         <translation>Desde un archivo extraído, separa TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 y Un44 en imágenes PNG individuales.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="103"/>
+        <location filename="../mainwindow.cpp" line="106"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
         <translation>Desde un archivo extraído, convierte imágenes individuales (encontradas en la carpeta Imágenes) de .pcx a png.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="104"/>
+        <location filename="../mainwindow.cpp" line="107"/>
         <source>Delete original files, for the ones splitted / converted.</source>
         <translation>Eliminar archivos originales, por los que se han separado / convertido.</translation>
     </message>

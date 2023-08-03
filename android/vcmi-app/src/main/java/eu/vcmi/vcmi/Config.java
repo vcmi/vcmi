@@ -17,13 +17,9 @@ public class Config
     public static final String DEFAULT_LANGUAGE = "english";
     public static final int DEFAULT_MUSIC_VALUE = 5;
     public static final int DEFAULT_SOUND_VALUE = 5;
-    public static final int DEFAULT_SCREEN_RES_W = 800;
-    public static final int DEFAULT_SCREEN_RES_H = 600;
 
     public String mLanguage;
-    public int mResolutionWidth;
-    public int mResolutionHeight;
-    public boolean mSwipeEnabled;
+    public int mScreenScale;
     public int mVolumeSound;
     public int mVolumeMusic;
     private String adventureAi;
@@ -43,7 +39,7 @@ public class Config
         return baseObj.optJSONObject(type);
     }
 
-    private static JSONObject accessScreenResNode(final JSONObject baseObj)
+    private static JSONObject accessResolutionNode(final JSONObject baseObj)
     {
         if (baseObj == null)
         {
@@ -53,7 +49,7 @@ public class Config
         final JSONObject video = baseObj.optJSONObject("video");
         if (video != null)
         {
-            return video.optJSONObject("screenRes");
+            return video.optJSONObject("resolution");
         }
         return null;
     }
@@ -85,17 +81,14 @@ public class Config
         final Config config = new Config();
         final JSONObject general = accessNode(obj, "general");
         final JSONObject server = accessNode(obj, "server");
+        final JSONObject resolution = accessResolutionNode(obj);
         config.mLanguage = loadEntry(general, "language", DEFAULT_LANGUAGE);
+        config.mScreenScale = loadEntry(resolution, "scaling", -1);
         config.mVolumeSound = loadEntry(general, "sound", DEFAULT_SOUND_VALUE);
         config.mVolumeMusic = loadEntry(general, "music", DEFAULT_MUSIC_VALUE);
-        config.mSwipeEnabled = loadEntry(general, "swipe", true);
         config.adventureAi = loadEntry(server, "playerAI", "Nullkiller");
         config.mUseRelativePointer = loadEntry(general, "userRelativePointer", false);
         config.mPointerSpeedMultiplier = loadDouble(general, "relativePointerSpeedMultiplier", 1.0);
-
-        final JSONObject screenRes = accessScreenResNode(obj);
-        config.mResolutionWidth = loadEntry(screenRes, "width", DEFAULT_SCREEN_RES_W);
-        config.mResolutionHeight = loadEntry(screenRes, "height", DEFAULT_SCREEN_RES_H);
 
         config.mRawObject = obj;
         return config;
@@ -107,16 +100,9 @@ public class Config
         mIsModified = true;
     }
 
-    public void updateResolution(final int x, final int y)
+    public void updateScreenScale(final int scale)
     {
-        mResolutionWidth = x;
-        mResolutionHeight = y;
-        mIsModified = true;
-    }
-
-    public void updateSwipe(final boolean b)
-    {
-        mSwipeEnabled = b;
+        mScreenScale = scale;
         mIsModified = true;
     }
 
@@ -194,12 +180,12 @@ public class Config
     {
         final JSONObject generalNode = accessNode(mRawObject, "general");
         final JSONObject serverNode = accessNode(mRawObject, "server");
-        final JSONObject screenResNode = accessScreenResNode(mRawObject);
+        final JSONObject resolutionNode = accessResolutionNode(mRawObject);
 
         final JSONObject root = mRawObject == null ? new JSONObject() : mRawObject;
         final JSONObject general = generalNode == null ? new JSONObject() : generalNode;
         final JSONObject video = new JSONObject();
-        final JSONObject screenRes = screenResNode == null ? new JSONObject() : screenResNode;
+        final JSONObject resolution = resolutionNode == null ? new JSONObject() : resolutionNode;
         final JSONObject server = serverNode == null ? new JSONObject() : serverNode;
 
         if (mLanguage != null)
@@ -207,7 +193,6 @@ public class Config
             general.put("language", mLanguage);
         }
 
-        general.put("swipe", mSwipeEnabled);
         general.put("music", mVolumeMusic);
         general.put("sound", mVolumeSound);
         general.put("userRelativePointer", mUseRelativePointer);
@@ -220,11 +205,10 @@ public class Config
             root.put("server", server);
         }
 
-        if (mResolutionHeight > 0 && mResolutionWidth > 0)
+        if (mScreenScale > 0)
         {
-            screenRes.put("width", mResolutionWidth);
-            screenRes.put("height", mResolutionHeight);
-            video.put("screenRes", screenRes);
+            resolution.put("scaling", mScreenScale);
+            video.put("resolution", resolution);
             root.put("video", video);
         }
 

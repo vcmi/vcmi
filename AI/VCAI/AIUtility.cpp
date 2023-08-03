@@ -216,7 +216,7 @@ bool isBlockVisitObj(const int3 & pos)
 {
 	if(auto obj = cb->getTopObj(pos))
 	{
-		if(obj->blockVisit) //we can't stand on that object
+		if(obj->isBlockedVisitable()) //we can't stand on that object
 			return true;
 	}
 
@@ -230,8 +230,8 @@ creInfo infoFromDC(const dwellingContent & dc)
 	ci.creID = dc.second.size() ? dc.second.back() : CreatureID(-1); //should never be accessed
 	if (ci.creID != -1)
 	{
-		ci.cre = VLC->creh->objects[ci.creID];
-		ci.level = ci.cre->level; //this is cretaure tier, while tryRealize expects dwelling level. Ignore.
+		ci.cre = VLC->creatures()->getById(ci.creID);
+		ci.level = ci.cre->getLevel(); //this is creature tier, while tryRealize expects dwelling level. Ignore.
 	}
 	else
 	{
@@ -256,8 +256,8 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 	auto art1 = a1->artType;
 	auto art2 = a2->artType;
 
-	if(art1->price == art2->price)
-		return art1->valOfBonuses(Bonus::PRIMARY_SKILL) > art2->valOfBonuses(Bonus::PRIMARY_SKILL);
+	if(art1->getPrice() == art2->getPrice())
+		return art1->valOfBonuses(BonusType::PRIMARY_SKILL) > art2->valOfBonuses(BonusType::PRIMARY_SKILL);
 	else
-		return art1->price > art2->price;
+		return art1->getPrice() > art2->getPrice();
 }

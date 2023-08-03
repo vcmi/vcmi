@@ -12,7 +12,7 @@
 #include "../AIUtility.h"
 #include "../../../CCallback.h"
 #include "../Goals/CGoal.h"
-#include "../../../lib/CGameState.h"
+#include "../../../lib/gameState/QuestInfo.h"
 
 namespace NKAI
 {

@@ -16,7 +16,8 @@
 
 #include "../lib/ConstTransitivePtr.h"
 #include "GameConstants.h"
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/BonusList.h"
 #include "IHandlerBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -29,19 +30,11 @@ class CRandomGenerator;
 class JsonSerializeFormat;
 class BattleField;
 
-struct SSpecialtyInfo
+enum class EHeroGender : uint8_t
 {
-	si32 type;
-	si32 val;
-	si32 subtype;
-	si32 additionalinfo;
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & type;
-		h & val;
-		h & subtype;
-		h & additionalinfo;
-	}
+	MALE = 0,
+	FEMALE = 1,
+	DEFAULT = 0xff // from h3m, instance has same gender as hero type
 };
 
 class DLL_LINKAGE CHero : public HeroType
@@ -72,12 +65,13 @@ public:
 
 	CHeroClass * heroClass{};
 	std::vector<std::pair<SecondarySkill, ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
-	std::vector<SSpecialtyInfo> specDeprecated;
 	BonusList specialty;
 	std::set<SpellID> spells;
 	bool haveSpellBook = false;
 	bool special = false; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
-	ui8 sex = 0; // default sex: 0=male, 1=female
+	bool onlyOnWaterMap; // hero will be placed only if the map contains water
+	bool onlyOnMapWithoutWater; // hero will be placed only if the map does not contain water
+	EHeroGender gender = EHeroGender::MALE; // default sex: 0=male, 1=female
 
 	/// Graphics
 	std::string iconSpecSmall;
@@ -120,8 +114,10 @@ public:
 		h & specialty;
 		h & spells;
 		h & haveSpellBook;
-		h & sex;
+		h & gender;
 		h & special;
+		h & onlyOnWaterMap;
+		h & onlyOnMapWithoutWater;
 		h & iconSpecSmall;
 		h & iconSpecLarge;
 		h & portraitSmall;
@@ -131,9 +127,6 @@ public:
 		h & battleImage;
 	}
 };
-
-// convert deprecated format
-std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo & spec, int sid = 0);
 
 class DLL_LINKAGE CHeroClass : public HeroClass
 {
@@ -150,7 +143,7 @@ public:
 	};
 
 	//double aggression; // not used in vcmi.
-	TFaction faction;
+	FactionID faction;
 	ui8 affinity; // affinity, using EClassAffinity enum
 
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
@@ -165,7 +158,7 @@ public:
 
 	std::vector<int> secSkillProbability; //probabilities of gaining secondary skills (out of 112), in id order
 
-	std::map<TFaction, int> selectionProbability; //probability of selection in towns
+	std::map<FactionID, int> selectionProbability; //probability of selection in towns
 
 	std::string imageBattleMale;
 	std::string imageBattleFemale;
@@ -210,12 +203,11 @@ public:
 
 		if(!h.saving)
 		{
-			for(auto i = 0; i < secSkillProbability.size(); i++)
-				if(secSkillProbability[i] < 0)
-					secSkillProbability[i] = 0;
+			for(int & i : secSkillProbability)
+				vstd::amax(i, 0);
+		}
 	}
-	}
-	EAlignment::EAlignment getAlignment() const;
+	EAlignment getAlignment() const;
 };
 
 class DLL_LINKAGE CHeroClassHandler : public CHandlerBase<HeroClassID, HeroClass, CHeroClass, HeroClassService>
@@ -251,15 +243,14 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 	/// helpers for loading to avoid huge load functions
 	void loadHeroArmy(CHero * hero, const JsonNode & node) const;
 	void loadHeroSkills(CHero * hero, const JsonNode & node) const;
-	void loadHeroSpecialty(CHero * hero, const JsonNode & node) const;
+	void loadHeroSpecialty(CHero * hero, const JsonNode & node);
 
 	void loadExperience();
 
+	std::vector<std::function<void()>> callAfterLoadFinalization;
+
 public:
 	CHeroClassHandler classes;
-
-	//default costs of going through terrains. -1 means terrain is impassable
-	std::map<TerrainId, int> terrCosts;
 
 	ui32 level(ui64 experience) const; //calculates level corresponding to given experience amount
 	ui64 reqExp(ui32 level) const; //calculates experience required for given level
@@ -281,7 +272,6 @@ public:
 		h & classes;
 		h & objects;
 		h & expPerLevel;
-		h & terrCosts;
 	}
 
 protected:

@@ -15,8 +15,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace vstd
 {
 
-typedef std::function<int64_t()> TRandI64;
-typedef std::function<double()> TRand;
+using TRandI64 = std::function<int64_t()>;
+using TRand = std::function<double()>;
 
 class DLL_LINKAGE RNG
 {

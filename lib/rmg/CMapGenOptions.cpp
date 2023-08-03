@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CMapGenOptions.h"
 
-#include "../mapping/CMap.h"
+#include "../mapping/CMapHeader.h"
 #include "CRmgTemplateStorage.h"
 #include "CRmgTemplate.h"
 #include "CRandomGenerator.h"
@@ -26,6 +26,9 @@ CMapGenOptions::CMapGenOptions()
 	waterContent(EWaterContent::RANDOM), monsterStrength(EMonsterStrength::RANDOM), mapTemplate(nullptr)
 {
 	resetPlayersMap();
+	setRoadEnabled(RoadId(Road::DIRT_ROAD), true);
+	setRoadEnabled(RoadId(Road::GRAVEL_ROAD), true);
+	setRoadEnabled(RoadId(Road::COBBLESTONE_ROAD), true);
 }
 
 si32 CMapGenOptions::getWidth() const
@@ -135,14 +138,14 @@ void CMapGenOptions::setMonsterStrength(EMonsterStrength::EMonsterStrength value
 void CMapGenOptions::resetPlayersMap()
 {
 
-	std::map<PlayerColor, TFaction> rememberTownTypes;
+	std::map<PlayerColor, FactionID> rememberTownTypes;
 	std::map<PlayerColor, TeamID> rememberTeam;
 
 	for(const auto & p : players)
 	{
 		auto town = p.second.getStartingTown();
 		if (town != RANDOM_SIZE)
-			rememberTownTypes[p.first] = town;
+			rememberTownTypes[p.first] = FactionID(town);
 		rememberTeam[p.first] = p.second.getTeam();
 	}
 
@@ -191,7 +194,7 @@ void CMapGenOptions::setStartingTownForPlayer(const PlayerColor & color, si32 to
 	it->second.setStartingTown(town);
 }
 
-void CMapGenOptions::setPlayerTypeForStandardPlayer(const PlayerColor & color, EPlayerType::EPlayerType playerType)
+void CMapGenOptions::setPlayerTypeForStandardPlayer(const PlayerColor & color, EPlayerType playerType)
 {
 	assert(playerType != EPlayerType::COMP_ONLY);
 	auto it = players.find(color);
@@ -233,17 +236,26 @@ void CMapGenOptions::setMapTemplate(const std::string & name)
 		setMapTemplate(VLC->tplh->getTemplate(name));
 }
 
-void CMapGenOptions::setRoadEnabled(const std::string & roadName, bool enable)
+void CMapGenOptions::setRoadEnabled(const RoadId & roadType, bool enable)
 {
-	if(enable)
-		disabledRoads.erase(roadName);
+	if (enable)
+	{
+		enabledRoads.insert(roadType);
+	}
 	else
-		disabledRoads.insert(roadName);
+	{
+		enabledRoads.erase(roadType);
+	}	
 }
 
-bool CMapGenOptions::isRoadEnabled(const std::string & roadName) const
+bool CMapGenOptions::isRoadEnabled(const RoadId & roadType) const
 {
-	return !disabledRoads.count(roadName);
+	return enabledRoads.count(roadType);
+}
+
+bool CMapGenOptions::isRoadEnabled() const
+{
+	return !enabledRoads.empty();
 }
 
 void CMapGenOptions::setPlayerTeam(const PlayerColor & color, const TeamID & team)
@@ -526,12 +538,12 @@ void CMapGenOptions::CPlayerSettings::setStartingTown(si32 value)
 	startingTown = value;
 }
 
-EPlayerType::EPlayerType CMapGenOptions::CPlayerSettings::getPlayerType() const
+EPlayerType CMapGenOptions::CPlayerSettings::getPlayerType() const
 {
 	return playerType;
 }
 
-void CMapGenOptions::CPlayerSettings::setPlayerType(EPlayerType::EPlayerType value)
+void CMapGenOptions::CPlayerSettings::setPlayerType(EPlayerType value)
 {
 	playerType = value;
 }

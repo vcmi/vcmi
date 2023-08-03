@@ -11,6 +11,7 @@
 #include "CEmptyAI.h"
 
 #include "../../lib/CRandomGenerator.h"
+#include "../../lib/CStack.h"
 
 void CEmptyAI::saveGame(BinarySerializer & h, const int version)
 {
@@ -31,6 +32,16 @@ void CEmptyAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_p
 void CEmptyAI::yourTurn()
 {
 	cb->endTurn();
+}
+
+void CEmptyAI::activeStack(const CStack * stack)
+{
+	cb->battleMakeUnitAction(BattleAction::makeDefend(stack));
+}
+
+void CEmptyAI::yourTacticPhase(int distance)
+{
+	cb->battleMakeTacticAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
 }
 
 void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID)

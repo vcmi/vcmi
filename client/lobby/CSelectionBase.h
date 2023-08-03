@@ -120,7 +120,7 @@ public:
 
 	CChatBox(const Rect & rect);
 
-	void keyPressed(const SDL_Keycode & key) override;
+	void keyPressed(EShortcut key) override;
 	void addNewMessage(const std::string & text);
 };
 
@@ -135,7 +135,7 @@ class CFlagBox : public CIntObject
 public:
 	CFlagBox(const Rect & rect);
 	void recreate();
-	void clickRight(tribool down, bool previousState) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 	void showTeamsPopup();
 
 	class CFlagBoxTooltipBox : public CWindowObject

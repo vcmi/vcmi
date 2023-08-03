@@ -10,9 +10,12 @@
 #include "../StdInc.h"
 #include "FuzzyHelper.h"
 
-#include "../../../lib/mapObjects/CommonConstructors.h"
 #include "../Goals/Goals.h"
 #include "Nullkiller.h"
+
+#include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
 
 namespace NKAI
 {
@@ -136,7 +139,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	{
 		if(!vstd::contains(ai->memory->alreadyVisited, obj))
 			return 0;
-		FALLTHROUGH;
+		[[fallthrough]];
 	}
 	case Obj::MONSTER:
 	case Obj::HERO:
@@ -147,17 +150,15 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	case Obj::MINE:
 	case Obj::ABANDONED_MINE:
 	case Obj::PANDORAS_BOX:
-	{
-		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
-		return a->getArmyStrength();
-	}
 	case Obj::CRYPT: //crypt
 	case Obj::CREATURE_BANK: //crebank
 	case Obj::DRAGON_UTOPIA:
 	case Obj::SHIPWRECK: //shipwreck
 	case Obj::DERELICT_SHIP: //derelict ship
-							 //	case Obj::PYRAMID:
-		return estimateBankDanger(dynamic_cast<const CBank *>(obj));
+	{
+		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
+		return a->getArmyStrength();
+	}
 	case Obj::PYRAMID:
 	{
 		if(obj->subID == 0)

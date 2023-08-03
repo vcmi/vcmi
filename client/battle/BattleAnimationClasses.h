@@ -48,7 +48,7 @@ public:
 
 	bool isInitialized();
 	bool tryInitialize();
-	virtual void nextFrame() {} //call every new frame
+	virtual void tick(uint32_t msPassed) {} //call every new frame
 	virtual ~BattleAnimation();
 
 	BattleAnimation(BattleInterface & owner);
@@ -120,7 +120,7 @@ class ColorTransformAnimation : public BattleStackAnimation
 	float totalProgress;
 
 	bool init() override;
-	void nextFrame() override;
+	void tick(uint32_t msPassed) override;
 
 public:
 	ColorTransformAnimation(BattleInterface & owner, const CStack * _stack, const std::string & colorFilterName, const CSpell * spell);
@@ -157,7 +157,7 @@ private:
 
 public:
 	bool init() override;
-	void nextFrame() override;
+	void tick(uint32_t msPassed) override;
 
 	MovementAnimation(BattleInterface & owner, const CStack *_stack, std::vector<BattleHex> _destTiles, int _distance);
 	~MovementAnimation();
@@ -220,7 +220,7 @@ class MeleeAttackAnimation : public AttackAnimation
 public:
 	MeleeAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, bool multiAttack);
 
-	void nextFrame() override;
+	void tick(uint32_t msPassed) override;
 };
 
 
@@ -246,7 +246,7 @@ public:
 	~RangedAttackAnimation();
 
 	bool init() override;
-	void nextFrame() override;
+	void tick(uint32_t msPassed) override;
 };
 
 /// Shooting attack
@@ -275,7 +275,7 @@ public:
 	CatapultAnimation(BattleInterface & owner, const CStack * attacker, BattleHex dest, const CStack * defender, int _catapultDmg = 0);
 
 	void createProjectile(const Point & from, const Point & dest) const override;
-	void nextFrame() override;
+	void tick(uint32_t msPassed) override;
 };
 
 class CastAnimation : public RangedAttackAnimation
@@ -300,7 +300,7 @@ private:
 	int howMany;
 public:
 	bool init() override;
-	void nextFrame() override;
+	void tick(uint32_t msPassed) override;
 
 	DummyAnimation(BattleInterface & owner, int howManyFrames);
 };
@@ -310,6 +310,7 @@ class EffectAnimation : public BattleAnimation
 {
 	std::string soundName;
 	bool effectFinished;
+	bool reversed;
 	int effectFlags;
 
 	std::shared_ptr<CAnimation>	animation;
@@ -323,7 +324,7 @@ class EffectAnimation : public BattleAnimation
 
 	void onEffectFinished();
 	void clearEffect();
-	void playEffect();
+	void playEffect(uint32_t msPassed);
 
 public:
 	enum EEffectFlags
@@ -334,21 +335,21 @@ public:
 	};
 
 	/// Create animation with screen-wide effect
-	EffectAnimation(BattleInterface & owner, std::string animationName, int effects = 0);
+	EffectAnimation(BattleInterface & owner, std::string animationName, int effects = 0, bool reversed = false);
 
 	/// Create animation positioned at point(s). Note that positions must be are absolute, including battleint position offset
-	EffectAnimation(BattleInterface & owner, std::string animationName, Point pos                 , int effects = 0);
-	EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos    , int effects = 0);
+	EffectAnimation(BattleInterface & owner, std::string animationName, Point pos                 , int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos    , int effects = 0, bool reversed = false);
 
 	/// Create animation positioned at certain hex(es)
-	EffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex             , int effects = 0);
-	EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects = 0);
+	EffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex             , int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects = 0, bool reversed = false);
 
-	EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, BattleHex hex,   int effects = 0);
+	EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, BattleHex hex,   int effects = 0, bool reversed = false);
 	 ~EffectAnimation();
 
 	bool init() override;
-	void nextFrame() override;
+	void tick(uint32_t msPassed) override;
 };
 
 class HeroCastAnimation : public BattleAnimation
@@ -366,6 +367,6 @@ class HeroCastAnimation : public BattleAnimation
 public:
 	HeroCastAnimation(BattleInterface & owner, std::shared_ptr<BattleHero> hero, BattleHex dest, const CStack * defender, const CSpell * spell);
 
-	void nextFrame() override;
+	void tick(uint32_t msPassed) override;
 	bool init() override;
 };

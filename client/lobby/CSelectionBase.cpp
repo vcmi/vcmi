@@ -25,11 +25,14 @@
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../mainmenu/CMainMenu.h"
-#include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
@@ -41,6 +44,7 @@
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/serializer/Connection.h"
 
 ISelectionScreenInfo::ISelectionScreenInfo(ESelectionScreen ScreenType)
@@ -70,7 +74,6 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	: CWindowObject(BORDERED | SHADOW_DISABLED), ISelectionScreenInfo(type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	IShowActivatable::type = BLOCK_ADV_HOTKEYS;
 	pos.w = 762;
 	pos.h = 584;
 	if(screenType == ESelectionScreen::campaignList)
@@ -84,12 +87,12 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	}
 	pos = background->center();
 	card = std::make_shared<InfoCard>();
-	buttonBack = std::make_shared<CButton>(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [=](){ close();}, SDLK_ESCAPE);
+	buttonBack = std::make_shared<CButton>(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 {
-	if(curTab && curTab->active)
+	if(curTab && curTab->isActive())
 	{
 		curTab->deactivate();
 		curTab->recActions = 0;
@@ -105,14 +108,14 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 	{
 		curTab.reset();
 	}
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
 }
 
 InfoCard::InfoCard()
 	: showChat(true)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	CIntObject::type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	pos.x += 393;
 	pos.y += 6;
 
@@ -199,7 +202,7 @@ void InfoCard::changeSelection()
 
 	mapDescription->label->scrollTextTo(0, false);
 	if(mapDescription->slider)
-		mapDescription->slider->moveToMin();
+		mapDescription->slider->scrollToMin();
 
 	if(SEL->screenType == ESelectionScreen::campaignList)
 		return;
@@ -207,9 +210,9 @@ void InfoCard::changeSelection()
 	iconsMapSizes->setFrame(mapInfo->getMapSizeIconId());
 	const CMapHeader * header = mapInfo->mapHeader.get();
 	iconsVictoryCondition->setFrame(header->victoryIconIndex);
-	labelVictoryConditionText->setText(header->victoryMessage);
+	labelVictoryConditionText->setText(header->victoryMessage.toString());
 	iconsLossCondition->setFrame(header->defeatIconIndex);
-	labelLossConditionText->setText(header->defeatMessage);
+	labelLossConditionText->setText(header->defeatMessage.toString());
 	flagbox->recreate();
 	labelDifficulty->setText(CGI->generaltexth->arraytxt[142 + mapInfo->mapHeader->difficulty]);
 	iconDifficulty->setSelected(SEL->getCurrentDifficulty());
@@ -299,7 +302,7 @@ void InfoCard::setChat(bool activateChat)
 	}
 
 	showChat = activateChat;
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
 }
 
 CChatBox::CChatBox(const Rect & rect)
@@ -307,8 +310,7 @@ CChatBox::CChatBox(const Rect & rect)
 {
 	OBJ_CONSTRUCTION;
 	pos += rect.topLeft();
-	captureAllKeys = true;
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 
 	const int height = static_cast<int>(graphics->fonts[FONT_SMALL]->getLineHeight());
 	inputBox = std::make_shared<CTextInput>(Rect(0, rect.h - height, rect.w, height), EFonts::FONT_SMALL, 0);
@@ -318,9 +320,9 @@ CChatBox::CChatBox(const Rect & rect)
 	chatHistory->label->color = Colors::GREEN;
 }
 
-void CChatBox::keyPressed(const SDL_Keycode & key)
+void CChatBox::keyPressed(EShortcut key)
 {
-	if(key == SDLK_RETURN && inputBox->getText().size())
+	if(key == EShortcut::GLOBAL_ACCEPT && inputBox->getText().size())
 	{
 		CSH->sendMessage(inputBox->getText());
 		inputBox->setText("");
@@ -334,11 +336,11 @@ void CChatBox::addNewMessage(const std::string & text)
 	CCS->soundh->playSound("CHAT");
 	chatHistory->setText(chatHistory->label->getText() + text + "\n");
 	if(chatHistory->slider)
-		chatHistory->slider->moveToMax();
+		chatHistory->slider->scrollToMax();
 }
 
 CFlagBox::CFlagBox(const Rect & rect)
-	: CIntObject(RCLICK)
+	: CIntObject(SHOW_POPUP)
 {
 	pos += rect.topLeft();
 	pos.w = rect.w;
@@ -375,10 +377,10 @@ void CFlagBox::recreate()
 	}
 }
 
-void CFlagBox::clickRight(tribool down, bool previousState)
+void CFlagBox::showPopupWindow(const Point & cursorPosition)
 {
-	if(down && SEL->getMapInfo())
-		GH.pushIntT<CFlagBoxTooltipBox>(iconsTeamFlags);
+	if(SEL->getMapInfo())
+		GH.windows().createAndPushWindow<CFlagBoxTooltipBox>(iconsTeamFlags);
 }
 
 CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> icons)

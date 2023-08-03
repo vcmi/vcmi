@@ -26,7 +26,7 @@ class CObjectVisitQuery;
 class CQuery;
 class Queries;
 
-typedef std::shared_ptr<CQuery> QueryPtr;
+using QueryPtr = std::shared_ptr<CQuery>;
 
 // This class represents any kind of prolonged interaction that may need to do something special after it is over.
 // It does not necessarily has to be "query" requiring player action, it can be also used internally within server.
@@ -97,9 +97,10 @@ class CBattleQuery : public CGhQuery
 {
 public:
 	std::array<const CArmedInstance *,2> belligerents;
+	std::array<int, 2> initialHeroMana;
 
 	const BattleInfo *bi;
-	boost::optional<BattleResult> result;
+	std::optional<BattleResult> result;
 
 	CBattleQuery(CGameHandler * owner);
 	CBattleQuery(CGameHandler * owner, const BattleInfo * Bi); //TODO
@@ -132,7 +133,7 @@ public:
 	virtual bool blocksPack(const CPack *pack) const override;
 	void setReply(const JsonNode & reply) override;
 protected:
-	boost::optional<ui32> answer;
+	std::optional<ui32> answer;
 };
 
 class CGarrisonDialogQuery : public CDialogQuery //used also for hero exchange dialogs
@@ -143,6 +144,16 @@ public:
 	CGarrisonDialogQuery(CGameHandler * owner, const CArmedInstance *up, const CArmedInstance *down);
 	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
 	virtual bool blocksPack(const CPack *pack) const override;
+};
+
+class CBattleDialogQuery : public CDialogQuery
+{
+public:
+	CBattleDialogQuery(CGameHandler * owner, const BattleInfo * Bi);
+
+	const BattleInfo * bi;
+
+	virtual void onRemoval(PlayerColor color) override;
 };
 
 //yes/no and component selection dialogs

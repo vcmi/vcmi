@@ -10,13 +10,12 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "../../lib/GameConstants.h"
-#include "../render/Canvas.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class ColorRGBA;
 VCMI_LIB_NAMESPACE_END
 
+class Canvas;
 class CMinimap;
 
 class CMinimapInstance : public CIntObject
@@ -32,7 +31,7 @@ class CMinimapInstance : public CIntObject
 public:
 	CMinimapInstance(CMinimap * parent, int level);
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 	void refreshTile(const int3 & pos);
 };
 
@@ -44,13 +43,14 @@ class CMinimap : public CIntObject
 	Rect screenArea;
 	int level;
 
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
-	void hover (bool on) override;
-	void mouseMoved (const Point & cursorPosition) override;
+	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
+	void clickPressed(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
+	void hover(bool on) override;
+	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 
 	/// relocates center of adventure map screen to currently hovered tile
-	void moveAdvMapSelection();
+	void moveAdvMapSelection(const Point & positionGlobal);
 
 protected:
 	/// computes coordinates of tile below cursor pos
@@ -66,8 +66,8 @@ public:
 	void update();
 	void setAIRadar(bool on);
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 
-	void updateTile(const int3 &pos);
+	void updateTiles(const std::unordered_set<int3> & positions);
 };
 

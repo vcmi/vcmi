@@ -16,7 +16,7 @@
 #include "../battle/Destination.h"
 #include "../int3.h"
 #include "../GameConstants.h"
-#include "../HeroBonus.h"
+#include "../bonuses/Bonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -68,8 +68,8 @@ public:
 	using Value = int32_t;
 	using Value64 = int64_t;
 
-	using OptionalValue = boost::optional<Value>;
-	using OptionalValue64 = boost::optional<Value64>;
+	using OptionalValue = std::optional<Value>;
+	using OptionalValue64 = std::optional<Value64>;
 
 	virtual const CSpell * getSpell() const = 0;
 	virtual Mode getMode() const = 0;
@@ -228,13 +228,14 @@ public:
 
 	virtual bool isNegativeSpell() const = 0;
 	virtual bool isPositiveSpell() const = 0;
+	virtual bool isMagicalEffect() const = 0;
 
 	virtual int64_t adjustEffectValue(const battle::Unit * target) const = 0;
 	virtual int64_t applySpellBonus(int64_t value, const battle::Unit * target) const = 0;
 	virtual int64_t applySpecificSpellBonus(int64_t value) const = 0;
 	virtual int64_t calculateRawEffectValue(int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const = 0;
 
-	virtual std::vector<Bonus::BonusType> getElementalImmunity() const = 0;
+	virtual std::vector<BonusType> getElementalImmunity() const = 0;
 
 	//Battle facade
 	virtual bool ownerMatches(const battle::Unit * unit) const = 0;
@@ -288,13 +289,14 @@ public:
 
 	bool isNegativeSpell() const override;
 	bool isPositiveSpell() const override;
+	bool isMagicalEffect() const override;
 
 	int64_t adjustEffectValue(const battle::Unit * target) const override;
 	int64_t applySpellBonus(int64_t value, const battle::Unit * target) const override;
 	int64_t applySpecificSpellBonus(int64_t value) const override;
 	int64_t calculateRawEffectValue(int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const override;
 
-	std::vector<Bonus::BonusType> getElementalImmunity() const override;
+	std::vector<BonusType> getElementalImmunity() const override;
 
 	bool ownerMatches(const battle::Unit * unit) const override;
 	bool ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const override;
@@ -348,7 +350,7 @@ public:
 class DLL_LINKAGE AdventureSpellCastParameters
 {
 public:
-	const CGHeroInstance * caster;
+	const spells::Caster * caster;
 	int3 pos;
 };
 

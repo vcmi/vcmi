@@ -10,23 +10,27 @@
 
 #include "mapcontroller.h"
 
+#include "../lib/ArtifactUtils.h"
 #include "../lib/GameConstants.h"
+#include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapEditManager.h"
+#include "../lib/mapping/ObstacleProxy.h"
 #include "../lib/TerrainHandler.h"
-#include "../lib/mapObjects/CObjectClassesHandler.h"
-#include "../lib/rmg/ObstaclePlacer.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CHeroHandler.h"
+#include "../lib/CModHandler.h"
 #include "../lib/serializer/CMemorySerializer.h"
 #include "mapview.h"
 #include "scenelayer.h"
 #include "maphandler.h"
 #include "mainwindow.h"
 #include "inspector/inspector.h"
-
+#include "VCMI_Lib.h"
 
 MapController::MapController(MainWindow * m): main(m)
 {
@@ -90,9 +94,9 @@ void MapController::repairMap()
 	{
 		map()->allowedArtifact.resize(VLC->arth->getDefaultAllowed().size());
 	}
-	if(VLC->spellh->getDefaultAllowed().size() > map()->allowedSpell.size())
+	if(VLC->spellh->getDefaultAllowed().size() > map()->allowedSpells.size())
 	{
-		map()->allowedSpell.resize(VLC->spellh->getDefaultAllowed().size());
+		map()->allowedSpells.resize(VLC->spellh->getDefaultAllowed().size());
 	}
 	if(VLC->heroh->getDefaultAllowed().size() > map()->allowedHeroes.size())
 	{
@@ -185,7 +189,7 @@ void MapController::repairMap()
 						out.push_back(spell->id);
 					}
 				}
-				auto a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
+				auto a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
 				art->storedArtifact = a;
 			}
 			else
@@ -217,6 +221,18 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 		}
 	);
 	_map->getEditManager()->getUndoManager().clearAll();
+
+	initObstaclePainters(_map.get());
+}
+
+void MapController::initObstaclePainters(CMap * map)
+{
+	for (auto terrain : VLC->terrainTypeHandler->objects)
+	{
+		auto terrainId = terrain->getId();
+		_obstaclePainters[terrainId] = std::make_unique<EditorObstaclePlacer>(map);
+		_obstaclePainters[terrainId]->collectPossibleObstacles(terrainId);
+	}
 }
 
 void MapController::sceneForceUpdate()
@@ -397,20 +413,24 @@ void MapController::commitObstacleFill(int level)
 		return;
 	
 	//split by zones
-	std::map<TerrainId, ObstacleProxy> terrainSelected;
+	for (auto & painter : _obstaclePainters)
+	{
+		painter.second->clearBlockedArea();
+	}
+	
 	for(auto & t : selection)
 	{
 		auto tl = _map->getTile(t);
 		if(tl.blocked || tl.visitable)
 			continue;
 		
-		terrainSelected[tl.terType->getId()].blockedArea.add(t);
+		auto terrain = tl.terType->getId();
+		_obstaclePainters[terrain]->addBlockedTile(t);
 	}
 	
-	for(auto & sel : terrainSelected)
+	for(auto & sel : _obstaclePainters)
 	{
-		sel.second.collectPossibleObstacles(sel.first);
-		sel.second.placeObstacles(_map.get(), CRandomGenerator::getDefault());
+		sel.second->placeObstacles(CRandomGenerator::getDefault());
 	}
 
 	_mapHandler->invalidateObjects();
@@ -553,4 +573,37 @@ void MapController::redo()
 	resetMapHandler();
 	sceneForceUpdate(); //TODO: use smart invalidation (setDirty)
 	main->mapChanged();
+}
+
+ModCompatibilityInfo MapController::modAssessmentAll()
+{
+	ModCompatibilityInfo result;
+	for(auto primaryID : VLC->objtypeh->knownObjects())
+	{
+		for(auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
+		{
+			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
+			auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
+			if(modName != "core")
+				result[modName] = VLC->modh->getModInfo(modName).version;
+		}
+	}
+	return result;
+}
+
+ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
+{
+	ModCompatibilityInfo result;
+	for(auto obj : map.objects)
+	{
+		if(obj->ID == Obj::HERO)
+			continue; //stub! 
+		
+		auto handler = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
+		auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
+		if(modName != "core")
+			result[modName] = VLC->modh->getModInfo(modName).version;
+	}
+	//TODO: terrains?
+	return result;
 }

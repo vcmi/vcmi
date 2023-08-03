@@ -1,10 +1,9 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI hero format",
 	"description" : "Format used to define new heroes in VCMI",
-	"required": [ "army", "class", "skills", "texts" ],
-	
+	"required" : [ "class", "army", "skills", "texts" ],
 	"oneOf" : [
 		{
 			"required" : [ "images" ]
@@ -13,109 +12,104 @@
 			"required" : [ "index" ]
 		}
 	],
-
 	"additionalProperties" : false,
-	"properties":{
-		"army": {
-			"type":"array",
-			"description": "Initial hero army when recruited in tavern",
-			"minItems" : 1,
-			"maxItems" : 3,
-			"items": {
-				"type":"object",
-				"additionalProperties" : false,
-				"required" : [ "creature", "min", "max" ],
-				"properties":{
-					"creature": {
-						"type":"string",
-						"description": "creature"
-					},
-					"max": {
-						"type":"number",
-						"description": "max",
-						"minimum" : 1
-					},
-					"min": {
-						"type":"number",
-						"description": "min",
-						"minimum" : 1
-					}
-				}
-			}
+	"properties" : {
+		"special" : {
+			"type" : "boolean",
+			"description" : "Marks this object as special and not available by default"
 		},
-		"index" : {
-			"type" : "number",
-			"description" : "Private field to break things, do not use."
+		"class" : {
+			"type" : "string",
+			"description" : "Hero class, e.g. knight or battleMage"
 		},
-		"special": {
-				"type":"boolean",
-				"description": "Marks this object as special and not available by default"
+		"female" : {
+			"type" : "boolean",
+			"description" : "This hero is female (changeable via editor)"
 		},
-		"class": {
-			"type":"string",
-			"description": "Hero class, e.g. knight or battleMage"
-		},
-		"female": {
-			"type":"boolean",
-			"description": "This hero is female (changeable via editor)"
-		},
-		"battleImage": {
-			"type":"string",
-			"description": "Custom def used on battle",
+		"battleImage" : {
+			"type" : "string",
+			"description" : "Custom def used on battle",
 			"format" : "defFile"
 		},
-		"images": {
-			"type":"object",
+		"images" : {
+			"type" : "object",
 			"additionalProperties" : false,
-			"description": "images",
-			"required": [ "large", "small", "specialtyLarge", "specialtySmall" ],
-			"properties":{
-				"large": {
-					"type":"string",
-					"description": "Large version of portrait for use in hero screen",
+			"description" : "images",
+			"required" : [ "large", "small", "specialtyLarge", "specialtySmall" ],
+			"properties" : {
+				"large" : {
+					"type" : "string",
+					"description" : "Large version of portrait for use in hero screen",
 					"format" : "imageFile"
 				},
-				"small": {
-					"type":"string",
-					"description": "Small version of portrait for use on adventure map",
+				"small" : {
+					"type" : "string",
+					"description" : "Small version of portrait for use on adventure map",
 					"format" : "imageFile"
 				},
-				"specialtyLarge": {
-					"type":"string",
-					"description": "Large image of hero specilty, used in hero screen",
+				"specialtyLarge" : {
+					"type" : "string",
+					"description" : "Large image of hero specilty, used in hero screen",
 					"format" : "imageFile"
 				},
-				"specialtySmall": {
-					"type":"string",
-					"description": "Small image of hero specialty for use in exchange screen",
+				"specialtySmall" : {
+					"type" : "string",
+					"description" : "Small image of hero specialty for use in exchange screen",
 					"format" : "imageFile"
 				}
 			}
 		},
-		"skills": {
-			"type":"array",
-			"description": "List of skills initially known by hero",
-			"maxItems" : 8,
-			"items": {
-				"type":"object",
+		"army" : {
+			"type" : "array",
+			"description" : "Initial hero army when recruited in tavern",
+			"minItems" : 1,
+			"maxItems" : 3,
+			"items" : {
+				"type" : "object",
 				"additionalProperties" : false,
-				"required" : [ "level", "skill" ],
-				"properties":{
-					"level": {
-						"type":"string",
-						"description": "level",
-						"enum" : [ "basic", "advanced", "expert" ]
+				"required" : [ "creature", "min", "max" ],
+				"properties" : {
+					"creature" : {
+						"type" : "string",
+						"description" : "creature"
 					},
-					"skill": {
-						"type":"string",
-						"description": "skill"
+					"max" : {
+						"type" : "number",
+						"description" : "max",
+						"minimum" : 1
+					},
+					"min" : {
+						"type" : "number",
+						"description" : "min",
+						"minimum" : 1
 					}
 				}
 			}
 		},
-		"specialty": {
+		"skills" : {
+			"type" : "array",
+			"description" : "List of skills initially known by hero",
+			"maxItems" : 8,
+			"items" : {
+				"type" : "object",
+				"additionalProperties" : false,
+				"required" : [ "level", "skill" ],
+				"properties" : {
+					"level" : {
+						"type" : "string",
+						"description" : "level",
+						"enum" : [ "basic", "advanced", "expert" ]
+					},
+					"skill" : {
+						"type" : "string",
+						"description" : "skill"
+					}
+				}
+			}
+		},
+		"specialty" : {
 			"type" : "object",
-			"description": "Description of hero specialty using bonus system",
+			"description" : "Description of hero specialty using bonus system",
 			"additionalProperties" : false,
 			"properties" : { 
 				"base" : {
@@ -133,46 +127,58 @@
 				}
 			}
 		},
-		"spellbook": {
-			"type":"array",
-			"description": "List of starting spells, if available. This entry (even empty) will also grant spellbook",
-			"items": { "type":"string" }
+		"spellbook" : {
+			"type" : "array",
+			"description" : "List of starting spells, if available. This entry (even empty) will also grant spellbook",
+			"items" : { "type" : "string" }
 		},
-		"texts": {
-			"type":"object",
+		"texts" : {
+			"type" : "object",
 			"additionalProperties" : false,
-			"description": "All translatable texts related to hero",
-			"required" : [ "biography", "name", "specialty" ],
-			"properties":{
-				"biography": {
-					"type":"string",
-					"description": "Hero biography"
+			"description" : "All translatable texts related to hero",
+			"required" : [ "name", "biography", "specialty" ],
+			"properties" : {
+				"name" : {
+					"type" : "string",
+					"description" : "Hero name"
 				},
-				"name": {
-					"type":"string",
-					"description": "Hero name"
+				"biography" : {
+					"type" : "string",
+					"description" : "Hero biography"
 				},
-				"specialty": {
-					"type":"object",
+				"specialty" : {
+					"type" : "object",
 					"additionalProperties" : false,
-					"description": "Hero specialty information",
-					"required" : [ "description", "name", "tooltip" ],
-					"properties":{
-						"description": {
-							"type":"string",
-							"description": "Description visible when hovering over specialty icon"
+					"description" : "Hero specialty information",
+					"required" : [ "name", "description", "tooltip" ],
+					"properties" : {
+						"name" : {
+							"type" : "string",
+							"description" : "Name of the specialty"
 						},
-						"name": {
-							"type":"string",
-							"description": "Name of the specialty"
+						"description" : {
+							"type" : "string",
+							"description" : "Description visible when hovering over specialty icon"
 						},
-						"tooltip": {
-							"type":"string",
-							"description": "Tooltip visible on clicking icon."
+						"tooltip" : {
+							"type" : "string",
+							"description" : "Tooltip visible on clicking icon."
 						}
 					}
 				}
 			}
+		},
+		"index" : {
+			"type" : "number",
+			"description" : "Private field to break things, do not use."
+		},
+		"onlyOnWaterMap" : {
+			"type" : "boolean",
+			"description" : "It true, hero won't show up on a map with water"
+		},
+		"onlyOnMapWithoutWater" : {
+			"type" : "boolean",
+			"description" : "It true, hero will show up only if the map contains no water"
 		}
 	}
 }

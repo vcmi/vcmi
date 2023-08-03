@@ -15,6 +15,7 @@
 #include <QStyledItemDelegate>
 #include "../lib/int3.h"
 #include "../lib/GameConstants.h"
+#include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/MapObjects.h"
 #include "../lib/ResourceSet.h"
 
@@ -83,7 +84,7 @@ protected:
 	QTableWidgetItem * addProperty(const QString & value);
 	QTableWidgetItem * addProperty(const int3 & value);
 	QTableWidgetItem * addProperty(const PlayerColor & value);
-	QTableWidgetItem * addProperty(const Res::ERes & value);
+	QTableWidgetItem * addProperty(const GameResID & value);
 	QTableWidgetItem * addProperty(bool value);
 	QTableWidgetItem * addProperty(CGObjectInstance * value);
 	QTableWidgetItem * addProperty(CGCreature::Character value);

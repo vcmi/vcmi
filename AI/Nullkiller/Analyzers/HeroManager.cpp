@@ -13,7 +13,6 @@
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/CHeroHandler.h"
 #include "../../../lib/GameSettings.h"
-#include "../../../lib/CGameState.h"
 
 namespace NKAI
 {
@@ -72,10 +71,10 @@ float HeroManager::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance *
 
 float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 {
-	auto heroSpecial = Selector::source(Bonus::HERO_SPECIAL, hero->type->getIndex());
-	auto secondarySkillBonus = Selector::targetSourceType()(Bonus::SECONDARY_SKILL);
+	auto heroSpecial = Selector::source(BonusSource::HERO_SPECIAL, hero->type->getIndex());
+	auto secondarySkillBonus = Selector::targetSourceType()(BonusSource::SECONDARY_SKILL);
 	auto specialSecondarySkillBonuses = hero->getBonuses(heroSpecial.And(secondarySkillBonus));
-	auto secondarySkillBonuses = hero->getBonuses(Selector::sourceTypeSel(Bonus::SECONDARY_SKILL));
+	auto secondarySkillBonuses = hero->getBonuses(Selector::sourceTypeSel(BonusSource::SECONDARY_SKILL));
 	float specialityScore = 0.0f;
 
 	for(auto bonus : *secondarySkillBonuses)
@@ -126,6 +125,7 @@ void HeroManager::update()
 	}
 
 	std::sort(myHeroes.begin(), myHeroes.end(), scoreSort);
+	heroRoles.clear();
 
 	for(auto hero : myHeroes)
 	{
@@ -181,6 +181,15 @@ float HeroManager::evaluateHero(const CGHeroInstance * hero) const
 	return evaluateFightingStrength(hero);
 }
 
+bool HeroManager::heroCapReached() const
+{
+	const bool includeGarnisoned = true;
+	int heroCount = cb->getHeroCount(ai->playerID, includeGarnisoned);
+
+	return heroCount >= ALLOWED_ROAMING_HEROES
+		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
+}
+
 bool HeroManager::canRecruitHero(const CGTownInstance * town) const
 {
 	if(!town)
@@ -189,16 +198,10 @@ bool HeroManager::canRecruitHero(const CGTownInstance * town) const
 	if(!town || !townHasFreeTavern(town))
 		return false;
 
-	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST)
+	if(cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST)
 		return false;
 
-	const bool includeGarnisoned = true;
-	int heroCount = cb->getHeroCount(ai->playerID, includeGarnisoned);
-
-	if(heroCount >= ALLOWED_ROAMING_HEROES)
-		return false;
-
-	if(heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
+	if(heroCapReached())
 		return false;
 
 	if(!cb->getAvailableHeroes(town).size())
@@ -224,6 +227,31 @@ const CGHeroInstance * HeroManager::findHeroWithGrail() const
 			return h;
 	}
 	return nullptr;
+}
+
+const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit) const
+{
+	const CGHeroInstance * weakestHero = nullptr;
+	auto myHeroes = ai->cb->getHeroesInfo();
+
+	for(auto existingHero : myHeroes)
+	{
+		if(ai->getHeroLockedReason(existingHero) == HeroLockedReason::DEFENCE
+			|| existingHero->getArmyStrength() >armyLimit
+			|| getHeroRole(existingHero) == HeroRole::MAIN
+			|| existingHero->movementPointsRemaining()
+			|| existingHero->artifactsWorn.size() > (existingHero->hasSpellbook() ? 2 : 1))
+		{
+			continue;
+		}
+
+		if(!weakestHero || weakestHero->getFightingStrength() > existingHero->getFightingStrength())
+		{
+			weakestHero = existingHero;
+		}
+	}
+
+	return weakestHero;
 }
 
 SecondarySkillScoreMap::SecondarySkillScoreMap(std::map<SecondarySkill, float> scoreMap)

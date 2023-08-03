@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../widgets/CGarrisonInt.h"
+#include "../windows/CWindowObject.h"
 #include "../widgets/Images.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -66,11 +66,13 @@ public:
 	CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town, const CStructure *Str);
 	bool operator<(const CBuildingRect & p2) const;
 	void hover(bool on) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
-	void mouseMoved (const Point & cursorPosition) override;
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
+	void clickPressed(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
+	void mouseMoved (const Point & cursorPosition, const Point & lastUpdateDistance) override;
+	bool receiveEvent(const Point & position, int eventType) const override;
+	void tick(uint32_t msPassed) override;
+	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
 };
 
 /// Dwelling info box - right-click screen for dwellings
@@ -110,8 +112,8 @@ public:
 	void set(const CGHeroInstance * newHero);
 
 	void hover (bool on) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickPressed(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 	void deactivate() override;
 };
 
@@ -190,8 +192,8 @@ public:
 
 	void update();
 	void hover(bool on) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickPressed(const Point & cursorPosition) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 	bool getShowAvailable();
 };
 
@@ -206,11 +208,11 @@ public:
 	CTownInfo(int posX, int posY, const CGTownInstance * town, bool townHall);
 
 	void hover(bool on) override;
-	void clickRight(tribool down, bool previousState) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 };
 
 /// Class which manages the castle window
-class CCastleInterface : public CStatusbarWindow, public CGarrisonHolder
+class CCastleInterface : public CStatusbarWindow, public IGarrisonHolder
 {
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CLabel> income;
@@ -246,7 +248,7 @@ public:
 
 	void castleTeleport(int where);
 	void townChange();
-	void keyPressed(const SDL_Keycode & key) override;
+	void keyPressed(EShortcut key) override;
 
 	void close();
 	void addBuilding(BuildingID bid);
@@ -272,8 +274,8 @@ class CHallInterface : public CStatusbarWindow
 	public:
 		CBuildingBox(int x, int y, const CGTownInstance * Town, const CBuilding * Building);
 		void hover(bool on) override;
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void clickPressed(const Point & cursorPosition) override;
+		void showPopupWindow(const Point & cursorPosition) override;
 	};
 	const CGTownInstance * town;
 
@@ -344,8 +346,9 @@ class CFortScreen : public CStatusbarWindow
 
 		void creaturesChangedEventHandler();
 		void hover(bool on) override;
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void clickPressed(const Point & cursorPosition) override;
+		void showPopupWindow(const Point & cursorPosition) override;
+
 	};
 	std::shared_ptr<CLabel> title;
 	std::vector<std::shared_ptr<RecruitArea>> recAreas;
@@ -370,8 +373,8 @@ class CMageGuildScreen : public CStatusbarWindow
 
 	public:
 		Scroll(Point position, const CSpell *Spell);
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void clickPressed(const Point & cursorPosition) override;
+		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
 	};
 	std::shared_ptr<CPicture> window;

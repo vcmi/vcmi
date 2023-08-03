@@ -15,27 +15,19 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/ShortcutHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 
 #include "../../lib/CGeneralTextHandler.h"
-
-static std::map<std::string, int> KeycodeMap{
-	{"up", SDLK_UP},
-	{"down", SDLK_DOWN},
-	{"left", SDLK_LEFT},
-	{"right", SDLK_RIGHT},
-	{"space", SDLK_SPACE},
-	{"escape", SDLK_ESCAPE},
-	{"backspace", SDLK_BACKSPACE},
-	{"enter", SDLK_RETURN}
-};
-
+#include "../../lib/filesystem/ResourceID.h"
 
 InterfaceObjectConfigurable::InterfaceObjectConfigurable(const JsonNode & config, int used, Point offset):
 	InterfaceObjectConfigurable(used, offset)
@@ -56,6 +48,7 @@ InterfaceObjectConfigurable::InterfaceObjectConfigurable(int used, Point offset)
 	REGISTER_BUILDER("button", &InterfaceObjectConfigurable::buildButton);
 	REGISTER_BUILDER("labelGroup", &InterfaceObjectConfigurable::buildLabelGroup);
 	REGISTER_BUILDER("slider", &InterfaceObjectConfigurable::buildSlider);
+	REGISTER_BUILDER("layout", &InterfaceObjectConfigurable::buildLayout);
 }
 
 void InterfaceObjectConfigurable::registerBuilder(const std::string & type, BuilderFunction f)
@@ -75,32 +68,75 @@ void InterfaceObjectConfigurable::deleteWidget(const std::string & name)
 		widgets.erase(iter);
 }
 
+void InterfaceObjectConfigurable::loadCustomBuilders(const JsonNode & config)
+{
+	for(auto & item : config.Struct())
+	{
+		std::string typeName = item.first;
+		JsonNode baseConfig = item.second;
+
+		auto const & functor = [this, baseConfig](const JsonNode & widgetConfig) -> std::shared_ptr<CIntObject>
+		{
+			JsonNode actualConfig = widgetConfig;
+			JsonUtils::mergeCopy(actualConfig, baseConfig);
+
+			return this->buildWidget(actualConfig);
+		};
+		registerBuilder(typeName, functor);
+	}
+}
+
 void InterfaceObjectConfigurable::build(const JsonNode &config)
 {
 	OBJ_CONSTRUCTION;
+
 	logGlobal->debug("Building configurable interface object");
 	auto * items = &config;
 	
 	if(config.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
+		if (!config["library"].isNull())
+		{
+			const JsonNode library(ResourceID(config["library"].String()));
+			loadCustomBuilders(library);
+		}
+
+		loadCustomBuilders(config["customTypes"]);
+
 		for(auto & item : config["variables"].Struct())
 		{
 			logGlobal->debug("Read variable named %s", item.first);
 			variables[item.first] = item.second;
 		}
-		
+
 		items = &config["items"];
 	}
 	
-	const std::string unnamedObjectPrefix = "__widget_";
 	for(const auto & item : items->Vector())
-	{
-		std::string name = item["name"].isNull()
-						? unnamedObjectPrefix + std::to_string(unnamedObjectId++)
-						: item["name"].String();
-		logGlobal->debug("Building widget with name %s", name);
-		widgets[name] = buildWidget(item);
-	}
+		addWidget(item["name"].String(), buildWidget(item));
+}
+
+void InterfaceObjectConfigurable::addConditional(const std::string & name, bool active)
+{
+	conditionals[name] = active;
+}
+
+void InterfaceObjectConfigurable::addWidget(const std::string & namePreferred, std::shared_ptr<CIntObject> widget)
+{
+	static const std::string unnamedObjectPrefix = "__widget_";
+
+	std::string nameActual;
+
+	if (widgets.count(namePreferred) == 0)
+		nameActual = namePreferred;
+	else
+		logGlobal->error("Duplicated widget name: '%s'", namePreferred);
+
+	if (nameActual.empty())
+		nameActual = unnamedObjectPrefix + std::to_string(unnamedObjectId++);
+
+	logGlobal->debug("Building widget with name %s", nameActual);
+	widgets[nameActual] = widget;
 }
 
 std::string InterfaceObjectConfigurable::readText(const JsonNode & config) const
@@ -184,6 +220,8 @@ EFonts InterfaceObjectConfigurable::readFont(const JsonNode & config) const
 			return EFonts::FONT_SMALL;
 		if(config.String() == "tiny")
 			return EFonts::FONT_TINY;
+		if(config.String() == "calisto")
+			return EFonts::FONT_CALLI;
 	}
 	logGlobal->debug("Uknown font attribute");
 	return EFonts::FONT_TIMES;
@@ -211,27 +249,20 @@ std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(co
 	return result;
 }
 
-int InterfaceObjectConfigurable::readKeycode(const JsonNode & config) const
+EShortcut InterfaceObjectConfigurable::readHotkey(const JsonNode & config) const
 {
-	logGlobal->debug("Reading keycode");
-	if(config.getType() == JsonNode::JsonType::DATA_INTEGER)
-		return config.Integer();
-	
-	if(config.getType() == JsonNode::JsonType::DATA_STRING)
+	logGlobal->debug("Reading hotkey");
+
+	if(config.getType() != JsonNode::JsonType::DATA_STRING)
 	{
-		auto s = config.String();
-		if(s.size() == 1) //keyboard symbol
-			return s[0];
-
-		if (KeycodeMap.count(s))
-			return KeycodeMap[s];
-
-		logGlobal->error("Invalid keycode '%s' in interface configuration!", config.String());
-		return SDLK_UNKNOWN;
+		logGlobal->error("Invalid hotket format in interface configuration! Expected string!", config.String());
+		return EShortcut::NONE;
 	}
 
-	logGlobal->error("Invalid keycode format in interface configuration! Expected string or integer!", config.String());
-	return SDLK_UNKNOWN;
+	EShortcut result = GH.shortcuts().findShortcut(config.String());
+	if (result == EShortcut::NONE)
+		logGlobal->error("Invalid hotkey '%s' in interface configuration!", config.String());
+	return result;;
 }
 
 std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNode & config) const
@@ -272,7 +303,8 @@ std::shared_ptr<CToggleGroup> InterfaceObjectConfigurable::buildToggleGroup(cons
 		for(const auto & item : config["items"].Vector())
 		{
 			itemIdx = item["index"].isNull() ? itemIdx + 1 : item["index"].Integer();
-			group->addToggle(itemIdx, std::dynamic_pointer_cast<CToggleBase>(buildWidget(item)));
+			auto newToggle = std::dynamic_pointer_cast<CToggleButton>(buildWidget(item));
+			group->addToggle(itemIdx, newToggle);
 		}
 	}
 	if(!config["selected"].isNull())
@@ -304,15 +336,7 @@ std::shared_ptr<CToggleButton> InterfaceObjectConfigurable::buildToggleButton(co
 		assert(imgOrder.size() >= 4);
 		button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
 	}
-	if(!config["callback"].isNull())
-	{
-		std::string callbackName = config["callback"].String();
-
-		if (callbacks.count(callbackName))
-			button->addCallback(callbacks.at(callbackName));
-		else
-			logGlobal->error("Invalid callback '%s' in widget", callbackName );
-	}
+	loadToggleButtonCallback(button, config["callback"]);
 	return button;
 }
 
@@ -336,19 +360,67 @@ std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode
 		assert(imgOrder.size() >= 4);
 		button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
 	}
-	if(!config["callback"].isNull())
-		button->addCallback(std::bind(callbacks.at(config["callback"].String()), 0));
-	if(!config["hotkey"].isNull())
-	{
-		if(config["hotkey"].getType() == JsonNode::JsonType::DATA_VECTOR)
-		{
-			for(auto k : config["hotkey"].Vector())
-				button->assignedKeys.insert(readKeycode(k));
-		}
-		else
-			button->assignedKeys.insert(readKeycode(config["hotkey"]));
-	}
+
+	loadButtonBorderColor(button, config["borderColor"]);
+	loadButtonCallback(button, config["callback"]);
+	loadButtonHotkey(button, config["hotkey"]);
 	return button;
+}
+
+void InterfaceObjectConfigurable::loadButtonBorderColor(std::shared_ptr<CButton> button, const JsonNode & config) const
+{
+	if (config.isNull())
+		return;
+
+	auto color = readColor(config);
+	button->setBorderColor(color);
+}
+
+void InterfaceObjectConfigurable::loadToggleButtonCallback(std::shared_ptr<CToggleButton> button, const JsonNode & config) const
+{
+	if(config.isNull())
+		return;
+
+	std::string callbackName = config.String();
+
+	if (callbacks.count(callbackName) > 0)
+		button->addCallback(callbacks.at(callbackName));
+	else
+		logGlobal->error("Invalid callback '%s' in widget", callbackName );
+}
+
+void InterfaceObjectConfigurable::loadButtonCallback(std::shared_ptr<CButton> button, const JsonNode & config) const
+{
+	if(config.isNull())
+		return;
+
+	std::string callbackName = config.String();
+
+	if (callbacks.count(callbackName) > 0)
+		button->addCallback(std::bind(callbacks.at(callbackName), 0));
+	else
+		logGlobal->error("Invalid callback '%s' in widget", callbackName );
+}
+
+void InterfaceObjectConfigurable::loadButtonHotkey(std::shared_ptr<CButton> button, const JsonNode & config) const
+{
+	if(config.isNull())
+		return;
+
+	if(config.getType() != JsonNode::JsonType::DATA_STRING)
+	{
+		logGlobal->error("Invalid shortcut format - string expected!");
+		return;
+	}
+
+	button->assignedKey = readHotkey(config);
+
+	auto target = shortcuts.find(button->assignedKey);
+	if (target == shortcuts.end())
+		return;
+
+	button->addCallback(target->second.callback);
+	target->second.assignedToButton = true;
 }
 
 std::shared_ptr<CLabelGroup> InterfaceObjectConfigurable::buildLabelGroup(const JsonNode & config) const
@@ -380,7 +452,8 @@ std::shared_ptr<CSlider> InterfaceObjectConfigurable::buildSlider(const JsonNode
 	auto itemsTotal = config["itemsTotal"].Integer();
 	auto value = config["selected"].Integer();
 	bool horizontal = config["orientation"].String() == "horizontal";
-	auto const & result = std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal, style);
+	const auto & result =
+		std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal ? Orientation::HORIZONTAL : Orientation::VERTICAL, style);
 
 	if (!config["scrollBounds"].isNull())
 	{
@@ -407,6 +480,76 @@ std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const 
 	auto image = config["image"].String();
 	auto rect = readRect(config["rect"]);
 	return std::make_shared<CFilledTexture>(image, rect);
+}
+
+/// Small helper class that provides ownership for shared_ptr's of child elements
+class InterfaceLayoutWidget : public CIntObject
+{
+public:
+	std::vector<std::shared_ptr<CIntObject>> ownedChildren;
+	InterfaceLayoutWidget();
+};
+
+InterfaceLayoutWidget::InterfaceLayoutWidget()
+	:CIntObject() 
+{
+	setRedrawParent(true);
+}
+
+std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildLayout(const JsonNode & config)
+{
+	logGlobal->debug("Building widget Layout");
+	bool vertical = config["vertical"].Bool();
+	bool horizontal = config["horizontal"].Bool();
+	bool dynamic = config["dynamic"].Bool();
+	int distance = config["distance"].Integer();
+	std::string customType = config["customType"].String();
+	auto position = readPosition(config["position"]);
+
+	auto result = std::make_shared<InterfaceLayoutWidget>();
+	result->moveBy(position);
+	Point layoutPosition;
+
+	for(auto item : config["items"].Vector())
+	{
+		if (item["type"].String().empty())
+			item["type"].String() = customType;
+
+		if (!item["created"].isNull())
+		{
+			std::string name = item["created"].String();
+
+			if (conditionals.count(name) != 0)
+			{
+				if (!conditionals.at(name))
+					continue;
+			}
+			else
+			{
+				logMod->warn("Unknown condition %s in widget!", name);
+			}
+		}
+
+		auto widget = buildWidget(item);
+
+		addWidget(item["name"].String(), widget);
+		result->ownedChildren.push_back(widget);
+		result->addChild(widget.get(), false);
+
+		widget->moveBy(position + layoutPosition);
+
+		if (dynamic && vertical)
+			layoutPosition.y += widget->pos.h;
+		if (dynamic && horizontal)
+			layoutPosition.x += widget->pos.w;
+
+		if (vertical)
+			layoutPosition.y += distance;
+		if (horizontal)
+			layoutPosition.x += distance;
+	}
+
+	return result;
 }
 
 std::shared_ptr<CShowableAnim> InterfaceObjectConfigurable::buildAnimation(const JsonNode & config) const
@@ -451,4 +594,42 @@ std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(JsonNode co
 
 	logGlobal->error("Builder with type %s is not registered", type);
 	return nullptr;
+}
+
+void InterfaceObjectConfigurable::setShortcutBlocked(EShortcut shortcut, bool isBlocked)
+{
+	auto target = shortcuts.find(shortcut);
+	if (target == shortcuts.end())
+		return;
+
+	target->second.blocked = isBlocked;
+
+	for	(auto & entry : widgets)
+	{
+		auto button = std::dynamic_pointer_cast<CButton>(entry.second);
+
+		if (button && button->assignedKey == shortcut)
+			button->block(isBlocked);
+	}
+}
+
+void InterfaceObjectConfigurable::addShortcut(EShortcut shortcut, std::function<void()> callback)
+{
+	assert(shortcuts.count(shortcut) == 0);
+	shortcuts[shortcut].callback = callback;
+}
+
+void InterfaceObjectConfigurable::keyPressed(EShortcut key)
+{
+	auto target = shortcuts.find(key);
+	if (target == shortcuts.end())
+		return;
+
+	if (target->second.assignedToButton)
+		return; // will be handled by button instance
+
+	if (target->second.blocked)
+		return;
+
+	target->second.callback();
 }

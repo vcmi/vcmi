@@ -12,10 +12,8 @@
 #include "CWindowObject.h"
 #include "../lib/GameConstants.h"
 #include "../lib/ResourceSet.h"
-#include "../lib/CConfigHandler.h"
 #include "../lib/int3.h"
-#include "../widgets/CArtifactHolder.h"
-#include "../widgets/CGarrisonInt.h"
+#include "../widgets/CWindowWithArtifacts.h"
 #include "../widgets/Images.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -36,11 +34,11 @@ class CTextInput;
 class CListBox;
 class CLabelGroup;
 class CToggleButton;
-class CVolumeSlider;
 class CGStatusBar;
 class CTextBox;
 class CResDataBar;
-class CHeroWithMaybePickedArtifact;
+class CGarrisonInt;
+class CGarrisonSlot;
 
 enum class EUserEvent;
 
@@ -61,9 +59,9 @@ class CRecruitmentWindow : public CStatusbarWindow
 
 		CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount);
 
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
-		void showAll(SDL_Surface * to) override;
+		void clickPressed(const Point & cursorPosition) override;
+		void showPopupWindow(const Point & cursorPosition) override;
+		void showAll(Canvas & to) override;
 	};
 
 	std::function<void(CreatureID,int)> onRecruit; //void (int ID, int amount) <-- call to recruit creatures
@@ -90,7 +88,7 @@ class CRecruitmentWindow : public CStatusbarWindow
 	void buy();
 	void sliderMoved(int to);
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 public:
 	const CGDwelling * const dwelling;
 	CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset = 0);
@@ -163,8 +161,8 @@ class CObjectListWindow : public CWindowObject
 		CItem(CObjectListWindow * parent, size_t id, std::string text);
 
 		void select(bool on);
-		void clickLeft(tribool down, bool previousState) override;
-		void onDoubleClick() override;
+		void clickPressed(const Point & cursorPosition) override;
+		void clickDouble(const Point & cursorPosition) override;
 	};
 
 	std::function<void(int)> onSelect;//called when OK button is pressed, returns id of selected item.
@@ -194,7 +192,7 @@ public:
 	std::shared_ptr<CIntObject> genItem(size_t index);
 	void elementSelected();//call callback and close this window
 	void changeSelection(size_t which);
-	void keyPressed(const SDL_Keycode & key) override;
+	void keyPressed(EShortcut key) override;
 };
 
 class CTavernWindow : public CStatusbarWindow
@@ -207,8 +205,8 @@ public:
 		std::string description; // "XXX is a level Y ZZZ with N artifacts"
 		const CGHeroInstance * h;
 
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void clickPressed(const Point & cursorPosition) override;
+		void showPopupWindow(const Point & cursorPosition) override;
 		void hover (bool on) override;
 		HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H);
 
@@ -234,6 +232,9 @@ public:
 
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CLabel> cost;
+	std::shared_ptr<CLabel> heroesForHire;
+	std::shared_ptr<CTextBox> heroDescription;
+
 	std::shared_ptr<CTextBox> rumor;
 
 	CTavernWindow(const CGObjectInstance * TavernObj);
@@ -241,23 +242,11 @@ public:
 
 	void recruitb();
 	void thievesguildb();
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 };
 
 class CCallback;
 class CExchangeWindow;
-
-struct HeroArtifact
-{
-	const CGHeroInstance * hero;
-	const CArtifactInstance * artifact;
-	ArtifactPosition artPosition;
-
-	HeroArtifact(const CGHeroInstance * hero, const CArtifactInstance * artifact, ArtifactPosition artPosition)
-		:hero(hero), artifact(artifact), artPosition(artPosition)
-	{
-	}
-};
 
 class CExchangeController
 {
@@ -285,10 +274,8 @@ private:
 	void moveStack(const CGHeroInstance * source, const CGHeroInstance * target, SlotID sourceSlot);
 };
 
-class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public CWindowWithArtifacts
+class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public CWindowWithArtifacts
 {
-	std::array<std::shared_ptr<CHeroWithMaybePickedArtifact>, 2> herosWArt;
-
 	std::array<std::shared_ptr<CLabel>, 2> titles;
 	std::vector<std::shared_ptr<CAnimImage>> primSkillImages;//shared for both heroes
 	std::array<std::vector<std::shared_ptr<CLabel>>, 2> primSkillValues;
@@ -327,7 +314,7 @@ class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public 
 
 public:
 	std::array<const CGHeroInstance *, 2> heroInst;
-	std::array<std::shared_ptr<CArtifactsOfHero>, 2> artifs;
+	std::array<std::shared_ptr<CArtifactsOfHeroMain>, 2> artifs;
 
 	void updateGarrisons() override;
 
@@ -358,11 +345,11 @@ class CShipyardWindow : public CStatusbarWindow
 	std::shared_ptr<CButton> quit;
 
 public:
-	CShipyardWindow(const std::vector<si32> & cost, int state, int boatType, const std::function<void()> & onBuy);
+	CShipyardWindow(const TResources & cost, int state, BoatId boatType, const std::function<void()> & onBuy);
 };
 
 /// Creature transformer window
-class CTransformerWindow : public CStatusbarWindow, public CGarrisonHolder
+class CTransformerWindow : public CStatusbarWindow, public IGarrisonHolder
 {
 	class CItem : public CIntObject
 	{
@@ -375,14 +362,14 @@ class CTransformerWindow : public CStatusbarWindow, public CGarrisonHolder
 		std::shared_ptr<CLabel> count;
 
 		void move();
-		void clickLeft(tribool down, bool previousState) override;
+		void clickPressed(const Point & cursorPosition) override;
 		void update();
 		CItem(CTransformerWindow * parent, int size, int id);
 	};
 
 	const CArmedInstance * army;//object with army for transforming (hero or town)
 	const CGHeroInstance * hero;//only if we have hero in town
-	const CGTownInstance * town;//market, town garrison is used if hero == nullptr
+	const IMarket * market;//market, town garrison is used if hero == nullptr
 
 	std::shared_ptr<CLabel> titleLeft;
 	std::shared_ptr<CLabel> titleRight;
@@ -399,7 +386,7 @@ public:
 	void makeDeal();
 	void addAll();
 	void updateGarrisons() override;
-	CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town);
+	CTransformerWindow(const IMarket * _market, const CGHeroInstance * _hero);
 };
 
 class CUniversityWindow : public CStatusbarWindow
@@ -415,9 +402,9 @@ class CUniversityWindow : public CStatusbarWindow
 		int ID;//id of selected skill
 		CUniversityWindow * parent;
 
-		void showAll(SDL_Surface * to) override;
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void showAll(Canvas & to) override;
+		void clickPressed(const Point & cursorPosition) override;
+		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
 		int state();//0=can't learn, 1=learned, 2=can learn
 		CItem(CUniversityWindow * _parent, int _ID, int X, int Y);
@@ -463,7 +450,7 @@ public:
 };
 
 /// Garrison window where you can take creatures out of the hero to place it on the garrison
-class CGarrisonWindow : public CWindowObject, public CGarrisonHolder
+class CGarrisonWindow : public CWindowObject, public IGarrisonHolder
 {
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CAnimImage> banner;
@@ -480,7 +467,7 @@ public:
 };
 
 /// Hill fort is the building where you can upgrade units
-class CHillFortWindow : public CStatusbarWindow, public CGarrisonHolder
+class CHillFortWindow : public CStatusbarWindow, public IGarrisonHolder
 {
 private:
 	static const int slotsCount = 7;

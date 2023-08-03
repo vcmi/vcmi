@@ -36,8 +36,8 @@
 #include "../lib/CSoundBase.h"
 #include "../lib/StartInfo.h"
 #include "../lib/CConfigHandler.h"
-#include "../lib/mapping/CCampaignHandler.h"
-#include "../lib/CGameState.h"
+#include "../lib/mapObjects/CGMarket.h"
+#include "../lib/gameState/CGameState.h"
 #include "../lib/CStack.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/GameConstants.h"
@@ -255,6 +255,8 @@ void ApplyClientNetPackVisitor::visitBulkSmartRebalanceStacks(BulkSmartRebalance
 void ApplyClientNetPackVisitor::visitPutArtifact(PutArtifact & pack)
 {
 	callInterfaceIfPresent(cl, pack.al.owningPlayer(), &IGameEventsReceiver::artifactPut, pack.al);
+	if(pack.askAssemble)
+		callInterfaceIfPresent(cl, pack.al.owningPlayer(), &IGameEventsReceiver::askToAssembleArtifact, pack.al);
 }
 
 void ApplyClientNetPackVisitor::visitEraseArtifact(EraseArtifact & pack)
@@ -274,6 +276,8 @@ void ApplyClientNetPackVisitor::visitMoveArtifact(MoveArtifact & pack)
 	moveArtifact(pack.src.owningPlayer());
 	if(pack.src.owningPlayer() != pack.dst.owningPlayer())
 		moveArtifact(pack.dst.owningPlayer());
+
+	cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
 }
 
 void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
@@ -300,11 +304,15 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 void ApplyClientNetPackVisitor::visitAssembledArtifact(AssembledArtifact & pack)
 {
 	callInterfaceIfPresent(cl, pack.al.owningPlayer(), &IGameEventsReceiver::artifactAssembled, pack.al);
+
+	cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
 }
 
 void ApplyClientNetPackVisitor::visitDisassembledArtifact(DisassembledArtifact & pack)
 {
 	callInterfaceIfPresent(cl, pack.al.owningPlayer(), &IGameEventsReceiver::artifactDisassembled, pack.al);
+
+	cl.invalidatePaths(); // hero might have equipped/unequipped Angel Wings
 }
 
 void ApplyClientNetPackVisitor::visitHeroVisit(HeroVisit & pack)
@@ -324,16 +332,15 @@ void ApplyClientNetPackVisitor::visitGiveBonus(GiveBonus & pack)
 	cl.invalidatePaths();
 	switch(pack.who)
 	{
-	case GiveBonus::HERO:
+	case GiveBonus::ETarget::HERO:
 		{
 			const CGHeroInstance *h = gs.getHero(ObjectInstanceID(pack.id));
-			callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroBonusChanged, h, *h->getBonusList().back(), true);
+			callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroBonusChanged, h, pack.bonus, true);
 		}
 		break;
-	case GiveBonus::PLAYER:
+	case GiveBonus::ETarget::PLAYER:
 		{
-			const PlayerState *p = gs.getPlayerState(PlayerColor(pack.id));
-			callInterfaceIfPresent(cl, PlayerColor(pack.id), &IGameEventsReceiver::playerBonusChanged, *p->getBonusList().back(), true);
+			callInterfaceIfPresent(cl, PlayerColor(pack.id), &IGameEventsReceiver::playerBonusChanged, pack.bonus, true);
 		}
 		break;
 	}
@@ -399,13 +406,13 @@ void ApplyClientNetPackVisitor::visitRemoveBonus(RemoveBonus & pack)
 	cl.invalidatePaths();
 	switch(pack.who)
 	{
-	case RemoveBonus::HERO:
+	case GiveBonus::ETarget::HERO:
 		{
 			const CGHeroInstance *h = gs.getHero(ObjectInstanceID(pack.id));
 			callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroBonusChanged, h, pack.bonus, false);
 		}
 		break;
-	case RemoveBonus::PLAYER:
+	case GiveBonus::ETarget::PLAYER:
 		{
 			//const PlayerState *p = gs.getPlayerState(pack.id);
 			callInterfaceIfPresent(cl, PlayerColor(pack.id), &IGameEventsReceiver::playerBonusChanged, pack.bonus, false);
@@ -598,11 +605,24 @@ void ApplyFirstClientNetPackVisitor::visitGiveHero(GiveHero & pack)
 
 void ApplyClientNetPackVisitor::visitInfoWindow(InfoWindow & pack)
 {
-	std::string str;
-	pack.text.toString(str);
+	std::string str = pack.text.toString();
 
 	if(!callInterfaceIfPresent(cl, pack.player, &CGameInterface::showInfoDialog, pack.type, str, pack.components,(soundBase::soundID)pack.soundID))
 		logNetwork->warn("We received InfoWindow for not our player...");
+}
+
+void ApplyFirstClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
+{
+	//inform all players that see this object
+	for(auto it = cl.playerint.cbegin(); it != cl.playerint.cend(); ++it)
+	{
+		if(gs.isVisible(gs.getObjInstance(pack.id), it->first))
+			callInterfaceIfPresent(cl, it->first, &IGameEventsReceiver::beforeObjectPropertyChanged, &pack);
+	}
+
+	// invalidate section of map view with our object and force an update with new flag color
+	if (pack.what == ObjProperty::OWNER)
+		CGI->mh->onObjectInstantRemove(gs.getObjInstance(pack.id));
 }
 
 void ApplyClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
@@ -614,12 +634,9 @@ void ApplyClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 			callInterfaceIfPresent(cl, it->first, &IGameEventsReceiver::objectPropertyChanged, &pack);
 	}
 
+	// invalidate section of map view with our object and force an update with new flag color
 	if (pack.what == ObjProperty::OWNER)
-	{
-		// invalidate section of map view with our object and force an update with new flag color
-		CGI->mh->onObjectInstantRemove(gs.getObjInstance(pack.id));
 		CGI->mh->onObjectInstantAdd(gs.getObjInstance(pack.id));
-	}
 }
 
 void ApplyClientNetPackVisitor::visitHeroLevelUp(HeroLevelUp & pack)
@@ -641,8 +658,7 @@ void ApplyClientNetPackVisitor::visitCommanderLevelUp(CommanderLevelUp & pack)
 
 void ApplyClientNetPackVisitor::visitBlockingDialog(BlockingDialog & pack)
 {
-	std::string str;
-	pack.text.toString(str);
+	std::string str = pack.text.toString();
 
 	if(!callOnlyThatInterface(cl, pack.player, &CGameInterface::showBlockingDialog, str, pack.components, pack.queryID, (soundBase::soundID)pack.soundID, pack.selection(), pack.cancel()))
 		logNetwork->warn("We received YesNoDialog for not our player...");
@@ -704,15 +720,15 @@ void ApplyClientNetPackVisitor::visitBattleSetActiveStack(BattleSetActiveStack &
 
 	const CStack *activated = gs.curB->battleGetStackByID(pack.stack);
 	PlayerColor playerToCall; //pack.player that will move activated stack
-	if (activated->hasBonusOfType(Bonus::HYPNOTIZED))
+	if (activated->hasBonusOfType(BonusType::HYPNOTIZED))
 	{
-		playerToCall = (gs.curB->sides[0].color == activated->owner
+		playerToCall = (gs.curB->sides[0].color == activated->unitOwner()
 			? gs.curB->sides[1].color
 			: gs.curB->sides[0].color);
 	}
 	else
 	{
-		playerToCall = activated->owner;
+		playerToCall = activated->unitOwner();
 	}
 
 	cl.startPlayerBattleAction(playerToCall);
@@ -735,7 +751,7 @@ void ApplyFirstClientNetPackVisitor::visitBattleUpdateGateState(BattleUpdateGate
 
 void ApplyFirstClientNetPackVisitor::visitBattleResult(BattleResult & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleEnd, &pack);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleEnd, &pack, pack.queryID);
 	cl.battleFinished();
 }
 
@@ -760,7 +776,7 @@ void ApplyClientNetPackVisitor::visitBattleAttack(BattleAttack & pack)
 
 void ApplyFirstClientNetPackVisitor::visitStartAction(StartAction & pack)
 {
-	cl.curbaction = boost::make_optional(pack.ba);
+	cl.curbaction = std::make_optional(pack.ba);
 	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::actionStarted, pack.ba);
 }
 
@@ -840,26 +856,6 @@ void ApplyClientNetPackVisitor::visitYourTurn(YourTurn & pack)
 	callOnlyThatInterface(cl, pack.player, &CGameInterface::yourTurn);
 }
 
-void ApplyClientNetPackVisitor::visitSaveGameClient(SaveGameClient & pack)
-{
-	const auto stem = FileInfo::GetPathStem(pack.fname);
-	if(!CResourceHandler::get("local")->createResource(stem.to_string() + ".vcgm1"))
-	{
-		logNetwork->error("Failed to create resource %s", stem.to_string() + ".vcgm1");
-		return;
-	}
-
-	try
-	{
-		CSaveFile save(*CResourceHandler::get()->getResourceName(ResourceID(stem.to_string(), EResType::CLIENT_SAVEGAME)));
-		save << cl;
-	}
-	catch(std::exception &e)
-	{
-		logNetwork->error("Failed to save game:%s", e.what());
-	}
-}
-
 void ApplyClientNetPackVisitor::visitPlayerMessageClient(PlayerMessageClient & pack)
 {
 	logNetwork->debug("pack.player %s sends a message: %s", pack.player.getStr(), pack.text);
@@ -904,7 +900,7 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 	case EOpenWindowMode::SHIPYARD_WINDOW:
 		{
 			const IShipyard *sy = IShipyard::castFrom(cl.getObj(ObjectInstanceID(pack.id1)));
-			callInterfaceIfPresent(cl, sy->o->tempOwner, &IGameEventsReceiver::showShipyardDialog, sy);
+			callInterfaceIfPresent(cl, sy->getObject()->getOwner(), &IGameEventsReceiver::showShipyardDialog, sy);
 		}
 		break;
 	case EOpenWindowMode::THIEVES_GUILD:
@@ -961,7 +957,7 @@ void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 {
 	cl.invalidatePaths();
 
-	const CGObjectInstance *obj = cl.getObj(pack.id);
+	const CGObjectInstance *obj = cl.getObj(pack.createdObjectID);
 	if(CGI->mh)
 		CGI->mh->onObjectFadeIn(obj);
 

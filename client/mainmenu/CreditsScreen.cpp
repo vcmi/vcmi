@@ -20,11 +20,11 @@
 #include "../../lib/filesystem/Filesystem.h"
 
 CreditsScreen::CreditsScreen(Rect rect)
-	: CIntObject(LCLICK | RCLICK), positionCounter(0)
+	: CIntObject(LCLICK), positionCounter(0)
 {
 	pos.w = rect.w;
 	pos.h = rect.h;
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	auto textFile = CResourceHandler::get()->load(ResourceID("DATA/CREDITS.TXT"))->readAll();
 	std::string text((char *)textFile.first.get(), textFile.second);
@@ -34,7 +34,7 @@ CreditsScreen::CreditsScreen(Rect rect)
 	credits->scrollTextTo(-600); // move all text below the screen
 }
 
-void CreditsScreen::show(SDL_Surface * to)
+void CreditsScreen::show(Canvas & to)
 {
 	CIntObject::show(to);
 	positionCounter++;
@@ -43,15 +43,10 @@ void CreditsScreen::show(SDL_Surface * to)
 
 	//end of credits, close this screen
 	if(credits->textSize.y + 600 < positionCounter / 2)
-		clickRight(false, false);
+		clickPressed(GH.getCursorPosition());
 }
 
-void CreditsScreen::clickLeft(tribool down, bool previousState)
-{
-	clickRight(down, previousState);
-}
-
-void CreditsScreen::clickRight(tribool down, bool previousState)
+void CreditsScreen::clickPressed(const Point & cursorPosition)
 {
 	CTabbedInt * menu = dynamic_cast<CTabbedInt *>(parent);
 	assert(menu);

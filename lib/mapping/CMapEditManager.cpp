@@ -10,12 +10,9 @@
 #include "StdInc.h"
 #include "CMapEditManager.h"
 
-
-#include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../VCMI_Lib.h"
 #include "CDrawRoadsOperation.h"
-#include "../mapping/CMap.h"
 #include "CMapOperation.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -25,6 +22,8 @@ CMapUndoManager::CMapUndoManager() :
 	undoCallback([](bool, bool) {})
 {
 }
+
+CMapUndoManager::~CMapUndoManager() = default;
 
 void CMapUndoManager::undo()
 {

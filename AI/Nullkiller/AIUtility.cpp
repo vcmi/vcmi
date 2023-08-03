@@ -17,8 +17,10 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapping/CMapDefines.h"
-
+#include "../../lib/gameState/QuestInfo.h"
 #include "../../lib/GameSettings.h"
+
+#include <vcmi/CreatureService.h>
 
 namespace NKAI
 {
@@ -253,7 +255,7 @@ bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, Pla
 	{
 		auto quest = dynamic_cast<const CGKeys *>(obj);
 
-		if(quest->passableFor(playerColor))
+		if(quest->wasMyColorVisited(playerColor))
 			return true;
 	}
 
@@ -264,7 +266,7 @@ bool isBlockVisitObj(const int3 & pos)
 {
 	if(auto obj = cb->getTopObj(pos))
 	{
-		if(obj->blockVisit) //we can't stand on that object
+		if(obj->isBlockedVisitable()) //we can't stand on that object
 			return true;
 	}
 
@@ -278,8 +280,8 @@ creInfo infoFromDC(const dwellingContent & dc)
 	ci.creID = dc.second.size() ? dc.second.back() : CreatureID(-1); //should never be accessed
 	if (ci.creID != -1)
 	{
-		ci.cre = VLC->creh->objects[ci.creID].get();
-		ci.level = ci.cre->level; //this is cretaure tier, while tryRealize expects dwelling level. Ignore.
+		ci.cre = VLC->creatures()->getById(ci.creID);
+		ci.level = ci.cre->getLevel(); //this is creature tier, while tryRealize expects dwelling level. Ignore.
 	}
 	else
 	{
@@ -304,10 +306,10 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 	auto art1 = a1->artType;
 	auto art2 = a2->artType;
 
-	if(art1->price == art2->price)
-		return art1->valOfBonuses(Bonus::PRIMARY_SKILL) > art2->valOfBonuses(Bonus::PRIMARY_SKILL);
+	if(art1->getPrice() == art2->getPrice())
+		return art1->valOfBonuses(BonusType::PRIMARY_SKILL) > art2->valOfBonuses(BonusType::PRIMARY_SKILL);
 	else
-		return art1->price > art2->price;
+		return art1->getPrice() > art2->getPrice();
 }
 
 bool isWeeklyRevisitable(const CGObjectInstance * obj)
@@ -317,17 +319,13 @@ bool isWeeklyRevisitable(const CGObjectInstance * obj)
 
 	//TODO: allow polling of remaining creatures in dwelling
 	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj))
-		return rewardable->getResetDuration() == 7;
+		return rewardable->configuration.getResetDuration() == 7;
 
 	if(dynamic_cast<const CGDwelling *>(obj))
-		return true;
-	if(dynamic_cast<const CBank *>(obj)) //banks tend to respawn often in mods
 		return true;
 
 	switch(obj->ID)
 	{
-	case Obj::STABLES:
-	case Obj::MAGIC_WELL:
 	case Obj::HILL_FORT:
 		return true;
 	case Obj::BORDER_GATE:
@@ -398,7 +396,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 			{
 				if(level.first
 					&& h->getSlotFor(CreatureID(c)) != SlotID()
-					&& ai->cb->getResourceAmount().canAfford(c.toCreature()->cost))
+					&& ai->cb->getResourceAmount().canAfford(c.toCreature()->getFullRecruitCost()))
 				{
 					return true;
 				}
@@ -411,7 +409,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	{
 		for(auto slot : h->Slots())
 		{
-			if(slot.second->type->upgrades.size())
+			if(slot.second->type->hasUpgrades())
 				return true; //TODO: check price?
 		}
 		return false;
@@ -438,7 +436,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 			return false;
 
 		TResources myRes = ai->getFreeResources();
-		if(myRes[Res::GOLD] < 2000 || myRes[Res::GEMS] < 10)
+		if(myRes[EGameResID::GOLD] < 2000 || myRes[EGameResID::GEMS] < 10)
 			return false;
 		break;
 	}

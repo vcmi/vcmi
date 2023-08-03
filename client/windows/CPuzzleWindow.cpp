@@ -16,6 +16,7 @@
 #include "../adventureMap/CResDataBar.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/TextAlignment.h"
+#include "../gui/Shortcut.h"
 #include "../mapView/MapView.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
@@ -35,8 +36,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 
 	CCS->soundh->playSound(soundBase::OBELISK);
 
-	quitb = std::make_shared<CButton>(Point(670, 538), "IOK6432.DEF", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CPuzzleWindow::close, this), SDLK_RETURN);
-	quitb->assignedKeys.insert(SDLK_ESCAPE);
+	quitb = std::make_shared<CButton>(Point(670, 538), "IOK6432.DEF", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CPuzzleWindow::close, this), EShortcut::GLOBAL_RETURN);
 	quitb->setBorderColor(Colors::METALLIC_GOLD);
 
 	mapView = std::make_shared<PuzzleMapView>(Point(8,9), Point(591, 544), grailPos);
@@ -69,12 +69,12 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 	}
 }
 
-void CPuzzleWindow::showAll(SDL_Surface * to)
+void CPuzzleWindow::showAll(Canvas & to)
 {
 	CWindowObject::showAll(to);
 }
 
-void CPuzzleWindow::show(SDL_Surface * to)
+void CPuzzleWindow::show(Canvas & to)
 {
 	static int animSpeed = 2;
 

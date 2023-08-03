@@ -21,6 +21,8 @@
 #include "../CMusicHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../windows/CSpellWindow.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
@@ -31,6 +33,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
@@ -48,39 +51,44 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 
 	REGISTER_BUILDER("battleConsole", &BattleWindow::buildBattleConsole);
 	
-	const JsonNode config(ResourceID("config/widgets/BattleWindow.json"));
+	const JsonNode config(ResourceID("config/widgets/BattleWindow2.json"));
 	
-	addCallback("options", std::bind(&BattleWindow::bOptionsf, this));
-	addCallback("surrender", std::bind(&BattleWindow::bSurrenderf, this));
-	addCallback("flee", std::bind(&BattleWindow::bFleef, this));
-	addCallback("autofight", std::bind(&BattleWindow::bAutofightf, this));
-	addCallback("spellbook", std::bind(&BattleWindow::bSpellf, this));
-	addCallback("wait", std::bind(&BattleWindow::bWaitf, this));
-	addCallback("defence", std::bind(&BattleWindow::bDefencef, this));
-	addCallback("consoleUp", std::bind(&BattleWindow::bConsoleUpf, this));
-	addCallback("consoleDown", std::bind(&BattleWindow::bConsoleDownf, this));
-	addCallback("tacticNext", std::bind(&BattleWindow::bTacticNextStack, this));
-	addCallback("tacticEnd", std::bind(&BattleWindow::bTacticPhaseEnd, this));
-	addCallback("alternativeAction", std::bind(&BattleWindow::bSwitchActionf, this));
-	
+	addShortcut(EShortcut::GLOBAL_OPTIONS, std::bind(&BattleWindow::bOptionsf, this));
+	addShortcut(EShortcut::BATTLE_SURRENDER, std::bind(&BattleWindow::bSurrenderf, this));
+	addShortcut(EShortcut::BATTLE_RETREAT, std::bind(&BattleWindow::bFleef, this));
+	addShortcut(EShortcut::BATTLE_AUTOCOMBAT, std::bind(&BattleWindow::bAutofightf, this));
+	addShortcut(EShortcut::BATTLE_CAST_SPELL, std::bind(&BattleWindow::bSpellf, this));
+	addShortcut(EShortcut::BATTLE_WAIT, std::bind(&BattleWindow::bWaitf, this));
+	addShortcut(EShortcut::BATTLE_DEFEND, std::bind(&BattleWindow::bDefencef, this));
+	addShortcut(EShortcut::BATTLE_CONSOLE_UP, std::bind(&BattleWindow::bConsoleUpf, this));
+	addShortcut(EShortcut::BATTLE_CONSOLE_DOWN, std::bind(&BattleWindow::bConsoleDownf, this));
+	addShortcut(EShortcut::BATTLE_TACTICS_NEXT, std::bind(&BattleWindow::bTacticNextStack, this));
+	addShortcut(EShortcut::BATTLE_TACTICS_END, std::bind(&BattleWindow::bTacticPhaseEnd, this));
+	addShortcut(EShortcut::BATTLE_SELECT_ACTION, std::bind(&BattleWindow::bSwitchActionf, this));
+
+	addShortcut(EShortcut::BATTLE_TOGGLE_QUEUE, [this](){ this->toggleQueueVisibility();});
+	addShortcut(EShortcut::BATTLE_TOGGLE_HEROES_STATS, [this](){ this->toggleStickyHeroWindowsVisibility();});
+	addShortcut(EShortcut::BATTLE_USE_CREATURE_SPELL, [this](){ this->owner.actionsController->enterCreatureCastingMode(); });
+	addShortcut(EShortcut::GLOBAL_CANCEL, [this](){ this->owner.actionsController->endCastingSpell(); });
+
 	build(config);
 	
 	console = widget<BattleConsole>("console");
 
-	GH.statusbar = console;
 	owner.console = console;
 
 	owner.fieldController.reset( new BattleFieldController(owner));
 	owner.fieldController->createHeroes();
 
 	createQueue();
+	createStickyHeroInfoWindows();
 
 	if ( owner.tacticsMode )
 		tacticPhaseStarted();
 	else
 		tacticPhaseEnded();
 
-	addUsedEvents(RCLICK | KEYBOARD);
+	addUsedEvents(LCLICK | KEYBOARD);
 }
 
 void BattleWindow::createQueue()
@@ -108,6 +116,41 @@ void BattleWindow::createQueue()
 
 	if (!showQueue)
 		queue->disable();
+}
+
+void BattleWindow::createStickyHeroInfoWindows()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	if(owner.defendingHeroInstance)
+	{
+		InfoAboutHero info;
+		info.initFromHero(owner.defendingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
+		Point position = (GH.screenDimensions().x >= 1000)
+				? Point(pos.x + pos.w + 15, pos.y)
+				: Point(pos.x + pos.w -79, pos.y + 135);
+		defenderHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, &position);
+	}
+	if(owner.attackingHeroInstance)
+	{
+		InfoAboutHero info;
+		info.initFromHero(owner.attackingHeroInstance, InfoAboutHero::EInfoLevel::INBATTLE);
+		Point position = (GH.screenDimensions().x >= 1000)
+				? Point(pos.x - 93, pos.y)
+				: Point(pos.x + 1, pos.y + 135);
+		attackerHeroWindow = std::make_shared<HeroInfoBasicPanel>(info, &position);
+	}
+
+	bool showInfoWindows = settings["battle"]["stickyHeroInfoWindows"].Bool();
+
+	if(!showInfoWindows)
+	{
+		if(attackerHeroWindow)
+			attackerHeroWindow->disable();
+
+		if(defenderHeroWindow)
+			defenderHeroWindow->disable();
+	}
 }
 
 BattleWindow::~BattleWindow()
@@ -148,7 +191,7 @@ void BattleWindow::hideQueue()
 		pos.h -= queue->pos.h;
 		pos = center();
 	}
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
 }
 
 void BattleWindow::showQueue()
@@ -161,7 +204,45 @@ void BattleWindow::showQueue()
 
 	createQueue();
 	updateQueue();
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
+}
+
+void BattleWindow::toggleStickyHeroWindowsVisibility()
+{
+	if(settings["battle"]["stickyHeroInfoWindows"].Bool())
+		hideStickyHeroWindows();
+	else
+		showStickyHeroWindows();
+}
+
+void BattleWindow::hideStickyHeroWindows()
+{
+	if(settings["battle"]["stickyHeroInfoWindows"].Bool() == false)
+		return;
+
+	Settings showStickyHeroInfoWindows = settings.write["battle"]["stickyHeroInfoWindows"];
+	showStickyHeroInfoWindows->Bool() = false;
+
+	if(attackerHeroWindow)
+		attackerHeroWindow->disable();
+
+	if(defenderHeroWindow)
+		defenderHeroWindow->disable();
+
+	GH.windows().totalRedraw();
+}
+
+void BattleWindow::showStickyHeroWindows()
+{
+	if(settings["battle"]["stickyHeroInfoWindows"].Bool() == true)
+		return;
+
+	Settings showStickyHeroInfoWindows = settings.write["battle"]["stickyHeroInfoWindows"];
+	showStickyHeroInfoWindows->Bool() = true;
+
+
+	createStickyHeroInfoWindows();
+	GH.windows().totalRedraw();
 }
 
 void BattleWindow::updateQueue()
@@ -169,45 +250,64 @@ void BattleWindow::updateQueue()
 	queue->update();
 }
 
+void BattleWindow::updateHeroInfoWindow(uint8_t side, const InfoAboutHero & hero)
+{
+	std::shared_ptr<HeroInfoBasicPanel> panelToUpdate = side == 0 ? attackerHeroWindow : defenderHeroWindow;
+	panelToUpdate->update(hero);
+}
+
+void BattleWindow::heroManaPointsChanged(const CGHeroInstance * hero)
+{
+	if(hero == owner.attackingHeroInstance || hero == owner.defendingHeroInstance)
+	{
+		InfoAboutHero heroInfo = InfoAboutHero();
+		heroInfo.initFromHero(hero, InfoAboutHero::INBATTLE);
+
+		updateHeroInfoWindow(hero == owner.attackingHeroInstance ? 0 : 1, heroInfo);
+	}
+	else
+	{
+		logGlobal->error("BattleWindow::heroManaPointsChanged: 'Mana points changed' called for hero not belonging to current battle window");
+	}
+}
+
 void BattleWindow::activate()
 {
-	GH.statusbar = console;
+	GH.setStatusbar(console);
 	CIntObject::activate();
 	LOCPLINT->cingconsole->activate();
 }
 
 void BattleWindow::deactivate()
 {
+	GH.setStatusbar(nullptr);
 	CIntObject::deactivate();
 	LOCPLINT->cingconsole->deactivate();
 }
 
-void BattleWindow::keyPressed(const SDL_Keycode & key)
+bool BattleWindow::captureThisKey(EShortcut key)
+{
+	return owner.openingPlaying();
+}
+
+void BattleWindow::keyPressed(EShortcut key)
 {
 	if (owner.openingPlaying())
 	{
 		owner.openingEnd();
 		return;
 	}
-
-	if(key == SDLK_q)
-	{
-		toggleQueueVisibility();
-	}
-	else if(key == SDLK_f)
-	{
-		owner.actionsController->enterCreatureCastingMode();
-	}
-	else if(key == SDLK_ESCAPE)
-	{
-		owner.actionsController->endCastingSpell();
-	}
+	InterfaceObjectConfigurable::keyPressed(key);
 }
 
-void BattleWindow::clickRight(tribool down, bool previousState)
+void BattleWindow::clickPressed(const Point & cursorPosition)
 {
-	if (!down)
-		owner.actionsController->endCastingSpell();
+	if (owner.openingPlaying())
+	{
+		owner.openingEnd();
+		return;
+	}
+	InterfaceObjectConfigurable::clickPressed(cursorPosition);
 }
 
 void BattleWindow::tacticPhaseStarted()
@@ -259,7 +359,7 @@ void BattleWindow::bOptionsf()
 
 	CCS->curh->set(Cursor::Map::POINTER);
 
-	GH.pushIntT<SettingsMainWindow>(&owner);
+	GH.windows().createAndPushWindow<SettingsMainWindow>(&owner);
 }
 
 void BattleWindow::bSurrenderf()
@@ -319,7 +419,7 @@ void BattleWindow::reallyFlee()
 
 void BattleWindow::reallySurrender()
 {
-	if (owner.curInt->cb->getResourceAmount(Res::GOLD) < owner.curInt->cb->battleGetSurrenderCost())
+	if (owner.curInt->cb->getResourceAmount(EGameResID::GOLD) < owner.curInt->cb->battleGetSurrenderCost())
 	{
 		owner.curInt->showInfoDialog(CGI->generaltexth->allTexts[29]); //You don't have enough gold!
 	}
@@ -366,7 +466,7 @@ void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 	}
 		
 	auto anim = std::make_shared<CAnimation>(iconName);
-	w->setImage(anim, false);
+	w->setImage(anim);
 	w->redraw();
 }
 
@@ -401,7 +501,7 @@ void BattleWindow::bAutofightf()
 
 		auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
 		ai->initBattleInterface(owner.curInt->env, owner.curInt->cb);
-		ai->battleStart(owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.curInt->cb->battleGetMySide());
+		ai->battleStart(owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.curInt->cb->battleGetMySide(), false);
 		owner.curInt->autofightingAI = ai;
 		owner.curInt->cb->registerBattleInterface(ai);
 
@@ -427,17 +527,17 @@ void BattleWindow::bSpellf()
 
 	if(spellCastProblem == ESpellCastProblem::OK)
 	{
-		GH.pushIntT<CSpellWindow>(myHero, owner.curInt.get());
+		GH.windows().createAndPushWindow<CSpellWindow>(myHero, owner.curInt.get());
 	}
 	else if (spellCastProblem == ESpellCastProblem::MAGIC_IS_BLOCKED)
 	{
 		//TODO: move to spell mechanics, add more information to spell cast problem
 		//Handle Orb of Inhibition-like effects -> we want to display dialog with info, why casting is impossible
-		auto blockingBonus = owner.currentHero()->getBonusLocalFirst(Selector::type()(Bonus::BLOCK_ALL_MAGIC));
+		auto blockingBonus = owner.currentHero()->getBonusLocalFirst(Selector::type()(BonusType::BLOCK_ALL_MAGIC));
 		if (!blockingBonus)
 			return;
 
-		if (blockingBonus->source == Bonus::ARTIFACT)
+		if (blockingBonus->source == BonusSource::ARTIFACT)
 		{
 			const auto artID = ArtifactID(blockingBonus->sid);
 			//If we have artifact, put name of our hero. Otherwise assume it's the enemy.
@@ -537,56 +637,34 @@ void BattleWindow::blockUI(bool on)
 
 	bool canWait = owner.stacksController->getActiveStack() ? !owner.stacksController->getActiveStack()->waitedThisTurn : false;
 
-	if(auto w = widget<CButton>("options"))
-		w->block(on);
-	if(auto w = widget<CButton>("flee"))
-		w->block(on || !owner.curInt->cb->battleCanFlee());
-	if(auto w = widget<CButton>("surrender"))
-		w->block(on || owner.curInt->cb->battleGetSurrenderCost() < 0);
-	if(auto w = widget<CButton>("cast"))
-		w->block(on || owner.tacticsMode || !canCastSpells);
-	if(auto w = widget<CButton>("wait"))
-		w->block(on || owner.tacticsMode || !canWait);
-	if(auto w = widget<CButton>("defence"))
-		w->block(on || owner.tacticsMode);
-	if(auto w = widget<CButton>("alternativeAction"))
-		w->block(on || owner.tacticsMode);
-	if(auto w = widget<CButton>("autofight"))
-		w->block(owner.actionsController->spellcastingModeActive());
-
-	auto btactEnd = widget<CButton>("tacticEnd");
-	auto btactNext = widget<CButton>("tacticNext");
-	if(owner.tacticsMode && btactEnd && btactNext)
-	{
-		btactNext->block(on);
-		btactEnd->block(on);
-	}
-	else
-	{
-		auto bConsoleUp = widget<CButton>("consoleUp");
-		auto bConsoleDown = widget<CButton>("consoleDown");
-		if(bConsoleUp && bConsoleDown)
-		{
-			bConsoleUp->block(on);
-			bConsoleDown->block(on);
-		}
-	}
+	setShortcutBlocked(EShortcut::GLOBAL_OPTIONS, on);
+	setShortcutBlocked(EShortcut::BATTLE_RETREAT, on || !owner.curInt->cb->battleCanFlee());
+	setShortcutBlocked(EShortcut::BATTLE_SURRENDER, on || owner.curInt->cb->battleGetSurrenderCost() < 0);
+	setShortcutBlocked(EShortcut::BATTLE_CAST_SPELL, on || owner.tacticsMode || !canCastSpells);
+	setShortcutBlocked(EShortcut::BATTLE_WAIT, on || owner.tacticsMode || !canWait);
+	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on || owner.tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_SELECT_ACTION, on || owner.tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, owner.actionsController->spellcastingModeActive());
+	setShortcutBlocked(EShortcut::BATTLE_TACTICS_END, on && owner.tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on && owner.tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_DOWN, on && !owner.tacticsMode);
+	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_UP, on && !owner.tacticsMode);
 }
 
-boost::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()
+std::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()
 {
 	return queue->getHoveredUnitIdIfAny();
 }
 
-void BattleWindow::showAll(SDL_Surface *to)
+void BattleWindow::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
 	if (GH.screenDimensions().x != 800 || GH.screenDimensions().y !=600)
-		CMessage::drawBorder(owner.curInt->playerID, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+		CMessage::drawBorder(owner.curInt->playerID, to.getInternalSurface(), pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
-void BattleWindow::show(SDL_Surface *to)
+void BattleWindow::show(Canvas & to)
 {
 	CIntObject::show(to);
 	LOCPLINT->cingconsole->show(to);
@@ -594,7 +672,7 @@ void BattleWindow::show(SDL_Surface *to)
 
 void BattleWindow::close()
 {
-	if(GH.topInt().get() != this)
+	if(!GH.windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
-	GH.popInts(1);
+	GH.windows().popWindows(1);
 }

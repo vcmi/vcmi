@@ -13,8 +13,8 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
-typedef std::map <std::string, JsonNode> JsonMap;
-typedef std::vector <JsonNode> JsonVector;
+using JsonMap = std::map<std::string, JsonNode>;
+using JsonVector = std::vector<JsonNode>;
 
 struct Bonus;
 class CSelector;
@@ -128,6 +128,9 @@ public:
 	//operator [], for structs only - get child node by name
 	JsonNode & operator[](const std::string & child);
 	const JsonNode & operator[](const std::string & child) const;
+
+	JsonNode & operator[](size_t child);
+	const JsonNode & operator[](size_t  child) const;
 
 	std::string toJson(bool compact = false) const;
 

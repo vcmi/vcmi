@@ -14,7 +14,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CCampaignState;
+class CampaignState;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -54,7 +54,7 @@ public:
 
 	CMenuScreen(const JsonNode & configNode);
 
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 	void activate() override;
 	void deactivate() override;
 
@@ -91,6 +91,7 @@ public:
 	CMultiMode(ESelectionScreen ScreenType);
 	void hostTCP();
 	void joinTCP();
+	std::string getPlayerName();
 
 	void onNameChange(std::string newText);
 };
@@ -141,10 +142,12 @@ public:
 	std::shared_ptr<CMenuScreen> menu;
 
 	~CMainMenu();
+	void activate() override;
+	void onScreenResize() override;
 	void update() override;
 	static void openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> * names, ELoadMode loadMode);
 	static void openCampaignLobby(const std::string & campaignFileName);
-	static void openCampaignLobby(std::shared_ptr<CCampaignState> campaign);
+	static void openCampaignLobby(std::shared_ptr<CampaignState> campaign);
 	void openCampaignScreen(std::string name);
 
 	static std::shared_ptr<CMainMenu> create();
@@ -184,7 +187,7 @@ public:
 	CLoadingScreen(std::function<void()> loader);
 	~CLoadingScreen();
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 };
 
 extern std::shared_ptr<CMainMenu> CMM;

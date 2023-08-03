@@ -11,6 +11,7 @@
 
 #include "Damage.h"
 #include "Registry.h"
+#include "../CSpellHandler.h"
 #include "../ISpellMechanics.h"
 
 #include "../../NetPacks.h"
@@ -19,6 +20,8 @@
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../CGeneralTextHandler.h"
 #include "../../serializer/JsonSerializeFormat.h"
+
+#include <vcmi/spells/Spell.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -82,16 +85,14 @@ bool Damage::isReceptive(const Mechanics * m, const battle::Unit * unit) const
 	if(!UnitEffect::isReceptive(m, unit))
 		return false;
 
+	bool isImmune = m->getSpell()->isMagical() && (unit->getBonusBearer()->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, SpellSchool(ESpellSchool::ANY)) >= 100); //General spell damage immunity
 	//elemental immunity for damage
-	auto filter = m->getElementalImmunity();
-
-	for(auto element : filter)
+	m->getSpell()->forEachSchool([&](const SchoolInfo & cnf, bool & stop)
 	{
-		if(!m->isPositiveSpell() && unit->hasBonusOfType(element, 2))
-			return false;
-	}
+		isImmune |= (unit->getBonusBearer()->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, cnf.id) >= 100); //100% reduction is immunity
+	});
 
-	return true;
+	return !isImmune;
 }
 
 void Damage::serializeJsonUnitEffect(JsonSerializeFormat & handler)
@@ -107,11 +108,11 @@ int64_t Damage::damageForTarget(size_t targetIndex, const Mechanics * m, const b
 	if(killByPercentage)
 	{
 		int64_t amountToKill = target->getCount() * m->getEffectValue() / 100;
-		baseDamage = amountToKill * target->MaxHealth();
+		baseDamage = amountToKill * target->getMaxHealth();
 	}
 	else if(killByCount)
 	{
-		baseDamage = m->getEffectValue() * target->MaxHealth();
+		baseDamage = m->getEffectValue() * target->getMaxHealth();
 	}
 	else
 	{
@@ -134,13 +135,13 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 		MetaString line;
 		if(kills > 1)
 		{
-			line.addTxt(MetaString::GENERAL_TXT, 119); //%d %s die under the terrible gaze of the %s.
-			line.addReplacement(kills);
+			line.appendLocalString(EMetaText::GENERAL_TXT, 119); //%d %s die under the terrible gaze of the %s.
+			line.replaceNumber(kills);
 			firstTarget->addNameReplacement(line, true);
 		}
 		else
 		{
-			line.addTxt(MetaString::GENERAL_TXT, 118); //One %s dies under the terrible gaze of the %s.
+			line.appendLocalString(EMetaText::GENERAL_TXT, 118); //One %s dies under the terrible gaze of the %s.
 			firstTarget->addNameReplacement(line, false);
 		}
 		m->caster->getCasterName(line);
@@ -150,7 +151,7 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 	{
 		{
 			MetaString line;
-			firstTarget->addText(line, MetaString::GENERAL_TXT, -367, true);
+			firstTarget->addText(line, EMetaText::GENERAL_TXT, -367, true);
 			firstTarget->addNameReplacement(line, true);
 			log.push_back(line);
 		}
@@ -160,8 +161,8 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 			//todo: handle newlines in metastring
 			std::string text = VLC->generaltexth->allTexts[343]; //Does %d points of damage.
 			boost::algorithm::trim(text);
-			line << text;
-			line.addReplacement(static_cast<int>(damage)); //no more text afterwards
+			line.appendRawString(text);
+			line.replaceNumber(static_cast<int>(damage)); //no more text afterwards
 			log.push_back(line);
 		}
 	}
@@ -169,9 +170,9 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 	{
 		{
 			MetaString line;
-			line.addTxt(MetaString::GENERAL_TXT, 376); // Spell %s does %d damage
-			line.addReplacement(MetaString::SPELL_NAME, m->getSpellIndex());
-			line.addReplacement(static_cast<int>(damage));
+			line.appendLocalString(EMetaText::GENERAL_TXT, 376); // Spell %s does %d damage
+			line.replaceLocalString(EMetaText::SPELL_NAME, m->getSpellIndex());
+			line.replaceNumber(static_cast<int>(damage));
 
 			log.push_back(line);
 		}
@@ -182,19 +183,19 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 
 			if(kills > 1)
 			{
-				line.addTxt(MetaString::GENERAL_TXT, 379); // %d %s perishes
-				line.addReplacement(kills);
+				line.appendLocalString(EMetaText::GENERAL_TXT, 379); // %d %s perishes
+				line.replaceNumber(kills);
 
 				if(multiple)
-					line.addReplacement(MetaString::GENERAL_TXT, 43); // creatures
+					line.replaceLocalString(EMetaText::GENERAL_TXT, 43); // creatures
 				else
 					firstTarget->addNameReplacement(line, true);
 			}
 			else // single creature killed
 			{
-				line.addTxt(MetaString::GENERAL_TXT, 378); // one %s perishes
+				line.appendLocalString(EMetaText::GENERAL_TXT, 378); // one %s perishes
 				if(multiple)
-					line.addReplacement(MetaString::GENERAL_TXT, 42); // creature
+					line.replaceLocalString(EMetaText::GENERAL_TXT, 42); // creature
 				else
 					firstTarget->addNameReplacement(line, false);
 			}

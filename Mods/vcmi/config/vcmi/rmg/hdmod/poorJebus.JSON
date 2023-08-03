@@ -14,8 +14,6 @@
 				"monsters" : "weak",
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 2 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
 				"mines" : { "wood" : 4, "mercury" : 1, "ore" : 4, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 2 },
 				"treasure" :
 				[
@@ -32,8 +30,6 @@
 				"monsters" : "weak",
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 2 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -45,8 +41,6 @@
 				"monsters" : "weak",
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 2 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -58,8 +52,6 @@
 				"monsters" : "weak",
 				"playerTowns" : { "castles" : 1 },
 				"neutralTowns" : { "towns" : 2 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
 				"minesLikeZone" : 1,
 				"treasureLikeZone" : 1
 			},
@@ -69,8 +61,6 @@
 				"size" : 40,
 				"monsters" : "strong",
 				"neutralTowns" : { "castles" : 2 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
 				"matchTerrainToTown" : false,
 				"terrainTypes" : [ "sand" ],
 				"mines" : { "gold" : 4 },

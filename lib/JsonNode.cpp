@@ -13,13 +13,18 @@
 
 #include "ScopeGuard.h"
 
-#include "HeroBonus.h"
+#include "bonuses/BonusParams.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/Limiters.h"
+#include "bonuses/Propagators.h"
+#include "bonuses/Updaters.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h" //for identifier resolution
 #include "CModHandler.h"
 #include "CGeneralTextHandler.h"
 #include "JsonDetail.h"
 #include "StringConstants.h"
+#include "battle/BattleHex.h"
 
 namespace
 {
@@ -455,6 +460,21 @@ const JsonNode & JsonNode::operator[](const std::string & child) const
 	return nullNode;
 }
 
+JsonNode & JsonNode::operator[](size_t child)
+{
+	if (child >= Vector().size() )
+		Vector().resize(child + 1);
+	return Vector()[child];
+}
+
+const JsonNode & JsonNode::operator[](size_t child) const
+{
+	if (child < Vector().size() )
+		return Vector()[child];
+
+	return nullNode;
+}
+
 const JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer) const
 {
 	return ::resolvePointer(*this, jsonPointer);
@@ -480,7 +500,7 @@ void JsonUtils::parseTypedBonusShort(const JsonVector & source, const std::share
 	dest->val = static_cast<si32>(source[1].Float());
 	resolveIdentifier(source[2],dest->subtype);
 	dest->additionalInfo = static_cast<si32>(source[3].Float());
-	dest->duration = Bonus::PERMANENT; //TODO: handle flags (as integer)
+	dest->duration = BonusDuration::PERMANENT; //TODO: handle flags (as integer)
 	dest->turnsRemain = 0;
 }
 
@@ -742,20 +762,31 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 			}
 			else if(limiterType == "CREATURE_ALIGNMENT_LIMITER")
 			{
-				int alignment = vstd::find_pos(EAlignment::names, parameters[0].String());
+				int alignment = vstd::find_pos(GameConstants::ALIGNMENT_NAMES, parameters[0].String());
 				if(alignment == -1)
 					logMod->error("Error: invalid alignment %s.", parameters[0].String());
 				else
-					return std::make_shared<CreatureAlignmentLimiter>(alignment);
+					return std::make_shared<CreatureAlignmentLimiter>(static_cast<EAlignment>(alignment));
 			}
-			else if(limiterType == "CREATURE_FACTION_LIMITER")
+			else if(limiterType == "FACTION_LIMITER" || limiterType == "CREATURE_FACTION_LIMITER") //Second name is deprecated, 1.2 compat
 			{
-				std::shared_ptr<CreatureFactionLimiter> factionLimiter = std::make_shared<CreatureFactionLimiter>();
+				std::shared_ptr<FactionLimiter> factionLimiter = std::make_shared<FactionLimiter>();
 				VLC->modh->identifiers.requestIdentifier("faction", parameters[0], [=](si32 faction)
 				{
-					factionLimiter->faction = faction;
+					factionLimiter->faction = FactionID(faction);
 				});
 				return factionLimiter;
+			}
+			else if(limiterType == "CREATURE_LEVEL_LIMITER")
+			{
+				auto levelLimiter = std::make_shared<CreatureLevelLimiter>();
+				if(!parameters.empty()) //If parameters is empty, level limiter works as CREATURES_ONLY limiter
+				{
+					levelLimiter->minLevel = parameters[0].Integer();
+					if(parameters[1].isNumber())
+						levelLimiter->maxLevel = parameters[1].Integer();
+				}
+				return levelLimiter;
 			}
 			else if(limiterType == "CREATURE_TERRAIN_LIMITER")
 			{
@@ -769,6 +800,17 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 					});
 				}
 				return terrainLimiter;
+			}
+			else if(limiterType == "UNIT_ON_HEXES") {
+				auto hexLimiter = std::make_shared<UnitOnHexLimiter>();
+				if(!parameters.empty())
+				{
+					for (const auto & parameter: parameters){
+						if(parameter.isNumber())
+							hexLimiter->applicableHexes.insert(BattleHex(parameter.Integer()));
+					}
+				}
+				return hexLimiter;
 			}
 			else
 			{
@@ -794,11 +836,11 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 
 std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode & ability, const BuildingID & building, const std::string & description)
 {
-	/*	duration = Bonus::PERMANENT
-		source = Bonus::TOWN_STRUCTURE
+	/*	duration = BonusDuration::PERMANENT
+		source = BonusSource::TOWN_STRUCTURE
 		bonusType, val, subtype - get from json
 	*/
-	auto b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::NONE, Bonus::TOWN_STRUCTURE, 0, building, description, -1);
+	auto b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, building, description, -1);
 
 	if(!parseBonus(ability, b.get()))
 		return nullptr;
@@ -815,25 +857,12 @@ static BonusParams convertDeprecatedBonus(const JsonNode &ability)
 											   ability["subtype"].isNumber() ? ability["subtype"].Integer() : -1);
 		if(params.isConverted)
 		{
-			if(!params.valRelevant) {
-				params.val = static_cast<si32>(ability["val"].Float());
-				params.valRelevant = true;
-			}
-			Bonus::ValueType valueType = Bonus::ADDITIVE_VALUE;
-			if(!ability["valueType"].isNull())
-				valueType = bonusValueMap.find(ability["valueType"].String())->second;
-
-			if(ability["type"].String() == "SECONDARY_SKILL_PREMY" && valueType == Bonus::PERCENT_TO_BASE) //assume secondary skill special
+			if(ability["type"].String() == "SECONDARY_SKILL_PREMY" && bonusValueMap.find(ability["valueType"].String())->second == BonusValueType::PERCENT_TO_BASE) //assume secondary skill special
 			{
-				params.valueType = Bonus::PERCENT_TO_TARGET_TYPE;
-				params.targetType = Bonus::SECONDARY_SKILL;
-				params.targetTypeRelevant = true;
+				params.valueType = BonusValueType::PERCENT_TO_TARGET_TYPE;
+				params.targetType = BonusSource::SECONDARY_SKILL;
 			}
 
-			if(!params.valueTypeRelevant) {
-				params.valueType = valueType;
-				params.valueTypeRelevant = true;
-			}
 			logMod->warn("Please, use this bonus:\n%s\nConverted sucessfully!", params.toJson().toJson());
 			return params;
 		}
@@ -903,10 +932,10 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 			return false;
 		}
 		b->type = params->type;
-		b->val = params->val;
-		b->valType = params->valueType;
-		if(params->targetTypeRelevant)
-			b->targetSourceType = params->targetType;
+		b->val = params->val.value_or(0);
+		b->valType = params->valueType.value_or(BonusValueType::ADDITIVE_VALUE);
+		if(params->targetType)
+			b->targetSourceType = params->targetType.value();
 	}
 	else
 		b->type = it->second;
@@ -919,7 +948,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 		value = &ability["valueType"];
 		if (!value->isNull())
-			b->valType = static_cast<Bonus::ValueType>(parseByMapN(bonusValueMap, value, "value type "));
+			b->valType = static_cast<BonusValueType>(parseByMapN(bonusValueMap, value, "value type "));
 	}
 
 	b->stacking = ability["stacking"].String();
@@ -940,7 +969,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	value = &ability["effectRange"];
 	if (!value->isNull())
-		b->effectRange = static_cast<Bonus::LimitEffect>(parseByMapN(bonusLimitEffect, value, "effect range "));
+		b->effectRange = static_cast<BonusLimitEffect>(parseByMapN(bonusLimitEffect, value, "effect range "));
 
 	value = &ability["duration"];
 	if (!value->isNull())
@@ -948,16 +977,14 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 		switch (value->getType())
 		{
 		case JsonNode::JsonType::DATA_STRING:
-			b->duration = static_cast<Bonus::BonusDuration>(parseByMap(bonusDurationMap, value, "duration type "));
+			b->duration = parseByMap(bonusDurationMap, value, "duration type ");
 			break;
 		case JsonNode::JsonType::DATA_VECTOR:
 			{
-				ui16 dur = 0;
+				BonusDuration::Type dur = 0;
 				for (const JsonNode & d : value->Vector())
-				{
 					dur |= parseByMapN(bonusDurationMap, &d, "duration type ");
-				}
-				b->duration = static_cast<Bonus::BonusDuration>(dur);
+				b->duration = dur;
 			}
 			break;
 		default:
@@ -967,11 +994,11 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	value = &ability["sourceType"];
 	if (!value->isNull())
-		b->source = static_cast<Bonus::BonusSource>(parseByMap(bonusSourceMap, value, "source type "));
+		b->source = static_cast<BonusSource>(parseByMap(bonusSourceMap, value, "source type "));
 
 	value = &ability["targetSourceType"];
 	if (!value->isNull())
-		b->targetSourceType = static_cast<Bonus::BonusSource>(parseByMap(bonusSourceMap, value, "target type "));
+		b->targetSourceType = static_cast<BonusSource>(parseByMap(bonusSourceMap, value, "target type "));
 
 	value = &ability["limiters"];
 	if (!value->isNull())
@@ -979,7 +1006,17 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	value = &ability["propagator"];
 	if (!value->isNull())
-		b->propagator = parseByMap(bonusPropagatorMap, value, "propagator type ");
+	{
+		//ALL_CREATURES old propagator compatibility
+		if(value->String() == "ALL_CREATURES") 
+		{
+			logMod->warn("ALL_CREATURES propagator is deprecated. Use GLOBAL_EFFECT propagator with CREATURES_ONLY limiter");
+			b->addLimiter(std::make_shared<CreatureLevelLimiter>());
+			b->propagator = bonusPropagatorMap.at("GLOBAL_EFFECT");
+		}
+		else
+			b->propagator = parseByMap(bonusPropagatorMap, value, "propagator type ");
+	}
 
 	value = &ability["updater"];
 	if(!value->isNull())
@@ -1038,31 +1075,26 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 		ret = ret.And(Selector::subtype()(subtype));
 	}
 	value = &ability["sourceType"];
-	Bonus::BonusSource src = Bonus::OTHER; //Fixes for GCC false maybe-uninitialized
-	si32 id = 0;
-	auto sourceIDRelevant = false;
-	auto sourceTypeRelevant = false;
+	std::optional<BonusSource> src = std::nullopt; //Fixes for GCC false maybe-uninitialized
+	std::optional<si32> id = std::nullopt;
 	if(value->isString())
 	{
 		auto it = bonusSourceMap.find(value->String());
 		if(it != bonusSourceMap.end())
-		{
 			src = it->second;
-			sourceTypeRelevant = true;
-		}
-
 	}
+
 	value = &ability["sourceID"];
 	if(!value->isNull())
 	{
-		sourceIDRelevant = true;
-		resolveIdentifier(id, ability, "sourceID");
+		id = -1;
+		resolveIdentifier(*id, ability, "sourceID");
 	}
 
-	if(sourceIDRelevant && sourceTypeRelevant)
-		ret = ret.And(Selector::source(src, id));
-	else if(sourceTypeRelevant)
-		ret = ret.And(Selector::sourceTypeSel(src));
+	if(src && id)
+		ret = ret.And(Selector::source(*src, *id));
+	else if(src)
+		ret = ret.And(Selector::sourceTypeSel(*src));
 
 	
 	value = &ability["targetSourceType"];
@@ -1118,73 +1150,76 @@ Key reverseMapFirst(const Val & val, const std::map<Key, Val> & map)
 	return "";
 }
 
-void minimizeNode(JsonNode & node, const JsonNode & schema)
+static JsonNode getDefaultValue(const JsonNode & schema, std::string fieldName)
 {
-	if (schema["type"].String() == "object")
+	const JsonNode & fieldProps = schema["properties"][fieldName];
+
+#if defined(VCMI_IOS)
+	if (!fieldProps["defaultIOS"].isNull())
+		return fieldProps["defaultIOS"];
+#elif defined(VCMI_ANDROID)
+	if (!fieldProps["defaultAndroid"].isNull())
+		return fieldProps["defaultAndroid"];
+#elif !defined(VCMI_MOBILE)
+	if (!fieldProps["defaultDesktop"].isNull())
+		return fieldProps["defaultDesktop"];
+#endif
+	return fieldProps["default"];
+}
+
+static void eraseOptionalNodes(JsonNode & node, const JsonNode & schema)
+{
+	assert(schema["type"].String() == "object");
+
+	std::set<std::string> foundEntries;
+
+	for(const auto & entry : schema["required"].Vector())
+		foundEntries.insert(entry.String());
+
+	vstd::erase_if(node.Struct(), [&](const auto & node){
+		return !vstd::contains(foundEntries, node.first);
+	});
+}
+
+static void minimizeNode(JsonNode & node, const JsonNode & schema)
+{
+	if (schema["type"].String() != "object")
+		return;
+
+	for(const auto & entry : schema["required"].Vector())
 	{
-		std::set<std::string> foundEntries;
+		const std::string & name = entry.String();
+		minimizeNode(node[name], schema["properties"][name]);
 
-		for(const auto & entry : schema["required"].Vector())
-		{
-			const std::string & name = entry.String();
-			foundEntries.insert(name);
-
-			minimizeNode(node[name], schema["properties"][name]);
-
-			if (vstd::contains(node.Struct(), name) &&
-				node[name] == schema["properties"][name]["default"])
-			{
-				node.Struct().erase(name);
-			}
-		}
-
-		// erase all unhandled entries
-		for (auto it = node.Struct().begin(); it != node.Struct().end();)
-		{
-			if (!vstd::contains(foundEntries, it->first))
-				it = node.Struct().erase(it);
-			else
-				it++;
-		}
+		if (vstd::contains(node.Struct(), name) && node[name] == getDefaultValue(schema, name))
+			node.Struct().erase(name);
 	}
+	eraseOptionalNodes(node, schema);
+}
+
+static void maximizeNode(JsonNode & node, const JsonNode & schema)
+{
+	// "required" entry can only be found in object/struct
+	if (schema["type"].String() != "object")
+		return;
+
+	// check all required entries that have default version
+	for(const auto & entry : schema["required"].Vector())
+	{
+		const std::string & name = entry.String();
+
+		if (node[name].isNull() && !getDefaultValue(schema, name).isNull())
+			node[name] = getDefaultValue(schema, name);
+
+		maximizeNode(node[name], schema["properties"][name]);
+	}
+
+	eraseOptionalNodes(node, schema);
 }
 
 void JsonUtils::minimize(JsonNode & node, const std::string & schemaName)
 {
 	minimizeNode(node, getSchema(schemaName));
-}
-
-// FIXME: except for several lines function is identical to minimizeNode. Some way to reduce duplication?
-void maximizeNode(JsonNode & node, const JsonNode & schema)
-{
-	// "required" entry can only be found in object/struct
-	if (schema["type"].String() == "object")
-	{
-		std::set<std::string> foundEntries;
-
-		// check all required entries that have default version
-		for(const auto & entry : schema["required"].Vector())
-		{
-			const std::string & name = entry.String();
-			foundEntries.insert(name);
-
-			if (node[name].isNull() &&
-				!schema["properties"][name]["default"].isNull())
-			{
-				node[name] = schema["properties"][name]["default"];
-			}
-			maximizeNode(node[name], schema["properties"][name]);
-		}
-
-		// erase all unhandled entries
-		for (auto it = node.Struct().begin(); it != node.Struct().end();)
-		{
-			if (!vstd::contains(foundEntries, it->first))
-				it = node.Struct().erase(it);
-			else
-				it++;
-		}
-	}
 }
 
 void JsonUtils::maximize(JsonNode & node, const std::string & schemaName)

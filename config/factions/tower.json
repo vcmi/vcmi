@@ -9,6 +9,7 @@
 			"120px" : "TPCASTOW",
 			"130px" : "CRBKGTOW"
 		},
+		"boat" : "boatCastle",
 		"puzzleMap" :
 		{
 			"prefix" : "PUZTOW",
@@ -147,8 +148,7 @@
 			"primaryResource" : "gems",
 			"mageGuild" : 5,
 			"warMachine" : "ammoCart",
-			"moatDamage" : 0, //TODO: minefield
-			"moatHexes" : [ 11, 28, 44, 61, 77, 111, 129, 146, 164, 181 ],
+			"moatAbility" : "towerMoat",
 
 			"buildings" :
 			{
@@ -210,8 +210,6 @@
 				},
 				"moat" :
 				{
-					"bank" : { "x" : 410, "y" : 80 },
-					"moat" : { "x" : 410, "y" : 90 }
 				},
 				"static" :
 				{

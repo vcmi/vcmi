@@ -11,9 +11,12 @@
 #include "ServerNetPackVisitors.h"
 
 #include "CGameHandler.h"
+#include "HeroPoolProcessor.h"
+#include "PlayerMessageProcessor.h"
+
 #include "../lib/IGameCallback.h"
-#include "../lib/mapping/CMap.h"
-#include "../lib/CGameState.h"
+#include "../lib/mapObjects/CGTownInstance.h"
+#include "../lib/gameState/CGameState.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/battle/BattleAction.h"
 #include "../lib/battle/Unit.h"
@@ -146,6 +149,12 @@ void ApplyGhNetPackVisitor::visitAssembleArtifacts(AssembleArtifacts & pack)
 	result = gh.assembleArtifacts(pack.heroID, pack.artifactSlot, pack.assemble, pack.assembleTo);
 }
 
+void ApplyGhNetPackVisitor::visitEraseArtifactByClient(EraseArtifactByClient & pack)
+{
+	gh.throwOnWrongPlayer(&pack, pack.al.owningPlayer());
+	result = gh.eraseArtifactByClient(pack.al);
+}
+
 void ApplyGhNetPackVisitor::visitBuyArtifact(BuyArtifact & pack)
 {
 	gh.throwOnWrongOwner(&pack, pack.hid);
@@ -192,19 +201,19 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 		break;
 	case EMarketMode::RESOURCE_PLAYER:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sendResources(pack.val[i], player, static_cast<Res::ERes>(pack.r1[i]), PlayerColor(pack.r2[i]));
+			result &= gh.sendResources(pack.val[i], player, GameResID(pack.r1[i]), PlayerColor(pack.r2[i]));
 		break;
 	case EMarketMode::CREATURE_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sellCreatures(pack.val[i], m, hero, SlotID(pack.r1[i]), static_cast<Res::ERes>(pack.r2[i]));
+			result &= gh.sellCreatures(pack.val[i], m, hero, SlotID(pack.r1[i]), GameResID(pack.r2[i]));
 		break;
 	case EMarketMode::RESOURCE_ARTIFACT:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.buyArtifact(m, hero, static_cast<Res::ERes>(pack.r1[i]), ArtifactID(pack.r2[i]));
+			result &= gh.buyArtifact(m, hero, GameResID(pack.r1[i]), ArtifactID(pack.r2[i]));
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
-			result &= gh.sellArtifact(m, hero, ArtifactInstanceID(pack.r1[i]), static_cast<Res::ERes>(pack.r2[i]));
+			result &= gh.sellArtifact(m, hero, ArtifactInstanceID(pack.r1[i]), GameResID(pack.r2[i]));
 		break;
 	case EMarketMode::CREATURE_UNDEAD:
 		for(int i = 0; i < pack.r1.size(); ++i)
@@ -240,12 +249,10 @@ void ApplyGhNetPackVisitor::visitSetFormation(SetFormation & pack)
 
 void ApplyGhNetPackVisitor::visitHireHero(HireHero & pack)
 {
-	const CGObjectInstance * obj = gh.getObj(pack.tid);
-	const CGTownInstance * town = dynamic_ptr_cast<CGTownInstance>(obj);
-	if(town && PlayerRelations::ENEMIES == gh.getPlayerRelations(obj->tempOwner, gh.getPlayerAt(pack.c)))
-		gh.throwAndComplain(&pack, "Can't buy hero in enemy town!");
+	if (!gh.hasPlayerAt(pack.player, pack.c))
+		gh.throwAndComplain(&pack, "No such pack.player!");
 
-	result = gh.hireHero(obj, pack.hid, pack.player);
+	result = gh.heroPool->hireHero(pack.tid, pack.hid, pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitBuildBoat(BuildBoat & pack)
@@ -346,6 +353,6 @@ void ApplyGhNetPackVisitor::visitPlayerMessage(PlayerMessage & pack)
 	if(!pack.player.isSpectator()) // TODO: clearly not a great way to verify permissions
 		gh.throwOnWrongPlayer(&pack, pack.player);
 	
-	gh.playerMessage(pack.player, pack.text, pack.currObj);
+	gh.playerMessages->playerMessage(pack.player, pack.text, pack.currObj);
 	result = true;
 }

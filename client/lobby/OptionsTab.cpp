@@ -8,17 +8,19 @@
  *
  */
 #include "StdInc.h"
+#include "OptionsTab.h"
 
 #include "CSelectionBase.h"
-#include "OptionsTab.h"
 
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
@@ -28,8 +30,8 @@
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/mapping/CMap.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/mapping/CMapHeader.h"
 
 OptionsTab::OptionsTab() : humanPlayers(0)
 {
@@ -46,7 +48,9 @@ OptionsTab::OptionsTab() : humanPlayers(0)
 	labelStartingBonus = std::make_shared<CMultiLineLabel>(Rect(315, 86, 70, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[520]);
 	if(SEL->screenType == ESelectionScreen::newGame || SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::scenarioInfo)
 	{
-		sliderTurnDuration = std::make_shared<CSlider>(Point(55, 551), 194, std::bind(&IServerAPI::setTurnLength, CSH, _1), 1, (int)GameConstants::POSSIBLE_TURNTIME.size(), (int)GameConstants::POSSIBLE_TURNTIME.size(), true, CSlider::BLUE);
+		sliderTurnDuration = std::make_shared<CSlider>(Point(55, 551), 194, std::bind(&IServerAPI::setTurnLength, CSH, _1), 1, (int)GameConstants::POSSIBLE_TURNTIME.size(), (int)GameConstants::POSSIBLE_TURNTIME.size(), Orientation::HORIZONTAL, CSlider::BLUE);
+		sliderTurnDuration->setScrollBounds(Rect(-3, -25, 337, 43));
+		sliderTurnDuration->setPanningStep(20);
 		labelPlayerTurnDuration = std::make_shared<CLabel>(222, 538, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[521]);
 		labelTurnDurationValue = std::make_shared<CLabel>(319, 559, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	}
@@ -68,7 +72,7 @@ void OptionsTab::recreate()
 
 	if(sliderTurnDuration)
 	{
-		sliderTurnDuration->moveTo(vstd::find_pos(GameConstants::POSSIBLE_TURNTIME, SEL->getStartInfo()->turnTime));
+		sliderTurnDuration->scrollTo(vstd::find_pos(GameConstants::POSSIBLE_TURNTIME, SEL->getStartInfo()->turnTime));
 		labelTurnDurationValue->setText(CGI->generaltexth->turnDurations[sliderTurnDuration->getValue()]);
 	}
 }
@@ -126,25 +130,25 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex()
 			return GOLD;
 		case PlayerSettings::RESOURCE:
 		{
-			switch((*CGI->townh)[factionIndex]->town->primaryRes)
+			switch((*CGI->townh)[factionIndex]->town->primaryRes.toEnum())
 			{
-			case Res::WOOD_AND_ORE:
+			case EGameResID::WOOD_AND_ORE:
 				return WOOD_ORE;
-			case Res::WOOD:
+			case EGameResID::WOOD:
 				return WOOD;
-			case Res::MERCURY:
+			case EGameResID::MERCURY:
 				return MERCURY;
-			case Res::ORE:
+			case EGameResID::ORE:
 				return ORE;
-			case Res::SULFUR:
+			case EGameResID::SULFUR:
 				return SULFUR;
-			case Res::CRYSTAL:
+			case EGameResID::CRYSTAL:
 				return CRYSTAL;
-			case Res::GEMS:
+			case EGameResID::GEMS:
 				return GEM;
-			case Res::GOLD:
+			case EGameResID::GOLD:
 				return GOLD;
-			case Res::MITHRIL:
+			case EGameResID::MITHRIL:
 				return MITHRIL;
 			}
 		}
@@ -268,17 +272,17 @@ std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 			return CGI->generaltexth->allTexts[87]; //500-1000
 		case PlayerSettings::RESOURCE:
 		{
-			switch((*CGI->townh)[factionIndex]->town->primaryRes)
+			switch((*CGI->townh)[factionIndex]->town->primaryRes.toEnum())
 			{
-			case Res::MERCURY:
+			case EGameResID::MERCURY:
 				return CGI->generaltexth->allTexts[694];
-			case Res::SULFUR:
+			case EGameResID::SULFUR:
 				return CGI->generaltexth->allTexts[695];
-			case Res::CRYSTAL:
+			case EGameResID::CRYSTAL:
 				return CGI->generaltexth->allTexts[692];
-			case Res::GEMS:
+			case EGameResID::GEMS:
 				return CGI->generaltexth->allTexts[693];
-			case Res::WOOD_AND_ORE:
+			case EGameResID::WOOD_AND_ORE:
 				return CGI->generaltexth->allTexts[89]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
 			}
 		}
@@ -310,17 +314,17 @@ std::string OptionsTab::CPlayerSettingsHelper::getDescription()
 			return CGI->generaltexth->allTexts[92]; //At the start of the game, 500-1000 gold is added to your Kingdom's resource pool
 		case PlayerSettings::RESOURCE:
 		{
-			switch((*CGI->townh)[factionIndex]->town->primaryRes)
+			switch((*CGI->townh)[factionIndex]->town->primaryRes.toEnum())
 			{
-			case Res::MERCURY:
+			case EGameResID::MERCURY:
 				return CGI->generaltexth->allTexts[690];
-			case Res::SULFUR:
+			case EGameResID::SULFUR:
 				return CGI->generaltexth->allTexts[691];
-			case Res::CRYSTAL:
+			case EGameResID::CRYSTAL:
 				return CGI->generaltexth->allTexts[688];
-			case Res::GEMS:
+			case EGameResID::GEMS:
 				return CGI->generaltexth->allTexts[689];
-			case Res::WOOD_AND_ORE:
+			case EGameResID::WOOD_AND_ORE:
 				return CGI->generaltexth->allTexts[93]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
 			}
 		}
@@ -409,7 +413,8 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 }
 
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, SelType type)
-	: CIntObject(RCLICK, position), CPlayerSettingsHelper(settings, type)
+	: Scrollable(SHOW_POPUP, position, Orientation::HORIZONTAL)
+	, CPlayerSettingsHelper(settings, type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -417,6 +422,8 @@ OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, 
 	subtitle = std::make_shared<CLabel>(23, 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, getName());
 
 	pos = image->pos;
+
+	setPanningStep(pos.w);
 }
 
 void OptionsTab::SelectedBox::update()
@@ -425,28 +432,50 @@ void OptionsTab::SelectedBox::update()
 	subtitle->setText(getName());
 }
 
-void OptionsTab::SelectedBox::clickRight(tribool down, bool previousState)
+void OptionsTab::SelectedBox::showPopupWindow(const Point & cursorPosition)
 {
-	if(down)
-	{
-		// cases when we do not need to display a message
-		if(settings.castle == -2 && CPlayerSettingsHelper::type == TOWN)
-			return;
-		if(settings.hero == -2 && !SEL->getPlayerInfo(settings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
-			return;
+	// cases when we do not need to display a message
+	if(settings.castle == -2 && CPlayerSettingsHelper::type == TOWN)
+		return;
+	if(settings.hero == -2 && !SEL->getPlayerInfo(settings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
+		return;
 
-		GH.pushIntT<CPlayerOptionTooltipBox>(*this);
+	GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
+}
+
+void OptionsTab::SelectedBox::scrollBy(int distance)
+{
+	// FIXME: currently options tab is completely recreacted from scratch whenever we receive any information from server
+	// because of that, panning event gets interrupted (due to destruction of element)
+	// so, currently, gesture will always move selection only by 1, and then wait for recreation from server info
+	distance = std::clamp(distance, -1, 1);
+
+	switch(CPlayerSettingsHelper::type)
+	{
+		case TOWN:
+			CSH->setPlayerOption(LobbyChangePlayerOption::TOWN, distance, settings.color);
+			break;
+		case HERO:
+			CSH->setPlayerOption(LobbyChangePlayerOption::HERO, distance, settings.color);
+			break;
+		case BONUS:
+			CSH->setPlayerOption(LobbyChangePlayerOption::BONUS, distance, settings.color);
+			break;
 	}
+
+	setScrollingEnabled(false);
 }
 
 OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, const OptionsTab & parent)
-	: pi(SEL->getPlayerInfo(S.color.getNum())), s(S), parentTab(parent)
+	: pi(std::make_unique<PlayerInfo>(SEL->getPlayerInfo(S.color.getNum())))
+	, s(std::make_unique<PlayerSettings>(S))
+	, parentTab(parent)
 {
 	OBJ_CONSTRUCTION;
 	defActions |= SHARE_POS;
 
 	int serial = 0;
-	for(int g = 0; g < s.color.getNum(); ++g)
+	for(int g = 0; g < s->color.getNum(); ++g)
 	{
 		auto itred = SEL->getPlayerInfo(g);
 		if(itred.canComputerPlay || itred.canHumanPlay)
@@ -457,7 +486,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	pos.y += 122 + serial * 50;
 
 	assert(CSH->mi && CSH->mi->mapHeader);
-	const PlayerInfo & p = SEL->getPlayerInfo(s.color.getNum());
+	const PlayerInfo & p = SEL->getPlayerInfo(s->color.getNum());
 	assert(p.canComputerPlay || p.canHumanPlay); //someone must be able to control this player
 	if(p.canHumanPlay && p.canComputerPlay)
 		whoCanPlay = HUMAN_OR_CPU;
@@ -477,29 +506,29 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 		"ADOPOPNL.bmp", "ADOPPPNL.bmp", "ADOPTPNL.bmp", "ADOPSPNL.bmp"
 	}};
 
-	background = std::make_shared<CPicture>(bgs[s.color.getNum()], 0, 0);
-	labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, s.name);
+	background = std::make_shared<CPicture>(bgs[s->color.getNum()], 0, 0);
+	labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, s->name);
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
 
 	if(SEL->screenType == ESelectionScreen::newGame)
 	{
-		buttonTownLeft = std::make_shared<CButton>(Point(107, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[132], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::TOWN, -1, s.color));
-		buttonTownRight = std::make_shared<CButton>(Point(168, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[133], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::TOWN, +1, s.color));
-		buttonHeroLeft = std::make_shared<CButton>(Point(183, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[148], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::HERO, -1, s.color));
-		buttonHeroRight = std::make_shared<CButton>(Point(244, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[149], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::HERO, +1, s.color));
-		buttonBonusLeft = std::make_shared<CButton>(Point(259, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[164], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::BONUS, -1, s.color));
-		buttonBonusRight = std::make_shared<CButton>(Point(320, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[165], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::BONUS, +1, s.color));
+		buttonTownLeft = std::make_shared<CButton>(Point(107, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[132], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::TOWN, -1, s->color));
+		buttonTownRight = std::make_shared<CButton>(Point(168, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[133], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::TOWN, +1, s->color));
+		buttonHeroLeft = std::make_shared<CButton>(Point(183, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[148], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::HERO, -1, s->color));
+		buttonHeroRight = std::make_shared<CButton>(Point(244, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[149], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::HERO, +1, s->color));
+		buttonBonusLeft = std::make_shared<CButton>(Point(259, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[164], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::BONUS, -1, s->color));
+		buttonBonusRight = std::make_shared<CButton>(Point(320, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[165], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::BONUS, +1, s->color));
 	}
 
 	hideUnavailableButtons();
 
-	if(SEL->screenType != ESelectionScreen::scenarioInfo && SEL->getPlayerInfo(s.color.getNum()).canHumanPlay)
+	if(SEL->screenType != ESelectionScreen::scenarioInfo && SEL->getPlayerInfo(s->color.getNum()).canHumanPlay)
 	{
 		flag = std::make_shared<CButton>(
 			Point(-43, 2),
-			flags[s.color.getNum()],
+			flags[s->color.getNum()],
 			CGI->generaltexth->zelp[180],
-			std::bind(&OptionsTab::onSetPlayerClicked, &parentTab, s)
+			std::bind(&OptionsTab::onSetPlayerClicked, &parentTab, *s)
 		);
 		flag->hoverable = true;
 		flag->block(CSH->isGuest());
@@ -507,14 +536,14 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	else
 		flag = nullptr;
 
-	town = std::make_shared<SelectedBox>(Point(119, 2), s, TOWN);
-	hero = std::make_shared<SelectedBox>(Point(195, 2), s, HERO);
-	bonus = std::make_shared<SelectedBox>(Point(271, 2), s, BONUS);
+	town = std::make_shared<SelectedBox>(Point(119, 2), *s, TOWN);
+	hero = std::make_shared<SelectedBox>(Point(195, 2), *s, HERO);
+	bonus = std::make_shared<SelectedBox>(Point(271, 2), *s, BONUS);
 }
 
 void OptionsTab::onSetPlayerClicked(const PlayerSettings & ps) const
 {
-	if(ps.isControlledByAI() || humanPlayers > 1)
+	if(ps.isControlledByAI() || humanPlayers > 0)
 		CSH->setPlayer(ps.color);
 }
 
@@ -523,9 +552,9 @@ void OptionsTab::PlayerOptionsEntry::hideUnavailableButtons()
 	if(!buttonTownLeft)
 		return;
 
-	const bool foreignPlayer = CSH->isGuest() && !CSH->isMyColor(s.color);
+	const bool foreignPlayer = CSH->isGuest() && !CSH->isMyColor(s->color);
 
-	if((pi.allowedFactions.size() < 2 && !pi.isFactionRandom) || foreignPlayer)
+	if((pi->allowedFactions.size() < 2 && !pi->isFactionRandom) || foreignPlayer)
 	{
 		buttonTownLeft->disable();
 		buttonTownRight->disable();
@@ -536,7 +565,7 @@ void OptionsTab::PlayerOptionsEntry::hideUnavailableButtons()
 		buttonTownRight->enable();
 	}
 
-	if((pi.defaultHero() != -1 || s.castle < 0) //fixed hero
+	if((pi->defaultHero() != -1 || s->castle < 0) //fixed hero
 		|| foreignPlayer) //or not our player
 	{
 		buttonHeroLeft->disable();

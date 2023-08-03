@@ -12,8 +12,8 @@
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 #include "../../../CCallback.h"
-#include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
+#include "../../../lib/pathfinder/TurnInfo.h"
 #include "Actions/BuyArmyAction.h"
 
 using namespace NKAI;
@@ -42,8 +42,8 @@ ChainActor::ChainActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t 
 	baseActor(this), carrierParent(nullptr), otherParent(nullptr), actorExchangeCount(1), armyCost(), actorAction()
 {
 	initialPosition = hero->visitablePos();
-	layer = hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND;
-	initialMovement = hero->movement;
+	layer = hero->boat ? hero->boat->layer : EPathfindingLayer::LAND;
+	initialMovement = hero->movementPointsRemaining();
 	initialTurn = 0;
 	armyValue = hero->getArmyStrength();
 	heroFightingStrength = hero->getFightingStrength();
@@ -75,7 +75,7 @@ int ChainActor::maxMovePoints(CGPathNode::ELayer layer)
 		throw std::logic_error("Asking movement points for static actor");
 #endif
 
-	return hero->maxMovePointsCached(layer, tiCache.get());
+	return hero->movementPointsLimitCached(layer, tiCache.get());
 }
 
 std::string ChainActor::toString() const
@@ -134,6 +134,7 @@ void ChainActor::setBaseActor(HeroActor * base)
 	armyCost = base->armyCost;
 	actorAction = base->actorAction;
 	tiCache = base->tiCache;
+	actorExchangeCount = base->actorExchangeCount;
 }
 
 void HeroActor::setupSpecialActors()
@@ -350,7 +351,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 		{
 			auto targetSlot = target->getFreeSlot();
 
-			target->addToSlot(targetSlot, slotInfo.creature->idNumber, TQuantity(slotInfo.count));
+			target->addToSlot(targetSlot, slotInfo.creature->getId(), TQuantity(slotInfo.count));
 		}
 
 		resources -= upgradeInfo.upgradeCost;
@@ -372,10 +373,10 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 
 		for(auto & creatureToBuy : buyArmy)
 		{
-			auto targetSlot = target->getSlotFor(creatureToBuy.cre);
+			auto targetSlot = target->getSlotFor(dynamic_cast<const CCreature*>(creatureToBuy.cre));
 
 			target->addToSlot(targetSlot, creatureToBuy.creID, creatureToBuy.count);
-			target->armyCost += creatureToBuy.cre->cost * creatureToBuy.count;
+			target->armyCost += creatureToBuy.cre->getFullRecruitCost() * creatureToBuy.count;
 			target->requireBuyArmy = true;
 		}
 	}
@@ -399,7 +400,7 @@ HeroExchangeArmy * HeroExchangeMap::pickBestCreatures(const CCreatureSet * army1
 	{
 		auto targetSlot = target->getFreeSlot();
 
-		target->addToSlot(targetSlot, slotInfo.creature->idNumber, TQuantity(slotInfo.count));
+		target->addToSlot(targetSlot, slotInfo.creature->getId(), TQuantity(slotInfo.count));
 	}
 
 	return target;
@@ -420,7 +421,7 @@ DwellingActor::DwellingActor(const CGDwelling * dwelling, uint64_t chainMask, bo
 {
 	for(auto & slot : creatureSet->Slots())
 	{
-		armyCost += slot.second->getCreatureID().toCreature()->cost * slot.second->count;
+		armyCost += slot.second->getCreatureID().toCreature()->getFullRecruitCost() * slot.second->count;
 	}
 }
 
@@ -454,7 +455,7 @@ CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, 
 		auto creature = creatureInfo.second.back().toCreature();
 		dwellingCreatures->addToSlot(
 			dwellingCreatures->getSlotFor(creature),
-			creature->idNumber,
+			creature->getId(),
 			TQuantity(creatureInfo.first));
 	}
 

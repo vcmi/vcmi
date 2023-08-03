@@ -18,9 +18,9 @@
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
 #include "../windows/CMessage.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../renderSDL/SDL_PixelAccess.h"
 #include "../render/IImage.h"
+#include "../render/Canvas.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
@@ -34,7 +34,7 @@
 #include <SDL_surface.h>
 
 CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt):
-	WindowBase(getUsedEvents(options_), Point()),
+	WindowBase(0, Point()),
 	options(options_),
 	background(createBg(imageName, options & PLAYER_COLORED))
 {
@@ -55,7 +55,7 @@ CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt
 }
 
 CWindowObject::CWindowObject(int options_, std::string imageName):
-	WindowBase(getUsedEvents(options_), Point()),
+	WindowBase(0, Point()),
 	options(options_),
 	background(createBg(imageName, options_ & PLAYER_COLORED))
 {
@@ -75,7 +75,11 @@ CWindowObject::CWindowObject(int options_, std::string imageName):
 		setShadow(true);
 }
 
-CWindowObject::~CWindowObject() = default;
+CWindowObject::~CWindowObject()
+{
+	if(options & RCLICK_POPUP)
+		CCS->curh->show();
+}
 
 std::shared_ptr<CPicture> CWindowObject::createBg(std::string imageName, bool playerColored)
 {
@@ -101,13 +105,6 @@ void CWindowObject::setBackground(std::string filename)
 		pos = background->center(Point(pos.w/2 + pos.x, pos.h/2 + pos.y));
 
 	updateShadow();
-}
-
-int CWindowObject::getUsedEvents(int options)
-{
-	if (options & RCLICK_POPUP)
-		return RCLICK;
-	return 0;
 }
 
 void CWindowObject::updateShadow()
@@ -224,21 +221,20 @@ void CWindowObject::setShadow(bool on)
 	}
 }
 
-void CWindowObject::showAll(SDL_Surface *to)
+void CWindowObject::showAll(Canvas & to)
 {
 	auto color = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1);
 	if(settings["session"]["spectate"].Bool())
 		color = PlayerColor(1); // TODO: Spectator shouldn't need special code for UI colors
 
 	CIntObject::showAll(to);
-	if ((options & BORDERED) && (pos.h != to->h || pos.w != to->w))
-		CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+	if ((options & BORDERED) && (pos.dimensions() != GH.screenDimensions()))
+		CMessage::drawBorder(color, to.getInternalSurface(), pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
-void CWindowObject::clickRight(tribool down, bool previousState)
+bool CWindowObject::isPopupWindow() const
 {
-	close();
-	CCS->curh->show();
+	return options & RCLICK_POPUP;
 }
 
 CStatusbarWindow::CStatusbarWindow(int options, std::string imageName, Point centerAt) : CWindowObject(options, imageName, centerAt)
@@ -247,10 +243,4 @@ CStatusbarWindow::CStatusbarWindow(int options, std::string imageName, Point cen
 
 CStatusbarWindow::CStatusbarWindow(int options, std::string imageName) : CWindowObject(options, imageName)
 {
-}
-
-void CStatusbarWindow::activate()
-{
-	CIntObject::activate();
-	GH.statusbar = statusbar;
 }

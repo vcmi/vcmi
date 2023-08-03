@@ -43,7 +43,7 @@ void Dispel::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 			if(describe && positive && !negative && !neutral)
 			{
 				MetaString line;
-				unit->addText(line, MetaString::GENERAL_TXT, -555, true);
+				unit->addText(line, EMetaText::GENERAL_TXT, -555, true);
 				unit->addNameReplacement(line, true);
 				blm.lines.push_back(std::move(line));
 			}
@@ -85,7 +85,7 @@ std::shared_ptr<const BonusList> Dispel::getBonuses(const Mechanics * m, const b
 {
 	auto sel = [=](const Bonus * bonus)
 	{
-		if(bonus->source == Bonus::SPELL_EFFECT)
+		if(bonus->source == BonusSource::SPELL_EFFECT)
 		{
 			const Spell * sourceSpell = SpellID(bonus->sid).toSpell(m->spells());
 			if(!sourceSpell)

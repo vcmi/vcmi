@@ -11,6 +11,7 @@
 
 #include "CGoal.h"
 #include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/gameState/QuestInfo.h"
 
 namespace Goals
 {

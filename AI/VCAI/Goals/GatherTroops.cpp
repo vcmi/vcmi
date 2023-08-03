@@ -15,8 +15,7 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
+#include "../../../lib/mapObjects/CGTownInstance.h"
 #include "../../../lib/StringConstants.h"
 
 
@@ -93,21 +92,32 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 			continue;
 		}
 
-		auto creature = VLC->creh->objects[objid];
-		if(t->subID == creature->faction) //TODO: how to force AI to build unupgraded creatures? :O
+		auto creature = VLC->creatures()->getByIndex(objid);
+		if(t->subID == creature->getFaction()) //TODO: how to force AI to build unupgraded creatures? :O
 		{
-			auto creatures = vstd::tryAt(t->town->creatures, creature->level - 1);
+			auto tryFindCreature = [&]() -> std::optional<std::vector<CreatureID>>
+			{
+				if(vstd::isValidIndex(t->town->creatures, creature->getLevel() - 1))
+				{
+					auto itr = t->town->creatures.begin();
+					std::advance(itr, creature->getLevel() - 1);
+					return make_optional(*itr);
+				}
+				return std::nullopt;
+			};
+
+			auto creatures = tryFindCreature();
 			if(!creatures)
 				continue;
 
-			int upgradeNumber = vstd::find_pos(*creatures, creature->idNumber);
+			int upgradeNumber = vstd::find_pos(*creatures, creature->getId());
 			if(upgradeNumber < 0)
 				continue;
 
-			BuildingID bid(BuildingID::DWELL_FIRST + creature->level - 1 + upgradeNumber * GameConstants::CREATURES_PER_TOWN);
-			if(t->hasBuilt(bid) && ai->ah->freeResources().canAfford(creature->cost)) //this assumes only creatures with dwellings are assigned to faction
+			BuildingID bid(BuildingID::DWELL_FIRST + creature->getLevel() - 1 + upgradeNumber * GameConstants::CREATURES_PER_TOWN);
+			if(t->hasBuilt(bid) && ai->ah->freeResources().canAfford(creature->getFullRecruitCost())) //this assumes only creatures with dwellings are assigned to faction
 			{
-				solutions.push_back(sptr(BuyArmy(t, creature->AIValue * this->value).setobjid(objid)));
+				solutions.push_back(sptr(BuyArmy(t, creature->getAIValue() * this->value).setobjid(objid)));
 			}
 			/*else //disable random building requests for now - this code needs to know a lot of town/resource context to do more good than harm
 			{
@@ -129,7 +139,7 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 			{
 				for(auto type : creature.second)
 				{
-					if(type == objid && ai->ah->freeResources().canAfford(VLC->creh->objects[type]->cost))
+					if(type == objid && ai->ah->freeResources().canAfford(VLC->creatures()->getById(type)->getFullRecruitCost()))
 						vstd::concatenate(solutions, ai->ah->howToVisitObj(obj));
 				}
 			}

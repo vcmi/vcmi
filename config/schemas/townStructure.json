@@ -1,44 +1,44 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI town structures format",
 	"description" : "Format used to define structures visible on town screen in VCMI",
-	"required": [ "animation", "x", "y"],
+	"required" : [ "animation", "x", "y"],
 	"additionalProperties" : false,
-	"properties":{
-		"animation": {
-			"type":"string",
-			"description" : "Main animation file for this building",
-			"format" : "animationFile"
-		},
-		"area": {
-			"type":"string",
-			"description" : "Area that indicate when building is selected. Must be 8-bit image",
-			"format" : "imageFile"
-		},
-		"border": {
-			"type":"string",
-			"description" : "Golden border around building, displayed when building is selected",
-			"format" : "imageFile"
-		},
-		"builds": {
+	"properties" : {
+		"builds" : {
 			"type" : "string",
 			"description" : ""
 		},
-		"hidden": {
-			"type":"boolean",
+		"hidden" : {
+			"type" : "boolean",
 			"description" : "If upgrade, this building will replace parent animation but will not alter its behaviour"
 		},
-		"x": {
-			"type":"number",
+		"animation" : {
+			"type" : "string",
+			"description" : "Main animation file for this building",
+			"format" : "animationFile"
+		},
+		"area" : {
+			"type" : "string",
+			"description" : "Area that indicate when building is selected. Must be 8-bit image",
+			"format" : "imageFile"
+		},
+		"border" : {
+			"type" : "string",
+			"description" : "Golden border around building, displayed when building is selected",
+			"format" : "imageFile"
+		},
+		"x" : {
+			"type" : "number",
 			"description" : "Position on screen"
 		},
-		"y": {
-			"type":"number",
+		"y" : {
+			"type" : "number",
 			"description" : "Position on screen"
 		},
-		"z": {
-			"type":"number",
+		"z" : {
+			"type" : "number",
 			"description" : "Position on screen. Buildings with higher value will be drawn on top of other buildings"
 		}
 	}

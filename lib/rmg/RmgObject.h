@@ -77,6 +77,9 @@ public:
 	
 	const Area & getArea() const;  //lazy cache invalidation
 	const int3 getVisibleTop() const;
+
+	bool isGuarded() const;
+	void setGuardedIfMonster(const Instance & object);
 	
 	void finalize(RmgMap & map);
 	void clear();
@@ -87,6 +90,7 @@ private:
 	mutable Area dAccessibleAreaCache, dAccessibleAreaFullCache;
 	int3 dPosition;
 	ui32 dStrength;
+	bool guarded;
 };
 }
 

@@ -15,8 +15,8 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
+#include "../../../lib/mapping/CMapHeader.h" //for victory conditions
+#include "../../../lib/mapObjects/CGTownInstance.h"
 #include "../../../lib/StringConstants.h"
 
 
@@ -154,7 +154,7 @@ TSubgoal Win::whatToDoToAchieve()
 		case EventCondition::HAVE_RESOURCES:
 			//TODO mines? piles? marketplace?
 			//save?
-			return sptr(CollectRes(static_cast<Res::ERes>(goal.objectType), goal.value));
+			return sptr(CollectRes(static_cast<EGameResID>(goal.objectType), goal.value));
 		case EventCondition::HAVE_CREATURES:
 			return sptr(GatherTroops(goal.objectType, goal.value));
 		case EventCondition::TRANSPORT:

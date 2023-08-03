@@ -15,6 +15,8 @@
 #include "../CBonusTypeHandler.h"
 #include "../battle/CBattleInfoCallback.h"
 #include "../battle/Unit.h"
+#include "../bonuses/BonusParams.h"
+#include "../bonuses/BonusList.h"
 
 #include "../serializer/JsonSerializeFormat.h"
 #include "../VCMI_Lib.h"
@@ -87,6 +89,18 @@ private:
 	si32 maxVal = std::numeric_limits<si32>::max();
 };
 
+class ResistanceCondition : public TargetConditionItemBase
+{
+protected:
+	bool check(const Mechanics * m, const battle::Unit * target) const override
+	{
+		if(m->isPositiveSpell()) //Always pass on positive
+			return true;
+
+		return target->magicResistance() < 100;
+	}
+};
+
 class CreatureCondition : public TargetConditionItemBase
 {
 public:
@@ -114,10 +128,14 @@ public:
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		std::stringstream cachingStr;
-		cachingStr << "type_" << Bonus::LEVEL_SPELL_IMMUNITY << "addInfo_1";
 
-		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::info()(1)), cachingStr.str());
+		if(!m->isMagicalEffect()) //Always pass on non-magical
+			return true;
+
+		std::stringstream cachingStr;
+		cachingStr << "type_" << vstd::to_underlying(BonusType::LEVEL_SPELL_IMMUNITY) << "addInfo_1";
+
+		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(BonusType::LEVEL_SPELL_IMMUNITY).And(Selector::info()(1)), cachingStr.str());
 		return (levelImmunities->size() == 0 || levelImmunities->totalValue() < m->getSpellLevel() || m->getSpellLevel() <= 0);
 	}
 };
@@ -135,8 +153,8 @@ protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
 		std::stringstream cachingStr;
-		cachingStr << "type_" << Bonus::SPELL_IMMUNITY << "subtype_" << m->getSpellIndex() << "addInfo_1";
-		return !target->hasBonus(Selector::typeSubtypeInfo(Bonus::SPELL_IMMUNITY, m->getSpellIndex(), 1), cachingStr.str());
+		cachingStr << "type_" << vstd::to_underlying(BonusType::SPELL_IMMUNITY) << "subtype_" << m->getSpellIndex() << "addInfo_1";
+		return !target->hasBonus(Selector::typeSubtypeInfo(BonusType::SPELL_IMMUNITY, m->getSpellIndex(), 1), cachingStr.str());
 	}
 };
 
@@ -189,7 +207,9 @@ public:
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(Bonus::LEVEL_SPELL_IMMUNITY));
+		if(!m->isMagicalEffect()) //Always pass on non-magical
+			return true;
+		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(BonusType::LEVEL_SPELL_IMMUNITY));
 		return levelImmunities->size() == 0 ||
 		levelImmunities->totalValue() < m->getSpellLevel() ||
 		m->getSpellLevel() <= 0;
@@ -208,7 +228,7 @@ public:
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		return !target->hasBonusOfType(Bonus::SPELL_IMMUNITY, m->getSpellIndex());
+		return !target->hasBonusOfType(BonusType::SPELL_IMMUNITY, m->getSpellIndex());
 	}
 };
 
@@ -233,10 +253,10 @@ public:
 	SpellEffectCondition(const SpellID & spellID_): spellID(spellID_)
 	{
 		std::stringstream builder;
-		builder << "source_" << Bonus::SPELL_EFFECT << "id_" << spellID.num;
+		builder << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT) << "id_" << spellID.num;
 		cachingString = builder.str();
 
-		selector = Selector::source(Bonus::SPELL_EFFECT, spellID.num);
+		selector = Selector::source(BonusSource::SPELL_EFFECT, spellID.num);
 	}
 
 protected:
@@ -260,7 +280,7 @@ protected:
 	}
 
 private:
-	CSelector selector = Selector::type()(Bonus::RECEPTIVE);
+	CSelector selector = Selector::type()(BonusType::RECEPTIVE);
 	std::string cachingString = "type_RECEPTIVE";
 };
 
@@ -269,8 +289,12 @@ class ImmunityNegationCondition : public TargetConditionItemBase
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		const bool battleWideNegation = target->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, 0);
-		const bool heroNegation = target->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, 1);
+		const bool battleWideNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, 0);
+		const bool heroNegation = target->hasBonusOfType(BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, 1);
+		//Non-magical effects is not affected by orb of vulnerability
+		if(!m->isMagicalEffect())
+			return false;
+
 		//anyone can cast on artifact holder`s stacks
 		if(heroNegation)
 		{
@@ -307,6 +331,12 @@ public:
 		return elementalCondition;
 	}
 
+	Object createResistance() const override
+	{
+		static auto elementalCondition = std::make_shared<ResistanceCondition>();
+		return elementalCondition;
+	}
+
 	Object createNormalLevel() const override
 	{
 		static std::shared_ptr<TargetConditionItem> nlCondition = std::make_shared<NormalLevelCondition>();
@@ -332,8 +362,8 @@ public:
 			auto params = BonusParams(identifier, "", -1);
 			if(params.isConverted)
 			{
-				if(params.valRelevant)
-					return std::make_shared<SelectorCondition>(params.toSelector(), params.val, params.val);
+				if(params.val)
+					return std::make_shared<SelectorCondition>(params.toSelector(), *params.val, *params.val);
 				return std::make_shared<SelectorCondition>(params.toSelector());
 			}
 
@@ -344,7 +374,7 @@ public:
 			auto rawId = VLC->modh->identifiers.getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
-				return std::make_shared<CreatureCondition>(CreatureID(rawId.get()));
+				return std::make_shared<CreatureCondition>(CreatureID(rawId.value()));
 			else
 				logMod->error("Invalid creature %s type in spell target condition.", identifier);
 		}
@@ -353,7 +383,7 @@ public:
 			auto rawId = VLC->modh->identifiers.getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
-				return std::make_shared<SpellEffectCondition>(SpellID(rawId.get()));
+				return std::make_shared<SpellEffectCondition>(SpellID(rawId.value()));
 			else
 				logMod->error("Invalid spell %s in spell target condition.", identifier);
 		}
@@ -426,7 +456,6 @@ bool TargetCondition::isReceptive(const Mechanics * m, const battle::Unit * targ
 
 void TargetCondition::serializeJson(JsonSerializeFormat & handler, const ItemFactory * itemFactory)
 {
-	bool isNonMagical = false;
 	if(handler.saving)
 	{
 		logGlobal->error("Spell target condition saving is not supported");
@@ -438,17 +467,13 @@ void TargetCondition::serializeJson(JsonSerializeFormat & handler, const ItemFac
 	negation.clear();
 
 	absolute.push_back(itemFactory->createAbsoluteSpell());
-
-	handler.serializeBool("nonMagical", isNonMagical);
-	if(!isNonMagical)
-	{
-		absolute.push_back(itemFactory->createAbsoluteLevel());
-		normal.push_back(itemFactory->createElemental());
-		normal.push_back(itemFactory->createNormalLevel());
-		normal.push_back(itemFactory->createNormalSpell());
-		negation.push_back(itemFactory->createReceptiveFeature());
-		negation.push_back(itemFactory->createImmunityNegation());
-	}
+	absolute.push_back(itemFactory->createAbsoluteLevel());
+	normal.push_back(itemFactory->createElemental());
+	normal.push_back(itemFactory->createResistance());
+	normal.push_back(itemFactory->createNormalLevel());
+	normal.push_back(itemFactory->createNormalSpell());
+	negation.push_back(itemFactory->createReceptiveFeature());
+	negation.push_back(itemFactory->createImmunityNegation());
 
 	{
 		auto anyOf = handler.enterStruct("anyOf");
@@ -516,7 +541,7 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 
 			CModHandler::parseIdentifier(keyValue.first, scope, type, identifier);
 
-			item = itemFactory->createConfigurable(scope, type, identifier);
+			item = itemFactory->createConfigurable(keyValue.second.meta, type, identifier);
 		}
 
 		if(item)

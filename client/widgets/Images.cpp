@@ -16,6 +16,8 @@
 #include "../renderSDL/SDL_Extensions.h"
 #include "../render/IImage.h"
 #include "../render/CAnimation.h"
+#include "../render/Canvas.h"
+#include "../render/ColorFilter.h"
 
 #include "../battle/BattleInterface.h"
 #include "../battle/BattleInterfaceClasses.h"
@@ -76,16 +78,21 @@ CPicture::CPicture(std::shared_ptr<IImage> image, const Rect &SrcRect, int x, in
 	pos.h = srcRect->h;
 }
 
-void CPicture::show(SDL_Surface * to)
+void CPicture::show(Canvas & to)
 {
 	if (visible && needRefresh)
 		showAll(to);
 }
 
-void CPicture::showAll(SDL_Surface * to)
+void CPicture::showAll(Canvas & to)
 {
 	if(bg && visible)
-		bg->draw(to, pos.x, pos.y, srcRect.get_ptr());
+	{
+		if (srcRect.has_value())
+			to.draw(bg, pos.topLeft(), *srcRect);
+		else
+			to.draw(bg, pos.topLeft());
+	}
 }
 
 void CPicture::setAlpha(int value)
@@ -112,23 +119,61 @@ CFilledTexture::CFilledTexture(std::string imageName, Rect position):
 {
 	pos.w = position.w;
 	pos.h = position.h;
+	imageArea = Rect(Point(), texture->dimensions());
 }
 
-void CFilledTexture::showAll(SDL_Surface *to)
+CFilledTexture::CFilledTexture(std::shared_ptr<IImage> image, Rect position, Rect imageArea)
+	: CIntObject(0, position.topLeft())
+	, texture(image)
+	, imageArea(imageArea)
 {
-	CSDL_Ext::CClipRectGuard guard(to, pos);
+	pos.w = position.w;
+	pos.h = position.h;
+}
 
-	for (int y=pos.top(); y < pos.bottom(); y+= texture->height())
+void CFilledTexture::showAll(Canvas & to)
+{
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
+
+	for (int y=pos.top(); y < pos.bottom(); y+= imageArea.h)
 	{
-		for (int x=pos.left(); x < pos.right(); x+=texture->width())
-			texture->draw(to, x, y);
+		for (int x=pos.left(); x < pos.right(); x+= imageArea.w)
+			to.draw(texture, Point(x,y), imageArea);
 	}
+}
+
+FilledTexturePlayerColored::FilledTexturePlayerColored(std::string imageName, Rect position)
+	: CFilledTexture(imageName, position)
+{
+}
+
+void FilledTexturePlayerColored::playerColored(PlayerColor player)
+{
+	// Color transform to make color of brown DIBOX.PCX texture match color of specified player
+	std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
+		ColorFilter::genRangeShifter(  0.25,  0,     0,     1.25, 0.00, 0.00 ), // red
+		ColorFilter::genRangeShifter(  0,     0,     0,     0.45, 1.20, 4.50 ), // blue
+		ColorFilter::genRangeShifter(  0.40,  0.27,  0.23,  1.10, 1.20, 1.15 ), // tan
+		ColorFilter::genRangeShifter( -0.27,  0.10, -0.27,  0.70, 1.70, 0.70 ), // green
+		ColorFilter::genRangeShifter(  0.47,  0.17, -0.27,  1.60, 1.20, 0.70 ), // orange
+		ColorFilter::genRangeShifter(  0.12, -0.1,   0.25,  1.15, 1.20, 2.20 ), // purple
+		ColorFilter::genRangeShifter( -0.13,  0.23,  0.23,  0.90, 1.20, 2.20 ), // teal
+		ColorFilter::genRangeShifter(  0.44,  0.15,  0.25,  1.00, 1.00, 1.75 )  // pink
+	};
+
+	assert(player.isValidPlayer());
+	if (!player.isValidPlayer())
+	{
+		logGlobal->error("Unable to colorize to invalid player color %d!", static_cast<int>(player.getNum()));
+		return;
+	}
+
+	texture->adjustPalette(filters[player.getNum()], 0);
 }
 
 CAnimImage::CAnimImage(const std::string & name, size_t Frame, size_t Group, int x, int y, ui8 Flags):
 	frame(Frame),
 	group(Group),
-	player(-1),
 	flags(Flags)
 {
 	pos.x += x;
@@ -141,7 +186,6 @@ CAnimImage::CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Gr
 	anim(Anim),
 	frame(Frame),
 	group(Group),
-	player(-1),
 	flags(Flags)
 {
 	pos.x += x;
@@ -153,7 +197,6 @@ CAnimImage::CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, Rect targ
 	anim(Anim),
 	frame(Frame),
 	group(Group),
-	player(-1),
 	flags(Flags),
 	scaledSize(targetPos.w, targetPos.h)
 {
@@ -204,7 +247,7 @@ CAnimImage::~CAnimImage()
 {
 }
 
-void CAnimImage::showAll(SDL_Surface * to)
+void CAnimImage::showAll(Canvas & to)
 {
 	if(!visible)
 		return;
@@ -223,10 +266,10 @@ void CAnimImage::showAll(SDL_Surface * to)
 			if(isScaled())
 			{
 				auto scaled = img->scaleFast(scaledSize);
-				scaled->draw(to, pos.x, pos.y);
+				to.draw(scaled, pos.topLeft());
 			}
 			else
-				img->draw(to, pos.x, pos.y);
+				to.draw(img, pos.topLeft());
 		}
 	}
 }
@@ -242,8 +285,8 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 		group = Group;
 		if(auto img = anim->getImage(frame, group))
 		{
-			if (flags & CShowableAnim::PLAYER_COLORED)
-				img->playerColored(player);
+			if (player.has_value())
+				img->playerColored(*player);
 			setSizeFromImage(*img);
 		}
 	}
@@ -254,10 +297,14 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 void CAnimImage::playerColored(PlayerColor currPlayer)
 {
 	player = currPlayer;
-	flags |= CShowableAnim::PLAYER_COLORED;
-	anim->getImage(frame, group)->playerColored(player);
+	anim->getImage(frame, group)->playerColored(*player);
 	if (flags & CShowableAnim::BASE)
-			anim->getImage(0, group)->playerColored(player);
+			anim->getImage(0, group)->playerColored(*player);
+}
+
+bool CAnimImage::isPlayerColored() const
+{
+	return player.has_value();
 }
 
 CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 frameTime, size_t Group, uint8_t alpha):
@@ -279,6 +326,8 @@ CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 fra
 	pos.h = anim->getImage(0, group)->height();
 	pos.x+= x;
 	pos.y+= y;
+
+	addUsedEvents(TIME);
 }
 
 CShowableAnim::~CShowableAnim()
@@ -345,16 +394,19 @@ void CShowableAnim::clipRect(int posX, int posY, int width, int height)
 	pos.h = height;
 }
 
-void CShowableAnim::show(SDL_Surface * to)
+void CShowableAnim::show(Canvas & to)
 {
 	if ( flags & BASE )// && frame != first) // FIXME: results in graphical glytch in Fortress, upgraded hydra's dwelling
 		blitImage(first, group, to);
 	blitImage(frame, group, to);
+}
 
+void CShowableAnim::tick(uint32_t msPassed)
+{
 	if ((flags & PLAY_ONCE) && frame + 1 == last)
 		return;
 
-	frameTimePassed += GH.mainFPSmng->getElapsedMilliseconds();
+	frameTimePassed += msPassed;
 
 	if(frameTimePassed >= frameTimeTotal)
 	{
@@ -364,22 +416,21 @@ void CShowableAnim::show(SDL_Surface * to)
 	}
 }
 
-void CShowableAnim::showAll(SDL_Surface * to)
+void CShowableAnim::showAll(Canvas & to)
 {
 	if ( flags & BASE )// && frame != first)
 		blitImage(first, group, to);
 	blitImage(frame, group, to);
 }
 
-void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
+void CShowableAnim::blitImage(size_t frame, size_t group, Canvas & to)
 {
-	assert(to);
 	Rect src( xOffset, yOffset, pos.w, pos.h);
 	auto img = anim->getImage(frame, group);
 	if(img)
 	{
 		img->setAlpha(alpha);
-		img->draw(to, pos.x, pos.y, &src);
+		to.draw(img, pos.topLeft(), src);
 	}
 }
 

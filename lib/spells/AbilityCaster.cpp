@@ -22,7 +22,6 @@ namespace spells
 
 AbilityCaster::AbilityCaster(const battle::Unit * actualCaster_, int32_t baseSpellLevel_)
 	: ProxyCaster(actualCaster_),
-	actualCaster(actualCaster_),
 	baseSpellLevel(baseSpellLevel_)
 {
 }
@@ -32,10 +31,11 @@ AbilityCaster::~AbilityCaster() = default;
 int32_t AbilityCaster::getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool) const
 {
 	auto skill = baseSpellLevel;
+	const auto * unit = dynamic_cast<const battle::Unit*>(actualCaster);
 
 	if(spell->getLevel() > 0)
 	{
-		vstd::amax(skill, actualCaster->valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0));
+		vstd::amax(skill, unit->valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, SpellSchool(ESpellSchool::ANY)));
 	}
 
 	vstd::amax(skill, 0);

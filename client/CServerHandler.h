@@ -57,12 +57,12 @@ public:
 
 	virtual void sendClientConnecting() const = 0;
 	virtual void sendClientDisconnecting() = 0;
-	virtual void setCampaignState(std::shared_ptr<CCampaignState> newCampaign) = 0;
-	virtual void setCampaignMap(int mapId) const = 0;
+	virtual void setCampaignState(std::shared_ptr<CampaignState> newCampaign) = 0;
+	virtual void setCampaignMap(CampaignScenarioID mapId) const = 0;
 	virtual void setCampaignBonus(int bonusId) const = 0;
 	virtual void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const = 0;
 	virtual void setPlayer(PlayerColor color) const = 0;
-	virtual void setPlayerOption(ui8 what, ui8 dir, PlayerColor player) const = 0;
+	virtual void setPlayerOption(ui8 what, si8 dir, PlayerColor player) const = 0;
 	virtual void setDifficulty(int to) const = 0;
 	virtual void setTurnLength(int npos) const = 0;
 	virtual void sendMessage(const std::string & txt) const = 0;
@@ -92,7 +92,7 @@ public:
 	// FIXME: Bunch of crutches to glue it all together
 
 	// For starting non-custom campaign and continue to next mission
-	std::shared_ptr<CCampaignState> campaignStateToSend;
+	std::shared_ptr<CampaignState> campaignStateToSend;
 
 	ui8 screenType; // To create lobby UI only after server is setup
 	ui8 loadMode; // For saves filtering in SelectionTab
@@ -135,12 +135,12 @@ public:
 	// Lobby server API for UI
 	void sendClientConnecting() const override;
 	void sendClientDisconnecting() override;
-	void setCampaignState(std::shared_ptr<CCampaignState> newCampaign) override;
-	void setCampaignMap(int mapId) const override;
+	void setCampaignState(std::shared_ptr<CampaignState> newCampaign) override;
+	void setCampaignMap(CampaignScenarioID mapId) const override;
 	void setCampaignBonus(int bonusId) const override;
 	void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const override;
 	void setPlayer(PlayerColor color) const override;
-	void setPlayerOption(ui8 what, ui8 dir, PlayerColor player) const override;
+	void setPlayerOption(ui8 what, si8 dir, PlayerColor player) const override;
 	void setDifficulty(int to) const override;
 	void setTurnLength(int npos) const override;
 	void sendMessage(const std::string & txt) const override;
@@ -150,7 +150,7 @@ public:
 
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
 	void endGameplay(bool closeConnection = true, bool restart = false);
-	void startCampaignScenario(std::shared_ptr<CCampaignState> cs = {});
+	void startCampaignScenario(std::shared_ptr<CampaignState> cs = {});
 	void showServerError(std::string txt);
 
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle

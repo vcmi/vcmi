@@ -15,6 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class SpellID;
+enum class ESpellSchool: int8_t;
 
 namespace spells
 {
@@ -41,7 +42,9 @@ public:
 	virtual bool isDamage() const = 0;
 	virtual bool isOffensive() const = 0;
 	virtual bool isSpecial() const = 0;
+	virtual bool isMagical() const = 0; //Should this spell considered as magical effect or as ability (like dendroid's bind)
 
+	virtual bool hasSchool(ESpellSchool school) const = 0;
 	virtual void forEachSchool(const SchoolCallback & cb) const = 0;
 	virtual const std::string & getCastSound() const = 0;
 	virtual int32_t getCost(const int32_t skillLevel) const = 0;
@@ -52,12 +55,8 @@ public:
 	 */
 	virtual int32_t getLevelPower(const int32_t skillLevel) const = 0;
 
-	virtual std::string getNameTextID() const = 0;
-	virtual std::string getNameTranslated() const  = 0;
-
 	virtual std::string getDescriptionTextID(int32_t level) const  = 0;
 	virtual std::string getDescriptionTranslated(int32_t level) const  = 0;
-
 };
 
 }

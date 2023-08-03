@@ -11,14 +11,17 @@
 #include "StdInc.h"
 #include "CMinimap.h"
 
-#include "CAdvMapInt.h"
+#include "AdventureMapInterface.h"
 
 #include "../widgets/Images.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/MouseButton.h"
+#include "../gui/WindowHandler.h"
 #include "../render/Colors.h"
-#include "../renderSDL/SDL_PixelAccess.h"
+#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 #include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"
@@ -26,6 +29,8 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMapDefines.h"
+
+#include <SDL_pixels.h>
 
 ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
 {
@@ -77,14 +82,13 @@ CMinimapInstance::CMinimapInstance(CMinimap *Parent, int Level):
 	redrawMinimap();
 }
 
-void CMinimapInstance::showAll(SDL_Surface * to)
+void CMinimapInstance::showAll(Canvas & to)
 {
-	Canvas target(to);
-	target.drawScaled(*minimap, pos.topLeft(), pos.dimensions());
+	to.drawScaled(*minimap, pos.topLeft(), pos.dimensions());
 }
 
 CMinimap::CMinimap(const Rect & position)
-	: CIntObject(LCLICK | RCLICK | HOVER | MOVE, position.topLeft()),
+	: CIntObject(LCLICK | SHOW_POPUP | DRAG | MOVE | GESTURE, position.topLeft()),
 	level(0)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -122,52 +126,53 @@ Point CMinimap::tileToPixels(const int3 &tile) const
 	return Point(x,y);
 }
 
-void CMinimap::moveAdvMapSelection()
+void CMinimap::moveAdvMapSelection(const Point & positionGlobal)
 {
-	int3 newLocation = pixelToTile(GH.getCursorPosition() - pos.topLeft());
+	int3 newLocation = pixelToTile(positionGlobal - pos.topLeft());
 	adventureInt->centerOnTile(newLocation);
 
-	if (!(adventureInt->active & GENERAL))
-		GH.totalRedraw(); //redraw this as well as inactive adventure map
+	if (!(adventureInt->isActive()))
+		GH.windows().totalRedraw(); //redraw this as well as inactive adventure map
 	else
 		redraw();//redraw only this
 }
 
-void CMinimap::clickLeft(tribool down, bool previousState)
+void CMinimap::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
 {
-	if(down)
-		moveAdvMapSelection();
+	if (pos.isInside(currentPosition))
+		moveAdvMapSelection(currentPosition);
 }
 
-void CMinimap::clickRight(tribool down, bool previousState)
+void CMinimap::clickPressed(const Point & cursorPosition)
 {
-	if (down)
-		CRClickPopup::createAndPush(CGI->generaltexth->zelp[291].second);
+	moveAdvMapSelection(cursorPosition);
+}
+
+void CMinimap::showPopupWindow(const Point & cursorPosition)
+{
+	CRClickPopup::createAndPush(CGI->generaltexth->zelp[291].second);
 }
 
 void CMinimap::hover(bool on)
 {
 	if(on)
-		GH.statusbar->write(CGI->generaltexth->zelp[291].first);
+		GH.statusbar()->write(CGI->generaltexth->zelp[291].first);
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 }
 
-void CMinimap::mouseMoved(const Point & cursorPosition)
+void CMinimap::mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
-	if(mouseState(MouseButton::LEFT))
-		moveAdvMapSelection();
+	moveAdvMapSelection(cursorPosition);
 }
 
-void CMinimap::showAll(SDL_Surface * to)
+void CMinimap::showAll(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to, pos);
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
 	CIntObject::showAll(to);
 
 	if(minimap)
 	{
-		Canvas target(to);
-
 		int3 mapSizes = LOCPLINT->cb->getMapSize();
 
 		//draw radar
@@ -179,7 +184,7 @@ void CMinimap::showAll(SDL_Surface * to)
 			screenArea.h * pos.h / mapSizes.y - 1
 		};
 
-		Canvas clippedTarget(target, pos);
+		Canvas clippedTarget(to, pos);
 		clippedTarget.drawBorderDashed(radar, CSDL_Ext::fromSDL(Colors::PURPLE));
 	}
 }
@@ -225,10 +230,13 @@ void CMinimap::setAIRadar(bool on)
 	redraw();
 }
 
-void CMinimap::updateTile(const int3 &pos)
+void CMinimap::updateTiles(const std::unordered_set<int3> & positions)
 {
 	if(minimap)
-		minimap->refreshTile(pos);
+	{
+		for (auto const & tile : positions)
+			minimap->refreshTile(tile);
+	}
 	redraw();
 }
 

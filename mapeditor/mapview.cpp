@@ -13,7 +13,10 @@
 #include "mainwindow.h"
 #include <QGraphicsSceneMouseEvent>
 #include "mapcontroller.h"
-#include "../lib/mapObjects/CObjectClassesHandler.h"
+#include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../lib/mapping/CMap.h"
+
 
 MinimapView::MinimapView(QWidget * parent):
 	QGraphicsView(parent)
@@ -465,7 +468,7 @@ void MapView::dropEvent(QDropEvent * event)
 		else
 		{
 			controller->discardObject(sc->level);
-			QMessageBox::information(this, "Can't place object", errorMsg);
+			QMessageBox::information(this, tr("Can't place object"), errorMsg);
 		}
 	}
 

@@ -396,10 +396,10 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 				{
 					if(terType->getId() == centerTerType->getId())
 					{
-						const auto & patternForRule = VLC->terviewh->getTerrainViewPatternsById(centerTerType->getId(), rule.name);
+						const auto patternForRule = VLC->terviewh->getTerrainViewPatternsById(centerTerType->getId(), rule.name);
 						if(auto p = patternForRule)
 						{
-							auto rslt = validateTerrainView(currentPos, &(*p), 1);
+							auto rslt = validateTerrainView(currentPos, &(p->get()), 1);
 							if(rslt.result) topPoints = std::max(topPoints, rule.points);
 						}
 					}

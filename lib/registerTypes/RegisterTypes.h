@@ -13,15 +13,27 @@
 #include "../NetPacksLobby.h"
 #include "../VCMI_Lib.h"
 #include "../CArtHandler.h"
+#include "../CCreatureSet.h"
 #include "../CPlayerState.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
 #include "../CModHandler.h" //needed?
-#include "../mapObjects/CObjectClassesHandler.h"
-#include "../mapObjects/CRewardableConstructor.h"
-#include "../mapObjects/CommonConstructors.h"
+#include "../mapObjectConstructors/CRewardableConstructor.h"
+#include "../mapObjectConstructors/CommonConstructors.h"
+#include "../mapObjectConstructors/CBankInstanceConstructor.h"
+#include "../mapObjectConstructors/DwellingInstanceConstructor.h"
+#include "../mapObjectConstructors/HillFortInstanceConstructor.h"
+#include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
+#include "../mapObjectConstructors/ShrineInstanceConstructor.h"
 #include "../mapObjects/MapObjects.h"
+#include "../mapObjects/CGCreature.h"
+#include "../mapObjects/CGTownBuilding.h"
+#include "../mapObjects/ObjectTemplate.h"
 #include "../battle/CObstacleInstance.h"
+#include "../bonuses/CBonusSystemNode.h"
+#include "../bonuses/Limiters.h"
+#include "../bonuses/Updaters.h"
+#include "../bonuses/Propagators.h"
 #include "../CStack.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -53,11 +65,12 @@ void registerTypesMapObjects1(Serializer &s)
 	s.template registerType<CGObjectInstance, CGBoat>();
 	s.template registerType<CGObjectInstance, CGMagi>();
 	s.template registerType<CGObjectInstance, CGSirens>();
-	s.template registerType<CGObjectInstance, CGShipyard>(); s.template registerType<IShipyard, CGShipyard>();
+	s.template registerType<CGObjectInstance, CGShipyard>();
 	s.template registerType<CGObjectInstance, CGDenOfthieves>();
 	s.template registerType<CGObjectInstance, CGLighthouse>();
 	s.template registerType<CGObjectInstance, CGTerrainPatch>();
-	s.template registerType<CGObjectInstance, CGMarket>(); s.template registerType<IMarket, CGMarket>();
+	s.template registerType<CGObjectInstance, HillFort>();
+	s.template registerType<CGObjectInstance, CGMarket>();
 		s.template registerType<CGMarket, CGBlackMarket>();
 		s.template registerType<CGMarket, CGUniversity>();
 	s.template registerType<CGObjectInstance, CGHeroPlaceholder>();
@@ -65,9 +78,9 @@ void registerTypesMapObjects1(Serializer &s)
 	s.template registerType<CGObjectInstance, CArmedInstance>(); s.template registerType<CBonusSystemNode, CArmedInstance>(); s.template registerType<CCreatureSet, CArmedInstance>();
 
 	// Armed objects
-	s.template registerType<CArmedInstance, CGHeroInstance>(); s.template registerType<IBoatGenerator, CGHeroInstance>(); s.template registerType<CArtifactSet, CGHeroInstance>();
+	s.template registerType<CArmedInstance, CGHeroInstance>(); s.template registerType<CArtifactSet, CGHeroInstance>();
 	s.template registerType<CArmedInstance, CGDwelling>();
-		s.template registerType<CGDwelling, CGTownInstance>(); s.template registerType<IShipyard, CGTownInstance>(); s.template registerType<IMarket, CGTownInstance>();
+		s.template registerType<CGDwelling, CGTownInstance>();
 	s.template registerType<CArmedInstance, CGPandoraBox>();
 		s.template registerType<CGPandoraBox, CGEvent>();
 	s.template registerType<CArmedInstance, CGCreature>();
@@ -86,14 +99,20 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<AObjectTypeHandler, CRewardableConstructor>();
 	s.template registerType<AObjectTypeHandler, CHeroInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CTownInstanceConstructor>();
-	s.template registerType<AObjectTypeHandler, CDwellingInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, DwellingInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CBankInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, BoatInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, MarketInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CObstacleConstructor>();
+	s.template registerType<AObjectTypeHandler, ShrineInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, ShipyardInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, HillFortInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, CreatureInstanceConstructor>();
+	s.template registerType<AObjectTypeHandler, ResourceInstanceConstructor>();
 
 #define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()
 
 	REGISTER_GENERIC_HANDLER(CGObjectInstance);
-	REGISTER_GENERIC_HANDLER(CGMarket);
 	REGISTER_GENERIC_HANDLER(CCartographer);
 	REGISTER_GENERIC_HANDLER(CGArtifact);
 	REGISTER_GENERIC_HANDLER(CGBlackMarket);
@@ -130,6 +149,7 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGTownInstance);
 	REGISTER_GENERIC_HANDLER(CGUniversity);
 	REGISTER_GENERIC_HANDLER(CGWitchHut);
+	REGISTER_GENERIC_HANDLER(HillFort);
 
 #undef REGISTER_GENERIC_HANDLER
 
@@ -152,7 +172,8 @@ void registerTypesMapObjects2(Serializer &s)
 	//Other object-related
 	s.template registerType<IObjectInterface, CGTownBuilding>();
 		s.template registerType<CGTownBuilding, CTownBonus>();
-			s.template registerType<CGTownBuilding, COPWBonus>();
+		s.template registerType<CGTownBuilding, COPWBonus>();
+		s.template registerType<CGTownBuilding, CTownRewardableBuilding>();
 
 	s.template registerType<CGObjectInstance, CRewardableObject>();
 
@@ -179,30 +200,27 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<ILimiter, CCreatureTypeLimiter>();
 	s.template registerType<ILimiter, HasAnotherBonusLimiter>();
 	s.template registerType<ILimiter, CreatureTerrainLimiter>();
-	s.template registerType<ILimiter, CreatureFactionLimiter>();
+	s.template registerType<ILimiter, FactionLimiter>();
+	s.template registerType<ILimiter, CreatureLevelLimiter>();
 	s.template registerType<ILimiter, CreatureAlignmentLimiter>();
 	s.template registerType<ILimiter, RankRangeLimiter>();
-	s.template registerType<ILimiter, StackOwnerLimiter>();
+	s.template registerType<ILimiter, UnitOnHexLimiter>();
 
 //	s.template registerType<CBonusSystemNode>();
 	s.template registerType<CBonusSystemNode, CArtifact>();
-	s.template registerType<CArtifact, CGrowingArtifact>();
 	s.template registerType<CBonusSystemNode, CCreature>();
 	s.template registerType<CBonusSystemNode, CStackInstance>();
 	s.template registerType<CStackInstance, CCommanderInstance>();
 	s.template registerType<CBonusSystemNode, PlayerState>();
 	s.template registerType<CBonusSystemNode, TeamState>();
 	//s.template registerType<CGameState>(); //TODO
-	s.template registerType<CBonusSystemNode, CGHeroInstance::HeroSpecial>();
 	//s.template registerType<CArmedInstance>();
 	s.template registerType<CBonusSystemNode, CStack>();
 	s.template registerType<CBonusSystemNode, BattleInfo>();
 	//s.template registerType<QuestInfo>();
 	s.template registerType<CBonusSystemNode, CArtifactInstance>();
-	s.template registerType<CArtifactInstance, CCombinedArtifactInstance>();
 
 	//s.template registerType<CObstacleInstance>();
-		s.template registerType<CObstacleInstance, MoatObstacle>();
 		s.template registerType<CObstacleInstance, SpellCreatedObstacle>();
 }
 template<typename Serializer>
@@ -223,7 +241,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, SetMana>();
 	s.template registerType<CPackForClient, SetMovePoints>();
 	s.template registerType<CPackForClient, FoWChange>();
-	s.template registerType<CPackForClient, SetAvailableHeroes>();
+	s.template registerType<CPackForClient, SetAvailableHero>();
 	s.template registerType<CPackForClient, GiveBonus>();
 	s.template registerType<CPackForClient, ChangeObjPos>();
 	s.template registerType<CPackForClient, PlayerEndsGame>();
@@ -266,6 +284,7 @@ void registerTypesClientPacks2(Serializer &s)
 	s.template registerType<CPackForClient, BattleNextRound>();
 	s.template registerType<CPackForClient, BattleSetActiveStack>();
 	s.template registerType<CPackForClient, BattleResult>();
+	s.template registerType<CPackForClient, BattleResultAccepted>();
 	s.template registerType<CPackForClient, BattleLogMessage>();
 	s.template registerType<CPackForClient, BattleStackMoved>();
 	s.template registerType<CPackForClient, BattleAttack>();
@@ -307,7 +326,6 @@ void registerTypesClientPacks2(Serializer &s)
 	s.template registerType<CArtifactOperationPack, DisassembledArtifact>();
 	s.template registerType<CArtifactOperationPack, BulkMoveArtifacts>();
 
-	s.template registerType<CPackForClient, SaveGameClient>();
 	s.template registerType<CPackForClient, PlayerMessageClient>();
 	s.template registerType<CGarrisonOperationPack, BulkRebalanceStacks>();
 	s.template registerType<CGarrisonOperationPack, BulkSmartRebalanceStacks>();
@@ -346,6 +364,7 @@ void registerTypesServerPacks(Serializer &s)
 	s.template registerType<CPackForServer, BulkSmartSplitStack>();
 	s.template registerType<CPackForServer, BulkMoveArmy>();
 	s.template registerType<CPackForServer, BulkExchangeArtifacts>();
+	s.template registerType<CPackForServer, EraseArtifactByClient>();
 }
 
 template<typename Serializer>

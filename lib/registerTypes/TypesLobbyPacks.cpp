@@ -12,7 +12,9 @@
 
 #include "../mapping/CMapInfo.h"
 #include "../StartInfo.h"
-#include "../CGameState.h"
+#include "../gameState/CGameState.h"
+#include "../gameState/CGameStateCampaign.h"
+#include "../gameState/TavernHeroesPool.h"
 #include "../mapping/CMap.h"
 #include "../CModHandler.h"
 #include "../mapObjects/CObjectHandler.h"
@@ -25,9 +27,8 @@
 #include "../RoadHandler.h"
 #include "../RiverHandler.h"
 #include "../TerrainHandler.h"
-#include "../mapping/CCampaignHandler.h"
+#include "../campaign/CampaignState.h"
 #include "../NetPacks.h"
-#include "../mapObjects/CObjectClassesHandler.h"
 #include "../rmg/CMapGenOptions.h"
 
 #include "../serializer/BinaryDeserializer.h"

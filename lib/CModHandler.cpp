@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 #include "CModHandler.h"
-#include "mapObjects/CObjectClassesHandler.h"
 #include "rmg/CRmgTemplateStorage.h"
 #include "filesystem/FileStream.h"
 #include "filesystem/AdapterLoaders.h"
@@ -20,7 +19,6 @@
 #include "CArtHandler.h"
 #include "CTownHandler.h"
 #include "CHeroHandler.h"
-#include "mapObjects/CObjectHandler.h"
 #include "StringConstants.h"
 #include "CStopWatch.h"
 #include "IHandlerBase.h"
@@ -35,6 +33,7 @@
 #include "TerrainHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
+#include "mapObjectConstructors/CObjectClassesHandler.h"
 
 #include <vstd/StringUtils.h>
 
@@ -65,20 +64,6 @@ void CIdentifierStorage::checkIdentifier(std::string & ID)
 	}
 }
 
-CIdentifierStorage::ObjectCallback::ObjectCallback(std::string localScope,
-												   std::string remoteScope,
-												   std::string type,
-												   std::string name,
-												   std::function<void(si32)> callback,
-												   bool optional):
-	localScope(std::move(localScope)),
-	remoteScope(std::move(remoteScope)),
-	type(std::move(type)),
-	name(std::move(name)),
-	callback(std::move(callback)),
-	optional(optional)
-{}
-
 void CIdentifierStorage::requestIdentifier(ObjectCallback callback)
 {
 	checkIdentifier(callback.type);
@@ -92,102 +77,130 @@ void CIdentifierStorage::requestIdentifier(ObjectCallback callback)
 		resolveIdentifier(callback);
 }
 
+CIdentifierStorage::ObjectCallback CIdentifierStorage::ObjectCallback::fromNameWithType(const std::string & scope, const std::string & fullName, const std::function<void(si32)> & callback, bool optional)
+{
+	assert(!scope.empty());
+
+	auto scopeAndFullName = vstd::splitStringToPair(fullName, ':');
+	auto typeAndName = vstd::splitStringToPair(scopeAndFullName.second, '.');
+
+	if (scope == scopeAndFullName.first)
+		logMod->debug("Target scope for identifier '%s' is redundant! Identifier already defined in mod '%s'", fullName, scope);
+
+	ObjectCallback result;
+	result.localScope = scope;
+	result.remoteScope = scopeAndFullName.first;
+	result.type = typeAndName.first;
+	result.name = typeAndName.second;
+	result.callback = callback;
+	result.optional = optional;
+	return result;
+}
+
+CIdentifierStorage::ObjectCallback CIdentifierStorage::ObjectCallback::fromNameAndType(const std::string & scope, const std::string & type, const std::string & fullName, const std::function<void(si32)> & callback, bool optional)
+{
+	assert(!scope.empty());
+
+	auto scopeAndFullName = vstd::splitStringToPair(fullName, ':');
+	auto typeAndName = vstd::splitStringToPair(scopeAndFullName.second, '.');
+
+	if(!typeAndName.first.empty())
+	{
+		if (typeAndName.first != type)
+			logMod->error("Identifier '%s' from mod '%s' requested with different type! Type '%s' expected!", fullName, scope, type);
+		else
+			logMod->debug("Target type for identifier '%s' defined in mod '%s' is redundant!", fullName, scope);
+	}
+
+	if (scope == scopeAndFullName.first)
+		logMod->debug("Target scope for identifier '%s' is redundant! Identifier already defined in mod '%s'", fullName, scope);
+
+	ObjectCallback result;
+	result.localScope = scope;
+	result.remoteScope = scopeAndFullName.first;
+	result.type = type;
+	result.name = typeAndName.second;
+	result.callback = callback;
+	result.optional = optional;
+	return result;
+}
+
 void CIdentifierStorage::requestIdentifier(const std::string & scope, const std::string & type, const std::string & name, const std::function<void(si32)> & callback)
 {
-	auto pair = vstd::splitStringToPair(name, ':'); // remoteScope:name
-
-	requestIdentifier(ObjectCallback(scope, pair.first, type, pair.second, callback, false));
+	requestIdentifier(ObjectCallback::fromNameAndType(scope, type, name, callback, false));
 }
 
 void CIdentifierStorage::requestIdentifier(const std::string & scope, const std::string & fullName, const std::function<void(si32)> & callback)
 {
-	auto scopeAndFullName = vstd::splitStringToPair(fullName, ':');
-	auto typeAndName = vstd::splitStringToPair(scopeAndFullName.second, '.');
-
-	requestIdentifier(ObjectCallback(scope, scopeAndFullName.first, typeAndName.first, typeAndName.second, callback, false));
+	requestIdentifier(ObjectCallback::fromNameWithType(scope, fullName, callback, false));
 }
 
 void CIdentifierStorage::requestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback)
 {
-	auto pair = vstd::splitStringToPair(name.String(), ':'); // remoteScope:name
-
-	requestIdentifier(ObjectCallback(name.meta, pair.first, type, pair.second, callback, false));
+	requestIdentifier(ObjectCallback::fromNameAndType(name.meta, type, name.String(), callback, false));
 }
 
 void CIdentifierStorage::requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback)
 {
-	auto pair  = vstd::splitStringToPair(name.String(), ':'); // remoteScope:<type.name>
-	auto pair2 = vstd::splitStringToPair(pair.second,   '.'); // type.name
-
-	requestIdentifier(ObjectCallback(name.meta, pair.first, pair2.first, pair2.second, callback, false));
+	requestIdentifier(ObjectCallback::fromNameWithType(name.meta, name.String(), callback, false));
 }
 
 void CIdentifierStorage::tryRequestIdentifier(const std::string & scope, const std::string & type, const std::string & name, const std::function<void(si32)> & callback)
 {
-	auto pair = vstd::splitStringToPair(name, ':'); // remoteScope:name
-
-	requestIdentifier(ObjectCallback(scope, pair.first, type, pair.second, callback, true));
+	requestIdentifier(ObjectCallback::fromNameAndType(scope, type, name, callback, true));
 }
 
 void CIdentifierStorage::tryRequestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback)
 {
-	auto pair = vstd::splitStringToPair(name.String(), ':'); // remoteScope:name
-
-	requestIdentifier(ObjectCallback(name.meta, pair.first, type, pair.second, callback, true));
+	requestIdentifier(ObjectCallback::fromNameAndType(name.meta, type, name.String(), callback, true));
 }
 
-boost::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent)
+std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent)
 {
-	auto pair = vstd::splitStringToPair(name, ':'); // remoteScope:name
-	auto idList = getPossibleIdentifiers(ObjectCallback(scope, pair.first, type, pair.second, std::function<void(si32)>(), silent));
+	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameAndType(scope, type, name, std::function<void(si32)>(), silent));
 
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
 		logMod->error("Failed to resolve identifier %s of type %s from mod %s", name , type ,scope);
 
-	return boost::optional<si32>();
+	return std::optional<si32>();
 }
 
-boost::optional<si32> CIdentifierStorage::getIdentifier(const std::string & type, const JsonNode & name, bool silent)
+std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & type, const JsonNode & name, bool silent)
 {
-	auto pair = vstd::splitStringToPair(name.String(), ':'); // remoteScope:name
-	auto idList = getPossibleIdentifiers(ObjectCallback(name.meta, pair.first, type, pair.second, std::function<void(si32)>(), silent));
+	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameAndType(name.meta, type, name.String(), std::function<void(si32)>(), silent));
 
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
 		logMod->error("Failed to resolve identifier %s of type %s from mod %s", name.String(), type, name.meta);
 
-	return boost::optional<si32>();
+	return std::optional<si32>();
 }
 
-boost::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, bool silent)
+std::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, bool silent)
 {
-	auto pair  = vstd::splitStringToPair(name.String(), ':'); // remoteScope:<type.name>
-	auto pair2 = vstd::splitStringToPair(pair.second,   '.'); // type.name
-	auto idList = getPossibleIdentifiers(ObjectCallback(name.meta, pair.first, pair2.first, pair2.second, std::function<void(si32)>(), silent));
+	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameWithType(name.meta, name.String(), std::function<void(si32)>(), silent));
 
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
-		logMod->error("Failed to resolve identifier %s of type %s from mod %s", name.String(), pair2.first, name.meta);
+		logMod->error("Failed to resolve identifier %s from mod %s", name.String(), name.meta);
 
-	return boost::optional<si32>();
+	return std::optional<si32>();
 }
 
-boost::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & fullName, bool silent)
+std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & fullName, bool silent)
 {
-	auto pair  = vstd::splitStringToPair(fullName, ':'); // remoteScope:<type.name>
-	auto pair2 = vstd::splitStringToPair(pair.second,   '.'); // type.name
-	auto idList = getPossibleIdentifiers(ObjectCallback(scope, pair.first, pair2.first, pair2.second, std::function<void(si32)>(), silent));
+	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameWithType(scope, fullName, std::function<void(si32)>(), silent));
 
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
-		logMod->error("Failed to resolve identifier %s of type %s from mod %s", fullName, pair2.first, scope);
+		logMod->error("Failed to resolve identifier %s from mod %s", fullName, scope);
 
-	return boost::optional<si32>();
+	return std::optional<si32>();
 }
 
 void CIdentifierStorage::registerObject(const std::string & scope, const std::string & type, const std::string & name, si32 identifier)
@@ -408,6 +421,9 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 		const std::string & name = entry.first;
 		JsonNode & data = entry.second;
 
+		if (data.meta != modName)
+			logMod->warn("Mod %s is attempting to inject object %s into mod %s! This may not be supported in future versions!", data.meta, name, modName);
+
 		if (vstd::contains(data.Struct(), "index") && !data["index"].isNull())
 		{
 			if (modName != "core")
@@ -565,53 +581,6 @@ JsonNode addMeta(JsonNode config, const std::string & meta)
 	return config;
 }
 
-CModInfo::Version CModInfo::Version::GameVersion()
-{
-	return Version(VCMI_VERSION_MAJOR, VCMI_VERSION_MINOR, VCMI_VERSION_PATCH);
-}
-
-CModInfo::Version CModInfo::Version::fromString(std::string from)
-{
-	int major = 0;
-	int minor = 0;
-	int patch = 0;
-	try
-	{
-		auto pointPos = from.find('.');
-		major = std::stoi(from.substr(0, pointPos));
-		if(pointPos != std::string::npos)
-		{
-			from = from.substr(pointPos + 1);
-			pointPos = from.find('.');
-			minor = std::stoi(from.substr(0, pointPos));
-			if(pointPos != std::string::npos)
-				patch = std::stoi(from.substr(pointPos + 1));
-		}
-	}
-	catch(const std::invalid_argument &)
-	{
-		return Version();
-	}
-	return Version(major, minor, patch);
-}
-
-std::string CModInfo::Version::toString() const
-{
-	return std::to_string(major) + '.' + std::to_string(minor) + '.' + std::to_string(patch);
-}
-
-bool CModInfo::Version::compatible(const Version & other, bool checkMinor, bool checkPatch) const
-{
-	return  (major == other.major &&
-			(!checkMinor || minor >= other.minor) &&
-			(!checkPatch || minor > other.minor || (minor == other.minor && patch >= other.patch)));
-}
-
-bool CModInfo::Version::isNull() const
-{
-	return major == 0 && minor == 0 && patch == 0;
-}
-
 CModInfo::CModInfo():
 	checksum(0),
 	explicitlyEnabled(false),
@@ -633,11 +602,11 @@ CModInfo::CModInfo(const std::string & identifier, const JsonNode & local, const
 	validation(PENDING),
 	config(addMeta(config, identifier))
 {
-	version = Version::fromString(config["version"].String());
+	version = CModVersion::fromString(config["version"].String());
 	if(!config["compatibility"].isNull())
 	{
-		vcmiCompatibleMin = Version::fromString(config["compatibility"]["min"].String());
-		vcmiCompatibleMax = Version::fromString(config["compatibility"]["max"].String());
+		vcmiCompatibleMin = CModVersion::fromString(config["compatibility"]["min"].String());
+		vcmiCompatibleMax = CModVersion::fromString(config["compatibility"]["max"].String());
 	}
 
 	if (!config["language"].isNull())
@@ -698,8 +667,8 @@ void CModInfo::loadLocalData(const JsonNode & data)
 	}
 
 	//check compatibility
-	implicitlyEnabled &= (vcmiCompatibleMin.isNull() || Version::GameVersion().compatible(vcmiCompatibleMin));
-	implicitlyEnabled &= (vcmiCompatibleMax.isNull() || vcmiCompatibleMax.compatible(Version::GameVersion()));
+	implicitlyEnabled &= (vcmiCompatibleMin.isNull() || CModVersion::GameVersion().compatible(vcmiCompatibleMin));
+	implicitlyEnabled &= (vcmiCompatibleMax.isNull() || vcmiCompatibleMax.compatible(CModVersion::GameVersion()));
 
 	if(!implicitlyEnabled)
 		logGlobal->warn("Mod %s is incompatible with current version of VCMI and cannot be enabled", name);
@@ -731,6 +700,12 @@ void CModInfo::setEnabled(bool on)
 
 CModHandler::CModHandler() : content(std::make_shared<CContentHandler>())
 {
+	//TODO: moddable spell schools
+	for (auto i = 0; i < GameConstants::DEFAULT_SCHOOLS; ++i)
+		identifiers.registerObject(CModHandler::scopeBuiltin(), "spellSchool", SpellConfig::SCHOOL[i].jsonName, SpellConfig::SCHOOL[i].id);
+
+	identifiers.registerObject(CModHandler::scopeBuiltin(), "spellSchool", "any", SpellSchool(ESpellSchool::ANY));
+
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
 		identifiers.registerObject(CModHandler::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);
@@ -953,6 +928,11 @@ std::vector<std::string> CModHandler::getActiveMods()
 	return activeMods;
 }
 
+const CModInfo & CModHandler::getModInfo(const TModID & modId) const
+{
+	return allMods.at(modId);
+}
+
 static JsonNode genDefaultFS()
 {
 	// default FS config for mods: directory "Content" that acts as H3 root directory
@@ -1156,10 +1136,7 @@ void CModHandler::load()
 			allMods[modName].validation = CModInfo::FAILED;
 
 	logMod->info("\tLoading mod data: %d ms", timer.getDiff());
-
-	VLC->creh->loadCrExpBon();
-	VLC->creh->buildBonusTreeForTiers(); //do that after all new creatures are loaded
-
+	VLC->creh->loadCrExpMod();
 	identifiers.finalize();
 	logMod->info("\tResolving identifiers: %d ms", timer.getDiff());
 

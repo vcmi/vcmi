@@ -42,17 +42,7 @@ BattleObstacleController::BattleObstacleController(BattleInterface & owner):
 
 void BattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 {
-	std::string animationName;
-
-	if (auto spellObstacle = dynamic_cast<const SpellCreatedObstacle*>(&oi))
-	{
-		animationName = spellObstacle->animation;
-	}
-	else
-	{
-		assert( oi.obstacleType == CObstacleInstance::USUAL || oi.obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE);
-		animationName = oi.getInfo().animation;
-	}
+	std::string animationName = oi.getAnimation();
 
 	if (animationsCache.count(animationName) == 0)
 	{
@@ -74,24 +64,47 @@ void BattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 	obstacleAnimations[oi.uniqueID] = animationsCache[animationName];
 }
 
-void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & obstacles)
+void BattleObstacleController::obstacleRemoved(const std::vector<ObstacleChanges> & obstacles)
 {
-	for (auto const & oi : obstacles)
+	for(const auto & oi : obstacles)
 	{
-		auto side = owner.curInt->cb->playerToSide(owner.curInt->playerID);
+		auto & obstacle = oi.data["obstacle"];
 
-		if(!oi->visibleForSide(side.get(),owner.curInt->cb->battleHasNativeStack(side.get())))
-			continue;
-
-		auto spellObstacle = dynamic_cast<const SpellCreatedObstacle*>(oi.get());
-
-		if (!spellObstacle)
+		if (!obstacle.isStruct())
 		{
-			logGlobal->error("I don't know how to animate appearing obstacle of type %d", (int)oi->obstacleType);
+			logGlobal->error("I don't know how to animate removal of this obstacle");
 			continue;
 		}
 
-		auto animation = std::make_shared<CAnimation>(spellObstacle->appearAnimation);
+		auto animation = std::make_shared<CAnimation>(obstacle["appearAnimation"].String());
+		animation->preload();
+
+		auto first = animation->getImage(0, 0);
+		if(!first)
+			continue;
+
+		//we assume here that effect graphics have the same size as the usual obstacle image
+		// -> if we know how to blit obstacle, let's blit the effect in the same place
+		Point whereTo = getObstaclePosition(first, obstacle);
+		//AFAIK, in H3 there is no sound of obstacle removal
+		owner.stacksController->addNewAnim(new EffectAnimation(owner, obstacle["appearAnimation"].String(), whereTo, obstacle["position"].Integer(), 0, true));
+
+		obstacleAnimations.erase(oi.id);
+		//so when multiple obstacles are removed, they show up one after another
+		owner.waitForAnimations();
+	}
+}
+
+void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & obstacles)
+{
+	for(const auto & oi : obstacles)
+	{
+		auto side = owner.curInt->cb->playerToSide(owner.curInt->playerID);
+
+		if(!oi->visibleForSide(side.value(), owner.curInt->cb->battleHasNativeStack(side.value())))
+			continue;
+
+		auto animation = std::make_shared<CAnimation>(oi->getAppearAnimation());
 		animation->preload();
 
 		auto first = animation->getImage(0, 0);
@@ -101,13 +114,13 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 		//we assume here that effect graphics have the same size as the usual obstacle image
 		// -> if we know how to blit obstacle, let's blit the effect in the same place
 		Point whereTo = getObstaclePosition(first, *oi);
-		CCS->soundh->playSound( spellObstacle->appearSound );
-		owner.stacksController->addNewAnim(new EffectAnimation(owner, spellObstacle->appearAnimation, whereTo, oi->pos));
+		CCS->soundh->playSound( oi->getAppearSound() );
+		owner.stacksController->addNewAnim(new EffectAnimation(owner, oi->getAppearAnimation(), whereTo, oi->pos));
 
 		//so when multiple obstacles are added, they show up one after another
 		owner.waitForAnimations();
 
-		loadObstacleImage(*spellObstacle);
+		loadObstacleImage(*oi);
 	}
 }
 
@@ -135,7 +148,11 @@ void BattleObstacleController::collectRenderableObjects(BattleRenderer & rendere
 		if (obstacle->obstacleType == CObstacleInstance::MOAT)
 			continue;
 
-		renderer.insert(EBattleFieldLayer::OBSTACLES, obstacle->pos, [this, obstacle]( BattleRenderer::RendererRef canvas ){
+		bool isForeground = obstacle->obstacleType == CObstacleInstance::USUAL && obstacle->getInfo().isForegroundObstacle;
+
+		auto layer = isForeground ? EBattleFieldLayer::OBSTACLES_FG : EBattleFieldLayer::OBSTACLES_BG;
+
+		renderer.insert(layer, obstacle->pos, [this, obstacle]( BattleRenderer::RendererRef canvas ){
 			auto img = getObstacleImage(*obstacle);
 			if(img)
 			{
@@ -146,9 +163,9 @@ void BattleObstacleController::collectRenderableObjects(BattleRenderer & rendere
 	}
 }
 
-void BattleObstacleController::update()
+void BattleObstacleController::tick(uint32_t msPassed)
 {
-	timePassed += GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+	timePassed += msPassed / 1000.f;
 }
 
 std::shared_ptr<IImage> BattleObstacleController::getObstacleImage(const CObstacleInstance & oi)
@@ -176,6 +193,22 @@ Point BattleObstacleController::getObstaclePosition(std::shared_ptr<IImage> imag
 	int offset = obstacle.getAnimationYOffset(image->height());
 
 	Rect r = owner.fieldController->hexPositionLocal(obstacle.pos);
+	r.y += 42 - image->height() + offset;
+
+	return r.topLeft();
+}
+
+Point BattleObstacleController::getObstaclePosition(std::shared_ptr<IImage> image, const JsonNode & obstacle)
+{
+	auto animationYOffset = obstacle["animationYOffset"].Integer();
+	auto offset = image->height() % 42;
+
+	if(obstacle["needAnimationOffsetFix"].Bool() && offset > 37)
+		animationYOffset -= 42;
+
+	offset += animationYOffset;
+
+	Rect r = owner.fieldController->hexPositionLocal(obstacle["position"].Integer());
 	r.y += 42 - image->height() + offset;
 
 	return r.topLeft();

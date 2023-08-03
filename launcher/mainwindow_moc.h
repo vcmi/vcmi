@@ -39,7 +39,8 @@ private:
 		MODS = 0,
 		SETTINGS = 1,
 		LOBBY = 2,
-		SETUP = 3
+		SETUP = 3,
+		ABOUT = 4,
 	};
 
 	void changeEvent(QEvent *event) override;
@@ -53,6 +54,7 @@ public:
 	void updateTranslation();
 	void computeSidePanelSizes();
 	
+	void detectPreferredLanguage();
 	void enterSetup();
 	void exitSetup();
 	void switchToModsTab();
@@ -65,4 +67,5 @@ private slots:
 	void on_settingsButton_clicked();
 	void on_lobbyButton_clicked();
 	void on_startEditorButton_clicked();
+	void on_aboutButton_clicked();
 };

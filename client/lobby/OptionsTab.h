@@ -9,8 +9,14 @@
  */
 #pragma once
 
-#include "../../lib/StartInfo.h"
-#include "../../lib/mapping/CMap.h"
+#include "../windows/CWindowObject.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+struct PlayerSettings;
+struct PlayerInfo;
+VCMI_LIB_NAMESPACE_END
+
+#include "../widgets/Scrollable.h"
 
 class CSlider;
 class CLabel;
@@ -18,6 +24,9 @@ class CMultiLineLabel;
 class CFilledTexture;
 class CAnimImage;
 class CComponentBox;
+class CTextBox;
+class CButton;
+
 /// The options tab which is shown at the map selection phase.
 class OptionsTab : public CIntObject
 {
@@ -86,21 +95,22 @@ public:
 	};
 
 	/// Image with current town/hero/bonus
-	struct SelectedBox : public CIntObject, public CPlayerSettingsHelper
+	struct SelectedBox : public Scrollable, public CPlayerSettingsHelper
 	{
 		std::shared_ptr<CAnimImage> image;
 		std::shared_ptr<CLabel> subtitle;
 
 		SelectedBox(Point position, PlayerSettings & settings, SelType type);
-		void clickRight(tribool down, bool previousState) override;
+		void showPopupWindow(const Point & cursorPosition) override;
+		void scrollBy(int distance) override;
 
 		void update();
 	};
 
 	struct PlayerOptionsEntry : public CIntObject
 	{
-		PlayerInfo pi;
-		PlayerSettings s;
+		std::unique_ptr<PlayerInfo> pi;
+		std::unique_ptr<PlayerSettings> s;
 		std::shared_ptr<CLabel> labelPlayerName;
 		std::shared_ptr<CMultiLineLabel> labelWhoCanPlay;
 		std::shared_ptr<CPicture> background;

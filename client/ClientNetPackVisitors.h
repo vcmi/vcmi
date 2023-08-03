@@ -94,7 +94,6 @@ public:
 	void visitSystemMessage(SystemMessage & pack) override;
 	void visitPlayerBlocked(PlayerBlocked & pack) override;
 	void visitYourTurn(YourTurn & pack) override;
-	void visitSaveGameClient(SaveGameClient & pack) override;
 	void visitPlayerMessageClient(PlayerMessageClient & pack) override;
 	void visitAdvmapSpellCast(AdvmapSpellCast & pack) override;
 	void visitShowWorldViewEx(ShowWorldViewEx & pack) override;	
@@ -128,4 +127,5 @@ public:
 	virtual void visitBattleStackMoved(BattleStackMoved & pack) override;
 	virtual void visitBattleAttack(BattleAttack & pack) override;
 	virtual void visitStartAction(StartAction & pack) override;
+	virtual void visitSetObjectProperty(SetObjectProperty & pack) override;
 };

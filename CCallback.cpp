@@ -11,12 +11,11 @@
 #include "CCallback.h"
 
 #include "lib/CCreatureHandler.h"
-#include "lib/CGameState.h"
+#include "lib/gameState/CGameState.h"
 #include "client/CPlayerInterface.h"
 #include "client/Client.h"
 #include "lib/mapping/CMap.h"
 #include "lib/CBuildingHandler.h"
-#include "lib/mapObjects/CObjectClassesHandler.h"
 #include "lib/CGeneralTextHandler.h"
 #include "lib/CHeroHandler.h"
 #include "lib/NetPacks.h"
@@ -90,7 +89,7 @@ bool CCallback::upgradeCreature(const CArmedInstance *obj, SlotID stackPos, Crea
 
 void CCallback::endTurn()
 {
-	logGlobal->trace("Player %d ended his turn.", player.get().getNum());
+	logGlobal->trace("Player %d ended his turn.", player->getNum());
 	EndTurn pack;
 	sendRequest(&pack);
 }
@@ -185,6 +184,12 @@ void CCallback::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dst
 	sendRequest(&bma);
 }
 
+void CCallback::eraseArtifactByClient(const ArtifactLocation & al)
+{
+	EraseArtifactByClient ea(al);
+	sendRequest(&ea);
+}
+
 bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 {
 	if(town->tempOwner!=player)
@@ -198,12 +203,11 @@ bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 	return true;
 }
 
-int CBattleCallback::battleMakeAction(const BattleAction * action)
+void CBattleCallback::battleMakeSpellAction(const BattleAction & action)
 {
-	assert(action->actionType == EActionType::HERO_SPELL);
-	MakeCustomAction mca(*action);
+	assert(action.actionType == EActionType::HERO_SPELL);
+	MakeCustomAction mca(action);
 	sendRequest(&mca);
-	return 0;
 }
 
 int CBattleCallback::sendRequest(const CPackForServer * request)
@@ -238,15 +242,15 @@ void CCallback::buyArtifact(const CGHeroInstance *hero, ArtifactID aid)
 	sendRequest(&pack);
 }
 
-void CCallback::trade(const CGObjectInstance * market, EMarketMode::EMarketMode mode, ui32 id1, ui32 id2, ui32 val1, const CGHeroInstance * hero)
+void CCallback::trade(const IMarket * market, EMarketMode::EMarketMode mode, ui32 id1, ui32 id2, ui32 val1, const CGHeroInstance * hero)
 {
 	trade(market, mode, std::vector<ui32>(1, id1), std::vector<ui32>(1, id2), std::vector<ui32>(1, val1), hero);
 }
 
-void CCallback::trade(const CGObjectInstance * market, EMarketMode::EMarketMode mode, const std::vector<ui32> & id1, const std::vector<ui32> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero)
+void CCallback::trade(const IMarket * market, EMarketMode::EMarketMode mode, const std::vector<ui32> & id1, const std::vector<ui32> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero)
 {
 	TradeOnMarketplace pack;
-	pack.marketId = market->id;
+	pack.marketId = dynamic_cast<const CGObjectInstance *>(market)->id;
 	pack.heroId = hero ? hero->id : ObjectInstanceID();
 	pack.mode = mode;
 	pack.r1 = id1;
@@ -265,17 +269,10 @@ void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroIn
 {
 	assert(townOrTavern);
 	assert(hero);
-	ui8 i=0;
-	for(; i<gs->players[*player].availableHeroes.size(); i++)
-	{
-		if(gs->players[*player].availableHeroes[i] == hero)
-		{
-			HireHero pack(i, townOrTavern->id);
-			pack.player = *player;
-			sendRequest(&pack);
-			return;
-		}
-	}
+
+	HireHero pack(HeroTypeID(hero->subID), townOrTavern->id);
+	pack.player = *player;
+	sendRequest(&pack);
 }
 
 void CCallback::save( const std::string &fname )
@@ -296,12 +293,12 @@ void CCallback::sendMessage(const std::string &mess, const CGObjectInstance * cu
 void CCallback::buildBoat( const IShipyard *obj )
 {
 	BuildBoat bb;
-	bb.objid = obj->o->id;
+	bb.objid = dynamic_cast<const CGObjectInstance*>(obj)->id;
 	sendRequest(&bb);
 }
 
-CCallback::CCallback(CGameState * GS, boost::optional<PlayerColor> Player, CClient * C)
-	: CBattleCallback(Player, C)
+CCallback::CCallback(CGameState * GS, std::optional<PlayerColor> Player, CClient * C):
+	CBattleCallback(Player, C)
 {
 	gs = GS;
 
@@ -374,23 +371,29 @@ scripting::Pool * CBattleCallback::getContextPool() const
 }
 #endif
 
-CBattleCallback::CBattleCallback(boost::optional<PlayerColor> Player, CClient *C )
+CBattleCallback::CBattleCallback(std::optional<PlayerColor> Player, CClient * C)
 {
 	player = Player;
 	cl = C;
 }
 
-bool CBattleCallback::battleMakeTacticAction( BattleAction * action )
+void CBattleCallback::battleMakeUnitAction(const BattleAction & action)
+{
+	assert(!cl->gs->curB->tacticDistance);
+	MakeAction ma;
+	ma.ba = action;
+	sendRequest(&ma);
+}
+
+void CBattleCallback::battleMakeTacticAction( const BattleAction & action )
 {
 	assert(cl->gs->curB->tacticDistance);
 	MakeAction ma;
-	ma.ba = *action;
+	ma.ba = action;
 	sendRequest(&ma);
-	return true;
 }
 
-boost::optional<BattleAction> CBattleCallback::makeSurrenderRetreatDecision(
-	const BattleStateInfoForRetreat & battleState)
+std::optional<BattleAction> CBattleCallback::makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
 {
-	return cl->playerint[getPlayerID().get()]->makeSurrenderRetreatDecision(battleState);
+	return cl->playerint[getPlayerID().value()]->makeSurrenderRetreatDecision(battleState);
 }

@@ -52,25 +52,25 @@ armyStructure evaluateArmyStructure(const CArmedInstance * army)
 	double shootersStrength = 0;
 	ui32 maxSpeed = 0;
 
-	static const CSelector selectorSHOOTER = Selector::type()(Bonus::SHOOTER);
-	static const std::string keySHOOTER = "type_"+std::to_string((int32_t)Bonus::SHOOTER);
+	static const CSelector selectorSHOOTER = Selector::type()(BonusType::SHOOTER);
+	static const std::string keySHOOTER = "type_"+std::to_string((int32_t)BonusType::SHOOTER);
 
-	static const CSelector selectorFLYING = Selector::type()(Bonus::FLYING);
-	static const std::string keyFLYING = "type_"+std::to_string((int32_t)Bonus::FLYING);
+	static const CSelector selectorFLYING = Selector::type()(BonusType::FLYING);
+	static const std::string keyFLYING = "type_"+std::to_string((int32_t)BonusType::FLYING);
 
-	static const CSelector selectorSTACKS_SPEED = Selector::type()(Bonus::STACKS_SPEED);
-	static const std::string keySTACKS_SPEED = "type_"+std::to_string((int32_t)Bonus::STACKS_SPEED);
+	static const CSelector selectorSTACKS_SPEED = Selector::type()(BonusType::STACKS_SPEED);
+	static const std::string keySTACKS_SPEED = "type_"+std::to_string((int32_t)BonusType::STACKS_SPEED);
 
 	for(auto s : army->Slots())
 	{
 		bool walker = true;
-		const CCreature * creature = s.second->type;
-		if(creature->hasBonus(selectorSHOOTER, keySHOOTER))
+		auto bearer = s.second->getType()->getBonusBearer();
+		if(bearer->hasBonus(selectorSHOOTER, keySHOOTER))
 		{
 			shootersStrength += s.second->getPower();
 			walker = false;
 		}
-		if(creature->hasBonus(selectorFLYING, keyFLYING))
+		if(bearer->hasBonus(selectorFLYING, keyFLYING))
 		{
 			flyersStrength += s.second->getPower();
 			walker = false;
@@ -78,7 +78,7 @@ armyStructure evaluateArmyStructure(const CArmedInstance * army)
 		if(walker)
 			walkersStrength += s.second->getPower();
 
-		vstd::amax(maxSpeed, creature->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED));
+		vstd::amax(maxSpeed, bearer->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED));
 	}
 	armyStructure as;
 	as.walkers = static_cast<float>(walkersStrength / totalStrength);
@@ -399,12 +399,12 @@ float VisitObjEngine::evaluate(Goals::VisitObj & goal)
 		return -100; // FIXME: Added check when goal was used for hero instead of VisitHero, but crashes are bad anyway
 	}
 
-	boost::optional<int> objValueKnownByAI = MapObjectsEvaluator::getInstance().getObjectValue(obj);
+	std::optional<int> objValueKnownByAI = MapObjectsEvaluator::getInstance().getObjectValue(obj);
 	int objValue = 0;
 
-	if(objValueKnownByAI != boost::none) //consider adding value manipulation based on object instances on map
+	if(objValueKnownByAI != std::nullopt) //consider adding value manipulation based on object instances on map
 	{
-		objValue = std::min(std::max(objValueKnownByAI.get(), 0), 20000);
+		objValue = std::min(std::max(objValueKnownByAI.value(), 0), 20000);
 	}
 	else
 	{

@@ -15,6 +15,7 @@
 				"index" : 0,
 				"aiValue" : 100,
 				"rmg" : {
+					"zoneLimit"	: 1,
 					"value"		: 100,
 					"rarity"	: 100
 				},
@@ -253,6 +254,7 @@
 				"index" : 0,
 				"aiValue" : 100,
 				"rmg" : {
+					"zoneLimit"	: 1,
 					"value"		: 100,
 					"rarity"	: 20
 				},

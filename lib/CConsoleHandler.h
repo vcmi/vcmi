@@ -88,7 +88,7 @@ private:
 	/// FIXME: Implement CConsoleHandler as singleton, move some logic into CLogConsoleTarget, etc... needs to be disussed:)
 	/// Without static, application will crash complaining about mutex deleted. In short: CConsoleHandler gets deleted before
 	/// the logging system.
-	static boost::mutex smx;
+	static std::mutex smx;
 
 	boost::thread * thread;
 };

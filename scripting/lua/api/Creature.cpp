@@ -15,7 +15,8 @@
 
 #include "../LuaStack.h"
 #include "../LuaCallWrapper.h"
-#include "../../../lib/HeroBonus.h"
+#include "../../../lib/bonuses/Bonus.h"
+#include "../../../lib/bonuses/IBonusBearer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -32,7 +33,7 @@ const std::vector<CreatureProxy::CustomRegType> CreatureProxy::REGISTER_CUSTOM =
 	{"getIndex", LuaMethodWrapper<Creature, decltype(&Entity::getIndex), &Entity::getIndex>::invoke, false},
 	{"getJsonKey", LuaMethodWrapper<Creature, decltype(&Entity::getJsonKey), &Entity::getJsonKey>::invoke, false},
 	{"getName", LuaMethodWrapper<Creature, decltype(&Entity::getNameTranslated), &Entity::getNameTranslated>::invoke, false},
-	{"accessBonuses", LuaMethodWrapper<Creature, decltype(&EntityWithBonuses<CreatureID>::accessBonuses), &EntityWithBonuses<CreatureID>::accessBonuses>::invoke, false},
+	{"getBonusBearer", LuaMethodWrapper<Creature, decltype(&IConstBonusProvider::getBonusBearer), &IConstBonusProvider::getBonusBearer>::invoke, false},
 
 	{"getMaxHealth", LuaMethodWrapper<Creature,decltype(&Creature::getMaxHealth), &Creature::getMaxHealth>::invoke, false},
 	{"getPluralName", LuaMethodWrapper<Creature, decltype(&Creature::getNamePluralTranslated), &Creature::getNamePluralTranslated>::invoke, false},
@@ -45,7 +46,7 @@ const std::vector<CreatureProxy::CustomRegType> CreatureProxy::REGISTER_CUSTOM =
 	{"getLevel", LuaMethodWrapper<Creature, decltype(&Creature::getLevel), &Creature::getLevel>::invoke, false},
 	{"getGrowth", LuaMethodWrapper<Creature, decltype(&Creature::getGrowth), &Creature::getGrowth>::invoke, false},
 	{"getHorde", LuaMethodWrapper<Creature, decltype(&Creature::getHorde), &Creature::getHorde>::invoke, false},
-	{"getFactionIndex", LuaMethodWrapper<Creature, decltype(&Creature::getFactionIndex), &Creature::getFactionIndex>::invoke, false},
+	{"getFaction", LuaMethodWrapper<Creature, decltype(&Creature::getFaction), &Creature::getFaction>::invoke, false},
 
 	{"getBaseAttack", LuaMethodWrapper<Creature, decltype(&Creature::getBaseAttack), &Creature::getBaseAttack>::invoke, false},
 	{"getBaseDefense", LuaMethodWrapper<Creature, decltype(&Creature::getBaseDefense), &Creature::getBaseDefense>::invoke, false},
@@ -56,7 +57,7 @@ const std::vector<CreatureProxy::CustomRegType> CreatureProxy::REGISTER_CUSTOM =
 	{"getBaseSpeed", LuaMethodWrapper<Creature, decltype(&Creature::getBaseSpeed), &Creature::getBaseSpeed>::invoke, false},
 	{"getBaseShots", LuaMethodWrapper<Creature, decltype(&Creature::getBaseShots), &Creature::getBaseShots>::invoke, false},
 
-	{"getCost", LuaMethodWrapper<Creature, decltype(&Creature::getCost), &Creature::getCost>::invoke, false},
+	{"getRecruitCost", LuaMethodWrapper<Creature, decltype(&Creature::getRecruitCost), &Creature::getRecruitCost>::invoke, false},
 	{"isDoubleWide", LuaMethodWrapper<Creature, decltype(&Creature::isDoubleWide), &Creature::isDoubleWide>::invoke, false},
 };
 

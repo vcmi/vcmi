@@ -45,7 +45,6 @@ TEST_F(DamageTest, ApplicableToAliveUnit)
 	EXPECT_CALL(unit, isValidTarget(Eq(false))).WillOnce(Return(true));
 
 	EXPECT_CALL(mechanicsMock, isSmart()).WillOnce(Return(false));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillOnce(Return(true));
 
 	EffectTarget target;
 	target.emplace_back(&unit, BattleHex());
@@ -96,7 +95,7 @@ TEST_F(DamageApplyTest, DoesDamageToAliveUnit)
 	const uint32_t unitId = 42;
 	auto & targetUnit = unitsFake.add(BattleSide::ATTACKER);
 
-	targetUnit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, unitHP, 0));
+	targetUnit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHP, 0));
 	EXPECT_CALL(targetUnit, unitId()).WillRepeatedly(Return(unitId));
 	EXPECT_CALL(targetUnit, unitBaseAmount()).WillRepeatedly(Return(unitAmount));
 	EXPECT_CALL(targetUnit, alive()).WillRepeatedly(Return(true));
@@ -158,7 +157,7 @@ TEST_F(DamageApplyTest, DoesDamageByPercent)
 	const uint32_t unitId = 42;
 	auto & targetUnit = unitsFake.add(BattleSide::ATTACKER);
 
-	targetUnit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, unitHP, 0));
+	targetUnit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHP, 0));
 	EXPECT_CALL(targetUnit, unitId()).WillRepeatedly(Return(unitId));
 	EXPECT_CALL(targetUnit, unitBaseAmount()).WillRepeatedly(Return(unitAmount));
 	EXPECT_CALL(targetUnit, getCount()).WillOnce(Return(unitAmount));
@@ -203,7 +202,7 @@ TEST_F(DamageApplyTest, DoesDamageByCount)
 	const uint32_t unitId = 42;
 	auto & targetUnit = unitsFake.add(BattleSide::ATTACKER);
 
-	targetUnit.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, unitHP, 0));
+	targetUnit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHP, 0));
 	EXPECT_CALL(targetUnit, unitId()).WillRepeatedly(Return(unitId));
 	EXPECT_CALL(targetUnit, unitBaseAmount()).WillRepeatedly(Return(unitAmount));
 	EXPECT_CALL(targetUnit, alive()).WillRepeatedly(Return(true));

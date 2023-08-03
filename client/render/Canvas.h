@@ -27,20 +27,28 @@ class Canvas
 	/// Current rendering area, all rendering operations will be moved into selected area
 	Rect renderArea;
 
-public:
-	Canvas & operator = (const Canvas & other) = delete;
-
 	/// constructs canvas using existing surface. Caller maintains ownership on the surface
 	explicit Canvas(SDL_Surface * surface);
 
 	/// copy contructor
 	Canvas(const Canvas & other);
 
+public:
+	Canvas & operator = (const Canvas & other) = delete;
+	Canvas & operator = (Canvas && other) = delete;
+
+	/// move contructor
+	Canvas(Canvas && other);
+
 	/// creates canvas that only covers specified subsection of a surface
 	Canvas(const Canvas & other, const Rect & clipRect);
 
 	/// constructs canvas of specified size
 	explicit Canvas(const Point & size);
+
+	/// constructs canvas using existing surface. Caller maintains ownership on the surface
+	/// Compatibility method. AVOID USAGE. To be removed once SDL abstraction layer is finished.
+	static Canvas createFromSurface(SDL_Surface * surface);
 
 	~Canvas();
 
@@ -74,6 +82,9 @@ public:
 	/// renders dashed, 1-pixel wide line with specified color
 	void drawLineDashed(const Point & from, const Point & dest, const ColorRGBA & color);
 
+	/// renders rectangular, solid-color border in specified location
+	void drawBorder(const Rect & target, const SDL_Color & color, int width = 1);
+
 	/// renders rectangular, dashed border in specified location
 	void drawBorderDashed(const Rect & target, const ColorRGBA & color);
 
@@ -82,4 +93,10 @@ public:
 
 	/// renders multiple lines of text with specified parameters
 	void drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::vector<std::string> & text );
+
+	/// fills selected area with solid color, ignoring any transparency
+	void drawColor(const Rect & target, const SDL_Color & color);
+
+	/// Compatibility method. AVOID USAGE. To be removed once SDL abstraction layer is finished.
+	SDL_Surface * getInternalSurface();
 };

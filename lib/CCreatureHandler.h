@@ -9,10 +9,8 @@
  */
 #pragma once
 
-#include <vcmi/Creature.h>
-#include <vcmi/CreatureService.h>
-
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/CBonusSystemNode.h"
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
 #include "GameConstants.h"
@@ -20,6 +18,9 @@
 #include "IHandlerBase.h"
 #include "CRandomGenerator.h"
 #include "Color.h"
+
+#include <vcmi/Creature.h>
+#include <vcmi/CreatureService.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -37,26 +38,28 @@ class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 	std::string getNameTranslated() const override;
 	std::string getNameTextID() const override;
 
-public:
 	CreatureID idNumber;
 
-	TFaction faction = 0;
+	FactionID faction = FactionID::NEUTRAL;
 	ui8 level = 0; // 0 - unknown; 1-7 for "usual" creatures
 
 	//stats that are not handled by bonus system
 	ui32 fightValue, AIValue, growth, hordeGrowth;
-	ui32 ammMin, ammMax; // initial size of stack of these creatures on adventure map (if not set in editor)
 
 	bool doubleWide = false;
-	bool special = true; // Creature is not available normally (war machines, commanders, several unused creatures, etc
 
 	TResources cost; //cost[res_id] - amount of that resource required to buy creature from dwelling
+
+public:
+	ui32 ammMin, ammMax; // initial size of stack of these creatures on adventure map (if not set in editor)
+
+	bool special = true; // Creature is not available normally (war machines, commanders, several unused creatures, etc
+
 	std::set<CreatureID> upgrades; // IDs of creatures to which this creature can be upgraded
 
 	std::string animDefName; // creature animation used during battles
-	std::string advMapDef; //for new creatures only, image for adventure map
-	si32 iconIndex = -1; // index of icon in files like twcrport
 
+	si32 iconIndex = -1; // index of icon in files like twcrport, used in tests now.
 	/// names of files with appropriate icons. Used only during loading
 	std::string smallIconName;
 	std::string largeIconName;
@@ -158,18 +161,13 @@ public:
 	std::string getNamePluralTextID() const override;
 	std::string getNameSingularTextID() const override;
 
-	bool isItNativeTerrain(TerrainId terrain) const;
-	/**
-	Returns creature native terrain considering some terrain bonuses.
-	*/
-	TerrainId getNativeTerrain() const;
+	FactionID getFaction() const override;
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
 	std::string getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	CreatureID getId() const override;
-	virtual const IBonusBearer * accessBonuses() const override;
-	uint32_t getMaxHealth() const override;
+	virtual const IBonusBearer * getBonusBearer() const override;
 
 	int32_t getAdvMapAmountMin() const override;
 	int32_t getAdvMapAmountMax() const override;
@@ -178,7 +176,6 @@ public:
 	int32_t getLevel() const override;
 	int32_t getGrowth() const override;
 	int32_t getHorde() const override;
-	int32_t getFactionIndex() const override;
 
 	int32_t getBaseAttack() const override;
 	int32_t getBaseDefense() const override;
@@ -189,12 +186,14 @@ public:
 	int32_t getBaseSpeed() const override;
 	int32_t getBaseShots() const override;
 
-	int32_t getCost(int32_t resIndex) const override;
+	int32_t getRecruitCost(GameResID resIndex) const override;
+	TResources getFullRecruitCost() const override;
 	bool isDoubleWide() const override; //returns true if unit is double wide on battlefield
+	bool hasUpgrades() const override;
 
 	bool isGood () const;
 	bool isEvil () const;
-	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
+	si32 maxAmount(const TResources &res) const; //how many creatures can be bought
 	static CCreature::CreatureQuantityId getQuantityID(const int & quantity);
 	static std::string getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId);
 	static int estimateCreatureCount(ui32 countID); //reverse version of above function, returns middle of range
@@ -202,7 +201,7 @@ public:
 
 	bool valid() const;
 
-	void addBonus(int val, Bonus::BonusType type, int subtype = -1);
+	void addBonus(int val, BonusType type, int subtype = -1);
 	std::string nodeName() const override;
 
 	template<typename RanGen>
@@ -230,7 +229,6 @@ public:
 		h & ammMax;
 		h & level;
 		h & animDefName;
-		h & advMapDef;
 		h & iconIndex;
 		h & smallIconName;
 		h & largeIconName;
@@ -256,9 +254,6 @@ private:
 class DLL_LINKAGE CCreatureHandler : public CHandlerBase<CreatureID, Creature, CCreature, CreatureService>
 {
 private:
-	CBonusSystemNode allCreatures;
-	CBonusSystemNode creaturesOfLevel[GameConstants::CREATURES_PER_TOWN + 1];//index 0 is used for creatures of unknown tier or outside <1-7> range
-
 	void loadJsonAnimation(CCreature * creature, const JsonNode & graphics) const;
 	void loadStackExperience(CCreature * creature, const JsonNode & input) const;
 	void loadCreatureJson(CCreature * creature, const JsonNode & config) const;
@@ -298,19 +293,16 @@ public:
 
 	const CCreature * getCreature(const std::string & scope, const std::string & identifier) const;
 
-	void deserializationFix();
 	CreatureID pickRandomMonster(CRandomGenerator & rand, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
-	void addBonusForTier(int tier, const std::shared_ptr<Bonus> & b); //tier must be <1-7>
-	void addBonusForAllCreatures(const std::shared_ptr<Bonus> & b); //due to CBonusSystem::addNewBonus(const std::shared_ptr<Bonus>& b);
-	void removeBonusesFromAllCreatures();
 
 	CCreatureHandler();
 	~CCreatureHandler();
 
-	/// load all creatures from H3 files
-	void loadCrExpBon();
-	/// generates tier-specific bonus tree entries
-	void buildBonusTreeForTiers();
+	/// load all stack experience bonuses from H3 files
+	void loadCrExpBon(CBonusSystemNode & globalEffects);
+
+	/// load all stack modifier bonuses from H3 files. TODO: move this to json
+	void loadCrExpMod();
 
 	void afterLoadFinalization() override;
 
@@ -329,9 +321,6 @@ public:
 		h & skillLevels;
 		h & skillRequirements;
 		h & commanderLevelPremy;
-		h & allCreatures;
-		h & creaturesOfLevel;
-		BONUS_TREE_DESERIALIZATION_FIX
 	}
 };
 

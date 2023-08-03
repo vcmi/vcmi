@@ -10,9 +10,11 @@
 #include "StdInc.h"
 #include "CGameInfoCallback.h"
 
-#include "CGameState.h" // PlayerState
+#include "gameState/CGameState.h"
+#include "gameState/InfoAboutArmy.h"
+#include "gameState/SThievesGuildInfo.h"
+#include "gameState/TavernHeroesPool.h"
 #include "CGeneralTextHandler.h"
-#include "mapObjects/CObjectHandler.h" // for CGObjectInstance
 #include "StartInfo.h" // for StartInfo
 #include "battle/BattleInfo.h" // for BattleInfo
 #include "NetPacks.h" // for InfoWindow
@@ -37,7 +39,7 @@ PlayerColor CGameInfoCallback::getOwner(ObjectInstanceID heroID) const
 	return obj->tempOwner;
 }
 
-int CGameInfoCallback::getResource(PlayerColor Player, Res::ERes which) const
+int CGameInfoCallback::getResource(PlayerColor Player, GameResID which) const
 {
 	const PlayerState *p = getPlayerState(Player);
 	ERROR_RET_VAL_IF(!p, "No player info!", -1);
@@ -55,7 +57,7 @@ bool CGameInfoCallback::isAllowed(int32_t type, int32_t id) const
 	switch(type)
 	{
 	case 0:
-		return gs->map->allowedSpell[id];
+		return gs->map->allowedSpells[id];
 	case 1:
 		return gs->map->allowedArtifact[id];
 	case 2:
@@ -96,13 +98,6 @@ const PlayerState * CGameInfoCallback::getPlayerState(PlayerColor color, bool ve
 			logGlobal->error("Cannot find player %d info!", color);
 		return nullptr;
 	}
-}
-
-const CTown * CGameInfoCallback::getNativeTown(PlayerColor color) const
-{
-	const PlayerSettings *ps = getPlayerSettings(color);
-	ERROR_RET_VAL_IF(!ps, "There is no such player!", nullptr);
-	return (*VLC->townh)[ps->castle]->town;
 }
 
 const CGObjectInstance * CGameInfoCallback::getObjByQuestIdentifier(int identifier) const
@@ -314,7 +309,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 	if(getPlayerRelations(getLocalPlayer(), hero->tempOwner) == PlayerRelations::ENEMIES)
 	{
 		//todo: bonus cashing
-		int disguiseLevel = h->valOfBonuses(Selector::typeSubtype(Bonus::DISGUISED, 0));
+		int disguiseLevel = h->valOfBonuses(Selector::typeSubtype(BonusType::DISGUISED, 0));
 
 		auto doBasicDisguise = [](InfoAboutHero & info)
 		{
@@ -323,9 +318,9 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 			for(auto & elem : info.army)
 			{
-				if(static_cast<int>(elem.second.type->AIValue) > maxAIValue)
+				if(static_cast<int>(elem.second.type->getAIValue()) > maxAIValue)
 				{
-					maxAIValue = elem.second.type->AIValue;
+					maxAIValue = elem.second.type->getAIValue();
 					mostStrong = elem.second.type;
 				}
 			}
@@ -359,9 +354,9 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 			for(auto creature : VLC->creh->objects)
 			{
-				if(static_cast<si16>(creature->faction) == factionIndex && static_cast<int>(creature->AIValue) > maxAIValue)
+				if(creature->getFaction() == factionIndex && static_cast<int>(creature->getAIValue()) > maxAIValue)
 				{
-					maxAIValue = creature->AIValue;
+					maxAIValue = creature->getAIValue();
 					mostStrong = creature;
 				}
 			}
@@ -401,7 +396,7 @@ int CGameInfoCallback::getDate(Date::EDateType mode) const
 	return gs->getDate(mode);
 }
 
-bool CGameInfoCallback::isVisible(int3 pos, const boost::optional<PlayerColor> & Player) const
+bool CGameInfoCallback::isVisible(int3 pos, const std::optional<PlayerColor> & Player) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->isVisible(pos, Player);
@@ -412,7 +407,7 @@ bool CGameInfoCallback::isVisible(int3 pos) const
 	return isVisible(pos, player);
 }
 
-bool CGameInfoCallback::isVisible( const CGObjectInstance *obj,const boost::optional<PlayerColor> & Player) const
+bool CGameInfoCallback::isVisible(const CGObjectInstance * obj, const std::optional<PlayerColor> & Player) const
 {
 	return gs->isVisible(obj, Player);
 }
@@ -485,13 +480,10 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 	//ERROR_RET_VAL_IF(!isOwnedOrVisited(townOrTavern), "Town or tavern must be owned or visited!", ret);
 	//TODO: town needs to be owned, advmap tavern needs to be visited; to be reimplemented when visit tracking is done
 	const CGTownInstance * town = getTown(townOrTavern->id);
+
 	if(townOrTavern->ID == Obj::TAVERN || (town && town->hasBuilt(BuildingID::TAVERN)))
-	{
-		range::copy(gs->players[*player].availableHeroes, std::back_inserter(ret));
-		vstd::erase_if(ret, [](const CGHeroInstance * h) {
-			return h == nullptr;
-		});
-	}
+		return gs->heroesPool->getHeroesFor(*player);
+
 	return ret;
 }
 
@@ -521,8 +513,8 @@ EDiggingStatus CGameInfoCallback::getTileDigStatus(int3 tile, bool verbose) cons
 //TODO: typedef?
 std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVisibleTiles() const
 {
-	assert(player.is_initialized());
-	const auto * team = getPlayerTeam(player.get());
+	assert(player.has_value());
+	const auto * team = getPlayerTeam(player.value());
 
 	size_t width = gs->map->width;
 	size_t height = gs->map->height;
@@ -619,9 +611,9 @@ const CMapHeader * CGameInfoCallback::getMapHeader() const
 	return gs->map;
 }
 
-bool CGameInfoCallback::hasAccess(boost::optional<PlayerColor> playerId) const
+bool CGameInfoCallback::hasAccess(std::optional<PlayerColor> playerId) const
 {
-	return !player || player.get().isSpectator() || gs->getPlayerRelations( *playerId, *player ) != PlayerRelations::ENEMIES;
+	return !player || player->isSpectator() || gs->getPlayerRelations(*playerId, *player) != PlayerRelations::ENEMIES;
 }
 
 EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bool verbose) const
@@ -703,7 +695,7 @@ PlayerColor CGameInfoCallback::getCurrentPlayer() const
 	return gs->currentPlayer;
 }
 
-CGameInfoCallback::CGameInfoCallback(CGameState * GS, boost::optional<PlayerColor> Player):
+CGameInfoCallback::CGameInfoCallback(CGameState * GS, std::optional<PlayerColor> Player):
 	gs(GS)
 {
 	player = std::move(Player);
@@ -754,7 +746,7 @@ std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo
 	return ret;
 }
 
-boost::optional<PlayerColor> CPlayerSpecificInfoCallback::getMyColor() const
+std::optional<PlayerColor> CPlayerSpecificInfoCallback::getMyColor() const
 {
 	return player;
 }
@@ -860,7 +852,7 @@ const CGTownInstance* CPlayerSpecificInfoCallback::getTownBySerial(int serialId)
 	return p->towns[serialId];
 }
 
-int CPlayerSpecificInfoCallback::getResourceAmount(Res::ERes type) const
+int CPlayerSpecificInfoCallback::getResourceAmount(GameResID type) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	ERROR_RET_VAL_IF(!player, "Applicable only for player callbacks", -1);
@@ -882,7 +874,7 @@ const TeamState * CGameInfoCallback::getTeam( TeamID teamID ) const
 	if (team != gs->teams.end())
 	{
 		const TeamState *ret = &team->second;
-		if (!player.is_initialized()) //neutral (or invalid) player
+		if(!player.has_value()) //neutral (or invalid) player
 			return ret;
 		else
 		{
@@ -935,7 +927,7 @@ bool CGameInfoCallback::isInTheMap(const int3 &pos) const
 	return gs->map->isInTheMap(pos);
 }
 
-void CGameInfoCallback::getVisibleTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula) const
+void CGameInfoCallback::getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula) const
 {
 	gs->getTilesInRange(tiles, pos, radious, getLocalPlayer(), -1, distanceFormula);
 }

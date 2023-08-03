@@ -31,7 +31,7 @@ struct Gens : Gens<N-1, N-1, S...> {};
 template<int ...S>
 struct Gens<0, S...>
 {
-	typedef Seq<S...> type;
+	using type = Seq<S...>;
 };
 
 template <typename R, typename ... Args>

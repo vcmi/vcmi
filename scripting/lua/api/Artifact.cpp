@@ -15,7 +15,8 @@
 
 #include "../LuaStack.h"
 #include "../LuaCallWrapper.h"
-#include "../../../lib/HeroBonus.h"
+#include "../../../lib/bonuses/Bonus.h"
+#include "../../../lib/bonuses/IBonusBearer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -34,7 +35,7 @@ const std::vector<ArtifactProxy::CustomRegType> ArtifactProxy::REGISTER_CUSTOM =
 	{"getName", LuaMethodWrapper<Artifact, decltype(&Entity::getNameTranslated), &Entity::getNameTranslated>::invoke, false},
 
 	{"getId", LuaMethodWrapper<Artifact, decltype(&EntityT<ArtifactID>::getId), &EntityT<ArtifactID>::getId>::invoke, false},
-	{"accessBonuses", LuaMethodWrapper<Artifact, decltype(&EntityWithBonuses<ArtifactID>::accessBonuses), &EntityWithBonuses<ArtifactID>::accessBonuses>::invoke, false},
+	{"getBonusBearer", LuaMethodWrapper<Artifact, decltype(&IConstBonusProvider::getBonusBearer), &IConstBonusProvider::getBonusBearer>::invoke, false},
 
 	{"getDescription", LuaMethodWrapper<Artifact, decltype(&Artifact::getDescriptionTranslated), &Artifact::getDescriptionTranslated>::invoke, false},
 	{"getEventText", LuaMethodWrapper<Artifact, decltype(&Artifact::getEventTranslated), &Artifact::getEventTranslated>::invoke, false},

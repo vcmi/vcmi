@@ -46,13 +46,13 @@ public:
 	};
 
 	BattlePerspective::BattlePerspective battleGetMySide() const;
-	const IBonusBearer * getBattleNode() const;
+	const IBonusBearer * getBonusBearer() const override;
 
 	TerrainId battleTerrainType() const override;
 	BattleField battleGetBattlefieldType() const override;
 	int32_t battleGetEnchanterCounter(ui8 side) const;
 
-	std::vector<std::shared_ptr<const CObstacleInstance> > battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective = boost::none) const; //returns all obstacles on the battlefield
+	std::vector<std::shared_ptr<const CObstacleInstance> > battleGetAllObstacles(std::optional<BattlePerspective::BattlePerspective> perspective = std::nullopt) const; //returns all obstacles on the battlefield
 
 	std::shared_ptr<const CObstacleInstance> battleGetObstacleByID(uint32_t ID) const;
 
@@ -96,6 +96,7 @@ public:
 	// [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
 	EWallState battleGetWallState(EWallPart partOfWall) const;
 	EGateState battleGetGateState() const;
+	bool battleIsGatePassable() const;
 
 	//helpers
 	///returns all stacks, alive or dead or undead or mechanical :)

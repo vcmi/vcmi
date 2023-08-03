@@ -16,12 +16,15 @@
 #include "GeneralOptionsTab.h"
 #include "OtherOptionsTab.h"
 
+#include "CMT.h"
 #include "CGameInfo.h"
 #include "CGeneralTextHandler.h"
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
 #include "filesystem/ResourceID.h"
 #include "gui/CGuiHandler.h"
+#include "gui/WindowHandler.h"
+#include "render/Canvas.h"
 #include "lobby/CSavingScreen.h"
 #include "widgets/Buttons.h"
 #include "widgets/Images.h"
@@ -68,7 +71,7 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 
 	parentBattleInterface = parentBattleUi;
 	tabContentArea = std::make_shared<CTabbedInt>(std::bind(&SettingsMainWindow::createTab, this, _1), Point(0, 0), defaultTabIndex);
-	tabContentArea->type |= REDRAW_PARENT;
+	tabContentArea->setRedrawParent(true);
 
 	std::shared_ptr<CToggleGroup> mainTabs = widget<CToggleGroup>("settingsTabs");
 	mainTabs->setSelected(defaultTabIndex);
@@ -103,14 +106,25 @@ void SettingsMainWindow::openTab(size_t index)
 
 void SettingsMainWindow::close()
 {
-	if(GH.topInt().get() != this)
+	if(!GH.windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
-	GH.popInts(1);
+	GH.windows().popWindows(1);
 }
 
 void SettingsMainWindow::quitGameButtonCallback()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(EUserEvent::FORCE_QUIT); }, 0);
+	LOCPLINT->showYesNoDialog(
+		CGI->generaltexth->allTexts[578],
+		[this]()
+		{
+			close();
+			GH.dispatchMainThread( []()
+			{
+				handleQuit(false);
+			});
+		},
+		0
+	);
 }
 
 void SettingsMainWindow::backButtonCallback()
@@ -120,7 +134,20 @@ void SettingsMainWindow::backButtonCallback()
 
 void SettingsMainWindow::mainMenuButtonCallback()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(EUserEvent::RETURN_TO_MAIN_MENU); }, 0);
+	LOCPLINT->showYesNoDialog(
+		CGI->generaltexth->allTexts[578],
+		[this]()
+		{
+			close();
+			GH.dispatchMainThread( []()
+			{
+				CSH->endGameplay();
+				GH.defActionsDef = 63;
+				CMM->menu->switchToTab("main");
+			});
+		},
+		0
+	);
 }
 
 void SettingsMainWindow::loadGameButtonCallback()
@@ -132,26 +159,40 @@ void SettingsMainWindow::loadGameButtonCallback()
 void SettingsMainWindow::saveGameButtonCallback()
 {
 	close();
-	GH.pushIntT<CSavingScreen>();
+	GH.windows().createAndPushWindow<CSavingScreen>();
 }
 
 void SettingsMainWindow::restartGameButtonCallback()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(EUserEvent::RESTART_GAME); }, 0);
+	LOCPLINT->showYesNoDialog(
+		CGI->generaltexth->allTexts[67],
+		[this]()
+		{
+			close();
+			GH.dispatchMainThread([](){
+				CSH->sendRestartGame();
+			});
+		},
+		0
+	);
 }
 
-void SettingsMainWindow::closeAndPushEvent(EUserEvent code)
-{
-	close();
-	GH.pushUserEvent(code);
-}
-
-void SettingsMainWindow::showAll(SDL_Surface *to)
+void SettingsMainWindow::showAll(Canvas & to)
 {
 	auto color = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1);
 	if(settings["session"]["spectate"].Bool())
 		color = PlayerColor(1); // TODO: Spectator shouldn't need special code for UI colors
 
 	CIntObject::showAll(to);
-	CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+	CMessage::drawBorder(color, to.getInternalSurface(), pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+}
+
+void SettingsMainWindow::onScreenResize()
+{
+	InterfaceObjectConfigurable::onScreenResize();
+
+	auto tab = std::dynamic_pointer_cast<GeneralOptionsTab>(tabContentArea->getItem());
+
+	if (tab)
+		tab->updateResolutionSelector();
 }

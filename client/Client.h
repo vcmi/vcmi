@@ -15,23 +15,14 @@
 #include "../lib/IGameCallback.h"
 #include "../lib/battle/BattleAction.h"
 #include "../lib/battle/CBattleInfoCallback.h"
-#include "../lib/CStopWatch.h"
-#include "../lib/int3.h"
-#include "../lib/CondSh.h"
-#include "../lib/CPathfinder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct CPack;
 struct CPackForServer;
-class CCampaignState;
-class IGameEventsReceiver;
 class IBattleEventsReceiver;
 class CBattleGameInterface;
-class CGameState;
 class CGameInterface;
-class BattleAction;
-struct CPathsInfo;
 class BinaryDeserializer;
 class BinarySerializer;
 
@@ -61,9 +52,8 @@ namespace boost { class thread; }
 template<typename T>
 class ThreadSafeVector
 {
-	typedef std::vector<T> TVector;
-	typedef boost::unique_lock<boost::mutex> TLock;
-	TVector items;
+	using TLock = boost::unique_lock<boost::mutex>;
+	std::vector<T> items;
 	boost::mutex mx;
 	boost::condition_variable cond;
 
@@ -82,28 +72,16 @@ public:
 		cond.notify_all();
 	}
 
-// 	//to access list, caller must present a lock used to lock mx
-// 	TVector &getList(TLock &lockedLock)
-// 	{
-// 		assert(lockedLock.owns_lock() && lockedLock.mutex() == &mx);
-// 		return items;
-// 	}
-
-	TLock getLock()
-	{
-		return TLock(mx);
-	}
-
 	void waitWhileContains(const T & item)
 	{
-		auto lock = getLock();
+		TLock lock(mx);
 		while(vstd::contains(items, item))
 			cond.wait(lock);
 	}
 
 	bool tryRemovingElement(const T & item) //returns false if element was not present
 	{
-		auto lock = getLock();
+		TLock lock(mx);
 		auto itr = vstd::find(items, item);
 		if(itr == items.end()) //not in container
 		{
@@ -140,7 +118,7 @@ public:
 
 	std::map<PlayerColor, std::vector<std::shared_ptr<IBattleEventsReceiver>>> additionalBattleInts;
 
-	boost::optional<BattleAction> curbaction;
+	std::optional<BattleAction> curbaction;
 
 	CClient();
 	~CClient();
@@ -162,8 +140,8 @@ public:
 	void initMapHandler();
 	void initPlayerEnvironments();
 	void initPlayerInterfaces();
-	std::string aiNameForPlayer(const PlayerSettings & ps, bool battleAI); //empty means no AI -> human
-	std::string aiNameForPlayer(bool battleAI);
+	std::string aiNameForPlayer(const PlayerSettings & ps, bool battleAI, bool alliedToHuman); //empty means no AI -> human
+	std::string aiNameForPlayer(bool battleAI, bool alliedToHuman);
 	void installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, PlayerColor color, bool battlecb = false);
 	void installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, PlayerColor color, bool needCallback = true);
 
@@ -173,11 +151,8 @@ public:
 	int sendRequest(const CPackForServer * request, PlayerColor player); //returns ID given to that request
 
 	void battleStarted(const BattleInfo * info);
-	void commenceTacticPhaseForInt(std::shared_ptr<CBattleGameInterface> battleInt); //will be called as separate thread
 	void battleFinished();
 	void startPlayerBattleAction(PlayerColor color);
-	void stopPlayerBattleAction(PlayerColor color);
-	void stopAllBattleActions();
 
 	void invalidatePaths();
 	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
@@ -188,6 +163,7 @@ public:
 
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> & spells) override {};
 	bool removeObject(const CGObjectInstance * obj) override {return false;};
+	void createObject(const int3 & visitablePosition, Obj type, int32_t subtype ) override {};
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override {};
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs = false) override {};
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs = false) override {};
@@ -196,7 +172,7 @@ public:
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {};
 	void showTeleportDialog(TeleportDialog * iw) override {};
 	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override {};
-	void giveResource(PlayerColor player, Res::ERes which, int val) override {};
+	void giveResource(PlayerColor player, GameResID which, int val) override {};
 	virtual void giveResources(PlayerColor player, TResources resources) override {};
 
 	void giveCreatures(const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet & creatures, bool remove) override {};
@@ -212,8 +188,8 @@ public:
 
 	void removeAfterVisit(const CGObjectInstance * object) override {};
 	bool swapGarrisonOnSiege(ObjectInstanceID tid) override {return false;};
-	void giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) override {};
-	void giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos) override {};
+	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) override {return false;}
+	bool giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos) override {return false;}
 	void putArtifact(const ArtifactLocation & al, const CArtifactInstance * a) override {};
 	void removeArtifact(const ArtifactLocation & al) override {};
 	bool moveArtifact(const ArtifactLocation & al1, const ArtifactLocation & al2) override {return false;};
@@ -228,21 +204,20 @@ public:
 	void giveHeroBonus(GiveBonus * bonus) override {};
 	void setMovePoints(SetMovePoints * smp) override {};
 	void setManaPoints(ObjectInstanceID hid, int val) override {};
-	void giveHero(ObjectInstanceID id, PlayerColor player) override {};
+	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override {};
 	void changeObjPos(ObjectInstanceID objid, int3 newPos) override {};
 	void sendAndApply(CPackForClient * pack) override {};
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {};
+	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override {};
 
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override {}
-	void changeFogOfWar(std::unordered_set<int3, ShashInt3> & tiles, PlayerColor player, bool hide) override {}
+	void changeFogOfWar(std::unordered_set<int3> & tiles, PlayerColor player, bool hide) override {}
 
 	void setObjProperty(ObjectInstanceID objid, int prop, si64 val) override {}
 
 	void showInfoDialog(InfoWindow * iw) override {};
 	void showInfoDialog(const std::string & msg, PlayerColor player) override {};
 	void removeGUI();
-
-	void cleanThreads();
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
@@ -263,10 +238,5 @@ private:
 	mutable boost::mutex pathCacheMutex;
 	std::map<const CGHeroInstance *, std::shared_ptr<CPathsInfo>> pathCache;
 
-	std::map<PlayerColor, std::shared_ptr<boost::thread>> playerActionThreads;
-
-	std::map<PlayerColor, std::unique_ptr<boost::thread>> playerTacticThreads;
-
-	void waitForMoveAndSend(PlayerColor color);
 	void reinitScripting();
 };

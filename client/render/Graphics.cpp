@@ -32,12 +32,9 @@
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"
 #include "../lib/CStopWatch.h"
-#include "../lib/mapObjects/CObjectClassesHandler.h"
-#include "../lib/mapObjects/CObjectHandler.h"
 #include "../lib/CHeroHandler.h"
 
 #include <SDL_surface.h>
@@ -260,7 +257,7 @@ void Graphics::loadErmuToPicture()
 			ERMUtoPicture[idx][etp_idx] = n.String();
 			idx ++;
 		}
-		assert (idx == ARRAY_COUNT(ERMUtoPicture));
+		assert (idx == std::size(ERMUtoPicture));
 
 		etp_idx ++;
 	}

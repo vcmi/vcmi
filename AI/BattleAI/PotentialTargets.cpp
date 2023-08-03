@@ -15,14 +15,14 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 {
 	auto attackerInfo = state.battleGetUnitByID(attacker->unitId());
 	auto reachability = state.getReachability(attackerInfo);
-	auto avHexes = state.battleGetAvailableHexes(reachability, attackerInfo);
+	auto avHexes = state.battleGetAvailableHexes(reachability, attackerInfo, false);
 
 	//FIXME: this should part of battleGetAvailableHexes
 	bool forceTarget = false;
 	const battle::Unit * forcedTarget = nullptr;
 	BattleHex forcedHex;
 
-	if(attackerInfo->hasBonusOfType(Bonus::ATTACKS_NEAREST_CREATURE))
+	if(attackerInfo->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE))
 	{
 		forceTarget = true;
 		auto nearest = state.getNearestStack(attackerInfo);
@@ -89,7 +89,7 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 	{
 		auto & bestAp = possibleAttacks[0];
 
-		logGlobal->info("Battle AI best: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
+		logGlobal->debug("Battle AI best: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
 			bestAp.attack.attacker->unitType()->getJsonKey(),
 			state.battleGetUnitByPos(bestAp.dest)->unitType()->getJsonKey(),
 			(int)bestAp.dest, (int)bestAp.from, (int)bestAp.affectedUnits.size(),

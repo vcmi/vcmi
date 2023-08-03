@@ -2,9 +2,10 @@ set(client_SRCS
 	StdInc.cpp
 	../CCallback.cpp
 
-	adventureMap/CAdvMapPanel.cpp
-	adventureMap/CAdvMapInt.cpp
-	adventureMap/CAdventureOptions.cpp
+	adventureMap/AdventureMapInterface.cpp
+	adventureMap/AdventureMapShortcuts.cpp
+	adventureMap/AdventureMapWidget.cpp
+	adventureMap/AdventureOptions.cpp
 	adventureMap/CInGameConsole.cpp
 	adventureMap/CInfoBar.cpp
 	adventureMap/CList.cpp
@@ -26,11 +27,22 @@ set(client_SRCS
 	battle/BattleWindow.cpp
 	battle/CreatureAnimation.cpp
 
+	eventsSDL/NotificationHandler.cpp
+	eventsSDL/InputHandler.cpp
+	eventsSDL/InputSourceKeyboard.cpp
+	eventsSDL/InputSourceMouse.cpp
+	eventsSDL/InputSourceText.cpp
+	eventsSDL/InputSourceTouch.cpp
+
 	gui/CGuiHandler.cpp
 	gui/CIntObject.cpp
 	gui/CursorHandler.cpp
+	gui/EventDispatcher.cpp
+	gui/EventsReceiver.cpp
 	gui/InterfaceObjectConfigurable.cpp
-	gui/NotificationHandler.cpp
+	gui/FramerateManager.cpp
+	gui/ShortcutHandler.cpp
+	gui/WindowHandler.cpp
 
 	lobby/CBonusSelection.cpp
 	lobby/CCampaignInfoScreen.cpp
@@ -74,6 +86,7 @@ set(client_SRCS
 	renderSDL/SDLImage.cpp
 	renderSDL/SDLImageLoader.cpp
 	renderSDL/SDLRWwrapper.cpp
+	renderSDL/ScreenHandler.cpp
 	renderSDL/SDL_Extensions.cpp
 
 	widgets/Buttons.cpp
@@ -85,6 +98,16 @@ set(client_SRCS
 	widgets/MiscWidgets.cpp
 	widgets/ObjectLists.cpp
 	widgets/TextControls.cpp
+	widgets/Scrollable.cpp
+	widgets/Slider.cpp
+	widgets/CArtifactsOfHeroBase.cpp
+	widgets/CArtifactsOfHeroMain.cpp
+	widgets/CArtifactsOfHeroKingdom.cpp
+	widgets/CArtifactsOfHeroAltar.cpp
+	widgets/CArtifactsOfHeroMarket.cpp
+	widgets/CArtifactsOfHeroBackpack.cpp
+	widgets/CWindowWithArtifacts.cpp
+	widgets/RadialMenu.cpp
 
 	windows/CCastleInterface.cpp
 	windows/CCreatureWindow.cpp
@@ -100,6 +123,7 @@ set(client_SRCS
 	windows/GUIClasses.cpp
 	windows/InfoWindows.cpp
 	windows/QuickRecruitmentWindow.cpp
+	windows/CHeroBackpackWindow.cpp
 	windows/settings/GeneralOptionsTab.cpp
 	windows/settings/OtherOptionsTab.cpp
 	windows/settings/SettingsMainWindow.cpp
@@ -110,6 +134,7 @@ set(client_SRCS
 	CMT.cpp
 	CMusicHandler.cpp
 	CPlayerInterface.cpp
+	PlayerLocalState.cpp
 	CServerHandler.cpp
 	CVideoHandler.cpp
 	Client.cpp
@@ -121,9 +146,11 @@ set(client_SRCS
 set(client_HEADERS
 	StdInc.h
 
-	adventureMap/CAdvMapPanel.h
-	adventureMap/CAdvMapInt.h
-	adventureMap/CAdventureOptions.h
+	adventureMap/AdventureMapInterface.h
+	adventureMap/AdventureMapShortcuts.h
+	adventureMap/AdventureMapWidget.h
+	adventureMap/AdventureState.h
+	adventureMap/AdventureOptions.h
 	adventureMap/CInGameConsole.h
 	adventureMap/CInfoBar.h
 	adventureMap/CList.h
@@ -146,13 +173,25 @@ set(client_HEADERS
 	battle/BattleWindow.h
 	battle/CreatureAnimation.h
 
+	eventsSDL/NotificationHandler.h
+	eventsSDL/InputHandler.h
+	eventsSDL/InputSourceKeyboard.h
+	eventsSDL/InputSourceMouse.h
+	eventsSDL/InputSourceText.h
+	eventsSDL/InputSourceTouch.h
+
 	gui/CGuiHandler.h
 	gui/CIntObject.h
 	gui/CursorHandler.h
+	gui/EventDispatcher.h
+	gui/EventsReceiver.h
 	gui/InterfaceObjectConfigurable.h
+	gui/FramerateManager.h
 	gui/MouseButton.h
-	gui/NotificationHandler.h
+	gui/Shortcut.h
+	gui/ShortcutHandler.h
 	gui/TextAlignment.h
+	gui/WindowHandler.h
 
 	lobby/CBonusSelection.h
 	lobby/CCampaignInfoScreen.h
@@ -192,6 +231,7 @@ set(client_HEADERS
 	render/IFont.h
 	render/IImage.h
 	render/IImageLoader.h
+	render/IScreenHandler.h
 
 	renderSDL/CBitmapFont.h
 	renderSDL/CBitmapHanFont.h
@@ -201,6 +241,7 @@ set(client_HEADERS
 	renderSDL/SDLImage.h
 	renderSDL/SDLImageLoader.h
 	renderSDL/SDLRWwrapper.h
+	renderSDL/ScreenHandler.h
 	renderSDL/SDL_Extensions.h
 	renderSDL/SDL_PixelAccess.h
 
@@ -213,6 +254,16 @@ set(client_HEADERS
 	widgets/MiscWidgets.h
 	widgets/ObjectLists.h
 	widgets/TextControls.h
+	widgets/Scrollable.h
+	widgets/Slider.h
+	widgets/CArtifactsOfHeroBase.h
+	widgets/CArtifactsOfHeroMain.h
+	widgets/CArtifactsOfHeroKingdom.h
+	widgets/CArtifactsOfHeroAltar.h
+	widgets/CArtifactsOfHeroMarket.h
+	widgets/CArtifactsOfHeroBackpack.h
+	widgets/CWindowWithArtifacts.h
+	widgets/RadialMenu.h
 
 	windows/CCastleInterface.h
 	windows/CCreatureWindow.h
@@ -228,6 +279,7 @@ set(client_HEADERS
 	windows/GUIClasses.h
 	windows/InfoWindows.h
 	windows/QuickRecruitmentWindow.h
+	windows/CHeroBackpackWindow.h
 	windows/settings/GeneralOptionsTab.h
 	windows/settings/OtherOptionsTab.h
 	windows/settings/SettingsMainWindow.h
@@ -238,6 +290,7 @@ set(client_HEADERS
 	CMT.h
 	CMusicHandler.h
 	CPlayerInterface.h
+	PlayerLocalState.h
 	CServerHandler.h
 	CVideoHandler.h
 	Client.h
@@ -306,7 +359,7 @@ if(WIN32)
 	endif()
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
 
-	# TODO: very hacky, find proper solution to copy AI dlls into bin dir
+# TODO: very hacky, find proper solution to copy AI dlls into bin dir
 	if(MSVC)
 		add_custom_command(TARGET vcmiclient POST_BUILD
 			WORKING_DIRECTORY "$<TARGET_FILE_DIR:vcmiclient>"
@@ -403,9 +456,15 @@ endif()
 #install icons and desktop file on Linux
 if(NOT WIN32 AND NOT APPLE AND NOT ANDROID)
 	#FIXME: move to client makefile?
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"   DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.48x48.png"   DESTINATION share/icons/hicolor/48x48/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png"   DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.256x256.png" DESTINATION share/icons/hicolor/256x256/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.desktop"     DESTINATION share/applications)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.16x16.png"     DESTINATION share/icons/hicolor/16x16/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png"     DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.48x48.png"     DESTINATION share/icons/hicolor/48x48/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"     DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.128x128.png"   DESTINATION share/icons/hicolor/128x128/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.256x256.png"   DESTINATION share/icons/hicolor/256x256/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.512x512.png"   DESTINATION share/icons/hicolor/512x512/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.1024x1024.png" DESTINATION share/icons/hicolor/1024x1024/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.2048x2048.png" DESTINATION share/icons/hicolor/2048x2048/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.svg"           DESTINATION share/icons/hicolor/scalable/apps RENAME vcmiclient.svg)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.desktop"       DESTINATION share/applications)
 endif()

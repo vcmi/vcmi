@@ -11,7 +11,7 @@
 #include "ObjectLists.h"
 
 #include "../gui/CGuiHandler.h"
-#include "Buttons.h"
+#include "Slider.h"
 
 CObjectList::CObjectList(CreateFunc create)
 	: createObject(create)
@@ -35,7 +35,7 @@ std::shared_ptr<CIntObject> CObjectList::createItem(size_t index)
 
 	item->recActions = defActions;
 	addChild(item.get());
-	if (active)
+	if (isActive())
 		item->activate();
 	return item;
 }
@@ -70,7 +70,7 @@ void CTabbedInt::reset()
 	activeTab = createItem(activeID);
 	activeTab->moveTo(pos.topLeft());
 
-	if(active)
+	if(isActive())
 		redraw();
 }
 
@@ -92,8 +92,18 @@ CListBox::CListBox(CreateFunc create, Point Pos, Point ItemOffset, size_t Visibl
 	if(Slider & 1)
 	{
 		OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-		slider = std::make_shared<CSlider>(SliderPos.topLeft(), SliderPos.w, std::bind(&CListBox::moveToPos, this, _1),
-			(int)VisibleSize, (int)TotalSize, (int)InitialPos, Slider & 2, Slider & 4 ? CSlider::BLUE : CSlider::BROWN);
+		slider = std::make_shared<CSlider>(
+			SliderPos.topLeft(),
+			SliderPos.w,
+			std::bind(&CListBox::moveToPos, this, _1),
+			(int)VisibleSize,
+			(int)TotalSize,
+			(int)InitialPos,
+			Slider & 2 ? Orientation::HORIZONTAL : Orientation::VERTICAL,
+			Slider & 4 ? CSlider::BLUE : CSlider::BROWN
+		);
+
+		slider->setPanningStep(itemOffset.x + itemOffset.y);
 	}
 	reset();
 }
@@ -107,11 +117,11 @@ void CListBox::updatePositions()
 		(elem)->moveTo(itemPos);
 		itemPos += itemOffset;
 	}
-	if (active)
+	if (isActive())
 	{
 		redraw();
 		if (slider)
-			slider->moveTo((int)first);
+			slider->scrollTo((int)first);
 	}
 }
 
@@ -128,6 +138,9 @@ void CListBox::reset()
 
 void CListBox::resize(size_t newSize)
 {
+	if (totalSize == newSize)
+		return;
+
 	totalSize = newSize;
 	if (slider)
 		slider->setAmount((int)totalSize);
@@ -231,4 +244,39 @@ size_t CListBox::getPos()
 const std::list<std::shared_ptr<CIntObject>> & CListBox::getItems()
 {
 	return items;
+}
+
+CListBoxWithCallback::CListBoxWithCallback(CListBoxWithCallback::MovedPosCallback callback, CreateFunc create, Point pos, Point itemOffset, 
+	size_t visibleSize,	size_t totalSize, size_t initialPos, int slider, Rect sliderPos)
+	: CListBox(create, pos, itemOffset, visibleSize, totalSize, initialPos, slider, sliderPos)
+{
+	movedPosCallback = callback;
+}
+
+void CListBoxWithCallback::scrollTo(size_t pos)
+{
+	CListBox::scrollTo(pos);
+	if(movedPosCallback)
+		movedPosCallback(getPos());
+}
+
+void CListBoxWithCallback::moveToPos(size_t pos)
+{
+	CListBox::moveToPos(pos);
+	if(movedPosCallback)
+		movedPosCallback(getPos());
+}
+
+void CListBoxWithCallback::moveToNext()
+{
+	CListBox::moveToNext();
+	if(movedPosCallback)
+		movedPosCallback(getPos());
+}
+
+void CListBoxWithCallback::moveToPrev()
+{
+	CListBox::moveToPrev();
+	if(movedPosCallback)
+		movedPosCallback(getPos());
 }

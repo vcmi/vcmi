@@ -33,6 +33,18 @@ void MapViewModel::setLevel(int newLevel)
 	mapLevel = newLevel;
 }
 
+Point MapViewModel::getSingleTileSizeUpperLimit() const
+{
+	// arbitrary-seleted upscaling limit
+	return Point(256, 256);
+}
+
+Point MapViewModel::getSingleTileSizeLowerLimit() const
+{
+	// arbitrary-seleted downscaling limit
+	return Point(4, 4);
+}
+
 Point MapViewModel::getSingleTileSize() const
 {
 	return tileSize;
@@ -90,7 +102,7 @@ int3 MapViewModel::getTileAtPoint(const Point & position) const
 
 Point MapViewModel::getCacheDimensionsPixels() const
 {
-	return getTilesVisibleDimensions() * getSingleTileSize();
+	return getTilesVisibleDimensions() * getSingleTileSizeUpperLimit();
 }
 
 Rect MapViewModel::getCacheTileArea(const int3 & coordinates) const
@@ -104,14 +116,14 @@ Rect MapViewModel::getCacheTileArea(const int3 & coordinates) const
 		(getTilesVisibleDimensions().y + coordinates.y) % getTilesVisibleDimensions().y
 	};
 
-	return Rect(tileIndex * tileSize, tileSize);
+	return Rect(tileIndex * getSingleTileSize(), getSingleTileSize());
 }
 
 Rect MapViewModel::getTargetTileArea(const int3 & coordinates) const
 {
 	Point topLeftOffset = getMapViewCenter() - getPixelsVisibleDimensions() / 2;
-	Point tilePosAbsolute = Point(coordinates) * tileSize;
+	Point tilePosAbsolute = Point(coordinates) * getSingleTileSize();
 	Point tilePosRelative = tilePosAbsolute - topLeftOffset;
 
-	return Rect(tilePosRelative, tileSize);
+	return Rect(tilePosRelative, getSingleTileSize());
 }

@@ -23,9 +23,16 @@ using namespace Goals;
 
 ArmyUpgrade::ArmyUpgrade(const AIPath & upgradePath, const CGObjectInstance * upgrader, const ArmyUpgradeInfo & upgrade)
 	: CGoal(Goals::ARMY_UPGRADE), upgrader(upgrader), upgradeValue(upgrade.upgradeValue),
-	initialValue(upgradePath.heroArmy->getArmyStrength()), goldCost(upgrade.upgradeCost[Res::GOLD])
+	initialValue(upgradePath.heroArmy->getArmyStrength()), goldCost(upgrade.upgradeCost[EGameResID::GOLD])
 {
 	sethero(upgradePath.targetHero);
+}
+
+ArmyUpgrade::ArmyUpgrade(const CGHeroInstance * targetMain, const CGObjectInstance * upgrader, const ArmyUpgradeInfo & upgrade)
+	: CGoal(Goals::ARMY_UPGRADE), upgrader(upgrader), upgradeValue(upgrade.upgradeValue),
+	initialValue(targetMain->getArmyStrength()), goldCost(upgrade.upgradeCost[EGameResID::GOLD])
+{
+	sethero(targetMain);
 }
 
 bool ArmyUpgrade::operator==(const ArmyUpgrade & other) const

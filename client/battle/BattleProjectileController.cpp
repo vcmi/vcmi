@@ -58,15 +58,18 @@ void ProjectileMissile::show(Canvas & canvas)
 
 		canvas.draw(image, pos);
 	}
+}
 
-	float timePassed = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+void ProjectileMissile::tick(uint32_t msPassed)
+{
+	float timePassed = msPassed / 1000.f;
 	progress += timePassed * speed;
 }
 
-void ProjectileAnimatedMissile::show(Canvas & canvas)
+void ProjectileAnimatedMissile::tick(uint32_t msPassed)
 {
-	ProjectileMissile::show(canvas);
-	frameProgress += AnimationControls::getSpellEffectSpeed() * GH.mainFPSmng->getElapsedMilliseconds() / 1000;
+	ProjectileMissile::tick(msPassed);
+	frameProgress += AnimationControls::getSpellEffectSpeed() * msPassed / 1000;
 	size_t animationSize = animation->size(reverse ? 1 : 0);
 	while (frameProgress > animationSize)
 		frameProgress -= animationSize;
@@ -74,9 +77,15 @@ void ProjectileAnimatedMissile::show(Canvas & canvas)
 	frameNum = std::floor(frameProgress);
 }
 
+void ProjectileCatapult::tick(uint32_t msPassed)
+{
+	frameProgress += AnimationControls::getSpellEffectSpeed() * msPassed / 1000;
+	float timePassed = msPassed / 1000.f;
+	progress += timePassed * speed;
+}
+
 void ProjectileCatapult::show(Canvas & canvas)
 {
-	frameProgress += AnimationControls::getSpellEffectSpeed() * GH.mainFPSmng->getElapsedMilliseconds() / 1000;
 	int frameCounter = std::floor(frameProgress);
 	int frameIndex = (frameCounter + 1) % animation->size(0);
 
@@ -90,9 +99,6 @@ void ProjectileCatapult::show(Canvas & canvas)
 
 		canvas.draw(image, pos);
 	}
-
-	float timePassed = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
-	progress += timePassed * speed;
 }
 
 void ProjectileRay::show(Canvas & canvas)
@@ -135,8 +141,11 @@ void ProjectileRay::show(Canvas & canvas)
 			canvas.drawLine(Point(x1 + i, y1), Point(x2 + i, y2), ray.start, ray.end);
 		}
 	}
+}
 
-	float timePassed = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+void ProjectileRay::tick(uint32_t msPassed)
+{
+	float timePassed = msPassed / 1000.f;
 	progress += timePassed * speed;
 }
 
@@ -146,9 +155,9 @@ BattleProjectileController::BattleProjectileController(BattleInterface & owner):
 
 const CCreature & BattleProjectileController::getShooter(const CStack * stack) const
 {
-	const CCreature * creature = stack->getCreature();
+	const CCreature * creature = stack->unitType();
 
-	if(creature->idNumber == CreatureID::ARROW_TOWERS)
+	if(creature->getId() == CreatureID::ARROW_TOWERS)
 		creature = owner.siegeController->getTurretCreature();
 
 	if(creature->animation.missleFrameAngles.empty())
@@ -205,7 +214,7 @@ std::shared_ptr<CAnimation> BattleProjectileController::getProjectileImage(const
 
 void BattleProjectileController::emitStackProjectile(const CStack * stack)
 {
-	int stackID = stack ? stack->ID : -1;
+	int stackID = stack ? stack->unitId() : -1;
 
 	for (auto projectile : projectiles)
 	{
@@ -217,12 +226,21 @@ void BattleProjectileController::emitStackProjectile(const CStack * stack)
 	}
 }
 
-void BattleProjectileController::showProjectiles(Canvas & canvas)
+void BattleProjectileController::render(Canvas & canvas)
 {
 	for ( auto projectile: projectiles)
 	{
 		if ( projectile->playing )
 			projectile->show(canvas);
+	}
+}
+
+void BattleProjectileController::tick(uint32_t msPassed)
+{
+	for ( auto projectile: projectiles)
+	{
+		if ( projectile->playing )
+			projectile->tick(msPassed);
 	}
 
 	vstd::erase_if(projectiles, [&](const std::shared_ptr<ProjectileBase> & projectile){
@@ -232,7 +250,7 @@ void BattleProjectileController::showProjectiles(Canvas & canvas)
 
 bool BattleProjectileController::hasActiveProjectile(const CStack * stack, bool emittedOnly) const
 {
-	int stackID = stack ? stack->ID : -1;
+	int stackID = stack ? stack->unitId() : -1;
 
 	for(auto const & instance : projectiles)
 	{
@@ -294,7 +312,7 @@ void BattleProjectileController::createCatapultProjectile(const CStack * shooter
 	catapultProjectile->speed     = computeProjectileFlightTime(from, dest, AnimationControls::getCatapultSpeed());
 	catapultProjectile->from      = from;
 	catapultProjectile->dest      = dest;
-	catapultProjectile->shooterID = shooter->ID;
+	catapultProjectile->shooterID = shooter->unitId();
 	catapultProjectile->playing   = false;
 	catapultProjectile->frameProgress = 0.f;
 
@@ -333,7 +351,7 @@ void BattleProjectileController::createProjectile(const CStack * shooter, Point 
 
 	projectile->from      = from;
 	projectile->dest      = dest;
-	projectile->shooterID = shooter->ID;
+	projectile->shooterID = shooter->unitId();
 	projectile->progress  = 0;
 	projectile->playing   = false;
 
@@ -357,7 +375,7 @@ void BattleProjectileController::createSpellProjectile(const CStack * shooter, P
 		projectile->reverse       = from.x > dest.x;
 		projectile->from          = from;
 		projectile->dest          = dest;
-		projectile->shooterID     = shooter ? shooter->ID : -1;
+		projectile->shooterID     = shooter ? shooter->unitId() : -1;
 		projectile->progress      = 0;
 		projectile->speed         = computeProjectileFlightTime(from, dest, AnimationControls::getProjectileSpeed());
 		projectile->playing       = false;

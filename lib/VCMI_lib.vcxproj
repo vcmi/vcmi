@@ -426,7 +426,7 @@
     <ClInclude Include="logging\CLogger.h" />
     <ClInclude Include="logging\CBasicLogConfigurator.h" />
     <ClInclude Include="GameConstants.h" />
-    <ClInclude Include="HeroBonus.h" />
+    <ClInclude Include="Bonus.h" />
     <ClInclude Include="IGameCallback.h" />
     <ClInclude Include="CGameInfoCallback.h" />
     <ClInclude Include="IGameEventsReceiver.h" />

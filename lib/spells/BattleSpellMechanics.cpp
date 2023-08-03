@@ -200,7 +200,7 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 	//TODO: check creature abilities to block
 	//TODO: check any possible caster
 
-	if(battle()->battleMaxSpellLevel(side.get()) < getSpellLevel() || battle()->battleMinSpellLevel(side.get()) > getSpellLevel())
+	if(battle()->battleMaxSpellLevel(side.value()) < getSpellLevel() || battle()->battleMinSpellLevel(side.value()) > getSpellLevel())
 		return adaptProblem(ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED, problem);
 
 	return effects->applicable(problem, this);
@@ -279,11 +279,11 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 		if(nullptr != otherHero) //handle mana channel
 		{
 			int manaChannel = 0;
-			for(const CStack * stack : battle()->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
+			for(const auto * stack : battle()->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
 			{
-				if(stack->owner == otherHero->tempOwner)
+				if(stack->unitOwner() == otherHero->tempOwner)
 				{
-					vstd::amax(manaChannel, stack->valOfBonuses(Bonus::MANA_CHANNELING));
+					vstd::amax(manaChannel, stack->valOfBonuses(BonusType::MANA_CHANNELING));
 				}
 			}
 			sc.manaGained = (manaChannel * spellCost) / 100;
@@ -309,7 +309,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 		{
 			MetaString line;
 			caster->getCastDescription(owner, affectedUnits, line);
-			if(!line.message.empty())
+			if(!line.empty())
 				castDescription.lines.push_back(line);
 		}
 		break;
@@ -360,7 +360,7 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 
 	auto filterResisted = [&, this](const battle::Unit * unit) -> bool
 	{
-		if(isNegativeSpell())
+		if(isNegativeSpell() && isMagicalEffect())
 		{
 			//magic resistance
 			const int prob = std::min(unit->magicResistance(), 100); //probability of resistance in %
@@ -400,7 +400,7 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 
 	if(mode == Mode::MAGIC_MIRROR)
 	{
-		if(caster->getCasterUnitId() >= 0)
+		if(caster->getHeroCaster() == nullptr)
 		{
 			sc.reflectedCres.insert(caster->getCasterUnitId());
 		}
@@ -467,7 +467,7 @@ void BattleSpellMechanics::doRemoveEffects(ServerCallback * server, const std::v
 
 bool BattleSpellMechanics::counteringSelector(const Bonus * bonus) const
 {
-	if(bonus->source != Bonus::SPELL_EFFECT)
+	if(bonus->source != BonusSource::SPELL_EFFECT)
 		return false;
 
 	for(const SpellID & id : owner->counteredSpells)

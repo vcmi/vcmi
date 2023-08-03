@@ -53,10 +53,10 @@ public:
 	void push(const JsonNode & value);
 
 	template<typename T>
-	void push(const boost::optional<T> & value)
+	void push(const std::optional<T> & value)
 	{
-		if(value.is_initialized())
-			push(value.get());
+		if(value.has_value())
+			push(value.value());
 		else
 			pushNil();
 	}
@@ -100,7 +100,7 @@ public:
 			return;
 		}
 
-		UData * ptr = static_cast<UData *>(raw);
+		auto * ptr = static_cast<UData *>(raw);
 		*ptr = value;
 
 		luaL_getmetatable(L, KEY);
@@ -348,6 +348,14 @@ public:
 	{
 		lua_settop(L, 0);
 		lua_pushinteger(L, static_cast<int32_t>(value));
+		return 1;
+	}
+
+	template<std::size_t T>
+	static int quickRetInt(lua_State * L, const std::bitset<T> & value)
+	{
+		lua_settop(L, 0);
+		lua_pushinteger(L, static_cast<int32_t>(value.to_ulong()));
 		return 1;
 	}
 

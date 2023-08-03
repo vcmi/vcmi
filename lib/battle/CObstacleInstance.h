@@ -9,12 +9,14 @@
  */
 #pragma once
 #include "BattleHex.h"
+#include "NetPacksBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class ObstacleInfo;
 class ObstacleChanges;
 class JsonSerializeFormat;
+class SpellID;
 
 struct DLL_LINKAGE CObstacleInstance
 {
@@ -41,13 +43,23 @@ struct DLL_LINKAGE CObstacleInstance
 	virtual bool blocksTiles() const;
 	virtual bool stopsMovement() const; //if unit stepping onto obstacle, can't continue movement (in general, doesn't checks for the side)
 	virtual bool triggersEffects() const;
+	virtual SpellID getTrigger() const;
 
 	virtual std::vector<BattleHex> getAffectedTiles() const;
 	virtual bool visibleForSide(ui8 side, bool hasNativeStack) const; //0 attacker
 
 	virtual void battleTurnPassed(){};
 
+	//Client helper functions, make it easier to render animations
+	virtual const std::string & getAnimation() const;
+	virtual const std::string & getAppearAnimation() const;
+	virtual const std::string & getAppearSound() const;
+
 	virtual int getAnimationYOffset(int imageHeight) const;
+
+	void toInfo(ObstacleChanges & info, BattleChanges::EOperation operation = BattleChanges::EOperation::ADD);
+	
+	virtual void serializeJson(JsonSerializeFormat & handler);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -58,30 +70,25 @@ struct DLL_LINKAGE CObstacleInstance
 	}
 };
 
-struct DLL_LINKAGE MoatObstacle : CObstacleInstance
-{
-	std::vector<BattleHex> getAffectedTiles() const override; //for special effects (not blocking)
-};
-
 struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 {
 	int32_t turnsRemaining;
 	int32_t casterSpellPower;
 	int32_t spellLevel;
+	int32_t minimalDamage; //How many damage should it do regardless of power and level of caster
 	si8 casterSide; //0 - obstacle created by attacker; 1 - by defender
+
+	SpellID trigger;
 
 	bool hidden;
 	bool passable;
-	bool trigger;
 	bool trap;
 	bool removeOnTrigger;
-
 	bool revealed;
+	bool nativeVisible; //Should native terrain creatures reveal obstacle
 
 	std::string appearSound;
 	std::string appearAnimation;
-	std::string triggerSound;
-	std::string triggerAnimation;
 	std::string animation;
 
 	int animationYOffset;
@@ -95,16 +102,19 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 
 	bool blocksTiles() const override;
 	bool stopsMovement() const override;
-	bool triggersEffects() const override;
+	SpellID getTrigger() const override;
 
 	void battleTurnPassed() override;
 
+	//Client helper functions, make it easier to render animations
+	const std::string & getAnimation() const override;
+	const std::string & getAppearAnimation() const override;
+	const std::string & getAppearSound() const override;
 	int getAnimationYOffset(int imageHeight) const override;
 
-	void toInfo(ObstacleChanges & info);
 	void fromInfo(const ObstacleChanges & info);
 
-	void serializeJson(JsonSerializeFormat & handler);
+	void serializeJson(JsonSerializeFormat & handler) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -115,8 +125,10 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 		h & casterSide;
 
 		h & hidden;
+		h & nativeVisible;
 		h & passable;
 		h & trigger;
+		h & minimalDamage;
 		h & trap;
 
 		h & customSize;

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>842</width>
-    <height>363</height>
+    <width>832</width>
+    <height>350</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,7 +42,6 @@
      </property>
      <property name="font">
       <font>
-       <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
@@ -81,11 +80,6 @@
      </item>
      <item>
       <property name="text">
-       <string>Data Directories</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
        <string>Mod Repositories</string>
       </property>
      </item>
@@ -113,12 +107,102 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>620</width>
-        <height>793</height>
+        <width>610</width>
+        <height>790</height>
        </rect>
       </property>
-      <layout class="QGridLayout" name="gridLayout" columnstretch="3,0,0,0">
-       <item row="19" column="1" colspan="3">
+      <layout class="QGridLayout" name="gridLayout" columnstretch="2,0,1,1,1">
+       <item row="18" column="0">
+        <widget class="QLabel" name="labelArtificialIntelligence">
+         <property name="font">
+          <font>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Artificial Intelligence</string>
+         </property>
+        </widget>
+       </item>
+       <item row="26" column="2" colspan="3">
+        <widget class="QLineEdit" name="lineEditRepositoryDefault">
+         <property name="text">
+          <string notr="true"/>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="26" column="1">
+        <widget class="QCheckBox" name="checkBoxRepositoryDefault">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="27" column="1">
+        <widget class="QCheckBox" name="checkBoxRepositoryExtra">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxFullScreen">
+         <property name="toolTip">
+          <string>Select display mode for game
+
+Windowed - game will run inside a window that covers part of your screen
+
+Borderless Windowed Mode - game will run in a window that covers entirely of your screen, using same resolution as your screen.
+
+Fullscreen Exclusive Mode - game will cover entirety of your screen and will use selected resolution.</string>
+         </property>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <item>
+          <property name="text">
+           <string>Windowed</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Borderless fullscreen</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Exclusive fullscreen</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="11" column="0">
+        <widget class="QLabel" name="labelResolution">
+         <property name="text">
+          <string>Resolution</string>
+         </property>
+        </widget>
+       </item>
+       <item row="20" column="0">
+        <widget class="QLabel" name="labelAlliedPlayerAI">
+         <property name="text">
+          <string>Adventure Map Allies</string>
+         </property>
+        </widget>
+       </item>
+       <item row="23" column="1" colspan="4">
         <widget class="QComboBox" name="comboBoxEnemyAI">
          <property name="editable">
           <bool>false</bool>
@@ -138,95 +222,115 @@
          </item>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="labelLanguage">
-         <property name="text">
-          <string>VCMI Language</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="labelNetworkPort">
-         <property name="text">
-          <string>Network port</string>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="0">
-        <widget class="QLabel" name="labelFullScreen">
-         <property name="text">
-          <string>Fullscreen</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0">
-        <widget class="QLabel" name="labelResolution">
-         <property name="text">
-          <string>Resolution</string>
-         </property>
-        </widget>
-       </item>
-       <item row="17" column="0">
-        <widget class="QLabel" name="labelNeutralAI">
-         <property name="text">
-          <string>Neutral AI</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="labelAutoSave">
-         <property name="text">
-          <string>Autosave</string>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="0">
-        <widget class="QLabel" name="labelVideo">
+       <item row="24" column="0">
+        <widget class="QLabel" name="labelRepositories">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
          <property name="text">
-          <string>Video</string>
+          <string>Mod Repositories</string>
          </property>
         </widget>
        </item>
-       <item row="23" column="1" colspan="2">
-        <widget class="QLineEdit" name="lineEditTempDir">
-         <property name="enabled">
-          <bool>false</bool>
+       <item row="25" column="1" colspan="2">
+        <widget class="QComboBox" name="comboBoxAutoCheck">
+         <property name="currentIndex">
+          <number>1</number>
          </property>
+         <item>
+          <property name="text">
+           <string>Off</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>On</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="5" column="1" colspan="3">
+        <widget class="QLabel" name="labelTranslationStatus">
          <property name="text">
-          <string notr="true">/home/user/.vcmi</string>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
+          <string/>
          </property>
         </widget>
        </item>
-       <item row="13" column="1" colspan="3">
-        <widget class="QComboBox" name="comboBoxDisplayIndex"/>
-       </item>
-       <item row="14" column="0">
-        <widget class="QLabel" name="labelCursorType">
+       <item row="26" column="0">
+        <widget class="QLabel" name="labelRepositoryDefault">
          <property name="text">
-          <string>Cursor</string>
+          <string>Default repository</string>
          </property>
         </widget>
        </item>
-       <item row="22" column="3">
-        <widget class="QPushButton" name="openUserDataDir">
+       <item row="27" column="0">
+        <widget class="QLabel" name="labelRepositoryExtra">
          <property name="text">
-          <string>Open</string>
+          <string>Additional repository</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1" colspan="3">
-        <widget class="QComboBox" name="comboBoxLanguage"/>
+       <item row="21" column="0">
+        <widget class="QLabel" name="labelNeutralAI">
+         <property name="text">
+          <string>Neutral AI in battles</string>
+         </property>
+        </widget>
        </item>
-       <item row="18" column="1" colspan="3">
+       <item row="5" column="4">
+        <widget class="QPushButton" name="pushButtonTranslation">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="1" colspan="4">
+        <widget class="QSpinBox" name="spinBoxInterfaceScaling">
+         <property name="minimum">
+          <number>50</number>
+         </property>
+         <property name="maximum">
+          <number>400</number>
+         </property>
+         <property name="singleStep">
+          <number>10</number>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="0">
+        <widget class="QLabel" name="labelInterfaceScaling">
+         <property name="text">
+          <string>Interface Scaling</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="labelLanguageBase">
+         <property name="text">
+          <string>Heroes III Data Language</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="labelAutoSaveLimit">
+         <property name="text">
+          <string>Autosave limit (0 = off)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxLanguageBase"/>
+       </item>
+       <item row="22" column="0">
+        <widget class="QLabel" name="labelFriendlyAI">
+         <property name="text">
+          <string>Friendly AI in battles</string>
+         </property>
+        </widget>
+       </item>
+       <item row="22" column="1" colspan="4">
         <widget class="QComboBox" name="comboBoxFriendlyAI">
          <property name="editable">
           <bool>false</bool>
@@ -246,49 +350,61 @@
          </item>
         </widget>
        </item>
-       <item row="11" column="1" colspan="3">
-        <widget class="QComboBox" name="comboBoxFullScreen">
-         <property name="currentIndex">
-          <number>0</number>
+       <item row="11" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxResolution"/>
+       </item>
+       <item row="20" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxAlliedPlayerAI">
+         <property name="currentText">
+          <string notr="true">VCAI</string>
          </property>
          <item>
           <property name="text">
-           <string>Off</string>
+           <string notr="true">VCAI</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>On</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Real</string>
+           <string notr="true">Nullkiller</string>
           </property>
          </item>
         </widget>
        </item>
-       <item row="6" column="1" colspan="3">
-        <widget class="QSpinBox" name="spinBoxNetworkPort">
+       <item row="16" column="0">
+        <widget class="QLabel" name="labelDisplayIndex">
+         <property name="text">
+          <string>Display index</string>
+         </property>
+        </widget>
+       </item>
+       <item row="19" column="0">
+        <widget class="QLabel" name="labelEnemyPlayerAI">
+         <property name="text">
+          <string>Adventure Map Enemies</string>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="1" colspan="4">
+        <widget class="QSpinBox" name="spinBoxFramerateLimit">
          <property name="minimum">
-          <number>1024</number>
+          <number>20</number>
          </property>
          <property name="maximum">
-          <number>65535</number>
+          <number>1000</number>
          </property>
-         <property name="value">
-          <number>3030</number>
+         <property name="singleStep">
+          <number>10</number>
          </property>
         </widget>
        </item>
-       <item row="23" column="3">
-        <widget class="QPushButton" name="openTempDir">
+       <item row="15" column="0">
+        <widget class="QLabel" name="labelShowIntro">
          <property name="text">
-          <string>Open</string>
+          <string>Show intro</string>
          </property>
         </widget>
        </item>
-       <item row="7" column="1" colspan="3">
+       <item row="7" column="1" colspan="4">
         <widget class="QComboBox" name="comboBoxAutoSave">
          <property name="currentIndex">
           <number>1</number>
@@ -305,40 +421,55 @@
          </item>
         </widget>
        </item>
-       <item row="20" column="0">
-        <widget class="QLabel" name="labelDataDirs">
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
+       <item row="1" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxLanguage"/>
+       </item>
+       <item row="17" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxCursorType">
+         <item>
+          <property name="text">
+           <string>Hardware</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Software</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="12" column="0">
+        <widget class="QLabel" name="labelFullScreen">
          <property name="text">
-          <string>Data Directories</string>
+          <string>Fullscreen</string>
          </property>
         </widget>
        </item>
-       <item row="21" column="2">
-        <widget class="QPushButton" name="changeGameDataDir">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
+       <item row="17" column="0">
+        <widget class="QLabel" name="labelCursorType">
          <property name="text">
-          <string>Change</string>
+          <string>Cursor</string>
          </property>
         </widget>
        </item>
-       <item row="22" column="0">
-        <widget class="QLabel" name="labelUserDataDir">
+       <item row="27" column="2" colspan="3">
+        <widget class="QLineEdit" name="lineEditRepositoryExtra">
          <property name="text">
-          <string>User data directory</string>
+          <string notr="true"/>
          </property>
         </widget>
        </item>
-       <item row="8" column="0">
-        <widget class="QLabel" name="labelBuildVersionDesc">
+       <item row="23" column="0">
+        <widget class="QLabel" name="labelEnemyAI">
          <property name="text">
-          <string>Build version</string>
+          <string>Enemy AI in battles</string>
+         </property>
+        </widget>
+       </item>
+       <item row="25" column="0">
+        <widget class="QLabel" name="labelAutoCheck">
+         <property name="text">
+          <string>Check on startup</string>
          </property>
         </widget>
        </item>
@@ -346,7 +477,6 @@
         <widget class="QLabel" name="labelGeneral">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
@@ -355,35 +485,7 @@
          </property>
         </widget>
        </item>
-       <item row="12" column="0">
-        <widget class="QLabel" name="labelShowIntro">
-         <property name="text">
-          <string>Show intro</string>
-         </property>
-        </widget>
-       </item>
-       <item row="25" column="2" colspan="2">
-        <widget class="QPushButton" name="updatesButton">
-         <property name="text">
-          <string>Update now</string>
-         </property>
-        </widget>
-       </item>
-       <item row="13" column="0">
-        <widget class="QLabel" name="labelDisplayIndex">
-         <property name="text">
-          <string>Display index</string>
-         </property>
-        </widget>
-       </item>
-       <item row="21" column="1">
-        <widget class="QLineEdit" name="lineEditGameDir">
-         <property name="text">
-          <string notr="true">/usr/share/vcmi</string>
-         </property>
-        </widget>
-       </item>
-       <item row="17" column="1" colspan="3">
+       <item row="21" column="1" colspan="4">
         <widget class="QComboBox" name="comboBoxNeutralAI">
          <property name="currentText">
           <string notr="true">BattleAI</string>
@@ -400,37 +502,94 @@
          </item>
         </widget>
        </item>
-       <item row="10" column="1" colspan="3">
-        <widget class="QComboBox" name="comboBoxResolution"/>
+       <item row="25" column="3" colspan="2">
+        <widget class="QPushButton" name="refreshRepositoriesButton">
+         <property name="text">
+          <string>Refresh now</string>
+         </property>
+        </widget>
        </item>
-       <item row="24" column="0">
-        <widget class="QLabel" name="labelRepositories">
+       <item row="6" column="1" colspan="4">
+        <widget class="QSpinBox" name="spinBoxNetworkPort">
+         <property name="minimum">
+          <number>1024</number>
+         </property>
+         <property name="maximum">
+          <number>65535</number>
+         </property>
+         <property name="value">
+          <number>3030</number>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="labelNetworkPort">
+         <property name="text">
+          <string>Network port</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="labelTranslation">
+         <property name="text">
+          <string>Heroes III Translation</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelLanguage">
+         <property name="text">
+          <string>VCMI Language</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="labelAutoSave">
+         <property name="text">
+          <string>Autosave</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0">
+        <widget class="QLabel" name="labelVideo">
          <property name="font">
           <font>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
          <property name="text">
-          <string>Mod Repositories</string>
+          <string>Video</string>
          </property>
         </widget>
        </item>
-       <item row="18" column="0">
-        <widget class="QLabel" name="labelFriendlyAI">
+       <item row="19" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxEnemyPlayerAI">
+         <property name="currentText">
+          <string notr="true">VCAI</string>
+         </property>
+         <item>
+          <property name="text">
+           <string notr="true">VCAI</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">Nullkiller</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="16" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxDisplayIndex"/>
+       </item>
+       <item row="14" column="0">
+        <widget class="QLabel" name="labelFramerateLimit">
          <property name="text">
-          <string>Friendly AI</string>
+          <string>Framerate Limit</string>
          </property>
         </widget>
        </item>
-       <item row="25" column="0">
-        <widget class="QLabel" name="labelAutoCheck">
-         <property name="text">
-          <string>Check on startup</string>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="1" colspan="3">
+       <item row="15" column="1" colspan="4">
         <widget class="QComboBox" name="comboBoxShowIntro">
          <property name="currentIndex">
           <number>1</number>
@@ -447,168 +606,27 @@
          </item>
         </widget>
        </item>
-       <item row="22" column="1" colspan="2">
-        <widget class="QLineEdit" name="lineEditUserDataDir">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
+       <item row="9" column="0">
+        <widget class="QLabel" name="labelAutoSavePrefix">
          <property name="text">
-          <string notr="true">/home/user/.vcmi</string>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
+          <string>Autosave prefix</string>
          </property>
         </widget>
        </item>
-       <item row="21" column="0">
-        <widget class="QLabel" name="labelGameDir">
-         <property name="text">
-          <string>Extra data directory</string>
-         </property>
-        </widget>
+       <item row="8" column="1" colspan="4">
+        <widget class="QSpinBox" name="spinBoxAutoSaveLimit"/>
        </item>
-       <item row="21" column="3">
-        <widget class="QPushButton" name="openGameDataDir">
-         <property name="text">
-          <string>Open</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1" colspan="3">
-        <widget class="QComboBox" name="comboBoxLanguageBase"/>
-       </item>
-       <item row="25" column="1">
-        <widget class="QComboBox" name="comboBoxAutoCheck">
-         <property name="currentIndex">
-          <number>1</number>
-         </property>
-         <item>
-          <property name="text">
-           <string>Off</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>On</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="labelLanguageBase">
-         <property name="text">
-          <string>Heroes III Data Language</string>
-         </property>
-        </widget>
-       </item>
-       <item row="16" column="1" colspan="3">
-        <widget class="QComboBox" name="comboBoxPlayerAI">
-         <property name="currentText">
-          <string notr="true">VCAI</string>
-         </property>
-         <item>
-          <property name="text">
-           <string notr="true">VCAI</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">Nullkiller</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="8" column="1" colspan="3">
-        <widget class="QLineEdit" name="lineEditBuildVersion">
-         <property name="text">
-          <string notr="true"/>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="19" column="0">
-        <widget class="QLabel" name="labelEnemyAI">
-         <property name="text">
-          <string>Enemy AI</string>
-         </property>
-        </widget>
-       </item>
-       <item row="26" column="0" colspan="4">
-        <widget class="QPlainTextEdit" name="plainTextEditRepos">
-         <property name="lineWrapMode">
-          <enum>QPlainTextEdit::NoWrap</enum>
-         </property>
-         <property name="plainText">
-          <string notr="true">http://downloads.vcmi.eu/Mods/repository.json</string>
-         </property>
-        </widget>
-       </item>
-       <item row="14" column="1" colspan="3">
-        <widget class="QComboBox" name="comboBoxCursorType">
-         <item>
-          <property name="text">
-           <string>Default</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Hardware</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Software</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="15" column="0">
-        <widget class="QLabel" name="labelArtificialIntelligence">
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Artificial Intelligence</string>
-         </property>
-        </widget>
-       </item>
-       <item row="23" column="0">
-        <widget class="QLabel" name="labelTempDir">
-         <property name="text">
-          <string>Log files directory</string>
-         </property>
-        </widget>
-       </item>
-       <item row="16" column="0">
-        <widget class="QLabel" name="labelPlayerAI">
-         <property name="text">
-          <string>Adventure Map AI</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="labelTranslation">
-         <property name="text">
-          <string>Heroes III Translation</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="3">
-        <widget class="QPushButton" name="pushButtonTranslation">
+       <item row="9" column="1">
+        <widget class="QCheckBox" name="checkBoxAutoSavePrefix">
          <property name="text">
           <string/>
          </property>
         </widget>
        </item>
-       <item row="5" column="1" colspan="2">
-        <widget class="QLabel" name="labelTranslationStatus">
-         <property name="text">
-          <string/>
+       <item row="9" column="2" colspan="3">
+        <widget class="QLineEdit" name="lineEditAutoSavePrefix">
+         <property name="placeholderText">
+          <string>empty = map name prefix</string>
          </property>
         </widget>
        </item>

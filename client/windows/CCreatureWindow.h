@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../../lib/HeroBonus.h"
+#include "../../lib/bonuses/Bonus.h"
 #include "../widgets/MiscWidgets.h"
 #include "CWindowObject.h"
 
@@ -37,8 +37,7 @@ public:
 
 	std::function<void()> callback;
 
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickPressed(const Point & cursorPosition) override;
 
 	void setObject(std::shared_ptr<CIntObject> object);
 };
@@ -83,7 +82,7 @@ class CStackWindow : public CWindowObject
 	{
 		std::shared_ptr<CListBox> lines;
 	public:
-		BonusesSection(CStackWindow * owner, int yOffset, boost::optional<size_t> preferredSize = boost::optional<size_t>());
+		BonusesSection(CStackWindow * owner, int yOffset, std::optional<size_t> preferredSize = std::optional<size_t>());
 	};
 
 	class ButtonsSection : public CWindowSection

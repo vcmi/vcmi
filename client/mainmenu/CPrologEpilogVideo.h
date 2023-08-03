@@ -9,14 +9,14 @@
  */
 #pragma once
 #include "../windows/CWindowObject.h"
-#include "../../lib/mapping/CCampaignHandler.h"
+
+#include "../../lib/campaign/CampaignScenarioPrologEpilog.h"
 
 class CMultiLineLabel;
-struct SDL_Surface;
 
 class CPrologEpilogVideo : public CWindowObject
 {
-	CCampaignScenario::SScenarioPrologEpilog spe;
+	CampaignScenarioPrologEpilog spe;
 	int positionCounter;
 	int voiceSoundHandle;
 	std::function<void()> exitCb;
@@ -24,8 +24,8 @@ class CPrologEpilogVideo : public CWindowObject
 	std::shared_ptr<CMultiLineLabel> text;
 
 public:
-	CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback);
+	CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback);
 
-	void clickLeft(tribool down, bool previousState) override;
-	void show(SDL_Surface * to) override;
+	void clickPressed(const Point & cursorPosition) override;
+	void show(Canvas & to) override;
 };

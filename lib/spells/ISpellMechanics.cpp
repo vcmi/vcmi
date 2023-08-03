@@ -14,7 +14,7 @@
 #include "../CRandomGenerator.h"
 #include "../VCMI_Lib.h"
 
-#include "../HeroBonus.h"
+#include "../bonuses/Bonus.h"
 #include "../battle/CBattleInfoCallback.h"
 #include "../battle/IBattleState.h"
 #include "../battle/Unit.h"
@@ -222,22 +222,22 @@ boost::logic::tribool BattleCast::isMassive() const
 
 void BattleCast::setSpellLevel(BattleCast::Value value)
 {
-	magicSkillLevel = boost::make_optional(value);
+	magicSkillLevel = std::make_optional(value);
 }
 
 void BattleCast::setEffectPower(BattleCast::Value value)
 {
-	effectPower = boost::make_optional(value);
+	effectPower = std::make_optional(value);
 }
 
 void BattleCast::setEffectDuration(BattleCast::Value value)
 {
-	effectDuration = boost::make_optional(value);
+	effectDuration = std::make_optional(value);
 }
 
 void BattleCast::setEffectValue(BattleCast::Value64 value)
 {
-	effectValue = boost::make_optional(value);
+	effectValue = std::make_optional(value);
 }
 
 void BattleCast::applyEffects(ServerCallback * server, const Target & target, bool indirect, bool ignoreImmunity) const
@@ -274,7 +274,7 @@ void BattleCast::cast(ServerCallback * server, Target target)
 	if(tryMagicMirror)
 	{
 		const std::string magicMirrorCacheStr = "type_MAGIC_MIRROR";
-		static const auto magicMirrorSelector = Selector::type()(Bonus::MAGIC_MIRROR);
+		static const auto magicMirrorSelector = Selector::type()(BonusType::MAGIC_MIRROR);
 
 		auto rangeGen = server->getRNG()->getInt64Range(0, 99);
 
@@ -424,54 +424,32 @@ BaseMechanics::BaseMechanics(const IBattleCast * event):
 	caster = event->getCaster();
 
 	//FIXME: do not crash on invalid side
-	casterSide = cb->playerToSide(caster->getCasterOwner()).get();
+	casterSide = cb->playerToSide(caster->getCasterOwner()).value();
 
 	{
 		auto value = event->getSpellLevel();
-		if(value)
-			rangeLevel = value.get();
-		else
-			rangeLevel = caster->getSpellSchoolLevel(owner);
+		rangeLevel = value.value_or(caster->getSpellSchoolLevel(owner));
 		vstd::abetween(rangeLevel, 0, 3);
 	}
 	{
 		auto value = event->getSpellLevel();
-        if(value)
-			effectLevel = value.get();
-		else
-			effectLevel = caster->getEffectLevel(owner);
+		effectLevel = value.value_or(caster->getEffectLevel(owner));
 		vstd::abetween(effectLevel, 0, 3);
 	}
 	{
 		auto value = event->getEffectPower();
-		if(value)
-			effectPower = value.get();
-		else
-			effectPower = caster->getEffectPower(owner);
+		effectPower = value.value_or(caster->getEffectPower(owner));
 		vstd::amax(effectPower, 0);
 	}
 	{
 		auto value = event->getEffectDuration();
-		if(value)
-			effectDuration = value.get();
-		else
-			effectDuration = caster->getEnchantPower(owner);
+		effectDuration = value.value_or(caster->getEnchantPower(owner));
 		vstd::amax(effectDuration, 0); //???
 	}
 	{
 		auto value = event->getEffectValue();
-		if(value)
-		{
-			effectValue = value.get();
-		}
-		else
-		{
-			auto casterValue = caster->getEffectValue(owner);
-			if(casterValue == 0)
-				effectValue = owner->calculateRawEffectValue(effectLevel, effectPower, 1);
-			else
-				effectValue = casterValue;
-		}
+		auto casterValue = caster->getEffectValue(owner) ? caster->getEffectValue(owner) : owner->calculateRawEffectValue(effectLevel, effectPower, 1);
+		effectValue = value.value_or(casterValue);
 		vstd::amax(effectValue, 0);
 	}
 }
@@ -482,7 +460,7 @@ bool BaseMechanics::adaptGenericProblem(Problem & target) const
 {
 	MetaString text;
 	// %s recites the incantations but they seem to have no effect.
-	text.addTxt(MetaString::GENERAL_TXT, 541);
+	text.appendLocalString(EMetaText::GENERAL_TXT, 541);
 	assert(caster);
 	caster->getCasterName(text);
 
@@ -506,19 +484,19 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Pr
 				return adaptGenericProblem(target);
 
 			//Recanter's Cloak or similar effect. Try to retrieve bonus
-			const auto b = hero->getBonusLocalFirst(Selector::type()(Bonus::BLOCK_MAGIC_ABOVE));
+			const auto b = hero->getBonusLocalFirst(Selector::type()(BonusType::BLOCK_MAGIC_ABOVE));
 			//TODO what about other values and non-artifact sources?
-			if(b && b->val == 2 && b->source == Bonus::ARTIFACT)
+			if(b && b->val == 2 && b->source == BonusSource::ARTIFACT)
 			{
 				//The %s prevents %s from casting 3rd level or higher spells.
-				text.addTxt(MetaString::GENERAL_TXT, 536);
-				text.addReplacement(MetaString::ART_NAMES, b->sid);
+				text.appendLocalString(EMetaText::GENERAL_TXT, 536);
+				text.replaceLocalString(EMetaText::ART_NAMES, b->sid);
 				caster->getCasterName(text);
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
-			else if(b && b->source == Bonus::TERRAIN_OVERLAY && VLC->battlefields()->getByIndex(b->sid)->identifier == "cursed_ground")
+			else if(b && b->source == BonusSource::TERRAIN_OVERLAY && VLC->battlefields()->getByIndex(b->sid)->identifier == "cursed_ground")
 			{
-				text.addTxt(MetaString::GENERAL_TXT, 537);
+				text.appendLocalString(EMetaText::GENERAL_TXT, 537);
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
 			else
@@ -532,14 +510,14 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Pr
 	case ESpellCastProblem::NO_APPROPRIATE_TARGET:
 		{
 			MetaString text;
-			text.addTxt(MetaString::GENERAL_TXT, 185);
+			text.appendLocalString(EMetaText::GENERAL_TXT, 185);
 			target.add(std::move(text), spells::Problem::NORMAL);
 		}
 		break;
 	case ESpellCastProblem::INVALID:
 		{
 			MetaString text;
-			text.addReplacement("Internal error during check of spell cast.");
+			text.appendRawString("Internal error during check of spell cast.");
 			target.add(std::move(text), spells::Problem::CRITICAL);
 		}
 		break;
@@ -617,6 +595,11 @@ bool BaseMechanics::isPositiveSpell() const
 	return owner->isPositive();
 }
 
+bool BaseMechanics::isMagicalEffect() const
+{
+	return owner->isMagical();
+}
+
 int64_t BaseMechanics::adjustEffectValue(const battle::Unit * target) const
 {
 	return owner->adjustRawDamage(caster, target, getEffectValue());
@@ -637,9 +620,9 @@ int64_t BaseMechanics::calculateRawEffectValue(int32_t basePowerMultiplier, int3
 	return owner->calculateRawEffectValue(getEffectLevel(), basePowerMultiplier, levelPowerMultiplier);
 }
 
-std::vector<Bonus::BonusType> BaseMechanics::getElementalImmunity() const
+std::vector<BonusType> BaseMechanics::getElementalImmunity() const
 {
-	std::vector<Bonus::BonusType> ret;
+	std::vector<BonusType> ret;
 
 	owner->forEachSchool([&](const SchoolInfo & cnf, bool & stop)
 	{

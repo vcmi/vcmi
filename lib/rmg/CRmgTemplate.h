@@ -18,21 +18,18 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonSerializeFormat;
 
-namespace ETemplateZoneType
+enum class ETemplateZoneType
 {
-	enum ETemplateZoneType
-	{
-		PLAYER_START,
-		CPU_START,
-		TREASURE,
-		JUNCTION,
-		WATER
-	};
-}
+	PLAYER_START,
+	CPU_START,
+	TREASURE,
+	JUNCTION,
+	WATER
+};
 
-namespace EWaterContent
-{
-	enum EWaterContent
+namespace EWaterContent // Not enum class, because it's used in method RandomMapTab::setMapGenOptions
+{ // defined in client\lobby\RandomMapTab.cpp and probably in other similar places
+	enum EWaterContent // as an argument of CToggleGroup::setSelected(int id) from \client\widgets\Buttons.cpp 
 	{
 		RANDOM = -1,
 		NONE,
@@ -41,10 +38,11 @@ namespace EWaterContent
 	};
 }
 
-namespace EMonsterStrength
+namespace EMonsterStrength // used as int in monster generation procedure and in map description for the generated random map
 {
 	enum EMonsterStrength
 	{
+		ZONE_NONE = -3,
 		RANDOM = -2,
 		ZONE_WEAK = -1,
 		ZONE_NORMAL = 0,
@@ -72,14 +70,33 @@ public:
 namespace rmg
 {
 
+enum class EConnectionType
+{
+	GUARDED = 0, //default
+	FICTIVE,
+	REPULSIVE,
+	WIDE
+};
+
+enum class ERoadOption
+{
+	ROAD_TRUE,
+	ROAD_FALSE,
+	ROAD_RANDOM
+};
+
 class DLL_LINKAGE ZoneConnection
 {
 public:
+
 	ZoneConnection();
 
 	TRmgTemplateZoneId getZoneA() const;
 	TRmgTemplateZoneId getZoneB() const;
+	TRmgTemplateZoneId getOtherZoneId(TRmgTemplateZoneId id) const;
 	int getGuardStrength() const;
+	rmg::EConnectionType getConnectionType() const;
+	rmg::ERoadOption getRoadOption() const;
 
 	void serializeJson(JsonSerializeFormat & handler);
 	
@@ -88,6 +105,8 @@ private:
 	TRmgTemplateZoneId zoneA;
 	TRmgTemplateZoneId zoneB;
 	int guardStrength;
+	rmg::EConnectionType connectionType;
+	rmg::ERoadOption hasRoad;
 };
 
 class DLL_LINKAGE ZoneOptions
@@ -119,24 +138,25 @@ public:
 	TRmgTemplateZoneId getId() const;
 	void setId(TRmgTemplateZoneId value);
 
-	ETemplateZoneType::ETemplateZoneType getType() const;
-	void setType(ETemplateZoneType::ETemplateZoneType value);
+	ETemplateZoneType getType() const;
+	void setType(ETemplateZoneType value);
 	
 	int getSize() const;
 	void setSize(int value);
-	boost::optional<int> getOwner() const;
+	std::optional<int> getOwner() const;
 
-	const std::set<TerrainId> & getTerrainTypes() const;
+	const std::set<TerrainId> getTerrainTypes() const;
 	void setTerrainTypes(const std::set<TerrainId> & value);
+	std::set<TerrainId> getDefaultTerrainTypes() const;
 
 	const CTownInfo & getPlayerTowns() const;
 	const CTownInfo & getNeutralTowns() const;
-	std::set<TFaction> getDefaultTownTypes() const;
-	const std::set<TFaction> & getTownTypes() const;
-	const std::set<TFaction> & getMonsterTypes() const;
+	std::set<FactionID> getDefaultTownTypes() const;
+	const std::set<FactionID> getTownTypes() const;
+	const std::set<FactionID> getMonsterTypes() const;
 
-	void setTownTypes(const std::set<TFaction> & value);
-	void setMonsterTypes(const std::set<TFaction> & value);
+	void setTownTypes(const std::set<FactionID> & value);
+	void setMonsterTypes(const std::set<FactionID> & value);
 
 	void setMinesInfo(const std::map<TResource, ui16> & value);
 	std::map<TResource, ui16> getMinesInfo() const;
@@ -151,36 +171,41 @@ public:
 	TRmgTemplateZoneId getTerrainTypeLikeZone() const;
 	TRmgTemplateZoneId getTreasureLikeZone() const;
 
-	void addConnection(TRmgTemplateZoneId otherZone);
-	std::vector<TRmgTemplateZoneId> getConnections() const;
+	void addConnection(const ZoneConnection & connection);
+	std::vector<ZoneConnection> getConnections() const;
+	std::vector<TRmgTemplateZoneId> getConnectedZoneIds() const;
 
 	void serializeJson(JsonSerializeFormat & handler);
 	
-	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
+	EMonsterStrength::EMonsterStrength monsterStrength;
 	
 	bool areTownsSameType() const;
 	bool isMatchTerrainToTown() const;
 
 protected:
 	TRmgTemplateZoneId id;
-	ETemplateZoneType::ETemplateZoneType type;
+	ETemplateZoneType type;
 	int size;
 	ui32 maxTreasureValue;
-	boost::optional<int> owner;
+	std::optional<int> owner;
 	CTownInfo playerTowns;
 	CTownInfo neutralTowns;
 	bool matchTerrainToTown;
 	std::set<TerrainId> terrainTypes;
+	std::set<TerrainId> bannedTerrains;
 	bool townsAreSameType;
 
-	std::set<TFaction> townTypes;
-	std::set<TFaction> monsterTypes;
+	std::set<FactionID> townTypes;
+	std::set<FactionID> bannedTownTypes;
+	std::set<FactionID> monsterTypes;
+	std::set<FactionID> bannedMonsters;
 
 	std::map<TResource, ui16> mines; //obligatory mines to spawn in this zone
 
 	std::vector<CTreasureInfo> treasureInfo;
 
-	std::vector<TRmgTemplateZoneId> connections; //list of adjacent zones
+	std::vector<TRmgTemplateZoneId> connectedZoneIds; //list of adjacent zone ids
+	std::vector<ZoneConnection> connectionDetails; //list of connections linked to that zone
 
 	TRmgTemplateZoneId minesLikeZone;
 	TRmgTemplateZoneId terrainTypeLikeZone;
@@ -225,11 +250,12 @@ public:
 	const CPlayerCountRange & getCpuPlayers() const;
 	std::pair<int3, int3> getMapSizes() const;
 	const Zones & getZones() const;
-	const std::vector<rmg::ZoneConnection> & getConnections() const;
+	const std::vector<rmg::ZoneConnection> & getConnectedZoneIds() const;
 
 	void validate() const; /// Tests template on validity and throws exception on failure
 
 	void serializeJson(JsonSerializeFormat & handler);
+	void afterLoad();
 
 private:
 	std::string id;
@@ -237,10 +263,9 @@ private:
 	int3 minSize, maxSize;
 	CPlayerCountRange players, cpuPlayers;
 	Zones zones;
-	std::vector<rmg::ZoneConnection> connections;
+	std::vector<rmg::ZoneConnection> connectedZoneIds;
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;
 
-	void afterLoad();
 	std::set<TerrainId> inheritTerrainType(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	std::map<TResource, ui16> inheritMineTypes(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	std::vector<CTreasureInfo> inheritTreasureInfo(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);

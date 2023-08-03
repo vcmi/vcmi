@@ -44,6 +44,8 @@ public:
 	/// Minimap border
 	static const SDL_Color PURPLE;
 
+	static const SDL_Color CYAN;
+
 	static const SDL_Color BLACK;
 
 	static const SDL_Color TRANSPARENCY;

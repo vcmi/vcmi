@@ -26,7 +26,6 @@
 #include <vcmi/spells/Service.h>
 
 #include "VCMI_Lib.h"
-#include "mapObjects/CObjectClassesHandler.h"//todo: remove
 #include "CArtHandler.h"//todo: remove
 #include "CCreatureHandler.h"//todo: remove
 #include "spells/CSpellHandler.h" //todo: remove
@@ -34,10 +33,14 @@
 #include "StringConstants.h"
 #include "CGeneralTextHandler.h"
 #include "CModHandler.h"//todo: remove
+#include "TerrainHandler.h" //TODO: remove
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+const HeroTypeID HeroTypeID::NONE = HeroTypeID(-1);
+const ObjectInstanceID ObjectInstanceID::NONE = ObjectInstanceID(-1);
 
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
 const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER = SlotID(-3);
@@ -64,7 +67,7 @@ si32 HeroTypeID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", identifier);
 	if(rawId)
-		return rawId.get();
+		return rawId.value();
 	else
 		return -1;
 }
@@ -76,7 +79,7 @@ std::string HeroTypeID::encode(const si32 index)
 
 const CArtifact * ArtifactID::toArtifact() const
 {
-	return VLC->arth->objects.at(*this);
+	return dynamic_cast<const CArtifact*>(toArtifact(VLC->artifacts()));
 }
 
 const Artifact * ArtifactID::toArtifact(const ArtifactService * service) const
@@ -88,7 +91,7 @@ si32 ArtifactID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "artifact", identifier);
 	if(rawId)
-		return rawId.get();
+		return rawId.value();
 	else
 		return -1;
 }
@@ -112,7 +115,7 @@ si32 CreatureID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", identifier);
 	if(rawId)
-		return rawId.get();
+		return rawId.value();
 	else
 		return -1;
 }
@@ -141,7 +144,7 @@ si32 SpellID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "spell", identifier);
 	if(rawId)
-		return rawId.get();
+		return rawId.value();
 	else
 		return -1;
 }
@@ -187,7 +190,8 @@ std::string PlayerColor::getStrCap(bool L10n) const
 	return ret;
 }
 
-const FactionID FactionID::ANY = FactionID(-1);
+const FactionID FactionID::NONE = FactionID(-2);
+const FactionID FactionID::DEFAULT = FactionID(-1);
 const FactionID FactionID::CASTLE = FactionID(0);
 const FactionID FactionID::RAMPART = FactionID(1);
 const FactionID FactionID::TOWER = FactionID(2);
@@ -201,16 +205,41 @@ const FactionID FactionID::NEUTRAL = FactionID(9);
 
 si32 FactionID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "faction", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), entityType(), identifier);
 	if(rawId)
-		return rawId.get();
+		return rawId.value();
 	else
-		return -1;
+		return FactionID::DEFAULT;
 }
 
 std::string FactionID::encode(const si32 index)
 {
 	return VLC->factions()->getByIndex(index)->getJsonKey();
+}
+
+std::string FactionID::entityType()
+{
+	return "faction";
+}
+
+
+si32 TerrainID::decode(const std::string & identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), entityType(), identifier);
+	if(rawId)
+		return rawId.value();
+	else
+		return static_cast<si32>(ETerrainId::NONE);
+}
+
+std::string TerrainID::encode(const si32 index)
+{
+	return VLC->terrainTypeHandler->getByIndex(index)->getJsonKey();
+}
+
+std::string TerrainID::entityType()
+{
+	return "terrain";
 }
 
 std::ostream & operator<<(std::ostream & os, const EActionType actionType)
@@ -276,44 +305,14 @@ bool operator<(const BattleField & l, const BattleField & r)
 	return l.num < r.num;
 }
 
-BattleField::operator std::string() const
-{
-	return getInfo()->identifier;
-}
-
 const BattleFieldInfo * BattleField::getInfo() const
 {
 	return VLC->battlefields()->getById(*this);
 }
 
-BattleField BattleField::fromString(const std::string & identifier)
-{
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "battlefield", identifier);
-
-	if(rawId)
-		return BattleField(rawId.get());
-	else
-		return BattleField::NONE;
-}
-		
 const ObstacleInfo * Obstacle::getInfo() const
 {
 	return VLC->obstacles()->getById(*this);
-}
-
-Obstacle::operator std::string() const
-{
-	return getInfo()->identifier;
-}
-
-Obstacle Obstacle::fromString(const std::string & identifier)
-{
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "obstacle", identifier);
-
-	if(rawId)
-		return Obstacle(rawId.get());
-	else
-		return Obstacle(-1);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -9,6 +9,8 @@
  */
 #include "StdInc.h"
 #include "BattleInfo.h"
+#include "bonuses/Limiters.h"
+#include "bonuses/Updaters.h"
 #include "../CStack.h"
 #include "../CHeroHandler.h"
 #include "../NetPacks.h"
@@ -24,7 +26,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 ///BattleInfo
-std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const CStack * stack)
+std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const battle::Unit * stack)
 {
 	auto reachability = getReachability(stack);
 
@@ -47,12 +49,11 @@ std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, Ba
 
 void BattleInfo::calculateCasualties(std::map<ui32,si32> * casualties) const
 {
-	for(const auto & elem : stacks) //setting casualties
+	for(const auto & st : stacks) //setting casualties
 	{
-		const CStack * const st = elem;
 		si32 killed = st->getKilled();
 		if(killed > 0)
-			casualties[st->side][st->getCreature()->getId()] += killed;
+			casualties[st->unitSide()][st->creatureId()] += killed;
 	}
 }
 
@@ -205,11 +206,13 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	curB->battlefieldType = battlefieldType;
 	curB->round = -2;
 	curB->activeStack = -1;
+	curB->creatureBank = creatureBank;
+	curB->replayAllowed = false;
 
 	if(town)
 	{
 		curB->town = town;
-		curB->terrainType = (*VLC->townh)[town->subID]->nativeTerrain;
+		curB->terrainType = town->getNativeTerrain();
 	}
 	else
 	{
@@ -376,7 +379,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 
 			if(nullptr != warMachineArt)
 			{
-				CreatureID cre = warMachineArt->artType->warMachine;
+				CreatureID cre = warMachineArt->artType->getWarMachine();
 
 				if(cre != CreatureID::NONE)
 					curB->generateNewStack(curB->nextUnitId(), CStackBasicDescriptor(cre, 1), side, SlotID::WAR_MACHINES_SLOT, hex);
@@ -413,12 +416,13 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 		for(auto i = armies[side]->Slots().begin(); i != armies[side]->Slots().end(); i++, k++)
 		{
 			std::vector<int> *formationVector = nullptr;
-			if(creatureBank)
-				formationVector = &creBankFormations[side][formationNo];
-			else if(armies[side]->formation)
+			if(armies[side]->formation == EArmyFormation::TIGHT )
 				formationVector = &tightFormations[side][formationNo];
 			else
 				formationVector = &looseFormations[side][formationNo];
+
+			if(creatureBank)
+				formationVector = &creBankFormations[side][formationNo];
 
 			BattleHex pos = (k < formationVector->size() ? formationVector->at(k) : 0);
 			if(creatureBank && i->second->type->isDoubleWide())
@@ -451,12 +455,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 			curB->generateNewStack(curB->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), 1, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_BOTTOM_TOWER);
 		}
 
-		//moat
-		auto moat = std::make_shared<MoatObstacle>();
-		moat->ID = curB->town->subID;
-		moat->obstacleType = CObstacleInstance::MOAT;
-		moat->uniqueID = static_cast<si32>(curB->obstacles.size());
-		curB->obstacles.push_back(moat);
+		//Moat generating is done on server
 	}
 
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
@@ -475,9 +474,9 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	//native terrain bonuses
 	static auto nativeTerrain = std::make_shared<CreatureTerrainLimiter>();
 	
-	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::STACKS_SPEED, Bonus::TERRAIN_NATIVE, 1, 0, 0)->addLimiter(nativeTerrain));
-	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::PRIMARY_SKILL, Bonus::TERRAIN_NATIVE, 1, 0, PrimarySkill::ATTACK)->addLimiter(nativeTerrain));
-	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::PRIMARY_SKILL, Bonus::TERRAIN_NATIVE, 1, 0, PrimarySkill::DEFENSE)->addLimiter(nativeTerrain));
+	curB->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::STACKS_SPEED, BonusSource::TERRAIN_NATIVE, 1, 0, 0)->addLimiter(nativeTerrain));
+	curB->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, 0, PrimarySkill::ATTACK)->addLimiter(nativeTerrain));
+	curB->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, 0, PrimarySkill::DEFENSE)->addLimiter(nativeTerrain));
 	//////////////////////////////////////////////////////////////////////////
 
 	//tactics
@@ -491,8 +490,8 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	{
 		if(heroes[i])
 		{
-			battleRepositionHex[i] += heroes[i]->valOfBonuses(Selector::type()(Bonus::BEFORE_BATTLE_REPOSITION));
-			battleRepositionHexBlock[i] += heroes[i]->valOfBonuses(Selector::type()(Bonus::BEFORE_BATTLE_REPOSITION_BLOCK));
+			battleRepositionHex[i] += heroes[i]->valOfBonuses(Selector::type()(BonusType::BEFORE_BATTLE_REPOSITION));
+			battleRepositionHexBlock[i] += heroes[i]->valOfBonuses(Selector::type()(BonusType::BEFORE_BATTLE_REPOSITION_BLOCK));
 		}
 	}
 	int tacticsSkillDiffAttacker = battleRepositionHex[BattleSide::ATTACKER] - battleRepositionHexBlock[BattleSide::DEFENDER];
@@ -566,7 +565,15 @@ BattleInfo::BattleInfo():
 	setNodeType(BATTLE);
 }
 
-BattleInfo::~BattleInfo() = default;
+BattleInfo::~BattleInfo()
+{
+	for (auto & elem : stacks)
+		delete elem;
+
+	for(int i = 0; i < 2; i++)
+		if(auto * _armyObj = battleGetArmyObject(i))
+			_armyObj->battle = nullptr;
+}
 
 int32_t BattleInfo::getActiveStackID() const
 {
@@ -658,7 +665,7 @@ int32_t BattleInfo::getEnchanterCounter(ui8 side) const
 	return sides.at(side).enchanterCounter;
 }
 
-const IBonusBearer * BattleInfo::asBearer() const
+const IBonusBearer * BattleInfo::getBonusBearer() const
 {
 	return this;
 }
@@ -740,6 +747,9 @@ void BattleInfo::moveUnit(uint32_t id, BattleHex destination)
 		return;
 	}
 	sta->position = destination;
+	//Bonuses can be limited by unit placement, so, change tree version 
+	//to force updating a bonus. TODO: update version only when such bonuses are present
+	CBonusSystemNode::treeHasChanged();
 }
 
 void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta)
@@ -794,7 +804,7 @@ void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t health
 		auto selector = [](const Bonus * b)
 		{
 			//Special case: DISRUPTING_RAY is absolutely permanent
-			return b->source == Bonus::SPELL_EFFECT && b->sid != SpellID::DISRUPTING_RAY;
+			return b->source == BonusSource::SPELL_EFFECT && b->sid != SpellID::DISRUPTING_RAY;
 		};
 		changedStack->removeBonusesRecursive(selector);
 	}
@@ -920,7 +930,7 @@ uint32_t BattleInfo::nextUnitId() const
 
 void BattleInfo::addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool forceAdd)
 {
-	if(forceAdd || !sta->hasBonus(Selector::source(Bonus::SPELL_EFFECT, value.sid).And(Selector::typeSubtype(value.type, value.subtype))))
+	if(forceAdd || !sta->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, value.sid).And(Selector::typeSubtype(value.type, value.subtype))))
 	{
 		//no such effect or cumulative - add new
 		logBonus->trace("%s receives a new bonus: %s", sta->nodeName(), value.Description());

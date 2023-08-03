@@ -15,17 +15,21 @@
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/MouseButton.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
-#include "../../lib/mapping/CMap.h"
+#include "../../lib/mapping/CMapHeader.h"
+#include "../../lib/mapping/MapFormat.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/rmg/CRmgTemplateStorage.h"
@@ -102,12 +106,12 @@ RandomMapTab::RandomMapTab():
 	//new callbacks available only from mod
 	addCallback("templateSelection", [&](int)
 	{
-		GH.pushIntT<TemplatesDropBox>(*this, int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()});
+		GH.windows().createAndPushWindow<TemplatesDropBox>(*this, int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()});
 	});
 	
 	addCallback("teamAlignments", [&](int)
 	{
-		GH.pushIntT<TeamAlignmentsWidget>(*this);
+		GH.windows().createAndPushWindow<TeamAlignmentsWidget>(*this);
 	});
 	
 	for(auto road : VLC->roadTypeHandler->objects)
@@ -115,11 +119,10 @@ RandomMapTab::RandomMapTab():
 		std::string cbRoadType = "selectRoad_" + road->getJsonKey();
 		addCallback(cbRoadType, [&, road](bool on)
 		{
-			mapGenOptions->setRoadEnabled(road->getJsonKey(), on);
+			mapGenOptions->setRoadEnabled(road->getId(), on);
 			updateMapInfoByHost();
 		});
 	}
-	
 	
 	build(config);
 	
@@ -135,7 +138,7 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo = std::make_shared<CMapInfo>();
 	mapInfo->isRandomMap = true;
 	mapInfo->mapHeader = std::make_unique<CMapHeader>();
-	mapInfo->mapHeader->version = EMapFormat::SOD;
+	mapInfo->mapHeader->version = EMapFormat::VCMI;
 	mapInfo->mapHeader->name = CGI->generaltexth->allTexts[740];
 	mapInfo->mapHeader->description = CGI->generaltexth->allTexts[741];
 	mapInfo->mapHeader->difficulty = 1; // Normal
@@ -303,13 +306,13 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		if(tmpl)
 			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL);
 		else
-			w->addTextOverlay(readText(variables["defaultTemplate"]), EFonts::FONT_SMALL);
+			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL);
 	}
 	for(auto r : VLC->roadTypeHandler->objects)
 	{
 		if(auto w = widget<CToggleButton>(r->getJsonKey()))
 		{
-			w->setSelected(opts->isRoadEnabled(r->getJsonKey()));
+			w->setSelected(opts->isRoadEnabled(r->getId()));
 		}
 	}
 }
@@ -323,7 +326,7 @@ void RandomMapTab::setTemplate(const CRmgTemplate * tmpl)
 		if(tmpl)
 			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL);
 		else
-			w->addTextOverlay(readText(variables["defaultTemplate"]), EFonts::FONT_SMALL);
+			w->addTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL);
 	}
 	updateMapInfoByHost();
 }
@@ -367,7 +370,7 @@ TemplatesDropBox::ListItem::ListItem(const JsonNode & config, TemplatesDropBox &
 		pos.w = w->pos.w;
 		pos.h = w->pos.h;
 	}
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 }
 
 void TemplatesDropBox::ListItem::updateItem(int idx, const CRmgTemplate * _item)
@@ -384,7 +387,7 @@ void TemplatesDropBox::ListItem::updateItem(int idx, const CRmgTemplate * _item)
 			if(idx)
 				w->setText("");
 			else
-				w->setText(readText(dropBox.variables["defaultTemplate"]));
+				w->setText(readText(dropBox.variables["randomTemplate"]));
 		}
 	}
 }
@@ -396,30 +399,24 @@ void TemplatesDropBox::ListItem::hover(bool on)
 	if(h && w)
 	{
 		if(w->getText().empty())
-		{
-			hovered = false;
 			h->visible = false;
-		}
 		else
-		{
 			h->visible = on;
-		}
 	}
 	redraw();
 }
 
-void TemplatesDropBox::ListItem::clickLeft(tribool down, bool previousState)
+void TemplatesDropBox::ListItem::clickPressed(const Point & cursorPosition)
 {
-	if(down && hovered)
-	{
+	if(isHovered())
 		dropBox.setTemplate(item);
-	}
-	else 
-	{
-		dropBox.clickLeft(true, true);
-	}
 }
 
+void TemplatesDropBox::ListItem::clickReleased(const Point & cursorPosition)
+{
+	dropBox.clickPressed(cursorPosition);
+	dropBox.clickReleased(cursorPosition);
+}
 
 TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
 	InterfaceObjectConfigurable(LCLICK | HOVER),
@@ -448,6 +445,11 @@ TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
 	{
 		w->setAmount(curItems.size());
 	}
+
+	//FIXME: this should be done by InterfaceObjectConfigurable, but might have side-effects
+	pos = children.front()->pos;
+	for (auto const & child : children)
+		pos = pos.include(child->pos);
 	
 	updateListItems();
 }
@@ -468,23 +470,20 @@ void TemplatesDropBox::sliderMove(int slidPos)
 	redraw();
 }
 
-void TemplatesDropBox::hover(bool on)
+bool TemplatesDropBox::receiveEvent(const Point & position, int eventType) const
 {
-	hovered = on;
+	if (eventType == LCLICK)
+		return true; // we want drop box to close when clicking outside drop box borders
+
+	return CIntObject::receiveEvent(position, eventType);
 }
 
-void TemplatesDropBox::clickLeft(tribool down, bool previousState)
+void TemplatesDropBox::clickPressed(const Point & cursorPosition)
 {
-	if(down && !hovered)
+	if (!pos.isInside(cursorPosition))
 	{
-		auto w = widget<CSlider>("slider");
-
-		// pop the interface only if the mouse is not clicking on the slider
-		if (!w || !w->mouseState(MouseButton::LEFT))
-		{
-			assert(GH.topInt().get() == this);
-			GH.popInt(GH.topInt());
-		}
+		assert(GH.windows().isTopWindow(this));
+		GH.windows().popWindows(1);
 	}
 }
 
@@ -511,8 +510,8 @@ void TemplatesDropBox::updateListItems()
 void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
 {
 	randomMapTab.setTemplate(tmpl);
-	assert(GH.topInt().get() == this);
-	GH.popInt(GH.topInt());
+	assert(GH.windows().isTopWindow(this));
+	GH.windows().popWindows(1);
 }
 
 TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
@@ -547,14 +546,14 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 			randomMapTab.obtainMapGenOptions().setPlayerTeam(PlayerColor(plId), TeamID(players[plId]->getSelected()));
 		}
 		randomMapTab.updateMapInfoByHost();
-		assert(GH.topInt().get() == this);
-		GH.popInt(GH.topInt());
+		assert(GH.windows().isTopWindow(this));
+		GH.windows().popWindows(1);
 	});
 	
 	addCallback("cancel", [&](int)
 	{
-		assert(GH.topInt().get() == this);
-		GH.popInt(GH.topInt());
+		assert(GH.windows().isTopWindow(this));
+		GH.windows().popWindows(1);
 	});
 	
 	build(config);

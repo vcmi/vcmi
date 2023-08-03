@@ -11,11 +11,8 @@
 
 #include "battle/BattleAction.h"
 #include "IGameEventsReceiver.h"
-#include "CGameStateFwd.h"
 
 #include "spells/ViewSpellInt.h"
-
-#include "mapObjects/CObjectHandler.h"
 
 class CBattleCallback;
 class CCallback;
@@ -68,6 +65,7 @@ namespace scripting
 }
 #endif
 
+using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 
 class DLL_LINKAGE CBattleGameInterface : public IBattleEventsReceiver
 {
@@ -80,9 +78,8 @@ public:
 	virtual void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB){};
 
 	//battle call-ins
-	virtual BattleAction activeStack(const CStack * stack)=0; //called when it's turn of that stack
-	virtual void yourTacticPhase(int distance){}; //called when interface has opportunity to use Tactics skill -> use cb->battleMakeTacticAction from this function
-	virtual void forceEndTacticPhase(){}; //force the tatic phase to end to clean up the tactic phase thread
+	virtual void activeStack(const CStack * stack)=0; //called when it's turn of that stack
+	virtual void yourTacticPhase(int distance)=0; //called when interface has opportunity to use Tactics skill -> use cb->battleMakeTacticAction from this function
 };
 
 /// Central class for managing human player / AI interface logic
@@ -110,9 +107,9 @@ public:
 
 	virtual void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain){};
 
-	virtual boost::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
+	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
 	{
-		return boost::none;
+		return std::nullopt;
 	}
 
 	virtual void saveGame(BinarySerializer & h, const int version) = 0;
@@ -134,7 +131,6 @@ class DLL_LINKAGE CGlobalAI : public CGameInterface // AI class (to derivate)
 public:
 	std::shared_ptr<Environment> env;
 	CGlobalAI();
-	virtual BattleAction activeStack(const CStack * stack) override;
 };
 
 //class to  be inherited by adventure-only AIs, it cedes battle actions to given battle-AI
@@ -149,11 +145,11 @@ public:
 	virtual std::string getBattleAIName() const = 0; //has to return name of the battle AI to be used
 
 	//battle interface
-	virtual BattleAction activeStack(const CStack * stack) override;
+	virtual void activeStack(const CStack * stack) override;
 	virtual void yourTacticPhase(int distance) override;
 	virtual void battleNewRound(int round) override;
 	virtual void battleCatapultAttacked(const CatapultAttack & ca) override;
-	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override;
+	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed) override;
 	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged) override;
 	virtual void actionStarted(const BattleAction &action) override;
 	virtual void battleNewRoundFirst(int round) override;
@@ -163,7 +159,7 @@ public:
 	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
 	virtual void battleAttack(const BattleAttack *ba) override;
 	virtual void battleSpellCast(const BattleSpellCast *sc) override;
-	virtual void battleEnd(const BattleResult *br) override;
+	virtual void battleEnd(const BattleResult *br, QueryID queryID) override;
 	virtual void battleUnitsChanged(const std::vector<UnitChanges> & units) override;
 
 	virtual void saveGame(BinarySerializer & h, const int version) override;

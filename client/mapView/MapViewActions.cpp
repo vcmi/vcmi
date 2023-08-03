@@ -15,30 +15,26 @@
 #include "MapViewModel.h"
 
 #include "../CGameInfo.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
+#include "../gui/MouseButton.h"
+
+#include "../CPlayerInterface.h"
+#include "../adventureMap/CInGameConsole.h"
 
 #include "../../lib/CConfigHandler.h"
 
 MapViewActions::MapViewActions(MapView & owner, const std::shared_ptr<MapViewModel> & model)
 	: model(model)
 	, owner(owner)
-	, isSwiping(false)
+	, pinchZoomFactor(1.0)
+	, dragActive(false)
 {
 	pos.w = model->getPixelsVisibleDimensions().x;
 	pos.h = model->getPixelsVisibleDimensions().y;
 
-	addUsedEvents(LCLICK | RCLICK | MCLICK | HOVER | MOVE);
-}
-
-bool MapViewActions::swipeEnabled() const
-{
-#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
-	return settings["general"]["swipe"].Bool();
-#else
-	return settings["general"]["swipeDesktop"].Bool();
-#endif
+	addUsedEvents(LCLICK | SHOW_POPUP | DRAG | GESTURE | HOVER | MOVE | WHEEL);
 }
 
 void MapViewActions::setContext(const std::shared_ptr<IMapRendererContext> & context)
@@ -46,95 +42,86 @@ void MapViewActions::setContext(const std::shared_ptr<IMapRendererContext> & con
 	this->context = context;
 }
 
-void MapViewActions::clickLeft(tribool down, bool previousState)
+void MapViewActions::clickPressed(const Point & cursorPosition)
 {
-	if(indeterminate(down))
-		return;
-
-	if(swipeEnabled())
+	if (!settings["adventure"]["leftButtonDrag"].Bool())
 	{
-		if(handleSwipeStateChange(static_cast<bool>(down)))
-		{
-			return; // if swipe is enabled, we don't process "down" events and wait for "up" (to make sure this wasn't a swiping gesture)
-		}
-	}
-	else
-	{
-		if(down == false)
-			return;
-	}
+		int3 tile = model->getTileAtPoint(cursorPosition - pos.topLeft());
 
-	int3 tile = model->getTileAtPoint(GH.getCursorPosition() - pos.topLeft());
-
-	if(context->isInMap(tile))
-		adventureInt->onTileLeftClicked(tile);
+		if(context->isInMap(tile))
+			adventureInt->onTileLeftClicked(tile);
+	}
 }
 
-void MapViewActions::clickRight(tribool down, bool previousState)
+void MapViewActions::clickReleased(const Point & cursorPosition)
 {
-	if(isSwiping)
-		return;
+	if (!dragActive && settings["adventure"]["leftButtonDrag"].Bool())
+	{
+		int3 tile = model->getTileAtPoint(cursorPosition - pos.topLeft());
 
-	int3 tile = model->getTileAtPoint(GH.getCursorPosition() - pos.topLeft());
+		if(context->isInMap(tile))
+			adventureInt->onTileLeftClicked(tile);
+	}
+	dragActive = false;
+	dragDistance = Point(0,0);
+}
 
-	if(down && context->isInMap(tile))
+void MapViewActions::clickCancel(const Point & cursorPosition)
+{
+	dragActive = false;
+	dragDistance = Point(0,0);
+}
+
+void MapViewActions::showPopupWindow(const Point & cursorPosition)
+{
+	int3 tile = model->getTileAtPoint(cursorPosition - pos.topLeft());
+
+	if(context->isInMap(tile))
 		adventureInt->onTileRightClicked(tile);
 }
 
-void MapViewActions::clickMiddle(tribool down, bool previousState)
-{
-	handleSwipeStateChange(static_cast<bool>(down));
-}
-
-void MapViewActions::mouseMoved(const Point & cursorPosition)
+void MapViewActions::mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
 	handleHover(cursorPosition);
-	handleSwipeMove(cursorPosition);
 }
 
-void MapViewActions::handleSwipeMove(const Point & cursorPosition)
+void MapViewActions::wheelScrolled(int distance)
 {
-	// unless swipe is enabled, swipe move only works with middle mouse button
-	if(!swipeEnabled() && !GH.isMouseButtonPressed(MouseButton::MIDDLE))
-		return;
-
-	// on mobile platforms with enabled swipe any button is enough
-	if(swipeEnabled() && (!GH.isMouseButtonPressed() || GH.multifinger))
-		return;
-
-	if(!isSwiping)
-	{
-		static constexpr int touchSwipeSlop = 16;
-		Point distance = (cursorPosition - swipeInitialRealPos);
-
-		// try to distinguish if this touch was meant to be a swipe or just fat-fingering press
-		if(std::abs(distance.x) + std::abs(distance.y) > touchSwipeSlop)
-			isSwiping = true;
-	}
-
-	if(isSwiping)
-	{
-		Point swipeTargetPosition = swipeInitialViewPos + swipeInitialRealPos - cursorPosition;
-		owner.onMapSwiped(swipeTargetPosition);
-	}
+	adventureInt->hotkeyZoom(distance * 4);
 }
 
-bool MapViewActions::handleSwipeStateChange(bool btnPressed)
+void MapViewActions::mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
-	if(btnPressed)
-	{
-		swipeInitialRealPos = GH.getCursorPosition();
-		swipeInitialViewPos = model->getMapViewCenter();
-		return true;
-	}
+	dragDistance += lastUpdateDistance;
 
-	if(isSwiping) // only accept this touch if it wasn't a swipe
-	{
-		owner.onMapSwipeEnded();
-		isSwiping = false;
-		return true;
-	}
-	return false;
+	if (dragDistance.length() > 16)
+		dragActive = true;
+
+	if (dragActive && settings["adventure"]["leftButtonDrag"].Bool())
+		owner.onMapSwiped(lastUpdateDistance);
+}
+
+void MapViewActions::gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance)
+{
+	owner.onMapSwiped(lastUpdateDistance);
+}
+
+void MapViewActions::gesturePinch(const Point & centerPosition, double lastUpdateFactor)
+{
+	double newZoom = pinchZoomFactor * lastUpdateFactor;
+
+	int newZoomSteps = std::round(std::log(newZoom) / std::log(1.01));
+	int oldZoomSteps = std::round(std::log(pinchZoomFactor) / std::log(1.01));
+
+	if (newZoomSteps != oldZoomSteps)
+		adventureInt->hotkeyZoom(newZoomSteps - oldZoomSteps);
+
+	pinchZoomFactor = newZoom;
+}
+
+void MapViewActions::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
+{
+	pinchZoomFactor = 1.0;
 }
 
 void MapViewActions::handleHover(const Point & cursorPosition)
@@ -154,7 +141,7 @@ void MapViewActions::hover(bool on)
 {
 	if(!on)
 	{
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 		CCS->curh->set(Cursor::Map::POINTER);
 	}
 }

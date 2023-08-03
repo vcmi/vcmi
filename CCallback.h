@@ -33,6 +33,7 @@ class IBattleEventsReceiver;
 class IGameEventsReceiver;
 struct ArtifactLocation;
 class BattleStateInfoForRetreat;
+class IMarket;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -49,12 +50,13 @@ class IBattleCallback
 public:
 	virtual ~IBattleCallback() = default;
 
-	bool waitTillRealize; //if true, request functions will return after they are realized by server
-	bool unlockGsWhenWaiting;//if true after sending each request, gs mutex will be unlocked so the changes can be applied; NOTICE caller must have gs mx locked prior to any call to actiob callback!
+	bool waitTillRealize = false; //if true, request functions will return after they are realized by server
+	bool unlockGsWhenWaiting = false;//if true after sending each request, gs mutex will be unlocked so the changes can be applied; NOTICE caller must have gs mx locked prior to any call to actiob callback!
 	//battle
-	virtual int battleMakeAction(const BattleAction * action) = 0;//for casting spells by hero - DO NOT use it for moving active stack
-	virtual bool battleMakeTacticAction(BattleAction * action) = 0; // performs tactic phase actions
-	virtual boost::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) = 0;
+	virtual void battleMakeSpellAction(const BattleAction & action) = 0;
+	virtual void battleMakeUnitAction(const BattleAction & action) = 0;
+	virtual void battleMakeTacticAction(const BattleAction & action) = 0;
+	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) = 0;
 };
 
 class IGameActionCallback
@@ -73,8 +75,8 @@ public:
 	virtual bool upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID=CreatureID::NONE)=0; //if newID==-1 then best possible upgrade will be made
 	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
 
-	virtual void trade(const CGObjectInstance * market, EMarketMode::EMarketMode mode, ui32 id1, ui32 id2, ui32 val1, const CGHeroInstance * hero = nullptr)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
-	virtual void trade(const CGObjectInstance * market, EMarketMode::EMarketMode mode, const std::vector<ui32> & id1, const std::vector<ui32> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero = nullptr)=0;
+	virtual void trade(const IMarket * market, EMarketMode::EMarketMode mode, ui32 id1, ui32 id2, ui32 val1, const CGHeroInstance * hero = nullptr)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
+	virtual void trade(const IMarket * market, EMarketMode::EMarketMode mode, const std::vector<ui32> & id1, const std::vector<ui32> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero = nullptr)=0;
 
 	virtual int selectionMade(int selection, QueryID queryID) =0;
 	virtual int sendQueryReply(const JsonNode & reply, QueryID queryID) =0;
@@ -85,6 +87,7 @@ public:
 	//virtual bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)=0; //swaps artifacts between two given heroes
 	virtual bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2)=0;
 	virtual bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)=0;
+	virtual void eraseArtifactByClient(const ArtifactLocation & al)=0;
 	virtual bool dismissCreature(const CArmedInstance *obj, SlotID stackPos)=0;
 	virtual void endTurn()=0;
 	virtual void buyArtifact(const CGHeroInstance *hero, ArtifactID aid)=0; //used to buy artifacts in towns (including spell book in the guild and war machines in blacksmith)
@@ -112,10 +115,11 @@ protected:
 	CClient *cl;
 
 public:
-	CBattleCallback(boost::optional<PlayerColor> Player, CClient *C);
-	int battleMakeAction(const BattleAction * action) override;//for casting spells by hero - DO NOT use it for moving active stack
-	bool battleMakeTacticAction(BattleAction * action) override; // performs tactic phase actions
-	boost::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
+	CBattleCallback(std::optional<PlayerColor> Player, CClient * C);
+	void battleMakeSpellAction(const BattleAction & action) override;//for casting spells by hero - DO NOT use it for moving active stack
+	void battleMakeUnitAction(const BattleAction & action) override;
+	void battleMakeTacticAction(const BattleAction & action) override; // performs tactic phase actions
+	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getContextPool() const override;
@@ -130,7 +134,7 @@ class CCallback : public CPlayerSpecificInfoCallback,
 	public CBattleCallback
 {
 public:
-	CCallback(CGameState * GS, boost::optional<PlayerColor> Player, CClient *C);
+	CCallback(CGameState * GS, std::optional<PlayerColor> Player, CClient * C);
 	virtual ~CCallback();
 
 	//client-specific functionalities (pathfinding)
@@ -159,6 +163,7 @@ public:
 	bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2) override;
 	bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo) override;
 	void bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap) override;
+	void eraseArtifactByClient(const ArtifactLocation & al) override;
 	bool buildBuilding(const CGTownInstance *town, BuildingID buildingID) override;
 	void recruitCreatures(const CGDwelling * obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level=-1) override;
 	bool dismissCreature(const CArmedInstance *obj, SlotID stackPos) override;
@@ -166,8 +171,8 @@ public:
 	void endTurn() override;
 	void swapGarrisonHero(const CGTownInstance *town) override;
 	void buyArtifact(const CGHeroInstance *hero, ArtifactID aid) override;
-	void trade(const CGObjectInstance * market, EMarketMode::EMarketMode mode, ui32 id1, ui32 id2, ui32 val1, const CGHeroInstance * hero = nullptr) override;
-	void trade(const CGObjectInstance * market, EMarketMode::EMarketMode mode, const std::vector<ui32> & id1, const std::vector<ui32> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero = nullptr) override;
+	void trade(const IMarket * market, EMarketMode::EMarketMode mode, ui32 id1, ui32 id2, ui32 val1, const CGHeroInstance * hero = nullptr) override;
+	void trade(const IMarket * market, EMarketMode::EMarketMode mode, const std::vector<ui32> & id1, const std::vector<ui32> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero = nullptr) override;
 	void setFormation(const CGHeroInstance * hero, bool tight) override;
 	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero) override;
 	void save(const std::string &fname) override;

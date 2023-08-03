@@ -27,6 +27,7 @@ namespace Goals
 
 	public:
 		ArmyUpgrade(const AIPath & upgradePath, const CGObjectInstance * upgrader, const ArmyUpgradeInfo & upgrade);
+		ArmyUpgrade(const CGHeroInstance * targetMain, const CGObjectInstance * upgrader, const ArmyUpgradeInfo & upgrade);
 
 		virtual bool operator==(const ArmyUpgrade & other) const override;
 		virtual std::string toString() const override;

@@ -539,7 +539,6 @@ bool Animation::loadFrame(size_t frame, size_t group)
 				return true;
 			}
 		}
-		return false;
 		// still here? image is missing
 
 		printError(frame, group, "LoadFrame");
@@ -547,7 +546,14 @@ bool Animation::loadFrame(size_t frame, size_t group)
 	}
 	else //load from separate file
 	{
-		images[group][frame] = getFromExtraDef(source[group][frame]["file"].String());;
+		auto img = getFromExtraDef(source[group][frame]["file"].String());
+		if(!img)
+		{
+			auto bitmap = BitmapHandler::loadBitmap(source[group][frame]["file"].String());
+			img.reset(new QImage(bitmap));
+		}
+
+		images[group][frame] = img;
 		return true;
 	}
 	return false;
@@ -577,7 +583,6 @@ void Animation::init()
 			source[defEntry.first].resize(defEntry.second);
 	}
 
-#if 0 //this code is not used but maybe requred if there will be configurable sprites
 	ResourceID resID(std::string("SPRITES/") + name, EResType::TEXT);
 
 	//if(vstd::contains(graphics->imageLists, resID.getName()))
@@ -593,9 +598,47 @@ void Animation::init()
 
 		const JsonNode config((char*)textData.get(), stream->getSize());
 
-		//initFromJson(config);
+		initFromJson(config);
 	}
-#endif
+}
+
+void Animation::initFromJson(const JsonNode & config)
+{
+	std::string basepath;
+	basepath = config["basepath"].String();
+
+	JsonNode base(JsonNode::JsonType::DATA_STRUCT);
+	base["margins"] = config["margins"];
+	base["width"] = config["width"];
+	base["height"] = config["height"];
+
+	for(const JsonNode & group : config["sequences"].Vector())
+	{
+		size_t groupID = group["group"].Integer();//TODO: string-to-value conversion("moving" -> MOVING)
+		source[groupID].clear();
+
+		for(const JsonNode & frame : group["frames"].Vector())
+		{
+			JsonNode toAdd(JsonNode::JsonType::DATA_STRUCT);
+			JsonUtils::inherit(toAdd, base);
+			toAdd["file"].String() = basepath + frame.String();
+			source[groupID].push_back(toAdd);
+		}
+	}
+
+	for(const JsonNode & node : config["images"].Vector())
+	{
+		size_t group = node["group"].Integer();
+		size_t frame = node["frame"].Integer();
+
+		if (source[group].size() <= frame)
+			source[group].resize(frame+1);
+
+		JsonNode toAdd(JsonNode::JsonType::DATA_STRUCT);
+		JsonUtils::inherit(toAdd, base);
+		toAdd["file"].String() = basepath + node["file"].String();
+		source[group][frame] = toAdd;
+	}
 }
 
 void Animation::printError(size_t frame, size_t group, std::string type) const

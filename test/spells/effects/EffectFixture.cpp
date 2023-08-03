@@ -72,9 +72,12 @@ void EffectFixture::setupEffect(Registry * registry, const JsonNode & effectConf
 
 void EffectFixture::setUp()
 {
+#if SCRIPTING_ENABLED
 	pool = std::make_shared<PoolMock>();
-
 	battleFake = std::make_shared<battle::BattleFake>(pool);
+#else
+	battleFake = std::make_shared<battle::BattleFake>();
+#endif
 	battleFake->setUp();
 
 	EXPECT_CALL(mechanicsMock, game()).WillRepeatedly(Return(&gameMock));

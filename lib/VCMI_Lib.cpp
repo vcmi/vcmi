@@ -14,9 +14,7 @@
 #include "CArtHandler.h"
 #include "CBonusTypeHandler.h"
 #include "CCreatureHandler.h"
-#include "mapObjects/CObjectClassesHandler.h"
 #include "CHeroHandler.h"
-#include "mapObjects/CObjectHandler.h"
 #include "CTownHandler.h"
 #include "CConfigHandler.h"
 #include "RoadHandler.h"
@@ -34,6 +32,8 @@
 #include "filesystem/Filesystem.h"
 #include "CConsoleHandler.h"
 #include "rmg/CRmgTemplateStorage.h"
+#include "mapObjectConstructors/CObjectClassesHandler.h"
+#include "mapObjects/CObjectHandler.h"
 #include "mapping/CMapEditManager.h"
 #include "ScriptHandler.h"
 #include "BattleFieldHandler.h"
@@ -48,17 +48,10 @@ DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential, bool 
 {
 	console = Console;
 	VLC = new LibClasses();
-	try
-	{
-		VLC->loadFilesystem(extractArchives);
-		settings.init();
-		VLC->loadModFilesystem(onlyEssential);
-	}
-	catch(...)
-	{
-		handleException();
-		throw;
-	}
+	VLC->loadFilesystem(extractArchives);
+	settings.init();
+	VLC->loadModFilesystem(onlyEssential);
+
 }
 
 DLL_LINKAGE void loadDLLClasses(bool onlyEssential)

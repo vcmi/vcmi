@@ -85,8 +85,8 @@ void CAmmo::serializeJson(JsonSerializeFormat & handler)
 
 ///CShots
 CShots::CShots(const battle::Unit * Owner)
-	: CAmmo(Owner, Selector::type()(Bonus::SHOTS)),
-	shooter(Owner, Selector::type()(Bonus::SHOOTER))
+	: CAmmo(Owner, Selector::type()(BonusType::SHOTS)),
+	shooter(Owner, Selector::type()(BonusType::SHOOTER))
 {
 }
 
@@ -117,16 +117,16 @@ int32_t CShots::total() const
 
 ///CCasts
 CCasts::CCasts(const battle::Unit * Owner):
-	CAmmo(Owner, Selector::type()(Bonus::CASTS))
+	CAmmo(Owner, Selector::type()(BonusType::CASTS))
 {
 }
 
 ///CRetaliations
 CRetaliations::CRetaliations(const battle::Unit * Owner)
-	: CAmmo(Owner, Selector::type()(Bonus::ADDITIONAL_RETALIATION)),
+	: CAmmo(Owner, Selector::type()(BonusType::ADDITIONAL_RETALIATION)),
 	totalCache(0),
-	noRetaliation(Owner, Selector::type()(Bonus::SIEGE_WEAPON).Or(Selector::type()(Bonus::HYPNOTIZED)).Or(Selector::type()(Bonus::NO_RETALIATION))),
-	unlimited(Owner, Selector::type()(Bonus::UNLIMITED_RETALIATIONS))
+	noRetaliation(Owner, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::HYPNOTIZED)).Or(Selector::type()(BonusType::NO_RETALIATION))),
+	unlimited(Owner, Selector::type()(BonusType::UNLIMITED_RETALIATIONS))
 {
 }
 
@@ -179,7 +179,7 @@ void CHealth::init()
 {
 	reset();
 	fullUnits = owner->unitBaseAmount() > 1 ? owner->unitBaseAmount() - 1 : 0;
-	firstHPleft = owner->unitBaseAmount() > 0 ? owner->MaxHealth() : 0;
+	firstHPleft = owner->unitBaseAmount() > 0 ? owner->getMaxHealth() : 0;
 }
 
 void CHealth::addResurrected(int32_t amount)
@@ -190,12 +190,12 @@ void CHealth::addResurrected(int32_t amount)
 
 int64_t CHealth::available() const
 {
-	return static_cast<int64_t>(firstHPleft) + owner->MaxHealth() * fullUnits;
+	return static_cast<int64_t>(firstHPleft) + owner->getMaxHealth() * fullUnits;
 }
 
 int64_t CHealth::total() const
 {
-	return static_cast<int64_t>(owner->MaxHealth()) * owner->unitBaseAmount();
+	return static_cast<int64_t>(owner->getMaxHealth()) * owner->unitBaseAmount();
 }
 
 void CHealth::damage(int64_t & amount)
@@ -230,7 +230,7 @@ void CHealth::damage(int64_t & amount)
 
 void CHealth::heal(int64_t & amount, EHealLevel level, EHealPower power)
 {
-	const int32_t unitHealth = owner->MaxHealth();
+	const int32_t unitHealth = owner->getMaxHealth();
 	const int32_t oldCount = getCount();
 
 	int64_t maxHeal = std::numeric_limits<int64_t>::max();
@@ -249,7 +249,7 @@ void CHealth::heal(int64_t & amount, EHealLevel level, EHealPower power)
 	}
 
 	vstd::amax(maxHeal, 0);
-	vstd::abetween(amount, 0, maxHeal);
+	vstd::abetween(amount, int64_t(0), maxHeal);
 
 	if(amount == 0)
 		return;
@@ -267,7 +267,7 @@ void CHealth::heal(int64_t & amount, EHealLevel level, EHealPower power)
 
 void CHealth::setFromTotal(const int64_t totalHealth)
 {
-	const int32_t unitHealth = owner->MaxHealth();
+	const int32_t unitHealth = owner->getMaxHealth();
 	firstHPleft = totalHealth % unitHealth;
 	fullUnits = static_cast<int32_t>(totalHealth / unitHealth);
 
@@ -306,7 +306,7 @@ void CHealth::takeResurrected()
 	{
 		int64_t totalHealth = available();
 
-		totalHealth -= resurrected * owner->MaxHealth();
+		totalHealth -= resurrected * owner->getMaxHealth();
 		vstd::amax(totalHealth, 0);
 		setFromTotal(totalHealth);
 		resurrected = 0;
@@ -339,13 +339,13 @@ CUnitState::CUnitState():
 	counterAttacks(this),
 	health(this),
 	shots(this),
-	totalAttacks(this, Selector::type()(Bonus::ADDITIONAL_ATTACK), 1),
-	minDamage(this, Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 1)), 0),
-	maxDamage(this, Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2)), 0),
-	attack(this, Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), 0),
-	defence(this, Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), 0),
-	inFrenzy(this, Selector::type()(Bonus::IN_FRENZY)),
-	cloneLifetimeMarker(this, Selector::type()(Bonus::NONE).And(Selector::source(Bonus::SPELL_EFFECT, SpellID::CLONE))),
+	totalAttacks(this, Selector::type()(BonusType::ADDITIONAL_ATTACK), 1),
+	minDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 1)), 0),
+	maxDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 2)), 0),
+	attack(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK), 0),
+	defence(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE), 0),
+	inFrenzy(this, Selector::type()(BonusType::IN_FRENZY)),
+	cloneLifetimeMarker(this, Selector::type()(BonusType::NONE).And(Selector::source(BonusSource::SPELL_EFFECT, SpellID::CLONE))),
 	cloneID(-1)
 {
 
@@ -395,22 +395,27 @@ CreatureID CUnitState::creatureId() const
 
 int32_t CUnitState::creatureLevel() const
 {
-	return static_cast<int32_t>(unitType()->level);
+	return static_cast<int32_t>(unitType()->getLevel());
 }
 
 bool CUnitState::doubleWide() const
 {
-	return unitType()->doubleWide;
+	return unitType()->isDoubleWide();
 }
 
 int32_t CUnitState::creatureCost() const
 {
-	return unitType()->cost[Res::GOLD];
+	return unitType()->getRecruitCost(EGameResID::GOLD);
 }
 
 int32_t CUnitState::creatureIconIndex() const
 {
-	return unitType()->iconIndex;
+	return unitType()->getIconIndex();
+}
+
+FactionID CUnitState::getFaction() const
+{
+	return unitType()->getFaction();
 }
 
 int32_t CUnitState::getCasterUnitId() const
@@ -418,9 +423,14 @@ int32_t CUnitState::getCasterUnitId() const
 	return static_cast<int32_t>(unitId());
 }
 
+const CGHeroInstance * CUnitState::getHeroCaster() const
+{
+	return nullptr;
+}
+
 int32_t CUnitState::getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool) const
 {
-	int32_t skill = valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, spell->getIndex()));
+	int32_t skill = valOfBonuses(Selector::typeSubtype(BonusType::SPELLCASTER, spell->getIndex()));
 	vstd::abetween(skill, 0, 3);
 	return skill;
 }
@@ -443,12 +453,12 @@ int32_t CUnitState::getEffectLevel(const spells::Spell * spell) const
 
 int32_t CUnitState::getEffectPower(const spells::Spell * spell) const
 {
-	return valOfBonuses(Bonus::CREATURE_SPELL_POWER) * getCount() / 100;
+	return valOfBonuses(BonusType::CREATURE_SPELL_POWER) * getCount() / 100;
 }
 
 int32_t CUnitState::getEnchantPower(const spells::Spell * spell) const
 {
-	int32_t res = valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);
+	int32_t res = valOfBonuses(BonusType::CREATURE_ENCHANT_POWER);
 	if(res <= 0)
 		res = 3;//default for creatures
 	return res;
@@ -456,7 +466,7 @@ int32_t CUnitState::getEnchantPower(const spells::Spell * spell) const
 
 int64_t CUnitState::getEffectValue(const spells::Spell * spell) const
 {
-	return static_cast<int64_t>(getCount()) * valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spell->getIndex());
+	return static_cast<int64_t>(getCount()) * valOfBonuses(BonusType::SPECIFIC_SPELL_POWER, spell->getIndex());
 }
 
 PlayerColor CUnitState::getCasterOwner() const
@@ -472,10 +482,10 @@ void CUnitState::getCasterName(MetaString & text) const
 
 void CUnitState::getCastDescription(const spells::Spell * spell, const std::vector<const Unit *> & attacked, MetaString & text) const
 {
-	text.addTxt(MetaString::GENERAL_TXT, 565);//The %s casts %s
+	text.appendLocalString(EMetaText::GENERAL_TXT, 565);//The %s casts %s
 	//todo: use text 566 for single creature
 	getCasterName(text);
-	text.addReplacement(MetaString::SPELL_NAME, spell->getIndex());
+	text.replaceLocalString(EMetaText::SPELL_NAME, spell->getIndex());
 }
 
 int32_t CUnitState::manaLimit() const
@@ -501,7 +511,7 @@ bool CUnitState::isGhost() const
 
 bool CUnitState::isFrozen() const
 {
-	return hasBonus(Selector::source(Bonus::SPELL_EFFECT, SpellID::STONE_GAZE), Selector::all);
+	return hasBonus(Selector::source(BonusSource::SPELL_EFFECT, SpellID::STONE_GAZE), Selector::all);
 }
 
 bool CUnitState::isValidTarget(bool allowDead) const
@@ -578,12 +588,48 @@ void CUnitState::setPosition(BattleHex hex)
 
 int32_t CUnitState::getInitiative(int turn) const
 {
-	return valOfBonuses(Selector::type()(Bonus::STACKS_SPEED).And(Selector::turns(turn)));
+	return valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)));
+}
+
+uint8_t CUnitState::getRangedFullDamageDistance() const
+{
+	if(!isShooter())
+		return 0;
+
+	uint8_t rangedFullDamageDistance = GameConstants::BATTLE_SHOOTING_PENALTY_DISTANCE;
+
+	// overwrite full ranged damage distance with the value set in Additional info field of LIMITED_SHOOTING_RANGE bonus
+	if(this->hasBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE)))
+	{
+		auto bonus = this->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
+		if(bonus != nullptr && bonus->additionalInfo != CAddInfo::NONE)
+			rangedFullDamageDistance = bonus->additionalInfo[0];
+	}
+
+	return rangedFullDamageDistance;
+}
+
+uint8_t CUnitState::getShootingRangeDistance() const
+{
+	if(!isShooter())
+		return 0;
+
+	uint8_t shootingRangeDistance = GameConstants::BATTLE_SHOOTING_RANGE_DISTANCE;
+
+	// overwrite full ranged damage distance with the value set in Additional info field of LIMITED_SHOOTING_RANGE bonus
+	if(this->hasBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE)))
+	{
+		auto bonus = this->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
+		if(bonus != nullptr)
+			shootingRangeDistance = bonus->val;
+	}
+
+	return shootingRangeDistance;
 }
 
 bool CUnitState::canMove(int turn) const
 {
-	return alive() && !hasBonus(Selector::type()(Bonus::NOT_ACTIVE).And(Selector::turns(turn))); //eg. Ammo Cart or blinded creature
+	return alive() && !hasBonus(Selector::type()(BonusType::NOT_ACTIVE).And(Selector::turns(turn))); //eg. Ammo Cart or blinded creature
 }
 
 bool CUnitState::defended(int turn) const

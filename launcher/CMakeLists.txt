@@ -1,5 +1,6 @@
 set(launcher_SRCS
 		StdInc.cpp
+		aboutProject/aboutproject_moc.cpp
 		modManager/cdownloadmanager_moc.cpp
 		modManager/cmodlist.cpp
 		modManager/cmodlistmodel_moc.cpp
@@ -21,6 +22,7 @@ set(launcher_SRCS
 
 set(launcher_HEADERS
 		StdInc.h
+		aboutProject/aboutproject_moc.h
 		modManager/cdownloadmanager_moc.h
 		modManager/cmodlist.h
 		modManager/cmodlistmodel_moc.h
@@ -41,6 +43,7 @@ set(launcher_HEADERS
 )
 
 set(launcher_FORMS
+		aboutProject/aboutproject_moc.ui
 		modManager/cmodlistview_moc.ui
 		modManager/imageviewer_moc.ui
 		settingsView/csettingsview_moc.ui
@@ -52,7 +55,9 @@ set(launcher_FORMS
 )
 
 set(launcher_TS
+	translation/chinese.ts
 	translation/english.ts
+	translation/french.ts
 	translation/german.ts
 	translation/polish.ts
 	translation/russian.ts
@@ -130,6 +135,10 @@ endif()
 if(APPLE)
 	# This makes Xcode project prettier by moving vcmilauncher_autogen directory into vcmiclient subfolder
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmilauncher)
+endif()
+
+if (NOT APPLE_IOS AND NOT ANDROID)
+	target_link_libraries(vcmilauncher SDL2::SDL2)
 endif()
 
 target_link_libraries(vcmilauncher ${VCMI_LIB_TARGET} Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)

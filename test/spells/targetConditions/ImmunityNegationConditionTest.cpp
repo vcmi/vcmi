@@ -20,16 +20,19 @@ namespace test
 using namespace ::spells;
 using namespace ::testing;
 
-class ImmunityNegationConditionTest : public TargetConditionItemTest, public WithParamInterface<bool>
+class ImmunityNegationConditionTest : public TargetConditionItemTest, public WithParamInterface<std::tuple<bool, bool>>
 {
 public:
 	bool ownerMatches;
+	bool isMagicalEffect;
 
 	void setDefaultExpectations()
 	{
-		ownerMatches = GetParam();
+		ownerMatches = ::testing::get<0>(GetParam());
+		isMagicalEffect = ::testing::get<1>(GetParam());
 		EXPECT_CALL(unitMock, getAllBonuses(_, _, _, _)).Times(AtLeast(0));
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(AtLeast(0));
+		EXPECT_CALL(mechanicsMock, isMagicalEffect()).Times(AtLeast(0)).WillRepeatedly(Return(isMagicalEffect));
 		EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unitMock), Field(&boost::logic::tribool::value, boost::logic::tribool::false_value))).WillRepeatedly(Return(ownerMatches));
 	}
 
@@ -54,25 +57,30 @@ TEST_P(ImmunityNegationConditionTest, WithHeroNegation)
 {
 	setDefaultExpectations();
 
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, Bonus::OTHER, 0, 0, 1));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSource::OTHER, 0, 0, 1));
 
-	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
+	EXPECT_EQ(isMagicalEffect, subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
 TEST_P(ImmunityNegationConditionTest, WithBattleWideNegation)
 {
 	setDefaultExpectations();
 
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, Bonus::OTHER, 0, 0, 0));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATE_ALL_NATURAL_IMMUNITIES, BonusSource::OTHER, 0, 0, 0));
 
-	EXPECT_EQ(!ownerMatches, subject->isReceptive(&mechanicsMock, &unitMock));
+	//This should return if ownerMatches, because anyone should cast onto owner's stacks, but not on enemyStacks
+	EXPECT_EQ(ownerMatches && isMagicalEffect, subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
-INSTANTIATE_TEST_CASE_P
+INSTANTIATE_TEST_SUITE_P
 (
 	ByUnitOwner,
 	ImmunityNegationConditionTest,
-	Values(false, true)
+	Combine
+	(
+		Values(false, true),
+		Values(false, true)
+	)
 );
 
 }

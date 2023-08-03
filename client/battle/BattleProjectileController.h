@@ -28,6 +28,7 @@ struct ProjectileBase
 {
 	virtual ~ProjectileBase() = default;
 	virtual void show(Canvas & canvas) =  0;
+	virtual void tick(uint32_t msPassed) = 0;
 
 	Point from; // initial position on the screen
 	Point dest; // target position on the screen
@@ -42,6 +43,7 @@ struct ProjectileBase
 struct ProjectileMissile : ProjectileBase
 {
 	void show(Canvas & canvas) override;
+	void tick(uint32_t msPassed) override;
 
 	std::shared_ptr<CAnimation> animation;
 	int frameNum;  // frame to display from projectile animation
@@ -51,7 +53,7 @@ struct ProjectileMissile : ProjectileBase
 /// Projectile for spell - render animation moving in straight line from origin to destination
 struct ProjectileAnimatedMissile : ProjectileMissile
 {
-	void show(Canvas & canvas) override;
+	void tick(uint32_t msPassed) override;
 	float frameProgress;
 };
 
@@ -59,6 +61,7 @@ struct ProjectileAnimatedMissile : ProjectileMissile
 struct ProjectileCatapult : ProjectileBase
 {
 	void show(Canvas & canvas) override;
+	void tick(uint32_t msPassed) override;
 
 	std::shared_ptr<CAnimation> animation;
 	float frameProgress;
@@ -68,6 +71,7 @@ struct ProjectileCatapult : ProjectileBase
 struct ProjectileRay : ProjectileBase
 {
 	void show(Canvas & canvas) override;
+	void tick(uint32_t msPassed) override;
 
 	std::vector<CCreature::CreatureAnimation::RayColor> rayConfig;
 };
@@ -102,7 +106,10 @@ public:
 	BattleProjectileController(BattleInterface & owner);
 
 	/// renders all currently active projectiles
-	void showProjectiles(Canvas & canvas);
+	void render(Canvas & canvas);
+
+	/// updates positioning / animations of all projectiles
+	void tick(uint32_t msPassed);
 
 	/// returns true if stack has projectile that is yet to hit target
 	bool hasActiveProjectile(const CStack * stack, bool emittedOnly) const;

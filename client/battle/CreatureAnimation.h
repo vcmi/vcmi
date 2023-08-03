@@ -68,7 +68,7 @@ namespace AnimationControls
 class CreatureAnimation : public CIntObject
 {
 public:
-	typedef std::function<float(CreatureAnimation *, ECreatureAnimType)> TSpeedController;
+	using TSpeedController = std::function<float(CreatureAnimation *, ECreatureAnimType)>;
 
 private:
 	std::string name;

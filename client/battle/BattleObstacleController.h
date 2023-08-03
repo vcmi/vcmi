@@ -13,6 +13,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct BattleHex;
 struct CObstacleInstance;
+class JsonNode;
+class ObstacleChanges;
 class Point;
 
 VCMI_LIB_NAMESPACE_END
@@ -42,15 +44,19 @@ class BattleObstacleController
 
 	std::shared_ptr<IImage> getObstacleImage(const CObstacleInstance & oi);
 	Point getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle);
+	Point getObstaclePosition(std::shared_ptr<IImage> image, const JsonNode & obstacle);
 
 public:
 	BattleObstacleController(BattleInterface & owner);
 
 	/// called every frame
-	void update();
+	void tick(uint32_t msPassed);
 
 	/// call-in from network pack, add newly placed obstacles with any required animations
 	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & oi);
+
+	/// call-in from network pack, remove required obstacles with any required animations
+	void obstacleRemoved(const std::vector<ObstacleChanges> & obstacles);
 
 	/// renders all "absolute" obstacles
 	void showAbsoluteObstacles(Canvas & canvas);

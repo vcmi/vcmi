@@ -118,7 +118,7 @@ void BattleSiegeController::showWallPiece(Canvas & canvas, EWallVisual::EWallVis
 	auto & ci = town->town->clientInfo;
 	auto const & pos = ci.siegePositions[what];
 
-	if ( wallPieceImages[what])
+	if ( wallPieceImages[what] && pos.isValid())
 		canvas.draw(wallPieceImages[what], Point(pos.x, pos.y));
 }
 
@@ -135,8 +135,8 @@ bool BattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what)
 
 	switch (what)
 	{
-	case EWallVisual::MOAT:              return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->getIndex() != ETownType::TOWER;
-	case EWallVisual::MOAT_BANK:         return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->getIndex() != ETownType::TOWER && town->town->faction->getIndex() != ETownType::NECROPOLIS;
+	case EWallVisual::MOAT:              return town->hasBuilt(BuildingID::CITADEL) && town->town->clientInfo.siegePositions.at(EWallVisual::MOAT).isValid();
+	case EWallVisual::MOAT_BANK:         return town->hasBuilt(BuildingID::CITADEL) && town->town->clientInfo.siegePositions.at(EWallVisual::MOAT_BANK).isValid();
 	case EWallVisual::KEEP_BATTLEMENT:   return town->hasBuilt(BuildingID::CITADEL) && owner.curInt->cb->battleGetWallState(EWallPart::KEEP) != EWallState::DESTROYED;
 	case EWallVisual::UPPER_BATTLEMENT:  return town->hasBuilt(BuildingID::CASTLE) && owner.curInt->cb->battleGetWallState(EWallPart::UPPER_TOWER) != EWallState::DESTROYED;
 	case EWallVisual::BOTTOM_BATTLEMENT: return town->hasBuilt(BuildingID::CASTLE) && owner.curInt->cb->battleGetWallState(EWallPart::BOTTOM_TOWER) != EWallState::DESTROYED;
@@ -307,7 +307,7 @@ void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 			renderer.insert( EBattleFieldLayer::STACKS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
 				owner.stacksController->showStack(canvas, getTurretStack(wallPiece));
 			});
-			renderer.insert( EBattleFieldLayer::BATTLEMENTS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
+			renderer.insert( EBattleFieldLayer::OBSTACLES_FG, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
 				showWallPiece(canvas, wallPiece);
 			});
 		}
@@ -330,8 +330,6 @@ bool BattleSiegeController::isAttackableByCatapult(BattleHex hex) const
 
 void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 {
-	owner.checkForAnimations();
-
 	if (ca.attacker != -1)
 	{
 		const CStack *stack = owner.curInt->cb->battleGetStackByID(ca.attacker);

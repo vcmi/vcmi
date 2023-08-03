@@ -9,119 +9,54 @@
  */
 #pragma once
 
-#include "MouseButton.h"
-#include "../../lib/Point.h"
-
-#include <SDL_keycode.h>
-
 VCMI_LIB_NAMESPACE_BEGIN
-
 template <typename T> struct CondSh;
+class Point;
 class Rect;
-
 VCMI_LIB_NAMESPACE_END
 
-union SDL_Event;
-struct SDL_MouseMotionEvent;
-
-class CFramerateManager;
+enum class MouseButton;
+class ShortcutHandler;
+class FramerateManager;
 class IStatusBar;
 class CIntObject;
 class IUpdateable;
 class IShowActivatable;
-class IShowable;
-
-// TODO: event handling need refactoring
-enum class EUserEvent
-{
-	/*CHANGE_SCREEN_RESOLUTION = 1,*/
-	RETURN_TO_MAIN_MENU = 2,
-	//STOP_CLIENT = 3,
-	RESTART_GAME = 4,
-	RETURN_TO_MENU_LOAD,
-	FULLSCREEN_TOGGLED,
-	CAMPAIGN_START_SCENARIO,
-	FORCE_QUIT, //quit client without question
-};
-
-// A fps manager which holds game updates at a constant rate
-class CFramerateManager
-{
-private:
-	double rateticks;
-	ui32 lastticks;
-	ui32 timeElapsed;
-	int rate;
-	int fps; // the actual fps value
-	ui32 accumulatedTime;
-	ui32 accumulatedFrames;
-
-public:
-	CFramerateManager(); // initializes the manager with a given fps rate
-	void init(int newRate); // needs to be called directly before the main game loop to reset the internal timer
-	void framerateDelay(); // needs to be called every game update cycle
-	ui32 getElapsedMilliseconds() const {return this->timeElapsed;}
-	ui32 getFrameNumber() const { return accumulatedFrames; }
-	ui32 getFramerate() const { return fps; };
-};
+class IScreenHandler;
+class WindowHandler;
+class EventDispatcher;
+class InputHandler;
 
 // Handles GUI logic and drawing
 class CGuiHandler
 {
-public:
-	CFramerateManager * mainFPSmng; //to keep const framerate
-	std::list<std::shared_ptr<IShowActivatable>> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
-	std::shared_ptr<IStatusBar> statusbar;
-
 private:
-	Point cursorPosition;
-	uint32_t mouseButtonsMask;
+	/// Fake no-op version status bar, for use in windows that have no status bar
+	std::shared_ptr<IStatusBar> fakeStatusBar;
 
-	std::vector<std::shared_ptr<IShowActivatable>> disposed;
+	/// Status bar of current window, if any. Uses weak_ptr to allow potential hanging reference after owned window has been deleted
+	std::weak_ptr<IStatusBar> currentStatusBar;
 
-	std::atomic<bool> continueEventHandling;
-	typedef std::list<CIntObject*> CIntObjectList;
+	std::unique_ptr<ShortcutHandler> shortcutsHandlerInstance;
+	std::unique_ptr<WindowHandler> windowHandlerInstance;
 
-	//active GUI elements (listening for events
-	CIntObjectList lclickable;
-	CIntObjectList rclickable;
-	CIntObjectList mclickable;
-	CIntObjectList hoverable;
-	CIntObjectList keyinterested;
-	CIntObjectList motioninterested;
-	CIntObjectList timeinterested;
-	CIntObjectList wheelInterested;
-	CIntObjectList doubleClickInterested;
-	CIntObjectList textInterested;
-
-
-	void handleMouseButtonClick(CIntObjectList & interestedObjs, MouseButton btn, bool isPressed);
-	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
-	void handleCurrentEvent(SDL_Event &current);
-	void handleMouseMotion(const SDL_Event & current);
-	void handleMoveInterested( const SDL_MouseMotionEvent & motion );
-	void convertTouchToMouse(SDL_Event * current);
-	void fakeMoveCursor(float dx, float dy);
-	void fakeMouseButtonEventRelativeMode(bool down, bool right);
+	std::unique_ptr<IScreenHandler> screenHandlerInstance;
+	std::unique_ptr<FramerateManager> framerateManagerInstance;
+	std::unique_ptr<EventDispatcher> eventDispatcherInstance;
+	std::unique_ptr<InputHandler> inputHandlerInstance;
 
 public:
-	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
-	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);
-
-public:
-	//objs to blit
-	std::vector<std::shared_ptr<IShowActivatable>> objsToBlit;
-
 	/// returns current position of mouse cursor, relative to vcmi window
 	const Point & getCursorPosition() const;
 
+	ShortcutHandler & shortcuts();
+	FramerateManager & framerate();
+	EventDispatcher & events();
+	InputHandler & input();
+
+	/// Returns current logical screen dimensions
+	/// May not match size of window if user has UI scaling different from 100%
 	Point screenDimensions() const;
-
-	/// returns true if at least one mouse button is pressed
-	bool isMouseButtonPressed() const;
-
-	/// returns true if specified mouse button is pressed
-	bool isMouseButtonPressed(MouseButton button) const;
 
 	/// returns true if chosen keyboard key is currently pressed down
 	bool isKeyboardAltDown() const;
@@ -131,16 +66,17 @@ public:
 	void startTextInput(const Rect & where);
 	void stopTextInput();
 
-	/// moves mouse pointer into specified position inside vcmi window
-	void moveCursorToPosition(const Point & position);
+	IScreenHandler & screenHandler();
+
+	WindowHandler & windows();
+
+	/// Returns currently active status bar. Guaranteed to be non-null
+	std::shared_ptr<IStatusBar> statusbar();
+
+	/// Set currently active status bar
+	void setStatusbar(std::shared_ptr<IStatusBar>);
 
 	IUpdateable *curInt;
-
-	Point lastClick;
-	unsigned lastClickTime;
-	bool multifinger;
-	bool isPointerRelativeMode;
-	float pointerSpeedMultiplier;
 
 	ui8 defActionsDef; //default auto actions
 	bool captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
@@ -152,36 +88,17 @@ public:
 	void init();
 	void renderFrame();
 
-	void totalRedraw(); //forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering
-	void simpleRedraw(); //update only top interface and draw background from buffer, sets a flag, method gets called at the end of the rendering
+	/// called whenever user selects different resolution, requiring to center/resize all windows
+	void onScreenResize();
 
-	void pushInt(std::shared_ptr<IShowActivatable> newInt); //deactivate old top interface, activates this one and pushes to the top
-	template <typename T, typename ... Args>
-	void pushIntT(Args && ... args)
-	{
-		auto newInt = std::make_shared<T>(std::forward<Args>(args)...);
-		pushInt(newInt);
-	}
-
-	void popInts(int howMany); //pops one or more interfaces - deactivates top, deletes and removes given number of interfaces, activates new front
-
-	void popInt(std::shared_ptr<IShowActivatable> top); //removes given interface from the top and activates next
-
-	std::shared_ptr<IShowActivatable> topInt(); //returns top interface
-
-	void updateTime(); //handles timeInterested
 	void handleEvents(); //takes events from queue and calls interested objects
 	void fakeMouseMove();
-	void breakEventHandling(); //current event won't be propagated anymore
 	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen
 
-	static SDL_Keycode arrowToNum(SDL_Keycode key); //converts arrow key to according numpad key
-	static SDL_Keycode numToDigit(SDL_Keycode key);//converts numpad digit key to normal digit key
-	static bool isNumKey(SDL_Keycode key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)
-	static bool isArrowKey(SDL_Keycode key);
-	static bool amIGuiThread();
-	static void pushUserEvent(EUserEvent usercode);
-	static void pushUserEvent(EUserEvent usercode, void * userdata);
+	bool amIGuiThread();
+
+	/// Calls provided functor in main thread on next execution frame
+	void dispatchMainThread(const std::function<void()> & functor);
 
 	CondSh<bool> * terminate_cond; // confirm termination
 };

@@ -16,6 +16,7 @@
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/StringConstants.h"
+#include "../lib/mapping/CMap.h"
 
 QuestWidget::QuestWidget(const CMap & _map, CGSeerHut & _sh, QWidget *parent) :
 	QDialog(parent),
@@ -141,7 +142,6 @@ QString QuestWidget::commitChanges()
 			//TODO: implement
 			return QString("N/A");
 		case CQuest::Emission::MISSION_RESOURCES:
-			seerhut.quest->m7resources.resize(sizeof(GameConstants::RESOURCE_NAMES), 0);
 			seerhut.quest->m7resources[ui->targetId->currentIndex()] = ui->targetAmount->text().toInt();
 			//TODO: support resources
 			return ui->targetId->currentText().append(ui->targetAmount->text());

@@ -14,11 +14,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-typedef std::mt19937 TGenerator;
-typedef std::uniform_int_distribution<int> TIntDist;
-typedef std::uniform_int_distribution<int64_t> TInt64Dist;
-typedef std::uniform_real_distribution<double> TRealDist;
-typedef std::function<int()> TRandI;
+using TGenerator = std::mt19937;
+using TIntDist = std::uniform_int_distribution<int>;
+using TInt64Dist = std::uniform_int_distribution<int64_t>;
+using TRealDist = std::uniform_real_distribution<double>;
+using TRandI = std::function<int()>;
 
 /// The random generator randomly generates integers and real numbers("doubles") between
 /// a given range. This is a header only class and mainly a wrapper for
@@ -29,6 +29,9 @@ public:
 	/// Seeds the generator by default with the product of the current time in milliseconds and the
 	/// current thread ID.
 	CRandomGenerator();
+
+	/// Seeds the generator with provided initial seed
+	explicit CRandomGenerator(int seed);
 
 	void setSeed(int seed);
 

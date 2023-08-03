@@ -1,331 +1,317 @@
 {
-
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
-
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI spell format",
 	"description" : "Format used to define new spells in VCMI",
-
-
 	"definitions" : {
-		"animationQueue":{
-			"type": "array",
-			"items":{
-				"anyOf":[
+		"animationQueue" : {
+			"type" : "array",
+			"items" : {
+				"anyOf" :[
 					{
 						//dummy animation, pause, Value - frame count
-						"type": "number"
+						"type" : "number"
 					},
 					{
 						//assumed verticalPosition: top
-						"type": "string",
-						"format": "defFile"
+						"type" : "string",
+						"format" : "defFile"
 					},
 					{
-						"type": "object",
-						"properties":{
-							"verticalPosition": {"type":"string", "enum":["top","bottom"]},
-							"defName": {"type":"string", "format": "defFile"}
+						"type" : "object",
+						"properties" : {
+							"verticalPosition" : {"type" : "string", "enum" :["top","bottom"]},
+							"defName" : {"type" : "string", "format" : "defFile"}
 						},
 						"additionalProperties" : false
 					}
 				]
 			}
 		},
-		"animation":{
-			"type": "object",
+		"animation" : {
+			"type" : "object",
 			"additionalProperties" : false,
-			"properties":{
-				"affect":{"$ref" : "#/definitions/animationQueue"},
-				"hit":{"$ref" : "#/definitions/animationQueue"},
-				"cast":{"$ref" : "#/definitions/animationQueue"},
-				"projectile":{
-					"type":"array",
-					"items":{
-						"type": "object",
-						"properties":{
-							"minimumAngle": {"type":"number", "minimum" : 0},
-							"defName": {"type":"string", "format": "defFile"}
+			"properties" : {
+				"affect" : {"$ref" : "#/definitions/animationQueue"},
+				"hit" : {"$ref" : "#/definitions/animationQueue"},
+				"cast" : {"$ref" : "#/definitions/animationQueue"},
+				"projectile" : {
+					"type" : "array",
+					"items" : {
+						"type" : "object",
+						"properties" : {
+							"defName" : {"type" : "string", "format" : "defFile"},
+							"minimumAngle" : {"type" : "number", "minimum" : 0}
 						},
 						"additionalProperties" : false
 					}
 				}
 			}
 		},
-		"flags" :{
+		"flags" : {
 			"type" : "object",
 			"additionalProperties" : {
-			"type":"boolean"
+			"type" : "boolean"
 			}
 		},
-		"levelInfo":{
-			"type": "object",
-			"required":["range","description","cost","power","aiValue","range"],
+		"levelInfo" : {
+			"type" : "object",
+			"required" :["range", "description", "cost", "power", "aiValue"],
 
 			"additionalProperties" : false,
-			"properties":{
-				"description":{
-					"type": "string",
-					"description": "Localizable description. Use {xxx} for formatting"
+			"properties" : {
+				"description" : {
+					"type" : "string",
+					"description" : "Localizable description. Use {xxx} for formatting"
 				},
-				"cost":{
-					"type": "number",
-					"description":"Cost in mana points"
+				"cost" : {
+					"type" : "number",
+					"description" : "Cost in mana points"
 				},
-				"power":{
-					"type": "number"
+				"power" : {
+					"type" : "number"
 				},
-				"aiValue":{
-					"type": "number"
+				"range" : {
+					"type" : "string",
+					"description" : "spell range description in SRSL"
 				},
-
-				"range":{
-					"type": "string",
-					"description": "spell range description in SRSL"
+				"aiValue" : {
+					"type" : "number"
 				},
-				"effects":{
-					"type": "object",
-					"description": "Timed effects (updated by prolongation)",
+				"effects" : {
+					"type" : "object",
+					"description" : "Timed effects (updated by prolongation)",
 					"additionalProperties" : {
 						"$ref" : "bonus.json"
 					}
 				},
-				"cumulativeEffects":{
-					"type": "object",
-					"description": "Timed effects (updated by unique bonus)",
+				"cumulativeEffects" : {
+					"type" : "object",
+					"description" : "Timed effects (updated by unique bonus)",
 					"additionalProperties" : {
 						"$ref" : "bonus.json"
 					}
 				},
-				"battleEffects":{
-					"type": "object",
+				"battleEffects" : {
+					"type" : "object",
 					"additionalProperties" : {
-						"type": "object"
+						"type" : "object"
 					}
 				},
-				"targetModifier":{
-					"type": "object",
-					"additionalProperties": false,
-					"properties":{
-						"smart":{
-							"type": "boolean",
-							"description": "true: friendly/hostile based on positiveness; false: all targets"
+				"targetModifier" : {
+					"type" : "object",
+					"additionalProperties" : false,
+					"properties" : {
+						"smart" : {
+							"type" : "boolean",
+							"description" : "true: friendly/hostile based on positiveness; false: all targets"
 						},
-						"clearTarget":
+						"clearTarget" :
 						{
-							"type": "boolean",
-							"description": "LOCATION target only. Target hex/tile must be clear"
+							"type" : "boolean",
+							"description" : "LOCATION target only. Target hex/tile must be clear"
 						},
-						"clearAffected":
+						"clearAffected" :
 						{
-							"type": "boolean",
-							"description": "LOCATION target only. All affected hexes/tile must be clear"
+							"type" : "boolean",
+							"description" : "LOCATION target only. All affected hexes/tile must be clear"
 						}
 					}
 				}
 			}
 		},
-
-		"texts":{
-			"type": "object",
-
-
+		"texts" : {
+			"type" : "object",
 			"additionalProperties" : false
 		}
 	},
-
 	"required" : ["type", "name", "school", "level", "power","gainChance","flags","levels"],
 	"additionalProperties" : false,
-
-	"properties": {
-		"index":{
-				"type": "number",
-				"description": "numeric id of spell required only for original spells, prohibited for new spells"
+	"properties" : {
+		"index" : {
+				"type" : "number",
+				"description" : "numeric id of spell required only for original spells, prohibited for new spells"
 		},
-		"type":{
-				"type": "string",
-				"enum": ["adventure", "combat", "ability"],
-				"description":"Spell type"
+		"name" : {
+			"type" : "string",
+			"description" : "Localizable name"
 		},
-		"name":{
-				"type": "string",
-				"description": "Localizable name"
-
+		"type" : {
+				"type" : "string",
+				"enum" : ["adventure", "combat", "ability"],
+				"description" : "Spell type"
 		},
-		"school":{
-				"type": "object",
-				"description": "Spell schools",
-				"additionalProperties": false,
-
-				"properties":{
-
-						"air":{"type": "boolean"},
-						"fire":{"type": "boolean"},
-						"earth":{"type": "boolean"},
-						"water":{"type": "boolean"}
+		"school" : {
+				"type" : "object",
+				"description" : "Spell schools",
+				"additionalProperties" : false,
+				"properties" : {
+						"air" : {"type" : "boolean"},
+						"fire" : {"type" : "boolean"},
+						"earth" : {"type" : "boolean"},
+						"water" : {"type" : "boolean"}
 				}
-
 		},
-		"level":{
-				"type": "number",
-				"description": "Spell level",
+		"level" : {
+				"type" : "number",
+				"description" : "Spell level",
 				"minimum" : 0,
 				"maximum" : 5
 		},
-
-		"power":{
-				"type": "number",
-				"description": "Base power"
+		"power" : {
+				"type" : "number",
+				"description" : "Base power"
 		},
-
-		"defaultGainChance":{
-				"type": "number",
-				"description": "Gain chance by default for all factions"
+		"defaultGainChance" : {
+				"type" : "number",
+				"description" : "Gain chance by default for all factions"
 
 		},
-
-		"gainChance":{
-				"type": "object",
-				"description": "Chance in % to gain for faction. NOTE: this field is merged with faction config",
+		"gainChance" : {
+				"type" : "object",
+				"description" : "Chance in % to gain for faction. NOTE: this field is merged with faction config",
 				"additionalProperties" : {
-					"type": "number",
+					"type" : "number",
 					"minimum" : 0
 				}
 		},
-		"targetType":{
-				  "type": "string",
-				  "description": "NO_TARGET - instant cast no aiming, default; CREATURE - target is unit; OBSTACLE - target is OBSTACLE; LOCATION - target is location",
-				  "enum": ["NO_TARGET","CREATURE","OBSTACLE","LOCATION"]
+		"targetType" : {
+				  "type" : "string",
+				  "description" : "NO_TARGET - instant cast no aiming, default; CREATURE - target is unit; OBSTACLE - target is OBSTACLE; LOCATION - target is location",
+				  "enum" : ["NO_TARGET","CREATURE","OBSTACLE","LOCATION"]
 		},
-		"counters":{
+		"counters" : {
 				 "$ref" : "#/definitions/flags",
-				 "description": "Flags structure ids of countering spells"
+				 "description" : "Flags structure ids of countering spells"
 		},
-		"flags":{
-				"type": "object",
-				"description": "Various flags",
+		"flags" : {
+				"type" : "object",
+				"description" : "Various flags",
 				"additionalProperties" : false,
-				"properties":{
-						"indifferent": {
-								"type":"boolean",
-								"description": "Spell is indifferent for target"
+				"properties" : {
+						"indifferent" : {
+								"type" : "boolean",
+								"description" : "Spell is indifferent for target"
 						},
-						"negative": {
-								"type":"boolean",
-								"description": "Spell is negative for target"
+						"negative" : {
+								"type" : "boolean",
+								"description" : "Spell is negative for target"
 						},
-						"positive": {
-								"type":"boolean",
-								"description": "Spell is positive for target"
+						"positive" : {
+								"type" : "boolean",
+								"description" : "Spell is positive for target"
 						},
-						"damage": {
-								"type":"boolean",
-								"description": "Spell does damage (direct or indirect)"
+						"damage" : {
+								"type" : "boolean",
+								"description" : "Spell does damage (direct or indirect)"
 						},
-						"offensive": {
-								"type":"boolean",
-								"description": "Spell does direct damage (implicitly sets damage and negative)"
+						"offensive" : {
+								"type" : "boolean",
+								"description" : "Spell does direct damage (implicitly sets damage and negative)"
 						},
-						"rising":{
-								"type":"boolean",
-								"description": "Rising spell (implicitly sets positive)"
+						"rising" : {
+								"type" : "boolean",
+								"description" : "Rising spell (implicitly sets positive)"
 						},
-						"special":{
-								"type": "boolean",
-								"description": "Special spell. Can be given only by Bonus::SPELL"
-						}
+						"special" : {
+								"type" : "boolean",
+								"description" : "Special spell. Can be given only by BonusType::SPELL"
+						},
+						"nonMagical" : {
+							"type" : "boolean",
+							"description" : "Non-magical ability. Usually used by some creatures. Should not be affected by sorcery and generic magic resistance. School resistances apply. Examples: dendroid bind, efreet fire shield."
+					}
 				}
 		},
-		"immunity":{
+		"immunity" : {
 				"$ref" : "#/definitions/flags",
-				 "description": "flags structure of bonus names, any one of these bonus grants immunity"
+				 "description" : "flags structure of bonus names, any one of these bonus grants immunity"
 		},
-		"absoluteImmunity":{
+		"absoluteImmunity" : {
 				 "$ref" : "#/definitions/flags",
-				 "description": "flags structure of bonus names. Any one of these bonus grants immunity, can't be negated"
+				 "description" : "flags structure of bonus names. Any one of these bonus grants immunity, can't be negated"
 		},
-		"limit":{
+		"limit" : {
 				 "$ref" : "#/definitions/flags",
-				 "description": "flags structure of bonus names, presence of all bonuses required to be affected by."
+				 "description" : "flags structure of bonus names, presence of all bonuses required to be affected by."
 		},
-		"absoluteLimit":{
+		"absoluteLimit" : {
 				 "$ref" : "#/definitions/flags",
-				 "description": "flags structure of bonus names, presence of all bonuses required to be affected by, can't be negated."
+				 "description" : "flags structure of bonus names, presence of all bonuses required to be affected by, can't be negated."
 		},
-		"targetCondition":{
-			"type": "object",
+		"targetCondition" : {
+			"type" : "object",
 			"additionalProperties" : true
 		},
-		"animation":{"$ref": "#/definitions/animation"},
-
-		"graphics":{
-				 "type": "object",
-				 "additionalProperties" : false,
-				 "properties":{
-						 "iconImmune":{
-							  "type": "string",
-							  "description": "Resourse path of icon for SPELL_IMMUNITY bonus (relative to DATA or SPRITES)",
-							  "format" : "imageFile"
-						 },
-						 "iconScenarioBonus":{
-							  "type": "string",
-							  "description": "Resourse path of icon for scenario bonus" ,
-							  "format" : "imageFile"
-						 },
-						 "iconEffect":{
-							  "type": "string",
-							  "description": "Resourse path of icon for spell effects during battle" ,
-							  "format" : "imageFile"
-						 },
-						 "iconBook":{
-							  "type": "string",
-							  "description":"Resourse path of icon for spellbook" ,
-							  "format" : "imageFile"
-						 },
-						 "iconScroll":{
-							  "type": "string",
-							  "description": "Resourse path of icon for spell scrolls",
-							  "format": "imageFile"
-						 }
-				 }
-
+		"animation" : {"$ref" : "#/definitions/animation"},
+		"graphics" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"iconBook" : {
+						"type" : "string",
+						"description" : "Resourse path of icon for spellbook" ,
+						"format" : "imageFile"
+				},
+				"iconScroll" : {
+						"type" : "string",
+						"description" : "Resourse path of icon for spell scrolls",
+						"format" : "imageFile"
+				},
+				"iconEffect" : {
+					"type" : "string",
+					"description" : "Resourse path of icon for spell effects during battle" ,
+					"format" : "imageFile"
+				},
+				"iconImmune" : {
+					"type" : "string",
+					"description" : "Resourse path of icon for SPELL_IMMUNITY bonus (relative to DATA or SPRITES)",
+					"format" : "imageFile"
+				},
+				"iconScenarioBonus" : {
+					"type" : "string",
+					"description" : "Resourse path of icon for scenario bonus" ,
+					"format" : "imageFile"
+				}
+			}
 		},
-
-		"sounds":{
-			 "type": "object",
+		"sounds" : {
+			 "type" : "object",
 			 "additionalProperties" : false,
-			 "properties":{
-					 "cast":{
-						  "type": "string",
-						  "description": "Resourse path of cast sound"
+			 "properties" : {
+					 "cast" : {
+						  "type" : "string",
+						  "description" : "Resourse path of cast sound"
 					 }
 			 }
 		},
-
-		"levels":{
-			 "type": "object",
+		"levels" : {
+			 "type" : "object",
 			 "additionalProperties" : false,
 			 "required" : ["none", "basic", "advanced", "expert"],
-
-			 "properties":{
-				"base":{
-					"type": "object",
-					"description": "will be merged with all levels",
-					"additionalProperties": true
+			 "properties" : {
+				"base" : {
+					"type" : "object",
+					"description" : "will be merged with all levels",
+					"additionalProperties" : true
 				},
-				"none":{
+				"none" : {
 					"$ref" : "#/definitions/levelInfo"
 				},
-				"basic":{
+				"basic" : {
 					"$ref" : "#/definitions/levelInfo"
 				},
-				"advanced":{
+				"advanced" : {
 					"$ref" : "#/definitions/levelInfo"
 				},
-				"expert":{
+				"expert" : {
 					"$ref" : "#/definitions/levelInfo"
 				}
 			}
+		},
+		"onlyOnWaterMap" : {
+			"type" : "boolean",
+			"description" : "It true, spell won't be available on a map without water"
 		}
-	}
+	},
 }

@@ -9,16 +9,12 @@
  */
 #pragma once
 
-#include "CObjectHandler.h"
 #include "CArmedInstance.h"
-
-#include "../CCreatureSet.h"
-#include "../NetPacksBase.h"
+#include "../ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGCreature;
-
 
 class DLL_LINKAGE CQuest final
 {
@@ -36,7 +32,11 @@ public:
 		MISSION_RESOURCES = 7,
 		MISSION_HERO = 8,
 		MISSION_PLAYER = 9,
-		MISSION_KEYMASTER = 10
+		MISSION_HOTA_MULTI = 10,
+		// end of H3 missions
+		MISSION_KEYMASTER = 100,
+		MISSION_HOTA_HERO_CLASS = 101,
+		MISSION_HOTA_REACH_DATE = 102
 	};
 
 	enum Eprogress {
@@ -58,7 +58,7 @@ public:
 	std::vector<ui32> m2stats;
 	std::vector<ArtifactID> m5arts; // artifact IDs. Add IDs through addArtifactID(), not directly to the field.
 	std::vector<CStackBasicDescriptor> m6creatures; //pair[cre id, cre count], CreatureSet info irrelevant
-	std::vector<ui32> m7resources; //TODO: use resourceset?
+	TResources m7resources;
 
 	// following fields are used only for kill creature/hero missions, the original
 	// objects became inaccessible after their removal, so we need to store info
@@ -246,7 +246,6 @@ public:
 	{
 		h & static_cast<IQuestObject&>(*this);
 		h & static_cast<CGObjectInstance&>(*this);
-		h & blockVisit;
 	}
 };
 

@@ -10,8 +10,8 @@ android {
 		applicationId "is.xyz.vcmi"
 		minSdk 19
 		targetSdk 31
-		versionCode 1201
-		versionName "1.2.1"
+		versionCode 1300
+		versionName "1.3.0"
 		setProperty("archivesBaseName", "vcmi")
 	}
 
@@ -42,7 +42,7 @@ android {
 				applicationLabel: '@string/app_name',
 			]
 			ndk {
-				debugSymbolLevel 'symbol_table'
+				debugSymbolLevel 'full'
 			}
 		}
 		daily {

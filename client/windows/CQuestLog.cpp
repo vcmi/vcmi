@@ -14,18 +14,21 @@
 #include "../CPlayerInterface.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../widgets/CComponent.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/CComponent.h"
+#include "../widgets/Slider.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../adventureMap/CMinimap.h"
+#include "../render/Canvas.h"
 #include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CGameState.h"
+#include "../../lib/gameState/QuestInfo.h"
 #include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/NetPacksBase.h"
+#include "../../lib/MetaString.h"
 #include "../../lib/mapObjects/CQuest.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -36,13 +39,12 @@ VCMI_LIB_NAMESPACE_END
 
 class CAdvmapInterface;
 
-void CQuestLabel::clickLeft(tribool down, bool previousState)
+void CQuestLabel::clickPressed(const Point & cursorPosition)
 {
-	if (down)
-		callback();
+	callback();
 }
 
-void CQuestLabel::showAll(SDL_Surface * to)
+void CQuestLabel::showAll(Canvas & to)
 {
 	CMultiLineLabel::showAll (to);
 }
@@ -53,15 +55,14 @@ CQuestIcon::CQuestIcon (const std::string &defname, int index, int x, int y) :
 	addUsedEvents(LCLICK);
 }
 
-void CQuestIcon::clickLeft(tribool down, bool previousState)
+void CQuestIcon::clickPressed(const Point & cursorPosition)
 {
-	if (down)
-		callback();
+	callback();
 }
 
-void CQuestIcon::showAll(SDL_Surface * to)
+void CQuestIcon::showAll(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to, parent->pos);
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), parent->pos);
 	CAnimImage::showAll(to);
 }
 
@@ -108,7 +109,7 @@ void CQuestMinimap::iconClicked()
 	//moveAdvMapSelection();
 }
 
-void CQuestMinimap::showAll(SDL_Surface * to)
+void CQuestMinimap::showAll(Canvas & to)
 {
 	CIntObject::showAll(to); // blitting IntObject directly to hide radar
 //	for (auto pic : icons)
@@ -127,11 +128,12 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
 	minimap = std::make_shared<CQuestMinimap>(Rect(12, 12, 169, 169));
 	// TextBox have it's own 4 pixel padding from top at least for English. To achieve 10px from both left and top only add 6px margin
 	description = std::make_shared<CTextBox>("", Rect(205, 18, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
-	ok = std::make_shared<CButton>(Point(539, 398), "IOKAY.DEF", CGI->generaltexth->zelp[445], std::bind(&CQuestLog::close, this), SDLK_RETURN);
+	ok = std::make_shared<CButton>(Point(539, 398), "IOKAY.DEF", CGI->generaltexth->zelp[445], std::bind(&CQuestLog::close, this), EShortcut::GLOBAL_ACCEPT);
 	// Both button and lable are shifted to -2px by x and y to not make them actually look like they're on same line with quests list and ok button
 	hideCompleteButton = std::make_shared<CToggleButton>(Point(10, 396), "sysopchk.def", CButton::tooltipLocalized("vcmi.questLog.hideComplete"), std::bind(&CQuestLog::toggleComplete, this, _1));
 	hideCompleteLabel = std::make_shared<CLabel>(46, 398, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->translate("vcmi.questLog.hideComplete.hover"));
-	slider = std::make_shared<CSlider>(Point(166, 195), 191, std::bind(&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, 0, false, CSlider::BROWN);
+	slider = std::make_shared<CSlider>(Point(166, 195), 191, std::bind(&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, 0, 0, Orientation::VERTICAL, CSlider::BROWN);
+	slider->setPanningStep(32);
 
 	recreateLabelList();
 	recreateQuestList(0);
@@ -164,12 +166,12 @@ void CQuestLog::recreateLabelList()
 			if (auto seersHut = dynamic_cast<const CGSeerHut *>(quests[i].obj))
 			{
 				MetaString toSeer;
-				toSeer << VLC->generaltexth->allTexts[347];
-				toSeer.addReplacement(seersHut->seerName);
-				text.addReplacement(toSeer.toString());
+				toSeer.appendRawString(VLC->generaltexth->allTexts[347]);
+				toSeer.replaceRawString(seersHut->seerName);
+				text.replaceRawString(toSeer.toString());
 			}
 			else
-				text.addReplacement(quests[i].obj->getObjectName()); //get name of the object
+				text.replaceRawString(quests[i].obj->getObjectName()); //get name of the object
 		}
 		auto label = std::make_shared<CQuestLabel>(Rect(13, 195, 149,31), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, text.toString());
 		label->disable();
@@ -191,16 +193,16 @@ void CQuestLog::recreateLabelList()
 	if (currentLabel > QUEST_COUNT)
 	{
 		slider->block(false);
-		slider->moveToMax();
+		slider->scrollToMax();
 	}
 	else
 	{
 		slider->block(true);
-		slider->moveToMin();
+		slider->scrollToMin();
 	}
 }
 
-void CQuestLog::showAll(SDL_Surface * to)
+void CQuestLog::showAll(Canvas & to)
 {
 	CWindowObject::showAll(to);
 	if(questIndex >= 0 && questIndex < labels.size())
@@ -209,7 +211,7 @@ void CQuestLog::showAll(SDL_Surface * to)
 		Rect rect = Rect::createAround(labels[questIndex]->pos, 1);
 		rect.x -= 2; // Adjustment needed as we want selection box on top of border in graphics
 		rect.w += 2;
-		CSDL_Ext::drawBorder(to, rect, Colors::METALLIC_GOLD);
+		to.drawBorder(rect, Colors::METALLIC_GOLD);
 	}
 }
 
@@ -236,7 +238,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 	std::vector<Component> components;
 	currentQuest->quest->getVisitText (text, components, currentQuest->quest->isCustomFirst, true);
 	if(description->slider)
-		description->slider->moveToMin(); // scroll text to start position
+		description->slider->scrollToMin(); // scroll text to start position
 	description->setText(text.toString()); //TODO: use special log entry text
 
 	componentsBox.reset();

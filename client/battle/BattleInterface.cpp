@@ -28,8 +28,9 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/AdventureMapInterface.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
@@ -37,12 +38,11 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CondSh.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/TerrainHandler.h"
-
-CondSh<BattleAction *> BattleInterface::givenCommand(nullptr);
 
 BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2,
 		const CGHeroInstance *hero1, const CGHeroInstance *hero2,
@@ -65,8 +65,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 		//May happen when we are defending during network MP game -> attacker interface is just not present
 		curInt = defenderInt;
 	}
-
-	givenCommand.setn(nullptr);
 
 	//hot-seat -> check tactics for both players (defender may be local human)
 	if(attackerInt && attackerInt->cb->battleGetTacticDist())
@@ -95,7 +93,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	adventureInt->onAudioPaused();
 	ongoingAnimationsState.set(true);
 
-	GH.pushInt(windowObject);
+	GH.windows().pushWindow(windowObject);
 	windowObject->blockUI(true);
 	windowObject->updateQueue();
 
@@ -156,18 +154,18 @@ void BattleInterface::openingEnd()
 BattleInterface::~BattleInterface()
 {
 	CPlayerInterface::battleInt = nullptr;
-	givenCommand.cond.notify_all(); //that two lines should make any stacksController->getActiveStack() waiting thread to finish
 
 	if (adventureInt)
 		adventureInt->onAudioResumed();
 
+	awaitingEvents.clear();
 	onAnimationsFinished();
 }
 
 void BattleInterface::redrawBattlefield()
 {
 	fieldController->redrawBackgroundWithHexes();
-	GH.totalRedraw();
+	GH.windows().totalRedraw();
 }
 
 void BattleInterface::stackReset(const CStack * stack)
@@ -208,7 +206,7 @@ void BattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedI
 
 	for(const StackAttackedInfo & attackedInfo : attackedInfos)
 	{
-		ui8 side = attackedInfo.defender->side;
+		ui8 side = attackedInfo.defender->unitSide();
 		killedBySide.at(side) += attackedInfo.amountKilled;
 	}
 
@@ -251,29 +249,28 @@ void BattleInterface::giveCommand(EActionType action, BattleHex tile, si32 addit
 		return;
 	}
 
-	auto ba = new BattleAction(); //is deleted in CPlayerInterface::stacksController->getActiveStack()()
-	ba->side = side.get();
-	ba->actionType = action;
-	ba->aimToHex(tile);
-	ba->actionSubtype = additional;
+	BattleAction ba;
+	ba.side = side.value();
+	ba.actionType = action;
+	ba.aimToHex(tile);
+	ba.actionSubtype = additional;
 
 	sendCommand(ba, actor);
 }
 
-void BattleInterface::sendCommand(BattleAction *& command, const CStack * actor)
+void BattleInterface::sendCommand(BattleAction command, const CStack * actor)
 {
-	command->stackNumber = actor ? actor->unitId() : ((command->side == BattleSide::ATTACKER) ? -1 : -2);
+	command.stackNumber = actor ? actor->unitId() : ((command.side == BattleSide::ATTACKER) ? -1 : -2);
 
 	if(!tacticsMode)
 	{
 		logGlobal->trace("Setting command for %s", (actor ? actor->nodeName() : "hero"));
 		stacksController->setActiveStack(nullptr);
-		givenCommand.setn(command);
+		LOCPLINT->cb->battleMakeUnitAction(command);
 	}
 	else
 	{
 		curInt->cb->battleMakeTacticAction(command);
-		vstd::clear_pointer(command);
 		stacksController->setActiveStack(nullptr);
 		//next stack will be activated when action ends
 	}
@@ -288,7 +285,7 @@ const CGHeroInstance * BattleInterface::getActiveHero()
 		return nullptr;
 	}
 
-	if(attacker->side == BattleSide::ATTACKER)
+	if(attacker->unitSide() == BattleSide::ATTACKER)
 	{
 		return attackingHeroInstance;
 	}
@@ -308,7 +305,7 @@ void BattleInterface::gateStateChanged(const EGateState state)
 		siegeController->gateStateChanged(state);
 }
 
-void BattleInterface::battleFinished(const BattleResult& br)
+void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 {
 	checkForAnimations();
 	stacksController->setActiveStack(nullptr);
@@ -318,22 +315,34 @@ void BattleInterface::battleFinished(const BattleResult& br)
 
 	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-skip-battle-result"].Bool())
 	{
+		curInt->cb->selectionMade(0, queryID);
 		windowObject->close();
 		return;
 	}
 
-	GH.pushInt(std::make_shared<BattleResultWindow>(br, *(this->curInt)));
+	auto wnd = std::make_shared<BattleResultWindow>(br, *(this->curInt));
+	wnd->resultCallback = [=](ui32 selection)
+	{
+		curInt->cb->selectionMade(selection, queryID);
+	};
+	GH.windows().pushWindow(wnd);
+	
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897
 	CPlayerInterface::battleInt = nullptr;
 }
 
 void BattleInterface::spellCast(const BattleSpellCast * sc)
 {
-	windowObject->blockUI(true);
+	// Do not deactivate anything in tactics mode
+	// This is battlefield setup spells
+	if(!tacticsMode)
+	{
+		windowObject->blockUI(true);
 
-	// Disable current active stack duing the cast
-	// Store the current activeStack to stackToActivate
-	stacksController->deactivateStack();
+		// Disable current active stack duing the cast
+		// Store the current activeStack to stackToActivate
+		stacksController->deactivateStack();
+	}
 
 	CCS->curh->set(Cursor::Combat::BLOCKED);
 
@@ -558,6 +567,9 @@ bool BattleInterface::makingTurn() const
 
 void BattleInterface::endAction(const BattleAction* action)
 {
+	// it is possible that tactics mode ended while opening music is still playing
+	waitForAnimations();
+
 	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
 
 	// Activate stack from stackToActivate because this might have been temporary disabled, e.g., during spell cast
@@ -617,11 +629,16 @@ void BattleInterface::tacticPhaseEnd()
 {
 	stacksController->setActiveStack(nullptr);
 	tacticsMode = false;
+
+	auto side = tacticianInterface->cb->playerToSide(tacticianInterface->playerID);
+	auto action = BattleAction::makeEndOFTacticPhase(*side);
+
+	tacticianInterface->cb->battleMakeTacticAction(action);
 }
 
 static bool immobile(const CStack *s)
 {
-	return !s->Speed(0, true); //should bound stacks be immobile?
+	return !s->speed(0, true); //should bound stacks be immobile?
 }
 
 void BattleInterface::tacticNextStack(const CStack * current)
@@ -653,6 +670,11 @@ void BattleInterface::obstaclePlaced(const std::vector<std::shared_ptr<const COb
 	obstacleController->obstaclePlaced(oi);
 }
 
+void BattleInterface::obstacleRemoved(const std::vector<ObstacleChanges> & obstacles)
+{
+	obstacleController->obstacleRemoved(obstacles);
+}
+
 const CGHeroInstance *BattleInterface::currentHero() const
 {
 	if (attackingHeroInstance && attackingHeroInstance->tempOwner == curInt->playerID)
@@ -679,38 +701,39 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 {
 	assert(curInt->isAutoFightOn);
 
-	boost::thread aiThread([&]()
+	if(curInt->cb->battleIsFinished())
 	{
-		if(curInt->cb->battleIsFinished())
-		{
-			return; // battle finished with spellcast
-		}
+		return; // battle finished with spellcast
+	}
 
-		if (tacticsMode)
+	if (tacticsMode)
+	{
+		// Always end tactics mode. Player interface is blocked currently, so it's not possible that
+		// the AI can take any action except end tactics phase (AI actions won't be triggered)
+		//TODO implement the possibility that the AI will be triggered for further actions
+		//TODO any solution to merge tactics phase & normal phase in the way it is handled by the player and battle interface?
+		tacticPhaseEnd();
+		stacksController->setActiveStack(nullptr);
+	}
+	else
+	{
+		const CStack* activeStack = stacksController->getActiveStack();
+
+		// If enemy is moving, activeStack can be null
+		if (activeStack)
 		{
-			// Always end tactics mode. Player interface is blocked currently, so it's not possible that
-			// the AI can take any action except end tactics phase (AI actions won't be triggered)
-			//TODO implement the possibility that the AI will be triggered for further actions
-			//TODO any solution to merge tactics phase & normal phase in the way it is handled by the player and battle interface?
 			stacksController->setActiveStack(nullptr);
-			tacticsMode = false;
-		}
-		else
-		{
-			const CStack* activeStack = stacksController->getActiveStack();
 
-			// If enemy is moving, activeStack can be null
-			if (activeStack)
+			// FIXME: unsafe
+			// Run task in separate thread to avoid UI lock while AI is making turn (which might take some time)
+			// HOWEVER this thread won't atttempt to lock game state, potentially leading to races
+			boost::thread aiThread([this, activeStack]()
 			{
-				auto ba = std::make_unique<BattleAction>(curInt->autofightingAI->activeStack(activeStack));
-				givenCommand.setn(ba.release());
-			}
-
-			stacksController->setActiveStack(nullptr);
+				curInt->autofightingAI->activeStack(activeStack);
+			});
+			aiThread.detach();
 		}
-	});
-
-	aiThread.detach();
+	}
 }
 
 void BattleInterface::castThisSpell(SpellID spellID)
@@ -759,8 +782,19 @@ void BattleInterface::onAnimationsFinished()
 
 void BattleInterface::waitForAnimations()
 {
-	auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
-	ongoingAnimationsState.waitUntil(false);
+	{
+		auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
+		ongoingAnimationsState.waitUntil(false);
+	}
+
+	assert(!hasAnimations());
+	assert(awaitingEvents.empty());
+
+	if (!awaitingEvents.empty())
+	{
+		logGlobal->error("Wait for animations finished but we still have awaiting events!");
+		awaitingEvents.clear();
+	}
 }
 
 bool BattleInterface::hasAnimations()
@@ -787,4 +821,11 @@ void BattleInterface::setBattleQueueVisibility(bool visible)
 	windowObject->hideQueue();
 	if(visible)
 		windowObject->showQueue();
+}
+
+void BattleInterface::setStickyHeroWindowsVisibility(bool visible)
+{
+	windowObject->hideStickyHeroWindows();
+	if(visible)
+		windowObject->showStickyHeroWindows();
 }

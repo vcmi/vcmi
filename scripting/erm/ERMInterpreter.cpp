@@ -156,13 +156,13 @@ namespace ERMConverter
 		}
 	};
 
-	struct LVL2IexpToVar : boost::static_visitor<Variable>
+	struct LVL2IexpToVar
 	{
 		LVL2IexpToVar() = default;
 
 		Variable operator()(const TVarExpNotMacro & val) const
 		{
-			if(val.val.is_initialized())
+			if(val.val.has_value())
 				return Variable(val.varsym, val.val.get());
 			else
 				return Variable(val.varsym, 0);
@@ -174,30 +174,27 @@ namespace ERMConverter
 		}
 	};
 
-	struct LVL1IexpToVar : boost::static_visitor<Variable>
+	struct LVL1IexpToVar
 	{
 		LVL1IexpToVar() = default;
 
-		Variable operator()(int const & constant) const
+		Variable operator()(const int & constant) const
 		{
 			return Variable("", constant);
 		}
 
 		Variable operator()(const TVarExp & var) const
 		{
-			return boost::apply_visitor(LVL2IexpToVar(), var);
+			return std::visit(LVL2IexpToVar(), var);
 		}
 	};
 
-	struct Condition : public boost::static_visitor<std::string>
+	struct Condition
 	{
-		Condition()
-		{}
-
 		std::string operator()(const TComparison & cmp) const
 		{
-			Variable lhs = boost::apply_visitor(LVL1IexpToVar(), cmp.lhs);
-			Variable rhs = boost::apply_visitor(LVL1IexpToVar(), cmp.rhs);
+			Variable lhs = std::visit(LVL1IexpToVar(), cmp.lhs);
+			Variable rhs = std::visit(LVL1IexpToVar(), cmp.rhs);
 
 			auto sign = CMP_OPERATION.find(cmp.compSign);
 			if(sign == std::end(CMP_OPERATION))
@@ -207,7 +204,7 @@ namespace ERMConverter
 			fmt % lhs.str() % sign->second % rhs.str();
 			return fmt.str();
 		}
-		std::string operator()(int const & flag) const
+		std::string operator()(const int & flag) const
 		{
 			return boost::to_string(boost::format("F['%d']") % flag);
 		}
@@ -222,7 +219,7 @@ namespace ERMConverter
 		std::string semiCmpSign = "";
 	};
 
-	struct Converter : public boost::static_visitor<>
+	struct Converter
 	{
 		mutable std::ostream * out;
 		Converter(std::ostream * out_)
@@ -246,11 +243,8 @@ namespace ERMConverter
 		}
 	};
 
-	struct GetBodyOption : public boost::static_visitor<std::string>
+	struct GetBodyOption
 	{
-		GetBodyOption()
-		{}
-
 		virtual std::string operator()(const TVarConcatString & cmp) const
 		{
 			throw EScriptExecError("String concatenation not allowed in this receiver");
@@ -285,7 +279,7 @@ namespace ERMConverter
 		}
 	};
 
-	struct BodyOption : public boost::static_visitor<ParamIO>
+	struct BodyOption
 	{
 		ParamIO operator()(const TVarConcatString & cmp) const
 		{
@@ -314,7 +308,7 @@ namespace ERMConverter
 			ret.isInput = false;
 			ret.semi = true;
 			ret.semiCmpSign = cmp.compSign;
-			ret.name = (boost::apply_visitor(LVL1IexpToVar(), cmp.rhs)).str();
+			ret.name = (std::visit(LVL1IexpToVar(), cmp.rhs)).str();
 			return ret;
 		}
 
@@ -327,7 +321,7 @@ namespace ERMConverter
 		{
 			ParamIO ret;
 			ret.isInput = true;
-			ret.name = (boost::apply_visitor(LVL1IexpToVar(), cmp)).str();;
+			ret.name = (std::visit(LVL1IexpToVar(), cmp)).str();;
 			return ret;
 		}
 
@@ -336,7 +330,7 @@ namespace ERMConverter
 			ParamIO ret;
 			ret.isInput = false;
 
-			ret.name = (boost::apply_visitor(LVL2IexpToVar(), cmp.var)).str();
+			ret.name = (std::visit(LVL2IexpToVar(), cmp.var)).str();
 			return ret;
 		}
 
@@ -396,10 +390,10 @@ namespace ERMConverter
 
 			std::vector<ParamIO> optionParams;
 
-			if(trig.params.is_initialized())
+			if(trig.params.has_value())
 			{
 				for(auto & p : trig.params.get())
-					optionParams.push_back(boost::apply_visitor(BodyOption(), p));
+					optionParams.push_back(std::visit(BodyOption(), p));
 			}
 
 			int idx = 1;
@@ -511,7 +505,7 @@ namespace ERMConverter
 
 		FU(std::ostream * out_, const ERM::TIexp & tid)
 			: Receiver(out_),
-			v(boost::apply_visitor(LVL1IexpToVar(), tid))
+			v(std::visit(LVL1IexpToVar(), tid))
 		{
 		}
 
@@ -558,7 +552,7 @@ namespace ERMConverter
 
 		MC(std::ostream * out_, const ERM::TIexp & tid)
 			: Receiver(out_),
-			v(boost::apply_visitor(LVL1IexpToVar(), tid))
+			v(std::visit(LVL1IexpToVar(), tid))
 		{
 		}
 
@@ -576,11 +570,11 @@ namespace ERMConverter
 			{
 			case 'S':
 				{
-					if(option.params.is_initialized())
+					if(option.params.has_value())
 					{
 						for(auto & p : option.params.get())
 						{
-							std::string macroName = boost::apply_visitor(MC_S(), p);
+							std::string macroName = std::visit(MC_S(), p);
 
 							boost::format callFormat;
 
@@ -616,7 +610,7 @@ namespace ERMConverter
 
 		std::string operator()(const TIexp & cmp) const override
 		{
-			auto v = boost::apply_visitor(LVL1IexpToVar(), cmp);
+			auto v = std::visit(LVL1IexpToVar(), cmp);
 			return v.str();
 		}
 		std::string operator()(const TStringConstant & cmp) const override
@@ -636,7 +630,7 @@ namespace ERMConverter
 
 		std::string operator()(const TIexp & cmp) const override
 		{
-			Variable p = boost::apply_visitor(LVL1IexpToVar(), cmp);
+			Variable p = std::visit(LVL1IexpToVar(), cmp);
 
 			if(p.index <= 0)
 				throw EScriptExecError("VR:H requires flag index");
@@ -661,7 +655,7 @@ namespace ERMConverter
 
 		std::string operator()(const TIexp & cmp) const override
 		{
-			Variable p = boost::apply_visitor(LVL1IexpToVar(), cmp);
+			Variable p = std::visit(LVL1IexpToVar(), cmp);
 
 			return p.str();
 		}
@@ -673,7 +667,7 @@ namespace ERMConverter
 
 		VR(std::ostream * out_, const ERM::TIexp & tid)
 			: Receiver(out_),
-			v(boost::apply_visitor(LVL1IexpToVar(), tid))
+			v(std::visit(LVL1IexpToVar(), tid))
 		{
 		}
 
@@ -681,7 +675,7 @@ namespace ERMConverter
 
 		void operator()(const TVRLogic & trig) const override
 		{
-			Variable rhs = boost::apply_visitor(LVL1IexpToVar(), trig.var);
+			Variable rhs = std::visit(LVL1IexpToVar(), trig.var);
 
 			std::string opcode;
 
@@ -705,7 +699,7 @@ namespace ERMConverter
 
 		void operator()(const TVRArithmetic & trig) const override
 		{
-			Variable rhs = boost::apply_visitor(LVL1IexpToVar(), trig.rhs);
+			Variable rhs = std::visit(LVL1IexpToVar(), trig.rhs);
 
 			std::string opcode;
 
@@ -743,10 +737,10 @@ namespace ERMConverter
 
 					std::vector<ParamIO> optionParams;
 
-					if(trig.params.is_initialized())
+					if(trig.params.has_value())
 					{
 						for(auto & p : trig.params.get())
-							optionParams.push_back(boost::apply_visitor(BodyOption(), p));
+							optionParams.push_back(std::visit(BodyOption(), p));
 					}
 
 					auto index = v.index;
@@ -765,10 +759,10 @@ namespace ERMConverter
 				break;
 			case 'H': //checking if string is empty
 				{
-					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
+					if(!trig.params.has_value() || trig.params.get().size() != 1)
 						throw EScriptExecError("VR:H option takes exactly 1 parameter!");
 
-					std::string opt = boost::apply_visitor(VR_H(), trig.params.get()[0]);
+					std::string opt = std::visit(VR_H(), trig.params.get()[0]);
 					boost::format fmt("ERM.VR(%s):H(%s)");
 					fmt % v.str() % opt;
 					putLine(fmt.str());
@@ -776,10 +770,10 @@ namespace ERMConverter
 				break;
 			case 'U':
 				{
-					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
+					if(!trig.params.has_value() || trig.params.get().size() != 1)
 						throw EScriptExecError("VR:H/U need 1 parameter!");
 
-					std::string opt = boost::apply_visitor(VR_S(), trig.params.get()[0]);
+					std::string opt = std::visit(VR_S(), trig.params.get()[0]);
 					boost::format fmt("ERM.VR(%s):%c(%s)");
 					fmt % v.str() % (trig.optionCode) % opt;
 					putLine(fmt.str());
@@ -787,10 +781,10 @@ namespace ERMConverter
 				break;
 			case 'M': //string operations
 				{
-					if(!trig.params.is_initialized() || trig.params.get().size() < 2)
+					if(!trig.params.has_value() || trig.params.get().size() < 2)
 						throw EScriptExecError("VR:M needs at least 2 parameters!");
 
-					std::string opt = boost::apply_visitor(VR_X(), trig.params.get()[0]);
+					std::string opt = std::visit(VR_X(), trig.params.get()[0]);
 					int paramIndex = 1;
 
 					if(opt == "3")
@@ -801,7 +795,7 @@ namespace ERMConverter
 					}
 					else
 					{
-						auto target = boost::apply_visitor(VR_X(), trig.params.get()[paramIndex++]);
+						auto target = std::visit(VR_X(), trig.params.get()[paramIndex++]);
 
 						boost::format fmt("%s = ERM.VR(%s):M%s(");
 						fmt % target % v.str() % opt;
@@ -810,7 +804,7 @@ namespace ERMConverter
 					
 					for(int i = paramIndex; i < trig.params.get().size(); i++)
 					{
-						opt = boost::apply_visitor(VR_X(), trig.params.get()[i]);
+						opt = std::visit(VR_X(), trig.params.get()[i]);
 						if(i > paramIndex) put(",");
 						put(opt);
 					}
@@ -820,10 +814,10 @@ namespace ERMConverter
 				break;
 			case 'X': //bit xor
 				{
-					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
+					if(!trig.params.has_value() || trig.params.get().size() != 1)
 						throw EScriptExecError("VR:X option takes exactly 1 parameter!");
 
-					std::string opt = boost::apply_visitor(VR_X(), trig.params.get()[0]);
+					std::string opt = std::visit(VR_X(), trig.params.get()[0]);
 
 					boost::format fmt("%s = bit.bxor(%s, %s)");
 					fmt % v.str() % v.str() % opt;putLine(fmt.str());
@@ -837,10 +831,10 @@ namespace ERMConverter
 				break;
 			case 'S': //setting variable
 				{
-					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
+					if(!trig.params.has_value() || trig.params.get().size() != 1)
 						throw EScriptExecError("VR:S option takes exactly 1 parameter!");
 
-					std::string opt = boost::apply_visitor(VR_S(), trig.params.get()[0]);
+					std::string opt = std::visit(VR_S(), trig.params.get()[0]);
 					put(v.str());
 					put(" = ");
 					put(opt);
@@ -855,10 +849,10 @@ namespace ERMConverter
 				break;
 			case 'V': //convert string to value
 				{
-					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
+					if(!trig.params.has_value() || trig.params.get().size() != 1)
 						throw EScriptExecError("VR:V option takes exactly 1 parameter!");
 
-					std::string opt = boost::apply_visitor(VR_X(), trig.params.get()[0]);
+					std::string opt = std::visit(VR_X(), trig.params.get()[0]);
 					boost::format fmt("%s = tostring(%s)");
 					fmt % v.str() % opt;
 					putLine(fmt.str());
@@ -879,26 +873,26 @@ namespace ERMConverter
 		{}
 
 		template <typename Visitor>
-		void performBody(const boost::optional<ERM::Tbody> & body, const Visitor & visitor) const
+		void performBody(const std::optional<ERM::Tbody> & body, const Visitor & visitor) const
 		{
-			if(body.is_initialized())
+			if(body.has_value())
 			{
 				const ERM::Tbody & bo = body.get();
 				for(int g=0; g<bo.size(); ++g)
 				{
-					boost::apply_visitor(visitor, bo[g]);
+					std::visit(visitor, bo[g]);
 				}
 			}
 		}
 
-		void convert(const std::string & name, const boost::optional<Tidentifier> & identifier, const boost::optional<Tbody> & body) const
+		void convert(const std::string & name, const std::optional<Tidentifier> & identifier, const std::optional<Tbody> & body) const
 		{
 			if(name == "VR")
 			{
-				if(!identifier.is_initialized())
+				if(!identifier.has_value())
 					throw EScriptExecError("VR receiver requires arguments");
 
-				ERM::Tidentifier tid = identifier.get();
+				ERM::Tidentifier tid = identifier.value();
 				if(tid.size() != 1)
 					throw EScriptExecError("VR receiver takes exactly 1 argument");
 
@@ -906,20 +900,20 @@ namespace ERMConverter
 			}
 			else if(name == "re")
 			{
-				if(!identifier.is_initialized())
+				if(!identifier.has_value())
 					throw EScriptExecError("re receiver requires arguments");
 
-				ERM::Tidentifier tid = identifier.get();
+				ERM::Tidentifier tid = identifier.value();
 
 				auto argc = tid.size();
 
 				if(argc > 0)
 				{
-					std::string loopCounter = (boost::apply_visitor(LVL1IexpToVar(), tid.at(0))).str();
+					std::string loopCounter = (std::visit(LVL1IexpToVar(), tid.at(0))).str();
 
-					std::string startVal = argc > 1 ? (boost::apply_visitor(LVL1IexpToVar(), tid.at(1))).str() : loopCounter;
-					std::string stopVal = argc > 2 ? (boost::apply_visitor(LVL1IexpToVar(), tid.at(2))).str() : loopCounter;
-					std::string increment = argc > 3 ? (boost::apply_visitor(LVL1IexpToVar(), tid.at(3))).str() : "1";
+					std::string startVal = argc > 1 ? (std::visit(LVL1IexpToVar(), tid.at(1))).str() : loopCounter;
+					std::string stopVal = argc > 2 ? (std::visit(LVL1IexpToVar(), tid.at(2))).str() : loopCounter;
+					std::string increment = argc > 3 ? (std::visit(LVL1IexpToVar(), tid.at(3))).str() : "1";
 
 					boost::format fmt("for __iter = %s, %s, %s do");
 
@@ -935,15 +929,15 @@ namespace ERMConverter
 					throw EScriptExecError("re receiver requires arguments");
 				}
 			}
-			else if(name == "FU" && !identifier.is_initialized())
+			else if(name == "FU" && !identifier.has_value())
 			{
 				performBody(body, FU(out)); //assume FU:E
 			}
 			else if(name == "MC")
 			{
-				if(identifier.is_initialized())
+				if(identifier.has_value())
 				{
-					ERM::Tidentifier tid = identifier.get();
+					ERM::Tidentifier tid = identifier.value();
 					if(tid.size() != 1)
 						throw EScriptExecError("MC receiver takes no more than 1 argument");
 
@@ -958,11 +952,11 @@ namespace ERMConverter
 			{
 				std::vector<std::string> identifiers;
 
-				if(identifier.is_initialized())
+				if(identifier.has_value())
 				{
-					for(const auto & id : identifier.get())
+					for(const auto & id : identifier.value())
 					{
-						Variable v = boost::apply_visitor(LVL1IexpToVar(), id);
+						Variable v = std::visit(LVL1IexpToVar(), id);
 
 						if(v.isSpecial())
 							throw ELineProblem("Special variable syntax ('d') is not allowed in receiver identifier");
@@ -979,7 +973,7 @@ namespace ERMConverter
 					params += *iter;
 				}
 
-				if(body.is_initialized())
+				if(body.has_value())
 				{
 					const ERM::Tbody & bo = body.get();
 					if(bo.size() == 1)
@@ -1018,7 +1012,7 @@ namespace ERMConverter
 
 		void convertConditionInner(const Tcondition & cond, char op) const
 		{
-			std::string lhs = boost::apply_visitor(Condition(), cond.cond);
+			std::string lhs = std::visit(Condition(), cond.cond);
 
 			if(cond.ctype != '/')
 				op = cond.ctype;
@@ -1038,7 +1032,7 @@ namespace ERMConverter
 
 			put(lhs);
 
-			if(cond.rhs.is_initialized())
+			if(cond.rhs.has_value())
 			{
 				switch (op)
 				{
@@ -1057,11 +1051,11 @@ namespace ERMConverter
 		void convertCondition(const Tcondition & cond) const
 		{
 			//&c1/c2/c3|c4/c5/c6 -> (c1  & c2  & c3)  | c4  |  c5  | c6
-			std::string lhs = boost::apply_visitor(Condition(), cond.cond);
+			std::string lhs = std::visit(Condition(), cond.cond);
 			put("if ");
 			put(lhs);
 
-			if(cond.rhs.is_initialized())
+			if(cond.rhs.has_value())
 			{
 				switch (cond.ctype)
 				{
@@ -1079,14 +1073,14 @@ namespace ERMConverter
 			putLine(" then ");
 		}
 
-		void convertReceiverOrInstruction(const boost::optional<Tcondition> & condition,
+		void convertReceiverOrInstruction(const std::optional<Tcondition> & condition,
 			const std::string & name,
-			const boost::optional<Tidentifier> & identifier,
-			const boost::optional<Tbody> & body) const
+			const std::optional<Tidentifier> & identifier,
+			const std::optional<Tbody> & body) const
 		{
 			if(name=="if")
 			{
-				if(condition.is_initialized())
+				if(condition.has_value())
 					convertCondition(condition.get());
 				else
 					putLine("if true then");
@@ -1101,7 +1095,7 @@ namespace ERMConverter
 			}
 			else
 			{
-				if(condition.is_initialized())
+				if(condition.has_value())
 				{
 					convertCondition(condition.get());
 					convert(name, identifier, body);
@@ -1126,7 +1120,7 @@ namespace ERMConverter
 
 		void operator()(const Tinstruction & trig) const
 		{
-			convertReceiverOrInstruction(trig.condition, trig.name, trig.identifier, boost::make_optional(trig.body));
+			convertReceiverOrInstruction(trig.condition, trig.name, trig.identifier, std::make_optional(trig.body));
 		}
 
 		void operator()(const Treceiver & trig) const
@@ -1143,7 +1137,7 @@ namespace ERMConverter
 
 		void operator()(const Tcommand & cmd) const
 		{
-			boost::apply_visitor(ERMExp(out), cmd.cmd);
+			std::visit(ERMExp(out), cmd.cmd);
 		}
 		void operator()(const std::string & comment) const
 		{
@@ -1151,23 +1145,23 @@ namespace ERMConverter
 			endLine();
 		}
 
-		void operator()(spirit::unused_type const &) const
+		void operator()(const spirit::unused_type &) const
 		{
 		}
 	};
 
-	struct TLiteralEval : public boost::static_visitor<std::string>
+	struct TLiteralEval
 	{
 
-		std::string operator()(char const & val)
+		std::string operator()(const char & val)
 		{
 			return "{\"'\",'"+ std::to_string(val) +"'}";
 		}
-		std::string operator()(double const & val)
+		std::string operator()(const double & val)
 		{
 			return std::to_string(val);
 		}
-		std::string operator()(int const & val)
+		std::string operator()(const int & val)
 		{
 			return std::to_string(val);
 		}
@@ -1187,28 +1181,28 @@ namespace ERMConverter
 		{
 			(*out) << "{}";
 		}
-		void operator()(VNode const & opt) const;
+		void operator()(const VNode & opt) const;
 
-		void operator()(VSymbol const & opt) const
+		void operator()(const VSymbol & opt) const 
 		{
 			(*out) << "\"" << opt.text << "\"";
 		}
-		void operator()(TLiteral const & opt) const
+		void operator()(const TLiteral & opt) const
 		{
 			TLiteralEval tmp;
-			(*out) << boost::apply_visitor(tmp, opt);
+			(*out) << std::visit(tmp, opt);
 		}
-		void operator()(ERM::Tcommand const & opt) const
+		void operator()(ERM const ::Tcommand & opt) const
 		{
 			//this is how FP works, evaluation == producing side effects
 			//TODO: can we evaluate to smth more useful?
 			//???
 			throw EVermScriptExecError("Using ERM options in VERM expression is not (yet) allowed");
-//			boost::apply_visitor(ERMExp(out), opt.cmd);
+//			std::visit(ERMExp(out), opt.cmd);
 		}
 	};
 
-	void VOptionEval::operator()(VNode const& opt) const
+	void VOptionEval::operator()(const VNode & opt) const
 	{
 		VNode tmpn(opt);
 
@@ -1216,7 +1210,7 @@ namespace ERMConverter
 
 		for(VOption & op : tmpn.children)
 		{
-			boost::apply_visitor(VOptionEval(out), op);
+			std::visit(VOptionEval(out), op);
 			(*out) << ",";
 		}
 		(*out) << "}";
@@ -1228,7 +1222,7 @@ namespace ERMConverter
 			: Converter(out_)
 		{}
 
-		void operator()(TVExp const & cmd) const
+		void operator()(const TVExp & cmd) const
 		{
 			put("VERM:E");
 
@@ -1240,9 +1234,9 @@ namespace ERMConverter
 
 			endLine();
 		}
-		void operator()(TERMline const & cmd) const
+		void operator()(const TERMline & cmd) const
 		{
-			boost::apply_visitor(Command(out), cmd);
+			std::visit(Command(out), cmd);
 		}
 	};
 
@@ -1257,7 +1251,7 @@ namespace ERMConverter
 		{
 			ERM::TLine & line = owner->retrieveLine(lp);
 
-			boost::apply_visitor(lineConverter, line);
+			std::visit(lineConverter, line);
 		}
 
 		out << "end" << std::endl;
@@ -1277,15 +1271,15 @@ namespace ERMConverter
 
 			out << "ERM:addTrigger({" << std::endl;
 
-			if(!trig.identifier.is_initialized())
+			if(!trig.identifier.has_value())
 				throw EInterpreterError("Function must have identifier");
 
-			ERM::Tidentifier tid = trig.identifier.get();
+			ERM::Tidentifier tid = trig.identifier.value();
 
 			if(tid.empty())
 				throw EInterpreterError("Function must have identifier");
 
-			Variable v = boost::apply_visitor(LVL1IexpToVar(), tid[0]);
+			Variable v = std::visit(LVL1IexpToVar(), tid[0]);
 
 			if(v.isSpecial())
 				throw ELineProblem("Special variable syntax ('d') is not allowed in function definition");
@@ -1304,7 +1298,7 @@ namespace ERMConverter
 				if(owner->isATrigger(curLine))
 					break;
 
-				boost::apply_visitor(lineConverter, curLine);
+				std::visit(lineConverter, curLine);
 			}
 
 			out << "end," << std::endl;
@@ -1328,11 +1322,11 @@ namespace ERMConverter
 
 			std::vector<std::string> identifiers;
 
-			if(trig.identifier.is_initialized())
+			if(trig.identifier.has_value())
 			{
-				for(const auto & id : trig.identifier.get())
+				for(const auto & id : trig.identifier.value())
 				{
-					Variable v = boost::apply_visitor(LVL1IexpToVar(), id);
+					Variable v = std::visit(LVL1IexpToVar(), id);
 
 					if(v.isSpecial())
 						throw ELineProblem("Special variable syntax ('d') is not allowed in trigger definition");
@@ -1358,7 +1352,7 @@ namespace ERMConverter
 				if(owner->isATrigger(curLine))
 					break;
 
-				boost::apply_visitor(lineConverter, curLine);
+				std::visit(lineConverter, curLine);
 			}
 
 			out << "end," << std::endl;
@@ -1367,7 +1361,7 @@ namespace ERMConverter
 	}
 }
 
-struct ScriptScanner : boost::static_visitor<>
+struct ScriptScanner
 {
 	ERMInterpreter * interpreter;
 	LinePointer lp;
@@ -1375,22 +1369,22 @@ struct ScriptScanner : boost::static_visitor<>
 	ScriptScanner(ERMInterpreter * interpr, const LinePointer & _lp) : interpreter(interpr), lp(_lp)
 	{}
 
-	void operator()(TVExp const& cmd) const
+	void operator()(const TVExp & cmd) const
 	{
 		//
 	}
-	void operator()(TERMline const& cmd) const
+	void operator()(const TERMline & cmd) const
 	{
 		if(cmd.which() == 0) //TCommand
 		{
-			Tcommand tcmd = boost::get<Tcommand>(cmd);
+			Tcommand tcmd = std::get<Tcommand>(cmd);
 			switch (tcmd.cmd.which())
 			{
 			case 0: //trigger
 				{
 					Trigger trig;
 					trig.line = lp;
-					interpreter->triggers[ TriggerType(boost::get<ERM::Ttrigger>(tcmd.cmd).name) ].push_back(trig);
+					interpreter->triggers[ TriggerType(std::get<ERM::Ttrigger>(tcmd.cmd).name) ].push_back(trig);
 				}
 				break;
 			case 1: //instruction
@@ -1402,7 +1396,7 @@ struct ScriptScanner : boost::static_visitor<>
 				{
 					Trigger trig;
 					trig.line = lp;
-					interpreter->postTriggers[ TriggerType(boost::get<ERM::TPostTrigger>(tcmd.cmd).name) ].push_back(trig);
+					interpreter->postTriggers[ TriggerType(std::get<ERM::TPostTrigger>(tcmd.cmd).name) ].push_back(trig);
 				}
 				break;
 			default:
@@ -1431,7 +1425,7 @@ bool ERMInterpreter::isATrigger( const ERM::TLine & line )
 	{
 	case 0: //v-exp
 		{
-			TVExp vexp = boost::get<TVExp>(line);
+			TVExp vexp = std::get<TVExp>(line);
 			if(vexp.children.empty())
 				return false;
 
@@ -1441,7 +1435,7 @@ bool ERMInterpreter::isATrigger( const ERM::TLine & line )
 				return false;
 				break;
 			case TCMD:
-				return isCMDATrigger( boost::get<ERM::Tcommand>(vexp.children[0]) );
+				return isCMDATrigger( std::get<ERM::Tcommand>(vexp.children[0]) );
 				break;
 			default:
 				return false;
@@ -1451,11 +1445,11 @@ bool ERMInterpreter::isATrigger( const ERM::TLine & line )
 		break;
 	case 1: //erm
 		{
-			TERMline ermline = boost::get<TERMline>(line);
+			TERMline ermline = std::get<TERMline>(line);
 			switch(ermline.which())
 			{
 			case 0: //tcmd
-				return isCMDATrigger( boost::get<ERM::Tcommand>(ermline) );
+				return isCMDATrigger( std::get<ERM::Tcommand>(ermline) );
 				break;
 			default:
 				return false;
@@ -1500,17 +1494,17 @@ ERM::TTriggerBase & ERMInterpreter::retrieveTrigger(ERM::TLine & line)
 {
 	if(line.which() == 1)
 	{
-		ERM::TERMline &tl = boost::get<ERM::TERMline>(line);
+		ERM::TERMline &tl = std::get<ERM::TERMline>(line);
 		if(tl.which() == 0)
 		{
-			ERM::Tcommand &tcm = boost::get<ERM::Tcommand>(tl);
+			ERM::Tcommand &tcm = std::get<ERM::Tcommand>(tl);
 			if(tcm.cmd.which() == 0)
 			{
-				return boost::get<ERM::Ttrigger>(tcm.cmd);
+				return std::get<ERM::Ttrigger>(tcm.cmd);
 			}
 			else if(tcm.cmd.which() == 3)
 			{
-				return boost::get<ERM::TPostTrigger>(tcm.cmd);
+				return std::get<ERM::TPostTrigger>(tcm.cmd);
 			}
 			throw ELineProblem("Given line is not a trigger!");
 		}
@@ -1533,7 +1527,7 @@ std::string ERMInterpreter::loadScript(const std::string & name, const std::stri
 		scripts[LinePointer(static_cast<int>(buf.size()), g, buf[g].realLineNum)] = buf[g].tl;
 
 	for(auto p : scripts)
-		boost::apply_visitor(ScriptScanner(this, p.first), p.second);
+		std::visit(ScriptScanner(this, p.first), p.second);
 
 	std::stringstream out;
 
@@ -1575,7 +1569,7 @@ namespace VERMInterpreter
 {
 	VOption convertToVOption(const ERM::TVOption & tvo)
 	{
-		return boost::apply_visitor(OptionConverterVisitor(), tvo);
+		return std::visit(OptionConverterVisitor(), tvo);
 	}
 
 	VNode::VNode( const ERM::TVExp & exp )
@@ -1712,34 +1706,34 @@ namespace VERMInterpreter
 		return ret;
 	}
 
-	VOption OptionConverterVisitor::operator()( ERM::TVExp const& cmd ) const
+	VOption OptionConverterVisitor::operator()(ERM const ::TVExp & cmd) const
 	{
 		return VNode(cmd);
 	}
-	VOption OptionConverterVisitor::operator()( ERM::TSymbol const& cmd ) const
+	VOption OptionConverterVisitor::operator()(ERM const ::TSymbol & cmd) const
 	{
 		if(cmd.symModifier.empty())
 			return VSymbol(cmd.sym);
 		else
 			return VNode(cmd);
 	}
-	VOption OptionConverterVisitor::operator()( char const& cmd ) const
+	VOption OptionConverterVisitor::operator()(const char & cmd) const
 	{
 		return TLiteral(cmd);
 	}
-	VOption OptionConverterVisitor::operator()( double const& cmd ) const
+	VOption OptionConverterVisitor::operator()(const double & cmd) const
 	{
 		return TLiteral(cmd);
 	}
-	VOption OptionConverterVisitor::operator()(int const& cmd) const
+	VOption OptionConverterVisitor::operator()(const int & cmd) const
 	{
 		return TLiteral(cmd);
 	}
-	VOption OptionConverterVisitor::operator()(ERM::Tcommand const& cmd) const
+	VOption OptionConverterVisitor::operator()(ERM const ::Tcommand & cmd) const
 	{
 		return cmd;
 	}
-	VOption OptionConverterVisitor::operator()( ERM::TStringConstant const& cmd ) const
+	VOption OptionConverterVisitor::operator()(ERM const ::TStringConstant & cmd) const
 	{
 		return TLiteral(cmd.str);
 	}

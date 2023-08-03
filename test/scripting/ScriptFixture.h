@@ -15,16 +15,18 @@
 #include <vcmi/events/EventBus.h>
 
 #include "../../lib/JsonNode.h"
-#include "../../lib/HeroBonus.h"
 #include "../../lib/ScriptHandler.h"
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
+#include "../../lib/bonuses/Bonus.h"
 
 #include "../mock/mock_ServerCallback.h"
 #include "../mock/mock_IBattleInfoCallback.h"
 #include "../mock/mock_IGameInfoCallback.h"
 #include "../mock/mock_battle_IBattleState.h"
+#if SCRIPTING_ENABLED
 #include "../mock/mock_scripting_Pool.h"
+#endif
 #include "../mock/mock_Environment.h"
 #include "../mock/mock_Services.h"
 #include "../mock/mock_vstd_CLoggerBase.h"

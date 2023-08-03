@@ -33,6 +33,8 @@
 #include "../render/IImage.h"
 #include "../render/CAnimation.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -45,13 +47,14 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/StartInfo.h"
 
-#include "../../lib/mapping/CCampaignHandler.h"
+#include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMapService.h"
 #include "../../lib/mapping/CMapInfo.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
-std::shared_ptr<CCampaignState> CBonusSelection::getCampaign()
+
+std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
 {
 	return CSH->si->campState;
 }
@@ -60,31 +63,26 @@ CBonusSelection::CBonusSelection()
 	: CWindowObject(BORDERED)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	static const std::string bgNames[] =
-	{
-		"E1_BG.BMP", "G2_BG.BMP", "E2_BG.BMP", "G1_BG.BMP", "G3_BG.BMP", "N1_BG.BMP",
-		"S1_BG.BMP", "BR_BG.BMP", "IS_BG.BMP", "KR_BG.BMP", "NI_BG.BMP", "TA_BG.BMP", "AR_BG.BMP", "HS_BG.BMP",
-		"BB_BG.BMP", "NB_BG.BMP", "EL_BG.BMP", "RN_BG.BMP", "UA_BG.BMP", "SP_BG.BMP"
-	};
-	loadPositionsOfGraphics();
-	setBackground(bgNames[getCampaign()->camp->header.mapVersion]);
+
+	std::string bgName = getCampaign()->getRegions().getBackgroundName();
+	setBackground(bgName);
 
 	panelBackground = std::make_shared<CPicture>("CAMPBRF.BMP", 456, 6);
 
-	buttonStart = std::make_shared<CButton>(Point(475, 536), "CBBEGIB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::startMap, this), SDLK_RETURN);
-	buttonRestart = std::make_shared<CButton>(Point(475, 536), "CBRESTB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::restartMap, this), SDLK_RETURN);
-	buttonBack = std::make_shared<CButton>(Point(624, 536), "CBCANCB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::goBack, this), SDLK_ESCAPE);
+	buttonStart = std::make_shared<CButton>(Point(475, 536), "CBBEGIB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::startMap, this), EShortcut::GLOBAL_ACCEPT);
+	buttonRestart = std::make_shared<CButton>(Point(475, 536), "CBRESTB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::restartMap, this), EShortcut::GLOBAL_ACCEPT);
+	buttonBack = std::make_shared<CButton>(Point(624, 536), "CBCANCB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::goBack, this), EShortcut::GLOBAL_CANCEL);
 
 	campaignName = std::make_shared<CLabel>(481, 28, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->si->getCampaignName());
 
 	iconsMapSizes = std::make_shared<CAnimImage>("SCNRMPSZ", 4, 0, 735, 26);
 
 	labelCampaignDescription = std::make_shared<CLabel>(481, 63, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[38]);
-	campaignDescription = std::make_shared<CTextBox>(getCampaign()->camp->header.description, Rect(480, 86, 286, 117), 1);
+	campaignDescription = std::make_shared<CTextBox>(getCampaign()->getDescription(), Rect(480, 86, 286, 117), 1);
 
 	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->mi->getName());
 	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
-	mapDescription = std::make_shared<CTextBox>("", Rect(480, 280, 286, 117), 1);
+	mapDescription = std::make_shared<CTextBox>("", Rect(480, 278, 292, 108), 1);
 
 	labelChooseBonus = std::make_shared<CLabel>(511, 432, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[71]);
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, CSH, _1));
@@ -101,52 +99,29 @@ CBonusSelection::CBonusSelection()
 		difficultyIcons[b] = std::make_shared<CAnimImage>("GSPBUT" + std::to_string(b + 3) + ".DEF", 0, 0, 709, 455);
 	}
 
-	if(getCampaign()->camp->header.difficultyChoosenByPlayer)
+	if(getCampaign()->playerSelectedDifficulty())
 	{
 		buttonDifficultyLeft = std::make_shared<CButton>(Point(694, 508), "SCNRBLF.DEF", CButton::tooltip(), std::bind(&CBonusSelection::decreaseDifficulty, this));
 		buttonDifficultyRight = std::make_shared<CButton>(Point(738, 508), "SCNRBRT.DEF", CButton::tooltip(), std::bind(&CBonusSelection::increaseDifficulty, this));
 	}
 
-	for(int g = 0; g < getCampaign()->camp->scenarios.size(); ++g)
+	for(auto scenarioID : getCampaign()->allScenarios())
 	{
-		if(getCampaign()->camp->conquerable(g))
-			regions.push_back(std::make_shared<CRegion>(g, true, true, campDescriptions[getCampaign()->camp->header.mapVersion]));
-		else if(getCampaign()->camp->scenarios[g].conquered) //display as striped
-			regions.push_back(std::make_shared<CRegion>(g, false, false, campDescriptions[getCampaign()->camp->header.mapVersion]));
+		if(getCampaign()->isAvailable(scenarioID))
+			regions.push_back(std::make_shared<CRegion>(scenarioID, true, true, getCampaign()->getRegions()));
+		else if(getCampaign()->isConquered(scenarioID)) //display as striped
+			regions.push_back(std::make_shared<CRegion>(scenarioID, false, false, getCampaign()->getRegions()));
 	}
-}
 
-void CBonusSelection::loadPositionsOfGraphics()
-{
-	const JsonNode config(ResourceID("config/campaign_regions.json"));
-
-	for(const JsonNode & campaign : config["campaign_regions"].Vector())
-	{
-		SCampPositions sc;
-
-		sc.campPrefix = campaign["prefix"].String();
-		sc.colorSuffixLength = static_cast<int>(campaign["color_suffix_length"].Float());
-
-		for(const JsonNode & desc : campaign["desc"].Vector())
-		{
-			SCampPositions::SRegionDesc rd;
-
-			rd.infix = desc["infix"].String();
-			rd.xpos = static_cast<int>(desc["x"].Float());
-			rd.ypos = static_cast<int>(desc["y"].Float());
-			sc.regions.push_back(rd);
-		}
-
-		campDescriptions.push_back(sc);
-
-	}
+	if (!getCampaign()->getMusic().empty())
+		CCS->musich->playMusic( "Music/" + getCampaign()->getMusic(), true, false);
 }
 
 void CBonusSelection::createBonusesIcons()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	const CCampaignScenario & scenario = getCampaign()->camp->scenarios[CSH->campaignMap];
-	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
+	const CampaignScenario & scenario = getCampaign()->scenario(CSH->campaignMap);
+	const std::vector<CampaignBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, CSH, _1));
 
 	static const char * bonusPics[] =
@@ -166,23 +141,24 @@ void CBonusSelection::createBonusesIcons()
 
 	for(int i = 0; i < bonDescs.size(); i++)
 	{
-		std::string picName = bonusPics[bonDescs[i].type];
+		int bonusType = static_cast<size_t>(bonDescs[i].type);
+		std::string picName = bonusPics[bonusType];
 		size_t picNumber = bonDescs[i].info2;
 
 		std::string desc;
 		switch(bonDescs[i].type)
 		{
-		case CScenarioTravel::STravelBonus::SPELL:
+		case CampaignBonusType::SPELL:
 			desc = CGI->generaltexth->allTexts[715];
 			boost::algorithm::replace_first(desc, "%s", CGI->spells()->getByIndex(bonDescs[i].info2)->getNameTranslated());
 			break;
-		case CScenarioTravel::STravelBonus::MONSTER:
+		case CampaignBonusType::MONSTER:
 			picNumber = bonDescs[i].info2 + 2;
 			desc = CGI->generaltexth->allTexts[717];
 			boost::algorithm::replace_first(desc, "%d", std::to_string(bonDescs[i].info3));
 			boost::algorithm::replace_first(desc, "%s", CGI->creatures()->getByIndex(bonDescs[i].info2)->getNamePluralTranslated());
 			break;
-		case CScenarioTravel::STravelBonus::BUILDING:
+		case CampaignBonusType::BUILDING:
 		{
 			int faction = -1;
 			for(auto & elem : CSH->si->playerInfos)
@@ -196,7 +172,11 @@ void CBonusSelection::createBonusesIcons()
 			}
 			assert(faction != -1);
 
-			BuildingID buildID = CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<BuildingID>());
+			BuildingID buildID;
+			if(getCampaign()->formatVCMI())
+				buildID = BuildingID(bonDescs[i].info1);
+			else
+				buildID = CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<BuildingID>());
 			picName = graphics->ERMUtoPicture[faction][buildID];
 			picNumber = -1;
 
@@ -205,15 +185,15 @@ void CBonusSelection::createBonusesIcons()
 
 			break;
 		}
-		case CScenarioTravel::STravelBonus::ARTIFACT:
+		case CampaignBonusType::ARTIFACT:
 			desc = CGI->generaltexth->allTexts[715];
 			boost::algorithm::replace_first(desc, "%s", CGI->artifacts()->getByIndex(bonDescs[i].info2)->getNameTranslated());
 			break;
-		case CScenarioTravel::STravelBonus::SPELL_SCROLL:
+		case CampaignBonusType::SPELL_SCROLL:
 			desc = CGI->generaltexth->allTexts[716];
 			boost::algorithm::replace_first(desc, "%s", CGI->spells()->getByIndex(bonDescs[i].info2)->getNameTranslated());
 			break;
-		case CScenarioTravel::STravelBonus::PRIMARY_SKILL:
+		case CampaignBonusType::PRIMARY_SKILL:
 		{
 			int leadingSkill = -1;
 			std::vector<std::pair<int, int>> toPrint; //primary skills to be listed <num, val>
@@ -246,7 +226,7 @@ void CBonusSelection::createBonusesIcons()
 			boost::algorithm::replace_first(desc, "%s", substitute);
 			break;
 		}
-		case CScenarioTravel::STravelBonus::SECONDARY_SKILL:
+		case CampaignBonusType::SECONDARY_SKILL:
 			desc = CGI->generaltexth->allTexts[718];
 
 			boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->levels[bonDescs[i].info3 - 1]); //skill level
@@ -254,7 +234,7 @@ void CBonusSelection::createBonusesIcons()
 			picNumber = bonDescs[i].info2 * 3 + bonDescs[i].info3 - 1;
 
 			break;
-		case CScenarioTravel::STravelBonus::RESOURCE:
+		case CampaignBonusType::RESOURCE:
 		{
 			int serialResID = 0;
 			switch(bonDescs[i].info1)
@@ -291,19 +271,19 @@ void CBonusSelection::createBonusesIcons()
 			boost::algorithm::replace_first(desc, "%s", replacement);
 			break;
 		}
-		case CScenarioTravel::STravelBonus::HEROES_FROM_PREVIOUS_SCENARIO:
+		case CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO:
 		{
-			auto superhero = getCampaign()->camp->scenarios[bonDescs[i].info2].strongestHero(PlayerColor(bonDescs[i].info1));
+			auto superhero = getCampaign()->strongestHero(static_cast<CampaignScenarioID>(bonDescs[i].info2), PlayerColor(bonDescs[i].info1));
 			if(!superhero)
 				logGlobal->warn("No superhero! How could it be transferred?");
 			picNumber = superhero ? superhero->portrait : 0;
 			desc = CGI->generaltexth->allTexts[719];
 
-			boost::algorithm::replace_first(desc, "%s", getCampaign()->camp->scenarios[bonDescs[i].info2].scenarioName);
+			boost::algorithm::replace_first(desc, "%s", getCampaign()->scenario(static_cast<CampaignScenarioID>(bonDescs[i].info2)).scenarioName);
 			break;
 		}
 
-		case CScenarioTravel::STravelBonus::HERO:
+		case CampaignBonusType::HERO:
 
 			desc = CGI->generaltexth->allTexts[718];
 			boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->capColors[bonDescs[i].info1]); //hero's color
@@ -334,10 +314,8 @@ void CBonusSelection::createBonusesIcons()
 		groupBonuses->addToggle(i, bonusButton);
 	}
 
-	if(vstd::contains(getCampaign()->chosenCampaignBonuses, CSH->campaignMap))
-	{
-		groupBonuses->setSelected(getCampaign()->chosenCampaignBonuses[CSH->campaignMap]);
-	}
+	if(getCampaign()->getBonusID(CSH->campaignMap))
+		groupBonuses->setSelected(*getCampaign()->getBonusID(CSH->campaignMap));
 }
 
 void CBonusSelection::updateAfterStateChange()
@@ -346,7 +324,7 @@ void CBonusSelection::updateAfterStateChange()
 	{
 		buttonRestart->disable();
 		buttonStart->enable();
-		if(!getCampaign()->mapsConquered.empty())
+		if(!getCampaign()->conqueredScenarios().empty())
 			buttonBack->block(true);
 		else
 			buttonBack->block(false);
@@ -363,7 +341,7 @@ void CBonusSelection::updateAfterStateChange()
 	}
 	if(CSH->campaignBonus == -1)
 	{
-		buttonStart->block(getCampaign()->camp->scenarios[CSH->campaignMap].travelOptions.bonusesToChoose.size());
+		buttonStart->block(getCampaign()->scenario(CSH->campaignMap).travelOptions.bonusesToChoose.size());
 	}
 	else if(buttonStart->isBlocked())
 	{
@@ -376,6 +354,7 @@ void CBonusSelection::updateAfterStateChange()
 	if(!CSH->mi)
 		return;
 	iconsMapSizes->setFrame(CSH->mi->getMapSizeIconId());
+	mapName->setText(CSH->mi->getName());
 	mapDescription->setText(CSH->mi->getDescription());
 	for(size_t i = 0; i < difficultyIcons.size(); i++)
 	{
@@ -392,7 +371,7 @@ void CBonusSelection::goBack()
 {
 	if(CSH->state != EClientState::GAMEPLAY)
 	{
-		GH.popInts(2);
+		GH.windows().popWindows(2);
 	}
 	else
 	{
@@ -415,14 +394,14 @@ void CBonusSelection::startMap()
 	{
 		auto exitCb = [=]()
 		{
-			logGlobal->info("Starting scenario %d", CSH->campaignMap);
+			logGlobal->info("Starting scenario %d", static_cast<int>(CSH->campaignMap));
 			CSH->sendStartGame();
 		};
 
-		const CCampaignScenario & scenario = getCampaign()->camp->scenarios[CSH->campaignMap];
+		const CampaignScenario & scenario = getCampaign()->scenario(CSH->campaignMap);
 		if(scenario.prolog.hasPrologEpilog)
 		{
-			GH.pushIntT<CPrologEpilogVideo>(scenario.prolog, exitCb);
+			GH.windows().createAndPushWindow<CPrologEpilogVideo>(scenario.prolog, exitCb);
 		}
 		else
 		{
@@ -452,10 +431,19 @@ void CBonusSelection::startMap()
 void CBonusSelection::restartMap()
 {
 	close();
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [=]()
-	{
-		GH.pushUserEvent(EUserEvent::RESTART_GAME);
-	}, 0);
+	LOCPLINT->showYesNoDialog(
+		CGI->generaltexth->allTexts[67],
+		[=]()
+		{
+			GH.dispatchMainThread(
+				[]()
+				{
+					CSH->sendRestartGame();
+				}
+			);
+		},
+		0
+	);
 }
 
 void CBonusSelection::increaseDifficulty()
@@ -470,31 +458,23 @@ void CBonusSelection::decreaseDifficulty()
 		CSH->setDifficulty(CSH->si->difficulty - 1);
 }
 
-CBonusSelection::CRegion::CRegion(int id, bool accessible, bool selectable, const SCampPositions & campDsc)
-	: CIntObject(LCLICK | RCLICK), idOfMapAndRegion(id), accessible(accessible), selectable(selectable)
+CBonusSelection::CRegion::CRegion(CampaignScenarioID id, bool accessible, bool selectable, const CampaignRegions & campDsc)
+	: CIntObject(LCLICK | SHOW_POPUP), idOfMapAndRegion(id), accessible(accessible), selectable(selectable)
 {
 	OBJ_CONSTRUCTION;
-	static const std::string colors[2][8] =
-	{
-		{"R", "B", "N", "G", "O", "V", "T", "P"},
-		{"Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi"}
-	};
 
-	const SCampPositions::SRegionDesc & desc = campDsc.regions[idOfMapAndRegion];
-	pos.x += desc.xpos;
-	pos.y += desc.ypos;
+	pos += campDsc.getPosition(id);
 
-	std::string prefix = campDsc.campPrefix + desc.infix + "_";
-	std::string suffix = colors[campDsc.colorSuffixLength - 1][CSH->si->campState->camp->scenarios[idOfMapAndRegion].regionColor];
-	graphicsNotSelected = std::make_shared<CPicture>(prefix + "En" + suffix + ".BMP");
+	auto color = CSH->si->campState->scenario(idOfMapAndRegion).regionColor;
+
+	graphicsNotSelected = std::make_shared<CPicture>(campDsc.getAvailableName(id, color));
 	graphicsNotSelected->disable();
-	graphicsSelected = std::make_shared<CPicture>(prefix + "Se" + suffix + ".BMP");
+	graphicsSelected = std::make_shared<CPicture>(campDsc.getSelectedName(id, color));
 	graphicsSelected->disable();
-	graphicsStriped = std::make_shared<CPicture>(prefix + "Co" + suffix + ".BMP");
+	graphicsStriped = std::make_shared<CPicture>(campDsc.getConqueredName(id, color));
 	graphicsStriped->disable();
 	pos.w = graphicsNotSelected->pos.w;
 	pos.h = graphicsNotSelected->pos.h;
-
 }
 
 void CBonusSelection::CRegion::updateState()
@@ -519,23 +499,19 @@ void CBonusSelection::CRegion::updateState()
 	}
 }
 
-void CBonusSelection::CRegion::clickLeft(tribool down, bool previousState)
+void CBonusSelection::CRegion::clickReleased(const Point & cursorPosition)
 {
-	//select if selectable & clicked inside our graphic
-	if(indeterminate(down))
-		return;
-
-	if(!down && selectable && !graphicsNotSelected->getSurface()->isTransparent(GH.getCursorPosition() - pos.topLeft()))
+	if(selectable && !graphicsNotSelected->getSurface()->isTransparent(cursorPosition - pos.topLeft()))
 	{
 		CSH->setCampaignMap(idOfMapAndRegion);
 	}
 }
 
-void CBonusSelection::CRegion::clickRight(tribool down, bool previousState)
+void CBonusSelection::CRegion::showPopupWindow(const Point & cursorPosition)
 {
 	// FIXME: For some reason "down" is only ever contain indeterminate_value
-	auto text = CSH->si->campState->camp->scenarios[idOfMapAndRegion].regionText;
-	if(!graphicsNotSelected->getSurface()->isTransparent(GH.getCursorPosition() - pos.topLeft()) && text.size())
+	auto text = CSH->si->campState->scenario(idOfMapAndRegion).regionText;
+	if(!graphicsNotSelected->getSurface()->isTransparent(cursorPosition - pos.topLeft()) && text.size())
 	{
 		CRClickPopup::createAndPush(text);
 	}

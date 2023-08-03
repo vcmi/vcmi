@@ -16,12 +16,10 @@
 #include "../CVideoHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/TextControls.h"
-#include "../renderSDL/SDL_Extensions.h"
-
-#include "../../lib/mapping/CCampaignHandler.h"
+#include "../render/Canvas.h"
 
 
-CPrologEpilogVideo::CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback)
+CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback)
 	: CWindowObject(BORDERED), spe(_spe), positionCounter(0), voiceSoundHandle(-1), exitCb(callback)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -29,8 +27,8 @@ CPrologEpilogVideo::CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog 
 	pos = center(Rect(0, 0, 800, 600));
 	updateShadow();
 
-	CCS->videoh->open(CCampaignHandler::prologVideoName(spe.prologVideo));
-	CCS->musich->playMusic("Music/" + CCampaignHandler::prologMusicName(spe.prologMusic), true, true);
+	CCS->videoh->open(spe.prologVideo);
+	CCS->musich->playMusic("Music/" + spe.prologMusic, true, true);
 	// MPTODO: Custom campaign crashing on this?
 //	voiceSoundHandle = CCS->soundh->playSound(CCampaignHandler::prologVoiceName(spe.prologVideo));
 
@@ -38,13 +36,13 @@ CPrologEpilogVideo::CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog 
 	text->scrollTextTo(-100);
 }
 
-void CPrologEpilogVideo::show(SDL_Surface * to)
+void CPrologEpilogVideo::show(Canvas & to)
 {
-	CSDL_Ext::fillRect(to, pos, Colors::BLACK);
+	to.drawColor(pos, Colors::BLACK);
 	//BUG: some videos are 800x600 in size while some are 800x400
 	//VCMI should center them in the middle of the screen. Possible but needs modification
 	//of video player API which I'd like to avoid until we'll get rid of Windows-specific player
-	CCS->videoh->update(pos.x, pos.y, to, true, false);
+	CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false);
 
 	//move text every 5 calls/frames; seems to be good enough
 	++positionCounter;
@@ -54,10 +52,10 @@ void CPrologEpilogVideo::show(SDL_Surface * to)
 		text->showAll(to); // blit text over video, if needed
 
 	if(text->textSize.y + 100 < positionCounter / 5)
-		clickLeft(false, false);
+		clickPressed(GH.getCursorPosition());
 }
 
-void CPrologEpilogVideo::clickLeft(tribool down, bool previousState)
+void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
 {
 	close();
 	CCS->soundh->stopSound(voiceSoundHandle);

@@ -46,6 +46,15 @@
             }
         },
         {
+            "name": "linux-test",
+            "inherits": "linux-release",
+            "hidden": true,
+            "cacheVariables": {
+                "ENABLE_TEST": "ON",
+                "ENABLE_LUA": "ON"
+            }
+        },
+        {
             "name": "linux-clang-release",
             "displayName": "Clang x86_64-pc-linux-gnu",
             "description": "VCMI Linux Clang",
@@ -61,6 +70,41 @@
             "description": "VCMI Linux GCC",
             "inherits": "linux-release",
             "cacheVariables": {
+                "ENABLE_LUA" : "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "linux-gcc-debug",
+            "displayName": "GCC x86_64-pc-linux-gnu (debug)",
+            "description": "VCMI Linux GCC (Debug)",
+            "inherits": "linux-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "ENABLE_LUA" : "ON",
+                "ENABLE_PCH" : "OFF",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "linux-clang-test",
+            "displayName": "Clang x86_64-pc-linux-gnu with unit testing",
+            "description": "VCMI Linux Clang",
+            "inherits": "linux-test",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
+            }
+        },
+        {
+            "name": "linux-gcc-test",
+            "displayName": "GCC x86_64-pc-linux-gnu with unit testing",
+            "description": "VCMI Linux GCC",
+            "inherits": "linux-test",
+            "cacheVariables": {
+                "ENABLE_LUA" : "OFF",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
             }
@@ -207,14 +251,34 @@
             "configuration": "RelWithDebInfo"
         },
         {
+            "name": "default-debug",
+            "hidden": true,
+            "configuration": "Debug"
+        },
+        {
             "name": "linux-clang-release",
             "configurePreset": "linux-clang-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "linux-clang-test",
+            "configurePreset": "linux-clang-test",
+            "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-test",
+            "configurePreset": "linux-gcc-test",
             "inherits": "default-release"
         },
         {
             "name": "linux-gcc-release",
             "configurePreset": "linux-gcc-release",
             "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-debug",
+            "configurePreset": "linux-gcc-debug",
+            "inherits": "default-debug"
         },
         {
             "name": "macos-xcode-release",
@@ -291,6 +355,16 @@
         {
             "name": "linux-gcc-release",
             "configurePreset": "linux-gcc-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "linux-clang-test",
+            "configurePreset": "linux-clang-test",
+            "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-test",
+            "configurePreset": "linux-gcc-test",
             "inherits": "default-release"
         },
         {

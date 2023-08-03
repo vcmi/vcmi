@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "AIPreviousNodeRule.h"
 
+#include "../../../../lib/pathfinder/CPathfinder.h"
+
 namespace NKAI
 {
 namespace AIPathfinding
@@ -25,8 +27,8 @@ namespace AIPathfinding
 		const PathfinderConfig * pathfinderConfig,
 		CPathfinderHelper * pathfinderHelper) const
 	{
-		if(source.node->action == CGPathNode::ENodeAction::BLOCKING_VISIT 
-			|| source.node->action == CGPathNode::ENodeAction::VISIT)
+		if(source.node->action == EPathNodeAction::BLOCKING_VISIT 
+			|| source.node->action == EPathNodeAction::VISIT)
 		{
 			if(source.nodeObject
 				&& isObjectPassable(source.nodeObject, pathfinderHelper->hero->tempOwner, source.objectRelations))

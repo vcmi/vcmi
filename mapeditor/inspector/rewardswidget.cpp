@@ -16,6 +16,7 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/StringConstants.h"
+#include "../lib/mapping/CMap.h"
 
 RewardsWidget::RewardsWidget(const CMap & m, CGPandoraBox & p, QWidget *parent) :
 	QDialog(parent),
@@ -74,7 +75,7 @@ QList<QString> RewardsWidget::getListForType(RewardType typeId)
 			for(int i = 0; i < map.allowedAbilities.size(); ++i)
 			{
 				if(map.allowedAbilities[i])
-					result.append(QString::fromStdString(VLC->skillh->objects.at(i)->getNameTranslated()));
+					result.append(QString::fromStdString(VLC->skills()->getByIndex(i)->getNameTranslated()));
 			}
 			break;
 			
@@ -82,15 +83,15 @@ QList<QString> RewardsWidget::getListForType(RewardType typeId)
 			for(int i = 0; i < map.allowedArtifact.size(); ++i)
 			{
 				if(map.allowedArtifact[i])
-					result.append(QString::fromStdString(VLC->arth->objects.at(i)->getNameTranslated()));
+					result.append(QString::fromStdString(VLC->artifacts()->getByIndex(i)->getNameTranslated()));
 			}
 			break;
 			
 		case RewardType::SPELL:
-			for(int i = 0; i < map.allowedSpell.size(); ++i)
+			for(int i = 0; i < map.allowedSpells.size(); ++i)
 			{
-				if(map.allowedSpell[i])
-					result.append(QString::fromStdString(VLC->spellh->objects.at(i)->getNameTranslated()));
+				if(map.allowedSpells[i])
+					result.append(QString::fromStdString(VLC->spells()->getByIndex(i)->getNameTranslated()));
 			}
 			break;
 			
@@ -132,7 +133,7 @@ void RewardsWidget::obtainData()
 			addReward(RewardType::LUCK, 0, pandora->luckDiff);
 		if(pandora->resources.nonZero())
 		{
-			for(Res::ResourceSet::nziterator resiter(pandora->resources); resiter.valid(); ++resiter)
+			for(ResourceSet::nziterator resiter(pandora->resources); resiter.valid(); ++resiter)
 				addReward(RewardType::RESOURCE, resiter->resType, resiter->resVal);
 		}
 		for(int idx = 0; idx < pandora->primskills.size(); ++idx)
@@ -218,7 +219,7 @@ bool RewardsWidget::commitChanges()
 		pandora->abilities.clear();
 		pandora->abilityLevels.clear();
 		pandora->primskills.resize(GameConstants::PRIMARY_SKILLS, 0);
-		pandora->resources = Res::ResourceSet();
+		pandora->resources = ResourceSet();
 		pandora->artifacts.clear();
 		pandora->spells.clear();
 		pandora->creatures.clear();
@@ -248,7 +249,7 @@ bool RewardsWidget::commitChanges()
 					break;
 					
 				case RewardType::RESOURCE:
-					pandora->resources.at(listId) = amount;
+					pandora->resources[listId] = amount;
 					break;
 					
 				case RewardType::PRIMARY_SKILL:

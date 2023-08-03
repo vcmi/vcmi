@@ -9,15 +9,17 @@
  */
 #pragma once
 
-#include "CObjectHandler.h"
+#include "CGObjectInstance.h"
 #include "../CCreatureSet.h"
+#include "../bonuses/CBonusProxy.h"
+#include "../bonuses/CBonusSystemNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class BattleInfo;
 class CGameState;
 
-class DLL_LINKAGE CArmedInstance: public CGObjectInstance, public CBonusSystemNode, public CCreatureSet
+class DLL_LINKAGE CArmedInstance: public CGObjectInstance, public CBonusSystemNode, public CCreatureSet, public IConstBonusProvider
 {
 private:
 	CCheckProxy nonEvilAlignmentMix;
@@ -32,6 +34,8 @@ public:
 	void armyChanged() override;
 
 	//////////////////////////////////////////////////////////////////////////
+	//IConstBonusProvider
+	const IBonusBearer* getBonusBearer() const override;
 //	int valOfGlobalBonuses(CSelector selector) const; //used only for castle interface								???
 	virtual CBonusSystemNode & whereShouldBeAttached(CGameState * gs);
 	virtual CBonusSystemNode & whatShouldBeAttached();

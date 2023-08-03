@@ -10,6 +10,7 @@
 #pragma once
 
 #include "JsonNode.h"
+#include "CModVersion.h"
 
 #ifdef __UCLIBC__
 #undef major
@@ -45,10 +46,14 @@ class DLL_LINKAGE CIdentifierStorage
 		std::function<void(si32)> callback;
 		bool optional;
 
-		ObjectCallback(std::string localScope, std::string remoteScope,
-		               std::string type, std::string name,
-		               std::function<void(si32)> callback,
-		               bool optional);
+		/// Builds callback from identifier in form "targetMod:type.name"
+		static ObjectCallback fromNameWithType(const std::string & scope, const std::string & fullName, const std::function<void(si32)> & callback, bool optional);
+
+		/// Builds callback from identifier in form "targetMod:name"
+		static ObjectCallback fromNameAndType(const std::string & scope, const std::string & type, const std::string & fullName, const std::function<void(si32)> & callback, bool optional);
+
+	private:
+		ObjectCallback() = default;
 	};
 
 	struct ObjectData // entry created on ID registration
@@ -95,10 +100,10 @@ public:
 	void tryRequestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback);
 
 	/// get identifier immediately. If identifier is not know and not silent call will result in error message
-	boost::optional<si32> getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent = false);
-	boost::optional<si32> getIdentifier(const std::string & type, const JsonNode & name, bool silent = false);
-	boost::optional<si32> getIdentifier(const JsonNode & name, bool silent = false);
-	boost::optional<si32> getIdentifier(const std::string & scope, const std::string & fullName, bool silent = false);
+	std::optional<si32> getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent = false);
+	std::optional<si32> getIdentifier(const std::string & type, const JsonNode & name, bool silent = false);
+	std::optional<si32> getIdentifier(const JsonNode & name, bool silent = false);
+	std::optional<si32> getIdentifier(const std::string & scope, const std::string & fullName, bool silent = false);
 
 	/// registers new object
 	void registerObject(const std::string & scope, const std::string & type, const std::string & name, si32 identifier);
@@ -170,7 +175,7 @@ public:
 	const ContentTypeHandler & operator[] (const std::string & name) const;
 };
 
-typedef std::string TModID;
+using TModID = std::string;
 
 class DLL_LINKAGE CModInfo
 {
@@ -181,30 +186,6 @@ public:
 		FAILED,
 		PASSED
 	};
-	
-	struct Version
-	{
-		int major = 0;
-		int minor = 0;
-		int patch = 0;
-		
-		Version() = default;
-		Version(int mj, int mi, int p): major(mj), minor(mi), patch(p) {}
-		
-		static Version GameVersion();
-		static Version fromString(std::string from);
-		std::string toString() const;
-		
-		bool compatible(const Version & other, bool checkMinor = false, bool checkPatch = false) const;
-		bool isNull() const;
-		
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & major;
-			h & minor;
-			h & patch;
-		}
-	};
 
 	/// identifier, identical to name of folder with mod
 	std::string identifier;
@@ -214,14 +195,14 @@ public:
 	std::string description;
 	
 	/// version of the mod
-	Version version;
+	CModVersion version;
 
 	/// Base language of mod, all mod strings are assumed to be in this language
 	std::string baseLanguage;
 	
 	/// vcmi versions compatible with the mod
 
-	Version vcmiCompatibleMin, vcmiCompatibleMax;
+	CModVersion vcmiCompatibleMin, vcmiCompatibleMax;
 
 	/// list of mods that should be loaded before this one
 	std::set <TModID> dependencies;
@@ -306,7 +287,7 @@ public:
 			missingMods(std::move(_missingMods))
 		{
 			std::ostringstream _ss;
-			for(auto & m : missingMods)
+			for(const auto & m : missingMods)
 				_ss << m.first << ' ' << m.second << std::endl;
 			message = _ss.str();
 		}
@@ -343,6 +324,8 @@ public:
 	/// returns list of all (active) mods
 	std::vector<std::string> getAllMods();
 	std::vector<std::string> getActiveMods();
+	
+	const CModInfo & getModInfo(const TModID & modId) const;
 
 	/// load content from all available mods
 	void load();
@@ -375,7 +358,7 @@ public:
 			for(const auto & m : newActiveMods)
 
 			{
-				CModInfo::Version mver;
+				CModVersion mver;
 				h & mver;
 				
 				if(allMods.count(m) && (allMods[m].version.isNull() || mver.isNull() || allMods[m].version.compatible(mver)))

@@ -10,6 +10,7 @@
 			"120px" : "TPCASNEC",
 			"130px" : "CRBKGNEC"
 		},
+		"boat" : "boatNecropolis",
 		"puzzleMap" :
 		{
 			"prefix" : "PUZNEC",
@@ -79,7 +80,7 @@
 			},
 			"structures" :
 			{
-				"extraAnimation": { "animation" : "TBNCEXT2.def", "x" : 25,  "y" : 279 },
+				"extraAnimation": { "animation" : "TBNCEXT2.def", "x" : 25,  "y" : 279, "z" : 8 },
 				"mageGuild1":     { "animation" : "TBNCMAGE.def", "x" : 341, "y" : 116, "z" : -1, "border" : "TONMAG1.bmp",  "area" : "TZNMAG1.bmp" },
 				"mageGuild2":     { "animation" : "TBNCMAG2.def", "x" : 341, "y" : 97,  "z" : -1, "border" : "TONMAG2.bmp",  "area" : "TZNMAG2.bmp" },
 				"mageGuild3":     { "animation" : "TBNCMAG3.def", "x" : 341, "y" : 78,  "z" : -1, "border" : "TONMAG3.bmp",  "area" : "TZNMAG3.bmp" },
@@ -96,7 +97,7 @@
 				"capitol":        { "animation" : "TBNCHAL4.def", "x" : 481, "y" : 26,  "z" : -1, "border" : "TONHAL4.bmp",  "area" : "TZNHAL4.bmp" },
 				"marketplace":    { "animation" : "TBNCMARK.def", "x" : 347, "y" : 215, "z" : 2,  "border" : "TONMRK1.bmp",  "area" : "TZNMRK1.bmp" },
 				"resourceSilo":   { "animation" : "TBNCSILO.def", "x" : 276, "y" : 185, "z" : 1,  "border" : "TONMRK2.bmp",  "area" : "TZNMRK2.bmp" },
-				"blacksmith":     { "animation" : "TBNCBLAK.def", "x" : 382, "y" : 252, "z" : 4,  "border" : "TONSMITA.bmp", "area" : "TZNSMITA.bmp" },
+				"blacksmith":     { "animation" : "TBNCBLAK.def", "x" : 382, "y" : 252, "z" : 6,  "border" : "TONSMITA.bmp", "area" : "TZNSMITA.bmp" },
 				"special1":       { "animation" : "TBNCSPEC.def", "x" : 18,  "y" : 0,   "z" : -1, "border" : "TONSHRDA.bmp", "area" : "TZNSHRDA.bmp" },
 				"horde1":         { "animation" : "TBNCHRD1.def", "x" : 80,  "y" : 222, "z" : 4, "border" : "TONSKE1H.bmp", "area" : "TZNSKE1H.bmp", "hidden" : true },
 				"horde1Upgr":     { "animation" : "TBNCHRD2.def", "x" : 64,  "y" : 222, "z" : 4, "border" : "TONSKE2H.bmp", "area" : "TZNSKE2H.bmp", "hidden" : true, "builds" : "horde1" },
@@ -104,19 +105,19 @@
 				"special2":       { "animation" : "TBNCEXT0.def", "x" : 307, "y" : 61,  "z" : -2, "border" : "TONNECRA.bmp", "area" : "TZNNECRA.bmp" },
 				"special3":       { "animation" : "TBNCEXT1.def", "x" : 247, "y" : 275, "z" : 4,  "border" : "TONSKELT.bmp", "area" : "TZNSKELT.bmp" },
 				"grail":          { "animation" : "TBNCHOLY.def", "x" : 410, "y" : 88,  "border" : "TONHOLYA.bmp", "area" : "TZNHOLYA.bmp" },
-				"extraTownHall":  { "animation" : "TBNCEXT3.def", "x" : 0,   "y" : 241 },
-				"extraCityHall":  { "animation" : "TBNCEXT4.def", "x" : 321, "y" : 255 },
-				"extraCapitol":   { "animation" : "TBNCEXT5.def", "x" : 475, "y" : 257 },
+				"extraTownHall":  { "animation" : "TBNCEXT3.def", "x" : 0,   "y" : 241, "z" : 5 },
+				"extraCityHall":  { "animation" : "TBNCEXT4.def", "x" : 321, "y" : 255, "z" : 5 },
+				"extraCapitol":   { "animation" : "TBNCEXT5.def", "x" : 475, "y" : 257, "z" : 5 },
 				"dwellingLvl1":   { "animation" : "TBNCDW_0.def", "x" : 80,  "y" : 222, "z" : 4, "border" : "TONSKEL1.bmp", "area" : "TZNSKEL1.bmp" },
-				"dwellingLvl2":   { "animation" : "TBNCDW_1.def", "x" : 502, "y" : 223, "border" : "TONZOMB1.bmp", "area" : "TZNZOMB1.bmp" },
-				"dwellingLvl3":   { "animation" : "TBNCDW_2.def", "x" : 0,   "y" : 187, "z" : 2, "border" : "TONWIGH1.bmp", "area" : "TZNWIGH1.bmp" },
+				"dwellingLvl2":   { "animation" : "TBNCDW_1.def", "x" : 502, "y" : 223, "z" : 1, "border" : "TONZOMB1.bmp", "area" : "TZNZOMB1.bmp" },
+				"dwellingLvl3":   { "animation" : "TBNCDW_2.def", "x" : 0,   "y" : 187, "z" : 7, "border" : "TONWIGH1.bmp", "area" : "TZNWIGH1.bmp" },
 				"dwellingLvl4":   { "animation" : "TBNCDW_3.def", "x" : 607, "y" : 212, "z" : 2, "border" : "TONVAM1.bmp",  "area" : "TZNVAM1.bmp" },
 				"dwellingLvl5":   { "animation" : "TBNCDW_4.def", "x" : 206, "y" : 207, "z" : 3, "border" : "TONLICH1.bmp", "area" : "TZNLICH1.bmp" },
 				"dwellingLvl6":   { "animation" : "TBNCDW_5.def", "x" : 0,   "y" : 31,  "border" : "TONBKN1.bmp",  "area" : "TZNBKN1.bmp" },
 				"dwellingLvl7":   { "animation" : "TBNCDW_6.def", "x" : 663, "y" : 25,  "border" : "TONBON1.bmp",  "area" : "TZNBON1.bmp" },
 				"dwellingUpLvl1": { "animation" : "TBNCUP_0.def", "x" : 64,  "y" : 222, "z" : 4, "border" : "TONSKEL2.bmp", "area" : "TZNSKEL2.bmp" },
-				"dwellingUpLvl2": { "animation" : "TBNCUP_1.def", "x" : 498, "y" : 224, "border" : "TONZOMB2.bmp", "area" : "TZNZOMB2.bmp" },
-				"dwellingUpLvl3": { "animation" : "TBNCUP_2.def", "x" : 0,   "y" : 179, "z" : 2, "border" : "TONWIGH2.bmp", "area" : "TZNWIGH2.bmp" },
+				"dwellingUpLvl2": { "animation" : "TBNCUP_1.def", "x" : 498, "y" : 224, "z" : 1, "border" : "TONZOMB2.bmp", "area" : "TZNZOMB2.bmp" },
+				"dwellingUpLvl3": { "animation" : "TBNCUP_2.def", "x" : 0,   "y" : 179, "z" : 7, "border" : "TONWIGH2.bmp", "area" : "TZNWIGH2.bmp" },
 				"dwellingUpLvl4": { "animation" : "TBNCUP_3.def", "x" : 615, "y" : 193, "z" : 2, "border" : "TONVAM2.bmp",  "area" : "TZNVAM2.bmp" },
 				"dwellingUpLvl5": { "animation" : "TBNCUP_4.def", "x" : 222, "y" : 171, "z" : 3, "border" : "TONLICH2.bmp", "area" : "TZNLICH2.bmp" },
 				"dwellingUpLvl6": { "animation" : "TBNCUP_5.def", "x" : 0,   "y" : 30,  "border" : "TONBKN2.bmp",  "area" : "TZNBKN2.bmp" },
@@ -152,8 +153,7 @@
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
 			"warMachine" : "firstAidTent",
-			"moatDamage" : 70,
-			"moatHexes" : [ 11, 28, 44, 61, 77, 111, 129, 146, 164, 181 ],
+			"moatAbility" : "necropolisMoat",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
 			"buildings" :
@@ -222,7 +222,6 @@
 				},
 				"moat" :
 				{
-					"bank" : { "x" : -1, "y" : -1 }, // Should not be present
 					"moat" : { "x" : 406, "y" : 77 }
 				},
 				"static" :

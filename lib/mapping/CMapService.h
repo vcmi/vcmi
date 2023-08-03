@@ -17,9 +17,12 @@ class ResourceID;
 class CMap;
 class CMapHeader;
 class CInputStream;
+struct CModVersion;
 
 class IMapLoader;
 class IMapPatcher;
+
+using ModCompatibilityInfo = std::map<std::string, CModVersion>;
 
 /**
  * The map service provides loading of VCMI/H3 map files. It can
@@ -49,31 +52,26 @@ public:
 	/**
 	 * Loads the VCMI/H3 map file from a buffer. This method is temporarily
 	 * in use to ease the transition to use the new map service.
-	 *
-	 * TODO Replace method params with a CampaignMapInfo struct which contains
-	 * a campaign loading object + name of map.
-	 *
-	 * @param buffer a pointer to a buffer containing the map data
-	 * @param size the size of the buffer
+@@ -60,8 +60,8 @@ class DLL_LINKAGE CMapService
 	 * @param name indicates name of file that will be used during map header patching
 	 * @return a unique ptr to the loaded map class
 	 */
-	virtual std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const = 0;
+	virtual std::unique_ptr<CMap> loadMap(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const = 0;
 
 	/**
 	 * Loads the VCMI/H3 map header from a buffer. This method is temporarily
 	 * in use to ease the transition to use the new map service.
-	 *
-	 * TODO Replace method params with a CampaignMapInfo struct which contains
-	 * a campaign loading object + name of map.
-	 *
-	 * @param buffer a pointer to a buffer containing the map header data
-	 * @param size the size of the buffer
+@@ -74,7 +74,27 @@ class DLL_LINKAGE CMapService
 	 * @param name indicates name of file that will be used during map header patching
 	 * @return a unique ptr to the loaded map class
 	 */
-	virtual std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const = 0;
+	virtual std::unique_ptr<CMapHeader> loadMapHeader(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const = 0;
 
+	/**
+	 * Saves map into VCMI format with name specified
+	 * @param map to save
+	 * @param fullPath full path to file to write, including extension
+	 */
 	virtual void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const = 0;
 };
 
@@ -85,9 +83,17 @@ public:
 
 	std::unique_ptr<CMap> loadMap(const ResourceID & name) const override;
 	std::unique_ptr<CMapHeader> loadMapHeader(const ResourceID & name) const override;
-	std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
-	std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
+	std::unique_ptr<CMap> loadMap(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
+	std::unique_ptr<CMapHeader> loadMapHeader(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
 	void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const override;
+	
+	/**
+	 * Tests if mods used in the map are currently loaded
+	 * @param map const reference to map header
+	 * @return data structure representing missing or incompatible mods (those which are needed from map but not loaded)
+	 */
+	static ModCompatibilityInfo verifyMapHeaderMods(const CMapHeader & map);
+
 private:
 	/**
 	 * Gets a map input stream object specified by a map name.
@@ -104,7 +110,7 @@ private:
 	 * @param size the size of the buffer
 	 * @return a unique ptr to the input stream class
 	 */
-	static std::unique_ptr<CInputStream> getStreamFromMem(const ui8 * buffer, int size);
+	static std::unique_ptr<CInputStream> getStreamFromMem(const uint8_t * buffer, int size);
 
 	/**
 	 * Gets a map loader from the given stream. It performs checks to test

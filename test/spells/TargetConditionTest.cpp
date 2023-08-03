@@ -41,8 +41,10 @@ public:
 	MOCK_CONST_METHOD0(createAbsoluteLevel, Object());
 	MOCK_CONST_METHOD0(createAbsoluteSpell, Object());
 	MOCK_CONST_METHOD0(createElemental, Object());
+	MOCK_CONST_METHOD0(createResistance, Object());
 	MOCK_CONST_METHOD0(createNormalLevel, Object());
 	MOCK_CONST_METHOD0(createNormalSpell, Object());
+	MOCK_CONST_METHOD1(createFromJsonStruct, Object(const JsonNode &));
 	MOCK_CONST_METHOD3(createConfigurable, Object(std::string, std::string, std::string));
 	MOCK_CONST_METHOD0(createReceptiveFeature, Object());
 	MOCK_CONST_METHOD0(createImmunityNegation, Object());
@@ -73,6 +75,7 @@ public:
 		ON_CALL(factoryMock, createAbsoluteLevel()).WillByDefault(Return(itemStub));
 		ON_CALL(factoryMock, createAbsoluteSpell()).WillByDefault(Return(itemStub));
 		ON_CALL(factoryMock, createElemental()).WillByDefault(Return(itemStub));
+		ON_CALL(factoryMock, createResistance()).WillByDefault(Return(itemStub));
 		ON_CALL(factoryMock, createNormalLevel()).WillByDefault(Return(itemStub));
 		ON_CALL(factoryMock, createNormalSpell()).WillByDefault(Return(itemStub));
 
@@ -138,6 +141,7 @@ TEST_F(TargetConditionTest, CreatesSpecialConditions)
 	EXPECT_CALL(factoryMock, createAbsoluteLevel()).Times(1);
 	EXPECT_CALL(factoryMock, createAbsoluteSpell()).Times(1);
 	EXPECT_CALL(factoryMock, createElemental()).Times(1);
+	EXPECT_CALL(factoryMock, createResistance()).Times(1);
 	EXPECT_CALL(factoryMock, createNormalLevel()).Times(1);
 	EXPECT_CALL(factoryMock, createNormalSpell()).Times(1);
 

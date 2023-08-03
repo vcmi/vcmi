@@ -20,7 +20,6 @@ VCMI_LIB_NAMESPACE_END
 class CLabel;
 class CPicture;
 class CButton;
-struct SDL_Surface;
 
 class CCampaignScreen : public CWindowObject
 {
@@ -41,12 +40,12 @@ private:
 		std::string video; // the resource name of the video
 		std::string hoverText;
 
-		void clickLeft(tribool down, bool previousState) override;
+		void clickReleased(const Point & cursorPosition) override;
 		void hover(bool on) override;
 
 	public:
 		CCampaignButton(const JsonNode & config);
-		void show(SDL_Surface * to) override;
+		void show(Canvas & to) override;
 	};
 
 	std::vector<std::shared_ptr<CCampaignButton>> campButtons;
@@ -59,4 +58,6 @@ public:
 	enum CampaignSet {ROE, AB, SOD, WOG};
 
 	CCampaignScreen(const JsonNode & config);
+
+	void activate() override;
 };

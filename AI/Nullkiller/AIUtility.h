@@ -45,16 +45,14 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CStopWatch.h"
-#include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/CPathfinder.h"
 #include "../../CCallback.h"
 
 #include <chrono>
 
 using namespace tbb;
 
-typedef std::pair<ui32, std::vector<CreatureID>> dwellingContent;
+using dwellingContent = std::pair<ui32, std::vector<CreatureID>>;
 
 namespace NKAI
 {
@@ -161,7 +159,7 @@ struct creInfo
 {
 	int count;
 	CreatureID creID;
-	CCreature * cre;
+	const Creature * cre;
 	int level;
 };
 creInfo infoFromDC(const dwellingContent & dc);
@@ -305,10 +303,10 @@ public:
 public:
 	using ptr_type = std::unique_ptr<T, External_Deleter>;
 
-	SharedPool(std::function<std::unique_ptr<T>()> elementFactory)
-		: elementFactory(elementFactory), pool(), sync(), instance_tracker(new SharedPool<T>*(this))
+	SharedPool(std::function<std::unique_ptr<T>()> elementFactory):
+		elementFactory(elementFactory), pool(), instance_tracker(new SharedPool<T> *(this))
 	{}
-	
+
 	void add(std::unique_ptr<T> t)
 	{
 		boost::lock_guard<boost::mutex> lock(sync);

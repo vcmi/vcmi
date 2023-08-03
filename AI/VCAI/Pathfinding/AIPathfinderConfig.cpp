@@ -14,6 +14,8 @@
 #include "Rules/AIMovementToDestinationRule.h"
 #include "Rules/AIPreviousNodeRule.h"
 
+#include "../../../lib/pathfinder/CPathfinder.h"
+
 namespace AIPathfinding
 {
 	std::vector<std::shared_ptr<IPathfindingRule>> makeRuleset(
@@ -39,7 +41,14 @@ namespace AIPathfinding
 		std::shared_ptr<AINodeStorage> nodeStorage)
 		:PathfinderConfig(nodeStorage, makeRuleset(cb, ai, nodeStorage)), hero(nodeStorage->getHero())
 	{
+		options.useEmbarkAndDisembark = true;
+		options.useTeleportTwoWay = true;
+		options.useTeleportOneWay = true;
+		options.useTeleportOneWayRandom = true;
+		options.useTeleportWhirlpool = true;
 	}
+
+	AIPathfinderConfig::~AIPathfinderConfig() = default;
 
 	CPathfinderHelper * AIPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs)
 	{

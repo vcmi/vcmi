@@ -39,7 +39,10 @@ TEST_F(CHeroTest, RegistersIcons)
 	subject->portraitSmall = "Test3";
 	subject->portraitLarge = "Test4";
 
-	auto cb = std::bind(&CHeroTest::registarCb, this, _1, _2, _3, _4);
+	auto cb = [this](auto && PH1, auto && PH2, auto && PH3, auto && PH4) 
+	{
+		registarCb(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2), std::forward<decltype(PH3)>(PH3), std::forward<decltype(PH4)>(PH4));
+	};
 
 	EXPECT_CALL(*this, registarCb(Eq(4242), Eq(0), "UN32", "Test1"));
 	EXPECT_CALL(*this, registarCb(Eq(4242), Eq(0), "UN44", "Test2"));

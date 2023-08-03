@@ -9,13 +9,16 @@
  */
 #pragma once
 
-#include "CObjectHandler.h"
 #include "CArmedInstance.h"
-#include "../ResourceSet.h"
+#include "../MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CMap;
+
+// This one teleport-specific, but has to be available everywhere in callbacks and netpacks
+// For now it's will be there till teleports code refactored and moved into own file
+using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 
 /// Legacy class, use CRewardableObject instead
 class DLL_LINKAGE CTeamVisited: public CGObjectInstance
@@ -35,80 +38,6 @@ public:
 	}
 
 	static constexpr int OBJPROP_VISITED = 10;
-};
-
-class DLL_LINKAGE CGCreature : public CArmedInstance //creatures on map
-{
-public:
-	enum Action {
-		FIGHT = -2, FLEE = -1, JOIN_FOR_FREE = 0 //values > 0 mean gold price
-	};
-
-	enum Character {
-		COMPLIANT = 0, FRIENDLY = 1, AGRESSIVE = 2, HOSTILE = 3, SAVAGE = 4
-	};
-
-	ui32 identifier; //unique code for this monster (used in missions)
-	si8 character; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to -4 (compliant) ... 10 value (savage)
-	std::string message; //message printed for attacking hero
-	TResources resources; // resources given to hero that has won with monsters
-	ArtifactID gainedArtifact; //ID of artifact gained to hero, -1 if none
-	bool neverFlees; //if true, the troops will never flee
-	bool notGrowingTeam; //if true, number of units won't grow
-	ui64 temppower; //used to handle fractional stack growth for tiny stacks
-
-	bool refusedJoining;
-
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	std::string getHoverText(PlayerColor player) const override;
-	std::string getHoverText(const CGHeroInstance * hero) const override;
-	void initObj(CRandomGenerator & rand) override;
-	void newTurn(CRandomGenerator & rand) const override;
-	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
-
-	//stack formation depends on position,
-	bool containsUpgradedStack() const;
-	int getNumberOfStacks(const CGHeroInstance *hero) const;
-
-	struct DLL_LINKAGE formationInfo // info about merging stacks after battle back into one
-	{
-		si32 basicType;
-		ui8 upgrade; //random seed used to determine number of stacks and is there's upgraded stack
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & basicType;
-			h & upgrade;
-		}
-	} formation;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CArmedInstance&>(*this);
-		h & identifier;
-		h & character;
-		h & message;
-		h & resources;
-		h & gainedArtifact;
-		h & neverFlees;
-		h & notGrowingTeam;
-		h & temppower;
-		h & refusedJoining;
-		h & formation;
-	}
-protected:
-	void setPropertyDer(ui8 what, ui32 val) override;
-	void serializeJsonOptions(JsonSerializeFormat & handler) override;
-
-private:
-	void fight(const CGHeroInstance *h) const;
-	void flee( const CGHeroInstance * h ) const;
-	void fleeDecision(const CGHeroInstance *h, ui32 pursue) const;
-	void joinDecision(const CGHeroInstance *h, int cost, ui32 accept) const;
-
-	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
-	void giveReward(const CGHeroInstance * h) const;
-
 };
 
 class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottles
@@ -131,8 +60,8 @@ protected:
 class DLL_LINKAGE CGWitchHut : public CTeamVisited
 {
 public:
-	std::vector<si32> allowedAbilities;
-	ui32 ability;
+	std::set<SecondarySkill> allowedAbilities;
+	SecondarySkill ability;
 
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
@@ -189,10 +118,8 @@ protected:
 class DLL_LINKAGE CGArtifact : public CArmedInstance
 {
 public:
-	CArtifactInstance *storedArtifact;
+	CArtifactInstance * storedArtifact = nullptr;
 	std::string message;
-
-	CGArtifact() : CArmedInstance() {storedArtifact = nullptr;};
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
@@ -245,7 +172,9 @@ protected:
 class DLL_LINKAGE CGShrine : public CTeamVisited
 {
 public:
+	MetaString visitText;
 	SpellID spell; //id of spell or NONE if random
+
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
@@ -255,6 +184,7 @@ public:
 	{
 		h & static_cast<CTeamVisited&>(*this);;
 		h & spell;
+		h & visitText;
 	}
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -263,8 +193,9 @@ protected:
 class DLL_LINKAGE CGMine : public CArmedInstance
 {
 public:
-	Res::ERes producedResource;
+	GameResID producedResource;
 	ui32 producedQuantity;
+	std::set<GameResID> abandonedMineResources;
 
 private:
 	void onHeroVisit(const CGHeroInstance * h) const override;
@@ -285,6 +216,7 @@ public:
 		h & static_cast<CArmedInstance&>(*this);
 		h & producedResource;
 		h & producedQuantity;
+		h & abandonedMineResources;
 	}
 	ui32 defaultResProduction() const;
 
@@ -412,39 +344,57 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGBoat : public CGObjectInstance
+class DLL_LINKAGE CGBoat : public CGObjectInstance, public CBonusSystemNode
 {
 public:
 	ui8 direction;
 	const CGHeroInstance *hero;  //hero on board
+	bool onboardAssaultAllowed; //if true, hero can attack units from transport
+	bool onboardVisitAllowed; //if true, hero can visit objects from transport
+	EPathfindingLayer::EEPathfindingLayer layer;
+	
+	//animation filenames. If empty - animations won't be used
+	std::string actualAnimation; //for OH3 boats those have actual animations
+	std::string overlayAnimation; //waves animations
+	std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
 
-	void initObj(CRandomGenerator & rand) override;
+	CGBoat();
+	bool isCoastVisitable() const override;
 
-	CGBoat()
-	{
-		hero = nullptr;
-		direction = 4;
-	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
+		h & static_cast<CBonusSystemNode&>(*this);
 		h & direction;
 		h & hero;
+		h & layer;
+		h & onboardAssaultAllowed;
+		h & onboardVisitAllowed;
+		h & actualAnimation;
+		h & overlayAnimation;
+		h & flagAnimations;
 	}
 };
 
 class DLL_LINKAGE CGShipyard : public CGObjectInstance, public IShipyard
 {
-public:
-	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed
-	CGShipyard();
-	void onHeroVisit(const CGHeroInstance * h) const override;
+	friend class ShipyardInstanceConstructor;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	BoatId createdBoat;
+
+protected:
+	void getOutOffsets(std::vector<int3> & offsets) const override;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	const IObjectInterface * getObject() const override;
+	BoatId getBoatType() const override;
+
+public:
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-		h & static_cast<IShipyard&>(*this);
+		h & createdBoat;
 	}
+
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
@@ -527,6 +477,24 @@ public:
 	virtual bool isTile2Terrain() const override
 	{
 		return true;
+	}
+};
+
+class DLL_LINKAGE HillFort : public CGObjectInstance, public ICreatureUpgrader
+{
+	friend class HillFortInstanceConstructor;
+
+	std::vector<int> upgradeCostPercentage;
+
+protected:
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
+
+public:
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & upgradeCostPercentage;
 	}
 };
 

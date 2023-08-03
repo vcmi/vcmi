@@ -11,8 +11,6 @@
 #include "Composition.h"
 #include "../AIGateway.h"
 #include "../AIUtility.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
 
 
@@ -33,9 +31,17 @@ std::string Composition::toString() const
 {
 	std::string result = "Composition";
 
-	for(auto goal : subtasks)
+	for(auto step : subtasks)
 	{
-		result += " " + goal->toString();
+		result += "[";
+		for(auto goal : step)
+		{
+			if(goal->isElementar())
+				result +=  goal->toString() + " => ";
+			else
+				result += goal->toString() + ", ";
+		}
+		result += "] ";
 	}
 
 	return result;
@@ -43,17 +49,34 @@ std::string Composition::toString() const
 
 void Composition::accept(AIGateway * ai)
 {
-	taskptr(*subtasks.back())->accept(ai);
+	for(auto task : subtasks.back())
+	{
+		if(task->isElementar())
+		{
+			taskptr(*task)->accept(ai);
+		}
+		else
+		{
+			break;
+		}
+	}
 }
 
 TGoalVec Composition::decompose() const
 {
-	return subtasks;
+	TGoalVec result;
+
+	for(const TGoalVec & step : subtasks)
+		vstd::concatenate(result, step);
+
+	return result;
 }
 
-Composition & Composition::addNext(const AbstractGoal & goal)
+Composition & Composition::addNextSequence(const TGoalVec & taskSequence)
 {
-	return addNext(sptr(goal));
+	subtasks.push_back(taskSequence);
+
+	return *this;
 }
 
 Composition & Composition::addNext(TSubgoal goal)
@@ -66,20 +89,35 @@ Composition & Composition::addNext(TSubgoal goal)
 	}
 	else
 	{
-		subtasks.push_back(goal);
+		subtasks.push_back({goal});
 	}
 
 	return *this;
 }
 
+Composition & Composition::addNext(const AbstractGoal & goal)
+{
+	return addNext(sptr(goal));
+}
+
 bool Composition::isElementar() const
 {
-	return subtasks.back()->isElementar();
+	return subtasks.back().front()->isElementar();
 }
 
 int Composition::getHeroExchangeCount() const
 {
-	return isElementar() ? taskptr(*subtasks.back())->getHeroExchangeCount() : 0;
+	auto result = 0;
+
+	for(auto task : subtasks.back())
+	{
+		if(task->isElementar())
+		{
+			result += taskptr(*task)->getHeroExchangeCount();
+		}
+	}
+	
+	return result;
 }
 
 }

@@ -18,16 +18,18 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../CVideoHandler.h"
 
 #include "../battle/BattleInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/TextControls.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../render/CAnimation.h"
-#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 
@@ -41,7 +43,7 @@
 
 CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
 {
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 	pos = myRect;
 	onLeft = funcL;
 	hoverText = CGI->generaltexth->zelp[helpTextId].first;
@@ -49,16 +51,14 @@ CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::functio
 	owner = _owner;
 }
 
-void CSpellWindow::InteractiveArea::clickLeft(tribool down, bool previousState)
+void CSpellWindow::InteractiveArea::clickPressed(const Point & cursorPosition)
 {
-	if(!down)
-		onLeft();
+	onLeft();
 }
 
-void CSpellWindow::InteractiveArea::clickRight(tribool down, bool previousState)
+void CSpellWindow::InteractiveArea::showPopupWindow(const Point & cursorPosition)
 {
-	if (down)
-		CRClickPopup::createAndPush(helpText);
+	CRClickPopup::createAndPush(helpText);
 }
 
 void CSpellWindow::InteractiveArea::hover(bool on)
@@ -80,11 +80,11 @@ public:
 			return false;
 
 
-		for(ui8 schoolId = 0; schoolId < 4; schoolId++)
+		for(auto schoolId = 0; schoolId < GameConstants::DEFAULT_SCHOOLS; schoolId++)
 		{
-			if(A->school.at((ESpellSchool)schoolId) && !B->school.at((ESpellSchool)schoolId))
+			if(A->school.at(SpellSchool(schoolId)) && !B->school.at(SpellSchool(schoolId)))
 				return true;
-			if(!A->school.at((ESpellSchool)schoolId) && B->school.at((ESpellSchool)schoolId))
+			if(!A->school.at(SpellSchool(schoolId)) && B->school.at(SpellSchool(schoolId)))
 				return false;
 		}
 
@@ -221,9 +221,9 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 		}
 	}
 
-	selectedTab = battleSpellsOnly ? myInt->spellbookSettings.spellbookLastTabBattle : myInt->spellbookSettings.spellbookLastTabAdvmap;
+	selectedTab = battleSpellsOnly ? myInt->localState->spellbookSettings.spellbookLastTabBattle : myInt->localState->spellbookSettings.spellbookLastTabAdvmap;
 	schoolTab->setFrame(selectedTab, 0);
-	int cp = battleSpellsOnly ? myInt->spellbookSettings.spellbookLastPageBattle : myInt->spellbookSettings.spellbokLastPageAdvmap;
+	int cp = battleSpellsOnly ? myInt->localState->spellbookSettings.spellbookLastPageBattle : myInt->localState->spellbookSettings.spellbokLastPageAdvmap;
 	// spellbook last page battle index is not reset after battle, so this needs to stay here
 	vstd::abetween(cp, 0, std::max(0, pagesWithinCurrentTab() - 1));
 	setCurrentPage(cp);
@@ -237,8 +237,8 @@ CSpellWindow::~CSpellWindow()
 
 void CSpellWindow::fexitb()
 {
-	(myInt->battleInt ? myInt->spellbookSettings.spellbookLastTabBattle : myInt->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
-	(myInt->battleInt ? myInt->spellbookSettings.spellbookLastPageBattle : myInt->spellbookSettings.spellbokLastPageAdvmap) = currentPage;
+	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastTabBattle : myInt->localState->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
+	(myInt->battleInt ? myInt->localState->spellbookSettings.spellbookLastPageBattle : myInt->localState->spellbookSettings.spellbokLastPageAdvmap) = currentPage;
 
 	close();
 }
@@ -292,7 +292,6 @@ void CSpellWindow::fLcornerb()
 		setCurrentPage(currentPage - 1);
 	}
 	computeSpellsPerArea();
-	GH.breakEventHandling();
 }
 
 void CSpellWindow::fRcornerb()
@@ -303,10 +302,9 @@ void CSpellWindow::fRcornerb()
 		setCurrentPage(currentPage + 1);
 	}
 	computeSpellsPerArea();
-	GH.breakEventHandling();
 }
 
-void CSpellWindow::show(SDL_Surface * to)
+void CSpellWindow::show(Canvas & to)
 {
 	statusBar->show(to);
 }
@@ -318,7 +316,7 @@ void CSpellWindow::computeSpellsPerArea()
 	for(const CSpell * spell : mySpells)
 	{
 		if(spell->isCombat() ^ !battleSpellsOnly
-			&& ((selectedTab == 4) || spell->school.at((ESpellSchool)selectedTab))
+			&& ((selectedTab == 4) || spell->school.at(SpellSchool(selectedTab)))
 			)
 		{
 			spellsCurSite.push_back(spell);
@@ -408,68 +406,39 @@ void CSpellWindow::turnPageRight()
 		CCS->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15);
 }
 
-void CSpellWindow::keyPressed(const SDL_Keycode & key)
+void CSpellWindow::keyPressed(EShortcut key)
 {
-	if(key == SDLK_ESCAPE ||  key == SDLK_RETURN)
+	switch(key)
 	{
-		fexitb();
-		return;
-	}
-	else
-	{
-		switch(key)
-		{
-		case SDLK_LEFT:
+		case EShortcut::GLOBAL_RETURN:
+			fexitb();
+			break;
+
+		case EShortcut::MOVE_LEFT:
 			fLcornerb();
 			break;
-		case SDLK_RIGHT:
+		case EShortcut::MOVE_RIGHT:
 			fRcornerb();
 			break;
-		case SDLK_UP:
-		case SDLK_DOWN:
+		case EShortcut::MOVE_UP:
+		case EShortcut::MOVE_DOWN:
 		{
-			bool down = key == SDLK_DOWN;
+			bool down = key == EShortcut::MOVE_DOWN;
 			static const int schoolsOrder[] = { 0, 3, 1, 2, 4 };
 			int index = -1;
 			while(schoolsOrder[++index] != selectedTab);
 			index += (down ? 1 : -1);
-			vstd::abetween(index, 0, ARRAY_COUNT(schoolsOrder) - 1);
+			vstd::abetween<int>(index, 0, std::size(schoolsOrder) - 1);
 			if(selectedTab != schoolsOrder[index])
 				selectSchool(schoolsOrder[index]);
 			break;
 		}
-		case SDLK_c:
+		case EShortcut::SPELLBOOK_TAB_COMBAT:
 			fbattleSpellsb();
 			break;
-		case SDLK_a:
+		case EShortcut::SPELLBOOK_TAB_ADVENTURE:
 			fadvSpellsb();
 			break;
-		default://to get rid of warnings
-			break;
-		}
-
-		//alt + 1234567890-= casts spell from 1 - 12 slot
-		if(GH.isKeyboardAltDown())
-		{
-			SDL_Keycode hlpKey = key;
-			if(CGuiHandler::isNumKey(hlpKey, false))
-			{
-				if(hlpKey == SDLK_KP_PLUS)
-					hlpKey = SDLK_EQUALS;
-				else
-					hlpKey = CGuiHandler::numToDigit(hlpKey);
-			}
-
-			static const SDL_Keycode spellSelectors[] = {SDLK_1, SDLK_2, SDLK_3, SDLK_4, SDLK_5, SDLK_6, SDLK_7, SDLK_8, SDLK_9, SDLK_0, SDLK_MINUS, SDLK_EQUALS};
-
-			int index = -1;
-			while(++index < ARRAY_COUNT(spellSelectors) && spellSelectors[index] != hlpKey);
-			if(index >= ARRAY_COUNT(spellSelectors))
-				return;
-
-			//try casting spell
-			spellAreas[index]->clickLeft(false, true);
-		}
 	}
 }
 
@@ -482,7 +451,7 @@ CSpellWindow::SpellArea::SpellArea(Rect pos, CSpellWindow * owner)
 {
 	this->pos = pos;
 	this->owner = owner;
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 
 	schoolLevel = -1;
 	mySpell = nullptr;
@@ -502,9 +471,9 @@ CSpellWindow::SpellArea::SpellArea(Rect pos, CSpellWindow * owner)
 
 CSpellWindow::SpellArea::~SpellArea() = default;
 
-void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
+void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 {
-	if(mySpell && !down)
+	if(mySpell)
 	{
 		auto spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 		if(spellCost > owner->myHero->mana) //insufficient mana
@@ -552,12 +521,12 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		else //adventure spell
 		{
 			const CGHeroInstance * h = owner->myHero;
-			GH.popInts(1);
+			GH.windows().popWindows(1);
 
 			auto guard = vstd::makeScopeGuard([this]()
 			{
-				owner->myInt->spellbookSettings.spellbookLastTabAdvmap = owner->selectedTab;
-				owner->myInt->spellbookSettings.spellbokLastPageAdvmap = owner->currentPage;
+				owner->myInt->localState->spellbookSettings.spellbookLastTabAdvmap = owner->selectedTab;
+				owner->myInt->localState->spellbookSettings.spellbokLastPageAdvmap = owner->currentPage;
 			});
 
 			if(mySpell->getTargetType() == spells::AimType::LOCATION)
@@ -570,9 +539,9 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
+void CSpellWindow::SpellArea::showPopupWindow(const Point & cursorPosition)
 {
-	if(mySpell && down)
+	if(mySpell)
 	{
 		std::string dmgInfo;
 		auto causedDmg = owner->myInt->cb->estimateSpellDamage(mySpell, owner->myHero);

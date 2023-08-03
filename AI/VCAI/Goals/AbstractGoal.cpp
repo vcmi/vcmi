@@ -14,8 +14,6 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;

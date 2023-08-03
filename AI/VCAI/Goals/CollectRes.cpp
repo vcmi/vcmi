@@ -15,8 +15,7 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
+#include "../../../lib/mapObjects/CGMarket.h"
 #include "../../../lib/StringConstants.h"
 
 
@@ -46,7 +45,7 @@ TGoalVec CollectRes::getAllPossibleSubgoals()
 		switch (obj->ID.num)
 		{
 		case Obj::TREASURE_CHEST:
-			return resID == Res::GOLD;
+			return resID == GameResID(EGameResID::GOLD);
 			break;
 		case Obj::RESOURCE:
 			return obj->subID == resID;
@@ -59,24 +58,24 @@ TGoalVec CollectRes::getAllPossibleSubgoals()
 			return true; //contains all resources
 			break;
 		case Obj::WINDMILL:
-			switch (resID)
+			switch (GameResID(resID).toEnum())
 			{
-			case Res::GOLD:
-			case Res::WOOD:
+			case EGameResID::GOLD:
+			case EGameResID::WOOD:
 				return false;
 			}
 			break;
 		case Obj::WATER_WHEEL:
-			if (resID != Res::GOLD)
+			if (resID != GameResID(EGameResID::GOLD))
 				return false;
 			break;
 		case Obj::MYSTICAL_GARDEN:
-			if ((resID != Res::GOLD) && (resID != Res::GEMS))
+			if ((resID != GameResID(EGameResID::GOLD)) && (resID != GameResID(EGameResID::GEMS)))
 				return false;
 			break;
 		case Obj::LEAN_TO:
 		case Obj::WAGON:
-			if (resID != Res::GOLD)
+			if (resID != GameResID(EGameResID::GOLD))
 				return false;
 			break;
 		default:
@@ -131,13 +130,16 @@ TSubgoal CollectRes::whatToDoToTrade()
 
 	std::vector<const CGObjectInstance *> visObjs;
 	ai->retrieveVisitableObjs(visObjs, true);
-	for (const CGObjectInstance * obj : visObjs)
+	for(const CGObjectInstance * obj : visObjs)
 	{
-		if (const IMarket * m = IMarket::castFrom(obj, false))
+		if(const IMarket * m = IMarket::castFrom(obj, false); m && m->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
 		{
-			if (obj->ID == Obj::TOWN && obj->tempOwner == ai->playerID && m->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
-				markets.push_back(m);
-			else if (obj->ID == Obj::TRADING_POST)
+			if(obj->ID == Obj::TOWN)
+			{
+				if(obj->tempOwner == ai->playerID)
+					markets.push_back(m);
+			}
+			else
 				markets.push_back(m);
 		}
 	}
@@ -149,9 +151,10 @@ TSubgoal CollectRes::whatToDoToTrade()
 
 	markets.erase(boost::remove_if(markets, [](const IMarket * market) -> bool
 	{
-		if (!(market->o->ID == Obj::TOWN && market->o->tempOwner == ai->playerID))
+		auto * o = dynamic_cast<const CGObjectInstance *>(market);
+		if(o && !(o->ID == Obj::TOWN && o->tempOwner == ai->playerID))
 		{
-			if (!ai->isAccessible(market->o->visitablePos()))
+			if(!ai->isAccessible(o->visitablePos()))
 				return true;
 		}
 		return false;
@@ -170,28 +173,29 @@ TSubgoal CollectRes::whatToDoToTrade()
 		const IMarket * m = markets.back();
 		//attempt trade at back (best prices)
 		int howManyCanWeBuy = 0;
-		for (Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
+		for (GameResID i = EGameResID::WOOD; i <= EGameResID::GOLD; ++i)
 		{
-			if (i == resID)
+			if (GameResID(i) == resID)
 				continue;
 			int toGive = -1, toReceive = -1;
-			m->getOffer(i, resID, toGive, toReceive, EMarketMode::RESOURCE_RESOURCE);
+			m->getOffer(GameResID(i), resID, toGive, toReceive, EMarketMode::RESOURCE_RESOURCE);
 			assert(toGive > 0 && toReceive > 0);
 			howManyCanWeBuy += toReceive * (ai->ah->freeResources()[i] / toGive);
 		}
 
 		if (howManyCanWeBuy >= value)
 		{
-			auto backObj = cb->getTopObj(m->o->visitablePos()); //it'll be a hero if we have one there; otherwise marketplace
+			auto * o = dynamic_cast<const CGObjectInstance *>(m);
+			auto backObj = cb->getTopObj(o->visitablePos()); //it'll be a hero if we have one there; otherwise marketplace
 			assert(backObj);
-			auto objid = m->o->id.getNum();
+			auto objid = o->id.getNum();
 			if (backObj->tempOwner != ai->playerID) //top object not owned
 			{
 				return sptr(VisitObj(objid)); //just go there
 			}
 			else //either it's our town, or we have hero there
 			{
-				return sptr(Trade(resID, value, objid).setisElementar(true)); //we can do this immediately
+				return sptr(Trade(static_cast<EGameResID>(resID), value, objid).setisElementar(true)); //we can do this immediately
 			}
 		}
 	}

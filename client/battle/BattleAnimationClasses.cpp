@@ -71,17 +71,17 @@ std::vector<BattleAnimation *> & BattleAnimation::pendingAnimations()
 
 std::shared_ptr<CreatureAnimation> BattleAnimation::stackAnimation(const CStack * stack) const
 {
-	return owner.stacksController->stackAnimation[stack->ID];
+	return owner.stacksController->stackAnimation[stack->unitId()];
 }
 
 bool BattleAnimation::stackFacingRight(const CStack * stack)
 {
-	return owner.stacksController->stackFacingRight[stack->ID];
+	return owner.stacksController->stackFacingRight[stack->unitId()];
 }
 
 void BattleAnimation::setStackFacingRight(const CStack * stack, bool facingRight)
 {
-	owner.stacksController->stackFacingRight[stack->ID] = facingRight;
+	owner.stacksController->stackFacingRight[stack->unitId()] = facingRight;
 }
 
 BattleStackAnimation::BattleStackAnimation(BattleInterface & owner, const CStack * stack)
@@ -158,10 +158,10 @@ ECreatureAnimType AttackAnimation::findValidGroup( const std::vector<ECreatureAn
 
 const CCreature * AttackAnimation::getCreature() const
 {
-	if (attackingStack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
+	if (attackingStack->unitType()->getId() == CreatureID::ARROW_TOWERS)
 		return owner.siegeController->getTurretCreature();
 	else
-		return attackingStack->getCreature();
+		return attackingStack->unitType();
 }
 
 
@@ -179,7 +179,7 @@ HittedAnimation::HittedAnimation(BattleInterface & owner, const CStack * stack)
 	: StackActionAnimation(owner, stack)
 {
 	setGroup(ECreatureAnimType::HITTED);
-	setSound(battle_sound(stack->getCreature(), wince));
+	setSound(battle_sound(stack->unitType(), wince));
 	logAnim->debug("Created HittedAnimation for %s", stack->getName());
 }
 
@@ -187,14 +187,14 @@ DefenceAnimation::DefenceAnimation(BattleInterface & owner, const CStack * stack
 	: StackActionAnimation(owner, stack)
 {
 	setGroup(ECreatureAnimType::DEFENCE);
-	setSound(battle_sound(stack->getCreature(), defend));
+	setSound(battle_sound(stack->unitType(), defend));
 	logAnim->debug("Created DefenceAnimation for %s", stack->getName());
 }
 
 DeathAnimation::DeathAnimation(BattleInterface & owner, const CStack * stack, bool ranged):
 	StackActionAnimation(owner, stack)
 {
-	setSound(battle_sound(stack->getCreature(), killed));
+	setSound(battle_sound(stack->unitType(), killed));
 
 	if(ranged && myAnim->framesInGroup(ECreatureAnimType::DEATH_RANGED) > 0)
 		setGroup(ECreatureAnimType::DEATH_RANGED);
@@ -222,7 +222,7 @@ bool DummyAnimation::init()
 	return true;
 }
 
-void DummyAnimation::nextFrame()
+void DummyAnimation::tick(uint32_t msPassed)
 {
 	counter++;
 	if(counter > howMany)
@@ -279,7 +279,7 @@ ECreatureAnimType MeleeAttackAnimation::selectGroup(bool multiAttack)
 		getForwardGroup  (multiAttack)
 	};
 
-	int revShiftattacker = (attackingStack->side == BattleSide::ATTACKER ? -1 : 1);
+	int revShiftattacker = (attackingStack->unitSide() == BattleSide::ATTACKER ? -1 : 1);
 
 	int mutPos = BattleHex::mutualPosition(attackingStackPosBeforeReturn, dest);
 	if(mutPos == -1 && attackingStack->doubleWide())
@@ -300,7 +300,7 @@ ECreatureAnimType MeleeAttackAnimation::selectGroup(bool multiAttack)
 	return mutPosToGroup[mutPos];
 }
 
-void MeleeAttackAnimation::nextFrame()
+void MeleeAttackAnimation::tick(uint32_t msPassed)
 {
 	size_t currentFrame = stackAnimation(attackingStack)->getCurrentFrame();
 	size_t totalFrames = stackAnimation(attackingStack)->framesInGroup(getGroup());
@@ -308,7 +308,7 @@ void MeleeAttackAnimation::nextFrame()
 	if ( currentFrame * 2 >= totalFrames )
 		owner.executeAnimationStage(EAnimationEvents::HIT);
 
-	AttackAnimation::nextFrame();
+	AttackAnimation::tick(msPassed);
 }
 
 MeleeAttackAnimation::MeleeAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, bool multiAttack)
@@ -356,13 +356,13 @@ bool MovementAnimation::init()
 
 	if (moveSoundHander == -1)
 	{
-		moveSoundHander = CCS->soundh->playSound(battle_sound(stack->getCreature(), move), -1);
+		moveSoundHander = CCS->soundh->playSound(battle_sound(stack->unitType(), move), -1);
 	}
 
 	Point begPosition = owner.stacksController->getStackPositionAtHex(prevHex, stack);
 	Point endPosition = owner.stacksController->getStackPositionAtHex(nextHex, stack);
 
-	progressPerSecond = AnimationControls::getMovementDistance(stack->getCreature());
+	progressPerSecond = AnimationControls::getMovementDistance(stack->unitType());
 
 	begX = begPosition.x;
 	begY = begPosition.y;
@@ -370,24 +370,24 @@ bool MovementAnimation::init()
 	distanceX = endPosition.x - begPosition.x;
 	distanceY = endPosition.y - begPosition.y;
 
-	if (stack->hasBonus(Selector::type()(Bonus::FLYING)))
+	if (stack->hasBonus(Selector::type()(BonusType::FLYING)))
 	{
 		float distance = static_cast<float>(sqrt(distanceX * distanceX + distanceY * distanceY));
-		progressPerSecond =  AnimationControls::getFlightDistance(stack->getCreature()) / distance;
+		progressPerSecond =  AnimationControls::getFlightDistance(stack->unitType()) / distance;
 	}
 
 	return true;
 }
 
-void MovementAnimation::nextFrame()
+void MovementAnimation::tick(uint32_t msPassed)
 {
-	progress += float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000 * progressPerSecond;
+	progress += float(msPassed) / 1000 * progressPerSecond;
 
 	//moving instructions
 	myAnim->pos.x = static_cast<Sint16>(begX + distanceX * progress );
 	myAnim->pos.y = static_cast<Sint16>(begY + distanceY * progress );
 
-	BattleAnimation::nextFrame();
+	BattleAnimation::tick(msPassed);
 
 	if(progress >= 1.0)
 	{
@@ -453,7 +453,7 @@ bool MovementEndAnimation::init()
 	logAnim->debug("CMovementEndAnimation::init: stack %s", stack->getName());
 	myAnim->pos.moveTo(owner.stacksController->getStackPositionAtHex(nextHex, stack));
 
-	CCS->soundh->playSound(battle_sound(stack->getCreature(), endMoving));
+	CCS->soundh->playSound(battle_sound(stack->unitType(), endMoving));
 
 	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_END))
 	{
@@ -494,7 +494,7 @@ bool MovementStartAnimation::init()
 	}
 
 	logAnim->debug("CMovementStartAnimation::init: stack %s", stack->getName());
-	CCS->soundh->playSound(battle_sound(stack->getCreature(), startMoving));
+	CCS->soundh->playSound(battle_sound(stack->unitType(), startMoving));
 
 	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_START))
 	{
@@ -577,9 +577,9 @@ bool ColorTransformAnimation::init()
 	return true;
 }
 
-void ColorTransformAnimation::nextFrame()
+void ColorTransformAnimation::tick(uint32_t msPassed)
 {
-	float elapsed  = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+	float elapsed  = msPassed / 1000.f;
 	float fullTime = AnimationControls::getFadeInDuration();
 	float delta    = elapsed / fullTime;
 	totalProgress += delta;
@@ -699,7 +699,7 @@ void RangedAttackAnimation::emitProjectile()
 	projectileEmitted = true;
 }
 
-void RangedAttackAnimation::nextFrame()
+void RangedAttackAnimation::tick(uint32_t msPassed)
 {
 	// animation should be paused if there is an active projectile
 	if (projectileEmitted)
@@ -716,7 +716,7 @@ void RangedAttackAnimation::nextFrame()
 	else
 		stackAnimation(attackingStack)->playUntil(static_cast<size_t>(-1));
 
-	AttackAnimation::nextFrame();
+	AttackAnimation::tick(msPassed);
 
 	if (!projectileEmitted)
 	{
@@ -759,7 +759,7 @@ uint32_t ShootingAnimation::getAttackClimaxFrame() const
 
 	uint32_t maxFrames = stackAnimation(attackingStack)->framesInGroup(getGroup());
 	uint32_t climaxFrame = shooterInfo->animation.attackClimaxFrame;
-	uint32_t selectedFrame = vstd::clamp(shooterInfo->animation.attackClimaxFrame, 1, maxFrames);
+	uint32_t selectedFrame = std::clamp<int>(shooterInfo->animation.attackClimaxFrame, 1, maxFrames);
 
 	if (climaxFrame != selectedFrame)
 		logGlobal->warn("Shooter %s has ranged attack climax frame set to %d, but only %d available!", shooterInfo->getNamePluralTranslated(), climaxFrame, maxFrames);
@@ -790,9 +790,9 @@ CatapultAnimation::CatapultAnimation(BattleInterface & owner, const CStack * att
 	logAnim->debug("Created shooting anim for %s", stack->getName());
 }
 
-void CatapultAnimation::nextFrame()
+void CatapultAnimation::tick(uint32_t msPassed)
 {
-	ShootingAnimation::nextFrame();
+	ShootingAnimation::tick(msPassed);
 
 	if ( explosionEmitted)
 		return;
@@ -879,42 +879,43 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 	return maxFrames / 2;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, int effects):
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, int effects, bool reversed):
 	BattleAnimation(owner),
 	animation(std::make_shared<CAnimation>(animationName)),
 	effectFlags(effects),
-	effectFinished(false)
+	effectFinished(false),
+	reversed(reversed)
 {
 	logAnim->debug("CPointEffectAnimation::init: effect %s", animationName);
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects):
-	EffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects, bool reversed):
+	EffectAnimation(owner, animationName, effects, reversed)
 {
 	battlehexes = hex;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex, int effects):
-	EffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex, int effects, bool reversed):
+	EffectAnimation(owner, animationName, effects, reversed)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos, int effects):
-	EffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos, int effects, bool reversed):
+	EffectAnimation(owner, animationName, effects, reversed)
 {
 	positions = pos;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, int effects):
-	EffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, int effects, bool reversed):
+	EffectAnimation(owner, animationName, effects, reversed)
 {
 	positions.push_back(pos);
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, BattleHex hex,   int effects):
-	EffectAnimation(owner, animationName, effects)
+EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, BattleHex hex, int effects, bool reversed):
+	EffectAnimation(owner, animationName, effects, reversed)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
@@ -932,6 +933,13 @@ bool EffectAnimation::init()
 		return false;
 	}
 
+	for (size_t i = 0; i < animation->size(size_t(BattleEffect::AnimType::DEFAULT)); ++i)
+	{
+		size_t current = animation->size(size_t(BattleEffect::AnimType::DEFAULT)) - 1 - i;
+
+		animation->duplicateImage(size_t(BattleEffect::AnimType::DEFAULT), current, size_t(BattleEffect::AnimType::REVERSE));
+	}
+
 	if (screenFill())
 	{
 		for(int i=0; i * first->width() < owner.fieldController->pos.w ; ++i)
@@ -943,6 +951,7 @@ bool EffectAnimation::init()
 	be.effectID = ID;
 	be.animation = animation;
 	be.currentFrame = 0;
+	be.type = reversed ? BattleEffect::AnimType::REVERSE : BattleEffect::AnimType::DEFAULT;
 
 	for (size_t i = 0; i < std::max(battlehexes.size(), positions.size()); ++i)
 	{
@@ -961,13 +970,13 @@ bool EffectAnimation::init()
 		}
 		else
 		{
-			const CStack * destStack = owner.getCurrentPlayerInterface()->cb->battleGetStackByPos(battlehexes[i], false);
+			const auto * destStack = owner.getCurrentPlayerInterface()->cb->battleGetUnitByPos(battlehexes[i], false);
 			Rect tilePos = owner.fieldController->hexPositionLocal(battlehexes[i]);
 
 			be.pos.x = tilePos.x + tilePos.w/2 - first->width()/2;
 
 			if(destStack && destStack->doubleWide()) // Correction for 2-hex creatures.
-				be.pos.x += (destStack->side == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
+				be.pos.x += (destStack->unitSide() == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
 
 			if (alignToBottom())
 				be.pos.y = tilePos.y + tilePos.h - first->height();
@@ -979,9 +988,9 @@ bool EffectAnimation::init()
 	return true;
 }
 
-void EffectAnimation::nextFrame()
+void EffectAnimation::tick(uint32_t msPassed)
 {
-	playEffect();
+	playEffect(msPassed);
 
 	if (effectFinished)
 	{
@@ -1011,7 +1020,7 @@ void EffectAnimation::onEffectFinished()
 	effectFinished = true;
 }
 
-void EffectAnimation::playEffect()
+void EffectAnimation::playEffect(uint32_t msPassed)
 {
 	if ( effectFinished )
 		return;
@@ -1020,7 +1029,7 @@ void EffectAnimation::playEffect()
 	{
 		if(elem.effectID == ID)
 		{
-			elem.currentFrame += AnimationControls::getSpellEffectSpeed() * GH.mainFPSmng->getElapsedMilliseconds() / 1000;
+			elem.currentFrame += AnimationControls::getSpellEffectSpeed() * msPassed / 1000;
 
 			if(elem.currentFrame >= elem.animation->size())
 			{
@@ -1104,7 +1113,7 @@ void HeroCastAnimation::emitAnimationEvent()
 	owner.executeAnimationStage(EAnimationEvents::HIT);
 }
 
-void HeroCastAnimation::nextFrame()
+void HeroCastAnimation::tick(uint32_t msPassed)
 {
 	float frame = hero->getFrame();
 

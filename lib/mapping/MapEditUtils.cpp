@@ -176,7 +176,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 {
 	const JsonNode config(ResourceID("config/terrainViewPatterns.json"));
 	static const std::string patternTypes[] = { "terrainView", "terrainType" };
-	for (int i = 0; i < ARRAY_COUNT(patternTypes); ++i)
+	for (int i = 0; i < std::size(patternTypes); ++i)
 	{
 		const auto& patternsVec = config[patternTypes[i]].Vector();
 		for (const auto& ptrnNode : patternsVec)
@@ -276,35 +276,35 @@ const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternCon
 	return iter->second;
 }
 
-boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrainViewPatternById(const std::string & patternId, const std::string & id) const
+std::optional<const std::reference_wrapper<const TerrainViewPattern>> CTerrainViewPatternConfig::getTerrainViewPatternById(const std::string & patternId, const std::string & id) const
 {
 	auto iter = terrainViewPatterns.find(patternId);
-	const std::vector<TVPVector> & groupPatterns = (iter == terrainViewPatterns.end()) ? terrainViewPatterns.at("normal") : iter->second;
+	const auto & groupPatterns = (iter == terrainViewPatterns.end()) ? terrainViewPatterns.at("normal") : iter->second;
 
-	for (const TVPVector & patternFlips : groupPatterns)
+	for(const auto & patternFlips : groupPatterns)
 	{
-		const TerrainViewPattern & pattern = patternFlips.front();
+		const auto & pattern = patternFlips.front();
 
 		if (id == pattern.id)
 		{
-			return boost::optional<const TerrainViewPattern&>(pattern);
+			return {std::ref(pattern)};
 		}
 	}
-	return boost::optional<const TerrainViewPattern&>();
+	return {};
 }
 
-boost::optional<const CTerrainViewPatternConfig::TVPVector &> CTerrainViewPatternConfig::getTerrainViewPatternsById(TerrainId terrain, const std::string & id) const
+std::optional<const std::reference_wrapper<const CTerrainViewPatternConfig::TVPVector>> CTerrainViewPatternConfig::getTerrainViewPatternsById(TerrainId terrain, const std::string & id) const
 {
-	const std::vector<TVPVector> & groupPatterns = getTerrainViewPatterns(terrain);
-	for (const TVPVector & patternFlips : groupPatterns)
+	const auto & groupPatterns = getTerrainViewPatterns(terrain);
+	for(const auto & patternFlips : groupPatterns)
 	{
-		const TerrainViewPattern & pattern = patternFlips.front();
+		const auto & pattern = patternFlips.front();
 		if (id == pattern.id)
 		{
-			return boost::optional<const TVPVector&>(patternFlips);
+			return {std::ref(patternFlips)};
 		}
 	}
-	return boost::optional<const TVPVector&>();
+	return {};
 }
 
 

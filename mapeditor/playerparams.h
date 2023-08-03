@@ -11,7 +11,7 @@
 #pragma once
 
 #include <QWidget>
-#include "../lib/mapping/CMap.h"
+#include "../lib/mapping/CMapHeader.h"
 #include "mapcontroller.h"
 
 namespace Ui {
@@ -41,6 +41,10 @@ private slots:
 	void on_randomFaction_stateChanged(int arg1);
 	
 	void allowedFactionsCheck(QListWidgetItem *);
+
+	void on_teamId_activated(int index);
+
+	void on_playerColorCombo_activated(int index);
 
 private:
 	Ui::PlayerParams *ui;

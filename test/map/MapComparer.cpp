@@ -12,6 +12,7 @@
 #include "MapComparer.h"
 
 #include "../lib/mapping/CMap.h"
+#include "../lib/mapObjects/ObjectTemplate.h"
 
 #define VCMI_CHECK_FIELD_EQUAL_P(field) EXPECT_EQ(actual->field, expected->field)
 
@@ -84,7 +85,7 @@ void checkEqual(const PlayerInfo & actual, const PlayerInfo & expected)
 	VCMI_CHECK_FIELD_EQUAL(hasMainTown);
 	VCMI_CHECK_FIELD_EQUAL(generateHeroAtMainTown);
 	VCMI_CHECK_FIELD_EQUAL(posOfMainTown);
-	VCMI_CHECK_FIELD_EQUAL(team);
+	//VCMI_CHECK_FIELD_EQUAL(team); //TODO: smart team checking, for now team checking is useless, because random team is assigned for single-member teams
 	VCMI_CHECK_FIELD_EQUAL(hasRandomHero);
 }
 
@@ -191,7 +192,7 @@ void MapComparer::compareOptions()
 
 	checkEqual(actual->allowedAbilities, expected->allowedAbilities);
 	checkEqual(actual->allowedArtifact, expected->allowedArtifact);
-	checkEqual(actual->allowedSpell, expected->allowedSpell);
+	checkEqual(actual->allowedSpells, expected->allowedSpells);
 
 	//todo: compareOptions events
 }
@@ -207,7 +208,7 @@ void MapComparer::compareObject(const CGObjectInstance * actual, const CGObjectI
 	EXPECT_EQ(actualFullID, expectedFullID);
 
 	VCMI_CHECK_FIELD_EQUAL_P(pos);
-	checkEqual(actual->appearance, expected->appearance);
+	checkEqual(*actual->appearance, *expected->appearance);
 }
 
 void MapComparer::compareObjects()

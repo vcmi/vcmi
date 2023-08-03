@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../widgets/CArtifactHolder.h"
+#include "../widgets/CWindowWithArtifacts.h"
 #include "CWindowObject.h"
 #include "../../lib/FunctionList.h"
 
@@ -54,12 +54,12 @@ public:
 		CFunctionList<void()> callback;
 		bool downSelection;
 
-		void showAllAt(const Point & dstPos, const std::string & customSub, SDL_Surface * to);
+		void showAllAt(const Point & dstPos, const std::string & customSub, Canvas & to);
 
-		void clickRight(tribool down, bool previousState) override;
+		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
-		void showAll(SDL_Surface * to) override;
-		void clickLeft(tribool down, bool previousState) override;
+		void showAll(Canvas & to) override;
+		void clickPressed(const Point & cursorPosition) override;
 		std::string getName(int number = -1) const;
 		CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial);
 	};
@@ -67,7 +67,6 @@ public:
 	const IMarket * market;
 	const CGHeroInstance * hero;
 
-	std::shared_ptr<CArtifactsOfHero> arts;
 	//all indexes: 1 = left, 0 = right
 	std::array<std::vector<std::shared_ptr<CTradeableItem>>, 2> items;
 
@@ -86,7 +85,7 @@ public:
 
 	CTradeWindow(std::string bgName, const IMarket * Market, const CGHeroInstance * Hero, EMarketMode::EMarketMode Mode); //c
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 
 	void initSubs(bool Left);
 	void initTypes();
@@ -117,6 +116,7 @@ protected:
 class CMarketplaceWindow : public CTradeWindow
 {
 	std::shared_ptr<CLabel> titleLabel;
+	std::shared_ptr<CArtifactsOfHeroMarket> arts;
 
 	bool printButtonFor(EMarketMode::EMarketMode M) const;
 
@@ -155,6 +155,7 @@ public:
 	std::shared_ptr<CButton> sacrificeBackpack;
 	std::shared_ptr<CLabel> expToLevel;
 	std::shared_ptr<CLabel> expOnAltar;
+	std::shared_ptr<CArtifactsOfHeroAltar> arts;
 
 	CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, EMarketMode::EMarketMode Mode);
 	~CAltarWindow();
@@ -169,7 +170,7 @@ public:
 	void putOnAltar(int backpackIndex);
 	bool putOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const CArtifactInstance * art);
 	void makeDeal();
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 
 	void blockTrade();
 	void sliderMoved(int to);
@@ -186,5 +187,5 @@ public:
 
 	void artifactPicked();
 	int firstFreeSlot();
-	void moveFromSlotToAltar(ArtifactPosition slotID, std::shared_ptr<CTradeableItem>, const CArtifactInstance * art);
+	void moveArtToAltar(std::shared_ptr<CTradeableItem>, const CArtifactInstance * art);
 };

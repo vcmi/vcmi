@@ -12,6 +12,7 @@
 
 #include "AINodeStorage.h"
 #include "../VCAI.h"
+#include "../../../lib/pathfinder/PathfinderOptions.h"
 
 namespace AIPathfinding
 {
@@ -26,6 +27,8 @@ namespace AIPathfinding
 			CPlayerSpecificInfoCallback * cb,
 			VCAI * ai,
 			std::shared_ptr<AINodeStorage> nodeStorage);
+
+		~AIPathfinderConfig();
 
 		virtual CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) override;
 	};

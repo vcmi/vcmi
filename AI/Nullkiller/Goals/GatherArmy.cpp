@@ -97,7 +97,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 
 			//Do not use below code for now, rely on generic Build. Code below needs to know a lot of town/resource context to do more good than harm
 			/*auto bid = ai->ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 1);
-			if (bid.is_initialized())
+			if (bid.has_value())
 			{
 				auto goal = sptr(BuildThis(bid.get(), t).setpriority(priority));
 				if (!ai->ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
@@ -162,7 +162,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 							for(auto & creatureID : creLevel.second)
 							{
 								auto creature = VLC->creh->creatures[creatureID];
-								if(ai->ah->freeResources().canAfford(creature->cost))
+								if(ai->ah->freeResources().canAfford(creature->getFullRecruitCost()))
 									objs.push_back(obj); //TODO: reserve resources?
 							}
 						}

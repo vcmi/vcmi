@@ -1,30 +1,30 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI map object format",
 	"description" : "Description of map object class",
-	"required": [ "handler", "name" ],
+	"required" : [ "name", "handler" ],
 	"additionalProperties" : false,
 
-	"properties":{
-		"index": {
-			"type":"number"
+	"properties" : {
+		"name" : {
+			"type" : "string"
+		},
+		"index" : {
+			"type" : "number"
 		},
 		"lastReservedIndex" : {
-			"type":"number"
+			"type" : "number"
 		},
-		"handler": {
-			"type":"string"
+		"handler" : {
+			"type" : "string"
 		},
-		"base": {
+		"base" : {
 			"type" : "object"
 		},
-		"name": {
-			"type":"string"
-		},
-		"types": {
-			"type":"object",
-			"additionalProperties": {
+		"types" : {
+			"type" : "object",
+			"additionalProperties" : {
 				"$ref" : "objectType.json"
 			}
 		}

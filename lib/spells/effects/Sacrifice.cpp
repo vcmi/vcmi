@@ -71,12 +71,7 @@ bool Sacrifice::applicable(Problem & problem, const Mechanics * m) const
 	}
 
 	if(!(targetExists && targetToSacrificeExists))
-	{
-		MetaString text;
-		text.addTxt(MetaString::GENERAL_TXT, 185);
-		problem.add(std::move(text), Problem::NORMAL);
-		return false;
-	}
+		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 
 	return true;
 }
@@ -157,7 +152,7 @@ EffectTarget Sacrifice::transformTarget(const Mechanics * m, const Target & aimP
 
 int64_t Sacrifice::calculateHealEffectValue(const Mechanics * m, const battle::Unit * victim) 
 {
-	return (m->getEffectPower() + victim->MaxHealth() + m->calculateRawEffectValue(0, 1)) * victim->getCount();
+	return (m->getEffectPower() + victim->getMaxHealth() + m->calculateRawEffectValue(0, 1)) * victim->getCount();
 }
 
 

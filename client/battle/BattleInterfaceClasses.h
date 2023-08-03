@@ -29,7 +29,6 @@ class Unit;
 VCMI_LIB_NAMESPACE_END
 
 class Canvas;
-struct SDL_Surface;
 class BattleInterface;
 class CPicture;
 class CFilledTexture;
@@ -70,7 +69,7 @@ private:
 public:
 	BattleConsole(std::shared_ptr<CPicture> backgroundSource, const Point & objectPos, const Point & imagePos, const Point &size);
 
-	void showAll(SDL_Surface * to) override;
+	void showAll(Canvas & to) override;
 	void deactivate() override;
 
 	bool addText(const std::string &text); //adds text at the last position; returns false if failed (e.g. text longer than 70 characters)
@@ -114,6 +113,7 @@ public:
 	void setPhase(EHeroAnimType newPhase); //sets phase of hero animation
 
 	void collectRenderableObjects(BattleRenderer & renderer);
+	void tick(uint32_t msPassed) override;
 
 	float getFrame() const;
 	void onPhaseFinished(const std::function<void()> &);
@@ -127,11 +127,25 @@ public:
 	BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender);
 };
 
+class HeroInfoBasicPanel : public CIntObject //extracted from InfoWindow to fit better as non-popup embed element
+{
+private:
+	std::shared_ptr<CPicture> background;
+	std::vector<std::shared_ptr<CLabel>> labels;
+	std::vector<std::shared_ptr<CAnimImage>> icons;
+public:
+	HeroInfoBasicPanel(const InfoAboutHero & hero, Point * position, bool initializeBackground = true);
+
+	void show(Canvas & to) override;
+
+	void initializeData(const InfoAboutHero & hero);
+	void update(const InfoAboutHero & updatedInfo);
+};
+
 class HeroInfoWindow : public CWindowObject
 {
 private:
-	std::vector<std::shared_ptr<CLabel>> labels;
-	std::vector<std::shared_ptr<CAnimImage>> icons;
+	std::shared_ptr<HeroInfoBasicPanel> content;
 public:
 	HeroInfoWindow(const InfoAboutHero & hero, Point * position);
 };
@@ -143,16 +157,21 @@ private:
 	std::shared_ptr<CPicture> background;
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::shared_ptr<CButton> exit;
+	std::shared_ptr<CButton> repeat;
 	std::vector<std::shared_ptr<CAnimImage>> icons;
 	std::shared_ptr<CTextBox> description;
 	CPlayerInterface & owner;
+	
+	void buttonPressed(int button); //internal function for button callbacks
 public:
-	BattleResultWindow(const BattleResult & br, CPlayerInterface & _owner);
+	BattleResultWindow(const BattleResult & br, CPlayerInterface & _owner, bool allowReplay = false);
 
 	void bExitf(); //exit button callback
+	void bRepeatf(); //repeat button callback
+	std::function<void(int result)> resultCallback; //callback receiving which button was pressed
 
 	void activate() override;
-	void show(SDL_Surface * to = 0) override;
+	void show(Canvas & to) override;
 };
 
 /// Shows the stack queue
@@ -161,21 +180,22 @@ class StackQueue : public CIntObject
 	class StackBox : public CIntObject
 	{
 		StackQueue * owner;
-		boost::optional<uint32_t> boundUnitID;
-		bool highlighted = false;
+		std::optional<uint32_t> boundUnitID;
 
-	public:
 		std::shared_ptr<CPicture> background;
 		std::shared_ptr<CAnimImage> icon;
 		std::shared_ptr<CLabel> amount;
 		std::shared_ptr<CAnimImage> stateIcon;
 
+		void show(Canvas & to) override;
+		void showAll(Canvas & to) override;
+
+		bool isBoundUnitHighlighted() const;
+	public:
 		StackBox(StackQueue * owner);
 		void setUnit(const battle::Unit * unit, size_t turn = 0);
-		void toggleHighlight(bool value);
-		boost::optional<uint32_t> getBoundUnitID() const;
+		std::optional<uint32_t> getBoundUnitID() const;
 
-		void show(SDL_Surface * to) override;
 	};
 
 	static const int QUEUE_SIZE = 10;
@@ -192,7 +212,7 @@ public:
 
 	StackQueue(bool Embedded, BattleInterface & owner);
 	void update();
-	boost::optional<uint32_t> getHoveredUnitIdIfAny() const;
+	std::optional<uint32_t> getHoveredUnitIdIfAny() const;
 
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 };

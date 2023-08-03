@@ -15,8 +15,6 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
 
 
@@ -33,6 +31,6 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 		return sptr(BuildThis(BuildingID::TAVERN).setpriority(2));
 
 	TResources res;
-	res[Res::GOLD] = GameConstants::HERO_GOLD_COST;
+	res[EGameResID::GOLD] = GameConstants::HERO_GOLD_COST;
 	return ai->ah->whatToDo(res, iAmElementar()); //either buy immediately, or collect res
 }

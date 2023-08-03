@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>745</width>
-    <height>389</height>
+    <height>397</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -94,28 +94,9 @@
     </layout>
    </item>
    <item>
-    <widget class="QProgressBar" name="setupProgressBar">
-     <property name="minimum">
-      <number>0</number>
-     </property>
-     <property name="maximum">
-      <number>3</number>
-     </property>
-     <property name="value">
-      <number>0</number>
-     </property>
-     <property name="textVisible">
-      <bool>true</bool>
-     </property>
-     <property name="format">
-      <string>Step %v out of %m</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QStackedWidget" name="installerTabs">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="pageLanguageSelect">
       <layout class="QGridLayout" name="gridLayout_3">
@@ -635,7 +616,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
             <string>Horn of the Abyss</string>
            </property>
            <property name="wordWrap">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -657,7 +638,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
             <string>Heroes III Translation</string>
            </property>
            <property name="wordWrap">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -718,10 +699,10 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
             </font>
            </property>
            <property name="text">
-            <string>High Definition Support</string>
+            <string>Interface Improvements</string>
            </property>
            <property name="wordWrap">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -743,7 +724,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
             <string>In The Wake of Gods</string>
            </property>
            <property name="wordWrap">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -788,7 +769,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Install support for playing Heroes III in resolutions higher than 800x600</string>
+            <string>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>

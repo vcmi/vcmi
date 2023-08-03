@@ -14,12 +14,14 @@
 #include "CGameInfo.h"
 #include "CPlayerInterface.h"
 #include "gui/CGuiHandler.h"
+#include "gui/WindowHandler.h"
 
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
 #include "windows/InfoWindows.h"
 
 #include "mainmenu/CMainMenu.h"
+#include "mainmenu/CPrologEpilogVideo.h"
 
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
@@ -40,8 +42,7 @@
 #include "../lib/NetPackVisitor.h"
 #include "../lib/StartInfo.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/mapping/CCampaignHandler.h"
-#include "../lib/mapping/CMap.h"
+#include "../lib/campaign/CampaignState.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/rmg/CMapGenOptions.h"
@@ -123,7 +124,8 @@ public:
 	}
 };
 
-extern std::string NAME;
+static const std::string NAME_AFFIX = "client";
+static const std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 
 CServerHandler::CServerHandler()
 	: state(EClientState::NONE), mx(std::make_shared<boost::recursive_mutex>()), client(nullptr), loadMode(0), campaignStateToSend(nullptr), campaignServerRestartLock(false)
@@ -320,11 +322,12 @@ void CServerHandler::applyPacksOnLobbyScreen()
 	boost::unique_lock<boost::recursive_mutex> lock(*mx);
 	while(!packsForLobbyScreen.empty())
 	{
+		boost::unique_lock<boost::recursive_mutex> guiLock(*CPlayerInterface::pim);
 		CPackForLobby * pack = packsForLobbyScreen.front();
 		packsForLobbyScreen.pop_front();
 		CBaseForLobbyApply * apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier
 		apply->applyOnLobbyScreen(static_cast<CLobbyScreen *>(SEL), this, pack);
-		GH.totalRedraw();
+		GH.windows().totalRedraw();
 		delete pack;
 	}
 }
@@ -441,7 +444,7 @@ void CServerHandler::sendClientDisconnecting()
 	sendLobbyPack(lcd);
 }
 
-void CServerHandler::setCampaignState(std::shared_ptr<CCampaignState> newCampaign)
+void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign)
 {
 	state = EClientState::LOBBY_CAMPAIGN;
 	LobbySetCampaign lsc;
@@ -449,7 +452,7 @@ void CServerHandler::setCampaignState(std::shared_ptr<CCampaignState> newCampaig
 	sendLobbyPack(lsc);
 }
 
-void CServerHandler::setCampaignMap(int mapId) const
+void CServerHandler::setCampaignMap(CampaignScenarioID mapId) const
 {
 	if(state == EClientState::GAMEPLAY) // FIXME: UI shouldn't sent commands in first place
 		return;
@@ -484,7 +487,7 @@ void CServerHandler::setPlayer(PlayerColor color) const
 	sendLobbyPack(lsp);
 }
 
-void CServerHandler::setPlayerOption(ui8 what, ui8 dir, PlayerColor player) const
+void CServerHandler::setPlayerOption(ui8 what, si8 dir, PlayerColor player) const
 {
 	LobbyChangePlayerOption lcpo;
 	lcpo.what = what;
@@ -659,12 +662,38 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	saveSession->Bool() = false;
 }
 
-void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)
+void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 {
-	if(cs)
-		GH.pushUserEvent(EUserEvent::CAMPAIGN_START_SCENARIO, CMemorySerializer::deepCopy(*cs.get()).release());
-	else
-		GH.pushUserEvent(EUserEvent::CAMPAIGN_START_SCENARIO, CMemorySerializer::deepCopy(*si->campState.get()).release());
+	std::shared_ptr<CampaignState> ourCampaign = cs;
+
+	if (!cs)
+		ourCampaign = si->campState;
+
+	GH.dispatchMainThread([ourCampaign]()
+	{
+		CSH->campaignServerRestartLock.set(true);
+		CSH->endGameplay();
+
+		auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
+		auto finisher = [=]()
+		{
+			if(!ourCampaign->isCampaignFinished())
+			{
+				GH.windows().pushWindow(CMM);
+				GH.windows().pushWindow(CMM->menu);
+				CMM->openCampaignLobby(ourCampaign);
+			}
+		};
+		if(epilogue.hasPrologEpilog)
+		{
+			GH.windows().createAndPushWindow<CPrologEpilogVideo>(epilogue, finisher);
+		}
+		else
+		{
+			CSH->campaignServerRestartLock.waitUntil(false);
+			finisher();
+		}
+	});
 }
 
 void CServerHandler::showServerError(std::string txt)
@@ -732,7 +761,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	if(save)
 	{
 		resetStateForLobby(StartInfo::LOAD_GAME);
-		mapInfo->saveInit(ResourceID(filename, EResType::CLIENT_SAVEGAME));
+		mapInfo->saveInit(ResourceID(filename, EResType::SAVEGAME));
 		screenType = ESelectionScreen::loadGame;
 	}
 	else
@@ -748,8 +777,9 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 
 	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
-	while(!settings["session"]["headless"].Bool() && !dynamic_cast<CLobbyScreen *>(GH.topInt().get()))
+	while(!settings["session"]["headless"].Bool() && !GH.windows().topWindow<CLobbyScreen>())
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+
 	while(!mi || mapInfo->fileURI != CSH->mi->fileURI)
 	{
 		setMapInfo(mapInfo);
@@ -835,12 +865,21 @@ void CServerHandler::threadHandleConnection()
 		}
 		else
 		{
-			logNetwork->error("Lost connection to server, ending listening thread!");
-			logNetwork->error(e.what());
+			if (e.code() == boost::asio::error::eof)
+				logNetwork->error("Lost connection to server, ending listening thread! Connection has been closed");
+			else
+				logNetwork->error("Lost connection to server, ending listening thread! Reason: %s", e.what());
+
 			if(client)
 			{
 				state = EClientState::DISCONNECTING;
-				CGuiHandler::pushUserEvent(EUserEvent::RETURN_TO_MAIN_MENU);
+
+				GH.dispatchMainThread([]()
+				{
+					CSH->endGameplay();
+					GH.defActionsDef = 63;
+					CMM->menu->switchToTab("main");
+				});
 			}
 			else
 			{
@@ -850,11 +889,6 @@ void CServerHandler::threadHandleConnection()
 				packsForLobbyScreen.push_back(lcd);
 			}
 		}
-	}
-	catch(...)
-	{
-		handleException();
-		throw;
 	}
 }
 

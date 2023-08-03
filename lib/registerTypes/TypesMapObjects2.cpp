@@ -13,8 +13,6 @@
 #include "../StartInfo.h"
 #include "../CStack.h"
 #include "../battle/BattleInfo.h"
-#include "../CGameState.h"
-#include "../mapping/CMap.h"
 #include "../CModHandler.h"
 #include "../mapObjects/CObjectHandler.h"
 #include "../CCreatureHandler.h"
@@ -23,9 +21,7 @@
 #include "../CHeroHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../CTownHandler.h"
-#include "../mapping/CCampaignHandler.h"
 #include "../NetPacks.h"
-#include "../mapObjects/CObjectClassesHandler.h"
 
 #include "../serializer/BinaryDeserializer.h"
 #include "../serializer/BinarySerializer.h"

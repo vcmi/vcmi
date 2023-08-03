@@ -15,19 +15,22 @@
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
 #include "ClientNetPackVisitors.h"
-#include "adventureMap/CAdvMapInt.h"
+#include "adventureMap/AdventureMapInterface.h"
 #include "battle/BattleInterface.h"
 #include "gui/CGuiHandler.h"
+#include "gui/WindowHandler.h"
 #include "mapView/mapHandler.h"
 
 #include "../CCallback.h"
 #include "../lib/CConfigHandler.h"
-#include "../lib/CGameState.h"
+#include "../lib/gameState/CGameState.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/VCMIDirs.h"
+#include "../lib/UnlockGuard.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/serializer/BinaryDeserializer.h"
 #include "../lib/mapping/CMapService.h"
+#include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "../lib/serializer/Connection.h"
@@ -371,9 +374,6 @@ void CClient::endGame()
 		logNetwork->info("Deleted mapHandler and gameState.");
 	}
 
-	//threads cleanup has to be after gs cleanup and before battleints cleanup to stop tacticThread
-	cleanThreads();
-
 	CPlayerInterface::battleInt.reset();
 	playerint.clear();
 	battleints.clear();
@@ -402,33 +402,49 @@ void CClient::initPlayerEnvironments()
 	playerEnvironments.clear();
 
 	auto allPlayers = CSH->getAllClientPlayers(CSH->c->connectionID);
-
+	bool hasHumanPlayer = false;
 	for(auto & color : allPlayers)
 	{
 		logNetwork->info("Preparing environment for player %s", color.getStr());
 		playerEnvironments[color] = std::make_shared<CPlayerEnvironment>(color, this, std::make_shared<CCallback>(gs, color, this));
+		
+		if(!hasHumanPlayer && gs->players[color].isHuman())
+			hasHumanPlayer = true;
 	}
 
+	if(!hasHumanPlayer)
+	{
+		Settings session = settings.write["session"];
+		session["spectate"].Bool() = true;
+		session["spectate-skip-battle-result"].Bool() = true;
+		session["spectate-ignore-hero"].Bool() = true;
+	}
+	
 	if(settings["session"]["spectate"].Bool())
 	{
-		playerEnvironments[PlayerColor::SPECTATOR] = std::make_shared<CPlayerEnvironment>(PlayerColor::SPECTATOR, this, std::make_shared<CCallback>(gs, boost::none, this));
+		playerEnvironments[PlayerColor::SPECTATOR] = std::make_shared<CPlayerEnvironment>(PlayerColor::SPECTATOR, this, std::make_shared<CCallback>(gs, std::nullopt, this));
 	}
 }
 
 void CClient::initPlayerInterfaces()
 {
-	for(auto & elem : gs->scenarioOps->playerInfos)
+	for(auto & playerInfo : gs->scenarioOps->playerInfos)
 	{
-		PlayerColor color = elem.first;
+		PlayerColor color = playerInfo.first;
 		if(!vstd::contains(CSH->getAllClientPlayers(CSH->c->connectionID), color))
 			continue;
 
 		if(!vstd::contains(playerint, color))
 		{
 			logNetwork->info("Preparing interface for player %s", color.getStr());
-			if(elem.second.isControlledByAI())
+			if(playerInfo.second.isControlledByAI())
 			{
-				auto AiToGive = aiNameForPlayer(elem.second, false);
+				bool alliedToHuman = false;
+				for(auto & allyInfo : gs->scenarioOps->playerInfos)
+					if (gs->getPlayerTeam(allyInfo.first) == gs->getPlayerTeam(playerInfo.first) && allyInfo.second.isControlledByHuman())
+						alliedToHuman = true;
+
+				auto AiToGive = aiNameForPlayer(playerInfo.second, false, alliedToHuman);
 				logNetwork->info("Player %s will be lead by %s", color.getStr(), AiToGive);
 				installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
 			}
@@ -451,7 +467,7 @@ void CClient::initPlayerInterfaces()
 	logNetwork->trace("Initialized player interfaces %d ms", CSH->th->getDiff());
 }
 
-std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI)
+std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI, bool alliedToHuman)
 {
 	if(ps.name.size())
 	{
@@ -460,13 +476,15 @@ std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI)
 			return ps.name;
 	}
 
-	return aiNameForPlayer(battleAI);
+	return aiNameForPlayer(battleAI, alliedToHuman);
 }
 
-std::string CClient::aiNameForPlayer(bool battleAI)
+std::string CClient::aiNameForPlayer(bool battleAI, bool alliedToHuman)
 {
 	const int sensibleAILimit = settings["session"]["oneGoodAI"].Bool() ? 1 : PlayerColor::PLAYER_LIMIT_I;
-	std::string goodAI = battleAI ? settings["server"]["neutralAI"].String() : settings["server"]["playerAI"].String();
+	std::string goodAdventureAI = alliedToHuman ? settings["server"]["alliedAI"].String() : settings["server"]["playerAI"].String();
+	std::string goodBattleAI = settings["server"]["neutralAI"].String();
+	std::string goodAI = battleAI ? goodBattleAI : goodAdventureAI;
 	std::string badAI = battleAI ? "StupidAI" : "EmptyAI";
 
 	//TODO what about human players
@@ -559,18 +577,41 @@ void CClient::battleStarted(const BattleInfo * info)
 	auto & leftSide = info->sides[0], & rightSide = info->sides[1];
 
 	//If quick combat is not, do not prepare interfaces for battleint
-	if(!settings["adventure"]["quickCombat"].Bool())
+	auto callBattleStart = [&](PlayerColor color, ui8 side)
 	{
-		if(vstd::contains(playerint, leftSide.color) && playerint[leftSide.color]->human)
-			att = std::dynamic_pointer_cast<CPlayerInterface>(playerint[leftSide.color]);
+		if(vstd::contains(battleints, color))
+			battleints[color]->battleStart(leftSide.armyObject, rightSide.armyObject, info->tile, leftSide.hero, rightSide.hero, side, info->replayAllowed);
+	};
+	
+	callBattleStart(leftSide.color, 0);
+	callBattleStart(rightSide.color, 1);
+	callBattleStart(PlayerColor::UNFLAGGABLE, 1);
+	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
+		callBattleStart(PlayerColor::SPECTATOR, 1);
+	
+	if(vstd::contains(playerint, leftSide.color) && playerint[leftSide.color]->human)
+		att = std::dynamic_pointer_cast<CPlayerInterface>(playerint[leftSide.color]);
 
-		if(vstd::contains(playerint, rightSide.color) && playerint[rightSide.color]->human)
-			def = std::dynamic_pointer_cast<CPlayerInterface>(playerint[rightSide.color]);
+	if(vstd::contains(playerint, rightSide.color) && playerint[rightSide.color]->human)
+		def = std::dynamic_pointer_cast<CPlayerInterface>(playerint[rightSide.color]);
+	
+	//Remove player interfaces for auto battle (quickCombat option)
+	if(att && att->isAutoFightOn)
+	{
+		if (att->cb->battleGetTacticDist())
+		{
+			auto side = att->cb->playerToSide(att->playerID);
+			auto action = BattleAction::makeEndOFTacticPhase(*side);
+			att->cb->battleMakeTacticAction(action);
+		}
+
+		att.reset();
+		def.reset();
 	}
 
 	if(!settings["session"]["headless"].Bool())
 	{
-		if(!!att || !!def)
+		if(att || def)
 		{
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def);
@@ -585,46 +626,17 @@ void CClient::battleStarted(const BattleInfo * info)
 		}
 	}
 
-	auto callBattleStart = [&](PlayerColor color, ui8 side)
+	if(info->tacticDistance)
 	{
-		if(vstd::contains(battleints, color))
-			battleints[color]->battleStart(leftSide.armyObject, rightSide.armyObject, info->tile, leftSide.hero, rightSide.hero, side);
-	};
+		auto tacticianColor = info->sides[info->tacticsSide].color;
 
-	callBattleStart(leftSide.color, 0);
-	callBattleStart(rightSide.color, 1);
-	callBattleStart(PlayerColor::UNFLAGGABLE, 1);
-	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
-		callBattleStart(PlayerColor::SPECTATOR, 1);
-
-	if(info->tacticDistance && vstd::contains(battleints, info->sides[info->tacticsSide].color))
-	{
-		PlayerColor color = info->sides[info->tacticsSide].color;
-		playerTacticThreads[color] = std::make_unique<boost::thread>(&CClient::commenceTacticPhaseForInt, this, battleints[color]);
-	}
-}
-
-void CClient::commenceTacticPhaseForInt(std::shared_ptr<CBattleGameInterface> battleInt)
-{
-	setThreadName("CClient::commenceTacticPhaseForInt");
-	try
-	{
-		battleInt->yourTacticPhase(gs->curB->tacticDistance);
-		if(gs && !!gs->curB && gs->curB->tacticDistance) //while awaiting for end of tactics phase, many things can happen (end of battle... or game)
-		{
-			MakeAction ma(BattleAction::makeEndOFTacticPhase(gs->curB->playerToSide(battleInt->playerID).get()));
-			sendRequest(&ma, battleInt->playerID);
-		}
-	}
-	catch(...)
-	{
-		handleException();
+		if (vstd::contains(battleints, tacticianColor))
+			battleints[tacticianColor]->yourTacticPhase(info->tacticDistance);
 	}
 }
 
 void CClient::battleFinished()
 {
-	stopAllBattleActions();
 	for(auto & side : gs->curB->sides)
 		if(battleCallbacks.count(side.color))
 			battleCallbacks[side.color]->setBattle(nullptr);
@@ -633,61 +645,20 @@ void CClient::battleFinished()
 		battleCallbacks[PlayerColor::SPECTATOR]->setBattle(nullptr);
 
 	setBattle(nullptr);
+	gs->curB.dellNull();
 }
 
 void CClient::startPlayerBattleAction(PlayerColor color)
 {
-	stopPlayerBattleAction(color);
+	assert(vstd::contains(battleints, color));
 
 	if(vstd::contains(battleints, color))
 	{
-		auto thread = std::make_shared<boost::thread>(std::bind(&CClient::waitForMoveAndSend, this, color));
-		playerActionThreads[color] = thread;
-	}
-}
+		// we want to avoid locking gamestate and causing UI to freeze while AI is making turn
+		auto unlock = vstd::makeUnlockGuardIf(*CPlayerInterface::pim, !battleints[color]->human);
 
-void CClient::stopPlayerBattleAction(PlayerColor color)
-{
-	if(vstd::contains(playerActionThreads, color))
-	{
-		auto thread = playerActionThreads.at(color);
-		if(thread->joinable())
-		{
-			thread->interrupt();
-			thread->join();
-		}
-		playerActionThreads.erase(color);
-	}
-
-}
-
-void CClient::stopAllBattleActions()
-{
-	while(!playerActionThreads.empty())
-		stopPlayerBattleAction(playerActionThreads.begin()->first);
-}
-
-void CClient::waitForMoveAndSend(PlayerColor color)
-{
-	try
-	{
-		setThreadName("CClient::waitForMoveAndSend");
 		assert(vstd::contains(battleints, color));
-		BattleAction ba = battleints[color]->activeStack(gs->curB->battleGetStackByID(gs->curB->activeStack, false));
-		if(ba.actionType != EActionType::CANCEL)
-		{
-			logNetwork->trace("Send battle action to server: %s", ba.toString());
-			MakeAction temp_action(ba);
-			sendRequest(&temp_action, color);
-		}
-	}
-	catch(boost::thread_interrupted &)
-	{
-		logNetwork->debug("Wait for move thread was interrupted and no action will be send. Was a battle ended by spell?");
-	}
-	catch(...)
-	{
-		handleException();
+		battleints[color]->activeStack(gs->curB->battleGetStackByID(gs->curB->activeStack, false));
 	}
 }
 
@@ -750,32 +721,11 @@ void CClient::removeGUI()
 {
 	// CClient::endGame
 	GH.curInt = nullptr;
-	if(GH.topInt())
-		GH.topInt()->deactivate();
+	GH.windows().clear();
 	adventureInt.reset();
-	GH.listInt.clear();
-	GH.objsToBlit.clear();
-	GH.statusbar.reset();
 	logGlobal->info("Removed GUI.");
 
 	LOCPLINT = nullptr;
-}
-
-void CClient::cleanThreads()
-{
-	stopAllBattleActions();
-
-	while (!playerTacticThreads.empty())
-	{
-		PlayerColor color = playerTacticThreads.begin()->first;
-
-		//set tacticcMode of the players to false to stop tacticThread
-		if (vstd::contains(battleints, color))
-			battleints[color]->forceEndTacticPhase();
-
-		playerTacticThreads[color]->join();
-		playerTacticThreads.erase(color);
-	}
 }
 
 #ifdef VCMI_ANDROID

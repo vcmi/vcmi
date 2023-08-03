@@ -13,6 +13,7 @@
 
 #include "../ISpellMechanics.h"
 
+#include "../../bonuses/BonusSelector.h"
 #include "../../NetPacksBase.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
@@ -46,13 +47,7 @@ bool UnitEffect::applicable(Problem & problem, const Mechanics * m) const
 	auto targets = m->battle()->battleGetUnitsIf(mainFilter);
 	vstd::erase_if(targets, predicate);
 	if(targets.empty())
-	{
-		MetaString text;
-		text.addTxt(MetaString::GENERAL_TXT, 185);
-		problem.add(std::move(text), Problem::NORMAL);
-		return false;
-	}
-
+		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 
 	return true;
 }
@@ -257,8 +252,8 @@ bool UnitEffect::isReceptive(const Mechanics * m, const battle::Unit * unit) con
 
 		//SPELL_IMMUNITY absolute case
 		std::stringstream cachingStr;
-		cachingStr << "type_" << Bonus::SPELL_IMMUNITY << "subtype_" << m->getSpellIndex() << "addInfo_1";
-		return !unit->hasBonus(Selector::typeSubtypeInfo(Bonus::SPELL_IMMUNITY, m->getSpellIndex(), 1), cachingStr.str());
+		cachingStr << "type_" << vstd::to_underlying(BonusType::SPELL_IMMUNITY) << "subtype_" << m->getSpellIndex() << "addInfo_1";
+		return !unit->hasBonus(Selector::typeSubtypeInfo(BonusType::SPELL_IMMUNITY, m->getSpellIndex(), 1), cachingStr.str());
 	}
 	else
 	{

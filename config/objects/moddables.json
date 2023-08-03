@@ -50,6 +50,35 @@
 		}
 	},
 
+	"randomResource":
+	{
+		"index" :76,
+		"handler": "randomResource",
+		"base" : {
+			"base" : {
+				"visitableFrom" : [ "+++", "+-+", "+++" ],
+				"mask" : [ "VA" ]
+			}
+		},
+		"types" : {
+			"randomResource" : {
+				"index" : 0,
+				"rmg" : {
+					"value"		: 1500,
+					"rarity"	: 2000
+				},
+				"templates" :
+				{
+					"normal" : { 
+						"animation" : "AVTrndm0",
+						"visitableFrom" : [ "+++", "+-+", "+++" ],
+						"mask" : [ "VV", "VA"]
+					}
+				}
+			}
+		}
+	},
+
 	// subtype: resource ID
 	"resource" : {
 		"index" :79,
@@ -109,15 +138,33 @@
 		"lastReservedIndex" : 2,
 		"base" : {
 			"aiValue" : 0,
+			"layer" : "sail",
+			"onboardAssaultAllowed" : true,
+			"onboardVisitAllowed" : true,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
 				"mask" : [ "VVV", "VAV" ]
 			}
 		},
 		"types" : {
-			"evil" : { "index" : 0,	"rmg" : { "mapLimit" : 64 } },
-			"good" : { "index" : 1, "rmg" : { "mapLimit" : 64 } },
-			"neutral" : { "index" : 2, "rmg" : { "mapLimit" : 64 } },
+			"boatNecropolis" : { 
+				"index" : 0,
+				"actualAnimation" : "AB01_.def",
+				"overlayAnimation" : "ABM01_.def",
+				"flagAnimations" : ["ABF01L", "ABF01G", "ABF01R", "ABF01D", "ABF01B", "ABF01P", "ABF01W", "ABF01K"]
+			},
+			"boatCastle" : { 
+				"index" : 1, 
+				"actualAnimation" : "AB02_.def",
+				"overlayAnimation" : "ABM02_.def",
+				"flagAnimations" : ["ABF02L", "ABF02G", "ABF02R", "ABF02D", "ABF02B", "ABF02P", "ABF02W", "ABF02K"]
+			},
+			"boatFortress" : {
+				"index" : 2, 
+				"actualAnimation" : "AB03_.def",
+				"overlayAnimation" : "ABM03_.def",
+				"flagAnimations" : ["ABF03L", "ABF03G", "ABF03R", "ABF03D", "ABF03B", "ABF03P", "ABF03W", "ABF03K"]
+			},
 		}
 	},
 

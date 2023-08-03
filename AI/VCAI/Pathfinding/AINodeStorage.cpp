@@ -14,7 +14,9 @@
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
-#include "../../../lib/PathfinderUtil.h"
+#include "../../../lib/pathfinder/CPathfinder.h"
+#include "../../../lib/pathfinder/PathfinderOptions.h"
+#include "../../../lib/pathfinder/PathfinderUtil.h"
 #include "../../../lib/CPlayerState.h"
 
 AINodeStorage::AINodeStorage(const int3 & Sizes)
@@ -83,7 +85,7 @@ bool AINodeStorage::isBattleNode(const CGPathNode * node) const
 	return (getAINode(node)->chainMask & BATTLE_CHAIN) > 0;
 }
 
-boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, const EPathfindingLayer layer, int chainNumber)
+std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, const EPathfindingLayer layer, int chainNumber)
 {
 	auto chains = nodes[layer][pos.z][pos.x][pos.y];
 
@@ -102,25 +104,23 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, c
 		}
 	}
 
-	return boost::none;
+	return std::nullopt;
 }
 
 std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 {
 	auto hpos = hero->visitablePos();
-	auto initialNode =
-		getOrCreateNode(hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, NORMAL_CHAIN)
-		.get();
+	auto initialNode = getOrCreateNode(hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, NORMAL_CHAIN).value();
 
 	initialNode->turns = 0;
-	initialNode->moveRemains = hero->movement;
+	initialNode->moveRemains = hero->movementPointsRemaining();
 	initialNode->danger = 0;
 	initialNode->setCost(0.0);
 
 	return {initialNode};
 }
 
-void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility)
+void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, EPathAccessibility accessibility)
 {
 	for(int i = 0; i < NUM_CHAINS; i++)
 	{
@@ -171,10 +171,10 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 		{
 			auto nextNode = getOrCreateNode(neighbour, i, srcNode->chainMask);
 
-			if(!nextNode || nextNode.get()->accessible == CGPathNode::NOT_SET)
+			if(!nextNode || nextNode.value()->accessible == EPathAccessibility::NOT_SET)
 				continue;
 
-			neighbours.push_back(nextNode.get());
+			neighbours.push_back(nextNode.value());
 		}
 	}
 
@@ -207,7 +207,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 			if(!node)
 				continue;
 
-			neighbours.push_back(node.get());
+			neighbours.push_back(node.value());
 		}
 	}
 
@@ -245,7 +245,7 @@ void AINodeStorage::calculateTownPortalTeleportations(
 		auto skillLevel = hero->getSpellSchoolLevel(townPortal);
 		auto movementCost = GameConstants::BASE_MOVEMENT_COST * (skillLevel >= 3 ? 2 : 3);
 
-		if(hero->movement < movementCost)
+		if(hero->movementPointsRemaining() < movementCost)
 		{
 			return;
 		}
@@ -273,7 +273,7 @@ void AINodeStorage::calculateTownPortalTeleportations(
 				logAi->trace("Adding town portal node at %s", targetTown->name);
 #endif
 
-				AIPathNode * node = nodeOptional.get();
+				AIPathNode * node = nodeOptional.value();
 
 				node->theNodeBefore = source.node;
 				node->specialAction.reset(new AIPathfinding::TownPortalAction(targetTown));
@@ -294,7 +294,7 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 	for(const AIPathNode & node : chains)
 	{
 		auto sameNode = node.chainMask == destinationNode->chainMask;
-		if(sameNode	|| node.action == CGPathNode::ENodeAction::UNKNOWN)
+		if(sameNode	|| node.action == EPathNodeAction::UNKNOWN)
 		{
 			continue;
 		}
@@ -323,7 +323,7 @@ bool AINodeStorage::isTileAccessible(const int3 & pos, const EPathfindingLayer l
 {
 	const AIPathNode & node = nodes[layer][pos.z][pos.x][pos.y][0];
 
-	return node.action != CGPathNode::ENodeAction::UNKNOWN;
+	return node.action != EPathNodeAction::UNKNOWN;
 }
 
 std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand) const
@@ -334,7 +334,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 
 	for(const AIPathNode & node : chains)
 	{
-		if(node.action == CGPathNode::ENodeAction::UNKNOWN)
+		if(node.action == EPathNodeAction::UNKNOWN)
 		{
 			continue;
 		}

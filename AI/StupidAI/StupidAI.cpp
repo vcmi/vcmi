@@ -18,14 +18,21 @@ static std::shared_ptr<CBattleCallback> cbc;
 
 CStupidAI::CStupidAI()
 	: side(-1)
+	, wasWaitingForRealize(false)
+	, wasUnlockingGs(false)
 {
 	print("created");
 }
 
-
 CStupidAI::~CStupidAI()
 {
 	print("destroyed");
+	if(cb)
+	{
+		//Restore previous state of CB - it may be shared with the main AI (like VCAI)
+		cb->waitTillRealize = wasWaitingForRealize;
+		cb->unlockGsWhenWaiting = wasUnlockingGs;
+	}
 }
 
 void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB)
@@ -33,6 +40,11 @@ void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	print("init called, saving ptr to IBattleCallback");
 	env = ENV;
 	cbc = cb = CB;
+
+	wasWaitingForRealize = CB->waitTillRealize;
+	wasUnlockingGs = CB->unlockGsWhenWaiting;
+	CB->waitTillRealize = false;
+	CB->unlockGsWhenWaiting = false;
 }
 
 void CStupidAI::actionFinished(const BattleAction &action)
@@ -80,7 +92,7 @@ static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const Battl
 	for(int i = 0; i < 2; i++)
 	{
 		for (auto & neighbour : (i ? h2 : h1).neighbouringTiles())
-			if(const CStack * s = cbc->battleGetStackByPos(neighbour))
+			if(const auto * s = cbc->battleGetUnitByPos(neighbour))
 				if(s->isShooter())
 					shooters[i]++;
 	}
@@ -88,14 +100,19 @@ static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const Battl
 	return shooters[0] < shooters[1];
 }
 
-BattleAction CStupidAI::activeStack( const CStack * stack )
+void CStupidAI::yourTacticPhase(int distance)
+{
+	cb->battleMakeTacticAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
+}
+
+void CStupidAI::activeStack( const CStack * stack )
 {
 	//boost::this_thread::sleep(boost::posix_time::seconds(2));
 	print("activeStack called for " + stack->nodeName());
 	ReachabilityInfo dists = cb->getReachability(stack);
 	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
 
-	if(stack->type->idNumber == CreatureID::CATAPULT)
+	if(stack->creatureId() == CreatureID::CATAPULT)
 	{
 		BattleAction attack;
 		static const std::vector<int> wallHexes = {50, 183, 182, 130, 78, 29, 12, 95};
@@ -103,13 +120,15 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		attack.aimToHex(seletectedHex);
 		attack.actionType = EActionType::CATAPULT;
 		attack.side = side;
-		attack.stackNumber = stack->ID;
+		attack.stackNumber = stack->unitId();
 
-		return attack;
+		cb->battleMakeUnitAction(attack);
+		return;
 	}
-	else if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON))
+	else if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON))
 	{
-		return BattleAction::makeDefend(stack);
+		cb->battleMakeUnitAction(BattleAction::makeDefend(stack));
+		return;
 	}
 
 	for (const CStack *s : cb->battleGetStacks(CBattleCallback::ONLY_ENEMY))
@@ -120,7 +139,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		}
 		else
 		{
-			std::vector<BattleHex> avHexes = cb->battleGetAvailableHexes(stack);
+			std::vector<BattleHex> avHexes = cb->battleGetAvailableHexes(stack, false);
 
 			for (BattleHex hex : avHexes)
 			{
@@ -151,12 +170,14 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	if(enemiesShootable.size())
 	{
 		const EnemyInfo &ei= *std::max_element(enemiesShootable.begin(), enemiesShootable.end(), isMoreProfitable);
-		return BattleAction::makeShotAttack(stack, ei.s);
+		cb->battleMakeUnitAction(BattleAction::makeShotAttack(stack, ei.s));
+		return;
 	}
 	else if(enemiesReachable.size())
 	{
 		const EnemyInfo &ei= *std::max_element(enemiesReachable.begin(), enemiesReachable.end(), &isMoreProfitable);
-		return BattleAction::makeMeleeAttack(stack, ei.s->getPosition(), *std::max_element(ei.attackFrom.begin(), ei.attackFrom.end(), &willSecondHexBlockMoreEnemyShooters));
+		cb->battleMakeUnitAction(BattleAction::makeMeleeAttack(stack, ei.s->getPosition(), *std::max_element(ei.attackFrom.begin(), ei.attackFrom.end(), &willSecondHexBlockMoreEnemyShooters)));
+		return;
 	}
 	else if(enemiesUnreachable.size()) //due to #955 - a buggy battle may occur when there are no enemies
 	{
@@ -167,11 +188,13 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 
 		if(dists.distToNearestNeighbour(stack, closestEnemy->s) < GameConstants::BFIELD_SIZE)
 		{
-			return goTowards(stack, closestEnemy->s->getAttackableHexes(stack));
+			cb->battleMakeUnitAction(goTowards(stack, closestEnemy->s->getAttackableHexes(stack)));
+			return;
 		}
 	}
 
-	return BattleAction::makeDefend(stack);
+	cb->battleMakeUnitAction(BattleAction::makeDefend(stack));
+	return;
 }
 
 void CStupidAI::battleAttack(const BattleAttack *ba)
@@ -184,7 +207,7 @@ void CStupidAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bs
 	print("battleStacksAttacked called");
 }
 
-void CStupidAI::battleEnd(const BattleResult *br)
+void CStupidAI::battleEnd(const BattleResult *br, QueryID queryID)
 {
 	print("battleEnd called");
 }
@@ -219,7 +242,7 @@ void CStupidAI::battleStacksEffectsSet(const SetStackEffect & sse)
 	print("battleStacksEffectsSet called");
 }
 
-void CStupidAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side)
+void CStupidAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side, bool replayAllowed)
 {
 	print("battleStart called");
 	side = Side;
@@ -238,7 +261,7 @@ void CStupidAI::print(const std::string &text) const
 BattleAction CStupidAI::goTowards(const CStack * stack, std::vector<BattleHex> hexes) const
 {
 	auto reachability = cb->getReachability(stack);
-	auto avHexes = cb->battleGetAvailableHexes(reachability, stack);
+	auto avHexes = cb->battleGetAvailableHexes(reachability, stack, false);
 
 	if(!avHexes.size() || !hexes.size()) //we are blocked or dest is blocked
 	{
@@ -270,7 +293,7 @@ BattleAction CStupidAI::goTowards(const CStack * stack, std::vector<BattleHex> h
 		return BattleAction::makeDefend(stack);
 	}
 
-	if(stack->hasBonusOfType(Bonus::FLYING))
+	if(stack->hasBonusOfType(BonusType::FLYING))
 	{
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
 		// We just check all available hexes and pick the one closest to the target.

@@ -12,24 +12,20 @@
 #include "CursorHandler.h"
 
 #include "CGuiHandler.h"
+#include "FramerateManager.h"
 #include "../renderSDL/CursorSoftware.h"
 #include "../renderSDL/CursorHardware.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
-#include "../renderSDL/SDL_Extensions.h"
 
 #include "../../lib/CConfigHandler.h"
 
 std::unique_ptr<ICursor> CursorHandler::createCursor()
 {
-	if (settings["video"]["cursor"].String() == "auto")
-	{
 #if defined(VCMI_MOBILE)
+	if (settings["general"]["userRelativePointer"].Bool())
 		return std::make_unique<CursorSoftware>();
-#else
-		return std::make_unique<CursorHardware>();
 #endif
-	}
 
 	if (settings["video"]["cursor"].String() == "hardware")
 		return std::make_unique<CursorHardware>();
@@ -62,10 +58,7 @@ CursorHandler::CursorHandler()
 	set(Cursor::Map::POINTER);
 }
 
-Point CursorHandler::position() const
-{
-	return pos;
-}
+CursorHandler::~CursorHandler() = default;
 
 void CursorHandler::changeGraphic(Cursor::Type type, size_t index)
 {
@@ -250,7 +243,7 @@ void CursorHandler::updateSpellcastCursor()
 {
 	static const float frameDisplayDuration = 0.1f; // H3 uses 100 ms per frame
 
-	frameTime += GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+	frameTime += GH.framerate().getElapsedMilliseconds() / 1000.f;
 	size_t newFrame = frame;
 
 	while (frameTime >= frameDisplayDuration)

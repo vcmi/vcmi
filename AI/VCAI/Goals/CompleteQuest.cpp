@@ -12,8 +12,7 @@
 #include "../VCAI.h"
 #include "../FuzzyHelper.h"
 #include "../AIhelper.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
+#include "../../../lib/mapObjects/CQuest.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
@@ -172,7 +171,7 @@ TGoalVec CompleteQuest::missionArmy() const
 
 	for(auto creature : q.quest->m6creatures)
 	{
-		solutions.push_back(sptr(GatherTroops(creature.type->idNumber, creature.count)));
+		solutions.push_back(sptr(GatherTroops(creature.type->getId(), creature.count)));
 	}
 
 	return solutions;
@@ -235,7 +234,7 @@ TGoalVec CompleteQuest::missionResources() const
 			for(int i = 0; i < q.quest->m7resources.size(); ++i)
 			{
 				if(q.quest->m7resources[i])
-					solutions.push_back(sptr(CollectRes(i, q.quest->m7resources[i])));
+					solutions.push_back(sptr(CollectRes(static_cast<EGameResID>(i), q.quest->m7resources[i])));
 			}
 		}
 	}

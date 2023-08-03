@@ -9,9 +9,12 @@
  */
 #pragma once
 
-#include "../../lib/HeroBonus.h"
-#include "../widgets/CArtifactHolder.h"
-#include "../widgets/CGarrisonInt.h"
+#include "../widgets/CWindowWithArtifacts.h"
+#include "CWindowObject.h"
+
+#include "../../lib/bonuses/IBonusBearer.h"
+
+#include <vcmi/FactionMember.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -20,17 +23,17 @@ class CGHeroInstance;
 VCMI_LIB_NAMESPACE_END
 
 class CButton;
-struct SDL_Surface;
 class CHeroWindow;
 class LClickableAreaHero;
 class LRClickableAreaWText;
 class LRClickableAreaWTextComp;
-class CArtifactsOfHero;
+class CArtifactsOfHeroMain;
 class MoraleLuckBox;
 class CToggleButton;
 class CToggleGroup;
 class CGStatusBar;
 class CTextBox;
+class CGarrisonInt;
 
 /// Button which switches hero selection
 class CHeroSwitcher : public CIntObject
@@ -39,27 +42,12 @@ class CHeroSwitcher : public CIntObject
 	std::shared_ptr<CAnimImage> image;
 	CHeroWindow * owner;
 public:
-	void clickLeft(tribool down, bool previousState) override;
+	void clickPressed(const Point & cursorPosition) override;
 
 	CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInstance * hero_);
 };
 
-//helper class for calculating values of hero bonuses without bonuses from picked up artifact
-class CHeroWithMaybePickedArtifact : public virtual IBonusBearer
-{
-public:
-	const CGHeroInstance * hero;
-	CWindowWithArtifacts * cww;
-
-	CHeroWithMaybePickedArtifact(CWindowWithArtifacts * Cww, const CGHeroInstance * Hero);
-	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root = nullptr, const std::string & cachingStr = "") const override;
-
-	int64_t getTreeVersion() const override;
-
-	si32 manaLimit() const;
-};
-
-class CHeroWindow : public CStatusbarWindow, public CGarrisonHolder, public CWindowWithArtifacts
+class CHeroWindow : public CStatusbarWindow, public IGarrisonHolder, public CWindowWithArtifacts
 {
 	std::shared_ptr<CLabel> name;
 	std::shared_ptr<CLabel> title;
@@ -92,20 +80,19 @@ class CHeroWindow : public CStatusbarWindow, public CGarrisonHolder, public CWin
 	std::vector<std::shared_ptr<CLabel>> secSkillNames;
 	std::vector<std::shared_ptr<CLabel>> secSkillValues;
 
-	CHeroWithMaybePickedArtifact heroWArt;
-
 	std::shared_ptr<CButton> quitButton;
 	std::shared_ptr<CTextBox> dismissLabel;
 	std::shared_ptr<CButton> dismissButton;
 	std::shared_ptr<CTextBox> questlogLabel;
 	std::shared_ptr<CButton> questlogButton;
 	std::shared_ptr<CButton> commanderButton;
+	std::shared_ptr<CButton> backpackButton;
 
 	std::shared_ptr<CToggleButton> tacticsButton;
 	std::shared_ptr<CToggleGroup> formations;
 
 	std::shared_ptr<CGarrisonInt> garr;
-	std::shared_ptr<CArtifactsOfHero> arts;
+	std::shared_ptr<CArtifactsOfHeroMain> arts;
 
 	std::vector<std::shared_ptr<CLabel>> labels;
 
@@ -120,8 +107,9 @@ public:
 	void commanderWindow();
 	void switchHero(); //changes displayed hero
 	void updateGarrisons() override;
+	void createBackpackWindow();
 
 	//friends
-	friend void CHeroArtPlace::clickLeft(tribool down, bool previousState);
+	friend void CHeroArtPlace::clickPressed(const Point & cursorPosition);
 	friend class CPlayerInterface;
 };

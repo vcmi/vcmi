@@ -18,6 +18,21 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+struct DLL_LINKAGE TerrainPaletteAnimation
+{
+	/// index of first color to cycle
+	int32_t start;
+	/// total numbers of colors to cycle
+	int32_t length;
+
+	template <typename Handler> void serialize(Handler& h, const int version)
+	{
+		h & start;
+		h & length;
+	}
+};
+
+
 class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
 {
 	friend class TerrainTypeHandler;
@@ -25,6 +40,15 @@ class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
 	std::string modScope;
 	TerrainId id;
 	ui8 passabilityType;
+
+	enum PassabilityType : ui8
+	{
+		LAND = 1,
+		WATER = 2,
+		SURFACE = 4,
+		SUBTERRANEAN = 8,
+		ROCK = 16
+	};
 
 public:
 	int32_t getIndex() const override { return id.getNum(); }
@@ -37,15 +61,6 @@ public:
 	std::string getNameTextID() const override;
 	std::string getNameTranslated() const override;
 
-	enum PassabilityType : ui8
-	{
-		LAND = 1,
-		WATER = 2,
-		SURFACE = 4,
-		SUBTERRANEAN = 8,
-		ROCK = 16
-	};
-	
 	std::vector<BattleField> battleFields;
 	std::vector<TerrainId> prohibitTransitions;
 	ColorRGBA minimapBlocked;
@@ -56,6 +71,8 @@ public:
 	std::string terrainViewPatterns;
 	std::string horseSound;
 	std::string horseSoundPenalty;
+
+	std::vector<TerrainPaletteAnimation> paletteAnimation;
 
 	TerrainId rockTerrain;
 	RiverId river;
@@ -87,6 +104,7 @@ public:
 		h & terrainViewPatterns;
 		h & rockTerrain;
 		h & river;
+		h & paletteAnimation;
 
 		h & id;
 		h & moveCost;

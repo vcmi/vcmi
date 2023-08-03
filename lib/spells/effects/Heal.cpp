@@ -59,7 +59,7 @@ bool Heal::isValidTarget(const Mechanics * m, const battle::Unit * unit) const
 	if(minFullUnits > 0)
 	{
 		auto hpGained = std::min(m->getEffectValue(), injuries);
-		if(hpGained < minFullUnits * unit->MaxHealth())
+		if(hpGained < minFullUnits * unit->getMaxHealth())
 			return false;
 	}
 
@@ -119,19 +119,19 @@ void Heal::prepareHealEffect(int64_t value, BattleUnitsChanged & pack, BattleLog
 				// %d %s rise from the dead!
 				// in the table first comes plural string, then the singular one
 				MetaString resurrectText;
-				state->addText(resurrectText, MetaString::GENERAL_TXT, 116, resurrectedCount == 1);
+				state->addText(resurrectText, EMetaText::GENERAL_TXT, 116, resurrectedCount == 1);
 				state->addNameReplacement(resurrectText);
-				resurrectText.addReplacement(resurrectedCount);
+				resurrectText.replaceNumber(resurrectedCount);
 				logMessage.lines.push_back(std::move(resurrectText));
 			}
-			else if (unitHPgained > 0 && m->caster->getCasterUnitId() >= 0) //Show text about healed HP if healed by unit
+			else if (unitHPgained > 0 && m->caster->getHeroCaster() == nullptr) //Show text about healed HP if healed by unit
 			{
 				MetaString healText;
-				auto casterUnit = dynamic_cast<const battle::CUnitState*>(m->caster)->acquire();
-				healText.addTxt(MetaString::GENERAL_TXT, 414);
+				auto casterUnit = dynamic_cast<const battle::Unit*>(m->caster);
+				healText.appendLocalString(EMetaText::GENERAL_TXT, 414);
 				casterUnit->addNameReplacement(healText, false);
 				state->addNameReplacement(healText, false);
-				healText.addReplacement((int)unitHPgained);
+				healText.replaceNumber((int)unitHPgained);
 				logMessage.lines.push_back(std::move(healText));
 			}
 

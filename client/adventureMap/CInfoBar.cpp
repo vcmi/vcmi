@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CInfoBar.h"
 
-#include "CAdvMapInt.h"
+#include "AdventureMapInterface.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/Images.h"
@@ -22,9 +22,12 @@
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
+#include "../PlayerLocalState.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/WindowHandler.h"
 
 #include "../../CCallback.h"
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -34,7 +37,7 @@ CInfoBar::CVisibleInfo::CVisibleInfo()
 {
 }
 
-void CInfoBar::CVisibleInfo::show(SDL_Surface * to)
+void CInfoBar::CVisibleInfo::show(Canvas & to)
 {
 	CIntObject::show(to);
 	for(auto object : forceRefresh)
@@ -49,14 +52,22 @@ CInfoBar::VisibleHeroInfo::VisibleHeroInfo(const CGHeroInstance * hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>("ADSTATHR");
-	heroTooltip = std::make_shared<CHeroTooltip>(Point(0,0), hero);
+
+	if(settings["gameTweaks"]["infoBarCreatureManagement"].Bool())
+		heroTooltip = std::make_shared<CInteractableHeroTooltip>(Point(0,0), hero);
+	else
+		heroTooltip = std::make_shared<CHeroTooltip>(Point(0,0), hero);
 }
 
 CInfoBar::VisibleTownInfo::VisibleTownInfo(const CGTownInstance * town)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>("ADSTATCS");
-	townTooltip = std::make_shared<CTownTooltip>(Point(0,0), town);
+
+	if(settings["gameTweaks"]["infoBarCreatureManagement"].Bool())
+		townTooltip = std::make_shared<CInteractableTownTooltip>(Point(0,0), town);
+	else
+		townTooltip = std::make_shared<CTownTooltip>(Point(0,0), town);
 }
 
 CInfoBar::VisibleDateInfo::VisibleDateInfo()
@@ -114,7 +125,7 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	//get amount of halls of each level
 	std::vector<int> halls(4, 0);
-	for(auto town : LOCPLINT->towns)
+	for(auto town : LOCPLINT->localState->getOwnedTowns())
 	{
 		int hallLevel = town->hallLevel();
 		//negative value means no village hall, unlikely but possible
@@ -237,15 +248,15 @@ void CInfoBar::reset()
 void CInfoBar::showSelection()
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	if(adventureInt->curHero())
+	if(LOCPLINT->localState->getCurrentHero())
 	{
-		showHeroSelection(adventureInt->curHero());
+		showHeroSelection(LOCPLINT->localState->getCurrentHero());
 		return;
 	}
 
-	if(adventureInt->curTown())
+	if(LOCPLINT->localState->getCurrentTown())
 	{
-		showTownSelection(adventureInt->curTown());
+		showTownSelection(LOCPLINT->localState->getCurrentTown());
 		return;
 	}
 
@@ -260,7 +271,7 @@ void CInfoBar::tick(uint32_t msPassed)
 	{
 		timerCounter = 0;
 		removeUsedEvents(TIME);
-		if(GH.topInt() == adventureInt)
+		if(GH.windows().isTopWindow(adventureInt))
 			popComponents(true);
 	}
 	else
@@ -269,41 +280,47 @@ void CInfoBar::tick(uint32_t msPassed)
 	}
 }
 
-void CInfoBar::clickLeft(tribool down, bool previousState)
+void CInfoBar::clickReleased(const Point & cursorPosition)
 {
-	if(down)
+	timerCounter = 0;
+	removeUsedEvents(TIME); //expiration trigger from just clicked element is not valid anymore
+
+	if(state == HERO || state == TOWN)
 	{
-		if(state == HERO || state == TOWN)
-			showGameStatus();
-		else if(state == GAME)
-			showDate();
-		else
-			popComponents(true);
+		if(settings["gameTweaks"]["infoBarCreatureManagement"].Bool())
+			return;
+
+		showGameStatus();
 	}
+	else if(state == GAME)
+		showDate();
+	else
+		popComponents(true);
 }
 
-void CInfoBar::clickRight(tribool down, bool previousState)
+void CInfoBar::showPopupWindow(const Point & cursorPosition)
 {
-	if (down)
-		CRClickPopup::createAndPush(CGI->generaltexth->allTexts[109]);
+	CRClickPopup::createAndPush(CGI->generaltexth->allTexts[109]);
 }
 
 void CInfoBar::hover(bool on)
 {
 	if(on)
-		GH.statusbar->write(CGI->generaltexth->zelp[292].first);
+		GH.statusbar()->write(CGI->generaltexth->zelp[292].first);
 	else
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 }
 
 CInfoBar::CInfoBar(const Rect & position)
-	: CIntObject(LCLICK | RCLICK | HOVER, position.topLeft()),
+	: CIntObject(LCLICK | SHOW_POPUP | HOVER, position.topLeft()),
 	timerCounter(0),
-	state(EMPTY)
+	state(EMPTY),
+	listener(settings.listen["gameTweaks"]["infoBarCreatureManagement"])
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	pos.w = position.w;
 	pos.h = position.h;
+	listener(std::bind(&CInfoBar::OnInfoBarCreatureManagementChanged, this));
 	reset();
 }
 
@@ -311,11 +328,14 @@ CInfoBar::CInfoBar(const Point & position): CInfoBar(Rect(position.x, position.y
 {
 }
 
+void CInfoBar::OnInfoBarCreatureManagementChanged()
+{
+	showSelection();
+}
 
 void CInfoBar::setTimer(uint32_t msToTrigger)
 {
-	if (!(active & TIME))
-		addUsedEvents(TIME);
+	addUsedEvents(TIME);
 	timerCounter = msToTrigger;
 }
 

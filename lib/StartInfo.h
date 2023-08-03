@@ -10,11 +10,12 @@
 #pragma once
 
 #include "GameConstants.h"
+#include "campaign/CampaignConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CMapGenOptions;
-class CCampaignState;
+class CampaignState;
 class CMapInfo;
 struct PlayerInfo;
 class PlayerColor;
@@ -34,15 +35,14 @@ struct DLL_LINKAGE PlayerSettings
 	};
 
 	Ebonus bonus;
-	si16 castle;
-	si32 hero,
-		 heroPortrait; //-1 if default, else ID
+	FactionID castle;
+	HeroTypeID hero;
+	HeroTypeID heroPortrait; //-1 if default, else ID
 
 	std::string heroName;
 	PlayerColor color; //from 0 -
 	enum EHandicap {NO_HANDICAP, MILD, SEVERE};
 	EHandicap handicap;//0-no, 1-mild, 2-severe
-	TeamID team;
 
 	std::string name;
 	std::set<ui8> connectedPlayerIDs; //Empty - AI, or connectrd player ids
@@ -59,7 +59,6 @@ struct DLL_LINKAGE PlayerSettings
 		h & handicap;
 		h & name;
 		h & connectedPlayerIDs;
-		h & team;
 		h & compOnly;
 	}
 
@@ -76,7 +75,7 @@ struct DLL_LINKAGE StartInfo
 	EMode mode;
 	ui8 difficulty; //0=easy; 4=impossible
 
-	typedef std::map<PlayerColor, PlayerSettings> TPlayerInfos;
+	using TPlayerInfos = std::map<PlayerColor, PlayerSettings>;
 	TPlayerInfos playerInfos; //color indexed
 
 	ui32 seedToBeUsed; //0 if not sure (client requests server to decide, will be send in reply pack)
@@ -84,10 +83,10 @@ struct DLL_LINKAGE StartInfo
 	ui32 mapfileChecksum; //0 if not relevant
 	ui8 turnTime; //in minutes, 0=unlimited
 	std::string mapname; // empty for random map, otherwise name of the map or savegame
-	bool createRandomMap() const { return mapGenOptions.get() != nullptr; }
+	bool createRandomMap() const { return mapGenOptions != nullptr; }
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
 
-	std::shared_ptr<CCampaignState> campState;
+	std::shared_ptr<CampaignState> campState;
 
 	PlayerSettings & getIthPlayersSettings(const PlayerColor & no);
 	const PlayerSettings & getIthPlayersSettings(const PlayerColor & no) const;
@@ -138,10 +137,10 @@ struct DLL_LINKAGE LobbyState
 	int hostClientId;
 	// TODO: Campaign-only and we don't really need either of them.
 	// Before start both go into CCampaignState that is part of StartInfo
-	int campaignMap;
+	CampaignScenarioID campaignMap;
 	int campaignBonus;
 
-	LobbyState() : si(new StartInfo()), hostClientId(-1), campaignMap(-1), campaignBonus(-1) {}
+	LobbyState() : si(new StartInfo()), hostClientId(-1), campaignMap(CampaignScenarioID::NONE), campaignBonus(-1) {}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

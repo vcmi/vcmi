@@ -18,9 +18,7 @@
 #include "../lib/StartInfo.h"
 
 // Campaigns
-#include "../lib/mapping/CCampaignHandler.h"
-#include "../lib/mapping/CMapService.h"
-#include "../lib/mapping/CMapInfo.h"
+#include "../lib/campaign/CampaignState.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
@@ -213,18 +211,20 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 
 void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 {
-	srv.si->mapname = pack.ourCampaign->camp->header.filename;
+	srv.si->mapname = pack.ourCampaign->getFilename();
 	srv.si->mode = StartInfo::CAMPAIGN;
 	srv.si->campState = pack.ourCampaign;
 	srv.si->turnTime = 0;
-	bool isCurrentMapConquerable = pack.ourCampaign->currentMap && pack.ourCampaign->camp->conquerable(*pack.ourCampaign->currentMap);
-	for(int i = 0; i < pack.ourCampaign->camp->scenarios.size(); i++)
+
+	bool isCurrentMapConquerable = pack.ourCampaign->currentScenario() && pack.ourCampaign->isAvailable(*pack.ourCampaign->currentScenario());
+
+	for(auto scenarioID : pack.ourCampaign->allScenarios())
 	{
-		if(pack.ourCampaign->camp->conquerable(i))
+		if(pack.ourCampaign->isAvailable(scenarioID))
 		{
-			if(!isCurrentMapConquerable || (isCurrentMapConquerable && i == *pack.ourCampaign->currentMap))
+			if(!isCurrentMapConquerable || (isCurrentMapConquerable && scenarioID == *pack.ourCampaign->currentScenario()))
 			{
-				srv.setCampaignMap(i);
+				srv.setCampaignMap(scenarioID);
 			}
 		}
 	}
@@ -388,7 +388,7 @@ void ApplyOnServerNetPackVisitor::visitLobbySetTurnTime(LobbySetTurnTime & pack)
 
 void ApplyOnServerNetPackVisitor::visitLobbySetDifficulty(LobbySetDifficulty & pack)
 {
-	srv.si->difficulty = vstd::abetween(pack.difficulty, 0, 4);
+	srv.si->difficulty = std::clamp<uint8_t>(pack.difficulty, 0, 4);
 	result = true;
 }
 

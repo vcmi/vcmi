@@ -19,6 +19,10 @@
 #include "../gui/CursorHandler.h"
 #include "../windows/GUIClasses.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/ShortcutHandler.h"
+#include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
+#include "../render/Canvas.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -38,12 +42,12 @@
 
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/JsonNode.h"
+#include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/serializer/Connection.h"
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CCompressedStream.h"
 #include "../../lib/VCMIDirs.h"
-#include "../../lib/mapping/CMap.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CThreadHelper.h"
@@ -51,7 +55,6 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CondSh.h"
-#include "../../lib/mapping/CCampaignHandler.h"
 
 #if defined(SINGLE_PROCESS_APP) && defined(VCMI_ANDROID)
 #include "../../server/CVCMIServer.h"
@@ -65,7 +68,10 @@ ISelectionScreenInfo * SEL;
 
 static void do_quit()
 {
-	GH.pushUserEvent(EUserEvent::FORCE_QUIT);
+	GH.dispatchMainThread([]()
+	{
+		handleQuit(false);
+	});
 }
 
 CMenuScreen::CMenuScreen(const JsonNode & configNode)
@@ -89,7 +95,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	menuNameToEntry.push_back("credits");
 
 	tabs = std::make_shared<CTabbedInt>(std::bind(&CMenuScreen::createTab, this, _1));
-	tabs->type |= REDRAW_PARENT;
+	tabs->setRedrawParent(true);
 }
 
 std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
@@ -100,10 +106,10 @@ std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
 		return std::make_shared<CMenuEntry>(this, config["items"].Vector()[index]);
 }
 
-void CMenuScreen::show(SDL_Surface * to)
+void CMenuScreen::show(Canvas & to)
 {
 	if(!config["video"].isNull())
-		CCS->videoh->update((int)config["video"]["x"].Float() + pos.x, (int)config["video"]["y"].Float() + pos.y, to, true, false);
+		CCS->videoh->update((int)config["video"]["x"].Float() + pos.x, (int)config["video"]["y"].Float() + pos.y, to.getInternalSurface(), true, false);
 	CIntObject::show(to);
 }
 
@@ -175,11 +181,11 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 0:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::newGame, true, nullptr, ELoadMode::NONE);
 				case 1:
-					return []() { GH.pushIntT<CMultiMode>(ESelectionScreen::newGame); };
+					return []() { GH.windows().createAndPushWindow<CMultiMode>(ESelectionScreen::newGame); };
 				case 2:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::campaignList, true, nullptr, ELoadMode::NONE);
 				case 3:
-					return std::bind(CInfoWindow::showInfoDialog, "Sorry, tutorial is not implemented yet\n", std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
+					return std::bind(CInfoWindow::showInfoDialog, CGI->generaltexth->translate("vcmi.mainMenu.tutorialNotImplemented"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
 				}
 				break;
 			}
@@ -190,11 +196,11 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 0:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::SINGLE);
 				case 1:
-					return []() { GH.pushIntT<CMultiMode>(ESelectionScreen::loadGame); };
+					return []() { GH.windows().createAndPushWindow<CMultiMode>(ESelectionScreen::loadGame); };
 				case 2:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::CAMPAIGN);
 				case 3:
-					return std::bind(CInfoWindow::showInfoDialog, "Sorry, tutorial is not implemented yet\n", std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
+					return std::bind(CInfoWindow::showInfoDialog, CGI->generaltexth->translate("vcmi.mainMenu.tutorialNotImplemented"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
 				}
 			}
 			break;
@@ -205,7 +211,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 			break;
 			case 5: //highscores
 			{
-				return std::bind(CInfoWindow::showInfoDialog, "Sorry, high scores menu is not implemented yet\n", std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
+				return std::bind(CInfoWindow::showInfoDialog, CGI->generaltexth->translate("vcmi.mainMenu.highscoresNotImplemented"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
 			}
 			}
 		}
@@ -230,7 +236,9 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 	if(posy < 0)
 		posy = pos.h + posy;
 
-	auto result = std::make_shared<CButton>(Point(posx, posy), button["name"].String(), help, command, (int)button["hotkey"].Float());
+	EShortcut shortcut = GH.shortcuts().findShortcut(button["shortcut"].String());
+
+	auto result = std::make_shared<CButton>(Point(posx, posy), button["name"].String(), help, command, shortcut);
 
 	if (button["center"].Bool())
 		result->moveBy(Point(-result->pos.w/2, -result->pos.h/2));
@@ -240,7 +248,7 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	type |= REDRAW_PARENT;
+	setRedrawParent(true);
 	pos = parent->pos;
 
 	for(const JsonNode & node : config["images"].Vector())
@@ -250,7 +258,7 @@ CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
 	{
 		buttons.push_back(createButton(parent, node));
 		buttons.back()->hoverable = true;
-		buttons.back()->type |= REDRAW_PARENT;
+		buttons.back()->setRedrawParent(true);
 	}
 }
 
@@ -295,26 +303,41 @@ CMainMenu::~CMainMenu()
 		GH.curInt = nullptr;
 }
 
+void CMainMenu::activate()
+{
+	// check if screen was resized while main menu was inactive - e.g. in gameplay mode
+	if (pos.dimensions() != GH.screenDimensions())
+		onScreenResize();
+
+	CIntObject::activate();
+}
+
+void CMainMenu::onScreenResize()
+{
+	pos.w = GH.screenDimensions().x;
+	pos.h = GH.screenDimensions().y;
+
+	menu = nullptr;
+	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
+
+	backgroundAroundMenu->pos = pos;
+}
+
 void CMainMenu::update()
 {
 	if(CMM != this->shared_from_this()) //don't update if you are not a main interface
 		return;
 
-	if(GH.listInt.empty())
+	if(GH.windows().count() == 0)
 	{
-		GH.pushInt(CMM);
-		GH.pushInt(menu);
+		GH.windows().pushWindow(CMM);
+		GH.windows().pushWindow(menu);
 		menu->switchToTab(menu->getActiveTab());
 	}
 
 	// Handles mouse and key input
-	GH.updateTime();
 	GH.handleEvents();
-
-	// check for null othervice crash on finishing a campaign
-	// /FIXME: find out why GH.listInt is empty to begin with
-	if(GH.topInt())
-		GH.topInt()->show(screen);
+	GH.windows().simpleRedraw();
 }
 
 void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> * names, ELoadMode loadMode)
@@ -323,28 +346,28 @@ void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vec
 	CSH->screenType = screenType;
 	CSH->loadMode = loadMode;
 
-	GH.pushIntT<CSimpleJoinScreen>(host);
+	GH.windows().createAndPushWindow<CSimpleJoinScreen>(host);
 }
 
 void CMainMenu::openCampaignLobby(const std::string & campaignFileName)
 {
-	auto ourCampaign = std::make_shared<CCampaignState>(CCampaignHandler::getCampaign(campaignFileName));
+	auto ourCampaign = CampaignHandler::getCampaign(campaignFileName);
 	openCampaignLobby(ourCampaign);
 }
 
-void CMainMenu::openCampaignLobby(std::shared_ptr<CCampaignState> campaign)
+void CMainMenu::openCampaignLobby(std::shared_ptr<CampaignState> campaign)
 {
 	CSH->resetStateForLobby(StartInfo::CAMPAIGN);
 	CSH->screenType = ESelectionScreen::campaignList;
 	CSH->campaignStateToSend = campaign;
-	GH.pushIntT<CSimpleJoinScreen>();
+	GH.windows().createAndPushWindow<CSimpleJoinScreen>();
 }
 
 void CMainMenu::openCampaignScreen(std::string name)
 {
 	if(vstd::contains(CMainMenuConfig::get().getCampaigns().Struct(), name))
 	{
-		GH.pushIntT<CCampaignScreen>(CMainMenuConfig::get().getCampaigns()[name]);
+		GH.windows().createAndPushWindow<CCampaignScreen>(CMainMenuConfig::get().getCampaigns()[name]);
 		return;
 	}
 	logGlobal->error("Unknown campaign set: %s", name);
@@ -376,27 +399,35 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 465, 440, 18), 7, 465));
 	playerName = std::make_shared<CTextInput>(Rect(19, 436, 334, 16), background->getSurface());
-	playerName->setText(settings["general"]["playerName"].String());
+	playerName->setText(getPlayerName());
 	playerName->cb += std::bind(&CMultiMode::onNameChange, this, _1);
 
 	buttonHotseat = std::make_shared<CButton>(Point(373, 78), "MUBHOT.DEF", CGI->generaltexth->zelp[266], std::bind(&CMultiMode::hostTCP, this));
-	buttonHost = std::make_shared<CButton>(Point(373, 78 + 57 * 1), "MUBHOST.DEF", CButton::tooltip("Host TCP/IP game", ""), std::bind(&CMultiMode::hostTCP, this));
-	buttonJoin = std::make_shared<CButton>(Point(373, 78 + 57 * 2), "MUBJOIN.DEF", CButton::tooltip("Join TCP/IP game", ""), std::bind(&CMultiMode::joinTCP, this));
-	buttonCancel = std::make_shared<CButton>(Point(373, 424), "MUBCANC.DEF", CGI->generaltexth->zelp[288], [=](){ close();}, SDLK_ESCAPE);
+	buttonHost = std::make_shared<CButton>(Point(373, 78 + 57 * 1), "MUBHOST.DEF", CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.hostTCP"), ""), std::bind(&CMultiMode::hostTCP, this));
+	buttonJoin = std::make_shared<CButton>(Point(373, 78 + 57 * 2), "MUBJOIN.DEF", CButton::tooltip(CGI->generaltexth->translate("vcmi.mainMenu.joinTCP"), ""), std::bind(&CMultiMode::joinTCP, this));
+	buttonCancel = std::make_shared<CButton>(Point(373, 424), "MUBCANC.DEF", CGI->generaltexth->zelp[288], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 void CMultiMode::hostTCP()
 {
 	auto savedScreenType = screenType;
 	close();
-	GH.pushIntT<CMultiPlayers>(settings["general"]["playerName"].String(), savedScreenType, true, ELoadMode::MULTI);
+	GH.windows().createAndPushWindow<CMultiPlayers>(getPlayerName(), savedScreenType, true, ELoadMode::MULTI);
 }
 
 void CMultiMode::joinTCP()
 {
 	auto savedScreenType = screenType;
 	close();
-	GH.pushIntT<CMultiPlayers>(settings["general"]["playerName"].String(), savedScreenType, false, ELoadMode::MULTI);
+	GH.windows().createAndPushWindow<CMultiPlayers>(getPlayerName(), savedScreenType, false, ELoadMode::MULTI);
+}
+
+std::string CMultiMode::getPlayerName()
+{
+	std::string name = settings["general"]["playerName"].String();
+	if(name == "Player")
+		name = CGI->generaltexth->translate("vcmi.mainMenu.playerName");
+	return name;
 }
 
 void CMultiMode::onNameChange(std::string newText)
@@ -422,8 +453,8 @@ CMultiPlayers::CMultiPlayers(const std::string & firstPlayer, ESelectionScreen S
 		inputNames[i]->cb += std::bind(&CMultiPlayers::onChange, this, _1);
 	}
 
-	buttonOk = std::make_shared<CButton>(Point(95, 338), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CMultiPlayers::enterSelectionScreen, this), SDLK_RETURN);
-	buttonCancel = std::make_shared<CButton>(Point(205, 338), "MUBCANC.DEF", CGI->generaltexth->zelp[561], [=](){ close();}, SDLK_ESCAPE);
+	buttonOk = std::make_shared<CButton>(Point(95, 338), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CMultiPlayers::enterSelectionScreen, this), EShortcut::GLOBAL_ACCEPT);
+	buttonCancel = std::make_shared<CButton>(Point(205, 338), "MUBCANC.DEF", CGI->generaltexth->zelp[561], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 381, 348, 18), 7, 381));
 
 	inputNames[0]->setText(firstPlayer, true);
@@ -462,29 +493,29 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 	inputPort = std::make_shared<CTextInput>(Rect(25, 115, 175, 16), background->getSurface());
 	if(host && !settings["session"]["donotstartserver"].Bool())
 	{
-		textTitle->setText("Connecting...");
+		textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverConnecting"));
 		startConnectThread();
 	}
 	else
 	{
-		textTitle->setText("Enter address:");
+		textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverAddressEnter"));
 		inputAddress->cb += std::bind(&CSimpleJoinScreen::onChange, this, _1);
 		inputPort->cb += std::bind(&CSimpleJoinScreen::onChange, this, _1);
 		inputPort->filters += std::bind(&CTextInput::numberFilter, _1, _2, 0, 65535);
-		buttonOk = std::make_shared<CButton>(Point(26, 142), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CSimpleJoinScreen::connectToServer, this), SDLK_RETURN);
+		buttonOk = std::make_shared<CButton>(Point(26, 142), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CSimpleJoinScreen::connectToServer, this), EShortcut::GLOBAL_ACCEPT);
 
 		inputAddress->giveFocus();
 	}
 	inputAddress->setText(host ? CServerHandler::localhostAddress : CSH->getHostAddress(), true);
 	inputPort->setText(std::to_string(CSH->getHostPort()), true);
 
-	buttonCancel = std::make_shared<CButton>(Point(142, 142), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), SDLK_ESCAPE);
+	buttonCancel = std::make_shared<CButton>(Point(142, 142), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), EShortcut::GLOBAL_CANCEL);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 186, 218, 18), 7, 186));
 }
 
 void CSimpleJoinScreen::connectToServer()
 {
-	textTitle->setText("Connecting...");
+	textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverConnecting"));
 	buttonOk->block(true);
 	GH.stopTextInput();
 
@@ -495,10 +526,10 @@ void CSimpleJoinScreen::leaveScreen()
 {
 	if(CSH->state == EClientState::CONNECTING)
 	{
-		textTitle->setText("Closing...");
+		textTitle->setText(CGI->generaltexth->translate("vcmi.mainMenu.serverClosing"));
 		CSH->state = EClientState::CONNECTION_CANCELLED;
 	}
-	else if(GH.listInt.size() && GH.listInt.front().get() == this)
+	else if(GH.windows().isTopWindow(this))
 	{
 		close();
 	}
@@ -528,10 +559,13 @@ void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
 	else
 		CSH->justConnectToServer(addr, port);
 
-	if(GH.listInt.size() && GH.listInt.front().get() == this)
-	{
-		close();
-	}
+	// async call to prevent thread race
+	GH.dispatchMainThread([this](){
+		if(GH.windows().isTopWindow(this))
+		{
+			close();
+		}
+	});
 }
 
 CLoadingScreen::CLoadingScreen(std::function<void()> loader)
@@ -545,7 +579,7 @@ CLoadingScreen::~CLoadingScreen()
 	loadingThread.join();
 }
 
-void CLoadingScreen::showAll(SDL_Surface * to)
+void CLoadingScreen::showAll(Canvas & to)
 {
 	//FIXME: filling screen with transparency? BLACK intended?
 	//Rect rect(0, 0, to->w, to->h);

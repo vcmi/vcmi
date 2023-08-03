@@ -19,7 +19,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../adventureMap/CAdvMapInt.h"
+#include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
@@ -30,7 +30,6 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapping/CMap.h"
 
 BasicMapView::~BasicMapView() = default;
 
@@ -64,27 +63,26 @@ void BasicMapView::render(Canvas & target, bool fullUpdate)
 	tilesCache->render(controller->getContext(), targetClipped, fullUpdate);
 }
 
-void BasicMapView::show(SDL_Surface * to)
+void BasicMapView::tick(uint32_t msPassed)
 {
-	controller->updateBefore(GH.mainFPSmng->getElapsedMilliseconds());
-
-	Canvas target(to);
-	CSDL_Ext::CClipRectGuard guard(to, pos);
-	render(target, false);
-
-	controller->updateAfter(GH.mainFPSmng->getElapsedMilliseconds());
+	controller->tick(msPassed);
 }
 
-void BasicMapView::showAll(SDL_Surface * to)
+void BasicMapView::show(Canvas & to)
 {
-	controller->updateBefore(0);
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
+	render(to, false);
 
-	Canvas target(to);
-	CSDL_Ext::CClipRectGuard guard(to, pos);
-	render(target, true);
+	controller->afterRender();
 }
 
-void MapView::show(SDL_Surface * to)
+void BasicMapView::showAll(Canvas & to)
+{
+	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
+	render(to, true);
+}
+
+void MapView::show(Canvas & to)
 {
 	actions->setContext(controller->getContext());
 	BasicMapView::show(to);
@@ -92,7 +90,6 @@ void MapView::show(SDL_Surface * to)
 
 MapView::MapView(const Point & offset, const Point & dimensions)
 	: BasicMapView(offset, dimensions)
-	, isSwiping(false)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	actions = std::make_shared<MapViewActions>(*this, model);
@@ -112,19 +109,13 @@ void MapView::onMapLevelSwitched()
 
 void MapView::onMapScrolled(const Point & distance)
 {
-	if(!isSwiping)
+	if(!isGesturing())
 		controller->setViewCenter(model->getMapViewCenter() + distance, model->getLevel());
 }
 
 void MapView::onMapSwiped(const Point & viewPosition)
 {
-	isSwiping = true;
-	controller->setViewCenter(viewPosition, model->getLevel());
-}
-
-void MapView::onMapSwipeEnded()
-{
-	isSwiping = false;
+	controller->setViewCenter(model->getMapViewCenter() + viewPosition, model->getLevel());
 }
 
 void MapView::onCenteredTile(const int3 & tile)
@@ -149,6 +140,11 @@ void MapView::onViewWorldActivated(uint32_t tileSize)
 {
 	controller->activateWorldViewContext();
 	controller->setTileSize(Point(tileSize, tileSize));
+}
+
+void MapView::onMapZoomLevelChanged(int stepsChange)
+{
+	controller->modifyTileSize(stepsChange);
 }
 
 void MapView::onViewMapActivated()

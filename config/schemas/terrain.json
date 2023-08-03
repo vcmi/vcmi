@@ -1,140 +1,160 @@
 {
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI terrain format",
 	"description" : "Format used to define new terrains in VCMI",
 	"required" : [ "text", "moveCost", "minimapUnblocked", "minimapBlocked", "music", "tiles", "type", "horseSound", "horseSoundPenalty", "shortIdentifier", "battleFields" ],
-
 	"additionalProperties" : false,
-	"properties":{
-		"index" :
+	"properties" : {
+		"text" :
 		{
-			"type": "number",
-			"description": "Internal, do not use"
+			"type" : "string",
+			"description" : "Human-readable name of this terrain"
 		},
-		"text":
+		"shortIdentifier" :
 		{
-			"type": "string",
-			"description": "Human-readable name of this terrain"
+			"type" : "string",
+			"description" : "Two-letters unique indentifier for this terrain. Used for map format"
 		},
-		"moveCost":
+		"type" :
 		{
-			"type": "number",
-			"description": "How many movement points needed to move hero"
-		},
-		"minimapUnblocked":
-		{
-			"type": "array",
-			"description": "Color of terrain on minimap without unpassable objects",
-			"minItems": 3,
-			"maxItems": 3,
-			"items":
+			"type" : "array",
+			"description" : "Type of this terrain. Can be land, water, subterranean or rock",
+			"items" :
 			{
-				"type": "number"
+				"enum" : ["LAND", "WATER", "SUB", "ROCK", "SURFACE"],
+				"type" : "string"
 			}
 		},
-		"minimapBlocked":
+		"moveCost" :
 		{
-			"type": "array",
-			"description": "Color of terrain on minimap with unpassable objects",
-			"minItems": 3,
-			"maxItems": 3,
-			"items":
+			"type" : "number",
+			"description" : "How many movement points needed to move hero"
+		},
+		"tiles" :
+		{
+			"type" : "string",
+			"description" : "Name of file with graphicks",
+			"format" : "defFile"
+		},
+		"rockTerrain" :
+		{
+			"type" : "string",
+			"description" : "The name of rock type terrain which will be used as borders in the underground"
+		},
+		"river" :
+		{
+			"type" : "string",
+			"description" : "River type which should be used for that terrain"
+		},
+		"paletteAnimation" : {
+			"type" : "array",
+			"description" : "If defined, terrain will be animated using palette color cycling effect",
+			"items" :
 			{
-				"type": "number"
-			}
-		},
-		"music":
-		{
-			"type": "string",
-			"description": "Music filename to play on this terrain on adventure map"
-		},
-		"tiles":
-		{
-			"type": "string",
-			"description": "Name of file with graphicks",
-			"format": "defFile"
-		},
-		"type":
-		{
-			"type": "array",
-			"description": "Type of this terrain. Can be land, water, subterranean or rock",
-			"items":
-			{
-				"enum": ["LAND", "WATER", "SUB", "ROCK", "SURFACE"],
-				"type": "string"
-			}
-		},
-		"rockTerrain":
-		{
-			"type": "string",
-			"description": "The name of rock type terrain which will be used as borders in the underground"
-		},
-		"river":
-		{
-			"type": "string",
-			"description": "River type which should be used for that terrain"
-		},
-		"horseSound":
-		{
-			"type": "string",
-			"description": "Hero movement sound for this terrain, version for moving on tiles with road"
-		},
-		"horseSoundPenalty":
-		{
-			"type": "string",
-			"description": "Hero movement sound for this terrain, version for moving on tiles without road"
-		},
-		"shortIdentifier":
-		{
-			"type": "string",
-			"description": "Two-letters unique indentifier for this terrain. Used for map format"
-		},
-		"battleFields":
-		{
-			"type": "array",
-			"description": "array of battleFields for this terrain",
-			"items":
-			{
-				"type": "string"
-			}
-		},
-		"sounds":
-		{
-			"type": "object",
-			"description": "list of sounds for this terrain",
-			"additionalProperties" : false,
-			"properties":
-			{
-				"ambient" : 
-				{
-					"type": "array",
-					"description": "list of ambient sounds for this terrain",
-					"items":
-					{
-						"type": "string"
+				"type" : "object",
+				"additionalProperties" : false,
+				"properties" : {
+					"start" : {
+						"type" : "number"
+					},
+					"length" : {
+						"type" : "number"
 					}
 				}
 			}
 		},
-		"prohibitTransitions":
+		"battleFields" :
 		{
-			"type": "array",
-			"description": "array or terrain names, which is prohibited to make transition from/to",
-			"items":
+			"type" : "array",
+			"description" : "array of battleFields for this terrain",
+			"items" :
 			{
-				"type": "string"
+				"type" : "string"
 			}
 		},
-		"transitionRequired":
+		"minimapUnblocked" :
 		{
-			"type": "boolean",
-			"description": "If sand/dirt transition required from/to other terrains"
+			"type" : "array",
+			"description" : "Color of terrain on minimap without unpassable objects",
+			"minItems" : 3,
+			"maxItems" : 3,
+			"items" :
+			{
+				"type" : "number"
+			}
 		},
-		"terrainViewPatterns":
+		"minimapBlocked" :
 		{
-			"type": "string",
-			"description": "Can be normal, dirt, water, rock"
+			"type" : "array",
+			"description" : "Color of terrain on minimap with unpassable objects",
+			"minItems" : 3,
+			"maxItems" : 3,
+			"items" :
+			{
+				"type" : "number"
+			}
+		},
+		"music" :
+		{
+			"type" : "string",
+			"description" : "Music filename to play on this terrain on adventure map",
+			"format" : "musicFile"
+		},
+		"sounds" :
+		{
+			"type" : "object",
+			"description" : "list of sounds for this terrain",
+			"additionalProperties" : false,
+			"properties" :
+			{
+				"ambient" : 
+				{
+					"type" : "array",
+					"description" : "list of ambient sounds for this terrain",
+					"items" :
+					{
+						"type" : "string",
+						"format" : "soundFile"
+					}
+				}
+			}
+		},
+		"horseSound" :
+		{
+			"type" : "string",
+			"description" : "Hero movement sound for this terrain, version for moving on tiles with road",
+			"format" : "soundFile"
+		},
+		"horseSoundPenalty" :
+		{
+			"type" : "string",
+			"description" : "Hero movement sound for this terrain, version for moving on tiles without road",
+			"format" : "soundFile"
+		},
+		"prohibitTransitions" :
+		{
+			"type" : "array",
+			"description" : "array or terrain names, which is prohibited to make transition from/to",
+			"items" :
+			{
+				"type" : "string"
+			}
+		},
+		"transitionRequired" :
+		{
+			"type" : "boolean",
+			"description" : "If sand/dirt transition required from/to other terrains"
+		},
+		"terrainViewPatterns" :
+		{
+			"type" : "string",
+			"description" : "Can be normal, dirt, water, rock"
+		},
+		"index" :
+		{
+			"type" : "number",
+			"description" : "Internal, do not use"
 		}
 	}
 }

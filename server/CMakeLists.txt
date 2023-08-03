@@ -2,6 +2,9 @@ set(server_SRCS
 		StdInc.cpp
 
 		CGameHandler.cpp
+		HeroPoolProcessor.cpp
+		PlayerMessageProcessor.cpp
+		ServerSpellCastEnvironment.cpp
 		CQuery.cpp
 		CVCMIServer.cpp
 		NetPacksServer.cpp
@@ -12,6 +15,9 @@ set(server_HEADERS
 		StdInc.h
 
 		CGameHandler.h
+		HeroPoolProcessor.h
+		PlayerMessageProcessor.h
+		ServerSpellCastEnvironment.h
 		CQuery.h
 		CVCMIServer.h
 		LobbyNetPackVisitors.h
@@ -33,7 +39,7 @@ else()
 	set(server_LIBS vcmi)
 endif()
 
-if(CMAKE_SYSTEM_NAME MATCHES FreeBSD)
+if(CMAKE_SYSTEM_NAME MATCHES FreeBSD OR HAIKU)
 	set(server_LIBS execinfo ${server_LIBS})
 endif()
 target_link_libraries(vcmiserver PRIVATE ${server_LIBS} minizip::minizip)

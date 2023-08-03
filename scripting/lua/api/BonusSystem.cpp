@@ -11,7 +11,11 @@
 
 #include "BonusSystem.h"
 
-#include "../../../lib/HeroBonus.h"
+#include "../../../lib/JsonNode.h"
+
+#include "../../../lib/bonuses/BonusList.h"
+#include "../../../lib/bonuses/Bonus.h"
+#include "../../../lib/bonuses/IBonusBearer.h"
 
 #include "Registry.h"
 
@@ -153,13 +157,27 @@ int BonusProxy::toJsonNode(lua_State * L)
 	return 1;
 }
 
-template <typename T>
-static void publishMap(lua_State * L, const T & map)
+template <typename T, typename N>
+static void publishMap(lua_State * L, const std::map<T , N> & map)
 {
 	for(auto & p : map)
 	{
 		const std::string & name = p.first;
 		auto id = static_cast<int32_t>(p.second);
+
+		lua_pushstring(L, name.c_str());
+		lua_pushinteger(L, id);
+		lua_rawset(L, -3);
+	}
+}
+
+template <typename T, std::size_t N>
+static void publishMap(lua_State * L, const std::map<T , std::bitset<N>> & map)
+{
+	for(auto & p : map)
+	{
+		const std::string & name = p.first;
+		auto id = static_cast<int32_t>(p.second.to_ulong());
 
 		lua_pushstring(L, name.c_str());
 		lua_pushinteger(L, id);

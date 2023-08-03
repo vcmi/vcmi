@@ -11,12 +11,12 @@
 #include "StdInc.h"
 #include "RmgObject.h"
 #include "RmgMap.h"
-#include "../mapObjects/CObjectHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
 #include "../VCMI_Lib.h"
-#include "../mapObjects/CommonConstructors.h"
-#include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
+#include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../mapObjects/ObjectTemplate.h"
 #include "Functions.h"
 #include "../TerrainHandler.h"
 
@@ -161,17 +161,21 @@ const CGObjectInstance & Object::Instance::object() const
 	return dObject;
 }
 
-Object::Object(CGObjectInstance & object, const int3 & position)
+Object::Object(CGObjectInstance & object, const int3 & position):
+	guarded(false)
 {
 	addInstance(object, position);
 }
 
-Object::Object(CGObjectInstance & object)
+Object::Object(CGObjectInstance & object):
+	guarded(false)
 {
 	addInstance(object);
 }
 
-Object::Object(const Object & object): dStrength(object.dStrength)
+Object::Object(const Object & object):
+	dStrength(object.dStrength),
+	guarded(false)
 {
 	for(const auto & i : object.dInstances)
 		addInstance(const_cast<CGObjectInstance &>(i.object()), i.getPosition());
@@ -197,7 +201,9 @@ std::list<const Object::Instance*> Object::instances() const
 void Object::addInstance(Instance & object)
 {
 	//assert(object.dParent == *this);
+	setGuardedIfMonster(object);
 	dInstances.push_back(object);
+
 	dFullAreaCache.clear();
 	dAccessibleAreaCache.clear();
 	dAccessibleAreaFullCache.clear();
@@ -206,6 +212,8 @@ void Object::addInstance(Instance & object)
 Object::Instance & Object::addInstance(CGObjectInstance & object)
 {
 	dInstances.emplace_back(*this, object);
+	setGuardedIfMonster(dInstances.back());
+
 	dFullAreaCache.clear();
 	dAccessibleAreaCache.clear();
 	dAccessibleAreaFullCache.clear();
@@ -215,6 +223,8 @@ Object::Instance & Object::addInstance(CGObjectInstance & object)
 Object::Instance & Object::addInstance(CGObjectInstance & object, const int3 & position)
 {
 	dInstances.emplace_back(*this, object, position);
+	setGuardedIfMonster(dInstances.back());
+
 	dFullAreaCache.clear();
 	dAccessibleAreaCache.clear();
 	dAccessibleAreaFullCache.clear();
@@ -302,6 +312,19 @@ const int3 Object::getVisibleTop() const
 	return topTile;
 }
 
+bool rmg::Object::isGuarded() const
+{
+	return guarded;
+}
+
+void rmg::Object::setGuardedIfMonster(const Instance& object)
+{
+	if (object.object().ID == Obj::MONSTER)
+	{
+		guarded = true;
+	}
+}
+
 void Object::Instance::finalize(RmgMap & map)
 {
 	if(!map.isOnMap(getPosition(true)))
@@ -310,7 +333,7 @@ void Object::Instance::finalize(RmgMap & map)
 	//If no specific template was defined for this object, select any matching
 	if (!dObject.appearance)
 	{
-		const auto * terrainType = map.map().getTile(getPosition(true)).terType;
+		const auto * terrainType = map.getTile(getPosition(true)).terType;
 		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType->getId());
 		if (templates.empty())
 		{
@@ -320,6 +343,16 @@ void Object::Instance::finalize(RmgMap & map)
 		{
 			setTemplate(terrainType->getId());
 		}
+	}
+	if (dObject.ID == Obj::MONSTER)
+	{
+		//Make up for extra offset in HotA creature templates
+		auto visitableOffset = dObject.getVisitableOffset();
+		auto fixedPos = getPosition(true) + visitableOffset;
+		vstd::abetween(fixedPos.x, visitableOffset.x, map.width() - 1);
+		vstd::abetween(fixedPos.y, visitableOffset.y, map.height() - 1);
+		int3 parentPos = getPosition(true) - getPosition(false);
+		setPosition(fixedPos - parentPos);
 	}
 
 	if (dObject.isVisitable() && !map.isOnMap(dObject.visitablePos()))
@@ -336,7 +369,7 @@ void Object::Instance::finalize(RmgMap & map)
 		map.setOccupied(tile, ETileType::ETileType::USED);
 	}
 	
-	map.getEditManager()->insertObject(&dObject);
+	map.getMapProxy()->insertObject(&dObject);
 }
 
 void Object::finalize(RmgMap & map)

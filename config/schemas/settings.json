@@ -2,8 +2,8 @@
 // Any new settings should be added in this file for correct serialization and initialization
 {
 	"type" : "object",
-	"$schema": "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "pathfinder", "battle", "server", "logging", "launcher", "gameTweaks" ],
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "gameTweaks" ],
 	"definitions" : {
 		"logLevelEnum" : {
 			"type" : "string",
@@ -11,31 +11,38 @@
 		}
 	},
 	"additionalProperties" : false,
-	"properties":
+	"properties" :
 	{
 		"general" : {
 			"type" : "object",
-			"default": {},
+			"default" : {},
 			"additionalProperties" : false,
 			"required" : [
 				"playerName",
 				"music",
 				"sound",
+				"saveRandomMaps",
+				"lastMap",
 				"language",
 				"gameDataLanguage",
-				"swipe",
-				"swipeDesktop",
-				"saveRandomMaps",
+				"lastSave",
+				"lastSettingsTab",
+				"lastCampaign",
 				"saveFrequency",
 				"notifications",
 				"extraDump",
 				"userRelativePointer",
 				"relativePointerSpeedMultiplier",
-				"lastSettingsTab"
+				"hapticFeedback",
+				"longTouchTimeMilliseconds",
+				"autosaveCountLimit",
+				"useSavePrefix",
+				"savePrefix",
+				"startTurnAutosave"
 			],
 			"properties" : {
 				"playerName" : {
-					"type":"string",
+					"type" : "string",
 					"default" : "Player"
 				},
 				"music" : {
@@ -46,34 +53,26 @@
 					"type" : "number",
 					"default" : 88
 				},
-				"swipe" : {
-					"type" : "boolean",
-					"default" : true
-				},
-				"swipeDesktop" : {
-					"type" : "boolean",
-					"default" : false
-				},
 				"saveRandomMaps" : {
 					"type" : "boolean",
 					"default" : false
 				},
 				"lastMap" : {
-					"type":"string",
+					"type" : "string",
 					"default" : "Maps/Arrogance"
 				},
 				"language" : {
-					"type":"string",
-					"enum" : [ "english", "chinese", "german", "polish", "russian", "spanish", "ukrainian" ],
+					"type" : "string",
+					"enum" : [ "english", "czech", "chinese", "finnish", "french", "german", "hungarian", "italian", "korean", "polish", "portuguese", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
 					"default" : "english"
 				},
 				"gameDataLanguage" : {
-					"type":"string",
-					"enum" : [ "auto", "english", "chinese", "german", "korean", "polish", "russian", "spanish", "ukrainian", "other_cp1250", "other_cp1251", "other_cp1252" ],
+					"type" : "string",
+					"enum" : [ "auto", "english", "czech", "chinese", "finnish", "french", "german", "hungarian", "italian", "korean", "polish", "portuguese", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese", "other_cp1250", "other_cp1251", "other_cp1252" ],
 					"default" : "auto"
 				},
 				"lastSave" : {
-					"type":"string",
+					"type" : "string",
 					"default" : "NEWGAME"
 				},
 				"lastSettingsTab" : {
@@ -81,7 +80,7 @@
 					"default" : 0
 				},
 				"lastCampaign" : {
-					"type":"string",
+					"type" : "string",
 					"default" : ""
 				},
 				"saveFrequency" : {
@@ -103,44 +102,72 @@
 				"relativePointerSpeedMultiplier" : {
 					"type" : "number",
 					"default" : 1
+				},
+				"longTouchTimeMilliseconds" : {
+					"type" : "number",
+					"default" : 1000
+				},
+				"hapticFeedback" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"autosaveCountLimit" : {
+					"type" : "number",
+					"default": 5
+				},
+				"useSavePrefix" : {
+					"type": "boolean",
+					"default": false
+				},
+				"savePrefix" : {
+					"type": "string",
+					"default": ""
+				},
+				"startTurnAutosave" : {
+					"type": "boolean",
+					"default": false
 				}
 			}
 		},
 		"video" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"default": {},
+			"default" : {},
 			"required" : [ 
-				"screenRes", 
-				"bitsPerPixel", 
-				"fullscreen", 
-				"realFullscreen", 
-				"cursor", 
-				"spellbookAnimation", 
-				"driver", 
-				"showIntro", 
+				"resolution",
+				"reservedWidth",
+				"fullscreen",
+				"realFullscreen",
+				"cursor",
+				"showIntro",
+				"spellbookAnimation",
+				"driver",
 				"displayIndex",
 				"showfps",
 				"targetfps"
 			],
 			"properties" : {
-				"screenRes" : {
+				"resolution" : {
 					"type" : "object",
 					"additionalProperties" : false,
-					"required" : [ "width", "height" ],
+					"required" : [ "width", "height", "scaling" ],
 					"properties" : {
 						"width"  : { "type" : "number" },
-						"height" : { "type" : "number" }
+						"height" : { "type" : "number" },
+						"scaling" : { "type" : "number" }
 					},
-					"default": {"width" : 800, "height": 600 }
+					"defaultIOS" : {"width" : 800, "height" : 600, "scaling" : 200 },
+					"defaultAndroid" : {"width" : 800, "height" : 600, "scaling" : 200 },
+					"default" : {"width" : 800, "height" : 600, "scaling" : 100 }
 				},
-				"bitsPerPixel" : {
+				"reservedWidth" : {
 					"type" : "number",
-					"default" : 32
+					"defaultIOS" : 0.1, // iOS camera cutout / notch is excluded from available area by SDL
+					"default" : 0
 				},
-				"fullscreen": {
-					"type": "boolean",
-					"default": false
+				"fullscreen" : {
+					"type" : "boolean",
+					"default" : false
 				},
 				"realFullscreen" : {
 					"type" : "boolean",
@@ -148,8 +175,8 @@
 				},
 				"cursor" :  {
 					"type" : "string",
-					"enum" : [ "auto", "hardware", "software" ],
-					"default" : "auto"
+					"enum" : [ "hardware", "software" ],
+					"default" : "hardware"
 				},
 				"showIntro" : {
 					"type" : "boolean",
@@ -159,7 +186,7 @@
 					"type" : "boolean",
 					"default" : true
 				},
-				"driver":{
+				"driver" : {
 					"type" : "string",
 					"default" : "opengl",
 					"description" : "preferred graphics backend driver name for SDL2"
@@ -174,15 +201,29 @@
 				},
 				"targetfps" : {
 					"type" : "number",
+					"defaultIOS" : 30, // reduce battery usage
+					"defaultAndroid" : 30, // reduce battery usage
 					"default" : 60
+				}
+			}
+		},
+		"input" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"default" : {},
+			"required" : [ "radialWheelGarrisonSwipe" ],
+			"properties" : {
+				"radialWheelGarrisonSwipe" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},
 		"adventure" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"default": {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation" ],
+			"default" : {},
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -211,72 +252,19 @@
 				"terrainAnimation" : {
 					"type" : "boolean",
 					"default" : true
-				}
-			}
-		},
-		"pathfinder" : {
-			"type" : "object",
-			"additionalProperties" : false,
-			"default": {},
-			"required" : [ "teleports", "layers", "oneTurnSpecialLayersLimit", "originalMovementRules", "lightweightFlyingMode" ],
-			"properties" : {
-				"layers" : {
-					"type" : "object",
-					"additionalProperties" : false,
-					"default": {},
-					"required" : [ "sailing", "waterWalking", "flying" ],
-					"properties" : {
-						"sailing" : {
-							"type" : "boolean",
-							"default" : true
-						},
-						"waterWalking" : {
-							"type" : "boolean",
-							"default" : true
-						},
-						"flying" : {
-							"type" : "boolean",
-							"default" : true
-						}
-					}
 				},
-				"teleports" : {
-					"type" : "object",
-					"additionalProperties" : false,
-					"default": {},
-					"required" : [ "twoWay", "oneWay", "oneWayRandom", "whirlpool", "castleGate" ],
-					"properties" : {
-						"twoWay" : {
-							"type" : "boolean",
-							"default" : true
-						},
-						"oneWay" : {
-							"type" : "boolean",
-							"default" : true
-						},
-						"oneWayRandom" : {
-							"type" : "boolean",
-							"default" : false
-						},
-						"whirlpool" : {
-							"type" : "boolean",
-							"default" : true
-						},
-						"castleGate" : {
-							"type" : "boolean",
-							"default" : false
-						}
-					}
-				},
-				"oneTurnSpecialLayersLimit" : {
-					"type" : "boolean",
-					"default" : true
-				},
-				"originalMovementRules" : {
+				"forceQuickCombat" : {
 					"type" : "boolean",
 					"default" : false
 				},
-				"lightweightFlyingMode" : {
+				"borderScroll" : 
+				{
+					"type" : "boolean",
+					"defaultIOS" : false,
+					"defaultAndroid" : false,
+					"default" : true
+				},
+				"leftButtonDrag" : {
 					"type" : "boolean",
 					"default" : false
 				}
@@ -285,15 +273,15 @@
 		"battle" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"default": {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "showQueue", "queueSize" ],
+			"default" : {},
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
 					"default" : 2
 				},
 				"mouseShadow" : {
-					"type":"boolean",
+					"type" : "boolean",
 					"default" : true
 				},
 				"cellBorders" : {
@@ -304,25 +292,41 @@
 					"type" : "boolean",
 					"default" : true
 				},
+				"movementHighlightOnHover" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"rangeLimitHighlightOnHover" : {
+					"type" : "boolean",
+					"default" : false
+				},
 				"showQueue" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"swipeAttackDistance" : {
+					"type" : "number",
+					"default" : 250
 				},
 				"queueSize" : {
 					"type" : "string",
 					"default" : "auto",
 					"enum" : [ "auto", "small", "big" ]
+				},
+				"stickyHeroInfoWindows" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},
 		"server" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"default": {},
-			"required" : [ "server", "port", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI", "reconnect", "uuid", "names" ],
+			"default" : {},
+			"required" : [ "server", "port", "localInformation", "playerAI", "alliedAI", "friendlyAI", "neutralAI", "enemyAI", "reconnect", "uuid", "names" ],
 			"properties" : {
 				"server" : {
-					"type":"string",
+					"type" : "string",
 					"default" : "127.0.0.1"
 				},
 				"port" : {
@@ -336,6 +340,10 @@
 				"playerAI" : {
 					"type" : "string",
 					"default" : "Nullkiller"
+				},
+				"alliedAI" : {
+					"type" : "string",
+					"default" : "VCAI"
 				},
 				"friendlyAI" : {
 					"type" : "string",
@@ -360,7 +368,7 @@
 				"names" : {
 					"type" : "array",
 					"default" : [],
-					"items":
+					"items" :
 					{
 						"type" : "string",
 						"default" : ""
@@ -444,18 +452,39 @@
 		},
 		"launcher" : {
 			"type" : "object",
-			"default": {},
+			"default" : {},
 			"additionalProperties" : false,
-			"required" : [ "setupCompleted", "repositoryURL", "enableInstalledMods", "extraResolutionsModPath", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl", "lobbyUrl", "lobbyPort", "lobbyUsername", "connectionTimeout" ],
+			"required" : [ 
+				"setupCompleted", 
+				"defaultRepositoryEnabled", 
+				"defaultRepositoryURL", 
+				"extraRepositoryURL", 
+				"extraRepositoryEnabled", 
+				"enableInstalledMods", 
+				"autoCheckRepositories", 
+				"updateOnStartup", 
+				"updateConfigUrl", 
+				"lobbyUrl", 
+				"lobbyPort", 
+				"lobbyUsername", 
+				"connectionTimeout"
+			],
 			"properties" : {
-				"repositoryURL" : {
-					"type" : "array",
-					"default" : [
-						"https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.2.json"
-					],
-					"items" : {
-						"type" : "string"
-					}
+				"defaultRepositoryEnabled" : {
+					"type" : "boolean",
+					"default" : true,
+				},
+				"defaultRepositoryURL" : {
+					"type" : "string",
+					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.3.json",
+				},
+				"extraRepositoryEnabled" : {
+					"type" : "boolean",
+					"default" : false,
+				},
+				"extraRepositoryURL" : {
+					"type" : "string",
+					"default" : "",
 				},
 				"setupCompleted" : {
 					"type" : "boolean",
@@ -464,10 +493,6 @@
 				"enableInstalledMods" : {
 					"type" : "boolean",
 					"default" : true
-				},
-				"extraResolutionsModPath" : {
-					"type" : "string",
-					"default" : "/vcmi-extras/Mods/extraResolutions/Content/config/resolutions.json"
 				},
 				"autoCheckRepositories" : {
 					"type" : "boolean",
@@ -504,30 +529,31 @@
 			}
 		},
 		"gameTweaks" : {
-			"type": "object",
-			"default": {},
-			"additionalProperties": false,
-			"required": [
+			"type" : "object",
+			"default" : {},
+			"additionalProperties" : false,
+			"required" : [
 				"showGrid",
 				"forceMovementInfo",
 				"numericCreaturesQuantities",
 				"availableCreaturesAsDwellingLabel",
 				"compactTownCreatureInfo",
 				"infoBarPick",
-				"skipBattleIntroMusic"
+				"skipBattleIntroMusic",
+				"infoBarCreatureManagement"
 			],
-			"properties": {
-				"showGrid": {
-					"type": "boolean",
-					"default": false
+			"properties" : {
+				"showGrid" : {
+					"type" : "boolean",
+					"default" : false
 				},
-				"forceMovementInfo": {
-					"type": "boolean",
-					"default": false
+				"forceMovementInfo" : {
+					"type" : "boolean",
+					"default" : false
 				},
-				"numericCreaturesQuantities": {
-					"type": "boolean",
-					"default": false
+				"numericCreaturesQuantities" : {
+					"type" : "boolean",
+					"default" : false
 				},
 				"availableCreaturesAsDwellingLabel" : {
 					"type" : "boolean",
@@ -542,6 +568,10 @@
 					"default" : false
 				},
 				"skipBattleIntroMusic" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"infoBarCreatureManagement": {
 					"type" : "boolean",
 					"default" : false
 				}

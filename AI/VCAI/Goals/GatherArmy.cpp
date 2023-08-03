@@ -15,8 +15,7 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
+#include "../../../lib/mapObjects/CGTownInstance.h"
 #include "../../../lib/StringConstants.h"
 
 
@@ -90,11 +89,11 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 			}
 			//build dwelling
 			//TODO: plan building over multiple turns?
-			//auto bid = ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
+			//auto bid = ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + std::size(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
 
 			//Do not use below code for now, rely on generic Build. Code below needs to know a lot of town/resource context to do more good than harm
-			/*auto bid = ai->ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 1);
-			if (bid.is_initialized())
+			/*auto bid = ai->ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + std::size(unitsSource)), 1);
+			if (bid.has_value())
 			{
 				auto goal = sptr(BuildThis(bid.get(), t).setpriority(priority));
 				if (!ai->ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
@@ -159,7 +158,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 							for(auto & creatureID : creLevel.second)
 							{
 								auto creature = VLC->creh->objects[creatureID];
-								if(ai->ah->freeResources().canAfford(creature->cost))
+								if(ai->ah->freeResources().canAfford(creature->getFullRecruitCost()))
 									objs.push_back(obj); //TODO: reserve resources?
 							}
 						}

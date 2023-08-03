@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "ExecuteHeroChain.h"
 #include "../AIGateway.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"
 
 namespace NKAI
@@ -54,6 +52,20 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 	ai->nullkiller->setActive(chainPath.targetHero, tile);
 	ai->nullkiller->setTargetObject(objid);
 
+	auto targetObject = ai->myCb->getObj(static_cast<ObjectInstanceID>(objid), false);
+
+	if(chainPath.turn() == 0 && targetObject && targetObject->ID == Obj::TOWN)
+	{
+		auto relations = ai->myCb->getPlayerRelations(ai->playerID, targetObject->getOwner());
+
+		if(relations == PlayerRelations::ENEMIES)
+		{
+			ai->nullkiller->armyFormation->rearrangeArmyForSiege(
+				dynamic_cast<const CGTownInstance *>(targetObject),
+				chainPath.targetHero);
+		}
+	}
+
 	std::set<int> blockedIndexes;
 
 	for(int i = chainPath.nodes.size() - 1; i >= 0; i--)
@@ -80,7 +92,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 
 		try
 		{
-			if(hero->movement)
+			if(hero->movementPointsRemaining() > 0)
 			{
 				ai->nullkiller->setActive(hero, node.coord);
 
@@ -105,9 +117,9 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 				{
 					auto targetNode = cb->getPathsInfo(hero)->getPathInfo(node.coord);
 
-					if(targetNode->accessible == CGPathNode::EAccessibility::NOT_SET
-						|| targetNode->accessible == CGPathNode::EAccessibility::BLOCKED
-						|| targetNode->accessible == CGPathNode::EAccessibility::FLYABLE
+					if(targetNode->accessible == EPathAccessibility::NOT_SET
+						|| targetNode->accessible == EPathAccessibility::BLOCKED
+						|| targetNode->accessible == EPathAccessibility::FLYABLE
 						|| targetNode->turns != 0)
 					{
 						logAi->error(
@@ -119,7 +131,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 					}
 				}
 
-				if(hero->movement)
+				if(hero->movementPointsRemaining())
 				{
 					try
 					{
@@ -137,14 +149,14 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 							return;
 						}
 
-						if(hero->movement > 0)
+						if(hero->movementPointsRemaining() > 0)
 						{
 							CGPath path;
 							bool isOk = cb->getPathsInfo(hero)->getPath(path, node.coord);
 
 							if(isOk && path.nodes.back().turns > 0)
 							{
-								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTranslated(), hero->movement, node.coord.toString());
+								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTranslated(), hero->movementPointsRemaining(), node.coord.toString());
 
 								ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 								return;

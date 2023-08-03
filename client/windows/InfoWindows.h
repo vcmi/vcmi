@@ -36,7 +36,7 @@ class CSimpleWindow : public WindowBase
 {
 public:
 	SDL_Surface * bitmap; //background
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 	CSimpleWindow():bitmap(nullptr){};
 	virtual ~CSimpleWindow();
 };
@@ -45,8 +45,8 @@ public:
 class CInfoWindow : public CSimpleWindow
 {
 public:
-	typedef std::vector<std::pair<std::string, CFunctionList<void()> > > TButtonsInfo;
-	typedef std::vector<std::shared_ptr<CComponent>> TCompsInfo;
+	using TButtonsInfo = std::vector<std::pair<std::string, CFunctionList<void()>>>;
+	using TCompsInfo = std::vector<std::shared_ptr<CComponent>>;
 	QueryID ID; //for identification
 	std::shared_ptr<CTextBox> text;
 	std::vector<std::shared_ptr<CButton>> buttons;
@@ -54,8 +54,8 @@ public:
 
 	virtual void close();
 
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
+	void show(Canvas & to) override;
+	void showAll(Canvas & to) override;
 	void sliderMoved(int to);
 
 	CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo & comps = TCompsInfo(), const TButtonsInfo & Buttons = TButtonsInfo());
@@ -76,10 +76,7 @@ class CRClickPopup : public WindowBase
 {
 public:
 	virtual void close();
-	void clickRight(tribool down, bool previousState) override;
-
-	CRClickPopup();
-	virtual ~CRClickPopup();
+	bool isPopupWindow() const override;
 
 	static std::shared_ptr<WindowBase> createInfoWin(Point position, const CGObjectInstance * specific);
 	static void createAndPush(const std::string & txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());
@@ -102,7 +99,7 @@ public:
 	bool free; //TODO: comment me
 	SDL_Surface * bitmap; //popup background
 	void close() override;
-	void show(SDL_Surface * to) override;
+	void show(Canvas & to) override;
 	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false);
 	CInfoPopup(SDL_Surface * Bitmap, const Point &p, ETextAlignment alignment, bool Free=false);
 	CInfoPopup(SDL_Surface * Bitmap = nullptr, bool Free = false);

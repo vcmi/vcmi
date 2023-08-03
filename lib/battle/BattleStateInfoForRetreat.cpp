@@ -33,7 +33,7 @@ uint64_t getFightingStrength(const std::vector<const battle::Unit *> & stacks, c
 
 	for(const battle::Unit * stack : stacks)
 	{
-		result += stack->creatureId().toCreature()->AIValue * stack->getCount();
+		result += stack->creatureId().toCreature()->getAIValue() * stack->getCount();
 	}
 
 	if(hero)

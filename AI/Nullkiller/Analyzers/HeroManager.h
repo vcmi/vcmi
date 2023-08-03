@@ -31,7 +31,9 @@ public:
 	virtual float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const = 0;
 	virtual float evaluateHero(const CGHeroInstance * hero) const = 0;
 	virtual bool canRecruitHero(const CGTownInstance * t = nullptr) const = 0;
+	virtual bool heroCapReached() const = 0;
 	virtual const CGHeroInstance * findHeroWithGrail() const = 0;
+	virtual const CGHeroInstance * findWeakHeroToDismiss(uint64_t armyLimit) const = 0;
 };
 
 class DLL_EXPORT ISecondarySkillRule
@@ -71,7 +73,9 @@ public:
 	float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const override;
 	float evaluateHero(const CGHeroInstance * hero) const override;
 	bool canRecruitHero(const CGTownInstance * t = nullptr) const override;
+	bool heroCapReached() const override;
 	const CGHeroInstance * findHeroWithGrail() const override;
+	const CGHeroInstance * findWeakHeroToDismiss(uint64_t armyLimit) const override;
 
 private:
 	float evaluateFightingStrength(const CGHeroInstance * hero) const;

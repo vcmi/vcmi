@@ -12,7 +12,13 @@
 
 #include "maphandler.h"
 #include "mapview.h"
-#include "../lib/mapping/CMap.h"
+
+#include "../lib/CModVersion.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+using ModCompatibilityInfo = std::map<std::string, CModVersion>;
+class EditorObstaclePlacer;
+VCMI_LIB_NAMESPACE_END
 
 class MainWindow;
 class MapController
@@ -24,6 +30,7 @@ public:
 	~MapController();
 	
 	void setMap(std::unique_ptr<CMap>);
+	void initObstaclePainters(CMap* map);
 	
 	void repairMap();
 	
@@ -54,6 +61,9 @@ public:
 	bool discardObject(int level) const;
 	void createObject(int level, CGObjectInstance * obj) const;
 	bool canPlaceObject(int level, CGObjectInstance * obj, QString & error) const;
+	
+	static ModCompatibilityInfo modAssessmentAll();
+	static ModCompatibilityInfo modAssessmentMap(const CMap & map);
 
 	void undo();
 	void redo();
@@ -68,6 +78,8 @@ private:
 	mutable std::array<std::unique_ptr<MinimapScene>, 2> _miniscenes;
 	std::vector<std::unique_ptr<CGObjectInstance>> _clipboard;
 	int _clipboardShiftIndex = 0;
+
+	std::map<TerrainId, std::unique_ptr<EditorObstaclePlacer>> _obstaclePainters;
 
 	void connectScenes();
 };

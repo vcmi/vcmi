@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Unit.h"
+#include "../bonuses/CBonusProxy.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -192,6 +193,7 @@ public:
 	int64_t getEffectValue(const spells::Spell * spell) const override;
 
 	PlayerColor getCasterOwner() const override;
+	const CGHeroInstance * getHeroCaster() const override;
 	void getCasterName(MetaString & text) const override;
 	void getCastDescription(const spells::Spell * spell, const std::vector<const Unit *> & attacked, MetaString & text) const override;
 	int32_t manaLimit() const override;
@@ -219,6 +221,8 @@ public:
 	BattleHex getPosition() const override;
 	void setPosition(BattleHex hex) override;
 	int32_t getInitiative(int turn = 0) const override;
+	uint8_t getRangedFullDamageDistance() const;
+	uint8_t getShootingRangeDistance() const;
 
 	bool canMove(int turn = 0) const override;
 	bool defended(int turn = 0) const override;
@@ -247,6 +251,8 @@ public:
 
 	void localInit(const IUnitEnvironment * env_);
 	void serializeJson(JsonSerializeFormat & handler);
+
+	FactionID getFaction() const override;
 
 	void afterAttack(bool ranged, bool counter);
 

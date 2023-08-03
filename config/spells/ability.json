@@ -119,6 +119,7 @@
 			}
 		},
 		"flags" : {
+			"nonMagical" : true,
 			"indifferent": true
 		}
 	},
@@ -424,9 +425,6 @@
 			"indifferent": true
 		},
 		"targetCondition" : {
-			"noneOf" : {
-				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
-			}
 		}
 	}
 }

@@ -16,12 +16,17 @@
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjects/MapObjects.h"
+#include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/GameSettings.h"
-#include "../../lib/CGameState.h"
+#include "../../lib/gameState/CGameState.h"
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/NetPacks.h"
+#include "../../lib/bonuses/CBonusSystemNode.h"
+#include "../../lib/bonuses/Limiters.h"
+#include "../../lib/bonuses/Updaters.h"
+#include "../../lib/bonuses/Propagators.h"
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/serializer/BinarySerializer.h"
 #include "../../lib/serializer/BinaryDeserializer.h"
@@ -197,7 +202,7 @@ void VCAI::showShipyardDialog(const IShipyard * obj)
 
 void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult)
 {
-	LOG_TRACE_PARAMS(logAi, "victoryLossCheckResult '%s'", victoryLossCheckResult.messageToSelf);
+	LOG_TRACE_PARAMS(logAi, "victoryLossCheckResult '%s'", victoryLossCheckResult.messageToSelf.toString());
 	NET_EVENT_HANDLER;
 	logAi->debug("Player %d (%s): I heard that player %d (%s) %s.", playerID, playerID.getStr(), player, player.getStr(), (victoryLossCheckResult.victory() ? "won" : "lost"));
 	if(player == playerID)
@@ -268,7 +273,7 @@ void VCAI::heroVisitsTown(const CGHeroInstance * hero, const CGTownInstance * to
 	//moveCreaturesToHero(town);
 }
 
-void VCAI::tileHidden(const std::unordered_set<int3, ShashInt3> & pos)
+void VCAI::tileHidden(const std::unordered_set<int3> & pos)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -277,7 +282,7 @@ void VCAI::tileHidden(const std::unordered_set<int3, ShashInt3> & pos)
 	clearPathsInfo();
 }
 
-void VCAI::tileRevealed(const std::unordered_set<int3, ShashInt3> & pos)
+void VCAI::tileRevealed(const std::unordered_set<int3> & pos)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -531,6 +536,11 @@ void VCAI::battleResultsApplied()
 	NET_EVENT_HANDLER;
 	assert(status.getBattle() == ENDING_BATTLE);
 	status.setBattle(NO_BATTLE);
+}
+
+void VCAI::beforeObjectPropertyChanged(const SetObjectProperty * sop)
+{
+
 }
 
 void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
@@ -808,8 +818,8 @@ void VCAI::makeTurn()
 		//for debug purpose
 		for (auto h : cb->getHeroesInfo())
 		{
-			if (h->movement)
-				logAi->warn("Hero %s has %d MP left", h->getNameTranslated(), h->movement);
+			if (h->movementPointsRemaining())
+				logAi->info("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
 		}
 	}
 	catch (boost::thread_interrupted & e)
@@ -944,7 +954,7 @@ void VCAI::mainLoop()
 			if (bestGoal->hero) //lock this hero to fulfill goal
 			{
 				setGoal(bestGoal->hero, bestGoal);
-				if (!bestGoal->hero->movement || vstd::contains(invalidPathHeroes, bestGoal->hero))
+				if (!bestGoal->hero->movementPointsRemaining() || vstd::contains(invalidPathHeroes, bestGoal->hero))
 				{
 					if (!vstd::erase_if_present(possibleGoals, bestGoal))
 					{
@@ -1182,7 +1192,7 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				//FIXME: why are the above possible to be null?
 
 				bool emptySlotFound = false;
-				for(auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
+				for(auto slot : artifact->artType->getPossibleSlots().at(target->bearerType()))
 				{
 					ArtifactLocation destLocation(target, slot);
 					if(target->isPositionFree(slot) && artifact->canBePutAt(destLocation, true)) //combined artifacts are not always allowed to move
@@ -1195,7 +1205,7 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				}
 				if(!emptySlotFound) //try to put that atifact in already occupied slot
 				{
-					for(auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
+					for(auto slot : artifact->artType->getPossibleSlots().at(target->bearerType()))
 					{
 						auto otherSlot = target->getSlot(slot);
 						if(otherSlot && otherSlot->artifact) //we need to exchange artifact for better one
@@ -1235,20 +1245,20 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 		int count = d->creatures[i].first;
 		CreatureID creID = d->creatures[i].second.back();
 
-		vstd::amin(count, ah->freeResources() / VLC->creh->objects[creID]->cost);
+		vstd::amin(count, ah->freeResources() / VLC->creatures()->getById(creID)->getFullRecruitCost());
 		if(count > 0)
 			cb->recruitCreatures(d, recruiter, creID, count, i);
 	}
 }
 
-bool VCAI::isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, boost::optional<float> movementCostLimit)
+bool VCAI::isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, std::optional<float> movementCostLimit)
 {
 	int3 op = obj->visitablePos();
 	auto paths = ah->getPathsToTile(h, op);
 
 	for(const auto & path : paths)
 	{
-		if(movementCostLimit && movementCostLimit.get() < path.movementCost())
+		if(movementCostLimit && movementCostLimit.value() < path.movementCost())
 			return false;
 
 		if(isGoodForVisit(obj, h, path))
@@ -1314,7 +1324,7 @@ bool VCAI::canRecruitAnyHero(const CGTownInstance * t) const
 		t = findTownWithTavern();
 	if(!t)
 		return false;
-	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST) //TODO: use ResourceManager
+	if(cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST) //TODO: use ResourceManager
 		return false;
 	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
 		return false;
@@ -1349,7 +1359,7 @@ void VCAI::wander(HeroPtr h)
 
 	TimeCheck tc("looking for wander destination");
 
-	while(h->movement)
+	while(h->movementPointsRemaining())
 	{
 		validateVisitableObjs();
 		ah->updatePaths(getMyHeroes());
@@ -1363,18 +1373,13 @@ void VCAI::wander(HeroPtr h)
 		});
 
 		int pass = 0;
-		std::vector<boost::optional<float>> distanceLimits =
-		{
-			1.0,
-			2.0,
-			boost::none
-		};
+		std::vector<std::optional<float>> distanceLimits = {1.0, 2.0, std::nullopt};
 
 		while(!dests.size() && pass < distanceLimits.size())
 		{
 			auto & distanceLimit = distanceLimits[pass];
 
-			logAi->debug("Looking for wander destination pass=%i, cost limit=%f", pass, distanceLimit.get_value_or(-1.0));
+			logAi->debug("Looking for wander destination pass=%i, cost limit=%f", pass, distanceLimit.value_or(-1.0));
 
 			vstd::copy_if(visitableObjs, std::back_inserter(dests), [&](ObjectIdRef obj) -> bool
 			{
@@ -1434,7 +1439,7 @@ void VCAI::wander(HeroPtr h)
 				}
 				break;
 			}
-			else if(cb->getResourceAmount(Res::GOLD) >= GameConstants::HERO_GOLD_COST)
+			else if(cb->getResourceAmount(EGameResID::GOLD) >= GameConstants::HERO_GOLD_COST)
 			{
 				std::vector<const CGTownInstance *> towns = cb->getTownsInfo();
 				vstd::erase_if(towns, [&](const CGTownInstance * t) -> bool
@@ -1570,17 +1575,17 @@ void VCAI::completeGoal(Goals::TSubgoal goal)
 
 }
 
-void VCAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side)
+void VCAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
 {
 	NET_EVENT_HANDLER;
 	assert(playerID > PlayerColor::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
 	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTranslated() : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
-	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side);
+	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
 
-void VCAI::battleEnd(const BattleResult * br)
+void VCAI::battleEnd(const BattleResult * br, QueryID queryID)
 {
 	NET_EVENT_HANDLER;
 	assert(status.getBattle() == ONGOING_BATTLE);
@@ -1588,7 +1593,17 @@ void VCAI::battleEnd(const BattleResult * br)
 	bool won = br->winner == myCb->battleGetMySide();
 	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.getStr(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
-	CAdventureAI::battleEnd(br);
+
+	if (queryID != -1)
+	{
+		status.addQuery(queryID, "Combat result dialog");
+		const int confirmAction = 0;
+		requestActionASAP([=]()
+		{
+			answerQuery(queryID, confirmAction);
+		});
+	}
+	CAdventureAI::battleEnd(br, queryID);
 }
 
 void VCAI::waitTillFree()
@@ -1604,10 +1619,10 @@ void VCAI::markObjectVisited(const CGObjectInstance * obj)
 
 	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj)) //we may want to visit it with another hero
 	{
-		if (rewardable->getVisitMode() == CRewardableObject::VISIT_HERO) //we may want to visit it with another hero
+		if (rewardable->configuration.getVisitMode() == Rewardable::VISIT_HERO) //we may want to visit it with another hero
 			return;
 
-		if (rewardable->getVisitMode() == CRewardableObject::VISIT_BONUS) //or another time
+		if (rewardable->configuration.getVisitMode() == Rewardable::VISIT_BONUS) //or another time
 			return;
 	}
 
@@ -1843,11 +1858,11 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			//return cb->getTile(coord,false)->topVisitableObj(ignoreHero);
 		};
 
-		auto isTeleportAction = [&](CGPathNode::ENodeAction action) -> bool
+		auto isTeleportAction = [&](EPathNodeAction action) -> bool
 		{
-			if(action != CGPathNode::TELEPORT_NORMAL && action != CGPathNode::TELEPORT_BLOCKING_VISIT)
+			if(action != EPathNodeAction::TELEPORT_NORMAL && action != EPathNodeAction::TELEPORT_BLOCKING_VISIT)
 			{
-				if(action != CGPathNode::TELEPORT_BATTLE)
+				if(action != EPathNodeAction::TELEPORT_BATTLE)
 				{
 					return false;
 				}
@@ -1958,7 +1973,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 				doChannelProbing();
 		}
 
-		if(path.nodes[0].action == CGPathNode::BLOCKING_VISIT)
+		if(path.nodes[0].action == EPathNodeAction::BLOCKING_VISIT)
 		{
 			ret = h && i == 0; // when we take resource we do not reach its position. We even might not move
 		}
@@ -2025,7 +2040,7 @@ void VCAI::tryRealize(Goals::RecruitHero & g)
 
 void VCAI::tryRealize(Goals::VisitTile & g)
 {
-	if(!g.hero->movement)
+	if(!g.hero->movementPointsRemaining())
 		throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
 	if(g.tile == g.hero->visitablePos() && cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
 	{
@@ -2041,7 +2056,7 @@ void VCAI::tryRealize(Goals::VisitTile & g)
 void VCAI::tryRealize(Goals::VisitObj & g)
 {
 	auto position = g.tile;
-	if(!g.hero->movement)
+	if(!g.hero->movementPointsRemaining())
 		throw cannotFulfillGoalException("Cannot visit object: hero is out of MPs!");
 	if(position == g.hero->visitablePos() && cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
 	{
@@ -2056,7 +2071,7 @@ void VCAI::tryRealize(Goals::VisitObj & g)
 
 void VCAI::tryRealize(Goals::VisitHero & g)
 {
-	if(!g.hero->movement)
+	if(!g.hero->movementPointsRemaining())
 		throw cannotFulfillGoalException("Cannot visit target hero: hero is out of MPs!");
 
 	const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(g.objid));
@@ -2117,10 +2132,10 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 		if(const IMarket * m = IMarket::castFrom(obj, false))
 		{
 			auto freeRes = ah->freeResources(); //trade only resources which are not reserved
-			for(auto it = Res::ResourceSet::nziterator(freeRes); it.valid(); it++)
+			for(auto it = ResourceSet::nziterator(freeRes); it.valid(); it++)
 			{
 				auto res = it->resType;
-				if(res == g.resID) //sell any other resource
+				if(res.getNum() == g.resID) //sell any other resource
 					continue;
 
 				int toGive, toGet;
@@ -2129,7 +2144,7 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources
 				{
-					cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, res, g.resID, toGive);
+					cb->trade(m, EMarketMode::RESOURCE_RESOURCE, res, g.resID, toGive);
 					accquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
 					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, accquiredResources, g.resID, obj->getObjectName());
 				}
@@ -2174,7 +2189,7 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 				|| t->getUpperArmy()->getSlotFor(ci.creID) == SlotID())
 				continue;
 
-			vstd::amin(ci.count, res / ci.cre->cost); //max count we can afford
+			vstd::amin(ci.count, res / ci.cre->getFullRecruitCost()); //max count we can afford
 
 			if(!ci.count)
 				continue;
@@ -2190,15 +2205,15 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 			*boost::max_element(creaturesInDwellings, [](const creInfo & lhs, const creInfo & rhs)
 		{
 			//max value of creatures we can buy with our res
-			int value1 = lhs.cre->AIValue * lhs.count,
-				value2 = rhs.cre->AIValue * rhs.count;
+			int value1 = lhs.cre->getAIValue() * lhs.count,
+				value2 = rhs.cre->getAIValue() * rhs.count;
 
 			return value1 < value2;
 		});
 
 
 		cb->recruitCreatures(t, t->getUpperArmy(), ci.creID, ci.count, ci.level);
-		valueBought += ci.count * ci.cre->AIValue;
+		valueBought += ci.count * ci.cre->getAIValue();
 	}
 
 	throw goalFulfilledException(sptr(g)); //we bought as many creatures as we wanted
@@ -2257,7 +2272,7 @@ bool VCAI::canAct(HeroPtr h) const
 			return false;
 	}
 
-	return h->movement;
+	return h->movementPointsRemaining();
 }
 
 HeroPtr VCAI::primaryHero() const
@@ -2406,7 +2421,7 @@ void VCAI::performTypicalActions()
 		if(!h) //hero might be lost. getUnblockedHeroes() called once on start of turn
 			continue;
 
-		logAi->debug("Hero %s started wandering, MP=%d", h->getNameTranslated(), h->movement);
+		logAi->debug("Hero %s started wandering, MP=%d", h->getNameTranslated(), h->movementPointsRemaining());
 		makePossibleUpgrades(*h);
 		pickBestArtifacts(*h);
 		try
@@ -2745,7 +2760,7 @@ bool isWeeklyRevisitable(const CGObjectInstance * obj)
 {
 	//TODO: allow polling of remaining creatures in dwelling
 	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj))
-		return rewardable->getResetDuration() == 7;
+		return rewardable->configuration.getResetDuration() == 7;
 
 	if(dynamic_cast<const CGDwelling *>(obj))
 		return true;
@@ -2820,7 +2835,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	{
 		for(auto slot : h->Slots())
 		{
-			if(slot.second->type->upgrades.size())
+			if(slot.second->type->hasUpgrades())
 				return true; //TODO: check price?
 		}
 		return false;
@@ -2844,7 +2859,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	case Obj::TREE_OF_KNOWLEDGE:
 	{
 		TResources myRes = ai->ah->freeResources();
-		if(myRes[Res::GOLD] < 2000 || myRes[Res::GEMS] < 10)
+		if(myRes[EGameResID::GOLD] < 2000 || myRes[EGameResID::GEMS] < 10)
 			return false;
 		break;
 	}

@@ -25,7 +25,6 @@ public class PointerModeSettingController
     public void onItemChosen(final PointerMode item)
     {
         mConfig.setPointerMode(item == PointerMode.RELATIVE);
-        mConfig.updateSwipe(item.supportsSwipe());
         updateContent();
     }
 
@@ -53,23 +52,12 @@ public class PointerModeSettingController
             return PointerMode.RELATIVE;
         }
 
-        if(mConfig.mSwipeEnabled)
-        {
-            return PointerMode.NORMAL_WITH_SWIPE;
-        }
-
         return PointerMode.NORMAL;
     }
 
     public enum PointerMode
     {
         NORMAL,
-        NORMAL_WITH_SWIPE,
         RELATIVE;
-
-        public boolean supportsSwipe()
-        {
-            return this == NORMAL_WITH_SWIPE;
-        }
     }
 }

@@ -4,6 +4,7 @@
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CHeroHandler.h"
+#include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
@@ -28,9 +29,9 @@ MapObjectsEvaluator::MapObjectsEvaluator()
 			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
 			if(handler && !handler->isStaticObject())
 			{
-				if(handler->getAiValue() != boost::none)
+				if(handler->getAiValue() != std::nullopt)
 				{
-					objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = handler->getAiValue().get();
+					objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = handler->getAiValue().value();
 				}
 				else //some default handling when aiValue not found, objects that require advanced properties (unavailable from handler) get their value calculated in getObjectValue
 				{
@@ -41,7 +42,7 @@ MapObjectsEvaluator::MapObjectsEvaluator()
 	}
 }
 
-boost::optional<int> MapObjectsEvaluator::getObjectValue(int primaryID, int secondaryID) const
+std::optional<int> MapObjectsEvaluator::getObjectValue(int primaryID, int secondaryID) const
 {
 	CompoundMapObjectID internalIdentifier = CompoundMapObjectID(primaryID, secondaryID);
 	auto object = objectDatabase.find(internalIdentifier);
@@ -49,10 +50,10 @@ boost::optional<int> MapObjectsEvaluator::getObjectValue(int primaryID, int seco
 		return object->second;
 
 	logGlobal->trace("Unknown object for AI, ID: " + std::to_string(primaryID) + ", SubID: " + std::to_string(secondaryID));
-	return boost::optional<int>();
+	return std::optional<int>();
 }
 
-boost::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * obj) const
+std::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * obj) const
 {
 	if(obj->ID == Obj::HERO)
 	{
@@ -73,8 +74,8 @@ boost::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance 
 		{
 			for(auto & creatureID : creLevel.second)
 			{
-				auto creature = VLC->creh->objects[creatureID];
-				aiValue += (creature->AIValue * creature->growth);
+				auto creature = VLC->creatures()->getById(creatureID);
+				aiValue += (creature->getAIValue() * creature->getGrowth());
 			}
 		}
 		return aiValue;
@@ -101,7 +102,7 @@ boost::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance 
 	else if(obj->ID == Obj::SPELL_SCROLL)
 	{
 		auto scrollObject = dynamic_cast<const CGArtifact *>(obj);
-		auto spell = scrollObject->storedArtifact->getGivenSpellID().toSpell();
+		auto spell = scrollObject->storedArtifact->getScrollSpellID().toSpell();
 		if(spell)
 		{
 			switch(spell->getLevel())
@@ -116,7 +117,7 @@ boost::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance 
 			}
 		}
 		else
-			logAi->warn("AI found spell scroll with invalid spell ID: %s", scrollObject->storedArtifact->getGivenSpellID());
+			logAi->warn("AI found spell scroll with invalid spell ID: %s", scrollObject->storedArtifact->getScrollSpellID());
 	}
 
 	return getObjectValue(obj->ID, obj->subID);

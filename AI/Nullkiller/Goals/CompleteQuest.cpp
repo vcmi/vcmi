@@ -11,8 +11,6 @@
 #include "CompleteQuest.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../AIGateway.h"
-#include "../../../lib/mapping/CMap.h" //for victory conditions
-#include "../../../lib/CPathfinder.h"
 #include "../../../lib/VCMI_Lib.h"
 #include "../../../lib/CGeneralTextHandler.h"
 
@@ -214,7 +212,7 @@ TGoalVec CompleteQuest::missionResources() const
 			for(int i = 0; i < q.quest->m7resources.size(); ++i)
 			{
 				if(q.quest->m7resources[i])
-					solutions.push_back(sptr(CollectRes(i, q.quest->m7resources[i])));
+					solutions.push_back(sptr(CollectRes(static_cast<EGameResID>(i), q.quest->m7resources[i])));
 			}
 		}
 	}

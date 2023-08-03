@@ -13,9 +13,12 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../widgets/Images.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "../render/Canvas.h"
 #include "../gui/TextAlignment.h"
+#include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../windows/InfoWindows.h"
 
@@ -29,13 +32,12 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/CGameState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGMarket.h"
 
 CTradeWindow::CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial)
-	: CIntObject(LCLICK | HOVER | RCLICK, pos),
+	: CIntObject(LCLICK | HOVER | SHOW_POPUP, pos),
 	type(EType(-1)),// set to invalid, will be corrected in setType
 	id(ID),
 	serial(Serial),
@@ -125,7 +127,7 @@ int CTradeWindow::CTradeableItem::getIndex()
 	}
 }
 
-void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
+void CTradeWindow::CTradeableItem::showAll(Canvas & to)
 {
 	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
 	assert(mw);
@@ -166,33 +168,31 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 		CIntObject::showAll(to);
 	}
 
-	printAtMiddleLoc(subtitle, posToSubCenter, FONT_SMALL, Colors::WHITE, to);
+	to.drawText(pos.topLeft() + posToSubCenter, FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, subtitle);
 }
 
-void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
+void CTradeWindow::CTradeableItem::clickPressed(const Point & cursorPosition)
 {
 	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
 	assert(mw);
-	if(down)
-	{
-
 		if(type == ARTIFACT_PLACEHOLDER)
 		{
 			CAltarWindow *aw = static_cast<CAltarWindow *>(mw);
-			if(const CArtifactInstance *movedArt = aw->arts->commonInfo->src.art)
+			const auto pickedArtInst = aw->getPickedArtifact();
+
+			if(pickedArtInst)
 			{
-				aw->moveFromSlotToAltar(aw->arts->commonInfo->src.slotID, this->shared_from_this(), movedArt);
+				aw->arts->pickedArtMoveToAltar(ArtifactPosition::TRANSITION_POS);
+				aw->moveArtToAltar(this->shared_from_this(), pickedArtInst);
 			}
 			else if(const CArtifactInstance *art = getArtInstance())
 			{
-				aw->arts->commonInfo->src.AOH = aw->arts.get();
-				aw->arts->commonInfo->src.art = art;
-				aw->arts->commonInfo->src.slotID = aw->hero->getArtPos(art);
-				aw->arts->markPossibleSlots(art);
-
-				//aw->arts->commonInfo->dst.AOH = aw->arts;
-				CCS->curh->dragAndDropCursor("artifact", art->artType->iconIndex);
-
+				const auto hero = aw->arts->getHero();
+				const auto slot = hero->getSlotByInstance(art);
+				assert(slot != ArtifactPosition::PRE_FIRST);
+				LOCPLINT->cb->swapArtifacts(ArtifactLocation(hero, slot),
+					ArtifactLocation(hero, ArtifactPosition::TRANSITION_POS));
+				aw->arts->pickedArtFromSlot = slot;
 				aw->arts->artifactsOnAltar.erase(art);
 				setID(-1);
 				subtitle.clear();
@@ -217,10 +217,9 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 				return;
 		}
 		mw->selectionChanged(left);
-	}
 }
 
-void CTradeWindow::CTradeableItem::showAllAt(const Point &dstPos, const std::string &customSub, SDL_Surface * to)
+void CTradeWindow::CTradeableItem::showAllAt(const Point &dstPos, const std::string &customSub, Canvas & to)
 {
 	Rect oldPos = pos;
 	std::string oldSub = subtitle;
@@ -239,7 +238,7 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 {
 	if(!on)
 	{
-		GH.statusbar->clear();
+		GH.statusbar()->clear();
 		return;
 	}
 
@@ -247,23 +246,21 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 	{
 	case CREATURE:
 	case CREATURE_PLACEHOLDER:
-		GH.statusbar->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->getNamePluralTranslated()));
+		GH.statusbar()->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->getNamePluralTranslated()));
 		break;
 	case ARTIFACT_PLACEHOLDER:
 		if(id < 0)
-			GH.statusbar->write(CGI->generaltexth->zelp[582].first);
+			GH.statusbar()->write(CGI->generaltexth->zelp[582].first);
 		else
-			GH.statusbar->write(CGI->artifacts()->getByIndex(id)->getNameTranslated());
+			GH.statusbar()->write(CGI->artifacts()->getByIndex(id)->getNameTranslated());
 		break;
 	}
 }
 
-void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
+void CTradeWindow::CTradeableItem::showPopupWindow(const Point & cursorPosition)
 {
-	if(down)
+	switch(type)
 	{
-		switch(type)
-		{
 		case CREATURE:
 		case CREATURE_PLACEHOLDER:
 			//GH.statusbar->print(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->namePl));
@@ -274,7 +271,6 @@ void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
 			if(id >= 0)
 				CRClickPopup::createAndPush(CGI->artifacts()->getByIndex(id)->getDescriptionTranslated());
 			break;
-		}
 	}
 }
 
@@ -329,7 +325,6 @@ CTradeWindow::CTradeWindow(std::string bgName, const IMarket *Market, const CGHe
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	type |= BLOCK_ADV_HOTKEYS;
 	mode = Mode;
 	initTypes();
 }
@@ -375,30 +370,12 @@ void CTradeWindow::initItems(bool Left)
 
 	if(Left && (itemsType[1] == ARTIFACT_TYPE || itemsType[1] == ARTIFACT_INSTANCE))
 	{
-		int xOffset = 0, yOffset = 0;
 		if(mode == EMarketMode::ARTIFACT_RESOURCE)
 		{
-			xOffset = -361;
-			yOffset = +46;
-
 			auto item = std::make_shared<CTradeableItem>(Point(137, 469), itemsType[Left], -1, 1, 0);
 			item->recActions &= ~(UPDATE | SHOWALL);
 			items[Left].push_back(item);
 		}
-		else //ARTIFACT_EXP
-		{
-			xOffset = -363;
-			yOffset = -12;
-		}
-
-		arts = std::make_shared<CArtifactsOfHero>(Point(xOffset, yOffset), true);
-		arts->recActions = 255-DISPOSE;
-		arts->setHero(hero);
-		arts->allowedAssembling = false;
-		addSet(arts);
-
-		if(mode == EMarketMode::ARTIFACT_RESOURCE)
-			arts->highlightModeCallback = std::bind(&CTradeWindow::artifactSelected, this, _1);
 	}
 	else
 	{
@@ -447,7 +424,7 @@ std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 			for(int i = 0; i < 7; i++)
 			{
 				if(const CCreature *c = hero->getCreature(SlotID(i)))
-					ids->push_back(c->idNumber);
+					ids->push_back(c->getId());
 				else
 					ids->push_back(-1);
 			}
@@ -535,7 +512,7 @@ void CTradeWindow::initSubs(bool Left)
 				item->subtitle = std::to_string(hero->getStackCount(SlotID(item->serial)));
 				break;
 			case RESOURCE:
-				item->subtitle = std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<Res::ERes>(item->serial)));
+				item->subtitle = std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(item->serial)));
 				break;
 			}
 		}
@@ -566,14 +543,14 @@ void CTradeWindow::initSubs(bool Left)
 	}
 }
 
-void CTradeWindow::showAll(SDL_Surface * to)
+void CTradeWindow::showAll(Canvas & to)
 {
 	CWindowObject::showAll(to);
 
 	if(hRight)
-		CSDL_Ext::drawBorder(to, hRight->pos.x-1, hRight->pos.y-1, hRight->pos.w+2, hRight->pos.h+2, Colors::BRIGHT_YELLOW);
+		to.drawBorder(Rect::createAround(hRight->pos, 1), Colors::BRIGHT_YELLOW, 2);
 	if(hLeft && hLeft->type != ARTIFACT_INSTANCE)
-		CSDL_Ext::drawBorder(to, hLeft->pos.x-1, hLeft->pos.y-1, hLeft->pos.w+2, hLeft->pos.h+2, Colors::BRIGHT_YELLOW);
+		to.drawBorder(Rect::createAround(hLeft->pos, 1), Colors::BRIGHT_YELLOW, 2);
 
 	if(readyToTrade)
 	{
@@ -619,10 +596,10 @@ void CTradeWindow::setMode(EMarketMode::EMarketMode Mode)
 	{
 	case EMarketMode::CREATURE_EXP:
 	case EMarketMode::ARTIFACT_EXP:
-		GH.pushIntT<CAltarWindow>(m, h, Mode);
+		GH.windows().createAndPushWindow<CAltarWindow>(m, h, Mode);
 		break;
 	default:
-		GH.pushIntT<CMarketplaceWindow>(m, h, Mode);
+		GH.windows().createAndPushWindow<CMarketplaceWindow>(m, h, Mode);
 		break;
 	}
 }
@@ -630,8 +607,8 @@ void CTradeWindow::setMode(EMarketMode::EMarketMode Mode)
 void CTradeWindow::artifactSelected(CHeroArtPlace *slot)
 {
 	assert(mode == EMarketMode::ARTIFACT_RESOURCE);
-	items[1][0]->setArtInstance(slot->ourArt);
-	if(slot->ourArt && !slot->locked)
+	items[1][0]->setArtInstance(slot->getArt());
+	if(slot->getArt())
 		hLeft = items[1][0];
 	else
 		hLeft = nullptr;
@@ -664,13 +641,13 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	madeTransaction = false;
-	bool sliderNeeded = true;
+	bool sliderNeeded = (mode != EMarketMode::RESOURCE_ARTIFACT && mode != EMarketMode::ARTIFACT_RESOURCE);
 
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	std::string title;
 
-	if(market->o->ID == Obj::TOWN)
+	if(auto * o = dynamic_cast<const CGTownInstance *>(market))
 	{
 		switch (mode)
 		{
@@ -678,55 +655,43 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 			title = (*CGI->townh)[ETownType::STRONGHOLD]->town->buildings[BuildingID::FREELANCERS_GUILD]->getNameTranslated();
 			break;
 		case EMarketMode::RESOURCE_ARTIFACT:
-			title = (*CGI->townh)[market->o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
-			sliderNeeded = false;
+			title = (*CGI->townh)[o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
 			break;
 		case EMarketMode::ARTIFACT_RESOURCE:
-			title = (*CGI->townh)[market->o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
+			title = (*CGI->townh)[o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->getNameTranslated();
 
 			// create image that copies part of background containing slot MISC_1 into position of slot MISC_5
 			// this is workaround for bug in H3 files where this slot for ragdoll on this screen is missing
 			images.push_back(std::make_shared<CPicture>(background->getSurface(), Rect(20, 187, 47, 47), 18, 339 ));
-			sliderNeeded = false;
 			break;
 		default:
 			title = CGI->generaltexth->allTexts[158];
 			break;
 		}
 	}
-	else
+	else if(auto * o = dynamic_cast<const CGMarket *>(market))
 	{
-		switch(market->o->ID)
-		{
-		case Obj::BLACK_MARKET:
-			title = CGI->generaltexth->allTexts[349];
-			sliderNeeded = false;
-			break;
-		case Obj::TRADING_POST:
-			title = CGI->generaltexth->allTexts[159];
-			break;
-		case Obj::TRADING_POST_SNOW:
-			title = CGI->generaltexth->allTexts[159];
-			break;
-		default:
-			title = market->o->getObjectName();
-			break;
-		}
+		title = o->title;
 	}
 
 	titleLabel = std::make_shared<CLabel>(300, 27, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title);
-
+	if(mode == EMarketMode::ARTIFACT_RESOURCE)
+	{
+		arts = std::make_shared<CArtifactsOfHeroMarket>(Point(-361, 46));
+		arts->selectArtCallback = std::bind(&CTradeWindow::artifactSelected, this, _1);
+		arts->setHero(hero);
+		addSet(arts);
+	}
 	initItems(false);
 	initItems(true);
 
-	ok = std::make_shared<CButton>(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[600], [&](){ close(); }, SDLK_RETURN);
-	ok->assignedKeys.insert(SDLK_ESCAPE);
+	ok = std::make_shared<CButton>(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[600], [&](){ close(); }, EShortcut::GLOBAL_RETURN);
 	deal = std::make_shared<CButton>(Point(307, 520), "TPMRKB.DEF", CGI->generaltexth->zelp[595], [&](){ makeDeal(); } );
 	deal->block(true);
 
 	if(sliderNeeded)
 	{
-		slider = std::make_shared<CSlider>(Point(231, 490),137, std::bind(&CMarketplaceWindow::sliderMoved,this,_1),0,0);
+		slider = std::make_shared<CSlider>(Point(231, 490), 137, std::bind(&CMarketplaceWindow::sliderMoved, this, _1), 0, 0, 0, Orientation::HORIZONTAL);
 		max = std::make_shared<CButton>(Point(229, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[596], [&](){ setMax(); });
 		max->block(true);
 	}
@@ -792,7 +757,7 @@ CMarketplaceWindow::~CMarketplaceWindow() = default;
 
 void CMarketplaceWindow::setMax()
 {
-	slider->moveToMax();
+	slider->scrollToMax();
 }
 
 void CMarketplaceWindow::makeDeal()
@@ -806,31 +771,41 @@ void CMarketplaceWindow::makeDeal()
 	if(!sliderValue)
 		return;
 
-	int leftIdToSend = -1;
+	bool allowDeal = true;
+	int leftIdToSend = hLeft->id;
 	switch (mode)
 	{
 		case EMarketMode::CREATURE_RESOURCE:
 			leftIdToSend = hLeft->serial;
 			break;
 		case EMarketMode::ARTIFACT_RESOURCE:
-			leftIdToSend = hLeft->getArtInstance()->id.getNum();
+			leftIdToSend = hLeft->getArtInstance()->getId().getNum();
+			break;
+		case EMarketMode::RESOURCE_ARTIFACT:
+			if(!ArtifactID(hRight->id).toArtifact()->canBePutAt(hero))
+			{
+				LOCPLINT->showInfoDialog(CGI->generaltexth->translate("core.genrltxt.326"));
+				allowDeal = false;
+			}
 			break;
 		default:
-			leftIdToSend = hLeft->id;
 			break;
 	}
 
-	if(slider)
+	if(allowDeal)
 	{
-		LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, slider->getValue()*r1, hero);
-		slider->moveTo(0);
+		if(slider)
+		{
+			LOCPLINT->cb->trade(market, mode, leftIdToSend, hRight->id, slider->getValue() * r1, hero);
+			slider->scrollTo(0);
+		}
+		else
+		{
+			LOCPLINT->cb->trade(market, mode, leftIdToSend, hRight->id, r2, hero);
+		}
 	}
-	else
-	{
-		LOCPLINT->cb->trade(market->o, mode, leftIdToSend, hRight->id, r2, hero);
-	}
-	madeTransaction = true;
 
+	madeTransaction = true;
 	hLeft = nullptr;
 	hRight = nullptr;
 	selectionChanged(true);
@@ -848,7 +823,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 		readyToTrade = readyToTrade && (hLeft->id != hRight->id); //for resource trade, two DIFFERENT resources must be selected
 
 	if(mode == EMarketMode::ARTIFACT_RESOURCE && !hLeft)
-		arts->unmarkSlots(false);
+		arts->unmarkSlots();
 
 	if(readyToTrade)
 	{
@@ -859,20 +834,20 @@ void CMarketplaceWindow::selectionChanged(bool side)
 		{
 			int newAmount = -1;
 			if(itemsType[1] == RESOURCE)
-				newAmount = LOCPLINT->cb->getResourceAmount(static_cast<Res::ERes>(soldItemId));
+				newAmount = LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(soldItemId));
 			else if(itemsType[1] ==  CREATURE)
 				newAmount = hero->getStackCount(SlotID(hLeft->serial)) - (hero->stacksCount() == 1  &&  hero->needsLastStack());
 			else
 				assert(0);
 
 			slider->setAmount(newAmount / r1);
-			slider->moveTo(0);
+			slider->scrollTo(0);
 			max->block(false);
 			deal->block(false);
 		}
 		else if(itemsType[1] == RESOURCE) //buying -> check if we can afford transaction
 		{
-			deal->block(LOCPLINT->cb->getResourceAmount(static_cast<Res::ERes>(soldItemId)) < r1);
+			deal->block(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(soldItemId)) < r1);
 		}
 		else
 			deal->block(false);
@@ -883,7 +858,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 		{
 			max->block(true);
 			slider->setAmount(0);
-			slider->moveTo(0);
+			slider->scrollTo(0);
 		}
 		deal->block(true);
 	}
@@ -1117,8 +1092,8 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 		 //To sacrifice creatures, move them from your army on to the Altar and click Sacrifice
 		new CTextBox(CGI->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW);
 
-		slider = std::make_shared<CSlider>(Point(231,481),137,std::bind(&CAltarWindow::sliderMoved,this,_1),0,0);
-		max = std::make_shared<CButton>(Point(147, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[578], std::bind(&CSlider::moveToMax, slider));
+		slider = std::make_shared<CSlider>(Point(231, 481), 137, std::bind(&CAltarWindow::sliderMoved, this, _1), 0, 0, 0, Orientation::HORIZONTAL);
+		max = std::make_shared<CButton>(Point(147, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[578], std::bind(&CSlider::scrollToMax, slider));
 
 		sacrificedUnits.resize(GameConstants::ARMY_SIZE, 0);
 		sacrificeAll = std::make_shared<CButton>(Point(393, 520), "ALTARMY.DEF", CGI->generaltexth->zelp[579], std::bind(&CAltarWindow::SacrificeAll,this));
@@ -1138,6 +1113,10 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 		sacrificeBackpack = std::make_shared<CButton>(Point(147, 520), "ALTEMBK.DEF", CGI->generaltexth->zelp[570], std::bind(&CAltarWindow::SacrificeBackpack,this));
 		sacrificeBackpack->block(hero->artifactsInBackpack.empty());
 
+		arts = std::make_shared<CArtifactsOfHeroAltar>(Point(-365, -12));
+		arts->setHero(hero);
+		addSet(arts);
+
 		initItems(true);
 		initItems(false);
 		artIcon = std::make_shared<CAnimImage>("ARTIFACT", 0, 0, 281, 442);
@@ -1151,8 +1130,7 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	ok = std::make_shared<CButton>(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[568], [&](){ close();}, SDLK_RETURN);
-	ok->assignedKeys.insert(SDLK_ESCAPE);
+	ok = std::make_shared<CButton>(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[568], [&](){ close();}, EShortcut::GLOBAL_RETURN);
 
 	deal = std::make_shared<CButton>(Point(269, 520), "ALTSACR.DEF", CGI->generaltexth->zelp[585], std::bind(&CAltarWindow::makeDeal,this));
 
@@ -1212,7 +1190,7 @@ void CAltarWindow::makeDeal()
 	if(mode == EMarketMode::CREATURE_EXP)
 	{
 		blockTrade();
-		slider->moveTo(0);
+		slider->scrollTo(0);
 
 		std::vector<ui32> ids;
 		std::vector<ui32> toSacrifice;
@@ -1226,7 +1204,7 @@ void CAltarWindow::makeDeal()
 			}
 		}
 
-		LOCPLINT->cb->trade(market->o, mode, ids, {}, toSacrifice, hero);
+		LOCPLINT->cb->trade(market, mode, ids, {}, toSacrifice, hero);
 
 		for(int& val : sacrificedUnits)
 			val = 0;
@@ -1240,12 +1218,13 @@ void CAltarWindow::makeDeal()
 	else
 	{
 		std::vector<ui32> positions;
-		for(const CArtifactInstance *art : arts->artifactsOnAltar) //sacrifice each artifact on the list
+		for(const CArtifactInstance * art : arts->artifactsOnAltar)
 		{
-			positions.push_back(hero->getArtPos(art));
+			positions.push_back(hero->getSlotByInstance(art));
 		}
+		std::sort(positions.begin(), positions.end(), std::greater<>());
 
-		LOCPLINT->cb->trade(market->o, mode, positions, {}, {}, hero);
+		LOCPLINT->cb->trade(market, mode, positions, {}, {}, hero);
 		arts->artifactsOnAltar.clear();
 
 		for(auto item : items[0])
@@ -1254,7 +1233,6 @@ void CAltarWindow::makeDeal()
 			item->subtitle = "";
 		}
 
-		arts->commonInfo->reset();
 		//arts->scrollBackpack(0);
 		deal->block(true);
 	}
@@ -1284,12 +1262,12 @@ void CAltarWindow::SacrificeAll()
 	}
 	else
 	{
-		for(auto i = hero->artifactsWorn.cbegin(); i != hero->artifactsWorn.cend(); i++)
+		for(const auto & aw : arts->visibleArtSet.artifactsWorn)
 		{
-			if(!i->second.locked) //ignore locks from assembled artifacts
-				moveFromSlotToAltar(i->first, nullptr, i->second.artifact);
+			if(!aw.second.locked)
+				moveArtToAltar(nullptr, aw.second.artifact);
 		}
-
+		arts->updateWornSlots();
 		SacrificeBackpack();
 	}
 	redraw();
@@ -1307,7 +1285,7 @@ void CAltarWindow::selectionChanged(bool side)
 
 	slider->setAmount(hero->getStackCount(SlotID(hLeft->serial)) - (stackCount == 1));
 	slider->block(!slider->getAmount());
-	slider->moveTo(sacrificedUnits[hLeft->serial]);
+	slider->scrollTo(sacrificedUnits[hLeft->serial]);
 	max->block(!slider->getAmount());
 	selectOppositeItem(side);
 	readyToTrade = true;
@@ -1404,7 +1382,8 @@ void CAltarWindow::calcTotalExp()
 	}
 	else
 	{
-		for(const CArtifactInstance *art : arts->artifactsOnAltar)
+		auto artifactsOfHero = std::dynamic_pointer_cast<CArtifactsOfHeroAltar>(arts);
+		for(const CArtifactInstance * art : artifactsOfHero->artifactsOnAltar)
 		{
 			int dmp, valOfArt;
 			market->getOffer(art->artType->getId(), 0, dmp, valOfArt, mode);
@@ -1448,21 +1427,11 @@ int CAltarWindow::firstFreeSlot()
 
 void CAltarWindow::SacrificeBackpack()
 {
-	std::multiset<const CArtifactInstance *> toOmmit = arts->artifactsOnAltar;
-
-	for (auto & elem : hero->artifactsInBackpack)
+	while(!arts->visibleArtSet.artifactsInBackpack.empty())
 	{
-
-		if(vstd::contains(toOmmit, elem.artifact))
-		{
-			toOmmit -= elem.artifact;
-			continue;
-		}
-
-		putOnAltar(nullptr, elem.artifact);
-	}
-
-	arts->scrollBackpack(0);
+		if(!putOnAltar(nullptr, arts->visibleArtSet.artifactsInBackpack[0].artifact))
+			break;
+	};
 	calcTotalExp();
 }
 
@@ -1471,18 +1440,22 @@ void CAltarWindow::artifactPicked()
 	redraw();
 }
 
-void CAltarWindow::showAll(SDL_Surface * to)
+void CAltarWindow::showAll(Canvas & to)
 {
 	CTradeWindow::showAll(to);
-	if(mode == EMarketMode::ARTIFACT_EXP && arts && arts->commonInfo->src.art)
+	if(mode == EMarketMode::ARTIFACT_EXP && arts)
 	{
-		artIcon->setFrame(arts->commonInfo->src.art->artType->iconIndex);
-		artIcon->showAll(to);
+		if(auto pickedArt = arts->getPickedArtifact())
+		{
+			artIcon->setFrame(pickedArt->artType->getIconIndex());
+			artIcon->showAll(to);
 
-		int dmp, val;
-		market->getOffer(arts->commonInfo->src.art->artType->getId(), 0, dmp, val, EMarketMode::ARTIFACT_EXP);
-		val = static_cast<int>(hero->calculateXp(val));
-		printAtMiddleLoc(std::to_string(val), 304, 498, FONT_SMALL, Colors::WHITE, to);
+			int dmp, val;
+			market->getOffer(pickedArt->getTypeId(), 0, dmp, val, EMarketMode::ARTIFACT_EXP);
+			val = static_cast<int>(hero->calculateXp(val));
+
+			to.drawText(Point(304, 498), FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, std::to_string(val));
+		}
 	}
 }
 
@@ -1510,6 +1483,7 @@ bool CAltarWindow::putOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const C
 	val = static_cast<int>(hero->calculateXp(val));
 
 	arts->artifactsOnAltar.insert(art);
+	arts->deleteFromVisible(art);
 	altarSlot->setArtInstance(art);
 	altarSlot->subtitle = std::to_string(val);
 
@@ -1517,25 +1491,11 @@ bool CAltarWindow::putOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const C
 	return true;
 }
 
-void CAltarWindow::moveFromSlotToAltar(ArtifactPosition slotID, std::shared_ptr<CTradeableItem> altarSlot, const CArtifactInstance *art)
+void CAltarWindow::moveArtToAltar(std::shared_ptr<CTradeableItem> altarSlot, const CArtifactInstance *art)
 {
-	auto freeBackpackSlot = ArtifactPosition((si32)hero->artifactsInBackpack.size() + GameConstants::BACKPACK_START);
-	if(arts->commonInfo->src.art)
-	{
-		arts->commonInfo->dst.slotID = freeBackpackSlot;
-		arts->commonInfo->dst.AOH = arts.get();
-	}
-
 	if(putOnAltar(altarSlot, art))
 	{
-		if(slotID < GameConstants::BACKPACK_START)
-			LOCPLINT->cb->swapArtifacts(ArtifactLocation(hero, slotID), ArtifactLocation(hero, freeBackpackSlot));
-		else
-		{
-			arts->commonInfo->src.clear();
-			arts->commonInfo->dst.clear();
-			CCS->curh->dragAndDropCursor(nullptr);
-			arts->unmarkSlots(false);
-		}
+		CCS->curh->dragAndDropCursor(nullptr);
+		arts->unmarkSlots();
 	}
 }

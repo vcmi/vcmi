@@ -19,7 +19,9 @@
 #include "mock/mock_BonusBearer.h"
 #include "mock/mock_battle_IBattleState.h"
 #include "mock/mock_battle_Unit.h"
+#if SCRIPTING_ENABLED
 #include "mock/mock_scripting_Pool.h"
+#endif
 
 using namespace battle;
 using namespace testing;
@@ -47,7 +49,7 @@ public:
 
 	void makeWarMachine()
 	{
-		addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::SIEGE_WEAPON, Bonus::CREATURE_ABILITY, 1, 0));
+		addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SIEGE_WEAPON, BonusSource::CREATURE_ABILITY, 1, 0));
 	}
 
 	void redirectBonusesToFake()
@@ -122,11 +124,16 @@ public:
 	{
 	public:
 
+#if SCRIPTING_ENABLED
 		scripting::Pool * pool;
 
 		TestSubject(scripting::Pool * p)
 			: CBattleInfoCallback(),
 			pool(p)
+#else
+		TestSubject()
+			: CBattleInfoCallback()
+#endif
 		{
 		}
 
@@ -135,13 +142,17 @@ public:
 			CBattleInfoCallback::setBattle(battleInfo);
 		}
 
+#if SCRIPTING_ENABLED
 		scripting::Pool * getContextPool() const override
 		{
 			return pool;
 		}
+#endif
 	};
 
+#if SCRIPTING_ENABLED
 	StrictMock<scripting::PoolMock> pool;
+#endif
 
 	TestSubject subject;
 
@@ -149,8 +160,10 @@ public:
 	UnitsFake unitsFake;
 
 	CBattleInfoCallbackTest()
+#if SCRIPTING_ENABLED
 		: pool(),
 		subject(&pool)
+#endif
 	{
 
 	}
@@ -275,7 +288,7 @@ TEST_F(BattleFinishedTest, LastWarMachineLoose)
 
 		expectBattleWinner(0);
 	}
-	catch(std::exception e)
+	catch(const std::exception & e)
 	{
 		logGlobal->error(e.what());
 	}
@@ -312,7 +325,7 @@ TEST_F(BattleMatchOwnerTest, hypnotizedToSelf)
 {
 	UnitFake & unit1 = unitsFake.add(BattleSide::ATTACKER);
 	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
-	unit1.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+	unit1.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HYPNOTIZED, BonusSource::CREATURE_ABILITY, 0, 0));
 
 	setDefaultExpectations();
 
@@ -343,7 +356,7 @@ TEST_F(BattleMatchOwnerTest, hypnotizedToNormalAlly)
 {
 	UnitFake & unit1 = unitsFake.add(BattleSide::ATTACKER);
 	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
-	unit1.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+	unit1.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HYPNOTIZED, BonusSource::CREATURE_ABILITY, 0, 0));
 
 	UnitFake & unit2 = unitsFake.add(BattleSide::ATTACKER);
 	EXPECT_CALL(unit2, unitId()).WillRepeatedly(Return(4242));
@@ -363,7 +376,7 @@ TEST_F(BattleMatchOwnerTest, normalToHypnotizedAlly)
 	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
 	UnitFake & unit2 = unitsFake.add(BattleSide::ATTACKER);
 	EXPECT_CALL(unit2, unitId()).WillRepeatedly(Return(4242));
-	unit2.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+	unit2.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HYPNOTIZED, BonusSource::CREATURE_ABILITY, 0, 0));
 
 	setDefaultExpectations();
 
@@ -378,11 +391,11 @@ TEST_F(BattleMatchOwnerTest, hypnotizedToHypnotizedAlly)
 {
 	UnitFake & unit1 = unitsFake.add(BattleSide::ATTACKER);
 	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
-	unit1.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+	unit1.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HYPNOTIZED, BonusSource::CREATURE_ABILITY, 0, 0));
 
 	UnitFake & unit2 = unitsFake.add(BattleSide::ATTACKER);
 	EXPECT_CALL(unit2, unitId()).WillRepeatedly(Return(4242));
-	unit2.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+	unit2.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HYPNOTIZED, BonusSource::CREATURE_ABILITY, 0, 0));
 
 	setDefaultExpectations();
 
@@ -414,7 +427,7 @@ TEST_F(BattleMatchOwnerTest, hypnotizedToNormalEnemy)
 {
 	UnitFake & unit1 = unitsFake.add(BattleSide::ATTACKER);
 	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
-	unit1.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+	unit1.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HYPNOTIZED, BonusSource::CREATURE_ABILITY, 0, 0));
 
 	UnitFake & unit2 = unitsFake.add(BattleSide::DEFENDER);
 	EXPECT_CALL(unit2, unitId()).WillRepeatedly(Return(4242));
@@ -434,7 +447,7 @@ TEST_F(BattleMatchOwnerTest, normalToHypnotizedEnemy)
 	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
 	UnitFake & unit2 = unitsFake.add(BattleSide::DEFENDER);
 	EXPECT_CALL(unit2, unitId()).WillRepeatedly(Return(4242));
-	unit2.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+	unit2.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HYPNOTIZED, BonusSource::CREATURE_ABILITY, 0, 0));
 
 	setDefaultExpectations();
 
@@ -449,11 +462,11 @@ TEST_F(BattleMatchOwnerTest, hypnotizedToHypnotizedEnemy)
 {
 	UnitFake & unit1 = unitsFake.add(BattleSide::ATTACKER);
 	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
-	unit1.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+	unit1.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HYPNOTIZED, BonusSource::CREATURE_ABILITY, 0, 0));
 
 	UnitFake & unit2 = unitsFake.add(BattleSide::DEFENDER);
 	EXPECT_CALL(unit2, unitId()).WillRepeatedly(Return(4242));
-	unit2.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+	unit2.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HYPNOTIZED, BonusSource::CREATURE_ABILITY, 0, 0));
 
 	setDefaultExpectations();
 

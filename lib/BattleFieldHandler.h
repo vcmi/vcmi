@@ -11,7 +11,7 @@
 
 #include <vcmi/EntityService.h>
 #include <vcmi/Entity.h>
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 #include "battle/BattleHex.h"
@@ -36,8 +36,12 @@ public:
 	{
 	}
 
-	BattleFieldInfo(BattleField battlefield, std::string identifier)
-		:bonuses(), isSpecial(false), battlefield(battlefield), identifier(identifier), graphics(), icon(), iconIndex(battlefield.getNum()), impassableHexes(), name(identifier)
+	BattleFieldInfo(BattleField battlefield, std::string identifier):
+		isSpecial(false),
+		battlefield(battlefield),
+		identifier(identifier),
+		iconIndex(battlefield.getNum()),
+		name(identifier)
 	{
 	}
 

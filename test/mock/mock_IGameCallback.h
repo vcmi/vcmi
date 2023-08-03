@@ -41,6 +41,7 @@ public:
 
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override {}
 	bool removeObject(const CGObjectInstance * obj) override {return false;}
+	void createObject(const int3 & visitablePosition, Obj type, int32_t subtype = 0) override {};
 	void setOwner(const CGObjectInstance * objid, PlayerColor owner) override {}
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) override {}
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override {}
@@ -48,7 +49,7 @@ public:
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {} //cb will be called when player closes garrison window
 	void showTeleportDialog(TeleportDialog *iw) override {}
 	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override {}
-	void giveResource(PlayerColor player, Res::ERes which, int val) override {}
+	void giveResource(PlayerColor player, GameResID which, int val) override {}
 	void giveResources(PlayerColor player, TResources resources) override {}
 
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) override {}
@@ -64,8 +65,8 @@ public:
 
 	void removeAfterVisit(const CGObjectInstance *object) override {} //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
 
-	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) override {}
-	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) override {} //pos==-1 - first free slot in backpack=0; pos==-2 - default if available or backpack
+	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) override {return false;}
+	bool giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos) override {return false;}
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override {}
 	void removeArtifact(const ArtifactLocation &al) override {}
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) override {return false;}
@@ -81,16 +82,20 @@ public:
 	void giveHeroBonus(GiveBonus * bonus) override {}
 	void setMovePoints(SetMovePoints * smp) override {}
 	void setManaPoints(ObjectInstanceID hid, int val) override {}
-	void giveHero(ObjectInstanceID id, PlayerColor player) override {}
-	void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags) override {}
+	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override {}
+	void changeObjPos(ObjectInstanceID objid, int3 newPos) override {}
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {} //when two heroes meet on adventure map
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override {}
-	void changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide) override {}
+	void changeFogOfWar(std::unordered_set<int3> &tiles, PlayerColor player, bool hide) override {}
+	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override {}
 
 	///useful callback methods
 	void sendAndApply(CPackForClient * pack) override;
 
+#if SCRIPTING_ENABLED
 	MOCK_CONST_METHOD0(getGlobalContextPool, scripting::Pool *());
+#endif
+
 private:
 	UpperCallback * upperCallback;
 };

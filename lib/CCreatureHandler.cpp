@@ -11,16 +11,19 @@
 #include "CCreatureHandler.h"
 
 #include "CGeneralTextHandler.h"
+#include "ResourceSet.h"
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
-#include "CGameState.h"
 #include "CTownHandler.h"
 #include "CModHandler.h"
 #include "GameSettings.h"
 #include "StringConstants.h"
+#include "bonuses/Limiters.h"
+#include "bonuses/Updaters.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
-#include "mapObjects/CObjectClassesHandler.h"
+#include "mapObjectConstructors/AObjectTypeHandler.h"
+#include "mapObjectConstructors/CObjectClassesHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -63,14 +66,9 @@ CreatureID CCreature::getId() const
 	return idNumber;
 }
 
-const IBonusBearer * CCreature::accessBonuses() const
+const IBonusBearer * CCreature::getBonusBearer() const
 {
 	return this;
-}
-
-uint32_t CCreature::getMaxHealth() const
-{
-	return CBonusSystemNode::MaxHealth();
 }
 
 int32_t CCreature::getAdvMapAmountMin() const
@@ -108,65 +106,75 @@ int32_t CCreature::getHorde() const
 	return hordeGrowth;
 }
 
-int32_t CCreature::getFactionIndex() const
+FactionID CCreature::getFaction() const
 {
-	return faction;
+	return FactionID(faction);
 }
 
 int32_t CCreature::getBaseAttack() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseDefense() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseDamageMin() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 1).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 1).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseDamageMax() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 2).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseHitPoints() const
 {
-	static const auto SELECTOR = Selector::type()(Bonus::STACK_HEALTH).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::type()(BonusType::STACK_HEALTH).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseSpellPoints() const
 {
-	static const auto SELECTOR = Selector::type()(Bonus::CASTS).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::type()(BonusType::CASTS).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseSpeed() const
 {
-	static const auto SELECTOR = Selector::type()(Bonus::STACKS_SPEED).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::type()(BonusType::STACKS_SPEED).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseShots() const
 {
-	static const auto SELECTOR = Selector::type()(Bonus::SHOTS).And(Selector::sourceTypeSel(Bonus::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::type()(BonusType::SHOTS).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
-int32_t CCreature::getCost(int32_t resIndex) const
+int32_t CCreature::getRecruitCost(GameResID resIndex) const
 {
 	if(resIndex >= 0 && resIndex < cost.size())
 		return cost[resIndex];
 	else
 		return 0;
+}
+
+TResources CCreature::getFullRecruitCost() const
+{
+	return cost;
+}
+
+bool CCreature::hasUpgrades() const 
+{
+	return !upgrades.empty();
 }
 
 std::string CCreature::getNameTranslated() const
@@ -255,7 +263,7 @@ bool CCreature::isDoubleWide() const
  */
 bool CCreature::isGood () const
 {
-	return (*VLC->townh)[faction]->alignment == EAlignment::GOOD;
+	return VLC->factions()->getByIndex(faction)->getAlignment() == EAlignment::GOOD;
 }
 
 /**
@@ -264,10 +272,10 @@ bool CCreature::isGood () const
  */
 bool CCreature::isEvil () const
 {
-	return (*VLC->townh)[faction]->alignment == EAlignment::EVIL;
+	return VLC->factions()->getByIndex(faction)->getAlignment() == EAlignment::EVIL;
 }
 
-si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatures can be bought
+si32 CCreature::maxAmount(const TResources &res) const //how many creatures can be bought
 {
 	int ret = 2147483645;
 	int resAmnt = static_cast<int>(std::min(res.size(),cost.size()));
@@ -283,9 +291,9 @@ CCreature::CCreature()
 	fightValue = AIValue = growth = hordeGrowth = ammMin = ammMax = 0;
 }
 
-void CCreature::addBonus(int val, Bonus::BonusType type, int subtype)
+void CCreature::addBonus(int val, BonusType type, int subtype)
 {
-	auto selector = Selector::typeSubtype(type, subtype).And(Selector::source(Bonus::CREATURE_ABILITY, getIndex()));
+	auto selector = Selector::typeSubtype(type, subtype).And(Selector::source(BonusSource::CREATURE_ABILITY, getIndex()));
 	BonusList & exported = getExportedBonusList();
 
 	BonusList existing;
@@ -293,7 +301,7 @@ void CCreature::addBonus(int val, Bonus::BonusType type, int subtype)
 
 	if(existing.empty())
 	{
-		auto added = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, getIndex(), subtype, Bonus::BASE_NUMBER);
+		auto added = std::make_shared<Bonus>(BonusDuration::PERMANENT, type, BonusSource::CREATURE_ABILITY, val, getIndex(), subtype, BonusValueType::BASE_NUMBER);
 		addNewBonus(added);
 	}
 	else
@@ -306,7 +314,7 @@ void CCreature::addBonus(int val, Bonus::BonusType type, int subtype)
 bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
 {
 	//TODO upgrade of upgrade?
-	return vstd::contains(upgrades, anotherCre->idNumber);
+	return vstd::contains(upgrades, anotherCre->getId());
 }
 
 bool CCreature::valid() const
@@ -317,24 +325,6 @@ bool CCreature::valid() const
 std::string CCreature::nodeName() const
 {
 	return "\"" + getNamePluralTextID() + "\"";
-}
-
-bool CCreature::isItNativeTerrain(TerrainId terrain) const
-{
-	auto native = getNativeTerrain();
-	return native == terrain || native == ETerrainId::ANY_TERRAIN;
-}
-
-TerrainId CCreature::getNativeTerrain() const
-{
-	const std::string cachingStringNoTerrainPenalty = "type_NO_TERRAIN_PENALTY_sANY";
-	static const auto selectorNoTerrainPenalty = Selector::typeSubtype(Bonus::NO_TERRAIN_PENALTY, static_cast<int>(ETerrainId::ANY_TERRAIN));
-
-	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
-	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
-	return hasBonus(selectorNoTerrainPenalty, cachingStringNoTerrainPenalty)
-		? TerrainId(ETerrainId::ANY_TERRAIN)
-		: (*VLC->townh)[faction]->nativeTerrain;
 }
 
 void CCreature::updateFrom(const JsonNode & data)
@@ -349,28 +339,28 @@ void CCreature::updateFrom(const JsonNode & data)
 		serializeJson(handler);
 
 		if(!configNode["hitPoints"].isNull())
-			addBonus(configNode["hitPoints"].Integer(), Bonus::STACK_HEALTH);
+			addBonus(configNode["hitPoints"].Integer(), BonusType::STACK_HEALTH);
 
 		if(!configNode["speed"].isNull())
-			addBonus(configNode["speed"].Integer(), Bonus::STACKS_SPEED);
+			addBonus(configNode["speed"].Integer(), BonusType::STACKS_SPEED);
 
 		if(!configNode["attack"].isNull())
-			addBonus(configNode["attack"].Integer(), Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
+			addBonus(configNode["attack"].Integer(), BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK);
 
 		if(!configNode["defense"].isNull())
-			addBonus(configNode["defense"].Integer(), Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
+			addBonus(configNode["defense"].Integer(), BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE);
 
 		if(!configNode["damage"]["min"].isNull())
-			addBonus(configNode["damage"]["min"].Integer(), Bonus::CREATURE_DAMAGE, 1);
+			addBonus(configNode["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, 1);
 
 		if(!configNode["damage"]["max"].isNull())
-			addBonus(configNode["damage"]["max"].Integer(), Bonus::CREATURE_DAMAGE, 2);
+			addBonus(configNode["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, 2);
 
 		if(!configNode["shots"].isNull())
-			addBonus(configNode["shots"].Integer(), Bonus::SHOTS);
+			addBonus(configNode["shots"].Integer(), BonusType::SHOTS);
 
 		if(!configNode["spellPoints"].isNull())
-			addBonus(configNode["spellPoints"].Integer(), Bonus::CASTS);
+			addBonus(configNode["spellPoints"].Integer(), BonusType::CASTS);
 	}
 
 
@@ -410,19 +400,12 @@ CCreatureHandler::CCreatureHandler()
 	: expAfterUpgrade(0)
 {
 	VLC->creh = this;
-
-	allCreatures.setDescription("All creatures");
-	allCreatures.setNodeType(CBonusSystemNode::ENodeTypes::ALL_CREATURES);
-	creaturesOfLevel[0].setDescription("Creatures of unnormalized tier");
-
-	for(int i = 1; i < ARRAY_COUNT(creaturesOfLevel); i++)
-		creaturesOfLevel[i].setDescription("Creatures of tier " + std::to_string(i));
 	loadCommanders();
 }
 
 const CCreature * CCreatureHandler::getCreature(const std::string & scope, const std::string & identifier) const
 {
-	boost::optional<si32> index = VLC->modh->identifiers.getIdentifier(scope, "creature", identifier);
+	std::optional<si32> index = VLC->modh->identifiers.getIdentifier(scope, "creature", identifier);
 
 	if(!index)
 		throw std::runtime_error("Creature not found "+identifier);
@@ -613,23 +596,23 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	JsonDeserializer handler(nullptr, node);
 	cre->serializeJson(handler);
 
-	cre->cost = Res::ResourceSet(node["cost"]);
+	cre->cost = ResourceSet(node["cost"]);
 
 	VLC->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"].String());
 	VLC->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"].String());
 
-	cre->addBonus(node["hitPoints"].Integer(), Bonus::STACK_HEALTH);
-	cre->addBonus(node["speed"].Integer(), Bonus::STACKS_SPEED);
-	cre->addBonus(node["attack"].Integer(), Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
-	cre->addBonus(node["defense"].Integer(), Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
+	cre->addBonus(node["hitPoints"].Integer(), BonusType::STACK_HEALTH);
+	cre->addBonus(node["speed"].Integer(), BonusType::STACKS_SPEED);
+	cre->addBonus(node["attack"].Integer(), BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK);
+	cre->addBonus(node["defense"].Integer(), BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE);
 
-	cre->addBonus(node["damage"]["min"].Integer(), Bonus::CREATURE_DAMAGE, 1);
-	cre->addBonus(node["damage"]["max"].Integer(), Bonus::CREATURE_DAMAGE, 2);
+	cre->addBonus(node["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, 1);
+	cre->addBonus(node["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, 2);
 
 	assert(node["damage"]["min"].Integer() <= node["damage"]["max"].Integer());
 
 	if(!node["shots"].isNull())
-		cre->addBonus(node["shots"].Integer(), Bonus::SHOTS);
+		cre->addBonus(node["shots"].Integer(), BonusType::SHOTS);
 
 	loadStackExperience(cre, node["stackExperience"]);
 	loadJsonAnimation(cre, node["graphics"]);
@@ -641,23 +624,31 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 			registerObject(scope, type_name, extraName.String(), cre->getIndex());
 	}
 
+	JsonNode advMapFile = node["graphics"]["map"];
+	JsonNode advMapMask = node["graphics"]["mapMask"];
+
 	VLC->modh->identifiers.requestIdentifier(scope, "object", "monster", [=](si32 index)
 	{
 		JsonNode conf;
 		conf.setMeta(scope);
 
-		VLC->objtypeh->loadSubObject(cre->identifier, conf, Obj::MONSTER, cre->idNumber.num);
-		if (!cre->advMapDef.empty())
+		VLC->objtypeh->loadSubObject(cre->identifier, conf, Obj::MONSTER, cre->getId().num);
+		if (!advMapFile.isNull())
 		{
 			JsonNode templ;
-			templ["animation"].String() = cre->advMapDef;
+			templ["animation"] = advMapFile;
+			if (!advMapMask.isNull())
+				templ["mask"] = advMapMask;
 			templ.setMeta(scope);
-			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->idNumber.num)->addTemplate(templ);
+
+			// if creature has custom advMapFile, reset any potentially imported H3M templates and use provided file instead
+			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->clearTemplates();
+			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->addTemplate(templ);
 		}
 
 		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
-		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->idNumber.num)->getTemplates().empty())
-			VLC->objtypeh->removeSubObject(Obj::MONSTER, cre->idNumber.num);
+		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->getTemplates().empty())
+			VLC->objtypeh->removeSubObject(Obj::MONSTER, cre->getId().num);
 	});
 
 	return cre;
@@ -681,17 +672,86 @@ std::vector<bool> CCreatureHandler::getDefaultAllowed() const
 	return ret;
 }
 
-void CCreatureHandler::loadCrExpBon()
+void CCreatureHandler::loadCrExpMod()
+{
+	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience values
+	{
+		//Calculate rank exp values, formula appears complicated bu no parsing needed
+		expRanks.resize(8);
+		int dif = 0;
+		int it = 8000; //ignore name of this variable
+		expRanks[0].push_back(it);
+		for (int j = 1; j < 10; ++j) //used for tiers 8-10, and all other probably
+		{
+			expRanks[0].push_back(expRanks[0][j-1] + it + dif);
+			dif += it/5;
+		}
+		for (int i = 1; i < 8; ++i) //used for tiers 1-7
+		{
+			dif = 0;
+			it = 1000 * i;
+			expRanks[i].push_back(it);
+			for (int j = 1; j < 10; ++j)
+			{
+				expRanks[i].push_back(expRanks[i][j-1] + it + dif);
+				dif += it/5;
+			}
+		}
+
+		CLegacyConfigParser expBonParser("DATA/CREXPMOD.TXT");
+
+		expBonParser.endLine(); //header
+
+		maxExpPerBattle.resize(8);
+		for (int i = 1; i < 8; ++i)
+		{
+			expBonParser.readString(); //index
+			expBonParser.readString(); //float multiplier -> hardcoded
+			expBonParser.readString(); //ignore upgrade mod? ->hardcoded
+			expBonParser.readString(); //already calculated
+
+			maxExpPerBattle[i] = static_cast<ui32>(expBonParser.readNumber());
+			expRanks[i].push_back(expRanks[i].back() + static_cast<ui32>(expBonParser.readNumber()));
+
+			expBonParser.endLine();
+		}
+		//skeleton gets exp penalty
+		objects[56].get()->addBonus(-50, BonusType::EXP_MULTIPLIER, -1);
+		objects[57].get()->addBonus(-50, BonusType::EXP_MULTIPLIER, -1);
+		//exp for tier >7, rank 11
+		expRanks[0].push_back(147000);
+		expAfterUpgrade = 75; //percent
+		maxExpPerBattle[0] = maxExpPerBattle[7];
+	}
+}
+
+
+void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 {
 	if (VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience bonuses
 	{
+		logGlobal->debug("\tLoading stack experience bonuses");
+		auto addBonusForAllCreatures = [&](std::shared_ptr<Bonus> b) {
+			auto limiter = std::make_shared<CreatureLevelLimiter>();
+			b->addLimiter(limiter);
+			globalEffects.addNewBonus(b);
+		};
+		auto addBonusForTier = [&](int tier, std::shared_ptr<Bonus> b) {
+			assert(vstd::iswithin(tier, 1, 7));
+			//bonuses from level 7 are given to high-level creatures too
+			auto max = tier == GameConstants::CREATURES_PER_TOWN ? std::numeric_limits<int>::max() : tier + 1;
+			auto limiter = std::make_shared<CreatureLevelLimiter>(tier, max);
+			b->addLimiter(limiter);
+			globalEffects.addNewBonus(b);
+		};
+
 		CLegacyConfigParser parser("DATA/CREXPBON.TXT");
 
 		Bonus b; //prototype with some default properties
-		b.source = Bonus::STACK_EXPERIENCE;
-		b.duration = Bonus::PERMANENT;
-		b.valType = Bonus::ADDITIVE_VALUE;
-		b.effectRange = Bonus::NO_LIMIT;
+		b.source = BonusSource::STACK_EXPERIENCE;
+		b.duration = BonusDuration::PERMANENT;
+		b.valType = BonusValueType::ADDITIVE_VALUE;
+		b.effectRange = BonusLimitEffect::NO_LIMIT;
 		b.additionalInfo = 0;
 		b.turnsRemain = 0;
 		BonusList bl;
@@ -722,10 +782,7 @@ void CCreatureHandler::loadCrExpBon()
 			bl.clear();
 			loadStackExp(b, bl, parser);
 			for(const auto & b : bl)
-			{
 				addBonusForTier(7, b);
-				creaturesOfLevel[0].addNewBonus(b); //bonuses from level 7 are given to high-level creatures
-			}
 			parser.endLine();
 		}
 		do //parse everything that's left
@@ -741,53 +798,6 @@ void CCreatureHandler::loadCrExpBon()
 			}
 		}
 		while (parser.endLine());
-
-		//Calculate rank exp values, formula appears complicated bu no parsing needed
-		expRanks.resize(8);
-		int dif = 0;
-		int it = 8000; //ignore name of this variable
-		expRanks[0].push_back(it);
-		for (int j = 1; j < 10; ++j) //used for tiers 8-10, and all other probably
-		{
-			expRanks[0].push_back(expRanks[0][j-1] + it + dif);
-			dif += it/5;
-		}
-		for (int i = 1; i < 8; ++i)
-		{
-			dif = 0;
-			it = 1000 * i;
-			expRanks[i].push_back(it);
-			for (int j = 1; j < 10; ++j)
-			{
-				expRanks[i].push_back(expRanks[i][j-1] + it + dif);
-				dif += it/5;
-			}
-		}
-
-		CLegacyConfigParser expBonParser("DATA/CREXPMOD.TXT");
-
-		expBonParser.endLine(); //header
-
-		maxExpPerBattle.resize(8);
-		for (int i = 1; i < 8; ++i)
-		{
-			expBonParser.readString(); //index
-			expBonParser.readString(); //float multiplier -> hardcoded
-			expBonParser.readString(); //ignore upgrade mod? ->hardcoded
-			expBonParser.readString(); //already calculated
-
-			maxExpPerBattle[i] = static_cast<ui32>(expBonParser.readNumber());
-			expRanks[i].push_back(expRanks[i].back() + static_cast<ui32>(expBonParser.readNumber()));
-
-			expBonParser.endLine();
-		}
-		//skeleton gets exp penalty
-		objects[56].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
-		objects[57].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
-		//exp for tier >7, rank 11
-		expRanks[0].push_back(147000);
-		expAfterUpgrade = 75; //percent
-		maxExpPerBattle[0] = maxExpPerBattle[7];
 
 	}//end of Stack Experience
 }
@@ -868,7 +878,6 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 	cre->animation.attackClimaxFrame = static_cast<int>(missile["attackClimaxFrame"].Float());
 	cre->animation.missleFrameAngles = missile["frameAngles"].convertTo<std::vector<double> >();
 
-	cre->advMapDef = graphics["map"].String();
 	cre->smallIconName = graphics["iconSmall"].String();
 	cre->largeIconName = graphics["iconLarge"].String();
 }
@@ -885,9 +894,9 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 			if (!ability.second.isNull())
 			{
 				auto b = JsonUtils::parseBonus(ability.second);
-				b->source = Bonus::CREATURE_ABILITY;
+				b->source = BonusSource::CREATURE_ABILITY;
 				b->sid = creature->getIndex();
-				b->duration = Bonus::PERMANENT;
+				b->duration = BonusDuration::PERMANENT;
 				creature->addNewBonus(b);
 			}
 		}
@@ -903,9 +912,9 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 			else
 			{
 				auto b = JsonUtils::parseBonus(ability);
-				b->source = Bonus::CREATURE_ABILITY;
+				b->source = BonusSource::CREATURE_ABILITY;
 				b->sid = creature->getIndex();
-				b->duration = Bonus::PERMANENT;
+				b->duration = BonusDuration::PERMANENT;
 				creature->addNewBonus(b);
 			}
 		}
@@ -913,7 +922,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 
 	VLC->modh->identifiers.requestIdentifier("faction", config["faction"], [=](si32 faction)
 	{
-		creature->faction = faction;
+		creature->faction = FactionID(faction);
 	});
 
 	for(const JsonNode &value : config["upgrades"].Vector())
@@ -975,8 +984,8 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					// we can not create copies since identifiers resolution does not tracks copies
 					// leading to unset identifier values in copies
 					auto bonus = JsonUtils::parseBonus (exp["bonus"]);
-					bonus->source = Bonus::STACK_EXPERIENCE;
-					bonus->duration = Bonus::PERMANENT;
+					bonus->source = BonusSource::STACK_EXPERIENCE;
+					bonus->duration = BonusDuration::PERMANENT;
 					bonus->limiter = std::make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
 					creature->addNewBonus (bonus);
 					break; //TODO: allow bonuses to turn off?
@@ -995,8 +1004,8 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					bonusInput["val"].Float() = static_cast<int>(val.Float()) - lastVal;
 
 					auto bonus = JsonUtils::parseBonus (bonusInput);
-					bonus->source = Bonus::STACK_EXPERIENCE;
-					bonus->duration = Bonus::PERMANENT;
+					bonus->source = BonusSource::STACK_EXPERIENCE;
+					bonus->duration = BonusDuration::PERMANENT;
 					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
 					creature->addNewBonus (bonus);
 				}
@@ -1016,55 +1025,55 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	switch (buf[0])
 	{
 	case 'H':
-		b.type = Bonus::STACK_HEALTH;
-		b.valType = Bonus::PERCENT_TO_BASE;
+		b.type = BonusType::STACK_HEALTH;
+		b.valType = BonusValueType::PERCENT_TO_BASE;
 		break;
 	case 'A':
-		b.type = Bonus::PRIMARY_SKILL;
+		b.type = BonusType::PRIMARY_SKILL;
 		b.subtype = PrimarySkill::ATTACK;
 		break;
 	case 'D':
-		b.type = Bonus::PRIMARY_SKILL;
+		b.type = BonusType::PRIMARY_SKILL;
 		b.subtype = PrimarySkill::DEFENSE;
 		break;
 	case 'M': //Max damage
-		b.type = Bonus::CREATURE_DAMAGE;
+		b.type = BonusType::CREATURE_DAMAGE;
 		b.subtype = 2;
 		break;
 	case 'm': //Min damage
-		b.type = Bonus::CREATURE_DAMAGE;
+		b.type = BonusType::CREATURE_DAMAGE;
 		b.subtype = 1;
 		break;
 	case 'S':
-		b.type = Bonus::STACKS_SPEED; break;
+		b.type = BonusType::STACKS_SPEED; break;
 	case 'O':
-		b.type = Bonus::SHOTS; break;
+		b.type = BonusType::SHOTS; break;
 	case 'b':
-		b.type = Bonus::ENEMY_DEFENCE_REDUCTION; break;
+		b.type = BonusType::ENEMY_DEFENCE_REDUCTION; break;
 	case 'C':
-		b.type = Bonus::CHANGES_SPELL_COST_FOR_ALLY; break;
+		b.type = BonusType::CHANGES_SPELL_COST_FOR_ALLY; break;
 	case 'd':
-		b.type = Bonus::DEFENSIVE_STANCE; break;
+		b.type = BonusType::DEFENSIVE_STANCE; break;
 	case 'e':
-		b.type = Bonus::DOUBLE_DAMAGE_CHANCE;
+		b.type = BonusType::DOUBLE_DAMAGE_CHANCE;
 		b.subtype = 0;
 		break;
 	case 'E':
-		b.type = Bonus::DEATH_STARE;
+		b.type = BonusType::DEATH_STARE;
 		b.subtype = 0; //Gorgon
 		break;
 	case 'F':
-		b.type = Bonus::FEAR; break;
+		b.type = BonusType::FEAR; break;
 	case 'g':
-		b.type = Bonus::SPELL_DAMAGE_REDUCTION;
-		b.subtype = -1; //all magic schools
+		b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+		b.subtype = SpellSchool(ESpellSchool::ANY);
 		break;
 	case 'P':
-		b.type = Bonus::CASTS; break;
+		b.type = BonusType::CASTS; break;
 	case 'R':
-		b.type = Bonus::ADDITIONAL_RETALIATION; break;
+		b.type = BonusType::ADDITIONAL_RETALIATION; break;
 	case 'W':
-		b.type = Bonus::MAGIC_RESISTANCE;
+		b.type = BonusType::MAGIC_RESISTANCE;
 		b.subtype = 0; //otherwise creature window goes crazy
 		break;
 	case 'f': //on-off skill
@@ -1072,44 +1081,44 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		switch (mod[0])
 		{
 			case 'A':
-				b.type = Bonus::ATTACKS_ALL_ADJACENT; break;
+				b.type = BonusType::ATTACKS_ALL_ADJACENT; break;
 			case 'b':
-				b.type = Bonus::RETURN_AFTER_STRIKE; break;
+				b.type = BonusType::RETURN_AFTER_STRIKE; break;
 			case 'B':
-				b.type = Bonus::TWO_HEX_ATTACK_BREATH; break;
+				b.type = BonusType::TWO_HEX_ATTACK_BREATH; break;
 			case 'c':
-				b.type = Bonus::JOUSTING; 
+				b.type = BonusType::JOUSTING; 
 				b.val = 5;
 				break;
 			case 'D':
-				b.type = Bonus::ADDITIONAL_ATTACK; break;
+				b.type = BonusType::ADDITIONAL_ATTACK; break;
 			case 'f':
-				b.type = Bonus::FEARLESS; break;
+				b.type = BonusType::FEARLESS; break;
 			case 'F':
-				b.type = Bonus::FLYING; break;
+				b.type = BonusType::FLYING; break;
 			case 'm':
-				b.type = Bonus::MORALE; break;
+				b.type = BonusType::MORALE;
 				b.val = 1;
-				b.valType = Bonus::INDEPENDENT_MAX;
+				b.valType = BonusValueType::INDEPENDENT_MAX;
 				break;
 			case 'M':
-				b.type = Bonus::NO_MORALE; break;
+				b.type = BonusType::NO_MORALE; break;
 			case 'p': //Mind spells
 			case 'P':
-				b.type = Bonus::MIND_IMMUNITY; break;
+				b.type = BonusType::MIND_IMMUNITY; break;
 			case 'r':
-				b.type = Bonus::REBIRTH; //on/off? makes sense?
+				b.type = BonusType::REBIRTH; //on/off? makes sense?
 				b.subtype = 0;
 				b.val = 20; //arbitrary value
 				break;
 			case 'R':
-				b.type = Bonus::BLOCKS_RETALIATION; break;
+				b.type = BonusType::BLOCKS_RETALIATION; break;
 			case 's':
-				b.type = Bonus::FREE_SHOOTING; break;
+				b.type = BonusType::FREE_SHOOTING; break;
 			case 'u':
-				b.type = Bonus::SPELL_RESISTANCE_AURA; break;
+				b.type = BonusType::SPELL_RESISTANCE_AURA; break;
 			case 'U':
-				b.type = Bonus::UNDEAD; break;
+				b.type = BonusType::UNDEAD; break;
 			default:
 				logGlobal->trace("Not parsed bonus %s %s", buf, mod);
 				return;
@@ -1121,42 +1130,42 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		switch (mod[0])
 		{
 			case 'B': //Blind
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::BLIND;
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'H': //Hypnotize
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::HYPNOTIZE;
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'I': //Implosion
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::IMPLOSION;
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'K': //Berserk
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::BERSERK;
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'M': //Meteor Shower
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::METEOR_SHOWER;
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'N': //dispell beneficial spells
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::DISPEL_HELPFUL_SPELLS;
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'R': //Armageddon
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::ARMAGEDDON;
 				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'S': //Slow
-				b.type = Bonus::SPELL_IMMUNITY;
+				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = SpellID::SLOW;
 				b.additionalInfo = 0;//normal immunity
 				break;
@@ -1164,61 +1173,67 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case '7':
 			case '8':
 			case '9':
-				b.type = Bonus::LEVEL_SPELL_IMMUNITY;
+				b.type = BonusType::LEVEL_SPELL_IMMUNITY;
 				b.val = std::atoi(mod.c_str()) - 5;
 				break;
 			case ':':
-				b.type = Bonus::LEVEL_SPELL_IMMUNITY;
+				b.type = BonusType::LEVEL_SPELL_IMMUNITY;
 				b.val = GameConstants::SPELL_LEVELS; //in case someone adds higher level spells?
 				break;
 			case 'F':
-				b.type = Bonus::FIRE_IMMUNITY;
+				b.type = BonusType::FIRE_IMMUNITY;
 				b.subtype = 1; //not positive
 				break;
 			case 'O':
-				b.type = Bonus::FIRE_IMMUNITY;
-				b.subtype = 2; //only direct damage
+				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				b.subtype = SpellSchool(ESpellSchool::FIRE);
+				b.val = 100; //Full damage immunity
 				break;
 			case 'f':
-				b.type = Bonus::FIRE_IMMUNITY;
+				b.type = BonusType::FIRE_IMMUNITY;
 				b.subtype = 0; //all
 				break;
 			case 'C':
-				b.type = Bonus::WATER_IMMUNITY;
+				b.type = BonusType::WATER_IMMUNITY;
 				b.subtype = 1; //not positive
 				break;
 			case 'W':
-				b.type = Bonus::WATER_IMMUNITY;
-				b.subtype = 2; //only direct damage
+				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				b.subtype = SpellSchool(ESpellSchool::WATER);
+				b.val = 100; //Full damage immunity
 				break;
 			case 'w':
-				b.type = Bonus::WATER_IMMUNITY;
+				b.type = BonusType::WATER_IMMUNITY;
 				b.subtype = 0; //all
 				break;
 			case 'E':
-				b.type = Bonus::EARTH_IMMUNITY;
-				b.subtype = 2; //only direct damage
+				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				b.subtype = SpellSchool(ESpellSchool::EARTH);
+				b.val = 100; //Full damage immunity
 				break;
 			case 'e':
-				b.type = Bonus::EARTH_IMMUNITY;
+				b.type = BonusType::EARTH_IMMUNITY;
 				b.subtype = 0; //all
 				break;
 			case 'A':
-				b.type = Bonus::AIR_IMMUNITY;
-				b.subtype = 2; //only direct damage
+				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				b.subtype = SpellSchool(ESpellSchool::AIR);
+				b.val = 100; //Full damage immunity
 				break;
 			case 'a':
-				b.type = Bonus::AIR_IMMUNITY;
+				b.type = BonusType::AIR_IMMUNITY;
 				b.subtype = 0; //all
 				break;
 			case 'D':
-				b.type = Bonus::DIRECT_DAMAGE_IMMUNITY;
+				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
+				b.subtype = SpellSchool(ESpellSchool::ANY);
+				b.val = 100; //Full damage immunity
 				break;
 			case '0':
-				b.type = Bonus::RECEPTIVE;
+				b.type = BonusType::RECEPTIVE;
 				break;
 			case 'm':
-				b.type = Bonus::MIND_IMMUNITY;
+				b.type = BonusType::MIND_IMMUNITY;
 				break;
 			default:
 				logGlobal->trace("Not parsed bonus %s %s", buf, mod);
@@ -1228,38 +1243,38 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 
 	case 'i':
 		enable = true;
-		b.type = Bonus::NO_DISTANCE_PENALTY;
+		b.type = BonusType::NO_DISTANCE_PENALTY;
 		break;
 	case 'o':
 		enable = true;
-		b.type = Bonus::NO_WALL_PENALTY;
+		b.type = BonusType::NO_WALL_PENALTY;
 		break;
 
 	case 'a':
 	case 'c':
 	case 'K':
 	case 'k':
-		b.type = Bonus::SPELL_AFTER_ATTACK;
+		b.type = BonusType::SPELL_AFTER_ATTACK;
 		b.subtype = stringToNumber(mod);
 		break;
 	case 'h':
-		b.type= Bonus::HATE;
+		b.type = BonusType::HATE;
 		b.subtype = stringToNumber(mod);
 		break;
 	case 'p':
 	case 'J':
-		b.type = Bonus::SPELL_BEFORE_ATTACK;
+		b.type = BonusType::SPELL_BEFORE_ATTACK;
 		b.subtype = stringToNumber(mod);
 		b.additionalInfo = 3; //always expert?
 		break;
 	case 'r':
-		b.type = Bonus::HP_REGENERATION;
+		b.type = BonusType::HP_REGENERATION;
 		b.val = stringToNumber(mod);
 		break;
 	case 's':
-		b.type = Bonus::ENCHANTED;
+		b.type = BonusType::ENCHANTED;
 		b.subtype = stringToNumber(mod);
-		b.valType = Bonus::INDEPENDENT_MAX;
+		b.valType = BonusValueType::INDEPENDENT_MAX;
 		break;
 	default:
 		logGlobal->trace("Not parsed bonus %s %s", buf, mod);
@@ -1270,7 +1285,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	{
 		case '+':
 		case '=': //should we allow percent values to stack or pick highest?
-			b.valType = Bonus::ADDITIVE_VALUE;
+			b.valType = BonusValueType::ADDITIVE_VALUE;
 			break;
 	}
 
@@ -1281,7 +1296,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 
 	if (enable) //0 and 2 means non-active, 1 - active
 	{
-		if (b.type != Bonus::REBIRTH)
+		if (b.type != BonusType::REBIRTH)
 			b.val = 0; //on-off ability, no value specified
 		parser.readNumber(); // 0 level is never active
 		for (int i = 1; i < 11; ++i)
@@ -1298,13 +1313,13 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	else
 	{
 		lastVal = static_cast<si32>(parser.readNumber());
-		if (b.type == Bonus::HATE)
+		if (b.type == BonusType::HATE)
 			lastVal *= 10; //odd fix
 		//FIXME: value for zero level should be stored in our config files (independent of stack exp)
 		for (int i = 1; i < 11; ++i)
 		{
 			curVal = static_cast<si32>(parser.readNumber());
-			if (b.type == Bonus::HATE)
+			if (b.type == BonusType::HATE)
 				curVal *= 10; //odd fix
 			if (curVal > lastVal) //threshold, add new bonus
 			{
@@ -1342,19 +1357,17 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 	{
 		do
 		{
-			r = (*RandomGeneratorUtil::nextItem(objects, rand))->idNumber;
+			r = (*RandomGeneratorUtil::nextItem(objects, rand))->getId();
 		} while (objects[r] && objects[r]->special); // find first "not special" creature
 	}
 	else
 	{
 		assert(vstd::iswithin(tier, 1, 7));
 		std::vector<CreatureID> allowed;
-		for(const CBonusSystemNode *b : creaturesOfLevel[tier].getChildrenNodes())
+		for(const auto & creature : objects)
 		{
-			assert(b->getNodeType() == CBonusSystemNode::CREATURE);
-			const auto * crea = dynamic_cast<const CCreature *>(b);
-			if(crea && !crea->special)
-				allowed.push_back(crea->idNumber);
+			if(!creature->special && creature->level == tier)
+				allowed.push_back(creature->getId());
 		}
 
 		if(allowed.empty())
@@ -1369,49 +1382,10 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 	return CreatureID(r);
 }
 
-void CCreatureHandler::addBonusForTier(int tier, const std::shared_ptr<Bonus> & b)
-{
-	assert(vstd::iswithin(tier, 1, 7));
-	creaturesOfLevel[tier].addNewBonus(b);
-}
-
-void CCreatureHandler::addBonusForAllCreatures(const std::shared_ptr<Bonus> & b)
-{
-	const auto & exportedBonuses = allCreatures.getExportedBonusList();
-	for(const auto & bonus : exportedBonuses)
-	{
-		if(bonus->type == b->type && bonus->subtype == b->subtype)
-			return;
-	}
-	allCreatures.addNewBonus(b);
-}
-
-void CCreatureHandler::removeBonusesFromAllCreatures()
-{
-	allCreatures.removeBonuses(Selector::all);
-}
-
-void CCreatureHandler::buildBonusTreeForTiers()
-{
-	for(CCreature * c : objects)
-	{
-		if(vstd::isbetween(c->level, 0, ARRAY_COUNT(creaturesOfLevel)))
-			c->attachTo(creaturesOfLevel[c->level]);
-		else
-			c->attachTo(creaturesOfLevel[0]);
-	}
-	for(CBonusSystemNode &b : creaturesOfLevel)
-		b.attachTo(allCreatures);
-}
 
 void CCreatureHandler::afterLoadFinalization()
 {
 
-}
-
-void CCreatureHandler::deserializationFix()
-{
-	buildBonusTreeForTiers();
 }
 
 VCMI_LIB_NAMESPACE_END

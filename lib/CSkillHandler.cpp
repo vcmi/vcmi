@@ -90,9 +90,9 @@ SecondarySkill CSkill::getId() const
 
 void CSkill::addNewBonus(const std::shared_ptr<Bonus> & b, int level)
 {
-	b->source = Bonus::SECONDARY_SKILL;
+	b->source = BonusSource::SECONDARY_SKILL;
 	b->sid = id;
-	b->duration = Bonus::PERMANENT;
+	b->duration = BonusDuration::PERMANENT;
 	b->description = getNameTranslated();
 	levels[level-1].effects.push_back(b);
 }
@@ -199,6 +199,8 @@ CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode &
 	auto * skill = new CSkill(SecondarySkill((si32)index), identifier, major, minor);
 	skill->modScope = scope;
 
+	skill->onlyOnWaterMap = json["onlyOnWaterMap"].Bool();
+
 	VLC->generaltexth->registerString(scope, skill->getNameTextID(), json["name"].String());
 	switch(json["gainChance"].getType())
 	{
@@ -262,7 +264,7 @@ si32 CSkillHandler::decodeSkill(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "skill", identifier);
 	if(rawId)
-		return rawId.get();
+		return rawId.value();
 	else
 		return -1;
 }

@@ -19,8 +19,10 @@
 #include "IHandlerBase.h"
 #include "LogicalExpression.h"
 #include "battle/BattleHex.h"
-#include "HeroBonus.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/BonusList.h"
 #include "Point.h"
+#include "rewardable/Info.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -43,7 +45,7 @@ class DLL_LINKAGE CBuilding
 	std::string identifier;
 
 public:
-	typedef LogicalExpression<BuildingID> TRequired;
+	using TRequired = LogicalExpression<BuildingID>;
 
 	CTown * town; // town this building belongs to
 	TResources resources;
@@ -56,6 +58,8 @@ public:
 	std::set<BuildingID> overrideBids; /// the building which bonuses should be overridden with bonuses of the current building
 	BonusList buildingBonuses;
 	BonusList onVisitBonuses;
+	
+	Rewardable::Info rewardableObjectInfo; ///configurable rewards for special buildings
 
 	enum EBuildMode
 	{
@@ -84,6 +88,7 @@ public:
 	std::string getNameTranslated() const;
 	std::string getDescriptionTranslated() const;
 
+	std::string getBaseTextID() const;
 	std::string getNameTextID() const;
 	std::string getDescriptionTextID() const;
 
@@ -134,6 +139,7 @@ public:
 		h & overrideBids;
 		h & buildingBonuses;
 		h & onVisitBonuses;
+		h & rewardableObjectInfo;
 	}
 
 	friend class CTownHandler;
@@ -190,12 +196,19 @@ class DLL_LINKAGE CFaction : public Faction
 	std::string modScope;
 	std::string identifier;
 
-	TFaction index = 0;
+	FactionID index = FactionID::NEUTRAL;
+
+	FactionID getFaction() const override; //This function should not be used
 
 public:
 	TerrainId nativeTerrain;
-	EAlignment::EAlignment alignment = EAlignment::NEUTRAL;
+	EAlignment alignment = EAlignment::NEUTRAL;
 	bool preferUndergroundPlacement = false;
+
+	/// Boat that will be used by town shipyard (if any)
+	/// and for placing heroes directly on boat (in map editor, water prisons & taverns)
+	BoatId boatType = BoatId(EBoatId::CASTLE);
+
 
 	CTown * town = nullptr; //NOTE: can be null
 
@@ -217,6 +230,9 @@ public:
 	std::string getNameTextID() const override;
 
 	bool hasTown() const override;
+	TerrainId getNativeTerrain() const override;
+	EAlignment getAlignment() const override;
+	EBoatId getBoatType() const override;
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
@@ -227,6 +243,7 @@ public:
 		h & identifier;
 		h & index;
 		h & nativeTerrain;
+		h & boatType;
 		h & alignment;
 		h & town;
 		h & creatureBg120;
@@ -269,10 +286,10 @@ public:
 	// should be removed at least from configs in favor of auto-detection
 	std::map<int,int> hordeLvl; //[0] - first horde building creature level; [1] - second horde building (-1 if not present)
 	ui32 mageLevel; //max available mage guild level
-	ui16 primaryRes;
+	GameResID primaryRes;
 	ArtifactID warMachine;
-	si32 moatDamage;
-	std::vector<BattleHex> moatHexes;
+	SpellID moatAbility;
+
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
 	// resulting chance = sqrt(town.chance * heroClass.chance)
 	ui32 defaultTavernChance;
@@ -339,8 +356,7 @@ public:
 		h & primaryRes;
 		h & warMachine;
 		h & clientInfo;
-		h & moatDamage;
-		h & moatHexes;
+		h & moatAbility;
 		h & defaultTavernChance;
 	}
 	
@@ -373,10 +389,10 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	void loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source);
 	void loadBuildings(CTown * town, const JsonNode & source);
 
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, Bonus::BonusType type, int val, int subtype = -1) const;
-	std::shared_ptr<Bonus> createBonus(CBuilding * build, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype = -1) const;
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, int subtype = -1) const;
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, BonusType type, int val, TPropagatorPtr & prop, int subtype = -1) const;
 	std::shared_ptr<Bonus> createBonusImpl(const BuildingID & building,
-												  Bonus::BonusType type,
+												  BonusType type,
 												  int val,
 												  TPropagatorPtr & prop,
 												  const std::string & description,
@@ -421,7 +437,7 @@ public:
 	void afterLoadFinalization() override;
 
 	std::vector<bool> getDefaultAllowed() const override;
-	std::set<TFaction> getAllowedFactions(bool withTown = true) const;
+	std::set<FactionID> getAllowedFactions(bool withTown = true) const;
 
 	static void loadSpecialBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building);
 

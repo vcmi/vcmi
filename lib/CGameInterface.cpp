@@ -152,14 +152,6 @@ std::shared_ptr<scripting::Module> CDynLibHandler::getNewScriptingModule(const b
 }
 #endif
 
-BattleAction CGlobalAI::activeStack(const CStack * stack)
-{
-	BattleAction ba;
-	ba.actionType = EActionType::DEFEND;
-	ba.stackNumber = stack->ID;
-	return ba;
-}
-
 CGlobalAI::CGlobalAI()
 {
 	human = false;
@@ -176,13 +168,13 @@ void CAdventureAI::battleCatapultAttacked(const CatapultAttack & ca)
 }
 
 void CAdventureAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile,
-							   const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side)
+							   const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
 {
 	assert(!battleAI);
 	assert(cbc);
 	battleAI = CDynLibHandler::getNewBattleAI(getBattleAIName());
 	battleAI->initBattleInterface(env, cbc);
-	battleAI->battleStart(army1, army2, tile, hero1, hero2, side);
+	battleAI->battleStart(army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
 
 void CAdventureAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged)
@@ -230,9 +222,9 @@ void CAdventureAI::battleSpellCast(const BattleSpellCast * sc)
 	battleAI->battleSpellCast(sc);
 }
 
-void CAdventureAI::battleEnd(const BattleResult * br)
+void CAdventureAI::battleEnd(const BattleResult * br, QueryID queryID)
 {
-	battleAI->battleEnd(br);
+	battleAI->battleEnd(br, queryID);
 	battleAI.reset();
 }
 
@@ -241,9 +233,9 @@ void CAdventureAI::battleUnitsChanged(const std::vector<UnitChanges> & units)
 	battleAI->battleUnitsChanged(units);
 }
 
-BattleAction CAdventureAI::activeStack(const CStack * stack)
+void CAdventureAI::activeStack(const CStack * stack)
 {
-	return battleAI->activeStack(stack);
+	battleAI->activeStack(stack);
 }
 
 void CAdventureAI::yourTacticPhase(int distance)

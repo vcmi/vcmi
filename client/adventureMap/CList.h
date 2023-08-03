@@ -9,9 +9,7 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
-
-#include "../widgets/ObjectLists.h"
+#include "../widgets/Scrollable.h"
 #include "../../lib/FunctionList.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -21,10 +19,12 @@ class CGTownInstance;
 
 VCMI_LIB_NAMESPACE_END
 
+class CListBox;
 class CButton;
+class CAnimImage;
 
 /// Base UI Element for hero\town lists
-class CList : public CIntObject
+class CList : public Scrollable
 {
 protected:
 	class CListItem : public CIntObject, public std::enable_shared_from_this<CListItem>
@@ -35,8 +35,8 @@ protected:
 		CListItem(CList * parent);
 		~CListItem();
 
-		void clickRight(tribool down, bool previousState) override;
-		void clickLeft(tribool down, bool previousState) override;
+		void showPopupWindow(const Point & cursorPosition) override;
+		void clickPressed(const Point & cursorPosition) override;
 		void hover(bool on) override;
 		void onSelect(bool on);
 
@@ -53,22 +53,8 @@ protected:
 		virtual std::string getHoverText()=0;
 	};
 
-	std::shared_ptr<CListBox> listBox;
+private:
 	const size_t size;
-
-	/**
-	 * @brief CList - protected constructor
-	 * @param size - maximal amount of visible at once items
-	 * @param position - cordinates
-	 * @param btnUp - path to image to use as top button
-	 * @param btnDown - path to image to use as bottom button
-	 * @param listAmount - amount of items in the list
-	 * @param helpUp - index in zelp.txt for button help tooltip
-	 * @param helpDown - index in zelp.txt for button help tooltip
-	 * @param create - function for creating items in listbox
-	 * @param destroy - function for deleting items in listbox
-	 */
-	CList(int size, Point position, std::string btnUp, std::string btnDown, size_t listAmount, int helpUp, int helpDown, CListBox::CreateFunc create);
 
 	//for selection\deselection
 	std::shared_ptr<CListItem> selected;
@@ -77,6 +63,19 @@ protected:
 
 	std::shared_ptr<CButton> scrollUp;
 	std::shared_ptr<CButton> scrollDown;
+
+	void scrollBy(int distance) override;
+	void scrollPrev() override;
+	void scrollNext() override;
+
+protected:
+	std::shared_ptr<CListBox> listBox;
+
+	CList(int size, Rect widgetDimensions);
+
+	void createList(Point firstItemPosition, Point itemPositionDelta, size_t listAmount);
+
+	virtual std::shared_ptr<CIntObject> createItem(size_t index) = 0;
 
 	/// should be called when list is invalidated
 	void update();
@@ -88,10 +87,16 @@ public:
 	/// return index of currently selected element
 	int getSelectedIndex();
 
+	void setScrollUpButton(std::shared_ptr<CButton> button);
+	void setScrollDownButton(std::shared_ptr<CButton> button);
+
+
 	/// set of methods to switch selection
 	void selectIndex(int which);
 	void selectNext();
 	void selectPrev();
+
+	void showAll(Canvas & to) override;
 };
 
 /// List of heroes which is shown at the right of the adventure map screen
@@ -125,19 +130,18 @@ class CHeroList	: public CList
 		std::string getHoverText() override;
 	};
 
-	std::shared_ptr<CIntObject> createHeroItem(size_t index);
+	std::shared_ptr<CIntObject> createItem(size_t index);
 public:
-	/**
-	 * @brief CHeroList
-	 * @param size, position, btnUp, btnDown @see CList::CList
-	 */
-	CHeroList(int size, Point position, std::string btnUp, std::string btnDown);
+	CHeroList(int visibleItemsCount, Rect widgetPosition, Point firstItemOffset, Point itemOffsetDelta, size_t initialItemsCount);
 
 	/// Select specific hero and scroll if needed
 	void select(const CGHeroInstance * hero = nullptr);
 
 	/// Update hero. Will add or remove it from the list if needed
-	void update(const CGHeroInstance * hero = nullptr);
+	void updateElement(const CGHeroInstance * hero);
+
+	/// Update all heroes
+	void updateWidget();
 };
 
 /// List of towns which is shown at the right of the adventure map screen or in the town screen
@@ -159,18 +163,17 @@ class CTownList	: public CList
 		std::string getHoverText() override;
 	};
 
-	std::shared_ptr<CIntObject> createTownItem(size_t index);
+	std::shared_ptr<CIntObject> createItem(size_t index) override;
 public:
-	/**
-	 * @brief CTownList
-	 * @param size, position, btnUp, btnDown @see CList::CList
-	 */
-	CTownList(int size, Point position, std::string btnUp, std::string btnDown);
+	CTownList(int visibleItemsCount, Rect widgetPosition, Point firstItemOffset, Point itemOffsetDelta, size_t initialItemsCount);
 
 	/// Select specific town and scroll if needed
 	void select(const CGTownInstance * town = nullptr);
 
 	/// Update town. Will add or remove it from the list if needed
-	void update(const CGTownInstance * town = nullptr);
+	void updateElement(const CGTownInstance * town);
+
+	/// Update all towns
+	void updateWidget();
 };
 

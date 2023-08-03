@@ -40,68 +40,62 @@ namespace GameConstants
 {
 	DLL_LINKAGE extern const std::string VCMI_VERSION;
 
-	const int PUZZLE_MAP_PIECES = 48;
+	constexpr int PUZZLE_MAP_PIECES = 48;
 
-	const int MAX_HEROES_PER_PLAYER = 8;
-	const int AVAILABLE_HEROES_PER_PLAYER = 2;
+	constexpr int MAX_HEROES_PER_PLAYER = 8;
+	constexpr int AVAILABLE_HEROES_PER_PLAYER = 2;
 
-	const int ALL_PLAYERS = 255; //bitfield
+	constexpr int ALL_PLAYERS = 255; //bitfield
 
-	const ui16 BACKPACK_START = 19;
-	const int CREATURES_PER_TOWN = 7; //without upgrades
-	const int SPELL_LEVELS = 5;
-	const int SPELL_SCHOOL_LEVELS = 4;
-	const int CRE_LEVELS = 10; // number of creature experience levels
+	constexpr int CREATURES_PER_TOWN = 7; //without upgrades
+	constexpr int SPELL_LEVELS = 5;
+	constexpr int SPELL_SCHOOL_LEVELS = 4;
+	constexpr int DEFAULT_SCHOOLS = 4;
+	constexpr int CRE_LEVELS = 10; // number of creature experience levels
 
-	const int HERO_GOLD_COST = 2500;
-	const int SPELLBOOK_GOLD_COST = 500;
-	const int SKILL_GOLD_COST = 2000;
-	const int BATTLE_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
-	const int ARMY_SIZE = 7;
-	const int SKILL_PER_HERO = 8;
-	const ui32 HERO_HIGH_LEVEL = 10; // affects primary skill upgrade order
+	constexpr int HERO_GOLD_COST = 2500;
+	constexpr int SPELLBOOK_GOLD_COST = 500;
+	constexpr int SKILL_GOLD_COST = 2000;
+	constexpr int BATTLE_SHOOTING_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
+	constexpr int BATTLE_SHOOTING_RANGE_DISTANCE = std::numeric_limits<uint8_t>::max(); // used when shooting stack has no shooting range limit
+	constexpr int ARMY_SIZE = 7;
+	constexpr int SKILL_PER_HERO = 8;
+	constexpr ui32 HERO_HIGH_LEVEL = 10; // affects primary skill upgrade order
 
-	const int SKILL_QUANTITY=28;
-	const int PRIMARY_SKILLS=4;
-	const int RESOURCE_QUANTITY=8;
-	const int HEROES_PER_TYPE=8; //amount of heroes of each type
+	constexpr int SKILL_QUANTITY=28;
+	constexpr int PRIMARY_SKILLS=4;
+	constexpr int RESOURCE_QUANTITY=8;
+	constexpr int HEROES_PER_TYPE=8; //amount of heroes of each type
 
 	// amounts of OH3 objects. Can be changed by mods, should be used only during H3 loading phase
-	const int F_NUMBER = 9;
-	const int ARTIFACTS_QUANTITY=171;
-	const int HEROES_QUANTITY=156;
-	const int SPELLS_QUANTITY=70;
-	const int CREATURES_COUNT = 197;
+	constexpr int F_NUMBER = 9;
+	constexpr int ARTIFACTS_QUANTITY=171;
+	constexpr int HEROES_QUANTITY=156;
+	constexpr int SPELLS_QUANTITY=70;
+	constexpr int CREATURES_COUNT = 197;
 
-	const ui32 BASE_MOVEMENT_COST = 100; //default cost for non-diagonal movement
+	constexpr ui32 BASE_MOVEMENT_COST = 100; //default cost for non-diagonal movement
 
-	const int HERO_PORTRAIT_SHIFT = 30;// 2 special frames + some extra portraits
+	constexpr int HERO_PORTRAIT_SHIFT = 9;// 2 special frames + 7 extra portraits
 
-	const std::array<int, 11> POSSIBLE_TURNTIME = {1, 2, 4, 6, 8, 10, 15, 20, 25, 30, 0};
+	constexpr std::array<int, 11> POSSIBLE_TURNTIME = {1, 2, 4, 6, 8, 10, 15, 20, 25, 30, 0};
 }
 
 #define ID_LIKE_CLASS_COMMON(CLASS_NAME, ENUM_NAME)	\
-CLASS_NAME(const CLASS_NAME & other)				\
-{													\
-	num = other.num;								\
-}													\
-CLASS_NAME & operator=(const CLASS_NAME & other)	\
-{													\
-	num = other.num;								\
-	return *this;									\
-}													\
-explicit CLASS_NAME(si32 id)						\
+constexpr CLASS_NAME(const CLASS_NAME & other) = default;	\
+constexpr CLASS_NAME & operator=(const CLASS_NAME & other) = default;	\
+explicit constexpr CLASS_NAME(si32 id)				\
 	: num(static_cast<ENUM_NAME>(id))				\
 {}													\
-operator ENUM_NAME() const							\
+constexpr operator ENUM_NAME() const				\
 {													\
 	return num;										\
 }													\
-si32 getNum() const									\
+constexpr si32 getNum() const						\
 {													\
-	return static_cast<si32>(num);										\
+	return static_cast<si32>(num);					\
 }													\
-ENUM_NAME toEnum() const							\
+constexpr ENUM_NAME toEnum() const					\
 {													\
 	return num;										\
 }													\
@@ -109,36 +103,36 @@ template <typename Handler> void serialize(Handler &h, const int version)	\
 {													\
 	h & num;										\
 }													\
-CLASS_NAME & advance(int i)							\
+constexpr CLASS_NAME & advance(int i)				\
 {													\
-	num = (ENUM_NAME)((int)num + i);				\
+	num = static_cast<ENUM_NAME>(static_cast<int>(num) + i);		\
 	return *this;									\
 }
 
 
 // Operators are performance-critical and to be inlined they must be in header
 #define ID_LIKE_OPERATORS_INTERNAL(A, B, AN, BN)	\
-STRONG_INLINE bool operator==(const A & a, const B & b)			\
+STRONG_INLINE constexpr bool operator==(const A & a, const B & b)	\
 {													\
 	return AN == BN ;								\
 }													\
-STRONG_INLINE bool operator!=(const A & a, const B & b)			\
+STRONG_INLINE constexpr bool operator!=(const A & a, const B & b)	\
 {													\
 	return AN != BN ;								\
 }													\
-STRONG_INLINE bool operator<(const A & a, const B & b)			\
+STRONG_INLINE constexpr bool operator<(const A & a, const B & b)	\
 {													\
 	return AN < BN ;								\
 }													\
-STRONG_INLINE bool operator<=(const A & a, const B & b)			\
+STRONG_INLINE constexpr bool operator<=(const A & a, const B & b)	\
 {													\
 	return AN <= BN ;								\
 }													\
-STRONG_INLINE bool operator>(const A & a, const B & b)			\
+STRONG_INLINE constexpr bool operator>(const A & a, const B & b)	\
 {													\
 	return AN > BN ;								\
 }													\
-STRONG_INLINE bool operator>=(const A & a, const B & b)			\
+STRONG_INLINE constexpr bool operator>=(const A & a, const B & b)	\
 {													\
 	return AN >= BN ;								\
 }
@@ -151,17 +145,13 @@ STRONG_INLINE bool operator>=(const A & a, const B & b)			\
 
 #define INSTID_LIKE_CLASS_COMMON(CLASS_NAME, NUMERIC_NAME)	\
 public:														\
-CLASS_NAME() : BaseForID<CLASS_NAME, NUMERIC_NAME>(-1) {}	\
-CLASS_NAME(const CLASS_NAME & other):						\
+constexpr CLASS_NAME(const CLASS_NAME & other):						\
 	BaseForID<CLASS_NAME, NUMERIC_NAME>(other)				\
 {															\
 }															\
-CLASS_NAME & operator=(const CLASS_NAME & other)			\
-{															\
-	num = other.num;										\
-	return *this;											\
-}															\
-explicit CLASS_NAME(si32 id)								\
+constexpr CLASS_NAME & operator=(const CLASS_NAME & other) = default;	\
+constexpr CLASS_NAME & operator=(NUMERIC_NAME other) { num = other; return *this; };	\
+explicit constexpr CLASS_NAME(si32 id = -1)								\
 	: BaseForID<CLASS_NAME, NUMERIC_NAME>(id)				\
 {}
 
@@ -172,13 +162,13 @@ protected:
 	NumericType num;
 
 public:
-	NumericType getNum() const
+	constexpr NumericType getNum() const
 	{
 		return num;
 	}
 
 	//to make it more similar to IDLIKE
-	NumericType toEnum() const
+	constexpr NumericType toEnum() const
 	{
 		return num;
 	}
@@ -188,24 +178,29 @@ public:
 		h & num;
 	}
 
-	explicit BaseForID(NumericType _num = -1)
+	constexpr explicit BaseForID(NumericType _num = -1) :
+		num(_num)
 	{
-		num = _num;
 	}
 
-	void advance(int change)
+	constexpr void advance(int change)
 	{
 		num += change;
 	}
 
-	bool operator == (const BaseForID & b) const { return num == b.num; }
-	bool operator <= (const BaseForID & b) const { return num <= b.num; }
-	bool operator >= (const BaseForID & b) const { return num >= b.num; }
-	bool operator != (const BaseForID & b) const { return num != b.num; }
-	bool operator <  (const BaseForID & b) const { return num <  b.num; }
-	bool operator >  (const BaseForID & b) const { return num >  b.num; }
+	constexpr bool operator == (const BaseForID & b) const { return num == b.num; }
+	constexpr bool operator <= (const BaseForID & b) const { return num <= b.num; }
+	constexpr bool operator >= (const BaseForID & b) const { return num >= b.num; }
+	constexpr bool operator != (const BaseForID & b) const { return num != b.num; }
+	constexpr bool operator <  (const BaseForID & b) const { return num <  b.num; }
+	constexpr bool operator >  (const BaseForID & b) const { return num >  b.num; }
 
-	BaseForID & operator++() { ++num; return *this; }
+	constexpr BaseForID & operator++() { ++num; return *this; }
+
+	constexpr operator NumericType() const
+	{
+		return num;
+	}
 };
 
 template < typename T>
@@ -219,12 +214,12 @@ private:
 	NumericType num;
 
 public:
-	NumericType getNum() const
+	constexpr NumericType getNum() const
 	{
 		return num;
 	}
 
-	EnumType toEnum() const
+	constexpr EnumType toEnum() const
 	{
 		return static_cast<EnumType>(num);
 	}
@@ -234,39 +229,44 @@ public:
 		h & num;
 	}
 
-	explicit Identifier(NumericType _num = -1)
+	constexpr explicit Identifier(NumericType _num = -1)
 	{
 		num = _num;
 	}
 
-	/* implicit */ Identifier(EnumType _num)
+	/* implicit */constexpr Identifier(EnumType _num):
+		num(static_cast<NumericType>(_num))
 	{
-		num = static_cast<NumericType>(_num);
 	}
 
-	void advance(int change)
+	constexpr void advance(int change)
 	{
 		num += change;
 	}
 
-	bool operator == (const Identifier & b) const { return num == b.num; }
-	bool operator <= (const Identifier & b) const { return num <= b.num; }
-	bool operator >= (const Identifier & b) const { return num >= b.num; }
-	bool operator != (const Identifier & b) const { return num != b.num; }
-	bool operator <  (const Identifier & b) const { return num <  b.num; }
-	bool operator >  (const Identifier & b) const { return num > b.num; }
+	constexpr bool operator == (const Identifier & b) const { return num == b.num; }
+	constexpr bool operator <= (const Identifier & b) const { return num <= b.num; }
+	constexpr bool operator >= (const Identifier & b) const { return num >= b.num; }
+	constexpr bool operator != (const Identifier & b) const { return num != b.num; }
+	constexpr bool operator <  (const Identifier & b) const { return num <  b.num; }
+	constexpr bool operator >  (const Identifier & b) const { return num > b.num; }
 
-	Identifier & operator++()
+	constexpr Identifier & operator++()
 	{
 		++num;
 		return *this;
 	}
 
-	Identifier operator++(int)
+	constexpr Identifier operator++(int)
 	{
 		Identifier ret(*this);
 		++num;
 		return ret;
+	}
+
+	constexpr operator NumericType() const
+	{
+		return num;
 	}
 };
 
@@ -313,6 +313,8 @@ class ObjectInstanceID : public BaseForID<ObjectInstanceID, si32>
 {
 	INSTID_LIKE_CLASS_COMMON(ObjectInstanceID, si32)
 
+	DLL_LINKAGE static const ObjectInstanceID NONE;
+
 	friend class CGameInfoCallback;
 	friend class CNonConstInfoCallback;
 };
@@ -329,6 +331,8 @@ class HeroTypeID : public BaseForID<HeroTypeID, si32>
 	///json serialization helpers
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
+
+	DLL_LINKAGE static const HeroTypeID NONE;
 };
 
 class SlotID : public BaseForID<SlotID, si32>
@@ -355,8 +359,10 @@ class PlayerColor : public BaseForID<PlayerColor, ui8>
 
 	enum EPlayerColor
 	{
-		PLAYER_LIMIT_I = 8
+		PLAYER_LIMIT_I = 8,
 	};
+
+	using Mask = uint8_t;
 
 	DLL_LINKAGE static const PlayerColor SPECTATOR; //252
 	DLL_LINKAGE static const PlayerColor CANNOT_DETERMINE; //253
@@ -400,7 +406,7 @@ class TeleportChannelID : public BaseForID<TeleportChannelID, si32>
 // Enum declarations
 namespace PrimarySkill
 {
-	enum PrimarySkill { NONE = -1, ATTACK, DEFENSE, SPELL_POWER, KNOWLEDGE,
+	enum PrimarySkill : int8_t { NONE = -1, ATTACK, DEFENSE, SPELL_POWER, KNOWLEDGE,
 				EXPERIENCE = 4}; //for some reason changePrimSkill uses it
 }
 
@@ -429,10 +435,7 @@ public:
 
 ID_LIKE_OPERATORS(SecondarySkill, SecondarySkill::ESecondarySkill)
 
-namespace EAlignment
-{
-	enum EAlignment { GOOD, EVIL, NEUTRAL };
-}
+enum class EAlignment : uint8_t { GOOD, EVIL, NEUTRAL };
 
 namespace ETownType//deprecated
 {
@@ -443,11 +446,12 @@ namespace ETownType//deprecated
 	};
 }
 
-class FactionID : public BaseForID<FactionID, si32>
+class FactionID : public BaseForID<FactionID, int32_t>
 {
 	INSTID_LIKE_CLASS_COMMON(FactionID, si32)
 
-	DLL_LINKAGE static const FactionID ANY;
+	DLL_LINKAGE static const FactionID NONE;
+	DLL_LINKAGE static const FactionID DEFAULT;
 	DLL_LINKAGE static const FactionID CASTLE;
 	DLL_LINKAGE static const FactionID RAMPART;
 	DLL_LINKAGE static const FactionID TOWER;
@@ -459,11 +463,19 @@ class FactionID : public BaseForID<FactionID, si32>
 	DLL_LINKAGE static const FactionID CONFLUX;
 	DLL_LINKAGE static const FactionID NEUTRAL;
 
-	///json serialization helpers
-	static si32 decode(const std::string & identifier);
+	static si32 decode(const std::string& identifier);
 	static std::string encode(const si32 index);
+	static std::string entityType();
 };
 
+class TerrainID
+{
+	//Dummy class used only for serialization
+public:
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+	static std::string entityType();
+};
 
 class BuildingID
 {
@@ -480,7 +492,6 @@ public:
 		HORDE_PLACEHOLDER3 = -32,
 		HORDE_PLACEHOLDER2 = -31,
 		HORDE_PLACEHOLDER1 = -30,
-		HORDE_BUILDING_CONVERTER = -29, //-1 => -30
 		NONE = -1,
 		FIRST_REGULAR_ID = 0,
 		MAGES_GUILD_1 = 0,  MAGES_GUILD_2, MAGES_GUILD_3,     MAGES_GUILD_4,   MAGES_GUILD_5,
@@ -585,7 +596,18 @@ namespace BuildingSubID
 		EXPERIENCE_VISITING_BONUS,
 		LIGHTHOUSE,
 		TREASURY,
-		CUSTOM_VISITING_BONUS
+		CUSTOM_VISITING_BONUS,
+		CUSTOM_VISITING_REWARD
+	};
+}
+
+namespace EMarketMode
+{
+	enum EMarketMode
+	{
+		RESOURCE_RESOURCE, RESOURCE_PLAYER, CREATURE_RESOURCE, RESOURCE_ARTIFACT,
+		ARTIFACT_RESOURCE, ARTIFACT_EXP, CREATURE_EXP, CREATURE_UNDEAD, RESOURCE_SKILL,
+		MARTKET_AFTER_LAST_PLACEHOLDER
 	};
 }
 
@@ -598,16 +620,43 @@ namespace MappedKeys
 		{ "special2", BuildingID::SPECIAL_2 },
 		{ "special3", BuildingID::SPECIAL_3 },
 		{ "special4", BuildingID::SPECIAL_4 },
-		{ "grail", BuildingID::GRAIL }
-	};
-
-	static const std::map<BuildingID, std::string> BUILDING_TYPES_TO_NAMES =
-	{
-		{ BuildingID::SPECIAL_1, "special1", },
-		{ BuildingID::SPECIAL_2, "special2" },
-		{ BuildingID::SPECIAL_3, "special3" },
-		{ BuildingID::SPECIAL_4, "special4" },
-		{ BuildingID::GRAIL, "grail"}
+		{ "grail", BuildingID::GRAIL },
+		{ "mageGuild1", BuildingID::MAGES_GUILD_1 },
+		{ "mageGuild2", BuildingID::MAGES_GUILD_2 },
+		{ "mageGuild3", BuildingID::MAGES_GUILD_3 },
+		{ "mageGuild4", BuildingID::MAGES_GUILD_4 },
+		{ "mageGuild5", BuildingID::MAGES_GUILD_5 },
+		{ "tavern", BuildingID::TAVERN },
+		{ "shipyard", BuildingID::SHIPYARD },
+		{ "fort", BuildingID::FORT },
+		{ "citadel", BuildingID::CITADEL },
+		{ "castle", BuildingID::CASTLE },
+		{ "villageHall", BuildingID::VILLAGE_HALL },
+		{ "townHall", BuildingID::TOWN_HALL },
+		{ "cityHall", BuildingID::CITY_HALL },
+		{ "capitol", BuildingID::CAPITOL },
+		{ "marketplace", BuildingID::MARKETPLACE },
+		{ "resourceSilo", BuildingID::RESOURCE_SILO },
+		{ "blacksmith", BuildingID::BLACKSMITH },
+		{ "horde1", BuildingID::HORDE_1 },
+		{ "horde1Upgr", BuildingID::HORDE_1_UPGR },
+		{ "horde2", BuildingID::HORDE_2 },
+		{ "horde2Upgr", BuildingID::HORDE_2_UPGR },
+		{ "ship", BuildingID::SHIP },
+		{ "dwellingLvl1", BuildingID::DWELL_LVL_1 },
+		{ "dwellingLvl2", BuildingID::DWELL_LVL_2 },
+		{ "dwellingLvl3", BuildingID::DWELL_LVL_3 },
+		{ "dwellingLvl4", BuildingID::DWELL_LVL_4 },
+		{ "dwellingLvl5", BuildingID::DWELL_LVL_5 },
+		{ "dwellingLvl6", BuildingID::DWELL_LVL_6 },
+		{ "dwellingLvl7", BuildingID::DWELL_LVL_7 },
+		{ "dwellingUpLvl1", BuildingID::DWELL_LVL_1_UP },
+		{ "dwellingUpLvl2", BuildingID::DWELL_LVL_2_UP },
+		{ "dwellingUpLvl3", BuildingID::DWELL_LVL_3_UP },
+		{ "dwellingUpLvl4", BuildingID::DWELL_LVL_4_UP },
+		{ "dwellingUpLvl5", BuildingID::DWELL_LVL_5_UP },
+		{ "dwellingUpLvl6", BuildingID::DWELL_LVL_6_UP },
+		{ "dwellingUpLvl7", BuildingID::DWELL_LVL_7_UP },
 	};
 
 	static const std::map<std::string, BuildingSubID::EBuildingSubID> SPECIAL_BUILDINGS =
@@ -637,6 +686,19 @@ namespace MappedKeys
 		{ "experienceVisitingBonus", BuildingSubID::EXPERIENCE_VISITING_BONUS },
 		{ "lighthouse", BuildingSubID::LIGHTHOUSE },
 		{ "treasury", BuildingSubID::TREASURY }
+	};
+
+	static const std::map<std::string, EMarketMode::EMarketMode> MARKET_NAMES_TO_TYPES =
+	{
+		{ "resource-resource", EMarketMode::RESOURCE_RESOURCE },
+		{ "resource-player", EMarketMode::RESOURCE_PLAYER },
+		{ "creature-resource", EMarketMode::CREATURE_RESOURCE },
+		{ "resource-artifact", EMarketMode::RESOURCE_ARTIFACT },
+		{ "artifact-resource", EMarketMode::ARTIFACT_RESOURCE },
+		{ "artifact-experience", EMarketMode::ARTIFACT_EXP },
+		{ "creature-experience", EMarketMode::CREATURE_EXP },
+		{ "creature-undead", EMarketMode::CREATURE_UNDEAD },
+		{ "resource-skill", EMarketMode::RESOURCE_SKILL },
 	};
 }
 
@@ -671,16 +733,6 @@ namespace ESpellCastProblem
 		NO_APPROPRIATE_TARGET, STACK_IMMUNE_TO_SPELL, WRONG_SPELL_TARGET, ONGOING_TACTIC_PHASE,
 		MAGIC_IS_BLOCKED, //For Orb of Inhibition and similar - no casting at all
 		INVALID
-	};
-}
-
-namespace EMarketMode
-{
-	enum EMarketMode
-	{
-		RESOURCE_RESOURCE, RESOURCE_PLAYER, CREATURE_RESOURCE, RESOURCE_ARTIFACT,
-		ARTIFACT_RESOURCE, ARTIFACT_EXP, CREATURE_EXP, CREATURE_UNDEAD, RESOURCE_SKILL,
-		MARTKET_AFTER_LAST_PLACEHOLDER
 	};
 }
 
@@ -754,12 +806,12 @@ public:
 	enum EObj
 	{
 		NO_OBJ = -1,
-		ALTAR_OF_SACRIFICE = 2,
+		ALTAR_OF_SACRIFICE [[deprecated]] = 2,
 		ANCHOR_POINT = 3,
 		ARENA = 4,
 		ARTIFACT = 5,
 		PANDORAS_BOX = 6,
-		BLACK_MARKET = 7,
+		BLACK_MARKET [[deprecated]] = 7,
 		BOAT = 8,
 		BORDERGUARD = 9,
 		KEYMASTER = 10,
@@ -851,12 +903,12 @@ public:
 		TEMPLE = 96,
 		DEN_OF_THIEVES = 97,
 		TOWN = 98,
-		TRADING_POST = 99,
+		TRADING_POST [[deprecated]] = 99,
 		LEARNING_STONE = 100,
 		TREASURE_CHEST = 101,
 		TREE_OF_KNOWLEDGE = 102,
 		SUBTERRANEAN_GATE = 103,
-		UNIVERSITY = 104,
+		UNIVERSITY [[deprecated]] = 104,
 		WAGON = 105,
 		WAR_MACHINE_FACTORY = 106,
 		SCHOOL_OF_WAR = 107,
@@ -871,7 +923,7 @@ public:
 		RANDOM_MONSTER_L6 = 163,
 		RANDOM_MONSTER_L7 = 164,
 		BORDER_GATE = 212,
-		FREELANCERS_GUILD = 213,
+		FREELANCERS_GUILD [[deprecated]] = 213,
 		HERO_PLACEHOLDER = 214,
 		QUEST_GUARD = 215,
 		RANDOM_DWELLING = 216,
@@ -879,7 +931,7 @@ public:
 		RANDOM_DWELLING_FACTION = 218, //subtype = faction
 		GARRISON2 = 219,
 		ABANDONED_MINE = 220,
-		TRADING_POST_SNOW = 221,
+		TRADING_POST_SNOW [[deprecated]] = 221,
 		CLOVER_FIELD = 222,
 		CURSED_GROUND2 = 223,
 		EVIL_FOG = 224,
@@ -977,7 +1029,8 @@ public:
 		CAN_DIG = 0,
 		LACK_OF_MOVEMENT,
 		WRONG_TERRAIN,
-		TILE_OCCUPIED
+		TILE_OCCUPIED,
+		BACKPACK_IS_FULL
 	};
 
 	EDiggingStatus(EEDiggingStatus _num = UNKNOWN) : num(_num)
@@ -1049,9 +1102,23 @@ public:
 	ID_LIKE_CLASS_COMMON(ArtifactPosition, EArtifactPosition)
 
 	EArtifactPosition num;
+
+        STRONG_INLINE EArtifactPosition operator+(const int arg)
+	{
+		return EArtifactPosition(static_cast<int>(num) + arg);
+	}
+	STRONG_INLINE EArtifactPosition operator+(const EArtifactPosition & arg)
+	{
+		return EArtifactPosition(static_cast<int>(num) + static_cast<int>(arg));
+	}
 };
 
 ID_LIKE_OPERATORS(ArtifactPosition, ArtifactPosition::EArtifactPosition)
+
+namespace GameConstants
+{
+	const auto BACKPACK_START = ArtifactPosition::AFTER_LAST;
+}
 
 class ArtifactID
 {
@@ -1068,6 +1135,7 @@ public:
 		FIRST_AID_TENT = 6,
 		//CENTAUR_AXE = 7,
 		//BLACKSHARD_OF_THE_DEAD_KNIGHT = 8,
+		VIAL_OF_DRAGON_BLOOD = 127,
 		ARMAGEDDONS_BLADE = 128,
 		TITANS_THUNDER = 135,
 		//CORNUCOPIA = 140,
@@ -1169,6 +1237,7 @@ class SpellID
 public:
 	enum ESpellID
 	{
+		SPELLBOOK_PRESET = -3,
 		PRESET = -2,
 		NONE = -1,
 		SUMMON_BOAT=0, SCUTTLE_BOAT=1, VISIONS=2, VIEW_EARTH=3, DISGUISE=4, VIEW_AIR=5,
@@ -1223,11 +1292,18 @@ class BattleField : public BaseForID<BattleField, si32>
 	DLL_LINKAGE friend bool operator!=(const BattleField & l, const BattleField & r);
 	DLL_LINKAGE friend bool operator<(const BattleField & l, const BattleField & r);
 
-	DLL_LINKAGE operator std::string() const;
 	DLL_LINKAGE const BattleFieldInfo * getInfo() const;
-
-	DLL_LINKAGE static BattleField fromString(const std::string & identifier);
 };
+
+enum class EBoatId : int32_t
+{
+	NONE = -1,
+	NECROPOLIS = 0,
+	CASTLE,
+	FORTRESS
+};
+
+using BoatId = Identifier<EBoatId>;
 
 enum class ETerrainId {
 	NATIVE_TERRAIN = -4,
@@ -1257,17 +1333,18 @@ class Obstacle : public BaseForID<Obstacle, si32>
 	INSTID_LIKE_CLASS_COMMON(Obstacle, si32)
 
 	DLL_LINKAGE const ObstacleInfo * getInfo() const;
-	DLL_LINKAGE operator std::string() const;
-	DLL_LINKAGE static Obstacle fromString(const std::string & identifier);
 };
 
-enum class ESpellSchool: ui8
+enum class ESpellSchool: int8_t
 {
+	ANY 	= -1,
 	AIR 	= 0,
 	FIRE 	= 1,
 	WATER 	= 2,
-	EARTH 	= 3
+	EARTH 	= 3,
 };
+
+using SpellSchool = Identifier<ESpellSchool>;
 
 enum class EMetaclass: ui8
 {
@@ -1303,12 +1380,10 @@ enum class EHealPower : ui8
 };
 
 // Typedef declarations
-typedef ui8 TFaction;
-typedef si64 TExpType;
-typedef si32 TBonusSubtype;
-typedef si32 TQuantity;
+using TExpType = si64;
+using TQuantity = si32;
 
-typedef int TRmgTemplateZoneId;
+using TRmgTemplateZoneId = int;
 
 #undef ID_LIKE_CLASS_COMMON
 #undef ID_LIKE_OPERATORS

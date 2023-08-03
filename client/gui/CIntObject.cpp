@@ -11,40 +11,30 @@
 #include "CIntObject.h"
 
 #include "CGuiHandler.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "WindowHandler.h"
+#include "EventDispatcher.h"
+#include "Shortcut.h"
+#include "../render/Canvas.h"
 #include "../windows/CMessage.h"
 #include "../CMT.h"
 
-#include <SDL_pixels.h>
-
-IShowActivatable::IShowActivatable()
-{
-	type = 0;
-}
-
 CIntObject::CIntObject(int used_, Point pos_):
 	parent_m(nullptr),
-	active_m(0),
 	parent(parent_m),
-	active(active_m)
+	redrawParent(false),
+	inputEnabled(true),
+	used(used_),
+	recActions(GH.defActionsDef),
+	defActions(GH.defActionsDef),
+	pos(pos_, Point())
 {
-	hovered = captureAllKeys = strongInterest = false;
-	used = used_;
-
-	recActions = defActions = GH.defActionsDef;
-
-	pos.x = pos_.x;
-	pos.y = pos_.y;
-	pos.w = 0;
-	pos.h = 0;
-
 	if(GH.captureChildren)
 		GH.createdObj.front()->addChild(this, true);
 }
 
 CIntObject::~CIntObject()
 {
-	if(active_m)
+	if(isActive())
 		deactivate();
 
 	while(!children.empty())
@@ -59,7 +49,7 @@ CIntObject::~CIntObject()
 		parent_m->removeChild(this);
 }
 
-void CIntObject::show(SDL_Surface * to)
+void CIntObject::show(Canvas & to)
 {
 	if(defActions & UPDATE)
 		for(auto & elem : children)
@@ -67,32 +57,27 @@ void CIntObject::show(SDL_Surface * to)
 				elem->show(to);
 }
 
-void CIntObject::showAll(SDL_Surface * to)
+void CIntObject::showAll(Canvas & to)
 {
 	if(defActions & SHOWALL)
 	{
 		for(auto & elem : children)
 			if(elem->recActions & SHOWALL)
 				elem->showAll(to);
-
 	}
 }
 
 void CIntObject::activate()
 {
-	if (active_m)
-	{
-		if ((used | GENERAL) == active_m)
-			return;
-		else
-		{
-			logGlobal->warn("Warning: IntObject re-activated with mismatching used and active");
-			deactivate(); //FIXME: better to avoid such possibility at all
-		}
-	}
+	if (isActive())
+		return;
 
-	active_m |= GENERAL;
-	activate(used);
+	if (inputEnabled)
+		activateEvents(used | GENERAL);
+	else
+		activateEvents(GENERAL);
+
+	assert(isActive());
 
 	if(defActions & ACTIVATE)
 		for(auto & elem : children)
@@ -100,20 +85,14 @@ void CIntObject::activate()
 				elem->activate();
 }
 
-void CIntObject::activate(ui16 what)
-{
-	GH.handleElementActivate(this, what);
-}
-
 void CIntObject::deactivate()
 {
-	if (!active_m)
+	if (!isActive())
 		return;
 
-	active_m &= ~ GENERAL;
-	deactivate(active_m);
+	deactivateEvents(used | GENERAL);
 
-	assert(!active_m);
+	assert(!isActive());
 
 	if(defActions & DEACTIVATE)
 		for(auto & elem : children)
@@ -121,75 +100,23 @@ void CIntObject::deactivate()
 				elem->deactivate();
 }
 
-void CIntObject::deactivate(ui16 what)
-{
-	GH.handleElementDeActivate(this, what);
-}
-
-void CIntObject::click(MouseButton btn, tribool down, bool previousState)
-{
-	switch(btn)
-	{
-	default:
-	case MouseButton::LEFT:
-		clickLeft(down, previousState);
-		break;
-	case MouseButton::MIDDLE:
-		clickMiddle(down, previousState);
-		break;
-	case MouseButton::RIGHT:
-		clickRight(down, previousState);
-		break;
-	}
-}
-
-void CIntObject::printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst)
-{
-	graphics->fonts[font]->renderTextLeft(dst, text, kolor, Point(pos.x + x, pos.y + y));
-}
-
-void CIntObject::printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst)
-{
-	printAtMiddleLoc(text, Point(x,y), font, kolor, dst);
-}
-
-void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color kolor, SDL_Surface * dst)
-{
-	graphics->fonts[font]->renderTextCenter(dst, text, kolor, pos.topLeft() + p);
-}
-
-void CIntObject::blitAtLoc( SDL_Surface * src, int x, int y, SDL_Surface * dst )
-{
-	CSDL_Ext::blitAt(src, pos.x + x, pos.y + y, dst);
-}
-
-void CIntObject::blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst)
-{
-	blitAtLoc(src, p.x, p.y, dst);
-}
-
-void CIntObject::printAtMiddleWBLoc( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst)
-{
-	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, charpr, font), kolor, Point(pos.x + x, pos.y + y));
-}
-
 void CIntObject::addUsedEvents(ui16 newActions)
 {
-	if (active_m)
-		activate(~used & newActions);
+	if (isActive() && inputEnabled)
+		activateEvents(~used & newActions);
 	used |= newActions;
 }
 
 void CIntObject::removeUsedEvents(ui16 newActions)
 {
-	if (active_m)
-		deactivate(used & newActions);
+	if (isActive())
+		deactivateEvents(used & newActions);
 	used &= ~newActions;
 }
 
 void CIntObject::disable()
 {
-	if(active)
+	if(isActive())
 		deactivate();
 
 	recActions = DISPOSE;
@@ -197,10 +124,47 @@ void CIntObject::disable()
 
 void CIntObject::enable()
 {
-	if(!active_m && (!parent_m || parent_m->active))
+	if(!isActive() && (!parent_m || parent_m->isActive()))
+	{
 		activate();
+		redraw();
+	}
 
 	recActions = 255;
+}
+
+void CIntObject::setEnabled(bool on)
+{
+	if (on)
+		enable();
+	else
+		disable();
+}
+
+void CIntObject::setInputEnabled(bool on)
+{
+	if (inputEnabled == on)
+		return;
+
+	inputEnabled = on;
+
+	if (isActive())
+	{
+		assert((used & GENERAL) == 0);
+
+		if (on)
+			activateEvents(used);
+		else
+			deactivateEvents(used);
+	}
+
+	for(auto & elem : children)
+		elem->setInputEnabled(on);
+}
+
+void CIntObject::setRedrawParent(bool on)
+{
+	redrawParent = on;
 }
 
 void CIntObject::fitToScreen(int borderWidth, bool propagate)
@@ -241,11 +205,14 @@ void CIntObject::addChild(CIntObject * child, bool adjustPosition)
 	children.push_back(child);
 	child->parent_m = this;
 	if(adjustPosition)
-		child->pos += pos.topLeft();
+		child->moveBy(pos.topLeft(), adjustPosition);
 
-	if (!active && child->active)
+	if (inputEnabled != child->inputEnabled)
+		child->setInputEnabled(inputEnabled);
+
+	if (!isActive() && child->isActive())
 		child->deactivate();
-	if (active && !child->active)
+	if (isActive()&& !child->isActive())
 		child->activate();
 }
 
@@ -270,19 +237,40 @@ void CIntObject::redraw()
 {
 	//currently most of calls come from active objects so this check won't affect them
 	//it should fix glitches when called by inactive elements located below active window
-	if (active)
+	if (isActive())
 	{
-		if (parent_m && (type & REDRAW_PARENT))
+		if (parent_m && redrawParent)
 		{
 			parent_m->redraw();
 		}
 		else
 		{
-			showAll(screenBuf);
+			Canvas buffer = Canvas::createFromSurface(screenBuf);
+
+			showAll(buffer);
 			if(screenBuf != screen)
-				showAll(screen);
+			{
+				Canvas screenBuffer = Canvas::createFromSurface(screen);
+
+				showAll(screenBuffer);
+			}
 		}
 	}
+}
+
+bool CIntObject::receiveEvent(const Point & position, int eventType) const
+{
+	return pos.isInside(position);
+}
+
+void CIntObject::onScreenResize()
+{
+	center(pos, true);
+}
+
+bool CIntObject::isPopupWindow() const
+{
+	return false;
 }
 
 const Rect & CIntObject::center( const Rect &r, bool propagate )
@@ -305,45 +293,37 @@ const Rect & CIntObject::center(const Point & p, bool propagate)
 	return pos;
 }
 
-bool CIntObject::captureThisKey(const SDL_Keycode & key)
+bool CIntObject::captureThisKey(EShortcut key)
 {
-	return captureAllKeys;
+	return false;
 }
 
 CKeyShortcut::CKeyShortcut()
+	: assignedKey(EShortcut::NONE)
+	, shortcutPressed(false)
 {}
 
-CKeyShortcut::CKeyShortcut(int key)
+CKeyShortcut::CKeyShortcut(EShortcut key)
+	: assignedKey(key)
+	, shortcutPressed(false)
 {
-	if (key != SDLK_UNKNOWN)
-		assignedKeys.insert(key);
 }
 
-CKeyShortcut::CKeyShortcut(std::set<int> Keys)
-	:assignedKeys(Keys)
-{}
-
-void CKeyShortcut::keyPressed(const SDL_Keycode & key)
+void CKeyShortcut::keyPressed(EShortcut key)
 {
-	if(vstd::contains(assignedKeys,key)
-	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key)))
+	if( assignedKey == key && assignedKey != EShortcut::NONE && !shortcutPressed)
 	{
-		bool prev = mouseState(MouseButton::LEFT);
-		updateMouseState(MouseButton::LEFT, true);
-		clickLeft(true, prev);
-
+		shortcutPressed = true;
+		clickPressed(GH.getCursorPosition());
 	}
 }
 
-void CKeyShortcut::keyReleased(const SDL_Keycode & key)
+void CKeyShortcut::keyReleased(EShortcut key)
 {
-	if(vstd::contains(assignedKeys,key)
-	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key)))
+	if( assignedKey == key && assignedKey != EShortcut::NONE && shortcutPressed)
 	{
-		bool prev = mouseState(MouseButton::LEFT);
-		updateMouseState(MouseButton::LEFT, false);
-		clickLeft(false, prev);
-
+		shortcutPressed = false;
+		clickReleased(GH.getCursorPosition());
 	}
 }
 
@@ -355,10 +335,7 @@ WindowBase::WindowBase(int used_, Point pos_)
 
 void WindowBase::close()
 {
-	if(GH.topInt().get() != this)
+	if(!GH.windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
-	GH.popInts(1);
+	GH.windows().popWindows(1);
 }
-
-IStatusBar::~IStatusBar()
-{}

@@ -19,8 +19,9 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/UnlockGuard.h"
+#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapObjects/CObjectClassesHandler.h"
+#include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapping/CMap.h"
 
 bool CMapHandler::hasOngoingAnimations()
