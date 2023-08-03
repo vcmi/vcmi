@@ -191,7 +191,7 @@ jobs:
 
     - name: Build Preset
       run: |
-        cmake --build --preset ${{matrix.preset}}
+        cmake --build --preset ${{matrix.preset}} --parallel 4
 
     - name: Test
       if: ${{ matrix.test == 1 }}
