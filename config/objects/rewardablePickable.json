@@ -30,7 +30,7 @@
 						"removeObject" : true,
 						"resources" : [
 							{
-								"list" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
+								"anyOf" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
 								"min" : 4,
 								"max" : 6
 							},

@@ -292,22 +292,22 @@
     <message>
         <location filename="../mainwindow.cpp" line="252"/>
         <source>Confirmation</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestätigung</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="252"/>
         <source>Unsaved changes will be lost, are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungespeicherte Änderungen gehen verloren, sind sie sicher?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="329"/>
         <source>Failed to open map</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnen der Karte fehlgeschlagen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="329"/>
         <source>Cannot open map from this folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann keine Karte aus diesem Ordner öffnen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="370"/>
@@ -344,22 +344,22 @@
     <message>
         <location filename="../mainwindow.cpp" line="1128"/>
         <source>No objects selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Objekte selektiert</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1132"/>
         <source>This operation is irreversible. Do you want to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Operation ist unumkehrbar. Möchten sie fortsetzen?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1191"/>
         <source>Errors occured. %1 objects were not updated</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler sind aufgetreten. %1 Objekte konnten nicht aktualisiert werden</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1231"/>
         <source>Save to image</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Bild speichern</translation>
     </message>
 </context>
 <context>
@@ -387,7 +387,7 @@
     <message>
         <location filename="../mapsettings.ui" line="83"/>
         <source>Limit maximum heroes level</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximales Level des Helden begrenzen</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="92"/>
@@ -397,47 +397,47 @@
     <message>
         <location filename="../mapsettings.ui" line="137"/>
         <source>Mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Mods</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="143"/>
         <source>Mandatory mods for playing this map</source>
-        <translation type="unfinished"></translation>
+        <translation>Notwendige Mods zum Spielen dieser Karte</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="157"/>
         <source>Mod name</source>
-        <translation type="unfinished"></translation>
+        <translation>Mod Name</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="162"/>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Version</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="172"/>
         <source>Automatic assignment</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische Zuweisung</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="179"/>
         <source>Set required mods based on objects placed on the map. This method may cause problems if you have customized rewards, garrisons, etc from mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Erforderliche Mods anhand der auf der Karte platzierten Objekte festlegen. Diese Methode kann Probleme verursachen, wenn Sie Belohnungen, Garnisonen usw. von Mods angepasst haben</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="182"/>
         <source>Map objects mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Mods für Kartenobjekte</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="192"/>
         <source>Set all mods having a game content as mandatory</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Mods, die einen Spielinhalt haben, als notwendig festlegen</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="195"/>
         <source>Full content mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Vollwertige Mods</translation>
     </message>
     <message>
         <location filename="../mapsettings.ui" line="208"/>
@@ -581,7 +581,7 @@
     <message>
         <location filename="../mapview.cpp" line="471"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished"></translation>
+        <translation>Objekt kann nicht platziert werden</translation>
     </message>
 </context>
 <context>
@@ -621,7 +621,7 @@
     <message>
         <location filename="../playerparams.ui" line="179"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbe</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="85"/>
@@ -659,7 +659,7 @@
     <message>
         <location filename="../playersettings.ui" line="74"/>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <location filename="../playersettings.ui" line="117"/>
@@ -721,7 +721,7 @@
     <message>
         <location filename="../validator.cpp" line="70"/>
         <source>No factions allowed for player %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Fraktionen für Spieler %1 erlaubt</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="73"/>
@@ -811,7 +811,7 @@
     <message>
         <location filename="../validator.cpp" line="175"/>
         <source>Map contains object from mod &quot;%1&quot;, but doesn&apos;t require it</source>
-        <translation type="unfinished"></translation>
+        <translation>Karte enthält Objekt aus Mod &quot;%1&quot;, benötigt es aber nicht</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="181"/>
@@ -907,12 +907,12 @@
     <message>
         <location filename="../windownewmap.ui" line="380"/>
         <source>Human teams</source>
-        <translation type="unfinished"></translation>
+        <translation>Menschliche Teams</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="399"/>
         <source>Computer teams</source>
-        <translation type="unfinished"></translation>
+        <translation>Computer Teams</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="416"/>
@@ -978,17 +978,17 @@
     <message>
         <location filename="../windownewmap.cpp" line="271"/>
         <source>No template</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Template</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="271"/>
         <source>No template for parameters scecified. Random map cannot be generated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde kein Template für Parameter erstellt. Zufällige Karte kann nicht generiert werden.</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="291"/>
         <source>RMG failure</source>
-        <translation type="unfinished"></translation>
+        <translation>RMG-Fehler</translation>
     </message>
 </context>
 <context>

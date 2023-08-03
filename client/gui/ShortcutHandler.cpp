@@ -76,7 +76,7 @@ std::vector<EShortcut> ShortcutHandler::translateKeycode(SDL_Keycode key) const
 		{SDLK_r,         EShortcut::GAME_RESTART_GAME         },
 		{SDLK_m,         EShortcut::GAME_TO_MAIN_MENU         },
 		{SDLK_q,         EShortcut::GAME_QUIT_GAME            },
-		{SDLK_t,         EShortcut::GAME_OPEN_MARKETPLACE     },
+		{SDLK_b,         EShortcut::GAME_OPEN_MARKETPLACE     },
 		{SDLK_g,         EShortcut::GAME_OPEN_THIEVES_GUILD   },
 		{SDLK_TAB,       EShortcut::GAME_ACTIVATE_CONSOLE     },
 		{SDLK_o,         EShortcut::ADVENTURE_GAME_OPTIONS    },

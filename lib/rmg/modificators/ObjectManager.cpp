@@ -216,6 +216,7 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 
 rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const
 {
+	RecursiveLock lock(externalAccessMutex);
 	return placeAndConnectObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
 	{
 		auto ti = map.getTileInfo(tile);
@@ -455,8 +456,31 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 				map.setOccupied(i, ETileType::BLOCKED);
 	}
 	
-	if(updateDistance)
-		updateDistances(object);
+	if (updateDistance)
+	{
+		//Update distances in every adjacent zone in case of wide connection
+
+		std::set<TRmgTemplateZoneId> adjacentZones;
+		auto objectArea = object.getArea();
+		objectArea.unite(objectArea.getBorderOutside());
+		
+		for (auto tile : objectArea.getTilesVector())
+		{
+			if (map.isOnMap(tile))
+			{
+				adjacentZones.insert(map.getZoneID(tile));
+			}
+		}
+
+		for (auto id : adjacentZones)
+		{
+			auto manager = map.getZones().at(id)->getModificator<ObjectManager>();
+			if (manager)
+			{
+				manager->updateDistances(object);
+			}
+		}
+	}
 	
 	for(auto * instance : object.instances())
 	{

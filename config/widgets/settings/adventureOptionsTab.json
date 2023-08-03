@@ -7,7 +7,7 @@
 			"name": "lineLabelsEnd",
 			"type": "texture",
 			"image": "settingsWindow/lineHorizontal",
-			"rect": { "x" : 5, "y" : 289, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 229, "w": 365, "h": 3}
 		},
 /////////////////////////////////////// Left section - Hero Speed and Map Scrolling
 		{
@@ -323,7 +323,7 @@
 		{
 			"type": "verticalLayout",
 			"customType": "labelDescription",
-			"position": {"x": 45, "y": 295},
+			"position": {"x": 45, "y": 235},
 			"items":
 			[
 				{
@@ -353,7 +353,7 @@
 		{
 			"type": "verticalLayout",
 			"customType": "checkbox",
-			"position": {"x": 10, "y": 293},
+			"position": {"x": 10, "y": 233},
 			"items":
 			[
 				{

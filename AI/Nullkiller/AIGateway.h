@@ -169,7 +169,7 @@ public:
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
 
-	void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side) override;
+	void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed) override;
 	void battleEnd(const BattleResult * br, QueryID queryID) override;
 
 	void makeTurn();
@@ -195,7 +195,6 @@ public:
 
 	void validateObject(const CGObjectInstance * obj); //checks if object is still visible and if not, removes references to it
 	void validateObject(ObjectIdRef obj); //checks if object is still visible and if not, removes references to it
-	void retrieveVisitableObjs(std::vector<const CGObjectInstance *> & out, bool includeOwned = false) const;
 	void retrieveVisitableObjs();
 	virtual std::vector<const CGObjectInstance *> getFlaggedObjects() const;
 

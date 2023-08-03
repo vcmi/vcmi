@@ -237,18 +237,19 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 		gameHandler->complain("Hero is not available for hiring!");
 		return false;
 	}
+	const auto targetPos = mapObject->visitablePos();
 
 	HeroRecruited hr;
 	hr.tid = mapObject->id;
 	hr.hid = recruitedHero->subID;
 	hr.player = player;
-	hr.tile = recruitedHero->convertFromVisitablePos(mapObject->visitablePos());
-	if(gameHandler->getTile(hr.tile)->isWater())
+	hr.tile = recruitedHero->convertFromVisitablePos(targetPos );
+	if(gameHandler->getTile(hr.tile)->isWater() && !recruitedHero->boat)
 	{
 		//Create a new boat for hero
-		gameHandler->createObject(mapObject->visitablePos(), Obj::BOAT, recruitedHero->getBoatType().getNum());
+		gameHandler->createObject(targetPos , Obj::BOAT, recruitedHero->getBoatType().getNum());
 
-		hr.boatId = gameHandler->getTopObj(hr.tile)->id;
+		hr.boatId = gameHandler->getTopObj(targetPos)->id;
 	}
 
 	// apply netpack -> this will remove hired hero from pool

@@ -30,6 +30,13 @@
 	"vcmi.capitalColors.6" : "Jasnoniebieski",
 	"vcmi.capitalColors.7" : "Różowy",
 
+	"vcmi.radialWheel.mergeSameUnit" : "Złącz takie same stworzenia",
+	"vcmi.radialWheel.showUnitInformation" : "Pokaż informacje o stworzeniu",
+	"vcmi.radialWheel.splitSingleUnit" : "Wydziel pojedyncze stworzenie",
+	"vcmi.radialWheel.splitUnitEqually" : "Podziel stworzenia równo",
+	"vcmi.radialWheel.moveUnit" : "Przenieś stworzenia do innej armii",
+	"vcmi.radialWheel.splitUnit" : "Podziel jednostkę do wybranego miejsca",
+
 	"vcmi.mainMenu.tutorialNotImplemented" : "Przepraszamy, trening nie został jeszcze zaimplementowany\n",
 	"vcmi.mainMenu.highscoresNotImplemented" : "Przepraszamy, najlepsze wyniki nie zostały jeszcze zaimplementowane\n",
 	"vcmi.mainMenu.serverConnecting" : "Łączenie...",
@@ -38,6 +45,9 @@
 	"vcmi.mainMenu.hostTCP" : "Hostuj grę TCP/IP",
 	"vcmi.mainMenu.joinTCP" : "Dołącz do gry TCP/IP",
 	"vcmi.mainMenu.playerName" : "Gracz",
+
+	"vcmi.lobby.filename" : "Nazwa pliku",
+	"vcmi.lobby.creationDate" : "Data utworzenia",
 
 	"vcmi.server.errors.existingProcess"     : "Inny proces 'vcmiserver' został już uruchomiony, zakończ go nim przejdziesz dalej",
 	"vcmi.server.errors.modsIncompatibility" : "Następujące mody są wymagane do wczytania gry:",
@@ -74,6 +84,8 @@
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d milisekund",
 	"vcmi.systemOptions.framerateButton.hover"  : "Pokaż FPS",
 	"vcmi.systemOptions.framerateButton.help"   : "{Pokaż FPS}\n\n Przełącza widoczność licznika klatek na sekundę (FPS) w rogu okna gry.",
+	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Wibracje urządzenia",
+	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Wibracje urządzenia}\n\nWłącz wibracje na urządzeniu dotykowym",
 
 	"vcmi.adventureOptions.infoBarPick.hover" : "Pokaż komunikaty w panelu informacyjnym",
 	"vcmi.adventureOptions.infoBarPick.help" : "{Pokaż komunikaty w panelu informacyjnym}\n\nGdy to możliwe, wiadomości z odwiedzania obiektów będą pokazywane w panelu informacyjnym zamiast w osobnym okienku.",
@@ -85,6 +97,10 @@
 	"vcmi.adventureOptions.showGrid.help" : "{Pokaż siatkę}\n\n Włącza siatkę pokazującą brzegi pól mapy przygody.",
 	"vcmi.adventureOptions.borderScroll.hover" : "Przewijanie na brzegu mapy",
 	"vcmi.adventureOptions.borderScroll.help" : "{Przewijanie na brzegu mapy}\n\nPrzewijanie mapy przygody gdy kursor najeżdża na brzeg okna gry. Może być wyłączone poprzez przytrzymanie klawisza CTRL.",
+	"vcmi.adventureOptions.infoBarCreatureManagement.hover" : "Zarządzanie armią w panelu informacyjnym",
+	"vcmi.adventureOptions.infoBarCreatureManagement.help" : "{Zarządzanie armią w panelu informacyjnym}\n\nPozwala zarządzać jednostkami w panelu informacyjnym, zamiast przełączać między domyślnymi informacjami.",
+	"vcmi.adventureOptions.leftButtonDrag.hover" : "Przeciąganie mapy lewym kliknięciem",
+	"vcmi.adventureOptions.leftButtonDrag.help" : "{Przeciąganie mapy lewym kliknięciem}\n\nGdy włączone, umożliwia przesuwanie mapy przygody poprzez przeciąganie myszy z wciśniętym lewym przyciskiem.",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "",
@@ -111,10 +127,12 @@
 	"vcmi.battleOptions.movementHighlightOnHover.help": "{Pokaż możliwości ruchu po najechaniu}\n\nPodświetla zasięg ruchu jednostki gdy najedziesz na nią myszą.",
 	"vcmi.battleOptions.rangeLimitHighlightOnHover.hover": "Pokaż limit zasięgu dla strzelców",
 	"vcmi.battleOptions.rangeLimitHighlightOnHover.help": "{Pokaż limit zasięgu dla strzelców po najechaniu}\n\nPokazuje limity zasięgu jednostki strzeleckiej gdy najedziesz na nią myszą.",
+	"vcmi.battleOptions.showStickyHeroInfoWindows.hover": "Pokaż trwale statystyki bohaterów",
+	"vcmi.battleOptions.showStickyHeroInfoWindows.help": "{Pokaż trwale statystyki bohaterów}\n\nWłącza trwałe okna statystyk bohaterów pokazujące umiejętności pierwszorzędne i punkty magii.",
 	"vcmi.battleOptions.skipBattleIntroMusic.hover": "Pomiń czekanie startowe",
 	"vcmi.battleOptions.skipBattleIntroMusic.help": "{Pomiń czekanie startowe}\n\n Pomija konieczność czekania podczas muzyki startowej, która jest odtwarzana na początku każdej bitwy przed rozpoczęciem akcji.",
-	"vcmi.battleWindow.pressKeyToSkipIntro" : "Naciśnij dowolny klawisz by rozpocząć bitwę natychmiastowo",
 
+	"vcmi.battleWindow.pressKeyToSkipIntro" : "Naciśnij dowolny klawisz by rozpocząć bitwę natychmiastowo",
 	"vcmi.battleWindow.damageEstimation.melee" : "Atakuj %CREATURE (%DAMAGE).",
 	"vcmi.battleWindow.damageEstimation.meleeKills" : "Atakuj %CREATURE (%DAMAGE, %KILLS).",
 	"vcmi.battleWindow.damageEstimation.ranged" : "Strzelaj do %CREATURE (%SHOTS, %DAMAGE).",

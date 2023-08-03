@@ -11,16 +11,13 @@
 #include "StdInc.h"
 #include "CursorHardware.h"
 
+#include "../gui/CGuiHandler.h"
 #include "../render/Colors.h"
 #include "../render/IImage.h"
 #include "SDL_Extensions.h"
 
 #include <SDL_render.h>
 #include <SDL_events.h>
-
-#ifdef VCMI_APPLE
-#include <dispatch/dispatch.h>
-#endif
 
 CursorHardware::CursorHardware():
 	cursor(nullptr)
@@ -36,16 +33,13 @@ CursorHardware::~CursorHardware()
 
 void CursorHardware::setVisible(bool on)
 {
-#ifdef VCMI_APPLE
-	dispatch_async(dispatch_get_main_queue(), ^{
-#endif
-	if (on)
-		SDL_ShowCursor(SDL_ENABLE);
-	else
-		SDL_ShowCursor(SDL_DISABLE);
-#ifdef VCMI_APPLE
+	GH.dispatchMainThread([on]()
+	{
+		if (on)
+			SDL_ShowCursor(SDL_ENABLE);
+		else
+			SDL_ShowCursor(SDL_DISABLE);
 	});
-#endif
 }
 
 void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivotOffset)
@@ -63,16 +57,13 @@ void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivot
 		logGlobal->error("Failed to set cursor! SDL says %s", SDL_GetError());
 
 	SDL_FreeSurface(cursorSurface);
-#ifdef VCMI_APPLE
-	dispatch_async(dispatch_get_main_queue(), ^{
-#endif
-	SDL_SetCursor(cursor);
 
-	if (oldCursor)
-		SDL_FreeCursor(oldCursor);
-#ifdef VCMI_APPLE
+	GH.dispatchMainThread([this, oldCursor](){
+		SDL_SetCursor(cursor);
+
+		if (oldCursor)
+			SDL_FreeCursor(oldCursor);
 	});
-#endif
 }
 
 void CursorHardware::setCursorPosition( const Point & newPos )

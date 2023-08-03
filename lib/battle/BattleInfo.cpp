@@ -207,6 +207,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	curB->round = -2;
 	curB->activeStack = -1;
 	curB->creatureBank = creatureBank;
+	curB->replayAllowed = false;
 
 	if(town)
 	{

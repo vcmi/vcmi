@@ -111,7 +111,11 @@ void CBuilding::addNewBonus(const std::shared_ptr<Bonus> & b, BonusList & bonusL
 
 CFaction::~CFaction()
 {
-	delete town;
+	if (town)
+	{
+		delete town;
+		town = nullptr;
+	}
 }
 
 int32_t CFaction::getIndex() const
@@ -1030,7 +1034,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	faction->creatureBg120 = source["creatureBackground"]["120px"].String();
 	faction->creatureBg130 = source["creatureBackground"]["130px"].String();
 
-	faction->boatType = EBoatId::NONE;
+	faction->boatType = EBoatId::CASTLE; //Do not crash
 	if (!source["boat"].isNull())
 	{
 		VLC->identifiers()->requestIdentifier("core:boat", source["boat"], [=](int32_t boatTypeID)

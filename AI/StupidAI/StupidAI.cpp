@@ -242,7 +242,7 @@ void CStupidAI::battleStacksEffectsSet(const SetStackEffect & sse)
 	print("battleStacksEffectsSet called");
 }
 
-void CStupidAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side)
+void CStupidAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side, bool replayAllowed)
 {
 	print("battleStart called");
 	side = Side;

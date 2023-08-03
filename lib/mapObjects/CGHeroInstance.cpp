@@ -484,9 +484,12 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			if (cb->gameState()->map->getTile(boatPos).isWater())
 			{
 				smp.val = movementPointsLimit(false);
-				//Create a new boat for hero
-				cb->createObject(boatPos, Obj::BOAT, getBoatType().getNum());
-				boatId = cb->getTopObj(boatPos)->id;
+				if (!boat)
+				{
+					//Create a new boat for hero
+					cb->createObject(boatPos, Obj::BOAT, getBoatType().getNum());
+					boatId = cb->getTopObj(boatPos)->id;
+				}
 			}
 			else
 			{
@@ -1119,6 +1122,15 @@ int CGHeroInstance::maxSpellLevel() const
 	return std::min(GameConstants::SPELL_LEVELS, valOfBonuses(Selector::type()(BonusType::MAX_LEARNABLE_SPELL_LEVEL)));
 }
 
+void CGHeroInstance::attachToBoat(CGBoat* newBoat)
+{
+	assert(newBoat);
+	boat = newBoat;
+	attachTo(const_cast<CGBoat&>(*boat));
+	const_cast<CGBoat*>(boat)->hero = this;
+}
+
+
 void CGHeroInstance::deserializationFix()
 {
 	artDeserializationFix(this);
@@ -1718,22 +1730,25 @@ bool CGHeroInstance::isMissionCritical() const
 {
 	for(const TriggeredEvent & event : IObjectInterface::cb->getMapHeader()->triggeredEvents)
 	{
-		if(event.trigger.test([&](const EventCondition & condition)
+		if (event.effect.type != EventEffect::DEFEAT)
+			continue;
+
+		auto const & testFunctor = [&](const EventCondition & condition)
 		{
 			if ((condition.condition == EventCondition::CONTROL || condition.condition == EventCondition::HAVE_0) && condition.object)
 			{
 				const auto * hero = dynamic_cast<const CGHeroInstance *>(condition.object);
 				return (hero != this);
 			}
-			else if(condition.condition == EventCondition::IS_HUMAN)
-			{
+
+			if(condition.condition == EventCondition::IS_HUMAN)
 				return true;
-			}
+
 			return false;
-		}))
-		{
+		};
+
+		if(event.trigger.test(testFunctor))
 			return true;
-		}
 	}
 	return false;
 }

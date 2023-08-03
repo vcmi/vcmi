@@ -29,7 +29,7 @@ namespace NKAI
 {
 
 // our to enemy strength ratio constants
-const float SAFE_ATTACK_CONSTANT = 1.2f;
+const float SAFE_ATTACK_CONSTANT = 1.1f;
 const float RETREAT_THRESHOLD = 0.3f;
 const double RETREAT_ABSOLUTE_THRESHOLD = 10000.;
 
@@ -90,8 +90,10 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
-	validateObject(details.id); //enemy hero may have left visible area
 	auto hero = cb->getHero(details.id);
+
+	if(!hero)
+		validateObject(details.id); //enemy hero may have left visible area
 
 	const int3 from = hero ? hero->convertToVisitablePos(details.start) : (details.start - int3(0,1,0));;
 	const int3 to   = hero ? hero->convertToVisitablePos(details.end)   : (details.end   - int3(0,1,0));
@@ -777,26 +779,19 @@ void AIGateway::makeTurn()
 	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 	setThreadName("AIGateway::makeTurn");
 
+	cb->sendMessage("vcmieagles");
+
+	retrieveVisitableObjs();
+
 	if(cb->getDate(Date::DAY_OF_WEEK) == 1)
 	{
-		std::vector<const CGObjectInstance *> objs;
-		retrieveVisitableObjs(objs, true);
-
-		for(const CGObjectInstance * obj : objs)
+		for(const CGObjectInstance * obj : nullkiller->memory->visitableObjs)
 		{
 			if(isWeeklyRevisitable(obj))
 			{
-				addVisitableObj(obj);
 				nullkiller->memory->markObjectUnvisited(obj);
 			}
 		}
-	}
-
-	cb->sendMessage("vcmieagles");
-
-	if(cb->getDate(Date::DAY) == 1)
-	{
-		retrieveVisitableObjs();
 	}
 
 #if NKAI_TRACE_LEVEL == 0
@@ -809,7 +804,7 @@ void AIGateway::makeTurn()
 		for (auto h : cb->getHeroesInfo())
 		{
 			if (h->movementPointsRemaining())
-				logAi->warn("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
+				logAi->info("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
 		}
 #if NKAI_TRACE_LEVEL == 0
 	}
@@ -871,6 +866,19 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 	const CArmedInstance * armies[] = {destinationArmy, source};
 
 	auto bestArmy = nullkiller->armyManager->getBestArmy(destinationArmy, destinationArmy, source);
+
+	for(auto army : armies)
+	{
+		// move first stack at first slot if empty to avoid can not take away last creature
+		if(!army->hasStackAtSlot(SlotID(0)) && army->stacksCount() > 0)
+		{
+			cb->mergeOrSwapStacks(
+				army,
+				army,
+				SlotID(0),
+				army->Slots().begin()->first);
+		}
+	}
 
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
 	for(SlotID i = SlotID(0); i.validSlot(); i.advance(1)) //i-th strongest creature type will go to i-th slot
@@ -1059,20 +1067,25 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 		int count = d->creatures[i].first;
 		CreatureID creID = d->creatures[i].second.back();
 
+		if(!recruiter->getSlotFor(creID).validSlot())
+		{
+			continue;
+		}
+
 		vstd::amin(count, cb->getResourceAmount() / creID.toCreature()->getFullRecruitCost());
 		if(count > 0)
 			cb->recruitCreatures(d, recruiter, creID, count, i);
 	}
 }
 
-void AIGateway::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side)
+void AIGateway::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
 {
 	NET_EVENT_HANDLER;
 	assert(playerID > PlayerColor::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
 	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTranslated() : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
-	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side);
+	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
 
 void AIGateway::battleEnd(const BattleResult * br, QueryID queryID)
@@ -1083,12 +1096,16 @@ void AIGateway::battleEnd(const BattleResult * br, QueryID queryID)
 	bool won = br->winner == myCb->battleGetMySide();
 	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.getStr(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
-	status.addQuery(queryID, "Combat result dialog");
-	const int confirmAction = 0;
-	requestActionASAP([=]()
+
+	if (queryID != -1)
 	{
-		answerQuery(queryID, confirmAction);
-	});
+		status.addQuery(queryID, "Combat result dialog");
+		const int confirmAction = 0;
+		requestActionASAP([=]()
+		{
+			answerQuery(queryID, confirmAction);
+		});
+	}
 	CAdventureAI::battleEnd(br, queryID);
 }
 
@@ -1098,26 +1115,13 @@ void AIGateway::waitTillFree()
 	status.waitTillFree();
 }
 
-void AIGateway::retrieveVisitableObjs(std::vector<const CGObjectInstance *> & out, bool includeOwned) const
-{
-	foreach_tile_pos([&](const int3 & pos)
-	{
-		for(const CGObjectInstance * obj : myCb->getVisitableObjs(pos, false))
-		{
-			if(includeOwned || obj->tempOwner != playerID)
-				out.push_back(obj);
-		}
-	});
-}
-
 void AIGateway::retrieveVisitableObjs()
 {
 	foreach_tile_pos([&](const int3 & pos)
 	{
 		for(const CGObjectInstance * obj : myCb->getVisitableObjs(pos, false))
 		{
-			if(obj->tempOwner != playerID)
-				addVisitableObj(obj);
+			addVisitableObj(obj);
 		}
 	});
 }
@@ -1175,7 +1179,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 	if(startHpos == dst)
 	{
 		//FIXME: this assertion fails also if AI moves onto defeated guarded object
-		assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
+		//assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
 		cb->moveHero(*h, h->convertFromVisitablePos(dst));
 		afterMovementCheck(); // TODO: is it feasible to hero get killed there if game work properly?
 		// If revisiting, teleport probing is never done, and so the entries into the list would remain unused and uncleared

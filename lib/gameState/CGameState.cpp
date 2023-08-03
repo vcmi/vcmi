@@ -858,8 +858,7 @@ void CGameState::initHeroes()
 			map->objects.emplace_back(boat);
 			map->addBlockVisTiles(boat);
 
-			boat->hero = hero;
-			hero->boat = boat;
+			hero->attachToBoat(boat);
 		}
 	}
 

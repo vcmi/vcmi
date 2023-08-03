@@ -51,7 +51,7 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 
 	REGISTER_BUILDER("battleConsole", &BattleWindow::buildBattleConsole);
 	
-	const JsonNode config(ResourceID("config/widgets/BattleWindow.json"));
+	const JsonNode config(ResourceID("config/widgets/BattleWindow2.json"));
 	
 	addShortcut(EShortcut::GLOBAL_OPTIONS, std::bind(&BattleWindow::bOptionsf, this));
 	addShortcut(EShortcut::BATTLE_SURRENDER, std::bind(&BattleWindow::bSurrenderf, this));
@@ -501,7 +501,7 @@ void BattleWindow::bAutofightf()
 
 		auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
 		ai->initBattleInterface(owner.curInt->env, owner.curInt->cb);
-		ai->battleStart(owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.curInt->cb->battleGetMySide());
+		ai->battleStart(owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.curInt->cb->battleGetMySide(), false);
 		owner.curInt->autofightingAI = ai;
 		owner.curInt->cb->registerBattleInterface(ai);
 

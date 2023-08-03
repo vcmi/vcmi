@@ -280,6 +280,10 @@ if(MINGW OR MSVC)
 	endif(MSVC)
 
 	if(MINGW)
+
+		# Temporary (?) workaround for failing builds on MinGW CI due to bug in TBB
+		set(CMAKE_CXX_EXTENSIONS ON)
+
 		set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock dbghelp bcrypt)
 
 		# Check for iconv (may be needed for Boost.Locale)
