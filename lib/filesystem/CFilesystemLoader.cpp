@@ -86,7 +86,7 @@ bool CFilesystemLoader::createResource(std::string filename, bool update)
 	if (!update)
 	{
 		// create file, if not exists
-		std::fstream file((baseDirectory / filename).c_str());
+		std::ofstream file((baseDirectory / filename).c_str(), std::ofstream::binary);
 
 		if (!file.is_open())
 			return false;
