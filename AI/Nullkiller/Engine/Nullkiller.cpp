@@ -323,6 +323,11 @@ void Nullkiller::makeTurn()
 		}
 
 		executeTask(bestTask);
+
+		if(i == MAXPASS)
+		{
+			logAi->error("Goal %s exceeded maxpass. Terminating AI turn.", bestTask->toString());
+		}
 	}
 }
 
