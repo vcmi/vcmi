@@ -182,9 +182,16 @@ public class ActivityMods extends ActivityWithToolbar
         public void onSuccess(ServerResponse<List<VCMIMod>> response)
         {
             Log.i(this, "Initialized mods repo");
-            mModContainer.updateFromRepo(response.mContent);
-            mModsAdapter.updateModsList(mModContainer.submods());
-            mProgress.setVisibility(View.GONE);
+			if (mModContainer == null)
+			{
+				handleNoData();
+			}
+			else
+			{
+				mModContainer.updateFromRepo(response.mContent);
+				mModsAdapter.updateModsList(mModContainer.submods());
+				mProgress.setVisibility(View.GONE);
+			}
         }
 
         @Override
