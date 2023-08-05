@@ -2122,7 +2122,7 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 
 	BattleField terType = gs->battleGetBattlefieldType(tile, getRandomGenerator());
 	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
-		terType = BattleField(*VLC->modh->identifiers.getIdentifier("core", "battlefield", "ship_to_ship"));
+		terType = BattleField(*VLC->modh->identifiers.getIdentifier("core", "battlefield.ship_to_ship"));
 
 	//send info about battles
 	BattleStart bs;

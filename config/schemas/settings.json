@@ -201,8 +201,6 @@
 				},
 				"targetfps" : {
 					"type" : "number",
-					"defaultIOS" : 30, // reduce battery usage
-					"defaultAndroid" : 30, // reduce battery usage
 					"default" : 60
 				}
 			}

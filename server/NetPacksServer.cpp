@@ -282,24 +282,24 @@ void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 {
 	const BattleInfo * b = gs.curB;
 	if(!b)
-		gh.throwNotAllowedAction(&pack);
+		gh.throwAndComplain(&pack, "Can not make action - there is no battle ongoing!");
 
 	if(b->tacticDistance)
 	{
 		if(pack.ba.actionType != EActionType::WALK && pack.ba.actionType != EActionType::END_TACTIC_PHASE
 			&& pack.ba.actionType != EActionType::RETREAT && pack.ba.actionType != EActionType::SURRENDER)
-			gh.throwNotAllowedAction(&pack);
+			gh.throwAndComplain(&pack, "Can not make actions while in tactics mode!");
 		if(!vstd::contains(gh.connections[b->sides[b->tacticsSide].color], pack.c))
-			gh.throwNotAllowedAction(&pack);
+			gh.throwAndComplain(&pack, "Can not make actions in battles you are not part of!");
 	}
 	else
 	{
 		auto active = b->battleActiveUnit();
 		if(!active)
-			gh.throwNotAllowedAction(&pack);
+			gh.throwAndComplain(&pack, "No active unit in battle!");
 		auto unitOwner = b->battleGetOwner(active);
 		if(!vstd::contains(gh.connections[unitOwner], pack.c))
-			gh.throwNotAllowedAction(&pack);
+			gh.throwAndComplain(&pack, "Can not make actions in battles you are not part of!");
 	}
 
 	result = gh.makeBattleAction(pack.ba);

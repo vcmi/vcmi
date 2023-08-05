@@ -299,3 +299,17 @@ void Graphics::initializeImageLists()
 	addImageListEntries(CGI->spells());
 	addImageListEntries(CGI->skills());
 }
+
+std::shared_ptr<CAnimation> Graphics::getAnimation(const std::string & path)
+{
+	ResourceID animationPath(path, EResType::ANIMATION);
+
+	if (cachedAnimations.count(animationPath.getName()) != 0)
+		return cachedAnimations.at(animationPath.getName());
+
+	auto newAnimation = std::make_shared<CAnimation>(animationPath.getName());
+
+	newAnimation->preload();
+	cachedAnimations[animationPath.getName()] = newAnimation;
+	return newAnimation;
+}

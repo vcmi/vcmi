@@ -95,6 +95,14 @@ void callAllInterfaces(CClient & cl, void (T::*ptr)(Args...), Args2 && ...args)
 template<typename T, typename ... Args, typename ... Args2>
 void callBattleInterfaceIfPresentForBothSides(CClient & cl, void (T::*ptr)(Args...), Args2 && ...args)
 {
+	assert(cl.gameState()->curB);
+
+	if (!cl.gameState()->curB)
+	{
+		logGlobal->error("Attempt to call battle interface without ongoing battle!");
+		return;
+	}
+
 	callOnlyThatBattleInterface(cl, cl.gameState()->curB->sides[0].color, ptr, std::forward<Args2>(args)...);
 	callOnlyThatBattleInterface(cl, cl.gameState()->curB->sides[1].color, ptr, std::forward<Args2>(args)...);
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool() && LOCPLINT->battleInt)
