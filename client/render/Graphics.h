@@ -47,7 +47,11 @@ class Graphics
 	void loadFonts();
 	void initializeImageLists();
 
+	std::map<std::string, std::shared_ptr<CAnimation>> cachedAnimations;
+
 public:
+	std::shared_ptr<CAnimation> getAnimation(const std::string & path);
+
 	//Fonts
 	static const int FONTS_NUMBER = 9;
 	std::array< std::shared_ptr<IFont>, FONTS_NUMBER> fonts;
