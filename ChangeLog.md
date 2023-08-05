@@ -1,6 +1,11 @@
 # 1.3.0 -> 1.3.1
 (unreleased)
 
+* Fixed crash on starting game with outdated mods
+* Fixed Android mod manager crash 
+* Fixed framerate drops on hero movement with active hota mod
+* Reverted FPS limit on mobile systems back to 60 fps
+
 # 1.2.1 -> 1.3.0
 
 ### GENERAL:
