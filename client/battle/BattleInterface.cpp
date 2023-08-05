@@ -445,6 +445,8 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 			stacksController->addNewAnim(new EffectAnimation(*this, side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
 		});
 	}
+
+	// animations will be executed by spell effects
 }
 
 void BattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
