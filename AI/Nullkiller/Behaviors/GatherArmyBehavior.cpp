@@ -92,15 +92,6 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 			continue;
 		}
 
-		bool garrisoned = false;
-
-		if(path.turn() == 0 && hero->inTownGarrison)
-		{
-#if NKAI_TRACE_LEVEL >= 1
-			garrisoned = true;
-#endif
-		}
-
 		if(path.turn() > 0 && ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
@@ -184,15 +175,22 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 
 			composition.addNext(heroExchange);
 
-			if(garrisoned && path.turn() == 0)
+			if(hero->inTownGarrison && path.turn() == 0)
 			{
 				auto lockReason = ai->nullkiller->getHeroLockedReason(hero);
 
-				composition.addNextSequence({
-					sptr(ExchangeSwapTownHeroes(hero->visitedTown)),
-					sptr(exchangePath),
-					sptr(ExchangeSwapTownHeroes(hero->visitedTown, hero, lockReason))
-				});
+				if(path.targetHero->visitedTown == hero->visitedTown)
+				{
+					composition.addNextSequence({
+						sptr(ExchangeSwapTownHeroes(hero->visitedTown, hero, lockReason))});
+				}
+				else
+				{
+					composition.addNextSequence({
+						sptr(ExchangeSwapTownHeroes(hero->visitedTown)),
+						sptr(exchangePath),
+						sptr(ExchangeSwapTownHeroes(hero->visitedTown, hero, lockReason))});
+				}
 			}
 			else
 			{
