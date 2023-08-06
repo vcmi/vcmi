@@ -523,6 +523,14 @@ uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 &
 	for(const auto & objectID : context.getObjects(coordinates))
 	{
 		const auto * objectInstance = context.getObject(objectID);
+
+		assert(objectInstance);
+		if(!objectInstance)
+		{
+			logGlobal->error("Stray map object that isn't fading");
+			continue;
+		}
+
 		size_t groupIndex = context.objectGroupIndex(objectInstance->id);
 		Point offsetPixels = context.objectImageOffset(objectInstance->id, coordinates);
 
