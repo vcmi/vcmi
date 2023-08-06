@@ -28,6 +28,7 @@ public:
 	std::unique_ptr<Campaign> campaign; //may be nullptr if scenario
 	StartInfo * scenarioOptionsOfSave; // Options with which scenario has been started (used only with saved games)
 	std::string fileURI;
+	std::string fullFileURI;
 	std::string date;
 	int amountOfPlayersOnMap;
 	int amountOfHumanControllablePlayers;
@@ -61,6 +62,7 @@ public:
 		h & campaign;
 		h & scenarioOptionsOfSave;
 		h & fileURI;
+		h & fullFileURI;
 		h & date;
 		h & amountOfPlayersOnMap;
 		h & amountOfHumanControllablePlayers;
