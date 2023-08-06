@@ -18,8 +18,11 @@
 #include "../threadpool/MapProxy.h"
 #include "../../CModHandler.h"
 #include "../../mapping/CMapEditManager.h"
+#include "../../TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+class TerrainType;
 
 void RoadPlacer::process()
 {
@@ -113,6 +116,13 @@ void RoadPlacer::drawRoads(bool secondary)
 	{
 		//Clean space under roads even if they won't be eventually generated
 		Zone::Lock lock(zone.areaMutex);
+
+		//Do not draw roads on underground rock or water
+		roads.erase_if([this](const int3& pos) -> bool
+		{
+			const auto* terrain = map.getTile(pos).terType;;
+			return !terrain->isPassable() || !terrain->isLand();
+		});
 
 		zone.areaPossible().subtract(roads);
 		zone.freePaths().unite(roads);
