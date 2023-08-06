@@ -126,24 +126,11 @@ void Graphics::initializeBattleGraphics()
 }
 Graphics::Graphics()
 {
-	#if 0
-
-	std::vector<Task> tasks; //preparing list of graphics to load
-	tasks += std::bind(&Graphics::loadFonts,this);
-	tasks += std::bind(&Graphics::loadPaletteAndColors,this);
-	tasks += std::bind(&Graphics::initializeBattleGraphics,this);
-	tasks += std::bind(&Graphics::loadErmuToPicture,this);
-	tasks += std::bind(&Graphics::initializeImageLists,this);
-
-	CThreadHelper th(&tasks,std::max((ui32)1,boost::thread::hardware_concurrency()));
-	th.run();
-	#else
 	loadFonts();
 	loadPaletteAndColors();
 	initializeBattleGraphics();
 	loadErmuToPicture();
 	initializeImageLists();
-	#endif
 
 	//(!) do not load any CAnimation here
 }
