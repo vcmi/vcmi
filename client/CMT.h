@@ -21,3 +21,7 @@ extern SDL_Surface *screen2;     // and hlp surface (used to store not-active in
 extern SDL_Surface *screenBuf; // points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 
 void handleQuit(bool ask = true);
+
+/// Notify user about encoutered fatal error and terminate the game
+/// TODO: decide on better location for this method
+[[noreturn]] void handleFatalError(const std::string & message);

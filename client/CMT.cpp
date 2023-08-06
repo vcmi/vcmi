@@ -38,6 +38,7 @@
 #include <vstd/StringUtils.h>
 
 #include <SDL_main.h>
+#include <SDL.h>
 
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
@@ -509,4 +510,14 @@ void handleQuit(bool ask)
 	{
 		quitApplication();
 	}
+}
+
+void handleFatalError(const std::string & message)
+{
+	logGlobal->error("FATAL ERROR ENCOUTERED, VCMI WILL NOW TERMINATE");
+	logGlobal->error("Reason: %s", message);
+
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fatal error", message.c_str(), nullptr);
+
+	throw std::runtime_error(message);
 }
