@@ -261,19 +261,12 @@ int main(int argc, char * argv[])
 		if (CResourceHandler::get()->existsResource(ResourceID(filename)))
 			return true;
 
-		logGlobal->error("Error: %s was not found!", message);
-		return false;
+		handleFatalError(message, false);
 	};
 
-	if (!testFile("DATA/HELP.TXT", "Heroes III data") ||
-		!testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
-	{
-		exit(1); // These are unrecoverable errors
-	}
-
-	// these two are optional + some installs have them on CD and not in data directory
-	testFile("VIDEO/GOOD1A.SMK", "campaign movies");
-	testFile("SOUNDS/G1A.WAV", "campaign music"); //technically not a music but voiced intro sounds
+	testFile("DATA/HELP.TXT", "VCMI requires Heroes III: Shadow of Death or Heroes III: Complete data files to run!");
+	testFile("MODS/VCMI/MOD.JSON", "VCMI installation is corrupted! Built-in mod was not found!");
+	testFile("DATA/TENTCOLR.TXT", "Heroes III: Restoration of Erathia (including HD Edition) data files are not supported!");
 
 	srand ( (unsigned int)time(nullptr) );
 
@@ -512,12 +505,17 @@ void handleQuit(bool ask)
 	}
 }
 
-void handleFatalError(const std::string & message)
+void handleFatalError(const std::string & message, bool terminate)
 {
 	logGlobal->error("FATAL ERROR ENCOUTERED, VCMI WILL NOW TERMINATE");
 	logGlobal->error("Reason: %s", message);
 
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fatal error", message.c_str(), nullptr);
+	std::string messageToShow = "Fatal error! " + message;
 
-	throw std::runtime_error(message);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fatal error!", messageToShow.c_str(), nullptr);
+
+	if (terminate)
+		throw std::runtime_error(message);
+	else
+		exit(1);
 }

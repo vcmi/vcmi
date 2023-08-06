@@ -24,4 +24,4 @@ void handleQuit(bool ask = true);
 
 /// Notify user about encoutered fatal error and terminate the game
 /// TODO: decide on better location for this method
-[[noreturn]] void handleFatalError(const std::string & message);
+[[noreturn]] void handleFatalError(const std::string & message, bool terminate);

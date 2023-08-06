@@ -271,7 +271,7 @@ void ScreenHandler::initializeWindow()
 		std::string messagePattern = "Failed to create SDL Window of size %d x %d. Reason: %s";
 		std::string message = boost::str(boost::format(messagePattern) % dimensions.x % dimensions.y % error);
 
-		handleFatalError(message);
+		handleFatalError(message, true);
 	}
 
 	//create first available renderer if preferred not set. Use no flags, so HW accelerated will be preferred but SW renderer also will possible
