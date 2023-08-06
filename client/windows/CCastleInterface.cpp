@@ -849,7 +849,13 @@ void CCastleBuildings::enterCastleGate()
 
 void CCastleBuildings::enterDwelling(int level)
 {
-	assert(level >= 0 && level < town->creatures.size());
+	if (level < 0 || level >= town->creatures.size() || town->creatures[level].second.empty())
+	{
+		assert(0);
+		logGlobal->error("Attempt to enter into invalid dwelling of level %d in town %s (%s)", level, town->getNameTranslated(), town->town->faction->getNameTranslated());
+		return;
+	}
+
 	auto recruitCb = [=](CreatureID id, int count)
 	{
 		LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
