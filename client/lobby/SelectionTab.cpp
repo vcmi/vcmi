@@ -148,7 +148,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		int sizes[] = {36, 72, 108, 144, 0};
 		const char * filterIconNmes[] = {"SCSMBUT.DEF", "SCMDBUT.DEF", "SCLGBUT.DEF", "SCXLBUT.DEF", "SCALBUT.DEF"};
 		for(int i = 0; i < 5; i++)
-			buttonsSortBy.push_back(std::make_shared<CButton>(Point(158 + 47 * i, 46), filterIconNmes[i], CGI->generaltexth->zelp[54 + i], std::bind(&SelectionTab::filter, this, sizes[i], true)));
+			buttonsSortBy.push_back(std::make_shared<CButton>(Point(158 + 47 * i, 46), filterIconNmes[i], CGI->generaltexth->zelp[54 + i], std::bind(&SelectionTab::filter, this, sizes[i], true, "")));
 
 		int xpos[] = {23, 55, 88, 121, 306, 339};
 		const char * sortIconNames[] = {"SCBUTT1.DEF", "SCBUTT2.DEF", "SCBUTCP.DEF", "SCBUTT3.DEF", "SCBUTT4.DEF", "SCBUTT5.DEF"};
@@ -214,6 +214,7 @@ void SelectionTab::toggleMode()
 	{
 		allItems.clear();
 		curItems.clear();
+		curFolders.clear();
 		if(slider)
 			slider->block(true);
 	}
@@ -328,7 +329,7 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 	if(py >= curItems.size())
 		return;
 
-	std::string text = boost::str(boost::format("{%1%}\r\n\r\n%2%:\r\n%3%") % curItems[py]->getName() % CGI->generaltexth->translate("vcmi.lobby.filename") % curItems[py]->fileURI);
+	std::string text = boost::str(boost::format("{%1%}\r\n\r\n%2%:\r\n%3%") % curItems[py]->getName() % CGI->generaltexth->translate("vcmi.lobby.filename") % curItems[py]->fullFileURI);
 	if(curItems[py]->date != "")
 	    text += boost::str(boost::format("\r\n\r\n%1%:\r\n%2%") % CGI->generaltexth->translate("vcmi.lobby.creationDate") % curItems[py]->date);
 
@@ -337,9 +338,13 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 
 // A new size filter (Small, Medium, ...) has been selected. Populate
 // selMaps with the relevant data.
-void SelectionTab::filter(int size, bool selectFirst)
+void SelectionTab::filter(int size, bool selectFirst, std::string path)
 {
+	path = "AA";
+
+
 	curItems.clear();
+	curFolders.clear();
 
 	if(tabType == ESelectionScreen::campaignList)
 	{
@@ -351,7 +356,37 @@ void SelectionTab::filter(int size, bool selectFirst)
 		for(auto elem : allItems)
 		{
 			if(elem->mapHeader && (!size || elem->mapHeader->width == size))
+			{
+				std::string folder = boost::filesystem::path(elem->fileURI).parent_path().string();
+				std::vector<std::string> filetree;
+
+				// delete first element (e.g. 'MAPS')
+				boost::split(filetree, folder, boost::is_any_of("/"));
+				filetree.erase(filetree.begin());
+				folder = boost::algorithm::join(filetree, "/");
+
+				// remove current dir
+				if(boost::algorithm::starts_with(folder, path))
+				{
+					folder = folder.substr(path.size());
+					if(boost::algorithm::starts_with(folder, "/"))
+						folder = folder.substr(1);
+
+					if (std::find(curFolders.begin(), curFolders.end(), "..") == curFolders.end()) {
+						curFolders.push_back("..");
+					}
+				}
+
+				if(folder != "")
+				{
+					boost::split(filetree, folder, boost::is_any_of("/"));
+					if (std::find(curFolders.begin(), curFolders.end(), filetree[0]) == curFolders.end()) {
+						curFolders.push_back(filetree[0]);
+					}
+				}
+
 				curItems.push_back(elem);
+			}
 		}
 	}
 
@@ -406,7 +441,7 @@ void SelectionTab::sort()
 
 void SelectionTab::select(int position)
 {
-	if(!curItems.size())
+	if(!(curFolders.size() + curItems.size()))
 		return;
 
 	// New selection. py is the index in curItems.
@@ -456,9 +491,14 @@ void SelectionTab::updateListItems()
 	int elemIdx = slider->getValue();
 	for(auto item : listItems)
 	{
-		if(elemIdx < curItems.size())
+		if(elemIdx < curFolders.size())
 		{
-			item->updateItem(curItems[elemIdx], elemIdx == selectionPos);
+			item->updateItem(curFolders[elemIdx], elemIdx == selectionPos);
+			elemIdx++;
+		}
+		else if(elemIdx - curFolders.size() < curItems.size())
+		{
+			item->updateItem(curItems[elemIdx - curFolders.size()], elemIdx - curFolders.size() == selectionPos);
 			elemIdx++;
 		}
 		else
@@ -517,7 +557,7 @@ void SelectionTab::selectFileName(std::string fname)
 
 std::shared_ptr<CMapInfo> SelectionTab::getSelectedMapInfo() const
 {
-	return curItems.empty() ? nullptr : curItems[selectionPos];
+	return curItems.empty() && selectionPos <= curFolders.size() ? nullptr : curItems[selectionPos - curFolders.size()];
 }
 
 void SelectionTab::rememberCurrentSelection()
@@ -680,6 +720,21 @@ SelectionTab::ListItem::ListItem(Point position, std::shared_ptr<CAnimation> ico
 	iconFormat = std::make_shared<CAnimImage>(iconsFormats, 0, 0, 59, -12);
 	iconVictoryCondition = std::make_shared<CAnimImage>(iconsVictory, 0, 0, 277, -12);
 	iconLossCondition = std::make_shared<CAnimImage>(iconsLoss, 0, 0, 310, -12);
+}
+
+void SelectionTab::ListItem::updateItem(std::string folderName, bool selected)
+{
+	labelAmountOfPlayers->disable();
+	labelMapSizeLetter->disable();
+	iconFormat->disable();
+	iconVictoryCondition->disable();
+	iconLossCondition->disable();
+	labelNumberOfCampaignMaps->disable();
+	labelName->enable();
+	labelName->setText(folderName);
+	auto color = selected ? Colors::YELLOW : Colors::WHITE;
+	labelName->setColor(color);
+	return;
 }
 
 void SelectionTab::ListItem::updateItem(std::shared_ptr<CMapInfo> info, bool selected)

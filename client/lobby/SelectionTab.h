@@ -41,6 +41,7 @@ class SelectionTab : public CIntObject
 		std::shared_ptr<CLabel> labelName;
 
 		ListItem(Point position, std::shared_ptr<CAnimation> iconsFormats, std::shared_ptr<CAnimation> iconsVictory, std::shared_ptr<CAnimation> iconsLoss);
+		void updateItem(std::string folderName, bool selected = false);
 		void updateItem(std::shared_ptr<CMapInfo> info = {}, bool selected = false);
 	};
 	std::vector<std::shared_ptr<ListItem>> listItems;
@@ -53,6 +54,8 @@ class SelectionTab : public CIntObject
 public:
 	std::vector<std::shared_ptr<CMapInfo>> allItems;
 	std::vector<std::shared_ptr<CMapInfo>> curItems;
+	std::vector<std::string> curFolders;
+	std::string curFolder;
 	size_t selectionPos;
 	std::function<void(std::shared_ptr<CMapInfo>)> callOnSelect;
 
@@ -71,7 +74,7 @@ public:
 	void showPopupWindow(const Point & cursorPosition) override;
 	bool receiveEvent(const Point & position, int eventType) const override;
 
-	void filter(int size, bool selectFirst = false); //0 - all
+	void filter(int size, bool selectFirst = false, std::string path = "MAPS"); //0 - all
 	void sortBy(int criteria);
 	void sort();
 	void select(int position); //position: <0 - positions>  position on the screen
