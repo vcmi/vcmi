@@ -81,7 +81,7 @@ public class FileUtil
     {
         if (file == null)
         {
-            Log.e("Broken path given to fileutil");
+            Log.e("Broken path given to fileutil::ensureWriteable");
             return false;
         }
 
@@ -99,6 +99,12 @@ public class FileUtil
 
     public static boolean clearDirectory(final File dir)
     {
+        if (dir == null)
+        {
+            Log.e("Broken path given to fileutil::clearDirectory");
+            return false;
+        }
+
         for (final File f : dir.listFiles())
         {
             if (f.isDirectory() && !clearDirectory(f))

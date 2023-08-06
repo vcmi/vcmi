@@ -1183,11 +1183,19 @@ void CTownHandler::initializeRequirements()
 		{
 			if (node.Vector().size() > 1)
 			{
-				logMod->warn("Unexpected length of town buildings requirements: %d", node.Vector().size());
-				logMod->warn("Entry contains: ");
-				logMod->warn(node.toJson());
+				logMod->error("Unexpected length of town buildings requirements: %d", node.Vector().size());
+				logMod->error("Entry contains: ");
+				logMod->error(node.toJson());
 			}
-			return BuildingID(VLC->modh->identifiers.getIdentifier(requirement.town->getBuildingScope(), node.Vector()[0]).value());
+
+			auto index = VLC->modh->identifiers.getIdentifier(requirement.town->getBuildingScope(), node[0]);
+
+			if (!index.has_value())
+			{
+				logMod->error("Unknown building in town buildings: %s", node[0].String());
+				return BuildingID::NONE;
+			}
+			return BuildingID(index.value());
 		});
 	}
 	requirementsToLoad.clear();
