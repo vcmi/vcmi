@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CSelectionBase.h"
+#include "../../lib/mapping/CMapInfo.h"
 
 class CSlider;
 class CLabel;
@@ -19,12 +20,21 @@ enum ESortBy
 	_playerAm, _size, _format, _name, _viccon, _loscon, _numOfMaps, _fileName
 }; //_numOfMaps is for campaigns
 
+class ElementInfo : public CMapInfo
+{
+public:
+	ElementInfo() : CMapInfo() { }
+	~ElementInfo() { }
+	std::string folderName = "";
+	bool isFolder = false;
+};
+
 /// Class which handles map sorting by different criteria
 class mapSorter
 {
 public:
 	ESortBy sortBy;
-	bool operator()(const std::shared_ptr<CMapInfo> aaa, const std::shared_ptr<CMapInfo> bbb);
+	bool operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb);
 	mapSorter(ESortBy es) : sortBy(es){};
 };
 
@@ -41,8 +51,7 @@ class SelectionTab : public CIntObject
 		std::shared_ptr<CLabel> labelName;
 
 		ListItem(Point position, std::shared_ptr<CAnimation> iconsFormats, std::shared_ptr<CAnimation> iconsVictory, std::shared_ptr<CAnimation> iconsLoss);
-		void updateItem(std::string folderName, bool selected = false);
-		void updateItem(std::shared_ptr<CMapInfo> info = {}, bool selected = false);
+		void updateItem(std::shared_ptr<ElementInfo> info = {}, bool selected = false);
 	};
 	std::vector<std::shared_ptr<ListItem>> listItems;
 
@@ -52,12 +61,11 @@ class SelectionTab : public CIntObject
 	std::shared_ptr<CAnimation> iconsLossCondition;
 
 public:
-	std::vector<std::shared_ptr<CMapInfo>> allItems;
-	std::vector<std::shared_ptr<CMapInfo>> curItems;
-	std::vector<std::string> curFolders;
+	std::vector<std::shared_ptr<ElementInfo>> allItems;
+	std::vector<std::shared_ptr<ElementInfo>> curItems;
 	std::string curFolder;
 	size_t selectionPos;
-	std::function<void(std::shared_ptr<CMapInfo>)> callOnSelect;
+	std::function<void(std::shared_ptr<ElementInfo>)> callOnSelect;
 
 	ESortBy sortingBy;
 	ESortBy generalSortingBy;
@@ -74,7 +82,7 @@ public:
 	void showPopupWindow(const Point & cursorPosition) override;
 	bool receiveEvent(const Point & position, int eventType) const override;
 
-	void filter(int size, bool selectFirst = false, std::string path = "MAPS"); //0 - all
+	void filter(int size, bool selectFirst = false); //0 - all
 	void sortBy(int criteria);
 	void sort();
 	void select(int position); //position: <0 - positions>  position on the screen
@@ -84,7 +92,7 @@ public:
 	int getLine() const;
 	int getLine(const Point & position) const;
 	void selectFileName(std::string fname);
-	std::shared_ptr<CMapInfo> getSelectedMapInfo() const;
+	std::shared_ptr<ElementInfo> getSelectedMapInfo() const;
 	void rememberCurrentSelection();
 	void restoreLastSelection();
 
@@ -97,6 +105,8 @@ private:
 	std::shared_ptr<CLabel> labelMapSizes;
 	ESelectionScreen tabType;
 	Rect inputNameRect;
+
+	std::tuple<std::string, bool> checkSubfolder(std::string path);
 
 	bool isMapSupported(const CMapInfo & info);
 	void parseMaps(const std::unordered_set<ResourceID> & files);
