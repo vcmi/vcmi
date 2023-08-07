@@ -58,7 +58,7 @@ std::string CBank::getHoverText(PlayerColor player) const
 void CBank::setConfig(const BankConfig & config)
 {
 	bc = std::make_unique<BankConfig>(config);
-	clear(); // remove all stacks, if any
+	clearSlots(); // remove all stacks, if any
 
 	for(const auto & stack : config.guards)
 		setCreature (SlotID(stacksCount()), stack.type->getId(), stack.count);
