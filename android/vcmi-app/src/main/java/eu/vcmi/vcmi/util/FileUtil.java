@@ -99,7 +99,7 @@ public class FileUtil
 
     public static boolean clearDirectory(final File dir)
     {
-        if (dir == null)
+        if (dir == null || dir.listFiles() == null)
         {
             Log.e("Broken path given to fileutil::clearDirectory");
             return false;
