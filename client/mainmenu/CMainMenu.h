@@ -148,6 +148,7 @@ public:
 	static void openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> * names, ELoadMode loadMode);
 	static void openCampaignLobby(const std::string & campaignFileName);
 	static void openCampaignLobby(std::shared_ptr<CampaignState> campaign);
+	static void startTutorial();
 	void openCampaignScreen(std::string name);
 
 	static std::shared_ptr<CMainMenu> create();

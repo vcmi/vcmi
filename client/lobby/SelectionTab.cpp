@@ -222,9 +222,13 @@ void SelectionTab::toggleMode()
 		switch(tabType)
 		{
 		case ESelectionScreen::newGame:
-			inputName->disable();
-			parseMaps(getFiles("Maps/", EResType::MAP));
-			break;
+			{
+				inputName->disable();
+				auto files = getFiles("Maps/", EResType::MAP);
+				files.erase(ResourceID("Maps/Tutorial.tut", EResType::MAP));
+				parseMaps(files);
+				break;
+			}
 
 		case ESelectionScreen::loadGame:
 			inputName->disable();

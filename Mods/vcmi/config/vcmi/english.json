@@ -38,6 +38,7 @@
 	"vcmi.radialWheel.splitUnit" : "Split creature to another slot",
 
 	"vcmi.mainMenu.tutorialNotImplemented" : "Sorry, tutorial is not implemented yet\n",
+	"vcmi.mainMenu.tutorialNotExist" : "Tutorial map is not found\n",
 	"vcmi.mainMenu.highscoresNotImplemented" : "Sorry, high scores menu is not implemented yet\n",
 	"vcmi.mainMenu.serverConnecting" : "Connecting...",
 	"vcmi.mainMenu.serverAddressEnter" : "Enter address:",
