@@ -133,6 +133,12 @@ public class ExportDataController extends LauncherSettingController<Void, Void>
                         }
                     }
 
+                    if (exported == null)
+                    {
+                        publishProgress("Failed to copy file " + child.getName());
+                        return false;
+                    }
+
                     try(
                             final OutputStream targetStream = owner.getContentResolver()
                                     .openOutputStream(exported.getUri());
