@@ -1359,7 +1359,7 @@ void VCAI::wander(HeroPtr h)
 
 	TimeCheck tc("looking for wander destination");
 
-	while(h->movementPointsRemaining())
+	for(int k = 0; k < 10 && h->movementPointsRemaining(); k++)
 	{
 		validateVisitableObjs();
 		ah->updatePaths(getMyHeroes());

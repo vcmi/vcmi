@@ -53,6 +53,13 @@ void DangerHitMapAnalyzer::updateHitMap()
 		}
 	}
 
+	auto ourTowns = cb->getTownsInfo();
+
+	for(auto town : ourTowns)
+	{
+		townTreats[town->id]; // insert empty list
+	}
+
 	foreach_tile_pos([&](const int3 & pos){
 		hitMap[pos.x][pos.y][pos.z].reset();
 	});
@@ -95,33 +102,33 @@ void DangerHitMapAnalyzer::updateHitMap()
 					node.fastestDanger = newTreat;
 				}
 
-				if(newTreat.turn == 0)
+				auto objects = cb->getVisitableObjs(pos, false);
+
+				for(auto obj : objects)
 				{
-					auto objects = cb->getVisitableObjs(pos, false);
-					
-					for(auto obj : objects)
+					if(obj->ID == Obj::TOWN && obj->getOwner() == ai->playerID)
 					{
-						if(cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES)
-							enemyHeroAccessibleObjects[path.targetHero].insert(obj);
+						auto & treats = townTreats[obj->id];
+						auto treat = std::find_if(treats.begin(), treats.end(), [&](const HitMapInfo & i) -> bool
+							{
+								return i.hero.hid == path.targetHero->id;
+							});
 
-						if(obj->ID == Obj::TOWN && obj->getOwner() == ai->playerID)
+						if(treat == treats.end())
 						{
-							auto & treats = townTreats[obj->id];
-							auto treat = std::find_if(treats.begin(), treats.end(), [&](const HitMapInfo & i) -> bool
-								{
-									return i.hero.hid == path.targetHero->id;
-								});
+							treats.emplace_back();
+							treat = std::prev(treats.end(), 1);
+						}
 
-							if(treat == treats.end())
-							{
-								treats.emplace_back();
-								treat = std::prev(treats.end(), 1);
-							}
+						if(newTreat.value() > treat->value())
+						{
+							*treat = newTreat;
+						}
 
-							if(newTreat.value() > treat->value())
-							{
-								*treat = newTreat;
-							}
+						if(newTreat.turn == 0)
+						{
+							if(cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES)
+								enemyHeroAccessibleObjects.emplace_back(path.targetHero, obj);
 						}
 					}
 				}
@@ -274,16 +281,17 @@ const HitMapNode & DangerHitMapAnalyzer::getTileTreat(const int3 & tile) const
 
 const std::set<const CGObjectInstance *> empty = {};
 
-const std::set<const CGObjectInstance *> & DangerHitMapAnalyzer::getOneTurnAccessibleObjects(const CGHeroInstance * enemy) const
+std::set<const CGObjectInstance *> DangerHitMapAnalyzer::getOneTurnAccessibleObjects(const CGHeroInstance * enemy) const
 {
-	auto result = enemyHeroAccessibleObjects.find(enemy);
-	
-	if(result == enemyHeroAccessibleObjects.end())
+	std::set<const CGObjectInstance *> result;
+
+	for(auto & obj : enemyHeroAccessibleObjects)
 	{
-		return empty;
+		if(obj.hero == enemy)
+			result.insert(obj.obj);
 	}
 
-	return result->second;
+	return result;
 }
 
 void DangerHitMapAnalyzer::reset()
