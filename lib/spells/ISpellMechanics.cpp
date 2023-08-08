@@ -326,7 +326,7 @@ bool BattleCast::castIfPossible(ServerCallback * server, Target target)
 	return false;
 }
 
-std::vector<Target> BattleCast::findPotentialTargets() const
+std::vector<Target> BattleCast::findPotentialTargets(bool fast) const
 {
 	//TODO: for more than 2 destinations per target much more efficient algorithm is required
 
@@ -354,7 +354,7 @@ std::vector<Target> BattleCast::findPotentialTargets() const
 			if(previous.empty())
 			{
 				Target empty;
-				destinations = m->getPossibleDestinations(index, targetTypes.at(index), empty);
+				destinations = m->getPossibleDestinations(index, targetTypes.at(index), empty, fast);
 
 				for(auto & destination : destinations)
 				{
@@ -367,7 +367,7 @@ std::vector<Target> BattleCast::findPotentialTargets() const
 			{
 				for(const Target & current : previous)
 				{
-					destinations = m->getPossibleDestinations(index, targetTypes.at(index), current);
+					destinations = m->getPossibleDestinations(index, targetTypes.at(index), current, fast);
 
 					for(auto & destination : destinations)
 					{

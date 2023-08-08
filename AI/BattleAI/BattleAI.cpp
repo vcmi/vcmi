@@ -507,7 +507,12 @@ void CBattleAI::attemptCastingSpell()
 	{
 		spells::BattleCast temp(cb.get(), hero, spells::Mode::HERO, spell);
 
-		for(auto & target : temp.findPotentialTargets())
+		if(!spell->isDamage() && spell->getTargetType() == spells::AimType::LOCATION)
+			continue;
+		
+		const bool FAST = true;
+
+		for(auto & target : temp.findPotentialTargets(FAST))
 		{
 			PossibleSpellcast ps;
 			ps.dest = target;
