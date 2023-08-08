@@ -106,7 +106,7 @@ private:
 	ESelectionScreen tabType;
 	Rect inputNameRect;
 
-	std::tuple<std::string, bool, bool> checkSubfolder(std::string path);
+	std::tuple<std::string, std::string, bool, bool> checkSubfolder(std::string path);
 
 	bool isMapSupported(const CMapInfo & info);
 	void parseMaps(const std::unordered_set<ResourceID> & files);

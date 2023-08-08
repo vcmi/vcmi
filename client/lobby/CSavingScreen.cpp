@@ -70,7 +70,7 @@ void CSavingScreen::saveGame()
 	if(!(tabSel && tabSel->inputName && tabSel->inputName->getText().size()))
 		return;
 
-	std::string path = "Saves/" + tabSel->inputName->getText();
+	std::string path = "Saves/" + tabSel->curFolder + tabSel->inputName->getText();
 
 	auto overWrite = [this, path]() -> void
 	{
