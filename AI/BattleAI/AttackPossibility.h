@@ -15,6 +15,22 @@
 
 #define BATTLE_TRACE_LEVEL 0
 
+class DamageCache
+{
+private:
+	std::unordered_map<uint32_t, std::unordered_map<uint32_t, float>> damageCache;
+	DamageCache * parent;
+
+public:
+	DamageCache() : parent(nullptr) {}
+	DamageCache(DamageCache * parent) : parent(parent) {}
+
+	void cacheDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
+	int64_t getDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
+	int64_t getOriginalDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
+	void buildDamageCache(std::shared_ptr<HypotheticBattle> hb, int side);
+};
+
 /// <summary>
 /// Evaluate attack value of one particular attack taking into account various effects like
 /// retaliation, 2-hex breath, collateral damage, shooters blocked damage
@@ -40,14 +56,23 @@ public:
 	int64_t damageDiff() const;
 	int64_t attackValue() const;
 
-	static AttackPossibility evaluate(const BattleAttackInfo & attackInfo, BattleHex hex, const HypotheticBattle & state);
+	static AttackPossibility evaluate(
+		const BattleAttackInfo & attackInfo,
+		BattleHex hex,
+		DamageCache & damageCache,
+		std::shared_ptr<CBattleInfoCallback> state);
 
 	static int64_t calculateDamageReduce(
 		const battle::Unit * attacker,
 		const battle::Unit * defender,
 		uint64_t damageDealt,
-		const CBattleInfoCallback & cb);
+		DamageCache & damageCache,
+		std::shared_ptr<CBattleInfoCallback> cb);
 
 private:
-	static int64_t evaluateBlockedShootersDmg(const BattleAttackInfo & attackInfo, BattleHex hex, const HypotheticBattle & state);
+	static int64_t evaluateBlockedShootersDmg(
+		const BattleAttackInfo & attackInfo,
+		BattleHex hex,
+		DamageCache & damageCache,
+		std::shared_ptr<CBattleInfoCallback> state);
 };

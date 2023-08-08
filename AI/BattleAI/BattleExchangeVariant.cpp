@@ -18,9 +18,11 @@ AttackerValue::AttackerValue()
 }
 
 MoveTarget::MoveTarget()
-	: positions()
+	: positions(), cachedAttack()
 {
 	score = EvaluationResult::INEFFECTIVE_SCORE;
+	scorePerTurn = EvaluationResult::INEFFECTIVE_SCORE;
+	turnsToRich = 1;
 }
 
 int64_t BattleExchangeVariant::trackAttack(const AttackPossibility & ap, HypotheticBattle & state)
@@ -61,14 +63,14 @@ int64_t BattleExchangeVariant::trackAttack(
 	std::shared_ptr<StackWithBonuses> defender,
 	bool shooting,
 	bool isOurAttack,
-	const CBattleInfoCallback & cb,
+	DamageCache & damageCache,
+	std::shared_ptr<HypotheticBattle> hb,
 	bool evaluateOnly)
 {
 	const std::string cachingStringBlocksRetaliation = "type_BLOCKS_RETALIATION";
 	static const auto selectorBlocksRetaliation = Selector::type()(BonusType::BLOCKS_RETALIATION);
 	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
 
-	DamageEstimation retaliation;
 	// FIXME: provide distance info for Jousting bonus
 	BattleAttackInfo bai(attacker.get(), defender.get(), 0, shooting);
 
@@ -77,9 +79,8 @@ int64_t BattleExchangeVariant::trackAttack(
 		bai.attackerPos.setXY(8, 5);
 	}
 
-	auto attack = cb.battleEstimateDamage(bai, &retaliation);
-	int64_t attackDamage = (attack.damage.min + attack.damage.max) / 2;
-	int64_t defenderDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), defender.get(), attackDamage, cb);
+	int64_t attackDamage = damageCache.getDamage(attacker.get(), defender.get(), hb);
+	int64_t defenderDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), defender.get(), attackDamage, damageCache, hb);
 	int64_t attackerDamageReduce = 0;
 
 	if(!evaluateOnly)
@@ -108,36 +109,33 @@ int64_t BattleExchangeVariant::trackAttack(
 
 	if(defender->alive() && defender->ableToRetaliate() && !counterAttacksBlocked && !shooting)
 	{
-		if(retaliation.damage.max != 0)
-		{
-			auto retaliationDamage = (retaliation.damage.min + retaliation.damage.max) / 2;
-			attackerDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), attacker.get(), retaliationDamage, cb);
+		auto retaliationDamage = damageCache.getDamage(defender.get(), attacker.get(), hb);
+		attackerDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), attacker.get(), retaliationDamage, damageCache, hb);
 
-			if(!evaluateOnly)
-			{
+		if(!evaluateOnly)
+		{
 #if BATTLE_TRACE_LEVEL>=1
-				logAi->trace(
-					"%s -> %s, retaliation, dps: %lld, %lld",
-					defender->getDescription(),
-					attacker->getDescription(),
-					retaliationDamage,
-					attackerDamageReduce);
+			logAi->trace(
+				"%s -> %s, retaliation, dps: %lld, %lld",
+				defender->getDescription(),
+				attacker->getDescription(),
+				retaliationDamage,
+				attackerDamageReduce);
 #endif
 
-				if(isOurAttack)
-				{
-					dpsScore -= attackerDamageReduce;
-					attackerValue[attacker->unitId()].isRetalitated = true;
-				}
-				else
-				{
-					dpsScore += attackerDamageReduce;
-					attackerValue[defender->unitId()].value += attackerDamageReduce;
-				}
-
-				attacker->damage(retaliationDamage);
-				defender->afterAttack(false, true);
+			if(isOurAttack)
+			{
+				dpsScore -= attackerDamageReduce;
+				attackerValue[attacker->unitId()].isRetalitated = true;
 			}
+			else
+			{
+				dpsScore += attackerDamageReduce;
+				attackerValue[defender->unitId()].value += attackerDamageReduce;
+			}
+
+			attacker->damage(retaliationDamage);
+			defender->afterAttack(false, true);
 		}
 	}
 
@@ -153,7 +151,11 @@ int64_t BattleExchangeVariant::trackAttack(
 	return score;
 }
 
-EvaluationResult BattleExchangeEvaluator::findBestTarget(const battle::Unit * activeStack, PotentialTargets & targets, HypotheticBattle & hb)
+EvaluationResult BattleExchangeEvaluator::findBestTarget(
+	const battle::Unit * activeStack,
+	PotentialTargets & targets,
+	DamageCache & damageCache,
+	std::shared_ptr<HypotheticBattle> hb)
 {
 	EvaluationResult result(targets.bestAction());
 
@@ -161,7 +163,7 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(const battle::Unit * ac
 
 	for(auto & ap : targets.possibleAttacks)
 	{
-		int64_t score = calculateExchange(ap, targets, hb);
+		int64_t score = calculateExchange(ap, targets, damageCache, hb);
 
 		if(score > result.score)
 		{
@@ -176,14 +178,14 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(const battle::Unit * ac
 		logAi->trace("Evaluating waited attack for %s", activeStack->getDescription());
 #endif
 
-		hb.getForUpdate(activeStack->unitId())->waiting = true;
-		hb.getForUpdate(activeStack->unitId())->waitedThisTurn = true;
+		hb->getForUpdate(activeStack->unitId())->waiting = true;
+		hb->getForUpdate(activeStack->unitId())->waitedThisTurn = true;
 
 		updateReachabilityMap(hb);
 
 		for(auto & ap : targets.possibleAttacks)
 		{
-			int64_t score = calculateExchange(ap, targets, hb);
+			int64_t score = calculateExchange(ap, targets, damageCache, hb);
 
 			if(score > result.score)
 			{
@@ -197,7 +199,11 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(const battle::Unit * ac
 	return result;
 }
 
-MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(const battle::Unit * activeStack, PotentialTargets & targets, HypotheticBattle & hb)
+MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
+	const battle::Unit * activeStack,
+	PotentialTargets & targets,
+	DamageCache & damageCache,
+	std::shared_ptr<HypotheticBattle> hb)
 {
 	MoveTarget result;
 	BattleExchangeVariant ev;
@@ -237,16 +243,20 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(const battle::Uni
 		{
 			// FIXME: provide distance info for Jousting bonus
 			auto bai = BattleAttackInfo(activeStack, closestStack, 0, cb->battleCanShoot(activeStack));
-			auto attack = AttackPossibility::evaluate(bai, hex, hb);
+			auto attack = AttackPossibility::evaluate(bai, hex, damageCache, hb);
 
 			attack.shootersBlockedDmg = 0; // we do not want to count on it, it is not for sure
 
-			auto score = calculateExchange(attack, targets, hb) / turnsToRich;
+			auto score = calculateExchange(attack, targets, damageCache, hb);
+			auto scorePerTurn = score / turnsToRich;
 
-			if(result.score < score)
+			if(result.scorePerTurn < scorePerTurn)
 			{
+				result.scorePerTurn = scorePerTurn;
 				result.score = score;
 				result.positions = closestStack->getAttackableHexes(activeStack);
+				result.cachedAttack = attack;
+				result.turnsToRich = turnsToRich;
 			}
 		}
 	}
@@ -287,7 +297,7 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getAdjacentUnits(cons
 std::vector<const battle::Unit *> BattleExchangeEvaluator::getExchangeUnits(
 	const AttackPossibility & ap,
 	PotentialTargets & targets,
-	HypotheticBattle & hb)
+	std::shared_ptr<HypotheticBattle> hb)
 {
 	auto hexes = ap.attack.defender->getHexes();
 
@@ -308,7 +318,7 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getExchangeUnits(
 	{
 		for(auto adjacentUnit : getAdjacentUnits(unit))
 		{
-			auto unitWithBonuses = hb.battleGetUnitByID(adjacentUnit->unitId());
+			auto unitWithBonuses = hb->battleGetUnitByID(adjacentUnit->unitId());
 
 			if(vstd::contains(targets.unreachableEnemies, adjacentUnit)
 				&& !vstd::contains(allReachableUnits, unitWithBonuses))
@@ -349,7 +359,8 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getExchangeUnits(
 int64_t BattleExchangeEvaluator::calculateExchange(
 	const AttackPossibility & ap,
 	PotentialTargets & targets,
-	HypotheticBattle & hb)
+	DamageCache & damageCache,
+	std::shared_ptr<HypotheticBattle> hb)
 {
 #if BATTLE_TRACE_LEVEL>=1
 	logAi->trace("Battle exchange at %lld", ap.attack.shooting ? ap.dest : ap.from);
@@ -374,7 +385,7 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 		return 0;
 	}
 
-	HypotheticBattle exchangeBattle(env.get(), cb);
+	auto exchangeBattle = std::make_shared<HypotheticBattle>(env.get(), hb);
 	BattleExchangeVariant v;
 	auto melleeAttackers = ourStacks;
 
@@ -389,9 +400,8 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 		if(unit->isTurret())
 			continue;
 
-		bool isOur = cb->battleMatchOwner(ap.attack.attacker, unit, true);
+		bool isOur = exchangeBattle->battleMatchOwner(ap.attack.attacker, unit, true);
 		auto & attackerQueue = isOur ? ourStacks : enemyStacks;
-
 
 		if(!vstd::contains(attackerQueue, unit))
 		{
@@ -403,11 +413,11 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 
 	for(auto activeUnit : exchangeUnits)
 	{
-		bool isOur = cb->battleMatchOwner(ap.attack.attacker, activeUnit, true);
+		bool isOur = exchangeBattle->battleMatchOwner(ap.attack.attacker, activeUnit, true);
 		battle::Units & attackerQueue = isOur ? ourStacks : enemyStacks;
 		battle::Units & oppositeQueue = isOur ? enemyStacks : ourStacks;
 
-		auto attacker = exchangeBattle.getForUpdate(activeUnit->unitId());
+		auto attacker = exchangeBattle->getForUpdate(activeUnit->unitId());
 
 		if(!attacker->alive())
 		{
@@ -420,17 +430,18 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 
 		auto targetUnit = ap.attack.defender;
 
-		if(!isOur || !exchangeBattle.getForUpdate(targetUnit->unitId())->alive())
+		if(!isOur || !exchangeBattle->getForUpdate(targetUnit->unitId())->alive())
 		{
 			auto estimateAttack = [&](const battle::Unit * u) -> int64_t
 			{
-				auto stackWithBonuses = exchangeBattle.getForUpdate(u->unitId());
+				auto stackWithBonuses = exchangeBattle->getForUpdate(u->unitId());
 				auto score = v.trackAttack(
 					attacker,
 					stackWithBonuses,
-					exchangeBattle.battleCanShoot(stackWithBonuses.get()),
+					exchangeBattle->battleCanShoot(stackWithBonuses.get()),
 					isOur,
-					*cb,
+					damageCache,
+					hb,
 					true);
 
 #if BATTLE_TRACE_LEVEL>=1
@@ -446,7 +457,7 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 			}
 			else
 			{
-				auto reachable = exchangeBattle.battleGetUnitsIf([&](const battle::Unit * u) -> bool
+				auto reachable = exchangeBattle->battleGetUnitsIf([&](const battle::Unit * u) -> bool
 					{
 						if(!u->alive() || u->unitSide() == attacker->unitSide())
 							return false;
@@ -472,19 +483,19 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 			}
 		}
 
-		auto defender = exchangeBattle.getForUpdate(targetUnit->unitId());
-		auto shooting = cb->battleCanShoot(attacker.get());
+		auto defender = exchangeBattle->getForUpdate(targetUnit->unitId());
+		auto shooting = exchangeBattle->battleCanShoot(attacker.get());
 		const int totalAttacks = attacker->getTotalAttacks(shooting);
 
-		if(canUseAp && activeUnit == ap.attack.attacker && targetUnit == ap.attack.defender)
+		if(canUseAp && activeUnit->unitId() == ap.attack.attacker->unitId() && targetUnit->unitId() == ap.attack.defender->unitId())
 		{
-			v.trackAttack(ap, exchangeBattle);
+			v.trackAttack(ap, *exchangeBattle);
 		}
 		else
 		{
 			for(int i = 0; i < totalAttacks; i++)
 			{
-				v.trackAttack(attacker, defender, shooting, isOur, exchangeBattle);
+				v.trackAttack(attacker, defender, shooting, isOur, damageCache, exchangeBattle);
 
 				if(!attacker->alive() || !defender->alive())
 					break;
@@ -495,12 +506,12 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 
 		vstd::erase_if(attackerQueue, [&](const battle::Unit * u) -> bool
 			{
-				return !exchangeBattle.getForUpdate(u->unitId())->alive();
+				return !exchangeBattle->getForUpdate(u->unitId())->alive();
 			});
 
 		vstd::erase_if(oppositeQueue, [&](const battle::Unit * u) -> bool
 			{
-				return !exchangeBattle.getForUpdate(u->unitId())->alive();
+				return !exchangeBattle->getForUpdate(u->unitId())->alive();
 			});
 	}
 
@@ -581,13 +592,13 @@ void BattleExchangeVariant::adjustPositions(
 	}
 }
 
-void BattleExchangeEvaluator::updateReachabilityMap(HypotheticBattle & hb)
+void BattleExchangeEvaluator::updateReachabilityMap(	std::shared_ptr<HypotheticBattle> hb)
 {
 	const int TURN_DEPTH = 2;
 
 	turnOrder.clear();
 	
-	hb.battleGetTurnOrder(turnOrder, std::numeric_limits<int>::max(), TURN_DEPTH);
+	hb->battleGetTurnOrder(turnOrder, std::numeric_limits<int>::max(), TURN_DEPTH);
 	reachabilityMap.clear();
 
 	for(int turn = 0; turn < turnOrder.size(); turn++)

@@ -124,7 +124,7 @@ TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, c
 
 	for(const Bonus & bonus : bonusesToUpdate)
 	{
-		if(selector(&bonus) && (!limit || !limit(&bonus)))
+		if(selector(&bonus) && (!limit || limit(&bonus)))
 		{
 			if(ret->getFirst(Selector::source(BonusSource::SPELL_EFFECT, bonus.sid).And(Selector::typeSubtype(bonus.type, bonus.subtype))))
 			{
@@ -150,12 +150,18 @@ TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, c
 
 int64_t StackWithBonuses::getTreeVersion() const
 {
-	return owner->getTreeVersion();
+	auto result = owner->getTreeVersion();
+
+	if(bonusesToAdd.empty() && bonusesToUpdate.empty() && bonusesToRemove.empty())
+		return result;
+	else
+		return result + treeVersionLocal;
 }
 
 void StackWithBonuses::addUnitBonus(const std::vector<Bonus> & bonus)
 {
 	vstd::concatenate(bonusesToAdd, bonus);
+	treeVersionLocal++;
 }
 
 void StackWithBonuses::updateUnitBonus(const std::vector<Bonus> & bonus)
@@ -163,6 +169,7 @@ void StackWithBonuses::updateUnitBonus(const std::vector<Bonus> & bonus)
 	//TODO: optimize, actualize to last value
 
 	vstd::concatenate(bonusesToUpdate, bonus);
+	treeVersionLocal++;
 }
 
 void StackWithBonuses::removeUnitBonus(const std::vector<Bonus> & bonus)
@@ -197,6 +204,8 @@ void StackWithBonuses::removeUnitBonus(const CSelector & selector)
 
 	vstd::erase_if(bonusesToAdd, [&](const Bonus & b){return selector(&b);});
 	vstd::erase_if(bonusesToUpdate, [&](const Bonus & b){return selector(&b);});
+
+	treeVersionLocal++;
 }
 
 std::string StackWithBonuses::getDescription() const

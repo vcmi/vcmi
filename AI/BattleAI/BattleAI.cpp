@@ -44,7 +44,55 @@ SpellTypes spellType(const CSpell * spell)
 	return SpellTypes::OTHER;
 }
 
-std::vector<BattleHex> CBattleAI::getBrokenWallMoatHexes() const
+class BattleEvaluator
+{
+	std::unique_ptr<PotentialTargets> targets;
+	std::shared_ptr<HypotheticBattle> hb;
+	BattleExchangeEvaluator scoreEvaluator;
+	std::shared_ptr<CBattleCallback> cb;
+	std::shared_ptr<Environment> env;
+	bool activeActionMade = false;
+	std::optional<AttackPossibility> cachedAttack;
+	PlayerColor playerID;
+	int side;
+	int64_t cachedScore;
+	DamageCache damageCache;
+	
+public:
+	BattleAction selectStackAction(const CStack * stack);
+	void attemptCastingSpell(const CStack * stack);
+	std::optional<PossibleSpellcast> findBestCreatureSpell(const CStack * stack);
+	BattleAction goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes);
+	std::vector<BattleHex> getBrokenWallMoatHexes() const;
+	void evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps); //for offensive damaging spells only
+	void print(const std::string & text) const;
+
+	BattleEvaluator(std::shared_ptr<Environment> env, std::shared_ptr<CBattleCallback> cb, const battle::Unit * activeStack, PlayerColor playerID, int side)
+		:scoreEvaluator(cb, env), cachedAttack(), playerID(playerID), side(side), env(env), cb(cb)
+	{
+		hb = std::make_shared<HypotheticBattle>(env.get(), cb);
+		damageCache.buildDamageCache(hb, side);
+
+		targets = std::make_unique<PotentialTargets>(activeStack, damageCache, hb);
+		cachedScore = EvaluationResult::INEFFECTIVE_SCORE;
+	}
+
+	BattleEvaluator(
+		std::shared_ptr<Environment> env,
+		std::shared_ptr<CBattleCallback> cb,
+		std::shared_ptr<HypotheticBattle> hb,
+		DamageCache & damageCache,
+		const battle::Unit * activeStack,
+		PlayerColor playerID,
+		int side)
+		:scoreEvaluator(cb, env), cachedAttack(), playerID(playerID), side(side), env(env), cb(cb), hb(hb), damageCache(damageCache)
+	{
+		targets = std::make_unique<PotentialTargets>(activeStack, damageCache, hb);
+		cachedScore = EvaluationResult::INEFFECTIVE_SCORE;
+	}
+};
+
+std::vector<BattleHex> BattleEvaluator::getBrokenWallMoatHexes() const
 {
 	std::vector<BattleHex> result;
 
@@ -110,7 +158,7 @@ BattleAction CBattleAI::useHealingTent(const CStack *stack)
 		return BattleAction::makeHeal(stack, woundHpToStack.rbegin()->second); //last element of the woundHpToStack is the most wounded stack
 }
 
-std::optional<PossibleSpellcast> CBattleAI::findBestCreatureSpell(const CStack *stack)
+std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack *stack)
 {
 	//TODO: faerie dragon type spell should be selected by server
 	SpellID creatureSpellToCast = cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), stack, CBattleInfoCallback::RANDOM_AIMED);
@@ -141,40 +189,37 @@ std::optional<PossibleSpellcast> CBattleAI::findBestCreatureSpell(const CStack *
 	return std::nullopt;
 }
 
-BattleAction CBattleAI::selectStackAction(const CStack * stack)
+BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 {
 	//evaluate casting spell for spellcasting stack
 	std::optional<PossibleSpellcast> bestSpellcast = findBestCreatureSpell(stack);
 
-	HypotheticBattle hb(env.get(), cb);
+	auto moveTarget = scoreEvaluator.findMoveTowardsUnreachable(stack, *targets, damageCache, hb);
+	auto score = EvaluationResult::INEFFECTIVE_SCORE;
 
-	PotentialTargets targets(stack, hb);
-	BattleExchangeEvaluator scoreEvaluator(cb, env);
-	auto moveTarget = scoreEvaluator.findMoveTowardsUnreachable(stack, targets, hb);
-
-	int64_t score = EvaluationResult::INEFFECTIVE_SCORE;
-
-
-	if(targets.possibleAttacks.empty() && bestSpellcast.has_value())
+	if(targets->possibleAttacks.empty() && bestSpellcast.has_value())
 	{
-		movesSkippedByDefense = 0;
+		activeActionMade = true;
 		return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
 	}
 
-	if(!targets.possibleAttacks.empty())
+	if(!targets->possibleAttacks.empty())
 	{
 #if BATTLE_TRACE_LEVEL>=1
 		logAi->trace("Evaluating attack for %s", stack->getDescription());
 #endif
 
-		auto evaluationResult = scoreEvaluator.findBestTarget(stack, targets, hb);
+		auto evaluationResult = scoreEvaluator.findBestTarget(stack, *targets, damageCache, hb);
 		auto & bestAttack = evaluationResult.bestAttack;
+
+		cachedAttack = bestAttack;
+		cachedScore = evaluationResult.score;
 
 		//TODO: consider more complex spellcast evaluation, f.e. because "re-retaliation" during enemy move in same turn for melee attack etc.
 		if(bestSpellcast.has_value() && bestSpellcast->value > bestAttack.damageDiff())
 		{
 			// return because spellcast value is damage dealt and score is dps reduce
-			movesSkippedByDefense = 0;
+			activeActionMade = true;
 			return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
 		}
 
@@ -194,7 +239,7 @@ BattleAction CBattleAI::selectStackAction(const CStack * stack)
 				bestAttack.attackerDamageReduce, bestAttack.attackValue()
 			);
 
-			if (moveTarget.score <= score)
+			if (moveTarget.scorePerTurn <= score)
 			{
 				if(evaluationResult.wait)
 				{
@@ -202,12 +247,12 @@ BattleAction CBattleAI::selectStackAction(const CStack * stack)
 				}
 				else if(bestAttack.attack.shooting)
 				{
-					movesSkippedByDefense = 0;
+					activeActionMade = true;
 					return BattleAction::makeShotAttack(stack, bestAttack.attack.defender);
 				}
 				else
 				{
-					movesSkippedByDefense = 0;
+					activeActionMade = true;
 					return BattleAction::makeMeleeAttack(stack, bestAttack.attack.defender->getPosition(), bestAttack.from);
 				}
 			}
@@ -215,9 +260,11 @@ BattleAction CBattleAI::selectStackAction(const CStack * stack)
 	}
 
 	//ThreatMap threatsToUs(stack); // These lines may be usefull but they are't used in the code.
-	if(moveTarget.score > score)
+	if(moveTarget.scorePerTurn > score)
 	{
 		score = moveTarget.score;
+		cachedAttack = moveTarget.cachedAttack;
+		cachedScore = score;
 
 		if(stack->waited())
 		{
@@ -238,7 +285,7 @@ BattleAction CBattleAI::selectStackAction(const CStack * stack)
 
 		if(brokenWallMoat.size())
 		{
-			movesSkippedByDefense = 0;
+			activeActionMade = true;
 
 			if(stack->doubleWide() && vstd::contains(brokenWallMoat, stack->getPosition()))
 				return BattleAction::makeMove(stack, stack->getPosition().cloneInDirection(BattleHex::RIGHT));
@@ -284,7 +331,11 @@ void CBattleAI::activeStack( const CStack * stack )
 			return;
 		}
 
-		if (attemptCastingSpell())
+		BattleEvaluator evaluator(env, cb, stack, playerID, side);
+
+		result = evaluator.selectStackAction(stack);
+
+		if(evaluator.attemptCastingSpell(stack))
 			return;
 
 		logAi->trace("Spellcast attempt completed in %lld", timeElapsed(start));
@@ -294,8 +345,6 @@ void CBattleAI::activeStack( const CStack * stack )
 			cb->battleMakeUnitAction(*action);
 			return;
 		}
-
-		result = selectStackAction(stack);
 	}
 	catch(boost::thread_interrupted &)
 	{
@@ -320,7 +369,7 @@ void CBattleAI::activeStack( const CStack * stack )
 	cb->battleMakeUnitAction(result);
 }
 
-BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes) const
+BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes)
 {
 	auto reachability = cb->getReachability(stack);
 	auto avHexes = cb->battleGetAvailableHexes(reachability, stack, false);
@@ -357,9 +406,6 @@ BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<Battl
 		return BattleAction::makeDefend(stack);
 	}
 
-	BattleExchangeEvaluator scoreEvaluator(cb, env);
-	HypotheticBattle hb(env.get(), cb);
-
 	scoreEvaluator.updateReachabilityMap(hb);
 
 	if(stack->hasBonusOfType(BonusType::FLYING))
@@ -371,7 +417,7 @@ BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<Battl
 			obstacleHexes.insert(affectedHexes.cbegin(), affectedHexes.cend());
 		};
 
-		const auto & obstacles = hb.battleGetAllObstacles();
+		const auto & obstacles = hb->battleGetAllObstacles();
 
 		for (const auto & obst: obstacles) {
 
@@ -396,7 +442,7 @@ BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<Battl
 			if(vstd::contains(obstacleHexes, hex))
 				distance += NEGATIVE_OBSTACLE_PENALTY;
 
-			return scoreEvaluator.checkPositionBlocksOurStacks(hb, stack, hex) ? BLOCKED_STACK_PENALTY + distance : distance;
+			return scoreEvaluator.checkPositionBlocksOurStacks(*hb, stack, hex) ? BLOCKED_STACK_PENALTY + distance : distance;
 		});
 
 		return BattleAction::makeMove(stack, *nearestAvailableHex);
@@ -412,7 +458,7 @@ BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<Battl
 			}
 
 			if(vstd::contains(avHexes, currentDest)
-				&& !scoreEvaluator.checkPositionBlocksOurStacks(hb, stack, currentDest))
+				&& !scoreEvaluator.checkPositionBlocksOurStacks(*hb, stack, currentDest))
 				return BattleAction::makeMove(stack, currentDest);
 
 			currentDest = reachability.predecessors[currentDest];
@@ -468,7 +514,11 @@ BattleAction CBattleAI::useCatapult(const CStack * stack)
 	return attack;
 }
 
+<<<<<<< HEAD
 bool CBattleAI::attemptCastingSpell()
+=======
+void BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
+>>>>>>> ea22737e9 (BattleAI: damage cache and switch to different model of spells evaluation)
 {
 	auto hero = cb->battleGetMyHero();
 	if(!hero)
@@ -488,7 +538,7 @@ bool CBattleAI::attemptCastingSpell()
 
 	vstd::erase_if(possibleSpells, [](const CSpell *s)
 	{
-		return spellType(s) != SpellTypes::BATTLE;
+		return spellType(s) != SpellTypes::BATTLE || s->getTargetType() == spells::AimType::LOCATION;
 	});
 
 	LOGFL("I know how %d of them works.", possibleSpells.size());
@@ -499,7 +549,7 @@ bool CBattleAI::attemptCastingSpell()
 	{
 		spells::BattleCast temp(cb.get(), hero, spells::Mode::HERO, spell);
 
-		if(!spell->isDamage() && spell->getTargetType() == spells::AimType::LOCATION)
+		if(spell->getTargetType() == spells::AimType::LOCATION)
 			continue;
 		
 		const bool FAST = true;
@@ -518,7 +568,7 @@ bool CBattleAI::attemptCastingSpell()
 
 	using ValueMap = PossibleSpellcast::ValueMap;
 
-	auto evaluateQueue = [&](ValueMap & values, const std::vector<battle::Units> & queue, HypotheticBattle & state, size_t minTurnSpan, bool * enemyHadTurnOut) -> bool
+	auto evaluateQueue = [&](ValueMap & values, const std::vector<battle::Units> & queue, std::shared_ptr<HypotheticBattle> state, size_t minTurnSpan, bool * enemyHadTurnOut) -> bool
 	{
 		bool firstRound = true;
 		bool enemyHadTurn = false;
@@ -529,7 +579,7 @@ bool CBattleAI::attemptCastingSpell()
 		for(auto & round : queue)
 		{
 			if(!firstRound)
-				state.nextRound(0);//todo: set actual value?
+				state->nextRound(0);//todo: set actual value?
 			for(auto unit : round)
 			{
 				if(!vstd::contains(values, unit->unitId()))
@@ -538,11 +588,11 @@ bool CBattleAI::attemptCastingSpell()
 				if(!unit->alive())
 					continue;
 
-				if(state.battleGetOwner(unit) != playerID)
+				if(state->battleGetOwner(unit) != playerID)
 				{
 					enemyHadTurn = true;
 
-					if(!firstRound || state.battleCastSpells(unit->unitSide()) == 0)
+					if(!firstRound || state->battleCastSpells(unit->unitSide()) == 0)
 					{
 						//enemy could counter our spell at this point
 						//anyway, we do not know what enemy will do
@@ -556,15 +606,15 @@ bool CBattleAI::attemptCastingSpell()
 					ourTurnSpan++;
 				}
 
-				state.nextTurn(unit->unitId());
+				state->nextTurn(unit->unitId());
 
-				PotentialTargets pt(unit, state);
+				PotentialTargets pt(unit, damageCache, state);
 
 				if(!pt.possibleAttacks.empty())
 				{
 					AttackPossibility ap = pt.bestAction();
 
-					auto swb = state.getForUpdate(unit->unitId());
+					auto swb = state->getForUpdate(unit->unitId());
 					*swb = *ap.attackerState;
 
 					if(ap.defenderDamageReduce > 0)
@@ -574,7 +624,7 @@ bool CBattleAI::attemptCastingSpell()
 
 					for(auto affected : ap.affectedUnits)
 					{
-						swb = state.getForUpdate(affected->unitId());
+						swb = state->getForUpdate(affected->unitId());
 						*swb = *affected;
 
 						if(ap.defenderDamageReduce > 0)
@@ -587,7 +637,7 @@ bool CBattleAI::attemptCastingSpell()
 				auto bav = pt.bestActionValue();
 
 				//best action is from effective owner`s point if view, we need to convert to our point if view
-				if(state.battleGetOwner(unit) != playerID)
+				if(state->battleGetOwner(unit) != playerID)
 					bav = -bav;
 				values[unit->unitId()] += bav;
 			}
@@ -638,13 +688,13 @@ bool CBattleAI::attemptCastingSpell()
 	{
 		bool enemyHadTurn = false;
 
-		HypotheticBattle state(env.get(), cb);
+		auto state = std::make_shared<HypotheticBattle>(env.get(), cb);
 
 		evaluateQueue(valueOfStack, turnOrder, state, 0, &enemyHadTurn);
 
 		if(!enemyHadTurn)
 		{
-			auto battleIsFinishedOpt = state.battleIsFinished();
+			auto battleIsFinishedOpt = state->battleIsFinished();
 
 			if(battleIsFinishedOpt)
 			{
@@ -661,74 +711,60 @@ bool CBattleAI::attemptCastingSpell()
 
 	auto evaluateSpellcast = [&] (PossibleSpellcast * ps, std::shared_ptr<ScriptsCache>)
 	{
-		HypotheticBattle state(env.get(), cb);
+		auto state = std::make_shared<HypotheticBattle>(env.get(), cb);
 
-		spells::BattleCast cast(&state, hero, spells::Mode::HERO, ps->spell);
-		cast.castEval(state.getServerCallback(), ps->dest);
-		ValueMap newHealthOfStack;
-		ValueMap newValueOfStack;
+		spells::BattleCast cast(state.get(), hero, spells::Mode::HERO, ps->spell);
+		cast.castEval(state->getServerCallback(), ps->dest);
 
-		size_t ourUnits = 0;
+		auto allUnits = state->battleGetUnitsIf([](const battle::Unit * u) -> bool{ return true; });
 
-		std::set<uint32_t> unitIds;
-
-		state.battleGetUnitsIf([&](const battle::Unit * u)->bool
-		{
-			if(!u->isGhost() && !u->isTurret())
-				unitIds.insert(u->unitId());
-
-			return false;
-		});
-
-		for(auto unitId : unitIds)
-		{
-			auto localUnit = state.battleGetUnitByID(unitId);
-
-			newHealthOfStack[unitId] = localUnit->getAvailableHealth();
-			newValueOfStack[unitId] = 0;
-
-			if(state.battleGetOwner(localUnit) == playerID && localUnit->alive() && localUnit->willMove())
-				ourUnits++;
-		}
-
-		size_t minTurnSpan = ourUnits/3; //todo: tweak this
-
-		std::vector<battle::Units> newTurnOrder;
-
-		state.battleGetTurnOrder(newTurnOrder, amount, 2);
-
-		const bool turnSpanOK = evaluateQueue(newValueOfStack, newTurnOrder, state, minTurnSpan, nullptr);
-
-		if(turnSpanOK || castNow)
-		{
-			int64_t totalGain = 0;
-
-			for(auto unitId : unitIds)
+		auto needFullEval = vstd::contains_if(allUnits, [&](const battle::Unit * u) -> bool
 			{
-				auto localUnit = state.battleGetUnitByID(unitId);
+				auto original = cb->battleGetUnitByID(u->unitId());
+				return  !original || u->speed() != original->speed();
+			});
 
-				auto newValue = getValOr(newValueOfStack, unitId, 0);
-				auto oldValue = getValOr(valueOfStack, unitId, 0);
+		DamageCache innerCache(&damageCache);
+		innerCache.buildDamageCache(state, side);
 
-				auto healthDiff = newHealthOfStack[unitId] - healthOfStack[unitId];
+		if(needFullEval || !cachedAttack)
+		{
+			PotentialTargets innerTargets(activeStack, damageCache, state);
+			BattleExchangeEvaluator innerEvaluator(state, env);
 
-				if(localUnit->unitOwner() != playerID)
-					healthDiff = -healthDiff;
+			if(!innerTargets.possibleAttacks.empty())
+			{
+				innerEvaluator.updateReachabilityMap(state);
 
-				if(healthDiff < 0)
-				{
-					ps->value = -1;
-					return; //do not damage own units at all
-				}
+				auto newStackAction = innerEvaluator.findBestTarget(activeStack, innerTargets, innerCache, state);
 
-				totalGain += (newValue - oldValue + healthDiff);
+				ps->value = newStackAction.score;
 			}
-
-			ps->value = totalGain;
+			else
+			{
+				ps->value = 0;
+			}
 		}
 		else
 		{
-			ps->value = -1;
+			ps->value = scoreEvaluator.calculateExchange(*cachedAttack, *targets, innerCache, state);
+		}
+
+		for(auto unit : allUnits)
+		{
+			auto newHealth = unit->getAvailableHealth();
+			auto oldHealth = healthOfStack[unit->unitId()];
+
+			if(oldHealth != newHealth)
+			{
+				auto damage = std::abs(oldHealth - newHealth);
+				auto originalDefender = cb->battleGetUnitByID(unit->unitId());
+				auto dpsReduce = AttackPossibility::calculateDamageReduce(nullptr, originalDefender ? originalDefender : unit, damage, innerCache, state);
+				auto ourUnit = unit->unitSide() == side ? 1 : -1;
+				auto goodEffect = newHealth > oldHealth ? 1 : -1;
+
+				ps->value += ourUnit * goodEffect * dpsReduce;
+			}
 		}
 	};
 
@@ -767,7 +803,7 @@ bool CBattleAI::attemptCastingSpell()
 	};
 	auto castToPerform = *vstd::maxElementByFun(possibleCasts, pscValue);
 
-	if(castToPerform.value > 0)
+	if(castToPerform.value > cachedScore)
 	{
 		LOGFL("Best spell is %s (value %d). Will cast.", castToPerform.spell->getNameTranslated() % castToPerform.value);
 		BattleAction spellcast;
@@ -777,8 +813,12 @@ bool CBattleAI::attemptCastingSpell()
 		spellcast.side = side;
 		spellcast.stackNumber = (!side) ? -1 : -2;
 		cb->battleMakeSpellAction(spellcast);
+<<<<<<< HEAD
 		movesSkippedByDefense = 0;
 		return true;
+=======
+		activeActionMade = true;
+>>>>>>> ea22737e9 (BattleAI: damage cache and switch to different model of spells evaluation)
 	}
 	else
 	{
@@ -788,7 +828,7 @@ bool CBattleAI::attemptCastingSpell()
 }
 
 //Below method works only for offensive spells
-void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps)
+void BattleEvaluator::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps)
 {
 	using ValueMap = PossibleSpellcast::ValueMap;
 
@@ -845,6 +885,11 @@ void CBattleAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2
 }
 
 void CBattleAI::print(const std::string &text) const
+{
+	logAi->trace("%s Battle AI[%p]: %s", playerID.getStr(), this, text);
+}
+
+void BattleEvaluator::print(const std::string & text) const
 {
 	logAi->trace("%s Battle AI[%p]: %s", playerID.getStr(), this, text);
 }

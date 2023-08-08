@@ -47,6 +47,7 @@ public:
 	std::vector<Bonus> bonusesToAdd;
 	std::vector<Bonus> bonusesToUpdate;
 	std::set<std::shared_ptr<Bonus>> bonusesToRemove;
+	int treeVersionLocal;
 
 	StackWithBonuses(const HypotheticBattle * Owner, const battle::CUnitState * Stack);
 

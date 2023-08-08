@@ -26,7 +26,10 @@ struct AttackerValue
 struct MoveTarget
 {
 	int64_t score;
+	int64_t scorePerTurn;
 	std::vector<BattleHex> positions;
+	std::optional<AttackPossibility> cachedAttack;
+	uint8_t turnsToRich;
 
 	MoveTarget();
 };
@@ -65,7 +68,8 @@ public:
 		std::shared_ptr<StackWithBonuses> defender,
 		bool shooting,
 		bool isOurAttack,
-		const CBattleInfoCallback & cb,
+		DamageCache & damageCache,
+		std::shared_ptr<HypotheticBattle> hb,
 		bool evaluateOnly = false);
 
 	int64_t getScore() const { return dpsScore; }
@@ -91,11 +95,27 @@ private:
 public:
 	BattleExchangeEvaluator(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env): cb(cb), env(env) {}
 
-	EvaluationResult findBestTarget(const battle::Unit * activeStack, PotentialTargets & targets, HypotheticBattle & hb);
-	int64_t calculateExchange(const AttackPossibility & ap, PotentialTargets & targets, HypotheticBattle & hb);
-	void updateReachabilityMap(HypotheticBattle & hb);
-	std::vector<const battle::Unit *> getExchangeUnits(const AttackPossibility & ap, PotentialTargets & targets, HypotheticBattle & hb);
+	EvaluationResult findBestTarget(
+		const battle::Unit * activeStack,
+		PotentialTargets & targets,
+		DamageCache & damageCache,
+		std::shared_ptr<HypotheticBattle> hb);
+
+	int64_t calculateExchange(
+		const AttackPossibility & ap,
+		PotentialTargets & targets,
+		DamageCache & damageCache,
+		std::shared_ptr<HypotheticBattle> hb);
+
+	void updateReachabilityMap(std::shared_ptr<HypotheticBattle> hb);
+	std::vector<const battle::Unit *> getExchangeUnits(const AttackPossibility & ap, PotentialTargets & targets, std::shared_ptr<HypotheticBattle> hb);
 	bool checkPositionBlocksOurStacks(HypotheticBattle & hb, const battle::Unit * unit, BattleHex position);
-	MoveTarget findMoveTowardsUnreachable(const battle::Unit * activeStack, PotentialTargets & targets, HypotheticBattle & hb);
+
+	MoveTarget findMoveTowardsUnreachable(
+		const battle::Unit * activeStack,
+		PotentialTargets & targets,
+		DamageCache & damageCache,
+		std::shared_ptr<HypotheticBattle> hb);
+
 	std::vector<const battle::Unit *> getAdjacentUnits(const battle::Unit * unit);
 };

@@ -18,6 +18,81 @@ uint64_t averageDmg(const DamageRange & range)
 	return (range.min + range.max) / 2;
 }
 
+void DamageCache::cacheDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb)
+{
+	auto damage = averageDmg(hb->battleEstimateDamage(attacker, defender, 0).damage);
+
+	damageCache[attacker->unitId()][defender->unitId()] = damage / attacker->getCount();
+}
+
+
+void DamageCache::buildDamageCache(std::shared_ptr<HypotheticBattle> hb, int side)
+{
+	auto stacks = hb->battleGetUnitsIf([=](const battle::Unit * u) -> bool
+		{
+			return true;
+		});
+
+	std::vector<const battle::Unit *> ourUnits, enemyUnits;
+
+	for(auto stack : stacks)
+	{
+		if(stack->unitSide() == side)
+			ourUnits.push_back(stack);
+		else
+			enemyUnits.push_back(stack);
+	}
+
+	for(auto ourUnit : ourUnits)
+	{
+		if(!ourUnit->alive())
+			continue;
+
+		for(auto enemyUnit : enemyUnits)
+		{
+			if(enemyUnit->alive())
+			{
+				cacheDamage(ourUnit, enemyUnit, hb);
+				cacheDamage(enemyUnit, ourUnit, hb);
+			}
+		}
+	}
+}
+
+int64_t DamageCache::getDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb)
+{
+	auto damage = damageCache[attacker->unitId()][defender->unitId()] * attacker->getCount();
+
+	if(damage == 0)
+	{
+		cacheDamage(attacker, defender, hb);
+
+		damage = damageCache[attacker->unitId()][defender->unitId()] * attacker->getCount();
+	}
+
+	return static_cast<int64_t>(damage);
+}
+
+int64_t DamageCache::getOriginalDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb)
+{
+	if(parent)
+	{
+		auto attackerDamageMap = parent->damageCache.find(attacker->unitId());
+
+		if(attackerDamageMap != parent->damageCache.end())
+		{
+			auto targetDamage = attackerDamageMap->second.find(defender->unitId());
+
+			if(targetDamage != attackerDamageMap->second.end())
+			{
+				return static_cast<int64_t>(targetDamage->second * attacker->getCount());
+			}
+		}
+	}
+
+	return getDamage(attacker, defender, hb);
+}
+
 AttackPossibility::AttackPossibility(BattleHex from, BattleHex dest, const BattleAttackInfo & attack)
 	: from(from), dest(dest), attack(attack)
 {
@@ -42,7 +117,8 @@ int64_t AttackPossibility::calculateDamageReduce(
 	const battle::Unit * attacker,
 	const battle::Unit * defender,
 	uint64_t damageDealt,
-	const CBattleInfoCallback & cb)
+	DamageCache & damageCache,
+	std::shared_ptr<CBattleInfoCallback> state)
 {
 	const float HEALTH_BOUNTY = 0.5;
 	const float KILL_BOUNTY = 1.0 - HEALTH_BOUNTY;
@@ -52,11 +128,11 @@ int64_t AttackPossibility::calculateDamageReduce(
 	// FIXME: provide distance info for Jousting bonus
 	auto attackerUnitForMeasurement = attacker;
 
-	if(attackerUnitForMeasurement->isTurret())
+	if(!attackerUnitForMeasurement || attackerUnitForMeasurement->isTurret())
 	{
-		auto ourUnits = cb.battleGetUnitsIf([&](const battle::Unit * u) -> bool
+		auto ourUnits = state->battleGetUnitsIf([&](const battle::Unit * u) -> bool
 			{
-				return u->unitSide() == attacker->unitSide() && !u->isTurret();
+				return u->unitSide() != defender->unitSide() && !u->isTurret();
 			});
 
 		if(ourUnits.empty())
@@ -65,15 +141,18 @@ int64_t AttackPossibility::calculateDamageReduce(
 			attackerUnitForMeasurement = ourUnits.front();
 	}
 
-	auto enemyDamageBeforeAttack = cb.battleEstimateDamage(defender, attackerUnitForMeasurement, 0);
+	auto enemyDamageBeforeAttack = damageCache.getOriginalDamage(defender, attackerUnitForMeasurement, state);
 	auto enemiesKilled = damageDealt / defender->getMaxHealth() + (damageDealt % defender->getMaxHealth() >= defender->getFirstHPleft() ? 1 : 0);
-	auto enemyDamage = averageDmg(enemyDamageBeforeAttack.damage);
-	auto damagePerEnemy = enemyDamage / (double)defender->getCount();
+	auto damagePerEnemy = enemyDamageBeforeAttack / (double)defender->getCount();
 
 	return (int64_t)(damagePerEnemy * (enemiesKilled * KILL_BOUNTY + damageDealt * HEALTH_BOUNTY / (double)defender->getMaxHealth()));
 }
 
-int64_t AttackPossibility::evaluateBlockedShootersDmg(const BattleAttackInfo & attackInfo, BattleHex hex, const HypotheticBattle & state)
+int64_t AttackPossibility::evaluateBlockedShootersDmg(
+	const BattleAttackInfo & attackInfo,
+	BattleHex hex,
+	DamageCache & damageCache,
+	std::shared_ptr<CBattleInfoCallback> state)
 {
 	int64_t res = 0;
 
@@ -84,10 +163,10 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(const BattleAttackInfo & a
 	auto hexes = attacker->getSurroundingHexes(hex);
 	for(BattleHex tile : hexes)
 	{
-		auto st = state.battleGetUnitByPos(tile, true);
-		if(!st || !state.battleMatchOwner(st, attacker))
+		auto st = state->battleGetUnitByPos(tile, true);
+		if(!st || !state->battleMatchOwner(st, attacker))
 			continue;
-		if(!state.battleCanShoot(st))
+		if(!state->battleCanShoot(st))
 			continue;
 
 		// FIXME: provide distance info for Jousting bonus
@@ -97,8 +176,8 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(const BattleAttackInfo & a
 		BattleAttackInfo meleeAttackInfo(st, attacker, 0, false);
 		meleeAttackInfo.defenderPos = hex;
 
-		auto rangeDmg = state.battleEstimateDamage(rangeAttackInfo);
-		auto meleeDmg = state.battleEstimateDamage(meleeAttackInfo);
+		auto rangeDmg = state->battleEstimateDamage(rangeAttackInfo);
+		auto meleeDmg = state->battleEstimateDamage(meleeAttackInfo);
 
 		int64_t gain = averageDmg(rangeDmg.damage) - averageDmg(meleeDmg.damage) + 1;
 		res += gain;
@@ -107,13 +186,17 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(const BattleAttackInfo & a
 	return res;
 }
 
-AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInfo, BattleHex hex, const HypotheticBattle & state)
+AttackPossibility AttackPossibility::evaluate(
+	const BattleAttackInfo & attackInfo,
+	BattleHex hex,
+	DamageCache & damageCache,
+	std::shared_ptr<CBattleInfoCallback> state)
 {
 	auto attacker = attackInfo.attacker;
 	auto defender = attackInfo.defender;
 	const std::string cachingStringBlocksRetaliation = "type_BLOCKS_RETALIATION";
 	static const auto selectorBlocksRetaliation = Selector::type()(BonusType::BLOCKS_RETALIATION);
-	const auto attackerSide = state.playerToSide(state.battleGetOwner(attacker));
+	const auto attackerSide = state->playerToSide(state->battleGetOwner(attacker));
 	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
 
 	AttackPossibility bestAp(hex, BattleHex::INVALID, attackInfo);
@@ -141,9 +224,9 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 		std::vector<const battle::Unit*> units;
 
 		if (attackInfo.shooting)
-			units = state.getAttackedBattleUnits(attacker, defHex, true, BattleHex::INVALID);
+			units = state->getAttackedBattleUnits(attacker, defHex, true, BattleHex::INVALID);
 		else
-			units = state.getAttackedBattleUnits(attacker, defHex, false, hex);
+			units = state->getAttackedBattleUnits(attacker, defHex, false, hex);
 
 		// ensure the defender is also affected
 		bool addDefender = true;
@@ -172,7 +255,7 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 				int64_t damageDealt, damageReceived, defenderDamageReduce, attackerDamageReduce;
 
 				DamageEstimation retaliation;
-				auto attackDmg = state.battleEstimateDamage(ap.attack, &retaliation);
+				auto attackDmg = state->battleEstimateDamage(ap.attack, &retaliation);
 
 				vstd::amin(attackDmg.damage.min, defenderState->getAvailableHealth());
 				vstd::amin(attackDmg.damage.max, defenderState->getAvailableHealth());
@@ -181,7 +264,7 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 				vstd::amin(retaliation.damage.max, ap.attackerState->getAvailableHealth());
 
 				damageDealt = averageDmg(attackDmg.damage);
-				defenderDamageReduce = calculateDamageReduce(attacker, defender, damageDealt, state);
+				defenderDamageReduce = calculateDamageReduce(attacker, defender, damageDealt, damageCache, state);
 				ap.attackerState->afterAttack(attackInfo.shooting, false);
 
 				//FIXME: use ranged retaliation
@@ -191,11 +274,11 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 				if (!attackInfo.shooting && defenderState->ableToRetaliate() && !counterAttacksBlocked)
 				{
 					damageReceived = averageDmg(retaliation.damage);
-					attackerDamageReduce = calculateDamageReduce(defender, attacker, damageReceived, state);
+					attackerDamageReduce = calculateDamageReduce(defender, attacker, damageReceived, damageCache, state);
 					defenderState->afterAttack(attackInfo.shooting, true);
 				}
 
-				bool isEnemy = state.battleMatchOwner(attacker, u);
+				bool isEnemy = state->battleMatchOwner(attacker, u);
 
 				// this includes enemy units as well as attacker units under enemy's mind control
 				if(isEnemy)
@@ -225,7 +308,7 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 	}
 
 	// check how much damage we gain from blocking enemy shooters on this hex
-	bestAp.shootersBlockedDmg = evaluateBlockedShootersDmg(attackInfo, hex, state);
+	bestAp.shootersBlockedDmg = evaluateBlockedShootersDmg(attackInfo, hex, damageCache, state);
 
 #if BATTLE_TRACE_LEVEL>=1
 	logAi->trace("BattleAI best AP: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",

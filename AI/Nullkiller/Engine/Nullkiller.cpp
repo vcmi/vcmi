@@ -138,8 +138,8 @@ void Nullkiller::updateAiState(int pass, bool fast)
 	{
 		memory->removeInvisibleObjects(cb.get());
 
-		dangerHitMap->calculateTileOwners();
 		dangerHitMap->updateHitMap();
+		dangerHitMap->calculateTileOwners();
 
 		boost::this_thread::interruption_point();
 
