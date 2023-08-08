@@ -256,16 +256,16 @@ int main(int argc, char * argv[])
 	logGlobal->debug("settings = %s", settings.toJsonNode().toJson());
 
 	// Some basic data validation to produce better error messages in cases of incorrect install
-	auto testFile = [](std::string filename, std::string message) -> bool
+	auto testFile = [](std::string filename, std::string message)
 	{
-		if (CResourceHandler::get()->existsResource(ResourceID(filename)))
-			return true;
-
-		handleFatalError(message, false);
+		if (!CResourceHandler::get()->existsResource(ResourceID(filename)))
+			handleFatalError(message, false);
 	};
 
 	testFile("DATA/HELP.TXT", "VCMI requires Heroes III: Shadow of Death or Heroes III: Complete data files to run!");
 	testFile("MODS/VCMI/MOD.JSON", "VCMI installation is corrupted! Built-in mod was not found!");
+	testFile("DATA/PLAYERS.PAL", "Heroes III data files are missing or corruped! Please reinstall them.");
+	testFile("SPRITES/DEFAULT.DEF", "Heroes III data files are missing or corruped! Please reinstall them.");
 	testFile("DATA/TENTCOLR.TXT", "Heroes III: Restoration of Erathia (including HD Edition) data files are not supported!");
 
 	srand ( (unsigned int)time(nullptr) );
