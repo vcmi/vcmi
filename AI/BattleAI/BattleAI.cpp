@@ -254,12 +254,21 @@ void CBattleAI::yourTacticPhase(int distance)
 	cb->battleMakeTacticAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
 }
 
+uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start)
+{
+	auto end = std::chrono::high_resolution_clock::now();
+
+	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+}
+
 void CBattleAI::activeStack( const CStack * stack )
 {
 	LOG_TRACE_PARAMS(logAi, "stack: %s", stack->nodeName());
 
 	BattleAction result = BattleAction::makeDefend(stack);
 	setCbc(cb); //TODO: make solid sure that AIs always use their callbacks (need to take care of event handlers too)
+
+	auto start = std::chrono::high_resolution_clock::now();
 
 	try
 	{
@@ -275,6 +284,8 @@ void CBattleAI::activeStack( const CStack * stack )
 		}
 
 		attemptCastingSpell();
+
+		logAi->trace("Spellcast attempt completed in %lld", timeElapsed(start));
 
 		if(cb->battleIsFinished() || !stack->alive())
 		{
@@ -311,6 +322,8 @@ void CBattleAI::activeStack( const CStack * stack )
 	{
 		movesSkippedByDefense = 0;
 	}
+
+	logAi->trace("BattleAI decission made in %lld", timeElapsed(start));
 
 	cb->battleMakeUnitAction(result);
 }
