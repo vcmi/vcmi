@@ -70,6 +70,7 @@ public:
 	ESortBy sortingBy;
 	ESortBy generalSortingBy;
 	bool sortModeAscending;
+	int curFilterSize = 0;
 
 	std::shared_ptr<CTextInput> inputName;
 

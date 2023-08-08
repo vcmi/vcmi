@@ -138,7 +138,7 @@ static ESortBy getSortBySelectionScreen(ESelectionScreen Type)
 }
 
 SelectionTab::SelectionTab(ESelectionScreen Type)
-	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}, curFolder("")
+	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}, curFolder(""), curFilterSize(0)
 {
 	OBJ_CONSTRUCTION;
 
@@ -391,6 +391,10 @@ std::tuple<std::string, std::string, bool, bool> SelectionTab::checkSubfolder(st
 // selMaps with the relevant data.
 void SelectionTab::filter(int size, bool selectFirst)
 {
+	if(size == -1)
+		size = curFilterSize;
+	curFilterSize = size;
+
 	curItems.clear();
 
 	for(auto elem : allItems)
@@ -428,13 +432,19 @@ void SelectionTab::filter(int size, bool selectFirst)
 		sort();
 		if(selectFirst)
 		{
-			slider->scrollTo(0);
-			callOnSelect(curItems[0]);
-			selectAbs(-1);
+			int firstPos = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
+			if(firstPos < curItems.size())
+			{
+				slider->scrollTo(firstPos);
+				callOnSelect(curItems[firstPos]);
+				selectAbs(firstPos);
+			}
 		}
 	}
 	else
 	{
+		updateListItems();
+		redraw();
 		slider->block(true);
 		if(callOnSelect)
 			callOnSelect(nullptr);
@@ -499,9 +509,9 @@ void SelectionTab::select(int position)
 		}
 		else
 			curFolder += curItems[py]->folderName + "/";
-		filter(0);
+		filter(-1);
 		slider->scrollTo(0);
-		
+
 		return;
 	}
 
@@ -602,7 +612,7 @@ void SelectionTab::selectFileName(std::string fname)
 		}
 	}
 
-	filter(0);
+	filter(-1);
 	selectAbs(-1);
 }
 
