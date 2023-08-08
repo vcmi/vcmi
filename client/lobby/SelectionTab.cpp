@@ -512,6 +512,12 @@ void SelectionTab::select(int position)
 		filter(-1);
 		slider->scrollTo(0);
 
+		int firstPos = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
+		if(firstPos < curItems.size())
+		{
+			selectAbs(firstPos);
+		}
+
 		return;
 	}
 
