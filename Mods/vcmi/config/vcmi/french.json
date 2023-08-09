@@ -30,7 +30,6 @@
 	"vcmi.capitalColors.6" : "Turquoise",
 	"vcmi.capitalColors.7" : "Rose",
 
-	"vcmi.mainMenu.tutorialNotImplemented" : "Désolé, le didacticiel n'est pas encore implémenté\n",
 	"vcmi.mainMenu.highscoresNotImplemented" : "Désolé, le menu des meilleurs scores n'est pas encore implémenté\n",
 	"vcmi.mainMenu.serverConnecting" : "Connexion...",
 	"vcmi.mainMenu.serverAddressEnter" : "Entrez l'adresse :",

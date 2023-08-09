@@ -37,7 +37,6 @@
 	"vcmi.radialWheel.moveUnit" : "Verschieben der Kreatur in andere Armee",
 	"vcmi.radialWheel.splitUnit" : "Aufsplitten der Kreatur in anderen Slot",
 
-	"vcmi.mainMenu.tutorialNotImplemented" : "Das Tutorial ist aktuell noch nicht implementiert\n",
 	"vcmi.mainMenu.highscoresNotImplemented" : "Die Highscores sind aktuell noch nicht implementiert\n",
 	"vcmi.mainMenu.serverConnecting" : "Verbinde...",
 	"vcmi.mainMenu.serverAddressEnter" : "Addresse eingeben:",

@@ -377,7 +377,7 @@ void CMainMenu::startTutorial()
 	ResourceID tutorialMap("Maps/Tutorial.tut", EResType::MAP);
 	if(!CResourceHandler::get()->existsResource(tutorialMap))
 	{
-		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.mainMenu.tutorialNotExist"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
+		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("core.genrltxt.742"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
 		return;
 	}
 		

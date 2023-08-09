@@ -37,7 +37,6 @@
 	"vcmi.radialWheel.moveUnit" : "Перемістити істоту до іншої армії",
 	"vcmi.radialWheel.splitUnit" : "Розділити істоту в інший слот",
 
-	"vcmi.mainMenu.tutorialNotImplemented" : "Вибачте, навчання ще не реалізовано\n",
 	"vcmi.mainMenu.highscoresNotImplemented" : "Вибачте, таблицю рекордів ще не реалізовано\n",
 	"vcmi.mainMenu.serverConnecting" : "Підключення...",
 	"vcmi.mainMenu.serverAddressEnter" : "Вкажіть адресу:",
