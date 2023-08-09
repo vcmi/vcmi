@@ -34,7 +34,7 @@ enum ESelectionScreen : ui8 {
 
 enum ELoadMode : ui8
 {
-	NONE = 0, SINGLE, MULTI, CAMPAIGN
+	NONE = 0, SINGLE, MULTI, CAMPAIGN, TUTORIAL
 };
 
 /// The main menu screens listed in the EState enum

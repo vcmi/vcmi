@@ -199,7 +199,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 2:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::CAMPAIGN);
 				case 3:
-					return std::bind(CMainMenu::startTutorial);
+					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::TUTORIAL);
 				}
 			}
 			break;

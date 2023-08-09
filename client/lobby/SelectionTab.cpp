@@ -613,14 +613,19 @@ void SelectionTab::parseSaves(const std::unordered_set<ResourceID> & files)
 			// Filter out other game modes
 			bool isCampaign = mapInfo->scenarioOptionsOfSave->mode == StartInfo::CAMPAIGN;
 			bool isMultiplayer = mapInfo->amountOfHumanPlayersInSave > 1;
+			bool isTutorial = boost::to_upper_copy(mapInfo->scenarioOptionsOfSave->mapname) == "MAPS/TUTORIAL";
 			switch(CSH->getLoadMode())
 			{
 			case ELoadMode::SINGLE:
-				if(isMultiplayer || isCampaign)
+				if(isMultiplayer || isCampaign || isTutorial)
 					mapInfo->mapHeader.reset();
 				break;
 			case ELoadMode::CAMPAIGN:
 				if(!isCampaign)
+					mapInfo->mapHeader.reset();
+				break;
+			case ELoadMode::TUTORIAL:
+				if(!isTutorial)
 					mapInfo->mapHeader.reset();
 				break;
 			default:

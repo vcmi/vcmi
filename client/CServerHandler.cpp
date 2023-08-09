@@ -682,7 +682,7 @@ int CServerHandler::howManyPlayerInterfaces()
 
 ui8 CServerHandler::getLoadMode()
 {
-	if(state == EClientState::GAMEPLAY)
+	if(loadMode != ELoadMode::TUTORIAL && state == EClientState::GAMEPLAY)
 	{
 		if(si->campState)
 			return ELoadMode::CAMPAIGN;
