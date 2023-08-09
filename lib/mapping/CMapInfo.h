@@ -62,7 +62,6 @@ public:
 		h & campaign;
 		h & scenarioOptionsOfSave;
 		h & fileURI;
-		h & fullFileURI;
 		h & date;
 		h & amountOfPlayersOnMap;
 		h & amountOfHumanControllablePlayers;
