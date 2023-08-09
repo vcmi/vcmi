@@ -503,8 +503,8 @@ void SelectionTab::select(int position)
 		{
 			std::vector<std::string> filetree;
 			boost::split(filetree, curFolder, boost::is_any_of("/"));
-			filetree.erase(filetree.end());
-			filetree.erase(filetree.end());
+			filetree.pop_back();
+			filetree.pop_back();
 			curFolder = filetree.size() > 0 ? boost::algorithm::join(filetree, "/") + "/" : "";
 		}
 		else
