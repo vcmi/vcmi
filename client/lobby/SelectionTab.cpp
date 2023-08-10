@@ -357,13 +357,13 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 
 auto SelectionTab::checkSubfolder(std::string path)
 {
-    struct Ret
-    {
-      std::string folderName;
-      std::string baseFolder;
-      bool parentExists;
-      bool fileInFolder;
-    } ret;
+	struct Ret
+	{
+		std::string folderName;
+		std::string baseFolder;
+		bool parentExists;
+		bool fileInFolder;
+	} ret;
 
 	ret.parentExists = (curFolder != "");
 	ret.fileInFolder = false;
