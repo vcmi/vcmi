@@ -2265,6 +2265,9 @@ void BattleAttack::applyGs(CGameState * gs)
 
 void StartAction::applyGs(CGameState *gs)
 {
+	if (!gs->curB)
+		return;
+
 	CStack *st = gs->curB->getStack(ba.stackNumber);
 
 	if(ba.actionType == EActionType::END_TACTIC_PHASE)
