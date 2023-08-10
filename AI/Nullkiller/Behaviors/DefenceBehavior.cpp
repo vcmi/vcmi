@@ -189,7 +189,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			town->getNameTranslated(),
 			treat.danger,
 			std::to_string(treat.turn),
-			treat.hero->getNameTranslated());
+			treat.hero ? treat.hero->getNameTranslated() : std::string("<no hero>"));
 
 		handleCounterAttack(town, treat, treatNode.maximumDanger, tasks);
 
