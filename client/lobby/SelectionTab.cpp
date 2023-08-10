@@ -357,13 +357,13 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 
 auto SelectionTab::checkSubfolder(std::string path)
 {
-    struct Ret
-    {
-      std::string folderName;
-      std::string baseFolder;
-      bool parentExists;
-      bool fileInFolder;
-    } ret;
+	struct Ret
+	{
+		std::string folderName;
+		std::string baseFolder;
+		bool parentExists;
+		bool fileInFolder;
+	} ret;
 
 	ret.parentExists = (curFolder != "");
 	ret.fileInFolder = false;
@@ -392,7 +392,7 @@ auto SelectionTab::checkSubfolder(std::string path)
 		if(boost::count(pathWithoutPrefix.substr(curFolder.size()), '/') == 0)
 			ret.fileInFolder = true;
 
-    return ret;
+	return ret;
 }
 
 // A new size filter (Small, Medium, ...) has been selected. Populate
