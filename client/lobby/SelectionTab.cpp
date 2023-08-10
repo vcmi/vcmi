@@ -788,6 +788,7 @@ SelectionTab::ListItem::ListItem(Point position, std::shared_ptr<CAnimation> ico
 	: CIntObject(LCLICK, position)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	pictureEmptyLine = std::make_shared<CPicture>("lobby/selectionEmptyLine.png", -8, -14);
 	labelName = std::make_shared<CLabel>(184, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelName->setAutoRedraw(false);
 	labelAmountOfPlayers = std::make_shared<CLabel>(8, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
@@ -797,6 +798,7 @@ SelectionTab::ListItem::ListItem(Point position, std::shared_ptr<CAnimation> ico
 	labelMapSizeLetter = std::make_shared<CLabel>(41, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelMapSizeLetter->setAutoRedraw(false);
 	// FIXME: This -12 should not be needed, but for some reason CAnimImage displaced otherwise
+	iconFolder = std::make_shared<CPicture>("lobby/iconFolder.png", -8, -12);
 	iconFormat = std::make_shared<CAnimImage>(iconsFormats, 0, 0, 59, -12);
 	iconVictoryCondition = std::make_shared<CAnimImage>(iconsVictory, 0, 0, 277, -12);
 	iconLossCondition = std::make_shared<CAnimImage>(iconsLoss, 0, 0, 310, -12);
@@ -808,6 +810,8 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 	{
 		labelAmountOfPlayers->disable();
 		labelMapSizeLetter->disable();
+		iconFolder->disable();
+		pictureEmptyLine->disable();
 		iconFormat->disable();
 		iconVictoryCondition->disable();
 		iconLossCondition->disable();
@@ -821,8 +825,9 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 	{
 		labelAmountOfPlayers->disable();
 		labelMapSizeLetter->disable();
-		iconFormat->enable();
-		iconFormat->setFrame(99);
+		iconFolder->enable();
+		pictureEmptyLine->enable();
+		iconFormat->disable();
 		iconVictoryCondition->disable();
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->disable();
@@ -836,6 +841,8 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 	{
 		labelAmountOfPlayers->disable();
 		labelMapSizeLetter->disable();
+		iconFolder->disable();
+		pictureEmptyLine->disable();
 		iconFormat->disable();
 		iconVictoryCondition->disable();
 		iconLossCondition->disable();
@@ -856,6 +863,8 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelMapSizeLetter->enable();
 		labelMapSizeLetter->setText(info->getMapSizeName());
 		labelMapSizeLetter->setColor(color);
+		iconFolder->disable();
+		pictureEmptyLine->disable();
 		iconFormat->enable();
 		iconFormat->setFrame(info->getMapSizeFormatIconId());
 		iconVictoryCondition->enable();

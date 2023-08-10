@@ -45,9 +45,11 @@ class SelectionTab : public CIntObject
 		std::shared_ptr<CLabel> labelAmountOfPlayers;
 		std::shared_ptr<CLabel> labelNumberOfCampaignMaps;
 		std::shared_ptr<CLabel> labelMapSizeLetter;
+		std::shared_ptr<CPicture> iconFolder;
 		std::shared_ptr<CAnimImage> iconFormat;
 		std::shared_ptr<CAnimImage> iconVictoryCondition;
 		std::shared_ptr<CAnimImage> iconLossCondition;
+		std::shared_ptr<CPicture> pictureEmptyLine;
 		std::shared_ptr<CLabel> labelName;
 
 		ListItem(Point position, std::shared_ptr<CAnimation> iconsFormats, std::shared_ptr<CAnimation> iconsVictory, std::shared_ptr<CAnimation> iconsLoss);
