@@ -70,7 +70,7 @@ public:
 	ESortBy sortingBy;
 	ESortBy generalSortingBy;
 	bool sortModeAscending;
-	int curFilterSize = 0;
+	int currentMapSizeFilter = 0;
 
 	std::shared_ptr<CTextInput> inputName;
 
@@ -107,7 +107,7 @@ private:
 	ESelectionScreen tabType;
 	Rect inputNameRect;
 
-	std::tuple<std::string, std::string, bool, bool> checkSubfolder(std::string path);
+	auto checkSubfolder(std::string path);
 
 	bool isMapSupported(const CMapInfo & info);
 	void parseMaps(const std::unordered_set<ResourceID> & files);

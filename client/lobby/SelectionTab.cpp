@@ -138,7 +138,7 @@ static ESortBy getSortBySelectionScreen(ESelectionScreen Type)
 }
 
 SelectionTab::SelectionTab(ESelectionScreen Type)
-	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}, curFolder(""), curFilterSize(0)
+	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}, curFolder(""), currentMapSizeFilter(0)
 {
 	OBJ_CONSTRUCTION;
 
@@ -322,12 +322,12 @@ void SelectionTab::keyPressed(EShortcut key)
 void SelectionTab::clickDouble(const Point & cursorPosition)
 {
 	int position = getLine();
-	int py = position + slider->getValue();
+	int itemIndex = position + slider->getValue();
 
-	if(py >= curItems.size())
+	if(itemIndex >= curItems.size())
 		return;
 
-	if(curItems[py]->isFolder)
+	if(curItems[itemIndex]->isFolder)
 		return;
 
 	if(getLine() != -1) //double clicked scenarios list
@@ -355,11 +355,18 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 	}
 }
 
-std::tuple<std::string, std::string, bool, bool> SelectionTab::checkSubfolder(std::string path)
+auto SelectionTab::checkSubfolder(std::string path)
 {
-	std::string folderName = "";
-	bool parentExists = (curFolder != "");
-	bool fileInFolder = false;
+    struct Ret
+    {
+      std::string folderName;
+      std::string baseFolder;
+      bool parentExists;
+      bool fileInFolder;
+    } ret;
+
+	ret.parentExists = (curFolder != "");
+	ret.fileInFolder = false;
 
 	std::vector<std::string> filetree;
 	// delete first element (e.g. 'MAPS')
@@ -367,24 +374,25 @@ std::tuple<std::string, std::string, bool, bool> SelectionTab::checkSubfolder(st
 	filetree.erase(filetree.begin());
 	std::string pathWithoutPrefix = boost::algorithm::join(filetree, "/");
 
-	std::string baseFolder = boost::filesystem::path(pathWithoutPrefix).parent_path().string();
+	filetree.pop_back();
+	ret.baseFolder = boost::algorithm::join(filetree, "/");
 
-	if(boost::algorithm::starts_with(baseFolder, curFolder))
+	if(boost::algorithm::starts_with(ret.baseFolder, curFolder))
 	{
-		std::string folder = baseFolder.substr(curFolder.size());
+		std::string folder = ret.baseFolder.substr(curFolder.size());
 
 		if(folder != "")
 		{
 			boost::split(filetree, folder, boost::is_any_of("/"));
-			folderName = filetree[0];
+			ret.folderName = filetree[0];
 		}
 	}
 
 	if(boost::algorithm::starts_with(pathWithoutPrefix, curFolder))
 		if(boost::count(pathWithoutPrefix.substr(curFolder.size()), '/') == 0)
-			fileInFolder = true;
+			ret.fileInFolder = true;
 
-    return {folderName, baseFolder, parentExists, fileInFolder};
+    return ret;
 }
 
 // A new size filter (Small, Medium, ...) has been selected. Populate
@@ -392,8 +400,8 @@ std::tuple<std::string, std::string, bool, bool> SelectionTab::checkSubfolder(st
 void SelectionTab::filter(int size, bool selectFirst)
 {
 	if(size == -1)
-		size = curFilterSize;
-	curFilterSize = size;
+		size = currentMapSizeFilter;
+	currentMapSizeFilter = size;
 
 	curItems.clear();
 
@@ -408,15 +416,17 @@ void SelectionTab::filter(int size, bool selectFirst)
 				auto folder = std::make_shared<ElementInfo>();
 				folder->isFolder = true;
 				folder->folderName = "..";
-				if (boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return e->folderName == ".."; }) == curItems.end()) {
+				auto itemIt = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return e->folderName == ".."; });
+				if (itemIt == curItems.end()) {
 					curItems.push_back(folder);
-				}				
+				}			
 			}
 
 			std::shared_ptr<ElementInfo> folder = std::make_shared<ElementInfo>();
 			folder->isFolder = true;
 			folder->folderName = folderName;
-			if (boost::range::find_if(curItems, [folder](std::shared_ptr<ElementInfo> e) { return e->folderName == folder->folderName; }) == curItems.end() && folderName != "") {
+			auto itemIt = boost::range::find_if(curItems, [folder](std::shared_ptr<ElementInfo> e) { return e->folderName == folder->folderName; });
+			if (itemIt == curItems.end() && folderName != "") {
 				curItems.push_back(folder);
 			}
 
@@ -698,9 +708,7 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourceID> & files)
 			mapInfo->mapInit(file.getName());
 
 			if (isMapSupported(*mapInfo))
-			{
 				allItems.push_back(mapInfo);
-			}
 		}
 		catch(std::exception & e)
 		{
@@ -755,9 +763,8 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourceID> & files)
 		//allItems[i].date = std::asctime(std::localtime(&files[i].date));
 		info->fileURI = file.getName();
 		info->campaignInit();
-		if(info->campaign) {
+		if(info->campaign)
 			allItems.push_back(info);
-		}
 	}
 }
 
