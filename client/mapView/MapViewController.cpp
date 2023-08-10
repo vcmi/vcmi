@@ -247,6 +247,20 @@ void MapViewController::afterRender()
 	}
 }
 
+bool MapViewController::isEventInstant(const CGObjectInstance * obj)
+{
+	if (!isEventVisible(obj))
+		return true;
+
+	if(!LOCPLINT->makingTurn && settings["adventure"]["enemyMoveTime"].Float() <= 0)
+		return true; // instant movement speed
+
+	if(LOCPLINT->makingTurn && settings["adventure"]["heroMoveTime"].Float() <= 0)
+		return true; // instant movement speed
+
+	return false;
+}
+
 bool MapViewController::isEventVisible(const CGObjectInstance * obj)
 {
 	if(adventureContext == nullptr)
@@ -358,7 +372,8 @@ void MapViewController::onBeforeHeroEmbark(const CGHeroInstance * obj, const int
 {
 	if(isEventVisible(obj, from, dest))
 	{
-		fadeOutObject(obj);
+		if (!isEventInstant(obj))
+			fadeOutObject(obj);
 		setViewCenter(obj->getSightCenter());
 	}
 	else
@@ -381,7 +396,8 @@ void MapViewController::onAfterHeroDisembark(const CGHeroInstance * obj, const i
 {
 	if(isEventVisible(obj, from, dest))
 	{
-		fadeInObject(obj);
+		if (!isEventInstant(obj))
+			fadeInObject(obj);
 		setViewCenter(obj->getSightCenter());
 	}
 	addObject(obj);
@@ -391,7 +407,7 @@ void MapViewController::onObjectFadeIn(const CGObjectInstance * obj)
 {
 	assert(!hasOngoingAnimations());
 
-	if(isEventVisible(obj))
+	if(isEventVisible(obj) && !isEventInstant(obj) )
 		fadeInObject(obj);
 
 	addObject(obj);
@@ -401,7 +417,7 @@ void MapViewController::onObjectFadeOut(const CGObjectInstance * obj)
 {
 	assert(!hasOngoingAnimations());
 
-	if(isEventVisible(obj))
+	if(isEventVisible(obj) && !isEventInstant(obj) )
 		fadeOutObject(obj);
 	else
 		removeObject(obj);
