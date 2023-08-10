@@ -357,13 +357,13 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 
 auto SelectionTab::checkSubfolder(std::string path)
 {
-	struct Ret
-	{
-		std::string folderName;
-		std::string baseFolder;
-		bool parentExists;
-		bool fileInFolder;
-	} ret;
+    struct Ret
+    {
+      std::string folderName;
+      std::string baseFolder;
+      bool parentExists;
+      bool fileInFolder;
+    } ret;
 
 	ret.parentExists = (curFolder != "");
 	ret.fileInFolder = false;
@@ -773,12 +773,12 @@ std::unordered_set<ResourceID> SelectionTab::getFiles(std::string dirURI, int re
 	boost::to_upper(dirURI);
 	CResourceHandler::get()->updateFilteredFiles([&](const std::string & mount)
 	{
-		return boost::algorithm::starts_with(mount, dirURI);
+		return boost::algorithm::starts_with(boost::algorithm::to_upper_copy(mount), dirURI);
 	});
 
 	std::unordered_set<ResourceID> ret = CResourceHandler::get()->getFilteredFiles([&](const ResourceID & ident)
 	{
-		return ident.getType() == resType && boost::algorithm::starts_with(ident.getName(), dirURI);
+		return ident.getType() == resType && boost::algorithm::starts_with(boost::algorithm::to_upper_copy(ident.getName()), dirURI);
 	});
 
 	return ret;
