@@ -415,8 +415,8 @@ void SelectionTab::filter(int size, bool selectFirst)
 			{
 				auto folder = std::make_shared<ElementInfo>();
 				folder->isFolder = true;
-				folder->folderName = "..";
-				auto itemIt = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return e->folderName == ".."; });
+				folder->folderName = "..     (" + curFolder + ")";
+				auto itemIt = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return boost::starts_with(e->folderName, ".."); });
 				if (itemIt == curItems.end()) {
 					curItems.push_back(folder);
 				}			
@@ -509,7 +509,7 @@ void SelectionTab::select(int position)
 		slider->scrollBy(position - (int)listItems.size() + 1);
 
 	if(curItems[py]->isFolder) {
-		if(curItems[py]->folderName == "..")
+		if(boost::starts_with(curItems[py]->folderName, ".."))
 		{
 			std::vector<std::string> filetree;
 			boost::split(filetree, curFolder, boost::is_any_of("/"));
