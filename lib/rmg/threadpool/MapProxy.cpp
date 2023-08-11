@@ -30,6 +30,12 @@ void MapProxy::insertObjects(std::set<CGObjectInstance*>& objects)
     map.getEditManager()->insertObjects(objects);
 }
 
+void MapProxy::removeObject(CGObjectInstance * obj)
+{
+    Lock lock(mx);
+    map.getEditManager()->removeObject(obj);
+}
+
 void MapProxy::drawTerrain(CRandomGenerator & generator, std::vector<int3> & tiles, TerrainId terrain)
 {
     Lock lock(mx);
