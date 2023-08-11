@@ -277,6 +277,12 @@ void CVCMIServer::prepareToRestart()
 		* si = * gh->gs->initialOpts;
 		si->seedToBeUsed = si->seedPostInit = 0;
 		state = EServerState::LOBBY;
+		if (si->campState)
+		{
+			assert(si->campState->currentScenario().has_value());
+			campaignMap = si->campState->currentScenario().value_or(CampaignScenarioID(0));
+			campaignBonus = si->campState->getBonusID(campaignMap).value_or(-1);
+		}
 		// FIXME: dirry hack to make sure old CGameHandler::run is finished
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 	}
