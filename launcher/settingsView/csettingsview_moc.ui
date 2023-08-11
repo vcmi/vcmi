@@ -645,7 +645,7 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
        <item row="13" column="1" colspan="4">
         <widget class="QSpinBox" name="spinBoxReservedArea">
          <property name="suffix">
-          <string>%</string>
+          <string notr="true">%</string>
          </property>
          <property name="minimum">
           <number>0</number>
