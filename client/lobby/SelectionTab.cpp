@@ -374,8 +374,13 @@ auto SelectionTab::checkSubfolder(std::string path)
 	filetree.erase(filetree.begin());
 	std::string pathWithoutPrefix = boost::algorithm::join(filetree, "/");
 
-	filetree.pop_back();
-	ret.baseFolder = boost::algorithm::join(filetree, "/");
+	if(!filetree.empty())
+	{
+		filetree.pop_back();
+		ret.baseFolder = boost::algorithm::join(filetree, "/");
+	}
+	else
+		ret.baseFolder = "";
 
 	if(boost::algorithm::starts_with(ret.baseFolder, curFolder))
 	{
@@ -613,8 +618,6 @@ int SelectionTab::getLine(const Point & clickPos) const
 
 void SelectionTab::selectFileName(std::string fname)
 {
-	boost::to_upper(fname);
-
 	auto [folderName, baseFolder, parentExists, fileInFolder] = checkSubfolder(fname);
 	curFolder = baseFolder != "" ? baseFolder + "/" : "";
 
