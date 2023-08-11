@@ -140,6 +140,7 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 {
 	hostClientId = -1;
 	state = EClientState::NONE;
+	mapToStart = nullptr;
 	th = std::make_unique<CStopWatch>();
 	packsForLobbyScreen.clear();
 	c.reset();
@@ -396,6 +397,7 @@ void CServerHandler::sendClientDisconnecting()
 		return;
 
 	state = EClientState::DISCONNECTING;
+	mapToStart = nullptr;
 	LobbyClientDisconnected lcd;
 	lcd.clientId = c->connectionID;
 	logNetwork->info("Connection has been requested to be closed.");
@@ -551,6 +553,11 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 	sendLobbyPack(lsg);
 	c->enterLobbyConnectionMode();
 	c->disableStackSendingByID();
+}
+
+void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
+{
+	mapToStart = to;
 }
 
 void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState)

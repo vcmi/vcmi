@@ -383,32 +383,8 @@ void CMainMenu::startTutorial()
 		
 	auto mapInfo = std::make_shared<CMapInfo>();
 	mapInfo->mapInit(tutorialMap.getName());
-	
+	CSH->startMapAfterConnection(mapInfo);
 	CMainMenu::openLobby(ESelectionScreen::newGame, true, nullptr, ELoadMode::NONE);
-	
-	std::thread waitForConnectionThread([mapInfo](){
-		boost::this_thread::sleep(boost::posix_time::milliseconds(100)); //delay this thread
-		
-		//connecting to server
-		while(CSH->state != EClientState::LOBBY)
-		{
-			if(CSH->state == EClientState::CONNECTION_CANCELLED || CSH->state == EClientState::NONE)
-				return;
-			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
-		}
-		
-		//start game from main thread
-		GH.dispatchMainThread([mapInfo]()
-		{
-			while(!CSH->si || mapInfo->fileURI != CSH->si->mapname)
-			{
-				CSH->setMapInfo(mapInfo);
-				boost::this_thread::sleep(boost::posix_time::milliseconds(50));
-			}
-			CSH->sendStartGame();
-		});
-	});
-	waitForConnectionThread.detach();
 }
 
 std::shared_ptr<CMainMenu> CMainMenu::create()
