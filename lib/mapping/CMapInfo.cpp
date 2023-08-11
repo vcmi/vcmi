@@ -63,11 +63,11 @@ void CMapInfo::saveInit(const ResourceID & file)
 	countPlayers();
 	std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(file));
 
-    std::tm tm = *std::localtime(&time);
+	std::tm tm = *std::localtime(&time);
 	std::stringstream s;
 	s.imbue(std::locale(""));
-    s << std::put_time(&tm, "%x %X");
-    date = s.str();
+	s << std::put_time(&tm, "%x %X");
+	date = s.str();
 
 	// We absolutely not need this data for lobby and server will read it from save
 	// FIXME: actually we don't want them in CMapHeader!
