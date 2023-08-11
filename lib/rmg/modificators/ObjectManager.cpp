@@ -452,13 +452,19 @@ bool ObjectManager::createRequiredObjects()
 
 void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateDistance, bool createRoad/* = false*/)
 {	
-	object.finalize(map);
+	//object.finalize(map);
 
 	if (object.instances().size() == 1 && object.instances().front()->object().ID == Obj::MONSTER)
 	{
 		//Fix for HoTA offset - lonely guards
-		object.getPosition();
+		
 		auto monster = object.instances().front();
+		if (!monster->object().appearance)
+		{
+			//Needed to determine visitable offset
+			monster->setAnyTemplate();
+		}
+		object.getPosition();
 		auto visitableOffset = monster->object().getVisitableOffset();
 		auto fixedPos = monster->getPosition(true) + visitableOffset;
 
@@ -468,6 +474,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		int3 parentOffset = monster->getPosition(true) - monster->getPosition(false);
 		monster->setPosition(fixedPos - parentOffset);
 	}
+	object.finalize(map);
 
 	Zone::Lock lock(zone.areaMutex);
 	zone.areaPossible().subtract(object.getArea());
