@@ -242,6 +242,7 @@ void SelectionTab::toggleMode()
 		case ESelectionScreen::saveGame:
 			parseSaves(getFiles("Saves/", EResType::SAVEGAME));
 			inputName->enable();
+			inputName->activate();
 			restoreLastSelection();
 			break;
 
@@ -347,7 +348,7 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 
 	if(!curItems[py]->isFolder)
 	{
-		std::string text = boost::str(boost::format("{%1%}\r\n\r\n%2%:\r\n%3%") % curItems[py]->getName() % CGI->generaltexth->translate("vcmi.lobby.filename") % curItems[py]->fileURI);
+		std::string text = boost::str(boost::format("{%1%}\r\n\r\n%2%:\r\n%3%") % curItems[py]->getName() % CGI->generaltexth->translate("vcmi.lobby.filename") % curItems[py]->fullFileURI);
 		if(curItems[py]->date != "")
 			text += boost::str(boost::format("\r\n\r\n%1%:\r\n%2%") % CGI->generaltexth->translate("vcmi.lobby.creationDate") % curItems[py]->date);
 
@@ -414,7 +415,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 	{
 		if((elem->mapHeader && (!size || elem->mapHeader->width == size)) || tabType == ESelectionScreen::campaignList)
 		{
-			auto [folderName, baseFolder, parentExists, fileInFolder] = checkSubfolder(elem->fileURI);
+			auto [folderName, baseFolder, parentExists, fileInFolder] = checkSubfolder(elem->originalFileURI);
 
 			if(parentExists)
 			{
@@ -618,8 +619,16 @@ int SelectionTab::getLine(const Point & clickPos) const
 
 void SelectionTab::selectFileName(std::string fname)
 {
-	auto [folderName, baseFolder, parentExists, fileInFolder] = checkSubfolder(fname);
-	curFolder = baseFolder != "" ? baseFolder + "/" : "";
+	boost::to_upper(fname);
+
+	for(int i = (int)allItems.size() - 1; i >= 0; i--)
+	{
+		if(allItems[i]->fileURI == fname)
+		{
+			auto [folderName, baseFolder, parentExists, fileInFolder] = checkSubfolder(allItems[i]->originalFileURI);
+			curFolder = baseFolder != "" ? baseFolder + "/" : "";
+		}
+	}
 
 	for(int i = (int)curItems.size() - 1; i >= 0; i--)
 	{
@@ -776,12 +785,12 @@ std::unordered_set<ResourceID> SelectionTab::getFiles(std::string dirURI, int re
 	boost::to_upper(dirURI);
 	CResourceHandler::get()->updateFilteredFiles([&](const std::string & mount)
 	{
-		return boost::algorithm::starts_with(boost::algorithm::to_upper_copy(mount), dirURI);
+		return boost::algorithm::starts_with(mount, dirURI);
 	});
 
 	std::unordered_set<ResourceID> ret = CResourceHandler::get()->getFilteredFiles([&](const ResourceID & ident)
 	{
-		return ident.getType() == resType && boost::algorithm::starts_with(boost::algorithm::to_upper_copy(ident.getName()), dirURI);
+		return ident.getType() == resType && boost::algorithm::starts_with(ident.getName(), dirURI);
 	});
 
 	return ret;

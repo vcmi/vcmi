@@ -45,7 +45,7 @@ static inline EResType::Type readType(const std::string& name)
 	return EResTypeHelper::getTypeFromExtension(FileInfo::GetExtension(name).to_string());
 }
 
-static inline std::string readName(std::string name, EResType::Type type)
+static inline std::string readName(std::string name, bool uppercase)
 {
 	const auto dotPos = name.find_last_of('.');
 
@@ -61,7 +61,7 @@ static inline std::string readName(std::string name, EResType::Type type)
 			name.resize(dotPos);
 	}
 
-	if(type != EResType::MAP && type != EResType::CAMPAIGN && type != EResType::SAVEGAME)
+	if(uppercase)
 		toUpper(name);
 
 	return name;
@@ -76,12 +76,14 @@ ResourceID::ResourceID()
 
 ResourceID::ResourceID(std::string name_):
 	type{readType(name_)},
-	name{readName(std::move(name_), readType(name_))}
+	name{readName(name_, true)},
+	originalName{readName(std::move(name_), false)}
 {}
 
 ResourceID::ResourceID(std::string name_, EResType::Type type_):
 	type{type_},
-	name{readName(std::move(name_), type_)}
+	name{readName(name_, true)},
+	originalName{readName(std::move(name_), false)}
 {}
 #if 0
 std::string ResourceID::getName() const

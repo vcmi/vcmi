@@ -43,7 +43,10 @@ void CMapInfo::mapInit(const std::string & fname)
 {
 	fileURI = fname;
 	CMapService mapService;
-	mapHeader = mapService.loadMapHeader(ResourceID(fname, EResType::MAP));
+	ResourceID resource = ResourceID(fname, EResType::MAP);
+	originalFileURI = resource.getOriginalName();
+	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(resource)).string();
+	mapHeader = mapService.loadMapHeader(resource);
 	countPlayers();
 }
 
@@ -55,9 +58,17 @@ void CMapInfo::saveInit(const ResourceID & file)
 	mapHeader = std::make_unique<CMapHeader>();
 	lf >> *(mapHeader) >> scenarioOptionsOfSave;
 	fileURI = file.getName();
+	originalFileURI = file.getOriginalName();
+	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(file)).string();
 	countPlayers();
 	std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(file));
-	date = std::asctime(std::localtime(&time));
+
+    std::tm tm = *std::localtime(&time);
+	std::stringstream s;
+	s.imbue(std::locale(""));
+    s << std::put_time(&tm, "%x %X");
+    date = s.str();
+
 	// We absolutely not need this data for lobby and server will read it from save
 	// FIXME: actually we don't want them in CMapHeader!
 	mapHeader->triggeredEvents.clear();
@@ -65,6 +76,9 @@ void CMapInfo::saveInit(const ResourceID & file)
 
 void CMapInfo::campaignInit()
 {
+	ResourceID resource = ResourceID(fileURI, EResType::CAMPAIGN);
+	originalFileURI = resource.getOriginalName();
+	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(resource)).string();
 	campaign = CampaignHandler::getHeader(fileURI);
 }
 
@@ -105,7 +119,7 @@ std::string CMapInfo::getNameForList() const
 	{
 		// TODO: this could be handled differently
 		std::vector<std::string> path;
-		boost::split(path, fileURI, boost::is_any_of("\\/"));
+		boost::split(path, originalFileURI, boost::is_any_of("\\/"));
 		return path[path.size()-1];
 	}
 	else
