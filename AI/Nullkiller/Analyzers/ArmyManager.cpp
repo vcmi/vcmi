@@ -170,7 +170,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 
 		std::vector<SlotInfo> newArmy;
 		uint64_t newValue = 0;
-		newArmyInstance.clear();
+		newArmyInstance.clearSlots();
 
 		for(auto & slot : sortedSlots)
 		{

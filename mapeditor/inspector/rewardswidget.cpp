@@ -222,7 +222,7 @@ bool RewardsWidget::commitChanges()
 		pandora->resources = ResourceSet();
 		pandora->artifacts.clear();
 		pandora->spells.clear();
-		pandora->creatures.clear();
+		pandora->creatures.clearSlots();
 		
 		for(int row = 0; row < rewards; ++row)
 		{
