@@ -376,6 +376,12 @@ void Area::translate(const int3 & shift)
 	//toAbsolute(dTiles, shift);
 }
 
+void Area::erase_if(std::function<bool(const int3&)> predicate)
+{
+	invalidate();
+	vstd::erase_if(dTiles, predicate);
+}
+
 Area operator- (const Area & l, const int3 & r)
 {
 	Area result(l);
