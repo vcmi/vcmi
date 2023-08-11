@@ -129,6 +129,19 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 {
 	float bestWeight = 0.f;
 	int3 result(-1, -1, -1);
+
+	//Blocked area might not cover object position if it has an offset from (0,0)
+	auto outsideTheMap = [this, &obj]() -> bool
+	{
+		for (const auto& oi : obj.instances())
+		{
+			if (!map.isOnMap(oi->getPosition(true)))
+			{
+				return true;
+			}
+		}
+		return false;
+	};
 	
 	if(optimizer & OptimizeType::DISTANCE)
 	{
@@ -149,6 +162,9 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 			
 			if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
 				continue;
+
+			if (outsideTheMap())
+				continue;
 			
 			float weight = weightFunction(tile);
 			if(weight > bestWeight)
@@ -168,8 +184,11 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 
 			if (obj.getVisibleTop().y < 0)
 				continue;
-			
+					
 			if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
+				continue;
+
+			if (outsideTheMap())
 				continue;
 			
 			float weight = weightFunction(tile);
@@ -416,7 +435,7 @@ bool ObjectManager::createRequiredObjects()
 	
 	//create object on specific positions
 	//TODO: implement guards
-	for (const auto &objInfo : instantObjects)
+	for (const auto &objInfo : instantObjects) //Unused ATM
 	{
 		rmg::Object rmgObject(*objInfo.obj);
 		rmgObject.setPosition(objInfo.pos);
@@ -435,6 +454,21 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 {	
 	object.finalize(map);
 
+	if (object.instances().size() == 1 && object.instances().front()->object().ID == Obj::MONSTER)
+	{
+		//Fix for HoTA offset - lonely guards
+		object.getPosition();
+		auto monster = object.instances().front();
+		auto visitableOffset = monster->object().getVisitableOffset();
+		auto fixedPos = monster->getPosition(true) + visitableOffset;
+
+		//Do not place guard outside the map
+		vstd::abetween(fixedPos.x, visitableOffset.x, map.width() - 1);
+		vstd::abetween(fixedPos.y, visitableOffset.y, map.height() - 1);
+		int3 parentOffset = monster->getPosition(true) - monster->getPosition(false);
+		monster->setPosition(fixedPos - parentOffset);
+	}
+
 	Zone::Lock lock(zone.areaMutex);
 	zone.areaPossible().subtract(object.getArea());
 	bool keepVisitable = zone.freePaths().contains(object.getVisitablePosition());
@@ -443,8 +477,8 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		zone.freePaths().add(object.getVisitablePosition());
 	zone.areaUsed().unite(object.getArea());
 	zone.areaUsed().erase(object.getVisitablePosition());
-	
-	if(guarded)
+
+	if(guarded) //We assume the monster won't be guarded
 	{
 		auto guardedArea = object.instances().back()->getAccessibleArea();
 		guardedArea.add(object.instances().back()->getVisitablePosition());
@@ -501,6 +535,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		{
 			case Obj::RANDOM_TREASURE_ART:
 			case Obj::RANDOM_MINOR_ART: //In OH3 quest artifacts have higher value than normal arts
+			case Obj::RANDOM_RESOURCE:
 			{
 				if (auto * qap = zone.getModificator<QuestArtifactPlacer>())
 				{
@@ -629,8 +664,12 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 	});
 	
 	auto & instance = object.addInstance(*guard);
-	instance.setPosition(guardPos - object.getPosition());
 	instance.setAnyTemplate(); //terrain is irrelevant for monsters, but monsters need some template now
+
+	//Fix HoTA monsters with offset template
+	auto visitableOffset = instance.object().getVisitableOffset();
+	auto fixedPos = guardPos - object.getPosition() + visitableOffset;
+	instance.setPosition(fixedPos);
 		
 	return true;
 }
