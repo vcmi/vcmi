@@ -72,6 +72,8 @@ private slots:
 
     void on_lineEditAutoSavePrefix_textEdited(const QString &arg1);
 
+	void on_spinBoxReservedArea_valueChanged(int arg1);
+
 private:
 	Ui::CSettingsView * ui;
 
