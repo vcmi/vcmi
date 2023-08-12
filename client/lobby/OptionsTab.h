@@ -61,8 +61,8 @@ public:
 		{}
 
 		/// visible image settings
-		size_t getImageIndex();
-		std::string getImageName();
+		size_t getImageIndex(bool big = false);
+		std::string getImageName(bool big = false);
 
 		std::string getName(); /// name visible in options dialog
 		std::string getTitle(); /// title in popup box
@@ -97,11 +97,13 @@ public:
 
 	class SelectionWindow : public CWindowObject
 	{
+		const int ELEMENTS_PER_LINE = 5;
+
 		std::shared_ptr<CFilledTexture> backgroundTexture;
 		std::vector<std::shared_ptr<CIntObject>> components;
 
 		std::vector<FactionID> factions;
-		std::vector<SHeroName> heroes;
+		std::vector<HeroTypeID> heroes;
 
 		void genContentCastles(PlayerSettings settings, PlayerInfo playerInfo);
 		void genContentHeroes(PlayerSettings settings, PlayerInfo playerInfo);
