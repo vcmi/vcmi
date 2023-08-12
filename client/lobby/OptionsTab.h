@@ -115,6 +115,8 @@ public:
 		int selectedBonus;
 
 		std::set<FactionID> allowedFactions;
+		std::vector<bool> allowedHeroes;
+		std::vector<bool> allowedBonus;
 
 		void genContentTitle();
 		void genContentCastles();

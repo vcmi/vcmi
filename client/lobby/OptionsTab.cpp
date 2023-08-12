@@ -436,6 +436,7 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color)
 	selectedHero = selectedHero;
 	selectedBonus = selectedBonus;
 	allowedFactions = SEL->getPlayerInfo(color.getNum()).allowedFactions;
+	allowedHeroes = SEL->getMapInfo()->mapHeader->allowedHeroes;
 
 	redraw();
 
@@ -454,6 +455,7 @@ void OptionsTab::SelectionWindow::apply()
 
 void OptionsTab::SelectionWindow::setSelection()
 {
+	// fraction
 	int selectedFractionPos = -1;
 	for(int i = 0; i<factions.size(); i++)
 		if(factions[i] == selectedFraction)
@@ -464,11 +466,36 @@ void OptionsTab::SelectionWindow::setSelection()
 		if(factions[i] == initialFraction)
 			initialFractionPos = i;
 
-	int deltatown = selectedFractionPos - initialFractionPos;
+	int deltaFraction = selectedFractionPos - initialFractionPos;
 
-	if(deltatown != 0)
-		for(int i = 0; i<abs(deltatown); i++)
-			CSH->setPlayerOption(LobbyChangePlayerOption::TOWN, deltatown > 0 ? 1 : -1, color);
+	if(deltaFraction != 0)
+		for(int i = 0; i<abs(deltaFraction); i++)
+			CSH->setPlayerOption(LobbyChangePlayerOption::TOWN, deltaFraction > 0 ? 1 : -1, color);
+
+	// hero
+	int selectedHeroPos = -1;
+	for(int i = 0; i<heroes.size(); i++)
+		if(heroes[i] == selectedHero)
+			selectedHeroPos = i;
+
+	int initialHeroPos = -1;
+	if(deltaFraction == 0)
+		for(int i = 0; i<heroes.size(); i++)
+			if(heroes[i] == initialHero)
+				initialHeroPos = i;
+
+	int deltaHero = selectedHeroPos - initialHeroPos;
+
+	if(deltaHero != 0)
+		for(int i = 0; i<abs(deltaHero); i++)
+			CSH->setPlayerOption(LobbyChangePlayerOption::HERO, deltaHero > 0 ? 1 : -1, color);
+
+	// bonus
+	//int deltaBonus = selectedBonus - initialBonus;
+
+	//if(deltaBonus != 0)
+	//	for(int i = 0; i<abs(deltaBonus); i++)
+	//		CSH->setPlayerOption(LobbyChangePlayerOption::BONUS, deltaBonus > 0 ? 1 : -1, color);
 }
 
 void OptionsTab::SelectionWindow::redraw()
@@ -487,9 +514,9 @@ void OptionsTab::SelectionWindow::redraw()
 
 void OptionsTab::SelectionWindow::genContentTitle()
 {
-	components.push_back(std::make_shared<CLabel>((ELEMENTS_PER_LINE - 1) * 58, 40, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, "Town"));
-	components.push_back(std::make_shared<CLabel>((ELEMENTS_PER_LINE * 2) * 58, 40, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, "Hero"));
-	components.push_back(std::make_shared<CLabel>((ELEMENTS_PER_LINE * 2 + 3) * 58 + 29, 40, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, "Bonus"));
+	components.push_back(std::make_shared<CLabel>((ELEMENTS_PER_LINE - 1) * 58, 40, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("core.genrltxt.518")));
+	components.push_back(std::make_shared<CLabel>((ELEMENTS_PER_LINE * 2) * 58, 40, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("core.genrltxt.519")));
+	components.push_back(std::make_shared<CLabel>((ELEMENTS_PER_LINE * 2 + 3) * 58 + 29, 40, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("core.genrltxt.520")));
 }
 
 void OptionsTab::SelectionWindow::genContentCastles()
@@ -528,7 +555,7 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
 	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, (ELEMENTS_PER_LINE / 2) * 58 + (ELEMENTS_PER_LINE + 1) * 58 + 34, 32 / 2 + 64));
 
-	std::vector<bool> allowedHeroesFlag = SEL->getMapInfo()->mapHeader->allowedHeroes;
+	std::vector<bool> allowedHeroesFlag = allowedHeroes;
 
 	std::set<HeroTypeID> allowedHeroes;
 	for(int i = 0; i < allowedHeroesFlag.size(); i++)
@@ -648,7 +675,10 @@ void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition) {
 	if(set.castle != -2)
 	{
 		selectedFraction = set.castle;
-		redraw();
+		if(set.castle == -1)
+			apply();
+		else
+			redraw();
 	}
 	else if(set.hero != -2)
 	{
