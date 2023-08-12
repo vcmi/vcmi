@@ -99,13 +99,22 @@ public:
 	{
 		const int ELEMENTS_PER_LINE = 4;
 
-		ui8 color;
+		PlayerColor color;
 
 		std::shared_ptr<CFilledTexture> backgroundTexture;
 		std::vector<std::shared_ptr<CIntObject>> components;
 
 		std::vector<FactionID> factions;
 		std::vector<HeroTypeID> heroes;
+
+		FactionID initialFraction;
+		HeroTypeID initialHero;
+		int initialBonus;
+		FactionID selectedFraction;
+		HeroTypeID selectedHero;
+		int selectedBonus;
+
+		std::set<FactionID> allowedFactions;
 
 		void genContentTitle();
 		void genContentCastles();
@@ -123,7 +132,7 @@ public:
 		void showPopupWindow(const Point & cursorPosition) override;
 
 	public:
-		SelectionWindow(int color);
+		SelectionWindow(PlayerColor _color);
 	};
 
 	/// Image with current town/hero/bonus

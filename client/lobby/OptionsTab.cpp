@@ -415,24 +415,29 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 	textBonusDescription = std::make_shared<CTextBox>(getDescription(), Rect(10, 100, pos.w - 20, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }
 
-OptionsTab::SelectionWindow::SelectionWindow(int color)
+OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color)
 	: CWindowObject(BORDERED)
 {
 	addUsedEvents(LCLICK | SHOW_POPUP);
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	color = color;
+	color = _color;
 
 	pos = Rect(0, 0, (ELEMENTS_PER_LINE * 2 + 5) * 58, 700);
 
 	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
 	updateShadow();
 
-	genContentTitle();
-	genContentCastles();
-	genContentHeroes();
-	genContentBonus();
+	initialFraction = SEL->getStartInfo()->playerInfos.find(color)->second.castle;
+	initialHero = SEL->getStartInfo()->playerInfos.find(color)->second.hero;
+	initialBonus = SEL->getStartInfo()->playerInfos.find(color)->second.bonus;
+	selectedFraction = initialFraction;
+	selectedHero = selectedHero;
+	selectedBonus = selectedBonus;
+	allowedFactions = SEL->getPlayerInfo(color.getNum()).allowedFactions;
+
+	redraw();
 
 	center();
 }
@@ -442,6 +447,8 @@ void OptionsTab::SelectionWindow::apply()
 	if(GH.windows().isTopWindow(this))
 	{
 		close();
+
+		CSH->setPlayerOption(LobbyChangePlayerOption::TOWN, 1, color);
 	}
 }
 
@@ -471,10 +478,8 @@ void OptionsTab::SelectionWindow::genContentCastles()
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
 	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, (ELEMENTS_PER_LINE / 2) * 58 + 34, 32 / 2 + 64));
 
-
-
 	int i = 0;
-	for(auto & elem : SEL->getPlayerInfo(0).allowedFactions)
+	for(auto & elem : allowedFactions)
 	{
 		int x = i % ELEMENTS_PER_LINE + 1;
 		int y = i / ELEMENTS_PER_LINE + 2;
@@ -512,7 +517,7 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 	{
 		CHero * type = VLC->heroh->objects[elem];
 
-		if(type->heroClass->faction == SEL->getStartInfo()->playerInfos.find(PlayerColor(color))->second.castle)
+		if(type->heroClass->faction == selectedFraction)
 		{
 
 			int x = (i % ELEMENTS_PER_LINE) + ELEMENTS_PER_LINE + 2;
@@ -619,22 +624,17 @@ void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition) {
 
 	if(set.castle != -2)
 	{
-		//SEL->getStartInfo()->playerInfos.find(PlayerColor(color))->second.castle = faction;
-
-		CSH->setPlayerOption(LobbyChangePlayerOption::TOWN, 1, PlayerColor(color));
-
+		selectedFraction = set.castle;
 		redraw();
-		//CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
-		
 	}
 	else if(set.hero != -2)
 	{
-		//CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
+		selectedHero = set.hero;
 		apply();
 	}
 	else if(set.bonus != -2)
 	{
-		//CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::BONUS);
+		selectedBonus = set.bonus;
 		apply();
 	}
 }
@@ -700,7 +700,7 @@ void OptionsTab::SelectedBox::showPopupWindow(const Point & cursorPosition)
 
 void OptionsTab::SelectedBox::clickReleased(const Point & cursorPosition)
 {
-	GH.windows().createAndPushWindow<SelectionWindow>(settings.color.getNum());
+	GH.windows().createAndPushWindow<SelectionWindow>(settings.color);
 }
 
 void OptionsTab::SelectedBox::scrollBy(int distance)
