@@ -105,6 +105,7 @@ public:
 		std::vector<FactionID> factions;
 		std::vector<HeroTypeID> heroes;
 
+		void genContentTitle();
 		void genContentCastles(PlayerSettings settings, PlayerInfo playerInfo);
 		void genContentHeroes(PlayerSettings settings, PlayerInfo playerInfo);
 		void genContentBonus(PlayerSettings settings, PlayerInfo playerInfo);

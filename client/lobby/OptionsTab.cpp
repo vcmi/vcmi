@@ -427,6 +427,7 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerSettings settings, PlayerInfo
 	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
 	updateShadow();
 
+	genContentTitle();
 	genContentCastles(settings, playerInfo);
 	genContentHeroes(settings, playerInfo);
 	genContentBonus(settings, playerInfo);
@@ -434,8 +435,17 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerSettings settings, PlayerInfo
 	center();
 }
 
+void OptionsTab::SelectionWindow::genContentTitle()
+{
+	components.push_back(std::make_shared<CLabel>((ELEMENTS_PER_LINE - 1) * 58, 40, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, "Town"));
+	components.push_back(std::make_shared<CLabel>((ELEMENTS_PER_LINE * 2) * 58, 40, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, "Hero"));
+	components.push_back(std::make_shared<CLabel>((ELEMENTS_PER_LINE * 2 + 3) * 58 + 29, 40, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, "Bonus"));
+}
+
 void OptionsTab::SelectionWindow::genContentCastles(PlayerSettings settings, PlayerInfo playerInfo)
 {
+	factions.clear();
+
 	PlayerSettings set = PlayerSettings();
 	set.castle = set.RANDOM;
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
@@ -461,6 +471,8 @@ void OptionsTab::SelectionWindow::genContentCastles(PlayerSettings settings, Pla
 
 void OptionsTab::SelectionWindow::genContentHeroes(PlayerSettings settings, PlayerInfo playerInfo)
 {
+	heroes.clear();
+
 	PlayerSettings set = PlayerSettings();
 	set.castle = set.RANDOM;
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
