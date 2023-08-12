@@ -433,8 +433,8 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color)
 	initialHero = SEL->getStartInfo()->playerInfos.find(color)->second.hero;
 	initialBonus = SEL->getStartInfo()->playerInfos.find(color)->second.bonus;
 	selectedFraction = initialFraction;
-	selectedHero = selectedHero;
-	selectedBonus = selectedBonus;
+	selectedHero = initialHero;
+	selectedBonus = initialBonus;
 	allowedFactions = SEL->getPlayerInfo(color.getNum()).allowedFactions;
 	allowedHeroes = SEL->getMapInfo()->mapHeader->allowedHeroes;
 
@@ -491,14 +491,14 @@ void OptionsTab::SelectionWindow::setSelection()
 			CSH->setPlayerOption(LobbyChangePlayerOption::HERO, deltaHero > 0 ? 1 : -1, color);
 
 	// bonus
-	//int deltaBonus = selectedBonus - initialBonus;
+	int deltaBonus = selectedBonus - initialBonus;
 
-	//if(deltaBonus != 0)
-	//	for(int i = 0; i<abs(deltaBonus); i++)
-	//		CSH->setPlayerOption(LobbyChangePlayerOption::BONUS, deltaBonus > 0 ? 1 : -1, color);
+	if(deltaBonus != 0)
+		for(int i = 0; i<abs(deltaBonus); i++)
+			CSH->setPlayerOption(LobbyChangePlayerOption::BONUS, deltaBonus > 0 ? 1 : -1, color);
 }
 
-void OptionsTab::SelectionWindow::redraw()
+void OptionsTab::SelectionWindow::recreate()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	
