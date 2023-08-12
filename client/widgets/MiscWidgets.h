@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "CGarrisonInt.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -26,6 +25,7 @@ class AFactionMember;
 VCMI_LIB_NAMESPACE_END
 
 class CLabel;
+class CGarrisonInt;
 class CCreatureAnim;
 class CComponent;
 class CAnimImage;
@@ -86,13 +86,14 @@ public:
 };
 
 /// Class for HD mod-like interactable infobox tooltip. Does not have any background!
-class CInteractableHeroTooltip : public CGarrisonInt
+class CInteractableHeroTooltip : public CIntObject
 {
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CAnimImage> portrait;
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::shared_ptr<CAnimImage> morale;
 	std::shared_ptr<CAnimImage> luck;
+	std::shared_ptr<CGarrisonInt> garrison;
 
 	void init(const InfoAboutHero & hero);
 public:
@@ -119,7 +120,7 @@ public:
 };
 
 /// Class for HD mod-like interactable infobox tooltip. Does not have any background!
-class CInteractableTownTooltip : public CGarrisonInt
+class CInteractableTownTooltip : public CIntObject
 {
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CAnimImage> fort;
@@ -129,6 +130,7 @@ class CInteractableTownTooltip : public CGarrisonInt
 	std::shared_ptr<CPicture> garrisonedHero;
 	std::shared_ptr<CAnimImage> res1;
 	std::shared_ptr<CAnimImage> res2;
+	std::shared_ptr<CGarrisonInt> garrison;
 
 	void init(const InfoAboutTown & town);
 public:

@@ -39,6 +39,7 @@
 #include "../lib/CCreatureHandler.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CStack.h"
+#include "../lib/UnlockGuard.h"
 #include "../lib/GameSettings.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/CondSh.h"
@@ -76,6 +77,7 @@
 #define COMPLAIN_RETF(txt, FORMAT) {complain(boost::str(boost::format(txt) % FORMAT)); return false;}
 
 CondSh<bool> battleMadeAction(false);
+boost::recursive_mutex battleActionMutex;
 CondSh<BattleResult *> battleResult(nullptr);
 template <typename T> class CApplyOnGH;
 
@@ -2122,7 +2124,7 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 
 	BattleField terType = gs->battleGetBattlefieldType(tile, getRandomGenerator());
 	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
-		terType = BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield", "ship_to_ship"));
+		terType = BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield.ship_to_ship"));
 
 	//send info about battles
 	BattleStart bs;
@@ -2942,7 +2944,7 @@ bool CGameHandler::load(const std::string & filename)
 	try
 	{
 		{
-			CLoadFile lf(*CResourceHandler::get("local")->getResourceName(ResourceID(stem.to_string(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
+			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourceID(stem.to_string(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
 			loadCommonState(lf);
 			logGlobal->info("Loading server state");
 			lf >> *this;
@@ -4394,6 +4396,8 @@ void CGameHandler::updateGateState()
 
 bool CGameHandler::makeBattleAction(BattleAction &ba)
 {
+	boost::unique_lock lock(battleActionMutex);
+
 	bool ok = true;
 
 	battle::Target target = ba.getTarget(gs->curB);
@@ -4817,6 +4821,8 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 bool CGameHandler::makeCustomAction(BattleAction & ba)
 {
+	boost::unique_lock lock(battleActionMutex);
+
 	switch(ba.actionType)
 	{
 	case EActionType::HERO_SPELL:
@@ -6048,6 +6054,8 @@ bool CGameHandler::swapStacks(const StackLocation & sl1, const StackLocation & s
 
 void CGameHandler::runBattle()
 {
+	boost::unique_lock lock(battleActionMutex);
+
 	setBattle(gs->curB);
 	assert(gs->curB);
 	//TODO: pre-tactic stuff, call scripts etc.
@@ -6066,7 +6074,10 @@ void CGameHandler::runBattle()
 	//tactic round
 	{
 		while ((lobby->state != EServerState::SHUTDOWN) && gs->curB->tacticDistance && !battleResult.get())
+		{
+			auto unlockGuard = vstd::makeUnlockGuard(battleActionMutex);
 			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		}
 	}
 
 	//initial stacks appearance triggers, e.g. built-in bonus spells
@@ -6389,7 +6400,10 @@ void CGameHandler::runBattle()
 						battleMadeAction.data = false;
 						while ((lobby->state != EServerState::SHUTDOWN) && !actionWasMade())
 						{
-							battleMadeAction.cond.wait(lock);
+							{
+								auto unlockGuard = vstd::makeUnlockGuard(battleActionMutex);
+								battleMadeAction.cond.wait(lock);
+							}
 							if (battleGetStackByID(nextId, false) != next)
 								next = nullptr; //it may be removed, while we wait
 						}
@@ -6450,6 +6464,8 @@ void CGameHandler::runBattle()
 
 bool CGameHandler::makeAutomaticAction(const CStack *stack, BattleAction &ba)
 {
+	boost::unique_lock lock(battleActionMutex);
+
 	BattleSetActiveStack bsa;
 	bsa.stack = stack->unitId();
 	bsa.askPlayerInterface = false;

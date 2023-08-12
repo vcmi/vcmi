@@ -55,11 +55,22 @@ struct HitMapNode
 	}
 };
 
+struct EnemyHeroAccessibleObject
+{
+	const CGHeroInstance * hero;
+	const CGObjectInstance * obj;
+
+	EnemyHeroAccessibleObject(const CGHeroInstance * hero, const CGObjectInstance * obj)
+		:hero(hero), obj(obj)
+	{
+	}
+};
+
 class DangerHitMapAnalyzer
 {
 private:
 	boost::multi_array<HitMapNode, 3> hitMap;
-	std::map<const CGHeroInstance *, std::set<const CGObjectInstance *>> enemyHeroAccessibleObjects;
+	tbb::concurrent_vector<EnemyHeroAccessibleObject> enemyHeroAccessibleObjects;
 	bool hitMapUpToDate = false;
 	bool tileOwnersUpToDate = false;
 	const Nullkiller * ai;
@@ -73,7 +84,7 @@ public:
 	uint64_t enemyCanKillOurHeroesAlongThePath(const AIPath & path) const;
 	const HitMapNode & getObjectTreat(const CGObjectInstance * obj) const;
 	const HitMapNode & getTileTreat(const int3 & tile) const;
-	const std::set<const CGObjectInstance *> & getOneTurnAccessibleObjects(const CGHeroInstance * enemy) const;
+	std::set<const CGObjectInstance *> getOneTurnAccessibleObjects(const CGHeroInstance * enemy) const;
 	void reset();
 	void resetTileOwners() { tileOwnersUpToDate = false; }
 	PlayerColor getTileOwner(const int3 & tile) const;

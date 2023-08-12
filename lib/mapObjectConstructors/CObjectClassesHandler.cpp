@@ -316,11 +316,21 @@ std::vector<bool> CObjectClassesHandler::getDefaultAllowed() const
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype) const
 {
-	assert(type < objects.size());
-	assert(objects[type]);
-	assert(subtype < objects[type]->objects.size());
+	try
+	{
+		auto result = objects.at(type)->objects.at(subtype);
 
-	return objects.at(type)->objects.at(subtype);
+		if (result != nullptr)
+			return result;
+	}
+	catch (std::out_of_range & e)
+	{
+		// Leave catch block silently
+	}
+
+	std::string errorString = "Failed to find object of type " + std::to_string(type) + "::" + std::to_string(subtype);
+	logGlobal->error(errorString);
+	throw std::runtime_error(errorString);
 }
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const

@@ -17,6 +17,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../render/IImage.h"
+#include "../render/Graphics.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/GUIClasses.h"
 #include "../CGameInfo.h"
@@ -422,10 +423,10 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, EGa
 
 	std::string imgName = owner->smallIcons ? "cprsmall" : "TWCRPORT";
 
-	creatureImage = std::make_shared<CAnimImage>(imgName, 0);
+	creatureImage = std::make_shared<CAnimImage>(graphics->getAnimation(imgName), 0);
 	creatureImage->disable();
 
-	selectionImage = std::make_shared<CAnimImage>(imgName, 1);
+	selectionImage = std::make_shared<CAnimImage>(graphics->getAnimation(imgName), 1);
 	selectionImage->disable();
 
 	if(Owner->smallIcons)

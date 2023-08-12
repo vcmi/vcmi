@@ -50,7 +50,7 @@ public:
 	/// Returns vector of all possible destinations for specified aim type
 	/// index - ???
 	/// current - ???
-	std::vector<Destination> getPossibleDestinations(size_t index, AimType aimType, const Target & current) const override final;
+	std::vector<Destination> getPossibleDestinations(size_t index, AimType aimType, const Target & current, bool fast) const override final;
 
 	/// Returns true if spell can be cast on unit
 	bool isReceptive(const battle::Unit * target) const override;

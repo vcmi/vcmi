@@ -425,7 +425,7 @@ void SelectionTab::select(int position)
 
 	if(inputName && inputName->isActive())
 	{
-		auto filename = *CResourceHandler::get("local")->getResourceName(ResourceID(curItems[py]->fileURI, EResType::SAVEGAME));
+		auto filename = *CResourceHandler::get()->getResourceName(ResourceID(curItems[py]->fileURI, EResType::SAVEGAME));
 		inputName->setText(filename.stem().string());
 	}
 

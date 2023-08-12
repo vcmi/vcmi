@@ -1262,11 +1262,14 @@ void CAltarWindow::SacrificeAll()
 	}
 	else
 	{
-		for(const auto & aw : arts->visibleArtSet.artifactsWorn)
+		std::vector<ConstTransitivePtr<CArtifactInstance>> artsForMove;
+		for(const auto& slotInfo : arts->visibleArtSet.artifactsWorn)
 		{
-			if(!aw.second.locked)
-				moveArtToAltar(nullptr, aw.second.artifact);
+			if(!slotInfo.second.locked && slotInfo.second.artifact->artType->isTradable())
+				artsForMove.push_back(slotInfo.second.artifact);
 		}
+		for(auto artInst : artsForMove)
+			moveArtToAltar(nullptr, artInst);
 		arts->updateWornSlots();
 		SacrificeBackpack();
 	}

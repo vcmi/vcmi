@@ -539,7 +539,16 @@ void CServerHandler::sendRestartGame() const
 
 void CServerHandler::sendStartGame(bool allowOnlyAI) const
 {
-	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
+	try
+	{
+		verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
+	}
+	catch (const std::exception & e)
+	{
+		showServerError( std::string("Unable to start map! Reason: ") + e.what());
+		return;
+	}
+
 	LobbyStartGame lsg;
 	if(client)
 	{
@@ -663,7 +672,7 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 	});
 }
 
-void CServerHandler::showServerError(std::string txt)
+void CServerHandler::showServerError(std::string txt) const
 {
 	CInfoWindow::showInfoDialog(txt, {});
 }

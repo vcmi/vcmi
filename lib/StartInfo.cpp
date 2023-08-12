@@ -71,7 +71,7 @@ std::string StartInfo::getCampaignName() const
 void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 {
 	if(!mi || !mi->mapHeader)
-		throw std::domain_error("ExceptionMapMissing");
+		throw std::domain_error("There is no map to start!");
 	
 	auto missingMods = CMapService::verifyMapHeaderMods(*mi->mapHeader);
 	ModIncompatibility::ModList modList;
@@ -88,12 +88,12 @@ void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 			break;
 
 	if(i == si->playerInfos.cend() && !ignoreNoHuman)
-		throw std::domain_error("ExceptionNoHuman");
+		throw std::domain_error("There is no human player on map");
 
 	if(si->mapGenOptions && si->mode == StartInfo::NEW_GAME)
 	{
 		if(!si->mapGenOptions->checkOptions())
-			throw std::domain_error("ExceptionNoTemplate");
+			throw std::domain_error("No random map template found!");
 	}
 }
 

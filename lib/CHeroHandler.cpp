@@ -770,7 +770,7 @@ std::vector<bool> CHeroHandler::getDefaultAllowed() const
 
 	for(const CHero * hero : objects)
 	{
-		allowedHeroes.push_back(!hero->special);
+		allowedHeroes.push_back(hero && !hero->special);
 	}
 
 	return allowedHeroes;

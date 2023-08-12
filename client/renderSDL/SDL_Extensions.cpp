@@ -82,6 +82,17 @@ SDL_Surface * CSDL_Ext::newSurface(int w, int h)
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {
 	SDL_Surface * ret = SDL_CreateRGBSurface(0,w,h,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
+
+	if(ret == nullptr)
+	{
+		const char * error = SDL_GetError();
+
+		std::string messagePattern = "Failed to create SDL Surface of size %d x %d, %d bpp. Reason: %s";
+		std::string message = boost::str(boost::format(messagePattern) % w % h % mod->format->BitsPerPixel % error);
+
+		handleFatalError(message, true);
+	}
+
 	if (mod->format->palette)
 	{
 		assert(ret->format->palette);

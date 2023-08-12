@@ -181,7 +181,7 @@ using TCreatureQueue = std::priority_queue<TPairCreatureSlot, std::vector<TPairC
 class IArmyDescriptor
 {
 public:
-	virtual void clear() = 0;
+	virtual void clearSlots() = 0;
 	virtual bool setCreature(SlotID slot, CreatureID cre, TQuantity count) = 0;
 };
 
@@ -190,7 +190,7 @@ class DLL_LINKAGE CSimpleArmy : public IArmyDescriptor
 {
 public:
 	TSimpleSlots army;
-	void clear() override;
+	void clearSlots() override;
 	bool setCreature(SlotID slot, CreatureID cre, TQuantity count) override;
 	operator bool() const;
 
@@ -226,7 +226,7 @@ public:
 
 	void addToSlot(const SlotID & slot, const CreatureID & cre, TQuantity count, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
 	void addToSlot(const SlotID & slot, CStackInstance * stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
-	void clear() override;
+	void clearSlots() override;
 	void setFormation(bool tight);
 	CArmedInstance *castToArmyObj();
 

@@ -64,6 +64,7 @@ namespace rmg
 		void intersect(const Area & area);
 		void subtract(const Area & area);
 		void translate(const int3 & shift);
+		void erase_if(std::function<bool(const int3&)> predicate);
 		
 		friend Area operator+ (const Area & l, const int3 & r); //translation
 		friend Area operator- (const Area & l, const int3 & r); //translation
