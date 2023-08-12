@@ -438,7 +438,7 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color)
 	allowedFactions = SEL->getPlayerInfo(color.getNum()).allowedFactions;
 	allowedHeroes = SEL->getMapInfo()->mapHeader->allowedHeroes;
 
-	redraw();
+	recreate();
 
 	center();
 }
@@ -678,7 +678,7 @@ void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition) {
 		if(set.castle == -1)
 			apply();
 		else
-			redraw();
+			recreate();
 	}
 	else if(set.hero != -2)
 	{

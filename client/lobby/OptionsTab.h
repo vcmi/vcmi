@@ -124,7 +124,7 @@ public:
 		void genContentBonus();
 
 		void apply();
-		void redraw();
+		void recreate();
 		void setSelection();
 		FactionID getElementCastle(const Point & cursorPosition);
 		HeroTypeID getElementHero(const Point & cursorPosition);
