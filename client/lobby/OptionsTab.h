@@ -118,12 +118,15 @@ public:
 		std::set<HeroTypeID> allowedHeroes;
 		std::vector<bool> allowedBonus;
 
+		int amountLines;
+
 		void genContentTitle();
+		void genContentGrid();
 		void genContentCastles();
 		void genContentHeroes();
 		void genContentBonus();
 
-		int calcHeight();
+		int calcLines();
 		void apply();
 		void recreate();
 		void setSelection();
