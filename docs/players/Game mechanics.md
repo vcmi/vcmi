@@ -1,3 +1,24 @@
+Some of game features have already been extended in comparison to Shadow
+of Death:
+
+-   Support for 32-bit graphics with alpha channel
+
+.def, .bmp, .png and .tga files are supported.
+
+-   Support for maps of any size (2 billion tiles in any direction),
+    including rectangular shapes
+-   No limit of number of map objects, such as dwellings and stat
+    boosters
+-   Hero experience capacity currently at 2^64, which equals 199 levels
+    with typical progression
+-   Heroes can have primary stats up to 2^16
+-   Unlimited backpack
+-   New flexible [bonus system](Bonus_system "wikilink")
+-   Support for Stack Experience
+
+The list of implemented cheat codes and console commands is
+[here](Cheat_codes "wikilink").
+
 # List of bugs fixed in VCMI
 
 These bugs were present in original Shadow of Death game, however the
