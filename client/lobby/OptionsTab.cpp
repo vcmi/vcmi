@@ -563,10 +563,10 @@ void OptionsTab::SelectionWindow::genContentCastles()
 	factions.clear();
 
 	PlayerSettings set = PlayerSettings();
-	set.castle = set.RANDOM;
+	set.castle = (initialFraction == set.NONE) ? set.NONE : set.RANDOM;
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
 	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, (ELEMENTS_PER_LINE / 2) * 57 + 34, 32 / 2 + 63));
-	if(selectedFraction == set.RANDOM)
+	if(selectedFraction == set.RANDOM || initialFraction == set.NONE)
 		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", (ELEMENTS_PER_LINE / 2) * 57 + 34, 32 / 2 + 63));
 
 	int i = 0;
@@ -593,7 +593,7 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 	heroes.clear();
 
 	PlayerSettings set = PlayerSettings();
-	set.castle = (initialHero == -2) ? set.NONE : set.RANDOM;
+	set.hero = (initialHero == set.NONE) ? set.NONE : set.RANDOM;
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
 	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, (ELEMENTS_PER_LINE / 2) * 57 + (ELEMENTS_PER_LINE + 1) * 57 + 34, 32 / 2 + 63));
 	if(selectedHero == set.RANDOM || initialHero == set.NONE)
