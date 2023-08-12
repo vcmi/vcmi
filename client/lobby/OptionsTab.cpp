@@ -422,13 +422,14 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerSettings settings, PlayerInfo
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	pos = Rect(0, 0, 700, 700);
+	pos = Rect(0, 0, (ELEMENTS_PER_LINE * 2 + 5) * 58, 700);
 
 	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
 	updateShadow();
 
 	genContentCastles(settings, playerInfo);
 	genContentHeroes(settings, playerInfo);
+	genContentBonus(settings, playerInfo);
 
 	center();
 }
@@ -438,13 +439,13 @@ void OptionsTab::SelectionWindow::genContentCastles(PlayerSettings settings, Pla
 	PlayerSettings set = PlayerSettings();
 	set.castle = set.RANDOM;
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
-	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, (ELEMENTS_PER_LINE / 2) * 58 + (58 - 48) / 2, (64 - 32) / 2));
+	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, (ELEMENTS_PER_LINE / 2) * 58 + 34, 32 / 2 + 64));
 
 	int i = 0;
 	for(auto & elem : playerInfo.allowedFactions)
 	{
-		int x = i % ELEMENTS_PER_LINE;
-		int y = i / ELEMENTS_PER_LINE + 1;
+		int x = i % ELEMENTS_PER_LINE + 1;
+		int y = i / ELEMENTS_PER_LINE + 2;
 
 		PlayerSettings set = PlayerSettings();
 		set.castle = elem;
@@ -460,6 +461,11 @@ void OptionsTab::SelectionWindow::genContentCastles(PlayerSettings settings, Pla
 
 void OptionsTab::SelectionWindow::genContentHeroes(PlayerSettings settings, PlayerInfo playerInfo)
 {
+	PlayerSettings set = PlayerSettings();
+	set.castle = set.RANDOM;
+	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
+	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, (ELEMENTS_PER_LINE / 2) * 58 + (ELEMENTS_PER_LINE + 1) * 58 + 34, 32 / 2 + 64));
+
 	std::vector<bool> allowedHeroesFlag = SEL->getMapInfo()->mapHeader->allowedHeroes;
 
 	std::set<HeroTypeID> allowedHeroes;
@@ -470,16 +476,40 @@ void OptionsTab::SelectionWindow::genContentHeroes(PlayerSettings settings, Play
 	int i = 0;
 	for(auto & elem : allowedHeroes)
 	{
-		int x = (i % ELEMENTS_PER_LINE) + (ELEMENTS_PER_LINE + 1);
-		int y = i / ELEMENTS_PER_LINE + 1;
+		CHero * type = VLC->heroh->objects[elem];
 
-		PlayerSettings set = PlayerSettings();
-		set.hero = elem;
+		if(type->heroClass->faction == settings.castle)
+		{
 
-		CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
+			int x = (i % ELEMENTS_PER_LINE) + ELEMENTS_PER_LINE + 2;
+			int y = i / ELEMENTS_PER_LINE + 2;
 
-		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * 58, y * 64));
-		heroes.push_back(elem);
+			PlayerSettings set = PlayerSettings();
+			set.hero = elem;
+
+			CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
+
+			components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * 58, y * 64));
+			heroes.push_back(elem);
+
+			i++;
+		}
+	}
+}
+
+void OptionsTab::SelectionWindow::genContentBonus(PlayerSettings settings, PlayerInfo playerInfo)
+{
+	PlayerSettings set = PlayerSettings();
+
+	int i = 0;
+	for(auto elem : {set.RANDOM, set.ARTIFACT, set.GOLD, set.RESOURCE})
+	{
+		int x = ELEMENTS_PER_LINE * 2 + 3;
+		int y = i + 1;
+
+		set.bonus = elem;
+		CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::BONUS);
+		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, x * 58, y * 64 + 32 / 2));
 
 		i++;
 	}
@@ -495,11 +525,11 @@ void OptionsTab::SelectionWindow::apply()
 
 FactionID OptionsTab::SelectionWindow::getElementCastle(const Point & cursorPosition)
 {
-	Point loc = getElement(cursorPosition);
+	Point loc = getElement(cursorPosition, 0);
 
 	FactionID faction;
 	faction = PlayerSettings().NONE;
-	if (loc.x == ELEMENTS_PER_LINE / 2 && loc.y == 0)
+	if ((loc.x == ELEMENTS_PER_LINE / 2 || loc.x == ELEMENTS_PER_LINE / 2 - 1) && loc.y == 0)
 		faction = PlayerSettings().RANDOM;
 	else if(loc.y > 0 && loc.x < ELEMENTS_PER_LINE)
 	{
@@ -511,56 +541,99 @@ FactionID OptionsTab::SelectionWindow::getElementCastle(const Point & cursorPosi
 	return faction;
 }
 
-SHeroName OptionsTab::SelectionWindow::getElementHero(const Point & cursorPosition)
+HeroTypeID OptionsTab::SelectionWindow::getElementHero(const Point & cursorPosition)
 {
-	return SHeroName(); //TODO
+	Point loc = getElement(cursorPosition, 1);
+
+	HeroTypeID hero;
+	hero = PlayerSettings().NONE;
+
+	if(loc.x < 0)
+		return hero;
+
+	if ((loc.x == ELEMENTS_PER_LINE / 2 || loc.x == ELEMENTS_PER_LINE / 2 - 1) && loc.y == 0)
+		hero = PlayerSettings().RANDOM;
+	else if(loc.y > 0 && loc.x < ELEMENTS_PER_LINE)
+	{
+		int index = loc.x + (loc.y - 1) * ELEMENTS_PER_LINE;
+		if (index < heroes.size())
+			hero = heroes[loc.x + (loc.y - 1) * ELEMENTS_PER_LINE];
+	}
+
+	return hero;
 }
 
 int OptionsTab::SelectionWindow::getElementBonus(const Point & cursorPosition)
 {
-	return PlayerSettings::Ebonus::NONE; //TODO
+	Point loc = getElement(cursorPosition, 2);
+
+	if(loc.x != 0 || loc.y < 0 || loc.y > 3)
+		return -2;
+
+	return loc.y - 1;
 }
 
-Point OptionsTab::SelectionWindow::getElement(const Point & cursorPosition)
+Point OptionsTab::SelectionWindow::getElement(const Point & cursorPosition, int area)
 {
-	int x = (cursorPosition.x - pos.x) / 58;
+	int x = (cursorPosition.x - pos.x - area * (ELEMENTS_PER_LINE + 1) * 58) / 58;
 	int y = (cursorPosition.y - pos.y) / 64;
 
-	return Point(x, y);
+	return Point(x - 1, y - 1);
 }
 
 void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition) {
 	FactionID faction = getElementCastle(cursorPosition);
+	HeroTypeID hero = getElementHero(cursorPosition);
+	int bonus = getElementBonus(cursorPosition);
 
 	PlayerSettings set = PlayerSettings();
 	set.castle = faction;
-	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
+	set.hero = hero;
+	set.bonus = static_cast<PlayerSettings::Ebonus>(bonus);
 
-	// cases when we do not need to display proceed
-	if(set.castle == -2 && helper.type == TOWN)
-		return;
-	if(set.hero == -2 && helper.type == HERO)
-		return;
-
-	if(faction != PlayerSettings().NONE)
+	if(set.castle != -2)
+	{
+		//CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
 		apply();
+	}
+	else if(set.hero != -2)
+	{
+		//CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
+		apply();
+	}
+	else if(set.bonus != -2)
+	{
+		//CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::BONUS);
+		apply();
+	}
 }
 
 void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 {
 	FactionID faction = getElementCastle(cursorPosition);
+	HeroTypeID hero = getElementHero(cursorPosition);
+	int bonus = getElementBonus(cursorPosition);
 
 	PlayerSettings set = PlayerSettings();
 	set.castle = faction;
-	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
+	set.hero = hero;
+	set.bonus = static_cast<PlayerSettings::Ebonus>(bonus);
 
-	// cases when we do not need to display a message
-	if(set.castle == -2 && helper.type == TOWN)
-		return;
-	if(set.hero == -2 && helper.type == HERO)
-		return;
-
-	GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+	if(set.castle != -2)
+	{
+		CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
+		GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+	}
+	else if(set.hero != -2)
+	{
+		CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
+		GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+	}
+	else if(set.bonus != -2)
+	{
+		CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::BONUS);
+		GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+	}
 }
 
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, PlayerInfo & playerInfo, SelType type)

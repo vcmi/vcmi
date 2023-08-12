@@ -97,7 +97,7 @@ public:
 
 	class SelectionWindow : public CWindowObject
 	{
-		const int ELEMENTS_PER_LINE = 5;
+		const int ELEMENTS_PER_LINE = 4;
 
 		std::shared_ptr<CFilledTexture> backgroundTexture;
 		std::vector<std::shared_ptr<CIntObject>> components;
@@ -107,12 +107,13 @@ public:
 
 		void genContentCastles(PlayerSettings settings, PlayerInfo playerInfo);
 		void genContentHeroes(PlayerSettings settings, PlayerInfo playerInfo);
+		void genContentBonus(PlayerSettings settings, PlayerInfo playerInfo);
 
 		void apply();
 		FactionID getElementCastle(const Point & cursorPosition);
-		SHeroName getElementHero(const Point & cursorPosition);
+		HeroTypeID getElementHero(const Point & cursorPosition);
 		int getElementBonus(const Point & cursorPosition);
-		Point getElement(const Point & cursorPosition);
+		Point getElement(const Point & cursorPosition, int area);
 
 		void clickReleased(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
