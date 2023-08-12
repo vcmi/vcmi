@@ -636,7 +636,9 @@ void BattleResultWindow::show(Canvas & to)
 
 void BattleResultWindow::buttonPressed(int button)
 {
-	resultCallback(button);
+	if (resultCallback)
+		resultCallback(button);
+
 	CPlayerInterface &intTmp = owner; //copy reference because "this" will be destructed soon
 
 	close();

@@ -6464,6 +6464,8 @@ void CGameHandler::runBattle()
 
 bool CGameHandler::makeAutomaticAction(const CStack *stack, BattleAction &ba)
 {
+	boost::unique_lock lock(battleActionMutex);
+
 	BattleSetActiveStack bsa;
 	bsa.stack = stack->unitId();
 	bsa.askPlayerInterface = false;

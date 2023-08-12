@@ -25,6 +25,8 @@
 #include "../lib/spells/ISpellMechanics.h"
 #include "../lib/serializer/Cast.h"
 
+extern boost::recursive_mutex battleActionMutex;
+
 void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 {
 	gh.save(pack.fname);
@@ -280,6 +282,8 @@ void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)
 
 void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 {
+	boost::unique_lock lock(battleActionMutex);
+
 	const BattleInfo * b = gs.curB;
 	if(!b)
 		gh.throwAndComplain(&pack, "Can not make action - there is no battle ongoing!");
@@ -307,6 +311,8 @@ void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 
 void ApplyGhNetPackVisitor::visitMakeCustomAction(MakeCustomAction & pack)
 {
+	boost::unique_lock lock(battleActionMutex);
+
 	const BattleInfo * b = gs.curB;
 	if(!b)
 		gh.throwNotAllowedAction(&pack);
