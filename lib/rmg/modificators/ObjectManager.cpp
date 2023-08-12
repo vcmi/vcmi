@@ -413,23 +413,41 @@ bool ObjectManager::createRequiredObjects()
 		
 		zone.connectPath(path);
 		placeObject(rmgObject, guarded, true);
-		
-		for(const auto & nearby : nearbyObjects)
+	}
+
+	for(const auto & nearby : nearbyObjects)
+	{
+		auto * targetObject = nearby.nearbyTarget;
+		if (!targetObject || !targetObject->appearance)
 		{
-			if(nearby.nearbyTarget != objInfo.obj)
-				continue;
-			
-			rmg::Object rmgNearObject(*nearby.obj);
-			rmg::Area possibleArea(rmgObject.instances().front()->getBlockedArea().getBorderOutside());
-			possibleArea.intersect(zone.areaPossible());
-			if(possibleArea.empty())
+			continue;
+		}
+
+		rmg::Object rmgNearObject(*nearby.obj);
+		rmg::Area possibleArea(rmg::Area(targetObject->getBlockedPos()).getBorderOutside());
+		possibleArea.intersect(zone.areaPossible());
+		if(possibleArea.empty())
+		{
+			rmgNearObject.clear();
+			continue;
+		}
+
+		rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), zone.getRand()));
+		placeObject(rmgNearObject, false, false);
+		auto path = zone.searchPath(rmgNearObject.getVisitablePosition(), false);
+		if (path.valid())
+		{
+			zone.connectPath(path);
+		}
+		else
+		{
+			for (auto* instance : rmgNearObject.instances())
 			{
-				rmgNearObject.clear();
-				continue;
+				logGlobal->error("Failed to connect nearby object %s at %s",
+					instance->object().getObjectName(), instance->getPosition(true).toString());
+				mapProxy->removeObject(&instance->object());
 			}
-			
-			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), zone.getRand()));
-			placeObject(rmgNearObject, false, false);
+			rmgNearObject.clear();
 		}
 	}
 	
