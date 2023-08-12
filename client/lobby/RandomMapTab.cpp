@@ -147,7 +147,6 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->mapHeader->twoLevel = mapGenOptions->getHasTwoLevels();
 
 	// Generate player information
-	mapInfo->mapHeader->players.clear();
 	int playersToGen = PlayerColor::PLAYER_LIMIT_I;
 	if(mapGenOptions->getPlayerCount() != CMapGenOptions::RANDOM_SIZE)
 	{
@@ -157,10 +156,15 @@ void RandomMapTab::updateMapInfoByHost()
 			playersToGen = mapGenOptions->getPlayerCount();
 	}
 
-
 	mapInfo->mapHeader->howManyTeams = playersToGen;
 
 	std::set<TeamID> occupiedTeams;
+	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
+	{
+		mapInfo->mapHeader->players[i].canComputerPlay = false;
+		mapInfo->mapHeader->players[i].canHumanPlay = false;
+	}
+
 	for(int i = 0; i < playersToGen; ++i)
 	{
 		PlayerInfo player;
@@ -179,7 +183,7 @@ void RandomMapTab::updateMapInfoByHost()
 		occupiedTeams.insert(team);
 		player.hasMainTown = true;
 		player.generateHeroAtMainTown = true;
-		mapInfo->mapHeader->players.push_back(player);
+		mapInfo->mapHeader->players[i] = player;
 	}
 	for(auto & player : mapInfo->mapHeader->players)
 	{

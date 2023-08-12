@@ -88,6 +88,8 @@ void CGuiHandler::handleEvents()
 void CGuiHandler::fakeMouseMove()
 {
 	dispatchMainThread([](){
+		assert(CPlayerInterface::pim);
+		boost::unique_lock lock(*CPlayerInterface::pim);
 		GH.events().dispatchMouseMoved(Point(0, 0), GH.getCursorPosition());
 	});
 }
