@@ -72,6 +72,8 @@ void CSettingsView::loadSettings()
 	ui->comboBoxFullScreen->hide();
 	ui->labelFullScreen->hide();
 #else
+	ui->labelReservedArea->hide();
+	ui->spinBoxReservedArea->hide();
 	if (settings["video"]["realFullscreen"].Bool())
 		ui->comboBoxFullScreen->setCurrentIndex(2);
 	else
@@ -81,6 +83,7 @@ void CSettingsView::loadSettings()
 
 	ui->spinBoxInterfaceScaling->setValue(settings["video"]["resolution"]["scaling"].Float());
 	ui->spinBoxFramerateLimit->setValue(settings["video"]["targetfps"].Float());
+	ui->spinBoxReservedArea->setValue(std::round(settings["video"]["reservedWidth"].Float() * 100));
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
 	ui->comboBoxNeutralAI->setCurrentText(QString::fromStdString(settings["server"]["neutralAI"].String()));
@@ -468,13 +471,11 @@ void CSettingsView::on_lineEditRepositoryExtra_textEdited(const QString &arg1)
 	node->String() = arg1.toStdString();
 }
 
-
 void CSettingsView::on_spinBoxInterfaceScaling_valueChanged(int arg1)
 {
 	Settings node = settings.write["video"]["resolution"]["scaling"];
 	node->Float() = arg1;
 }
-
 
 void CSettingsView::on_refreshRepositoriesButton_clicked()
 {
@@ -486,7 +487,6 @@ void CSettingsView::on_refreshRepositoriesButton_clicked()
 
 	mainWindow->getModView()->loadRepositories();
 }
-
 
 void CSettingsView::on_spinBoxFramerateLimit_valueChanged(int arg1)
 {
@@ -500,13 +500,11 @@ void CSettingsView::on_comboBoxEnemyPlayerAI_currentTextChanged(const QString &a
 	node->String() = arg1.toUtf8().data();
 }
 
-
 void CSettingsView::on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &arg1)
 {
 	Settings node = settings.write["server"]["alliedAI"];
 	node->String() = arg1.toUtf8().data();
 }
-
 
 void CSettingsView::on_checkBoxAutoSavePrefix_stateChanged(int arg1)
 {
@@ -515,17 +513,21 @@ void CSettingsView::on_checkBoxAutoSavePrefix_stateChanged(int arg1)
     ui->lineEditAutoSavePrefix->setEnabled(arg1);
 }
 
-
 void CSettingsView::on_spinBoxAutoSaveLimit_valueChanged(int arg1)
 {
     Settings node = settings.write["general"]["autosaveCountLimit"];
     node->Float() = arg1;
 }
 
-
 void CSettingsView::on_lineEditAutoSavePrefix_textEdited(const QString &arg1)
 {
     Settings node = settings.write["general"]["savePrefix"];
     node->String() = arg1.toStdString();
+}
+
+void CSettingsView::on_spinBoxReservedArea_valueChanged(int arg1)
+{
+	Settings node = settings.write["video"]["reservedWidth"];
+	node->Float() = float(arg1) / 100; // percentage -> ratio
 }
 
