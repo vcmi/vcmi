@@ -99,6 +99,8 @@ public:
 	{
 		const int ELEMENTS_PER_LINE = 4;
 
+		ui8 color;
+
 		std::shared_ptr<CFilledTexture> backgroundTexture;
 		std::vector<std::shared_ptr<CIntObject>> components;
 
@@ -106,11 +108,12 @@ public:
 		std::vector<HeroTypeID> heroes;
 
 		void genContentTitle();
-		void genContentCastles(PlayerSettings settings, PlayerInfo playerInfo);
-		void genContentHeroes(PlayerSettings settings, PlayerInfo playerInfo);
-		void genContentBonus(PlayerSettings settings, PlayerInfo playerInfo);
+		void genContentCastles();
+		void genContentHeroes();
+		void genContentBonus();
 
 		void apply();
+		void redraw();
 		FactionID getElementCastle(const Point & cursorPosition);
 		HeroTypeID getElementHero(const Point & cursorPosition);
 		int getElementBonus(const Point & cursorPosition);
@@ -120,18 +123,16 @@ public:
 		void showPopupWindow(const Point & cursorPosition) override;
 
 	public:
-		SelectionWindow(PlayerSettings settings, PlayerInfo playerInfo);
+		SelectionWindow(int color);
 	};
 
 	/// Image with current town/hero/bonus
 	struct SelectedBox : public Scrollable, public CPlayerSettingsHelper
 	{
-		const PlayerInfo & playerInfo;
-
 		std::shared_ptr<CAnimImage> image;
 		std::shared_ptr<CLabel> subtitle;
 
-		SelectedBox(Point position, PlayerSettings & settings, PlayerInfo & playerInfo, SelType type);
+		SelectedBox(Point position, PlayerSettings & settings, SelType type);
 		void showPopupWindow(const Point & cursorPosition) override;
 		void clickReleased(const Point & cursorPosition) override;
 		void scrollBy(int distance) override;
