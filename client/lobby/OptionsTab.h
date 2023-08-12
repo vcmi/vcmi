@@ -123,6 +123,7 @@ public:
 
 		void apply();
 		void redraw();
+		void setSelection();
 		FactionID getElementCastle(const Point & cursorPosition);
 		HeroTypeID getElementHero(const Point & cursorPosition);
 		int getElementBonus(const Point & cursorPosition);

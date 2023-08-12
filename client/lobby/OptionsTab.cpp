@@ -448,13 +448,36 @@ void OptionsTab::SelectionWindow::apply()
 	{
 		close();
 
-		CSH->setPlayerOption(LobbyChangePlayerOption::TOWN, 1, color);
+		setSelection();
 	}
+}
+
+void OptionsTab::SelectionWindow::setSelection()
+{
+	int selectedFractionPos = -1;
+	for(int i = 0; i<factions.size(); i++)
+		if(factions[i] == selectedFraction)
+			selectedFractionPos = i;
+
+	int initialFractionPos = -1;
+	for(int i = 0; i<factions.size(); i++)
+		if(factions[i] == initialFraction)
+			initialFractionPos = i;
+
+	int deltatown = selectedFractionPos - initialFractionPos;
+
+	if(deltatown != 0)
+		for(int i = 0; i<abs(deltatown); i++)
+			CSH->setPlayerOption(LobbyChangePlayerOption::TOWN, deltatown > 0 ? 1 : -1, color);
 }
 
 void OptionsTab::SelectionWindow::redraw()
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	
 	components.clear();
+
+	GH.windows().totalRedraw();
 
 	genContentTitle();
 	genContentCastles();
