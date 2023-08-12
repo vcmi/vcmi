@@ -328,7 +328,7 @@ void SelectionTab::clickDouble(const Point & cursorPosition)
 	if(itemIndex >= curItems.size())
 		return;
 
-	if(curItems[itemIndex]->isFolder)
+	if(itemIndex >= 0 && curItems[itemIndex]->isFolder)
 		return;
 
 	if(getLine() != -1) //double clicked scenarios list
