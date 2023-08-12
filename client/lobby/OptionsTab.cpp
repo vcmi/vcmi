@@ -424,11 +424,6 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color)
 
 	color = _color;
 
-	pos = Rect(0, 0, (ELEMENTS_PER_LINE * 2 + 5) * 58, 700);
-
-	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
-	updateShadow();
-
 	initialFraction = SEL->getStartInfo()->playerInfos.find(color)->second.castle;
 	initialHero = SEL->getStartInfo()->playerInfos.find(color)->second.hero;
 	initialBonus = SEL->getStartInfo()->playerInfos.find(color)->second.bonus;
@@ -436,11 +431,41 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color)
 	selectedHero = initialHero;
 	selectedBonus = initialBonus;
 	allowedFactions = SEL->getPlayerInfo(color.getNum()).allowedFactions;
-	allowedHeroes = SEL->getMapInfo()->mapHeader->allowedHeroes;
+	std::vector<bool> allowedHeroesFlag = SEL->getMapInfo()->mapHeader->allowedHeroes;
+	for(int i = 0; i < allowedHeroesFlag.size(); i++)
+		if(allowedHeroesFlag[i])
+			allowedHeroes.insert(HeroTypeID(i));
+
+	pos = Rect(0, 0, (ELEMENTS_PER_LINE * 2 + 5) * 58, calcHeight());
+
+	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
+	updateShadow();
 
 	recreate();
 
 	center();
+}
+
+int OptionsTab::SelectionWindow::calcHeight()
+{
+	// size count
+	int max = 0;
+	for(auto & elemf : allowedHeroes)
+	{
+		int count = 0;
+		for(auto & elemh : allowedHeroes)
+		{
+			CHero * type = VLC->heroh->objects[elemh];
+			if(type->heroClass->faction == elemf)
+				count++;
+		}
+		max = std::max(max, count);
+	}
+	max = std::max(max, (int)allowedFactions.size());
+
+	int y = max / ELEMENTS_PER_LINE + 3;
+
+	return y * 64;
 }
 
 void OptionsTab::SelectionWindow::apply()
@@ -554,13 +579,6 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 	set.castle = set.RANDOM;
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
 	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, (ELEMENTS_PER_LINE / 2) * 58 + (ELEMENTS_PER_LINE + 1) * 58 + 34, 32 / 2 + 64));
-
-	std::vector<bool> allowedHeroesFlag = allowedHeroes;
-
-	std::set<HeroTypeID> allowedHeroes;
-	for(int i = 0; i < allowedHeroesFlag.size(); i++)
-		if(allowedHeroesFlag[i])
-			allowedHeroes.insert(HeroTypeID(i));
 
 	int i = 0;
 	for(auto & elem : allowedHeroes)

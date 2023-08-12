@@ -115,7 +115,7 @@ public:
 		int selectedBonus;
 
 		std::set<FactionID> allowedFactions;
-		std::vector<bool> allowedHeroes;
+		std::set<HeroTypeID> allowedHeroes;
 		std::vector<bool> allowedBonus;
 
 		void genContentTitle();
@@ -123,6 +123,7 @@ public:
 		void genContentHeroes();
 		void genContentBonus();
 
+		int calcHeight();
 		void apply();
 		void recreate();
 		void setSelection();
