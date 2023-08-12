@@ -17,6 +17,7 @@ struct PlayerInfo;
 VCMI_LIB_NAMESPACE_END
 
 #include "../widgets/Scrollable.h"
+#include "../../lib/mapping/CMapHeader.h"
 
 class CSlider;
 class CLabel;
@@ -94,14 +95,41 @@ public:
 		CPlayerOptionTooltipBox(CPlayerSettingsHelper & helper);
 	};
 
+	class SelectionWindow : public CWindowObject
+	{
+		std::shared_ptr<CFilledTexture> backgroundTexture;
+		std::vector<std::shared_ptr<CIntObject>> components;
+
+		std::vector<FactionID> factions;
+		std::vector<SHeroName> heroes;
+
+		void genContentCastles(PlayerSettings settings, PlayerInfo playerInfo);
+		void genContentHeroes(PlayerSettings settings, PlayerInfo playerInfo);
+
+		void apply();
+		FactionID getElementCastle(const Point & cursorPosition);
+		SHeroName getElementHero(const Point & cursorPosition);
+		int getElementBonus(const Point & cursorPosition);
+		Point getElement(const Point & cursorPosition);
+
+		void clickReleased(const Point & cursorPosition) override;
+		void showPopupWindow(const Point & cursorPosition) override;
+
+	public:
+		SelectionWindow(PlayerSettings settings, PlayerInfo playerInfo);
+	};
+
 	/// Image with current town/hero/bonus
 	struct SelectedBox : public Scrollable, public CPlayerSettingsHelper
 	{
+		const PlayerInfo & playerInfo;
+
 		std::shared_ptr<CAnimImage> image;
 		std::shared_ptr<CLabel> subtitle;
 
-		SelectedBox(Point position, PlayerSettings & settings, SelType type);
+		SelectedBox(Point position, PlayerSettings & settings, PlayerInfo & playerInfo, SelType type);
 		void showPopupWindow(const Point & cursorPosition) override;
+		void clickReleased(const Point & cursorPosition) override;
 		void scrollBy(int distance) override;
 
 		void update();

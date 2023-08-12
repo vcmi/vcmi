@@ -15,6 +15,7 @@
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
@@ -414,9 +415,136 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 	textBonusDescription = std::make_shared<CTextBox>(getDescription(), Rect(10, 100, pos.w - 20, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }
 
-OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, SelType type)
-	: Scrollable(SHOW_POPUP, position, Orientation::HORIZONTAL)
+OptionsTab::SelectionWindow::SelectionWindow(PlayerSettings settings, PlayerInfo playerInfo)
+	: CWindowObject(BORDERED)
+{
+	addUsedEvents(LCLICK | SHOW_POPUP);
+
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	pos = Rect(0, 0, 400, 400);
+
+	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
+	updateShadow();
+
+	genContentCastles(settings, playerInfo);
+	genContentHeroes(settings, playerInfo);
+
+	center();
+}
+
+void OptionsTab::SelectionWindow::genContentCastles(PlayerSettings settings, PlayerInfo playerInfo)
+{
+	PlayerSettings set = PlayerSettings();
+	set.castle = set.RANDOM;
+	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
+	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 0, 0));
+
+	int i = 0;
+	for(auto & elem : playerInfo.allowedFactions)
+	{
+		int x = i%3;
+		int y = i/3+1;
+
+		PlayerSettings set = PlayerSettings();
+		set.castle = elem;
+
+		CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
+
+		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, x * 48, y * 32));
+		factions.push_back(elem);
+
+		i++;
+	}
+}
+
+void OptionsTab::SelectionWindow::genContentHeroes(PlayerSettings settings, PlayerInfo playerInfo)
+{
+
+}
+
+void OptionsTab::SelectionWindow::apply()
+{
+	if(GH.windows().isTopWindow(this))
+	{
+		close();
+	}
+}
+
+FactionID OptionsTab::SelectionWindow::getElementCastle(const Point & cursorPosition)
+{
+	Point loc = getElement(cursorPosition);
+
+	FactionID faction;
+	faction = PlayerSettings().NONE;
+	if (loc.x == 0 && loc.y == 0)
+		faction = PlayerSettings().RANDOM;
+	else if(loc.y > 0 && loc.x < 3)
+	{
+		int index = loc.x + (loc.y - 1) * 3;
+		if (index < factions.size())
+			faction = factions[loc.x + (loc.y - 1) * 3];
+	}
+
+	return faction;
+}
+
+SHeroName OptionsTab::SelectionWindow::getElementHero(const Point & cursorPosition)
+{
+	return SHeroName(); //TODO
+}
+
+int OptionsTab::SelectionWindow::getElementBonus(const Point & cursorPosition)
+{
+	return PlayerSettings::Ebonus::NONE; //TODO
+}
+
+Point OptionsTab::SelectionWindow::getElement(const Point & cursorPosition)
+{
+	int x = (cursorPosition.x - pos.x) / 48;
+	int y = (cursorPosition.y - pos.y) / 32;
+
+	return Point(x, y);
+}
+
+void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition) {
+	FactionID faction = getElementCastle(cursorPosition);
+
+	PlayerSettings set = PlayerSettings();
+	set.castle = faction;
+	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
+
+	// cases when we do not need to display proceed
+	if(set.castle == -2 && helper.type == TOWN)
+		return;
+	if(set.hero == -2 && helper.type == HERO)
+		return;
+
+	if(faction != PlayerSettings().NONE)
+		apply();
+}
+
+void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
+{
+	FactionID faction = getElementCastle(cursorPosition);
+
+	PlayerSettings set = PlayerSettings();
+	set.castle = faction;
+	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
+
+	// cases when we do not need to display a message
+	if(set.castle == -2 && helper.type == TOWN)
+		return;
+	if(set.hero == -2 && helper.type == HERO)
+		return;
+
+	GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+}
+
+OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, PlayerInfo & playerInfo, SelType type)
+	: Scrollable(LCLICK | SHOW_POPUP, position, Orientation::HORIZONTAL)
 	, CPlayerSettingsHelper(settings, type)
+	, playerInfo(playerInfo)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -443,6 +571,11 @@ void OptionsTab::SelectedBox::showPopupWindow(const Point & cursorPosition)
 		return;
 
 	GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
+}
+
+void OptionsTab::SelectedBox::clickReleased(const Point & cursorPosition)
+{
+	GH.windows().createAndPushWindow<SelectionWindow>(settings, playerInfo);
 }
 
 void OptionsTab::SelectedBox::scrollBy(int distance)
@@ -538,9 +671,9 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	else
 		flag = nullptr;
 
-	town = std::make_shared<SelectedBox>(Point(119, 2), *s, TOWN);
-	hero = std::make_shared<SelectedBox>(Point(195, 2), *s, HERO);
-	bonus = std::make_shared<SelectedBox>(Point(271, 2), *s, BONUS);
+	town = std::make_shared<SelectedBox>(Point(119, 2), *s, *pi, TOWN);
+	hero = std::make_shared<SelectedBox>(Point(195, 2), *s, *pi, HERO);
+	bonus = std::make_shared<SelectedBox>(Point(271, 2), *s, *pi, BONUS);
 }
 
 void OptionsTab::onSetPlayerClicked(const PlayerSettings & ps) const
