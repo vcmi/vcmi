@@ -448,8 +448,10 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color, SelType _type)
 
 int OptionsTab::SelectionWindow::calcLines(FactionID faction)
 {
+	double additionalItems = 1; // random
+
 	if(faction < 0)
-		return std::ceil((double)allowedFactions.size() / ELEMENTS_PER_LINE);
+		return std::ceil(((double)allowedFactions.size() + additionalItems) / ELEMENTS_PER_LINE);
 
 	int count = 0;
 	for(auto & elemh : allowedHeroes)
@@ -459,7 +461,7 @@ int OptionsTab::SelectionWindow::calcLines(FactionID faction)
 			count++;
 	}
 
-	return std::ceil(std::max((double)count, (double)allowedFactions.size()) / (double)ELEMENTS_PER_LINE);
+	return std::ceil(std::max((double)count + additionalItems, (double)allowedFactions.size() + additionalItems) / (double)ELEMENTS_PER_LINE);
 }
 
 void OptionsTab::SelectionWindow::apply()
@@ -579,7 +581,16 @@ void OptionsTab::SelectionWindow::genContentGrid(int lines)
 
 void OptionsTab::SelectionWindow::genContentCastles()
 {
-	int i = 0;
+	int i = 1;
+
+	// random
+	PlayerSettings set = PlayerSettings();
+	set.castle = -1;
+	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
+	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 6, 32 / 2));
+	components.push_back(std::make_shared<CLabel>(29, 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, helper.getName()));
+	if(selectedFraction == -1)
+		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", 6, 32 / 2));
 
 	for(auto & elem : allowedFactions)
 	{
@@ -593,6 +604,7 @@ void OptionsTab::SelectionWindow::genContentCastles()
 
 		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * 57, y * 63));
 		components.push_back(std::make_shared<CPicture>(selectedFraction == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig", x * 57, y * 63));
+		components.push_back(std::make_shared<CLabel>(x * 57 + 29, y * 63 + 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, helper.getName()));
 		factions.push_back(elem);
 
 		i++;
@@ -601,7 +613,16 @@ void OptionsTab::SelectionWindow::genContentCastles()
 
 void OptionsTab::SelectionWindow::genContentHeroes()
 {
-	int i = 0;
+	int i = 1;
+
+	// random
+	PlayerSettings set = PlayerSettings();
+	set.hero = -1;
+	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
+	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 6, 32 / 2));
+	components.push_back(std::make_shared<CLabel>(29, 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, helper.getName()));
+	if(selectedHero == -1)
+		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", 6, 32 / 2));
 
 	for(auto & elem : allowedHeroes)
 	{
@@ -620,6 +641,7 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 
 			components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * 57, y * 63));
 			components.push_back(std::make_shared<CPicture>(selectedHero == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig", x * 57, y * 63));
+			components.push_back(std::make_shared<CLabel>(x * 57 + 29, y * 63 + 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, helper.getName()));
 			heroes.push_back(elem);
 
 			i++;
@@ -640,6 +662,7 @@ void OptionsTab::SelectionWindow::genContentBonus()
 		set.bonus = static_cast<PlayerSettings::Ebonus>(elem);
 		CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::BONUS);
 		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, x * 57 + 6, y * 63 + 32 / 2));
+		components.push_back(std::make_shared<CLabel>(x * 57 + 29, y * 63 + 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, helper.getName()));
 		if(selectedBonus == elem)
 			if(elem == set.RESOURCE && selectedFraction >= 0)
 				components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", x * 57 + 6, y * 63 + 32 / 2));
@@ -662,17 +685,34 @@ void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition) {
 	PlayerSettings set = PlayerSettings();
 	if(type == SelType::TOWN)
 	{
-		if(elem >= factions.size())
-			return;
-		set.castle = factions[elem];
+		if(elem > 0)
+		{
+			elem--;
+			if(elem >= factions.size())
+				return;
+			set.castle = factions[elem];
+		}
+		else
+		{
+			set.castle = -1;
+		}
+
 		if(set.castle != -2)
 			selectedFraction = set.castle;
 	}
 	if(type == SelType::HERO)
 	{
-		if(elem >= heroes.size())
-			return;
-		set.hero = heroes[elem];
+		if(elem > 0)
+		{
+			elem--;
+			if(elem >= heroes.size())
+				return;
+			set.hero = heroes[elem];
+		}
+		else
+		{
+			set.hero = -1;
+		}
 		if(set.hero != -2)
 			selectedHero = set.hero;
 	}
