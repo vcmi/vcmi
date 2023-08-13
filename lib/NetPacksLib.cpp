@@ -2516,7 +2516,7 @@ void YourTurn::applyGs(CGameState * gs) const
 void TurnTimeUpdate::applyGs(CGameState *gs) const
 {
 	auto & playerState = gs->players[player];
-	playerState.turnTime = turnTime;
+	playerState.turnTimer = turnTimer;
 }
 
 Component::Component(const CStackBasicDescriptor & stack)

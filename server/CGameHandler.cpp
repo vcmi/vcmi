@@ -2068,11 +2068,11 @@ void CGameHandler::run(bool resume)
 					yt.daysWithoutCastle = playerState->daysWithoutCastle;
 					applyAndSend(&yt);
 					
-					if(gs->getStartInfo()->turnTime > 0) //turn timer check
+					if(gs->getStartInfo()->turnTimerInfo.turnTimer > 0) //turn timer check
 					{
 						TurnTimeUpdate ttu;
 						ttu.player = player;
-						ttu.turnTime = gs->getStartInfo()->turnTime * 60 * 1000; //ms
+						ttu.turnTimer = gs->getStartInfo()->turnTimerInfo;
 						applyAndSend(&ttu);
 					}
 				}
@@ -2088,18 +2088,18 @@ void CGameHandler::run(bool resume)
 				boost::unique_lock<boost::mutex> lock(states.mx);
 				while(states.players.at(playerColor).makingTurn && lobby->state == EServerState::GAMEPLAY)
 				{
-					if(gs->getStartInfo()->turnTime > 0 && !gs->curB) //turn timer check
+					if(gs->getStartInfo()->turnTimerInfo.isEnabled() && !gs->curB) //turn timer check
 					{
-						if(gs->players[playerColor].turnTime > 0)
+						if(gs->players[playerColor].turnTimer.turnTimer > 0)
 						{
-							gs->players[playerColor].turnTime -= waitTime;
+							gs->players[playerColor].turnTimer.turnTimer -= waitTime;
 							
 							if(gs->players[playerColor].status == EPlayerStatus::INGAME //do not send message if player is not active already
-							   && gs->players[playerColor].turnTime % turnTimePropagateFrequency == 0)
+							   && gs->players[playerColor].turnTimer.turnTimer % turnTimePropagateFrequency == 0)
 							{
 								TurnTimeUpdate ttu;
 								ttu.player = playerColor;
-								ttu.turnTime = gs->players[playerColor].turnTime;
+								ttu.turnTimer = gs->players[playerColor].turnTimer;
 								applyAndSend(&ttu);
 							}
 						}

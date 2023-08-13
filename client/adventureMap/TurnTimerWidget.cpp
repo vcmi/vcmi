@@ -77,11 +77,11 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 		auto player = LOCPLINT->cb->getCurrentPlayer();
 		auto time = LOCPLINT->cb->getPlayerTurnTime(player);
 		cachedTurnTime -= msPassed;
-		if(time / 1000 != lastTurnTime / 1000)
+		if(time.turnTimer / 1000 != lastTurnTime / 1000)
 		{
 			//do not update timer on this tick
-			lastTurnTime = time;
-			cachedTurnTime = time;
+			lastTurnTime = time.turnTimer;
+			cachedTurnTime = time.turnTimer;
 		}
 		else setTime(cachedTurnTime);
 	}

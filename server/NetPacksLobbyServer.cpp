@@ -214,7 +214,7 @@ void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 	srv.si->mapname = pack.ourCampaign->getFilename();
 	srv.si->mode = StartInfo::CAMPAIGN;
 	srv.si->campState = pack.ourCampaign;
-	srv.si->turnTime = 0;
+	srv.si->turnTimerInfo = TurnTimerInfo{};
 
 	bool isCurrentMapConquerable = pack.ourCampaign->currentScenario() && pack.ourCampaign->isAvailable(*pack.ourCampaign->currentScenario());
 
@@ -382,7 +382,7 @@ void ApplyOnServerNetPackVisitor::visitLobbySetPlayer(LobbySetPlayer & pack)
 
 void ApplyOnServerNetPackVisitor::visitLobbySetTurnTime(LobbySetTurnTime & pack)
 {
-	srv.si->turnTime = pack.turnTime;
+	srv.si->turnTimerInfo = pack.turnTimerInfo;
 	result = true;
 }
 
