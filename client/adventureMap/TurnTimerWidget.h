@@ -1,5 +1,5 @@
 /*
- * TurnTimerWidget.hpp, part of VCMI engine
+ * TurnTimerWidget.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
