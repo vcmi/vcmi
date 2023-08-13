@@ -100,6 +100,7 @@ public:
 		const int ELEMENTS_PER_LINE = 4;
 
 		PlayerColor color;
+		SelType type;
 
 		std::shared_ptr<CFilledTexture> backgroundTexture;
 		std::vector<std::shared_ptr<CIntObject>> components;
@@ -116,28 +117,24 @@ public:
 
 		std::set<FactionID> allowedFactions;
 		std::set<HeroTypeID> allowedHeroes;
-		std::vector<bool> allowedBonus;
+		std::vector<int> allowedBonus;
 
-		void genContentGrid(bool small, int lines);
+		void genContentGrid(int lines);
 		void genContentCastles();
 		void genContentHeroes();
 		void genContentBonus();
 
 		int calcLines(FactionID faction);
-		int calcLines();
 		void apply();
-		void recreate(SelType type);
+		void recreate();
 		void setSelection();
-		FactionID getElementCastle(const Point & cursorPosition);
-		HeroTypeID getElementHero(const Point & cursorPosition);
-		int getElementBonus(const Point & cursorPosition);
-		Point getElement(const Point & cursorPosition, int area);
+		int getElement(const Point & cursorPosition);
 
 		void clickReleased(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
 
 	public:
-		SelectionWindow(PlayerColor _color, SelType type);
+		SelectionWindow(PlayerColor _color, SelType _type);
 	};
 
 	/// Image with current town/hero/bonus
