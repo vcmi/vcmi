@@ -11,8 +11,7 @@
 #include "TurnTimerWidget.h"
 
 #include "../CPlayerInterface.h"
-#include "../render/Canvas.h"
-#include "../render/Colors.h"
+
 #include "../render/EFont.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/TextAlignment.h"
@@ -20,26 +19,39 @@
 #include "../widgets/TextControls.h"
 #include "../../CCallback.h"
 #include "../../lib/CPlayerState.h"
+#include "../../lib/filesystem/ResourceID.h"
 
-#include <SDL_render.h>
-
-TurnTimerWidget::TurnTimerWidget():
-	CIntObject(TIME),
-	turnTime(0), lastTurnTime(0)
+TurnTimerWidget::DrawRect::DrawRect(const Rect & r, const ColorRGBA & c):
+	CIntObject(), rect(r), color(c)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	
-	watches = std::make_shared<CAnimImage>("VCMI/BATTLEQUEUE/STATESSMALL", 1, 0, 4, 6);
-	label = std::make_shared<CLabel>(24, 2, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, std::to_string(turnTime));
-	
-	recActions &= ~DEACTIVATE;
 }
 
-void TurnTimerWidget::showAll(Canvas & to)
+void TurnTimerWidget::DrawRect::showAll(Canvas & to)
 {
-	to.drawColor(Rect(4, 4, 68, 24), ColorRGBA(10, 10, 10, 255));
+	to.drawColor(rect, color);
 	
 	CIntObject::showAll(to);
+}
+
+TurnTimerWidget::TurnTimerWidget():
+	InterfaceObjectConfigurable(TIME),
+	turnTime(0), lastTurnTime(0)
+{
+	REGISTER_BUILDER("drawRect", &TurnTimerWidget::buildDrawRect);
+	
+	recActions &= ~DEACTIVATE;
+	
+	const JsonNode config(ResourceID("config/widgets/turnTimer.json"));
+	
+	build(config);
+}
+
+std::shared_ptr<TurnTimerWidget::DrawRect> TurnTimerWidget::buildDrawRect(const JsonNode & config) const
+{
+	logGlobal->debug("Building widget TurnTimerWidget::DrawRect");
+	auto rect = readRect(config["rect"]);
+	auto color = readColor(config["color"]);
+	return std::make_shared<TurnTimerWidget::DrawRect>(rect, color);
 }
 
 void TurnTimerWidget::show(Canvas & to)
@@ -50,9 +62,12 @@ void TurnTimerWidget::show(Canvas & to)
 void TurnTimerWidget::setTime(int time)
 {
 	turnTime = time / 1000;
-	std::ostringstream oss;
-	oss << turnTime / 60 << ":" << std::setw(2) << std::setfill('0') << turnTime % 60;
-	label->setText(oss.str());
+	if(auto w = widget<CLabel>("timer"))
+	{
+		std::ostringstream oss;
+		oss << turnTime / 60 << ":" << std::setw(2) << std::setfill('0') << turnTime % 60;
+		w->setText(oss.str());
+	}
 }
 
 void TurnTimerWidget::tick(uint32_t msPassed)

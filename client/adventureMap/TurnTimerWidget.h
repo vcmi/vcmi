@@ -11,26 +11,40 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "../gui/InterfaceObjectConfigurable.h"
+#include "../render/Canvas.h"
+#include "../render/Colors.h"
 
 class CAnimImage;
 class CLabel;
 
-class TurnTimerWidget : public CIntObject
+class TurnTimerWidget : public InterfaceObjectConfigurable
 {
 private:
+	
+	class DrawRect : public CIntObject
+	{
+		const Rect rect;
+		const ColorRGBA color;
+		
+	public:
+		DrawRect(const Rect &, const ColorRGBA &);
+		void showAll(Canvas & to) override;
+	};
 
 	int turnTime;
 	int lastTurnTime;
 	int cachedTurnTime;
 	
-	std::shared_ptr<CAnimImage> watches;
-	std::shared_ptr<CLabel> label;
-
+	//std::shared_ptr<CAnimImage> watches;
+	//std::shared_ptr<CLabel> label;
+	
+	std::shared_ptr<DrawRect> buildDrawRect(const JsonNode & config) const;
+	
 public:
 
 	//void tick(uint32_t msPassed) override;
 	void show(Canvas & to) override;
-	void showAll(Canvas & to) override;
 	void tick(uint32_t msPassed) override;
 	
 	void setTime(int time);

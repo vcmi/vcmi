@@ -1,0 +1,27 @@
+{
+	"items":
+	[
+		{ //backgound color
+			"type": "drawRect",
+			"rect": {"x": 4, "y": 4, "w": 68, "h": 24},
+			"color": [10, 10, 10, 255]
+		},
+
+		{ //clocks icon
+			"type": "image",
+			"image": "VCMI/BATTLEQUEUE/STATESSMALL",
+			"frame": 1,
+			"position": {"x": 4, "y": 6}
+		},
+
+		{ //timer field label
+			"name": "timer",
+			"type": "label",
+			"font": "big",
+			"alignment": "left",
+			"color": "yellow",
+			"text": "",
+			"position": {"x": 24, "y": 2}
+		},
+	]
+}
