@@ -37,7 +37,11 @@ else()
 endif()
 
 target_include_directories(BattleAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(BattleAI PRIVATE ${VCMI_LIB_TARGET})
+target_link_libraries(BattleAI PRIVATE ${VCMI_LIB_TARGET} TBB::tbb)
 
 vcmi_set_output_dir(BattleAI "AI")
 enable_pch(BattleAI)
+
+if(APPLE_IOS AND NOT USING_CONAN)
+	install(IMPORTED_RUNTIME_ARTIFACTS TBB::tbb LIBRARY DESTINATION ${LIB_DIR}) # CMake 3.21+
+endif()

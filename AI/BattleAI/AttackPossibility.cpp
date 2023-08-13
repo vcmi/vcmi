@@ -132,7 +132,12 @@ int64_t AttackPossibility::calculateDamageReduce(
 	{
 		auto ourUnits = state->battleGetUnitsIf([&](const battle::Unit * u) -> bool
 			{
-				return u->unitSide() != defender->unitSide() && !u->isTurret();
+				return u->unitSide() != defender->unitSide()
+					&& !u->isTurret()
+					&& u->creatureId() != CreatureID::CATAPULT
+					&& u->creatureId() != CreatureID::BALLISTA
+					&& u->creatureId() != CreatureID::FIRST_AID_TENT
+					&& u->getCount();
 			});
 
 		if(ourUnits.empty())

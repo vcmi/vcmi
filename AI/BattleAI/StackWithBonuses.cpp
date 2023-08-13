@@ -52,6 +52,23 @@ StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle:
 	battle::CUnitState::operator=(*Stack);
 }
 
+StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle::Unit * Stack)
+	: battle::CUnitState(),
+	origBearer(Stack->getBonusBearer()),
+	owner(Owner),
+	type(Stack->unitType()),
+	baseAmount(Stack->unitBaseAmount()),
+	id(Stack->unitId()),
+	side(Stack->unitSide()),
+	player(Stack->unitOwner()),
+	slot(Stack->unitSlot())
+{
+	localInit(Owner);
+
+	auto state = Stack->acquireState();
+	battle::CUnitState::operator=(*state);
+}
+
 StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle::UnitInfo & info)
 	: battle::CUnitState(),
 	origBearer(nullptr),
@@ -265,7 +282,7 @@ std::shared_ptr<StackWithBonuses> HypotheticBattle::getForUpdate(uint32_t id)
 
 	if(iter == stackStates.end())
 	{
-		const CStack * s = subject->battleGetStackByID(id, false);
+		const battle::Unit * s = subject->battleGetUnitByID(id);
 
 		auto ret = std::make_shared<StackWithBonuses>(this, s);
 		stackStates[id] = ret;
