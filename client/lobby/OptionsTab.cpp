@@ -415,12 +415,10 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 	textBonusDescription = std::make_shared<CTextBox>(getDescription(), Rect(10, 100, pos.w - 20, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }
 
-OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color)
+OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color, SelType type)
 	: CWindowObject(BORDERED)
 {
 	addUsedEvents(LCLICK | SHOW_POPUP);
-
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	color = _color;
 
@@ -436,22 +434,30 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color)
 		if(allowedHeroesFlag[i])
 			allowedHeroes.insert(HeroTypeID(i));
 
-	amountLines = calcLines();
-	pos = Rect(0, 0, (ELEMENTS_PER_LINE * 2 + 5) * 57, (amountLines + 3) * 63);
+	recreate(type);
+}
 
-	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
-	updateShadow();
+int OptionsTab::SelectionWindow::calcLines(FactionID faction)
+{
+	if(faction < 0)
+		return std::ceil((double)allowedFactions.size() / ELEMENTS_PER_LINE);
 
-	recreate();
+	int count = 0;
+	for(auto & elemh : allowedHeroes)
+	{
+		CHero * type = VLC->heroh->objects[elemh];
+		if(type->heroClass->faction == faction)
+			count++;
+	}
 
-	center();
+	return std::ceil(std::max((double)count, (double)allowedFactions.size()) / (double)ELEMENTS_PER_LINE);
 }
 
 int OptionsTab::SelectionWindow::calcLines()
 {
 	// size count
 	int max = 0;
-	for(auto & elemf : allowedHeroes)
+	for(auto & elemf : allowedFactions)
 	{
 		int count = 0;
 		for(auto & elemh : allowedHeroes)
@@ -464,7 +470,7 @@ int OptionsTab::SelectionWindow::calcLines()
 	}
 	max = std::max(max, (int)allowedFactions.size());
 
-	int y = max / ELEMENTS_PER_LINE;
+	int y = std::ceil((double)max / (double)ELEMENTS_PER_LINE);
 
 	return y;
 }
@@ -524,36 +530,46 @@ void OptionsTab::SelectionWindow::setSelection()
 			CSH->setPlayerOption(LobbyChangePlayerOption::BONUS, deltaBonus > 0 ? 1 : -1, color);
 }
 
-void OptionsTab::SelectionWindow::recreate()
+void OptionsTab::SelectionWindow::recreate(SelType type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	
+	int amountLinesMax = calcLines();
+	int amountLines = calcLines((type > SelType::TOWN) ? selectedFraction : static_cast<FactionID>(-1));
+
+	int xMax = (ELEMENTS_PER_LINE * 2 + 5) * 57;
+	int x = (type == SelType::TOWN) ? (ELEMENTS_PER_LINE + 2) * 57 : xMax;
+	int yMax = (amountLinesMax + 2) * 63 + 20;
+	int y = (amountLines + 2) * 63 + 20;
+
+	pos = Rect(0, 0, x, y);
+
+	backgroundTexture = std::make_shared<CFilledTexture>("DlgBluBk", pos);
+	updateShadow();
+
 	components.clear();
 
 	GH.windows().totalRedraw();
 
-	genContentTitle();
 	genContentCastles();
-	genContentHeroes();
-	genContentBonus();
-	genContentGrid();
+	if(type > SelType::TOWN) {
+		genContentHeroes();
+		genContentBonus();
+	}
+	genContentGrid(type == SelType::TOWN, amountLines);
+
+	center(Point((GH.screenDimensions().x / 2) - ((xMax - x) / 2), (GH.screenDimensions().y / 2) - ((yMax - y) / 2)));
 }
 
-void OptionsTab::SelectionWindow::genContentTitle()
+void OptionsTab::SelectionWindow::genContentGrid(bool small, int lines)
 {
-	components.push_back(std::make_shared<CLabel>((ELEMENTS_PER_LINE - 1) * 57, 40, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("core.genrltxt.518")));
-	components.push_back(std::make_shared<CLabel>((ELEMENTS_PER_LINE * 2) * 57, 40, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("core.genrltxt.519")));
-	components.push_back(std::make_shared<CLabel>((ELEMENTS_PER_LINE * 2 + 3) * 57 + 29, 40, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("core.genrltxt.520")));
-}
-
-void OptionsTab::SelectionWindow::genContentGrid()
-{
-	for(int y = 0; y<amountLines; y++)
+	for(int y = 0; y<lines; y++)
 	{
 		for(int x = 0; x<ELEMENTS_PER_LINE; x++)
 		{
 			components.push_back(std::make_shared<CPicture>("lobby/townBorderBig", (x + 1) * 57, (y + 2) * 63));
-			components.push_back(std::make_shared<CPicture>("lobby/townBorderBig", (x + 2 + ELEMENTS_PER_LINE) * 57, (y + 2) * 63));
+			if(!small)
+				components.push_back(std::make_shared<CPicture>("lobby/townBorderBig", (x + 2 + ELEMENTS_PER_LINE) * 57, (y + 2) * 63));
 		}
 	}
 }
@@ -561,6 +577,8 @@ void OptionsTab::SelectionWindow::genContentGrid()
 void OptionsTab::SelectionWindow::genContentCastles()
 {
 	factions.clear();
+
+	components.push_back(std::make_shared<CLabel>((ELEMENTS_PER_LINE - 1) * 57, 40, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("core.genrltxt.518")));
 
 	PlayerSettings set = PlayerSettings();
 	set.castle = (initialFraction == set.NONE) ? set.NONE : set.RANDOM;
@@ -591,6 +609,8 @@ void OptionsTab::SelectionWindow::genContentCastles()
 void OptionsTab::SelectionWindow::genContentHeroes()
 {
 	heroes.clear();
+
+	components.push_back(std::make_shared<CLabel>((ELEMENTS_PER_LINE * 2) * 57, 40, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("core.genrltxt.519")));
 
 	PlayerSettings set = PlayerSettings();
 	set.hero = (initialHero == set.NONE) ? set.NONE : set.RANDOM;
@@ -630,6 +650,8 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 void OptionsTab::SelectionWindow::genContentBonus()
 {
 	PlayerSettings set = PlayerSettings();
+
+	components.push_back(std::make_shared<CLabel>((ELEMENTS_PER_LINE * 2 + 3) * 57 + 29, 40, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("core.genrltxt.520")));
 
 	int i = 0;
 	for(auto elem : {set.RANDOM, set.ARTIFACT, set.GOLD, set.RESOURCE})
@@ -721,7 +743,7 @@ void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition) {
 		if(set.castle == -1)
 			apply();
 		else
-			recreate();
+			recreate(SelType::HERO);
 	}
 	else if(set.hero != -2)
 	{
@@ -731,7 +753,7 @@ void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition) {
 	else if(set.bonus != -2)
 	{
 		selectedBonus = set.bonus;
-		apply();
+		recreate(SelType::BONUS);
 	}
 }
 
@@ -796,7 +818,7 @@ void OptionsTab::SelectedBox::showPopupWindow(const Point & cursorPosition)
 
 void OptionsTab::SelectedBox::clickReleased(const Point & cursorPosition)
 {
-	GH.windows().createAndPushWindow<SelectionWindow>(settings.color);
+	GH.windows().createAndPushWindow<SelectionWindow>(settings.color, type);
 }
 
 void OptionsTab::SelectedBox::scrollBy(int distance)

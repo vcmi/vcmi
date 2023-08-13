@@ -118,17 +118,15 @@ public:
 		std::set<HeroTypeID> allowedHeroes;
 		std::vector<bool> allowedBonus;
 
-		int amountLines;
-
-		void genContentTitle();
-		void genContentGrid();
+		void genContentGrid(bool small, int lines);
 		void genContentCastles();
 		void genContentHeroes();
 		void genContentBonus();
 
+		int calcLines(FactionID faction);
 		int calcLines();
 		void apply();
-		void recreate();
+		void recreate(SelType type);
 		void setSelection();
 		FactionID getElementCastle(const Point & cursorPosition);
 		HeroTypeID getElementHero(const Point & cursorPosition);
@@ -139,7 +137,7 @@ public:
 		void showPopupWindow(const Point & cursorPosition) override;
 
 	public:
-		SelectionWindow(PlayerColor _color);
+		SelectionWindow(PlayerColor _color, SelType type);
 	};
 
 	/// Image with current town/hero/bonus
