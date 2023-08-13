@@ -349,7 +349,6 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 	heroes[0] = hero1;
 	heroes[1] = hero2;
 
-
 	setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 
 	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(gameHandler->gameState()->curB->sides[0].color));
@@ -819,7 +818,7 @@ bool BattleProcessor::makeAutomaticAction(const CStack *stack, BattleAction &ba)
 	bsa.askPlayerInterface = false;
 	gameHandler->sendAndApply(&bsa);
 
-	bool ret = makeBattleAction(ba);
+	bool ret = makeBattleActionImpl(ba);
 	checkBattleStateChanges();
 	return ret;
 }
@@ -2022,7 +2021,7 @@ void BattleProcessor::checkBattleStateChanges()
 	}
 }
 
-bool BattleProcessor::makeBattleAction(BattleAction &ba)
+bool BattleProcessor::makeBattleActionImpl(BattleAction &ba)
 {
 	bool ok = true;
 
@@ -2445,7 +2444,7 @@ bool BattleProcessor::makeBattleAction(BattleAction &ba)
 	return ok;
 }
 
-bool BattleProcessor::makeCustomAction(BattleAction & ba)
+bool BattleProcessor::makeCustomActionImpl(BattleAction & ba)
 {
 	switch(ba.actionType)
 	{
@@ -2752,3 +2751,75 @@ void BattleProcessor::updateGateState()
 		gameHandler->sendAndApply(&db);
 }
 
+bool BattleProcessor::makeBattleAction(PlayerColor player, BattleAction &ba)
+{
+	boost::unique_lock lock(battleActionMutex);
+
+	const BattleInfo * b = gameHandler->gameState()->curB;
+
+	if(!b && gameHandler->complain("Can not make action - there is no battle ongoing!"))
+		return false;
+
+	if (ba.side != 0 && ba.side != 1 && gameHandler->complain("Can not make action - invalid battle side!"))
+		return false;
+
+	if(b->tacticDistance)
+	{
+		if(ba.actionType != EActionType::WALK && ba.actionType != EActionType::END_TACTIC_PHASE
+			&& ba.actionType != EActionType::RETREAT && ba.actionType != EActionType::SURRENDER)
+		{
+			gameHandler->complain("Can not make actions while in tactics mode!");
+			return false;
+		}
+
+		if(player != b->sides[ba.side].color)
+		{
+			gameHandler->complain("Can not make actions in battles you are not part of!");
+			return false;
+		}
+	}
+	else
+	{
+		auto active = b->battleActiveUnit();
+		if(!active && gameHandler->complain("No active unit in battle!"))
+			return false;
+
+		auto unitOwner = b->battleGetOwner(active);
+
+		if(player != unitOwner && gameHandler->complain("Can not make actions in battles you are not part of!"))
+			return false;
+	}
+
+	return makeBattleActionImpl(ba);
+}
+
+bool BattleProcessor::makeCustomAction(PlayerColor player, BattleAction &ba)
+{
+	const BattleInfo * b = gameHandler->gameState()->curB;
+
+	if(!b && gameHandler->complain("Can not make action - there is no battle ongoing!"))
+		return false;
+
+	if (ba.side != 0 && ba.side != 1 && gameHandler->complain("Can not make action - invalid battle side!"))
+		return false;
+
+	if(b->tacticDistance)
+	{
+		gameHandler->complain("Can not cast spell during tactics mode!");
+		return false;
+	}
+
+	auto active = b->battleActiveUnit();
+	if(!active && gameHandler->complain("No active unit in battle!"))
+		return false;
+
+	auto unitOwner = b->battleGetOwner(active);
+
+	if(player != unitOwner && gameHandler->complain("Can not make actions in battles you are not part of!"))
+		return false;
+
+	if(ba.actionType != EActionType::HERO_SPELL && gameHandler->complain("Invalid custom action type!"))
+		return false;
+
+	return makeCustomActionImpl(ba);
+}

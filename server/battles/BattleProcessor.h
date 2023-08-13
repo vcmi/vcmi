@@ -100,6 +100,9 @@ class BattleProcessor : boost::noncopyable
 	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
 	void setBattleResult(BattleResult::EResult resultType, int victoriusSide);
 
+	bool makeBattleActionImpl(BattleAction &ba);
+	bool makeCustomActionImpl(BattleAction &ba);
+
 public:
 	CGameHandler * gameHandler;
 
@@ -114,8 +117,8 @@ public:
 
 	void battleAfterLevelUp(const BattleResult &result);
 
-	bool makeBattleAction(BattleAction &ba);
-	bool makeCustomAction(BattleAction &ba);
+	bool makeBattleAction(PlayerColor player, BattleAction &ba);
+	bool makeCustomAction(PlayerColor player, BattleAction &ba);
 
 	void endBattle(int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2); //ends battle
 	void endBattleConfirm(const BattleInfo * battleInfo);

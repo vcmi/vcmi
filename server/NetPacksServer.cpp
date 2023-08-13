@@ -282,48 +282,18 @@ void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)
 
 void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 {
-	const BattleInfo * b = gs.curB;
-	if(!b)
-		gh.throwAndComplain(&pack, "Can not make action - there is no battle ongoing!");
+	if (!gh.hasPlayerAt(pack.player, pack.c))
+		gh.throwAndComplain(&pack, "No such pack.player!");
 
-	if(b->tacticDistance)
-	{
-		if(pack.ba.actionType != EActionType::WALK && pack.ba.actionType != EActionType::END_TACTIC_PHASE
-			&& pack.ba.actionType != EActionType::RETREAT && pack.ba.actionType != EActionType::SURRENDER)
-			gh.throwAndComplain(&pack, "Can not make actions while in tactics mode!");
-		if(!vstd::contains(gh.connections[b->sides[b->tacticsSide].color], pack.c))
-			gh.throwAndComplain(&pack, "Can not make actions in battles you are not part of!");
-	}
-	else
-	{
-		auto active = b->battleActiveUnit();
-		if(!active)
-			gh.throwAndComplain(&pack, "No active unit in battle!");
-		auto unitOwner = b->battleGetOwner(active);
-		if(!vstd::contains(gh.connections[unitOwner], pack.c))
-			gh.throwAndComplain(&pack, "Can not make actions in battles you are not part of!");
-	}
-
-	result = gh.battles->makeBattleAction(pack.ba);
+	result = gh.battles->makeBattleAction(pack.player, pack.ba);
 }
 
 void ApplyGhNetPackVisitor::visitMakeCustomAction(MakeCustomAction & pack)
 {
-	const BattleInfo * b = gs.curB;
-	if(!b)
-		gh.throwNotAllowedAction(&pack);
-	if(b->tacticDistance)
-		gh.throwNotAllowedAction(&pack);
-	auto active = b->battleActiveUnit();
-	if(!active)
-		gh.throwNotAllowedAction(&pack);
-	auto unitOwner = b->battleGetOwner(active);
-	if(!vstd::contains(gh.connections[unitOwner], pack.c))
-		gh.throwNotAllowedAction(&pack);
-	if(pack.ba.actionType != EActionType::HERO_SPELL)
-		gh.throwNotAllowedAction(&pack);
+	if (!gh.hasPlayerAt(pack.player, pack.c))
+		gh.throwAndComplain(&pack, "No such pack.player!");
 
-	result = gh.battles->makeCustomAction(pack.ba);
+	result = gh.battles->makeCustomAction(pack.player, pack.ba);
 }
 
 void ApplyGhNetPackVisitor::visitDigWithHero(DigWithHero & pack)
