@@ -108,10 +108,10 @@ public:
 		std::vector<FactionID> factions;
 		std::vector<HeroTypeID> heroes;
 
-		FactionID initialFraction;
+		FactionID initialFaction;
 		HeroTypeID initialHero;
 		int initialBonus;
-		FactionID selectedFraction;
+		FactionID selectedFaction;
 		HeroTypeID selectedHero;
 		int selectedBonus;
 
@@ -120,7 +120,7 @@ public:
 		std::vector<int> allowedBonus;
 
 		void genContentGrid(int lines);
-		void genContentCastles();
+		void genContentFactions();
 		void genContentHeroes();
 		void genContentBonus();
 

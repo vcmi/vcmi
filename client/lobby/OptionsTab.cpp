@@ -424,10 +424,10 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color, SelType _type)
 	color = _color;
 	type = _type;
 
-	initialFraction = SEL->getStartInfo()->playerInfos.find(color)->second.castle;
+	initialFaction = SEL->getStartInfo()->playerInfos.find(color)->second.castle;
 	initialHero = SEL->getStartInfo()->playerInfos.find(color)->second.hero;
 	initialBonus = SEL->getStartInfo()->playerInfos.find(color)->second.bonus;
-	selectedFraction = initialFraction;
+	selectedFaction = initialFaction;
 	selectedHero = initialHero;
 	selectedBonus = initialBonus;
 	allowedFactions = SEL->getPlayerInfo(color.getNum()).allowedFactions;
@@ -440,7 +440,7 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color, SelType _type)
 	if(initialHero >= -1)
 		allowedBonus.push_back(0); // artifact
 	allowedBonus.push_back(1); // gold
-	if(initialFraction >= 0)
+	if(initialFaction >= 0)
 		allowedBonus.push_back(2); // resource
 
 	recreate();
@@ -478,8 +478,8 @@ void OptionsTab::SelectionWindow::apply()
 
 void OptionsTab::SelectionWindow::setSelection()
 {
-	if(selectedFraction != initialFraction)
-		CSH->setPlayerOption(LobbyChangePlayerOption::TOWN_ID, selectedFraction, color);
+	if(selectedFaction != initialFaction)
+		CSH->setPlayerOption(LobbyChangePlayerOption::TOWN_ID, selectedFaction, color);
 
 	if(selectedHero != initialHero)
 		CSH->setPlayerOption(LobbyChangePlayerOption::HERO_ID, selectedHero, color);
@@ -506,7 +506,7 @@ void OptionsTab::SelectionWindow::recreate()
 			for(auto & elem : allowedHeroes)
 			{
 				CHero * type = VLC->heroh->objects[elem];
-				if(type->heroClass->faction == selectedFraction)
+				if(type->heroClass->faction == selectedFaction)
 				{
 					count++;
 				}
@@ -514,7 +514,7 @@ void OptionsTab::SelectionWindow::recreate()
 			elementsPerLine = floor(sqrt(count));
 		}
 
-		amountLines = calcLines((type > SelType::TOWN) ? selectedFraction : static_cast<FactionID>(-1));
+		amountLines = calcLines((type > SelType::TOWN) ? selectedFaction : static_cast<FactionID>(-1));
 	}
 
 	int x = (elementsPerLine) * 57;
@@ -526,7 +526,7 @@ void OptionsTab::SelectionWindow::recreate()
 	updateShadow();
 
 	if(type == SelType::TOWN)
-		genContentCastles();
+		genContentFactions();
 	if(type == SelType::HERO)
 		genContentHeroes();
 	if(type == SelType::BONUS)
@@ -556,7 +556,7 @@ void OptionsTab::SelectionWindow::genContentGrid(int lines)
 	}
 }
 
-void OptionsTab::SelectionWindow::genContentCastles()
+void OptionsTab::SelectionWindow::genContentFactions()
 {
 	int i = 1;
 
@@ -565,8 +565,8 @@ void OptionsTab::SelectionWindow::genContentCastles()
 	set.castle = -1;
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
 	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 6, 32 / 2));
-	drawOutlinedText(29, 56, (selectedFraction == -1) ? Colors::YELLOW : Colors::WHITE, helper.getName());
-	if(selectedFraction == -1)
+	drawOutlinedText(29, 56, (selectedFaction == -1) ? Colors::YELLOW : Colors::WHITE, helper.getName());
+	if(selectedFaction == -1)
 		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", 6, 32 / 2));
 
 	for(auto & elem : allowedFactions)
@@ -580,8 +580,8 @@ void OptionsTab::SelectionWindow::genContentCastles()
 		CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
 
 		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * 57, y * 63));
-		components.push_back(std::make_shared<CPicture>(selectedFraction == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig", x * 57, y * 63));
-		drawOutlinedText(x * 57 + 29, y * 63 + 56, (selectedFraction == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
+		components.push_back(std::make_shared<CPicture>(selectedFaction == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig", x * 57, y * 63));
+		drawOutlinedText(x * 57 + 29, y * 63 + 56, (selectedFaction == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
 		factions.push_back(elem);
 
 		i++;
@@ -605,7 +605,7 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 	{
 		CHero * type = VLC->heroh->objects[elem];
 
-		if(type->heroClass->faction == selectedFraction)
+		if(type->heroClass->faction == selectedFaction)
 		{
 
 			int x = i % elementsPerLine;
@@ -641,11 +641,10 @@ void OptionsTab::SelectionWindow::genContentBonus()
 		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, x * 57 + 6, y * 63 + 32 / 2));
 		drawOutlinedText(x * 57 + 29, y * 63 + 56, Colors::WHITE , helper.getName());
 		if(selectedBonus == elem)
-			if(elem == set.RESOURCE && selectedFraction >= 0)
-			{
-				components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", x * 57 + 6, y * 63 + 32 / 2));
-				drawOutlinedText(x * 57 + 29, y * 63 + 56, Colors::YELLOW , helper.getName());
-			}
+		{
+			components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", x * 57 + 6, y * 63 + 32 / 2));
+			drawOutlinedText(x * 57 + 29, y * 63 + 56, Colors::YELLOW , helper.getName());
+		}
 
 		i++;
 	}
@@ -678,7 +677,7 @@ void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition) {
 		}
 
 		if(set.castle != -2)
-			selectedFraction = set.castle;
+			selectedFaction = set.castle;
 	}
 	if(type == SelType::HERO)
 	{
