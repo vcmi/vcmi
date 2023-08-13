@@ -147,6 +147,20 @@ struct DLL_LINKAGE PlayerCheated : public CPackForClient
 	}
 };
 
+struct DLL_LINKAGE TurnTimeUpdate : public CPackForClient
+{
+	void applyGs(CGameState * gs) const;
+	
+	PlayerColor player;
+	int turnTime = 0;
+		
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & player;
+		h & turnTime;
+	}
+};
+
 struct DLL_LINKAGE YourTurn : public CPackForClient
 {
 	void applyGs(CGameState * gs) const;

@@ -2513,6 +2513,12 @@ void YourTurn::applyGs(CGameState * gs) const
 	playerState.daysWithoutCastle = daysWithoutCastle;
 }
 
+void TurnTimeUpdate::applyGs(CGameState *gs) const
+{
+	auto & playerState = gs->players[player];
+	playerState.turnTime = turnTime;
+}
+
 Component::Component(const CStackBasicDescriptor & stack)
 	: id(EComponentType::CREATURE)
 	, subtype(stack.type->getId())

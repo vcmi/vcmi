@@ -153,6 +153,7 @@ public:
 	virtual PlayerColor getCurrentPlayer() const; //player that currently makes move // TODO synchronous turns
 	PlayerColor getLocalPlayer() const override; //player that is currently owning given client (if not a client, then returns current player)
 	virtual const PlayerSettings * getPlayerSettings(PlayerColor color) const;
+	virtual int getPlayerTurnTime(PlayerColor color) const;
 
 	//map
 	virtual bool isVisible(int3 pos, const std::optional<PlayerColor> & Player) const;

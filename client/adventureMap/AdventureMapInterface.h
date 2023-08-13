@@ -39,6 +39,7 @@ class CTownList;
 class CInfoBar;
 class CMinimap;
 class MapAudioPlayer;
+class TurnTimerWidget;
 enum class EAdventureState;
 
 struct MapDrawingInfo;
@@ -64,6 +65,7 @@ private:
 	std::shared_ptr<MapAudioPlayer> mapAudio;
 	std::shared_ptr<AdventureMapWidget> widget;
 	std::shared_ptr<AdventureMapShortcuts> shortcuts;
+	std::shared_ptr<TurnTimerWidget> watches;
 
 private:
 	void setState(EAdventureState state);

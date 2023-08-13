@@ -2067,6 +2067,14 @@ void CGameHandler::run(bool resume)
 					//Change local daysWithoutCastle counter for local interface message //TODO: needed?
 					yt.daysWithoutCastle = playerState->daysWithoutCastle;
 					applyAndSend(&yt);
+					
+					if(gs->getStartInfo()->turnTime > 0) //turn timer check
+					{
+						TurnTimeUpdate ttu;
+						ttu.player = player;
+						ttu.turnTime = gs->getStartInfo()->turnTime * 60 * 1000; //ms
+						applyAndSend(&ttu);
+					}
 				}
 			};
 
@@ -2075,10 +2083,31 @@ void CGameHandler::run(bool resume)
 			if(playerColor != PlayerColor::CANNOT_DETERMINE)
 			{
 				//wait till turn is done
+				const int waitTime = 100; //ms
+				int turnTimePropagateFrequency = 5000; //do not send updates too frequently
 				boost::unique_lock<boost::mutex> lock(states.mx);
 				while(states.players.at(playerColor).makingTurn && lobby->state == EServerState::GAMEPLAY)
 				{
-					static time_duration p = milliseconds(100);
+					if(gs->getStartInfo()->turnTime > 0 && !gs->curB) //turn timer check
+					{
+						if(gs->players[playerColor].turnTime > 0)
+						{
+							gs->players[playerColor].turnTime -= waitTime;
+							
+							if(gs->players[playerColor].status == EPlayerStatus::INGAME //do not send message if player is not active already
+							   && gs->players[playerColor].turnTime % turnTimePropagateFrequency == 0)
+							{
+								TurnTimeUpdate ttu;
+								ttu.player = playerColor;
+								ttu.turnTime = gs->players[playerColor].turnTime;
+								applyAndSend(&ttu);
+							}
+						}
+						else if(!queries.topQuery(playerColor)) //wait for replies to avoid pending queries
+							states.players.at(playerColor).makingTurn = false; //force end turn
+					}
+					
+					static time_duration p = milliseconds(waitTime);
 					states.cv.timed_wait(lock, p);
 				}
 			}
