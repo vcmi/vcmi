@@ -97,7 +97,7 @@ public:
 
 	class SelectionWindow : public CWindowObject
 	{
-		const int ELEMENTS_PER_LINE = 4;
+		int elementsPerLine;
 
 		PlayerColor color;
 		SelType type;
@@ -124,6 +124,7 @@ public:
 		void genContentHeroes();
 		void genContentBonus();
 
+		void drawOutlinedText(int x, int y, ColorRGBA color, std::string text);
 		int calcLines(FactionID faction);
 		void apply();
 		void recreate();

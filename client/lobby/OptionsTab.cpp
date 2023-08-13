@@ -451,7 +451,7 @@ int OptionsTab::SelectionWindow::calcLines(FactionID faction)
 	double additionalItems = 1; // random
 
 	if(faction < 0)
-		return std::ceil(((double)allowedFactions.size() + additionalItems) / ELEMENTS_PER_LINE);
+		return std::ceil(((double)allowedFactions.size() + additionalItems) / elementsPerLine);
 
 	int count = 0;
 	for(auto & elemh : allowedHeroes)
@@ -461,7 +461,7 @@ int OptionsTab::SelectionWindow::calcLines(FactionID faction)
 			count++;
 	}
 
-	return std::ceil(std::max((double)count + additionalItems, (double)allowedFactions.size() + additionalItems) / (double)ELEMENTS_PER_LINE);
+	return std::ceil(std::max((double)count + additionalItems, (double)allowedFactions.size() + additionalItems) / (double)elementsPerLine);
 }
 
 void OptionsTab::SelectionWindow::apply()
@@ -540,22 +540,39 @@ void OptionsTab::SelectionWindow::setSelection()
 void OptionsTab::SelectionWindow::recreate()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	
-	int amountLines = calcLines((type > SelType::TOWN) ? selectedFraction : static_cast<FactionID>(-1));
-	if(type == SelType::BONUS)
-		amountLines = 1;
 
-	int x = (ELEMENTS_PER_LINE) * 57;
+	int amountLines = 1;
+	if(type == SelType::BONUS)
+		elementsPerLine = allowedBonus.size();
+	else
+	{
+		// try to make squarish
+		if(type == SelType::TOWN)
+			elementsPerLine = floor(sqrt(allowedFactions.size()));
+		if(type == SelType::HERO)
+		{
+			int count = 0;
+			for(auto & elem : allowedHeroes)
+			{
+				CHero * type = VLC->heroh->objects[elem];
+				if(type->heroClass->faction == selectedFraction)
+				{
+					count++;
+				}
+			}
+			elementsPerLine = floor(sqrt(count));
+		}
+
+		amountLines = calcLines((type > SelType::TOWN) ? selectedFraction : static_cast<FactionID>(-1));
+	}
+
+	int x = (elementsPerLine) * 57;
 	int y = (amountLines) * 63;
 
 	pos = Rect(0, 0, x, y);
 
 	backgroundTexture = std::make_shared<CFilledTexture>("DlgBluBk", pos);
 	updateShadow();
-
-	components.clear();
-
-	GH.windows().totalRedraw();
 
 	if(type == SelType::TOWN)
 		genContentCastles();
@@ -568,11 +585,20 @@ void OptionsTab::SelectionWindow::recreate()
 	center();
 }
 
+void OptionsTab::SelectionWindow::drawOutlinedText(int x, int y, ColorRGBA color, std::string text)
+{
+	components.push_back(std::make_shared<CLabel>(x-1, y, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text));
+	components.push_back(std::make_shared<CLabel>(x+1, y, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text));
+	components.push_back(std::make_shared<CLabel>(x, y-1, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text));
+	components.push_back(std::make_shared<CLabel>(x, y+1, FONT_TINY, ETextAlignment::CENTER, Colors::BLACK, text));
+	components.push_back(std::make_shared<CLabel>(x, y, FONT_TINY, ETextAlignment::CENTER, color, text));
+}
+
 void OptionsTab::SelectionWindow::genContentGrid(int lines)
 {
 	for(int y = 0; y<lines; y++)
 	{
-		for(int x = 0; x<ELEMENTS_PER_LINE; x++)
+		for(int x = 0; x<elementsPerLine; x++)
 		{
 			components.push_back(std::make_shared<CPicture>("lobby/townBorderBig", x * 57, y * 63));
 		}
@@ -588,14 +614,14 @@ void OptionsTab::SelectionWindow::genContentCastles()
 	set.castle = -1;
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
 	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 6, 32 / 2));
-	components.push_back(std::make_shared<CLabel>(29, 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, helper.getName()));
+	drawOutlinedText(29, 56, (selectedFraction == -1) ? Colors::YELLOW : Colors::WHITE, helper.getName());
 	if(selectedFraction == -1)
 		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", 6, 32 / 2));
 
 	for(auto & elem : allowedFactions)
 	{
-		int x = i % ELEMENTS_PER_LINE;
-		int y = i / ELEMENTS_PER_LINE;
+		int x = i % elementsPerLine;
+		int y = i / elementsPerLine;
 
 		PlayerSettings set = PlayerSettings();
 		set.castle = elem;
@@ -604,7 +630,7 @@ void OptionsTab::SelectionWindow::genContentCastles()
 
 		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * 57, y * 63));
 		components.push_back(std::make_shared<CPicture>(selectedFraction == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig", x * 57, y * 63));
-		components.push_back(std::make_shared<CLabel>(x * 57 + 29, y * 63 + 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, helper.getName()));
+		drawOutlinedText(x * 57 + 29, y * 63 + 56, (selectedFraction == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
 		factions.push_back(elem);
 
 		i++;
@@ -620,7 +646,7 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 	set.hero = -1;
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
 	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 6, 32 / 2));
-	components.push_back(std::make_shared<CLabel>(29, 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, helper.getName()));
+	drawOutlinedText(29, 56, (selectedHero == -1) ? Colors::YELLOW : Colors::WHITE, helper.getName());
 	if(selectedHero == -1)
 		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", 6, 32 / 2));
 
@@ -631,8 +657,8 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 		if(type->heroClass->faction == selectedFraction)
 		{
 
-			int x = i % ELEMENTS_PER_LINE;
-			int y = i / ELEMENTS_PER_LINE;
+			int x = i % elementsPerLine;
+			int y = i / elementsPerLine;
 
 			PlayerSettings set = PlayerSettings();
 			set.hero = elem;
@@ -641,7 +667,7 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 
 			components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * 57, y * 63));
 			components.push_back(std::make_shared<CPicture>(selectedHero == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig", x * 57, y * 63));
-			components.push_back(std::make_shared<CLabel>(x * 57 + 29, y * 63 + 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, helper.getName()));
+			drawOutlinedText(x * 57 + 29, y * 63 + 56, (selectedHero == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
 			heroes.push_back(elem);
 
 			i++;
@@ -662,10 +688,13 @@ void OptionsTab::SelectionWindow::genContentBonus()
 		set.bonus = static_cast<PlayerSettings::Ebonus>(elem);
 		CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::BONUS);
 		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, x * 57 + 6, y * 63 + 32 / 2));
-		components.push_back(std::make_shared<CLabel>(x * 57 + 29, y * 63 + 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, helper.getName()));
+		drawOutlinedText(x * 57 + 29, y * 63 + 56, Colors::WHITE , helper.getName());
 		if(selectedBonus == elem)
 			if(elem == set.RESOURCE && selectedFraction >= 0)
+			{
 				components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", x * 57 + 6, y * 63 + 32 / 2));
+				drawOutlinedText(x * 57 + 29, y * 63 + 56, Colors::YELLOW , helper.getName());
+			}
 
 		i++;
 	}
@@ -676,7 +705,7 @@ int OptionsTab::SelectionWindow::getElement(const Point & cursorPosition)
 	int x = (cursorPosition.x - pos.x) / 57;
 	int y = (cursorPosition.y - pos.y) / 63;
 
-	return x + y * ELEMENTS_PER_LINE;
+	return x + y * elementsPerLine;
 }
 
 void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition) {
