@@ -211,9 +211,9 @@ struct DLL_LINKAGE LobbySetCampaignBonus : public CLobbyPackToServer
 
 struct DLL_LINKAGE LobbyChangePlayerOption : public CLobbyPackToServer
 {
-	enum EWhat : ui8 {UNKNOWN, TOWN, HERO, BONUS};
+	enum EWhat : ui8 {UNKNOWN, TOWN, HERO, BONUS, TOWN_ID, HERO_ID, BONUS_ID};
 	ui8 what = UNKNOWN;
-	si8 direction = 0; //-1 or +1
+	si16 value = 0; //-1 or +1
 	PlayerColor color = PlayerColor::CANNOT_DETERMINE;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
@@ -221,7 +221,7 @@ struct DLL_LINKAGE LobbyChangePlayerOption : public CLobbyPackToServer
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & what;
-		h & direction;
+		h & value;
 		h & color;
 	}
 };

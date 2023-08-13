@@ -86,6 +86,8 @@ template<typename T> class CApplyOnLobby : public CBaseForLobbyApply
 public:
 	bool applyOnLobbyHandler(CServerHandler * handler, void * pack) const override
 	{
+		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+
 		T * ptr = static_cast<T *>(pack);
 		ApplyOnLobbyHandlerNetPackVisitor visitor(*handler);
 
@@ -454,11 +456,11 @@ void CServerHandler::setPlayer(PlayerColor color) const
 	sendLobbyPack(lsp);
 }
 
-void CServerHandler::setPlayerOption(ui8 what, si8 dir, PlayerColor player) const
+void CServerHandler::setPlayerOption(ui8 what, si16 value, PlayerColor player) const
 {
 	LobbyChangePlayerOption lcpo;
 	lcpo.what = what;
-	lcpo.direction = dir;
+	lcpo.value = value;
 	lcpo.color = player;
 	sendLobbyPack(lcpo);
 }

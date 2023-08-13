@@ -837,6 +837,28 @@ void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 		s.bonus = PlayerSettings::RANDOM;
 }
 
+void CVCMIServer::optionSetCastle(PlayerColor player, int id)
+{
+	PlayerSettings & s = si->playerInfos[player];
+	FactionID & cur = s.castle;
+	auto & allowed = getPlayerInfo(player.getNum()).allowedFactions;
+
+	if(cur == PlayerSettings::NONE) //no change
+		return;
+
+	if(allowed.find(static_cast<FactionID>(id)) == allowed.end() && id != PlayerSettings::RANDOM) // valid id
+		return;
+
+	cur = static_cast<FactionID>(id);
+
+	if(s.hero >= 0 && !getPlayerInfo(player.getNum()).hasCustomMainHero()) // remove hero unless it set to fixed one in map editor
+	{
+		s.hero = PlayerSettings::RANDOM;
+	}
+	if(cur < 0 && s.bonus == PlayerSettings::RESOURCE)
+		s.bonus = PlayerSettings::RANDOM;
+}
+
 void CVCMIServer::setCampaignMap(CampaignScenarioID mapId)
 {
 	campaignMap = mapId;
@@ -884,6 +906,20 @@ void CVCMIServer::optionNextHero(PlayerColor player, int dir)
 	}
 }
 
+void CVCMIServer::optionSetHero(PlayerColor player, int id)
+{
+	PlayerSettings & s = si->playerInfos[player];
+	if(s.castle < 0 || s.hero == PlayerSettings::NONE)
+		return;
+
+	if(id == PlayerSettings::RANDOM)
+	{
+		s.hero = PlayerSettings::RANDOM;
+	}
+	if(canUseThisHero(player, id))
+		s.hero = static_cast<HeroTypeID>(id);
+}
+
 int CVCMIServer::nextAllowedHero(PlayerColor player, int min, int max, int incl, int dir)
 {
 	if(dir > 0)
@@ -928,6 +964,26 @@ void CVCMIServer::optionNextBonus(PlayerColor player, int dir)
 		else
 			ret = PlayerSettings::RANDOM;
 	}
+}
+
+void CVCMIServer::optionSetBonus(PlayerColor player, int id)
+{
+	PlayerSettings & s = si->playerInfos[player];
+
+	if(s.hero == PlayerSettings::NONE &&
+		!getPlayerInfo(player.getNum()).heroesNames.size() &&
+		id == PlayerSettings::ARTIFACT) //no hero - can't be artifact
+			return;
+
+	if(id > PlayerSettings::RESOURCE)
+		return;
+	if(id < PlayerSettings::RANDOM)
+		return;
+
+	if(s.castle == PlayerSettings::RANDOM && id == PlayerSettings::RESOURCE) //random castle - can't be resource
+		return;
+
+	s.bonus = static_cast<PlayerSettings::Ebonus>(static_cast<int>(id));
 }
 
 bool CVCMIServer::canUseThisHero(PlayerColor player, int ID)
