@@ -17,6 +17,7 @@
 #include "../lib/battle/BattleAction.h"
 #include "../lib/ScriptHandler.h"
 #include "CQuery.h"
+#include "TurnTimerHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -100,6 +101,8 @@ class CGameHandler : public IGameCallback, public CBattleInfoCallback, public En
 	CVCMIServer * lobby;
 	std::shared_ptr<CApplier<CBaseForGHApply>> applier;
 	std::unique_ptr<boost::thread> battleThread;
+	
+	TurnTimerHandler turnTimerHandler;
 
 public:
 	std::unique_ptr<HeroPoolProcessor> heroPool;

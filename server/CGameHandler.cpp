@@ -1570,6 +1570,7 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	, complainNoCreatures("No creatures to split")
 	, complainNotEnoughCreatures("Cannot split that stack, not enough creatures!")
 	, complainInvalidSlot("Invalid slot accessed!")
+	, turnTimerHandler(*this)
 {
 	QID = 1;
 	IObjectInterface::cb = this;
@@ -2019,7 +2020,11 @@ void CGameHandler::run(bool resume)
 		events::GameResumed::defaultExecute(serverEventBus.get());
 
 	auto playerTurnOrder = generatePlayerTurnOrder();
-
+	
+	if(!resume)
+		for(auto & playerColor : playerTurnOrder)
+			turnTimerHandler.onGameplayStart(gs->players[playerColor]);
+	
 	while(lobby->state == EServerState::GAMEPLAY)
 	{
 		if(!resume)
@@ -2068,13 +2073,7 @@ void CGameHandler::run(bool resume)
 					yt.daysWithoutCastle = playerState->daysWithoutCastle;
 					applyAndSend(&yt);
 					
-					if(gs->getStartInfo()->turnTimerInfo.turnTimer > 0) //turn timer check
-					{
-						TurnTimeUpdate ttu;
-						ttu.player = player;
-						ttu.turnTimer = gs->getStartInfo()->turnTimerInfo;
-						applyAndSend(&ttu);
-					}
+					turnTimerHandler.onPlayerGetTurn(gs->players[player]);
 				}
 			};
 
@@ -2084,29 +2083,10 @@ void CGameHandler::run(bool resume)
 			{
 				//wait till turn is done
 				const int waitTime = 100; //ms
-				int turnTimePropagateFrequency = 5000; //do not send updates too frequently
 				boost::unique_lock<boost::mutex> lock(states.mx);
 				while(states.players.at(playerColor).makingTurn && lobby->state == EServerState::GAMEPLAY)
 				{
-					if(gs->getStartInfo()->turnTimerInfo.isEnabled() && !gs->curB) //turn timer check
-					{
-						if(gs->players[playerColor].turnTimer.turnTimer > 0)
-						{
-							gs->players[playerColor].turnTimer.turnTimer -= waitTime;
-							
-							if(gs->players[playerColor].status == EPlayerStatus::INGAME //do not send message if player is not active already
-							   && gs->players[playerColor].turnTimer.turnTimer % turnTimePropagateFrequency == 0)
-							{
-								TurnTimeUpdate ttu;
-								ttu.player = playerColor;
-								ttu.turnTimer = gs->players[playerColor].turnTimer;
-								applyAndSend(&ttu);
-							}
-						}
-						else if(!queries.topQuery(playerColor)) //wait for replies to avoid pending queries
-							states.players.at(playerColor).makingTurn = false; //force end turn
-					}
-					
+					turnTimerHandler.onPlayerMakingTurn(gs->players[playerColor], waitTime);
 					static time_duration p = milliseconds(waitTime);
 					states.cv.timed_wait(lock, p);
 				}
