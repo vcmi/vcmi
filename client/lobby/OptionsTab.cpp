@@ -478,63 +478,14 @@ void OptionsTab::SelectionWindow::apply()
 
 void OptionsTab::SelectionWindow::setSelection()
 {
-	// fraction
-	int selectedFractionPos = -1;
-	for(int i = 0; i<factions.size(); i++)
-		if(factions[i] == selectedFraction)
-			selectedFractionPos = i;
+	if(selectedFraction != initialFraction)
+		CSH->setPlayerOption(LobbyChangePlayerOption::TOWN_ID, selectedFraction, color);
 
-	int initialFractionPos = -1;
-	for(int i = 0; i<factions.size(); i++)
-		if(factions[i] == initialFraction)
-			initialFractionPos = i;
+	if(selectedHero != initialHero)
+		CSH->setPlayerOption(LobbyChangePlayerOption::HERO_ID, selectedHero, color);
 
-	int deltaFraction = selectedFractionPos - initialFractionPos;
-
-	if(deltaFraction != 0)
-		for(int i = 0; i<abs(deltaFraction); i++)
-			CSH->setPlayerOption(LobbyChangePlayerOption::TOWN, deltaFraction > 0 ? 1 : -1, color);
-	else
-	{
-		if(type == SelType::TOWN)
-		{
-			CSH->setPlayerOption(LobbyChangePlayerOption::TOWN, 1, color);
-			CSH->setPlayerOption(LobbyChangePlayerOption::TOWN, -1, color);
-		}
-	}
-
-	// hero
-	int selectedHeroPos = -1;
-	for(int i = 0; i<heroes.size(); i++)
-		if(heroes[i] == selectedHero)
-			selectedHeroPos = i;
-
-	int initialHeroPos = -1;
-	if(deltaFraction == 0)
-		for(int i = 0; i<heroes.size(); i++)
-			if(heroes[i] == initialHero)
-				initialHeroPos = i;
-
-	int deltaHero = selectedHeroPos - initialHeroPos;
-
-	if(deltaHero != 0)
-		for(int i = 0; i<abs(deltaHero); i++)
-			CSH->setPlayerOption(LobbyChangePlayerOption::HERO, deltaHero > 0 ? 1 : -1, color);
-
-	// bonus
-	int deltaBonus = selectedBonus - initialBonus;
-
-	if(initialHero < -1 && ((selectedBonus > 0 && initialBonus < 0) || (selectedBonus < 0 && initialBonus > 0))) // no artifact
-	{
-		if(deltaBonus > 0)
-			deltaBonus--;
-		else if(deltaBonus < 0)
-			deltaBonus++;
-	}
-
-	if(deltaBonus != 0)
-		for(int i = 0; i<abs(deltaBonus); i++)
-			CSH->setPlayerOption(LobbyChangePlayerOption::BONUS, deltaBonus > 0 ? 1 : -1, color);
+	if(selectedBonus != initialBonus)
+		CSH->setPlayerOption(LobbyChangePlayerOption::BONUS_ID, selectedBonus, color);
 }
 
 void OptionsTab::SelectionWindow::recreate()
@@ -763,9 +714,17 @@ void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 	PlayerSettings set = PlayerSettings();
 	if(type == SelType::TOWN)
 	{
-		if(elem >= factions.size())
-			return;
-		set.castle = factions[elem];
+		if(elem > 0)
+		{
+			elem--;
+			if(elem >= factions.size())
+				return;
+			set.castle = factions[elem];
+		}
+		else
+		{
+			set.castle = -1;
+		}
 		if(set.castle != -2)
 		{
 			CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
@@ -774,9 +733,17 @@ void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 	}
 	if(type == SelType::HERO)
 	{
-		if(elem >= heroes.size())
-			return;
-		set.hero = heroes[elem];
+		if(elem > 0)
+		{
+			elem--;
+			if(elem >= heroes.size())
+				return;
+			set.hero = heroes[elem];
+		}
+		else
+		{
+			set.hero = -1;
+		}
 		if(set.hero != -2)
 		{
 			CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
