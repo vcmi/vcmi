@@ -55,7 +55,7 @@ public:
 	std::vector<std::shared_ptr<CButton>> buttons;
 	TCompsInfo components;
 
-	void close() override;
+	virtual void close();
 
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
@@ -78,7 +78,7 @@ public:
 class CRClickPopup : public WindowBase
 {
 public:
-	void close() override;
+	virtual void close();
 	bool isPopupWindow() const override;
 
 	static std::shared_ptr<WindowBase> createInfoWin(Point position, const CGObjectInstance * specific);
