@@ -26,6 +26,12 @@
 
 void CBitmapFont::loadModFont(const std::string & modName, const ResourceID & resource)
 {
+	if (!CResourceHandler::get(modName)->existsResource(resource))
+	{
+		logGlobal->error("Failed to load font %s from mod %s", resource.getName(), modName);
+		return;
+	}
+
 	auto data = CResourceHandler::get(modName)->load(resource)->readAll();
 	std::string modLanguage = CGI->modh->getModLanguage(modName);
 	std::string modEncoding = Languages::getLanguageOptions(modLanguage).encoding;

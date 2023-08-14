@@ -13,6 +13,7 @@
 #include "Images.h"
 #include "TextControls.h"
 
+#include "../eventsSDL/InputHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../render/IImage.h"
@@ -137,5 +138,8 @@ void RadialMenu::gesture(bool on, const Point & initialPosition, const Point & f
 	// we need to close this window first so if action spawns a new window it won't be closed instead
 	GH.windows().popWindows(1);
 	if (item)
+	{
+		GH.input().hapticFeedback();
 		item->callback();
+	}
 }

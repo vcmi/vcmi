@@ -335,7 +335,7 @@ struct DLL_LINKAGE SetAvailableHero : public CPackForClient
 {
 	SetAvailableHero()
 	{
-		army.clear();
+		army.clearSlots();
 	}
 	void applyGs(CGameState * gs);
 

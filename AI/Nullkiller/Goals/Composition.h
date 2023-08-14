@@ -18,16 +18,11 @@ namespace Goals
 	class DLL_EXPORT Composition : public ElementarGoal<Composition>
 	{
 	private:
-		TGoalVec subtasks;
+		std::vector<TGoalVec> subtasks; // things we want to do now
 
 	public:
 		Composition()
 			: ElementarGoal(Goals::COMPOSITION), subtasks()
-		{
-		}
-
-		Composition(TGoalVec subtasks)
-			: ElementarGoal(Goals::COMPOSITION), subtasks(subtasks)
 		{
 		}
 
@@ -36,6 +31,7 @@ namespace Goals
 		void accept(AIGateway * ai) override;
 		Composition & addNext(const AbstractGoal & goal);
 		Composition & addNext(TSubgoal goal);
+		Composition & addNextSequence(const TGoalVec & taskSequence);
 		virtual TGoalVec decompose() const override;
 		virtual bool isElementar() const override;
 		virtual int getHeroExchangeCount() const override;

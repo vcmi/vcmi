@@ -996,6 +996,12 @@ CBuilding::TRequired CGTownInstance::genBuildingRequirements(const BuildingID & 
 	std::function<CBuilding::TRequired::Variant(const BuildingID &)> dependTest =
 	[&](const BuildingID & id) -> CBuilding::TRequired::Variant
 	{
+		if (town->buildings.count(id) == 0)
+		{
+			logMod->error("Invalid building ID %d in building dependencies!", id.getNum());
+			return CBuilding::TRequired::OperatorAll();
+		}
+
 		const CBuilding * build = town->buildings.at(id);
 		CBuilding::TRequired::OperatorAll requirements;
 

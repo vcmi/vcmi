@@ -125,6 +125,7 @@ void HeroManager::update()
 	}
 
 	std::sort(myHeroes.begin(), myHeroes.end(), scoreSort);
+	heroRoles.clear();
 
 	for(auto hero : myHeroes)
 	{
@@ -180,6 +181,15 @@ float HeroManager::evaluateHero(const CGHeroInstance * hero) const
 	return evaluateFightingStrength(hero);
 }
 
+bool HeroManager::heroCapReached() const
+{
+	const bool includeGarnisoned = true;
+	int heroCount = cb->getHeroCount(ai->playerID, includeGarnisoned);
+
+	return heroCount >= ALLOWED_ROAMING_HEROES
+		|| heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
+}
+
 bool HeroManager::canRecruitHero(const CGTownInstance * town) const
 {
 	if(!town)
@@ -191,13 +201,7 @@ bool HeroManager::canRecruitHero(const CGTownInstance * town) const
 	if(cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST)
 		return false;
 
-	const bool includeGarnisoned = true;
-	int heroCount = cb->getHeroCount(ai->playerID, includeGarnisoned);
-
-	if(heroCount >= ALLOWED_ROAMING_HEROES)
-		return false;
-
-	if(heroCount >= VLC->settings()->getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
+	if(heroCapReached())
 		return false;
 
 	if(!cb->getAvailableHeroes(town).size())
@@ -223,6 +227,31 @@ const CGHeroInstance * HeroManager::findHeroWithGrail() const
 			return h;
 	}
 	return nullptr;
+}
+
+const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit) const
+{
+	const CGHeroInstance * weakestHero = nullptr;
+	auto myHeroes = ai->cb->getHeroesInfo();
+
+	for(auto existingHero : myHeroes)
+	{
+		if(ai->getHeroLockedReason(existingHero) == HeroLockedReason::DEFENCE
+			|| existingHero->getArmyStrength() >armyLimit
+			|| getHeroRole(existingHero) == HeroRole::MAIN
+			|| existingHero->movementPointsRemaining()
+			|| existingHero->artifactsWorn.size() > (existingHero->hasSpellbook() ? 2 : 1))
+		{
+			continue;
+		}
+
+		if(!weakestHero || weakestHero->getFightingStrength() > existingHero->getFightingStrength())
+		{
+			weakestHero = existingHero;
+		}
+	}
+
+	return weakestHero;
 }
 
 SecondarySkillScoreMap::SecondarySkillScoreMap(std::map<SecondarySkill, float> scoreMap)

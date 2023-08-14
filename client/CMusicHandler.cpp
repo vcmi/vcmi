@@ -14,6 +14,7 @@
 #include "CMusicHandler.h"
 #include "CGameInfo.h"
 #include "renderSDL/SDLRWwrapper.h"
+#include "gui/CGuiHandler.h"
 
 #include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
@@ -185,9 +186,9 @@ int CSoundHandler::playSound(std::string sound, int repeats, bool cache)
 				Mix_FreeChunk(chunk);
 		}
 		else if (cache)
-			callbacks[channel];
+			initCallback(channel);
 		else
-			callbacks[channel] = [chunk](){ Mix_FreeChunk(chunk);};
+			initCallback(channel, [chunk](){ Mix_FreeChunk(chunk);});
 	}
 	else
 		channel = -1;
@@ -237,28 +238,50 @@ void CSoundHandler::setChannelVolume(int channel, ui32 percent)
 
 void CSoundHandler::setCallback(int channel, std::function<void()> function)
 {
-	std::map<int, std::function<void()> >::iterator iter;
-	iter = callbacks.find(channel);
+	boost::unique_lock lockGuard(mutexCallbacks);
+
+	auto iter = callbacks.find(channel);
 
 	//channel not found. It may have finished so fire callback now
 	if(iter == callbacks.end())
 		function();
 	else
-		iter->second = function;
+		iter->second.push_back(function);
 }
 
 void CSoundHandler::soundFinishedCallback(int channel)
 {
-	std::map<int, std::function<void()> >::iterator iter;
-	iter = callbacks.find(channel);
-	if (iter == callbacks.end())
+	boost::unique_lock lockGuard(mutexCallbacks);
+
+	if (callbacks.count(channel) == 0)
 		return;
 
-	auto callback = std::move(iter->second);
-	callbacks.erase(iter);
+	// store callbacks from container locally - SDL might reuse this channel for another sound
+	// but do actualy execution in separate thread, to avoid potential deadlocks in case if callback requires locks of its own
+	auto callback = callbacks.at(channel);
+	callbacks.erase(channel);
 
-	if (callback)
-		callback();
+	if (!callback.empty())
+	{
+		GH.dispatchMainThread([callback](){
+			for (auto entry : callback)
+				entry();
+		});
+	}
+}
+
+void CSoundHandler::initCallback(int channel)
+{
+	boost::unique_lock lockGuard(mutexCallbacks);
+	assert(callbacks.count(channel) == 0);
+	callbacks[channel] = {};
+}
+
+void CSoundHandler::initCallback(int channel, const std::function<void()> & function)
+{
+	boost::unique_lock lockGuard(mutexCallbacks);
+	assert(callbacks.count(channel) == 0);
+	callbacks[channel].push_back(function);
 }
 
 int CSoundHandler::ambientGetRange() const
@@ -471,44 +494,32 @@ void CMusicHandler::setVolume(ui32 percent)
 
 void CMusicHandler::musicFinishedCallback()
 {
-	// boost::mutex::scoped_lock guard(mutex);
-	// FIXME: WORKAROUND FOR A POTENTIAL DEADLOCK
+	// call music restart in separate thread to avoid deadlock in some cases
 	// It is possible for:
 	// 1) SDL thread to call this method on end of playback
 	// 2) VCMI code to call queueNext() method to queue new file
 	// this leads to:
 	// 1) SDL thread waiting to acquire music lock in this method (while keeping internal SDL mutex locked)
 	// 2) VCMI thread waiting to acquire internal SDL mutex (while keeping music mutex locked)
-	// Because of that (and lack of clear way to fix that)
-	// We will try to acquire lock here and if failed - do nothing
-	// This may break music playback till next song is enqued but won't deadlock the game
 
-	if (!mutex.try_lock())
+	GH.dispatchMainThread([this]()
 	{
-		logGlobal->error("Failed to acquire mutex! Unable to restart music!");
-		return;
-	}
-
-	if (current.get() != nullptr)
-	{
-		// if music is looped, play it again
-		if (current->play())
+		boost::unique_lock lockGuard(mutex);
+		if (current.get() != nullptr)
 		{
-			mutex.unlock();
-			return;
+			// if music is looped, play it again
+			if (current->play())
+				return;
+			else
+				current.reset();
 		}
-		else
-		{
-			current.reset();
-		}
-	}
 
-	if (current.get() == nullptr && next.get() != nullptr)
-	{
-		current.reset(next.release());
-		current->play();
-	}
-	mutex.unlock();
+		if (current.get() == nullptr && next.get() != nullptr)
+		{
+			current.reset(next.release());
+			current->play();
+		}
+	});
 }
 
 MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped, bool fromStart):

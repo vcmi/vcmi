@@ -151,7 +151,7 @@
 						"message" : 170,
 						"resources" : [
 							{
-								"list" : [ "ore", "mercury", "gems", "sulfur", "crystal" ],
+								"anyOf" : [ "ore", "mercury", "gems", "sulfur", "crystal" ],
 								"min" : 3,
 								"max" : 6
 							}

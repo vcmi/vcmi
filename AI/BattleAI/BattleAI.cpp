@@ -251,7 +251,14 @@ BattleAction CBattleAI::selectStackAction(const CStack * stack)
 
 void CBattleAI::yourTacticPhase(int distance)
 {
-	cb->battleMakeUnitAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
+	cb->battleMakeTacticAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
+}
+
+uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start)
+{
+	auto end = std::chrono::high_resolution_clock::now();
+
+	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
 
 void CBattleAI::activeStack( const CStack * stack )
@@ -260,6 +267,8 @@ void CBattleAI::activeStack( const CStack * stack )
 
 	BattleAction result = BattleAction::makeDefend(stack);
 	setCbc(cb); //TODO: make solid sure that AIs always use their callbacks (need to take care of event handlers too)
+
+	auto start = std::chrono::high_resolution_clock::now();
 
 	try
 	{
@@ -275,6 +284,8 @@ void CBattleAI::activeStack( const CStack * stack )
 		}
 
 		attemptCastingSpell();
+
+		logAi->trace("Spellcast attempt completed in %lld", timeElapsed(start));
 
 		if(cb->battleIsFinished() || !stack->alive())
 		{
@@ -311,6 +322,8 @@ void CBattleAI::activeStack( const CStack * stack )
 	{
 		movesSkippedByDefense = 0;
 	}
+
+	logAi->trace("BattleAI decission made in %lld", timeElapsed(start));
 
 	cb->battleMakeUnitAction(result);
 }
@@ -494,7 +507,12 @@ void CBattleAI::attemptCastingSpell()
 	{
 		spells::BattleCast temp(cb.get(), hero, spells::Mode::HERO, spell);
 
-		for(auto & target : temp.findPotentialTargets())
+		if(!spell->isDamage() && spell->getTargetType() == spells::AimType::LOCATION)
+			continue;
+		
+		const bool FAST = true;
+
+		for(auto & target : temp.findPotentialTargets(FAST))
 		{
 			PossibleSpellcast ps;
 			ps.dest = target;
@@ -826,7 +844,7 @@ void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcas
 	ps.value = totalGain;
 }
 
-void CBattleAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side)
+void CBattleAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side, bool replayAllowed)
 {
 	LOG_TRACE(logAi);
 	side = Side;
@@ -863,7 +881,7 @@ std::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 
 	bs.turnsSkippedByDefense = movesSkippedByDefense / bs.ourStacks.size();
 
-	if(!bs.canFlee || !bs.canSurrender)
+	if(!bs.canFlee && !bs.canSurrender)
 	{
 		return std::nullopt;
 	}

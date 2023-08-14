@@ -313,7 +313,7 @@ void CGeneralTextHandler::registerStringOverride(const std::string & modContext,
 	assert(!modContext.empty());
 	assert(!language.empty());
 
-	// NOTE: implicitly creates entry, intended - strings added by vcmi (and potential UI mods) are not registered anywhere at the moment
+	// NOTE: implicitly creates entry, intended - strings added by maps, campaigns, vcmi and potentially - UI mods are not registered anywhere at the moment
 	auto & entry = stringsLocalizations[UID.get()];
 
 	entry.overrideLanguage = language;
@@ -336,6 +336,9 @@ bool CGeneralTextHandler::validateTranslation(const std::string & language, cons
 
 		if (string.second.baseLanguage == language && !string.second.baseValue.empty())
 			continue; // Base string already uses our language
+
+		if (string.second.baseLanguage.empty())
+			continue; // String added in localization, not present in base language (e.g. maps/campaigns)
 
 		if (config.Struct().count(string.first) > 0)
 			continue;

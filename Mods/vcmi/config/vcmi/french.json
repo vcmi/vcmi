@@ -168,7 +168,6 @@
 	"vcmi.questLog.hideComplete.hover" : "Masquer les quêtes terminées",
 	"vcmi.questLog.hideComplete.help"  : "Masquer toutes les quêtes terminées",
 
-	"vcmi.randomMapTab.widgets.defaultTemplate"      : "(par défaut)",
 	"vcmi.randomMapTab.widgets.templateLabel"        : "Modèle",
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Configuration...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Alignements d'équipe",

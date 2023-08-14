@@ -88,6 +88,8 @@ template<typename T> class CApplyOnLobby : public CBaseForLobbyApply
 public:
 	bool applyOnLobbyHandler(CServerHandler * handler, void * pack) const override
 	{
+		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+
 		T * ptr = static_cast<T *>(pack);
 		ApplyOnLobbyHandlerNetPackVisitor visitor(*handler);
 
@@ -572,7 +574,16 @@ void CServerHandler::sendRestartGame() const
 
 void CServerHandler::sendStartGame(bool allowOnlyAI) const
 {
-	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
+	try
+	{
+		verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
+	}
+	catch (const std::exception & e)
+	{
+		showServerError( std::string("Unable to start map! Reason: ") + e.what());
+		return;
+	}
+
 	LobbyStartGame lsg;
 	if(client)
 	{
@@ -696,7 +707,7 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> cs)
 	});
 }
 
-void CServerHandler::showServerError(std::string txt)
+void CServerHandler::showServerError(std::string txt) const
 {
 	CInfoWindow::showInfoDialog(txt, {});
 }
@@ -865,8 +876,11 @@ void CServerHandler::threadHandleConnection()
 		}
 		else
 		{
-			logNetwork->error("Lost connection to server, ending listening thread!");
-			logNetwork->error(e.what());
+			if (e.code() == boost::asio::error::eof)
+				logNetwork->error("Lost connection to server, ending listening thread! Connection has been closed");
+			else
+				logNetwork->error("Lost connection to server, ending listening thread! Reason: %s", e.what());
+
 			if(client)
 			{
 				state = EClientState::DISCONNECTING;

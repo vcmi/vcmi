@@ -20,6 +20,9 @@ class CStupidAI : public CBattleGameInterface
 	std::shared_ptr<CBattleCallback> cb;
 	std::shared_ptr<Environment> env;
 
+	bool wasWaitingForRealize;
+	bool wasUnlockingGs;
+
 	void print(const std::string &text) const;
 public:
 	CStupidAI();
@@ -41,7 +44,7 @@ public:
 	void battleSpellCast(const BattleSpellCast *sc) override;
 	void battleStacksEffectsSet(const SetStackEffect & sse) override;//called when a specific effect is set to stacks
 	//void battleTriggerEffect(const BattleTriggerEffect & bte) override;
-	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override; //called by engine when battle starts; side=0 - left, side=1 - right
+	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed) override; //called by engine when battle starts; side=0 - left, side=1 - right
 	void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
 
 private:

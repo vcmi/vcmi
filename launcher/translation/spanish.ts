@@ -406,166 +406,170 @@
 <context>
     <name>CSettingsView</name>
     <message>
-        <source>Open</source>
-        <translation type="vanished">Abrir</translation>
-    </message>
-    <message>
-        <source>User data directory</source>
-        <translation type="vanished">Directorio de datos del usuario</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="190"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="245"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="262"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="302"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="370"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="408"/>
         <source>Off</source>
         <translation>Desactivado</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="79"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="563"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="579"/>
         <source>Artificial Intelligence</source>
         <translation>Inteligencia Artificial</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="84"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="179"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="434"/>
         <source>Mod Repositories</source>
         <translation>Repositorios de Mods</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="448"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="498"/>
         <source>Interface Scaling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="398"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="491"/>
         <source>Neutral AI in battles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="203"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="421"/>
         <source>Enemy AI in battles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="509"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="441"/>
         <source>Additional repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="482"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="566"/>
         <source>Adventure Map Allies</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="441"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="281"/>
         <source>Adventure Map Enemies</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="316"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="623"/>
         <source>Windowed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="321"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="628"/>
         <source>Borderless fullscreen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="326"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="633"/>
         <source>Exclusive fullscreen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="530"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="170"/>
+        <source>Autosave limit (0 = off)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="525"/>
         <source>Friendly AI in battles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="590"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="271"/>
         <source>Framerate Limit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="523"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="328"/>
+        <source>Autosave prefix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="603"/>
+        <source>empty = map name prefix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="383"/>
         <source>Refresh now</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="234"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="288"/>
         <source>Default repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Update now</source>
-        <translation type="vanished">Actualizar ahora</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="195"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="250"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="267"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="307"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="375"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="413"/>
         <source>On</source>
         <translation>Encendido</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="455"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="359"/>
         <source>Cursor</source>
         <translation>Cursor</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="227"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="397"/>
         <source>Heroes III Translation</source>
         <translation>Traducción de Heroes III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="537"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="641"/>
+        <source>Reserved screen area</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="177"/>
         <source>Fullscreen</source>
         <translation>Pantalla completa</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="69"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="414"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="197"/>
         <source>General</source>
         <translation>General</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="344"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="532"/>
         <source>VCMI Language</source>
         <translation>Idioma de VCMI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="421"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="335"/>
         <source>Resolution</source>
         <translation>Resolución</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="550"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="204"/>
         <source>Autosave</source>
         <translation>Autoguardado</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="282"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="146"/>
         <source>Display index</source>
         <translation>Mostrar índice</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="166"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="184"/>
         <source>Network port</source>
         <translation>Puerto de red</translation>
     </message>
     <message>
-        <source>Data Directories</source>
-        <translation type="vanished">Directorios de datos</translation>
-    </message>
-    <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="74"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="125"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="321"/>
         <source>Video</source>
         <translation>Vídeo</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="303"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="610"/>
         <source>Select display mode for game
 
 Windowed - game will run inside a window that covers part of your screen
@@ -576,60 +580,52 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="290"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="212"/>
         <source>Hardware</source>
         <translation>Hardware</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="295"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="217"/>
         <source>Software</source>
         <translation>Software</translation>
     </message>
     <message>
-        <source>Log files directory</source>
-        <translation type="vanished">Directorio de archivos de registro</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="364"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="225"/>
         <source>Show intro</source>
         <translation>Mostrar introducción</translation>
     </message>
     <message>
-        <source>Build version</source>
-        <translation type="vanished">Versión</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="516"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="542"/>
         <source>Check on startup</source>
         <translation>Comprovar al inicio</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="475"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="481"/>
         <source>Heroes III Data Language</source>
         <translation>Idioma de los datos de Heroes III.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="401"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="405"/>
         <source>Active</source>
         <translation>Activado</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="406"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="410"/>
         <source>Disabled</source>
         <translation>Desactivado</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="407"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="411"/>
         <source>Enable</source>
         <translation>Activar</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="412"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="416"/>
         <source>Not Installed</source>
         <translation>No Instalado</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="413"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="417"/>
         <source>Install</source>
         <translation>Instalar</translation>
     </message>
@@ -791,10 +787,6 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
         <translation>Traducción de Heroes III.</translation>
     </message>
     <message>
-        <source>High Definition Support</source>
-        <translation type="vanished">Soporte para resoluciones en Alta Definición</translation>
-    </message>
-    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="724"/>
         <source>In The Wake of Gods</source>
         <translation>In The Wake of Gods</translation>
@@ -808,10 +800,6 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="756"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
         <translation>Opcionalmente, puedes instalar mods adicionales ya sea ahora o en cualquier momento posterior, utilizando el lanzador de VCMI.</translation>
-    </message>
-    <message>
-        <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
-        <translation type="vanished">Instalar soporte para jugar Heroes III en resoluciones superiores a 800x600</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
@@ -921,21 +909,26 @@ Ten en cuenta que para usar VCMI debes ser dueño de los archivos de datos origi
     </message>
     <message>
         <location filename="../languages.cpp" line="39"/>
+        <source>Vietnamese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="40"/>
         <source>Other (East European)</source>
         <translation>Otro (Europa del Este)</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="40"/>
+        <location filename="../languages.cpp" line="41"/>
         <source>Other (Cyrillic Script)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="41"/>
+        <location filename="../languages.cpp" line="42"/>
         <source>Other (West European)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="63"/>
+        <location filename="../languages.cpp" line="64"/>
         <source>Auto (%1)</source>
         <translation>Automático (%1)</translation>
     </message>

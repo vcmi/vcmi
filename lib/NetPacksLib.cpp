@@ -38,6 +38,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+#define THROW_IF_NO_BATTLE if (!gs->curB) throw std::runtime_error("Trying to apply pack when no battle!");
+
 void CPack::visit(ICPackVisitor & visitor)
 {
 	visitBasic(visitor);
@@ -1382,26 +1384,14 @@ void HeroRecruited::applyGs(CGameState * gs) const
 		auto * boat = dynamic_cast<CGBoat *>(obj);
 		if (boat)
 		{
-			h->boat = boat;
-			h->attachTo(*boat);
-			boat->hero = h;
+			gs->map->removeBlockVisTiles(boat);
+			h->attachToBoat(boat);
 		}
 	}
 
 	h->setOwner(player);
 	h->pos = tile;
-	bool fresh = !h->isInitialized();
-	if(fresh)
-	{ // this is a fresh hero who hasn't appeared yet
-		if (boatId >= 0) //Hero spawns on water
-		{
-			h->setMovementPoints(h->movementPointsLimit(false));
-		}
-		else
-		{
-			h->setMovementPoints(h->movementPointsLimit(true));
-		}
-	}
+	h->initObj(gs->getRandomGenerator());
 
 	if(h->id == ObjectInstanceID())
 	{
@@ -1414,16 +1404,10 @@ void HeroRecruited::applyGs(CGameState * gs) const
 	gs->map->heroesOnMap.emplace_back(h);
 	p->heroes.emplace_back(h);
 	h->attachTo(*p);
-	if(fresh)
-	{
-		h->initObj(gs->getRandomGenerator());
-	}
 	gs->map->addBlockVisTiles(h);
 
 	if(t)
-	{
 		t->setVisitingHero(h);
-	}
 }
 
 void GiveHero::applyGs(CGameState * gs) const
@@ -1436,9 +1420,8 @@ void GiveHero::applyGs(CGameState * gs) const
 		auto * boat = dynamic_cast<CGBoat *>(obj);
 		if (boat)
 		{
-			h->boat = boat;
-			h->attachTo(*boat);
-			boat->hero = h;
+			gs->map->removeBlockVisTiles(boat);
+			h->attachToBoat(boat);
 		}
 	}
 
@@ -2146,16 +2129,19 @@ void BattleStart::applyGs(CGameState * gs) const
 
 void BattleNextRound::applyGs(CGameState * gs) const
 {
+	THROW_IF_NO_BATTLE
 	gs->curB->nextRound(round);
 }
 
 void BattleSetActiveStack::applyGs(CGameState * gs) const
 {
+	THROW_IF_NO_BATTLE
 	gs->curB->nextTurn(stack);
 }
 
 void BattleTriggerEffect::applyGs(CGameState * gs) const
 {
+	THROW_IF_NO_BATTLE
 	CStack * st = gs->curB->getStack(stackID);
 	assert(st);
 	switch(static_cast<BonusType>(effect))
@@ -2208,19 +2194,25 @@ void BattleResultAccepted::applyGs(CGameState * gs) const
 			res.hero->removeBonusesRecursive(Bonus::OneBattle);
 	}
 
-	// Grow up growing artifacts
-	if(const auto hero = heroResult[winnerSide].hero)
+	if(winnerSide != 2)
 	{
-		if(hero->commander && hero->commander->alive)
+		// Grow up growing artifacts
+		const auto hero = heroResult[winnerSide].hero;
+
+		if (hero)
 		{
-			for(auto & art : hero->commander->artifactsWorn)
+			if(hero->commander && hero->commander->alive)
+			{
+				for(auto & art : hero->commander->artifactsWorn)
+					art.second.artifact->growingUp();
+			}
+			for(auto & art : hero->artifactsWorn)
+			{
 				art.second.artifact->growingUp();
-		}
-		for(auto & art : hero->artifactsWorn)
-		{
-			art.second.artifact->growingUp();
+			}
 		}
 	}
+
 	if(VLC->settings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
 		if(heroResult[0].army)
@@ -2245,6 +2237,7 @@ void BattleLogMessage::applyBattle(IBattleState * battleState)
 
 void BattleStackMoved::applyGs(CGameState *gs)
 {
+	THROW_IF_NO_BATTLE
 	applyBattle(gs->curB);
 }
 
@@ -2255,6 +2248,7 @@ void BattleStackMoved::applyBattle(IBattleState * battleState)
 
 void BattleStackAttacked::applyGs(CGameState * gs)
 {
+	THROW_IF_NO_BATTLE
 	applyBattle(gs->curB);
 }
 
@@ -2265,6 +2259,7 @@ void BattleStackAttacked::applyBattle(IBattleState * battleState)
 
 void BattleAttack::applyGs(CGameState * gs)
 {
+	THROW_IF_NO_BATTLE
 	CStack * attacker = gs->curB->getStack(stackAttacking);
 	assert(attacker);
 
@@ -2278,6 +2273,8 @@ void BattleAttack::applyGs(CGameState * gs)
 
 void StartAction::applyGs(CGameState *gs)
 {
+	THROW_IF_NO_BATTLE
+
 	CStack *st = gs->curB->getStack(ba.stackNumber);
 
 	if(ba.actionType == EActionType::END_TACTIC_PHASE)
@@ -2326,7 +2323,7 @@ void StartAction::applyGs(CGameState *gs)
 
 void BattleSpellCast::applyGs(CGameState * gs) const
 {
-	assert(gs->curB);
+	THROW_IF_NO_BATTLE
 
 	if(castByHero)
 	{
@@ -2339,6 +2336,7 @@ void BattleSpellCast::applyGs(CGameState * gs) const
 
 void SetStackEffect::applyGs(CGameState *gs)
 {
+	THROW_IF_NO_BATTLE
 	applyBattle(gs->curB);
 }
 
@@ -2357,6 +2355,7 @@ void SetStackEffect::applyBattle(IBattleState * battleState)
 
 void StacksInjured::applyGs(CGameState *gs)
 {
+	THROW_IF_NO_BATTLE
 	applyBattle(gs->curB);
 }
 
@@ -2368,6 +2367,7 @@ void StacksInjured::applyBattle(IBattleState * battleState)
 
 void BattleUnitsChanged::applyGs(CGameState *gs)
 {
+	THROW_IF_NO_BATTLE
 	applyBattle(gs->curB);
 }
 
@@ -2398,8 +2398,8 @@ void BattleUnitsChanged::applyBattle(IBattleState * battleState)
 
 void BattleObstaclesChanged::applyGs(CGameState * gs)
 {
-	if(gs->curB)
-		applyBattle(gs->curB);
+	THROW_IF_NO_BATTLE;
+	applyBattle(gs->curB);
 }
 
 void BattleObstaclesChanged::applyBattle(IBattleState * battleState)
@@ -2430,8 +2430,8 @@ CatapultAttack::~CatapultAttack() = default;
 
 void CatapultAttack::applyGs(CGameState * gs)
 {
-	if(gs->curB)
-		applyBattle(gs->curB);
+	THROW_IF_NO_BATTLE
+	applyBattle(gs->curB);
 }
 
 void CatapultAttack::visitTyped(ICPackVisitor & visitor)
@@ -2457,6 +2457,7 @@ void CatapultAttack::applyBattle(IBattleState * battleState)
 
 void BattleSetStackProperty::applyGs(CGameState * gs) const
 {
+	THROW_IF_NO_BATTLE
 	CStack * stack = gs->curB->getStack(stackID);
 	switch(which)
 	{

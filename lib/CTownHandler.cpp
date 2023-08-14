@@ -110,7 +110,11 @@ void CBuilding::addNewBonus(const std::shared_ptr<Bonus> & b, BonusList & bonusL
 
 CFaction::~CFaction()
 {
-	delete town;
+	if (town)
+	{
+		delete town;
+		town = nullptr;
+	}
 }
 
 int32_t CFaction::getIndex() const
@@ -595,7 +599,8 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 	if(ret->bid == BuildingID::NONE && !source["id"].isNull())
 	{
-		logMod->warn("Building %s: id field is deprecated", stringID);
+		// FIXME: A lot of false-positives with no clear way to handle them in mods
+		//logMod->warn("Building %s: id field is deprecated", stringID);
 		ret->bid = source["id"].isNull() ? BuildingID(BuildingID::NONE) : BuildingID(source["id"].Float());
 	}
 
@@ -1028,7 +1033,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	faction->creatureBg120 = source["creatureBackground"]["120px"].String();
 	faction->creatureBg130 = source["creatureBackground"]["130px"].String();
 
-	faction->boatType = EBoatId::NONE;
+	faction->boatType = EBoatId::CASTLE; //Do not crash
 	if (!source["boat"].isNull())
 	{
 		VLC->modh->identifiers.requestIdentifier("core:boat", source["boat"], [=](int32_t boatTypeID)
@@ -1178,11 +1183,19 @@ void CTownHandler::initializeRequirements()
 		{
 			if (node.Vector().size() > 1)
 			{
-				logMod->warn("Unexpected length of town buildings requirements: %d", node.Vector().size());
-				logMod->warn("Entry contains: ");
-				logMod->warn(node.toJson());
+				logMod->error("Unexpected length of town buildings requirements: %d", node.Vector().size());
+				logMod->error("Entry contains: ");
+				logMod->error(node.toJson());
 			}
-			return BuildingID(VLC->modh->identifiers.getIdentifier(requirement.town->getBuildingScope(), node.Vector()[0]).value());
+
+			auto index = VLC->modh->identifiers.getIdentifier(requirement.town->getBuildingScope(), node[0]);
+
+			if (!index.has_value())
+			{
+				logMod->error("Unknown building in town buildings: %s", node[0].String());
+				return BuildingID::NONE;
+			}
+			return BuildingID(index.value());
 		});
 	}
 	requirementsToLoad.clear();

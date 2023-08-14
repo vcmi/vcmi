@@ -40,6 +40,7 @@
 #include "../lib/CCreatureHandler.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CStack.h"
+#include "../lib/UnlockGuard.h"
 #include "../lib/GameSettings.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/CondSh.h"
@@ -76,6 +77,7 @@
 #define COMPLAIN_RETF(txt, FORMAT) {complain(boost::str(boost::format(txt) % FORMAT)); return false;}
 
 CondSh<bool> battleMadeAction(false);
+boost::recursive_mutex battleActionMutex;
 CondSh<BattleResult *> battleResult(nullptr);
 template <typename T> class CApplyOnGH;
 
@@ -108,10 +110,6 @@ public:
 		{
             (void)e;
 			return false;
-		}
-		catch(...)
-		{
-			throw;
 		}
 	}
 };
@@ -611,9 +609,15 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 	const int queriedPlayers = battleQuery ? (int)boost::count(queries.allQueries(), battleQuery) : 0;
 	finishingBattle = std::make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
 	
-	auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(this, gs->curB);
-	battleResult.data->queryID = battleDialogQuery->queryID;
-	queries.addQuery(battleDialogQuery);
+	// in battles against neutrals, 1st player can ask to replay battle manually
+	if (!gs->curB->sides[1].color.isValidPlayer())
+	{
+		auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(this, gs->curB);
+		battleResult.data->queryID = battleDialogQuery->queryID;
+		queries.addQuery(battleDialogQuery);
+	}
+	else
+		battleResult.data->queryID = -1;
 	
 	//set same battle result for all queries
 	for(auto q : queries.allQueries())
@@ -624,6 +628,9 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 	}
 	
 	sendAndApply(battleResult.data); //after this point casualties objects are destroyed
+
+	if (battleResult.data->queryID == -1)
+		endBattleConfirm(gs->curB);
 }
 
 void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
@@ -635,11 +642,9 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 		return;
 	}
 	
-	const CArmedInstance *bEndArmy1 = battleInfo->sides.at(0).armyObject;
-	const CArmedInstance *bEndArmy2 = battleInfo->sides.at(1).armyObject;
 	const BattleResult::EResult result = battleResult.get()->result;
 	
-	CasualtiesAfterBattle cab1(bEndArmy1, battleInfo), cab2(bEndArmy2, battleInfo); //calculate casualties before deleting battle
+	CasualtiesAfterBattle cab1(battleInfo->sides.at(0), battleInfo), cab2(battleInfo->sides.at(1), battleInfo); //calculate casualties before deleting battle
 	ChangeSpells cs; //for Eagle Eye
 
 	if(!finishingBattle->isDraw() && finishingBattle->winnerHero)
@@ -816,8 +821,8 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 		changePrimSkill(finishingBattle->winnerHero, PrimarySkill::EXPERIENCE, battleResult.data->exp[finishingBattle->winnerSide]);
 	
 	BattleResultAccepted raccepted;
-	raccepted.heroResult[0].army = const_cast<CArmedInstance*>(bEndArmy1);
-	raccepted.heroResult[1].army = const_cast<CArmedInstance*>(bEndArmy2);
+	raccepted.heroResult[0].army = const_cast<CArmedInstance*>(battleInfo->sides.at(0).armyObject);
+	raccepted.heroResult[1].army = const_cast<CArmedInstance*>(battleInfo->sides.at(1).armyObject);
 	raccepted.heroResult[0].hero = const_cast<CGHeroInstance*>(battleInfo->sides.at(0).hero);
 	raccepted.heroResult[1].hero = const_cast<CGHeroInstance*>(battleInfo->sides.at(1).hero);
 	raccepted.heroResult[0].exp = battleResult.data->exp[0];
@@ -2119,11 +2124,18 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 
 	BattleField terType = gs->battleGetBattlefieldType(tile, getRandomGenerator());
 	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
-		terType = BattleField::fromString("ship_to_ship");
+		terType = BattleField(*VLC->modh->identifiers.getIdentifier("core", "battlefield.ship_to_ship"));
 
 	//send info about battles
 	BattleStart bs;
 	bs.info = BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
+
+	engageIntoBattle(bs.info->sides[0].color);
+	engageIntoBattle(bs.info->sides[1].color);
+
+	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(queries.topQuery(bs.info->sides[0].color));
+	bs.info->replayAllowed = lastBattleQuery == nullptr && !bs.info->sides[1].color.isValidPlayer();
+
 	sendAndApply(&bs);
 }
 
@@ -2583,9 +2595,6 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 	if(gs->curB)
 		gs->curB.dellNull();
 	
-	engageIntoBattle(army1->tempOwner);
-	engageIntoBattle(army2->tempOwner);
-
 	static const CArmedInstance *armies[2];
 	armies[0] = army1;
 	armies[1] = army2;
@@ -2593,39 +2602,39 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 	heroes[0] = hero1;
 	heroes[1] = hero2;
 
-
 	setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 
+	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(queries.topQuery(gs->curB->sides[0].color));
+
 	//existing battle query for retying auto-combat
-	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(queries.topQuery(gs->curB->sides[0].color));
-	if(battleQuery)
+	if(lastBattleQuery)
 	{
 		for(int i : {0, 1})
 		{
 			if(heroes[i])
 			{
 				SetMana restoreInitialMana;
-				restoreInitialMana.val = battleQuery->initialHeroMana[i];
+				restoreInitialMana.val = lastBattleQuery->initialHeroMana[i];
 				restoreInitialMana.hid = heroes[i]->id;
 				sendAndApply(&restoreInitialMana);
 			}
 		}
 		
-		battleQuery->bi = gs->curB;
-		battleQuery->result = std::nullopt;
-		battleQuery->belligerents[0] = gs->curB->sides[0].armyObject;
-		battleQuery->belligerents[1] = gs->curB->sides[1].armyObject;
+		lastBattleQuery->bi = gs->curB;
+		lastBattleQuery->result = std::nullopt;
+		lastBattleQuery->belligerents[0] = gs->curB->sides[0].armyObject;
+		lastBattleQuery->belligerents[1] = gs->curB->sides[1].armyObject;
 	}
 
-	battleQuery = std::make_shared<CBattleQuery>(this, gs->curB);
+	auto nextBattleQuery = std::make_shared<CBattleQuery>(this, gs->curB);
 	for(int i : {0, 1})
 	{
 		if(heroes[i])
 		{
-			battleQuery->initialHeroMana[i] = heroes[i]->mana;
+			nextBattleQuery->initialHeroMana[i] = heroes[i]->mana;
 		}
 	}
-	queries.addQuery(battleQuery);
+	queries.addQuery(nextBattleQuery);
 
 	this->battleThread = std::make_unique<boost::thread>(boost::thread(&CGameHandler::runBattle, this));
 }
@@ -2935,7 +2944,7 @@ bool CGameHandler::load(const std::string & filename)
 	try
 	{
 		{
-			CLoadFile lf(*CResourceHandler::get("local")->getResourceName(ResourceID(stem.to_string(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
+			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourceID(stem.to_string(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
 			loadCommonState(lf);
 			logGlobal->info("Loading server state");
 			lf >> *this;
@@ -4387,6 +4396,8 @@ void CGameHandler::updateGateState()
 
 bool CGameHandler::makeBattleAction(BattleAction &ba)
 {
+	boost::unique_lock lock(battleActionMutex);
+
 	bool ok = true;
 
 	battle::Target target = ba.getTarget(gs->curB);
@@ -4810,6 +4821,8 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 bool CGameHandler::makeCustomAction(BattleAction & ba)
 {
+	boost::unique_lock lock(battleActionMutex);
+
 	switch(ba.actionType)
 	{
 	case EActionType::HERO_SPELL:
@@ -6041,6 +6054,8 @@ bool CGameHandler::swapStacks(const StackLocation & sl1, const StackLocation & s
 
 void CGameHandler::runBattle()
 {
+	boost::unique_lock lock(battleActionMutex);
+
 	setBattle(gs->curB);
 	assert(gs->curB);
 	//TODO: pre-tactic stuff, call scripts etc.
@@ -6059,7 +6074,10 @@ void CGameHandler::runBattle()
 	//tactic round
 	{
 		while ((lobby->state != EServerState::SHUTDOWN) && gs->curB->tacticDistance && !battleResult.get())
+		{
+			auto unlockGuard = vstd::makeUnlockGuard(battleActionMutex);
 			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		}
 	}
 
 	//initial stacks appearance triggers, e.g. built-in bonus spells
@@ -6382,7 +6400,10 @@ void CGameHandler::runBattle()
 						battleMadeAction.data = false;
 						while ((lobby->state != EServerState::SHUTDOWN) && !actionWasMade())
 						{
-							battleMadeAction.cond.wait(lock);
+							{
+								auto unlockGuard = vstd::makeUnlockGuard(battleActionMutex);
+								battleMadeAction.cond.wait(lock);
+							}
 							if (battleGetStackByID(nextId, false) != next)
 								next = nullptr; //it may be removed, while we wait
 						}
@@ -6443,6 +6464,8 @@ void CGameHandler::runBattle()
 
 bool CGameHandler::makeAutomaticAction(const CStack *stack, BattleAction &ba)
 {
+	boost::unique_lock lock(battleActionMutex);
+
 	BattleSetActiveStack bsa;
 	bsa.stack = stack->unitId();
 	bsa.askPlayerInterface = false;
@@ -6684,14 +6707,12 @@ void CGameHandler::showInfoDialog(const std::string & msg, PlayerColor player)
 	showInfoDialog(&iw);
 }
 
-CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, const BattleInfo * bat):
-	army(_army)
+CasualtiesAfterBattle::CasualtiesAfterBattle(const SideInBattle & battleSide, const BattleInfo * bat):
+	army(battleSide.armyObject)
 {
 	heroWithDeadCommander = ObjectInstanceID();
 
-	PlayerColor color = army->tempOwner;
-	if(color == PlayerColor::UNFLAGGABLE)
-		color = PlayerColor::NEUTRAL;
+	PlayerColor color = battleSide.color;
 
 	for(CStack * st : bat->stacks)
 	{

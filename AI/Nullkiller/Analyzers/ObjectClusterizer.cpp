@@ -227,7 +227,12 @@ void ObjectClusterizer::clusterize()
 			auto obj = objs[i];
 
 			if(!shouldVisitObject(obj))
-				return;
+			{
+#if NKAI_TRACE_LEVEL >= 2
+				logAi->trace("Skip object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
+#endif
+				continue;
+			}
 
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Check object %s%s.", obj->getObjectName(), obj->visitablePos().toString());

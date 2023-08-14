@@ -127,13 +127,26 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas)
 {
 	//Blit absolute obstacles
-	for(auto & oi : owner.curInt->cb->battleGetAllObstacles())
+	for(auto & obstacle : owner.curInt->cb->battleGetAllObstacles())
 	{
-		if(oi->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
+		if(obstacle->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 		{
-			auto img = getObstacleImage(*oi);
+			auto img = getObstacleImage(*obstacle);
 			if(img)
-				canvas.draw(img, Point(oi->getInfo().width, oi->getInfo().height));
+				canvas.draw(img, Point(obstacle->getInfo().width, obstacle->getInfo().height));
+		}
+
+		if (obstacle->obstacleType == CObstacleInstance::USUAL)
+		{
+			if (obstacle->getInfo().isForegroundObstacle)
+				continue;
+
+			auto img = getObstacleImage(*obstacle);
+			if(img)
+			{
+				Point p = getObstaclePosition(img, *obstacle);
+				canvas.draw(img, p);
+			}
 		}
 	}
 }
@@ -148,11 +161,10 @@ void BattleObstacleController::collectRenderableObjects(BattleRenderer & rendere
 		if (obstacle->obstacleType == CObstacleInstance::MOAT)
 			continue;
 
-		bool isForeground = obstacle->obstacleType == CObstacleInstance::USUAL && obstacle->getInfo().isForegroundObstacle;
+		if (obstacle->obstacleType == CObstacleInstance::USUAL && !obstacle->getInfo().isForegroundObstacle)
+			continue;
 
-		auto layer = isForeground ? EBattleFieldLayer::OBSTACLES_FG : EBattleFieldLayer::OBSTACLES_BG;
-
-		renderer.insert(layer, obstacle->pos, [this, obstacle]( BattleRenderer::RendererRef canvas ){
+		renderer.insert(EBattleFieldLayer::OBSTACLES, obstacle->pos, [this, obstacle]( BattleRenderer::RendererRef canvas ){
 			auto img = getObstacleImage(*obstacle);
 			if(img)
 			{

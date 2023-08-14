@@ -89,14 +89,15 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator & rand)
 				artifactToReplace->getObjectName(),
 				artifactToReplace->getPosition().toString(),
 				VLC->artifacts()->getById(artifactToPlace)->getNameTranslated());
-			artifactToReplace->ID = Obj::ARTIFACT;
-			artifactToReplace->subID = artifactToPlace;
 
 			//Update appearance. Terrain is irrelevant.
 			auto handler = VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, artifactToPlace);
+			auto newObj = handler->create();
 			auto templates = handler->getTemplates();
-			artifactToReplace->appearance = templates.front();
-			//FIXME: Instance name is still "randomArtifact"
+			//artifactToReplace->appearance = templates.front();
+			newObj->appearance  = templates.front();
+			newObj->pos = artifactToReplace->pos;
+			mapProxy->insertObject(newObj);
 
 			for (auto z : map.getZones())
 			{
@@ -107,6 +108,7 @@ void QuestArtifactPlacer::placeQuestArtifacts(CRandomGenerator & rand)
 					localQap->dropReplacedArtifact(artifactToReplace);
 				}
 			}
+			mapProxy->removeObject(artifactToReplace);
 			break;
 		}
 	}

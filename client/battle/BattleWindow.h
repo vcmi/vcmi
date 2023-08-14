@@ -79,14 +79,21 @@ public:
 	void hideQueue();
 	void showQueue();
 
+	/// Toggle permanent hero info windows visibility (HD mod feature)
 	void hideStickyHeroWindows();
 	void showStickyHeroWindows();
+
+	/// Event handler for netpack changing hero mana points
+	void heroManaPointsChanged(const CGHeroInstance * hero);
 
 	/// block all UI elements when player is not allowed to act, e.g. during enemy turn
 	void blockUI(bool on);
 
 	/// Refresh queue after turn order changes
 	void updateQueue();
+
+	/// Refresh sticky variant of hero info window after spellcast, side same as in BattleSpellCast::side
+	void updateHeroInfoWindow(uint8_t side, const InfoAboutHero & hero);
 
 	/// Get mouse-hovered battle queue unit ID if any found
 	std::optional<uint32_t> getQueueHoveredUnitId();

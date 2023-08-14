@@ -31,8 +31,6 @@ namespace Cursor
 	};
 
 	enum class Combat {
-		INVALID        = -1,
-
 		BLOCKED        = 0,
 		MOVE           = 1,
 		FLY            = 2,
@@ -157,12 +155,16 @@ public:
 	template<typename Index>
 	Index get()
 	{
-		assert((std::is_same<Index, Cursor::Default>::value   )|| type != Cursor::Type::DEFAULT );
-		assert((std::is_same<Index, Cursor::Map>::value       )|| type != Cursor::Type::ADVENTURE );
-		assert((std::is_same<Index, Cursor::Combat>::value    )|| type != Cursor::Type::COMBAT );
-		assert((std::is_same<Index, Cursor::Spellcast>::value )|| type != Cursor::Type::SPELLBOOK );
+		bool typeValid = true;
 
-		return static_cast<Index>(frame);
+		typeValid &= (std::is_same<Index, Cursor::Default>::value   )|| type != Cursor::Type::DEFAULT;
+		typeValid &= (std::is_same<Index, Cursor::Map>::value       )|| type != Cursor::Type::ADVENTURE;
+		typeValid &= (std::is_same<Index, Cursor::Combat>::value    )|| type != Cursor::Type::COMBAT;
+		typeValid &= (std::is_same<Index, Cursor::Spellcast>::value )|| type != Cursor::Type::SPELLBOOK;
+
+		if (typeValid)
+			return static_cast<Index>(frame);
+		return Index::POINTER;
 	}
 
 	Point getPivotOffsetDefault(size_t index);

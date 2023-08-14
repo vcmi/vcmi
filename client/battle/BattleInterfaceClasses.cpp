@@ -389,6 +389,12 @@ HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, Point * posit
 		background->colorize(hero.owner);
 	}
 
+	initializeData(hero);
+}
+
+void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	auto attack = hero.details->primskills[0];
 	auto defense = hero.details->primskills[1];
 	auto power = hero.details->primskills[2];
@@ -421,6 +427,14 @@ HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, Point * posit
 	//spell points
 	labels.push_back(std::make_shared<CLabel>(39, 174, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[387]));
 	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
+}
+
+void HeroInfoBasicPanel::update(const InfoAboutHero & updatedInfo)
+{
+	icons.clear();
+	labels.clear();
+
+	initializeData(updatedInfo);
 }
 
 void HeroInfoBasicPanel::show(Canvas & to)
@@ -622,7 +636,9 @@ void BattleResultWindow::show(Canvas & to)
 
 void BattleResultWindow::buttonPressed(int button)
 {
-	resultCallback(button);
+	if (resultCallback)
+		resultCallback(button);
+
 	CPlayerInterface &intTmp = owner; //copy reference because "this" will be destructed soon
 
 	close();

@@ -192,7 +192,7 @@ void AdventureMapInterface::handleMapScrollingUpdate(uint32_t timePassed)
 	Point scrollDelta = scrollDirection * scrollDistance;
 
 	bool cursorInScrollArea = scrollDelta != Point(0,0);
-	bool scrollingActive = cursorInScrollArea && isActive() && shortcuts->optionSidePanelActive() && !scrollingWasBlocked;
+	bool scrollingActive = cursorInScrollArea && shortcuts->optionMapScrollingActive() && !scrollingWasBlocked;
 	bool scrollingBlocked = GH.isKeyboardCtrlDown() || !settings["adventure"]["borderScroll"].Bool();
 
 	if (!scrollingWasActive && scrollingBlocked)
@@ -323,7 +323,7 @@ void AdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID, bool isHuma
 	mapAudio->onEnemyTurnStarted();
 	widget->getMinimap()->setAIRadar(!isHuman);
 	widget->getInfoBar()->startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
-	setState(EAdventureState::ENEMY_TURN);
+	setState(isHuman ? EAdventureState::OTHER_HUMAN_PLAYER_TURN : EAdventureState::AI_PLAYER_TURN);
 }
 
 void AdventureMapInterface::setState(EAdventureState state)
@@ -417,13 +417,13 @@ void AdventureMapInterface::hotkeyEndingTurn()
 	if(settings["session"]["spectate"].Bool())
 		return;
 
-	LOCPLINT->makingTurn = false;
-	LOCPLINT->cb->endTurn();
-
 	if(!settings["general"]["startTurnAutosave"].Bool())
 	{
 		LOCPLINT->performAutosave();
 	}
+
+	LOCPLINT->makingTurn = false;
+	LOCPLINT->cb->endTurn();
 
 	mapAudio->onPlayerTurnEnded();
 }
@@ -822,6 +822,15 @@ void AdventureMapInterface::hotkeyZoom(int delta)
 void AdventureMapInterface::onScreenResize()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	// remember our activation state and reactive after reconstruction
+	// since othervice activate() calls for created elements will bypass virtual dispatch
+	// and will call directly CIntObject::activate() instead of dispatching virtual function call
+	bool widgetActive = isActive();
+
+	if (widgetActive)
+		deactivate();
+
 	widget.reset();
 	pos.x = pos.y = 0;
 	pos.w = GH.screenDimensions().x;
@@ -838,4 +847,7 @@ void AdventureMapInterface::onScreenResize()
 		widget->getMapView()->onCenteredObject(LOCPLINT->localState->getCurrentArmy());
 
 	adjustActiveness();
+
+	if (widgetActive)
+		activate();
 }

@@ -468,7 +468,7 @@ void MapView::dropEvent(QDropEvent * event)
 		else
 		{
 			controller->discardObject(sc->level);
-			QMessageBox::information(this, "Can't place object", errorMsg);
+			QMessageBox::information(this, tr("Can't place object"), errorMsg);
 		}
 	}
 

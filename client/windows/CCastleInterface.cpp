@@ -15,6 +15,7 @@
 #include "InfoWindows.h"
 #include "GUIClasses.h"
 #include "QuickRecruitmentWindow.h"
+#include "CCreatureWindow.h"
 
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
@@ -848,7 +849,13 @@ void CCastleBuildings::enterCastleGate()
 
 void CCastleBuildings::enterDwelling(int level)
 {
-	assert(level >= 0 && level < town->creatures.size());
+	if (level < 0 || level >= town->creatures.size() || town->creatures[level].second.empty())
+	{
+		assert(0);
+		logGlobal->error("Attempt to enter into invalid dwelling of level %d in town %s (%s)", level, town->getNameTranslated(), town->town->faction->getNameTranslated());
+		return;
+	}
+
 	auto recruitCb = [=](CreatureID id, int count)
 	{
 		LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
@@ -1444,7 +1451,11 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
-	name = std::make_shared<CLabel>(197, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->hcommands[7]) % building->getNameTranslated()));
+	MetaString nameString;
+	nameString.appendTextID("core.hallinfo.7");
+	nameString.replaceTextID(building->getNameTextID());
+
+	name = std::make_shared<CLabel>(197, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, nameString.toString());
 	description = std::make_shared<CTextBox>(building->getDescriptionTranslated(), Rect(33, 135, 329, 67), 0, FONT_MEDIUM, ETextAlignment::CENTER);
 	stateText = std::make_shared<CTextBox>(getTextForState(state), Rect(33, 216, 329, 67), 0, FONT_SMALL, ETextAlignment::CENTER);
 
@@ -1461,14 +1472,20 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 
 	if(!rightClick)
 	{	//normal window
-		std::string tooltipYes = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->getNameTranslated());
-		std::string tooltipNo  = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->getNameTranslated());
 
-		buy = std::make_shared<CButton>(Point(45, 446), "IBUY30", CButton::tooltip(tooltipYes), [&](){ buyFunc(); }, EShortcut::GLOBAL_ACCEPT);
+		MetaString tooltipYes;
+		tooltipYes.appendTextID("core.genrltxt.595");
+		tooltipYes.replaceTextID(building->getNameTextID());
+
+		MetaString tooltipNo;
+		tooltipNo.appendTextID("core.genrltxt.596");
+		tooltipNo.replaceTextID(building->getNameTextID());
+
+		buy = std::make_shared<CButton>(Point(45, 446), "IBUY30", CButton::tooltip(tooltipYes.toString()), [&](){ buyFunc(); }, EShortcut::GLOBAL_ACCEPT);
 		buy->setBorderColor(Colors::METALLIC_GOLD);
 		buy->block(state!=7 || LOCPLINT->playerID != town->tempOwner);
 
-		cancel = std::make_shared<CButton>(Point(290, 445), "ICANCEL", CButton::tooltip(tooltipNo), [&](){ close();}, EShortcut::GLOBAL_CANCEL);
+		cancel = std::make_shared<CButton>(Point(290, 445), "ICANCEL", CButton::tooltip(tooltipNo.toString()), [&](){ close();}, EShortcut::GLOBAL_CANCEL);
 		cancel->setBorderColor(Colors::METALLIC_GOLD);
 	}
 }
@@ -1653,6 +1670,8 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	if(!town->creatures[level].second.empty())
 		addUsedEvents(LCLICK | HOVER);//Activate only if dwelling is present
 
+	addUsedEvents(SHOW_POPUP);
+
 	icons = std::make_shared<CPicture>("TPCAINFO", 261, 3);
 
 	if(getMyBuilding() != nullptr)
@@ -1738,6 +1757,12 @@ void CFortScreen::RecruitArea::creaturesChangedEventHandler()
 void CFortScreen::RecruitArea::clickPressed(const Point & cursorPosition)
 {
 	LOCPLINT->castleInt->builds->enterDwelling(level);
+}
+
+void CFortScreen::RecruitArea::showPopupWindow(const Point & cursorPosition)
+{
+	if (getMyCreature() != nullptr)
+		GH.windows().createAndPushWindow<CStackWindow>(getMyCreature(), true);
 }
 
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem)
@@ -1826,17 +1851,25 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	anim = std::make_shared<CCreatureAnim>(64, 50, creature->animDefName);
 	anim->clipRect(113,125,200,150);
 
-	title = std::make_shared<CLabel>(165, 28, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
-				boost::str(boost::format(CGI->generaltexth->allTexts[274]) % creature->getNameSingularTranslated()));
+	MetaString titleString;
+	titleString.appendTextID("core.genrltxt.274");
+	titleString.replaceTextID(creature->getNameSingularTextID());
+
+	MetaString buyText;
+	buyText.appendTextID("core.genrltxt.595");
+	buyText.replaceTextID(creature->getNameSingularTextID());
+
+	MetaString cancelText;
+	cancelText.appendTextID("core.genrltxt.596");
+	cancelText.replaceTextID(creature->getNameSingularTextID());
+
+	std::string costString = std::to_string(aid.toArtifact(CGI->artifacts())->getPrice());
+
+	title = std::make_shared<CLabel>(165, 28, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleString.toString());
 	costText = std::make_shared<CLabel>(165, 218, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->jktexts[43]);
-	costValue = std::make_shared<CLabel>(165, 292, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE,
-	                std::to_string(aid.toArtifact(CGI->artifacts())->getPrice()));
-
-	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->getNameSingularTranslated());
-	buy = std::make_shared<CButton>(Point(42, 312), "IBUY30.DEF", CButton::tooltip(text), [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
-
-	text = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % creature->getNameSingularTranslated());
-	cancel = std::make_shared<CButton>(Point(224, 312), "ICANCEL.DEF", CButton::tooltip(text), [&](){ close(); }, EShortcut::GLOBAL_CANCEL);
+	costValue = std::make_shared<CLabel>(165, 292, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, costString);
+	buy = std::make_shared<CButton>(Point(42, 312), "IBUY30.DEF", CButton::tooltip(buyText.toString()), [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
+	cancel = std::make_shared<CButton>(Point(224, 312), "ICANCEL.DEF", CButton::tooltip(cancelText.toString()), [&](){ close(); }, EShortcut::GLOBAL_CANCEL);
 
 	if(possible)
 		buy->addCallback([=](){ LOCPLINT->cb->buyArtifact(LOCPLINT->cb->getHero(hid),aid); });

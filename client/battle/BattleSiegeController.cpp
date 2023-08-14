@@ -307,15 +307,13 @@ void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 			renderer.insert( EBattleFieldLayer::STACKS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
 				owner.stacksController->showStack(canvas, getTurretStack(wallPiece));
 			});
-			renderer.insert( EBattleFieldLayer::OBSTACLES_FG, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
+			renderer.insert( EBattleFieldLayer::OBSTACLES, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
 				showWallPiece(canvas, wallPiece);
 			});
 		}
 		renderer.insert( EBattleFieldLayer::WALLS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
 			showWallPiece(canvas, wallPiece);
 		});
-
-
 	}
 }
 
@@ -330,8 +328,6 @@ bool BattleSiegeController::isAttackableByCatapult(BattleHex hex) const
 
 void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 {
-	owner.checkForAnimations();
-
 	if (ca.attacker != -1)
 	{
 		const CStack *stack = owner.curInt->cb->battleGetStackByID(ca.attacker);

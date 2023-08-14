@@ -50,6 +50,7 @@ class MapViewController : public IMapObjectObserver
 	std::shared_ptr<MapRendererPuzzleMapContext> puzzleMapContext;
 
 private:
+	bool isEventInstant(const CGObjectInstance * obj);
 	bool isEventVisible(const CGObjectInstance * obj);
 	bool isEventVisible(const CGHeroInstance * obj, const int3 & from, const int3 & dest);
 

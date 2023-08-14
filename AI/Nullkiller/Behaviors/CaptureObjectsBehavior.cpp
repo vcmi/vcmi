@@ -56,7 +56,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 
 	tasks.reserve(paths.size());
 
-	const AIPath * closestWay = nullptr;
+	std::unordered_map<HeroRole, const AIPath *> closestWaysByRole;
 	std::vector<ExecuteHeroChain *> waysToVisitObj;
 
 	for(auto & path : paths)
@@ -128,8 +128,9 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 
 			auto heroRole = ai->nullkiller->heroManager->getHeroRole(path.targetHero);
 
-			if(heroRole == HeroRole::SCOUT
-				&& (!closestWay || closestWay->movementCost() > path.movementCost()))
+			auto & closestWay = closestWaysByRole[heroRole];
+
+			if(!closestWay || closestWay->movementCost() > path.movementCost())
 			{
 				closestWay = &path;
 			}
@@ -142,9 +143,12 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		}
 	}
 
-	if(closestWay)
+	for(auto way : waysToVisitObj)
 	{
-		for(auto way : waysToVisitObj)
+		auto heroRole = ai->nullkiller->heroManager->getHeroRole(way->getPath().targetHero);
+		auto closestWay = closestWaysByRole[heroRole];
+
+		if(closestWay)
 		{
 			way->closestWayRatio
 				= closestWay->movementCost() / way->getPath().movementCost();
@@ -209,7 +213,7 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 	{
 		captureObjects(ai->nullkiller->objectClusterizer->getNearbyObjects());
 
-		if(tasks.empty() || ai->nullkiller->getScanDepth() == ScanDepth::FULL)
+		if(tasks.empty() || ai->nullkiller->getScanDepth() != ScanDepth::SMALL)
 			captureObjects(ai->nullkiller->objectClusterizer->getFarObjects());
 	}
 

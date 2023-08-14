@@ -45,9 +45,13 @@ private:
 
 	Mix_Chunk *GetSoundChunk(std::string &sound, bool cache);
 
-	//have entry for every currently active channel
-	//std::function will be nullptr if callback was not set
-	std::map<int, std::function<void()> > callbacks;
+	/// have entry for every currently active channel
+	/// vector will be empty if callback was not set
+	std::map<int, std::vector<std::function<void()>> > callbacks;
+
+	/// Protects access to callbacks member to avoid data races:
+	/// SDL calls sound finished callbacks from audio thread
+	boost::mutex mutexCallbacks;
 
 	int ambientDistToVolume(int distance) const;
 	void ambientStopSound(std::string soundId);
@@ -57,6 +61,9 @@ private:
 
 	std::map<std::string, int> ambientChannels;
 	std::map<int, int> channelVolumes;
+
+	void initCallback(int channel, const std::function<void()> & function);
+	void initCallback(int channel);
 
 public:
 	CSoundHandler();

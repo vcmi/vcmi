@@ -255,6 +255,7 @@ CGHeroInstance::CGHeroInstance():
 	setNodeType(HERO);
 	ID = Obj::HERO;
 	secSkills.emplace_back(SecondarySkill::DEFAULT, -1);
+	blockVisit = true;
 }
 
 PlayerColor CGHeroInstance::getOwner() const
@@ -364,8 +365,19 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 		commander->giveStackExp (exp); //after our exp is set
 	}
 
-	if (mana < 0)
-		mana = manaLimit();
+	skillsInfo.rand.setSeed(rand.nextInt());
+	skillsInfo.resetMagicSchoolCounter();
+	skillsInfo.resetWisdomCounter();
+
+	//copy active (probably growing) bonuses from hero prototype to hero object
+	for(const std::shared_ptr<Bonus> & b : type->specialty)
+		addNewBonus(b);
+
+	//initialize bonuses
+	recreateSecondarySkillsBonuses();
+
+	movement = movementPointsLimit(true);
+	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
 }
 
 void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
@@ -472,9 +484,12 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			if (cb->gameState()->map->getTile(boatPos).isWater())
 			{
 				smp.val = movementPointsLimit(false);
-				//Create a new boat for hero
-				cb->createObject(boatPos, Obj::BOAT, getBoatType().getNum());
-				boatId = cb->getTopObj(boatPos)->id;
+				if (!boat)
+				{
+					//Create a new boat for hero
+					cb->createObject(boatPos, Obj::BOAT, getBoatType().getNum());
+					boatId = cb->getTopObj(boatPos)->id;
+				}
 			}
 			else
 			{
@@ -533,14 +548,8 @@ void CGHeroInstance::SecondarySkillsInfo::resetWisdomCounter()
 
 void CGHeroInstance::initObj(CRandomGenerator & rand)
 {
-	blockVisit = true;
-
 	if(!type)
 		initHero(rand); //TODO: set up everything for prison before specialties are configured
-
-	skillsInfo.rand.setSeed(rand.nextInt());
-	skillsInfo.resetMagicSchoolCounter();
-	skillsInfo.resetWisdomCounter();
 
 	if (ID != Obj::PRISON)
 	{
@@ -549,15 +558,6 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 		if (customApp)
 			appearance = customApp;
 	}
-
-	//copy active (probably growing) bonuses from hero prototype to hero object
-	for(const std::shared_ptr<Bonus> & b : type->specialty)
-		addNewBonus(b);
-
-	//initialize bonuses
-	recreateSecondarySkillsBonuses();
-
-	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
 }
 
 void CGHeroInstance::recreateSecondarySkillsBonuses()
@@ -1121,6 +1121,15 @@ int CGHeroInstance::maxSpellLevel() const
 {
 	return std::min(GameConstants::SPELL_LEVELS, valOfBonuses(Selector::type()(BonusType::MAX_LEARNABLE_SPELL_LEVEL)));
 }
+
+void CGHeroInstance::attachToBoat(CGBoat* newBoat)
+{
+	assert(newBoat);
+	boat = newBoat;
+	attachTo(const_cast<CGBoat&>(*boat));
+	const_cast<CGBoat*>(boat)->hero = this;
+}
+
 
 void CGHeroInstance::deserializationFix()
 {
@@ -1721,22 +1730,25 @@ bool CGHeroInstance::isMissionCritical() const
 {
 	for(const TriggeredEvent & event : IObjectInterface::cb->getMapHeader()->triggeredEvents)
 	{
-		if(event.trigger.test([&](const EventCondition & condition)
+		if (event.effect.type != EventEffect::DEFEAT)
+			continue;
+
+		auto const & testFunctor = [&](const EventCondition & condition)
 		{
 			if ((condition.condition == EventCondition::CONTROL || condition.condition == EventCondition::HAVE_0) && condition.object)
 			{
 				const auto * hero = dynamic_cast<const CGHeroInstance *>(condition.object);
 				return (hero != this);
 			}
-			else if(condition.condition == EventCondition::IS_HUMAN)
-			{
+
+			if(condition.condition == EventCondition::IS_HUMAN)
 				return true;
-			}
+
 			return false;
-		}))
-		{
+		};
+
+		if(event.trigger.test(testFunctor))
 			return true;
-		}
 	}
 	return false;
 }

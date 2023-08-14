@@ -38,6 +38,7 @@
 #include <vstd/StringUtils.h>
 
 #include <SDL_main.h>
+#include <SDL.h>
 
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
@@ -255,24 +256,17 @@ int main(int argc, char * argv[])
 	logGlobal->debug("settings = %s", settings.toJsonNode().toJson());
 
 	// Some basic data validation to produce better error messages in cases of incorrect install
-	auto testFile = [](std::string filename, std::string message) -> bool
+	auto testFile = [](std::string filename, std::string message)
 	{
-		if (CResourceHandler::get()->existsResource(ResourceID(filename)))
-			return true;
-
-		logGlobal->error("Error: %s was not found!", message);
-		return false;
+		if (!CResourceHandler::get()->existsResource(ResourceID(filename)))
+			handleFatalError(message, false);
 	};
 
-	if (!testFile("DATA/HELP.TXT", "Heroes III data") ||
-		!testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
-	{
-		exit(1); // These are unrecoverable errors
-	}
-
-	// these two are optional + some installs have them on CD and not in data directory
-	testFile("VIDEO/GOOD1A.SMK", "campaign movies");
-	testFile("SOUNDS/G1A.WAV", "campaign music"); //technically not a music but voiced intro sounds
+	testFile("DATA/HELP.TXT", "VCMI requires Heroes III: Shadow of Death or Heroes III: Complete data files to run!");
+	testFile("MODS/VCMI/MOD.JSON", "VCMI installation is corrupted! Built-in mod was not found!");
+	testFile("DATA/PLAYERS.PAL", "Heroes III data files are missing or corruped! Please reinstall them.");
+	testFile("SPRITES/DEFAULT.DEF", "Heroes III data files are missing or corruped! Please reinstall them.");
+	testFile("DATA/TENTCOLR.TXT", "Heroes III: Restoration of Erathia (including HD Edition) data files are not supported!");
 
 	srand ( (unsigned int)time(nullptr) );
 
@@ -509,4 +503,19 @@ void handleQuit(bool ask)
 	{
 		quitApplication();
 	}
+}
+
+void handleFatalError(const std::string & message, bool terminate)
+{
+	logGlobal->error("FATAL ERROR ENCOUTERED, VCMI WILL NOW TERMINATE");
+	logGlobal->error("Reason: %s", message);
+
+	std::string messageToShow = "Fatal error! " + message;
+
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fatal error!", messageToShow.c_str(), nullptr);
+
+	if (terminate)
+		throw std::runtime_error(message);
+	else
+		exit(1);
 }

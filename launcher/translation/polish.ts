@@ -406,120 +406,123 @@
 <context>
     <name>CSettingsView</name>
     <message>
-        <source>Open</source>
-        <translation type="vanished">Otwórz</translation>
-    </message>
-    <message>
-        <source>User data directory</source>
-        <translation type="vanished">Katalog danych użytkownika</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="190"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="245"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="262"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="302"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="370"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="408"/>
         <source>Off</source>
         <translation>Wyłączony</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="79"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="563"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="579"/>
         <source>Artificial Intelligence</source>
         <translation>Sztuczna Inteligencja</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="84"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="179"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="434"/>
         <source>Mod Repositories</source>
         <translation>Repozytoria modów</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="448"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="498"/>
         <source>Interface Scaling</source>
         <translation>Skala interfejsu</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="398"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="491"/>
         <source>Neutral AI in battles</source>
         <translation>AI bitewne jednostek neutralnych</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="203"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="421"/>
         <source>Enemy AI in battles</source>
         <translation>AI bitewne wrogów</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="509"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="441"/>
         <source>Additional repository</source>
         <translation>Dodatkowe repozytorium</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="482"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="566"/>
         <source>Adventure Map Allies</source>
         <translation>AI sojuszników mapy przygody</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="441"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="281"/>
         <source>Adventure Map Enemies</source>
         <translation>AI wrogów mapy przygody</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="316"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="623"/>
         <source>Windowed</source>
         <translation>Okno</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="321"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="628"/>
         <source>Borderless fullscreen</source>
         <translation>Pełny ekran (tryb okna)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="326"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="633"/>
         <source>Exclusive fullscreen</source>
         <translation>Pełny ekran klasyczny</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="530"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="170"/>
+        <source>Autosave limit (0 = off)</source>
+        <translation>Limit autozapisów (0 = brak)</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="525"/>
         <source>Friendly AI in battles</source>
         <translation>AI bitewne sojuszników</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="590"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="271"/>
         <source>Framerate Limit</source>
         <translation>Limit FPS</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="523"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="328"/>
+        <source>Autosave prefix</source>
+        <translation>Przedrostek autozapisu</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="603"/>
+        <source>empty = map name prefix</source>
+        <translation>puste = przedrostek z nazwy mapy</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="383"/>
         <source>Refresh now</source>
         <translation>Odśwież</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="234"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="288"/>
         <source>Default repository</source>
         <translation>Domyślne repozytorium</translation>
     </message>
     <message>
-        <source>Update now</source>
-        <translation type="vanished">Zaktualizuj teraz</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="195"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="250"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="267"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="307"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="375"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="413"/>
         <source>On</source>
         <translation>Włączony</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="455"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="359"/>
         <source>Cursor</source>
         <translation>Kursor</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="475"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="481"/>
         <source>Heroes III Data Language</source>
         <translation>Język plików Heroes III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="303"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="610"/>
         <source>Select display mode for game
 
 Windowed - game will run inside a window that covers part of your screen
@@ -536,106 +539,99 @@ Pełny ekran w trybie okna - gra uruchomi się w oknie przysłaniającym cały e
 Pełny ekran klasyczny - gra przysłoni cały ekran uruchamiając się w wybranej przez ciebie rozdzielczości ekranu.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="290"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="641"/>
+        <source>Reserved screen area</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="212"/>
         <source>Hardware</source>
         <translation>Sprzętowy</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="295"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="217"/>
         <source>Software</source>
         <translation>Programowy</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="227"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="397"/>
         <source>Heroes III Translation</source>
         <translation>Tłumaczenie Heroes III</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="516"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="542"/>
         <source>Check on startup</source>
         <translation>Sprawdzaj przy uruchomieniu</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="537"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="177"/>
         <source>Fullscreen</source>
         <translation>Pełny ekran</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="69"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="414"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="197"/>
         <source>General</source>
         <translation>Ogólne</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="344"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="532"/>
         <source>VCMI Language</source>
         <translation>Język VCMI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="421"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="335"/>
         <source>Resolution</source>
         <translation>Rozdzielczość</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="550"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="204"/>
         <source>Autosave</source>
         <translation>Autozapis</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="282"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="146"/>
         <source>Display index</source>
         <translation>Numer wyświetlacza</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="166"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="184"/>
         <source>Network port</source>
         <translation>Port sieciowy</translation>
     </message>
     <message>
-        <source>Data Directories</source>
-        <translation type="vanished">Katalogi z danymi</translation>
-    </message>
-    <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="74"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="125"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="321"/>
         <source>Video</source>
         <translation>Obraz</translation>
     </message>
     <message>
-        <source>Log files directory</source>
-        <translation type="vanished">Katalog logów</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="364"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="225"/>
         <source>Show intro</source>
         <translation>Pokaż intro</translation>
     </message>
     <message>
-        <source>Build version</source>
-        <translation type="vanished">Wersja programu</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="401"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="405"/>
         <source>Active</source>
         <translation>Aktywny</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="406"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="410"/>
         <source>Disabled</source>
         <translation>Wyłączone</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="407"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="411"/>
         <source>Enable</source>
         <translation>Włącz</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="412"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="416"/>
         <source>Not Installed</source>
         <translation>Nie zainstalowano</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="413"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="417"/>
         <source>Install</source>
         <translation>Zainstaluj</translation>
     </message>
@@ -717,7 +713,7 @@ Heroes III: HD Edition nie jest obecnie wspierane!</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="702"/>
         <source>Interface Improvements</source>
-        <translation type="unfinished"></translation>
+        <translation>Ulepszenia interfejsu</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="740"/>
@@ -732,11 +728,7 @@ Heroes III: HD Edition nie jest obecnie wspierane!</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
         <source>Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Install support for playing Heroes III in resolutions higher than 800x600</source>
-        <translation type="vanished">Zainstaluj wsparcie dla grania w Heroes III w rozdzielczości innej niż 800x600</translation>
+        <translation>Zainstaluj modyfikację, która dostarcza różne ulepszenia interfejsu takie jak lepszy ekran ustawień mapy losowej lub wybieralne akcje w bitwach</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
@@ -824,10 +816,6 @@ Heroes III: HD Edition nie jest obecnie wspierane!</translation>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="638"/>
         <source>Heroes III Translation</source>
         <translation>Tłumaczenie Heroes III</translation>
-    </message>
-    <message>
-        <source>High Definition Support</source>
-        <translation type="vanished">Wsparcie High Definition</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="724"/>
@@ -927,21 +915,26 @@ Heroes III: HD Edition nie jest obecnie wspierane!</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="39"/>
-        <source>Other (East European)</source>
+        <source>Vietnamese</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
-        <source>Other (Cyrillic Script)</source>
-        <translation type="unfinished"></translation>
+        <source>Other (East European)</source>
+        <translation>Inne (Wschodnioeuropejski)</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>
-        <source>Other (West European)</source>
-        <translation type="unfinished"></translation>
+        <source>Other (Cyrillic Script)</source>
+        <translation>Inne (Cyrylica)</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="63"/>
+        <location filename="../languages.cpp" line="42"/>
+        <source>Other (West European)</source>
+        <translation>Inne (Zachodnioeuropejski)</translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="64"/>
         <source>Auto (%1)</source>
         <translation type="unfinished"></translation>
     </message>

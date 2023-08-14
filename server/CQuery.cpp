@@ -176,7 +176,7 @@ void CObjectVisitQuery::onExposure(QueryPtr topQuery)
 	if(gh->isValidObject(visitedObject))
 		topQuery->notifyObjectAboutRemoval(*this);
 
-	owner->popQuery(*this);
+	owner->popIfTop(*this);
 }
 
 void Queries::popQuery(PlayerColor player, QueryPtr query)

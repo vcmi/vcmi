@@ -476,6 +476,9 @@ void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
 	adventureInt->onHeroChanged(hero);
 	if (makingTurn && hero->tempOwner == playerID)
 		adventureInt->onHeroChanged(hero);
+
+	for (auto window : GH.windows().findWindows<BattleWindow>())
+		window->heroManaPointsChanged(hero);
 }
 void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 {
@@ -649,26 +652,20 @@ void CPlayerInterface::battleStartBefore(const CCreatureSet *army1, const CCreat
 		waitForAllDialogs();
 }
 
-void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
+void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	bool autoBattleResultRefused = (lastBattleArmies.first == army1 && lastBattleArmies.second == army2);
-	lastBattleArmies.first = army1;
-	lastBattleArmies.second = army2;
-	//quick combat with neutral creatures only
-	auto * army2_object = dynamic_cast<const CGObjectInstance *>(army2);
-	if((!autoBattleResultRefused && !allowBattleReplay && army2_object
-		&& (army2_object->getOwner() == PlayerColor::UNFLAGGABLE || army2_object->getOwner() == PlayerColor::NEUTRAL)
-		&& settings["adventure"]["quickCombat"].Bool())
-		|| settings["adventure"]["alwaysSkipCombat"].Bool())
+
+	bool useQuickCombat = settings["adventure"]["quickCombat"].Bool();
+	bool forceQuickCombat = settings["adventure"]["forceQuickCombat"].Bool();
+
+	if ((replayAllowed && useQuickCombat) || forceQuickCombat)
 	{
 		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
 		autofightingAI->initBattleInterface(env, cb);
-		autofightingAI->battleStart(army1, army2, int3(0,0,0), hero1, hero2, side);
+		autofightingAI->battleStart(army1, army2, tile, hero1, hero2, side, false);
 		isAutoFightOn = true;
 		cb->registerBattleInterface(autofightingAI);
-		// Player shouldn't be able to move on adventure map if quick combat is going
-		allowBattleReplay = true;
 	}
 
 	//Don't wait for dialogs when we are non-active hot-seat player
@@ -840,13 +837,17 @@ void CPlayerInterface::battleEnd(const BattleResult *br, QueryID queryID)
 
 		if(!battleInt)
 		{
-			bool allowManualReplay = allowBattleReplay && !settings["adventure"]["alwaysSkipCombat"].Bool();
-			allowBattleReplay = false;
+			bool allowManualReplay = queryID != -1;
+
 			auto wnd = std::make_shared<BattleResultWindow>(*br, *this, allowManualReplay);
-			wnd->resultCallback = [=](ui32 selection)
+
+			if (allowManualReplay)
 			{
-				cb->selectionMade(selection, queryID);
-			};
+				wnd->resultCallback = [=](ui32 selection)
+				{
+					cb->selectionMade(selection, queryID);
+				};
+			}
 			GH.windows().pushWindow(wnd);
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
 			// Otherwise NewTurn causes freeze.
@@ -1904,8 +1905,9 @@ bool CPlayerInterface::capturedAllEvents()
 	}
 
 	bool needToLockAdventureMap = adventureInt && adventureInt->isActive() && CGI->mh->hasOngoingAnimations();
+	bool quickCombatOngoing = isAutoFightOn && !battleInt;
 
-	if (ignoreEvents || needToLockAdventureMap || isAutoFightOn)
+	if (ignoreEvents || needToLockAdventureMap || quickCombatOngoing )
 	{
 		GH.input().ignoreEventsUntilInput();
 		return true;

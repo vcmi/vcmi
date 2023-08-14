@@ -139,7 +139,7 @@ public:
 	///cast with silent check for permitted cast
 	bool castIfPossible(ServerCallback * server, Target target);
 
-	std::vector<Target> findPotentialTargets() const;
+	std::vector<Target> findPotentialTargets(bool fast = false) const;
 
 private:
 	///spell school level
@@ -199,7 +199,7 @@ public:
 
 	virtual std::vector<AimType> getTargetTypes() const = 0;
 
-	virtual std::vector<Destination> getPossibleDestinations(size_t index, AimType aimType, const Target & current) const = 0;
+	virtual std::vector<Destination> getPossibleDestinations(size_t index, AimType aimType, const Target & current, bool fast = false) const = 0;
 
 	virtual const Spell * getSpell() const = 0;
 

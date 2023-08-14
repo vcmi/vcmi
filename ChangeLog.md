@@ -1,5 +1,12 @@
-# 1.2.1 -> 1.3.0
+# 1.3.0 -> 1.3.1
 (unreleased)
+
+* Fixed crash on starting game with outdated mods
+* Fixed Android mod manager crash 
+* Fixed framerate drops on hero movement with active hota mod
+* Reverted FPS limit on mobile systems back to 60 fps
+
+# 1.2.1 -> 1.3.0
 
 ### GENERAL:
 * Implemented automatic interface scaling to any resolution supported by monitor
@@ -17,6 +24,7 @@
 * Added H3:SOD cheat codes as alternative to vcmi cheats
 * Fixed several possible crashes caused by autocombat activation
 * Fixed artifact lock icon in localized versions of the game
+* Fixed possible crash on changing hardware cursor
 
 ### TOUCHSCREEN SUPPORT:
 * VCMI will now properly recognizes touch screen input
@@ -47,6 +55,10 @@
 ### AI PLAYER:
 * Fixed potential crash on accessing market (VCAI)
 * Fixed potentially infinite turns (VCAI)
+* Reworked object prioritizing
+* Improved town defense against enemy heroes
+* Improved town building (mage guild and horde)
+* Various behavior fixes
 
 ### GAME MECHANICS
 * Hero retreating after end of 7th turn will now correctly appear in tavern
@@ -72,6 +84,7 @@
 * Game will now play correct music track on scenario selection window
 * Dracon woll now correctly start without spellbook in Dragon Slayer campaign
 * Fixed frequent crash on moving to next scenario during campaign
+* Fixed inability to dismiss heroes on maps with "capture town" victory condition
 
 ### RANDOM MAP GENERATOR:
 * Improved zone placement, shape and connections
@@ -86,6 +99,7 @@
 * Support for "wide" connections
 * Support for new "fictive" and "repulsive" connections
 * RMG will now run faster, utilizing many CPU cores
+* Removed random seed number from random map description
 
 ### INTERFACE:
 * Adventure map is now scalable and can be used with any resolution without mods
@@ -105,6 +119,8 @@
 * Last symbol of entered cheat/chat message will no longer trigger hotkey
 * Right-clicking map name in scenario selection will now show file name
 * Right-clicking save game in save/load screen will now show file name and creation date
+* Right-clicking in town fort window will now show creature information popup
+* Implemented pasting from clipboard (Ctrl+V) for text input
 
 ### BATTLES:
 * Implemented Tower moat (Land Mines)
@@ -139,6 +155,7 @@
 * Removed DIRECT_DAMAGE_IMMUNITY bonus - replaced by 100% spell damage resistance
 * MAGIC_SCHOOL_SKILL subtype has been changed for consistency with other spell school bonuses
 * Configurable objects can now be translated
+* Fixed loading of custom battlefield identifiers for map objects
 
 # 1.2.0 -> 1.2.1
 

@@ -590,7 +590,7 @@ std::vector<AimType> BattleSpellMechanics::getTargetTypes() const
 	return ret;
 }
 
-std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t index, AimType aimType, const Target & current) const
+std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t index, AimType aimType, const Target & current, bool fast) const
 {
 	//TODO: BattleSpellMechanics::getPossibleDestinations
 
@@ -602,19 +602,66 @@ std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t in
 	switch(aimType)
 	{
 	case AimType::CREATURE:
-	case AimType::LOCATION:
-		for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
+	{
+		auto stacks = battle()->battleGetAllStacks();
+
+		for(auto stack : stacks)
 		{
-			BattleHex dest(i);
-			if(dest.isAvailable())
+			Target tmp = current;
+			tmp.emplace_back(stack->getPosition());
+
+			detail::ProblemImpl ignored;
+
+			if(canBeCastAt(tmp, ignored))
+				ret.emplace_back(stack->getPosition());
+		}
+
+		break;
+	}
+
+	case AimType::LOCATION:
+		if(fast)
+		{
+			auto stacks = battle()->battleGetAllStacks();
+			std::set<BattleHex> hexesToCheck;
+
+			for(auto stack : stacks)
 			{
-				Target tmp = current;
-				tmp.emplace_back(dest);
+				hexesToCheck.insert(stack->getPosition());
 
-				detail::ProblemImpl ignored;
+				for(auto adjacent : stack->getPosition().neighbouringTiles())
+					hexesToCheck.insert(adjacent);
+			}
 
-				if(canBeCastAt(tmp, ignored))
-					ret.emplace_back(dest);
+			for(auto hex : hexesToCheck)
+			{
+				if(hex.isAvailable())
+				{
+					Target tmp = current;
+					tmp.emplace_back(hex);
+
+					detail::ProblemImpl ignored;
+
+					if(canBeCastAt(tmp, ignored))
+						ret.emplace_back(hex);
+				}
+			}
+		}
+		else
+		{
+			for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
+			{
+				BattleHex dest(i);
+				if(dest.isAvailable())
+				{
+					Target tmp = current;
+					tmp.emplace_back(dest);
+
+					detail::ProblemImpl ignored;
+
+					if(canBeCastAt(tmp, ignored))
+						ret.emplace_back(dest);
+				}
 			}
 		}
 		break;

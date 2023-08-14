@@ -175,7 +175,7 @@ void PlayerMessageProcessor::cheatGiveArmy(PlayerColor player, const CGHeroInsta
 	{
 		amountPerSlot = std::stol(words.at(1));
 	}
-	catch(std::exception&)
+	catch(std::logic_error&)
 	{
 	}
 
@@ -233,7 +233,7 @@ void PlayerMessageProcessor::cheatLevelup(PlayerColor player, const CGHeroInstan
 	{
 		levelsToGain = std::stol(words.at(0));
 	}
-	catch(std::exception&)
+	catch(std::logic_error&)
 	{
 		levelsToGain = 1;
 	}
@@ -252,7 +252,7 @@ void PlayerMessageProcessor::cheatExperience(PlayerColor player, const CGHeroIns
 	{
 		expAmountProcessed = std::stol(words.at(0));
 	}
-	catch(std::exception&)
+	catch(std::logic_error&)
 	{
 		expAmountProcessed = 10000;
 	}
@@ -271,7 +271,7 @@ void PlayerMessageProcessor::cheatMovement(PlayerColor player, const CGHeroInsta
 	{
 		smp.val = std::stol(words.at(0));;
 	}
-	catch(std::exception&)
+	catch(std::logic_error&)
 	{
 		smp.val = 1000000;
 	}
@@ -293,7 +293,7 @@ void PlayerMessageProcessor::cheatResources(PlayerColor player, std::vector<std:
 	{
 		baseResourceAmount = std::stol(words.at(0));;
 	}
-	catch(std::exception&)
+	catch(std::logic_error&)
 	{
 		baseResourceAmount = 100;
 	}

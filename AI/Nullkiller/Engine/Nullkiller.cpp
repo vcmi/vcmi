@@ -61,6 +61,7 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 	armyManager.reset(new ArmyManager(cb.get(), this));
 	heroManager.reset(new HeroManager(cb.get(), this));
 	decomposer.reset(new DeepDecomposer());
+	armyFormation.reset(new ArmyFormation(cb, this));
 }
 
 Goals::TTask Nullkiller::choseBestTask(Goals::TTaskVec & tasks) const
@@ -117,7 +118,7 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositi
 void Nullkiller::resetAiState()
 {
 	lockedResources = TResources();
-	scanDepth = ScanDepth::FULL;
+	scanDepth = ScanDepth::MAIN_FULL;
 	playerID = ai->playerID;
 	lockedHeroes.clear();
 	dangerHitMap->reset();
@@ -133,10 +134,14 @@ void Nullkiller::updateAiState(int pass, bool fast)
 	activeHero = nullptr;
 	setTargetObject(-1);
 
+	decomposer->reset();
+	buildAnalyzer->update();
+
 	if(!fast)
 	{
 		memory->removeInvisibleObjects(cb.get());
 
+		dangerHitMap->calculateTileOwners();
 		dangerHitMap->updateHitMap();
 
 		boost::this_thread::interruption_point();
@@ -156,11 +161,15 @@ void Nullkiller::updateAiState(int pass, bool fast)
 
 		PathfinderSettings cfg;
 		cfg.useHeroChain = useHeroChain;
-		cfg.scoutTurnDistanceLimit = SCOUT_TURN_DISTANCE_LIMIT;
 
-		if(scanDepth != ScanDepth::FULL)
+		if(scanDepth == ScanDepth::SMALL)
 		{
-			cfg.mainTurnDistanceLimit = MAIN_TURN_DISTANCE_LIMIT * ((int)scanDepth + 1);
+			cfg.mainTurnDistanceLimit = MAIN_TURN_DISTANCE_LIMIT;
+		}
+
+		if(scanDepth != ScanDepth::ALL_FULL)
+		{
+			cfg.scoutTurnDistanceLimit = SCOUT_TURN_DISTANCE_LIMIT;
 		}
 
 		boost::this_thread::interruption_point();
@@ -173,8 +182,6 @@ void Nullkiller::updateAiState(int pass, bool fast)
 	}
 
 	armyManager->update();
-	buildAnalyzer->update();
-	decomposer->reset();
 
 	logAi->debug("AI state updated in %ld", timeElapsed(start));
 }
@@ -222,7 +229,7 @@ void Nullkiller::makeTurn()
 	boost::lock_guard<boost::mutex> sharedStorageLock(AISharedStorage::locker);
 
 	const int MAX_DEPTH = 10;
-	const float FAST_TASK_MINIMAL_PRIORITY = 0.7;
+	const float FAST_TASK_MINIMAL_PRIORITY = 0.7f;
 
 	resetAiState();
 
@@ -231,8 +238,8 @@ void Nullkiller::makeTurn()
 		updateAiState(i);
 
 		Goals::TTask bestTask = taskptr(Goals::Invalid());
-		
-		do
+
+		for(;i <= MAXPASS; i++)
 		{
 			Goals::TTaskVec fastTasks = {
 				choseBestTask(sptr(BuyArmyBehavior()), 1),
@@ -246,7 +253,11 @@ void Nullkiller::makeTurn()
 				executeTask(bestTask);
 				updateAiState(i, true);
 			}
-		} while(bestTask->priority >= FAST_TASK_MINIMAL_PRIORITY);
+			else
+			{
+				break;
+			}
+		}
 
 		Goals::TTaskVec bestTasks = {
 			bestTask,
@@ -265,7 +276,6 @@ void Nullkiller::makeTurn()
 		bestTask = choseBestTask(bestTasks);
 
 		HeroPtr hero = bestTask->getHero();
-
 		HeroRole heroRole = HeroRole::MAIN;
 
 		if(hero.validAndSet())
@@ -274,26 +284,50 @@ void Nullkiller::makeTurn()
 		if(heroRole != HeroRole::MAIN || bestTask->getHeroExchangeCount() <= 1)
 			useHeroChain = false;
 
+		// TODO: better to check turn distance here instead of priority
 		if((heroRole != HeroRole::MAIN || bestTask->priority < SMALL_SCAN_MIN_PRIORITY)
-			&& scanDepth == ScanDepth::FULL)
+			&& scanDepth == ScanDepth::MAIN_FULL)
 		{
 			useHeroChain = false;
 			scanDepth = ScanDepth::SMALL;
 
 			logAi->trace(
-				"Goal %s has too low priority %f so increasing scan depth",
+				"Goal %s has low priority %f so decreasing  scan depth to gain performance.",
 				bestTask->toString(),
 				bestTask->priority);
 		}
 
 		if(bestTask->priority < MIN_PRIORITY)
 		{
+			auto heroes = cb->getHeroesInfo();
+			auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
+				{
+					return h->movementPointsRemaining() > 100;
+				});
+
+			if(hasMp && scanDepth != ScanDepth::ALL_FULL)
+			{
+				logAi->trace(
+					"Goal %s has too low priority %f so increasing scan depth to full.",
+					bestTask->toString(),
+					bestTask->priority);
+
+				scanDepth = ScanDepth::ALL_FULL;
+				useHeroChain = false;
+				continue;
+			}
+
 			logAi->trace("Goal %s has too low priority. It is not worth doing it. Ending turn.", bestTask->toString());
 
 			return;
 		}
 
 		executeTask(bestTask);
+
+		if(i == MAXPASS)
+		{
+			logAi->error("Goal %s exceeded maxpass. Terminating AI turn.", bestTask->toString());
+		}
 	}
 }
 

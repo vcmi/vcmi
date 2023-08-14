@@ -194,11 +194,8 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	}
 
 	iconsMapFormats = std::make_shared<CAnimation>("SCSELC.DEF");
-	iconsMapFormats->preload();
 	iconsVictoryCondition = std::make_shared<CAnimation>("SCNRVICT.DEF");
-	iconsVictoryCondition->preload();
 	iconsLossCondition = std::make_shared<CAnimation>("SCNRLOSS.DEF");
-	iconsLossCondition->preload();
 	for(int i = 0; i < positionsToShow; i++)
 		listItems.push_back(std::make_shared<ListItem>(Point(30, 129 + i * 25), iconsMapFormats, iconsVictoryCondition, iconsLossCondition));
 
@@ -429,7 +426,7 @@ void SelectionTab::select(int position)
 
 	if(inputName && inputName->isActive())
 	{
-		auto filename = *CResourceHandler::get("local")->getResourceName(ResourceID(curItems[py]->fileURI, EResType::SAVEGAME));
+		auto filename = *CResourceHandler::get()->getResourceName(ResourceID(curItems[py]->fileURI, EResType::SAVEGAME));
 		inputName->setText(filename.stem().string());
 	}
 

@@ -51,7 +51,7 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 
 	REGISTER_BUILDER("battleConsole", &BattleWindow::buildBattleConsole);
 	
-	const JsonNode config(ResourceID("config/widgets/BattleWindow.json"));
+	const JsonNode config(ResourceID("config/widgets/BattleWindow2.json"));
 	
 	addShortcut(EShortcut::GLOBAL_OPTIONS, std::bind(&BattleWindow::bOptionsf, this));
 	addShortcut(EShortcut::BATTLE_SURRENDER, std::bind(&BattleWindow::bSurrenderf, this));
@@ -237,8 +237,8 @@ void BattleWindow::showStickyHeroWindows()
 	if(settings["battle"]["stickyHeroInfoWindows"].Bool() == true)
 		return;
 
-	Settings showStickyHeroInfoWIndows = settings.write["battle"]["stickyHeroInfoWindows"];
-	showStickyHeroInfoWIndows->Bool() = true;
+	Settings showStickyHeroInfoWindows = settings.write["battle"]["stickyHeroInfoWindows"];
+	showStickyHeroInfoWindows->Bool() = true;
 
 
 	createStickyHeroInfoWindows();
@@ -248,6 +248,27 @@ void BattleWindow::showStickyHeroWindows()
 void BattleWindow::updateQueue()
 {
 	queue->update();
+}
+
+void BattleWindow::updateHeroInfoWindow(uint8_t side, const InfoAboutHero & hero)
+{
+	std::shared_ptr<HeroInfoBasicPanel> panelToUpdate = side == 0 ? attackerHeroWindow : defenderHeroWindow;
+	panelToUpdate->update(hero);
+}
+
+void BattleWindow::heroManaPointsChanged(const CGHeroInstance * hero)
+{
+	if(hero == owner.attackingHeroInstance || hero == owner.defendingHeroInstance)
+	{
+		InfoAboutHero heroInfo = InfoAboutHero();
+		heroInfo.initFromHero(hero, InfoAboutHero::INBATTLE);
+
+		updateHeroInfoWindow(hero == owner.attackingHeroInstance ? 0 : 1, heroInfo);
+	}
+	else
+	{
+		logGlobal->error("BattleWindow::heroManaPointsChanged: 'Mana points changed' called for hero not belonging to current battle window");
+	}
 }
 
 void BattleWindow::activate()
@@ -480,7 +501,7 @@ void BattleWindow::bAutofightf()
 
 		auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
 		ai->initBattleInterface(owner.curInt->env, owner.curInt->cb);
-		ai->battleStart(owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.curInt->cb->battleGetMySide());
+		ai->battleStart(owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.curInt->cb->battleGetMySide(), false);
 		owner.curInt->autofightingAI = ai;
 		owner.curInt->cb->registerBattleInterface(ai);
 

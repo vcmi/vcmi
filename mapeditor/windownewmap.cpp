@@ -268,7 +268,7 @@ void WindowNewMap::on_okButton_clicked()
 		//verify map template
 		if(mapGenOptions.getPossibleTemplates().empty())
 		{
-			QMessageBox::warning(this, "No template", "No template for parameters scecified. Random map cannot be generated.");
+			QMessageBox::warning(this, tr("No template"), tr("No template for parameters scecified. Random map cannot be generated."));
 			return;
 		}
 		
@@ -288,7 +288,7 @@ void WindowNewMap::on_okButton_clicked()
 		}
 		catch(const std::exception & e)
 		{
-			QMessageBox::critical(this, "RMG failure", e.what());
+			QMessageBox::critical(this, tr("RMG failure"), e.what());
 		}
 	}
 	else

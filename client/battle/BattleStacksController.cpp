@@ -154,11 +154,6 @@ void BattleStacksController::collectRenderableObjects(BattleRenderer & renderer)
 
 void BattleStacksController::stackReset(const CStack * stack)
 {
-	owner.checkForAnimations();
-
-	//reset orientation?
-	//stackFacingRight[stack->unitId()] = stack->unitSide() == BattleSide::ATTACKER;
-
 	auto iter = stackAnimation.find(stack->unitId());
 
 	if(iter == stackAnimation.end())
@@ -240,6 +235,9 @@ void BattleStacksController::setActiveStack(const CStack *stack)
 		stackAnimation[activeStack->unitId()]->setBorderColor(AnimationControls::getGoldBorder());
 
 	owner.windowObject->blockUI(activeStack == nullptr);
+
+	if (activeStack)
+		stackAmountBoxHidden.clear();
 }
 
 bool BattleStacksController::stackNeedsAmountBox(const CStack * stack) const
@@ -501,7 +499,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 void BattleStacksController::stackTeleported(const CStack *stack, std::vector<BattleHex> destHex, int distance)
 {
 	assert(destHex.size() > 0);
-	owner.checkForAnimations();
+	//owner.checkForAnimations(); // NOTE: at this point spellcast animations were added, but not executed
 
 	owner.addToAnimationStage(EAnimationEvents::HIT, [=](){
 		addNewAnim( new ColorTransformAnimation(owner, stack, "teleportFadeOut", nullptr) );

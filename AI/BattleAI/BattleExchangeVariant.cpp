@@ -600,6 +600,8 @@ void BattleExchangeEvaluator::updateReachabilityMap(HypotheticBattle & hb)
 			if(unit->isTurret())
 				continue;
 
+			auto unitSpeed = unit->speed(turn);
+
 			if(turnBattle.battleCanShoot(unit))
 			{
 				for(BattleHex hex = BattleHex::TOP_LEFT; hex.isValid(); hex = hex + 1)
@@ -614,7 +616,7 @@ void BattleExchangeEvaluator::updateReachabilityMap(HypotheticBattle & hb)
 
 			for(BattleHex hex = BattleHex::TOP_LEFT; hex.isValid(); hex = hex + 1)
 			{
-				bool reachable = unitReachability.distances[hex] <= unit->speed(turn);
+				bool reachable = unitReachability.distances[hex] <= unitSpeed;
 
 				if(!reachable && unitReachability.accessibility[hex] == EAccessibility::ALIVE_STACK)
 				{
@@ -624,7 +626,7 @@ void BattleExchangeEvaluator::updateReachabilityMap(HypotheticBattle & hb)
 					{
 						for(BattleHex neighbor : hex.neighbouringTiles())
 						{
-							reachable = unitReachability.distances[neighbor] <= unit->speed(turn);
+							reachable = unitReachability.distances[neighbor] <= unitSpeed;
 
 							if(reachable) break;
 						}
