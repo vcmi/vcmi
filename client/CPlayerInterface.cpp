@@ -181,6 +181,11 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 		GH.windows().pushWindow(adventureInt);
 	}
 
+	//close window from another player
+	if(auto w = GH.windows().topWindow<CInfoWindow>())
+		if(w->ID == -1 && player != playerID)
+			w->close();
+	
 	// remove all dialogs that do not expect query answer
 	while (!GH.windows().topWindow<AdventureMapInterface>() && !GH.windows().topWindow<CInfoWindow>())
 		GH.windows().popWindows(1);

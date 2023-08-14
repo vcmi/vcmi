@@ -142,7 +142,7 @@ class WindowBase : public CIntObject
 public:
 	WindowBase(int used_ = 0, Point pos_ = Point());
 protected:
-	void close();
+	virtual void close();
 };
 
 class IGarrisonHolder
