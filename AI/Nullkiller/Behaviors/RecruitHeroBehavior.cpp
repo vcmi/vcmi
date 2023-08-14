@@ -84,7 +84,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 				}
 			}
 
-			if(treasureSourcesCount < 5)
+			if(treasureSourcesCount < 5 && (town->garrisonHero || town->getUpperArmy()->getArmyStrength() < 10000))
 				continue;
 
 			if(cb->getHeroesInfo().size() < cb->getTownsInfo().size() + 1
