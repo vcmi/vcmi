@@ -64,7 +64,6 @@ void ApplyGhNetPackVisitor::visitDismissHero(DismissHero & pack)
 
 void ApplyGhNetPackVisitor::visitMoveHero(MoveHero & pack)
 {
-	gh.throwOnWrongOwner(&pack, pack.hid);
 	result = gh.moveHero(pack.hid, pack.dest, 0, pack.transit, gh.getPlayerAt(pack.c));
 }
 

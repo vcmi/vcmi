@@ -2220,6 +2220,9 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	// not turn of that hero or player can't simply teleport hero (at least not with this function)
 	if (!h  || (asker != PlayerColor::NEUTRAL && (teleporting || h->getOwner() != gs->currentPlayer)))
 	{
+		if(h && getStartInfo()->turnTimerInfo.isEnabled() && gs->players[h->getOwner()].turnTimer.turnTimer == 0)
+			return true; //timer expired, no error
+		
 		logGlobal->error("Illegal call to move hero!");
 		return false;
 	}
