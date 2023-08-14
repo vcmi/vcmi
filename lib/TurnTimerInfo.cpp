@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "TurnTimerInfo.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 bool TurnTimerInfo::isEnabled() const
 {
 	return turnTimer > 0;
@@ -19,3 +21,5 @@ bool TurnTimerInfo::isBattleEnabled() const
 {
 	return battleTimer > 0;
 }
+
+VCMI_LIB_NAMESPACE_END
