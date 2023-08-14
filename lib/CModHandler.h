@@ -179,6 +179,10 @@ using TModID = std::string;
 
 class DLL_LINKAGE CModInfo
 {
+	/// cached result of checkModGameplayAffecting() call
+	/// Do not serialize - depends on local mod version, not server/save mod version
+	mutable std::optional<bool> modGameplayAffecting;
+
 public:
 	enum EValidationStatus
 	{
@@ -222,6 +226,9 @@ public:
 
 	JsonNode saveLocalData() const;
 	void updateChecksum(ui32 newChecksum);
+
+	/// return true if this mod can affect gameplay, e.g. adds or modifies any game objects
+	bool checkModGameplayAffecting() const;
 
 	bool isEnabled() const;
 	void setEnabled(bool on);
@@ -351,19 +358,46 @@ public:
 		else
 		{
 			loadMods();
+			std::vector<TModID> saveActiveMods;
 			std::vector<TModID> newActiveMods;
-			h & newActiveMods;
+			h & saveActiveMods;
 			
 			Incompatibility::ModList missingMods;
-			for(const auto & m : newActiveMods)
 
+			for(const auto & m : activeMods)
+			{
+				if (vstd::contains(saveActiveMods, m))
+					continue;
+
+				auto & modInfo = allMods.at(m);
+				if(modInfo.checkModGameplayAffecting())
+					missingMods.emplace_back(m, modInfo.version.toString());
+			}
+
+			for(const auto & m : saveActiveMods)
 			{
 				CModVersion mver;
 				h & mver;
-				
-				if(allMods.count(m) && (allMods[m].version.isNull() || mver.isNull() || allMods[m].version.compatible(mver)))
-					allMods[m].setEnabled(true);
-				else
+
+				if (allMods.count(m) == 0)
+				{
+					missingMods.emplace_back(m, mver.toString());
+					continue;
+				}
+
+				auto & modInfo = allMods.at(m);
+
+				bool modAffectsGameplay = modInfo.checkModGameplayAffecting();
+				bool modVersionCompatible = modInfo.version.isNull() || mver.isNull() || modInfo.version.compatible(mver);
+				bool modEnabledLocally = vstd::contains(activeMods, m);
+				bool modCanBeEnabled = modEnabledLocally && modVersionCompatible;
+
+				allMods[m].setEnabled(modCanBeEnabled);
+
+				if (modCanBeEnabled)
+					newActiveMods.push_back(m);
+
+				if (!modCanBeEnabled && modAffectsGameplay)
 					missingMods.emplace_back(m, mver.toString());
 			}
 			
