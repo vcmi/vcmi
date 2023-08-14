@@ -2286,171 +2286,23 @@
 			"eversmokingRingOfSulfur"
 		]
 	},
-	"magicWand":
+	// Misiokles: not having these 3 artifacts could lead to crashes. RMG will try to place them in some randoms maps (and crash the game)
+	"unusedArtifact1":
 	{
-		"bonuses" : [
-			{
-				"type" : "CASTS",
-				"val" : 10,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"subtype" : "spell.implosion",
-				"type" : "SPELLCASTER",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"subtype" : "spell.fireball",
-				"type" : "SPELLCASTER",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "RANDOM_SPELLCASTER",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"addInfo" : 2,
-				"subtype" : "spell.lightningBolt",
-				"type" : "ENCHANTER",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"subtype" : 1,
-				"type" : "REBIRTH",
-				"val" : 1,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "MANA_DRAIN",
-				"val" : 10,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "HEALER",
-				"val" : 25,
-				"valueType" : "BASE_NUMBER"
-			}
-		],
 		"index" : 141,
+		"class" : "SPECIAL",
 		"type" : ["CREATURE"]
 	},
-	"goldTowerArrow":
+	"unusedArtifact2":
 	{
-		"bonuses" : [
-			{
-				"type" : "NO_DISTANCE_PENALTY",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "ADDITIONAL_ATTACK",
-				"val" : 2,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"subtype" : 22,
-				"type" : "SPELL_LIKE_ATTACK",
-				"val" : 1,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "CATAPULT",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "ACID_BREATH",
-				"val" : 20,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"subtype" : 0,
-				"type" : "SHOTS",
-				"val" : 200,
-				"valueType" : "PERCENT_TO_BASE"
-			},
-			{
-				"addInfo" : 1,
-				"subtype" : "spell.age",
-				"type" : "SPELL_BEFORE_ATTACK",
-				"val" : 50,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"addInfo" : 1,
-				"subtype" : "spell.berserk",
-				"type" : "SPELL_AFTER_ATTACK",
-				"val" : 50,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"addInfo" : 1,
-				"subtype" : "spell.poison",
-				"type" : "SPELL_AFTER_ATTACK",
-				"val" : 50,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"addInfo" : 1,
-				"subtype" : "spell.disruptingRay",
-				"type" : "SPELL_AFTER_ATTACK",
-				"val" : 50,
-				"valueType" : "BASE_NUMBER"
-			}
-		],
 		"index" : 142,
+		"class" : "SPECIAL",
 		"type" : ["CREATURE"]
 	},
-	"monstersPower":
+	"unusedArtifact3":
 	{
-		"bonuses" : [
-			{
-				"type" : "STACK_HEALTH",
-				"val" : 100,
-				"valueType" : "PERCENT_TO_BASE"
-			},
-			{
-				"subtype" : 2,
-				"type" : "CREATURE_DAMAGE",
-				"val" : 100,
-				"valueType" : "PERCENT_TO_ALL"
-			},
-			{
-				"type" : "HP_REGENERATION",
-				"val" : 50,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "NO_RETALIATION",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "RETURN_AFTER_STRIKE",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "ATTACKS_ALL_ADJACENT",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "SPELL_RESISTANCE_AURA",
-				"val" : 100,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "SPELL_DAMAGE_REDUCTION",
-				"val" : 100,
-				"valueType" : "BASE_NUMBER"
-			}
-		],
 		"index" : 143,
+		"class" : "SPECIAL",
 		"type" : ["CREATURE"]
 	}
 }
