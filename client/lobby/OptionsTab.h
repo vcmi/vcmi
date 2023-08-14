@@ -17,6 +17,7 @@ struct PlayerInfo;
 VCMI_LIB_NAMESPACE_END
 
 #include "../widgets/Scrollable.h"
+#include "../widgets/Images.h"
 #include "../../lib/mapping/CMapHeader.h"
 
 class CSlider;
@@ -102,7 +103,7 @@ public:
 		PlayerColor color;
 		SelType type;
 
-		std::shared_ptr<CFilledTexture> backgroundTexture;
+		std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
 		std::vector<std::shared_ptr<CIntObject>> components;
 
 		std::vector<FactionID> factions;

@@ -21,6 +21,7 @@
 #include "../render/IFont.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/Images.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
@@ -522,7 +523,8 @@ void OptionsTab::SelectionWindow::recreate()
 
 	pos = Rect(0, 0, x, y);
 
-	backgroundTexture = std::make_shared<CFilledTexture>("DlgBluBk", pos);
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>("DiBoxBck", pos);
+	backgroundTexture->playerColored(PlayerColor(1));
 	updateShadow();
 
 	if(type == SelType::TOWN)
