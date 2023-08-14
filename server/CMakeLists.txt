@@ -1,7 +1,10 @@
 set(server_SRCS
 		StdInc.cpp
 
+		battles/BattleActionProcessor.cpp
+		battles/BattleFlowProcessor.cpp
 		battles/BattleProcessor.cpp
+		battles/BattleResultProcessor.cpp
 
 		queries/BattleQueries.cpp
 		queries/CQuery.cpp
@@ -21,7 +24,10 @@ set(server_SRCS
 set(server_HEADERS
 		StdInc.h
 
+		battles/BattleActionProcessor.h
+		battles/BattleFlowProcessor.h
 		battles/BattleProcessor.h
+		battles/BattleResultProcessor.h
 
 		queries/BattleQueries.h
 		queries/CQuery.h

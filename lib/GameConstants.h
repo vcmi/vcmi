@@ -1379,6 +1379,13 @@ enum class EHealPower : ui8
 	PERMANENT
 };
 
+enum class EBattleResult : ui8
+{
+	NORMAL = 0,
+	ESCAPE = 1,
+	SURRENDER = 2
+};
+
 // Typedef declarations
 using TExpType = si64;
 using TQuantity = si32;

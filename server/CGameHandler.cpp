@@ -4212,7 +4212,7 @@ void CGameHandler::deserializationFix()
 	//FIXME: pointer to GameHandler itself can't be deserialized at the moment since GameHandler is top-level entity in serialization
 	// restore any places that requires such pointer manually
 	heroPool->gameHandler = this;
-	battles->gameHandler = this;
+	battles->setGameHandler(this);
 	playerMessages->gameHandler = this;
 }
 
