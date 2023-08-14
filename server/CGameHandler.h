@@ -157,7 +157,7 @@ public:
 	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
 	void setBattleResult(BattleResult::EResult resultType, int victoriusSide);
 
-	CGameHandler() = default;
+	CGameHandler();
 	CGameHandler(CVCMIServer * lobby);
 	~CGameHandler();
 

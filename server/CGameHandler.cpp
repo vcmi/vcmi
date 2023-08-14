@@ -1563,6 +1563,10 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	return ret;
 }
 
+CGameHandler::CGameHandler()
+	: turnTimerHandler(*this)
+{}
+
 CGameHandler::CGameHandler(CVCMIServer * lobby)
 	: lobby(lobby)
 	, heroPool(std::make_unique<HeroPoolProcessor>(this))
