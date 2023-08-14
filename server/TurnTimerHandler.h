@@ -12,6 +12,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class CStack;
 class PlayerColor;
 struct PlayerState;
 
@@ -23,6 +24,8 @@ class TurnTimerHandler
 {
 	CGameHandler & gameHandler;
 	const int turnTimePropagateFrequency = 5000;
+	const int turnTimePropagateFrequencyCrit = 1000;
+	const int turnTimePropagateThreshold = 3000;
 	
 public:
 	TurnTimerHandler(CGameHandler &);
@@ -30,4 +33,7 @@ public:
 	void onGameplayStart(PlayerState & state);
 	void onPlayerGetTurn(PlayerState & state);
 	void onPlayerMakingTurn(PlayerState & state, int waitTime);
+	void onBattleStart(PlayerState & state);
+	void onBattleNextStack(PlayerState & state);
+	void onBattleLoop(PlayerState & state, int waitTime);
 };

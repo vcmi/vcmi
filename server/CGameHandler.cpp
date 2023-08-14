@@ -2091,6 +2091,11 @@ void CGameHandler::run(bool resume)
 				while(states.players.at(playerColor).makingTurn && lobby->state == EServerState::GAMEPLAY)
 				{
 					turnTimerHandler.onPlayerMakingTurn(gs->players[playerColor], waitTime);
+					if(gs->curB)
+					{
+						turnTimerHandler.onBattleLoop(gs->players[gs->curB->getSidePlayer(BattleSide::ATTACKER)], waitTime);
+						turnTimerHandler.onBattleLoop(gs->players[gs->curB->getSidePlayer(BattleSide::DEFENDER)], waitTime);
+					}
 					static time_duration p = milliseconds(waitTime);
 					states.cv.timed_wait(lock, p);
 				}
@@ -6085,6 +6090,9 @@ void CGameHandler::runBattle()
 	setBattle(gs->curB);
 	assert(gs->curB);
 	//TODO: pre-tactic stuff, call scripts etc.
+	
+	turnTimerHandler.onBattleStart(gs->players[gs->curB->getSidePlayer(BattleSide::ATTACKER)]);
+	turnTimerHandler.onBattleStart(gs->players[gs->curB->getSidePlayer(BattleSide::DEFENDER)]);
 
 	//Moat should be initialized here, because only here we can use spellcasting
 	if (gs->curB->town && gs->curB->town->fortLevel() >= CGTownInstance::CITADEL)
@@ -6247,6 +6255,8 @@ void CGameHandler::runBattle()
 		const CStack * next = nullptr;
 		while((lobby->state != EServerState::SHUTDOWN) && (next = getNextStack()))
 		{
+			turnTimerHandler.onBattleNextStack(gs->players[next->getOwner()]);
+			
 			BattleUnitsChanged removeGhosts;
 			for(auto stack : curB.stacks)
 			{

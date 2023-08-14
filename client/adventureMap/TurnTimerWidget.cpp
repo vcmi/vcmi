@@ -72,17 +72,35 @@ void TurnTimerWidget::setTime(int time)
 
 void TurnTimerWidget::tick(uint32_t msPassed)
 {
-	if(LOCPLINT && LOCPLINT->cb && !LOCPLINT->battleInt)
+	if(LOCPLINT && LOCPLINT->cb)
 	{
 		auto player = LOCPLINT->cb->getCurrentPlayer();
 		auto time = LOCPLINT->cb->getPlayerTurnTime(player);
 		cachedTurnTime -= msPassed;
-		if(time.turnTimer / 1000 != lastTurnTime / 1000)
+		if(cachedTurnTime < 0) cachedTurnTime = 0; //do not go below zero
+		
+		if(LOCPLINT->battleInt)
 		{
-			//do not update timer on this tick
-			lastTurnTime = time.turnTimer;
-			cachedTurnTime = time.turnTimer;
+			if(time.isBattleEnabled())
+			{
+				if(time.creatureTimer / 1000 != lastTurnTime / 1000)
+				{
+					//do not update timer on this tick
+					lastTurnTime = time.creatureTimer;
+					cachedTurnTime = time.creatureTimer;
+				}
+				else setTime(cachedTurnTime);
+			}
 		}
-		else setTime(cachedTurnTime);
+		else
+		{
+			if(time.turnTimer / 1000 != lastTurnTime / 1000)
+			{
+				//do not update timer on this tick
+				lastTurnTime = time.turnTimer;
+				cachedTurnTime = time.turnTimer;
+			}
+			else setTime(cachedTurnTime);
+		}
 	}
 }
