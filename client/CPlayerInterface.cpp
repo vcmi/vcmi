@@ -170,6 +170,9 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 void CPlayerInterface::playerStartsTurn(PlayerColor player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	
+	makingTurn = false;
+	stillMoveHero.setn(STOP_MOVE);
 
 	if(GH.windows().findWindows<AdventureMapInterface>().empty())
 	{
