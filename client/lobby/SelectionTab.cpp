@@ -490,9 +490,9 @@ void SelectionTab::sort()
 		std::stable_sort(curItems.begin(), curItems.end(), mapSorter(generalSortingBy));
 	std::stable_sort(curItems.begin(), curItems.end(), mapSorter(sortingBy));
 
-	int firstMap = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
+	int firstMapIndex = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
 	if(!sortModeAscending)
-		std::reverse(std::next(curItems.begin(), firstMap), curItems.end());
+		std::reverse(std::next(curItems.begin(), firstMapIndex), curItems.end());
 
 	updateListItems();
 	redraw();
