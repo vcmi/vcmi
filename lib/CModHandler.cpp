@@ -649,6 +649,48 @@ void CModInfo::updateChecksum(ui32 newChecksum)
 	}
 }
 
+bool CModInfo::checkModGameplayAffecting() const
+{
+	if (modGameplayAffecting.has_value())
+		return *modGameplayAffecting;
+
+	static const std::vector<std::string> keysToTest = {
+		"heroClasses",
+		"artifacts",
+		"creatures",
+		"factions",
+		"objects",
+		"heroes",
+		"spells",
+		"skills",
+		"templates",
+		"scripts",
+		"battlefields",
+		"terrains",
+		"rivers",
+		"roads",
+		"obstacles"
+	};
+
+	ResourceID modFileResource(CModInfo::getModFile(identifier));
+
+	if(CResourceHandler::get("initial")->existsResource(modFileResource))
+	{
+		const JsonNode modConfig(modFileResource);
+
+		for (auto const & key : keysToTest)
+		{
+			if (!modConfig[key].isNull())
+			{
+				modGameplayAffecting = true;
+				return *modGameplayAffecting;
+			}
+		}
+	}
+	modGameplayAffecting = false;
+	return *modGameplayAffecting;
+}
+
 void CModInfo::loadLocalData(const JsonNode & data)
 {
 	bool validated = false;

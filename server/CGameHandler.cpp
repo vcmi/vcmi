@@ -77,7 +77,6 @@
 #define COMPLAIN_RETF(txt, FORMAT) {complain(boost::str(boost::format(txt) % FORMAT)); return false;}
 
 CondSh<bool> battleMadeAction(false);
-boost::recursive_mutex battleActionMutex;
 CondSh<BattleResult *> battleResult(nullptr);
 template <typename T> class CApplyOnGH;
 

@@ -25,8 +25,6 @@
 #include "../lib/spells/ISpellMechanics.h"
 #include "../lib/serializer/Cast.h"
 
-extern boost::recursive_mutex battleActionMutex;
-
 void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 {
 	gh.save(pack.fname);
@@ -282,7 +280,7 @@ void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)
 
 void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 {
-	boost::unique_lock lock(battleActionMutex);
+	boost::unique_lock lock(gh.battleActionMutex);
 
 	const BattleInfo * b = gs.curB;
 	if(!b)
@@ -311,7 +309,7 @@ void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 
 void ApplyGhNetPackVisitor::visitMakeCustomAction(MakeCustomAction & pack)
 {
-	boost::unique_lock lock(battleActionMutex);
+	boost::unique_lock lock(gh.battleActionMutex);
 
 	const BattleInfo * b = gs.curB;
 	if(!b)
