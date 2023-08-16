@@ -2513,24 +2513,6 @@ struct DLL_LINKAGE MakeAction : public CPackForServer
 	}
 };
 
-struct DLL_LINKAGE MakeCustomAction : public CPackForServer
-{
-	MakeCustomAction() = default;
-	MakeCustomAction(BattleAction BA)
-		: ba(std::move(BA))
-	{
-	}
-	BattleAction ba;
-
-	virtual void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & static_cast<CPackForServer &>(*this);
-		h & ba;
-	}
-};
-
 struct DLL_LINKAGE DigWithHero : public CPackForServer
 {
 	ObjectInstanceID id; //digging hero id

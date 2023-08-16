@@ -401,7 +401,7 @@ void BattleStacksController::stackRemoved(uint32_t stackID)
 	{
 		BattleAction action;
 		action.side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
-		action.actionType = EActionType::CANCEL;
+		action.actionType = EActionType::NO_ACTION;
 		action.stackNumber = getActiveStack()->unitId();
 
 		LOCPLINT->cb->battleMakeUnitAction(action);

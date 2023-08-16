@@ -638,11 +638,6 @@ void MakeAction::visitTyped(ICPackVisitor & visitor)
 	visitor.visitMakeAction(*this);
 }
 
-void MakeCustomAction::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitMakeCustomAction(*this);
-}
-
 void DigWithHero::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitDigWithHero(*this);

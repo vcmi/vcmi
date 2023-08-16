@@ -20,7 +20,7 @@ static const int32_t INVALID_UNIT_ID = -1000;
 BattleAction::BattleAction():
 	side(-1),
 	stackNumber(-1),
-	actionType(EActionType::INVALID),
+	actionType(EActionType::NO_ACTION),
 	actionSubtype(-1)
 {
 }

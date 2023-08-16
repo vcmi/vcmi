@@ -290,21 +290,35 @@ void BattleFlowProcessor::activateNextStack()
 	//TODO: activate next round if next == nullptr
 	const auto & curB = *gameHandler->gameState()->curB;
 
-	const CStack * next = getNextStack();
-
-	if (!next)
-		return;
-
-	BattleUnitsChanged removeGhosts;
-
-	for(auto stack : curB.stacks)
+	// Find next stack that requires manual control
+	for (;;)
 	{
-		if(stack->ghostPending)
-			removeGhosts.changedStacks.emplace_back(stack->unitId(), UnitChanges::EOperation::REMOVE);
-	}
+		const CStack * next = getNextStack();
 
-	if(!removeGhosts.changedStacks.empty())
-		gameHandler->sendAndApply(&removeGhosts);
+		if (!next)
+			return;
+
+		BattleUnitsChanged removeGhosts;
+
+		for(auto stack : curB.stacks)
+		{
+			if(stack->ghostPending)
+				removeGhosts.changedStacks.emplace_back(stack->unitId(), UnitChanges::EOperation::REMOVE);
+		}
+
+		if(!removeGhosts.changedStacks.empty())
+			gameHandler->sendAndApply(&removeGhosts);
+
+		if (!tryMakeAutomaticAction(next))
+		{
+			logGlobal->trace("Activating %s", next->nodeName());
+			auto nextId = next->unitId();
+			BattleSetActiveStack sas;
+			sas.stack = nextId;
+			gameHandler->sendAndApply(&sas);
+			break;
+		}
+	}
 }
 
 bool BattleFlowProcessor::tryMakeAutomaticAction(const CStack * next)
@@ -423,7 +437,7 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CStack * next)
 			return s->unitOwner() == next->unitOwner() && s->canBeHealed();
 		});
 
-		if (!possibleStacks.size())
+		if (possibleStacks.empty())
 		{
 			makeStackDoNothing(next);
 			return true;
@@ -452,25 +466,11 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CStack * next)
 		makeStackDoNothing(next); //end immediately if stack was affected by fear
 		return true;
 	}
-	else
-	{
-		logGlobal->trace("Activating %s", next->nodeName());
-		auto nextId = next->unitId();
-		BattleSetActiveStack sas;
-		sas.stack = nextId;
-		gameHandler->sendAndApply(&sas);
-		return false;
-	}
+	return false;
 }
 
-void BattleFlowProcessor::onActionMade(const CStack *next)
+bool BattleFlowProcessor::rollGoodMorale(const CStack * next)
 {
-	//we're after action, all results applied
-	owner->checkBattleStateChanges(); //check if this action ended the battle
-
-	if(next == nullptr)
-		return;
-
 	//check for good morale
 	auto nextStackMorale = next->moraleVal();
 	if(    !next->hadMorale
@@ -491,11 +491,38 @@ void BattleFlowProcessor::onActionMade(const CStack *next)
 			bte.val = 1;
 			bte.additionalInfo = 0;
 			gameHandler->sendAndApply(&bte); //play animation
+			return true;
 		}
 	}
+	return false;
+}
 
-	if (gameHandler->gameLobby()->state != EServerState::SHUTDOWN)
-		owner->endBattle(gameHandler->gameState()->curB->tile, gameHandler->gameState()->curB->battleGetFightingHero(0), gameHandler->gameState()->curB->battleGetFightingHero(1));
+void BattleFlowProcessor::onActionMade(const BattleAction &ba)
+{
+	const CStack * next = gameHandler->gameState()->curB->battleGetStackByID(ba.stackNumber);
+
+	//we're after action, all results applied
+	owner->checkBattleStateChanges(); //check if this action ended the battle
+
+	if(next == nullptr)
+		return;
+
+	bool heroAction = ba.actionType == EActionType::HERO_SPELL || ba.actionType ==EActionType::SURRENDER|| ba.actionType ==EActionType::RETREAT;
+
+	if (heroAction && next->alive())
+	{
+		// this is action made by hero AND unit is alive (e.g. not killed by casted spell)
+		// keep current active stack for next action
+		return;
+	}
+
+	if (rollGoodMorale(next))
+	{
+		// Good morale - same stack makes 2nd turn
+		return;
+	}
+
+	activateNextStack();
 }
 
 void BattleFlowProcessor::makeStackDoNothing(const CStack * next)

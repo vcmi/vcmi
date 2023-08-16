@@ -61,14 +61,14 @@ struct FinishingBattleHelper
 
 class BattleResultProcessor : boost::noncopyable
 {
-	BattleProcessor * owner;
+//	BattleProcessor * owner;
 	CGameHandler * gameHandler;
 
 	std::unique_ptr<BattleResult> battleResult;
 	std::unique_ptr<FinishingBattleHelper> finishingBattle;
 
 public:
-	BattleResultProcessor(BattleProcessor * owner);
+	explicit BattleResultProcessor(BattleProcessor * owner);
 	void setGameHandler(CGameHandler * newGameHandler);
 
 	void setBattleResult(EBattleResult resultType, int victoriusSide);

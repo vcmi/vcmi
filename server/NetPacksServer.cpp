@@ -288,14 +288,6 @@ void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 	result = gh.battles->makeBattleAction(pack.player, pack.ba);
 }
 
-void ApplyGhNetPackVisitor::visitMakeCustomAction(MakeCustomAction & pack)
-{
-	if (!gh.hasPlayerAt(pack.player, pack.c))
-		gh.throwAndComplain(&pack, "No such pack.player!");
-
-	result = gh.battles->makeCustomAction(pack.player, pack.ba);
-}
-
 void ApplyGhNetPackVisitor::visitDigWithHero(DigWithHero & pack)
 {
 	gh.throwOnWrongOwner(&pack, pack.id);

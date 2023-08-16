@@ -44,8 +44,7 @@ class BattleProcessor : boost::noncopyable
 	void checkBattleStateChanges();
 	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
 
-	bool makeBattleAction(BattleAction &ba);
-	bool makeCustomAction(BattleAction &ba);
+	bool makeBattleAction(const BattleAction &ba);
 
 	void setBattleResult(EBattleResult resultType, int victoriusSide);
 public:
@@ -60,9 +59,7 @@ public:
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false); //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
 
 	bool makeBattleAction(PlayerColor player, BattleAction &ba);
-	bool makeCustomAction(PlayerColor player, BattleAction &ba);
 
-	void endBattle(int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2); //ends battle
 	void endBattleConfirm(const BattleInfo * battleInfo);
 	void battleAfterLevelUp(const BattleResult &result);
 

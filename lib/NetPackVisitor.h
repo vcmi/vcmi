@@ -134,7 +134,6 @@ public:
 	virtual void visitBuildBoat(BuildBoat & pack) {}
 	virtual void visitQueryReply(QueryReply & pack) {}
 	virtual void visitMakeAction(MakeAction & pack) {}
-	virtual void visitMakeCustomAction(MakeCustomAction & pack) {}
 	virtual void visitDigWithHero(DigWithHero & pack) {}
 	virtual void visitCastAdvSpell(CastAdvSpell & pack) {}
 	virtual void visitSaveGame(SaveGame & pack) {}

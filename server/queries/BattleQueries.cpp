@@ -43,7 +43,7 @@ CBattleQuery::CBattleQuery(CGameHandler * owner):
 bool CBattleQuery::blocksPack(const CPack * pack) const
 {
 	const char * name = typeid(*pack).name();
-	return strcmp(name, typeid(MakeAction).name()) && strcmp(name, typeid(MakeCustomAction).name());
+	return strcmp(name, typeid(MakeAction).name()) != 0;
 }
 
 void CBattleQuery::onRemoval(PlayerColor color)

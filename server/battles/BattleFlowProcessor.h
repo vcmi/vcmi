@@ -26,6 +26,7 @@ class BattleFlowProcessor : boost::noncopyable
 
 	const CStack * getNextStack();
 
+	bool rollGoodMorale(const CStack * stack);
 	bool tryMakeAutomaticAction(const CStack * stack);
 
 	void summonGuardiansHelper(std::vector<BattleHex> & output, const BattleHex & targetPosition, ui8 side, bool targetIsTwoHex);
@@ -40,10 +41,10 @@ class BattleFlowProcessor : boost::noncopyable
 	bool makeAutomaticAction(const CStack *stack, BattleAction &ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
 
 public:
-	BattleFlowProcessor(BattleProcessor * owner);
+	explicit BattleFlowProcessor(BattleProcessor * owner);
 	void setGameHandler(CGameHandler * newGameHandler);
 
 	void onBattleStarted();
 	void onTacticsEnded();
-	void onActionMade(const CStack *stack);
+	void onActionMade(const BattleAction &ba);
 };

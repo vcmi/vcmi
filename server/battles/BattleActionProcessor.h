@@ -13,7 +13,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct BattleLogMessage;
 struct BattleAttack;
-class BattleProcessor;
 class BattleAction;
 struct BattleHex;
 class CStack;
@@ -27,6 +26,7 @@ class CUnitState;
 VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
+class BattleProcessor;
 
 class BattleActionProcessor : boost::noncopyable
 {
@@ -48,11 +48,30 @@ class BattleActionProcessor : boost::noncopyable
 	void sendGenericKilledLog(const CStack * defender, int32_t killed, bool multiple);
 	void addGenericKilledLog(BattleLogMessage & blm, const CStack * defender, int32_t killed, bool multiple);
 
+	bool canStackAct(const CStack * stack);
+
+	bool doEmptyAction(const BattleAction & ba);
+	bool doEndTacticsAction(const BattleAction & ba);
+	bool doRetreatAction(const BattleAction & ba);
+	bool doSurrenderAction(const BattleAction & ba);
+	bool doHeroSpellAction(const BattleAction & ba);
+	bool doWalkAction(const BattleAction & ba);
+	bool doWaitAction(const BattleAction & ba);
+	bool doDefendAction(const BattleAction & ba);
+	bool doAttackAction(const BattleAction & ba);
+	bool doShootAction(const BattleAction & ba);
+	bool doCatapultAction(const BattleAction & ba);
+	bool doUnitSpellAction(const BattleAction & ba);
+	bool doBadMoraleAction(const BattleAction & ba);
+	bool doHealAction(const BattleAction & ba);
+
+	bool dispatchBattleAction(const BattleAction & ba);
+
 public:
-	BattleActionProcessor(BattleProcessor * owner);
+	explicit BattleActionProcessor(BattleProcessor * owner);
 	void setGameHandler(CGameHandler * newGameHandler);
 
-	bool makeBattleAction(BattleAction &ba);
-	bool makeCustomAction(BattleAction &ba);
+	bool makeBattleAction(const BattleAction &ba);
+
 };
 

@@ -292,7 +292,7 @@ void CBattleAI::activeStack( const CStack * stack )
 			//spellcast may finish battle or kill active stack
 			//send special preudo-action
 			BattleAction cancel;
-			cancel.actionType = EActionType::CANCEL;
+			cancel.actionType = EActionType::NO_ACTION;
 			cb->battleMakeUnitAction(cancel);
 			return;
 		}

@@ -270,58 +270,20 @@ bool BattleProcessor::makeBattleAction(PlayerColor player, BattleAction &ba)
 			return false;
 	}
 
-	return actionsProcessor->makeBattleAction(ba);
-}
-
-bool BattleProcessor::makeCustomAction(PlayerColor player, BattleAction &ba)
-{
-	const BattleInfo * b = gameHandler->gameState()->curB;
-
-	if(!b && gameHandler->complain("Can not make action - there is no battle ongoing!"))
-		return false;
-
-	if (ba.side != 0 && ba.side != 1 && gameHandler->complain("Can not make action - invalid battle side!"))
-		return false;
-
-	if(b->tacticDistance)
-	{
-		gameHandler->complain("Can not cast spell during tactics mode!");
-		return false;
-	}
-
-	auto active = b->battleActiveUnit();
-	if(!active && gameHandler->complain("No active unit in battle!"))
-		return false;
-
-	auto unitOwner = b->battleGetOwner(active);
-
-	if(player != unitOwner && gameHandler->complain("Can not make actions in battles you are not part of!"))
-		return false;
-
-	if(ba.actionType != EActionType::HERO_SPELL && gameHandler->complain("Invalid custom action type!"))
-		return false;
-
-	return actionsProcessor->makeCustomAction(ba);
+	return makeBattleAction(ba);
 }
 
 void BattleProcessor::setBattleResult(EBattleResult resultType, int victoriusSide)
 {
 	resultProcessor->setBattleResult(resultType, victoriusSide);
+	resultProcessor->endBattle(gameHandler->gameState()->curB->tile, gameHandler->gameState()->curB->battleGetFightingHero(0), gameHandler->gameState()->curB->battleGetFightingHero(1));
 }
 
-bool BattleProcessor::makeBattleAction(BattleAction &ba)
+bool BattleProcessor::makeBattleAction(const BattleAction &ba)
 {
-	return actionsProcessor->makeBattleAction(ba);
-}
-
-bool BattleProcessor::makeCustomAction(BattleAction &ba)
-{
-	return actionsProcessor->makeCustomAction(ba);
-}
-
-void BattleProcessor::endBattle(int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2)
-{
-	resultProcessor->endBattle(tile, hero1, hero2);
+	bool result = actionsProcessor->makeBattleAction(ba);
+	flowProcessor->onActionMade(ba);
+	return result;
 }
 
 void BattleProcessor::endBattleConfirm(const BattleInfo * battleInfo)

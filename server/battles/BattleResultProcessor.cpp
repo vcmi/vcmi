@@ -39,8 +39,8 @@
 #include "../../lib/spells/Problem.h"
 
 BattleResultProcessor::BattleResultProcessor(BattleProcessor * owner)
-	: owner(owner)
-	, gameHandler(nullptr)
+//	: owner(owner)
+	: gameHandler(nullptr)
 {
 }
 
@@ -550,5 +550,4 @@ void BattleResultProcessor::setBattleResult(EBattleResult resultType, int victor
 	battleResult->result = resultType;
 	battleResult->winner = victoriusSide; //surrendering side loses
 	gameHandler->gameState()->curB->calculateCasualties(battleResult->casualties);
-
 }
