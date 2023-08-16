@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "TurnTimerWidget.h"
 
+#include "../CGameInfo.h"
+#include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 
 #include "../render/EFont.h"
@@ -44,6 +46,11 @@ TurnTimerWidget::TurnTimerWidget():
 	const JsonNode config(ResourceID("config/widgets/turnTimer.json"));
 	
 	build(config);
+	
+	std::transform(variables["notificationTime"].Vector().begin(),
+				   variables["notificationTime"].Vector().end(),
+				   std::inserter(notifications, notifications.begin()),
+				   [](const JsonNode & node){ return node.Integer(); });
 }
 
 std::shared_ptr<TurnTimerWidget::DrawRect> TurnTimerWidget::buildDrawRect(const JsonNode & config) const
@@ -61,7 +68,10 @@ void TurnTimerWidget::show(Canvas & to)
 
 void TurnTimerWidget::setTime(int time)
 {
-	turnTime = time / 1000;
+	int newTime = time / 1000;
+	if((newTime != turnTime) && notifications.count(newTime))
+		CCS->soundh->playSound(variables["notificationSound"].String());
+	turnTime = newTime;
 	if(auto w = widget<CLabel>("timer"))
 	{
 		std::ostringstream oss;
@@ -79,28 +89,25 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 		cachedTurnTime -= msPassed;
 		if(cachedTurnTime < 0) cachedTurnTime = 0; //do not go below zero
 		
+		auto timeCheckAndUpdate = [&](int time)
+		{
+			if(time / 1000 != lastTurnTime / 1000)
+			{
+				//do not update timer on this tick
+				lastTurnTime = time;
+				cachedTurnTime = time;
+			}
+			else setTime(cachedTurnTime);
+		};
+		
 		if(LOCPLINT->battleInt)
 		{
 			if(time.isBattleEnabled())
-			{
-				if(time.creatureTimer / 1000 != lastTurnTime / 1000)
-				{
-					//do not update timer on this tick
-					lastTurnTime = time.creatureTimer;
-					cachedTurnTime = time.creatureTimer;
-				}
-				else setTime(cachedTurnTime);
-			}
+				timeCheckAndUpdate(time.creatureTimer);
 		}
 		else
 		{
-			if(time.turnTimer / 1000 != lastTurnTime / 1000)
-			{
-				//do not update timer on this tick
-				lastTurnTime = time.turnTimer;
-				cachedTurnTime = time.turnTimer;
-			}
-			else setTime(cachedTurnTime);
+			timeCheckAndUpdate(time.turnTimer);
 		}
 	}
 }

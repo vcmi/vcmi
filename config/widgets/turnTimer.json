@@ -23,5 +23,11 @@
 			"text": "",
 			"position": {"x": 24, "y": 2}
 		},
-	]
+	],
+
+	"variables":
+	{
+		"notificationTime": [0, 1, 2, 3, 4, 5, 20],
+		"notificationSound": "WE5"
+	}
 }

@@ -36,14 +36,12 @@ private:
 	int lastTurnTime;
 	int cachedTurnTime;
 	
-	//std::shared_ptr<CAnimImage> watches;
-	//std::shared_ptr<CLabel> label;
+	std::set<int> notifications;
 	
 	std::shared_ptr<DrawRect> buildDrawRect(const JsonNode & config) const;
 	
 public:
 
-	//void tick(uint32_t msPassed) override;
 	void show(Canvas & to) override;
 	void tick(uint32_t msPassed) override;
 	
