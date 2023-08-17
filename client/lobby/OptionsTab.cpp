@@ -683,6 +683,8 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 				CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
 				GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
 			}
+			else
+				selectedFaction = set.castle;
 		}
 	}
 	if(type == SelType::HERO)
@@ -705,6 +707,8 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 				CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
 				GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
 			}
+			else
+				selectedHero = set.hero;
 		}
 	}
 	if(type == SelType::BONUS)
@@ -719,6 +723,8 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 				CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::BONUS);
 				GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
 			}
+			else
+				selectedBonus = set.bonus;
 		}
 	}
 
