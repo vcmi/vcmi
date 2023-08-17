@@ -213,7 +213,7 @@ struct DLL_LINKAGE LobbyChangePlayerOption : public CLobbyPackToServer
 {
 	enum EWhat : ui8 {UNKNOWN, TOWN, HERO, BONUS, TOWN_ID, HERO_ID, BONUS_ID};
 	ui8 what = UNKNOWN;
-	si16 value = 0; //-1 or +1
+	int32_t value = 0;
 	PlayerColor color = PlayerColor::CANNOT_DETERMINE;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;

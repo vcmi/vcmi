@@ -17,8 +17,6 @@ struct PlayerInfo;
 VCMI_LIB_NAMESPACE_END
 
 #include "../widgets/Scrollable.h"
-#include "../widgets/Images.h"
-#include "../../lib/mapping/CMapHeader.h"
 
 class CSlider;
 class CLabel;
@@ -28,6 +26,8 @@ class CAnimImage;
 class CComponentBox;
 class CTextBox;
 class CButton;
+
+class FilledTexturePlayerColored;
 
 /// The options tab which is shown at the map selection phase.
 class OptionsTab : public CIntObject

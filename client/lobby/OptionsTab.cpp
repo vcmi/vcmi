@@ -515,7 +515,7 @@ void OptionsTab::SelectionWindow::recreate()
 			elementsPerLine = floor(sqrt(count));
 		}
 
-		amountLines = calcLines((type > SelType::TOWN) ? selectedFaction : static_cast<FactionID>(-1));
+		amountLines = calcLines((type > SelType::TOWN) ? selectedFaction : static_cast<FactionID>(PlayerSettings::RANDOM));
 	}
 
 	int x = (elementsPerLine) * 57;
@@ -549,9 +549,9 @@ void OptionsTab::SelectionWindow::drawOutlinedText(int x, int y, ColorRGBA color
 
 void OptionsTab::SelectionWindow::genContentGrid(int lines)
 {
-	for(int y = 0; y<lines; y++)
+	for(int y = 0; y < lines; y++)
 	{
-		for(int x = 0; x<elementsPerLine; x++)
+		for(int x = 0; x < elementsPerLine; x++)
 		{
 			components.push_back(std::make_shared<CPicture>("lobby/townBorderBig", x * 57, y * 63));
 		}
@@ -564,11 +564,11 @@ void OptionsTab::SelectionWindow::genContentFactions()
 
 	// random
 	PlayerSettings set = PlayerSettings();
-	set.castle = -1;
+	set.castle = PlayerSettings::RANDOM;
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
 	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 6, 32 / 2));
-	drawOutlinedText(29, 56, (selectedFaction == -1) ? Colors::YELLOW : Colors::WHITE, helper.getName());
-	if(selectedFaction == -1)
+	drawOutlinedText(29, 56, (selectedFaction == PlayerSettings::RANDOM) ? Colors::YELLOW : Colors::WHITE, helper.getName());
+	if(selectedFaction == PlayerSettings::RANDOM)
 		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", 6, 32 / 2));
 
 	for(auto & elem : allowedFactions)
@@ -596,11 +596,11 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 
 	// random
 	PlayerSettings set = PlayerSettings();
-	set.hero = -1;
+	set.hero = PlayerSettings::RANDOM;
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
 	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 6, 32 / 2));
-	drawOutlinedText(29, 56, (selectedHero == -1) ? Colors::YELLOW : Colors::WHITE, helper.getName());
-	if(selectedHero == -1)
+	drawOutlinedText(29, 56, (selectedHero == PlayerSettings::RANDOM) ? Colors::YELLOW : Colors::WHITE, helper.getName());
+	if(selectedHero == PlayerSettings::RANDOM)
 		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", 6, 32 / 2));
 
 	for(auto & elem : allowedHeroes)
@@ -675,10 +675,10 @@ void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition) {
 		}
 		else
 		{
-			set.castle = -1;
+			set.castle = PlayerSettings::RANDOM;
 		}
 
-		if(set.castle != -2)
+		if(set.castle != PlayerSettings::NONE)
 			selectedFaction = set.castle;
 	}
 	if(type == SelType::HERO)
@@ -692,9 +692,9 @@ void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition) {
 		}
 		else
 		{
-			set.hero = -1;
+			set.hero = PlayerSettings::RANDOM;
 		}
-		if(set.hero != -2)
+		if(set.hero != PlayerSettings::NONE)
 			selectedHero = set.hero;
 	}
 	if(type == SelType::BONUS)
@@ -702,7 +702,7 @@ void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition) {
 		if(elem >= allowedBonus.size())
 			return;
 		set.bonus = static_cast<PlayerSettings::Ebonus>(allowedBonus[elem]);
-		if(set.bonus != -2)
+		if(set.bonus != PlayerSettings::NONE)
 			selectedBonus = set.bonus;
 	}
 	apply();
@@ -724,9 +724,9 @@ void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 		}
 		else
 		{
-			set.castle = -1;
+			set.castle = PlayerSettings::RANDOM;
 		}
-		if(set.castle != -2)
+		if(set.castle != PlayerSettings::NONE)
 		{
 			CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
 			GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
@@ -743,9 +743,9 @@ void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 		}
 		else
 		{
-			set.hero = -1;
+			set.hero = PlayerSettings::RANDOM;
 		}
-		if(set.hero != -2)
+		if(set.hero != PlayerSettings::NONE)
 		{
 			CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
 			GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
@@ -756,7 +756,7 @@ void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 		if(elem >= 4)
 			return;
 		set.bonus = static_cast<PlayerSettings::Ebonus>(elem-1);
-		if(set.bonus != -2)
+		if(set.bonus != PlayerSettings::NONE)
 		{
 			CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::BONUS);
 			GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
@@ -787,9 +787,9 @@ void OptionsTab::SelectedBox::update()
 void OptionsTab::SelectedBox::showPopupWindow(const Point & cursorPosition)
 {
 	// cases when we do not need to display a message
-	if(settings.castle == -2 && CPlayerSettingsHelper::type == TOWN)
+	if(settings.castle == PlayerSettings::NONE && CPlayerSettingsHelper::type == TOWN)
 		return;
-	if(settings.hero == -2 && !SEL->getPlayerInfo(settings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
+	if(settings.hero == PlayerSettings::NONE && !SEL->getPlayerInfo(settings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
 		return;
 
 	GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
