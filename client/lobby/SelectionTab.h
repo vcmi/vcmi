@@ -11,10 +11,12 @@
 
 #include "CSelectionBase.h"
 #include "../../lib/mapping/CMapInfo.h"
-#include "../widgets/Images.h"
 
 class CSlider;
 class CLabel;
+class CMap;
+class CPicture;
+class IImage;
 
 enum ESortBy
 {
@@ -65,13 +67,21 @@ class SelectionTab : public CIntObject
 
 	class CMapInfoTooltipBox : public CWindowObject
 	{
+		const int IMAGE_SIZE = 169;
+		const int BORDER = 30;
+
+		bool drawPlayerElements;
+		bool renderImage;
+
 		std::shared_ptr<CFilledTexture> backgroundTexture;
 		std::shared_ptr<CTextBox> label;
-		std::shared_ptr<CPicture> image;
+		std::shared_ptr<CPicture> image1;
+		std::shared_ptr<CPicture> image2;
 
-		std::shared_ptr<IImage> redrawMinimap(ResourceID resource);
+		Canvas createMinimap(std::unique_ptr<CMap> & map, int layer);
+		std::vector<std::shared_ptr<IImage>> redrawMinimap(ResourceID resource, int size=144);
 	public:
-		CMapInfoTooltipBox(std::string text, ResourceID resource, bool renderImage);
+		CMapInfoTooltipBox(std::string text, ResourceID resource, ESelectionScreen tabType);
 	};
 public:
 	std::vector<std::shared_ptr<ElementInfo>> allItems;

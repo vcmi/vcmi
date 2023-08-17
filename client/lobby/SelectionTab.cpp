@@ -30,6 +30,7 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
+#include "../render/Graphics.h"
 
 #include "../../CCallback.h"
 
@@ -358,7 +359,7 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 		if(curItems[py]->date != "")
 			text += boost::str(boost::format("\r\n\r\n%1%:\r\n%2%") % CGI->generaltexth->translate("vcmi.lobby.creationDate") % curItems[py]->date);
 
-		GH.windows().createAndPushWindow<CMapInfoTooltipBox>(text, ResourceID(curItems[py]->fileURI), tabType == ESelectionScreen::newGame);
+		GH.windows().createAndPushWindow<CMapInfoTooltipBox>(text, ResourceID(curItems[py]->fileURI), tabType);
 	}
 }
 
@@ -802,32 +803,42 @@ std::unordered_set<ResourceID> SelectionTab::getFiles(std::string dirURI, int re
 	return ret;
 }
 
-SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceID resource, bool renderImage)
+SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceID resource, ESelectionScreen tabType)
 	: CWindowObject(BORDERED | RCLICK_POPUP)
 {
+	drawPlayerElements = tabType == ESelectionScreen::newGame;
+	renderImage = tabType == ESelectionScreen::newGame;
+
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	pos = Rect(0, 0, 250, 2000);
+	std::vector<std::shared_ptr<IImage>> images;
+	if(renderImage)
+		images = redrawMinimap(ResourceID(resource.getName(), EResType::MAP), IMAGE_SIZE);
 
-	label = std::make_shared<CTextBox>(text, Rect(20, 20, 250-40, 350), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
+	pos = Rect(0, 0, 2*BORDER + IMAGE_SIZE, 2000);
+	if(renderImage && images.size() > 1)
+		pos.w += IMAGE_SIZE + BORDER;
+
+	label = std::make_shared<CTextBox>(text, Rect(BORDER, BORDER, pos.w-2*BORDER, 350), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 	if(!label->slider)
 		label->resize(label->label->textSize);
 
-	pos.h = 20 + label->label->textSize.y + 20;
+	pos.h = BORDER + label->label->textSize.y + BORDER;
 	if(renderImage)
-		pos.h += 200 + 20;
+		pos.h += IMAGE_SIZE + BORDER;
 	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
 	updateShadow();
 
 	// TODO: hacky redraw
-	label = std::make_shared<CTextBox>(text, Rect(20, 20, 250-40, 350), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
+	label = std::make_shared<CTextBox>(text, Rect(BORDER, BORDER, pos.w-2*BORDER, 350), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 	if(!label->slider)
 		label->resize(label->label->textSize);
 
 	if(renderImage)
 	{
-		std::shared_ptr<IImage> img = redrawMinimap(ResourceID(resource.getName(), EResType::MAP));
-		image = std::make_shared<CPicture>(img, Point(25, label->label->textSize.y + 40));
+		image1 = std::make_shared<CPicture>(images[0], Point(BORDER, label->label->textSize.y + 2*BORDER));
+		if(images.size()>1)
+			image2 = std::make_shared<CPicture>(images[1], Point(BORDER + IMAGE_SIZE + BORDER, label->label->textSize.y + 2*BORDER));
 	}
 
 	center(GH.getCursorPosition()); //center on mouse
@@ -837,30 +848,60 @@ SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceI
 	fitToScreen(10);
 }
 
-std::shared_ptr<IImage> SelectionTab::CMapInfoTooltipBox::redrawMinimap(ResourceID resource)
+Canvas SelectionTab::CMapInfoTooltipBox::createMinimap(std::unique_ptr<CMap> & map, int layer)
 {
-	CMapService mapService;
-	std::unique_ptr<CMap> map = mapService.loadMap(resource);
 	Canvas canvas = Canvas(Point(map->width, map->height));
 
 	for (int y = 0; y < map->height; ++y)
 		for (int x = 0; x < map->width; ++x)
 		{
-			TerrainTile & tile = map->getTile(int3(x, y, 0));
+			TerrainTile & tile = map->getTile(int3(x, y, layer));
 
 			ColorRGBA color = tile.terType->minimapUnblocked;
 			if (tile.blocked && (!tile.visitable))
 				color = tile.terType->minimapBlocked;
 
+			if(drawPlayerElements)
+				// if object at tile is owned - it will be colored as its owner
+				for (const CGObjectInstance *obj : tile.blockingObjects)
+				{
+					PlayerColor player = obj->getOwner();
+					if(player == PlayerColor::NEUTRAL)
+					{
+						color = graphics->neutralColor;
+						break;
+					}
+					if (player < PlayerColor::PLAYER_LIMIT)
+					{
+						color = graphics->playerColors[player.getNum()];
+						break;
+					}
+				}
+
 			canvas.drawPoint(Point(x, y), color);
 		}
-
-	Canvas canvasScaled = Canvas(Point(200, 200));
-	canvasScaled.drawScaled(canvas, Point(0, 0), Point(200, 200));
-
-	std::shared_ptr<IImage> img = IImage::createFromSurface(canvasScaled.getInternalSurface());
 	
-	return img;
+	return canvas;
+}
+
+std::vector<std::shared_ptr<IImage>> SelectionTab::CMapInfoTooltipBox::redrawMinimap(ResourceID resource, int size)
+{
+	std::vector<std::shared_ptr<IImage>> ret = std::vector<std::shared_ptr<IImage>>();
+
+	CMapService mapService;
+	std::unique_ptr<CMap> map = mapService.loadMap(resource);
+
+	for(int i = 0; i < (map->twoLevel ? 2 : 1); i++)
+	{
+		Canvas canvas = createMinimap(map, i);
+		Canvas canvasScaled = Canvas(Point(size, size));
+		canvasScaled.drawScaled(canvas, Point(0, 0), Point(size, size));
+		std::shared_ptr<IImage> img = IImage::createFromSurface(canvasScaled.getInternalSurface());
+		
+		ret.push_back(img);
+	}
+
+	return ret;
 }
 
 SelectionTab::ListItem::ListItem(Point position, std::shared_ptr<CAnimation> iconsFormats, std::shared_ptr<CAnimation> iconsVictory, std::shared_ptr<CAnimation> iconsLoss)
