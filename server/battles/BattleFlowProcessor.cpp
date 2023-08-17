@@ -13,32 +13,16 @@
 #include "BattleProcessor.h"
 
 #include "../CGameHandler.h"
-#include "../CVCMIServer.h"
-#include "../processors/HeroPoolProcessor.h"
-#include "../queries/QueriesProcessor.h"
-#include "../queries/BattleQueries.h"
 
-#include "../../lib/ArtifactUtils.h"
-#include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CStack.h"
-#include "../../lib/CondSh.h"
 #include "../../lib/GameSettings.h"
-#include "../../lib/ScopeGuard.h"
-#include "../../lib/TerrainHandler.h"
-#include "../../lib/UnlockGuard.h"
 #include "../../lib/battle/BattleInfo.h"
-#include "../../lib/battle/CUnitState.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-#include "../../lib/mapping/CMap.h"
-#include "../../lib/modding/IdentifierStorage.h"
-#include "../../lib/serializer/Cast.h"
-#include "../../lib/spells/AbilityCaster.h"
+#include "../../lib/NetPacks.h"
 #include "../../lib/spells/BonusCaster.h"
-#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/ObstacleCasterProxy.h"
-#include "../../lib/spells/Problem.h"
 
 BattleFlowProcessor::BattleFlowProcessor(BattleProcessor * owner)
 	: owner(owner)
