@@ -62,7 +62,7 @@ public:
 	virtual void setCampaignBonus(int bonusId) const = 0;
 	virtual void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const = 0;
 	virtual void setPlayer(PlayerColor color) const = 0;
-	virtual void setPlayerOption(ui8 what, si16 value, PlayerColor player) const = 0;
+	virtual void setPlayerOption(ui8 what, int32_t value, PlayerColor player) const = 0;
 	virtual void setDifficulty(int to) const = 0;
 	virtual void setTurnLength(int npos) const = 0;
 	virtual void sendMessage(const std::string & txt) const = 0;

@@ -98,6 +98,13 @@ public:
 
 	class SelectionWindow : public CWindowObject
 	{
+		const int ICON_SMALL_WIDTH = 48;
+		const int ICON_SMALL_HEIGHT = 32;
+		const int ICON_BIG_WIDTH = 58;
+		const int ICON_BIG_HEIGHT = 64;
+		const int TEXT_POS_X = 29;
+		const int TEXT_POS_Y = 56;
+
 		int elementsPerLine;
 
 		PlayerColor color;

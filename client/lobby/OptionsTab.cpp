@@ -518,8 +518,8 @@ void OptionsTab::SelectionWindow::recreate()
 		amountLines = calcLines((type > SelType::TOWN) ? selectedFaction : static_cast<FactionID>(PlayerSettings::RANDOM));
 	}
 
-	int x = (elementsPerLine) * 57;
-	int y = (amountLines) * 63;
+	int x = (elementsPerLine) * (ICON_BIG_WIDTH-1);
+	int y = (amountLines) * (ICON_BIG_HEIGHT-1);
 
 	pos = Rect(0, 0, x, y);
 
@@ -553,7 +553,7 @@ void OptionsTab::SelectionWindow::genContentGrid(int lines)
 	{
 		for(int x = 0; x < elementsPerLine; x++)
 		{
-			components.push_back(std::make_shared<CPicture>("lobby/townBorderBig", x * 57, y * 63));
+			components.push_back(std::make_shared<CPicture>("lobby/townBorderBig", x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
 		}
 	}
 }
@@ -566,10 +566,10 @@ void OptionsTab::SelectionWindow::genContentFactions()
 	PlayerSettings set = PlayerSettings();
 	set.castle = PlayerSettings::RANDOM;
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
-	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 6, 32 / 2));
-	drawOutlinedText(29, 56, (selectedFaction == PlayerSettings::RANDOM) ? Colors::YELLOW : Colors::WHITE, helper.getName());
+	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 6, (ICON_SMALL_HEIGHT/2)));
+	drawOutlinedText(TEXT_POS_X, TEXT_POS_Y, (selectedFaction == PlayerSettings::RANDOM) ? Colors::YELLOW : Colors::WHITE, helper.getName());
 	if(selectedFaction == PlayerSettings::RANDOM)
-		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", 6, 32 / 2));
+		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", 6, (ICON_SMALL_HEIGHT/2)));
 
 	for(auto & elem : allowedFactions)
 	{
@@ -581,9 +581,9 @@ void OptionsTab::SelectionWindow::genContentFactions()
 
 		CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
 
-		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * 57, y * 63));
-		components.push_back(std::make_shared<CPicture>(selectedFaction == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig", x * 57, y * 63));
-		drawOutlinedText(x * 57 + 29, y * 63 + 56, (selectedFaction == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
+		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
+		components.push_back(std::make_shared<CPicture>(selectedFaction == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig", x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
+		drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, (selectedFaction == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
 		factions.push_back(elem);
 
 		i++;
@@ -598,10 +598,10 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 	PlayerSettings set = PlayerSettings();
 	set.hero = PlayerSettings::RANDOM;
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
-	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 6, 32 / 2));
-	drawOutlinedText(29, 56, (selectedHero == PlayerSettings::RANDOM) ? Colors::YELLOW : Colors::WHITE, helper.getName());
+	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 6, (ICON_SMALL_HEIGHT/2)));
+	drawOutlinedText(TEXT_POS_X, TEXT_POS_Y, (selectedHero == PlayerSettings::RANDOM) ? Colors::YELLOW : Colors::WHITE, helper.getName());
 	if(selectedHero == PlayerSettings::RANDOM)
-		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", 6, 32 / 2));
+		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", 6, (ICON_SMALL_HEIGHT/2)));
 
 	for(auto & elem : allowedHeroes)
 	{
@@ -618,9 +618,9 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 
 			CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
 
-			components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * 57, y * 63));
-			components.push_back(std::make_shared<CPicture>(selectedHero == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig", x * 57, y * 63));
-			drawOutlinedText(x * 57 + 29, y * 63 + 56, (selectedHero == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
+			components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
+			components.push_back(std::make_shared<CPicture>(selectedHero == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig", x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
+			drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, (selectedHero == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
 			heroes.push_back(elem);
 
 			i++;
@@ -640,12 +640,12 @@ void OptionsTab::SelectionWindow::genContentBonus()
 
 		set.bonus = static_cast<PlayerSettings::Ebonus>(elem);
 		CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::BONUS);
-		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, x * 57 + 6, y * 63 + 32 / 2));
-		drawOutlinedText(x * 57 + 29, y * 63 + 56, Colors::WHITE , helper.getName());
+		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, x * (ICON_BIG_WIDTH-1) + 6, y * (ICON_BIG_HEIGHT-1) + (ICON_SMALL_HEIGHT/2)));
+		drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, Colors::WHITE , helper.getName());
 		if(selectedBonus == elem)
 		{
-			components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", x * 57 + 6, y * 63 + 32 / 2));
-			drawOutlinedText(x * 57 + 29, y * 63 + 56, Colors::YELLOW , helper.getName());
+			components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", x * (ICON_BIG_WIDTH-1) + 6, y * (ICON_BIG_HEIGHT-1) + (ICON_SMALL_HEIGHT/2)));
+			drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, Colors::YELLOW , helper.getName());
 		}
 
 		i++;
@@ -654,8 +654,8 @@ void OptionsTab::SelectionWindow::genContentBonus()
 
 int OptionsTab::SelectionWindow::getElement(const Point & cursorPosition)
 {
-	int x = (cursorPosition.x - pos.x) / 57;
-	int y = (cursorPosition.y - pos.y) / 63;
+	int x = (cursorPosition.x - pos.x) / (ICON_BIG_WIDTH-1);
+	int y = (cursorPosition.y - pos.y) / (ICON_BIG_HEIGHT-1);
 
 	return x + y * elementsPerLine;
 }
