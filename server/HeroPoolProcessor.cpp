@@ -244,7 +244,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	hr.hid = recruitedHero->subID;
 	hr.player = player;
 	hr.tile = recruitedHero->convertFromVisitablePos(targetPos );
-	if(gameHandler->getTile(hr.tile)->isWater() && !recruitedHero->boat)
+	if(gameHandler->getTile(targetPos)->isWater() && !recruitedHero->boat)
 	{
 		//Create a new boat for hero
 		gameHandler->createObject(targetPos , Obj::BOAT, recruitedHero->getBoatType().getNum());
