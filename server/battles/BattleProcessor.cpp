@@ -165,7 +165,7 @@ void BattleProcessor::setupBattle(int3 tile, const CArmedInstance *armies[2], co
 	gameHandler->sendAndApply(&bs);
 }
 
-void BattleProcessor::checkBattleStateChanges()
+bool BattleProcessor::checkBattleStateChanges()
 {
 	//check if drawbridge state need to be changes
 	if (gameHandler->battleGetSiegeLevel() > 0)
@@ -175,7 +175,10 @@ void BattleProcessor::checkBattleStateChanges()
 	if (auto result = gameHandler->battleIsFinished())
 	{
 		setBattleResult(EBattleResult::NORMAL, *result);
+		return true;
 	}
+
+	return false;
 }
 
 void BattleProcessor::updateGateState()

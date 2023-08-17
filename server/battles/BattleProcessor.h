@@ -42,7 +42,7 @@ class BattleProcessor : boost::noncopyable
 	void updateGateState();
 	void engageIntoBattle(PlayerColor player);
 
-	void checkBattleStateChanges();
+	bool checkBattleStateChanges();
 	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
 
 	bool makeBattleAction(const BattleAction & ba);

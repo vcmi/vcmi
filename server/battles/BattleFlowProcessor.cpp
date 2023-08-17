@@ -227,7 +227,8 @@ void BattleFlowProcessor::onTacticsEnded()
 	castOpeningSpells();
 
 	// it is possible that due to opening spells one side was eliminated -> check for end of battle
-	owner->checkBattleStateChanges();
+	if (owner->checkBattleStateChanges())
+		return;
 
 	startNextRound(true);
 	activateNextStack();
@@ -301,6 +302,10 @@ void BattleFlowProcessor::activateNextStack()
 	// Find next stack that requires manual control
 	for (;;)
 	{
+		// battle has ended
+		if (owner->checkBattleStateChanges())
+			return;
+
 		const CStack * next = getNextStack();
 
 		if (!next)
@@ -520,7 +525,10 @@ void BattleFlowProcessor::onActionMade(const BattleAction &ba)
 	assert(activeStack != nullptr);
 
 	//we're after action, all results applied
-	owner->checkBattleStateChanges(); //check if this action ended the battle
+
+	// check whether action has ended the battle
+	if(owner->checkBattleStateChanges())
+		return;
 
 	bool heroAction = ba.actionType == EActionType::HERO_SPELL || ba.actionType ==EActionType::SURRENDER || ba.actionType ==EActionType::RETREAT || ba.actionType ==EActionType::END_TACTIC_PHASE;
 
@@ -571,7 +579,6 @@ bool BattleFlowProcessor::makeAutomaticAction(const CStack *stack, BattleAction 
 	gameHandler->sendAndApply(&bsa);
 
 	bool ret = owner->makeBattleAction(ba);
-	owner->checkBattleStateChanges();
 	return ret;
 }
 
