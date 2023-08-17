@@ -45,7 +45,7 @@ class BattleProcessor : boost::noncopyable
 	bool checkBattleStateChanges();
 	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
 
-	bool makeBattleAction(const BattleAction & ba);
+	bool makeAutomaticBattleAction(const BattleAction & ba);
 
 	void setBattleResult(EBattleResult resultType, int victoriusSide);
 
@@ -64,7 +64,7 @@ public:
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false);
 
 	/// Processing of incoming battle action netpack
-	bool makeBattleAction(PlayerColor player, BattleAction & ba);
+	bool makePlayerBattleAction(PlayerColor player, BattleAction & ba);
 
 	/// Applies results of a battle once player agrees to them
 	void endBattleConfirm(const BattleInfo * battleInfo);

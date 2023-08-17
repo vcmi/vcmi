@@ -520,9 +520,8 @@ void BattleFlowProcessor::onActionMade(const BattleAction &ba)
 {
 	const auto & battle = gameHandler->gameState()->curB;
 
-	const CStack * actedStack = battle->battleGetStackByID(ba.stackNumber);
-	const CStack * activeStack = battle->battleGetStackByID(battle->getActiveStackID());
-	assert(activeStack != nullptr);
+	const CStack * actedStack = battle->battleGetStackByID(ba.stackNumber, false);
+	const CStack * activeStack = battle->battleGetStackByID(battle->getActiveStackID(), false);
 
 	//we're after action, all results applied
 
@@ -530,11 +529,17 @@ void BattleFlowProcessor::onActionMade(const BattleAction &ba)
 	if(owner->checkBattleStateChanges())
 		return;
 
-	bool heroAction = ba.actionType == EActionType::HERO_SPELL || ba.actionType ==EActionType::SURRENDER || ba.actionType ==EActionType::RETREAT || ba.actionType ==EActionType::END_TACTIC_PHASE;
+	bool heroAction = ba.actionType == EActionType::HERO_SPELL || ba.actionType ==EActionType::SURRENDER || ba.actionType ==EActionType::RETREAT;
+	bool tacticsAction = ba.actionType == EActionType::END_TACTIC_PHASE;
 
-	if (heroAction)
+	if (activeStack == nullptr && !tacticsAction)
 	{
-		if (activeStack->alive())
+		throw std::runtime_error("Unexpected action - no active stack!");
+	}
+
+	if (heroAction || tacticsAction)
+	{
+		if (!tacticsAction && activeStack->alive())
 		{
 			// this is action made by hero AND unit is alive (e.g. not killed by casted spell)
 			// keep current active stack for next action
@@ -578,7 +583,7 @@ bool BattleFlowProcessor::makeAutomaticAction(const CStack *stack, BattleAction 
 	bsa.askPlayerInterface = false;
 	gameHandler->sendAndApply(&bsa);
 
-	bool ret = owner->makeBattleAction(ba);
+	bool ret = owner->makeAutomaticBattleAction(ba);
 	return ret;
 }
 

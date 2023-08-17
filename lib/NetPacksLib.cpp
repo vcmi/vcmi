@@ -2284,14 +2284,12 @@ void StartAction::applyGs(CGameState *gs)
 		return;
 	}
 
-	if(ba.actionType != EActionType::HERO_SPELL) //don't check for stack if it's custom action by hero
-	{
-		assert(st);
-	}
-	else
-	{
+	[[maybe_unused]] bool heroAction = ba.actionType == EActionType::HERO_SPELL || ba.actionType ==EActionType::SURRENDER || ba.actionType ==EActionType::RETREAT || ba.actionType == EActionType::END_TACTIC_PHASE;
+
+	assert(st || heroAction); // stack must exists for all non-hero actions
+
+	if(ba.actionType == EActionType::HERO_SPELL)
 		gs->curB->sides[ba.side].usedSpellsHistory.emplace_back(ba.actionSubtype);
-	}
 
 	switch(ba.actionType)
 	{

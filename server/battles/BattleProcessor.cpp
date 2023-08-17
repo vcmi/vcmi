@@ -236,7 +236,7 @@ void BattleProcessor::updateGateState()
 		gameHandler->sendAndApply(&db);
 }
 
-bool BattleProcessor::makeBattleAction(PlayerColor player, BattleAction &ba)
+bool BattleProcessor::makePlayerBattleAction(PlayerColor player, BattleAction &ba)
 {
 	const BattleInfo * b = gameHandler->gameState()->curB;
 
@@ -263,6 +263,14 @@ bool BattleProcessor::makeBattleAction(PlayerColor player, BattleAction &ba)
 	}
 	else
 	{
+		bool heroAction = ba.actionType == EActionType::HERO_SPELL || ba.actionType ==EActionType::SURRENDER || ba.actionType ==EActionType::RETREAT || ba.actionType == EActionType::END_TACTIC_PHASE;
+
+		if (ba.stackNumber != b->getActiveStackID() && heroAction == false)
+		{
+			gameHandler->complain("Can not make actions - stack is not active!");
+			return false;
+		}
+
 		auto active = b->battleActiveUnit();
 		if(!active && gameHandler->complain("No active unit in battle!"))
 			return false;
@@ -273,7 +281,9 @@ bool BattleProcessor::makeBattleAction(PlayerColor player, BattleAction &ba)
 			return false;
 	}
 
-	return makeBattleAction(ba);
+	bool result = actionsProcessor->makeBattleAction(ba);
+	flowProcessor->onActionMade(ba);
+	return result;
 }
 
 void BattleProcessor::setBattleResult(EBattleResult resultType, int victoriusSide)
@@ -282,11 +292,9 @@ void BattleProcessor::setBattleResult(EBattleResult resultType, int victoriusSid
 	resultProcessor->endBattle(gameHandler->gameState()->curB->tile, gameHandler->gameState()->curB->battleGetFightingHero(0), gameHandler->gameState()->curB->battleGetFightingHero(1));
 }
 
-bool BattleProcessor::makeBattleAction(const BattleAction &ba)
+bool BattleProcessor::makeAutomaticBattleAction(const BattleAction &ba)
 {
-	bool result = actionsProcessor->makeBattleAction(ba);
-	flowProcessor->onActionMade(ba);
-	return result;
+	return actionsProcessor->makeBattleAction(ba);
 }
 
 void BattleProcessor::endBattleConfirm(const BattleInfo * battleInfo)

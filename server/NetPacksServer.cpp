@@ -285,7 +285,7 @@ void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 	if (!gh.hasPlayerAt(pack.player, pack.c))
 		gh.throwAndComplain(&pack, "No such pack.player!");
 
-	result = gh.battles->makeBattleAction(pack.player, pack.ba);
+	result = gh.battles->makePlayerBattleAction(pack.player, pack.ba);
 }
 
 void ApplyGhNetPackVisitor::visitDigWithHero(DigWithHero & pack)
