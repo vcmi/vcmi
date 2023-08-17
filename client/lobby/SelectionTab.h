@@ -10,11 +10,11 @@
 #pragma once
 
 #include "CSelectionBase.h"
+#include "../../lib/mapping/CMap.h"
 #include "../../lib/mapping/CMapInfo.h"
 
 class CSlider;
 class CLabel;
-class CMap;
 class CPicture;
 class IImage;
 
