@@ -660,58 +660,8 @@ int OptionsTab::SelectionWindow::getElement(const Point & cursorPosition)
 	return x + y * elementsPerLine;
 }
 
-void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition) {
-	int elem = getElement(cursorPosition);
-
-	PlayerSettings set = PlayerSettings();
-	if(type == SelType::TOWN)
-	{
-		if(elem > 0)
-		{
-			elem--;
-			if(elem >= factions.size())
-				return;
-			set.castle = factions[elem];
-		}
-		else
-		{
-			set.castle = PlayerSettings::RANDOM;
-		}
-
-		if(set.castle != PlayerSettings::NONE)
-			selectedFaction = set.castle;
-	}
-	if(type == SelType::HERO)
-	{
-		if(elem > 0)
-		{
-			elem--;
-			if(elem >= heroes.size())
-				return;
-			set.hero = heroes[elem];
-		}
-		else
-		{
-			set.hero = PlayerSettings::RANDOM;
-		}
-		if(set.hero != PlayerSettings::NONE)
-			selectedHero = set.hero;
-	}
-	if(type == SelType::BONUS)
-	{
-		if(elem >= allowedBonus.size())
-			return;
-		set.bonus = static_cast<PlayerSettings::Ebonus>(allowedBonus[elem]);
-		if(set.bonus != PlayerSettings::NONE)
-			selectedBonus = set.bonus;
-	}
-	apply();
-}
-
-void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
+void OptionsTab::SelectionWindow::setElement(int elem, bool apply)
 {
-	int elem = getElement(cursorPosition);
-
 	PlayerSettings set = PlayerSettings();
 	if(type == SelType::TOWN)
 	{
@@ -728,8 +678,11 @@ void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 		}
 		if(set.castle != PlayerSettings::NONE)
 		{
-			CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
-			GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+			if(!apply)
+			{
+				CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
+				GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+			}
 		}
 	}
 	if(type == SelType::HERO)
@@ -747,8 +700,11 @@ void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 		}
 		if(set.hero != PlayerSettings::NONE)
 		{
-			CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
-			GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+			if(!apply)
+			{
+				CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
+				GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+			}
 		}
 	}
 	if(type == SelType::BONUS)
@@ -758,10 +714,30 @@ void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 		set.bonus = static_cast<PlayerSettings::Ebonus>(elem-1);
 		if(set.bonus != PlayerSettings::NONE)
 		{
-			CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::BONUS);
-			GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+			if(!apply)
+			{
+				CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::BONUS);
+				GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
+			}
 		}
 	}
+
+	if(apply)
+		apply();
+}
+
+void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition)
+{
+	int elem = getElement(cursorPosition);
+
+	setElement(elem, true);
+}
+
+void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
+{
+	int elem = getElement(cursorPosition);
+
+	setElement(elem, false);
 }
 
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, SelType type)

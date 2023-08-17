@@ -140,7 +140,7 @@ public:
 	void setCampaignBonus(int bonusId) const override;
 	void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const override;
 	void setPlayer(PlayerColor color) const override;
-	void setPlayerOption(ui8 what, si16 value, PlayerColor player) const override;
+	void setPlayerOption(ui8 what, int32_t value, PlayerColor player) const override;
 	void setDifficulty(int to) const override;
 	void setTurnLength(int npos) const override;
 	void sendMessage(const std::string & txt) const override;
