@@ -11,6 +11,7 @@
 
 #include "CSelectionBase.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../widgets/Images.h"
 
 class CSlider;
 class CLabel;
@@ -62,6 +63,16 @@ class SelectionTab : public CIntObject
 	std::shared_ptr<CAnimation> iconsVictoryCondition;
 	std::shared_ptr<CAnimation> iconsLossCondition;
 
+	class CMapInfoTooltipBox : public CWindowObject
+	{
+		std::shared_ptr<CFilledTexture> backgroundTexture;
+		std::shared_ptr<CTextBox> label;
+		std::shared_ptr<CPicture> image;
+
+		std::shared_ptr<IImage> redrawMinimap(ResourceID resource);
+	public:
+		CMapInfoTooltipBox(std::string text, ResourceID resource, bool renderImage);
+	};
 public:
 	std::vector<std::shared_ptr<ElementInfo>> allItems;
 	std::vector<std::shared_ptr<ElementInfo>> curItems;
@@ -100,7 +111,6 @@ public:
 	void restoreLastSelection();
 
 private:
-
 	std::shared_ptr<CPicture> background;
 	std::shared_ptr<CSlider> slider;
 	std::vector<std::shared_ptr<CButton>> buttonsSortBy;

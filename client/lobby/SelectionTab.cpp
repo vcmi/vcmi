@@ -18,6 +18,7 @@
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -27,6 +28,7 @@
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
+#include "../render/Canvas.h"
 #include "../render/IImage.h"
 
 #include "../../CCallback.h"
@@ -37,9 +39,12 @@
 #include "../../lib/GameSettings.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/campaign/CampaignState.h"
+#include "../../lib/mapping/CMap.h"
+#include "../../lib/mapping/CMapService.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
+#include "../../lib/TerrainHandler.h"
 #include "../../lib/serializer/Connection.h"
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
@@ -353,7 +358,7 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 		if(curItems[py]->date != "")
 			text += boost::str(boost::format("\r\n\r\n%1%:\r\n%2%") % CGI->generaltexth->translate("vcmi.lobby.creationDate") % curItems[py]->date);
 
-		CRClickPopup::createAndPush(text);
+		GH.windows().createAndPushWindow<CMapInfoTooltipBox>(text, ResourceID(curItems[py]->fileURI), tabType == ESelectionScreen::newGame);
 	}
 }
 
@@ -795,6 +800,67 @@ std::unordered_set<ResourceID> SelectionTab::getFiles(std::string dirURI, int re
 	});
 
 	return ret;
+}
+
+SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceID resource, bool renderImage)
+	: CWindowObject(BORDERED | RCLICK_POPUP)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	pos = Rect(0, 0, 250, 2000);
+
+	label = std::make_shared<CTextBox>(text, Rect(20, 20, 250-40, 350), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
+	if(!label->slider)
+		label->resize(label->label->textSize);
+
+	pos.h = 20 + label->label->textSize.y + 20;
+	if(renderImage)
+		pos.h += 200 + 20;
+	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
+	updateShadow();
+
+	// TODO: hacky redraw
+	label = std::make_shared<CTextBox>(text, Rect(20, 20, 250-40, 350), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
+	if(!label->slider)
+		label->resize(label->label->textSize);
+
+	if(renderImage)
+	{
+		std::shared_ptr<IImage> img = redrawMinimap(ResourceID(resource.getName(), EResType::MAP));
+		image = std::make_shared<CPicture>(img, Point(25, label->label->textSize.y + 40));
+	}
+
+	center(GH.getCursorPosition()); //center on mouse
+#ifdef VCMI_MOBILE
+	moveBy({0, -pos.h / 2});
+#endif
+	fitToScreen(10);
+}
+
+std::shared_ptr<IImage> SelectionTab::CMapInfoTooltipBox::redrawMinimap(ResourceID resource)
+{
+	CMapService mapService;
+	std::unique_ptr<CMap> map = mapService.loadMap(resource);
+	Canvas canvas = Canvas(Point(map->width, map->height));
+
+	for (int y = 0; y < map->height; ++y)
+		for (int x = 0; x < map->width; ++x)
+		{
+			TerrainTile & tile = map->getTile(int3(x, y, 0));
+
+			ColorRGBA color = tile.terType->minimapUnblocked;
+			if (tile.blocked && (!tile.visitable))
+				color = tile.terType->minimapBlocked;
+
+			canvas.drawPoint(Point(x, y), color);
+		}
+
+	Canvas canvasScaled = Canvas(Point(200, 200));
+	canvasScaled.drawScaled(canvas, Point(0, 0), Point(200, 200));
+
+	std::shared_ptr<IImage> img = IImage::createFromSurface(canvasScaled.getInternalSurface());
+	
+	return img;
 }
 
 SelectionTab::ListItem::ListItem(Point position, std::shared_ptr<CAnimation> iconsFormats, std::shared_ptr<CAnimation> iconsVictory, std::shared_ptr<CAnimation> iconsLoss)
