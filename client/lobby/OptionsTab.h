@@ -138,7 +138,7 @@ public:
 		void recreate();
 		void setSelection();
 		int getElement(const Point & cursorPosition);
-		void setElement(int element);
+		void setElement(int element, bool apply);
 
 		void clickReleased(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
