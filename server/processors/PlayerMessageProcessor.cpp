@@ -213,15 +213,27 @@ void PlayerMessageProcessor::cheatGiveMachines(PlayerColor player, const CGHeroI
 		gameHandler->giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::FIRST_AID_TENT], ArtifactPosition::MACH3);
 }
 
-void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHeroInstance * hero)
+void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)
 {
 	if (!hero)
 		return;
 
-	for(int g = 7; g < VLC->arth->objects.size(); ++g) //including artifacts from mods
+	if (!words.empty())
 	{
-		if(VLC->arth->objects[g]->canBePutAt(hero))
-			gameHandler->giveHeroNewArtifact(hero, VLC->arth->objects[g], ArtifactPosition::FIRST_AVAILABLE);
+		for (auto const & word : words)
+		{
+			auto artID = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "artifact", word, false);
+			if(artID &&  VLC->arth->objects[*artID])
+				gameHandler->giveHeroNewArtifact(hero, VLC->arth->objects[*artID], ArtifactPosition::FIRST_AVAILABLE);
+		}
+	}
+	else
+	{
+		for(int g = 7; g < VLC->arth->objects.size(); ++g) //including artifacts from mods
+		{
+			if(VLC->arth->objects[g]->canBePutAt(hero))
+				gameHandler->giveHeroNewArtifact(hero, VLC->arth->objects[g], ArtifactPosition::FIRST_AVAILABLE);
+		}
 	}
 }
 
@@ -434,7 +446,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 	const auto & doCheatGiveArmyCustom = [&]() { cheatGiveArmy(player, hero, words); };
 	const auto & doCheatGiveArmyFixed = [&](std::vector<std::string> customWords) { cheatGiveArmy(player, hero, customWords); };
 	const auto & doCheatGiveMachines = [&]() { cheatGiveMachines(player, hero); };
-	const auto & doCheatGiveArtifacts = [&]() { cheatGiveArtifacts(player, hero); };
+	const auto & doCheatGiveArtifacts = [&]() { cheatGiveArtifacts(player, hero, words); };
 	const auto & doCheatLevelup = [&]() { cheatLevelup(player, hero, words); };
 	const auto & doCheatExperience = [&]() { cheatExperience(player, hero, words); };
 	const auto & doCheatMovement = [&]() { cheatMovement(player, hero, words); };

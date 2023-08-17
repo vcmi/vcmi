@@ -58,11 +58,6 @@ bool BattleActionProcessor::doEmptyAction(const BattleAction & ba)
 
 bool BattleActionProcessor::doEndTacticsAction(const BattleAction & ba)
 {
-	if (gameHandler->gameState()->curB->tacticDistance == 0)
-	{
-		gameHandler->complain("Cannot end tactics mode - no tactics!");
-		return false;
-	}
 	return true;
 }
 

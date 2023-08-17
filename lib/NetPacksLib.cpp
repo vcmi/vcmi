@@ -2284,32 +2284,35 @@ void StartAction::applyGs(CGameState *gs)
 		return;
 	}
 
-	[[maybe_unused]] bool heroAction = ba.actionType == EActionType::HERO_SPELL || ba.actionType ==EActionType::SURRENDER || ba.actionType ==EActionType::RETREAT || ba.actionType == EActionType::END_TACTIC_PHASE;
-
-	assert(st || heroAction); // stack must exists for all non-hero actions
-
-	if(ba.actionType == EActionType::HERO_SPELL)
-		gs->curB->sides[ba.side].usedSpellsHistory.push_back(ba.spell);
-
-	switch(ba.actionType)
+	if (ba.isUnitAction())
 	{
-	case EActionType::DEFEND:
-		st->waiting = false;
-		st->defending = true;
-		st->defendingAnim = true;
-		break;
-	case EActionType::WAIT:
-		st->defendingAnim = false;
-		st->waiting = true;
-		st->waitedThisTurn = true;
-		break;
-	case EActionType::HERO_SPELL: //no change in current stack state
-		break;
-	default: //any active stack action - attack, catapult, heal, spell...
-		st->waiting = false;
-		st->defendingAnim = false;
-		st->movedThisRound = true;
-		break;
+		assert(st); // stack must exists for all non-hero actions
+
+		switch(ba.actionType)
+		{
+			case EActionType::DEFEND:
+				st->waiting = false;
+				st->defending = true;
+				st->defendingAnim = true;
+				break;
+			case EActionType::WAIT:
+				st->defendingAnim = false;
+				st->waiting = true;
+				st->waitedThisTurn = true;
+				break;
+			case EActionType::HERO_SPELL: //no change in current stack state
+				break;
+			default: //any active stack action - attack, catapult, heal, spell...
+				st->waiting = false;
+				st->defendingAnim = false;
+				st->movedThisRound = true;
+				break;
+		}
+	}
+	else
+	{
+		if(ba.actionType == EActionType::HERO_SPELL)
+			gs->curB->sides[ba.side].usedSpellsHistory.push_back(ba.spell);
 	}
 }
 

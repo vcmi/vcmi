@@ -547,7 +547,7 @@ void BattleFlowProcessor::onActionMade(const BattleAction &ba)
 		{
 			// this is action made by hero AND unit is alive (e.g. not killed by casted spell)
 			// keep current active stack for next action
-			setActiveStack(actedStack);
+			setActiveStack(activeStack);
 			return;
 		}
 	}
