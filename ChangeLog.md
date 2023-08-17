@@ -15,7 +15,9 @@
 * BattleAI: Improved performance of AI spell selection
 * NKAI: Fixed freeze on attempt to exchange army between garrisoned and visiting hero
 * NKAI: Fixed town threat calculation
+* NKAI: Fixed recruitment of new heroes
 * VCAI: Added workaround to avoid freeze on attempting to reach unreachable location
+* VCAI: Fixed spellcasting by Archangels
 
 ### RANDOM MAP GENERATOR:
 * Fixed placement of roads inside rock in underground
@@ -26,6 +28,7 @@
 ### STABILITY:
 * When starting client without H3 data game will now show message instead of silently crashing
 * When starting invalid map in campaign, game will now show message instead of silently crashing
+* Blocked loading of saves made with different set of mods to prevent crashes
 * Fixed crash on starting game with outdated mods
 * Fixed crash on attempt to sacrifice all your artifacts in Altar of Sacrifice
 * Fixed crash on leveling up after winning battle as defender
@@ -39,6 +42,8 @@
 * Fixed crash on using haptic feedback on some Android systems
 * Fixed crash on right-clicking flags area in RMG setup mode
 * Fixed crash on opening Blacksmith window and Build Structure dialogs in some localizations
+* Fixed possible crash on displaying animated main menu
+* Fixed crash on recruiting hero in town located on the border of map
 
 # 1.2.1 -> 1.3.0
 
