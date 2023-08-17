@@ -64,7 +64,7 @@ public:
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false);
 
 	/// Processing of incoming battle action netpack
-	bool makePlayerBattleAction(PlayerColor player, BattleAction & ba);
+	bool makePlayerBattleAction(PlayerColor player, const BattleAction & ba);
 
 	/// Applies results of a battle once player agrees to them
 	void endBattleConfirm(const BattleInfo * battleInfo);

@@ -16,6 +16,7 @@ struct BattleAttack;
 class BattleAction;
 struct BattleHex;
 class CStack;
+class PlayerColor;
 enum class BonusType;
 
 namespace battle
@@ -64,14 +65,15 @@ class BattleActionProcessor : boost::noncopyable
 	bool doShootAction(const BattleAction & ba);
 	bool doCatapultAction(const BattleAction & ba);
 	bool doUnitSpellAction(const BattleAction & ba);
-	bool doBadMoraleAction(const BattleAction & ba);
 	bool doHealAction(const BattleAction & ba);
 
 	bool dispatchBattleAction(const BattleAction & ba);
+	bool makeBattleActionImpl(const BattleAction & ba);
 
 public:
 	explicit BattleActionProcessor(BattleProcessor * owner);
 	void setGameHandler(CGameHandler * newGameHandler);
 
-	bool makeBattleAction(const BattleAction & ba);
+	bool makeAutomaticBattleAction(const BattleAction & ba);
+	bool makePlayerBattleAction(PlayerColor player, const BattleAction & ba);
 };

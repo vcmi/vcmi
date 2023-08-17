@@ -32,6 +32,7 @@ class BattleFlowProcessor : boost::noncopyable
 
 	void summonGuardiansHelper(std::vector<BattleHex> & output, const BattleHex & targetPosition, ui8 side, bool targetIsTwoHex);
 	void trySummonGuardians(const CStack * stack);
+	void tryPlaceMoats();
 	void castOpeningSpells();
 	void activateNextStack();
 	void startNextRound(bool isFirstRound);
@@ -39,6 +40,7 @@ class BattleFlowProcessor : boost::noncopyable
 	void stackEnchantedTrigger(const CStack * stack);
 	void removeObstacle(const CObstacleInstance & obstacle);
 	void stackTurnTrigger(const CStack * stack);
+	void setActiveStack(const CStack * stack);
 
 	void makeStackDoNothing(const CStack * next);
 	bool makeAutomaticAction(const CStack * stack, BattleAction & ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)

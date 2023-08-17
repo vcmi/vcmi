@@ -58,16 +58,21 @@ bool BattleActionProcessor::doEmptyAction(const BattleAction & ba)
 
 bool BattleActionProcessor::doEndTacticsAction(const BattleAction & ba)
 {
+	if (gameHandler->gameState()->curB->tacticDistance == 0)
+	{
+		gameHandler->complain("Cannot end tactics mode - no tactics!");
+		return false;
+	}
 	return true;
 }
 
 bool BattleActionProcessor::doWaitAction(const BattleAction & ba)
 {
-	return true;
-}
+	const CStack * stack = gameHandler->battleGetStackByID(ba.stackNumber);
 
-bool BattleActionProcessor::doBadMoraleAction(const BattleAction & ba)
-{
+	if (!canStackAct(stack))
+		return false;
+
 	return true;
 }
 
@@ -113,10 +118,10 @@ bool BattleActionProcessor::doHeroSpellAction(const BattleAction & ba)
 		return false;
 	}
 
-	const CSpell * s = SpellID(ba.actionSubtype).toSpell();
+	const CSpell * s = ba.spell.toSpell();
 	if (!s)
 	{
-		logGlobal->error("Wrong spell id (%d)!", ba.actionSubtype);
+		logGlobal->error("Wrong spell id (%d)!", ba.spell.getNum());
 		return false;
 	}
 
@@ -411,7 +416,7 @@ bool BattleActionProcessor::doUnitSpellAction(const BattleAction & ba)
 {
 	const CStack * stack = gameHandler->gameState()->curB->battleGetStackByID(ba.stackNumber);
 	battle::Target target = ba.getTarget(gameHandler->gameState()->curB);
-	SpellID spellID = SpellID(ba.actionSubtype);
+	SpellID spellID = ba.spell;
 
 	if (!canStackAct(stack))
 		return false;
@@ -479,8 +484,6 @@ bool BattleActionProcessor::doHealAction(const BattleAction & ba)
 
 bool BattleActionProcessor::canStackAct(const CStack * stack)
 {
-	const bool isAboutActiveStack = stack->unitId() == gameHandler->gameState()->curB->getActiveStackID();
-
 	if (!stack)
 	{
 		gameHandler->complain("No such stack!");
@@ -500,10 +503,13 @@ bool BattleActionProcessor::canStackAct(const CStack * stack)
 			return false;
 		}
 	}
-	else if (!isAboutActiveStack)
+	else
 	{
-		gameHandler->complain("Action has to be about active stack!");
-		return false;
+		if (stack->unitId() != gameHandler->gameState()->curB->getActiveStackID())
+		{
+			gameHandler->complain("Action has to be about active stack!");
+			return false;
+		}
 	}
 	return true;
 }
@@ -536,8 +542,6 @@ bool BattleActionProcessor::dispatchBattleAction(const BattleAction & ba)
 			return doCatapultAction(ba);
 		case EActionType::MONSTER_SPELL:
 			return doUnitSpellAction(ba);
-		case EActionType::BAD_MORALE:
-			return doBadMoraleAction(ba);
 		case EActionType::STACK_HEAL:
 			return doHealAction(ba);
 	}
@@ -545,7 +549,7 @@ bool BattleActionProcessor::dispatchBattleAction(const BattleAction & ba)
 	return false;
 }
 
-bool BattleActionProcessor::makeBattleAction(const BattleAction &ba)
+bool BattleActionProcessor::makeBattleActionImpl(const BattleAction &ba)
 {
 	logGlobal->trace("Making action: %s", ba.toString());
 	const CStack * stack = gameHandler->gameState()->curB->battleGetStackByID(ba.stackNumber);
@@ -1393,4 +1397,54 @@ void BattleActionProcessor::addGenericKilledLog(BattleLogMessage & blm, const CS
 		line.appendRawString(txt.str());
 		blm.lines.push_back(std::move(line));
 	}
+}
+
+bool BattleActionProcessor::makeAutomaticBattleAction(const BattleAction & ba)
+{
+	return makeBattleActionImpl(ba);
+}
+
+bool BattleActionProcessor::makePlayerBattleAction(PlayerColor player, const BattleAction &ba)
+{
+	const BattleInfo * battle = gameHandler->gameState()->curB;
+
+	if(!battle && gameHandler->complain("Can not make action - there is no battle ongoing!"))
+		return false;
+
+	if (ba.side != 0 && ba.side != 1 && gameHandler->complain("Can not make action - invalid battle side!"))
+		return false;
+
+	if(battle->tacticDistance != 0)
+	{
+		if(!ba.isTacticsAction())
+		{
+			gameHandler->complain("Can not make actions while in tactics mode!");
+			return false;
+		}
+
+		if(player != battle->sides[ba.side].color)
+		{
+			gameHandler->complain("Can not make actions in battles you are not part of!");
+			return false;
+		}
+	}
+	else
+	{
+		if (ba.isUnitAction() && ba.stackNumber != battle->getActiveStackID())
+		{
+			gameHandler->complain("Can not make actions - stack is not active!");
+			return false;
+		}
+
+		auto active = battle->battleActiveUnit();
+		if(!active && gameHandler->complain("No active unit in battle!"))
+			return false;
+
+		auto unitOwner = battle->battleGetOwner(active);
+
+		if(player != unitOwner && gameHandler->complain("Can not make actions in battles you are not part of!"))
+			return false;
+	}
+
+	return makeBattleActionImpl(ba);
 }

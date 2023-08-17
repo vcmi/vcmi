@@ -151,7 +151,6 @@ void BattleProcessor::setupBattle(int3 tile, const CArmedInstance *armies[2], co
 	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
 		terType = BattleField(*VLC->identifiers()->getIdentifier("core", "battlefield.ship_to_ship"));
 
-
 	//send info about battles
 	BattleStart bs;
 	bs.info = BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
@@ -236,52 +235,9 @@ void BattleProcessor::updateGateState()
 		gameHandler->sendAndApply(&db);
 }
 
-bool BattleProcessor::makePlayerBattleAction(PlayerColor player, BattleAction &ba)
+bool BattleProcessor::makePlayerBattleAction(PlayerColor player, const BattleAction &ba)
 {
-	const BattleInfo * b = gameHandler->gameState()->curB;
-
-	if(!b && gameHandler->complain("Can not make action - there is no battle ongoing!"))
-		return false;
-
-	if (ba.side != 0 && ba.side != 1 && gameHandler->complain("Can not make action - invalid battle side!"))
-		return false;
-
-	if(b->tacticDistance)
-	{
-		if(ba.actionType != EActionType::WALK && ba.actionType != EActionType::END_TACTIC_PHASE
-			&& ba.actionType != EActionType::RETREAT && ba.actionType != EActionType::SURRENDER)
-		{
-			gameHandler->complain("Can not make actions while in tactics mode!");
-			return false;
-		}
-
-		if(player != b->sides[ba.side].color)
-		{
-			gameHandler->complain("Can not make actions in battles you are not part of!");
-			return false;
-		}
-	}
-	else
-	{
-		bool heroAction = ba.actionType == EActionType::HERO_SPELL || ba.actionType ==EActionType::SURRENDER || ba.actionType ==EActionType::RETREAT || ba.actionType == EActionType::END_TACTIC_PHASE;
-
-		if (ba.stackNumber != b->getActiveStackID() && heroAction == false)
-		{
-			gameHandler->complain("Can not make actions - stack is not active!");
-			return false;
-		}
-
-		auto active = b->battleActiveUnit();
-		if(!active && gameHandler->complain("No active unit in battle!"))
-			return false;
-
-		auto unitOwner = b->battleGetOwner(active);
-
-		if(player != unitOwner && gameHandler->complain("Can not make actions in battles you are not part of!"))
-			return false;
-	}
-
-	bool result = actionsProcessor->makeBattleAction(ba);
+	bool result = actionsProcessor->makePlayerBattleAction(player, ba);
 	flowProcessor->onActionMade(ba);
 	return result;
 }
@@ -294,7 +250,7 @@ void BattleProcessor::setBattleResult(EBattleResult resultType, int victoriusSid
 
 bool BattleProcessor::makeAutomaticBattleAction(const BattleAction &ba)
 {
-	return actionsProcessor->makeBattleAction(ba);
+	return actionsProcessor->makeAutomaticBattleAction(ba);
 }
 
 void BattleProcessor::endBattleConfirm(const BattleInfo * battleInfo)

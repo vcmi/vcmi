@@ -18,6 +18,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleStateInfoForRetreat.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/CStack.h" // TODO: remove
@@ -781,7 +782,7 @@ bool CBattleAI::attemptCastingSpell()
 		LOGFL("Best spell is %s (value %d). Will cast.", castToPerform.spell->getNameTranslated() % castToPerform.value);
 		BattleAction spellcast;
 		spellcast.actionType = EActionType::HERO_SPELL;
-		spellcast.actionSubtype = castToPerform.spell->id;
+		spellcast.spell = castToPerform.spell->getId();
 		spellcast.setTarget(castToPerform.dest);
 		spellcast.side = side;
 		spellcast.stackNumber = (!side) ? -1 : -2;

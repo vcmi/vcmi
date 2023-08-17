@@ -126,12 +126,8 @@ void BattleFlowProcessor::summonGuardiansHelper(std::vector<BattleHex> & output,
 	}
 }
 
-void BattleFlowProcessor::onBattleStarted()
+void BattleFlowProcessor::tryPlaceMoats()
 {
-	gameHandler->setBattle(gameHandler->gameState()->curB);
-	assert(gameHandler->gameState()->curB);
-	//TODO: pre-tactic stuff, call scripts etc.
-
 	//Moat should be initialized here, because only here we can use spellcasting
 	if (gameHandler->gameState()->curB->town && gameHandler->gameState()->curB->town->fortLevel() >= CGTownInstance::CITADEL)
 	{
@@ -142,6 +138,14 @@ void BattleFlowProcessor::onBattleStarted()
 		auto target = spells::Target();
 		cast.cast(gameHandler->spellEnv, target);
 	}
+}
+
+void BattleFlowProcessor::onBattleStarted()
+{
+	gameHandler->setBattle(gameHandler->gameState()->curB);
+	assert(gameHandler->gameState()->curB);
+
+	tryPlaceMoats();
 
 	if (gameHandler->gameState()->curB->tacticDistance == 0)
 		onTacticsEnded();
@@ -330,11 +334,7 @@ void BattleFlowProcessor::activateNextStack()
 
 		if (!tryMakeAutomaticAction(next))
 		{
-			logGlobal->trace("Activating %s", next->nodeName());
-			auto nextId = next->unitId();
-			BattleSetActiveStack sas;
-			sas.stack = nextId;
-			gameHandler->sendAndApply(&sas);
+			setActiveStack(next);
 			break;
 		}
 	}
@@ -529,36 +529,25 @@ void BattleFlowProcessor::onActionMade(const BattleAction &ba)
 	if(owner->checkBattleStateChanges())
 		return;
 
-	bool heroAction = ba.actionType == EActionType::HERO_SPELL || ba.actionType ==EActionType::SURRENDER || ba.actionType ==EActionType::RETREAT;
-	bool tacticsAction = ba.actionType == EActionType::END_TACTIC_PHASE;
-
-	if (activeStack == nullptr && !tacticsAction)
+	if (ba.isUnitAction())
 	{
-		throw std::runtime_error("Unexpected action - no active stack!");
-	}
-
-	if (heroAction || tacticsAction)
-	{
-		if (!tacticsAction && activeStack->alive())
-		{
-			// this is action made by hero AND unit is alive (e.g. not killed by casted spell)
-			// keep current active stack for next action
-			BattleSetActiveStack sas;
-			sas.stack = activeStack->unitId();
-			gameHandler->sendAndApply(&sas);
-			return;
-		}
-	}
-	else
-	{
+		assert(activeStack != nullptr);
 		assert(actedStack != nullptr);
 
 		if (rollGoodMorale(actedStack))
 		{
 			// Good morale - same stack makes 2nd turn
-			BattleSetActiveStack sas;
-			sas.stack = actedStack->unitId();
-			gameHandler->sendAndApply(&sas);
+			setActiveStack(actedStack);
+			return;
+		}
+	}
+	else
+	{
+		if (activeStack && activeStack->alive())
+		{
+			// this is action made by hero AND unit is alive (e.g. not killed by casted spell)
+			// keep current active stack for next action
+			setActiveStack(actedStack);
 			return;
 		}
 	}
@@ -751,4 +740,14 @@ void BattleFlowProcessor::stackTurnTrigger(const CStack *st)
 			}
 		}
 	}
+}
+
+void BattleFlowProcessor::setActiveStack(const CStack * stack)
+{
+	assert(stack);
+
+	logGlobal->trace("Activating %s", stack->nodeName());
+	BattleSetActiveStack sas;
+	sas.stack = stack->unitId();
+	gameHandler->sendAndApply(&sas);
 }

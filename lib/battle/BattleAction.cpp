@@ -20,8 +20,7 @@ static const int32_t INVALID_UNIT_ID = -1000;
 BattleAction::BattleAction():
 	side(-1),
 	stackNumber(-1),
-	actionType(EActionType::NO_ACTION),
-	actionSubtype(-1)
+	actionType(EActionType::NO_ACTION)
 {
 }
 
@@ -80,7 +79,7 @@ BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, con
 {
 	BattleAction ba;
 	ba.actionType = EActionType::MONSTER_SPELL;
-	ba.actionSubtype = spellID;
+	ba.spell = spellID;
 	ba.setTarget(target);
 	ba.side = stack->unitSide();
 	ba.stackNumber = stack->unitId();
@@ -144,7 +143,7 @@ std::string BattleAction::toString() const
 	}
 
 	boost::format fmt("{BattleAction: side '%d', stackNumber '%d', actionType '%s', actionSubtype '%d', target {%s}}");
-	fmt % static_cast<int>(side) % stackNumber % actionTypeStream.str() % actionSubtype % targetStream.str();
+	fmt % static_cast<int>(side) % stackNumber % actionTypeStream.str() % spell.getNum() % targetStream.str();
 	return fmt.str();
 }
 
@@ -183,7 +182,7 @@ battle::Target BattleAction::getTarget(const CBattleInfoCallback * cb) const
 
 void BattleAction::setTarget(const battle::Target & target_)
 {
-    target.clear();
+	target.clear();
 	for(const auto & destination : target_)
 	{
 		if(destination.unitValue == nullptr)
@@ -193,6 +192,44 @@ void BattleAction::setTarget(const battle::Target & target_)
 	}
 }
 
+bool BattleAction::isUnitAction() const
+{
+	static const std::array<EActionType, 9> actions = {
+		EActionType::WALK,
+		EActionType::WAIT,
+		EActionType::DEFEND,
+		EActionType::WALK_AND_ATTACK,
+		EActionType::SHOOT,
+		EActionType::CATAPULT,
+		EActionType::MONSTER_SPELL,
+		EActionType::BAD_MORALE,
+		EActionType::STACK_HEAL
+	};
+
+	return vstd::contains(actions, actionType);
+}
+
+bool BattleAction::isSpellAction() const
+{
+	static const std::array<EActionType, 2> actions = {
+		EActionType::HERO_SPELL,
+		EActionType::MONSTER_SPELL
+	};
+
+	return vstd::contains(actions, actionType);
+}
+
+bool BattleAction::isTacticsAction() const
+{
+	static const std::array<EActionType, 9> actions = {
+		EActionType::WALK,
+		EActionType::END_TACTIC_PHASE,
+		EActionType::RETREAT,
+		EActionType::SURRENDER
+	};
+
+	return vstd::contains(actions, actionType);
+}
 
 std::ostream & operator<<(std::ostream & os, const BattleAction & ba)
 {

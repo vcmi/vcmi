@@ -128,7 +128,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	destinationTeleportPos = int3(-1);
 	GH.defActionsDef = 0;
 	LOCPLINT = this;
-	curAction = nullptr;
 	playerID=Player;
 	human=true;
 	battleInt = nullptr;
@@ -769,8 +768,7 @@ void CPlayerInterface::actionStarted(const BattleAction &action)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	curAction = new BattleAction(action);
-	battleInt->startAction(curAction);
+	battleInt->startAction(action);
 }
 
 void CPlayerInterface::actionFinished(const BattleAction &action)
@@ -778,9 +776,7 @@ void CPlayerInterface::actionFinished(const BattleAction &action)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	battleInt->endAction(curAction);
-	delete curAction;
-	curAction = nullptr;
+	battleInt->endAction(action);
 }
 
 void CPlayerInterface::activeStack(const CStack * stack) //called when it's turn of that stack
@@ -934,8 +930,6 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
-
-	assert(curAction);
 
 	StackAttackInfo info;
 	info.attacker = cb->battleGetStackByID(ba->stackAttacking);
@@ -2109,4 +2103,9 @@ void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectP
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->openWorldView(objectPositions, showTerrain );
+}
+
+std::optional<BattleAction> CPlayerInterface::makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
+{
+	return std::nullopt;
 }

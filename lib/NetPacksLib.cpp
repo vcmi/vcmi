@@ -2289,7 +2289,7 @@ void StartAction::applyGs(CGameState *gs)
 	assert(st || heroAction); // stack must exists for all non-hero actions
 
 	if(ba.actionType == EActionType::HERO_SPELL)
-		gs->curB->sides[ba.side].usedSpellsHistory.emplace_back(ba.actionSubtype);
+		gs->curB->sides[ba.side].usedSpellsHistory.push_back(ba.spell);
 
 	switch(ba.actionType)
 	{

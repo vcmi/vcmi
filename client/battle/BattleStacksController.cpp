@@ -31,6 +31,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CondSh.h"
@@ -663,7 +664,7 @@ bool BattleStacksController::shouldRotate(const CStack * stack, const BattleHex 
 	return false;
 }
 
-void BattleStacksController::endAction(const BattleAction* action)
+void BattleStacksController::endAction(const BattleAction & action)
 {
 	owner.checkForAnimations();
 
@@ -688,7 +689,7 @@ void BattleStacksController::endAction(const BattleAction* action)
 	removeExpiredColorFilters();
 }
 
-void BattleStacksController::startAction(const BattleAction* action)
+void BattleStacksController::startAction(const BattleAction & action)
 {
 	removeExpiredColorFilters();
 }
