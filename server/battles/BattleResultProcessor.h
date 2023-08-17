@@ -24,7 +24,7 @@ struct CasualtiesAfterBattle
 {
 	using TStackAndItsNewCount = std::pair<StackLocation, int>;
 	using TSummoned = std::map<CreatureID, TQuantity>;
-	enum {ERASE = -1};
+	//	enum {ERASE = -1};
 	const CArmedInstance * army;
 	std::vector<TStackAndItsNewCount> newStackCounts;
 	std::vector<ArtifactLocation> removedWarMachines;
@@ -32,7 +32,7 @@ struct CasualtiesAfterBattle
 	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack locations
 
 	CasualtiesAfterBattle(const SideInBattle & battleSide, const BattleInfo * bat);
-	void updateArmy(CGameHandler *gh);
+	void updateArmy(CGameHandler * gh);
 };
 
 struct FinishingBattleHelper
@@ -61,7 +61,7 @@ struct FinishingBattleHelper
 
 class BattleResultProcessor : boost::noncopyable
 {
-//	BattleProcessor * owner;
+	//	BattleProcessor * owner;
 	CGameHandler * gameHandler;
 
 	std::unique_ptr<BattleResult> battleResult;
@@ -74,5 +74,5 @@ public:
 	void setBattleResult(EBattleResult resultType, int victoriusSide);
 	void endBattle(int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2); //ends battle
 	void endBattleConfirm(const BattleInfo * battleInfo);
-	void battleAfterLevelUp(const BattleResult &result);
+	void battleAfterLevelUp(const BattleResult & result);
 };

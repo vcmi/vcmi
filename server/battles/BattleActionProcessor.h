@@ -18,7 +18,8 @@ struct BattleHex;
 class CStack;
 enum class BonusType;
 
-namespace battle {
+namespace battle
+{
 class Unit;
 class CUnitState;
 }
@@ -28,6 +29,7 @@ VCMI_LIB_NAMESPACE_END
 class CGameHandler;
 class BattleProcessor;
 
+/// Processes incoming battle action queries and applies requested action(s)
 class BattleActionProcessor : boost::noncopyable
 {
 	using FireShieldInfo = std::vector<std::pair<const CStack *, int64_t>>;
@@ -71,7 +73,5 @@ public:
 	explicit BattleActionProcessor(BattleProcessor * owner);
 	void setGameHandler(CGameHandler * newGameHandler);
 
-	bool makeBattleAction(const BattleAction &ba);
-
+	bool makeBattleAction(const BattleAction & ba);
 };
-

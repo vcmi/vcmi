@@ -27,6 +27,7 @@ class BattleActionProcessor;
 class BattleFlowProcessor;
 class BattleResultProcessor;
 
+/// Main class for battle handling. Contains all public interface for battles that is accessible from outside, e.g. for CGameHandler
 class BattleProcessor : boost::noncopyable
 {
 	friend class BattleActionProcessor;
@@ -39,14 +40,15 @@ class BattleProcessor : boost::noncopyable
 	std::unique_ptr<BattleResultProcessor> resultProcessor;
 
 	void updateGateState();
-	void engageIntoBattle( PlayerColor player );
+	void engageIntoBattle(PlayerColor player);
 
 	void checkBattleStateChanges();
 	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
 
-	bool makeBattleAction(const BattleAction &ba);
+	bool makeBattleAction(const BattleAction & ba);
 
 	void setBattleResult(EBattleResult resultType, int victoriusSide);
+
 public:
 	explicit BattleProcessor(CGameHandler * gameHandler);
 	BattleProcessor();
@@ -54,14 +56,20 @@ public:
 
 	void setGameHandler(CGameHandler * gameHandler);
 
-	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr); //use hero=nullptr for no hero
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false); //if any of armies is hero, hero will be used
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false); //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
+	/// Starts battle with specified parameters
+	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr);
+	/// Starts battle between two armies (which can also be heroes) at specified tile
+	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false);
+	/// Starts battle between two armies (which can also be heroes) at position of 2nd object
+	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false);
 
-	bool makeBattleAction(PlayerColor player, BattleAction &ba);
+	/// Processing of incoming battle action netpack
+	bool makeBattleAction(PlayerColor player, BattleAction & ba);
 
+	/// Applies results of a battle once player agrees to them
 	void endBattleConfirm(const BattleInfo * battleInfo);
-	void battleAfterLevelUp(const BattleResult &result);
+	/// Applies results of a battle after potential levelup
+	void battleAfterLevelUp(const BattleResult & result);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

@@ -147,6 +147,72 @@ void BattleFlowProcessor::onBattleStarted()
 		onTacticsEnded();
 }
 
+void BattleFlowProcessor::trySummonGuardians(const CStack * stack)
+{
+	if (!stack->hasBonusOfType(BonusType::SUMMON_GUARDIANS))
+		return;
+
+	std::shared_ptr<const Bonus> summonInfo = stack->getBonus(Selector::type()(BonusType::SUMMON_GUARDIANS));
+	auto accessibility = gameHandler->getAccesibility();
+	CreatureID creatureData = CreatureID(summonInfo->subtype);
+	std::vector<BattleHex> targetHexes;
+	const bool targetIsBig = stack->unitType()->isDoubleWide(); //target = creature to guard
+	const bool guardianIsBig = creatureData.toCreature()->isDoubleWide();
+
+	/*Chosen idea for two hex units was to cover all possible surrounding hexes of target unit with as small number of stacks as possible.
+		For one-hex targets there are four guardians - front, back and one per side (up + down).
+		Two-hex targets are wider and the difference is there are two guardians per side to cover 3 hexes + extra hex in the front
+		Additionally, there are special cases for starting positions etc., where guardians would be outside of battlefield if spawned normally*/
+	if (!guardianIsBig)
+		targetHexes = stack->getSurroundingHexes();
+	else
+		summonGuardiansHelper(targetHexes, stack->getPosition(), stack->unitSide(), targetIsBig);
+
+	for(auto hex : targetHexes)
+	{
+		if(accessibility.accessible(hex, guardianIsBig, stack->unitSide())) //without this multiple creatures can occupy one hex
+		{
+			battle::UnitInfo info;
+			info.id = gameHandler->gameState()->curB->battleNextUnitId();
+			info.count =  std::max(1, (int)(stack->getCount() * 0.01 * summonInfo->val));
+			info.type = creatureData;
+			info.side = stack->unitSide();
+			info.position = hex;
+			info.summoned = true;
+
+			BattleUnitsChanged pack;
+			pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
+			info.save(pack.changedStacks.back().data);
+			gameHandler->sendAndApply(&pack);
+		}
+	}
+}
+
+void BattleFlowProcessor::castOpeningSpells()
+{
+	for (int i = 0; i < 2; ++i)
+	{
+		auto h = gameHandler->gameState()->curB->battleGetFightingHero(i);
+		if (!h)
+			continue;
+
+		TConstBonusListPtr bl = h->getBonuses(Selector::type()(BonusType::OPENING_BATTLE_SPELL));
+
+		for (auto b : *bl)
+		{
+			spells::BonusCaster caster(h, b);
+
+			const CSpell * spell = SpellID(b->subtype).toSpell();
+
+			spells::BattleCast parameters(gameHandler->gameState()->curB, &caster, spells::Mode::PASSIVE, spell);
+			parameters.setSpellLevel(3);
+			parameters.setEffectDuration(b->val);
+			parameters.massive = true;
+			parameters.castIfPossible(gameHandler->spellEnv, spells::Target());
+		}
+	}
+}
+
 void BattleFlowProcessor::onTacticsEnded()
 {
 	//initial stacks appearance triggers, e.g. built-in bonus spells
@@ -154,73 +220,17 @@ void BattleFlowProcessor::onTacticsEnded()
 
 	for (CStack * stack : initialStacks)
 	{
-		if (stack->hasBonusOfType(BonusType::SUMMON_GUARDIANS))
-		{
-			std::shared_ptr<const Bonus> summonInfo = stack->getBonus(Selector::type()(BonusType::SUMMON_GUARDIANS));
-			auto accessibility = gameHandler->getAccesibility();
-			CreatureID creatureData = CreatureID(summonInfo->subtype);
-			std::vector<BattleHex> targetHexes;
-			const bool targetIsBig = stack->unitType()->isDoubleWide(); //target = creature to guard
-			const bool guardianIsBig = creatureData.toCreature()->isDoubleWide();
-
-			/*Chosen idea for two hex units was to cover all possible surrounding hexes of target unit with as small number of stacks as possible.
-			For one-hex targets there are four guardians - front, back and one per side (up + down).
-			Two-hex targets are wider and the difference is there are two guardians per side to cover 3 hexes + extra hex in the front
-			Additionally, there are special cases for starting positions etc., where guardians would be outside of battlefield if spawned normally*/
-			if (!guardianIsBig)
-				targetHexes = stack->getSurroundingHexes();
-			else
-				summonGuardiansHelper(targetHexes, stack->getPosition(), stack->unitSide(), targetIsBig);
-
-			for(auto hex : targetHexes)
-			{
-				if(accessibility.accessible(hex, guardianIsBig, stack->unitSide())) //without this multiple creatures can occupy one hex
-				{
-					battle::UnitInfo info;
-					info.id = gameHandler->gameState()->curB->battleNextUnitId();
-					info.count =  std::max(1, (int)(stack->getCount() * 0.01 * summonInfo->val));
-					info.type = creatureData;
-					info.side = stack->unitSide();
-					info.position = hex;
-					info.summoned = true;
-
-					BattleUnitsChanged pack;
-					pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
-					info.save(pack.changedStacks.back().data);
-					gameHandler->sendAndApply(&pack);
-				}
-			}
-		}
-
+		trySummonGuardians(stack);
 		stackEnchantedTrigger(stack);
 	}
 
-	//spells opening battle
-	for (int i = 0; i < 2; ++i)
-	{
-		auto h = gameHandler->gameState()->curB->battleGetFightingHero(i);
-		if (h)
-		{
-			TConstBonusListPtr bl = h->getBonuses(Selector::type()(BonusType::OPENING_BATTLE_SPELL));
+	castOpeningSpells();
 
-			for (auto b : *bl)
-			{
-				spells::BonusCaster caster(h, b);
-
-				const CSpell * spell = SpellID(b->subtype).toSpell();
-
-				spells::BattleCast parameters(gameHandler->gameState()->curB, &caster, spells::Mode::PASSIVE, spell);
-				parameters.setSpellLevel(3);
-				parameters.setEffectDuration(b->val);
-				parameters.massive = true;
-				parameters.castIfPossible(gameHandler->spellEnv, spells::Target());
-			}
-		}
-	}
 	// it is possible that due to opening spells one side was eliminated -> check for end of battle
 	owner->checkBattleStateChanges();
 
 	startNextRound(true);
+	activateNextStack();
 }
 
 void BattleFlowProcessor::startNextRound(bool isFirstRound)
@@ -245,8 +255,6 @@ void BattleFlowProcessor::startNextRound(bool isFirstRound)
 		if(stack->alive() && !isFirstRound)
 			stackEnchantedTrigger(stack);
 	}
-
-	activateNextStack();
 }
 
 const CStack * BattleFlowProcessor::getNextStack()
@@ -296,7 +304,13 @@ void BattleFlowProcessor::activateNextStack()
 		const CStack * next = getNextStack();
 
 		if (!next)
-			return;
+		{
+			// No stacks to move - start next round
+			startNextRound(false);
+			next = getNextStack();
+			if (!next)
+				throw std::runtime_error("Failed to find valid stack to act!");
+		}
 
 		BattleUnitsChanged removeGhosts;
 
@@ -499,27 +513,41 @@ bool BattleFlowProcessor::rollGoodMorale(const CStack * next)
 
 void BattleFlowProcessor::onActionMade(const BattleAction &ba)
 {
-	const CStack * next = gameHandler->gameState()->curB->battleGetStackByID(ba.stackNumber);
+	const auto & battle = gameHandler->gameState()->curB;
+
+	const CStack * actedStack = battle->battleGetStackByID(ba.stackNumber);
+	const CStack * activeStack = battle->battleGetStackByID(battle->getActiveStackID());
+	assert(activeStack != nullptr);
 
 	//we're after action, all results applied
 	owner->checkBattleStateChanges(); //check if this action ended the battle
 
-	if(next == nullptr)
-		return;
+	bool heroAction = ba.actionType == EActionType::HERO_SPELL || ba.actionType ==EActionType::SURRENDER || ba.actionType ==EActionType::RETREAT || ba.actionType ==EActionType::END_TACTIC_PHASE;
 
-	bool heroAction = ba.actionType == EActionType::HERO_SPELL || ba.actionType ==EActionType::SURRENDER|| ba.actionType ==EActionType::RETREAT;
-
-	if (heroAction && next->alive())
+	if (heroAction)
 	{
-		// this is action made by hero AND unit is alive (e.g. not killed by casted spell)
-		// keep current active stack for next action
-		return;
+		if (activeStack->alive())
+		{
+			// this is action made by hero AND unit is alive (e.g. not killed by casted spell)
+			// keep current active stack for next action
+			BattleSetActiveStack sas;
+			sas.stack = activeStack->unitId();
+			gameHandler->sendAndApply(&sas);
+			return;
+		}
 	}
-
-	if (rollGoodMorale(next))
+	else
 	{
-		// Good morale - same stack makes 2nd turn
-		return;
+		assert(actedStack != nullptr);
+
+		if (rollGoodMorale(actedStack))
+		{
+			// Good morale - same stack makes 2nd turn
+			BattleSetActiveStack sas;
+			sas.stack = actedStack->unitId();
+			gameHandler->sendAndApply(&sas);
+			return;
+		}
 	}
 
 	activateNextStack();

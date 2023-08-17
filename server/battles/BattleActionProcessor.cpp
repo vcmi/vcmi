@@ -136,13 +136,8 @@ bool BattleActionProcessor::doHeroSpellAction(const BattleAction & ba)
 		return false;
 	}
 
-	StartAction start_action(ba);
-	gameHandler->sendAndApply(&start_action); //start spell casting
-
 	parameters.cast(gameHandler->spellEnv, ba.getTarget(gameHandler->gameState()->curB));
 
-	EndAction end_action;
-	gameHandler->sendAndApply(&end_action);
 	return true;
 }
 

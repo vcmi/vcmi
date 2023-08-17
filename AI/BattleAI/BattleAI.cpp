@@ -283,7 +283,8 @@ void CBattleAI::activeStack( const CStack * stack )
 			return;
 		}
 
-		attemptCastingSpell();
+		if (attemptCastingSpell())
+			return;
 
 		logAi->trace("Spellcast attempt completed in %lld", timeElapsed(start));
 
@@ -476,14 +477,14 @@ BattleAction CBattleAI::useCatapult(const CStack * stack)
 	return attack;
 }
 
-void CBattleAI::attemptCastingSpell()
+bool CBattleAI::attemptCastingSpell()
 {
 	auto hero = cb->battleGetMyHero();
 	if(!hero)
-		return;
+		return false;
 
 	if(cb->battleCanCastSpell(hero, spells::Mode::HERO) != ESpellCastProblem::OK)
-		return;
+		return false;
 
 	LOGL("Casting spells sounds like fun. Let's see...");
 	//Get all spells we can cast
@@ -522,7 +523,7 @@ void CBattleAI::attemptCastingSpell()
 	}
 	LOGFL("Found %d spell-target combinations.", possibleCasts.size());
 	if(possibleCasts.empty())
-		return;
+		return false;
 
 	using ValueMap = PossibleSpellcast::ValueMap;
 
@@ -657,7 +658,7 @@ void CBattleAI::attemptCastingSpell()
 			if(battleIsFinishedOpt)
 			{
 				print("No need to cast a spell. Battle will finish soon.");
-				return;
+				return false;
 			}
 		}
 	}
@@ -786,10 +787,12 @@ void CBattleAI::attemptCastingSpell()
 		spellcast.stackNumber = (!side) ? -1 : -2;
 		cb->battleMakeSpellAction(spellcast);
 		movesSkippedByDefense = 0;
+		return true;
 	}
 	else
 	{
 		LOGFL("Best spell is %s. But it is actually useless (value %d).", castToPerform.spell->getNameTranslated() % castToPerform.value);
+		return false;
 	}
 }
 
