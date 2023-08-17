@@ -289,16 +289,6 @@ void CBattleAI::activeStack( const CStack * stack )
 
 		logAi->trace("Spellcast attempt completed in %lld", timeElapsed(start));
 
-		if(cb->battleIsFinished() || !stack->alive())
-		{
-			//spellcast may finish battle or kill active stack
-			//send special preudo-action
-			BattleAction cancel;
-			cancel.actionType = EActionType::NO_ACTION;
-			cb->battleMakeUnitAction(cancel);
-			return;
-		}
-
 		if(auto action = considerFleeingOrSurrendering())
 		{
 			cb->battleMakeUnitAction(*action);

@@ -42,11 +42,6 @@
 #include "../../lib/spells/ObstacleCasterProxy.h"
 #include "../../lib/spells/Problem.h"
 
-#define COMPLAIN_RET_IF(cond, txt) do {if (cond){gameHandler->complain(txt); return;}} while(0)
-#define COMPLAIN_RET_FALSE_IF(cond, txt) do {if (cond){gameHandler->complain(txt); return false;}} while(0)
-#define COMPLAIN_RET(txt) {gameHandler->complain(txt); return false;}
-#define COMPLAIN_RETF(txt, FORMAT) {gameHandler->complain(boost::str(boost::format(txt) % FORMAT)); return false;}
-
 BattleProcessor::BattleProcessor(CGameHandler * gameHandler)
 	: gameHandler(gameHandler)
 	, flowProcessor(std::make_unique<BattleFlowProcessor>(this))
