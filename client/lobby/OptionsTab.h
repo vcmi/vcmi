@@ -98,7 +98,7 @@ public:
 
 	class SelectionWindow : public CWindowObject
 	{
-		const int ICON_SMALL_WIDTH = 48;
+		//const int ICON_SMALL_WIDTH = 48;
 		const int ICON_SMALL_HEIGHT = 32;
 		const int ICON_BIG_WIDTH = 58;
 		const int ICON_BIG_HEIGHT = 64;
@@ -138,7 +138,7 @@ public:
 		void recreate();
 		void setSelection();
 		int getElement(const Point & cursorPosition);
-		void setElement(int element, bool apply);
+		void setElement(int element, bool doApply);
 
 		void clickReleased(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;

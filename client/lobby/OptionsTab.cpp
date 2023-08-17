@@ -660,7 +660,7 @@ int OptionsTab::SelectionWindow::getElement(const Point & cursorPosition)
 	return x + y * elementsPerLine;
 }
 
-void OptionsTab::SelectionWindow::setElement(int elem, bool apply)
+void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 {
 	PlayerSettings set = PlayerSettings();
 	if(type == SelType::TOWN)
@@ -678,7 +678,7 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool apply)
 		}
 		if(set.castle != PlayerSettings::NONE)
 		{
-			if(!apply)
+			if(!doApply)
 			{
 				CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
 				GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
@@ -700,7 +700,7 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool apply)
 		}
 		if(set.hero != PlayerSettings::NONE)
 		{
-			if(!apply)
+			if(!doApply)
 			{
 				CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
 				GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
@@ -714,7 +714,7 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool apply)
 		set.bonus = static_cast<PlayerSettings::Ebonus>(elem-1);
 		if(set.bonus != PlayerSettings::NONE)
 		{
-			if(!apply)
+			if(!doApply)
 			{
 				CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::BONUS);
 				GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(helper);
@@ -722,7 +722,7 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool apply)
 		}
 	}
 
-	if(apply)
+	if(doApply)
 		apply();
 }
 
