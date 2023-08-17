@@ -10,6 +10,7 @@
 * Background battlefield obstacles will now appear below creatures
 * it is now possible to load save game located inside mod
 * Added option to configure reserved screen area in Launcher on iOS
+* Fixed border scrolling when game window is maximized
 
 ### AI PLAYER:
 * BattleAI: Improved performance of AI spell selection
