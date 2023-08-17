@@ -84,17 +84,6 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 	{
 		return lhs.damageDiff() > rhs.damageDiff();
 	});
-
-	if (!possibleAttacks.empty())
-	{
-		auto & bestAp = possibleAttacks[0];
-
-		logGlobal->debug("Battle AI best: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
-			bestAp.attack.attacker->unitType()->getJsonKey(),
-			state.battleGetUnitByPos(bestAp.dest)->unitType()->getJsonKey(),
-			(int)bestAp.dest, (int)bestAp.from, (int)bestAp.affectedUnits.size(),
-			bestAp.defenderDamageReduce, bestAp.attackerDamageReduce, bestAp.collateralDamageReduce, bestAp.shootersBlockedDmg);
-	}
 }
 
 int64_t PotentialTargets::bestActionValue() const

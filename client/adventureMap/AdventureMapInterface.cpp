@@ -169,10 +169,10 @@ void AdventureMapInterface::tick(uint32_t msPassed)
 void AdventureMapInterface::handleMapScrollingUpdate(uint32_t timePassed)
 {
 	/// Width of window border, in pixels, that triggers map scrolling
-	static constexpr uint32_t borderScrollWidth = 15;
+	static constexpr int32_t borderScrollWidth = 15;
 
-	uint32_t scrollSpeedPixels = settings["adventure"]["scrollSpeedPixels"].Float();
-	uint32_t scrollDistance = scrollSpeedPixels * timePassed / 1000;
+	int32_t scrollSpeedPixels = settings["adventure"]["scrollSpeedPixels"].Float();
+	int32_t scrollDistance = scrollSpeedPixels * timePassed / 1000;
 
 	Point cursorPosition = GH.getCursorPosition();
 	Point scrollDirection;
@@ -822,6 +822,15 @@ void AdventureMapInterface::hotkeyZoom(int delta)
 void AdventureMapInterface::onScreenResize()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	// remember our activation state and reactive after reconstruction
+	// since othervice activate() calls for created elements will bypass virtual dispatch
+	// and will call directly CIntObject::activate() instead of dispatching virtual function call
+	bool widgetActive = isActive();
+
+	if (widgetActive)
+		deactivate();
+
 	widget.reset();
 	pos.x = pos.y = 0;
 	pos.w = GH.screenDimensions().x;
@@ -838,4 +847,7 @@ void AdventureMapInterface::onScreenResize()
 		widget->getMapView()->onCenteredObject(LOCPLINT->localState->getCurrentArmy());
 
 	adjustActiveness();
+
+	if (widgetActive)
+		activate();
 }

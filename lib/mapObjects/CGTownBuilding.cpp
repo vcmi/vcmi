@@ -356,6 +356,9 @@ void CTownRewardableBuilding::heroLevelUpDone(const CGHeroInstance *hero) const
 
 void CTownRewardableBuilding::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
+	if(answer == 0)
+		return; // player refused
+	
 	if(visitors.find(hero->id) != visitors.end())
 		return; // query not for this building
 

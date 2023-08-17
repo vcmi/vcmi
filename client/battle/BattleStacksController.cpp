@@ -499,7 +499,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 void BattleStacksController::stackTeleported(const CStack *stack, std::vector<BattleHex> destHex, int distance)
 {
 	assert(destHex.size() > 0);
-	owner.checkForAnimations();
+	//owner.checkForAnimations(); // NOTE: at this point spellcast animations were added, but not executed
 
 	owner.addToAnimationStage(EAnimationEvents::HIT, [=](){
 		addNewAnim( new ColorTransformAnimation(owner, stack, "teleportFadeOut", nullptr) );

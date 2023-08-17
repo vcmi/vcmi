@@ -112,7 +112,7 @@ void HeroPoolProcessor::onHeroEscaped(const PlayerColor & color, const CGHeroIns
 	sah.slotID = selectSlotForRole(color, sah.roleID);
 	sah.player = color;
 	sah.hid = hero->subID;
-	sah.army.clear();
+	sah.army.clearSlots();
 	sah.army.setCreature(SlotID(0), hero->type->initialArmy.at(0).creature, 1);
 
 	gameHandler->sendAndApply(&sah);
@@ -148,7 +148,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 		else
 		{
 			sah.roleID = TavernSlotRole::SINGLE_UNIT;
-			sah.army.clear();
+			sah.army.clearSlots();
 			sah.army.setCreature(SlotID(0), newHero->type->initialArmy[0].creature, 1);
 		}
 	}
@@ -244,7 +244,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	hr.hid = recruitedHero->subID;
 	hr.player = player;
 	hr.tile = recruitedHero->convertFromVisitablePos(targetPos );
-	if(gameHandler->getTile(hr.tile)->isWater() && !recruitedHero->boat)
+	if(gameHandler->getTile(targetPos)->isWater() && !recruitedHero->boat)
 	{
 		//Create a new boat for hero
 		gameHandler->createObject(targetPos , Obj::BOAT, recruitedHero->getBoatType().getNum());

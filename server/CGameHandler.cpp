@@ -2943,7 +2943,7 @@ bool CGameHandler::load(const std::string & filename)
 	try
 	{
 		{
-			CLoadFile lf(*CResourceHandler::get("local")->getResourceName(ResourceID(stem.to_string(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
+			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourceID(stem.to_string(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
 			loadCommonState(lf);
 			logGlobal->info("Loading server state");
 			lf >> *this;

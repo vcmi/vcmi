@@ -445,7 +445,7 @@ void CCreatureSet::setStackExp(const SlotID & slot, TExpType exp)
 	stacks[slot]->experience = exp;
 }
 
-void CCreatureSet::clear()
+void CCreatureSet::clearSlots()
 {
 	while(!stacks.empty())
 	{
@@ -533,12 +533,12 @@ void CCreatureSet::changeStackCount(const SlotID & slot, TQuantity toAdd)
 
 CCreatureSet::~CCreatureSet()
 {
-	clear();
+	clearSlots();
 }
 
 void CCreatureSet::setToArmy(CSimpleArmy &src)
 {
-	clear();
+	clearSlots();
 	while(src)
 	{
 		auto i = src.army.begin();
@@ -1050,7 +1050,7 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-void CSimpleArmy::clear()
+void CSimpleArmy::clearSlots()
 {
 	army.clear();
 }
