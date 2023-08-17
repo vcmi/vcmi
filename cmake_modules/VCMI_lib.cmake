@@ -220,6 +220,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/effects/RemoveObstacle.cpp
 		${MAIN_LIB_DIR}/spells/effects/Sacrifice.cpp
 
+		${MAIN_LIB_DIR}/vstd/DateUtils.cpp
 		${MAIN_LIB_DIR}/vstd/StringUtils.cpp
 
 		${MAIN_LIB_DIR}/ArtifactUtils.cpp
@@ -283,6 +284,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 		${MAIN_LIB_DIR}/../include/vstd/ContainerUtils.h
 		${MAIN_LIB_DIR}/../include/vstd/RNG.h
+		${MAIN_LIB_DIR}/../include/vstd/DateUtils.h
 		${MAIN_LIB_DIR}/../include/vstd/StringUtils.h
 
 		${MAIN_LIB_DIR}/../include/vcmi/events/AdventureEvents.h

@@ -320,6 +320,7 @@
     </ClCompile>
     <ClCompile Include="VCMIDirs.cpp" />
     <ClCompile Include="VCMI_Lib.cpp" />
+    <ClCompile Include="vstd\DateUtils.cpp" />
     <ClCompile Include="vstd\StringUtils.cpp" />
   </ItemGroup>
   <ItemGroup>

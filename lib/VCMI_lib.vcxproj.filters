@@ -393,6 +393,9 @@
     <ClCompile Include="registerTypes\TypesLobbyPacks.cpp">
       <Filter>registerTypes</Filter>
     </ClCompile>
+    <ClCompile Include="vstd\DateUtils.cpp">
+      <Filter>vstd</Filter>
+    </ClCompile>
     <ClCompile Include="vstd\StringUtils.cpp">
       <Filter>vstd</Filter>
     </ClCompile>

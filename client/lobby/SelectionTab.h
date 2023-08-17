@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CSelectionBase.h"
+#include "../../lib/mapping/CMapInfo.h"
 
 class CSlider;
 class CLabel;
@@ -19,12 +20,21 @@ enum ESortBy
 	_playerAm, _size, _format, _name, _viccon, _loscon, _numOfMaps, _fileName
 }; //_numOfMaps is for campaigns
 
+class ElementInfo : public CMapInfo
+{
+public:
+	ElementInfo() : CMapInfo() { }
+	~ElementInfo() { }
+	std::string folderName = "";
+	bool isFolder = false;
+};
+
 /// Class which handles map sorting by different criteria
 class mapSorter
 {
 public:
 	ESortBy sortBy;
-	bool operator()(const std::shared_ptr<CMapInfo> aaa, const std::shared_ptr<CMapInfo> bbb);
+	bool operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb);
 	mapSorter(ESortBy es) : sortBy(es){};
 };
 
@@ -35,13 +45,15 @@ class SelectionTab : public CIntObject
 		std::shared_ptr<CLabel> labelAmountOfPlayers;
 		std::shared_ptr<CLabel> labelNumberOfCampaignMaps;
 		std::shared_ptr<CLabel> labelMapSizeLetter;
+		std::shared_ptr<CPicture> iconFolder;
 		std::shared_ptr<CAnimImage> iconFormat;
 		std::shared_ptr<CAnimImage> iconVictoryCondition;
 		std::shared_ptr<CAnimImage> iconLossCondition;
+		std::shared_ptr<CPicture> pictureEmptyLine;
 		std::shared_ptr<CLabel> labelName;
 
 		ListItem(Point position, std::shared_ptr<CAnimation> iconsFormats, std::shared_ptr<CAnimation> iconsVictory, std::shared_ptr<CAnimation> iconsLoss);
-		void updateItem(std::shared_ptr<CMapInfo> info = {}, bool selected = false);
+		void updateItem(std::shared_ptr<ElementInfo> info = {}, bool selected = false);
 	};
 	std::vector<std::shared_ptr<ListItem>> listItems;
 
@@ -51,14 +63,16 @@ class SelectionTab : public CIntObject
 	std::shared_ptr<CAnimation> iconsLossCondition;
 
 public:
-	std::vector<std::shared_ptr<CMapInfo>> allItems;
-	std::vector<std::shared_ptr<CMapInfo>> curItems;
+	std::vector<std::shared_ptr<ElementInfo>> allItems;
+	std::vector<std::shared_ptr<ElementInfo>> curItems;
+	std::string curFolder;
 	size_t selectionPos;
-	std::function<void(std::shared_ptr<CMapInfo>)> callOnSelect;
+	std::function<void(std::shared_ptr<ElementInfo>)> callOnSelect;
 
 	ESortBy sortingBy;
 	ESortBy generalSortingBy;
 	bool sortModeAscending;
+	int currentMapSizeFilter = 0;
 
 	std::shared_ptr<CTextInput> inputName;
 
@@ -81,7 +95,7 @@ public:
 	int getLine() const;
 	int getLine(const Point & position) const;
 	void selectFileName(std::string fname);
-	std::shared_ptr<CMapInfo> getSelectedMapInfo() const;
+	std::shared_ptr<ElementInfo> getSelectedMapInfo() const;
 	void rememberCurrentSelection();
 	void restoreLastSelection();
 
@@ -94,6 +108,8 @@ private:
 	std::shared_ptr<CLabel> labelMapSizes;
 	ESelectionScreen tabType;
 	Rect inputNameRect;
+
+	auto checkSubfolder(std::string path);
 
 	bool isMapSupported(const CMapInfo & info);
 	void parseMaps(const std::unordered_set<ResourceID> & files);

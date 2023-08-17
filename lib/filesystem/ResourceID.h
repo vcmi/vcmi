@@ -99,6 +99,7 @@ public:
 	}
 
 	std::string		getName() const {return name;}
+	std::string		getOriginalName() const {return originalName;}
 	EResType::Type	getType() const {return type;}
 	//void setName(std::string name);
 	//void setType(EResType::Type type);
@@ -112,6 +113,9 @@ private:
 
 	/** Specifies the resource name. No extension so .pcx and .png can override each other, always in upper case. **/
 	std::string name;
+
+	/** name in original case **/
+	std::string originalName;
 };
 
 /**

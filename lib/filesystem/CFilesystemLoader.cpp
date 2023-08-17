@@ -85,6 +85,10 @@ bool CFilesystemLoader::createResource(std::string filename, bool update)
 
 	if (!update)
 	{
+		// create folders if not exists
+		boost::filesystem::path p((baseDirectory / filename).c_str());
+		boost::filesystem::create_directories(p.parent_path());
+
 		// create file, if not exists
 		std::ofstream file((baseDirectory / filename).c_str(), std::ofstream::binary);
 
