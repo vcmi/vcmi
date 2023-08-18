@@ -12,6 +12,7 @@
 
 #include "../CGeneralTextHandler.h"
 #include "../VCMI_Lib.h"
+#include "../filesystem/Filesystem.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -126,6 +127,48 @@ void CModInfo::loadLocalData(const JsonNode & data)
 		validation = validated ? PASSED : PENDING;
 	else
 		validation = validated ? PASSED : FAILED;
+}
+
+bool CModInfo::checkModGameplayAffecting() const
+{
+	if (modGameplayAffecting.has_value())
+		return *modGameplayAffecting;
+
+	static const std::vector<std::string> keysToTest = {
+		"heroClasses",
+		"artifacts",
+		"creatures",
+		"factions",
+		"objects",
+		"heroes",
+		"spells",
+		"skills",
+		"templates",
+		"scripts",
+		"battlefields",
+		"terrains",
+		"rivers",
+		"roads",
+		"obstacles"
+	};
+
+	ResourceID modFileResource(CModInfo::getModFile(identifier));
+
+	if(CResourceHandler::get("initial")->existsResource(modFileResource))
+	{
+		const JsonNode modConfig(modFileResource);
+
+		for(const auto & key : keysToTest)
+		{
+			if (!modConfig[key].isNull())
+			{
+				modGameplayAffecting = true;
+				return *modGameplayAffecting;
+			}
+		}
+	}
+	modGameplayAffecting = false;
+	return *modGameplayAffecting;
 }
 
 bool CModInfo::isEnabled() const

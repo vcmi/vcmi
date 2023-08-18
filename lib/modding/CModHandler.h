@@ -52,7 +52,7 @@ class DLL_LINKAGE CModHandler : boost::noncopyable
 	CModVersion getModVersion(TModID modName) const;
 
 	/// Attempt to set active mods according to provided list of mods from save, throws on failure
-	void trySetActiveMods(const std::map<TModID, CModVersion> & modList);
+	void trySetActiveMods(std::vector<TModID> saveActiveMods, const std::map<TModID, CModVersion> & modList);
 
 	std::unique_ptr<CIdentifierStorage> identifiers;
 
@@ -100,16 +100,14 @@ public:
 		else
 		{
 			loadMods();
-			std::vector<TModID> newActiveMods;
+			std::vector<TModID> saveActiveMods;
 			std::map<TModID, CModVersion> modVersions;
-			h & newActiveMods;
+			h & saveActiveMods;
 
-			for(const auto & m : newActiveMods)
+			for(const auto & m : saveActiveMods)
 				h & modVersions[m];
 
-			trySetActiveMods(modVersions);
-
-			std::swap(activeMods, newActiveMods);
+			trySetActiveMods(saveActiveMods, modVersions);
 		}
 
 		h & identifiers;

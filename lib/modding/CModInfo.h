@@ -18,6 +18,10 @@ using TModID = std::string;
 
 class DLL_LINKAGE CModInfo
 {
+	/// cached result of checkModGameplayAffecting() call
+	/// Do not serialize - depends on local mod version, not server/save mod version
+	mutable std::optional<bool> modGameplayAffecting;
+
 public:
 	enum EValidationStatus
 	{
@@ -66,6 +70,9 @@ public:
 
 	static std::string getModDir(const std::string & name);
 	static std::string getModFile(const std::string & name);
+
+	/// return true if this mod can affect gameplay, e.g. adds or modifies any game objects
+	bool checkModGameplayAffecting() const;
 
 private:
 	/// true if mod is enabled by user, e.g. in Launcher UI
