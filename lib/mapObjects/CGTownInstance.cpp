@@ -516,7 +516,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 			std::vector<SlotID> nativeCrits; //slots
 			for(const auto & elem : Slots())
 			{
-				if (elem.second->type->getFaction() == subID) //native
+				if (elem.second->type->getFaction() == getFaction()) //native
 				{
 					nativeCrits.push_back(elem.first); //collect matching slots
 				}

@@ -697,7 +697,7 @@ void CGameState::initRandomFactionsForPlayers()
 	logGlobal->debug("\tPicking random factions for players");
 	for(auto & elem : scenarioOps->playerInfos)
 	{
-		if(elem.second.castle==-1)
+		if(elem.second.castle==FactionID::RANDOM)
 		{
 			auto randomID = getRandomGenerator().nextInt((int)map->players[elem.first.getNum()].allowedFactions.size() - 1);
 			auto iter = map->players[elem.first.getNum()].allowedFactions.begin();

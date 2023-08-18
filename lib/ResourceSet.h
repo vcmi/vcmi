@@ -22,16 +22,6 @@ class JsonSerializeFormat;
 
 class ResourceSet;
 
-enum class EGameResID : int8_t
-{
-	WOOD = 0, MERCURY, ORE, SULFUR, CRYSTAL, GEMS, GOLD, MITHRIL,
-
-	WOOD_AND_ORE = 127,  // special case for town bonus resource
-	INVALID = -1
-};
-
-using GameResID = Identifier<EGameResID>;
-
 //class to be representing a vector of resource
 class ResourceSet
 {

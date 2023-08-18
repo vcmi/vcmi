@@ -94,7 +94,7 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex(bool big)
 		TOWN_RANDOM = 38,  TOWN_NONE = 39, // Special frames in ITPA
 		HERO_RANDOM = 163, HERO_NONE = 164 // Special frames in PortraitsSmall
 	};
-	auto factionIndex = settings.castle >= CGI->townh->size() ? 0 : settings.castle;
+	auto factionIndex = settings.castle.getNum() >= CGI->townh->size() ? 0 : settings.castle.getNum();
 
 	switch(type)
 	{
@@ -191,7 +191,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getName()
 			return CGI->generaltexth->allTexts[522];
 		default:
 		{
-			auto factionIndex = settings.castle >= CGI->townh->size() ? 0 : settings.castle;
+			auto factionIndex = settings.castle.getNum() >= CGI->townh->size() ? 0 : settings.castle.getNum();
 			return (*CGI->townh)[factionIndex]->getNameTranslated();
 		}
 	}
@@ -233,7 +233,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getTitle()
 	switch(type)
 	{
 	case OptionsTab::TOWN:
-		return (settings.castle < 0) ? CGI->generaltexth->allTexts[103] : CGI->generaltexth->allTexts[80];
+		return (settings.castle.getNum() < 0) ? CGI->generaltexth->allTexts[103] : CGI->generaltexth->allTexts[80];
 	case OptionsTab::HERO:
 		return (settings.hero < 0) ? CGI->generaltexth->allTexts[101] : CGI->generaltexth->allTexts[77];
 	case OptionsTab::BONUS:
@@ -255,7 +255,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getTitle()
 }
 std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 {
-	auto factionIndex = settings.castle >= CGI->townh->size() ? 0 : settings.castle;
+	auto factionIndex = settings.castle.getNum() >= CGI->townh->size() ? 0 : settings.castle.getNum();
 	auto heroIndex = settings.hero >= CGI->heroh->size() ? 0 : settings.hero;
 
 	switch(type)
@@ -299,7 +299,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 
 std::string OptionsTab::CPlayerSettingsHelper::getDescription()
 {
-	auto factionIndex = settings.castle >= CGI->townh->size() ? 0 : settings.castle;
+	auto factionIndex = settings.castle.getNum() >= CGI->townh->size() ? 0 : settings.castle.getNum();
 
 	switch(type)
 	{
@@ -386,7 +386,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genTownWindow()
 	pos = Rect(0, 0, 228, 290);
 	genHeader();
 	labelAssociatedCreatures = std::make_shared<CLabel>(pos.w / 2 + 8, 122, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[79]);
-	auto factionIndex = settings.castle >= CGI->townh->size() ? 0 : settings.castle;
+	auto factionIndex = settings.castle.getNum() >= CGI->townh->size() ? 0 : settings.castle.getNum();
 	std::vector<std::shared_ptr<CComponent>> components;
 	const CTown * town = (*CGI->townh)[factionIndex]->town;
 
@@ -784,7 +784,7 @@ void OptionsTab::SelectedBox::update()
 void OptionsTab::SelectedBox::showPopupWindow(const Point & cursorPosition)
 {
 	// cases when we do not need to display a message
-	if(settings.castle == PlayerSettings::NONE && CPlayerSettingsHelper::type == TOWN)
+	if(settings.castle.getNum() == PlayerSettings::NONE && CPlayerSettingsHelper::type == TOWN)
 		return;
 	if(settings.hero == PlayerSettings::NONE && !SEL->getPlayerInfo(settings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
 		return;
@@ -932,7 +932,7 @@ void OptionsTab::PlayerOptionsEntry::hideUnavailableButtons()
 		buttonTownRight->enable();
 	}
 
-	if((pi->defaultHero() != -1 || s->castle < 0) //fixed hero
+	if((pi->defaultHero() != -1 || s->castle.getNum() < 0) //fixed hero
 		|| foreignPlayer) //or not our player
 	{
 		buttonHeroLeft->disable();

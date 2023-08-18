@@ -207,7 +207,7 @@ public:
 
 	/// Boat that will be used by town shipyard (if any)
 	/// and for placing heroes directly on boat (in map editor, water prisons & taverns)
-	BoatId boatType = BoatId(EBoatId::CASTLE);
+	BoatId boatType = BoatId::CASTLE;
 
 
 	CTown * town = nullptr; //NOTE: can be null
@@ -232,7 +232,7 @@ public:
 	bool hasTown() const override;
 	TerrainId getNativeTerrain() const override;
 	EAlignment getAlignment() const override;
-	EBoatId getBoatType() const override;
+	BoatId getBoatType() const override;
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);

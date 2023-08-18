@@ -184,7 +184,7 @@ EAlignment CFaction::getAlignment() const
 	return alignment;
 }
 
-EBoatId CFaction::getBoatType() const
+BoatId CFaction::getBoatType() const
 {
 	return boatType.toEnum();
 }
@@ -1034,7 +1034,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	faction->creatureBg120 = source["creatureBackground"]["120px"].String();
 	faction->creatureBg130 = source["creatureBackground"]["130px"].String();
 
-	faction->boatType = EBoatId::CASTLE; //Do not crash
+	faction->boatType = BoatId::CASTLE; //Do not crash
 	if (!source["boat"].isNull())
 	{
 		VLC->identifiers()->requestIdentifier("core:boat", source["boat"], [=](int32_t boatTypeID)

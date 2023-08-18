@@ -161,7 +161,7 @@ RiverId MapReaderH3M::readRiver()
 SecondarySkill MapReaderH3M::readSkill()
 {
 	SecondarySkill result(readUInt8());
-	assert(result < features.skillsCount);
+	assert(result.getNum() < features.skillsCount);
 	return remapIdentifier(result);;
 }
 

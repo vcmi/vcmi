@@ -396,7 +396,7 @@ void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std
 	if(handler.saving)
 	{
 		for(auto faction : VLC->townh->objects)
-			if(faction->town && vstd::contains(value, faction->getIndex()))
+			if(faction->town && vstd::contains(value, faction->getId()))
 				temp[static_cast<std::size_t>(faction->getIndex())] = true;
 	}
 

@@ -174,7 +174,7 @@ std::string CMapGenerator::getMapDescription() const
 		{
 			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()] << " is human";
 		}
-		if(pSettings.getStartingTown() != CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
+		if(pSettings.getStartingTown() != FactionID::RANDOM)
 		{
 			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()]
 			   << " town choice is " << (*VLC->townh)[pSettings.getStartingTown()]->getNameTranslated();

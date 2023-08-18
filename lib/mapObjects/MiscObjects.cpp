@@ -914,7 +914,7 @@ void CGWitchHut::serializeJsonOptions(JsonSerializeFormat & handler)
 
 	if(handler.saving)
 	{
-		for(si32 i = 0; i < skillCount; ++i)
+		for(SecondarySkill i(0); i < SecondarySkill(skillCount); ++i)
 			if(vstd::contains(allowedAbilities, i))
 				temp[i] = true;
 	}

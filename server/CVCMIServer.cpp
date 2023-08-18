@@ -840,10 +840,10 @@ void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 	auto & allowed = getPlayerInfo(player.getNum()).allowedFactions;
 	const bool allowRandomTown = getPlayerInfo(player.getNum()).isFactionRandom;
 
-	if(cur == PlayerSettings::NONE) //no change
+	if(cur.getNum() == PlayerSettings::NONE) //no change
 		return;
 
-	if(cur == PlayerSettings::RANDOM) //first/last available
+	if(cur.getNum() == PlayerSettings::RANDOM) //first/last available
 	{
 		if(dir > 0)
 			cur = *allowed.begin(); //id of first town
@@ -880,7 +880,7 @@ void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 	{
 		s.hero = PlayerSettings::RANDOM;
 	}
-	if(cur < 0 && s.bonus == PlayerSettings::RESOURCE)
+	if(cur.getNum() < 0 && s.bonus == PlayerSettings::RESOURCE)
 		s.bonus = PlayerSettings::RANDOM;
 }
 
@@ -935,7 +935,7 @@ void CVCMIServer::setCampaignBonus(int bonusId)
 void CVCMIServer::optionNextHero(PlayerColor player, int dir)
 {
 	PlayerSettings & s = si->playerInfos[player];
-	if(s.castle < 0 || s.hero == PlayerSettings::NONE)
+	if(s.castle.getNum() < 0 || s.hero == PlayerSettings::NONE)
 		return;
 
 	if(s.hero == PlayerSettings::RANDOM) // first/last available
@@ -1004,7 +1004,7 @@ void CVCMIServer::optionNextBonus(PlayerColor player, int dir)
 	if(ret < PlayerSettings::RANDOM)
 		ret = PlayerSettings::RESOURCE;
 
-	if(s.castle == PlayerSettings::RANDOM && ret == PlayerSettings::RESOURCE) //random castle - can't be resource
+	if(s.castle.getNum() == PlayerSettings::RANDOM && ret == PlayerSettings::RESOURCE) //random castle - can't be resource
 	{
 		if(dir < 0)
 			ret = PlayerSettings::GOLD;

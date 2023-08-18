@@ -374,15 +374,15 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 
 	if(terrainTypeLikeZone == NO_ZONE)
 	{
-		handler.serializeIdArray<TerrainId, TerrainID>("terrainTypes", terrainTypes, std::set<TerrainId>());
-		handler.serializeIdArray<TerrainId, TerrainID>("bannedTerrains", bannedTerrains, std::set<TerrainId>());
+		handler.serializeIdArray("terrainTypes", terrainTypes);
+		handler.serializeIdArray("bannedTerrains", bannedTerrains);
 	}
 
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
-	handler.serializeIdArray<FactionID>("allowedMonsters", monsterTypes, std::set<FactionID>());
-	handler.serializeIdArray<FactionID>("bannedMonsters", bannedMonsters, std::set<FactionID>());
-	handler.serializeIdArray<FactionID>("allowedTowns", townTypes, std::set<FactionID>());
-	handler.serializeIdArray<FactionID>("bannedTowns", bannedTownTypes, std::set<FactionID>());
+	handler.serializeIdArray("allowedMonsters", monsterTypes);
+	handler.serializeIdArray("bannedMonsters", bannedMonsters);
+	handler.serializeIdArray("allowedTowns", townTypes);
+	handler.serializeIdArray("bannedTowns", bannedTownTypes);
 
 	{
 		//TODO: add support for std::map to serializeEnum

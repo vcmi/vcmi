@@ -99,7 +99,7 @@ TEST_F(CCreatureTest, JsonUpdate)
 
 	EXPECT_EQ(subject->getFightValue(), 2420);
 	EXPECT_EQ(subject->getLevel(), 6);
-	EXPECT_EQ(subject->getFaction(), 55);
+	EXPECT_EQ(subject->getFaction().getNum(), 55);
 	EXPECT_TRUE(subject->isDoubleWide());
 }
 

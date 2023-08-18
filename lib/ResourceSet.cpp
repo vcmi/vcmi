@@ -119,7 +119,7 @@ std::string ResourceSet::toString() const
 
 bool ResourceSet::nziterator::valid() const
 {
-	return cur.resType < GameConstants::RESOURCE_QUANTITY && cur.resVal;
+	return cur.resType < GameResID::COUNT && cur.resVal;
 }
 
 ResourceSet::nziterator ResourceSet::nziterator::operator++()
@@ -150,9 +150,9 @@ void ResourceSet::nziterator::advance()
 	do
 	{
 		++cur.resType;
-	} while(cur.resType < GameConstants::RESOURCE_QUANTITY && !(cur.resVal=rs[cur.resType]));
+	} while(cur.resType < GameResID::COUNT && !(cur.resVal=rs[cur.resType]));
 
-	if(cur.resType >= GameConstants::RESOURCE_QUANTITY)
+	if(cur.resType >= GameResID::COUNT)
 		cur.resVal = -1;
 }
 

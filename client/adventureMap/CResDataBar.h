@@ -11,11 +11,6 @@
 
 #include "../gui/CIntObject.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-enum class EGameResID : int8_t;
-using GameResID = Identifier<EGameResID>;
-VCMI_LIB_NAMESPACE_END
-
 /// Resources bar which shows information about how many gold, crystals,... you have
 /// Current date is displayed too
 class CResDataBar : public CIntObject

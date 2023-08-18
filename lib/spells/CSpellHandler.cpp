@@ -608,7 +608,7 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData()
 
 			auto & chances = lineNode["gainChance"].Struct();
 
-			for(const auto & name : ETownType::names)
+			for(const auto & name : NFaction::names)
 				chances[name].Integer() = static_cast<si64>(parser.readNumber());
 
 			auto AIVals = parser.readNumArray<si32>(GameConstants::SPELL_SCHOOL_LEVELS);

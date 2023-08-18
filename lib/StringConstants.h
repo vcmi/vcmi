@@ -68,7 +68,7 @@ namespace EBuildingType
 	};
 }
 
-namespace ETownType
+namespace NFaction
 {
 	const std::string names [GameConstants::F_NUMBER] =
 	{

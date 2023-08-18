@@ -42,7 +42,7 @@ int CGameInfoCallback::getResource(PlayerColor Player, GameResID which) const
 {
 	const PlayerState *p = getPlayerState(Player);
 	ERROR_RET_VAL_IF(!p, "No player info!", -1);
-	ERROR_RET_VAL_IF(p->resources.size() <= which || which < 0, "No such resource!", -1);
+	ERROR_RET_VAL_IF(p->resources.size() <= which.getNum() || which.getNum() < 0, "No such resource!", -1);
 	return p->resources[which];
 }
 

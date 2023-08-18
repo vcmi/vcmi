@@ -191,20 +191,7 @@ std::string PlayerColor::getStrCap(bool L10n) const
 	return ret;
 }
 
-const FactionID FactionID::NONE = FactionID(-2);
-const FactionID FactionID::DEFAULT = FactionID(-1);
-const FactionID FactionID::CASTLE = FactionID(0);
-const FactionID FactionID::RAMPART = FactionID(1);
-const FactionID FactionID::TOWER = FactionID(2);
-const FactionID FactionID::INFERNO = FactionID(3);
-const FactionID FactionID::NECROPOLIS = FactionID(4);
-const FactionID FactionID::DUNGEON = FactionID(5);
-const FactionID FactionID::STRONGHOLD = FactionID(6);
-const FactionID FactionID::FORTRESS = FactionID(7);
-const FactionID FactionID::CONFLUX = FactionID(8);
-const FactionID FactionID::NEUTRAL = FactionID(9);
-
-si32 FactionID::decode(const std::string & identifier)
+si32 FactionIDBase::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
 	if(rawId)
@@ -213,32 +200,32 @@ si32 FactionID::decode(const std::string & identifier)
 		return FactionID::DEFAULT;
 }
 
-std::string FactionID::encode(const si32 index)
+std::string FactionIDBase::encode(const si32 index)
 {
 	return VLC->factions()->getByIndex(index)->getJsonKey();
 }
 
-std::string FactionID::entityType()
+std::string FactionIDBase::entityType()
 {
 	return "faction";
 }
 
 
-si32 TerrainID::decode(const std::string & identifier)
+si32 TerrainIdBase::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
 	if(rawId)
 		return rawId.value();
 	else
-		return static_cast<si32>(ETerrainId::NONE);
+		return static_cast<si32>(TerrainId::NONE);
 }
 
-std::string TerrainID::encode(const si32 index)
+std::string TerrainIdBase::encode(const si32 index)
 {
 	return VLC->terrainTypeHandler->getByIndex(index)->getJsonKey();
 }
 
-std::string TerrainID::entityType()
+std::string TerrainIdBase::entityType()
 {
 	return "terrain";
 }

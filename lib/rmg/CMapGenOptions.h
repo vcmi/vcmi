@@ -53,9 +53,6 @@ public:
 		TeamID getTeam() const;
 		void setTeam(const TeamID & value);
 
-		/// Constant for a random town selection.
-		static const si32 RANDOM_TOWN = -1;
-
 	private:
 		PlayerColor color;
 		si32 startingTown;

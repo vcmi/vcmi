@@ -506,7 +506,7 @@ const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand
 	return *RandomGeneratorUtil::nextItem(templates, rand);
 }
 
-CMapGenOptions::CPlayerSettings::CPlayerSettings() : color(0), startingTown(RANDOM_TOWN), playerType(EPlayerType::AI), team(TeamID::NO_TEAM)
+CMapGenOptions::CPlayerSettings::CPlayerSettings() : color(0), startingTown(FactionID::RANDOM), playerType(EPlayerType::AI), team(TeamID::NO_TEAM)
 {
 
 }

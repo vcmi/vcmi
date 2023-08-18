@@ -60,7 +60,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 			player = PlayerColor(player_id);
 			zone.setTownType(map.getMapGenOptions().getPlayersSettings().find(player)->second.getStartingTown());
 			
-			if(zone.getTownType() == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
+			if(zone.getTownType() == FactionID::RANDOM)
 				zone.setTownType(getRandomTownType(true));
 		}
 		else //no player - randomize town

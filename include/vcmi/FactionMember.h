@@ -27,7 +27,7 @@ public:
 	/**
 	 Returns native terrain considering some terrain bonuses.
 	*/
-	virtual Identifier<ETerrainId> getNativeTerrain() const;
+	virtual TerrainId getNativeTerrain() const;
 	/**
 	 Returns magic resistance considering some bonuses.
 	*/

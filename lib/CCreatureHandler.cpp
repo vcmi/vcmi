@@ -161,7 +161,7 @@ int32_t CCreature::getBaseShots() const
 
 int32_t CCreature::getRecruitCost(GameResID resIndex) const
 {
-	if(resIndex >= 0 && resIndex < cost.size())
+	if(resIndex.getNum() >= 0 && resIndex.getNum() < cost.size())
 		return cost[resIndex];
 	else
 		return 0;

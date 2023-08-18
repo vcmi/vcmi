@@ -345,7 +345,7 @@ std::vector<JsonNode> CHeroClassHandler::loadLegacyData()
 		for(const auto & name : NSecondarySkill::names)
 			entry["secondarySkills"][name].Float() = parser.readNumber();
 
-		for(const auto & name : ETownType::names)
+		for(const auto & name : NFaction::names)
 			entry["tavern"][name].Float() = parser.readNumber();
 
 		parser.endLine();
