@@ -102,6 +102,8 @@ class CGameHandler : public IGameCallback, public CBattleInfoCallback, public En
 	std::unique_ptr<boost::thread> battleThread;
 
 public:
+	boost::recursive_mutex battleActionMutex;
+
 	std::unique_ptr<HeroPoolProcessor> heroPool;
 
 	using FireShieldInfo = std::vector<std::pair<const CStack *, int64_t>>;
