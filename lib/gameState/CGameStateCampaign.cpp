@@ -155,7 +155,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(std::vector<CampaignHeroR
 	{
 		auto shouldSlotBeErased = [&](const std::pair<SlotID, CStackInstance *> & j) -> bool
 		{
-			CreatureID::ECreatureID crid = j.second->getCreatureID().toEnum();
+			CreatureID crid = j.second->getCreatureID();
 			return !travelOptions.monstersKeptByHero.count(crid);
 		};
 

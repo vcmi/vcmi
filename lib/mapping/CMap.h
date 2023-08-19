@@ -116,7 +116,7 @@ public:
 	void banWaterContent();
 
 	/// Gets object of specified type on requested position
-	const CGObjectInstance * getObjectiveObjectFrom(const int3 & pos, Obj::EObj type);
+	const CGObjectInstance * getObjectiveObjectFrom(const int3 & pos, Obj type);
 	CGHeroInstance * getHero(int heroId);
 
 	/// Sets the victory/loss condition objectives ??

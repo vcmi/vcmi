@@ -752,7 +752,7 @@ void CStackInstance::giveStackExp(TExpType exp)
 
 void CStackInstance::setType(const CreatureID & creID)
 {
-	if(creID >= 0 && creID < VLC->creh->objects.size())
+	if(creID.getNum() >= 0 && creID.getNum() < VLC->creh->objects.size())
 		setType(VLC->creh->objects[creID]);
 	else
 		setType((const CCreature*)nullptr);

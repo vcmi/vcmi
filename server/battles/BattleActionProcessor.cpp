@@ -406,10 +406,10 @@ bool BattleActionProcessor::doUnitSpellAction(const BattleAction & ba)
 	std::shared_ptr<const Bonus> spellcaster = stack->getBonus(Selector::typeSubtype(BonusType::SPELLCASTER, spellID));
 
 	//TODO special bonus for genies ability
-	if (randSpellcaster && gameHandler->battleGetRandomStackSpell(gameHandler->getRandomGenerator(), stack, CBattleInfoCallback::RANDOM_AIMED) < 0)
+	if (randSpellcaster && gameHandler->battleGetRandomStackSpell(gameHandler->getRandomGenerator(), stack, CBattleInfoCallback::RANDOM_AIMED) == SpellID::NONE)
 		spellID = gameHandler->battleGetRandomStackSpell(gameHandler->getRandomGenerator(), stack, CBattleInfoCallback::RANDOM_GENIE);
 
-	if (spellID < 0)
+	if (spellID == SpellID::NONE)
 		gameHandler->complain("That stack can't cast spells!");
 	else
 	{
@@ -1216,7 +1216,7 @@ void BattleActionProcessor::handleAfterAttackCasting(bool ranged, const CStack *
 
 		int bonusAdditionalInfo = attacker->getBonus(Selector::type()(BonusType::TRANSMUTATION))->additionalInfo[0];
 
-		if(defender->unitType()->getId() == bonusAdditionalInfo ||
+		if(defender->unitType()->getIndex() == bonusAdditionalInfo ||
 			(bonusAdditionalInfo == CAddInfo::NONE && defender->unitType()->getId() == attacker->unitType()->getId()))
 			return;
 

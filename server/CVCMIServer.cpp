@@ -890,7 +890,7 @@ void CVCMIServer::optionSetCastle(PlayerColor player, int id)
 	FactionID & cur = s.castle;
 	auto & allowed = getPlayerInfo(player.getNum()).allowedFactions;
 
-	if(cur == PlayerSettings::NONE) //no change
+	if(cur.getNum() == PlayerSettings::NONE) //no change
 		return;
 
 	if(allowed.find(static_cast<FactionID>(id)) == allowed.end() && id != PlayerSettings::RANDOM) // valid id
@@ -898,11 +898,11 @@ void CVCMIServer::optionSetCastle(PlayerColor player, int id)
 
 	cur = static_cast<FactionID>(id);
 
-	if(s.hero >= 0 && !getPlayerInfo(player.getNum()).hasCustomMainHero()) // remove hero unless it set to fixed one in map editor
+	if(s.hero.getNum() >= 0 && !getPlayerInfo(player.getNum()).hasCustomMainHero()) // remove hero unless it set to fixed one in map editor
 	{
 		s.hero = PlayerSettings::RANDOM;
 	}
-	if(cur < 0 && s.bonus == PlayerSettings::RESOURCE)
+	if(cur.getNum() < 0 && s.bonus == PlayerSettings::RESOURCE)
 		s.bonus = PlayerSettings::RANDOM;
 }
 
@@ -956,7 +956,7 @@ void CVCMIServer::optionNextHero(PlayerColor player, int dir)
 void CVCMIServer::optionSetHero(PlayerColor player, int id)
 {
 	PlayerSettings & s = si->playerInfos[player];
-	if(s.castle < 0 || s.hero == PlayerSettings::NONE)
+	if(s.castle.getNum() < 0 || s.hero == PlayerSettings::NONE)
 		return;
 
 	if(id == PlayerSettings::RANDOM)
@@ -1027,7 +1027,7 @@ void CVCMIServer::optionSetBonus(PlayerColor player, int id)
 	if(id < PlayerSettings::RANDOM)
 		return;
 
-	if(s.castle == PlayerSettings::RANDOM && id == PlayerSettings::RESOURCE) //random castle - can't be resource
+	if(s.castle.getNum() == PlayerSettings::RANDOM && id == PlayerSettings::RESOURCE) //random castle - can't be resource
 		return;
 
 	s.bonus = static_cast<PlayerSettings::Ebonus>(static_cast<int>(id));

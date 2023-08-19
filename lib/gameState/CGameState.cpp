@@ -1575,7 +1575,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 					&& (ai = dynamic_cast<const CArmedInstance *>(object.get()))) //contains army
 				{
 					for(const auto & elem : ai->Slots()) //iterate through army
-						if(elem.second->type->getId() == condition.objectType) //it's searched creature
+						if(elem.second->type->getIndex() == condition.objectType) //it's searched creature
 							total += elem.second->count;
 				}
 			}
@@ -1615,7 +1615,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 			{
 				for(const auto & elem : map->objects) // mode B - destroy all objects of this type
 				{
-					if(elem && elem->ID == condition.objectType)
+					if(elem && elem->ID.getNum() == condition.objectType)
 						return false;
 				}
 				return true;
@@ -1636,7 +1636,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 				for(const auto & elem : map->objects) // mode B - flag all objects of this type
 				{
 					 //check not flagged objs
-					if ( elem && elem->ID == condition.objectType && team.count(elem->tempOwner) == 0 )
+					if ( elem && elem->ID.getNum() == condition.objectType && team.count(elem->tempOwner) == 0 )
 						return false;
 				}
 				return true;

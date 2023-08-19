@@ -51,7 +51,7 @@ void BuyArmy::accept(AIGateway * ai)
 		auto res = cb->getResourceAmount();
 		auto & ci = armyToBuy[i];
 
-		if(objid != -1 && ci.creID != objid)
+		if(objid != CreatureID::NONE && ci.creID.getNum() != objid)
 			continue;
 
 		vstd::amin(ci.count, res / ci.cre->getFullRecruitCost());

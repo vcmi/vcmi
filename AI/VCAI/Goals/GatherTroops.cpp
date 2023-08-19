@@ -134,7 +134,7 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 			{
 				for(auto type : creature.second)
 				{
-					if(type == objid && ai->ah->freeResources().canAfford(VLC->creatures()->getById(type)->getFullRecruitCost()))
+					if(type.getNum() == objid && ai->ah->freeResources().canAfford(VLC->creatures()->getById(type)->getFullRecruitCost()))
 						vstd::concatenate(solutions, ai->ah->howToVisitObj(obj));
 				}
 			}

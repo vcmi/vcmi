@@ -190,18 +190,18 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(const A
 	return ArtifactUtils::createNewArtifactInstance(VLC->arth->objects[aid]);
 }
 
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const ArtifactID & aid, int spellID)
+DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const ArtifactID & aid, SpellID spellID)
 {
 	CArtifactInstance * art = nullptr;
-	if(aid >= 0)
+	if(aid.getNum() >= 0)
 	{
-		if(spellID < 0)
+		if(spellID == SpellID::NONE)
 		{
 			art = ArtifactUtils::createNewArtifactInstance(aid);
 		}
 		else
 		{
-			art = ArtifactUtils::createScroll(SpellID(spellID));
+			art = ArtifactUtils::createScroll(spellID);
 		}
 	}
 	else

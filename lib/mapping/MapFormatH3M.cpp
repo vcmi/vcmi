@@ -1159,8 +1159,8 @@ CGObjectInstance * CMapLoaderH3M::readGarrison(const int3 & mapPosition)
 
 CGObjectInstance * CMapLoaderH3M::readArtifact(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto artID = ArtifactID::NONE; //random, set later
-	int spellID = -1;
+	ArtifactID artID = ArtifactID::NONE; //random, set later
+	SpellID spellID = SpellID::NONE;
 	auto * object = new CGArtifact();
 
 	readMessageAndGuards(object->message, object, mapPosition);
@@ -1176,7 +1176,7 @@ CGObjectInstance * CMapLoaderH3M::readArtifact(const int3 & mapPosition, std::sh
 		artID = ArtifactID(objectTemplate->subid);
 	}
 
-	object->storedArtifact = ArtifactUtils::createArtifact(map, artID, spellID);
+	object->storedArtifact = ArtifactUtils::createArtifact(map, artID, spellID.getNum());
 	return object;
 }
 

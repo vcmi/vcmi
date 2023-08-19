@@ -221,6 +221,14 @@ class EntityBase
 {
 public:
 	int32_t num;
+
+	struct hash
+	{
+		size_t operator()(const EntityBase & id) const
+		{
+			return std::hash<int>()(id.num);
+		}
+	};
 };
 
 template<typename T>
@@ -790,10 +798,10 @@ enum class ETeleportChannelType
 	MIXED
 };
 
-class Obj
+class ObjBase : public EntityBase
 {
 public:
-	enum EObj
+	enum Type
 	{
 		NO_OBJ = -1,
 		ALTAR_OF_SACRIFICE [[deprecated]] = 2,
@@ -933,17 +941,15 @@ public:
 		MAGIC_PLAINS2 = 230,
 		ROCKLANDS = 231,
 	};
-	Obj(EObj _num = NO_OBJ) : num(_num)
-	{}
-
-	ID_LIKE_CLASS_COMMON(Obj, EObj)
-
-	EObj num;
 };
 
-ID_LIKE_OPERATORS(Obj, Obj::EObj)
+class Obj : public EntityIdentifier<ObjBase>
+{
+public:
+	using EntityIdentifier<ObjBase>::EntityIdentifier;
+};
 
-class RoadIsBase : public EntityBase
+class RoadIdBase : public EntityBase
 {
 public:
 	enum Type : int32_t
@@ -957,10 +963,10 @@ public:
 	};
 };
 
-class RoadId : public EntityIdentifier<RoadIsBase>
+class RoadId : public EntityIdentifier<RoadIdBase>
 {
 public:
-	using EntityIdentifier<RoadIsBase>::EntityIdentifier;
+	using EntityIdentifier<RoadIdBase>::EntityIdentifier;
 };
 
 class RiverIdBase : public EntityBase
@@ -1134,10 +1140,10 @@ namespace GameConstants
 	const auto BACKPACK_START = ArtifactPosition::AFTER_LAST;
 }
 
-class ArtifactID
+class ArtifactIDBase : public EntityBase
 {
 public:
-	enum EArtifactID
+	enum Type
 	{
 		NONE = -1,
 		SPELLBOOK = 0,
@@ -1147,29 +1153,12 @@ public:
 		BALLISTA = 4,
 		AMMO_CART = 5,
 		FIRST_AID_TENT = 6,
-		//CENTAUR_AXE = 7,
-		//BLACKSHARD_OF_THE_DEAD_KNIGHT = 8,
 		VIAL_OF_DRAGON_BLOOD = 127,
 		ARMAGEDDONS_BLADE = 128,
 		TITANS_THUNDER = 135,
-		//CORNUCOPIA = 140,
-		//FIXME: the following is only true if WoG is enabled. Otherwise other mod artifacts will take these slots.
 		ART_SELECTION = 144,
 		ART_LOCK = 145, // FIXME: We must get rid of this one since it's conflict with artifact from mods. See issue 2455
-		AXE_OF_SMASHING = 146,
-		MITHRIL_MAIL = 147,
-		SWORD_OF_SHARPNESS = 148,
-		HELM_OF_IMMORTALITY = 149,
-		PENDANT_OF_SORCERY = 150,
-		BOOTS_OF_HASTE = 151,
-		BOW_OF_SEEKING = 152,
-		DRAGON_EYE_RING = 153
-		//HARDENED_SHIELD = 154,
-		//SLAVAS_RING_OF_POWER = 155
 	};
-
-	ArtifactID(EArtifactID _num = NONE) : num(_num)
-	{}
 
 	DLL_LINKAGE const CArtifact * toArtifact() const;
 	DLL_LINKAGE const Artifact * toArtifact(const ArtifactService * service) const;
@@ -1177,51 +1166,32 @@ public:
 	///json serialization helpers
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
-
-	ID_LIKE_CLASS_COMMON(ArtifactID, EArtifactID)
-
-	EArtifactID num;
-
-	struct hash
-	{
-		size_t operator()(const ArtifactID & aid) const
-		{
-			return std::hash<int>()(aid.num);
-		}
-	};
 };
 
-ID_LIKE_OPERATORS(ArtifactID, ArtifactID::EArtifactID)
-
-class CreatureID
+class ArtifactID : public EntityIdentifier<ArtifactIDBase>
 {
 public:
-	enum ECreatureID
+	using EntityIdentifier<ArtifactIDBase>::EntityIdentifier;
+};
+
+class CreatureIDBase : public EntityBase
+{
+public:
+	enum Type
 	{
 		NONE = -1,
-		ARCHER = 2,
-		CAVALIER = 10,
-		CHAMPION = 11,
-		STONE_GOLEM = 32,
-		IRON_GOLEM = 33,
-		IMP = 42,
-		SKELETON = 56,
-		WALKING_DEAD = 58,
-		WIGHTS = 60,
-		LICHES = 64,
-		BONE_DRAGON = 68,
-		TROGLODYTES = 70,
-		MEDUSA = 76,
-		HYDRA = 110,
-		CHAOS_HYDRA = 111,
-		AIR_ELEMENTAL = 112,
-		EARTH_ELEMENTAL = 113,
-		FIRE_ELEMENTAL = 114,
-		WATER_ELEMENTAL = 115,
-		GOLD_GOLEM = 116,
-		DIAMOND_GOLEM = 117,
-		PSYCHIC_ELEMENTAL = 120,
-		MAGIC_ELEMENTAL = 121,
+		ARCHER = 2, // for debug / fallback
+		IMP = 42, // for Deity of Fire
+		SKELETON = 56, // for Skeleton Transformer
+		BONE_DRAGON = 68, // for Skeleton Transformer
+		TROGLODYTES = 70, // for Abandoned Mine
+		MEDUSA = 76, // for Siege UI workaround
+		HYDRA = 110, // for Skeleton Transformer
+		CHAOS_HYDRA = 111, // for Skeleton Transformer
+		AIR_ELEMENTAL = 112, // for tests
+		FIRE_ELEMENTAL = 114, // for tests
+		PSYCHIC_ELEMENTAL = 120, // for hardcoded ability
+		MAGIC_ELEMENTAL = 121, // for hardcoded ability
 		CATAPULT = 145,
 		BALLISTA = 146,
 		FIRST_AID_TENT = 147,
@@ -1229,27 +1199,24 @@ public:
 		ARROW_TOWERS = 149
 	};
 
-	CreatureID(ECreatureID _num = NONE) : num(_num)
-	{}
-
 	DLL_LINKAGE const CCreature * toCreature() const;
 	DLL_LINKAGE const Creature * toCreature(const CreatureService * creatures) const;
-
-	ID_LIKE_CLASS_COMMON(CreatureID, ECreatureID)
-
-	ECreatureID num;
 
 	///json serialization helpers
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
 };
 
-ID_LIKE_OPERATORS(CreatureID, CreatureID::ECreatureID)
-
-class SpellID
+class CreatureID : public EntityIdentifier<CreatureIDBase>
 {
 public:
-	enum ESpellID
+	using EntityIdentifier<CreatureIDBase>::EntityIdentifier;
+};
+
+class SpellIDBase : public EntityBase
+{
+public:
+	enum Type
 	{
 		SPELLBOOK_PRESET = -3,
 		PRESET = -2,
@@ -1278,22 +1245,19 @@ public:
 		FIRST_NON_SPELL = 70, AFTER_LAST = 82
 	};
 
-	SpellID(ESpellID _num = NONE) : num(_num)
-	{}
-
 	DLL_LINKAGE const CSpell * toSpell() const; //deprecated
 	DLL_LINKAGE const spells::Spell * toSpell(const spells::Service * service) const;
-
-	ID_LIKE_CLASS_COMMON(SpellID, ESpellID)
-
-	ESpellID num;
 
 	///json serialization helpers
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
 };
 
-ID_LIKE_OPERATORS(SpellID, SpellID::ESpellID)
+class SpellID : public EntityIdentifier<SpellIDBase>
+{
+public:
+	using EntityIdentifier<SpellIDBase>::EntityIdentifier;
+};
 
 class BattleFieldInfo;
 class BattleField : public BaseForID<BattleField, si32>

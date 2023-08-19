@@ -764,7 +764,7 @@ void makePossibleUpgrades(const CArmedInstance * obj)
 		{
 			UpgradeInfo ui;
 			cb->fillUpgradeInfo(obj, SlotID(i), ui);
-			if(ui.oldID >= 0 && cb->getResourceAmount().canAfford(ui.cost[0] * s->count))
+			if(ui.oldID != CreatureID::NONE && cb->getResourceAmount().canAfford(ui.cost[0] * s->count))
 			{
 				cb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
 			}
@@ -2184,8 +2184,8 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 			auto ci = infoFromDC(t->creatures[i]);
 
 			if(!ci.count
-				|| ci.creID == -1
-				|| (g.objid != -1 && ci.creID != g.objid)
+				|| ci.creID == CreatureID::NONE
+				|| (g.objid != -1 && ci.creID.getNum() != g.objid)
 				|| t->getUpperArmy()->getSlotFor(ci.creID) == SlotID())
 				continue;
 

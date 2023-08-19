@@ -355,7 +355,7 @@ int3 CMap::guardingCreaturePosition (int3 pos) const
 	return int3(-1, -1, -1);
 }
 
-const CGObjectInstance * CMap::getObjectiveObjectFrom(const int3 & pos, Obj::EObj type)
+const CGObjectInstance * CMap::getObjectiveObjectFrom(const int3 & pos, Obj type)
 {
 	for (CGObjectInstance * object : getTile(pos).visitableObjects)
 	{
@@ -418,7 +418,7 @@ void CMap::checkForObjectives()
 
 				case EventCondition::CONTROL:
 					if (isInTheMap(cond.position))
-						cond.object = getObjectiveObjectFrom(cond.position, static_cast<Obj::EObj>(cond.objectType));
+						cond.object = getObjectiveObjectFrom(cond.position, static_cast<Obj>(cond.objectType));
 
 					if (cond.object)
 					{
@@ -433,7 +433,7 @@ void CMap::checkForObjectives()
 
 				case EventCondition::DESTROY:
 					if (isInTheMap(cond.position))
-						cond.object = getObjectiveObjectFrom(cond.position, static_cast<Obj::EObj>(cond.objectType));
+						cond.object = getObjectiveObjectFrom(cond.position, static_cast<Obj>(cond.objectType));
 
 					if (cond.object)
 					{

@@ -151,7 +151,7 @@ struct ObjectIdRef
 	}
 };
 
-template<int id>
+template<Obj::Type id>
 bool objWithID(const CGObjectInstance * obj)
 {
 	return obj->ID == id;

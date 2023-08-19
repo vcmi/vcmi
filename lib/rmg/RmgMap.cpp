@@ -342,8 +342,8 @@ ui32 RmgMap::getTotalZoneCount() const
 
 bool RmgMap::isAllowedSpell(const SpellID & sid) const
 {
-	assert(sid >= 0);
-	if (sid < mapInstance->allowedSpells.size())
+	assert(sid.getNum() >= 0);
+	if (sid.getNum() < mapInstance->allowedSpells.size())
 	{
 		return mapInstance->allowedSpells[sid];
 	}

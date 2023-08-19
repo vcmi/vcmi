@@ -1189,8 +1189,8 @@ void CMapLoaderJson::MapObjectLoader::configure()
 
 	if(auto * art = dynamic_cast<CGArtifact *>(instance))
 	{
-		auto artID = ArtifactID::NONE;
-		int spellID = -1;
+		ArtifactID artID = ArtifactID::NONE;
+		SpellID spellID = SpellID::NONE;
 
 		if(art->ID == Obj::SPELL_SCROLL)
 		{
@@ -1208,7 +1208,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 			artID = ArtifactID(art->subID);
 		}
 
-		art->storedArtifact = ArtifactUtils::createArtifact(owner->map, artID, spellID);
+		art->storedArtifact = ArtifactUtils::createArtifact(owner->map, artID, spellID.getNum());
 	}
 
 	if(auto * hero = dynamic_cast<CGHeroInstance *>(instance))

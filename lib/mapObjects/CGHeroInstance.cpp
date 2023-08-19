@@ -824,7 +824,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
 		const std::map<ui32,si32> &casualties = battleResult.casualties[!battleResult.winner];
 		// figure out what to raise - pick strongest creature meeting requirements
-		auto creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
+		CreatureID creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
 		int requiredCasualtyLevel = 1;
 		TConstBonusListPtr improvedNecromancy = getBonuses(Selector::type()(BonusType::IMPROVED_NECROMANCY));
 		if(!improvedNecromancy->empty())

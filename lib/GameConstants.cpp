@@ -78,17 +78,17 @@ std::string HeroTypeID::encode(const si32 index)
 	return VLC->heroTypes()->getByIndex(index)->getJsonKey();
 }
 
-const CArtifact * ArtifactID::toArtifact() const
+const CArtifact * ArtifactIDBase::toArtifact() const
 {
 	return dynamic_cast<const CArtifact*>(toArtifact(VLC->artifacts()));
 }
 
-const Artifact * ArtifactID::toArtifact(const ArtifactService * service) const
+const Artifact * ArtifactIDBase::toArtifact(const ArtifactService * service) const
 {
-	return service->getById(*this);
+	return service->getByIndex(num);
 }
 
-si32 ArtifactID::decode(const std::string & identifier)
+si32 ArtifactIDBase::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "artifact", identifier);
 	if(rawId)
@@ -97,22 +97,22 @@ si32 ArtifactID::decode(const std::string & identifier)
 		return -1;
 }
 
-std::string ArtifactID::encode(const si32 index)
+std::string ArtifactIDBase::encode(const si32 index)
 {
 	return VLC->artifacts()->getByIndex(index)->getJsonKey();
 }
 
-const CCreature * CreatureID::toCreature() const
+const CCreature * CreatureIDBase::toCreature() const
 {
-	return VLC->creh->objects.at(*this);
+	return VLC->creh->objects.at(num);
 }
 
-const Creature * CreatureID::toCreature(const CreatureService * creatures) const
+const Creature * CreatureIDBase::toCreature(const CreatureService * creatures) const
 {
-	return creatures->getById(*this);
+	return creatures->getByIndex(num);
 }
 
-si32 CreatureID::decode(const std::string & identifier)
+si32 CreatureIDBase::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "creature", identifier);
 	if(rawId)
@@ -121,27 +121,27 @@ si32 CreatureID::decode(const std::string & identifier)
 		return -1;
 }
 
-std::string CreatureID::encode(const si32 index)
+std::string CreatureIDBase::encode(const si32 index)
 {
 	return VLC->creatures()->getById(CreatureID(index))->getJsonKey();
 }
 
-const CSpell * SpellID::toSpell() const
+const CSpell * SpellIDBase::toSpell() const
 {
 	if(num < 0 || num >= VLC->spellh->objects.size())
 	{
 		logGlobal->error("Unable to get spell of invalid ID %d", static_cast<int>(num));
 		return nullptr;
 	}
-	return VLC->spellh->objects[*this];
+	return VLC->spellh->objects[num];
 }
 
-const spells::Spell * SpellID::toSpell(const spells::Service * service) const
+const spells::Spell * SpellIDBase::toSpell(const spells::Service * service) const
 {
-	return service->getById(*this);
+	return service->getByIndex(num);
 }
 
-si32 SpellID::decode(const std::string & identifier)
+si32 SpellIDBase::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "spell", identifier);
 	if(rawId)
@@ -150,7 +150,7 @@ si32 SpellID::decode(const std::string & identifier)
 		return -1;
 }
 
-std::string SpellID::encode(const si32 index)
+std::string SpellIDBase::encode(const si32 index)
 {
 	return VLC->spells()->getByIndex(index)->getJsonKey();
 }

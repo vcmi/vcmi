@@ -383,7 +383,7 @@ void BattleResultProcessor::endBattleConfirm(const BattleInfo * battleInfo)
 		{
 			iw.components.emplace_back(
 				Component::EComponentType::ARTIFACT, art->artType->getId(),
-				art->artType->getId() == ArtifactID::SPELL_SCROLL? art->getScrollSpellID() : 0, 0);
+				art->artType->getId() == ArtifactID::SPELL_SCROLL? art->getScrollSpellID() : SpellID(0), 0);
 			if (iw.components.size() >= 14)
 			{
 				gameHandler->sendAndApply(&iw);

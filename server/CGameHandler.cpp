@@ -2491,7 +2491,7 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 	int newIDpos= vstd::find_pos(ui.newID, upgID);//get position of new id in UpgradeInfo
 
 	//check if upgrade is possible
-	if ((ui.oldID<0 || newIDpos == -1) && complain("That upgrade is not possible!"))
+	if ((ui.oldID == CreatureID::NONE || newIDpos == -1) && complain("That upgrade is not possible!"))
 	{
 		return false;
 	}
