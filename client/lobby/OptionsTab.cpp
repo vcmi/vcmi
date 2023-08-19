@@ -441,7 +441,7 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color, SelType _type)
 	if(initialHero >= -1)
 		allowedBonus.push_back(0); // artifact
 	allowedBonus.push_back(1); // gold
-	if(initialFaction >= 0)
+	if(initialFaction.getNum() >= 0)
 		allowedBonus.push_back(2); // resource
 
 	recreate();
@@ -451,7 +451,7 @@ int OptionsTab::SelectionWindow::calcLines(FactionID faction)
 {
 	double additionalItems = 1; // random
 
-	if(faction < 0)
+	if(faction.getNum() < 0)
 		return std::ceil(((double)allowedFactions.size() + additionalItems) / elementsPerLine);
 
 	int count = 0;
@@ -568,8 +568,8 @@ void OptionsTab::SelectionWindow::genContentFactions()
 	set.castle = PlayerSettings::RANDOM;
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
 	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 6, (ICON_SMALL_HEIGHT/2)));
-	drawOutlinedText(TEXT_POS_X, TEXT_POS_Y, (selectedFaction == PlayerSettings::RANDOM) ? Colors::YELLOW : Colors::WHITE, helper.getName());
-	if(selectedFaction == PlayerSettings::RANDOM)
+	drawOutlinedText(TEXT_POS_X, TEXT_POS_Y, (selectedFaction.getNum() == PlayerSettings::RANDOM) ? Colors::YELLOW : Colors::WHITE, helper.getName());
+	if(selectedFaction.getNum() == PlayerSettings::RANDOM)
 		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", 6, (ICON_SMALL_HEIGHT/2)));
 
 	for(auto & elem : allowedFactions)
@@ -677,7 +677,7 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 		{
 			set.castle = PlayerSettings::RANDOM;
 		}
-		if(set.castle != PlayerSettings::NONE)
+		if(set.castle.getNum() != PlayerSettings::NONE)
 		{
 			if(!doApply)
 			{
@@ -800,7 +800,7 @@ void OptionsTab::SelectedBox::clickReleased(const Point & cursorPosition)
 	if(type == SelType::TOWN && ((pi.allowedFactions.size() < 2 && !pi.isFactionRandom) || foreignPlayer))
 		return;
 
-	if(type == SelType::HERO && ((pi.defaultHero() != -1 || settings.castle < 0) || foreignPlayer))
+	if(type == SelType::HERO && ((pi.defaultHero() != -1 || settings.castle.getNum() < 0) || foreignPlayer))
 		return;
 
 	if(type == SelType::BONUS && foreignPlayer)

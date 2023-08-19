@@ -617,18 +617,18 @@ int BattleActionProcessor::moveStack(int stack, BattleHex dest)
 	if (gameHandler->gameState()->curB->tacticDistance > 0 && creSpeed > 0)
 		creSpeed = GameConstants::BFIELD_SIZE;
 
-	bool hasWideMoat = vstd::contains_if(gameHandler->battleGetAllObstaclesOnPos(BattleHex(ESiegeHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
+	bool hasWideMoat = vstd::contains_if(gameHandler->battleGetAllObstaclesOnPos(BattleHex(BattleHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
 	{
 		return obst->obstacleType == CObstacleInstance::MOAT;
 	});
 
 	auto isGateDrawbridgeHex = [&](BattleHex hex) -> bool
 	{
-		if (hasWideMoat && hex == ESiegeHex::GATE_BRIDGE)
+		if (hasWideMoat && hex == BattleHex::GATE_BRIDGE)
 			return true;
-		if (hex == ESiegeHex::GATE_OUTER)
+		if (hex == BattleHex::GATE_OUTER)
 			return true;
-		if (hex == ESiegeHex::GATE_INNER)
+		if (hex == BattleHex::GATE_INNER)
 			return true;
 
 		return false;
@@ -687,11 +687,11 @@ int BattleActionProcessor::moveStack(int stack, BattleHex dest)
 			{
 				auto needOpenGates = [&](BattleHex hex) -> bool
 				{
-					if (hasWideMoat && hex == ESiegeHex::GATE_BRIDGE)
+					if (hasWideMoat && hex == BattleHex::GATE_BRIDGE)
 						return true;
-					if (hex == ESiegeHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] == ESiegeHex::GATE_OUTER)
+					if (hex == BattleHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] == BattleHex::GATE_OUTER)
 						return true;
-					else if (hex == ESiegeHex::GATE_OUTER || hex == ESiegeHex::GATE_INNER)
+					else if (hex == BattleHex::GATE_OUTER || hex == BattleHex::GATE_INNER)
 						return true;
 
 					return false;
@@ -719,24 +719,24 @@ int BattleActionProcessor::moveStack(int stack, BattleHex dest)
 
 				if (!gateMayCloseAtHex.isValid() && dbState != EGateState::CLOSED)
 				{
-					if (hex == ESiegeHex::GATE_INNER && i-1 >= 0 && path.first[i-1] != ESiegeHex::GATE_OUTER)
+					if (hex == BattleHex::GATE_INNER && i-1 >= 0 && path.first[i-1] != BattleHex::GATE_OUTER)
 					{
 						gateMayCloseAtHex = path.first[i-1];
 					}
 					if (hasWideMoat)
 					{
-						if (hex == ESiegeHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] != ESiegeHex::GATE_OUTER)
+						if (hex == BattleHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] != BattleHex::GATE_OUTER)
 						{
 							gateMayCloseAtHex = path.first[i-1];
 						}
-						else if (hex == ESiegeHex::GATE_OUTER && i-1 >= 0 &&
-							path.first[i-1] != ESiegeHex::GATE_INNER &&
-							path.first[i-1] != ESiegeHex::GATE_BRIDGE)
+						else if (hex == BattleHex::GATE_OUTER && i-1 >= 0 &&
+							path.first[i-1] != BattleHex::GATE_INNER &&
+							path.first[i-1] != BattleHex::GATE_BRIDGE)
 						{
 							gateMayCloseAtHex = path.first[i-1];
 						}
 					}
-					else if (hex == ESiegeHex::GATE_OUTER && i-1 >= 0 && path.first[i-1] != ESiegeHex::GATE_INNER)
+					else if (hex == BattleHex::GATE_OUTER && i-1 >= 0 && path.first[i-1] != BattleHex::GATE_INNER)
 					{
 						gateMayCloseAtHex = path.first[i-1];
 					}

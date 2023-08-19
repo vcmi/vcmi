@@ -265,7 +265,7 @@ class CHallInterface : public CStatusbarWindow
 		const CGTownInstance * town;
 		const CBuilding * building;
 
-		ui32 state;//Buildings::EBuildStructure enum
+		EBuildingState state;
 
 		std::shared_ptr<CAnimImage> header;
 		std::shared_ptr<CAnimImage> icon;
@@ -303,10 +303,10 @@ class CBuildWindow: public CStatusbarWindow
 	std::shared_ptr<CButton> buy;
 	std::shared_ptr<CButton> cancel;
 
-	std::string getTextForState(int state);
+	std::string getTextForState(EBuildingState state);
 	void buyFunc();
 public:
-	CBuildWindow(const CGTownInstance *Town, const CBuilding * building, int State, bool rightClick);
+	CBuildWindow(const CGTownInstance *Town, const CBuilding * building, EBuildingState State, bool rightClick);
 };
 
 //Small class to display

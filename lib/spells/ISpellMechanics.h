@@ -180,7 +180,7 @@ class DLL_LINKAGE Mechanics
 public:
 	virtual ~Mechanics();
 
-	virtual bool adaptProblem(ESpellCastProblem::ESpellCastProblem source, Problem & target) const = 0;
+	virtual bool adaptProblem(ESpellCastProblem source, Problem & target) const = 0;
 	virtual bool adaptGenericProblem(Problem & target) const = 0;
 
 	virtual std::vector<BattleHex> rangeInHexes(BattleHex centralHex) const = 0;
@@ -262,7 +262,7 @@ class DLL_LINKAGE BaseMechanics : public Mechanics
 public:
 	virtual ~BaseMechanics();
 
-	bool adaptProblem(ESpellCastProblem::ESpellCastProblem source, Problem & target) const override;
+	bool adaptProblem(ESpellCastProblem source, Problem & target) const override;
 	bool adaptGenericProblem(Problem & target) const override;
 
 	int32_t getSpellIndex() const override;

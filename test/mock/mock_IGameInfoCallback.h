@@ -16,7 +16,7 @@ class IGameInfoCallbackMock : public IGameInfoCallback
 {
 public:
 	//various
-	MOCK_CONST_METHOD1(getDate, int(Date::EDateType));
+	MOCK_CONST_METHOD1(getDate, int(Date));
 	MOCK_CONST_METHOD2(isAllowed, bool(int32_t, int32_t));
 
 	//player

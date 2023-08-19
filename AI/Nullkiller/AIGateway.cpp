@@ -773,7 +773,7 @@ void AIGateway::makeTurn()
 {
 	MAKING_TURN;
 
-	auto day = cb->getDate(Date::EDateType::DAY);
+	auto day = cb->getDate(Date::DAY);
 	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.getStr(), day);
 
 	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);

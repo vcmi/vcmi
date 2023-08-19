@@ -38,7 +38,7 @@ bool BuildingManager::tryBuildThisStructure(const CGTownInstance * t, BuildingID
 
 	for (BuildingID buildID : toBuild)
 	{
-		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
+		EBuildingState canBuild = cb->canBuildStructure(t, buildID);
 		if (canBuild == EBuildingState::HAVE_CAPITAL || canBuild == EBuildingState::FORBIDDEN || canBuild == EBuildingState::NO_WATER)
 			return false; //we won't be able to build this
 	}
@@ -52,7 +52,7 @@ bool BuildingManager::tryBuildThisStructure(const CGTownInstance * t, BuildingID
 	{
 		const CBuilding * b = t->town->buildings.at(buildID);
 
-		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
+		EBuildingState canBuild = cb->canBuildStructure(t, buildID);
 		if (canBuild == EBuildingState::ALLOWED)
 		{
 			PotentialBuilding pb;

@@ -269,7 +269,7 @@ bool RmgMap::isRoad(const int3& tile) const
 	return tiles[tile.x][tile.y][tile.z].isRoad();
 }
 
-void RmgMap::setOccupied(const int3 &tile, ETileType::ETileType state)
+void RmgMap::setOccupied(const int3 &tile, ETileType state)
 {
 	assertOnMap(tile);
 	

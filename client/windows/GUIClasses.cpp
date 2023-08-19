@@ -1711,7 +1711,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		}
 		else if(it.second != EAiTactic::RANDOM)
 		{
-			text = CGI->generaltexth->arraytxt[168 + it.second];
+			text = CGI->generaltexth->arraytxt[168 + static_cast<int>(it.second)];
 		}
 
 		personalities.push_back(std::make_shared<CLabel>(283 + 66*counter, 459, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, text));

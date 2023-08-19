@@ -195,7 +195,7 @@ bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 	if(town->tempOwner!=player)
 		return false;
 
-	if(!canBuildStructure(town, buildingID))
+	if(canBuildStructure(town, buildingID) != EBuildingState::ALLOWED)
 		return false;
 
 	BuildStructure pack(town->id,buildingID);

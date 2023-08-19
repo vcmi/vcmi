@@ -15,7 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class BonusList;
-enum class PrimarySkill : int32_t;
+enum class PrimarySkill : int8_t;
 
 class DLL_LINKAGE AFactionMember: public IConstBonusProvider, public INativeTerrainProvider
 {

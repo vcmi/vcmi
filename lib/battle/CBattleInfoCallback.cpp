@@ -93,7 +93,7 @@ static BattleHex WallPartToHex(EWallPart part)
 
 using namespace SiegeStuffThatShouldBeMovedToHandlers;
 
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster * caster, spells::Mode mode) const
+ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster * caster, spells::Mode mode) const
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
 	if(caster == nullptr)
@@ -187,7 +187,7 @@ bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest,
 
 		auto obstacles = battleGetAllObstaclesOnPos(hex, false);
 
-		if(hex != ESiegeHex::GATE_BRIDGE || (battleIsGatePassable()))
+		if(hex != BattleHex::GATE_BRIDGE || (battleIsGatePassable()))
 			for(const auto & obst : obstacles)
 				if(obst->obstacleType ==  CObstacleInstance::MOAT)
 					pathHasMoat |= true;
@@ -821,7 +821,7 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAl
 						affectedObstacles.push_back(i);
 		}
 		for(auto hex : unit->getHexes())
-			if(hex == ESiegeHex::GATE_BRIDGE && battleIsGatePassable())
+			if(hex == BattleHex::GATE_BRIDGE && battleIsGatePassable())
 				for(int i=0; i<affectedObstacles.size(); i++)
 					if(affectedObstacles.at(i)->obstacleType == CObstacleInstance::MOAT)
 						affectedObstacles.erase(affectedObstacles.begin()+i);
@@ -926,7 +926,7 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 			accessability = EAccessibility::UNAVAILABLE;
 			break;
 		}
-		ret[ESiegeHex::GATE_OUTER] = ret[ESiegeHex::GATE_INNER] = accessability;
+		ret[BattleHex::GATE_OUTER] = ret[BattleHex::GATE_INNER] = accessability;
 	}
 
 	//tiles occupied by standing stacks
@@ -955,10 +955,10 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 		static const std::pair<EWallPart, BattleHex> lockedIfNotDestroyed[] =
 		{
 			//which part of wall, which hex is blocked if this part of wall is not destroyed
-			std::make_pair(EWallPart::BOTTOM_WALL, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_4)),
-			std::make_pair(EWallPart::BELOW_GATE, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_3)),
-			std::make_pair(EWallPart::OVER_GATE, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_2)),
-			std::make_pair(EWallPart::UPPER_WALL, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_1))
+			std::make_pair(EWallPart::BOTTOM_WALL, BattleHex(BattleHex::DESTRUCTIBLE_WALL_4)),
+			std::make_pair(EWallPart::BELOW_GATE, BattleHex(BattleHex::DESTRUCTIBLE_WALL_3)),
+			std::make_pair(EWallPart::OVER_GATE, BattleHex(BattleHex::DESTRUCTIBLE_WALL_2)),
+			std::make_pair(EWallPart::UPPER_WALL, BattleHex(BattleHex::DESTRUCTIBLE_WALL_1))
 		};
 
 		for(const auto & elem : lockedIfNotDestroyed)
@@ -1055,7 +1055,7 @@ bool CBattleInfoCallback::isInObstacle(
 
 		if(vstd::contains(obstacles, occupiedHex))
 		{
-			if(occupiedHex == ESiegeHex::GATE_BRIDGE)
+			if(occupiedHex == BattleHex::GATE_BRIDGE)
 			{
 				if(battleGetGateState() != EGateState::DESTROYED && params.side == BattleSide::ATTACKER)
 					return true;
@@ -1080,7 +1080,7 @@ std::set<BattleHex> CBattleInfoCallback::getStoppers(BattlePerspective::BattlePe
 
 		for(const auto & hex : oi->getStoppingTile())
 		{
-			if(hex == ESiegeHex::GATE_BRIDGE && oi->obstacleType == CObstacleInstance::MOAT)
+			if(hex == BattleHex::GATE_BRIDGE && oi->obstacleType == CObstacleInstance::MOAT)
 			{
 				if(battleGetGateState() == EGateState::OPENED || battleGetGateState() == EGateState::DESTROYED)
 					continue; // this tile is disabled by drawbridge on top of it

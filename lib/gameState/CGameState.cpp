@@ -356,7 +356,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	}
 }
 
-int CGameState::getDate(Date::EDateType mode) const
+int CGameState::getDate(Date mode) const
 {
 	int temp;
 	switch (mode)

@@ -160,7 +160,7 @@ void BuildAnalyzer::update()
 
 	updateDailyIncome();
 
-	if(ai->cb->getDate(Date::EDateType::DAY) == 1)
+	if(ai->cb->getDate(Date::DAY) == 1)
 	{
 		goldPreasure = 1;
 	}

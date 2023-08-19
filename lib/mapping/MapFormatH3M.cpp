@@ -215,7 +215,7 @@ void CMapLoaderH3M::readPlayerInfo()
 			continue;
 		}
 
-		playerInfo.aiTactic = static_cast<EAiTactic::EAiTactic>(reader->readUInt8());
+		playerInfo.aiTactic = static_cast<EAiTactic>(reader->readUInt8());
 
 		if(features.levelSOD)
 			reader->skipUnused(1); //TODO: check meaning?

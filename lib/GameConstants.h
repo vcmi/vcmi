@@ -412,7 +412,7 @@ class TeleportChannelID : public BaseForID<TeleportChannelID, si32>
 };
 
 // Enum declarations
-enum class PrimarySkill : int32_t
+enum class PrimarySkill : int8_t
 {
 	NONE = -1,
 	ATTACK,
@@ -603,7 +603,7 @@ namespace BuildingSubID
 	};
 }
 
-enum class EMarketMode : int32_t
+enum class EMarketMode : int8_t
 {
 	RESOURCE_RESOURCE, RESOURCE_PLAYER, CREATURE_RESOURCE, RESOURCE_ARTIFACT,
 	ARTIFACT_RESOURCE, ARTIFACT_EXP, CREATURE_EXP, CREATURE_UNDEAD, RESOURCE_SKILL,
@@ -701,9 +701,7 @@ namespace MappedKeys
 	};
 }
 
-namespace EAiTactic
-{
-enum EAiTactic
+enum class EAiTactic : int8_t
 {
 	NONE = -1,
 	RANDOM,
@@ -711,29 +709,22 @@ enum EAiTactic
 	BUILDER,
 	EXPLORER
 };
-}
 
-namespace EBuildingState
+enum class EBuildingState : int8_t
 {
-	enum EBuildingState
-	{
-		HAVE_CAPITAL, NO_WATER, FORBIDDEN, ADD_MAGES_GUILD, ALREADY_PRESENT, CANT_BUILD_TODAY,
-		NO_RESOURCES, ALLOWED, PREREQUIRES, MISSING_BASE, BUILDING_ERROR, TOWN_NOT_OWNED
-	};
-}
+	HAVE_CAPITAL, NO_WATER, FORBIDDEN, ADD_MAGES_GUILD, ALREADY_PRESENT, CANT_BUILD_TODAY,
+	NO_RESOURCES, ALLOWED, PREREQUIRES, MISSING_BASE, BUILDING_ERROR, TOWN_NOT_OWNED
+};
 
-namespace ESpellCastProblem
+enum class ESpellCastProblem : int8_t
 {
-	enum ESpellCastProblem
-	{
-		OK, NO_HERO_TO_CAST_SPELL, CASTS_PER_TURN_LIMIT, NO_SPELLBOOK,
-		HERO_DOESNT_KNOW_SPELL, NOT_ENOUGH_MANA, ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL,
-		SPELL_LEVEL_LIMIT_EXCEEDED, NO_SPELLS_TO_DISPEL,
-		NO_APPROPRIATE_TARGET, STACK_IMMUNE_TO_SPELL, WRONG_SPELL_TARGET, ONGOING_TACTIC_PHASE,
-		MAGIC_IS_BLOCKED, //For Orb of Inhibition and similar - no casting at all
-		INVALID
-	};
-}
+	OK, NO_HERO_TO_CAST_SPELL, CASTS_PER_TURN_LIMIT, NO_SPELLBOOK,
+	HERO_DOESNT_KNOW_SPELL, NOT_ENOUGH_MANA, ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL,
+	SPELL_LEVEL_LIMIT_EXCEEDED, NO_SPELLS_TO_DISPEL,
+	NO_APPROPRIATE_TARGET, STACK_IMMUNE_TO_SPELL, WRONG_SPELL_TARGET, ONGOING_TACTIC_PHASE,
+	MAGIC_IS_BLOCKED, //For Orb of Inhibition and similar - no casting at all
+	INVALID
+};
 
 namespace ECommander
 {
@@ -757,7 +748,7 @@ enum class EWallState : int8_t
 	REINFORCED, // walls in towns with castle
 };
 
-enum class EGateState : uint8_t
+enum class EGateState : int8_t
 {
 	NONE,
 	CLOSED,
@@ -766,32 +757,16 @@ enum class EGateState : uint8_t
 	DESTROYED
 };
 
-namespace ESiegeHex
-{
-	enum ESiegeHex : si16
-	{
-		DESTRUCTIBLE_WALL_1 = 29,
-		DESTRUCTIBLE_WALL_2 = 78,
-		DESTRUCTIBLE_WALL_3 = 130,
-		DESTRUCTIBLE_WALL_4 = 182,
-		GATE_BRIDGE = 94,
-		GATE_OUTER = 95,
-		GATE_INNER = 96
-	};
-}
 
-namespace ETileType
+enum class ETileType : int8_t
 {
-	enum ETileType
-	{
-		FREE,
-		POSSIBLE,
-		BLOCKED,
-		USED
-	};
-}
+	FREE,
+	POSSIBLE,
+	BLOCKED,
+	USED
+};
 
-enum class ETeleportChannelType
+enum class ETeleportChannelType : int8_t
 {
 	IMPASSABLE,
 	BIDIRECTIONAL,
@@ -1006,17 +981,14 @@ namespace SecSkillLevel
 	};
 }
 
-namespace Date
+enum class Date : int8_t
 {
-	enum EDateType
-	{
-		DAY = 0,
-		DAY_OF_WEEK = 1,
-		WEEK = 2,
-		MONTH = 3,
-		DAY_OF_MONTH
-	};
-}
+	DAY = 0,
+	DAY_OF_WEEK = 1,
+	WEEK = 2,
+	MONTH = 3,
+	DAY_OF_MONTH
+};
 
 enum class EActionType : int8_t
 {
@@ -1041,7 +1013,7 @@ enum class EActionType : int8_t
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EActionType actionType);
 
-enum class EDiggingStatus : int32_t
+enum class EDiggingStatus : int8_t
 {
 	UNKNOWN = -1,
 	CAN_DIG = 0,
@@ -1348,7 +1320,7 @@ public:
 
 using ESpellSchool = SpellSchool;
 
-enum class EMetaclass: ui8
+enum class EMetaclass: int8_t
 {
 	INVALID = 0,
 	ARTIFACT,

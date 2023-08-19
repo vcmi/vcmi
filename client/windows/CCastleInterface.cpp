@@ -1351,9 +1351,9 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	};
 
 	icon = std::make_shared<CAnimImage>(town->town->clientInfo.buildingsIcons, building->bid, 0, 2, 2);
-	header = std::make_shared<CAnimImage>("TPTHBAR", panelIndex[state], 0, 1, 73);
-	if(iconIndex[state] >=0)
-		mark = std::make_shared<CAnimImage>("TPTHCHK", iconIndex[state], 0, 136, 56);
+	header = std::make_shared<CAnimImage>("TPTHBAR", panelIndex[static_cast<int>(state)], 0, 1, 73);
+	if(iconIndex[static_cast<int>(state)] >=0)
+		mark = std::make_shared<CAnimImage>("TPTHCHK", iconIndex[static_cast<int>(state)], 0, 136, 56);
 	name = std::make_shared<CLabel>(75, 81, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, building->getNameTranslated());
 
 	//todo: add support for all possible states
@@ -1371,7 +1371,7 @@ void CHallInterface::CBuildingBox::hover(bool on)
 		else if(state==EBuildingState::CANT_BUILD_TODAY)
 			toPrint = CGI->generaltexth->allTexts[223];
 		else
-			toPrint = CGI->generaltexth->hcommands[state];
+			toPrint = CGI->generaltexth->hcommands[static_cast<int>(state)];
 		boost::algorithm::replace_first(toPrint,"%s",building->getNameTranslated());
 		GH.statusbar()->write(toPrint);
 	}
@@ -1439,7 +1439,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 	}
 }
 
-CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Building, int state, bool rightClick):
+CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Building, EBuildingState state, bool rightClick):
 	CStatusbarWindow(PLAYER_COLORED | (rightClick ? RCLICK_POPUP : 0), "TPUBUILD"),
 	town(Town),
 	building(Building)
@@ -1482,7 +1482,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 
 		buy = std::make_shared<CButton>(Point(45, 446), "IBUY30", CButton::tooltip(tooltipYes.toString()), [&](){ buyFunc(); }, EShortcut::GLOBAL_ACCEPT);
 		buy->setBorderColor(Colors::METALLIC_GOLD);
-		buy->block(state!=7 || LOCPLINT->playerID != town->tempOwner);
+		buy->block(state!=EBuildingState::ALLOWED || LOCPLINT->playerID != town->tempOwner);
 
 		cancel = std::make_shared<CButton>(Point(290, 445), "ICANCEL", CButton::tooltip(tooltipNo.toString()), [&](){ close();}, EShortcut::GLOBAL_CANCEL);
 		cancel->setBorderColor(Colors::METALLIC_GOLD);
@@ -1495,11 +1495,11 @@ void CBuildWindow::buyFunc()
 	GH.windows().popWindows(2); //we - build window and hall screen
 }
 
-std::string CBuildWindow::getTextForState(int state)
+std::string CBuildWindow::getTextForState(EBuildingState state)
 {
 	std::string ret;
 	if(state < EBuildingState::ALLOWED)
-		ret =  CGI->generaltexth->hcommands[state];
+		ret =  CGI->generaltexth->hcommands[static_cast<int>(state)];
 	switch (state)
 	{
 	case EBuildingState::ALREADY_PRESENT:

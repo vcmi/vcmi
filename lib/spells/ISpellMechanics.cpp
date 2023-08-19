@@ -468,7 +468,7 @@ bool BaseMechanics::adaptGenericProblem(Problem & target) const
 	return false;
 }
 
-bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Problem & target) const
+bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) const
 {
 	if(source == ESpellCastProblem::OK)
 		return true;

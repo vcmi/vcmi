@@ -54,7 +54,7 @@ public:
 	int height() const;
 	PlayerInfo & getPlayer(int playerId);
 	
-	void setOccupied(const int3 &tile, ETileType::ETileType state);
+	void setOccupied(const int3 &tile, ETileType state);
 	void setRoad(const int3 &tile, RoadId roadType);
 	
 	TileInfo getTileInfo(const int3 & tile) const;
