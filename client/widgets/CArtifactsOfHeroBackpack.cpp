@@ -84,6 +84,7 @@ void CArtifactsOfHeroBackpack::scrollBackpack(int offset)
 		slot = slot + 1;
 	}
 	redraw();
+	setRedrawParent(true);
 }
 
 void CArtifactsOfHeroBackpack::updateBackpackSlots()
