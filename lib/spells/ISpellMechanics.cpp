@@ -738,7 +738,7 @@ std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechan
 	case SpellID::VIEW_AIR:
 		return std::make_unique<ViewAirMechanics>(s);
 	default:
-		return s->combat ? std::unique_ptr<IAdventureSpellMechanics>() : std::make_unique<AdventureSpellMechanics>(s);
+		return s->isCombat() ? std::unique_ptr<IAdventureSpellMechanics>() : std::make_unique<AdventureSpellMechanics>(s);
 	}
 }
 

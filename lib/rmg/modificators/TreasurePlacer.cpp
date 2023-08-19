@@ -213,7 +213,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			
 			for(auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
 			{
-				if(map.isAllowedSpell(spell->id) && spell->level == i + 1)
+				if(map.isAllowedSpell(spell->id) && spell->getLevel() == i + 1)
 				{
 					out.push_back(spell->id);
 				}
@@ -328,7 +328,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			std::vector <CSpell *> spells;
 			for(auto spell : VLC->spellh->objects)
 			{
-				if(map.isAllowedSpell(spell->id) && spell->level == i)
+				if(map.isAllowedSpell(spell->id) && spell->getLevel() == i)
 					spells.push_back(spell);
 			}
 			
