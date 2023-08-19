@@ -49,7 +49,7 @@ TEST_F(BonusConditionTest, ReceptiveIfMatchesType)
 TEST_F(BonusConditionTest, ImmuneIfTypeMismatch)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::FIRE_IMMUNITY, BonusSource::OTHER, 0, 0));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::OTHER, 0, SpellSchool(ESpellSchool::FIRE)));
 	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 

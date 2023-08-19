@@ -74,10 +74,6 @@ class JsonNode;
 	BONUS_NAME(SPELL_LIKE_ATTACK) /*subtype - spell, value - spell level; range is taken from spell, but damage from creature; eg. magog*/ \
 	BONUS_NAME(THREE_HEADED_ATTACK) /*eg. cerberus*/	\
 	BONUS_NAME(GENERAL_DAMAGE_PREMY)						\
-	BONUS_NAME(FIRE_IMMUNITY)	/*subtype 0 - all, 1 - all except positive*/						\
-	BONUS_NAME(WATER_IMMUNITY)							\
-	BONUS_NAME(EARTH_IMMUNITY)							\
-	BONUS_NAME(AIR_IMMUNITY)							\
 	BONUS_NAME(MIND_IMMUNITY)							\
 	BONUS_NAME(FIRE_SHIELD)								\
 	BONUS_NAME(UNDEAD)									\
@@ -175,6 +171,8 @@ class JsonNode;
 	BONUS_NAME(BONUS_DAMAGE_PERCENTAGE) /*If hero can grant conditional damage to creature, value is percentage, subtype is creatureID*/\
 	BONUS_NAME(BONUS_DAMAGE_CHANCE) /*If hero can grant additional damage to creature, value is chance, subtype is creatureID*/\
 	BONUS_NAME(MAX_LEARNABLE_SPELL_LEVEL) /*This can work as wisdom before. val = max learnable spell level*/\
+	BONUS_NAME(SPELL_SCHOOL_IMMUNITY) /*This bonus will work as spell school immunity for all spells, subtype - spell school: 0 - air, 1 - fire, 2 - water, 3 - earth. Any is not handled for reducing overlap from LEVEL_SPELL_IMMUNITY*/\
+	BONUS_NAME(NEGATIVE_EFFECTS_IMMUNITY) /*This bonus will work as spell school immunity for negative effects from spells of school, subtype - spell school: -1 - any, 0 - air, 1 - fire, 2 - water, 3 - earth*/\
 	/* end of list */
 
 

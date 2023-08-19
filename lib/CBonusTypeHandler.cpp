@@ -99,60 +99,47 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 		fileName = sp->getIconImmune();
 		break;
 	}
-	case BonusType::FIRE_IMMUNITY:
+	case BonusType::SPELL_SCHOOL_IMMUNITY: //for all school
+	{
 		switch(bonus->subtype)
 		{
-		case 0:
-			fileName = "E_SPFIRE.bmp";
-			break;//all
-		case 1:
-			fileName = "E_SPFIRE1.bmp";
-			break;//not positive
-		case 2:
-			fileName = "E_FIRE.bmp";
-			break;//direct damage
-		}
-		break;
-	case BonusType::WATER_IMMUNITY:
-		switch(bonus->subtype)
-		{
-		case 0:
-			fileName = "E_SPWATER.bmp";
-			break;//all
-		case 1:
-			fileName = "E_SPWATER1.bmp";
-			break;//not positive
-		case 2:
-			fileName = "E_SPCOLD.bmp";
-			break;//direct damage
-		}
-		break;
-	case BonusType::AIR_IMMUNITY:
-		switch(bonus->subtype)
-		{
-		case 0:
+		case SpellSchool(ESpellSchool::AIR):
 			fileName = "E_SPAIR.bmp";
-			break;//all
-		case 1:
-			fileName = "E_SPAIR1.bmp";
-			break;//not positive
-		case 2:
-			fileName = "E_LIGHT.bmp";
-			break;//direct damage
+			break;
+		case SpellSchool(ESpellSchool::FIRE):
+			fileName = "E_SPFIRE.bmp";
+			break;
+		case SpellSchool(ESpellSchool::WATER):
+			fileName = "E_SPWATER.bmp";
+			break;
+		case SpellSchool(ESpellSchool::EARTH):
+			fileName = "E_SPEATH.bmp";
+			break;
 		}
 		break;
-	case BonusType::EARTH_IMMUNITY:
+	}
+		//	fileName = "E_FIRE.bmp"; //fire damage
+		//	fileName = "E_COLD.bmp"; //cold damage
+		//	fileName = "E_LIGHT.bmp"; //lightning damage
+	case BonusType::NEGATIVE_EFFECTS_IMMUNITY:
+	{
 		switch(bonus->subtype)
 		{
-		case 0:
-			fileName = "E_SPEATH.bmp";
-			break;//all
-		case 1:
-		case 2://no specific icon for direct damage immunity
+		case SpellSchool(ESpellSchool::AIR):
+			fileName = "E_SPAIR1.bmp";
+			break;
+		case SpellSchool(ESpellSchool::FIRE):
+			fileName = "E_SPFIRE1.bmp";
+			break;
+		case SpellSchool(ESpellSchool::WATER):
+			fileName = "E_SPWATER1.bmp";
+			break;
+		case SpellSchool(ESpellSchool::EARTH):
 			fileName = "E_SPEATH1.bmp";
-			break;//not positive
+			break;
 		}
 		break;
+	}
 	case BonusType::LEVEL_SPELL_IMMUNITY:
 	{
 		if(vstd::iswithin(bonus->val, 1, 5))

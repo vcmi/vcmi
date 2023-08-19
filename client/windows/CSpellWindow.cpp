@@ -122,9 +122,9 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 		++sitesPerOurTab[4];
 
-		spell->forEachSchool([&sitesPerOurTab](const spells::SchoolInfo & school, bool & stop)
+		spell->forEachSchool([&sitesPerOurTab](const ESpellSchool & school, bool & stop)
 		{
-			++sitesPerOurTab[(ui8)school.id];
+			++sitesPerOurTab[(ui8)school];
 		});
 	}
 	if(sitesPerTabAdv[4] % 12 == 0)
