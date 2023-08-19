@@ -51,6 +51,7 @@ namespace GameConstants
 	constexpr int SPELL_LEVELS = 5;
 	constexpr int SPELL_SCHOOL_LEVELS = 4;
 	constexpr int DEFAULT_SCHOOLS = 4;
+	constexpr int DEFAULT_DAMAGE_TYPES = 6;
 	constexpr int CRE_LEVELS = 10; // number of creature experience levels
 
 	constexpr int HERO_GOLD_COST = 2500;
@@ -1345,6 +1346,30 @@ enum class ESpellSchool: int8_t
 };
 
 using SpellSchool = Identifier<ESpellSchool>;
+
+enum class ESubSchool: int8_t
+{
+	DEFAULT 	= -1, //Default damage type, means no damage type provided
+	MAGIC 	= 0, //Only for attack of Magic Elementals
+	MIND 	= 1, //Attack of Psychic elementals + mind spells
+	ICE 	= 2, //Ice Bolt + Frost Ring
+	LIGHTNING 	= 3, //Lightning + Chain lightning
+	ROCK	= 4, //Meteor shower
+	BALEFIRE = 5 //Armageddon
+};
+
+using SubSchool = Identifier<ESubSchool>;
+
+static const std::vector<std::string> subSchoolMap =
+{
+	"any",
+	"magic",
+	"mind",
+	"ice",
+	"lightning",
+	"rock",
+	"balefire"
+};
 
 enum class EMetaclass: ui8
 {

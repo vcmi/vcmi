@@ -50,6 +50,12 @@ CModHandler::CModHandler()
 
 	identifiers->registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool(ESpellSchool::ANY));
 
+	//TODO: moddable damage types
+	for (auto i = 0; i < GameConstants::DEFAULT_DAMAGE_TYPES; ++i)
+		identifiers->registerObject(ModScope::scopeBuiltin(), "damageType", subSchoolMap[i], SubSchool(i));
+
+	identifiers->registerObject(ModScope::scopeBuiltin(), "damageType", "default", SubSchool(ESubSchool::DEFAULT));
+
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
 		identifiers->registerObject(ModScope::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);

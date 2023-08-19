@@ -173,6 +173,8 @@ class JsonNode;
 	BONUS_NAME(MAX_LEARNABLE_SPELL_LEVEL) /*This can work as wisdom before. val = max learnable spell level*/\
 	BONUS_NAME(SPELL_SCHOOL_IMMUNITY) /*This bonus will work as spell school immunity for all spells, subtype - spell school: 0 - air, 1 - fire, 2 - water, 3 - earth. Any is not handled for reducing overlap from LEVEL_SPELL_IMMUNITY*/\
 	BONUS_NAME(NEGATIVE_EFFECTS_IMMUNITY) /*This bonus will work as spell school immunity for negative effects from spells of school, subtype - spell school: -1 - any, 0 - air, 1 - fire, 2 - water, 3 - earth*/\
+	BONUS_NAME(ATTACK_DAMAGE_TYPE) /* This bonus will work as damage type for creature attack. Possible values: magic, mind, cold, lightning, rock etc.*/\
+	BONUS_NAME(DAMAGE_TYPE_REDUCTION) /* This bonus will work as damage type reduction for mind, cold, lightning, rock spells etc, for > 100 it is immunity*/
 	/* end of list */
 
 
