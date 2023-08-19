@@ -37,7 +37,7 @@ void TurnTimerWidget::DrawRect::showAll(Canvas & to)
 
 TurnTimerWidget::TurnTimerWidget():
 	InterfaceObjectConfigurable(TIME),
-	turnTime(0), lastTurnTime(0)
+	turnTime(0), lastTurnTime(0), cachedTurnTime(0)
 {
 	REGISTER_BUILDER("drawRect", &TurnTimerWidget::buildDrawRect);
 	
