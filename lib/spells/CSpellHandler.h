@@ -187,17 +187,10 @@ public:
 
 	using BTVector = std::vector<BonusType>;
 
-	si32 level;
 
 	std::map<SpellSchool, bool> school;
-
-	si32 power; //spell's power
-
 	std::map<FactionID, si32> probabilities; //% chance to gain for castles
 
-	bool combat; //is this spell combat (true) or adventure (false)
-	bool creatureAbility; //if true, only creatures can use this spell
-	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
 	bool onlyOnWaterMap; //Spell will be banned on maps without water
 	std::vector<SpellID> counteredSpells; //spells that are removed when effect of this spell is placed on creature (for bless-curse, haste-slow, and similar pairs)
 
@@ -363,6 +356,12 @@ private:
 	std::string castSound;
 
 	std::vector<LevelInfo> levels;
+
+	si32 level;
+	si32 power; //spell's power
+	bool combat; //is this spell combat (true) or adventure (false)
+	bool creatureAbility; //if true, only creatures can use this spell
+	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
 
 	std::unique_ptr<spells::ISpellMechanicsFactory> mechanics;//(!) do not serialize
 	std::unique_ptr<IAdventureSpellMechanics> adventureMechanics;//(!) do not serialize

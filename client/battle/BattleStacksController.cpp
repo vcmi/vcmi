@@ -271,7 +271,16 @@ std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack *
 	int effectsPositivness = 0;
 
 	for(const auto & spellID : activeSpells)
-		effectsPositivness += CGI->spellh->objects.at(spellID)->positiveness;
+	{
+		auto positiveness = CGI->spells()->getByIndex(spellID)->getPositiveness();
+		if(!boost::logic::indeterminate(positiveness))
+		{
+			if(positiveness)
+				effectsPositivness++;
+			else
+				effectsPositivness--;
+		}
+	}
 
 	if (effectsPositivness > 0)
 		return amountPositive;
