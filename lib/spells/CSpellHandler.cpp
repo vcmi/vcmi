@@ -383,7 +383,7 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 	//affected creature-specific part
 	if(nullptr != affectedCreature)
 	{
-		const auto * bearer = affectedCreature;
+		const auto * bearer = affectedCreature->getBonusBearer();
 		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
 		forEachSchool([&](const spells::SchoolInfo & cnf, bool & stop)
 		{
@@ -396,11 +396,12 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 		});
 
 		CSelector selector = Selector::typeSubtype(BonusType::SPELL_DAMAGE_REDUCTION, SpellSchool(ESpellSchool::ANY));
+		auto cachingStr = "type_SPELL_DAMAGE_REDUCTION_s_ANY";
 
 		//general spell dmg reduction, works only on magical effects
-		if(bearer->hasBonus(selector) && isMagical())
+		if(bearer->hasBonus(selector, cachingStr) && isMagical())
 		{
-			ret *= 100 - bearer->valOfBonuses(selector);
+			ret *= 100 - bearer->valOfBonuses(selector, cachingStr);
 			ret /= 100;
 		}
 
