@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 
+#include "BonusEnum.h"
 #include "BonusParams.h"
 #include "BonusSelector.h"
 
@@ -42,7 +43,11 @@ const std::set<std::string> deprecatedBonusSet = {
 	"FIRE_SPELLS",
 	"AIR_SPELLS",
 	"WATER_SPELLS",
-	"EARTH_SPELLS"
+	"EARTH_SPELLS",
+	"FIRE_IMMUNITY",
+	"AIR_IMMUNITY",
+	"WATER_IMMUNITY",
+	"EARTH_IMMUNITY"
 };
 
 BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSubtypeStr, int deprecatedSubtype):
@@ -260,6 +265,70 @@ BonusParams::BonusParams(std::string deprecatedTypeStr, std::string deprecatedSu
 	{
 		type = BonusType::SPELLS_OF_SCHOOL;
 		subtype = SpellSchool(ESpellSchool::EARTH);
+	}
+	else if (deprecatedTypeStr == "AIR_IMMUNITY")
+	{
+		subtype = SpellSchool(ESpellSchool::AIR);
+		switch(deprecatedSubtype)
+		{
+			case 0:
+				type = BonusType::SPELL_SCHOOL_IMMUNITY;
+				break;
+			case 1:
+				type = BonusType::NEGATIVE_EFFECTS_IMMUNITY;
+				break;
+			default:
+				type = BonusType::SPELL_DAMAGE_REDUCTION;
+				val = 100;
+		}
+	}
+	else if (deprecatedTypeStr == "FIRE_IMMUNITY")
+	{
+		subtype = SpellSchool(ESpellSchool::FIRE);
+		switch(deprecatedSubtype)
+		{
+			case 0:
+				type = BonusType::SPELL_SCHOOL_IMMUNITY;
+				break;
+			case 1:
+				type = BonusType::NEGATIVE_EFFECTS_IMMUNITY;
+				break;
+			default:
+				type = BonusType::SPELL_DAMAGE_REDUCTION;
+				val = 100;
+		}
+	}
+	else if (deprecatedTypeStr == "WATER_IMMUNITY")
+	{
+		subtype = SpellSchool(ESpellSchool::WATER);
+		switch(deprecatedSubtype)
+		{
+			case 0:
+				type = BonusType::SPELL_SCHOOL_IMMUNITY;
+				break;
+			case 1:
+				type = BonusType::NEGATIVE_EFFECTS_IMMUNITY;
+				break;
+			default:
+				type = BonusType::SPELL_DAMAGE_REDUCTION;
+				val = 100;
+		}
+	}
+	else if (deprecatedTypeStr == "EARTH_IMMUNITY")
+	{
+		subtype = SpellSchool(ESpellSchool::EARTH);
+		switch(deprecatedSubtype)
+		{
+			case 0:
+				type = BonusType::SPELL_SCHOOL_IMMUNITY;
+				break;
+			case 1:
+				type = BonusType::NEGATIVE_EFFECTS_IMMUNITY;
+				break;
+			default:
+				type = BonusType::SPELL_DAMAGE_REDUCTION;
+				val = 100;
+		}
 	}
 	else
 		isConverted = false;
