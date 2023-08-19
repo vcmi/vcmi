@@ -7,6 +7,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/StdInc.cpp
 
 		${MAIN_LIB_DIR}/battle/AccessibilityInfo.cpp
+		${MAIN_LIB_DIR}/battle/AutocombatPreferences.cpp
 		${MAIN_LIB_DIR}/battle/BattleAction.cpp
 		${MAIN_LIB_DIR}/battle/BattleAttackInfo.cpp
 		${MAIN_LIB_DIR}/battle/BattleHex.cpp
@@ -322,6 +323,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/../include/vcmi/Team.h
 
 		${MAIN_LIB_DIR}/battle/AccessibilityInfo.h
+		${MAIN_LIB_DIR}/battle/AutocombatPreferences.h
 		${MAIN_LIB_DIR}/battle/BattleAction.h
 		${MAIN_LIB_DIR}/battle/BattleAttackInfo.h
 		${MAIN_LIB_DIR}/battle/BattleHex.h

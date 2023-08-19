@@ -68,6 +68,7 @@ public:
 	~CBattleAI();
 
 	void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB) override;
+	void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB, AutocombatPreferences autocombatPreferences) override;
 	void attemptCastingSpell();
 
 	void evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps); //for offensive damaging spells only
@@ -102,4 +103,5 @@ public:
 private:
 	BattleAction goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes) const;
 	std::vector<BattleHex> getBrokenWallMoatHexes() const;
+	AutocombatPreferences autobattlePreferences = AutocombatPreferences();
 };

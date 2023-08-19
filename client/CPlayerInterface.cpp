@@ -662,7 +662,11 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	if ((replayAllowed && useQuickCombat) || forceQuickCombat)
 	{
 		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
-		autofightingAI->initBattleInterface(env, cb);
+
+		AutocombatPreferences autocombatPreferences = AutocombatPreferences();
+		autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
+
+		autofightingAI->initBattleInterface(env, cb, autocombatPreferences);
 		autofightingAI->battleStart(army1, army2, tile, hero1, hero2, side, false);
 		isAutoFightOn = true;
 		cb->registerBattleInterface(autofightingAI);
