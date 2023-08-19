@@ -103,6 +103,12 @@ int64_t AttackPossibility::damageDiff() const
 	return defenderDamageReduce - attackerDamageReduce - collateralDamageReduce + shootersBlockedDmg;
 }
 
+int64_t AttackPossibility::damageDiff(float positiveEffectMultiplier, float negativeEffectMultiplier) const
+{
+	return positiveEffectMultiplier * (defenderDamageReduce + shootersBlockedDmg)
+		- negativeEffectMultiplier * (attackerDamageReduce + collateralDamageReduce);
+}
+
 int64_t AttackPossibility::attackValue() const
 {
 	return damageDiff();
@@ -121,9 +127,6 @@ int64_t AttackPossibility::calculateDamageReduce(
 	std::shared_ptr<CBattleInfoCallback> state)
 {
 	const float HEALTH_BOUNTY = 0.5;
-	const float KILL_BOUNTY = 1.0 - HEALTH_BOUNTY;
-
-	vstd::amin(damageDealt, defender->getAvailableHealth());
 
 	// FIXME: provide distance info for Jousting bonus
 	auto attackerUnitForMeasurement = attacker;
@@ -146,11 +149,21 @@ int64_t AttackPossibility::calculateDamageReduce(
 			attackerUnitForMeasurement = ourUnits.front();
 	}
 
-	auto enemyDamageBeforeAttack = damageCache.getOriginalDamage(defender, attackerUnitForMeasurement, state);
-	auto enemiesKilled = damageDealt / defender->getMaxHealth() + (damageDealt % defender->getMaxHealth() >= defender->getFirstHPleft() ? 1 : 0);
-	auto damagePerEnemy = enemyDamageBeforeAttack / (double)defender->getCount();
+	auto maxHealth = defender->getMaxHealth();
+	auto availableHealth = defender->getFirstHPleft() + ((defender->getCount() - 1) * maxHealth);
 
-	return (int64_t)(damagePerEnemy * (enemiesKilled * KILL_BOUNTY + damageDealt * HEALTH_BOUNTY / (double)defender->getMaxHealth()));
+	vstd::amin(damageDealt, availableHealth);
+
+	auto enemyDamageBeforeAttack = damageCache.getOriginalDamage(defender, attackerUnitForMeasurement, state);
+	auto enemiesKilled = damageDealt / maxHealth + (damageDealt % maxHealth >= defender->getFirstHPleft() ? 1 : 0);
+	auto damagePerEnemy = enemyDamageBeforeAttack / (double)defender->getCount();
+	
+	// lets use cached maxHealth here instead of getAvailableHealth
+	auto firstUnitHpLeft = (availableHealth - damageDealt) % maxHealth;
+	auto firstUnitHealthRatio = firstUnitHpLeft == 0 ? 1 : static_cast<float>(firstUnitHpLeft) / maxHealth;
+	auto firstUnitKillValue = (1 - firstUnitHealthRatio) * (1 - firstUnitHealthRatio);
+
+	return (int64_t)(damagePerEnemy * (enemiesKilled + firstUnitKillValue * HEALTH_BOUNTY));
 }
 
 int64_t AttackPossibility::evaluateBlockedShootersDmg(

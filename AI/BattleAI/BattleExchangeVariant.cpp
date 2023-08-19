@@ -41,7 +41,7 @@ int64_t BattleExchangeVariant::trackAttack(const AttackPossibility & ap, Hypothe
 		unitToUpdate->movedThisRound = affectedUnit->movedThisRound;
 	}
 
-	auto attackValue = ap.attackValue();
+	auto attackValue = ap.damageDiff(positiveEffectMultiplier, negativeEffectMultiplier);
 
 	dpsScore += attackValue;
 
@@ -97,11 +97,11 @@ int64_t BattleExchangeVariant::trackAttack(
 
 		if(isOurAttack)
 		{
-			dpsScore += defenderDamageReduce;
+			dpsScore += defenderDamageReduce * positiveEffectMultiplier;
 			attackerValue[attacker->unitId()].value += defenderDamageReduce;
 		}
 		else
-			dpsScore -= defenderDamageReduce;
+			dpsScore -= defenderDamageReduce * negativeEffectMultiplier;
 
 		defender->damage(attackDamage);
 		attacker->afterAttack(shooting, false);
@@ -125,12 +125,12 @@ int64_t BattleExchangeVariant::trackAttack(
 
 			if(isOurAttack)
 			{
-				dpsScore -= attackerDamageReduce;
+				dpsScore -= attackerDamageReduce * negativeEffectMultiplier;
 				attackerValue[attacker->unitId()].isRetalitated = true;
 			}
 			else
 			{
-				dpsScore += attackerDamageReduce;
+				dpsScore += attackerDamageReduce * positiveEffectMultiplier;
 				attackerValue[defender->unitId()].value += attackerDamageReduce;
 			}
 
@@ -206,7 +206,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 	std::shared_ptr<HypotheticBattle> hb)
 {
 	MoveTarget result;
-	BattleExchangeVariant ev;
+	BattleExchangeVariant ev(getPositiveEffectMultiplier(), getNegativeEffectMultiplier());
 
 	if(targets.unreachableEnemies.empty())
 		return result;
@@ -353,6 +353,11 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getExchangeUnits(
 		}
 	}
 
+	vstd::erase_if(exchangeUnits, [&](const battle::Unit * u) -> bool
+		{
+			return !hb->battleGetUnitByID(u->unitId())->alive();
+		});
+
 	return exchangeUnits;
 }
 
@@ -376,7 +381,8 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 	std::vector<const battle::Unit *> ourStacks;
 	std::vector<const battle::Unit *> enemyStacks;
 
-	enemyStacks.push_back(ap.attack.defender);
+	if(hb->battleGetUnitByID(ap.attack.defender->unitId())->alive())
+		enemyStacks.push_back(ap.attack.defender);
 
 	std::vector<const battle::Unit *> exchangeUnits = getExchangeUnits(ap, targets, hb);
 
@@ -386,14 +392,7 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 	}
 
 	auto exchangeBattle = std::make_shared<HypotheticBattle>(env.get(), hb);
-	BattleExchangeVariant v;
-	auto melleeAttackers = ourStacks;
-
-	vstd::removeDuplicates(melleeAttackers);
-	vstd::erase_if(melleeAttackers, [&](const battle::Unit * u) -> bool
-		{
-			return !cb->battleCanShoot(u);
-		});
+	BattleExchangeVariant v(getPositiveEffectMultiplier(), getNegativeEffectMultiplier());
 
 	for(auto unit : exchangeUnits)
 	{
@@ -403,11 +402,19 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 		bool isOur = exchangeBattle->battleMatchOwner(ap.attack.attacker, unit, true);
 		auto & attackerQueue = isOur ? ourStacks : enemyStacks;
 
-		if(!vstd::contains(attackerQueue, unit))
+		if(exchangeBattle->getForUpdate(unit->unitId())->alive() && !vstd::contains(attackerQueue, unit))
 		{
 			attackerQueue.push_back(unit);
 		}
 	}
+
+	auto melleeAttackers = ourStacks;
+
+	vstd::removeDuplicates(melleeAttackers);
+	vstd::erase_if(melleeAttackers, [&](const battle::Unit * u) -> bool
+		{
+			return !cb->battleCanShoot(u);
+		});
 
 	bool canUseAp = true;
 
@@ -430,7 +437,7 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 
 		auto targetUnit = ap.attack.defender;
 
-		if(!isOur || !exchangeBattle->getForUpdate(targetUnit->unitId())->alive())
+		if(!isOur || !exchangeBattle->battleGetUnitByID(targetUnit->unitId())->alive())
 		{
 			auto estimateAttack = [&](const battle::Unit * u) -> int64_t
 			{
@@ -459,7 +466,10 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 			{
 				auto reachable = exchangeBattle->battleGetUnitsIf([&](const battle::Unit * u) -> bool
 					{
-						if(!u->alive() || u->unitSide() == attacker->unitSide())
+						if(u->unitSide() == attacker->unitSide())
+							return false;
+
+						if(!exchangeBattle->getForUpdate(u->unitId())->alive())
 							return false;
 
 						return vstd::contains_if(reachabilityMap[u->getPosition()], [&](const battle::Unit * other) -> bool
@@ -506,12 +516,12 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 
 		vstd::erase_if(attackerQueue, [&](const battle::Unit * u) -> bool
 			{
-				return !exchangeBattle->getForUpdate(u->unitId())->alive();
+				return !exchangeBattle->battleGetUnitByID(u->unitId())->alive();
 			});
 
 		vstd::erase_if(oppositeQueue, [&](const battle::Unit * u) -> bool
 			{
-				return !exchangeBattle->getForUpdate(u->unitId())->alive();
+				return !exchangeBattle->battleGetUnitByID(u->unitId())->alive();
 			});
 	}
 

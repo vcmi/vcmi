@@ -55,6 +55,7 @@ public:
 
 	int64_t damageDiff() const;
 	int64_t attackValue() const;
+	int64_t damageDiff(float positiveEffectMultiplier, float negativeEffectMultiplier) const;
 
 	static AttackPossibility evaluate(
 		const BattleAttackInfo & attackInfo,

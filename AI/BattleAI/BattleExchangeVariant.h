@@ -59,7 +59,8 @@ struct EvaluationResult
 class BattleExchangeVariant
 {
 public:
-	BattleExchangeVariant(): dpsScore(0) {}
+	BattleExchangeVariant(float positiveEffectMultiplier, float negativeEffectMultiplier)
+		: dpsScore(0), positiveEffectMultiplier(positiveEffectMultiplier), negativeEffectMultiplier(negativeEffectMultiplier) {}
 
 	int64_t trackAttack(const AttackPossibility & ap, HypotheticBattle & state);
 
@@ -80,6 +81,8 @@ public:
 		std::map<BattleHex, battle::Units> & reachabilityMap);
 
 private:
+	float positiveEffectMultiplier;
+	float negativeEffectMultiplier;
 	int64_t dpsScore;
 	std::map<uint32_t, AttackerValue> attackerValue;
 };
@@ -91,9 +94,15 @@ private:
 	std::shared_ptr<Environment> env;
 	std::map<BattleHex, std::vector<const battle::Unit *>> reachabilityMap;
 	std::vector<battle::Units> turnOrder;
+	float negativeEffectMultiplier;
 
 public:
-	BattleExchangeEvaluator(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env): cb(cb), env(env) {}
+	BattleExchangeEvaluator(
+		std::shared_ptr<CBattleInfoCallback> cb,
+		std::shared_ptr<Environment> env,
+		float strengthRatio): cb(cb), env(env) {
+		negativeEffectMultiplier = strengthRatio;
+	}
 
 	EvaluationResult findBestTarget(
 		const battle::Unit * activeStack,
@@ -118,4 +127,7 @@ public:
 		std::shared_ptr<HypotheticBattle> hb);
 
 	std::vector<const battle::Unit *> getAdjacentUnits(const battle::Unit * unit);
+
+	float getPositiveEffectMultiplier() { return 1; }
+	float getNegativeEffectMultiplier() { return negativeEffectMultiplier; }
 };
