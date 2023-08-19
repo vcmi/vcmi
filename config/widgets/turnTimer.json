@@ -28,6 +28,7 @@
 	"variables":
 	{
 		"notificationTime": [0, 1, 2, 3, 4, 5, 20],
-		"notificationSound": "WE5"
+		"notificationSound": "WE5",
+		"textColorFromPlayerColor": true
 	}
 }

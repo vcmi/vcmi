@@ -15,6 +15,7 @@
 #include "../CPlayerInterface.h"
 
 #include "../render/EFont.h"
+#include "../render/Graphics.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/TextAlignment.h"
 #include "../widgets/Images.h"
@@ -77,6 +78,13 @@ void TurnTimerWidget::setTime(int time)
 		std::ostringstream oss;
 		oss << turnTime / 60 << ":" << std::setw(2) << std::setfill('0') << turnTime % 60;
 		w->setText(oss.str());
+		
+		if(graphics && LOCPLINT && LOCPLINT->cb
+		   && variables["textColorFromPlayerColor"].Bool()
+		   && LOCPLINT->cb->getCurrentPlayer().isValidPlayer())
+		{
+			w->setColor(graphics->playerColors[LOCPLINT->cb->getCurrentPlayer()]);
+		}
 	}
 }
 
