@@ -25,7 +25,7 @@
 #include "../CSkillHandler.h"
 #include "../CArtHandler.h"
 #include "../TerrainHandler.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../battle/BattleInfo.h"
 #include "../modding/ModUtility.h"
 

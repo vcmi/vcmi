@@ -16,7 +16,7 @@
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
 #include "../../../lib/mapObjects/CGMarket.h"
-#include "../../../lib/StringConstants.h"
+#include "../../../lib/constants/StringConstants.h"
 
 using namespace Goals;
 

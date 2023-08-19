@@ -29,7 +29,7 @@
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../ScriptHandler.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../rmg/CRmgTemplateStorage.h"

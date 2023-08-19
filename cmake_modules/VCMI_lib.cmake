@@ -369,6 +369,11 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/campaign/CampaignScenarioPrologEpilog.h
 		${MAIN_LIB_DIR}/campaign/CampaignState.h
 
+		${MAIN_LIB_DIR}/constants/EntityIdentifiers.h
+		${MAIN_LIB_DIR}/constants/Enumerations.h
+		${MAIN_LIB_DIR}/constants/NumericConstants.h
+		${MAIN_LIB_DIR}/constants/StringConstants.h
+
 		${MAIN_LIB_DIR}/events/ApplyDamage.h
 		${MAIN_LIB_DIR}/events/GameResumed.h
 		${MAIN_LIB_DIR}/events/ObjectVisitEnded.h
@@ -621,7 +626,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/ScriptHandler.h
 		${MAIN_LIB_DIR}/ScopeGuard.h
 		${MAIN_LIB_DIR}/StartInfo.h
-		${MAIN_LIB_DIR}/StringConstants.h
 		${MAIN_LIB_DIR}/TerrainHandler.h
 		${MAIN_LIB_DIR}/TextOperations.h
 		${MAIN_LIB_DIR}/TurnTimerInfo.h

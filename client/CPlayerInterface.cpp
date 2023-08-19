@@ -854,7 +854,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br, QueryID queryID)
 
 		if(!battleInt)
 		{
-			bool allowManualReplay = queryID != -1;
+			bool allowManualReplay = queryID != QueryID::NONE;
 
 			auto wnd = std::make_shared<BattleResultWindow>(*br, *this, allowManualReplay);
 

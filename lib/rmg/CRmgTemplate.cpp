@@ -19,7 +19,7 @@
 #include "../TerrainHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../modding/ModScope.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

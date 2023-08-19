@@ -266,7 +266,7 @@ public:
 	const CBuilding * getSpecialBuilding(BuildingSubID::EBuildingSubID subID) const;
 	std::string getGreeting(BuildingSubID::EBuildingSubID subID) const;
 	void setGreeting(BuildingSubID::EBuildingSubID subID, const std::string & message) const; //may affect only mutable field
-	BuildingID::EBuildingID getBuildingType(BuildingSubID::EBuildingSubID subID) const;
+	BuildingID getBuildingType(BuildingSubID::EBuildingSubID subID) const;
 
 	std::string getRandomNameTranslated(size_t index) const;
 	std::string getRandomNameTextID(size_t index) const;

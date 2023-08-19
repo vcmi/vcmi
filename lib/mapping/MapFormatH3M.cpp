@@ -898,7 +898,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 	int amount = reader->readUInt16();
 	for(int i = 0; i < amount; ++i)
 	{
-		loadArtifactToSlot(hero, GameConstants::BACKPACK_START + static_cast<int>(hero->artifactsInBackpack.size()));
+		loadArtifactToSlot(hero, ArtifactPosition::BACKPACK_START + static_cast<int>(hero->artifactsInBackpack.size()));
 	}
 }
 
@@ -917,7 +917,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 		return false;
 	}
 
-	if(art->isBig() && slot >= GameConstants::BACKPACK_START)
+	if(art->isBig() && slot >= ArtifactPosition::BACKPACK_START)
 	{
 		logGlobal->warn("Map '%s': A big artifact (war machine) in hero's backpack, ignoring...", mapName);
 		return false;
@@ -1652,7 +1652,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 	for(auto & elem : map->disposedHeroes)
 	{
-		if(elem.heroId == object->subID)
+		if(elem.heroId.getNum() == object->subID)
 		{
 			object->nameCustom = elem.name;
 			object->portrait = elem.portrait;

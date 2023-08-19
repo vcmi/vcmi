@@ -24,7 +24,7 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 
 	for(auto &pair : townInfo->buildings)
 	{
-		if(pair.second->upgrade != -1)
+		if(pair.second->upgrade != BuildingID::NONE)
 		{
 			parentMap[pair.second->upgrade] = pair.first;
 		}

@@ -175,7 +175,7 @@ public:
 	void removeCapitols(const PlayerColor & owner) const;
 	void clearArmy() const;
 	void addHeroToStructureVisitors(const CGHeroInstance *h, si64 structureInstanceID) const; //hero must be visiting or garrisoned in town
-	void deleteTownBonus(BuildingID::EBuildingID bid);
+	void deleteTownBonus(BuildingID bid);
 
 	/// Returns damage range for secondary towers of this town
 	DamageRange getTowerDamageRange() const;
@@ -220,7 +220,7 @@ private:
 	void onTownCaptured(const PlayerColor & winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
-	bool isBonusingBuildingAdded(BuildingID::EBuildingID bid) const;
+	bool isBonusingBuildingAdded(BuildingID bid) const;
 	void initOverriddenBids();
 	void addTownBonuses(CRandomGenerator & rand);
 };

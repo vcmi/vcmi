@@ -21,7 +21,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../TextOperations.h"
 #include "../Languages.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../mapping/CMapHeader.h"
 #include "../mapping/CMapService.h"
 #include "../modding/CModHandler.h"

@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "MiscObjects.h"
 
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
@@ -1291,7 +1291,7 @@ CGBoat::CGBoat()
 {
 	hero = nullptr;
 	direction = 4;
-	layer = EPathfindingLayer::EEPathfindingLayer::SAIL;
+	layer = EPathfindingLayer::SAIL;
 }
 
 bool CGBoat::isCoastVisitable() const

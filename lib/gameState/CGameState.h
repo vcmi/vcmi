@@ -12,6 +12,7 @@
 #include "bonuses/CBonusSystemNode.h"
 #include "IGameCallback.h"
 #include "LoadProgress.h"
+#include "ConstTransitivePtr.h"
 
 namespace boost
 {

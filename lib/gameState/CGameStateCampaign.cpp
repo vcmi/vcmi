@@ -146,7 +146,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(std::vector<CampaignHeroR
 
 			// process in reverse - removal of artifact will shift all artifacts after this one
 			for(int slotNumber = hero->artifactsInBackpack.size() - 1; slotNumber >= 0; slotNumber--)
-				checkAndRemoveArtifact(ArtifactPosition(GameConstants::BACKPACK_START + slotNumber));
+				checkAndRemoveArtifact(ArtifactPosition::BACKPACK_START + slotNumber);
 		}
 	}
 

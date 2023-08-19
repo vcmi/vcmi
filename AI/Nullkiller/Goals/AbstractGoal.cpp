@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "AbstractGoal.h"
 #include "../AIGateway.h"
-#include "../../../lib/StringConstants.h"
+#include "../../../lib/constants/StringConstants.h"
 
 namespace NKAI
 {

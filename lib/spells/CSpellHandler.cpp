@@ -20,7 +20,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../filesystem/Filesystem.h"
 
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 
 #include "../battle/BattleInfo.h"
 #include "../battle/CBattleInfoCallback.h"

@@ -29,7 +29,7 @@
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 
-#include "../../lib/StringConstants.h"
+#include "../../lib/constants/StringConstants.h"
 #include "../../lib/filesystem/ResourceID.h"
 
 AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts )

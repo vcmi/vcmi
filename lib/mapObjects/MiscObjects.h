@@ -351,7 +351,7 @@ public:
 	const CGHeroInstance *hero;  //hero on board
 	bool onboardAssaultAllowed; //if true, hero can attack units from transport
 	bool onboardVisitAllowed; //if true, hero can visit objects from transport
-	EPathfindingLayer::EEPathfindingLayer layer;
+	EPathfindingLayer layer;
 	
 	//animation filenames. If empty - animations won't be used
 	std::string actualAnimation; //for OH3 boats those have actual animations

@@ -12,7 +12,7 @@
 #include "playerparams.h"
 #include "ui_playerparams.h"
 #include "../lib/CTownHandler.h"
-#include "../lib/StringConstants.h"
+#include "../lib/constants/StringConstants.h"
 
 #include "../lib/mapping/CMap.h"
 

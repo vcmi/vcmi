@@ -60,7 +60,7 @@ class DLL_LINKAGE CSerializer
 	}
 
 	template<typename T, typename NT>
-	static NT idToNumber(const BaseForID<T, NT> &t)
+	static NT idToNumber(const IdentifierBase &t)
 	{
 		return t.getNum();
 	}

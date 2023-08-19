@@ -152,7 +152,7 @@ class CCastleBuildings : public CIntObject
 	void enterBlacksmith(ArtifactID artifactID);//support for blacksmith + ballista yard
 	void enterBuilding(BuildingID building);//for buildings with simple description + pic left-click messages
 	void enterCastleGate();
-	void enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID::EBuildingID upgrades);//Rampart's fountains
+	void enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades);//Rampart's fountains
 	void enterMagesGuild();
 	void enterTownHall();
 
@@ -169,7 +169,7 @@ public:
 	void enterDwelling(int level);
 	void enterToTheQuickRecruitmentWindow();
 
-	void buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID = BuildingSubID::NONE, BuildingID::EBuildingID upgrades = BuildingID::NONE);
+	void buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID = BuildingSubID::NONE, BuildingID upgrades = BuildingID::NONE);
 	void addBuilding(BuildingID building);
 	void removeBuilding(BuildingID building);//FIXME: not tested!!!
 };

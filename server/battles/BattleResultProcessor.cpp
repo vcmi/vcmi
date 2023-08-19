@@ -265,7 +265,7 @@ void BattleResultProcessor::endBattle(int3 tile, const CGHeroInstance * heroAtta
 
 	gameHandler->sendAndApply(battleResult.get()); //after this point casualties objects are destroyed
 
-	if (battleResult->queryID == -1)
+	if (battleResult->queryID == QueryID::NONE)
 		endBattleConfirm(gameHandler->gameState()->curB);
 }
 
@@ -334,7 +334,7 @@ void BattleResultProcessor::endBattleConfirm(const BattleInfo * battleInfo)
 				//we assume that no big artifacts can be found
 				MoveArtifact ma;
 				ma.src = ArtifactLocation(finishingBattle->loserHero,
-					ArtifactPosition(GameConstants::BACKPACK_START + slotNumber)); //backpack automatically shifts arts to beginning
+					ArtifactPosition(ArtifactPosition::BACKPACK_START + slotNumber)); //backpack automatically shifts arts to beginning
 				const CArtifactInstance * art =  ma.src.getArt();
 				if (art->artType->getId() != ArtifactID::GRAIL) //grail may not be won
 				{

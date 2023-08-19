@@ -22,7 +22,7 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CPlayerState.h"
-#include "../lib/StringConstants.h"
+#include "../lib/constants/StringConstants.h"
 #include "../lib/campaign/CampaignHandler.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"

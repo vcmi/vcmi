@@ -15,7 +15,7 @@
 
 #include "JsonNode.h"
 #include "CRandomGenerator.h"
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
 #include "VCMI_Lib.h"
 #include "CArtHandler.h"
 #include "CCreatureHandler.h"
@@ -195,10 +195,10 @@ namespace JsonRandom
 				allowedClasses.insert(CArtHandler::stringToClass(entry.String()));
 
 		if (value["slot"].getType() == JsonNode::JsonType::DATA_STRING)
-			allowedPositions.insert(ArtifactPosition(value["class"].String()));
+			allowedPositions.insert(ArtifactPosition::decode(value["class"].String()));
 		else
 			for(const auto & entry : value["slot"].Vector())
-				allowedPositions.insert(ArtifactPosition(entry.String()));
+				allowedPositions.insert(ArtifactPosition::decode(entry.String()));
 
 		if (!value["minValue"].isNull()) minValue = static_cast<ui32>(value["minValue"].Float());
 		if (!value["maxValue"].isNull()) maxValue = static_cast<ui32>(value["maxValue"].Float());

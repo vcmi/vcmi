@@ -22,7 +22,7 @@
 #include "../GameSettings.h"
 #include "../Languages.h"
 #include "../ScriptHandler.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "../spells/CSpellHandler.h"
 

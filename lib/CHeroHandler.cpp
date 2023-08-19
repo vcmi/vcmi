@@ -14,7 +14,7 @@
 #include "filesystem/Filesystem.h"
 #include "VCMI_Lib.h"
 #include "JsonNode.h"
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
 #include "battle/BattleHex.h"
 #include "CCreatureHandler.h"
 #include "GameSettings.h"

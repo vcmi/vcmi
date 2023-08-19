@@ -16,6 +16,7 @@
 #include "bonuses/CBonusSystemNode.h"
 #include "ResourceSet.h"
 #include "TurnTimerInfo.h"
+#include "ConstTransitivePtr.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

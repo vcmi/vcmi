@@ -32,7 +32,7 @@
 #include "../modding/ModUtility.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 

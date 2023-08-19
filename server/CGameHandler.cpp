@@ -2676,7 +2676,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 	{
 		if(!ArtifactUtils::isBackpackFreeSlots(dst.getHolderArtSet()))
 			COMPLAIN_RET("Backpack is full!");
-		vstd::amin(dst.slot, GameConstants::BACKPACK_START + dst.getHolderArtSet()->artifactsInBackpack.size());
+		vstd::amin(dst.slot, ArtifactPosition::BACKPACK_START + dst.getHolderArtSet()->artifactsInBackpack.size());
 	}
 
 	if(!(src.slot == ArtifactPosition::TRANSITION_POS && dst.slot == ArtifactPosition::TRANSITION_POS))

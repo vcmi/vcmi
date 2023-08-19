@@ -651,7 +651,7 @@ const CGHeroInstance * CCastleBuildings::getHero()
 		return town->garrisonHero;
 }
 
-void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID, BuildingID::EBuildingID upgrades)
+void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades)
 {
 	logGlobal->trace("You've clicked on %d", (int)building.toEnum());
 	const CBuilding *b = town->town->buildings.find(building)->second;
@@ -876,7 +876,7 @@ void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.townHall.noCreaturesToRecruit"), {});
 }
 
-void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID::EBuildingID upgrades)
+void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades)
 {
 	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(CComponent::building,town->subID,building));
 	std::string descr = town->town->buildings.find(building)->second->getDescriptionTranslated();
@@ -1613,7 +1613,9 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 		BuildingID buildingID;
 		if(fortSize == GameConstants::CREATURES_PER_TOWN)
 		{
-			if(vstd::contains(town->builtBuildings, BuildingID::DWELL_UP_FIRST+i))
+			BuildingID dwelling = BuildingID::DWELL_UP_FIRST+i;
+
+			if(vstd::contains(town->builtBuildings, dwelling))
 				buildingID = BuildingID(BuildingID::DWELL_UP_FIRST+i);
 			else
 				buildingID = BuildingID(BuildingID::DWELL_FIRST+i);
@@ -1718,7 +1720,7 @@ const CCreature * CFortScreen::RecruitArea::getMyCreature()
 
 const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 {
-	BuildingID myID = BuildingID(BuildingID::DWELL_FIRST).advance(level);
+	BuildingID myID = BuildingID(BuildingID::DWELL_FIRST + level);
 
 	if (level == GameConstants::CREATURES_PER_TOWN)
 		return town->town->getSpecialBuilding(BuildingSubID::PORTAL_OF_SUMMONING);

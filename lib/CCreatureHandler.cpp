@@ -16,7 +16,7 @@
 #include "VCMI_Lib.h"
 #include "CTownHandler.h"
 #include "GameSettings.h"
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
 #include "serializer/JsonDeserializer.h"

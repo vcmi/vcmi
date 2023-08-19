@@ -29,8 +29,8 @@ namespace ArtifactUtils
 	DLL_LINKAGE ArtifactPosition getArtAnyPosition(const CArtifactSet * target, const ArtifactID & aid);
 	DLL_LINKAGE ArtifactPosition getArtBackpackPosition(const CArtifactSet * target, const ArtifactID & aid);
 	// TODO: Make this constexpr when the toolset is upgraded
-	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & unmovableSlots();
-	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & constituentWornSlots();
+	DLL_LINKAGE const std::vector<ArtifactPosition> & unmovableSlots();
+	DLL_LINKAGE const std::vector<ArtifactPosition> & constituentWornSlots();
 	DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot);
 	DLL_LINKAGE bool checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, const ArtifactID & artID, const ArtifactPosition & slot);
 	DLL_LINKAGE bool isSlotBackpack(const ArtifactPosition & slot);

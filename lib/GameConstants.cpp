@@ -32,7 +32,7 @@
 #include "CCreatureHandler.h"//todo: remove
 #include "spells/CSpellHandler.h" //todo: remove
 #include "CSkillHandler.h"//todo: remove
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
 #include "CGeneralTextHandler.h"
 #include "TerrainHandler.h" //TODO: remove
 #include "BattleFieldHandler.h"
@@ -40,6 +40,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+const QueryID QueryID::NONE = QueryID(-1);
 const HeroTypeID HeroTypeID::NONE = HeroTypeID(-1);
 const ObjectInstanceID ObjectInstanceID::NONE = ObjectInstanceID(-1);
 
@@ -257,7 +258,7 @@ std::ostream & operator<<(std::ostream & os, const EActionType actionType)
 
 std::ostream & operator<<(std::ostream & os, const EPathfindingLayer & pathfindingLayer)
 {
-	static const std::map<EPathfindingLayer::EEPathfindingLayer, std::string> pathfinderLayerToString
+	static const std::map<EPathfindingLayer, std::string> pathfinderLayerToString
 	{
 	#define DEFINE_ELEMENT(element) {EPathfindingLayer::element, #element}
 		DEFINE_ELEMENT(WRONG),

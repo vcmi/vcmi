@@ -17,7 +17,7 @@
 #include "../BuildingManager.h"
 #include "../../../lib/mapping/CMapHeader.h" //for victory conditions
 #include "../../../lib/mapObjects/CGTownInstance.h"
-#include "../../../lib/StringConstants.h"
+#include "../../../lib/constants/StringConstants.h"
 
 using namespace Goals;
 

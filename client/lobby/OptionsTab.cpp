@@ -117,9 +117,9 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex(bool big)
 			return HERO_RANDOM;
 		default:
 		{
-			if(settings.heroPortrait >= 0)
+			if(settings.heroPortrait != HeroTypeID::NONE)
 				return settings.heroPortrait;
-			auto index = settings.hero >= CGI->heroh->size() ? 0 : settings.hero;
+			auto index = settings.hero.getNum() >= CGI->heroh->size() ? 0 : settings.hero.getNum();
 			return (*CGI->heroh)[index]->imageIndex;
 		}
 		}
@@ -208,7 +208,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getName()
 		{
 			if(!settings.heroName.empty())
 				return settings.heroName;
-			auto index = settings.hero >= CGI->heroh->size() ? 0 : settings.hero;
+			auto index = settings.hero.getNum() >= CGI->heroh->size() ? 0 : settings.hero.getNum();
 			return (*CGI->heroh)[index]->getNameTranslated();
 		}
 		}
@@ -235,7 +235,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getTitle()
 	case OptionsTab::TOWN:
 		return (settings.castle.getNum() < 0) ? CGI->generaltexth->allTexts[103] : CGI->generaltexth->allTexts[80];
 	case OptionsTab::HERO:
-		return (settings.hero < 0) ? CGI->generaltexth->allTexts[101] : CGI->generaltexth->allTexts[77];
+		return (settings.hero.getNum() < 0) ? CGI->generaltexth->allTexts[101] : CGI->generaltexth->allTexts[77];
 	case OptionsTab::BONUS:
 	{
 		switch(settings.bonus)
@@ -256,7 +256,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getTitle()
 std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 {
 	auto factionIndex = settings.castle.getNum() >= CGI->townh->size() ? 0 : settings.castle.getNum();
-	auto heroIndex = settings.hero >= CGI->heroh->size() ? 0 : settings.hero;
+	auto heroIndex = settings.hero.getNum() >= CGI->heroh->size() ? 0 : settings.hero.getNum();
 
 	switch(type)
 	{
@@ -264,7 +264,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 		return getName();
 	case HERO:
 	{
-		if(settings.hero >= 0)
+		if(settings.hero.getNum() >= 0)
 			return getName() + " - " + (*CGI->heroh)[heroIndex]->heroClass->getNameTranslated();
 		return getName();
 	}
@@ -403,7 +403,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genHeroWindow()
 	pos = Rect(0, 0, 292, 226);
 	genHeader();
 	labelHeroSpeciality = std::make_shared<CLabel>(pos.w / 2 + 4, 117, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[78]);
-	auto heroIndex = settings.hero >= CGI->heroh->size() ? 0 : settings.hero;
+	auto heroIndex = settings.hero.getNum() >= CGI->heroh->size() ? 0 : settings.hero.getNum();
 
 	imageSpeciality = std::make_shared<CAnimImage>("UN44", (*CGI->heroh)[heroIndex]->imageIndex, 0, pos.w / 2 - 22, 134);
 	labelSpecialityName = std::make_shared<CLabel>(pos.w / 2, 188, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*CGI->heroh)[heroIndex]->getSpecialtyNameTranslated());
@@ -438,7 +438,7 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color, SelType _type)
 			allowedHeroes.insert(HeroTypeID(i));
 
 	allowedBonus.push_back(-1); // random
-	if(initialHero >= -1)
+	if(initialHero.getNum() >= -1)
 		allowedBonus.push_back(0); // artifact
 	allowedBonus.push_back(1); // gold
 	if(initialFaction.getNum() >= 0)
@@ -600,8 +600,8 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 	set.hero = PlayerSettings::RANDOM;
 	CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
 	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 6, (ICON_SMALL_HEIGHT/2)));
-	drawOutlinedText(TEXT_POS_X, TEXT_POS_Y, (selectedHero == PlayerSettings::RANDOM) ? Colors::YELLOW : Colors::WHITE, helper.getName());
-	if(selectedHero == PlayerSettings::RANDOM)
+	drawOutlinedText(TEXT_POS_X, TEXT_POS_Y, (selectedHero.getNum() == PlayerSettings::RANDOM) ? Colors::YELLOW : Colors::WHITE, helper.getName());
+	if(selectedHero.getNum() == PlayerSettings::RANDOM)
 		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", 6, (ICON_SMALL_HEIGHT/2)));
 
 	for(auto & elem : allowedHeroes)
@@ -701,7 +701,7 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 		{
 			set.hero = PlayerSettings::RANDOM;
 		}
-		if(set.hero != PlayerSettings::NONE)
+		if(set.hero.getNum() != PlayerSettings::NONE)
 		{
 			if(!doApply)
 			{
@@ -786,7 +786,7 @@ void OptionsTab::SelectedBox::showPopupWindow(const Point & cursorPosition)
 	// cases when we do not need to display a message
 	if(settings.castle.getNum() == PlayerSettings::NONE && CPlayerSettingsHelper::type == TOWN)
 		return;
-	if(settings.hero == PlayerSettings::NONE && !SEL->getPlayerInfo(settings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
+	if(settings.hero.getNum() == PlayerSettings::NONE && !SEL->getPlayerInfo(settings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
 		return;
 
 	GH.windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);

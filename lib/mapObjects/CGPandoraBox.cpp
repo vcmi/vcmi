@@ -20,7 +20,7 @@
 #include "../CSkillHandler.h"
 #include "../StartInfo.h"
 #include "../IGameCallback.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

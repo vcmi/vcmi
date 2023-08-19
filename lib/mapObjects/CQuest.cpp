@@ -23,7 +23,7 @@
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../GameConstants.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../CSkillHandler.h"
 #include "../mapping/CMap.h"
 #include "../modding/ModScope.h"
@@ -814,7 +814,7 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 						for(const auto & ci : parts)
 						{
 							if(ci.art->getTypeId() != elem)
-								cb->giveHeroNewArtifact(h, ci.art->artType, GameConstants::BACKPACK_START);
+								cb->giveHeroNewArtifact(h, ci.art->artType, ArtifactPosition::BACKPACK_START);
 						}
 					}
 				}

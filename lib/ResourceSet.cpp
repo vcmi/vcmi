@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "GameConstants.h"
 #include "ResourceSet.h"
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
 #include "JsonNode.h"
 #include "serializer/JsonSerializeFormat.h"
 #include "mapObjects/CObjectHandler.h"

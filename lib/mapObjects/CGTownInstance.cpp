@@ -364,7 +364,7 @@ void CGTownInstance::initOverriddenBids()
 	}
 }
 
-bool CGTownInstance::isBonusingBuildingAdded(BuildingID::EBuildingID bid) const
+bool CGTownInstance::isBonusingBuildingAdded(BuildingID bid) const
 {
 	auto present = std::find_if(bonusingBuildings.begin(), bonusingBuildings.end(), [&](CGTownBuilding* building)
 		{
@@ -428,7 +428,7 @@ DamageRange CGTownInstance::getKeepDamageRange() const
 	};
 }
 
-void CGTownInstance::deleteTownBonus(BuildingID::EBuildingID bid)
+void CGTownInstance::deleteTownBonus(BuildingID bid)
 {
 	size_t i = 0;
 	CGTownBuilding * freeIt = nullptr;
@@ -467,7 +467,7 @@ void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structu
 
 	for (int level = 0; level < GameConstants::CREATURES_PER_TOWN; level++)
 	{
-		BuildingID buildID = BuildingID(BuildingID::DWELL_FIRST).advance(level);
+		BuildingID buildID = BuildingID(BuildingID::DWELL_FIRST + level);
 		int upgradeNum = 0;
 
 		for (; town->buildings.count(buildID); upgradeNum++, buildID.advance(GameConstants::CREATURES_PER_TOWN))

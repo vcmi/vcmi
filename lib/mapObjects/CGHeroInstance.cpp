@@ -35,7 +35,7 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../modding/ModScope.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../battle/Unit.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

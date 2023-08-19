@@ -1097,7 +1097,7 @@ void AIGateway::battleEnd(const BattleResult * br, QueryID queryID)
 	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.getStr(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
 
-	if (queryID != -1)
+	if (queryID != QueryID::NONE)
 	{
 		status.addQuery(queryID, "Combat result dialog");
 		const int confirmAction = 0;

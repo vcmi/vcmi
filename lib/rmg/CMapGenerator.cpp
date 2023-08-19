@@ -19,7 +19,7 @@
 #include "../mapping/CMapEditManager.h"
 #include "../CTownHandler.h"
 #include "../CHeroHandler.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "CZonePlacer.h"
 #include "TileInfo.h"

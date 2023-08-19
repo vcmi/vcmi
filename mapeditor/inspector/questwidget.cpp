@@ -15,7 +15,7 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/StringConstants.h"
+#include "../lib/constants/StringConstants.h"
 #include "../lib/mapping/CMap.h"
 
 QuestWidget::QuestWidget(const CMap & _map, CGSeerHut & _sh, QWidget *parent) :

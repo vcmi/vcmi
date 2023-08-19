@@ -53,7 +53,9 @@ BuildingID CBuildingHandler::campToERMU(int camp, int townType, const std::set<B
 				{
 					if (hordeLvlsPerTType[townType][0] == i)
 					{
-						if(vstd::contains(builtBuildings, 37 + hordeLvlsPerTType[townType][0])) //if upgraded dwelling is built
+						BuildingID dwellingID(BuildingID::DWELL_UP_FIRST + hordeLvlsPerTType[townType][0]);
+
+						if(vstd::contains(builtBuildings, dwellingID)) //if upgraded dwelling is built
 							return BuildingID::HORDE_1_UPGR;
 						else //upgraded dwelling not presents
 							return BuildingID::HORDE_1;
@@ -62,7 +64,9 @@ BuildingID CBuildingHandler::campToERMU(int camp, int townType, const std::set<B
 					{
 						if(hordeLvlsPerTType[townType].size() > 1)
 						{
-							if(vstd::contains(builtBuildings, 37 + hordeLvlsPerTType[townType][1])) //if upgraded dwelling is built
+							BuildingID dwellingID(BuildingID::DWELL_UP_FIRST + hordeLvlsPerTType[townType][1]);
+
+							if(vstd::contains(builtBuildings, dwellingID)) //if upgraded dwelling is built
 								return BuildingID::HORDE_2_UPGR;
 							else //upgraded dwelling not presents
 								return BuildingID::HORDE_2;

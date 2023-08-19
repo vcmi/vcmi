@@ -14,7 +14,7 @@
 #include "../filesystem/CBinaryReader.h"
 #include "../VCMI_Lib.h"
 #include "../GameConstants.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../CGeneralTextHandler.h"
 #include "../GameSettings.h"
 #include "../JsonNode.h"

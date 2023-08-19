@@ -18,7 +18,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../NetPacks.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"

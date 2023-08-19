@@ -13,7 +13,7 @@
 #include "VCMI_Lib.h"
 #include "CGeneralTextHandler.h"
 #include "JsonNode.h"
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
 #include "CCreatureHandler.h"
 #include "CHeroHandler.h"
 #include "CArtHandler.h"
@@ -82,7 +82,7 @@ std::string CBuilding::getDescriptionTextID() const
 BuildingID CBuilding::getBase() const
 {
 	const CBuilding * build = this;
-	while (build->upgrade >= 0)
+	while (build->upgrade != BuildingID::NONE)
 	{
 		build = build->town->buildings.at(build->upgrade);
 	}
@@ -94,7 +94,7 @@ si32 CBuilding::getDistance(const BuildingID & buildID) const
 {
 	const CBuilding * build = town->buildings.at(buildID);
 	int distance = 0;
-	while (build->upgrade >= 0 && build != this)
+	while (build->upgrade != BuildingID::NONE && build != this)
 	{
 		build = build->town->buildings.at(build->upgrade);
 		distance++;
@@ -265,7 +265,7 @@ const CBuilding * CTown::getSpecialBuilding(BuildingSubID::EBuildingSubID subID)
 	return nullptr;
 }
 
-BuildingID::EBuildingID CTown::getBuildingType(BuildingSubID::EBuildingSubID subID) const
+BuildingID CTown::getBuildingType(BuildingSubID::EBuildingSubID subID) const
 {
 	const auto * building = getSpecialBuilding(subID);
 	return building == nullptr ? BuildingID::NONE : building->bid.num;

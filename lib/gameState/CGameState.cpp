@@ -107,7 +107,7 @@ static CGObjectInstance * createObject(const Obj & id, int subid, const int3 & p
 HeroTypeID CGameState::pickNextHeroType(const PlayerColor & owner)
 {
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
-	if(ps.hero >= 0 && !isUsedHero(HeroTypeID(ps.hero))) //we haven't used selected hero
+	if(ps.hero >= HeroTypeID(0) && !isUsedHero(HeroTypeID(ps.hero))) //we haven't used selected hero
 	{
 		return HeroTypeID(ps.hero);
 	}
@@ -777,7 +777,7 @@ void CGameState::placeStartingHeroes()
 				continue;
 
 			int heroTypeId = pickNextHeroType(playerColor);
-			if(playerSettingPair.second.hero == -1)
+			if(playerSettingPair.second.hero == HeroTypeID::NONE)
 				playerSettingPair.second.hero = heroTypeId;
 
 			placeStartingHero(playerColor, HeroTypeID(heroTypeId), playerInfo.posOfMainTown);
@@ -2063,7 +2063,7 @@ std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllow
 
 	for(const auto & playerSettingPair : scenarioOps->playerInfos) //remove uninitialized yet heroes picked for start by other players
 	{
-		if(playerSettingPair.second.hero != PlayerSettings::RANDOM)
+		if(playerSettingPair.second.hero.getNum() != PlayerSettings::RANDOM)
 			ret -= HeroTypeID(playerSettingPair.second.hero);
 	}
 
