@@ -412,11 +412,15 @@ class TeleportChannelID : public BaseForID<TeleportChannelID, si32>
 };
 
 // Enum declarations
-namespace PrimarySkill
+enum class PrimarySkill : int32_t
 {
-	enum PrimarySkill : int8_t { NONE = -1, ATTACK, DEFENSE, SPELL_POWER, KNOWLEDGE,
-				EXPERIENCE = 4}; //for some reason changePrimSkill uses it
-}
+	NONE = -1,
+	ATTACK,
+	DEFENSE,
+	SPELL_POWER,
+	KNOWLEDGE,
+	EXPERIENCE = 4 //for some reason changePrimSkill uses it
+};
 
 class SecondarySkillBase : public EntityBase
 {
@@ -599,15 +603,12 @@ namespace BuildingSubID
 	};
 }
 
-namespace EMarketMode
+enum class EMarketMode : int32_t
 {
-	enum EMarketMode
-	{
-		RESOURCE_RESOURCE, RESOURCE_PLAYER, CREATURE_RESOURCE, RESOURCE_ARTIFACT,
-		ARTIFACT_RESOURCE, ARTIFACT_EXP, CREATURE_EXP, CREATURE_UNDEAD, RESOURCE_SKILL,
-		MARTKET_AFTER_LAST_PLACEHOLDER
-	};
-}
+	RESOURCE_RESOURCE, RESOURCE_PLAYER, CREATURE_RESOURCE, RESOURCE_ARTIFACT,
+	ARTIFACT_RESOURCE, ARTIFACT_EXP, CREATURE_EXP, CREATURE_UNDEAD, RESOURCE_SKILL,
+	MARTKET_AFTER_LAST_PLACEHOLDER
+};
 
 namespace MappedKeys
 {
@@ -686,7 +687,7 @@ namespace MappedKeys
 		{ "treasury", BuildingSubID::TREASURY }
 	};
 
-	static const std::map<std::string, EMarketMode::EMarketMode> MARKET_NAMES_TO_TYPES =
+	static const std::map<std::string, EMarketMode> MARKET_NAMES_TO_TYPES =
 	{
 		{ "resource-resource", EMarketMode::RESOURCE_RESOURCE },
 		{ "resource-player", EMarketMode::RESOURCE_PLAYER },
@@ -1040,28 +1041,15 @@ enum class EActionType : int8_t
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EActionType actionType);
 
-class DLL_LINKAGE EDiggingStatus
+enum class EDiggingStatus : int32_t
 {
-public:
-	enum EEDiggingStatus
-	{
-		UNKNOWN = -1,
-		CAN_DIG = 0,
-		LACK_OF_MOVEMENT,
-		WRONG_TERRAIN,
-		TILE_OCCUPIED,
-		BACKPACK_IS_FULL
-	};
-
-	EDiggingStatus(EEDiggingStatus _num = UNKNOWN) : num(_num)
-	{}
-
-	ID_LIKE_CLASS_COMMON(EDiggingStatus, EEDiggingStatus)
-
-	EEDiggingStatus num;
+	UNKNOWN = -1,
+	CAN_DIG = 0,
+	LACK_OF_MOVEMENT,
+	WRONG_TERRAIN,
+	TILE_OCCUPIED,
+	BACKPACK_IS_FULL
 };
-
-ID_LIKE_OPERATORS(EDiggingStatus, EDiggingStatus::EEDiggingStatus)
 
 class DLL_LINKAGE EPathfindingLayer
 {
@@ -1083,15 +1071,20 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EPathfindingLayer
 
 ID_LIKE_OPERATORS(EPathfindingLayer, EPathfindingLayer::EEPathfindingLayer)
 
-namespace EPlayerStatus
+enum class EPlayerStatus
 {
-	enum EStatus {WRONG = -1, INGAME, LOSER, WINNER};
-}
+	WRONG = -1,
+	INGAME,
+	LOSER,
+	WINNER
+};
 
-namespace PlayerRelations
+enum class PlayerRelations
 {
-	enum PlayerRelations {ENEMIES, ALLIES, SAME_PLAYER};
-}
+	ENEMIES,
+	ALLIES,
+	SAME_PLAYER
+};
 
 class ArtifactPosition
 {

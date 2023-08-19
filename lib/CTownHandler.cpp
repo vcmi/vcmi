@@ -527,13 +527,13 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 		b = createBonus(building, BonusType::LUCK, +2);
 		break;
 	case BuildingSubID::SPELL_POWER_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, PrimarySkill::SPELL_POWER);
+		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, static_cast<int>(PrimarySkill::SPELL_POWER));
 		break;
 	case BuildingSubID::ATTACK_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, PrimarySkill::ATTACK);
+		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, static_cast<int>(PrimarySkill::ATTACK));
 		break;
 	case BuildingSubID::DEFENSE_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, PrimarySkill::DEFENSE);
+		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, static_cast<int>(PrimarySkill::DEFENSE));
 		break;
 	case BuildingSubID::LIGHTHOUSE:
 		b = createBonus(building, BonusType::MOVEMENT, +500, playerPropagator, 0);

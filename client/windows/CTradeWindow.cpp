@@ -317,7 +317,7 @@ void CTradeWindow::CTradeableItem::setArtInstance(const CArtifactInstance *art)
 		setID(-1);
 }
 
-CTradeWindow::CTradeWindow(std::string bgName, const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode):
+CTradeWindow::CTradeWindow(std::string bgName, const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode):
 	CWindowObject(PLAYER_COLORED, bgName),
 	market(Market),
 	hero(Hero),
@@ -585,7 +585,7 @@ void CTradeWindow::getEmptySlots(std::set<std::shared_ptr<CTradeableItem>> & toR
 			toRemove.insert(item);
 }
 
-void CTradeWindow::setMode(EMarketMode::EMarketMode Mode)
+void CTradeWindow::setMode(EMarketMode Mode)
 {
 	const IMarket *m = market;
 	const CGHeroInstance *h = hero;
@@ -616,7 +616,7 @@ void CTradeWindow::artifactSelected(CHeroArtPlace *slot)
 	selectionChanged(true);
 }
 
-std::string CMarketplaceWindow::getBackgroundForMode(EMarketMode::EMarketMode mode)
+std::string CMarketplaceWindow::getBackgroundForMode(EMarketMode mode)
 {
 	switch(mode)
 	{
@@ -635,7 +635,7 @@ std::string CMarketplaceWindow::getBackgroundForMode(EMarketMode::EMarketMode mo
 	return "";
 }
 
-CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInstance * Hero, EMarketMode::EMarketMode Mode)
+CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInstance * Hero, EMarketMode Mode)
 	: CTradeWindow(getBackgroundForMode(Mode), Market, Hero, Mode)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -870,7 +870,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 	redraw();
 }
 
-bool CMarketplaceWindow::printButtonFor(EMarketMode::EMarketMode M) const
+bool CMarketplaceWindow::printButtonFor(EMarketMode M) const
 {
 	return market->allowsTrade(M) && M != mode && (hero || ( M != EMarketMode::CREATURE_RESOURCE && M != EMarketMode::RESOURCE_ARTIFACT && M != EMarketMode::ARTIFACT_RESOURCE ));
 }
@@ -1075,7 +1075,7 @@ void CMarketplaceWindow::updateTraderText()
 	traderText->setText(CGI->generaltexth->allTexts[gnrtxtnr]);
 }
 
-CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, EMarketMode::EMarketMode Mode)
+CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, EMarketMode Mode)
 	: CTradeWindow((Mode == EMarketMode::CREATURE_EXP ? "ALTARMON.bmp" : "ALTRART2.bmp"), Market, Hero, Mode)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);

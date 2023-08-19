@@ -138,8 +138,8 @@ public:
 	EGeneratorState shipyardStatus() const override;
 	const IObjectInterface * getObject() const override;
 	int getMarketEfficiency() const override; //=market count
-	bool allowsTrade(EMarketMode::EMarketMode mode) const override;
-	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;
+	bool allowsTrade(EMarketMode mode) const override;
+	std::vector<int> availableItemsIds(EMarketMode mode) const override;
 
 	void setType(si32 ID, si32 subID) override;
 	void updateAppearance();

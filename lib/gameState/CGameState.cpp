@@ -1297,7 +1297,7 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 	return ret;
 }
 
-PlayerRelations::PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
+PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
 {
 	if ( color1 == color2 )
 		return PlayerRelations::SAME_PLAYER;

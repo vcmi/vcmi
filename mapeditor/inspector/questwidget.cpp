@@ -46,7 +46,7 @@ void QuestWidget::obtainData()
 		case CQuest::Emission::MISSION_PRIMARY_STAT:
 			activeId = true;
 			activeAmount = true;
-			for(auto s : PrimarySkill::names)
+			for(auto s : NPrimarySkill::names)
 				ui->targetId->addItem(QString::fromStdString(s));
 			for(int i = 0; i < seerhut.quest->m2stats.size(); ++i)
 			{
@@ -123,7 +123,7 @@ QString QuestWidget::commitChanges()
 			seerhut.quest->m13489val = ui->targetAmount->text().toInt();
 			return QString("Reach lvl ").append(ui->targetAmount->text());
 		case CQuest::Emission::MISSION_PRIMARY_STAT:
-			seerhut.quest->m2stats.resize(sizeof(PrimarySkill::names), 0);
+			seerhut.quest->m2stats.resize(sizeof(NPrimarySkill::names), 0);
 			seerhut.quest->m2stats[ui->targetId->currentIndex()] = ui->targetAmount->text().toInt();
 			//TODO: support multiple stats
 			return ui->targetId->currentText().append(ui->targetAmount->text());

@@ -199,7 +199,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 	{
 		si64 val = 0;
 		InfoWindow iw;
-		PrimarySkill::PrimarySkill what = PrimarySkill::NONE;
+		PrimarySkill what = PrimarySkill::NONE;
 
 		switch(bType)
 		{

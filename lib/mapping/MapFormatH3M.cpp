@@ -861,7 +861,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		{
 			for(int skillID = 0; skillID < GameConstants::PRIMARY_SKILLS; skillID++)
 			{
-				hero->pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(skillID), reader->readUInt8());
+				hero->pushPrimSkill(static_cast<PrimarySkill>(skillID), reader->readUInt8());
 			}
 		}
 		map->predefinedHeroes.emplace_back(hero);
@@ -1029,7 +1029,7 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 
 	object->primskills.resize(GameConstants::PRIMARY_SKILLS);
 	for(int x = 0; x < GameConstants::PRIMARY_SKILLS; ++x)
-		object->primskills[x] = static_cast<PrimarySkill::PrimarySkill>(reader->readUInt8());
+		object->primskills[x] = reader->readUInt8();
 
 	int gabn = reader->readUInt8(); //number of gained abilities
 	for(int oo = 0; oo < gabn; ++oo)
@@ -1768,7 +1768,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 			for(int xx = 0; xx < GameConstants::PRIMARY_SKILLS; ++xx)
 			{
-				object->pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(xx), reader->readUInt8());
+				object->pushPrimSkill(static_cast<PrimarySkill>(xx), reader->readUInt8());
 			}
 		}
 	}

@@ -67,7 +67,7 @@ QList<QString> RewardsWidget::getListForType(RewardType typeId)
 			break;
 			
 		case RewardType::PRIMARY_SKILL:
-			for(auto s : PrimarySkill::names)
+			for(auto s : NPrimarySkill::names)
 				result.append(QString::fromStdString(s));
 			break;
 			

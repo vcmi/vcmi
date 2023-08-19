@@ -60,9 +60,9 @@ public:
 	virtual const Player * getPlayer(PlayerColor color) const = 0;
 //	virtual int getResource(PlayerColor Player, EGameResID which) const = 0;
 //	bool isVisible(int3 pos) const;
-//	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const;
+//	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const;
 //	void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
-//	EPlayerStatus::EStatus getPlayerStatus(PlayerColor player, bool verbose = true) const; //-1 if no such player
+//	EPlayerStatus getPlayerStatus(PlayerColor player, bool verbose = true) const; //-1 if no such player
 //	PlayerColor getCurrentPlayer() const; //player that currently makes move // TODO synchronous turns
 	virtual PlayerColor getLocalPlayer() const = 0; //player that is currently owning given client (if not a client, then returns current player)
 //	const PlayerSettings * getPlayerSettings(PlayerColor color) const;
@@ -148,9 +148,9 @@ public:
 	const Player * getPlayer(PlayerColor color) const override;
 	virtual const PlayerState * getPlayerState(PlayerColor color, bool verbose = true) const;
 	virtual int getResource(PlayerColor Player, GameResID which) const;
-	virtual PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const;
+	virtual PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const;
 	virtual void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
-	virtual EPlayerStatus::EStatus getPlayerStatus(PlayerColor player, bool verbose = true) const; //-1 if no such player
+	virtual EPlayerStatus getPlayerStatus(PlayerColor player, bool verbose = true) const; //-1 if no such player
 	virtual PlayerColor getCurrentPlayer() const; //player that currently makes move // TODO synchronous turns
 	PlayerColor getLocalPlayer() const override; //player that is currently owning given client (if not a client, then returns current player)
 	virtual const PlayerSettings * getPlayerSettings(PlayerColor color) const;

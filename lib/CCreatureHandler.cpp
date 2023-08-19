@@ -113,13 +113,13 @@ FactionID CCreature::getFaction() const
 
 int32_t CCreature::getBaseAttack() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::PRIMARY_SKILL, static_cast<int>(PrimarySkill::ATTACK)).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
 int32_t CCreature::getBaseDefense() const
 {
-	static const auto SELECTOR = Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
+	static const auto SELECTOR = Selector::typeSubtype(BonusType::PRIMARY_SKILL, static_cast<int>(PrimarySkill::DEFENSE)).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
@@ -345,10 +345,10 @@ void CCreature::updateFrom(const JsonNode & data)
 			addBonus(configNode["speed"].Integer(), BonusType::STACKS_SPEED);
 
 		if(!configNode["attack"].isNull())
-			addBonus(configNode["attack"].Integer(), BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK);
+			addBonus(configNode["attack"].Integer(), BonusType::PRIMARY_SKILL, static_cast<int>(PrimarySkill::ATTACK));
 
 		if(!configNode["defense"].isNull())
-			addBonus(configNode["defense"].Integer(), BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE);
+			addBonus(configNode["defense"].Integer(), BonusType::PRIMARY_SKILL, static_cast<int>(PrimarySkill::DEFENSE));
 
 		if(!configNode["damage"]["min"].isNull())
 			addBonus(configNode["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, 1);
@@ -603,8 +603,8 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 
 	cre->addBonus(node["hitPoints"].Integer(), BonusType::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), BonusType::STACKS_SPEED);
-	cre->addBonus(node["attack"].Integer(), BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK);
-	cre->addBonus(node["defense"].Integer(), BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE);
+	cre->addBonus(node["attack"].Integer(), BonusType::PRIMARY_SKILL, static_cast<int>(PrimarySkill::ATTACK));
+	cre->addBonus(node["defense"].Integer(), BonusType::PRIMARY_SKILL, static_cast<int>(PrimarySkill::DEFENSE));
 
 	cre->addBonus(node["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, 1);
 	cre->addBonus(node["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, 2);
@@ -1030,11 +1030,11 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		break;
 	case 'A':
 		b.type = BonusType::PRIMARY_SKILL;
-		b.subtype = PrimarySkill::ATTACK;
+		b.subtype = static_cast<int>(PrimarySkill::ATTACK);
 		break;
 	case 'D':
 		b.type = BonusType::PRIMARY_SKILL;
-		b.subtype = PrimarySkill::DEFENSE;
+		b.subtype = static_cast<int>(PrimarySkill::DEFENSE);
 		break;
 	case 'M': //Max damage
 		b.type = BonusType::CREATURE_DAMAGE;

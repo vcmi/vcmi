@@ -57,8 +57,8 @@ CModHandler::CModHandler()
 
 	for(int i=0; i<GameConstants::PRIMARY_SKILLS; ++i)
 	{
-		identifiers->registerObject(ModScope::scopeBuiltin(), "primSkill", PrimarySkill::names[i], i);
-		identifiers->registerObject(ModScope::scopeBuiltin(), "primarySkill", PrimarySkill::names[i], i);
+		identifiers->registerObject(ModScope::scopeBuiltin(), "primSkill", NPrimarySkill::names[i], i);
+		identifiers->registerObject(ModScope::scopeBuiltin(), "primarySkill", NPrimarySkill::names[i], i);
 	}
 }
 

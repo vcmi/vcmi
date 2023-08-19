@@ -315,7 +315,7 @@ si64 InfoBoxHeroData::getValue()
 	switch(type)
 	{
 	case HERO_PRIMARY_SKILL:
-		return hero->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(index));
+		return hero->getPrimSkillLevel(static_cast<PrimarySkill>(index));
 	case HERO_MANA:
 		return hero->mana;
 	case HERO_EXPERIENCE:

@@ -207,9 +207,9 @@ CHeroClass::CHeroClass():
 {
 }
 
-void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill) const
+void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill pSkill) const
 {
-	const auto & skillName = PrimarySkill::names[pSkill];
+	const auto & skillName = NPrimarySkill::names[static_cast<int>(pSkill)];
 	auto currentPrimarySkillValue = static_cast<int>(node["primarySkills"][skillName].Integer());
 	//minimal value is 0 for attack and defense and 1 for spell power and knowledge
 	auto primarySkillLegalMinimum = (pSkill == PrimarySkill::ATTACK || pSkill == PrimarySkill::DEFENSE) ? 0 : 1;
@@ -333,13 +333,13 @@ std::vector<JsonNode> CHeroClassHandler::loadLegacyData()
 
 		parser.readNumber(); // unused aggression
 
-		for(const auto & name : PrimarySkill::names)
+		for(const auto & name : NPrimarySkill::names)
 			entry["primarySkills"][name].Float() = parser.readNumber();
 
-		for(const auto & name : PrimarySkill::names)
+		for(const auto & name : NPrimarySkill::names)
 			entry["lowLevelChance"][name].Float() = parser.readNumber();
 
-		for(const auto & name : PrimarySkill::names)
+		for(const auto & name : NPrimarySkill::names)
 			entry["highLevelChance"][name].Float() = parser.readNumber();
 
 		for(const auto & name : NSecondarySkill::names)
@@ -547,7 +547,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 		{
 			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();
 			bonus->type = BonusType::PRIMARY_SKILL;
-			bonus->subtype = PrimarySkill::ATTACK;
+			bonus->subtype = static_cast<int>(PrimarySkill::ATTACK);
 			bonus->val = 0;
 			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
 			bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getAttack(false), stepSize));
@@ -557,7 +557,7 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ba
 		{
 			std::shared_ptr<Bonus> bonus = std::make_shared<Bonus>();
 			bonus->type = BonusType::PRIMARY_SKILL;
-			bonus->subtype = PrimarySkill::DEFENSE;
+			bonus->subtype = static_cast<int>(PrimarySkill::DEFENSE);
 			bonus->val = 0;
 			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
 			bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getDefense(false), stepSize));

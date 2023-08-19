@@ -226,7 +226,7 @@ void foreach_neighbour(CCallback * cbp, const int3 & pos, const Func & foo) // a
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
 bool isObjectPassable(const CGObjectInstance * obj);
 bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj);
-bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations::PlayerRelations objectRelations);
+bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations objectRelations);
 bool isBlockVisitObj(const int3 & pos);
 
 bool isWeeklyRevisitable(const CGObjectInstance * obj);

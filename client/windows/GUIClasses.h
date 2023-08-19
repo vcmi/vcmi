@@ -145,7 +145,7 @@ class CLevelWindow : public CWindowObject
 	void selectionChanged(unsigned to);
 
 public:
-	CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback);
+	CLevelWindow(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback);
 	~CLevelWindow();
 };
 

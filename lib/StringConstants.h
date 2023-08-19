@@ -29,7 +29,7 @@ namespace GameConstants
 	const std::string ALIGNMENT_NAMES [3] = {"good", "evil", "neutral"};
 }
 
-namespace PrimarySkill
+namespace NPrimarySkill
 {
 	const std::string names [GameConstants::PRIMARY_SKILLS] = { "attack", "defence", "spellpower", "knowledge" };
 }

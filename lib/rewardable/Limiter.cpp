@@ -74,7 +74,7 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 
 	for(size_t i=0; i<primary.size(); i++)
 	{
-		if(primary[i] > hero->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(i)))
+		if(primary[i] > hero->getPrimSkillLevel(static_cast<PrimarySkill>(i)))
 			return false;
 	}
 

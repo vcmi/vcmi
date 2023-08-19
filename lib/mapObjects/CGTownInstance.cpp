@@ -270,7 +270,7 @@ void CGTownInstance::blockingDialogAnswered(const CGHeroInstance *hero, ui32 ans
 
 void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 {
-	if(!cb->gameState()->getPlayerRelations( getOwner(), h->getOwner() ))//if this is enemy
+	if(cb->gameState()->getPlayerRelations( getOwner(), h->getOwner() ) == PlayerRelations::ENEMIES)
 	{
 		if(armedGarrison() || visitingHero)
 		{
@@ -701,7 +701,7 @@ int CGTownInstance::getMarketEfficiency() const
 	return marketCount;
 }
 
-bool CGTownInstance::allowsTrade(EMarketMode::EMarketMode mode) const
+bool CGTownInstance::allowsTrade(EMarketMode mode) const
 {
 	switch(mode)
 	{
@@ -727,7 +727,7 @@ bool CGTownInstance::allowsTrade(EMarketMode::EMarketMode mode) const
 	}
 }
 
-std::vector<int> CGTownInstance::availableItemsIds(EMarketMode::EMarketMode mode) const
+std::vector<int> CGTownInstance::availableItemsIds(EMarketMode mode) const
 {
 	if(mode == EMarketMode::RESOURCE_ARTIFACT)
 	{

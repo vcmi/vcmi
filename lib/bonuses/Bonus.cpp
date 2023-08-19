@@ -139,7 +139,7 @@ static JsonNode subtypeToJson(BonusType type, int subtype)
 	switch(type)
 	{
 	case BonusType::PRIMARY_SKILL:
-		return JsonUtils::stringNode("primSkill." + PrimarySkill::names[subtype]);
+		return JsonUtils::stringNode("primSkill." + NPrimarySkill::names[subtype]);
 	case BonusType::SPECIAL_SPELL_LEV:
 	case BonusType::SPECIFIC_SPELL_DAMAGE:
 	case BonusType::SPELL:

@@ -400,7 +400,7 @@ void CSplitWindow::sliderMoved(int to)
 	setAmount(rightMin + to, false);
 }
 
-CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, std::function<void(ui32)> callback)
+CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, std::function<void(ui32)> callback)
 	: CWindowObject(PLAYER_COLORED, "LVLUPBKG"),
 	cb(callback)
 {
@@ -434,9 +434,9 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill::PrimarySki
 
 	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, levelTitleText);
 
-	skillIcon = std::make_shared<CAnimImage>("PSKIL42", pskill, 0, 174, 190);
+	skillIcon = std::make_shared<CAnimImage>("PSKIL42", static_cast<int>(pskill), 0, 174, 190);
 
-	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->primarySkillNames[pskill] + " +1");
+	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->primarySkillNames[static_cast<int>(pskill)] + " +1");
 }
 
 
@@ -1029,7 +1029,7 @@ void CExchangeWindow::updateWidgets()
 
 		for(int m=0; m<GameConstants::PRIMARY_SKILLS; ++m)
 		{
-			auto value = heroInst[leftRight]->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(m));
+			auto value = heroInst[leftRight]->getPrimSkillLevel(static_cast<PrimarySkill>(m));
 			primSkillValues[leftRight][m]->setText(std::to_string(value));
 		}
 

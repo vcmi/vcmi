@@ -241,7 +241,7 @@ bool isObjectPassable(const CGObjectInstance * obj)
 }
 
 // Pathfinder internal helper
-bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations::PlayerRelations objectRelations)
+bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations objectRelations)
 {
 	if((obj->ID == Obj::GARRISON || obj->ID == Obj::GARRISON2)
 		&& objectRelations != PlayerRelations::ENEMIES)

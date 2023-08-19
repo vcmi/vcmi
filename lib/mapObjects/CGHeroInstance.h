@@ -181,7 +181,7 @@ public:
 	bool gainsLevel() const;
 
 	/// Returns the next primary skill on level up. Can only be called if hero can gain a level up.
-	PrimarySkill::PrimarySkill nextPrimarySkill(CRandomGenerator & rand) const;
+	PrimarySkill nextPrimarySkill(CRandomGenerator & rand) const;
 
 	/// Returns the next secondary skill randomly on level up. Can only be called if hero can gain a level up.
 	std::optional<SecondarySkill> nextSecondarySkill(CRandomGenerator & rand) const;
@@ -195,7 +195,7 @@ public:
 	bool canLearnSkill() const;
 	bool canLearnSkill(const SecondarySkill & which) const;
 
-	void setPrimarySkill(PrimarySkill::PrimarySkill primarySkill, si64 value, ui8 abs);
+	void setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 abs);
 	void setSecSkillLevel(const SecondarySkill & which, int val, bool abs); // abs == 0 - changes by value; 1 - sets to value
 	void levelUp(const std::vector<SecondarySkill> & skills);
 
@@ -233,7 +233,7 @@ public:
 	void removeArtifact(ArtifactPosition pos) override;
 	void initExp(CRandomGenerator & rand);
 	void initArmy(CRandomGenerator & rand, IArmyDescriptor *dst = nullptr);
-	void pushPrimSkill(PrimarySkill::PrimarySkill which, int val);
+	void pushPrimSkill(PrimarySkill which, int val);
 	ui8 maxlevelsToMagicSchool() const;
 	ui8 maxlevelsToWisdom() const;
 	void recreateSecondarySkillsBonuses();

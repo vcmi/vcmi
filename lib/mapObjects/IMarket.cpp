@@ -20,7 +20,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMarketMode mode) const
+bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const
 {
 	switch(mode)
 	{
@@ -122,12 +122,12 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMar
 	return true;
 }
 
-bool IMarket::allowsTrade(EMarketMode::EMarketMode mode) const
+bool IMarket::allowsTrade(EMarketMode mode) const
 {
 	return false;
 }
 
-int IMarket::availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial) const
+int IMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 {
 	switch(mode)
 	{
@@ -140,7 +140,7 @@ int IMarket::availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial)
 	}
 }
 
-std::vector<int> IMarket::availableItemsIds(EMarketMode::EMarketMode mode) const
+std::vector<int> IMarket::availableItemsIds(EMarketMode mode) const
 {
 	std::vector<int> ret;
 	switch(mode)
@@ -166,12 +166,12 @@ IMarket::IMarket()
 {
 }
 
-std::vector<EMarketMode::EMarketMode> IMarket::availableModes() const
+std::vector<EMarketMode> IMarket::availableModes() const
 {
-	std::vector<EMarketMode::EMarketMode> ret;
-	for (int i = 0; i < EMarketMode::MARTKET_AFTER_LAST_PLACEHOLDER; i++)
-	if(allowsTrade(static_cast<EMarketMode::EMarketMode>(i)))
-		ret.push_back(static_cast<EMarketMode::EMarketMode>(i));
+	std::vector<EMarketMode> ret;
+	for (EMarketMode i = static_cast<EMarketMode>(0); i < EMarketMode::MARTKET_AFTER_LAST_PLACEHOLDER; vstd::next(i, 1))
+	if(allowsTrade(i))
+		ret.push_back(i);
 
 	return ret;
 }

@@ -342,8 +342,8 @@ CUnitState::CUnitState():
 	totalAttacks(this, Selector::type()(BonusType::ADDITIONAL_ATTACK), 1),
 	minDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 1)), 0),
 	maxDamage(this, Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, 2)), 0),
-	attack(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK), 0),
-	defence(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE), 0),
+	attack(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, static_cast<int>(PrimarySkill::ATTACK)), 0),
+	defence(this, Selector::typeSubtype(BonusType::PRIMARY_SKILL, static_cast<int>(PrimarySkill::DEFENSE)), 0),
 	inFrenzy(this, Selector::type()(BonusType::IN_FRENZY)),
 	cloneLifetimeMarker(this, Selector::type()(BonusType::NONE).And(Selector::source(BonusSource::SPELL_EFFECT, SpellID::CLONE))),
 	cloneID(-1)

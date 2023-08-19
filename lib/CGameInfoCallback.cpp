@@ -631,7 +631,7 @@ bool CGameInfoCallback::hasAccess(std::optional<PlayerColor> playerId) const
 	return !player || player->isSpectator() || gs->getPlayerRelations(*playerId, *player) != PlayerRelations::ENEMIES;
 }
 
-EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bool verbose) const
+EPlayerStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bool verbose) const
 {
 	const PlayerState *ps = gs->getPlayerState(player, verbose);
 	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!ps, verbose, "No such player!", EPlayerStatus::WRONG);
@@ -670,7 +670,7 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 	return text;
 }
 
-PlayerRelations::PlayerRelations CGameInfoCallback::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
+PlayerRelations CGameInfoCallback::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
 {
 	return gs->getPlayerRelations(color1, color2);
 }

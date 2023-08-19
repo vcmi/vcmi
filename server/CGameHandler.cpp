@@ -248,11 +248,11 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 		{
 			case ECommander::ATTACK:
 				scp.accumulatedBonus.type = BonusType::PRIMARY_SKILL;
-				scp.accumulatedBonus.subtype = PrimarySkill::ATTACK;
+				scp.accumulatedBonus.subtype = static_cast<int>(PrimarySkill::ATTACK);
 				break;
 			case ECommander::DEFENSE:
 				scp.accumulatedBonus.type = BonusType::PRIMARY_SKILL;
-				scp.accumulatedBonus.subtype = PrimarySkill::DEFENSE;
+				scp.accumulatedBonus.subtype = static_cast<int>(PrimarySkill::DEFENSE);
 				break;
 			case ECommander::HEALTH:
 				scp.accumulatedBonus.type = BonusType::STACK_HEALTH;
@@ -368,7 +368,7 @@ void CGameHandler::expGiven(const CGHeroInstance *hero)
 // 		levelUpHero(hero);
 }
 
-void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs)
+void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs)
 {
 	if (which == PrimarySkill::EXPERIENCE) // Check if scenario limit reached
 	{
@@ -1612,7 +1612,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 {
 	auto h1 = getHero(hero1), h2 = getHero(hero2);
 
-	if (getPlayerRelations(h1->getOwner(), h2->getOwner()))
+	if (getPlayerRelations(h1->getOwner(), h2->getOwner()) != PlayerRelations::ENEMIES)
 	{
 		auto exchange = std::make_shared<CGarrisonDialogQuery>(this, h1, h2);
 		ExchangeDialog hex;
@@ -3590,7 +3590,7 @@ void CGameHandler::getVictoryLossMessage(PlayerColor player, const EVictoryLossC
 bool CGameHandler::dig(const CGHeroInstance *h)
 {
 	if (h->diggingStatus() != EDiggingStatus::CAN_DIG) //checks for terrain and movement
-		COMPLAIN_RETF("Hero cannot dig (error code %d)!", h->diggingStatus());
+		COMPLAIN_RETF("Hero cannot dig (error code %d)!", static_cast<int>(h->diggingStatus()));
 
 	createObject(h->visitablePos(), Obj::HOLE, 0 );
 
