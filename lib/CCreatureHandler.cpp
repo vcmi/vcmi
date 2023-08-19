@@ -1181,8 +1181,8 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.val = GameConstants::SPELL_LEVELS; //in case someone adds higher level spells?
 				break;
 			case 'F':
-				b.type = BonusType::FIRE_IMMUNITY;
-				b.subtype = 1; //not positive
+				b.type = BonusType::NEGATIVE_EFFECTS_IMMUNITY;
+				b.subtype = SpellSchool(ESpellSchool::FIRE); 
 				break;
 			case 'O':
 				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
@@ -1190,12 +1190,12 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.val = 100; //Full damage immunity
 				break;
 			case 'f':
-				b.type = BonusType::FIRE_IMMUNITY;
-				b.subtype = 0; //all
+				b.type = BonusType::SPELL_SCHOOL_IMMUNITY;
+				b.subtype = SpellSchool(ESpellSchool::FIRE); 
 				break;
 			case 'C':
-				b.type = BonusType::WATER_IMMUNITY;
-				b.subtype = 1; //not positive
+				b.type = BonusType::NEGATIVE_EFFECTS_IMMUNITY;
+				b.subtype = SpellSchool(ESpellSchool::WATER);
 				break;
 			case 'W':
 				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
@@ -1203,8 +1203,8 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.val = 100; //Full damage immunity
 				break;
 			case 'w':
-				b.type = BonusType::WATER_IMMUNITY;
-				b.subtype = 0; //all
+				b.type = BonusType::SPELL_SCHOOL_IMMUNITY;
+				b.subtype = SpellSchool(ESpellSchool::WATER);
 				break;
 			case 'E':
 				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
@@ -1212,8 +1212,8 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.val = 100; //Full damage immunity
 				break;
 			case 'e':
-				b.type = BonusType::EARTH_IMMUNITY;
-				b.subtype = 0; //all
+				b.type = BonusType::SPELL_SCHOOL_IMMUNITY;
+				b.subtype = SpellSchool(ESpellSchool::EARTH);
 				break;
 			case 'A':
 				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
@@ -1221,8 +1221,8 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.val = 100; //Full damage immunity
 				break;
 			case 'a':
-				b.type = BonusType::AIR_IMMUNITY;
-				b.subtype = 0; //all
+				b.type = BonusType::SPELL_SCHOOL_IMMUNITY;
+				b.subtype = SpellSchool(ESpellSchool::AIR);
 				break;
 			case 'D':
 				b.type = BonusType::SPELL_DAMAGE_REDUCTION;

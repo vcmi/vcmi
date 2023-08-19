@@ -620,18 +620,6 @@ int64_t BaseMechanics::calculateRawEffectValue(int32_t basePowerMultiplier, int3
 	return owner->calculateRawEffectValue(getEffectLevel(), basePowerMultiplier, levelPowerMultiplier);
 }
 
-std::vector<BonusType> BaseMechanics::getElementalImmunity() const
-{
-	std::vector<BonusType> ret;
-
-	owner->forEachSchool([&](const SchoolInfo & cnf, bool & stop)
-	{
-		ret.push_back(cnf.immunityBonus);
-	});
-
-	return ret;
-}
-
 bool BaseMechanics::ownerMatches(const battle::Unit * unit) const
 {
     return ownerMatches(unit, owner->getPositiveness());

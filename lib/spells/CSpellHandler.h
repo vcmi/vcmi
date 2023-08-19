@@ -44,7 +44,6 @@ class IBattleCast;
 struct SchoolInfo
 {
 	SpellSchool id; //backlink
-	BonusType immunityBonus;
 	std::string jsonName;
 };
 
@@ -216,7 +215,7 @@ public:
 	 *
 	 * Set stop to true to abort looping
 	 */
-	void forEachSchool(const std::function<void(const spells::SchoolInfo &, bool &)> & cb) const override;
+	void forEachSchool(const std::function<void(const ESpellSchool &, bool &)> & cb) const override;
 
 	spells::AimType getTargetType() const;
 

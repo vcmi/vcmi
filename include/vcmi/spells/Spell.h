@@ -19,13 +19,12 @@ enum class ESpellSchool: int8_t;
 
 namespace spells
 {
-struct SchoolInfo;
 class Caster;
 
 class DLL_LINKAGE Spell: public EntityT<SpellID>
 {
 public:
-	using SchoolCallback = std::function<void(const SchoolInfo &, bool &)>;
+	using SchoolCallback = std::function<void(const ESpellSchool &, bool &)>;
 
 	///calculate spell damage on stack taking caster`s secondary skills into account
 	virtual int64_t calculateDamage(const Caster * caster) const = 0;
