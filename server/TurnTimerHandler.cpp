@@ -61,7 +61,7 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerState & state, int waitTime)
 	if(!si || !gs)
 		return;
 	
-	if(si->turnTimerInfo.isEnabled() && !gs->curB)
+	if(state.human && si->turnTimerInfo.isEnabled() && !gs->curB)
 	{
 		if(state.turnTimer.turnTimer > 0)
 		{
@@ -128,7 +128,7 @@ void TurnTimerHandler::onBattleLoop(PlayerState & state, int waitTime)
 	if(!si || !gs || !gs->curB)
 		return;
 	
-	if(si->turnTimerInfo.isBattleEnabled())
+	if(state.human && si->turnTimerInfo.isBattleEnabled())
 	{
 		if(state.turnTimer.creatureTimer > 0)
 		{
