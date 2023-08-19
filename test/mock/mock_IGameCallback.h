@@ -54,7 +54,7 @@ public:
 
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) override {}
 	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures) override {}
-	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) override {return false;}
+	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false, bool allowZeroStacksArmyResult = true) override {return false;}
 	bool changeStackType(const StackLocation &sl, const CCreature *c) override {return false;}
 	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count = -1) override {return false;} //count -1 => moves whole stack
 	bool eraseStack(const StackLocation &sl, bool forceRemoval = false) override {return false;}

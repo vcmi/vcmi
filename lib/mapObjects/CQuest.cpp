@@ -116,6 +116,12 @@ bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
 		hasExtraCreatures |= static_cast<TQuantity>(count) > cre->count;
 	}
 
+	bool allowEmptyArmyAfterQuest = true;
+
+	if(allowEmptyArmyAfterQuest)
+		return true;
+
+	//do NOT remove below line without making sure there will not be VCMI mode with strict empty army prevention
 	return hasExtraCreatures || slotsCount < army->Slots().size();
 }
 

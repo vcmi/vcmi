@@ -2539,7 +2539,7 @@ void CGameHandler::takeCreatures(ObjectInstanceID objid, const std::vector<CStac
 				if (i->second->type == sbd.type)
 				{
 					TQuantity take = std::min(sbd.count - collected, i->second->count); //collect as much cres as we can
-					changeStackCount(StackLocation(obj, i->first), -take, false);
+					changeStackCount(StackLocation(obj, i->first), -take, false, true);
 					collected += take;
 					foundSth = true;
 					break;
@@ -5909,7 +5909,7 @@ bool CGameHandler::eraseStack(const StackLocation &sl, bool forceRemoval)
 	return true;
 }
 
-bool CGameHandler::changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue)
+bool CGameHandler::changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue, bool allowZeroStacksArmyResult)
 {
 	TQuantity currentCount = sl.army->getStackCount(sl.slot);
 	if ((absoluteValue && count < 0)
@@ -5921,7 +5921,7 @@ bool CGameHandler::changeStackCount(const StackLocation &sl, TQuantity count, bo
 	if ((currentCount == -count  &&  !absoluteValue)
 	   || (!count && absoluteValue))
 	{
-		eraseStack(sl);
+		eraseStack(sl, allowZeroStacksArmyResult);
 	}
 	else
 	{

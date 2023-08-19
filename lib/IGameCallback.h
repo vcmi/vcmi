@@ -103,7 +103,7 @@ public:
 
 	virtual void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;
 	virtual void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures) =0;
-	virtual bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) =0;
+	virtual bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false, bool allowZeroStacksArmyResult = false) = 0;
 	virtual bool changeStackType(const StackLocation &sl, const CCreature *c) =0;
 	virtual bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count = -1) =0; //count -1 => moves whole stack
 	virtual bool eraseStack(const StackLocation &sl, bool forceRemoval = false) =0;
