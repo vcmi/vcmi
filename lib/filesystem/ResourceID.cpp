@@ -132,6 +132,7 @@ EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)
 		{".MSG",   EResType::MASK},
 		{".H3C",   EResType::CAMPAIGN},
 		{".H3M",   EResType::MAP},
+		{".TUT",   EResType::MAP},
 		{".FNT",   EResType::BMP_FONT},
 		{".TTF",   EResType::TTF_FONT},
 		{".BMP",   EResType::IMAGE},

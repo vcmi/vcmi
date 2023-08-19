@@ -74,10 +74,14 @@ public:
 /// structure to handle running server and connecting to it
 class CServerHandler : public IServerAPI, public LobbyInfo
 {
+	friend class ApplyOnLobbyHandlerNetPackVisitor;
+	
 	std::shared_ptr<CApplier<CBaseForLobbyApply>> applier;
 
 	std::shared_ptr<boost::recursive_mutex> mx;
 	std::list<CPackForLobby *> packsForLobbyScreen; //protected by mx
+	
+	std::shared_ptr<CMapInfo> mapToStart;
 
 	std::vector<std::string> myNames;
 
@@ -148,6 +152,7 @@ public:
 	void sendRestartGame() const override;
 	void sendStartGame(bool allowOnlyAI = false) const override;
 
+	void startMapAfterConnection(std::shared_ptr<CMapInfo> to);
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
 	void endGameplay(bool closeConnection = true, bool restart = false);
 	void startCampaignScenario(std::shared_ptr<CampaignState> cs = {});

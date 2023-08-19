@@ -37,7 +37,6 @@
 	"vcmi.radialWheel.moveUnit" : "Przenieś stworzenia do innej armii",
 	"vcmi.radialWheel.splitUnit" : "Podziel jednostkę do wybranego miejsca",
 
-	"vcmi.mainMenu.tutorialNotImplemented" : "Przepraszamy, trening nie został jeszcze zaimplementowany\n",
 	"vcmi.mainMenu.highscoresNotImplemented" : "Przepraszamy, najlepsze wyniki nie zostały jeszcze zaimplementowane\n",
 	"vcmi.mainMenu.serverConnecting" : "Łączenie...",
 	"vcmi.mainMenu.serverAddressEnter" : "Wprowadź adres:",

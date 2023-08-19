@@ -38,7 +38,9 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 	if(pack.uuid == handler.c->uuid)
 	{
 		handler.c->connectionID = pack.clientId;
-		if(!settings["session"]["headless"].Bool())
+		if(handler.mapToStart)
+			handler.setMapInfo(handler.mapToStart);
+		else if(!settings["session"]["headless"].Bool())
 			GH.windows().createAndPushWindow<CLobbyScreen>(static_cast<ESelectionScreen>(handler.screenType));
 		handler.state = EClientState::LOBBY;
 	}
@@ -136,6 +138,11 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState &
 {
 	pack.hostChanged = pack.state.hostClientId != handler.hostClientId;
 	static_cast<LobbyState &>(handler) = pack.state;
+	if(handler.mapToStart && handler.mi)
+	{
+		handler.startMapAfterConnection(nullptr);
+		handler.sendStartGame();
+	}
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)
