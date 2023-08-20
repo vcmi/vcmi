@@ -1,5 +1,5 @@
 /*
- * GameConstants.h, part of VCMI engine
+ * Enumerations.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

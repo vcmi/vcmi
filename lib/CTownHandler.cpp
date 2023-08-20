@@ -186,7 +186,7 @@ EAlignment CFaction::getAlignment() const
 
 BoatId CFaction::getBoatType() const
 {
-	return boatType.toEnum();
+	return boatType;
 }
 
 TerrainId CFaction::getNativeTerrain() const

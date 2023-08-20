@@ -1,5 +1,5 @@
 /*
- * GameConstants.h, part of VCMI engine
+ * EntityIdentifiers.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -41,6 +41,8 @@ protected:
 	constexpr IdentifierBase(int32_t value = -1 ):
 		num(value)
 	{}
+
+	~IdentifierBase() = default;
 public:
 	int32_t num;
 
@@ -57,6 +59,16 @@ public:
 		}
 	};
 
+	constexpr void advance(int change)
+	{
+		num += change;
+	}
+
+	constexpr operator int32_t () const
+	{
+		return num;
+	}
+
 	friend std::ostream& operator<<(std::ostream& os, const IdentifierBase& dt)
 	{
 		return os << dt.num;
@@ -69,7 +81,7 @@ public:
 template<typename FinalClass>
 class Identifier : public IdentifierBase
 {
-	using T = IdentifierBase;
+	using BaseClass = IdentifierBase;
 public:
 	constexpr Identifier(int32_t _num = -1)
 		:IdentifierBase(_num)
@@ -77,109 +89,89 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & T::num;
+		h & BaseClass::num;
 	}
 
-	constexpr bool operator == (const Identifier & b) const { return T::num == b.num; }
-	constexpr bool operator <= (const Identifier & b) const { return T::num <= b.num; }
-	constexpr bool operator >= (const Identifier & b) const { return T::num >= b.num; }
-	constexpr bool operator != (const Identifier & b) const { return T::num != b.num; }
-	constexpr bool operator <  (const Identifier & b) const { return T::num <  b.num; }
-	constexpr bool operator >  (const Identifier & b) const { return T::num >  b.num; }
+	constexpr bool operator == (const Identifier & b) const { return BaseClass::num == b.num; }
+	constexpr bool operator <= (const Identifier & b) const { return BaseClass::num <= b.num; }
+	constexpr bool operator >= (const Identifier & b) const { return BaseClass::num >= b.num; }
+	constexpr bool operator != (const Identifier & b) const { return BaseClass::num != b.num; }
+	constexpr bool operator <  (const Identifier & b) const { return BaseClass::num <  b.num; }
+	constexpr bool operator >  (const Identifier & b) const { return BaseClass::num >  b.num; }
 
 	constexpr FinalClass & operator++()
 	{
-		++T::num;
+		++BaseClass::num;
 		return static_cast<FinalClass&>(*this);
 	}
 
 	constexpr FinalClass operator++(int)
 	{
 		FinalClass ret(num);
-		++T::num;
+		++BaseClass::num;
 		return ret;
-	}
-
-	constexpr operator int32_t () const
-	{
-		return T::num;
-	}
-
-	constexpr void advance(int change)
-	{
-		T::num += change;
 	}
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename T>
-class IdentifierWithEnum : public T
+template<typename FinalClass, typename BaseClass>
+class IdentifierWithEnum : public BaseClass
 {
-	using EnumType = typename T::Type;
+	using EnumType = typename BaseClass::Type;
 
 	static_assert(std::is_same_v<std::underlying_type_t<EnumType>, int32_t>, "Entity Identifier must use int32_t");
 public:
 	constexpr int32_t getNum() const
 	{
-		return T::num;
+		return BaseClass::num;
 	}
 
 	constexpr EnumType toEnum() const
 	{
-		return static_cast<EnumType>(T::num);
+		return static_cast<EnumType>(BaseClass::num);
 	}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & T::num;
+		h & BaseClass::num;
 	}
 
 	constexpr IdentifierWithEnum(const EnumType & enumValue)
 	{
-		T::num = static_cast<int32_t>(enumValue);
+		BaseClass::num = static_cast<int32_t>(enumValue);
 	}
 
 	constexpr IdentifierWithEnum(int32_t _num = -1)
 	{
-		T::num = _num;
+		BaseClass::num = _num;
 	}
 
-	constexpr void advance(int change)
+	constexpr bool operator == (const EnumType & b) const { return BaseClass::num == static_cast<int32_t>(b); }
+	constexpr bool operator <= (const EnumType & b) const { return BaseClass::num <= static_cast<int32_t>(b); }
+	constexpr bool operator >= (const EnumType & b) const { return BaseClass::num >= static_cast<int32_t>(b); }
+	constexpr bool operator != (const EnumType & b) const { return BaseClass::num != static_cast<int32_t>(b); }
+	constexpr bool operator <  (const EnumType & b) const { return BaseClass::num <  static_cast<int32_t>(b); }
+	constexpr bool operator >  (const EnumType & b) const { return BaseClass::num >  static_cast<int32_t>(b); }
+
+	constexpr bool operator == (const IdentifierWithEnum & b) const { return BaseClass::num == b.num; }
+	constexpr bool operator <= (const IdentifierWithEnum & b) const { return BaseClass::num <= b.num; }
+	constexpr bool operator >= (const IdentifierWithEnum & b) const { return BaseClass::num >= b.num; }
+	constexpr bool operator != (const IdentifierWithEnum & b) const { return BaseClass::num != b.num; }
+	constexpr bool operator <  (const IdentifierWithEnum & b) const { return BaseClass::num <  b.num; }
+	constexpr bool operator >  (const IdentifierWithEnum & b) const { return BaseClass::num >  b.num; }
+
+	constexpr FinalClass & operator++()
 	{
-		T::num += change;
+		++BaseClass::num;
+		return static_cast<FinalClass&>(*this);
 	}
 
-	constexpr bool operator == (const EnumType & b) const { return T::num == static_cast<int32_t>(b); }
-	constexpr bool operator <= (const EnumType & b) const { return T::num <= static_cast<int32_t>(b); }
-	constexpr bool operator >= (const EnumType & b) const { return T::num >= static_cast<int32_t>(b); }
-	constexpr bool operator != (const EnumType & b) const { return T::num != static_cast<int32_t>(b); }
-	constexpr bool operator <  (const EnumType & b) const { return T::num <  static_cast<int32_t>(b); }
-	constexpr bool operator >  (const EnumType & b) const { return T::num >  static_cast<int32_t>(b); }
-
-	constexpr bool operator == (const IdentifierWithEnum & b) const { return T::num == b.num; }
-	constexpr bool operator <= (const IdentifierWithEnum & b) const { return T::num <= b.num; }
-	constexpr bool operator >= (const IdentifierWithEnum & b) const { return T::num >= b.num; }
-	constexpr bool operator != (const IdentifierWithEnum & b) const { return T::num != b.num; }
-	constexpr bool operator <  (const IdentifierWithEnum & b) const { return T::num <  b.num; }
-	constexpr bool operator >  (const IdentifierWithEnum & b) const { return T::num >  b.num; }
-
-	constexpr IdentifierWithEnum & operator++()
+	constexpr FinalClass operator++(int)
 	{
-		++T::num;
-		return *this;
-	}
-
-	constexpr IdentifierWithEnum operator++(int)
-	{
-		IdentifierWithEnum ret(*this);
-		++T::num;
+		FinalClass ret(BaseClass::num);
+		++BaseClass::num;
 		return ret;
-	}
-
-	constexpr operator int32_t () const
-	{
-		return T::num;
 	}
 };
 
@@ -284,53 +276,69 @@ public:
 	{
 		WRONG = -2,
 		DEFAULT = -1,
-		PATHFINDING = 0, ARCHERY, LOGISTICS, SCOUTING, DIPLOMACY, NAVIGATION, LEADERSHIP, WISDOM, MYSTICISM,
-		LUCK, BALLISTICS, EAGLE_EYE, NECROMANCY, ESTATES, FIRE_MAGIC, AIR_MAGIC, WATER_MAGIC, EARTH_MAGIC,
-		SCHOLAR, TACTICS, ARTILLERY, LEARNING, OFFENCE, ARMORER, INTELLIGENCE, SORCERY, RESISTANCE,
-		FIRST_AID, SKILL_SIZE
+		PATHFINDING = 0,
+		ARCHERY,
+		LOGISTICS,
+		SCOUTING,
+		DIPLOMACY,
+		NAVIGATION,
+		LEADERSHIP,
+		WISDOM,
+		MYSTICISM,
+		LUCK,
+		BALLISTICS,
+		EAGLE_EYE,
+		NECROMANCY,
+		ESTATES,
+		FIRE_MAGIC,
+		AIR_MAGIC,
+		WATER_MAGIC,
+		EARTH_MAGIC,
+		SCHOLAR,
+		TACTICS,
+		ARTILLERY,
+		LEARNING,
+		OFFENCE,
+		ARMORER,
+		INTELLIGENCE,
+		SORCERY,
+		RESISTANCE,
+		FIRST_AID,
+		SKILL_SIZE
 	};
 	static_assert(GameConstants::SKILL_QUANTITY == SKILL_SIZE, "Incorrect number of skills");
 };
 
-class SecondarySkill : public IdentifierWithEnum<SecondarySkillBase>
+class SecondarySkill : public IdentifierWithEnum<SecondarySkill, SecondarySkillBase>
 {
 public:
-	using IdentifierWithEnum<SecondarySkillBase>::IdentifierWithEnum;
+	using IdentifierWithEnum<SecondarySkill, SecondarySkillBase>::IdentifierWithEnum;
 };
 
-class FactionIDBase : public IdentifierBase
+class DLL_LINKAGE FactionID : public Identifier<FactionID>
 {
 public:
-	enum Type : int32_t
-	{
-		NONE = -2,
-		DEFAULT = -1,
-		RANDOM = -1,
-		ANY = -1,
-		CASTLE,
-		RAMPART,
-		TOWER,
-		INFERNO,
-		NECROPOLIS,
-		DUNGEON,
-		STRONGHOLD,
-		FORTRESS,
-		CONFLUX,
-		NEUTRAL
-	};
+	using Identifier<FactionID>::Identifier;
+
+	static const FactionID NONE;
+	static const FactionID DEFAULT;
+	static const FactionID RANDOM;
+	static const FactionID ANY;
+	static const FactionID CASTLE;
+	static const FactionID RAMPART;
+	static const FactionID TOWER;
+	static const FactionID INFERNO;
+	static const FactionID NECROPOLIS;
+	static const FactionID DUNGEON;
+	static const FactionID STRONGHOLD;
+	static const FactionID FORTRESS;
+	static const FactionID CONFLUX;
+	static const FactionID NEUTRAL;
 
 	static si32 decode(const std::string& identifier);
 	static std::string encode(const si32 index);
 	static std::string entityType();
 };
-
-class FactionID : public IdentifierWithEnum<FactionIDBase>
-{
-public:
-	using IdentifierWithEnum<FactionIDBase>::IdentifierWithEnum;
-};
-
-using ETownType = FactionID;
 
 class BuildingIDBase : public IdentifierBase
 {
@@ -379,10 +387,10 @@ public:
 	}
 };
 
-class BuildingID : public IdentifierWithEnum<BuildingIDBase>
+class BuildingID : public IdentifierWithEnum<BuildingID, BuildingIDBase>
 {
 public:
-	using IdentifierWithEnum<BuildingIDBase>::IdentifierWithEnum;
+	using IdentifierWithEnum<BuildingID, BuildingIDBase>::IdentifierWithEnum;
 };
 
 class ObjBase : public IdentifierBase
@@ -530,55 +538,34 @@ public:
 	};
 };
 
-class Obj : public IdentifierWithEnum<ObjBase>
+class Obj : public IdentifierWithEnum<Obj, ObjBase>
 {
 public:
-	using IdentifierWithEnum<ObjBase>::IdentifierWithEnum;
+	using IdentifierWithEnum<Obj, ObjBase>::IdentifierWithEnum;
 };
 
-class RoadIdBase : public IdentifierBase
+class DLL_LINKAGE RoadId : public Identifier<RoadId>
 {
 public:
-	enum Type : int32_t
-	{
-		NO_ROAD = 0,
-		FIRST_REGULAR_ROAD = 1,
-		DIRT_ROAD = 1,
-		GRAVEL_ROAD = 2,
-		COBBLESTONE_ROAD = 3,
-		ORIGINAL_ROAD_COUNT //+1
-	};
+	using Identifier<RoadId>::Identifier;
+
+	static const RoadId NO_ROAD;
+	static const RoadId DIRT_ROAD;
+	static const RoadId GRAVEL_ROAD;
+	static const RoadId COBBLESTONE_ROAD;
 };
 
-class RoadId : public IdentifierWithEnum<RoadIdBase>
+class DLL_LINKAGE RiverId : public Identifier<RiverId>
 {
 public:
-	using IdentifierWithEnum<RoadIdBase>::IdentifierWithEnum;
-};
+	using Identifier<RiverId>::Identifier;
 
-class RiverIdBase : public IdentifierBase
-{
-public:
-	enum Type : int32_t
-	{
-		NO_RIVER = 0,
-		FIRST_REGULAR_RIVER = 1,
-		WATER_RIVER = 1,
-		ICY_RIVER = 2,
-		MUD_RIVER = 3,
-		LAVA_RIVER = 4,
-		ORIGINAL_RIVER_COUNT //+1
-	};
+	static const RiverId NO_RIVER;
+	static const RiverId WATER_RIVER;
+	static const RiverId ICY_RIVER;
+	static const RiverId MUD_RIVER;
+	static const RiverId LAVA_RIVER;
 };
-
-class RiverId : public IdentifierWithEnum<RiverIdBase>
-{
-public:
-	using IdentifierWithEnum<RiverIdBase>::IdentifierWithEnum;
-};
-
-using River = RiverId;
-using Road = RoadId;
 
 class DLL_LINKAGE EPathfindingLayerBase : public IdentifierBase
 {
@@ -589,10 +576,10 @@ public:
 	};
 };
 
-class EPathfindingLayer : public IdentifierWithEnum<EPathfindingLayerBase>
+class EPathfindingLayer : public IdentifierWithEnum<EPathfindingLayer, EPathfindingLayerBase>
 {
 public:
-	using IdentifierWithEnum<EPathfindingLayerBase>::IdentifierWithEnum;
+	using IdentifierWithEnum<EPathfindingLayer, EPathfindingLayerBase>::IdentifierWithEnum;
 };
 
 class ArtifactPositionBase : public IdentifierBase
@@ -622,10 +609,10 @@ public:
 	static std::string encode(const si32 index);
 };
 
-class ArtifactPosition : public IdentifierWithEnum<ArtifactPositionBase>
+class ArtifactPosition : public IdentifierWithEnum<ArtifactPosition, ArtifactPositionBase>
 {
 public:
-	using IdentifierWithEnum<ArtifactPositionBase>::IdentifierWithEnum;
+	using IdentifierWithEnum<ArtifactPosition, ArtifactPositionBase>::IdentifierWithEnum;
 };
 
 class ArtifactIDBase : public IdentifierBase
@@ -656,10 +643,10 @@ public:
 	static std::string encode(const si32 index);
 };
 
-class ArtifactID : public IdentifierWithEnum<ArtifactIDBase>
+class ArtifactID : public IdentifierWithEnum<ArtifactID, ArtifactIDBase>
 {
 public:
-	using IdentifierWithEnum<ArtifactIDBase>::IdentifierWithEnum;
+	using IdentifierWithEnum<ArtifactID, ArtifactIDBase>::IdentifierWithEnum;
 };
 
 class CreatureIDBase : public IdentifierBase
@@ -695,10 +682,10 @@ public:
 	static std::string encode(const si32 index);
 };
 
-class CreatureID : public IdentifierWithEnum<CreatureIDBase>
+class CreatureID : public IdentifierWithEnum<CreatureID, CreatureIDBase>
 {
 public:
-	using IdentifierWithEnum<CreatureIDBase>::IdentifierWithEnum;
+	using IdentifierWithEnum<CreatureID, CreatureIDBase>::IdentifierWithEnum;
 };
 
 class SpellIDBase : public IdentifierBase
@@ -812,10 +799,10 @@ public:
 	static std::string encode(const si32 index);
 };
 
-class SpellID : public IdentifierWithEnum<SpellIDBase>
+class SpellID : public IdentifierWithEnum<SpellID, SpellIDBase>
 {
 public:
-	using IdentifierWithEnum<SpellIDBase>::IdentifierWithEnum;
+	using IdentifierWithEnum<SpellID, SpellIDBase>::IdentifierWithEnum;
 };
 
 class BattleFieldInfo;
@@ -828,22 +815,15 @@ public:
 	DLL_LINKAGE const BattleFieldInfo * getInfo() const;
 };
 
-class BoatIdBase : public IdentifierBase
+class DLL_LINKAGE BoatId : public Identifier<BoatId>
 {
 public:
-	enum Type : int32_t
-	{
-		NONE = -1,
-		NECROPOLIS = 0,
-		CASTLE,
-		FORTRESS
-	};
-};
+	using Identifier<BoatId>::Identifier;
 
-class BoatId : public IdentifierWithEnum<BoatIdBase>
-{
-public:
-	using IdentifierWithEnum<BoatIdBase>::IdentifierWithEnum;
+	static const BoatId NONE;
+	static const BoatId NECROPOLIS;
+	static const BoatId CASTLE;
+	static const BoatId FORTRESS;
 };
 
 class TerrainIdBase : public IdentifierBase
@@ -873,13 +853,11 @@ public:
 	static std::string entityType();
 };
 
-class TerrainId : public IdentifierWithEnum<TerrainIdBase>
+class TerrainId : public IdentifierWithEnum<TerrainId, TerrainIdBase>
 {
 public:
-	using IdentifierWithEnum<TerrainIdBase>::IdentifierWithEnum;
+	using IdentifierWithEnum<TerrainId, TerrainIdBase>::IdentifierWithEnum;
 };
-
-using ETerrainId = TerrainId;
 
 class ObstacleInfo;
 class Obstacle : public Identifier<Obstacle>
@@ -889,26 +867,17 @@ public:
 	DLL_LINKAGE const ObstacleInfo * getInfo() const;
 };
 
-class SpellSchoolBase : public IdentifierBase
+class DLL_LINKAGE SpellSchool : public Identifier<SpellSchool>
 {
 public:
-	enum Type : int32_t
-	{
-		ANY 	= -1,
-		AIR 	= 0,
-		FIRE 	= 1,
-		WATER 	= 2,
-		EARTH 	= 3,
-	};
-};
+	using Identifier<SpellSchool>::Identifier;
 
-class SpellSchool : public IdentifierWithEnum<SpellSchoolBase>
-{
-public:
-	using IdentifierWithEnum<SpellSchoolBase>::IdentifierWithEnum;
+	static const SpellSchool ANY;
+	static const SpellSchool AIR;
+	static const SpellSchool FIRE;
+	static const SpellSchool WATER;
+	static const SpellSchool EARTH;
 };
-
-using ESpellSchool = SpellSchool;
 
 class GameResIDBase : public IdentifierBase
 {
@@ -930,12 +899,21 @@ public:
 	};
 };
 
-class GameResID : public IdentifierWithEnum<GameResIDBase>
+class GameResID : public IdentifierWithEnum<GameResID, GameResIDBase>
 {
 public:
-	using IdentifierWithEnum<GameResIDBase>::IdentifierWithEnum;
+	using IdentifierWithEnum<GameResID, GameResIDBase>::IdentifierWithEnum;
 };
 
+// Deprecated
+// TODO: remove
+using ESpellSchool = SpellSchool;
+using ETownType = FactionID;
 using EGameResID = GameResID;
+using River = RiverId;
+using Road = RoadId;
+using ETerrainId = TerrainId;
+
+
 
 VCMI_LIB_NAMESPACE_END

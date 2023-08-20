@@ -1,5 +1,5 @@
 /*
- * GameConstants.cpp, part of VCMI engine
+ * EntityIdentifiers.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -7,8 +7,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-#define INSTANTIATE_BASE_FOR_ID_HERE
 
 #include "StdInc.h"
 
@@ -55,6 +53,44 @@ const PlayerColor PlayerColor::UNFLAGGABLE = PlayerColor(254);
 const PlayerColor PlayerColor::NEUTRAL = PlayerColor(255);
 const PlayerColor PlayerColor::PLAYER_LIMIT = PlayerColor(PLAYER_LIMIT_I);
 const TeamID TeamID::NO_TEAM = TeamID(255);
+
+const SpellSchool SpellSchool::ANY = -1;
+const SpellSchool SpellSchool::AIR = 0;
+const SpellSchool SpellSchool::FIRE = 1;
+const SpellSchool SpellSchool::WATER = 2;
+const SpellSchool SpellSchool::EARTH = 3;
+
+const FactionID FactionID::NONE = -2;
+const FactionID FactionID::DEFAULT = -1;
+const FactionID FactionID::RANDOM = -1;
+const FactionID FactionID::ANY = -1;
+const FactionID FactionID::CASTLE = 0;
+const FactionID FactionID::RAMPART = 1;
+const FactionID FactionID::TOWER = 2;
+const FactionID FactionID::INFERNO = 3;
+const FactionID FactionID::NECROPOLIS = 4;
+const FactionID FactionID::DUNGEON = 5;
+const FactionID FactionID::STRONGHOLD = 6;
+const FactionID FactionID::FORTRESS = 7;
+const FactionID FactionID::CONFLUX = 8;
+const FactionID FactionID::NEUTRAL = 9;
+
+const BoatId BoatId::NONE = -1;
+const BoatId BoatId::NECROPOLIS = 0;
+const BoatId BoatId::CASTLE = 1;
+const BoatId BoatId::FORTRESS = 2;
+
+const RiverId RiverId::NO_RIVER = 0;
+const RiverId RiverId::WATER_RIVER = 1;
+const RiverId RiverId::ICY_RIVER = 2;
+const RiverId RiverId::MUD_RIVER = 3;
+const RiverId RiverId::LAVA_RIVER = 4;
+
+const RoadId RoadId::NO_ROAD = 0;
+const RoadId RoadId::DIRT_ROAD = 1;
+const RoadId RoadId::GRAVEL_ROAD = 2;
+const RoadId RoadId::COBBLESTONE_ROAD = 3;
+
 
 namespace GameConstants
 {
@@ -192,7 +228,7 @@ std::string PlayerColor::getStrCap(bool L10n) const
 	return ret;
 }
 
-si32 FactionIDBase::decode(const std::string & identifier)
+si32 FactionID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
 	if(rawId)
@@ -201,16 +237,15 @@ si32 FactionIDBase::decode(const std::string & identifier)
 		return FactionID::DEFAULT;
 }
 
-std::string FactionIDBase::encode(const si32 index)
+std::string FactionID::encode(const si32 index)
 {
 	return VLC->factions()->getByIndex(index)->getJsonKey();
 }
 
-std::string FactionIDBase::entityType()
+std::string FactionID::entityType()
 {
 	return "faction";
 }
-
 
 si32 TerrainIdBase::decode(const std::string & identifier)
 {
@@ -231,67 +266,7 @@ std::string TerrainIdBase::entityType()
 	return "terrain";
 }
 
-std::ostream & operator<<(std::ostream & os, const EActionType actionType)
-{
-	static const std::map<EActionType, std::string> actionTypeToString =
-	{
-		{EActionType::END_TACTIC_PHASE, "End tactic phase"},
-		{EActionType::NO_ACTION, "No action"},
-		{EActionType::HERO_SPELL, "Hero spell"},
-		{EActionType::WALK, "Walk"},
-		{EActionType::DEFEND, "Defend"},
-		{EActionType::RETREAT, "Retreat"},
-		{EActionType::SURRENDER, "Surrender"},
-		{EActionType::WALK_AND_ATTACK, "Walk and attack"},
-		{EActionType::SHOOT, "Shoot"},
-		{EActionType::WAIT, "Wait"},
-		{EActionType::CATAPULT, "Catapult"},
-		{EActionType::MONSTER_SPELL, "Monster spell"},
-		{EActionType::BAD_MORALE, "Bad morale"},
-		{EActionType::STACK_HEAL, "Stack heal"},
-	};
-
-	auto it = actionTypeToString.find(actionType);
-	if (it == actionTypeToString.end()) return os << "<Unknown type>";
-	else return os << it->second;
-}
-
-std::ostream & operator<<(std::ostream & os, const EPathfindingLayer & pathfindingLayer)
-{
-	static const std::map<EPathfindingLayer, std::string> pathfinderLayerToString
-	{
-	#define DEFINE_ELEMENT(element) {EPathfindingLayer::element, #element}
-		DEFINE_ELEMENT(WRONG),
-		DEFINE_ELEMENT(AUTO),
-		DEFINE_ELEMENT(LAND),
-		DEFINE_ELEMENT(SAIL),
-		DEFINE_ELEMENT(WATER),
-		DEFINE_ELEMENT(AIR),
-		DEFINE_ELEMENT(NUM_LAYERS)
-	#undef DEFINE_ELEMENT
-	};
-
-	auto it = pathfinderLayerToString.find(pathfindingLayer.num);
-	if (it == pathfinderLayerToString.end()) return os << "<Unknown type>";
-	else return os << it->second;
-}
-
 const BattleField BattleField::NONE;
-
-bool operator==(const BattleField & l, const BattleField & r)
-{
-	return l.num == r.num;
-}
-
-bool operator!=(const BattleField & l, const BattleField & r)
-{
-	return l.num != r.num;
-}
-
-bool operator<(const BattleField & l, const BattleField & r)
-{
-	return l.num < r.num;
-}
 
 const BattleFieldInfo * BattleField::getInfo() const
 {

@@ -65,16 +65,12 @@ std::string BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisua
 	{
 	case EWallVisual::BACKGROUND_WALL:
 		{
-			switch(town->town->faction->getIndex())
-			{
-			case ETownType::RAMPART:
-			case ETownType::NECROPOLIS:
-			case ETownType::DUNGEON:
-			case ETownType::STRONGHOLD:
+			auto faction = town->town->faction->getIndex();
+
+			if (faction == ETownType::RAMPART || faction == ETownType::NECROPOLIS || faction == ETownType::DUNGEON || faction == ETownType::STRONGHOLD)
 				return prefix + "TPW1.BMP";
-			default:
+			else
 				return prefix + "TPWL.BMP";
-			}
 		}
 	case EWallVisual::KEEP:
 		return prefix + "MAN" + addit + ".BMP";

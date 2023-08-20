@@ -42,6 +42,8 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/campaign/CampaignHandler.cpp
 		${MAIN_LIB_DIR}/campaign/CampaignState.cpp
 
+		${MAIN_LIB_DIR}/constants/EntityIdentifiers.cpp
+
 		${MAIN_LIB_DIR}/events/ApplyDamage.cpp
 		${MAIN_LIB_DIR}/events/GameResumed.cpp
 		${MAIN_LIB_DIR}/events/ObjectVisitEnded.cpp
@@ -246,7 +248,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CStack.cpp
 		${MAIN_LIB_DIR}/CThreadHelper.cpp
 		${MAIN_LIB_DIR}/CTownHandler.cpp
-		${MAIN_LIB_DIR}/GameConstants.cpp
 		${MAIN_LIB_DIR}/GameSettings.cpp
 		${MAIN_LIB_DIR}/IGameCallback.cpp
 		${MAIN_LIB_DIR}/IHandlerBase.cpp

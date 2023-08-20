@@ -147,14 +147,14 @@ TerrainId MapReaderH3M::readTerrain()
 RoadId MapReaderH3M::readRoad()
 {
 	RoadId result(readInt8());
-	assert(result < Road::ORIGINAL_ROAD_COUNT);
+	assert(result.getNum() < features.roadsCount);
 	return result;
 }
 
 RiverId MapReaderH3M::readRiver()
 {
 	RiverId result(readInt8());
-	assert(result < River::ORIGINAL_RIVER_COUNT);
+	assert(result.getNum() < features.riversCount);
 	return result;
 }
 

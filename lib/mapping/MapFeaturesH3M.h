@@ -47,6 +47,8 @@ public:
 	int spellsCount;
 	int skillsCount;
 	int terrainsCount;
+	int roadsCount;
+	int riversCount;
 	int artifactSlotsCount;
 	int buildingsCount;
 
