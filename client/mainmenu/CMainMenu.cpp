@@ -383,8 +383,8 @@ void CMainMenu::startTutorial()
 		
 	auto mapInfo = std::make_shared<CMapInfo>();
 	mapInfo->mapInit(tutorialMap.getName());
-	CSH->startMapAfterConnection(mapInfo);
 	CMainMenu::openLobby(ESelectionScreen::newGame, true, nullptr, ELoadMode::NONE);
+	CSH->startMapAfterConnection(mapInfo);
 }
 
 std::shared_ptr<CMainMenu> CMainMenu::create()
