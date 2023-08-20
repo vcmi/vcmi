@@ -818,9 +818,7 @@ SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceI
 	if(mapLayerImages.size() == 0)
 		renderImage = false;
 
-	pos = Rect(0, 0, 2 * BORDER + IMAGE_SIZE, 2000);
-	if(renderImage && mapLayerImages.size() > 1)
-		pos.w += IMAGE_SIZE + BORDER;
+	pos = Rect(0, 0, 3 * BORDER + 2 * IMAGE_SIZE, 2000);
 
 	auto drawLabel = [&]() {
 		label = std::make_shared<CTextBox>(text, Rect(BORDER, BORDER, pos.w - 2 * BORDER, 350), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
@@ -829,7 +827,8 @@ SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceI
 	};
 	drawLabel();
 
-	pos.h = BORDER + label->label->textSize.y + BORDER;
+	int textHeight = std::min(350, label->label->textSize.y);
+	pos.h = BORDER + textHeight + BORDER;
 	if(renderImage)
 		pos.h += IMAGE_SIZE + BORDER;
 	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
@@ -839,9 +838,13 @@ SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceI
 
 	if(renderImage)
 	{
-		image1 = std::make_shared<CPicture>(mapLayerImages[0], Point(BORDER, label->label->textSize.y + 2 * BORDER));
-		if(mapLayerImages.size()>1)
-			image2 = std::make_shared<CPicture>(mapLayerImages[1], Point(BORDER + IMAGE_SIZE + BORDER, label->label->textSize.y + 2 * BORDER));
+		if(mapLayerImages.size() == 1)
+			image1 = std::make_shared<CPicture>(mapLayerImages[0], Point(BORDER + (BORDER + IMAGE_SIZE) / 2, textHeight + 2 * BORDER));
+		else
+		{
+			image1 = std::make_shared<CPicture>(mapLayerImages[0], Point(BORDER, textHeight + 2 * BORDER));
+			image2 = std::make_shared<CPicture>(mapLayerImages[1], Point(BORDER + IMAGE_SIZE + BORDER, textHeight + 2 * BORDER));
+		}
 	}
 
 	center(GH.getCursorPosition()); //center on mouse
