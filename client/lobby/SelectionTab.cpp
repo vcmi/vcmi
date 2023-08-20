@@ -815,6 +815,9 @@ SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceI
 	if(renderImage)
 		mapLayerImages = createMinimaps(ResourceID(resource.getName(), EResType::MAP), IMAGE_SIZE);
 
+	if(mapLayerImages.size() == 0)
+		renderImage = false;
+
 	pos = Rect(0, 0, 2 * BORDER + IMAGE_SIZE, 2000);
 	if(renderImage && mapLayerImages.size() > 1)
 		pos.w += IMAGE_SIZE + BORDER;
@@ -889,7 +892,15 @@ std::vector<std::shared_ptr<IImage>> SelectionTab::CMapInfoTooltipBox::createMin
 	std::vector<std::shared_ptr<IImage>> ret = std::vector<std::shared_ptr<IImage>>();
 
 	CMapService mapService;
-	std::unique_ptr<CMap> map = mapService.loadMap(resource);
+	std::unique_ptr<CMap> map;
+	try
+	{
+		map = mapService.loadMap(resource);
+	}
+	catch (...)
+	{
+		return ret;
+	}
 
 	for(int i = 0; i < (map->twoLevel ? 2 : 1); i++)
 	{
