@@ -2677,7 +2677,7 @@ void AIStatus::waitTillFree()
 {
 	boost::unique_lock<boost::mutex> lock(mx);
 	while(battle != NO_BATTLE || !remainingQueries.empty() || !objectsBeingVisited.empty() || ongoingHeroMovement)
-		cv.timed_wait(lock, boost::posix_time::milliseconds(100));
+		cv.wait_for(lock, boost::chrono::milliseconds(100));
 }
 
 bool AIStatus::haveTurn()

@@ -54,8 +54,6 @@
 namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 
-extern boost::thread_specific_ptr<bool> inGuiThread;
-
 static po::variables_map vm;
 
 #ifndef VCMI_IOS
@@ -416,7 +414,7 @@ int main(int argc, char * argv[])
 	else
 	{
 		while(true)
-			boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
 	}
 
 	return 0;
@@ -435,7 +433,6 @@ void playIntro()
 static void mainLoop()
 {
 	setThreadName("MainGUI");
-	inGuiThread.reset(new bool(true));
 
 	while(1) //main SDL events loop
 	{
@@ -476,7 +473,7 @@ static void quitApplication()
 
 	vstd::clear_pointer(console);// should be removed after everything else since used by logging
 
-	boost::this_thread::sleep(boost::posix_time::milliseconds(750));//???
+	boost::this_thread::sleep_for(boost::chrono::milliseconds(750));//???
 
 	if(!settings["session"]["headless"].Bool())
 		GH.screenHandler().close();

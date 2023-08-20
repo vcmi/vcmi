@@ -407,7 +407,7 @@ void BattleWindow::bFleef()
 		auto txt = boost::format(CGI->generaltexth->allTexts[340]) % heroName; //The Shackles of War are present.  %s can not retreat!
 
 		//printing message
-		owner.curInt->showInfoDialog(boost::to_string(txt), comps);
+		owner.curInt->showInfoDialog(boost::str(txt), comps);
 	}
 }
 

@@ -179,7 +179,7 @@ void CVCMIServer::run()
 	}
 
 	while(state == EServerState::LOBBY || state == EServerState::GAMEPLAY_STARTING)
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 
 	logNetwork->info("Thread handling connections ended");
 
@@ -188,14 +188,14 @@ void CVCMIServer::run()
 		gh->run(si->mode == StartInfo::LOAD_GAME);
 	}
 	while(state == EServerState::GAMEPLAY_ENDED)
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 }
 
 void CVCMIServer::establishRemoteConnections()
 {
 	//wait for host connection
 	while(connections.empty())
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 	
 	uuid = cmdLineOptions["lobby-uuid"].as<std::string>();
     int numOfConnections = cmdLineOptions["connections"].as<ui16>();
@@ -246,7 +246,7 @@ void CVCMIServer::threadAnnounceLobby()
 			}
 		}
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 	}
 }
 
@@ -265,7 +265,7 @@ void CVCMIServer::prepareToRestart()
 			campaignBonus = si->campState->getBonusID(campaignMap).value_or(-1);
 		}
 		// FIXME: dirry hack to make sure old CGameHandler::run is finished
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
 	}
 	
 	for(auto c : connections)

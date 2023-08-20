@@ -1463,7 +1463,7 @@ bool CGHeroInstance::hasVisions(const CGObjectInstance * target, const int subty
 
 	const int distance = static_cast<int>(target->pos.dist2d(visitablePos()));
 
-	//logGlobal->debug(boost::to_string(boost::format("Visions: dist %d, mult %d, range %d") % distance % visionsMultiplier % visionsRange));
+	//logGlobal->debug(boost::str(boost::format("Visions: dist %d, mult %d, range %d") % distance % visionsMultiplier % visionsRange));
 
 	return (distance < visionsRange) && (target->pos.z == pos.z);
 }

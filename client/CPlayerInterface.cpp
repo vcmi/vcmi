@@ -1448,7 +1448,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 		{
 			auto unlockPim = vstd::makeUnlockGuard(*pim);
 			IgnoreEvents ignore(*this);
-			boost::this_thread::sleep(boost::posix_time::milliseconds(focusTime));
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(focusTime));
 		}
 	}
 	CCS->curh->show();
@@ -1875,7 +1875,7 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim)
 	while(!dialogs.empty())
 	{
 		auto unlock = vstd::makeUnlockGuardIf(*pim, unlockPim);
-		boost::this_thread::sleep(boost::posix_time::milliseconds(5));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
 	}
 	waitWhileDialog(unlockPim);
 }

@@ -80,7 +80,6 @@ public:
 
 private:
 	TGenerator rand;
-	static boost::thread_specific_ptr<CRandomGenerator> defaultRand;
 
 public:
 	template <typename Handler>

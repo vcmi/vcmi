@@ -46,15 +46,15 @@ public:
 
 	void run()
 	{
-		boost::thread_group grupa;
+		std::vector<boost::thread> group;
 		for(size_t i=0; i<threads; i++)
 		{
 			std::shared_ptr<Payload> payload = context.at(i);
-
-			grupa.create_thread(std::bind(&ThreadPool::processTasks, this, payload));
+			group.emplace_back(std::bind(&ThreadPool::processTasks, this, payload));
 		}
 
-		grupa.join_all();
+		for (auto & thread : group)
+			thread.join();
 
 		//thread group deletes threads, do not free manually
 	}

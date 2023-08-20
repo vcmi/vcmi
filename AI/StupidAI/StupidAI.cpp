@@ -108,7 +108,7 @@ void CStupidAI::yourTacticPhase(int distance)
 
 void CStupidAI::activeStack( const CStack * stack )
 {
-	//boost::this_thread::sleep(boost::posix_time::seconds(2));
+	//boost::this_thread::sleep_for(boost::chrono::seconds(2));
 	print("activeStack called for " + stack->nodeName());
 	ReachabilityInfo dists = cb->getReachability(stack);
 	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
