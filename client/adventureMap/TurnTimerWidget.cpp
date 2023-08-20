@@ -70,7 +70,9 @@ void TurnTimerWidget::show(Canvas & to)
 void TurnTimerWidget::setTime(int time)
 {
 	int newTime = time / 1000;
-	if((newTime != turnTime) && notifications.count(newTime))
+	if((LOCPLINT->cb->getCurrentPlayer() == LOCPLINT->playerID)
+	   && (newTime != turnTime)
+	   && notifications.count(newTime))
 		CCS->soundh->playSound(variables["notificationSound"].String());
 	turnTime = newTime;
 	if(auto w = widget<CLabel>("timer"))
@@ -108,14 +110,20 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 			else setTime(cachedTurnTime);
 		};
 		
-		if(LOCPLINT->battleInt)
+		auto * playerInfo = LOCPLINT->cb->getPlayer(player);
+		if(playerInfo && playerInfo->isHuman())
 		{
-			if(time.isBattleEnabled())
-				timeCheckAndUpdate(time.creatureTimer);
+			if(LOCPLINT->battleInt)
+			{
+				if(time.isBattleEnabled())
+					timeCheckAndUpdate(time.creatureTimer);
+			}
+			else
+			{
+				timeCheckAndUpdate(time.turnTimer);
+			}
 		}
 		else
-		{
-			timeCheckAndUpdate(time.turnTimer);
-		}
+			timeCheckAndUpdate(0);
 	}
 }

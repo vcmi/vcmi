@@ -28,11 +28,8 @@ void TurnTimerHandler::onGameplayStart(PlayerState & state)
 	{
 		if(si->turnTimerInfo.isEnabled())
 		{
-			TurnTimeUpdate ttu;
-			ttu.player = state.color;
-			ttu.turnTimer = si->turnTimerInfo;
-			ttu.turnTimer.turnTimer = 0;
-			gameHandler.sendAndApply(&ttu);
+			state.turnTimer = si->turnTimerInfo;
+			state.turnTimer.turnTimer = 0;
 		}
 	}
 }
