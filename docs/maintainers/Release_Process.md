@@ -19,6 +19,7 @@ Should be done several weeks before planned release date
 ### Release preparation stage
 Should be done several days before planned release date
 
+- Make sure to announce codebase freeze deadline to all developers
 - Update [release notes](https://github.com/vcmi/vcmi/blob/develop/ChangeLog.md)
 - Update release date for Linux packaging. See [example](https://github.com/vcmi/vcmi/pull/1258)
 - Update release date for Android packaging. See [example](https://github.com/vcmi/vcmi/pull/2090)

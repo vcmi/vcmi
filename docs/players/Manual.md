@@ -3,11 +3,11 @@
 The purpose of VCMI project is to rewrite entire HoMM3: WoG engine from
 scratch, giving it new and extended possibilities. We are hoping to
 support mods and new towns already made by fans, but abandoned because
-of game code limitations.\
+of game code limitations.
 VCMI is a fan-made open-source project in progress. We already allow
 support for maps of any sizes, higher resolutions and extended engine
 limits. However, although working, the game is not finished. There are
-still many features and functionalities to add, both old and brand new.\
+still many features and functionalities to add, both old and brand new.
 Learn more about VCMI Project at
 [Wiki](http://wiki.vcmi.eu/index.php?title=VCMI).\
 Check [google
@@ -45,121 +45,39 @@ VCMI. In this section you can learn about all of them.
 
 ## High resolutions
 
-VCMI supports resolutions higher than original 800x600. Namely these
-are:
+VCMI supports resolutions higher than original 800x600.
+Switching resolution may not only change visible area of map, but also alters some interface features such as [Stack Queue.](#Stack_Queue)
+To change resolution or full screen mode use System Options menu when in game. Fullscreen mode can be toggled anytime using F4 hotkey.
 
--   1024x600
+## Stack Experience
 
--   1024x768
+In 0.85, new stack experience interface has been merged with regular creature window. Among old functionalities, it includes new useful info:
 
--   1280x960
-
--   1280x1024
-
--   1366x768
-
--   1440x900
-
--   1600x1050
-
--   1600x1200
-
--   1920x1080
-
-Switching resolution may not only change visible area of map, but also
-alters some interface features such as [Stack Queue.](#Stack_Queue)\
-To change resolution or full screen mode use System Options menu when in
-game. Changes in resolution will take place when you restart VCMI.\
-Fullscreen mode can be toggled anytime using F4 hotkey. []{#Mods
-label="Mods"}
-
-## Game modification
-
-Since 0.9, there is a possibility to edit gameplay settings with config
-file. You may turn some options on/off or adjust certain values in
-`config/defaultMods.json` file. This file is read at game launch and the
-settings are stored in savegame file, so editing config won't break
-existing games.\
-Files placed in `Mods` subfolders will override all default files and
-settings. []{#Stack_Experience label="Stack_Experience"}
-
-## New creature info window
-
-In 0.85, new stack experience interface has been merged with regular
-creature window. Among old functionalities, it includes new useful info:
-
--   Click experience icon to see detailed info about creature rank and
-    experience needed for next level. This window works only if stack
-    experience module is enabled (true by default).
-
--   Stack Artifact. As yet creature artifacts are not handled, so this
-    place is unused. You can choose enabled artifact with arrow buttons.
-    There is also additional button below to pass currently selected
-    artifact back to hero.
-
--   Abilities description contain information about actual values and
-    types of bonuses received by creature - be it default ability, stack
-    experience, artifact or other effect. These descriptions use custom
-    text files which have not been translated.
-
-By default new window is used. In order to switch back to original
-creature window, use system setting dialog or type `switchCreWin` in
-console\
-[]{#Commanders label="Commanders"}
+- Click experience icon to see detailed info about creature rank and experience needed for next level. This window works only if stack experience module is enabled (true by default).
+- Stack Artifact. As yet creature artifacts are not handled, so this place is unused. You can choose enabled artifact with arrow buttons. There is also additional button below to pass currently selected artifact back to hero.
+- Abilities description contain information about actual values and types of bonuses received by creature - be it default ability, stack experience, artifact or other effect. These descriptions use custom text files which have not been translated.
 
 ## Commanders
 
-VCMI offers native support for Commanders. By default, they resemble
-original WoG behaviour with basic \"Commanders: script enabled.
-[]{#Stack_Artifacts label="Stack_Artifacts"}
-
-## Stack artifacts
-
-The possibility to equip creatures with artifacts has been extended -
-now a number of artifacts can be potentially equipped. By default, there
-artifacts are not possible to use by hero itself. Drag them from
-backpack onto Stack portrait to equip.\
-Current list of Stack Artifacts available for testing:
-
--   Warlord's banner
-
--   Magic Wand
-
--   Gold Tower Arrow
-
--   Monster's Power
-
-[]{#Stack_Queue label="Stack_Queue"}
+VCMI offers native support for Commanders. By default, they resemble original WoG behaviour with basic "Commanders" script enabled.
 
 ## Stack Queue
 
-Stack queue is a feature coming straight from HoMM5, which allows you to
-see order of stacks on the battlefield, sorted from left to right. To
-toggle in on/off, press 'Q' during the battle.\
-There is smaller and bigger version of it, the second one is available
-only in higher resolutions.
+Stack queue is a feature coming straight from HoMM5, which allows you to see order of stacks on the battlefield, sorted from left to right. To toggle in on/off, press 'Q' during the battle. There is smaller and bigger version of it, the second one is available only in higher resolutions.
 
 ## Pathfinder
 
-VCMI introduces improved pathfinder, which may find the way on adventure
-map using ships and subterranean gates. Simply click your destination on
-another island or level and the proposed path will be displayed.
-[]{#Quest_Log label="Quest_Log"}
+VCMI introduces improved pathfinder, which may find the way on adventure map using ships and subterranean gates. Simply click your destination on another island or level and the proposed path will be displayed.
 
 ## Quest log
 
-In 0.9 new quest log was introduced. It can display info about Seer Hut
-or Quest Guard mission, but also handle Borderguard and Border Gate
-missions. When you choose a quest from the list on the left, it's
-description is shown. Additionally, on inner minimap you can see small
-icons indicating locations of quest object. Clicking these objects
-immediately centers adventure map on desired location.
+In 0.9 new quest log was introduced. It can display info about Seer Hut or Quest Guard mission, but also handle Borderguard and Border Gate missions. When you choose a quest from the list on the left, it's description is shown. Additionally, on inner minimap you can see small icons indicating locations of quest object. Clicking these objects immediately centers adventure map on desired location.
 
 ## Attack range
 
 In combat, some creatures, such as Dragon or Cerberi, may attack enemies
 on multiple hexes. All such attacked stacks will be highlighted if the
-attack cursor is hovered over correct destination tile.\
+attack cursor is hovered over correct destination tile.
 Whenever battle stack is hovered, its movement range is highlighted in
 darker shade. This can help when you try to avoid attacks of melee
 units.
@@ -169,7 +87,7 @@ units.
 When hovering cursor over neutral stack on adventure map, you may notice
 additional info about relative threat this stack poses to selected hero.
 This feature has been introduced in Heroes of Might and Magic V and is
-planned to be extended to all kinds of armed objects.\
+planned to be extended to all kinds of armed objects.
 Custom text file is in use, so using localized version of data files
 will not change text in your game. It is not a bug, but lack of new
 translated files.
@@ -309,13 +227,6 @@ Also, typing `onlyai` in pregame triggers that mode.
 -   It is possible to start the campaign, although heroes will not carry
     over to subsequent scenarios.
 
-## Android port
-
-Android port, despite some rumours, is not complete and may crash at
-random. The port is work of a Peyla - volunteer outside of VCMI team,
-who abandoned it. Any Android support is beyond our scope. []{#Feedback
-label="Feedback"}
-
 # Feedback
 
 Our project is open and its sources are available for everyone to browse
@@ -342,13 +253,22 @@ Please put down all circumstances in which a bug occurred and what did
 you do before, especially if it happens rarely or is not clearly
 visible. The better report, the better chance to track the bug quickly.
 
-### Linux notes
-
-On \*nix-like systems logs can be found in $\sim$`/.vcmi` directory.\
-When reporting compilation issues please specify name and version of
-your distribution.
-
 # FAQ
+
+### What does "VCMI" stand for?
+
+VCMI is an acronym of the [Quenya](https://en.wikipedia.org/wiki/Quenya)
+phrase "Vinyar Callor Meletya Ingole", meaning "New Heroes of Might and
+Magic". ([Source](https://forum.vcmi.eu/t/what-vcmi-stands-for/297/4))
+
+## How to turn off creature queue panel in battles?
+
+Hotkey to switch this panel is "Q"
+
+### Is it possible to add town X to vcmi?
+
+This depends on town authors or anyone else willing to port it to vcmi.
+Aim of VCMI is to provide *support* for such features.
 
 ## When will the final version be released?
 
