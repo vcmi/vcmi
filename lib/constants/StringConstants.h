@@ -213,5 +213,4 @@ namespace MappedKeys
 	};
 }
 
-
 VCMI_LIB_NAMESPACE_END

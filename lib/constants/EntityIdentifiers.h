@@ -914,6 +914,4 @@ using River = RiverId;
 using Road = RoadId;
 using ETerrainId = TerrainId;
 
-
-
 VCMI_LIB_NAMESPACE_END

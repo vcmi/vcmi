@@ -9,6 +9,8 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 enum class PrimarySkill : int8_t
 {
 	NONE = -1,

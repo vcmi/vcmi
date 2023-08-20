@@ -183,7 +183,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 
 	// close window from another player
 	if(auto w = GH.windows().topWindow<CInfoWindow>())
-		if(w->ID == -1 && player != playerID)
+		if(w->ID == QueryID::NONE && player != playerID)
 			w->close();
 	
 	// remove all dialogs that do not expect query answer
