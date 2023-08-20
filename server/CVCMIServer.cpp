@@ -193,6 +193,8 @@ void CVCMIServer::run()
 
 void CVCMIServer::establishRemoteConnections()
 {
+	setThreadName("establishConnection");
+
 	//wait for host connection
 	while(connections.empty())
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
@@ -229,6 +231,7 @@ void CVCMIServer::connectToRemote(const std::string & addr, int port)
 
 void CVCMIServer::threadAnnounceLobby()
 {
+	setThreadName("announceLobby");
 	while(state != EServerState::SHUTDOWN)
 	{
 		{
@@ -419,7 +422,7 @@ public:
 
 void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 {
-	setThreadName("CVCMIServer::handleConnection");
+	setThreadName("handleClient");
 	c->enterLobbyConnectionMode();
 
 	while(c->connected)

@@ -574,6 +574,8 @@ void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
 
 void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState)
 {
+	setThreadName("startGameplay");
+
 	if(CMM)
 		CMM->disable();
 	client = new CClient();
@@ -816,7 +818,7 @@ public:
 
 void CServerHandler::threadHandleConnection()
 {
-	setThreadName("threadHandleConnection");
+	setThreadName("handleConnection");
 	c->enterLobbyConnectionMode();
 
 	try
@@ -897,7 +899,7 @@ void CServerHandler::visitForClient(CPackForClient & clientPack)
 void CServerHandler::threadRunServer()
 {
 #if !defined(VCMI_MOBILE)
-	setThreadName("threadRunServer");
+	setThreadName("runServer");
 	const std::string logName = (VCMIDirs::get().userLogsPath() / "server_log.txt").string();
 	std::string comm = VCMIDirs::get().serverPath().string()
 		+ " --port=" + std::to_string(getHostPort())

@@ -214,7 +214,7 @@ void CConsoleHandler::setColor(EConsoleTextColor::EConsoleTextColor color)
 
 int CConsoleHandler::run() const
 {
-	setThreadName("CConsoleHandler::run");
+	setThreadName("consoleHandler");
 	//disabling sync to make in_avail() work (othervice always returns 0)
 	{
 		TLockGuard _(smx);
