@@ -392,7 +392,6 @@ std::shared_ptr<CMainMenu> CMainMenu::create()
 	if(!CMM)
 		CMM = std::shared_ptr<CMainMenu>(new CMainMenu());
 
-	GH.terminate_cond->setn(false);
 	return CMM;
 }
 

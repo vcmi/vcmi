@@ -630,7 +630,6 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	{
 		if(CMM)
 		{
-			GH.terminate_cond->setn(false);
 			GH.curInt = CMM.get();
 			CMM->enable();
 		}

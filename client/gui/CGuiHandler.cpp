@@ -111,20 +111,8 @@ void CGuiHandler::stopTextInput()
 
 void CGuiHandler::renderFrame()
 {
-	// Updating GUI requires locking pim mutex (that protects screen and GUI state).
-	// During game:
-	// When ending the game, the pim mutex might be hold by other thread,
-	// that will notify us about the ending game by setting terminate_cond flag.
-	//in PreGame terminate_cond stay false
-
-	bool acquiredTheLockOnPim = false; //for tracking whether pim mutex locking succeeded
-	while(!terminate_cond->get() && !(acquiredTheLockOnPim = CPlayerInterface::pim->try_lock())) //try acquiring long until it succeeds or we are told to terminate
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(1));
-
-	if(acquiredTheLockOnPim)
 	{
-		// If we are here, pim mutex has been successfully locked - let's store it in a safe RAII lock.
-		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim, boost::adopt_lock);
+		boost::recursive_mutex::scoped_lock un(*CPlayerInterface::pim);
 
 		if(nullptr != curInt)
 			curInt->update();
@@ -152,14 +140,10 @@ CGuiHandler::CGuiHandler()
 	, captureChildren(false)
 	, curInt(nullptr)
 	, fakeStatusBar(std::make_shared<EmptyStatusBar>())
-	, terminate_cond (new CondSh<bool>(false))
 {
 }
 
-CGuiHandler::~CGuiHandler()
-{
-	delete terminate_cond;
-}
+CGuiHandler::~CGuiHandler() = default;
 
 ShortcutHandler & CGuiHandler::shortcuts()
 {

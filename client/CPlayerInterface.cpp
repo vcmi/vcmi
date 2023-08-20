@@ -136,7 +136,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	makingTurn = false;
 	showingDialog = new CondSh<bool>(false);
 	cingconsole = new CInGameConsole();
-	GH.terminate_cond->set(false);
 	firstCall = 1; //if loading will be overwritten in serialize
 	autosaveCount = 0;
 	isAutoFightOn = false;
@@ -1592,7 +1591,6 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		{
 			if(adventureInt)
 			{
-				GH.terminate_cond->setn(true);
 				GH.windows().popWindows(GH.windows().count());
 				adventureInt.reset();
 			}
