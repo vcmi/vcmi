@@ -811,12 +811,12 @@ SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceI
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	std::vector<std::shared_ptr<IImage>> images;
+	std::vector<std::shared_ptr<IImage>> mapLayerImages;
 	if(renderImage)
-		images = redrawMinimap(ResourceID(resource.getName(), EResType::MAP), IMAGE_SIZE);
+		mapLayerImages = createMinimaps(ResourceID(resource.getName(), EResType::MAP), IMAGE_SIZE);
 
 	pos = Rect(0, 0, 2*BORDER + IMAGE_SIZE, 2000);
-	if(renderImage && images.size() > 1)
+	if(renderImage && mapLayerImages.size() > 1)
 		pos.w += IMAGE_SIZE + BORDER;
 
 	label = std::make_shared<CTextBox>(text, Rect(BORDER, BORDER, pos.w-2*BORDER, 350), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
@@ -836,9 +836,9 @@ SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceI
 
 	if(renderImage)
 	{
-		image1 = std::make_shared<CPicture>(images[0], Point(BORDER, label->label->textSize.y + 2*BORDER));
-		if(images.size()>1)
-			image2 = std::make_shared<CPicture>(images[1], Point(BORDER + IMAGE_SIZE + BORDER, label->label->textSize.y + 2*BORDER));
+		image1 = std::make_shared<CPicture>(mapLayerImages[0], Point(BORDER, label->label->textSize.y + 2*BORDER));
+		if(mapLayerImages.size()>1)
+			image2 = std::make_shared<CPicture>(mapLayerImages[1], Point(BORDER + IMAGE_SIZE + BORDER, label->label->textSize.y + 2*BORDER));
 	}
 
 	center(GH.getCursorPosition()); //center on mouse
@@ -848,7 +848,7 @@ SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceI
 	fitToScreen(10);
 }
 
-Canvas SelectionTab::CMapInfoTooltipBox::createMinimap(std::unique_ptr<CMap> & map, int layer)
+Canvas SelectionTab::CMapInfoTooltipBox::createMinimapForLayer(std::unique_ptr<CMap> & map, int layer)
 {
 	Canvas canvas = Canvas(Point(map->width, map->height));
 
@@ -884,7 +884,7 @@ Canvas SelectionTab::CMapInfoTooltipBox::createMinimap(std::unique_ptr<CMap> & m
 	return canvas;
 }
 
-std::vector<std::shared_ptr<IImage>> SelectionTab::CMapInfoTooltipBox::redrawMinimap(ResourceID resource, int size)
+std::vector<std::shared_ptr<IImage>> SelectionTab::CMapInfoTooltipBox::createMinimaps(ResourceID resource, int size)
 {
 	std::vector<std::shared_ptr<IImage>> ret = std::vector<std::shared_ptr<IImage>>();
 
@@ -893,7 +893,7 @@ std::vector<std::shared_ptr<IImage>> SelectionTab::CMapInfoTooltipBox::redrawMin
 
 	for(int i = 0; i < (map->twoLevel ? 2 : 1); i++)
 	{
-		Canvas canvas = createMinimap(map, i);
+		Canvas canvas = createMinimapForLayer(map, i);
 		Canvas canvasScaled = Canvas(Point(size, size));
 		canvasScaled.drawScaled(canvas, Point(0, 0), Point(size, size));
 		std::shared_ptr<IImage> img = IImage::createFromSurface(canvasScaled.getInternalSurface());

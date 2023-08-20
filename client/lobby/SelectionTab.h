@@ -10,7 +10,9 @@
 #pragma once
 
 #include "CSelectionBase.h"
-#include "../../lib/mapping/CMap.h"
+VCMI_LIB_NAMESPACE_BEGIN
+class CMap;
+VCMI_LIB_NAMESPACE_END
 #include "../../lib/mapping/CMapInfo.h"
 
 class CSlider;
@@ -78,8 +80,8 @@ class SelectionTab : public CIntObject
 		std::shared_ptr<CPicture> image1;
 		std::shared_ptr<CPicture> image2;
 
-		Canvas createMinimap(std::unique_ptr<CMap> & map, int layer);
-		std::vector<std::shared_ptr<IImage>> redrawMinimap(ResourceID resource, int size=144);
+		Canvas createMinimapForLayer(std::unique_ptr<CMap> & map, int layer);
+		std::vector<std::shared_ptr<IImage>> createMinimaps(ResourceID resource, int size);
 	public:
 		CMapInfoTooltipBox(std::string text, ResourceID resource, ESelectionScreen tabType);
 	};
