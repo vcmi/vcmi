@@ -14,6 +14,7 @@
 #include "../gui/Shortcut.h"
 
 #include "Buttons.h"
+#include "Images.h"
 #include "GameSettings.h"
 #include "IHandlerBase.h"
 #include "ObjectLists.h"
@@ -29,12 +30,22 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(const Point & position)
 	pos += position;
 
 	const auto backpackCap = VLC->settings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
-	auto visibleCapasityMax = HERO_BACKPACK_WINDOW_SLOT_LINES * HERO_BACKPACK_WINDOW_SLOT_COLUMNS;
+	auto visibleCapacityMax = HERO_BACKPACK_WINDOW_SLOT_LINES * HERO_BACKPACK_WINDOW_SLOT_COLUMNS;
 	if(backpackCap >= 0)
-		visibleCapasityMax = visibleCapasityMax > backpackCap ? backpackCap : visibleCapasityMax;
+		visibleCapacityMax = visibleCapacityMax > backpackCap ? backpackCap : visibleCapacityMax;
 
-	backpack.resize(visibleCapasityMax);
+	backpack.resize(visibleCapacityMax);
+	backpackSlotsBackgrounds.resize(visibleCapacityMax);
 	size_t artPlaceIdx = 0;
+
+	for(int i = 0; i < HERO_BACKPACK_WINDOW_SLOT_LINES * HERO_BACKPACK_WINDOW_SLOT_COLUMNS; i++)
+	{
+		auto artifactSlotBackground = std::make_shared<CPicture>("heroWindow/artifactSlotEmpty",
+			Point(46 * (i % HERO_BACKPACK_WINDOW_SLOT_COLUMNS), 46 * (i / HERO_BACKPACK_WINDOW_SLOT_COLUMNS)));
+
+		backpackSlotsBackgrounds.emplace_back(artifactSlotBackground);
+	}
+
 	for(auto & artPlace : backpack)
 	{
 		artPlace = std::make_shared<CHeroArtPlace>(
@@ -45,7 +56,7 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(const Point & position)
 		artPlaceIdx++;
 	}
 
-	if(backpackCap < 0 || visibleCapasityMax < backpackCap)
+	if(backpackCap < 0 || visibleCapacityMax < backpackCap)
 	{
 		auto onCreate = [](size_t index) -> std::shared_ptr<CIntObject>
 		{
