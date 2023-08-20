@@ -14,6 +14,7 @@
 
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
+#include "../CMusicHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
@@ -470,6 +471,7 @@ void OptionsTab::SelectionWindow::apply()
 	if(GH.windows().isTopWindow(this))
 	{
 		GH.input().hapticFeedback();
+		CCS->soundh->playSound(soundBase::button);
 
 		close();
 
@@ -732,8 +734,19 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 		apply();
 }
 
+bool OptionsTab::SelectionWindow::receiveEvent(const Point & position, int eventType) const
+{
+	return true;  // capture click also outside of window
+}
+
 void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition)
 {
+	if(!pos.isInside(cursorPosition))
+	{
+		close();
+		return;
+	}
+
 	int elem = getElement(cursorPosition);
 
 	setElement(elem, true);
@@ -741,6 +754,9 @@ void OptionsTab::SelectionWindow::clickReleased(const Point & cursorPosition)
 
 void OptionsTab::SelectionWindow::showPopupWindow(const Point & cursorPosition)
 {
+	if(!pos.isInside(cursorPosition))
+		return;
+
 	int elem = getElement(cursorPosition);
 
 	setElement(elem, false);

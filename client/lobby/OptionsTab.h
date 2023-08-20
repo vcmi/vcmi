@@ -140,6 +140,7 @@ public:
 		int getElement(const Point & cursorPosition);
 		void setElement(int element, bool doApply);
 
+		bool receiveEvent(const Point & position, int eventType) const override;
 		void clickReleased(const Point & cursorPosition) override;
 		void showPopupWindow(const Point & cursorPosition) override;
 
