@@ -27,6 +27,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/CThreadHelper.h"
 #include "../../lib/TextOperations.h"
 #include "../../lib/mapObjects/CArmedInstance.h"
 
@@ -255,6 +256,7 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 			//some commands like gosolo don't work when executed from GUI thread
 			auto threadFunction = [=]()
 			{
+				setThreadName("processCommand");
 				ClientCommandManager commandController;
 				commandController.processCommand(txt.substr(1), true);
 			};

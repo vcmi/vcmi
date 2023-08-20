@@ -567,7 +567,7 @@ void CSimpleJoinScreen::startConnectThread(const std::string & addr, ui16 port)
 
 void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
 {
-	setThreadName("CSimpleJoinScreen::connectThread");
+	setThreadName("connectThread");
 	if(!addr.length())
 		CSH->startLocalServerAndConnect();
 	else

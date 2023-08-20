@@ -43,6 +43,7 @@
 #include "../../lib/NetPacks.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/CThreadHelper.h"
 
 BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2,
 		const CGHeroInstance *hero1, const CGHeroInstance *hero2,
@@ -731,6 +732,7 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 			// HOWEVER this thread won't atttempt to lock game state, potentially leading to races
 			boost::thread aiThread([this, activeStack]()
 			{
+				setThreadName("autofightingAI");
 				curInt->autofightingAI->activeStack(activeStack);
 			});
 			aiThread.detach();

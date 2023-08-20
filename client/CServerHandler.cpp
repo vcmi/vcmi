@@ -817,7 +817,7 @@ public:
 
 void CServerHandler::threadHandleConnection()
 {
-	setThreadName("CServerHandler::threadHandleConnection");
+	setThreadName("threadHandleConnection");
 	c->enterLobbyConnectionMode();
 
 	try
@@ -898,7 +898,7 @@ void CServerHandler::visitForClient(CPackForClient & clientPack)
 void CServerHandler::threadRunServer()
 {
 #if !defined(VCMI_MOBILE)
-	setThreadName("CServerHandler::threadRunServer");
+	setThreadName("threadRunServer");
 	const std::string logName = (VCMIDirs::get().userLogsPath() / "server_log.txt").string();
 	std::string comm = VCMIDirs::get().serverPath().string()
 		+ " --port=" + std::to_string(getHostPort())

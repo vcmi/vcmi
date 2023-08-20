@@ -27,11 +27,12 @@
 #include "render/IScreenHandler.h"
 #include "render/Graphics.h"
 
-#include "../lib/filesystem/Filesystem.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
+#include "../lib/CThreadHelper.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/VCMI_Lib.h"
-#include "../lib/CConfigHandler.h"
+#include "../lib/filesystem/Filesystem.h"
 
 #include "../lib/logging/CBasicLogConfigurator.h"
 
@@ -297,7 +298,11 @@ int main(int argc, char * argv[])
 
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
-	boost::thread loading(init);
+	boost::thread loading([]()
+	{
+		setThreadName("initialize");
+		init();
+	});
 #else
 	init();
 #endif
@@ -429,6 +434,7 @@ void playIntro()
 
 static void mainLoop()
 {
+	setThreadName("MainGUI");
 	inGuiThread.reset(new bool(true));
 
 	while(1) //main SDL events loop

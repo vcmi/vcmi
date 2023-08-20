@@ -76,6 +76,7 @@
 #include "../lib/UnlockGuard.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/TerrainHandler.h"
+#include "../lib/CThreadHelper.h"
 #include "CServerHandler.h"
 // FIXME: only needed for CGameState::mutex
 #include "../lib/gameState/CGameState.h"
@@ -1933,6 +1934,8 @@ void CPlayerInterface::setMovementStatus(bool value)
 
 void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 {
+	setThreadName("doMoveHero");
+
 	int i = 1;
 	auto getObj = [&](int3 coord, bool ignoreHero)
 	{
