@@ -360,14 +360,23 @@ void ApplyOnServerNetPackVisitor::visitLobbyChangePlayerOption(LobbyChangePlayer
 {
 	switch(pack.what)
 	{
+	case LobbyChangePlayerOption::TOWN_ID:
+		srv.optionSetCastle(pack.color, pack.value);
+		break;
 	case LobbyChangePlayerOption::TOWN:
-		srv.optionNextCastle(pack.color, pack.direction);
+		srv.optionNextCastle(pack.color, pack.value);
+		break;
+	case LobbyChangePlayerOption::HERO_ID:
+		srv.optionSetHero(pack.color, pack.value);
 		break;
 	case LobbyChangePlayerOption::HERO:
-		srv.optionNextHero(pack.color, pack.direction);
+		srv.optionNextHero(pack.color, pack.value);
+		break;
+	case LobbyChangePlayerOption::BONUS_ID:
+		srv.optionSetBonus(pack.color, pack.value);
 		break;
 	case LobbyChangePlayerOption::BONUS:
-		srv.optionNextBonus(pack.color, pack.direction);
+		srv.optionNextBonus(pack.color, pack.value);
 		break;
 	}
 	
