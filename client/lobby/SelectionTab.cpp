@@ -823,7 +823,7 @@ SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceI
 	auto drawLabel = [&]() {
 		label = std::make_shared<CTextBox>(text, Rect(BORDER, BORDER, BORDER + 2 * IMAGE_SIZE, 350), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 		if(!label->slider)
-			label->resize(label->label->textSize);
+			label->resize(Point(BORDER + 2 * IMAGE_SIZE, label->label->textSize.y));
 	};
 	drawLabel();
 
