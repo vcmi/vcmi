@@ -807,7 +807,7 @@ SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceI
 	: CWindowObject(BORDERED | RCLICK_POPUP)
 {
 	drawPlayerElements = tabType == ESelectionScreen::newGame;
-	renderImage = tabType == ESelectionScreen::newGame;
+	renderImage = tabType == ESelectionScreen::newGame && settings["lobby"]["mapPreview"].Bool();
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -815,13 +815,16 @@ SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceI
 	if(renderImage)
 		mapLayerImages = createMinimaps(ResourceID(resource.getName(), EResType::MAP), IMAGE_SIZE);
 
-	pos = Rect(0, 0, 2*BORDER + IMAGE_SIZE, 2000);
+	pos = Rect(0, 0, 2 * BORDER + IMAGE_SIZE, 2000);
 	if(renderImage && mapLayerImages.size() > 1)
 		pos.w += IMAGE_SIZE + BORDER;
 
-	label = std::make_shared<CTextBox>(text, Rect(BORDER, BORDER, pos.w-2*BORDER, 350), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
-	if(!label->slider)
-		label->resize(label->label->textSize);
+	auto drawLabel = [&]() {
+		label = std::make_shared<CTextBox>(text, Rect(BORDER, BORDER, pos.w - 2 * BORDER, 350), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
+		if(!label->slider)
+			label->resize(label->label->textSize);
+	};
+	drawLabel();
 
 	pos.h = BORDER + label->label->textSize.y + BORDER;
 	if(renderImage)
@@ -829,16 +832,13 @@ SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceI
 	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
 	updateShadow();
 
-	// TODO: hacky redraw
-	label = std::make_shared<CTextBox>(text, Rect(BORDER, BORDER, pos.w-2*BORDER, 350), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
-	if(!label->slider)
-		label->resize(label->label->textSize);
+	drawLabel();
 
 	if(renderImage)
 	{
-		image1 = std::make_shared<CPicture>(mapLayerImages[0], Point(BORDER, label->label->textSize.y + 2*BORDER));
+		image1 = std::make_shared<CPicture>(mapLayerImages[0], Point(BORDER, label->label->textSize.y + 2 * BORDER));
 		if(mapLayerImages.size()>1)
-			image2 = std::make_shared<CPicture>(mapLayerImages[1], Point(BORDER + IMAGE_SIZE + BORDER, label->label->textSize.y + 2*BORDER));
+			image2 = std::make_shared<CPicture>(mapLayerImages[1], Point(BORDER + IMAGE_SIZE + BORDER, label->label->textSize.y + 2 * BORDER));
 	}
 
 	center(GH.getCursorPosition()); //center on mouse

@@ -3,7 +3,7 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "gameTweaks" ],
+	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "lobby", "gameTweaks" ],
 	"definitions" : {
 		"logLevelEnum" : {
 			"type" : "string",
@@ -523,6 +523,18 @@
 					"type" : "number",
 					"description" : "maximum time in ms, should be enough to establish socket connection to remote proxy server.",
 					"default" : 2000
+				}
+			}
+		},
+		"lobby" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"default" : {},
+			"required" : [ "mapPreview" ],
+			"properties" : {
+				"mapPreview" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},
