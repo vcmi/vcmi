@@ -173,6 +173,8 @@
 
 	"vcmi.heroWindow.openCommander.hover" : "Open commander info window",
 	"vcmi.heroWindow.openCommander.help"  : "Shows details about the commander of this hero",
+	"vcmi.heroWindow.openBackpack.hover" : "Open artifact backpack window",
+	"vcmi.heroWindow.openBackpack.help"  : "Opens window that allows easier artifact backpack management",
 
 	"vcmi.commanderWindow.artifactMessage" : "Do you want to return this artifact to the hero?",
 
