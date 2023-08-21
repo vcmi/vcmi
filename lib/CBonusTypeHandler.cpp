@@ -118,9 +118,30 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 		}
 		break;
 	}
-		//	fileName = "E_FIRE.bmp"; //fire damage
-		//	fileName = "E_COLD.bmp"; //cold damage
-		//	fileName = "E_LIGHT.bmp"; //lightning damage
+	case BonusType::DAMAGE_TYPE_REDUCTION:
+	{
+		switch(bonus->subtype)
+		{
+			case SubSchool(ESubSchool::BALEFIRE):
+				fileName = "E_FIRE.bmp"; //fire damage
+				break;
+			case SubSchool(ESubSchool::ICE):
+				fileName = "E_COLD.bmp"; //cold damage
+				break;
+			case SubSchool(ESubSchool::LIGHTNING):
+				fileName = "E_LIGHT.bmp"; //lightning damage
+				break;
+			case SubSchool(ESubSchool::MIND):
+				fileName = "E_MIND.bmp"; //mind damage
+				break;
+			case SubSchool(ESubSchool::ROCK):
+				fileName = "E_SPEATH1.bmp"; //rock damage, no separate icon
+				break;
+			case SubSchool(ESubSchool::MAGIC):
+				fileName = "E_GOLEM.bmp"; //magic damage, should not be inside reduction
+				break;
+		}
+	}
 	case BonusType::NEGATIVE_EFFECTS_IMMUNITY:
 	{
 		switch(bonus->subtype)

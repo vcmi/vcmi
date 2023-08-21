@@ -13,7 +13,10 @@
 			},
 			"immuneToMind" : 
 			{
-				"type" : "MIND_IMMUNITY"
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.mind",
+				"val" : 100,
+				"valueType" : "BASE_NUMBER"
 			},
 			"meteorShowerImmunity" :
 			{
@@ -83,7 +86,10 @@
 			},
 			"immuneToMind" : 
 			{
-				"type" : "MIND_IMMUNITY"
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.mind",
+				"val" : 100,
+				"valueType" : "BASE_NUMBER"
 			},
 			"meteorShowerVulnerability" :
 			{
@@ -150,7 +156,10 @@
 			},
 			"immuneToMind" : 
 			{
-				"type" : "MIND_IMMUNITY"
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.mind",
+				"val" : 100,
+				"valueType" : "BASE_NUMBER"
 			},
 			"immuneToFire" : 
 			{
@@ -214,7 +223,10 @@
 			},
 			"immuneToMind" : 
 			{
-				"type" : "MIND_IMMUNITY"
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.mind",
+				"val" : 100,
+				"valueType" : "BASE_NUMBER"
 			},
 			"fireShieldVulnerablity" :
 			{
@@ -331,6 +343,17 @@
 			"nonLiving" : 
 			{
 				"type" : "NON_LIVING"
+			},
+			"mindImmunity" :{
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.mind",
+				"val" : 100,
+				"valueType" : "BASE_NUMBER"
+			},
+			"mindDamage" :
+			{
+				"type" : "ATTACK_DAMAGE_TYPE",
+				"subtype" : "damageType.mind"
 			}
 		},
 		"doubleWide" : false,
@@ -363,6 +386,11 @@
 			{
 				"type" : "LEVEL_SPELL_IMMUNITY",
 				"val" : 5
+			},
+			"magicDamage" : 
+			{
+				"type" : "ATTACK_DAMAGE_TYPE",
+				"subtype" : "damageType.magic"
 			}
 		},
 		"doubleWide" : false,
@@ -408,7 +436,10 @@
 			},
 			"immuneToMind" : 
 			{
-				"type" : "MIND_IMMUNITY"
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.mind",
+				"val" : 100,
+				"valueType" : "BASE_NUMBER"
 			},
 			"fireShieldVulnerablity" :
 			{
@@ -657,7 +688,10 @@
 			},
 			"immuneToMind" : 
 			{
-				"type" : "MIND_IMMUNITY"
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.mind",
+				"val" : 100,
+				"valueType" : "BASE_NUMBER"
 			},
 			"immuneToFire" : 
 			{

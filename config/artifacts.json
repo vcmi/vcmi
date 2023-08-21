@@ -774,8 +774,9 @@
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"type" : "MIND_IMMUNITY",
-				"val" : 0,
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.mind",
+				"val" : 100,
 				"valueType" : "BASE_NUMBER"
 			}
 		],

@@ -391,29 +391,38 @@ double DamageCalculator::getDefensePetrificationFactor() const
 	return info.defender->valOfBonuses(selectorAllReduction, cachingStrAllReduction) / 100.0;
 }
 
-double DamageCalculator::getDefenseMagicFactor() const
+double DamageCalculator::getDefenseDamageTypeFactor() const
 {
-	// Magic Elementals deal half damage (R8 = 0.50) against Magic Elementals and Black Dragons. This is not affected by the Orb of Vulnerability, Anti-Magic, or Magic Resistance.
-	if(info.attacker->creatureIndex() == CreatureID::MAGIC_ELEMENTAL)
+	//Some creatures deal less damage, if other creatures have damage type reduction.
+	if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(ESubSchool::MIND)))
 	{
-		const std::string cachingStrMagicImmunity = "type_LEVEL_SPELL_IMMUNITY";
-		static const auto selectorMagicImmunity = Selector::type()(BonusType::LEVEL_SPELL_IMMUNITY);
-
-		if(info.defender->valOfBonuses(selectorMagicImmunity, cachingStrMagicImmunity) >= 5)
-			return 0.5;
+		if(info.defender->getBonusBearer()->hasBonusOfType(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::MIND)))
+			return 0.5 * (std::clamp(info.defender->getBonusBearer()->valOfBonuses(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::MIND)), -100, 100) / 100.0);
 	}
-	return 0.0;
-}
-
-double DamageCalculator::getDefenseMindFactor() const
-{
-	// Psychic Elementals deal half damage (R8 = 0.50) against creatures that are immune to Mind spells, such as Giants and Undead. This is not affected by the Orb of Vulnerability.
-	if(info.attacker->creatureIndex() == CreatureID::PSYCHIC_ELEMENTAL)
+	if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(ESubSchool::ICE)))
 	{
-		const std::string cachingStrMindImmunity = "type_MIND_IMMUNITY";
-		static const auto selectorMindImmunity = Selector::type()(BonusType::MIND_IMMUNITY);
-
-		if(info.defender->hasBonus(selectorMindImmunity, cachingStrMindImmunity))
+		if(info.defender->getBonusBearer()->hasBonusOfType(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::ICE)))
+			return 0.5 * (std::clamp(info.defender->getBonusBearer()->valOfBonuses(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::ICE)), -100, 100) / 100.0);
+	}
+	if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(ESubSchool::LIGHTNING)))
+	{
+		if(info.defender->getBonusBearer()->hasBonusOfType(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::LIGHTNING)))
+			return 0.5 * (std::clamp(info.defender->getBonusBearer()->valOfBonuses(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::LIGHTNING)), -100, 100) / 100.0);
+	}
+	if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(ESubSchool::ROCK)))
+	{
+		if(info.defender->getBonusBearer()->hasBonusOfType(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::ROCK)))
+			return 0.5 * (std::clamp(info.defender->getBonusBearer()->valOfBonuses(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::ROCK)), -100, 100) / 100.0);
+	}
+	if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(ESubSchool::BALEFIRE)))
+	{
+		if(info.defender->getBonusBearer()->hasBonusOfType(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::BALEFIRE)))
+			return 0.5 * (std::clamp(info.defender->getBonusBearer()->valOfBonuses(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::BALEFIRE)), -100, 100) / 100.0);
+	}
+	if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(ESubSchool::MAGIC)))
+	{
+		// Magic Elementals deal half damage (R8 = 0.50) against Magic Elementals and Black Dragons. This is not affected by the Orb of Vulnerability, Anti-Magic, or Magic Resistance.
+		if(info.defender->getBonusBearer()->valOfBonuses(BonusType::LEVEL_SPELL_IMMUNITY) >= GameConstants::SPELL_LEVELS)
 			return 0.5;
 	}
 	return 0.0;
@@ -445,8 +454,7 @@ std::vector<double> DamageCalculator::getDefenseFactors() const
 		getDefenseUnluckyFactor(),
 		getDefenseForgetfulnessFactor(),
 		getDefensePetrificationFactor(),
-		getDefenseMagicFactor(),
-		getDefenseMindFactor()
+		getDefenseDamageTypeFactor()
 	};
 }
 

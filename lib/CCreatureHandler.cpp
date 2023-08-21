@@ -473,7 +473,6 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses) con
 		{"KING_3",                 makeBonusNode("KING", 3)}, // Expert Slayer only
 		{"const_no_wall_penalty",  makeBonusNode("NO_WALL_PENALTY")},
 		{"MULTI_HEADED",           makeBonusNode("ATTACKS_ALL_ADJACENT")},
-		{"IMMUNE_TO_MIND_SPELLS",  makeBonusNode("MIND_IMMUNITY")},
 		{"HAS_EXTENDED_ATTACK",    makeBonusNode("TWO_HEX_ATTACK_BREATH")}
 	};
 
@@ -496,6 +495,14 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses) con
 		node["val"].Float() = 1;
 		node["propagator"].String() = "HERO";
 		creature["abilities"]["const_raises_morale"] = node;
+	}
+
+	if(hasAbility("IMMUNE_TO_MIND_SPELLS"))
+	{
+		JsonNode node = makeBonusNode("DAMAGE_TYPE_REDUCTION");
+		node["val"].Float() = 100;
+		node["subtype"].Float() = SubSchool(ESubSchool::MIND);
+		creature["abilities"]["IMMUNE_TO_MIND_SPELLS"] = node;
 	}
 }
 
@@ -1105,7 +1112,10 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.type = BonusType::NO_MORALE; break;
 			case 'p': //Mind spells
 			case 'P':
-				b.type = BonusType::MIND_IMMUNITY; break;
+				b.type = BonusType::DAMAGE_TYPE_REDUCTION;
+				b.subtype = SubSchool(ESubSchool::MIND);
+				b.val = 100;
+				break;
 			case 'r':
 				b.type = BonusType::REBIRTH; //on/off? makes sense?
 				b.subtype = 0;
@@ -1233,7 +1243,9 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.type = BonusType::RECEPTIVE;
 				break;
 			case 'm':
-				b.type = BonusType::MIND_IMMUNITY;
+				b.type = BonusType::DAMAGE_TYPE_REDUCTION;
+				b.subtype = SubSchool(ESubSchool::MIND);
+				b.val = 100;
 				break;
 			default:
 				logGlobal->trace("Not parsed bonus %s %s", buf, mod);
