@@ -513,6 +513,10 @@ void BattleFlowProcessor::onActionMade(const BattleAction &ba)
 	if(owner->checkBattleStateChanges())
 		return;
 
+	// tactics - next stack will be selected by player
+	if(battle->tacticDistance != 0)
+		return;
+
 	if (ba.isUnitAction())
 	{
 		assert(activeStack != nullptr);
