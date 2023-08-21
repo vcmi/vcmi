@@ -590,16 +590,18 @@ CLoadingScreen::CLoadingScreen()
 	CCS->musich->stopMusic(5000);
 	
 	const auto & conf = CMainMenuConfig::get().getConfig()["loading"];
-	
-	const int posx = conf["x"].Integer(), posy = conf["y"].Integer();
-	const int blockSize = conf["size"].Integer();
-	const int blocksAmount = conf["amount"].Integer();
-			
-	for(int i = 0; i < blocksAmount; ++i)
+	if(conf.isStruct())
 	{
-		progressBlocks.push_back(std::make_shared<CAnimImage>(conf["name"].String(), i, 0, posx + i * blockSize, posy));
-		progressBlocks.back()->deactivate();
-		progressBlocks.back()->visible = false;
+		const int posx = conf["x"].Integer(), posy = conf["y"].Integer();
+		const int blockSize = conf["size"].Integer();
+		const int blocksAmount = conf["amount"].Integer();
+		
+		for(int i = 0; i < blocksAmount; ++i)
+		{
+			progressBlocks.push_back(std::make_shared<CAnimImage>(conf["name"].String(), i, 0, posx + i * blockSize, posy));
+			progressBlocks.back()->deactivate();
+			progressBlocks.back()->visible = false;
+		}
 	}
 }
 
@@ -628,14 +630,22 @@ void CLoadingScreen::showAll(Canvas & to)
 
 std::string CLoadingScreen::getBackground()
 {
-	const auto & conf = CMainMenuConfig::get().getConfig()["loading"]["background"].Vector();
+	std::string fname = "loadbar";
+	const auto & conf = CMainMenuConfig::get().getConfig()["loading"];
 
-	if(conf.empty())
+	if(conf.isStruct())
 	{
-		return "loadbar";
+		if(conf["background"].isVector())
+			return RandomGeneratorUtil::nextItem(conf["background"].Vector(), CRandomGenerator::getDefault())->String();
+		
+		if(conf["background"].isString())
+			return conf["background"].String();
+		
+		return fname;
 	}
-	else
-	{
-		return RandomGeneratorUtil::nextItem(conf, CRandomGenerator::getDefault())->String();
-	}
+	
+	if(conf.isVector() and !conf.Vector().empty())
+		return RandomGeneratorUtil::nextItem(conf.Vector(), CRandomGenerator::getDefault())->String();
+	
+	return fname;
 }
