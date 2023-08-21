@@ -108,7 +108,10 @@ void TurnTimerHandler::onBattleNextStack(const CStack & stack)
 {
 	const auto * gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
-	if(!si || !gs)
+	if(!si || !gs || !gs->curB)
+		return;
+	
+	if(!stack.getOwner().isValidPlayer())
 		return;
 	
 	const auto & state = gs->players.at(stack.getOwner());
@@ -133,7 +136,7 @@ void TurnTimerHandler::onBattleLoop(int waitTime)
 		return;
 	
 	const auto * stack = gs->curB.get()->battleGetStackByID(gs->curB->getActiveStackID());
-	if(!stack)
+	if(!stack || !stack->getOwner().isValidPlayer())
 		return;
 	
 	auto & state = gs->players.at(gs->curB->getSidePlayer(stack->unitSide()));
