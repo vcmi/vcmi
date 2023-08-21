@@ -17,6 +17,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
+#include "../PlayerLocalState.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../windows/CCastleInterface.h"
@@ -31,6 +32,7 @@
 #include "../../lib/CModHandler.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/TextOperations.h"
+#include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
@@ -434,6 +436,27 @@ void CInteractableTownTooltip::init(const InfoAboutTown & town)
 			}
 		}
 	}
+}
+
+CreatureTooltip::CreatureTooltip(Point pos, const CGCreature * creature)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	auto creatureData = (*CGI->creh)[creature->stacks.begin()->second->getCreatureID()].get();
+	creatureImage = std::make_shared<CAnimImage>(graphics->getAnimation("TWCRPORT"), creatureData->getIconIndex());
+	creatureImage->center(Point(parent->pos.x + parent->pos.w / 2, parent->pos.y + creatureImage->pos.h / 2 + 11));
+
+	bool isHeroSelected = LOCPLINT->localState->getCurrentHero() != nullptr;
+	std::string textContent = isHeroSelected
+			? creature->getHoverText(LOCPLINT->localState->getCurrentHero())
+			: creature->getHoverText(LOCPLINT->playerID);
+
+	//TODO: window is bigger than OH3
+	//TODO: vertical alignment does not match H3. Commented below example that matches H3 for creatures count but supports only 1 line:
+	/*std::shared_ptr<CLabel> = std::make_shared<CLabel>(parent->pos.w / 2, 103,
+			FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, creature->getHoverText(LOCPLINT->playerID));*/
+
+	tooltipTextbox = std::make_shared<CTextBox>(textContent, Rect(15, 95, 230, 150), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 }
 
 void MoraleLuckBox::set(const AFactionMember * node)

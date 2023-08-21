@@ -16,6 +16,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGGarrison;
+class CGCreature;
 class Rect;
 
 VCMI_LIB_NAMESPACE_END
@@ -78,7 +79,7 @@ public:
 	virtual void close();
 	bool isPopupWindow() const override;
 
-	static std::shared_ptr<WindowBase> createInfoWin(Point position, const CGObjectInstance * specific);
+	static std::shared_ptr<WindowBase> createCustomInfoWindow(Point position, const CGObjectInstance * specific);
 	static void createAndPush(const std::string & txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());
 	static void createAndPush(const std::string & txt, std::shared_ptr<CComponent> component);
 	static void createAndPush(const CGObjectInstance * obj, const Point & p, ETextAlignment alignment = ETextAlignment::BOTTOMRIGHT);
@@ -108,15 +109,16 @@ public:
 	~CInfoPopup();
 };
 
-/// popup on adventure map for town\hero objects
+/// popup on adventure map for town\hero and other objects with customized popup content
 class CInfoBoxPopup : public CWindowObject
 {
-	std::shared_ptr<CArmyTooltip> tooltip;
+	std::shared_ptr<CIntObject> tooltip;
 	Point toScreen(Point pos);
 public:
 	CInfoBoxPopup(Point position, const CGTownInstance * town);
 	CInfoBoxPopup(Point position, const CGHeroInstance * hero);
 	CInfoBoxPopup(Point position, const CGGarrison * garr);
+	CInfoBoxPopup(Point position, const CGCreature * creature);
 };
 
 /// component selection window
