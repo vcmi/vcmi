@@ -99,6 +99,28 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 		fileName = sp->getIconImmune();
 		break;
 	}
+	case BonusType::SPELL_DAMAGE_REDUCTION: //Spell damage reduction for all schools
+	{
+		switch(bonus->subtype)
+		{
+		case SpellSchool(ESpellSchool::ANY):
+			fileName = "E_GOLEM.bmp";
+			break;	
+		case SpellSchool(ESpellSchool::AIR):
+			fileName = "E_LIGHT.bmp";
+			break;
+		case SpellSchool(ESpellSchool::FIRE):
+			fileName = "E_FIRE.bmp";
+			break;
+		case SpellSchool(ESpellSchool::WATER):
+			fileName = "E_COLD.bmp";
+			break;
+		case SpellSchool(ESpellSchool::EARTH):
+			fileName = "E_SPEATH1.bmp"; //No separate icon for earth damage
+			break;
+		}
+		break;
+	}
 	case BonusType::SPELL_SCHOOL_IMMUNITY: //for all school
 	{
 		switch(bonus->subtype)
@@ -118,9 +140,6 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 		}
 		break;
 	}
-	//	fileName = "E_FIRE.bmp"; //fire damage
-	//	fileName = "E_COLD.bmp"; //cold damage
-	//	fileName = "E_LIGHT.bmp"; //lightning damage
 	case BonusType::NEGATIVE_EFFECTS_IMMUNITY:
 	{
 		switch(bonus->subtype)
