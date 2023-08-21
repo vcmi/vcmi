@@ -52,7 +52,7 @@ public:
 	virtual void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	virtual void visitLobbyChatMessage(LobbyChatMessage & pack) override;
 	virtual void visitLobbyGuiAction(LobbyGuiAction & pack) override;
-	virtual void visitLobbyStartGame(LobbyStartGame & pack) override;
+	virtual void visitLobbyLoadProgress(LobbyLoadProgress & pack) override;
 	virtual void visitLobbyUpdateState(LobbyUpdateState & pack) override;
 	virtual void visitLobbyShowMessage(LobbyShowMessage & pack) override;
 };

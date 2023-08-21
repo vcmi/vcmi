@@ -15,6 +15,7 @@
 #include "../lib/IGameCallback.h"
 #include "../lib/battle/CBattleInfoCallback.h"
 #include "../lib/battle/BattleAction.h"
+#include "../lib/LoadProgress.h"
 #include "../lib/ScriptHandler.h"
 #include "CQuery.h"
 
@@ -236,7 +237,7 @@ public:
 	void expGiven(const CGHeroInstance *hero); //triggers needed level-ups, handles also commander of this hero
 	//////////////////////////////////////////////////////////////////////////
 
-	void init(StartInfo *si);
+	void init(StartInfo *si, Load::Progress * progressTracking = nullptr);
 	void handleClientDisconnection(std::shared_ptr<CConnection> c);
 	void handleReceivedPack(CPackForServer * pack);
 	PlayerColor getPlayerAt(std::shared_ptr<CConnection> c) const;

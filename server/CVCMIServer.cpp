@@ -279,6 +279,24 @@ void CVCMIServer::prepareToRestart()
 
 bool CVCMIServer::prepareToStartGame()
 {
+	Load::Progress * progressTracking = nullptr;
+	bool progressTrackingFinished = false;
+	std::thread progressTrackingThread([this, &progressTracking, &progressTrackingFinished](){
+		while(!progressTrackingFinished)
+		{
+			if(progressTracking)
+			{
+				boost::unique_lock<boost::recursive_mutex> queueLock(mx);
+				std::unique_ptr<LobbyLoadProgress> loadProgress(new LobbyLoadProgress);
+				loadProgress->progress = progressTracking->get();
+				addToAnnounceQueue(std::move(loadProgress));
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		}
+		progressTrackingFinished = false;
+	});
+	progressTrackingThread.detach();
+	
 	gh = std::make_shared<CGameHandler>(this);
 	switch(si->mode)
 	{
@@ -286,12 +304,12 @@ bool CVCMIServer::prepareToStartGame()
 		logNetwork->info("Preparing to start new campaign");
 		si->campState->setCurrentMap(campaignMap);
 		si->campState->setCurrentMapBonus(campaignBonus);
-		gh->init(si.get());
+		gh->init(si.get(), progressTracking);
 		break;
 
 	case StartInfo::NEW_GAME:
 		logNetwork->info("Preparing to start new game");
-		gh->init(si.get());
+		gh->init(si.get(), progressTracking);
 		break;
 
 	case StartInfo::LOAD_GAME:
@@ -304,6 +322,10 @@ bool CVCMIServer::prepareToStartGame()
 		assert(0);
 		break;
 	}
+	
+	progressTrackingFinished = true;
+	while(progressTrackingFinished)
+		continue;
 	
 	state = EServerState::GAMEPLAY_STARTING;
 	return true;

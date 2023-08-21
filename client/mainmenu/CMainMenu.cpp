@@ -582,15 +582,14 @@ void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
 	});
 }
 
-CLoadingScreen::CLoadingScreen(std::function<void()> loader)
-	: CWindowObject(BORDERED, getBackground()), loadingThread(loader)
+CLoadingScreen::CLoadingScreen()
+	: CWindowObject(BORDERED, getBackground())
 {
 	CCS->musich->stopMusic(5000);
 }
 
 CLoadingScreen::~CLoadingScreen()
 {
-	loadingThread.join();
 }
 
 void CLoadingScreen::showAll(Canvas & to)

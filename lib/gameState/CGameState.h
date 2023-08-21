@@ -11,6 +11,7 @@
 
 #include "bonuses/CBonusSystemNode.h"
 #include "IGameCallback.h"
+#include "LoadProgress.h"
 
 namespace boost
 {
@@ -89,7 +90,7 @@ public:
 
 	void preInit(Services * services);
 
-	void init(const IMapService * mapService, StartInfo * si, bool allowSavingRandomMap = false);
+	void init(const IMapService * mapService, StartInfo * si, bool allowSavingRandomMap = false, Load::Progress * progressTracking = nullptr);
 	void updateOnLoad(StartInfo * si);
 
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
@@ -166,7 +167,7 @@ public:
 private:
 	// ----- initialization -----
 	void preInitAuto();
-	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap);
+	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::Progress * progressTracking = nullptr);
 	void checkMapChecksum();
 	void initGlobalBonuses();
 	void initGrailPosition();

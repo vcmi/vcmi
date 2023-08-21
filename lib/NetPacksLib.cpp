@@ -693,6 +693,11 @@ void LobbyGuiAction::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbyGuiAction(*this);
 }
 
+void LobbyLoadProgress::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyLoadProgress(*this);
+}
+
 void LobbyEndGame::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbyEndGame(*this);

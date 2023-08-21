@@ -99,6 +99,18 @@ struct DLL_LINKAGE LobbyGuiAction : public CLobbyPackToPropagate
 	}
 };
 
+struct DLL_LINKAGE LobbyLoadProgress : public CLobbyPackToPropagate
+{
+	unsigned char progress;
+	
+	virtual void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & progress;
+	}
+};
+
 struct DLL_LINKAGE LobbyEndGame : public CLobbyPackToPropagate
 {
 	bool closeConnection = false, restart = false;

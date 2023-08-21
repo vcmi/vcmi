@@ -404,7 +404,7 @@ void CGameState::preInit(Services * services)
 	this->services = services;
 }
 
-void CGameState::init(const IMapService * mapService, StartInfo * si, bool allowSavingRandomMap)
+void CGameState::init(const IMapService * mapService, StartInfo * si, bool allowSavingRandomMap, Load::Progress * progressTracking)
 {
 	preInitAuto();
 	logGlobal->info("\tUsing random seed: %d", si->seedToBeUsed);
@@ -416,7 +416,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, bool allow
 	switch(scenarioOps->mode)
 	{
 	case StartInfo::NEW_GAME:
-		initNewGame(mapService, allowSavingRandomMap);
+		initNewGame(mapService, allowSavingRandomMap, progressTracking);
 		break;
 	case StartInfo::CAMPAIGN:
 		initCampaign();
@@ -535,7 +535,7 @@ void CGameState::preInitAuto()
 	}
 }
 
-void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRandomMap)
+void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::Progress * progressTracking)
 {
 	if(scenarioOps->createRandomMap())
 	{
@@ -544,8 +544,10 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 
 		// Gen map
 		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, scenarioOps->seedToBeUsed);
+		progressTracking = &mapGenerator;
 
 		std::unique_ptr<CMap> randomMap = mapGenerator.generate();
+		progressTracking = nullptr;
 
 		if(allowSavingRandomMap)
 		{

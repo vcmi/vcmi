@@ -11,6 +11,7 @@
 
 #include "../windows/CWindowObject.h"
 #include "../../lib/JsonNode.h"
+#include "../../lib/LoadProgress.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -178,14 +179,12 @@ public:
 	CSimpleJoinScreen(bool host = true);
 };
 
-class CLoadingScreen : public CWindowObject
+class CLoadingScreen : virtual public CWindowObject, virtual public Load::Progress
 {
-	boost::thread loadingThread;
-
 	std::string getBackground();
 
-public:
-	CLoadingScreen(std::function<void()> loader);
+public:	
+	CLoadingScreen();
 	~CLoadingScreen();
 
 	void showAll(Canvas & to) override;
