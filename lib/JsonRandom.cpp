@@ -260,7 +260,7 @@ namespace JsonRandom
 
 			vstd::erase_if(spells, [=](const SpellID & spell)
 			{
-				return !VLC->spellh->getById(spell)->hasSchool(ESpellSchool(schoolID));
+				return !VLC->spellh->getById(spell)->hasSchool(SpellSchool(schoolID));
 			});
 		}
 

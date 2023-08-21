@@ -177,16 +177,16 @@ protected:
 		bool elementalImmune = false;
 		auto bearer = target->getBonusBearer();
 
-		m->getSpell()->forEachSchool([&](const ESpellSchool & cnf, bool & stop) 
+		m->getSpell()->forEachSchool([&](const SpellSchool & cnf, bool & stop) 
 		{
-			if (bearer->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, SpellSchool(cnf)))
+			if (bearer->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, cnf))
 			{
 				elementalImmune = true;
 				stop = true; //only bonus from one school is used
 			}
 			else if(!m->isPositiveSpell()) //negative or indifferent
 			{
-				if (bearer->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, SpellSchool(cnf)))
+				if (bearer->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, cnf))
 				{
 					elementalImmune = true;
 					stop = true; //only bonus from one school is used

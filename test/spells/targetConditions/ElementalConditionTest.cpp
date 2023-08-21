@@ -30,8 +30,8 @@ public:
 		EXPECT_CALL(spellMock, forEachSchool(NotNull())).Times(AtLeast(1)).WillRepeatedly([](const spells::Spell::SchoolCallback & cb)
 		{
 			bool stop = false;
-			cb(ESpellSchool::AIR, stop);
-			cb(ESpellSchool::FIRE, stop);
+			cb(SpellSchool(ESpellSchool::AIR), stop);
+			cb(SpellSchool(ESpellSchool::FIRE), stop);
 		});
 
 		EXPECT_CALL(mechanicsMock, isPositiveSpell()).WillRepeatedly(Return(isPositive));

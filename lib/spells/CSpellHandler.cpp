@@ -124,7 +124,7 @@ int64_t CSpell::calculateDamage(const spells::Caster * caster) const
 	return caster->getSpellBonus(this, rawDamage, nullptr);
 }
 
-bool CSpell::hasSchool(ESpellSchool which) const
+bool CSpell::hasSchool(SpellSchool which) const
 {
 	return school.count(which) && school.at(which);
 }
@@ -149,7 +149,7 @@ spells::AimType CSpell::getTargetType() const
 	return targetType;
 }
 
-void CSpell::forEachSchool(const std::function<void(const ESpellSchool &, bool &)>& cb) const
+void CSpell::forEachSchool(const std::function<void(const SpellSchool &, bool &)>& cb) const
 {
 	bool stop = false;
 	for(auto iter : SpellConfig::SCHOOL_ORDER)
@@ -157,7 +157,7 @@ void CSpell::forEachSchool(const std::function<void(const ESpellSchool &, bool &
 		const spells::SchoolInfo & cnf = SpellConfig::SCHOOL[iter];
 		if(school.at(cnf.id))
 		{
-			cb(cnf.id.toEnum(), stop);
+			cb(cnf.id, stop);
 
 			if(stop)
 				break;
@@ -381,11 +381,11 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 	{
 		const auto * bearer = affectedCreature->getBonusBearer();
 		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
-		forEachSchool([&](const ESpellSchool & cnf, bool & stop)
+		forEachSchool([&](const SpellSchool & cnf, bool & stop)
 		{
-			if(bearer->hasBonusOfType(BonusType::SPELL_DAMAGE_REDUCTION, SpellSchool(cnf)))
+			if(bearer->hasBonusOfType(BonusType::SPELL_DAMAGE_REDUCTION, cnf))
 			{
-				ret *= 100 - bearer->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, SpellSchool(cnf));
+				ret *= 100 - bearer->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, cnf);
 				ret /= 100;
 				stop = true; //only bonus from one school is used
 			}

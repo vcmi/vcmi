@@ -201,14 +201,14 @@ public:
 
 	int64_t calculateDamage(const spells::Caster * caster) const override;
 
-	bool hasSchool(ESpellSchool school) const override;
+	bool hasSchool(SpellSchool school) const override;
 
 	/**
 	 * Calls cb for each school this spell belongs to
 	 *
 	 * Set stop to true to abort looping
 	 */
-	void forEachSchool(const std::function<void(const ESpellSchool &, bool &)> & cb) const override;
+	void forEachSchool(const std::function<void(const SpellSchool &, bool &)> & cb) const override;
 
 	spells::AimType getTargetType() const;
 
