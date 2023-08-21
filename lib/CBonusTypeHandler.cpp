@@ -123,7 +123,8 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 		switch(bonus->subtype)
 		{
 			case SubSchool(ESubSchool::BALEFIRE):
-				fileName = "E_FIRE.bmp"; //fire damage
+			case SubSchool(ESubSchool::FIRE):
+				fileName = "E_FIRE.bmp"; //fire or balefire damage
 				break;
 			case SubSchool(ESubSchool::ICE):
 				fileName = "E_COLD.bmp"; //cold damage
@@ -141,6 +142,7 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 				fileName = "E_GOLEM.bmp"; //magic damage, should not be inside reduction
 				break;
 		}
+		break;
 	}
 	case BonusType::NEGATIVE_EFFECTS_IMMUNITY:
 	{

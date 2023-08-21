@@ -1167,6 +1167,7 @@ int64_t CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<bat
 		!attackerState->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, SpellSchool(ESpellSchool::FIRE)) &&
 		!attackerState->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, SpellSchool(ESpellSchool::FIRE)) &&
 		attackerState->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, SpellSchool(ESpellSchool::FIRE)) < 100 &&
+		attackerState->valOfBonuses(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::FIRE)) < 100 &&
 		CStack::isMeleeAttackPossible(attackerState.get(), def) // attacked needs to be adjacent to defender for fire shield to trigger (e.g. Dragon Breath attack)
 			)
 	{

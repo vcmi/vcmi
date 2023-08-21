@@ -18,28 +18,23 @@
 				"val" : 100,
 				"valueType" : "BASE_NUMBER"
 			},
-			"meteorShowerImmunity" :
+			"rockImmunity" :
 			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.meteorShower"
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.lightning",
+				"val" : 100
 			},
 			"lightingVulnerablity" :
 			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.lightningBolt",
-				"val" : 100
-			},
-			"chainLightingVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.chainLightning",
-				"val" : 100
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.lightning",
+				"val" : -100
 			},
 			"armageddonVulnerablity" :
 			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.armageddon",
-				"val" : 100
+				"subtype" : "damageType.balefire",
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"val" : -100
 			},
 			"oppositeEarth" :
 			{
@@ -91,26 +86,23 @@
 				"val" : 100,
 				"valueType" : "BASE_NUMBER"
 			},
-			"meteorShowerVulnerability" :
+			"rockVulnerablity" :
 			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.meteorShower",
-				"val" : 100
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.rock",
+				"val" : -100
 			},
 			"lightingImmunity" :
 			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.lightningBolt"
-			},
-			"chainLightingImmunity" :
-			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.chainLightning"
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.lightning",
+				"val" : 100
 			},
 			"armageddonImmunity" :
 			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.armageddon"
+				"subtype" : "damageType.balefire",
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"val" : 100
 			},
 			"oppositeAir" :
 			{
@@ -163,20 +155,14 @@
 			},
 			"immuneToFire" : 
 			{
-				"type" : "FIRE_IMMUNITY",
-				"subtype" : 0
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
 			},
-			"frostRingVulnerablity" :
+			"iceVulnerablity" :
 			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.frostRing",
-				"val" : 100
-			},
-			"iceBoltVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.iceBolt",
-				"val" : 100
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.ice",
+				"val" : -100
 			},
 			"oppositeWater" :
 			{
@@ -228,40 +214,23 @@
 				"val" : 100,
 				"valueType" : "BASE_NUMBER"
 			},
-			"fireShieldVulnerablity" :
+			"fireVulnerablity" :
 			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireShield",
-				"val" : 100
-			},
-			"infernoVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.inferno",
-				"val" : 100
-			},
-			"fireballVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireball",
-				"val" : 100
-			},
-			"fireWallVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireWallTrigger",
-				"val" : 100
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.fire",
+				"val" : -100
 			},
 			"armageddonVulnerablity" :
 			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.armageddon",
-				"val" : 100
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.balefire",
+				"val" : -100
 			},
 			"immuneToWater" :
 			{
-				"type" : "WATER_IMMUNITY",
-				"subtype" : 2 //immune to damage spells only
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.ice", //immune to damage spells only
+				"val" : 100
 			},
 			"oppositeFire" :
 			{
@@ -441,40 +410,23 @@
 				"val" : 100,
 				"valueType" : "BASE_NUMBER"
 			},
-			"fireShieldVulnerablity" :
+			"fireVulnerablity" :
 			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireShield",
-				"val" : 100
-			},
-			"infernoVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.inferno",
-				"val" : 100
-			},
-			"fireballVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireball",
-				"val" : 100
-			},
-			"fireWallVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.fireWallTrigger",
-				"val" : 100
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.fire",
+				"val" : -100
 			},
 			"armageddonVulnerablity" :
 			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.armageddon",
-				"val" : 100
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.balefire",
+				"val" : -100
 			},
 			"immuneToWater" :
 			{
-				"type" : "WATER_IMMUNITY",
-				"subtype" : 2 //immune to damage spells only
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.ice", //immune to damage spells only
+				"val" : 100
 			},
 			"oppositeFire" :
 			{
@@ -539,26 +491,23 @@
 				"subtype" : "spell.protectEarth",
 				"val" : 2
 			},
-			"meteorShowerVulnerability" :
+			"rockVulnerablity" :
 			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.meteorShower",
-				"val" : 100
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.rock",
+				"val" : -100
 			},
 			"lightingImmunity" :
 			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.lightningBolt"
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.lightning",
+				"val" : 100
 			},
-			"chainLightingImmunity" :
-			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.chainLightning"
-			},			
 			"armageddonImmunity" :
 			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.armageddon"
+				"subtype" : "damageType.balefire",
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"val" : 100
 			},
 			"oppositeAir" :
 			{
@@ -617,28 +566,23 @@
 				"subtype" : "spell.protectAir",
 				"val" : 2
 			},
-			"meteorShowerImmunity" :
+			"rockImmunity" :
 			{
-				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.meteorShower"
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.rock",
+				"val" : 100
 			},
 			"lightingVulnerablity" :
 			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.lightningBolt",
-				"val" : 100
-			},
-			"chainLightingVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.chainLightning",
-				"val" : 100
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.lightning",
+				"val" : -100
 			},
 			"armageddonVulnerablity" :
 			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.armageddon",
-				"val" : 100
+				"subtype" : "damageType.balefire",
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"val" : -100
 			},
 			"oppositeEarth" :
 			{
@@ -695,20 +639,14 @@
 			},
 			"immuneToFire" : 
 			{
-				"type" : "FIRE_IMMUNITY",
-				"subtype" : 0
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
 			},
-			"frostRingVulnerablity" :
+			"iceVulnerablity" :
 			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.frostRing",
-				"val" : 100
-			},
-			"iceBoltVulnerablity" :
-			{
-				"type" : "MORE_DAMAGE_FROM_SPELL",
-				"subtype" : "spell.iceBolt",
-				"val" : 100
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.ice",
+				"val" : -100
 			},
 			"spellPower" : 
 			{
@@ -764,10 +702,10 @@
 		"upgrades": ["phoenix"],
 		"abilities":
 		{
-			"immuneToFire" :
+			"immuneToFire" : 
 			{
-				"type" : "FIRE_IMMUNITY",
-				"subtype" : 0 //this IS important
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
 			}
 		},
 		"graphics" :
@@ -795,10 +733,10 @@
 				"type" : "CASTS",
 				"val" : 1
 			},
-			"immuneToFire" :
+			"immuneToFire" : 
 			{
-				"type" : "FIRE_IMMUNITY",
-				"subtype" : 0 //this IS important
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
 			},
 			"rebirth" : 
 			{

@@ -51,7 +51,7 @@ namespace GameConstants
 	constexpr int SPELL_LEVELS = 5;
 	constexpr int SPELL_SCHOOL_LEVELS = 4;
 	constexpr int DEFAULT_SCHOOLS = 4;
-	constexpr int DEFAULT_DAMAGE_TYPES = 6;
+	constexpr int DEFAULT_DAMAGE_TYPES = 7;
 	constexpr int CRE_LEVELS = 10; // number of creature experience levels
 
 	constexpr int HERO_GOLD_COST = 2500;
@@ -1355,7 +1355,8 @@ enum class ESubSchool: int8_t
 	ICE 	= 2, //Ice Bolt + Frost Ring
 	LIGHTNING 	= 3, //Lightning + Chain lightning
 	ROCK	= 4, //Meteor shower
-	BALEFIRE = 5 //Armageddon
+	FIRE = 5, //Fireball, Inferno, etc.
+	BALEFIRE = 6, //Armageddon
 };
 
 using SubSchool = Identifier<ESubSchool>;
@@ -1368,6 +1369,7 @@ static const std::vector<std::string> subSchoolMap =
 	"ice",
 	"lightning",
 	"rock",
+	"fire",
 	"balefire"
 };
 

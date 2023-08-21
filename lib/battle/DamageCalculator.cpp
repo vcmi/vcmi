@@ -394,33 +394,16 @@ double DamageCalculator::getDefensePetrificationFactor() const
 double DamageCalculator::getDefenseDamageTypeFactor() const
 {
 	//Some creatures deal less damage, if other creatures have damage type reduction.
-	if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(ESubSchool::MIND)))
-	{
-		if(info.defender->getBonusBearer()->hasBonusOfType(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::MIND)))
-			return 0.5 * (std::clamp(info.defender->getBonusBearer()->valOfBonuses(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::MIND)), -100, 100) / 100.0);
-	}
-	if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(ESubSchool::ICE)))
-	{
-		if(info.defender->getBonusBearer()->hasBonusOfType(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::ICE)))
-			return 0.5 * (std::clamp(info.defender->getBonusBearer()->valOfBonuses(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::ICE)), -100, 100) / 100.0);
-	}
-	if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(ESubSchool::LIGHTNING)))
-	{
-		if(info.defender->getBonusBearer()->hasBonusOfType(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::LIGHTNING)))
-			return 0.5 * (std::clamp(info.defender->getBonusBearer()->valOfBonuses(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::LIGHTNING)), -100, 100) / 100.0);
-	}
-	if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(ESubSchool::ROCK)))
-	{
-		if(info.defender->getBonusBearer()->hasBonusOfType(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::ROCK)))
-			return 0.5 * (std::clamp(info.defender->getBonusBearer()->valOfBonuses(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::ROCK)), -100, 100) / 100.0);
-	}
-	if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(ESubSchool::BALEFIRE)))
-	{
-		if(info.defender->getBonusBearer()->hasBonusOfType(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::BALEFIRE)))
-			return 0.5 * (std::clamp(info.defender->getBonusBearer()->valOfBonuses(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::BALEFIRE)), -100, 100) / 100.0);
+	for (auto i = 1; i < GameConstants::DEFAULT_DAMAGE_TYPES; i++) {
+		if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(i)))
+		{
+			if(info.defender->getBonusBearer()->hasBonusOfType(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(i)))
+				return 0.5 * (std::clamp(info.defender->getBonusBearer()->valOfBonuses(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(i)), -100, 100) / 100.0);
+		}
 	}
 	if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(ESubSchool::MAGIC)))
 	{
+		// Magic is a little bit special, there is no DAMAGE_TYPE_REDUCTION for magic one.
 		// Magic Elementals deal half damage (R8 = 0.50) against Magic Elementals and Black Dragons. This is not affected by the Orb of Vulnerability, Anti-Magic, or Magic Resistance.
 		if(info.defender->getBonusBearer()->valOfBonuses(BonusType::LEVEL_SPELL_IMMUNITY) >= GameConstants::SPELL_LEVELS)
 			return 0.5;

@@ -63,6 +63,17 @@
 			"negative": true
 		},
 		"targetCondition" : {
+			"noneOf" : {
+				"iceImmunity" : {
+					"type" : "selector",
+					"absolute" : false,
+					"parameters" : {
+						"type" : "DAMAGE_TYPE_REDUCTION",
+						"subtype" : "damageType.ice",
+						"minVal" : 100
+					}
+				}
+			}
 		}
 	},
 	"lightningBolt" : {
@@ -89,6 +100,17 @@
 			"negative": true
 		},
 		"targetCondition" : {
+			"noneOf" : {
+				"lightningImmunity" : {
+					"type" : "selector",
+					"absolute" : false,
+					"parameters" : {
+						"type" : "DAMAGE_TYPE_REDUCTION",
+						"subtype" : "damageType.lightning",
+						"minVal" : 100
+					}
+				}
+			}
 		}
 	},
 	"implosion" : {
@@ -160,6 +182,19 @@
 		"flags" : {
 			"damage": true,
 			"negative": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"lightningImmunity" : {
+					"type" : "selector",
+					"absolute" : false,
+					"parameters" : {
+						"type" : "DAMAGE_TYPE_REDUCTION",
+						"subtype" : "damageType.lightning",
+						"minVal" : 100
+					}
+				}
+			}
 		}
 	},
 	"frostRing" : {
@@ -187,6 +222,15 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
+				"iceImmunity" : {
+					"type" : "selector",
+					"absolute" : false,
+					"parameters" : {
+						"type" : "DAMAGE_TYPE_REDUCTION",
+						"subtype" : "damageType.ice",
+						"minVal" : 100
+					}
+				}
 			}
 		}
 	},
@@ -215,6 +259,15 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
+				"fireImmunity" : {
+					"type" : "selector",
+					"absolute" : false,
+					"parameters" : {
+						"type" : "DAMAGE_TYPE_REDUCTION",
+						"subtype" : "damageType.fire",
+						"minVal" : 100
+					}
+				}
 			}
 		}
 	},
@@ -243,6 +296,15 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
+				"fireImmunity" : {
+					"type" : "selector",
+					"absolute" : false,
+					"parameters" : {
+						"type" : "DAMAGE_TYPE_REDUCTION",
+						"subtype" : "damageType.fire",
+						"minVal" : 100
+					}
+				}
 			}
 		}
 	},
@@ -271,6 +333,15 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
+				"rockImmunity" : {
+					"type" : "selector",
+					"absolute" : false,
+					"parameters" : {
+						"type" : "DAMAGE_TYPE_REDUCTION",
+						"subtype" : "damageType.rock",
+						"minVal" : 100
+					}
+				}
 			}
 		}
 	},
@@ -357,6 +428,17 @@
 			"negative": true
 		},
 		"targetCondition" : {
+			"noneOf" : {
+				"balefireImmunity" : {
+					"type" : "selector",
+					"absolute" : false,
+					"parameters" : {
+						"type" : "DAMAGE_TYPE_REDUCTION",
+						"subtype" : "damageType.balefire",
+						"minVal" : 100
+					}
+				}
+			}
 		}
 	},
 	"titanBolt" : {
