@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "battle/BattleAction.h"
 #include "IGameEventsReceiver.h"
 
 #include "spells/ViewSpellInt.h"
@@ -36,6 +35,7 @@ class CCreatureSet;
 class CArmedInstance;
 class IShipyard;
 class IMarket;
+class BattleAction;
 struct BattleResult;
 struct BattleAttack;
 struct BattleStackAttacked;
@@ -107,10 +107,7 @@ public:
 
 	virtual void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain){};
 
-	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
-	{
-		return std::nullopt;
-	}
+	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) = 0;
 
 	virtual void saveGame(BinarySerializer & h, const int version) = 0;
 	virtual void loadGame(BinaryDeserializer & h, const int version) = 0;

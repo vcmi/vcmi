@@ -784,7 +784,7 @@ void ApplyClientNetPackVisitor::visitBattleAttack(BattleAttack & pack)
 
 void ApplyFirstClientNetPackVisitor::visitStartAction(StartAction & pack)
 {
-	cl.curbaction = std::make_optional(pack.ba);
+	cl.currentBattleAction = std::make_unique<BattleAction>(pack.ba);
 	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::actionStarted, pack.ba);
 }
 
@@ -830,8 +830,8 @@ void ApplyClientNetPackVisitor::visitCatapultAttack(CatapultAttack & pack)
 
 void ApplyClientNetPackVisitor::visitEndAction(EndAction & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::actionFinished, *cl.curbaction);
-	cl.curbaction.reset();
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::actionFinished, *cl.currentBattleAction);
+	cl.currentBattleAction.reset();
 }
 
 void ApplyClientNetPackVisitor::visitPackageApplied(PackageApplied & pack)

@@ -94,13 +94,13 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 	owner.waitForAnimations();
 }
 
-void BattleEffectsController::startAction(const BattleAction* action)
+void BattleEffectsController::startAction(const BattleAction & action)
 {
 	owner.checkForAnimations();
 
-	const CStack *stack = owner.curInt->cb->battleGetStackByID(action->stackNumber);
+	const CStack *stack = owner.curInt->cb->battleGetStackByID(action.stackNumber);
 
-	switch(action->actionType)
+	switch(action.actionType)
 	{
 	case EActionType::WAIT:
 		owner.appendBattleLog(stack->formatGeneralMessage(136));

@@ -286,7 +286,7 @@ void BattleActionsController::castThisSpell(SpellID spellID)
 {
 	heroSpellToCast = std::make_shared<BattleAction>();
 	heroSpellToCast->actionType = EActionType::HERO_SPELL;
-	heroSpellToCast->actionSubtype = spellID; //spell number
+	heroSpellToCast->spell = spellID;
 	heroSpellToCast->stackNumber = (owner.attackingHeroInstance->tempOwner == owner.curInt->playerID) ? -1 : -2;
 	heroSpellToCast->side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
 
@@ -314,7 +314,7 @@ void BattleActionsController::castThisSpell(SpellID spellID)
 const CSpell * BattleActionsController::getHeroSpellToCast( ) const
 {
 	if (heroSpellToCast)
-		return SpellID(heroSpellToCast->actionSubtype).toSpell();
+		return heroSpellToCast->spell.toSpell();
 	return nullptr;
 }
 

@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../lib/GameConstants.h"
+#include "../../lib/GameConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
@@ -31,7 +31,7 @@ class PlayerMessageProcessor
 	void cheatBuildTown(PlayerColor player, const CGTownInstance * town);
 	void cheatGiveArmy(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 	void cheatGiveMachines(PlayerColor player, const CGHeroInstance * hero);
-	void cheatGiveArtifacts(PlayerColor player, const CGHeroInstance * hero);
+	void cheatGiveArtifacts(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 	void cheatLevelup(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 	void cheatExperience(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 	void cheatMovement(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);

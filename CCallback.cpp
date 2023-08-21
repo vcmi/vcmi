@@ -206,7 +206,7 @@ bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 void CBattleCallback::battleMakeSpellAction(const BattleAction & action)
 {
 	assert(action.actionType == EActionType::HERO_SPELL);
-	MakeCustomAction mca(action);
+	MakeAction mca(action);
 	sendRequest(&mca);
 }
 

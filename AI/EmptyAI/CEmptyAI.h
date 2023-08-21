@@ -32,6 +32,7 @@ public:
 	void showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
 	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) override;
 	void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
+	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
 };
 
 #define NAME "EmptyAI 0.1"

@@ -156,7 +156,7 @@ public:
 	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 	void requestAutofightingAIToTakeAction();
 
-	void giveCommand(EActionType action, BattleHex tile = BattleHex(), si32 additional = -1);
+	void giveCommand(EActionType action, BattleHex tile = BattleHex(), SpellID spell = SpellID::NONE);
 	void sendCommand(BattleAction command, const CStack * actor = nullptr);
 
 	const CGHeroInstance *getActiveHero(); //returns hero that can currently cast a spell
@@ -188,7 +188,7 @@ public:
 	void addToAnimationStage( EAnimationEvents event, const AwaitingAnimationAction & action);
 
 	//call-ins
-	void startAction(const BattleAction* action);
+	void startAction(const BattleAction & action);
 	void stackReset(const CStack * stack);
 	void stackAdded(const CStack * stack); //new stack appeared on battlefield
 	void stackRemoved(uint32_t stackID); //stack disappeared from batlefiled
@@ -211,7 +211,7 @@ public:
 	void displaySpellEffect(const CSpell * spell, BattleHex destinationTile); //displays spell`s affected animation
 	void displaySpellHit(const CSpell * spell, BattleHex destinationTile); //displays spell`s affected animation
 
-	void endAction(const BattleAction* action);
+	void endAction(const BattleAction & action);
 
 	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> oi);
 	void obstacleRemoved(const std::vector<ObstacleChanges> & obstacles);

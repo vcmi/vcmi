@@ -66,7 +66,6 @@ class CPlayerInterface : public CGameInterface, public IUpdateable
 	int autosaveCount;
 
 	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
-	const BattleAction *curAction; //during the battle - action currently performed by active stack (or nullptr)
 
 	ObjectInstanceID destinationTeleport; //contain -1 or object id if teleportation
 	int3 destinationTeleportPos;
@@ -173,6 +172,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
 	void battleGateStateChanged(const EGateState state) override;
 	void yourTacticPhase(int distance) override;
+	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
 
 public: // public interface for use by client via LOCPLINT access
 

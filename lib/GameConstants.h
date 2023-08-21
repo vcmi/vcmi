@@ -998,20 +998,21 @@ namespace Date
 	};
 }
 
-enum class EActionType : int32_t
+enum class EActionType : int8_t
 {
-	CANCEL = -3,
-	END_TACTIC_PHASE = -2,
-	INVALID = -1,
-	NO_ACTION = 0,
-	HERO_SPELL,
-	WALK,
-	DEFEND,
+	NO_ACTION,
+
+	END_TACTIC_PHASE,
 	RETREAT,
 	SURRENDER,
+
+	HERO_SPELL,
+
+	WALK,
+	WAIT,
+	DEFEND,
 	WALK_AND_ATTACK,
 	SHOOT,
-	WAIT,
 	CATAPULT,
 	MONSTER_SPELL,
 	BAD_MORALE,
@@ -1377,6 +1378,13 @@ enum class EHealPower : ui8
 {
 	ONE_BATTLE,
 	PERMANENT
+};
+
+enum class EBattleResult : int8_t
+{
+	NORMAL = 0,
+	ESCAPE = 1,
+	SURRENDER = 2
 };
 
 // Typedef declarations

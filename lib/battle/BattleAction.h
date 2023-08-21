@@ -28,7 +28,7 @@ public:
 	ui32 stackNumber; //stack ID, -1 left hero, -2 right hero,
 	EActionType actionType; //use ActionType enum for values
 
-	si32 actionSubtype;
+	SpellID spell;
 
 	BattleAction();
 
@@ -43,6 +43,9 @@ public:
 	static BattleAction makeRetreat(ui8 side);
 	static BattleAction makeSurrender(ui8 side);
 
+	bool isTacticsAction() const;
+	bool isUnitAction() const;
+	bool isSpellAction() const;
 	std::string toString() const;
 
 	void aimToHex(const BattleHex & destination);
@@ -56,7 +59,7 @@ public:
 		h & side;
 		h & stackNumber;
 		h & actionType;
-		h & actionSubtype;
+		h & spell;
 		h & target;
 	}
 private:

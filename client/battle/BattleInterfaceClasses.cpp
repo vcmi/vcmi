@@ -567,12 +567,12 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 		int text = 304;
 		switch(br.result)
 		{
-		case BattleResult::NORMAL:
+		case EBattleResult::NORMAL:
 			break;
-		case BattleResult::ESCAPE:
+		case EBattleResult::ESCAPE:
 			text = 303;
 			break;
-		case BattleResult::SURRENDER:
+		case EBattleResult::SURRENDER:
 			text = 302;
 			break;
 		default:
@@ -601,14 +601,14 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 		std::string videoName = "LBSTART.BIK";
 		switch(br.result)
 		{
-		case BattleResult::NORMAL:
+		case EBattleResult::NORMAL:
 			break;
-		case BattleResult::ESCAPE:
+		case EBattleResult::ESCAPE:
 			musicName = "Music/Retreat Battle";
 			videoName = "RTSTART.BIK";
 			text = 310;
 			break;
-		case BattleResult::SURRENDER:
+		case EBattleResult::SURRENDER:
 			musicName = "Music/Surrender Battle";
 			videoName = "SURRENDER.BIK";
 			text = 309;
