@@ -18,6 +18,7 @@
 #include "../CServerHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
+#include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -27,7 +28,9 @@
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
+#include "../render/Canvas.h"
 #include "../render/IImage.h"
+#include "../render/Graphics.h"
 
 #include "../../CCallback.h"
 
@@ -37,9 +40,12 @@
 #include "../../lib/GameSettings.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/campaign/CampaignState.h"
+#include "../../lib/mapping/CMap.h"
+#include "../../lib/mapping/CMapService.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
+#include "../../lib/TerrainHandler.h"
 #include "../../lib/serializer/Connection.h"
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
@@ -357,7 +363,7 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 		if(curItems[py]->date != "")
 			text += boost::str(boost::format("\r\n\r\n%1%:\r\n%2%") % CGI->generaltexth->translate("vcmi.lobby.creationDate") % curItems[py]->date);
 
-		CRClickPopup::createAndPush(text);
+		GH.windows().createAndPushWindow<CMapInfoTooltipBox>(text, ResourceID(curItems[py]->fileURI), tabType);
 	}
 }
 
@@ -802,6 +808,121 @@ std::unordered_set<ResourceID> SelectionTab::getFiles(std::string dirURI, int re
 	{
 		return ident.getType() == resType && boost::algorithm::starts_with(ident.getName(), dirURI);
 	});
+
+	return ret;
+}
+
+SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceID resource, ESelectionScreen tabType)
+	: CWindowObject(BORDERED | RCLICK_POPUP)
+{
+	drawPlayerElements = tabType == ESelectionScreen::newGame;
+	renderImage = tabType == ESelectionScreen::newGame && settings["lobby"]["mapPreview"].Bool();
+
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	std::vector<std::shared_ptr<IImage>> mapLayerImages;
+	if(renderImage)
+		mapLayerImages = createMinimaps(ResourceID(resource.getName(), EResType::MAP), IMAGE_SIZE);
+
+	if(mapLayerImages.size() == 0)
+		renderImage = false;
+
+	pos = Rect(0, 0, 3 * BORDER + 2 * IMAGE_SIZE, 2000);
+
+	auto drawLabel = [&]() {
+		label = std::make_shared<CTextBox>(text, Rect(BORDER, BORDER, BORDER + 2 * IMAGE_SIZE, 350), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
+		if(!label->slider)
+			label->resize(Point(BORDER + 2 * IMAGE_SIZE, label->label->textSize.y));
+	};
+	drawLabel();
+
+	int textHeight = std::min(350, label->label->textSize.y);
+	pos.h = BORDER + textHeight + BORDER;
+	if(renderImage)
+		pos.h += IMAGE_SIZE + BORDER;
+	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
+	updateShadow();
+
+	drawLabel();
+
+	if(renderImage)
+	{
+		if(mapLayerImages.size() == 1)
+			image1 = std::make_shared<CPicture>(mapLayerImages[0], Point(BORDER + (BORDER + IMAGE_SIZE) / 2, textHeight + 2 * BORDER));
+		else
+		{
+			image1 = std::make_shared<CPicture>(mapLayerImages[0], Point(BORDER, textHeight + 2 * BORDER));
+			image2 = std::make_shared<CPicture>(mapLayerImages[1], Point(BORDER + IMAGE_SIZE + BORDER, textHeight + 2 * BORDER));
+		}
+	}
+
+	center(GH.getCursorPosition()); //center on mouse
+#ifdef VCMI_MOBILE
+	moveBy({0, -pos.h / 2});
+#endif
+	fitToScreen(10);
+}
+
+Canvas SelectionTab::CMapInfoTooltipBox::createMinimapForLayer(std::unique_ptr<CMap> & map, int layer)
+{
+	Canvas canvas = Canvas(Point(map->width, map->height));
+
+	for (int y = 0; y < map->height; ++y)
+		for (int x = 0; x < map->width; ++x)
+		{
+			TerrainTile & tile = map->getTile(int3(x, y, layer));
+
+			ColorRGBA color = tile.terType->minimapUnblocked;
+			if (tile.blocked && (!tile.visitable))
+				color = tile.terType->minimapBlocked;
+
+			if(drawPlayerElements)
+				// if object at tile is owned - it will be colored as its owner
+				for (const CGObjectInstance *obj : tile.blockingObjects)
+				{
+					PlayerColor player = obj->getOwner();
+					if(player == PlayerColor::NEUTRAL)
+					{
+						color = graphics->neutralColor;
+						break;
+					}
+					if (player < PlayerColor::PLAYER_LIMIT)
+					{
+						color = graphics->playerColors[player.getNum()];
+						break;
+					}
+				}
+
+			canvas.drawPoint(Point(x, y), color);
+		}
+	
+	return canvas;
+}
+
+std::vector<std::shared_ptr<IImage>> SelectionTab::CMapInfoTooltipBox::createMinimaps(ResourceID resource, int size)
+{
+	std::vector<std::shared_ptr<IImage>> ret = std::vector<std::shared_ptr<IImage>>();
+
+	CMapService mapService;
+	std::unique_ptr<CMap> map;
+	try
+	{
+		map = mapService.loadMap(resource);
+	}
+	catch (...)
+	{
+		return ret;
+	}
+
+	for(int i = 0; i < (map->twoLevel ? 2 : 1); i++)
+	{
+		Canvas canvas = createMinimapForLayer(map, i);
+		Canvas canvasScaled = Canvas(Point(size, size));
+		canvasScaled.drawScaled(canvas, Point(0, 0), Point(size, size));
+		std::shared_ptr<IImage> img = IImage::createFromSurface(canvasScaled.getInternalSurface());
+		
+		ret.push_back(img);
+	}
 
 	return ret;
 }

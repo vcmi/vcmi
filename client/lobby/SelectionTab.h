@@ -10,10 +10,15 @@
 #pragma once
 
 #include "CSelectionBase.h"
+VCMI_LIB_NAMESPACE_BEGIN
+class CMap;
+VCMI_LIB_NAMESPACE_END
 #include "../../lib/mapping/CMapInfo.h"
 
 class CSlider;
 class CLabel;
+class CPicture;
+class IImage;
 
 enum ESortBy
 {
@@ -62,6 +67,24 @@ class SelectionTab : public CIntObject
 	std::shared_ptr<CAnimation> iconsVictoryCondition;
 	std::shared_ptr<CAnimation> iconsLossCondition;
 
+	class CMapInfoTooltipBox : public CWindowObject
+	{
+		const int IMAGE_SIZE = 169;
+		const int BORDER = 30;
+
+		bool drawPlayerElements;
+		bool renderImage;
+
+		std::shared_ptr<CFilledTexture> backgroundTexture;
+		std::shared_ptr<CTextBox> label;
+		std::shared_ptr<CPicture> image1;
+		std::shared_ptr<CPicture> image2;
+
+		Canvas createMinimapForLayer(std::unique_ptr<CMap> & map, int layer);
+		std::vector<std::shared_ptr<IImage>> createMinimaps(ResourceID resource, int size);
+	public:
+		CMapInfoTooltipBox(std::string text, ResourceID resource, ESelectionScreen tabType);
+	};
 public:
 	std::vector<std::shared_ptr<ElementInfo>> allItems;
 	std::vector<std::shared_ptr<ElementInfo>> curItems;
@@ -100,7 +123,6 @@ public:
 	void restoreLastSelection();
 
 private:
-
 	std::shared_ptr<CPicture> background;
 	std::shared_ptr<CSlider> slider;
 	std::vector<std::shared_ptr<CButton>> buttonsSortBy;
