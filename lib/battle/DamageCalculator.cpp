@@ -398,7 +398,7 @@ double DamageCalculator::getDefenseDamageTypeFactor() const
 		if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(i)))
 		{
 			if(info.defender->getBonusBearer()->hasBonusOfType(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(i)))
-				return 0.5 * (std::clamp(info.defender->getBonusBearer()->valOfBonuses(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(i)), -100, 100) / 100.0);
+				return 0.5 * (std::clamp(info.defender->getBonusBearer()->valOfBonuses(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(i)), 0, 100) / 100.0);
 		}
 	}
 	if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(ESubSchool::MAGIC)))
