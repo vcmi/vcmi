@@ -90,7 +90,7 @@ public:
 
 	void preInit(Services * services);
 
-	void init(const IMapService * mapService, StartInfo * si, bool allowSavingRandomMap = false, Load::Progress * progressTracking = nullptr);
+	void init(const IMapService * mapService, StartInfo * si, Load::Progress *&, bool allowSavingRandomMap = false);
 	void updateOnLoad(StartInfo * si);
 
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
@@ -167,7 +167,7 @@ public:
 private:
 	// ----- initialization -----
 	void preInitAuto();
-	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::Progress * progressTracking = nullptr);
+	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::Progress *& progressTracking);
 	void checkMapChecksum();
 	void initGlobalBonuses();
 	void initGrailPosition();

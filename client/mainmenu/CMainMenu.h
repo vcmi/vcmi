@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "../widgets/Images.h"
 #include "../windows/CWindowObject.h"
 #include "../../lib/JsonNode.h"
 #include "../../lib/LoadProgress.h"
@@ -26,6 +27,7 @@ class CTabbedInt;
 class CAnimation;
 class CButton;
 class CFilledTexture;
+class CLabel;
 
 
 // TODO: Find new location for these enums
@@ -181,6 +183,8 @@ public:
 
 class CLoadingScreen : virtual public CWindowObject, virtual public Load::Progress
 {
+	std::vector<std::shared_ptr<CAnimImage>> progressBlocks;
+	
 	std::string getBackground();
 
 public:	

@@ -291,7 +291,7 @@ bool CVCMIServer::prepareToStartGame()
 				loadProgress->progress = progressTracking->get();
 				addToAnnounceQueue(std::move(loadProgress));
 			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		}
 		progressTrackingFinished = false;
 	});

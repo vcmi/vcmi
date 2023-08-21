@@ -585,7 +585,22 @@ void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
 CLoadingScreen::CLoadingScreen()
 	: CWindowObject(BORDERED, getBackground())
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	
 	CCS->musich->stopMusic(5000);
+	
+	const auto & conf = CMainMenuConfig::get().getConfig()["loading"];
+	
+	const int posx = conf["x"].Integer(), posy = conf["y"].Integer();
+	const int blockSize = conf["size"].Integer();
+	const int blocksAmount = conf["amount"].Integer();
+			
+	for(int i = 0; i < blocksAmount; ++i)
+	{
+		progressBlocks.push_back(std::make_shared<CAnimImage>(conf["name"].String(), i, 0, posx + i * blockSize, posy));
+		progressBlocks.back()->deactivate();
+		progressBlocks.back()->visible = false;
+	}
 }
 
 CLoadingScreen::~CLoadingScreen()
@@ -597,13 +612,23 @@ void CLoadingScreen::showAll(Canvas & to)
 	//FIXME: filling screen with transparency? BLACK intended?
 	//Rect rect(0, 0, to->w, to->h);
 	//CSDL_Ext::fillRect(to, rect, Colors::TRANSPARENCY);
-
+	if(!progressBlocks.empty())
+	{
+		int status = float(get()) / (2.55f * progressBlocks.size());
+		
+		for(int i = 0; i < status; ++i)
+		{
+			progressBlocks.at(i)->activate();
+			progressBlocks.at(i)->visible = true;
+		}
+	}
+	
 	CWindowObject::showAll(to);
 }
 
 std::string CLoadingScreen::getBackground()
 {
-	const auto & conf = CMainMenuConfig::get().getConfig()["loading"].Vector();
+	const auto & conf = CMainMenuConfig::get().getConfig()["loading"]["background"].Vector();
 
 	if(conf.empty())
 	{

@@ -1599,7 +1599,7 @@ void CGameHandler::reinitScripting()
 #endif
 }
 
-void CGameHandler::init(StartInfo *si, Load::Progress * progressTracking)
+void CGameHandler::init(StartInfo *si, Load::Progress *& progressTracking)
 {
 	if (si->seedToBeUsed == 0)
 	{
@@ -1609,7 +1609,7 @@ void CGameHandler::init(StartInfo *si, Load::Progress * progressTracking)
 	gs = new CGameState();
 	gs->preInit(VLC);
 	logGlobal->info("Gamestate created!");
-	gs->init(&mapService, si, false, progressTracking);
+	gs->init(&mapService, si, progressTracking);
 	logGlobal->info("Gamestate initialized!");
 
 	// reset seed, so that clients can't predict any following random values

@@ -131,7 +131,10 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pac
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyLoadProgress(LobbyLoadProgress & pack)
 {
 	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+	{
 		w->set(pack.progress);
+		w->redraw();
+	}
 	else
 		GH.windows().createAndPushWindow<CLoadingScreen>();
 }
