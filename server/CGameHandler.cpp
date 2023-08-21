@@ -1163,7 +1163,10 @@ int64_t CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<bat
 	if(!bat.shot() &&
 		!def->isClone() &&
 		def->hasBonusOfType(BonusType::FIRE_SHIELD) &&
-		!attackerState->hasBonusOfType(BonusType::FIRE_IMMUNITY) &&
+		!attackerState->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, SpellSchool(ESpellSchool::FIRE)) &&
+		!attackerState->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, SpellSchool(ESpellSchool::FIRE)) &&
+		attackerState->valOfBonuses(BonusType::SPELL_DAMAGE_REDUCTION, SpellSchool(ESpellSchool::FIRE)) < 100 &&
+		attackerState->valOfBonuses(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(ESubSchool::FIRE)) < 100 &&
 		CStack::isMeleeAttackPossible(attackerState.get(), def) // attacked needs to be adjacent to defender for fire shield to trigger (e.g. Dragon Breath attack)
 			)
 	{
@@ -2724,7 +2727,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 	cs1.learn = true;
 	cs1.hid = toHero;//giving spells to first hero
 	for (auto it : h1->getSpellsInSpellbook())
-		if (h2Lvl >= it.toSpell()->level && !h2->spellbookContainsSpell(it))//hero can learn it and don't have it yet
+		if (h2Lvl >= it.toSpell()->getLevel() && !h2->spellbookContainsSpell(it))//hero can learn it and don't have it yet
 			cs1.spells.insert(it);//spell to learn
 
 	ChangeSpells cs2;
@@ -2732,7 +2735,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 	cs2.hid = fromHero;
 
 	for (auto it : h2->getSpellsInSpellbook())
-		if (h1Lvl >= it.toSpell()->level && !h1->spellbookContainsSpell(it))
+		if (h1Lvl >= it.toSpell()->getLevel() && !h1->spellbookContainsSpell(it))
 			cs2.spells.insert(it);
 
 	if (!cs1.spells.empty() || !cs2.spells.empty())//create a message

@@ -60,8 +60,7 @@ class DLL_LINKAGE DamageCalculator
 	double getDefenseUnluckyFactor() const;
 	double getDefenseForgetfulnessFactor() const;
 	double getDefensePetrificationFactor() const;
-	double getDefenseMagicFactor() const;
-	double getDefenseMindFactor() const;
+	double getDefenseDamageTypeFactor() const;
 
 	std::vector<double> getAttackFactors() const;
 	std::vector<double> getDefenseFactors() const;

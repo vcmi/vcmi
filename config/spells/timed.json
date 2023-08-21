@@ -806,7 +806,15 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
-				"bonus.MIND_IMMUNITY" : "normal",
+				"mindImmunity" : {
+					"type" : "selector",
+					"absolute" : false,
+					"parameters" : {
+						"type" : "DAMAGE_TYPE_REDUCTION",
+						"subtype" : "damageType.mind",
+						"minVal" : 100
+					}
+				},
 				"bonus.NON_LIVING" : "normal",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "absolute"
@@ -859,7 +867,15 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
-				"bonus.MIND_IMMUNITY" : "normal",
+				"mindImmunity" : {
+					"type" : "selector",
+					"absolute" : false,
+					"parameters" : {
+						"type" : "DAMAGE_TYPE_REDUCTION",
+						"subtype" : "damageType.mind",
+						"minVal" : 100
+					}
+				},
 				"bonus.NON_LIVING" : "normal",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "absolute"
@@ -1242,7 +1258,15 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
-				"bonus.MIND_IMMUNITY" : "normal",
+				"mindImmunity" : {
+					"type" : "selector",
+					"absolute" : false,
+					"parameters" : {
+						"type" : "DAMAGE_TYPE_REDUCTION",
+						"subtype" : "damageType.mind",
+						"minVal" : 100
+					}
+				},
 				"bonus.NON_LIVING" : "normal",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "normal"
@@ -1307,8 +1331,16 @@
 				"healthValueSpecial" : "absolute"
 			},
 			"noneOf" : {
+				"mindImmunity" : {
+					"type" : "selector",
+					"absolute" : false,
+					"parameters" : {
+						"type" : "DAMAGE_TYPE_REDUCTION",
+						"subtype" : "damageType.mind",
+						"minVal" : 100
+					}
+				},
 				"bonus.SIEGE_WEAPON":"absolute",
-				"bonus.MIND_IMMUNITY":"normal",
 				"bonus.UNDEAD":"normal",
 				"bonus.NON_LIVING":"normal"
 			}
@@ -1376,7 +1408,15 @@
 				"bonus.SHOOTER" : "absolute"
 			},
 			"noneOf" : {
-				"bonus.MIND_IMMUNITY" : "normal",
+				"mindImmunity" : {
+					"type" : "selector",
+					"absolute" : false,
+					"parameters" : {
+						"type" : "DAMAGE_TYPE_REDUCTION",
+						"subtype" : "damageType.mind",
+						"minVal" : 100
+					}
+				},
 				"bonus.NON_LIVING" : "normal",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "normal"
@@ -1434,7 +1474,15 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
-				"bonus.MIND_IMMUNITY" : "normal",
+				"mindImmunity" : {
+					"type" : "selector",
+					"absolute" : false,
+					"parameters" : {
+						"type" : "DAMAGE_TYPE_REDUCTION",
+						"subtype" : "damageType.mind",
+						"minVal" : 100
+					}
+				},
 				"bonus.NON_LIVING" : "normal",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "absolute"

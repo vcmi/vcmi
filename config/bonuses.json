@@ -349,14 +349,6 @@
 		}
 	},
 
-	"MIND_IMMUNITY":
-	{
-		"graphics":
-		{
-			"icon":  "zvs/Lib1.res/E_MIND"
-		}
-	},
-
 	"NONE":
 	{
 		"hidden": true

@@ -281,6 +281,17 @@
 			"special": true
 		},
 		"targetCondition" : {
+			"noneOf" :{
+				"fireImmunity" : {
+					"type" : "selector",
+					"absolute" : false,
+					"parameters" : {
+						"type" : "DAMAGE_TYPE_REDUCTION",
+						"subtype" : "damageType.fire",
+						"minVal" : 100
+					}
+				}
+			}
 		}
 	},
 	"fireWall" : {

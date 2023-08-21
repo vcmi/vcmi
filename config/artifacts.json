@@ -774,8 +774,9 @@
 				"valueType" : "BASE_NUMBER"
 			},
 			{
-				"type" : "MIND_IMMUNITY",
-				"val" : 0,
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"subtype" : "damageType.mind",
+				"val" : 100,
 				"valueType" : "BASE_NUMBER"
 			}
 		],
@@ -1560,15 +1561,9 @@
 	{
 		"bonuses" : [
 			{
-				"subtype" : "spell.lightningBolt",
-				"type" : "SPELL_IMMUNITY",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"subtype" : "spell.chainLightning",
-				"type" : "SPELL_IMMUNITY",
-				"val" : 0,
+				"subtype" : "damageType.lightning",
+				"type" : "DAMAGE_TYPE_REDUCTION",
+				"val" : 100,
 				"valueType" : "BASE_NUMBER"
 			}
 		],
