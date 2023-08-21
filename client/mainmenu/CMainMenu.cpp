@@ -614,7 +614,7 @@ void CLoadingScreen::showAll(Canvas & to)
 	//CSDL_Ext::fillRect(to, rect, Colors::TRANSPARENCY);
 	if(!progressBlocks.empty())
 	{
-		int status = float(get()) / (2.55f * progressBlocks.size());
+		int status = float(get()) / 255.f * progressBlocks.size();
 		
 		for(int i = 0; i < status; ++i)
 		{
