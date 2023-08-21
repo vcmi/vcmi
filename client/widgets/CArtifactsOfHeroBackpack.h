@@ -33,5 +33,5 @@ private:
 	std::shared_ptr<CListBoxWithCallback> backpackListBox;
 	std::vector<std::shared_ptr<CPicture>> backpackSlotsBackgrounds;
 	const size_t HERO_BACKPACK_WINDOW_SLOT_COLUMNS = 8;
-	const size_t HERO_BACKPACK_WINDOW_SLOT_LINES = 8;
+	const size_t HERO_BACKPACK_WINDOW_SLOT_ROWS = 8;
 };
