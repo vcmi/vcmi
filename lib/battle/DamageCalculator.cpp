@@ -394,7 +394,7 @@ double DamageCalculator::getDefensePetrificationFactor() const
 double DamageCalculator::getDefenseDamageTypeFactor() const
 {
 	//Some creatures deal less damage, if other creatures have damage type reduction.
-	for (auto i = 1; i < GameConstants::DEFAULT_DAMAGE_TYPES; i++) {
+	for (auto i = 1; i < std::numeric_limits<int8_t>::max(); i++) {
 		if(info.attacker->getBonusBearer()->hasBonusOfType(BonusType::ATTACK_DAMAGE_TYPE, SubSchool(i)))
 		{
 			if(info.defender->getBonusBearer()->hasBonusOfType(BonusType::DAMAGE_TYPE_REDUCTION, SubSchool(i)))
