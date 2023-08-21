@@ -17,6 +17,7 @@
 #include "../widgets/Images.h"
 #include "CMessage.h"
 #include "render/Canvas.h"
+#include "CPlayerInterface.h"
 
 CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
 	: CWindowObject((EOptions)0)
@@ -41,5 +42,5 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
 void CHeroBackpackWindow::showAll(Canvas &to)
 {
 	CIntObject::showAll(to);
-	CMessage::drawBorder(PlayerColor(1), to.getInternalSurface(), pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+	CMessage::drawBorder(PlayerColor(LOCPLINT->playerID), to.getInternalSurface(), pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
