@@ -399,15 +399,7 @@ void BattleStacksController::addNewAnim(BattleAnimation *anim)
 void BattleStacksController::stackRemoved(uint32_t stackID)
 {
 	if (getActiveStack() && getActiveStack()->unitId() == stackID)
-	{
-		BattleAction action;
-		action.side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
-		action.actionType = EActionType::NO_ACTION;
-		action.stackNumber = getActiveStack()->unitId();
-
-		LOCPLINT->cb->battleMakeUnitAction(action);
 		setActiveStack(nullptr);
-	}
 }
 
 void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)
