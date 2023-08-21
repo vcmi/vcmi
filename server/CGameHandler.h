@@ -83,8 +83,6 @@ class CGameHandler : public IGameCallback, public CBattleInfoCallback, public En
 	CVCMIServer * lobby;
 	std::shared_ptr<CApplier<CBaseForGHApply>> applier;
 
-	TurnTimerHandler turnTimerHandler;
-
 public:
 	using CCallbackBase::setBattle;
 
@@ -108,6 +106,8 @@ public:
 
 
 	SpellCastEnvironment * spellEnv;
+	
+	TurnTimerHandler turnTimerHandler;
 
 	const Services * services() const override;
 	const BattleCb * battle() const override;

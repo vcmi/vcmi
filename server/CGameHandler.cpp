@@ -1066,10 +1066,8 @@ void CGameHandler::run(bool resume)
 				{
 					turnTimerHandler.onPlayerMakingTurn(gs->players[playerColor], waitTime);
 					if(gs->curB)
-					{
-						turnTimerHandler.onBattleLoop(gs->players[gs->curB->getSidePlayer(BattleSide::ATTACKER)], waitTime);
-						turnTimerHandler.onBattleLoop(gs->players[gs->curB->getSidePlayer(BattleSide::DEFENDER)], waitTime);
-					}
+						turnTimerHandler.onBattleLoop(waitTime);
+
 					static time_duration p = milliseconds(waitTime);
 					states.cv.timed_wait(lock, p);
 				}
@@ -1272,11 +1270,11 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 		if(!transit)
 		{
-			for(auto topQuery = queries.topQuery(h->tempOwner); true; topQuery = queries.topQuery(h->tempOwner))
+			for(auto topQuery = queries->topQuery(h->tempOwner); true; topQuery = queries->topQuery(h->tempOwner))
 			{
 				moveQuery = std::dynamic_pointer_cast<CHeroMovementQuery>(topQuery);
 				if(moveQuery)
-					queries.popIfTop(moveQuery);
+					queries->popIfTop(moveQuery);
 				else
 					break;
 			}

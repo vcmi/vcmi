@@ -315,6 +315,8 @@ void BattleFlowProcessor::activateNextStack()
 
 		if(!removeGhosts.changedStacks.empty())
 			gameHandler->sendAndApply(&removeGhosts);
+		
+		gameHandler->turnTimerHandler.onBattleNextStack(*next);
 
 		if (!tryMakeAutomaticAction(next))
 		{
