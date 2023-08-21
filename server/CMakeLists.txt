@@ -1,11 +1,21 @@
 set(server_SRCS
 		StdInc.cpp
 
+		battles/BattleActionProcessor.cpp
+		battles/BattleFlowProcessor.cpp
+		battles/BattleProcessor.cpp
+		battles/BattleResultProcessor.cpp
+
+		queries/BattleQueries.cpp
+		queries/CQuery.cpp
+		queries/MapQueries.cpp
+		queries/QueriesProcessor.cpp
+
+		processors/HeroPoolProcessor.cpp
+		processors/PlayerMessageProcessor.cpp
+
 		CGameHandler.cpp
-		HeroPoolProcessor.cpp
-		PlayerMessageProcessor.cpp
 		ServerSpellCastEnvironment.cpp
-		CQuery.cpp
 		CVCMIServer.cpp
 		NetPacksServer.cpp
 		NetPacksLobbyServer.cpp
@@ -14,11 +24,21 @@ set(server_SRCS
 set(server_HEADERS
 		StdInc.h
 
+		battles/BattleActionProcessor.h
+		battles/BattleFlowProcessor.h
+		battles/BattleProcessor.h
+		battles/BattleResultProcessor.h
+
+		queries/BattleQueries.h
+		queries/CQuery.h
+		queries/MapQueries.h
+		queries/QueriesProcessor.h
+
+		processors/HeroPoolProcessor.h
+		processors/PlayerMessageProcessor.h
+
 		CGameHandler.h
-		HeroPoolProcessor.h
-		PlayerMessageProcessor.h
 		ServerSpellCastEnvironment.h
-		CQuery.h
 		CVCMIServer.h
 		LobbyNetPackVisitors.h
 		ServerNetPackVisitors.h

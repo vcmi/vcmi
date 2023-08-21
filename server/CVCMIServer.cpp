@@ -36,7 +36,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 #include "CGameHandler.h"
-#include "PlayerMessageProcessor.h"
+#include "processors/PlayerMessageProcessor.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/GameConstants.h"
 #include "../lib/logging/CBasicLogConfigurator.h"

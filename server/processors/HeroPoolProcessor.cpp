@@ -10,17 +10,17 @@
 #include "StdInc.h"
 #include "HeroPoolProcessor.h"
 
-#include "CGameHandler.h"
+#include "../CGameHandler.h"
 
-#include "../lib/CHeroHandler.h"
-#include "../lib/CPlayerState.h"
-#include "../lib/GameSettings.h"
-#include "../lib/NetPacks.h"
-#include "../lib/StartInfo.h"
-#include "../lib/mapObjects/CGTownInstance.h"
-#include "../lib/gameState/CGameState.h"
-#include "../lib/gameState/TavernHeroesPool.h"
-#include "../lib/gameState/TavernSlot.h"
+#include "../../lib/CHeroHandler.h"
+#include "../../lib/CPlayerState.h"
+#include "../../lib/GameSettings.h"
+#include "../../lib/NetPacks.h"
+#include "../../lib/StartInfo.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/gameState/CGameState.h"
+#include "../../lib/gameState/TavernHeroesPool.h"
+#include "../../lib/gameState/TavernSlot.h"
 
 HeroPoolProcessor::HeroPoolProcessor()
 	: gameHandler(nullptr)

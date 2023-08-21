@@ -12,6 +12,7 @@
 
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
+#include "../../lib/battle/BattleAction.h"
 
 void CEmptyAI::saveGame(BinarySerializer & h, const int version)
 {
@@ -72,4 +73,9 @@ void CEmptyAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance
 void CEmptyAI::showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
 {
 	cb->selectionMade(0, askID);
+}
+
+std::optional<BattleAction> CEmptyAI::makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
+{
+	return std::nullopt;
 }

@@ -13,6 +13,7 @@
 #include "../../lib/CStack.h"
 #include "../../CCallback.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/battle/BattleAction.h"
 
 static std::shared_ptr<CBattleCallback> cbc;
 

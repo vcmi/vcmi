@@ -13,7 +13,6 @@
 #include <vcmi/Environment.h>
 
 #include "../lib/IGameCallback.h"
-#include "../lib/battle/BattleAction.h"
 #include "../lib/battle/CBattleInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -25,6 +24,7 @@ class CBattleGameInterface;
 class CGameInterface;
 class BinaryDeserializer;
 class BinarySerializer;
+class BattleAction;
 
 template<typename T> class CApplier;
 
@@ -118,7 +118,7 @@ public:
 
 	std::map<PlayerColor, std::vector<std::shared_ptr<IBattleEventsReceiver>>> additionalBattleInts;
 
-	std::optional<BattleAction> curbaction;
+	std::unique_ptr<BattleAction> currentBattleAction;
 
 	CClient();
 	~CClient();

@@ -60,7 +60,7 @@ public:
 
 	BattleEffectsController(BattleInterface & owner);
 
-	void startAction(const BattleAction* action);
+	void startAction(const BattleAction & action);
 
 	//displays custom effect on the battlefield
 	void displayEffect(EBattleEffect effect, const BattleHex & destTile);

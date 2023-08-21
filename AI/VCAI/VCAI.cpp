@@ -2890,4 +2890,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	return true;
 }
 
-
+std::optional<BattleAction> VCAI::makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
+{
+	return std::nullopt;
+}
