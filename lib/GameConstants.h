@@ -998,7 +998,7 @@ namespace Date
 	};
 }
 
-enum class EActionType : int32_t
+enum class EActionType : int8_t
 {
 	NO_ACTION,
 
@@ -1380,7 +1380,7 @@ enum class EHealPower : ui8
 	PERMANENT
 };
 
-enum class EBattleResult : ui8
+enum class EBattleResult : int8_t
 {
 	NORMAL = 0,
 	ESCAPE = 1,
