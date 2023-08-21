@@ -638,11 +638,6 @@ void MakeAction::visitTyped(ICPackVisitor & visitor)
 	visitor.visitMakeAction(*this);
 }
 
-void MakeCustomAction::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitMakeCustomAction(*this);
-}
-
 void DigWithHero::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitDigWithHero(*this);
@@ -2289,34 +2284,35 @@ void StartAction::applyGs(CGameState *gs)
 		return;
 	}
 
-	if(ba.actionType != EActionType::HERO_SPELL) //don't check for stack if it's custom action by hero
+	if (ba.isUnitAction())
 	{
-		assert(st);
+		assert(st); // stack must exists for all non-hero actions
+
+		switch(ba.actionType)
+		{
+			case EActionType::DEFEND:
+				st->waiting = false;
+				st->defending = true;
+				st->defendingAnim = true;
+				break;
+			case EActionType::WAIT:
+				st->defendingAnim = false;
+				st->waiting = true;
+				st->waitedThisTurn = true;
+				break;
+			case EActionType::HERO_SPELL: //no change in current stack state
+				break;
+			default: //any active stack action - attack, catapult, heal, spell...
+				st->waiting = false;
+				st->defendingAnim = false;
+				st->movedThisRound = true;
+				break;
+		}
 	}
 	else
 	{
-		gs->curB->sides[ba.side].usedSpellsHistory.emplace_back(ba.actionSubtype);
-	}
-
-	switch(ba.actionType)
-	{
-	case EActionType::DEFEND:
-		st->waiting = false;
-		st->defending = true;
-		st->defendingAnim = true;
-		break;
-	case EActionType::WAIT:
-		st->defendingAnim = false;
-		st->waiting = true;
-		st->waitedThisTurn = true;
-		break;
-	case EActionType::HERO_SPELL: //no change in current stack state
-		break;
-	default: //any active stack action - attack, catapult, heal, spell...
-		st->waiting = false;
-		st->defendingAnim = false;
-		st->movedThisRound = true;
-		break;
+		if(ba.actionType == EActionType::HERO_SPELL)
+			gs->curB->sides[ba.side].usedSpellsHistory.push_back(ba.spell);
 	}
 }
 

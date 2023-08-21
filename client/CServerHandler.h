@@ -62,7 +62,7 @@ public:
 	virtual void setCampaignBonus(int bonusId) const = 0;
 	virtual void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const = 0;
 	virtual void setPlayer(PlayerColor color) const = 0;
-	virtual void setPlayerOption(ui8 what, si8 dir, PlayerColor player) const = 0;
+	virtual void setPlayerOption(ui8 what, int32_t value, PlayerColor player) const = 0;
 	virtual void setDifficulty(int to) const = 0;
 	virtual void setTurnLength(int npos) const = 0;
 	virtual void sendMessage(const std::string & txt) const = 0;
@@ -74,10 +74,14 @@ public:
 /// structure to handle running server and connecting to it
 class CServerHandler : public IServerAPI, public LobbyInfo
 {
+	friend class ApplyOnLobbyHandlerNetPackVisitor;
+	
 	std::shared_ptr<CApplier<CBaseForLobbyApply>> applier;
 
 	std::shared_ptr<boost::recursive_mutex> mx;
 	std::list<CPackForLobby *> packsForLobbyScreen; //protected by mx
+	
+	std::shared_ptr<CMapInfo> mapToStart;
 
 	std::vector<std::string> myNames;
 
@@ -140,7 +144,7 @@ public:
 	void setCampaignBonus(int bonusId) const override;
 	void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const override;
 	void setPlayer(PlayerColor color) const override;
-	void setPlayerOption(ui8 what, si8 dir, PlayerColor player) const override;
+	void setPlayerOption(ui8 what, int32_t value, PlayerColor player) const override;
 	void setDifficulty(int to) const override;
 	void setTurnLength(int npos) const override;
 	void sendMessage(const std::string & txt) const override;
@@ -148,6 +152,7 @@ public:
 	void sendRestartGame() const override;
 	void sendStartGame(bool allowOnlyAI = false) const override;
 
+	void startMapAfterConnection(std::shared_ptr<CMapInfo> to);
 	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
 	void endGameplay(bool closeConnection = true, bool restart = false);
 	void startCampaignScenario(std::shared_ptr<CampaignState> cs = {});

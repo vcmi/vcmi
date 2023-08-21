@@ -11,8 +11,10 @@
 #include "ServerNetPackVisitors.h"
 
 #include "CGameHandler.h"
-#include "HeroPoolProcessor.h"
-#include "PlayerMessageProcessor.h"
+#include "battles/BattleProcessor.h"
+#include "processors/HeroPoolProcessor.h"
+#include "processors/PlayerMessageProcessor.h"
+#include "queries/QueriesProcessor.h"
 
 #include "../lib/IGameCallback.h"
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -24,8 +26,6 @@
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/spells/ISpellMechanics.h"
 #include "../lib/serializer/Cast.h"
-
-extern boost::recursive_mutex battleActionMutex;
 
 void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 {
@@ -49,7 +49,7 @@ void ApplyGhNetPackVisitor::visitEndTurn(EndTurn & pack)
 	}
 
 	gh.throwOnWrongPlayer(&pack, pack.player);
-	if(gh.queries.topQuery(pack.player))
+	if(gh.queries->topQuery(pack.player))
 		gh.throwAndComplain(&pack, "Cannot end turn before resolving queries!");
 
 	gh.states.setFlag(gs.currentPlayer, &PlayerStatus::makingTurn, false);
@@ -281,52 +281,10 @@ void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)
 
 void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 {
-	boost::unique_lock lock(battleActionMutex);
+	if (!gh.hasPlayerAt(pack.player, pack.c))
+		gh.throwAndComplain(&pack, "No such pack.player!");
 
-	const BattleInfo * b = gs.curB;
-	if(!b)
-		gh.throwAndComplain(&pack, "Can not make action - there is no battle ongoing!");
-
-	if(b->tacticDistance)
-	{
-		if(pack.ba.actionType != EActionType::WALK && pack.ba.actionType != EActionType::END_TACTIC_PHASE
-			&& pack.ba.actionType != EActionType::RETREAT && pack.ba.actionType != EActionType::SURRENDER)
-			gh.throwAndComplain(&pack, "Can not make actions while in tactics mode!");
-		if(!vstd::contains(gh.connections[b->sides[b->tacticsSide].color], pack.c))
-			gh.throwAndComplain(&pack, "Can not make actions in battles you are not part of!");
-	}
-	else
-	{
-		auto active = b->battleActiveUnit();
-		if(!active)
-			gh.throwAndComplain(&pack, "No active unit in battle!");
-		auto unitOwner = b->battleGetOwner(active);
-		if(!vstd::contains(gh.connections[unitOwner], pack.c))
-			gh.throwAndComplain(&pack, "Can not make actions in battles you are not part of!");
-	}
-
-	result = gh.makeBattleAction(pack.ba);
-}
-
-void ApplyGhNetPackVisitor::visitMakeCustomAction(MakeCustomAction & pack)
-{
-	boost::unique_lock lock(battleActionMutex);
-
-	const BattleInfo * b = gs.curB;
-	if(!b)
-		gh.throwNotAllowedAction(&pack);
-	if(b->tacticDistance)
-		gh.throwNotAllowedAction(&pack);
-	auto active = b->battleActiveUnit();
-	if(!active)
-		gh.throwNotAllowedAction(&pack);
-	auto unitOwner = b->battleGetOwner(active);
-	if(!vstd::contains(gh.connections[unitOwner], pack.c))
-		gh.throwNotAllowedAction(&pack);
-	if(pack.ba.actionType != EActionType::HERO_SPELL)
-		gh.throwNotAllowedAction(&pack);
-
-	result = gh.makeCustomAction(pack.ba);
+	result = gh.battles->makePlayerBattleAction(pack.player, pack.ba);
 }
 
 void ApplyGhNetPackVisitor::visitDigWithHero(DigWithHero & pack)

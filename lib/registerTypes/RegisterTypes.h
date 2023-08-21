@@ -353,7 +353,6 @@ void registerTypesServerPacks(Serializer &s)
 	s.template registerType<CPackForServer, BuildBoat>();
 	s.template registerType<CPackForServer, QueryReply>();
 	s.template registerType<CPackForServer, MakeAction>();
-	s.template registerType<CPackForServer, MakeCustomAction>();
 	s.template registerType<CPackForServer, DigWithHero>();
 	s.template registerType<CPackForServer, CastAdvSpell>();
 	s.template registerType<CPackForServer, CastleTeleportHero>();

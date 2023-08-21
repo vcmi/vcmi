@@ -234,7 +234,7 @@ void BattleInterface::newRound(int number)
 	console->addText(CGI->generaltexth->allTexts[412]);
 }
 
-void BattleInterface::giveCommand(EActionType action, BattleHex tile, si32 additional)
+void BattleInterface::giveCommand(EActionType action, BattleHex tile, SpellID spell)
 {
 	const CStack * actor = nullptr;
 	if(action != EActionType::HERO_SPELL && action != EActionType::RETREAT && action != EActionType::SURRENDER)
@@ -253,7 +253,7 @@ void BattleInterface::giveCommand(EActionType action, BattleHex tile, si32 addit
 	ba.side = side.value();
 	ba.actionType = action;
 	ba.aimToHex(tile);
-	ba.actionSubtype = additional;
+	ba.spell = spell;
 
 	sendCommand(ba, actor);
 }
@@ -567,12 +567,12 @@ bool BattleInterface::makingTurn() const
 	return stacksController->getActiveStack() != nullptr;
 }
 
-void BattleInterface::endAction(const BattleAction* action)
+void BattleInterface::endAction(const BattleAction &action)
 {
 	// it is possible that tactics mode ended while opening music is still playing
 	waitForAnimations();
 
-	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
+	const CStack *stack = curInt->cb->battleGetStackByID(action.stackNumber);
 
 	// Activate stack from stackToActivate because this might have been temporary disabled, e.g., during spell cast
 	activateStack();
@@ -585,7 +585,7 @@ void BattleInterface::endAction(const BattleAction* action)
 		tacticNextStack(stack);
 
 	//we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
-	if(action->actionType == EActionType::HERO_SPELL)
+	if(action.actionType == EActionType::HERO_SPELL)
 		fieldController->redrawBackgroundWithHexes();
 }
 
@@ -594,15 +594,15 @@ void BattleInterface::appendBattleLog(const std::string & newEntry)
 	console->addText(newEntry);
 }
 
-void BattleInterface::startAction(const BattleAction* action)
+void BattleInterface::startAction(const BattleAction & action)
 {
-	if(action->actionType == EActionType::END_TACTIC_PHASE)
+	if(action.actionType == EActionType::END_TACTIC_PHASE)
 	{
 		windowObject->tacticPhaseEnded();
 		return;
 	}
 
-	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
+	const CStack *stack = curInt->cb->battleGetStackByID(action.stackNumber);
 
 	if (stack)
 	{
@@ -610,17 +610,17 @@ void BattleInterface::startAction(const BattleAction* action)
 	}
 	else
 	{
-		assert(action->actionType == EActionType::HERO_SPELL); //only cast spell is valid action without acting stack number
+		assert(action.actionType == EActionType::HERO_SPELL); //only cast spell is valid action without acting stack number
 	}
 
 	stacksController->startAction(action);
 
-	if(action->actionType == EActionType::HERO_SPELL) //when hero casts spell
+	if(action.actionType == EActionType::HERO_SPELL) //when hero casts spell
 		return;
 
 	if (!stack)
 	{
-		logGlobal->error("Something wrong with stackNumber in actionStarted. Stack number: %d", action->stackNumber);
+		logGlobal->error("Something wrong with stackNumber in actionStarted. Stack number: %d", action.stackNumber);
 		return;
 	}
 

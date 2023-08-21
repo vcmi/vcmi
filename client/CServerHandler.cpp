@@ -52,6 +52,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+#include <boost/asio.hpp>
 #include "../lib/serializer/Cast.h"
 #include "LobbyClientNetPackVisitors.h"
 
@@ -86,6 +87,8 @@ template<typename T> class CApplyOnLobby : public CBaseForLobbyApply
 public:
 	bool applyOnLobbyHandler(CServerHandler * handler, void * pack) const override
 	{
+		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+
 		T * ptr = static_cast<T *>(pack);
 		ApplyOnLobbyHandlerNetPackVisitor visitor(*handler);
 
@@ -140,6 +143,7 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 {
 	hostClientId = -1;
 	state = EClientState::NONE;
+	mapToStart = nullptr;
 	th = std::make_unique<CStopWatch>();
 	packsForLobbyScreen.clear();
 	c.reset();
@@ -396,6 +400,7 @@ void CServerHandler::sendClientDisconnecting()
 		return;
 
 	state = EClientState::DISCONNECTING;
+	mapToStart = nullptr;
 	LobbyClientDisconnected lcd;
 	lcd.clientId = c->connectionID;
 	logNetwork->info("Connection has been requested to be closed.");
@@ -454,11 +459,11 @@ void CServerHandler::setPlayer(PlayerColor color) const
 	sendLobbyPack(lsp);
 }
 
-void CServerHandler::setPlayerOption(ui8 what, si8 dir, PlayerColor player) const
+void CServerHandler::setPlayerOption(ui8 what, int32_t value, PlayerColor player) const
 {
 	LobbyChangePlayerOption lcpo;
 	lcpo.what = what;
-	lcpo.direction = dir;
+	lcpo.value = value;
 	lcpo.color = player;
 	sendLobbyPack(lcpo);
 }
@@ -560,6 +565,11 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 	sendLobbyPack(lsg);
 	c->enterLobbyConnectionMode();
 	c->disableStackSendingByID();
+}
+
+void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
+{
+	mapToStart = to;
 }
 
 void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState)
@@ -691,7 +701,7 @@ int CServerHandler::howManyPlayerInterfaces()
 
 ui8 CServerHandler::getLoadMode()
 {
-	if(state == EClientState::GAMEPLAY)
+	if(loadMode != ELoadMode::TUTORIAL && state == EClientState::GAMEPLAY)
 	{
 		if(si->campState)
 			return ELoadMode::CAMPAIGN;

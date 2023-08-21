@@ -27,6 +27,8 @@ class CComponentBox;
 class CTextBox;
 class CButton;
 
+class FilledTexturePlayerColored;
+
 /// The options tab which is shown at the map selection phase.
 class OptionsTab : public CIntObject
 {
@@ -60,8 +62,8 @@ public:
 		{}
 
 		/// visible image settings
-		size_t getImageIndex();
-		std::string getImageName();
+		size_t getImageIndex(bool big = false);
+		std::string getImageName(bool big = false);
 
 		std::string getName(); /// name visible in options dialog
 		std::string getTitle(); /// title in popup box
@@ -94,6 +96,58 @@ public:
 		CPlayerOptionTooltipBox(CPlayerSettingsHelper & helper);
 	};
 
+	class SelectionWindow : public CWindowObject
+	{
+		//const int ICON_SMALL_WIDTH = 48;
+		const int ICON_SMALL_HEIGHT = 32;
+		const int ICON_BIG_WIDTH = 58;
+		const int ICON_BIG_HEIGHT = 64;
+		const int TEXT_POS_X = 29;
+		const int TEXT_POS_Y = 56;
+
+		int elementsPerLine;
+
+		PlayerColor color;
+		SelType type;
+
+		std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
+		std::vector<std::shared_ptr<CIntObject>> components;
+
+		std::vector<FactionID> factions;
+		std::vector<HeroTypeID> heroes;
+
+		FactionID initialFaction;
+		HeroTypeID initialHero;
+		int initialBonus;
+		FactionID selectedFaction;
+		HeroTypeID selectedHero;
+		int selectedBonus;
+
+		std::set<FactionID> allowedFactions;
+		std::set<HeroTypeID> allowedHeroes;
+		std::vector<int> allowedBonus;
+
+		void genContentGrid(int lines);
+		void genContentFactions();
+		void genContentHeroes();
+		void genContentBonus();
+
+		void drawOutlinedText(int x, int y, ColorRGBA color, std::string text);
+		int calcLines(FactionID faction);
+		void apply();
+		void recreate();
+		void setSelection();
+		int getElement(const Point & cursorPosition);
+		void setElement(int element, bool doApply);
+
+		bool receiveEvent(const Point & position, int eventType) const override;
+		void clickReleased(const Point & cursorPosition) override;
+		void showPopupWindow(const Point & cursorPosition) override;
+
+	public:
+		SelectionWindow(PlayerColor _color, SelType _type);
+	};
+
 	/// Image with current town/hero/bonus
 	struct SelectedBox : public Scrollable, public CPlayerSettingsHelper
 	{
@@ -102,6 +156,7 @@ public:
 
 		SelectedBox(Point position, PlayerSettings & settings, SelType type);
 		void showPopupWindow(const Point & cursorPosition) override;
+		void clickReleased(const Point & cursorPosition) override;
 		void scrollBy(int distance) override;
 
 		void update();

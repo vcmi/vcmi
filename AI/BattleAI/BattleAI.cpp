@@ -18,6 +18,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleStateInfoForRetreat.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/CStack.h" // TODO: remove
@@ -283,19 +284,10 @@ void CBattleAI::activeStack( const CStack * stack )
 			return;
 		}
 
-		attemptCastingSpell();
+		if (attemptCastingSpell())
+			return;
 
 		logAi->trace("Spellcast attempt completed in %lld", timeElapsed(start));
-
-		if(cb->battleIsFinished() || !stack->alive())
-		{
-			//spellcast may finish battle or kill active stack
-			//send special preudo-action
-			BattleAction cancel;
-			cancel.actionType = EActionType::CANCEL;
-			cb->battleMakeUnitAction(cancel);
-			return;
-		}
 
 		if(auto action = considerFleeingOrSurrendering())
 		{
@@ -476,14 +468,14 @@ BattleAction CBattleAI::useCatapult(const CStack * stack)
 	return attack;
 }
 
-void CBattleAI::attemptCastingSpell()
+bool CBattleAI::attemptCastingSpell()
 {
 	auto hero = cb->battleGetMyHero();
 	if(!hero)
-		return;
+		return false;
 
 	if(cb->battleCanCastSpell(hero, spells::Mode::HERO) != ESpellCastProblem::OK)
-		return;
+		return false;
 
 	LOGL("Casting spells sounds like fun. Let's see...");
 	//Get all spells we can cast
@@ -522,7 +514,7 @@ void CBattleAI::attemptCastingSpell()
 	}
 	LOGFL("Found %d spell-target combinations.", possibleCasts.size());
 	if(possibleCasts.empty())
-		return;
+		return false;
 
 	using ValueMap = PossibleSpellcast::ValueMap;
 
@@ -657,7 +649,7 @@ void CBattleAI::attemptCastingSpell()
 			if(battleIsFinishedOpt)
 			{
 				print("No need to cast a spell. Battle will finish soon.");
-				return;
+				return false;
 			}
 		}
 	}
@@ -780,16 +772,18 @@ void CBattleAI::attemptCastingSpell()
 		LOGFL("Best spell is %s (value %d). Will cast.", castToPerform.spell->getNameTranslated() % castToPerform.value);
 		BattleAction spellcast;
 		spellcast.actionType = EActionType::HERO_SPELL;
-		spellcast.actionSubtype = castToPerform.spell->id;
+		spellcast.spell = castToPerform.spell->getId();
 		spellcast.setTarget(castToPerform.dest);
 		spellcast.side = side;
 		spellcast.stackNumber = (!side) ? -1 : -2;
 		cb->battleMakeSpellAction(spellcast);
 		movesSkippedByDefense = 0;
+		return true;
 	}
 	else
 	{
 		LOGFL("Best spell is %s. But it is actually useless (value %d).", castToPerform.spell->getNameTranslated() % castToPerform.value);
+		return false;
 	}
 }
 

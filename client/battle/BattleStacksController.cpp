@@ -31,6 +31,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CondSh.h"
@@ -398,15 +399,7 @@ void BattleStacksController::addNewAnim(BattleAnimation *anim)
 void BattleStacksController::stackRemoved(uint32_t stackID)
 {
 	if (getActiveStack() && getActiveStack()->unitId() == stackID)
-	{
-		BattleAction action;
-		action.side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
-		action.actionType = EActionType::CANCEL;
-		action.stackNumber = getActiveStack()->unitId();
-
-		LOCPLINT->cb->battleMakeUnitAction(action);
 		setActiveStack(nullptr);
-	}
 }
 
 void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)
@@ -663,7 +656,7 @@ bool BattleStacksController::shouldRotate(const CStack * stack, const BattleHex 
 	return false;
 }
 
-void BattleStacksController::endAction(const BattleAction* action)
+void BattleStacksController::endAction(const BattleAction & action)
 {
 	owner.checkForAnimations();
 
@@ -688,7 +681,7 @@ void BattleStacksController::endAction(const BattleAction* action)
 	removeExpiredColorFilters();
 }
 
-void BattleStacksController::startAction(const BattleAction* action)
+void BattleStacksController::startAction(const BattleAction & action)
 {
 	removeExpiredColorFilters();
 }

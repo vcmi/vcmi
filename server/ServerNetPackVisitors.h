@@ -55,7 +55,6 @@ public:
 	virtual void visitBuildBoat(BuildBoat & pack) override;
 	virtual void visitQueryReply(QueryReply & pack) override;
 	virtual void visitMakeAction(MakeAction & pack) override;
-	virtual void visitMakeCustomAction(MakeCustomAction & pack) override;
 	virtual void visitDigWithHero(DigWithHero & pack) override;
 	virtual void visitCastAdvSpell(CastAdvSpell & pack) override;
 	virtual void visitPlayerMessage(PlayerMessage & pack) override;

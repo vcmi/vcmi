@@ -248,7 +248,6 @@ std::ostream & operator<<(std::ostream & os, const EActionType actionType)
 	static const std::map<EActionType, std::string> actionTypeToString =
 	{
 		{EActionType::END_TACTIC_PHASE, "End tactic phase"},
-		{EActionType::INVALID, "Invalid"},
 		{EActionType::NO_ACTION, "No action"},
 		{EActionType::HERO_SPELL, "Hero spell"},
 		{EActionType::WALK, "Walk"},

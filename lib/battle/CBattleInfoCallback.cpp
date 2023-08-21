@@ -1731,6 +1731,10 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const 
 	TConstBonusListPtr bl = caster->getBonuses(Selector::type()(BonusType::SPELLCASTER));
 	if (!bl->size())
 		return SpellID::NONE;
+
+	if(bl->size() == 1)
+		return SpellID(bl->front()->subtype);
+
 	int totalWeight = 0;
 	for(const auto & b : *bl)
 	{

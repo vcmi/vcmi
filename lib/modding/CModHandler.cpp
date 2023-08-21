@@ -489,23 +489,49 @@ void CModHandler::afterLoad(bool onlyEssential)
 
 }
 
-void CModHandler::trySetActiveMods(const std::map<TModID, CModVersion> & modList)
+void CModHandler::trySetActiveMods(std::vector<TModID> saveActiveMods, const std::map<TModID, CModVersion> & modList)
 {
+	std::vector<TModID> newActiveMods;
+
 	ModIncompatibility::ModList missingMods;
 
-	for(const auto & mod : modList)
+	for(const auto & m : activeMods)
 	{
-		auto m = mod.first;
-		auto mver = mod.second;
+		if (vstd::contains(saveActiveMods, m))
+			continue;
 
-		if(allMods.count(m) && (allMods[m].version.isNull() || mver.isNull() || allMods[m].version.compatible(mver)))
-			allMods[m].setEnabled(true);
-		else
+		auto & modInfo = allMods.at(m);
+		if(modInfo.checkModGameplayAffecting())
+			missingMods.emplace_back(m, modInfo.version.toString());
+	}
+
+	for(const auto & m : saveActiveMods)
+	{
+		const CModVersion & mver = modList.at(m);
+
+		if (allMods.count(m) == 0)
+		{
+			missingMods.emplace_back(m, mver.toString());
+			continue;
+		}
+
+		auto & modInfo = allMods.at(m);
+
+		bool modAffectsGameplay = modInfo.checkModGameplayAffecting();
+		bool modVersionCompatible = modInfo.version.isNull() || mver.isNull() || modInfo.version.compatible(mver);
+		bool modEnabledLocally = vstd::contains(activeMods, m);
+		bool modCanBeEnabled = modEnabledLocally && modVersionCompatible;
+
+		allMods[m].setEnabled(modCanBeEnabled);
+
+		if (modCanBeEnabled)
+			newActiveMods.push_back(m);
+
+		if (!modCanBeEnabled && modAffectsGameplay)
 			missingMods.emplace_back(m, mver.toString());
 	}
 
-	if(!missingMods.empty())
-		throw ModIncompatibility(std::move(missingMods));
+	std::swap(activeMods, newActiveMods);
 }
 
 CIdentifierStorage & CModHandler::getIdentifiers()

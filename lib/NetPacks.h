@@ -1539,11 +1539,9 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 
 struct DLL_LINKAGE BattleResult : public Query
 {
-	enum EResult { NORMAL = 0, ESCAPE = 1, SURRENDER = 2 };
-
 	void applyFirstCl(CClient * cl);
 
-	EResult result = NORMAL;
+	EBattleResult result = EBattleResult::NORMAL;
 	ui8 winner = 2; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
 	std::map<ui32, si32> casualties[2]; //first => casualties of attackers - map crid => number
 	TExpType exp[2] = {0, 0}; //exp for attacker and defender
@@ -2516,24 +2514,6 @@ struct DLL_LINKAGE MakeAction : public CPackForServer
 {
 	MakeAction() = default;
 	MakeAction(BattleAction BA)
-		: ba(std::move(BA))
-	{
-	}
-	BattleAction ba;
-
-	virtual void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h, const int version)
-	{
-		h & static_cast<CPackForServer &>(*this);
-		h & ba;
-	}
-};
-
-struct DLL_LINKAGE MakeCustomAction : public CPackForServer
-{
-	MakeCustomAction() = default;
-	MakeCustomAction(BattleAction BA)
 		: ba(std::move(BA))
 	{
 	}

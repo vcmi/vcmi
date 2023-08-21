@@ -47,6 +47,7 @@
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CCompressedStream.h"
+#include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/NetPacksLobby.h"
@@ -183,7 +184,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 2:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::campaignList, true, nullptr, ELoadMode::NONE);
 				case 3:
-					return std::bind(CInfoWindow::showInfoDialog, CGI->generaltexth->translate("vcmi.mainMenu.tutorialNotImplemented"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
+					return std::bind(CMainMenu::startTutorial);
 				}
 				break;
 			}
@@ -198,7 +199,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 2:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::CAMPAIGN);
 				case 3:
-					return std::bind(CInfoWindow::showInfoDialog, CGI->generaltexth->translate("vcmi.mainMenu.tutorialNotImplemented"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
+					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::TUTORIAL);
 				}
 			}
 			break;
@@ -369,6 +370,21 @@ void CMainMenu::openCampaignScreen(std::string name)
 		return;
 	}
 	logGlobal->error("Unknown campaign set: %s", name);
+}
+
+void CMainMenu::startTutorial()
+{
+	ResourceID tutorialMap("Maps/Tutorial.tut", EResType::MAP);
+	if(!CResourceHandler::get()->existsResource(tutorialMap))
+	{
+		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("core.genrltxt.742"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
+		return;
+	}
+		
+	auto mapInfo = std::make_shared<CMapInfo>();
+	mapInfo->mapInit(tutorialMap.getName());
+	CMainMenu::openLobby(ESelectionScreen::newGame, true, nullptr, ELoadMode::NONE);
+	CSH->startMapAfterConnection(mapInfo);
 }
 
 std::shared_ptr<CMainMenu> CMainMenu::create()
