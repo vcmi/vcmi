@@ -193,7 +193,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 
 void CPlayerInterface::performAutosave()
 {
-	std::string id = cb->getStartInfo()->uuid.substr(0, 8);
+	std::string id = cb->getStartInfo()->gameUuid.substr(0, 8);
 
 	int frequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
 	if(frequency > 0 && cb->getDate() % frequency == 0)
