@@ -6,6 +6,7 @@ namespace vstd
 {
 
 	DLL_LINKAGE std::string getFormattedDateTime(std::time_t dt);
+	DLL_LINKAGE std::string getDateTimeISO8601Basic(std::time_t dt);
 
 }
 

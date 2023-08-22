@@ -169,7 +169,7 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 void CPlayerInterface::playerStartsTurn(PlayerColor player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	
+
 	makingTurn = false;
 	stillMoveHero.setn(STOP_MOVE);
 
@@ -180,7 +180,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 		GH.windows().pushWindow(adventureInt);
 	}
 
-	//close window from another player
+//close window from another player
 	if(auto w = GH.windows().topWindow<CInfoWindow>())
 		if(w->ID == -1 && player != playerID)
 			w->close();
@@ -201,7 +201,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 
 void CPlayerInterface::performAutosave()
 {
-	std::string id = cb->getStartInfo()->gameUuid.substr(0, 8);
+	std::string id = cb->getStartInfo()->gameUuid.substr(0, 4);
 
 	int frequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
 	if(frequency > 0 && cb->getDate() % frequency == 0)
@@ -214,7 +214,7 @@ void CPlayerInterface::performAutosave()
 			prefix = settings["general"]["savePrefix"].String();
 			if(prefix.empty())
 			{
-				prefix = cb->getMapHeader()->name.substr(0, 18) + "_" + id + "/";
+				prefix = cb->getMapHeader()->name.substr(0, 15) + "_" + cb->getStartInfo()->startTimeIso8601 + "/";
 			}
 		}
 
@@ -232,7 +232,7 @@ void CPlayerInterface::performAutosave()
 					+ std::to_string(cb->getDate(Date::WEEK))
 					+ std::to_string(cb->getDate(Date::DAY_OF_WEEK));
 
-			cb->save("Saves/Autosave/" + prefix + "Autosave_" + stringifiedDate);
+			cb->save("Saves/Autosave/" + prefix + "Autosave_" + id + "_" + stringifiedDate);
 		}
 	}
 }
