@@ -178,7 +178,8 @@ public:
 		}
 
 
-		gameState->init(&mapService, &si, false);
+		Load::ProgressAccumulator progressTracker;
+		gameState->init(&mapService, &si, progressTracker, false);
 
 		ASSERT_NE(map, nullptr);
 		ASSERT_EQ(map->heroesOnMap.size(), 2);
