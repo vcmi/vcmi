@@ -587,6 +587,8 @@ CLoadingScreen::CLoadingScreen()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	
+	addUsedEvents(TIME);
+	
 	CCS->musich->stopMusic(5000);
 	
 	const auto & conf = CMainMenuConfig::get().getConfig()["loading"];
@@ -609,11 +611,8 @@ CLoadingScreen::~CLoadingScreen()
 {
 }
 
-void CLoadingScreen::showAll(Canvas & to)
+void CLoadingScreen::tick(uint32_t msPassed)
 {
-	//FIXME: filling screen with transparency? BLACK intended?
-	//Rect rect(0, 0, to->w, to->h);
-	//CSDL_Ext::fillRect(to, rect, Colors::TRANSPARENCY);
 	if(!progressBlocks.empty())
 	{
 		int status = float(get()) / 255.f * progressBlocks.size();
@@ -624,8 +623,6 @@ void CLoadingScreen::showAll(Canvas & to)
 			progressBlocks.at(i)->visible = true;
 		}
 	}
-	
-	CWindowObject::showAll(to);
 }
 
 std::string CLoadingScreen::getBackground()

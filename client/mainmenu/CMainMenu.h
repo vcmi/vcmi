@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "../widgets/Images.h"
 #include "../windows/CWindowObject.h"
 #include "../../lib/JsonNode.h"
 #include "../../lib/LoadProgress.h"
@@ -24,6 +23,7 @@ class CTextInput;
 class CGStatusBar;
 class CTextBox;
 class CTabbedInt;
+class CAnimImage;
 class CAnimation;
 class CButton;
 class CFilledTexture;
@@ -191,7 +191,7 @@ public:
 	CLoadingScreen();
 	~CLoadingScreen();
 
-	void showAll(Canvas & to) override;
+	void tick(uint32_t msPassed) override;
 };
 
 extern std::shared_ptr<CMainMenu> CMM;

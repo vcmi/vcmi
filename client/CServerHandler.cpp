@@ -551,7 +551,7 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 	catch (const std::exception & e)
 	{
 		showServerError( std::string("Unable to start map! Reason: ") + e.what());
-		throw e;
+		return;
 	}
 
 	LobbyStartGame lsg;
