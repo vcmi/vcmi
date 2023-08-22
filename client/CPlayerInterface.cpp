@@ -193,6 +193,8 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 
 void CPlayerInterface::performAutosave()
 {
+	std::string id = cb->getStartInfo()->uuid.substr(0, 8);
+
 	int frequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
 	if(frequency > 0 && cb->getDate() % frequency == 0)
 	{
@@ -204,7 +206,7 @@ void CPlayerInterface::performAutosave()
 			prefix = settings["general"]["savePrefix"].String();
 			if(prefix.empty())
 			{
-				prefix = cb->getMapHeader()->name.substr(0, 5) + "_";
+				prefix = cb->getMapHeader()->name.substr(0, 18) + "_" + id + "/";
 			}
 		}
 
@@ -213,7 +215,7 @@ void CPlayerInterface::performAutosave()
 		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer();
 		if(autosaveCountLimit > 0)
 		{
-			cb->save("Saves/" + prefix + "Autosave_" + std::to_string(autosaveCount));
+			cb->save("Saves/Autosave/" + prefix + "Autosave_" + std::to_string(autosaveCount));
 			autosaveCount %= autosaveCountLimit;
 		}
 		else
@@ -222,7 +224,7 @@ void CPlayerInterface::performAutosave()
 					+ std::to_string(cb->getDate(Date::WEEK))
 					+ std::to_string(cb->getDate(Date::DAY_OF_WEEK));
 
-			cb->save("Saves/" + prefix + "Autosave_" + stringifiedDate);
+			cb->save("Saves/Autosave/" + prefix + "Autosave_" + stringifiedDate);
 		}
 	}
 }
