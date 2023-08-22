@@ -113,7 +113,7 @@ struct DLL_LINKAGE StartInfo
 	}
 
 	StartInfo() : mode(INVALID), difficulty(1), seedToBeUsed(0), seedPostInit(0),
-		mapfileChecksum(0), uuid(boost::uuids::to_string(boost::uuids::random_generator()()))
+		mapfileChecksum(0), gameUuid(boost::uuids::to_string(boost::uuids::random_generator()()))
 	{
 
 	}
