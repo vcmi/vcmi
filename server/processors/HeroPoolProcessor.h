@@ -43,7 +43,6 @@ class HeroPoolProcessor : boost::noncopyable
 
 	TavernHeroSlot selectSlotForRole(const PlayerColor & player, TavernSlotRole roleID);
 
-	bool playerEndedTurn(const PlayerColor & player);
 public:
 	CGameHandler * gameHandler;
 

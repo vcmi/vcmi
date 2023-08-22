@@ -56,10 +56,10 @@ class CVCMIServer : public LobbyInfo
 	boost::recursive_mutex mx;
 	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
 	std::unique_ptr<boost::thread> announceLobbyThread, remoteConnectionsThread;
+	std::atomic<EServerState> state;
 
 public:
 	std::shared_ptr<CGameHandler> gh;
-	std::atomic<EServerState> state;
 	ui16 port;
 
 	boost::program_options::variables_map cmdLineOptions;
@@ -100,6 +100,9 @@ public:
 	void reconnectPlayer(int connId);
 
 	void updateAndPropagateLobbyState();
+
+	void setState(EServerState value);
+	EServerState getState() const;
 
 	// Work with LobbyInfo
 	void setPlayer(PlayerColor clickedColor);

@@ -16,11 +16,10 @@ class ApplyGhNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 private:
 	bool result;
 	CGameHandler & gh;
-	CGameState & gs;
 
 public:
-	ApplyGhNetPackVisitor(CGameHandler & gh, CGameState & gs)
-		:gh(gh), gs(gs), result(false)
+	ApplyGhNetPackVisitor(CGameHandler & gh)
+		:gh(gh), result(false)
 	{
 	}
 

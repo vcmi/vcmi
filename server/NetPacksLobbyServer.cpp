@@ -53,11 +53,11 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClie
 		}
 	}
 	
-	if(srv.state == EServerState::LOBBY)
-		{
+	if(srv.getState() == EServerState::LOBBY)
+	{
 		result = true;
 		return;
-		}
+	}
 	
 	//disconnect immediately and ignore this client
 	srv.connections.erase(pack.c);
@@ -115,7 +115,7 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientConnected(LobbyCl
 	// Until UUID set we only pass LobbyClientConnected to this client
 	pack.c->uuid = pack.uuid;
 	srv.updateAndPropagateLobbyState();
-	if(srv.state == EServerState::GAMEPLAY)
+	if(srv.getState() == EServerState::GAMEPLAY)
 	{
 		//immediately start game
 		std::unique_ptr<LobbyStartGame> startGameForReconnectedPlayer(new LobbyStartGame);
@@ -173,13 +173,13 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientDisconnected(Lobb
 	if(pack.shutdownServer)
 	{
 		logNetwork->info("Client requested shutdown, server will close itself...");
-		srv.state = EServerState::SHUTDOWN;
+		srv.setState(EServerState::SHUTDOWN);
 		return;
 	}
 	else if(srv.connections.empty())
 	{
 		logNetwork->error("Last connection lost, server will close itself...");
-		srv.state = EServerState::SHUTDOWN;
+		srv.setState(EServerState::SHUTDOWN);
 	}
 	else if(pack.c == srv.hostClient)
 	{
@@ -198,7 +198,7 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyChatMessage(LobbyChatMess
 
 void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 {
-	if(srv.state != EServerState::LOBBY)
+	if(srv.getState() != EServerState::LOBBY)
 	{
 		result = false;
 		return;
@@ -300,7 +300,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 	pack.initializedStartInfo = std::make_shared<StartInfo>(*srv.gh->getStartInfo(true));
 	pack.initializedGameState = srv.gh->gameState();
 
-	srv.state = EServerState::GAMEPLAY_STARTING;
+	srv.setState(EServerState::GAMEPLAY_STARTING);
 	result = true;
 }
 

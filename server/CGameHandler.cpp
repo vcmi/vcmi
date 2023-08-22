@@ -16,6 +16,7 @@
 #include "battles/BattleProcessor.h"
 #include "processors/HeroPoolProcessor.h"
 #include "processors/PlayerMessageProcessor.h"
+#include "processors/TurnOrderProcessor.h"
 #include "queries/QueriesProcessor.h"
 #include "queries/MapQueries.h"
 
@@ -92,7 +93,7 @@ public:
 		T *ptr = static_cast<T*>(pack);
 		try
 		{
-			ApplyGhNetPackVisitor applier(*gh, *gs);
+			ApplyGhNetPackVisitor applier(*gh);
 
 			ptr->visit(applier);
 
@@ -121,51 +122,6 @@ public:
 static inline double distance(int3 a, int3 b)
 {
 	return std::sqrt((double)(a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
-}
-
-PlayerStatus PlayerStatuses::operator[](PlayerColor player)
-{
-	boost::unique_lock<boost::mutex> l(mx);
-	if (players.find(player) != players.end())
-	{
-		return players.at(player);
-	}
-	else
-	{
-		throw std::runtime_error("No such player!");
-	}
-}
-void PlayerStatuses::addPlayer(PlayerColor player)
-{
-	boost::unique_lock<boost::mutex> l(mx);
-	players[player];
-}
-
-bool PlayerStatuses::checkFlag(PlayerColor player, bool PlayerStatus::*flag)
-{
-	boost::unique_lock<boost::mutex> l(mx);
-	if (players.find(player) != players.end())
-	{
-		return players[player].*flag;
-	}
-	else
-	{
-		throw std::runtime_error("No such player!");
-	}
-}
-
-void PlayerStatuses::setFlag(PlayerColor player, bool PlayerStatus::*flag, bool val)
-{
-	boost::unique_lock<boost::mutex> l(mx);
-	if (players.find(player) != players.end())
-	{
-		players[player].*flag = val;
-	}
-	else
-	{
-		throw std::runtime_error("No such player!");
-	}
-	cv.notify_all();
 }
 
 template <typename T>
@@ -480,7 +436,7 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 
 void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 {
-	if(lobby->state == EServerState::SHUTDOWN || !gs || !gs->scenarioOps)
+	if(lobby->getState() == EServerState::SHUTDOWN || !gs || !gs->scenarioOps)
 		return;
 	
 	for(auto & playerConnections : connections)
@@ -546,6 +502,7 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	: lobby(lobby)
 	, heroPool(std::make_unique<HeroPoolProcessor>(this))
 	, battles(std::make_unique<BattleProcessor>(this))
+	, turnOrder(std::make_unique<TurnOrderProcessor>(this))
 	, queries(std::make_unique<QueriesProcessor>())
 	, playerMessages(std::make_unique<PlayerMessageProcessor>(this))
 	, complainNoCreatures("No creatures to split")
@@ -592,9 +549,7 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	getRandomGenerator().resetSeed();
 
 	for (auto & elem : gs->players)
-	{
-		states.addPlayer(elem.first);
-	}
+		turnOrder->addPlayer(elem.first);
 
 	reinitScripting();
 }
@@ -646,7 +601,18 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 		}
 }
 
-void CGameHandler::newTurn()
+void CGameHandler::onPlayerTurnStarted(PlayerColor which)
+{
+	events::PlayerGotTurn::defaultExecute(serverEventBus.get(), which);
+	turnTimerHandler.onPlayerGetTurn(gs->players[which]);
+}
+
+void CGameHandler::onPlayerTurnEnded(PlayerColor which)
+{
+
+}
+
+void CGameHandler::onNewTurn()
 {
 	logGlobal->trace("Turn %d", gs->day+1);
 	NewTurn n;
@@ -965,6 +931,7 @@ void CGameHandler::newTurn()
 
 	synchronizeArtifactHandlerLists(); //new day events may have changed them. TODO better of managing that
 }
+
 void CGameHandler::run(bool resume)
 {
 	LOG_TRACE_PARAMS(logGlobal, "resume=%d", resume);
@@ -989,112 +956,29 @@ void CGameHandler::run(bool resume)
 	services()->scripts()->run(serverScripts);
 #endif
 
-	if(resume)
+	if (!resume)
+	{
+		onNewTurn();
+		events::TurnStarted::defaultExecute(serverEventBus.get());
+		for(auto & player : gs->players)
+			turnTimerHandler.onGameplayStart(player.second);
+	}
+	else
 		events::GameResumed::defaultExecute(serverEventBus.get());
 
-	auto playerTurnOrder = generatePlayerTurnOrder();
-	
-	if(!resume)
-		for(auto & playerColor : playerTurnOrder)
-			turnTimerHandler.onGameplayStart(gs->players[playerColor]);
-	
-	while(lobby->state == EServerState::GAMEPLAY)
+	turnOrder->onGameStarted();
+
+	//wait till game is done
+	while(lobby->getState() == EServerState::GAMEPLAY)
 	{
-		if(!resume)
-		{
-			newTurn();
-			events::TurnStarted::defaultExecute(serverEventBus.get());
-		}
+		const int waitTime = 100; //ms
 
-		std::list<PlayerColor>::iterator it;
-		if (resume)
-		{
-			it = std::find(playerTurnOrder.begin(), playerTurnOrder.end(), gs->currentPlayer);
-		}
-		else
-		{
-			it = playerTurnOrder.begin();
-		}
+		turnTimerHandler.onPlayerMakingTurn(gs->players[gs->getCurrentPlayer()], waitTime);
+		if(gs->curB)
+			turnTimerHandler.onBattleLoop(waitTime);
 
-		resume = false;
-		for (; (it != playerTurnOrder.end()) && (lobby->state == EServerState::GAMEPLAY) ; it++)
-		{
-			auto playerColor = *it;
-
-			auto onGetTurn = [&](events::PlayerGotTurn & event)
-			{
-				//if player runs out of time, he shouldn't get the turn (especially AI)
-				//pre-trigger may change anything, should check before each player
-				//TODO: is it enough to check only one player?
-				checkVictoryLossConditionsForAll();
-
-				auto player = event.getPlayer();
-
-				const PlayerState * playerState = &gs->players[player];
-
-				if(playerState->status != EPlayerStatus::INGAME)
-				{
-					event.setPlayer(PlayerColor::CANNOT_DETERMINE);
-				}
-				else
-				{
-					states.setFlag(player, &PlayerStatus::makingTurn, true);
-
-					YourTurn yt;
-					yt.player = player;
-					//Change local daysWithoutCastle counter for local interface message //TODO: needed?
-					yt.daysWithoutCastle = playerState->daysWithoutCastle;
-					applyAndSend(&yt);
-					
-					turnTimerHandler.onPlayerGetTurn(gs->players[player]);
-				}
-			};
-
-			events::PlayerGotTurn::defaultExecute(serverEventBus.get(), onGetTurn, playerColor);
-
-			if(playerColor != PlayerColor::CANNOT_DETERMINE)
-			{
-				//wait till turn is done
-				const int waitTime = 100; //ms
-				boost::unique_lock<boost::mutex> lock(states.mx);
-				while(states.players.at(playerColor).makingTurn && lobby->state == EServerState::GAMEPLAY)
-				{
-					turnTimerHandler.onPlayerMakingTurn(gs->players[playerColor], waitTime);
-					if(gs->curB)
-						turnTimerHandler.onBattleLoop(waitTime);
-
-					states.cv.wait_for(lock, boost::chrono::milliseconds(waitTime));
-				}
-			}
-		}
-		//additional check that game is not finished
-		bool activePlayer = false;
-		for (auto player : playerTurnOrder)
-		{
-			if (gs->players[player].status == EPlayerStatus::INGAME)
-					activePlayer = true;
-		}
-		if(!activePlayer)
-			lobby->state = EServerState::GAMEPLAY_ENDED;
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(waitTime));
 	}
-}
-
-std::list<PlayerColor> CGameHandler::generatePlayerTurnOrder() const
-{
-	// Generate player turn order
-	std::list<PlayerColor> playerTurnOrder;
-
-	for (const auto & player : gs->players) // add human players first
-	{
-		if (player.second.human)
-			playerTurnOrder.push_back(player.first);
-	}
-	for (const auto & player : gs->players) // then add non-human players
-	{
-		if (!player.second.human)
-			playerTurnOrder.push_back(player.first);
-	}
-	return playerTurnOrder;
 }
 
 void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
@@ -3617,7 +3501,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 			if(p->human)
 			{
-				lobby->state = EServerState::GAMEPLAY_ENDED;
+				lobby->setState(EServerState::GAMEPLAY_ENDED);
 			}
 		}
 		else
@@ -3662,12 +3546,11 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		}
 
 		auto playerInfo = getPlayerState(gs->currentPlayer, false);
+
 		// If we are called before the actual game start, there might be no current player
+		// If player making turn has lost his turn must be over as well
 		if (playerInfo && playerInfo->status != EPlayerStatus::INGAME)
-		{
-			// If player making turn has lost his turn must be over as well
-			states.setFlag(gs->currentPlayer, &PlayerStatus::makingTurn, false);
-		}
+			turnOrder->onPlayerEndsTurn(gs->currentPlayer);
 	}
 }
 
@@ -4227,15 +4110,6 @@ void CGameHandler::createObject(const int3 & visitablePosition, Obj type, int32_
 	no.subID= subtype;
 	no.targetPos = visitablePosition;
 	sendAndApply(&no);
-}
-
-void CGameHandler::deserializationFix()
-{
-	//FIXME: pointer to GameHandler itself can't be deserialized at the moment since GameHandler is top-level entity in serialization
-	// restore any places that requires such pointer manually
-	heroPool->gameHandler = this;
-	battles->setGameHandler(this);
-	playerMessages->gameHandler = this;
 }
 
 void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, const CGTownInstance *town)

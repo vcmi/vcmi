@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "HeroPoolProcessor.h"
 
+#include "TurnOrderProcessor.h"
 #include "../CGameHandler.h"
 
 #include "../../lib/CHeroHandler.h"
@@ -30,29 +31,6 @@ HeroPoolProcessor::HeroPoolProcessor()
 HeroPoolProcessor::HeroPoolProcessor(CGameHandler * gameHandler)
 	: gameHandler(gameHandler)
 {
-}
-
-bool HeroPoolProcessor::playerEndedTurn(const PlayerColor & player)
-{
-	// our player is acting right now and have not ended turn
-	if (player == gameHandler->gameState()->currentPlayer)
-		return false;
-
-	auto turnOrder = gameHandler->generatePlayerTurnOrder();
-
-	for (auto const & entry : turnOrder)
-	{
-		// our player is yet to start turn
-		if (entry == gameHandler->gameState()->currentPlayer)
-			return false;
-
-		// our player have finished turn
-		if (entry == player)
-			return true;
-	}
-
-	assert(false);
-	return false;
 }
 
 TavernHeroSlot HeroPoolProcessor::selectSlotForRole(const PlayerColor & player, TavernSlotRole roleID)
@@ -90,7 +68,7 @@ TavernHeroSlot HeroPoolProcessor::selectSlotForRole(const PlayerColor & player, 
 void HeroPoolProcessor::onHeroSurrendered(const PlayerColor & color, const CGHeroInstance * hero)
 {
 	SetAvailableHero sah;
-	if (playerEndedTurn(color))
+	if (gameHandler->turnOrder->playerAwaitsNewDay(color))
 		sah.roleID = TavernSlotRole::SURRENDERED_TODAY;
 	else
 		sah.roleID = TavernSlotRole::SURRENDERED;
@@ -104,7 +82,7 @@ void HeroPoolProcessor::onHeroSurrendered(const PlayerColor & color, const CGHer
 void HeroPoolProcessor::onHeroEscaped(const PlayerColor & color, const CGHeroInstance * hero)
 {
 	SetAvailableHero sah;
-	if (playerEndedTurn(color))
+	if (gameHandler->turnOrder->playerAwaitsNewDay(color))
 		sah.roleID = TavernSlotRole::RETREATED_TODAY;
 	else
 		sah.roleID = TavernSlotRole::RETREATED;

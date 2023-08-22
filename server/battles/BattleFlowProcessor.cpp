@@ -286,7 +286,6 @@ const CStack * BattleFlowProcessor::getNextStack()
 
 void BattleFlowProcessor::activateNextStack()
 {
-	//TODO: activate next round if next == nullptr
 	const auto & curB = *gameHandler->gameState()->curB;
 
 	// Find next stack that requires manual control

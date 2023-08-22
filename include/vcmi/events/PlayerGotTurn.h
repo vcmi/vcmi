@@ -29,7 +29,7 @@ public:
 	using ExecHandler = Sub::ExecHandler;
 
 	static Sub * getRegistry();
-	static void defaultExecute(const EventBus * bus, const ExecHandler & execHandler, PlayerColor & player);
+	static void defaultExecute(const EventBus * bus, PlayerColor & player);
 
 	virtual PlayerColor getPlayer() const = 0;
 	virtual void setPlayer(const PlayerColor & value) = 0;

@@ -71,7 +71,7 @@ bool PlayerMessageProcessor::handleHostCommand(PlayerColor player, const std::st
 	if(words[1] == "exit" || words[1] == "quit" || words[1] == "end")
 	{
 		broadcastSystemMessage("game was terminated");
-		gameHandler->gameLobby()->state = EServerState::SHUTDOWN;
+		gameHandler->gameLobby()->setState(EServerState::SHUTDOWN);
 
 		return true;
 	}
