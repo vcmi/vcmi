@@ -12,6 +12,7 @@ set(client_SRCS
 	adventureMap/CMinimap.cpp
 	adventureMap/CResDataBar.cpp
 	adventureMap/MapAudioPlayer.cpp
+	adventureMap/TurnTimerWidget.cpp
 
 	battle/BattleActionsController.cpp
 	battle/BattleAnimationClasses.cpp
@@ -157,6 +158,7 @@ set(client_HEADERS
 	adventureMap/CMinimap.h
 	adventureMap/CResDataBar.h
 	adventureMap/MapAudioPlayer.h
+	adventureMap/TurnTimerWidget.h
 
 	battle/BattleActionsController.h
 	battle/BattleAnimationClasses.h

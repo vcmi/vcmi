@@ -19,6 +19,7 @@ set(server_SRCS
 		CVCMIServer.cpp
 		NetPacksServer.cpp
 		NetPacksLobbyServer.cpp
+		TurnTimerHandler.cpp
 )
 
 set(server_HEADERS
@@ -42,6 +43,7 @@ set(server_HEADERS
 		CVCMIServer.h
 		LobbyNetPackVisitors.h
 		ServerNetPackVisitors.h
+		TurnTimerHandler.h
 )
 
 assign_source_group(${server_SRCS} ${server_HEADERS})

@@ -190,6 +190,10 @@
 		"MAPS/":
 		[
 			{"type" : "dir",  "path" : "/Maps"}
+		],
+		"SOUNDS/":
+		[
+			{"type" : "dir", "path" : "/Sounds"}
 		]
 	}
 }

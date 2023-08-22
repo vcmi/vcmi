@@ -240,13 +240,13 @@ struct DLL_LINKAGE LobbySetPlayer : public CLobbyPackToServer
 
 struct DLL_LINKAGE LobbySetTurnTime : public CLobbyPackToServer
 {
-	ui8 turnTime = 0;
+	TurnTimerInfo turnTimerInfo;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & turnTime;
+		h & turnTimerInfo;
 	}
 };
 

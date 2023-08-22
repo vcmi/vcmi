@@ -314,7 +314,7 @@ void AdventureMapShortcuts::visitObject()
 	const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero();
 
 	if(h)
-		LOCPLINT->cb->moveHero(h,h->pos);
+		LOCPLINT->cb->moveHero(h, h->pos);
 }
 
 void AdventureMapShortcuts::openObject()

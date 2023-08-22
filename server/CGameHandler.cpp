@@ -541,6 +541,11 @@ void CGameHandler::handleReceivedPack(CPackForServer * pack)
 	vstd::clear_pointer(pack);
 }
 
+
+CGameHandler::CGameHandler()
+	: turnTimerHandler(*this)
+{}
+
 CGameHandler::CGameHandler(CVCMIServer * lobby)
 	: lobby(lobby)
 	, heroPool(std::make_unique<HeroPoolProcessor>(this))
@@ -550,6 +555,7 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	, complainNoCreatures("No creatures to split")
 	, complainNotEnoughCreatures("Cannot split that stack, not enough creatures!")
 	, complainInvalidSlot("Invalid slot accessed!")
+	, turnTimerHandler(*this)
 {
 	QID = 1;
 	IObjectInterface::cb = this;
@@ -992,7 +998,11 @@ void CGameHandler::run(bool resume)
 		events::GameResumed::defaultExecute(serverEventBus.get());
 
 	auto playerTurnOrder = generatePlayerTurnOrder();
-
+	
+	if(!resume)
+		for(auto & playerColor : playerTurnOrder)
+			turnTimerHandler.onGameplayStart(gs->players[playerColor]);
+	
 	while(lobby->state == EServerState::GAMEPLAY)
 	{
 		if(!resume)
@@ -1040,6 +1050,8 @@ void CGameHandler::run(bool resume)
 					//Change local daysWithoutCastle counter for local interface message //TODO: needed?
 					yt.daysWithoutCastle = playerState->daysWithoutCastle;
 					applyAndSend(&yt);
+					
+					turnTimerHandler.onPlayerGetTurn(gs->players[player]);
 				}
 			};
 
@@ -1048,10 +1060,15 @@ void CGameHandler::run(bool resume)
 			if(playerColor != PlayerColor::CANNOT_DETERMINE)
 			{
 				//wait till turn is done
+				const int waitTime = 100; //ms
 				boost::unique_lock<boost::mutex> lock(states.mx);
 				while(states.players.at(playerColor).makingTurn && lobby->state == EServerState::GAMEPLAY)
 				{
-					static time_duration p = milliseconds(100);
+					turnTimerHandler.onPlayerMakingTurn(gs->players[playerColor], waitTime);
+					if(gs->curB)
+						turnTimerHandler.onBattleLoop(waitTime);
+
+					static time_duration p = milliseconds(waitTime);
 					states.cv.timed_wait(lock, p);
 				}
 			}
@@ -1141,6 +1158,9 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	// not turn of that hero or player can't simply teleport hero (at least not with this function)
 	if (!h  || (asker != PlayerColor::NEUTRAL && (teleporting || h->getOwner() != gs->currentPlayer)))
 	{
+		if(h && getStartInfo()->turnTimerInfo.isEnabled() && gs->players[h->getOwner()].turnTimer.turnTimer == 0)
+			return true; //timer expired, no error
+		
 		logGlobal->error("Illegal call to move hero!");
 		return false;
 	}
@@ -1248,7 +1268,17 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 			visitObjectOnTile(t, h);
 		}
 
-		queries->popIfTop(moveQuery);
+		if(!transit)
+		{
+			for(auto topQuery = queries->topQuery(h->tempOwner); true; topQuery = queries->topQuery(h->tempOwner))
+			{
+				moveQuery = std::dynamic_pointer_cast<CHeroMovementQuery>(topQuery);
+				if(moveQuery)
+					queries->popIfTop(moveQuery);
+				else
+					break;
+			}
+		}
 		logGlobal->trace("Hero %s ends movement", h->getNameTranslated());
 		return result != TryMoveHero::FAILED;
 	};

@@ -14,6 +14,7 @@
 #include "../lib/IGameCallback.h"
 #include "../lib/battle/CBattleInfoCallback.h"
 #include "../lib/ScriptHandler.h"
+#include "TurnTimerHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -105,6 +106,8 @@ public:
 
 
 	SpellCastEnvironment * spellEnv;
+	
+	TurnTimerHandler turnTimerHandler;
 
 	const Services * services() const override;
 	const BattleCb * battle() const override;
@@ -118,7 +121,7 @@ public:
 	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 
-	CGameHandler() = default;
+	CGameHandler();
 	CGameHandler(CVCMIServer * lobby);
 	~CGameHandler();
 

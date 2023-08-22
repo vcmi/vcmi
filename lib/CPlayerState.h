@@ -15,6 +15,7 @@
 #include "bonuses/Bonus.h"
 #include "bonuses/CBonusSystemNode.h"
 #include "ResourceSet.h"
+#include "TurnTimerInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -39,6 +40,7 @@ public:
 	bool enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
 	EPlayerStatus::EStatus status;
 	std::optional<ui8> daysWithoutCastle;
+	TurnTimerInfo turnTimer;
 
 	PlayerState();
 	PlayerState(PlayerState && other) noexcept;
@@ -71,6 +73,7 @@ public:
 		h & team;
 		h & resources;
 		h & status;
+		h & turnTimer;
 		h & heroes;
 		h & towns;
 		h & dwellings;
