@@ -535,13 +535,20 @@ bool BattleActionProcessor::makeBattleActionImpl(const BattleAction &ba)
 	logGlobal->trace("Making action: %s", ba.toString());
 	const CStack * stack = gameHandler->gameState()->curB->battleGetStackByID(ba.stackNumber);
 
-	StartAction startAction(ba);
-	gameHandler->sendAndApply(&startAction);
+	// for these events client does not expects StartAction/EndAction wrapper
+	if (!ba.isBattleEndAction())
+	{
+		StartAction startAction(ba);
+		gameHandler->sendAndApply(&startAction);
+	}
 
 	bool result = dispatchBattleAction(ba);
 
-	EndAction endAction;
-	gameHandler->sendAndApply(&endAction);
+	if (!ba.isBattleEndAction())
+	{
+		EndAction endAction;
+		gameHandler->sendAndApply(&endAction);
+	}
 
 	if(ba.actionType == EActionType::WAIT || ba.actionType == EActionType::DEFEND || ba.actionType == EActionType::SHOOT || ba.actionType == EActionType::MONSTER_SPELL)
 		gameHandler->handleObstacleTriggersForUnit(*gameHandler->spellEnv, *stack);

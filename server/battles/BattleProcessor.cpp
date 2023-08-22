@@ -147,6 +147,9 @@ bool BattleProcessor::checkBattleStateChanges()
 	if (gameHandler->battleGetSiegeLevel() > 0)
 		updateGateState();
 
+	if (resultProcessor->battleIsEnding())
+		return true;
+
 	//check if battle ended
 	if (auto result = gameHandler->battleIsFinished())
 	{

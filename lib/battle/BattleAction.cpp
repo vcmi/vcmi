@@ -205,7 +205,6 @@ bool BattleAction::isUnitAction() const
 		EActionType::BAD_MORALE,
 		EActionType::STACK_HEAL
 	};
-
 	return vstd::contains(actions, actionType);
 }
 
@@ -215,7 +214,15 @@ bool BattleAction::isSpellAction() const
 		EActionType::HERO_SPELL,
 		EActionType::MONSTER_SPELL
 	};
+	return vstd::contains(actions, actionType);
+}
 
+bool BattleAction::isBattleEndAction() const
+{
+	static const std::array<EActionType, 2> actions = {
+		EActionType::RETREAT,
+		EActionType::SURRENDER
+	};
 	return vstd::contains(actions, actionType);
 }
 
@@ -227,7 +234,6 @@ bool BattleAction::isTacticsAction() const
 		EActionType::RETREAT,
 		EActionType::SURRENDER
 	};
-
 	return vstd::contains(actions, actionType);
 }
 
