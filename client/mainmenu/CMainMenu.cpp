@@ -641,7 +641,7 @@ std::string CLoadingScreen::getBackground()
 		return fname;
 	}
 	
-	if(conf.isVector() and !conf.Vector().empty())
+	if(conf.isVector() && !conf.Vector().empty())
 		return RandomGeneratorUtil::nextItem(conf.Vector(), CRandomGenerator::getDefault())->String();
 	
 	return fname;
