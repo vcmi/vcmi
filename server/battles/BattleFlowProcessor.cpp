@@ -130,6 +130,8 @@ void BattleFlowProcessor::onBattleStarted()
 	assert(gameHandler->gameState()->curB);
 
 	tryPlaceMoats();
+	
+	gameHandler->turnTimerHandler.onBattleStart();
 
 	if (gameHandler->gameState()->curB->tacticDistance == 0)
 		onTacticsEnded();

@@ -88,12 +88,21 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerState & state, int waitTime)
 	}
 }
 
-void TurnTimerHandler::onBattleStart(PlayerState & state)
+void TurnTimerHandler::onBattleStart()
 {
-	if(const auto * si = gameHandler.getStartInfo())
+	const auto * gs = gameHandler.gameState();
+	const auto * si = gameHandler.getStartInfo();
+	if(!si || !gs || !gs->curB || !si->turnTimerInfo.isBattleEnabled())
+		return;
+	
+	auto attacker = gs->curB->getSidePlayer(BattleSide::ATTACKER);
+	auto defender = gs->curB->getSidePlayer(BattleSide::DEFENDER);
+	
+	for(auto i : {attacker, defender})
 	{
-		if(si->turnTimerInfo.isBattleEnabled())
+		if(i.isValidPlayer())
 		{
+			const auto & state = gs->players.at(i);
 			TurnTimeUpdate ttu;
 			ttu.player = state.color;
 			ttu.turnTimer = state.turnTimer;

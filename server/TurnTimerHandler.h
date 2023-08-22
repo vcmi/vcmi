@@ -33,7 +33,7 @@ public:
 	void onGameplayStart(PlayerState & state);
 	void onPlayerGetTurn(PlayerState & state);
 	void onPlayerMakingTurn(PlayerState & state, int waitTime);
-	void onBattleStart(PlayerState & state);
+	void onBattleStart();
 	void onBattleNextStack(const CStack & stack);
 	void onBattleLoop(int waitTime);
 };
