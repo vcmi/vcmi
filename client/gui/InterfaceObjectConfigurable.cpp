@@ -190,18 +190,29 @@ ColorRGBA InterfaceObjectConfigurable::readColor(const JsonNode & config) const
 	logGlobal->debug("Reading color");
 	if(!config.isNull())
 	{
-		if(config.String() == "yellow")
-			return Colors::YELLOW;
-		if(config.String() == "white")
-			return Colors::WHITE;
-		if(config.String() == "gold")
-			return Colors::METALLIC_GOLD;
-		if(config.String() == "green")
-			return Colors::GREEN;
-		if(config.String() == "orange")
-			return Colors::ORANGE;
-		if(config.String() == "bright-yellow")
-			return Colors::BRIGHT_YELLOW;
+		if(config.isString())
+		{
+			if(config.String() == "yellow")
+				return Colors::YELLOW;
+			if(config.String() == "white")
+				return Colors::WHITE;
+			if(config.String() == "gold")
+				return Colors::METALLIC_GOLD;
+			if(config.String() == "green")
+				return Colors::GREEN;
+			if(config.String() == "orange")
+				return Colors::ORANGE;
+			if(config.String() == "bright-yellow")
+				return Colors::BRIGHT_YELLOW;
+		}
+		if(config.isVector())
+		{
+			const auto & asVector = config.Vector();
+			if(asVector.size() == 4)
+				return ColorRGBA(asVector[0].Integer(), asVector[1].Integer(), asVector[2].Integer(), asVector[3].Integer());
+			if(asVector.size() == 3)
+				return ColorRGBA(asVector[0].Integer(), asVector[1].Integer(), asVector[2].Integer());
+		}
 	}
 	logGlobal->debug("Uknown color attribute");
 	return Colors::DEFAULT_KEY_COLOR;

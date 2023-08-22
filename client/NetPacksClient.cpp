@@ -864,6 +864,11 @@ void ApplyClientNetPackVisitor::visitYourTurn(YourTurn & pack)
 	callOnlyThatInterface(cl, pack.player, &CGameInterface::yourTurn);
 }
 
+void ApplyClientNetPackVisitor::visitTurnTimeUpdate(TurnTimeUpdate & pack)
+{
+	logNetwork->debug("Server sets turn timer {turn: %d, base: %d, battle: %d, creature: %d} for %s", pack.turnTimer.turnTimer, pack.turnTimer.baseTimer, pack.turnTimer.battleTimer, pack.turnTimer.creatureTimer, pack.player.getStr());
+}
+
 void ApplyClientNetPackVisitor::visitPlayerMessageClient(PlayerMessageClient & pack)
 {
 	logNetwork->debug("pack.player %s sends a message: %s", pack.player.getStr(), pack.text);

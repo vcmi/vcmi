@@ -265,6 +265,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/ScriptHandler.cpp
 		${MAIN_LIB_DIR}/TerrainHandler.cpp
 		${MAIN_LIB_DIR}/TextOperations.cpp
+		${MAIN_LIB_DIR}/TurnTimerInfo.cpp
 		${MAIN_LIB_DIR}/VCMIDirs.cpp
 		${MAIN_LIB_DIR}/VCMI_Lib.cpp
 	)
@@ -623,6 +624,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/StringConstants.h
 		${MAIN_LIB_DIR}/TerrainHandler.h
 		${MAIN_LIB_DIR}/TextOperations.h
+		${MAIN_LIB_DIR}/TurnTimerInfo.h
 		${MAIN_LIB_DIR}/UnlockGuard.h
 		${MAIN_LIB_DIR}/VCMIDirs.h
 		${MAIN_LIB_DIR}/vcmi_endian.h

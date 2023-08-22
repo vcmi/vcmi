@@ -94,6 +94,7 @@ public:
 	void visitSystemMessage(SystemMessage & pack) override;
 	void visitPlayerBlocked(PlayerBlocked & pack) override;
 	void visitYourTurn(YourTurn & pack) override;
+	void visitTurnTimeUpdate(TurnTimeUpdate & pack) override;
 	void visitPlayerMessageClient(PlayerMessageClient & pack) override;
 	void visitAdvmapSpellCast(AdvmapSpellCast & pack) override;
 	void visitShowWorldViewEx(ShowWorldViewEx & pack) override;	

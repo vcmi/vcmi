@@ -78,7 +78,7 @@ void OptionsTab::recreate()
 
 	if(sliderTurnDuration)
 	{
-		sliderTurnDuration->scrollTo(vstd::find_pos(GameConstants::POSSIBLE_TURNTIME, SEL->getStartInfo()->turnTime));
+		sliderTurnDuration->scrollTo(vstd::find_pos(GameConstants::POSSIBLE_TURNTIME, SEL->getStartInfo()->turnTimerInfo.turnTimer / (60 * 1000)));
 		labelTurnDurationValue->setText(CGI->generaltexth->turnDurations[sliderTurnDuration->getValue()]);
 	}
 }

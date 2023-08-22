@@ -14,6 +14,7 @@
 #include "ConstTransitivePtr.h"
 #include "MetaString.h"
 #include "ResourceSet.h"
+#include "TurnTimerInfo.h"
 #include "int3.h"
 
 #include "battle/BattleAction.h"
@@ -144,6 +145,20 @@ struct DLL_LINKAGE PlayerCheated : public CPackForClient
 		h & player;
 		h & losingCheatCode;
 		h & winningCheatCode;
+	}
+};
+
+struct DLL_LINKAGE TurnTimeUpdate : public CPackForClient
+{
+	void applyGs(CGameState * gs) const;
+	
+	PlayerColor player;
+	TurnTimerInfo turnTimer;
+		
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & player;
+		h & turnTimer;
 	}
 };
 

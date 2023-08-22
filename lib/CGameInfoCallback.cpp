@@ -99,6 +99,22 @@ const PlayerState * CGameInfoCallback::getPlayerState(PlayerColor color, bool ve
 	}
 }
 
+TurnTimerInfo CGameInfoCallback::getPlayerTurnTime(PlayerColor color) const
+{
+	if(!color.isValidPlayer())
+	{
+		return TurnTimerInfo{};
+	}
+	
+	auto player = gs->players.find(color);
+	if(player != gs->players.end())
+	{
+		return player->second.turnTimer;
+	}
+	
+	return TurnTimerInfo{};
+}
+
 const CGObjectInstance * CGameInfoCallback::getObjByQuestIdentifier(int identifier) const
 {
 	if(gs->map->questIdentifierToId.empty())

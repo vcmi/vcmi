@@ -130,6 +130,8 @@ void BattleFlowProcessor::onBattleStarted()
 	assert(gameHandler->gameState()->curB);
 
 	tryPlaceMoats();
+	
+	gameHandler->turnTimerHandler.onBattleStart();
 
 	if (gameHandler->gameState()->curB->tacticDistance == 0)
 		onTacticsEnded();
@@ -315,6 +317,8 @@ void BattleFlowProcessor::activateNextStack()
 
 		if(!removeGhosts.changedStacks.empty())
 			gameHandler->sendAndApply(&removeGhosts);
+		
+		gameHandler->turnTimerHandler.onBattleNextStack(*next);
 
 		if (!tryMakeAutomaticAction(next))
 		{

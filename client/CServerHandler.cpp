@@ -479,7 +479,7 @@ void CServerHandler::setTurnLength(int npos) const
 {
 	vstd::amin(npos, GameConstants::POSSIBLE_TURNTIME.size() - 1);
 	LobbySetTurnTime lstt;
-	lstt.turnTime = GameConstants::POSSIBLE_TURNTIME[npos];
+	lstt.turnTimerInfo.turnTimer = GameConstants::POSSIBLE_TURNTIME[npos] * 60 * 1000;
 	sendLobbyPack(lstt);
 }
 

@@ -17,6 +17,7 @@
 #include "CList.h"
 #include "CInfoBar.h"
 #include "MapAudioPlayer.h"
+#include "TurnTimerWidget.h"
 #include "AdventureMapWidget.h"
 #include "AdventureMapShortcuts.h"
 
@@ -35,6 +36,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/StartInfo.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -61,6 +63,9 @@ AdventureMapInterface::AdventureMapInterface():
 	shortcuts->setState(EAdventureState::MAKING_TURN);
 	widget->getMapView()->onViewMapActivated();
 
+	if(LOCPLINT->cb->getStartInfo()->turnTimerInfo.isEnabled())
+		watches = std::make_shared<TurnTimerWidget>();
+	
 	addUsedEvents(KEYBOARD | TIME);
 }
 

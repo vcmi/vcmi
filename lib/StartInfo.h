@@ -10,6 +10,7 @@
 #pragma once
 
 #include "GameConstants.h"
+#include "TurnTimerInfo.h"
 #include "campaign/CampaignConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -80,7 +81,7 @@ struct DLL_LINKAGE StartInfo
 	ui32 seedToBeUsed; //0 if not sure (client requests server to decide, will be send in reply pack)
 	ui32 seedPostInit; //so we know that game is correctly synced at the start; 0 if not known yet
 	ui32 mapfileChecksum; //0 if not relevant
-	ui8 turnTime; //in minutes, 0=unlimited
+	TurnTimerInfo turnTimerInfo;
 	std::string mapname; // empty for random map, otherwise name of the map or savegame
 	bool createRandomMap() const { return mapGenOptions != nullptr; }
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
@@ -103,14 +104,14 @@ struct DLL_LINKAGE StartInfo
 		h & seedToBeUsed;
 		h & seedPostInit;
 		h & mapfileChecksum;
-		h & turnTime;
+		h & turnTimerInfo;
 		h & mapname;
 		h & mapGenOptions;
 		h & campState;
 	}
 
 	StartInfo() : mode(INVALID), difficulty(1), seedToBeUsed(0), seedPostInit(0),
-		mapfileChecksum(0), turnTime(0)
+		mapfileChecksum(0)
 	{
 
 	}
