@@ -573,7 +573,7 @@ void CGameHandler::reinitScripting()
 #endif
 }
 
-void CGameHandler::init(StartInfo *si, Load::Progress *& progressTracking)
+void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTracking)
 {
 	if (si->seedToBeUsed == 0)
 	{

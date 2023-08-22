@@ -289,9 +289,6 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 		result = false;
 		return;
 	}
-	// Announce loading
-	std::unique_ptr<LobbyLoadProgress> loadProgress(new LobbyLoadProgress);
-	srv.addToAnnounceQueue(std::move(loadProgress));
 	
 	// Server will prepare gamestate and we announce StartInfo to clients
 	if(!srv.prepareToStartGame())
@@ -303,6 +300,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 	pack.initializedStartInfo = std::make_shared<StartInfo>(*srv.gh->getStartInfo(true));
 	pack.initializedGameState = srv.gh->gameState();
 
+	srv.state = EServerState::GAMEPLAY_STARTING;
 	result = true;
 }
 

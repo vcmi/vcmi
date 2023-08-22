@@ -182,8 +182,8 @@ void CClient::newGame(CGameState * initializedGameState)
 	logNetwork->trace("\tCreating gamestate: %i", CSH->th->getDiff());
 	if(!initializedGameState)
 	{
-		Load::Progress * progressTrackingPointer = nullptr;
-		gs->init(&mapService, CSH->si.get(), progressTrackingPointer, settings["general"]["saveRandomMaps"].Bool());
+		Load::ProgressAccumulator progressTracking;
+		gs->init(&mapService, CSH->si.get(), progressTracking, settings["general"]["saveRandomMaps"].Bool());
 	}
 	logNetwork->trace("Initializing GameState (together): %d ms", CSH->th->getDiff());
 

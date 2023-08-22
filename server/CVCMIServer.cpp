@@ -279,23 +279,20 @@ void CVCMIServer::prepareToRestart()
 
 bool CVCMIServer::prepareToStartGame()
 {
-	Load::Progress * progressTracking = nullptr;
-	bool progressTrackingFinished = false;
-	std::thread progressTrackingThread([this, &progressTracking, &progressTrackingFinished](){
-		while(!progressTrackingFinished)
+	Load::ProgressAccumulator progressTracking;
+	Load::Progress current(1);
+	progressTracking.include(current);
+	
+	auto progressTrackingThread = boost::thread([this, &progressTracking]()
+	{
+		while(!progressTracking.finished())
 		{
-			if(progressTracking)
-			{
-				boost::unique_lock<boost::recursive_mutex> queueLock(mx);
-				std::unique_ptr<LobbyLoadProgress> loadProgress(new LobbyLoadProgress);
-				loadProgress->progress = progressTracking->get();
-				addToAnnounceQueue(std::move(loadProgress));
-			}
-			boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+			std::unique_ptr<LobbyLoadProgress> loadProgress(new LobbyLoadProgress);
+			loadProgress->progress = progressTracking.get();
+			addToAnnounceQueue(std::move(loadProgress));
+			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 		}
-		progressTrackingFinished = false;
 	});
-	progressTrackingThread.detach();
 	
 	gh = std::make_shared<CGameHandler>(this);
 	switch(si->mode)
@@ -315,7 +312,11 @@ bool CVCMIServer::prepareToStartGame()
 	case StartInfo::LOAD_GAME:
 		logNetwork->info("Preparing to start loaded game");
 		if(!gh->load(si->mapname))
+		{
+			current.finish();
+			progressTrackingThread.join();
 			return false;
+		}
 		break;
 	default:
 		logNetwork->error("Wrong mode in StartInfo!");
@@ -323,11 +324,9 @@ bool CVCMIServer::prepareToStartGame()
 		break;
 	}
 	
-	progressTrackingFinished = true;
-	while(progressTrackingFinished)
-		continue;
+	current.finish();
+	progressTrackingThread.join();
 	
-	state = EServerState::GAMEPLAY_STARTING;
 	return true;
 }
 
