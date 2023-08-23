@@ -1112,11 +1112,11 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 		for (auto & component : components)
 			intComps.push_back(std::make_shared<CSelectableComponent>(component)); //will be deleted by CSelWindow::close
 
-		std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
-		pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
+		std::vector<std::pair<AnimationPath,CFunctionList<void()> > > pom;
+		pom.push_back({ AnimationPath::builtin("IOKAY.DEF"),0});
 		if (cancel)
 		{
-			pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
+			pom.push_back({AnimationPath::builtin("ICANCEL.DEF"),0});
 		}
 
 		int charperline = 35;

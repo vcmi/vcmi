@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../../lib/vcmi_endian.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 class IImageLoader;
 struct SDL_Color;
@@ -39,7 +40,7 @@ private:
 	std::unique_ptr<SDL_Color[]> palette;
 
 public:
-	CDefFile(std::string Name);
+	CDefFile(const AnimationPath & Name);
 	~CDefFile();
 
 	//load frame as SDL_Surface

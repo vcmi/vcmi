@@ -42,15 +42,15 @@ CPicture::CPicture(std::shared_ptr<IImage> image, const Point & position)
 	pos.h = bg->height();
 }
 
-CPicture::CPicture( const std::string &bmpname, int x, int y )
+CPicture::CPicture( const ImagePath &bmpname, int x, int y )
 	: CPicture(bmpname, Point(x,y))
 {}
 
-CPicture::CPicture( const std::string &bmpname )
+CPicture::CPicture( const ImagePath & bmpname )
 	: CPicture(bmpname, Point(0,0))
 {}
 
-CPicture::CPicture( const std::string &bmpname, const Point & position )
+CPicture::CPicture( const ImagePath & bmpname, const Point & position )
 	: bg(IImage::createFromFile(bmpname))
 	, visible(true)
 	, needRefresh(false)
@@ -113,7 +113,7 @@ void CPicture::colorize(PlayerColor player)
 	bg->playerColored(player);
 }
 
-CFilledTexture::CFilledTexture(std::string imageName, Rect position):
+CFilledTexture::CFilledTexture(const ImagePath & imageName, Rect position):
     CIntObject(0, position.topLeft()),
 	texture(IImage::createFromFile(imageName))
 {
@@ -142,7 +142,7 @@ void CFilledTexture::showAll(Canvas & to)
 	}
 }
 
-FilledTexturePlayerColored::FilledTexturePlayerColored(std::string imageName, Rect position)
+FilledTexturePlayerColored::FilledTexturePlayerColored(const ImagePath & imageName, Rect position)
 	: CFilledTexture(imageName, position)
 {
 }
@@ -171,7 +171,7 @@ void FilledTexturePlayerColored::playerColored(PlayerColor player)
 	texture->adjustPalette(filters[player.getNum()], 0);
 }
 
-CAnimImage::CAnimImage(const std::string & name, size_t Frame, size_t Group, int x, int y, ui8 Flags):
+CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, size_t Group, int x, int y, ui8 Flags):
 	frame(Frame),
 	group(Group),
 	flags(Flags)
@@ -307,7 +307,7 @@ bool CAnimImage::isPlayerColored() const
 	return player.has_value();
 }
 
-CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 frameTime, size_t Group, uint8_t alpha):
+CShowableAnim::CShowableAnim(int x, int y, const AnimationPath & name, ui8 Flags, ui32 frameTime, size_t Group, uint8_t alpha):
 	anim(std::make_shared<CAnimation>(name)),
 	group(Group),
 	frame(0),
@@ -448,7 +448,7 @@ void CShowableAnim::setDuration(int durationMs)
 	frameTimeTotal = durationMs/(last - first);
 }
 
-CCreatureAnim::CCreatureAnim(int x, int y, std::string name, ui8 flags, ECreatureAnimType type):
+CCreatureAnim::CCreatureAnim(int x, int y, const AnimationPath & name, ui8 flags, ECreatureAnimType type):
 	CShowableAnim(x, y, name, flags, 100, size_t(type)) // H3 uses 100 ms per frame, irregardless of battle speed settings
 {
 	xOffset = 0;

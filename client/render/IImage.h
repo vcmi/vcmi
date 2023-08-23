@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../../lib/filesystem/ResourcePath.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class PlayerColor;
@@ -84,8 +86,8 @@ public:
 	virtual ~IImage();
 
 	/// loads image from specified file. Returns 0-sized images on failure
-	static std::shared_ptr<IImage> createFromFile( const std::string & path );
-	static std::shared_ptr<IImage> createFromFile( const std::string & path, EImageBlitMode mode );
+	static std::shared_ptr<IImage> createFromFile( const ImagePath & path );
+	static std::shared_ptr<IImage> createFromFile( const ImagePath & path, EImageBlitMode mode );
 
 	/// temporary compatibility method. Creates IImage from existing SDL_Surface
 	/// Surface will be shared, called must still free it with SDL_FreeSurface

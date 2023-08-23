@@ -27,7 +27,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/battle/BattleAction.h"
-#include "../../lib/filesystem/ResourceID.h"
+#include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/CStack.h"
 #include "../../lib/IGameEventsReceiver.h"
@@ -48,7 +48,7 @@ void BattleEffectsController::displayEffect(EBattleEffect effect, std::string so
 {
 	size_t effectID = static_cast<size_t>(effect);
 
-	std::string customAnim = graphics->battleACToDef[effectID][0];
+	AnimationPath customAnim = AnimationPath::builtinTODO(graphics->battleACToDef[effectID][0]);
 
 	CCS->soundh->playSound( soundFile );
 
@@ -132,7 +132,7 @@ void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer
 
 void BattleEffectsController::loadColorMuxers()
 {
-	const JsonNode config(ResourceID("config/battleEffects.json"));
+	const JsonNode config(ResourcePath("config/battleEffects.json"));
 
 	for(auto & muxer : config["colorMuxers"].Struct())
 	{

@@ -1005,7 +1005,7 @@ namespace
 
 	namespace Formats
 	{
-		bool testFilePresence(const std::string & scope, const ResourceID & resource)
+		bool testFilePresence(const std::string & scope, const ResourcePath & resource)
 		{
 			std::set<std::string> allowedScopes;
 			if(scope != ModScope::scopeBuiltin() && !scope.empty()) // all real mods may have dependencies
@@ -1030,7 +1030,7 @@ namespace
 		}
 
 		#define TEST_FILE(scope, prefix, file, type) \
-			if (testFilePresence(scope, ResourceID(prefix + file, type))) \
+			if (testFilePresence(scope, ResourcePath(prefix + file, type))) \
 				return ""
 
 		std::string testAnimation(const std::string & path, const std::string & scope)

@@ -355,7 +355,7 @@ class CFortScreen : public CStatusbarWindow
 	std::shared_ptr<CMinorResDataBar> resdatabar;
 	std::shared_ptr<CButton> exit;
 
-	std::string getBgName(const CGTownInstance * town);
+	ImagePath getBgName(const CGTownInstance * town);
 
 public:
 	CFortScreen(const CGTownInstance * town);
@@ -385,7 +385,7 @@ class CMageGuildScreen : public CStatusbarWindow
 	std::shared_ptr<CMinorResDataBar> resdatabar;
 
 public:
-	CMageGuildScreen(CCastleInterface * owner,std::string image);
+	CMageGuildScreen(CCastleInterface * owner, const ImagePath & image);
 };
 
 /// The blacksmith window where you can buy available in town war machine

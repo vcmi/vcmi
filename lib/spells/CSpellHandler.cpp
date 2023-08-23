@@ -516,9 +516,9 @@ CSpell::AnimationItem::AnimationItem() :
 }
 
 ///CSpell::AnimationInfo
-std::string CSpell::AnimationInfo::selectProjectile(const double angle) const
+AnimationPath CSpell::AnimationInfo::selectProjectile(const double angle) const
 {
-	std::string res;
+	AnimationPath res;
 	double maximum = 0.0;
 
 	for(const auto & info : projectile)
@@ -861,10 +861,10 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 			CSpell::TAnimation newItem;
 
 			if(item.getType() == JsonNode::JsonType::DATA_STRING)
-				newItem.resourceName = item.String();
+				newItem.resourceName = AnimationPath::fromJson(item);
 			else if(item.getType() == JsonNode::JsonType::DATA_STRUCT)
 			{
-				newItem.resourceName = item["defName"].String();
+				newItem.resourceName = AnimationPath::fromJson(item["defName"]);
 				newItem.effectName   = item["effectName"].String();
 
 				auto vPosStr = item["verticalPosition"].String();
@@ -889,7 +889,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	for(const JsonNode & item : projectile)
 	{
 		CSpell::ProjectileInfo info;
-		info.resourceName = item["defName"].String();
+		info.resourceName = AnimationPath::fromJson(item["defName"]);
 		info.minimumAngle = item["minimumAngle"].Float();
 
 		spell->animationInfo.projectile.push_back(info);

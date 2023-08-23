@@ -181,7 +181,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	// Some basic data validation to produce better error messages in cases of incorrect install
 	auto testFile = [](std::string filename, std::string message) -> bool
 	{
-		if (CResourceHandler::get()->existsResource(ResourceID(filename)))
+		if (CResourceHandler::get()->existsResource(ResourcePath(filename)))
 			return true;
 
 		logGlobal->error("Error: %s was not found!", message);
@@ -317,7 +317,7 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	std::string fname = fi.fileName().toStdString();
 	std::string fdir = fi.dir().path().toStdString();
 	
-	ResourceID resId("MAPEDITOR/" + fname, EResType::MAP);
+	ResourcePath resId("MAPEDITOR/" + fname, EResType::MAP);
 	
 	//addFilesystem takes care about memory deallocation if case of failure, no memory leak here
 	auto * mapEditorFilesystem = new CFilesystemLoader("MAPEDITOR/", fdir, 0);
@@ -512,13 +512,13 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 			auto templ = templates[templateId];
 
 			//selecting file
-			const std::string & afile = templ->editorAnimationFile.empty() ? templ->animationFile : templ->editorAnimationFile;
+			const AnimationPath & afile = templ->editorAnimationFile.empty() ? templ->animationFile : templ->editorAnimationFile;
 
 			//creating picture
 			QPixmap preview(128, 128);
 			preview.fill(QColor(255, 255, 255));
 			QPainter painter(&preview);
-			Animation animation(afile);
+			Animation animation(afile.getOriginalName());
 			animation.preload();
 			auto picture = animation.getImage(0);
 			if(picture && picture->width() && picture->height())
@@ -533,8 +533,8 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 			QJsonObject data{{"id", QJsonValue(ID)},
 							 {"subid", QJsonValue(secondaryID)},
 							 {"template", QJsonValue(templateId)},
-							 {"animationEditor", QString::fromStdString(templ->editorAnimationFile)},
-							 {"animation", QString::fromStdString(templ->animationFile)},
+							 {"animationEditor", QString::fromStdString(templ->editorAnimationFile.getOriginalName())},
+							 {"animation", QString::fromStdString(templ->animationFile.getOriginalName())},
 							 {"preview", jsonFromPixmap(preview)}};
 			
 			//create object to extract name

@@ -13,7 +13,7 @@
 #include "../../battle/BattleInterface.h"
 #include "../../gui/CGuiHandler.h"
 #include "../../../lib/CConfigHandler.h"
-#include "../../../lib/filesystem/ResourceID.h"
+#include "../../../lib/filesystem/ResourcePath.h"
 #include "../../../lib/CGeneralTextHandler.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
@@ -23,7 +23,7 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	setRedrawParent(true);
 
-	const JsonNode config(ResourceID("config/widgets/settings/battleOptionsTab.json"));
+	const JsonNode config(ResourcePath("config/widgets/settings/battleOptionsTab.json"));
 	addCallback("viewGridChanged", [this, owner](bool value)
 	{
 		viewGridChangedCallback(value, owner);

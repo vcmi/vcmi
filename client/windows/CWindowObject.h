@@ -10,12 +10,13 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 class CGStatusBar;
 
 class CWindowObject : public WindowBase
 {
-	std::shared_ptr<CPicture> createBg(std::string imageName, bool playerColored);
+	std::shared_ptr<CPicture> createBg(const ImagePath & imageName, bool playerColored);
 
 	std::vector<std::shared_ptr<CPicture>> shadowParts;
 
@@ -30,7 +31,7 @@ protected:
 	bool isPopupWindow() const override;
 	//To display border
 	void updateShadow();
-	void setBackground(std::string filename);
+	void setBackground(const ImagePath & filename);
 public:
 	enum EOptions
 	{
@@ -45,8 +46,8 @@ public:
 	 * imageName - name for background image, can be empty
 	 * centerAt - position of window center. Default - center of the screen
 	*/
-	CWindowObject(int options, std::string imageName, Point centerAt);
-	CWindowObject(int options, std::string imageName = "");
+	CWindowObject(int options, const ImagePath & imageName, Point centerAt);
+	CWindowObject(int options, const ImagePath & imageName = {});
 	~CWindowObject();
 
 	void showAll(Canvas & to) override;
@@ -55,8 +56,8 @@ public:
 class CStatusbarWindow : public CWindowObject
 {
 public:
-	CStatusbarWindow(int options, std::string imageName, Point centerAt);
-	CStatusbarWindow(int options, std::string imageName = "");
+	CStatusbarWindow(int options, const ImagePath & imageName, Point centerAt);
+	CStatusbarWindow(int options, const ImagePath & imageName = {});
 protected:
 	std::shared_ptr<CGStatusBar> statusbar;
 };

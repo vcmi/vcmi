@@ -40,7 +40,7 @@ CSavingScreen::CSavingScreen()
 	tabSel->toggleMode();
 	curTab = tabSel;
 		
-	buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRSAV.DEF", CGI->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
+	buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRSAV.DEF"), CGI->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
 }
 
 const CMapInfo * CSavingScreen::getMapInfo()
@@ -80,7 +80,7 @@ void CSavingScreen::saveGame()
 		close();
 	};
 
-	if(CResourceHandler::get("local")->existsResource(ResourceID(path, EResType::SAVEGAME)))
+	if(CResourceHandler::get("local")->existsResource(ResourcePath(path, EResType::SAVEGAME)))
 	{
 		std::string hlp = CGI->generaltexth->allTexts[493]; //%s exists. Overwrite?
 		boost::algorithm::replace_first(hlp, "%s", tabSel->inputName->getText());

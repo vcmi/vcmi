@@ -23,7 +23,7 @@ CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, boost::filesystem:
 	logGlobal->trace("File system loaded, %d files found", fileList.size());
 }
 
-std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourceID & resourceName) const
+std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourcePath & resourceName) const
 {
 	assert(fileList.count(resourceName));
 	boost::filesystem::path file = baseDirectory / fileList.at(resourceName);
@@ -31,7 +31,7 @@ std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourceID & resourc
 	return std::make_unique<CFileInputStream>(file);
 }
 
-bool CFilesystemLoader::existsResource(const ResourceID & resourceName) const
+bool CFilesystemLoader::existsResource(const ResourcePath & resourceName) const
 {
 	return fileList.count(resourceName);
 }
@@ -41,7 +41,7 @@ std::string CFilesystemLoader::getMountPoint() const
 	return mountPoint;
 }
 
-std::optional<boost::filesystem::path> CFilesystemLoader::getResourceName(const ResourceID & resourceName) const
+std::optional<boost::filesystem::path> CFilesystemLoader::getResourceName(const ResourcePath & resourceName) const
 {
 	assert(existsResource(resourceName));
 
@@ -56,9 +56,9 @@ void CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string
 	}
 }
 
-std::unordered_set<ResourceID> CFilesystemLoader::getFilteredFiles(std::function<bool(const ResourceID &)> filter) const
+std::unordered_set<ResourcePath> CFilesystemLoader::getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const
 {
-	std::unordered_set<ResourceID> foundID;
+	std::unordered_set<ResourcePath> foundID;
 
 	for (auto & file : fileList)
 	{
@@ -70,7 +70,7 @@ std::unordered_set<ResourceID> CFilesystemLoader::getFilteredFiles(std::function
 
 bool CFilesystemLoader::createResource(std::string filename, bool update)
 {
-	ResourceID resID(filename);
+	ResourcePath resID(filename);
 
 	if (fileList.find(resID) != fileList.end())
 		return true;
@@ -99,19 +99,19 @@ bool CFilesystemLoader::createResource(std::string filename, bool update)
 	return true;
 }
 
-std::unordered_map<ResourceID, boost::filesystem::path> CFilesystemLoader::listFiles(const std::string &mountPoint, size_t depth, bool initial) const
+std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::listFiles(const std::string &mountPoint, size_t depth, bool initial) const
 {
-	static const EResType::Type initArray[] = {
+	static const EResType initArray[] = {
 		EResType::DIRECTORY,
 		EResType::TEXT,
 		EResType::ARCHIVE_LOD,
 		EResType::ARCHIVE_VID,
 		EResType::ARCHIVE_SND,
 		EResType::ARCHIVE_ZIP };
-	static const std::set<EResType::Type> initialTypes(initArray, initArray + std::size(initArray));
+	static const std::set<EResType> initialTypes(initArray, initArray + std::size(initArray));
 
 	assert(boost::filesystem::is_directory(baseDirectory));
-	std::unordered_map<ResourceID, boost::filesystem::path> fileList;
+	std::unordered_map<ResourcePath, boost::filesystem::path> fileList;
 
 	std::vector<boost::filesystem::path> path; //vector holding relative path to our file
 
@@ -124,7 +124,7 @@ std::unordered_map<ResourceID, boost::filesystem::path> CFilesystemLoader::listF
 
 	for(; it != enddir; ++it)
 	{
-		EResType::Type type;
+		EResType type;
 #if BOOST_VERSION >= 107200
 		const auto currentDepth = it.depth();
 #else
@@ -177,7 +177,7 @@ std::unordered_map<ResourceID, boost::filesystem::path> CFilesystemLoader::listF
 			else
 				resName = mountPoint + filename.string();
 
-			fileList[ResourceID(resName, type)] = std::move(filename);
+			fileList[ResourcePath(resName, type)] = std::move(filename);
 		}
 	}
 

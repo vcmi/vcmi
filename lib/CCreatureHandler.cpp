@@ -415,7 +415,7 @@ const CCreature * CCreatureHandler::getCreature(const std::string & scope, const
 
 void CCreatureHandler::loadCommanders()
 {
-	ResourceID configResource("config/commanders.json");
+	ResourcePath configResource("config/commanders.json");
 
 	std::string modSource = VLC->modh->findResourceOrigin(configResource);
 	JsonNode data(configResource);
@@ -884,7 +884,7 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 
 void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & config) const
 {
-	creature->animDefName = config["graphics"]["animation"].String();
+	creature->animDefName = AnimationPath::fromJson(config["graphics"]["animation"]);
 
 	//FIXME: MOD COMPATIBILITY
 	if (config["abilities"].getType() == JsonNode::JsonType::DATA_STRUCT)
@@ -933,7 +933,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 		});
 	}
 
-	creature->animation.projectileImageName = config["graphics"]["missile"]["projectile"].String();
+	creature->animation.projectileImageName = AnimationPath::fromJson(config["graphics"]["missile"]["projectile"]);
 
 	for(const JsonNode & value : config["graphics"]["missile"]["ray"].Vector())
 	{

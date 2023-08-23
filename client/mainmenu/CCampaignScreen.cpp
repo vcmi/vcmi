@@ -86,7 +86,7 @@ std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & butt
 	if(!button["help"].isNull() && button["help"].Float() > 0)
 		help = CGI->generaltexth->zelp[(size_t)button["help"].Float()];
 
-	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), button["name"].String(), help, [=](){ close();}, EShortcut::GLOBAL_CANCEL);
+	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), AnimationPath::fromJson(button["name"]), help, [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
@@ -109,14 +109,14 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 	if(status != CCampaignScreen::DISABLED)
 	{
 		addUsedEvents(LCLICK | HOVER);
-		graphicsImage = std::make_shared<CPicture>(config["image"].String());
+		graphicsImage = std::make_shared<CPicture>(ImagePath::fromJson(config["image"]));
 
 		hoverLabel = std::make_shared<CLabel>(pos.w / 2, pos.h + 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, "");
 		parent->addChild(hoverLabel.get());
 	}
 
 	if(status == CCampaignScreen::COMPLETED)
-		graphicsCompleted = std::make_shared<CPicture>("CAMPCHK");
+		graphicsCompleted = std::make_shared<CPicture>(ImagePath::builtin("CAMPCHK"));
 }
 
 void CCampaignScreen::CCampaignButton::show(Canvas & to)

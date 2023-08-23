@@ -185,7 +185,7 @@ void CreatureAnimation::setType(ECreatureAnimType type)
 	speed = speedController(this, type);
 }
 
-CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController controller)
+CreatureAnimation::CreatureAnimation(const AnimationPath & name_, TSpeedController controller)
 	: name(name_),
 	  speed(0.1f),
 	  shadowAlpha(128),

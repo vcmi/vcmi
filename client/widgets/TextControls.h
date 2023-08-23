@@ -14,6 +14,7 @@
 #include "../render/Colors.h"
 #include "../render/EFont.h"
 #include "../../lib/FunctionList.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 class IImage;
 class CSlider;
@@ -124,7 +125,7 @@ class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusB
 	bool enteringText;
 
 	CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::CENTER, const ColorRGBA & Color = Colors::WHITE);
-	CGStatusBar(int x, int y, std::string name, int maxw = -1);
+	CGStatusBar(int x, int y, const ImagePath & name, int maxw = -1);
 
 	//make CLabel API private
 	using CLabel::getText;
@@ -223,7 +224,7 @@ public:
 	void setHelpText(const std::string &);
 
 	CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB);
-	CTextInput(const Rect & Pos, const Point & bgOffset, const std::string & bgName, const CFunctionList<void(const std::string &)> & CB);
+	CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath & bgName, const CFunctionList<void(const std::string &)> & CB);
 	CTextInput(const Rect & Pos, std::shared_ptr<IImage> srf);
 
 	void clickPressed(const Point & cursorPosition) override;

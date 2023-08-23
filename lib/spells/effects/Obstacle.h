@@ -31,8 +31,8 @@ public:
 	RelativeShape range; //position of obstacles relative to effect destination
 
 	std::string appearSound;
-	std::string appearAnimation;
-	std::string animation;
+	AnimationPath appearAnimation;
+	AnimationPath animation;
 
 	int offsetY = 0;
 

@@ -11,6 +11,7 @@
 
 #include "../GameConstants.h"
 #include "../int3.h"
+#include "../filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -47,10 +48,10 @@ public:
 	/// print priority, objects with higher priority will be print first, below everything else
 	si32 printPriority;
 	/// animation file that should be used to display object
-	std::string animationFile;
+	AnimationPath animationFile;
 
 	/// map editor only animation file
-	std::string editorAnimationFile;
+	AnimationPath editorAnimationFile;
 
 	/// string ID, equals to def base name for h3m files (lower case, no extension) or specified in mod data
 	std::string stringID;

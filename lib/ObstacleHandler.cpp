@@ -90,7 +90,7 @@ ObstacleInfo * ObstacleHandler::loadFromJson(const std::string & scope, const Js
 
 	auto * info = new ObstacleInfo(Obstacle(index), identifier);
 	
-	info->animation = json["animation"].String();
+	info->animation = AnimationPath::fromJson(json["animation"]);
 	info->width = json["width"].Integer();
 	info->height = json["height"].Integer();
 	for(const auto & t : json["allowedTerrains"].Vector())

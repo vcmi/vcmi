@@ -25,7 +25,7 @@
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CPlayerState.h"
-#include "../../lib/filesystem/ResourceID.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 TurnTimerWidget::DrawRect::DrawRect(const Rect & r, const ColorRGBA & c):
 	CIntObject(), rect(r), color(c)
@@ -47,7 +47,7 @@ TurnTimerWidget::TurnTimerWidget():
 	
 	recActions &= ~DEACTIVATE;
 	
-	const JsonNode config(ResourceID("config/widgets/turnTimer.json"));
+	const JsonNode config(ResourcePath("config/widgets/turnTimer.json"));
 	
 	build(config);
 	

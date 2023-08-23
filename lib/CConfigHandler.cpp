@@ -60,7 +60,7 @@ void SettingsStorage::init()
 	JsonUtils::assembleFromFiles(confName).swap(config);
 
 	// Probably new install. Create config file to save settings to
-	if (!CResourceHandler::get("local")->existsResource(ResourceID(confName)))
+	if (!CResourceHandler::get("local")->existsResource(ResourcePath(confName)))
 		CResourceHandler::get("local")->createResource(confName);
 
 	JsonUtils::maximize(config, "vcmi:settings");
@@ -76,7 +76,7 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 	savedConf.Struct().erase("session");
 	JsonUtils::minimize(savedConf, "vcmi:settings");
 
-	std::fstream file(CResourceHandler::get()->getResourceName(ResourceID("config/settings.json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
+	std::fstream file(CResourceHandler::get()->getResourceName(ResourcePath("config/settings.json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
 	file << savedConf.toJson();
 }
 

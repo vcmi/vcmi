@@ -19,17 +19,17 @@ CMappedFileLoader::CMappedFileLoader(const std::string & mountPoint, const JsonN
 {
 	for(auto entry : config.Struct())
 	{
-		//fileList[ResourceID(mountPoint + entry.first)] = ResourceID(mountPoint + entry.second.String());
-		fileList.emplace(ResourceID(mountPoint + entry.first), ResourceID(mountPoint + entry.second.String()));
+		//fileList[ResourcePath(mountPoint + entry.first)] = ResourcePath(mountPoint + entry.second.String());
+		fileList.emplace(ResourcePath(mountPoint + entry.first), ResourcePath(mountPoint + entry.second.String()));
 	}
 }
 
-std::unique_ptr<CInputStream> CMappedFileLoader::load(const ResourceID & resourceName) const
+std::unique_ptr<CInputStream> CMappedFileLoader::load(const ResourcePath & resourceName) const
 {
 	return CResourceHandler::get()->load(fileList.at(resourceName));
 }
 
-bool CMappedFileLoader::existsResource(const ResourceID & resourceName) const
+bool CMappedFileLoader::existsResource(const ResourcePath & resourceName) const
 {
 	return fileList.count(resourceName) != 0;
 }
@@ -39,14 +39,14 @@ std::string CMappedFileLoader::getMountPoint() const
 	return ""; // does not have any meaning with this type of data source
 }
 
-std::optional<boost::filesystem::path> CMappedFileLoader::getResourceName(const ResourceID & resourceName) const
+std::optional<boost::filesystem::path> CMappedFileLoader::getResourceName(const ResourcePath & resourceName) const
 {
 	return CResourceHandler::get()->getResourceName(fileList.at(resourceName));
 }
 
-std::unordered_set<ResourceID> CMappedFileLoader::getFilteredFiles(std::function<bool(const ResourceID &)> filter) const
+std::unordered_set<ResourcePath> CMappedFileLoader::getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const
 {
-	std::unordered_set<ResourceID> foundID;
+	std::unordered_set<ResourcePath> foundID;
 
 	for(const auto & file : fileList)
 	{
@@ -64,7 +64,7 @@ CFilesystemList::~CFilesystemList()
 {
 }
 
-std::unique_ptr<CInputStream> CFilesystemList::load(const ResourceID & resourceName) const
+std::unique_ptr<CInputStream> CFilesystemList::load(const ResourcePath & resourceName) const
 {
 	// load resource from last loader that have it (last overridden version)
 	for(const auto & loader : boost::adaptors::reverse(loaders))
@@ -77,7 +77,7 @@ std::unique_ptr<CInputStream> CFilesystemList::load(const ResourceID & resourceN
 		+ EResTypeHelper::getEResTypeAsString(resourceName.getType()) + " wasn't found.");
 }
 
-bool CFilesystemList::existsResource(const ResourceID & resourceName) const
+bool CFilesystemList::existsResource(const ResourcePath & resourceName) const
 {
 	for(const auto & loader : loaders)
 		if (loader->existsResource(resourceName))
@@ -90,14 +90,14 @@ std::string CFilesystemList::getMountPoint() const
 	return "";
 }
 
-std::optional<boost::filesystem::path> CFilesystemList::getResourceName(const ResourceID & resourceName) const
+std::optional<boost::filesystem::path> CFilesystemList::getResourceName(const ResourcePath & resourceName) const
 {
 	if (existsResource(resourceName))
 		return getResourcesWithName(resourceName).back()->getResourceName(resourceName);
 	return std::optional<boost::filesystem::path>();
 }
 
-std::set<boost::filesystem::path> CFilesystemList::getResourceNames(const ResourceID & resourceName) const
+std::set<boost::filesystem::path> CFilesystemList::getResourceNames(const ResourcePath & resourceName) const
 {
 	std::set<boost::filesystem::path> paths;
 	for(auto& loader : getResourcesWithName(resourceName))
@@ -117,9 +117,9 @@ void CFilesystemList::updateFilteredFiles(std::function<bool(const std::string &
 		loader->updateFilteredFiles(filter);
 }
 
-std::unordered_set<ResourceID> CFilesystemList::getFilteredFiles(std::function<bool(const ResourceID &)> filter) const
+std::unordered_set<ResourcePath> CFilesystemList::getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const
 {
-	std::unordered_set<ResourceID> ret;
+	std::unordered_set<ResourcePath> ret;
 
 	for(const auto & loader : loaders)
 		for(const auto & entry : loader->getFilteredFiles(filter))
@@ -139,7 +139,7 @@ bool CFilesystemList::createResource(std::string filename, bool update)
 			// Check if resource was created successfully. Possible reasons for this to fail
 			// a) loader failed to create resource (e.g. read-only FS)
 			// b) in update mode, call with filename that does not exists
-			assert(load(ResourceID(filename)));
+			assert(load(ResourcePath(filename)));
 
 			logGlobal->trace("Resource created successfully");
 			return true;
@@ -149,7 +149,7 @@ bool CFilesystemList::createResource(std::string filename, bool update)
 	return false;
 }
 
-std::vector<const ISimpleResourceLoader *> CFilesystemList::getResourcesWithName(const ResourceID & resourceName) const
+std::vector<const ISimpleResourceLoader *> CFilesystemList::getResourcesWithName(const ResourcePath & resourceName) const
 {
 	std::vector<const ISimpleResourceLoader *> ret;
 

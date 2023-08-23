@@ -20,6 +20,7 @@
 #include "../GameConstants.h"
 #include "../battle/BattleHex.h"
 #include "../bonuses/Bonus.h"
+#include "../filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -65,7 +66,7 @@ public:
 		double minimumAngle;
 
 		///resource name
-		std::string resourceName;
+		AnimationPath resourceName;
 
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
@@ -76,7 +77,7 @@ public:
 
 	struct AnimationItem
 	{
-		std::string resourceName;
+		AnimationPath resourceName;
 		std::string effectName;
 		VerticalPosition verticalPosition;
 		int pause;
@@ -119,7 +120,7 @@ public:
 			h & affect;
 		}
 
-		std::string selectProjectile(const double angle) const;
+		AnimationPath selectProjectile(const double angle) const;
 	} animationInfo;
 
 public:

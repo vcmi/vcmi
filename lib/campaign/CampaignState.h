@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "../../lib/GameConstants.h"
+#include "../lib/GameConstants.h"
+#include "../lib/filesystem/ResourcePath.h"
 #include "CampaignConstants.h"
 #include "CampaignScenarioPrologEpilog.h"
 
@@ -47,14 +48,14 @@ class DLL_LINKAGE CampaignRegions
 
 	std::vector<RegionDescription> regions;
 
-	std::string getNameFor(CampaignScenarioID which, int color, std::string type) const;
+	ImagePath getNameFor(CampaignScenarioID which, int color, std::string type) const;
 
 public:
-	std::string getBackgroundName() const;
+	ImagePath getBackgroundName() const;
 	Point getPosition(CampaignScenarioID which) const;
-	std::string getAvailableName(CampaignScenarioID which, int color) const;
-	std::string getSelectedName(CampaignScenarioID which, int color) const;
-	std::string getConqueredName(CampaignScenarioID which, int color) const;
+	ImagePath getAvailableName(CampaignScenarioID which, int color) const;
+	ImagePath getSelectedName(CampaignScenarioID which, int color) const;
+	ImagePath getConqueredName(CampaignScenarioID which, int color) const;
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{

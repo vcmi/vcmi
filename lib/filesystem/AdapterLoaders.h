@@ -10,7 +10,7 @@
 #pragma once
 
 #include "ISimpleResourceLoader.h"
-#include "ResourceID.h"
+#include "ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -38,19 +38,19 @@ public:
 
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
-	std::unique_ptr<CInputStream> load(const ResourceID & resourceName) const override;
-	bool existsResource(const ResourceID & resourceName) const override;
+	std::unique_ptr<CInputStream> load(const ResourcePath & resourceName) const override;
+	bool existsResource(const ResourcePath & resourceName) const override;
 	std::string getMountPoint() const override;
-	std::optional<boost::filesystem::path> getResourceName(const ResourceID & resourceName) const override;
+	std::optional<boost::filesystem::path> getResourceName(const ResourcePath & resourceName) const override;
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override {}
-	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
+	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 
 private:
 	/** A list of files in this map
-	 * key = ResourceID for resource loader
-	 * value = ResourceID to which file this request will be redirected
+	 * key = ResourcePath for resource loader
+	 * value = ResourcePath to which file this request will be redirected
 	*/
-	std::unordered_map<ResourceID, ResourceID> fileList;
+	std::unordered_map<ResourcePath, ResourcePath> fileList;
 };
 
 class DLL_LINKAGE CFilesystemList : public ISimpleResourceLoader
@@ -68,15 +68,15 @@ public:
 	~CFilesystemList();
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
-	std::unique_ptr<CInputStream> load(const ResourceID & resourceName) const override;
-	bool existsResource(const ResourceID & resourceName) const override;
+	std::unique_ptr<CInputStream> load(const ResourcePath & resourceName) const override;
+	bool existsResource(const ResourcePath & resourceName) const override;
 	std::string getMountPoint() const override;
-	std::optional<boost::filesystem::path> getResourceName(const ResourceID & resourceName) const override;
-	std::set<boost::filesystem::path> getResourceNames(const ResourceID & resourceName) const override;
+	std::optional<boost::filesystem::path> getResourceName(const ResourcePath & resourceName) const override;
+	std::set<boost::filesystem::path> getResourceNames(const ResourcePath & resourceName) const override;
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override;
-	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
+	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 	bool createResource(std::string filename, bool update = false) override;
-	std::vector<const ISimpleResourceLoader *> getResourcesWithName(const ResourceID & resourceName) const override;
+	std::vector<const ISimpleResourceLoader *> getResourcesWithName(const ResourcePath & resourceName) const override;
 
 	/**
 	 * Adds a resource loader to the loaders list

@@ -21,7 +21,7 @@
 #include "CGeneralTextHandler.h"
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
-#include "filesystem/ResourceID.h"
+#include "filesystem/ResourcePath.h"
 #include "gui/CGuiHandler.h"
 #include "gui/WindowHandler.h"
 #include "render/Canvas.h"
@@ -35,7 +35,7 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	const JsonNode config(ResourceID("config/widgets/settings/settingsMainContainer.json"));
+	const JsonNode config(ResourcePath("config/widgets/settings/settingsMainContainer.json"));
 	addCallback("activateSettingsTab", [this](int tabId) { openTab(tabId); });
 	addCallback("loadGame", [this](int) { loadGameButtonCallback(); });
 	addCallback("saveGame", [this](int) { saveGameButtonCallback(); });

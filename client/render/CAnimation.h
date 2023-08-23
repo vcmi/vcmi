@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../../lib/GameConstants.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
@@ -29,7 +30,7 @@ private:
 	std::map<size_t, std::map<size_t, std::shared_ptr<IImage> > > images;
 
 	//animation file name
-	std::string name;
+	AnimationPath name;
 
 	bool preloaded;
 
@@ -53,7 +54,7 @@ private:
 	std::shared_ptr<IImage> getFromExtraDef(std::string filename);
 
 public:
-	CAnimation(std::string Name);
+	CAnimation(const AnimationPath & Name);
 	CAnimation();
 	~CAnimation();
 

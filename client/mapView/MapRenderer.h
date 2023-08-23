@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../../lib/filesystem/ResourcePath.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class int3;
@@ -30,7 +32,7 @@ class MapTileStorage
 
 public:
 	explicit MapTileStorage(size_t capacity);
-	void load(size_t index, const std::string & filename, EImageBlitMode blitMode);
+	void load(size_t index, const AnimationPath & filename, EImageBlitMode blitMode);
 	std::shared_ptr<IImage> find(size_t fileIndex, size_t rotationIndex, size_t imageIndex);
 };
 
@@ -69,13 +71,13 @@ public:
 
 class MapRendererObjects
 {
-	std::unordered_map<std::string, std::shared_ptr<CAnimation>> animations;
+	std::map<AnimationPath, std::shared_ptr<CAnimation>> animations;
 
 	std::shared_ptr<CAnimation> getBaseAnimation(const CGObjectInstance * obj);
 	std::shared_ptr<CAnimation> getFlagAnimation(const CGObjectInstance * obj);
 	std::shared_ptr<CAnimation> getOverlayAnimation(const CGObjectInstance * obj);
 
-	std::shared_ptr<CAnimation> getAnimation(const std::string & filename, bool generateMovementGroups);
+	std::shared_ptr<CAnimation> getAnimation(const AnimationPath & filename, bool generateMovementGroups);
 
 	std::shared_ptr<IImage> getImage(IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation> & animation) const;
 

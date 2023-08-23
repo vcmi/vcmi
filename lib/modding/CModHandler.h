@@ -20,7 +20,7 @@ class JsonNode;
 class IHandlerBase;
 class CIdentifierStorage;
 class CContentHandler;
-class ResourceID;
+class ResourcePath;
 
 using TModID = std::string;
 
@@ -67,7 +67,7 @@ public:
 	void loadModFilesystems();
 
 	/// returns ID of mod that provides selected file resource
-	TModID findResourceOrigin(const ResourceID & name);
+	TModID findResourceOrigin(const ResourcePath & name);
 
 	std::string getModLanguage(const TModID & modId) const;
 

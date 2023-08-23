@@ -18,7 +18,7 @@ using JsonVector = std::vector<JsonNode>;
 
 struct Bonus;
 class CSelector;
-class ResourceID;
+class ResourcePath;
 class CAddInfo;
 class ILimiter;
 
@@ -61,10 +61,10 @@ public:
 	//Create tree from Json-formatted input
 	explicit JsonNode(const char * data, size_t datasize);
 	//Create tree from JSON file
- 	explicit JsonNode(ResourceID && fileURI);
- 	explicit JsonNode(const ResourceID & fileURI);
-	explicit JsonNode(const std::string& idx, const ResourceID & fileURI);
-	explicit JsonNode(ResourceID && fileURI, bool & isValidSyntax);
+ 	explicit JsonNode(ResourcePath && fileURI);
+ 	explicit JsonNode(const ResourcePath & fileURI);
+	explicit JsonNode(const std::string& idx, const ResourcePath & fileURI);
+	explicit JsonNode(ResourcePath && fileURI, bool & isValidSyntax);
 	//Copy c-tor
 	JsonNode(const JsonNode &copy);
 

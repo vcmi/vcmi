@@ -155,7 +155,7 @@ void ComboBox::DropDown::setItem(const void * item)
 	GH.windows().popWindows(1);
 }
 
-ComboBox::ComboBox(Point position, const std::string & defName, const std::pair<std::string, std::string> & help, const JsonNode & dropDownDescriptor, EShortcut key, bool playerColoredButton):
+ComboBox::ComboBox(Point position, const AnimationPath & defName, const std::pair<std::string, std::string> & help, const JsonNode & dropDownDescriptor, EShortcut key, bool playerColoredButton):
 	CButton(position, defName, help, 0, key, playerColoredButton)
 {
 	addCallback([&, dropDownDescriptor]()

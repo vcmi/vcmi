@@ -30,7 +30,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 
-std::unique_ptr<CMap> CMapService::loadMap(const ResourceID & name) const
+std::unique_ptr<CMap> CMapService::loadMap(const ResourcePath & name) const
 {
 	std::string modName = VLC->modh->findResourceOrigin(name);
 	std::string language = VLC->modh->getModLanguage(modName);
@@ -40,7 +40,7 @@ std::unique_ptr<CMap> CMapService::loadMap(const ResourceID & name) const
 	return getMapLoader(stream, name.getName(), modName, encoding)->loadMap();
 }
 
-std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourceID & name) const
+std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourcePath & name) const
 {
 	std::string modName = VLC->modh->findResourceOrigin(name);
 	std::string language = VLC->modh->getModLanguage(modName);
@@ -108,7 +108,7 @@ ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
 	return modCompatibilityInfo;
 }
 
-std::unique_ptr<CInputStream> CMapService::getStreamFromFS(const ResourceID & name)
+std::unique_ptr<CInputStream> CMapService::getStreamFromFS(const ResourcePath & name)
 {
 	return CResourceHandler::get()->load(name);
 }

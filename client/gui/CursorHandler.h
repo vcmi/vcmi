@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../../lib/Point.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 class ICursor;
 class IImage;
@@ -143,7 +144,7 @@ public:
 	/// @param image Image to replace cursor with or nullptr to use the normal cursor.
 	void dragAndDropCursor(std::shared_ptr<IImage> image);
 
-	void dragAndDropCursor(std::string path, size_t index);
+	void dragAndDropCursor(const AnimationPath & path, size_t index);
 
 	/// Changes cursor to specified index
 	void set(Cursor::Default index);

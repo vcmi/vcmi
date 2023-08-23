@@ -14,6 +14,7 @@
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 #include "battle/BattleHex.h"
+#include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -31,7 +32,9 @@ public:
 	Obstacle obstacle;
 	si32 iconIndex;
 	std::string identifier;
-	std::string appearSound, appearAnimation, animation;
+	std::string appearSound;
+	AnimationPath appearAnimation;
+	AnimationPath animation;
 	std::vector<TerrainId> allowedTerrains;
 	std::vector<std::string> allowedSpecialBfields;
 	

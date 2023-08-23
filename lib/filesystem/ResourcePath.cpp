@@ -1,5 +1,5 @@
 /*
- * ResourceID.cpp, part of VCMI engine
+ * ResourcePath.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,39 +8,21 @@
  *
  */
 #include "StdInc.h"
-#include "ResourceID.h"
+#include "ResourcePath.h"
 #include "FileInfo.h"
+
+#include "../JsonNode.h"
+#include "../serializer/JsonDeserializer.h"
+#include "../serializer/JsonSerializer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-// trivial to_upper that completely ignores localization and only work with ASCII
-// Technically not a problem since
-// 1) Right now VCMI does not supports unicode in filenames on Win
-// 2) Filesystem case-sensivity is only problem for H3 data which uses ASCII-only symbols
-// for me (Ivan) this define gives notable decrease in loading times
-// #define ENABLE_TRIVIAL_TOUPPER
-
-#ifdef ENABLE_TRIVIAL_TOUPPER
-static inline void toUpper(char & symbol)
-{
-	static const int diff = 'a' - 'A';
-	if (symbol >= 'a' && symbol <= 'z')
-		symbol -= diff;
-}
-
-static inline void toUpper(std::string & string)
-{
-	for (char & symbol : string)
-		toUpper(symbol);
-}
-#else
 static inline void toUpper(std::string & string)
 {
 	boost::to_upper(string);
 }
-#endif
 
-static inline EResType::Type readType(const std::string& name)
+static inline EResType readType(const std::string& name)
 {
 	return EResTypeHelper::getTypeFromExtension(FileInfo::GetExtension(name).to_string());
 }
@@ -67,63 +49,49 @@ static inline std::string readName(std::string name, bool uppercase)
 	return name;
 }
 
-#if 0
-ResourceID::ResourceID()
-	:type(EResType::OTHER)
-{
-}
-#endif
-
-ResourceID::ResourceID(std::string name_):
-	type{readType(name_)},
-	name{readName(name_, true)},
-	originalName{readName(std::move(name_), false)}
+ResourcePath::ResourcePath(const std::string & name_):
+	type(readType(name_)),
+	name(readName(name_, true)),
+	originalName(readName(name_, false))
 {}
 
-ResourceID::ResourceID(std::string name_, EResType::Type type_):
-	type{type_},
-	name{readName(name_, true)},
-	originalName{readName(std::move(name_), false)}
+ResourcePath::ResourcePath(const std::string & name_, EResType type_):
+	type(type_),
+	name(readName(name_, true)),
+	originalName(readName(name_, false))
 {}
-#if 0
-std::string ResourceID::getName() const
+
+ResourcePath::ResourcePath(const JsonNode & name, EResType type):
+	type(type),
+	name(readName(name.String(), true)),
+	originalName(readName(name.String(), false))
 {
-	return name;
 }
 
-EResType::Type ResourceID::getType() const
+void ResourcePath::serializeJson(JsonSerializeFormat & handler)
 {
-	return type;
-}
-
-void ResourceID::setName(std::string name)
-{
-	// setName shouldn't be used if type is UNDEFINED
-	assert(type != EResType::UNDEFINED);
-
-	this->name = std::move(name);
-
-	size_t dotPos = this->name.find_last_of("/.");
-
-	if(dotPos != std::string::npos && this->name[dotPos] == '.'
-		&& this->type == EResTypeHelper::getTypeFromExtension(this->name.substr(dotPos)))
+	if (!handler.saving)
 	{
-		this->name.erase(dotPos);
+		JsonNode const & node = handler.getCurrent();
+
+		if (node.isString())
+		{
+			name = readName(node.String(), true);
+			originalName = readName(node.String(), false);
+			return;
+		}
 	}
 
-	toUpper(this->name);
+	handler.serializeInt("type", type);
+	handler.serializeString("name", name);
+	handler.serializeString("originalName", originalName);
 }
 
-void ResourceID::setType(EResType::Type type)
-{
-	this->type = type;
-}
-#endif
-EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)
+EResType EResTypeHelper::getTypeFromExtension(std::string extension)
 {
 	toUpper(extension);
 
-	static const std::map<std::string, EResType::Type> stringToRes =
+	static const std::map<std::string, EResType> stringToRes =
 	{
 		{".TXT",   EResType::TEXT},
 		{".JSON",  EResType::TEXT},
@@ -173,11 +141,11 @@ EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)
 	return iter->second;
 }
 
-std::string EResTypeHelper::getEResTypeAsString(EResType::Type type)
+std::string EResTypeHelper::getEResTypeAsString(EResType type)
 {
 #define MAP_ENUM(value) {EResType::value, #value},
 
-	static const std::map<EResType::Type, std::string> stringToRes =
+	static const std::map<EResType, std::string> stringToRes =
 	{
 		MAP_ENUM(TEXT)
 		MAP_ENUM(ANIMATION)

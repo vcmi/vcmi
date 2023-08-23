@@ -59,7 +59,7 @@ void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & inpu
 
 std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 {
-	ResourceID resourceID(name, EResType::CAMPAIGN);
+	ResourcePath resourceID(name, EResType::CAMPAIGN);
 	std::string modName = VLC->modh->findResourceOrigin(resourceID);
 	std::string language = VLC->modh->getModLanguage(modName);
 	std::string encoding = Languages::getLanguageOptions(language).encoding;
@@ -75,7 +75,7 @@ std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 
 std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string & name )
 {
-	ResourceID resourceID(name, EResType::CAMPAIGN);
+	ResourcePath resourceID(name, EResType::CAMPAIGN);
 	std::string modName = VLC->modh->findResourceOrigin(resourceID);
 	std::string language = VLC->modh->getModLanguage(modName);
 	std::string encoding = Languages::getLanguageOptions(language).encoding;
@@ -592,7 +592,7 @@ std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputS
 
 std::string CampaignHandler::prologVideoName(ui8 index)
 {
-	JsonNode config(ResourceID(std::string("CONFIG/campaignMedia"), EResType::TEXT));
+	JsonNode config(ResourcePath(std::string("CONFIG/campaignMedia"), EResType::TEXT));
 	auto vids = config["videos"].Vector();
 	if(index < vids.size())
 		return vids[index].String();
@@ -607,7 +607,7 @@ std::string CampaignHandler::prologMusicName(ui8 index)
 
 std::string CampaignHandler::prologVoiceName(ui8 index)
 {
-	JsonNode config(ResourceID(std::string("CONFIG/campaignMedia"), EResType::TEXT));
+	JsonNode config(ResourcePath(std::string("CONFIG/campaignMedia"), EResType::TEXT));
 	auto audio = config["voice"].Vector();
 	if(index < audio.size())
 		return audio[index].String();

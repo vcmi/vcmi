@@ -79,7 +79,7 @@ void CMessage::init()
 {
 	for(int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
 	{
-		dialogBorders[i] = std::make_unique<CAnimation>("DIALGBOX");
+		dialogBorders[i] = std::make_unique<CAnimation>(AnimationPath::builtin("DIALGBOX"));
 		dialogBorders[i]->preload();
 
 		for(int j=0; j < dialogBorders[i]->size(0); j++)
@@ -92,7 +92,7 @@ void CMessage::init()
 		}
 	}
 
-	background = IImage::createFromFile("DIBOXBCK.BMP", EImageBlitMode::OPAQUE);
+	background = IImage::createFromFile(ImagePath::builtin("DIBOXBCK.BMP"), EImageBlitMode::OPAQUE);
 }
 
 void CMessage::dispose()

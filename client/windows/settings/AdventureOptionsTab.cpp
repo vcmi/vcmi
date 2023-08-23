@@ -11,7 +11,7 @@
 
 #include "AdventureOptionsTab.h"
 
-#include "../../../lib/filesystem/ResourceID.h"
+#include "../../../lib/filesystem/ResourcePath.h"
 #include "../../gui/CGuiHandler.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
@@ -44,7 +44,7 @@ AdventureOptionsTab::AdventureOptionsTab()
 	addConditional("desktop", true);
 #endif
 
-	const JsonNode config(ResourceID("config/widgets/settings/adventureOptionsTab.json"));
+	const JsonNode config(ResourcePath("config/widgets/settings/adventureOptionsTab.json"));
 	addCallback("playerHeroSpeedChanged", [this](int value)
 	{
 		auto targetLabel = widget<CLabel>("heroSpeedValueLabel");

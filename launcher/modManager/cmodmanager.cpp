@@ -84,7 +84,7 @@ void CModManager::loadMods()
 
 	for(auto modname : installedMods)
 	{
-		ResourceID resID(CModInfo::getModFile(modname));
+		ResourcePath resID(CModInfo::getModFile(modname));
 		if(CResourceHandler::get()->existsResource(resID))
 		{
 			boost::filesystem::path name = *CResourceHandler::get()->getResourceName(resID);
@@ -295,7 +295,7 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 
 bool CModManager::doUninstallMod(QString modname)
 {
-	ResourceID resID(std::string("Mods/") + modname.toStdString(), EResType::DIRECTORY);
+	ResourcePath resID(std::string("Mods/") + modname.toStdString(), EResType::DIRECTORY);
 	// Get location of the mod, in case-insensitive way
 	QString modDir = pathToQString(*CResourceHandler::get()->getResourceName(resID));
 

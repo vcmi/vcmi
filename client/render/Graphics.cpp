@@ -44,7 +44,7 @@ Graphics * graphics = nullptr;
 
 void Graphics::loadPaletteAndColors()
 {
-	auto textFile = CResourceHandler::get()->load(ResourceID("DATA/PLAYERS.PAL"))->readAll();
+	auto textFile = CResourceHandler::get()->load(ResourcePath("DATA/PLAYERS.PAL"))->readAll();
 	std::string pals((char*)textFile.first.get(), textFile.second);
 
 	int startPoint = 24; //beginning byte; used to read
@@ -62,7 +62,7 @@ void Graphics::loadPaletteAndColors()
 		}
 	}
 
-	auto stream = CResourceHandler::get()->load(ResourceID("config/NEUTRAL.PAL"));
+	auto stream = CResourceHandler::get()->load(ResourcePath("config/NEUTRAL.PAL"));
 	CBinaryReader reader(stream.get());
 
 	for(int i=0; i<32; ++i)
@@ -102,10 +102,10 @@ void Graphics::initializeBattleGraphics()
 	allConfigs.insert(allConfigs.begin(), ModScope::scopeBuiltin());
 	for(auto & mod : allConfigs)
 	{
-		if(!CResourceHandler::get(mod)->existsResource(ResourceID("config/battles_graphics.json")))
+		if(!CResourceHandler::get(mod)->existsResource(ResourcePath("config/battles_graphics.json")))
 			continue;
 			
-		const JsonNode config(mod, ResourceID("config/battles_graphics.json"));
+		const JsonNode config(mod, ResourcePath("config/battles_graphics.json"));
 
 		//initialization of AC->def name mapping
 		if(!config["ac_mapping"].isNull())
@@ -204,7 +204,7 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 
 void Graphics::loadFonts()
 {
-	const JsonNode config(ResourceID("config/fonts.json"));
+	const JsonNode config(ResourcePath("config/fonts.json"));
 
 	const JsonVector & bmpConf = config["bitmap"].Vector();
 	const JsonNode   & ttfConf = config["trueType"];
@@ -228,7 +228,7 @@ void Graphics::loadFonts()
 void Graphics::loadErmuToPicture()
 {
 	//loading ERMU to picture
-	const JsonNode config(ResourceID("config/ERMU_to_picture.json"));
+	const JsonNode config(ResourcePath("config/ERMU_to_picture.json"));
 	int etp_idx = 0;
 	for(const JsonNode &etp : config["ERMU_to_picture"].Vector()) {
 		int idx = 0;
@@ -279,16 +279,14 @@ void Graphics::initializeImageLists()
 	addImageListEntries(CGI->skills());
 }
 
-std::shared_ptr<CAnimation> Graphics::getAnimation(const std::string & path)
+std::shared_ptr<CAnimation> Graphics::getAnimation(const AnimationPath & path)
 {
-	ResourceID animationPath(path, EResType::ANIMATION);
+	if (cachedAnimations.count(path) != 0)
+		return cachedAnimations.at(path);
 
-	if (cachedAnimations.count(animationPath.getName()) != 0)
-		return cachedAnimations.at(animationPath.getName());
-
-	auto newAnimation = std::make_shared<CAnimation>(animationPath.getName());
+	auto newAnimation = std::make_shared<CAnimation>(path);
 
 	newAnimation->preload();
-	cachedAnimations[animationPath.getName()] = newAnimation;
+	cachedAnimations[path] = newAnimation;
 	return newAnimation;
 }

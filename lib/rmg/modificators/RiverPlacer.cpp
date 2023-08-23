@@ -390,7 +390,7 @@ void RiverPlacer::connectRiver(const int3 & tile)
 				throw rmgException(boost::str(boost::format("River templates for (%d,%d) at terrain %s, river %s are incorrect") %
 					RIVER_DELTA_ID % RIVER_DELTA_SUBTYPE % zone.getTerrainType() % river->shortIdentifier));
 			
-			std::string targetTemplateName = river->deltaName + std::to_string(deltaOrientations[pos]) + ".def";
+			AnimationPath targetTemplateName = AnimationPath::builtinTODO(river->deltaName + std::to_string(deltaOrientations[pos]) + ".def");
 			for(auto & templ : tmplates)
 			{
 				if(templ->animationFile == targetTemplateName)

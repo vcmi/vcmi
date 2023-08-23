@@ -26,7 +26,7 @@
 #include "../../widgets/TextControls.h"
 
 #include "../../../lib/CGeneralTextHandler.h"
-#include "../../../lib/filesystem/ResourceID.h"
+#include "../../../lib/filesystem/ResourcePath.h"
 
 static void setIntSetting(std::string group, std::string field, int value)
 {
@@ -105,7 +105,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 	addConditional("desktop", true);
 #endif
 
-	const JsonNode config(ResourceID("config/widgets/settings/generalOptionsTab.json"));
+	const JsonNode config(ResourcePath("config/widgets/settings/generalOptionsTab.json"));
 	addCallback("spellbookAnimationChanged", [](bool value)
 	{
 		setBoolSetting("video", "spellbookAnimation", value);

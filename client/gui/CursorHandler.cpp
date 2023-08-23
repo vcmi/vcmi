@@ -46,10 +46,10 @@ CursorHandler::CursorHandler()
 
 	cursors =
 	{
-		std::make_unique<CAnimation>("CRADVNTR"),
-		std::make_unique<CAnimation>("CRCOMBAT"),
-		std::make_unique<CAnimation>("CRDEFLT"),
-		std::make_unique<CAnimation>("CRSPELL")
+		std::make_unique<CAnimation>(AnimationPath::builtin("CRADVNTR")),
+		std::make_unique<CAnimation>(AnimationPath::builtin("CRCOMBAT")),
+		std::make_unique<CAnimation>(AnimationPath::builtin("CRDEFLT")),
+		std::make_unique<CAnimation>(AnimationPath::builtin("CRSPELL"))
 	};
 
 	for (auto & cursor : cursors)
@@ -100,7 +100,7 @@ void CursorHandler::dragAndDropCursor(std::shared_ptr<IImage> image)
 	cursor->setImage(getCurrentImage(), getPivotOffset());
 }
 
-void CursorHandler::dragAndDropCursor (std::string path, size_t index)
+void CursorHandler::dragAndDropCursor (const AnimationPath & path, size_t index)
 {
 	CAnimation anim(path);
 	anim.load(index);

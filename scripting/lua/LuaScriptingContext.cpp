@@ -522,7 +522,7 @@ int LuaContext::loadModule()
 
 		modulePath = "scripts/lib/" + modulePath;
 
-		ResourceID id(modulePath, EResType::LUA);
+		ResourcePath id(modulePath, EResType::LUA);
 
 		if(!loader->existsResource(id))
 			return errorRetVoid("Module not found: "+modulePath);

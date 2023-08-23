@@ -90,7 +90,7 @@ void ScriptImpl::serializeJson(vstd::CLoggerBase * logger, JsonSerializeFormat &
 	{
 		resolveHost();
 
-		ResourceID sourcePathId("SCRIPTS/" + sourcePath);
+		ResourcePath sourcePathId("SCRIPTS/" + sourcePath);
 
 		auto rawData = CResourceHandler::get()->load(sourcePathId)->readAll();
 
@@ -115,7 +115,7 @@ void ScriptImpl::serializeJsonState(JsonSerializeFormat & handler)
 
 void ScriptImpl::resolveHost()
 {
-	ResourceID sourcePathId(sourcePath);
+	ResourcePath sourcePathId(sourcePath);
 
 	if(sourcePathId.getType() == EResType::ERM)
 		host = owner->erm;

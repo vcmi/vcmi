@@ -85,7 +85,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 	doLoop = loop;
 	frameTime = 0;
 
-	ResourceID resource(std::string("Video/") + fname, EResType::VIDEO);
+	ResourcePath resource(std::string("Video/") + fname, EResType::VIDEO);
 
 	if (!CResourceHandler::get()->existsResource(resource))
 	{

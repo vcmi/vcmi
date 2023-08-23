@@ -14,11 +14,12 @@
 #include <vcmi/HeroType.h>
 #include <vcmi/HeroTypeService.h>
 
-#include "../lib/ConstTransitivePtr.h"
+#include "ConstTransitivePtr.h"
 #include "GameConstants.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/BonusList.h"
 #include "IHandlerBase.h"
+#include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -78,7 +79,7 @@ public:
 	std::string iconSpecLarge;
 	std::string portraitSmall;
 	std::string portraitLarge;
-	std::string battleImage;
+	AnimationPath battleImage;
 
 	CHero();
 	virtual ~CHero();
@@ -160,8 +161,8 @@ public:
 
 	std::map<FactionID, int> selectionProbability; //probability of selection in towns
 
-	std::string imageBattleMale;
-	std::string imageBattleFemale;
+	AnimationPath imageBattleMale;
+	AnimationPath imageBattleFemale;
 	std::string imageMapMale;
 	std::string imageMapFemale;
 

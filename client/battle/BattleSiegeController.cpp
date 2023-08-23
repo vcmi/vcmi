@@ -28,7 +28,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
-std::string BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisual what, EWallState state) const
+ImagePath BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisual what, EWallState state) const
 {
 	auto getImageIndex = [&]() -> int
 	{
@@ -68,44 +68,44 @@ std::string BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisua
 			auto faction = town->town->faction->getIndex();
 
 			if (faction == ETownType::RAMPART || faction == ETownType::NECROPOLIS || faction == ETownType::DUNGEON || faction == ETownType::STRONGHOLD)
-				return prefix + "TPW1.BMP";
+				return ImagePath::builtinTODO(prefix + "TPW1.BMP");
 			else
-				return prefix + "TPWL.BMP";
+				return ImagePath::builtinTODO(prefix + "TPWL.BMP");
 		}
 	case EWallVisual::KEEP:
-		return prefix + "MAN" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "MAN" + addit + ".BMP");
 	case EWallVisual::BOTTOM_TOWER:
-		return prefix + "TW1" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "TW1" + addit + ".BMP");
 	case EWallVisual::BOTTOM_WALL:
-		return prefix + "WA1" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "WA1" + addit + ".BMP");
 	case EWallVisual::WALL_BELLOW_GATE:
-		return prefix + "WA3" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "WA3" + addit + ".BMP");
 	case EWallVisual::WALL_OVER_GATE:
-		return prefix + "WA4" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "WA4" + addit + ".BMP");
 	case EWallVisual::UPPER_WALL:
-		return prefix + "WA6" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "WA6" + addit + ".BMP");
 	case EWallVisual::UPPER_TOWER:
-		return prefix + "TW2" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "TW2" + addit + ".BMP");
 	case EWallVisual::GATE:
-		return prefix + "DRW" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "DRW" + addit + ".BMP");
 	case EWallVisual::GATE_ARCH:
-		return prefix + "ARCH.BMP";
+		return ImagePath::builtinTODO(prefix + "ARCH.BMP");
 	case EWallVisual::BOTTOM_STATIC_WALL:
-		return prefix + "WA2.BMP";
+		return ImagePath::builtinTODO(prefix + "WA2.BMP");
 	case EWallVisual::UPPER_STATIC_WALL:
-		return prefix + "WA5.BMP";
+		return ImagePath::builtinTODO(prefix + "WA5.BMP");
 	case EWallVisual::MOAT:
-		return prefix + "MOAT.BMP";
+		return ImagePath::builtinTODO(prefix + "MOAT.BMP");
 	case EWallVisual::MOAT_BANK:
-		return prefix + "MLIP.BMP";
+		return ImagePath::builtinTODO(prefix + "MLIP.BMP");
 	case EWallVisual::KEEP_BATTLEMENT:
-		return prefix + "MANC.BMP";
+		return ImagePath::builtinTODO(prefix + "MANC.BMP");
 	case EWallVisual::BOTTOM_BATTLEMENT:
-		return prefix + "TW1C.BMP";
+		return ImagePath::builtinTODO(prefix + "TW1C.BMP");
 	case EWallVisual::UPPER_BATTLEMENT:
-		return prefix + "TW2C.BMP";
+		return ImagePath::builtinTODO(prefix + "TW2C.BMP");
 	default:
-		return "";
+		return ImagePath();
 	}
 }
 
@@ -118,10 +118,10 @@ void BattleSiegeController::showWallPiece(Canvas & canvas, EWallVisual::EWallVis
 		canvas.draw(wallPieceImages[what], Point(pos.x, pos.y));
 }
 
-std::string BattleSiegeController::getBattleBackgroundName() const
+ImagePath BattleSiegeController::getBattleBackgroundName() const
 {
 	const std::string & prefix = town->town->clientInfo.siegePrefix;
-	return prefix + "BACK.BMP";
+	return ImagePath::builtinTODO(prefix + "BACK.BMP");
 }
 
 bool BattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what) const
@@ -341,7 +341,7 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 			positions.push_back(owner.stacksController->getStackPositionAtHex(attackInfo.destinationTile, nullptr) + Point(99, 120));
 
 		CCS->soundh->playSound( "WALLHIT" );
-		owner.stacksController->addNewAnim(new EffectAnimation(owner, "SGEXPL.DEF", positions));
+		owner.stacksController->addNewAnim(new EffectAnimation(owner, AnimationPath::builtin("SGEXPL.DEF"), positions));
 	}
 
 	owner.waitForAnimations();

@@ -29,7 +29,7 @@
 #include "../VCMI_Lib.h"
 #include "../battle/BattleInfo.h"
 #include "../campaign/CampaignState.h"
-#include "../filesystem/ResourceID.h"
+#include "../filesystem/ResourcePath.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
@@ -602,7 +602,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 	else
 	{
 		logGlobal->info("Open map file: %s", scenarioOps->mapname);
-		const ResourceID mapURI(scenarioOps->mapname, EResType::MAP);
+		const ResourcePath mapURI(scenarioOps->mapname, EResType::MAP);
 		map = mapService->loadMap(mapURI).release();
 	}
 }
@@ -804,7 +804,7 @@ void CGameState::removeHeroPlaceholders()
 void CGameState::initStartingResources()
 {
 	logGlobal->debug("\tSetting up resources");
-	const JsonNode config(ResourceID("config/startres.json"));
+	const JsonNode config(ResourcePath("config/startres.json"));
 	const JsonVector &vector = config["difficulty"].Vector();
 	const JsonNode &level = vector[scenarioOps->difficulty];
 

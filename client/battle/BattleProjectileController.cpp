@@ -188,7 +188,7 @@ void BattleProjectileController::initStackProjectile(const CStack * stack)
 	projectilesCache[creature.animation.projectileImageName] = createProjectileImage(creature.animation.projectileImageName);
 }
 
-std::shared_ptr<CAnimation> BattleProjectileController::createProjectileImage(const std::string & path )
+std::shared_ptr<CAnimation> BattleProjectileController::createProjectileImage(const AnimationPath & path )
 {
 	std::shared_ptr<CAnimation> projectile = std::make_shared<CAnimation>(path);
 	projectile->preload();
@@ -204,7 +204,7 @@ std::shared_ptr<CAnimation> BattleProjectileController::createProjectileImage(co
 std::shared_ptr<CAnimation> BattleProjectileController::getProjectileImage(const CStack * stack)
 {
 	const CCreature & creature = getShooter(stack);
-	std::string imageName = creature.animation.projectileImageName;
+	AnimationPath imageName = creature.animation.projectileImageName;
 
 	if (!projectilesCache.count(imageName))
 		initStackProjectile(stack);
@@ -361,7 +361,7 @@ void BattleProjectileController::createProjectile(const CStack * shooter, Point 
 void BattleProjectileController::createSpellProjectile(const CStack * shooter, Point from, Point dest, const CSpell * spell)
 {
 	double projectileAngle = std::abs(atan2(dest.x - from.x, dest.y - from.y));
-	std::string animToDisplay = spell->animationInfo.selectProjectile(projectileAngle);
+	AnimationPath animToDisplay = spell->animationInfo.selectProjectile(projectileAngle);
 
 	assert(!animToDisplay.empty());
 

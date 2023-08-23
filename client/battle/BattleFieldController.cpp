@@ -120,20 +120,20 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	//preparing cells and hexes
-	cellBorder = IImage::createFromFile("CCELLGRD.BMP", EImageBlitMode::COLORKEY);
-	cellShade = IImage::createFromFile("CCELLSHD.BMP");
-	cellUnitMovementHighlight = IImage::createFromFile("UnitMovementHighlight.PNG", EImageBlitMode::COLORKEY);
-	cellUnitMaxMovementHighlight = IImage::createFromFile("UnitMaxMovementHighlight.PNG", EImageBlitMode::COLORKEY);
+	cellBorder = IImage::createFromFile(ImagePath::builtin("CCELLGRD.BMP"), EImageBlitMode::COLORKEY);
+	cellShade = IImage::createFromFile(ImagePath::builtin("CCELLSHD.BMP"));
+	cellUnitMovementHighlight = IImage::createFromFile(ImagePath::builtin("UnitMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
+	cellUnitMaxMovementHighlight = IImage::createFromFile(ImagePath::builtin("UnitMaxMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
 
-	attackCursors = std::make_shared<CAnimation>("CRCOMBAT");
+	attackCursors = std::make_shared<CAnimation>(AnimationPath::builtin("CRCOMBAT"));
 	attackCursors->preload();
 
 	initializeHexEdgeMaskToFrameIndex();
 
-	rangedFullDamageLimitImages = std::make_shared<CAnimation>("battle/rangeHighlights/rangeHighlightsGreen.json");
+	rangedFullDamageLimitImages = std::make_shared<CAnimation>(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"));
 	rangedFullDamageLimitImages->preload();
 
-	shootingRangeLimitImages = std::make_shared<CAnimation>("battle/rangeHighlights/rangeHighlightsRed.json");
+	shootingRangeLimitImages = std::make_shared<CAnimation>(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"));
 	shootingRangeLimitImages->preload();
 
 	flipRangeLimitImagesIntoPositions(rangedFullDamageLimitImages);
@@ -150,7 +150,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	}
 	else
 	{
-		std::string backgroundName = owner.siegeController->getBattleBackgroundName();
+		auto backgroundName = owner.siegeController->getBattleBackgroundName();
 		background = IImage::createFromFile(backgroundName, EImageBlitMode::OPAQUE);
 	}
 

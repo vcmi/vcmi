@@ -440,8 +440,8 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		bool side = sc->side;
 
 		addToAnimationStage(EAnimationEvents::AFTER_HIT, [=](){
-			stacksController->addNewAnim(new EffectAnimation(*this, side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
-			stacksController->addNewAnim(new EffectAnimation(*this, side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
+			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side ? "SP07_A.DEF" : "SP07_B.DEF"), leftHero));
+			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side ? "SP07_B.DEF" : "SP07_A.DEF"), rightHero));
 		});
 	}
 

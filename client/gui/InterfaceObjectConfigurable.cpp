@@ -31,7 +31,7 @@
 
 #include "../../lib//constants/StringConstants.h"
 #include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/filesystem/ResourceID.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 InterfaceObjectConfigurable::InterfaceObjectConfigurable(const JsonNode & config, int used, Point offset):
 	InterfaceObjectConfigurable(used, offset)
@@ -110,7 +110,7 @@ void InterfaceObjectConfigurable::build(const JsonNode &config)
 	{
 		if (!config["library"].isNull())
 		{
-			const JsonNode library(ResourceID(config["library"].String()));
+			const JsonNode library(ResourcePath(config["library"].String()));
 			loadCustomBuilders(library);
 		}
 
@@ -305,7 +305,7 @@ EShortcut InterfaceObjectConfigurable::readHotkey(const JsonNode & config) const
 std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNode & config) const
 {
 	logGlobal->debug("Building widget CPicture");
-	auto image = config["image"].String();
+	auto image = ImagePath::fromJson(config["image"]);
 	auto position = readPosition(config["position"]);
 	auto pic = std::make_shared<CPicture>(image, position.x, position.y);
 	if(!config["visible"].isNull())
@@ -369,7 +369,7 @@ std::shared_ptr<CToggleButton> InterfaceObjectConfigurable::buildToggleButton(co
 {
 	logGlobal->debug("Building widget CToggleButton");
 	auto position = readPosition(config["position"]);
-	auto image = config["image"].String();
+	auto image = AnimationPath::fromJson(config["image"]);
 	auto help = readHintText(config["help"]);
 	auto button = std::make_shared<CToggleButton>(position, image, help);
 	if(!config["items"].isNull())
@@ -395,7 +395,7 @@ std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode
 {
 	logGlobal->debug("Building widget CButton");
 	auto position = readPosition(config["position"]);
-	auto image = config["image"].String();
+	auto image = AnimationPath::fromJson(config["image"]);
 	auto help = readHintText(config["help"]);
 	auto button = std::make_shared<CButton>(position, image, help);
 	if(!config["items"].isNull())
@@ -522,7 +522,7 @@ std::shared_ptr<CAnimImage> InterfaceObjectConfigurable::buildImage(const JsonNo
 {
 	logGlobal->debug("Building widget CAnimImage");
 	auto position = readPosition(config["position"]);
-	auto image = config["image"].String();
+	auto image = AnimationPath::fromJson(config["image"]);
 	int group = config["group"].isNull() ? 0 : config["group"].Integer();
 	int frame = config["frame"].isNull() ? 0 : config["frame"].Integer();
 	return std::make_shared<CAnimImage>(image, frame, group, position.x, position.y);
@@ -531,7 +531,7 @@ std::shared_ptr<CAnimImage> InterfaceObjectConfigurable::buildImage(const JsonNo
 std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const JsonNode & config) const
 {
 	logGlobal->debug("Building widget CFilledTexture");
-	auto image = config["image"].String();
+	auto image = ImagePath::fromJson(config["image"]);
 	auto rect = readRect(config["rect"]);
 	auto playerColor = readPlayerColor(config["color"]);
 	if(playerColor.isValidPlayer())
@@ -546,7 +546,7 @@ std::shared_ptr<ComboBox> InterfaceObjectConfigurable::buildComboBox(const JsonN
 {
 	logGlobal->debug("Building widget ComboBox");
 	auto position = readPosition(config["position"]);
-	auto image = config["image"].String();
+	auto image = AnimationPath::fromJson(config["image"]);
 	auto help = readHintText(config["help"]);
 	auto result = std::make_shared<ComboBox>(position, image, help, config["dropDown"]);
 	if(!config["items"].isNull())
@@ -573,7 +573,7 @@ std::shared_ptr<CTextInput> InterfaceObjectConfigurable::buildTextInput(const Js
 	logGlobal->debug("Building widget CTextInput");
 	auto rect = readRect(config["rect"]);
 	auto offset = readPosition(config["backgroundOffset"]);
-	auto bgName = config["background"].String();
+	auto bgName = ImagePath::fromJson(config["background"]);
 	auto result = std::make_shared<CTextInput>(rect, offset, bgName, 0);
 	if(!config["alignment"].isNull())
 		result->alignment = readTextAlignment(config["alignment"]);
@@ -664,7 +664,7 @@ std::shared_ptr<CShowableAnim> InterfaceObjectConfigurable::buildAnimation(const
 {
 	logGlobal->debug("Building widget CShowableAnim");
 	auto position = readPosition(config["position"]);
-	auto image = config["image"].String();
+	auto image = AnimationPath::fromJson(config["image"]);
 	ui8 flags = 0;
 	if(!config["repeat"].Bool())
 		flags |= CShowableAnim::EFlags::PLAY_ONCE;

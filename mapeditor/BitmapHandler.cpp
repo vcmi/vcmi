@@ -92,13 +92,13 @@ namespace BitmapHandler
 			logGlobal->warn("Call to loadBitmap with void fname!");
 			return QImage();
 		}
-		if(!CResourceHandler::get()->existsResource(ResourceID(path + fname, EResType::IMAGE)))
+		if(!CResourceHandler::get()->existsResource(ResourcePath(path + fname, EResType::IMAGE)))
 		{
 			return QImage();
 		}
 		
-		auto fullpath = CResourceHandler::get()->getResourceName(ResourceID(path + fname, EResType::IMAGE));
-		auto readFile = CResourceHandler::get()->load(ResourceID(path + fname, EResType::IMAGE))->readAll();
+		auto fullpath = CResourceHandler::get()->getResourceName(ResourcePath(path + fname, EResType::IMAGE));
+		auto readFile = CResourceHandler::get()->load(ResourcePath(path + fname, EResType::IMAGE))->readAll();
 		
 		if(isPCX(readFile.first.get()))
 		{//H3-style PCX

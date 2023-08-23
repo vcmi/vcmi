@@ -11,6 +11,7 @@
 
 #include "../../lib/GameConstants.h"
 #include "../../lib/battle/BattleHex.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -76,7 +77,7 @@ class BattleSiegeController
 	std::array<std::shared_ptr<IImage>, EWallVisual::WALL_LAST + 1> wallPieceImages;
 
 	/// return URI for image for a wall piece
-	std::string getWallPieceImageName(EWallVisual::EWallVisual what, EWallState state) const;
+	ImagePath getWallPieceImageName(EWallVisual::EWallVisual what, EWallState state) const;
 
 	/// returns BattleHex to which chosen wall piece is bound
 	BattleHex getWallPiecePosition(EWallVisual::EWallVisual what) const;
@@ -102,7 +103,7 @@ public:
 
 	/// queries from other battle controllers
 	bool isAttackableByCatapult(BattleHex hex) const;
-	std::string getBattleBackgroundName() const;
+	ImagePath getBattleBackgroundName() const;
 	const CCreature *getTurretCreature() const;
 	Point getTurretCreaturePosition( BattleHex position ) const;
 

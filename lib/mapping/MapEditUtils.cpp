@@ -174,7 +174,7 @@ void TerrainViewPattern::WeightedRule::setNative()
 
 CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 {
-	const JsonNode config(ResourceID("config/terrainViewPatterns.json"));
+	const JsonNode config(ResourcePath("config/terrainViewPatterns.json"));
 	static const std::string patternTypes[] = { "terrainView", "terrainType" };
 	for (int i = 0; i < std::size(patternTypes); ++i)
 	{

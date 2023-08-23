@@ -31,19 +31,19 @@ void QuickRecruitmentWindow::setButtons()
 
 void QuickRecruitmentWindow::setCancelButton()
 {
-	cancelButton = std::make_shared<CButton>(Point((pos.w / 2) + 48, 418), "ICN6432.DEF", CButton::tooltip(), [&](){ close(); }, EShortcut::GLOBAL_CANCEL);
+	cancelButton = std::make_shared<CButton>(Point((pos.w / 2) + 48, 418), AnimationPath::builtin("ICN6432.DEF"), CButton::tooltip(), [&](){ close(); }, EShortcut::GLOBAL_CANCEL);
 	cancelButton->setImageOrder(0, 1, 2, 3);
 }
 
 void QuickRecruitmentWindow::setBuyButton()
 {
-	buyButton = std::make_shared<CButton>(Point((pos.w / 2) - 32, 418), "IBY6432.DEF", CButton::tooltip(), [&](){ purchaseUnits(); }, EShortcut::GLOBAL_ACCEPT);
+	buyButton = std::make_shared<CButton>(Point((pos.w / 2) - 32, 418), AnimationPath::builtin("IBY6432.DEF"), CButton::tooltip(), [&](){ purchaseUnits(); }, EShortcut::GLOBAL_ACCEPT);
 	buyButton->setImageOrder(0, 1, 2, 3);
 }
 
 void QuickRecruitmentWindow::setMaxButton()
 {
-	maxButton = std::make_shared<CButton>(Point((pos.w/2)-112, 418), "IRCBTNS.DEF", CButton::tooltip(), [&](){ maxAllCards(cards); }, EShortcut::RECRUITMENT_MAX);
+	maxButton = std::make_shared<CButton>(Point((pos.w/2)-112, 418), AnimationPath::builtin("IRCBTNS.DEF"), CButton::tooltip(), [&](){ maxAllCards(cards); }, EShortcut::RECRUITMENT_MAX);
 	maxButton->setImageOrder(0, 1, 2, 3);
 }
 
@@ -74,8 +74,8 @@ void QuickRecruitmentWindow::initWindow(Rect startupPosition)
 		pos.w += 108 * (creaturesAmount - 3);
 		pos.x -= 55 * (creaturesAmount - 3);
 	}
-	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK.pcx", Rect(0, 0, pos.w, pos.h));
-	costBackground = std::make_shared<CPicture>("QuickRecruitmentWindow/costBackground.png", pos.w/2-113, 335);
+	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK.pcx"), Rect(0, 0, pos.w, pos.h));
+	costBackground = std::make_shared<CPicture>(ImagePath::builtin("QuickRecruitmentWindow/costBackground.png"), pos.w/2-113, 335);
 }
 
 void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePurchaseCard> > cards)

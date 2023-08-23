@@ -12,7 +12,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class ResourceID;
+class ResourcePath;
 
 class CMap;
 class CMapHeader;
@@ -39,7 +39,7 @@ public:
 	 * @param name the name of the map
 	 * @return a unique ptr to the loaded map class
 	 */
-	virtual std::unique_ptr<CMap> loadMap(const ResourceID & name) const = 0;
+	virtual std::unique_ptr<CMap> loadMap(const ResourcePath & name) const = 0;
 
 	/**
 	 * Loads the VCMI/H3 map header specified by the name.
@@ -47,7 +47,7 @@ public:
 	 * @param name the name of the map
 	 * @return a unique ptr to the loaded map header class
 	 */
-	virtual std::unique_ptr<CMapHeader> loadMapHeader(const ResourceID & name) const = 0;
+	virtual std::unique_ptr<CMapHeader> loadMapHeader(const ResourcePath & name) const = 0;
 
 	/**
 	 * Loads the VCMI/H3 map file from a buffer. This method is temporarily
@@ -81,8 +81,8 @@ public:
 	CMapService() = default;
 	virtual ~CMapService() = default;
 
-	std::unique_ptr<CMap> loadMap(const ResourceID & name) const override;
-	std::unique_ptr<CMapHeader> loadMapHeader(const ResourceID & name) const override;
+	std::unique_ptr<CMap> loadMap(const ResourcePath & name) const override;
+	std::unique_ptr<CMapHeader> loadMapHeader(const ResourcePath & name) const override;
 	std::unique_ptr<CMap> loadMap(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
 	std::unique_ptr<CMapHeader> loadMapHeader(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
 	void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const override;
@@ -101,7 +101,7 @@ private:
 	 * @param name the name of the map
 	 * @return a unique ptr to the input stream class
 	 */
-	static std::unique_ptr<CInputStream> getStreamFromFS(const ResourceID & name);
+	static std::unique_ptr<CInputStream> getStreamFromFS(const ResourcePath & name);
 
 	/**
 	 * Gets a map input stream from a buffer.

@@ -80,7 +80,7 @@ JsonNode::JsonNode(const char *data, size_t datasize):
 	*this = parser.parse("<unknown>");
 }
 
-JsonNode::JsonNode(ResourceID && fileURI):
+JsonNode::JsonNode(ResourcePath && fileURI):
 	type(JsonType::DATA_NULL)
 {
 	auto file = CResourceHandler::get()->load(fileURI)->readAll();
@@ -89,7 +89,7 @@ JsonNode::JsonNode(ResourceID && fileURI):
 	*this = parser.parse(fileURI.getName());
 }
 
-JsonNode::JsonNode(const ResourceID & fileURI):
+JsonNode::JsonNode(const ResourcePath & fileURI):
 	type(JsonType::DATA_NULL)
 {
 	auto file = CResourceHandler::get()->load(fileURI)->readAll();
@@ -98,7 +98,7 @@ JsonNode::JsonNode(const ResourceID & fileURI):
 	*this = parser.parse(fileURI.getName());
 }
 
-JsonNode::JsonNode(const std::string & idx, const ResourceID & fileURI):
+JsonNode::JsonNode(const std::string & idx, const ResourcePath & fileURI):
 type(JsonType::DATA_NULL)
 {
 	auto file = CResourceHandler::get(idx)->load(fileURI)->readAll();
@@ -107,7 +107,7 @@ type(JsonType::DATA_NULL)
 	*this = parser.parse(fileURI.getName());
 }
 
-JsonNode::JsonNode(ResourceID && fileURI, bool &isValidSyntax):
+JsonNode::JsonNode(ResourcePath && fileURI, bool &isValidSyntax):
 	type(JsonType::DATA_NULL)
 {
 	auto file = CResourceHandler::get()->load(fileURI)->readAll();
@@ -1255,9 +1255,9 @@ const JsonNode & getSchemaByName(const std::string & name)
 
 	std::string filename = "config/schemas/" + name;
 
-	if (CResourceHandler::get()->existsResource(ResourceID(filename)))
+	if (CResourceHandler::get()->existsResource(ResourcePath(filename)))
 	{
-		loadedSchemas[name] = JsonNode(ResourceID(filename));
+		loadedSchemas[name] = JsonNode(ResourcePath(filename));
 		return loadedSchemas[name];
 	}
 
@@ -1447,7 +1447,7 @@ JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files, bo
 	for(const std::string & file : files)
 	{
 		bool isValidFile = false;
-		JsonNode section(ResourceID(file, EResType::TEXT), isValidFile);
+		JsonNode section(ResourcePath(file, EResType::TEXT), isValidFile);
 		merge(result, section);
 		isValid |= isValidFile;
 	}
@@ -1457,7 +1457,7 @@ JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files, bo
 JsonNode JsonUtils::assembleFromFiles(const std::string & filename)
 {
 	JsonNode result;
-	ResourceID resID(filename, EResType::TEXT);
+	ResourcePath resID(filename, EResType::TEXT);
 
 	for(auto & loader : CResourceHandler::get()->getResourcesWithName(resID))
 	{

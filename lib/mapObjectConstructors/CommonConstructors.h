@@ -113,15 +113,15 @@ protected:
 	bool onboardAssaultAllowed; //if true, hero can attack units from transport
 	bool onboardVisitAllowed; //if true, hero can visit objects from transport
 	
-	std::string actualAnimation; //for OH3 boats those have actual animations
-	std::string overlayAnimation; //waves animations
-	std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
+	AnimationPath actualAnimation; //for OH3 boats those have actual animations
+	AnimationPath overlayAnimation; //waves animations
+	std::array<AnimationPath, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
 	
 public:
 	void initializeObject(CGBoat * object) const override;
 
 	/// Returns boat preview animation, for use in Shipyards
-	std::string getBoatAnimationName() const;
+	AnimationPath getBoatAnimationName() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

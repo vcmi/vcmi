@@ -984,8 +984,8 @@ void CMapLoaderH3M::readObjectTemplates()
 		auto tmpl = reader->readObjectTemplate();
 		templates.push_back(tmpl);
 
-		if (!CResourceHandler::get()->existsResource(ResourceID( "SPRITES/" + tmpl->animationFile, EResType::ANIMATION)))
-			logMod->warn("Template animation %s of type (%d %d) is missing!", tmpl->animationFile, tmpl->id, tmpl->subid );
+		if (!CResourceHandler::get()->existsResource(tmpl->animationFile))
+			logMod->warn("Template animation %s of type (%d %d) is missing!", tmpl->animationFile.getOriginalName(), tmpl->id, tmpl->subid );
 	}
 }
 
@@ -1328,7 +1328,7 @@ CGObjectInstance * CMapLoaderH3M::readGeneric(const int3 & mapPosition, std::sha
 	if(VLC->objtypeh->knownSubObjects(objectTemplate->id).count(objectTemplate->subid))
 		return VLC->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid)->create(objectTemplate);
 
-	logGlobal->warn("Map '%s': Unrecognized object %d:%d ('%s') at %s found!", mapName, objectTemplate->id.toEnum(), objectTemplate->subid, objectTemplate->animationFile, mapPosition.toString());
+	logGlobal->warn("Map '%s': Unrecognized object %d:%d ('%s') at %s found!", mapName, objectTemplate->id.toEnum(), objectTemplate->subid, objectTemplate->animationFile.getOriginalName(), mapPosition.toString());
 	return new CGObjectInstance();
 }
 

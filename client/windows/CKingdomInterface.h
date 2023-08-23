@@ -103,7 +103,7 @@ public:
 	//methods that generate values for displaying
 	virtual std::string getValueText()=0;
 	virtual std::string getNameText()=0;
-	virtual std::string getImageName(InfoBox::InfoSize size)=0;
+	virtual AnimationPath getImageName(InfoBox::InfoSize size)=0;
 	virtual std::string getHoverText()=0;
 	virtual size_t getImageIndex()=0;
 
@@ -124,7 +124,7 @@ public:
 
 	std::string getValueText() override;
 	std::string getNameText() override;
-	std::string getImageName(InfoBox::InfoSize size) override;
+	AnimationPath getImageName(InfoBox::InfoSize size) override;
 	std::string getHoverText() override;
 	size_t getImageIndex() override;
 
@@ -166,7 +166,7 @@ class InfoBoxCustom : public IInfoBoxData
 public:
 	std::string valueText;
 	std::string nameText;
-	std::string imageName;
+	AnimationPath imageName;
 	std::string hoverText;
 	size_t imageIndex;
 
@@ -174,7 +174,7 @@ public:
 
 	std::string getValueText() override;
 	std::string getNameText() override;
-	std::string getImageName(InfoBox::InfoSize size) override;
+	AnimationPath getImageName(InfoBox::InfoSize size) override;
 	std::string getHoverText() override;
 	size_t getImageIndex() override;
 
@@ -194,7 +194,7 @@ public:
 
 	std::string getValueText() override;
 	std::string getNameText() override;
-	std::string getImageName(InfoBox::InfoSize size) override;
+	AnimationPath getImageName(InfoBox::InfoSize size) override;
 	std::string getHoverText() override;
 	size_t getImageIndex() override;
 };

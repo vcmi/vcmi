@@ -182,12 +182,12 @@ void ClientCommandManager::handleNotDialogCommand()
 void ClientCommandManager::handleConvertTextCommand()
 {
 	logGlobal->info("Searching for available maps");
-	std::unordered_set<ResourceID> mapList = CResourceHandler::get()->getFilteredFiles([&](const ResourceID & ident)
+	std::unordered_set<ResourcePath> mapList = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
 	{
 		return ident.getType() == EResType::MAP;
 	});
 
-	std::unordered_set<ResourceID> campaignList = CResourceHandler::get()->getFilteredFiles([&](const ResourceID & ident)
+	std::unordered_set<ResourcePath> campaignList = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
 	{
 		return ident.getType() == EResType::CAMPAIGN;
 	});
@@ -292,7 +292,7 @@ void ClientCommandManager::handleGetTextCommand()
 			VCMIDirs::get().userExtractedPath();
 
 	auto list =
-			CResourceHandler::get()->getFilteredFiles([](const ResourceID & ident)
+			CResourceHandler::get()->getFilteredFiles([](const ResourcePath & ident)
 			{
 				return ident.getType() == EResType::TEXT && boost::algorithm::starts_with(ident.getName(), "DATA/");
 			});
@@ -317,7 +317,7 @@ void ClientCommandManager::handleDef2bmpCommand(std::istringstream& singleWordBu
 {
 	std::string URI;
 	singleWordBuffer >> URI;
-	std::unique_ptr<CAnimation> anim = std::make_unique<CAnimation>(URI);
+	std::unique_ptr<CAnimation> anim = std::make_unique<CAnimation>(AnimationPath::builtin(URI));
 	anim->preload();
 	anim->exportBitmaps(VCMIDirs::get().userExtractedPath());
 }
@@ -327,11 +327,11 @@ void ClientCommandManager::handleExtractCommand(std::istringstream& singleWordBu
 	std::string URI;
 	singleWordBuffer >> URI;
 
-	if(CResourceHandler::get()->existsResource(ResourceID(URI)))
+	if(CResourceHandler::get()->existsResource(ResourcePath(URI)))
 	{
 		const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / URI;
 
-		auto data = CResourceHandler::get()->load(ResourceID(URI))->readAll();
+		auto data = CResourceHandler::get()->load(ResourcePath(URI))->readAll();
 
 		boost::filesystem::create_directories(outPath.parent_path());
 		std::ofstream outFile(outPath.c_str(), std::ofstream::binary);

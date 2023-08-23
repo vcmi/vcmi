@@ -94,7 +94,7 @@ MapTileStorage::MapTileStorage(size_t capacity)
 {
 }
 
-void MapTileStorage::load(size_t index, const std::string & filename, EImageBlitMode blitMode)
+void MapTileStorage::load(size_t index, const AnimationPath & filename, EImageBlitMode blitMode)
 {
 	auto & terrainAnimations = animations[index];
 
@@ -247,7 +247,7 @@ uint8_t MapRendererRoad::checksum(IMapRendererContext & context, const int3 & co
 MapRendererBorder::MapRendererBorder()
 {
 	emptyFill = std::make_unique<Canvas>(Point(32,32));
-	animation = std::make_unique<CAnimation>("EDG");
+	animation = std::make_unique<CAnimation>(AnimationPath::builtin("EDG"));
 	animation->preload();
 }
 
@@ -309,9 +309,9 @@ uint8_t MapRendererBorder::checksum(IMapRendererContext & context, const int3 & 
 
 MapRendererFow::MapRendererFow()
 {
-	fogOfWarFullHide = std::make_unique<CAnimation>("TSHRC");
+	fogOfWarFullHide = std::make_unique<CAnimation>(AnimationPath::builtin("TSHRC"));
 	fogOfWarFullHide->preload();
-	fogOfWarPartialHide = std::make_unique<CAnimation>("TSHRE");
+	fogOfWarPartialHide = std::make_unique<CAnimation>(AnimationPath::builtin("TSHRE"));
 	fogOfWarPartialHide->preload();
 
 	for(size_t i = 0; i < fogOfWarFullHide->size(); ++i)
@@ -387,7 +387,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getBaseAnimation(const CGObjectI
 	return getAnimation(info->animationFile, generateMovementGroups);
 }
 
-std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const std::string & filename, bool generateMovementGroups)
+std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const AnimationPath & filename, bool generateMovementGroups)
 {
 	auto it = animations.find(filename);
 
@@ -422,7 +422,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 	{
 		assert(dynamic_cast<const CGHeroInstance *>(obj) != nullptr);
 		assert(obj->tempOwner.isValidPlayer());
-		return getAnimation(heroFlags[obj->tempOwner.getNum()], true);
+		return getAnimation(AnimationPath::builtin(heroFlags[obj->tempOwner.getNum()]), true);
 	}
 
 	if(obj->ID == Obj::BOAT)
@@ -557,10 +557,10 @@ uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 &
 }
 
 MapRendererOverlay::MapRendererOverlay()
-	: imageGrid(IImage::createFromFile("debug/grid", EImageBlitMode::ALPHA))
-	, imageBlocked(IImage::createFromFile("debug/blocked", EImageBlitMode::ALPHA))
-	, imageVisitable(IImage::createFromFile("debug/visitable", EImageBlitMode::ALPHA))
-	, imageSpellRange(IImage::createFromFile("debug/spellRange", EImageBlitMode::ALPHA))
+	: imageGrid(IImage::createFromFile(ImagePath::builtin("debug/grid"), EImageBlitMode::ALPHA))
+	, imageBlocked(IImage::createFromFile(ImagePath::builtin("debug/blocked"), EImageBlitMode::ALPHA))
+	, imageVisitable(IImage::createFromFile(ImagePath::builtin("debug/visitable"), EImageBlitMode::ALPHA))
+	, imageSpellRange(IImage::createFromFile(ImagePath::builtin("debug/spellRange"), EImageBlitMode::ALPHA))
 {
 
 }
@@ -616,7 +616,7 @@ uint8_t MapRendererOverlay::checksum(IMapRendererContext & context, const int3 &
 }
 
 MapRendererPath::MapRendererPath()
-	: pathNodes(new CAnimation("ADAG"))
+	: pathNodes(new CAnimation(AnimationPath::builtin("ADAG")))
 {
 	pathNodes->preload();
 }

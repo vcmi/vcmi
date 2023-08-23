@@ -75,7 +75,7 @@ void CSoundHandler::onVolumeChange(const JsonNode &volumeNode)
 
 CSoundHandler::CSoundHandler():
 	listener(settings.listen["general"]["sound"]),
-	ambientConfig(JsonNode(ResourceID("config/ambientSounds.json")))
+	ambientConfig(JsonNode(ResourcePath("config/ambientSounds.json")))
 {
 	listener(std::bind(&CSoundHandler::onVolumeChange, this, _1));
 
@@ -126,7 +126,7 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound, bool cache)
 		if (cache && soundChunks.find(sound) != soundChunks.end())
 			return soundChunks[sound].first;
 
-		auto data = CResourceHandler::get()->load(ResourceID(std::string("SOUNDS/") + sound, EResType::SOUND))->readAll();
+		auto data = CResourceHandler::get()->load(ResourcePath(std::string("SOUNDS/") + sound, EResType::SOUND))->readAll();
 		SDL_RWops *ops = SDL_RWFromMem(data.first.get(), (int)data.second);
 		Mix_Chunk *chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
 
@@ -357,7 +357,7 @@ CMusicHandler::CMusicHandler():
 {
 	listener(std::bind(&CMusicHandler::onVolumeChange, this, _1));
 
-	auto mp3files = CResourceHandler::get()->getFilteredFiles([](const ResourceID & id) ->  bool
+	auto mp3files = CResourceHandler::get()->getFilteredFiles([](const ResourcePath & id) ->  bool
 	{
 		if(id.getType() != EResType::SOUND)
 			return false;
@@ -369,7 +369,7 @@ CMusicHandler::CMusicHandler():
 		return true;
 	});
 
-	for(const ResourceID & file : mp3files)
+	for(const ResourcePath & file : mp3files)
 	{
 		if(boost::algorithm::istarts_with(file.getName(), "MUSIC/Combat"))
 			addEntryToSet("battle", file.getName());
@@ -573,7 +573,7 @@ void MusicEntry::load(std::string musicURI)
 
 	try
 	{
-		auto musicFile = MakeSDLRWops(CResourceHandler::get()->load(ResourceID(std::move(musicURI), EResType::SOUND)));
+		auto musicFile = MakeSDLRWops(CResourceHandler::get()->load(ResourcePath(std::move(musicURI), EResType::SOUND)));
 		music = Mix_LoadMUS_RW(musicFile, SDL_TRUE);
 	}
 	catch(std::exception &e)

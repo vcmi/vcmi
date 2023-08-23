@@ -11,6 +11,7 @@
 
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/Point.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -83,13 +84,13 @@ class BattleProjectileController
 	BattleInterface & owner;
 
 	/// all projectiles loaded during current battle
-	std::map<std::string, std::shared_ptr<CAnimation>> projectilesCache;
+	std::map<AnimationPath, std::shared_ptr<CAnimation>> projectilesCache;
 
 	/// projectiles currently flying on battlefield
 	std::vector<std::shared_ptr<ProjectileBase>> projectiles;
 
 	std::shared_ptr<CAnimation> getProjectileImage(const CStack * stack);
-	std::shared_ptr<CAnimation> createProjectileImage(const std::string & path );
+	std::shared_ptr<CAnimation> createProjectileImage(const AnimationPath & path );
 	void initStackProjectile(const CStack * stack);
 
 	bool stackUsesRayProjectile(const CStack * stack) const;

@@ -1722,7 +1722,7 @@ void CGameHandler::save(const std::string & filename)
 	try
 	{
 		{
-			CSaveFile save(*CResourceHandler::get("local")->getResourceName(ResourceID(stem.to_string(), EResType::SAVEGAME)));
+			CSaveFile save(*CResourceHandler::get("local")->getResourceName(ResourcePath(stem.to_string(), EResType::SAVEGAME)));
 			saveCommonState(save);
 			logGlobal->info("Saving server state");
 			save << *this;
@@ -1745,7 +1745,7 @@ bool CGameHandler::load(const std::string & filename)
 	try
 	{
 		{
-			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourceID(stem.to_string(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
+			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(stem.to_string(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
 			loadCommonState(lf);
 			logGlobal->info("Loading server state");
 			lf >> *this;

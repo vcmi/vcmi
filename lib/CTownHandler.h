@@ -23,6 +23,7 @@
 #include "bonuses/BonusList.h"
 #include "Point.h"
 #include "rewardable/Info.h"
+#include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -154,7 +155,10 @@ struct DLL_LINKAGE CStructure
 	CBuilding * buildable; // building that will be used to determine built building and visible cost. Usually same as "building"
 
 	int3 pos;
-	std::string defName, borderName, areaName, identifier;
+	AnimationPath defName;
+	ImagePath borderName;
+	ImagePath areaName;
+	std::string identifier;
 
 	bool hiddenUpgrade; // used only if "building" is upgrade, if true - structure on town screen will behave exactly like parent (mouse clicks, hover texts, etc)
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -175,7 +179,7 @@ struct DLL_LINKAGE SPuzzleInfo
 	ui16 number; //type of puzzle
 	si16 x, y; //position
 	ui16 whenUncovered; //determines the sequnce of discovering (the lesser it is the sooner puzzle will be discovered)
-	std::string filename; //file with graphic of this puzzle
+	ImagePath filename; //file with graphic of this puzzle
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -209,11 +213,10 @@ public:
 	/// and for placing heroes directly on boat (in map editor, water prisons & taverns)
 	BoatId boatType = BoatId::CASTLE;
 
-
 	CTown * town = nullptr; //NOTE: can be null
 
-	std::string creatureBg120;
-	std::string creatureBg130;
+	ImagePath creatureBg120;
+	ImagePath creatureBg130;
 
 	std::vector<SPuzzleInfo> puzzleMap;
 
@@ -303,11 +306,11 @@ public:
 		std::string iconLarge[2][2];
 		std::string tavernVideo;
 		std::string musicTheme;
-		std::string townBackground;
-		std::string guildBackground;
-		std::string guildWindow;
-		std::string buildingsIcons;
-		std::string hallBackground;
+		ImagePath townBackground;
+		ImagePath guildBackground;
+		ImagePath guildWindow;
+		AnimationPath buildingsIcons;
+		ImagePath hallBackground;
 		/// vector[row][column] = list of buildings in this slot
 		std::vector< std::vector< std::vector<BuildingID> > > hallSlots;
 

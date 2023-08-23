@@ -807,7 +807,7 @@ void CatapultAnimation::tick(uint32_t msPassed)
 	Point shotTarget = owner.stacksController->getStackPositionAtHex(dest, defendingStack) + Point(225, 225) - Point(126, 105);
 
 	std::string soundFilename  = (catapultDamage > 0) ? "WALLHIT" : "WALLMISS";
-	std::string effectFilename = (catapultDamage > 0) ? "SGEXPL" : "CSGRCK";
+	AnimationPath effectFilename = AnimationPath::builtin((catapultDamage > 0) ? "SGEXPL" : "CSGRCK");
 
 	CCS->soundh->playSound( soundFilename );
 	owner.stacksController->addNewAnim( new EffectAnimation(owner, effectFilename, shotTarget));
@@ -879,42 +879,42 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 	return maxFrames / 2;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, int effects, bool reversed):
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects, bool reversed):
 	BattleAnimation(owner),
 	animation(std::make_shared<CAnimation>(animationName)),
 	effectFlags(effects),
 	effectFinished(false),
 	reversed(reversed)
 {
-	logAnim->debug("CPointEffectAnimation::init: effect %s", animationName);
+	logAnim->debug("CPointEffectAnimation::init: effect %s", animationName.getName());
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects, bool reversed):
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<BattleHex> hex, int effects, bool reversed):
 	EffectAnimation(owner, animationName, effects, reversed)
 {
 	battlehexes = hex;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex, int effects, bool reversed):
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex, int effects, bool reversed):
 	EffectAnimation(owner, animationName, effects, reversed)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos, int effects, bool reversed):
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<Point> pos, int effects, bool reversed):
 	EffectAnimation(owner, animationName, effects, reversed)
 {
 	positions = pos;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, int effects, bool reversed):
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, int effects, bool reversed):
 	EffectAnimation(owner, animationName, effects, reversed)
 {
 	positions.push_back(pos);
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, BattleHex hex, int effects, bool reversed):
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, BattleHex hex, int effects, bool reversed):
 	EffectAnimation(owner, animationName, effects, reversed)
 {
 	assert(hex.isValid());

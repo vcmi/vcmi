@@ -251,7 +251,7 @@ int main(int argc, char * argv[])
 	// Some basic data validation to produce better error messages in cases of incorrect install
 	auto testFile = [](std::string filename, std::string message)
 	{
-		if (!CResourceHandler::get()->existsResource(ResourceID(filename)))
+		if (!CResourceHandler::get()->existsResource(ResourcePath(filename)))
 			handleFatalError(message, false);
 	};
 

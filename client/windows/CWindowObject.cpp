@@ -33,7 +33,7 @@
 
 #include <SDL_surface.h>
 
-CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt):
+CWindowObject::CWindowObject(int options_, const ImagePath & imageName, Point centerAt):
 	WindowBase(0, Point()),
 	options(options_),
 	background(createBg(imageName, options & PLAYER_COLORED))
@@ -54,7 +54,7 @@ CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt
 		setShadow(true);
 }
 
-CWindowObject::CWindowObject(int options_, std::string imageName):
+CWindowObject::CWindowObject(int options_, const ImagePath & imageName):
 	WindowBase(0, Point()),
 	options(options_),
 	background(createBg(imageName, options_ & PLAYER_COLORED))
@@ -81,7 +81,7 @@ CWindowObject::~CWindowObject()
 		CCS->curh->show();
 }
 
-std::shared_ptr<CPicture> CWindowObject::createBg(std::string imageName, bool playerColored)
+std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, bool playerColored)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
@@ -95,7 +95,7 @@ std::shared_ptr<CPicture> CWindowObject::createBg(std::string imageName, bool pl
 	return image;
 }
 
-void CWindowObject::setBackground(std::string filename)
+void CWindowObject::setBackground(const ImagePath & filename)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
@@ -237,10 +237,10 @@ bool CWindowObject::isPopupWindow() const
 	return options & RCLICK_POPUP;
 }
 
-CStatusbarWindow::CStatusbarWindow(int options, std::string imageName, Point centerAt) : CWindowObject(options, imageName, centerAt)
+CStatusbarWindow::CStatusbarWindow(int options, const ImagePath & imageName, Point centerAt) : CWindowObject(options, imageName, centerAt)
 {
 }
 
-CStatusbarWindow::CStatusbarWindow(int options, std::string imageName) : CWindowObject(options, imageName)
+CStatusbarWindow::CStatusbarWindow(int options, const ImagePath & imageName) : CWindowObject(options, imageName)
 {
 }

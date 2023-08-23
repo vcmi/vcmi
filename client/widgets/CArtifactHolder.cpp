@@ -89,7 +89,7 @@ void CCommanderArtPlace::createImage()
 	if(ourArt)
 		imageIndex = ourArt->artType->getIconIndex();
 
-	image = std::make_shared<CAnimImage>("artifact", imageIndex);
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), imageIndex);
 	if(!ourArt)
 		image->disable();
 }
@@ -247,11 +247,11 @@ void CHeroArtPlace::createImage()
 	else if(ourArt)
 		imageIndex = ourArt->artType->getIconIndex();
 
-	image = std::make_shared<CAnimImage>("artifact", imageIndex);
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), imageIndex);
 	if(!ourArt)
 		image->disable();
 
-	selection = std::make_shared<CAnimImage>("artifact", ArtifactID::ART_SELECTION);
+	selection = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), ArtifactID::ART_SELECTION);
 	selection->disable();
 }
 

@@ -271,7 +271,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 			{
 				if(artSetPtr->isActive())
 				{
-					CCS->curh->dragAndDropCursor("artifact", pickedArtInst->artType->getIconIndex());
+					CCS->curh->dragAndDropCursor(AnimationPath::builtin("artifact"), pickedArtInst->artType->getIconIndex());
 					if(srcLoc.isHolder(hero) || !std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroKingdom>>)
 						artSetPtr->markPossibleSlots(pickedArtInst, hero->tempOwner == LOCPLINT->playerID);
 				}

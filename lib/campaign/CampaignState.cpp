@@ -11,7 +11,7 @@
 #include "CampaignState.h"
 
 #include "../JsonNode.h"
-#include "../filesystem/ResourceID.h"
+#include "../filesystem/ResourcePath.h"
 #include "../VCMI_Lib.h"
 #include "../CGeneralTextHandler.h"
 #include "../mapping/CMapService.h"
@@ -58,7 +58,7 @@ CampaignRegions CampaignRegions::getLegacy(int campId)
 	static std::vector<CampaignRegions> campDescriptions;
 	if(campDescriptions.empty()) //read once
 	{
-		const JsonNode config(ResourceID("config/campaign_regions.json"));
+		const JsonNode config(ResourcePath("config/campaign_regions.json"));
 		for(const JsonNode & campaign : config["campaign_regions"].Vector())
 			campDescriptions.push_back(CampaignRegions::fromJson(campaign));
 	}
@@ -66,9 +66,9 @@ CampaignRegions CampaignRegions::getLegacy(int campId)
 	return campDescriptions.at(campId);
 }
 
-std::string CampaignRegions::getBackgroundName() const
+ImagePath CampaignRegions::getBackgroundName() const
 {
-	return campPrefix + "_BG.BMP";
+	return ImagePath::builtin(campPrefix + "_BG.BMP");
 }
 
 Point CampaignRegions::getPosition(CampaignScenarioID which) const
@@ -77,7 +77,7 @@ Point CampaignRegions::getPosition(CampaignScenarioID which) const
 	return Point(region.xpos, region.ypos);
 }
 
-std::string CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex, std::string type) const
+ImagePath CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex, std::string type) const
 {
 	auto const & region = regions[static_cast<int>(which)];
 
@@ -89,20 +89,20 @@ std::string CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex
 
 	std::string color = colors[colorSuffixLength - 1][colorIndex];
 
-	return campPrefix + region.infix + "_" + type + color + ".BMP";
+	return ImagePath::builtin(campPrefix + region.infix + "_" + type + color + ".BMP");
 }
 
-std::string CampaignRegions::getAvailableName(CampaignScenarioID which, int color) const
+ImagePath CampaignRegions::getAvailableName(CampaignScenarioID which, int color) const
 {
 	return getNameFor(which, color, "En");
 }
 
-std::string CampaignRegions::getSelectedName(CampaignScenarioID which, int color) const
+ImagePath CampaignRegions::getSelectedName(CampaignScenarioID which, int color) const
 {
 	return getNameFor(which, color, "Se");
 }
 
-std::string CampaignRegions::getConqueredName(CampaignScenarioID which, int color) const
+ImagePath CampaignRegions::getConqueredName(CampaignScenarioID which, int color) const
 {
 	return getNameFor(which, color, "Co");
 }

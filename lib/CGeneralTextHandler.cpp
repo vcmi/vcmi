@@ -48,7 +48,7 @@ void CGeneralTextHandler::detectInstallParameters()
 		"ukrainian"
 	} };
 
-	if(!CResourceHandler::get("core")->existsResource(ResourceID("DATA/GENRLTXT.TXT", EResType::TEXT)))
+	if(!CResourceHandler::get("core")->existsResource(ResourcePath("DATA/GENRLTXT.TXT", EResType::TEXT)))
 	{
 		Settings language = settings.write["session"]["language"];
 		language->String() = "english";
@@ -64,7 +64,7 @@ void CGeneralTextHandler::detectInstallParameters()
 
 	// load file that will be used for footprint generation
 	// this is one of the most text-heavy files in game and consists solely from translated texts
-	auto resource = CResourceHandler::get("core")->load(ResourceID("DATA/GENRLTXT.TXT", EResType::TEXT));
+	auto resource = CResourceHandler::get("core")->load(ResourcePath("DATA/GENRLTXT.TXT", EResType::TEXT));
 
 	std::array<size_t, 256> charCount{};
 	std::array<double, 16> footprint{};
@@ -121,7 +121,7 @@ protected:
 
 CLegacyConfigParser::CLegacyConfigParser(std::string URI)
 {
-	ResourceID resource(URI, EResType::TEXT);
+	ResourcePath resource(URI, EResType::TEXT);
 	auto input = CResourceHandler::get()->load(resource);
 	std::string modName = VLC->modh->findResourceOrigin(resource);
 	std::string language = VLC->modh->getModLanguage(modName);
@@ -430,7 +430,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.mineevnt", "DATA/MINEEVNT.TXT" );
 
 	static const char * QE_MOD_COMMANDS = "DATA/QECOMMANDS.TXT";
-	if (CResourceHandler::get()->existsResource(ResourceID(QE_MOD_COMMANDS, EResType::TEXT)))
+	if (CResourceHandler::get()->existsResource(ResourcePath(QE_MOD_COMMANDS, EResType::TEXT)))
 		readToVector("vcmi.quickExchange", QE_MOD_COMMANDS);
 
 	{
@@ -575,7 +575,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	}
 	if (VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
 	{
-		if(CResourceHandler::get()->existsResource(ResourceID("DATA/ZNPC00.TXT", EResType::TEXT)))
+		if(CResourceHandler::get()->existsResource(ResourcePath("DATA/ZNPC00.TXT", EResType::TEXT)))
 			readToVector("vcmi.znpc00", "DATA/ZNPC00.TXT" );
 	}
 }

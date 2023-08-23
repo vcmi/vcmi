@@ -18,6 +18,7 @@
 #include "IHandlerBase.h"
 #include "CRandomGenerator.h"
 #include "Color.h"
+#include "filesystem/ResourcePath.h"
 
 #include <vcmi/Creature.h>
 #include <vcmi/CreatureService.h>
@@ -57,7 +58,7 @@ public:
 
 	std::set<CreatureID> upgrades; // IDs of creatures to which this creature can be upgraded
 
-	std::string animDefName; // creature animation used during battles
+	AnimationPath animDefName; // creature animation used during battles
 
 	si32 iconIndex = -1; // index of icon in files like twcrport, used in tests now.
 	/// names of files with appropriate icons. Used only during loading
@@ -97,7 +98,7 @@ public:
 		std::vector<double> missleFrameAngles;
 		int troopCountLocationOffset, attackClimaxFrame;
 
-		std::string projectileImageName;
+		AnimationPath projectileImageName;
 		std::vector<RayColor> projectileRay;
 		//bool projectileSpin; //if true, appropriate projectile is spinning during flight
 

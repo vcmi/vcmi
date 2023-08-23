@@ -10,7 +10,7 @@
 #pragma once
 
 #include "ISimpleResourceLoader.h"
-#include "ResourceID.h"
+#include "ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -34,13 +34,13 @@ public:
 
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
-	std::unique_ptr<CInputStream> load(const ResourceID & resourceName) const override;
-	bool existsResource(const ResourceID & resourceName) const override;
+	std::unique_ptr<CInputStream> load(const ResourcePath & resourceName) const override;
+	bool existsResource(const ResourcePath & resourceName) const override;
 	std::string getMountPoint() const override;
 	bool createResource(std::string filename, bool update = false) override;
-	std::optional<boost::filesystem::path> getResourceName(const ResourceID & resourceName) const override;
+	std::optional<boost::filesystem::path> getResourceName(const ResourcePath & resourceName) const override;
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override;
-	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
+	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 
 private:
 	/** The base directory which is scanned and indexed. */
@@ -51,10 +51,10 @@ private:
 	size_t recursiveDepth;
 
 	/** A list of files in the directory
-	 * key = ResourceID for resource loader
+	 * key = ResourcePath for resource loader
 	 * value = name that can be used to access file
 	*/
-	mutable std::unordered_map<ResourceID, boost::filesystem::path> fileList;
+	mutable std::unordered_map<ResourcePath, boost::filesystem::path> fileList;
 
 	/**
 	 * Returns a list of pathnames denoting the files in the directory denoted by this pathname.
@@ -65,7 +65,7 @@ private:
 	 * @return a list of pathnames denoting the files and directories in the directory denoted by this pathname
 	 * The array will be empty if the directory is empty. Ptr is null if the directory doesn't exist or if it isn't a directory.
 	 */
-	std::unordered_map<ResourceID, boost::filesystem::path> listFiles(const std::string &mountPoint, size_t depth, bool initial) const;
+	std::unordered_map<ResourcePath, boost::filesystem::path> listFiles(const std::string &mountPoint, size_t depth, bool initial) const;
 };
 
 VCMI_LIB_NAMESPACE_END

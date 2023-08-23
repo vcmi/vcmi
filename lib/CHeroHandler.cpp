@@ -243,8 +243,8 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	heroClass->id = HeroClassID(index);
 	heroClass->identifier = identifier;
 	heroClass->modScope = scope;
-	heroClass->imageBattleFemale = node["animation"]["battle"]["female"].String();
-	heroClass->imageBattleMale   = node["animation"]["battle"]["male"].String();
+	heroClass->imageBattleFemale = AnimationPath::fromJson(node["animation"]["battle"]["female"]);
+	heroClass->imageBattleMale   = AnimationPath::fromJson(node["animation"]["battle"]["male"]);
 	//MODS COMPATIBILITY FOR 0.96
 	heroClass->imageMapFemale    = node["animation"]["map"]["female"].String();
 	heroClass->imageMapMale      = node["animation"]["map"]["male"].String();
@@ -438,7 +438,7 @@ CHero * CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & n
 	hero->iconSpecLarge = node["images"]["specialtyLarge"].String();
 	hero->portraitSmall = node["images"]["small"].String();
 	hero->portraitLarge = node["images"]["large"].String();
-	hero->battleImage = node["battleImage"].String();
+	hero->battleImage = AnimationPath::fromJson(node["battleImage"]);
 
 	loadHeroArmy(hero, node);
 	loadHeroSkills(hero, node);

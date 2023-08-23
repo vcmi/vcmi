@@ -12,7 +12,7 @@
 
 #include <vstd/DateUtils.h>
 
-#include "../filesystem/ResourceID.h"
+#include "../filesystem/ResourcePath.h"
 #include "../StartInfo.h"
 #include "../GameConstants.h"
 #include "CMapService.h"
@@ -45,14 +45,14 @@ void CMapInfo::mapInit(const std::string & fname)
 {
 	fileURI = fname;
 	CMapService mapService;
-	ResourceID resource = ResourceID(fname, EResType::MAP);
+	ResourcePath resource = ResourcePath(fname, EResType::MAP);
 	originalFileURI = resource.getOriginalName();
 	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(resource)).string();
 	mapHeader = mapService.loadMapHeader(resource);
 	countPlayers();
 }
 
-void CMapInfo::saveInit(const ResourceID & file)
+void CMapInfo::saveInit(const ResourcePath & file)
 {
 	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), MINIMAL_SERIALIZATION_VERSION);
 	lf.checkMagicBytes(SAVEGAME_MAGIC);
@@ -73,7 +73,7 @@ void CMapInfo::saveInit(const ResourceID & file)
 
 void CMapInfo::campaignInit()
 {
-	ResourceID resource = ResourceID(fileURI, EResType::CAMPAIGN);
+	ResourcePath resource = ResourcePath(fileURI, EResType::CAMPAIGN);
 	originalFileURI = resource.getOriginalName();
 	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(resource)).string();
 	campaign = CampaignHandler::getHeader(fileURI);

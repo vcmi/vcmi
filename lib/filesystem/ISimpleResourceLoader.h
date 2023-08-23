@@ -12,7 +12,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CInputStream;
-class ResourceID;
+class ResourcePath;
 
 /**
  * A class which knows the files containing in the archive or system and how to load them.
@@ -28,14 +28,14 @@ public:
 	 * @param resourceName The unqiue resource name in space of the archive.
 	 * @return a input stream object
 	 */
-	virtual std::unique_ptr<CInputStream> load(const ResourceID & resourceName) const = 0;
+	virtual std::unique_ptr<CInputStream> load(const ResourcePath & resourceName) const = 0;
 
 	/**
 	 * Checks if the entry exists.
 	 *
 	 * @return Returns true if the entry exists, false if not.
 	 */
-	virtual bool existsResource(const ResourceID & resourceName) const = 0;
+	virtual bool existsResource(const ResourcePath & resourceName) const = 0;
 
 	/**
 	 * Gets mount point to which this loader was attached
@@ -49,7 +49,7 @@ public:
 	 *
 	 * @return path or empty optional if file can't be accessed independently (e.g. file in archive)
 	 */
-	virtual std::optional<boost::filesystem::path> getResourceName(const ResourceID & resourceName) const
+	virtual std::optional<boost::filesystem::path> getResourceName(const ResourcePath & resourceName) const
 	{
 		return std::optional<boost::filesystem::path>();
 	}
@@ -59,7 +59,7 @@ public:
 	 *
 	 * @return std::set with names.
 	 */
-	virtual std::set<boost::filesystem::path> getResourceNames(const ResourceID & resourceName) const
+	virtual std::set<boost::filesystem::path> getResourceNames(const ResourcePath & resourceName) const
 	{
 		std::set<boost::filesystem::path> result;
 		auto rn = getResourceName(resourceName);
@@ -83,7 +83,7 @@ public:
 	 * @param filter Filter that returns true if specified ID matches filter
 	 * @return Returns list of flies
 	 */
-	virtual std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const = 0;
+	virtual std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const = 0;
 
 	/**
 	 * Creates new resource with specified filename.
@@ -100,7 +100,7 @@ public:
 	 *
 	 * @return vector with all loaders
 	 */
-	virtual std::vector<const ISimpleResourceLoader *> getResourcesWithName(const ResourceID & resourceName) const
+	virtual std::vector<const ISimpleResourceLoader *> getResourcesWithName(const ResourcePath & resourceName) const
 	{
 		if (existsResource(resourceName))
 			return std::vector<const ISimpleResourceLoader *>(1, this);

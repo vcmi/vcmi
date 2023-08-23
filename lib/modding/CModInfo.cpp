@@ -152,7 +152,7 @@ bool CModInfo::checkModGameplayAffecting() const
 		"obstacles"
 	};
 
-	ResourceID modFileResource(CModInfo::getModFile(identifier));
+	ResourcePath modFileResource(CModInfo::getModFile(identifier));
 
 	if(CResourceHandler::get("initial")->existsResource(modFileResource))
 	{

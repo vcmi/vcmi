@@ -89,7 +89,7 @@ void CButton::addOverlay(std::shared_ptr<CIntObject> newOverlay)
 	update();
 }
 
-void CButton::addImage(std::string filename)
+void CButton::addImage(const AnimationPath & filename)
 {
 	imageNames.push_back(filename);
 }
@@ -232,7 +232,7 @@ void CButton::hover (bool on)
 	}
 }
 
-CButton::CButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help, CFunctionList<void()> Callback, EShortcut key, bool playerColoredButton):
+CButton::CButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help, CFunctionList<void()> Callback, EShortcut key, bool playerColoredButton):
     CKeyShortcut(key),
     callback(Callback)
 {
@@ -357,7 +357,7 @@ void CToggleBase::addCallback(std::function<void(bool)> function)
 	callback += function;
 }
 
-CToggleButton::CToggleButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help,
+CToggleButton::CToggleButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help,
 							 CFunctionList<void(bool)> callback, EShortcut key, bool playerColoredButton):
   CButton(position, defName, help, 0, key, playerColoredButton),
   CToggleBase(callback)

@@ -85,7 +85,7 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 	return text;
 }
 
-std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
+ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
 {
 	std::string fileName;
 	bool fullPath = false;
@@ -191,12 +191,12 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 
 	if(!fileName.empty() && !fullPath)
 		fileName = "zvs/Lib1.res/" + fileName;
-	return fileName;
+	return ImagePath::builtinTODO(fileName);
 }
 
 void CBonusTypeHandler::load()
 {
-	const JsonNode gameConf(ResourceID("config/gameConfig.json"));
+	const JsonNode gameConf(ResourcePath("config/gameConfig.json"));
 	const JsonNode config(JsonUtils::assembleFromFiles(gameConf["bonuses"].convertTo<std::vector<std::string>>()));
 	load(config);
 }

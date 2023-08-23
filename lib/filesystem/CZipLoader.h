@@ -11,7 +11,7 @@
 
 #include "ISimpleResourceLoader.h"
 #include "CInputStream.h"
-#include "ResourceID.h"
+#include "ResourcePath.h"
 #include "CCompressedStream.h"
 
 #include "MinizipExtensions.h"
@@ -46,19 +46,19 @@ class DLL_LINKAGE CZipLoader : public ISimpleResourceLoader
 	boost::filesystem::path archiveName;
 	std::string mountPoint;
 
-	std::unordered_map<ResourceID, unz64_file_pos> files;
+	std::unordered_map<ResourcePath, unz64_file_pos> files;
 
-	std::unordered_map<ResourceID, unz64_file_pos> listFiles(const std::string & mountPoint, const boost::filesystem::path &archive);
+	std::unordered_map<ResourcePath, unz64_file_pos> listFiles(const std::string & mountPoint, const boost::filesystem::path &archive);
 public:
 	CZipLoader(const std::string & mountPoint, const boost::filesystem::path & archive, std::shared_ptr<CIOApi> api = std::shared_ptr<CIOApi>(new CDefaultIOApi()));
 
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
-	std::unique_ptr<CInputStream> load(const ResourceID & resourceName) const override;
-	bool existsResource(const ResourceID & resourceName) const override;
+	std::unique_ptr<CInputStream> load(const ResourcePath & resourceName) const override;
+	bool existsResource(const ResourcePath & resourceName) const override;
 	std::string getMountPoint() const override;
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override {}
-	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
+	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 };
 
 namespace ZipArchive

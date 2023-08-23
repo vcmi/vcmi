@@ -51,7 +51,7 @@ int CMapGenerator::getRandomSeed() const
 
 void CMapGenerator::loadConfig()
 {
-	static const ResourceID path("config/randomMap.json");
+	static const ResourcePath path("config/randomMap.json");
 	JsonNode randomMapJson(path);
 
 	config.shipyardGuard = randomMapJson["waterZone"]["shipyard"]["value"].Integer();
