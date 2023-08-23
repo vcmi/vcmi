@@ -194,7 +194,8 @@ void BattleAction::setTarget(const battle::Target & target_)
 
 bool BattleAction::isUnitAction() const
 {
-	static const std::array<EActionType, 9> actions = {
+	static const std::array<EActionType, 109> actions = {
+		EActionType::NO_ACTION,
 		EActionType::WALK,
 		EActionType::WAIT,
 		EActionType::DEFEND,
