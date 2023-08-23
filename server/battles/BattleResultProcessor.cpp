@@ -539,6 +539,12 @@ void BattleResultProcessor::setBattleResult(EBattleResult resultType, int victor
 	gameHandler->gameState()->curB->calculateCasualties(battleResult->casualties);
 }
 
+void BattleResultProcessor::setupBattle()
+{
+	finishingBattle.reset();
+	battleResult.reset();
+}
+
 bool BattleResultProcessor::battleIsEnding() const
 {
 	return battleResult != nullptr;
