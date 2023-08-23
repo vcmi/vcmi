@@ -212,7 +212,11 @@ void CPlayerInterface::performAutosave()
 			prefix = settings["general"]["savePrefix"].String();
 			if(prefix.empty())
 			{
-				std::string name = cb->getMapHeader()->name.substr(0, 15);
+				std::string name = cb->getMapHeader()->name;
+				std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
+				int txtlen = conv.from_bytes(name).size(); 
+
+				TextOperations::trimRightUnicode(name, std::max(0, txtlen - 15));
 				std::string forbiddenChars("\\/:?\"<>| ");
 				std::replace_if(name.begin(), name.end(), [&](char c) { return std::string::npos != forbiddenChars.find(c); }, '_' );
 
@@ -225,7 +229,7 @@ void CPlayerInterface::performAutosave()
 		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer();
 		if(autosaveCountLimit > 0)
 		{
-			cb->save("Saves/Autosave/" + prefix + "Autosave_" + std::to_string(autosaveCount));
+			cb->save("Saves/Autosave/" + prefix + std::to_string(autosaveCount));
 			autosaveCount %= autosaveCountLimit;
 		}
 		else
@@ -234,7 +238,7 @@ void CPlayerInterface::performAutosave()
 					+ std::to_string(cb->getDate(Date::WEEK))
 					+ std::to_string(cb->getDate(Date::DAY_OF_WEEK));
 
-			cb->save("Saves/Autosave/" + prefix + "Autosave_" + stringifiedDate);
+			cb->save("Saves/Autosave/" + prefix + stringifiedDate);
 		}
 	}
 }
