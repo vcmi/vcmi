@@ -18,6 +18,7 @@
 
 class CPicture;
 class CLabel;
+class CMultiLineLabel;
 class CToggleGroup;
 class CToggleButton;
 class CButton;
@@ -88,6 +89,7 @@ protected:
 	//basic widgets
 	std::shared_ptr<CPicture> buildPicture(const JsonNode &) const;
 	std::shared_ptr<CLabel> buildLabel(const JsonNode &) const;
+	std::shared_ptr<CMultiLineLabel> buildMultiLineLabel(const JsonNode &) const;
 	std::shared_ptr<CToggleGroup> buildToggleGroup(const JsonNode &) const;
 	std::shared_ptr<CToggleButton> buildToggleButton(const JsonNode &) const;
 	std::shared_ptr<CButton> buildButton(const JsonNode &) const;
