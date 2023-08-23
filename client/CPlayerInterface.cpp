@@ -180,7 +180,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 		GH.windows().pushWindow(adventureInt);
 	}
 
-//close window from another player
+	// close window from another player
 	if(auto w = GH.windows().topWindow<CInfoWindow>())
 		if(w->ID == -1 && player != playerID)
 			w->close();
@@ -201,8 +201,6 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 
 void CPlayerInterface::performAutosave()
 {
-	std::string id = cb->getStartInfo()->gameUuid.substr(0, 4);
-
 	int frequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
 	if(frequency > 0 && cb->getDate() % frequency == 0)
 	{
@@ -232,7 +230,7 @@ void CPlayerInterface::performAutosave()
 					+ std::to_string(cb->getDate(Date::WEEK))
 					+ std::to_string(cb->getDate(Date::DAY_OF_WEEK));
 
-			cb->save("Saves/Autosave/" + prefix + "Autosave_" + id + "_" + stringifiedDate);
+			cb->save("Saves/Autosave/" + prefix + "Autosave_" + stringifiedDate);
 		}
 	}
 }
