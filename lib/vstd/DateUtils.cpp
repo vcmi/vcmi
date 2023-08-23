@@ -19,7 +19,6 @@ namespace vstd
 	{
 		std::tm tm = *std::localtime(&dt);
 		std::stringstream s;
-		s.imbue(std::locale(""));
 		s << std::put_time(&tm, "%Y%m%dT%H%M%S");
 		return s.str();
 	}

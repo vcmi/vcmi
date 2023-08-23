@@ -212,7 +212,11 @@ void CPlayerInterface::performAutosave()
 			prefix = settings["general"]["savePrefix"].String();
 			if(prefix.empty())
 			{
-				prefix = cb->getMapHeader()->name.substr(0, 15) + "_" + cb->getStartInfo()->startTimeIso8601 + "/";
+				std::string name = cb->getMapHeader()->name.substr(0, 15);
+				std::string forbiddenChars("\\/:?\"<>| ");
+				std::replace_if(name.begin(), name.end(), [&](char c) { return std::string::npos != forbiddenChars.find(c); }, '_' );
+
+				prefix = name + "_" + cb->getStartInfo()->startTimeIso8601 + "/";
 			}
 		}
 
