@@ -654,6 +654,11 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID build
 
 void CPlayerInterface::battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
 {
+	// when battle starts, game will send battleStart pack *before* movement confirmation
+	// and since network thread wait for battle intro to play, movement confirmation will only happen after intro
+	// leading to several bugs, such as blocked input during intro
+	stillMoveHero.setn(STOP_MOVE);
+
 	//Don't wait for dialogs when we are non-active hot-seat player
 	if (LOCPLINT == this)
 		waitForAllDialogs();

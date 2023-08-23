@@ -528,6 +528,7 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleResult &result)
 	}
 
 	finishingBattle.reset();
+	battleResult.reset();
 }
 
 void BattleResultProcessor::setBattleResult(EBattleResult resultType, int victoriusSide)
@@ -536,4 +537,9 @@ void BattleResultProcessor::setBattleResult(EBattleResult resultType, int victor
 	battleResult->result = resultType;
 	battleResult->winner = victoriusSide; //surrendering side loses
 	gameHandler->gameState()->curB->calculateCasualties(battleResult->casualties);
+}
+
+bool BattleResultProcessor::battleIsEnding() const
+{
+	return battleResult != nullptr;
 }
