@@ -59,6 +59,9 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClient
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
+	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+		GH.windows().popWindow(w);
+	
 	if(GH.windows().count() > 0)
 		GH.windows().popWindows(1);
 }
@@ -122,16 +125,31 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pac
 		handler.si = pack.initializedStartInfo;
 		handler.si->mode = modeBackup;
 	}
-	if(settings["session"]["headless"].Bool())
-		handler.startGameplay(pack.initializedGameState);
+	handler.startGameplay(pack.initializedGameState);
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	if(pack.clientId != -1 && pack.clientId != handler.c->connectionID)
-		return;
-	
-	GH.windows().createAndPushWindow<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, &handler, pack.initializedGameState));
+	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+	{
+		w->finish();
+		w->tick(0);
+		w->redraw();
+	}
+	else
+		GH.windows().createAndPushWindow<CLoadingScreen>();
+}
+
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbyLoadProgress(LobbyLoadProgress & pack)
+{
+	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+	{
+		w->set(pack.progress);
+		w->tick(0);
+		w->redraw();
+	}
+	else
+		GH.windows().createAndPushWindow<CLoadingScreen>();
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)

@@ -279,6 +279,26 @@ void CVCMIServer::prepareToRestart()
 
 bool CVCMIServer::prepareToStartGame()
 {
+	Load::ProgressAccumulator progressTracking;
+	Load::Progress current(1);
+	progressTracking.include(current);
+	Load::Type currentProgress = std::numeric_limits<Load::Type>::max();
+	
+	auto progressTrackingThread = boost::thread([this, &progressTracking, &currentProgress]()
+	{
+		while(!progressTracking.finished())
+		{
+			if(progressTracking.get() != currentProgress)
+			{
+				currentProgress = progressTracking.get();
+				std::unique_ptr<LobbyLoadProgress> loadProgress(new LobbyLoadProgress);
+				loadProgress->progress = currentProgress;
+				addToAnnounceQueue(std::move(loadProgress));
+			}
+			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		}
+	});
+	
 	gh = std::make_shared<CGameHandler>(this);
 	switch(si->mode)
 	{
@@ -286,18 +306,22 @@ bool CVCMIServer::prepareToStartGame()
 		logNetwork->info("Preparing to start new campaign");
 		si->campState->setCurrentMap(campaignMap);
 		si->campState->setCurrentMapBonus(campaignBonus);
-		gh->init(si.get());
+		gh->init(si.get(), progressTracking);
 		break;
 
 	case StartInfo::NEW_GAME:
 		logNetwork->info("Preparing to start new game");
-		gh->init(si.get());
+		gh->init(si.get(), progressTracking);
 		break;
 
 	case StartInfo::LOAD_GAME:
 		logNetwork->info("Preparing to start loaded game");
 		if(!gh->load(si->mapname))
+		{
+			current.finish();
+			progressTrackingThread.join();
 			return false;
+		}
 		break;
 	default:
 		logNetwork->error("Wrong mode in StartInfo!");
@@ -305,7 +329,9 @@ bool CVCMIServer::prepareToStartGame()
 		break;
 	}
 	
-	state = EServerState::GAMEPLAY_STARTING;
+	current.finish();
+	progressTrackingThread.join();
+	
 	return true;
 }
 

@@ -582,36 +582,67 @@ void CSimpleJoinScreen::connectThread(const std::string & addr, ui16 port)
 	});
 }
 
-CLoadingScreen::CLoadingScreen(std::function<void()> loader)
-	: CWindowObject(BORDERED, getBackground()), loadingThread(loader)
+CLoadingScreen::CLoadingScreen()
+	: CWindowObject(BORDERED, getBackground())
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	
+	addUsedEvents(TIME);
+	
 	CCS->musich->stopMusic(5000);
+	
+	const auto & conf = CMainMenuConfig::get().getConfig()["loading"];
+	if(conf.isStruct())
+	{
+		const int posx = conf["x"].Integer(), posy = conf["y"].Integer();
+		const int blockSize = conf["size"].Integer();
+		const int blocksAmount = conf["amount"].Integer();
+		
+		for(int i = 0; i < blocksAmount; ++i)
+		{
+			progressBlocks.push_back(std::make_shared<CAnimImage>(conf["name"].String(), i, 0, posx + i * blockSize, posy));
+			progressBlocks.back()->deactivate();
+			progressBlocks.back()->visible = false;
+		}
+	}
 }
 
 CLoadingScreen::~CLoadingScreen()
 {
-	loadingThread.join();
 }
 
-void CLoadingScreen::showAll(Canvas & to)
+void CLoadingScreen::tick(uint32_t msPassed)
 {
-	//FIXME: filling screen with transparency? BLACK intended?
-	//Rect rect(0, 0, to->w, to->h);
-	//CSDL_Ext::fillRect(to, rect, Colors::TRANSPARENCY);
-
-	CWindowObject::showAll(to);
+	if(!progressBlocks.empty())
+	{
+		int status = float(get()) / 255.f * progressBlocks.size();
+		
+		for(int i = 0; i < status; ++i)
+		{
+			progressBlocks.at(i)->activate();
+			progressBlocks.at(i)->visible = true;
+		}
+	}
 }
 
 std::string CLoadingScreen::getBackground()
 {
-	const auto & conf = CMainMenuConfig::get().getConfig()["loading"].Vector();
+	std::string fname = "loadbar";
+	const auto & conf = CMainMenuConfig::get().getConfig()["loading"];
 
-	if(conf.empty())
+	if(conf.isStruct())
 	{
-		return "loadbar";
+		if(conf["background"].isVector())
+			return RandomGeneratorUtil::nextItem(conf["background"].Vector(), CRandomGenerator::getDefault())->String();
+		
+		if(conf["background"].isString())
+			return conf["background"].String();
+		
+		return fname;
 	}
-	else
-	{
-		return RandomGeneratorUtil::nextItem(conf, CRandomGenerator::getDefault())->String();
-	}
+	
+	if(conf.isVector() && !conf.Vector().empty())
+		return RandomGeneratorUtil::nextItem(conf.Vector(), CRandomGenerator::getDefault())->String();
+	
+	return fname;
 }
