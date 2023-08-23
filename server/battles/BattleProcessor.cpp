@@ -67,6 +67,7 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 	heroes[0] = hero1;
 	heroes[1] = hero2;
 
+	resultProcessor->setupBattle();
 	setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 
 	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(gameHandler->gameState()->curB->sides[0].color));

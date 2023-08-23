@@ -73,6 +73,7 @@ public:
 
 	bool battleIsEnding() const;
 
+	void setupBattle();
 	void setBattleResult(EBattleResult resultType, int victoriusSide);
 	void endBattle(int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2); //ends battle
 	void endBattleConfirm(const BattleInfo * battleInfo);
