@@ -49,6 +49,9 @@
 #include "../lib/serializer/Connection.h"
 #include "../lib/serializer/CMemorySerializer.h"
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
 #include <boost/asio.hpp>
 #include "../lib/serializer/Cast.h"
 #include "LobbyClientNetPackVisitors.h"

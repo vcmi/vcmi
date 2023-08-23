@@ -121,7 +121,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <optional>
 #include <queue>
 #include <random>
-#include <regex>
 #include <set>
 #include <sstream>
 #include <string>
@@ -167,9 +166,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/range/algorithm.hpp>
 #include <boost/thread.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
 
 #ifndef M_PI
 #  define M_PI 3.14159265358979323846
