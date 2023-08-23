@@ -24,12 +24,11 @@ SubscriptionRegistry<PlayerGotTurn> * PlayerGotTurn::getRegistry()
 	return Instance.get();
 }
 
-void PlayerGotTurn::defaultExecute(const EventBus * bus, PlayerColor & player)
+void PlayerGotTurn::defaultExecute(const EventBus * bus, const PlayerColor & player)
 {
 	CPlayerGotTurn event;
 	event.setPlayer(player);
 	bus->executeEvent(event);
-	player = event.getPlayer();
 }
 
 CPlayerGotTurn::CPlayerGotTurn() = default;

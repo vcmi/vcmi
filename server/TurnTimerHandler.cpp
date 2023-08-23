@@ -85,7 +85,7 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerState & state, int waitTime)
 			onPlayerMakingTurn(state, waitTime);
 		}
 		else if(!gameHandler.queries->topQuery(state.color))
-			gameHandler.turnOrder->onPlayerEndsTurn(state.color);
+			gameHandler.turnOrder->onPlayerEndsTurn(state.color, PlayerTurnEndReason::TURN_TIMEOUT);
 	}
 }
 

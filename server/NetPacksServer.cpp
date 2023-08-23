@@ -40,7 +40,7 @@ void ApplyGhNetPackVisitor::visitEndTurn(EndTurn & pack)
 	if (!gh.hasPlayerAt(pack.player, pack.c))
 		gh.throwAndComplain(&pack, "No such pack.player!");
 
-	result = gh.turnOrder->onPlayerEndsTurn(pack.player);
+	result = gh.turnOrder->onPlayerEndsTurn(pack.player, PlayerTurnEndReason::CLIENT_REQUEST);
 }
 
 void ApplyGhNetPackVisitor::visitDismissHero(DismissHero & pack)

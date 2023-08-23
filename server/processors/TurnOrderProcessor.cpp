@@ -54,7 +54,7 @@ bool TurnOrderProcessor::canStartTurn(PlayerColor which) const
 {
 	for (auto player : awaitingPlayers)
 	{
-		if (mustActBefore(player, which))
+		if (player != which && mustActBefore(player, which))
 			return false;
 	}
 
@@ -83,18 +83,19 @@ void TurnOrderProcessor::doStartNewDay()
 		gameHandler->gameLobby()->setState(EServerState::GAMEPLAY_ENDED);
 
 	std::swap(actedPlayers, awaitingPlayers);
+
+	gameHandler->onNewTurn();
+	tryStartTurnsForPlayers();
 }
 
 void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 {
-	//if player runs out of time, he shouldn't get the turn (especially AI)
-	//pre-trigger may change anything, should check before each player
-	//TODO: is it enough to check only one player?
-	gameHandler->checkVictoryLossConditionsForAll();
-
 	assert(gameHandler->getPlayerState(which));
 	assert(gameHandler->getPlayerState(which)->status == EPlayerStatus::INGAME);
 
+	//Note: on game load, "actingPlayer" might already contain list of players
+	actingPlayers.insert(which);
+	awaitingPlayers.erase(which);
 	gameHandler->onPlayerTurnStarted(which);
 
 	YourTurn yt;
@@ -102,20 +103,28 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 	//Change local daysWithoutCastle counter for local interface message //TODO: needed?
 	yt.daysWithoutCastle = gameHandler->getPlayerState(which)->daysWithoutCastle;
 	gameHandler->sendAndApply(&yt);
+
+	assert(actingPlayers.size() == 1); // No simturns yet :(
+	assert(gameHandler->getCurrentPlayer() == *actingPlayers.begin());
 }
 
-void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
+void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which, PlayerTurnEndReason reason)
 {
 	assert(playerMakingTurn(which));
 
 	actingPlayers.erase(which);
-	actedPlayers.insert(which);
+	if (reason != PlayerTurnEndReason::GAME_END)
+		actedPlayers.insert(which);
 
 	if (!awaitingPlayers.empty())
 		tryStartTurnsForPlayers();
 
 	if (actingPlayers.empty())
 		doStartNewDay();
+
+	assert(!actingPlayers.empty());
+	assert(actingPlayers.size() == 1); // No simturns yet :(
+	assert(gameHandler->getCurrentPlayer() == *actingPlayers.begin());
 }
 
 void TurnOrderProcessor::addPlayer(PlayerColor which)
@@ -123,7 +132,7 @@ void TurnOrderProcessor::addPlayer(PlayerColor which)
 	awaitingPlayers.insert(which);
 }
 
-bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
+bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which, PlayerTurnEndReason reason)
 {
 	if (!playerMakingTurn(which))
 	{
@@ -143,18 +152,22 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 		return false;
 	}
 
-	doEndPlayerTurn(which);
+	if (reason != PlayerTurnEndReason::GAME_END)
+		gameHandler->onPlayerTurnEnded(which);
+
+	doEndPlayerTurn(which, reason);
+
 	return true;
 }
 
 void TurnOrderProcessor::onGameStarted()
 {
-	tryStartTurnsForPlayers();
-
 	// this may be game load - send notification to players that they can act
 	auto actingPlayersCopy = actingPlayers;
 	for (auto player : actingPlayersCopy)
 		doStartPlayerTurn(player);
+
+	tryStartTurnsForPlayers();
 }
 
 void TurnOrderProcessor::tryStartTurnsForPlayers()

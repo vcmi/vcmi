@@ -609,7 +609,8 @@ void CGameHandler::onPlayerTurnStarted(PlayerColor which)
 
 void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 {
-
+	// 7 days without castle
+	checkVictoryLossConditionsForPlayer(which);
 }
 
 void CGameHandler::onNewTurn()
@@ -3550,7 +3551,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		// If we are called before the actual game start, there might be no current player
 		// If player making turn has lost his turn must be over as well
 		if (playerInfo && playerInfo->status != EPlayerStatus::INGAME)
-			turnOrder->onPlayerEndsTurn(gs->currentPlayer);
+			turnOrder->onPlayerEndsTurn(gs->currentPlayer, PlayerTurnEndReason::GAME_END);
 	}
 }
 
