@@ -231,7 +231,7 @@ void CServerHandler::startLocalServerAndConnect()
 	while(!androidTestServerReadyFlag.load())
 	{
 		logNetwork->info("still waiting...");
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
 	}
 	logNetwork->info("waiting for server finished...");
 	androidTestServerReadyFlag = false;
@@ -261,7 +261,7 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 		catch(std::runtime_error & error)
 		{
 			logNetwork->warn("\nCannot establish connection. %s Retrying in 1 second", error.what());
-			boost::this_thread::sleep(boost::posix_time::seconds(1));
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
 		}
 	}
 
@@ -307,7 +307,7 @@ void CServerHandler::stopServerConnection()
 {
 	if(c->handler)
 	{
-		while(!c->handler->timed_join(boost::posix_time::milliseconds(50)))
+		while(!c->handler->timed_join(boost::chrono::milliseconds(50)))
 			applyPacksOnLobbyScreen();
 		c->handler->join();
 	}
@@ -574,6 +574,8 @@ void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
 
 void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState)
 {
+	setThreadName("startGameplay");
+
 	if(CMM)
 		CMM->disable();
 	client = new CClient();
@@ -630,7 +632,6 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	{
 		if(CMM)
 		{
-			GH.terminate_cond->setn(false);
 			GH.curInt = CMM.get();
 			CMM->enable();
 		}
@@ -761,20 +762,20 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	else
 		startLocalServerAndConnect();
 
-	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 
 	while(!settings["session"]["headless"].Bool() && !GH.windows().topWindow<CLobbyScreen>())
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 
 	while(!mi || mapInfo->fileURI != CSH->mi->fileURI)
 	{
 		setMapInfo(mapInfo);
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 	}
 	// "Click" on color to remove us from it
 	setPlayer(myFirstColor());
 	while(myFirstColor() != PlayerColor::CANNOT_DETERMINE)
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 
 	while(true)
 	{
@@ -787,7 +788,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 		{
 
 		}
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 	}
 }
 
@@ -817,7 +818,7 @@ public:
 
 void CServerHandler::threadHandleConnection()
 {
-	setThreadName("CServerHandler::threadHandleConnection");
+	setThreadName("handleConnection");
 	c->enterLobbyConnectionMode();
 
 	try
@@ -826,7 +827,7 @@ void CServerHandler::threadHandleConnection()
 		while(c->connected)
 		{
 			while(state == EClientState::STARTING)
-				boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+				boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
 
 			CPack * pack = c->retrievePack();
 			if(state == EClientState::DISCONNECTING)
@@ -898,7 +899,7 @@ void CServerHandler::visitForClient(CPackForClient & clientPack)
 void CServerHandler::threadRunServer()
 {
 #if !defined(VCMI_MOBILE)
-	setThreadName("CServerHandler::threadRunServer");
+	setThreadName("runServer");
 	const std::string logName = (VCMIDirs::get().userLogsPath() / "server_log.txt").string();
 	std::string comm = VCMIDirs::get().serverPath().string()
 		+ " --port=" + std::to_string(getHostPort())

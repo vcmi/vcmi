@@ -461,7 +461,7 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 		double frameDurationSec = packet_duration * av_q2d(format->streams[stream]->time_base);
 		uint32_t timeToSleepMillisec = 1000 * (frameDurationSec);
 
-		boost::this_thread::sleep(boost::posix_time::millisec(timeToSleepMillisec));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(timeToSleepMillisec));
 	}
 
 	return true;

@@ -38,7 +38,7 @@ void CMapHandler::waitForOngoingAnimations()
 	while(CGI->mh->hasOngoingAnimations())
 	{
 		auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(1));
 	}
 }
 

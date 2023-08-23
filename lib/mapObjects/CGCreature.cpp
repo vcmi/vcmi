@@ -69,7 +69,7 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 			ms.appendLocalString(EMetaText::GENERAL_TXT,243);
 			break;
 		default: //decision = cost in gold
-			ms.appendRawString(boost::to_string(boost::format(VLC->generaltexth->allTexts[244]) % decision));
+			ms.appendRawString(boost::str(boost::format(VLC->generaltexth->allTexts[244]) % decision));
 			break;
 		}
 

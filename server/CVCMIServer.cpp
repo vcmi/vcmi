@@ -179,7 +179,7 @@ void CVCMIServer::run()
 	}
 
 	while(state == EServerState::LOBBY || state == EServerState::GAMEPLAY_STARTING)
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 
 	logNetwork->info("Thread handling connections ended");
 
@@ -188,14 +188,16 @@ void CVCMIServer::run()
 		gh->run(si->mode == StartInfo::LOAD_GAME);
 	}
 	while(state == EServerState::GAMEPLAY_ENDED)
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 }
 
 void CVCMIServer::establishRemoteConnections()
 {
+	setThreadName("establishConnection");
+
 	//wait for host connection
 	while(connections.empty())
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 	
 	uuid = cmdLineOptions["lobby-uuid"].as<std::string>();
     int numOfConnections = cmdLineOptions["connections"].as<ui16>();
@@ -229,6 +231,7 @@ void CVCMIServer::connectToRemote(const std::string & addr, int port)
 
 void CVCMIServer::threadAnnounceLobby()
 {
+	setThreadName("announceLobby");
 	while(state != EServerState::SHUTDOWN)
 	{
 		{
@@ -246,7 +249,7 @@ void CVCMIServer::threadAnnounceLobby()
 			}
 		}
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 	}
 }
 
@@ -265,7 +268,7 @@ void CVCMIServer::prepareToRestart()
 			campaignBonus = si->campState->getBonusID(campaignMap).value_or(-1);
 		}
 		// FIXME: dirry hack to make sure old CGameHandler::run is finished
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
 	}
 	
 	for(auto c : connections)
@@ -419,7 +422,7 @@ public:
 
 void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 {
-	setThreadName("CVCMIServer::handleConnection");
+	setThreadName("handleClient");
 	c->enterLobbyConnectionMode();
 
 	while(c->connected)

@@ -238,7 +238,7 @@ void CSoundHandler::setChannelVolume(int channel, ui32 percent)
 
 void CSoundHandler::setCallback(int channel, std::function<void()> function)
 {
-	boost::unique_lock lockGuard(mutexCallbacks);
+	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
 
 	auto iter = callbacks.find(channel);
 
@@ -251,7 +251,7 @@ void CSoundHandler::setCallback(int channel, std::function<void()> function)
 
 void CSoundHandler::soundFinishedCallback(int channel)
 {
-	boost::unique_lock lockGuard(mutexCallbacks);
+	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
 
 	if (callbacks.count(channel) == 0)
 		return;
@@ -272,14 +272,14 @@ void CSoundHandler::soundFinishedCallback(int channel)
 
 void CSoundHandler::initCallback(int channel)
 {
-	boost::unique_lock lockGuard(mutexCallbacks);
+	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
 	assert(callbacks.count(channel) == 0);
 	callbacks[channel] = {};
 }
 
 void CSoundHandler::initCallback(int channel, const std::function<void()> & function)
 {
-	boost::unique_lock lockGuard(mutexCallbacks);
+	boost::mutex::scoped_lock lockGuard(mutexCallbacks);
 	assert(callbacks.count(channel) == 0);
 	callbacks[channel].push_back(function);
 }

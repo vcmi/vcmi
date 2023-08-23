@@ -92,8 +92,6 @@ set(test_HEADERS
 
 		spells/targetConditions/TargetConditionItemFixture.h
 
-		vcai/ResourceManagerTest.h
-
 		mock/BattleFake.h
 		mock/mock_BonusBearer.h
  		mock/mock_IGameCallback.h

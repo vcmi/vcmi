@@ -20,8 +20,6 @@ namespace NKAI
 #define MIN_AI_STRENGTH (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
 
-extern boost::thread_specific_ptr<AIGateway> ai;
-
 engineBase::engineBase()
 {
 	rules = new fl::RuleBlock();

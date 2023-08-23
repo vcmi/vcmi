@@ -27,11 +27,12 @@
 #include "render/IScreenHandler.h"
 #include "render/Graphics.h"
 
-#include "../lib/filesystem/Filesystem.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
+#include "../lib/CThreadHelper.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/VCMI_Lib.h"
-#include "../lib/CConfigHandler.h"
+#include "../lib/filesystem/Filesystem.h"
 
 #include "../lib/logging/CBasicLogConfigurator.h"
 
@@ -52,8 +53,6 @@
 
 namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
-
-extern boost::thread_specific_ptr<bool> inGuiThread;
 
 static po::variables_map vm;
 
@@ -297,7 +296,11 @@ int main(int argc, char * argv[])
 
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
-	boost::thread loading(init);
+	boost::thread loading([]()
+	{
+		setThreadName("initialize");
+		init();
+	});
 #else
 	init();
 #endif
@@ -411,7 +414,7 @@ int main(int argc, char * argv[])
 	else
 	{
 		while(true)
-			boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
 	}
 
 	return 0;
@@ -429,7 +432,7 @@ void playIntro()
 
 static void mainLoop()
 {
-	inGuiThread.reset(new bool(true));
+	setThreadName("MainGUI");
 
 	while(1) //main SDL events loop
 	{
@@ -470,7 +473,7 @@ static void quitApplication()
 
 	vstd::clear_pointer(console);// should be removed after everything else since used by logging
 
-	boost::this_thread::sleep(boost::posix_time::milliseconds(750));//???
+	boost::this_thread::sleep_for(boost::chrono::milliseconds(750));//???
 
 	if(!settings["session"]["headless"].Bool())
 		GH.screenHandler().close();
