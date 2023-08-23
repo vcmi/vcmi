@@ -68,6 +68,7 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/StartInfo.h"
+#include "../lib/TextOperations.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
