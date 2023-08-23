@@ -38,8 +38,8 @@ extern FuzzyHelper * fh;
 const double SAFE_ATTACK_CONSTANT = 1.5;
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
-boost::thread_specific_ptr<CCallback> cb;
-boost::thread_specific_ptr<VCAI> ai;
+thread_local CCallback * cb = nullptr;
+thread_local VCAI * ai = nullptr;
 
 //std::map<int, std::map<int, int> > HeroView::infosCount;
 
@@ -48,18 +48,18 @@ struct SetGlobalState
 {
 	SetGlobalState(VCAI * AI)
 	{
-		assert(!ai.get());
-		assert(!cb.get());
+		assert(!ai);
+		assert(!cb);
 
-		ai.reset(AI);
-		cb.reset(AI->myCb.get());
+		ai = AI;
+		cb = AI->myCb.get();
 	}
 	~SetGlobalState()
 	{
 		//TODO: how to handle rm? shouldn't be called after ai is destroyed, hopefully
 		//TODO: to ensure that, make rm unique_ptr
-		ai.release();
-		cb.release();
+		ai = nullptr;
+		cb = nullptr;
 	}
 };
 
@@ -2497,6 +2497,8 @@ void VCAI::requestActionASAP(std::function<void()> whatToDo)
 		boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 		whatToDo();
 	});
+
+	newThread.detach();
 }
 
 void VCAI::lostHero(HeroPtr h)
@@ -2675,7 +2677,7 @@ void AIStatus::waitTillFree()
 {
 	boost::unique_lock<boost::mutex> lock(mx);
 	while(battle != NO_BATTLE || !remainingQueries.empty() || !objectsBeingVisited.empty() || ongoingHeroMovement)
-		cv.timed_wait(lock, boost::posix_time::milliseconds(100));
+		cv.wait_for(lock, boost::chrono::milliseconds(100));
 }
 
 bool AIStatus::haveTurn()

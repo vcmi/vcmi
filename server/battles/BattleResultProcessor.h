@@ -71,6 +71,8 @@ public:
 	explicit BattleResultProcessor(BattleProcessor * owner);
 	void setGameHandler(CGameHandler * newGameHandler);
 
+	bool battleIsEnding() const;
+
 	void setBattleResult(EBattleResult resultType, int victoriusSide);
 	void endBattle(int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2); //ends battle
 	void endBattleConfirm(const BattleInfo * battleInfo);

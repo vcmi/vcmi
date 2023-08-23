@@ -145,6 +145,7 @@ public:
 	virtual void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) {}
 	virtual void visitLobbyChatMessage(LobbyChatMessage & pack) {}
 	virtual void visitLobbyGuiAction(LobbyGuiAction & pack) {}
+	virtual void visitLobbyLoadProgress(LobbyLoadProgress & pack) {}
 	virtual void visitLobbyEndGame(LobbyEndGame & pack) {}
 	virtual void visitLobbyStartGame(LobbyStartGame & pack) {}
 	virtual void visitLobbyChangeHost(LobbyChangeHost & pack) {}

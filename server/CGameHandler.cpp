@@ -66,10 +66,6 @@
 #include <vcmi/events/GenericEvents.h>
 #include <vcmi/events/AdventureEvents.h>
 
-#ifndef _MSC_VER
-#include <boost/thread/xtime.hpp>
-#endif
-
 #define COMPLAIN_RET_IF(cond, txt) do {if (cond){complain(txt); return;}} while(0)
 #define COMPLAIN_RET_FALSE_IF(cond, txt) do {if (cond){complain(txt); return false;}} while(0)
 #define COMPLAIN_RET(txt) {complain(txt); return false;}
@@ -579,7 +575,7 @@ void CGameHandler::reinitScripting()
 #endif
 }
 
-void CGameHandler::init(StartInfo *si)
+void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTracking)
 {
 	if (si->seedToBeUsed == 0)
 	{
@@ -589,7 +585,7 @@ void CGameHandler::init(StartInfo *si)
 	gs = new CGameState();
 	gs->preInit(VLC);
 	logGlobal->info("Gamestate created!");
-	gs->init(&mapService, si);
+	gs->init(&mapService, si, progressTracking);
 	logGlobal->info("Gamestate initialized!");
 
 	// reset seed, so that clients can't predict any following random values
@@ -973,7 +969,6 @@ void CGameHandler::run(bool resume)
 {
 	LOG_TRACE_PARAMS(logGlobal, "resume=%d", resume);
 
-	using namespace boost::posix_time;
 	for (auto cc : lobby->connections)
 	{
 		auto players = lobby->getAllClientPlayers(cc->connectionID);
@@ -1068,8 +1063,7 @@ void CGameHandler::run(bool resume)
 					if(gs->curB)
 						turnTimerHandler.onBattleLoop(waitTime);
 
-					static time_duration p = milliseconds(waitTime);
-					states.cv.timed_wait(lock, p);
+					states.cv.wait_for(lock, boost::chrono::milliseconds(waitTime));
 				}
 			}
 		}
@@ -2575,7 +2569,7 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 	const CArmedInstance * obj = static_cast<const CArmedInstance *>(getObjInstance(objid));
 	if (!obj->hasStackAtSlot(pos))
 	{
-		COMPLAIN_RET("Cannot upgrade, no stack at slot " + boost::to_string(pos));
+		COMPLAIN_RET("Cannot upgrade, no stack at slot " + std::to_string(pos));
 	}
 	UpgradeInfo ui;
 	fillUpgradeInfo(obj, pos, ui);

@@ -18,8 +18,6 @@
 namespace NKAI
 {
 
-extern boost::thread_specific_ptr<CCallback> cb;
-
 using namespace Goals;
 
 bool CaptureObject::operator==(const CaptureObject & other) const

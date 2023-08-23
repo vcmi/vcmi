@@ -421,7 +421,7 @@ int CMapGenerator::getNextMonlithIndex()
 	while (true)
 	{
 		if (monolithIndex >= VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
-			throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
+			throw rmgException(boost::str(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
 		else
 		{
 			//Skip modded Monoliths which can't beplaced on every terrain

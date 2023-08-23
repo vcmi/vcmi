@@ -16,10 +16,6 @@
 #include "../BuildingManager.h"
 #include "../../../lib/StringConstants.h"
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
-
 using namespace Goals;
 
 TSubgoal Goals::sptr(const AbstractGoal & tmp)

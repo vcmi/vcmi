@@ -156,7 +156,7 @@ TRmgTemplateZoneId ZoneOptions::getId() const
 void ZoneOptions::setId(TRmgTemplateZoneId value)
 {
 	if(value <= 0)
-		throw std::runtime_error(boost::to_string(boost::format("Zone %d id should be greater than 0.") % id));
+		throw std::runtime_error(boost::str(boost::format("Zone %d id should be greater than 0.") % id));
 	id = value;
 }
 
@@ -650,7 +650,7 @@ std::string CRmgTemplate::CPlayerCountRange::toString() const
 		}
 		else
 		{
-			ret += boost::to_string(boost::format("%d-%d") % p.first % p.second);
+			ret += boost::str(boost::format("%d-%d") % p.first % p.second);
 		}
 	}
 

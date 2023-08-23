@@ -23,9 +23,6 @@
 
 FuzzyHelper * fh;
 
-extern boost::thread_specific_ptr<VCAI> ai;
-extern boost::thread_specific_ptr<CCallback> cb;
-
 Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
 {
 	if(vec.empty())
@@ -216,7 +213,7 @@ void FuzzyHelper::setPriority(Goals::TSubgoal & g) //calls evaluate - Visitor pa
 
 ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor)
 {
-	return evaluateDanger(tile, visitor, ai.get());
+	return evaluateDanger(tile, visitor, ai);
 }
 
 ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, const VCAI * ai)

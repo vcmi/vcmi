@@ -29,10 +29,12 @@ CThreadHelper::CThreadHelper(std::vector<std::function<void()>> * Tasks, int Thr
 }
 void CThreadHelper::run()
 {
-	boost::thread_group grupa;
+	std::vector<boost::thread> group;
 	for(int i=0;i<threads;i++)
-		grupa.create_thread(std::bind(&CThreadHelper::processTasks,this));
-	grupa.join_all();
+		group.emplace_back(std::bind(&CThreadHelper::processTasks,this));
+
+	for (auto & thread : group)
+		thread.join();
 
 	//thread group deletes threads, do not free manually
 }

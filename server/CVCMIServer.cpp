@@ -179,7 +179,7 @@ void CVCMIServer::run()
 	}
 
 	while(state == EServerState::LOBBY || state == EServerState::GAMEPLAY_STARTING)
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 
 	logNetwork->info("Thread handling connections ended");
 
@@ -188,14 +188,16 @@ void CVCMIServer::run()
 		gh->run(si->mode == StartInfo::LOAD_GAME);
 	}
 	while(state == EServerState::GAMEPLAY_ENDED)
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 }
 
 void CVCMIServer::establishRemoteConnections()
 {
+	setThreadName("establishConnection");
+
 	//wait for host connection
 	while(connections.empty())
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 	
 	uuid = cmdLineOptions["lobby-uuid"].as<std::string>();
     int numOfConnections = cmdLineOptions["connections"].as<ui16>();
@@ -229,6 +231,7 @@ void CVCMIServer::connectToRemote(const std::string & addr, int port)
 
 void CVCMIServer::threadAnnounceLobby()
 {
+	setThreadName("announceLobby");
 	while(state != EServerState::SHUTDOWN)
 	{
 		{
@@ -246,7 +249,7 @@ void CVCMIServer::threadAnnounceLobby()
 			}
 		}
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 	}
 }
 
@@ -265,7 +268,7 @@ void CVCMIServer::prepareToRestart()
 			campaignBonus = si->campState->getBonusID(campaignMap).value_or(-1);
 		}
 		// FIXME: dirry hack to make sure old CGameHandler::run is finished
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
 	}
 	
 	for(auto c : connections)
@@ -279,6 +282,26 @@ void CVCMIServer::prepareToRestart()
 
 bool CVCMIServer::prepareToStartGame()
 {
+	Load::ProgressAccumulator progressTracking;
+	Load::Progress current(1);
+	progressTracking.include(current);
+	Load::Type currentProgress = std::numeric_limits<Load::Type>::max();
+	
+	auto progressTrackingThread = boost::thread([this, &progressTracking, &currentProgress]()
+	{
+		while(!progressTracking.finished())
+		{
+			if(progressTracking.get() != currentProgress)
+			{
+				currentProgress = progressTracking.get();
+				std::unique_ptr<LobbyLoadProgress> loadProgress(new LobbyLoadProgress);
+				loadProgress->progress = currentProgress;
+				addToAnnounceQueue(std::move(loadProgress));
+			}
+			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		}
+	});
+	
 	gh = std::make_shared<CGameHandler>(this);
 	switch(si->mode)
 	{
@@ -287,19 +310,23 @@ bool CVCMIServer::prepareToStartGame()
 		si->startTimeIso8601 = vstd::getDateTimeISO8601Basic(std::time(0));
 		si->campState->setCurrentMap(campaignMap);
 		si->campState->setCurrentMapBonus(campaignBonus);
-		gh->init(si.get());
+		gh->init(si.get(), progressTracking);
 		break;
 
 	case StartInfo::NEW_GAME:
 		logNetwork->info("Preparing to start new game");
 		si->startTimeIso8601 = vstd::getDateTimeISO8601Basic(std::time(0));
-		gh->init(si.get());
+		gh->init(si.get(), progressTracking);
 		break;
 
 	case StartInfo::LOAD_GAME:
 		logNetwork->info("Preparing to start loaded game");
 		if(!gh->load(si->mapname))
+		{
+			current.finish();
+			progressTrackingThread.join();
 			return false;
+		}
 		break;
 	default:
 		logNetwork->error("Wrong mode in StartInfo!");
@@ -307,7 +334,9 @@ bool CVCMIServer::prepareToStartGame()
 		break;
 	}
 	
-	state = EServerState::GAMEPLAY_STARTING;
+	current.finish();
+	progressTrackingThread.join();
+	
 	return true;
 }
 
@@ -395,7 +424,7 @@ public:
 
 void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 {
-	setThreadName("CVCMIServer::handleConnection");
+	setThreadName("handleClient");
 	c->enterLobbyConnectionMode();
 
 	while(c->connected)

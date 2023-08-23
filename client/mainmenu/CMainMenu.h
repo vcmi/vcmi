@@ -11,6 +11,7 @@
 
 #include "../windows/CWindowObject.h"
 #include "../../lib/JsonNode.h"
+#include "../../lib/LoadProgress.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -22,9 +23,11 @@ class CTextInput;
 class CGStatusBar;
 class CTextBox;
 class CTabbedInt;
+class CAnimImage;
 class CAnimation;
 class CButton;
 class CFilledTexture;
+class CLabel;
 
 
 // TODO: Find new location for these enums
@@ -178,17 +181,17 @@ public:
 	CSimpleJoinScreen(bool host = true);
 };
 
-class CLoadingScreen : public CWindowObject
+class CLoadingScreen : virtual public CWindowObject, virtual public Load::Progress
 {
-	boost::thread loadingThread;
-
+	std::vector<std::shared_ptr<CAnimImage>> progressBlocks;
+	
 	std::string getBackground();
 
-public:
-	CLoadingScreen(std::function<void()> loader);
+public:	
+	CLoadingScreen();
 	~CLoadingScreen();
 
-	void showAll(Canvas & to) override;
+	void tick(uint32_t msPassed) override;
 };
 
 extern std::shared_ptr<CMainMenu> CMM;

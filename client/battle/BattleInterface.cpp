@@ -43,6 +43,7 @@
 #include "../../lib/NetPacks.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/CThreadHelper.h"
 
 BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2,
 		const CGHeroInstance *hero1, const CGHeroInstance *hero2,
@@ -104,11 +105,9 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 {
 	auto onIntroPlayed = [this]()
 	{
+		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 		if(LOCPLINT->battleInt)
-		{
-			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			onIntroSoundPlayed();
-		}
 	};
 
 	int battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
@@ -326,7 +325,7 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 		curInt->cb->selectionMade(selection, queryID);
 	};
 	GH.windows().pushWindow(wnd);
-	
+
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897
 	CPlayerInterface::battleInt = nullptr;
 }
@@ -602,28 +601,13 @@ void BattleInterface::startAction(const BattleAction & action)
 		return;
 	}
 
-	const CStack *stack = curInt->cb->battleGetStackByID(action.stackNumber);
-
-	if (stack)
-	{
-		windowObject->updateQueue();
-	}
-	else
-	{
-		assert(action.actionType == EActionType::HERO_SPELL); //only cast spell is valid action without acting stack number
-	}
-
 	stacksController->startAction(action);
 
-	if(action.actionType == EActionType::HERO_SPELL) //when hero casts spell
+	if (!action.isUnitAction())
 		return;
 
-	if (!stack)
-	{
-		logGlobal->error("Something wrong with stackNumber in actionStarted. Stack number: %d", action.stackNumber);
-		return;
-	}
-
+	assert(curInt->cb->battleGetStackByID(action.stackNumber));
+	windowObject->updateQueue();
 	effectsController->startAction(action);
 }
 
@@ -731,6 +715,7 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 			// HOWEVER this thread won't atttempt to lock game state, potentially leading to races
 			boost::thread aiThread([this, activeStack]()
 			{
+				setThreadName("autofightingAI");
 				curInt->autofightingAI->activeStack(activeStack);
 			});
 			aiThread.detach();

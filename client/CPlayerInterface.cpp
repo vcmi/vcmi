@@ -76,6 +76,7 @@
 #include "../lib/UnlockGuard.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/TerrainHandler.h"
+#include "../lib/CThreadHelper.h"
 #include "CServerHandler.h"
 // FIXME: only needed for CGameState::mutex
 #include "../lib/gameState/CGameState.h"
@@ -135,7 +136,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	makingTurn = false;
 	showingDialog = new CondSh<bool>(false);
 	cingconsole = new CInGameConsole();
-	GH.terminate_cond->set(false);
 	firstCall = 1; //if loading will be overwritten in serialize
 	autosaveCount = 0;
 	isAutoFightOn = false;
@@ -654,6 +654,11 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID build
 
 void CPlayerInterface::battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
 {
+	// when battle starts, game will send battleStart pack *before* movement confirmation
+	// and since network thread wait for battle intro to play, movement confirmation will only happen after intro
+	// leading to several bugs, such as blocked input during intro
+	stillMoveHero.setn(STOP_MOVE);
+
 	//Don't wait for dialogs when we are non-active hot-seat player
 	if (LOCPLINT == this)
 		waitForAllDialogs();
@@ -1447,7 +1452,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 		{
 			auto unlockPim = vstd::makeUnlockGuard(*pim);
 			IgnoreEvents ignore(*this);
-			boost::this_thread::sleep(boost::posix_time::milliseconds(focusTime));
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(focusTime));
 		}
 	}
 	CCS->curh->show();
@@ -1591,7 +1596,6 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		{
 			if(adventureInt)
 			{
-				GH.terminate_cond->setn(true);
 				GH.windows().popWindows(GH.windows().count());
 				adventureInt.reset();
 			}
@@ -1874,7 +1878,7 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim)
 	while(!dialogs.empty())
 	{
 		auto unlock = vstd::makeUnlockGuardIf(*pim, unlockPim);
-		boost::this_thread::sleep(boost::posix_time::milliseconds(5));
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
 	}
 	waitWhileDialog(unlockPim);
 }
@@ -1933,6 +1937,8 @@ void CPlayerInterface::setMovementStatus(bool value)
 
 void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 {
+	setThreadName("doMoveHero");
+
 	int i = 1;
 	auto getObj = [&](int3 coord, bool ignoreHero)
 	{
