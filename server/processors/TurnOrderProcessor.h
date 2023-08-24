@@ -13,13 +13,6 @@
 
 class CGameHandler;
 
-enum class PlayerTurnEndReason
-{
-	CLIENT_REQUEST, // client requested end of turn (e.g. press End Turn button)
-	TURN_TIMEOUT, // Player's turn timer has run out
-	GAME_END // Player have won or lost the game
-};
-
 class TurnOrderProcessor : boost::noncopyable
 {
 	CGameHandler * gameHandler;
@@ -42,7 +35,7 @@ class TurnOrderProcessor : boost::noncopyable
 
 	void doStartNewDay();
 	void doStartPlayerTurn(PlayerColor which);
-	void doEndPlayerTurn(PlayerColor which, PlayerTurnEndReason reason);
+	void doEndPlayerTurn(PlayerColor which);
 
 public:
 	TurnOrderProcessor(CGameHandler * owner);
@@ -51,7 +44,9 @@ public:
 	void addPlayer(PlayerColor which);
 
 	/// NetPack call-in
-	bool onPlayerEndsTurn(PlayerColor which, PlayerTurnEndReason reason);
+	bool onPlayerEndsTurn(PlayerColor which);
+
+	void onPlayerEndsGame(PlayerColor which);
 
 	/// Start game (or resume from save) and send YourTurn pack to player(s)
 	void onGameStarted();

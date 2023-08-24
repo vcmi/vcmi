@@ -108,13 +108,12 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 	assert(gameHandler->getCurrentPlayer() == *actingPlayers.begin());
 }
 
-void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which, PlayerTurnEndReason reason)
+void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
 {
 	assert(playerMakingTurn(which));
 
 	actingPlayers.erase(which);
-	if (reason != PlayerTurnEndReason::GAME_END)
-		actedPlayers.insert(which);
+	actedPlayers.insert(which);
 
 	if (!awaitingPlayers.empty())
 		tryStartTurnsForPlayers();
@@ -132,7 +131,24 @@ void TurnOrderProcessor::addPlayer(PlayerColor which)
 	awaitingPlayers.insert(which);
 }
 
-bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which, PlayerTurnEndReason reason)
+void TurnOrderProcessor::onPlayerEndsGame(PlayerColor which)
+{
+	awaitingPlayers.erase(which);
+	actingPlayers.erase(which);
+	actedPlayers.erase(which);
+
+	if (!awaitingPlayers.empty())
+		tryStartTurnsForPlayers();
+
+	if (actingPlayers.empty())
+		doStartNewDay();
+
+	assert(!actingPlayers.empty());
+	assert(actingPlayers.size() == 1); // No simturns yet :(
+	assert(gameHandler->getCurrentPlayer() == *actingPlayers.begin());
+}
+
+bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 {
 	if (!playerMakingTurn(which))
 	{
@@ -152,10 +168,9 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which, PlayerTurnEndReason
 		return false;
 	}
 
-	if (reason != PlayerTurnEndReason::GAME_END)
-		gameHandler->onPlayerTurnEnded(which);
+	gameHandler->onPlayerTurnEnded(which);
 
-	doEndPlayerTurn(which, reason);
+	doEndPlayerTurn(which);
 
 	return true;
 }

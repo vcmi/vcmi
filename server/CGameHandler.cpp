@@ -3480,6 +3480,8 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		peg.victoryLossCheckResult = victoryLossCheckResult;
 		sendAndApply(&peg);
 
+		turnOrder->onPlayerEndsGame(player);
+
 		if (victoryLossCheckResult.victory())
 		{
 			//one player won -> all enemies lost
@@ -3545,13 +3547,6 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			}
 			checkVictoryLossConditions(playerColors);
 		}
-
-		auto playerInfo = getPlayerState(gs->currentPlayer, false);
-
-		// If we are called before the actual game start, there might be no current player
-		// If player making turn has lost his turn must be over as well
-		if (playerInfo && playerInfo->status != EPlayerStatus::INGAME)
-			turnOrder->onPlayerEndsTurn(gs->currentPlayer, PlayerTurnEndReason::GAME_END);
 	}
 }
 
