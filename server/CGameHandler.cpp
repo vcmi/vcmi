@@ -611,6 +611,11 @@ void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 {
 	// 7 days without castle
 	checkVictoryLossConditionsForPlayer(which);
+
+	bool newWeek = getDate(Date::DAY_OF_WEEK) == 7; // end of 7th day
+
+	if (newWeek) //new heroes in tavern
+		heroPool->onNewWeek(which);
 }
 
 void CGameHandler::onNewTurn()
@@ -702,13 +707,13 @@ void CGameHandler::onNewTurn()
 	{
 		if (elem.first == PlayerColor::NEUTRAL)
 			continue;
-		else if (elem.first >= PlayerColor::PLAYER_LIMIT)
-			assert(0); //illegal player number!
+
+		assert(elem.first.isValidPlayer());//illegal player number!
 
 		std::pair<PlayerColor, si32> playerGold(elem.first, elem.second.resources[EGameResID::GOLD]);
 		hadGold.insert(playerGold);
 
-		if (newWeek) //new heroes in tavern
+		if (firstTurn)
 			heroPool->onNewWeek(elem.first);
 
 		n.res[elem.first] = elem.second.resources;

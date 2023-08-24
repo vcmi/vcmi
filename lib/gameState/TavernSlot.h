@@ -24,12 +24,8 @@ enum class TavernSlotRole : int8_t
 
 	SINGLE_UNIT, // hero was added after buying hero from this slot, and only has 1 creature in army
 	FULL_ARMY, // hero was added to tavern on new week and still has full army
-
 	RETREATED, // hero was owned by player before, but have retreated from battle and only has 1 creature in army
-	RETREATED_TODAY,
-
-	SURRENDERED, // hero was owned by player before, but have surrendered in battle and kept some troops
-	SURRENDERED_TODAY,
+	SURRENDERED // hero was owned by player before, but have surrendered in battle and kept some troops
 };
 
 VCMI_LIB_NAMESPACE_END
