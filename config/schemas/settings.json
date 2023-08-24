@@ -272,7 +272,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -314,6 +314,10 @@
 				"stickyHeroInfoWindows" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"enableAutocombatSpells" : {
+					"type": "boolean",
+					"default": true
 				}
 			}
 		},

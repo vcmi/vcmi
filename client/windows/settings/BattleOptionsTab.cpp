@@ -64,6 +64,10 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 	{
 		showStickyHeroWindowsChangedCallback(value, owner);
 	});
+	addCallback("enableAutocombatSpellsChanged", [this](bool value)
+	{
+		enableAutocombatSpellsChangedCallback(value);
+	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> animationSpeedToggle = widget<CToggleGroup>("animationSpeedPicker");
@@ -92,6 +96,9 @@ BattleOptionsTab::BattleOptionsTab(BattleInterface * owner)
 
 	std::shared_ptr<CToggleButton> skipBattleIntroMusicCheckbox = widget<CToggleButton>("skipBattleIntroMusicCheckbox");
 	skipBattleIntroMusicCheckbox->setSelected(settings["gameTweaks"]["skipBattleIntroMusic"].Bool());
+
+	std::shared_ptr<CToggleButton> enableAutocombatSpellsCheckbox = widget<CToggleButton>("enableAutocombatSpellsCheckbox");
+	enableAutocombatSpellsCheckbox->setSelected(settings["battle"]["enableAutocombatSpells"].Bool());
 }
 
 int BattleOptionsTab::getAnimSpeed() const
@@ -233,5 +240,11 @@ void BattleOptionsTab::skipBattleIntroMusicChangedCallback(bool value)
 {
 	Settings musicSkipSettingValue = settings.write["gameTweaks"]["skipBattleIntroMusic"];
 	musicSkipSettingValue->Bool() = value;
+}
+
+void BattleOptionsTab::enableAutocombatSpellsChangedCallback(bool value)
+{
+	Settings enableAutocombatSpells = settings.write["battle"]["enableAutocombatSpells"];
+	enableAutocombatSpells->Bool() = value;
 }
 

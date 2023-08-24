@@ -500,7 +500,11 @@ void BattleWindow::bAutofightf()
 		blockUI(true);
 
 		auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
-		ai->initBattleInterface(owner.curInt->env, owner.curInt->cb);
+
+		AutocombatPreferences autocombatPreferences = AutocombatPreferences();
+		autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
+
+		ai->initBattleInterface(owner.curInt->env, owner.curInt->cb, autocombatPreferences);
 		ai->battleStart(owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.curInt->cb->battleGetMySide(), false);
 		owner.curInt->autofightingAI = ai;
 		owner.curInt->cb->registerBattleInterface(ai);
