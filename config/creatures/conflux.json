@@ -154,8 +154,8 @@
 			},
 			"immuneToFire" : 
 			{
-				"type" : "FIRE_IMMUNITY",
-				"subtype" : 0
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
 			},
 			"frostRingVulnerablity" :
 			{
@@ -246,10 +246,15 @@
 				"subtype" : "spell.armageddon",
 				"val" : 100
 			},
-			"immuneToWater" :
+			"immuneToIceBolt" :
 			{
-				"type" : "WATER_IMMUNITY",
-				"subtype" : 2 //immune to damage spells only
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.iceBolt"
+			},
+			"immuneToFrostRing" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.frostRing"
 			},
 			"oppositeFire" :
 			{
@@ -440,10 +445,15 @@
 				"subtype" : "spell.armageddon",
 				"val" : 100
 			},
-			"immuneToWater" :
+			"immuneToIceBolt" :
 			{
-				"type" : "WATER_IMMUNITY",
-				"subtype" : 2 //immune to damage spells only
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.iceBolt"
+			},
+			"immuneToFrostRing" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.frostRing"
 			},
 			"oppositeFire" :
 			{
@@ -661,8 +671,8 @@
 			},
 			"immuneToFire" : 
 			{
-				"type" : "FIRE_IMMUNITY",
-				"subtype" : 0
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
 			},
 			"frostRingVulnerablity" :
 			{
@@ -732,8 +742,8 @@
 		{
 			"immuneToFire" :
 			{
-				"type" : "FIRE_IMMUNITY",
-				"subtype" : 0 //this IS important
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
 			}
 		},
 		"graphics" :
@@ -763,8 +773,8 @@
 			},
 			"immuneToFire" :
 			{
-				"type" : "FIRE_IMMUNITY",
-				"subtype" : 0 //this IS important
+				"type" : "SPELL_SCHOOL_IMMUNITY",
+				"subtype" : "spellSchool.fire"
 			},
 			"rebirth" : 
 			{

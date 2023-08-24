@@ -74,9 +74,9 @@ class SpellbookSpellSorter
 public:
 	bool operator()(const CSpell * A, const CSpell * B)
 	{
-		if(A->level < B->level)
+		if(A->getLevel() < B->getLevel())
 			return true;
-		if(A->level > B->level)
+		if(A->getLevel() > B->getLevel())
 			return false;
 
 
@@ -122,9 +122,9 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 		++sitesPerOurTab[4];
 
-		spell->forEachSchool([&sitesPerOurTab](const spells::SchoolInfo & school, bool & stop)
+		spell->forEachSchool([&sitesPerOurTab](const SpellSchool & school, bool & stop)
 		{
-			++sitesPerOurTab[(ui8)school.id];
+			++sitesPerOurTab[school];
 		});
 	}
 	if(sitesPerTabAdv[4] % 12 == 0)
@@ -562,7 +562,7 @@ void CSpellWindow::SpellArea::hover(bool on)
 	if(mySpell)
 	{
 		if(on)
-			owner->statusBar->write(boost::str(boost::format("%s (%s)") % mySpell->getNameTranslated() % CGI->generaltexth->allTexts[171+mySpell->level]));
+			owner->statusBar->write(boost::str(boost::format("%s (%s)") % mySpell->getNameTranslated() % CGI->generaltexth->allTexts[171+mySpell->getLevel()]));
 		else
 			owner->statusBar->clear();
 	}
@@ -609,12 +609,12 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		if(schoolLevel > 0)
 		{
 			boost::format fmt("%s/%s");
-			fmt % CGI->generaltexth->allTexts[171 + mySpell->level];
+			fmt % CGI->generaltexth->allTexts[171 + mySpell->getLevel()];
 			fmt % CGI->generaltexth->levels[3+(schoolLevel-1)];//lines 4-6
 			level->setText(fmt.str());
 		}
 		else
-			level->setText(CGI->generaltexth->allTexts[171 + mySpell->level]);
+			level->setText(CGI->generaltexth->allTexts[171 + mySpell->getLevel()]);
 
 		cost->color = secondLineColor;
 		boost::format costfmt("%s: %d");

@@ -620,14 +620,14 @@ int32_t CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, int32_t
 {
 	int32_t skill = -1; //skill level
 
-	spell->forEachSchool([&, this](const spells::SchoolInfo & cnf, bool & stop)
+	spell->forEachSchool([&, this](const SpellSchool & cnf, bool & stop)
 	{
-		int32_t thisSchool = valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, cnf.id); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
+		int32_t thisSchool = valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, cnf); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
 		if(thisSchool > skill)
 		{
 			skill = thisSchool;
 			if(outSelectedSchool)
-				*outSelectedSchool = static_cast<ui8>(cnf.id);
+				*outSelectedSchool = cnf;
 		}
 	});
 
@@ -650,9 +650,9 @@ int64_t CGHeroInstance::getSpellBonus(const spells::Spell * spell, int64_t base,
 
 	int maxSchoolBonus = 0;
 
-	spell->forEachSchool([&maxSchoolBonus, this](const spells::SchoolInfo & cnf, bool & stop)
+	spell->forEachSchool([&maxSchoolBonus, this](const SpellSchool & cnf, bool & stop)
 	{
-		vstd::amax(maxSchoolBonus, valOfBonuses(BonusType::SPELL_DAMAGE, cnf.id));
+		vstd::amax(maxSchoolBonus, valOfBonuses(BonusType::SPELL_DAMAGE, cnf));
 	});
 
 	base = static_cast<int64_t>(base * (100 + maxSchoolBonus) / 100.0);
@@ -739,9 +739,9 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 
 	bool schoolBonus = false;
 
-	spell->forEachSchool([this, &schoolBonus](const spells::SchoolInfo & cnf, bool & stop)
+	spell->forEachSchool([this, &schoolBonus](const SpellSchool & cnf, bool & stop)
 	{
-		if(hasBonusOfType(BonusType::SPELLS_OF_SCHOOL, cnf.id))
+		if(hasBonusOfType(BonusType::SPELLS_OF_SCHOOL, cnf))
 		{
 			schoolBonus = stop = true;
 		}

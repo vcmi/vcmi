@@ -23,6 +23,8 @@
 #include "../serializer/JsonSerializeFormat.h"
 #include "../VCMI_Lib.h"
 
+#include <vcmi/spells/Spell.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 
@@ -173,25 +175,25 @@ protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
 		bool elementalImmune = false;
+		auto bearer = target->getBonusBearer();
 
-		auto filter = m->getElementalImmunity();
-
-		for(auto element : filter)
+		m->getSpell()->forEachSchool([&](const SpellSchool & cnf, bool & stop) 
 		{
-			if(target->hasBonusOfType(element, 0)) //always resist if immune to all spells altogether
+			if (bearer->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, cnf))
 			{
 				elementalImmune = true;
-				break;
+				stop = true; //only bonus from one school is used
 			}
 			else if(!m->isPositiveSpell()) //negative or indifferent
 			{
-				if(target->hasBonusOfType(element, 1))
+				if (bearer->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, cnf))
 				{
 					elementalImmune = true;
-					break;
+					stop = true; //only bonus from one school is used
 				}
 			}
-		}
+		});
+
 		return elementalImmune;
 	}
 };
