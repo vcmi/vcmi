@@ -265,7 +265,7 @@ void BattleInterface::sendCommand(BattleAction command, const CStack * actor)
 	{
 		logGlobal->trace("Setting command for %s", (actor ? actor->nodeName() : "hero"));
 		stacksController->setActiveStack(nullptr);
-		LOCPLINT->cb->battleMakeUnitAction(command);
+		curInt->cb->battleMakeUnitAction(command);
 	}
 	else
 	{

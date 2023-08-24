@@ -219,7 +219,8 @@ void BattleProcessor::updateGateState()
 bool BattleProcessor::makePlayerBattleAction(PlayerColor player, const BattleAction &ba)
 {
 	bool result = actionsProcessor->makePlayerBattleAction(player, ba);
-	flowProcessor->onActionMade(ba);
+	if (!resultProcessor->battleIsEnding() && gameHandler->gameState()->curB != nullptr)
+		flowProcessor->onActionMade(ba);
 	return result;
 }
 

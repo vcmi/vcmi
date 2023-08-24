@@ -14,6 +14,7 @@
 #include "battles/BattleProcessor.h"
 #include "processors/HeroPoolProcessor.h"
 #include "processors/PlayerMessageProcessor.h"
+#include "processors/TurnOrderProcessor.h"
 #include "queries/QueriesProcessor.h"
 
 #include "../lib/IGameCallback.h"
@@ -36,24 +37,10 @@ void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 
 void ApplyGhNetPackVisitor::visitEndTurn(EndTurn & pack)
 {
-	PlayerColor currentPlayer = gs.currentPlayer;
-	if(pack.player != currentPlayer)
-	{
-		if(gh.getPlayerStatus(pack.player) == EPlayerStatus::INGAME)
-			gh.throwAndComplain(&pack, "pack.player attempted to end turn for another pack.player!");
+	if (!gh.hasPlayerAt(pack.player, pack.c))
+		gh.throwAndComplain(&pack, "No such pack.player!");
 
-		logGlobal->debug("pack.player attempted to end turn after game over. Ignoring this request.");
-
-		result = true;
-		return;
-	}
-
-	gh.throwOnWrongPlayer(&pack, pack.player);
-	if(gh.queries->topQuery(pack.player))
-		gh.throwAndComplain(&pack, "Cannot end turn before resolving queries!");
-
-	gh.states.setFlag(gs.currentPlayer, &PlayerStatus::makingTurn, false);
-	result = true;
+	result = gh.turnOrder->onPlayerEndsTurn(pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitDismissHero(DismissHero & pack)
@@ -273,8 +260,6 @@ void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)
 		gh.throwAndComplain(&pack, "Message came from wrong connection!");
 	if(pack.qid == QueryID(-1))
 		gh.throwAndComplain(&pack, "Cannot answer the query with pack.id -1!");
-
-	assert(vstd::contains(gh.states.players, pack.player));
 
 	result = gh.queryReply(pack.qid, pack.reply, pack.player);
 }

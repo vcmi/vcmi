@@ -13,6 +13,7 @@ set(server_SRCS
 
 		processors/HeroPoolProcessor.cpp
 		processors/PlayerMessageProcessor.cpp
+		processors/TurnOrderProcessor.cpp
 
 		CGameHandler.cpp
 		ServerSpellCastEnvironment.cpp
@@ -37,6 +38,7 @@ set(server_HEADERS
 
 		processors/HeroPoolProcessor.h
 		processors/PlayerMessageProcessor.h
+		processors/TurnOrderProcessor.h
 
 		CGameHandler.h
 		ServerSpellCastEnvironment.h

@@ -49,35 +49,9 @@ class CVCMIServer;
 class CBaseForGHApply;
 class PlayerMessageProcessor;
 class BattleProcessor;
+class TurnOrderProcessor;
 class QueriesProcessor;
 class CObjectVisitQuery;
-
-struct PlayerStatus
-{
-	bool makingTurn;
-
-	PlayerStatus():makingTurn(false){};
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & makingTurn;
-	}
-};
-class PlayerStatuses
-{
-public:
-	std::map<PlayerColor,PlayerStatus> players;
-	boost::mutex mx;
-	boost::condition_variable cv; //notifies when any changes are made
-
-	void addPlayer(PlayerColor player);
-	PlayerStatus operator[](PlayerColor player);
-	bool checkFlag(PlayerColor player, bool PlayerStatus::*flag);
-	void setFlag(PlayerColor player, bool PlayerStatus::*flag, bool val);
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & players;
-	}
-};
 
 class CGameHandler : public IGameCallback, public CBattleInfoCallback, public Environment
 {
@@ -90,6 +64,7 @@ public:
 	std::unique_ptr<HeroPoolProcessor> heroPool;
 	std::unique_ptr<BattleProcessor> battles;
 	std::unique_ptr<QueriesProcessor> queries;
+	std::unique_ptr<TurnOrderProcessor> turnOrder;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
 	enum EGuardLook {CHECK_FOR_GUARDS, IGNORE_GUARDS};
@@ -99,12 +74,10 @@ public:
 	std::unique_ptr<PlayerMessageProcessor> playerMessages;
 
 	std::map<PlayerColor, std::set<std::shared_ptr<CConnection>>> connections; //player color -> connection to client with interface of that player
-	PlayerStatuses states; //player color -> player state
 
 	//queries stuff
 	boost::recursive_mutex gsm;
 	ui32 QID;
-
 
 	SpellCastEnvironment * spellEnv;
 	
@@ -237,6 +210,10 @@ public:
 	void save(const std::string &fname);
 	bool load(const std::string &fname);
 
+	void onPlayerTurnStarted(PlayerColor which);
+	void onPlayerTurnEnded(PlayerColor which);
+	void onNewTurn();
+
 	void handleTimeEvents();
 	void handleTownEvents(CGTownInstance *town, NewTurn &n);
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
@@ -248,14 +225,11 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & QID;
-		h & states;
-		h & battles;
-		h & heroPool;
 		h & getRandomGenerator();
-		h & playerMessages;
-
-		if (!h.saving)
-			deserializationFix();
+		h & *battles;
+		h & *heroPool;
+		h & *playerMessages;
+		h & *turnOrder;
 
 #if SCRIPTING_ENABLED
 		JsonNode scriptsState;
@@ -282,7 +256,6 @@ public:
 	bool isPlayerOwns(CPackForServer * pack, ObjectInstanceID id);
 
 	void run(bool resume);
-	void newTurn();
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactPosition> & slot);
 	void spawnWanderingMonsters(CreatureID creatureID);
 
@@ -298,8 +271,6 @@ public:
 	scripting::Pool * getContextPool() const override;
 #endif
 
-	std::list<PlayerColor> generatePlayerTurnOrder() const;
-
 	friend class CVCMIServer;
 private:
 	std::unique_ptr<events::EventBus> serverEventBus;
@@ -308,7 +279,6 @@ private:
 #endif
 
 	void reinitScripting();
-	void deserializationFix();
 
 	void getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const;
 

@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "HeroPoolProcessor.h"
 
+#include "TurnOrderProcessor.h"
 #include "../CGameHandler.h"
 
 #include "../../lib/CHeroHandler.h"
@@ -30,29 +31,6 @@ HeroPoolProcessor::HeroPoolProcessor()
 HeroPoolProcessor::HeroPoolProcessor(CGameHandler * gameHandler)
 	: gameHandler(gameHandler)
 {
-}
-
-bool HeroPoolProcessor::playerEndedTurn(const PlayerColor & player)
-{
-	// our player is acting right now and have not ended turn
-	if (player == gameHandler->gameState()->currentPlayer)
-		return false;
-
-	auto turnOrder = gameHandler->generatePlayerTurnOrder();
-
-	for (auto const & entry : turnOrder)
-	{
-		// our player is yet to start turn
-		if (entry == gameHandler->gameState()->currentPlayer)
-			return false;
-
-		// our player have finished turn
-		if (entry == player)
-			return true;
-	}
-
-	assert(false);
-	return false;
 }
 
 TavernHeroSlot HeroPoolProcessor::selectSlotForRole(const PlayerColor & player, TavernSlotRole roleID)
@@ -90,10 +68,7 @@ TavernHeroSlot HeroPoolProcessor::selectSlotForRole(const PlayerColor & player, 
 void HeroPoolProcessor::onHeroSurrendered(const PlayerColor & color, const CGHeroInstance * hero)
 {
 	SetAvailableHero sah;
-	if (playerEndedTurn(color))
-		sah.roleID = TavernSlotRole::SURRENDERED_TODAY;
-	else
-		sah.roleID = TavernSlotRole::SURRENDERED;
+	sah.roleID = TavernSlotRole::SURRENDERED;
 
 	sah.slotID = selectSlotForRole(color, sah.roleID);
 	sah.player = color;
@@ -104,10 +79,7 @@ void HeroPoolProcessor::onHeroSurrendered(const PlayerColor & color, const CGHer
 void HeroPoolProcessor::onHeroEscaped(const PlayerColor & color, const CGHeroInstance * hero)
 {
 	SetAvailableHero sah;
-	if (playerEndedTurn(color))
-		sah.roleID = TavernSlotRole::RETREATED_TODAY;
-	else
-		sah.roleID = TavernSlotRole::RETREATED;
+	sah.roleID = TavernSlotRole::RETREATED;
 
 	sah.slotID = selectSlotForRole(color, sah.roleID);
 	sah.player = color;
@@ -161,26 +133,10 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 
 void HeroPoolProcessor::onNewWeek(const PlayerColor & color)
 {
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
-	const auto & heroes = heroesPool->getHeroesFor(color);
-
-	const auto nativeSlotRole = heroes.size() < 1 ? TavernSlotRole::NONE : heroesPool->getSlotRole(heroes[0]->type->getId());
-	const auto randomSlotRole = heroes.size() < 2 ? TavernSlotRole::NONE : heroesPool->getSlotRole(heroes[1]->type->getId());
-
-	bool resetNativeSlot = nativeSlotRole != TavernSlotRole::RETREATED_TODAY && nativeSlotRole != TavernSlotRole::SURRENDERED_TODAY;
-	bool resetRandomSlot = randomSlotRole != TavernSlotRole::RETREATED_TODAY && randomSlotRole != TavernSlotRole::SURRENDERED_TODAY;
-
-	if (resetNativeSlot)
-		clearHeroFromSlot(color, TavernHeroSlot::NATIVE);
-
-	if (resetRandomSlot)
-		clearHeroFromSlot(color, TavernHeroSlot::RANDOM);
-
-	if (resetNativeSlot)
-		selectNewHeroForSlot(color, TavernHeroSlot::NATIVE, true, true);
-
-	if (resetRandomSlot)
-		selectNewHeroForSlot(color, TavernHeroSlot::RANDOM, false, true);
+	clearHeroFromSlot(color, TavernHeroSlot::NATIVE);
+	clearHeroFromSlot(color, TavernHeroSlot::RANDOM);
+	selectNewHeroForSlot(color, TavernHeroSlot::NATIVE, true, true);
+	selectNewHeroForSlot(color, TavernHeroSlot::RANDOM, false, true);
 }
 
 bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTypeID & heroToRecruit, const PlayerColor & player)

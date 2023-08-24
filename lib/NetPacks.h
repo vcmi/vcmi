@@ -167,7 +167,21 @@ struct DLL_LINKAGE YourTurn : public CPackForClient
 	void applyGs(CGameState * gs) const;
 
 	PlayerColor player;
-	std::optional<ui8> daysWithoutCastle;
+
+	virtual void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & player;
+	}
+};
+
+struct DLL_LINKAGE DaysWithoutTown : public CPackForClient
+{
+	void applyGs(CGameState * gs) const;
+
+	PlayerColor player;
+	std::optional<int32_t> daysWithoutCastle;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 

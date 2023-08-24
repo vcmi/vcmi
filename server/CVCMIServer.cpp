@@ -158,6 +158,16 @@ CVCMIServer::~CVCMIServer()
 		announceLobbyThread->join();
 }
 
+void CVCMIServer::setState(EServerState value)
+{
+	state.store(value);
+}
+
+EServerState CVCMIServer::getState() const
+{
+	return state.load();
+}
+
 void CVCMIServer::run()
 {
 	if(!restartGameplay)
@@ -1159,7 +1169,7 @@ int main(int argc, const char * argv[])
 
 		try
 		{
-			while(server.state != EServerState::SHUTDOWN)
+			while(server.getState() != EServerState::SHUTDOWN)
 			{
 				server.run();
 			}
@@ -1168,7 +1178,7 @@ int main(int argc, const char * argv[])
 		catch(boost::system::system_error & e) //for boost errors just log, not crash - probably client shut down connection
 		{
 			logNetwork->error(e.what());
-			server.state = EServerState::SHUTDOWN;
+			server.setState(EServerState::SHUTDOWN);
 		}
 	}
 	catch(boost::system::system_error & e)

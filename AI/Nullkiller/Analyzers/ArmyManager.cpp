@@ -225,7 +225,8 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 
 		if(weakest->count == 1) 
 		{
-			assert(resultingArmy.size() > 1);
+			if (resultingArmy.size() == 1)
+				logAi->warn("Unexpected resulting army size!");
 
 			resultingArmy.erase(weakest);
 		}

@@ -12,6 +12,7 @@
 #include "CGameHandler.h"
 #include "battles/BattleProcessor.h"
 #include "queries/QueriesProcessor.h"
+#include "processors/TurnOrderProcessor.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CPlayerState.h"
@@ -84,7 +85,7 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerState & state, int waitTime)
 			onPlayerMakingTurn(state, waitTime);
 		}
 		else if(!gameHandler.queries->topQuery(state.color)) //wait for replies to avoid pending queries
-			gameHandler.states.players.at(state.color).makingTurn = false; //force end turn
+			gameHandler.turnOrder->onPlayerEndsTurn(state.color);
 	}
 }
 

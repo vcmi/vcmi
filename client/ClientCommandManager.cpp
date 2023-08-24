@@ -471,7 +471,6 @@ void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)
 {
 	YourTurn yt;
 	yt.player = colorIdentifier;
-	yt.daysWithoutCastle = CSH->client->getPlayerState(colorIdentifier)->daysWithoutCastle;
 
 	ApplyClientNetPackVisitor visitor(*CSH->client, *CSH->client->gameState());
 	yt.visit(visitor);
