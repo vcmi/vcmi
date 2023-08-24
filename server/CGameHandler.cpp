@@ -947,6 +947,9 @@ void CGameHandler::onNewTurn()
 		}
 	}
 
+	if (!firstTurn)
+		checkVictoryLossConditionsForAll(); // check for map turn limit
+
 	logGlobal->trace("Info about turn %d has been sent!", n.day);
 	handleTimeEvents();
 	//call objects
