@@ -499,6 +499,7 @@ bool BattleActionProcessor::dispatchBattleAction(const BattleAction & ba)
 {
 	switch(ba.actionType)
 	{
+		case EActionType::BAD_MORALE:
 		case EActionType::NO_ACTION:
 			return doEmptyAction(ba);
 		case EActionType::END_TACTIC_PHASE:
