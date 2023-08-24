@@ -100,8 +100,6 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 
 	YourTurn yt;
 	yt.player = which;
-	//Change local daysWithoutCastle counter for local interface message //TODO: needed?
-	yt.daysWithoutCastle = gameHandler->getPlayerState(which)->daysWithoutCastle;
 	gameHandler->sendAndApply(&yt);
 
 	assert(actingPlayers.size() == 1); // No simturns yet :(
@@ -111,6 +109,7 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
 {
 	assert(playerMakingTurn(which));
+	assert(gameHandler->getPlayerStatus(which) == EPlayerStatus::INGAME);
 
 	actingPlayers.erase(which);
 	actedPlayers.insert(which);
@@ -170,7 +169,10 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 
 	gameHandler->onPlayerTurnEnded(which);
 
-	doEndPlayerTurn(which);
+	// it is possible that player have lost - e.g. spent 7 days without town
+	// in this case - don't call doEndPlayerTurn - turn transfer was already handled by onPlayerEndsGame
+	if(gameHandler->getPlayerStatus(which) == EPlayerStatus::INGAME)
+		doEndPlayerTurn(which);
 
 	return true;
 }

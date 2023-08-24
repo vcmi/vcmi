@@ -37,6 +37,10 @@ class TurnOrderProcessor : boost::noncopyable
 	void doStartPlayerTurn(PlayerColor which);
 	void doEndPlayerTurn(PlayerColor which);
 
+	bool playerAwaitsTurn(PlayerColor which) const;
+	bool playerMakingTurn(PlayerColor which) const;
+	bool playerAwaitsNewDay(PlayerColor which) const;
+
 public:
 	TurnOrderProcessor(CGameHandler * owner);
 
@@ -46,21 +50,14 @@ public:
 	/// NetPack call-in
 	bool onPlayerEndsTurn(PlayerColor which);
 
+	/// Ends player turn and removes this player from turn order
 	void onPlayerEndsGame(PlayerColor which);
 
 	/// Start game (or resume from save) and send YourTurn pack to player(s)
 	void onGameStarted();
 
-	/// Returns true if player turn has not started today
-	bool playerAwaitsTurn(PlayerColor which) const;
-
-	/// Returns true if player is currently making his turn
-	bool playerMakingTurn(PlayerColor which) const;
-
-	/// Returns true if player has finished his turn and is waiting for new day
-	bool playerAwaitsNewDay(PlayerColor which) const;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler>
+	void serialize(Handler & h, const int version)
 	{
 		h & awaitingPlayers;
 		h & actingPlayers;

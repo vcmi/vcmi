@@ -84,7 +84,7 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerState & state, int waitTime)
 			state.turnTimer.baseTimer = 0;
 			onPlayerMakingTurn(state, waitTime);
 		}
-		else if(!gameHandler.queries->topQuery(state.color))
+		else if(!gameHandler.queries->topQuery(state.color)) //wait for replies to avoid pending queries
 			gameHandler.turnOrder->onPlayerEndsTurn(state.color);
 	}
 }

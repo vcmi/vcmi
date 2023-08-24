@@ -609,7 +609,28 @@ void CGameHandler::onPlayerTurnStarted(PlayerColor which)
 
 void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 {
-	// 7 days without castle
+	const auto * playerState = gs->getPlayerState(which);
+	assert(playerState->status == EPlayerStatus::INGAME);
+
+	if (playerState->towns.empty())
+	{
+		DaysWithoutTown pack;
+		pack.player = which;
+		pack.daysWithoutCastle = playerState->daysWithoutCastle.value_or(0) + 1;
+		sendAndApply(&pack);
+	}
+	else
+	{
+		if (playerState->daysWithoutCastle.has_value())
+		{
+			DaysWithoutTown pack;
+			pack.player = which;
+			pack.daysWithoutCastle = std::nullopt;
+			sendAndApply(&pack);
+		}
+	}
+
+	// check for 7 days without castle
 	checkVictoryLossConditionsForPlayer(which);
 
 	bool newWeek = getDate(Date::DAY_OF_WEEK) == 7; // end of 7th day

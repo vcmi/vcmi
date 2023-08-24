@@ -108,6 +108,11 @@ void YourTurn::visitTyped(ICPackVisitor & visitor)
 	visitor.visitYourTurn(*this);
 }
 
+void DaysWithoutTown::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitYourTurn(*this);
+}
+
 void EntitiesChanged::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitEntitiesChanged(*this);
@@ -2025,26 +2030,6 @@ void NewTurn::applyGs(CGameState *gs)
 
 	if(gs->getDate(Date::DAY_OF_WEEK) == 1)
 		gs->updateRumor();
-
-	//count days without town for all players, regardless of their turn order
-	for (auto &p : gs->players)
-	{
-		PlayerState & playerState = p.second;
-		if (playerState.status == EPlayerStatus::INGAME)
-		{
-			if (playerState.towns.empty())
-			{
-				if (playerState.daysWithoutCastle)
-					++(*playerState.daysWithoutCastle);
-				else
-					playerState.daysWithoutCastle = std::make_optional(0);
-			}
-			else
-			{
-				playerState.daysWithoutCastle = std::nullopt;
-			}
-		}
-	}
 }
 
 void SetObjectProperty::applyGs(CGameState * gs) const
@@ -2063,8 +2048,16 @@ void SetObjectProperty::applyGs(CGameState * gs) const
 		{
 			auto * t = dynamic_cast<CGTownInstance *>(obj);
 			assert(t);
-			if(t->tempOwner < PlayerColor::PLAYER_LIMIT)
-				gs->getPlayerState(t->tempOwner)->towns -= t;
+
+			PlayerColor oldOwner = t->tempOwner;
+			if(oldOwner.isValidPlayer())
+			{
+				auto * state = gs->getPlayerState(oldOwner);
+				state->towns -= t;
+
+				if(state->towns.empty())
+					*state->daysWithoutCastle = 0;
+			}
 			if(val < PlayerColor::PLAYER_LIMIT_I)
 			{
 				PlayerState * p = gs->getPlayerState(PlayerColor(val));
@@ -2509,7 +2502,10 @@ void PlayerCheated::applyGs(CGameState * gs) const
 void YourTurn::applyGs(CGameState * gs) const
 {
 	gs->currentPlayer = player;
+}
 
+void DaysWithoutTown::applyGs(CGameState * gs) const
+{
 	auto & playerState = gs->players[player];
 	playerState.daysWithoutCastle = daysWithoutCastle;
 }
