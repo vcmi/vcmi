@@ -108,6 +108,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <cassert>
 #include <climits>
 #include <cmath>
+#include <codecvt>
 #include <cstdlib>
 #include <cstdio>
 #include <fstream>

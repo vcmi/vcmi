@@ -307,6 +307,7 @@ bool CVCMIServer::prepareToStartGame()
 	{
 	case StartInfo::CAMPAIGN:
 		logNetwork->info("Preparing to start new campaign");
+		si->startTimeIso8601 = vstd::getDateTimeISO8601Basic(std::time(0));
 		si->campState->setCurrentMap(campaignMap);
 		si->campState->setCurrentMapBonus(campaignBonus);
 		gh->init(si.get(), progressTracking);
@@ -314,6 +315,7 @@ bool CVCMIServer::prepareToStartGame()
 
 	case StartInfo::NEW_GAME:
 		logNetwork->info("Preparing to start new game");
+		si->startTimeIso8601 = vstd::getDateTimeISO8601Basic(std::time(0));
 		gh->init(si.get(), progressTracking);
 		break;
 

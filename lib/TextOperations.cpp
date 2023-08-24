@@ -193,6 +193,12 @@ void TextOperations::trimRightUnicode(std::string & text, const size_t amount)
 	}
 }
 
+size_t TextOperations::getUnicodeCharactersCount(const std::string & text)
+{
+	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
+	return conv.from_bytes(text).size(); 
+}
+
 std::string TextOperations::escapeString(std::string input)
 {
 	boost::replace_all(input, "\\", "\\\\");

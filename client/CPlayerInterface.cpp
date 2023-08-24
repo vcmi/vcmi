@@ -68,6 +68,7 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/StartInfo.h"
+#include "../lib/TextOperations.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
@@ -169,7 +170,7 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 void CPlayerInterface::playerStartsTurn(PlayerColor player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	
+
 	makingTurn = false;
 	stillMoveHero.setn(STOP_MOVE);
 
@@ -180,7 +181,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 		GH.windows().pushWindow(adventureInt);
 	}
 
-	//close window from another player
+	// close window from another player
 	if(auto w = GH.windows().topWindow<CInfoWindow>())
 		if(w->ID == -1 && player != playerID)
 			w->close();
@@ -212,7 +213,14 @@ void CPlayerInterface::performAutosave()
 			prefix = settings["general"]["savePrefix"].String();
 			if(prefix.empty())
 			{
-				prefix = cb->getMapHeader()->name.substr(0, 5) + "_";
+				std::string name = cb->getMapHeader()->name;
+				int txtlen = TextOperations::getUnicodeCharactersCount(name);
+
+				TextOperations::trimRightUnicode(name, std::max(0, txtlen - 15));
+				std::string forbiddenChars("\\/:?\"<>| ");
+				std::replace_if(name.begin(), name.end(), [&](char c) { return std::string::npos != forbiddenChars.find(c); }, '_' );
+
+				prefix = name + "_" + cb->getStartInfo()->startTimeIso8601 + "/";
 			}
 		}
 
@@ -221,7 +229,7 @@ void CPlayerInterface::performAutosave()
 		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer();
 		if(autosaveCountLimit > 0)
 		{
-			cb->save("Saves/" + prefix + "Autosave_" + std::to_string(autosaveCount));
+			cb->save("Saves/Autosave/" + prefix + std::to_string(autosaveCount));
 			autosaveCount %= autosaveCountLimit;
 		}
 		else
@@ -230,7 +238,7 @@ void CPlayerInterface::performAutosave()
 					+ std::to_string(cb->getDate(Date::WEEK))
 					+ std::to_string(cb->getDate(Date::DAY_OF_WEEK));
 
-			cb->save("Saves/" + prefix + "Autosave_" + stringifiedDate);
+			cb->save("Saves/Autosave/" + prefix + stringifiedDate);
 		}
 	}
 }
