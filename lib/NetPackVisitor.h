@@ -27,7 +27,7 @@ public:
 	virtual void visitPlayerBlocked(PlayerBlocked & pack) {}
 	virtual void visitPlayerCheated(PlayerCheated & pack) {}
 	virtual void visitYourTurn(YourTurn & pack) {}
-	virtual void visitYourTurn(DaysWithoutTown & pack) {}
+	virtual void visitDaysWithoutTown(DaysWithoutTown & pack) {}
 	virtual void visitTurnTimeUpdate(TurnTimeUpdate & pack) {}
 	virtual void visitEntitiesChanged(EntitiesChanged & pack) {}
 	virtual void visitSetResources(SetResources & pack) {}

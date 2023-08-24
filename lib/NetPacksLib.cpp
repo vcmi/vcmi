@@ -110,7 +110,7 @@ void YourTurn::visitTyped(ICPackVisitor & visitor)
 
 void DaysWithoutTown::visitTyped(ICPackVisitor & visitor)
 {
-	visitor.visitYourTurn(*this);
+	visitor.visitDaysWithoutTown(*this);
 }
 
 void EntitiesChanged::visitTyped(ICPackVisitor & visitor)

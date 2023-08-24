@@ -37,9 +37,9 @@ class TurnOrderProcessor : boost::noncopyable
 	void doStartPlayerTurn(PlayerColor which);
 	void doEndPlayerTurn(PlayerColor which);
 
-	bool playerAwaitsTurn(PlayerColor which) const;
-	bool playerMakingTurn(PlayerColor which) const;
-	bool playerAwaitsNewDay(PlayerColor which) const;
+	bool isPlayerAwaitsTurn(PlayerColor which) const;
+	bool isPlayerMakingTurn(PlayerColor which) const;
+	bool isPlayerAwaitsNewDay(PlayerColor which) const;
 
 public:
 	TurnOrderProcessor(CGameHandler * owner);

@@ -108,7 +108,7 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 
 void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
 {
-	assert(playerMakingTurn(which));
+	assert(isPlayerMakingTurn(which));
 	assert(gameHandler->getPlayerStatus(which) == EPlayerStatus::INGAME);
 
 	actingPlayers.erase(which);
@@ -149,7 +149,7 @@ void TurnOrderProcessor::onPlayerEndsGame(PlayerColor which)
 
 bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 {
-	if (!playerMakingTurn(which))
+	if (!isPlayerMakingTurn(which))
 	{
 		gameHandler->complain("Can not end turn for player that is not acting!");
 		return false;
@@ -197,17 +197,17 @@ void TurnOrderProcessor::tryStartTurnsForPlayers()
 	}
 }
 
-bool TurnOrderProcessor::playerAwaitsTurn(PlayerColor which) const
+bool TurnOrderProcessor::isPlayerAwaitsTurn(PlayerColor which) const
 {
 	return vstd::contains(awaitingPlayers, which);
 }
 
-bool TurnOrderProcessor::playerMakingTurn(PlayerColor which) const
+bool TurnOrderProcessor::isPlayerMakingTurn(PlayerColor which) const
 {
 	return vstd::contains(actingPlayers, which);
 }
 
-bool TurnOrderProcessor::playerAwaitsNewDay(PlayerColor which) const
+bool TurnOrderProcessor::isPlayerAwaitsNewDay(PlayerColor which) const
 {
 	return vstd::contains(actedPlayers, which);
 }
