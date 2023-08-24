@@ -301,9 +301,15 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 		}
 	};
 
+	ArtifactLocation srcLoc(pack.srcArtHolder, pack.artsPack0.front().srcPos);
+	ArtifactLocation dstLoc(pack.dstArtHolder, pack.artsPack0.front().dstPos);
+
 	// Begin a session of bulk movement of arts. It is not necessary but useful for the client optimization.
-	callInterfaceIfPresent(cl, cl.getCurrentPlayer(), &IGameEventsReceiver::bulkArtMovementStart, 
-		pack.artsPack0.size() + pack.artsPack1.size());
+	callInterfaceIfPresent(cl, srcLoc.owningPlayer(), &IGameEventsReceiver::bulkArtMovementStart, pack.artsPack0.size() + pack.artsPack1.size());
+
+	if (srcLoc.owningPlayer() != dstLoc.owningPlayer())
+		callInterfaceIfPresent(cl, dstLoc.owningPlayer(), &IGameEventsReceiver::bulkArtMovementStart, pack.artsPack0.size() + pack.artsPack1.size());
+
 	applyMove(pack.artsPack0);
 	if(pack.swap)
 		applyMove(pack.artsPack1);
@@ -386,9 +392,15 @@ void ApplyClientNetPackVisitor::visitPlayerReinitInterface(PlayerReinitInterface
 	auto initInterfaces = [this]()
 	{
 		cl.initPlayerInterfaces();
-		auto currentPlayer = cl.gameState()->currentPlayer;
-		callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, currentPlayer);
-		callOnlyThatInterface(cl, currentPlayer, &CGameInterface::yourTurn);
+
+		for (PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+		{
+			if (cl.gameState()->isPlayerMakingTurn(player))
+			{
+				callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, player);
+				callOnlyThatInterface(cl, player, &CGameInterface::yourTurn);
+			}
+		}
 	};
 	
 	for(auto player : pack.players)

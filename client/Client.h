@@ -156,7 +156,6 @@ public:
 
 	void invalidatePaths();
 	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
-	virtual PlayerColor getLocalPlayer() const override;
 
 	friend class CCallback; //handling players actions
 	friend class CBattleCallback; //handling players actions

@@ -320,8 +320,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 	dest.initFromHero(h, infoLevel);
 
 	//DISGUISED bonus implementation
-
-	if(getPlayerRelations(getLocalPlayer(), hero->tempOwner) == PlayerRelations::ENEMIES)
+	if(getPlayerRelations(*player, hero->tempOwner) == PlayerRelations::ENEMIES)
 	{
 		//todo: bonus cashing
 		int disguiseLevel = h->valOfBonuses(Selector::typeSubtype(BonusType::DISGUISED, 0));
@@ -705,9 +704,9 @@ bool CGameInfoCallback::isOwnedOrVisited(const CGObjectInstance *obj) const
 	return visitor->ID == Obj::HERO && canGetFullInfo(visitor); //owned or allied hero is a visitor
 }
 
-PlayerColor CGameInfoCallback::getCurrentPlayer() const
+bool CGameInfoCallback::isPlayerMakingTurn(PlayerColor player) const
 {
-	return gs->currentPlayer;
+	return gs->actingPlayers.count(player);
 }
 
 CGameInfoCallback::CGameInfoCallback(CGameState * GS, std::optional<PlayerColor> Player):
@@ -932,11 +931,6 @@ const CGHeroInstance * CGameInfoCallback::getHeroWithSubid( int subid ) const
 	return gs->map->allHeroes.at(subid).get();
 }
 
-PlayerColor CGameInfoCallback::getLocalPlayer() const
-{
-	return getCurrentPlayer();
-}
-
 bool CGameInfoCallback::isInTheMap(const int3 &pos) const
 {
 	return gs->map->isInTheMap(pos);
@@ -944,7 +938,7 @@ bool CGameInfoCallback::isInTheMap(const int3 &pos) const
 
 void CGameInfoCallback::getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula) const
 {
-	gs->getTilesInRange(tiles, pos, radious, getLocalPlayer(), -1, distanceFormula);
+	gs->getTilesInRange(tiles, pos, radious, *player, -1, distanceFormula);
 }
 
 void CGameInfoCallback::calculatePaths(const std::shared_ptr<PathfinderConfig> & config)

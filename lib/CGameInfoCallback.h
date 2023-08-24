@@ -63,8 +63,6 @@ public:
 //	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const;
 //	void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
 //	EPlayerStatus getPlayerStatus(PlayerColor player, bool verbose = true) const; //-1 if no such player
-//	PlayerColor getCurrentPlayer() const; //player that currently makes move // TODO synchronous turns
-	virtual PlayerColor getLocalPlayer() const = 0; //player that is currently owning given client (if not a client, then returns current player)
 //	const PlayerSettings * getPlayerSettings(PlayerColor color) const;
 
 
@@ -99,7 +97,6 @@ public:
 //	const TerrainTile * getTile(int3 tile, bool verbose = true) const;
 //	std::shared_ptr<boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 //	bool isInTheMap(const int3 &pos) const;
-//	void getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
 
 	//town
 //	const CGTownInstance* getTown(ObjectInstanceID objid) const;
@@ -151,8 +148,7 @@ public:
 	virtual PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const;
 	virtual void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
 	virtual EPlayerStatus getPlayerStatus(PlayerColor player, bool verbose = true) const; //-1 if no such player
-	virtual PlayerColor getCurrentPlayer() const; //player that currently makes move // TODO synchronous turns
-	PlayerColor getLocalPlayer() const override; //player that is currently owning given client (if not a client, then returns current player)
+	virtual bool isPlayerMakingTurn(PlayerColor player) const; //player that currently makes move // TODO synchronous turns
 	virtual const PlayerSettings * getPlayerSettings(PlayerColor color) const;
 	virtual TurnTimerInfo getPlayerTurnTime(PlayerColor color) const;
 

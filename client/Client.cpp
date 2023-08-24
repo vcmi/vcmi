@@ -693,13 +693,6 @@ std::shared_ptr<const CPathsInfo> CClient::getPathsInfo(const CGHeroInstance * h
 	}
 }
 
-PlayerColor CClient::getLocalPlayer() const
-{
-	if(LOCPLINT)
-		return LOCPLINT->playerID;
-	return getCurrentPlayer();
-}
-
 #if SCRIPTING_ENABLED
 scripting::Pool * CClient::getGlobalContextPool() const
 {

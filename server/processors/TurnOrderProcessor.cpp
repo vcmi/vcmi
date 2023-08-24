@@ -103,7 +103,7 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 	gameHandler->sendAndApply(&yt);
 
 	assert(actingPlayers.size() == 1); // No simturns yet :(
-	assert(gameHandler->getCurrentPlayer() == *actingPlayers.begin());
+	assert(gameHandler->isPlayerMakingTurn(*actingPlayers.begin()));
 }
 
 void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
@@ -122,7 +122,7 @@ void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
 
 	assert(!actingPlayers.empty());
 	assert(actingPlayers.size() == 1); // No simturns yet :(
-	assert(gameHandler->getCurrentPlayer() == *actingPlayers.begin());
+	assert(gameHandler->isPlayerMakingTurn(*actingPlayers.begin()));
 }
 
 void TurnOrderProcessor::addPlayer(PlayerColor which)
@@ -144,7 +144,7 @@ void TurnOrderProcessor::onPlayerEndsGame(PlayerColor which)
 
 	assert(!actingPlayers.empty());
 	assert(actingPlayers.size() == 1); // No simturns yet :(
-	assert(gameHandler->getCurrentPlayer() == *actingPlayers.begin());
+	assert(gameHandler->isPlayerMakingTurn(*actingPlayers.begin()));
 }
 
 bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)

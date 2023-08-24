@@ -39,13 +39,13 @@ private:
 	std::set<int> notifications;
 	
 	std::shared_ptr<DrawRect> buildDrawRect(const JsonNode & config) const;
-	
+
 public:
 
 	void show(Canvas & to) override;
 	void tick(uint32_t msPassed) override;
 	
-	void setTime(int time);
+	void setTime(PlayerColor player, int time);
 
 	TurnTimerWidget();
 };
