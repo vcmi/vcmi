@@ -1262,16 +1262,14 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 			visitObjectOnTile(t, h);
 		}
 
-		if(!transit)
+		for(auto topQuery = queries->topQuery(h->tempOwner); true; topQuery = queries->topQuery(h->tempOwner))
 		{
-			for(auto topQuery = queries->topQuery(h->tempOwner); true; topQuery = queries->topQuery(h->tempOwner))
-			{
-				moveQuery = std::dynamic_pointer_cast<CHeroMovementQuery>(topQuery);
-				if(moveQuery)
-					queries->popIfTop(moveQuery);
-				else
-					break;
-			}
+			moveQuery = std::dynamic_pointer_cast<CHeroMovementQuery>(topQuery);
+			if(moveQuery
+			   && (!transit || result == TryMoveHero::FAILED || moveQuery->tmh.stopMovement()))
+				queries->popIfTop(moveQuery);
+			else
+				break;
 		}
 		logGlobal->trace("Hero %s ends movement", h->getNameTranslated());
 		return result != TryMoveHero::FAILED;
