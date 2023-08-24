@@ -214,8 +214,7 @@ void CPlayerInterface::performAutosave()
 			if(prefix.empty())
 			{
 				std::string name = cb->getMapHeader()->name;
-				std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
-				int txtlen = conv.from_bytes(name).size(); 
+				int txtlen = TextOperations::getUnicodeCharactersCount(name);
 
 				TextOperations::trimRightUnicode(name, std::max(0, txtlen - 15));
 				std::string forbiddenChars("\\/:?\"<>| ");
