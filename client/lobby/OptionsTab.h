@@ -10,15 +10,14 @@
 #pragma once
 
 #include "../windows/CWindowObject.h"
+#include "../widgets/Scrollable.h"
+#include "../gui/InterfaceObjectConfigurable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 struct PlayerSettings;
 struct PlayerInfo;
 VCMI_LIB_NAMESPACE_END
 
-#include "../widgets/Scrollable.h"
-
-class CSlider;
 class CLabel;
 class CMultiLineLabel;
 class CFilledTexture;
@@ -30,21 +29,19 @@ class CButton;
 class FilledTexturePlayerColored;
 
 /// The options tab which is shown at the map selection phase.
-class OptionsTab : public CIntObject
+class OptionsTab : public InterfaceObjectConfigurable
 {
-	std::shared_ptr<CPicture> background;
-	std::shared_ptr<CLabel> labelTitle;
-	std::shared_ptr<CMultiLineLabel> labelSubTitle;
-	std::shared_ptr<CMultiLineLabel> labelPlayerNameAndHandicap;
-	std::shared_ptr<CMultiLineLabel> labelStartingTown;
-	std::shared_ptr<CMultiLineLabel> labelStartingHero;
-	std::shared_ptr<CMultiLineLabel> labelStartingBonus;
-
-	std::shared_ptr<CLabel> labelPlayerTurnDuration;
-	std::shared_ptr<CLabel> labelTurnDurationValue;
+	struct PlayerOptionsEntry;
+	
 	ui8 humanPlayers;
-
+	std::map<PlayerColor, std::shared_ptr<PlayerOptionsEntry>> entries;
+	
 public:
+	
+	OptionsTab();
+	void recreate();
+	void onSetPlayerClicked(const PlayerSettings & ps) const;
+	
 	enum SelType
 	{
 		TOWN,
@@ -52,6 +49,8 @@ public:
 		BONUS
 	};
 
+private:
+	
 	struct CPlayerSettingsHelper
 	{
 		const PlayerSettings & settings;
@@ -187,11 +186,4 @@ public:
 	private:
 		const OptionsTab & parentTab;
 	};
-
-	std::shared_ptr<CSlider> sliderTurnDuration;
-	std::map<PlayerColor, std::shared_ptr<PlayerOptionsEntry>> entries;
-
-	OptionsTab();
-	void recreate();
-	void onSetPlayerClicked(const PlayerSettings & ps) const;
 };

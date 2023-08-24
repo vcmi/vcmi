@@ -31,6 +31,7 @@
 #include "../windows/InfoWindows.h"
 #include "../eventsSDL/InputHandler.h"
 
+#include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CArtHandler.h"
@@ -42,23 +43,20 @@
 OptionsTab::OptionsTab() : humanPlayers(0)
 {
 	recActions = 0;
-	OBJ_CONSTRUCTION;
-	background = std::make_shared<CPicture>("ADVOPTBK", 0, 6);
-	pos = background->pos;
-	labelTitle = std::make_shared<CLabel>(222, 30, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[515]);
-	labelSubTitle = std::make_shared<CMultiLineLabel>(Rect(60, 44, 320, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[516]);
-
-	labelPlayerNameAndHandicap = std::make_shared<CMultiLineLabel>(Rect(58, 86, 100, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[517]);
-	labelStartingTown = std::make_shared<CMultiLineLabel>(Rect(163, 86, 70, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[518]);
-	labelStartingHero = std::make_shared<CMultiLineLabel>(Rect(239, 86, 70, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[519]);
-	labelStartingBonus = std::make_shared<CMultiLineLabel>(Rect(315, 86, 70, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[520]);
+	
+	addCallback("setTurnLength", std::bind(&IServerAPI::setTurnLength, CSH, _1));
+	
+	const JsonNode config(ResourceID("config/widgets/optionsTab.json"));
+	build(config);
+	
 	if(SEL->screenType == ESelectionScreen::newGame || SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::scenarioInfo)
 	{
-		sliderTurnDuration = std::make_shared<CSlider>(Point(55, 551), 194, std::bind(&IServerAPI::setTurnLength, CSH, _1), 1, (int)GameConstants::POSSIBLE_TURNTIME.size(), (int)GameConstants::POSSIBLE_TURNTIME.size(), Orientation::HORIZONTAL, CSlider::BLUE);
-		sliderTurnDuration->setScrollBounds(Rect(-3, -25, 337, 43));
-		sliderTurnDuration->setPanningStep(20);
-		labelPlayerTurnDuration = std::make_shared<CLabel>(222, 538, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[521]);
-		labelTurnDurationValue = std::make_shared<CLabel>(319, 559, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+		if(auto w = widget<CSlider>("sliderTurnDuration"))
+			w->deactivate();
+		if(auto w = widget<CLabel>("labelPlayerTurnDuration"))
+			w->deactivate();
+		if(auto w = widget<CLabel>("labelTurnDurationValue"))
+			w->deactivate();
 	}
 }
 
@@ -76,10 +74,11 @@ void OptionsTab::recreate()
 		entries.insert(std::make_pair(pInfo.first, std::make_shared<PlayerOptionsEntry>(pInfo.second, * this)));
 	}
 
-	if(sliderTurnDuration)
+	if(auto turnSlider = widget<CSlider>("sliderTurnDuration"))
 	{
-		sliderTurnDuration->scrollTo(vstd::find_pos(GameConstants::POSSIBLE_TURNTIME, SEL->getStartInfo()->turnTimerInfo.turnTimer / (60 * 1000)));
-		labelTurnDurationValue->setText(CGI->generaltexth->turnDurations[sliderTurnDuration->getValue()]);
+		turnSlider->scrollTo(vstd::find_pos(GameConstants::POSSIBLE_TURNTIME, SEL->getStartInfo()->turnTimerInfo.turnTimer / (60 * 1000)));
+		if(auto w = widget<CLabel>("labelTurnDurationValue"))
+			w->setText(CGI->generaltexth->turnDurations[turnSlider->getValue()]);
 	}
 }
 
@@ -851,7 +850,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	}
 
 	pos.x += 54;
-	pos.y += 122 + serial * 50;
+	pos.y += 128 + serial * 50;
 
 	assert(CSH->mi && CSH->mi->mapHeader);
 	const PlayerInfo & p = SEL->getPlayerInfo(s->color.getNum());

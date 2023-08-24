@@ -41,7 +41,6 @@ RandomMapTab::RandomMapTab():
 	recActions = 0;
 	mapGenOptions = std::make_shared<CMapGenOptions>();
 	
-	const JsonNode config(ResourceID("config/widgets/randomMapTab.json"));
 	addCallback("toggleMapSize", [&](int btnId)
 	{
 		auto mapSizeVal = getPossibleMapSizes();
@@ -123,6 +122,7 @@ RandomMapTab::RandomMapTab():
 		});
 	}
 	
+	const JsonNode config(ResourceID("config/widgets/randomMapTab.json"));
 	build(config);
 	
 	updateMapInfoByHost();

@@ -17,6 +17,8 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/ShortcutHandler.h"
 #include "../gui/Shortcut.h"
+#include "../render/Graphics.h"
+#include "../render/IFont.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
@@ -43,6 +45,7 @@ InterfaceObjectConfigurable::InterfaceObjectConfigurable(int used, Point offset)
 	REGISTER_BUILDER("texture", &InterfaceObjectConfigurable::buildTexture);
 	REGISTER_BUILDER("animation", &InterfaceObjectConfigurable::buildAnimation);
 	REGISTER_BUILDER("label", &InterfaceObjectConfigurable::buildLabel);
+	REGISTER_BUILDER("multiLineLabel", &InterfaceObjectConfigurable::buildMultiLineLabel);
 	REGISTER_BUILDER("toggleGroup", &InterfaceObjectConfigurable::buildToggleGroup);
 	REGISTER_BUILDER("toggleButton", &InterfaceObjectConfigurable::buildToggleButton);
 	REGISTER_BUILDER("button", &InterfaceObjectConfigurable::buildButton);
@@ -301,6 +304,20 @@ std::shared_ptr<CLabel> InterfaceObjectConfigurable::buildLabel(const JsonNode &
 	return std::make_shared<CLabel>(position.x, position.y, font, alignment, color, text);
 }
 
+std::shared_ptr<CMultiLineLabel> InterfaceObjectConfigurable::buildMultiLineLabel(const JsonNode & config) const
+{	
+	logGlobal->debug("Building widget CMultiLineLabel");
+	auto font = readFont(config["font"]);
+	auto alignment = readTextAlignment(config["alignment"]);
+	auto color = readColor(config["color"]);
+	auto text = readText(config["text"]);
+	Rect rect = readRect(config["rect"]);
+	if(!config["adoptHeight"].isNull() && config["adoptHeight"].Bool())
+		rect.h = graphics->fonts[font]->getLineHeight() * 2;
+	return std::make_shared<CMultiLineLabel>(rect, font, alignment, color, text);
+}
+
+
 std::shared_ptr<CToggleGroup> InterfaceObjectConfigurable::buildToggleGroup(const JsonNode & config) const
 {
 	logGlobal->debug("Building widget CToggleGroup");
@@ -466,11 +483,14 @@ std::shared_ptr<CSlider> InterfaceObjectConfigurable::buildSlider(const JsonNode
 	const auto & result =
 		std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal ? Orientation::HORIZONTAL : Orientation::VERTICAL, style);
 
-	if (!config["scrollBounds"].isNull())
+	if(!config["scrollBounds"].isNull())
 	{
 		Rect bounds = readRect(config["scrollBounds"]);
 		result->setScrollBounds(bounds);
 	}
+	
+	if(!config["panningStep"].isNull())
+		result->setPanningStep(config["panningStep"].Integer());
 
 	return result;
 }
