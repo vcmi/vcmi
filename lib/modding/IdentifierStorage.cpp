@@ -20,11 +20,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CIdentifierStorage::CIdentifierStorage():
-	state(LOADING)
-{
-}
-
 void CIdentifierStorage::checkIdentifier(std::string & ID)
 {
 	if (boost::algorithm::ends_with(ID, "."))
@@ -52,7 +47,7 @@ void CIdentifierStorage::requestIdentifier(ObjectCallback callback) const
 
 	assert(!callback.localScope.empty());
 
-	if (state != FINISHED) // enqueue request if loading is still in progress
+	if (state != ELoadingState::FINISHED) // enqueue request if loading is still in progress
 		scheduledRequests.push_back(callback);
 	else // execute immediately for "late" requests
 		resolveIdentifier(callback);
@@ -138,6 +133,9 @@ void CIdentifierStorage::tryRequestIdentifier(const std::string & type, const Js
 
 std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent) const
 {
+	//TODO: RE-ENABLE
+	//assert(state != ELoadingState::LOADING);
+
 	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameAndType(scope, type, name, std::function<void(si32)>(), silent));
 
 	if (idList.size() == 1)
@@ -150,6 +148,8 @@ std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope,
 
 std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & type, const JsonNode & name, bool silent) const
 {
+	assert(state != ELoadingState::LOADING);
+
 	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameAndType(name.meta, type, name.String(), std::function<void(si32)>(), silent));
 
 	if (idList.size() == 1)
@@ -162,6 +162,8 @@ std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & type, 
 
 std::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, bool silent) const
 {
+	assert(state != ELoadingState::LOADING);
+
 	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameWithType(name.meta, name.String(), std::function<void(si32)>(), silent));
 
 	if (idList.size() == 1)
@@ -174,6 +176,8 @@ std::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, boo
 
 std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & fullName, bool silent) const
 {
+	assert(state != ELoadingState::LOADING);
+
 	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameWithType(scope, fullName, std::function<void(si32)>(), silent));
 
 	if (idList.size() == 1)
@@ -186,6 +190,8 @@ std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope,
 
 void CIdentifierStorage::registerObject(const std::string & scope, const std::string & type, const std::string & name, si32 identifier)
 {
+	assert(state != ELoadingState::FINISHED);
+
 	ObjectData data;
 	data.scope = scope;
 	data.id = identifier;
@@ -311,7 +317,9 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request) const
 
 void CIdentifierStorage::finalize()
 {
-	state = FINALIZING;
+	assert(state == ELoadingState::LOADING);
+
+	state = ELoadingState::FINALIZING;
 	bool errorsFound = false;
 
 	while ( !scheduledRequests.empty() )
@@ -333,7 +341,7 @@ void CIdentifierStorage::finalize()
 		logMod->error("All known identifiers were dumped into log file");
 	}
 	assert(errorsFound == false);
-	state = FINISHED;
+	state = ELoadingState::FINISHED;
 }
 
 VCMI_LIB_NAMESPACE_END
