@@ -39,6 +39,7 @@
 #include "../lib/CThreadHelper.h"
 #include "../lib/NetPackVisitor.h"
 #include "../lib/StartInfo.h"
+#include "../lib/TurnTimerInfo.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/mapping/CMapInfo.h"
@@ -475,11 +476,10 @@ void CServerHandler::setDifficulty(int to) const
 	sendLobbyPack(lsd);
 }
 
-void CServerHandler::setTurnLength(int npos) const
+void CServerHandler::setTurnTimerInfo(const TurnTimerInfo & info) const
 {
-	vstd::amin(npos, GameConstants::POSSIBLE_TURNTIME.size() - 1);
 	LobbySetTurnTime lstt;
-	lstt.turnTimerInfo.turnTimer = GameConstants::POSSIBLE_TURNTIME[npos] * 60 * 1000;
+	lstt.turnTimerInfo = info;
 	sendLobbyPack(lstt);
 }
 

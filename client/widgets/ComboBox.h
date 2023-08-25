@@ -64,4 +64,6 @@ public:
 	
 	//return text value from item data
 	std::function<std::string(int, const void *)> getItemText;
+	
+	void setItem(int id);
 };

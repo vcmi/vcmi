@@ -28,6 +28,7 @@ class CAnimImage;
 class CShowableAnim;
 class CFilledTexture;
 class ComboBox;
+class CTextInput;
 
 #define REGISTER_BUILDER(type, method) registerBuilder(type, std::bind(method, this, std::placeholders::_1))
 
@@ -59,6 +60,7 @@ protected:
 	void addWidget(const std::string & name, std::shared_ptr<CIntObject> widget);
 	
 	void addCallback(const std::string & callbackName, std::function<void(int)> callback);
+	void addCallback(const std::string & callbackName, std::function<void(std::string)> callback);
 	JsonNode variables;
 	
 	template<class T>
@@ -101,6 +103,7 @@ protected:
 	std::shared_ptr<CFilledTexture> buildTexture(const JsonNode &) const;
 	std::shared_ptr<CIntObject> buildLayout(const JsonNode &);
 	std::shared_ptr<ComboBox> buildComboBox(const JsonNode &);
+	std::shared_ptr<CTextInput> buildTextInput(const JsonNode &) const;
 		
 	//composite widgets
 	std::shared_ptr<CIntObject> buildWidget(JsonNode config) const;
@@ -116,7 +119,8 @@ private:
 	int unnamedObjectId = 0;
 	std::map<std::string, BuilderFunction> builders;
 	std::map<std::string, std::shared_ptr<CIntObject>> widgets;
-	std::map<std::string, std::function<void(int)>> callbacks;
+	std::map<std::string, std::function<void(int)>> callbacks_int;
+	std::map<std::string, std::function<void(std::string)>> callbacks_string;
 	std::map<std::string, bool> conditionals;
 	std::map<EShortcut, ShortcutState> shortcuts;
 };

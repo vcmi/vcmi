@@ -75,7 +75,6 @@
 		
 		// timer
 		{
-			"name": "labelPlayerTurnDuration",
 			"type": "label",
 			"font": "small",
 			"alignment": "center",
@@ -100,7 +99,7 @@
 			"orientation": "horizontal",
 			"position": {"x": 55, "y": 557},
 			"size": 194,
-			"callback": "setTurnLength",
+			"callback": "setTimerPreset",
 			"itemsVisible": 1,
 			"itemsTotal": 11,
 			"selected": 11,
@@ -108,5 +107,23 @@
 			"scrollBounds": {"x": -3, "y": -25, "w": 337, "h": 43},
 			"panningStep": 20
 		},
-	]
+	],
+
+	"variables":
+	{
+		"timerPresets" :
+		[
+			[0, 60, 0, 0],
+			[0, 120, 0, 0],
+			[0, 240, 0, 0],
+			[0, 360, 0, 0],
+			[0, 480, 0, 0],
+			[0, 600, 0, 0],
+			[0, 900, 0, 0],
+			[0, 1200, 0, 0],
+			[0, 1500, 0, 0],
+			[0, 1800, 0, 0],
+			[0, 0, 0, 0],
+		]
+	}
 }

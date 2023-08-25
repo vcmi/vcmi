@@ -172,3 +172,10 @@ void ComboBox::setItem(const void * item)
 	if(onSetItem)
 		onSetItem(item);
 }
+
+void ComboBox::setItem(int id)
+{
+	std::vector<const void *> tempItems;
+	onConstructItems(tempItems);
+	setItem(tempItems.at(id));
+}

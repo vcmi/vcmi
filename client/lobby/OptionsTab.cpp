@@ -21,6 +21,7 @@
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/ComboBox.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/MiscWidgets.h"
@@ -44,19 +45,118 @@ OptionsTab::OptionsTab() : humanPlayers(0)
 {
 	recActions = 0;
 	
-	addCallback("setTurnLength", std::bind(&IServerAPI::setTurnLength, CSH, _1));
+	//addCallback("timerFieldChangedBase", <#std::function<void (std::string)> callback#>)
+	
+	addCallback("setTimerPreset", [&](int index){
+		if(!variables["timerPresets"].isNull())
+		{
+			auto tpreset = variables["timerPresets"].Vector().at(index).Vector();
+			TurnTimerInfo tinfo;
+			tinfo.baseTimer = tpreset.at(0).Integer() * 1000;
+			tinfo.turnTimer = tpreset.at(1).Integer() * 1000;
+			tinfo.battleTimer = tpreset.at(2).Integer() * 1000;
+			tinfo.creatureTimer = tpreset.at(3).Integer() * 1000;
+			CSH->setTurnTimerInfo(tinfo);
+		}
+	});
+	
+	auto parseTimerString = [](const std::string & str){
+		std::stringstream sstrm;
+		int a, b;
+		sstrm << str;
+		sstrm >> a;
+		char c = sstrm.get();
+		if(c == ':')
+		{
+			sstrm >> b;
+			return a * 60 + b;
+		}
+		return -1;
+	};
+	
+	addCallback("parseAndSetTimer_base", [parseTimerString](const std::string & str){
+		int time = parseTimerString(str) * 1000;
+		if(time >= 0)
+		{
+			TurnTimerInfo tinfo;
+			tinfo.baseTimer = time;
+			CSH->setTurnTimerInfo(tinfo);
+		}
+	});
+	addCallback("parseAndSetTimer_turn", [parseTimerString](const std::string & str){
+		int time = parseTimerString(str) * 1000;
+		if(time >= 0)
+		{
+			TurnTimerInfo tinfo;
+			tinfo.turnTimer = time;
+			CSH->setTurnTimerInfo(tinfo);
+		}
+	});
+	addCallback("parseAndSetTimer_battle", [parseTimerString](const std::string & str){
+		int time = parseTimerString(str) * 1000;
+		if(time >= 0)
+		{
+			TurnTimerInfo tinfo;
+			tinfo.battleTimer = time;
+			CSH->setTurnTimerInfo(tinfo);
+		}
+	});
+	addCallback("parseAndSetTimer_creature", [parseTimerString](const std::string & str){
+		int time = parseTimerString(str) * 1000;
+		if(time >= 0)
+		{
+			TurnTimerInfo tinfo;
+			tinfo.creatureTimer = time;
+			CSH->setTurnTimerInfo(tinfo);
+		}
+	});
 	
 	const JsonNode config(ResourceID("config/widgets/optionsTab.json"));
 	build(config);
 	
-	if(SEL->screenType == ESelectionScreen::newGame || SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::scenarioInfo)
+	//set timers combo box callbacks
+	if(auto w = widget<ComboBox>("timerModeSwitch"))
 	{
-		if(auto w = widget<CSlider>("sliderTurnDuration"))
-			w->deactivate();
-		if(auto w = widget<CLabel>("labelPlayerTurnDuration"))
-			w->deactivate();
-		if(auto w = widget<CLabel>("labelTurnDurationValue"))
-			w->deactivate();
+		w->onConstructItems = [&](std::vector<const void *> & curItems){
+			if(variables["timers"].isNull())
+				return;
+			
+			for(auto & p : variables["timers"].Vector())
+			{
+				curItems.push_back(&p);
+			}
+		};
+		
+		w->onSetItem = [&](const void * item){
+			if(item)
+			{
+				if(auto * tObj = reinterpret_cast<const JsonNode *>(item))
+				{
+					for(auto wname : (*tObj)["hideWidgets"].Vector())
+						if(auto w = widget<CIntObject>(wname.String()))
+						{
+							w->setEnabled(false);
+						}
+					for(auto wname : (*tObj)["showWidgets"].Vector())
+						if(auto w = widget<CIntObject>(wname.String()))
+						{
+							w->setEnabled(true);
+						}
+				}
+				redraw();
+			}
+		};
+		
+		w->getItemText = [this](int idx, const void * item){
+			if(item)
+			{
+				if(auto * tObj = reinterpret_cast<const JsonNode *>(item))
+					return readText((*tObj)["text"]);
+			}
+			return std::string("");
+		};
+		
+		w->setItem(0);
 	}
 }
 
@@ -76,9 +176,19 @@ void OptionsTab::recreate()
 
 	if(auto turnSlider = widget<CSlider>("sliderTurnDuration"))
 	{
-		turnSlider->scrollTo(vstd::find_pos(GameConstants::POSSIBLE_TURNTIME, SEL->getStartInfo()->turnTimerInfo.turnTimer / (60 * 1000)));
-		if(auto w = widget<CLabel>("labelTurnDurationValue"))
-			w->setText(CGI->generaltexth->turnDurations[turnSlider->getValue()]);
+		if(!variables["timerPresets"].isNull())
+		{
+			for(int idx = 0; idx < variables["timerPresets"].Vector().size(); ++idx)
+			{
+				auto & tpreset = variables["timerPresets"].Vector()[idx];
+				if(tpreset.Vector().at(1).Integer() == SEL->getStartInfo()->turnTimerInfo.turnTimer / 1000)
+				{
+					turnSlider->scrollTo(idx);
+					if(auto w = widget<CLabel>("labelTurnDurationValue"))
+						w->setText(CGI->generaltexth->turnDurations[idx]);
+				}
+			}
+		}
 	}
 }
 

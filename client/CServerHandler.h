@@ -19,6 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CConnection;
 class PlayerColor;
 struct StartInfo;
+struct TurnTimerInfo;
 
 class CMapInfo;
 class CGameState;
@@ -64,7 +65,7 @@ public:
 	virtual void setPlayer(PlayerColor color) const = 0;
 	virtual void setPlayerOption(ui8 what, int32_t value, PlayerColor player) const = 0;
 	virtual void setDifficulty(int to) const = 0;
-	virtual void setTurnLength(int npos) const = 0;
+	virtual void setTurnTimerInfo(const TurnTimerInfo &) const = 0;
 	virtual void sendMessage(const std::string & txt) const = 0;
 	virtual void sendGuiAction(ui8 action) const = 0; // TODO: possibly get rid of it?
 	virtual void sendStartGame(bool allowOnlyAI = false) const = 0;
@@ -146,7 +147,7 @@ public:
 	void setPlayer(PlayerColor color) const override;
 	void setPlayerOption(ui8 what, int32_t value, PlayerColor player) const override;
 	void setDifficulty(int to) const override;
-	void setTurnLength(int npos) const override;
+	void setTurnTimerInfo(const TurnTimerInfo &) const override;
 	void sendMessage(const std::string & txt) const override;
 	void sendGuiAction(ui8 action) const override;
 	void sendRestartGame() const override;
