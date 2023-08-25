@@ -52,8 +52,6 @@ namespace GameConstants
 	constexpr ui32 BASE_MOVEMENT_COST = 100; //default cost for non-diagonal movement
 
 	constexpr int HERO_PORTRAIT_SHIFT = 9;// 2 special frames + 7 extra portraits
-
-	constexpr std::array<int, 11> POSSIBLE_TURNTIME = {1, 2, 4, 6, 8, 10, 15, 20, 25, 30, 0};
 }
 
 VCMI_LIB_NAMESPACE_END
