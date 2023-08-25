@@ -22,69 +22,55 @@ Loading saves made with different major version of VCMI is usually **not** suppo
 Please see corresponding installation guide articles for details for your platform.  
 
 ## Installation guides
-
-To use VCMI you need to own original data files.
-
- * [Android](https://wiki.vcmi.eu/Installation_on_Android)
- * [Linux](https://wiki.vcmi.eu/Installation_on_Linux)
- * [macOS](https://wiki.vcmi.eu/Installation_on_macOS)
- * [Windows](https://wiki.vcmi.eu/Installation_on_Windows)
- * [iOS](https://wiki.vcmi.eu/Installation_on_iOS)
+- [Windows](players/Installation_Windows.md)
+- [macOS](players/Installation_macOS.md)
+- [Linux](players/Installation_Linux.md)
+- [Android](players/Installation_Android.md)
+- [iOS](players/Installation_iOS.md)
 
 ## Documentation and guidelines for players
 
-- [General information about VCMI Project](VCMI "wikilink")
-- [Frequently asked questions](Frequently_asked_questions "wikilink")
-- [Engine features](Engine_features "wikilink")
-- [Game mechanics](Game_mechanics "wikilink")
+- [General information about VCMI Project](players/Manual.md)
+- [Frequently asked questions](https://vcmi.eu/faq/)
+- [Game mechanics](players/Game_Mechanics.md)
 - [Bug reporting guidelines](players/Bug_Reporting_Guidelines.md)
-- [Mod list](Mod_list "wikilink")
-- [Cheat codes](Cheat_Codes.md)
-- [Cheat codes](Client_Commands.md)
-
-### Installation guides
-- [Windows](Installation_on_Windows "wikilink")
-- [macOS](Installation_on_macOS "wikilink")
-- [Linux](Installation_on_Linux "wikilink")
-- [Android](Installation_on_Android "wikilink")
-- [iOS](Installation_on_iOS "wikilink")
+- [Cheat codes](players/Cheat_Codes.md)
+- [Cheat codes](players/Client_Commands.md)
+- [Privacy Policy](players/Privacy_Policy.md)
 
 ## Documentation and guidelines for game modders
 
--   [Modding guidelines](Modding_guidelines "wikilink")
--   [Mods repository](Mods_repository "wikilink")
--   Formats:
-    -   [Mod file Format](Mod_file_Format "wikilink")
-    -   [Town Format](Town_Format "wikilink")
-    -   [Hero Classes Format](Hero_Classes_Format "wikilink")
-    -   [Hero Format](Hero_Format "wikilink")
-    -   [Creature Format](Creature_Format "wikilink")
-    -   [Artifact Format](Artifact_Format "wikilink")
-    -   [Animation Format](Animation_Format "wikilink")
-    -   [Bonus Format](Bonus_Format "wikilink")
-    -   [Object Format](Object_Format "wikilink")
-    -   [Spell Format](Spell_Format "wikilink")
-    -   [Skill Format](Skill_Format "wikilink")
+- [Modding guidelines](Modding_guidelines "wikilink")
+- [Mods repository](Mods_repository "wikilink")
+- Formats:
+ - [Mod file Format](Mod_file_Format "wikilink")
+ - [Town Format](Town_Format "wikilink")
+ - [Hero Classes Format](Hero_Classes_Format "wikilink")
+ - [Hero Format](Hero_Format "wikilink")
+ - [Creature Format](Creature_Format "wikilink")
+ - [Artifact Format](Artifact_Format "wikilink")
+ - [Animation Format](Animation_Format "wikilink")
+ - [Bonus Format](Bonus_Format "wikilink")
+ - [Object Format](Object_Format "wikilink")
+ - [Spell Format](Spell_Format "wikilink")
+ - [Skill Format](Skill_Format "wikilink")
 
 ## Documentation and guidelines for developers
 
--   How to build using CMake:
-    -   [Linux](How_to_build_VCMI_(Linux) "wikilink")
-    -   [Linux/MinGW (for
-        Windows)](How_to_build_VCMI_(Linux/MinGW) "wikilink")
-    -   [macOS](How_to_build_VCMI_(macOS) "wikilink")
-    -   [Windows](How_to_build_VCMI_(Windows/Vcpkg) "wikilink")
-    -   [iOS](How_to_build_VCMI_(iOS) "wikilink")
-    -   [ Android](How_to_build_VCMI_(Android) "wikilink")
--   Unsupported build instructions:
-    -   [Windows/MSVS (Visual Studio
-        2015)](How_to_build_VCMI_(Windows/Visual_Studio_2015) "wikilink")
--   [Coding guidelines](Coding_guidelines "wikilink")
--   [Code structure](Code_structure "wikilink")
--   [Logging API](Logging_API "wikilink")
--   Development environment guides:
-    -   [Development with Qt
-        Creator](Development_with_Qt_Creator "wikilink")
+- How to build using CMake:
+  - [Linux](How_to_build_VCMI_(Linux) "wikilink")
+  - [Linux/MinGW (for
+    Windows)](How_to_build_VCMI_(Linux/MinGW) "wikilink")
+  - [macOS](How_to_build_VCMI_(macOS) "wikilink")
+  - [Windows](How_to_build_VCMI_(Windows/Vcpkg) "wikilink")
+  - [iOS](How_to_build_VCMI_(iOS) "wikilink")
+  - [ Android](How_to_build_VCMI_(Android) "wikilink")
+- Unsupported build instructions:
+  - [Windows/MSVS (Visual Studio 2015)](How_to_build_VCMI_(Windows/Visual_Studio_2015) "wikilink")
+- [Coding guidelines](Coding_guidelines "wikilink")
+- [Code structure](Code_structure "wikilink")
+- [Logging API](Logging_API "wikilink")
+- [Development with Qt Creator](Development_with_Qt_Creator "wikilink")
 
 ## Documentation and guidelines for maintainers
 

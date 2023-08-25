@@ -153,14 +153,11 @@
 
 # Spell level base format
 
-Json object with data common for all levels can be put here. These
-configuration parameters will be default for all levels. All mandatory
-level fields become optional if they equal "base" configuration.
+Json object with data common for all levels can be put here. These configuration parameters will be default for all levels. All mandatory level fields become optional if they equal "base" configuration.
 
 ## Example
 
-This will make spell affect single target on all levels except expert,
-where it is massive spell.
+This will make spell affect single target on all levels except expert, where it is massive spell.
 
 ``` javascript
 
@@ -239,14 +236,11 @@ where it is massive spell.
 
 # Configurable battle effects
 
-**If spell have at least one special effect it become configurable spell
-and spell configuration processed different way**
+**If spell have at least one special effect it become configurable spell and spell configuration processed different way**
 
 ## Configurable spell
 
-Configurable spells ignore *offensive* flag, *effects* and
-*cumulativeEffects*. For backward compatibility *offensive* flag define
-Damage effect, *effects* and *cumulativeEffects* define Timed effect.
+Configurable spells ignore *offensive* flag, *effects* and *cumulativeEffects*. For backward compatibility *offensive* flag define Damage effect, *effects* and *cumulativeEffects* define Timed effect.
 
 ## Special effect common format
 
@@ -300,8 +294,7 @@ Configurable version of Clone spell.
 
 ## Damage effect
 
-If effect is automatic, spell behave like offensive spell (uses power,
-levelPower etc)
+If effect is automatic, spell behave like offensive spell (uses power, levelPower etc)
 
 ``` javascript
 
@@ -367,34 +360,22 @@ cumulativeEffects ignored)
 
 ## Targets, ranges, modifiers
 
--   CREATURE target (only battle spells)
-    -   range 0: smart assumed single creature target
-    -   range "X" + smart modifier = enchanter casting, expert massive
-        spells
-    -   range "X" + no smart modifier = armageddon, death ripple,
-        destroy undead
-    -   any other range (including chain effect)
-        -   smart modifier: smth like cloud of confusion in H4 (if I
-            remember correctly :) )
-        -   no smart modifier: like inferno, fireball etc. but target
-            only creature
+- CREATURE target (only battle spells)
+ - range 0: smart assumed single creature target
+ - range "X" + smart modifier = enchanter casting, expert massive spells
+ - range "X" + no smart modifier = armageddon, death ripple, destroy undead
+ - any other range (including chain effect)
+  - smart modifier: smth like cloud of confusion in H4 (if I remember correctly :) )
+  - no smart modifier: like inferno, fireball etc. but target only creature
 
-<!-- -->
+- NO_TARGET
+ - no target selection,(abilities, most adventure spells)
 
--   NO_TARGET
-    -   no target selection,(abilities, most adventure spells)
+- LOCATION
+ - any tile on map/battlefield (inferno, fireball etc.), DD also here but with special handling
+ - clearTarget - destination hex must be clear (unused so far)
+ - clearAfffected - all affected hexes must be clear (forceField, fireWall)
 
-<!-- -->
-
--   LOCATION
-    -   any tile on map/battlefield (inferno, fireball etc.), DD also
-        here but with special handling
-    -   clearTarget - destination hex must be clear (unused so far)
-    -   clearAfffected - all affected hexes must be clear (forceField,
-        fireWall)
-
-<!-- -->
-
--   OBSTACLE target
-    -   range 0: any single obstacle
-    -   range X: all obstacles
+- OBSTACLE target
+ - range 0: any single obstacle
+ - range X: all obstacles

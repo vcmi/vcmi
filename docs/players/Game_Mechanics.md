@@ -21,10 +21,10 @@ These bugs were present in original Shadow of Death game, however the team decid
 
 Some of H3 mechanics can't be straight considered as bug, but default VCMI behaviour is different:
 
--   Pathfinding. Hero can't grab artifact while flying when all tiles around it are guarded without triggering attack from guard.
--   Battles. Hero that won battle, but only have temporary summoned creatures alive going to appear in tavern like if he retreated. 
--   Battles. Spells from artifacts like AOTD are autocasted on beginning of the battle, not beginning of turn.
--   Spells. Dimension Door spell doesn't allow to teleport to unexplored tiles. 
+- Pathfinding. Hero can't grab artifact while flying when all tiles around it are guarded without triggering attack from guard.
+- Battles. Hero that won battle, but only have temporary summoned creatures alive going to appear in tavern like if he retreated. 
+- Battles. Spells from artifacts like AOTD are autocasted on beginning of the battle, not beginning of turn.
+- Spells. Dimension Door spell doesn't allow to teleport to unexplored tiles. 
 
 # List of extended game functionality
 
