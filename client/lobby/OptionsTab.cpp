@@ -176,7 +176,7 @@ void OptionsTab::recreate()
 
 	if(auto turnSlider = widget<CSlider>("sliderTurnDuration"))
 	{
-		if(!variables["timerPresets"].isNull())
+		if(turnSlider->isActive() && !variables["timerPresets"].isNull())
 		{
 			for(int idx = 0; idx < variables["timerPresets"].Vector().size(); ++idx)
 			{
