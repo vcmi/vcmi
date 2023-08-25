@@ -35,7 +35,8 @@ void ComboBox::DropDown::Item::updateItem(int idx, const void * _item)
 	if(auto w = widget<CLabel>("labelName"))
 	{
 		item = _item;
-		w->setText(dropDown.comboBox.getItemText(idx, item));
+		if(dropDown.comboBox.getItemText)
+			w->setText(dropDown.comboBox.getItemText(idx, item));
 	}
 }
 
@@ -71,7 +72,8 @@ ComboBox::DropDown::DropDown(const JsonNode & config, ComboBox & _comboBox):
 {
 	REGISTER_BUILDER("item", &ComboBox::DropDown::buildItem);
 	
-	comboBox.onConstructItems(curItems);
+	if(comboBox.onConstructItems)
+		comboBox.onConstructItems(curItems);
 	
 	addCallback("sliderMove", std::bind(&ComboBox::DropDown::sliderMove, this, std::placeholders::_1));
 	
@@ -153,11 +155,6 @@ void ComboBox::DropDown::setItem(const void * item)
 	GH.windows().popWindows(1);
 }
 
-void ComboBox::DropDown::constructItems()
-{
-	comboBox.onConstructItems(curItems);
-}
-
 ComboBox::ComboBox(Point position, const std::string & defName, const std::pair<std::string, std::string> & help, const JsonNode & dropDownDescriptor, EShortcut key, bool playerColoredButton):
 	CButton(position, defName, help, 0, key, playerColoredButton)
 {
@@ -169,8 +166,9 @@ ComboBox::ComboBox(Point position, const std::string & defName, const std::pair<
 
 void ComboBox::setItem(const void * item)
 {
-	if(auto w = std::dynamic_pointer_cast<CLabel>(overlay))
+	if(auto w = std::dynamic_pointer_cast<CLabel>(overlay); getItemText)
 		addTextOverlay(getItemText(0, item), w->font, w->color);
 	
-	onSetItem(item);
+	if(onSetItem)
+		onSetItem(item);
 }

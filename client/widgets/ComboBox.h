@@ -34,7 +34,6 @@ class ComboBox : public CButton
 	public:
 		DropDown(const JsonNode &, ComboBox &);
 		
-		void constructItems();
 		bool receiveEvent(const Point & position, int eventType) const override;
 		void clickPressed(const Point & cursorPosition) override;
 		void setItem(const void *);

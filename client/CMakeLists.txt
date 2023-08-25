@@ -95,6 +95,7 @@ set(client_SRCS
 	widgets/CComponent.cpp
 	widgets/CGarrisonInt.cpp
 	widgets/CreatureCostBox.cpp
+	widgets/ComboBox.cpp
 	widgets/Images.cpp
 	widgets/MiscWidgets.cpp
 	widgets/ObjectLists.cpp
@@ -253,6 +254,7 @@ set(client_HEADERS
 	widgets/CComponent.h
 	widgets/CGarrisonInt.h
 	widgets/CreatureCostBox.h
+	widgets/ComboBox.h
 	widgets/Images.h
 	widgets/MiscWidgets.h
 	widgets/ObjectLists.h
