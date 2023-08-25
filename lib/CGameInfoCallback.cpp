@@ -201,8 +201,10 @@ int32_t CGameInfoCallback::getSpellCost(const spells::Spell * sp, const CGHeroIn
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	ERROR_RET_VAL_IF(!canGetFullInfo(caster), "Cannot get info about caster!", -1);
 	//if there is a battle
-	if(gs->curB)
-		return gs->curB->battleGetSpellCost(sp, caster);
+	auto casterBattle = gs->getBattle(caster->getOwner());
+
+	if(casterBattle)
+		return casterBattle->battleGetSpellCost(sp, caster);
 
 	//if there is no battle
 	return caster->getSpellCost(sp);
@@ -303,7 +305,9 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 	if (infoLevel == InfoAboutHero::EInfoLevel::BASIC)
 	{
-		if(gs->curB && gs->curB->playerHasAccessToHeroInfo(*player, h)) //if it's battle we can get enemy hero full data
+		auto ourBattle = gs->getBattle(*player);
+
+		if(ourBattle && ourBattle->playerHasAccessToHeroInfo(*player, h)) //if it's battle we can get enemy hero full data
 			infoLevel = InfoAboutHero::EInfoLevel::INBATTLE;
 		else
 			ERROR_RET_VAL_IF(!isVisible(h->visitablePos()), "That hero is not visible!", false);

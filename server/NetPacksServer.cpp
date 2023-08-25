@@ -276,7 +276,7 @@ void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 {
 	gh.throwIfWrongPlayer(&pack);
 
-	result = gh.battles->makePlayerBattleAction(pack.player, pack.ba);
+	result = gh.battles->makePlayerBattleAction(pack.battleID, pack.player, pack.ba);
 }
 
 void ApplyGhNetPackVisitor::visitDigWithHero(DigWithHero & pack)

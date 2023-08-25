@@ -19,6 +19,7 @@ class BattleAction;
 class int3;
 class BattleInfo;
 struct BattleResult;
+class BattleID;
 VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
@@ -40,15 +41,15 @@ class BattleProcessor : boost::noncopyable
 	std::unique_ptr<BattleResultProcessor> resultProcessor;
 
 	void onTacticsEnded();
-	void updateGateState();
+	void updateGateState(const BattleInfo & battle);
 	void engageIntoBattle(PlayerColor player);
 
-	bool checkBattleStateChanges();
-	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
+	bool checkBattleStateChanges(const BattleInfo & battle);
+	BattleID setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
 
-	bool makeAutomaticBattleAction(const BattleAction & ba);
+	bool makeAutomaticBattleAction(const BattleInfo & battle, const BattleAction & ba);
 
-	void setBattleResult(EBattleResult resultType, int victoriusSide);
+	void setBattleResult(const BattleInfo & battle, EBattleResult resultType, int victoriusSide);
 
 public:
 	explicit BattleProcessor(CGameHandler * gameHandler);
@@ -65,12 +66,12 @@ public:
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false);
 
 	/// Processing of incoming battle action netpack
-	bool makePlayerBattleAction(PlayerColor player, const BattleAction & ba);
+	bool makePlayerBattleAction(const BattleID & battleID, PlayerColor player, const BattleAction & ba);
 
 	/// Applies results of a battle once player agrees to them
-	void endBattleConfirm(const BattleInfo * battleInfo);
+	void endBattleConfirm(const BattleID & battleID);
 	/// Applies results of a battle after potential levelup
-	void battleAfterLevelUp(const BattleResult & result);
+	void battleAfterLevelUp(const BattleID & battleID, const BattleResult & result);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

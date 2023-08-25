@@ -40,6 +40,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/int3.h"
 
+#include "../lib/battle/BattleInfo.h"
 #include "../lib/filesystem/FileInfo.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/gameState/CGameState.h"
@@ -1007,6 +1008,7 @@ void CGameHandler::run(bool resume)
 		clockLast += clockDuration;
 		turnTimerHandler.update(timePassed);
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+
 	}
 }
 

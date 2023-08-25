@@ -46,7 +46,7 @@ class CGDwelling;
 class CGTeleport;
 class CGTownInstance;
 
-class DLL_LINKAGE IGameInfoCallback
+class DLL_LINKAGE IGameInfoCallback : boost::noncopyable
 {
 public:
 	//TODO: all other public methods of CGameInfoCallback

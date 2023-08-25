@@ -26,6 +26,8 @@ class BattleField;
 class DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallback, public IBattleState
 {
 public:
+	BattleID battleID = BattleID(0);
+
 	enum BattleSide
 	{
 		ATTACKER = 0,
@@ -49,6 +51,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & battleID;
 		h & sides;
 		h & round;
 		h & activeStack;
@@ -137,7 +140,7 @@ public:
 	using CBattleInfoEssentials::battleGetFightingHero;
 	CGHeroInstance * battleGetFightingHero(ui8 side) const;
 
-	std::pair< std::vector<BattleHex>, int > getPath(BattleHex start, BattleHex dest, const battle::Unit * stack); //returned value: pair<path, length>; length may be different than number of elements in path since flying creatures jump between distant hexes
+	std::pair< std::vector<BattleHex>, int > getPath(BattleHex start, BattleHex dest, const battle::Unit * stack) const; //returned value: pair<path, length>; length may be different than number of elements in path since flying creatures jump between distant hexes
 
 	void calculateCasualties(std::map<ui32,si32> * casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
 

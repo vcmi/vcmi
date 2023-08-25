@@ -49,7 +49,7 @@ bool CBattleQuery::blocksPack(const CPack * pack) const
 void CBattleQuery::onRemoval(PlayerColor color)
 {
 	if(result)
-		gh->battles->battleAfterLevelUp(*result);
+		gh->battles->battleAfterLevelUp(bi->battleID, *result);
 }
 
 CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const BattleInfo * Bi):
@@ -70,6 +70,6 @@ void CBattleDialogQuery::onRemoval(PlayerColor color)
 	}
 	else
 	{
-		gh->battles->endBattleConfirm(bi);
+		gh->battles->endBattleConfirm(bi->battleID);
 	}
 }

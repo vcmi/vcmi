@@ -14,6 +14,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct BattleLogMessage;
 struct BattleAttack;
 class BattleAction;
+class BattleInfo;
 struct BattleHex;
 class CStack;
 class PlayerColor;
@@ -38,42 +39,42 @@ class BattleActionProcessor : boost::noncopyable
 	BattleProcessor * owner;
 	CGameHandler * gameHandler;
 
-	int moveStack(int stack, BattleHex dest); //returned value - travelled distance
-	void makeAttack(const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter);
+	int moveStack(const BattleInfo & battle, int stack, BattleHex dest); //returned value - travelled distance
+	void makeAttack(const BattleInfo & battle, const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter);
 
-	void handleAttackBeforeCasting(bool ranged, const CStack * attacker, const CStack * defender);
-	void handleAfterAttackCasting(bool ranged, const CStack * attacker, const CStack * defender);
-	void attackCasting(bool ranged, BonusType attackMode, const battle::Unit * attacker, const battle::Unit * defender);
+	void handleAttackBeforeCasting(const BattleInfo & battle, bool ranged, const CStack * attacker, const CStack * defender);
+	void handleAfterAttackCasting(const BattleInfo & battle, bool ranged, const CStack * attacker, const CStack * defender);
+	void attackCasting(const BattleInfo & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const battle::Unit * defender);
 
 	// damage, drain life & fire shield; returns amount of drained life
-	int64_t applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary);
+	int64_t applyBattleEffects(const BattleInfo & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary);
 
 	void sendGenericKilledLog(const CStack * defender, int32_t killed, bool multiple);
 	void addGenericKilledLog(BattleLogMessage & blm, const CStack * defender, int32_t killed, bool multiple);
 
-	bool canStackAct(const CStack * stack);
+	bool canStackAct(const BattleInfo & battle, const CStack * stack);
 
-	bool doEmptyAction(const BattleAction & ba);
-	bool doEndTacticsAction(const BattleAction & ba);
-	bool doRetreatAction(const BattleAction & ba);
-	bool doSurrenderAction(const BattleAction & ba);
-	bool doHeroSpellAction(const BattleAction & ba);
-	bool doWalkAction(const BattleAction & ba);
-	bool doWaitAction(const BattleAction & ba);
-	bool doDefendAction(const BattleAction & ba);
-	bool doAttackAction(const BattleAction & ba);
-	bool doShootAction(const BattleAction & ba);
-	bool doCatapultAction(const BattleAction & ba);
-	bool doUnitSpellAction(const BattleAction & ba);
-	bool doHealAction(const BattleAction & ba);
+	bool doEmptyAction(const BattleInfo & battle, const BattleAction & ba);
+	bool doEndTacticsAction(const BattleInfo & battle, const BattleAction & ba);
+	bool doRetreatAction(const BattleInfo & battle, const BattleAction & ba);
+	bool doSurrenderAction(const BattleInfo & battle, const BattleAction & ba);
+	bool doHeroSpellAction(const BattleInfo & battle, const BattleAction & ba);
+	bool doWalkAction(const BattleInfo & battle, const BattleAction & ba);
+	bool doWaitAction(const BattleInfo & battle, const BattleAction & ba);
+	bool doDefendAction(const BattleInfo & battle, const BattleAction & ba);
+	bool doAttackAction(const BattleInfo & battle, const BattleAction & ba);
+	bool doShootAction(const BattleInfo & battle, const BattleAction & ba);
+	bool doCatapultAction(const BattleInfo & battle, const BattleAction & ba);
+	bool doUnitSpellAction(const BattleInfo & battle, const BattleAction & ba);
+	bool doHealAction(const BattleInfo & battle, const BattleAction & ba);
 
-	bool dispatchBattleAction(const BattleAction & ba);
-	bool makeBattleActionImpl(const BattleAction & ba);
+	bool dispatchBattleAction(const BattleInfo & battle, const BattleAction & ba);
+	bool makeBattleActionImpl(const BattleInfo & battle, const BattleAction & ba);
 
 public:
 	explicit BattleActionProcessor(BattleProcessor * owner);
 	void setGameHandler(CGameHandler * newGameHandler);
 
-	bool makeAutomaticBattleAction(const BattleAction & ba);
-	bool makePlayerBattleAction(PlayerColor player, const BattleAction & ba);
+	bool makeAutomaticBattleAction(const BattleInfo & battle, const BattleAction & ba);
+	bool makePlayerBattleAction(const BattleInfo & battle, PlayerColor player, const BattleAction & ba);
 };

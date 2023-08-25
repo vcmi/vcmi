@@ -64,18 +64,17 @@ class BattleResultProcessor : boost::noncopyable
 	//	BattleProcessor * owner;
 	CGameHandler * gameHandler;
 
-	std::unique_ptr<BattleResult> battleResult;
-	std::unique_ptr<FinishingBattleHelper> finishingBattle;
+	std::map<BattleID, std::unique_ptr<BattleResult>> battleResults;
+	std::map<BattleID, std::unique_ptr<FinishingBattleHelper>> finishingBattles;
 
 public:
 	explicit BattleResultProcessor(BattleProcessor * owner);
 	void setGameHandler(CGameHandler * newGameHandler);
 
-	bool battleIsEnding() const;
+	bool battleIsEnding(const BattleInfo & battle) const;
 
-	void setupBattle();
-	void setBattleResult(EBattleResult resultType, int victoriusSide);
-	void endBattle(int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2); //ends battle
-	void endBattleConfirm(const BattleInfo * battleInfo);
-	void battleAfterLevelUp(const BattleResult & result);
+	void setBattleResult(const BattleInfo & battle, EBattleResult resultType, int victoriusSide);
+	void endBattle(const BattleInfo & battle); //ends battle
+	void endBattleConfirm(const BattleInfo & battle);
+	void battleAfterLevelUp(const BattleInfo & battle, const BattleResult & result);
 };
