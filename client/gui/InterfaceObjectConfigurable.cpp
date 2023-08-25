@@ -20,6 +20,7 @@
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/ComboBox.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
@@ -52,6 +53,7 @@ InterfaceObjectConfigurable::InterfaceObjectConfigurable(int used, Point offset)
 	REGISTER_BUILDER("labelGroup", &InterfaceObjectConfigurable::buildLabelGroup);
 	REGISTER_BUILDER("slider", &InterfaceObjectConfigurable::buildSlider);
 	REGISTER_BUILDER("layout", &InterfaceObjectConfigurable::buildLayout);
+	REGISTER_BUILDER("comboBox", &InterfaceObjectConfigurable::buildComboBox);
 }
 
 void InterfaceObjectConfigurable::registerBuilder(const std::string & type, BuilderFunction f)
@@ -511,6 +513,32 @@ std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const 
 	auto image = config["image"].String();
 	auto rect = readRect(config["rect"]);
 	return std::make_shared<CFilledTexture>(image, rect);
+}
+
+std::shared_ptr<ComboBox> InterfaceObjectConfigurable::buildComboBox(const JsonNode & config)
+{
+	logGlobal->debug("Building widget ComboBox");
+	auto position = readPosition(config["position"]);
+	auto image = config["image"].String();
+	auto help = readHintText(config["help"]);
+	auto result = std::make_shared<ComboBox>(position, image, help, config["dropDown"]);
+	if(!config["items"].isNull())
+	{
+		for(const auto & item : config["items"].Vector())
+		{
+			result->addOverlay(buildWidget(item));
+		}
+	}
+	if(!config["imageOrder"].isNull())
+	{
+		auto imgOrder = config["imageOrder"].Vector();
+		assert(imgOrder.size() >= 4);
+		result->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
+	}
+
+	loadButtonBorderColor(result, config["borderColor"]);
+	loadButtonHotkey(result, config["hotkey"]);
+	return result;
 }
 
 /// Small helper class that provides ownership for shared_ptr's of child elements

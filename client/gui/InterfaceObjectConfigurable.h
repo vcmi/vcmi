@@ -27,6 +27,7 @@ class CSlider;
 class CAnimImage;
 class CShowableAnim;
 class CFilledTexture;
+class ComboBox;
 
 #define REGISTER_BUILDER(type, method) registerBuilder(type, std::bind(method, this, std::placeholders::_1))
 
@@ -99,6 +100,7 @@ protected:
 	std::shared_ptr<CShowableAnim> buildAnimation(const JsonNode &) const;
 	std::shared_ptr<CFilledTexture> buildTexture(const JsonNode &) const;
 	std::shared_ptr<CIntObject> buildLayout(const JsonNode &);
+	std::shared_ptr<ComboBox> buildComboBox(const JsonNode &);
 		
 	//composite widgets
 	std::shared_ptr<CIntObject> buildWidget(JsonNode config) const;
