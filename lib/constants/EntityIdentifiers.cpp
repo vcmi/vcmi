@@ -228,6 +228,16 @@ std::string PlayerColor::getStrCap(bool L10n) const
 	return ret;
 }
 
+si32 PlayerColor::decode(const std::string & identifier)
+{
+	return vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, identifier);
+}
+
+std::string PlayerColor::encode(const si32 index)
+{
+	return GameConstants::PLAYER_COLOR_NAMES[index];
+}
+
 si32 FactionID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);

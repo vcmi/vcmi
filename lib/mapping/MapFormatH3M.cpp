@@ -692,7 +692,7 @@ void CMapLoaderH3M::readDisposedHeroes()
 			map->disposedHeroes[g].heroId = reader->readHero().getNum();
 			map->disposedHeroes[g].portrait = reader->readHeroPortrait();
 			map->disposedHeroes[g].name = readLocalizedString(TextIdentifier("header", "heroes", map->disposedHeroes[g].heroId));
-			map->disposedHeroes[g].players = reader->readUInt8();
+			reader->readBitmaskPlayers(map->disposedHeroes[g].players, false);
 		}
 	}
 }
@@ -995,7 +995,7 @@ CGObjectInstance * CMapLoaderH3M::readEvent(const int3 & mapPosition)
 
 	readBoxContent(object, mapPosition);
 
-	object->availableFor = reader->readUInt8();
+	reader->readBitmaskPlayers(object->availableFor, false);
 	object->computerActivate = reader->readBool();
 	object->removeAfterVisit = reader->readBool();
 

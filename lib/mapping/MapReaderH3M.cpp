@@ -35,6 +35,12 @@ SpellID MapReaderH3M::remapIdentifier(const SpellID & identifier)
 	return identifier;
 }
 
+template<>
+PlayerColor MapReaderH3M::remapIdentifier(const PlayerColor & identifier)
+{
+	return identifier;
+}
+
 template<class Identifier>
 Identifier MapReaderH3M::remapIdentifier(const Identifier & identifier)
 {
@@ -225,6 +231,11 @@ void MapReaderH3M::readBitmaskBuildings(std::set<BuildingID> & dest, std::option
 void MapReaderH3M::readBitmaskFactions(std::set<FactionID> & dest, bool invert)
 {
 	readBitmask(dest, features.factionsBytes, features.factionsCount, invert);
+}
+
+void MapReaderH3M::readBitmaskPlayers(std::set<PlayerColor> & dest, bool invert)
+{
+	readBitmask(dest, 1, 8, invert);
 }
 
 void MapReaderH3M::readBitmaskResources(std::set<GameResID> & dest, bool invert)
