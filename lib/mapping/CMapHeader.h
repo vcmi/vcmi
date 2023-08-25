@@ -52,7 +52,7 @@ struct DLL_LINKAGE PlayerInfo
 
 	bool canHumanPlay;
 	bool canComputerPlay;
-	EAiTactic::EAiTactic aiTactic; /// The default value is EAiTactic::RANDOM.
+	EAiTactic aiTactic; /// The default value is EAiTactic::RANDOM.
 
 	std::set<FactionID> allowedFactions;
 	bool isFactionRandom;

@@ -15,7 +15,7 @@
 #include "CGeneralTextHandler.h"
 #include "GameSettings.h"
 #include "mapObjects/MapObjects.h"
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
 
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
@@ -239,11 +239,11 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 			if(artCanBePutAt(artSet, slot, assumeDestRemoved))
 				return true;
 		}
-		return artCanBePutAt(artSet, GameConstants::BACKPACK_START, assumeDestRemoved);
+		return artCanBePutAt(artSet, ArtifactPosition::BACKPACK_START, assumeDestRemoved);
 	}
 	else if(ArtifactUtils::isSlotBackpack(slot))
 	{
-		return artCanBePutAt(artSet, GameConstants::BACKPACK_START, assumeDestRemoved);
+		return artCanBePutAt(artSet, ArtifactPosition::BACKPACK_START, assumeDestRemoved);
 	}
 	else
 	{
@@ -483,17 +483,16 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 	return art;
 }
 
-ArtifactPosition::ArtifactPosition(std::string slotName):
-	num(ArtifactPosition::PRE_FIRST)
+int32_t ArtifactPositionBase::decode(const std::string & slotName)
 {
 #define ART_POS(x) { #x, ArtifactPosition::x },
 	static const std::map<std::string, ArtifactPosition> artifactPositionMap = { ART_POS_LIST };
 #undef ART_POS
 	auto it = artifactPositionMap.find (slotName);
 	if (it != artifactPositionMap.end())
-		num = it->second;
+		return it->second;
 	else
-		logMod->warn("Warning! Artifact slot %s not recognized!", slotName);
+		return PRE_FIRST;
 }
 
 void CArtHandler::addSlot(CArtifact * art, const std::string & slotID) const
@@ -518,7 +517,7 @@ void CArtHandler::addSlot(CArtifact * art, const std::string & slotID) const
 	}
 	else
 	{
-		auto slot = ArtifactPosition(slotID);
+		auto slot = ArtifactPosition::decode(slotID);
 		if (slot != ArtifactPosition::PRE_FIRST)
 			art->possibleSlots[ArtBearer::HERO].push_back(slot);
 	}
@@ -848,7 +847,7 @@ std::vector<ArtifactPosition> CArtifactSet::getBackpackArtPositions(const Artifa
 {
 	std::vector<ArtifactPosition> result;
 
-	si32 backpackPosition = GameConstants::BACKPACK_START;
+	si32 backpackPosition = ArtifactPosition::BACKPACK_START;
 	for(const auto & artInfo : artifactsInBackpack)
 	{
 		const auto * art = artInfo.getArt();
@@ -867,7 +866,7 @@ ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance *art) const
 
 	for(int i = 0; i < artifactsInBackpack.size(); i++)
 		if(artifactsInBackpack[i].artifact == art)
-			return ArtifactPosition(GameConstants::BACKPACK_START + i);
+			return ArtifactPosition::BACKPACK_START + i;
 
 	return ArtifactPosition::PRE_FIRST;
 }
@@ -893,7 +892,7 @@ const ArtifactPosition CArtifactSet::getSlotByInstance(const CArtifactInstance *
 			if(getArt(slot) == artInst)
 				return slot;
 
-		auto backpackSlot = GameConstants::BACKPACK_START;
+		ArtifactPosition backpackSlot = ArtifactPosition::BACKPACK_START;
 		for(auto & slotInfo : artifactsInBackpack)
 		{
 			if(slotInfo.getArt() == artInst)
@@ -1014,7 +1013,7 @@ const ArtSlotInfo * CArtifactSet::getSlot(const ArtifactPosition & pos) const
 		return &artifactsWorn.at(pos);
 	if(pos >= ArtifactPosition::AFTER_LAST )
 	{
-		int backpackPos = (int)pos - GameConstants::BACKPACK_START;
+		int backpackPos = (int)pos - ArtifactPosition::BACKPACK_START;
 		if(backpackPos < 0 || backpackPos >= artifactsInBackpack.size())
 			return nullptr;
 		else
@@ -1049,7 +1048,7 @@ void CArtifactSet::setNewArtSlot(const ArtifactPosition & slot, CArtifactInstanc
 	}
 	else
 	{
-		auto position = artifactsInBackpack.begin() + slot - GameConstants::BACKPACK_START;
+		auto position = artifactsInBackpack.begin() + slot - ArtifactPosition::BACKPACK_START;
 		slotInfo = &(*artifactsInBackpack.emplace(position, ArtSlotInfo()));
 	}
 	slotInfo->artifact = art;
@@ -1065,7 +1064,7 @@ void CArtifactSet::eraseArtSlot(const ArtifactPosition & slot)
 	}
 	else if(ArtifactUtils::isSlotBackpack(slot))
 	{
-		auto backpackSlot = ArtifactPosition(slot - GameConstants::BACKPACK_START);
+		auto backpackSlot = ArtifactPosition(slot - ArtifactPosition::BACKPACK_START);
 
 		assert(artifactsInBackpack.begin() + backpackSlot < artifactsInBackpack.end());
 		artifactsInBackpack.erase(artifactsInBackpack.begin() + backpackSlot);
@@ -1136,7 +1135,7 @@ void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
 		for(const ArtifactID & artifactID : backpackTemp)
 		{
 			auto * artifact = ArtifactUtils::createArtifact(map, artifactID.toEnum());
-			auto slot = ArtifactPosition(GameConstants::BACKPACK_START + (si32)artifactsInBackpack.size());
+			auto slot = ArtifactPosition::BACKPACK_START + (si32)artifactsInBackpack.size();
 			if(artifact->artType->canBePutAt(this, slot))
 				putArtifact(slot, artifact);
 		}

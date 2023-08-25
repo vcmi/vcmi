@@ -38,17 +38,17 @@ int CGMarket::getMarketEfficiency() const
 	return marketEfficiency;
 }
 
-bool CGMarket::allowsTrade(EMarketMode::EMarketMode mode) const
+bool CGMarket::allowsTrade(EMarketMode mode) const
 {
 	return marketModes.count(mode);
 }
 
-int CGMarket::availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial) const
+int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 {
 	return -1;
 }
 
-std::vector<int> CGMarket::availableItemsIds(EMarketMode::EMarketMode mode) const
+std::vector<int> CGMarket::availableItemsIds(EMarketMode mode) const
 {
 	if(allowsTrade(mode))
 		return IMarket::availableItemsIds(mode);
@@ -59,7 +59,7 @@ CGMarket::CGMarket()
 {
 }
 
-std::vector<int> CGBlackMarket::availableItemsIds(EMarketMode::EMarketMode mode) const
+std::vector<int> CGBlackMarket::availableItemsIds(EMarketMode mode) const
 {
 	switch(mode)
 	{
@@ -110,7 +110,7 @@ void CGUniversity::initObj(CRandomGenerator & rand)
 	}
 }
 
-std::vector<int> CGUniversity::availableItemsIds(EMarketMode::EMarketMode mode) const
+std::vector<int> CGUniversity::availableItemsIds(EMarketMode mode) const
 {
 	switch (mode)
 	{

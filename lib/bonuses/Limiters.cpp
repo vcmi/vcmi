@@ -22,7 +22,7 @@
 #include "../CStack.h"
 #include "../CArtHandler.h"
 #include "../TerrainHandler.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../battle/BattleInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

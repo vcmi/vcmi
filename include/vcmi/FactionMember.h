@@ -15,11 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class BonusList;
-
-namespace PrimarySkill
-{
-    enum PrimarySkill : int8_t;
-}
+enum class PrimarySkill : int8_t;
 
 class DLL_LINKAGE AFactionMember: public IConstBonusProvider, public INativeTerrainProvider
 {
@@ -27,7 +23,7 @@ public:
 	/**
 	 Returns native terrain considering some terrain bonuses.
 	*/
-	virtual Identifier<ETerrainId> getNativeTerrain() const;
+	virtual TerrainId getNativeTerrain() const;
 	/**
 	 Returns magic resistance considering some bonuses.
 	*/
@@ -51,7 +47,7 @@ public:
 	/**
 	 Returns primskill of creature or hero.
 	*/
-	int getPrimSkillLevel(PrimarySkill::PrimarySkill id) const;
+	int getPrimSkillLevel(PrimarySkill id) const;
 	/**
 	 Returns morale of creature or hero. Taking absolute bonuses into account.
 	 For now, uses range from EGameSettings

@@ -108,7 +108,7 @@ public:
 	void setPlayer(PlayerColor clickedColor);
 	void optionNextHero(PlayerColor player, int dir); //dir == -1 or +1
 	void optionSetHero(PlayerColor player, int id);
-	int nextAllowedHero(PlayerColor player, int min, int max, int incl, int dir);
+	HeroTypeID nextAllowedHero(PlayerColor player, int min, int max, int incl, int dir);
 	bool canUseThisHero(PlayerColor player, int ID);
 	std::vector<int> getUsedHeroes();
 	void optionNextBonus(PlayerColor player, int dir); //dir == -1 or +1

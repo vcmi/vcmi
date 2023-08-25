@@ -357,7 +357,7 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 
 	if(cb->battleGetMySide() == BattlePerspective::LEFT_SIDE
 		&& cb->battleGetGateState() == EGateState::BLOCKED
-		&& ap.attack.defender->coversPos(ESiegeHex::GATE_BRIDGE))
+		&& ap.attack.defender->coversPos(BattleHex::GATE_BRIDGE))
 	{
 		return EvaluationResult::INEFFECTIVE_SCORE;
 	}

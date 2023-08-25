@@ -351,9 +351,9 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 	});
 }
 
-void VCAI::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
+void VCAI::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val)
 {
-	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", which % val);
+	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", static_cast<int>(which) % val);
 	NET_EVENT_HANDLER;
 }
 
@@ -618,7 +618,7 @@ void VCAI::yourTurn()
 	makingTurn = std::make_unique<boost::thread>(&VCAI::makeTurn, this);
 }
 
-void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
+void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
@@ -764,7 +764,7 @@ void makePossibleUpgrades(const CArmedInstance * obj)
 		{
 			UpgradeInfo ui;
 			cb->fillUpgradeInfo(obj, SlotID(i), ui);
-			if(ui.oldID >= 0 && cb->getResourceAmount().canAfford(ui.cost[0] * s->count))
+			if(ui.oldID != CreatureID::NONE && cb->getResourceAmount().canAfford(ui.cost[0] * s->count))
 			{
 				cb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
 			}
@@ -776,7 +776,7 @@ void VCAI::makeTurn()
 {
 	MAKING_TURN;
 
-	auto day = cb->getDate(Date::EDateType::DAY);
+	auto day = cb->getDate(Date::DAY);
 	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.getStr(), day);
 
 	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
@@ -1594,7 +1594,7 @@ void VCAI::battleEnd(const BattleResult * br, QueryID queryID)
 	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.getStr(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
 
-	if (queryID != -1)
+	if (queryID != QueryID::NONE)
 	{
 		status.addQuery(queryID, "Combat result dialog");
 		const int confirmAction = 0;
@@ -2184,8 +2184,8 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 			auto ci = infoFromDC(t->creatures[i]);
 
 			if(!ci.count
-				|| ci.creID == -1
-				|| (g.objid != -1 && ci.creID != g.objid)
+				|| ci.creID == CreatureID::NONE
+				|| (g.objid != -1 && ci.creID.getNum() != g.objid)
 				|| t->getUpperArmy()->getSlotFor(ci.creID) == SlotID())
 				continue;
 

@@ -22,7 +22,7 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/CModInfo.h"
-#include "../lib/StringConstants.h"
+#include "../lib/constants/StringConstants.h"
 #include "inspector/townbulidingswidget.h" //to convert BuildingID to string
 
 //parses date for lose condition (1m 1w 1d)

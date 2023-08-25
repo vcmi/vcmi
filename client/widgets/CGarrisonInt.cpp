@@ -164,7 +164,7 @@ bool CGarrisonSlot::viewInfo()
 	UpgradeInfo pom;
 	LOCPLINT->cb->fillUpgradeInfo(getObj(), ID, pom);
 
-	bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.oldID>=0; //upgrade is possible
+	bool canUpgrade = getObj()->tempOwner == LOCPLINT->playerID && pom.oldID != CreatureID::NONE; //upgrade is possible
 	std::function<void(CreatureID)> upgr = nullptr;
 	auto dism = getDismiss();
 	if(canUpgrade) upgr = [=] (CreatureID newID) { LOCPLINT->cb->upgradeCreature(getObj(), ID, newID); };

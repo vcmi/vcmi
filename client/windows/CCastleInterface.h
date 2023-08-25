@@ -152,7 +152,7 @@ class CCastleBuildings : public CIntObject
 	void enterBlacksmith(ArtifactID artifactID);//support for blacksmith + ballista yard
 	void enterBuilding(BuildingID building);//for buildings with simple description + pic left-click messages
 	void enterCastleGate();
-	void enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID::EBuildingID upgrades);//Rampart's fountains
+	void enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID upgrades);//Rampart's fountains
 	void enterMagesGuild();
 	void enterTownHall();
 
@@ -169,7 +169,7 @@ public:
 	void enterDwelling(int level);
 	void enterToTheQuickRecruitmentWindow();
 
-	void buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID = BuildingSubID::NONE, BuildingID::EBuildingID upgrades = BuildingID::NONE);
+	void buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID = BuildingSubID::NONE, BuildingID upgrades = BuildingID::NONE);
 	void addBuilding(BuildingID building);
 	void removeBuilding(BuildingID building);//FIXME: not tested!!!
 };
@@ -265,7 +265,7 @@ class CHallInterface : public CStatusbarWindow
 		const CGTownInstance * town;
 		const CBuilding * building;
 
-		ui32 state;//Buildings::EBuildStructure enum
+		EBuildingState state;
 
 		std::shared_ptr<CAnimImage> header;
 		std::shared_ptr<CAnimImage> icon;
@@ -303,10 +303,10 @@ class CBuildWindow: public CStatusbarWindow
 	std::shared_ptr<CButton> buy;
 	std::shared_ptr<CButton> cancel;
 
-	std::string getTextForState(int state);
+	std::string getTextForState(EBuildingState state);
 	void buyFunc();
 public:
-	CBuildWindow(const CGTownInstance *Town, const CBuilding * building, int State, bool rightClick);
+	CBuildWindow(const CGTownInstance *Town, const CBuilding * building, EBuildingState State, bool rightClick);
 };
 
 //Small class to display

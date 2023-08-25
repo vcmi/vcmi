@@ -1382,7 +1382,7 @@ void HeroRecruited::applyGs(CGameState * gs) const
 	CGTownInstance *t = gs->getTown(tid);
 	PlayerState *p = gs->getPlayerState(player);
 
-	if (boatId >= 0)
+	if (boatId != ObjectInstanceID::NONE)
 	{
 		CGObjectInstance *obj = gs->getObjInstance(boatId);
 		auto * boat = dynamic_cast<CGBoat *>(obj);
@@ -1418,7 +1418,7 @@ void GiveHero::applyGs(CGameState * gs) const
 {
 	CGHeroInstance *h = gs->getHero(id);
 
-	if (boatId >= 0)
+	if (boatId != ObjectInstanceID::NONE)
 	{
 		CGObjectInstance *obj = gs->getObjInstance(boatId);
 		auto * boat = dynamic_cast<CGBoat *>(obj);
@@ -1880,7 +1880,7 @@ void BulkMoveArtifacts::applyGs(CGameState * gs)
 				break;
 			}
 
-			if(srcPos >= GameConstants::BACKPACK_START)
+			if(srcPos >= ArtifactPosition::BACKPACK_START)
 			{
 				numBackpackArtifactsMoved++;
 			}
@@ -1925,7 +1925,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 	{
 		ArtifactPosition pos = combineEquipped ? artSet->getArtPos(constituent->getId(), true, false) :
 			artSet->getArtBackpackPos(constituent->getId());
-		assert(pos >= 0);
+		assert(pos != ArtifactPosition::PRE_FIRST);
 		CArtifactInstance * constituentInstance = artSet->getArt(pos);
 
 		//move constituent from hero to be part of new, combined artifact

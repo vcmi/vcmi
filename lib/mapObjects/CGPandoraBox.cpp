@@ -20,7 +20,7 @@
 #include "../CSkillHandler.h"
 #include "../StartInfo.h"
 #include "../IGameCallback.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -103,7 +103,7 @@ void CGPandoraBox::giveContentsUpToExp(const CGHeroInstance *h) const
 		//give prim skills
 		for(int i=0; i<primskills.size(); i++)
 			if(primskills[i])
-				cb->changePrimSkill(h,static_cast<PrimarySkill::PrimarySkill>(i),primskills[i],false);
+				cb->changePrimSkill(h,static_cast<PrimarySkill>(i),primskills[i],false);
 
 		assert(!cb->isVisitCoveredByAnotherQuery(this, h));
 
@@ -385,7 +385,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 		{
 			auto s = handler.enterStruct("primarySkills");
 			for(int idx = 0; idx < primskills.size(); idx ++)
-				handler.serializeInt(PrimarySkill::names[idx], primskills[idx], 0);
+				handler.serializeInt(NPrimarySkill::names[idx], primskills[idx], 0);
 		}
 	}
 

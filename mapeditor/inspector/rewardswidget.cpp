@@ -15,7 +15,7 @@
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CCreatureHandler.h"
-#include "../lib/StringConstants.h"
+#include "../lib/constants/StringConstants.h"
 #include "../lib/mapping/CMap.h"
 
 RewardsWidget::RewardsWidget(const CMap & m, CGPandoraBox & p, QWidget *parent) :
@@ -67,7 +67,7 @@ QList<QString> RewardsWidget::getListForType(RewardType typeId)
 			break;
 			
 		case RewardType::PRIMARY_SKILL:
-			for(auto s : PrimarySkill::names)
+			for(auto s : NPrimarySkill::names)
 				result.append(QString::fromStdString(s));
 			break;
 			

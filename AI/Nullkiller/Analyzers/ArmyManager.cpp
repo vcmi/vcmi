@@ -256,7 +256,7 @@ std::shared_ptr<CCreatureSet> ArmyManager::getArmyAvailableToBuyAsCCreatureSet(
 	{
 		auto ci = infoFromDC(dwelling->creatures[i]);
 
-		if(!ci.count || ci.creID == -1)
+		if(!ci.count || ci.creID == CreatureID::NONE)
 			continue;
 
 		vstd::amin(ci.count, availableRes / ci.cre->getFullRecruitCost()); //max count we can afford
@@ -316,7 +316,7 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 	{
 		auto ci = infoFromDC(dwelling->creatures[i]);
 
-		if(ci.creID == -1) continue;
+		if(ci.creID == CreatureID::NONE) continue;
 
 		if(i < GameConstants::CREATURES_PER_TOWN && countGrowth)
 		{

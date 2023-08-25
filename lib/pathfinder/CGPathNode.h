@@ -190,8 +190,8 @@ struct DLL_LINKAGE PathNodeInfo
 	const TerrainTile * tile;
 	int3 coord;
 	bool guarded;
-	PlayerRelations::PlayerRelations objectRelations;
-	PlayerRelations::PlayerRelations heroRelations;
+	PlayerRelations objectRelations;
+	PlayerRelations heroRelations;
 	bool isInitialPosition;
 
 	PathNodeInfo();

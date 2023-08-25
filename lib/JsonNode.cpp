@@ -23,7 +23,7 @@
 #include "VCMI_Lib.h" //for identifier resolution
 #include "CGeneralTextHandler.h"
 #include "JsonDetail.h"
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
 #include "battle/BattleHex.h"
 
 namespace

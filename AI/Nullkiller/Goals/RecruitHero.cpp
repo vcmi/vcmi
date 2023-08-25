@@ -11,7 +11,7 @@
 #include "Goals.h"
 #include "../AIGateway.h"
 #include "../AIUtility.h"
-#include "../../../lib/StringConstants.h"
+#include "../../../lib/constants/StringConstants.h"
 
 
 namespace NKAI

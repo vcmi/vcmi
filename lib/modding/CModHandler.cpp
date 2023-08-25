@@ -22,7 +22,7 @@
 #include "../GameSettings.h"
 #include "../Languages.h"
 #include "../ScriptHandler.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "../spells/CSpellHandler.h"
 
@@ -57,8 +57,8 @@ CModHandler::CModHandler()
 
 	for(int i=0; i<GameConstants::PRIMARY_SKILLS; ++i)
 	{
-		identifiers->registerObject(ModScope::scopeBuiltin(), "primSkill", PrimarySkill::names[i], i);
-		identifiers->registerObject(ModScope::scopeBuiltin(), "primarySkill", PrimarySkill::names[i], i);
+		identifiers->registerObject(ModScope::scopeBuiltin(), "primSkill", NPrimarySkill::names[i], i);
+		identifiers->registerObject(ModScope::scopeBuiltin(), "primarySkill", NPrimarySkill::names[i], i);
 	}
 }
 

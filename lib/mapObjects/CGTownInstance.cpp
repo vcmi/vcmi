@@ -270,7 +270,7 @@ void CGTownInstance::blockingDialogAnswered(const CGHeroInstance *hero, ui32 ans
 
 void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 {
-	if(!cb->gameState()->getPlayerRelations( getOwner(), h->getOwner() ))//if this is enemy
+	if(cb->gameState()->getPlayerRelations( getOwner(), h->getOwner() ) == PlayerRelations::ENEMIES)
 	{
 		if(armedGarrison() || visitingHero)
 		{
@@ -364,7 +364,7 @@ void CGTownInstance::initOverriddenBids()
 	}
 }
 
-bool CGTownInstance::isBonusingBuildingAdded(BuildingID::EBuildingID bid) const
+bool CGTownInstance::isBonusingBuildingAdded(BuildingID bid) const
 {
 	auto present = std::find_if(bonusingBuildings.begin(), bonusingBuildings.end(), [&](CGTownBuilding* building)
 		{
@@ -428,7 +428,7 @@ DamageRange CGTownInstance::getKeepDamageRange() const
 	};
 }
 
-void CGTownInstance::deleteTownBonus(BuildingID::EBuildingID bid)
+void CGTownInstance::deleteTownBonus(BuildingID bid)
 {
 	size_t i = 0;
 	CGTownBuilding * freeIt = nullptr;
@@ -467,7 +467,7 @@ void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structu
 
 	for (int level = 0; level < GameConstants::CREATURES_PER_TOWN; level++)
 	{
-		BuildingID buildID = BuildingID(BuildingID::DWELL_FIRST).advance(level);
+		BuildingID buildID = BuildingID(BuildingID::DWELL_FIRST + level);
 		int upgradeNum = 0;
 
 		for (; town->buildings.count(buildID); upgradeNum++, buildID.advance(GameConstants::CREATURES_PER_TOWN))
@@ -516,7 +516,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 			std::vector<SlotID> nativeCrits; //slots
 			for(const auto & elem : Slots())
 			{
-				if (elem.second->type->getFaction() == subID) //native
+				if (elem.second->type->getFaction() == getFaction()) //native
 				{
 					nativeCrits.push_back(elem.first); //collect matching slots
 				}
@@ -701,7 +701,7 @@ int CGTownInstance::getMarketEfficiency() const
 	return marketCount;
 }
 
-bool CGTownInstance::allowsTrade(EMarketMode::EMarketMode mode) const
+bool CGTownInstance::allowsTrade(EMarketMode mode) const
 {
 	switch(mode)
 	{
@@ -727,7 +727,7 @@ bool CGTownInstance::allowsTrade(EMarketMode::EMarketMode mode) const
 	}
 }
 
-std::vector<int> CGTownInstance::availableItemsIds(EMarketMode::EMarketMode mode) const
+std::vector<int> CGTownInstance::availableItemsIds(EMarketMode mode) const
 {
 	if(mode == EMarketMode::RESOURCE_ARTIFACT)
 	{

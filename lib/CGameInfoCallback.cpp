@@ -42,7 +42,7 @@ int CGameInfoCallback::getResource(PlayerColor Player, GameResID which) const
 {
 	const PlayerState *p = getPlayerState(Player);
 	ERROR_RET_VAL_IF(!p, "No player info!", -1);
-	ERROR_RET_VAL_IF(p->resources.size() <= which || which < 0, "No such resource!", -1);
+	ERROR_RET_VAL_IF(p->resources.size() <= which.getNum() || which.getNum() < 0, "No such resource!", -1);
 	return p->resources[which];
 }
 
@@ -405,7 +405,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 	return true;
 }
 
-int CGameInfoCallback::getDate(Date::EDateType mode) const
+int CGameInfoCallback::getDate(Date mode) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->getDate(mode);
@@ -551,7 +551,7 @@ std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::ge
 	return std::shared_ptr<const boost::multi_array<TerrainTile*, 3>>(ptr);
 }
 
-EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, BuildingID ID )
+EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, BuildingID ID )
 {
 	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", EBuildingState::TOWN_NOT_OWNED);
 
@@ -631,7 +631,7 @@ bool CGameInfoCallback::hasAccess(std::optional<PlayerColor> playerId) const
 	return !player || player->isSpectator() || gs->getPlayerRelations(*playerId, *player) != PlayerRelations::ENEMIES;
 }
 
-EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bool verbose) const
+EPlayerStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bool verbose) const
 {
 	const PlayerState *ps = gs->getPlayerState(player, verbose);
 	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!ps, verbose, "No such player!", EPlayerStatus::WRONG);
@@ -670,7 +670,7 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 	return text;
 }
 
-PlayerRelations::PlayerRelations CGameInfoCallback::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
+PlayerRelations CGameInfoCallback::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
 {
 	return gs->getPlayerRelations(color1, color2);
 }

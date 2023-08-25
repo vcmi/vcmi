@@ -314,9 +314,9 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 	});
 }
 
-void AIGateway::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
+void AIGateway::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val)
 {
-	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", which % val);
+	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", static_cast<int>(which) % val);
 	NET_EVENT_HANDLER;
 }
 
@@ -552,7 +552,7 @@ void AIGateway::yourTurn()
 	makingTurn = std::make_unique<boost::thread>(&AIGateway::makeTurn, this);
 }
 
-void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
+void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
@@ -757,7 +757,7 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 		{
 			UpgradeInfo ui;
 			myCb->fillUpgradeInfo(obj, SlotID(i), ui);
-			if(ui.oldID >= 0 && nullkiller->getFreeResources().canAfford(ui.cost[0] * s->count))
+			if(ui.oldID != CreatureID::NONE && nullkiller->getFreeResources().canAfford(ui.cost[0] * s->count))
 			{
 				myCb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
 				upgraded = true;
@@ -773,7 +773,7 @@ void AIGateway::makeTurn()
 {
 	MAKING_TURN;
 
-	auto day = cb->getDate(Date::EDateType::DAY);
+	auto day = cb->getDate(Date::DAY);
 	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.getStr(), day);
 
 	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
@@ -1097,7 +1097,7 @@ void AIGateway::battleEnd(const BattleResult * br, QueryID queryID)
 	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.getStr(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
 
-	if (queryID != -1)
+	if (queryID != QueryID::NONE)
 	{
 		status.addQuery(queryID, "Combat result dialog");
 		const int confirmAction = 0;

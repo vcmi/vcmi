@@ -167,7 +167,7 @@ public:
 			pset.castle = pinfo.defaultCastle();
 			pset.hero = pinfo.defaultHero();
 
-			if(pset.hero != PlayerSettings::RANDOM && pinfo.hasCustomMainHero())
+			if(pset.hero.getNum() != PlayerSettings::RANDOM && pinfo.hasCustomMainHero())
 			{
 				pset.hero = pinfo.mainCustomHeroId;
 				pset.heroName = pinfo.mainCustomHeroName;

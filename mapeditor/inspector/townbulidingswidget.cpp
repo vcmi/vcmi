@@ -130,7 +130,7 @@ QStandardItem * TownBulidingsWidget::addBuilding(const CTown & ctown, int bId, s
 			for(int i = 0; i < model.rowCount(pindex); ++i)
 			{
 				QModelIndex index = model.index(i, 0, pindex);
-				if(building->upgrade == model.itemFromIndex(index)->data(Qt::UserRole).toInt())
+				if(building->upgrade.getNum() == model.itemFromIndex(index)->data(Qt::UserRole).toInt())
 				{
 					parent = model.itemFromIndex(index);
 					break;

@@ -77,7 +77,7 @@ void CArtifactsOfHeroBackpack::scrollBackpack(int offset)
 	if(backpackListBox)
 		backpackListBox->resize(getActiveSlotLinesNum());
 	backpackPos += offset;
-	auto slot = ArtifactPosition(GameConstants::BACKPACK_START + backpackPos);
+	auto slot = ArtifactPosition::BACKPACK_START + backpackPos;
 	for(auto artPlace : backpack)
 	{
 		setSlotData(artPlace, slot, *curHero);

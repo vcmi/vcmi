@@ -22,7 +22,7 @@
 
 #include "JsonNode.h"
 
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

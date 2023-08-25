@@ -101,62 +101,53 @@ std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bo
 	}
 	case BonusType::SPELL_DAMAGE_REDUCTION: //Spell damage reduction for all schools
 	{
-		switch(bonus->subtype)
-		{
-		case SpellSchool(ESpellSchool::ANY):
+		if (bonus->subtype == SpellSchool::ANY.getNum())
 			fileName = "E_GOLEM.bmp";
-			break;	
-		case SpellSchool(ESpellSchool::AIR):
+
+		if (bonus->subtype == SpellSchool::AIR.getNum())
 			fileName = "E_LIGHT.bmp";
-			break;
-		case SpellSchool(ESpellSchool::FIRE):
+
+		if (bonus->subtype == SpellSchool::FIRE.getNum())
 			fileName = "E_FIRE.bmp";
-			break;
-		case SpellSchool(ESpellSchool::WATER):
+
+		if (bonus->subtype == SpellSchool::WATER.getNum())
 			fileName = "E_COLD.bmp";
-			break;
-		case SpellSchool(ESpellSchool::EARTH):
+
+		if (bonus->subtype == SpellSchool::EARTH.getNum())
 			fileName = "E_SPEATH1.bmp"; //No separate icon for earth damage
-			break;
-		}
+
 		break;
 	}
 	case BonusType::SPELL_SCHOOL_IMMUNITY: //for all school
 	{
-		switch(bonus->subtype)
-		{
-		case SpellSchool(ESpellSchool::AIR):
+		if (bonus->subtype == SpellSchool::AIR.getNum())
 			fileName = "E_SPAIR.bmp";
-			break;
-		case SpellSchool(ESpellSchool::FIRE):
+
+		if (bonus->subtype == SpellSchool::FIRE.getNum())
 			fileName = "E_SPFIRE.bmp";
-			break;
-		case SpellSchool(ESpellSchool::WATER):
+
+		if (bonus->subtype == SpellSchool::WATER.getNum())
 			fileName = "E_SPWATER.bmp";
-			break;
-		case SpellSchool(ESpellSchool::EARTH):
+
+		if (bonus->subtype == SpellSchool::EARTH.getNum())
 			fileName = "E_SPEATH.bmp";
-			break;
-		}
+
 		break;
 	}
 	case BonusType::NEGATIVE_EFFECTS_IMMUNITY:
 	{
-		switch(bonus->subtype)
-		{
-		case SpellSchool(ESpellSchool::AIR):
+		if (bonus->subtype == SpellSchool::AIR.getNum())
 			fileName = "E_SPAIR1.bmp";
-			break;
-		case SpellSchool(ESpellSchool::FIRE):
+
+		if (bonus->subtype == SpellSchool::FIRE.getNum())
 			fileName = "E_SPFIRE1.bmp";
-			break;
-		case SpellSchool(ESpellSchool::WATER):
+
+		if (bonus->subtype == SpellSchool::WATER.getNum())
 			fileName = "E_SPWATER1.bmp";
-			break;
-		case SpellSchool(ESpellSchool::EARTH):
+
+		if (bonus->subtype == SpellSchool::EARTH.getNum())
 			fileName = "E_SPEATH1.bmp";
-			break;
-		}
+
 		break;
 	}
 	case BonusType::LEVEL_SPELL_IMMUNITY:

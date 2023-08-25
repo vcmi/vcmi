@@ -159,11 +159,11 @@ bool BattleActionProcessor::doDefendAction(const BattleAction & ba)
 
 	//defensive stance, TODO: filter out spell boosts from bonus (stone skin etc.)
 	SetStackEffect sse;
-	Bonus defenseBonusToAdd(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 20, -1, PrimarySkill::DEFENSE, BonusValueType::PERCENT_TO_ALL);
-	Bonus bonus2(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, stack->valOfBonuses(BonusType::DEFENSIVE_STANCE), -1, PrimarySkill::DEFENSE, BonusValueType::ADDITIVE_VALUE);
-	Bonus alternativeWeakCreatureBonus(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 1, -1, PrimarySkill::DEFENSE, BonusValueType::ADDITIVE_VALUE);
+	Bonus defenseBonusToAdd(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 20, -1, static_cast<int32_t>(PrimarySkill::DEFENSE), BonusValueType::PERCENT_TO_ALL);
+	Bonus bonus2(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, stack->valOfBonuses(BonusType::DEFENSIVE_STANCE), -1, static_cast<int32_t>(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
+	Bonus alternativeWeakCreatureBonus(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 1, -1, static_cast<int32_t>(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
 
-	BonusList defence = *stack->getBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::DEFENSE));
+	BonusList defence = *stack->getBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, static_cast<int32_t>(PrimarySkill::DEFENSE)));
 	int oldDefenceValue = defence.totalValue();
 
 	defence.push_back(std::make_shared<Bonus>(defenseBonusToAdd));
@@ -406,10 +406,10 @@ bool BattleActionProcessor::doUnitSpellAction(const BattleAction & ba)
 	std::shared_ptr<const Bonus> spellcaster = stack->getBonus(Selector::typeSubtype(BonusType::SPELLCASTER, spellID));
 
 	//TODO special bonus for genies ability
-	if (randSpellcaster && gameHandler->battleGetRandomStackSpell(gameHandler->getRandomGenerator(), stack, CBattleInfoCallback::RANDOM_AIMED) < 0)
+	if (randSpellcaster && gameHandler->battleGetRandomStackSpell(gameHandler->getRandomGenerator(), stack, CBattleInfoCallback::RANDOM_AIMED) == SpellID::NONE)
 		spellID = gameHandler->battleGetRandomStackSpell(gameHandler->getRandomGenerator(), stack, CBattleInfoCallback::RANDOM_GENIE);
 
-	if (spellID < 0)
+	if (spellID == SpellID::NONE)
 		gameHandler->complain("That stack can't cast spells!");
 	else
 	{
@@ -617,18 +617,18 @@ int BattleActionProcessor::moveStack(int stack, BattleHex dest)
 	if (gameHandler->gameState()->curB->tacticDistance > 0 && creSpeed > 0)
 		creSpeed = GameConstants::BFIELD_SIZE;
 
-	bool hasWideMoat = vstd::contains_if(gameHandler->battleGetAllObstaclesOnPos(BattleHex(ESiegeHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
+	bool hasWideMoat = vstd::contains_if(gameHandler->battleGetAllObstaclesOnPos(BattleHex(BattleHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
 	{
 		return obst->obstacleType == CObstacleInstance::MOAT;
 	});
 
 	auto isGateDrawbridgeHex = [&](BattleHex hex) -> bool
 	{
-		if (hasWideMoat && hex == ESiegeHex::GATE_BRIDGE)
+		if (hasWideMoat && hex == BattleHex::GATE_BRIDGE)
 			return true;
-		if (hex == ESiegeHex::GATE_OUTER)
+		if (hex == BattleHex::GATE_OUTER)
 			return true;
-		if (hex == ESiegeHex::GATE_INNER)
+		if (hex == BattleHex::GATE_INNER)
 			return true;
 
 		return false;
@@ -687,11 +687,11 @@ int BattleActionProcessor::moveStack(int stack, BattleHex dest)
 			{
 				auto needOpenGates = [&](BattleHex hex) -> bool
 				{
-					if (hasWideMoat && hex == ESiegeHex::GATE_BRIDGE)
+					if (hasWideMoat && hex == BattleHex::GATE_BRIDGE)
 						return true;
-					if (hex == ESiegeHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] == ESiegeHex::GATE_OUTER)
+					if (hex == BattleHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] == BattleHex::GATE_OUTER)
 						return true;
-					else if (hex == ESiegeHex::GATE_OUTER || hex == ESiegeHex::GATE_INNER)
+					else if (hex == BattleHex::GATE_OUTER || hex == BattleHex::GATE_INNER)
 						return true;
 
 					return false;
@@ -719,24 +719,24 @@ int BattleActionProcessor::moveStack(int stack, BattleHex dest)
 
 				if (!gateMayCloseAtHex.isValid() && dbState != EGateState::CLOSED)
 				{
-					if (hex == ESiegeHex::GATE_INNER && i-1 >= 0 && path.first[i-1] != ESiegeHex::GATE_OUTER)
+					if (hex == BattleHex::GATE_INNER && i-1 >= 0 && path.first[i-1] != BattleHex::GATE_OUTER)
 					{
 						gateMayCloseAtHex = path.first[i-1];
 					}
 					if (hasWideMoat)
 					{
-						if (hex == ESiegeHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] != ESiegeHex::GATE_OUTER)
+						if (hex == BattleHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] != BattleHex::GATE_OUTER)
 						{
 							gateMayCloseAtHex = path.first[i-1];
 						}
-						else if (hex == ESiegeHex::GATE_OUTER && i-1 >= 0 &&
-							path.first[i-1] != ESiegeHex::GATE_INNER &&
-							path.first[i-1] != ESiegeHex::GATE_BRIDGE)
+						else if (hex == BattleHex::GATE_OUTER && i-1 >= 0 &&
+							path.first[i-1] != BattleHex::GATE_INNER &&
+							path.first[i-1] != BattleHex::GATE_BRIDGE)
 						{
 							gateMayCloseAtHex = path.first[i-1];
 						}
 					}
-					else if (hex == ESiegeHex::GATE_OUTER && i-1 >= 0 && path.first[i-1] != ESiegeHex::GATE_INNER)
+					else if (hex == BattleHex::GATE_OUTER && i-1 >= 0 && path.first[i-1] != BattleHex::GATE_INNER)
 					{
 						gateMayCloseAtHex = path.first[i-1];
 					}
@@ -1216,7 +1216,7 @@ void BattleActionProcessor::handleAfterAttackCasting(bool ranged, const CStack *
 
 		int bonusAdditionalInfo = attacker->getBonus(Selector::type()(BonusType::TRANSMUTATION))->additionalInfo[0];
 
-		if(defender->unitType()->getId() == bonusAdditionalInfo ||
+		if(defender->unitType()->getIndex() == bonusAdditionalInfo ||
 			(bonusAdditionalInfo == CAddInfo::NONE && defender->unitType()->getId() == attacker->unitType()->getId()))
 			return;
 

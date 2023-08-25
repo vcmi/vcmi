@@ -28,7 +28,7 @@ TSubgoal FindObj::whatToDoToAchieve()
 	{
 		for(const CGObjectInstance * obj : ai->visitableObjs)
 		{
-			if(obj->ID == objid && obj->subID == resID)
+			if(obj->ID.getNum() == objid && obj->subID == resID)
 			{
 				o = obj;
 				break; //TODO: consider multiple objects and choose best
@@ -39,7 +39,7 @@ TSubgoal FindObj::whatToDoToAchieve()
 	{
 		for(const CGObjectInstance * obj : ai->visitableObjs)
 		{
-			if(obj->ID == objid)
+			if(obj->ID.getNum() == objid)
 			{
 				o = obj;
 				break; //TODO: consider multiple objects and choose best
@@ -59,7 +59,7 @@ bool FindObj::fulfillsMe(TSubgoal goal)
 		if (!hero || hero == goal->hero)
 			for (auto obj : cb->getVisitableObjs(goal->tile)) //check if any object on that tile matches criteria
 				if (obj->visitablePos() == goal->tile) //object could be removed
-					if (obj->ID == objid && obj->subID == resID) //same type and subtype
+					if (obj->ID.getNum() == objid && obj->subID == resID) //same type and subtype
 						return true;
 	}
 	return false;

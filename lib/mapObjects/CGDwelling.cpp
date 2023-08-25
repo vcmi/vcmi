@@ -173,12 +173,12 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		return;
 	}
 
-	PlayerRelations::PlayerRelations relations = cb->gameState()->getPlayerRelations( h->tempOwner, tempOwner );
+	PlayerRelations relations = cb->gameState()->getPlayerRelations( h->tempOwner, tempOwner );
 
 	if ( relations == PlayerRelations::ALLIES )
 		return;//do not allow recruiting or capturing
 
-	if( !relations  &&  stacksCount() > 0) //object is guarded, owned by enemy
+	if(relations == PlayerRelations::ENEMIES && stacksCount() > 0) //object is guarded, owned by enemy
 	{
 		BlockingDialog bd(true,false);
 		bd.player = h->tempOwner;
@@ -194,7 +194,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	// TODO this shouldn't be hardcoded
-	if(!relations && ID != Obj::WAR_MACHINE_FACTORY && ID != Obj::REFUGEE_CAMP)
+	if(relations == PlayerRelations::ENEMIES && ID != Obj::WAR_MACHINE_FACTORY && ID != Obj::REFUGEE_CAMP)
 	{
 		cb->setOwner(this, h->tempOwner);
 	}

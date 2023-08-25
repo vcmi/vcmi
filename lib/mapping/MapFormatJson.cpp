@@ -32,7 +32,7 @@
 #include "../modding/ModUtility.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
@@ -396,7 +396,7 @@ void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std
 	if(handler.saving)
 	{
 		for(auto faction : VLC->townh->objects)
-			if(faction->town && vstd::contains(value, faction->getIndex()))
+			if(faction->town && vstd::contains(value, faction->getId()))
 				temp[static_cast<std::size_t>(faction->getIndex())] = true;
 	}
 
@@ -1189,8 +1189,8 @@ void CMapLoaderJson::MapObjectLoader::configure()
 
 	if(auto * art = dynamic_cast<CGArtifact *>(instance))
 	{
-		auto artID = ArtifactID::NONE;
-		int spellID = -1;
+		ArtifactID artID = ArtifactID::NONE;
+		SpellID spellID = SpellID::NONE;
 
 		if(art->ID == Obj::SPELL_SCROLL)
 		{
@@ -1208,7 +1208,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 			artID = ArtifactID(art->subID);
 		}
 
-		art->storedArtifact = ArtifactUtils::createArtifact(owner->map, artID, spellID);
+		art->storedArtifact = ArtifactUtils::createArtifact(owner->map, artID, spellID.getNum());
 	}
 
 	if(auto * hero = dynamic_cast<CGHeroInstance *>(instance))

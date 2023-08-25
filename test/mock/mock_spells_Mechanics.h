@@ -18,7 +18,7 @@ namespace spells
 class MechanicsMock : public Mechanics
 {
 public:
-	MOCK_CONST_METHOD2(adaptProblem, bool(ESpellCastProblem::ESpellCastProblem, Problem &));
+	MOCK_CONST_METHOD2(adaptProblem, bool(ESpellCastProblem, Problem &));
 	MOCK_CONST_METHOD1(adaptGenericProblem, bool(Problem &));
 
 	MOCK_CONST_METHOD1(rangeInHexes, std::vector<BattleHex>(BattleHex));

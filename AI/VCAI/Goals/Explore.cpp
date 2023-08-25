@@ -15,7 +15,7 @@
 #include "../FuzzyHelper.h"
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
-#include "../../../lib/StringConstants.h"
+#include "../../../lib/constants/StringConstants.h"
 #include "../../../lib/CPlayerState.h"
 
 using namespace Goals;

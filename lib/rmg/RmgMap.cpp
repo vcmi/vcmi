@@ -269,7 +269,7 @@ bool RmgMap::isRoad(const int3& tile) const
 	return tiles[tile.x][tile.y][tile.z].isRoad();
 }
 
-void RmgMap::setOccupied(const int3 &tile, ETileType::ETileType state)
+void RmgMap::setOccupied(const int3 &tile, ETileType state)
 {
 	assertOnMap(tile);
 	
@@ -342,8 +342,8 @@ ui32 RmgMap::getTotalZoneCount() const
 
 bool RmgMap::isAllowedSpell(const SpellID & sid) const
 {
-	assert(sid >= 0);
-	if (sid < mapInstance->allowedSpells.size())
+	assert(sid.getNum() >= 0);
+	if (sid.getNum() < mapInstance->allowedSpells.size())
 	{
 		return mapInstance->allowedSpells[sid];
 	}

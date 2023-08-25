@@ -26,13 +26,13 @@ namespace detail
 	template<typename T>
 	struct IsRegularClass
 	{
-		static constexpr auto value = std::is_class<T>::value && !std::is_base_of<IdTag, T>::value;
+		static constexpr auto value = std::is_class<T>::value && !std::is_base_of<IdentifierBase, T>::value;
 	};
 
 	template<typename T>
 	struct IsIdClass
 	{
-		static constexpr auto value = std::is_class<T>::value && std::is_base_of<IdTag, T>::value;
+		static constexpr auto value = std::is_class<T>::value && std::is_base_of<IdentifierBase, T>::value;
 	};
 }
 
@@ -78,7 +78,7 @@ public:
 	template<typename T, typename std::enable_if< detail::IsIdClass<T>::value, int>::type = 0>
 	void push(const T & value)
 	{
-		pushInteger(static_cast<lua_Integer>(value.toEnum()));
+		pushInteger(static_cast<lua_Integer>(value.getNum()));
 	}
 
 	template<typename T, typename std::enable_if<detail::IsRegularClass<T>::value, int>::type = 0>

@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "MiscObjects.h"
 
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
@@ -68,14 +68,14 @@ bool CTeamVisited::wasVisited(const TeamID & team) const
 //CGMine
 void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 {
-	int relations = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
+	auto relations = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
 
-	if(relations == 2) //we're visiting our mine
+	if(relations == PlayerRelations::SAME_PLAYER) //we're visiting our mine
 	{
 		cb->showGarrisonDialog(id,h->id,true);
 		return;
 	}
-	else if (relations == 1)//ally
+	else if (relations == PlayerRelations::ALLIES)//ally
 		return;
 
 	if(stacksCount()) //Mine is guarded
@@ -914,7 +914,7 @@ void CGWitchHut::serializeJsonOptions(JsonSerializeFormat & handler)
 
 	if(handler.saving)
 	{
-		for(si32 i = 0; i < skillCount; ++i)
+		for(SecondarySkill i(0); i < SecondarySkill(skillCount); ++i)
 			if(vstd::contains(allowedAbilities, i))
 				temp[i] = true;
 	}
@@ -1088,7 +1088,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	switch (type)
 	{
 	case PRIM_SKILL:
-		cb->changePrimSkill(h,static_cast<PrimarySkill::PrimarySkill>(bid),+1);
+		cb->changePrimSkill(h,static_cast<PrimarySkill>(bid),+1);
 		iw.components.emplace_back(Component::EComponentType::PRIM_SKILL, bid, +1, 0);
 		break;
 	case SECONDARY_SKILL:
@@ -1143,7 +1143,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 		switch(bonusType)
 		{
 		case PRIM_SKILL:
-			value = PrimarySkill::names[bonusID];
+			value = NPrimarySkill::names[bonusID];
 			handler.serializeString("rewardPrimSkill", value);
 			break;
 		case SECONDARY_SKILL:
@@ -1195,15 +1195,15 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 
 void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 {
-	int ally = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
-	if (!ally && stacksCount() > 0) {
+	auto relations = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
+	if (relations == PlayerRelations::ENEMIES && stacksCount() > 0) {
 		//TODO: Find a way to apply magic garrison effects in battle.
 		cb->startBattleI(h, this);
 		return;
 	}
 
 	//New owner.
-	if (!ally)
+	if (relations == PlayerRelations::ENEMIES)
 		cb->setOwner(this, h->tempOwner);
 
 	cb->showGarrisonDialog(id, h->id, removableUnits);
@@ -1291,7 +1291,7 @@ CGBoat::CGBoat()
 {
 	hero = nullptr;
 	direction = 4;
-	layer = EPathfindingLayer::EEPathfindingLayer::SAIL;
+	layer = EPathfindingLayer::SAIL;
 }
 
 bool CGBoat::isCoastVisitable() const

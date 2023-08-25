@@ -177,11 +177,11 @@ void BattleProcessor::updateGateState()
 	// - if Force Field is cast here, bridge can't open (but can close, in any town)
 	// - deals moat damage to attacker if bridge is closed (fortress only)
 
-	bool hasForceFieldOnBridge = !gameHandler->battleGetAllObstaclesOnPos(BattleHex(ESiegeHex::GATE_BRIDGE), true).empty();
-	bool hasStackAtGateInner   = gameHandler->gameState()->curB->battleGetUnitByPos(BattleHex(ESiegeHex::GATE_INNER), false) != nullptr;
-	bool hasStackAtGateOuter   = gameHandler->gameState()->curB->battleGetUnitByPos(BattleHex(ESiegeHex::GATE_OUTER), false) != nullptr;
-	bool hasStackAtGateBridge  = gameHandler->gameState()->curB->battleGetUnitByPos(BattleHex(ESiegeHex::GATE_BRIDGE), false) != nullptr;
-	bool hasWideMoat           = vstd::contains_if(gameHandler->battleGetAllObstaclesOnPos(BattleHex(ESiegeHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
+	bool hasForceFieldOnBridge = !gameHandler->battleGetAllObstaclesOnPos(BattleHex(BattleHex::GATE_BRIDGE), true).empty();
+	bool hasStackAtGateInner   = gameHandler->gameState()->curB->battleGetUnitByPos(BattleHex(BattleHex::GATE_INNER), false) != nullptr;
+	bool hasStackAtGateOuter   = gameHandler->gameState()->curB->battleGetUnitByPos(BattleHex(BattleHex::GATE_OUTER), false) != nullptr;
+	bool hasStackAtGateBridge  = gameHandler->gameState()->curB->battleGetUnitByPos(BattleHex(BattleHex::GATE_BRIDGE), false) != nullptr;
+	bool hasWideMoat           = vstd::contains_if(gameHandler->battleGetAllObstaclesOnPos(BattleHex(BattleHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
 	{
 		return obst->obstacleType == CObstacleInstance::MOAT;
 	});

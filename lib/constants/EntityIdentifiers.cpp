@@ -1,5 +1,5 @@
 /*
- * GameConstants.cpp, part of VCMI engine
+ * EntityIdentifiers.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -7,8 +7,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-#define INSTANTIATE_BASE_FOR_ID_HERE
 
 #include "StdInc.h"
 
@@ -32,7 +30,7 @@
 #include "CCreatureHandler.h"//todo: remove
 #include "spells/CSpellHandler.h" //todo: remove
 #include "CSkillHandler.h"//todo: remove
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
 #include "CGeneralTextHandler.h"
 #include "TerrainHandler.h" //TODO: remove
 #include "BattleFieldHandler.h"
@@ -40,6 +38,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+const QueryID QueryID::NONE = QueryID(-1);
 const HeroTypeID HeroTypeID::NONE = HeroTypeID(-1);
 const ObjectInstanceID ObjectInstanceID::NONE = ObjectInstanceID(-1);
 
@@ -54,6 +53,44 @@ const PlayerColor PlayerColor::UNFLAGGABLE = PlayerColor(254);
 const PlayerColor PlayerColor::NEUTRAL = PlayerColor(255);
 const PlayerColor PlayerColor::PLAYER_LIMIT = PlayerColor(PLAYER_LIMIT_I);
 const TeamID TeamID::NO_TEAM = TeamID(255);
+
+const SpellSchool SpellSchool::ANY = -1;
+const SpellSchool SpellSchool::AIR = 0;
+const SpellSchool SpellSchool::FIRE = 1;
+const SpellSchool SpellSchool::WATER = 2;
+const SpellSchool SpellSchool::EARTH = 3;
+
+const FactionID FactionID::NONE = -2;
+const FactionID FactionID::DEFAULT = -1;
+const FactionID FactionID::RANDOM = -1;
+const FactionID FactionID::ANY = -1;
+const FactionID FactionID::CASTLE = 0;
+const FactionID FactionID::RAMPART = 1;
+const FactionID FactionID::TOWER = 2;
+const FactionID FactionID::INFERNO = 3;
+const FactionID FactionID::NECROPOLIS = 4;
+const FactionID FactionID::DUNGEON = 5;
+const FactionID FactionID::STRONGHOLD = 6;
+const FactionID FactionID::FORTRESS = 7;
+const FactionID FactionID::CONFLUX = 8;
+const FactionID FactionID::NEUTRAL = 9;
+
+const BoatId BoatId::NONE = -1;
+const BoatId BoatId::NECROPOLIS = 0;
+const BoatId BoatId::CASTLE = 1;
+const BoatId BoatId::FORTRESS = 2;
+
+const RiverId RiverId::NO_RIVER = 0;
+const RiverId RiverId::WATER_RIVER = 1;
+const RiverId RiverId::ICY_RIVER = 2;
+const RiverId RiverId::MUD_RIVER = 3;
+const RiverId RiverId::LAVA_RIVER = 4;
+
+const RoadId RoadId::NO_ROAD = 0;
+const RoadId RoadId::DIRT_ROAD = 1;
+const RoadId RoadId::GRAVEL_ROAD = 2;
+const RoadId RoadId::COBBLESTONE_ROAD = 3;
+
 
 namespace GameConstants
 {
@@ -78,17 +115,17 @@ std::string HeroTypeID::encode(const si32 index)
 	return VLC->heroTypes()->getByIndex(index)->getJsonKey();
 }
 
-const CArtifact * ArtifactID::toArtifact() const
+const CArtifact * ArtifactIDBase::toArtifact() const
 {
 	return dynamic_cast<const CArtifact*>(toArtifact(VLC->artifacts()));
 }
 
-const Artifact * ArtifactID::toArtifact(const ArtifactService * service) const
+const Artifact * ArtifactIDBase::toArtifact(const ArtifactService * service) const
 {
-	return service->getById(*this);
+	return service->getByIndex(num);
 }
 
-si32 ArtifactID::decode(const std::string & identifier)
+si32 ArtifactIDBase::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "artifact", identifier);
 	if(rawId)
@@ -97,22 +134,22 @@ si32 ArtifactID::decode(const std::string & identifier)
 		return -1;
 }
 
-std::string ArtifactID::encode(const si32 index)
+std::string ArtifactIDBase::encode(const si32 index)
 {
 	return VLC->artifacts()->getByIndex(index)->getJsonKey();
 }
 
-const CCreature * CreatureID::toCreature() const
+const CCreature * CreatureIDBase::toCreature() const
 {
-	return VLC->creh->objects.at(*this);
+	return VLC->creh->objects.at(num);
 }
 
-const Creature * CreatureID::toCreature(const CreatureService * creatures) const
+const Creature * CreatureIDBase::toCreature(const CreatureService * creatures) const
 {
-	return creatures->getById(*this);
+	return creatures->getByIndex(num);
 }
 
-si32 CreatureID::decode(const std::string & identifier)
+si32 CreatureIDBase::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "creature", identifier);
 	if(rawId)
@@ -121,27 +158,27 @@ si32 CreatureID::decode(const std::string & identifier)
 		return -1;
 }
 
-std::string CreatureID::encode(const si32 index)
+std::string CreatureIDBase::encode(const si32 index)
 {
 	return VLC->creatures()->getById(CreatureID(index))->getJsonKey();
 }
 
-const CSpell * SpellID::toSpell() const
+const CSpell * SpellIDBase::toSpell() const
 {
 	if(num < 0 || num >= VLC->spellh->objects.size())
 	{
 		logGlobal->error("Unable to get spell of invalid ID %d", static_cast<int>(num));
 		return nullptr;
 	}
-	return VLC->spellh->objects[*this];
+	return VLC->spellh->objects[num];
 }
 
-const spells::Spell * SpellID::toSpell(const spells::Service * service) const
+const spells::Spell * SpellIDBase::toSpell(const spells::Service * service) const
 {
-	return service->getById(*this);
+	return service->getByIndex(num);
 }
 
-si32 SpellID::decode(const std::string & identifier)
+si32 SpellIDBase::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "spell", identifier);
 	if(rawId)
@@ -150,7 +187,7 @@ si32 SpellID::decode(const std::string & identifier)
 		return -1;
 }
 
-std::string SpellID::encode(const si32 index)
+std::string SpellIDBase::encode(const si32 index)
 {
 	return VLC->spells()->getByIndex(index)->getJsonKey();
 }
@@ -191,19 +228,6 @@ std::string PlayerColor::getStrCap(bool L10n) const
 	return ret;
 }
 
-const FactionID FactionID::NONE = FactionID(-2);
-const FactionID FactionID::DEFAULT = FactionID(-1);
-const FactionID FactionID::CASTLE = FactionID(0);
-const FactionID FactionID::RAMPART = FactionID(1);
-const FactionID FactionID::TOWER = FactionID(2);
-const FactionID FactionID::INFERNO = FactionID(3);
-const FactionID FactionID::NECROPOLIS = FactionID(4);
-const FactionID FactionID::DUNGEON = FactionID(5);
-const FactionID FactionID::STRONGHOLD = FactionID(6);
-const FactionID FactionID::FORTRESS = FactionID(7);
-const FactionID FactionID::CONFLUX = FactionID(8);
-const FactionID FactionID::NEUTRAL = FactionID(9);
-
 si32 FactionID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
@@ -223,87 +247,26 @@ std::string FactionID::entityType()
 	return "faction";
 }
 
-
-si32 TerrainID::decode(const std::string & identifier)
+si32 TerrainIdBase::decode(const std::string & identifier)
 {
 	auto rawId = VLC->identifiers()->getIdentifier(ModScope::scopeGame(), entityType(), identifier);
 	if(rawId)
 		return rawId.value();
 	else
-		return static_cast<si32>(ETerrainId::NONE);
+		return static_cast<si32>(TerrainId::NONE);
 }
 
-std::string TerrainID::encode(const si32 index)
+std::string TerrainIdBase::encode(const si32 index)
 {
 	return VLC->terrainTypeHandler->getByIndex(index)->getJsonKey();
 }
 
-std::string TerrainID::entityType()
+std::string TerrainIdBase::entityType()
 {
 	return "terrain";
 }
 
-std::ostream & operator<<(std::ostream & os, const EActionType actionType)
-{
-	static const std::map<EActionType, std::string> actionTypeToString =
-	{
-		{EActionType::END_TACTIC_PHASE, "End tactic phase"},
-		{EActionType::NO_ACTION, "No action"},
-		{EActionType::HERO_SPELL, "Hero spell"},
-		{EActionType::WALK, "Walk"},
-		{EActionType::DEFEND, "Defend"},
-		{EActionType::RETREAT, "Retreat"},
-		{EActionType::SURRENDER, "Surrender"},
-		{EActionType::WALK_AND_ATTACK, "Walk and attack"},
-		{EActionType::SHOOT, "Shoot"},
-		{EActionType::WAIT, "Wait"},
-		{EActionType::CATAPULT, "Catapult"},
-		{EActionType::MONSTER_SPELL, "Monster spell"},
-		{EActionType::BAD_MORALE, "Bad morale"},
-		{EActionType::STACK_HEAL, "Stack heal"},
-	};
-
-	auto it = actionTypeToString.find(actionType);
-	if (it == actionTypeToString.end()) return os << "<Unknown type>";
-	else return os << it->second;
-}
-
-std::ostream & operator<<(std::ostream & os, const EPathfindingLayer & pathfindingLayer)
-{
-	static const std::map<EPathfindingLayer::EEPathfindingLayer, std::string> pathfinderLayerToString
-	{
-	#define DEFINE_ELEMENT(element) {EPathfindingLayer::element, #element}
-		DEFINE_ELEMENT(WRONG),
-		DEFINE_ELEMENT(AUTO),
-		DEFINE_ELEMENT(LAND),
-		DEFINE_ELEMENT(SAIL),
-		DEFINE_ELEMENT(WATER),
-		DEFINE_ELEMENT(AIR),
-		DEFINE_ELEMENT(NUM_LAYERS)
-	#undef DEFINE_ELEMENT
-	};
-
-	auto it = pathfinderLayerToString.find(pathfindingLayer.num);
-	if (it == pathfinderLayerToString.end()) return os << "<Unknown type>";
-	else return os << it->second;
-}
-
 const BattleField BattleField::NONE;
-
-bool operator==(const BattleField & l, const BattleField & r)
-{
-	return l.num == r.num;
-}
-
-bool operator!=(const BattleField & l, const BattleField & r)
-{
-	return l.num != r.num;
-}
-
-bool operator<(const BattleField & l, const BattleField & r)
-{
-	return l.num < r.num;
-}
 
 const BattleFieldInfo * BattleField::getInfo() const
 {

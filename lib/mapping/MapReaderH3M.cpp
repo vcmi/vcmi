@@ -65,10 +65,10 @@ ArtifactID MapReaderH3M::readArtifact()
 	else
 		result = ArtifactID(reader->readUInt8());
 
-	if(result == features.artifactIdentifierInvalid)
+	if(result.getNum() == features.artifactIdentifierInvalid)
 		return ArtifactID::NONE;
 
-	if (result < features.artifactsCount)
+	if (result.getNum() < features.artifactsCount)
 		return remapIdentifier(result);
 
 	logGlobal->warn("Map contains invalid artifact %d. Will be removed!", result.getNum());
@@ -82,7 +82,7 @@ ArtifactID MapReaderH3M::readArtifact32()
 	if(result == ArtifactID::NONE)
 		return ArtifactID::NONE;
 
-	if (result < features.artifactsCount)
+	if (result.getNum() < features.artifactsCount)
 		return remapIdentifier(result);
 
 	logGlobal->warn("Map contains invalid artifact %d. Will be removed!", result.getNum());
@@ -120,17 +120,17 @@ CreatureID MapReaderH3M::readCreature()
 	else
 		result = CreatureID(reader->readUInt8());
 
-	if(result == features.creatureIdentifierInvalid)
+	if(result.getNum() == features.creatureIdentifierInvalid)
 		return CreatureID::NONE;
 
-	if(result < features.creaturesCount)
+	if(result.getNum() < features.creaturesCount)
 		return remapIdentifier(result);;
 
 	// this may be random creature in army/town, to be randomized later
 	CreatureID randomIndex(result.getNum() - features.creatureIdentifierInvalid - 1);
 	assert(randomIndex < CreatureID::NONE);
 
-	if (randomIndex > -16)
+	if (randomIndex.getNum() > -16)
 		return randomIndex;
 
 	logGlobal->warn("Map contains invalid creature %d. Will be removed!", result.getNum());
@@ -147,42 +147,42 @@ TerrainId MapReaderH3M::readTerrain()
 RoadId MapReaderH3M::readRoad()
 {
 	RoadId result(readInt8());
-	assert(result < Road::ORIGINAL_ROAD_COUNT);
+	assert(result.getNum() < features.roadsCount);
 	return result;
 }
 
 RiverId MapReaderH3M::readRiver()
 {
 	RiverId result(readInt8());
-	assert(result < River::ORIGINAL_RIVER_COUNT);
+	assert(result.getNum() < features.riversCount);
 	return result;
 }
 
 SecondarySkill MapReaderH3M::readSkill()
 {
 	SecondarySkill result(readUInt8());
-	assert(result < features.skillsCount);
+	assert(result.getNum() < features.skillsCount);
 	return remapIdentifier(result);;
 }
 
 SpellID MapReaderH3M::readSpell()
 {
 	SpellID result(readUInt8());
-	if(result == features.spellIdentifierInvalid)
+	if(result.getNum() == features.spellIdentifierInvalid)
 		return SpellID::NONE;
-	if(result == features.spellIdentifierInvalid - 1)
+	if(result.getNum() == features.spellIdentifierInvalid - 1)
 		return SpellID::PRESET;
 
-	assert(result < features.spellsCount);
+	assert(result.getNum() < features.spellsCount);
 	return remapIdentifier(result);;
 }
 
 SpellID MapReaderH3M::readSpell32()
 {
 	SpellID result(readInt32());
-	if(result == features.spellIdentifierInvalid)
+	if(result.getNum() == features.spellIdentifierInvalid)
 		return SpellID::NONE;
-	assert(result < features.spellsCount);
+	assert(result.getNum() < features.spellsCount);
 	return result;
 }
 

@@ -215,7 +215,7 @@ void CMapLoaderH3M::readPlayerInfo()
 			continue;
 		}
 
-		playerInfo.aiTactic = static_cast<EAiTactic::EAiTactic>(reader->readUInt8());
+		playerInfo.aiTactic = static_cast<EAiTactic>(reader->readUInt8());
 
 		if(features.levelSOD)
 			reader->skipUnused(1); //TODO: check meaning?
@@ -861,7 +861,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		{
 			for(int skillID = 0; skillID < GameConstants::PRIMARY_SKILLS; skillID++)
 			{
-				hero->pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(skillID), reader->readUInt8());
+				hero->pushPrimSkill(static_cast<PrimarySkill>(skillID), reader->readUInt8());
 			}
 		}
 		map->predefinedHeroes.emplace_back(hero);
@@ -898,7 +898,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 	int amount = reader->readUInt16();
 	for(int i = 0; i < amount; ++i)
 	{
-		loadArtifactToSlot(hero, GameConstants::BACKPACK_START + static_cast<int>(hero->artifactsInBackpack.size()));
+		loadArtifactToSlot(hero, ArtifactPosition::BACKPACK_START + static_cast<int>(hero->artifactsInBackpack.size()));
 	}
 }
 
@@ -917,7 +917,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 		return false;
 	}
 
-	if(art->isBig() && slot >= GameConstants::BACKPACK_START)
+	if(art->isBig() && slot >= ArtifactPosition::BACKPACK_START)
 	{
 		logGlobal->warn("Map '%s': A big artifact (war machine) in hero's backpack, ignoring...", mapName);
 		return false;
@@ -1029,7 +1029,7 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 
 	object->primskills.resize(GameConstants::PRIMARY_SKILLS);
 	for(int x = 0; x < GameConstants::PRIMARY_SKILLS; ++x)
-		object->primskills[x] = static_cast<PrimarySkill::PrimarySkill>(reader->readUInt8());
+		object->primskills[x] = reader->readUInt8();
 
 	int gabn = reader->readUInt8(); //number of gained abilities
 	for(int oo = 0; oo < gabn; ++oo)
@@ -1159,8 +1159,8 @@ CGObjectInstance * CMapLoaderH3M::readGarrison(const int3 & mapPosition)
 
 CGObjectInstance * CMapLoaderH3M::readArtifact(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto artID = ArtifactID::NONE; //random, set later
-	int spellID = -1;
+	ArtifactID artID = ArtifactID::NONE; //random, set later
+	SpellID spellID = SpellID::NONE;
 	auto * object = new CGArtifact();
 
 	readMessageAndGuards(object->message, object, mapPosition);
@@ -1176,7 +1176,7 @@ CGObjectInstance * CMapLoaderH3M::readArtifact(const int3 & mapPosition, std::sh
 		artID = ArtifactID(objectTemplate->subid);
 	}
 
-	object->storedArtifact = ArtifactUtils::createArtifact(map, artID, spellID);
+	object->storedArtifact = ArtifactUtils::createArtifact(map, artID, spellID.getNum());
 	return object;
 }
 
@@ -1652,7 +1652,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 	for(auto & elem : map->disposedHeroes)
 	{
-		if(elem.heroId == object->subID)
+		if(elem.heroId.getNum() == object->subID)
 		{
 			object->nameCustom = elem.name;
 			object->portrait = elem.portrait;
@@ -1768,7 +1768,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 
 			for(int xx = 0; xx < GameConstants::PRIMARY_SKILLS; ++xx)
 			{
-				object->pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(xx), reader->readUInt8());
+				object->pushPrimSkill(static_cast<PrimarySkill>(xx), reader->readUInt8());
 			}
 		}
 	}

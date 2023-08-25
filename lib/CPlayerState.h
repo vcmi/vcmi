@@ -16,6 +16,7 @@
 #include "bonuses/CBonusSystemNode.h"
 #include "ResourceSet.h"
 #include "TurnTimerInfo.h"
+#include "ConstTransitivePtr.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -38,7 +39,7 @@ public:
 	std::vector<QuestInfo> quests; //store info about all received quests
 
 	bool enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
-	EPlayerStatus::EStatus status;
+	EPlayerStatus status;
 	std::optional<ui8> daysWithoutCastle;
 	TurnTimerInfo turnTimer;
 

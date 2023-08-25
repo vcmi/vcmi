@@ -727,7 +727,7 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 			pset.castle = pinfo.defaultCastle();
 			pset.hero = pinfo.defaultHero();
 
-			if(pset.hero != PlayerSettings::RANDOM && pinfo.hasCustomMainHero())
+			if(pset.hero.getNum() != PlayerSettings::RANDOM && pinfo.hasCustomMainHero())
 			{
 				pset.hero = pinfo.mainCustomHeroId;
 				pset.heroName = pinfo.mainCustomHeroName;
@@ -840,10 +840,10 @@ void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 	auto & allowed = getPlayerInfo(player.getNum()).allowedFactions;
 	const bool allowRandomTown = getPlayerInfo(player.getNum()).isFactionRandom;
 
-	if(cur == PlayerSettings::NONE) //no change
+	if(cur.getNum() == PlayerSettings::NONE) //no change
 		return;
 
-	if(cur == PlayerSettings::RANDOM) //first/last available
+	if(cur.getNum() == PlayerSettings::RANDOM) //first/last available
 	{
 		if(dir > 0)
 			cur = *allowed.begin(); //id of first town
@@ -876,11 +876,11 @@ void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 		}
 	}
 
-	if(s.hero >= 0 && !getPlayerInfo(player.getNum()).hasCustomMainHero()) // remove hero unless it set to fixed one in map editor
+	if(s.hero.getNum() >= 0 && !getPlayerInfo(player.getNum()).hasCustomMainHero()) // remove hero unless it set to fixed one in map editor
 	{
 		s.hero = PlayerSettings::RANDOM;
 	}
-	if(cur < 0 && s.bonus == PlayerSettings::RESOURCE)
+	if(cur.getNum() < 0 && s.bonus == PlayerSettings::RESOURCE)
 		s.bonus = PlayerSettings::RANDOM;
 }
 
@@ -890,7 +890,7 @@ void CVCMIServer::optionSetCastle(PlayerColor player, int id)
 	FactionID & cur = s.castle;
 	auto & allowed = getPlayerInfo(player.getNum()).allowedFactions;
 
-	if(cur == PlayerSettings::NONE) //no change
+	if(cur.getNum() == PlayerSettings::NONE) //no change
 		return;
 
 	if(allowed.find(static_cast<FactionID>(id)) == allowed.end() && id != PlayerSettings::RANDOM) // valid id
@@ -898,11 +898,11 @@ void CVCMIServer::optionSetCastle(PlayerColor player, int id)
 
 	cur = static_cast<FactionID>(id);
 
-	if(s.hero >= 0 && !getPlayerInfo(player.getNum()).hasCustomMainHero()) // remove hero unless it set to fixed one in map editor
+	if(s.hero.getNum() >= 0 && !getPlayerInfo(player.getNum()).hasCustomMainHero()) // remove hero unless it set to fixed one in map editor
 	{
 		s.hero = PlayerSettings::RANDOM;
 	}
-	if(cur < 0 && s.bonus == PlayerSettings::RESOURCE)
+	if(cur.getNum() < 0 && s.bonus == PlayerSettings::RESOURCE)
 		s.bonus = PlayerSettings::RANDOM;
 }
 
@@ -935,10 +935,10 @@ void CVCMIServer::setCampaignBonus(int bonusId)
 void CVCMIServer::optionNextHero(PlayerColor player, int dir)
 {
 	PlayerSettings & s = si->playerInfos[player];
-	if(s.castle < 0 || s.hero == PlayerSettings::NONE)
+	if(s.castle.getNum() < 0 || s.hero.getNum() == PlayerSettings::NONE)
 		return;
 
-	if(s.hero == PlayerSettings::RANDOM) // first/last available
+	if(s.hero.getNum() == PlayerSettings::RANDOM) // first/last available
 	{
 		int max = static_cast<int>(VLC->heroh->size()),
 			min = 0;
@@ -956,7 +956,7 @@ void CVCMIServer::optionNextHero(PlayerColor player, int dir)
 void CVCMIServer::optionSetHero(PlayerColor player, int id)
 {
 	PlayerSettings & s = si->playerInfos[player];
-	if(s.castle < 0 || s.hero == PlayerSettings::NONE)
+	if(s.castle.getNum() < 0 || s.hero.getNum() == PlayerSettings::NONE)
 		return;
 
 	if(id == PlayerSettings::RANDOM)
@@ -967,19 +967,19 @@ void CVCMIServer::optionSetHero(PlayerColor player, int id)
 		s.hero = static_cast<HeroTypeID>(id);
 }
 
-int CVCMIServer::nextAllowedHero(PlayerColor player, int min, int max, int incl, int dir)
+HeroTypeID CVCMIServer::nextAllowedHero(PlayerColor player, int min, int max, int incl, int dir)
 {
 	if(dir > 0)
 	{
 		for(int i = min + incl; i <= max - incl; i++)
 			if(canUseThisHero(player, i))
-				return i;
+				return HeroTypeID(i);
 	}
 	else
 	{
 		for(int i = max - incl; i >= min + incl; i--)
 			if(canUseThisHero(player, i))
-				return i;
+				return HeroTypeID(i);
 	}
 	return -1;
 }
@@ -989,7 +989,7 @@ void CVCMIServer::optionNextBonus(PlayerColor player, int dir)
 	PlayerSettings & s = si->playerInfos[player];
 	PlayerSettings::Ebonus & ret = s.bonus = static_cast<PlayerSettings::Ebonus>(static_cast<int>(s.bonus) + dir);
 
-	if(s.hero == PlayerSettings::NONE &&
+	if(s.hero.getNum() == PlayerSettings::NONE &&
 		!getPlayerInfo(player.getNum()).heroesNames.size() &&
 		ret == PlayerSettings::ARTIFACT) //no hero - can't be artifact
 	{
@@ -1004,7 +1004,7 @@ void CVCMIServer::optionNextBonus(PlayerColor player, int dir)
 	if(ret < PlayerSettings::RANDOM)
 		ret = PlayerSettings::RESOURCE;
 
-	if(s.castle == PlayerSettings::RANDOM && ret == PlayerSettings::RESOURCE) //random castle - can't be resource
+	if(s.castle.getNum() == PlayerSettings::RANDOM && ret == PlayerSettings::RESOURCE) //random castle - can't be resource
 	{
 		if(dir < 0)
 			ret = PlayerSettings::GOLD;
@@ -1017,7 +1017,7 @@ void CVCMIServer::optionSetBonus(PlayerColor player, int id)
 {
 	PlayerSettings & s = si->playerInfos[player];
 
-	if(s.hero == PlayerSettings::NONE &&
+	if(s.hero.getNum() == PlayerSettings::NONE &&
 		!getPlayerInfo(player.getNum()).heroesNames.size() &&
 		id == PlayerSettings::ARTIFACT) //no hero - can't be artifact
 			return;
@@ -1027,7 +1027,7 @@ void CVCMIServer::optionSetBonus(PlayerColor player, int id)
 	if(id < PlayerSettings::RANDOM)
 		return;
 
-	if(s.castle == PlayerSettings::RANDOM && id == PlayerSettings::RESOURCE) //random castle - can't be resource
+	if(s.castle.getNum() == PlayerSettings::RANDOM && id == PlayerSettings::RESOURCE) //random castle - can't be resource
 		return;
 
 	s.bonus = static_cast<PlayerSettings::Ebonus>(static_cast<int>(id));
@@ -1051,7 +1051,7 @@ std::vector<int> CVCMIServer::getUsedHeroes()
 			if(hero.heroId >= 0) //in VCMI map format heroId = -1 means random hero
 				heroIds.push_back(hero.heroId);
 
-		if(p.second.hero != PlayerSettings::RANDOM)
+		if(p.second.hero.getNum() != PlayerSettings::RANDOM)
 			heroIds.push_back(p.second.hero);
 	}
 	return heroIds;

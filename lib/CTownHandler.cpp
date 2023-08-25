@@ -13,7 +13,7 @@
 #include "VCMI_Lib.h"
 #include "CGeneralTextHandler.h"
 #include "JsonNode.h"
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
 #include "CCreatureHandler.h"
 #include "CHeroHandler.h"
 #include "CArtHandler.h"
@@ -82,7 +82,7 @@ std::string CBuilding::getDescriptionTextID() const
 BuildingID CBuilding::getBase() const
 {
 	const CBuilding * build = this;
-	while (build->upgrade >= 0)
+	while (build->upgrade != BuildingID::NONE)
 	{
 		build = build->town->buildings.at(build->upgrade);
 	}
@@ -94,7 +94,7 @@ si32 CBuilding::getDistance(const BuildingID & buildID) const
 {
 	const CBuilding * build = town->buildings.at(buildID);
 	int distance = 0;
-	while (build->upgrade >= 0 && build != this)
+	while (build->upgrade != BuildingID::NONE && build != this)
 	{
 		build = build->town->buildings.at(build->upgrade);
 		distance++;
@@ -184,9 +184,9 @@ EAlignment CFaction::getAlignment() const
 	return alignment;
 }
 
-EBoatId CFaction::getBoatType() const
+BoatId CFaction::getBoatType() const
 {
-	return boatType.toEnum();
+	return boatType;
 }
 
 TerrainId CFaction::getNativeTerrain() const
@@ -265,7 +265,7 @@ const CBuilding * CTown::getSpecialBuilding(BuildingSubID::EBuildingSubID subID)
 	return nullptr;
 }
 
-BuildingID::EBuildingID CTown::getBuildingType(BuildingSubID::EBuildingSubID subID) const
+BuildingID CTown::getBuildingType(BuildingSubID::EBuildingSubID subID) const
 {
 	const auto * building = getSpecialBuilding(subID);
 	return building == nullptr ? BuildingID::NONE : building->bid.num;
@@ -527,13 +527,13 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building) const
 		b = createBonus(building, BonusType::LUCK, +2);
 		break;
 	case BuildingSubID::SPELL_POWER_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, PrimarySkill::SPELL_POWER);
+		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, static_cast<int>(PrimarySkill::SPELL_POWER));
 		break;
 	case BuildingSubID::ATTACK_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, PrimarySkill::ATTACK);
+		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, static_cast<int>(PrimarySkill::ATTACK));
 		break;
 	case BuildingSubID::DEFENSE_GARRISON_BONUS:
-		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, PrimarySkill::DEFENSE);
+		b = createBonus(building, BonusType::PRIMARY_SKILL, +2, static_cast<int>(PrimarySkill::DEFENSE));
 		break;
 	case BuildingSubID::LIGHTHOUSE:
 		b = createBonus(building, BonusType::MOVEMENT, +500, playerPropagator, 0);
@@ -1034,7 +1034,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	faction->creatureBg120 = source["creatureBackground"]["120px"].String();
 	faction->creatureBg130 = source["creatureBackground"]["130px"].String();
 
-	faction->boatType = EBoatId::CASTLE; //Do not crash
+	faction->boatType = BoatId::CASTLE; //Do not crash
 	if (!source["boat"].isNull())
 	{
 		VLC->identifiers()->requestIdentifier("core:boat", source["boat"], [=](int32_t boatTypeID)

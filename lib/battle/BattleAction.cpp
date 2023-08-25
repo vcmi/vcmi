@@ -122,9 +122,6 @@ BattleAction BattleAction::makeRetreat(ui8 side)
 
 std::string BattleAction::toString() const
 {
-	std::stringstream actionTypeStream;
-	actionTypeStream << actionType;
-
 	std::stringstream targetStream;
 
 	for(const DestinationInfo & info : target)
@@ -143,7 +140,7 @@ std::string BattleAction::toString() const
 	}
 
 	boost::format fmt("{BattleAction: side '%d', stackNumber '%d', actionType '%s', actionSubtype '%d', target {%s}}");
-	fmt % static_cast<int>(side) % stackNumber % actionTypeStream.str() % spell.getNum() % targetStream.str();
+	fmt % static_cast<int>(side) % stackNumber % static_cast<int>(actionType) % spell.getNum() % targetStream.str();
 	return fmt.str();
 }
 

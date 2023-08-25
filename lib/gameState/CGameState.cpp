@@ -107,7 +107,7 @@ static CGObjectInstance * createObject(const Obj & id, int subid, const int3 & p
 HeroTypeID CGameState::pickNextHeroType(const PlayerColor & owner)
 {
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
-	if(ps.hero >= 0 && !isUsedHero(HeroTypeID(ps.hero))) //we haven't used selected hero
+	if(ps.hero >= HeroTypeID(0) && !isUsedHero(HeroTypeID(ps.hero))) //we haven't used selected hero
 	{
 		return HeroTypeID(ps.hero);
 	}
@@ -356,7 +356,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	}
 }
 
-int CGameState::getDate(Date::EDateType mode) const
+int CGameState::getDate(Date mode) const
 {
 	int temp;
 	switch (mode)
@@ -697,7 +697,7 @@ void CGameState::initRandomFactionsForPlayers()
 	logGlobal->debug("\tPicking random factions for players");
 	for(auto & elem : scenarioOps->playerInfos)
 	{
-		if(elem.second.castle==-1)
+		if(elem.second.castle==FactionID::RANDOM)
 		{
 			auto randomID = getRandomGenerator().nextInt((int)map->players[elem.first.getNum()].allowedFactions.size() - 1);
 			auto iter = map->players[elem.first.getNum()].allowedFactions.begin();
@@ -777,7 +777,7 @@ void CGameState::placeStartingHeroes()
 				continue;
 
 			int heroTypeId = pickNextHeroType(playerColor);
-			if(playerSettingPair.second.hero == -1)
+			if(playerSettingPair.second.hero == HeroTypeID::NONE)
 				playerSettingPair.second.hero = heroTypeId;
 
 			placeStartingHero(playerColor, HeroTypeID(heroTypeId), playerInfo.posOfMainTown);
@@ -1297,7 +1297,7 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance &stack) const
 	return ret;
 }
 
-PlayerRelations::PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
+PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
 {
 	if ( color1 == color2 )
 		return PlayerRelations::SAME_PLAYER;
@@ -1575,7 +1575,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 					&& (ai = dynamic_cast<const CArmedInstance *>(object.get()))) //contains army
 				{
 					for(const auto & elem : ai->Slots()) //iterate through army
-						if(elem.second->type->getId() == condition.objectType) //it's searched creature
+						if(elem.second->type->getIndex() == condition.objectType) //it's searched creature
 							total += elem.second->count;
 				}
 			}
@@ -1615,7 +1615,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 			{
 				for(const auto & elem : map->objects) // mode B - destroy all objects of this type
 				{
-					if(elem && elem->ID == condition.objectType)
+					if(elem && elem->ID.getNum() == condition.objectType)
 						return false;
 				}
 				return true;
@@ -1636,7 +1636,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 				for(const auto & elem : map->objects) // mode B - flag all objects of this type
 				{
 					 //check not flagged objs
-					if ( elem && elem->ID == condition.objectType && team.count(elem->tempOwner) == 0 )
+					if ( elem && elem->ID.getNum() == condition.objectType && team.count(elem->tempOwner) == 0 )
 						return false;
 				}
 				return true;
@@ -2063,7 +2063,7 @@ std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllow
 
 	for(const auto & playerSettingPair : scenarioOps->playerInfos) //remove uninitialized yet heroes picked for start by other players
 	{
-		if(playerSettingPair.second.hero != PlayerSettings::RANDOM)
+		if(playerSettingPair.second.hero.getNum() != PlayerSettings::RANDOM)
 			ret -= HeroTypeID(playerSettingPair.second.hero);
 	}
 

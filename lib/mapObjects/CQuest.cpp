@@ -23,7 +23,7 @@
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../GameConstants.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../CSkillHandler.h"
 #include "../mapping/CMap.h"
 #include "../modding/ModScope.h"
@@ -131,7 +131,7 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 		case MISSION_PRIMARY_STAT:
 			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
 			{
-				if(h->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(i)) < static_cast<int>(m2stats[i]))
+				if(h->getPrimSkillLevel(static_cast<PrimarySkill>(i)) < static_cast<int>(m2stats[i]))
 					return false;
 			}
 			return true;
@@ -503,7 +503,7 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 				m2stats.resize(GameConstants::PRIMARY_SKILLS);
 
 			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
-				handler.serializeInt(PrimarySkill::names[i], m2stats[i], 0);
+				handler.serializeInt(NPrimarySkill::names[i], m2stats[i], 0);
 		}
 		break;
 	case MISSION_KILL_HERO:
@@ -814,7 +814,7 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 						for(const auto & ci : parts)
 						{
 							if(ci.art->getTypeId() != elem)
-								cb->giveHeroNewArtifact(h, ci.art->artType, GameConstants::BACKPACK_START);
+								cb->giveHeroNewArtifact(h, ci.art->artType, ArtifactPosition::BACKPACK_START);
 						}
 					}
 				}
@@ -865,7 +865,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			cb->giveResource(h->getOwner(), static_cast<EGameResID>(rID), rVal);
 			break;
 		case PRIMARY_SKILL:
-			cb->changePrimSkill(h, static_cast<PrimarySkill::PrimarySkill>(rID), rVal, false);
+			cb->changePrimSkill(h, static_cast<PrimarySkill>(rID), rVal, false);
 			break;
 		case SECONDARY_SKILL:
 			cb->changeSecSkill(h, SecondarySkill(rID), rVal, false);
@@ -982,7 +982,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 			identifier = GameConstants::RESOURCE_NAMES[rID];
 			break;
 		case PRIMARY_SKILL:
-			identifier = PrimarySkill::names[rID];
+			identifier = NPrimarySkill::names[rID];
 			break;
 		case SECONDARY_SKILL:
 			identifier = CSkillHandler::encodeSkill(rID);

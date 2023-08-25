@@ -16,7 +16,7 @@
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
 #include "../../../lib/mapObjects/CGMarket.h"
-#include "../../../lib/StringConstants.h"
+#include "../../../lib/constants/StringConstants.h"
 
 using namespace Goals;
 
@@ -170,10 +170,10 @@ TSubgoal CollectRes::whatToDoToTrade()
 		int howManyCanWeBuy = 0;
 		for (GameResID i = EGameResID::WOOD; i <= EGameResID::GOLD; ++i)
 		{
-			if (GameResID(i) == resID)
+			if (i.getNum() == resID)
 				continue;
 			int toGive = -1, toReceive = -1;
-			m->getOffer(GameResID(i), resID, toGive, toReceive, EMarketMode::RESOURCE_RESOURCE);
+			m->getOffer(i, resID, toGive, toReceive, EMarketMode::RESOURCE_RESOURCE);
 			assert(toGive > 0 && toReceive > 0);
 			howManyCanWeBuy += toReceive * (ai->ah->freeResources()[i] / toGive);
 		}

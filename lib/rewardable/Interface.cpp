@@ -57,7 +57,7 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameCallback * cb, const R
 	}
 
 	for(int i=0; i< info.reward.primary.size(); i++)
-		cb->changePrimSkill(hero, static_cast<PrimarySkill::PrimarySkill>(i), info.reward.primary[i], false);
+		cb->changePrimSkill(hero, static_cast<PrimarySkill>(i), info.reward.primary[i], false);
 
 	si64 expToGive = 0;
 

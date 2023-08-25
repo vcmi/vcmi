@@ -215,7 +215,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	{
 		NewObject no;
 		no.ID = Obj::BOAT;
-		no.subID = BoatId(EBoatId::NECROPOLIS);
+		no.subID = BoatId::NECROPOLIS;
 		no.targetPos = summonPos;
 		env->apply(&no);
 	}

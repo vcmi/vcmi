@@ -33,16 +33,16 @@ DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtAnyPosition(const CArtifactSet
 DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtBackpackPosition(const CArtifactSet * target, const ArtifactID & aid)
 {
 	const auto * art = aid.toArtifact();
-	if(art->canBePutAt(target, GameConstants::BACKPACK_START))
+	if(art->canBePutAt(target, ArtifactPosition::BACKPACK_START))
 	{
-		return GameConstants::BACKPACK_START;
+		return ArtifactPosition::BACKPACK_START;
 	}
 	return ArtifactPosition::PRE_FIRST;
 }
 
-DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & ArtifactUtils::unmovableSlots()
+DLL_LINKAGE const std::vector<ArtifactPosition> & ArtifactUtils::unmovableSlots()
 {
-	static const std::vector<ArtifactPosition::EArtifactPosition> positions =
+	static const std::vector<ArtifactPosition> positions =
 	{
 		ArtifactPosition::SPELLBOOK,
 		ArtifactPosition::MACH4
@@ -51,9 +51,9 @@ DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & ArtifactUti
 	return positions;
 }
 
-DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & ArtifactUtils::constituentWornSlots()
+DLL_LINKAGE const std::vector<ArtifactPosition> & ArtifactUtils::constituentWornSlots()
 {
-	static const std::vector<ArtifactPosition::EArtifactPosition> positions =
+	static const std::vector<ArtifactPosition> positions =
 	{
 		ArtifactPosition::HEAD,
 		ArtifactPosition::SHOULDERS,
@@ -98,12 +98,12 @@ DLL_LINKAGE bool ArtifactUtils::checkSpellbookIsNeeded(const CGHeroInstance * he
 
 DLL_LINKAGE bool ArtifactUtils::isSlotBackpack(const ArtifactPosition & slot)
 {
-	return slot >= GameConstants::BACKPACK_START;
+	return slot >= ArtifactPosition::BACKPACK_START;
 }
 
 DLL_LINKAGE bool ArtifactUtils::isSlotEquipment(const ArtifactPosition & slot)
 {
-	return slot < GameConstants::BACKPACK_START && slot >= 0;
+	return slot < ArtifactPosition::BACKPACK_START && slot >= ArtifactPosition(0);
 }
 
 DLL_LINKAGE bool ArtifactUtils::isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots)
@@ -190,18 +190,18 @@ DLL_LINKAGE CArtifactInstance * ArtifactUtils::createNewArtifactInstance(const A
 	return ArtifactUtils::createNewArtifactInstance(VLC->arth->objects[aid]);
 }
 
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const ArtifactID & aid, int spellID)
+DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(CMap * map, const ArtifactID & aid, SpellID spellID)
 {
 	CArtifactInstance * art = nullptr;
-	if(aid >= 0)
+	if(aid.getNum() >= 0)
 	{
-		if(spellID < 0)
+		if(spellID == SpellID::NONE)
 		{
 			art = ArtifactUtils::createNewArtifactInstance(aid);
 		}
 		else
 		{
-			art = ArtifactUtils::createScroll(SpellID(spellID));
+			art = ArtifactUtils::createScroll(spellID);
 		}
 	}
 	else

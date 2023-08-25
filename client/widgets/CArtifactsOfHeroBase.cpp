@@ -63,7 +63,7 @@ void CArtifactsOfHeroBase::init(
 	// CArtifactsOfHeroBase::init may be transform to CArtifactsOfHeroBase::CArtifactsOfHeroBase if OBJECT_CONSTRUCTION_CAPTURING is removed
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	pos += position;
-	for(int g = 0; g < GameConstants::BACKPACK_START; g++)
+	for(int g = 0; g < ArtifactPosition::BACKPACK_START; g++)
 	{
 		artWorn[ArtifactPosition(g)] = std::make_shared<CHeroArtPlace>(slotPos[g]);
 	}
@@ -143,7 +143,7 @@ void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSe
 	};
 	slotInc inc_ring = [artsInBackpack](ArtifactPosition & slot) -> ArtifactPosition
 	{
-		return ArtifactPosition(GameConstants::BACKPACK_START + (slot - GameConstants::BACKPACK_START + 1) % artsInBackpack);
+		return ArtifactPosition::BACKPACK_START + (slot - ArtifactPosition::BACKPACK_START + 1) % artsInBackpack;
 	};
 	slotInc inc;
 	if(scrollingPossible)
@@ -158,7 +158,7 @@ void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSe
 	if(artsInBackpack)
 		backpackPos %= artsInBackpack;
 
-	auto slot = ArtifactPosition(GameConstants::BACKPACK_START + backpackPos);
+	auto slot = ArtifactPosition(ArtifactPosition::BACKPACK_START + backpackPos);
 	for(auto artPlace : backpack)
 	{
 		setSlotData(artPlace, slot, artSet);

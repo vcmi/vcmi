@@ -15,7 +15,7 @@
 
 #include "JsonNode.h"
 #include "CRandomGenerator.h"
-#include "StringConstants.h"
+#include "constants/StringConstants.h"
 #include "VCMI_Lib.h"
 #include "CArtHandler.h"
 #include "CCreatureHandler.h"
@@ -119,7 +119,7 @@ namespace JsonRandom
 		std::vector<si32> ret;
 		if(value.isStruct())
 		{
-			for(const auto & name : PrimarySkill::names)
+			for(const auto & name : NPrimarySkill::names)
 			{
 				ret.push_back(loadValue(value[name], rng));
 			}
@@ -127,12 +127,12 @@ namespace JsonRandom
 		if(value.isVector())
 		{
 			ret.resize(GameConstants::PRIMARY_SKILLS, 0);
-			std::set<std::string> defaultStats(std::begin(PrimarySkill::names), std::end(PrimarySkill::names));
+			std::set<std::string> defaultStats(std::begin(NPrimarySkill::names), std::end(NPrimarySkill::names));
 			for(const auto & element : value.Vector())
 			{
 				auto key = loadKey(element, rng, defaultStats);
 				defaultStats.erase(key);
-				int id = vstd::find_pos(PrimarySkill::names, key);
+				int id = vstd::find_pos(NPrimarySkill::names, key);
 				if(id != -1)
 					ret[id] += loadValue(element, rng);
 			}
@@ -195,10 +195,10 @@ namespace JsonRandom
 				allowedClasses.insert(CArtHandler::stringToClass(entry.String()));
 
 		if (value["slot"].getType() == JsonNode::JsonType::DATA_STRING)
-			allowedPositions.insert(ArtifactPosition(value["class"].String()));
+			allowedPositions.insert(ArtifactPosition::decode(value["class"].String()));
 		else
 			for(const auto & entry : value["slot"].Vector())
-				allowedPositions.insert(ArtifactPosition(entry.String()));
+				allowedPositions.insert(ArtifactPosition::decode(entry.String()));
 
 		if (!value["minValue"].isNull()) minValue = static_cast<ui32>(value["minValue"].Float());
 		if (!value["maxValue"].isNull()) maxValue = static_cast<ui32>(value["maxValue"].Float());

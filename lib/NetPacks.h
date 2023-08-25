@@ -232,7 +232,7 @@ struct DLL_LINKAGE SetPrimSkill : public CPackForClient
 
 	ui8 abs = 0; //0 - changes by value; 1 - sets to value
 	ObjectInstanceID id;
-	PrimarySkill::PrimarySkill which = PrimarySkill::ATTACK;
+	PrimarySkill which = PrimarySkill::ATTACK;
 	si64 val = 0;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
@@ -1318,7 +1318,7 @@ struct DLL_LINKAGE HeroLevelUp : public Query
 	PlayerColor player;
 	ObjectInstanceID heroId;
 
-	PrimarySkill::PrimarySkill primskill = PrimarySkill::ATTACK;
+	PrimarySkill primskill = PrimarySkill::ATTACK;
 	std::vector<SecondarySkill> skills;
 
 	void applyGs(CGameState * gs) const;
@@ -2425,7 +2425,7 @@ struct DLL_LINKAGE TradeOnMarketplace : public CPackForServer
 	ObjectInstanceID marketId;
 	ObjectInstanceID heroId;
 
-	EMarketMode::EMarketMode mode = EMarketMode::RESOURCE_RESOURCE;
+	EMarketMode mode = EMarketMode::RESOURCE_RESOURCE;
 	std::vector<ui32> r1, r2; //mode 0: r1 - sold resource, r2 - bought res (exception: when sacrificing art r1 is art id [todo: make r2 preferred slot?]
 	std::vector<ui32> val; //units of sold resource
 

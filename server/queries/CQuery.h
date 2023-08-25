@@ -21,6 +21,7 @@ VCMI_LIB_NAMESPACE_END
 class CObjectVisitQuery;
 class QueriesProcessor;
 class CQuery;
+class CGameHandler;
 
 using QueryPtr = std::shared_ptr<CQuery>;
 

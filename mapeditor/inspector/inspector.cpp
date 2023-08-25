@@ -284,7 +284,7 @@ void Inspector::updateProperties(CGArtifact * o)
 	if(instance)
 	{
 		SpellID spellId = instance->getScrollSpellID();
-		if(spellId != -1)
+		if(spellId != SpellID::NONE)
 		{
 			auto * delegate = new InspectorDelegate;
 			for(auto spell : VLC->spellh->objects)

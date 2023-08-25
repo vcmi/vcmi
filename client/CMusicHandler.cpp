@@ -19,7 +19,7 @@
 #include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/StringConstants.h"
+#include "../lib/constants/StringConstants.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/TerrainHandler.h"

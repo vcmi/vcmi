@@ -356,7 +356,7 @@ void Object::Instance::finalize(RmgMap & map)
 
 	for(const auto & tile : getBlockedArea().getTilesVector())
 	{
-		map.setOccupied(tile, ETileType::ETileType::USED);
+		map.setOccupied(tile, ETileType::USED);
 	}
 	
 	map.getMapProxy()->insertObject(&dObject);

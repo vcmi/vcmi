@@ -183,7 +183,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 
 	// close window from another player
 	if(auto w = GH.windows().topWindow<CInfoWindow>())
-		if(w->ID == -1 && player != playerID)
+		if(w->ID == QueryID::NONE && player != playerID)
 			w->close();
 	
 	// remove all dialogs that do not expect query answer
@@ -466,10 +466,10 @@ void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 	GH.windows().pushWindow(newCastleInt);
 }
 
-void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
+void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (which == 4)
+	if (which == PrimarySkill::EXPERIENCE)
 	{
 		for (auto ctw : GH.windows().findWindows<CAltarWindow>())
 			ctw->setExpToLevel();
@@ -510,7 +510,7 @@ void CPlayerInterface::receivedResource()
 	GH.windows().totalRedraw();
 }
 
-void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill>& skills, QueryID queryID)
+void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill>& skills, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
@@ -854,7 +854,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br, QueryID queryID)
 
 		if(!battleInt)
 		{
-			bool allowManualReplay = queryID != -1;
+			bool allowManualReplay = queryID != QueryID::NONE;
 
 			auto wnd = std::make_shared<BattleResultWindow>(*br, *this, allowManualReplay);
 

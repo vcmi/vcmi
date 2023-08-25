@@ -125,7 +125,7 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLe
 
 		for (int i = 0; i < GameConstants::PRIMARY_SKILLS ; i++)
 		{
-			details->primskills[i] = h->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(i));
+			details->primskills[i] = h->getPrimSkillLevel(static_cast<PrimarySkill>(i));
 		}
 		if (infoLevel == EInfoLevel::INBATTLE)
 			details->manaLimit = h->manaLimit();

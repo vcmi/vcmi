@@ -55,7 +55,7 @@ public:
 			CreatureID idNumber;
 			h & idNumber;
 			if(idNumber != CreatureID::NONE)
-				setType(dynamic_cast<const CCreature*>(VLC->creatures()->getByIndex(idNumber)));
+				setType(dynamic_cast<const CCreature*>(VLC->creatures()->getById(idNumber)));
 			else
 				type = nullptr;
 		}

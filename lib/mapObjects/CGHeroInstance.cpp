@@ -35,7 +35,7 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../modding/ModScope.h"
-#include "../StringConstants.h"
+#include "../constants/StringConstants.h"
 #include "../battle/Unit.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -315,7 +315,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 	{
 		for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
 		{
-			pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(g), type->heroClass->primarySkillInitial[g]);
+			pushPrimSkill(static_cast<PrimarySkill>(g), type->heroClass->primarySkillInitial[g]);
 		}
 	}
 	if(secSkills.size() == 1 && secSkills[0] == std::pair<SecondarySkill,ui8>(SecondarySkill::DEFAULT, -1)) //set secondary skills to default
@@ -456,7 +456,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 
 	if (ID == Obj::HERO)
 	{
-		if( cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner)) //our or ally hero
+		if( cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner) != PlayerRelations::ENEMIES)
 		{
 			//exchange
 			cb->heroExchange(h->id, id);
@@ -824,7 +824,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
 		const std::map<ui32,si32> &casualties = battleResult.casualties[!battleResult.winner];
 		// figure out what to raise - pick strongest creature meeting requirements
-		auto creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
+		CreatureID creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
 		int requiredCasualtyLevel = 1;
 		TConstBonusListPtr improvedNecromancy = getBonuses(Selector::type()(BonusType::IMPROVED_NECROMANCY));
 		if(!improvedNecromancy->empty())
@@ -997,11 +997,11 @@ int32_t CGHeroInstance::getSpellCost(const spells::Spell * sp) const
 	return sp->getCost(getSpellSchoolLevel(sp));
 }
 
-void CGHeroInstance::pushPrimSkill( PrimarySkill::PrimarySkill which, int val )
+void CGHeroInstance::pushPrimSkill( PrimarySkill which, int val )
 {
-	assert(!hasBonus(Selector::typeSubtype(BonusType::PRIMARY_SKILL, which)
+	assert(!hasBonus(Selector::typeSubtype(BonusType::PRIMARY_SKILL, static_cast<int>(which))
 						.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL))));
-	addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::HERO_BASE_SKILL, val, id.getNum(), which));
+	addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::HERO_BASE_SKILL, val, id.getNum(), static_cast<int>(which)));
 }
 
 EAlignment CGHeroInstance::getAlignment() const
@@ -1314,7 +1314,7 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() 
 	return skills;
 }
 
-PrimarySkill::PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & rand) const
+PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & rand) const
 {
 	assert(gainsLevel());
 	int randomValue = rand.nextInt(99);
@@ -1338,7 +1338,7 @@ PrimarySkill::PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & r
 		randomValue = 100 / GameConstants::PRIMARY_SKILLS;
 	}
 	logGlobal->trace("The hero gets the primary skill %d with a probability of %d %%.", primarySkill, randomValue);
-	return static_cast<PrimarySkill::PrimarySkill>(primarySkill);
+	return static_cast<PrimarySkill>(primarySkill);
 }
 
 std::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill(CRandomGenerator & rand) const
@@ -1372,12 +1372,12 @@ std::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill(CRandomGenerato
 	return chosenSecondarySkill;
 }
 
-void CGHeroInstance::setPrimarySkill(PrimarySkill::PrimarySkill primarySkill, si64 value, ui8 abs)
+void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 abs)
 {
 	if(primarySkill < PrimarySkill::EXPERIENCE)
 	{
 		auto skill = getBonusLocalFirst(Selector::type()(BonusType::PRIMARY_SKILL)
-			.And(Selector::subtype()(primarySkill))
+			.And(Selector::subtype()(static_cast<int>(primarySkill)))
 			.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)));
 		assert(skill);
 
@@ -1578,7 +1578,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 			{
 				int value = valOfBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, i).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)));
 
-				handler.serializeInt(PrimarySkill::names[i], value, 0);
+				handler.serializeInt(NPrimarySkill::names[i], value, 0);
 			}
 		}
 	}
@@ -1591,8 +1591,8 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
 			{
 				int value = 0;
-				handler.serializeInt(PrimarySkill::names[i], value, 0);
-				pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(i), value);
+				handler.serializeInt(NPrimarySkill::names[i], value, 0);
+				pushPrimSkill(static_cast<PrimarySkill>(i), value);
 			}
 		}
 	}

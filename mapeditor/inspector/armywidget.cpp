@@ -80,7 +80,7 @@ bool ArmyWidget::commitChanges()
 	for(int i = 0; i < TOTAL_SLOTS; ++i)
 	{
 		CreatureID creId(uiSlots[i]->itemData(uiSlots[i]->currentIndex()).toInt());
-		if(creId == -1)
+		if(creId == CreatureID::NONE)
 		{
 			if(army.hasStackAtSlot(SlotID(i)))
 				army.eraseStack(SlotID(i));
