@@ -478,7 +478,7 @@
 				},
 				"defaultRepositoryURL" : {
 					"type" : "string",
-					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.3.json",
+					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.4.json",
 				},
 				"extraRepositoryEnabled" : {
 					"type" : "boolean",
