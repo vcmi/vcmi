@@ -78,7 +78,7 @@ OptionsTab::OptionsTab() : humanPlayers(0)
 		int time = parseTimerString(str) * 1000;
 		if(time >= 0)
 		{
-			TurnTimerInfo tinfo;
+			TurnTimerInfo tinfo = CSH->si->turnTimerInfo;
 			tinfo.baseTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
 		}
@@ -87,7 +87,7 @@ OptionsTab::OptionsTab() : humanPlayers(0)
 		int time = parseTimerString(str) * 1000;
 		if(time >= 0)
 		{
-			TurnTimerInfo tinfo;
+			TurnTimerInfo tinfo = CSH->si->turnTimerInfo;
 			tinfo.turnTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
 		}
@@ -96,7 +96,7 @@ OptionsTab::OptionsTab() : humanPlayers(0)
 		int time = parseTimerString(str) * 1000;
 		if(time >= 0)
 		{
-			TurnTimerInfo tinfo;
+			TurnTimerInfo tinfo = CSH->si->turnTimerInfo;
 			tinfo.battleTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
 		}
@@ -105,7 +105,7 @@ OptionsTab::OptionsTab() : humanPlayers(0)
 		int time = parseTimerString(str) * 1000;
 		if(time >= 0)
 		{
-			TurnTimerInfo tinfo;
+			TurnTimerInfo tinfo = CSH->si->turnTimerInfo;
 			tinfo.creatureTimer = time;
 			CSH->setTurnTimerInfo(tinfo);
 		}
