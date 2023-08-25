@@ -15,10 +15,32 @@
 
 #include "../JsonNode.h"
 #include "../VCMI_Lib.h"
+#include "../constants/StringConstants.h"
+#include "../spells/CSpellHandler.h"
 
 #include <vstd/StringUtils.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+CIdentifierStorage::CIdentifierStorage()
+{
+	//TODO: moddable spell schools
+	for (auto i = 0; i < GameConstants::DEFAULT_SCHOOLS; ++i)
+		registerObject(ModScope::scopeBuiltin(), "spellSchool", SpellConfig::SCHOOL[i].jsonName, SpellConfig::SCHOOL[i].id);
+
+	registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool(ESpellSchool::ANY));
+
+	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
+	{
+		registerObject(ModScope::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);
+	}
+
+	for(int i=0; i<GameConstants::PRIMARY_SKILLS; ++i)
+	{
+		registerObject(ModScope::scopeBuiltin(), "primSkill", NPrimarySkill::names[i], i);
+		registerObject(ModScope::scopeBuiltin(), "primarySkill", NPrimarySkill::names[i], i);
+	}
+}
 
 void CIdentifierStorage::checkIdentifier(std::string & ID)
 {

@@ -73,7 +73,7 @@ class DLL_LINKAGE CIdentifierStorage
 	std::vector<ObjectData> getPossibleIdentifiers(const ObjectCallback & callback) const;
 
 public:
-	CIdentifierStorage() = default;
+	CIdentifierStorage();
 	virtual ~CIdentifierStorage() = default;
 
 	/// request identifier for specific object name.

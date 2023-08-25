@@ -54,12 +54,8 @@ class DLL_LINKAGE CModHandler : boost::noncopyable
 	/// Attempt to set active mods according to provided list of mods from save, throws on failure
 	void trySetActiveMods(std::vector<TModID> saveActiveMods, const std::map<TModID, CModVersion> & modList);
 
-	std::unique_ptr<CIdentifierStorage> identifiers;
-
 public:
 	std::shared_ptr<CContentHandler> content; //(!)Do not serialize FIXME: make private
-
-	CIdentifierStorage & getIdentifiers();
 
 	/// receives list of available mods and trying to load mod.json from all of them
 	void initializeConfig();
@@ -109,8 +105,6 @@ public:
 
 			trySetActiveMods(saveActiveMods, modVersions);
 		}
-
-		h & identifiers;
 	}
 };
 
