@@ -37,7 +37,7 @@ public:
 	std::vector<const CRmgTemplate *> getTemplates() const;
 
 private:
-	std::map<std::string, CRmgTemplate> templates;
+	std::map<std::string, std::unique_ptr<CRmgTemplate>> templates;
 };
 
 
