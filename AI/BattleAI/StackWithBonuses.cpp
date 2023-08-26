@@ -45,11 +45,30 @@ StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle:
 	id(Stack->unitId()),
 	side(Stack->unitSide()),
 	player(Stack->unitOwner()),
-	slot(Stack->unitSlot())
+	slot(Stack->unitSlot()),
+	treeVersionLocal(0)
 {
 	localInit(Owner);
 
 	battle::CUnitState::operator=(*Stack);
+}
+
+StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle::Unit * Stack)
+	: battle::CUnitState(),
+	origBearer(Stack->getBonusBearer()),
+	owner(Owner),
+	type(Stack->unitType()),
+	baseAmount(Stack->unitBaseAmount()),
+	id(Stack->unitId()),
+	side(Stack->unitSide()),
+	player(Stack->unitOwner()),
+	slot(Stack->unitSlot()),
+	treeVersionLocal(0)
+{
+	localInit(Owner);
+
+	auto state = Stack->acquireState();
+	battle::CUnitState::operator=(*state);
 }
 
 StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle::UnitInfo & info)
@@ -59,7 +78,8 @@ StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle:
 	baseAmount(info.count),
 	id(info.id),
 	side(info.side),
-	slot(SlotID::SUMMONED_SLOT_PLACEHOLDER)
+	slot(SlotID::SUMMONED_SLOT_PLACEHOLDER),
+	treeVersionLocal(0)
 {
 	type = info.type.toCreature();
 	origBearer = type;
@@ -124,7 +144,7 @@ TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, c
 
 	for(const Bonus & bonus : bonusesToUpdate)
 	{
-		if(selector(&bonus) && (!limit || !limit(&bonus)))
+		if(selector(&bonus) && (!limit || limit(&bonus)))
 		{
 			if(ret->getFirst(Selector::source(BonusSource::SPELL_EFFECT, bonus.sid).And(Selector::typeSubtype(bonus.type, bonus.subtype))))
 			{
@@ -150,12 +170,18 @@ TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, c
 
 int64_t StackWithBonuses::getTreeVersion() const
 {
-	return owner->getTreeVersion();
+	auto result = owner->getTreeVersion();
+
+	if(bonusesToAdd.empty() && bonusesToUpdate.empty() && bonusesToRemove.empty())
+		return result;
+	else
+		return result + treeVersionLocal;
 }
 
 void StackWithBonuses::addUnitBonus(const std::vector<Bonus> & bonus)
 {
 	vstd::concatenate(bonusesToAdd, bonus);
+	treeVersionLocal++;
 }
 
 void StackWithBonuses::updateUnitBonus(const std::vector<Bonus> & bonus)
@@ -163,6 +189,7 @@ void StackWithBonuses::updateUnitBonus(const std::vector<Bonus> & bonus)
 	//TODO: optimize, actualize to last value
 
 	vstd::concatenate(bonusesToUpdate, bonus);
+	treeVersionLocal++;
 }
 
 void StackWithBonuses::removeUnitBonus(const std::vector<Bonus> & bonus)
@@ -197,6 +224,8 @@ void StackWithBonuses::removeUnitBonus(const CSelector & selector)
 
 	vstd::erase_if(bonusesToAdd, [&](const Bonus & b){return selector(&b);});
 	vstd::erase_if(bonusesToUpdate, [&](const Bonus & b){return selector(&b);});
+
+	treeVersionLocal++;
 }
 
 std::string StackWithBonuses::getDescription() const
@@ -256,7 +285,7 @@ std::shared_ptr<StackWithBonuses> HypotheticBattle::getForUpdate(uint32_t id)
 
 	if(iter == stackStates.end())
 	{
-		const CStack * s = subject->battleGetStackByID(id, false);
+		const battle::Unit * s = subject->battleGetUnitByID(id);
 
 		auto ret = std::make_shared<StackWithBonuses>(this, s);
 		stackStates[id] = ret;

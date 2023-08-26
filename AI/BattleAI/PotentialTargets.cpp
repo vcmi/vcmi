@@ -11,11 +11,14 @@
 #include "PotentialTargets.h"
 #include "../../lib/CStack.h"//todo: remove
 
-PotentialTargets::PotentialTargets(const battle::Unit * attacker, const HypotheticBattle & state)
+PotentialTargets::PotentialTargets(
+	const battle::Unit * attacker,
+	DamageCache & damageCache,
+	std::shared_ptr<HypotheticBattle> state)
 {
-	auto attackerInfo = state.battleGetUnitByID(attacker->unitId());
-	auto reachability = state.getReachability(attackerInfo);
-	auto avHexes = state.battleGetAvailableHexes(reachability, attackerInfo, false);
+	auto attackerInfo = state->battleGetUnitByID(attacker->unitId());
+	auto reachability = state->getReachability(attackerInfo);
+	auto avHexes = state->battleGetAvailableHexes(reachability, attackerInfo, false);
 
 	//FIXME: this should part of battleGetAvailableHexes
 	bool forceTarget = false;
@@ -25,7 +28,7 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 	if(attackerInfo->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE))
 	{
 		forceTarget = true;
-		auto nearest = state.getNearestStack(attackerInfo);
+		auto nearest = state->getNearestStack(attackerInfo);
 
 		if(nearest.first != nullptr)
 		{
@@ -34,14 +37,14 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 		}
 	}
 
-	auto aliveUnits = state.battleGetUnitsIf([=](const battle::Unit * unit)
+	auto aliveUnits = state->battleGetUnitsIf([=](const battle::Unit * unit)
 	{
 		return unit->isValidTarget() && unit->unitId() != attackerInfo->unitId();
 	});
 
 	for(auto defender : aliveUnits)
 	{
-		if(!forceTarget && !state.battleMatchOwner(attackerInfo, defender))
+		if(!forceTarget && !state->battleMatchOwner(attackerInfo, defender))
 			continue;
 
 		auto GenerateAttackInfo = [&](bool shooting, BattleHex hex) -> AttackPossibility
@@ -49,7 +52,7 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 			int distance = hex.isValid() ? reachability.distances[hex] : 0;
 			auto bai = BattleAttackInfo(attackerInfo, defender, distance, shooting);
 
-			return AttackPossibility::evaluate(bai, hex, state);
+			return AttackPossibility::evaluate(bai, hex, damageCache, state);
 		};
 
 		if(forceTarget)
@@ -59,7 +62,7 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 			else
 				unreachableEnemies.push_back(defender);
 		}
-		else if(state.battleCanShoot(attackerInfo, defender->getPosition()))
+		else if(state->battleCanShoot(attackerInfo, defender->getPosition()))
 		{
 			possibleAttacks.push_back(GenerateAttackInfo(true, BattleHex::INVALID));
 		}
