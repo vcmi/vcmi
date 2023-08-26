@@ -41,7 +41,7 @@ void TurnTimerWidget::DrawRect::showAll(Canvas & to)
 
 TurnTimerWidget::TurnTimerWidget():
 	InterfaceObjectConfigurable(TIME),
-	turnTime(0), lastTurnTime(0), cachedTurnTime(0)
+	turnTime(0), lastTurnTime(0), cachedTurnTime(0), lastPlayer(PlayerColor::CANNOT_DETERMINE)
 {
 	REGISTER_BUILDER("drawRect", &TurnTimerWidget::buildDrawRect);
 	
@@ -73,8 +73,8 @@ void TurnTimerWidget::show(Canvas & to)
 void TurnTimerWidget::setTime(PlayerColor player, int time)
 {
 	int newTime = time / 1000;
-	if(player == LOCPLINT->playerID)
-	   && (newTime != turnTime)
+	if(player == LOCPLINT->playerID
+	   && newTime != turnTime
 	   && notifications.count(newTime))
 	{
 		CCS->soundh->playSound(variables["notificationSound"].String());
@@ -117,6 +117,12 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 		cachedTurnTime -= msPassed;
 		if(cachedTurnTime < 0) cachedTurnTime = 0; //do not go below zero
 		
+		if(lastPlayer != player)
+		{
+			lastPlayer = player;
+			lastTurnTime = 0;
+		}
+		
 		auto timeCheckAndUpdate = [&](int time)
 		{
 			if(time / 1000 != lastTurnTime / 1000)
@@ -130,7 +136,7 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 		};
 		
 		auto * playerInfo = LOCPLINT->cb->getPlayer(player);
-		if(playerInfo && playerInfo->isHuman())
+		if(player.isValidPlayer() || (playerInfo && playerInfo->isHuman()))
 		{
 			if(LOCPLINT->battleInt)
 			{
