@@ -870,7 +870,15 @@
 	},
 	"marketOfTime" : { // Unused/not implemented H3 object present on some RoE maps
 		"index" :50,
-		"handler": "generic"
+		"handler": "generic",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"aiValue" : 0,
+				"rmg" : {
+				}
+			}
+		}
 	},
 	"tavern" : {
 		"index" :95,
