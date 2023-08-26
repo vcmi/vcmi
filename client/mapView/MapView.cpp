@@ -87,7 +87,7 @@ void MapView::tick(uint32_t msPassed)
 {
 	postSwipe(msPassed);
 
-	controller->tick(msPassed);
+	BasicMapView::tick(msPassed);
 }
 
 void MapView::show(Canvas & to)
@@ -123,7 +123,7 @@ void MapView::onMapScrolled(const Point & distance)
 
 void MapView::onMapSwiped(const Point & viewPosition)
 {
-	swipeHistory[GH.input().getTicks()] = viewPosition;
+	swipeHistory.push_back(std::pair<uint32_t, Point>(GH.input().getTicks(), viewPosition));
 
 	controller->setViewCenter(model->getMapViewCenter() + viewPosition, model->getLevel());
 }
@@ -150,7 +150,8 @@ void MapView::postSwipe(uint32_t msPassed) {
 			postSwipeSpeed = static_cast<double>(diff.length()) / static_cast<double>(timediff); // unit: pixel/millisecond			
 		}
 		swipeHistory.clear();
-	}
+	} else
+		postSwipeSpeed = 0.0;
 	if(postSwipeSpeed > 0.1) {
 		double len = postSwipeSpeed * static_cast<double>(msPassed);
 		Point delta = Point(len * cos(postSwipeAngle), len * sin(postSwipeAngle));

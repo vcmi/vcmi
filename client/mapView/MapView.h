@@ -49,9 +49,9 @@ class MapView : public BasicMapView
 {
 	std::shared_ptr<MapViewActions> actions;
 
-	std::map<uint32_t, Point> swipeHistory;
-	double postSwipeAngle;
-	double postSwipeSpeed;
+	std::vector<std::pair<uint32_t, Point>> swipeHistory;
+	double postSwipeAngle = 0.0;
+	double postSwipeSpeed = 0.0;
 
 	void postSwipe(uint32_t msPassed);
 
