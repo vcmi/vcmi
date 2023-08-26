@@ -62,15 +62,13 @@ class CBattleAI : public CBattleGameInterface
 	bool wasWaitingForRealize;
 	bool wasUnlockingGs;
 	int movesSkippedByDefense;
+	bool skipCastUntilNextBattle;
 
 public:
 	CBattleAI();
 	~CBattleAI();
 
 	void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB) override;
-	bool attemptCastingSpell();
-
-	void evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps); //for offensive damaging spells only
 
 	void activeStack(const CStack * stack) override; //called when it's turn of that stack
 	void yourTacticPhase(int distance) override;
@@ -80,8 +78,6 @@ public:
 	void print(const std::string &text) const;
 	BattleAction useCatapult(const CStack *stack);
 	BattleAction useHealingTent(const CStack *stack);
-	BattleAction selectStackAction(const CStack * stack);
-	std::optional<PossibleSpellcast> findBestCreatureSpell(const CStack *stack);
 
 	void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool Side, bool replayAllowed) override;
 	//void actionFinished(const BattleAction &action) override;//occurs AFTER every action taken by any stack or by the hero
@@ -98,8 +94,4 @@ public:
 	//void battleTriggerEffect(const BattleTriggerEffect & bte) override;
 	//void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override; //called by engine when battle starts; side=0 - left, side=1 - right
 	//void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
-
-private:
-	BattleAction goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes) const;
-	std::vector<BattleHex> getBrokenWallMoatHexes() const;
 };
