@@ -156,7 +156,9 @@ void TurnTimerHandler::onBattleLoop(int waitTime)
 		if(tTimer.creatureTimer > 0)
 		{
 			tTimer.creatureTimer -= waitTime;
-			int frequency = (tTimer.creatureTimer > turnTimePropagateThreshold ? turnTimePropagateFrequency : turnTimePropagateFrequencyCrit);
+			int frequency = (tTimer.creatureTimer > turnTimePropagateThreshold
+							 && si->turnTimerInfo.creatureTimer - tTimer.creatureTimer > turnTimePropagateThreshold)
+			? turnTimePropagateFrequency : turnTimePropagateFrequencyCrit;
 			
 			if(state.status == EPlayerStatus::INGAME //do not send message if player is not active already
 			   && tTimer.creatureTimer % frequency == 0)
