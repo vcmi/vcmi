@@ -26,63 +26,65 @@ TurnTimerHandler::TurnTimerHandler(CGameHandler & gh):
 	
 }
 
-void TurnTimerHandler::onGameplayStart(PlayerState & state)
+void TurnTimerHandler::onGameplayStart(PlayerColor player)
 {
 	if(const auto * si = gameHandler.getStartInfo())
 	{
 		if(si->turnTimerInfo.isEnabled())
 		{
-			state.turnTimer = si->turnTimerInfo;
-			state.turnTimer.turnTimer = 0;
+			timers[player] = si->turnTimerInfo;
+			timers[player].turnTimer = 0;
 		}
 	}
 }
 
-void TurnTimerHandler::onPlayerGetTurn(PlayerState & state)
+void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
 {
 	if(const auto * si = gameHandler.getStartInfo())
 	{
 		if(si->turnTimerInfo.isEnabled())
 		{
-			state.turnTimer.baseTimer += state.turnTimer.turnTimer;
-			state.turnTimer.turnTimer = si->turnTimerInfo.turnTimer;
+			timers[player].baseTimer += timers[player].turnTimer;
+			timers[player].turnTimer = si->turnTimerInfo.turnTimer;
 			
 			TurnTimeUpdate ttu;
-			ttu.player = state.color;
-			ttu.turnTimer = state.turnTimer;
+			ttu.player = player;
+			ttu.turnTimer = timers[player];
 			gameHandler.sendAndApply(&ttu);
 		}
 	}
 }
 
-void TurnTimerHandler::onPlayerMakingTurn(PlayerState & state, int waitTime)
+void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 {
 	const auto * gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
 	if(!si || !gs)
 		return;
 	
+	auto & state = gs->players.at(player);
+	
 	if(state.human && si->turnTimerInfo.isEnabled() && !gs->curB)
 	{
-		if(state.turnTimer.turnTimer > 0)
+		if(timers[player].turnTimer > 0)
 		{
-			state.turnTimer.turnTimer -= waitTime;
-			int frequency = (state.turnTimer.creatureTimer > turnTimePropagateThreshold ? turnTimePropagateFrequency : turnTimePropagateFrequencyCrit);
+			timers[player].turnTimer -= waitTime;
+			int frequency = (timers[player].turnTimer > turnTimePropagateThreshold ? turnTimePropagateFrequency : turnTimePropagateFrequencyCrit);
 			
 			if(state.status == EPlayerStatus::INGAME //do not send message if player is not active already
-			   && state.turnTimer.turnTimer % frequency == 0)
+			   && timers[player].turnTimer % frequency == 0)
 			{
 				TurnTimeUpdate ttu;
 				ttu.player = state.color;
-				ttu.turnTimer = state.turnTimer;
+				ttu.turnTimer = timers[player];
 				gameHandler.sendAndApply(&ttu);
 			}
 		}
-		else if(state.turnTimer.baseTimer > 0)
+		else if(timers[player].baseTimer > 0)
 		{
-			state.turnTimer.turnTimer = state.turnTimer.baseTimer;
-			state.turnTimer.baseTimer = 0;
-			onPlayerMakingTurn(state, waitTime);
+			timers[player].turnTimer = timers[player].baseTimer;
+			timers[player].baseTimer = 0;
+			onPlayerMakingTurn(player, 0);
 		}
 		else if(!gameHandler.queries->topQuery(state.color)) //wait for replies to avoid pending queries
 			gameHandler.turnOrder->onPlayerEndsTurn(state.color);
@@ -103,12 +105,12 @@ void TurnTimerHandler::onBattleStart()
 	{
 		if(i.isValidPlayer())
 		{
-			const auto & state = gs->players.at(i);
+			timers[i].battleTimer = si->turnTimerInfo.battleTimer;
+			timers[i].creatureTimer = si->turnTimerInfo.creatureTimer;
+			
 			TurnTimeUpdate ttu;
-			ttu.player = state.color;
-			ttu.turnTimer = state.turnTimer;
-			ttu.turnTimer.battleTimer = si->turnTimerInfo.battleTimer;
-			ttu.turnTimer.creatureTimer = si->turnTimerInfo.creatureTimer;
+			ttu.player = i;
+			ttu.turnTimer = timers[i];
 			gameHandler.sendAndApply(&ttu);
 		}
 	}
@@ -118,24 +120,22 @@ void TurnTimerHandler::onBattleNextStack(const CStack & stack)
 {
 	const auto * gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
-	if(!si || !gs || !gs->curB)
+	if(!si || !gs || !gs->curB || !si->turnTimerInfo.isBattleEnabled())
 		return;
 	
-	if(!stack.getOwner().isValidPlayer())
+	auto player = stack.getOwner();
+	
+	if(!player.isValidPlayer())
 		return;
-	
-	const auto & state = gs->players.at(stack.getOwner());
-	
-	if(si->turnTimerInfo.isBattleEnabled())
-	{
-		TurnTimeUpdate ttu;
-		ttu.player = state.color;
-		ttu.turnTimer = state.turnTimer;
-		if(state.turnTimer.battleTimer < si->turnTimerInfo.battleTimer)
-			ttu.turnTimer.battleTimer = ttu.turnTimer.creatureTimer;
-		ttu.turnTimer.creatureTimer = si->turnTimerInfo.creatureTimer;
-		gameHandler.sendAndApply(&ttu);
-	}
+		
+	if(timers[player].battleTimer < si->turnTimerInfo.battleTimer)
+		timers[player].battleTimer = timers[player].creatureTimer;
+	timers[player].creatureTimer = si->turnTimerInfo.creatureTimer;
+		
+	TurnTimeUpdate ttu;
+	ttu.player = player;
+	ttu.turnTimer = timers[player];
+	gameHandler.sendAndApply(&ttu);
 }
 
 void TurnTimerHandler::onBattleLoop(int waitTime)
@@ -151,20 +151,19 @@ void TurnTimerHandler::onBattleLoop(int waitTime)
 	
 	auto & state = gs->players.at(gs->curB->getSidePlayer(stack->unitSide()));
 	
-	auto turnTimerUpdateApplier = [&](const TurnTimerInfo & tTimer)
+	auto turnTimerUpdateApplier = [&](TurnTimerInfo & tTimer, int waitTime)
 	{
-		TurnTimerInfo turnTimerUpdate = tTimer;
 		if(tTimer.creatureTimer > 0)
 		{
-			turnTimerUpdate.creatureTimer -= waitTime;
-			int frequency = (turnTimerUpdate.creatureTimer > turnTimePropagateThreshold ? turnTimePropagateFrequency : turnTimePropagateFrequencyCrit);
+			tTimer.creatureTimer -= waitTime;
+			int frequency = (tTimer.creatureTimer > turnTimePropagateThreshold ? turnTimePropagateFrequency : turnTimePropagateFrequencyCrit);
 			
 			if(state.status == EPlayerStatus::INGAME //do not send message if player is not active already
-			   && turnTimerUpdate.creatureTimer % frequency == 0)
+			   && tTimer.creatureTimer % frequency == 0)
 			{
 				TurnTimeUpdate ttu;
 				ttu.player = state.color;
-				ttu.turnTimer = turnTimerUpdate;
+				ttu.turnTimer = tTimer;
 				gameHandler.sendAndApply(&ttu);
 			}
 			return true;
@@ -174,14 +173,13 @@ void TurnTimerHandler::onBattleLoop(int waitTime)
 	
 	if(state.human && si->turnTimerInfo.isBattleEnabled())
 	{
-		TurnTimerInfo turnTimer = state.turnTimer;
-		if(!turnTimerUpdateApplier(turnTimer))
+		if(!turnTimerUpdateApplier(timers[state.color], waitTime))
 		{
-			if(turnTimer.battleTimer > 0)
+			if(timers[state.color].battleTimer > 0)
 			{
-				turnTimer.creatureTimer = turnTimer.battleTimer;
-				turnTimer.battleTimer = 0;
-				turnTimerUpdateApplier(turnTimer);
+				timers[state.color].creatureTimer = timers[state.color].battleTimer;
+				timers[state.color].battleTimer = 0;
+				turnTimerUpdateApplier(timers[state.color], 0);
 			}
 			else
 			{

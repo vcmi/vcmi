@@ -604,7 +604,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 void CGameHandler::onPlayerTurnStarted(PlayerColor which)
 {
 	events::PlayerGotTurn::defaultExecute(serverEventBus.get(), which);
-	turnTimerHandler.onPlayerGetTurn(gs->players[which]);
+	turnTimerHandler.onPlayerGetTurn(which);
 }
 
 void CGameHandler::onPlayerTurnEnded(PlayerColor which)
@@ -991,7 +991,7 @@ void CGameHandler::run(bool resume)
 		onNewTurn();
 		events::TurnStarted::defaultExecute(serverEventBus.get());
 		for(auto & player : gs->players)
-			turnTimerHandler.onGameplayStart(player.second);
+			turnTimerHandler.onGameplayStart(player.first);
 	}
 	else
 		events::GameResumed::defaultExecute(serverEventBus.get());
