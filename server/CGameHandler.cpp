@@ -1183,7 +1183,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		{
 			moveQuery = std::dynamic_pointer_cast<CHeroMovementQuery>(topQuery);
 			if(moveQuery
-			   && (!transit || result == TryMoveHero::FAILED || moveQuery->tmh.stopMovement()))
+			   && (!transit || result != TryMoveHero::SUCCESS))
 				queries->popIfTop(moveQuery);
 			else
 				break;
