@@ -116,6 +116,11 @@ public:
 		return std::sqrt(lengthSquared());
 	}
 
+	double angle() const
+	{
+		return std::atan2(y, x) * 180.0 / M_PI;
+	}
+
 	template <typename Handler>
 	void serialize(Handler &h, const int version)
 	{

@@ -129,8 +129,14 @@ void MapView::onMapSwiped(const Point & viewPosition)
 }
 
 void MapView::postSwipe(uint32_t msPassed) {
-	if(!actions->dragActive)
+	if(!actions->dragActive && swipeHistory.size() > 0)
+	{
+		Point diff = swipeHistory.end()->second - swipeHistory.begin()->second;
+		double angle = diff.angle();
+
+		std::cout << angle;
 		swipeHistory.clear();
+	}
 }
 
 void MapView::onCenteredTile(const int3 & tile)
