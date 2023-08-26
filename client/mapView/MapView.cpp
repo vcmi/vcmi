@@ -129,25 +129,24 @@ void MapView::onMapSwiped(const Point & viewPosition)
 }
 
 void MapView::postSwipe(uint32_t msPassed) {
-	if(!actions->dragActive && swipeHistory.size() > 0)
+	if(!actions->dragActive)
 	{
-		Point diff = Point(0, 0);
-		for (auto & x : swipeHistory)
-			diff += x.second;
+		if(swipeHistory.size() > 1)
+		{
+			Point diff = Point(0, 0);
+			for (auto & x : swipeHistory)
+				diff += x.second;
 
-		uint64_t timediff = swipeHistory.rbegin()->first - swipeHistory.begin()->first;
+			uint64_t timediff = swipeHistory.rbegin()->first - swipeHistory.begin()->first;
 
-		postSwipeAngle = diff.angle();
-		postSwipeSpeed = static_cast<double>(diff.length()) / static_cast<double>(timediff); // unit: pixel/millisecond
-
-		std::cout << postSwipeAngle << "   " << postSwipeSpeed << "   " << diff.x << "x" << diff.y << "   " << timediff << "\n";
+			postSwipeAngle = diff.angle();
+			postSwipeSpeed = static_cast<double>(diff.length()) / static_cast<double>(timediff); // unit: pixel/millisecond			
+		}
 		swipeHistory.clear();
 	}
 	if(postSwipeSpeed > 0.1) {
 		double len = postSwipeSpeed * static_cast<double>(msPassed);
 		Point delta = Point(len * cos(postSwipeAngle), len * sin(postSwipeAngle));
-
-		std::cout << len << "   " << delta.x << "x" << delta.y << "\n";
 
 		controller->setViewCenter(model->getMapViewCenter() + delta, model->getLevel());
 
