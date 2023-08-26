@@ -148,8 +148,11 @@ void MapView::postSwipe(uint32_t msPassed) {
 
 			uint32_t timediff = swipeHistory.rbegin()->first - firstAccepted.first;
 
-			postSwipeAngle = diff.angle();
-			postSwipeSpeed = static_cast<double>(diff.length()) / static_cast<double>(timediff); // unit: pixel/millisecond			
+			if(diff.length() > 0 && timediff > 0)
+			{
+				postSwipeAngle = diff.angle();
+				postSwipeSpeed = static_cast<double>(diff.length()) / static_cast<double>(timediff); // unit: pixel/millisecond
+			}	
 		}
 		swipeHistory.clear();
 	} else
