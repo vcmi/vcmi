@@ -254,9 +254,9 @@ void InputHandler::hapticFeedback()
 	fingerHandler->hapticFeedback();
 }
 
-uint64_t InputHandler::getTicks()
+uint32_t InputHandler::getTicks()
 {
-	return SDL_GetTicks64();
+	return SDL_GetTicks();
 }
 
 bool InputHandler::hasTouchInputDevice() const
