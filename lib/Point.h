@@ -118,7 +118,7 @@ public:
 
 	double angle() const
 	{
-		return std::atan2(y, x) * 180.0 / M_PI;
+		return std::atan2(y, x); // rad
 	}
 
 	template <typename Handler>
