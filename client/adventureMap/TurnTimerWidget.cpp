@@ -13,6 +13,8 @@
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
+#include "../battle/BattleInterface.h"
+#include "../battle/BattleStacksController.h"
 
 #include "../render/EFont.h"
 #include "../render/Graphics.h"
@@ -21,6 +23,7 @@
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../../CCallback.h"
+#include "../../lib/CStack.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/filesystem/ResourceID.h"
 
@@ -70,7 +73,7 @@ void TurnTimerWidget::show(Canvas & to)
 void TurnTimerWidget::setTime(PlayerColor player, int time)
 {
 	int newTime = time / 1000;
-	if((LOCPLINT->cb->isPlayerMakingTurn(LOCPLINT->playerID))
+	if(player == LOCPLINT->playerID)
 	   && (newTime != turnTime)
 	   && notifications.count(newTime))
 	{
@@ -99,9 +102,15 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 	if(!LOCPLINT || !LOCPLINT->cb)
 		return;
 
-	for (PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+	for (PlayerColor p(0); p < PlayerColor::PLAYER_LIMIT; ++p)
 	{
-		if (!LOCPLINT->cb->isPlayerMakingTurn(player))
+		auto player = p;
+		if(LOCPLINT->battleInt)
+		{
+			if(auto * stack = LOCPLINT->battleInt->stacksController->getActiveStack())
+				player = stack->getOwner();
+		}
+		else if (!LOCPLINT->cb->isPlayerMakingTurn(player))
 			continue;
 
 		auto time = LOCPLINT->cb->getPlayerTurnTime(player);
