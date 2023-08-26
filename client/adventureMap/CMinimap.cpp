@@ -46,7 +46,7 @@ ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
 		if(player == PlayerColor::NEUTRAL)
 			return graphics->neutralColor;
 
-		if (player < PlayerColor::PLAYER_LIMIT)
+		if (player.isValidPlayer())
 			return graphics->playerColors[player.getNum()];
 	}
 

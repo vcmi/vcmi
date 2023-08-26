@@ -270,7 +270,7 @@ std::vector<CGHeroInstance *> HeroPoolProcessor::findAvailableHeroesFor(const Pl
 
 const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerColor & player)
 {
-	if(player >= PlayerColor::PLAYER_LIMIT)
+	if(!player.isValidPlayer())
 	{
 		logGlobal->error("Cannot pick hero for player %d. Wrong owner!", player.getStr());
 		return nullptr;

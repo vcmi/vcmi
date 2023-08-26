@@ -886,7 +886,7 @@ Canvas SelectionTab::CMapInfoTooltipBox::createMinimapForLayer(std::unique_ptr<C
 						color = graphics->neutralColor;
 						break;
 					}
-					if (player < PlayerColor::PLAYER_LIMIT)
+					if (player.isValidPlayer())
 					{
 						color = graphics->playerColors[player.getNum()];
 						break;

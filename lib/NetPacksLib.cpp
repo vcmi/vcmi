@@ -770,7 +770,7 @@ void LobbyShowMessage::visitTyped(ICPackVisitor & visitor)
 
 void SetResources::applyGs(CGameState * gs) const
 {
-	assert(player < PlayerColor::PLAYER_LIMIT);
+	assert(player.isValidPlayer());
 	if(abs)
 		gs->getPlayerState(player)->resources = res;
 	else
@@ -2018,7 +2018,7 @@ void NewTurn::applyGs(CGameState *gs)
 
 	for(const auto & re : res)
 	{
-		assert(re.first < PlayerColor::PLAYER_LIMIT);
+		assert(re.first.isValidPlayer());
 		gs->getPlayerState(re.first)->resources = re.second;
 	}
 
@@ -2058,7 +2058,7 @@ void SetObjectProperty::applyGs(CGameState * gs) const
 				if(state->towns.empty())
 					*state->daysWithoutCastle = 0;
 			}
-			if(val < PlayerColor::PLAYER_LIMIT_I)
+			if(PlayerColor(val).isValidPlayer())
 			{
 				PlayerState * p = gs->getPlayerState(PlayerColor(val));
 				p->towns.emplace_back(t);

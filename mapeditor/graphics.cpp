@@ -227,7 +227,7 @@ void Graphics::blueToPlayersAdv(QImage * sur, PlayerColor player)
 	if(sur->format() == QImage::Format_Indexed8)
 	{
 		auto palette = sur->colorTable();
-		if(player < PlayerColor::PLAYER_LIMIT)
+		if(player.isValidPlayer())
 		{
 			for(int i = 0; i < 32; ++i)
 				palette[224 + i] = playerColorPalette[player.getNum() * 32 + i];

@@ -247,7 +247,7 @@ void SDLImage::setBlitMode(EImageBlitMode mode)
 
 void SDLImage::setFlagColor(PlayerColor player)
 {
-	if(player < PlayerColor::PLAYER_LIMIT || player==PlayerColor::NEUTRAL)
+	if(player.isValidPlayer() || player==PlayerColor::NEUTRAL)
 		CSDL_Ext::setPlayerColor(surf, player);
 }
 

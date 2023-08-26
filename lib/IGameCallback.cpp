@@ -82,7 +82,7 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 											  int mode,
 											  int3::EDistanceFormula distanceFormula) const
 {
-	if(!!player && *player >= PlayerColor::PLAYER_LIMIT)
+	if(!!player && !player->isValidPlayer())
 	{
 		logGlobal->error("Illegal call to getTilesInRange!");
 		return;
@@ -114,7 +114,7 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 
 void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std::optional<PlayerColor> Player, int level, MapTerrainFilterMode tileFilterMode) const
 {
-	if(!!Player && *Player >= PlayerColor::PLAYER_LIMIT)
+	if(!!Player && !Player->isValidPlayer())
 	{
 		logGlobal->error("Illegal call to getAllTiles !");
 		return;

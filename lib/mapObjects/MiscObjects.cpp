@@ -1568,7 +1568,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 		h->showInfoDialog(69);
 		giveBonusTo(h->tempOwner);
 
-		if(oldOwner < PlayerColor::PLAYER_LIMIT) //remove bonus from old owner
+		if(oldOwner.isValidPlayer()) //remove bonus from old owner
 		{
 			RemoveBonus rb(GiveBonus::ETarget::PLAYER);
 			rb.whoID = oldOwner.getNum();
@@ -1581,7 +1581,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGLighthouse::initObj(CRandomGenerator & rand)
 {
-	if(tempOwner < PlayerColor::PLAYER_LIMIT)
+	if(tempOwner.isValidPlayer())
 	{
 		// FIXME: This is dirty hack
 		giveBonusTo(tempOwner, true);

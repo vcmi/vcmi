@@ -570,7 +570,7 @@ void CClient::battleStarted(const BattleInfo * info)
 	for(auto & battleCb : battleCallbacks)
 	{
 		if(vstd::contains_if(info->sides, [&](const SideInBattle& side) {return side.color == battleCb.first; })
-			|| battleCb.first >= PlayerColor::PLAYER_LIMIT)
+			|| !battleCb.first.isValidPlayer())
 		{
 			battleCb.second->setBattle(info);
 		}

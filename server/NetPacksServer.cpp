@@ -164,10 +164,10 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 
 	PlayerColor player = market->tempOwner;
 
-	if(player >= PlayerColor::PLAYER_LIMIT)
+	if(!player.isValidPlayer())
 		player = gh.getTile(market->visitablePos())->visitableObjects.back()->tempOwner;
 
-	if(player >= PlayerColor::PLAYER_LIMIT)
+	if(!player.isValidPlayer())
 		gh.throwAndComplain(&pack, "No player can use this market!");
 
 	bool allyTownSkillTrade = (pack.mode == EMarketMode::RESOURCE_SKILL && gh.getPlayerRelations(player, hero->tempOwner) == PlayerRelations::ALLIES);
