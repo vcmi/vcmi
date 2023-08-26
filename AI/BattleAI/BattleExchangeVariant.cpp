@@ -25,40 +25,107 @@ MoveTarget::MoveTarget()
 	turnsToRich = 1;
 }
 
-int64_t BattleExchangeVariant::trackAttack(const AttackPossibility & ap, HypotheticBattle & state)
+float BattleExchangeVariant::trackAttack(
+	const AttackPossibility & ap,
+	std::shared_ptr<HypotheticBattle> hb,
+	DamageCache & damageCache)
 {
+	auto attacker = hb->getForUpdate(ap.attack.attacker->unitId());
+
+	const std::string cachingStringBlocksRetaliation = "type_BLOCKS_RETALIATION";
+	static const auto selectorBlocksRetaliation = Selector::type()(BonusType::BLOCKS_RETALIATION);
+	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
+
+	float attackValue = 0;
 	auto affectedUnits = ap.affectedUnits;
 
 	affectedUnits.push_back(ap.attackerState);
 
 	for(auto affectedUnit : affectedUnits)
 	{
-		auto unitToUpdate = state.getForUpdate(affectedUnit->unitId());
+		auto unitToUpdate = hb->getForUpdate(affectedUnit->unitId());
 
-		unitToUpdate->health = affectedUnit->health;
-		unitToUpdate->shots = affectedUnit->shots;
-		unitToUpdate->counterAttacks = affectedUnit->counterAttacks;
-		unitToUpdate->movedThisRound = affectedUnit->movedThisRound;
-	}
+		if(unitToUpdate->unitSide() == attacker->unitSide())
+		{
+			if(unitToUpdate->unitId() == attacker->unitId())
+			{
+				auto defender = hb->getForUpdate(ap.attack.defender->unitId());
 
-	auto attackValue = ap.damageDiff(positiveEffectMultiplier, negativeEffectMultiplier);
+				if(!defender->alive() || counterAttacksBlocked || ap.attack.shooting || !defender->ableToRetaliate())
+					continue;
 
-	dpsScore += attackValue;
+				auto retaliationDamage = damageCache.getDamage(defender.get(), unitToUpdate.get(), hb);
+				auto attackerDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), unitToUpdate.get(), retaliationDamage, damageCache, hb);
+
+				attackValue -= attackerDamageReduce;
+				dpsScore -= attackerDamageReduce * negativeEffectMultiplier;
+				attackerValue[unitToUpdate->unitId()].isRetalitated = true;
+
+				unitToUpdate->damage(retaliationDamage);
+				defender->afterAttack(false, true);
 
 #if BATTLE_TRACE_LEVEL>=1
-	logAi->trace(
-		"%s -> %s, ap attack, %s, dps: %lld, score: %lld",
-		ap.attack.attacker->getDescription(),
-		ap.attack.defender->getDescription(),
-		ap.attack.shooting ? "shot" : "mellee",
-		ap.damageDealt,
-		attackValue);
+				logAi->trace(
+					"%s -> %s, ap retalitation, %s, dps: %2f, score: %2f",
+					defender->getDescription(),
+					unitToUpdate->getDescription(),
+					ap.attack.shooting ? "shot" : "mellee",
+					retaliationDamage,
+					attackerDamageReduce);
 #endif
+			}
+			else
+			{
+				auto collateralDamage = damageCache.getDamage(attacker.get(), unitToUpdate.get(), hb);
+				auto collateralDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), unitToUpdate.get(), collateralDamage, damageCache, hb);
+
+				attackValue -= collateralDamageReduce;
+				dpsScore -= collateralDamageReduce * negativeEffectMultiplier;
+
+				unitToUpdate->damage(collateralDamage);
+
+#if BATTLE_TRACE_LEVEL>=1
+				logAi->trace(
+					"%s -> %s, ap collateral, %s, dps: %2f, score: %2f",
+					attacker->getDescription(),
+					unitToUpdate->getDescription(),
+					ap.attack.shooting ? "shot" : "mellee",
+					collateralDamage,
+					collateralDamageReduce);
+#endif
+			}
+		}
+		else
+		{
+			int64_t attackDamage = damageCache.getDamage(attacker.get(), unitToUpdate.get(), hb);
+			float defenderDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), unitToUpdate.get(), attackDamage, damageCache, hb);
+
+			attackValue += defenderDamageReduce;
+			dpsScore += defenderDamageReduce * positiveEffectMultiplier;
+			attackerValue[attacker->unitId()].value += defenderDamageReduce;
+
+			unitToUpdate->damage(attackDamage);
+
+#if BATTLE_TRACE_LEVEL>=1
+			logAi->trace(
+				"%s -> %s, ap attack, %s, dps: %2f, score: %2f",
+				attacker->getDescription(),
+				unitToUpdate->getDescription(),
+				ap.attack.shooting ? "shot" : "mellee",
+				attackDamage,
+				defenderDamageReduce);
+#endif
+		}
+	}
+
+	attackValue += ap.shootersBlockedDmg;
+	dpsScore += ap.shootersBlockedDmg * positiveEffectMultiplier;
+	attacker->afterAttack(ap.attack.shooting, false);
 
 	return attackValue;
 }
 
-int64_t BattleExchangeVariant::trackAttack(
+float BattleExchangeVariant::trackAttack(
 	std::shared_ptr<StackWithBonuses> attacker,
 	std::shared_ptr<StackWithBonuses> defender,
 	bool shooting,
@@ -71,23 +138,15 @@ int64_t BattleExchangeVariant::trackAttack(
 	static const auto selectorBlocksRetaliation = Selector::type()(BonusType::BLOCKS_RETALIATION);
 	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
 
-	// FIXME: provide distance info for Jousting bonus
-	BattleAttackInfo bai(attacker.get(), defender.get(), 0, shooting);
-
-	if(shooting)
-	{
-		bai.attackerPos.setXY(8, 5);
-	}
-
 	int64_t attackDamage = damageCache.getDamage(attacker.get(), defender.get(), hb);
-	int64_t defenderDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), defender.get(), attackDamage, damageCache, hb);
-	int64_t attackerDamageReduce = 0;
+	float defenderDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), defender.get(), attackDamage, damageCache, hb);
+	float attackerDamageReduce = 0;
 
 	if(!evaluateOnly)
 	{
 #if BATTLE_TRACE_LEVEL>=1
 		logAi->trace(
-			"%s -> %s, normal attack, %s, dps: %lld, %lld",
+			"%s -> %s, normal attack, %s, dps: %lld, %2f",
 			attacker->getDescription(),
 			defender->getDescription(),
 			shooting ? "shot" : "mellee",
@@ -107,36 +166,33 @@ int64_t BattleExchangeVariant::trackAttack(
 		attacker->afterAttack(shooting, false);
 	}
 
-	if(defender->alive() && defender->ableToRetaliate() && !counterAttacksBlocked && !shooting)
+	if(!evaluateOnly && defender->alive() && defender->ableToRetaliate() && !counterAttacksBlocked && !shooting)
 	{
 		auto retaliationDamage = damageCache.getDamage(defender.get(), attacker.get(), hb);
 		attackerDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), attacker.get(), retaliationDamage, damageCache, hb);
 
-		if(!evaluateOnly)
-		{
 #if BATTLE_TRACE_LEVEL>=1
-			logAi->trace(
-				"%s -> %s, retaliation, dps: %lld, %lld",
-				defender->getDescription(),
-				attacker->getDescription(),
-				retaliationDamage,
-				attackerDamageReduce);
+		logAi->trace(
+			"%s -> %s, retaliation, dps: %lld, %2f",
+			defender->getDescription(),
+			attacker->getDescription(),
+			retaliationDamage,
+			attackerDamageReduce);
 #endif
 
-			if(isOurAttack)
-			{
-				dpsScore -= attackerDamageReduce * negativeEffectMultiplier;
-				attackerValue[attacker->unitId()].isRetalitated = true;
-			}
-			else
-			{
-				dpsScore += attackerDamageReduce * positiveEffectMultiplier;
-				attackerValue[defender->unitId()].value += attackerDamageReduce;
-			}
-
-			attacker->damage(retaliationDamage);
-			defender->afterAttack(false, true);
+		if(isOurAttack)
+		{
+			dpsScore -= attackerDamageReduce * negativeEffectMultiplier;
+			attackerValue[attacker->unitId()].isRetalitated = true;
 		}
+		else
+		{
+			dpsScore += attackerDamageReduce * positiveEffectMultiplier;
+			attackerValue[defender->unitId()].value += attackerDamageReduce;
+		}
+
+		attacker->damage(retaliationDamage);
+		defender->afterAttack(false, true);
 	}
 
 	auto score = defenderDamageReduce - attackerDamageReduce;
@@ -144,7 +200,7 @@ int64_t BattleExchangeVariant::trackAttack(
 #if BATTLE_TRACE_LEVEL>=1
 	if(!score)
 	{
-		logAi->trace("Attack has zero score d:%lld a:%lld", defenderDamageReduce, attackerDamageReduce);
+		logAi->trace("Attack has zero score d:%2f a:%2f", defenderDamageReduce, attackerDamageReduce);
 	}
 #endif
 
@@ -159,33 +215,22 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 {
 	EvaluationResult result(targets.bestAction());
 
-	updateReachabilityMap(hb);
-
-	for(auto & ap : targets.possibleAttacks)
-	{
-		int64_t score = calculateExchange(ap, targets, damageCache, hb);
-
-		if(score > result.score)
-		{
-			result.score = score;
-			result.bestAttack = ap;
-		}
-	}
-
 	if(!activeStack->waited())
 	{
 #if BATTLE_TRACE_LEVEL>=1
 		logAi->trace("Evaluating waited attack for %s", activeStack->getDescription());
 #endif
 
-		hb->getForUpdate(activeStack->unitId())->waiting = true;
-		hb->getForUpdate(activeStack->unitId())->waitedThisTurn = true;
+		auto hbWaited = std::make_shared<HypotheticBattle>(env.get(), hb);
 
-		updateReachabilityMap(hb);
+		hbWaited->getForUpdate(activeStack->unitId())->waiting = true;
+		hbWaited->getForUpdate(activeStack->unitId())->waitedThisTurn = true;
+
+		updateReachabilityMap(hbWaited);
 
 		for(auto & ap : targets.possibleAttacks)
 		{
-			int64_t score = calculateExchange(ap, targets, damageCache, hb);
+			float score = calculateExchange(ap, targets, damageCache, hbWaited);
 
 			if(score > result.score)
 			{
@@ -193,6 +238,24 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 				result.bestAttack = ap;
 				result.wait = true;
 			}
+		}
+	}
+
+#if BATTLE_TRACE_LEVEL>=1
+	logAi->trace("Evaluating normal attack for %s", activeStack->getDescription());
+#endif
+
+	updateReachabilityMap(hb);
+
+	for(auto & ap : targets.possibleAttacks)
+	{
+		float score = calculateExchange(ap, targets, damageCache, hb);
+
+		if(score >= result.score)
+		{
+			result.score = score;
+			result.bestAttack = ap;
+			result.wait = false;
 		}
 	}
 
@@ -361,14 +424,14 @@ std::vector<const battle::Unit *> BattleExchangeEvaluator::getExchangeUnits(
 	return exchangeUnits;
 }
 
-int64_t BattleExchangeEvaluator::calculateExchange(
+float BattleExchangeEvaluator::calculateExchange(
 	const AttackPossibility & ap,
 	PotentialTargets & targets,
 	DamageCache & damageCache,
 	std::shared_ptr<HypotheticBattle> hb)
 {
 #if BATTLE_TRACE_LEVEL>=1
-	logAi->trace("Battle exchange at %lld", ap.attack.shooting ? ap.dest : ap.from);
+	logAi->trace("Battle exchange at %d", ap.attack.shooting ? ap.dest.hex : ap.from.hex);
 #endif
 
 	if(cb->battleGetMySide() == BattlePerspective::LEFT_SIDE
@@ -439,7 +502,7 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 
 		if(!isOur || !exchangeBattle->battleGetUnitByID(targetUnit->unitId())->alive())
 		{
-			auto estimateAttack = [&](const battle::Unit * u) -> int64_t
+			auto estimateAttack = [&](const battle::Unit * u) -> float
 			{
 				auto stackWithBonuses = exchangeBattle->getForUpdate(u->unitId());
 				auto score = v.trackAttack(
@@ -452,7 +515,7 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 					true);
 
 #if BATTLE_TRACE_LEVEL>=1
-				logAi->trace("Best target selector %s->%s score = %lld", attacker->getDescription(), u->getDescription(), score);
+				logAi->trace("Best target selector %s->%s score = %2f", attacker->getDescription(), u->getDescription(), score);
 #endif
 
 				return score;
@@ -497,9 +560,10 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 		auto shooting = exchangeBattle->battleCanShoot(attacker.get());
 		const int totalAttacks = attacker->getTotalAttacks(shooting);
 
-		if(canUseAp && activeUnit->unitId() == ap.attack.attacker->unitId() && targetUnit->unitId() == ap.attack.defender->unitId())
+		if(canUseAp && activeUnit->unitId() == ap.attack.attacker->unitId()
+			&& targetUnit->unitId() == ap.attack.defender->unitId())
 		{
-			v.trackAttack(ap, *exchangeBattle);
+			v.trackAttack(ap, exchangeBattle, damageCache);
 		}
 		else
 		{
@@ -530,7 +594,7 @@ int64_t BattleExchangeEvaluator::calculateExchange(
 	v.adjustPositions(melleeAttackers, ap, reachabilityMap);
 
 #if BATTLE_TRACE_LEVEL>=1
-	logAi->trace("Exchange score: %lld", v.getScore());
+	logAi->trace("Exchange score: %2f", v.getScore());
 #endif
 
 	return v.getScore();
@@ -560,7 +624,7 @@ void BattleExchangeVariant::adjustPositions(
 		vstd::erase_if_present(hexes, ap.attack.attacker->occupiedHex(ap.attack.attackerPos));
 	}
 
-	int64_t notRealizedDamage = 0;
+	float notRealizedDamage = 0;
 
 	for(auto unit : attackers)
 	{
@@ -576,7 +640,7 @@ void BattleExchangeVariant::adjustPositions(
 			continue;
 		}
 
-		auto desiredPosition = vstd::minElementByFun(hexes, [&](BattleHex h) -> int64_t
+		auto desiredPosition = vstd::minElementByFun(hexes, [&](BattleHex h) -> float
 			{
 				auto score = vstd::contains(reachabilityMap[h], unit)
 					? reachabilityMap[h].size()

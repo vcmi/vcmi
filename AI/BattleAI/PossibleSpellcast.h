@@ -27,7 +27,7 @@ public:
 
 	const CSpell * spell;
 	spells::Target dest;
-	int64_t value;
+	float value;
 
 	PossibleSpellcast();
 	virtual ~PossibleSpellcast();

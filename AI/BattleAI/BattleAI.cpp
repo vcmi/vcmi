@@ -81,7 +81,28 @@ void CBattleAI::yourTacticPhase(int distance)
 	cb->battleMakeTacticAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
 }
 
-void CBattleAI::activeStack( const CStack * stack )
+float getStrengthRatio(std::shared_ptr<CBattleCallback> cb, int side)
+{
+	auto stacks = cb->battleGetAllStacks();
+	auto our = 0, enemy = 0;
+
+	for(auto stack : stacks)
+	{
+		auto creature = stack->creatureId().toCreature();
+
+		if(!creature)
+			continue;
+
+		if(stack->unitSide() == side)
+			our += stack->getCount() * creature->getAIValue();
+		else
+			enemy += stack->getCount() * creature->getAIValue();
+	}
+
+	return enemy == 0 ? 1.0f : static_cast<float>(our) / enemy;
+}
+
+void CBattleAI::activeStack(const CStack * stack )
 {
 	LOG_TRACE_PARAMS(logAi, "stack: %s", stack->nodeName());
 
@@ -110,7 +131,11 @@ void CBattleAI::activeStack( const CStack * stack )
 			return;
 		}
 
-		BattleEvaluator evaluator(env, cb, stack, playerID, side, strengthRatio);
+#if BATTLE_TRACE_LEVEL>=1
+		logAi->trace("Build evaluator and targets");
+#endif
+
+		BattleEvaluator evaluator(env, cb, stack, playerID, side, getStrengthRatio(cb, side));
 
 		result = evaluator.selectStackAction(stack);
 
@@ -207,10 +232,6 @@ void CBattleAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2
 {
 	LOG_TRACE(logAi);
 	side = Side;
-	strengthRatio = static_cast<float>(army1->getArmyStrength()) / static_cast<float>(army2->getArmyStrength());
-
-	if(side == 1)
-		strengthRatio = 1 / strengthRatio;
 
 	skipCastUntilNextBattle = false;
 }

@@ -33,7 +33,7 @@ class BattleEvaluator
 	std::optional<AttackPossibility> cachedAttack;
 	PlayerColor playerID;
 	int side;
-	int64_t cachedScore;
+	float cachedScore;
 	DamageCache damageCache;
 	float strengthRatio;
 

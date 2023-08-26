@@ -45,7 +45,8 @@ StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle:
 	id(Stack->unitId()),
 	side(Stack->unitSide()),
 	player(Stack->unitOwner()),
-	slot(Stack->unitSlot())
+	slot(Stack->unitSlot()),
+	treeVersionLocal(0)
 {
 	localInit(Owner);
 
@@ -61,7 +62,8 @@ StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle:
 	id(Stack->unitId()),
 	side(Stack->unitSide()),
 	player(Stack->unitOwner()),
-	slot(Stack->unitSlot())
+	slot(Stack->unitSlot()),
+	treeVersionLocal(0)
 {
 	localInit(Owner);
 
@@ -76,7 +78,8 @@ StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle:
 	baseAmount(info.count),
 	id(info.id),
 	side(info.side),
-	slot(SlotID::SUMMONED_SLOT_PLACEHOLDER)
+	slot(SlotID::SUMMONED_SLOT_PLACEHOLDER),
+	treeVersionLocal(0)
 {
 	type = info.type.toCreature();
 	origBearer = type;

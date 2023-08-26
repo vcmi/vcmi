@@ -100,11 +100,14 @@ std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CS
 
 BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 {
+#if BATTLE_TRACE_LEVEL >= 1
+	logAi->trace("Select stack action");
+#endif
 	//evaluate casting spell for spellcasting stack
 	std::optional<PossibleSpellcast> bestSpellcast = findBestCreatureSpell(stack);
 
 	auto moveTarget = scoreEvaluator.findMoveTowardsUnreachable(stack, *targets, damageCache, hb);
-	auto score = EvaluationResult::INEFFECTIVE_SCORE;
+	float score = EvaluationResult::INEFFECTIVE_SCORE;
 
 	if(targets->possibleAttacks.empty() && bestSpellcast.has_value())
 	{
@@ -136,7 +139,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 		{
 			score = evaluationResult.score;
 
-			logAi->debug("BattleAI: %s -> %s x %d, from %d curpos %d dist %d speed %d: +%lld -%lld = %lld",
+			logAi->debug("BattleAI: %s -> %s x %d, from %d curpos %d dist %d speed %d: +%2f -%2f = %2f",
 				bestAttack.attackerState->unitType()->getJsonKey(),
 				bestAttack.affectedUnits[0]->unitType()->getJsonKey(),
 				(int)bestAttack.affectedUnits[0]->getCount(),
@@ -145,7 +148,8 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 				bestAttack.attack.chargeDistance,
 				bestAttack.attack.attacker->speed(0, true),
 				bestAttack.defenderDamageReduce,
-				bestAttack.attackerDamageReduce, bestAttack.attackValue()
+				bestAttack.attackerDamageReduce,
+				bestAttack.attackValue()
 			);
 
 			if (moveTarget.scorePerTurn <= score)
@@ -513,11 +517,20 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 	CStopWatch timer;
 
+#if BATTLE_TRACE_LEVEL >= 1
+	tbb::blocked_range<size_t> r(0, possibleCasts.size());
+#else
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, possibleCasts.size()), [&](const tbb::blocked_range<size_t> & r)
 		{
+#endif
 			for(auto i = r.begin(); i != r.end(); i++)
 			{
 				auto & ps = possibleCasts[i];
+
+#if BATTLE_TRACE_LEVEL >= 1
+				logAi->trace("Evaluating %s", ps.spell->getNameTranslated());
+#endif
+
 				auto state = std::make_shared<HypotheticBattle>(env.get(), cb);
 
 				spells::BattleCast cast(state.get(), hero, spells::Mode::HERO, ps.spell);
@@ -531,12 +544,17 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 						return  !original || u->speed() != original->speed();
 					});
 
-				DamageCache innerCache(&damageCache);
+				DamageCache safeCopy = damageCache;
+				DamageCache innerCache(&safeCopy);
 				innerCache.buildDamageCache(state, side);
 
 				if(needFullEval || !cachedAttack)
 				{
-					PotentialTargets innerTargets(activeStack, damageCache, state);
+#if BATTLE_TRACE_LEVEL >= 1
+					logAi->trace("Full evaluation is started due to stack speed affected.");
+#endif
+
+					PotentialTargets innerTargets(activeStack, innerCache, state);
 					BattleExchangeEvaluator innerEvaluator(state, env, strengthRatio);
 
 					if(!innerTargets.possibleAttacks.empty())
@@ -586,14 +604,27 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 						}
 						else
 							ps.value -= dpsReduce * scoreEvaluator.getNegativeEffectMultiplier();
+
+#if BATTLE_TRACE_LEVEL >= 1
+						logAi->trace(
+							"Spell affects %s (%d), dps: %2f",
+							unit->creatureId().toCreature()->getNameSingularTranslated(),
+							unit->getCount(),
+							dpsReduce);
+#endif
 					}
 				}
+#if BATTLE_TRACE_LEVEL >= 1
+				logAi->trace("Total score: %2f", ps.value);
+#endif
 			}
+#if BATTLE_TRACE_LEVEL == 0
 		});
+#endif
 
 	LOGFL("Evaluation took %d ms", timer.getDiff());
 
-	auto pscValue = [](const PossibleSpellcast &ps) -> int64_t
+	auto pscValue = [](const PossibleSpellcast &ps) -> float
 	{
 		return ps.value;
 	};

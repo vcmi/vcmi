@@ -16,7 +16,7 @@
 
 struct AttackerValue
 {
-	int64_t value;
+	float value;
 	bool isRetalitated;
 	BattleHex position;
 
@@ -25,8 +25,8 @@ struct AttackerValue
 
 struct MoveTarget
 {
-	int64_t score;
-	int64_t scorePerTurn;
+	float score;
+	float scorePerTurn;
 	std::vector<BattleHex> positions;
 	std::optional<AttackPossibility> cachedAttack;
 	uint8_t turnsToRich;
@@ -36,12 +36,12 @@ struct MoveTarget
 
 struct EvaluationResult
 {
-	static const int64_t INEFFECTIVE_SCORE = -1000000;
+	static const int64_t INEFFECTIVE_SCORE = -10000;
 
 	AttackPossibility bestAttack;
 	MoveTarget bestMove;
 	bool wait;
-	int64_t score;
+	float score;
 	bool defend;
 
 	EvaluationResult(const AttackPossibility & ap)
@@ -62,9 +62,12 @@ public:
 	BattleExchangeVariant(float positiveEffectMultiplier, float negativeEffectMultiplier)
 		: dpsScore(0), positiveEffectMultiplier(positiveEffectMultiplier), negativeEffectMultiplier(negativeEffectMultiplier) {}
 
-	int64_t trackAttack(const AttackPossibility & ap, HypotheticBattle & state);
+	float trackAttack(
+		const AttackPossibility & ap,
+		std::shared_ptr<HypotheticBattle> hb,
+		DamageCache & damageCache);
 
-	int64_t trackAttack(
+	float trackAttack(
 		std::shared_ptr<StackWithBonuses> attacker,
 		std::shared_ptr<StackWithBonuses> defender,
 		bool shooting,
@@ -73,7 +76,7 @@ public:
 		std::shared_ptr<HypotheticBattle> hb,
 		bool evaluateOnly = false);
 
-	int64_t getScore() const { return dpsScore; }
+	float getScore() const { return dpsScore; }
 
 	void adjustPositions(
 		std::vector<const battle::Unit *> attackers,
@@ -83,7 +86,7 @@ public:
 private:
 	float positiveEffectMultiplier;
 	float negativeEffectMultiplier;
-	int64_t dpsScore;
+	float dpsScore;
 	std::map<uint32_t, AttackerValue> attackerValue;
 };
 
@@ -110,7 +113,7 @@ public:
 		DamageCache & damageCache,
 		std::shared_ptr<HypotheticBattle> hb);
 
-	int64_t calculateExchange(
+	float calculateExchange(
 		const AttackPossibility & ap,
 		PotentialTargets & targets,
 		DamageCache & damageCache,

@@ -22,7 +22,7 @@ void DamageCache::cacheDamage(const battle::Unit * attacker, const battle::Unit 
 {
 	auto damage = averageDmg(hb->battleEstimateDamage(attacker, defender, 0).damage);
 
-	damageCache[attacker->unitId()][defender->unitId()] = damage / attacker->getCount();
+	damageCache[attacker->unitId()][defender->unitId()] = static_cast<float>(damage) / attacker->getCount();
 }
 
 
@@ -98,18 +98,18 @@ AttackPossibility::AttackPossibility(BattleHex from, BattleHex dest, const Battl
 {
 }
 
-int64_t AttackPossibility::damageDiff() const
+float AttackPossibility::damageDiff() const
 {
 	return defenderDamageReduce - attackerDamageReduce - collateralDamageReduce + shootersBlockedDmg;
 }
 
-int64_t AttackPossibility::damageDiff(float positiveEffectMultiplier, float negativeEffectMultiplier) const
+float AttackPossibility::damageDiff(float positiveEffectMultiplier, float negativeEffectMultiplier) const
 {
 	return positiveEffectMultiplier * (defenderDamageReduce + shootersBlockedDmg)
 		- negativeEffectMultiplier * (attackerDamageReduce + collateralDamageReduce);
 }
 
-int64_t AttackPossibility::attackValue() const
+float AttackPossibility::attackValue() const
 {
 	return damageDiff();
 }
@@ -119,7 +119,7 @@ int64_t AttackPossibility::attackValue() const
 /// Half bounty for kill, half for making damage equal to enemy health
 /// Bounty - the killed creature average damage calculated against attacker
 /// </summary>
-int64_t AttackPossibility::calculateDamageReduce(
+float AttackPossibility::calculateDamageReduce(
 	const battle::Unit * attacker,
 	const battle::Unit * defender,
 	uint64_t damageDealt,
@@ -163,7 +163,7 @@ int64_t AttackPossibility::calculateDamageReduce(
 	auto firstUnitHealthRatio = firstUnitHpLeft == 0 ? 1 : static_cast<float>(firstUnitHpLeft) / maxHealth;
 	auto firstUnitKillValue = (1 - firstUnitHealthRatio) * (1 - firstUnitHealthRatio);
 
-	return (int64_t)(damagePerEnemy * (enemiesKilled + firstUnitKillValue * HEALTH_BOUNTY));
+	return damagePerEnemy * (enemiesKilled + firstUnitKillValue * HEALTH_BOUNTY);
 }
 
 int64_t AttackPossibility::evaluateBlockedShootersDmg(
@@ -270,7 +270,8 @@ AttackPossibility AttackPossibility::evaluate(
 
 			for(int i = 0; i < totalAttacks; i++)
 			{
-				int64_t damageDealt, damageReceived, defenderDamageReduce, attackerDamageReduce;
+				int64_t damageDealt, damageReceived;
+				float defenderDamageReduce, attackerDamageReduce;
 
 				DamageEstimation retaliation;
 				auto attackDmg = state->battleEstimateDamage(ap.attack, &retaliation);

@@ -46,16 +46,16 @@ public:
 
 	std::vector<std::shared_ptr<battle::CUnitState>> affectedUnits;
 
-	int64_t defenderDamageReduce = 0;
-	int64_t attackerDamageReduce = 0; //usually by counter-attack
-	int64_t collateralDamageReduce = 0; // friendly fire (usually by two-hex attacks)
+	float defenderDamageReduce = 0;
+	float attackerDamageReduce = 0; //usually by counter-attack
+	float collateralDamageReduce = 0; // friendly fire (usually by two-hex attacks)
 	int64_t shootersBlockedDmg = 0;
 
 	AttackPossibility(BattleHex from, BattleHex dest, const BattleAttackInfo & attack_);
 
-	int64_t damageDiff() const;
-	int64_t attackValue() const;
-	int64_t damageDiff(float positiveEffectMultiplier, float negativeEffectMultiplier) const;
+	float damageDiff() const;
+	float attackValue() const;
+	float damageDiff(float positiveEffectMultiplier, float negativeEffectMultiplier) const;
 
 	static AttackPossibility evaluate(
 		const BattleAttackInfo & attackInfo,
@@ -63,7 +63,7 @@ public:
 		DamageCache & damageCache,
 		std::shared_ptr<CBattleInfoCallback> state);
 
-	static int64_t calculateDamageReduce(
+	static float calculateDamageReduce(
 		const battle::Unit * attacker,
 		const battle::Unit * defender,
 		uint64_t damageDealt,
