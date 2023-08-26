@@ -221,7 +221,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "smoothDragging" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -265,6 +265,10 @@
 				"leftButtonDrag" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"smoothDragging" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},

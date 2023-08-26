@@ -85,7 +85,8 @@ void BasicMapView::showAll(Canvas & to)
 
 void MapView::tick(uint32_t msPassed)
 {
-	postSwipe(msPassed);
+	if(settings["adventure"]["smoothDragging"].Bool())
+		postSwipe(msPassed);
 
 	BasicMapView::tick(msPassed);
 }
@@ -123,7 +124,8 @@ void MapView::onMapScrolled(const Point & distance)
 
 void MapView::onMapSwiped(const Point & viewPosition)
 {
-	swipeHistory.push_back(std::pair<uint32_t, Point>(GH.input().getTicks(), viewPosition));
+	if(settings["adventure"]["smoothDragging"].Bool())
+		swipeHistory.push_back(std::pair<uint32_t, Point>(GH.input().getTicks(), viewPosition));
 
 	controller->setViewCenter(model->getMapViewCenter() + viewPosition, model->getLevel());
 }
