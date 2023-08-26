@@ -213,6 +213,8 @@ protected:
 	std::string visibleText() override;
 
 public:
+	std::string helpBox; //for right-click help
+	
 	CFunctionList<void(const std::string &)> cb;
 	CFunctionList<void(std::string &, const std::string &)> filters;
 	void setText(const std::string & nText) override;
@@ -224,6 +226,7 @@ public:
 
 	void clickPressed(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 
 	//bool captureThisKey(EShortcut key) override;
 

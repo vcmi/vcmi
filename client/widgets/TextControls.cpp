@@ -17,6 +17,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/Shortcut.h"
 #include "../windows/CMessage.h"
+#include "../windows/InfoWindows.h"
 #include "../adventureMap/CInGameConsole.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../render/Canvas.h"
@@ -495,7 +496,7 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(c
 	pos.h = Pos.h;
 	pos.w = Pos.w;
 	background.reset();
-	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
+	addUsedEvents(LCLICK | SHOW_POPUP | KEYBOARD | TEXTINPUT);
 
 #if !defined(VCMI_MOBILE)
 	giveFocus();
@@ -511,7 +512,7 @@ CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::stri
 
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>(bgName, bgOffset.x, bgOffset.y);
-	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
+	addUsedEvents(LCLICK | SHOW_POPUP | KEYBOARD | TEXTINPUT);
 
 #if !defined(VCMI_MOBILE)
 	giveFocus();
@@ -603,6 +604,13 @@ void CTextInput::keyPressed(EShortcut key)
 		cb(text);
 	}
 }
+
+void CTextInput::showPopupWindow(const Point & cursorPosition)
+{
+	if(helpBox.size()) //there is no point to show window with nothing inside...
+		CRClickPopup::createAndPush(helpBox);
+}
+
 
 void CTextInput::setText(const std::string & nText)
 {

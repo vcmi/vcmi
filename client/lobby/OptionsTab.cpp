@@ -61,7 +61,7 @@ OptionsTab::OptionsTab() : humanPlayers(0)
 	auto parseTimerString = [](const std::string & str){
 		auto sc = str.find(":");
 		if(sc == std::string::npos)
-			return std::stoi(str);
+			return str.empty() ? 0 : std::stoi(str);
 		
 		auto l = str.substr(0, sc);
 		auto r = str.substr(sc + 1, std::string::npos);
@@ -75,6 +75,8 @@ OptionsTab::OptionsTab() : humanPlayers(0)
 			r.insert(r.begin(), l.back());
 			l.pop_back();
 		}
+		else if(r.empty())
+			r = "0";
 		
 		int sec = std::stoi(r);
 		if(sec >= 60)
