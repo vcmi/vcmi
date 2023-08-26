@@ -25,6 +25,7 @@
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../renderSDL/SDL_Extensions.h"
+#include "../eventsSDL/InputHandler.h"
 
 #include "../../CCallback.h"
 
@@ -82,6 +83,13 @@ void BasicMapView::showAll(Canvas & to)
 	render(to, true);
 }
 
+void MapView::tick(uint32_t msPassed)
+{
+	postSwipe(msPassed);
+
+	controller->tick(msPassed);
+}
+
 void MapView::show(Canvas & to)
 {
 	actions->setContext(controller->getContext());
@@ -115,7 +123,14 @@ void MapView::onMapScrolled(const Point & distance)
 
 void MapView::onMapSwiped(const Point & viewPosition)
 {
+	swipeHistory[GH.input().getTicks()] = viewPosition;
+
 	controller->setViewCenter(model->getMapViewCenter() + viewPosition, model->getLevel());
+}
+
+void MapView::postSwipe(uint32_t msPassed) {
+	if(!actions->dragActive)
+		swipeHistory.clear();
 }
 
 void MapView::onCenteredTile(const int3 & tile)

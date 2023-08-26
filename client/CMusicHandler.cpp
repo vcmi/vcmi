@@ -14,12 +14,13 @@
 #include "CMusicHandler.h"
 #include "CGameInfo.h"
 #include "renderSDL/SDLRWwrapper.h"
+#include "eventsSDL/InputHandler.h"
 #include "gui/CGuiHandler.h"
 
 #include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/constants/StringConstants.h"
+#include "../lib/StringConstants.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/TerrainHandler.h"
@@ -629,7 +630,8 @@ bool MusicEntry::play()
 		}
 	}
 
-	startTime = SDL_GetTicks();
+	startTime = GH.input().getTicks();
+	
 	playing = true;
 	return true;
 }
@@ -640,7 +642,7 @@ bool MusicEntry::stop(int fade_ms)
 	{
 		playing = false;
 		loop = 0;
-		uint32_t endTime = SDL_GetTicks();
+		uint32_t endTime = GH.input().getTicks();
 		assert(startTime != uint32_t(-1));
 		float playDuration = (endTime - startTime + startPosition) / 1000.f;
 		owner->trackPositions[currentName] = playDuration;

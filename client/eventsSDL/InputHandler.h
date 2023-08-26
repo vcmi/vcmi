@@ -68,6 +68,9 @@ public:
 	/// do a haptic feedback
 	void hapticFeedback();
 
+	/// Get the number of milliseconds since SDL library initialization
+	uint64_t getTicks();
+
 	/// returns true if system has active touchscreen
 	bool hasTouchInputDevice() const;
 
