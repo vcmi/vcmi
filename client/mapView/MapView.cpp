@@ -130,7 +130,8 @@ void MapView::onMapSwiped(const Point & viewPosition)
 	controller->setViewCenter(model->getMapViewCenter() + viewPosition, model->getLevel());
 }
 
-void MapView::postSwipe(uint32_t msPassed) {
+void MapView::postSwipe(uint32_t msPassed)
+{
 	if(!actions->dragActive)
 	{
 		if(swipeHistory.size() > 1)
