@@ -450,6 +450,10 @@ void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
 			iconName = variables["actionIconSpell"].String();
 			break;
+
+		case PossiblePlayerBattleAction::ANY_LOCATION:
+			iconName = variables["actionIconSpell"].String();
+			break;
 			
 		//TODO: figure out purpose of this icon
 		//case PossiblePlayerBattleAction::???:
