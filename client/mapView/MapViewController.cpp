@@ -120,7 +120,7 @@ void MapViewController::modifyTileSize(int stepsChange)
 		if(actualZoom.y >= defaultTileSize - zoomTileDeadArea && actualZoom.y <= defaultTileSize + zoomTileDeadArea)
 			actualZoom.y = defaultTileSize;
 		
-		bool isInDeadZone = targetTileSize != actualZoom || actualZoom == defaultTileSize;
+		bool isInDeadZone = targetTileSize != actualZoom || actualZoom == Point(defaultTileSize, defaultTileSize);
 
 		if(!wasInDeadZone && isInDeadZone)
 			GH.input().hapticFeedback();
