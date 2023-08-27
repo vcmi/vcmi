@@ -607,7 +607,7 @@ void CTextInput::keyPressed(EShortcut key)
 
 void CTextInput::showPopupWindow(const Point & cursorPosition)
 {
-	if(helpBox.size()) //there is no point to show window with nothing inside...
+	if(!helpBox.empty()) //there is no point to show window with nothing inside...
 		CRClickPopup::createAndPush(helpBox);
 }
 
@@ -622,6 +622,11 @@ void CTextInput::setText(const std::string & nText, bool callCb)
 	CLabel::setText(nText);
 	if(callCb)
 		cb(text);
+}
+
+void CTextInput::setHelpText(const std::string & text)
+{
+	helpBox = text;
 }
 
 void CTextInput::textInputed(const std::string & enteredText)

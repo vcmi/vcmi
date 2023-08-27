@@ -58,7 +58,14 @@ OptionsTab::OptionsTab() : humanPlayers(0)
 		}
 	});
 	
-	auto parseTimerString = [](const std::string & str){
+	//helper function to parse string containing time to integer reflecting time in seconds
+	//assumed that input string can be modified by user, function shall support user's intention
+	// normal: 2:00, 12:30
+	// adding symbol: 2:005 -> 2:05, 2:305 -> 23:05,
+	// adding symbol (>60 seconds): 12:095 -> 129:05
+	// removing symbol: 129:0 -> 12:09, 2:0 -> 0:20, 0:2 -> 0:02
+	auto parseTimerString = [](const std::string & str) -> int
+	{
 		auto sc = str.find(":");
 		if(sc == std::string::npos)
 			return str.empty() ? 0 : std::stoi(str);
