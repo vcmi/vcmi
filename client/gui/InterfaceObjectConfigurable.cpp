@@ -28,6 +28,7 @@
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 
+#include "../../lib//constants/StringConstants.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/filesystem/ResourceID.h"
 
@@ -219,8 +220,19 @@ ColorRGBA InterfaceObjectConfigurable::readColor(const JsonNode & config) const
 	}
 	logGlobal->debug("Uknown color attribute");
 	return Colors::DEFAULT_KEY_COLOR;
-	
+
 }
+
+PlayerColor InterfaceObjectConfigurable::readPlayerColor(const JsonNode & config) const
+{
+	logGlobal->debug("Reading PlayerColor");
+	if(!config.isNull() && config.isString())
+		return PlayerColor(vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, config.String()));
+	
+	logGlobal->debug("Unknown PlayerColor attribute");
+	return PlayerColor::CANNOT_DETERMINE;
+}
+
 EFonts InterfaceObjectConfigurable::readFont(const JsonNode & config) const
 {
 	logGlobal->debug("Reading font");
@@ -510,6 +522,12 @@ std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const 
 	logGlobal->debug("Building widget CFilledTexture");
 	auto image = config["image"].String();
 	auto rect = readRect(config["rect"]);
+	auto playerColor = readPlayerColor(config["color"]);
+	if(playerColor.isValidPlayer())
+	{
+		auto result = std::make_shared<FilledTexturePlayerColored>(image, rect);
+		result->playerColored(playerColor);
+	}
 	return std::make_shared<CFilledTexture>(image, rect);
 }
 

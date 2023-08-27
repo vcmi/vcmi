@@ -80,6 +80,7 @@ protected:
 	std::string readText(const JsonNode &) const;
 	std::pair<std::string, std::string> readHintText(const JsonNode &) const;
 	EShortcut readHotkey(const JsonNode &) const;
+	PlayerColor readPlayerColor(const JsonNode &) const;
 	
 	void loadToggleButtonCallback(std::shared_ptr<CToggleButton> button, const JsonNode & config) const;
 	void loadButtonCallback(std::shared_ptr<CButton> button, const JsonNode & config) const;
