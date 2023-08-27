@@ -72,7 +72,7 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 			int frequency = (timers[player].turnTimer > turnTimePropagateThreshold ? turnTimePropagateFrequency : turnTimePropagateFrequencyCrit);
 			
 			if(state.status == EPlayerStatus::INGAME //do not send message if player is not active already
-			   && timers[player].turnTimer % frequency == 0)
+			   && timers[player].turnTimer / 100 * 100 % frequency == 0)
 			{
 				TurnTimeUpdate ttu;
 				ttu.player = state.color;
@@ -132,7 +132,7 @@ void TurnTimerHandler::onBattleNextStack(const CStack & stack)
 	if(!player.isValidPlayer())
 		return;
 		
-	if(timers[player].battleTimer < si->turnTimerInfo.battleTimer)
+	if(timers[player].battleTimer == 0)
 		timers[player].battleTimer = timers[player].creatureTimer;
 	timers[player].creatureTimer = si->turnTimerInfo.creatureTimer;
 		
@@ -177,7 +177,7 @@ void TurnTimerHandler::onBattleLoop(int waitTime)
 			? turnTimePropagateFrequency : turnTimePropagateFrequencyCrit;
 			
 			if(state.status == EPlayerStatus::INGAME //do not send message if player is not active already
-			   && tTimer.creatureTimer % frequency == 0)
+			   && (tTimer.creatureTimer / 100 * 100 % frequency) == 0)
 			{
 				TurnTimeUpdate ttu;
 				ttu.player = state.color;
