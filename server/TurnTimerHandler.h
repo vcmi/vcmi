@@ -27,6 +27,7 @@ class TurnTimerHandler
 	const int turnTimePropagateFrequencyCrit = 1000;
 	const int turnTimePropagateThreshold = 3000;
 	std::map<PlayerColor, TurnTimerInfo> timers;
+	std::recursive_mutex mx;
 	
 public:
 	TurnTimerHandler(CGameHandler &);
