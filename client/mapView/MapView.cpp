@@ -163,7 +163,7 @@ void MapView::postSwipe(uint32_t msPassed) {
 
 		controller->setViewCenter(model->getMapViewCenter() + delta, model->getLevel());
 
-		postSwipeSpeed /= 1.1;
+		postSwipeSpeed /= 1 + msPassed * 0.006;
 	}
 }
 
