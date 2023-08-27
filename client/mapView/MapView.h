@@ -52,8 +52,8 @@ class MapView : public BasicMapView
 	std::vector<std::pair<uint32_t, Point>> swipeHistory;
 	double postSwipeAngle = 0.0;
 	double postSwipeSpeed = 0.0;
-	
-	const int postSwipeCatchIntervalMs = 150;
+
+	int postSwipeCatchIntervalMs;
 	const double postSwipeSlowdownSpeed = 0.006;
 	const double postSwipeMinimalSpeed = 0.1;
 
