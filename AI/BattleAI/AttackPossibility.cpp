@@ -30,7 +30,7 @@ void DamageCache::buildDamageCache(std::shared_ptr<HypotheticBattle> hb, int sid
 {
 	auto stacks = hb->battleGetUnitsIf([=](const battle::Unit * u) -> bool
 		{
-			return true;
+			return u->isValidTarget();
 		});
 
 	std::vector<const battle::Unit *> ourUnits, enemyUnits;
