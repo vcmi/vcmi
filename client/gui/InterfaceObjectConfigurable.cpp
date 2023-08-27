@@ -566,7 +566,7 @@ std::shared_ptr<CTextInput> InterfaceObjectConfigurable::buildTextInput(const Js
 	if(!config["callback"].isNull())
 		result->cb += callbacks_string.at(config["callback"].String());
 	if(!config["help"].isNull())
-		result->helpBox = readText(config["help"]);
+		result->setHelpText(readText(config["help"]));
 	return result;
 }
 
