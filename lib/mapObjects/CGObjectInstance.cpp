@@ -307,8 +307,16 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 	//only save here, loading is handled by map loader
 	if(handler.saving)
 	{
-		handler.serializeString("type", typeName);
-		handler.serializeString("subtype", subTypeName);
+		auto typeNameForSerialize = typeName.empty()
+			? VLC->objtypeh->getHandlerFor(ID, subID)->getTypeName()
+			: typeName;
+
+		auto subTypeNameForSerialize = subTypeName.empty()
+			? VLC->objtypeh->getHandlerFor(ID, subID)->getSubTypeName()
+			: subTypeName;
+
+		handler.serializeString("type", typeNameForSerialize);
+		handler.serializeString("subtype", subTypeNameForSerialize);
 
 		handler.serializeInt("x", pos.x);
 		handler.serializeInt("y", pos.y);

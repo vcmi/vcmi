@@ -65,6 +65,7 @@ public:
 		h & deltaName;
 		h & id;
 		h & paletteAnimation;
+		h & shortIdentifier;
 	}
 };
 

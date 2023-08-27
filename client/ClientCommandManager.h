@@ -25,6 +25,9 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	// Saves current game under the given filename
 	void handleSaveCommand(std::istringstream & singleWordBuffer);
 
+	// Saves current game under the given filename
+	void handleSaveMapCommand(std::istringstream & singleWordBuffer);
+
 	// Loads a game with the given filename
 	void handleLoadCommand(std::istringstream & singleWordBuffer);
 

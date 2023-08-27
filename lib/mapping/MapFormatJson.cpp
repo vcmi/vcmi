@@ -521,7 +521,7 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 			//TODO: optimize
 			for(auto & obj : map->objects)
 			{
-				if((obj->ID == Obj::HERO || obj->ID == Obj::RANDOM_HERO) && obj->tempOwner == PlayerColor(player))
+				if((obj && (obj->ID == Obj::HERO || obj->ID == Obj::RANDOM_HERO) && obj->tempOwner == PlayerColor(player)))
 				{
 					auto * hero = dynamic_cast<CGHeroInstance *>(obj.get());
 
@@ -1079,7 +1079,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 	}
 	catch (const std::exception &)
 	{
-		logGlobal->error("Failed to read terrain tile: %s");
+		logGlobal->error("Failed to read terrain tile: %s", src);
 	}
 }
 
@@ -1388,8 +1388,15 @@ void CMapSaverJson::writeObjects()
 
 	for(CGObjectInstance * obj : map->objects)
 	{
-		//logGlobal->trace("\t%s", obj->instanceName);
-		auto temp = handler.enterStruct(obj->instanceName);
+		if(!obj)
+			continue;
+
+		auto instanceName = obj->instanceName;
+
+		if(instanceName.empty())
+			instanceName = obj->typeName + "_" + std::to_string(obj->id.num);
+
+		auto temp = handler.enterStruct(instanceName);
 
 		obj->serializeJson(handler);
 	}

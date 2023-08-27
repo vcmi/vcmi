@@ -542,7 +542,20 @@ static const std::vector<std::string> CHARACTER_JSON  =
 
 void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	handler.serializeEnum("character", character, CHARACTER_JSON);
+	if(cb && cb->getDate() > 1 && handler.saving)
+	{
+		auto oldCharacter = 0;
+		if(character == 10)
+			oldCharacter = 4;
+		else if(character > 7)
+			oldCharacter = 3;
+		else
+			oldCharacter = character < 3 ? 1 : 2;
+
+		handler.serializeEnum("character", oldCharacter, CHARACTER_JSON);
+	}
+	else
+		handler.serializeEnum("character", character, CHARACTER_JSON);
 
 	if(handler.saving)
 	{

@@ -61,6 +61,28 @@ void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuff
 	printCommandMessage("Game saved as: " + saveFilename);
 }
 
+void ClientCommandManager::handleSaveMapCommand(std::istringstream & singleWordBuffer)
+{
+	if(!CSH->client)
+	{
+		printCommandMessage("Game is not in playing state");
+		return;
+	}
+
+	std::string saveFilename;
+	singleWordBuffer >> saveFilename;
+
+	CMapService mapService;
+	std::unique_ptr<CMap> map;
+	map.reset(CSH->client->gameState()->map.get());
+	mapService.saveMap(
+		map,
+		VCMIDirs::get().userDataPath() / "Maps" / "Saved" / (saveFilename + ".vmap"));
+	map.release();
+	
+	printCommandMessage("Game saved as: " + saveFilename);
+}
+
 void ClientCommandManager::handleLoadCommand(std::istringstream& singleWordBuffer)
 {
 	// TODO: this code should end the running game and manage to call startGame instead
@@ -493,6 +515,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(commandName == "save")
 		handleSaveCommand(singleWordBuffer);
+
+	else if(commandName == "savemap")
+		handleSaveMapCommand(singleWordBuffer);
 
 	else if(commandName=="load")
 		handleLoadCommand(singleWordBuffer); // not implemented

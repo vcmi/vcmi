@@ -48,6 +48,7 @@ public:
 		h & modScope;
 		h & id;
 		h & movementCost;
+		h & shortIdentifier;
 	}
 };
 
