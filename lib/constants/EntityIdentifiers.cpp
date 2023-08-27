@@ -47,12 +47,12 @@ const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER = SlotID(-3);
 const SlotID SlotID::WAR_MACHINES_SLOT = SlotID(-4);
 const SlotID SlotID::ARROW_TOWERS_SLOT = SlotID(-5);
 
-const PlayerColor PlayerColor::SPECTATOR = PlayerColor(252);
-const PlayerColor PlayerColor::CANNOT_DETERMINE = PlayerColor(253);
-const PlayerColor PlayerColor::UNFLAGGABLE = PlayerColor(254);
-const PlayerColor PlayerColor::NEUTRAL = PlayerColor(255);
+const PlayerColor PlayerColor::SPECTATOR = PlayerColor(-4);
+const PlayerColor PlayerColor::CANNOT_DETERMINE = PlayerColor(-3);
+const PlayerColor PlayerColor::UNFLAGGABLE = PlayerColor(-2);
+const PlayerColor PlayerColor::NEUTRAL = PlayerColor(-1);
 const PlayerColor PlayerColor::PLAYER_LIMIT = PlayerColor(PLAYER_LIMIT_I);
-const TeamID TeamID::NO_TEAM = TeamID(255);
+const TeamID TeamID::NO_TEAM = TeamID(-1);
 
 const SpellSchool SpellSchool::ANY = -1;
 const SpellSchool SpellSchool::AIR = 0;
@@ -194,12 +194,12 @@ std::string SpellIDBase::encode(const si32 index)
 
 bool PlayerColor::isValidPlayer() const
 {
-	return num < PLAYER_LIMIT_I;
+	return num >= 0 && num < PLAYER_LIMIT_I;
 }
 
 bool PlayerColor::isSpectator() const
 {
-	return num == 252;
+	return num == SPECTATOR.num;
 }
 
 std::string PlayerColor::getStr(bool L10n) const

@@ -147,14 +147,14 @@ TerrainId MapReaderH3M::readTerrain()
 RoadId MapReaderH3M::readRoad()
 {
 	RoadId result(readInt8());
-	assert(result.getNum() < features.roadsCount);
+	assert(result.getNum() <= features.roadsCount);
 	return result;
 }
 
 RiverId MapReaderH3M::readRiver()
 {
 	RiverId result(readInt8());
-	assert(result.getNum() < features.riversCount);
+	assert(result.getNum() <= features.riversCount);
 	return result;
 }
 
@@ -188,17 +188,24 @@ SpellID MapReaderH3M::readSpell32()
 
 PlayerColor MapReaderH3M::readPlayer()
 {
-	PlayerColor result(readUInt8());
-	assert(result < PlayerColor::PLAYER_LIMIT || result == PlayerColor::NEUTRAL);
-	return result;
+	uint8_t value = readUInt8();
+
+	if (value == 255)
+		return PlayerColor::NEUTRAL;
+
+	assert(value < PlayerColor::PLAYER_LIMIT_I);
+	return PlayerColor(value);
 }
 
 PlayerColor MapReaderH3M::readPlayer32()
 {
-	PlayerColor result(readInt32());
+	uint32_t value = readUInt32();
 
-	assert(result < PlayerColor::PLAYER_LIMIT || result == PlayerColor::NEUTRAL);
-	return result;
+	if (value == 255)
+		return PlayerColor::NEUTRAL;
+
+	assert(value < PlayerColor::PLAYER_LIMIT_I);
+	return PlayerColor(value);
 }
 
 void MapReaderH3M::readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction)

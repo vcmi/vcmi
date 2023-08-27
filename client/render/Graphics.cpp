@@ -139,7 +139,7 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 	if(sur->format->palette)
 	{
 		SDL_Color palette[32];
-		if(player < PlayerColor::PLAYER_LIMIT)
+		if(player.isValidPlayer())
 		{
 			for(int i=0; i<32; ++i)
 				palette[i] = CSDL_Ext::toSDL(playerColorPalette[player][i]);

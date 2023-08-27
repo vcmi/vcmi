@@ -804,7 +804,7 @@ void CGameHandler::onNewTurn()
 				setPortalDwelling(t, true, (n.specialWeek == NewTurn::PLAGUE ? true : false)); //set creatures for Portal of Summoning
 
 			if (!firstTurn)
-				if (t->hasBuilt(BuildingSubID::TREASURY) && player < PlayerColor::PLAYER_LIMIT)
+				if (t->hasBuilt(BuildingSubID::TREASURY) && player.isValidPlayer())
 						n.res[player][EGameResID::GOLD] += hadGold.at(player)/10; //give 10% of starting gold
 
 			if (!vstd::contains(n.cres, t->id))
@@ -845,7 +845,7 @@ void CGameHandler::onNewTurn()
 				}
 			}
 		}
-		if (!firstTurn  &&  player < PlayerColor::PLAYER_LIMIT)//not the first day and town not neutral
+		if (!firstTurn  &&  player.isValidPlayer())//not the first day and town not neutral
 		{
 			n.res[player] = n.res[player] + t->dailyIncome();
 		}
@@ -1312,13 +1312,13 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 	const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
 	if (town) //town captured
 	{
-		if (owner < PlayerColor::PLAYER_LIMIT) //new owner is real player
+		if (owner.isValidPlayer()) //new owner is real player
 		{
 			if (town->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
 				setPortalDwelling(town, true, false);
 		}
 
-		if (oldOwner < PlayerColor::PLAYER_LIMIT) //old owner is real player
+		if (oldOwner.isValidPlayer()) //old owner is real player
 		{
 			if (getPlayerState(oldOwner)->towns.empty() && getPlayerState(oldOwner)->status != EPlayerStatus::LOSER) //previous player lost last last town
 			{

@@ -570,7 +570,7 @@ void ApplyClientNetPackVisitor::visitSetHeroesInTown(SetHeroesInTown & pack)
 	//inform all players that see this object
 	for(auto i = cl.playerint.cbegin(); i != cl.playerint.cend(); ++i)
 	{
-		if(i->first >= PlayerColor::PLAYER_LIMIT)
+		if(!i->first.isValidPlayer())
 			continue;
 
 		if(gs.isVisible(t, i->first) ||

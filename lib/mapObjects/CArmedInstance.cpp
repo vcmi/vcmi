@@ -143,7 +143,7 @@ void CArmedInstance::armyChanged()
 
 CBonusSystemNode & CArmedInstance::whereShouldBeAttached(CGameState * gs)
 {
-	if(tempOwner < PlayerColor::PLAYER_LIMIT)
+	if(tempOwner.isValidPlayer())
 		if(auto * where = gs->getPlayerState(tempOwner))
 			return *where;
 

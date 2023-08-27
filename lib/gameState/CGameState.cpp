@@ -184,9 +184,9 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 		{
 			PlayerColor align = (dynamic_cast<CGTownInstance *>(obj))->alignmentToPlayer;
 			si32 f; // can be negative (for random)
-			if(align >= PlayerColor::PLAYER_LIMIT) //same as owner / random
+			if(!align.isValidPlayer()) //same as owner / random
 			{
-				if(obj->tempOwner >= PlayerColor::PLAYER_LIMIT)
+				if(!obj->tempOwner.isValidPlayer())
 					f = -1; //random
 				else
 					f = scenarioOps->getIthPlayersSettings(obj->tempOwner).castle;
@@ -1699,7 +1699,7 @@ PlayerColor CGameState::checkForStandardWin() const
 	TeamID winnerTeam = TeamID::NO_TEAM;
 	for(const auto & elem : players)
 	{
-		if(elem.second.status == EPlayerStatus::INGAME && elem.first < PlayerColor::PLAYER_LIMIT)
+		if(elem.second.status == EPlayerStatus::INGAME && elem.first.isValidPlayer())
 		{
 			if(supposedWinner == PlayerColor::NEUTRAL)
 			{

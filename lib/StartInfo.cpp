@@ -203,7 +203,7 @@ PlayerInfo & LobbyInfo::getPlayerInfo(int color)
 
 TeamID LobbyInfo::getPlayerTeamId(const PlayerColor & color)
 {
-	if(color < PlayerColor::PLAYER_LIMIT)
+	if(color.isValidPlayer())
 		return getPlayerInfo(color.getNum()).team;
 	else
 		return TeamID::NO_TEAM;

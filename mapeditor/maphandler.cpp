@@ -419,7 +419,7 @@ QRgb MapHandler::getTileColor(int x, int y, int z)
 		if(player == PlayerColor::NEUTRAL)
 			return graphics->neutralColor;
 		else
-			if (player < PlayerColor::PLAYER_LIMIT)
+			if (player.isValidPlayer())
 				return graphics->playerColors[player.getNum()];
 	}
 	

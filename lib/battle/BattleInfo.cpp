@@ -60,8 +60,7 @@ void BattleInfo::calculateCasualties(std::map<ui32,si32> * casualties) const
 CStack * BattleInfo::generateNewStack(uint32_t id, const CStackInstance & base, ui8 side, const SlotID & slot, BattleHex position)
 {
 	PlayerColor owner = sides[side].color;
-	assert((owner >= PlayerColor::PLAYER_LIMIT) ||
-		(base.armyObj && base.armyObj->tempOwner == owner));
+	assert(!owner.isValidPlayer() || (base.armyObj && base.armyObj->tempOwner == owner));
 
 	auto * ret = new CStack(&base, owner, id, side, slot);
 	ret->initialPosition = getAvaliableHex(base.getCreatureID(), side, position); //TODO: what if no free tile on battlefield was found?
