@@ -156,8 +156,7 @@ void MapView::postSwipe(uint32_t msPassed)
 			}	
 		}
 		swipeHistory.clear();
-	} else
-		postSwipeSpeed = 0.0;
+	}
 	if(postSwipeSpeed > postSwipeMinimalSpeed) {
 		double len = postSwipeSpeed * static_cast<double>(msPassed);
 		Point delta = Point(len * cos(postSwipeAngle), len * sin(postSwipeAngle));
