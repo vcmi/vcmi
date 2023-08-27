@@ -213,6 +213,8 @@ class CTextInput : public CLabel, public CFocusable
 	
 protected:
 	std::string visibleText() override;
+
+public:
 	
 	CFunctionList<void(const std::string &)> cb;
 	CFunctionList<void(std::string &, const std::string &)> filters;
