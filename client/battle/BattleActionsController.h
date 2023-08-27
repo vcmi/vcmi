@@ -23,12 +23,6 @@ VCMI_LIB_NAMESPACE_END
 
 class BattleInterface;
 
-enum class MouseHoveredHexContext
-{
-	UNOCCUPIED_HEX,
-	OCCUPIED_HEX
-};
-
 /// Class that controls actions that can be performed by player, e.g. moving stacks, attacking, etc
 /// As well as all relevant feedback for these actions in user interface
 class BattleActionsController
