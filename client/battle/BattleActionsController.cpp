@@ -235,13 +235,11 @@ void BattleActionsController::reorderPossibleActionsPriority(const CStack * stac
 					bool enemyTargetingPositiveSpellcast = item.spell().toSpell()->isPositive() && stackOwner != LOCPLINT->playerID;
 					bool friendTargetingNegativeSpellcast = item.spell().toSpell()->isNegative() && stackOwner == LOCPLINT->playerID;
 
-					if(enemyTargetingPositiveSpellcast || friendTargetingNegativeSpellcast)
-						return 100;
-					else
+					if(!enemyTargetingPositiveSpellcast && !friendTargetingNegativeSpellcast)
 						return 1;
 				}
-				else
-					return 100; //bottom priority
+				return 100; //bottom priority
+
 				break;
 			case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 				return 2;
