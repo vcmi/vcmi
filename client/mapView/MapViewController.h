@@ -10,9 +10,9 @@
 #pragma once
 
 #include "IMapRendererObserver.h"
+#include "../../lib/Point.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-class Point;
 struct ObjectPosInfo;
 VCMI_LIB_NAMESPACE_END
 
@@ -50,6 +50,10 @@ class MapViewController : public IMapObjectObserver
 	std::shared_ptr<MapRendererPuzzleMapContext> puzzleMapContext;
 
 private:
+	const int defaultTileSize = 32;
+	const int zoomTileDeadArea = 4;
+	Point targetTileSize = Point(32, 32);
+
 	bool isEventInstant(const CGObjectInstance * obj);
 	bool isEventVisible(const CGObjectInstance * obj);
 	bool isEventVisible(const CGHeroInstance * obj, const int3 & from, const int3 & dest);
