@@ -51,8 +51,9 @@ class MapViewController : public IMapObjectObserver
 
 private:
 	const int defaultTileSize = 32;
-	const int zoomTileDeadArea = 4;
+	const int zoomTileDeadArea = 5;
 	Point targetTileSize = Point(32, 32);
+	bool wasInDeadZone = true;
 
 	bool isEventInstant(const CGObjectInstance * obj);
 	bool isEventVisible(const CGObjectInstance * obj);

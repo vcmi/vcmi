@@ -20,6 +20,7 @@
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../eventsSDL/InputHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -118,6 +119,14 @@ void MapViewController::modifyTileSize(int stepsChange)
 			actualZoom.x = defaultTileSize;
 		if(actualZoom.y >= defaultTileSize - zoomTileDeadArea && actualZoom.y <= defaultTileSize + zoomTileDeadArea)
 			actualZoom.y = defaultTileSize;
+		
+		bool isInDeadZone = targetTileSize != actualZoom;
+
+		if(!wasInDeadZone && isInDeadZone)
+			GH.input().hapticFeedback();
+
+		wasInDeadZone = isInDeadZone;
+
 		setTileSize(actualZoom);
 	}
 }
