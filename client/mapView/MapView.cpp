@@ -139,14 +139,14 @@ void MapView::postSwipe(uint32_t msPassed) {
 			std::pair<uint32_t, Point> firstAccepted;
 			uint32_t now = GH.input().getTicks();
 			for (auto & x : swipeHistory) {
-				if(now - x.first < 150) { // only the last 150 ms are catched
+				if(now - x.first < postSwipeCatchIntervalMs) { // only the last x ms are catched
 					if(firstAccepted.first == 0)
 						firstAccepted = x;
 					diff += x.second;
 				}
 			}
 
-			uint32_t timediff = swipeHistory.rbegin()->first - firstAccepted.first;
+			uint32_t timediff = swipeHistory.back().first - firstAccepted.first;
 
 			if(diff.length() > 0 && timediff > 0)
 			{
@@ -157,13 +157,13 @@ void MapView::postSwipe(uint32_t msPassed) {
 		swipeHistory.clear();
 	} else
 		postSwipeSpeed = 0.0;
-	if(postSwipeSpeed > 0.1) {
+	if(postSwipeSpeed > postSwipeMinimalSpeed) {
 		double len = postSwipeSpeed * static_cast<double>(msPassed);
 		Point delta = Point(len * cos(postSwipeAngle), len * sin(postSwipeAngle));
 
 		controller->setViewCenter(model->getMapViewCenter() + delta, model->getLevel());
 
-		postSwipeSpeed /= 1 + msPassed * 0.006;
+		postSwipeSpeed /= 1 + msPassed * postSwipeSlowdownSpeed;
 	}
 }
 
