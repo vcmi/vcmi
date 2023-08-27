@@ -151,11 +151,21 @@ void TurnTimerHandler::onBattleLoop(int waitTime)
 	
 	std::lock_guard<std::recursive_mutex> guard(mx);
 	
-	const auto * stack = gs->curB.get()->battleGetStackByID(gs->curB->getActiveStackID());
-	if(!stack || !stack->getOwner().isValidPlayer())
-		return;
+	ui8 side = 0;
+	const CStack * stack = nullptr;
+	bool isTactisPhase = gs->curB.get()->battleTacticDist() > 0;
 	
-	auto & state = gs->players.at(gs->curB->getSidePlayer(stack->unitSide()));
+	if(isTactisPhase)
+		side = gs->curB.get()->battleGetTacticsSide();
+	else
+	{
+		stack = gs->curB.get()->battleGetStackByID(gs->curB->getActiveStackID());
+		if(!stack || !stack->getOwner().isValidPlayer())
+			return;
+		side = stack->unitSide();
+	}
+	
+	auto & state = gs->players.at(gs->curB->getSidePlayer(side));
 	
 	auto turnTimerUpdateApplier = [&](TurnTimerInfo & tTimer, int waitTime)
 	{
@@ -192,9 +202,14 @@ void TurnTimerHandler::onBattleLoop(int waitTime)
 			else
 			{
 				BattleAction doNothing;
-				doNothing.actionType = EActionType::DEFEND;
-				doNothing.side = stack->unitSide();
-				doNothing.stackNumber = stack->unitId();
+				doNothing.side = side;
+				if(isTactisPhase)
+					doNothing.actionType = EActionType::END_TACTIC_PHASE;
+				else
+				{
+					doNothing.actionType = EActionType::DEFEND;
+					doNothing.stackNumber = stack->unitId();
+				}
 				gameHandler.battles->makePlayerBattleAction(state.color, doNothing);
 			}
 		}
