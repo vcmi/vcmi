@@ -104,7 +104,7 @@ MapView::MapView(const Point & offset, const Point & dimensions)
 	actions = std::make_shared<MapViewActions>(*this, model);
 	actions->setContext(controller->getContext());
 
-	// catch min 10 frames
+// catch min 10 frames
 	postSwipeCatchIntervalMs = static_cast<int>(10.0 * 1000.0 * (1.0 / settings["video"]["targetfps"].Float()));
 }
 
@@ -159,7 +159,8 @@ void MapView::postSwipe(uint32_t msPassed)
 			}	
 		}
 		swipeHistory.clear();
-	}
+	} else
+		postSwipeSpeed = 0.0;
 	if(postSwipeSpeed > postSwipeMinimalSpeed) {
 		double len = postSwipeSpeed * static_cast<double>(msPassed);
 		Point delta = Point(len * cos(postSwipeAngle), len * sin(postSwipeAngle));
