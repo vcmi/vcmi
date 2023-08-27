@@ -63,7 +63,7 @@ AdventureMapInterface::AdventureMapInterface():
 	shortcuts->setState(EAdventureState::MAKING_TURN);
 	widget->getMapView()->onViewMapActivated();
 
-	if(LOCPLINT->cb->getStartInfo()->turnTimerInfo.isEnabled())
+	if(LOCPLINT->cb->getStartInfo()->turnTimerInfo.isEnabled() || LOCPLINT->cb->getStartInfo()->turnTimerInfo.isBattleEnabled())
 		watches = std::make_shared<TurnTimerWidget>();
 	
 	addUsedEvents(KEYBOARD | TIME);

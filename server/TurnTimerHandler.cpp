@@ -30,12 +30,9 @@ void TurnTimerHandler::onGameplayStart(PlayerColor player)
 {
 	if(const auto * si = gameHandler.getStartInfo())
 	{
-		if(si->turnTimerInfo.isEnabled())
-		{
-			std::lock_guard<std::recursive_mutex> guard(mx);
-			timers[player] = si->turnTimerInfo;
-			timers[player].turnTimer = 0;
-		}
+		std::lock_guard<std::recursive_mutex> guard(mx);
+		timers[player] = si->turnTimerInfo;
+		timers[player].turnTimer = 0;
 	}
 }
 
