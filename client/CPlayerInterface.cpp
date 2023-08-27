@@ -898,6 +898,12 @@ void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
 
 	RETURN_IF_QUICK_COMBAT;
 	battleInt->effectsController->battleTriggerEffect(bte);
+
+	if(bte.effect == vstd::to_underlying(BonusType::MANA_DRAIN))
+	{
+		const CGHeroInstance * manaDrainedHero = LOCPLINT->cb->getHero(ObjectInstanceID(bte.additionalInfo));
+		battleInt->windowObject->heroManaPointsChanged(manaDrainedHero);
+	}
 }
 void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged)
 {
