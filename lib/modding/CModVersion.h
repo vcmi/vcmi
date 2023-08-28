@@ -31,7 +31,7 @@ struct DLL_LINKAGE CModVersion
 	static CModVersion fromString(std::string from);
 	std::string toString() const;
 
-	bool compatible(const CModVersion & other, bool checkMinor = false, bool checkPatch = false) const;
+	bool compatible(const CModVersion & other, bool checkMinor = true, bool checkPatch = false) const;
 	bool isNull() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
