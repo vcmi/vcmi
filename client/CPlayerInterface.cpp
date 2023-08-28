@@ -1000,7 +1000,7 @@ void CPlayerInterface::battleGateStateChanged(const EGateState state)
 	battleInt->gateStateChanged(state);
 }
 
-void CPlayerInterface::yourTacticPhase(int distance)
+void CPlayerInterface::yourTacticPhase(const BattleID & battleID, int distance)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 }
@@ -2126,7 +2126,7 @@ void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectP
 	adventureInt->openWorldView(objectPositions, showTerrain );
 }
 
-std::optional<BattleAction> CPlayerInterface::makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
+std::optional<BattleAction> CPlayerInterface::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
 	return std::nullopt;
 }

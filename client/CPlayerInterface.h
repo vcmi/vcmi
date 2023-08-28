@@ -171,8 +171,8 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles) override;
 	void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
 	void battleGateStateChanged(const EGateState state) override;
-	void yourTacticPhase(int distance) override;
-	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
+	void yourTacticPhase(const BattleID & battleID, int distance) override;
+	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
 public: // public interface for use by client via LOCPLINT access
 

@@ -634,7 +634,7 @@ void CClient::battleStarted(const BattleInfo * info)
 		auto tacticianColor = info->sides[info->tacticsSide].color;
 
 		if (vstd::contains(battleints, tacticianColor))
-			battleints[tacticianColor]->yourTacticPhase(info->tacticDistance);
+			battleints[tacticianColor]->yourTacticPhase(info->battleID, info->tacticDistance);
 	}
 }
 

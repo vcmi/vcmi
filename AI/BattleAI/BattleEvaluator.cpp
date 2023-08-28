@@ -53,12 +53,12 @@ std::vector<BattleHex> BattleEvaluator::getBrokenWallMoatHexes() const
 
 	for(EWallPart wallPart : { EWallPart::BOTTOM_WALL, EWallPart::BELOW_GATE, EWallPart::OVER_GATE, EWallPart::UPPER_WALL })
 	{
-		auto state = cb->battleGetWallState(wallPart);
+		auto state = cb->getBattle(battleID)->battleGetWallState(wallPart);
 
 		if(state != EWallState::DESTROYED)
 			continue;
 
-		auto wallHex = cb->wallPartToBattleHex((EWallPart)wallPart);
+		auto wallHex = cb->getBattle(battleID)->wallPartToBattleHex((EWallPart)wallPart);
 		auto moatHex = wallHex.cloneInDirection(BattleHex::LEFT);
 
 		result.push_back(moatHex);
@@ -70,15 +70,15 @@ std::vector<BattleHex> BattleEvaluator::getBrokenWallMoatHexes() const
 std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack *stack)
 {
 	//TODO: faerie dragon type spell should be selected by server
-	SpellID creatureSpellToCast = cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), stack, CBattleInfoCallback::RANDOM_AIMED);
+	SpellID creatureSpellToCast = cb->getBattle(battleID)->battleGetRandomStackSpell(CRandomGenerator::getDefault(), stack, CBattleInfoCallback::RANDOM_AIMED);
 	if(stack->hasBonusOfType(BonusType::SPELLCASTER) && stack->canCast() && creatureSpellToCast != SpellID::NONE)
 	{
 		const CSpell * spell = creatureSpellToCast.toSpell();
 
-		if(spell->canBeCast(getCbc().get(), spells::Mode::CREATURE_ACTIVE, stack))
+		if(spell->canBeCast(cb->getBattle(battleID).get(), spells::Mode::CREATURE_ACTIVE, stack))
 		{
 			std::vector<PossibleSpellcast> possibleCasts;
-			spells::BattleCast temp(getCbc().get(), stack, spells::Mode::CREATURE_ACTIVE, spell);
+			spells::BattleCast temp(cb->getBattle(battleID).get(), stack, spells::Mode::CREATURE_ACTIVE, spell);
 			for(auto & target : temp.findPotentialTargets())
 			{
 				PossibleSpellcast ps;
@@ -201,7 +201,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 	if(score <= EvaluationResult::INEFFECTIVE_SCORE
 		&& !stack->hasBonusOfType(BonusType::FLYING)
 		&& stack->unitSide() == BattleSide::ATTACKER
-		&& cb->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
+		&& cb->getBattle(battleID)->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
 	{
 		auto brokenWallMoat = getBrokenWallMoatHexes();
 
@@ -228,8 +228,8 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 
 BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes)
 {
-	auto reachability = cb->getReachability(stack);
-	auto avHexes = cb->battleGetAvailableHexes(reachability, stack, false);
+	auto reachability = cb->getBattle(battleID)->getReachability(stack);
+	auto avHexes = cb->getBattle(battleID)->battleGetAvailableHexes(reachability, stack, false);
 
 	if(!avHexes.size() || !hexes.size()) //we are blocked or dest is blocked
 	{
@@ -325,16 +325,16 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 
 bool BattleEvaluator::canCastSpell()
 {
-	auto hero = cb->battleGetMyHero();
+	auto hero = cb->getBattle(battleID)->battleGetMyHero();
 	if(!hero)
 		return false;
 
-	return cb->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK;
+	return cb->getBattle(battleID)->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK;
 }
 
 bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 {
-	auto hero = cb->battleGetMyHero();
+	auto hero = cb->getBattle(battleID)->battleGetMyHero();
 	if(!hero)
 		return false;
 
@@ -343,7 +343,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	std::vector<const CSpell*> possibleSpells;
 	vstd::copy_if(VLC->spellh->objects, std::back_inserter(possibleSpells), [hero, this](const CSpell *s) -> bool
 	{
-		return s->canBeCast(cb.get(), spells::Mode::HERO, hero);
+		return s->canBeCast(cb->getBattle(battleID).get(), spells::Mode::HERO, hero);
 	});
 	LOGFL("I can cast %d spells.", possibleSpells.size());
 
@@ -358,7 +358,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	std::vector<PossibleSpellcast> possibleCasts;
 	for(auto spell : possibleSpells)
 	{
-		spells::BattleCast temp(cb.get(), hero, spells::Mode::HERO, spell);
+		spells::BattleCast temp(cb->getBattle(battleID).get(), hero, spells::Mode::HERO, spell);
 
 		if(spell->getTargetType() == spells::AimType::LOCATION)
 			continue;
@@ -468,7 +468,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	ValueMap valueOfStack;
 	ValueMap healthOfStack;
 
-	TStacks all = cb->battleGetAllStacks(false);
+	TStacks all = cb->getBattle(battleID)->battleGetAllStacks(false);
 
 	size_t ourRemainingTurns = 0;
 
@@ -477,7 +477,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 		healthOfStack[unit->unitId()] = unit->getAvailableHealth();
 		valueOfStack[unit->unitId()] = 0;
 
-		if(cb->battleGetOwner(unit) == playerID && unit->canMove() && !unit->moved())
+		if(cb->getBattle(battleID)->battleGetOwner(unit) == playerID && unit->canMove() && !unit->moved())
 			ourRemainingTurns++;
 	}
 
@@ -494,12 +494,12 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 	std::vector<battle::Units> turnOrder;
 
-	cb->battleGetTurnOrder(turnOrder, amount, 2); //no more than 1 turn after current, each unit at least once
+	cb->getBattle(battleID)->battleGetTurnOrder(turnOrder, amount, 2); //no more than 1 turn after current, each unit at least once
 
 	{
 		bool enemyHadTurn = false;
 
-		auto state = std::make_shared<HypotheticBattle>(env.get(), cb);
+		auto state = std::make_shared<HypotheticBattle>(env.get(), cb->getBattle(battleID));
 
 		evaluateQueue(valueOfStack, turnOrder, state, 0, &enemyHadTurn);
 
@@ -531,7 +531,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				logAi->trace("Evaluating %s", ps.spell->getNameTranslated());
 #endif
 
-				auto state = std::make_shared<HypotheticBattle>(env.get(), cb);
+				auto state = std::make_shared<HypotheticBattle>(env.get(), cb->getBattle(battleID));
 
 				spells::BattleCast cast(state.get(), hero, spells::Mode::HERO, ps.spell);
 				cast.castEval(state->getServerCallback(), ps.dest);
@@ -540,7 +540,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 				auto needFullEval = vstd::contains_if(allUnits, [&](const battle::Unit * u) -> bool
 					{
-						auto original = cb->battleGetUnitByID(u->unitId());
+						auto original = cb->getBattle(battleID)->battleGetUnitByID(u->unitId());
 						return  !original || u->speed() != original->speed();
 					});
 
@@ -583,7 +583,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					if(oldHealth != newHealth)
 					{
 						auto damage = std::abs(oldHealth - newHealth);
-						auto originalDefender = cb->battleGetUnitByID(unit->unitId());
+						auto originalDefender = cb->getBattle(battleID)->battleGetUnitByID(unit->unitId());
 
 						auto dpsReduce = AttackPossibility::calculateDamageReduce(
 							nullptr,
@@ -639,7 +639,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 		spellcast.setTarget(castToPerform.dest);
 		spellcast.side = side;
 		spellcast.stackNumber = (!side) ? -1 : -2;
-		cb->battleMakeSpellAction(spellcast);
+		cb->battleMakeSpellAction(battleID, spellcast);
 		activeActionMade = true;
 
 		return true;
@@ -656,8 +656,8 @@ void BattleEvaluator::evaluateCreatureSpellcast(const CStack * stack, PossibleSp
 	using ValueMap = PossibleSpellcast::ValueMap;
 
 	RNGStub rngStub;
-	HypotheticBattle state(env.get(), cb);
-	TStacks all = cb->battleGetAllStacks(false);
+	HypotheticBattle state(env.get(), cb->getBattle(battleID));
+	TStacks all = cb->getBattle(battleID)->battleGetAllStacks(false);
 
 	ValueMap healthOfStack;
 	ValueMap newHealthOfStack;
@@ -686,7 +686,7 @@ void BattleEvaluator::evaluateCreatureSpellcast(const CStack * stack, PossibleSp
 
 		auto healthDiff = newHealthOfStack[unitId] - healthOfStack[unitId];
 
-		if(localUnit->unitOwner() != getCbc()->getPlayerID())
+		if(localUnit->unitOwner() != cb->getBattle(battleID)->getPlayerID())
 			healthDiff = -healthDiff;
 
 		if(healthDiff < 0)

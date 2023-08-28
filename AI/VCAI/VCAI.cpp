@@ -1577,22 +1577,22 @@ void VCAI::completeGoal(Goals::TSubgoal goal)
 
 }
 
-void VCAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
+void VCAI::battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
 {
 	NET_EVENT_HANDLER;
 	assert(!playerID.isValidPlayer() || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
 	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTranslated() : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
-	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side, replayAllowed);
+	CAdventureAI::battleStart(battleID, army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
 
-void VCAI::battleEnd(const BattleResult * br, QueryID queryID)
+void VCAI::battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID)
 {
 	NET_EVENT_HANDLER;
 	assert(status.getBattle() == ONGOING_BATTLE);
 	status.setBattle(ENDING_BATTLE);
-	bool won = br->winner == myCb->battleGetMySide();
+	bool won = br->winner == myCb->getBattle(battleID)->battleGetMySide();
 	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.toString(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
 
@@ -1605,7 +1605,7 @@ void VCAI::battleEnd(const BattleResult * br, QueryID queryID)
 			answerQuery(queryID, confirmAction);
 		});
 	}
-	CAdventureAI::battleEnd(br, queryID);
+	CAdventureAI::battleEnd(battleID, br, queryID);
 }
 
 void VCAI::waitTillFree()
@@ -2894,7 +2894,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	return true;
 }
 
-std::optional<BattleAction> VCAI::makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
+std::optional<BattleAction> VCAI::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
 	return std::nullopt;
 }

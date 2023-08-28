@@ -52,7 +52,8 @@ void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	setCbc(CB);
 	env = ENV;
 	cb = CB;
-	playerID = *CB->getPlayerID(); //TODO should be sth in callback
+	assert(0);// FIXME:
+	// playerID = *CB->getPlayerID(); //TODO should be sth in callback
 	wasWaitingForRealize = CB->waitTillRealize;
 	wasUnlockingGs = CB->unlockGsWhenWaiting;
 	CB->waitTillRealize = false;
@@ -66,9 +67,9 @@ void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	autobattlePreferences = autocombatPreferences;
 }
 
-BattleAction CBattleAI::useHealingTent(const CStack *stack)
+BattleAction CBattleAI::useHealingTent(const BattleID & battleID, const CStack *stack)
 {
-	auto healingTargets = cb->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);
+	auto healingTargets = cb->getBattle(battleID)->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);
 	std::map<int, const CStack*> woundHpToStack;
 	for(const auto * stack : healingTargets)
 	{
@@ -82,12 +83,12 @@ BattleAction CBattleAI::useHealingTent(const CStack *stack)
 		return BattleAction::makeHeal(stack, woundHpToStack.rbegin()->second); //last element of the woundHpToStack is the most wounded stack
 }
 
-void CBattleAI::yourTacticPhase(int distance)
+void CBattleAI::yourTacticPhase(const BattleID & battleID, int distance)
 {
-	cb->battleMakeTacticAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
+	cb->battleMakeTacticAction(battleID, BattleAction::makeEndOFTacticPhase(cb->getBattle(battleID)->battleGetTacticsSide()));
 }
 
-float getStrengthRatio(std::shared_ptr<CBattleCallback> cb, int side)
+static float getStrengthRatio(std::shared_ptr<CBattleInfoCallback> cb, int side)
 {
 	auto stacks = cb->battleGetAllStacks();
 	auto our = 0, enemy = 0;
@@ -108,7 +109,7 @@ float getStrengthRatio(std::shared_ptr<CBattleCallback> cb, int side)
 	return enemy == 0 ? 1.0f : static_cast<float>(our) / enemy;
 }
 
-void CBattleAI::activeStack(const CStack * stack )
+void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
 {
 	LOG_TRACE_PARAMS(logAi, "stack: %s", stack->nodeName());
 
@@ -128,12 +129,12 @@ void CBattleAI::activeStack(const CStack * stack )
 	{
 		if(stack->creatureId() == CreatureID::CATAPULT)
 		{
-			cb->battleMakeUnitAction(useCatapult(stack));
+			cb->battleMakeUnitAction(battleID, useCatapult(battleID, stack));
 			return;
 		}
 		if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON) && stack->hasBonusOfType(BonusType::HEALER))
 		{
-			cb->battleMakeUnitAction(useHealingTent(stack));
+			cb->battleMakeUnitAction(battleID, useHealingTent(battleID, stack));
 			return;
 		}
 
@@ -141,7 +142,7 @@ void CBattleAI::activeStack(const CStack * stack )
 		logAi->trace("Build evaluator and targets");
 #endif
 
-		BattleEvaluator evaluator(env, cb, stack, playerID, side, getStrengthRatio(cb, side));
+		BattleEvaluator evaluator(env, cb, stack, playerID, battleID, side, getStrengthRatio(cb->getBattle(battleID), side));
 
 		result = evaluator.selectStackAction(stack);
 
@@ -157,9 +158,9 @@ void CBattleAI::activeStack(const CStack * stack )
 
 		logAi->trace("Spellcast attempt completed in %lld", timeElapsed(start));
 
-		if(auto action = considerFleeingOrSurrendering())
+		if(auto action = considerFleeingOrSurrendering(battleID))
 		{
-			cb->battleMakeUnitAction(*action);
+			cb->battleMakeUnitAction(battleID, *action);
 			return;
 		}
 	}
@@ -183,17 +184,17 @@ void CBattleAI::activeStack(const CStack * stack )
 
 	logAi->trace("BattleAI decission made in %lld", timeElapsed(start));
 
-	cb->battleMakeUnitAction(result);
+	cb->battleMakeUnitAction(battleID, result);
 }
 
-BattleAction CBattleAI::useCatapult(const CStack * stack)
+BattleAction CBattleAI::useCatapult(const BattleID & battleID, const CStack * stack)
 {
 	BattleAction attack;
 	BattleHex targetHex = BattleHex::INVALID;
 
-	if(cb->battleGetGateState() == EGateState::CLOSED)
+	if(cb->getBattle(battleID)->battleGetGateState() == EGateState::CLOSED)
 	{
-		targetHex = cb->wallPartToBattleHex(EWallPart::GATE);
+		targetHex = cb->getBattle(battleID)->wallPartToBattleHex(EWallPart::GATE);
 	}
 	else
 	{
@@ -209,11 +210,11 @@ BattleAction CBattleAI::useCatapult(const CStack * stack)
 
 		for(auto wallPart : wallParts)
 		{
-			auto wallState = cb->battleGetWallState(wallPart);
+			auto wallState = cb->getBattle(battleID)->battleGetWallState(wallPart);
 
 			if(wallState == EWallState::REINFORCED || wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
 			{
-				targetHex = cb->wallPartToBattleHex(wallPart);
+				targetHex = cb->getBattle(battleID)->wallPartToBattleHex(wallPart);
 				break;
 			}
 		}
@@ -234,7 +235,7 @@ BattleAction CBattleAI::useCatapult(const CStack * stack)
 	return attack;
 }
 
-void CBattleAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side, bool replayAllowed)
+void CBattleAI::battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side, bool replayAllowed)
 {
 	LOG_TRACE(logAi);
 	side = Side;
@@ -247,17 +248,17 @@ void CBattleAI::print(const std::string &text) const
 	logAi->trace("%s Battle AI[%p]: %s", playerID.toString(), this, text);
 }
 
-std::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
+std::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering(const BattleID & battleID)
 {
 	BattleStateInfoForRetreat bs;
 
-	bs.canFlee = cb->battleCanFlee();
-	bs.canSurrender = cb->battleCanSurrender(playerID);
-	bs.ourSide = cb->battleGetMySide();
-	bs.ourHero = cb->battleGetMyHero(); 
+	bs.canFlee = cb->getBattle(battleID)->battleCanFlee();
+	bs.canSurrender = cb->getBattle(battleID)->battleCanSurrender(playerID);
+	bs.ourSide = cb->getBattle(battleID)->battleGetMySide();
+	bs.ourHero = cb->getBattle(battleID)->battleGetMyHero();
 	bs.enemyHero = nullptr;
 
-	for(auto stack : cb->battleGetAllStacks(false))
+	for(auto stack : cb->getBattle(battleID)->battleGetAllStacks(false))
 	{
 		if(stack->alive())
 		{
@@ -266,7 +267,7 @@ std::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 			else
 			{
 				bs.enemyStacks.push_back(stack);
-				bs.enemyHero = cb->battleGetOwnerHero(stack);
+				bs.enemyHero = cb->getBattle(battleID)->battleGetOwnerHero(stack);
 			}
 		}
 	}
@@ -278,7 +279,7 @@ std::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 		return std::nullopt;
 	}
 
-	auto result = cb->makeSurrenderRetreatDecision(bs);
+	auto result = cb->makeSurrenderRetreatDecision(battleID, bs);
 
 	if(!result && bs.canFlee && bs.turnsSkippedByDefense > 30)
 	{

@@ -13,7 +13,6 @@
 #include <vcmi/Environment.h>
 
 #include "../lib/IGameCallback.h"
-#include "../lib/battle/CBattleInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -105,12 +104,12 @@ public:
 	const Services * services() const override;
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
-	const BattleCb * battle() const override;
+	const BattleCb * battle(const BattleID & battle) const override;
 	const GameCb * game() const override;
 };
 
 /// Class which handles client - server logic
-class CClient : public IGameCallback, public CBattleInfoCallback, public Environment
+class CClient : public IGameCallback, public Environment
 {
 public:
 	std::map<PlayerColor, std::shared_ptr<CGameInterface>> playerint;
@@ -124,7 +123,7 @@ public:
 	~CClient();
 
 	const Services * services() const override;
-	const BattleCb * battle() const override;
+	const BattleCb * battle(const BattleID & battle) const override;
 	const GameCb * game() const override;
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;

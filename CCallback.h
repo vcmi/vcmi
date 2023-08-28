@@ -53,10 +53,12 @@ public:
 	bool waitTillRealize = false; //if true, request functions will return after they are realized by server
 	bool unlockGsWhenWaiting = false;//if true after sending each request, gs mutex will be unlocked so the changes can be applied; NOTICE caller must have gs mx locked prior to any call to actiob callback!
 	//battle
-	virtual void battleMakeSpellAction(const BattleAction & action) = 0;
-	virtual void battleMakeUnitAction(const BattleAction & action) = 0;
-	virtual void battleMakeTacticAction(const BattleAction & action) = 0;
-	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) = 0;
+	virtual void battleMakeSpellAction(const BattleID & battleID, const BattleAction & action) = 0;
+	virtual void battleMakeUnitAction(const BattleID & battleID, const BattleAction & action) = 0;
+	virtual void battleMakeTacticAction(const BattleID & battleID, const BattleAction & action) = 0;
+	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) = 0;
+
+	virtual std::shared_ptr<CPlayerBattleCallback> getBattle(const BattleID & battleID) = 0;
 };
 
 class IGameActionCallback
@@ -108,18 +110,25 @@ public:
 	virtual void bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap) = 0;
 };
 
-class CBattleCallback : public IBattleCallback, public CPlayerBattleCallback
+class CBattleCallback : public IBattleCallback
 {
+	std::map<BattleID, std::shared_ptr<CPlayerBattleCallback>> activeBattles;
+
 protected:
 	int sendRequest(const CPackForServer * request); //returns requestID (that'll be matched to requestID in PackageApplied)
 	CClient *cl;
 
 public:
 	CBattleCallback(std::optional<PlayerColor> Player, CClient * C);
-	void battleMakeSpellAction(const BattleAction & action) override;//for casting spells by hero - DO NOT use it for moving active stack
-	void battleMakeUnitAction(const BattleAction & action) override;
-	void battleMakeTacticAction(const BattleAction & action) override; // performs tactic phase actions
-	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
+	void battleMakeSpellAction(const BattleID & battleID, const BattleAction & action) override;//for casting spells by hero - DO NOT use it for moving active stack
+	void battleMakeUnitAction(const BattleID & battleID, const BattleAction & action) override;
+	void battleMakeTacticAction(const BattleID & battleID, const BattleAction & action) override; // performs tactic phase actions
+	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
+
+	std::shared_ptr<CPlayerBattleCallback> getBattle(const BattleID & battleID) override;
+
+	void onBattleStarted(const BattleID & battleID);
+	void onBattleEnded(const BattleID & battleID);
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getContextPool() const override;
@@ -129,9 +138,7 @@ public:
 	friend class CClient;
 };
 
-class CCallback : public CPlayerSpecificInfoCallback,
-	public IGameActionCallback,
-	public CBattleCallback
+class CCallback : public CPlayerSpecificInfoCallback, public CBattleCallback, public IGameActionCallback
 {
 public:
 	CCallback(CGameState * GS, std::optional<PlayerColor> Player, CClient * C);

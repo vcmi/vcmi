@@ -393,7 +393,7 @@ void CBattleCallback::battleMakeTacticAction( const BattleAction & action )
 	sendRequest(&ma);
 }
 
-std::optional<BattleAction> CBattleCallback::makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
+std::optional<BattleAction> CBattleCallback::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
-	return cl->playerint[getPlayerID().value()]->makeSurrenderRetreatDecision(battleState);
+	return cl->playerint[getPlayerID().value()]->makeSurrenderRetreatDecision(battleID< battleState);
 }

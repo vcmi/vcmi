@@ -21,6 +21,7 @@
 #include "../../lib/serializer/BinarySerializer.h"
 #include "../../lib/serializer/BinaryDeserializer.h"
 #include "../../lib/battle/BattleStateInfoForRetreat.h"
+#include "../../lib/battle/BattleInfo.h"
 
 #include "AIGateway.h"
 #include "Goals/Goals.h"
@@ -510,7 +511,7 @@ void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositio
 	NET_EVENT_HANDLER;
 }
 
-std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
+std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -1080,22 +1081,22 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 	}
 }
 
-void AIGateway::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
+void AIGateway::battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
 {
 	NET_EVENT_HANDLER;
 	assert(!playerID.isValidPlayer() || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
 	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTranslated() : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
-	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side, replayAllowed);
+	CAdventureAI::battleStart(battleID, army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
 
-void AIGateway::battleEnd(const BattleResult * br, QueryID queryID)
+void AIGateway::battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID)
 {
 	NET_EVENT_HANDLER;
 	assert(status.getBattle() == ONGOING_BATTLE);
 	status.setBattle(ENDING_BATTLE);
-	bool won = br->winner == myCb->battleGetMySide();
+	bool won = br->winner == myCb->getBattle(battleID)->battleGetMySide();
 	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.toString(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
 
@@ -1108,7 +1109,7 @@ void AIGateway::battleEnd(const BattleResult * br, QueryID queryID)
 			answerQuery(queryID, confirmAction);
 		});
 	}
-	CAdventureAI::battleEnd(br, queryID);
+	CAdventureAI::battleEnd(battleID, br, queryID);
 }
 
 void AIGateway::waitTillFree()

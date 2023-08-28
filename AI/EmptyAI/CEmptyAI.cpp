@@ -36,14 +36,14 @@ void CEmptyAI::yourTurn(QueryID queryID)
 	cb->endTurn();
 }
 
-void CEmptyAI::activeStack(const CStack * stack)
+void CEmptyAI::activeStack(const BattleID & battleID, const CStack * stack)
 {
-	cb->battleMakeUnitAction(BattleAction::makeDefend(stack));
+	cb->battleMakeUnitAction(battleID, BattleAction::makeDefend(stack));
 }
 
-void CEmptyAI::yourTacticPhase(int distance)
+void CEmptyAI::yourTacticPhase(const BattleID & battleID, int distance)
 {
-	cb->battleMakeTacticAction(BattleAction::makeEndOFTacticPhase(cb->battleGetTacticsSide()));
+	cb->battleMakeTacticAction(battleID, BattleAction::makeEndOFTacticPhase(cb->getBattle(battleID)->battleGetTacticsSide()));
 }
 
 void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID)
@@ -76,7 +76,7 @@ void CEmptyAI::showMapObjectSelectDialog(QueryID askID, const Component & icon, 
 	cb->selectionMade(0, askID);
 }
 
-std::optional<BattleAction> CEmptyAI::makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
+std::optional<BattleAction> CEmptyAI::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
 	return std::nullopt;
 }

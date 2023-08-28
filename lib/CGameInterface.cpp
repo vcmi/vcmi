@@ -157,90 +157,90 @@ CGlobalAI::CGlobalAI()
 	human = false;
 }
 
-void CAdventureAI::battleNewRound(int round)
+void CAdventureAI::battleNewRound(const BattleID & battleID, int round)
 {
-	battleAI->battleNewRound(round);
+	battleAI->battleNewRound(battleID, round);
 }
 
-void CAdventureAI::battleCatapultAttacked(const CatapultAttack & ca)
+void CAdventureAI::battleCatapultAttacked(const BattleID & battleID, const CatapultAttack & ca)
 {
-	battleAI->battleCatapultAttacked(ca);
+	battleAI->battleCatapultAttacked(battleID, ca);
 }
 
-void CAdventureAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile,
+void CAdventureAI::battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile,
 							   const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed)
 {
 	assert(!battleAI);
 	assert(cbc);
 	battleAI = CDynLibHandler::getNewBattleAI(getBattleAIName());
 	battleAI->initBattleInterface(env, cbc);
-	battleAI->battleStart(army1, army2, tile, hero1, hero2, side, replayAllowed);
+	battleAI->battleStart(battleID, army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
 
-void CAdventureAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged)
+void CAdventureAI::battleStacksAttacked(const BattleID & battleID, const std::vector<BattleStackAttacked> & bsa, bool ranged)
 {
-	battleAI->battleStacksAttacked(bsa, ranged);
+	battleAI->battleStacksAttacked(battleID, bsa, ranged);
 }
 
-void CAdventureAI::actionStarted(const BattleAction & action)
+void CAdventureAI::actionStarted(const BattleID & battleID, const BattleAction & action)
 {
-	battleAI->actionStarted(action);
+	battleAI->actionStarted(battleID, action);
 }
 
-void CAdventureAI::battleNewRoundFirst(int round)
+void CAdventureAI::battleNewRoundFirst(const BattleID & battleID, int round)
 {
-	battleAI->battleNewRoundFirst(round);
+	battleAI->battleNewRoundFirst(battleID, round);
 }
 
-void CAdventureAI::actionFinished(const BattleAction & action)
+void CAdventureAI::actionFinished(const BattleID & battleID, const BattleAction & action)
 {
-	battleAI->actionFinished(action);
+	battleAI->actionFinished(battleID, action);
 }
 
-void CAdventureAI::battleStacksEffectsSet(const SetStackEffect & sse)
+void CAdventureAI::battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse)
 {
-	battleAI->battleStacksEffectsSet(sse);
+	battleAI->battleStacksEffectsSet(battleID, sse);
 }
 
-void CAdventureAI::battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles)
+void CAdventureAI::battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles)
 {
-	battleAI->battleObstaclesChanged(obstacles);
+	battleAI->battleObstaclesChanged(battleID, obstacles);
 }
 
-void CAdventureAI::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport)
+void CAdventureAI::battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport)
 {
-	battleAI->battleStackMoved(stack, dest, distance, teleport);
+	battleAI->battleStackMoved(battleID, stack, dest, distance, teleport);
 }
 
-void CAdventureAI::battleAttack(const BattleAttack * ba)
+void CAdventureAI::battleAttack(const BattleID & battleID, const BattleAttack * ba)
 {
-	battleAI->battleAttack(ba);
+	battleAI->battleAttack(battleID, ba);
 }
 
-void CAdventureAI::battleSpellCast(const BattleSpellCast * sc)
+void CAdventureAI::battleSpellCast(const BattleID & battleID, const BattleSpellCast * sc)
 {
-	battleAI->battleSpellCast(sc);
+	battleAI->battleSpellCast(battleID, sc);
 }
 
-void CAdventureAI::battleEnd(const BattleResult * br, QueryID queryID)
+void CAdventureAI::battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID)
 {
-	battleAI->battleEnd(br, queryID);
+	battleAI->battleEnd(battleID, br, queryID);
 	battleAI.reset();
 }
 
-void CAdventureAI::battleUnitsChanged(const std::vector<UnitChanges> & units)
+void CAdventureAI::battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units)
 {
-	battleAI->battleUnitsChanged(units);
+	battleAI->battleUnitsChanged(battleID, units);
 }
 
-void CAdventureAI::activeStack(const CStack * stack)
+void CAdventureAI::activeStack(const BattleID & battleID, const CStack * stack)
 {
-	battleAI->activeStack(stack);
+	battleAI->activeStack(battleID, stack);
 }
 
-void CAdventureAI::yourTacticPhase(int distance)
+void CAdventureAI::yourTacticPhase(const BattleID & battleID, int distance)
 {
-	battleAI->yourTacticPhase(distance);
+	battleAI->yourTacticPhase(battleID, distance);
 }
 
 void CAdventureAI::saveGame(BinarySerializer & h, const int version) /*saving */
