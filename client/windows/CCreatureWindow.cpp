@@ -15,6 +15,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../render/Canvas.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CArtifactHolder.h"
 #include "../widgets/CComponent.h"
@@ -84,7 +85,6 @@ public:
 	{
 	}
 
-
 	std::string getName() const
 	{
 		if(commander)
@@ -96,11 +96,14 @@ private:
 
 };
 
-CCommanderSkillIcon::CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, std::function<void()> callback)
+CCommanderSkillIcon::CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, bool isGrandmasterAbility_, std::function<void()> callback)
 	: object(),
+	isGrandmasterAbility(isGrandmasterAbility_),
+	isSelected(false),
 	callback(callback)
 {
 	pos = object_->pos;
+	this->isGrandmasterAbility = isGrandmasterAbility_;
 	setObject(object_);
 }
 
@@ -117,6 +120,20 @@ void CCommanderSkillIcon::setObject(std::shared_ptr<CIntObject> newObject)
 void CCommanderSkillIcon::clickPressed(const Point & cursorPosition)
 {
 	callback();
+	isSelected = true;
+}
+
+void CCommanderSkillIcon::deselect()
+{
+	isSelected = false;
+}
+
+void CCommanderSkillIcon::show(Canvas &to)
+{
+	CIntObject::show(to);
+
+	if(isGrandmasterAbility && isSelected)
+		to.drawBorder(pos, Colors::YELLOW, 2);
 }
 
 static std::string skillToFile(int skill, int level, bool selected)
@@ -376,7 +393,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 	{
 		Point skillPos = getSkillPos(index);
 
-		auto icon = std::make_shared<CCommanderSkillIcon>(std::make_shared<CPicture>(getSkillImage(index), skillPos.x, skillPos.y), [=]()
+		auto icon = std::make_shared<CCommanderSkillIcon>(std::make_shared<CPicture>(getSkillImage(index), skillPos.x, skillPos.y), false, [=]()
 		{
 			LOCPLINT->showInfoDialog(getSkillDescription(index));
 		});
@@ -430,7 +447,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 				{
 					const auto bonus = CGI->creh->skillRequirements[skillID-100].first;
 					const CStackInstance * stack = parent->info->commander;
-					auto icon = std::make_shared<CCommanderSkillIcon>(std::make_shared<CPicture>(stack->bonusToGraphics(bonus)), [](){});
+					auto icon = std::make_shared<CCommanderSkillIcon>(std::make_shared<CPicture>(stack->bonusToGraphics(bonus)), true,  [](){});
 					icon->callback = [=]()
 					{
 						parent->setSelection(skillID, icon);
@@ -897,7 +914,10 @@ void CStackWindow::setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIc
 		selectedIcon->setObject(std::make_shared<CPicture>(getSkillImage(oldSelection)));
 
 	if(selectedIcon)
+	{
 		selectedIcon->text = getSkillDescription(oldSelection, false); //update previously selected icon's message to existing skill level
+		selectedIcon->deselect();
+	}
 
 	selectedIcon = newIcon; // update new selection
 	if(newSkill < 100)
