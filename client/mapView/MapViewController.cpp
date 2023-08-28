@@ -20,6 +20,7 @@
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/WindowHandler.h"
+#include "../eventsSDL/InputHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -90,13 +91,13 @@ void MapViewController::modifyTileSize(int stepsChange)
 	// we want to zoom in/out in fixed 10% steps, to allow player to return back to exactly 100% zoom just by scrolling
 	// so, zooming in for 5 steps will put game at 1.1^5 = 1.61 scale
 	// try to determine current zooming level and change it by requested number of steps
-	double currentZoomFactor = model->getSingleTileSize().x / 32.0;
+	double currentZoomFactor = targetTileSize.x / static_cast<double>(defaultTileSize);
 	double currentZoomSteps = std::round(std::log(currentZoomFactor) / std::log(1.01));
 	double newZoomSteps = stepsChange != 0 ? currentZoomSteps + stepsChange : stepsChange;
 	double newZoomFactor = std::pow(1.01, newZoomSteps);
 
-	Point currentZoom = model->getSingleTileSize();
-	Point desiredZoom = Point(32,32) * newZoomFactor;
+	Point currentZoom = targetTileSize;
+	Point desiredZoom = Point(defaultTileSize,defaultTileSize) * newZoomFactor;
 
 	if (desiredZoom == currentZoom && stepsChange < 0)
 		desiredZoom -= Point(1,1);
@@ -112,7 +113,22 @@ void MapViewController::modifyTileSize(int stepsChange)
 	};
 
 	if (actualZoom != currentZoom)
+	{
+		targetTileSize = actualZoom;
+		if(actualZoom.x >= defaultTileSize - zoomTileDeadArea && actualZoom.x <= defaultTileSize + zoomTileDeadArea)
+			actualZoom.x = defaultTileSize;
+		if(actualZoom.y >= defaultTileSize - zoomTileDeadArea && actualZoom.y <= defaultTileSize + zoomTileDeadArea)
+			actualZoom.y = defaultTileSize;
+		
+		bool isInDeadZone = targetTileSize != actualZoom || actualZoom == Point(defaultTileSize, defaultTileSize);
+
+		if(!wasInDeadZone && isInDeadZone)
+			GH.input().hapticFeedback();
+
+		wasInDeadZone = isInDeadZone;
+
 		setTileSize(actualZoom);
+	}
 }
 
 MapViewController::MapViewController(std::shared_ptr<MapViewModel> model, std::shared_ptr<MapViewCache> view)
