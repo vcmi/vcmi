@@ -19,6 +19,7 @@
 #include "../queries/BattleQueries.h"
 
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapping/CMap.h"
@@ -147,17 +148,17 @@ BattleID BattleProcessor::setupBattle(int3 tile, const CArmedInstance *armies[2]
 	return bs.battleID;
 }
 
-bool BattleProcessor::checkBattleStateChanges(const BattleInfo & battle)
+bool BattleProcessor::checkBattleStateChanges(const CBattleInfoCallback & battle)
 {
 	//check if drawbridge state need to be changes
-	if (gameHandler->battleGetSiegeLevel() > 0)
+	if (battle.battleGetSiegeLevel() > 0)
 		updateGateState(battle);
 
 	if (resultProcessor->battleIsEnding(battle))
 		return true;
 
 	//check if battle ended
-	if (auto result = gameHandler->battleIsFinished())
+	if (auto result = battle.battleIsFinished())
 	{
 		setBattleResult(battle, EBattleResult::NORMAL, *result);
 		return true;
@@ -166,7 +167,7 @@ bool BattleProcessor::checkBattleStateChanges(const BattleInfo & battle)
 	return false;
 }
 
-void BattleProcessor::updateGateState(const BattleInfo & battle)
+void BattleProcessor::updateGateState(const CBattleInfoCallback & battle)
 {
 	// GATE_BRIDGE - leftmost tile, located over moat
 	// GATE_OUTER - central tile, mostly covered by gate image
@@ -182,20 +183,20 @@ void BattleProcessor::updateGateState(const BattleInfo & battle)
 	// - if Force Field is cast here, bridge can't open (but can close, in any town)
 	// - deals moat damage to attacker if bridge is closed (fortress only)
 
-	bool hasForceFieldOnBridge = !gameHandler->battleGetAllObstaclesOnPos(BattleHex(BattleHex::GATE_BRIDGE), true).empty();
+	bool hasForceFieldOnBridge = !battle.battleGetAllObstaclesOnPos(BattleHex(BattleHex::GATE_BRIDGE), true).empty();
 	bool hasStackAtGateInner   = battle.battleGetUnitByPos(BattleHex(BattleHex::GATE_INNER), false) != nullptr;
 	bool hasStackAtGateOuter   = battle.battleGetUnitByPos(BattleHex(BattleHex::GATE_OUTER), false) != nullptr;
 	bool hasStackAtGateBridge  = battle.battleGetUnitByPos(BattleHex(BattleHex::GATE_BRIDGE), false) != nullptr;
-	bool hasWideMoat           = vstd::contains_if(gameHandler->battleGetAllObstaclesOnPos(BattleHex(BattleHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
+	bool hasWideMoat           = vstd::contains_if(battle.battleGetAllObstaclesOnPos(BattleHex(BattleHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
 	{
 		return obst->obstacleType == CObstacleInstance::MOAT;
 	});
 
 	BattleUpdateGateState db;
-	db.state = battle.si.gateState;
-	db.battleID = battle.battleID;
+	db.state = battle.battleGetGateState();
+	db.battleID = battle.getBattle()->getBattleID();
 
-	if (battle.si.wallState.at(EWallPart::GATE) == EWallState::DESTROYED)
+	if (battle.battleGetWallState(EWallPart::GATE) == EWallState::DESTROYED)
 	{
 		db.state = EGateState::DESTROYED;
 	}
@@ -219,7 +220,7 @@ void BattleProcessor::updateGateState(const BattleInfo & battle)
 			db.state = EGateState::CLOSED;
 	}
 
-	if (db.state != battle.si.gateState)
+	if (db.state != battle.battleGetGateState())
 		gameHandler->sendAndApply(&db);
 }
 
@@ -236,13 +237,13 @@ bool BattleProcessor::makePlayerBattleAction(const BattleID & battleID, PlayerCo
 	return result;
 }
 
-void BattleProcessor::setBattleResult(const BattleInfo & battle, EBattleResult resultType, int victoriusSide)
+void BattleProcessor::setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, int victoriusSide)
 {
 	resultProcessor->setBattleResult(battle, resultType, victoriusSide);
 	resultProcessor->endBattle(battle);
 }
 
-bool BattleProcessor::makeAutomaticBattleAction(const BattleInfo & battle, const BattleAction &ba)
+bool BattleProcessor::makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction &ba)
 {
 	return actionsProcessor->makeAutomaticBattleAction(battle, ba);
 }

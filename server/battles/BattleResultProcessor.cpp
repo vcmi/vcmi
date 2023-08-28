@@ -18,7 +18,9 @@
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/CStack.h"
 #include "../../lib/GameSettings.h"
-#include "../../lib/battle/BattleInfo.h"
+#include "../../lib/battle/CBattleInfoCallback.h"
+#include "../../lib/battle/IBattleState.h"
+#include "../../lib/battle/SideInBattle.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/serializer/Cast.h"
@@ -35,15 +37,19 @@ void BattleResultProcessor::setGameHandler(CGameHandler * newGameHandler)
 	gameHandler = newGameHandler;
 }
 
-CasualtiesAfterBattle::CasualtiesAfterBattle(const SideInBattle & battleSide, const BattleInfo * bat):
-	army(battleSide.armyObject)
+CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle, uint8_t sideInBattle):
+	army(battle.battleGetArmyObject(sideInBattle))
 {
 	heroWithDeadCommander = ObjectInstanceID();
 
-	PlayerColor color = battleSide.color;
+	PlayerColor color = battle.sideToPlayer(sideInBattle);
 
-	for(CStack * st : bat->stacks)
+	for(const CStack * stConst : battle.battleGetAllStacks(true))
 	{
+		// Use const cast - in order to call non-const "takeResurrected" for proper calculation of casualties
+		// TODO: better solution
+		CStack * st = const_cast<CStack*>(stConst);
+
 		if(st->summoned) //don't take into account temporary summoned stacks
 			continue;
 		if(st->unitOwner() != color) //remove only our stacks
@@ -181,11 +187,23 @@ FinishingBattleHelper::FinishingBattleHelper(std::shared_ptr<const CBattleQuery>
 	auto &result = *Query->result;
 	auto &info = *Query->bi;
 
-	winnerHero = result.winner != 0 ? info.sides[1].hero : info.sides[0].hero;
-	loserHero = result.winner != 0 ? info.sides[0].hero : info.sides[1].hero;
-	victor = info.sides[result.winner].color;
-	loser = info.sides[!result.winner].color;
+	if (result.winner == BattleSide::ATTACKER)
+	{
+		winnerHero = info.getSideHero(BattleSide::ATTACKER);
+		loserHero = info.getSideHero(BattleSide::DEFENDER);
+		victor = info.getSidePlayer(BattleSide::ATTACKER);
+		loser = info.getSidePlayer(BattleSide::DEFENDER);
+	}
+	else
+	{
+		winnerHero = info.getSideHero(BattleSide::DEFENDER);
+		loserHero = info.getSideHero(BattleSide::ATTACKER);
+		victor = info.getSidePlayer(BattleSide::DEFENDER);
+		loser = info.getSidePlayer(BattleSide::ATTACKER);
+	}
+
 	winnerSide = result.winner;
+
 	this->remainingBattleQueriesCount = remainingBattleQueriesCount;
 }
 
@@ -196,7 +214,7 @@ FinishingBattleHelper::FinishingBattleHelper()
 	remainingBattleQueriesCount = 0;
 }
 
-void BattleResultProcessor::endBattle(const BattleInfo & battle)
+void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 {
 	auto const & giveExp = [](BattleResult &r)
 	{
@@ -215,9 +233,9 @@ void BattleResultProcessor::endBattle(const BattleInfo & battle)
 
 	LOG_TRACE(logGlobal);
 
-	auto * battleResult = battleResults.at(battle.battleID).get();
-	const auto * heroAttacker = battle.getSideHero(BattleSide::ATTACKER);
-	const auto * heroDefender = battle.getSideHero(BattleSide::DEFENDER);
+	auto * battleResult = battleResults.at(battle.getBattle()->getBattleID()).get();
+	const auto * heroAttacker = battle.battleGetFightingHero(BattleSide::ATTACKER);
+	const auto * heroDefender = battle.battleGetFightingHero(BattleSide::DEFENDER);
 
 	//Fill BattleResult structure with exp info
 	giveExp(*battleResult);
@@ -235,11 +253,11 @@ void BattleResultProcessor::endBattle(const BattleInfo & battle)
 	if(heroDefender)
 		battleResult->exp[1] = heroDefender->calculateXp(battleResult->exp[1]);
 
-	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle.sides[0].color));
+	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle.sideToPlayer(0)));
 	if (!battleQuery)
 	{
 		logGlobal->error("Cannot find battle query!");
-		gameHandler->complain("Player " + boost::lexical_cast<std::string>(battle.sides[0].color) + " has no battle query at the top!");
+		gameHandler->complain("Player " + boost::lexical_cast<std::string>(battle.sideToPlayer(0)) + " has no battle query at the top!");
 		return;
 	}
 
@@ -248,13 +266,13 @@ void BattleResultProcessor::endBattle(const BattleInfo & battle)
 	//Check how many battle gameHandler->queries were created (number of players blocked by battle)
 	const int queriedPlayers = battleQuery ? (int)boost::count(gameHandler->queries->allQueries(), battleQuery) : 0;
 
-	assert(finishingBattles.count(battle.battleID) == 0);
-	finishingBattles[battle.battleID] = std::make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
+	assert(finishingBattles.count(battle.getBattle()->getBattleID()) == 0);
+	finishingBattles[battle.getBattle()->getBattleID()] = std::make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
 
 	// in battles against neutrals, 1st player can ask to replay battle manually
-	if (!battle.sides[1].color.isValidPlayer())
+	if (!battle.sideToPlayer(1).isValidPlayer())
 	{
-		auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(gameHandler, &battle);
+		auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(gameHandler, battle.getBattle());
 		battleResult->queryID = battleDialogQuery->queryID;
 		gameHandler->queries->addQuery(battleDialogQuery);
 	}
@@ -275,21 +293,24 @@ void BattleResultProcessor::endBattle(const BattleInfo & battle)
 		endBattleConfirm(battle);
 }
 
-void BattleResultProcessor::endBattleConfirm(const BattleInfo & battle)
+void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 {
-	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle.sides.at(0).color));
+	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle.sideToPlayer(0)));
 	if(!battleQuery)
 	{
 		logGlobal->trace("No battle query, battle end was confirmed by another player");
 		return;
 	}
 
-	auto * battleResult = battleResults.at(battle.battleID).get();
-	auto * finishingBattle = finishingBattles.at(battle.battleID).get();
+	auto * battleResult = battleResults.at(battle.getBattle()->getBattleID()).get();
+	auto * finishingBattle = finishingBattles.at(battle.getBattle()->getBattleID()).get();
 
 	const EBattleResult result = battleResult->result;
 
-	CasualtiesAfterBattle cab1(battle.sides.at(0), &battle), cab2(battle.sides.at(1), &battle); //calculate casualties before deleting battle
+	//calculate casualties before deleting battle
+	CasualtiesAfterBattle cab1(battle, BattleSide::ATTACKER);
+	CasualtiesAfterBattle cab2(battle, BattleSide::DEFENDER);
+
 	ChangeSpells cs; //for Eagle Eye
 
 	if(!finishingBattle->isDraw() && finishingBattle->winnerHero)
@@ -297,7 +318,7 @@ void BattleResultProcessor::endBattleConfirm(const BattleInfo & battle)
 		if (int eagleEyeLevel = finishingBattle->winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_LEVEL_LIMIT, -1))
 		{
 			double eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_CHANCE, 0);
-			for(auto & spellId : battle.sides.at(!battleResult->winner).usedSpellsHistory)
+			for(auto & spellId : battle.getBattle()->getUsedSpells(battle.otherSide(battleResult->winner)))
 			{
 				auto spell = spellId.toSpell(VLC->spells());
 				if(spell && spell->getLevel() <= eagleEyeLevel && !finishingBattle->winnerHero->spellbookContainsSpell(spell->getId()) && gameHandler->getRandomGenerator().nextInt(99) < eagleEyeChance)
@@ -365,7 +386,10 @@ void BattleResultProcessor::endBattleConfirm(const BattleInfo & battle)
 				}
 			}
 		}
-		for (auto armySlot : battle.sides.at(!battleResult->winner).armyObject->stacks)
+
+		auto loser = battle.otherSide(battleResult->winner);
+
+		for (auto armySlot : battle.battleGetArmyObject(loser)->stacks)
 		{
 			auto artifactsWorn = armySlot.second->artifactsWorn;
 			for (auto artSlot : artifactsWorn)
@@ -466,10 +490,10 @@ void BattleResultProcessor::endBattleConfirm(const BattleInfo & battle)
 		gameHandler->changePrimSkill(finishingBattle->winnerHero, PrimarySkill::EXPERIENCE, battleResult->exp[finishingBattle->winnerSide]);
 
 	BattleResultAccepted raccepted;
-	raccepted.heroResult[0].army = const_cast<CArmedInstance*>(battle.sides.at(0).armyObject);
-	raccepted.heroResult[1].army = const_cast<CArmedInstance*>(battle.sides.at(1).armyObject);
-	raccepted.heroResult[0].hero = const_cast<CGHeroInstance*>(battle.sides.at(0).hero);
-	raccepted.heroResult[1].hero = const_cast<CGHeroInstance*>(battle.sides.at(1).hero);
+	raccepted.heroResult[0].army = const_cast<CArmedInstance*>(battle.battleGetArmyObject(0));
+	raccepted.heroResult[1].army = const_cast<CArmedInstance*>(battle.battleGetArmyObject(1));
+	raccepted.heroResult[0].hero = const_cast<CGHeroInstance*>(battle.battleGetFightingHero(0));
+	raccepted.heroResult[1].hero = const_cast<CGHeroInstance*>(battle.battleGetFightingHero(1));
 	raccepted.heroResult[0].exp = battleResult->exp[0];
 	raccepted.heroResult[1].exp = battleResult->exp[1];
 	raccepted.winnerSide = finishingBattle->winnerSide; 
@@ -479,15 +503,15 @@ void BattleResultProcessor::endBattleConfirm(const BattleInfo & battle)
 	//--> continuation (battleAfterLevelUp) occurs after level-up gameHandler->queries are handled or on removing query
 }
 
-void BattleResultProcessor::battleAfterLevelUp(const BattleInfo & battle, const BattleResult & result)
+void BattleResultProcessor::battleAfterLevelUp(const CBattleInfoCallback & battle, const BattleResult & result)
 {
 	LOG_TRACE(logGlobal);
 
-	assert(finishingBattles.count(battle.battleID) != 0);
-	if(finishingBattles.count(battle.battleID) == 0)
+	assert(finishingBattles.count(battle.getBattle()->getBattleID()) != 0);
+	if(finishingBattles.count(battle.getBattle()->getBattleID()) == 0)
 		return;
 
-	auto & finishingBattle = finishingBattles[battle.battleID];
+	auto & finishingBattle = finishingBattles[battle.getBattle()->getBattleID()];
 
 	finishingBattle->remainingBattleQueriesCount--;
 	logGlobal->trace("Decremented gameHandler->queries count to %d", finishingBattle->remainingBattleQueriesCount);
@@ -517,8 +541,6 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleInfo & battle, const 
 	resultsApplied.player2 = finishingBattle->loser;
 	gameHandler->sendAndApply(&resultsApplied);
 
-	gameHandler->setBattle(nullptr);
-
 	//handle victory/loss of engaged players
 	std::set<PlayerColor> playerColors = {finishingBattle->loser, finishingBattle->victor};
 	gameHandler->checkVictoryLossConditions(playerColors);
@@ -539,23 +561,29 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleInfo & battle, const 
 			gameHandler->heroPool->onHeroEscaped(finishingBattle->victor, finishingBattle->winnerHero);
 	}
 
-	finishingBattles.erase(battle.battleID);
-	battleResults.erase(battle.battleID);
+	finishingBattles.erase(battle.getBattle()->getBattleID());
+	battleResults.erase(battle.getBattle()->getBattleID());
 }
 
-void BattleResultProcessor::setBattleResult(const BattleInfo & battle, EBattleResult resultType, int victoriusSide)
+void BattleResultProcessor::setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, int victoriusSide)
 {
-	assert(battleResults.count(battle.battleID) == 0);
+	assert(battleResults.count(battle.getBattle()->getBattleID()) == 0);
 
-	battleResults[battle.battleID] = std::make_unique<BattleResult>();
+	battleResults[battle.getBattle()->getBattleID()] = std::make_unique<BattleResult>();
 
-	auto & battleResult = battleResults[battle.battleID];
+	auto & battleResult = battleResults[battle.getBattle()->getBattleID()];
 	battleResult->result = resultType;
 	battleResult->winner = victoriusSide; //surrendering side loses
-	battle.calculateCasualties(battleResult->casualties);
+
+	for(const auto & st : battle.battleGetAllStacks(true)) //setting casualties
+	{
+		si32 killed = st->getKilled();
+		if(killed > 0)
+			battleResult->casualties[st->unitSide()][st->creatureId()] += killed;
+	}
 }
 
-bool BattleResultProcessor::battleIsEnding(const BattleInfo & battle) const
+bool BattleResultProcessor::battleIsEnding(const CBattleInfoCallback & battle) const
 {
-	return battleResults.count(battle.battleID) != 0;
+	return battleResults.count(battle.getBattle()->getBattleID()) != 0;
 }

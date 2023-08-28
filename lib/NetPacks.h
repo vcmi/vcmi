@@ -39,6 +39,7 @@ struct StackLocation;
 struct ArtSlotInfo;
 struct QuestInfo;
 class IBattleState;
+class BattleInfo;
 
 // This one teleport-specific, but has to be available everywhere in callbacks and netpacks
 // For now it's will be there till teleports code refactored and moved into own file
@@ -1478,7 +1479,6 @@ struct DLL_LINKAGE MapObjectSelectDialog : public Query
 	}
 };
 
-class BattleInfo;
 struct DLL_LINKAGE BattleStart : public CPackForClient
 {
 	void applyGs(CGameState * gs) const;
@@ -1500,14 +1500,12 @@ struct DLL_LINKAGE BattleNextRound : public CPackForClient
 	void applyGs(CGameState * gs) const;
 
 	BattleID battleID = BattleID::NONE;
-	si32 round = 0;
 
 	virtual void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & battleID;
-		h & round;
 	}
 };
 

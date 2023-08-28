@@ -14,7 +14,7 @@
 #include "../CGameHandler.h"
 #include "../battles/BattleProcessor.h"
 
-#include "../../lib/battle/BattleInfo.h"
+#include "../../lib/battle/IBattleState.h"
 
 void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {
@@ -22,16 +22,15 @@ void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisi
 		objectVisit.visitedObject->battleFinished(objectVisit.visitingHero, *result);
 }
 
-CBattleQuery::CBattleQuery(CGameHandler * owner, const BattleInfo * Bi):
-	CGhQuery(owner)
+CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
+	CGhQuery(owner),
+	bi(bi)
 {
-	belligerents[0] = Bi->sides[0].armyObject;
-	belligerents[1] = Bi->sides[1].armyObject;
+	belligerents[0] = bi->getSideArmy(0);
+	belligerents[1] = bi->getSideArmy(1);
 
-	bi = Bi;
-
-	for(auto & side : bi->sides)
-		addPlayer(side.color);
+	addPlayer(bi->getSidePlayer(0));
+	addPlayer(bi->getSidePlayer(1));
 }
 
 CBattleQuery::CBattleQuery(CGameHandler * owner):
@@ -49,16 +48,15 @@ bool CBattleQuery::blocksPack(const CPack * pack) const
 void CBattleQuery::onRemoval(PlayerColor color)
 {
 	if(result)
-		gh->battles->battleAfterLevelUp(bi->battleID, *result);
+		gh->battles->battleAfterLevelUp(bi->getBattleID(), *result);
 }
 
-CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const BattleInfo * Bi):
-	CDialogQuery(owner)
+CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * bi):
+	CDialogQuery(owner),
+	bi(bi)
 {
-	bi = Bi;
-
-	for(auto & side : bi->sides)
-		addPlayer(side.color);
+	addPlayer(bi->getSidePlayer(0));
+	addPlayer(bi->getSidePlayer(1));
 }
 
 void CBattleDialogQuery::onRemoval(PlayerColor color)
@@ -66,10 +64,18 @@ void CBattleDialogQuery::onRemoval(PlayerColor color)
 	assert(answer);
 	if(*answer == 1)
 	{
-		gh->startBattlePrimary(bi->sides[0].armyObject, bi->sides[1].armyObject, bi->tile, bi->sides[0].hero, bi->sides[1].hero, bi->creatureBank, bi->town);
+		gh->startBattlePrimary(
+			bi->getSideArmy(0),
+			bi->getSideArmy(1),
+			bi->getLocation(),
+			bi->getSideHero(0),
+			bi->getSideHero(1),
+			bi->isCreatureBank(),
+			bi->getDefendedTown()
+		);
 	}
 	else
 	{
-		gh->battles->endBattleConfirm(bi->battleID);
+		gh->battles->endBattleConfirm(bi->getBattleID());
 	}
 }

@@ -11,7 +11,7 @@
 #include "../GameConstants.h"
 
 #define RETURN_IF_NOT_BATTLE(...) if(!duringBattle()) {logGlobal->error("%s called when no battle!", __FUNCTION__); return __VA_ARGS__; }
-#define ASSERT_IF_CALLED_WITH_PLAYER if(!player) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
+#define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -19,26 +19,17 @@ class IBattleInfo;
 class BattleInfo;
 class CBattleInfoEssentials;
 
-
 //Basic class for various callbacks (interfaces called by players to get info about game and so forth)
 class DLL_LINKAGE CCallbackBase
 {
-	const IBattleInfo * battle = nullptr; //battle to which the player is engaged, nullptr if none or not applicable
-
 protected:
 	std::optional<PlayerColor> player; // not set gives access to all information, otherwise callback provides only information "visible" for player
 
 	CCallbackBase(std::optional<PlayerColor> Player);
 	CCallbackBase() = default;
 
-	const IBattleInfo * getBattle() const;
-	void setBattle(const IBattleInfo * B);
-	bool duringBattle() const;
-
 public:
 	std::optional<PlayerColor> getPlayerID() const;
-
-	friend class CBattleInfoEssentials;
 };
 
 

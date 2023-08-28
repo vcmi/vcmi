@@ -325,7 +325,7 @@ int32_t HypotheticBattle::getActiveStackID() const
 	return activeUnitId;
 }
 
-void HypotheticBattle::nextRound(int32_t roundNr)
+void HypotheticBattle::nextRound()
 {
 	//TODO:HypotheticBattle::nextRound
 	for(auto unit : battleAliveUnits())
@@ -462,6 +462,24 @@ int64_t HypotheticBattle::getActualDamage(const DamageRange & damage, int32_t at
 	return (damage.min + damage.max) / 2;
 }
 
+std::vector<SpellID> HypotheticBattle::getUsedSpells(ui8 side) const
+{
+	// TODO
+	return {};
+}
+
+int3 HypotheticBattle::getLocation() const
+{
+	// TODO
+	return int3(-1, -1, -1);
+}
+
+bool HypotheticBattle::isCreatureBank() const
+{
+	// TODO
+	return false;
+}
+
 int64_t HypotheticBattle::getTreeVersion() const
 {
 	return getBonusBearer()->getTreeVersion() + bonusTreeVersion;
@@ -552,8 +570,9 @@ const Services * HypotheticBattle::HypotheticEnvironment::services() const
 	return env->services();
 }
 
-const Environment::BattleCb * HypotheticBattle::HypotheticEnvironment::battle() const
+const Environment::BattleCb * HypotheticBattle::HypotheticEnvironment::battle(const BattleID & battleID) const
 {
+	assert(battleID == owner->getBattleID());
 	return owner;
 }
 

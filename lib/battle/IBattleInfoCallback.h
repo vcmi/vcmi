@@ -19,6 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct CObstacleInstance;
 class BattleField;
+class IBattleInfo;
 
 namespace battle
 {
@@ -53,6 +54,9 @@ public:
 #if SCRIPTING_ENABLED
 	virtual scripting::Pool * getContextPool() const = 0;
 #endif
+
+	virtual const IBattleInfo * getBattle() const = 0;
+	virtual std::optional<PlayerColor> getPlayerID() const = 0;
 
 	virtual TerrainId battleTerrainType() const = 0;
 	virtual BattleField battleGetBattlefieldType() const = 0;

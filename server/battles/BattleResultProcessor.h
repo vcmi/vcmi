@@ -31,7 +31,7 @@ struct CasualtiesAfterBattle
 	TSummoned summoned;
 	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack locations
 
-	CasualtiesAfterBattle(const SideInBattle & battleSide, const BattleInfo * bat);
+	CasualtiesAfterBattle(const CBattleInfoCallback & battle, uint8_t sideInBattle);
 	void updateArmy(CGameHandler * gh);
 };
 
@@ -71,10 +71,10 @@ public:
 	explicit BattleResultProcessor(BattleProcessor * owner);
 	void setGameHandler(CGameHandler * newGameHandler);
 
-	bool battleIsEnding(const BattleInfo & battle) const;
+	bool battleIsEnding(const CBattleInfoCallback & battle) const;
 
-	void setBattleResult(const BattleInfo & battle, EBattleResult resultType, int victoriusSide);
-	void endBattle(const BattleInfo & battle); //ends battle
-	void endBattleConfirm(const BattleInfo & battle);
-	void battleAfterLevelUp(const BattleInfo & battle, const BattleResult & result);
+	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, int victoriusSide);
+	void endBattle(const CBattleInfoCallback & battle); //ends battle
+	void endBattleConfirm(const CBattleInfoCallback & battle);
+	void battleAfterLevelUp(const CBattleInfoCallback & battle, const BattleResult & result);
 };

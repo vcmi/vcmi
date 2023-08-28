@@ -13,17 +13,21 @@
 
 #include "../../lib/NetPacks.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+class IBattleInfo;
+VCMI_LIB_NAMESPACE_END
+
 class CBattleQuery : public CGhQuery
 {
 public:
 	std::array<const CArmedInstance *,2> belligerents;
 	std::array<int, 2> initialHeroMana;
 
-	const BattleInfo *bi;
+	const IBattleInfo *bi;
 	std::optional<BattleResult> result;
 
 	CBattleQuery(CGameHandler * owner);
-	CBattleQuery(CGameHandler * owner, const BattleInfo * Bi); //TODO
+	CBattleQuery(CGameHandler * owner, const IBattleInfo * Bi); //TODO
 	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const override;
 	virtual bool blocksPack(const CPack *pack) const override;
 	virtual void onRemoval(PlayerColor color) override;
@@ -32,9 +36,9 @@ public:
 class CBattleDialogQuery : public CDialogQuery
 {
 public:
-	CBattleDialogQuery(CGameHandler * owner, const BattleInfo * Bi);
+	CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * Bi);
 
-	const BattleInfo * bi;
+	const IBattleInfo * bi;
 
 	virtual void onRemoval(PlayerColor color) override;
 };

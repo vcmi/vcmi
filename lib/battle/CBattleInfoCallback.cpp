@@ -136,6 +136,27 @@ ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster *
 	return ESpellCastProblem::OK;
 }
 
+std::pair< std::vector<BattleHex>, int > CBattleInfoCallback::getPath(BattleHex start, BattleHex dest, const battle::Unit * stack) const
+{
+	auto reachability = getReachability(stack);
+
+	if(reachability.predecessors[dest] == -1) //cannot reach destination
+	{
+		return std::make_pair(std::vector<BattleHex>(), 0);
+	}
+
+	//making the Path
+	std::vector<BattleHex> path;
+	BattleHex curElem = dest;
+	while(curElem != start)
+	{
+		path.push_back(curElem);
+		curElem = reachability.predecessors[curElem];
+	}
+
+	return std::make_pair(path, reachability.distances[dest]);
+}
+
 bool CBattleInfoCallback::battleHasPenaltyOnLine(BattleHex from, BattleHex dest, bool checkWall, bool checkMoat) const
 {
 	auto isTileBlocked = [&](BattleHex tile)

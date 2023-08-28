@@ -390,7 +390,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 		for(auto & round : queue)
 		{
 			if(!firstRound)
-				state->nextRound(0);//todo: set actual value?
+				state->nextRound();
 			for(auto unit : round)
 			{
 				if(!vstd::contains(values, unit->unitId()))

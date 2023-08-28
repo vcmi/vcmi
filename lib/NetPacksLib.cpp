@@ -2124,7 +2124,7 @@ void BattleStart::applyGs(CGameState * gs) const
 
 void BattleNextRound::applyGs(CGameState * gs) const
 {
-	gs->getBattle(battleID)->nextRound(round);
+	gs->getBattle(battleID)->nextRound();
 }
 
 void BattleSetActiveStack::applyGs(CGameState * gs) const

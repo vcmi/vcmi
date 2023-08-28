@@ -136,9 +136,9 @@ const Services * CGameHandler::services() const
 	return VLC;
 }
 
-const CGameHandler::BattleCb * CGameHandler::battle() const
+const CGameHandler::BattleCb * CGameHandler::battle(const BattleID & battleID) const
 {
-	return this;
+	return gs->getBattle(battleID);
 }
 
 const CGameHandler::GameCb * CGameHandler::game() const

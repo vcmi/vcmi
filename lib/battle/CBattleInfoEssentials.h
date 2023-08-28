@@ -34,7 +34,7 @@ namespace BattlePerspective
 	};
 }
 
-class DLL_LINKAGE CBattleInfoEssentials : public virtual CCallbackBase, public IBattleInfoCallback
+class DLL_LINKAGE CBattleInfoEssentials : public IBattleInfoCallback
 {
 protected:
 	bool battleDoWeKnowAbout(ui8 side) const;
@@ -45,6 +45,7 @@ public:
 		ONLY_MINE, ONLY_ENEMY, MINE_AND_ENEMY
 	};
 
+	bool duringBattle() const;
 	BattlePerspective::BattlePerspective battleGetMySide() const;
 	const IBonusBearer * getBonusBearer() const override;
 

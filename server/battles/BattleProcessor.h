@@ -17,7 +17,7 @@ class CGTownInstance;
 class CArmedInstance;
 class BattleAction;
 class int3;
-class BattleInfo;
+class CBattleInfoCallback;
 struct BattleResult;
 class BattleID;
 VCMI_LIB_NAMESPACE_END
@@ -40,16 +40,15 @@ class BattleProcessor : boost::noncopyable
 	std::unique_ptr<BattleFlowProcessor> flowProcessor;
 	std::unique_ptr<BattleResultProcessor> resultProcessor;
 
-	void onTacticsEnded();
-	void updateGateState(const BattleInfo & battle);
+	void updateGateState(const CBattleInfoCallback & battle);
 	void engageIntoBattle(PlayerColor player);
 
-	bool checkBattleStateChanges(const BattleInfo & battle);
+	bool checkBattleStateChanges(const CBattleInfoCallback & battle);
 	BattleID setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
 
-	bool makeAutomaticBattleAction(const BattleInfo & battle, const BattleAction & ba);
+	bool makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 
-	void setBattleResult(const BattleInfo & battle, EBattleResult resultType, int victoriusSide);
+	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, int victoriusSide);
 
 public:
 	explicit BattleProcessor(CGameHandler * gameHandler);

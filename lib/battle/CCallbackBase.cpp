@@ -13,24 +13,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-bool CCallbackBase::duringBattle() const
-{
-	return getBattle() != nullptr;
-}
-
-const IBattleInfo * CCallbackBase::getBattle() const
-{
-	return battle;
-}
-
 CCallbackBase::CCallbackBase(std::optional<PlayerColor> Player):
 	player(std::move(Player))
 {
-}
-
-void CCallbackBase::setBattle(const IBattleInfo * B)
-{
-	battle = B;
 }
 
 std::optional<PlayerColor> CCallbackBase::getPlayerID() const

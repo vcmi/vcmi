@@ -13,8 +13,12 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
 struct BattleHex;
 class BattleAction;
-class BattleInfo;
+class CBattleInfoCallback;
 struct CObstacleInstance;
+namespace battle
+{
+class Unit;
+}
 VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
@@ -26,31 +30,31 @@ class BattleFlowProcessor : boost::noncopyable
 	BattleProcessor * owner;
 	CGameHandler * gameHandler;
 
-	const CStack * getNextStack(const BattleInfo & battle);
+	const CStack * getNextStack(const CBattleInfoCallback & battle);
 
-	bool rollGoodMorale(const BattleInfo & battle, const CStack * stack);
-	bool tryMakeAutomaticAction(const BattleInfo & battle, const CStack * stack);
+	bool rollGoodMorale(const CBattleInfoCallback & battle, const CStack * stack);
+	bool tryMakeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack);
 
-	void summonGuardiansHelper(const BattleInfo & battle, std::vector<BattleHex> & output, const BattleHex & targetPosition, ui8 side, bool targetIsTwoHex);
-	void trySummonGuardians(const BattleInfo & battle, const CStack * stack);
-	void tryPlaceMoats(const BattleInfo & battle);
-	void castOpeningSpells(const BattleInfo & battle);
-	void activateNextStack(const BattleInfo & battle);
-	void startNextRound(const BattleInfo & battle, bool isFirstRound);
+	void summonGuardiansHelper(const CBattleInfoCallback & battle, std::vector<BattleHex> & output, const BattleHex & targetPosition, ui8 side, bool targetIsTwoHex);
+	void trySummonGuardians(const CBattleInfoCallback & battle, const CStack * stack);
+	void tryPlaceMoats(const CBattleInfoCallback & battle);
+	void castOpeningSpells(const CBattleInfoCallback & battle);
+	void activateNextStack(const CBattleInfoCallback & battle);
+	void startNextRound(const CBattleInfoCallback & battle, bool isFirstRound);
 
-	void stackEnchantedTrigger(const BattleInfo & battle, const CStack * stack);
-	void removeObstacle(const BattleInfo & battle, const CObstacleInstance & obstacle);
-	void stackTurnTrigger(const BattleInfo & battle, const CStack * stack);
-	void setActiveStack(const BattleInfo & battle, const CStack * stack);
+	void stackEnchantedTrigger(const CBattleInfoCallback & battle, const CStack * stack);
+	void removeObstacle(const CBattleInfoCallback & battle, const CObstacleInstance & obstacle);
+	void stackTurnTrigger(const CBattleInfoCallback & battle, const CStack * stack);
+	void setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack);
 
-	void makeStackDoNothing(const BattleInfo & battle, const CStack * next);
-	bool makeAutomaticAction(const BattleInfo & battle, const CStack * stack, BattleAction & ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
+	void makeStackDoNothing(const CBattleInfoCallback & battle, const CStack * next);
+	bool makeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack, BattleAction & ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
 
 public:
 	explicit BattleFlowProcessor(BattleProcessor * owner);
 	void setGameHandler(CGameHandler * newGameHandler);
 
-	void onBattleStarted(const BattleInfo & battle);
-	void onTacticsEnded(const BattleInfo & battle);
-	void onActionMade(const BattleInfo & battle, const BattleAction & ba);
+	void onBattleStarted(const CBattleInfoCallback & battle);
+	void onTacticsEnded(const CBattleInfoCallback & battle);
+	void onActionMade(const CBattleInfoCallback & battle, const BattleAction & ba);
 };
