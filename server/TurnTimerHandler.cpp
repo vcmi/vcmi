@@ -51,7 +51,8 @@ void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
 		if(si->turnTimerInfo.isEnabled())
 		{
 			std::lock_guard<std::recursive_mutex> guard(mx);
-			timers[player].baseTimer += timers[player].turnTimer;
+			if(si->turnTimerInfo.baseTimer > 0)
+				timers[player].baseTimer += timers[player].turnTimer;
 			timers[player].turnTimer = si->turnTimerInfo.turnTimer;
 			
 			TurnTimeUpdate ttu;
