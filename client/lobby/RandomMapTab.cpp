@@ -18,6 +18,7 @@
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/ComboBox.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
@@ -102,11 +103,6 @@ RandomMapTab::RandomMapTab():
 	});
 	
 	//new callbacks available only from mod
-	addCallback("templateSelection", [&](int)
-	{
-		GH.windows().createAndPushWindow<TemplatesDropBox>(*this, int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()});
-	});
-	
 	addCallback("teamAlignments", [&](int)
 	{
 		GH.windows().createAndPushWindow<TeamAlignmentsWidget>(*this);
@@ -124,6 +120,35 @@ RandomMapTab::RandomMapTab():
 	
 	const JsonNode config(ResourceID("config/widgets/randomMapTab.json"));
 	build(config);
+	
+	//set combo box callbacks
+	if(auto w = widget<ComboBox>("templateList"))
+	{
+		w->onConstructItems = [](std::vector<const void *> & curItems){
+			auto templates = VLC->tplh->getTemplates();
+		
+			boost::range::sort(templates, [](const CRmgTemplate * a, const CRmgTemplate * b){
+				return a->getName() < b->getName();
+			});
+
+			curItems.push_back(nullptr); //default template
+			
+			for(auto & t : templates)
+				curItems.push_back(t);
+		};
+		
+		w->onSetItem = [&](const void * item){
+			this->setTemplate(reinterpret_cast<const CRmgTemplate *>(item));
+		};
+		
+		w->getItemText = [this](int idx, const void * item){
+			if(item)
+				return reinterpret_cast<const CRmgTemplate *>(item)->getName();
+			if(idx == 0)
+				return readText(variables["randomTemplate"]);
+			return std::string("");
+		};
+	}
 	
 	updateMapInfoByHost();
 }
@@ -358,163 +383,6 @@ void RandomMapTab::deactivateButtonsFrom(CToggleGroup & group, const std::set<in
 std::vector<int> RandomMapTab::getPossibleMapSizes()
 {
 	return {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_XLARGE, CMapHeader::MAP_SIZE_HUGE, CMapHeader::MAP_SIZE_XHUGE, CMapHeader::MAP_SIZE_GIANT};
-}
-
-TemplatesDropBox::ListItem::ListItem(const JsonNode & config, TemplatesDropBox & _dropBox, Point position)
-	: InterfaceObjectConfigurable(LCLICK | HOVER, position),
-	dropBox(_dropBox)
-{
-	OBJ_CONSTRUCTION;
-	
-	build(config);
-	
-	if(auto w = widget<CPicture>("hoverImage"))
-	{
-		pos.w = w->pos.w;
-		pos.h = w->pos.h;
-	}
-	setRedrawParent(true);
-}
-
-void TemplatesDropBox::ListItem::updateItem(int idx, const CRmgTemplate * _item)
-{
-	if(auto w = widget<CLabel>("labelName"))
-	{
-		item = _item;
-		if(item)
-		{
-			w->setText(item->getName());
-		}
-		else
-		{
-			if(idx)
-				w->setText("");
-			else
-				w->setText(readText(dropBox.variables["randomTemplate"]));
-		}
-	}
-}
-
-void TemplatesDropBox::ListItem::hover(bool on)
-{
-	auto h = widget<CPicture>("hoverImage");
-	auto w = widget<CLabel>("labelName");
-	if(h && w)
-	{
-		if(w->getText().empty())
-			h->visible = false;
-		else
-			h->visible = on;
-	}
-	redraw();
-}
-
-void TemplatesDropBox::ListItem::clickPressed(const Point & cursorPosition)
-{
-	if(isHovered())
-		dropBox.setTemplate(item);
-}
-
-void TemplatesDropBox::ListItem::clickReleased(const Point & cursorPosition)
-{
-	dropBox.clickPressed(cursorPosition);
-	dropBox.clickReleased(cursorPosition);
-}
-
-TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
-	InterfaceObjectConfigurable(LCLICK | HOVER),
-	randomMapTab(randomMapTab)
-{
-	REGISTER_BUILDER("templateListItem", &TemplatesDropBox::buildListItem);
-	
-	curItems = VLC->tplh->getTemplates();
-
-	boost::range::sort(curItems, [](const CRmgTemplate * a, const CRmgTemplate * b){
-		return a->getName() < b->getName();
-	});
-
-	curItems.insert(curItems.begin(), nullptr); //default template
-	
-	const JsonNode config(ResourceID("config/widgets/randomMapTemplateWidget.json"));
-	
-	addCallback("sliderMove", std::bind(&TemplatesDropBox::sliderMove, this, std::placeholders::_1));
-	
-	OBJ_CONSTRUCTION;
-	pos = randomMapTab.pos;
-	
-	build(config);
-	
-	if(auto w = widget<CSlider>("slider"))
-	{
-		w->setAmount(curItems.size());
-	}
-
-	//FIXME: this should be done by InterfaceObjectConfigurable, but might have side-effects
-	pos = children.front()->pos;
-	for (auto const & child : children)
-		pos = pos.include(child->pos);
-	
-	updateListItems();
-}
-
-std::shared_ptr<CIntObject> TemplatesDropBox::buildListItem(const JsonNode & config)
-{
-	auto position = readPosition(config["position"]);
-	listItems.push_back(std::make_shared<ListItem>(config, *this, position));
-	return listItems.back();
-}
-
-void TemplatesDropBox::sliderMove(int slidPos)
-{
-	auto w = widget<CSlider>("slider");
-	if(!w)
-		return; // ignore spurious call when slider is being created
-	updateListItems();
-	redraw();
-}
-
-bool TemplatesDropBox::receiveEvent(const Point & position, int eventType) const
-{
-	if (eventType == LCLICK)
-		return true; // we want drop box to close when clicking outside drop box borders
-
-	return CIntObject::receiveEvent(position, eventType);
-}
-
-void TemplatesDropBox::clickPressed(const Point & cursorPosition)
-{
-	if (!pos.isInside(cursorPosition))
-	{
-		assert(GH.windows().isTopWindow(this));
-		GH.windows().popWindows(1);
-	}
-}
-
-void TemplatesDropBox::updateListItems()
-{
-	if(auto w = widget<CSlider>("slider"))
-	{
-		int elemIdx = w->getValue();
-		for(auto item : listItems)
-		{
-			if(elemIdx < curItems.size())
-			{
-				item->updateItem(elemIdx, curItems[elemIdx]);
-				elemIdx++;
-			}
-			else
-			{
-				item->updateItem(elemIdx);
-			}
-		}
-	}
-}
-
-void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
-{
-	randomMapTab.setTemplate(tmpl);
-	assert(GH.windows().isTopWindow(this));
-	GH.windows().popWindows(1);
 }
 
 TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):

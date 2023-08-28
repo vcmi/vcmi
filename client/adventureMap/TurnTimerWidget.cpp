@@ -13,6 +13,8 @@
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
+#include "../battle/BattleInterface.h"
+#include "../battle/BattleStacksController.h"
 
 #include "../render/EFont.h"
 #include "../render/Graphics.h"
@@ -21,6 +23,7 @@
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../../CCallback.h"
+#include "../../lib/CStack.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/filesystem/ResourceID.h"
 
@@ -38,7 +41,7 @@ void TurnTimerWidget::DrawRect::showAll(Canvas & to)
 
 TurnTimerWidget::TurnTimerWidget():
 	InterfaceObjectConfigurable(TIME),
-	turnTime(0), lastTurnTime(0), cachedTurnTime(0)
+	turnTime(0), lastTurnTime(0), cachedTurnTime(0), lastPlayer(PlayerColor::CANNOT_DETERMINE)
 {
 	REGISTER_BUILDER("drawRect", &TurnTimerWidget::buildDrawRect);
 	
@@ -70,8 +73,8 @@ void TurnTimerWidget::show(Canvas & to)
 void TurnTimerWidget::setTime(PlayerColor player, int time)
 {
 	int newTime = time / 1000;
-	if((LOCPLINT->cb->isPlayerMakingTurn(LOCPLINT->playerID))
-	   && (newTime != turnTime)
+	if(player == LOCPLINT->playerID
+	   && newTime != turnTime
 	   && notifications.count(newTime))
 	{
 		CCS->soundh->playSound(variables["notificationSound"].String());
@@ -99,14 +102,26 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 	if(!LOCPLINT || !LOCPLINT->cb)
 		return;
 
-	for (PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+	for (PlayerColor p(0); p < PlayerColor::PLAYER_LIMIT; ++p)
 	{
-		if (!LOCPLINT->cb->isPlayerMakingTurn(player))
+		auto player = p;
+		if(LOCPLINT->battleInt)
+		{
+			if(auto * stack = LOCPLINT->battleInt->stacksController->getActiveStack())
+				player = stack->getOwner();
+		}
+		else if (!LOCPLINT->cb->isPlayerMakingTurn(player))
 			continue;
 
 		auto time = LOCPLINT->cb->getPlayerTurnTime(player);
 		cachedTurnTime -= msPassed;
 		if(cachedTurnTime < 0) cachedTurnTime = 0; //do not go below zero
+		
+		if(lastPlayer != player)
+		{
+			lastPlayer = player;
+			lastTurnTime = 0;
+		}
 		
 		auto timeCheckAndUpdate = [&](int time)
 		{
@@ -121,7 +136,7 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 		};
 		
 		auto * playerInfo = LOCPLINT->cb->getPlayer(player);
-		if(playerInfo && playerInfo->isHuman())
+		if(player.isValidPlayer() || (playerInfo && playerInfo->isHuman()))
 		{
 			if(LOCPLINT->battleInt)
 			{

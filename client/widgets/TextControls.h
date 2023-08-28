@@ -209,14 +209,18 @@ public:
 class CTextInput : public CLabel, public CFocusable
 {
 	std::string newText;
+	std::string helpBox; //for right-click help
+	
 protected:
 	std::string visibleText() override;
 
 public:
+	
 	CFunctionList<void(const std::string &)> cb;
 	CFunctionList<void(std::string &, const std::string &)> filters;
 	void setText(const std::string & nText) override;
 	void setText(const std::string & nText, bool callCb);
+	void setHelpText(const std::string &);
 
 	CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB);
 	CTextInput(const Rect & Pos, const Point & bgOffset, const std::string & bgName, const CFunctionList<void(const std::string &)> & CB);
@@ -224,6 +228,7 @@ public:
 
 	void clickPressed(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;
+	void showPopupWindow(const Point & cursorPosition) override;
 
 	//bool captureThisKey(EShortcut key) override;
 

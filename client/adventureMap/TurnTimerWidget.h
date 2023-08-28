@@ -18,6 +18,12 @@
 class CAnimImage;
 class CLabel;
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+class PlayerColor;
+
+VCMI_LIB_NAMESPACE_END
+
 class TurnTimerWidget : public InterfaceObjectConfigurable
 {
 private:
@@ -35,6 +41,7 @@ private:
 	int turnTime;
 	int lastTurnTime;
 	int cachedTurnTime;
+	PlayerColor lastPlayer;
 	
 	std::set<int> notifications;
 	

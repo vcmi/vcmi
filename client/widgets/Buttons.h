@@ -35,7 +35,7 @@ public:
 		BLOCKED=2,
 		HIGHLIGHTED=3
 	};
-private:
+protected:
 	std::vector<std::string> imageNames;//store list of images that can be used by this button
 	size_t currentImage;
 

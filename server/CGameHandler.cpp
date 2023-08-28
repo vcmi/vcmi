@@ -604,7 +604,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 void CGameHandler::onPlayerTurnStarted(PlayerColor which)
 {
 	events::PlayerGotTurn::defaultExecute(serverEventBus.get(), which);
-	turnTimerHandler.onPlayerGetTurn(gs->players[which]);
+	turnTimerHandler.onPlayerGetTurn(which);
 }
 
 void CGameHandler::onPlayerTurnEnded(PlayerColor which)
@@ -991,7 +991,7 @@ void CGameHandler::run(bool resume)
 		onNewTurn();
 		events::TurnStarted::defaultExecute(serverEventBus.get());
 		for(auto & player : gs->players)
-			turnTimerHandler.onGameplayStart(player.second);
+			turnTimerHandler.onGameplayStart(player.first);
 	}
 	else
 		events::GameResumed::defaultExecute(serverEventBus.get());
@@ -1003,9 +1003,9 @@ void CGameHandler::run(bool resume)
 	{
 		const int waitTime = 100; //ms
 
-		for(auto & player : gs->players)
-			if (gs->isPlayerMakingTurn(player.first))
-				turnTimerHandler.onPlayerMakingTurn(player.second, waitTime);
+		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+			if(gs->isPlayerMakingTurn(player))
+				turnTimerHandler.onPlayerMakingTurn(player, waitTime);
 
 		if(gs->curB)
 			turnTimerHandler.onBattleLoop(waitTime);
@@ -1183,7 +1183,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		{
 			moveQuery = std::dynamic_pointer_cast<CHeroMovementQuery>(topQuery);
 			if(moveQuery
-			   && (!transit || result == TryMoveHero::FAILED || moveQuery->tmh.stopMovement()))
+			   && (!transit || result != TryMoveHero::SUCCESS))
 				queries->popIfTop(moveQuery);
 			else
 				break;

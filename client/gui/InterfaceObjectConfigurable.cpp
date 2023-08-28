@@ -20,6 +20,7 @@
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/ComboBox.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/ObjectLists.h"
@@ -52,6 +53,8 @@ InterfaceObjectConfigurable::InterfaceObjectConfigurable(int used, Point offset)
 	REGISTER_BUILDER("labelGroup", &InterfaceObjectConfigurable::buildLabelGroup);
 	REGISTER_BUILDER("slider", &InterfaceObjectConfigurable::buildSlider);
 	REGISTER_BUILDER("layout", &InterfaceObjectConfigurable::buildLayout);
+	REGISTER_BUILDER("comboBox", &InterfaceObjectConfigurable::buildComboBox);
+	REGISTER_BUILDER("textInput", &InterfaceObjectConfigurable::buildTextInput);
 }
 
 void InterfaceObjectConfigurable::registerBuilder(const std::string & type, BuilderFunction f)
@@ -61,8 +64,14 @@ void InterfaceObjectConfigurable::registerBuilder(const std::string & type, Buil
 
 void InterfaceObjectConfigurable::addCallback(const std::string & callbackName, std::function<void(int)> callback)
 {
-	callbacks[callbackName] = callback;
+	callbacks_int[callbackName] = callback;
 }
+
+void InterfaceObjectConfigurable::addCallback(const std::string & callbackName, std::function<void(std::string)> callback)
+{
+	callbacks_string[callbackName] = callback;
+}
+
 
 void InterfaceObjectConfigurable::deleteWidget(const std::string & name)
 {
@@ -338,7 +347,7 @@ std::shared_ptr<CToggleGroup> InterfaceObjectConfigurable::buildToggleGroup(cons
 	if(!config["selected"].isNull())
 		group->setSelected(config["selected"].Integer());
 	if(!config["callback"].isNull())
-		group->addCallback(callbacks.at(config["callback"].String()));
+		group->addCallback(callbacks_int.at(config["callback"].String()));
 	return group;
 }
 
@@ -411,8 +420,8 @@ void InterfaceObjectConfigurable::loadToggleButtonCallback(std::shared_ptr<CTogg
 
 	std::string callbackName = config.String();
 
-	if (callbacks.count(callbackName) > 0)
-		button->addCallback(callbacks.at(callbackName));
+	if (callbacks_int.count(callbackName) > 0)
+		button->addCallback(callbacks_int.at(callbackName));
 	else
 		logGlobal->error("Invalid callback '%s' in widget", callbackName );
 }
@@ -424,8 +433,8 @@ void InterfaceObjectConfigurable::loadButtonCallback(std::shared_ptr<CButton> bu
 
 	std::string callbackName = config.String();
 
-	if (callbacks.count(callbackName) > 0)
-		button->addCallback(std::bind(callbacks.at(callbackName), 0));
+	if (callbacks_int.count(callbackName) > 0)
+		button->addCallback(std::bind(callbacks_int.at(callbackName), 0));
 	else
 		logGlobal->error("Invalid callback '%s' in widget", callbackName );
 }
@@ -481,7 +490,7 @@ std::shared_ptr<CSlider> InterfaceObjectConfigurable::buildSlider(const JsonNode
 	auto value = config["selected"].Integer();
 	bool horizontal = config["orientation"].String() == "horizontal";
 	const auto & result =
-		std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal ? Orientation::HORIZONTAL : Orientation::VERTICAL, style);
+		std::make_shared<CSlider>(position, length, callbacks_int.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal ? Orientation::HORIZONTAL : Orientation::VERTICAL, style);
 
 	if(!config["scrollBounds"].isNull())
 	{
@@ -511,6 +520,54 @@ std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const 
 	auto image = config["image"].String();
 	auto rect = readRect(config["rect"]);
 	return std::make_shared<CFilledTexture>(image, rect);
+}
+
+std::shared_ptr<ComboBox> InterfaceObjectConfigurable::buildComboBox(const JsonNode & config)
+{
+	logGlobal->debug("Building widget ComboBox");
+	auto position = readPosition(config["position"]);
+	auto image = config["image"].String();
+	auto help = readHintText(config["help"]);
+	auto result = std::make_shared<ComboBox>(position, image, help, config["dropDown"]);
+	if(!config["items"].isNull())
+	{
+		for(const auto & item : config["items"].Vector())
+		{
+			result->addOverlay(buildWidget(item));
+		}
+	}
+	if(!config["imageOrder"].isNull())
+	{
+		auto imgOrder = config["imageOrder"].Vector();
+		assert(imgOrder.size() >= 4);
+		result->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
+	}
+
+	loadButtonBorderColor(result, config["borderColor"]);
+	loadButtonHotkey(result, config["hotkey"]);
+	return result;
+}
+
+std::shared_ptr<CTextInput> InterfaceObjectConfigurable::buildTextInput(const JsonNode & config) const
+{
+	logGlobal->debug("Building widget CTextInput");
+	auto rect = readRect(config["rect"]);
+	auto offset = readPosition(config["backgroundOffset"]);
+	auto bgName = config["background"].String();
+	auto result = std::make_shared<CTextInput>(rect, offset, bgName, 0);
+	if(!config["alignment"].isNull())
+		result->alignment = readTextAlignment(config["alignment"]);
+	if(!config["font"].isNull())
+		result->font = readFont(config["font"]);
+	if(!config["color"].isNull())
+		result->setColor(readColor(config["color"]));
+	if(!config["text"].isNull())
+		result->setText(readText(config["text"]));
+	if(!config["callback"].isNull())
+		result->cb += callbacks_string.at(config["callback"].String());
+	if(!config["help"].isNull())
+		result->setHelpText(readText(config["help"]));
+	return result;
 }
 
 /// Small helper class that provides ownership for shared_ptr's of child elements
@@ -597,7 +654,7 @@ std::shared_ptr<CShowableAnim> InterfaceObjectConfigurable::buildAnimation(const
 	if(!config["alpha"].isNull())
 		anim->setAlpha(config["alpha"].Integer());
 	if(!config["callback"].isNull())
-		anim->callback = std::bind(callbacks.at(config["callback"].String()), 0);
+		anim->callback = std::bind(callbacks_int.at(config["callback"].String()), 0);
 	if(!config["frames"].isNull())
 	{
 		auto b = config["frames"]["start"].Integer();
