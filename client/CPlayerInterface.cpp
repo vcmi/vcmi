@@ -323,8 +323,7 @@ void CPlayerInterface::acceptTurn(QueryID queryID)
 			logGlobal->warn("Player has no towns, but daysWithoutCastle is not set");
 	}
 	
-	JsonNode reply(JsonNode::JsonType::DATA_NULL);
-	cb->sendQueryReply(reply, queryID);
+	cb->selectionMade(0, queryID);
 }
 
 void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
