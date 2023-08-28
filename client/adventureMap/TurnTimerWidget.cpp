@@ -67,14 +67,18 @@ void TurnTimerWidget::show(Canvas & to)
 	showAll(to);
 }
 
-void TurnTimerWidget::setTime(int time)
+void TurnTimerWidget::setTime(PlayerColor player, int time)
 {
 	int newTime = time / 1000;
-	if((LOCPLINT->cb->getCurrentPlayer() == LOCPLINT->playerID)
+	if((LOCPLINT->cb->isPlayerMakingTurn(LOCPLINT->playerID))
 	   && (newTime != turnTime)
 	   && notifications.count(newTime))
+	{
 		CCS->soundh->playSound(variables["notificationSound"].String());
+	}
+
 	turnTime = newTime;
+
 	if(auto w = widget<CLabel>("timer"))
 	{
 		std::ostringstream oss;
@@ -83,18 +87,23 @@ void TurnTimerWidget::setTime(int time)
 		
 		if(graphics && LOCPLINT && LOCPLINT->cb
 		   && variables["textColorFromPlayerColor"].Bool()
-		   && LOCPLINT->cb->getCurrentPlayer().isValidPlayer())
+		   && player.isValidPlayer())
 		{
-			w->setColor(graphics->playerColors[LOCPLINT->cb->getCurrentPlayer()]);
+			w->setColor(graphics->playerColors[player]);
 		}
 	}
 }
 
 void TurnTimerWidget::tick(uint32_t msPassed)
 {
-	if(LOCPLINT && LOCPLINT->cb)
+	if(!LOCPLINT || !LOCPLINT->cb)
+		return;
+
+	for (PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 	{
-		auto player = LOCPLINT->cb->getCurrentPlayer();
+		if (!LOCPLINT->cb->isPlayerMakingTurn(player))
+			continue;
+
 		auto time = LOCPLINT->cb->getPlayerTurnTime(player);
 		cachedTurnTime -= msPassed;
 		if(cachedTurnTime < 0) cachedTurnTime = 0; //do not go below zero
@@ -107,7 +116,8 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 				lastTurnTime = time;
 				cachedTurnTime = time;
 			}
-			else setTime(cachedTurnTime);
+			else
+				setTime(player, cachedTurnTime);
 		};
 		
 		auto * playerInfo = LOCPLINT->cb->getPlayer(player);

@@ -1003,7 +1003,10 @@ void CGameHandler::run(bool resume)
 	{
 		const int waitTime = 100; //ms
 
-		turnTimerHandler.onPlayerMakingTurn(gs->players[gs->getCurrentPlayer()], waitTime);
+		for(auto & player : gs->players)
+			if (gs->isPlayerMakingTurn(player.first))
+				turnTimerHandler.onPlayerMakingTurn(player.second, waitTime);
+
 		if(gs->curB)
 			turnTimerHandler.onBattleLoop(waitTime);
 
@@ -1064,7 +1067,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 {
 	const CGHeroInstance *h = getHero(hid);
 	// not turn of that hero or player can't simply teleport hero (at least not with this function)
-	if (!h  || (asker != PlayerColor::NEUTRAL && (teleporting || h->getOwner() != gs->currentPlayer)))
+	if(!h || (asker != PlayerColor::NEUTRAL && teleporting))
 	{
 		if(h && getStartInfo()->turnTimerInfo.isEnabled() && gs->players[h->getOwner()].turnTimer.turnTimer == 0)
 			return true; //timer expired, no error
@@ -1278,7 +1281,7 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	const CGHeroInstance *h = getHero(hid);
 	const CGTownInstance *t = getTown(dstid);
 
-	if (!h || !t || h->getOwner() != gs->currentPlayer)
+	if (!h || !t)
 		COMPLAIN_RET("Invalid call to teleportHero!");
 
 	const CGTownInstance *from = h->visitedTown;
@@ -1646,12 +1649,6 @@ void CGameHandler::sendAndApply(CPackForClient * pack)
 	logNetwork->trace("\tApplied on gs: %s", typeid(*pack).name());
 }
 
-void CGameHandler::applyAndSend(CPackForClient * pack)
-{
-	gs->apply(pack);
-	sendToAllClients(pack);
-}
-
 void CGameHandler::sendAndApply(CGarrisonOperationPack * pack)
 {
 	sendAndApply(static_cast<CPackForClient *>(pack));
@@ -1672,7 +1669,7 @@ void CGameHandler::sendAndApply(NewStructures * pack)
 
 bool CGameHandler::isPlayerOwns(CPackForServer * pack, ObjectInstanceID id)
 {
-	return getPlayerAt(pack->c) == getOwner(id);
+	return pack->player == getOwner(id) && hasPlayerAt(getOwner(id), pack->c);
 }
 
 void CGameHandler::throwNotAllowedAction(CPackForServer * pack)
@@ -1687,14 +1684,14 @@ void CGameHandler::throwNotAllowedAction(CPackForServer * pack)
 void CGameHandler::wrongPlayerMessage(CPackForServer * pack, PlayerColor expectedplayer)
 {
 	std::ostringstream oss;
-	oss << "You were identified as player " << getPlayerAt(pack->c) << " while expecting " << expectedplayer;
+	oss << "You were identified as player " << pack->player << " while expecting " << expectedplayer;
 	logNetwork->error(oss.str());
 
 	if(pack->c)
 		playerMessages->sendSystemMessage(pack->c, oss.str());
 }
 
-void CGameHandler::throwOnWrongOwner(CPackForServer * pack, ObjectInstanceID id)
+void CGameHandler::throwIfWrongOwner(CPackForServer * pack, ObjectInstanceID id)
 {
 	if(!isPlayerOwns(pack, id))
 	{
@@ -1703,9 +1700,14 @@ void CGameHandler::throwOnWrongOwner(CPackForServer * pack, ObjectInstanceID id)
 	}
 }
 
-void CGameHandler::throwOnWrongPlayer(CPackForServer * pack, PlayerColor player)
+void CGameHandler::throwIfWrongPlayer(CPackForServer * pack)
 {
-	if(!hasPlayerAt(player, pack->c) && player != getPlayerAt(pack->c))
+	throwIfWrongPlayer(pack, pack->player);
+}
+
+void CGameHandler::throwIfWrongPlayer(CPackForServer * pack, PlayerColor player)
+{
+	if(!hasPlayerAt(player, pack->c) || pack->player != player)
 	{
 		wrongPlayerMessage(pack, player);
 		throwNotAllowedAction(pack);
@@ -2171,30 +2173,6 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 bool CGameHandler::hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const
 {
 	return connections.at(player).count(c);
-}
-
-PlayerColor CGameHandler::getPlayerAt(std::shared_ptr<CConnection> c) const
-{
-	std::set<PlayerColor> all;
-	for (auto i=connections.cbegin(); i!=connections.cend(); i++)
-		if(vstd::contains(i->second, c))
-			all.insert(i->first);
-
-	switch(all.size())
-	{
-	case 0:
-		return PlayerColor::NEUTRAL;
-	case 1:
-		return *all.begin();
-	default:
-		{
-			//if we have more than one player at this connection, try to pick active one
-			if (vstd::contains(all, gs->currentPlayer))
-				return gs->currentPlayer;
-			else
-				return PlayerColor::CANNOT_DETERMINE; //cannot say which player is it
-		}
-	}
 }
 
 bool CGameHandler::disbandCreature(ObjectInstanceID id, SlotID pos)

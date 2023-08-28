@@ -1469,7 +1469,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 void CPlayerInterface::objectRemoved(const CGObjectInstance * obj)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(LOCPLINT->cb->getCurrentPlayer() == playerID && obj->getRemovalSound())
+	if(LOCPLINT->cb->isPlayerMakingTurn(playerID) && obj->getRemovalSound())
 	{
 		waitWhileDialog();
 		CCS->soundh->playSound(obj->getRemovalSound().value());

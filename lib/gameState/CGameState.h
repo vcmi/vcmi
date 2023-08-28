@@ -86,6 +86,9 @@ public:
 	//we have here all heroes available on this map that are not hired
 	std::unique_ptr<TavernHeroesPool> heroesPool;
 
+	/// list of players currently making turn. Usually - just one, except for simturns
+	std::set<PlayerColor> actingPlayers;
+
 	CGameState();
 	virtual ~CGameState();
 
@@ -95,7 +98,6 @@ public:
 	void updateOnLoad(StartInfo * si);
 
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
-	PlayerColor currentPlayer; //ID of player currently having turn
 	ConstTransitivePtr<BattleInfo> curB; //current battle
 	ui32 day; //total number of days in game
 	ConstTransitivePtr<CMap> map;
@@ -151,7 +153,7 @@ public:
 	{
 		h & scenarioOps;
 		h & initialOpts;
-		h & currentPlayer;
+		h & actingPlayers;
 		h & day;
 		h & map;
 		h & players;

@@ -2501,7 +2501,8 @@ void PlayerCheated::applyGs(CGameState * gs) const
 
 void YourTurn::applyGs(CGameState * gs) const
 {
-	gs->currentPlayer = player;
+	gs->actingPlayers.clear();
+	gs->actingPlayers.insert(player);
 }
 
 void DaysWithoutTown::applyGs(CGameState * gs) const

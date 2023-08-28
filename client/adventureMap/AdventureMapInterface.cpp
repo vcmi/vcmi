@@ -327,7 +327,7 @@ void AdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID, bool isHuma
 
 	mapAudio->onEnemyTurnStarted();
 	widget->getMinimap()->setAIRadar(!isHuman);
-	widget->getInfoBar()->startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
+	widget->getInfoBar()->startEnemyTurn(playerID);
 	setState(isHuman ? EAdventureState::OTHER_HUMAN_PLAYER_TURN : EAdventureState::AI_PLAYER_TURN);
 }
 
@@ -363,8 +363,7 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 	onCurrentPlayerChanged(playerID);
 
 	setState(EAdventureState::MAKING_TURN);
-	if(LOCPLINT->cb->getCurrentPlayer() == LOCPLINT->playerID
-		|| settings["session"]["spectate"].Bool())
+	if(playerID == LOCPLINT->playerID || settings["session"]["spectate"].Bool())
 	{
 		widget->getMinimap()->setAIRadar(false);
 		widget->getInfoBar()->showSelection();

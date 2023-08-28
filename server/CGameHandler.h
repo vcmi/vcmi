@@ -178,7 +178,6 @@ public:
 	void init(StartInfo *si, Load::ProgressAccumulator & progressTracking);
 	void handleClientDisconnection(std::shared_ptr<CConnection> c);
 	void handleReceivedPack(CPackForServer * pack);
-	PlayerColor getPlayerAt(std::shared_ptr<CConnection> c) const;
 	bool hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const;
 
 	bool queryReply( QueryID qid, const JsonNode & answer, PlayerColor player );
@@ -243,16 +242,22 @@ public:
 
 	void sendToAllClients(CPackForClient * pack);
 	void sendAndApply(CPackForClient * pack) override;
-	void applyAndSend(CPackForClient * pack);
 	void sendAndApply(CGarrisonOperationPack * pack);
 	void sendAndApply(SetResources * pack);
 	void sendAndApply(NewStructures * pack);
 
 	void wrongPlayerMessage(CPackForServer * pack, PlayerColor expectedplayer);
+	/// Unconditionally throws with "Action not allowed" message
 	void throwNotAllowedAction(CPackForServer * pack);
-	void throwOnWrongOwner(CPackForServer * pack, ObjectInstanceID id);
-	void throwOnWrongPlayer(CPackForServer * pack, PlayerColor player);
+	/// Throws if player stated in pack is not making turn right now
+	void throwIfPlayerNotActive(CPackForServer * pack);
+	/// Throws if object is not owned by pack sender
+	void throwIfWrongOwner(CPackForServer * pack, ObjectInstanceID id);
+	/// Throws if player is not present on connection of this pack
+	void throwIfWrongPlayer(CPackForServer * pack, PlayerColor player);
+	void throwIfWrongPlayer(CPackForServer * pack);
 	void throwAndComplain(CPackForServer * pack, std::string txt);
+
 	bool isPlayerOwns(CPackForServer * pack, ObjectInstanceID id);
 
 	void run(bool resume);
