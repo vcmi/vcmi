@@ -1006,8 +1006,6 @@ void CGameHandler::run(bool resume)
 		const int timePassed = std::chrono::duration_cast<std::chrono::milliseconds>(clockDuration).count();
 		clockLast += clockDuration;
 
-		const int waitTime = 100; //ms
-
 		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 			if(gs->isPlayerMakingTurn(player))
 				turnTimerHandler.onPlayerMakingTurn(player, timePassed);
