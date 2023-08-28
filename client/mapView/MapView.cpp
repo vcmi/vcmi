@@ -104,8 +104,8 @@ MapView::MapView(const Point & offset, const Point & dimensions)
 	actions = std::make_shared<MapViewActions>(*this, model);
 	actions->setContext(controller->getContext());
 
-// catch min 10 frames
-	postSwipeCatchIntervalMs = static_cast<int>(10.0 * 1000.0 * (1.0 / settings["video"]["targetfps"].Float()));
+	// catch min 6 frames
+	postSwipeCatchIntervalMs = std::max(100, static_cast<int>(6.0 * 1000.0 * (1.0 / settings["video"]["targetfps"].Float())));
 }
 
 void MapView::onMapLevelSwitched()
