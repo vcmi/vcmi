@@ -33,7 +33,15 @@ void TurnTimerHandler::onGameplayStart(PlayerColor player)
 		std::lock_guard<std::recursive_mutex> guard(mx);
 		timers[player] = si->turnTimerInfo;
 		timers[player].turnTimer = 0;
+		timerEnabled[player] = true;
 	}
+}
+
+void TurnTimerHandler::setTimerEnabled(PlayerColor player, bool enabled)
+{
+	std::lock_guard<std::recursive_mutex> guard(mx);
+	assert(player.isValidPlayer());
+	timerEnabled[player] = enabled;
 }
 
 void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
@@ -58,14 +66,15 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 {
 	const auto * gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
-	if(!si || !gs)
+	if(!si || !gs || gs->curB || !si->turnTimerInfo.isEnabled())
 		return;
+	
+	std::lock_guard<std::recursive_mutex> guard(mx);
 	
 	auto & state = gs->players.at(player);
 	
-	if(state.human && si->turnTimerInfo.isEnabled() && !gs->curB)
+	if(state.human && timerEnabled[player])
 	{
-		std::lock_guard<std::recursive_mutex> guard(mx);
 		if(timers[player].turnTimer > 0)
 		{
 			timers[player].turnTimer -= waitTime;
@@ -146,7 +155,7 @@ void TurnTimerHandler::onBattleLoop(int waitTime)
 {
 	const auto * gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
-	if(!si || !gs || !gs->curB)
+	if(!si || !gs || !gs->curB || !si->turnTimerInfo.isBattleEnabled())
 		return;
 	
 	std::lock_guard<std::recursive_mutex> guard(mx);
@@ -189,29 +198,27 @@ void TurnTimerHandler::onBattleLoop(int waitTime)
 		return false;
 	};
 	
-	if(state.human && si->turnTimerInfo.isBattleEnabled())
+	if(state.human && timerEnabled[state.color]
+	   && !turnTimerUpdateApplier(timers[state.color], waitTime))
 	{
-		if(!turnTimerUpdateApplier(timers[state.color], waitTime))
+		if(timers[state.color].battleTimer > 0)
 		{
-			if(timers[state.color].battleTimer > 0)
-			{
-				timers[state.color].creatureTimer = timers[state.color].battleTimer;
-				timers[state.color].battleTimer = 0;
-				turnTimerUpdateApplier(timers[state.color], 0);
-			}
+			timers[state.color].creatureTimer = timers[state.color].battleTimer;
+			timers[state.color].battleTimer = 0;
+			turnTimerUpdateApplier(timers[state.color], 0);
+		}
+		else
+		{
+			BattleAction doNothing;
+			doNothing.side = side;
+			if(isTactisPhase)
+				doNothing.actionType = EActionType::END_TACTIC_PHASE;
 			else
 			{
-				BattleAction doNothing;
-				doNothing.side = side;
-				if(isTactisPhase)
-					doNothing.actionType = EActionType::END_TACTIC_PHASE;
-				else
-				{
-					doNothing.actionType = EActionType::DEFEND;
-					doNothing.stackNumber = stack->unitId();
-				}
-				gameHandler.battles->makePlayerBattleAction(state.color, doNothing);
+				doNothing.actionType = EActionType::DEFEND;
+				doNothing.stackNumber = stack->unitId();
 			}
+			gameHandler.battles->makePlayerBattleAction(state.color, doNothing);
 		}
 	}
 }
