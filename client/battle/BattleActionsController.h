@@ -23,12 +23,6 @@ VCMI_LIB_NAMESPACE_END
 
 class BattleInterface;
 
-enum class MouseHoveredHexContext
-{
-	UNOCCUPIED_HEX,
-	OCCUPIED_HEX
-};
-
 /// Class that controls actions that can be performed by player, e.g. moving stacks, attacking, etc
 /// As well as all relevant feedback for these actions in user interface
 class BattleActionsController
@@ -53,7 +47,7 @@ class BattleActionsController
 	bool isCastingPossibleHere (const CSpell * spell, const CStack *shere, BattleHex myNumber);
 	bool canStackMoveHere (const CStack *sactive, BattleHex MyNumber) const; //TODO: move to BattleState / callback
 	std::vector<PossiblePlayerBattleAction> getPossibleActionsForStack (const CStack *stack) const; //called when stack gets its turn
-	void reorderPossibleActionsPriority(const CStack * stack, MouseHoveredHexContext context);
+	void reorderPossibleActionsPriority(const CStack * stack, const CStack * targetStack);
 
 	bool actionIsLegal(PossiblePlayerBattleAction action, BattleHex hoveredHex);
 
