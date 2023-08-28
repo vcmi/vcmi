@@ -28,6 +28,7 @@ class TurnTimerHandler
 	const int turnTimePropagateThreshold = 3000;
 	std::map<PlayerColor, TurnTimerInfo> timers;
 	std::map<PlayerColor, bool> timerEnabled;
+	std::map<PlayerColor, int> timerLastUpdate;
 	std::recursive_mutex mx;
 	
 public:

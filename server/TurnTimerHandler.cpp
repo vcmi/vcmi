@@ -34,6 +34,7 @@ void TurnTimerHandler::onGameplayStart(PlayerColor player)
 		timers[player] = si->turnTimerInfo;
 		timers[player].turnTimer = 0;
 		timerEnabled[player] = true;
+		timerLastUpdate[player] = std::numeric_limits<int>::max();
 	}
 }
 
@@ -59,6 +60,7 @@ void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
 			ttu.player = player;
 			ttu.turnTimer = timers[player];
 			gameHandler.sendAndApply(&ttu);
+			timerLastUpdate[player] = 0;
 		}
 	}
 }
@@ -79,15 +81,17 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 		if(timers[player].turnTimer > 0)
 		{
 			timers[player].turnTimer -= waitTime;
+			timerLastUpdate[player] += waitTime;
 			int frequency = (timers[player].turnTimer > turnTimePropagateThreshold ? turnTimePropagateFrequency : turnTimePropagateFrequencyCrit);
 			
 			if(state.status == EPlayerStatus::INGAME //do not send message if player is not active already
-			   && timers[player].turnTimer / 100 * 100 % frequency == 0)
+			   && timerLastUpdate[player] >= frequency)
 			{
 				TurnTimeUpdate ttu;
 				ttu.player = state.color;
 				ttu.turnTimer = timers[player];
 				gameHandler.sendAndApply(&ttu);
+				timerLastUpdate[player] = 0;
 			}
 		}
 		else if(timers[player].baseTimer > 0)
@@ -124,6 +128,7 @@ void TurnTimerHandler::onBattleStart()
 			ttu.player = i;
 			ttu.turnTimer = timers[i];
 			gameHandler.sendAndApply(&ttu);
+			timerLastUpdate[i] = 0;
 		}
 	}
 }
@@ -150,6 +155,7 @@ void TurnTimerHandler::onBattleNextStack(const CStack & stack)
 	ttu.player = player;
 	ttu.turnTimer = timers[player];
 	gameHandler.sendAndApply(&ttu);
+	timerLastUpdate[player] = 0;
 }
 
 void TurnTimerHandler::onBattleLoop(int waitTime)
@@ -182,17 +188,19 @@ void TurnTimerHandler::onBattleLoop(int waitTime)
 		if(tTimer.creatureTimer > 0)
 		{
 			tTimer.creatureTimer -= waitTime;
+			timerLastUpdate[state.color] += waitTime;
 			int frequency = (tTimer.creatureTimer > turnTimePropagateThreshold
 							 && si->turnTimerInfo.creatureTimer - tTimer.creatureTimer > turnTimePropagateThreshold)
 			? turnTimePropagateFrequency : turnTimePropagateFrequencyCrit;
 			
 			if(state.status == EPlayerStatus::INGAME //do not send message if player is not active already
-			   && (tTimer.creatureTimer / 100 * 100 % frequency) == 0)
+			   && timerLastUpdate[state.color] >= frequency)
 			{
 				TurnTimeUpdate ttu;
 				ttu.player = state.color;
 				ttu.turnTimer = tTimer;
 				gameHandler.sendAndApply(&ttu);
+				timerLastUpdate[state.color] = 0;
 			}
 			return true;
 		}
