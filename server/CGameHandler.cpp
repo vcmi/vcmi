@@ -1003,9 +1003,9 @@ void CGameHandler::run(bool resume)
 	{
 		const int waitTime = 100; //ms
 
-		for(auto & player : gs->players)
-			if (gs->isPlayerMakingTurn(player.first))
-				turnTimerHandler.onPlayerMakingTurn(player.second, waitTime);
+		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+			if(gs->isPlayerMakingTurn(player))
+				turnTimerHandler.onPlayerMakingTurn(player, waitTime);
 
 		if(gs->curB)
 			turnTimerHandler.onBattleLoop(waitTime);
