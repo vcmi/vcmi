@@ -3,7 +3,7 @@
 	[
 		{ //backgound color
 			"type": "drawRect",
-			"rect": {"x": 4, "y": 4, "w": 68, "h": 24},
+			"rect": {"x": 4, "y": 4, "w": 72, "h": 24},
 			"color": [10, 10, 10, 255]
 		},
 
@@ -21,7 +21,7 @@
 			"alignment": "left",
 			"color": "yellow",
 			"text": "",
-			"position": {"x": 24, "y": 2}
+			"position": {"x": 26, "y": 2}
 		},
 	],
 
