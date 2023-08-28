@@ -48,6 +48,11 @@ void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	CB->unlockGsWhenWaiting = false;
 }
 
+void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB, AutocombatPreferences autocombatPreferences)
+{
+	initBattleInterface(ENV, CB);
+}
+
 void CStupidAI::actionFinished(const BattleAction &action)
 {
 	print("actionFinished called");

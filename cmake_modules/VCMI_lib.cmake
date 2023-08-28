@@ -330,6 +330,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/../include/vcmi/Team.h
 
 		${MAIN_LIB_DIR}/battle/AccessibilityInfo.h
+		${MAIN_LIB_DIR}/battle/AutocombatPreferences.h
 		${MAIN_LIB_DIR}/battle/BattleAction.h
 		${MAIN_LIB_DIR}/battle/BattleAttackInfo.h
 		${MAIN_LIB_DIR}/battle/BattleHex.h

@@ -3,13 +3,13 @@ plugins {
 }
 
 android {
-	compileSdk 31
+	compileSdk 33
 	ndkVersion '25.2.9519653'
 
 	defaultConfig {
 		applicationId "is.xyz.vcmi"
 		minSdk 19
-		targetSdk 31
+		targetSdk 33
 		versionCode 1400
 		versionName "1.4.0"
 		setProperty("archivesBaseName", "vcmi")

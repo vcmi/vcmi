@@ -554,7 +554,7 @@ std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
 void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstance *> & ownedObjects)
 {
 	ui32 footerPos = OVERVIEW_SIZE * 116;
-	TResources minesCount(GameConstants::RESOURCE_QUANTITY, 0);
+	ResourceSet minesCount = ResourceSet();
 	int totalIncome=0;
 
 	for(const CGObjectInstance * object : ownedObjects)

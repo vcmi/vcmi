@@ -84,11 +84,19 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 
 	quitButton = std::make_shared<CButton>(Point(609, 516), "hsbtns.def", CButton::tooltip(heroscrn[17]), [=](){ close(); }, EShortcut::GLOBAL_RETURN);
 
-	dismissLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[8], Rect(370, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-	dismissButton = std::make_shared<CButton>(Point(454, 429), "hsbtns2.def", CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
-
-	questlogLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[9], Rect(510, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-	questlogButton = std::make_shared<CButton>(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
+	if(settings["general"]["enableUiEnhancements"].Bool())
+	{
+		questlogButton = std::make_shared<CButton>(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
+		backpackButton = std::make_shared<CButton>(Point(424, 429), "buttons/backpack", CButton::tooltipLocalized("vcmi.heroWindow.Backpack"), [=](){ createBackpackWindow(); }, EShortcut::HERO_BACKPACK);
+		dismissButton = std::make_shared<CButton>(Point(534, 429), "hsbtns2.def", CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
+	}
+	else
+	{
+		dismissLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[8], Rect(370, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+		questlogLabel = std::make_shared<CTextBox>(CGI->generaltexth->jktexts[9], Rect(510, 430, 65, 35), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+		dismissButton = std::make_shared<CButton>(Point(454, 429), "hsbtns2.def", CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
+		questlogButton = std::make_shared<CButton>(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
+	}
 
 	formations = std::make_shared<CToggleGroup>(0);
 	formations->addToggle(0, std::make_shared<CToggleButton>(Point(481, 483), "hsbtns6.def", std::make_pair(heroscrn[23], heroscrn[29]), 0, EShortcut::HERO_TIGHT_FORMATION));

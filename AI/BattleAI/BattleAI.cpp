@@ -60,6 +60,12 @@ void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	movesSkippedByDefense = 0;
 }
 
+void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB, AutocombatPreferences autocombatPreferences)
+{
+	initBattleInterface(ENV, CB);
+	autobattlePreferences = autocombatPreferences;
+}
+
 BattleAction CBattleAI::useHealingTent(const CStack *stack)
 {
 	auto healingTargets = cb->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);

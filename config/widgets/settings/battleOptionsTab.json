@@ -51,14 +51,37 @@
 			]
 		},
 		{
-			"name": "autoCombatCheckboxes",
+			"name": "autoCombatFakeCheckboxes",
 			"type" : "verticalLayout",
 			"customType" : "checkboxFake",
 			"position": {"x": 380, "y": 83},
 			"items":
 			[
-				{},
-				{},
+				{}
+			]
+		},
+
+		{
+			"type" : "verticalLayout",
+			"customType" : "checkbox",
+			"position": {"x": 380, "y": 113},
+			"items":
+			[
+				{
+					"name": "enableAutocombatSpellsCheckbox",
+					"help": "vcmi.battleOptions.enableAutocombatSpells",
+					"callback": "enableAutocombatSpellsChanged"
+				}
+			]
+		},
+
+		{
+			"name": "autoCombatFakeCheckboxes2",
+			"type" : "verticalLayout",
+			"customType" : "checkboxFake",
+			"position": {"x": 380, "y": 143},
+			"items":
+			[
 				{},
 				{},
 				{}

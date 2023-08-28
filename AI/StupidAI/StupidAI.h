@@ -29,6 +29,7 @@ public:
 	~CStupidAI();
 
 	void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB) override;
+	void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB, AutocombatPreferences autocombatPreferences) override;
 	void actionFinished(const BattleAction &action) override;//occurs AFTER every action taken by any stack or by the hero
 	void actionStarted(const BattleAction &action) override;//occurs BEFORE every action taken by any stack or by the hero
 	void activeStack(const CStack * stack) override; //called when it's turn of that stack

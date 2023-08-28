@@ -17,7 +17,9 @@
 #include "mapView/mapHandler.h"
 #include "adventureMap/CInGameConsole.h"
 #include "battle/BattleInterface.h"
+#include "battle/BattleWindow.h"
 #include "gui/CGuiHandler.h"
+#include "gui/WindowHandler.h"
 #include "widgets/MiscWidgets.h"
 #include "CMT.h"
 #include "CServerHandler.h"
@@ -153,6 +155,9 @@ void ApplyClientNetPackVisitor::visitSetMana(SetMana & pack)
 {
 	const CGHeroInstance *h = cl.getHero(pack.hid);
 	callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroManaPointsChanged, h);
+
+	for (auto window : GH.windows().findWindows<BattleWindow>())
+		window->heroManaPointsChanged(h);
 }
 
 void ApplyClientNetPackVisitor::visitSetMovePoints(SetMovePoints & pack)

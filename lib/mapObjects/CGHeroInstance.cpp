@@ -1617,52 +1617,69 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 		//in json default skills means no field/null
 		if(!defaultSkills)
 		{
-			//enter structure here as handler initialize it
-			auto secondarySkills = handler.enterStruct("secondarySkills");
+			//enter array here as handler initialize it
+			auto secondarySkills = handler.enterArray("secondarySkills");
+			secondarySkills.syncSize(secSkills, JsonNode::JsonType::DATA_VECTOR);
 
-			for(auto & p : secSkills)
+			for(size_t skillIndex = 0; skillIndex < secondarySkills.size(); ++skillIndex)
 			{
-				const si32 rawId = p.first.num;
+				JsonArraySerializer inner = secondarySkills.enterArray(skillIndex);
+				const si32 rawId = secSkills.at(skillIndex).first;
 
 				if(rawId < 0 || rawId >= VLC->skillh->size())
 					logGlobal->error("Invalid secondary skill %d", rawId);
 
-				handler.serializeEnum((*VLC->skillh)[SecondarySkill(rawId)]->getJsonKey(), p.second, 0, NSecondarySkill::levels);
+				auto value = (*VLC->skillh)[SecondarySkill(rawId)]->getJsonKey();
+				handler.serializeString("skill", value);
+				value = NSecondarySkill::levels.at(secSkills.at(skillIndex).second);
+				handler.serializeString("level", value);
 			}
 		}
 	}
 	else
 	{
-		auto secondarySkills = handler.enterStruct("secondarySkills");
-		const JsonNode & skillMap = handler.getCurrent();
+		auto secondarySkills = handler.getCurrent()["secondarySkills"];
 
 		secSkills.clear();
-		if(skillMap.getType() == JsonNode::JsonType::DATA_NULL)
+		if(secondarySkills.getType() == JsonNode::JsonType::DATA_NULL)
 		{
 			secSkills.emplace_back(SecondarySkill::DEFAULT, -1);
 		}
 		else
 		{
-			for(const auto & p : skillMap.Struct())
+			auto addSkill = [this](const std::string & skillId, const std::string & levelId)
 			{
-				const std::string skillId = p.first;
-				const std::string levelId =  p.second.String();
-
 				const int rawId = CSkillHandler::decodeSkill(skillId);
 				if(rawId < 0)
 				{
 					logGlobal->error("Invalid secondary skill %s", skillId);
-					continue;
+					return;
 				}
 
 				const int level = vstd::find_pos(NSecondarySkill::levels, levelId);
 				if(level < 0)
 				{
 					logGlobal->error("Invalid secondary skill level%s", levelId);
-					continue;
+					return;
 				}
 
 				secSkills.emplace_back(SecondarySkill(rawId), level);
+			};
+
+			if(secondarySkills.getType() == JsonNode::JsonType::DATA_VECTOR)
+			{
+				for(const auto & p : secondarySkills.Vector())								
+				{
+					auto skillMap = p.Struct();
+					addSkill(skillMap["skill"].String(), skillMap["level"].String());
+				}
+			}
+			else if(secondarySkills.getType() == JsonNode::JsonType::DATA_STRUCT)
+			{
+				for(const auto & p : secondarySkills.Struct())
+				{
+					addSkill(p.first, p.second.String());
+				};
 			}
 		}
 	}

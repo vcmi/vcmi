@@ -12,6 +12,8 @@
 #include "../widgets/CWindowWithArtifacts.h"
 #include "CWindowObject.h"
 
+class CFilledTexture;
+
 class CHeroBackpackWindow : public CWindowObject, public CWindowWithArtifacts
 {
 public:
@@ -20,4 +22,7 @@ public:
 private:
 	std::shared_ptr<CArtifactsOfHeroBackpack> arts;
 	std::shared_ptr<CButton> quitButton;
+	std::shared_ptr<CFilledTexture> stretchedBackground;
+
+	void showAll(Canvas &to) override;
 };

@@ -69,6 +69,7 @@ public:
 	~CBattleAI();
 
 	void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB) override;
+	void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB, AutocombatPreferences autocombatPreferences) override;
 
 	void activeStack(const CStack * stack) override; //called when it's turn of that stack
 	void yourTacticPhase(int distance) override;
@@ -94,4 +95,5 @@ public:
 	//void battleTriggerEffect(const BattleTriggerEffect & bte) override;
 	//void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override; //called by engine when battle starts; side=0 - left, side=1 - right
 	//void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
+	AutocombatPreferences autobattlePreferences = AutocombatPreferences();
 };

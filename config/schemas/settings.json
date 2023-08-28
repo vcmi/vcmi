@@ -38,7 +38,8 @@
 				"autosaveCountLimit",
 				"useSavePrefix",
 				"savePrefix",
-				"startTurnAutosave"
+				"startTurnAutosave",
+				"enableUiEnhancements"
 			],
 			"properties" : {
 				"playerName" : {
@@ -126,6 +127,10 @@
 				"startTurnAutosave" : {
 					"type": "boolean",
 					"default": false
+				},
+				"enableUiEnhancements" : {
+					"type": "boolean",
+					"default": true
 				}
 			}
 		},
@@ -276,7 +281,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -318,6 +323,10 @@
 				"stickyHeroInfoWindows" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"enableAutocombatSpells" : {
+					"type": "boolean",
+					"default": true
 				}
 			}
 		},

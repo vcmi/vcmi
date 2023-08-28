@@ -14,6 +14,7 @@
 #include "../gui/Shortcut.h"
 
 #include "Buttons.h"
+#include "Images.h"
 #include "GameSettings.h"
 #include "IHandlerBase.h"
 #include "ObjectLists.h"
@@ -27,25 +28,37 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(const Point & position)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	pos += position;
+	setRedrawParent(true);
 
 	const auto backpackCap = VLC->settings()->getInteger(EGameSettings::HEROES_BACKPACK_CAP);
-	auto visibleCapasityMax = HERO_BACKPACK_WINDOW_SLOT_LINES * HERO_BACKPACK_WINDOW_SLOT_COLUMNS;
+	auto visibleCapacityMax = HERO_BACKPACK_WINDOW_SLOT_ROWS * HERO_BACKPACK_WINDOW_SLOT_COLUMNS;
 	if(backpackCap >= 0)
-		visibleCapasityMax = visibleCapasityMax > backpackCap ? backpackCap : visibleCapasityMax;
+		visibleCapacityMax = visibleCapacityMax > backpackCap ? backpackCap : visibleCapacityMax;
 
-	backpack.resize(visibleCapasityMax);
+	backpack.resize(visibleCapacityMax);
 	size_t artPlaceIdx = 0;
+
+	const int slotSizeWithMargin = 46;
+
+	for(int i = 0; i < visibleCapacityMax; i++)
+	{
+		auto artifactSlotBackground = std::make_shared<CPicture>("heroWindow/artifactSlotEmpty",
+			Point(slotSizeWithMargin * (i % HERO_BACKPACK_WINDOW_SLOT_COLUMNS), slotSizeWithMargin * (i / HERO_BACKPACK_WINDOW_SLOT_COLUMNS)));
+
+		backpackSlotsBackgrounds.emplace_back(artifactSlotBackground);
+	}
+
 	for(auto & artPlace : backpack)
 	{
 		artPlace = std::make_shared<CHeroArtPlace>(
-			Point(46 * (artPlaceIdx % HERO_BACKPACK_WINDOW_SLOT_COLUMNS), 46 * (artPlaceIdx / HERO_BACKPACK_WINDOW_SLOT_COLUMNS)));
+			Point(slotSizeWithMargin * (artPlaceIdx % HERO_BACKPACK_WINDOW_SLOT_COLUMNS), slotSizeWithMargin * (artPlaceIdx / HERO_BACKPACK_WINDOW_SLOT_COLUMNS)));
 		artPlace->setArtifact(nullptr);
 		artPlace->leftClickCallback = std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1);
 		artPlace->rightClickCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
 		artPlaceIdx++;
 	}
 
-	if(backpackCap < 0 || visibleCapasityMax < backpackCap)
+	if(backpackCap < 0 || visibleCapacityMax < backpackCap)
 	{
 		auto onCreate = [](size_t index) -> std::shared_ptr<CIntObject>
 		{
@@ -56,8 +69,8 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(const Point & position)
 			scrollBackpack(static_cast<int>(pos) * HERO_BACKPACK_WINDOW_SLOT_COLUMNS - backpackPos);
 		};
 		backpackListBox = std::make_shared<CListBoxWithCallback>(
-			posMoved, onCreate, Point(0, 0), Point(0, 0), HERO_BACKPACK_WINDOW_SLOT_LINES, 0, 0, 1,
-			Rect(HERO_BACKPACK_WINDOW_SLOT_COLUMNS * 46 + 10, 0, HERO_BACKPACK_WINDOW_SLOT_LINES * 46 - 5, 0));
+				posMoved, onCreate, Point(0, 0), Point(0, 0), HERO_BACKPACK_WINDOW_SLOT_ROWS, 0, 0, 1,
+				Rect(HERO_BACKPACK_WINDOW_SLOT_COLUMNS * slotSizeWithMargin + 10, 0, HERO_BACKPACK_WINDOW_SLOT_ROWS * slotSizeWithMargin - 5, 0));
 	}
 }
 
