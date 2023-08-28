@@ -114,7 +114,8 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 			continue;
 
 		auto time = LOCPLINT->cb->getPlayerTurnTime(player);
-		cachedTurnTime -= msPassed;
+		if(LOCPLINT->isTimerEnabled())
+			cachedTurnTime -= msPassed;
 		if(cachedTurnTime < 0) cachedTurnTime = 0; //do not go below zero
 		
 		if(lastPlayer != player)

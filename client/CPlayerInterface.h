@@ -57,6 +57,7 @@ namespace boost
 /// Central class for managing user interface logic
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
+	bool timerEnabled;
 	bool duringMovement;
 	bool ignoreEvents;
 	size_t numOfMovedArts;
@@ -206,6 +207,8 @@ public: // public interface for use by client via LOCPLINT access
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
+	
+	bool isTimerEnabled() const;
 
 	CPlayerInterface(PlayerColor Player);
 	~CPlayerInterface();
