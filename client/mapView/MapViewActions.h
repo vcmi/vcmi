@@ -24,7 +24,6 @@ class MapViewActions : public CIntObject
 
 	Point dragDistance;
 	double pinchZoomFactor;
-	bool dragActive;
 
 	void handleHover(const Point & cursorPosition);
 
@@ -44,4 +43,6 @@ public:
 	void mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void wheelScrolled(int distance) override;
+	
+	bool dragActive;
 };

@@ -49,7 +49,18 @@ class MapView : public BasicMapView
 {
 	std::shared_ptr<MapViewActions> actions;
 
+	std::vector<std::pair<uint32_t, Point>> swipeHistory;
+	double postSwipeAngle = 0.0;
+	double postSwipeSpeed = 0.0;
+
+	int postSwipeCatchIntervalMs;
+	const double postSwipeSlowdownSpeed = 0.006;
+	const double postSwipeMinimalSpeed = 0.1;
+
+	void postSwipe(uint32_t msPassed);
+
 public:
+	void tick(uint32_t msPassed) override;
 	void show(Canvas & to) override;
 
 	MapView(const Point & offset, const Point & dimensions);
