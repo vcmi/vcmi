@@ -38,7 +38,8 @@
 				"autosaveCountLimit",
 				"useSavePrefix",
 				"savePrefix",
-				"startTurnAutosave"
+				"startTurnAutosave",
+				"enableUiEnhancements"
 			],
 			"properties" : {
 				"playerName" : {
@@ -126,6 +127,10 @@
 				"startTurnAutosave" : {
 					"type": "boolean",
 					"default": false
+				},
+				"enableUiEnhancements" : {
+					"type": "boolean",
+					"default": true
 				}
 			}
 		},

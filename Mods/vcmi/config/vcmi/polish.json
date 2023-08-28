@@ -173,6 +173,8 @@
 
 	"vcmi.heroWindow.openCommander.hover" : "Otwórz okno dowódcy",
 	"vcmi.heroWindow.openCommander.help"  : "Wyświetla informacje o dowódcy przynależącym do tego bohatera",
+	"vcmi.heroWindow.openBackpack.hover" : "Otwórz okno sakwy",
+	"vcmi.heroWindow.openBackpack.help"  : "Otwiera okno pozwalające łatwiej zarządzać artefaktami w sakwie",
 
 	"vcmi.commanderWindow.artifactMessage" : "Czy chcesz zwrócić ten artefakt bohaterowi?",
 
