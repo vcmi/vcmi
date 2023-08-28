@@ -243,7 +243,7 @@ void CPlayerInterface::performAutosave()
 	}
 }
 
-void CPlayerInterface::yourTurn()
+void CPlayerInterface::yourTurn(QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	{
@@ -273,10 +273,10 @@ void CPlayerInterface::yourTurn()
 			adventureInt->onPlayerTurnStarted(playerID);
 		}
 	}
-	acceptTurn();
+	acceptTurn(queryID);
 }
 
-void CPlayerInterface::acceptTurn()
+void CPlayerInterface::acceptTurn(QueryID queryID)
 {
 	if (settings["session"]["autoSkip"].Bool())
 	{
@@ -322,6 +322,9 @@ void CPlayerInterface::acceptTurn()
 		else
 			logGlobal->warn("Player has no towns, but daysWithoutCastle is not set");
 	}
+	
+	JsonNode reply(JsonNode::JsonType::DATA_NULL);
+	cb->sendQueryReply(reply, queryID);
 }
 
 void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)

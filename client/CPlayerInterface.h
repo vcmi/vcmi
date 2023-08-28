@@ -133,7 +133,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void tileRevealed(const std::unordered_set<int3> &pos) override; //called when fog of war disappears from given tiles
 	void newObject(const CGObjectInstance * obj) override;
 	void availableArtifactsChanged(const CGBlackMarket *bm = nullptr) override; //bm may be nullptr, then artifacts are changed in the global pool (used by merchants in towns)
-	void yourTurn() override;
+	void yourTurn(QueryID queryID) override;
 	void availableCreaturesChanged(const CGDwelling *town) override;
 	void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain) override;//if gain hero received bonus, else he lost it
 	void playerBonusChanged(const Bonus &bonus, bool gain) override;
@@ -228,7 +228,7 @@ private:
 	void heroKilled(const CGHeroInstance* hero);
 	void garrisonsChanged(std::vector<const CGObjectInstance *> objs);
 	void requestReturningToMainMenu(bool won);
-	void acceptTurn(); //used during hot seat after your turn message is close
+	void acceptTurn(QueryID queryID); //used during hot seat after your turn message is close
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
 	void doMoveHero(const CGHeroInstance *h, CGPath path);

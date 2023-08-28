@@ -398,7 +398,7 @@ void ApplyClientNetPackVisitor::visitPlayerReinitInterface(PlayerReinitInterface
 			if (cl.gameState()->isPlayerMakingTurn(player))
 			{
 				callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, player);
-				callOnlyThatInterface(cl, player, &CGameInterface::yourTurn);
+				callOnlyThatInterface(cl, player, &CGameInterface::yourTurn, -1);
 			}
 		}
 	};
@@ -873,7 +873,7 @@ void ApplyClientNetPackVisitor::visitYourTurn(YourTurn & pack)
 	logNetwork->debug("Server gives turn to %s", pack.player.getStr());
 
 	callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, pack.player);
-	callOnlyThatInterface(cl, pack.player, &CGameInterface::yourTurn);
+	callOnlyThatInterface(cl, pack.player, &CGameInterface::yourTurn, pack.queryID);
 }
 
 void ApplyClientNetPackVisitor::visitTurnTimeUpdate(TurnTimeUpdate & pack)

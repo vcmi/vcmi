@@ -11,6 +11,7 @@
 #include "TurnOrderProcessor.h"
 
 #include "../queries/QueriesProcessor.h"
+#include "../queries/MapQueries.h"
 #include "../CGameHandler.h"
 #include "../CVCMIServer.h"
 
@@ -98,8 +99,12 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 	awaitingPlayers.erase(which);
 	gameHandler->onPlayerTurnStarted(which);
 
+	auto turnQuery = std::make_shared<PlayerStartsTurnQuery>(gameHandler, which);
+	gameHandler->queries->addQuery(turnQuery);
+
 	YourTurn yt;
 	yt.player = which;
+	yt.queryID = turnQuery->queryID;
 	gameHandler->sendAndApply(&yt);
 
 	assert(actingPlayers.size() == 1); // No simturns yet :(
