@@ -23,7 +23,7 @@ public:
 	virtual void loadGame(BinaryDeserializer & h, const int version) override;
 
 	void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
-	void yourTurn() override;
+	void yourTurn(QueryID queryID) override;
 	void yourTacticPhase(int distance) override;
 	void activeStack(const CStack * stack) override;
 	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID) override;

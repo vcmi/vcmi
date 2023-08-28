@@ -15,6 +15,32 @@
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/serializer/Cast.h"
 
+PlayerStartsTurnQuery::PlayerStartsTurnQuery(CGameHandler * owner, PlayerColor player):
+	CGhQuery(owner)
+{
+	addPlayer(player);
+}
+
+bool PlayerStartsTurnQuery::blocksPack(const CPack *pack) const
+{
+	return blockAllButReply(pack);
+}
+
+void PlayerStartsTurnQuery::onAdding(PlayerColor color)
+{
+	//gh->turnTimerHandler.setTimerEnabled(color, false);
+}
+
+void PlayerStartsTurnQuery::onRemoval(PlayerColor color)
+{
+	//gh->turnTimerHandler.setTimerEnabled(color, true);
+}
+
+bool PlayerStartsTurnQuery::endsByPlayerAnswer() const
+{
+	return true;
+}
+
 CObjectVisitQuery::CObjectVisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero, int3 Tile):
 	CGhQuery(owner), visitedObject(Obj), visitingHero(Hero), tile(Tile), removeObjectAfterVisit(false)
 {

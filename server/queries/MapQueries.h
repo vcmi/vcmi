@@ -13,6 +13,21 @@
 
 #include "../../lib/NetPacks.h"
 
+class TurnTimerHandler;
+
+//Created when player starts turn
+//Removed when player accepts a turn
+class PlayerStartsTurnQuery : public CGhQuery
+{
+public:	
+	PlayerStartsTurnQuery(CGameHandler * owner, PlayerColor player);
+	
+	bool blocksPack(const CPack *pack) const override;
+	void onAdding(PlayerColor color) override;
+	void onRemoval(PlayerColor color) override;
+	bool endsByPlayerAnswer() const override;
+};
+
 //Created when hero visits object.
 //Removed when query above is resolved (or immediately after visit if no queries were created)
 class CObjectVisitQuery : public CGhQuery

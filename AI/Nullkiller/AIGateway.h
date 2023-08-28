@@ -111,7 +111,7 @@ public:
 	std::string getBattleAIName() const override;
 
 	void initGameInterface(std::shared_ptr<Environment> env, std::shared_ptr<CCallback> CB) override;
-	void yourTurn() override;
+	void yourTurn(QueryID queryID) override;
 
 	void heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID) override; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
 	void commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) override; //TODO

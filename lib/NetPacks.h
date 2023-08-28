@@ -162,7 +162,7 @@ struct DLL_LINKAGE TurnTimeUpdate : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE YourTurn : public CPackForClient
+struct DLL_LINKAGE YourTurn : public Query
 {
 	void applyGs(CGameState * gs) const;
 
@@ -172,6 +172,7 @@ struct DLL_LINKAGE YourTurn : public CPackForClient
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
+		h & queryID;
 		h & player;
 	}
 };

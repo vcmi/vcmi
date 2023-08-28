@@ -88,7 +88,7 @@ class DLL_LINKAGE CGameInterface : public CBattleGameInterface, public IGameEven
 public:
 	virtual ~CGameInterface() = default;
 	virtual void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB){};
-	virtual void yourTurn(){}; //called AFTER playerStartsTurn(player)
+	virtual void yourTurn(QueryID askID){}; //called AFTER playerStartsTurn(player)
 
 	//pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
 	virtual void heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID)=0;

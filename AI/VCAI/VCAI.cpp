@@ -610,10 +610,12 @@ void VCAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<C
 	retrieveVisitableObjs();
 }
 
-void VCAI::yourTurn()
+void VCAI::yourTurn(QueryID queryID)
 {
-	LOG_TRACE(logAi);
+	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
+	status.addQuery(queryID, "YourTurn");
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 	status.startedTurn();
 	makingTurn = std::make_unique<boost::thread>(&VCAI::makeTurn, this);
 }
