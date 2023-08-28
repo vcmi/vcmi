@@ -43,6 +43,7 @@ public:
 
 	void setObject(std::shared_ptr<CIntObject> object);
 	void deselect(); //TODO: consider using observer pattern instead?
+	bool getIsGrandmasterAbility();
 
 	void show(Canvas &to) override;
 };

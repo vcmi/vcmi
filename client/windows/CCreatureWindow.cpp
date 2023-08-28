@@ -128,6 +128,11 @@ void CCommanderSkillIcon::deselect()
 	isSelected = false;
 }
 
+bool CCommanderSkillIcon::getIsGrandmasterAbility()
+{
+	return isGrandmasterAbility;
+}
+
 void CCommanderSkillIcon::show(Canvas &to)
 {
 	CIntObject::show(to);
@@ -915,7 +920,10 @@ void CStackWindow::setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIc
 
 	if(selectedIcon)
 	{
-		selectedIcon->text = getSkillDescription(oldSelection, false); //update previously selected icon's message to existing skill level
+		if(!selectedIcon->getIsGrandmasterAbility()) //unlike WoG, in VCMI grandmaster skill descriptions are taken from bonus descriptions
+		{
+			selectedIcon->text = getSkillDescription(oldSelection, false); //update previously selected icon's message to existing skill level
+		}
 		selectedIcon->deselect();
 	}
 
@@ -923,7 +931,10 @@ void CStackWindow::setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIc
 	if(newSkill < 100)
 	{
 		newIcon->setObject(std::make_shared<CPicture>(getSkillImage(newSkill)));
-		newIcon->text = getSkillDescription(newSkill, true); //update currently selected icon's message to show upgrade description
+		if(!newIcon->getIsGrandmasterAbility())
+		{
+			newIcon->text = getSkillDescription(newSkill, true); //update currently selected icon's message to show upgrade description
+		}
 	}
 }
 
