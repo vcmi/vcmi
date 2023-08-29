@@ -31,14 +31,16 @@ class TurnTimerHandler
 	std::map<PlayerColor, int> timerLastUpdate;
 	std::recursive_mutex mx;
 	
+	void onPlayerMakingTurn(PlayerColor player, int waitTime);
+	void onBattleLoop(int waitTime);
+	
 public:
 	TurnTimerHandler(CGameHandler &);
 	
 	void onGameplayStart(PlayerColor player);
 	void onPlayerGetTurn(PlayerColor player);
-	void onPlayerMakingTurn(PlayerColor player, int waitTime);
 	void onBattleStart();
 	void onBattleNextStack(const CStack & stack);
-	void onBattleLoop(int waitTime);
+	void update(int waitTime);
 	void setTimerEnabled(PlayerColor player, bool enabled);
 };

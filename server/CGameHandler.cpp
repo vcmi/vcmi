@@ -999,20 +999,13 @@ void CGameHandler::run(bool resume)
 	turnOrder->onGameStarted();
 
 	//wait till game is done
-	auto clockLast = std::chrono::high_resolution_clock::now();
+	auto clockLast = std::chrono::steady_clock::now();
 	while(lobby->getState() == EServerState::GAMEPLAY)
 	{
-		const auto clockDuration = std::chrono::high_resolution_clock::now() - clockLast;
+		const auto clockDuration = std::chrono::steady_clock::now() - clockLast;
 		const int timePassed = std::chrono::duration_cast<std::chrono::milliseconds>(clockDuration).count();
 		clockLast += clockDuration;
-
-		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
-			if(gs->isPlayerMakingTurn(player))
-				turnTimerHandler.onPlayerMakingTurn(player, timePassed);
-
-		if(gs->curB)
-			turnTimerHandler.onBattleLoop(timePassed);
-
+		turnTimerHandler.update(timePassed);
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 	}
 }

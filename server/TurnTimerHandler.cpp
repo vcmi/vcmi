@@ -28,9 +28,9 @@ TurnTimerHandler::TurnTimerHandler(CGameHandler & gh):
 
 void TurnTimerHandler::onGameplayStart(PlayerColor player)
 {
+	std::lock_guard<std::recursive_mutex> guard(mx);
 	if(const auto * si = gameHandler.getStartInfo())
 	{
-		std::lock_guard<std::recursive_mutex> guard(mx);
 		timers[player] = si->turnTimerInfo;
 		timers[player].turnTimer = 0;
 		timerEnabled[player] = true;
@@ -47,11 +47,11 @@ void TurnTimerHandler::setTimerEnabled(PlayerColor player, bool enabled)
 
 void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
 {
+	std::lock_guard<std::recursive_mutex> guard(mx);
 	if(const auto * si = gameHandler.getStartInfo())
 	{
 		if(si->turnTimerInfo.isEnabled())
 		{
-			std::lock_guard<std::recursive_mutex> guard(mx);
 			if(si->turnTimerInfo.baseTimer > 0)
 				timers[player].baseTimer += timers[player].turnTimer;
 			timers[player].turnTimer = si->turnTimerInfo.turnTimer;
@@ -65,14 +65,27 @@ void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
 	}
 }
 
+void TurnTimerHandler::update(int waitTime)
+{
+	std::lock_guard<std::recursive_mutex> guard(mx);
+	if(const auto * gs = gameHandler.gameState())
+	{
+		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+			if(gs->isPlayerMakingTurn(player))
+				onPlayerMakingTurn(player, waitTime);
+		
+		if(gs->curB)
+			onBattleLoop(waitTime);
+	}
+}
+
 void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 {
+	std::lock_guard<std::recursive_mutex> guard(mx);
 	const auto * gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
 	if(!si || !gs || gs->curB || !si->turnTimerInfo.isEnabled())
 		return;
-	
-	std::lock_guard<std::recursive_mutex> guard(mx);
 	
 	auto & state = gs->players.at(player);
 	
@@ -107,12 +120,11 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 
 void TurnTimerHandler::onBattleStart()
 {
+	std::lock_guard<std::recursive_mutex> guard(mx);
 	const auto * gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
 	if(!si || !gs || !gs->curB || !si->turnTimerInfo.isBattleEnabled())
 		return;
-	
-	std::lock_guard<std::recursive_mutex> guard(mx);
 
 	auto attacker = gs->curB->getSidePlayer(BattleSide::ATTACKER);
 	auto defender = gs->curB->getSidePlayer(BattleSide::DEFENDER);
@@ -135,12 +147,11 @@ void TurnTimerHandler::onBattleStart()
 
 void TurnTimerHandler::onBattleNextStack(const CStack & stack)
 {
+	std::lock_guard<std::recursive_mutex> guard(mx);
 	const auto * gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
 	if(!si || !gs || !gs->curB || !si->turnTimerInfo.isBattleEnabled())
 		return;
-	
-	std::lock_guard<std::recursive_mutex> guard(mx);
 	
 	auto player = stack.getOwner();
 	
@@ -160,12 +171,11 @@ void TurnTimerHandler::onBattleNextStack(const CStack & stack)
 
 void TurnTimerHandler::onBattleLoop(int waitTime)
 {
+	std::lock_guard<std::recursive_mutex> guard(mx);
 	const auto * gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
 	if(!si || !gs || !gs->curB || !si->turnTimerInfo.isBattleEnabled())
 		return;
-	
-	std::lock_guard<std::recursive_mutex> guard(mx);
 	
 	ui8 side = 0;
 	const CStack * stack = nullptr;
