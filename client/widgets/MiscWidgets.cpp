@@ -456,7 +456,7 @@ CreatureTooltip::CreatureTooltip(Point pos, const CGCreature * creature)
 	/*std::shared_ptr<CLabel> = std::make_shared<CLabel>(parent->pos.w / 2, 103,
 			FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, creature->getHoverText(LOCPLINT->playerID));*/
 
-	tooltipTextbox = std::make_shared<CTextBox>(textContent, Rect(15, 95, 230, 150), 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+	tooltipTextbox = std::make_shared<CTextBox>(textContent, Rect(15, 95, 230, 150), 0, FONT_SMALL, ETextAlignment::TOPCENTER, Colors::WHITE);
 }
 
 void MoraleLuckBox::set(const AFactionMember * node)

@@ -244,6 +244,9 @@ CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const Point &p, ETextAlignment alig
 	case ETextAlignment::TOPLEFT:
 		init(p.x, p.y);
 		break;
+	case ETextAlignment::TOPCENTER:
+		init(p.x - Bitmap->w/2, p.y);
+		break;
 	default:
 		assert(0); //not implemented
 	}
