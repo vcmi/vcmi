@@ -620,7 +620,7 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color, SelType _type)
 	for(auto & player : SEL->getStartInfo()->playerInfos)
 	{
 		if(player.first != color && (int)player.second.hero > PlayerSettings::RANDOM)
-			unusableHeroes.push_back(player.second.hero);
+			unusableHeroes.insert(player.second.hero);
 	}
 
 	allowedBonus.push_back(-1); // random
@@ -817,7 +817,7 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 			std::string image = "lobby/townBorderBig";
 			if(selectedHero == elem)
 				image = "lobby/townBorderBigActivated";
-			if(std::find(unusableHeroes.begin(), unusableHeroes.end(), elem) != unusableHeroes.end())
+			if(unusableHeroes.count(elem))
 				image = "lobby/townBorderBigGrayedOut";
 			components.push_back(std::make_shared<CPicture>(image, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
 			heroes.push_back(elem);
@@ -900,7 +900,7 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 			set.hero = PlayerSettings::RANDOM;
 		}
 
-		if(doApply && std::find(unusableHeroes.begin(), unusableHeroes.end(), heroes[elem]) != unusableHeroes.end())
+		if(doApply && unusableHeroes.count(heroes[elem]))
 			return;
 
 		if(set.hero.getNum() != PlayerSettings::NONE)
