@@ -10,11 +10,12 @@
 
 #pragma once
 
+#include "../lib/TurnTimerInfo.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CStack;
 class PlayerColor;
-struct TurnTimerInfo;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -22,17 +23,27 @@ class CGameHandler;
 
 class TurnTimerHandler
 {
+	struct PlayerTimerInfo
+	{
+		TurnTimerInfo timer;
+		bool isEnabled = true;
+		bool isBattle = false;
+		int lastUpdate = 0;
+	};
+	
 	CGameHandler & gameHandler;
 	const int turnTimePropagateFrequency = 5000;
 	const int turnTimePropagateFrequencyCrit = 1000;
 	const int turnTimePropagateThreshold = 3000;
-	std::map<PlayerColor, TurnTimerInfo> timers;
-	std::map<PlayerColor, bool> timerEnabled;
-	std::map<PlayerColor, int> timerLastUpdate;
+	std::map<PlayerColor, PlayerTimerInfo> timerInfo;
 	std::recursive_mutex mx;
 	
 	void onPlayerMakingTurn(PlayerColor player, int waitTime);
 	void onBattleLoop(int waitTime);
+	
+	bool timerCountDown(int & timerToApply, int initialTimer, PlayerColor player, int waitTime);
+	bool isPvpBattle() const;
+	void sendTimerUpdate(PlayerColor player);
 	
 public:
 	TurnTimerHandler(CGameHandler &);
@@ -41,6 +52,7 @@ public:
 	void onPlayerGetTurn(PlayerColor player);
 	void onBattleStart();
 	void onBattleNextStack(const CStack & stack);
+	void onBattleEnd();
 	void update(int waitTime);
 	void setTimerEnabled(PlayerColor player, bool enabled);
 };

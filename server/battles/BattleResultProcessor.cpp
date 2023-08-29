@@ -264,6 +264,8 @@ void BattleResultProcessor::endBattle(int3 tile, const CGHeroInstance * heroAtta
 	}
 
 	gameHandler->sendAndApply(battleResult.get()); //after this point casualties objects are destroyed
+	
+	gameHandler->turnTimerHandler.onBattleEnd();
 
 	if (battleResult->queryID == QueryID::NONE)
 		endBattleConfirm(gameHandler->gameState()->curB);
@@ -463,7 +465,7 @@ void BattleResultProcessor::endBattleConfirm(const BattleInfo * battleInfo)
 	raccepted.heroResult[1].hero = const_cast<CGHeroInstance*>(battleInfo->sides.at(1).hero);
 	raccepted.heroResult[0].exp = battleResult->exp[0];
 	raccepted.heroResult[1].exp = battleResult->exp[1];
-	raccepted.winnerSide = finishingBattle->winnerSide;
+	raccepted.winnerSide = finishingBattle->winnerSide; 
 	gameHandler->sendAndApply(&raccepted);
 
 	gameHandler->queries->popIfTop(battleQuery);

@@ -110,7 +110,8 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 			if(auto * stack = LOCPLINT->battleInt->stacksController->getActiveStack())
 				player = stack->getOwner();
 		}
-		else if (!LOCPLINT->cb->isPlayerMakingTurn(player))
+		
+		if(p != player || !LOCPLINT->cb->isPlayerMakingTurn(player))
 			continue;
 
 		auto time = LOCPLINT->cb->getPlayerTurnTime(player);
