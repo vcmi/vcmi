@@ -200,6 +200,11 @@ void OptionsTab::recreate()
 	entries.clear();
 	humanPlayers = 0;
 
+	for (auto selectionWindow : GH.windows().findWindows<SelectionWindow>())
+	{
+		selectionWindow->reopen();
+	}
+
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	for(auto & pInfo : SEL->getStartInfo()->playerInfos)
 	{
@@ -669,6 +674,13 @@ void OptionsTab::SelectionWindow::setSelection()
 
 	if(selectedBonus != initialBonus)
 		CSH->setPlayerOption(LobbyChangePlayerOption::BONUS_ID, selectedBonus, color);
+}
+
+void OptionsTab::SelectionWindow::reopen()
+{
+	std::shared_ptr<SelectionWindow> window = std::shared_ptr<SelectionWindow>(new SelectionWindow(color, type));
+	close();
+	GH.windows().pushWindow(window);
 }
 
 void OptionsTab::SelectionWindow::recreate()
