@@ -263,9 +263,8 @@ void BattleResultProcessor::endBattle(int3 tile, const CGHeroInstance * heroAtta
 			otherBattleQuery->result = battleQuery->result;
 	}
 
-	gameHandler->sendAndApply(battleResult.get()); //after this point casualties objects are destroyed
-	
 	gameHandler->turnTimerHandler.onBattleEnd();
+	gameHandler->sendAndApply(battleResult.get()); //after this point casualties objects are destroyed
 
 	if (battleResult->queryID == QueryID::NONE)
 		endBattleConfirm(gameHandler->gameState()->curB);

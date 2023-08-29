@@ -187,14 +187,18 @@ void TurnTimerHandler::onBattleEnd()
 	
 	for(auto i : {attacker, defender})
 	{
-		if(i.isValidPlayer() && !pvpBattle)
+		if(i.isValidPlayer())
 		{
 			auto & timer = timers[i];
 			timer.isBattle = false;
-			if(si->turnTimerInfo.baseTimer && timer.baseTimer == 0)
-				timer.baseTimer = timer.creatureTimer;
-			else if(si->turnTimerInfo.turnTimer && timer.turnTimer == 0)
-				timer.turnTimer = timer.creatureTimer;
+			
+			if(!pvpBattle)
+			{
+				if(si->turnTimerInfo.baseTimer && timer.baseTimer == 0)
+					timer.baseTimer = timer.creatureTimer;
+				else if(si->turnTimerInfo.turnTimer && timer.turnTimer == 0)
+					timer.turnTimer = timer.creatureTimer;
+			}
 
 			sendTimerUpdate(i);
 		}
