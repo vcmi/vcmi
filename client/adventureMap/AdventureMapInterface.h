@@ -89,6 +89,9 @@ private:
 	/// casts current spell at specified location
 	void performSpellcasting(const int3 & castTarget);
 
+	/// dim interface if some windows opened
+	void dim(Canvas & to);
+
 protected:
 	/// CIntObject interface implementation
 

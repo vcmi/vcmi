@@ -24,6 +24,9 @@
 #include "../mapView/mapHandler.h"
 #include "../mapView/MapView.h"
 #include "../windows/InfoWindows.h"
+#include "../windows/CCastleInterface.h"
+#include "../windows/CHeroWindow.h"
+#include "../windows/CKingdomInterface.h"
 #include "../CGameInfo.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
@@ -153,13 +156,23 @@ void AdventureMapInterface::deactivate()
 void AdventureMapInterface::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
+	dim(to);
 	LOCPLINT->cingconsole->show(to);
 }
 
 void AdventureMapInterface::show(Canvas & to)
 {
 	CIntObject::show(to);
+	dim(to);
 	LOCPLINT->cingconsole->show(to);
+}
+
+void AdventureMapInterface::dim(Canvas & to)
+{
+	if(!GH.windows().findWindows<CCastleInterface>().empty() ||
+			!GH.windows().findWindows<CHeroWindow>().empty() ||
+			!GH.windows().findWindows<CKingdomInterface>().empty())
+		to.drawColor(Rect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y), ColorRGBA(0, 0, 0, 128));
 }
 
 void AdventureMapInterface::tick(uint32_t msPassed)
