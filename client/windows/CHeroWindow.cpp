@@ -88,6 +88,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	{
 		questlogButton = std::make_shared<CButton>(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
 		backpackButton = std::make_shared<CButton>(Point(424, 429), "buttons/backpack", CButton::tooltipLocalized("vcmi.heroWindow.Backpack"), [=](){ createBackpackWindow(); }, EShortcut::HERO_BACKPACK);
+		backpackButton->addOverlay(std::make_shared<CPicture>("buttons/backpackButtonIcon"));
 		dismissButton = std::make_shared<CButton>(Point(534, 429), "hsbtns2.def", CButton::tooltip(heroscrn[28]), [=](){ dismissCurrent(); }, EShortcut::HERO_DISMISS);
 	}
 	else
