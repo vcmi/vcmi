@@ -19,6 +19,9 @@ struct DLL_LINKAGE TurnTimerInfo
 	int battleTimer = 0; //in ms, counts down during battles when creature timer runs out
 	int creatureTimer = 0; //in ms, counts down when player is choosing action in battle
 	
+	bool isActive = true; //should be paused if set to false
+	bool isBattle = false; //indicator for current timer mode
+	
 	bool isEnabled() const;
 	bool isBattleEnabled() const;
 	
@@ -29,6 +32,8 @@ struct DLL_LINKAGE TurnTimerInfo
 		h & baseTimer;
 		h & battleTimer;
 		h & creatureTimer;
+		h & isActive;
+		h & isBattle;
 	}
 };
 

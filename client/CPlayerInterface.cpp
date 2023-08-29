@@ -140,7 +140,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	firstCall = 1; //if loading will be overwritten in serialize
 	autosaveCount = 0;
 	isAutoFightOn = false;
-	timerEnabled = true;
 	duringMovement = false;
 	ignoreEvents = false;
 	numOfMovedArts = 0;
@@ -272,8 +271,6 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 			makingTurn = true;
 			adventureInt->onPlayerTurnStarted(playerID);
 		}
-		
-		timerEnabled = false;
 	}
 	acceptTurn(queryID);
 }
@@ -326,7 +323,6 @@ void CPlayerInterface::acceptTurn(QueryID queryID)
 	}
 	
 	cb->selectionMade(0, queryID);
-	timerEnabled = true;
 }
 
 void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
@@ -2126,9 +2122,4 @@ void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectP
 std::optional<BattleAction> CPlayerInterface::makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
 {
 	return std::nullopt;
-}
-
-bool CPlayerInterface::isTimerEnabled() const
-{
-	return timerEnabled;
 }

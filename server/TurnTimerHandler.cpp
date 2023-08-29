@@ -31,11 +31,11 @@ void TurnTimerHandler::onGameplayStart(PlayerColor player)
 	std::lock_guard<std::recursive_mutex> guard(mx);
 	if(const auto * si = gameHandler.getStartInfo())
 	{
-		timerInfo[player].timer = si->turnTimerInfo;
-		timerInfo[player].timer.turnTimer = 0;
-		timerInfo[player].isEnabled = true;
-		timerInfo[player].isBattle = false;
-		timerInfo[player].lastUpdate = std::numeric_limits<int>::max();
+		timers[player] = si->turnTimerInfo;
+		timers[player].turnTimer = 0;
+		timers[player].isActive = true;
+		timers[player].isBattle = false;
+		lastUpdate[player] = std::numeric_limits<int>::max();
 	}
 }
 
@@ -43,17 +43,16 @@ void TurnTimerHandler::setTimerEnabled(PlayerColor player, bool enabled)
 {
 	std::lock_guard<std::recursive_mutex> guard(mx);
 	assert(player.isValidPlayer());
-	timerInfo[player].isEnabled = enabled;
+	timers[player].isActive = enabled;
 }
 
 void TurnTimerHandler::sendTimerUpdate(PlayerColor player)
 {
-	auto & info = timerInfo[player];
 	TurnTimeUpdate ttu;
 	ttu.player = player;
-	ttu.turnTimer = info.timer;
+	ttu.turnTimer = timers[player];
 	gameHandler.sendAndApply(&ttu);
-	info.lastUpdate = 0;
+	lastUpdate[player] = 0;
 }
 
 void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
@@ -63,10 +62,10 @@ void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
 	{
 		if(si->turnTimerInfo.isEnabled())
 		{
-			auto & info = timerInfo[player];
+			auto & timer = timers[player];
 			if(si->turnTimerInfo.baseTimer > 0)
-				info.timer.baseTimer += info.timer.turnTimer;
-			info.timer.turnTimer = si->turnTimerInfo.turnTimer;
+				timer.baseTimer += timer.turnTimer;
+			timer.turnTimer = si->turnTimerInfo.turnTimer;
 			
 			sendTimerUpdate(player);
 		}
@@ -91,14 +90,13 @@ bool TurnTimerHandler::timerCountDown(int & timer, int initialTimer, PlayerColor
 {
 	if(timer > 0)
 	{
-		auto & info = timerInfo[player];
 		timer -= waitTime;
-		info.lastUpdate += waitTime;
+		lastUpdate[player] += waitTime;
 		int frequency = (timer > turnTimePropagateThreshold
 						 && initialTimer - timer > turnTimePropagateThreshold)
 		? turnTimePropagateFrequency : turnTimePropagateFrequencyCrit;
 		
-		if(info.lastUpdate >= frequency)
+		if(lastUpdate[player] >= frequency)
 			sendTimerUpdate(player);
 
 		return true;
@@ -114,16 +112,16 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 	if(!si || !gs || !si->turnTimerInfo.isEnabled())
 		return;
 	
-	auto & info = timerInfo[player];
+	auto & timer = timers[player];
 	const auto * state = gameHandler.getPlayerState(player);
-	if(state && state->human && info.isEnabled && !info.isBattle && state->status == EPlayerStatus::INGAME)
+	if(state && state->human && timer.isActive && !timer.isBattle && state->status == EPlayerStatus::INGAME)
 	{
-		if(!timerCountDown(info.timer.turnTimer, si->turnTimerInfo.turnTimer, player, waitTime))
+		if(!timerCountDown(timer.turnTimer, si->turnTimerInfo.turnTimer, player, waitTime))
 		{
-			if(info.timer.baseTimer > 0)
+			if(timer.baseTimer > 0)
 			{
-				info.timer.turnTimer = info.timer.baseTimer;
-				info.timer.baseTimer = 0;
+				timer.turnTimer = timer.baseTimer;
+				timer.baseTimer = 0;
 				onPlayerMakingTurn(player, 0);
 			}
 			else if(!gameHandler.queries->topQuery(state->color)) //wait for replies to avoid pending queries
@@ -164,10 +162,10 @@ void TurnTimerHandler::onBattleStart()
 	{
 		if(i.isValidPlayer())
 		{
-			auto & info = timerInfo[i];
-			info.isBattle = true;
-			info.timer.battleTimer = (pvpBattle ? si->turnTimerInfo.battleTimer : 0);
-			info.timer.creatureTimer = (pvpBattle ? si->turnTimerInfo.creatureTimer : si->turnTimerInfo.battleTimer);
+			auto & timer = timers[i];
+			timer.isBattle = true;
+			timer.battleTimer = (pvpBattle ? si->turnTimerInfo.battleTimer : 0);
+			timer.creatureTimer = (pvpBattle ? si->turnTimerInfo.creatureTimer : si->turnTimerInfo.battleTimer);
 			
 			sendTimerUpdate(i);
 		}
@@ -191,12 +189,12 @@ void TurnTimerHandler::onBattleEnd()
 	{
 		if(i.isValidPlayer() && !pvpBattle)
 		{
-			auto & info = timerInfo[i];
-			info.isBattle = false;
-			if(si->turnTimerInfo.baseTimer && info.timer.baseTimer == 0)
-				info.timer.baseTimer = info.timer.creatureTimer;
-			else if(si->turnTimerInfo.turnTimer && info.timer.turnTimer == 0)
-				info.timer.turnTimer = info.timer.creatureTimer;
+			auto & timer = timers[i];
+			timer.isBattle = false;
+			if(si->turnTimerInfo.baseTimer && timer.baseTimer == 0)
+				timer.baseTimer = timer.creatureTimer;
+			else if(si->turnTimerInfo.turnTimer && timer.turnTimer == 0)
+				timer.turnTimer = timer.creatureTimer;
 
 			sendTimerUpdate(i);
 		}
@@ -215,10 +213,10 @@ void TurnTimerHandler::onBattleNextStack(const CStack & stack)
 	{
 		auto player = stack.getOwner();
 		
-		auto & info = timerInfo[player];
-		if(info.timer.battleTimer == 0)
-			info.timer.battleTimer = info.timer.creatureTimer;
-		info.timer.creatureTimer = si->turnTimerInfo.creatureTimer;
+		auto & timer = timers[player];
+		if(timer.battleTimer == 0)
+			timer.battleTimer = timer.creatureTimer;
+		timer.creatureTimer = si->turnTimerInfo.creatureTimer;
 		
 		sendTimerUpdate(player);
 	}
@@ -254,16 +252,16 @@ void TurnTimerHandler::onBattleLoop(int waitTime)
 	if(!state || state->status != EPlayerStatus::INGAME || !state->human)
 		return;
 	
-	auto & info = timerInfo[player];
-	if(info.isEnabled && info.isBattle && !timerCountDown(info.timer.creatureTimer, si->turnTimerInfo.creatureTimer, player, waitTime))
+	auto & timer = timers[player];
+	if(timer.isActive && timer.isBattle && !timerCountDown(timer.creatureTimer, si->turnTimerInfo.creatureTimer, player, waitTime))
 	{
 		if(isPvpBattle())
 		{
-			if(info.timer.battleTimer > 0)
+			if(timer.battleTimer > 0)
 			{
-				info.timer.creatureTimer = info.timer.battleTimer;
-				timerCountDown(info.timer.creatureTimer, info.timer.battleTimer, player, 0);
-				info.timer.battleTimer = 0;
+				timer.creatureTimer = timer.battleTimer;
+				timerCountDown(timer.creatureTimer, timer.battleTimer, player, 0);
+				timer.battleTimer = 0;
 			}
 			else
 			{
@@ -281,17 +279,17 @@ void TurnTimerHandler::onBattleLoop(int waitTime)
 		}
 		else
 		{
-			if(info.timer.turnTimer > 0)
+			if(timer.turnTimer > 0)
 			{
-				info.timer.creatureTimer = info.timer.turnTimer;
-				timerCountDown(info.timer.creatureTimer, info.timer.turnTimer, player, 0);
-				info.timer.turnTimer = 0;
+				timer.creatureTimer = timer.turnTimer;
+				timerCountDown(timer.creatureTimer, timer.turnTimer, player, 0);
+				timer.turnTimer = 0;
 			}
-			else if(info.timer.baseTimer > 0)
+			else if(timer.baseTimer > 0)
 			{
-				info.timer.creatureTimer = info.timer.baseTimer;
-				timerCountDown(info.timer.creatureTimer, info.timer.baseTimer, player, 0);
-				info.timer.baseTimer = 0;
+				timer.creatureTimer = timer.baseTimer;
+				timerCountDown(timer.creatureTimer, timer.baseTimer, player, 0);
+				timer.baseTimer = 0;
 			}
 			else
 			{

@@ -22,20 +22,13 @@ VCMI_LIB_NAMESPACE_END
 class CGameHandler;
 
 class TurnTimerHandler
-{
-	struct PlayerTimerInfo
-	{
-		TurnTimerInfo timer;
-		bool isEnabled = true;
-		bool isBattle = false;
-		int lastUpdate = 0;
-	};
-	
+{	
 	CGameHandler & gameHandler;
 	const int turnTimePropagateFrequency = 5000;
 	const int turnTimePropagateFrequencyCrit = 1000;
 	const int turnTimePropagateThreshold = 3000;
-	std::map<PlayerColor, PlayerTimerInfo> timerInfo;
+	std::map<PlayerColor, TurnTimerInfo> timers;
+	std::map<PlayerColor, int> lastUpdate;
 	std::recursive_mutex mx;
 	
 	void onPlayerMakingTurn(PlayerColor player, int waitTime);

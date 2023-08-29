@@ -102,22 +102,27 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 	if(!LOCPLINT || !LOCPLINT->cb)
 		return;
 
-	for (PlayerColor p(0); p < PlayerColor::PLAYER_LIMIT; ++p)
+	for(PlayerColor p(0); p < PlayerColor::PLAYER_LIMIT; ++p)
 	{
 		auto player = p;
 		if(LOCPLINT->battleInt)
 		{
 			if(auto * stack = LOCPLINT->battleInt->stacksController->getActiveStack())
 				player = stack->getOwner();
+			else
+				continue;
+			if(p != player)
+				continue;
 		}
-		
-		if(p != player || !LOCPLINT->cb->isPlayerMakingTurn(player))
+		else if(!LOCPLINT->cb->isPlayerMakingTurn(player))
 			continue;
 
 		auto time = LOCPLINT->cb->getPlayerTurnTime(player);
-		if(LOCPLINT->isTimerEnabled())
+		if(time.isActive)
 			cachedTurnTime -= msPassed;
-		if(cachedTurnTime < 0) cachedTurnTime = 0; //do not go below zero
+		
+		if(cachedTurnTime < 0)
+			cachedTurnTime = 0; //do not go below zero
 		
 		if(lastPlayer != player)
 		{
@@ -140,15 +145,10 @@ void TurnTimerWidget::tick(uint32_t msPassed)
 		auto * playerInfo = LOCPLINT->cb->getPlayer(player);
 		if(player.isValidPlayer() || (playerInfo && playerInfo->isHuman()))
 		{
-			if(LOCPLINT->battleInt)
-			{
-				if(time.isBattleEnabled())
-					timeCheckAndUpdate(time.creatureTimer);
-			}
+			if(time.isBattle)
+				timeCheckAndUpdate(time.creatureTimer);
 			else
-			{
 				timeCheckAndUpdate(time.turnTimer);
-			}
 		}
 		else
 			timeCheckAndUpdate(0);
