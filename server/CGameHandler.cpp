@@ -2133,7 +2133,8 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 	engageIntoBattle(bs.info->sides[1].color);
 
 	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(queries.topQuery(bs.info->sides[0].color));
-	bs.info->replayAllowed = lastBattleQuery == nullptr && !bs.info->sides[1].color.isValidPlayer();
+	bool isHumanPlayer = bs.info->sides[1].color.isValidPlayer() && gs->getStartInfo()-> playerInfos.at(bs.info->sides[1].color).isControlledByHuman();
+	bs.info->replayAllowed = lastBattleQuery == nullptr && !isHumanPlayer;
 
 	sendAndApply(&bs);
 }
