@@ -44,6 +44,7 @@ void TurnTimerHandler::setTimerEnabled(PlayerColor player, bool enabled)
 	std::lock_guard<std::recursive_mutex> guard(mx);
 	assert(player.isValidPlayer());
 	timers[player].isActive = enabled;
+	sendTimerUpdate(player);
 }
 
 void TurnTimerHandler::sendTimerUpdate(PlayerColor player)
