@@ -27,6 +27,7 @@
 #include "../windows/CCastleInterface.h"
 #include "../windows/CHeroWindow.h"
 #include "../windows/CKingdomInterface.h"
+#include "../battle/BattleWindow.h"
 #include "../CGameInfo.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
@@ -171,7 +172,8 @@ void AdventureMapInterface::dim(Canvas & to)
 {
 	if(!GH.windows().findWindows<CCastleInterface>().empty() ||
 			!GH.windows().findWindows<CHeroWindow>().empty() ||
-			!GH.windows().findWindows<CKingdomInterface>().empty())
+			!GH.windows().findWindows<CKingdomInterface>().empty() ||
+			!GH.windows().findWindows<BattleWindow>().empty())
 		to.drawColor(Rect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y), ColorRGBA(0, 0, 0, 128));
 }
 
