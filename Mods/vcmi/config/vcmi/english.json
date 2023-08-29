@@ -191,6 +191,15 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Team Alignments",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Road Types",
 
+	"vcmi.optionsTab.widgets.chessFieldBase.help" : "{Base timer}\n\nCounts down when {turn timer} runs out, never resets. If timer expires, player ends turn.",
+	"vcmi.optionsTab.widgets.chessFieldTurn.help" : "{Turn timer}\n\nCounts down when player is making turn on adventure map, resets every turn. If {base timer} is enabled, unspent time will be added to it.",
+	"vcmi.optionsTab.widgets.chessFieldBattle.help" : "{Battle timer}\n\nCounts down during battles when {stack timer} runs out, resets every battle. if timer expires, currently acting stack will defend.",
+	"vcmi.optionsTab.widgets.chessFieldCreature.help" : "{Creature timer}\n\nCounts down when player is choosing action in battle, resets after each stack turn.",
+	"vcmi.optionsTab.widgets.labelTimer" : "Timer",
+	"vcmi.optionsTab.widgets.timerModeSwitch.classic" : "Classic timer",
+	"vcmi.optionsTab.widgets.timerModeSwitch.chess" : "Chess timer",
+
+
 	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "The enemy has managed to survive till this day. Victory is theirs!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Congratulations! You have managed to survive. Victory is yours!",
