@@ -170,11 +170,15 @@ void AdventureMapInterface::show(Canvas & to)
 
 void AdventureMapInterface::dim(Canvas & to)
 {
-	if(!GH.windows().findWindows<CCastleInterface>().empty() ||
-			!GH.windows().findWindows<CHeroWindow>().empty() ||
-			!GH.windows().findWindows<CKingdomInterface>().empty() ||
-			!GH.windows().findWindows<BattleWindow>().empty())
-		to.drawColor(Rect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y), ColorRGBA(0, 0, 0, 128));
+	for (auto window : GH.windows().findWindows<IShowActivatable>())
+	{
+		std::shared_ptr<AdventureMapInterface> casted = std::dynamic_pointer_cast<AdventureMapInterface>(window);
+		if (!casted && !window->isPopupWindow())
+		{
+			to.drawColor(Rect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y), ColorRGBA(0, 0, 0, std::clamp<int>(settings["adventure"]["backgroundDimLevel"].Integer(), 0, 255)));
+			return;
+		}
+	}
 }
 
 void AdventureMapInterface::tick(uint32_t msPassed)
