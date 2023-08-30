@@ -677,8 +677,8 @@ std::function<void()> CExchangeController::onSwapArmy()
 {
 	return [&]()
 	{
-		if(left->tempOwner != cb->getMyColor()
-		   || right->tempOwner != cb->getMyColor())
+		if(left->tempOwner != cb->getPlayerID()
+		   || right->tempOwner != cb->getPlayerID())
 		{
 			return;
 		}
@@ -720,7 +720,7 @@ std::function<void()> CExchangeController::onMoveStackToLeft(SlotID slotID)
 {
 	return [=]()
 	{
-		if(right->tempOwner != cb->getMyColor())
+		if(right->tempOwner != cb->getPlayerID())
 		{
 			return;
 		}
@@ -733,7 +733,7 @@ std::function<void()> CExchangeController::onMoveStackToRight(SlotID slotID)
 {
 	return [=]()
 	{
-		if(left->tempOwner != cb->getMyColor())
+		if(left->tempOwner != cb->getPlayerID())
 		{
 			return;
 		}
@@ -778,7 +778,7 @@ void CExchangeController::moveArmy(bool leftToRight)
 	const CGarrisonSlot * selection =  this->view->getSelectedSlotID();
 	SlotID slot;
 
-	if(source->tempOwner != cb->getMyColor())
+	if(source->tempOwner != cb->getPlayerID())
 	{
 		return;
 	}
@@ -807,7 +807,7 @@ void CExchangeController::moveArtifacts(bool leftToRight)
 	const CGHeroInstance * source = leftToRight ? left : right;
 	const CGHeroInstance * target = leftToRight ? right : left;
 
-	if(source->tempOwner != cb->getMyColor())
+	if(source->tempOwner != cb->getPlayerID())
 	{
 		return;
 	}

@@ -456,7 +456,7 @@ bool CPathfinderHelper::passOneTurnLimitCheck(const PathNodeInfo & source) const
 }
 
 CPathfinderHelper::CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options):
-	CGameInfoCallback(gs, std::optional<PlayerColor>()),
+	CGameInfoCallback(gs),
 	turn(-1),
 	hero(Hero),
 	options(Options),

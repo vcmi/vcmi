@@ -31,7 +31,7 @@ BattleObstacleController::BattleObstacleController(BattleInterface & owner):
 	owner(owner),
 	timePassed(0.f)
 {
-	auto obst = owner.curInt->cb->battleGetAllObstacles();
+	auto obst = owner.getBattle()->battleGetAllObstacles();
 	for(auto & elem : obst)
 	{
 		if ( elem->obstacleType == CObstacleInstance::MOAT )
@@ -99,9 +99,9 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 {
 	for(const auto & oi : obstacles)
 	{
-		auto side = owner.curInt->cb->playerToSide(owner.curInt->playerID);
+		auto side = owner.getBattle()->playerToSide(owner.curInt->playerID);
 
-		if(!oi->visibleForSide(side.value(), owner.curInt->cb->battleHasNativeStack(side.value())))
+		if(!oi->visibleForSide(side.value(), owner.getBattle()->battleHasNativeStack(side.value())))
 			continue;
 
 		auto animation = std::make_shared<CAnimation>(oi->getAppearAnimation());
@@ -127,7 +127,7 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas)
 {
 	//Blit absolute obstacles
-	for(auto & obstacle : owner.curInt->cb->battleGetAllObstacles())
+	for(auto & obstacle : owner.getBattle()->battleGetAllObstacles())
 	{
 		if(obstacle->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 		{
@@ -153,7 +153,7 @@ void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas)
 
 void BattleObstacleController::collectRenderableObjects(BattleRenderer & renderer)
 {
-	for (auto obstacle : owner.curInt->cb->battleGetAllObstacles())
+	for (auto obstacle : owner.getBattle()->battleGetAllObstacles())
 	{
 		if (obstacle->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 			continue;

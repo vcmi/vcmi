@@ -59,6 +59,7 @@ public:
 	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) = 0;
 
 	virtual std::shared_ptr<CPlayerBattleCallback> getBattle(const BattleID & battleID) = 0;
+	virtual std::optional<PlayerColor> getPlayerID() const = 0;
 };
 
 class IGameActionCallback
@@ -114,20 +115,23 @@ class CBattleCallback : public IBattleCallback
 {
 	std::map<BattleID, std::shared_ptr<CPlayerBattleCallback>> activeBattles;
 
+	std::optional<PlayerColor> player;
+
 protected:
 	int sendRequest(const CPackForServer * request); //returns requestID (that'll be matched to requestID in PackageApplied)
 	CClient *cl;
 
 public:
-	CBattleCallback(std::optional<PlayerColor> Player, CClient * C);
+	CBattleCallback(std::optional<PlayerColor> player, CClient * C);
 	void battleMakeSpellAction(const BattleID & battleID, const BattleAction & action) override;//for casting spells by hero - DO NOT use it for moving active stack
 	void battleMakeUnitAction(const BattleID & battleID, const BattleAction & action) override;
 	void battleMakeTacticAction(const BattleID & battleID, const BattleAction & action) override; // performs tactic phase actions
 	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
 	std::shared_ptr<CPlayerBattleCallback> getBattle(const BattleID & battleID) override;
+	std::optional<PlayerColor> getPlayerID() const override;
 
-	void onBattleStarted(const BattleID & battleID);
+	void onBattleStarted(const IBattleInfo * info);
 	void onBattleEnded(const BattleID & battleID);
 
 #if SCRIPTING_ENABLED
@@ -145,9 +149,11 @@ public:
 	virtual ~CCallback();
 
 	//client-specific functionalities (pathfinding)
-	virtual bool canMoveBetween(const int3 &a, const int3 &b);
-	virtual int3 getGuardingCreaturePosition(int3 tile);
-	virtual std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
+	bool canMoveBetween(const int3 &a, const int3 &b);
+	int3 getGuardingCreaturePosition(int3 tile);
+	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
+
+	std::optional<PlayerColor> getPlayerID() const override;
 
 	//Set of metrhods that allows adding more interfaces for this player that'll receive game event call-ins.
 	void registerBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents);

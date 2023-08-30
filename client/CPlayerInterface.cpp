@@ -658,7 +658,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID build
 	}
 }
 
-void CPlayerInterface::battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
+void CPlayerInterface::battleStartBefore(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
 {
 	// when battle starts, game will send battleStart pack *before* movement confirmation
 	// and since network thread wait for battle intro to play, movement confirmation will only happen after intro
@@ -670,7 +670,7 @@ void CPlayerInterface::battleStartBefore(const CCreatureSet *army1, const CCreat
 		waitForAllDialogs();
 }
 
-void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed)
+void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
@@ -685,7 +685,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 		autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
 
 		autofightingAI->initBattleInterface(env, cb, autocombatPreferences);
-		autofightingAI->battleStart(army1, army2, tile, hero1, hero2, side, false);
+		autofightingAI->battleStart(battleID, army1, army2, tile, hero1, hero2, side, false);
 		isAutoFightOn = true;
 		cb->registerBattleInterface(autofightingAI);
 	}
@@ -697,7 +697,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	BATTLE_EVENT_POSSIBLE_RETURN;
 }
 
-void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units)
+void CPlayerInterface::battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -708,7 +708,7 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 		{
 		case UnitChanges::EOperation::RESET_STATE:
 			{
-				const CStack * stack = cb->battleGetStackByID(info.id );
+				const CStack * stack = cb->getBattle(battleID)->battleGetStackByID(info.id );
 
 				if(!stack)
 				{
@@ -723,7 +723,7 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 			break;
 		case UnitChanges::EOperation::ADD:
 			{
-				const CStack * unit = cb->battleGetStackByID(info.id);
+				const CStack * unit = cb->getBattle(battleID)->battleGetStackByID(info.id);
 				if(!unit)
 				{
 					logGlobal->error("Invalid unit ID %d", info.id);
@@ -739,7 +739,7 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 	}
 }
 
-void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles)
+void CPlayerInterface::battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -751,7 +751,7 @@ void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges>
 	{
 		if(change.operation == BattleChanges::EOperation::ADD)
 		{
-			auto instance = cb->battleGetObstacleByID(change.id);
+			auto instance = cb->getBattle(battleID)->battleGetObstacleByID(change.id);
 			if(instance)
 				newObstacles.push_back(instance);
 			else
@@ -770,7 +770,7 @@ void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges>
 	battleInt->fieldController->redrawBackgroundWithHexes();
 }
 
-void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)
+void CPlayerInterface::battleCatapultAttacked(const BattleID & battleID, const CatapultAttack & ca)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -778,15 +778,15 @@ void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)
 	battleInt->stackIsCatapulting(ca);
 }
 
-void CPlayerInterface::battleNewRound(int round) //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+void CPlayerInterface::battleNewRound(const BattleID & battleID) //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	battleInt->newRound(round);
+	battleInt->newRound();
 }
 
-void CPlayerInterface::actionStarted(const BattleAction &action)
+void CPlayerInterface::actionStarted(const BattleID & battleID, const BattleAction &action)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -794,7 +794,7 @@ void CPlayerInterface::actionStarted(const BattleAction &action)
 	battleInt->startAction(action);
 }
 
-void CPlayerInterface::actionFinished(const BattleAction &action)
+void CPlayerInterface::actionFinished(const BattleID & battleID, const BattleAction &action)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -802,17 +802,17 @@ void CPlayerInterface::actionFinished(const BattleAction &action)
 	battleInt->endAction(action);
 }
 
-void CPlayerInterface::activeStack(const CStack * stack) //called when it's turn of that stack
+void CPlayerInterface::activeStack(const BattleID & battleID, const CStack * stack) //called when it's turn of that stack
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	logGlobal->trace("Awaiting command for %s", stack->nodeName());
 
-	assert(!cb->battleIsFinished());
-	if (cb->battleIsFinished())
+	assert(!cb->getBattle(battleID)->battleIsFinished());
+	if (cb->getBattle(battleID)->battleIsFinished())
 	{
 		logGlobal->error("Received CPlayerInterface::activeStack after battle is finished!");
 
-		cb->battleMakeUnitAction(BattleAction::makeDefend(stack));
+		cb->battleMakeUnitAction(battleID, BattleAction::makeDefend(stack));
 		return ;
 	}
 
@@ -823,7 +823,7 @@ void CPlayerInterface::activeStack(const CStack * stack) //called when it's turn
 			//FIXME: we want client rendering to proceed while AI is making actions
 			// so unlock mutex while AI is busy since this might take quite a while, especially if hero has many spells
 			auto unlockPim = vstd::makeUnlockGuard(*pim);
-			autofightingAI->activeStack(stack);
+			autofightingAI->activeStack(battleID, stack);
 			return;
 		}
 
@@ -835,7 +835,7 @@ void CPlayerInterface::activeStack(const CStack * stack) //called when it's turn
 	if(!battleInt)
 	{
 		// probably battle is finished already
-		cb->battleMakeUnitAction(BattleAction::makeDefend(stack));
+		cb->battleMakeUnitAction(battleID, BattleAction::makeDefend(stack));
 	}
 
 	{
@@ -845,7 +845,7 @@ void CPlayerInterface::activeStack(const CStack * stack) //called when it's turn
 	}
 }
 
-void CPlayerInterface::battleEnd(const BattleResult *br, QueryID queryID)
+void CPlayerInterface::battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(isAutoFightOn || autofightingAI)
@@ -880,7 +880,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br, QueryID queryID)
 	battleInt->battleFinished(*br, queryID);
 }
 
-void CPlayerInterface::battleLogMessage(const std::vector<MetaString> & lines)
+void CPlayerInterface::battleLogMessage(const BattleID & battleID, const std::vector<MetaString> & lines)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -888,28 +888,28 @@ void CPlayerInterface::battleLogMessage(const std::vector<MetaString> & lines)
 	battleInt->displayBattleLog(lines);
 }
 
-void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport)
+void CPlayerInterface::battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->stackMoved(stack, dest, distance, teleport);
 }
-void CPlayerInterface::battleSpellCast( const BattleSpellCast *sc )
+void CPlayerInterface::battleSpellCast(const BattleID & battleID, const BattleSpellCast * sc)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->spellCast(sc);
 }
-void CPlayerInterface::battleStacksEffectsSet( const SetStackEffect & sse )
+void CPlayerInterface::battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->battleStacksEffectsSet(sse);
 }
-void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
+void CPlayerInterface::battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -923,7 +923,7 @@ void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
 		battleInt->windowObject->heroManaPointsChanged(manaDrainedHero);
 	}
 }
-void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged)
+void CPlayerInterface::battleStacksAttacked(const BattleID & battleID, const std::vector<BattleStackAttacked> & bsa, bool ranged)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -931,8 +931,8 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 	std::vector<StackAttackedInfo> arg;
 	for(auto & elem : bsa)
 	{
-		const CStack * defender = cb->battleGetStackByID(elem.stackAttacked, false);
-		const CStack * attacker = cb->battleGetStackByID(elem.attackerID, false);
+		const CStack * defender = cb->getBattle(battleID)->battleGetStackByID(elem.stackAttacked, false);
+		const CStack * attacker = cb->getBattle(battleID)->battleGetStackByID(elem.attackerID, false);
 
 		assert(defender);
 
@@ -955,13 +955,13 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 	}
 	battleInt->stacksAreAttacked(arg);
 }
-void CPlayerInterface::battleAttack(const BattleAttack * ba)
+void CPlayerInterface::battleAttack(const BattleID & battleID, const BattleAttack * ba)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	StackAttackInfo info;
-	info.attacker = cb->battleGetStackByID(ba->stackAttacking);
+	info.attacker = cb->getBattle(battleID)->battleGetStackByID(ba->stackAttacking);
 	info.defender = nullptr;
 	info.indirectAttack = ba->shot();
 	info.lucky = ba->lucky();
@@ -979,11 +979,11 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 		if(!elem.isSecondary())
 		{
 			assert(info.defender == nullptr);
-			info.defender = cb->battleGetStackByID(elem.stackAttacked);
+			info.defender = cb->getBattle(battleID)->battleGetStackByID(elem.stackAttacked);
 		}
 		else
 		{
-			info.secondaryDefender.push_back(cb->battleGetStackByID(elem.stackAttacked));
+			info.secondaryDefender.push_back(cb->getBattle(battleID)->battleGetStackByID(elem.stackAttacked));
 		}
 	}
 	assert(info.defender != nullptr);
@@ -992,7 +992,7 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 	battleInt->stackAttacking(info);
 }
 
-void CPlayerInterface::battleGateStateChanged(const EGateState state)
+void CPlayerInterface::battleGateStateChanged(const BattleID & battleID, const EGateState state)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -1705,12 +1705,12 @@ void CPlayerInterface::tryDigging(const CGHeroInstance * h)
 		showInfoDialog(CGI->generaltexth->allTexts[msgToShow]);
 }
 
-void CPlayerInterface::battleNewRoundFirst( int round )
+void CPlayerInterface::battleNewRoundFirst(const BattleID & battleID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	battleInt->newRoundFirst(round);
+	battleInt->newRoundFirst();
 }
 
 void CPlayerInterface::stopMovement()

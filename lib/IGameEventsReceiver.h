@@ -61,8 +61,8 @@ public:
 	virtual void battleAttack(const BattleID & battleID, const BattleAttack *ba){}; //called when stack is performing attack
 	virtual void battleStacksAttacked(const BattleID & battleID, const std::vector<BattleStackAttacked> & bsa, bool ranged){}; //called when stack receives damage (after battleAttack())
 	virtual void battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID){};
-	virtual void battleNewRoundFirst(const BattleID & battleID, int round){}; //called at the beginning of each turn before changes are applied;
-	virtual void battleNewRound(const BattleID & battleID, int round){}; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+	virtual void battleNewRoundFirst(const BattleID & battleID){}; //called at the beginning of each turn before changes are applied;
+	virtual void battleNewRound(const BattleID & battleID){}; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	virtual void battleLogMessage(const BattleID & battleID, const std::vector<MetaString> & lines){};
 	virtual void battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport){};
 	virtual void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc){};

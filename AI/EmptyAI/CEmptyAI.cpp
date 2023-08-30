@@ -27,7 +27,7 @@ void CEmptyAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_p
 	cb = CB;
 	env = ENV;
 	human=false;
-	playerID = *cb->getMyColor();
+	playerID = *cb->getPlayerID();
 }
 
 void CEmptyAI::yourTurn(QueryID queryID)

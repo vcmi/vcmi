@@ -8,7 +8,6 @@
  *
  */
 #pragma once
-#include "CCallbackBase.h"
 #include "IBattleInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

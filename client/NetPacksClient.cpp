@@ -95,18 +95,18 @@ void callAllInterfaces(CClient & cl, void (T::*ptr)(Args...), Args2 && ...args)
 
 //calls all normal interfaces and privileged ones, playerints may be updated when iterating over it, so we need a copy
 template<typename T, typename ... Args, typename ... Args2>
-void callBattleInterfaceIfPresentForBothSides(CClient & cl, void (T::*ptr)(Args...), Args2 && ...args)
+void callBattleInterfaceIfPresentForBothSides(CClient & cl, const BattleID & battleID, void (T::*ptr)(Args...), Args2 && ...args)
 {
-	assert(cl.gameState()->curB);
+	assert(cl.gameState()->getBattle(battleID));
 
-	if (!cl.gameState()->curB)
+	if (!cl.gameState()->getBattle(battleID))
 	{
 		logGlobal->error("Attempt to call battle interface without ongoing battle!");
 		return;
 	}
 
-	callOnlyThatBattleInterface(cl, cl.gameState()->curB->sides[0].color, ptr, std::forward<Args2>(args)...);
-	callOnlyThatBattleInterface(cl, cl.gameState()->curB->sides[1].color, ptr, std::forward<Args2>(args)...);
+	callOnlyThatBattleInterface(cl, cl.gameState()->getBattle(battleID)->sides[0].color, ptr, std::forward<Args2>(args)...);
+	callOnlyThatBattleInterface(cl, cl.gameState()->getBattle(battleID)->sides[1].color, ptr, std::forward<Args2>(args)...);
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool() && LOCPLINT->battleInt)
 	{
 		callOnlyThatBattleInterface(cl, PlayerColor::SPECTATOR, ptr, std::forward<Args2>(args)...);
@@ -714,11 +714,11 @@ void ApplyClientNetPackVisitor::visitMapObjectSelectDialog(MapObjectSelectDialog
 void ApplyFirstClientNetPackVisitor::visitBattleStart(BattleStart & pack)
 {
 	// Cannot use the usual code because curB is not set yet
-	callOnlyThatBattleInterface(cl, pack.info->sides[0].color, &IBattleEventsReceiver::battleStartBefore, pack.info->sides[0].armyObject, pack.info->sides[1].armyObject,
+	callOnlyThatBattleInterface(cl, pack.info->sides[0].color, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->sides[0].armyObject, pack.info->sides[1].armyObject,
 		pack.info->tile, pack.info->sides[0].hero, pack.info->sides[1].hero);
-	callOnlyThatBattleInterface(cl, pack.info->sides[1].color, &IBattleEventsReceiver::battleStartBefore, pack.info->sides[0].armyObject, pack.info->sides[1].armyObject,
+	callOnlyThatBattleInterface(cl, pack.info->sides[1].color, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->sides[0].armyObject, pack.info->sides[1].armyObject,
 		pack.info->tile, pack.info->sides[0].hero, pack.info->sides[1].hero);
-	callOnlyThatBattleInterface(cl, PlayerColor::SPECTATOR, &IBattleEventsReceiver::battleStartBefore, pack.info->sides[0].armyObject, pack.info->sides[1].armyObject,
+	callOnlyThatBattleInterface(cl, PlayerColor::SPECTATOR, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->sides[0].armyObject, pack.info->sides[1].armyObject,
 		pack.info->tile, pack.info->sides[0].hero, pack.info->sides[1].hero);
 }
 
@@ -729,12 +729,12 @@ void ApplyClientNetPackVisitor::visitBattleStart(BattleStart & pack)
 
 void ApplyFirstClientNetPackVisitor::visitBattleNextRound(BattleNextRound & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleNewRoundFirst, pack.round);
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleNewRoundFirst, pack.battleID);
 }
 
 void ApplyClientNetPackVisitor::visitBattleNextRound(BattleNextRound & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleNewRound, pack.round);
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleNewRound, pack.battleID);
 }
 
 void ApplyClientNetPackVisitor::visitBattleSetActiveStack(BattleSetActiveStack & pack)
@@ -742,56 +742,56 @@ void ApplyClientNetPackVisitor::visitBattleSetActiveStack(BattleSetActiveStack &
 	if(!pack.askPlayerInterface)
 		return;
 
-	const CStack *activated = gs.curB->battleGetStackByID(pack.stack);
+	const CStack *activated = gs.getBattle(pack.battleID)->battleGetStackByID(pack.stack);
 	PlayerColor playerToCall; //pack.player that will move activated stack
 	if (activated->hasBonusOfType(BonusType::HYPNOTIZED))
 	{
-		playerToCall = (gs.curB->sides[0].color == activated->unitOwner()
-			? gs.curB->sides[1].color
-			: gs.curB->sides[0].color);
+		playerToCall = (gs.getBattle(pack.battleID)->sides[0].color == activated->unitOwner()
+			? gs.getBattle(pack.battleID)->sides[1].color
+			: gs.getBattle(pack.battleID)->sides[0].color);
 	}
 	else
 	{
 		playerToCall = activated->unitOwner();
 	}
 
-	cl.startPlayerBattleAction(playerToCall);
+	cl.startPlayerBattleAction(pack.battleID, playerToCall);
 }
 
 void ApplyClientNetPackVisitor::visitBattleLogMessage(BattleLogMessage & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleLogMessage, pack.lines);
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleLogMessage, pack.battleID, pack.lines);
 }
 
 void ApplyClientNetPackVisitor::visitBattleTriggerEffect(BattleTriggerEffect & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleTriggerEffect, pack);
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleTriggerEffect, pack.battleID, pack);
 }
 
 void ApplyFirstClientNetPackVisitor::visitBattleUpdateGateState(BattleUpdateGateState & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleGateStateChanged, pack.state);
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleGateStateChanged, pack.battleID, pack.state);
 }
 
 void ApplyFirstClientNetPackVisitor::visitBattleResult(BattleResult & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleEnd, &pack, pack.queryID);
-	cl.battleFinished();
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleEnd, pack.battleID, &pack, pack.queryID);
+	cl.battleFinished(pack.battleID);
 }
 
 void ApplyFirstClientNetPackVisitor::visitBattleStackMoved(BattleStackMoved & pack)
 {
-	const CStack * movedStack = gs.curB->battleGetStackByID(pack.stack);
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStackMoved, movedStack, pack.tilesToMove, pack.distance, pack.teleporting);
+	const CStack * movedStack = gs.getBattle(pack.battleID)->battleGetStackByID(pack.stack);
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleStackMoved, pack.battleID, movedStack, pack.tilesToMove, pack.distance, pack.teleporting);
 }
 
 void ApplyFirstClientNetPackVisitor::visitBattleAttack(BattleAttack & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleAttack, &pack);
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleAttack, pack.battleID, &pack);
 
 	// battleStacksAttacked should be excuted before BattleAttack.applyGs() to play animation before damaging unit
 	// so this has to be here instead of ApplyClientNetPackVisitor::visitBattleAttack()
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, pack.bsa, pack.shot());
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleStacksAttacked, pack.battleID, pack.bsa, pack.shot());
 }
 
 void ApplyClientNetPackVisitor::visitBattleAttack(BattleAttack & pack)
@@ -801,23 +801,23 @@ void ApplyClientNetPackVisitor::visitBattleAttack(BattleAttack & pack)
 void ApplyFirstClientNetPackVisitor::visitStartAction(StartAction & pack)
 {
 	cl.currentBattleAction = std::make_unique<BattleAction>(pack.ba);
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::actionStarted, pack.ba);
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::actionStarted, pack.battleID, pack.ba);
 }
 
 void ApplyClientNetPackVisitor::visitBattleSpellCast(BattleSpellCast & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleSpellCast, &pack);
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleSpellCast, pack.battleID, &pack);
 }
 
 void ApplyClientNetPackVisitor::visitSetStackEffect(SetStackEffect & pack)
 {
 	//informing about effects
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksEffectsSet, pack);
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleStacksEffectsSet, pack.battleID, pack);
 }
 
 void ApplyClientNetPackVisitor::visitStacksInjured(StacksInjured & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, pack.stacks, false);
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleStacksAttacked, pack.battleID, pack.stacks, false);
 }
 
 void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack)
@@ -829,24 +829,24 @@ void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied &
 
 void ApplyClientNetPackVisitor::visitBattleUnitsChanged(BattleUnitsChanged & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleUnitsChanged, pack.changedStacks);
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleUnitsChanged, pack.battleID, pack.changedStacks);
 }
 
 void ApplyClientNetPackVisitor::visitBattleObstaclesChanged(BattleObstaclesChanged & pack)
 {
 	//inform interfaces about removed obstacles
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleObstaclesChanged, pack.changes);
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleObstaclesChanged, pack.battleID, pack.changes);
 }
 
 void ApplyClientNetPackVisitor::visitCatapultAttack(CatapultAttack & pack)
 {
 	//inform interfaces about catapult attack
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleCatapultAttacked, pack);
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleCatapultAttacked, pack.battleID, pack);
 }
 
 void ApplyClientNetPackVisitor::visitEndAction(EndAction & pack)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::actionFinished, *cl.currentBattleAction);
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::actionFinished, pack.battleID, *cl.currentBattleAction);
 	cl.currentBattleAction.reset();
 }
 

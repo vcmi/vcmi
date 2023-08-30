@@ -367,10 +367,10 @@ void BattleWindow::bSurrenderf()
 	if (owner.actionsController->spellcastingModeActive())
 		return;
 
-	int cost = owner.curInt->cb->battleGetSurrenderCost();
+	int cost = owner.getBattle()->battleGetSurrenderCost();
 	if(cost >= 0)
 	{
-		std::string enemyHeroName = owner.curInt->cb->battleGetEnemyHero().name;
+		std::string enemyHeroName = owner.getBattle()->battleGetEnemyHero().name;
 		if(enemyHeroName.empty())
 		{
 			logGlobal->warn("Surrender performed without enemy hero, should not happen!");
@@ -387,7 +387,7 @@ void BattleWindow::bFleef()
 	if (owner.actionsController->spellcastingModeActive())
 		return;
 
-	if ( owner.curInt->cb->battleCanFlee() )
+	if ( owner.getBattle()->battleCanFlee() )
 	{
 		CFunctionList<void()> ony = std::bind(&BattleWindow::reallyFlee,this);
 		owner.curInt->showYesNoDialog(CGI->generaltexth->allTexts[28], ony, nullptr); //Are you sure you want to retreat?
@@ -398,10 +398,10 @@ void BattleWindow::bFleef()
 		std::string heroName;
 		//calculating fleeing hero's name
 		if (owner.attackingHeroInstance)
-			if (owner.attackingHeroInstance->tempOwner == owner.curInt->cb->getMyColor())
+			if (owner.attackingHeroInstance->tempOwner == owner.curInt->cb->getPlayerID())
 				heroName = owner.attackingHeroInstance->getNameTranslated();
 		if (owner.defendingHeroInstance)
-			if (owner.defendingHeroInstance->tempOwner == owner.curInt->cb->getMyColor())
+			if (owner.defendingHeroInstance->tempOwner == owner.curInt->cb->getPlayerID())
 				heroName = owner.defendingHeroInstance->getNameTranslated();
 		//calculating text
 		auto txt = boost::format(CGI->generaltexth->allTexts[340]) % heroName; //The Shackles of War are present.  %s can not retreat!
@@ -419,7 +419,7 @@ void BattleWindow::reallyFlee()
 
 void BattleWindow::reallySurrender()
 {
-	if (owner.curInt->cb->getResourceAmount(EGameResID::GOLD) < owner.curInt->cb->battleGetSurrenderCost())
+	if (owner.curInt->cb->getResourceAmount(EGameResID::GOLD) < owner.getBattle()->battleGetSurrenderCost())
 	{
 		owner.curInt->showInfoDialog(CGI->generaltexth->allTexts[29]); //You don't have enough gold!
 	}
@@ -509,7 +509,7 @@ void BattleWindow::bAutofightf()
 		autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
 
 		ai->initBattleInterface(owner.curInt->env, owner.curInt->cb, autocombatPreferences);
-		ai->battleStart(owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.curInt->cb->battleGetMySide(), false);
+		ai->battleStart(owner.getBattleID(), owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.getBattle()->battleGetMySide(), false);
 		owner.curInt->autofightingAI = ai;
 		owner.curInt->cb->registerBattleInterface(ai);
 
@@ -531,7 +531,7 @@ void BattleWindow::bSpellf()
 
 	CCS->curh->set(Cursor::Map::POINTER);
 
-	ESpellCastProblem spellCastProblem = owner.curInt->cb->battleCanCastSpell(myHero, spells::Mode::HERO);
+	ESpellCastProblem spellCastProblem = owner.getBattle()->battleCanCastSpell(myHero, spells::Mode::HERO);
 
 	if(spellCastProblem == ESpellCastProblem::OK)
 	{
@@ -633,11 +633,11 @@ void BattleWindow::bTacticPhaseEnd()
 void BattleWindow::blockUI(bool on)
 {
 	bool canCastSpells = false;
-	auto hero = owner.curInt->cb->battleGetMyHero();
+	auto hero = owner.getBattle()->battleGetMyHero();
 
 	if(hero)
 	{
-		ESpellCastProblem spellcastingProblem = owner.curInt->cb->battleCanCastSpell(hero, spells::Mode::HERO);
+		ESpellCastProblem spellcastingProblem = owner.getBattle()->battleCanCastSpell(hero, spells::Mode::HERO);
 
 		//if magic is blocked, we leave button active, so the message can be displayed after button click
 		canCastSpells = spellcastingProblem == ESpellCastProblem::OK || spellcastingProblem == ESpellCastProblem::MAGIC_IS_BLOCKED;
@@ -646,8 +646,8 @@ void BattleWindow::blockUI(bool on)
 	bool canWait = owner.stacksController->getActiveStack() ? !owner.stacksController->getActiveStack()->waitedThisTurn : false;
 
 	setShortcutBlocked(EShortcut::GLOBAL_OPTIONS, on);
-	setShortcutBlocked(EShortcut::BATTLE_RETREAT, on || !owner.curInt->cb->battleCanFlee());
-	setShortcutBlocked(EShortcut::BATTLE_SURRENDER, on || owner.curInt->cb->battleGetSurrenderCost() < 0);
+	setShortcutBlocked(EShortcut::BATTLE_RETREAT, on || !owner.getBattle()->battleCanFlee());
+	setShortcutBlocked(EShortcut::BATTLE_SURRENDER, on || owner.getBattle()->battleGetSurrenderCost() < 0);
 	setShortcutBlocked(EShortcut::BATTLE_CAST_SPELL, on || owner.tacticsMode || !canCastSpells);
 	setShortcutBlocked(EShortcut::BATTLE_WAIT, on || owner.tacticsMode || !canWait);
 	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on || owner.tacticsMode);

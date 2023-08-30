@@ -24,6 +24,7 @@ class CGameInterface;
 class BinaryDeserializer;
 class BinarySerializer;
 class BattleAction;
+class BattleInfo;
 
 template<typename T> class CApplier;
 
@@ -150,8 +151,8 @@ public:
 	int sendRequest(const CPackForServer * request, PlayerColor player); //returns ID given to that request
 
 	void battleStarted(const BattleInfo * info);
-	void battleFinished();
-	void startPlayerBattleAction(PlayerColor color);
+	void battleFinished(const BattleID & battleID);
+	void startPlayerBattleAction(const BattleID & battleID, PlayerColor color);
 
 	void invalidatePaths();
 	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);

@@ -11,7 +11,6 @@
 
 #include <vcmi/spells/Magic.h>
 
-#include "CCallbackBase.h"
 #include "ReachabilityInfo.h"
 #include "BattleAttackInfo.h"
 

@@ -41,8 +41,8 @@ public:
 	void battleStacksAttacked(const BattleID & battleID, const std::vector<BattleStackAttacked> & bsa, bool ranged) override; //called when stack receives damage (after battleAttack())
 	void battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID) override;
 	//void battleResultsApplied() override; //called when all effects of last battle are applied
-	void battleNewRoundFirst(const BattleID & battleID, int round) override; //called at the beginning of each turn before changes are applied;
-	void battleNewRound(const BattleID & battleID, int round) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+	void battleNewRoundFirst(const BattleID & battleID) override; //called at the beginning of each turn before changes are applied;
+	void battleNewRound(const BattleID & battleID) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
 	void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc) override;
 	void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse) override;//called when a specific effect is set to stacks

@@ -157,9 +157,9 @@ CGlobalAI::CGlobalAI()
 	human = false;
 }
 
-void CAdventureAI::battleNewRound(const BattleID & battleID, int round)
+void CAdventureAI::battleNewRound(const BattleID & battleID)
 {
-	battleAI->battleNewRound(battleID, round);
+	battleAI->battleNewRound(battleID);
 }
 
 void CAdventureAI::battleCatapultAttacked(const BattleID & battleID, const CatapultAttack & ca)
@@ -187,9 +187,9 @@ void CAdventureAI::actionStarted(const BattleID & battleID, const BattleAction &
 	battleAI->actionStarted(battleID, action);
 }
 
-void CAdventureAI::battleNewRoundFirst(const BattleID & battleID, int round)
+void CAdventureAI::battleNewRoundFirst(const BattleID & battleID)
 {
-	battleAI->battleNewRoundFirst(battleID, round);
+	battleAI->battleNewRoundFirst(battleID);
 }
 
 void CAdventureAI::actionFinished(const BattleID & battleID, const BattleAction & action)

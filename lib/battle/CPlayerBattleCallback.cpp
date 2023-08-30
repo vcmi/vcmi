@@ -11,8 +11,26 @@
 #include "CPlayerBattleCallback.h"
 #include "../CStack.h"
 #include "../gameState/InfoAboutArmy.h"
+#include "../CGameInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+CPlayerBattleCallback::CPlayerBattleCallback(const IBattleInfo * battle, PlayerColor player):
+	battle(battle),
+	player(player)
+{
+
+}
+
+const IBattleInfo * CPlayerBattleCallback::getBattle() const
+{
+	return battle;
+}
+
+std::optional<PlayerColor> CPlayerBattleCallback::getPlayerID() const
+{
+	return player;
+}
 
 bool CPlayerBattleCallback::battleCanFlee() const
 {

@@ -600,7 +600,7 @@ void VCAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<C
 	ah->init(CB.get());
 
 	NET_EVENT_HANDLER; //sets ah->rm->cb
-	playerID = *myCb->getMyColor();
+	playerID = *myCb->getPlayerID();
 	myCb->waitTillRealize = true;
 	myCb->unlockGsWhenWaiting = true;
 

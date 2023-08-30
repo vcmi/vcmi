@@ -30,6 +30,7 @@ struct BattleTriggerEffect;
 struct BattleHex;
 struct InfoAboutHero;
 class ObstacleChanges;
+class CPlayerBattleCallback;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -115,6 +116,9 @@ class BattleInterface
 	/// if set to true, battle is still starting and waiting for intro sound to end / key press from player
 	bool battleOpeningDelayActive;
 
+	/// ID of ongoing battle
+	BattleID battleID;
+
 	void playIntroSoundAndUnlockInterface();
 	void onIntroSoundPlayed();
 public:
@@ -148,6 +152,9 @@ public:
 	void openingEnd();
 
 	bool makingTurn() const;
+
+	BattleID getBattleID() const;
+	std::shared_ptr<CPlayerBattleCallback> getBattle() const;
 
 	BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
 	~BattleInterface();
@@ -196,8 +203,8 @@ public:
 	void stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance, bool teleport); //stack with id number moved to destHex
 	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
 	void stackAttacking(const StackAttackInfo & attackInfo); //called when stack with id ID is attacking something on hex dest
-	void newRoundFirst( int round );
-	void newRound(int number); //caled when round is ended; number is the number of round
+	void newRoundFirst();
+	void newRound(); //caled when round is ended;
 	void stackIsCatapulting(const CatapultAttack & ca); //called when a stack is attacking walls
 	void battleFinished(const BattleResult& br, QueryID queryID); //called when battle is finished - battleresult window should be printed
 	void spellCast(const BattleSpellCast *sc); //called when a hero casts a spell

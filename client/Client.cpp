@@ -122,9 +122,9 @@ events::EventBus * CPlayerEnvironment::eventBus() const
 	return cl->eventBus();//always get actual value
 }
 
-const CPlayerEnvironment::BattleCb * CPlayerEnvironment::battle() const
+const CPlayerEnvironment::BattleCb * CPlayerEnvironment::battle(const BattleID & battleID) const
 {
-	return mainCallback.get();
+	return mainCallback->getBattle(battleID).get();
 }
 
 const CPlayerEnvironment::GameCb * CPlayerEnvironment::game() const
@@ -153,9 +153,9 @@ const Services * CClient::services() const
 	return VLC; //todo: this should be CGI
 }
 
-const CClient::BattleCb * CClient::battle() const
+const CClient::BattleCb * CClient::battle(const BattleID & battleID) const
 {
-	return this;
+	return nullptr; //todo?
 }
 
 const CClient::GameCb * CClient::game() const
@@ -345,7 +345,7 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 
 void CClient::save(const std::string & fname)
 {
-	if(gs->curB)
+	if(!gs->currentBattles.empty())
 	{
 		logNetwork->error("Game cannot be saved during battle!");
 		return;
@@ -565,14 +565,12 @@ int CClient::sendRequest(const CPackForServer * request, PlayerColor player)
 
 void CClient::battleStarted(const BattleInfo * info)
 {
-	setBattle(info);
-
 	for(auto & battleCb : battleCallbacks)
 	{
 		if(vstd::contains_if(info->sides, [&](const SideInBattle& side) {return side.color == battleCb.first; })
 			|| !battleCb.first.isValidPlayer())
 		{
-			battleCb.second->setBattle(info);
+			battleCb.second->onBattleStarted(info);
 		}
 	}
 
@@ -583,7 +581,7 @@ void CClient::battleStarted(const BattleInfo * info)
 	auto callBattleStart = [&](PlayerColor color, ui8 side)
 	{
 		if(vstd::contains(battleints, color))
-			battleints[color]->battleStart(leftSide.armyObject, rightSide.armyObject, info->tile, leftSide.hero, rightSide.hero, side, info->replayAllowed);
+			battleints[color]->battleStart(info->battleID, leftSide.armyObject, rightSide.armyObject, info->tile, leftSide.hero, rightSide.hero, side, info->replayAllowed);
 	};
 	
 	callBattleStart(leftSide.color, 0);
@@ -601,11 +599,11 @@ void CClient::battleStarted(const BattleInfo * info)
 	//Remove player interfaces for auto battle (quickCombat option)
 	if(att && att->isAutoFightOn)
 	{
-		if (att->cb->battleGetTacticDist())
+		if (att->cb->getBattle(info->battleID)->battleGetTacticDist())
 		{
-			auto side = att->cb->playerToSide(att->playerID);
+			auto side = att->cb->getBattle(info->battleID)->playerToSide(att->playerID);
 			auto action = BattleAction::makeEndOFTacticPhase(*side);
-			att->cb->battleMakeTacticAction(action);
+			att->cb->battleMakeTacticAction(info->battleID, action);
 		}
 
 		att.reset();
@@ -623,7 +621,7 @@ void CClient::battleStarted(const BattleInfo * info)
 		{
 			//TODO: This certainly need improvement
 			auto spectratorInt = std::dynamic_pointer_cast<CPlayerInterface>(playerint[PlayerColor::SPECTATOR]);
-			spectratorInt->cb->setBattle(info);
+			spectratorInt->cb->onBattleStarted(info);
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def, spectratorInt);
 		}
@@ -638,20 +636,17 @@ void CClient::battleStarted(const BattleInfo * info)
 	}
 }
 
-void CClient::battleFinished()
+void CClient::battleFinished(const BattleID & battleID)
 {
-	for(auto & side : gs->curB->sides)
+	for(auto & side : gs->getBattle(battleID)->sides)
 		if(battleCallbacks.count(side.color))
-			battleCallbacks[side.color]->setBattle(nullptr);
+			battleCallbacks[side.color]->onBattleEnded(battleID);
 
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
-		battleCallbacks[PlayerColor::SPECTATOR]->setBattle(nullptr);
-
-	setBattle(nullptr);
-	gs->curB.dellNull();
+		battleCallbacks[PlayerColor::SPECTATOR]->onBattleEnded(battleID);
 }
 
-void CClient::startPlayerBattleAction(PlayerColor color)
+void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor color)
 {
 	assert(vstd::contains(battleints, color));
 
@@ -661,7 +656,7 @@ void CClient::startPlayerBattleAction(PlayerColor color)
 		auto unlock = vstd::makeUnlockGuardIf(*CPlayerInterface::pim, !battleints[color]->human);
 
 		assert(vstd::contains(battleints, color));
-		battleints[color]->activeStack(gs->curB->battleGetStackByID(gs->curB->activeStack, false));
+		battleints[color]->activeStack(battleID, gs->getBattle(battleID)->battleGetStackByID(gs->getBattle(battleID)->activeStack, false));
 	}
 }
 

@@ -94,7 +94,7 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	amountNegative->adjustPalette(shifterNegative, ignoredMask);
 	amountEffNeutral->adjustPalette(shifterNeutral, ignoredMask);
 
-	std::vector<const CStack*> stacks = owner.curInt->cb->battleGetAllStacks(true);
+	std::vector<const CStack*> stacks = owner.getBattle()->battleGetAllStacks(true);
 	for(const CStack * s : stacks)
 	{
 		stackAdded(s, true);
@@ -126,7 +126,7 @@ BattleHex BattleStacksController::getStackCurrentPosition(const CStack * stack) 
 
 void BattleStacksController::collectRenderableObjects(BattleRenderer & renderer)
 {
-	auto stacks = owner.curInt->cb->battleGetAllStacks(false);
+	auto stacks = owner.getBattle()->battleGetAllStacks(false);
 
 	for (auto stack : stacks)
 	{
@@ -359,7 +359,7 @@ void BattleStacksController::initializeBattleAnimations()
 
 void BattleStacksController::tickFrameBattleAnimations(uint32_t msPassed)
 {
-	for (auto stack : owner.curInt->cb->battleGetAllStacks(true))
+	for (auto stack : owner.getBattle()->battleGetAllStacks(true))
 	{
 		if (stackAnimation.find(stack->unitId()) == stackAnimation.end()) //e.g. for summoned but not yet handled stacks
 			continue;
@@ -552,9 +552,7 @@ void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleH
 
 bool BattleStacksController::shouldAttackFacingRight(const CStack * attacker, const CStack * defender)
 {
-	bool mustReverse = owner.curInt->cb->isToReverse(
-				attacker,
-				defender);
+	bool mustReverse = owner.getBattle()->isToReverse(attacker, defender);
 
 	if (attacker->unitSide() == BattleSide::ATTACKER)
 		return !mustReverse;
@@ -670,7 +668,7 @@ void BattleStacksController::endAction(const BattleAction & action)
 	owner.checkForAnimations();
 
 	//check if we should reverse stacks
-	TStacks stacks = owner.curInt->cb->battleGetStacks(CBattleCallback::MINE_AND_ENEMY);
+	TStacks stacks = owner.getBattle()->battleGetStacks(CPlayerBattleCallback::MINE_AND_ENEMY);
 
 	for (const CStack *s : stacks)
 	{
@@ -847,7 +845,7 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 	auto hoveredQueueUnitId = owner.windowObject->getQueueHoveredUnitId();
 	if(hoveredQueueUnitId.has_value())
 	{
-		return { owner.curInt->cb->battleGetStackByID(hoveredQueueUnitId.value(), true) };
+		return { owner.getBattle()->battleGetStackByID(hoveredQueueUnitId.value(), true) };
 	}
 
 	auto hoveredHex = owner.fieldController->getHoveredHex();
@@ -867,14 +865,14 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 		spells::Target target;
 		target.emplace_back(hoveredHex);
 
-		spells::BattleCast event(owner.curInt->cb.get(), caster, mode, spell);
+		spells::BattleCast event(owner.getBattle().get(), caster, mode, spell);
 		auto mechanics = spell->battleMechanics(&event);
 		return mechanics->getAffectedStacks(target);
 	}
 
 	if(hoveredHex.isValid())
 	{
-		const CStack * const stack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+		const CStack * const stack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
 
 		if (stack)
 			return {stack};

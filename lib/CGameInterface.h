@@ -147,12 +147,12 @@ public:
 	virtual void activeStack(const BattleID & battleID, const CStack * stack) override;
 	virtual void yourTacticPhase(const BattleID & battleID, int distance) override;
 
-	virtual void battleNewRound(const BattleID & battleID, int round) override;
+	virtual void battleNewRound(const BattleID & battleID) override;
 	virtual void battleCatapultAttacked(const BattleID & battleID, const CatapultAttack & ca) override;
 	virtual void battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed) override;
 	virtual void battleStacksAttacked(const BattleID & battleID, const std::vector<BattleStackAttacked> & bsa, bool ranged) override;
 	virtual void actionStarted(const BattleID & battleID, const BattleAction &action) override;
-	virtual void battleNewRoundFirst(const BattleID & battleID, int round) override;
+	virtual void battleNewRoundFirst(const BattleID & battleID) override;
 	virtual void actionFinished(const BattleID & battleID, const BattleAction &action) override;
 	virtual void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse) override;
 	virtual void battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles) override;

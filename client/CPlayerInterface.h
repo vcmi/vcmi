@@ -152,25 +152,25 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 
 	//for battles
-	void actionFinished(const BattleAction& action) override;//occurs AFTER action taken by active stack or by the hero
-	void actionStarted(const BattleAction& action) override;//occurs BEFORE action taken by active stack or by the hero
-	void activeStack(const CStack * stack) override; //called when it's turn of that stack
-	void battleAttack(const BattleAttack *ba) override; //stack performs attack
-	void battleEnd(const BattleResult *br, QueryID queryID) override; //end of battle
-	void battleNewRoundFirst(int round) override; //called at the beginning of each turn before changes are applied; used for HP regen handling
-	void battleNewRound(int round) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	void battleLogMessage(const std::vector<MetaString> & lines) override;
-	void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
-	void battleSpellCast(const BattleSpellCast *sc) override;
-	void battleStacksEffectsSet(const SetStackEffect & sse) override; //called when a specific effect is set to stacks
-	void battleTriggerEffect(const BattleTriggerEffect & bte) override; //various one-shot effect
-	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged) override;
-	void battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) override; //called by engine just before battle starts; side=0 - left, side=1 - right
-	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed) override; //called by engine when battle starts; side=0 - left, side=1 - right
-	void battleUnitsChanged(const std::vector<UnitChanges> & units) override;
-	void battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles) override;
-	void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
-	void battleGateStateChanged(const EGateState state) override;
+	void actionFinished(const BattleID & battleID, const BattleAction& action) override;//occurs AFTER action taken by active stack or by the hero
+	void actionStarted(const BattleID & battleID, const BattleAction& action) override;//occurs BEFORE action taken by active stack or by the hero
+	void activeStack(const BattleID & battleID, const CStack * stack) override; //called when it's turn of that stack
+	void battleAttack(const BattleID & battleID, const BattleAttack *ba) override; //stack performs attack
+	void battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID) override; //end of battle
+	void battleNewRoundFirst(const BattleID & battleID) override; //called at the beginning of each turn before changes are applied; used for HP regen handling
+	void battleNewRound(const BattleID & battleID) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+	void battleLogMessage(const BattleID & battleID, const std::vector<MetaString> & lines) override;
+	void battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
+	void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc) override;
+	void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse) override; //called when a specific effect is set to stacks
+	void battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte) override; //various one-shot effect
+	void battleStacksAttacked(const BattleID & battleID, const std::vector<BattleStackAttacked> & bsa, bool ranged) override;
+	void battleStartBefore(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) override; //called by engine just before battle starts; side=0 - left, side=1 - right
+	void battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed) override; //called by engine when battle starts; side=0 - left, side=1 - right
+	void battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units) override;
+	void battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles) override;
+	void battleCatapultAttacked(const BattleID & battleID, const CatapultAttack & ca) override; //called when catapult makes an attack
+	void battleGateStateChanged(const BattleID & battleID, const EGateState state) override;
 	void yourTacticPhase(const BattleID & battleID, int distance) override;
 	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 

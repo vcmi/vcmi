@@ -226,12 +226,12 @@ void CStupidAI::battleEnd(const BattleID & battleID, const BattleResult *br, Que
 // 	print("battleResultsApplied called");
 // }
 
-void CStupidAI::battleNewRoundFirst(const BattleID & battleID, int round)
+void CStupidAI::battleNewRoundFirst(const BattleID & battleID)
 {
 	print("battleNewRoundFirst called");
 }
 
-void CStupidAI::battleNewRound(const BattleID & battleID, int round)
+void CStupidAI::battleNewRound(const BattleID & battleID)
 {
 	print("battleNewRound called");
 }

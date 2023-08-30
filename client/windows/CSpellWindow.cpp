@@ -503,7 +503,7 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 		else if(combatSpell)
 		{
 			spells::detail::ProblemImpl problem;
-			if(mySpell->canBeCast(problem, owner->myInt->cb.get(), spells::Mode::HERO, owner->myHero))
+			if(mySpell->canBeCast(problem, owner->myInt->battleInt->getBattle().get(), spells::Mode::HERO, owner->myHero))
 			{
 				owner->myInt->battleInt->castThisSpell(mySpell->id);
 				owner->fexitb();

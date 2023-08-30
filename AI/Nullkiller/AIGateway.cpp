@@ -536,7 +536,7 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	cbc = CB;
 
 	NET_EVENT_HANDLER;
-	playerID = *myCb->getMyColor();
+	playerID = *myCb->getPlayerID();
 	myCb->waitTillRealize = true;
 	myCb->unlockGsWhenWaiting = true;
 
