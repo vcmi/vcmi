@@ -507,6 +507,12 @@ void BattleFlowProcessor::onActionMade(const BattleAction &ba)
 {
 	const auto & battle = gameHandler->gameState()->curB;
 
+	if (ba.actionType == EActionType::END_TACTIC_PHASE)
+	{
+		onTacticsEnded();
+		return;
+	}
+
 	const CStack * actedStack = battle->battleGetStackByID(ba.stackNumber, false);
 	const CStack * activeStack = battle->battleGetStackByID(battle->getActiveStackID(), false);
 
