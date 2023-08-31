@@ -156,7 +156,7 @@ public:
 	BattleID getBattleID() const;
 	std::shared_ptr<CPlayerBattleCallback> getBattle() const;
 
-	BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
+	BattleInterface(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
 	~BattleInterface();
 
 	void trySetActivePlayer( PlayerColor player ); // if in hotseat, will activate interface of chosen player

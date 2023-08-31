@@ -37,8 +37,8 @@ struct CasualtiesAfterBattle
 
 struct FinishingBattleHelper
 {
-	FinishingBattleHelper();
-	FinishingBattleHelper(std::shared_ptr<const CBattleQuery> Query, int RemainingBattleQueriesCount);
+//	FinishingBattleHelper();
+	FinishingBattleHelper(const CBattleInfoCallback & battle, const BattleResult & result, int RemainingBattleQueriesCount);
 
 	inline bool isDraw() const {return winnerSide == 2;}
 
@@ -76,5 +76,5 @@ public:
 	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, int victoriusSide);
 	void endBattle(const CBattleInfoCallback & battle); //ends battle
 	void endBattleConfirm(const CBattleInfoCallback & battle);
-	void battleAfterLevelUp(const CBattleInfoCallback & battle, const BattleResult & result);
+	void battleAfterLevelUp(const BattleID & battleID, const BattleResult & result);
 };

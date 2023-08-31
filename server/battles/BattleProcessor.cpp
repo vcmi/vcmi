@@ -89,7 +89,7 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 			}
 		}
 
-		lastBattleQuery->bi = battle;
+		lastBattleQuery->battleID = battle->getBattleID();
 		lastBattleQuery->result = std::nullopt;
 		lastBattleQuery->belligerents[0] = battle->sides[0].armyObject;
 		lastBattleQuery->belligerents[1] = battle->sides[1].armyObject;
@@ -261,13 +261,7 @@ void BattleProcessor::endBattleConfirm(const BattleID & battleID)
 
 void BattleProcessor::battleAfterLevelUp(const BattleID & battleID, const BattleResult &result)
 {
-	auto battle = gameHandler->gameState()->getBattle(battleID);
-	assert(battle);
-
-	if (!battle)
-		return;
-
-	resultProcessor->battleAfterLevelUp(*battle, result);
+	resultProcessor->battleAfterLevelUp(battleID, result);
 }
 
 void BattleProcessor::setGameHandler(CGameHandler * newGameHandler)

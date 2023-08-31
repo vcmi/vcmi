@@ -207,6 +207,7 @@ void CBattleCallback::battleMakeSpellAction(const BattleID & battleID, const Bat
 {
 	assert(action.actionType == EActionType::HERO_SPELL);
 	MakeAction mca(action);
+	mca.battleID = battleID;
 	sendRequest(&mca);
 }
 
@@ -376,6 +377,7 @@ void CBattleCallback::battleMakeUnitAction(const BattleID & battleID, const Batt
 	assert(!cl->gs->getBattle(battleID)->tacticDistance);
 	MakeAction ma;
 	ma.ba = action;
+	ma.battleID = battleID;
 	sendRequest(&ma);
 }
 
@@ -384,6 +386,7 @@ void CBattleCallback::battleMakeTacticAction(const BattleID & battleID, const Ba
 	assert(cl->gs->getBattle(battleID)->tacticDistance);
 	MakeAction ma;
 	ma.ba = action;
+	ma.battleID = battleID;
 	sendRequest(&ma);
 }
 

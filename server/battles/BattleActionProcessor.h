@@ -49,7 +49,7 @@ class BattleActionProcessor : boost::noncopyable
 	// damage, drain life & fire shield; returns amount of drained life
 	int64_t applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary);
 
-	void sendGenericKilledLog(const CStack * defender, int32_t killed, bool multiple);
+	void sendGenericKilledLog(const CBattleInfoCallback & battle, const CStack * defender, int32_t killed, bool multiple);
 	void addGenericKilledLog(BattleLogMessage & blm, const CStack * defender, int32_t killed, bool multiple);
 
 	bool canStackAct(const CBattleInfoCallback & battle, const CStack * stack);

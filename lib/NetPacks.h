@@ -1492,6 +1492,7 @@ struct DLL_LINKAGE BattleStart : public CPackForClient
 	{
 		h & battleID;
 		h & info;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1506,6 +1507,7 @@ struct DLL_LINKAGE BattleNextRound : public CPackForClient
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & battleID;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1524,6 +1526,7 @@ struct DLL_LINKAGE BattleSetActiveStack : public CPackForClient
 		h & battleID;
 		h & stack;
 		h & askPlayerInterface;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1557,6 +1560,7 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 		h & battleID;
 		h & heroResult;
 		h & winnerSide;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1583,6 +1587,7 @@ struct DLL_LINKAGE BattleResult : public Query
 		h & casualties[1];
 		h & exp;
 		h & artifacts;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1600,6 +1605,7 @@ struct DLL_LINKAGE BattleLogMessage : public CPackForClient
 	{
 		h & battleID;
 		h & lines;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1623,6 +1629,7 @@ struct DLL_LINKAGE BattleStackMoved : public CPackForClient
 		h & tilesToMove;
 		h & distance;
 		h & teleporting;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1640,6 +1647,7 @@ struct DLL_LINKAGE BattleUnitsChanged : public CPackForClient
 	{
 		h & battleID;
 		h & changedStacks;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1693,6 +1701,7 @@ struct BattleStackAttacked
 		h & killedAmount;
 		h & damageAmount;
 		h & spellID;
+		assert(battleID != BattleID::NONE);
 	}
 	bool operator<(const BattleStackAttacked & b) const
 	{
@@ -1758,6 +1767,7 @@ struct DLL_LINKAGE BattleAttack : public CPackForClient
 		h & tile;
 		h & spellID;
 		h & attackerChanges;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1780,6 +1790,7 @@ struct DLL_LINKAGE StartAction : public CPackForClient
 	{
 		h & battleID;
 		h & ba;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1826,6 +1837,7 @@ struct DLL_LINKAGE BattleSpellCast : public CPackForClient
 		h & casterStack;
 		h & castByHero;
 		h & activeCast;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1847,6 +1859,7 @@ struct DLL_LINKAGE SetStackEffect : public CPackForClient
 		h & toAdd;
 		h & toUpdate;
 		h & toRemove;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1864,6 +1877,7 @@ struct DLL_LINKAGE StacksInjured : public CPackForClient
 	{
 		h & battleID;
 		h & stacks;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1878,6 +1892,7 @@ struct DLL_LINKAGE BattleResultsApplied : public CPackForClient
 		h & battleID;
 		h & player1;
 		h & player2;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1895,6 +1910,7 @@ struct DLL_LINKAGE BattleObstaclesChanged : public CPackForClient
 	{
 		h & battleID;
 		h & changes;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1931,6 +1947,7 @@ struct DLL_LINKAGE CatapultAttack : public CPackForClient
 		h & battleID;
 		h & attackedParts;
 		h & attacker;
+		assert(battleID != BattleID::NONE);
 	}
 };
 
@@ -1953,6 +1970,7 @@ struct DLL_LINKAGE BattleSetStackProperty : public CPackForClient
 		h & which;
 		h & val;
 		h & absolute;
+		assert(battleID != BattleID::NONE);
 	}
 
 protected:
@@ -1977,6 +1995,7 @@ struct DLL_LINKAGE BattleTriggerEffect : public CPackForClient
 		h & effect;
 		h & val;
 		h & additionalInfo;
+		assert(battleID != BattleID::NONE);
 	}
 
 protected:
@@ -1993,6 +2012,7 @@ struct DLL_LINKAGE BattleUpdateGateState : public CPackForClient
 	{
 		h & battleID;
 		h & state;
+		assert(battleID != BattleID::NONE);
 	}
 
 protected:

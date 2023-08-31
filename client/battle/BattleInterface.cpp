@@ -45,7 +45,7 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/CThreadHelper.h"
 
-BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2,
+BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2,
 		const CGHeroInstance *hero1, const CGHeroInstance *hero2,
 		std::shared_ptr<CPlayerInterface> att,
 		std::shared_ptr<CPlayerInterface> defen,
@@ -55,6 +55,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	, attackerInt(att)
 	, defenderInt(defen)
 	, curInt(att)
+	, battleID(battleID)
 	, battleOpeningDelayActive(true)
 {
 	if(spectatorInt)

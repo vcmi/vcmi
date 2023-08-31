@@ -24,7 +24,7 @@ void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisi
 
 CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
 	CGhQuery(owner),
-	bi(bi)
+	battleID(bi->getBattleID())
 {
 	belligerents[0] = bi->getSideArmy(0);
 	belligerents[1] = bi->getSideArmy(1);
@@ -34,7 +34,7 @@ CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
 }
 
 CBattleQuery::CBattleQuery(CGameHandler * owner):
-	CGhQuery(owner), bi(nullptr)
+	CGhQuery(owner)
 {
 	belligerents[0] = belligerents[1] = nullptr;
 }
@@ -48,7 +48,7 @@ bool CBattleQuery::blocksPack(const CPack * pack) const
 void CBattleQuery::onRemoval(PlayerColor color)
 {
 	if(result)
-		gh->battles->battleAfterLevelUp(bi->getBattleID(), *result);
+		gh->battles->battleAfterLevelUp(battleID, *result);
 }
 
 CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * bi):

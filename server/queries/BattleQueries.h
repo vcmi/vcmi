@@ -23,7 +23,7 @@ public:
 	std::array<const CArmedInstance *,2> belligerents;
 	std::array<int, 2> initialHeroMana;
 
-	const IBattleInfo *bi;
+	BattleID battleID;
 	std::optional<BattleResult> result;
 
 	CBattleQuery(CGameHandler * owner);

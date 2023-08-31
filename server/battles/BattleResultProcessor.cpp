@@ -180,26 +180,21 @@ void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 	}
 }
 
-FinishingBattleHelper::FinishingBattleHelper(std::shared_ptr<const CBattleQuery> Query, int remainingBattleQueriesCount)
+FinishingBattleHelper::FinishingBattleHelper(const CBattleInfoCallback & info, const BattleResult & result, int remainingBattleQueriesCount)
 {
-	assert(Query->result);
-	assert(Query->bi);
-	auto &result = *Query->result;
-	auto &info = *Query->bi;
-
 	if (result.winner == BattleSide::ATTACKER)
 	{
-		winnerHero = info.getSideHero(BattleSide::ATTACKER);
-		loserHero = info.getSideHero(BattleSide::DEFENDER);
-		victor = info.getSidePlayer(BattleSide::ATTACKER);
-		loser = info.getSidePlayer(BattleSide::DEFENDER);
+		winnerHero = info.getBattle()->getSideHero(BattleSide::ATTACKER);
+		loserHero = info.getBattle()->getSideHero(BattleSide::DEFENDER);
+		victor = info.getBattle()->getSidePlayer(BattleSide::ATTACKER);
+		loser = info.getBattle()->getSidePlayer(BattleSide::DEFENDER);
 	}
 	else
 	{
-		winnerHero = info.getSideHero(BattleSide::DEFENDER);
-		loserHero = info.getSideHero(BattleSide::ATTACKER);
-		victor = info.getSidePlayer(BattleSide::DEFENDER);
-		loser = info.getSidePlayer(BattleSide::ATTACKER);
+		winnerHero = info.getBattle()->getSideHero(BattleSide::DEFENDER);
+		loserHero = info.getBattle()->getSideHero(BattleSide::ATTACKER);
+		victor = info.getBattle()->getSidePlayer(BattleSide::DEFENDER);
+		loser = info.getBattle()->getSidePlayer(BattleSide::ATTACKER);
 	}
 
 	winnerSide = result.winner;
@@ -207,12 +202,12 @@ FinishingBattleHelper::FinishingBattleHelper(std::shared_ptr<const CBattleQuery>
 	this->remainingBattleQueriesCount = remainingBattleQueriesCount;
 }
 
-FinishingBattleHelper::FinishingBattleHelper()
-{
-	winnerHero = loserHero = nullptr;
-	winnerSide = 0;
-	remainingBattleQueriesCount = 0;
-}
+//FinishingBattleHelper::FinishingBattleHelper()
+//{
+//	winnerHero = loserHero = nullptr;
+//	winnerSide = 0;
+//	remainingBattleQueriesCount = 0;
+//}
 
 void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 {
@@ -267,7 +262,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	const int queriedPlayers = battleQuery ? (int)boost::count(gameHandler->queries->allQueries(), battleQuery) : 0;
 
 	assert(finishingBattles.count(battle.getBattle()->getBattleID()) == 0);
-	finishingBattles[battle.getBattle()->getBattleID()] = std::make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
+	finishingBattles[battle.getBattle()->getBattleID()] = std::make_unique<FinishingBattleHelper>(battle, *battleResult, queriedPlayers);
 
 	// in battles against neutrals, 1st player can ask to replay battle manually
 	if (!battle.sideToPlayer(1).isValidPlayer())
@@ -490,6 +485,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		gameHandler->changePrimSkill(finishingBattle->winnerHero, PrimarySkill::EXPERIENCE, battleResult->exp[finishingBattle->winnerSide]);
 
 	BattleResultAccepted raccepted;
+	raccepted.battleID = battle.getBattle()->getBattleID();
 	raccepted.heroResult[0].army = const_cast<CArmedInstance*>(battle.battleGetArmyObject(0));
 	raccepted.heroResult[1].army = const_cast<CArmedInstance*>(battle.battleGetArmyObject(1));
 	raccepted.heroResult[0].hero = const_cast<CGHeroInstance*>(battle.battleGetFightingHero(0));
@@ -503,15 +499,15 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	//--> continuation (battleAfterLevelUp) occurs after level-up gameHandler->queries are handled or on removing query
 }
 
-void BattleResultProcessor::battleAfterLevelUp(const CBattleInfoCallback & battle, const BattleResult & result)
+void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const BattleResult & result)
 {
 	LOG_TRACE(logGlobal);
 
-	assert(finishingBattles.count(battle.getBattle()->getBattleID()) != 0);
-	if(finishingBattles.count(battle.getBattle()->getBattleID()) == 0)
+	assert(finishingBattles.count(battleID) != 0);
+	if(finishingBattles.count(battleID) == 0)
 		return;
 
-	auto & finishingBattle = finishingBattles[battle.getBattle()->getBattleID()];
+	auto & finishingBattle = finishingBattles[battleID];
 
 	finishingBattle->remainingBattleQueriesCount--;
 	logGlobal->trace("Decremented gameHandler->queries count to %d", finishingBattle->remainingBattleQueriesCount);
@@ -537,6 +533,7 @@ void BattleResultProcessor::battleAfterLevelUp(const CBattleInfoCallback & battl
 	}
 
 	BattleResultsApplied resultsApplied;
+	resultsApplied.battleID = battleID;
 	resultsApplied.player1 = finishingBattle->victor;
 	resultsApplied.player2 = finishingBattle->loser;
 	gameHandler->sendAndApply(&resultsApplied);
@@ -561,8 +558,8 @@ void BattleResultProcessor::battleAfterLevelUp(const CBattleInfoCallback & battl
 			gameHandler->heroPool->onHeroEscaped(finishingBattle->victor, finishingBattle->winnerHero);
 	}
 
-	finishingBattles.erase(battle.getBattle()->getBattleID());
-	battleResults.erase(battle.getBattle()->getBattleID());
+	finishingBattles.erase(battleID);
+	battleResults.erase(battleID);
 }
 
 void BattleResultProcessor::setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, int victoriusSide)
@@ -572,6 +569,7 @@ void BattleResultProcessor::setBattleResult(const CBattleInfoCallback & battle, 
 	battleResults[battle.getBattle()->getBattleID()] = std::make_unique<BattleResult>();
 
 	auto & battleResult = battleResults[battle.getBattle()->getBattleID()];
+	battleResult->battleID = battle.getBattle()->getBattleID();
 	battleResult->result = resultType;
 	battleResult->winner = victoriusSide; //surrendering side loses
 

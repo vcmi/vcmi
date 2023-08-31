@@ -160,6 +160,8 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 
 	//defensive stance, TODO: filter out spell boosts from bonus (stone skin etc.)
 	SetStackEffect sse;
+	sse.battleID = battle.getBattle()->getBattleID();
+
 	Bonus defenseBonusToAdd(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 20, -1, static_cast<int32_t>(PrimarySkill::DEFENSE), BonusValueType::PERCENT_TO_ALL);
 	Bonus bonus2(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, stack->valOfBonuses(BonusType::DEFENSIVE_STANCE), -1, static_cast<int32_t>(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
 	Bonus alternativeWeakCreatureBonus(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 1, -1, static_cast<int32_t>(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
@@ -188,6 +190,7 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 	gameHandler->sendAndApply(&sse);
 
 	BattleLogMessage message;
+	message.battleID = battle.getBattle()->getBattleID();
 
 	MetaString text;
 	stack->addText(text, EMetaText::GENERAL_TXT, 120);
@@ -541,6 +544,7 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	if (!ba.isBattleEndAction())
 	{
 		StartAction startAction(ba);
+		startAction.battleID = battle.getBattle()->getBattleID();
 		gameHandler->sendAndApply(&startAction);
 	}
 
@@ -549,6 +553,7 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	if (!ba.isBattleEndAction())
 	{
 		EndAction endAction;
+		endAction.battleID = battle.getBattle()->getBattleID();
 		gameHandler->sendAndApply(&endAction);
 	}
 
@@ -658,12 +663,14 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 				occupyGateDrawbridgeHex(dest))
 			{
 				BattleUpdateGateState db;
+				db.battleID = battle.getBattle()->getBattleID();
 				db.state = EGateState::OPENED;
 				gameHandler->sendAndApply(&db);
 			}
 
 			//inform clients about move
 			BattleStackMoved sm;
+			sm.battleID = battle.getBattle()->getBattleID();
 			sm.stack = curStack->unitId();
 			std::vector<BattleHex> tiles;
 			tiles.push_back(path.first[0]);
@@ -793,6 +800,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 			{
 				//commit movement
 				BattleStackMoved sm;
+				sm.battleID = battle.getBattle()->getBattleID();
 				sm.stack = curStack->unitId();
 				sm.distance = path.second;
 				sm.teleporting = false;
@@ -820,6 +828,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 						if (curStack->alive())
 						{
 							BattleUpdateGateState db;
+							db.battleID = battle.getBattle()->getBattleID();
 							db.state = EGateState::OPENED;
 							gameHandler->sendAndApply(&db);
 						}
@@ -857,6 +866,9 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	FireShieldInfo fireShield;
 	BattleAttack bat;
 	BattleLogMessage blm;
+	blm.battleID = battle.getBattle()->getBattleID();
+	bat.battleID = battle.getBattle()->getBattleID();
+	bat.attackerChanges.battleID = battle.getBattle()->getBattleID();
 	bat.stackAttacking = attacker->unitId();
 	bat.tile = targetHex;
 
@@ -966,6 +978,9 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	if (drainedLife > 0)
 		bat.flags |= BattleAttack::LIFE_DRAIN;
 
+	for (BattleStackAttacked & bsa : bat.bsa)
+		bsa.battleID = battle.getBattle()->getBattleID();
+
 	gameHandler->sendAndApply(&bat);
 
 	{
@@ -1032,6 +1047,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		{
 			BattleStackAttacked bsa;
 
+			bsa.battleID = battle.getBattle()->getBattleID();
 			bsa.flags |= BattleStackAttacked::FIRE_SHIELD;
 			bsa.stackAttacked = attacker->unitId(); //invert
 			bsa.attackerID = defender->unitId();
@@ -1039,6 +1055,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 			attacker->prepareAttacked(bsa, gameHandler->getRandomGenerator());
 
 			StacksInjured pack;
+			pack.battleID = battle.getBattle()->getBattleID();
 			pack.stacks.push_back(bsa);
 			gameHandler->sendAndApply(&pack);
 
@@ -1240,10 +1257,12 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 			return; //wrong subtype
 
 		BattleUnitsChanged addUnits;
+		addUnits.battleID = battle.getBattle()->getBattleID();
 		addUnits.changedStacks.emplace_back(resurrectInfo.id, UnitChanges::EOperation::ADD);
 		resurrectInfo.save(addUnits.changedStacks.back().data);
 
 		BattleUnitsChanged removeUnits;
+		removeUnits.battleID = battle.getBattle()->getBattleID();
 		removeUnits.changedStacks.emplace_back(defender->unitId(), UnitChanges::EOperation::REMOVE);
 		gameHandler->sendAndApply(&removeUnits);
 		gameHandler->sendAndApply(&addUnits);
@@ -1280,10 +1299,11 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		defender->prepareAttacked(bsa, gameHandler->getRandomGenerator());
 
 		StacksInjured si;
+		si.battleID = battle.getBattle()->getBattleID();
 		si.stacks.push_back(bsa);
 
 		gameHandler->sendAndApply(&si);
-		sendGenericKilledLog(defender, bsa.killedAmount, false);
+		sendGenericKilledLog(battle, defender, bsa.killedAmount, false);
 	}
 }
 
@@ -1354,11 +1374,12 @@ int64_t BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & ba
 	return drainedLife;
 }
 
-void BattleActionProcessor::sendGenericKilledLog(const CStack * defender, int32_t killed, bool multiple)
+void BattleActionProcessor::sendGenericKilledLog(const CBattleInfoCallback & battle, const CStack * defender, int32_t killed, bool multiple)
 {
 	if(killed > 0)
 	{
 		BattleLogMessage blm;
+		blm.battleID = battle.getBattle()->getBattleID();
 		addGenericKilledLog(blm, defender, killed, multiple);
 		gameHandler->sendAndApply(&blm);
 	}

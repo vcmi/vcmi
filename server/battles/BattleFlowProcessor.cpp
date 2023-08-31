@@ -171,6 +171,7 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 			info.summoned = true;
 
 			BattleUnitsChanged pack;
+			pack.battleID = battle.getBattle()->getBattleID();
 			pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 			info.save(pack.changedStacks.back().data);
 			gameHandler->sendAndApply(&pack);
@@ -227,6 +228,7 @@ void BattleFlowProcessor::onTacticsEnded(const CBattleInfoCallback & battle)
 void BattleFlowProcessor::startNextRound(const CBattleInfoCallback & battle, bool isFirstRound)
 {
 	BattleNextRound bnr;
+	bnr.battleID = battle.getBattle()->getBattleID();
 	logGlobal->debug("Next round starts");
 	gameHandler->sendAndApply(&bnr);
 
@@ -265,6 +267,7 @@ const CStack * BattleFlowProcessor::getNextStack(const CBattleInfoCallback & bat
 	if(stack && stack->alive() && !stack->waiting)
 	{
 		BattleTriggerEffect bte;
+		bte.battleID = battle.getBattle()->getBattleID();
 		bte.stackID = stack->unitId();
 		bte.effect = vstd::to_underlying(BonusType::HP_REGENERATION);
 
@@ -303,6 +306,7 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 		}
 
 		BattleUnitsChanged removeGhosts;
+		removeGhosts.battleID = battle.getBattle()->getBattleID();
 
 		auto pendingGhosts = battle.battleGetStacksIf([](const CStack * stack){
 			return stack->ghostPending;
@@ -487,6 +491,7 @@ bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, con
 		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
 		{
 			BattleTriggerEffect bte;
+			bte.battleID = battle.getBattle()->getBattleID();
 			bte.stackID = next->unitId();
 			bte.effect = vstd::to_underlying(BonusType::MORALE);
 			bte.val = 1;
@@ -558,6 +563,7 @@ void BattleFlowProcessor::makeStackDoNothing(const CBattleInfoCallback & battle,
 bool BattleFlowProcessor::makeAutomaticAction(const CBattleInfoCallback & battle, const CStack *stack, BattleAction &ba)
 {
 	BattleSetActiveStack bsa;
+	bsa.battleID = battle.getBattle()->getBattleID();
 	bsa.stack = stack->unitId();
 	bsa.askPlayerInterface = false;
 	gameHandler->sendAndApply(&bsa);
@@ -601,6 +607,7 @@ void BattleFlowProcessor::stackEnchantedTrigger(const CBattleInfoCallback & batt
 void BattleFlowProcessor::removeObstacle(const CBattleInfoCallback & battle, const CObstacleInstance & obstacle)
 {
 	BattleObstaclesChanged obsRem;
+	obsRem.battleID = battle.getBattle()->getBattleID();
 	obsRem.changes.emplace_back(obstacle.uniqueID, ObstacleChanges::EOperation::REMOVE);
 	gameHandler->sendAndApply(&obsRem);
 }
@@ -608,6 +615,7 @@ void BattleFlowProcessor::removeObstacle(const CBattleInfoCallback & battle, con
 void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, const CStack *st)
 {
 	BattleTriggerEffect bte;
+	bte.battleID = battle.getBattle()->getBattleID();
 	bte.stackID = st->unitId();
 	bte.effect = -1;
 	bte.val = 0;
@@ -640,6 +648,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			if (unbind)
 			{
 				BattleSetStackProperty ssp;
+				ssp.battleID = battle.getBattle()->getBattleID();
 				ssp.which = BattleSetStackProperty::UNBIND;
 				ssp.stackID = st->unitId();
 				gameHandler->sendAndApply(&ssp);
@@ -721,6 +730,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 
 					int cooldown = bonus->additionalInfo[0];
 					BattleSetStackProperty ssp;
+					ssp.battleID = battle.getBattle()->getBattleID();
 					ssp.which = BattleSetStackProperty::ENCHANTER_COUNTER;
 					ssp.absolute = false;
 					ssp.val = cooldown;
@@ -737,6 +747,7 @@ void BattleFlowProcessor::setActiveStack(const CBattleInfoCallback & battle, con
 	assert(stack);
 
 	BattleSetActiveStack sas;
+	sas.battleID = battle.getBattle()->getBattleID();
 	sas.stack = stack->unitId();
 	gameHandler->sendAndApply(&sas);
 }

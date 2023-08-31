@@ -180,10 +180,10 @@ public:
 	DLL_LINKAGE static const QueryID NONE;
 };
 
-class BattleID : public Identifier<QueryID>
+class BattleID : public Identifier<BattleID>
 {
 public:
-	using Identifier<QueryID>::Identifier;
+	using Identifier<BattleID>::Identifier;
 	DLL_LINKAGE static const BattleID NONE;
 };
 class ObjectInstanceID : public Identifier<ObjectInstanceID>

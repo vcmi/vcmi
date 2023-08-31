@@ -34,6 +34,9 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 {
 	StacksInjured stacksInjured;
 	BattleLogMessage blm;
+	stacksInjured.battleID = m->battle()->getBattle()->getBattleID();
+	blm.battleID = m->battle()->getBattle()->getBattleID();
+
 	size_t targetIndex = 0;
 	const battle::Unit * firstTarget = nullptr;
 	const bool describe = server->describeChanges();
@@ -48,6 +51,7 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 		if(unit && unit->alive())
 		{
 			BattleStackAttacked bsa;
+			bsa.battleID = m->battle()->getBattle()->getBattleID();
 			bsa.damageAmount = damageForTarget(targetIndex, m, unit);
 			bsa.stackAttacked = unit->unitId();
 			bsa.attackerID = -1;

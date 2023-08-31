@@ -320,6 +320,11 @@ battle::Units HypotheticBattle::getUnitsIf(battle::UnitFilter predicate) const
 	return ret;
 }
 
+BattleID HypotheticBattle::getBattleID() const
+{
+	return subject->getBattle()->getBattleID();
+}
+
 int32_t HypotheticBattle::getActiveStackID() const
 {
 	return activeUnitId;

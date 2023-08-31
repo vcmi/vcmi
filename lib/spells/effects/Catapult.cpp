@@ -188,6 +188,7 @@ int Catapult::getRandomDamage (ServerCallback * server) const
 void Catapult::removeTowerShooters(ServerCallback * server, const Mechanics * m) const
 {
 	BattleUnitsChanged removeUnits;
+	removeUnits.battleID = m->battle()->getBattle()->getBattleID();
 
 	for (auto const wallPart : { EWallPart::KEEP, EWallPart::BOTTOM_TOWER, EWallPart::UPPER_TOWER })
 	{
