@@ -35,15 +35,57 @@ Minimalistic version of this file:
 }
 ```
 
-See [Mod file Format](Mod_file_Format "wikilink") for its full description.
+See [Mod file Format](Mod_File_Format.md) for its full description.
 
-## Adding new objects
+## Game Identifiers system
 
-(TODO)
+VCMI uses strings to reference objects:
 
-## Modifying existing objects
+- Referencing H3 objects: `"nativeTerrain" : "sand"`. 
+Note: All mods can freely access any existing objects from H3 data.
 
-(TODO)
+- Referencing object from another mod: `"nativeTerrain" : "asphalt"`
+Note: Mods can only reference object from mods that are marked as dependencies
+
+- Referencing objects in bonus system: `"subtype" : "creature.archer"`
+Note: Bonus system requires explicit definition of object type since different bonuses may require different identifier class.
+
+- Referencing object from specific mod: `"nativeTerrain" : "hota.cove:sorceress"`
+Note: In some cases, for example to resolve conflicts when multiple mods use same object name you might need to explicitly specify mod in which game needs to look up an identifier
+
+### Modifying existing objects
+
+Alternatively to creating new objects, you can edit existing objects. Normally, when creating new objects you specify object name as:
+``` javascript
+"newCreature" : {
+    // creature parameters
+}
+```
+
+In order to access and modify existing object you need to specify mod that you wish to edit:
+
+``` javascript
+/// "core" specifier refers to objects that exist in H3
+"core:archer" : {
+	/// This will set health of Archer to 10
+	"hitPoints" : 10,
+},
+
+/// Modifying object named "jumpSoldier" in mod "forge"
+"forge:jumpSoldier" : {
+	/// Set attack of Jump Soldiers to 20
+	"attack": 20
+},
+
+/// Modifying object named "sorceress" in submod "cove" of mod "hota"
+"hota.cove:sorceress" : {
+	/// Set speed of Sorceresses to 10
+	"speed" : 10
+},
+```
+Note that modification of existing objects does not requires a dependency on edited mod. Such definitions will only be used by game if corresponding mod is installed and active.
+
+ This allows using objects editing not just for rebalancing mods but also to provide compatibility between two different mods or to add interaction between two mods.
 
 ## Overriding graphical files from Heroes III
 

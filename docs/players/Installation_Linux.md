@@ -15,7 +15,7 @@ To install VCMI from PPA use:
     sudo apt install vcmi
 ```
 
-### Unstable testing build from PPA**
+### Unstable testing build from PPA
 
 We also provide latest, unstable builds mostly suitable for testing here: <https://launchpad.net/~vcmi/+archive/ubuntu/vcmi-latest>
 
@@ -99,7 +99,7 @@ innoextract --output-dir=~/Downloads/HoMM3 "setup_heroes_of_might_and_magic_3_co
 
 Once innoextract completes, start VCMI Launcher and choose to copy existing files. Select the ~/Downloads/HoMM3 directory. Once copy is complete, you can delete both offline installer files as well as ~/Downloads/HoMM3.
 
-## Install using existing Heroes III data
+## Install manually using existing Heroes III data
 
 Copy "Data", "Maps" and "Mp3" from Heroes III to `$HOME/.local/share/vcmi/`
 Or, in case of flatpak install to `$HOME/.var/app/eu.vcmi.VCMI/data/vcmi/`

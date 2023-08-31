@@ -14,7 +14,7 @@ Full object consists from 3 parts:
 
 To create visitable object which grants all kinds of rewards (gold,
 experience, Bonuses etc...), see
-[Rewardable](https://github.com/vcmi/vcmi/wiki/Modding-~-Objects-~-Rewardable)
+[Rewardable](Map_Objects/Rewardable.md)
 page.
 
 ## Object group format

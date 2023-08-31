@@ -1,10 +1,10 @@
 See also: [Cheat Codes](Cheat_Codes.md)
 
 Client commands are set of predefined commands that are supported by VCMI, but unlike cheats they perform utility actions that do not alter state of the gameplay. As of release 1.2 client commands can work by typing them in-game like cheats, preceded by symbol / (for example `/controlai blue`)
-Alternative way, the only one working for older releases is typing them in console:
 
-> Console is separated from game window on desktop versions of VCMI Client.  
-> Windows builds of VCMI run separate console window by default, on other platforms you can access it by running VCMI Client from command line.  
+Alternative way, the only one working for older releases is typing them in console:
+Console is separated from game window on desktop versions of VCMI Client.
+Windows builds of VCMI run separate console window by default, on other platforms you can access it by running VCMI Client from command line.  
 
 Below a list of supported commands, with their arguments wrapped in `<>`
 

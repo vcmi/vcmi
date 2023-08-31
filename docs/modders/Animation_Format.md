@@ -145,15 +145,6 @@ representing specific one animation. VCMI uses groups as follows:
 
 # Proposed format extensions
 
-## Void format
-
--   vcmi client
--   map editor
-
-Json header may be omitted. In such case a single frame will be loaded
-from same resource ID. Resource id should have no extension, image must
-be in SPRITES/ virtual directory.
-
 ## Texture atlas format
 
 **TODO**
@@ -192,9 +183,6 @@ be in SPRITES/ virtual directory.
 ```
 
 ### Texture atlas grid format
-
--   vcmi client
--   map editor
 
 ``` javascript
 {

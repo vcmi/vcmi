@@ -1,37 +1,31 @@
 Enumerative parameters are described in HeroBonus.h file.
 
-### Short format
-
-``` javascript
-{
-["BONUS_TYPE", val, subtype, addInfo]
-}
-```
-
 ### Full format
 
 All parameters but type are optional.
 
 ``` javascript
 {
-	"type": 	"BONUS_TYPE",
-	"subtype": 	0,
-	"val" : 	0,
-	"valueType": 	"VALUE_TYPE",
-	"addInfo" : 	0, // or [1, 2, ...]
+	"type":         "BONUS_TYPE",
+	"subtype":      0,
+	"val" :         0,
+	"valueType":    "VALUE_TYPE",
+	"addInfo" :     0, // or [1, 2, ...]
 
-	"duration" : 	"BONUS_DURATION", //or ["BONUS_DURATION1", "BONUS_DURATION2", ...]"
-	"turns" : 	0,
+	"duration" :    "BONUS_DURATION", //or ["BONUS_DURATION1", "BONUS_DURATION2", ...]"
+	"turns" :       0,
 
-	"sourceType" : 	"SOURCE_TYPE",
-	"sourceID" : 	0,
+	"sourceType" :  "SOURCE_TYPE",
+	"sourceID" :    0,
 	"effectRange" : "EFFECT_RANGE",
-	"limiters" : 	[
-				"PREDEFINED_LIMITER", optional_parameters (...), //whhich one is preferred?
-				{"type" : LIMITER_TYPE, "parameters" : [1,2,3]}
-			],
+
+	"limiters" : [
+		"PREDEFINED_LIMITER", optional_parameters (...), //whhich one is preferred?
+		{"type" : LIMITER_TYPE, "parameters" : [1,2,3]}
+	],
+	
 	"propagator" : 	["PROPAGATOR_TYPE", optional_parameters (...)],
-	"updater" :	{Bonus Updater},
+	"updater" :	    {Bonus Updater},
 	"propagationUpdater" :	{Bonus Updater, but works during propagation},
 	"description" : "",
 	"stacking" :    ""
@@ -48,10 +42,9 @@ readable.
 
 -   creature.
 -   artifact.
--   skill.
-
+-   skill:
 ``` javascript
-"pathfinding",  "archery",      "logistics",    "scouting",     "diplomacy",
+		"pathfinding",  "archery",      "logistics",    "scouting",     "diplomacy",
 		"navigation",   "leadership",   "wisdom",       "mysticism",    "luck",
 		"ballistics",   "eagleEye",     "necromancy",   "estates",      "fireMagic",
 		"airMagic",     "waterMagic",   "earthMagic",   "scholar",      "tactics",
@@ -59,25 +52,20 @@ readable.
 		"sorcery",      "resistance",   "firstAid"
 ```
 
--   resource.
-
-Possible values:
-
+-   resource:
 ``` javascript
- "wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold", "mithril"
+		"wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold", "mithril"
 ```
 
 -   hero.
 -   faction.
 -   spell.
--   primSkill
-
+-   primarySkill
 ``` javascript
  "attack", "defence", "spellpower", "knowledge" 
 ```
 
--   terrain (since 0.99)
-
+-   terrain:
 ``` javascript
  "dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
 ```

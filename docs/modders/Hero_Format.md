@@ -1,6 +1,3 @@
-Schema in git:
-[config/schemas/hero.json](https://github.com/vcmi/vcmi/blob/develop/config/schemas/hero.json)
-
 ## Required data
 
 In order to make functional hero you also need:

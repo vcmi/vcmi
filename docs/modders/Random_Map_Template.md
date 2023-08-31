@@ -1,14 +1,3 @@
-Ideally, template format should be 100% compatible with OH3 format and
-bring additional improvements.
-
-## List of currently available templates
-
--   Analogy
--   Upgrade
--   Golden Ring
--   Unfair Game
--   Jebus Cross
-
 ## Template format
 
 ``` javascript

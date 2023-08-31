@@ -1,4 +1,4 @@
-# Download and install VCMI
+## Download and install VCMI
 
 **This app requires original heroes 3 sod / complete files to operate, they are not supplied with this installer. it is recommended to purchase version from gog.com. Heroes 3 "hd edition" (steam version) files are not supported !!!**  
 Installation is a two step process, at first you need to install game, then you need to upload Heroes3 original data files into your android device.
@@ -7,13 +7,13 @@ Installation is a two step process, at first you need to install game, then you 
 - Latest release as .apk file: <https://github.com/vcmi/vcmi/releases/latest>
 - Daily builds (unstable): <https://builds.vcmi.download/branch/develop/Android/>
 
-# Installing Heroes III data files
+## Installing Heroes III data files
 
 - Install Heroes III on your PC or extract Heroes III data files from gog installer
 - Connect your device to PC and enable file transfer.
 - Copy "Data", "Maps" and "Mp3" from Heroes III to any folder on  mobile device, then open VCMI, select Heroes III data import option, then select the folder where you copied Heroes III data.
 
-# Troubleshooting / well known issues
+## Troubleshooting / well known issues
 
 ### The game crashes on start
 
@@ -29,12 +29,12 @@ Installation is a two step process, at first you need to install game, then you 
 
 ### I installed play version, but the screen is flashing / blank on its edges
 
-**Solution:** Should be fixed since VCMI 1.3
+**Solution:** Update app to latest version
 
 ### The game always starts in 800x600 resolution, cannot effectively change it, also there is a lot of blank space on my widescreen device
 
-**Solution:** Should be fixed since VCMI 1.3
+**Solution:** Update app to latest version
 
 ## Other problems
 
-Please report about gameplay problem on forums: [Help & Bugs](https://forum.vcmi.eu/c/international-board/help-bugs) or [Discord](https://discord.gg/chBT42V). Make sure to specify your device and used version of Android.
+Please report about gameplay problem: [Github](https://github.com/vcmi/vcmi/issues), [Help & Bugs](https://forum.vcmi.eu/c/international-board/help-bugs) or [Discord](https://discord.gg/chBT42V). Make sure to specify your device and used version of Android.

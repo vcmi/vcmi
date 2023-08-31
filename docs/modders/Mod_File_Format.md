@@ -1,9 +1,4 @@
-This is description of mod.json file, main file for mods.
-
-Schema in git:
-[config/schemas/mod.json](https://github.com/vcmi/vcmi/blob/develop/config/schemas/mod.json)
-
-## Fields for local file and repository
+## Fields with description of mod
 
 ``` javascript
  
@@ -60,7 +55,7 @@ Schema in git:
 }
 ```
 
-## Fields specific for local file
+## Fields with description of mod content
 
 These are fields that are present only in local mod.json file
 
@@ -132,27 +127,6 @@ These are fields that are present only in local mod.json file
                 {"type" : "dir",  "path" : "/Content"}
             ]
     }
-}
-```
-
-## Fields present only in repository
-
-This is list of fields that must be added to mod record in repository
-file
-
-``` javascript
- 
-{
-    // URL which launcher will use to download mod
-    "download" : "http://example.com/mods/helloworld.zip",
-
-    // size of mod archive, in kilobytes
-    "size" : 12345,
-
-    // list of URL's with screenshots for this mod
-    "screenshots" : [
-        "http://example.com/images/helloworld_1.png"
-    ]
 }
 ```
 

@@ -1,6 +1,4 @@
-See thread <http://forum.vcmi.eu/viewtopic.php?t=558> for discussion
-
-Artifact bonuses use [Bonus Format](Bonus_Format "wikilink").
+Artifact bonuses use [Bonus Format](Bonus_Format.md)
 
 TODO:
 
@@ -18,12 +16,20 @@ In order to make functional artifact you also need:
 
 ``` javascript
 {
-	"type": ["HERO", "CREATURE", "COMMANDER"] //what kind of bearer can use this artifact
-	"class": "TREASURE", //TREASURE, MINOR, MAJOR, RELIC, SPECIAL
-	"slot":	"HEAD", //SHOULDERS, NECK, RIGHT_HAND, LEFT_HAND, TORSO, RIGHT_RING, LEFT_RING, FEET, MISC1, MISC2, MISC3, MISC4,
-		//MACH1, MACH2, MACH3, MACH4, SPELLBOOK, MISC5
-                //also possible MISC, RING 
-	"value": 12000, //based on ARTRAITS.txt		
+	//what kind of bearer can use this artifact
+	"type": ["HERO", "CREATURE", "COMMANDER"] 
+	
+	//TREASURE, MINOR, MAJOR, RELIC, SPECIAL
+	"class": "TREASURE",
+	
+	//SHOULDERS, NECK, RIGHT_HAND, LEFT_HAND, TORSO, RIGHT_RING, LEFT_RING, FEET, MISC1, MISC2, MISC3, MISC4,
+	//MACH1, MACH2, MACH3, MACH4, SPELLBOOK, MISC5
+	//also possible MISC, RING 
+	"slot":	"HEAD", 
+
+	//based on ARTRAITS.txt		
+	"value": 12000, 
+
 	"text":
 	{
 		"name": "Big Sword",
@@ -34,19 +40,24 @@ In order to make functional artifact you also need:
 	{
 		"image": "BigSword.png",
 		"large": "BigSword_large.png",
-		"map": "BigSword.def"//def file for adventure map
+		//def file for adventure map
+		"map": "BigSword.def"
 	},
 	"bonuses":
 	{
 		Bonus_1,
 		Bonus_2
 	},
-	"components": //optional, for combined artifacts only
+	
+	//optional, for combined artifacts only
+	"components": 
 	[
 		"artifact1",
 		"artifact2",
 		"artifact3"
 	],
-	"warMachine" : "some.creature" //if set with artifact works like war machine
+	
+	//if set with artifact works like war machine
+	"warMachine" : "some.creature" 
 }
 ```

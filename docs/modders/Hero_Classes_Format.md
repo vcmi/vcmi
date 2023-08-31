@@ -1,6 +1,3 @@
-Schema in git:
-[config/schemas/heroClass.json](https://github.com/vcmi/vcmi/blob/develop/config/schemas/heroClass.json)
-
 ## Required data
 
 In order to make functional hero class you also need:

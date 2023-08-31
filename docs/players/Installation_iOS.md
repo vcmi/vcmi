@@ -8,7 +8,7 @@ You can run VCMI on iOS 12.0 and later, all devices are supported. If you wish t
 To run on a non-jailbroken device you need to sign the IPA file, you
 have the following options:
 
-- *\[Easiest way\]* [AltStore](https://altstore.io/) or [Sideloadly](https://sideloadly.io/) - can be installed on Windows or macOS, don't require dealing with signing on your own 
+- (Easiest way) [AltStore](https://altstore.io/) or [Sideloadly](https://sideloadly.io/) - can be installed on Windows or macOS, don't require dealing with signing on your own 
 - if you're on iOS 14.0-15.4.1, you can try <https://github.com/opa334/TrollStore>
 - Get signer tool [here](https://dantheman827.github.io/ios-app-signer/) and a guide [here](https://forum.kodi.tv/showthread.php?tid=245978) (it's for Kodi, but the logic is the same). Signing with this app can only be done on macOS.
 - [Create signing assets on macOS from terminal](https://github.com/kambala-decapitator/xcode-auto-signing-assets). In the command replace `your.bundle.id` with something like `com.MY-NAME.vcmi`. After that use the above signer tool.
@@ -16,7 +16,7 @@ have the following options:
 
 ## Installing Heroes III data files
 
-*Note: if you don't need in-game videos, you can omit downloading/copying file VIDEO.VID from data folder - it will save your time and space. The same applies to the Mp3 directory.*
+Note: if you don't need in-game videos, you can omit downloading/copying file VIDEO.VID from data folder - it will save your time and space. The same applies to the Mp3 directory.
 
 ### Installing data files with Finder or Windows explorer
 
@@ -26,7 +26,7 @@ To play the game, you need to upload HoMM3 data files - **Data**, **Maps** and *
 
 If you have data somewhere on device or in shared folder or you have downloaded it, you can copy it directly on your iPhone/iPad using Files application.
 
-Just move/copy **Data**, **Maps** and **Mp3** folders into vcmi application - it will be visible in Files along with other applications' folders.
+Move or copy **Data**, **Maps** and **Mp3** folders into vcmi application - it will be visible in Files along with other applications' folders.
 
 ### Installing data files with Xcode on macOS
 
@@ -44,9 +44,9 @@ You can also upload files with Xcode. You need to prepare "container" for that.
 
 ## Game controls
 
-- Tap = left click
-- Tap and hold (long press) = right click
-- Tap in the bottom area (status bar) to activate chat/console in the game
+- Tap: left click
+- Tap and hold (long press): right click
+- Tap in the bottom area (status bar): activate chat/console in the game
 
 You can start game directly (avoiding the launcher) by changing setting in iOS Settings app - VCMI.
 

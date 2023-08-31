@@ -1,8 +1,3 @@
-Schema in git:
-[config/schemas/creature.json](https://github.com/vcmi/vcmi/blob/develop/config/schemas/creature.json)
-
-See thread <http://forum.vcmi.eu/viewtopic.php?t=533> for discussion.
-
 ## Required data
 
 In order to make functional creature you also need:

@@ -3,7 +3,7 @@
 Starting from version 1.3, VCMI supports its own campaign format.
 Campaigns have *.vcmp file format and it consists from campaign json and set of scenarios (can be both *.vmap and *.h3m)
 
-To start making campaign, create file named `00.json`. See also [Packing campaign](https://github.com/vcmi/vcmi/wiki/VCMI-Campaign-format/#packing-campaign)
+To start making campaign, create file named `00.json`. See also [Packing campaign](#packing-campaign)
 
 Basic structure of this file is here, each section is described in details below
 ```js
@@ -25,7 +25,7 @@ Basic structure of this file is here, each section is described in details below
 }
 ```
 
-`"version"` defines version of campaign file. Larger versions should have more features and flexibility, but may not be supported by older VCMI engines. See [compatibility table](https://github.com/vcmi/vcmi/wiki/VCMI-Campaign-format#compatibility-table)
+`"version"` defines version of campaign file. Larger versions should have more features and flexibility, but may not be supported by older VCMI engines. See [compatibility table](#compatibility-table)
 
 # Header properties
 
@@ -38,7 +38,7 @@ In header are parameters describing campaign properties
     "allowDifficultySelection": true, 
 ```
 
-- `"regions"` contains information about background and regions. See section [campaign regions](https://github.com/vcmi/vcmi/wiki/VCMI-Campaign-format#regions-description) for more information
+- `"regions"` contains information about background and regions. See section [campaign regions](#regions-description) for more information
 - `"name"` is a human readable title of campaign
 - `"description"` is a human readable description of campaign
 - `"allowDifficultySelection"` is a boolean field (`true`/`false`) which allows or disallows to choose difficulty before scenario start
@@ -68,14 +68,14 @@ Scenario description looks like follow:
 - `"color"` defines color id for the region. Possible values are `0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`
 - `"difficulty"` sets initial difficulty for this scenario. If `"allowDifficultySelection"`is defined for campaign, difficulty may be changed by player. Possible values are `0: pawn, 1: knight, 2: rook, 3: queen, 4: king`
 - `"regionText"` is a text which will be shown if player holds right button over region
-- `"prolog"`/`"epilog"` optional, defines prolog/epilog for scenario. See [prolog/epilog](https://github.com/vcmi/vcmi/wiki/VCMI-Campaign-format#prologepilog) section for more information
+- `"prolog"`/`"epilog"` optional, defines prolog/epilog for scenario. See [prolog/epilog](#prologepilog) section for more information
 - `"heroKeeps"` defines what hero will carry to the next scenario. Can be specified one or several attributes from list `"experience", "primarySkills", "secondarySkills", "spells", "artifacts"`
 - `"keepCreatures"` array of creature types which hero will carry to the next scenario. Game identifiers are used to specify creature type.
 - `"startOptions"` defines what type of bonuses player may have. Possible values are `"none", "bonus", "crossover", "hero"`
-  - `none`: player starts scenario without bonuses. [Description](https://github.com/vcmi/vcmi/wiki/VCMI-Campaign-format#none-start-option)
-  - `bonus`: player chooses one of the predefined bonuses. [Description](https://github.com/vcmi/vcmi/wiki/VCMI-Campaign-format#bonus-start-option)
-  - `crossover`: player will start with hero from previous scenario. [Description](https://github.com/vcmi/vcmi/wiki/VCMI-Campaign-format#crossover-start-option)
-  - `hero` : player will start scenario with specified hero. [Description](https://github.com/vcmi/vcmi/wiki/VCMI-Campaign-format#hero-start-option)
+  - `none`: player starts scenario without bonuses. [Description](#none-start-option)
+  - `bonus`: player chooses one of the predefined bonuses. [Description](#bonus-start-option)
+  - `crossover`: player will start with hero from previous scenario. [Description](#crossover-start-option)
+  - `hero` : player will start scenario with specified hero. [Description](#hero-start-option)
 - `"playerColor"` defines color id of flag which player will play for. Possible values are `0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`
 - "bonuses" array of possible bonus objects, format depends on `"startOptions"` parameter
 
