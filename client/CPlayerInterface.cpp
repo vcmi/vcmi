@@ -140,7 +140,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	firstCall = 1; //if loading will be overwritten in serialize
 	autosaveCount = 0;
 	isAutoFightOn = false;
-
 	duringMovement = false;
 	ignoreEvents = false;
 	numOfMovedArts = 0;

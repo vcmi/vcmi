@@ -97,58 +97,63 @@ void TurnTimerWidget::setTime(PlayerColor player, int time)
 	}
 }
 
+void TurnTimerWidget::updateTimer(PlayerColor player, uint32_t msPassed)
+{
+	const auto & time = LOCPLINT->cb->getPlayerTurnTime(player);
+	if(time.isActive)
+		cachedTurnTime -= msPassed;
+	
+	if(cachedTurnTime < 0)
+		cachedTurnTime = 0; //do not go below zero
+	
+	if(lastPlayer != player)
+	{
+		lastPlayer = player;
+		lastTurnTime = 0;
+	}
+	
+	auto timeCheckAndUpdate = [&](int time)
+	{
+		if(time / 1000 != lastTurnTime / 1000)
+		{
+			//do not update timer on this tick
+			lastTurnTime = time;
+			cachedTurnTime = time;
+		}
+		else
+			setTime(player, cachedTurnTime);
+	};
+	
+	auto * playerInfo = LOCPLINT->cb->getPlayer(player);
+	if(player.isValidPlayer() || (playerInfo && playerInfo->isHuman()))
+	{
+		if(time.isBattle)
+			timeCheckAndUpdate(time.creatureTimer);
+		else
+			timeCheckAndUpdate(time.turnTimer);
+	}
+	else
+		timeCheckAndUpdate(0);
+}
+
 void TurnTimerWidget::tick(uint32_t msPassed)
 {
 	if(!LOCPLINT || !LOCPLINT->cb)
 		return;
 
-	for (PlayerColor p(0); p < PlayerColor::PLAYER_LIMIT; ++p)
+	if(LOCPLINT->battleInt)
 	{
-		auto player = p;
-		if(LOCPLINT->battleInt)
-		{
-			if(auto * stack = LOCPLINT->battleInt->stacksController->getActiveStack())
-				player = stack->getOwner();
-		}
-		else if (!LOCPLINT->cb->isPlayerMakingTurn(player))
-			continue;
-
-		auto time = LOCPLINT->cb->getPlayerTurnTime(player);
-		cachedTurnTime -= msPassed;
-		if(cachedTurnTime < 0) cachedTurnTime = 0; //do not go below zero
-		
-		if(lastPlayer != player)
-		{
-			lastPlayer = player;
-			lastTurnTime = 0;
-		}
-		
-		auto timeCheckAndUpdate = [&](int time)
-		{
-			if(time / 1000 != lastTurnTime / 1000)
-			{
-				//do not update timer on this tick
-				lastTurnTime = time;
-				cachedTurnTime = time;
-			}
-			else
-				setTime(player, cachedTurnTime);
-		};
-		
-		auto * playerInfo = LOCPLINT->cb->getPlayer(player);
-		if(player.isValidPlayer() || (playerInfo && playerInfo->isHuman()))
-		{
-			if(LOCPLINT->battleInt)
-			{
-				if(time.isBattleEnabled())
-					timeCheckAndUpdate(time.creatureTimer);
-			}
-			else
-			{
-				timeCheckAndUpdate(time.turnTimer);
-			}
-		}
+		if(auto * stack = LOCPLINT->battleInt->stacksController->getActiveStack())
+			updateTimer(stack->getOwner(), msPassed);
 		else
-			timeCheckAndUpdate(0);
+			updateTimer(PlayerColor::NEUTRAL, msPassed);
+	}
+	else
+	{
+		for(PlayerColor p(0); p < PlayerColor::PLAYER_LIMIT; ++p)
+		{
+			if(LOCPLINT->cb->isPlayerMakingTurn(p))
+				updateTimer(p, msPassed);
+		}
 	}
 }

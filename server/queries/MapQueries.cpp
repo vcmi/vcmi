@@ -28,12 +28,12 @@ bool PlayerStartsTurnQuery::blocksPack(const CPack *pack) const
 
 void PlayerStartsTurnQuery::onAdding(PlayerColor color)
 {
-	//gh->turnTimerHandler.setTimerEnabled(color, false);
+	gh->turnTimerHandler.setTimerEnabled(color, false);
 }
 
 void PlayerStartsTurnQuery::onRemoval(PlayerColor color)
 {
-	//gh->turnTimerHandler.setTimerEnabled(color, true);
+	gh->turnTimerHandler.setTimerEnabled(color, true);
 }
 
 bool PlayerStartsTurnQuery::endsByPlayerAnswer() const

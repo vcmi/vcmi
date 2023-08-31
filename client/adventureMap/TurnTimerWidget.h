@@ -46,6 +46,8 @@ private:
 	std::set<int> notifications;
 	
 	std::shared_ptr<DrawRect> buildDrawRect(const JsonNode & config) const;
+	
+	void updateTimer(PlayerColor player, uint32_t msPassed);
 
 public:
 

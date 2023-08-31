@@ -999,18 +999,14 @@ void CGameHandler::run(bool resume)
 	turnOrder->onGameStarted();
 
 	//wait till game is done
+	auto clockLast = std::chrono::steady_clock::now();
 	while(lobby->getState() == EServerState::GAMEPLAY)
 	{
-		const int waitTime = 100; //ms
-
-		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
-			if(gs->isPlayerMakingTurn(player))
-				turnTimerHandler.onPlayerMakingTurn(player, waitTime);
-
-		if(gs->curB)
-			turnTimerHandler.onBattleLoop(waitTime);
-
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(waitTime));
+		const auto clockDuration = std::chrono::steady_clock::now() - clockLast;
+		const int timePassed = std::chrono::duration_cast<std::chrono::milliseconds>(clockDuration).count();
+		clockLast += clockDuration;
+		turnTimerHandler.update(timePassed);
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 	}
 }
 
@@ -1182,11 +1178,10 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		for(auto topQuery = queries->topQuery(h->tempOwner); true; topQuery = queries->topQuery(h->tempOwner))
 		{
 			moveQuery = std::dynamic_pointer_cast<CHeroMovementQuery>(topQuery);
-			if(moveQuery
-			   && (!transit || result != TryMoveHero::SUCCESS))
-				queries->popIfTop(moveQuery);
-			else
+			if(!moveQuery || (transit && result == TryMoveHero::SUCCESS))
 				break;
+			
+			queries->popIfTop(moveQuery);
 		}
 		logGlobal->trace("Hero %s ends movement", h->getNameTranslated());
 		return result != TryMoveHero::FAILED;

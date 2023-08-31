@@ -158,6 +158,8 @@ std::string InterfaceObjectConfigurable::readText(const JsonNode & config) const
 		return "";
 	
 	std::string s = config.String();
+	if(s.empty())
+		return s;
 	logGlobal->debug("Reading text from translations by key: %s", s);
 	return CGI->generaltexth->translate(s);
 }
@@ -579,8 +581,8 @@ std::shared_ptr<CTextInput> InterfaceObjectConfigurable::buildTextInput(const Js
 		result->font = readFont(config["font"]);
 	if(!config["color"].isNull())
 		result->setColor(readColor(config["color"]));
-	if(!config["text"].isNull())
-		result->setText(readText(config["text"]));
+	if(!config["text"].isNull() && config["text"].isString())
+		result->setText(config["text"].String()); //for input field raw string is taken
 	if(!config["callback"].isNull())
 		result->cb += callbacks_string.at(config["callback"].String());
 	if(!config["help"].isNull())
