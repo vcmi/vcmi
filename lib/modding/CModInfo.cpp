@@ -108,8 +108,8 @@ void CModInfo::loadLocalData(const JsonNode & data)
 	}
 
 	//check compatibility
-	implicitlyEnabled &= (vcmiCompatibleMin.isNull() || CModVersion::GameVersion().compatible(vcmiCompatibleMin));
-	implicitlyEnabled &= (vcmiCompatibleMax.isNull() || vcmiCompatibleMax.compatible(CModVersion::GameVersion()));
+	implicitlyEnabled &= (vcmiCompatibleMin.isNull() || CModVersion::GameVersion().compatible(vcmiCompatibleMin, true, true));
+	implicitlyEnabled &= (vcmiCompatibleMax.isNull() || vcmiCompatibleMax.compatible(CModVersion::GameVersion(), true, true));
 
 	if(!implicitlyEnabled)
 		logGlobal->warn("Mod %s is incompatible with current version of VCMI and cannot be enabled", name);
