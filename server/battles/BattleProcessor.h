@@ -39,6 +39,7 @@ class BattleProcessor : boost::noncopyable
 	std::unique_ptr<BattleFlowProcessor> flowProcessor;
 	std::unique_ptr<BattleResultProcessor> resultProcessor;
 
+	void onTacticsEnded();
 	void updateGateState();
 	void engageIntoBattle(PlayerColor player);
 

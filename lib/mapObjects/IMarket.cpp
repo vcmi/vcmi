@@ -169,7 +169,7 @@ IMarket::IMarket()
 std::vector<EMarketMode> IMarket::availableModes() const
 {
 	std::vector<EMarketMode> ret;
-	for (EMarketMode i = static_cast<EMarketMode>(0); i < EMarketMode::MARTKET_AFTER_LAST_PLACEHOLDER; vstd::next(i, 1))
+	for (EMarketMode i = static_cast<EMarketMode>(0); i < EMarketMode::MARTKET_AFTER_LAST_PLACEHOLDER; i = vstd::next(i, 1))
 	if(allowsTrade(i))
 		ret.push_back(i);
 
