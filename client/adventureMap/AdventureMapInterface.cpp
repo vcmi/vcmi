@@ -171,7 +171,9 @@ void AdventureMapInterface::dim(Canvas & to)
 		std::shared_ptr<AdventureMapInterface> casted = std::dynamic_pointer_cast<AdventureMapInterface>(window);
 		if (!casted && !window->isPopupWindow())
 		{
-			to.drawColor(Rect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y), ColorRGBA(0, 0, 0, std::clamp<int>(settings["adventure"]["backgroundDimLevel"].Integer(), 0, 255)));
+			Rect targetRect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y);
+			ColorRGBA colorToFill(0, 0, 0, std::clamp<int>(settings["adventure"]["backgroundDimLevel"].Integer(), 0, 255));
+			to.drawColor(targetRect, colorToFill);
 			return;
 		}
 	}
