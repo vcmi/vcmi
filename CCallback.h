@@ -134,10 +134,6 @@ public:
 	void onBattleStarted(const IBattleInfo * info);
 	void onBattleEnded(const BattleID & battleID);
 
-#if SCRIPTING_ENABLED
-	scripting::Pool * getContextPool() const override;
-#endif
-
 	friend class CCallback;
 	friend class CClient;
 };

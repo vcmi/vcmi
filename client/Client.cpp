@@ -693,11 +693,6 @@ scripting::Pool * CClient::getGlobalContextPool() const
 {
 	return clientScripts.get();
 }
-
-scripting::Pool * CClient::getContextPool() const
-{
-	return clientScripts.get();
-}
 #endif
 
 void CClient::reinitScripting()

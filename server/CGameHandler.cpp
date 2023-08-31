@@ -4094,10 +4094,10 @@ scripting::Pool * CGameHandler::getGlobalContextPool() const
 	return serverScripts.get();
 }
 
-scripting::Pool * CGameHandler::getContextPool() const
-{
-	return serverScripts.get();
-}
+//scripting::Pool * CGameHandler::getContextPool() const
+//{
+//	return serverScripts.get();
+//}
 #endif
 
 void CGameHandler::createObject(const int3 & visitablePosition, Obj type, int32_t subtype)

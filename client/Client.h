@@ -220,7 +220,6 @@ public:
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
-	scripting::Pool * getContextPool() const override;
 #endif
 
 private:

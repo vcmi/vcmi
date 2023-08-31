@@ -22,6 +22,10 @@ class DLL_LINKAGE CPlayerBattleCallback : public CBattleInfoCallback
 public:
 	CPlayerBattleCallback(const IBattleInfo * battle, PlayerColor player);
 
+#if SCRIPTING_ENABLED
+	scripting::Pool * getContextPool() const override;
+#endif
+
 	const IBattleInfo * getBattle() const override;
 	std::optional<PlayerColor> getPlayerID() const override;
 
