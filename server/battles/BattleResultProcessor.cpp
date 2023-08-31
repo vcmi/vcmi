@@ -282,7 +282,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 			otherBattleQuery->result = battleQuery->result;
 	}
 
-	gameHandler->turnTimerHandler.onBattleEnd(battle.battleID);
+	gameHandler->turnTimerHandler.onBattleEnd(battle.getBattle()->getBattleID());
 
 	if (battleResult->queryID == QueryID::NONE)
 		endBattleConfirm(battle);

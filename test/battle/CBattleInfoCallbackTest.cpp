@@ -124,6 +124,7 @@ public:
 	{
 	public:
 
+		const IBattleInfo * battle;
 #if SCRIPTING_ENABLED
 		scripting::Pool * pool;
 
@@ -137,9 +138,14 @@ public:
 		{
 		}
 
-		void setBattle(const IBattleInfo * battleInfo)
+		const IBattleInfo * getBattle() const override
 		{
-			CBattleInfoCallback::setBattle(battleInfo);
+			return battle;
+		}
+
+		std::optional<PlayerColor> getPlayerID() const override
+		{
+			return std::nullopt;
 		}
 
 #if SCRIPTING_ENABLED
@@ -170,7 +176,7 @@ public:
 
 	void startBattle()
 	{
-		subject.setBattle(&battleMock);
+		subject.battle = &battleMock;
 	}
 
 	void redirectUnitsToFake()
