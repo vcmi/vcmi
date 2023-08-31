@@ -114,6 +114,7 @@ private:
 
 		std::vector<FactionID> factions;
 		std::vector<HeroTypeID> heroes;
+		std::set<HeroTypeID> unusableHeroes;
 
 		FactionID initialFaction;
 		HeroTypeID initialHero;
@@ -144,6 +145,8 @@ private:
 		void showPopupWindow(const Point & cursorPosition) override;
 
 	public:
+		void reopen();
+
 		SelectionWindow(PlayerColor _color, SelType _type);
 	};
 

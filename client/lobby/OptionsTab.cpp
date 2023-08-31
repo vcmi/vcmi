@@ -200,6 +200,11 @@ void OptionsTab::recreate()
 	entries.clear();
 	humanPlayers = 0;
 
+	for (auto selectionWindow : GH.windows().findWindows<SelectionWindow>())
+	{
+		selectionWindow->reopen();
+	}
+
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	for(auto & pInfo : SEL->getStartInfo()->playerInfos)
 	{
@@ -612,6 +617,12 @@ OptionsTab::SelectionWindow::SelectionWindow(PlayerColor _color, SelType _type)
 		if(allowedHeroesFlag[i])
 			allowedHeroes.insert(HeroTypeID(i));
 
+	for(auto & player : SEL->getStartInfo()->playerInfos)
+	{
+		if(player.first != color && (int)player.second.hero > PlayerSettings::RANDOM)
+			unusableHeroes.insert(player.second.hero);
+	}
+
 	allowedBonus.push_back(-1); // random
 	if(initialHero.getNum() >= -1)
 		allowedBonus.push_back(0); // artifact
@@ -663,6 +674,13 @@ void OptionsTab::SelectionWindow::setSelection()
 
 	if(selectedBonus != initialBonus)
 		CSH->setPlayerOption(LobbyChangePlayerOption::BONUS_ID, selectedBonus, color);
+}
+
+void OptionsTab::SelectionWindow::reopen()
+{
+	std::shared_ptr<SelectionWindow> window = std::shared_ptr<SelectionWindow>(new SelectionWindow(color, type));
+	close();
+	GH.windows().pushWindow(window);
 }
 
 void OptionsTab::SelectionWindow::recreate()
@@ -795,8 +813,13 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 			CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::HERO);
 
 			components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
-			components.push_back(std::make_shared<CPicture>(selectedHero == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig", x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
 			drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, (selectedHero == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
+			std::string image = "lobby/townBorderBig";
+			if(selectedHero == elem)
+				image = "lobby/townBorderBigActivated";
+			if(unusableHeroes.count(elem))
+				image = "lobby/townBorderBigGrayedOut";
+			components.push_back(std::make_shared<CPicture>(image, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
 			heroes.push_back(elem);
 
 			i++;
@@ -876,6 +899,10 @@ void OptionsTab::SelectionWindow::setElement(int elem, bool doApply)
 		{
 			set.hero = PlayerSettings::RANDOM;
 		}
+
+		if(doApply && unusableHeroes.count(heroes[elem]))
+			return;
+
 		if(set.hero.getNum() != PlayerSettings::NONE)
 		{
 			if(!doApply)
