@@ -56,6 +56,7 @@ public:
 #if SCRIPTING_ENABLED
 	virtual scripting::Pool * getContextPool() const = 0;
 #endif
+	virtual ~IBattleInfoCallback() = default;
 
 	virtual const IBattleInfo * getBattle() const = 0;
 	virtual std::optional<PlayerColor> getPlayerID() const = 0;

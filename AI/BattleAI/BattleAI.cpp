@@ -52,8 +52,7 @@ void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	setCbc(CB);
 	env = ENV;
 	cb = CB;
-	assert(0);// FIXME:
-	// playerID = *CB->getPlayerID(); //TODO should be sth in callback
+	playerID = *CB->getPlayerID();
 	wasWaitingForRealize = CB->waitTillRealize;
 	wasUnlockingGs = CB->unlockGsWhenWaiting;
 	CB->waitTillRealize = false;
