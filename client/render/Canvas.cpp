@@ -149,6 +149,7 @@ void Canvas::drawText(const Point & position, const EFonts & font, const SDL_Col
 	switch (alignment)
 	{
 	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLeft  (surface, text, colorDest, renderArea.topLeft() + position);
+	case ETextAlignment::TOPCENTER:    return graphics->fonts[font]->renderTextCenter(surface, text, colorDest, renderArea.topLeft() + position);
 	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextCenter(surface, text, colorDest, renderArea.topLeft() + position);
 	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextRight (surface, text, colorDest, renderArea.topLeft() + position);
 	}
@@ -159,6 +160,7 @@ void Canvas::drawText(const Point & position, const EFonts & font, const SDL_Col
 	switch (alignment)
 	{
 	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLinesLeft  (surface, text, colorDest, renderArea.topLeft() + position);
+	case ETextAlignment::TOPCENTER:    return graphics->fonts[font]->renderTextLinesCenter(surface, text, colorDest, renderArea.topLeft() + position);
 	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextLinesCenter(surface, text, colorDest, renderArea.topLeft() + position);
 	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextLinesRight (surface, text, colorDest, renderArea.topLeft() + position);
 	}
