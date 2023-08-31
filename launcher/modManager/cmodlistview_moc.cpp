@@ -888,3 +888,34 @@ QString CModListView::getTranslationModName(const QString & language)
 
 	return QString();
 }
+
+void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
+{
+	if(!index.isValid())
+		return;
+
+	auto mod = modModel->getMod(index.data(ModRoles::ModNameRole).toString());
+
+	if(mod.isAvailable() && !mod.getName().contains('.'))
+	{
+		on_installButton_clicked();
+		return;
+	}
+
+	if(mod.isUpdateable())
+	{
+		on_updateButton_clicked();
+	}
+
+	if(mod.isDisabled())
+	{
+		on_enableButton_clicked();
+		return;
+	}
+
+	if(mod.isEnabled())
+	{
+		on_disableButton_clicked();
+	}
+}
+
