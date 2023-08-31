@@ -27,11 +27,13 @@ public:
 	void pickUpArtifact(CHeroArtPlace & artPlace);
 	void scrollBackpack(int offset) override;
 	void updateBackpackSlots() override;
-	size_t getActiveSlotLinesNum();
+	size_t getActiveSlotRowsNum();
 
 private:
 	std::shared_ptr<CListBoxWithCallback> backpackListBox;
 	std::vector<std::shared_ptr<CPicture>> backpackSlotsBackgrounds;
 	const size_t HERO_BACKPACK_WINDOW_SLOT_COLUMNS = 8;
 	const size_t HERO_BACKPACK_WINDOW_SLOT_ROWS = 8;
+	const int slotSizeWithMargin = 46;
+	const int sliderPosOffsetX = 10;
 };
