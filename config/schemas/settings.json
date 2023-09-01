@@ -226,7 +226,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "smoothDragging" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "smoothDragging", "backgroundDimLevel" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -274,7 +274,11 @@
 				"smoothDragging" : {
 					"type" : "boolean",
 					"default" : true
-				}
+				},
+				"backgroundDimLevel" : {
+					"type" : "number",
+					"default" : 128
+				},
 			}
 		},
 		"battle" : {
