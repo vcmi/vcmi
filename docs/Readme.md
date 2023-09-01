@@ -48,19 +48,22 @@ Please see corresponding installation guide articles for details for your platfo
 
 ## Documentation and guidelines for developers
 
-- How to build using CMake:
-  - [Linux](How_to_build_VCMI_(Linux) "wikilink")
-  - [Linux/MinGW (for Windows)](How_to_build_VCMI_(Linux/MinGW) "wikilink")
-  - [macOS](How_to_build_VCMI_(macOS) "wikilink")
-  - [Windows](How_to_build_VCMI_(Windows/Vcpkg) "wikilink")
-  - [iOS](How_to_build_VCMI_(iOS) "wikilink")
-  - [Android](How_to_build_VCMI_(Android) "wikilink")
-- Unsupported build instructions:
-  - [Windows/MSVS (Visual Studio 2015)](How_to_build_VCMI_(Windows/Visual_Studio_2015) "wikilink")
-- [Coding guidelines](Coding_guidelines "wikilink")
-- [Code structure](Code_structure "wikilink")
-- [Logging API](Logging_API "wikilink")
-- [Development with Qt Creator](Development_with_Qt_Creator "wikilink")
+Development environment setup instructions:
+- [Building VCMI for Android](developers/Building_Android.md)
+- [Building VCMI for iOS](developers/Building_iOS.md)
+- [Building VCMI for Linux](developers/Building_Linux.md)
+- [Building VCMI for macOS](developers/Building_macOS.md)
+- [Building VCMI for Windows](developers/Building_Windows.md)
+- [Conan](developers/Conan.md)
+
+Engine documentation: (NOTE: may be outdated)
+- [Development with Qt Creator](developers/Development_with_Qt_Creator.md)
+- [Coding Guidelines](developers/Coding_Guidelines.md)
+- [Bonus System](developers/Bonus_System.md)
+- [Code Structure](developers/Code_Structure.md)
+- [Logging API](developers/Logging_API.md)
+- [Lua Scripting System](developers/Lua_Scripting_System.md)
+- [Serialization](developers/Serialization.md)
 
 ## Documentation and guidelines for maintainers
 
@@ -68,7 +71,6 @@ Please see corresponding installation guide articles for details for your platfo
 - [Project Servers Configuration](maintainers/Project_Servers_Configuration.md)
 - [Release Process](maintainers/Release_Process.md)
 - [Ubuntu PPA](maintainers/Ubuntu_PPA.md)
-
 
 ## Copyright and license
 
