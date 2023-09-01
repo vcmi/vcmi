@@ -116,7 +116,7 @@ void CMenuScreen::activate()
 {
 	CCS->musich->playMusic("Music/MainMenu", true, true);
 	if(!config["video"].isNull())
-		CCS->videoh->open(config["video"]["name"].String());
+		CCS->videoh->open(VideoPath::fromJson(config["video"]["name"]));
 	CIntObject::activate();
 }
 

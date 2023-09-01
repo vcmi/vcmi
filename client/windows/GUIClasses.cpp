@@ -513,7 +513,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)
 	if(LOCPLINT->castleInt)
 		CCS->videoh->open(LOCPLINT->castleInt->town->town->clientInfo.tavernVideo);
 	else
-		CCS->videoh->open("TAVERN.BIK");
+		CCS->videoh->open(VideoPath::builtin("TAVERN.BIK"));
 }
 
 void CTavernWindow::recruitb()

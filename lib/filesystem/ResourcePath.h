@@ -83,6 +83,11 @@ public:
 		return name == other.name && type == other.type;
 	}
 
+	inline bool operator!=(const ResourcePath & other) const
+	{
+		return name != other.name || type != other.type;
+	}
+
 	inline bool operator<(const ResourcePath & other) const
 	{
 		if (type != other.type)
@@ -171,6 +176,7 @@ using AnimationPath = ResourcePathTempl<EResType::ANIMATION>;
 using ImagePath = ResourcePathTempl<EResType::IMAGE>;
 using TextPath = ResourcePathTempl<EResType::TEXT>;
 using JsonPath = ResourcePathTempl<EResType::JSON>;
+using VideoPath = ResourcePathTempl<EResType::VIDEO>;
 
 namespace EResTypeHelper
 {

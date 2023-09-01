@@ -166,7 +166,7 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 		ret.hasPrologEpilog = !identifier.isNull();
 		if(ret.hasPrologEpilog)
 		{
-			ret.prologVideo = identifier["video"].String();
+			ret.prologVideo = VideoPath::fromJson(identifier["video"]);
 			ret.prologMusic = identifier["music"].String();
 			ret.prologText = identifier["text"].String();
 		}
@@ -590,13 +590,13 @@ std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputS
 	return ret;
 }
 
-std::string CampaignHandler::prologVideoName(ui8 index)
+VideoPath CampaignHandler::prologVideoName(ui8 index)
 {
 	JsonNode config(JsonPath::builtin("CONFIG/campaignMedia"));
 	auto vids = config["videos"].Vector();
 	if(index < vids.size())
-		return vids[index].String();
-	return "";
+		return VideoPath::fromJson(vids[index]);
+	return VideoPath();
 }
 
 std::string CampaignHandler::prologMusicName(ui8 index)

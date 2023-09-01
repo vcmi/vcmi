@@ -884,7 +884,7 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source) const
 	info.buildingsIcons = AnimationPath::fromJson(source["buildingsIcons"]);
 
 	info.guildBackground = ImagePath::fromJson(source["guildBackground"]);
-	info.tavernVideo = source["tavernVideo"].String();
+	info.tavernVideo = VideoPath::fromJson(source["tavernVideo"]);
 
 	loadTownHall(town,   source["hallSlots"]);
 	loadStructures(town, source["structures"]);

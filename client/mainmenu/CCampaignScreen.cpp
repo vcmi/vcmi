@@ -99,7 +99,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 	pos.h = 116;
 
 	campFile = config["file"].String();
-	video = config["video"].String();
+	video = VideoPath::fromJson(config["video"]);
 
 	status = config["open"].Bool() ? CCampaignScreen::ENABLED : CCampaignScreen::DISABLED;
 

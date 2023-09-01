@@ -581,7 +581,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 		}
 
 		CCS->musich->playMusic("Music/Win Battle", false, true);
-		CCS->videoh->open("WIN3.BIK");
+		CCS->videoh->open(VideoPath::builtin("WIN3.BIK"));
 		std::string str = CGI->generaltexth->allTexts[text];
 
 		const CGHeroInstance * ourHero = owner.cb->battleGetMyHero();
@@ -598,19 +598,19 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	{
 		int text = 311;
 		std::string musicName = "Music/LoseCombat";
-		std::string videoName = "LBSTART.BIK";
+		VideoPath videoName = VideoPath::builtin("LBSTART.BIK");
 		switch(br.result)
 		{
 		case EBattleResult::NORMAL:
 			break;
 		case EBattleResult::ESCAPE:
 			musicName = "Music/Retreat Battle";
-			videoName = "RTSTART.BIK";
+			videoName = VideoPath::builtin("RTSTART.BIK");
 			text = 310;
 			break;
 		case EBattleResult::SURRENDER:
 			musicName = "Music/Surrender Battle";
-			videoName = "SURRENDER.BIK";
+			videoName = VideoPath::builtin("SURRENDER.BIK");
 			text = 309;
 			break;
 		default:
