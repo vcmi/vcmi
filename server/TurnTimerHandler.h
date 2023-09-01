@@ -29,6 +29,7 @@ class TurnTimerHandler
 	const int turnTimePropagateThreshold = 3000;
 	std::map<PlayerColor, TurnTimerInfo> timers;
 	std::map<PlayerColor, int> lastUpdate;
+	std::map<PlayerColor, bool> endTurnAllowed;
 	std::recursive_mutex mx;
 	
 	void onPlayerMakingTurn(PlayerColor player, int waitTime);
@@ -48,4 +49,5 @@ public:
 	void onBattleEnd();
 	void update(int waitTime);
 	void setTimerEnabled(PlayerColor player, bool enabled);
+	void setEndTurnAllowed(PlayerColor player, bool enabled);
 };
