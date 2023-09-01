@@ -61,16 +61,14 @@ std::string CModVersion::toString() const
 
 bool CModVersion::compatible(const CModVersion & other, bool checkMinor, bool checkPatch) const
 {
-	if(minor == Any || other.minor == Any)
-		checkMinor = false;
-	if(patch == Any || other.patch == Any)
-		checkPatch = false;
+	bool doCheckMinor = checkMinor && minor != Any && other.minor != Any;
+	bool doCheckPatch = checkPatch && patch != Any && other.patch != Any;
 	
-	assert(!checkPatch || (checkPatch && checkMinor));
+	assert(!doCheckPatch || (doCheckPatch && doCheckMinor));
 		
 	return  (major == other.major &&
-			(!checkMinor || minor >= other.minor) &&
-			(!checkPatch || minor > other.minor || (minor == other.minor && patch >= other.patch)));
+			(!doCheckMinor || minor >= other.minor) &&
+			(!doCheckPatch || minor > other.minor || (minor == other.minor && patch >= other.patch)));
 }
 
 bool CModVersion::isNull() const
