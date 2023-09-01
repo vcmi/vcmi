@@ -1,5 +1,3 @@
-If you just want to play see [mod list](mod_list "wikilink").
-
 # Creating mod
 
 To make your own mod you need to create subdirectory in **<data dir>/Mods/** with name that will be used as identifier for your mod.
@@ -10,16 +8,16 @@ Example of how directory structure of your mod may look like:
 
 ```
     Mods/
-         myMod/
-               mod.json
-               Content/
-                        config/  - json configuration files
-                        data/    - unorganized files, mostly bitmap images (.bmp, .png, .pcx)
-                        maps/    - h3m maps added or modified by mod
-                        music/   - music files. Mp3 and ogg/vorbis are supported
-                        sounds/  - sound files, in wav format.
-                        sprites/ - animation, image sets (H3 .def files or VCMI .json files)
-                        video/   - video files, .bik or .smk
+        myMod/
+            mod.json
+            Content/
+                config/  - json configuration files
+                data/    - unorganized files, mostly bitmap images (.bmp, .png, .pcx)
+                maps/    - h3m maps added or modified by mod
+                music/   - music files. Mp3 and ogg/vorbis are supported
+                sounds/  - sound files, in wav format.
+                sprites/ - animation, image sets (H3 .def files or VCMI .json files)
+                video/   - video files, .bik or .smk
 ```
 
 ## Creating mod file
@@ -37,9 +35,41 @@ Minimalistic version of this file:
 
 See [Mod file Format](Mod_File_Format.md) for its full description.
 
+## Creation of new objects
+
+In order to create new object use following steps:
+1. Create json file with definition of new object. See list of supported object types below.
+2. Add any resources needed for this object, such as images, animations or sounds.
+2. Add reference to new object in corresponding section of mod.json file
+
+### List of supported new object types
+
+- [Random Map Template](Entities_Format/Random_Map_Template.md)
+
+- [Artifact](Entities_Format/Artifact_Format.md)
+- [Creature](Entities_Format/Creature_Format.md)
+- [Faction](Entities_Format/Faction_Format.md)
+- [Hero Class](Entities_Format/Hero_Classes_Format.md)
+- [Hero Type](Entities_Format/Hero_Type_Format.md)
+- [Spell](Entities_Format/Spell_Format.md)
+- [Secondary Skill](Entities_Format/Object_Format.md)
+
+- [Map Objects](Entities_Format/Map_Object_Format.md)
+- - [Rewardable](Map_Objects/Rewardable.md)
+- - [Creature Bank](Map_Objects/Creature_Bank.md)
+- - [Dwelling](Map_Objects/Dwelling.md)
+- - [Market](Map_Objects/Markets.md)
+- - [Boat](Map_Objects/Boat.md)
+
+- [Terrain](Entities_Format/Terrain_Format.md)
+- [River](Entities_Format/River_Format.md)
+- [Road](Entities_Format/Road_Format.md)
+- [Battlefield](Entities_Format/Battlefield_Format.md)
+- [Battle Obstacle](Entities_Format/Battle_Obstacle_Format.md)
+
 ## Game Identifiers system
 
-VCMI uses strings to reference objects:
+VCMI uses strings to reference objects. Examples:
 
 - Referencing H3 objects: `"nativeTerrain" : "sand"`. 
 Note: All mods can freely access any existing objects from H3 data.
@@ -51,7 +81,7 @@ Note: Mods can only reference object from mods that are marked as dependencies
 Note: Bonus system requires explicit definition of object type since different bonuses may require different identifier class.
 
 - Referencing object from specific mod: `"nativeTerrain" : "hota.cove:sorceress"`
-Note: In some cases, for example to resolve conflicts when multiple mods use same object name you might need to explicitly specify mod in which game needs to look up an identifier
+Note: In some cases, for example to resolve conflicts when multiple mods use same object name you might need to explicitly specify mod in which game needs to look up an identifier. Alternatively, you can use this form for clarity if you want to clearly specify that object comes from another mod.
 
 ### Modifying existing objects
 
@@ -85,7 +115,7 @@ In order to access and modify existing object you need to specify mod that you w
 ```
 Note that modification of existing objects does not requires a dependency on edited mod. Such definitions will only be used by game if corresponding mod is installed and active.
 
- This allows using objects editing not just for rebalancing mods but also to provide compatibility between two different mods or to add interaction between two mods.
+This allows using objects editing not just for rebalancing mods but also to provide compatibility between two different mods or to add interaction between two mods.
 
 ## Overriding graphical files from Heroes III
 
@@ -99,13 +129,15 @@ Note that replacing files from archives requires placing them into specific loca
 
 This includes archives added by expansions (e.g. **H3ab_bmp.lod** uses same rules as **H3Bitmap.lod**)
 
+- **Warning:** overriding graphical files from other mods is discouraged and may be removed in future versions of vcmi. Please use modification of existing objects instead.
+
 ### Replacing .def animation files
 
 Heroes III uses custom format for storing animation: def files. These files are used to store all in-game animations as well as for some GUI elements like buttons and for icon sets.
 These files can be replaced by another def file but in some cases original format can't be used. This includes but not limited to:
 -   Replacing one (or several) icons in set
 -   Replacing animation with fully-colored 32-bit images
-In VCMI these animation files can also be replaced by json description of their content. See [Animation Format](Animation_Format "wikilink") for full description of this format.
+In VCMI these animation files can also be replaced by json description of their content. See [Animation Format](Animation_Format.md) for full description of this format.
 Example: replacing single icon
 
 ``` javascript

@@ -81,9 +81,3 @@ Remark: The stack level for war machines is 0.
 `       "parameters" : [ 20, 3, 10, 700 ],`  
 `       "type" : "ARMY_MOVEMENT"`  
 `   }`
-
-# Additional links
-
--   [Bonus system](Bonus_system "wikilink")
--   [Bonus Format](Bonus_Format "wikilink")
--   [Hero Format](Hero_Format "wikilink")

@@ -1,6 +1,6 @@
 Enumerative parameters are described in HeroBonus.h file.
 
-### Full format
+## Full format
 
 All parameters but type are optional.
 
@@ -31,6 +31,17 @@ All parameters but type are optional.
 	"stacking" :    ""
 }
 ```
+
+## Supported bonus types
+
+- [Bonus Duration Types](Bonus/Bonus_Duration_Types.md)
+- [Bonus Sources](Bonus/Bonus_Sources.md)
+- [Bonus Limiters](Bonus/Bonus_Limiters.md)
+- [Bonus Types](Bonus/Bonus_Types.md)
+- [Bonus Propagators](Bonus/Bonus_Propagators.md)
+- [Bonus Updaters](Bonus/Bonus_Updaters.md)
+- [Bonus Range Types](Bonus/Bonus_Range_Types.md)
+- [Bonus Value Types](Bonus/Bonus_Value_Types.md)
 
 ## Subtype resolution
 

@@ -1,6 +1,6 @@
 VCMI requires data from original Heroes 3: Shadow of Death or Complete editions. Data from native Linux version made by LOKI will not work.
 
-# Binaries installation
+# Step 1: Binaries installation
 
 ## Ubuntu
 
@@ -63,7 +63,7 @@ If you are interested in providing builds for other distributions, please let us
 
 Please check following developer guide: [How to build VCMI (Linux)](How_to_build_VCMI_(Linux) "wikilink")
 
-# Installing Heroes III data files
+# Step 2: Installing Heroes III data files
 
 To install VCMI you will need Heroes III: Shadow of Death or Complete edition.
 
@@ -105,7 +105,7 @@ Copy "Data", "Maps" and "Mp3" from Heroes III to `$HOME/.local/share/vcmi/`
 Or, in case of flatpak install to `$HOME/.var/app/eu.vcmi.VCMI/data/vcmi/`
 On some distributions $XDG_DATA_HOME could differ so instead you may need to use: `$XDG_DATA_HOME/vcmi/`
 
-# Launching game
+# Step 3: Launching game
 
 VCMI should be available via desktop environment menu or launcher (Games/Strategy/VCMI)
 
@@ -114,4 +114,4 @@ Or, to start game directly avoiding Launcher: `vcmiclient`
 
 # Reporting bugs
 
-Please report any issues with packages according to [Bug reporting guidelines](http://wiki.vcmi.eu/index.php?title=Bug_reporting_guidelines)
+Please report any issues with packages according to [Bug Reporting Guidelines](Bug_Reporting_Guidelines.md)

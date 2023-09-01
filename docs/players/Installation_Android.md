@@ -1,4 +1,4 @@
-## Download and install VCMI
+## Step 1: Download and install VCMI
 
 **This app requires original heroes 3 sod / complete files to operate, they are not supplied with this installer. it is recommended to purchase version from gog.com. Heroes 3 "hd edition" (steam version) files are not supported !!!**  
 Installation is a two step process, at first you need to install game, then you need to upload Heroes3 original data files into your android device.
@@ -7,13 +7,13 @@ Installation is a two step process, at first you need to install game, then you 
 - Latest release as .apk file: <https://github.com/vcmi/vcmi/releases/latest>
 - Daily builds (unstable): <https://builds.vcmi.download/branch/develop/Android/>
 
-## Installing Heroes III data files
+## Step 2: Installing Heroes III data files
 
 - Install Heroes III on your PC or extract Heroes III data files from gog installer
 - Connect your device to PC and enable file transfer.
 - Copy "Data", "Maps" and "Mp3" from Heroes III to any folder on  mobile device, then open VCMI, select Heroes III data import option, then select the folder where you copied Heroes III data.
 
-## Troubleshooting / well known issues
+## Troubleshooting / known issues
 
 ### The game crashes on start
 

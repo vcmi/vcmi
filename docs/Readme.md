@@ -17,7 +17,7 @@ VCMI is work-in-progress attempt to recreate engine for Heroes III, giving it ne
 
 ## Latest release
 
-Latest release can be found [here](https://github.com/vcmi/vcmi/releases/latest). As of right now we plan to have major releases around 3 times per year. Daily builds are still available at [builds.vcmi.download](https://builds.vcmi.download/branch/develop/) but they are not guaranteed to be stable. So we encourage everybody to use them and report found bugs so that we can fix them.
+Latest release can be found [in Github Releases page](https://github.com/vcmi/vcmi/releases/latest). As of right now we plan to have major releases around 3 times per year. Daily builds are still available at [builds.vcmi.download](https://builds.vcmi.download/branch/develop/) but they are not guaranteed to be stable. So we encourage everybody to use them and report found bugs so that we can fix them.
 Loading saves made with different major version of VCMI is usually **not** supported, so you may want to finish your ongoing games before updating.
 Please see corresponding installation guide articles for details for your platform.  
 
@@ -40,31 +40,22 @@ Please see corresponding installation guide articles for details for your platfo
 
 ## Documentation and guidelines for game modders
 
-- [Modding guidelines](Modding_guidelines "wikilink")
-- [Mods repository](Mods_repository "wikilink")
-- Formats:
- - [Mod file Format](Mod_file_Format "wikilink")
- - [Town Format](Town_Format "wikilink")
- - [Hero Classes Format](Hero_Classes_Format "wikilink")
- - [Hero Format](Hero_Format "wikilink")
- - [Creature Format](Creature_Format "wikilink")
- - [Artifact Format](Artifact_Format "wikilink")
- - [Animation Format](Animation_Format "wikilink")
- - [Bonus Format](Bonus_Format "wikilink")
- - [Object Format](Object_Format "wikilink")
- - [Spell Format](Spell_Format "wikilink")
- - [Skill Format](Skill_Format "wikilink")
+- [Modding Guidelines](modders/Readme.md)
+- [Mod File Format](modders/Mod_File_Format.md)
+- [Bonus Format](modders/Bonus_Format.md)
+- [Translations](modders/Translations.md)
+- [Map Editor](modders/Map_Editor.md)
+- [Campaign Format](modders/Campaign_Format.md)
 
 ## Documentation and guidelines for developers
 
 - How to build using CMake:
   - [Linux](How_to_build_VCMI_(Linux) "wikilink")
-  - [Linux/MinGW (for
-    Windows)](How_to_build_VCMI_(Linux/MinGW) "wikilink")
+  - [Linux/MinGW (for Windows)](How_to_build_VCMI_(Linux/MinGW) "wikilink")
   - [macOS](How_to_build_VCMI_(macOS) "wikilink")
   - [Windows](How_to_build_VCMI_(Windows/Vcpkg) "wikilink")
   - [iOS](How_to_build_VCMI_(iOS) "wikilink")
-  - [ Android](How_to_build_VCMI_(Android) "wikilink")
+  - [Android](How_to_build_VCMI_(Android) "wikilink")
 - Unsupported build instructions:
   - [Windows/MSVS (Visual Studio 2015)](How_to_build_VCMI_(Windows/Visual_Studio_2015) "wikilink")
 - [Coding guidelines](Coding_guidelines "wikilink")

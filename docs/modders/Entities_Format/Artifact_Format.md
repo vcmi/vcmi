@@ -1,4 +1,4 @@
-Artifact bonuses use [Bonus Format](Bonus_Format.md)
+Artifact bonuses use [Bonus Format](../Bonus_Format.md)
 
 TODO:
 
