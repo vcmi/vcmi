@@ -66,7 +66,7 @@ bool CModVersion::compatible(const CModVersion & other, bool checkMinor, bool ch
 	if(patch == Any || other.patch == Any)
 		checkPatch = false;
 	
-	assert(checkMinor || !checkPatch);
+	assert(!checkPatch || (checkPatch && checkMinor));
 		
 	return  (major == other.major &&
 			(!checkMinor || minor >= other.minor) &&
