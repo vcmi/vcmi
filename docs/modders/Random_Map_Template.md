@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / [Modding](Readme.md) / Random Map Template Format
+
 ## Template format
 
 ``` javascript

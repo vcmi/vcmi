@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / Installation on macOS
+
 **For iOS installation look here:
 <https://wiki.vcmi.eu/Installation_on_iOS>**
 

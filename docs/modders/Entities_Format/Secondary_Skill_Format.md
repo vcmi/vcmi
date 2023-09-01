@@ -1,3 +1,5 @@
+< [Documentation](../../Readme.md) / [Modding](../Readme.md) / Entities Format / Secondary Skill Format
+
 ## Main format
 
 ``` javascript

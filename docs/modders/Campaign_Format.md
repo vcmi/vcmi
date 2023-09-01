@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / [Modding](Readme.md) / Campaign Format
+
 # Introduction
 
 Starting from version 1.3, VCMI supports its own campaign format.

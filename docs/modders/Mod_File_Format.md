@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / [Modding](Readme.md) / Mod File Format
+
 ## Fields with description of mod
 
 ``` javascript

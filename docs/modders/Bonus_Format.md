@@ -1,4 +1,4 @@
-Enumerative parameters are described in HeroBonus.h file.
+< [Documentation](../Readme.md) / [Modding](Readme.md) / Bonus Format
 
 ## Full format
 

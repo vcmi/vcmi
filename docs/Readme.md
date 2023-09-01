@@ -35,7 +35,6 @@ Please see corresponding installation guide articles for details for your platfo
 - [Game mechanics](players/Game_Mechanics.md)
 - [Bug reporting guidelines](players/Bug_Reporting_Guidelines.md)
 - [Cheat codes](players/Cheat_Codes.md)
-- [Cheat codes](players/Client_Commands.md)
 - [Privacy Policy](players/Privacy_Policy.md)
 
 ## Documentation and guidelines for game modders

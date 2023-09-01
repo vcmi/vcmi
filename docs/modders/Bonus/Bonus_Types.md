@@ -1,3 +1,5 @@
+< [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Bonus Format](../Bonus_Format.md) / Bonus Types
+
 The bonuses were grouped according to their original purpose. The bonus
 system allows them to propagate freely betwen the nodes, however they
 may not be recognized properly beyond the scope of original use.

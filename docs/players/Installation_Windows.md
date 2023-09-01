@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / Installation on Windows
+
 # Step 1: Download and install VCMI
 
 Install one of following into new folder, same as when installing new game:

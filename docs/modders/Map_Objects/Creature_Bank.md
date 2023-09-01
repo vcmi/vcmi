@@ -1,3 +1,5 @@
+< [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Map Object Format](../Map_Object_Format.md) / Creature Bank
+
 This is description of fields for creature banks, part of [Object
 Format](Object_Format "wikilink")
 

@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / [Modding](Readme.md) / Map Editor
+
 # Interface
 
 <img width="738" src="https://user-images.githubusercontent.com/9308612/188775648-8551107d-9f0b-4743-8980-56c2c1c58bbc.png">

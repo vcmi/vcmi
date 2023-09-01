@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / Privacy Policy
+
 **Last Updated: 24th December, 2022**
 
 ### Glossary

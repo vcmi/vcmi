@@ -1,3 +1,5 @@
+< [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Map Object Format](../Map_Object_Format.md) / Rewardable
+
 ## Table of Contents
 - [Base object definition](#base-object-definition)
 - [Configurable object definition](#configurable-object-definition)

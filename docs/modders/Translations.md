@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / [Modding](Readme.md) / Translations
+
 ## For translators
 ### Adding new languages
 New languages require minor changes in the source code. Please contact someone from vcmi team if you wish to translate game into a new language

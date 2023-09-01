@@ -1,3 +1,5 @@
+< [Documentation](../../Readme.md) / [Modding](../Readme.md) / Entities Format / Creature Format
+
 ## Required data
 
 In order to make functional creature you also need:

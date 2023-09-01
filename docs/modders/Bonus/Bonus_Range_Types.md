@@ -1,3 +1,5 @@
+< [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Bonus Format](../Bonus_Format.md) / Bonus Range Types
+
 # List of all Bonus range types
 
 -   NO_LIMIT

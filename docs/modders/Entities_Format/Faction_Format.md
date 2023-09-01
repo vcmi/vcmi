@@ -1,3 +1,5 @@
+< [Documentation](../../Readme.md) / [Modding](../Readme.md) / Entities Format / Faction Format
+
 ## Required data
 
 In order to make functional town you also need:

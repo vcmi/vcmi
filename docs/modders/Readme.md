@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / Modding
+
 # Creating mod
 
 To make your own mod you need to create subdirectory in **<data dir>/Mods/** with name that will be used as identifier for your mod.
@@ -44,8 +46,10 @@ In order to create new object use following steps:
 
 ### List of supported new object types
 
+Random Map Generator:
 - [Random Map Template](Entities_Format/Random_Map_Template.md)
 
+Game Entities:
 - [Artifact](Entities_Format/Artifact_Format.md)
 - [Creature](Entities_Format/Creature_Format.md)
 - [Faction](Entities_Format/Faction_Format.md)
@@ -54,13 +58,15 @@ In order to create new object use following steps:
 - [Spell](Entities_Format/Spell_Format.md)
 - [Secondary Skill](Entities_Format/Object_Format.md)
 
-- [Map Objects](Entities_Format/Map_Object_Format.md)
+Map objects:
+- [Map Objects](Map_Object_Format.md)
 - - [Rewardable](Map_Objects/Rewardable.md)
 - - [Creature Bank](Map_Objects/Creature_Bank.md)
 - - [Dwelling](Map_Objects/Dwelling.md)
 - - [Market](Map_Objects/Markets.md)
 - - [Boat](Map_Objects/Boat.md)
 
+Other:
 - [Terrain](Entities_Format/Terrain_Format.md)
 - [River](Entities_Format/River_Format.md)
 - [Road](Entities_Format/Road_Format.md)
@@ -71,17 +77,13 @@ In order to create new object use following steps:
 
 VCMI uses strings to reference objects. Examples:
 
-- Referencing H3 objects: `"nativeTerrain" : "sand"`. 
-Note: All mods can freely access any existing objects from H3 data.
+- Referencing H3 objects: `"nativeTerrain" : "sand"`. All mods can freely access any existing objects from H3 data.
 
-- Referencing object from another mod: `"nativeTerrain" : "asphalt"`
-Note: Mods can only reference object from mods that are marked as dependencies
+- Referencing object from another mod: `"nativeTerrain" : "asphalt"`. Mods can only reference object from mods that are marked as dependencies
 
-- Referencing objects in bonus system: `"subtype" : "creature.archer"`
-Note: Bonus system requires explicit definition of object type since different bonuses may require different identifier class.
+- Referencing objects in bonus system: `"subtype" : "creature.archer"`. Bonus system requires explicit definition of object type since different bonuses may require different identifier class.
 
-- Referencing object from specific mod: `"nativeTerrain" : "hota.cove:sorceress"`
-Note: In some cases, for example to resolve conflicts when multiple mods use same object name you might need to explicitly specify mod in which game needs to look up an identifier. Alternatively, you can use this form for clarity if you want to clearly specify that object comes from another mod.
+- Referencing object from specific mod: `"nativeTerrain" : "hota.cove:sorceress"`. In some cases, for example to resolve conflicts when multiple mods use same object name you might need to explicitly specify mod in which game needs to look up an identifier. Alternatively, you can use this form for clarity if you want to clearly specify that object comes from another mod.
 
 ### Modifying existing objects
 

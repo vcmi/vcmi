@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / [Modding](Readme.md) / Building Bonuses
+
 Work-in-progress page do describe all bonuses provided by town buildings
 for future configuration.
 

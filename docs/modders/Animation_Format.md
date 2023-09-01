@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / [Modding](Readme.md) / Animation Format
+
 VCMI allows overriding HoMM3 .def files with .json replacement. Compared
 to .def this format allows:
 

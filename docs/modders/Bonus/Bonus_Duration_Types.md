@@ -1,3 +1,6 @@
+< [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Bonus Format](../Bonus_Format.md) / Bonus Duration Types
+
+
 Bonus may have any of these durations. They acts in disjunction.
 
 ## List of all bonus duration types

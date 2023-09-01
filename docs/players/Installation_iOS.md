@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / Installation on iOS
+
 You can run VCMI on iOS 12.0 and later, all devices are supported. If you wish to run on iOS 10 or 11, you should build from source, see [How to build VCMI (iOS)](How_to_build_VCMI_(iOS) "wikilink").
 
 ## Step 1: Download and install VCMI

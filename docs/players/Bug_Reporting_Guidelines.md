@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / Bug Reporting Guidelines
+
 First of all, thanks for your support! If you report a bug we can fix it. But keep in mind that reporting your bugs appropriately makes our (developers') lifes easier. Here are a few guidelines that will help you write good bug reports.
 
 # Github bugtracker

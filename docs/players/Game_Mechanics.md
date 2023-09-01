@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / Game Mechanics
+
 # List of features added in VCMI
 
 Some of game features have already been extended in comparison to Shadow of Death:

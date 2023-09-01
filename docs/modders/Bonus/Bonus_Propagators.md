@@ -1,3 +1,5 @@
+< [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Bonus Format](../Bonus_Format.md) / Bonus Propagators
+
 ## Available propagators
 
 -   BATTLE_WIDE

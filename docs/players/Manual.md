@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / Manual
+
 # Introduction
 
 The purpose of VCMI project is to rewrite entire HoMM3: WoG engine from scratch, giving it new and extended possibilities. We are hoping to support mods and new towns already made by fans, but abandoned because of game code limitations.
