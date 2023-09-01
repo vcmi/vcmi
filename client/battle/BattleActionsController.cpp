@@ -607,10 +607,10 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 			return false;
 
 		case PossiblePlayerBattleAction::ANY_LOCATION:
-			return isCastingPossibleHere(action.spell().toSpell(), targetStack, targetHex);
+			return isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
 
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-			return !selectedStack && targetStack && isCastingPossibleHere(action.spell().toSpell(), targetStack, targetHex);
+			return !selectedStack && targetStack && isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
 
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			if(targetStack && targetStackOwned && targetStack != owner.stacksController->getActiveStack() && targetStack->alive()) //only positive spells for other allied creatures
@@ -628,7 +628,7 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 
 		case PossiblePlayerBattleAction::OBSTACLE:
 		case PossiblePlayerBattleAction::FREE_LOCATION:
-			return isCastingPossibleHere(action.spell().toSpell(), targetStack, targetHex);
+			return isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
 
 		case PossiblePlayerBattleAction::CATAPULT:
 			return owner.siegeController && owner.siegeController->isAttackableByCatapult(targetHex);
