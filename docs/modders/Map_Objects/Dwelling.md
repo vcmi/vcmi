@@ -1,8 +1,5 @@
 < [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Map Object Format](../Map_Object_Format.md) / Dwelling
 
-This is description of fields for creature banks, part of [Object
-Format](Object_Format "wikilink")
-
 ``` javascript
 {
 	/// List of creatures in this bank. Each list represents one "level" of bank

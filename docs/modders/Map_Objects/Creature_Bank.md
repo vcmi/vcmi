@@ -1,8 +1,5 @@
 < [Documentation](../../Readme.md) / [Modding](../Readme.md) / [Map Object Format](../Map_Object_Format.md) / Creature Bank
 
-This is description of fields for creature banks, part of [Object
-Format](Object_Format "wikilink")
-
 ``` javascript
 {
 	/// List of levels of this bank. On map loading, one of them will be randomly assigned to bank.

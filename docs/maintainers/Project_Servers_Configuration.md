@@ -1,3 +1,6 @@
+< [Documentation](../Readme.md) / Project Servers Configuration
+
+
 This page dedicated to explain specific configurations of our servers for anyone who might need to improve it in future. Check [project infrastructure](project_infrastructure "wikilink") page for services and accounts overview.
 
 ## Droplet configuration

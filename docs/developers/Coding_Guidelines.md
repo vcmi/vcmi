@@ -1,31 +1,20 @@
 ## C++ Standard
 
-VCMI implementation bases on C++14 standard. Any feature is acceptable
-as long as it's will pass build on our CI, but there is list below on
-what is already being used.
+VCMI implementation bases on C++17 standard. Any feature is acceptable as long as it's will pass build on our CI, but there is list below on what is already being used.
 
-Any compiler supporting C++14 should work, but this has not been
-thoroughly tested. You can find information about extensions and
-compiler support at
-[1](http://en.cppreference.com/w/cpp/compiler_support).
+Any compiler supporting C++17 should work, but this has not been thoroughly tested. You can find information about extensions and compiler support at [1](http://en.cppreference.com/w/cpp/compiler_support).
 
 ## Style Guidelines
 
-In order to keep the code consistent, please use the following
-conventions. From here on \`good' and \`bad' are used to attribute
-things that would make the coding style match, or not match. It is not a
-judgment call on your coding abilities, but more of a style and look
-call. Please try to follow these guidelines to ensure prettiness.
+In order to keep the code consistent, please use the following conventions. From here on 'good' and 'bad' are used to attribute things that would make the coding style match, or not match. It is not a judgment call on your coding abilities, but more of a style and look call. Please try to follow these guidelines to ensure prettiness.
 
 ### Indentation
 
-Use tabs for indentation. If you are modifying someone else's code, try
-to keep the coding style similar.
+Use tabs for indentation. If you are modifying someone else's code, try to keep the coding style similar.
 
 ### Where to put braces
 
-Inside a code block put the opening brace on the next line after the
-current statement:
+Inside a code block put the opening brace on the next line after the current statement:
 
 Good:
 
@@ -46,8 +35,7 @@ if(a) {
 }
 ```
 
-Avoid using unnecessary open/close braces, vertical space is usually
-limited:
+Avoid using unnecessary open/close braces, vertical space is usually limited:
 
 Good:
 
@@ -64,8 +52,7 @@ if(a) {
 }
 ```
 
-Unless there are either multiple hierarchical conditions being used or
-that the condition cannot fit into a single line.
+Unless there are either multiple hierarchical conditions being used or that the condition cannot fit into a single line.
 
 Good:
 
@@ -109,8 +96,7 @@ if(a)
 	}
 ```
 
-If "else" branch has brackets then "if" should also have brackets even
-if it is one line.
+If "else" branch has brackets then "if" should also have brackets even if it is one line.
 
 Good:
 
@@ -142,8 +128,7 @@ else
 }
 ```
 
-If you intentionally want to avoid usage of "else if" and keep if body
-indent make sure to use braces.
+If you intentionally want to avoid usage of "else if" and keep if body indent make sure to use braces.
 
 Good:
 
@@ -188,8 +173,7 @@ void Method() {
 
 ### Use whitespace for clarity
 
-Use white space in expressions liberally, except in the presence of
-parenthesis.
+Use white space in expressions liberally, except in the presence of parenthesis.
 
 **Good:**
 
@@ -205,14 +189,11 @@ if(a+5>method(blah('a')+4))
 foo+=24;
 ```
 
-Between if, for, while,.. and the opening brace there shouldn't be a
-whitespace. The keywords are highlighted, so they don't need further
-separation.
+Between if, for, while,.. and the opening brace there shouldn't be a whitespace. The keywords are highlighted, so they don't need further separation.
 
 ### Where to put spaces
 
-Use a space before and after the address or pointer character in a
-pointer declaration.
+Use a space before and after the address or pointer character in a pointer declaration.
 
 Good:
 
@@ -286,9 +267,7 @@ if((a && b) || (c + 1  ==  d))
 
 ### Where to use parentheses
 
-When allocating objects, don't use parentheses for creating stack-based
-objects by zero param c-tors to avoid c++ most vexing parse and use
-parentheses for creating heap-based objects.
+When allocating objects, don't use parentheses for creating stack-based objects by zero param c-tors to avoid c++ most vexing parse and use parentheses for creating heap-based objects.
 
 Good:
 
@@ -336,8 +315,7 @@ public:
 };
 ```
 
-When 'private:', 'public:' and other labels are not on the line after
-opening brackets there must be a new line before them.
+When 'private:', 'public:' and other labels are not on the line after opening brackets there must be a new line before them.
 
 Good:
 
@@ -391,8 +369,7 @@ public:
 
 ### Constructor base class and member initialization
 
-Constructor member and base class initialization must be on new line,
-indented with tab with leading colon.
+Constructor member and base class initialization must be on new line, indented with tab with leading colon.
 
 ``` cpp
 CClass::CClass()
@@ -501,8 +478,7 @@ auto lambda = []
 };
 ```
 
-Do not use inline lambda expressions inside if-else, for and other
-conditions.
+Do not use inline lambda expressions inside if-else, for and other conditions.
 
 Good:
 
@@ -529,8 +505,7 @@ if([]()
 }
 ```
 
-Do not pass inline lambda expressions as parameter unless it's the last
-parameter.
+Do not pass inline lambda expressions as parameter unless it's the last parameter.
 
 Good:
 
@@ -562,8 +537,7 @@ obj->someMethod(true, []()
 
 ### Serialization
 
-Serialization of each element must be on it's own line since this make
-debugging easier.
+Serialization of each element must be on it's own line since this make debugging easier.
 
 Good:
 
@@ -586,8 +560,7 @@ template <typename Handler> void serialize(Handler & h, const int version)
 }
 ```
 
-Save backward compatibility code is exception when extra brackets are
-always useful.
+Save backward compatibility code is exception when extra brackets are always useful.
 
 Good:
 
@@ -627,8 +600,7 @@ template <typename Handler> void serialize(Handler & h, const int version)
 
 ### File headers
 
-For any new files, please paste the following info block at the very top
-of the source file:
+For any new files, please paste the following info block at the very top of the source file:
 
 ``` cpp
 /*
@@ -642,8 +614,7 @@ of the source file:
  */
 ```
 
-The above notice have to be included both in header and source files
-(.h/.cpp).
+The above notice have to be included both in header and source files (.h/.cpp).
 
 ### Code order in files
 
@@ -675,8 +646,7 @@ struct CPackForClient;
 
 ### Where and how to comment
 
-If you comment on the same line with code there must be one single space
-between code and slashes.
+If you comment on the same line with code there must be one single space between code and slashes.
 
 Good:
 
@@ -704,8 +674,7 @@ else           // Do something.
 }
 ```
 
-If you add single-line comment on own line slashes must have same indent
-as code around:
+If you add single-line comment on own line slashes must have same indent as code around:
 
 Good:
 
@@ -731,10 +700,7 @@ if(a)
 }
 ```
 
-Avoid comments inside multi-line if-else conditions. If your conditions
-are too hard to understand without additional comments this usually
-means that code need refactoring. Example given below is need
-improvement though. **FIXME**
+Avoid comments inside multi-line if-else conditions. If your conditions are too hard to understand without additional comments this usually means that code need refactoring. Example given below is need improvement though. **FIXME**
 
 Good:
 
@@ -757,13 +723,7 @@ if((a && b || (c + 1 > 15)) //Check if hero still alive
 }
 ```
 
-You should write a comment before the class definition which describes
-shortly the class. 1-2 sentences are enough. Methods and class data
-members should be commented if they aren't self-describing only.
-Getters/Setters, simple methods where the purpose is clear or similar
-methods shouldn't be commented, because vertical space is usually
-limited. The style of documentation comments should be the three
-slashes-style: ///.
+You should write a comment before the class definition which describes shortly the class. 1-2 sentences are enough. Methods and class data members should be commented if they aren't self-describing only. Getters/Setters, simple methods where the purpose is clear or similar methods shouldn't be commented, because vertical space is usually limited. The style of documentation comments should be the three slashes-style: ///.
 
 ``` cpp
 /// Returns true if a debug/trace log message will be logged, false if not.
@@ -772,12 +732,9 @@ bool isDebugEnabled() const;
 bool isTraceEnabled() const;
 ```
 
-The above example doesn't follow a strict scheme on how to comment a
-method. It describes two methods in one go. Comments should be kept
-short.
+The above example doesn't follow a strict scheme on how to comment a method. It describes two methods in one go. Comments should be kept short.
 
-If you need a more detailed description for a method you can use such
-style:
+If you need a more detailed description for a method you can use such style:
 
 ``` cpp
 /// <A short one line description>
@@ -795,80 +752,47 @@ A good essay about writing comments:
 
 ### Casing
 
-Local variables and methods start with a lowercase letter and use the
-camel casing. Classes/Structs start with an uppercase letter and use the
-camel casing as well. Macros and constants are written uppercase.
+Local variables and methods start with a lowercase letter and use the camel casing. Classes/Structs start with an uppercase letter and use the camel casing as well. Macros and constants are written uppercase.
 
 ### Line length
 
-The line length for c++ source code is 120 columns. If your function
-declaration arguments go beyond this point, please align your arguments
-to match the opening brace. For best results use the same number of tabs
-used on the first line followed by enough spaces to align the arguments.
+The line length for c++ source code is 120 columns. If your function declaration arguments go beyond this point, please align your arguments to match the opening brace. For best results use the same number of tabs used on the first line followed by enough spaces to align the arguments.
 
 ### Warnings
 
-Avoid use of #pragma to disable warnings. Compile at warning level 3.
-Avoid commiting code with new warnings.
+Avoid use of #pragma to disable warnings. Compile at warning level 3. Avoid commiting code with new warnings.
 
 ### File/directory naming
 
-Compilation units(.cpp,.h files) start with a uppercase letter and are
-named like the name of a class which resides in that file if possible.
-Header only files start with a uppercase letter. JSON files start with a
-lowercase letter and use the camel casing.
+Compilation units(.cpp,.h files) start with a uppercase letter and are named like the name of a class which resides in that file if possible. Header only files start with a uppercase letter. JSON files start with a lowercase letter and use the camel casing.
 
-Directories start with a lowercase letter and use the camel casing where
-necessary.
+Directories start with a lowercase letter and use the camel casing where necessary.
 
 ### Logging
 
-Outdated. There is separate entry for [Logging
-API](Logging_API "wikilink")
+Outdated. There is separate entry for [Logging API](Logging_API "wikilink")
 
-If you want to trace the control flow of VCMI, then you should use the
-macro LOG_TRACE or LOG_TRACE_PARAMS. The first one prints a message when
-the function is entered or leaved. The name of the function will also be
-logged. In addition to this the second macro, let's you specify
-parameters which you want to print. You should print traces with
-parameters like this:
+If you want to trace the control flow of VCMI, then you should use the macro LOG_TRACE or LOG_TRACE_PARAMS. The first one prints a message when the function is entered or leaved. The name of the function will also be logged. In addition to this the second macro, let's you specify parameters which you want to print. You should print traces with parameters like this:
 
 ``` cpp
 LOG_TRACE_PARAMS(logGlobal, "hero '%s', spellId '%d', pos '%s'.", hero, spellId, pos);
 ```
 
-When using the macro every "simple" parameter should be logged. The
-parameter can be a number, a string or a type with a ostream
-operator\<\<. You should not log contents of a whole text file, a byte
-array or sth. like this. If there is a simple type with a few members
-you want to log, you should write an ostream operator\<\<. The produced
-message can look like this:
+When using the macro every "simple" parameter should be logged. The parameter can be a number, a string or a type with a ostream operator\<\<. You should not log contents of a whole text file, a byte array or sth. like this. If there is a simple type with a few members you want to log, you should write an ostream operator\<\<. The produced message can look like this:
 
 `{BattleAction: side '0', stackNumber '1', actionType 'Walk and attack', destinationTile '{BattleHex: x '7', y '1', hex '24'}', additionalInfo '7', selectedStack '-1'}`
 
-The name of the type should be logged first, e.g. {TYPE_NAME:
-members...}. The members of the object will be logged like logging trace
-parameters. Collection types (vector, list, ...) should be logged this
-way: \[{BattleHex: ...}, {...}\] There is no format which has to be
-followed strictly, so if there is a reason to format members/objects in
-a different way, then this is ok.
+The name of the type should be logged first, e.g. {TYPE_NAME: members...}. The members of the object will be logged like logging trace parameters. Collection types (vector, list, ...) should be logged this way: \[{BattleHex: ...}, {...}\] There is no format which has to be followed strictly, so if there is a reason to format members/objects in a different way, then this is ok.
 
 ## Best practices
 
 ### Avoid code duplication
 
-Avoid code duplication or don't repeat yourself(DRY) is the most
-important aspect in programming. Code duplication of any kind can lead
-to inconsistency and is much harder to maintain. If one part of the
-system gets changed you have to change the code in several places. This
-process is error-prone and leads often to problems. Here you can read
-more about the DRY principle:
-[<http://en.wikipedia.org/wiki/Don%27t_repeat_yourself>](http://en.wikipedia.org/wiki/Don%27t_repeat_yourself)
+Avoid code duplication or don't repeat yourself(DRY) is the most important aspect in programming. Code duplication of any kind can lead to inconsistency and is much harder to maintain. If one part of the system gets changed you have to change the code in several places. This process is error-prone and leads often to problems. Here you can read more about the DRY principle: [<http://en.wikipedia.org/wiki/Don%27t_repeat_yourself>](http://en.wikipedia.org/wiki/Don%27t_repeat_yourself)
 
 ### Do not use uncommon abbrevations
 
-Do not use uncommon abbrevations for class, method, parameter and global
-object names.
+Do not use uncommon abbrevations for class, method, parameter and global object names.
 
 Bad:
 
@@ -886,31 +810,21 @@ class CInterfaceObject
 
 ### Loop handling
 
-Use range-based for loops. It should be used in any case except you
-absolutely need iterator, then you may use a simple for loop.
+Use range-based for loops. It should be used in any case except you absolutely need iterator, then you may use a simple for loop.
 
-The loop counter should be of type int, unless you are sure you won't
-need negative indices -- then use size_t.
+The loop counter should be of type int, unless you are sure you won't need negative indices -- then use size_t.
 
 ### Include guards
 
-Use #pragma once instead of the traditional #ifndef/#define/#endif
-include guards.
+Use #pragma once instead of the traditional #ifndef/#define/#endif include guards.
 
 ### Pre compiled header file
 
-The header StdInc.h should be included in every compilation unit. It has
-to be included before any C macro and before any c++ statements. Pre
-compiled header should not be changed, except any important thing is
-missing. The StdInc includes most Boost libraries and nearly all
-standard STL and C libraries, so you don’t have to include them by
-yourself.
+The header StdInc.h should be included in every compilation unit. It has to be included before any C macro and before any c++ statements. Pre compiled header should not be changed, except any important thing is missing. The StdInc includes most Boost libraries and nearly all standard STL and C libraries, so you don’t have to include them by yourself.
 
 ### Enumeration handling
 
-Do not declare enumerations in global namespace. It is better to use
-strongly typed enum or to wrap them in class or namespace to avoid
-polluting global namespace:
+Do not declare enumerations in global namespace. It is better to use strongly typed enum or to wrap them in class or namespace to avoid polluting global namespace:
 
 ``` cpp
 enum class EAlignment
@@ -931,8 +845,7 @@ namespace EAlignment
 
 ### Avoid senseless comments
 
-If the comment duplicates the name of commented member, it's better if
-it wouldn't exist at all. It just increases maintenance cost. Bad:
+If the comment duplicates the name of commented member, it's better if it wouldn't exist at all. It just increases maintenance cost. Bad:
 
 ``` cpp
 size_t getHeroesCount(); //gets count of heroes (surprise?)
@@ -940,19 +853,11 @@ size_t getHeroesCount(); //gets count of heroes (surprise?)
 
 ### Class handling
 
-There is no definitive rule which has to be followed strictly. You can
-freely decide if you want to pack your own classes, where you are
-programming on, all in one file or each in one file. It's more important
-that you feel comfortable with the code, than consistency overall the
-project. VCMI has several container class files, so if you got one
-additional class to them than just add it to them instead of adding new
-files.
+There is no definitive rule which has to be followed strictly. You can freely decide if you want to pack your own classes, where you are programming on, all in one file or each in one file. It's more important that you feel comfortable with the code, than consistency overall the project. VCMI has several container class files, so if you got one additional class to them than just add it to them instead of adding new files.
 
 ### Functions and interfaces
 
-Don't return const objects or primitive types from functions -- it's
-pointless. Also, don't return pointers to non-const game data objects
-from callbacks to player interfaces.
+Don't return const objects or primitive types from functions -- it's pointless. Also, don't return pointers to non-const game data objects from callbacks to player interfaces.
 
 Bad:
 
@@ -968,5 +873,4 @@ std::vector<const CGObjectInstance *> guardingCreatures(int3 pos) const;
 
 ## Sources
 
-[Mono project coding
-guidelines](http://www.mono-project.com/Coding_Guidelines)
+[Mono project coding guidelines](http://www.mono-project.com/Coding_Guidelines)

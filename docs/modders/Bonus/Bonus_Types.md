@@ -278,7 +278,7 @@ Does not grant spells banned in map options.
 
 ### GENERATE_RESOURCE
 
--   subtype - [resource](resource "wikilink") type
+-   subtype - resource
 -   val - daily income
 
 ### CREATURE_GROWTH

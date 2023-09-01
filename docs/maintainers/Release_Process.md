@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / Release Process
+
 ## Branches
 Our branching strategy is very similar to GitFlow
 * `master` branch has release commits. One commit - one release. Each release commit should be tagged with version `maj.min.patch`
@@ -11,7 +13,7 @@ Assuming that all features planned to be released are implemented in `develop` b
 Should be done several weeks before planned release date
 
 - Create [milestone](https://github.com/vcmi/vcmi/milestones) named `Release 1.x`
-- - Specify this milestone for all regression bugs and major bugs related to new functionality
+- Specify new milestone for all regression bugs and major bugs related to new functionality
 - Create `beta` branch from `develop`
 - Bump vcmi version on `develop` branch
 - Bump version for linux on `develop` branch
@@ -35,7 +37,6 @@ Should be done on release date
 - Check that artifacts for all platforms are available on `master` branch
 - Trigger builds for new release on Ubuntu PPA
 - Attach build artifacts for all platforms to release page
-- - Android build should be prepared manually from custom branch (master)
 - Merge prepared pull requests
 - Publish release page
 

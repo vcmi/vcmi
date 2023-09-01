@@ -1,10 +1,8 @@
-This page hold important information about project infrastructure for
-current and future contributors. At moment it's all maintained by me
-(SXX), but following information will be useful if someone going to
-replace me in future.
+< [Documentation](../Readme.md) / Project Infrastructure
 
-You can also check [detailed information on server
-configuration](Project_servers_configuration "wikilink").
+This page hold important information about project infrastructure for current and future contributors. At moment it's all maintained by me (SXX), but following information will be useful if someone going to replace me in future.
+
+You can also check [detailed information on server configuration](Project_servers_configuration "wikilink").
 
 ## Services and accounts
 

@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / Ubuntu PPA
+
 ## Main links
 - [Team](https://launchpad.net/~vcmi)
 - [Project](https://launchpad.net/vcmi)
@@ -10,6 +12,7 @@
 - - [Daily PPA](https://launchpad.net/~vcmi/+archive/ubuntu/vcmi-latest)
 
 ## Automatic daily builds process
+
 ### Code import
 - Launchpad performs regular (once per few hours) clone of our git repository.
 - This process can be observed on [Sources](https://code.launchpad.net/~vcmi/vcmi/+git/vcmi) page.
