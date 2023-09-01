@@ -65,12 +65,9 @@ bool CModEntry::compareVersions(QString lesser, QString greater)
 
 QString CModEntry::sizeToString(double size)
 {
-	static const QString sizes[] =
-	{
-		/*"%1 B", */ "%1 KiB", "%1 MiB", "%1 GiB", "%1 TiB"
-	};
+	static const std::array<QString, 5> sizes { "%1 B", "%1 KiB", "%1 MiB", "%1 GiB", "%1 TiB" };
 	size_t index = 0;
-	while(size > 1024 && index < 4)
+	while(size > 1024 && index < sizes.size())
 	{
 		size /= 1024;
 		index++;

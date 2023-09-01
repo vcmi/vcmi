@@ -26,6 +26,11 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/Languages.h"
 
+inline double mbToBytes(double mb)
+{
+	return mb * 1024 * 1024;
+}
+
 void CModListView::setupModModel()
 {
 	modModel = new CModListModel(this);
@@ -246,7 +251,7 @@ QString CModListView::genModInfoText(CModEntry & mod)
 	if(mod.getValue("localSize").isValid())
 		result += replaceIfNotEmpty(CModEntry::sizeToString(mod.getValue("localSize").toDouble()), lineTemplate.arg(tr("Size")));
 	if((mod.isAvailable() || mod.isUpdateable()) && mod.getValue("size").isValid())
-		result += replaceIfNotEmpty(CModEntry::sizeToString(mod.getValue("size").toDouble() * 1024.0), lineTemplate.arg(tr("Download size")));
+		result += replaceIfNotEmpty(CModEntry::sizeToString(mbToBytes(mod.getValue("size").toDouble())), lineTemplate.arg(tr("Download size")));
 	
 	result += replaceIfNotEmpty(mod.getValue("author"), lineTemplate.arg(tr("Authors")));
 
@@ -538,7 +543,7 @@ void CModListView::on_updateButton_clicked()
 		auto mod = modModel->getMod(name);
 		// update required mod, install missing (can be new dependency)
 		if(mod.isUpdateable() || !mod.isInstalled())
-			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mod.getValue("size").toDouble() * 1024 * 1024);
+			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mbToBytes(mod.getValue("size").toDouble()));
 	}
 }
 
@@ -568,7 +573,7 @@ void CModListView::on_installButton_clicked()
 	{
 		auto mod = modModel->getMod(name);
 		if(!mod.isInstalled())
-			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mod.getValue("size").toDouble() * 1024 * 1024);
+			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mbToBytes(mod.getValue("size").toDouble()));
 	}
 }
 
@@ -587,8 +592,8 @@ void CModListView::downloadFile(QString file, QString url, QString description, 
 		
 		connect(modModel, &CModListModel::dataChanged, filterModel, &QAbstractItemModel::dataChanged);
 
-
-		QString progressBarFormat = "Downloading %s%. %p% (%v KB out of %m KB) finished";
+		
+		QString progressBarFormat = tr("Downloading %s%. %p% (%v MB out of %m MB) finished");
 
 		progressBarFormat.replace("%s%", description);
 		ui->progressBar->setFormat(progressBarFormat);
@@ -599,16 +604,16 @@ void CModListView::downloadFile(QString file, QString url, QString description, 
 
 void CModListView::downloadProgress(qint64 current, qint64 max)
 {
-	// display progress, in kilobytes
-	ui->progressBar->setMaximum(max / 1024);
-	ui->progressBar->setValue(current / 1024);
+	// display progress, in megabytes
+	ui->progressBar->setMaximum(max / (1024 * 1024));
+	ui->progressBar->setValue(current / (1024 * 1024));
 }
 
 void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors)
 {
-	QString title = "Download failed";
-	QString firstLine = "Unable to download all files.\n\nEncountered errors:\n\n";
-	QString lastLine = "\n\nInstall successfully downloaded?";
+	QString title = tr("Download failed");
+	QString firstLine = tr("Unable to download all files.\n\nEncountered errors:\n\n");
+	QString lastLine = tr("\n\nInstall successfully downloaded?");
 	bool doInstallFiles = false;
 
 	// if all files were d/loaded there should be no errors. And on failure there must be an error
@@ -791,8 +796,8 @@ void CModListView::checkManagerErrors()
 	QString errors = manager->getErrors().join('\n');
 	if(errors.size() != 0)
 	{
-		QString title = "Operation failed";
-		QString description = "Encountered errors:\n" + errors;
+		QString title = tr("Operation failed");
+		QString description = tr("Encountered errors:\n") + errors;
 		QMessageBox::warning(this, title, description, QMessageBox::Ok, QMessageBox::Ok);
 	}
 }
@@ -858,7 +863,7 @@ void CModListView::doInstallMod(const QString & modName)
 	{
 		auto mod = modModel->getMod(name);
 		if(!mod.isInstalled())
-			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mod.getValue("size").toDouble() * 1024 * 1024);
+			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mbToBytes(mod.getValue("size").toDouble()));
 	}
 }
 

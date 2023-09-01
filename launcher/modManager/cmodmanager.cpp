@@ -94,13 +94,12 @@ void CModManager::loadMods()
 			{
 				for(QDirIterator iter(QString::fromStdString(CResourceHandler::get()->getResourceName(resDir)->string()), QDirIterator::Subdirectories); iter.hasNext(); iter.next())
 					total += iter.fileInfo().size();
-				total /= 1024; //to Kb
 			}
 			
 			boost::filesystem::path name = *CResourceHandler::get()->getResourceName(resID);
 			auto mod = JsonUtils::JsonFromFile(pathToQString(name));
 			auto json = JsonUtils::toJson(mod);
-			json["localSize"].Integer() = total;
+			json["localSize"].Float() = total;
 			if(!name.is_absolute())
 				json["storedLocaly"].Bool() = true;
 
