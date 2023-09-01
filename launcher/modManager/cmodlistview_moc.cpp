@@ -243,8 +243,11 @@ QString CModListView::genModInfoText(CModEntry & mod)
 	result += replaceIfNotEmpty(mod.getValue("installedVersion"), lineTemplate.arg(tr("Installed version")));
 	result += replaceIfNotEmpty(mod.getValue("latestVersion"), lineTemplate.arg(tr("Latest version")));
 
-	if(mod.getValue("size").isValid())
-		result += replaceIfNotEmpty(CModEntry::sizeToString(mod.getValue("size").toDouble()), lineTemplate.arg(tr("Download size")));
+	if(mod.getValue("localSize").isValid())
+		result += replaceIfNotEmpty(CModEntry::sizeToString(mod.getValue("localSize").toDouble()), lineTemplate.arg(tr("Size")));
+	if((mod.isAvailable() || mod.isUpdateable()) && mod.getValue("size").isValid())
+		result += replaceIfNotEmpty(CModEntry::sizeToString(mod.getValue("size").toDouble() * 1024.0), lineTemplate.arg(tr("Download size")));
+	
 	result += replaceIfNotEmpty(mod.getValue("author"), lineTemplate.arg(tr("Authors")));
 
 	if(mod.getValue("licenseURL").isValid())
@@ -535,7 +538,7 @@ void CModListView::on_updateButton_clicked()
 		auto mod = modModel->getMod(name);
 		// update required mod, install missing (can be new dependency)
 		if(mod.isUpdateable() || !mod.isInstalled())
-			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods");
+			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mod.getValue("size").toDouble() * 1024 * 1024);
 	}
 }
 
@@ -565,11 +568,11 @@ void CModListView::on_installButton_clicked()
 	{
 		auto mod = modModel->getMod(name);
 		if(!mod.isInstalled())
-			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods");
+			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mod.getValue("size").toDouble() * 1024 * 1024);
 	}
 }
 
-void CModListView::downloadFile(QString file, QString url, QString description)
+void CModListView::downloadFile(QString file, QString url, QString description, qint64 size)
 {
 	if(!dlManager)
 	{
@@ -591,7 +594,7 @@ void CModListView::downloadFile(QString file, QString url, QString description)
 		ui->progressBar->setFormat(progressBarFormat);
 	}
 
-	dlManager->downloadFile(QUrl(url), file);
+	dlManager->downloadFile(QUrl(url), file, size);
 }
 
 void CModListView::downloadProgress(qint64 current, qint64 max)
@@ -855,7 +858,7 @@ void CModListView::doInstallMod(const QString & modName)
 	{
 		auto mod = modModel->getMod(name);
 		if(!mod.isInstalled())
-			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods");
+			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mod.getValue("size").toDouble() * 1024 * 1024);
 	}
 }
 

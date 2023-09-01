@@ -87,15 +87,24 @@ void CModManager::loadMods()
 		ResourceID resID(CModInfo::getModFile(modname));
 		if(CResourceHandler::get()->existsResource(resID))
 		{
-			boost::filesystem::path name = *CResourceHandler::get()->getResourceName(resID);
-			auto mod = JsonUtils::JsonFromFile(pathToQString(name));
-			if(!name.is_absolute())
+			//calculate mod size
+			qint64 total = 0;
+			ResourceID resDir(CModInfo::getModDir(modname), EResType::DIRECTORY);
+			if(CResourceHandler::get()->existsResource(resDir))
 			{
-				auto json = JsonUtils::toJson(mod);
-				json["storedLocaly"].Bool() = true;
-				mod = JsonUtils::toVariant(json);
+				for(QDirIterator iter(QString::fromStdString(CResourceHandler::get()->getResourceName(resDir)->string()), QDirIterator::Subdirectories); iter.hasNext(); iter.next())
+					total += iter.fileInfo().size();
+				total /= 1024; //to Kb
 			}
 			
+			boost::filesystem::path name = *CResourceHandler::get()->getResourceName(resID);
+			auto mod = JsonUtils::JsonFromFile(pathToQString(name));
+			auto json = JsonUtils::toJson(mod);
+			json["localSize"].Integer() = total;
+			if(!name.is_absolute())
+				json["storedLocaly"].Bool() = true;
+
+			mod = JsonUtils::toVariant(json);
 			localMods.insert(QString::fromUtf8(modname.c_str()).toLower(), mod);
 		}
 	}

@@ -48,10 +48,10 @@ public:
 
 	// returns true if download with such URL is in progress/queued
 	// FIXME: not sure what's right place for "mod download in progress" check
-	bool downloadInProgress(const QUrl & url);
+	bool downloadInProgress(const QUrl & url) const;
 
 	// returns network reply so caller can connect to required signals
-	void downloadFile(const QUrl & url, const QString & file);
+	void downloadFile(const QUrl & url, const QString & file, qint64 bytesTotal = 0);
 
 public slots:
 	void downloadFinished(QNetworkReply * reply);
