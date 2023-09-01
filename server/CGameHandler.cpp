@@ -1106,11 +1106,14 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	const bool canWalkOnSea = pathfinderHelper->hasBonusOfType(BonusType::WATER_WALKING) || (h->boat && h->boat->layer == EPathfindingLayer::WATER);
 	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movementPointsRemaining());
 
+	const bool standAtObstacle = t.blocked && !t.visitable;
+	const bool standAtWater = !h->boat && t.terType->isWater() && (t.visitableObjects.empty() || !t.visitableObjects.back()->isCoastVisitable());
+	
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
-	if (((!t.terType->isPassable()  ||  (t.blocked && !t.visitable && !canFly))
+	if (((!t.terType->isPassable() || (standAtObstacle && !canFly))
 			&& complain("Cannot move hero, destination tile is blocked!"))
-		|| ((!h->boat && !canWalkOnSea && !canFly && t.terType->isWater() && (t.visitableObjects.size() < 1 || !t.visitableObjects.back()->isCoastVisitable()))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
+		|| ((standAtWater && !canFly && !canWalkOnSea)  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!"))
 		|| ((h->boat && h->boat->layer == EPathfindingLayer::SAIL && t.terType->isLand() && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!"))
@@ -1175,14 +1178,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 			visitObjectOnTile(t, h);
 		}
 
-		for(auto topQuery = queries->topQuery(h->tempOwner); true; topQuery = queries->topQuery(h->tempOwner))
-		{
-			moveQuery = std::dynamic_pointer_cast<CHeroMovementQuery>(topQuery);
-			if(!moveQuery || (transit && result == TryMoveHero::SUCCESS))
-				break;
-			
-			queries->popIfTop(moveQuery);
-		}
+		queries->popIfTop(moveQuery);
 		logGlobal->trace("Hero %s ends movement", h->getNameTranslated());
 		return result != TryMoveHero::FAILED;
 	};
