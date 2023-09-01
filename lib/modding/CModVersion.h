@@ -42,4 +42,6 @@ struct DLL_LINKAGE CModVersion
 	}
 };
 
+DLL_LINKAGE bool operator < (const CModVersion & lesser, const CModVersion & greater);
+
 VCMI_LIB_NAMESPACE_END

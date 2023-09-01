@@ -25,6 +25,7 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/Languages.h"
+#include "../../lib/modding/CModVersion.h"
 
 void CModListView::setupModModel()
 {
@@ -191,7 +192,7 @@ QString CModListView::genChangelogText(CModEntry & mod)
 
 	std::sort(versions.begin(), versions.end(), [](QString lesser, QString greater)
 	{
-		return CModEntry::compareVersions(lesser, greater);
+		return CModVersion::fromString(lesser.toStdString()) < CModVersion::fromString(greater.toStdString());
 	});
 	std::reverse(versions.begin(), versions.end());
 

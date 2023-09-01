@@ -60,4 +60,15 @@ bool CModVersion::isNull() const
 	return major == 0 && minor == 0 && patch == 0;
 }
 
+bool operator < (const CModVersion & lesser, const CModVersion & greater)
+{
+	if(lesser.major == greater.major)
+	{
+		if(lesser.minor == greater.minor)
+			return lesser.patch < greater.patch;
+		return lesser.minor < greater.minor;
+	}
+	return lesser.major < greater.major;
+}
+
 VCMI_LIB_NAMESPACE_END
