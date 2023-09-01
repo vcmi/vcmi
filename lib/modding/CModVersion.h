@@ -20,9 +20,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct DLL_LINKAGE CModVersion
 {
-	int major = 0;
-	int minor = 0;
-	int patch = 0;
+	static const int Any = -1;
+	
+	int major = Any;
+	int minor = Any;
+	int patch = Any;
 
 	CModVersion() = default;
 	CModVersion(int mj, int mi, int p): major(mj), minor(mi), patch(p) {}
