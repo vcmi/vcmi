@@ -1262,6 +1262,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		if(h->boat && !h->boat->onboardAssaultAllowed)
 		   lookForGuards = IGNORE_GUARDS;
 
+		turnTimerHandler.setEndTurnAllowed(h->getOwner(), !standAtWater && !standAtObstacle);
 		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
 		return true;
 	}
