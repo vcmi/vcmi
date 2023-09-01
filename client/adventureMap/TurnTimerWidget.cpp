@@ -47,7 +47,7 @@ TurnTimerWidget::TurnTimerWidget():
 	
 	recActions &= ~DEACTIVATE;
 	
-	const JsonNode config(ResourcePath("config/widgets/turnTimer.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/turnTimer.json"));
 	
 	build(config);
 	

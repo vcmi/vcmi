@@ -110,7 +110,7 @@ void InterfaceObjectConfigurable::build(const JsonNode &config)
 	{
 		if (!config["library"].isNull())
 		{
-			const JsonNode library(ResourcePath(config["library"].String()));
+			const JsonNode library(JsonPath::fromJson(config["library"]));
 			loadCustomBuilders(library);
 		}
 

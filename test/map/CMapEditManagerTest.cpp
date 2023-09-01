@@ -120,7 +120,7 @@ TEST(MapManager, DrawTerrain_View)
 		// Validate edit manager
 		auto editManager = map->getEditManager();
 		CRandomGenerator gen;
-		const JsonNode viewNode(ResourcePath("test/terrainViewMappings", EResType::TEXT));
+		const JsonNode viewNode(JsonPath::builtin("test/terrainViewMappings"));
 		const auto & mappingsNode = viewNode["mappings"].Vector();
 		for (const auto & node : mappingsNode)
 		{

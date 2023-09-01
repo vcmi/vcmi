@@ -132,7 +132,7 @@ void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer
 
 void BattleEffectsController::loadColorMuxers()
 {
-	const JsonNode config(ResourcePath("config/battleEffects.json"));
+	const JsonNode config(JsonPath::builtin("config/battleEffects.json"));
 
 	for(auto & muxer : config["colorMuxers"].Struct())
 	{

@@ -592,7 +592,7 @@ std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputS
 
 std::string CampaignHandler::prologVideoName(ui8 index)
 {
-	JsonNode config(ResourcePath(std::string("CONFIG/campaignMedia"), EResType::TEXT));
+	JsonNode config(JsonPath::builtin("CONFIG/campaignMedia"));
 	auto vids = config["videos"].Vector();
 	if(index < vids.size())
 		return vids[index].String();
@@ -607,7 +607,7 @@ std::string CampaignHandler::prologMusicName(ui8 index)
 
 std::string CampaignHandler::prologVoiceName(ui8 index)
 {
-	JsonNode config(ResourcePath(std::string("CONFIG/campaignMedia"), EResType::TEXT));
+	JsonNode config(JsonPath::builtin("CONFIG/campaignMedia"));
 	auto audio = config["voice"].Vector();
 	if(index < audio.size())
 		return audio[index].String();

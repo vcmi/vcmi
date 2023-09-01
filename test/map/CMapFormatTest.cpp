@@ -153,14 +153,14 @@ TEST(MapFormat, Objects)
 {
 	static const std::string MAP_DATA_PATH = "test/ObjectPropertyTest/";
 
-	const JsonNode initialHeader(ResourcePath(MAP_DATA_PATH + CMapFormatJson::HEADER_FILE_NAME));
-	const JsonNode expectedHeader(ResourcePath(MAP_DATA_PATH + CMapFormatJson::HEADER_FILE_NAME));//same as initial for now
+	const JsonNode initialHeader(JsonPath::builtin(MAP_DATA_PATH + CMapFormatJson::HEADER_FILE_NAME));
+	const JsonNode expectedHeader(JsonPath::builtin(MAP_DATA_PATH + CMapFormatJson::HEADER_FILE_NAME));//same as initial for now
 
-	const JsonNode initialObjects(ResourcePath(MAP_DATA_PATH + CMapFormatJson::OBJECTS_FILE_NAME));
-	const JsonNode expectedObjects(ResourcePath(MAP_DATA_PATH + "objects.ex.json"));
+	const JsonNode initialObjects(JsonPath::builtin(MAP_DATA_PATH + CMapFormatJson::OBJECTS_FILE_NAME));
+	const JsonNode expectedObjects(JsonPath::builtin(MAP_DATA_PATH + "objects.ex.json"));
 
-	const JsonNode expectedSurface(ResourcePath(MAP_DATA_PATH + "surface_terrain.json"));
-	const JsonNode expectedUnderground(ResourcePath(MAP_DATA_PATH + "underground_terrain.json"));
+	const JsonNode expectedSurface(JsonPath::builtin(MAP_DATA_PATH + "surface_terrain.json"));
+	const JsonNode expectedUnderground(JsonPath::builtin(MAP_DATA_PATH + "underground_terrain.json"));
 
 	std::unique_ptr<CMap> originalMap = loadOriginal(initialHeader, initialObjects, expectedSurface, expectedUnderground);
 
@@ -192,11 +192,11 @@ TEST(MapFormat, Terrain)
 {
 	static const std::string MAP_DATA_PATH = "test/TerrainTest/";
 
-	const JsonNode expectedHeader(ResourcePath(MAP_DATA_PATH + CMapFormatJson::HEADER_FILE_NAME));
-	const JsonNode expectedObjects(ResourcePath(MAP_DATA_PATH + CMapFormatJson::OBJECTS_FILE_NAME));
+	const JsonNode expectedHeader(JsonPath::builtin(MAP_DATA_PATH + CMapFormatJson::HEADER_FILE_NAME));
+	const JsonNode expectedObjects(JsonPath::builtin(MAP_DATA_PATH + CMapFormatJson::OBJECTS_FILE_NAME));
 
-	const JsonNode expectedSurface(ResourcePath(MAP_DATA_PATH + "surface_terrain.json"));
-	const JsonNode expectedUnderground(ResourcePath(MAP_DATA_PATH + "underground_terrain.json"));
+	const JsonNode expectedSurface(JsonPath::builtin(MAP_DATA_PATH + "surface_terrain.json"));
+	const JsonNode expectedUnderground(JsonPath::builtin(MAP_DATA_PATH + "underground_terrain.json"));
 
 	std::unique_ptr<CMap> originalMap = loadOriginal(expectedHeader, expectedObjects, expectedSurface, expectedUnderground);
 

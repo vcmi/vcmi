@@ -35,7 +35,7 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	const JsonNode config(ResourcePath("config/widgets/settings/settingsMainContainer.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/settings/settingsMainContainer.json"));
 	addCallback("activateSettingsTab", [this](int tabId) { openTab(tabId); });
 	addCallback("loadGame", [this](int) { loadGameButtonCallback(); });
 	addCallback("saveGame", [this](int) { saveGameButtonCallback(); });

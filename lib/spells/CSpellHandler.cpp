@@ -561,7 +561,7 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData()
 	using namespace SpellConfig;
 	std::vector<JsonNode> legacyData;
 
-	CLegacyConfigParser parser("DATA/SPTRAITS.TXT");
+	CLegacyConfigParser parser(TextPath::builtin("DATA/SPTRAITS.TXT"));
 
 	auto readSchool = [&](JsonMap & schools, const std::string & name)
 	{

@@ -19,7 +19,8 @@ class JsonSerializeFormat;
  *
  * Supported file extensions:
  *
- * Text: .txt .json
+ * Text: .txt
+ * Json: .json
  * Animation: .def
  * Mask: .msk .msg
  * Campaign: .h3c
@@ -36,6 +37,7 @@ class JsonSerializeFormat;
 enum class EResType
 {
 	TEXT,
+	JSON,
 	ANIMATION,
 	MASK,
 	CAMPAIGN,
@@ -167,6 +169,8 @@ public:
 
 using AnimationPath = ResourcePathTempl<EResType::ANIMATION>;
 using ImagePath = ResourcePathTempl<EResType::IMAGE>;
+using TextPath = ResourcePathTempl<EResType::TEXT>;
+using JsonPath = ResourcePathTempl<EResType::JSON>;
 
 namespace EResTypeHelper
 {

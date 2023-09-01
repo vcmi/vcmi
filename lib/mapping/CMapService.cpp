@@ -154,9 +154,9 @@ std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStre
 	}
 }
 
-static JsonNode loadPatches(std::string path)
+static JsonNode loadPatches(const std::string & path)
 {
-	JsonNode node = JsonUtils::assembleFromFiles(std::move(path));
+	JsonNode node = JsonUtils::assembleFromFiles(path);
 	for (auto & entry : node.Struct())
 		JsonUtils::validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
 

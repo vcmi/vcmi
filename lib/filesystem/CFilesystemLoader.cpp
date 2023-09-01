@@ -68,9 +68,9 @@ std::unordered_set<ResourcePath> CFilesystemLoader::getFilteredFiles(std::functi
 	return foundID;
 }
 
-bool CFilesystemLoader::createResource(std::string filename, bool update)
+bool CFilesystemLoader::createResource(const ResourcePath & resID, bool update)
 {
-	ResourcePath resID(filename);
+	std::string filename = resID.getOriginalName();
 
 	if (fileList.find(resID) != fileList.end())
 		return true;

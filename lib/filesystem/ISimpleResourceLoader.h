@@ -90,7 +90,7 @@ public:
 	 *
 	 * @return true if new file was created, false on error or if file already exists
 	 */
-	virtual bool createResource(std::string filename, bool update = false)
+	virtual bool createResource(const ResourcePath & filename, bool update = false)
 	{
 		return false;
 	}

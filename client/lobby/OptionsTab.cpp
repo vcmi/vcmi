@@ -137,7 +137,7 @@ OptionsTab::OptionsTab() : humanPlayers(0)
 		}
 	});
 	
-	const JsonNode config(ResourcePath("config/widgets/optionsTab.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/optionsTab.json"));
 	build(config);
 	
 	//set timers combo box callbacks

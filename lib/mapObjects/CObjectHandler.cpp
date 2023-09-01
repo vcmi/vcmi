@@ -19,7 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 CObjectHandler::CObjectHandler()
 {
 	logGlobal->trace("\t\tReading resources prices ");
-	const JsonNode config2(ResourcePath("config/resources.json"));
+	const JsonNode config2(JsonPath::builtin("config/resources.json"));
 	for(const JsonNode &price : config2["resources_prices"].Vector())
 	{
 		resVals.push_back(static_cast<ui32>(price.Float()));

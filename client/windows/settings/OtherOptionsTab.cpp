@@ -26,7 +26,7 @@ OtherOptionsTab::OtherOptionsTab() : InterfaceObjectConfigurable()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	const JsonNode config(ResourcePath("config/widgets/settings/otherOptionsTab.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/settings/otherOptionsTab.json"));
 	addCallback("availableCreaturesAsDwellingLabelChanged", [](bool value)
 	{
 		return setBoolSetting("gameTweaks", "availableCreaturesAsDwellingLabel", value);

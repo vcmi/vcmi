@@ -44,7 +44,7 @@ AdventureOptionsTab::AdventureOptionsTab()
 	addConditional("desktop", true);
 #endif
 
-	const JsonNode config(ResourcePath("config/widgets/settings/adventureOptionsTab.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/settings/adventureOptionsTab.json"));
 	addCallback("playerHeroSpeedChanged", [this](int value)
 	{
 		auto targetLabel = widget<CLabel>("heroSpeedValueLabel");

@@ -58,7 +58,7 @@ CampaignRegions CampaignRegions::getLegacy(int campId)
 	static std::vector<CampaignRegions> campDescriptions;
 	if(campDescriptions.empty()) //read once
 	{
-		const JsonNode config(ResourcePath("config/campaign_regions.json"));
+		const JsonNode config(JsonPath::builtin("config/campaign_regions.json"));
 		for(const JsonNode & campaign : config["campaign_regions"].Vector())
 			campDescriptions.push_back(CampaignRegions::fromJson(campaign));
 	}

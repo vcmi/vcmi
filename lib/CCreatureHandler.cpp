@@ -415,7 +415,7 @@ const CCreature * CCreatureHandler::getCreature(const std::string & scope, const
 
 void CCreatureHandler::loadCommanders()
 {
-	ResourcePath configResource("config/commanders.json");
+	auto configResource = JsonPath::builtin("config/commanders.json");
 
 	std::string modSource = VLC->modh->findResourceOrigin(configResource);
 	JsonNode data(configResource);
@@ -507,7 +507,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 
-	CLegacyConfigParser parser("DATA/CRTRAITS.TXT");
+	CLegacyConfigParser parser(TextPath::builtin("DATA/CRTRAITS.TXT"));
 
 	parser.endLine(); // header
 
@@ -698,7 +698,7 @@ void CCreatureHandler::loadCrExpMod()
 			}
 		}
 
-		CLegacyConfigParser expBonParser("DATA/CREXPMOD.TXT");
+		CLegacyConfigParser expBonParser(TextPath::builtin("DATA/CREXPMOD.TXT"));
 
 		expBonParser.endLine(); //header
 
@@ -745,7 +745,7 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 			globalEffects.addNewBonus(b);
 		};
 
-		CLegacyConfigParser parser("DATA/CREXPBON.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/CREXPBON.TXT"));
 
 		Bonus b; //prototype with some default properties
 		b.source = BonusSource::STACK_EXPERIENCE;
@@ -804,7 +804,7 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 
 void CCreatureHandler::loadAnimationInfo(std::vector<JsonNode> &h3Data) const
 {
-	CLegacyConfigParser parser("DATA/CRANIM.TXT");
+	CLegacyConfigParser parser(TextPath::builtin("DATA/CRANIM.TXT"));
 
 	parser.endLine(); // header
 	parser.endLine();

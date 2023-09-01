@@ -105,7 +105,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 	addConditional("desktop", true);
 #endif
 
-	const JsonNode config(ResourcePath("config/widgets/settings/generalOptionsTab.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/settings/generalOptionsTab.json"));
 	addCallback("spellbookAnimationChanged", [](bool value)
 	{
 		setBoolSetting("video", "spellbookAnimation", value);

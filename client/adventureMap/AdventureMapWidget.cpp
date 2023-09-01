@@ -56,7 +56,7 @@ AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> s
 	for (const auto & entry : shortcuts->getShortcuts())
 		addShortcut(entry.shortcut, entry.callback);
 
-	const JsonNode config(ResourcePath("config/widgets/adventureMap.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/adventureMap.json"));
 
 	for(const auto & entry : config["options"]["imagesPlayerColored"].Vector())
 	{

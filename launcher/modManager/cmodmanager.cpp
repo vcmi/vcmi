@@ -84,7 +84,7 @@ void CModManager::loadMods()
 
 	for(auto modname : installedMods)
 	{
-		ResourcePath resID(CModInfo::getModFile(modname));
+		auto resID = CModInfo::getModFile(modname);
 		if(CResourceHandler::get()->existsResource(resID))
 		{
 			boost::filesystem::path name = *CResourceHandler::get()->getResourceName(resID);

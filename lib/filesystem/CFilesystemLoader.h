@@ -37,7 +37,7 @@ public:
 	std::unique_ptr<CInputStream> load(const ResourcePath & resourceName) const override;
 	bool existsResource(const ResourcePath & resourceName) const override;
 	std::string getMountPoint() const override;
-	bool createResource(std::string filename, bool update = false) override;
+	bool createResource(const ResourcePath & filename, bool update = false) override;
 	std::optional<boost::filesystem::path> getResourceName(const ResourcePath & resourceName) const override;
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override;
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;

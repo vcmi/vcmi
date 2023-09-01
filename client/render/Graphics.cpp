@@ -105,7 +105,7 @@ void Graphics::initializeBattleGraphics()
 		if(!CResourceHandler::get(mod)->existsResource(ResourcePath("config/battles_graphics.json")))
 			continue;
 			
-		const JsonNode config(mod, ResourcePath("config/battles_graphics.json"));
+		const JsonNode config(mod, JsonPath::builtin("config/battles_graphics.json"));
 
 		//initialization of AC->def name mapping
 		if(!config["ac_mapping"].isNull())
@@ -204,7 +204,7 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 
 void Graphics::loadFonts()
 {
-	const JsonNode config(ResourcePath("config/fonts.json"));
+	const JsonNode config(JsonPath::builtin("config/fonts.json"));
 
 	const JsonVector & bmpConf = config["bitmap"].Vector();
 	const JsonNode   & ttfConf = config["trueType"];
@@ -228,7 +228,7 @@ void Graphics::loadFonts()
 void Graphics::loadErmuToPicture()
 {
 	//loading ERMU to picture
-	const JsonNode config(ResourcePath("config/ERMU_to_picture.json"));
+	const JsonNode config(JsonPath::builtin("config/ERMU_to_picture.json"));
 	int etp_idx = 0;
 	for(const JsonNode &etp : config["ERMU_to_picture"].Vector()) {
 		int idx = 0;

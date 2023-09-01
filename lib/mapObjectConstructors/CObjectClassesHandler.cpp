@@ -112,7 +112,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 {
 	size_t dataSize = VLC->settings()->getInteger(EGameSettings::TEXTS_OBJECT);
 
-	CLegacyConfigParser parser("Data/Objects.txt");
+	CLegacyConfigParser parser(TextPath::builtin("Data/Objects.txt"));
 	auto totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
 	parser.endLine();
 
@@ -132,7 +132,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
 	assert(dataSize == 256);
 
-	CLegacyConfigParser namesParser("Data/ObjNames.txt");
+	CLegacyConfigParser namesParser(TextPath::builtin("Data/ObjNames.txt"));
 	for (size_t i=0; i<256; i++)
 	{
 		ret[i]["name"].String() = namesParser.readString();
@@ -142,7 +142,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 	JsonNode cregen1;
 	JsonNode cregen4;
 
-	CLegacyConfigParser cregen1Parser("data/crgen1");
+	CLegacyConfigParser cregen1Parser(TextPath::builtin("data/crgen1"));
 	do
 	{
 		JsonNode subObject;
@@ -151,7 +151,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 	}
 	while(cregen1Parser.endLine());
 
-	CLegacyConfigParser cregen4Parser("data/crgen4");
+	CLegacyConfigParser cregen4Parser(TextPath::builtin("data/crgen4"));
 	do
 	{
 		JsonNode subObject;

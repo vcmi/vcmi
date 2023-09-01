@@ -119,9 +119,8 @@ protected:
 	}
 };
 
-CLegacyConfigParser::CLegacyConfigParser(std::string URI)
+CLegacyConfigParser::CLegacyConfigParser(const TextPath & resource)
 {
-	ResourcePath resource(URI, EResType::TEXT);
 	auto input = CResourceHandler::get()->load(resource);
 	std::string modName = VLC->modh->findResourceOrigin(resource);
 	std::string language = VLC->modh->getModLanguage(modName);
@@ -250,7 +249,7 @@ bool CLegacyConfigParser::endLine()
 
 void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::string & sourceName)
 {
-	CLegacyConfigParser parser(sourceName);
+	CLegacyConfigParser parser(TextPath::builtin(sourceName));
 	size_t index = 0;
 	do
 	{
@@ -434,7 +433,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		readToVector("vcmi.quickExchange", QE_MOD_COMMANDS);
 
 	{
-		CLegacyConfigParser parser("DATA/RANDTVRN.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/RANDTVRN.TXT"));
 		parser.endLine();
 		size_t index = 0;
 		do
@@ -449,7 +448,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser parser("DATA/GENRLTXT.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/GENRLTXT.TXT"));
 		parser.endLine();
 		size_t index = 0;
 		do
@@ -460,7 +459,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser parser("DATA/HELP.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/HELP.TXT"));
 		size_t index = 0;
 		do
 		{
@@ -473,7 +472,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser parser("DATA/PLCOLORS.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/PLCOLORS.TXT"));
 		size_t index = 0;
 		do
 		{
@@ -487,7 +486,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser parser("DATA/SEERHUT.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/SEERHUT.TXT"));
 
 		//skip header
 		parser.endLine();
@@ -531,7 +530,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		}
 	}
 	{
-		CLegacyConfigParser parser("DATA/CAMPTEXT.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/CAMPTEXT.TXT"));
 
 		//skip header
 		parser.endLine();

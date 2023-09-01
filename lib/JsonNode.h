@@ -9,6 +9,7 @@
  */
 #pragma once
 #include "GameConstants.h"
+#include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -18,7 +19,6 @@ using JsonVector = std::vector<JsonNode>;
 
 struct Bonus;
 class CSelector;
-class ResourcePath;
 class CAddInfo;
 class ILimiter;
 
@@ -61,10 +61,9 @@ public:
 	//Create tree from Json-formatted input
 	explicit JsonNode(const char * data, size_t datasize);
 	//Create tree from JSON file
- 	explicit JsonNode(ResourcePath && fileURI);
- 	explicit JsonNode(const ResourcePath & fileURI);
-	explicit JsonNode(const std::string& idx, const ResourcePath & fileURI);
-	explicit JsonNode(ResourcePath && fileURI, bool & isValidSyntax);
+	explicit JsonNode(const JsonPath & fileURI);
+	explicit JsonNode(const std::string & modName, const JsonPath & fileURI);
+	explicit JsonNode(const JsonPath & fileURI, bool & isValidSyntax);
 	//Copy c-tor
 	JsonNode(const JsonNode &copy);
 

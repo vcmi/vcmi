@@ -75,9 +75,9 @@ std::string CModInfo::getModDir(const std::string & name)
 	return "MODS/" + boost::algorithm::replace_all_copy(name, ".", "/MODS/");
 }
 
-std::string CModInfo::getModFile(const std::string & name)
+JsonPath CModInfo::getModFile(const std::string & name)
 {
-	return getModDir(name) + "/mod.json";
+	return JsonPath::builtinTODO(getModDir(name) + "/mod.json");
 }
 
 void CModInfo::updateChecksum(ui32 newChecksum)
@@ -152,7 +152,7 @@ bool CModInfo::checkModGameplayAffecting() const
 		"obstacles"
 	};
 
-	ResourcePath modFileResource(CModInfo::getModFile(identifier));
+	JsonPath modFileResource(CModInfo::getModFile(identifier));
 
 	if(CResourceHandler::get("initial")->existsResource(modFileResource))
 	{

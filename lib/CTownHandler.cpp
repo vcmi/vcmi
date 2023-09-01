@@ -330,7 +330,7 @@ std::vector<JsonNode> CTownHandler::loadLegacyData()
 		return dest[town]["town"]["buildings"][EBuildingType::names[building]];
 	};
 
-	CLegacyConfigParser parser("DATA/BUILDING.TXT");
+	CLegacyConfigParser parser(TextPath::builtin("DATA/BUILDING.TXT"));
 
 	parser.endLine(); // header
 	parser.endLine();
@@ -382,7 +382,7 @@ std::vector<JsonNode> CTownHandler::loadLegacyData()
 		}
 	}
 	{
-		CLegacyConfigParser parser("DATA/BLDGNEUT.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/BLDGNEUT.TXT"));
 
 		for(int building=0; building<15; building++)
 		{
@@ -420,7 +420,7 @@ std::vector<JsonNode> CTownHandler::loadLegacyData()
 		}
 	}
 	{
-		CLegacyConfigParser parser("DATA/BLDGSPEC.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/BLDGSPEC.TXT"));
 
 		for(int town=0; town<dataSize; town++)
 		{
@@ -440,7 +440,7 @@ std::vector<JsonNode> CTownHandler::loadLegacyData()
 		}
 	}
 	{
-		CLegacyConfigParser parser("DATA/DWELLING.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/DWELLING.TXT"));
 
 		for(int town=0; town<dataSize; town++)
 		{
@@ -453,8 +453,8 @@ std::vector<JsonNode> CTownHandler::loadLegacyData()
 		}
 	}
 	{
-		CLegacyConfigParser typeParser("DATA/TOWNTYPE.TXT");
-		CLegacyConfigParser nameParser("DATA/TOWNNAME.TXT");
+		CLegacyConfigParser typeParser(TextPath::builtin("DATA/TOWNTYPE.TXT"));
+		CLegacyConfigParser nameParser(TextPath::builtin("DATA/TOWNNAME.TXT"));
 		size_t townID=0;
 		do
 		{
@@ -1148,9 +1148,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 void CTownHandler::loadRandomFaction()
 {
-	static const ResourcePath randomFactionPath("config/factions/random.json");
-
-	JsonNode randomFactionJson(randomFactionPath);
+	JsonNode randomFactionJson(JsonPath::builtin("config/factions/random.json"));
 	randomFactionJson.setMeta(ModScope::scopeBuiltin(), true);
 	loadBuildings(randomTown, randomFactionJson["random"]["town"]["buildings"]);
 }

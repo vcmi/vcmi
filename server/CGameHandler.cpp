@@ -1717,12 +1717,13 @@ void CGameHandler::save(const std::string & filename)
 	logGlobal->info("Saving to %s", filename);
 	const auto stem	= FileInfo::GetPathStem(filename);
 	const auto savefname = stem.to_string() + ".vsgm1";
-	CResourceHandler::get("local")->createResource(savefname);
+	ResourcePath savePath(stem.to_string(), EResType::SAVEGAME);
+	CResourceHandler::get("local")->createResource(savePath);
 
 	try
 	{
 		{
-			CSaveFile save(*CResourceHandler::get("local")->getResourceName(ResourcePath(stem.to_string(), EResType::SAVEGAME)));
+			CSaveFile save(*CResourceHandler::get("local")->getResourceName(savePath));
 			saveCommonState(save);
 			logGlobal->info("Saving server state");
 			save << *this;

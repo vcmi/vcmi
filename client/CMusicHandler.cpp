@@ -75,7 +75,7 @@ void CSoundHandler::onVolumeChange(const JsonNode &volumeNode)
 
 CSoundHandler::CSoundHandler():
 	listener(settings.listen["general"]["sound"]),
-	ambientConfig(JsonNode(ResourcePath("config/ambientSounds.json")))
+	ambientConfig(JsonPath::builtin("config/ambientSounds.json"))
 {
 	listener(std::bind(&CSoundHandler::onVolumeChange, this, _1));
 

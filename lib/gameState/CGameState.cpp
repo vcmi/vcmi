@@ -804,7 +804,7 @@ void CGameState::removeHeroPlaceholders()
 void CGameState::initStartingResources()
 {
 	logGlobal->debug("\tSetting up resources");
-	const JsonNode config(ResourcePath("config/startres.json"));
+	const JsonNode config(JsonPath::builtin("config/startres.json"));
 	const JsonVector &vector = config["difficulty"].Vector();
 	const JsonNode &level = vector[scenarioOps->difficulty];
 

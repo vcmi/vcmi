@@ -262,7 +262,8 @@ CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
 }
 
 CMainMenuConfig::CMainMenuConfig()
-	: campaignSets(JsonNode(ResourcePath("config/campaignSets.json"))), config(JsonNode(ResourcePath("config/mainmenu.json")))
+	: campaignSets(JsonPath::builtin("config/campaignSets.json"))
+	, config(JsonPath::builtin("config/mainmenu.json"))
 {
 
 }
