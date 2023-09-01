@@ -47,16 +47,16 @@ In order to create new object use following steps:
 ### List of supported new object types
 
 Random Map Generator:
-- [Random Map Template](Entities_Format/Random_Map_Template.md)
+- [Random Map Template](Random_Map_Template.md)
 
 Game Entities:
 - [Artifact](Entities_Format/Artifact_Format.md)
 - [Creature](Entities_Format/Creature_Format.md)
 - [Faction](Entities_Format/Faction_Format.md)
-- [Hero Class](Entities_Format/Hero_Classes_Format.md)
+- [Hero Class](Entities_Format/Hero_Class_Format.md)
 - [Hero Type](Entities_Format/Hero_Type_Format.md)
 - [Spell](Entities_Format/Spell_Format.md)
-- [Secondary Skill](Entities_Format/Object_Format.md)
+- [Secondary Skill](Entities_Format/Secondary_Skill_Format.md)
 
 Map objects:
 - [Map Objects](Map_Object_Format.md)
