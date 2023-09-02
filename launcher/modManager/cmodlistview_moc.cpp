@@ -26,7 +26,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/Languages.h"
 
-inline double mbToBytes(double mb)
+static double mbToBytes(double mb)
 {
 	return mb * 1024 * 1024;
 }
