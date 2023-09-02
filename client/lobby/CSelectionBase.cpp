@@ -216,7 +216,7 @@ void InfoCard::changeSelection()
 	flagbox->recreate();
 	labelDifficulty->setText(CGI->generaltexth->arraytxt[142 + mapInfo->mapHeader->difficulty]);
 	iconDifficulty->setSelected(SEL->getCurrentDifficulty());
-	if(SEL->screenType == ESelectionScreen::loadGame)
+	if(SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::saveGame)
 		for(auto & button : iconDifficulty->buttons)
 			button.second->setEnabled(button.first == SEL->getCurrentDifficulty());
 
