@@ -290,7 +290,7 @@ void CPlayerInterface::performAutosave()
 	std::string mapName = cb->getMapHeader()->name;
 	std::string mapDescription = cb->getMapHeader()->description;
 	std::string campaignName = "NA";
-	std::string timeStamp = cb->getStartInfo()->startTimeIso8601; // ToDo: krs - Get date time in more human format
+	std::string timeStamp = cb->getStartInfo()->startTimeFormatted;
 	std::string turn = std::to_string(cb->getDate(Date::MONTH))  
 		+ std::to_string(cb->getDate(Date::WEEK))
 		+ std::to_string(cb->getDate(Date::DAY_OF_WEEK)); 

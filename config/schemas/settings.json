@@ -131,11 +131,11 @@
 				},
 				"singlePlayerScenarioSaveName" : {
 					"type": "string",
-					"default": "%mapName%/%turn%"
+					"default": "%mapName%/%timestamp%/%turn%"
 				},
 				"singlePlayerCampaignSaveName" : {
 					"type": "string",
-					"default": "_CAMPAIGNS/%campaignName%/%mapName%/%turn%"
+					"default": "_CAMPAIGNS/%campaignName%/%timestamp%/%mapName%/%turn%"
 				},
 				"singlePlayerRmgSaveName" : {
 					"type": "string",

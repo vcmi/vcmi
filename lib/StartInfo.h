@@ -104,7 +104,7 @@ struct DLL_LINKAGE StartInfo
 	ui32 seedToBeUsed; //0 if not sure (client requests server to decide, will be send in reply pack)
 	ui32 seedPostInit; //so we know that game is correctly synced at the start; 0 if not known yet
 	ui32 mapfileChecksum; //0 if not relevant
-	std::string startTimeIso8601;
+	std::string startTimeFormatted;
 	std::string fileURI;
 	SimturnsInfo simturnsInfo;
 	TurnTimerInfo turnTimerInfo;
@@ -130,7 +130,7 @@ struct DLL_LINKAGE StartInfo
 		h & seedToBeUsed;
 		h & seedPostInit;
 		h & mapfileChecksum;
-		h & startTimeIso8601;
+		h & startTimeFormatted;
 		h & fileURI;
 		h & simturnsInfo;
 		h & turnTimerInfo;
@@ -140,7 +140,7 @@ struct DLL_LINKAGE StartInfo
 	}
 
 	StartInfo() : mode(INVALID), difficulty(1), seedToBeUsed(0), seedPostInit(0),
-		mapfileChecksum(0), startTimeIso8601(vstd::getDateTimeISO8601Basic(std::time(0))), fileURI("")
+		mapfileChecksum(0), startTimeFormatted(vstd::getDateTimeFormatted(std::time(0)))), fileURI("")
 	{
 
 	}

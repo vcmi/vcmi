@@ -31,22 +31,13 @@ namespace vstd
 		return s.str();
 	}
 
-	DLL_LINKAGE std::string getDateTimeISO8601Basic(std::time_t dt)
-	{
-		std::tm tm = *std::localtime(&dt);
-		std::stringstream s;
-		s << std::put_time(&tm, "%Y%m%dT%H%M%S");
-		return s.str();
-	}
-
-	DLL_LINKAGE std::string getDateTimeInAutoSaveFormat(std::time_t dt)
+	DLL_LINKAGE std::string getDateTimeFormatted(std::time_t dt)
 	{
 		std::tm tm = *std::localtime(&dt);
 		std::stringstream s;
 		s << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
 		return s.str();
 	}
-
 }
 
 VCMI_LIB_NAMESPACE_END
