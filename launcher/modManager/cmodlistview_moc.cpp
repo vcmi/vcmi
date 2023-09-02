@@ -248,8 +248,8 @@ QString CModListView::genModInfoText(CModEntry & mod)
 	result += replaceIfNotEmpty(mod.getValue("installedVersion"), lineTemplate.arg(tr("Installed version")));
 	result += replaceIfNotEmpty(mod.getValue("latestVersion"), lineTemplate.arg(tr("Latest version")));
 
-	if(mod.getValue("localSize").isValid())
-		result += replaceIfNotEmpty(CModEntry::sizeToString(mod.getValue("localSize").toDouble()), lineTemplate.arg(tr("Size")));
+	if(mod.getValue("localSizeBytes").isValid())
+		result += replaceIfNotEmpty(CModEntry::sizeToString(mod.getValue("localSizeBytes").toDouble()), lineTemplate.arg(tr("Size")));
 	if((mod.isAvailable() || mod.isUpdateable()) && mod.getValue("size").isValid())
 		result += replaceIfNotEmpty(CModEntry::sizeToString(mbToBytes(mod.getValue("size").toDouble())), lineTemplate.arg(tr("Download size")));
 	

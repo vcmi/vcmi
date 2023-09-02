@@ -99,7 +99,7 @@ void CModManager::loadMods()
 			boost::filesystem::path name = *CResourceHandler::get()->getResourceName(resID);
 			auto mod = JsonUtils::JsonFromFile(pathToQString(name));
 			auto json = JsonUtils::toJson(mod);
-			json["localSize"].Float() = total;
+			json["localSizeBytes"].Float() = total;
 			if(!name.is_absolute())
 				json["storedLocaly"].Bool() = true;
 
