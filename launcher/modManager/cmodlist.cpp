@@ -14,54 +14,7 @@
 #include "../../lib/JsonNode.h"
 #include "../../lib/filesystem/CFileInputStream.h"
 #include "../../lib/GameConstants.h"
-
-namespace
-{
-bool isCompatible(const QString & verMin, const QString & verMax)
-{
-	QVersionNumber vcmiVersion(VCMI_VERSION_MAJOR,
-							   VCMI_VERSION_MINOR,
-							   VCMI_VERSION_PATCH);
-	
-	auto versionMin = QVersionNumber::fromString(verMin);
-	auto versionMax = QVersionNumber::fromString(verMax);
-	
-	auto buildVersion = [](QVersionNumber & ver)
-	{
-		const int maxSections = 3; // versions consist from up to 3 sections, major.minor.patch
-
-		if(ver.segmentCount() < maxSections)
-		{
-			auto segments = ver.segments();
-			for(int i = segments.size(); i < maxSections; ++i)
-				segments.append(0);
-			ver = QVersionNumber(segments);
-		}
-	};
-
-	if(!versionMin.isNull())
-	{
-		buildVersion(versionMin);
-		if(vcmiVersion < versionMin)
-			return false;
-	}
-	
-	if(!versionMax.isNull())
-	{
-		buildVersion(versionMax);
-		if(vcmiVersion > versionMax)
-			return false;
-	}
-	return true;
-}
-}
-
-bool CModEntry::compareVersions(QString lesser, QString greater)
-{
-	auto versionLesser = QVersionNumber::fromString(lesser);
-	auto versionGreater = QVersionNumber::fromString(greater);
-	return versionLesser < versionGreater;
-}
+#include "../../lib/modding/CModVersion.h"
 
 QString CModEntry::sizeToString(double size)
 {
@@ -110,18 +63,24 @@ bool CModEntry::isUpdateable() const
 	if(!isInstalled())
 		return false;
 
-	QString installedVer = localData["installedVersion"].toString();
-	QString availableVer = repository["latestVersion"].toString();
+	auto installedVer = localData["installedVersion"].toString().toStdString();
+	auto availableVer = repository["latestVersion"].toString().toStdString();
 
-	if(compareVersions(installedVer, availableVer))
-		return true;
-	return false;
+	return (CModVersion::fromString(installedVer) < CModVersion::fromString(availableVer));
+}
+
+bool isCompatible(const QVariantMap & compatibility)
+{
+	auto compatibleMin = CModVersion::fromString(compatibility["min"].toString().toStdString());
+	auto compatibleMax = CModVersion::fromString(compatibility["max"].toString().toStdString());
+
+	return (compatibleMin.isNull() || CModVersion::GameVersion().compatible(compatibleMin, true, true))
+			&& (compatibleMax.isNull() || compatibleMax.compatible(CModVersion::GameVersion(), true, true));
 }
 
 bool CModEntry::isCompatible() const
 {
-	auto compatibility = localData["compatibility"].toMap();
-	return ::isCompatible(compatibility["min"].toString(), compatibility["max"].toString());
+	return ::isCompatible(localData["compatibility"].toMap());
 }
 
 bool CModEntry::isEssential() const
@@ -186,10 +145,10 @@ QVariant CModEntry::getValueImpl(QString value, bool localized) const
 	if(repository.contains(value) && localData.contains(value))
 	{
 		// value is present in both repo and locally installed. Select one from latest version
-		QString installedVer = localData["installedVersion"].toString();
-		QString availableVer = repository["latestVersion"].toString();
+		auto installedVer = localData["installedVersion"].toString().toStdString();
+		auto availableVer = repository["latestVersion"].toString().toStdString();
 
-		useRepositoryData = compareVersions(installedVer, availableVer);
+		useRepositoryData = CModVersion::fromString(installedVer) < CModVersion::fromString(availableVer);
 	}
 
 	auto & storage = useRepositoryData ? repository : localData;
@@ -310,10 +269,8 @@ CModEntry CModList::getMod(QString modname) const
 
 	if(settings.value("active").toBool())
 	{
-		auto compatibility = local.value("compatibility").toMap();
-		if(compatibility["min"].isValid() || compatibility["max"].isValid())
-			if(!isCompatible(compatibility["min"].toString(), compatibility["max"].toString()))
-				settings["active"] = false;
+		if(!::isCompatible(local.value("compatibility").toMap()))
+			settings["active"] = false;
 	}
 
 	for(auto entry : repositories)
@@ -322,10 +279,11 @@ CModEntry CModList::getMod(QString modname) const
 		if(repoVal.isValid())
 		{
 			auto repoValMap = repoVal.toMap();
-			auto compatibility = repoValMap["compatibility"].toMap();
-			if(isCompatible(compatibility["min"].toString(), compatibility["max"].toString()))
+			if(::isCompatible(repoValMap["compatibility"].toMap()))
 			{
-				if(repo.empty() || CModEntry::compareVersions(repo["version"].toString(), repoValMap["version"].toString()))
+				if(repo.empty()
+					|| CModVersion::fromString(repo["version"].toString().toStdString())
+					 < CModVersion::fromString(repoValMap["version"].toString().toStdString()))
 				{
 					//take valid download link and screenshots before assignment
 					auto download = repo.value("download");

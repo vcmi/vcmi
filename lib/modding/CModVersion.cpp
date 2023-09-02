@@ -20,9 +20,9 @@ CModVersion CModVersion::GameVersion()
 
 CModVersion CModVersion::fromString(std::string from)
 {
-	int major = 0;
-	int minor = 0;
-	int patch = 0;
+	int major = Any;
+	int minor = Any;
+	int patch = Any;
 	try
 	{
 		auto pointPos = from.find('.');
@@ -45,19 +45,47 @@ CModVersion CModVersion::fromString(std::string from)
 
 std::string CModVersion::toString() const
 {
-	return std::to_string(major) + '.' + std::to_string(minor) + '.' + std::to_string(patch);
+	std::string res;
+	if(major != Any)
+	{
+		res += std::to_string(major);
+		if(minor != Any)
+		{
+			res += '.' + std::to_string(minor);
+			if(patch != Any)
+				res += '.' + std::to_string(patch);
+		}
+	}
+	return res;
 }
 
 bool CModVersion::compatible(const CModVersion & other, bool checkMinor, bool checkPatch) const
 {
+	bool doCheckMinor = checkMinor && minor != Any && other.minor != Any;
+	bool doCheckPatch = checkPatch && patch != Any && other.patch != Any;
+	
+	assert(!doCheckPatch || (doCheckPatch && doCheckMinor));
+		
 	return  (major == other.major &&
-			(!checkMinor || minor >= other.minor) &&
-			(!checkPatch || minor > other.minor || (minor == other.minor && patch >= other.patch)));
+			(!doCheckMinor || minor >= other.minor) &&
+			(!doCheckPatch || minor > other.minor || (minor == other.minor && patch >= other.patch)));
 }
 
 bool CModVersion::isNull() const
 {
-	return major == 0 && minor == 0 && patch == 0;
+	return major == Any;
+}
+
+bool operator < (const CModVersion & lesser, const CModVersion & greater)
+{
+	//specific is "greater" than non-specific, that's why do not check for Any value
+	if(lesser.major == greater.major)
+	{
+		if(lesser.minor == greater.minor)
+			return lesser.patch < greater.patch;
+		return lesser.minor < greater.minor;
+	}
+	return lesser.major < greater.major;
 }
 
 VCMI_LIB_NAMESPACE_END
