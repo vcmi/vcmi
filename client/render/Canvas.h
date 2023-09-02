@@ -93,8 +93,8 @@ public:
 	/// renders multiple lines of text with specified parameters
 	void drawText(const Point & position, const EFonts & font, const ColorRGBA & colorDest, ETextAlignment alignment, const std::vector<std::string> & text );
 
-	/// fills selected area with solid color
-	void drawColor(const Rect & target, const ColorRGBA & color);
+	/// fills selected area with solid color, allows replacing or overdrawing
+	void drawColor(const Rect & target, const ColorRGBA & color, const bool replace = true);
 
 	/// Compatibility method. AVOID USAGE. To be removed once SDL abstraction layer is finished.
 	SDL_Surface * getInternalSurface();

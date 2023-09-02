@@ -175,7 +175,7 @@ void AdventureMapInterface::dim(Canvas & to)
 			Rect targetRect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y);
 			ColorRGBA colorToFill(0, 0, 0, std::clamp<int>(backgroundDimLevel, 0, 255));
 			if(backgroundDimLevel > 0)
-				to.drawColor(targetRect, colorToFill);
+				to.drawColor(targetRect, colorToFill, false);
 			return;
 		}
 	}
