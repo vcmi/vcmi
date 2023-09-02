@@ -337,17 +337,57 @@ void Lobby::onDisconnected()
 
 void Lobby::chatMessage(QString title, QString body, bool isSystem)
 {
-	QTextCharFormat fmtBody, fmtTitle;
-	fmtTitle.setFontWeight(QFont::Bold);
-	if(isSystem)
-		fmtBody.setFontWeight(QFont::DemiBold);
+	const QTextCharFormat regularFormat;
+	const QString boldHtml = "<b>%1</b>";
+	const QString colorHtml = "<font color=\"%1\">%2</font>";
+	bool meMentioned = false;
+	bool isScrollBarBottom = (ui->chat->verticalScrollBar()->maximum() - ui->chat->verticalScrollBar()->value() < 24);
 	
 	QTextCursor curs(ui->chat->document());
 	curs.movePosition(QTextCursor::End);
-	curs.insertText(title + ": ", fmtTitle);
-	curs.insertText(body + "\n", fmtBody);
 	
-	if(ui->chat->verticalScrollBar()->maximum() - ui->chat->verticalScrollBar()->value() > 32)
+	QString titleColor = "Olive";
+	if(isSystem || title == "System")
+		titleColor = "ForestGreen";
+	if(title == username)
+		titleColor = "Gold";
+	
+	curs.insertHtml(boldHtml.arg(colorHtml.arg(titleColor, title + ": ")));
+	
+	QRegularExpression mentionRe("@[\\w\\d]+");
+	auto subBody = body;
+	int mem = 0;
+	for(auto match = mentionRe.match(subBody); match.hasMatch(); match = mentionRe.match(subBody))
+	{
+		body.insert(mem + match.capturedEnd(), QChar(-1));
+		body.insert(mem + match.capturedStart(), QChar(-1));
+		mem += match.capturedEnd() + 2;
+		subBody = body.right(body.size() - mem);
+	}
+	auto pieces = body.split(QChar(-1));
+	for(auto & block : pieces)
+	{
+		if(block.startsWith("@"))
+		{
+			if(block == "@" + username)
+			{
+				meMentioned = true;
+				curs.insertHtml(boldHtml.arg(colorHtml.arg("IndianRed", block)));
+			}
+			else
+				curs.insertHtml(colorHtml.arg("DeepSkyBlue", block));
+		}
+		else
+		{
+			if(isSystem)
+				curs.insertHtml(colorHtml.arg("ForestGreen", block));
+			else
+				curs.insertText(block, regularFormat);
+		}
+	}
+	curs.insertText("\n", regularFormat);
+	
+	if(meMentioned || isScrollBarBottom)
 	{
 		ui->chat->ensureCursorVisible();
 		ui->chat->verticalScrollBar()->setValue(ui->chat->verticalScrollBar()->maximum());
