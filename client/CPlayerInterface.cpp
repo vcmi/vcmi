@@ -96,6 +96,7 @@
 #include "../lib/mapping/CMapHeader.h"
 
 #include "../lib/pathfinder/CGPathNode.h"
+#include "../lib/rmg/CMapGenOptions.h"
 
 #include "../lib/serializer/BinaryDeserializer.h"
 #include "../lib/serializer/BinarySerializer.h"
@@ -221,48 +222,200 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 			adventureInt->onEnemyTurnStarted(player, isHuman);
 	}
 }
+ 
+std::string replaceVariables(std::string input, std::unordered_map<std::string, std::string>& variables) 
+{ 
+    //variables["timestamp"] = getCurrentDateTime(); 
+     
+    // Iterate through the map and replace variables 
+    for (const auto& kvp : variables) { 
+        size_t startPos = input.find("%" + kvp.first + "%"); 
+        if (startPos != std::string::npos) { 
+            input.replace(startPos, kvp.first.length() + 2, kvp.second); // +2 to account for % symbols 
+        } 
+    } 
+     
+    return input; 
+} 
 
-void CPlayerInterface::performAutosave()
+int extractNumberAfterHash(const std::string& input) 
 {
-	int frequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
-	if(frequency > 0 && cb->getDate() % frequency == 0)
+    size_t hashPos = input.find('#');
+    if(hashPos != std::string::npos) 
+    {
+        std::string numberAsString = input.substr(hashPos + 1); // Get the substring after '#'
+        try 
+        {
+            int number = std::stoi(numberAsString);
+            return number;
+        } 
+        catch(const std::invalid_argument&)
+        {
+			logGlobal->error("Invalid number format found in autosave file name :" + input);
+        } 
+        catch(const std::out_of_range&)
+        {
+			logGlobal->error("Number out of range found in autosave file name :" + input);
+        }
+    }
+
+    return -1; // Return -1 if '#' is not found or parsing fails
+}
+
+void CPlayerInterface::performAutosave() 
+{
+	// ToDo : krs - autosaves before each battle
+	// ToDo : krs - autosave at beginning of game
+	int saveFrequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
+	auto turnNumber = cb->getDate();
+
+	if(!(saveFrequency > 0 && turnNumber % saveFrequency == 0))
+		return;
+
+	enum MapType {
+		Campaign,
+		Scenario,
+		RandomMap,
+		Undefined = 255
+	};
+	MapType mapType{ Scenario };
+
+	// ToDo: krs - move these into launcher?
+	// predefined save name templates
+	std::map<std::string, std::string> saveFileTemplates;
+
+    saveFileTemplates["singlePlayerScenarioSaveName"] = "%mapName%/%turn%";
+    saveFileTemplates["singlePlayerCampaignSaveName"] = "_CAMPAIGNS/%campaignName%/%mapName%/%turn%";
+    saveFileTemplates["singlePlayerRmgSaveName"] = "_RMG/%templateName% - %timestamp%/%turn%";
+    saveFileTemplates["multiPlayerScenarioSaveName"] = "%mapName%/%players% - %timestamp%/%turn%";
+    saveFileTemplates["multiPlayerRmgSaveName"] = "_RMG/%players%/%templateName% - %timestamp%/%turn%";
+
+	// gather needed info for save file name
+	int humanPlayerCount = 0;
+	bool isMulitplayerGame = false;
+	bool isHotseat = false; // ToDo : find a way to get if game is hotseat
+	bool simpleSaves = !settings["general"]["useSavePrefix"].Bool();
+	std::string saveName = settings["general"]["savePrefix"].String(); // to be replaced with more variables
+	std::string lastMapSaveName = ""; // ToDo : krs - count for autosaves continues from load save file name
+	std::string mapName = cb->getMapHeader()->name;
+	std::string mapDescription = cb->getMapHeader()->description;
+	std::string campaignName = "NA";
+	std::string timeStamp = cb->getStartInfo()->startTimeIso8601; // ToDo: krs - Get date time in more human format
+	std::string turn = std::to_string(cb->getDate(Date::MONTH))  
+		+ std::to_string(cb->getDate(Date::WEEK))
+		+ std::to_string(cb->getDate(Date::DAY_OF_WEEK)); 
+
+	// get random map info
+	if(mapName == "Random Map")
 	{
-		bool usePrefix = settings["general"]["useSavePrefix"].Bool();
-		std::string prefix = std::string();
+		mapType = RandomMap;
+		mapName = cb->getStartInfo()->mapGenOptions->getMapTemplate()->getName(); // template name
+		//auto playerCount = cb->getStartInfo()->mapGenOptions->getPlayerCount();
+	}
 
-		if(usePrefix)
+	// get campaign info
+	if(cb->getStartInfo()->mode == StartInfo::CAMPAIGN)
+	{
+		mapType = Campaign;
+		campaignName = cb->getStartInfo()->getCampaignName();
+	}
+
+	// get human player names (, separated) and number
+	std::string playerNames;
+	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+	{
+		if(!cb->getStartInfo()->playerInfos.count(player))
+			continue;
+
+		auto playerInfo = cb->getStartInfo()->playerInfos.at(player);
+		if(playerInfo.isControlledByHuman())
 		{
-			prefix = settings["general"]["savePrefix"].String();
-			if(prefix.empty())
-			{
-				std::string name = cb->getMapHeader()->name.toString();
-				int txtlen = TextOperations::getUnicodeCharactersCount(name);
-
-				TextOperations::trimRightUnicode(name, std::max(0, txtlen - 15));
-				std::string forbiddenChars("\\/:?\"<>| ");
-				std::replace_if(name.begin(), name.end(), [&](char c) { return std::string::npos != forbiddenChars.find(c); }, '_' );
-
-				prefix = name + "_" + cb->getStartInfo()->startTimeIso8601 + "/";
-			}
+			playerNames += playerInfo.name + ", ";
+			humanPlayerCount++;
 		}
+	}
+	playerNames.pop_back();
+	playerNames.pop_back();
+	isMulitplayerGame = humanPlayerCount > 1;
 
-		autosaveCount++;
+	// normalize map name
+	//int txtlen = TextOperations::getUnicodeCharactersCount(mapName); 
+	//TextOperations::trimRightUnicode(mapName, std::max(0, txtlen - 15)); // shorten to max 15 chars
+	std::string forbiddenChars("\\/<>:\"|?*\t\n\v\f\r"); 
+	std::replace_if(mapName.begin(), mapName.end(), [&](char c) { return std::string::npos != forbiddenChars.find(c); }, '_' ); // replace forbidden chars with _
 
-		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer();
-		if(autosaveCountLimit > 0)
+	// store variable values in map
+	std::unordered_map<std::string, std::string> variables;
+	variables["mapName"] = mapName;
+	variables["templateName"] = mapName;
+	variables["timestamp"] = timeStamp;
+	variables["turn"] = turn;
+	variables["players"] = playerNames;
+	variables["campaignName"] = campaignName;
+ 
+	if(simpleSaves)
+	{
+		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer(); 
+		// save using a counter, and overwrite depending on autosave count limit
+		if(autosaveCountLimit > 0) 
 		{
-			cb->save("Saves/Autosave/" + prefix + std::to_string(autosaveCount));
-			autosaveCount %= autosaveCountLimit;
+			auto saveNumber = extractNumberAfterHash(lastMapSaveName);
+			if(saveNumber != -1)
+				autosaveCount = saveNumber;
+
+			autosaveCount++;
+
+			saveName = "Autosave#" + std::to_string(autosaveCount);
+			autosaveCount %= autosaveCountLimit; 
+		}
+		// save using curent turn (EG: 113) and no limit
+		else 
+			saveName = "Autosave_" + turn; 
+	}
+	else
+	{
+		// determine save type
+		if(isMulitplayerGame)
+		{
+			switch(mapType)
+			{
+			case RandomMap:
+				saveName = saveFileTemplates["multiPlayerRmgSaveName"];
+				break;
+			case Scenario:
+				saveName = saveFileTemplates["multiPlayerScenarioSaveName"];
+				break;
+			}
+			
+			// prepend [hotseat] before player names
+			if(isHotseat)
+			{
+				size_t insertPos = saveName.find("%players%");
+
+				if(insertPos != std::string::npos)
+					saveName.insert(insertPos, "[hotseat]");
+			}
 		}
 		else
 		{
-			std::string stringifiedDate = std::to_string(cb->getDate(Date::MONTH))
-					+ std::to_string(cb->getDate(Date::WEEK))
-					+ std::to_string(cb->getDate(Date::DAY_OF_WEEK));
-
-			cb->save("Saves/Autosave/" + prefix + stringifiedDate);
+			switch(mapType)
+			{
+			case RandomMap:
+				saveName = saveFileTemplates["singlePlayerRmgSaveName"];
+				break;
+			case Scenario:
+				saveName = saveFileTemplates["singlePlayerScenarioSaveName"];
+				break;
+			case Campaign :
+				saveName = saveFileTemplates["singlePlayerCampaignSaveName"];
+				break;
+			}
 		}
-	}
+
+		saveName = replaceVariables(saveName, variables);
+	} 
+ 
+	cb->save("Saves/" + saveName); 
 }
 
 void CPlayerInterface::gamePause(bool pause)
