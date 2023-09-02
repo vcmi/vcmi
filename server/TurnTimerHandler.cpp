@@ -36,6 +36,7 @@ void TurnTimerHandler::onGameplayStart(PlayerColor player)
 		timers[player].isActive = true;
 		timers[player].isBattle = false;
 		lastUpdate[player] = std::numeric_limits<int>::max();
+		endTurnAllowed[player] = true;
 	}
 }
 
@@ -45,6 +46,13 @@ void TurnTimerHandler::setTimerEnabled(PlayerColor player, bool enabled)
 	assert(player.isValidPlayer());
 	timers[player].isActive = enabled;
 	sendTimerUpdate(player);
+}
+
+void TurnTimerHandler::setEndTurnAllowed(PlayerColor player, bool enabled)
+{
+	std::lock_guard<std::recursive_mutex> guard(mx);
+	assert(player.isValidPlayer());
+	endTurnAllowed[player] = enabled;
 }
 
 void TurnTimerHandler::sendTimerUpdate(PlayerColor player)
@@ -63,6 +71,7 @@ void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
 	{
 		if(si->turnTimerInfo.isEnabled())
 		{
+			endTurnAllowed[player] = true;
 			auto & timer = timers[player];
 			if(si->turnTimerInfo.baseTimer > 0)
 				timer.baseTimer += timer.turnTimer;
@@ -125,7 +134,7 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 				timer.baseTimer = 0;
 				onPlayerMakingTurn(player, 0);
 			}
-			else if(!gameHandler.queries->topQuery(state->color)) //wait for replies to avoid pending queries
+			else if(endTurnAllowed[state->color] && !gameHandler.queries->topQuery(state->color)) //wait for replies to avoid pending queries
 				gameHandler.turnOrder->onPlayerEndsTurn(state->color);
 		}
 	}
@@ -151,7 +160,7 @@ void TurnTimerHandler::onBattleStart()
 	std::lock_guard<std::recursive_mutex> guard(mx);
 	const auto * gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
-	if(!si || !gs || !gs->curB || !si->turnTimerInfo.isBattleEnabled())
+	if(!si || !gs || !gs->curB)
 		return;
 
 	auto attacker = gs->curB->getSidePlayer(BattleSide::ATTACKER);
@@ -165,6 +174,7 @@ void TurnTimerHandler::onBattleStart()
 		{
 			auto & timer = timers[i];
 			timer.isBattle = true;
+			timer.isActive = si->turnTimerInfo.isBattleEnabled();
 			timer.battleTimer = (pvpBattle ? si->turnTimerInfo.battleTimer : 0);
 			timer.creatureTimer = (pvpBattle ? si->turnTimerInfo.creatureTimer : si->turnTimerInfo.battleTimer);
 			
@@ -178,7 +188,7 @@ void TurnTimerHandler::onBattleEnd()
 	std::lock_guard<std::recursive_mutex> guard(mx);
 	const auto * gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
-	if(!si || !gs || !gs->curB || !si->turnTimerInfo.isBattleEnabled())
+	if(!si || !gs || !gs->curB)
 		return;
 
 	auto attacker = gs->curB->getSidePlayer(BattleSide::ATTACKER);
@@ -192,7 +202,7 @@ void TurnTimerHandler::onBattleEnd()
 		{
 			auto & timer = timers[i];
 			timer.isBattle = false;
-			
+			timer.isActive = true;
 			if(!pvpBattle)
 			{
 				if(si->turnTimerInfo.baseTimer && timer.baseTimer == 0)
