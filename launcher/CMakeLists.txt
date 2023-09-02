@@ -18,6 +18,7 @@ set(launcher_SRCS
 		lobby/lobby.cpp
 		lobby/lobby_moc.cpp
 		lobby/lobbyroomrequest_moc.cpp
+		lobby/chat_moc.cpp
 )
 
 set(launcher_HEADERS
@@ -39,6 +40,7 @@ set(launcher_HEADERS
 		lobby/lobby.h
 		lobby/lobby_moc.h
 		lobby/lobbyroomrequest_moc.h
+		lobby/chat_moc.h
 		main.h
 )
 
@@ -52,6 +54,7 @@ set(launcher_FORMS
 		updatedialog_moc.ui
 		lobby/lobby_moc.ui
 		lobby/lobbyroomrequest_moc.ui
+		lobby/chat_moc.ui
 )
 
 set(launcher_TS

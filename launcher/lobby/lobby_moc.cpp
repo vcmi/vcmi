@@ -34,19 +34,18 @@ Lobby::Lobby(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	connect(&socketLobby, SIGNAL(text(QString)), this, SLOT(sysMessage(QString)));
+	connect(&socketLobby, SIGNAL(text(QString)), ui->chatWidget, SLOT(sysMessage(QString)));
 	connect(&socketLobby, SIGNAL(receive(QString)), this, SLOT(dispatchMessage(QString)));
 	connect(&socketLobby, SIGNAL(disconnect()), this, SLOT(onDisconnected()));
+	connect(ui->chatWidget, SIGNAL(messageSent(QString)), this, SLOT(onMessageSent(QString)));
 	
 	QString hostString("%1:%2");
 	hostString = hostString.arg(QString::fromStdString(settings["launcher"]["lobbyUrl"].String()));
 	hostString = hostString.arg(settings["launcher"]["lobbyPort"].Integer());
-	namesCompleter.setModel(ui->listUsers->model());
-	namesCompleter.setCompletionMode(QCompleter::InlineCompletion);
+	
 	ui->serverEdit->setText(hostString);
 	ui->userEdit->setText(QString::fromStdString(settings["launcher"]["lobbyUsername"].String()));
 	ui->kickButton->setVisible(false);
-	ui->messageEdit->setCompleter(&namesCompleter);
 }
 
 void Lobby::changeEvent(QEvent *event)
@@ -112,7 +111,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	{
 	case SRVERROR:
 		protocolAssert(args.size());
-		chatMessage("System error", args[0], true);
+		ui->chatWidget->chatMessage("System error", args[0], true);
 		if(authentificationStatus == AuthStatus::AUTH_NONE)
 			authentificationStatus = AuthStatus::AUTH_ERROR;
 		break;
@@ -121,7 +120,8 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		protocolAssert(args.size());
 		hostSession = args[0];
 		session = args[0];
-		sysMessage("new session started");
+		ui->chatWidget->setSession(session);
+		ui->chatWidget->sysMessage("new session started");
 		break;
 
 	case SESSIONS:
@@ -154,6 +154,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	case KICKED:
 		protocolAssert(args.size() == 2);
 		session = "";
+		ui->chatWidget->setSession(session);
 		joinStr = (command.command == JOINED ? "%1 joined to the session %2" : "%1 left session %2");
 
 		if(args[1] == username)
@@ -161,8 +162,9 @@ void Lobby::serverCommand(const ServerCommand & command) try
 			hostModsMap.clear();
 			ui->buttonReady->setText("Ready");
 			ui->optNewGame->setChecked(true);
-			sysMessage(joinStr.arg("you", args[0]));
+			ui->chatWidget->sysMessage(joinStr.arg("you", args[0]));
 			session = args[0];
+			ui->chatWidget->setSession(session);
 			bool isHost = command.command == JOINED && hostSession == session;
 			ui->optNewGame->setEnabled(isHost);
 			ui->optLoadGame->setEnabled(isHost);
@@ -170,7 +172,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		}
 		else
 		{
-			sysMessage(joinStr.arg(args[1], args[0]));
+			ui->chatWidget->sysMessage(joinStr.arg(args[1], args[0]));
 		}
 		break;
 
@@ -247,7 +249,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		QString msg;
 		for(int i = 1; i < args.size(); ++i)
 			msg += args[i];
-		chatMessage(args[0], msg);
+		ui->chatWidget->chatMessage(args[0], msg);
 		break;
 		}
 			
@@ -261,10 +263,10 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		amount = args[0].toInt();
 		
 		protocolAssert(amount == (args.size() - 1));
-		ui->listUsers->clear();
+		ui->chatWidget->clearUsers();
 		for(int i = 0; i < amount; ++i)
 		{
-			ui->listUsers->addItem(new QListWidgetItem("@" + args[i + 1]));
+			ui->chatWidget->addUser(args[i + 1]);
 		}
 		break;
 	}
@@ -280,7 +282,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	}
 
 	default:
-		sysMessage("Unknown server command");
+			ui->chatWidget->sysMessage("Unknown server command");
 	}
 
 	if(authentificationStatus == AuthStatus::AUTH_ERROR)
@@ -295,7 +297,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 }
 catch(const ProtocolError & e)
 {
-	chatMessage("System error", e.what(), true);
+	ui->chatWidget->chatMessage("System error", e.what(), true);
 }
 
 void Lobby::dispatchMessage(QString txt) try
@@ -319,13 +321,14 @@ void Lobby::dispatchMessage(QString txt) try
 }
 catch(const ProtocolError & e)
 {
-	chatMessage("System error", e.what(), true);
+	ui->chatWidget->chatMessage("System error", e.what(), true);
 }
 
 void Lobby::onDisconnected()
 {
 	authentificationStatus = AuthStatus::AUTH_NONE;
 	session = "";
+	ui->chatWidget->setSession(session);
 	ui->stackedWidget->setCurrentWidget(ui->sessionsPage);
 	ui->connectButton->setChecked(false);
 	ui->serverEdit->setEnabled(true);
@@ -335,80 +338,10 @@ void Lobby::onDisconnected()
 	ui->sessionsTable->setRowCount(0);
 }
 
-void Lobby::chatMessage(QString title, QString body, bool isSystem)
-{
-	const QTextCharFormat regularFormat;
-	const QString boldHtml = "<b>%1</b>";
-	const QString colorHtml = "<font color=\"%1\">%2</font>";
-	bool meMentioned = false;
-	bool isScrollBarBottom = (ui->chat->verticalScrollBar()->maximum() - ui->chat->verticalScrollBar()->value() < 24);
-	
-	QTextCursor curs(ui->chat->document());
-	curs.movePosition(QTextCursor::End);
-	
-	QString titleColor = "Olive";
-	if(isSystem || title == "System")
-		titleColor = "ForestGreen";
-	if(title == username)
-		titleColor = "Gold";
-	
-	curs.insertHtml(boldHtml.arg(colorHtml.arg(titleColor, title + ": ")));
-	
-	QRegularExpression mentionRe("@[\\w\\d]+");
-	auto subBody = body;
-	int mem = 0;
-	for(auto match = mentionRe.match(subBody); match.hasMatch(); match = mentionRe.match(subBody))
-	{
-		body.insert(mem + match.capturedEnd(), QChar(-1));
-		body.insert(mem + match.capturedStart(), QChar(-1));
-		mem += match.capturedEnd() + 2;
-		subBody = body.right(body.size() - mem);
-	}
-	auto pieces = body.split(QChar(-1));
-	for(auto & block : pieces)
-	{
-		if(block.startsWith("@"))
-		{
-			if(block == "@" + username)
-			{
-				meMentioned = true;
-				curs.insertHtml(boldHtml.arg(colorHtml.arg("IndianRed", block)));
-			}
-			else
-				curs.insertHtml(colorHtml.arg("DeepSkyBlue", block));
-		}
-		else
-		{
-			if(isSystem)
-				curs.insertHtml(colorHtml.arg("ForestGreen", block));
-			else
-				curs.insertText(block, regularFormat);
-		}
-	}
-	curs.insertText("\n", regularFormat);
-	
-	if(meMentioned || isScrollBarBottom)
-	{
-		ui->chat->ensureCursorVisible();
-		ui->chat->verticalScrollBar()->setValue(ui->chat->verticalScrollBar()->maximum());
-	}
-}
-
-void Lobby::sysMessage(QString body)
-{
-	chatMessage("System", body, true);
-}
-
 void Lobby::protocolAssert(bool expr)
 {
 	if(!expr)
 		throw ProtocolError("Protocol error");
-}
-
-void Lobby::on_messageEdit_returnPressed()
-{
-	socketLobby.send(ProtocolStrings[MESSAGE].arg(ui->messageEdit->text()));
-	ui->messageEdit->clear();
 }
 
 void Lobby::on_connectButton_toggled(bool checked)
@@ -418,6 +351,7 @@ void Lobby::on_connectButton_toggled(bool checked)
 		ui->connectButton->setText(tr("Disconnect"));
 		authentificationStatus = AuthStatus::AUTH_NONE;
 		username = ui->userEdit->text();
+		ui->chatWidget->setUsername(username);
 		const int connectionTimeout = settings["launcher"]["connectionTimeout"].Integer();
 		
 		auto serverStrings = ui->serverEdit->text().split(":");
@@ -438,9 +372,9 @@ void Lobby::on_connectButton_toggled(bool checked)
 		ui->serverEdit->setEnabled(false);
 		ui->userEdit->setEnabled(false);
 
-		sysMessage("Connecting to " + serverUrl + ":" + QString::number(serverPort));
+		ui->chatWidget->sysMessage("Connecting to " + serverUrl + ":" + QString::number(serverPort));
 		//show text immediately
-		ui->chat->repaint();
+		ui->chatWidget->repaint();
 		qApp->processEvents();
 		
 		socketLobby.connectServer(serverUrl, serverPort, username, connectionTimeout);
@@ -450,7 +384,7 @@ void Lobby::on_connectButton_toggled(bool checked)
 		ui->connectButton->setText(tr("Connect"));
 		ui->serverEdit->setEnabled(true);
 		ui->userEdit->setEnabled(true);
-		ui->listUsers->clear();
+		ui->chatWidget->clearUsers();
 		hostModsMap.clear();
 		updateMods();
 		socketLobby.disconnectServer();
@@ -613,9 +547,7 @@ void Lobby::on_optLoadGame_toggled(bool checked)
 	}
 }
 
-
-void Lobby::on_chatSwither_clicked()
+void Lobby::onMessageSent(QString message)
 {
-	isGlobalChat = session.isEmpty() ? true : !isGlobalChat;
-	ui->chatSwither->setText(isGlobalChat ? tr("Global chat") : tr("Room chat"));
+	socketLobby.send(ProtocolStrings[MESSAGE].arg(message));
 }
