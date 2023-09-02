@@ -13,6 +13,8 @@
 
 #include "../../lib/NetPacks.h"
 
+struct SideInBattle;
+
 class CBattleQuery : public CGhQuery
 {
 public:
@@ -33,6 +35,7 @@ class CBattleDialogQuery : public CDialogQuery
 {
 public:
 	CBattleDialogQuery(CGameHandler * owner, const BattleInfo * Bi);
+	CBattleDialogQuery(CGameHandler * owner, const BattleInfo * Bi, const SideInBattle & sideToAdd);
 
 	const BattleInfo * bi;
 

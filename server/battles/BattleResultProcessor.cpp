@@ -16,6 +16,7 @@
 #include "../queries/BattleQueries.h"
 
 #include "../../lib/ArtifactUtils.h"
+#include "../../lib/CPlayerState.h"
 #include "../../lib/CStack.h"
 #include "../../lib/GameSettings.h"
 #include "../../lib/battle/BattleInfo.h"
@@ -245,10 +246,21 @@ void BattleResultProcessor::endBattle(int3 tile, const CGHeroInstance * heroAtta
 	const int queriedPlayers = battleQuery ? (int)boost::count(gameHandler->queries->allQueries(), battleQuery) : 0;
 	finishingBattle = std::make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
 
-	// in battles against neutrals, 1st player can ask to replay battle manually
-	if (!gameHandler->gameState()->curB->sides[1].color.isValidPlayer())
+	const PlayerState * attackerPlayer = gameHandler->getPlayerState(gameHandler->gameState()->curB->sides[0].color);
+	const PlayerState * defenderPlayer = gameHandler->getPlayerState(gameHandler->gameState()->curB->sides[1].color);
+	bool isDefenderNeutralPlayer = !defenderPlayer->color.isValidPlayer();
+	bool isOneSideAiPlayer = (attackerPlayer->isHuman() && !defenderPlayer->isHuman()) || (!attackerPlayer->isHuman() && defenderPlayer->isHuman());
+	// in battles against neutrals attacker can ask to replay battle manually, additionally in battles against AI player human side can also ask for replay
+	if (isDefenderNeutralPlayer)
 	{
 		auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(gameHandler, gameHandler->gameState()->curB);
+		battleResult->queryID = battleDialogQuery->queryID;
+		gameHandler->queries->addQuery(battleDialogQuery);
+	}
+	else if(isOneSideAiPlayer)
+	{
+		SideInBattle sideToReceiveQuery = attackerPlayer->isHuman() ? gameHandler->gameState()->curB->sides[0] : gameHandler->gameState()->curB->sides[1];
+		auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(gameHandler, gameHandler->gameState()->curB, sideToReceiveQuery);
 		battleResult->queryID = battleDialogQuery->queryID;
 		gameHandler->queries->addQuery(battleDialogQuery);
 	}

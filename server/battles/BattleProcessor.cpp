@@ -18,7 +18,7 @@
 #include "../queries/QueriesProcessor.h"
 #include "../queries/BattleQueries.h"
 
-#include "../lib/CPlayerState.h"
+#include "../../lib/CPlayerState.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/gameState/CGameState.h"
@@ -138,8 +138,8 @@ void BattleProcessor::setupBattle(int3 tile, const CArmedInstance *armies[2], co
 	engageIntoBattle(bs.info->sides[1].color);
 
 	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(bs.info->sides[0].color));
-	bool isDefenderHuman = bs.info->sides[1].color.isValidPlayer() && gameHandler->getPlayerState(bs.info->sides[1].color)->human;
-	bool isAttackerHuman = gameHandler->getPlayerState(bs.info->sides[0].color)->human;
+	bool isDefenderHuman = bs.info->sides[1].color.isValidPlayer() && gameHandler->getPlayerState(bs.info->sides[1].color)->isHuman();
+	bool isAttackerHuman = gameHandler->getPlayerState(bs.info->sides[0].color)->isHuman();
 
 	bs.info->replayAllowed = lastBattleQuery == nullptr && (!isDefenderHuman || !isAttackerHuman );
 

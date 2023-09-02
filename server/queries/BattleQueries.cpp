@@ -61,6 +61,14 @@ CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const BattleInfo * 
 		addPlayer(side.color);
 }
 
+CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const BattleInfo * Bi, const SideInBattle & sideToAdd):
+		CDialogQuery(owner)
+{
+	bi = Bi;
+
+	addPlayer(sideToAdd.color);
+}
+
 void CBattleDialogQuery::onRemoval(PlayerColor color)
 {
 	assert(answer);
