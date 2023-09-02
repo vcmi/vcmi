@@ -141,6 +141,9 @@ void CDownloadManager::downloadProgressChanged(qint64 bytesReceived, qint64 byte
 	quint64 received = 0;
 	for(auto & entry : currentDownloads)
 		received += entry.bytesReceived > 0 ? entry.bytesReceived : 0;
+	
+	if(received > total)
+		total = received;
 
 	emit downloadProgress(received, total);
 }

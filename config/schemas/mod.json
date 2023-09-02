@@ -22,6 +22,10 @@
 					"type" : "string",
 					"description" : "Author of the mod. Can be nickname, real name or name of team"
 				},
+				"size": {
+					"type" : "number",
+					"description" : "Approximate size of mod, compressed by zip algorithm, in Mb"
+				},
 				"changelog" : {
 					"type" : "object",
 					"description" : "List of changes/new features in each version",
