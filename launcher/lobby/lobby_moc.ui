@@ -71,11 +71,25 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Players in lobby</string>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="bottomMargin">
+          <number>0</number>
          </property>
-        </widget>
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Users in chat</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="chatSwither">
+           <property name="text">
+            <string>Global chat</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QListWidget" name="listUsers">
@@ -109,21 +123,17 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_6">
+        <widget class="QTextBrowser" name="chat"/>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="messageEdit">
          <property name="text">
-          <string>Lobby chat</string>
+          <string/>
+         </property>
+         <property name="placeholderText">
+          <string>type you message</string>
          </property>
         </widget>
-       </item>
-       <item>
-        <widget class="QPlainTextEdit" name="chat">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="messageEdit"/>
        </item>
       </layout>
      </item>

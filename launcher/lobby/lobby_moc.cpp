@@ -41,10 +41,12 @@ Lobby::Lobby(QWidget *parent) :
 	QString hostString("%1:%2");
 	hostString = hostString.arg(QString::fromStdString(settings["launcher"]["lobbyUrl"].String()));
 	hostString = hostString.arg(settings["launcher"]["lobbyPort"].Integer());
-	
+	namesCompleter.setModel(ui->listUsers->model());
+	namesCompleter.setCompletionMode(QCompleter::InlineCompletion);
 	ui->serverEdit->setText(hostString);
 	ui->userEdit->setText(QString::fromStdString(settings["launcher"]["lobbyUsername"].String()));
 	ui->kickButton->setVisible(false);
+	ui->messageEdit->setCompleter(&namesCompleter);
 }
 
 void Lobby::changeEvent(QEvent *event)
@@ -151,6 +153,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	case JOINED:
 	case KICKED:
 		protocolAssert(args.size() == 2);
+		session = "";
 		joinStr = (command.command == JOINED ? "%1 joined to the session %2" : "%1 left session %2");
 
 		if(args[1] == username)
@@ -261,7 +264,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		ui->listUsers->clear();
 		for(int i = 0; i < amount; ++i)
 		{
-			ui->listUsers->addItem(new QListWidgetItem(args[i + 1]));
+			ui->listUsers->addItem(new QListWidgetItem("@" + args[i + 1]));
 		}
 		break;
 	}
@@ -322,6 +325,7 @@ catch(const ProtocolError & e)
 void Lobby::onDisconnected()
 {
 	authentificationStatus = AuthStatus::AUTH_NONE;
+	session = "";
 	ui->stackedWidget->setCurrentWidget(ui->sessionsPage);
 	ui->connectButton->setChecked(false);
 	ui->serverEdit->setEnabled(true);
@@ -342,7 +346,12 @@ void Lobby::chatMessage(QString title, QString body, bool isSystem)
 	curs.movePosition(QTextCursor::End);
 	curs.insertText(title + ": ", fmtTitle);
 	curs.insertText(body + "\n", fmtBody);
-	ui->chat->ensureCursorVisible();
+	
+	if(ui->chat->verticalScrollBar()->maximum() - ui->chat->verticalScrollBar()->value() > 32)
+	{
+		ui->chat->ensureCursorVisible();
+		ui->chat->verticalScrollBar()->setValue(ui->chat->verticalScrollBar()->maximum());
+	}
 }
 
 void Lobby::sysMessage(QString body)
@@ -564,3 +573,9 @@ void Lobby::on_optLoadGame_toggled(bool checked)
 	}
 }
 
+
+void Lobby::on_chatSwither_clicked()
+{
+	isGlobalChat = session.isEmpty() ? true : !isGlobalChat;
+	ui->chatSwither->setText(isGlobalChat ? tr("Global chat") : tr("Room chat"));
+}
