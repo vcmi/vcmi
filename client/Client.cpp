@@ -599,14 +599,22 @@ void CClient::battleStarted(const BattleInfo * info)
 		def = std::dynamic_pointer_cast<CPlayerInterface>(playerint[rightSide.color]);
 	
 	//Remove player interfaces for auto battle (quickCombat option)
-	if(att && att->isAutoFightOn)
+	if((att && att->isAutoFightOn) || (def && def->isAutoFightOn))
 	{
-		if (att->cb->battleGetTacticDist())
+		auto endTacticPhaseIfEligible = [](const CPlayerInterface * interface)
 		{
-			auto side = att->cb->playerToSide(att->playerID);
-			auto action = BattleAction::makeEndOFTacticPhase(*side);
-			att->cb->battleMakeTacticAction(action);
-		}
+			if (interface->cb->battleGetTacticDist())
+			{
+				auto side = interface->cb->playerToSide(interface->playerID);
+				auto action = BattleAction::makeEndOFTacticPhase(*side);
+				interface->cb->battleMakeTacticAction(action);
+			}
+		};
+
+		if(att && att->isAutoFightOn)
+			endTacticPhaseIfEligible(att.get());
+		else // def && def->isAutoFightOn
+			endTacticPhaseIfEligible(def.get());
 
 		att.reset();
 		def.reset();
