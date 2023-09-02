@@ -280,16 +280,6 @@ void CPlayerInterface::performAutosave()
 	};
 	MapType mapType{ Scenario };
 
-	// ToDo: krs - move these into launcher?
-	// predefined save name templates
-	std::map<std::string, std::string> saveFileTemplates;
-
-    saveFileTemplates["singlePlayerScenarioSaveName"] = "%mapName%/%turn%";
-    saveFileTemplates["singlePlayerCampaignSaveName"] = "_CAMPAIGNS/%campaignName%/%mapName%/%turn%";
-    saveFileTemplates["singlePlayerRmgSaveName"] = "_RMG/%templateName% - %timestamp%/%turn%";
-    saveFileTemplates["multiPlayerScenarioSaveName"] = "%mapName%/%players% - %timestamp%/%turn%";
-    saveFileTemplates["multiPlayerRmgSaveName"] = "_RMG/%players%/%templateName% - %timestamp%/%turn%";
-
 	// gather needed info for save file name
 	int humanPlayerCount = 0;
 	bool isMulitplayerGame = false;
@@ -380,18 +370,15 @@ void CPlayerInterface::performAutosave()
 			switch(mapType)
 			{
 			case RandomMap:
-				saveName = saveFileTemplates["multiPlayerRmgSaveName"];
-				break;
+				saveName = settings["general"]["multiPlayerRmgSaveName"].String(); break;
 			case Scenario:
-				saveName = saveFileTemplates["multiPlayerScenarioSaveName"];
-				break;
+				saveName = settings["general"]["multiPlayerScenarioSaveName"].String(); break;
 			}
 			
 			// prepend [hotseat] before player names
 			if(isHotseat)
 			{
 				size_t insertPos = saveName.find("%players%");
-
 				if(insertPos != std::string::npos)
 					saveName.insert(insertPos, "[hotseat]");
 			}
@@ -401,14 +388,11 @@ void CPlayerInterface::performAutosave()
 			switch(mapType)
 			{
 			case RandomMap:
-				saveName = saveFileTemplates["singlePlayerRmgSaveName"];
-				break;
+				saveName = settings["general"]["singlePlayerRmgSaveName"].String(); break;
 			case Scenario:
-				saveName = saveFileTemplates["singlePlayerScenarioSaveName"];
-				break;
+				saveName = settings["general"]["singlePlayerScenarioSaveName"].String(); break;
 			case Campaign :
-				saveName = saveFileTemplates["singlePlayerCampaignSaveName"];
-				break;
+				saveName = settings["general"]["singlePlayerCampaignSaveName"].String(); break;
 			}
 		}
 

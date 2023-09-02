@@ -38,6 +38,11 @@
 				"autosaveCountLimit",
 				"useSavePrefix",
 				"savePrefix",
+				"singlePlayerScenarioSaveName",
+				"singlePlayerCampaignSaveName",
+				"singlePlayerRmgSaveName",
+				"multiPlayerScenarioSaveName",
+				"multiPlayerRmgSaveName",
 				"startTurnAutosave",
 				"enableUiEnhancements"
 			],
@@ -123,6 +128,26 @@
 				"savePrefix" : {
 					"type": "string",
 					"default": ""
+				},
+				"singlePlayerScenarioSaveName" : {
+					"type": "string",
+					"default": "%mapName%/%turn%"
+				},
+				"singlePlayerCampaignSaveName" : {
+					"type": "string",
+					"default": "_CAMPAIGNS/%campaignName%/%mapName%/%turn%"
+				},
+				"singlePlayerRmgSaveName" : {
+					"type": "string",
+					"default": "_RMG/%templateName% - %timestamp%/%turn%"
+				},
+				"multiPlayerScenarioSaveName" : {
+					"type": "string",
+					"default": "%mapName%/%players% - %timestamp%/%turn%"
+				},
+				"multiPlayerRmgSaveName" : {
+					"type": "string",
+					"default": "_RMG/%players%/%templateName% - %timestamp%/%turn%"
 				},
 				"startTurnAutosave" : {
 					"type": "boolean",
