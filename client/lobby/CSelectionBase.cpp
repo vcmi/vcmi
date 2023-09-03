@@ -389,32 +389,37 @@ CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> ico
 	: CWindowObject(BORDERED | RCLICK_POPUP | SHADOW_DISABLED, "DIBOXBCK")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	pos.w = 256;
-	pos.h = 90 + 50 * SEL->getMapInfo()->mapHeader->howManyTeams;
 
 	labelTeamAlignment = std::make_shared<CLabel>(128, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[657]);
 	labelGroupTeams = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
-	for(int i = 0; i < SEL->getMapInfo()->mapHeader->howManyTeams; i++)
+
+	std::vector<std::set<ui8>> teams(PlayerColor::PLAYER_LIMIT_I);
+	for(ui8 j = 0; j < PlayerColor::PLAYER_LIMIT_I; j++)
 	{
-		std::vector<ui8> flags;
-		labelGroupTeams->add(128, 65 + 50 * i, boost::str(boost::format(CGI->generaltexth->allTexts[656]) % (i+1)));
-
-		for(int j = 0; j < PlayerColor::PLAYER_LIMIT_I; j++)
+		if(SEL->getPlayerInfo(j).canHumanPlay || SEL->getPlayerInfo(j).canComputerPlay)
 		{
-			if((SEL->getPlayerInfo(j).canHumanPlay || SEL->getPlayerInfo(j).canComputerPlay)
-				&& SEL->getPlayerInfo(j).team == TeamID(i))
-			{
-				flags.push_back(j);
-			}
-		}
-
-		int curx = 128 - 9 * (int)flags.size();
-		for(auto & flag : flags)
-		{
-			iconsFlags.push_back(std::make_shared<CAnimImage>(icons, flag, 0, curx, 75 + 50 * i));
-			curx += 18;
+			teams[SEL->getPlayerInfo(j).team].insert(j);
 		}
 	}
+
+	auto curIdx = 0;
+	for(const auto & team : teams)
+	{
+		if(team.empty())
+			continue;
+
+		labelGroupTeams->add(128, 65 + 50 * curIdx, boost::str(boost::format(CGI->generaltexth->allTexts[656]) % (curIdx + 1)));
+		int curx = 128 - 9 * team.size();
+		for(const auto & player : team)
+		{
+			iconsFlags.push_back(std::make_shared<CAnimImage>(icons, player, 0, curx, 75 + 50 * curIdx));
+			curx += 18;
+		}
+		++curIdx;
+	}
+	pos.w = 256;
+	pos.h = 90 + 50 * curIdx;
+
 	background->scaleTo(Point(pos.w, pos.h));
 	center();
 }
