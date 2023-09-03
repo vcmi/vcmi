@@ -184,8 +184,16 @@ void Initializer::initialize(CGMine * o)
 	if(!o) return;
 	
 	o->tempOwner = defaultPlayer;
-	o->producedResource = GameResID(o->subID);
-	o->producedQuantity = o->defaultResProduction();
+	if(o->isAbandoned())
+	{
+		for(auto r = GameResID(0); r < GameResID::COUNT; ++r)
+			o->abandonedMineResources.insert(r);
+	}
+	else
+	{
+		o->producedResource = GameResID(o->subID);
+		o->producedQuantity = o->defaultResProduction();
+	}
 }
 
 void Initializer::initialize(CGResource * o)
