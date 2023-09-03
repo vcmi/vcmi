@@ -260,17 +260,28 @@ bool ArtifactUtilsClient::askToAssemble(const CGHeroInstance * hero, const Artif
 	assert(hero);
 	const auto art = hero->getArt(slot);
 	assert(art);
+
+	if(hero->tempOwner != LOCPLINT->playerID)
+		return false;
+
 	auto assemblyPossibilities = ArtifactUtils::assemblyPossibilities(hero, art->getTypeId(), ArtifactUtils::isSlotEquipment(slot));
-
-	for(const auto combinedArt : assemblyPossibilities)
+	if(!assemblyPossibilities.empty())
 	{
-		LOCPLINT->showArtifactAssemblyDialog(
-			art->artType,
-			combinedArt,
-			std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, true, combinedArt->getId()));
+		auto askThread = new boost::thread([hero, art, slot, assemblyPossibilities]() -> void
+			{
+				for(const auto combinedArt : assemblyPossibilities)
+				{
+					bool assembleConfirmed = false;
+					CFunctionList<void()> onYesHandlers([&assembleConfirmed]() -> void {assembleConfirmed = true; });
+					onYesHandlers += std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, true, combinedArt->getId());
 
-		if(assemblyPossibilities.size() > 2)
-			logGlobal->warn("More than one possibility of assembling on %s... taking only first", art->artType->getNameTranslated());
+					LOCPLINT->showArtifactAssemblyDialog(art->artType, combinedArt, onYesHandlers);
+					LOCPLINT->waitWhileDialog(false);
+					if(assembleConfirmed)
+						break;
+				}
+			});
+		askThread->detach();
 		return true;
 	}
 	return false;
@@ -281,6 +292,9 @@ bool ArtifactUtilsClient::askToDisassemble(const CGHeroInstance * hero, const Ar
 	assert(hero);
 	const auto art = hero->getArt(slot);
 	assert(art);
+
+	if(hero->tempOwner != LOCPLINT->playerID)
+		return false;
 
 	if(art->isCombined())
 	{

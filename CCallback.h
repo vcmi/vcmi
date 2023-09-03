@@ -89,7 +89,7 @@ public:
 	virtual int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val)=0;//split creatures from the first stack
 	//virtual bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)=0; //swaps artifacts between two given heroes
 	virtual bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2)=0;
-	virtual bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)=0;
+	virtual void assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)=0;
 	virtual void eraseArtifactByClient(const ArtifactLocation & al)=0;
 	virtual bool dismissCreature(const CArmedInstance *obj, SlotID stackPos)=0;
 	virtual void endTurn()=0;
@@ -170,7 +170,7 @@ public:
 	int bulkMergeStacks(ObjectInstanceID armyId, SlotID srcSlot) override;
 	bool dismissHero(const CGHeroInstance * hero) override;
 	bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2) override;
-	bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo) override;
+	void assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo) override;
 	void bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap) override;
 	void eraseArtifactByClient(const ArtifactLocation & al) override;
 	bool buildBuilding(const CGTownInstance *town, BuildingID buildingID) override;

@@ -185,7 +185,7 @@ public: // public interface for use by client via LOCPLINT access
 	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;
 
 	void showHeroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2);
-	void showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<bool()> onYes);
+	void showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<void()> onYes);
 	void waitWhileDialog(bool unlockPim = true);
 	void waitForAllDialogs(bool unlockPim = true);
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
