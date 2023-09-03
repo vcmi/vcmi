@@ -12,7 +12,7 @@ Chat::Chat(QWidget *parent) :
 	
 	ui->messageEdit->setCompleter(&namesCompleter);
 	
-	for(auto i : {GLOBAL, ROOM})
+	for([[maybe_unused]] auto i : {GLOBAL, ROOM})
 		chatDocuments.push_back(new QTextDocument(this));
 	
 	setChatId(GLOBAL);
