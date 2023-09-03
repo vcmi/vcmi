@@ -218,6 +218,10 @@ void InfoCard::changeSelection()
 	flagbox->recreate();
 	labelDifficulty->setText(CGI->generaltexth->arraytxt[142 + mapInfo->mapHeader->difficulty]);
 	iconDifficulty->setSelected(SEL->getCurrentDifficulty());
+	if(SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::saveGame)
+		for(auto & button : iconDifficulty->buttons)
+			button.second->setEnabled(button.first == SEL->getCurrentDifficulty());
+
 	const std::array<std::string, 5> difficultyPercent = {"80%", "100%", "130%", "160%", "200%"};
 	labelDifficultyPercent->setText(difficultyPercent[SEL->getCurrentDifficulty()]);
 
