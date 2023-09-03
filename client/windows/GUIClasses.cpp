@@ -748,6 +748,9 @@ void CExchangeController::moveStack(
 	SlotID sourceSlot)
 {
 	auto creature = source->getCreature(sourceSlot);
+	if(creature == nullptr)
+		return;
+
 	SlotID targetSlot = target->getSlotFor(creature);
 
 	if(targetSlot.validSlot())
