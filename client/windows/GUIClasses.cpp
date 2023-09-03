@@ -884,9 +884,6 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		manaValues[leftRight] = std::make_shared<CLabel>(155 + 490 * leftRight, qeLayout ? 66 : 71, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	}
 
-	portraits[0] = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), heroInst[0]->portrait, 0, 257, 13);
-	portraits[1] = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), heroInst[1]->portrait, 0, 485, 13);
-
 	artifs[0] = std::make_shared<CArtifactsOfHeroMain>(Point(-334, 150));
 	artifs[0]->setHero(heroInst[0]);
 	artifs[1] = std::make_shared<CArtifactsOfHeroMain>(Point(98, 150));
@@ -933,7 +930,12 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->skillh->getByIndex(skill)->getNameTranslated());
 		}
 
-		heroAreas[b] = std::make_shared<CHeroArea>(257 + 228*b, 13, hero);
+		heroAreas[b] = std::make_shared<CHeroArea>(257 + 228 * b, 13, hero);
+		heroAreas[b]->addClickCallback([this, hero]() -> void
+			{
+				if(getPickedArtifact() == nullptr)
+					LOCPLINT->openHeroWindow(hero);
+			});
 
 		specialtyAreas[b] = std::make_shared<LRClickableAreaWText>();
 		specialtyAreas[b]->pos = Rect(Point(pos.x + 69 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));

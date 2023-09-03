@@ -286,7 +286,6 @@ class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public 
 	std::array<std::shared_ptr<CLabel>, 2> expValues;
 	std::array<std::shared_ptr<CAnimImage>, 2> manaImages;
 	std::array<std::shared_ptr<CLabel>, 2> manaValues;
-	std::array<std::shared_ptr<CAnimImage>, 2> portraits;
 
 	std::vector<std::shared_ptr<LRClickableAreaWTextComp>> primSkillAreas;
 	std::array<std::vector<std::shared_ptr<LRClickableAreaWTextComp>>, 2> secSkillAreas;
