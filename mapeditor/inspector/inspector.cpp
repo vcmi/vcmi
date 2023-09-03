@@ -118,7 +118,10 @@ void Initializer::initialize(CGHeroInstance * o)
 	
 	o->tempOwner = defaultPlayer;
 	if(o->ID == Obj::PRISON)
+	{
+		o->subID = 0;
 		o->tempOwner = PlayerColor::NEUTRAL;
+	}
 	
 	if(o->ID == Obj::HERO)
 	{
