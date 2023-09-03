@@ -15,7 +15,7 @@ Chat::Chat(QWidget *parent) :
 	for(auto i : {GLOBAL, ROOM})
 		chatDocuments.push_back(new QTextDocument(this));
 	
-	ui->chat->setDocument(chatDocuments[GLOBAL]);
+	setChatId(GLOBAL);
 }
 
 Chat::~Chat()
@@ -31,10 +31,15 @@ void Chat::setUsername(const QString & user)
 void Chat::setSession(const QString & s)
 {
 	session = s;
-	if(session.isEmpty())
-		setChatId(GLOBAL);
-	else
-		setChatId(ROOM);
+	
+	on_chatSwitch_clicked();
+}
+
+void Chat::setChannel(const QString & channel)
+{
+	static const QMap<QString, ChatId> chatNames{{"global", GLOBAL}, {"room", ROOM}};
+	
+	setChatId(chatNames.value(channel));
 }
 
 void Chat::addUser(const QString & user)
@@ -47,7 +52,7 @@ void Chat::clearUsers()
 	ui->listUsers->clear();
 }
 
-void Chat::chatMessage(const QString & title, QString body, bool isSystem)
+void Chat::chatMessage(const QString & title, const QString & channel, QString body, bool isSystem)
 {
 	const QTextCharFormat regularFormat;
 	const QString boldHtml = "<b>%1</b>";
@@ -55,7 +60,12 @@ void Chat::chatMessage(const QString & title, QString body, bool isSystem)
 	bool meMentioned = false;
 	bool isScrollBarBottom = (ui->chat->verticalScrollBar()->maximum() - ui->chat->verticalScrollBar()->value() < 24);
 	
-	QTextCursor curs(ui->chat->document());
+	static const QMap<QString, ChatId> chatNames{{"global", GLOBAL}, {"room", ROOM}};
+	QTextDocument * doc = ui->chat->document();
+	if(chatNames.contains(channel))
+		doc = chatDocuments[chatNames.value(channel)];
+	
+	QTextCursor curs(doc);
 	curs.movePosition(QTextCursor::End);
 	
 	QString titleColor = "Olive";
@@ -99,11 +109,16 @@ void Chat::chatMessage(const QString & title, QString body, bool isSystem)
 	}
 	curs.insertText("\n", regularFormat);
 	
-	if(meMentioned || isScrollBarBottom)
+	if(doc == ui->chat->document() && (meMentioned || isScrollBarBottom))
 	{
 		ui->chat->ensureCursorVisible();
 		ui->chat->verticalScrollBar()->setValue(ui->chat->verticalScrollBar()->maximum());
 	}
+}
+
+void Chat::chatMessage(const QString & title, QString body, bool isSystem)
+{
+	chatMessage(title, "", body, isSystem);
 }
 
 void Chat::sysMessage(QString body)
@@ -111,24 +126,31 @@ void Chat::sysMessage(QString body)
 	chatMessage("System", body, true);
 }
 
+void Chat::sendMessage()
+{
+	QString msg(ui->messageEdit->text());
+	ui->messageEdit->clear();
+	emit messageSent(msg);
+}
+
 void Chat::on_messageEdit_returnPressed()
 {
-	emit messageSent(ui->messageEdit->text());
-	ui->messageEdit->clear();
+	sendMessage();
 }
 
 void Chat::on_sendButton_clicked()
 {
-	emit messageSent(ui->messageEdit->text());
-	ui->messageEdit->clear();
+	sendMessage();
 }
 
 void Chat::on_chatSwitch_clicked()
 {
+	static const QMap<ChatId, QString> chatNames{{GLOBAL, "global"}, {ROOM, "room"}};
+	
 	if(chatId == GLOBAL && !session.isEmpty())
-		setChatId(ROOM);
+		emit channelSwitch(chatNames[ROOM]);
 	else
-		setChatId(GLOBAL);
+		emit channelSwitch(chatNames[GLOBAL]);
 }
 
 void Chat::setChatId(ChatId _chatId)

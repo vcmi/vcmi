@@ -25,6 +25,7 @@ class Chat : public QWidget
 	
 private:
 	void setChatId(ChatId);
+	void sendMessage();
 
 public:
 	explicit Chat(QWidget *parent = nullptr);
@@ -32,14 +33,17 @@ public:
 	
 	void setUsername(const QString &);
 	void setSession(const QString &);
+	void setChannel(const QString &);
 	
 	void clearUsers();
 	void addUser(const QString & user);
 	
+	void chatMessage(const QString & title, const QString & channel, QString body, bool isSystem = false);
 	void chatMessage(const QString & title, QString body, bool isSystem = false);
 	
 signals:
 	void messageSent(QString);
+	void channelSwitch(QString);
 	
 public slots:
 	void sysMessage(QString body);

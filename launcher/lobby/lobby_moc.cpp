@@ -38,6 +38,7 @@ Lobby::Lobby(QWidget *parent) :
 	connect(&socketLobby, SIGNAL(receive(QString)), this, SLOT(dispatchMessage(QString)));
 	connect(&socketLobby, SIGNAL(disconnect()), this, SLOT(onDisconnected()));
 	connect(ui->chatWidget, SIGNAL(messageSent(QString)), this, SLOT(onMessageSent(QString)));
+	connect(ui->chatWidget, SIGNAL(channelSwitch(QString)), this, SLOT(onChannelSwitch(QString)));
 	
 	QString hostString("%1:%2");
 	hostString = hostString.arg(QString::fromStdString(settings["launcher"]["lobbyUrl"].String()));
@@ -121,7 +122,6 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		hostSession = args[0];
 		session = args[0];
 		ui->chatWidget->setSession(session);
-		ui->chatWidget->sysMessage("new session started");
 		break;
 
 	case SESSIONS:
@@ -155,14 +155,11 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		protocolAssert(args.size() == 2);
 		session = "";
 		ui->chatWidget->setSession(session);
-		joinStr = (command.command == JOINED ? "%1 joined to the session %2" : "%1 left session %2");
-
 		if(args[1] == username)
 		{
 			hostModsMap.clear();
 			ui->buttonReady->setText("Ready");
 			ui->optNewGame->setChecked(true);
-			ui->chatWidget->sysMessage(joinStr.arg("you", args[0]));
 			session = args[0];
 			ui->chatWidget->setSession(session);
 			bool isHost = command.command == JOINED && hostSession == session;
@@ -172,6 +169,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		}
 		else
 		{
+			joinStr = (command.command == JOINED ? "%1 joined to the session %2" : "%1 left session %2");
 			ui->chatWidget->sysMessage(joinStr.arg(args[1], args[0]));
 		}
 		break;
@@ -250,6 +248,21 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		for(int i = 1; i < args.size(); ++i)
 			msg += args[i];
 		ui->chatWidget->chatMessage(args[0], msg);
+		break;
+		}
+			
+	case CHATCHANNEL: {
+		protocolAssert(args.size() > 2);
+		QString msg;
+		for(int i = 2; i < args.size(); ++i)
+			msg += args[i];
+		ui->chatWidget->chatMessage(args[0], args[1], msg);
+		break;
+		}
+			
+	case CHANNEL: {
+		protocolAssert(args.size() == 1);
+		ui->chatWidget->setChannel(args[0]);
 		break;
 		}
 			
@@ -550,4 +563,9 @@ void Lobby::on_optLoadGame_toggled(bool checked)
 void Lobby::onMessageSent(QString message)
 {
 	socketLobby.send(ProtocolStrings[MESSAGE].arg(message));
+}
+
+void Lobby::onChannelSwitch(QString channel)
+{
+	socketLobby.send(ProtocolStrings[SETCHANNEL].arg(channel));
 }

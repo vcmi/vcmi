@@ -36,6 +36,7 @@ private slots:
 	void dispatchMessage(QString);
 	void serverCommand(const ServerCommand &);
 	void onMessageSent(QString message);
+	void onChannelSwitch(QString channel);
 
 	void on_connectButton_toggled(bool checked);
 
