@@ -189,7 +189,7 @@ void Initializer::initialize(CGMine * o)
 	o->tempOwner = defaultPlayer;
 	if(o->isAbandoned())
 	{
-		for(auto r = GameResID(0); r < GameResID::COUNT; ++r)
+		for(auto r = 0; r < GameConstants::RESOURCE_QUANTITY - 1; ++r)
 			o->abandonedMineResources.insert(r);
 	}
 	else
