@@ -55,7 +55,11 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 		if(aaa->isFolder != bbb->isFolder)
 			return (aaa->isFolder > bbb->isFolder);
 		else
+		{
+			if(boost::algorithm::starts_with(aaa->folderName, "..") || boost::algorithm::starts_with(bbb->folderName, ".."))
+				return boost::algorithm::starts_with(aaa->folderName, "..");
 			return boost::ilexicographical_compare(aaa->folderName, bbb->folderName);
+		}
 	}
 
 	auto a = aaa->mapHeader.get();
