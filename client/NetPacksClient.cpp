@@ -306,14 +306,13 @@ void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 		}
 	};
 
-	ArtifactLocation srcLoc(pack.srcArtHolder, pack.artsPack0.front().srcPos);
-	ArtifactLocation dstLoc(pack.dstArtHolder, pack.artsPack0.front().dstPos);
+	auto srcOwner = std::get<ConstTransitivePtr<CGHeroInstance>>(pack.srcArtHolder)->tempOwner;
+	auto dstOwner = std::get<ConstTransitivePtr<CGHeroInstance>>(pack.dstArtHolder)->tempOwner;
 
 	// Begin a session of bulk movement of arts. It is not necessary but useful for the client optimization.
-	callInterfaceIfPresent(cl, srcLoc.owningPlayer(), &IGameEventsReceiver::bulkArtMovementStart, pack.artsPack0.size() + pack.artsPack1.size());
-
-	if (srcLoc.owningPlayer() != dstLoc.owningPlayer())
-		callInterfaceIfPresent(cl, dstLoc.owningPlayer(), &IGameEventsReceiver::bulkArtMovementStart, pack.artsPack0.size() + pack.artsPack1.size());
+	callInterfaceIfPresent(cl, srcOwner, &IGameEventsReceiver::bulkArtMovementStart, pack.artsPack0.size() + pack.artsPack1.size());
+	if(srcOwner != dstOwner)
+		callInterfaceIfPresent(cl, dstOwner, &IGameEventsReceiver::bulkArtMovementStart, pack.artsPack0.size() + pack.artsPack1.size());
 
 	applyMove(pack.artsPack0);
 	if(pack.swap)
