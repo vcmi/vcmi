@@ -261,7 +261,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 	auto pickedArtInst = std::get<const CArtifactInstance*>(curState.value());
 	assert(!pickedArtInst || destLoc.isHolder(std::get<const CGHeroInstance*>(curState.value())));
 
-	auto artifactMovedBody = [this, withRedraw, &srcLoc, &destLoc, &pickedArtInst](auto artSetWeak) -> void
+	auto artifactMovedBody = [this, withRedraw, &destLoc, &pickedArtInst](auto artSetWeak) -> void
 	{
 		auto artSetPtr = artSetWeak.lock();
 		if(artSetPtr)
@@ -269,12 +269,8 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 			const auto hero = artSetPtr->getHero();
 			if(pickedArtInst)
 			{
-				if(artSetPtr->isActive())
-				{
-					CCS->curh->dragAndDropCursor(AnimationPath::builtin("artifact"), pickedArtInst->artType->getIconIndex());
-					if(srcLoc.isHolder(hero) || !std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroKingdom>>)
-						artSetPtr->markPossibleSlots(pickedArtInst, hero->tempOwner == LOCPLINT->playerID);
-				}
+				markPossibleSlots();
+				CCS->curh->dragAndDropCursor(AnimationPath::builtin("artifact"), pickedArtInst->artType->getIconIndex());
 			}
 			else
 			{
@@ -296,7 +292,7 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation & srcLoc, const 
 				{
 					cew->updateWidgets();
 				}
-				artSetPtr->safeRedraw();
+				artSetPtr->redraw();
 			}
 
 			// Make sure the status bar is updated so it does not display old text
@@ -319,6 +315,7 @@ void CWindowWithArtifacts::artifactDisassembled(const ArtifactLocation & artLoc)
 
 void CWindowWithArtifacts::artifactAssembled(const ArtifactLocation & artLoc)
 {
+	markPossibleSlots();
 	updateSlots(artLoc.slot);
 }
 
@@ -333,7 +330,7 @@ void CWindowWithArtifacts::updateSlots(const ArtifactPosition & slot)
 			else if(ArtifactUtils::isSlotBackpack(slot))
 				artSetPtr->updateBackpackSlots();
 
-			artSetPtr->safeRedraw();
+			artSetPtr->redraw();
 		}
 	};
 
@@ -394,4 +391,27 @@ std::optional<CWindowWithArtifacts::CArtifactsOfHeroPtr> CWindowWithArtifacts::f
 			return res;
 	}
 	return res;
+}
+
+void CWindowWithArtifacts::markPossibleSlots()
+{
+	if(const auto pickedArtInst = getPickedArtifact())
+	{
+		const auto heroArtOwner = getHeroPickedArtifact();
+		auto artifactAssembledBody = [&pickedArtInst, &heroArtOwner](auto artSetWeak) -> void
+		{
+			if(auto artSetPtr = artSetWeak.lock())
+			{
+				if(artSetPtr->isActive())
+				{
+					const auto hero = artSetPtr->getHero();
+					if(heroArtOwner == hero || !std::is_same_v<decltype(artSetWeak), std::weak_ptr<CArtifactsOfHeroKingdom>>)
+						artSetPtr->markPossibleSlots(pickedArtInst, hero->tempOwner == LOCPLINT->playerID);
+				}
+			}
+		};
+
+		for(auto artSetWeak : artSets)
+			std::visit(artifactAssembledBody, artSetWeak);
+	}
 }

@@ -90,6 +90,8 @@ void CArtifactsOfHeroBase::init(
 	rightBackpackRoll = std::make_shared<CButton>(Point(632, 364), AnimationPath::builtin("hsbtns5.def"), CButton::tooltip(), [scrollHandler]() { scrollHandler(+1); }, EShortcut::MOVE_RIGHT);
 	leftBackpackRoll->block(true);
 	rightBackpackRoll->block(true);
+
+	setRedrawParent(true);
 }
 
 void CArtifactsOfHeroBase::leftClickArtPlace(CHeroArtPlace & artPlace)
@@ -127,7 +129,7 @@ const CGHeroInstance * CArtifactsOfHeroBase::getHero() const
 void CArtifactsOfHeroBase::scrollBackpack(int offset)
 {
 	scrollBackpackForArtSet(offset, *curHero);
-	safeRedraw();
+	redraw();
 }
 
 void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSet & artSet)
@@ -170,17 +172,6 @@ void CArtifactsOfHeroBase::scrollBackpackForArtSet(int offset, const CArtifactSe
 		leftBackpackRoll->block(!scrollingPossible);
 	if(rightBackpackRoll)
 		rightBackpackRoll->block(!scrollingPossible);
-}
-
-void CArtifactsOfHeroBase::safeRedraw()
-{
-	if(isActive())
-	{
-		if(parent)
-			parent->redraw();
-		else
-			redraw();
-	}
 }
 
 void CArtifactsOfHeroBase::markPossibleSlots(const CArtifactInstance * art, bool assumeDestRemoved)
