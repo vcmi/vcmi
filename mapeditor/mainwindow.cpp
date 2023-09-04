@@ -41,7 +41,7 @@
 #include "windownewmap.h"
 #include "objectbrowser.h"
 #include "inspector/inspector.h"
-#include "mapsettings.h"
+#include "mapsettings/mapsettings.h"
 #include "playersettings.h"
 #include "validator.h"
 

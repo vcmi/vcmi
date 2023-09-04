@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VictoryConditions</class>
+ <widget class="QWidget" name="VictoryConditions">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>622</width>
+    <height>503</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Victory message</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="victoryMessageEdit"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QComboBox" name="victoryComboBox"/>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="onlyForHumansCheck">
+     <property name="text">
+      <string>Only for human players</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="standardVictoryCheck">
+     <property name="text">
+      <string>Allow standard victory</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="victoryParams">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Parameters</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_10">
+      <property name="topMargin">
+       <number>12</number>
+      </property>
+      <item>
+       <layout class="QVBoxLayout" name="victoryParamsLayout"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
