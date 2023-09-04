@@ -269,6 +269,8 @@ void CPlayerInterface::performAutosave()
 	int humanPlayerCount = 0;
 	bool isMulitplayerGame = false;
 	bool isHotseat = false; // ToDo : find a way to get if game is hotseat
+	bool isRMGMap = cb->getStartInfo()->createRandomMap();
+	bool isCampaign = cb->getStartInfo()->mode == StartInfo::CAMPAIGN;
 	bool simpleSaves = !settings["general"]["useSavePrefix"].Bool();
 	std::string saveName = settings["general"]["savePrefix"].String(); // to be replaced with more variables
 	std::string lastMapSaveName = ""; // ToDo : krs - count for autosaves continues from load save file name
@@ -280,16 +282,14 @@ void CPlayerInterface::performAutosave()
 		+ std::to_string(cb->getDate(Date::WEEK))
 		+ std::to_string(cb->getDate(Date::DAY_OF_WEEK)); 
 
-	// get random map info
-	if(mapName == "Random Map")
+	if(isRMGMap)
 	{
 		mapType = RandomMap;
 		mapName = cb->getStartInfo()->mapGenOptions->getMapTemplate()->getName(); // template name
 		//auto playerCount = cb->getStartInfo()->mapGenOptions->getPlayerCount();
 	}
 
-	// get campaign info
-	if(cb->getStartInfo()->mode == StartInfo::CAMPAIGN)
+	if(isCampaign)
 	{
 		mapType = Campaign;
 		campaignName = cb->getStartInfo()->getCampaignName();
