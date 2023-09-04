@@ -135,6 +135,7 @@ class MapRendererOverlay
 	std::shared_ptr<IImage> imageVisitable;
 	std::shared_ptr<IImage> imageBlocked;
 	std::shared_ptr<IImage> imageSpellRange;
+	std::shared_ptr<IImage> imageHighlighted;
 public:
 	MapRendererOverlay();
 

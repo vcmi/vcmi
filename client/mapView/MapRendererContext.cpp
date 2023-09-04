@@ -205,6 +205,11 @@ bool MapRendererBaseContext::showSpellRange(const int3 & position) const
 	return false;
 }
 
+std::string MapRendererBaseContext::showObject() const
+{
+	return "";
+}
+
 MapRendererAdventureContext::MapRendererAdventureContext(const MapRendererContextState & viewState)
 	: MapRendererBaseContext(viewState)
 {
@@ -283,6 +288,11 @@ bool MapRendererAdventureContext::showSpellRange(const int3 & position) const
 		return false;
 
 	return !isInScreenRange(hero->getSightCenter(), position);
+}
+
+std::string MapRendererAdventureContext::showObject() const
+{
+	return searchedObject;
 }
 
 MapRendererAdventureTransitionContext::MapRendererAdventureTransitionContext(const MapRendererContextState & viewState)

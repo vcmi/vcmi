@@ -561,6 +561,7 @@ MapRendererOverlay::MapRendererOverlay()
 	, imageBlocked(IImage::createFromFile("debug/blocked", EImageBlitMode::ALPHA))
 	, imageVisitable(IImage::createFromFile("debug/visitable", EImageBlitMode::ALPHA))
 	, imageSpellRange(IImage::createFromFile("debug/spellRange", EImageBlitMode::ALPHA))
+	, imageHighlighted(IImage::createFromFile("debug/highlighted", EImageBlitMode::ALPHA))
 {
 
 }
@@ -568,7 +569,7 @@ MapRendererOverlay::MapRendererOverlay()
 void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
 {
 	if(context.showGrid())
-		target.draw(imageGrid, Point(0,0));
+		target.draw(imageGrid, Point(0, 0));
 
 	if(context.showVisitable() || context.showBlocked())
 	{
@@ -594,6 +595,19 @@ void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & targ
 
 	if (context.showSpellRange(coordinates))
 		target.draw(imageSpellRange, Point(0,0));
+
+	if(!context.showObject().empty())
+	{
+		std::string searchedObject = context.showObject();
+
+		for(const auto& objectID : context.getObjects(coordinates))
+		{
+			const auto* object = context.getObject(objectID);
+
+			 if(object->typeName == searchedObject)
+				 target.draw(imageHighlighted, Point(0,0));
+		}
+	}
 }
 
 uint8_t MapRendererOverlay::checksum(IMapRendererContext & context, const int3 & coordinates)
