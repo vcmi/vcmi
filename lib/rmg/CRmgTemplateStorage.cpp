@@ -39,7 +39,7 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 	{
 		JsonDeserializer handler(nullptr, data);
 		auto fullKey = scope + ":" + name; //actually it's not used
-		templates[fullKey] = std::make_unique<CRmgTemplate>();
+		templates[fullKey] = std::make_shared<CRmgTemplate>();
 		templates[fullKey]->setId(fullKey);
 		templates[fullKey]->serializeJson(handler);
 		templates[fullKey]->setName(name);

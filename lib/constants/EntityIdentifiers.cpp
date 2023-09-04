@@ -224,6 +224,8 @@ bool PlayerColor::isSpectator() const
 
 std::string PlayerColor::toString() const
 {
+	if (num == -1)
+		return "neutral";
 	return encode(num);
 }
 
