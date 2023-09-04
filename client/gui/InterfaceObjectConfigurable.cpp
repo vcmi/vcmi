@@ -238,7 +238,7 @@ PlayerColor InterfaceObjectConfigurable::readPlayerColor(const JsonNode & config
 {
 	logGlobal->debug("Reading PlayerColor");
 	if(!config.isNull() && config.isString())
-		return PlayerColor(vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, config.String()));
+		return PlayerColor::decode(config.String());
 	
 	logGlobal->debug("Unknown PlayerColor attribute");
 	return PlayerColor::CANNOT_DETERMINE;

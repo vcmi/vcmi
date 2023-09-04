@@ -31,9 +31,11 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool(ESpellSchool::ANY));
 
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
-	{
 		registerObject(ModScope::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);
-	}
+
+	for (int i = 0; i < std::size(GameConstants::PLAYER_COLOR_NAMES); ++i)
+		registerObject(ModScope::scopeBuiltin(), "playerColor", GameConstants::PLAYER_COLOR_NAMES[i], i);
+
 
 	for(int i=0; i<GameConstants::PRIMARY_SKILLS; ++i)
 	{
@@ -155,8 +157,7 @@ void CIdentifierStorage::tryRequestIdentifier(const std::string & type, const Js
 
 std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent) const
 {
-	//TODO: RE-ENABLE
-	//assert(state != ELoadingState::LOADING);
+	assert(state != ELoadingState::LOADING);
 
 	auto idList = getPossibleIdentifiers(ObjectCallback::fromNameAndType(scope, type, name, std::function<void(si32)>(), silent));
 
