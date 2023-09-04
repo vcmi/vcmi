@@ -11,6 +11,7 @@
 
 #include "../JsonNode.h"
 #include "../modding/IdentifierStorage.h"
+#include "../modding/ModScope.h"
 #include "../VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -271,36 +272,57 @@ public:
 	template <typename T, typename U, typename E = T>
 	void serializeId(const std::string & fieldName, T & value, const U & defaultValue)
 	{
-		doSerializeInternal<T, U, si32>(fieldName, value, defaultValue, &E::decode, &E::encode);
+		if (saving)
+		{
+			if (value != defaultValue)
+			{
+				std::string fieldValue = E::encode(value);
+				serializeString(fieldName, fieldValue);
+			}
+		}
+		else
+		{
+			std::string fieldValue;
+			serializeString(fieldName, fieldValue);
+
+			if (!fieldValue.empty())
+			{
+				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), E::entityType(), fieldValue, [&value](int32_t index){
+					value = T(index);
+				});
+			}
+			else
+			{
+				value = T(defaultValue);
+			}
+		}
 	}
 
 	///si32-convertible identifier vector <-> Json array of string
 	template <typename T, typename E = T>
 	void serializeIdArray(const std::string & fieldName, std::vector<T> & value)
 	{
-		std::vector<si32> temp;
-
-		if(saving)
+		if (saving)
 		{
-			temp.reserve(value.size());
+			std::vector<std::string> fieldValue;
 
 			for(const T & vitem : value)
-			{
-				si32 item = static_cast<si32>(vitem);
-				temp.push_back(item);
-			}
+				fieldValue.push_back(E::encode(vitem));
+
+			serializeInternal(fieldName, fieldValue);
 		}
-
-		serializeInternal(fieldName, temp, &E::decode, &E::encode);
-		if(!saving)
+		else
 		{
-			value.clear();
-			value.reserve(temp.size());
+			std::vector<std::string> fieldValue;
+			serializeInternal(fieldName, fieldValue);
 
-			for(const si32 item : temp)
+			value.resize(fieldValue.size());
+
+			for(size_t i = 0; i < fieldValue.size(); ++i)
 			{
-				T vitem = static_cast<T>(item);
-				value.push_back(vitem);
+				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), E::entityType(), fieldValue[i], [&value, i](int32_t index){
+					value[i] = T(index);
+				});
 			}
 		}
 	}
@@ -309,28 +331,25 @@ public:
 	template <typename T, typename U = T>
 	void serializeIdArray(const std::string & fieldName, std::set<T> & value)
 	{
-		std::vector<si32> temp;
-
-		if(saving)
+		if (saving)
 		{
-			temp.reserve(value.size());
+			std::vector<std::string> fieldValue;
 
 			for(const T & vitem : value)
-			{
-				si32 item = static_cast<si32>(vitem);
-				temp.push_back(item);
-			}
+				fieldValue.push_back(U::encode(vitem));
+
+			serializeInternal(fieldName, fieldValue);
 		}
-
-		serializeInternal(fieldName, temp, &U::decode, &U::encode);
-		if(!saving)
+		else
 		{
-			value.clear();
+			std::vector<std::string> fieldValue;
+			serializeInternal(fieldName, fieldValue);
 
-			for(const si32 item : temp)
+			for(size_t i = 0; i < fieldValue.size(); ++i)
 			{
-				T vitem = static_cast<T>(item);
-				value.insert(vitem);
+				VLC->identifiers()->requestIdentifier(ModScope::scopeGame(), U::entityType(), fieldValue[i], [&value](int32_t index){
+					value.insert(T(index));
+				});
 			}
 		}
 	}
@@ -340,9 +359,9 @@ public:
 	void serializeInstance(const std::string & fieldName, T & value, const T & defaultValue)
 	{
 		const TDecoder decoder = std::bind(&IInstanceResolver::decode, instanceResolver, _1);
-		const TEncoder endoder = std::bind(&IInstanceResolver::encode, instanceResolver, _1);
+		const TEncoder encoder = std::bind(&IInstanceResolver::encode, instanceResolver, _1);
 
-		serializeId<T>(fieldName, value, defaultValue, decoder, endoder);
+		serializeId<T>(fieldName, value, defaultValue, decoder, encoder);
 	}
 
 	///any serializable object <-> Json struct
@@ -375,6 +394,9 @@ protected:
 
 	///Enum/Numeric <-> Json string enum
 	virtual void serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const std::vector<std::string> & enumMap) = 0;
+
+	///String vector <-> Json string vector
+	virtual void serializeInternal(const std::string & fieldName, std::vector<std::string> & value) = 0;
 
 	virtual void pop() = 0;
 	virtual void pushStruct(const std::string & fieldName) = 0;

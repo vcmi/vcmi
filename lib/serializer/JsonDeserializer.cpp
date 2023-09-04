@@ -107,6 +107,20 @@ void JsonDeserializer::serializeInternal(const std::string & fieldName, si32 & v
 		value = rawValue;
 }
 
+void JsonDeserializer::serializeInternal(const std::string & fieldName, std::vector<std::string> & value)
+{
+	const JsonVector & data = currentObject->operator[](fieldName).Vector();
+
+	value.clear();
+	value.reserve(data.size());
+
+	for(const JsonNode& elem : data)
+	{
+		std::string rawId = elem.String();
+		value.push_back(rawId);
+	}
+}
+
 void JsonDeserializer::serializeInternal(std::string & value)
 {
 	value = currentObject->String();
