@@ -29,6 +29,7 @@
 #include "../windows/CMessage.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
+#include "../render/IRenderHandler.h"
 #include "../adventureMap/CInGameConsole.h"
 
 #include "../../CCallback.h"
@@ -469,7 +470,7 @@ void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 			break;
 	}
 		
-	auto anim = std::make_shared<CAnimation>(iconName);
+	auto anim = GH.renderHandler().loadAnimation(iconName);
 	w->setImage(anim);
 	w->redraw();
 }

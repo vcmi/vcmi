@@ -28,6 +28,7 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
 #include "../render/CAnimation.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
 
@@ -127,7 +128,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 		primSkillValues.push_back(value);
 	}
 
-	auto primSkills = std::make_shared<CAnimation>(AnimationPath::builtin("PSKIL42"));
+	auto primSkills = GH.renderHandler().loadAnimation(AnimationPath::builtin("PSKIL42"));
 	primSkills->preload();
 	primSkillImages.push_back(std::make_shared<CAnimImage>(primSkills, 0, 0, 32, 111));
 	primSkillImages.push_back(std::make_shared<CAnimImage>(primSkills, 1, 0, 102, 111));
@@ -148,7 +149,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	expValue = std::make_shared<CLabel>(68, 252);
 	manaValue = std::make_shared<CLabel>(211, 252);
 
-	auto secSkills = std::make_shared<CAnimation>(AnimationPath::builtin("SECSKILL"));
+	auto secSkills = GH.renderHandler().loadAnimation(AnimationPath::builtin("SECSKILL"));
 	for(int i = 0; i < std::min<size_t>(hero->secSkills.size(), 8u); ++i)
 	{
 		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2),  136,  42);

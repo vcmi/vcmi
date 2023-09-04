@@ -17,6 +17,7 @@
 #include "CServerHandler.h"
 #include "gui/CGuiHandler.h"
 #include "gui/WindowHandler.h"
+#include "render/IRenderHandler.h"
 #include "../lib/NetPacks.h"
 #include "ClientNetPackVisitors.h"
 #include "../lib/CConfigHandler.h"
@@ -317,7 +318,7 @@ void ClientCommandManager::handleDef2bmpCommand(std::istringstream& singleWordBu
 {
 	std::string URI;
 	singleWordBuffer >> URI;
-	std::unique_ptr<CAnimation> anim = std::make_unique<CAnimation>(AnimationPath::builtin(URI));
+	auto anim = GH.renderHandler().loadAnimation(AnimationPath::builtin(URI));
 	anim->preload();
 	anim->exportBitmaps(VCMIDirs::get().userExtractedPath());
 }

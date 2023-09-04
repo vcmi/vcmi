@@ -24,6 +24,8 @@
 #include "../renderSDL/CTrueTypeFont.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
+#include "../gui/CGuiHandler.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CBinaryReader.h"
@@ -284,7 +286,7 @@ std::shared_ptr<CAnimation> Graphics::getAnimation(const AnimationPath & path)
 	if (cachedAnimations.count(path) != 0)
 		return cachedAnimations.at(path);
 
-	auto newAnimation = std::make_shared<CAnimation>(path);
+	auto newAnimation = GH.renderHandler().loadAnimation(path);
 
 	newAnimation->preload();
 	cachedAnimations[path] = newAnimation;

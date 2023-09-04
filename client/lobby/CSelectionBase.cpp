@@ -39,6 +39,7 @@
 #include "../render/CAnimation.h"
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../lib/NetPacksLobby.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -356,7 +357,7 @@ CFlagBox::CFlagBox(const Rect & rect)
 	labelAllies = std::make_shared<CLabel>(0, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
 	labelEnemies = std::make_shared<CLabel>(133, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
 
-	iconsTeamFlags = std::make_shared<CAnimation>(AnimationPath::builtin("ITGFLAGS.DEF"));
+	iconsTeamFlags = GH.renderHandler().loadAnimation(AnimationPath::builtin("ITGFLAGS.DEF"));
 	iconsTeamFlags->preload();
 }
 

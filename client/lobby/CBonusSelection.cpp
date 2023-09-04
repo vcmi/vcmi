@@ -31,6 +31,7 @@
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/Graphics.h"
 #include "../gui/CGuiHandler.h"
@@ -306,7 +307,7 @@ void CBonusSelection::createBonusesIcons()
 		if(picNumber != -1)
 			picName += ":" + std::to_string(picNumber);
 
-		auto anim = std::make_shared<CAnimation>();
+		auto anim = GH.renderHandler().createAnimation();
 		anim->setCustom(picName, 0);
 		bonusButton->setImage(anim);
 		if(CSH->campaignBonus == i)

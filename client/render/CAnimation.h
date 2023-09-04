@@ -18,6 +18,7 @@ VCMI_LIB_NAMESPACE_END
 
 class CDefFile;
 class IImage;
+class RenderHandler;
 
 /// Class for handling animation
 class CAnimation

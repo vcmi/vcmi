@@ -30,6 +30,7 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 #include "../render/Graphics.h"
 
 #include "../../CCallback.h"
@@ -211,9 +212,9 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		break;
 	}
 
-	iconsMapFormats = std::make_shared<CAnimation>(AnimationPath::builtin("SCSELC.DEF"));
-	iconsVictoryCondition = std::make_shared<CAnimation>(AnimationPath::builtin("SCNRVICT.DEF"));
-	iconsLossCondition = std::make_shared<CAnimation>(AnimationPath::builtin("SCNRLOSS.DEF"));
+	iconsMapFormats = GH.renderHandler().loadAnimation(AnimationPath::builtin("SCSELC.DEF"));
+	iconsVictoryCondition = GH.renderHandler().loadAnimation(AnimationPath::builtin("SCNRVICT.DEF"));
+	iconsLossCondition = GH.renderHandler().loadAnimation(AnimationPath::builtin("SCNRLOSS.DEF"));
 	for(int i = 0; i < positionsToShow; i++)
 		listItems.push_back(std::make_shared<ListItem>(Point(30, 129 + i * 25), iconsMapFormats, iconsVictoryCondition, iconsLossCondition));
 
@@ -923,7 +924,7 @@ std::vector<std::shared_ptr<IImage>> SelectionTab::CMapInfoTooltipBox::createMin
 		Canvas canvas = createMinimapForLayer(map, i);
 		Canvas canvasScaled = Canvas(Point(size, size));
 		canvasScaled.drawScaled(canvas, Point(0, 0), Point(size, size));
-		std::shared_ptr<IImage> img = IImage::createFromSurface(canvasScaled.getInternalSurface());
+		std::shared_ptr<IImage> img = GH.renderHandler().createImage(canvasScaled.getInternalSurface());
 		
 		ret.push_back(img);
 	}
@@ -935,7 +936,7 @@ SelectionTab::ListItem::ListItem(Point position, std::shared_ptr<CAnimation> ico
 	: CIntObject(LCLICK, position)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	pictureEmptyLine = std::make_shared<CPicture>(IImage::createFromFile(ImagePath::builtin("camcust")), Rect(25, 121, 349, 26), -8, -14);
+	pictureEmptyLine = std::make_shared<CPicture>(GH.renderHandler().loadImage(ImagePath::builtin("camcust")), Rect(25, 121, 349, 26), -8, -14);
 	labelName = std::make_shared<CLabel>(184, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelName->setAutoRedraw(false);
 	labelAmountOfPlayers = std::make_shared<CLabel>(8, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);

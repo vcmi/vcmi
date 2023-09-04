@@ -22,6 +22,7 @@
 #include "../mapView/MapView.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
@@ -129,7 +130,7 @@ std::shared_ptr<IImage> AdventureMapWidget::loadImage(const JsonNode & name)
 	ImagePath resource = ImagePath::fromJson(name);
 
 	if(images.count(resource) == 0)
-		images[resource] = IImage::createFromFile(resource);
+		images[resource] = GH.renderHandler().loadImage(resource);
 
 	return images[resource];
 }
@@ -139,7 +140,7 @@ std::shared_ptr<CAnimation> AdventureMapWidget::loadAnimation(const JsonNode & n
 	AnimationPath resource = AnimationPath::fromJson(name);
 
 	if(animations.count(resource) == 0)
-		animations[resource] = std::make_shared<CAnimation>(resource);
+		animations[resource] = GH.renderHandler().loadAnimation(resource);
 
 	return animations[resource];
 }

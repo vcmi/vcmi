@@ -114,7 +114,7 @@ class CursorHandler final
 {
 	std::shared_ptr<IImage> dndObject; //if set, overrides currentCursor
 
-	std::array<std::unique_ptr<CAnimation>, 4> cursors;
+	std::array<std::shared_ptr<CAnimation>, 4> cursors;
 
 	bool showing;
 

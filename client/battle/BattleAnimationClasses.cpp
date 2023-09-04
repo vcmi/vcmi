@@ -24,6 +24,7 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
@@ -881,7 +882,7 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 
 EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects, bool reversed):
 	BattleAnimation(owner),
-	animation(std::make_shared<CAnimation>(animationName)),
+	animation(GH.renderHandler().loadAnimation(animationName)),
 	effectFlags(effects),
 	effectFinished(false),
 	reversed(reversed)

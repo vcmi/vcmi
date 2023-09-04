@@ -84,6 +84,7 @@ set(client_SRCS
 	renderSDL/CTrueTypeFont.cpp
 	renderSDL/CursorHardware.cpp
 	renderSDL/CursorSoftware.cpp
+	renderSDL/RenderHandler.cpp
 	renderSDL/SDLImage.cpp
 	renderSDL/SDLImageLoader.cpp
 	renderSDL/SDLRWwrapper.cpp
@@ -235,6 +236,7 @@ set(client_HEADERS
 	render/IFont.h
 	render/IImage.h
 	render/IImageLoader.h
+	render/IRenderHandler.h
 	render/IScreenHandler.h
 
 	renderSDL/CBitmapFont.h
@@ -242,6 +244,7 @@ set(client_HEADERS
 	renderSDL/CTrueTypeFont.h
 	renderSDL/CursorHardware.h
 	renderSDL/CursorSoftware.h
+	renderSDL/RenderHandler.h
 	renderSDL/SDLImage.h
 	renderSDL/SDLImageLoader.h
 	renderSDL/SDLRWwrapper.h

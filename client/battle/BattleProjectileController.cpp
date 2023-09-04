@@ -16,6 +16,7 @@
 #include "CreatureAnimation.h"
 
 #include "../render/Canvas.h"
+#include "../render/IRenderHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../CGameInfo.h"
 
@@ -190,7 +191,7 @@ void BattleProjectileController::initStackProjectile(const CStack * stack)
 
 std::shared_ptr<CAnimation> BattleProjectileController::createProjectileImage(const AnimationPath & path )
 {
-	std::shared_ptr<CAnimation> projectile = std::make_shared<CAnimation>(path);
+	std::shared_ptr<CAnimation> projectile = GH.renderHandler().loadAnimation(path);
 	projectile->preload();
 
 	if(projectile->size(1) != 0)

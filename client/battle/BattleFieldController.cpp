@@ -26,6 +26,7 @@
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../renderSDL/SDL_Extensions.h"
+#include "../render/IRenderHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../adventureMap/CInGameConsole.h"
@@ -120,20 +121,20 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	//preparing cells and hexes
-	cellBorder = IImage::createFromFile(ImagePath::builtin("CCELLGRD.BMP"), EImageBlitMode::COLORKEY);
-	cellShade = IImage::createFromFile(ImagePath::builtin("CCELLSHD.BMP"));
-	cellUnitMovementHighlight = IImage::createFromFile(ImagePath::builtin("UnitMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
-	cellUnitMaxMovementHighlight = IImage::createFromFile(ImagePath::builtin("UnitMaxMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
+	cellBorder = GH.renderHandler().loadImage(ImagePath::builtin("CCELLGRD.BMP"), EImageBlitMode::COLORKEY);
+	cellShade = GH.renderHandler().loadImage(ImagePath::builtin("CCELLSHD.BMP"));
+	cellUnitMovementHighlight = GH.renderHandler().loadImage(ImagePath::builtin("UnitMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
+	cellUnitMaxMovementHighlight = GH.renderHandler().loadImage(ImagePath::builtin("UnitMaxMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
 
-	attackCursors = std::make_shared<CAnimation>(AnimationPath::builtin("CRCOMBAT"));
+	attackCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"));
 	attackCursors->preload();
 
 	initializeHexEdgeMaskToFrameIndex();
 
-	rangedFullDamageLimitImages = std::make_shared<CAnimation>(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"));
+	rangedFullDamageLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"));
 	rangedFullDamageLimitImages->preload();
 
-	shootingRangeLimitImages = std::make_shared<CAnimation>(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"));
+	shootingRangeLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"));
 	shootingRangeLimitImages->preload();
 
 	flipRangeLimitImagesIntoPositions(rangedFullDamageLimitImages);
@@ -146,12 +147,12 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 		if(bfieldType == BattleField::NONE)
 			logGlobal->error("Invalid battlefield returned for current battle");
 		else
-			background = IImage::createFromFile(bfieldType.getInfo()->graphics, EImageBlitMode::OPAQUE);
+			background = GH.renderHandler().loadImage(bfieldType.getInfo()->graphics, EImageBlitMode::OPAQUE);
 	}
 	else
 	{
 		auto backgroundName = owner.siegeController->getBattleBackgroundName();
-		background = IImage::createFromFile(backgroundName, EImageBlitMode::OPAQUE);
+		background = GH.renderHandler().loadImage(backgroundName, EImageBlitMode::OPAQUE);
 	}
 
 	pos.w = background->width();

@@ -30,6 +30,7 @@
 #include "../widgets/TextControls.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../render/CAnimation.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
 
@@ -169,15 +170,15 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	leftCorner = std::make_shared<CPicture>(ImagePath::builtin("SpelTrnL.bmp"), 97, 77);
 	rightCorner = std::make_shared<CPicture>(ImagePath::builtin("SpelTrnR.bmp"), 487, 72);
 
-	spellIcons = std::make_shared<CAnimation>(AnimationPath::builtin("Spells"));
+	spellIcons = GH.renderHandler().loadAnimation(AnimationPath::builtin("Spells"));
 
 	schoolTab = std::make_shared<CAnimImage>(AnimationPath::builtin("SpelTab"), selectedTab, 0, 524, 88);
 	schoolPicture = std::make_shared<CAnimImage>(AnimationPath::builtin("Schools"), 0, 0, 117, 74);
 
-	schoolBorders[0] = std::make_shared<CAnimation>(AnimationPath::builtin("SplevA.def"));
-	schoolBorders[1] = std::make_shared<CAnimation>(AnimationPath::builtin("SplevF.def"));
-	schoolBorders[2] = std::make_shared<CAnimation>(AnimationPath::builtin("SplevW.def"));
-	schoolBorders[3] = std::make_shared<CAnimation>(AnimationPath::builtin("SplevE.def"));
+	schoolBorders[0] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevA.def"));
+	schoolBorders[1] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevF.def"));
+	schoolBorders[2] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevW.def"));
+	schoolBorders[3] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevE.def"));
 
 	for(auto item : schoolBorders)
 		item->preload();

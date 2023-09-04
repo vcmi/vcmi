@@ -37,6 +37,7 @@
 #include "../windows/CMessage.h"
 #include "../windows/CSpellWindow.h"
 #include "../render/CAnimation.h"
+#include "../render/IRenderHandler.h"
 #include "../adventureMap/CInGameConsole.h"
 
 #include "../../CCallback.h"
@@ -352,7 +353,7 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	else
 		animationPath = hero->type->heroClass->imageBattleMale;
 
-	animation = std::make_shared<CAnimation>(animationPath);
+	animation = GH.renderHandler().loadAnimation(animationPath);
 	animation->preload();
 
 	pos.w = 64;
@@ -364,9 +365,9 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 		animation->verticalFlip();
 
 	if(defender)
-		flagAnimation = std::make_shared<CAnimation>(AnimationPath::builtin("CMFLAGR"));
+		flagAnimation = GH.renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGR"));
 	else
-		flagAnimation = std::make_shared<CAnimation>(AnimationPath::builtin("CMFLAGL"));
+		flagAnimation = GH.renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGL"));
 
 	flagAnimation->preload();
 	flagAnimation->playerColored(hero->tempOwner);
@@ -676,8 +677,8 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 		pos.x += parent->pos.w/2 - pos.w/2;
 		pos.y += 10;
 
-		icons = std::make_shared<CAnimation>(AnimationPath::builtin("CPRSMALL"));
-		stateIcons = std::make_shared<CAnimation>(AnimationPath::builtin("VCMI/BATTLEQUEUE/STATESSMALL"));
+		icons = GH.renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"));
+		stateIcons = GH.renderHandler().loadAnimation(AnimationPath::builtin("VCMI/BATTLEQUEUE/STATESSMALL"));
 	}
 	else
 	{
@@ -688,10 +689,10 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 
 		background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, pos.w, pos.h));
 
-		icons = std::make_shared<CAnimation>(AnimationPath::builtin("TWCRPORT"));
-		stateIcons = std::make_shared<CAnimation>(AnimationPath::builtin("VCMI/BATTLEQUEUE/STATESSMALL"));
+		icons = GH.renderHandler().loadAnimation(AnimationPath::builtin("TWCRPORT"));
+		stateIcons = GH.renderHandler().loadAnimation(AnimationPath::builtin("VCMI/BATTLEQUEUE/STATESSMALL"));
 		//TODO: where use big icons?
-		//stateIcons = std::make_shared<CAnimation>("VCMI/BATTLEQUEUE/STATESBIG");
+		//stateIcons = GH.renderHandler().loadAnimation("VCMI/BATTLEQUEUE/STATESBIG");
 	}
 	stateIcons->preload();
 

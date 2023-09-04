@@ -31,6 +31,7 @@
 #include "../widgets/TextControls.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 #include "../render/ColorFilter.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../adventureMap/CList.h"
@@ -89,10 +90,10 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 	}
 
 	if(!str->borderName.empty())
-		border = IImage::createFromFile(str->borderName, EImageBlitMode::ALPHA);
+		border = GH.renderHandler().loadImage(str->borderName, EImageBlitMode::ALPHA);
 
 	if(!str->areaName.empty())
-		area = IImage::createFromFile(str->areaName, EImageBlitMode::ALPHA);
+		area = GH.renderHandler().loadImage(str->areaName, EImageBlitMode::ALPHA);
 }
 
 const CBuilding * CBuildingRect::getBuilding()

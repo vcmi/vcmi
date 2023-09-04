@@ -15,9 +15,11 @@
 #include "mapHandler.h"
 
 #include "../CGameInfo.h"
+#include "../gui/CGuiHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
 
@@ -102,11 +104,11 @@ void MapTileStorage::load(size_t index, const AnimationPath & filename, EImageBl
 	{
 		if (!filename.empty())
 		{
-			entry = std::make_unique<CAnimation>(filename);
+			entry = GH.renderHandler().loadAnimation(filename);
 			entry->preload();
 		}
 		else
-			entry = std::make_unique<CAnimation>();
+			entry = GH.renderHandler().createAnimation();
 
 		for(size_t i = 0; i < entry->size(); ++i)
 			entry->getImage(i)->setBlitMode(blitMode);
@@ -247,7 +249,7 @@ uint8_t MapRendererRoad::checksum(IMapRendererContext & context, const int3 & co
 MapRendererBorder::MapRendererBorder()
 {
 	emptyFill = std::make_unique<Canvas>(Point(32,32));
-	animation = std::make_unique<CAnimation>(AnimationPath::builtin("EDG"));
+	animation = GH.renderHandler().loadAnimation(AnimationPath::builtin("EDG"));
 	animation->preload();
 }
 
@@ -309,9 +311,9 @@ uint8_t MapRendererBorder::checksum(IMapRendererContext & context, const int3 & 
 
 MapRendererFow::MapRendererFow()
 {
-	fogOfWarFullHide = std::make_unique<CAnimation>(AnimationPath::builtin("TSHRC"));
+	fogOfWarFullHide = GH.renderHandler().loadAnimation(AnimationPath::builtin("TSHRC"));
 	fogOfWarFullHide->preload();
-	fogOfWarPartialHide = std::make_unique<CAnimation>(AnimationPath::builtin("TSHRE"));
+	fogOfWarPartialHide = GH.renderHandler().loadAnimation(AnimationPath::builtin("TSHRE"));
 	fogOfWarPartialHide->preload();
 
 	for(size_t i = 0; i < fogOfWarFullHide->size(); ++i)
@@ -394,7 +396,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const AnimationPath
 	if(it != animations.end())
 		return it->second;
 
-	auto ret = std::make_shared<CAnimation>(filename);
+	auto ret = GH.renderHandler().loadAnimation(filename);
 	animations[filename] = ret;
 	ret->preload();
 
@@ -557,10 +559,10 @@ uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 &
 }
 
 MapRendererOverlay::MapRendererOverlay()
-	: imageGrid(IImage::createFromFile(ImagePath::builtin("debug/grid"), EImageBlitMode::ALPHA))
-	, imageBlocked(IImage::createFromFile(ImagePath::builtin("debug/blocked"), EImageBlitMode::ALPHA))
-	, imageVisitable(IImage::createFromFile(ImagePath::builtin("debug/visitable"), EImageBlitMode::ALPHA))
-	, imageSpellRange(IImage::createFromFile(ImagePath::builtin("debug/spellRange"), EImageBlitMode::ALPHA))
+	: imageGrid(GH.renderHandler().loadImage(ImagePath::builtin("debug/grid"), EImageBlitMode::ALPHA))
+	, imageBlocked(GH.renderHandler().loadImage(ImagePath::builtin("debug/blocked"), EImageBlitMode::ALPHA))
+	, imageVisitable(GH.renderHandler().loadImage(ImagePath::builtin("debug/visitable"), EImageBlitMode::ALPHA))
+	, imageSpellRange(GH.renderHandler().loadImage(ImagePath::builtin("debug/spellRange"), EImageBlitMode::ALPHA))
 {
 
 }
@@ -616,7 +618,7 @@ uint8_t MapRendererOverlay::checksum(IMapRendererContext & context, const int3 &
 }
 
 MapRendererPath::MapRendererPath()
-	: pathNodes(new CAnimation(AnimationPath::builtin("ADAG")))
+	: pathNodes(GH.renderHandler().loadAnimation(AnimationPath::builtin("ADAG")))
 {
 	pathNodes->preload();
 }

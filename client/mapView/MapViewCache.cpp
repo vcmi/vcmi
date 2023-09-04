@@ -18,6 +18,9 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
+
+#include "../gui/CGuiHandler.h"
 
 #include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/int3.h"
@@ -28,7 +31,7 @@ MapViewCache::MapViewCache(const std::shared_ptr<MapViewModel> & model)
 	: model(model)
 	, cachedLevel(0)
 	, mapRenderer(new MapRenderer())
-	, iconsStorage(new CAnimation(AnimationPath::builtin("VwSymbol")))
+	, iconsStorage(GH.renderHandler().loadAnimation(AnimationPath::builtin("VwSymbol")))
 	, intermediate(new Canvas(Point(32, 32)))
 	, terrain(new Canvas(model->getCacheDimensionsPixels()))
 	, terrainTransition(new Canvas(model->getPixelsVisibleDimensions()))

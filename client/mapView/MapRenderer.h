@@ -23,11 +23,11 @@ class CAnimation;
 class IImage;
 class Canvas;
 class IMapRendererContext;
-enum class EImageBlitMode : uint8_t;
+enum class EImageBlitMode;
 
 class MapTileStorage
 {
-	using TerrainAnimation = std::array<std::unique_ptr<CAnimation>, 4>;
+	using TerrainAnimation = std::array<std::shared_ptr<CAnimation>, 4>;
 	std::vector<TerrainAnimation> animations;
 
 public:
@@ -91,7 +91,7 @@ public:
 
 class MapRendererBorder
 {
-	std::unique_ptr<CAnimation> animation;
+	std::shared_ptr<CAnimation> animation;
 	std::unique_ptr<Canvas> emptyFill;
 
 	size_t getIndexForTile(IMapRendererContext & context, const int3 & coordinates);
@@ -105,8 +105,8 @@ public:
 
 class MapRendererFow
 {
-	std::unique_ptr<CAnimation> fogOfWarFullHide;
-	std::unique_ptr<CAnimation> fogOfWarPartialHide;
+	std::shared_ptr<CAnimation> fogOfWarFullHide;
+	std::shared_ptr<CAnimation> fogOfWarPartialHide;
 
 public:
 	MapRendererFow();
@@ -117,7 +117,7 @@ public:
 
 class MapRendererPath
 {
-	std::unique_ptr<CAnimation> pathNodes;
+	std::shared_ptr<CAnimation> pathNodes;
 
 	size_t selectImageReachability(bool reachableToday, size_t imageIndex);
 	size_t selectImageCross(bool reachableToday, const int3 & curr);

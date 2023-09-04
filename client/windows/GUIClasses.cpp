@@ -42,6 +42,7 @@
 #include "../lobby/CSavingScreen.h"
 #include "../render/Canvas.h"
 #include "../render/CAnimation.h"
+#include "../render/IRenderHandler.h"
 #include "../CMT.h"
 
 #include "../../CCallback.h"
@@ -850,10 +851,10 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	titles[0] = std::make_shared<CLabel>(147, 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, genTitle(heroInst[0]));
 	titles[1] = std::make_shared<CLabel>(653, 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, genTitle(heroInst[1]));
 
-	auto PSKIL32 = std::make_shared<CAnimation>(AnimationPath::builtin("PSKIL32"));
+	auto PSKIL32 = GH.renderHandler().loadAnimation(AnimationPath::builtin("PSKIL32"));
 	PSKIL32->preload();
 
-	auto SECSK32 = std::make_shared<CAnimation>(AnimationPath::builtin("SECSK32"));
+	auto SECSK32 = GH.renderHandler().loadAnimation(AnimationPath::builtin("SECSK32"));
 
 	for(int g = 0; g < 4; ++g) 
 	{
@@ -1262,7 +1263,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	bars = std::make_shared<CAnimation>();
+	bars = GH.renderHandler().createAnimation();
 	bars->setCustom("UNIVRED", 0, 0);
 	bars->setCustom("UNIVGOLD", 1, 0);
 	bars->setCustom("UNIVGREN", 2, 0);
@@ -1626,7 +1627,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		rowHeaders.push_back(std::make_shared<CLabel>(135, y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, text));
 	}
 
-	auto PRSTRIPS = std::make_shared<CAnimation>(AnimationPath::builtin("PRSTRIPS"));
+	auto PRSTRIPS = GH.renderHandler().loadAnimation(AnimationPath::builtin("PRSTRIPS"));
 	PRSTRIPS->preload();
 
 	for(int g=1; g<tgi.playerColors.size(); ++g)
@@ -1635,7 +1636,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	for(int g=0; g<tgi.playerColors.size(); ++g)
 		columnHeaders.push_back(std::make_shared<CLabel>(283 + 66*g, 24, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[16+g]));
 
-	auto itgflags = std::make_shared<CAnimation>(AnimationPath::builtin("itgflags"));
+	auto itgflags = GH.renderHandler().loadAnimation(AnimationPath::builtin("itgflags"));
 	itgflags->preload();
 
 	//printing flags

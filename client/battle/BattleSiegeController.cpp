@@ -20,8 +20,10 @@
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/NetPacks.h"
@@ -180,7 +182,7 @@ BattleSiegeController::BattleSiegeController(BattleInterface & owner, const CGTo
 		if ( !getWallPieceExistance(EWallVisual::EWallVisual(g)) )
 			continue;
 
-		wallPieceImages[g] = IImage::createFromFile(getWallPieceImageName(EWallVisual::EWallVisual(g), EWallState::REINFORCED));
+		wallPieceImages[g] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(g), EWallState::REINFORCED));
 	}
 }
 
@@ -246,7 +248,7 @@ void BattleSiegeController::gateStateChanged(const EGateState state)
 		wallPieceImages[EWallVisual::GATE] = nullptr;
 
 	if (stateId != EWallState::NONE)
-		wallPieceImages[EWallVisual::GATE] = IImage::createFromFile(getWallPieceImageName(EWallVisual::GATE,  stateId));
+		wallPieceImages[EWallVisual::GATE] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::GATE,  stateId));
 
 	if (playSound)
 		CCS->soundh->playSound(soundBase::DRAWBRG);
@@ -355,7 +357,7 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 
 		auto wallState = EWallState(owner.curInt->cb->battleGetWallState(attackInfo.attackedPart));
 
-		wallPieceImages[wallId] = IImage::createFromFile(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState));
+		wallPieceImages[wallId] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState));
 	}
 }
 

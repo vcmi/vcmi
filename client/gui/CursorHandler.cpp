@@ -17,6 +17,7 @@
 #include "../renderSDL/CursorHardware.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 
@@ -46,10 +47,10 @@ CursorHandler::CursorHandler()
 
 	cursors =
 	{
-		std::make_unique<CAnimation>(AnimationPath::builtin("CRADVNTR")),
-		std::make_unique<CAnimation>(AnimationPath::builtin("CRCOMBAT")),
-		std::make_unique<CAnimation>(AnimationPath::builtin("CRDEFLT")),
-		std::make_unique<CAnimation>(AnimationPath::builtin("CRSPELL"))
+		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRADVNTR")),
+		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT")),
+		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRDEFLT")),
+		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"))
 	};
 
 	for (auto & cursor : cursors)
@@ -102,9 +103,9 @@ void CursorHandler::dragAndDropCursor(std::shared_ptr<IImage> image)
 
 void CursorHandler::dragAndDropCursor (const AnimationPath & path, size_t index)
 {
-	CAnimation anim(path);
-	anim.load(index);
-	dragAndDropCursor(anim.getImage(index));
+	auto anim = GH.renderHandler().loadAnimation(path);
+	anim->load(index);
+	dragAndDropCursor(anim->getImage(index));
 }
 
 void CursorHandler::cursorMove(const int & x, const int & y)

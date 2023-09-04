@@ -28,6 +28,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/spells/ISpellMechanics.h"
@@ -76,10 +77,10 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	animIDhelper(0)
 {
 	//preparing graphics for displaying amounts of creatures
-	amountNormal     = IImage::createFromFile(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
-	amountPositive   = IImage::createFromFile(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
-	amountNegative   = IImage::createFromFile(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
-	amountEffNeutral = IImage::createFromFile(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
+	amountNormal     = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
+	amountPositive   = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
+	amountNegative   = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
+	amountEffNeutral = GH.renderHandler().loadImage(ImagePath::builtin("CMNUMWIN.BMP"), EImageBlitMode::COLORKEY);
 
 	static const auto shifterNormal   = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.6f, 0.2f, 1.0f );
 	static const auto shifterPositive = ColorFilter::genRangeShifter( 0.f, 0.f, 0.f, 0.2f, 1.0f, 0.2f );

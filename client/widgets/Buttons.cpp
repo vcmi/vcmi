@@ -25,6 +25,7 @@
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
@@ -268,7 +269,7 @@ void CButton::setIndex(size_t index)
 	if (index == currentImage || index>=imageNames.size())
 		return;
 	currentImage = index;
-	auto anim = std::make_shared<CAnimation>(imageNames[index]);
+	auto anim = GH.renderHandler().loadAnimation(imageNames[index]);
 	setImage(anim);
 }
 

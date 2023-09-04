@@ -20,6 +20,7 @@
 #include "../windows/CMessage.h"
 #include "../renderSDL/SDL_PixelAccess.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 #include "../render/Canvas.h"
 
 #include "../CGameInfo.h"
@@ -210,9 +211,9 @@ void CWindowObject::setShadow(bool on)
 		{
 			OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
-			shadowParts.push_back(std::make_shared<CPicture>( IImage::createFromSurface(shadowCorner), Point(shadowPos.x,   shadowPos.y)));
-			shadowParts.push_back(std::make_shared<CPicture>( IImage::createFromSurface(shadowRight ),  Point(shadowPos.x,   shadowStart.y)));
-			shadowParts.push_back(std::make_shared<CPicture>( IImage::createFromSurface(shadowBottom), Point(shadowStart.x, shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowCorner), Point(shadowPos.x,   shadowPos.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowRight ),  Point(shadowPos.x,   shadowStart.y)));
+			shadowParts.push_back(std::make_shared<CPicture>( GH.renderHandler().createImage(shadowBottom), Point(shadowStart.x, shadowPos.y)));
 
 		}
 		SDL_FreeSurface(shadowCorner);

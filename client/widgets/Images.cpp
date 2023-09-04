@@ -15,6 +15,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/ColorFilter.h"
@@ -51,7 +52,7 @@ CPicture::CPicture( const ImagePath & bmpname )
 {}
 
 CPicture::CPicture( const ImagePath & bmpname, const Point & position )
-	: bg(IImage::createFromFile(bmpname))
+	: bg(GH.renderHandler().loadImage(bmpname))
 	, visible(true)
 	, needRefresh(false)
 {
@@ -115,7 +116,7 @@ void CPicture::colorize(PlayerColor player)
 
 CFilledTexture::CFilledTexture(const ImagePath & imageName, Rect position):
     CIntObject(0, position.topLeft()),
-	texture(IImage::createFromFile(imageName))
+	texture(GH.renderHandler().loadImage(imageName))
 {
 	pos.w = position.w;
 	pos.h = position.h;
@@ -178,7 +179,7 @@ CAnimImage::CAnimImage(const AnimationPath & name, size_t Frame, size_t Group, i
 {
 	pos.x += x;
 	pos.y += y;
-	anim = std::make_shared<CAnimation>(name);
+	anim = GH.renderHandler().loadAnimation(name);
 	init();
 }
 
@@ -308,7 +309,7 @@ bool CAnimImage::isPlayerColored() const
 }
 
 CShowableAnim::CShowableAnim(int x, int y, const AnimationPath & name, ui8 Flags, ui32 frameTime, size_t Group, uint8_t alpha):
-	anim(std::make_shared<CAnimation>(name)),
+	anim(GH.renderHandler().loadAnimation(name)),
 	group(Group),
 	frame(0),
 	first(0),
