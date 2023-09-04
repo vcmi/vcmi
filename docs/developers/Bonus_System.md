@@ -30,10 +30,10 @@ There are two basic types of operations that can be performed on the graph:
 
 ### Adding a new node
 
-When node is attached to a new black parent [1], the propagation system is triggered and works as follows:
+When node is attached to a new black parent (the only possibility - adding parent is the same as adding a child to it), the propagation system is triggered and works as follows:
 - For the attached node and its all red ancestors
 - For every bonus
-- Call propagator giving the new descendant -\> then attach appropriately bonuses to the red descendant of attached node (or the node itself).
+- Call propagator giving the new descendant - then attach appropriately bonuses to the red descendant of attached node (or the node itself).
 
 E.g. when a hero equips an artifact, the hero gets attached to the artifact to inherit its bonuses.
 
@@ -79,17 +79,3 @@ The following example shows an artifact providing a bonus based on the level of 
        ]
    }
 ```
-
-## Calculating the total value of a bonus
-
--   [List of bonus value types](List_of_bonus_value_types "wikilink")
-
-## Automatic generation of bonus description
-
-TBD
-
-# Notes
-
-<references/>
-
-[1] the only possibility -\> adding parent is the same as adding a child to it

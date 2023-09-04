@@ -22,7 +22,7 @@ better selection lists for random map generator template - two versions
 pick my vision was to create more generic select list component and make
 town portal select component derive from it
 
-### [Adventure AI](Adventure_AI "wikilink")
+### Adventure AI
 
 -   More functionality
     -   Adventure map spells support

@@ -47,7 +47,7 @@ Advanced users who know exact private key and provisioning profile to sign with,
 
 Open `VCMI.xcodeproj` from the build directory, select `vcmiclient` scheme (the only one with nice icon) with your destination device/simulator and hit Run (Cmd+R).
 
-You must also install game files, see [Installation on iOS](Installation_on_iOS "wikilink"). But this is not necessary if you are going to run on simulator, as it is able to use game data from your Mac located at `~/Library/Application Support/vcmi`.
+You must also install game files, see [Installation on iOS](../players/Installation_iOS.md). But this is not necessary if you are going to run on simulator, as it is able to use game data from your Mac located at `~/Library/Application Support/vcmi`.
 
 ### From command line
 

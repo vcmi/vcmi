@@ -68,7 +68,6 @@ Engine documentation: (NOTE: may be outdated)
 ## Documentation and guidelines for maintainers
 
 - [Project Infrastructure](maintainers/Project_Infrastructure.md)
-- [Project Servers Configuration](maintainers/Project_Servers_Configuration.md)
 - [Release Process](maintainers/Release_Process.md)
 - [Ubuntu PPA](maintainers/Ubuntu_PPA.md)
 

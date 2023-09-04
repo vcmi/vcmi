@@ -11,7 +11,7 @@ The following instructions apply to **v1.2 and later**. For earlier versions the
 - - install with Android Studio
 - - install with `sdkmanager` command line tool
 - - download from https://developer.android.com/ndk/downloads
-- - download with Conan, see [#NDK and Conan](#NDK_and_Conan "wikilink")
+- - download with Conan, see [#NDK and Conan](#NDK_and_Conan)
 5.  (optional) Ninja: download from your package manager or from https://github.com/ninja-build/ninja/releases
 
 ## Obtaining source code
@@ -54,7 +54,7 @@ This is a traditional CMake project, you can build it from command line or some 
 `cmake -S . -B ../build -G Ninja -D CMAKE_BUILD_TYPE=Debug --toolchain ...`  
 `cmake --build ../build`
 
-You can also see a more detailed walkthrough on CMake configuration at [How to build VCMI (macOS)#Configuring project for building](How_to_build_VCMI_(macOS)#Configuring_project_for_building "wikilink").
+You can also see a more detailed walkthrough on CMake configuration at [How to build VCMI (macOS)](../developers/Building_macOS.md).
 
 ### Java code
 

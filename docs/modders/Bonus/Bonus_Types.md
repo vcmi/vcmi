@@ -306,7 +306,7 @@ Orb of Vulnerability
 
 casts a spell at expert level at beginning of battle
 
--   subtype - [spell](spell "wikilink") id
+-   subtype - Spell ID
 -   val - spell power
 
 ### FREE_SHIP_BOARDING

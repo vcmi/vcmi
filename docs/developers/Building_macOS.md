@@ -72,7 +72,7 @@ Note that if you wish to use Qt Creator IDE, you should skip this step and confi
 
 # Building project
 
-You must also install game files to be able to run the built version, see [Installation on macOS](Installation_on_macOS "wikilink").
+You must also install game files to be able to run the built version, see [Installation on macOS](players/Installation_macOS.md).
 
 ## From Xcode IDE
 
@@ -89,7 +89,7 @@ Open `VCMI.xcodeproj` from the build directory, select `vcmiclient` scheme and h
 
 After building, run `cpack` from the build directory. If using Xcode generator, also pass `-C `<configuration name> with the same configuration that you used to build the project.
 
-If you use Conan, it's expected that you use **conan-generated** directory at step 4 of [#Conan package manager](#Conan_package_manager "wikilink").
+If you use Conan, it's expected that you use **conan-generated** directory at step 4 of [Conan package manager](Conan.md).
 
 # Running VCMI
 
