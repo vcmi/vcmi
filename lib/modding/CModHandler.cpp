@@ -35,7 +35,7 @@ static JsonNode loadModSettings(const JsonPath & path)
 		return JsonNode(path);
 	}
 	// Probably new install. Create initial configuration
-	CResourceHandler::get("local")->createResource(path);
+	CResourceHandler::get("local")->createResource(path.getOriginalName() + ".json");
 	return JsonNode();
 }
 

@@ -61,7 +61,7 @@ void SettingsStorage::init()
 
 	// Probably new install. Create config file to save settings to
 	if (!CResourceHandler::get("local")->existsResource(confName))
-		CResourceHandler::get("local")->createResource(confName);
+		CResourceHandler::get("local")->createResource("config/settings.json");
 
 	JsonUtils::maximize(config, "vcmi:settings");
 	JsonUtils::validate(config, "vcmi:settings", "settings");

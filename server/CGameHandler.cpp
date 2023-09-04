@@ -1718,7 +1718,7 @@ void CGameHandler::save(const std::string & filename)
 	const auto stem	= FileInfo::GetPathStem(filename);
 	const auto savefname = stem.to_string() + ".vsgm1";
 	ResourcePath savePath(stem.to_string(), EResType::SAVEGAME);
-	CResourceHandler::get("local")->createResource(savePath);
+	CResourceHandler::get("local")->createResource(savefname);
 
 	try
 	{

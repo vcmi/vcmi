@@ -75,7 +75,7 @@ public:
 	std::set<boost::filesystem::path> getResourceNames(const ResourcePath & resourceName) const override;
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override;
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
-	bool createResource(const ResourcePath & filename, bool update = false) override;
+	bool createResource(const std::string & filename, bool update = false) override;
 	std::vector<const ISimpleResourceLoader *> getResourcesWithName(const ResourcePath & resourceName) const override;
 
 	/**

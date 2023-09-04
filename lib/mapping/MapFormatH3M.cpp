@@ -984,7 +984,7 @@ void CMapLoaderH3M::readObjectTemplates()
 		auto tmpl = reader->readObjectTemplate();
 		templates.push_back(tmpl);
 
-		if (!CResourceHandler::get()->existsResource(tmpl->animationFile))
+		if (!CResourceHandler::get()->existsResource(tmpl->animationFile.addPrefix("SPRITES/")))
 			logMod->warn("Template animation %s of type (%d %d) is missing!", tmpl->animationFile.getOriginalName(), tmpl->id, tmpl->subid );
 	}
 }

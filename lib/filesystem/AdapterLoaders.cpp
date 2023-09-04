@@ -128,9 +128,9 @@ std::unordered_set<ResourcePath> CFilesystemList::getFilteredFiles(std::function
 	return ret;
 }
 
-bool CFilesystemList::createResource(const ResourcePath & filename, bool update)
+bool CFilesystemList::createResource(const std::string & filename, bool update)
 {
-	logGlobal->trace("Creating %s", filename.getOriginalName());
+	logGlobal->trace("Creating %s", filename);
 	for (auto & loader : boost::adaptors::reverse(loaders))
 	{
 		if (writeableLoaders.count(loader.get()) != 0                       // writeable,
