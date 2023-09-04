@@ -70,7 +70,7 @@ std::unordered_set<ResourcePath> CFilesystemLoader::getFilteredFiles(std::functi
 
 bool CFilesystemLoader::createResource(const ResourcePath & resID, bool update)
 {
-	std::string filename = resID.getOriginalName();
+	std::string filename = resID.getOriginalName() + '.' + boost::to_lower_copy(EResTypeHelper::getEResTypeAsString(resID.getType()));
 
 	if (fileList.find(resID) != fileList.end())
 		return true;

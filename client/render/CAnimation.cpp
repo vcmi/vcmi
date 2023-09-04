@@ -217,9 +217,7 @@ CAnimation::CAnimation(const AnimationPath & Name):
 }
 
 CAnimation::CAnimation():
-	name(""),
-	preloaded(false),
-	defFile()
+	preloaded(false)
 {
 	init();
 }

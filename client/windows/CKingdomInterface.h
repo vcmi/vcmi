@@ -170,7 +170,7 @@ public:
 	std::string hoverText;
 	size_t imageIndex;
 
-	InfoBoxCustom(std::string ValueText, std::string NameText, std::string ImageName, size_t ImageIndex, std::string HoverText="");
+	InfoBoxCustom(std::string ValueText, std::string NameText, const AnimationPath & ImageName, size_t ImageIndex, std::string HoverText="");
 
 	std::string getValueText() override;
 	std::string getNameText() override;

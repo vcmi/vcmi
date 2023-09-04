@@ -140,7 +140,7 @@ std::vector<AudioPath> MapAudioPlayer::getAmbientSounds(const int3 & tile)
 	}
 
 	if(CGI->mh->getMap()->isCoastalTile(tile))
-		result.emplace_back("LOOPOCEA");
+		result.emplace_back(AudioPath::builtin("LOOPOCEA"));
 
 	return result;
 }

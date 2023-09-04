@@ -566,19 +566,23 @@ void MusicEntry::load(const AudioPath & musicURI)
 		music = nullptr;
 	}
 
-	currentName = musicURI;
+	if (CResourceHandler::get()->existsResource(musicURI))
+		currentName = musicURI;
+	else
+		currentName = musicURI.addPrefix("MUSIC/");
+
 	music = nullptr;
 
-	logGlobal->trace("Loading music file %s", musicURI.getOriginalName());
+	logGlobal->trace("Loading music file %s", currentName.getOriginalName());
 
 	try
 	{
-		auto musicFile = MakeSDLRWops(CResourceHandler::get()->load(musicURI));
+		auto musicFile = MakeSDLRWops(CResourceHandler::get()->load(currentName));
 		music = Mix_LoadMUS_RW(musicFile, SDL_TRUE);
 	}
 	catch(std::exception &e)
 	{
-		logGlobal->error("Failed to load music. setName=%s\tmusicURI=%s", setName, musicURI.getOriginalName());
+		logGlobal->error("Failed to load music. setName=%s\tmusicURI=%s", setName, currentName.getOriginalName());
 		logGlobal->error("Exception: %s", e.what());
 	}
 

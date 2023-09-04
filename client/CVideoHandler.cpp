@@ -77,13 +77,17 @@ bool CVideoPlayer::open(const VideoPath & fname, bool scale)
 
 // loop = to loop through the video
 // useOverlay = directly write to the screen.
-bool CVideoPlayer::open(const VideoPath & fname, bool loop, bool useOverlay, bool scale)
+bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverlay, bool scale)
 {
 	close();
 
-	this->fname = fname.addPrefix("VIDEO/");
 	doLoop = loop;
 	frameTime = 0;
+
+	if (CResourceHandler::get()->existsResource(videoToOpen))
+		fname = videoToOpen;
+	else
+		fname = videoToOpen.addPrefix("VIDEO/");
 
 	if (!CResourceHandler::get()->existsResource(fname))
 	{

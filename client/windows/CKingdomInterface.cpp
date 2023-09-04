@@ -417,7 +417,7 @@ si64 InfoBoxCustomHeroData::getValue()
 	return value;
 }
 
-InfoBoxCustom::InfoBoxCustom(std::string ValueText, std::string NameText, std::string ImageName, size_t ImageIndex, std::string HoverText):
+InfoBoxCustom::InfoBoxCustom(std::string ValueText, std::string NameText, const AnimationPath & ImageName, size_t ImageIndex, std::string HoverText):
 	IInfoBoxData(CUSTOM),
 	valueText(ValueText),
 	nameText(NameText),
@@ -531,7 +531,7 @@ std::shared_ptr<CIntObject> CKingdomInterface::createOwnedObject(size_t index)
 	{
 		OwnedObjectInfo & obj = objects[index];
 		std::string value = std::to_string(obj.count);
-		auto data = std::make_shared<InfoBoxCustom>(value, "", "FLAGPORT", obj.imageID, obj.hoverText);
+		auto data = std::make_shared<InfoBoxCustom>(value, "", AnimationPath::builtin("FLAGPORT"), obj.imageID, obj.hoverText);
 		return std::make_shared<InfoBox>(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL, data);
 	}
 	return std::shared_ptr<CIntObject>();
@@ -587,7 +587,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	for(int i=0; i<7; i++)
 	{
 		std::string value = std::to_string(minesCount[i]);
-		auto data = std::make_shared<InfoBoxCustom>(value, "", "OVMINES", i, CGI->generaltexth->translate("core.minename", i));
+		auto data = std::make_shared<InfoBoxCustom>(value, "", AnimationPath::builtin("OVMINES"), i, CGI->generaltexth->translate("core.minename", i));
 		minesBox[i] = std::make_shared<InfoBox>(Point(20+i*80, 31+footerPos), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL, data);
 		minesBox[i]->removeUsedEvents(LCLICK|SHOW_POPUP); //fixes #890 - mines boxes ignore clicks
 	}

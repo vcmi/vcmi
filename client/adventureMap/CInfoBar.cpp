@@ -94,18 +94,18 @@ AnimationPath CInfoBar::VisibleDateInfo::getNewDayName()
 		return AnimationPath::builtin("NEWDAY");
 
 	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) != 1)
-		return AnimationPath("NEWDAY");
+		return AnimationPath::builtin("NEWDAY");
 
 	switch(LOCPLINT->cb->getDate(Date::WEEK))
 	{
 	case 1:
-		return AnimationPath("NEWWEEK1");
+		return AnimationPath::builtin("NEWWEEK1");
 	case 2:
-		return AnimationPath("NEWWEEK2");
+		return AnimationPath::builtin("NEWWEEK2");
 	case 3:
-		return AnimationPath("NEWWEEK3");
+		return AnimationPath::builtin("NEWWEEK3");
 	case 4:
-		return AnimationPath("NEWWEEK4");
+		return AnimationPath::builtin("NEWWEEK4");
 	default:
 		return AnimationPath();
 	}

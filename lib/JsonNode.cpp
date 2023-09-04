@@ -1448,7 +1448,7 @@ JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files, bo
 JsonNode JsonUtils::assembleFromFiles(const std::string & filename)
 {
 	JsonNode result;
-	JsonPath resID(filename);
+	JsonPath resID = JsonPath::builtinTODO(filename);
 
 	for(auto & loader : CResourceHandler::get()->getResourcesWithName(resID))
 	{

@@ -128,17 +128,7 @@ void CCampaignScreen::CCampaignButton::show(Canvas & to)
 
 	// Play the campaign button video when the mouse cursor is placed over the button
 	if(isHovered())
-	{
-		if(CCS->videoh->fname != video.addPrefix("VIDEO/"))
-			CCS->videoh->open(video);
-
 		CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false); // plays sequentially frame by frame, starts at the beginning when the video is over
-	}
-	else if(CCS->videoh->fname == video.addPrefix("VIDEO/")) // When you got out of the bounds of the button then close the video
-	{
-		CCS->videoh->close();
-		redraw();
-	}
 }
 
 void CCampaignScreen::CCampaignButton::clickReleased(const Point & cursorPosition)
@@ -149,6 +139,11 @@ void CCampaignScreen::CCampaignButton::clickReleased(const Point & cursorPositio
 
 void CCampaignScreen::CCampaignButton::hover(bool on)
 {
+	if (on)
+		CCS->videoh->open(video);
+	else
+		CCS->videoh->close();
+
 	if(hoverLabel)
 	{
 		if(on)

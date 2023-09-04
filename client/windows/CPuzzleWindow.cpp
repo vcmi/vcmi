@@ -43,7 +43,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 
 	logo = std::make_shared<CPicture>(ImagePath::builtin("PUZZLOGO"), 607, 3);
 	title = std::make_shared<CLabel>(700, 95, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[463]);
-	resDataBar = std::make_shared<CResDataBar>(ImagePath("ARESBAR.bmp"), 3, 575, 32, 2, 85, 85);
+	resDataBar = std::make_shared<CResDataBar>(ImagePath::builtin("ARESBAR.bmp"), 3, 575, 32, 2, 85, 85);
 
 	int faction = LOCPLINT->cb->getStartInfo()->playerInfos.find(LOCPLINT->playerID)->second.castle;
 

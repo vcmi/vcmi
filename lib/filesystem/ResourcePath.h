@@ -133,9 +133,15 @@ class DLL_LINKAGE ResourcePathTempl : public ResourcePath
 		type = Type;
 	}
 
-public:
-	using ResourcePath::ResourcePath;
+	ResourcePathTempl(const std::string & path)
+		:ResourcePath(path, Type)
+	{}
 
+	ResourcePathTempl(const JsonNode & name)
+		:ResourcePath(name, Type)
+	{}
+
+public:
 	ResourcePathTempl()
 		:ResourcePath("", Type)
 	{}
@@ -148,17 +154,17 @@ public:
 
 	static ResourcePathTempl builtin(const std::string & filename)
 	{
-		return ResourcePathTempl(filename, Type);
+		return ResourcePathTempl(filename);
 	}
 
 	static ResourcePathTempl builtinTODO(const std::string & filename)
 	{
-		return ResourcePathTempl(filename, Type);
+		return ResourcePathTempl(filename);
 	}
 
 	static ResourcePathTempl fromJson(const JsonNode & path)
 	{
-		return ResourcePathTempl(path, Type);
+		return ResourcePathTempl(path);
 	}
 
 	template<EResType Type2>
