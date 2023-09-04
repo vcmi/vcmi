@@ -94,7 +94,7 @@ EResType EResTypeHelper::getTypeFromExtension(std::string extension)
 	static const std::map<std::string, EResType> stringToRes =
 	{
 		{".TXT",   EResType::TEXT},
-		{".JSON",  EResType::TEXT},
+		{".JSON",  EResType::JSON},
 		{".DEF",   EResType::ANIMATION},
 		{".MSK",   EResType::MASK},
 		{".MSG",   EResType::MASK},
@@ -148,6 +148,7 @@ std::string EResTypeHelper::getEResTypeAsString(EResType type)
 	static const std::map<EResType, std::string> stringToRes =
 	{
 		MAP_ENUM(TEXT)
+		MAP_ENUM(JSON)
 		MAP_ENUM(ANIMATION)
 		MAP_ENUM(MASK)
 		MAP_ENUM(CAMPAIGN)

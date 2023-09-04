@@ -67,11 +67,11 @@ public:
 	ColorRGBA minimapBlocked;
 	ColorRGBA minimapUnblocked;
 	std::string shortIdentifier;
-	std::string musicFilename;
+	AudioPath musicFilename;
 	AnimationPath tilesFilename;
 	std::string terrainViewPatterns;
-	std::string horseSound;
-	std::string horseSoundPenalty;
+	AudioPath horseSound;
+	AudioPath horseSoundPenalty;
 
 	std::vector<TerrainPaletteAnimation> paletteAnimation;
 

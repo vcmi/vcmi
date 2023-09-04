@@ -904,7 +904,7 @@ std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
 
 JsonNode CMapLoaderJson::getFromArchive(const std::string & archiveFilename)
 {
-	ResourcePath resource(archiveFilename, EResType::TEXT);
+	JsonPath resource = JsonPath::builtin(archiveFilename);
 
 	if(!loader.existsResource(resource))
 		throw std::runtime_error(archiveFilename+" not found");

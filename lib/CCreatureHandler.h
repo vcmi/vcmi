@@ -132,14 +132,14 @@ public:
 	//sound info
 	struct CreatureBattleSounds
 	{
-		std::string attack;
-		std::string defend;
-		std::string killed; // was killed or died
-		std::string move;
-		std::string shoot; // range attack
-		std::string wince; // attacked but did not die
-		std::string startMoving;
-		std::string endMoving;
+		AudioPath attack;
+		AudioPath defend;
+		AudioPath killed; // was killed or died
+		AudioPath move;
+		AudioPath shoot; // range attack
+		AudioPath wince; // attacked but did not die
+		AudioPath startMoving;
+		AudioPath endMoving;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{

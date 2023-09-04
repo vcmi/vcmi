@@ -140,6 +140,12 @@ public:
 		:ResourcePath("", Type)
 	{}
 
+	static ResourcePathTempl fromResource(const ResourcePath & resource)
+	{
+		assert(Type == resource.getType());
+		return ResourcePathTempl(resource);
+	}
+
 	static ResourcePathTempl builtin(const std::string & filename)
 	{
 		return ResourcePathTempl(filename, Type);
@@ -177,6 +183,7 @@ using ImagePath = ResourcePathTempl<EResType::IMAGE>;
 using TextPath = ResourcePathTempl<EResType::TEXT>;
 using JsonPath = ResourcePathTempl<EResType::JSON>;
 using VideoPath = ResourcePathTempl<EResType::VIDEO>;
+using AudioPath = ResourcePathTempl<EResType::SOUND>;
 
 namespace EResTypeHelper
 {

@@ -262,7 +262,7 @@ public:
 	const std::string & getIconScenarioBonus() const;
 	const std::string & getIconScroll() const;
 
-	const std::string & getCastSound() const override;
+	const AudioPath & getCastSound() const;
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
@@ -354,7 +354,7 @@ private:
 	std::string iconScroll;
 
 	///sound related stuff
-	std::string castSound;
+	AudioPath castSound;
 
 	std::vector<LevelInfo> levels;
 

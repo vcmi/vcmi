@@ -76,7 +76,7 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	CampaignRegions campaignRegions;
 	std::string name;
 	std::string description;
-	std::string music;
+	AudioPath music;
 	std::string filename;
 	std::string modName;
 	std::string encoding;
@@ -95,7 +95,7 @@ public:
 	std::string getFilename() const;
 	std::string getModName() const;
 	std::string getEncoding() const;
-	std::string getMusic() const;
+	AudioPath getMusic() const;
 
 	const CampaignRegions & getRegions() const;
 

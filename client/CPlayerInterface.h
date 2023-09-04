@@ -128,7 +128,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor) override;
 	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor) override;
 	void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor) override;
-	void advmapSpellCast(const CGHeroInstance * caster, int spellID) override; //called when a hero casts a spell
+	void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID) override; //called when a hero casts a spell
 	void tileHidden(const std::unordered_set<int3> &pos) override; //called when given tiles become hidden under fog of war
 	void tileRevealed(const std::unordered_set<int3> &pos) override; //called when fog of war disappears from given tiles
 	void newObject(const CGObjectInstance * obj) override;

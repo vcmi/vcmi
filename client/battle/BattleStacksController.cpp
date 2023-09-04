@@ -462,7 +462,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 				addNewAnim(new HittedAnimation(owner, attackedInfo.defender));
 
 			if (attackedInfo.fireShield)
-				owner.effectsController->displayEffect(EBattleEffect::FIRE_SHIELD, "FIRESHIE", attackedInfo.attacker->getPosition());
+				owner.effectsController->displayEffect(EBattleEffect::FIRE_SHIELD, AudioPath::builtin("FIRESHIE"), attackedInfo.attacker->getPosition());
 
 			if (attackedInfo.spellEffect != SpellID::NONE)
 			{
@@ -481,7 +481,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 		if (attackedInfo.rebirth)
 		{
 			owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [=](){
-				owner.effectsController->displayEffect(EBattleEffect::RESURRECT, "RESURECT", attackedInfo.defender->getPosition());
+				owner.effectsController->displayEffect(EBattleEffect::RESURRECT, AudioPath::builtin("RESURECT"), attackedInfo.defender->getPosition());
 				addNewAnim(new ResurrectionAnimation(owner, attackedInfo.defender));
 			});
 		}
@@ -594,7 +594,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]() {
 			owner.appendBattleLog(info.attacker->formatGeneralMessage(-45));
-			owner.effectsController->displayEffect(EBattleEffect::GOOD_LUCK, "GOODLUCK", attacker->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::GOOD_LUCK, AudioPath::builtin("GOODLUCK"), attacker->getPosition());
 		});
 	}
 
@@ -602,7 +602,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]() {
 			owner.appendBattleLog(info.attacker->formatGeneralMessage(-44));
-			owner.effectsController->displayEffect(EBattleEffect::BAD_LUCK, "BADLUCK", attacker->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::BAD_LUCK, AudioPath::builtin("BADLUCK"), attacker->getPosition());
 		});
 	}
 
@@ -610,7 +610,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]() {
 			owner.appendBattleLog(info.attacker->formatGeneralMessage(365));
-			owner.effectsController->displayEffect(EBattleEffect::DEATH_BLOW, "DEATHBLO", defender->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::DEATH_BLOW, AudioPath::builtin("DEATHBLO"), defender->getPosition());
 		});
 
 		for(auto elem : info.secondaryDefender)
@@ -645,7 +645,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [=]()
 		{
-			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, "DRAINLIF", attacker->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, AudioPath::builtin("DRAINLIF"), attacker->getPosition());
 		});
 	}
 

@@ -34,7 +34,7 @@ class DLL_LINKAGE CampaignHandler
 	static std::vector<std::vector<ui8>> getFile(std::unique_ptr<CInputStream> file, bool headerOnly);
 
 	static VideoPath prologVideoName(ui8 index);
-	static std::string prologMusicName(ui8 index);
+	static AudioPath prologMusicName(ui8 index);
 	static std::string prologVoiceName(ui8 index);
 
 public:

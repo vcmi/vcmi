@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../mapView/IMapRendererObserver.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class ObjectInstanceID;
@@ -29,7 +30,7 @@ class MapAudioPlayer : public IMapObjectObserver
 	void addObject(const CGObjectInstance * obj);
 	void removeObject(const CGObjectInstance * obj);
 
-	std::vector<std::string> getAmbientSounds(const int3 & tile);
+	std::vector<AudioPath> getAmbientSounds(const int3 & tile);
 	void updateAmbientSounds();
 	void updateMusic();
 	void update();

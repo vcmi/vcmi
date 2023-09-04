@@ -114,7 +114,7 @@ CBonusSelection::CBonusSelection()
 	}
 
 	if (!getCampaign()->getMusic().empty())
-		CCS->musich->playMusic( "Music/" + getCampaign()->getMusic(), true, false);
+		CCS->musich->playMusic( getCampaign()->getMusic(), true, false);
 }
 
 void CBonusSelection::createBonusesIcons()

@@ -90,7 +90,7 @@ TEST(MapFormat, Random)
 
 static JsonNode getFromArchive(CZipLoader & archive, const std::string & archiveFilename)
 {
-	ResourcePath resource(archiveFilename, EResType::TEXT);
+	JsonPath resource = JsonPath::builtin(archiveFilename);
 
 	if(!archive.existsResource(resource))
 		throw std::runtime_error(archiveFilename + " not found");

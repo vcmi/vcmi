@@ -54,7 +54,7 @@ struct DLL_LINKAGE CObstacleInstance
 	//Client helper functions, make it easier to render animations
 	virtual const AnimationPath & getAnimation() const;
 	virtual const AnimationPath & getAppearAnimation() const;
-	virtual const std::string & getAppearSound() const;
+	virtual const AudioPath & getAppearSound() const;
 
 	virtual int getAnimationYOffset(int imageHeight) const;
 
@@ -88,7 +88,7 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 	bool revealed;
 	bool nativeVisible; //Should native terrain creatures reveal obstacle
 
-	std::string appearSound;
+	AudioPath appearSound;
 	AnimationPath appearAnimation;
 	AnimationPath animation;
 
@@ -110,7 +110,7 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 	//Client helper functions, make it easier to render animations
 	const AnimationPath & getAnimation() const override;
 	const AnimationPath & getAppearAnimation() const override;
-	const std::string & getAppearSound() const override;
+	const AudioPath & getAppearSound() const override;
 	int getAnimationYOffset(int imageHeight) const override;
 
 	void fromInfo(const ObstacleChanges & info);

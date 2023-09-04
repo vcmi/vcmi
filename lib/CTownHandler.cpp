@@ -878,7 +878,7 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source) const
 	readIcon(source["icons"]["fort"]["built"], info.iconSmall[1][1], info.iconLarge[1][1]);
 
 	info.hallBackground = ImagePath::fromJson(source["hallBackground"]);
-	info.musicTheme = source["musicTheme"].String();
+	info.musicTheme = AudioPath::fromJson(source["musicTheme"]);
 	info.townBackground = ImagePath::fromJson(source["townBackground"]);
 	info.guildWindow = ImagePath::fromJson(source["guildWindow"]);
 	info.buildingsIcons = AnimationPath::fromJson(source["buildingsIcons"]);

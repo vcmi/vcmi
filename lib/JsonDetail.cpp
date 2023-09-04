@@ -1036,13 +1036,13 @@ namespace
 		std::string testAnimation(const std::string & path, const std::string & scope)
 		{
 			TEST_FILE(scope, "Sprites/", path, EResType::ANIMATION);
-			TEST_FILE(scope, "Sprites/", path, EResType::TEXT);
+			TEST_FILE(scope, "Sprites/", path, EResType::JSON);
 			return "Animation file \"" + path + "\" was not found";
 		}
 
 		std::string textFile(const JsonNode & node)
 		{
-			TEST_FILE(node.meta, "", node.String(), EResType::TEXT);
+			TEST_FILE(node.meta, "", node.String(), EResType::JSON);
 			return "Text file \"" + node.String() + "\" was not found";
 		}
 

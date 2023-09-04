@@ -955,17 +955,14 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	creature->special = config["special"].Bool() || config["disabled"].Bool();
 
 	const JsonNode & sounds = config["sound"];
-
-#define GET_SOUND_VALUE(value_name) creature->sounds.value_name = sounds[#value_name].String()
-	GET_SOUND_VALUE(attack);
-	GET_SOUND_VALUE(defend);
-	GET_SOUND_VALUE(killed);
-	GET_SOUND_VALUE(move);
-	GET_SOUND_VALUE(shoot);
-	GET_SOUND_VALUE(wince);
-	GET_SOUND_VALUE(startMoving);
-	GET_SOUND_VALUE(endMoving);
-#undef GET_SOUND_VALUE
+	creature->sounds.attack = AudioPath::fromJson(sounds["attack"]);
+	creature->sounds.defend = AudioPath::fromJson(sounds["defend"]);
+	creature->sounds.killed = AudioPath::fromJson(sounds["killed"]);
+	creature->sounds.move = AudioPath::fromJson(sounds["move"]);
+	creature->sounds.shoot = AudioPath::fromJson(sounds["shoot"]);
+	creature->sounds.wince = AudioPath::fromJson(sounds["wince"]);
+	creature->sounds.startMoving = AudioPath::fromJson(sounds["startMoving"]);
+	creature->sounds.endMoving = AudioPath::fromJson(sounds["endMoving"]);
 }
 
 void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode & input) const

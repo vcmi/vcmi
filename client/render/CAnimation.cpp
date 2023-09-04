@@ -182,7 +182,7 @@ void CAnimation::init()
 	if (vstd::contains(graphics->imageLists, name.getName()))
 		initFromJson(graphics->imageLists[name.getName()]);
 
-	auto jsonResource = name.toType<EResType::TEXT>();
+	auto jsonResource = name.toType<EResType::JSON>();
 	auto configList = CResourceHandler::get()->getResourcesWithName(jsonResource);
 
 	for(auto & loader : configList)

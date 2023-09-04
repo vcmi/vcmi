@@ -113,10 +113,10 @@ void CFilesystemGenerator::loadArchive(const std::string &mountPoint, const Json
 void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const JsonNode & config)
 {
 	std::string URI = prefix + config["path"].String();
-	auto filename = CResourceHandler::get("initial")->getResourceName(ResourcePath(URI, EResType::TEXT));
+	auto filename = CResourceHandler::get("initial")->getResourceName(JsonPath::builtin(URI));
 	if (filename)
 	{
-		auto configData = CResourceHandler::get("initial")->load(ResourcePath(URI, EResType::TEXT))->readAll();
+		auto configData = CResourceHandler::get("initial")->load(JsonPath::builtin(URI))->readAll();
 		const JsonNode configInitial(reinterpret_cast<char *>(configData.first.get()), configData.second);
 		filesystem->addLoader(new CMappedFileLoader(mountPoint, configInitial), false);
 	}
@@ -210,7 +210,7 @@ ISimpleResourceLoader * CResourceHandler::get(const std::string & identifier)
 
 void CResourceHandler::load(const std::string &fsConfigURI, bool extractArchives)
 {
-	auto fsConfigData = get("initial")->load(ResourcePath(fsConfigURI, EResType::TEXT))->readAll();
+	auto fsConfigData = get("initial")->load(JsonPath::builtin(fsConfigURI))->readAll();
 
 	const JsonNode fsConfig(reinterpret_cast<char *>(fsConfigData.first.get()), fsConfigData.second);
 

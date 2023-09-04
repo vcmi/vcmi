@@ -159,7 +159,7 @@ std::string CampaignHeader::getEncoding() const
 	return encoding;
 }
 
-std::string CampaignHeader::getMusic() const
+AudioPath CampaignHeader::getMusic() const
 {
 	return music;
 }

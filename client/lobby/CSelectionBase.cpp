@@ -339,7 +339,7 @@ void CChatBox::keyPressed(EShortcut key)
 
 void CChatBox::addNewMessage(const std::string & text)
 {
-	CCS->soundh->playSound("CHAT");
+	CCS->soundh->playSound(AudioPath::builtin("CHAT"));
 	chatHistory->setText(chatHistory->label->getText() + text + "\n");
 	if(chatHistory->slider)
 		chatHistory->slider->scrollToMax();

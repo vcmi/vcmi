@@ -310,7 +310,7 @@ const std::string & CSpell::getIconScroll() const
 	return iconScroll;
 }
 
-const std::string & CSpell::getCastSound() const
+const AudioPath & CSpell::getCastSound() const
 {
 	return castSound;
 }
@@ -896,7 +896,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	}
 
 	const JsonNode & soundsNode = json["sounds"];
-	spell->castSound = soundsNode["cast"].String();
+	spell->castSound = AudioPath::fromJson(soundsNode["cast"]);
 
 	//load level attributes
 	const int levelsCount = GameConstants::SPELL_SCHOOL_LEVELS;

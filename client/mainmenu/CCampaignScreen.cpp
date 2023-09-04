@@ -75,7 +75,7 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config)
 
 void CCampaignScreen::activate()
 {
-	CCS->musich->playMusic("Music/MainMenu", true, false);
+	CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, false);
 
 	CWindowObject::activate();
 }
@@ -129,12 +129,12 @@ void CCampaignScreen::CCampaignButton::show(Canvas & to)
 	// Play the campaign button video when the mouse cursor is placed over the button
 	if(isHovered())
 	{
-		if(CCS->videoh->fname != video)
+		if(CCS->videoh->fname != video.addPrefix("VIDEO/"))
 			CCS->videoh->open(video);
 
 		CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false); // plays sequentially frame by frame, starts at the beginning when the video is over
 	}
-	else if(CCS->videoh->fname == video) // When you got out of the bounds of the button then close the video
+	else if(CCS->videoh->fname == video.addPrefix("VIDEO/")) // When you got out of the bounds of the button then close the video
 	{
 		CCS->videoh->close();
 		redraw();

@@ -83,13 +83,13 @@ void AObjectTypeHandler::init(const JsonNode & input)
 	}
 
 	for(const JsonNode & node : input["sounds"]["ambient"].Vector())
-		sounds.ambient.push_back(node.String());
+		sounds.ambient.push_back(AudioPath::fromJson(node));
 
 	for(const JsonNode & node : input["sounds"]["visit"].Vector())
-		sounds.visit.push_back(node.String());
+		sounds.visit.push_back(AudioPath::fromJson(node));
 
 	for(const JsonNode & node : input["sounds"]["removal"].Vector())
-		sounds.removal.push_back(node.String());
+		sounds.removal.push_back(AudioPath::fromJson(node));
 
 	if(input["aiValue"].isNull())
 		aiValue = std::nullopt;

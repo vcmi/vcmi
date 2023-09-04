@@ -353,7 +353,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	if(!spell)
 		return;
 
-	const std::string & castSoundPath = spell->getCastSound();
+	const AudioPath & castSoundPath = spell->getCastSound();
 
 	if (!castSoundPath.empty())
 	{
@@ -419,7 +419,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	if (!sc->resistedCres.empty())
 	{
 		addToAnimationStage(EAnimationEvents::HIT, [=](){
-			CCS->soundh->playSound("MAGICRES");
+			CCS->soundh->playSound(AudioPath::builtin("MAGICRES"));
 		});
 	}
 

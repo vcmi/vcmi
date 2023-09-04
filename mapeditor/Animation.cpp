@@ -583,7 +583,7 @@ void Animation::init()
 			source[defEntry.first].resize(defEntry.second);
 	}
 
-	ResourcePath resID(std::string("SPRITES/") + name, EResType::TEXT);
+	JsonPath resID = JsonPath::builtin("SPRITES/" + name);
 
 	//if(vstd::contains(graphics->imageLists, resID.getName()))
 		//initFromJson(graphics->imageLists[resID.getName()]);

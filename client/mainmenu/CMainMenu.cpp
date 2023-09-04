@@ -114,7 +114,7 @@ void CMenuScreen::show(Canvas & to)
 
 void CMenuScreen::activate()
 {
-	CCS->musich->playMusic("Music/MainMenu", true, true);
+	CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, true);
 	if(!config["video"].isNull())
 		CCS->videoh->open(VideoPath::fromJson(config["video"]["name"]));
 	CIntObject::activate();

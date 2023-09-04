@@ -116,7 +116,7 @@ public:
 	virtual void showTavernWindow(const CGObjectInstance *townOrTavern){};
 	virtual void showThievesGuildWindow (const CGObjectInstance * obj){};
 	virtual void showQuestLog(){};
-	virtual void advmapSpellCast(const CGHeroInstance * caster, int spellID){}; //called when a hero casts a spell
+	virtual void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID){}; //called when a hero casts a spell
 	virtual void tileHidden(const std::unordered_set<int3> &pos){};
 	virtual void tileRevealed(const std::unordered_set<int3> &pos){};
 	virtual void newObject(const CGObjectInstance * obj){}; //eg. ship built in shipyard

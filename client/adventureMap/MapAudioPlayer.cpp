@@ -123,9 +123,9 @@ void MapAudioPlayer::removeObject(const CGObjectInstance * obj)
 				vstd::erase(objects[z][x][y], obj->id);
 }
 
-std::vector<std::string> MapAudioPlayer::getAmbientSounds(const int3 & tile)
+std::vector<AudioPath> MapAudioPlayer::getAmbientSounds(const int3 & tile)
 {
-	std::vector<std::string> result;
+	std::vector<AudioPath> result;
 
 	for(auto & objectID : objects[tile.z][tile.x][tile.y])
 	{
@@ -147,8 +147,8 @@ std::vector<std::string> MapAudioPlayer::getAmbientSounds(const int3 & tile)
 
 void MapAudioPlayer::updateAmbientSounds()
 {
-	std::map<std::string, int> currentSounds;
-	auto updateSounds = [&](const std::string& soundId, int distance) -> void
+	std::map<AudioPath, int> currentSounds;
+	auto updateSounds = [&](const AudioPath& soundId, int distance) -> void
 	{
 		if(vstd::contains(currentSounds, soundId))
 			currentSounds[soundId] = std::min(currentSounds[soundId], distance);

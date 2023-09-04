@@ -32,7 +32,7 @@ public:
 	Obstacle obstacle;
 	si32 iconIndex;
 	std::string identifier;
-	std::string appearSound;
+	AudioPath appearSound;
 	AnimationPath appearAnimation;
 	AnimationPath animation;
 	std::vector<TerrainId> allowedTerrains;

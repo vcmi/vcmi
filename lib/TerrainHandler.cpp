@@ -27,10 +27,10 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	info->identifier = identifier;
 	info->modScope = scope;
 	info->moveCost = static_cast<int>(json["moveCost"].Integer());
-	info->musicFilename = json["music"].String();
+	info->musicFilename = AudioPath::fromJson(json["music"]);
 	info->tilesFilename = AnimationPath::fromJson(json["tiles"]);
-	info->horseSound = json["horseSound"].String();
-	info->horseSoundPenalty = json["horseSoundPenalty"].String();
+	info->horseSound = AudioPath::fromJson(json["horseSound"]);
+	info->horseSoundPenalty = AudioPath::fromJson(json["horseSoundPenalty"]);
 	info->transitionRequired = json["transitionRequired"].Bool();
 	info->terrainViewPatterns = json["terrainViewPatterns"].String();
 

@@ -77,7 +77,7 @@ void TurnTimerWidget::setTime(PlayerColor player, int time)
 	   && newTime != turnTime
 	   && notifications.count(newTime))
 	{
-		CCS->soundh->playSound(variables["notificationSound"].String());
+		CCS->soundh->playSound(AudioPath::fromJson(variables["notificationSound"]));
 	}
 
 	turnTime = newTime;

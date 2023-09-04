@@ -69,11 +69,11 @@ class StackActionAnimation : public BattleStackAnimation
 {
 	ECreatureAnimType nextGroup;
 	ECreatureAnimType currGroup;
-	std::string sound;
+	AudioPath sound;
 public:
 	void setNextGroup( ECreatureAnimType group );
 	void setGroup( ECreatureAnimType group );
-	void setSound( std::string sound );
+	void setSound( const AudioPath & sound );
 
 	ECreatureAnimType getGroup() const;
 

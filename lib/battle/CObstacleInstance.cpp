@@ -70,7 +70,7 @@ const AnimationPath & CObstacleInstance::getAppearAnimation() const
 	return getInfo().appearAnimation;
 }
 
-const std::string & CObstacleInstance::getAppearSound() const
+const AudioPath & CObstacleInstance::getAppearSound() const
 {
 	return getInfo().appearSound;
 }
@@ -118,7 +118,7 @@ void CObstacleInstance::serializeJson(JsonSerializeFormat & handler)
 
 	//We need only a subset of obstacle info for correct render
 	handler.serializeInt("position", pos);
-	handler.serializeString("appearSound", obstacleInfo.appearSound);
+	handler.serializeStruct("appearSound", obstacleInfo.appearSound);
 	handler.serializeStruct("appearAnimation", obstacleInfo.appearAnimation);
 	handler.serializeStruct("animation", obstacleInfo.animation);
 	handler.serializeInt("animationYOffset", animationYOffset);
@@ -213,7 +213,7 @@ void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeBool("removeOnTrigger", removeOnTrigger);
 	handler.serializeBool("nativeVisible", nativeVisible);
 
-	handler.serializeString("appearSound", appearSound);
+	handler.serializeStruct("appearSound", appearSound);
 	handler.serializeStruct("appearAnimation", appearAnimation);
 	handler.serializeStruct("animation", animation);
 
@@ -249,7 +249,7 @@ const AnimationPath & SpellCreatedObstacle::getAppearAnimation() const
 	return appearAnimation;
 }
 
-const std::string & SpellCreatedObstacle::getAppearSound() const
+const AudioPath & SpellCreatedObstacle::getAppearSound() const
 {
 	return appearSound;
 }

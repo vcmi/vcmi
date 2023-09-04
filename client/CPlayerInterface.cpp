@@ -1657,7 +1657,7 @@ void CPlayerInterface::viewWorldMap()
 	adventureInt->openWorldView();
 }
 
-void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellID)
+void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, SpellID spellID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
@@ -1667,8 +1667,7 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 	if(spellID == SpellID::FLY || spellID == SpellID::WATER_WALK)
 		localState->erasePath(caster);
 
-	const spells::Spell * spell = CGI->spells()->getByIndex(spellID);
-	auto castSoundPath = spell->getCastSound();
+	auto castSoundPath = spellID.toSpell()->getCastSound();
 	if(!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
 }
@@ -1992,22 +1991,22 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 			elem.coord = h->convertFromVisitablePos(elem.coord);
 
 		int soundChannel = -1;
-		std::string soundName;
+		AudioPath soundName;
 
-		auto getMovementSoundFor = [&](const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType) -> std::string
+		auto getMovementSoundFor = [&](const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType) -> AudioPath
 		{
 			if (moveType == EPathNodeAction::TELEPORT_BATTLE || moveType == EPathNodeAction::TELEPORT_BLOCKING_VISIT || moveType == EPathNodeAction::TELEPORT_NORMAL)
-				return "";
+				return {};
 
 			if (moveType == EPathNodeAction::EMBARK || moveType == EPathNodeAction::DISEMBARK)
-				return "";
+				return {};
 
 			if (moveType == EPathNodeAction::BLOCKING_VISIT)
-				return "";
+				return {};
 
 			// flying movement sound
 			if (hero->hasBonusOfType(BonusType::FLYING_MOVEMENT))
-				return "HORSE10.wav";
+				return AudioPath::builtin("HORSE10.wav");
 
 			auto prevTile = cb->getTile(h->convertToVisitablePos(posPrev));
 			auto nextTile = cb->getTile(h->convertToVisitablePos(posNext));
@@ -2073,7 +2072,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 			{
 				// Start a new sound for the hero movement or let the existing one carry on.
-				std::string newSoundName = getMovementSoundFor(h, prevCoord, nextCoord, path.nodes[i-1].action);
+				AudioPath newSoundName = getMovementSoundFor(h, prevCoord, nextCoord, path.nodes[i-1].action);
 
 				if(newSoundName != soundName)
 				{

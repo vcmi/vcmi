@@ -105,7 +105,7 @@ void CInGameConsole::print(const std::string & txt)
 	}
 
 	GH.windows().totalRedraw(); // FIXME: ingame console has no parent widget set
-	CCS->soundh->playSound("CHAT");
+	CCS->soundh->playSound(AudioPath::builtin("CHAT"));
 }
 
 bool CInGameConsole::captureThisKey(EShortcut key)

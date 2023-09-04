@@ -17,7 +17,7 @@ struct DLL_LINKAGE CampaignScenarioPrologEpilog
 {
 	bool hasPrologEpilog = false;
 	VideoPath prologVideo; // from CmpMovie.txt
-	std::string prologMusic; // from CmpMusic.txt
+	AudioPath prologMusic; // from CmpMusic.txt
 	std::string prologText;
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
