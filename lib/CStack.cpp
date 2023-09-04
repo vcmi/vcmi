@@ -162,7 +162,7 @@ const CGHeroInstance * CStack::getMyHero() const
 std::string CStack::nodeName() const
 {
 	std::ostringstream oss;
-	oss << owner.getStr();
+	oss << owner.toString();
 	oss << " battle stack [" << ID << "]: " << getCount() << " of ";
 	if(type)
 		oss << type->getNamePluralTextID();

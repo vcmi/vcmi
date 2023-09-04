@@ -192,7 +192,7 @@ void AIGateway::gameOver(PlayerColor player, const EVictoryLossCheckResult & vic
 {
 	LOG_TRACE_PARAMS(logAi, "victoryLossCheckResult '%s'", victoryLossCheckResult.messageToSelf.toString());
 	NET_EVENT_HANDLER;
-	logAi->debug("Player %d (%s): I heard that player %d (%s) %s.", playerID, playerID.getStr(), player, player.getStr(), (victoryLossCheckResult.victory() ? "won" : "lost"));
+	logAi->debug("Player %d (%s): I heard that player %d (%s) %s.", playerID, playerID.toString(), player, player.toString(), (victoryLossCheckResult.victory() ? "won" : "lost"));
 
 	// some whitespace to flush stream
 	logAi->debug(std::string(200, ' '));
@@ -201,12 +201,12 @@ void AIGateway::gameOver(PlayerColor player, const EVictoryLossCheckResult & vic
 	{
 		if(victoryLossCheckResult.victory())
 		{
-			logAi->debug("AIGateway: Player %d (%s) won. I won! Incredible!", player, player.getStr());
+			logAi->debug("AIGateway: Player %d (%s) won. I won! Incredible!", player, player.toString());
 			logAi->debug("Turn nr %d", myCb->getDate());
 		}
 		else
 		{
-			logAi->debug("AIGateway: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.getStr());
+			logAi->debug("AIGateway: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.toString());
 		}
 
 		// some whitespace to flush stream
@@ -776,7 +776,7 @@ void AIGateway::makeTurn()
 	MAKING_TURN;
 
 	auto day = cb->getDate(Date::DAY);
-	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.getStr(), day);
+	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.toString(), day);
 
 	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 	setThreadName("AIGateway::makeTurn");
@@ -1096,7 +1096,7 @@ void AIGateway::battleEnd(const BattleResult * br, QueryID queryID)
 	assert(status.getBattle() == ONGOING_BATTLE);
 	status.setBattle(ENDING_BATTLE);
 	bool won = br->winner == myCb->battleGetMySide();
-	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.getStr(), (won ? "won" : "lost"), battlename);
+	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.toString(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
 
 	if (queryID != QueryID::NONE)
@@ -1421,7 +1421,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 
 void AIGateway::endTurn()
 {
-	logAi->info("Player %d (%s) ends turn", playerID, playerID.getStr());
+	logAi->info("Player %d (%s) ends turn", playerID, playerID.toString());
 	if(!status.haveTurn())
 	{
 		logAi->error("Not having turn at the end of turn???");
@@ -1441,7 +1441,7 @@ void AIGateway::endTurn()
 	}
 	while(status.haveTurn()); //for some reasons, our request may fail -> stop requesting end of turn only after we've received a confirmation that it's over
 
-	logGlobal->info("Player %d (%s) ended turn", playerID, playerID.getStr());
+	logGlobal->info("Player %d (%s) ended turn", playerID, playerID.toString());
 }
 
 void AIGateway::buildArmyIn(const CGTownInstance * t)

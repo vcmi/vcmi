@@ -239,8 +239,7 @@ public:
 	bool isValidPlayer() const; //valid means < PLAYER_LIMIT (especially non-neutral)
 	bool isSpectator() const;
 
-	std::string getStr(bool L10n = false) const;
-	std::string getStrCap(bool L10n = false) const;
+	std::string toString() const;
 
 	static si32 decode(const std::string& identifier);
 	static std::string encode(const si32 index);

@@ -125,7 +125,7 @@ struct HeroObjectRetriever
 CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	localState(std::make_unique<PlayerLocalState>(*this))
 {
-	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.getStr());
+	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.toString());
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
 	GH.defActionsDef = 0;
@@ -147,7 +147,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 
 CPlayerInterface::~CPlayerInterface()
 {
-	logGlobal->trace("\tHuman player interface for player %s being destructed", playerID.getStr());
+	logGlobal->trace("\tHuman player interface for player %s being destructed", playerID.toString());
 	delete showingDialog;
 	delete cingconsole;
 	if (LOCPLINT == this)

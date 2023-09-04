@@ -1072,7 +1072,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		return false;
 	}
 
-	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.getStr(), hid.getNum(), h->pos.toString(), dst.toString());
+	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.toString(), hid.getNum(), h->pos.toString(), dst.toString());
 	const int3 hmpos = h->convertToVisitablePos(dst);
 
 	if (!gs->map->isInTheMap(hmpos))
@@ -3991,7 +3991,7 @@ bool CGameHandler::isBlockedByQueries(const CPack *pack, PlayerColor player)
 	{
 		complain(boost::str(boost::format(
 			"\r\n| Player \"%s\" has to answer queries before attempting any further actions.\r\n| Top Query: \"%s\"\r\n")
-			% boost::to_upper_copy<std::string>(player.getStr())
+			% boost::to_upper_copy<std::string>(player.toString())
 			% query->toString()
 		));
 		return true;

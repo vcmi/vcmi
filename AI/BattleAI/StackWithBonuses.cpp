@@ -231,7 +231,7 @@ void StackWithBonuses::removeUnitBonus(const CSelector & selector)
 std::string StackWithBonuses::getDescription() const
 {
 	std::ostringstream oss;
-	oss << unitOwner().getStr();
+	oss << unitOwner().toString();
 	oss << " battle stack [" << unitId() << "]: " << getCount() << " of ";
 	if(type)
 		oss << type->getJsonKey();

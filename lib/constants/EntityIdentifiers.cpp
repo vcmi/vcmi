@@ -202,30 +202,9 @@ bool PlayerColor::isSpectator() const
 	return num == SPECTATOR.num;
 }
 
-std::string PlayerColor::getStr(bool L10n) const
+std::string PlayerColor::toString() const
 {
-	std::string ret = "unnamed";
-	if(isValidPlayer())
-	{
-		if(L10n)
-			ret = VLC->generaltexth->colors[num];
-		else
-			ret = GameConstants::PLAYER_COLOR_NAMES[num];
-	}
-	else if(L10n)
-	{
-		ret = VLC->generaltexth->allTexts[508];
-		ret[0] = std::tolower(ret[0]);
-	}
-
-	return ret;
-}
-
-std::string PlayerColor::getStrCap(bool L10n) const
-{
-	std::string ret = getStr(L10n);
-	ret[0] = std::toupper(ret[0]);
-	return ret;
+	return encode(num);
 }
 
 si32 PlayerColor::decode(const std::string & identifier)

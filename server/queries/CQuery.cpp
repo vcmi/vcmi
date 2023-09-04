@@ -75,7 +75,7 @@ std::string CQuery::toString() const
 
 	for(size_t i = 0; i < size; i++)
 	{
-		names += boost::to_upper_copy<std::string>(players[i].getStr());
+		names += boost::to_upper_copy<std::string>(players[i].toString());
 
 		if(i < size - 2)
 			names += ", ";

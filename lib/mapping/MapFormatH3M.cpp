@@ -1297,12 +1297,12 @@ CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 	if(htid.getNum() == -1)
 	{
 		object->powerRank = reader->readUInt8();
-		logGlobal->debug("Map '%s': Hero placeholder: by power at %s, owned by %s", mapName, mapPosition.toString(), object->getOwner().getStr());
+		logGlobal->debug("Map '%s': Hero placeholder: by power at %s, owned by %s", mapName, mapPosition.toString(), object->getOwner().toString());
 	}
 	else
 	{
 		object->heroType = htid;
-		logGlobal->debug("Map '%s': Hero placeholder: %s at %s, owned by %s", mapName, VLC->heroh->getById(htid)->getJsonKey(), mapPosition.toString(), object->getOwner().getStr());
+		logGlobal->debug("Map '%s': Hero placeholder: %s at %s, owned by %s", mapName, VLC->heroh->getById(htid)->getJsonKey(), mapPosition.toString(), object->getOwner().toString());
 	}
 
 	return object;
@@ -1774,9 +1774,9 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 	}
 
 	if (object->subID != -1)
-		logGlobal->debug("Map '%s': Hero on map: %s at %s, owned by %s", mapName, VLC->heroh->getByIndex(object->subID)->getJsonKey(), mapPosition.toString(), object->getOwner().getStr());
+		logGlobal->debug("Map '%s': Hero on map: %s at %s, owned by %s", mapName, VLC->heroh->getByIndex(object->subID)->getJsonKey(), mapPosition.toString(), object->getOwner().toString());
 	else
-		logGlobal->debug("Map '%s': Hero on map: (random) at %s, owned by %s", mapName, mapPosition.toString(), object->getOwner().getStr());
+		logGlobal->debug("Map '%s': Hero on map: (random) at %s, owned by %s", mapName, mapPosition.toString(), object->getOwner().toString());
 
 	reader->skipZero(16);
 	return object;
