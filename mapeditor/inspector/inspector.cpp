@@ -190,7 +190,7 @@ void Initializer::initialize(CGMine * o)
 	if(o->isAbandoned())
 	{
 		for(auto r = 0; r < GameConstants::RESOURCE_QUANTITY - 1; ++r)
-			o->abandonedMineResources.insert(r);
+			o->abandonedMineResources.insert(GameResID(r));
 	}
 	else
 	{
