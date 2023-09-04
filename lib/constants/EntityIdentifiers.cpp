@@ -234,6 +234,12 @@ si32 PlayerColor::decode(const std::string & identifier)
 
 std::string PlayerColor::encode(const si32 index)
 {
+	if (index < 0 || index >= std::size(GameConstants::PLAYER_COLOR_NAMES))
+	{
+		assert(0);
+		return "invalid";
+	}
+
 	return GameConstants::PLAYER_COLOR_NAMES[index];
 }
 
