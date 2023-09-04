@@ -122,7 +122,7 @@ protected:
 };
 
 template<EResType Type>
-class DLL_LINKAGE ResourcePathTempl : public ResourcePath
+class ResourcePathTempl : public ResourcePath
 {
 	template <EResType>
 	friend class ResourcePathTempl;

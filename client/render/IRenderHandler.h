@@ -20,6 +20,8 @@ enum class EImageBlitMode;
 class IRenderHandler : public boost::noncopyable
 {
 public:
+	virtual ~IRenderHandler() = default;
+
 	/// Loads image using given path
 	virtual std::shared_ptr<IImage> loadImage(const ImagePath & path) = 0;
 	virtual std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) = 0;
