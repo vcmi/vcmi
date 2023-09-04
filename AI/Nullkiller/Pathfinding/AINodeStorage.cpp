@@ -1208,7 +1208,7 @@ bool AINodeStorage::hasBetterChain(
 					"Block ineficient battle move %s->%s, hero: %s[%X], army %lld, mp diff: %i",
 					source->coord.toString(),
 					candidateNode->coord.toString(),
-					candidateNode->actor->hero->name,
+					candidateNode->actor->hero->getNameTranslated(),
 					candidateNode->actor->chainMask,
 					candidateNode->actor->armyValue,
 					node.moveRemains - candidateNode->moveRemains);
@@ -1232,7 +1232,7 @@ bool AINodeStorage::hasBetterChain(
 				"Block ineficient move because of stronger army %s->%s, hero: %s[%X], army %lld, mp diff: %i",
 				source->coord.toString(),
 				candidateNode->coord.toString(),
-				candidateNode->actor->hero->name,
+				candidateNode->actor->hero->getNameTranslated(),
 				candidateNode->actor->chainMask,
 				candidateNode->actor->armyValue,
 				node.moveRemains - candidateNode->moveRemains);
@@ -1258,7 +1258,7 @@ bool AINodeStorage::hasBetterChain(
 					"Block ineficient move because of stronger hero %s->%s, hero: %s[%X], army %lld, mp diff: %i",
 					source->coord.toString(),
 					candidateNode->coord.toString(),
-					candidateNode->actor->hero->name,
+					candidateNode->actor->hero->getNameTranslated(),
 					candidateNode->actor->chainMask,
 					candidateNode->actor->armyValue,
 					node.moveRemains - candidateNode->moveRemains);
