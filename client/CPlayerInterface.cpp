@@ -222,21 +222,6 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 			adventureInt->onEnemyTurnStarted(player, isHuman);
 	}
 }
- 
-std::string replaceVariables(std::string input, std::unordered_map<std::string, std::string>& variables) 
-{ 
-    //variables["timestamp"] = getCurrentDateTime(); 
-     
-    // Iterate through the map and replace variables 
-    for (const auto& kvp : variables) { 
-        size_t startPos = input.find("%" + kvp.first + "%"); 
-        if (startPos != std::string::npos) { 
-            input.replace(startPos, kvp.first.length() + 2, kvp.second); // +2 to account for % symbols 
-        } 
-    } 
-     
-    return input; 
-} 
 
 int extractNumberAfterHash(const std::string& input) 
 {
@@ -336,12 +321,12 @@ void CPlayerInterface::performAutosave()
 
 	// store variable values in map
 	std::unordered_map<std::string, std::string> variables;
-	variables["mapName"] = mapName;
-	variables["templateName"] = mapName;
-	variables["timestamp"] = timeStamp;
-	variables["turn"] = turn;
-	variables["players"] = playerNames;
-	variables["campaignName"] = campaignName;
+	variables["%mapName%"] = mapName;
+	variables["%templateName%"] = mapName;
+	variables["%timestamp%"] = timeStamp;
+	variables["%turn%"] = turn;
+	variables["%players%"] = playerNames;
+	variables["%campaignName%"] = campaignName;
  
 	if(simpleSaves)
 	{
@@ -396,7 +381,9 @@ void CPlayerInterface::performAutosave()
 			}
 		}
 
-		saveName = replaceVariables(saveName, variables);
+		// replace variables in save name with actual values
+		for (auto const & entry : variables)
+			boost::replace_all(saveName, entry.first, entry.second);
 	} 
  
 	cb->save("Saves/" + saveName); 
