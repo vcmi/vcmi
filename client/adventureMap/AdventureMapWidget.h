@@ -29,11 +29,11 @@ class AdventureMapWidget : public InterfaceObjectConfigurable
 	std::vector<Rect> subwidgetSizes;
 
 	/// list of images on which player-colored palette will be applied
-	std::vector<std::string> playerColorerImages;
+	std::vector<ImagePath> playerColorerImages;
 
 	/// list of named images shared between widgets
-	std::map<std::string, std::shared_ptr<IImage>> images;
-	std::map<std::string, std::shared_ptr<CAnimation>> animations;
+	std::map<ImagePath, std::shared_ptr<IImage>> images;
+	std::map<AnimationPath, std::shared_ptr<CAnimation>> animations;
 
 	/// Widgets that require access from adventure map
 	std::shared_ptr<CHeroList> heroList;

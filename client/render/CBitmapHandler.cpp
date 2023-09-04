@@ -21,7 +21,7 @@ namespace BitmapHandler
 {
 	SDL_Surface * loadH3PCX(ui8 * data, size_t size);
 
-	SDL_Surface * loadBitmapFromDir(std::string path, std::string fname);
+	SDL_Surface * loadBitmapFromDir(const ImagePath & path);
 }
 
 bool isPCX(const ui8 *header)//check whether file can be PCX according to header
@@ -103,28 +103,23 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 	return ret;
 }
 
-SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fname)
+SDL_Surface * BitmapHandler::loadBitmapFromDir(const ImagePath & path)
 {
-	if(!fname.size())
-	{
-		logGlobal->warn("Call to loadBitmap with void fname!");
-		return nullptr;
-	}
-	if (!CResourceHandler::get()->existsResource(ResourcePath(path + fname, EResType::IMAGE)))
+	if (!CResourceHandler::get()->existsResource(path))
 	{
 		return nullptr;
 	}
 
 	SDL_Surface * ret=nullptr;
 
-	auto readFile = CResourceHandler::get()->load(ResourcePath(path + fname, EResType::IMAGE))->readAll();
+	auto readFile = CResourceHandler::get()->load(path)->readAll();
 
 	if (isPCX(readFile.first.get()))
 	{//H3-style PCX
 		ret = loadH3PCX(readFile.first.get(), readFile.second);
 		if (!ret)
 		{
-			logGlobal->error("Failed to open %s as H3 PCX!", fname);
+			logGlobal->error("Failed to open %s as H3 PCX!", path.getOriginalName());
 			return nullptr;
 		}
 	}
@@ -146,7 +141,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 		}
 		else
 		{
-			logGlobal->error("Failed to open %s via SDL_Image", fname);
+			logGlobal->error("Failed to open %s via SDL_Image", path.getOriginalName());
 			logGlobal->error("Reason: %s", IMG_GetError());
 			return nullptr;
 		}
@@ -187,19 +182,29 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 	{
 		CSDL_Ext::setDefaultColorKey(ret);
 	}
-
 	return ret;
 }
 
-SDL_Surface * BitmapHandler::loadBitmap(std::string fname)
+SDL_Surface * BitmapHandler::loadBitmap(const ImagePath & fname)
 {
-	SDL_Surface * bitmap = nullptr;
-
-	if (!(bitmap = loadBitmapFromDir("DATA/", fname)) &&
-		!(bitmap = loadBitmapFromDir("SPRITES/", fname)))
+	if(fname.empty())
 	{
-		logGlobal->error("Error: Failed to find file %s", fname);
+		logGlobal->warn("Call to loadBitmap with void fname!");
+		return nullptr;
 	}
 
-	return bitmap;
+	SDL_Surface * bitmap = loadBitmapFromDir(fname);
+	if (bitmap != nullptr)
+		return bitmap;
+
+	SDL_Surface * bitmapData = loadBitmapFromDir(fname.addPrefix("DATA/"));
+	if (bitmapData != nullptr)
+		return bitmapData;
+
+	SDL_Surface * bitmapSprites = loadBitmapFromDir(fname.addPrefix("SPRITES/"));
+	if (bitmapSprites != nullptr)
+		return bitmapSprites;
+
+	logGlobal->error("Error: Failed to find file %s", fname.getOriginalName());
+	return nullptr;
 }

@@ -618,7 +618,7 @@ static const std::string QUICK_EXCHANGE_BG = QUICK_EXCHANGE_MOD_PREFIX + "/TRADE
 
 static bool isQuickExchangeLayoutAvailable()
 {
-	return CResourceHandler::get()->existsResource(ResourcePath(std::string("SPRITES/") + QUICK_EXCHANGE_BG, EResType::IMAGE));
+	return CResourceHandler::get()->existsResource(ImagePath::builtin("SPRITES/" + QUICK_EXCHANGE_BG));
 }
 
 CExchangeController::CExchangeController(CExchangeWindow * view, ObjectInstanceID hero1, ObjectInstanceID hero2)

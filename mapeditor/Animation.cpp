@@ -169,7 +169,7 @@ DefFile::DefFile(std::string Name):
 		qRgba(0, 0, 0, 128), //  50% - shadow body   below selection
 		qRgba(0, 0, 0,  64)  // 75% - shadow border below selection
 	};
-	data = animationCache.getCachedFile(ResourcePath(std::string("SPRITES/") + Name, EResType::ANIMATION));
+	data = animationCache.getCachedFile(AnimationPath::builtin("SPRITES/" + Name));
 
 	palette = std::make_unique<QVector<QRgb>>(256);
 	int it = 0;
@@ -656,7 +656,7 @@ Animation::Animation(std::string Name):
 		name.erase(dotPos);
 	std::transform(name.begin(), name.end(), name.begin(), toupper);
 
-	ResourcePath resource(std::string("SPRITES/") + name, EResType::ANIMATION);
+	auto resource = AnimationPath::builtin("SPRITES/" + name);
 
 	if(CResourceHandler::get()->existsResource(resource))
 		defFile = std::make_shared<DefFile>(name);

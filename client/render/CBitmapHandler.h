@@ -9,10 +9,12 @@
  */
 #pragma once
 
+#include "../../lib/filesystem/ResourcePath.h"
+
 struct SDL_Surface;
 
 namespace BitmapHandler
 {
 	//Load file from /DATA or /SPRITES
-	SDL_Surface * loadBitmap(std::string fname);
+	SDL_Surface * loadBitmap(const ImagePath & fname);
 }

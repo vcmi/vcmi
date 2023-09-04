@@ -69,7 +69,7 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 		// still here? image is missing
 
 		printError(frame, group, "LoadFrame");
-		images[group][frame] = std::make_shared<SDLImage>("DEFAULT", EImageBlitMode::ALPHA);
+		images[group][frame] = std::make_shared<SDLImage>(ImagePath::builtin("DEFAULT"), EImageBlitMode::ALPHA);
 	}
 	else //load from separate file
 	{

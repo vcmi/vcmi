@@ -59,10 +59,7 @@ AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> s
 	const JsonNode config(JsonPath::builtin("config/widgets/adventureMap.json"));
 
 	for(const auto & entry : config["options"]["imagesPlayerColored"].Vector())
-	{
-		ResourcePath resourceName(entry.String(), EResType::IMAGE);
-		playerColorerImages.push_back(resourceName.getName());
-	}
+		playerColorerImages.push_back(ImagePath::fromJson(entry));
 
 	build(config);
 	addUsedEvents(KEYBOARD);
@@ -131,20 +128,20 @@ std::shared_ptr<IImage> AdventureMapWidget::loadImage(const JsonNode & name)
 {
 	ImagePath resource = ImagePath::fromJson(name);
 
-	if(images.count(resource.getName()) == 0)
-		images[resource.getName()] = IImage::createFromFile(resource);
+	if(images.count(resource) == 0)
+		images[resource] = IImage::createFromFile(resource);
 
-	return images[resource.getName()];
+	return images[resource];
 }
 
 std::shared_ptr<CAnimation> AdventureMapWidget::loadAnimation(const JsonNode & name)
 {
 	AnimationPath resource = AnimationPath::fromJson(name);
 
-	if(animations.count(resource.getName()) == 0)
-		animations[resource.getName()] = std::make_shared<CAnimation>(resource);
+	if(animations.count(resource) == 0)
+		animations[resource] = std::make_shared<CAnimation>(resource);
 
-	return animations[resource.getName()];
+	return animations[resource];
 }
 
 std::shared_ptr<CIntObject> AdventureMapWidget::buildInfobox(const JsonNode & input)

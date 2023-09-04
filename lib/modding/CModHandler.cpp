@@ -290,9 +290,8 @@ static ui32 calculateModChecksum(const std::string & modName, ISimpleResourceLoa
 	// third - add all detected text files from this mod into checksum
 	auto files = filesystem->getFilteredFiles([](const ResourcePath & resID)
 	{
-		return resID.getType() == EResType::TEXT &&
-			   ( boost::starts_with(resID.getName(), "DATA") ||
-				 boost::starts_with(resID.getName(), "CONFIG"));
+		return (resID.getType() == EResType::TEXT || resID.getType() == EResType::JSON) &&
+			   ( boost::starts_with(resID.getName(), "DATA") || boost::starts_with(resID.getName(), "CONFIG"));
 	});
 
 	for (const ResourcePath & file : files)
