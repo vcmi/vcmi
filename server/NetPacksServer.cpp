@@ -104,8 +104,9 @@ void ApplyGhNetPackVisitor::visitBuildStructure(BuildStructure & pack)
 
 void ApplyGhNetPackVisitor::visitRecruitCreatures(RecruitCreatures & pack)
 {
-	gh.throwIfWrongOwner(&pack, pack.tid);
-	result = gh.recruitCreatures(pack.tid, pack.dst, pack.crid, pack.amount, pack.level);
+	gh.throwIfWrongPlayer(&pack);
+	// ownership checks are inside recruitCreatures
+	result = gh.recruitCreatures(pack.tid, pack.dst, pack.crid, pack.amount, pack.level, pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitUpgradeCreature(UpgradeCreature & pack)

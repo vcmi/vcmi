@@ -2370,28 +2370,40 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 	return true;
 }
 
-bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dstid, CreatureID crid, ui32 cram, si32 fromLvl)
+bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dstid, CreatureID crid, ui32 cram, si32 fromLvl, PlayerColor player)
 {
-	const CGDwelling * dw = static_cast<const CGDwelling *>(getObj(objid));
-	const CArmedInstance *dst = nullptr;
-	const CCreature *c = VLC->creh->objects.at(crid);
+	const CGDwelling * dwelling = dynamic_cast<const CGDwelling *>(getObj(objid));
+	const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(getObj(objid));
+	const CArmedInstance * army = dynamic_cast<const CArmedInstance *>(getObj(dstid));
+	const CGHeroInstance * hero = dynamic_cast<const CGHeroInstance *>(getObj(dstid));
+	const CCreature * c = VLC->creh->objects.at(crid);
+
 	const bool warMachine = c->warMachine != ArtifactID::NONE;
 
-	//TODO: test for owning
-	//TODO: check if dst can recruit objects (e.g. hero is actually visiting object, town and source are same, etc)
-	dst = dynamic_cast<const CArmedInstance*>(getObj(dstid));
+	//TODO: check if hero is actually visiting object
 
-	assert(dw && dst);
+	COMPLAIN_RET_FALSE_IF(!dwelling || !army, "Cannot recruit: invalid object!");
+	COMPLAIN_RET_FALSE_IF(dwelling->getOwner() != player && dwelling->getOwner() != PlayerColor::UNFLAGGABLE, "Cannot recruit: dwelling not owned!");
+
+	if (town)
+	{
+		COMPLAIN_RET_FALSE_IF(town != army && !hero, "Cannot recruit: invalid destination!");
+		COMPLAIN_RET_FALSE_IF(hero != town->garrisonHero && hero != town->visitingHero, "Cannot recruit: can only recruit to town or hero in town!!");
+	}
+	else
+	{
+		COMPLAIN_RET_FALSE_IF(!hero || hero->getOwner() != player, "Cannot recruit: can only recruit to owned hero!");
+	}
 
 	//verify
 	bool found = false;
 	int level = 0;
 
-	for (; level < dw->creatures.size(); level++) //iterate through all levels
+	for (; level < dwelling->creatures.size(); level++) //iterate through all levels
 	{
 		if ((fromLvl != -1) && (level !=fromLvl))
 			continue;
-		const auto &cur = dw->creatures.at(level); //current level info <amount, list of cr. ids>
+		const auto &cur = dwelling->creatures.at(level); //current level info <amount, list of cr. ids>
 		int i = 0;
 		for (; i < cur.second.size(); i++) //look for crid among available creatures list on current level
 			if (cur.second.at(i) == crid)
@@ -2404,10 +2416,10 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 			break;
 		}
 	}
-	SlotID slot = dst->getSlotFor(crid);
+	SlotID slot = army->getSlotFor(crid);
 
 	if ((!found && complain("Cannot recruit: no such creatures!"))
-		|| ((si32)cram  >  VLC->creh->objects.at(crid)->maxAmount(getPlayerState(dst->tempOwner)->resources) && complain("Cannot recruit: lack of resources!"))
+		|| ((si32)cram  >  VLC->creh->objects.at(crid)->maxAmount(getPlayerState(army->tempOwner)->resources) && complain("Cannot recruit: lack of resources!"))
 		|| (cram<=0  &&  complain("Cannot recruit: cram <= 0!"))
 		|| (!slot.validSlot()  && !warMachine && complain("Cannot recruit: no available slot!")))
 	{
@@ -2415,33 +2427,28 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	}
 
 	//recruit
-	giveResources(dst->tempOwner, -(c->getFullRecruitCost() * cram));
+	giveResources(army->tempOwner, -(c->getFullRecruitCost() * cram));
 
 	SetAvailableCreatures sac;
 	sac.tid = objid;
-	sac.creatures = dw->creatures;
+	sac.creatures = dwelling->creatures;
 	sac.creatures[level].first -= cram;
 	sendAndApply(&sac);
 
 	if (warMachine)
 	{
-		const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(dst);
-
-		COMPLAIN_RET_FALSE_IF(!h, "Only hero can buy war machines");
-
 		ArtifactID artId = c->warMachine;
-
-		COMPLAIN_RET_FALSE_IF(artId == ArtifactID::CATAPULT, "Catapult cannot be recruited!");
-
 		const CArtifact * art = artId.toArtifact();
 
+		COMPLAIN_RET_FALSE_IF(!hero, "Only hero can buy war machines");
+		COMPLAIN_RET_FALSE_IF(artId == ArtifactID::CATAPULT, "Catapult cannot be recruited!");
 		COMPLAIN_RET_FALSE_IF(nullptr == art, "Invalid war machine artifact");
 
-		return giveHeroNewArtifact(h, art);
+		return giveHeroNewArtifact(hero, art);
 	}
 	else
 	{
-		addToSlot(StackLocation(dst, slot), c, cram);
+		addToSlot(StackLocation(army, slot), c, cram);
 	}
 	return true;
 }
