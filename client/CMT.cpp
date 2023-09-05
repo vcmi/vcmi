@@ -29,7 +29,7 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "../lib/CThreadHelper.h"
+#include "../lib/ThreadUtilities.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -432,8 +432,6 @@ void playIntro()
 
 static void mainLoop()
 {
-	setThreadName("MainGUI");
-
 	while(1) //main SDL events loop
 	{
 		GH.input().fetchEvents();

@@ -23,6 +23,7 @@
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/NetPacks.h"
+#include "../../lib/ThreadUtilities.h"
 #include "../../lib/bonuses/CBonusSystemNode.h"
 #include "../../lib/bonuses/Limiters.h"
 #include "../../lib/bonuses/Updaters.h"

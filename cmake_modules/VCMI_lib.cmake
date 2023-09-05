@@ -154,6 +154,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/CRmgTemplate.cpp
 		${MAIN_LIB_DIR}/rmg/CRmgTemplateStorage.cpp
 		${MAIN_LIB_DIR}/rmg/CZonePlacer.cpp
+		${MAIN_LIB_DIR}/rmg/MapProxy.cpp
 		${MAIN_LIB_DIR}/rmg/TileInfo.cpp
 		${MAIN_LIB_DIR}/rmg/Zone.cpp
 		${MAIN_LIB_DIR}/rmg/Functions.cpp
@@ -175,7 +176,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/modificators/ObstaclePlacer.cpp
 		${MAIN_LIB_DIR}/rmg/modificators/RiverPlacer.cpp
 		${MAIN_LIB_DIR}/rmg/modificators/TerrainPainter.cpp
-		${MAIN_LIB_DIR}/rmg/threadpool/MapProxy.cpp
 
 		${MAIN_LIB_DIR}/serializer/BinaryDeserializer.cpp
 		${MAIN_LIB_DIR}/serializer/BinarySerializer.cpp
@@ -246,7 +246,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CScriptingModule.cpp
 		${MAIN_LIB_DIR}/CSkillHandler.cpp
 		${MAIN_LIB_DIR}/CStack.cpp
-		${MAIN_LIB_DIR}/CThreadHelper.cpp
 		${MAIN_LIB_DIR}/CTownHandler.cpp
 		${MAIN_LIB_DIR}/GameSettings.cpp
 		${MAIN_LIB_DIR}/IGameCallback.cpp
@@ -266,6 +265,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/ScriptHandler.cpp
 		${MAIN_LIB_DIR}/TerrainHandler.cpp
 		${MAIN_LIB_DIR}/TextOperations.cpp
+		${MAIN_LIB_DIR}/ThreadUtilities.cpp
 		${MAIN_LIB_DIR}/TurnTimerInfo.cpp
 		${MAIN_LIB_DIR}/VCMIDirs.cpp
 		${MAIN_LIB_DIR}/VCMI_Lib.cpp
@@ -499,6 +499,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/CRmgTemplate.h
 		${MAIN_LIB_DIR}/rmg/CRmgTemplateStorage.h
 		${MAIN_LIB_DIR}/rmg/CZonePlacer.h
+		${MAIN_LIB_DIR}/rmg/MapProxy.h
 		${MAIN_LIB_DIR}/rmg/TileInfo.h
 		${MAIN_LIB_DIR}/rmg/Zone.h
 		${MAIN_LIB_DIR}/rmg/RmgMap.h
@@ -521,9 +522,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/rmg/modificators/ObstaclePlacer.h
 		${MAIN_LIB_DIR}/rmg/modificators/RiverPlacer.h
 		${MAIN_LIB_DIR}/rmg/modificators/TerrainPainter.h
-		${MAIN_LIB_DIR}/rmg/threadpool/BlockingQueue.h
-		${MAIN_LIB_DIR}/rmg/threadpool/ThreadPool.h
-		${MAIN_LIB_DIR}/rmg/threadpool/MapProxy.h
 
 		${MAIN_LIB_DIR}/serializer/BinaryDeserializer.h
 		${MAIN_LIB_DIR}/serializer/BinarySerializer.h
@@ -597,7 +595,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/CSoundBase.h
 		${MAIN_LIB_DIR}/CStack.h
 		${MAIN_LIB_DIR}/CStopWatch.h
-		${MAIN_LIB_DIR}/CThreadHelper.h
 		${MAIN_LIB_DIR}/CTownHandler.h
 		${MAIN_LIB_DIR}/FunctionList.h
 		${MAIN_LIB_DIR}/GameConstants.h
@@ -629,6 +626,8 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/ScopeGuard.h
 		${MAIN_LIB_DIR}/StartInfo.h
 		${MAIN_LIB_DIR}/TerrainHandler.h
+		${MAIN_LIB_DIR}/ThreadPool.h
+		${MAIN_LIB_DIR}/ThreadUtilities.h
 		${MAIN_LIB_DIR}/TextOperations.h
 		${MAIN_LIB_DIR}/TurnTimerInfo.h
 		${MAIN_LIB_DIR}/UnlockGuard.h

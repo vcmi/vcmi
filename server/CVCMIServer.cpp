@@ -12,7 +12,7 @@
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/campaign/CampaignState.h"
-#include "../lib/CThreadHelper.h"
+#include "../lib/ThreadUtilities.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"

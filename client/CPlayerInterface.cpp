@@ -77,7 +77,7 @@
 #include "../lib/UnlockGuard.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/TerrainHandler.h"
-#include "../lib/CThreadHelper.h"
+#include "../lib/ThreadUtilities.h"
 #include "CServerHandler.h"
 // FIXME: only needed for CGameState::mutex
 #include "../lib/gameState/CGameState.h"

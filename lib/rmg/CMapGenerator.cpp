@@ -19,6 +19,7 @@
 #include "../mapping/CMapEditManager.h"
 #include "../CTownHandler.h"
 #include "../CHeroHandler.h"
+#include "../ThreadPool.h"
 #include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "CZonePlacer.h"
@@ -26,7 +27,6 @@
 #include "Zone.h"
 #include "Functions.h"
 #include "RmgMap.h"
-#include "threadpool/ThreadPool.h"
 #include "modificators/ObjectManager.h"
 #include "modificators/TreasurePlacer.h"
 #include "modificators/RoadPlacer.h"
@@ -340,10 +340,9 @@ void CMapGenerator::fillZones()
 	}
 	else
 	{
-		ThreadPool pool;
-		std::vector<boost::future<void>> futures;
 		//At most one Modificator can run for every zone
-		pool.init(std::min<int>(boost::thread::hardware_concurrency(), numZones));
+		ThreadPool pool(numZones);
+		std::vector<boost::future<void>> futures;
 
 		while (!allJobs.empty())
 		{

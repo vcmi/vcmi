@@ -12,6 +12,7 @@
 #include "AIPathfinderConfig.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMapDefines.h"
+#include "../../../lib/ThreadPool.h"
 
 std::vector<std::shared_ptr<AINodeStorage>> AIPathfinder::storagePool;
 std::map<HeroPtr, std::shared_ptr<AINodeStorage>> AIPathfinder::storageMap;
@@ -60,7 +61,9 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 		cb->calculatePaths(config);
 	};
 
-	std::vector<CThreadHelper::Task> calculationTasks;
+	ThreadPool pool(heroes.size());
+
+	std::vector<boost::future<void>> calculationTasks;
 
 	for(HeroPtr hero : heroes)
 	{
@@ -81,26 +84,11 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 
 		auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, nodeStorage);
 
-		calculationTasks.push_back(std::bind(calculatePaths, hero.get(), config));
+		calculationTasks.push_back(pool.async(std::bind(calculatePaths, hero.get(), config)));
 	}
 
-	int threadsCount = std::min(
-		boost::thread::hardware_concurrency(),
-		(uint32_t)calculationTasks.size());
-
-	if(threadsCount <= 1)
-	{
-		for(auto task : calculationTasks)
-		{
-			task();
-		}
-	}
-	else
-	{
-		CThreadHelper helper(&calculationTasks, threadsCount);
-
-		helper.run();
-	}
+	for (auto& fut : calculationTasks)
+		fut.get();
 }
 
 std::shared_ptr<const AINodeStorage> AIPathfinder::getStorage(const HeroPtr & hero) const

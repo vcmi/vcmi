@@ -29,7 +29,6 @@
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
 
-#include "../../lib/CThreadHelper.h"
 #include "../../lib/CConfigHandler.h"
 
 #include <SDL_render.h>

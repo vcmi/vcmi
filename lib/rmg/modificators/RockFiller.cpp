@@ -21,7 +21,7 @@
 #include "../../CRandomGenerator.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../TileInfo.h"
-#include "../threadpool/MapProxy.h"
+#include "../MapProxy.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
