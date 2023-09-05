@@ -263,6 +263,11 @@ bool CIntObject::receiveEvent(const Point & position, int eventType) const
 	return pos.isInside(position);
 }
 
+const Rect & CIntObject::getPosition() const
+{
+	return pos;
+}
+
 void CIntObject::onScreenResize()
 {
 	center(pos, true);

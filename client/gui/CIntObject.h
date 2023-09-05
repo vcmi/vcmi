@@ -109,6 +109,8 @@ public:
 	/// by default, usedEvents inside UI elements are always handled
 	bool receiveEvent(const Point & position, int eventType) const override;
 
+	const Rect & getPosition() const override;
+
 	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
 	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center
 	const Rect & center(bool propagate = true); //centers when pos.w and pos.h are set, returns new position

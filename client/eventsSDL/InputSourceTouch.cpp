@@ -121,9 +121,9 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 			if(tfinger.x > 0.5)
 			{
 				if (tfinger.y < 0.5)
-					GH.events().dispatchShowPopup(GH.getCursorPosition());
+					GH.events().dispatchShowPopup(GH.getCursorPosition(), params.touchToleranceDistance);
 				else
-					GH.events().dispatchMouseLeftButtonPressed(GH.getCursorPosition());
+					GH.events().dispatchMouseLeftButtonPressed(GH.getCursorPosition(), params.touchToleranceDistance);
 			}
 			break;
 		}
@@ -168,7 +168,7 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 				if (tfinger.y < 0.5)
 					GH.events().dispatchClosePopup(GH.getCursorPosition());
 				else
-					GH.events().dispatchMouseLeftButtonReleased(GH.getCursorPosition());
+					GH.events().dispatchMouseLeftButtonReleased(GH.getCursorPosition(), params.touchToleranceDistance);
 			}
 			break;
 		}
@@ -180,8 +180,8 @@ void InputSourceTouch::handleEventFingerUp(const SDL_TouchFingerEvent & tfinger)
 		case TouchState::TAP_DOWN_SHORT:
 		{
 			GH.input().setCursorPosition(convertTouchToMouse(tfinger));
-			GH.events().dispatchMouseLeftButtonPressed(convertTouchToMouse(tfinger));
-			GH.events().dispatchMouseLeftButtonReleased(convertTouchToMouse(tfinger));
+			GH.events().dispatchMouseLeftButtonPressed(convertTouchToMouse(tfinger), params.touchToleranceDistance);
+			GH.events().dispatchMouseLeftButtonReleased(convertTouchToMouse(tfinger), params.touchToleranceDistance);
 			state = TouchState::IDLE;
 			break;
 		}
@@ -230,7 +230,7 @@ void InputSourceTouch::handleUpdate()
 		uint32_t currentTime = SDL_GetTicks();
 		if (currentTime > lastTapTimeTicks + params.longTouchTimeMilliseconds)
 		{
-			GH.events().dispatchShowPopup(GH.getCursorPosition());
+			GH.events().dispatchShowPopup(GH.getCursorPosition(), params.touchToleranceDistance);
 
 			if (GH.windows().isTopWindowPopup())
 			{
