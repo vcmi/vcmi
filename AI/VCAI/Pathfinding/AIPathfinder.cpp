@@ -61,9 +61,7 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 		cb->calculatePaths(config);
 	};
 
-	ThreadPool pool(heroes.size());
-
-	std::vector<boost::future<void>> calculationTasks;
+	TaskGroup calculationTasks;
 
 	for(HeroPtr hero : heroes)
 	{
@@ -84,11 +82,10 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 
 		auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, nodeStorage);
 
-		calculationTasks.push_back(pool.async(std::bind(calculatePaths, hero.get(), config)));
+		ThreadPool::global().addTask(calculationTasks, std::bind(calculatePaths, hero.get(), config));
 	}
 
-	for (auto& fut : calculationTasks)
-		fut.get();
+	ThreadPool::global().waitFor(calculationTasks);
 }
 
 std::shared_ptr<const AINodeStorage> AIPathfinder::getStorage(const HeroPtr & hero) const

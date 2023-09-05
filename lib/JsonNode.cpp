@@ -1444,24 +1444,23 @@ JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files, bo
 {
 	isValid = true;
 
-	ThreadPool pool(files.size());
-	std::vector<boost::future<void>> futures;
+	TaskGroup futures;
+
 	std::vector<JsonNode> sections(files.size());
 
 	for(size_t i = 0; i < files.size(); ++i)
 	{
-		futures.push_back(pool.async([&, i]()
+		ThreadPool::global().addTask(futures, [&, i]()
 		{
 			bool isValidFile = false;
 			sections[i] = JsonNode(ResourceID(files[i], EResType::TEXT), isValidFile);
 
 			if (!isValidFile)
 				isValid = false;
-		}));
+		});
 	}
 
-	for(auto & future : futures)
-		future.get();
+	ThreadPool::global().waitFor(futures);
 
 	JsonNode result;
 	for(auto & section : sections)

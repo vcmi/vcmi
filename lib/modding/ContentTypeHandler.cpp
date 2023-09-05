@@ -29,6 +29,7 @@
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../ScriptHandler.h"
+#include "../ThreadPool.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -173,11 +174,21 @@ void CContentHandler::init()
 
 bool CContentHandler::preloadModData(const std::string & modName, JsonNode modConfig, bool validate)
 {
+	TaskGroup tasks;
+
 	bool result = true;
 	for(auto & handler : handlers)
 	{
-		result &= handler.second.preloadModData(modName, modConfig[handler.first].convertTo<std::vector<std::string> >(), validate);
+		ThreadPool::global().addTask(tasks, [&](){
+			bool taskResult = handler.second.preloadModData(modName, modConfig[handler.first].convertTo<std::vector<std::string> >(), validate);
+
+			if (!taskResult)
+				result = false;
+		});
 	}
+
+	ThreadPool::global().waitFor(tasks);
+
 	return result;
 }
 

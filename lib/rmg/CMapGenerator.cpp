@@ -341,8 +341,7 @@ void CMapGenerator::fillZones()
 	else
 	{
 		//At most one Modificator can run for every zone
-		ThreadPool pool(numZones);
-		std::vector<boost::future<void>> futures;
+		TaskGroup futures;
 
 		while (!allJobs.empty())
 		{
@@ -356,12 +355,12 @@ void CMapGenerator::fillZones()
 				else if ((*it)->isReady())
 				{
 					auto jobCopy = *it;
-					futures.emplace_back(pool.async([this, jobCopy]() -> void
+					ThreadPool::global().addTask(futures, [this, jobCopy]()
 						{
 							jobCopy->run();
 							Progress::Progress::step(); //Update progress bar
 						}
-					));
+					);
 					it = allJobs.erase(it);
 				}
 				else
@@ -370,12 +369,7 @@ void CMapGenerator::fillZones()
 				}
 			}
 		}
-
-		//Wait for all the tasks
-		for (auto& fut : futures)
-		{
-			fut.get();
-		}
+		ThreadPool::global().waitFor(futures);
 	}
 
 	for (const auto& it : map->getZones())

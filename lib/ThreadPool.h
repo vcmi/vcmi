@@ -18,7 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 //Credit to https://github.com/Liam0205/toy-threadpool/tree/master/yuuki
 
 template <typename T>
-class DLL_LINKAGE BlockingQueue : boost::noncopyable
+class BlockingQueue : boost::noncopyable
 {
 public:
 	template <typename... Args>
@@ -44,8 +44,17 @@ private:
 	mutable boost::mutex mx;
 };
 
-class DLL_LINKAGE ThreadPool
+class TaskGroup
 {
+	friend class ThreadPool;
+
+	std::vector<boost::future<void>> tasks;
+	std::atomic<int> tasksLeft = 0;
+};
+
+class ThreadPool
+{
+	friend class TaskGroup;
 private:
 	using Functor = std::function<void()>;
 	mutable boost::mutex mx;
@@ -60,15 +69,24 @@ private:
 	void terminate();
 
 public:
-	explicit ThreadPool(size_t maxThreadsCount);
+	static ThreadPool & global();
+
+	explicit ThreadPool();
 	~ThreadPool();
 
-	boost::future<void> async(std::function<void()>&& f) const;
+	void addTask(TaskGroup & group, std::function<void()>&& f);
+	void waitFor(TaskGroup & group);
 };
 
-inline ThreadPool::ThreadPool(size_t desiredThreadsCount)
+inline ThreadPool & ThreadPool::global()
 {
-	size_t actualThreadCount = std::min<int>(boost::thread::hardware_concurrency(), desiredThreadsCount);
+	static ThreadPool globalInstance;
+	return globalInstance;
+}
+
+inline ThreadPool::ThreadPool()
+{
+	size_t actualThreadCount = boost::thread::hardware_concurrency();
 
 	workers.reserve(actualThreadCount);
 	for (size_t i = 0; i < actualThreadCount; ++i)
@@ -113,7 +131,7 @@ inline void ThreadPool::terminate()
 		worker.join();
 }
 
-inline boost::future<void> ThreadPool::async(std::function<void()>&& f) const
+inline void ThreadPool::addTask(TaskGroup & group, std::function<void()>&& f)
 {
 	using TaskT = boost::packaged_task<void>;
 
@@ -121,13 +139,36 @@ inline boost::future<void> ThreadPool::async(std::function<void()>&& f) const
 		throw std::runtime_error("Delegating task to a threadpool that has been terminated.");
 
 	std::shared_ptr<TaskT> task = std::make_shared<TaskT>(f);
-	boost::future<void> fut = task->get_future();
-	tasks.emplace([task]() -> void
+	group.tasks.emplace_back(task->get_future());
+
+	++group.tasksLeft;
+	tasks.emplace([&group, task]() -> void
 	{
 		(*task)();
+		--group.tasksLeft;
 	});
 	cv.notify_one();
-	return fut;
+}
+
+inline void ThreadPool::waitFor(TaskGroup & group)
+{
+	while (group.tasksLeft.load() != 0)
+	{
+		Functor task;
+		bool pop = tasks.pop(task);
+
+		if (pop)
+		{
+			// task acquired - execute it on our thread
+			task();
+		}
+		else
+		{
+			// failed to acquire task.
+			// This might happen if another thread is currently executing task from our group - in this case sleep for a bit and try again later
+			boost::this_thread::sleep_for(boost::chrono::milliseconds(1));
+		}
+	}
 }
 
 VCMI_LIB_NAMESPACE_END
