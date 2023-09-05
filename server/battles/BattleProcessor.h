@@ -63,6 +63,8 @@ public:
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false);
 	/// Starts battle between two armies (which can also be heroes) at position of 2nd object
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false);
+	/// Restart ongoing battle and end previous battle
+	void restartBattlePrimary(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr);
 
 	/// Processing of incoming battle action netpack
 	bool makePlayerBattleAction(const BattleID & battleID, PlayerColor player, const BattleAction & ba);

@@ -51,33 +51,23 @@ void BattleProcessor::engageIntoBattle(PlayerColor player)
 	gameHandler->sendAndApply(&pb);
 }
 
-void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
+void BattleProcessor::restartBattlePrimary(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
 								const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank,
-								const CGTownInstance *town) //use hero=nullptr for no hero
+								const CGTownInstance *town)
 {
-	assert(gameHandler->gameState()->getBattle(army1->getOwner()) == nullptr);
-	assert(gameHandler->gameState()->getBattle(army2->getOwner()) == nullptr);
-
-	engageIntoBattle(army1->tempOwner);
-	engageIntoBattle(army2->tempOwner);
-
-	static const CArmedInstance *armies[2];
-	armies[0] = army1;
-	armies[1] = army2;
-	static const CGHeroInstance*heroes[2];
-	heroes[0] = hero1;
-	heroes[1] = hero2;
-
-	auto battleID = setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
-
-	const auto * battle = gameHandler->gameState()->getBattle(battleID);
-	assert(battle);
+	auto battle = gameHandler->gameState()->getBattle(battleID);
 
 	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[0].color));
+
+	assert(lastBattleQuery);
 
 	//existing battle query for retying auto-combat
 	if(lastBattleQuery)
 	{
+		const CGHeroInstance*heroes[2];
+		heroes[0] = hero1;
+		heroes[1] = hero2;
+
 		for(int i : {0, 1})
 		{
 			if(heroes[i])
@@ -89,21 +79,58 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 			}
 		}
 
-		lastBattleQuery->battleID = battle->getBattleID();
 		lastBattleQuery->result = std::nullopt;
-		lastBattleQuery->belligerents[0] = battle->sides[0].armyObject;
-		lastBattleQuery->belligerents[1] = battle->sides[1].armyObject;
+
+		assert(lastBattleQuery->belligerents[0] == battle->sides[0].armyObject);
+		assert(lastBattleQuery->belligerents[1] == battle->sides[1].armyObject);
 	}
 
-	auto nextBattleQuery = std::make_shared<CBattleQuery>(gameHandler, battle);
-	for(int i : {0, 1})
+	BattleCancelled bc;
+	bc.battleID = battleID;
+	gameHandler->sendAndApply(&bc);
+
+	startBattlePrimary(army1, army2, tile, hero1, hero2, creatureBank, town);
+}
+
+void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
+								const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank,
+								const CGTownInstance *town)
+{
+	assert(gameHandler->gameState()->getBattle(army1->getOwner()) == nullptr);
+	assert(gameHandler->gameState()->getBattle(army2->getOwner()) == nullptr);
+
+	engageIntoBattle(army1->tempOwner);
+	engageIntoBattle(army2->tempOwner);
+
+	const CArmedInstance *armies[2];
+	armies[0] = army1;
+	armies[1] = army2;
+	const CGHeroInstance*heroes[2];
+	heroes[0] = hero1;
+	heroes[1] = hero2;
+
+	auto battleID = setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
+
+	const auto * battle = gameHandler->gameState()->getBattle(battleID);
+	assert(battle);
+
+	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[0].color));
+
+	if (lastBattleQuery)
 	{
-		if(heroes[i])
-		{
-			nextBattleQuery->initialHeroMana[i] = heroes[i]->mana;
-		}
+		lastBattleQuery->battleID = battleID;
 	}
-	gameHandler->queries->addQuery(nextBattleQuery);
+	else
+	{
+		auto newBattleQuery = std::make_shared<CBattleQuery>(gameHandler, battle);
+
+		// store initial mana to reset if battle has been restarted
+		for(int i : {0, 1})
+			if(heroes[i])
+				newBattleQuery->initialHeroMana[i] = heroes[i]->mana;
+
+		gameHandler->queries->addQuery(newBattleQuery);
+	}
 
 	flowProcessor->onBattleStarted(*battle);
 }

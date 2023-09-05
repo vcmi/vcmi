@@ -904,7 +904,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		bat.flags |= BattleAttack::DEATH_BLOW;
 	}
 
-	const auto * owner = battle.battleGetFightingHero(attacker->unitOwner());
+	const auto * owner = battle.battleGetFightingHero(attacker->unitSide());
 	if(owner)
 	{
 		int chance = owner->valOfBonuses(BonusType::BONUS_DAMAGE_CHANCE, attacker->creatureIndex());

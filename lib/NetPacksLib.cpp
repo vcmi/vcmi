@@ -2119,7 +2119,7 @@ void BattleStart::applyGs(CGameState * gs) const
 	info->battleID = gs->nextBattleID;
 	info->localInit();
 
-	vstd::next(gs->nextBattleID, 1);
+	gs->nextBattleID = vstd::next(gs->nextBattleID, 1);
 }
 
 void BattleNextRound::applyGs(CGameState * gs) const
@@ -2175,6 +2175,17 @@ void BattleUpdateGateState::applyGs(CGameState * gs) const
 {
 	if(gs->getBattle(battleID))
 		gs->getBattle(battleID)->si.gateState = state;
+}
+
+void BattleCancelled::applyGs(CGameState * gs) const
+{
+	auto currentBattle = boost::range::find_if(gs->currentBattles, [&](const auto & battle)
+	{
+		return battle->battleID == battleID;
+	});
+
+	assert(currentBattle != gs->currentBattles.end());
+	gs->currentBattles.erase(currentBattle);
 }
 
 void BattleResultAccepted::applyGs(CGameState * gs) const

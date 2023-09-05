@@ -254,12 +254,15 @@ void TurnTimerHandler::onBattleLoop(const BattleID & battleID, int waitTime)
 	std::lock_guard<std::recursive_mutex> guard(mx);
 	const auto * gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
-	if(!si || !gs || !si->turnTimerInfo.isBattleEnabled())
+	if(!si || !gs)
 	{
 		assert(0);
 		return;
 	}
 	
+	if (!si->turnTimerInfo.isBattleEnabled())
+		return;
+
 	ui8 side = 0;
 	const CStack * stack = nullptr;
 	bool isTactisPhase = gs->getBattle(battleID)->battleTacticDist() > 0;
@@ -279,6 +282,7 @@ void TurnTimerHandler::onBattleLoop(const BattleID & battleID, int waitTime)
 		return;
 	
 	const auto * state = gameHandler.getPlayerState(player);
+	assert(state && state->status != EPlayerStatus::INGAME);
 	if(!state || state->status != EPlayerStatus::INGAME || !state->human)
 		return;
 	

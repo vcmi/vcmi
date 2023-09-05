@@ -278,11 +278,12 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	for(auto q : gameHandler->queries->allQueries())
 	{
 		auto otherBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(q);
-		if(otherBattleQuery)
+		if(otherBattleQuery && otherBattleQuery->battleID == battle.getBattle()->getBattleID())
 			otherBattleQuery->result = battleQuery->result;
 	}
 
 	gameHandler->turnTimerHandler.onBattleEnd(battle.getBattle()->getBattleID());
+	gameHandler->sendAndApply(battleResult);
 
 	if (battleResult->queryID == QueryID::NONE)
 		endBattleConfirm(battle);

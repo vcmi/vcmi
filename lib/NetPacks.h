@@ -1530,6 +1530,19 @@ struct DLL_LINKAGE BattleSetActiveStack : public CPackForClient
 	}
 };
 
+struct DLL_LINKAGE BattleCancelled: public CPackForClient
+{
+	void applyGs(CGameState * gs) const;
+
+	BattleID battleID = BattleID::NONE;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & battleID;
+		assert(battleID != BattleID::NONE);
+	}
+};
+
 struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 {
 	void applyGs(CGameState * gs) const;

@@ -137,6 +137,7 @@ void Catapult::applyTargeted(ServerCallback * server, const Mechanics * m, const
 		attack.damageDealt = getRandomDamage(server);
 
 		CatapultAttack ca; //package for clients
+		ca.battleID = m->battle()->getBattle()->getBattleID();
 		ca.attacker = m->caster->getHeroCaster() ? -1 : m->caster->getCasterUnitId();
 		ca.attackedParts.push_back(attack);
 		server->apply(&ca);
