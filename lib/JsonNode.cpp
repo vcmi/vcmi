@@ -23,6 +23,7 @@
 #include "VCMI_Lib.h" //for identifier resolution
 #include "CGeneralTextHandler.h"
 #include "JsonDetail.h"
+#include "ThreadPool.h"
 #include "constants/StringConstants.h"
 #include "battle/BattleHex.h"
 
@@ -1442,15 +1443,30 @@ JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files)
 JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files, bool & isValid)
 {
 	isValid = true;
-	JsonNode result;
 
-	for(const std::string & file : files)
+	ThreadPool pool(files.size());
+	std::vector<boost::future<void>> futures;
+	std::vector<JsonNode> sections(files.size());
+
+	for(size_t i = 0; i < files.size(); ++i)
 	{
-		bool isValidFile = false;
-		JsonNode section(ResourceID(file, EResType::TEXT), isValidFile);
-		merge(result, section);
-		isValid |= isValidFile;
+		futures.push_back(pool.async([&, i]()
+		{
+			bool isValidFile = false;
+			sections[i] = JsonNode(ResourceID(files[i], EResType::TEXT), isValidFile);
+
+			if (!isValidFile)
+				isValid = false;
+		}));
 	}
+
+	for(auto & future : futures)
+		future.get();
+
+	JsonNode result;
+	for(auto & section : sections)
+		merge(result, section);
+
 	return result;
 }
 
