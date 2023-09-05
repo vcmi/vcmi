@@ -11,12 +11,9 @@
 #include "CArtifactsOfHeroBackpack.h"
 
 #include "../gui/CGuiHandler.h"
-#include "../gui/Shortcut.h"
 
-#include "Buttons.h"
 #include "Images.h"
 #include "GameSettings.h"
-#include "IHandlerBase.h"
 #include "ObjectLists.h"
 
 #include "../CPlayerInterface.h"
@@ -37,21 +34,12 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(const Point & position)
 
 	backpack.resize(visibleCapacityMax);
 	size_t artPlaceIdx = 0;
-
-	const int slotSizeWithMargin = 46;
-
-	for(int i = 0; i < visibleCapacityMax; i++)
-	{
-		auto artifactSlotBackground = std::make_shared<CPicture>("heroWindow/artifactSlotEmpty",
-			Point(slotSizeWithMargin * (i % HERO_BACKPACK_WINDOW_SLOT_COLUMNS), slotSizeWithMargin * (i / HERO_BACKPACK_WINDOW_SLOT_COLUMNS)));
-
-		backpackSlotsBackgrounds.emplace_back(artifactSlotBackground);
-	}
-
 	for(auto & artPlace : backpack)
 	{
-		artPlace = std::make_shared<CHeroArtPlace>(
-			Point(slotSizeWithMargin * (artPlaceIdx % HERO_BACKPACK_WINDOW_SLOT_COLUMNS), slotSizeWithMargin * (artPlaceIdx / HERO_BACKPACK_WINDOW_SLOT_COLUMNS)));
+		const auto pos = Point(slotSizeWithMargin * (artPlaceIdx % HERO_BACKPACK_WINDOW_SLOT_COLUMNS),
+			slotSizeWithMargin * (artPlaceIdx / HERO_BACKPACK_WINDOW_SLOT_COLUMNS));
+		backpackSlotsBackgrounds.emplace_back(std::make_shared<CPicture>("heroWindow/artifactSlotEmpty", pos));
+		artPlace = std::make_shared<CHeroArtPlace>(pos);
 		artPlace->setArtifact(nullptr);
 		artPlace->leftClickCallback = std::bind(&CArtifactsOfHeroBase::leftClickArtPlace, this, _1);
 		artPlace->rightClickCallback = std::bind(&CArtifactsOfHeroBase::rightClickArtPlace, this, _1);
@@ -70,8 +58,18 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(const Point & position)
 		};
 		backpackListBox = std::make_shared<CListBoxWithCallback>(
 				posMoved, onCreate, Point(0, 0), Point(0, 0), HERO_BACKPACK_WINDOW_SLOT_ROWS, 0, 0, 1,
-				Rect(HERO_BACKPACK_WINDOW_SLOT_COLUMNS * slotSizeWithMargin + 10, 0, HERO_BACKPACK_WINDOW_SLOT_ROWS * slotSizeWithMargin - 5, 0));
+				Rect(HERO_BACKPACK_WINDOW_SLOT_COLUMNS * slotSizeWithMargin + sliderPosOffsetX, 0, HERO_BACKPACK_WINDOW_SLOT_ROWS * slotSizeWithMargin - 2, 0));
 	}
+
+	pos.w = visibleCapacityMax > HERO_BACKPACK_WINDOW_SLOT_COLUMNS ? HERO_BACKPACK_WINDOW_SLOT_COLUMNS : visibleCapacityMax;
+	pos.w *= slotSizeWithMargin;
+	if(backpackListBox)
+		pos.w += sliderPosOffsetX + 16; // 16 is slider width. TODO: get it from CListBox directly;
+
+	pos.h = (visibleCapacityMax / HERO_BACKPACK_WINDOW_SLOT_COLUMNS);
+	if(visibleCapacityMax % HERO_BACKPACK_WINDOW_SLOT_COLUMNS != 0)
+		pos.h += 1;
+	pos.h *= slotSizeWithMargin;
 }
 
 void CArtifactsOfHeroBackpack::swapArtifacts(const ArtifactLocation & srcLoc, const ArtifactLocation & dstLoc)
@@ -88,7 +86,7 @@ void CArtifactsOfHeroBackpack::pickUpArtifact(CHeroArtPlace & artPlace)
 void CArtifactsOfHeroBackpack::scrollBackpack(int offset)
 {
 	if(backpackListBox)
-		backpackListBox->resize(getActiveSlotLinesNum());
+		backpackListBox->resize(getActiveSlotRowsNum());
 	backpackPos += offset;
 	auto slot = ArtifactPosition(GameConstants::BACKPACK_START + backpackPos);
 	for(auto artPlace : backpack)
@@ -102,11 +100,11 @@ void CArtifactsOfHeroBackpack::scrollBackpack(int offset)
 void CArtifactsOfHeroBackpack::updateBackpackSlots()
 {
 	if(backpackListBox)
-		backpackListBox->resize(getActiveSlotLinesNum());
+		backpackListBox->resize(getActiveSlotRowsNum());
 	CArtifactsOfHeroBase::updateBackpackSlots();
 }
 
-size_t CArtifactsOfHeroBackpack::getActiveSlotLinesNum()
+size_t CArtifactsOfHeroBackpack::getActiveSlotRowsNum()
 {
 	return (curHero->artifactsInBackpack.size() + HERO_BACKPACK_WINDOW_SLOT_COLUMNS - 1) / HERO_BACKPACK_WINDOW_SLOT_COLUMNS;
 }

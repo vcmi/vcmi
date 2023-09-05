@@ -24,22 +24,26 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	stretchedBackground = std::make_shared<CFilledTexture>("DIBOXBCK", Rect(0, 0, 410, 425));
-	pos.w = stretchedBackground->pos.w;
-	pos.h = stretchedBackground->pos.h;
-	center();
+	stretchedBackground = std::make_shared<CFilledTexture>("DIBOXBCK", Rect());
 
-
-	arts = std::make_shared<CArtifactsOfHeroBackpack>(/*Point(-100, -170)*/Point(10, 10));
+	arts = std::make_shared<CArtifactsOfHeroBackpack>(Point(windowMargin, windowMargin));
 	arts->setHero(hero);
 	addSet(arts);
 
 	addCloseCallback(std::bind(&CHeroBackpackWindow::close, this));
 
-	quitButton = std::make_shared<CButton>(Point(173, 385), "IOKAY32.def", CButton::tooltip(""), [this]() { close(); }, EShortcut::GLOBAL_RETURN);
+	quitButton = std::make_shared<CButton>(Point(), "IOKAY32.def", CButton::tooltip(""), [this]() { close(); }, EShortcut::GLOBAL_RETURN);
+
+	stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
+	stretchedBackground->pos.h = arts->pos.h + quitButton->pos.h + 3 * windowMargin;
+	pos.w = stretchedBackground->pos.w;
+	pos.h = stretchedBackground->pos.h;
+	center();
+
+	quitButton->moveBy(Point(GH.screenDimensions().x / 2 - quitButton->pos.w / 2 - quitButton->pos.x, arts->pos.h + 2 * windowMargin));
 }
 
-void CHeroBackpackWindow::showAll(Canvas &to)
+void CHeroBackpackWindow::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 	CMessage::drawBorder(PlayerColor(LOCPLINT->playerID), to.getInternalSurface(), pos.w+28, pos.h+29, pos.x-14, pos.y-15);
