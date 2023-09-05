@@ -61,7 +61,6 @@ public:
 	/// CModListContainer overrides
 	void resetRepositories() override;
 	void reloadRepositories() override;
-	void addRepository(QVariantMap data) override;
 	void modChanged(QString modID) override;
 
 	QVariant data(const QModelIndex & index, int role) const override;

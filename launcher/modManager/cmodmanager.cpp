@@ -68,9 +68,11 @@ void CModManager::resetRepositories()
 	modList->resetRepositories();
 }
 
-void CModManager::loadRepository(QVariantMap repomap)
+void CModManager::loadRepositories(QVector<QVariantMap> repomap)
 {
-	modList->addRepository(repomap);
+	for (auto const & entry : repomap)
+		modList->addRepository(entry);
+	modList->reloadRepositories();
 }
 
 void CModManager::loadMods()

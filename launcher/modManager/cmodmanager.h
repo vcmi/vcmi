@@ -35,7 +35,7 @@ public:
 	CModManager(CModList * modList);
 
 	void resetRepositories();
-	void loadRepository(QVariantMap repomap);
+	void loadRepositories(QVector<QVariantMap> repomap);
 	void loadModSettings();
 	void loadMods();
 

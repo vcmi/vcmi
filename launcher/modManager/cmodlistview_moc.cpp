@@ -657,6 +657,7 @@ void CModListView::installFiles(QStringList files)
 {
 	QStringList mods;
 	QStringList images;
+	QVector<QVariantMap> repositories;
 
 	// TODO: some better way to separate zip's with mods and downloaded repository files
 	for(QString filename : files)
@@ -666,12 +667,12 @@ void CModListView::installFiles(QStringList files)
 		if(filename.endsWith(".json"))
 		{
 			//download and merge additional files
-			auto repodata = JsonUtils::JsonFromFile(filename).toMap();
-			if(repodata.value("name").isNull())
+			auto repoData = JsonUtils::JsonFromFile(filename).toMap();
+			if(repoData.value("name").isNull())
 			{
-				for(const auto & key : repodata.keys())
+				for(const auto & key : repoData.keys())
 				{
-					auto modjson = repodata[key].toMap().value("mod");
+					auto modjson = repoData[key].toMap().value("mod");
 					if(!modjson.isNull())
 					{
 						downloadFile(key + ".json", modjson.toString(), "repository index");
@@ -682,14 +683,17 @@ void CModListView::installFiles(QStringList files)
 			{
 				auto modn = QFileInfo(filename).baseName();
 				QVariantMap temp;
-				temp[modn] = repodata;
-				repodata = temp;
+				temp[modn] = repoData;
+				repoData = temp;
 			}
-			manager->loadRepository(repodata);
+			repositories.push_back(repoData);
 		}
 		if(filename.endsWith(".png"))
 			images.push_back(filename);
 	}
+
+	manager->loadRepositories(repositories);
+
 	if(!mods.empty())
 		installMods(mods);
 
