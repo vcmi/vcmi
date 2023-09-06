@@ -24,6 +24,7 @@
 #include "../gui/CIntObject.h"
 #include "../gui/WindowHandler.h"
 #include "../windows/CCreatureWindow.h"
+#include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
@@ -1003,6 +1004,7 @@ void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 	if (spellcastingModeActive() || isCurrentStackInSpellcastMode)
 	{
 		endCastingSpell();
+		CRClickPopup::createAndPush(CGI->generaltexth->translate("core.genrltxt.731")); // spell cancelled
 		return;
 	}
 
