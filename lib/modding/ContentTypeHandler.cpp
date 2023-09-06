@@ -194,11 +194,21 @@ bool CContentHandler::preloadModData(const std::string & modName, const JsonNode
 
 bool CContentHandler::loadMod(const std::string & modName, bool validate)
 {
+	TaskGroup tasks;
+
 	bool result = true;
 	for(auto & handler : handlers)
 	{
-		result &= handler.second.loadMod(modName, validate);
+		ThreadPool::global().addTask(tasks, [&](){
+			bool taskResult = handler.second.loadMod(modName, validate);
+
+			if (!taskResult)
+				result = false;
+		});
 	}
+
+	ThreadPool::global().waitFor(tasks);
+
 	return result;
 }
 

@@ -71,8 +71,11 @@ void CIdentifierStorage::requestIdentifier(ObjectCallback callback) const
 
 	assert(!callback.localScope.empty());
 
-	if (state != ELoadingState::FINISHED) // enqueue request if loading is still in progress
+	if (state == ELoadingState::LOADING) // enqueue request if loading is still in progress
+	{
+		boost::mutex::scoped_lock lock(scheduledRequestsMutex);
 		scheduledRequests.push_back(callback);
+	}
 	else // execute immediately for "late" requests
 		resolveIdentifier(callback);
 }
@@ -223,6 +226,8 @@ void CIdentifierStorage::registerObject(const std::string & scope, const std::st
 	checkIdentifier(fullID);
 
 	std::pair<const std::string, ObjectData> mapping = std::make_pair(fullID, data);
+
+	boost::mutex::scoped_lock lock(registeredObjectsMutex);
 	if(!vstd::containsMapping(registeredObjects, mapping))
 	{
 		logMod->trace("registered %s as %s:%s", fullID, scope, identifier);
