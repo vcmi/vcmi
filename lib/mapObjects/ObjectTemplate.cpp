@@ -120,9 +120,8 @@ void ObjectTemplate::afterLoadFixup()
 	boost::algorithm::replace_all(editorAnimationFile, "\\", "/");
 }
 
-void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
+void ObjectTemplate::readTxt(const std::string & data)
 {
-	std::string data = parser.readString();
 	std::vector<std::string> strings;
 	boost::split(strings, data, boost::is_any_of(" "));
 	assert(strings.size() == 9);

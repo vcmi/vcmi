@@ -18,6 +18,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../GameSettings.h"
 #include "../JsonNode.h"
+#include "../ThreadPool.h"
 #include "../CSoundBase.h"
 
 #include "../mapObjectConstructors/CBankInstanceConstructor.h"
@@ -116,15 +117,28 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 	auto totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
 	parser.endLine();
 
+	TaskGroup tasks;
+	std::vector<std::shared_ptr<ObjectTemplate>> loaded(totalNumber);
+
 	for (size_t i = 0; i < totalNumber; i++)
 	{
-		auto * tmpl = new ObjectTemplate;
-
-		tmpl->readTxt(parser);
+		std::string input = parser.readString();
 		parser.endLine();
 
+		ThreadPool::global().addTask(tasks, [i, &loaded, input = std::move(input)](){
+			auto tmpl = std::make_shared<ObjectTemplate>();
+			tmpl->readTxt(input);
+			loaded[i] = tmpl;
+		});
+	}
+
+	ThreadPool::global().waitFor(tasks);
+
+	for (size_t i = 0; i < totalNumber; i++)
+	{
+		auto tmpl = loaded[i];
 		std::pair<si32, si32> key(tmpl->id.num, tmpl->subid);
-		legacyTemplates.insert(std::make_pair(key, std::shared_ptr<const ObjectTemplate>(tmpl)));
+		legacyTemplates.insert({key, tmpl});
 	}
 
 	objects.resize(256);

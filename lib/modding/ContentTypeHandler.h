@@ -49,7 +49,7 @@ public:
 class DLL_LINKAGE CContentHandler
 {
 	/// preloads all data from fileList as data from modName.
-	bool preloadModData(const std::string & modName, JsonNode modConfig, bool validate);
+	bool preloadModData(const std::string & modName, const JsonNode & modConfig, bool validate);
 
 	/// actually loads data in mod
 	bool loadMod(const std::string & modName, bool validate);

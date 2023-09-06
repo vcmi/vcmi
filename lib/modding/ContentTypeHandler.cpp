@@ -172,7 +172,7 @@ void CContentHandler::init()
 	//TODO: any other types of moddables?
 }
 
-bool CContentHandler::preloadModData(const std::string & modName, JsonNode modConfig, bool validate)
+bool CContentHandler::preloadModData(const std::string & modName, const JsonNode & modConfig, bool validate)
 {
 	TaskGroup tasks;
 
