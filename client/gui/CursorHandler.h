@@ -125,7 +125,6 @@ class CursorHandler final
 
 	void changeGraphic(Cursor::Type type, size_t index);
 
-	Point getPivotOffsetSpellcast();
 	Point getPivotOffset();
 
 	void updateSpellcastCursor();
@@ -153,7 +152,7 @@ public:
 
 	/// Returns current index of cursor
 	template<typename Index>
-	Index get()
+	std::optional<Index> get()
 	{
 		bool typeValid = true;
 
@@ -164,9 +163,10 @@ public:
 
 		if (typeValid)
 			return static_cast<Index>(frame);
-		return Index::POINTER;
+		return std::nullopt;
 	}
 
+	Point getPivotOffsetSpellcast();
 	Point getPivotOffsetDefault(size_t index);
 	Point getPivotOffsetMap(size_t index);
 	Point getPivotOffsetCombat(size_t index);
