@@ -277,7 +277,7 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 {
 	auto * object = loadFromJson(scope, data, name, objects.size());
 	objects.push_back(object);
-	VLC->modh->getIdentifiers().registerObject(scope, "object", name, object->id);
+	VLC->identifiersHandler->registerObject(scope, "object", name, object->id);
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -285,7 +285,7 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 	auto * object = loadFromJson(scope, data, name, index);
 	assert(objects[(si32)index] == nullptr); // ensure that this id was not loaded before
 	objects[static_cast<si32>(index)] = object;
-	VLC->modh->getIdentifiers().registerObject(scope, "object", name, object->id);
+	VLC->identifiersHandler->registerObject(scope, "object", name, object->id);
 }
 
 void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, si32 ID, si32 subID)

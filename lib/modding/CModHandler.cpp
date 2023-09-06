@@ -41,25 +41,8 @@ static JsonNode loadModSettings(const std::string & path)
 
 CModHandler::CModHandler()
 	: content(std::make_shared<CContentHandler>())
-	, identifiers(std::make_unique<CIdentifierStorage>())
 	, coreMod(std::make_unique<CModInfo>())
 {
-	//TODO: moddable spell schools
-	for (auto i = 0; i < GameConstants::DEFAULT_SCHOOLS; ++i)
-		identifiers->registerObject(ModScope::scopeBuiltin(), "spellSchool", SpellConfig::SCHOOL[i].jsonName, SpellConfig::SCHOOL[i].id);
-
-	identifiers->registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool(ESpellSchool::ANY));
-
-	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
-	{
-		identifiers->registerObject(ModScope::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);
-	}
-
-	for(int i=0; i<GameConstants::PRIMARY_SKILLS; ++i)
-	{
-		identifiers->registerObject(ModScope::scopeBuiltin(), "primSkill", NPrimarySkill::names[i], i);
-		identifiers->registerObject(ModScope::scopeBuiltin(), "primarySkill", NPrimarySkill::names[i], i);
-	}
 }
 
 CModHandler::~CModHandler() = default;
@@ -462,7 +445,7 @@ void CModHandler::load()
 
 	logMod->info("\tLoading mod data: %d ms", timer.getDiff());
 	VLC->creh->loadCrExpMod();
-	identifiers->finalize();
+	VLC->identifiersHandler->finalize();
 	logMod->info("\tResolving identifiers: %d ms", timer.getDiff());
 
 	content->afterLoadFinalization();
@@ -532,11 +515,6 @@ void CModHandler::trySetActiveMods(std::vector<TModID> saveActiveMods, const std
 	}
 
 	std::swap(activeMods, newActiveMods);
-}
-
-CIdentifierStorage & CModHandler::getIdentifiers()
-{
-	return *identifiers;
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -238,7 +238,7 @@ void Graphics::blueToPlayersAdv(QImage * sur, PlayerColor player)
 		}
 		else
 		{
-			logGlobal->error("Wrong player id in blueToPlayersAdv (%s)!", player.getStr());
+			logGlobal->error("Wrong player id in blueToPlayersAdv (%s)!", player.toString());
 			return;
 		}
 		//FIXME: not all player colored images have player palette at last 32 indexes

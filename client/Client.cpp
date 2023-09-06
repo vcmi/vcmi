@@ -408,7 +408,7 @@ void CClient::initPlayerEnvironments()
 	bool hasHumanPlayer = false;
 	for(auto & color : allPlayers)
 	{
-		logNetwork->info("Preparing environment for player %s", color.getStr());
+		logNetwork->info("Preparing environment for player %s", color.toString());
 		playerEnvironments[color] = std::make_shared<CPlayerEnvironment>(color, this, std::make_shared<CCallback>(gs, color, this));
 		
 		if(!hasHumanPlayer && gs->players[color].isHuman())
@@ -439,7 +439,7 @@ void CClient::initPlayerInterfaces()
 
 		if(!vstd::contains(playerint, color))
 		{
-			logNetwork->info("Preparing interface for player %s", color.getStr());
+			logNetwork->info("Preparing interface for player %s", color.toString());
 			if(playerInfo.second.isControlledByAI())
 			{
 				bool alliedToHuman = false;
@@ -448,12 +448,12 @@ void CClient::initPlayerInterfaces()
 						alliedToHuman = true;
 
 				auto AiToGive = aiNameForPlayer(playerInfo.second, false, alliedToHuman);
-				logNetwork->info("Player %s will be lead by %s", color.getStr(), AiToGive);
+				logNetwork->info("Player %s will be lead by %s", color.toString(), AiToGive);
 				installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
 			}
 			else
 			{
-				logNetwork->info("Player %s will be lead by human", color.getStr());
+				logNetwork->info("Player %s will be lead by human", color.toString());
 				installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
 			}
 		}
@@ -503,7 +503,7 @@ void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInte
 
 	playerint[color] = gameInterface;
 
-	logGlobal->trace("\tInitializing the interface for player %s", color.getStr());
+	logGlobal->trace("\tInitializing the interface for player %s", color.toString());
 	auto cb = std::make_shared<CCallback>(gs, color, this);
 	battleCallbacks[color] = cb;
 	gameInterface->initGameInterface(playerEnvironments.at(color), cb);
@@ -519,7 +519,7 @@ void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> ba
 
 	if(needCallback)
 	{
-		logGlobal->trace("\tInitializing the battle interface for player %s", color.getStr());
+		logGlobal->trace("\tInitializing the battle interface for player %s", color.toString());
 		auto cbc = std::make_shared<CBattleCallback>(color, this);
 		battleCallbacks[color] = cbc;
 		battleInterface->initBattleInterface(playerEnvironments.at(color), cbc);

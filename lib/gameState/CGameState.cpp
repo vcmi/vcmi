@@ -136,7 +136,7 @@ HeroTypeID CGameState::pickUnusedHeroTypeRandomly(const PlayerColor & owner)
 		return *RandomGeneratorUtil::nextItem(factionHeroes, getRandomGenerator());
 	}
 
-	logGlobal->warn("Cannot find free hero of appropriate faction for player %s - trying to get first available...", owner.getStr());
+	logGlobal->warn("Cannot find free hero of appropriate faction for player %s - trying to get first available...", owner.toString());
 	if(!otherHeroes.empty())
 	{
 		return *RandomGeneratorUtil::nextItem(otherHeroes, getRandomGenerator());

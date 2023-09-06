@@ -244,7 +244,7 @@ void BattleInterface::giveCommand(EActionType action, BattleHex tile, SpellID sp
 	auto side = curInt->cb->playerToSide(curInt->playerID);
 	if(!side)
 	{
-		logGlobal->error("Player %s is not in battle", curInt->playerID.getStr());
+		logGlobal->error("Player %s is not in battle", curInt->playerID.toString());
 		return;
 	}
 

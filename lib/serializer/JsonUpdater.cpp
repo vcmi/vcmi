@@ -61,6 +61,11 @@ void JsonUpdater::serializeInternal(const std::string & fieldName, std::vector<s
 //	}
 }
 
+void JsonUpdater::serializeInternal(const std::string & fieldName, std::vector<std::string> & value)
+{
+	// TODO
+}
+
 void JsonUpdater::serializeInternal(const std::string & fieldName, double & value, const std::optional<double> & defaultValue)
 {
 	const JsonNode & data = currentObject->operator[](fieldName);

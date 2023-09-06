@@ -47,6 +47,7 @@ public:
 
 	void readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction);
 	void readBitmaskFactions(std::set<FactionID> & dest, bool invert);
+	void readBitmaskPlayers(std::set<PlayerColor> & dest, bool invert);
 	void readBitmaskResources(std::set<GameResID> & dest, bool invert);
 	void readBitmaskHeroClassesSized(std::set<HeroClassID> & dest, bool invert);
 	void readBitmaskHeroes(std::vector<bool> & dest, bool invert);

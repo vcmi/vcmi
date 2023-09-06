@@ -341,12 +341,7 @@ void CGObjectInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
 {
-	ui8 temp = tempOwner.getNum();
-
-	handler.serializeEnum("owner", temp, PlayerColor::NEUTRAL.getNum(), GameConstants::PLAYER_COLOR_NAMES);
-
-	if(!handler.saving)
-		tempOwner = PlayerColor(temp);
+	handler.serializeId("owner", tempOwner, PlayerColor::NEUTRAL);
 }
 
 BattleField CGObjectInstance::getBattlefield() const

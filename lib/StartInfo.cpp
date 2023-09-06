@@ -41,7 +41,7 @@ PlayerSettings & StartInfo::getIthPlayersSettings(const PlayerColor & no)
 {
 	if(playerInfos.find(no) != playerInfos.end())
 		return playerInfos[no];
-	logGlobal->error("Cannot find info about player %s. Throwing...", no.getStr());
+	logGlobal->error("Cannot find info about player %s. Throwing...", no.toString());
 	throw std::runtime_error("Cannot find info about player");
 }
 const PlayerSettings & StartInfo::getIthPlayersSettings(const PlayerColor & no) const

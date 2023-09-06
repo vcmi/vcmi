@@ -244,7 +244,7 @@ void CBattleAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2
 
 void CBattleAI::print(const std::string &text) const
 {
-	logAi->trace("%s Battle AI[%p]: %s", playerID.getStr(), this, text);
+	logAi->trace("%s Battle AI[%p]: %s", playerID.toString(), this, text);
 }
 
 std::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()

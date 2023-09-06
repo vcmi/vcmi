@@ -443,8 +443,9 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 
 void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
 {
-	if(!(availableFor & (1 << h->tempOwner.getNum())))
+	if(availableFor.count(h->tempOwner) == 0)
 		return;
+
 	if(cb->getPlayerSettings(h->tempOwner)->isControlledByHuman())
 	{
 		if(humanActivate)
@@ -490,20 +491,7 @@ void CGEvent::serializeJsonOptions(JsonSerializeFormat & handler)
 	handler.serializeBool<bool>("aIActivable", computerActivate, true, false, false);
 	handler.serializeBool<bool>("humanActivable", humanActivate, true, false, true);
 	handler.serializeBool<bool>("removeAfterVisit", removeAfterVisit, true, false, false);
-
-	{
-		auto decodePlayer = [](const std::string & id)->si32
-		{
-			return vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, id);
-		};
-
-		auto encodePlayer = [](si32 idx)->std::string
-		{
-			return GameConstants::PLAYER_COLOR_NAMES[idx];
-		};
-
-		handler.serializeIdArray<ui8, PlayerColor::PLAYER_LIMIT_I>("availableFor", availableFor, GameConstants::ALL_PLAYERS, decodePlayer, encodePlayer);
-    }
+	handler.serializeIdArray("availableFor", availableFor);
 }
 
 VCMI_LIB_NAMESPACE_END

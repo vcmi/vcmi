@@ -29,7 +29,7 @@ void CRmgTemplateStorage::afterLoadFinalization()
 {
 	for (auto& temp : templates)
 	{
-		temp.second.afterLoad();
+		temp.second->afterLoad();
 	}
 }
 
@@ -39,10 +39,11 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 	{
 		JsonDeserializer handler(nullptr, data);
 		auto fullKey = scope + ":" + name; //actually it's not used
-		templates[fullKey].setId(fullKey);
-		templates[fullKey].serializeJson(handler);
-		templates[fullKey].setName(name);
-		templates[fullKey].validate();
+		templates[fullKey] = std::make_shared<CRmgTemplate>();
+		templates[fullKey]->setId(fullKey);
+		templates[fullKey]->serializeJson(handler);
+		templates[fullKey]->setName(name);
+		templates[fullKey]->validate();
 	}
 	catch(const std::exception & e)
 	{
@@ -67,7 +68,7 @@ const CRmgTemplate * CRmgTemplateStorage::getTemplate(const std::string & templa
 	auto iter = templates.find(templateName);
 	if(iter==templates.end())
 		return nullptr;
-	return &iter->second;
+	return iter->second.get();
 }
 
 std::vector<const CRmgTemplate *> CRmgTemplateStorage::getTemplates() const
@@ -76,7 +77,7 @@ std::vector<const CRmgTemplate *> CRmgTemplateStorage::getTemplates() const
 	result.reserve(templates.size());
 	for(const auto & i : templates)
 	{
-		result.push_back(&i.second);
+		result.push_back(i.second.get());
 	}
 	return result;
 }

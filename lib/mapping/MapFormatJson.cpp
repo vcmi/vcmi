@@ -729,18 +729,16 @@ void CMapFormatJson::readDisposedHeroes(JsonSerializeFormat & handler)
 	{
 		HeroTypeID type(HeroTypeID::decode(entry.first));
 
-		ui8 mask = 0;
+		std::set<PlayerColor> mask;
 
 		for(const JsonNode & playerData : entry.second["availableFor"].Vector())
 		{
 			PlayerColor player = PlayerColor(vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, playerData.String()));
 			if(player.isValidPlayer())
-			{
-				mask |= 1 << player.getNum();
-			}
+				mask.insert(player);
 		}
 
-		if(mask != 0 && mask != GameConstants::ALL_PLAYERS && type.getNum() >= 0)
+		if(!mask.empty() && mask.size() != PlayerColor::PLAYER_LIMIT_I && type.getNum() >= 0)
 		{
 			DisposedHero hero;
 
@@ -760,24 +758,14 @@ void CMapFormatJson::writeDisposedHeroes(JsonSerializeFormat & handler)
 
 	auto definitions = handler.enterStruct("predefinedHeroes");//DisposedHeroes are part of predefinedHeroes in VCMI map format
 
-	for(const DisposedHero & hero : map->disposedHeroes)
+	for(DisposedHero & hero : map->disposedHeroes)
 	{
 		std::string type = HeroTypeID::encode(hero.heroId);
 
 		auto definition = definitions->enterStruct(type);
 
 		JsonNode players(JsonNode::JsonType::DATA_VECTOR);
-
-		for(int playerNum = 0; playerNum < PlayerColor::PLAYER_LIMIT_I; playerNum++)
-		{
-			if((1 << playerNum) & hero.players)
-			{
-				JsonNode player(JsonNode::JsonType::DATA_STRING);
-				player.String() = GameConstants::PLAYER_COLOR_NAMES[playerNum];
-				players.Vector().push_back(player);
-			}
-		}
-		definition->serializeRaw("availableFor", players, std::nullopt);
+		definition->serializeIdArray("availableFor", hero.players);
 	}
 }
 

@@ -97,6 +97,7 @@ public:
 	TerrainTypeHandler * terrainTypeHandler;
 	RoadTypeHandler * roadTypeHandler;
 	RiverTypeHandler * riverTypeHandler;
+	CIdentifierStorage * identifiersHandler;
 
 	CTerrainViewPatternConfig * terviewh;
 	CRmgTemplateStorage * tplh;
@@ -122,8 +123,9 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & identifiersHandler; // must be first - identifiers registry is used for handlers loading
 #if SCRIPTING_ENABLED
-		h & scriptHandler;//must be first (or second after modh), it can modify factories other handlers depends on
+		h & scriptHandler;//must be first (or second after identifiers), it can modify factories other handlers depends on
 		if(!h.saving)
 		{
 			scriptsLoaded();

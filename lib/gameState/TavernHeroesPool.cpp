@@ -74,7 +74,7 @@ void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot,
 bool TavernHeroesPool::isHeroAvailableFor(HeroTypeID hero, PlayerColor color) const
 {
 	if (perPlayerAvailability.count(hero))
-		return perPlayerAvailability.at(hero) & (1 << color.getNum());
+		return perPlayerAvailability.at(hero).count(color) != 0;
 
 	return true;
 }
@@ -131,7 +131,7 @@ void TavernHeroesPool::addHeroToPool(CGHeroInstance * hero)
 	heroesPool[HeroTypeID(hero->subID)] = hero;
 }
 
-void TavernHeroesPool::setAvailability(HeroTypeID hero, PlayerColor::Mask mask)
+void TavernHeroesPool::setAvailability(HeroTypeID hero, std::set<PlayerColor> mask)
 {
 	perPlayerAvailability[hero] = mask;
 }

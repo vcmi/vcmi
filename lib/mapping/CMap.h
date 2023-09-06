@@ -59,7 +59,7 @@ struct DLL_LINKAGE DisposedHero
 	HeroTypeID heroId;
 	HeroTypeID portrait; /// The portrait id of the hero, -1 is default.
 	std::string name;
-	PlayerColor::Mask players; /// Who can hire this hero (bitfield).
+	std::set<PlayerColor> players; /// Who can hire this hero (bitfield).
 
 	template <typename Handler>
 	void serialize(Handler & h, const int version)

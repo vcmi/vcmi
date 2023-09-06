@@ -703,7 +703,7 @@ void BattleEvaluator::evaluateCreatureSpellcast(const CStack * stack, PossibleSp
 
 void BattleEvaluator::print(const std::string & text) const
 {
-	logAi->trace("%s Battle AI[%p]: %s", playerID.getStr(), this, text);
+	logAi->trace("%s Battle AI[%p]: %s", playerID.toString(), this, text);
 }
 
 

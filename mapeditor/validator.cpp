@@ -97,14 +97,14 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 			if(o->getOwner() != PlayerColor::NEUTRAL && o->getOwner().getNum() < map->players.size())
 			{
 				if(!map->players[o->getOwner().getNum()].canAnyonePlay())
-					issues.emplace_back(QString(tr("Object %1 is assigned to non-playable player %2")).arg(o->instanceName.c_str(), o->getOwner().getStr().c_str()), true);
+					issues.emplace_back(QString(tr("Object %1 is assigned to non-playable player %2")).arg(o->instanceName.c_str(), o->getOwner().toString().c_str()), true);
 			}
 			//checking towns
 			if(auto * ins = dynamic_cast<CGTownInstance*>(o.get()))
 			{
 				bool has = amountOfCastles.count(ins->getOwner().getNum());
 				if(!has && ins->getOwner() != PlayerColor::NEUTRAL)
-					issues.emplace_back(tr("Town %1 has undefined owner %2").arg(ins->instanceName.c_str(), ins->getOwner().getStr().c_str()), true);
+					issues.emplace_back(tr("Town %1 has undefined owner %2").arg(ins->instanceName.c_str(), ins->getOwner().toString().c_str()), true);
 				if(has)
 					++amountOfCastles[ins->getOwner().getNum()];
 			}

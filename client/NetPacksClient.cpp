@@ -874,7 +874,7 @@ void ApplyClientNetPackVisitor::visitPlayerBlocked(PlayerBlocked & pack)
 
 void ApplyClientNetPackVisitor::visitYourTurn(YourTurn & pack)
 {
-	logNetwork->debug("Server gives turn to %s", pack.player.getStr());
+	logNetwork->debug("Server gives turn to %s", pack.player.toString());
 
 	callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, pack.player);
 	callOnlyThatInterface(cl, pack.player, &CGameInterface::yourTurn, pack.queryID);
@@ -882,12 +882,12 @@ void ApplyClientNetPackVisitor::visitYourTurn(YourTurn & pack)
 
 void ApplyClientNetPackVisitor::visitTurnTimeUpdate(TurnTimeUpdate & pack)
 {
-	logNetwork->debug("Server sets turn timer {turn: %d, base: %d, battle: %d, creature: %d} for %s", pack.turnTimer.turnTimer, pack.turnTimer.baseTimer, pack.turnTimer.battleTimer, pack.turnTimer.creatureTimer, pack.player.getStr());
+	logNetwork->debug("Server sets turn timer {turn: %d, base: %d, battle: %d, creature: %d} for %s", pack.turnTimer.turnTimer, pack.turnTimer.baseTimer, pack.turnTimer.battleTimer, pack.turnTimer.creatureTimer, pack.player.toString());
 }
 
 void ApplyClientNetPackVisitor::visitPlayerMessageClient(PlayerMessageClient & pack)
 {
-	logNetwork->debug("pack.player %s sends a message: %s", pack.player.getStr(), pack.text);
+	logNetwork->debug("pack.player %s sends a message: %s", pack.player.toString(), pack.text);
 
 	std::ostringstream str;
 	if(pack.player.isSpectator())
