@@ -167,10 +167,10 @@ public:
 	void heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain) override;
 	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor) override;
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
-	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
+	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
-	void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed) override;
-	void battleEnd(const BattleResult * br, QueryID queryID) override;
+	void battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed) override;
+	void battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID) override;
 
 	void makeTurn();
 

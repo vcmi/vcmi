@@ -15,6 +15,7 @@
 
 #include "../../NetPacks.h"
 #include "../../battle/IBattleState.h"
+#include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
@@ -116,6 +117,8 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 
 	SetStackEffect sse;
 	BattleLogMessage blm;
+	blm.battleID = m->battle()->getBattle()->getBattleID();
+	sse.battleID = m->battle()->getBattle()->getBattleID();
 
 	for(const auto & t : target)
 	{

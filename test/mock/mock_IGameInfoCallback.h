@@ -22,6 +22,7 @@ public:
 	//player
 	MOCK_CONST_METHOD1(getPlayer, const Player *(PlayerColor));
 	MOCK_CONST_METHOD0(getLocalPlayer, PlayerColor());
+	MOCK_CONST_METHOD0(getPlayerID, std::optional<PlayerColor>());
 
 	//hero
 	MOCK_CONST_METHOD1(getHero, const CGHeroInstance *(ObjectInstanceID));

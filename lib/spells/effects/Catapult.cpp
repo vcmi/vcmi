@@ -137,6 +137,7 @@ void Catapult::applyTargeted(ServerCallback * server, const Mechanics * m, const
 		attack.damageDealt = getRandomDamage(server);
 
 		CatapultAttack ca; //package for clients
+		ca.battleID = m->battle()->getBattle()->getBattleID();
 		ca.attacker = m->caster->getHeroCaster() ? -1 : m->caster->getCasterUnitId();
 		ca.attackedParts.push_back(attack);
 		server->apply(&ca);
@@ -188,6 +189,7 @@ int Catapult::getRandomDamage (ServerCallback * server) const
 void Catapult::removeTowerShooters(ServerCallback * server, const Mechanics * m) const
 {
 	BattleUnitsChanged removeUnits;
+	removeUnits.battleID = m->battle()->getBattle()->getBattleID();
 
 	for (auto const wallPart : { EWallPart::KEEP, EWallPart::BOTTOM_TOWER, EWallPart::UPPER_TOWER })
 	{

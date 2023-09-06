@@ -73,7 +73,7 @@ private:
 
 	std::set<const battle::Unit *> collectTargets() const;
 
-	static void doRemoveEffects(ServerCallback * server, const std::vector<const battle::Unit *> & targets, const CSelector & selector);
+	void doRemoveEffects(ServerCallback * server, const std::vector<const battle::Unit *> & targets, const CSelector & selector);
 
 	std::set<BattleHex> spellRangeInHexes(BattleHex centralHex) const;
 

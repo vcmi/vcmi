@@ -12,7 +12,6 @@
 #include <vcmi/Environment.h>
 
 #include "../lib/IGameCallback.h"
-#include "../lib/battle/CBattleInfoCallback.h"
 #include "../lib/LoadProgress.h"
 #include "../lib/ScriptHandler.h"
 #include "TurnTimerHandler.h"
@@ -53,14 +52,12 @@ class TurnOrderProcessor;
 class QueriesProcessor;
 class CObjectVisitQuery;
 
-class CGameHandler : public IGameCallback, public CBattleInfoCallback, public Environment
+class CGameHandler : public IGameCallback, public Environment
 {
 	CVCMIServer * lobby;
 	std::shared_ptr<CApplier<CBaseForGHApply>> applier;
 
 public:
-	using CCallbackBase::setBattle;
-
 	std::unique_ptr<HeroPoolProcessor> heroPool;
 	std::unique_ptr<BattleProcessor> battles;
 	std::unique_ptr<QueriesProcessor> queries;
@@ -84,7 +81,7 @@ public:
 	TurnTimerHandler turnTimerHandler;
 
 	const Services * services() const override;
-	const BattleCb * battle() const override;
+	const BattleCb * battle(const BattleID & battleID) const override;
 	const GameCb * game() const override;
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
@@ -273,7 +270,7 @@ public:
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
-	scripting::Pool * getContextPool() const override;
+//	scripting::Pool * getContextPool() const override;
 #endif
 
 	friend class CVCMIServer;

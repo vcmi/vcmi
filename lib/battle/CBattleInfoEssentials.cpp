@@ -17,6 +17,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+bool CBattleInfoEssentials::duringBattle() const
+{
+	return getBattle() != nullptr;
+}
+
 TerrainId CBattleInfoEssentials::battleTerrainType() const
 {
 	RETURN_IF_NOT_BATTLE(TerrainId());
@@ -47,7 +52,7 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoEssentials::bat
 	}
 	else
 	{
-		if(!!player && *perspective != battleGetMySide())
+		if(!!getPlayerID() && *perspective != battleGetMySide())
 			logGlobal->warn("Unauthorized obstacles access attempt, assuming massive spell");
 	}
 
@@ -157,14 +162,14 @@ const CGTownInstance * CBattleInfoEssentials::battleGetDefendedTown() const
 BattlePerspective::BattlePerspective CBattleInfoEssentials::battleGetMySide() const
 {
 	RETURN_IF_NOT_BATTLE(BattlePerspective::INVALID);
-	if(!player || player->isSpectator())
+	if(!getPlayerID() || getPlayerID()->isSpectator())
 		return BattlePerspective::ALL_KNOWING;
-	if(*player == getBattle()->getSidePlayer(BattleSide::ATTACKER))
+	if(*getPlayerID() == getBattle()->getSidePlayer(BattleSide::ATTACKER))
 		return BattlePerspective::LEFT_SIDE;
-	if(*player == getBattle()->getSidePlayer(BattleSide::DEFENDER))
+	if(*getPlayerID() == getBattle()->getSidePlayer(BattleSide::DEFENDER))
 		return BattlePerspective::RIGHT_SIDE;
 
-	logGlobal->error("Cannot find player %s in battle!", player->toString());
+	logGlobal->error("Cannot find player %s in battle!", getPlayerID()->toString());
 	return BattlePerspective::INVALID;
 }
 

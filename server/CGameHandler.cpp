@@ -40,6 +40,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/int3.h"
 
+#include "../lib/battle/BattleInfo.h"
 #include "../lib/filesystem/FileInfo.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/gameState/CGameState.h"
@@ -135,9 +136,9 @@ const Services * CGameHandler::services() const
 	return VLC;
 }
 
-const CGameHandler::BattleCb * CGameHandler::battle() const
+const CGameHandler::BattleCb * CGameHandler::battle(const BattleID & battleID) const
 {
-	return this;
+	return gs->getBattle(battleID);
 }
 
 const CGameHandler::GameCb * CGameHandler::game() const
@@ -1007,6 +1008,7 @@ void CGameHandler::run(bool resume)
 		clockLast += clockDuration;
 		turnTimerHandler.update(timePassed);
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+
 	}
 }
 
@@ -4092,10 +4094,10 @@ scripting::Pool * CGameHandler::getGlobalContextPool() const
 	return serverScripts.get();
 }
 
-scripting::Pool * CGameHandler::getContextPool() const
-{
-	return serverScripts.get();
-}
+//scripting::Pool * CGameHandler::getContextPool() const
+//{
+//	return serverScripts.get();
+//}
 #endif
 
 void CGameHandler::createObject(const int3 & visitablePosition, Obj type, int32_t subtype)

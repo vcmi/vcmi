@@ -56,24 +56,24 @@ class UnitChanges;
 class DLL_LINKAGE IBattleEventsReceiver
 {
 public:
-	virtual void actionFinished(const BattleAction &action){};//occurs AFTER every action taken by any stack or by the hero
-	virtual void actionStarted(const BattleAction &action){};//occurs BEFORE every action taken by any stack or by the hero
-	virtual void battleAttack(const BattleAttack *ba){}; //called when stack is performing attack
-	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged){}; //called when stack receives damage (after battleAttack())
-	virtual void battleEnd(const BattleResult *br, QueryID queryID){};
-	virtual void battleNewRoundFirst(int round){}; //called at the beginning of each turn before changes are applied;
-	virtual void battleNewRound(int round){}; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	virtual void battleLogMessage(const std::vector<MetaString> & lines){};
-	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport){};
-	virtual void battleSpellCast(const BattleSpellCast *sc){};
-	virtual void battleStacksEffectsSet(const SetStackEffect & sse){};//called when a specific effect is set to stacks
-	virtual void battleTriggerEffect(const BattleTriggerEffect & bte){}; //called for various one-shot effects
-	virtual void battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) {}; //called just before battle start
-	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed){}; //called by engine when battle starts; side=0 - left, side=1 - right
-	virtual void battleUnitsChanged(const std::vector<UnitChanges> & units){};
-	virtual void battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles){};
-	virtual void battleCatapultAttacked(const CatapultAttack & ca){}; //called when catapult makes an attack
-	virtual void battleGateStateChanged(const EGateState state){};
+	virtual void actionFinished(const BattleID & battleID, const BattleAction &action){};//occurs AFTER every action taken by any stack or by the hero
+	virtual void actionStarted(const BattleID & battleID, const BattleAction &action){};//occurs BEFORE every action taken by any stack or by the hero
+	virtual void battleAttack(const BattleID & battleID, const BattleAttack *ba){}; //called when stack is performing attack
+	virtual void battleStacksAttacked(const BattleID & battleID, const std::vector<BattleStackAttacked> & bsa, bool ranged){}; //called when stack receives damage (after battleAttack())
+	virtual void battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID){};
+	virtual void battleNewRoundFirst(const BattleID & battleID){}; //called at the beginning of each turn before changes are applied;
+	virtual void battleNewRound(const BattleID & battleID){}; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+	virtual void battleLogMessage(const BattleID & battleID, const std::vector<MetaString> & lines){};
+	virtual void battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport){};
+	virtual void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc){};
+	virtual void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse){};//called when a specific effect is set to stacks
+	virtual void battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte){}; //called for various one-shot effects
+	virtual void battleStartBefore(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) {}; //called just before battle start
+	virtual void battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side, bool replayAllowed){}; //called by engine when battle starts; side=0 - left, side=1 - right
+	virtual void battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units){};
+	virtual void battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles){};
+	virtual void battleCatapultAttacked(const BattleID & battleID, const CatapultAttack & ca){}; //called when catapult makes an attack
+	virtual void battleGateStateChanged(const BattleID & battleID, const EGateState state){};
 };
 
 class DLL_LINKAGE IGameEventsReceiver

@@ -970,7 +970,7 @@ bool EffectAnimation::init()
 		}
 		else
 		{
-			const auto * destStack = owner.getCurrentPlayerInterface()->cb->battleGetUnitByPos(battlehexes[i], false);
+			const auto * destStack = owner.getBattle()->battleGetUnitByPos(battlehexes[i], false);
 			Rect tilePos = owner.fieldController->hexPositionLocal(battlehexes[i]);
 
 			be.pos.x = tilePos.x + tilePos.w/2 - first->width()/2;

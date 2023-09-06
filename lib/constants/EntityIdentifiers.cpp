@@ -38,6 +38,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+const BattleID BattleID::NONE = BattleID(-1);
 const QueryID QueryID::NONE = QueryID(-1);
 const HeroTypeID HeroTypeID::NONE = HeroTypeID(-1);
 const ObjectInstanceID ObjectInstanceID::NONE = ObjectInstanceID(-1);

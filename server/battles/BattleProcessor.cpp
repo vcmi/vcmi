@@ -19,6 +19,7 @@
 #include "../queries/BattleQueries.h"
 
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapping/CMap.h"
@@ -50,31 +51,23 @@ void BattleProcessor::engageIntoBattle(PlayerColor player)
 	gameHandler->sendAndApply(&pb);
 }
 
-void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
+void BattleProcessor::restartBattlePrimary(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
 								const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank,
-								const CGTownInstance *town) //use hero=nullptr for no hero
+								const CGTownInstance *town)
 {
-	if(gameHandler->gameState()->curB)
-		gameHandler->gameState()->curB.dellNull();
+	auto battle = gameHandler->gameState()->getBattle(battleID);
 
-	engageIntoBattle(army1->tempOwner);
-	engageIntoBattle(army2->tempOwner);
+	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[0].color));
 
-	static const CArmedInstance *armies[2];
-	armies[0] = army1;
-	armies[1] = army2;
-	static const CGHeroInstance*heroes[2];
-	heroes[0] = hero1;
-	heroes[1] = hero2;
-
-	resultProcessor->setupBattle();
-	setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
-
-	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(gameHandler->gameState()->curB->sides[0].color));
+	assert(lastBattleQuery);
 
 	//existing battle query for retying auto-combat
 	if(lastBattleQuery)
 	{
+		const CGHeroInstance*heroes[2];
+		heroes[0] = hero1;
+		heroes[1] = hero2;
+
 		for(int i : {0, 1})
 		{
 			if(heroes[i])
@@ -86,23 +79,60 @@ void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArm
 			}
 		}
 
-		lastBattleQuery->bi = gameHandler->gameState()->curB;
 		lastBattleQuery->result = std::nullopt;
-		lastBattleQuery->belligerents[0] = gameHandler->gameState()->curB->sides[0].armyObject;
-		lastBattleQuery->belligerents[1] = gameHandler->gameState()->curB->sides[1].armyObject;
+
+		assert(lastBattleQuery->belligerents[0] == battle->sides[0].armyObject);
+		assert(lastBattleQuery->belligerents[1] == battle->sides[1].armyObject);
 	}
 
-	auto nextBattleQuery = std::make_shared<CBattleQuery>(gameHandler, gameHandler->gameState()->curB);
-	for(int i : {0, 1})
+	BattleCancelled bc;
+	bc.battleID = battleID;
+	gameHandler->sendAndApply(&bc);
+
+	startBattlePrimary(army1, army2, tile, hero1, hero2, creatureBank, town);
+}
+
+void BattleProcessor::startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
+								const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank,
+								const CGTownInstance *town)
+{
+	assert(gameHandler->gameState()->getBattle(army1->getOwner()) == nullptr);
+	assert(gameHandler->gameState()->getBattle(army2->getOwner()) == nullptr);
+
+	engageIntoBattle(army1->tempOwner);
+	engageIntoBattle(army2->tempOwner);
+
+	const CArmedInstance *armies[2];
+	armies[0] = army1;
+	armies[1] = army2;
+	const CGHeroInstance*heroes[2];
+	heroes[0] = hero1;
+	heroes[1] = hero2;
+
+	auto battleID = setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
+
+	const auto * battle = gameHandler->gameState()->getBattle(battleID);
+	assert(battle);
+
+	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->sides[0].color));
+
+	if (lastBattleQuery)
 	{
-		if(heroes[i])
-		{
-			nextBattleQuery->initialHeroMana[i] = heroes[i]->mana;
-		}
+		lastBattleQuery->battleID = battleID;
 	}
-	gameHandler->queries->addQuery(nextBattleQuery);
+	else
+	{
+		auto newBattleQuery = std::make_shared<CBattleQuery>(gameHandler, battle);
 
-	flowProcessor->onBattleStarted();
+		// store initial mana to reset if battle has been restarted
+		for(int i : {0, 1})
+			if(heroes[i])
+				newBattleQuery->initialHeroMana[i] = heroes[i]->mana;
+
+		gameHandler->queries->addQuery(newBattleQuery);
+	}
+
+	flowProcessor->onBattleStarted(*battle);
 }
 
 void BattleProcessor::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank)
@@ -118,7 +148,7 @@ void BattleProcessor::startBattleI(const CArmedInstance *army1, const CArmedInst
 	startBattleI(army1, army2, army2->visitablePos(), creatureBank);
 }
 
-void BattleProcessor::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town)
+BattleID BattleProcessor::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town)
 {
 	const auto & t = *gameHandler->getTile(tile);
 	TerrainId terrain = t.terType->getId();
@@ -132,6 +162,7 @@ void BattleProcessor::setupBattle(int3 tile, const CArmedInstance *armies[2], co
 	//send info about battles
 	BattleStart bs;
 	bs.info = BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
+	bs.battleID = gameHandler->gameState()->nextBattleID;
 
 	engageIntoBattle(bs.info->sides[0].color);
 	engageIntoBattle(bs.info->sides[1].color);
@@ -140,28 +171,30 @@ void BattleProcessor::setupBattle(int3 tile, const CArmedInstance *armies[2], co
 	bs.info->replayAllowed = lastBattleQuery == nullptr && !bs.info->sides[1].color.isValidPlayer();
 
 	gameHandler->sendAndApply(&bs);
+
+	return bs.battleID;
 }
 
-bool BattleProcessor::checkBattleStateChanges()
+bool BattleProcessor::checkBattleStateChanges(const CBattleInfoCallback & battle)
 {
 	//check if drawbridge state need to be changes
-	if (gameHandler->battleGetSiegeLevel() > 0)
-		updateGateState();
+	if (battle.battleGetSiegeLevel() > 0)
+		updateGateState(battle);
 
-	if (resultProcessor->battleIsEnding())
+	if (resultProcessor->battleIsEnding(battle))
 		return true;
 
 	//check if battle ended
-	if (auto result = gameHandler->battleIsFinished())
+	if (auto result = battle.battleIsFinished())
 	{
-		setBattleResult(EBattleResult::NORMAL, *result);
+		setBattleResult(battle, EBattleResult::NORMAL, *result);
 		return true;
 	}
 
 	return false;
 }
 
-void BattleProcessor::updateGateState()
+void BattleProcessor::updateGateState(const CBattleInfoCallback & battle)
 {
 	// GATE_BRIDGE - leftmost tile, located over moat
 	// GATE_OUTER - central tile, mostly covered by gate image
@@ -177,18 +210,20 @@ void BattleProcessor::updateGateState()
 	// - if Force Field is cast here, bridge can't open (but can close, in any town)
 	// - deals moat damage to attacker if bridge is closed (fortress only)
 
-	bool hasForceFieldOnBridge = !gameHandler->battleGetAllObstaclesOnPos(BattleHex(BattleHex::GATE_BRIDGE), true).empty();
-	bool hasStackAtGateInner   = gameHandler->gameState()->curB->battleGetUnitByPos(BattleHex(BattleHex::GATE_INNER), false) != nullptr;
-	bool hasStackAtGateOuter   = gameHandler->gameState()->curB->battleGetUnitByPos(BattleHex(BattleHex::GATE_OUTER), false) != nullptr;
-	bool hasStackAtGateBridge  = gameHandler->gameState()->curB->battleGetUnitByPos(BattleHex(BattleHex::GATE_BRIDGE), false) != nullptr;
-	bool hasWideMoat           = vstd::contains_if(gameHandler->battleGetAllObstaclesOnPos(BattleHex(BattleHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
+	bool hasForceFieldOnBridge = !battle.battleGetAllObstaclesOnPos(BattleHex(BattleHex::GATE_BRIDGE), true).empty();
+	bool hasStackAtGateInner   = battle.battleGetUnitByPos(BattleHex(BattleHex::GATE_INNER), false) != nullptr;
+	bool hasStackAtGateOuter   = battle.battleGetUnitByPos(BattleHex(BattleHex::GATE_OUTER), false) != nullptr;
+	bool hasStackAtGateBridge  = battle.battleGetUnitByPos(BattleHex(BattleHex::GATE_BRIDGE), false) != nullptr;
+	bool hasWideMoat           = vstd::contains_if(battle.battleGetAllObstaclesOnPos(BattleHex(BattleHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
 	{
 		return obst->obstacleType == CObstacleInstance::MOAT;
 	});
 
 	BattleUpdateGateState db;
-	db.state = gameHandler->gameState()->curB->si.gateState;
-	if (gameHandler->gameState()->curB->si.wallState[EWallPart::GATE] == EWallState::DESTROYED)
+	db.state = battle.battleGetGateState();
+	db.battleID = battle.getBattle()->getBattleID();
+
+	if (battle.battleGetWallState(EWallPart::GATE) == EWallState::DESTROYED)
 	{
 		db.state = EGateState::DESTROYED;
 	}
@@ -212,37 +247,48 @@ void BattleProcessor::updateGateState()
 			db.state = EGateState::CLOSED;
 	}
 
-	if (db.state != gameHandler->gameState()->curB->si.gateState)
+	if (db.state != battle.battleGetGateState())
 		gameHandler->sendAndApply(&db);
 }
 
-bool BattleProcessor::makePlayerBattleAction(PlayerColor player, const BattleAction &ba)
+bool BattleProcessor::makePlayerBattleAction(const BattleID & battleID, PlayerColor player, const BattleAction &ba)
 {
-	bool result = actionsProcessor->makePlayerBattleAction(player, ba);
-	if (!resultProcessor->battleIsEnding() && gameHandler->gameState()->curB != nullptr)
-		flowProcessor->onActionMade(ba);
+	const auto * battle = gameHandler->gameState()->getBattle(battleID);
+
+	if (!battle)
+		return false;
+
+	bool result = actionsProcessor->makePlayerBattleAction(*battle, player, ba);
+	if (gameHandler->gameState()->getBattle(battleID) != nullptr && !resultProcessor->battleIsEnding(*battle))
+		flowProcessor->onActionMade(*battle, ba);
 	return result;
 }
 
-void BattleProcessor::setBattleResult(EBattleResult resultType, int victoriusSide)
+void BattleProcessor::setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, int victoriusSide)
 {
-	resultProcessor->setBattleResult(resultType, victoriusSide);
-	resultProcessor->endBattle(gameHandler->gameState()->curB->tile, gameHandler->gameState()->curB->battleGetFightingHero(0), gameHandler->gameState()->curB->battleGetFightingHero(1));
+	resultProcessor->setBattleResult(battle, resultType, victoriusSide);
+	resultProcessor->endBattle(battle);
 }
 
-bool BattleProcessor::makeAutomaticBattleAction(const BattleAction &ba)
+bool BattleProcessor::makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction &ba)
 {
-	return actionsProcessor->makeAutomaticBattleAction(ba);
+	return actionsProcessor->makeAutomaticBattleAction(battle, ba);
 }
 
-void BattleProcessor::endBattleConfirm(const BattleInfo * battleInfo)
+void BattleProcessor::endBattleConfirm(const BattleID & battleID)
 {
-	resultProcessor->endBattleConfirm(battleInfo);
+	auto battle = gameHandler->gameState()->getBattle(battleID);
+	assert(battle);
+
+	if (!battle)
+		return;
+
+	resultProcessor->endBattleConfirm(*battle);
 }
 
-void BattleProcessor::battleAfterLevelUp(const BattleResult &result)
+void BattleProcessor::battleAfterLevelUp(const BattleID & battleID, const BattleResult &result)
 {
-	resultProcessor->battleAfterLevelUp(result);
+	resultProcessor->battleAfterLevelUp(battleID, result);
 }
 
 void BattleProcessor::setGameHandler(CGameHandler * newGameHandler)

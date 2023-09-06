@@ -26,37 +26,6 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 ///BattleInfo
-std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const battle::Unit * stack)
-{
-	auto reachability = getReachability(stack);
-
-	if(reachability.predecessors[dest] == -1) //cannot reach destination
-	{
-		return std::make_pair(std::vector<BattleHex>(), 0);
-	}
-
-	//making the Path
-	std::vector<BattleHex> path;
-	BattleHex curElem = dest;
-	while(curElem != start)
-	{
-		path.push_back(curElem);
-		curElem = reachability.predecessors[curElem];
-	}
-
-	return std::make_pair(path, reachability.distances[dest]);
-}
-
-void BattleInfo::calculateCasualties(std::map<ui32,si32> * casualties) const
-{
-	for(const auto & st : stacks) //setting casualties
-	{
-		si32 killed = st->getKilled();
-		if(killed > 0)
-			casualties[st->unitSide()][st->creatureId()] += killed;
-	}
-}
-
 CStack * BattleInfo::generateNewStack(uint32_t id, const CStackInstance & base, ui8 side, const SlotID & slot, BattleHex position)
 {
 	PlayerColor owner = sides[side].color;
@@ -560,8 +529,22 @@ BattleInfo::BattleInfo():
 	tacticsSide(0),
 	tacticDistance(0)
 {
-	setBattle(this);
 	setNodeType(BATTLE);
+}
+
+BattleID BattleInfo::getBattleID() const
+{
+	return battleID;
+}
+
+const IBattleInfo * BattleInfo::getBattle() const
+{
+	return this;
+}
+
+std::optional<PlayerColor> BattleInfo::getPlayerID() const
+{
+	return std::nullopt;
 }
 
 BattleInfo::~BattleInfo()
@@ -689,14 +672,30 @@ int64_t BattleInfo::getActualDamage(const DamageRange & damage, int32_t attacker
 	}
 }
 
-void BattleInfo::nextRound(int32_t roundNr)
+int3 BattleInfo::getLocation() const
+{
+	return tile;
+}
+
+bool BattleInfo::isCreatureBank() const
+{
+	return creatureBank;
+}
+
+
+std::vector<SpellID> BattleInfo::getUsedSpells(ui8 side) const
+{
+	return sides.at(side).usedSpellsHistory;
+}
+
+void BattleInfo::nextRound()
 {
 	for(int i = 0; i < 2; ++i)
 	{
 		sides.at(i).castSpellsCount = 0;
 		vstd::amax(--sides.at(i).enchanterCounter, 0);
 	}
-	round = roundNr;
+	round += 1;
 
 	for(CStack * s : stacks)
 	{

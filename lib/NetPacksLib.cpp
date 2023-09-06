@@ -34,10 +34,7 @@
 #include "campaign/CampaignState.h"
 #include "GameSettings.h"
 
-
 VCMI_LIB_NAMESPACE_BEGIN
-
-#define THROW_IF_NO_BATTLE if (!gs->curB) throw std::runtime_error("Trying to apply pack when no battle!");
 
 void CPack::visit(ICPackVisitor & visitor)
 {
@@ -962,7 +959,7 @@ void GiveBonus::applyGs(CGameState *gs)
 		break;
 	case ETarget::BATTLE:
 		assert(Bonus::OneBattle(&bonus));
-		cbsn = dynamic_cast<CBonusSystemNode*>(gs->curB.get());
+		cbsn = dynamic_cast<CBonusSystemNode*>(gs->getBattle(BattleID(id)));
 		break;
 	}
 
@@ -2115,26 +2112,29 @@ void CommanderLevelUp::applyGs(CGameState * gs) const
 
 void BattleStart::applyGs(CGameState * gs) const
 {
-	gs->curB = info;
-	gs->curB->localInit();
+	assert(battleID == gs->nextBattleID);
+
+	gs->currentBattles.emplace_back(info);
+
+	info->battleID = gs->nextBattleID;
+	info->localInit();
+
+	gs->nextBattleID = vstd::next(gs->nextBattleID, 1);
 }
 
 void BattleNextRound::applyGs(CGameState * gs) const
 {
-	THROW_IF_NO_BATTLE
-	gs->curB->nextRound(round);
+	gs->getBattle(battleID)->nextRound();
 }
 
 void BattleSetActiveStack::applyGs(CGameState * gs) const
 {
-	THROW_IF_NO_BATTLE
-	gs->curB->nextTurn(stack);
+	gs->getBattle(battleID)->nextTurn(stack);
 }
 
 void BattleTriggerEffect::applyGs(CGameState * gs) const
 {
-	THROW_IF_NO_BATTLE
-	CStack * st = gs->curB->getStack(stackID);
+	CStack * st = gs->getBattle(battleID)->getStack(stackID);
 	assert(st);
 	switch(static_cast<BonusType>(effect))
 	{
@@ -2173,8 +2173,19 @@ void BattleTriggerEffect::applyGs(CGameState * gs) const
 
 void BattleUpdateGateState::applyGs(CGameState * gs) const
 {
-	if(gs->curB)
-		gs->curB->si.gateState = state;
+	if(gs->getBattle(battleID))
+		gs->getBattle(battleID)->si.gateState = state;
+}
+
+void BattleCancelled::applyGs(CGameState * gs) const
+{
+	auto currentBattle = boost::range::find_if(gs->currentBattles, [&](const auto & battle)
+	{
+		return battle->battleID == battleID;
+	});
+
+	assert(currentBattle != gs->currentBattles.end());
+	gs->currentBattles.erase(currentBattle);
 }
 
 void BattleResultAccepted::applyGs(CGameState * gs) const
@@ -2214,7 +2225,13 @@ void BattleResultAccepted::applyGs(CGameState * gs) const
 		CBonusSystemNode::treeHasChanged();
 	}
 
-	gs->curB.dellNull();
+	auto currentBattle = boost::range::find_if(gs->currentBattles, [&](const auto & battle)
+	{
+		return battle->battleID == battleID;
+	});
+
+	assert(currentBattle != gs->currentBattles.end());
+	gs->currentBattles.erase(currentBattle);
 }
 
 void BattleLogMessage::applyGs(CGameState *gs)
@@ -2229,8 +2246,7 @@ void BattleLogMessage::applyBattle(IBattleState * battleState)
 
 void BattleStackMoved::applyGs(CGameState *gs)
 {
-	THROW_IF_NO_BATTLE
-	applyBattle(gs->curB);
+	applyBattle(gs->getBattle(battleID));
 }
 
 void BattleStackMoved::applyBattle(IBattleState * battleState)
@@ -2240,8 +2256,7 @@ void BattleStackMoved::applyBattle(IBattleState * battleState)
 
 void BattleStackAttacked::applyGs(CGameState * gs)
 {
-	THROW_IF_NO_BATTLE
-	applyBattle(gs->curB);
+	applyBattle(gs->getBattle(battleID));
 }
 
 void BattleStackAttacked::applyBattle(IBattleState * battleState)
@@ -2251,8 +2266,7 @@ void BattleStackAttacked::applyBattle(IBattleState * battleState)
 
 void BattleAttack::applyGs(CGameState * gs)
 {
-	THROW_IF_NO_BATTLE
-	CStack * attacker = gs->curB->getStack(stackAttacking);
+	CStack * attacker = gs->getBattle(battleID)->getStack(stackAttacking);
 	assert(attacker);
 
 	attackerChanges.applyGs(gs);
@@ -2265,17 +2279,15 @@ void BattleAttack::applyGs(CGameState * gs)
 
 void StartAction::applyGs(CGameState *gs)
 {
-	THROW_IF_NO_BATTLE
-
-	CStack *st = gs->curB->getStack(ba.stackNumber);
+	CStack *st = gs->getBattle(battleID)->getStack(ba.stackNumber);
 
 	if(ba.actionType == EActionType::END_TACTIC_PHASE)
 	{
-		gs->curB->tacticDistance = 0;
+		gs->getBattle(battleID)->tacticDistance = 0;
 		return;
 	}
 
-	if(gs->curB->tacticDistance)
+	if(gs->getBattle(battleID)->tacticDistance)
 	{
 		// moves in tactics phase do not affect creature status
 		// (tactics stack queue is managed by client)
@@ -2310,27 +2322,24 @@ void StartAction::applyGs(CGameState *gs)
 	else
 	{
 		if(ba.actionType == EActionType::HERO_SPELL)
-			gs->curB->sides[ba.side].usedSpellsHistory.push_back(ba.spell);
+			gs->getBattle(battleID)->sides[ba.side].usedSpellsHistory.push_back(ba.spell);
 	}
 }
 
 void BattleSpellCast::applyGs(CGameState * gs) const
 {
-	THROW_IF_NO_BATTLE
-
 	if(castByHero)
 	{
 		if(side < 2)
 		{
-			gs->curB->sides[side].castSpellsCount++;
+			gs->getBattle(battleID)->sides[side].castSpellsCount++;
 		}
 	}
 }
 
 void SetStackEffect::applyGs(CGameState *gs)
 {
-	THROW_IF_NO_BATTLE
-	applyBattle(gs->curB);
+	applyBattle(gs->getBattle(battleID));
 }
 
 void SetStackEffect::applyBattle(IBattleState * battleState)
@@ -2348,8 +2357,7 @@ void SetStackEffect::applyBattle(IBattleState * battleState)
 
 void StacksInjured::applyGs(CGameState *gs)
 {
-	THROW_IF_NO_BATTLE
-	applyBattle(gs->curB);
+	applyBattle(gs->getBattle(battleID));
 }
 
 void StacksInjured::applyBattle(IBattleState * battleState)
@@ -2360,8 +2368,7 @@ void StacksInjured::applyBattle(IBattleState * battleState)
 
 void BattleUnitsChanged::applyGs(CGameState *gs)
 {
-	THROW_IF_NO_BATTLE
-	applyBattle(gs->curB);
+	applyBattle(gs->getBattle(battleID));
 }
 
 void BattleUnitsChanged::applyBattle(IBattleState * battleState)
@@ -2391,8 +2398,7 @@ void BattleUnitsChanged::applyBattle(IBattleState * battleState)
 
 void BattleObstaclesChanged::applyGs(CGameState * gs)
 {
-	THROW_IF_NO_BATTLE;
-	applyBattle(gs->curB);
+	applyBattle(gs->getBattle(battleID));
 }
 
 void BattleObstaclesChanged::applyBattle(IBattleState * battleState)
@@ -2423,8 +2429,7 @@ CatapultAttack::~CatapultAttack() = default;
 
 void CatapultAttack::applyGs(CGameState * gs)
 {
-	THROW_IF_NO_BATTLE
-	applyBattle(gs->curB);
+	applyBattle(gs->getBattle(battleID));
 }
 
 void CatapultAttack::visitTyped(ICPackVisitor & visitor)
@@ -2450,8 +2455,7 @@ void CatapultAttack::applyBattle(IBattleState * battleState)
 
 void BattleSetStackProperty::applyGs(CGameState * gs) const
 {
-	THROW_IF_NO_BATTLE
-	CStack * stack = gs->curB->getStack(stackID);
+	CStack * stack = gs->getBattle(battleID)->getStack(stackID);
 	switch(which)
 	{
 		case CASTS:
@@ -2464,7 +2468,7 @@ void BattleSetStackProperty::applyGs(CGameState * gs) const
 		}
 		case ENCHANTER_COUNTER:
 		{
-			auto & counter = gs->curB->sides[gs->curB->whatSide(stack->unitOwner())].enchanterCounter;
+			auto & counter = gs->getBattle(battleID)->sides[gs->getBattle(battleID)->whatSide(stack->unitOwner())].enchanterCounter;
 			if(absolute)
 				counter = val;
 			else

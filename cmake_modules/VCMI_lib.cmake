@@ -15,7 +15,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/BattleStateInfoForRetreat.cpp
 		${MAIN_LIB_DIR}/battle/CBattleInfoCallback.cpp
 		${MAIN_LIB_DIR}/battle/CBattleInfoEssentials.cpp
-		${MAIN_LIB_DIR}/battle/CCallbackBase.cpp
 		${MAIN_LIB_DIR}/battle/CObstacleInstance.cpp
 		${MAIN_LIB_DIR}/battle/CPlayerBattleCallback.cpp
 		${MAIN_LIB_DIR}/battle/CUnitState.cpp
@@ -339,7 +338,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/BattleProxy.h
 		${MAIN_LIB_DIR}/battle/CBattleInfoCallback.h
 		${MAIN_LIB_DIR}/battle/CBattleInfoEssentials.h
-		${MAIN_LIB_DIR}/battle/CCallbackBase.h
 		${MAIN_LIB_DIR}/battle/CObstacleInstance.h
 		${MAIN_LIB_DIR}/battle/CPlayerBattleCallback.h
 		${MAIN_LIB_DIR}/battle/CUnitState.h

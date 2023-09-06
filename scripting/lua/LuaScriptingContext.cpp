@@ -75,7 +75,7 @@ LuaContext::LuaContext(const Script * source, const Environment * env_):
 	S.push(env->game());
 	lua_setglobal(L, "GAME");
 
-	S.push(env->battle());
+	S.push(env->battle(BattleID::NONE));
 	lua_setglobal(L, "BATTLE");
 
 	S.push(env->eventBus());

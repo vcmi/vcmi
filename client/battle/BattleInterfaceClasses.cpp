@@ -289,7 +289,7 @@ void BattleHero::heroLeftClicked()
 	if(!hero || !owner.makingTurn())
 		return;
 
-	if(owner.getCurrentPlayerInterface()->cb->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
+	if(owner.getBattle()->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
 		CCS->curh->set(Cursor::Map::POINTER);
 		GH.windows().createAndPushWindow<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
@@ -502,7 +502,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 
 	for(int i = 0; i < 2; i++)
 	{
-		auto heroInfo = owner.cb->battleGetHeroInfo(i);
+		auto heroInfo = owner.cb->getBattle(br.battleID)->battleGetHeroInfo(i);
 		const int xs[] = {21, 392};
 
 		if(heroInfo.portrait >= 0) //attacking hero
@@ -512,7 +512,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 		}
 		else
 		{
-			auto stacks = owner.cb->battleGetAllStacks();
+			auto stacks = owner.cb->getBattle(br.battleID)->battleGetAllStacks();
 			vstd::erase_if(stacks, [i](const CStack * stack) //erase stack of other side and not coming from garrison
 			{
 				return stack->unitSide() != i || !stack->base;
@@ -561,7 +561,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 		}
 	}
 	//printing result description
-	bool weAreAttacker = !(owner.cb->battleGetMySide());
+	bool weAreAttacker = !(owner.cb->getBattle(br.battleID)->battleGetMySide());
 	if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 	{
 		int text = 304;
@@ -584,7 +584,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 		CCS->videoh->open("WIN3.BIK");
 		std::string str = CGI->generaltexth->allTexts[text];
 
-		const CGHeroInstance * ourHero = owner.cb->battleGetMyHero();
+		const CGHeroInstance * ourHero = owner.cb->getBattle(br.battleID)->battleGetMyHero();
 		if (ourHero)
 		{
 			str += CGI->generaltexth->allTexts[305];
@@ -714,7 +714,7 @@ void StackQueue::update()
 {
 	std::vector<battle::Units> queueData;
 
-	owner.getCurrentPlayerInterface()->cb->battleGetTurnOrder(queueData, stackBoxes.size(), 0);
+	owner.getBattle()->battleGetTurnOrder(queueData, stackBoxes.size(), 0);
 
 	size_t boxIndex = 0;
 

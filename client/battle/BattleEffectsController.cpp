@@ -59,7 +59,7 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 {
 	owner.checkForAnimations();
 
-	const CStack * stack = owner.curInt->cb->battleGetStackByID(bte.stackID);
+	const CStack * stack = owner.getBattle()->battleGetStackByID(bte.stackID);
 	if(!stack)
 	{
 		logGlobal->error("Invalid stack ID %d", bte.stackID);
@@ -98,7 +98,7 @@ void BattleEffectsController::startAction(const BattleAction & action)
 {
 	owner.checkForAnimations();
 
-	const CStack *stack = owner.curInt->cb->battleGetStackByID(action.stackNumber);
+	const CStack *stack = owner.getBattle()->battleGetStackByID(action.stackNumber);
 
 	switch(action.actionType)
 	{

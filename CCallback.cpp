@@ -203,16 +203,17 @@ bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 	return true;
 }
 
-void CBattleCallback::battleMakeSpellAction(const BattleAction & action)
+void CBattleCallback::battleMakeSpellAction(const BattleID & battleID, const BattleAction & action)
 {
 	assert(action.actionType == EActionType::HERO_SPELL);
 	MakeAction mca(action);
+	mca.battleID = battleID;
 	sendRequest(&mca);
 }
 
 int CBattleCallback::sendRequest(const CPackForServer * request)
 {
-	int requestID = cl->sendRequest(request, *player);
+	int requestID = cl->sendRequest(request, *getPlayerID());
 	if(waitTillRealize)
 	{
 		logGlobal->trace("We'll wait till request %d is answered.\n", requestID);
@@ -226,8 +227,7 @@ int CBattleCallback::sendRequest(const CPackForServer * request)
 
 void CCallback::swapGarrisonHero( const CGTownInstance *town )
 {
-	if(town->tempOwner == *player
-	   || (town->garrisonHero && town->garrisonHero->tempOwner == *player ))
+	if(town->tempOwner == *player || (town->garrisonHero && town->garrisonHero->tempOwner == *player ))
 	{
 		GarrisonHeroSwap pack(town->id);
 		sendRequest(&pack);
@@ -236,7 +236,7 @@ void CCallback::swapGarrisonHero( const CGTownInstance *town )
 
 void CCallback::buyArtifact(const CGHeroInstance *hero, ArtifactID aid)
 {
-	if(hero->tempOwner != player) return;
+	if(hero->tempOwner != *player) return;
 
 	BuyArtifact pack(hero->id,aid);
 	sendRequest(&pack);
@@ -297,8 +297,8 @@ void CCallback::buildBoat( const IShipyard *obj )
 	sendRequest(&bb);
 }
 
-CCallback::CCallback(CGameState * GS, std::optional<PlayerColor> Player, CClient * C):
-	CBattleCallback(Player, C)
+CCallback::CCallback(CGameState * GS, std::optional<PlayerColor> Player, CClient * C)
+	: CBattleCallback(Player, C)
 {
 	gs = GS;
 
@@ -306,10 +306,7 @@ CCallback::CCallback(CGameState * GS, std::optional<PlayerColor> Player, CClient
 	unlockGsWhenWaiting = false;
 }
 
-CCallback::~CCallback()
-{
-//trivial, but required. Don`t remove.
-}
+CCallback::~CCallback() = default;
 
 bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
 {
@@ -320,6 +317,11 @@ bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
 std::shared_ptr<const CPathsInfo> CCallback::getPathsInfo(const CGHeroInstance * h)
 {
 	return cl->getPathsInfo(h);
+}
+
+std::optional<PlayerColor> CCallback::getPlayerID() const
+{
+	return CBattleCallback::getPlayerID();
 }
 
 int3 CCallback::getGuardingCreaturePosition(int3 tile)
@@ -364,36 +366,51 @@ void CCallback::unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver>
 	cl->additionalBattleInts[*player] -= battleEvents;
 }
 
-#if SCRIPTING_ENABLED
-scripting::Pool * CBattleCallback::getContextPool() const
+CBattleCallback::CBattleCallback(std::optional<PlayerColor> player, CClient * C):
+	cl(C),
+	player(player)
 {
-	return cl->getGlobalContextPool();
-}
-#endif
-
-CBattleCallback::CBattleCallback(std::optional<PlayerColor> Player, CClient * C)
-{
-	player = Player;
-	cl = C;
 }
 
-void CBattleCallback::battleMakeUnitAction(const BattleAction & action)
+void CBattleCallback::battleMakeUnitAction(const BattleID & battleID, const BattleAction & action)
 {
-	assert(!cl->gs->curB->tacticDistance);
+	assert(!cl->gs->getBattle(battleID)->tacticDistance);
 	MakeAction ma;
 	ma.ba = action;
+	ma.battleID = battleID;
 	sendRequest(&ma);
 }
 
-void CBattleCallback::battleMakeTacticAction( const BattleAction & action )
+void CBattleCallback::battleMakeTacticAction(const BattleID & battleID, const BattleAction & action )
 {
-	assert(cl->gs->curB->tacticDistance);
+	assert(cl->gs->getBattle(battleID)->tacticDistance);
 	MakeAction ma;
 	ma.ba = action;
+	ma.battleID = battleID;
 	sendRequest(&ma);
 }
 
-std::optional<BattleAction> CBattleCallback::makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
+std::optional<BattleAction> CBattleCallback::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
-	return cl->playerint[getPlayerID().value()]->makeSurrenderRetreatDecision(battleState);
+	return cl->playerint[getPlayerID().value()]->makeSurrenderRetreatDecision(battleID, battleState);
+}
+
+std::shared_ptr<CPlayerBattleCallback> CBattleCallback::getBattle(const BattleID & battleID)
+{
+	return activeBattles.at(battleID);
+}
+
+std::optional<PlayerColor> CBattleCallback::getPlayerID() const
+{
+	return player;
+}
+
+void CBattleCallback::onBattleStarted(const IBattleInfo * info)
+{
+	activeBattles[info->getBattleID()] = std::make_shared<CPlayerBattleCallback>(info, *getPlayerID());
+}
+
+void CBattleCallback::onBattleEnded(const BattleID & battleID)
+{
+	activeBattles.erase(battleID);
 }

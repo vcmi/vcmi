@@ -20,7 +20,7 @@
 #include "../lib/IGameCallback.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/gameState/CGameState.h"
-#include "../lib/battle/BattleInfo.h"
+#include "../lib/battle/IBattleState.h"
 #include "../lib/battle/BattleAction.h"
 #include "../lib/battle/Unit.h"
 #include "../lib/serializer/Connection.h"
@@ -276,7 +276,7 @@ void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 {
 	gh.throwIfWrongPlayer(&pack);
 
-	result = gh.battles->makePlayerBattleAction(pack.player, pack.ba);
+	result = gh.battles->makePlayerBattleAction(pack.battleID, pack.player, pack.ba);
 }
 
 void ApplyGhNetPackVisitor::visitDigWithHero(DigWithHero & pack)

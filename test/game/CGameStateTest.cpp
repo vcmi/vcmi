@@ -204,9 +204,9 @@ public:
 
 		BattleStart bs;
 		bs.info = battle;
-		ASSERT_EQ(gameState->curB, nullptr);
+		ASSERT_EQ(gameState->currentBattles.size(), 0);
 		gameCallback->sendAndApply(&bs);
-		ASSERT_EQ(gameState->curB, battle);
+		ASSERT_EQ(gameState->currentBattles.size(), 1);
 	}
 
 	std::shared_ptr<CGameState> gameState;
@@ -247,11 +247,11 @@ TEST_F(CGameStateTest, issue2765)
 
 	{
 		battle::UnitInfo info;
-		info.id = gameState->curB->battleNextUnitId();
+		info.id = gameState->currentBattles.front()->battleNextUnitId();
 		info.count = 1;
 		info.type = CreatureID(69);
 		info.side = BattleSide::ATTACKER;
-		info.position = gameState->curB->getAvaliableHex(info.type, info.side);
+		info.position = gameState->currentBattles.front()->getAvaliableHex(info.type, info.side);
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
@@ -263,7 +263,7 @@ TEST_F(CGameStateTest, issue2765)
 	const CStack * att = nullptr;
 	const CStack * def = nullptr;
 
-	for(const CStack * s : gameState->curB->stacks)
+	for(const CStack * s : gameState->currentBattles.front()->stacks)
 	{
 		if(s->unitType()->getId() == CreatureID::BALLISTA && s->unitSide() == BattleSide::DEFENDER)
 			def = s;
@@ -292,7 +292,7 @@ TEST_F(CGameStateTest, issue2765)
 		spells::AbilityCaster caster(att, 3);
 
 		//here tested ballista, but this applied to all war machines
-		spells::BattleCast cast(gameState->curB, &caster, spells::Mode::PASSIVE, age);
+		spells::BattleCast cast(gameState->currentBattles.front().get(), &caster, spells::Mode::PASSIVE, age);
 
 		spells::Target target;
 		target.emplace_back(def);
@@ -339,7 +339,7 @@ TEST_F(CGameStateTest, battleResurrection)
 
 	startTestBattle(attacker, defender);
 
-	uint32_t unitId = gameState->curB->battleNextUnitId();
+	uint32_t unitId = gameState->currentBattles.front()->battleNextUnitId();
 
 	{
 		battle::UnitInfo info;
@@ -347,7 +347,7 @@ TEST_F(CGameStateTest, battleResurrection)
 		info.count = 10;
 		info.type = CreatureID(13);
 		info.side = BattleSide::ATTACKER;
-		info.position = gameState->curB->getAvaliableHex(info.type, info.side);
+		info.position = gameState->currentBattles.front()->getAvaliableHex(info.type, info.side);
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
@@ -358,11 +358,11 @@ TEST_F(CGameStateTest, battleResurrection)
 
 	{
 		battle::UnitInfo info;
-		info.id = gameState->curB->battleNextUnitId();
+		info.id = gameState->currentBattles.front()->battleNextUnitId();
 		info.count = 10;
 		info.type = CreatureID(13);
 		info.side = BattleSide::DEFENDER;
-		info.position = gameState->curB->getAvaliableHex(info.type, info.side);
+		info.position = gameState->currentBattles.front()->getAvaliableHex(info.type, info.side);
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
@@ -371,7 +371,7 @@ TEST_F(CGameStateTest, battleResurrection)
 		gameCallback->sendAndApply(&pack);
 	}
 
-	CStack * unit = gameState->curB->getStack(unitId);
+	CStack * unit = gameState->currentBattles.front()->getStack(unitId);
 
 	ASSERT_NE(unit, nullptr);
 
@@ -390,7 +390,7 @@ TEST_F(CGameStateTest, battleResurrection)
 		const CSpell * spell = SpellID(SpellID::RESURRECTION).toSpell();
 		ASSERT_NE(spell, nullptr);
 
-			spells::BattleCast cast(gameState->curB, attacker, spells::Mode::HERO, spell);
+			spells::BattleCast cast(gameState->currentBattles.front().get(), attacker, spells::Mode::HERO, spell);
 
 		spells::Target target;
 		target.emplace_back(unit);

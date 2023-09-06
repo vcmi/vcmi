@@ -141,7 +141,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 	if(!owner.siegeController)
 	{
-		auto bfieldType = owner.curInt->cb->battleGetBattlefieldType();
+		auto bfieldType = owner.getBattle()->battleGetBattlefieldType();
 
 		if(bfieldType == BattleField::NONE)
 			logGlobal->error("Invalid battlefield returned for current battle");
@@ -284,7 +284,7 @@ void BattleFieldController::redrawBackgroundWithHexes()
 	const CStack *activeStack = owner.stacksController->getActiveStack();
 	std::vector<BattleHex> attackableHexes;
 	if(activeStack)
-		occupiableHexes = owner.curInt->cb->battleGetAvailableHexes(activeStack, false, true, &attackableHexes);
+		occupiableHexes = owner.getBattle()->battleGetAvailableHexes(activeStack, false, true, &attackableHexes);
 
 	// prepare background graphic with hexes and shaded hexes
 	backgroundWithHexes->draw(background, Point(0,0));
@@ -339,7 +339,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForActiveStack()
 
 	auto hoveredHex = getHoveredHex();
 
-	std::set<BattleHex> set = owner.curInt->cb->battleGetAttackedHexes(owner.stacksController->getActiveStack(), hoveredHex);
+	std::set<BattleHex> set = owner.getBattle()->battleGetAttackedHexes(owner.stacksController->getActiveStack(), hoveredHex);
 	for(BattleHex hex : set)
 		result.insert(hex);
 
@@ -359,10 +359,10 @@ std::set<BattleHex> BattleFieldController::getMovementRangeForHoveredStack()
 	auto hoveredHex = getHoveredHex();
 
 	// add possible movement hexes for stack under mouse
-	const CStack * const hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+	const CStack * const hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
 	if(hoveredStack)
 	{
-		std::vector<BattleHex> v = owner.curInt->cb->battleGetAvailableHexes(hoveredStack, true, true, nullptr);
+		std::vector<BattleHex> v = owner.getBattle()->battleGetAvailableHexes(hoveredStack, true, true, nullptr);
 		for(BattleHex hex : v)
 			result.insert(hex);
 	}
@@ -387,7 +387,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForSpellRange()
 	if(caster && spell) //when casting spell
 	{
 		// printing shaded hex(es)
-		spells::BattleCast event(owner.curInt->cb.get(), caster, mode, spell);
+		spells::BattleCast event(owner.getBattle().get(), caster, mode, spell);
 		auto shadedHexes = spell->battleMechanics(&event)->rangeInHexes(hoveredHex);
 
 		for(BattleHex shadedHex : shadedHexes)
@@ -407,10 +407,10 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForMovementTarget(
 	if(!stack)
 		return {};
 
-	std::vector<BattleHex> availableHexes = owner.curInt->cb->battleGetAvailableHexes(stack, false, false, nullptr);
+	std::vector<BattleHex> availableHexes = owner.getBattle()->battleGetAvailableHexes(stack, false, false, nullptr);
 
-	auto hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
-	if(owner.curInt->cb->battleCanAttack(stack, hoveredStack, hoveredHex))
+	auto hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
+	if(owner.getBattle()->battleCanAttack(stack, hoveredStack, hoveredHex))
 	{
 		if(isTileAttackable(hoveredHex))
 		{
@@ -670,7 +670,7 @@ BattleHex BattleFieldController::getHoveredHex()
 const CStack* BattleFieldController::getHoveredStack()
 {
 	auto hoveredHex = getHoveredHex();
-	const CStack* hoveredStack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+	const CStack* hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
 
 	return hoveredStack;
 }
@@ -856,7 +856,7 @@ bool BattleFieldController::isTileAttackable(const BattleHex & number) const
 
 void BattleFieldController::updateAccessibleHexes()
 {
-	auto accessibility = owner.curInt->cb->getAccesibility();
+	auto accessibility = owner.getBattle()->getAccesibility();
 
 	for(int i = 0; i < accessibility.size(); i++)
 		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE || (accessibility[i] == EAccessibility::SIDE_COLUMN));

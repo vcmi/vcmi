@@ -87,7 +87,6 @@ BattleFake::BattleFake() = default;
 
 void BattleFake::setUp()
 {
-	CBattleInfoCallback::setBattle(this);
 }
 
 void BattleFake::setupEmptyBattlefield()

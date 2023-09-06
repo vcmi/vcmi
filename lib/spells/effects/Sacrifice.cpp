@@ -123,6 +123,7 @@ void Sacrifice::apply(ServerCallback * server, const Mechanics * m, const Effect
 	Heal::apply(calculateHealEffectValue(m, victim), server, m, healTarget);
 
 	BattleUnitsChanged removeUnits;
+	removeUnits.battleID = m->battle()->getBattle()->getBattleID();
 	removeUnits.changedStacks.emplace_back(victim->unitId(), UnitChanges::EOperation::REMOVE);
 	server->apply(&removeUnits);
 }

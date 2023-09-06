@@ -395,7 +395,6 @@ CGameState::CGameState()
 
 CGameState::~CGameState()
 {
-	curB.dellNull();
 	map.dellNull();
 }
 
@@ -1218,11 +1217,41 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 	}
 }
 
+const BattleInfo * CGameState::getBattle(const PlayerColor & player) const
+{
+	if (!player.isValidPlayer())
+		return nullptr;
+
+	for (const auto & battlePtr : currentBattles)
+		if (battlePtr->sides[0].color == player || battlePtr->sides[1].color == player)
+			return battlePtr.get();
+
+	return nullptr;
+}
+
+const BattleInfo * CGameState::getBattle(const BattleID & battle) const
+{
+	for (const auto & battlePtr : currentBattles)
+		if (battlePtr->battleID == battle)
+			return battlePtr.get();
+
+	return nullptr;
+}
+
+BattleInfo * CGameState::getBattle(const BattleID & battle)
+{
+	for (const auto & battlePtr : currentBattles)
+		if (battlePtr->battleID == battle)
+			return battlePtr.get();
+
+	return nullptr;
+}
+
 BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
 {
-	if(!tile.valid() && curB)
-		tile = curB->tile;
-	else if(!tile.valid() && !curB)
+	assert(tile.valid());
+
+	if(!tile.valid())
 		return BattleField::NONE;
 
 	const TerrainTile &t = map->getTile(tile);

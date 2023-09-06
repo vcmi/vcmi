@@ -35,7 +35,11 @@ void Heal::apply(ServerCallback * server, const Mechanics * m, const EffectTarge
 void Heal::apply(int64_t value, ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	BattleLogMessage logMessage;
+	logMessage.battleID = m->battle()->getBattle()->getBattleID();
+
 	BattleUnitsChanged pack;
+	pack.battleID = m->battle()->getBattle()->getBattleID();
+
 	prepareHealEffect(value, pack, logMessage, *server->getRNG(), m, target);
 	if(!pack.changedStacks.empty())
 		server->apply(&pack);
