@@ -117,6 +117,10 @@ void TavernHeroesPool::onNewDay()
 		if(!hero.second)
 			continue;
 
+		hero.second->removeBonusesRecursive(Bonus::OneDay);
+		hero.second->reduceBonusDurations(Bonus::NDays);
+		hero.second->reduceBonusDurations(Bonus::OneWeek);
+
 		// do not access heroes who are not present in tavern of any players
 		if (vstd::contains(unusedHeroes, hero.first))
 			continue;
