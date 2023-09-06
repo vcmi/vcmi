@@ -484,6 +484,7 @@ bool BattleFlowProcessor::rollGoodMorale(const CStack * next)
 		&& !next->waited()
 		&& !next->fear
 		&& next->alive()
+		&& next->canMove()
 		&& nextStackMorale > 0)
 	{
 		auto diceSize = VLC->settings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE);
