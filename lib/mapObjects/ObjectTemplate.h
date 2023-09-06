@@ -126,7 +126,7 @@ public:
 
 	ObjectTemplate& operator=(const ObjectTemplate & rhs);
 
-	void readTxt(CLegacyConfigParser & parser);
+	void readTxt(const std::string & parser);
 	void readMsk();
 	void readMap(CBinaryReader & reader);
 	void readJson(const JsonNode & node, bool withTerrain = true);

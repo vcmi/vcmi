@@ -27,7 +27,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CThreadHelper.h"
+#include "../../lib/ThreadUtilities.h"
 #include "../../lib/TextOperations.h"
 #include "../../lib/mapObjects/CArmedInstance.h"
 

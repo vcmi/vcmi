@@ -51,7 +51,7 @@
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/NetPacksLobby.h"
-#include "../../lib/CThreadHelper.h"
+#include "../../lib/ThreadUtilities.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/CRandomGenerator.h"

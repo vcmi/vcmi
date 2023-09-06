@@ -13,7 +13,6 @@
 #include "Goals/AbstractGoal.h"
 #include "../../lib/AI_Base.h"
 #include "../../CCallback.h"
-#include "../../lib/CThreadHelper.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/CBuildingHandler.h"

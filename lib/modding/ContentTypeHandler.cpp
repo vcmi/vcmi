@@ -29,6 +29,7 @@
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../ScriptHandler.h"
+#include "../ThreadPool.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -116,22 +117,17 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 
 			if(originalData.size() > index)
 			{
-				logMod->trace("found original data in loadMod(%s) at index %d", name, index);
 				JsonUtils::merge(originalData[index], data);
 				std::swap(originalData[index], data);
 				originalData[index].clear(); // do not use same data twice (same ID)
 			}
-			else
-			{
-				logMod->trace("no original data in loadMod(%s) at index %d", name, index);
-			}
+
 			performValidate(data, name);
 			handler->loadObject(modName, name, data, index);
 		}
 		else
 		{
 			// normal new object
-			logMod->trace("no index in loadMod(%s)", name);
 			performValidate(data,name);
 			handler->loadObject(modName, name, data);
 		}
@@ -171,23 +167,43 @@ void CContentHandler::init()
 	//TODO: any other types of moddables?
 }
 
-bool CContentHandler::preloadModData(const std::string & modName, JsonNode modConfig, bool validate)
+bool CContentHandler::preloadModData(const std::string & modName, const JsonNode & modConfig, bool validate)
 {
+	TaskGroup tasks;
+
 	bool result = true;
 	for(auto & handler : handlers)
 	{
-		result &= handler.second.preloadModData(modName, modConfig[handler.first].convertTo<std::vector<std::string> >(), validate);
+		ThreadPool::global().addTask(tasks, [&](){
+			bool taskResult = handler.second.preloadModData(modName, modConfig[handler.first].convertTo<std::vector<std::string> >(), validate);
+
+			if (!taskResult)
+				result = false;
+		});
 	}
+
+	ThreadPool::global().waitFor(tasks);
+
 	return result;
 }
 
 bool CContentHandler::loadMod(const std::string & modName, bool validate)
 {
+	TaskGroup tasks;
+
 	bool result = true;
 	for(auto & handler : handlers)
 	{
-		result &= handler.second.loadMod(modName, validate);
+		ThreadPool::global().addTask(tasks, [&](){
+			bool taskResult = handler.second.loadMod(modName, validate);
+
+			if (!taskResult)
+				result = false;
+		});
 	}
+
+	ThreadPool::global().waitFor(tasks);
+
 	return result;
 }
 

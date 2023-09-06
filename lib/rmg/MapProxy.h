@@ -11,9 +11,9 @@
 #pragma once
 
 #include "StdInc.h"
-#include "../../mapping/CMap.h"
-#include "../RmgMap.h"
-#include "../../mapping/CMapEditManager.h"
+#include "mapping/CMap.h"
+#include "rmg/RmgMap.h"
+#include "mapping/CMapEditManager.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

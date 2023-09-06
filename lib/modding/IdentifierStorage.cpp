@@ -71,8 +71,19 @@ void CIdentifierStorage::requestIdentifier(ObjectCallback callback) const
 
 	assert(!callback.localScope.empty());
 
-	if (state != ELoadingState::FINISHED) // enqueue request if loading is still in progress
-		scheduledRequests.push_back(callback);
+	if (state == ELoadingState::LOADING) // enqueue request if loading is still in progress
+	{
+		static thread_local ScheduledRequests * container = nullptr;
+
+		if (!container)
+		{
+			boost::mutex::scoped_lock lock(loadingMutex);
+
+			perThreadScheduledRequests.push_back(std::make_unique<ScheduledRequests>());
+			container = perThreadScheduledRequests.back().get();
+		}
+		container->push_back(callback);
+	}
 	else // execute immediately for "late" requests
 		resolveIdentifier(callback);
 }
@@ -213,7 +224,7 @@ std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope,
 
 void CIdentifierStorage::registerObject(const std::string & scope, const std::string & type, const std::string & name, si32 identifier)
 {
-	assert(state != ELoadingState::FINISHED);
+	assert(state == ELoadingState::LOADING);
 
 	ObjectData data;
 	data.scope = scope;
@@ -223,11 +234,20 @@ void CIdentifierStorage::registerObject(const std::string & scope, const std::st
 	checkIdentifier(fullID);
 
 	std::pair<const std::string, ObjectData> mapping = std::make_pair(fullID, data);
-	if(!vstd::containsMapping(registeredObjects, mapping))
+
+	static thread_local ObjectRegistry * container = nullptr;
+
+	if (!container)
 	{
-		logMod->trace("registered %s as %s:%s", fullID, scope, identifier);
-		registeredObjects.insert(mapping);
+		boost::mutex::scoped_lock lock(loadingMutex);
+
+		perThreadRegisteredObjects.push_back(std::make_unique<ObjectRegistry>());
+		container = perThreadRegisteredObjects.back().get();
 	}
+
+	logMod->trace("registered %s as %s:%s", fullID, scope, identifier);
+	assert(!vstd::containsMapping(*container, mapping));
+	container->insert(mapping);
 }
 
 std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdentifiers(const ObjectCallback & request) const
@@ -343,17 +363,21 @@ void CIdentifierStorage::finalize()
 	assert(state == ELoadingState::LOADING);
 
 	state = ELoadingState::FINALIZING;
+
+	for (auto const & container : perThreadRegisteredObjects)
+		registeredObjects.merge(*container);
+
 	bool errorsFound = false;
 
-	while ( !scheduledRequests.empty() )
+	for (const auto & container : perThreadScheduledRequests)
 	{
-		// Use local copy since new requests may appear during resolving, invalidating any iterators
-		auto request = scheduledRequests.back();
-		scheduledRequests.pop_back();
-
-		if (!resolveIdentifier(request))
-			errorsFound = true;
+		for (const auto & entry : *container)
+			if (!resolveIdentifier(entry))
+				errorsFound = true;
 	}
+
+	perThreadRegisteredObjects.clear();
+	perThreadScheduledRequests.clear();
 
 	if (errorsFound)
 	{

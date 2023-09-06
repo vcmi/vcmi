@@ -43,7 +43,7 @@
 #include "../../lib/NetPacks.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/TerrainHandler.h"
-#include "../../lib/CThreadHelper.h"
+#include "../../lib/ThreadUtilities.h"
 
 BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2,
 		const CGHeroInstance *hero1, const CGHeroInstance *hero2,

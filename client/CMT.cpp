@@ -29,7 +29,7 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "../lib/CThreadHelper.h"
+#include "../lib/ThreadUtilities.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -263,13 +263,24 @@ int main(int argc, char * argv[])
 
 	srand ( (unsigned int)time(nullptr) );
 
-	if(!settings["session"]["headless"].Bool())
-		GH.init();
-
 	CCS = new CClientState();
 	CGI = new CGameInfo(); //contains all global informations about game (texts, lodHandlers, map handler etc.)
 	CSH = new CServerHandler();
+
+#ifndef VCMI_NO_THREADED_LOAD
+	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
+	boost::thread loading([]()
+	{
+		setThreadName("initialize");
+		init();
+	});
+#else
+	init();
+#endif
 	
+	if(!settings["session"]["headless"].Bool())
+		GH.init();
+
 	// Initialize video
 #ifdef DISABLE_VIDEO
 	CCS->videoh = new CEmptyVideoPlayer();
@@ -294,24 +305,12 @@ int main(int argc, char * argv[])
 		logGlobal->info("Initializing screen and sound handling: %d ms", pomtime.getDiff());
 	}
 
-#ifndef VCMI_NO_THREADED_LOAD
-	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
-	boost::thread loading([]()
-	{
-		setThreadName("initialize");
-		init();
-	});
-#else
-	init();
-#endif
-
 	if(!settings["session"]["headless"].Bool())
 	{
 		if(!vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool())
 			playIntro();
 		GH.screenHandler().clearScreen();
 	}
-
 
 #ifndef VCMI_NO_THREADED_LOAD
 	#ifdef VCMI_ANDROID // android loads the data quite slowly so we display native progressbar to prevent having only black screen for few seconds
@@ -432,8 +431,6 @@ void playIntro()
 
 static void mainLoop()
 {
-	setThreadName("MainGUI");
-
 	while(1) //main SDL events loop
 	{
 		GH.input().fetchEvents();

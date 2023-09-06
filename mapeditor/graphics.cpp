@@ -23,7 +23,6 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CBinaryReader.h"
 #include "Animation.h"
-#include "../lib/CThreadHelper.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
 #include "../lib/CGeneralTextHandler.h"

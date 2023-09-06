@@ -28,7 +28,6 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CSoundBase.h"
-#include "../lib/CThreadHelper.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/GameConstants.h"
 #include "../lib/UnlockGuard.h"

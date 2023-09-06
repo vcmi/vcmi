@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "CThreadHelper.h"
+#include "ThreadUtilities.h"
 
 #ifdef VCMI_WINDOWS
 	#include <windows.h>
@@ -19,40 +19,6 @@
 #endif
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-CThreadHelper::CThreadHelper(std::vector<std::function<void()>> * Tasks, int Threads):
-	currentTask(0),
-	amount(static_cast<int>(Tasks->size())),
-	tasks(Tasks),
-	threads(Threads)
-{
-}
-void CThreadHelper::run()
-{
-	std::vector<boost::thread> group;
-	for(int i=0;i<threads;i++)
-		group.emplace_back(std::bind(&CThreadHelper::processTasks,this));
-
-	for (auto & thread : group)
-		thread.join();
-
-	//thread group deletes threads, do not free manually
-}
-void CThreadHelper::processTasks()
-{
-	while(true)
-	{
-		int pom;
-		{
-			boost::unique_lock<boost::mutex> lock(rtinm);
-			if((pom = currentTask) >= amount)
-				break;
-			else
-				++currentTask;
-		}
-		(*tasks)[pom]();
-	}
-}
 
 // set name for this thread.
 // NOTE: on *nix string will be trimmed to 16 symbols

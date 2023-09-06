@@ -9,7 +9,7 @@
  */
 
 #include "MapProxy.h"
-#include "../../TerrainHandler.h"
+#include "../TerrainHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

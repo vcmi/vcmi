@@ -11,7 +11,7 @@
 #include "CConsoleHandler.h"
 #include "CConfigHandler.h"
 
-#include "CThreadHelper.h"
+#include "ThreadUtilities.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
