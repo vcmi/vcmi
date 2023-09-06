@@ -13,6 +13,8 @@
 #include <boost/thread/future.hpp>
 #include <boost/thread/condition_variable.hpp>
 
+#include "ThreadUtilities.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 //Credit to https://github.com/Liam0205/toy-threadpool/tree/master/yuuki
@@ -100,6 +102,8 @@ inline ThreadPool::~ThreadPool()
 
 inline void ThreadPool::spawn()
 {
+	setThreadName("ThreadPool");
+
 	while(true)
 	{
 		bool pop = false;
@@ -152,8 +156,13 @@ inline void ThreadPool::addTask(TaskGroup & group, std::function<void()>&& f)
 
 inline void ThreadPool::waitFor(TaskGroup & group)
 {
-	while (group.tasksLeft.load() != 0)
+	while (group.tasksLeft.load() > 0)
 	{
+		// task group that we are waiting for still has unfinished tasks in it
+		// so instead of waiting, try to acquire any unfinished task (even if from another group)
+		// and execute it on our thread
+		// this might incur some delay, e.g. if our final task finishes while our thread is busy with foreign task
+		// however such approach is necessary to avoid potential deadlocks if all worker threads end up waiting for their own task group
 		Functor task;
 		bool pop = tasks.pop(task);
 
@@ -165,8 +174,9 @@ inline void ThreadPool::waitFor(TaskGroup & group)
 		else
 		{
 			// failed to acquire task.
-			// This might happen if another thread is currently executing task from our group - in this case sleep for a bit and try again later
-			boost::this_thread::sleep_for(boost::chrono::milliseconds(1));
+			// This might happen if another thread is currently executing task from our group
+			// In this case ask OS to switch context to any other thread/process that awaits CPU time
+			boost::this_thread::yield();
 		}
 	}
 }
