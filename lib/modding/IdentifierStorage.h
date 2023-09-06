@@ -60,10 +60,13 @@ class DLL_LINKAGE CIdentifierStorage
 		}
 	};
 
-	std::multimap<std::string, ObjectData> registeredObjects;
-	boost::mutex registeredObjectsMutex;
-	mutable std::vector<ObjectCallback> scheduledRequests;
-	mutable boost::mutex scheduledRequestsMutex;
+	using ObjectRegistry = std::multimap<std::string, ObjectData>;
+	using ScheduledRequests = std::vector<ObjectCallback>;
+
+	ObjectRegistry registeredObjects;
+	std::vector<std::unique_ptr<ObjectRegistry>> perThreadRegisteredObjects;
+	mutable std::vector<std::unique_ptr<ScheduledRequests>> perThreadScheduledRequests;
+	mutable boost::mutex loadingMutex;
 
 	ELoadingState state = ELoadingState::LOADING;
 

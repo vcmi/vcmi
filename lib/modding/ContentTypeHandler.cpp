@@ -117,22 +117,17 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 
 			if(originalData.size() > index)
 			{
-				logMod->trace("found original data in loadMod(%s) at index %d", name, index);
 				JsonUtils::merge(originalData[index], data);
 				std::swap(originalData[index], data);
 				originalData[index].clear(); // do not use same data twice (same ID)
 			}
-			else
-			{
-				logMod->trace("no original data in loadMod(%s) at index %d", name, index);
-			}
+
 			performValidate(data, name);
 			handler->loadObject(modName, name, data, index);
 		}
 		else
 		{
 			// normal new object
-			logMod->trace("no index in loadMod(%s)", name);
 			performValidate(data,name);
 			handler->loadObject(modName, name, data);
 		}

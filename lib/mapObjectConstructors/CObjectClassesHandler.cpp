@@ -236,8 +236,6 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 	}
 	legacyTemplates.erase(range.first, range.second);
 
-	logGlobal->debug("Loaded object %s(%d)::%s(%d)", obj->getJsonKey(), obj->id, identifier, index);
-
 	return createdObject;
 }
 

@@ -156,13 +156,11 @@ void CLogger::log(ELogLevel::ELogLevel level, const boost::format & fmt) const
 
 ELogLevel::ELogLevel CLogger::getLevel() const
 {
-	TLockGuard _(mx);
 	return level;
 }
 
 void CLogger::setLevel(ELogLevel::ELogLevel level)
 {
-	TLockGuard _(mx);
 	if (!domain.isGlobalDomain() || level != ELogLevel::NOT_SET)
 		this->level = level;
 }
