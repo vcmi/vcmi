@@ -147,32 +147,7 @@
             <number>12</number>
            </property>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
-             <item>
-              <widget class="QLabel" name="label_7">
-               <property name="text">
-                <string>Timed events</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="timedEventAdd">
-               <property name="text">
-                <string>Add</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="timedEventRemove">
-               <property name="text">
-                <string>Remove</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="QListWidget" name="eventsList"/>
+            <widget class="EventSettings" name="events" native="true"/>
            </item>
           </layout>
          </widget>
@@ -354,6 +329,12 @@
    <class>LoseConditions</class>
    <extends>QWidget</extends>
    <header>mapsettings/loseconditions.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>EventSettings</class>
+   <extends>QWidget</extends>
+   <header>mapsettings/eventsettings.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

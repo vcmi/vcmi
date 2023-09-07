@@ -21,7 +21,7 @@ class TimedEvent : public QDialog
 	Q_OBJECT
 
 public:
-	explicit TimedEvent(QWidget *parent = nullptr);
+	explicit TimedEvent(QListWidgetItem *, QWidget *parent = nullptr);
 	~TimedEvent();
 
 private slots:
@@ -31,6 +31,7 @@ private slots:
 
 private:
 	Ui::TimedEvent *ui;
+	QListWidgetItem * target;
 };
 
 #endif // TIMEDEVENT_H

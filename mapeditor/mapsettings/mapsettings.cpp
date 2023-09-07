@@ -67,22 +67,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	ui->mods->initialize(*controller.map());
 	ui->victory->initialize(*controller.map());
 	ui->lose->initialize(*controller.map());
-
-	//timed events
-	for(auto & ev : controller.map()->events)
-	{
-		QVariantMap descriptor;
-		descriptor["message"] = QVariant::fromValue(QString::fromStdString(ev.message));
-		descriptor["players"] = QVariant::fromValue(ev.players);
-		descriptor["humanAffected"] = QVariant::fromValue(ev.humanAffected);
-		descriptor["computerAffected"] = QVariant::fromValue(ev.computerAffected);
-		descriptor["firstOccurence"] = QVariant::fromValue(ev.firstOccurence);
-		descriptor["nextOccurence"] = QVariant::fromValue(ev.nextOccurence);
-
-		auto * item = new QListWidgetItem(QString::fromStdString(ev.name));
-		item->setData(Qt::UserRole, descriptor);
-		ui->eventsList->addItem(item);
-	}
+	ui->events->initialize(*controller.map());
 }
 
 MapSettings::~MapSettings()
@@ -112,6 +97,7 @@ void MapSettings::on_pushButton_clicked()
 	ui->mods->update(*controller.map());
 	ui->victory->update(*controller.map());
 	ui->lose->update(*controller.map());
+	ui->events->update(*controller.map());
 
 	controller.commitChangeWithoutRedraw();
 
