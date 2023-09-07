@@ -681,6 +681,13 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
        <item row="9" column="1">
         <widget class="QSpinBox" name="spinBoxAutosaveFrequency"/>
        </item>
+       <item row="10" column="1" colspan="4">
+        <widget class="QSpinBox" name="spinBoxAutosaveCountLimit">
+         <property name="specialValueText">
+          <string/>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>
