@@ -1,8 +1,10 @@
+< [Documentation](../Readme.md) / Coding Guidelines
+
 ## C++ Standard
 
 VCMI implementation bases on C++17 standard. Any feature is acceptable as long as it's will pass build on our CI, but there is list below on what is already being used.
 
-Any compiler supporting C++17 should work, but this has not been thoroughly tested. You can find information about extensions and compiler support at [1](http://en.cppreference.com/w/cpp/compiler_support).
+Any compiler supporting C++17 should work, but this has not been thoroughly tested. You can find information about extensions and compiler support at http://en.cppreference.com/w/cpp/compiler_support
 
 ## Style Guidelines
 
@@ -747,8 +749,7 @@ If you need a more detailed description for a method you can use such style:
 /// @return Description of the return value
 ```
 
-A good essay about writing comments:
-[2](http://ardalis.com/when-to-comment-your-code)
+A good essay about writing comments: http://ardalis.com/when-to-comment-your-code
 
 ### Casing
 
@@ -770,7 +771,7 @@ Directories start with a lowercase letter and use the camel casing where necessa
 
 ### Logging
 
-Outdated. There is separate entry for [Logging API](Logging_API "wikilink")
+Outdated. There is separate entry for [Logging API](Logging_API.md)
 
 If you want to trace the control flow of VCMI, then you should use the macro LOG_TRACE or LOG_TRACE_PARAMS. The first one prints a message when the function is entered or leaved. The name of the function will also be logged. In addition to this the second macro, let's you specify parameters which you want to print. You should print traces with parameters like this:
 

@@ -1,7 +1,6 @@
 < [Documentation](../Readme.md) / Installation on macOS
 
-**For iOS installation look here:
-<https://wiki.vcmi.eu/Installation_on_iOS>**
+**For iOS installation look here: (Installation on iOS)[Installation_iOS.md]
 
 # Step 1: Download and install VCMI
 

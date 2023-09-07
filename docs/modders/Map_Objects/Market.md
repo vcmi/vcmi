@@ -80,7 +80,7 @@ Game logic prohibits using modes unavailable for faction
 This field allows to configure specific items available in the market.
 In VCMI-1.3 it can be used only for `resource-skill` mode
 
-See [Secondary skills](https://github.com/vcmi/vcmi/wiki/Modding-~-Objects-~-Rewardable#secondary-skills) description for more details
+See [Secondary skills](Rewardable.md#secondary-skills) description for more details
 
 ### Example for University of magic (e.g conflux building)
 

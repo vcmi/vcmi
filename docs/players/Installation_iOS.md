@@ -22,7 +22,7 @@ Note: if you don't need in-game videos, you can omit downloading/copying file VI
 
 ### Step 2.a: Installing data files with Finder or Windows explorer
 
-To play the game, you need to upload HoMM3 data files - **Data**, **Maps** and **Mp3** directories - to the device. Use Finder (or iTunes, if you're on Windows or your macOS is 10.14 or earlier) for that. You can also add various [mods](https://wiki.vcmi.eu/Mod_list) by uploading **Mods** directory. Follow [official Apple guide](https://support.apple.com/en-us/HT210598) and place files into VCMI app. Unfortunately, Finder doesn't display copy progress, give it about 10 minutes to finish.
+To play the game, you need to upload HoMM3 data files - **Data**, **Maps** and **Mp3** directories - to the device. Use Finder (or iTunes, if you're on Windows or your macOS is 10.14 or earlier) for that. You can also add various mods by uploading **Mods** directory. Follow [official Apple guide](https://support.apple.com/en-us/HT210598) and place files into VCMI app. Unfortunately, Finder doesn't display copy progress, give it about 10 minutes to finish.
 
 ### Step 2.b: Installing data files using iOS device only
 

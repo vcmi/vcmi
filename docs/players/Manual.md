@@ -15,7 +15,7 @@ To install VCMI, simply unzip downloaded archive to main HoMM3 directory. To lau
 
 ## Linux
 
-Visit [Wiki article](http://wiki.vcmi.eu/index.php?title=Installation_on_Linux) for Linux packages and installation guidelines.
+Visit [Installation on Linux](Installation_Linux.md) for Linux packages and installation guidelines.
 
 # New features
 
@@ -112,7 +112,7 @@ Following cheat codes have been implemented in VCMI. Type them in console:
 # Feedback
 
 Our project is open and its sources are available for everyone to browse and download. We do our best to inform community of Heroes fans with all the details and development progress. We also look forward to your comments, support and advice.\
-A good place to start is [VCMI Wiki](http://wiki.vcmi.eu/index.php?title=Main_Page) which contains all necessary information for developers, testers and the people who would like to get familiar with our project. If you want to report a bug, use [Mantis Bugtracker](http://bugs.vcmi.eu/bug_report_advanced_page.php).
+A good place to start is [VCMI Documentation](../Readme.md) which contains all necessary information for developers, testers and the people who would like to get familiar with our project. If you want to report a bug, use [Mantis Bugtracker](http://bugs.vcmi.eu/bug_report_advanced_page.php).
 Make sure the issue is not already mentioned on [the list](http://bugs.vcmi.eu/view_all_bug_page.php) unless you can provide additional details for it. Please do not report as bugs features not yet implemented. For proposing new ideas and requests, visit [our board](http://forum.vcmi.eu/index.php).
 VCMI comes with its own bug handlers: the console which prints game log `(server_log, VCMI_Client_log, VCMI_Server_log)` and memory dump file (`.dmp`) created on crash on Windows systems. These may be very helpful when the nature of bug is not obvious, please attach them if necessary.
 To resolve an issue, we must be able to reproduce it on our computers. Please put down all circumstances in which a bug occurred and what did you do before, especially if it happens rarely or is not clearly visible. The better report, the better chance to track the bug quickly. 
@@ -137,7 +137,7 @@ When it is finished, which is another year at least. Exact date is impossible to
 
 ## Are you going to add / change X?
 
-VCMI recreates basic H3:SoD + WoG engine and does not add new content or modify original mechanics by default. Only engine and interface improvements are likely to be supported now. The list of possible features is placed on [Wiki TODO list](http://wiki.vcmi.eu/index.php?title=TODO_list). If you want something specific to be done, please present detailed project on [our board](http://forum.vcmi.eu/index.php). Of course you are free to contribute with anything you can do.
+VCMI recreates basic H3:SoD engine and does not add new content or modify original mechanics by default. Only engine and interface improvements are likely to be supported now. If you want something specific to be done, please present detailed project on [our board](http://forum.vcmi.eu/index.php). Of course you are free to contribute with anything you can do.
 
 ## Will it be possible to do Y?
 
@@ -149,7 +149,7 @@ Report your bug. Details are described [here](#Feedback). The sooner you tell th
 
 ## What is the current status of the project?
 
-Check [Wiki](http://wiki.vcmi.eu/index.php?title=VCMI), [release notes](http://forum.vcmi.eu/viewforum.php?f=1) or [changelog](https://github.com/vcmi/vcmi/blob/develop/ChangeLog). The best place to watch current changes as they are committed to the develop branch is the [Github commits page](https://github.com/vcmi/vcmi/commits/develop). The game is quite playable by now, although many important features are missing.
+Check [Documentation](../Readme.md), [release notes](http://forum.vcmi.eu/viewforum.php?f=1) or [changelog](https://github.com/vcmi/vcmi/blob/develop/ChangeLog). The best place to watch current changes as they are committed to the develop branch is the [Github commits page](https://github.com/vcmi/vcmi/commits/develop). The game is quite playable by now, although many important features are missing.
 
 ## I have a great idea!
 
@@ -161,8 +161,8 @@ Yes, of course. VCMI is designed as a base for any further mods and uses own exe
 
 ## Can I help VCMI Project in any way?
 
-If you are C++ programmer, graphican, tester or just have tons of ideas, do not hesistate - your help is needed. The game is huge and many different ares of activity are still waiting for someone like you. See [Wiki TODO list](http://wiki.vcmi.eu/index.php?title=TODO_list) for more info.
+If you are C++ programmer, graphican, tester or just have tons of ideas, do not hesistate - your help is needed. The game is huge and many different ares of activity are still waiting for someone like you. 
 
 ## I would like to join development team.
 
-You are always welcome. Contact the core team via [our board](http://forum.vcmi.eu/index.php). In the meantime, read 'building VCMI' guide at [Wiki](http://wiki.vcmi.eu/index.php?title=Main_Page).\ The usual way to join the team is to post your patch for review on our board. If the patch is positively rated by core team members, you will be given access to SVN repository.
+You are always welcome. Contact the core team via [our board](http://forum.vcmi.eu/index.php). The usual way to join the team is to post your patch for review on our board. If the patch is positively rated by core team members, you will be given access to SVN repository.

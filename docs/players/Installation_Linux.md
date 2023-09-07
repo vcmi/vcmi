@@ -69,7 +69,9 @@ Please check following developer guide: [How to build VCMI (Linux)]((../develope
 
 To install VCMI you will need Heroes III: Shadow of Death or Complete edition.
 
-## Install data using vcmibuilder script (recommended for non-Flatpak installs)
+## Install data using vcmibuilder script
+
+Recommended for non-Flatpak installs.
 
 To install Heroes 3 data using automated script you need any of:
 

@@ -3,7 +3,7 @@
     <string name="url_project_page" translatable="false">https://vcmi.eu</string>
     <string name="url_project_repo" translatable="false">https://github.com/vcmi/vcmi</string>
     <string name="url_launcher_repo" translatable="false">https://github.com/vcmi/vcmi-android</string>
-    <string name="url_launcher_privacy" translatable="false">https://github.com/vcmi/vcmi/wiki/VCMI-App-Privacy-Policy</string>
+    <string name="url_launcher_privacy" translatable="false">https://github.com/vcmi/vcmi/blob/master/docs/players/Privacy_Policy.md</string>
 
     <string name="app_name">VCMI</string>
     <string name="server_name">VCMI Server</string>

@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / Using Conan
+
 # Using dependencies from Conan
 
 [Conan](https://conan.io/) is a package manager for C/C++. We provide prebuilt binary dependencies for some platforms that are used by our CI, but they can also be consumed by users to build VCMI. However, it's not required to use only the prebuilt binaries: you can build them from source as well.
@@ -36,20 +38,20 @@ Conan needs to generate CMake toolchain file to make dependencies available to C
 
 In terminal `cd` to the VCMI source directory and run the following command. If you want to download prebuilt binaries from ConanCenter, also read the [next section](#using-prebuilt-binaries-from-conancenter).
 
-<pre>
+```sh
 conan install . \
   --install-folder=<b><i>conan-generated</i></b> \
   --no-imports \
   --build=<b><i>never</i></b> \
   --profile:build=default \
   --profile:host=<b><i>CI/conan/PROFILE</i></b>
-</pre>
+```
 
 The highlighted parts can be adjusted:
 
 - ***conan-generated***: directory (absolute or relative) where the generated files will appear. This value is used in CMake presets from VCMI, but you can actually use any directory and override it in your local CMake presets.
 - ***never***: use this value to avoid building any dependency from source. You can also use `missing` to build recipes, that are not present in your local cache, from source.
-- ***CI/conan/PROFILE***: if you want to consume our prebuilt binaries, ***PROFILE*** must be replaced with one of filenames from our [Conan profiles directory](../CI/conan) (determining the right file should be straight-forward). Otherwise, either select one of our profiles or replace ***CI/conan/PROFILE*** with `default` (your default profile).
+- ***CI/conan/PROFILE***: if you want to consume our prebuilt binaries, ***PROFILE*** must be replaced with one of filenames from our [Conan profiles directory](../../CI/conan) (determining the right file should be straight-forward). Otherwise, either select one of our profiles or replace ***CI/conan/PROFILE*** with `default` (your default profile).
 
 If you use `--build=never` and this command fails, then it means that you can't use prebuilt binaries out of the box. For example, try using `--build=missing` instead.
 
@@ -79,7 +81,7 @@ In these examples only the minimum required amount of options is passed to `cmak
 
 ### Use our prebuilt binaries to build for macOS x86_64 with Xcode
 
-```
+```sh
 conan install . \
   --install-folder=conan-generated \
   --no-imports \
@@ -95,7 +97,7 @@ cmake -S . -B build -G Xcode \
 
 If you also want to build the missing binaries from source, use `--build=missing` instead of `--build=never`.
 
-```
+```sh
 conan install . \
   --install-folder=~/my-dir \
   --no-imports \
@@ -110,7 +112,7 @@ cmake -S . -B build \
 
 ### Use our prebuilt binaries to build for iOS arm64 device with custom preset
 
-```
+```sh
 conan install . \
   --install-folder=~/my-dir \
   --no-imports \

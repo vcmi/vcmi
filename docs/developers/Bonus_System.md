@@ -1,11 +1,6 @@
+< [Documentation](../Readme.md) / Bonus System
+
 The bonus system of VCMI is a set of mechanisms that make handling of different bonuses for heroes, towns, players and units easier. The system consists of a set of nodes representing objects that can be a source or a subject of a bonus and two directed acyclic graphs (DAGs) representing inheritance and propagation of bonuses. Core of bonus system is defined in HeroBonus.h file.
-
-Here is a brief sketch of the system (black arrows indicate the direction of inheritance and red arrows the direction of propagation):
-
-<figure>
-<img src="Bonus_system.png" title="Bonus_system.png" />
-<figcaption>Bonus_system.png</figcaption>
-</figure>
 
 ## Propagation and inheritance
 

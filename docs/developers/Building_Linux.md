@@ -1,9 +1,11 @@
+< [Documentation](../Readme.md) / Building on Linux
+
 # Compiling VCMI
 
--   Current baseline requirement for building is Ubuntu 20.04
--   Supported C++ compilers for UNIX-like systems are GCC 5.5+ and Clang 13+
+- Current baseline requirement for building is Ubuntu 20.04
+- Supported C++ compilers for UNIX-like systems are GCC 9+ and Clang 13+
 
-Older distributions and compilers might work, but they aren't tested by [Travis CI](https://travis-ci.org/vcmi/vcmi/)
+Older distributions and compilers might work, but they aren't tested by Github CI (Actions)
 
 # Installing dependencies
 
@@ -11,31 +13,29 @@ Older distributions and compilers might work, but they aren't tested by [Travis 
 
 To compile, the following packages (and their development counterparts) are needed to build:
 
--   CMake 3.10 or newer
+-   CMake
 -   SDL2 with devel packages: mixer, image, ttf
 -   zlib and zlib-devel
+-   Boost C++ libraries v1.48+: program-options, filesystem, system, thread, locale
 -   Recommended, if you want to build launcher or map editor: Qt 5, widget and network modules
 -   Recommended, FFmpeg libraries, if you want to watch in-game videos: libavformat and libswscale. Their name could be libavformat-devel and libswscale-devel, or ffmpeg-libs-devel or similar names. 
--   Boost C++ libraries v1.48+: program-options, filesystem, system, thread, locale
 -   Optional, if you want to build scripting modules: LuaJIT
 
 ## On Debian-based systems (e.g. Ubuntu)
 
-For Ubuntu 22.04 (jammy) or newer you need to install this list of packages, including **libtbb2-dev**:
-
-`sudo apt-get install cmake g++ libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-locale-dev qtbase5-dev libtbb2-dev libluajit-5.1-dev qttools5-dev`
-
-For Ubuntu 21.10 (impish) or older and all versions of Debian (9 stretch - 11 bullseye) you need to install this list of packages, including **libtbb-dev**:
+For Ubuntu and Debian you need to install this list of packages:
 
 `sudo apt-get install cmake g++ libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-locale-dev qtbase5-dev libtbb-dev libluajit-5.1-dev qttools5-dev`
 
 Alternatively if you have VCMI installed from repository or PPA you can use:
 
-    sudo apt-get build-dep vcmi
+`sudo apt-get build-dep vcmi`
 
 ## On RPM-based distributions (e.g. Fedora)
 
-    sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale zlib-devel ffmpeg-devel ffmpeg-libs qt5-qtbase-devel tbb-devel luajit-devel fuzzylite-devel
+`sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale zlib-devel ffmpeg-devel ffmpeg-libs qt5-qtbase-devel tbb-devel luajit-devel fuzzylite-devel`
+
+NOTE: `fuzzylite-devel` package is no longer available in recent version of Fedora, for example Fedora 38. It's not a blocker because VCMI bundles fuzzylite lib in its source code.
 
 ## On Arch-based distributions
 
@@ -61,8 +61,10 @@ You can get latest sources with:
 
 ## Configuring Makefiles
 
-`mkdir build && cd build`
-`cmake ../vcmi`
+```sh
+mkdir build && cd build
+cmake ../vcmi
+```
 
 # Additional options that you may want to use:
 
@@ -82,23 +84,50 @@ That will generate vcmiclient, vcmiserver, vcmilauncher as well as .so libraries
 
 ## RPM package
 
-The first step is to prepare a RPM build environment. On Fedora systems you can follow this guide: <http://fedoraproject.org/wiki/How_to_create_an_RPM_package#SPEC_file_overview>
+The first step is to prepare a RPM build environment. On Fedora systems you can follow this guide: http://fedoraproject.org/wiki/How_to_create_an_RPM_package#SPEC_file_overview
 
-1. Download the file rpm/vcmi.spec from any tagged VCMI release for which you wish to build a RPM package via the SVN Browser trac at this URL for example(which is for VCMI 0.9): <http://sourceforge.net/apps/trac/vcmi/browser/tags/0.9/rpm/vcmi.spec>
+0. Enable RPMFusion free repo to access to ffmpeg libs:
 
-2. Copy the file to ~/rpmbuild/SPECS
+```sh
+sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+```
 
-3. Follow instructions in the vcmi.spec. You have to export the corresponding SVN tag, compress it to a g-zipped archive and copy it to ~/rpmbuild/SOURCES. Instructions are written as comments and you can copy/paste commands into terminal.
+NOTE: the stock ffmpeg from Fedora repo is no good as it has stripped lots of codecs
+
+1. Perform a git clone from a tagged branch for the right Fedora version from https://github.com/rpmfusion/vcmi; for example for Fedora 38: <pre>git clone -b f38 --single-branch https://github.com/rpmfusion/vcmi.git</pre>
+
+2. Copy all files to ~/rpmbuild/SPECS with command: <pre>cp vcmi/*  ~/rpmbuild/SPECS</pre>
+
+3. Fetch all sources by using spectool:
+
+```sh
+sudo dnf install rpmdevtools
+spectool -g -R ~/rpmbuild/SPECS/vcmi.spec
+```
+
+4. Fetch all dependencies required to build the RPM:
+
+```sh
+sudo dnf install dnf-plugins-core
+sudo dnf builddep ~/rpmbuild/SPECS/vcmi.spec
+```
 
 4. Go to ~/rpmbuild/SPECS and open terminal in this folder and type: 
-`rpmbuild -ba vcmi.spec (this will build rpm and source rpm)`
+```sh
+rpmbuild -ba ~/rpmbuild/SPECS/vcmi.spec
+```
 
 5. Generated RPM is in folder ~/rpmbuild/RPMS
 
-If you want to package the generated RPM above for different processor architectures and operating systems you can use the tool mock. Moreover, it is necessary to install mock-rpmfusion_free due to the packages ffmpeg-devel and ffmpeg-libs which aren't available in the standard RPM repositories(at least for Fedora). Go to ~/rpmbuild/SRPMS in terminal and type:
+If you want to package the generated RPM above for different processor architectures and operating systems you can use the tool mock.
+Moreover, it is necessary to install mock-rpmfusion_free due to the packages ffmpeg-devel and ffmpeg-libs which aren't available in the standard RPM repositories(at least for Fedora). Go to ~/rpmbuild/SRPMS in terminal and type: 
 
-`mock -r fedora-17-i386-rpmfusion_free path_to_source_RPM`
-`mock -r fedora-17-x86_64-rpmfusion_free path_to_source_RPM`
+```sh
+mock -r fedora-38-aarch64-rpmfusion_free path_to_source_RPM
+mock -r fedora-38-x86_64-rpmfusion_free path_to_source_RPM
+```
+
+For other distributions that uses RPM, chances are there might be a spec file for VCMI. If there isn't, you can adapt the RPMFusion's file
 
 Available root environments and their names are listed in /etc/mock.
 
@@ -108,7 +137,7 @@ Available root environments and their names are listed in /etc/mock.
 
 2. Run dpkg-buildpackage command from vcmi source directory
 
-```
+```sh
 sudo apt-get install debhelper devscripts
 cd /path/to/source
 dpkg-buildpackage

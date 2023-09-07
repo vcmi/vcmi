@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) /  Logging System
+
 # Features
 
 -   A logger belongs to a "domain", this enables us to change log level settings more selectively
@@ -11,11 +13,7 @@
 
 # Class diagram
 
-<figure>
-<img src="Logging_Class_Diagram.jpg"
-title="Logging_Class_Diagram.jpg" />
-<figcaption>Logging_Class_Diagram.jpg</figcaption>
-</figure>
+![Logging_Class_Diagram](https://github.com/IvanSavenko/vcmi/assets/1576820/31c9b14e-a055-4b07-87fe-00da43430a2b)
 
 Some notes:
 

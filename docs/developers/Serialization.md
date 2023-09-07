@@ -1,3 +1,5 @@
+< [Documentation](../Readme.md) / Serialization System
+
 # Introduction
 
 The serializer translates between objects living in our code (like int or CGameState\*) and stream of bytes. Having objects represented as a stream of bytes is useful. Such bytes can send through the network connection (so client and server can communicate) or written to the disk (savegames).
@@ -12,9 +14,9 @@ Different major version of VCMI likely change the format of the save game. Every
 
 ### Adding a new class
 
-If you want your class to be serializable (eg. being storable in a savegame) you need to define a serialize method template, as described in [#User types](#User_types "wikilink")
+If you want your class to be serializable (eg. being storable in a savegame) you need to define a serialize method template, as described in [#User types](#user-types)
 
-Additionally, if your class is part of one of registered object hierarchies (basically: if it derives from CGObjectInstance, IPropagator, ILimiter, CBonusSystemNode, CPack) it needs to be registered. Just add an appropriate entry in the `RegisterTypes.h` file. See [#Polymorphic serialization](#Polymorphic_serialization "wikilink") for more information.
+Additionally, if your class is part of one of registered object hierarchies (basically: if it derives from CGObjectInstance, IPropagator, ILimiter, CBonusSystemNode, CPack) it needs to be registered. Just add an appropriate entry in the `RegisterTypes.h` file. See polymorphic serialization for more information.
 
 # How does it work
 
@@ -31,7 +33,7 @@ It's not "really" portable, yet it works properly across all platforms we curren
 
 ### Pointers
 
-Storing pointers mechanics can be and almost always is customized. See [#Additional features](#Additional_features "wikilink").
+Storing pointers mechanics can be and almost always is customized. See [#Additional features](additional-features).
 
 In the most basic form storing pointer simply sends the object state and loading pointer allocates an object (using "new" operator) and fills its state with the stored data.
 
@@ -118,8 +120,8 @@ struct DLL_LINKAGE Rumor
 	{
 		if(version >= 1065)
 			h & name;
-		else if(!h.saving)    //when loading old savegame
-			name = "no name"; //set name to some default value  [could be done in class constructor as well]
+		else //when loading old savegame
+			name = "no name"; //set name to a sane default value
 	
 		h & text;
 	}
@@ -149,10 +151,10 @@ All three constructors take as the last parameter the name that will be used to 
 
 Here is the list of additional custom features serialzier provides. Most of them can be turned on and off.
 
-- [#Polymorphic serialization](#Polymorphic_serialization "wikilink") — no flag to control it, turned on by calls to registerType.
-- [#Vectorized list member serialization](#Vectorized_list_member_serialization "wikilink") — enabled by smartVectorMembersSerialization flag.
-- [#Stack instance serialization](#Stack_instance_serialization "wikilink") — enabled by sendStackInstanceByIds flag.
-- [#Smart pointer serialization](#Smart_pointer_serialization "wikilink") — enabled by smartPointerSerialization flag.
+- Polymorphic serialization — no flag to control it, turned on by calls to registerType.
+- Vectorized list member serialization — enabled by smartVectorMembersSerialization flag.
+- Stack instance serialization — enabled by sendStackInstanceByIds flag.
+- Smart pointer serialization — enabled by smartPointerSerialization flag.
 
 ### Polymorphic serialization
 
@@ -206,9 +208,8 @@ the last line is equivalent to
 connection << someCreature->idNumber;
 ```
 
-//Client code
-
 ``` cpp
+//Client code
 CCreature *someCreature = nullptr;
 connection >> someCreature;
 ```

@@ -2,7 +2,7 @@
 
 # Project Infrastructure
 
-This page hold important information about project infrastructure for current and future contributors. At moment it's all maintained by me (SXX), but following information will be useful if someone going to replace me in future.
+This section hold important information about project infrastructure for current and future contributors. At moment it's all maintained by me (SXX), but following information will be useful if someone going to replace me in future.
 
 ## Services and accounts
 
@@ -33,7 +33,7 @@ So far we using following services:
 - [Google Play Console](https://play.google.com/apps/publish/) account.
  - Hold ownership over VCMI Android App.
  - Owner: SXX
- - Administrator access: Warmonger, AVS.
+ - Administrator access: Warmonger, AVS, Ivan.
  - Release manager access: Fay.
 
 Not all services let us safely share login credentials, but at least when possible at least two of core developers must have access to them in case of emergency.
@@ -98,7 +98,7 @@ Reserve accounts for other code hosting services:
 
 # Project Servers Configuration
 
-This page dedicated to explain specific configurations of our servers for anyone who might need to improve it in future.
+This section dedicated to explain specific configurations of our servers for anyone who might need to improve it in future.
 
 ## Droplet configuration
 
