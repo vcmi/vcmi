@@ -12,103 +12,111 @@
 
 #include <vcmi/Artifact.h>
 
+#include "CGameInfo.h"
+#include "CMT.h"
+#include "CMusicHandler.h"
+#include "CServerHandler.h"
+#include "HeroMovementController.h"
+#include "PlayerLocalState.h"
+
 #include "adventureMap/AdventureMapInterface.h"
-#include "mapView/mapHandler.h"
+#include "adventureMap/CInGameConsole.h"
 #include "adventureMap/CList.h"
-#include "battle/BattleInterface.h"
+
 #include "battle/BattleEffectsController.h"
 #include "battle/BattleFieldController.h"
+#include "battle/BattleInterface.h"
 #include "battle/BattleInterfaceClasses.h"
 #include "battle/BattleWindow.h"
-#include "../CCallback.h"
-#include "windows/CCastleInterface.h"
+
 #include "eventsSDL/InputHandler.h"
-#include "mainmenu/CMainMenu.h"
+#include "eventsSDL/NotificationHandler.h"
+
+#include "gui/CGuiHandler.h"
 #include "gui/CursorHandler.h"
-#include "windows/CKingdomInterface.h"
-#include "CGameInfo.h"
-#include "PlayerLocalState.h"
-#include "CMT.h"
-#include "windows/CHeroWindow.h"
-#include "windows/CCreatureWindow.h"
-#include "windows/CQuestLog.h"
-#include "windows/CPuzzleWindow.h"
-#include "widgets/CComponent.h"
-#include "widgets/CGarrisonInt.h"
-#include "widgets/Buttons.h"
-#include "windows/CTradeWindow.h"
-#include "windows/CSpellWindow.h"
-#include "../lib/CConfigHandler.h"
-#include "windows/GUIClasses.h"
+#include "gui/WindowHandler.h"
+
+#include "mainmenu/CMainMenu.h"
+
+#include "mapView/mapHandler.h"
+
 #include "render/CAnimation.h"
 #include "render/IImage.h"
+
+#include "widgets/Buttons.h"
+#include "widgets/CComponent.h"
+#include "widgets/CGarrisonInt.h"
+
+#include "windows/CCastleInterface.h"
+#include "windows/CCreatureWindow.h"
+#include "windows/CHeroWindow.h"
+#include "windows/CKingdomInterface.h"
+#include "windows/CPuzzleWindow.h"
+#include "windows/CQuestLog.h"
+#include "windows/CSpellWindow.h"
+#include "windows/CTradeWindow.h"
+#include "windows/GUIClasses.h"
+#include "windows/InfoWindows.h"
+
+#include "../CCallback.h"
+
 #include "../lib/CArtHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
+#include "../lib/CPlayerState.h"
+#include "../lib/CStack.h"
+#include "../lib/CStopWatch.h"
+#include "../lib/CThreadHelper.h"
+#include "../lib/CTownHandler.h"
+#include "../lib/CondSh.h"
+#include "../lib/GameConstants.h"
+#include "../lib/JsonNode.h"
+#include "../lib/NetPacks.h" //todo: remove
+#include "../lib/NetPacksBase.h"
+#include "../lib/RoadHandler.h"
+#include "../lib/StartInfo.h"
+#include "../lib/TerrainHandler.h"
+#include "../lib/TextOperations.h"
+#include "../lib/UnlockGuard.h"
+#include "../lib/VCMIDirs.h"
+
 #include "../lib/bonuses/CBonusSystemNode.h"
 #include "../lib/bonuses/Limiters.h"
-#include "../lib/bonuses/Updaters.h"
 #include "../lib/bonuses/Propagators.h"
-#include "../lib/serializer/CTypeList.h"
-#include "../lib/serializer/BinaryDeserializer.h"
-#include "../lib/serializer/BinarySerializer.h"
-#include "../lib/spells/CSpellHandler.h"
-#include "../lib/CTownHandler.h"
+#include "../lib/bonuses/Updaters.h"
+
+#include "../lib/gameState/CGameState.h"
+
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
+
 #include "../lib/mapping/CMapHeader.h"
+
 #include "../lib/pathfinder/CGPathNode.h"
-#include "../lib/CStack.h"
-#include "../lib/JsonNode.h"
-#include "CMusicHandler.h"
-#include "../lib/CondSh.h"
-#include "../lib/NetPacksBase.h"
-#include "../lib/NetPacks.h"//todo: remove
-#include "../lib/VCMIDirs.h"
-#include "../lib/CStopWatch.h"
-#include "../lib/StartInfo.h"
-#include "../lib/TextOperations.h"
-#include "../lib/CPlayerState.h"
-#include "../lib/GameConstants.h"
-#include "gui/CGuiHandler.h"
-#include "gui/WindowHandler.h"
-#include "windows/InfoWindows.h"
-#include "../lib/UnlockGuard.h"
-#include "../lib/RoadHandler.h"
-#include "../lib/TerrainHandler.h"
-#include "../lib/CThreadHelper.h"
-#include "CServerHandler.h"
-// FIXME: only needed for CGameState::mutex
-#include "../lib/gameState/CGameState.h"
-#include "eventsSDL/NotificationHandler.h"
-#include "adventureMap/CInGameConsole.h"
+
+#include "../lib/serializer/BinaryDeserializer.h"
+#include "../lib/serializer/BinarySerializer.h"
+#include "../lib/serializer/CTypeList.h"
+
+#include "../lib/spells/CSpellHandler.h"
 
 // The macro below is used to mark functions that are called by client when game state changes.
 // They all assume that CPlayerInterface::pim mutex is locked.
 #define EVENT_HANDLER_CALLED_BY_CLIENT
 
-// The macro marks functions that are run on a new thread by client.
-// They do not own any mutexes intiially.
-#define THREAD_CREATED_BY_CLIENT
-
-#define RETURN_IF_QUICK_COMBAT		\
+#define BATTLE_EVENT_POSSIBLE_RETURN	\
+	if (LOCPLINT != this)				\
+		return;							\
 	if (isAutoFightOn && !battleInt)	\
 		return;
-
-#define BATTLE_EVENT_POSSIBLE_RETURN\
-	if (LOCPLINT != this)			\
-		return;						\
-	RETURN_IF_QUICK_COMBAT
 
 boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
 
 CPlayerInterface * LOCPLINT;
 
 std::shared_ptr<BattleInterface> CPlayerInterface::battleInt;
-
-enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
-CondSh<EMoveState> stillMoveHero(STOP_MOVE); //used during hero movement
 
 struct HeroObjectRetriever
 {
@@ -126,8 +134,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	localState(std::make_unique<PlayerLocalState>(*this))
 {
 	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.toString());
-	destinationTeleport = ObjectInstanceID();
-	destinationTeleportPos = int3(-1);
 	GH.defActionsDef = 0;
 	LOCPLINT = this;
 	playerID=Player;
@@ -140,7 +146,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	firstCall = 1; //if loading will be overwritten in serialize
 	autosaveCount = 0;
 	isAutoFightOn = false;
-	duringMovement = false;
 	ignoreEvents = false;
 	numOfMovedArts = 0;
 }
@@ -171,7 +176,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
 	makingTurn = false;
-	stillMoveHero.setn(STOP_MOVE);
+	movementController->onPlayerTurnStarted();
 
 	if(GH.windows().findWindows<AdventureMapInterface>().empty())
 	{
@@ -341,90 +346,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	if (!hero)
 		return;
 
-	if (details.result == TryMoveHero::EMBARK || details.result == TryMoveHero::DISEMBARK)
-	{
-		if(hero->getRemovalSound() && hero->tempOwner == playerID)
-			CCS->soundh->playSound(hero->getRemovalSound().value());
-	}
-
-	std::unordered_set<int3> changedTiles {
-		hero->convertToVisitablePos(details.start),
-		hero->convertToVisitablePos(details.end)
-	};
-	adventureInt->onMapTilesChanged(changedTiles);
-	adventureInt->onHeroMovementStarted(hero);
-
-	bool directlyAttackingCreature = details.attackedFrom && localState->hasPath(hero) && localState->getPath(hero).endPos() == *details.attackedFrom;
-
-	if(makingTurn && hero->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
-	{
-		if(details.result == TryMoveHero::TELEPORTATION)
-		{
-			if(localState->hasPath(hero))
-			{
-				assert(localState->getPath(hero).nodes.size() >= 2);
-				auto nodesIt = localState->getPath(hero).nodes.end() - 1;
-
-				if((nodesIt)->coord == hero->convertToVisitablePos(details.start)
-					&& (nodesIt - 1)->coord == hero->convertToVisitablePos(details.end))
-				{
-					//path was between entrance and exit of teleport -> OK, erase node as usual
-					localState->removeLastNode(hero);
-				}
-				else
-				{
-					//teleport was not along current path, it'll now be invalid (hero is somewhere else)
-					localState->erasePath(hero);
-
-				}
-			}
-		}
-
-		if(hero->pos != details.end //hero didn't change tile but visit succeeded
-			|| directlyAttackingCreature) // or creature was attacked from endangering tile.
-		{
-			localState->erasePath(hero);
-		}
-		else if(localState->hasPath(hero) && hero->pos == details.end) //&& hero is moving
-		{
-			if(details.start != details.end) //so we don't touch path when revisiting with spacebar
-				localState->removeLastNode(hero);
-		}
-	}
-
-	if(details.stopMovement()) //hero failed to move
-	{
-		stillMoveHero.setn(STOP_MOVE);
-		adventureInt->onHeroChanged(hero);
-		return;
-	}
-
-	CGI->mh->waitForOngoingAnimations();
-
-	//move finished
-	adventureInt->onHeroChanged(hero);
-
-	//check if user cancelled movement
-	{
-		if (GH.input().ignoreEventsUntilInput())
-			stillMoveHero.setn(STOP_MOVE);
-	}
-
-	if (stillMoveHero.get() == WAITING_MOVE)
-		stillMoveHero.setn(DURING_MOVE);
-
-	// Hero attacked creature directly, set direction to face it.
-	if (directlyAttackingCreature) {
-		// Get direction to attacker.
-		int3 posOffset = *details.attackedFrom - details.end + int3(2, 1, 0);
-		static const ui8 dirLookup[3][3] = {
-			{ 1, 2, 3 },
-			{ 8, 0, 4 },
-			{ 7, 6, 5 }
-		};
-		// FIXME: Avoid const_cast, make moveDir mutable in some other way?
-		const_cast<CGHeroInstance *>(hero)->moveDir = dirLookup[posOffset.y][posOffset.x];
-	}
+	movementController->heroMoved(hero, details);
 }
 
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
@@ -660,10 +582,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID build
 
 void CPlayerInterface::battleStartBefore(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
 {
-	// when battle starts, game will send battleStart pack *before* movement confirmation
-	// and since network thread wait for battle intro to play, movement confirmation will only happen after intro
-	// leading to several bugs, such as blocked input during intro
-	stillMoveHero.setn(STOP_MOVE);
+	movementController->onBattleStarted();
 
 	//Don't wait for dialogs when we are non-active hot-seat player
 	if (LOCPLINT == this)
@@ -914,7 +833,6 @@ void CPlayerInterface::battleTriggerEffect(const BattleID & battleID, const Batt
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	RETURN_IF_QUICK_COMBAT;
 	battleInt->effectsController->battleTriggerEffect(bte);
 
 	if(bte.effect == vstd::to_underlying(BonusType::MANA_DRAIN))
@@ -1131,12 +1049,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 void CPlayerInterface::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	int choosenExit = -1;
-	auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
-	if (destinationTeleport != ObjectInstanceID() && vstd::contains(exits, neededExit))
-		choosenExit = vstd::find_pos(exits, neededExit);
-
-	cb->selectionMade(choosenExit, askID);
+	movementController->showTeleportDialog(channel, exits, impassable, askID);
 }
 
 void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
@@ -1257,12 +1170,10 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 	if (showingDialog->get() || !dialogs.empty())
 		return;
 
-	setMovementStatus(true);
-
 	if (localState->isHeroSleeping(h))
 		localState->setHeroAwaken(h);
 
-	boost::thread moveHeroTask(std::bind(&CPlayerInterface::doMoveHero,this,h,path));
+	movementController->doMoveHero(h, path);
 }
 
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
@@ -1270,7 +1181,7 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto onEnd = [=](){ cb->selectionMade(0, queryID); };
 
-	if (stillMoveHero.get() == DURING_MOVE  && localState->hasPath(down) && localState->getPath(down).nodes.size() > 1) //to ignore calls on passing through garrisons
+	if (movementController->isHeroMovingThroughGarrison(down))
 	{
 		onEnd();
 		return;
@@ -1315,18 +1226,12 @@ void CPlayerInterface::showArtifactAssemblyDialog(const Artifact * artifact, con
 void CPlayerInterface::requestRealized( PackageApplied *pa )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (pa->packType == typeList.getTypeID<MoveHero>()  &&  stillMoveHero.get() == DURING_MOVE
-	   && destinationTeleport == ObjectInstanceID())
-		stillMoveHero.setn(CONTINUE_MOVE);
 
-	if (destinationTeleport != ObjectInstanceID()
-	   && pa->packType == typeList.getTypeID<QueryReply>()
-	   && stillMoveHero.get() == DURING_MOVE)
-	{ // After teleportation via CGTeleport object is finished
-		destinationTeleport = ObjectInstanceID();
-		destinationTeleportPos = int3(-1);
-		stillMoveHero.setn(CONTINUE_MOVE);
-	}
+	if(pa->packType == typeList.getTypeID<MoveHero>())
+		movementController->onMoveHeroApplied();
+
+	if (pa->packType == typeList.getTypeID<QueryReply>())
+		movementController->onQueryReplyApplied();
 }
 
 
@@ -1714,8 +1619,9 @@ void CPlayerInterface::battleNewRoundFirst(const BattleID & battleID)
 
 void CPlayerInterface::stopMovement()
 {
-	if (stillMoveHero.get() == DURING_MOVE)//if we are in the middle of hero movement
-		stillMoveHero.setn(STOP_MOVE); //after showing dialog movement will be stopped
+	movementController->movementStopRequested();
+
+
 }
 
 void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor)
@@ -1910,7 +1816,7 @@ void CPlayerInterface::proposeLoadingGame()
 
 bool CPlayerInterface::capturedAllEvents()
 {
-	if(duringMovement)
+	if(movementController->isHeroMoving())
 	{
 		//just inform that we are capturing events. they will be processed by heroMoved() in client thread.
 		return true;
@@ -1926,197 +1832,6 @@ bool CPlayerInterface::capturedAllEvents()
 	}
 
 	return false;
-}
-
-void CPlayerInterface::setMovementStatus(bool value)
-{
-	duringMovement = value;
-	if (value)
-	{
-		CCS->curh->hide();
-	}
-	else
-	{
-		CCS->curh->show();
-	}
-}
-
-void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
-{
-	setThreadName("doMoveHero");
-
-	int i = 1;
-	auto getObj = [&](int3 coord, bool ignoreHero)
-	{
-		return cb->getTile(h->convertToVisitablePos(coord))->topVisitableObj(ignoreHero);
-	};
-
-	auto isTeleportAction = [&](EPathNodeAction action) -> bool
-	{
-		if (action != EPathNodeAction::TELEPORT_NORMAL &&
-			action != EPathNodeAction::TELEPORT_BLOCKING_VISIT &&
-			action != EPathNodeAction::TELEPORT_BATTLE)
-		{
-			return false;
-		}
-
-		return true;
-	};
-
-	auto getDestTeleportObj = [&](const CGObjectInstance * currentObject, const CGObjectInstance * nextObjectTop, const CGObjectInstance * nextObject) -> const CGObjectInstance *
-	{
-		if (CGTeleport::isConnected(currentObject, nextObjectTop))
-			return nextObjectTop;
-		if (nextObjectTop && nextObjectTop->ID == Obj::HERO &&
-			CGTeleport::isConnected(currentObject, nextObject))
-		{
-			return nextObject;
-		}
-
-		return nullptr;
-	};
-
-	boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
-	stillMoveHero.data = CONTINUE_MOVE;
-	auto doMovement = [&](int3 dst, bool transit)
-	{
-		stillMoveHero.data = WAITING_MOVE;
-		cb->moveHero(h, dst, transit);
-		while(stillMoveHero.data != STOP_MOVE && stillMoveHero.data != CONTINUE_MOVE)
-			stillMoveHero.cond.wait(un);
-	};
-
-	{
-		for (auto & elem : path.nodes)
-			elem.coord = h->convertFromVisitablePos(elem.coord);
-
-		int soundChannel = -1;
-		AudioPath soundName;
-
-		auto getMovementSoundFor = [&](const CGHeroInstance * hero, int3 posPrev, int3 posNext, EPathNodeAction moveType) -> AudioPath
-		{
-			if (moveType == EPathNodeAction::TELEPORT_BATTLE || moveType == EPathNodeAction::TELEPORT_BLOCKING_VISIT || moveType == EPathNodeAction::TELEPORT_NORMAL)
-				return {};
-
-			if (moveType == EPathNodeAction::EMBARK || moveType == EPathNodeAction::DISEMBARK)
-				return {};
-
-			if (moveType == EPathNodeAction::BLOCKING_VISIT)
-				return {};
-
-			// flying movement sound
-			if (hero->hasBonusOfType(BonusType::FLYING_MOVEMENT))
-				return AudioPath::builtin("HORSE10.wav");
-
-			auto prevTile = cb->getTile(h->convertToVisitablePos(posPrev));
-			auto nextTile = cb->getTile(h->convertToVisitablePos(posNext));
-
-			auto prevRoad = prevTile->roadType;
-			auto nextRoad = nextTile->roadType;
-			bool movingOnRoad = prevRoad->getId() != Road::NO_ROAD && nextRoad->getId() != Road::NO_ROAD;
-
-			if (movingOnRoad)
-				return nextTile->terType->horseSound;
-			else
-				return nextTile->terType->horseSoundPenalty;
-		};
-
-		auto canStop = [&](CGPathNode * node) -> bool
-		{
-			if (node->layer != EPathfindingLayer::LAND && node->layer != EPathfindingLayer::SAIL)
-				return false;
-
-			if (node->accessible != EPathAccessibility::ACCESSIBLE)
-				return false;
-
-			return true;
-		};
-
-		for (i=(int)path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || !canStop(&path.nodes[i])); i--)
-		{
-			int3 prevCoord = path.nodes[i].coord;
-			int3 nextCoord = path.nodes[i-1].coord;
-
-			auto prevObject = getObj(prevCoord, prevCoord == h->pos);
-			auto nextObjectTop = getObj(nextCoord, false);
-			auto nextObject = getObj(nextCoord, true);
-			auto destTeleportObj = getDestTeleportObj(prevObject, nextObjectTop, nextObject);
-			if (isTeleportAction(path.nodes[i-1].action) && destTeleportObj != nullptr)
-			{
-				CCS->soundh->stopSound(soundChannel);
-				destinationTeleport = destTeleportObj->id;
-				destinationTeleportPos = nextCoord;
-				doMovement(h->pos, false);
-				if (path.nodes[i-1].action == EPathNodeAction::TELEPORT_BLOCKING_VISIT
-					|| path.nodes[i-1].action == EPathNodeAction::TELEPORT_BATTLE)
-				{
-					destinationTeleport = ObjectInstanceID();
-					destinationTeleportPos = int3(-1);
-				}
-				if(i != path.nodes.size() - 1)
-				{
-					soundName = getMovementSoundFor(h, prevCoord, nextCoord, path.nodes[i-1].action);
-					if (!soundName.empty())
-						soundChannel = CCS->soundh->playSound(soundName, -1);
-					else
-						soundChannel = -1;
-				}
-				continue;
-			}
-
-			if (path.nodes[i-1].turns)
-			{ //stop sending move requests if the next node can't be reached at the current turn (hero exhausted his move points)
-				stillMoveHero.data = STOP_MOVE;
-				break;
-			}
-
-			{
-				// Start a new sound for the hero movement or let the existing one carry on.
-				AudioPath newSoundName = getMovementSoundFor(h, prevCoord, nextCoord, path.nodes[i-1].action);
-
-				if(newSoundName != soundName)
-				{
-					soundName = newSoundName;
-
-					CCS->soundh->stopSound(soundChannel);
-					if (!soundName.empty())
-						soundChannel = CCS->soundh->playSound(soundName, -1);
-					else
-						soundChannel = -1;
-				}
-			}
-
-			assert(h->pos.z == nextCoord.z); // Z should change only if it's movement via teleporter and in this case this code shouldn't be executed at all
-			int3 endpos(nextCoord.x, nextCoord.y, h->pos.z);
-			logGlobal->trace("Requesting hero movement to %s", endpos.toString());
-
-			bool useTransit = false;
-			if ((i-2 >= 0) // Check there is node after next one; otherwise transit is pointless
-				&& (CGTeleport::isConnected(nextObjectTop, getObj(path.nodes[i-2].coord, false))
-					|| CGTeleport::isTeleport(nextObjectTop)))
-			{ // Hero should be able to go through object if it's allow transit
-				useTransit = true;
-			}
-			else if (path.nodes[i-1].layer == EPathfindingLayer::AIR)
-				useTransit = true;
-
-			doMovement(endpos, useTransit);
-
-			logGlobal->trace("Resuming %s", __FUNCTION__);
-			bool guarded = cb->isInTheMap(cb->getGuardingCreaturePosition(endpos - int3(1, 0, 0)));
-			if ((!useTransit && guarded) || showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
-				break;
-		}
-
-		CCS->soundh->stopSound(soundChannel);
-	}
-
-	//Update cursor so icon can change if needed when it reappears; doesn;'t apply if a dialog box pops up at the end of the movement
-	if (!showingDialog->get())
-		GH.fakeMouseMove();
-
-	CGI->mh->waitForOngoingAnimations();
-	setMovementStatus(false);
 }
 
 void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain)

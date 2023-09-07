@@ -47,6 +47,7 @@ class KeyInterested;
 class MotionInterested;
 class PlayerLocalState;
 class TimeInterested;
+class HeroMovementController;
 
 namespace boost
 {
@@ -57,7 +58,6 @@ namespace boost
 /// Central class for managing user interface logic
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
-	bool duringMovement;
 	bool ignoreEvents;
 	size_t numOfMovedArts;
 
@@ -67,9 +67,7 @@ class CPlayerInterface : public CGameInterface, public IUpdateable
 
 	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
 
-	ObjectInstanceID destinationTeleport; //contain -1 or object id if teleportation
-	int3 destinationTeleportPos;
-
+	std::unique_ptr<HeroMovementController> movementController;
 public: // TODO: make private
 	std::shared_ptr<Environment> env;
 
@@ -222,7 +220,6 @@ private:
 		{
 			owner.ignoreEvents = false;
 		};
-
 	};
 
 	void heroKilled(const CGHeroInstance* hero);
@@ -231,9 +228,6 @@ private:
 	void acceptTurn(QueryID queryID); //used during hot seat after your turn message is close
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
-	void doMoveHero(const CGHeroInstance *h, CGPath path);
-	void setMovementStatus(bool value);
-
 };
 
 /// Provides global access to instance of interface of currently active player
