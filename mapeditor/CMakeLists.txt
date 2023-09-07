@@ -19,6 +19,7 @@ set(editor_SRCS
 		mapsettings/timedevent.cpp
 		mapsettings/victoryconditions.cpp
 		mapsettings/loseconditions.cpp
+		mapsettings/eventsettings.cpp
 		playersettings.cpp
 		playerparams.cpp
 		scenelayer.cpp
@@ -53,6 +54,7 @@ set(editor_HEADERS
 		mapsettings/timedevent.h
 		mapsettings/victoryconditions.h
 		mapsettings/loseconditions.h
+		mapsettings/eventsettings.h
 		playersettings.h
 		playerparams.h
 		scenelayer.h
@@ -77,6 +79,7 @@ set(editor_FORMS
 		mapsettings/timedevent.ui
 		mapsettings/victoryconditions.ui
 		mapsettings/loseconditions.ui
+		mapsettings/eventsettings.ui
 		playersettings.ui
 		playerparams.ui
 		validator.ui
