@@ -116,7 +116,11 @@ void CSettingsView::loadSettings()
 	size_t autosaveModeIndex = boost::range::find(autosaveModeList, autosaveMode) - autosaveModeList;
 	ui->comboBoxAutosaveMode->setCurrentIndex((int)autosaveModeIndex);
 
+    ui->spinBoxAutosaveFrequency->setValue(settings["general"]["autosaveFrequency"].Integer());
+	ui->spinBoxAutosaveFrequency->setEnabled(autosaveMode != "Off");
+
     ui->spinBoxAutosaveCountLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
+	ui->spinBoxAutosaveCountLimit->setEnabled(autosaveMode != "Off");
 
 	Languages::fillLanguages(ui->comboBoxLanguage, false);
 
@@ -323,6 +327,22 @@ void CSettingsView::on_comboBoxAutosaveMode_currentIndexChanged(int index)
 {
 	Settings node = settings.write["general"]["autosaveMode"];
 	node->String() = autosaveModeList[index];
+
+	// disable count limit and frequency when autosave is off
+	bool autosaveEnabled = false;
+	if(autosaveModeList[index] != "Off")
+		autosaveEnabled = true;
+
+	ui->spinBoxAutosaveCountLimit->setEnabled(autosaveEnabled);
+	ui->spinBoxAutosaveFrequency->setEnabled(autosaveEnabled);
+
+	// disable count limit when autosame mode is not Simple
+	bool isSimpleAutosave = false;
+	if(autosaveModeList[index] == "Simple")
+		isSimpleAutosave = true;
+
+	ui->spinBoxAutosaveCountLimit->setEnabled(isSimpleAutosave);
+
 }
 
 void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
