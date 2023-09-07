@@ -327,7 +327,7 @@ CModEntry CModList::getMod(QString modname) const
 					//take valid download link, screenshots and mod size before assignment
 					auto download = repo.value("download");
 					auto screenshots = repo.value("screenshots");
-					auto size = repo.value("size");
+					auto size = repo.value("downloadSize");
 					repo = repoValMap;
 					if(repo.value("download").isNull())
 					{
@@ -335,8 +335,8 @@ CModEntry CModList::getMod(QString modname) const
 						if(repo.value("screenshots").isNull()) //taking screenshot from the downloadable version
 							repo["screenshots"] = screenshots;
 					}
-					if(repo.value("size").isNull())
-						repo["size"] = size;
+					if(repo.value("downloadSize").isNull())
+						repo["downloadSize"] = size;
 				}
 			}
 		}

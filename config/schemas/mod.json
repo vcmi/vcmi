@@ -22,7 +22,7 @@
 					"type" : "string",
 					"description" : "Author of the mod. Can be nickname, real name or name of team"
 				},
-				"size": {
+				"downloadSize": {
 					"type" : "number",
 					"description" : "Approximate size of mod, compressed by zip algorithm, in Mb"
 				},
