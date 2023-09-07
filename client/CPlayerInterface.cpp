@@ -1288,7 +1288,7 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
  * into a combinational one on an artifact screen. Does not require the combination of
  * artifacts to be legal.
  */
-void CPlayerInterface::showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<bool()> onYes)
+void CPlayerInterface::showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<void()> onYes)
 {
 	std::string text = artifact->getDescriptionTranslated();
 	text += "\n\n";

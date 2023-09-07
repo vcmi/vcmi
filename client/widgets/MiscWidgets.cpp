@@ -114,9 +114,10 @@ void LRClickableAreaWTextComp::showPopupWindow(const Point & cursorPosition)
 	LRClickableAreaWText::showPopupWindow(cursorPosition); //only if with-component variant not occurred
 }
 
-CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero)
+CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * hero)
 	: CIntObject(LCLICK | HOVER),
-	hero(_hero)
+	hero(hero),
+	clickFunctor(nullptr)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -126,13 +127,24 @@ CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero)
 	pos.h = 64;
 
 	if(hero)
+	{
 		portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero->portrait);
+		clickFunctor = [hero]() -> void
+		{
+			LOCPLINT->openHeroWindow(hero);
+		};
+	}
+}
+
+void CHeroArea::addClickCallback(ClickFunctor callback)
+{
+	clickFunctor = callback;
 }
 
 void CHeroArea::clickPressed(const Point & cursorPosition)
 {
-	if(hero)
-		LOCPLINT->openHeroWindow(hero);
+	if(clickFunctor)
+		clickFunctor();
 }
 
 void CHeroArea::hover(bool on)
