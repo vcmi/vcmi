@@ -194,6 +194,24 @@
          <property name="text">
           <string>Artificial Intelligence</string>
          </property>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <item>
+          <property name="text">
+           <string>Windowed</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Borderless fullscreen</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Exclusive fullscreen</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item row="9" column="2" colspan="3">
@@ -209,10 +227,7 @@
           <bool>true</bool>
          </property>
          <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
+          <string>General</string>
          </property>
         </widget>
        </item>
@@ -273,12 +288,12 @@
          </property>
          <item>
           <property name="text">
-           <string>Off</string>
+           <string notr="true">VCAI</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>On</string>
+           <string notr="true">Nullkiller</string>
           </property>
          </item>
         </widget>
@@ -411,6 +426,9 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
          <property name="text">
           <string>Heroes III Data Language</string>
          </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item row="30" column="1">
@@ -499,18 +517,8 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
          </property>
         </widget>
        </item>
-       <item row="6" column="1" colspan="4">
-        <widget class="QSpinBox" name="spinBoxNetworkPort">
-         <property name="minimum">
-          <number>1024</number>
-         </property>
-         <property name="maximum">
-          <number>65535</number>
-         </property>
-         <property name="value">
-          <number>3030</number>
-         </property>
-        </widget>
+       <item row="1" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBoxLanguage"/>
        </item>
        <item row="7" column="0">
         <widget class="QLabel" name="labelAutoSave">
@@ -669,6 +677,9 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
           <string/>
          </property>
         </widget>
+       </item>
+       <item row="9" column="1">
+        <widget class="QSpinBox" name="spinBoxAutosaveFrequency"/>
        </item>
       </layout>
      </widget>

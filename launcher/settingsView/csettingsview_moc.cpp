@@ -105,14 +105,7 @@ void CSettingsView::loadSettings()
 	ui->checkBoxRepositoryDefault->setChecked(settings["launcher"]["defaultRepositoryEnabled"].Bool());
 	ui->checkBoxRepositoryExtra->setChecked(settings["launcher"]["extraRepositoryEnabled"].Bool());
 
-	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
-
-    ui->spinBoxAutoSaveLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
-
-    ui->checkBoxAutoSavePrefix->setChecked(settings["general"]["useSimpleAutosave"].Bool());
-
-    ui->lineEditAutoSavePrefix->setText("");
-    ui->lineEditAutoSavePrefix->setEnabled(settings["general"]["useSimpleAutosave"].Bool());
+    ui->spinBoxAutosaveLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
 
 	Languages::fillLanguages(ui->comboBoxLanguage, false);
 
@@ -515,21 +508,10 @@ void CSettingsView::on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &
 	node->String() = arg1.toUtf8().data();
 }
 
-void CSettingsView::on_checkBoxAutoSavePrefix_stateChanged(int arg1)
-{
-    Settings node = settings.write["general"]["useSimpleAutosave"];
-    node->Bool() = arg1;
-    ui->lineEditAutoSavePrefix->setEnabled(arg1);
-}
-
-void CSettingsView::on_spinBoxAutoSaveLimit_valueChanged(int arg1)
+void CSettingsView::on_spinBoxAutosaveLimit_valueChanged(int arg1)
 {
     Settings node = settings.write["general"]["autosaveCountLimit"];
     node->Float() = arg1;
-}
-
-void CSettingsView::on_lineEditAutoSavePrefix_textEdited(const QString &arg1)
-{
 }
 
 void CSettingsView::on_spinBoxReservedArea_valueChanged(int arg1)

@@ -68,11 +68,7 @@ private slots:
 
 	void on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &arg1);
 
-    void on_checkBoxAutoSavePrefix_stateChanged(int arg1);
-
-    void on_spinBoxAutoSaveLimit_valueChanged(int arg1);
-
-    void on_lineEditAutoSavePrefix_textEdited(const QString &arg1);
+    void on_spinBoxAutosaveLimit_valueChanged(int arg1);
 
 	void on_spinBoxReservedArea_valueChanged(int arg1);
 
