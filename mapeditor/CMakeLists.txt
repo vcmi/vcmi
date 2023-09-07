@@ -16,6 +16,7 @@ set(editor_SRCS
 		mapsettings/mapsettings.cpp
 		mapsettings/generalsettings.cpp
 		mapsettings/modsettings.cpp
+		mapsettings/timedevent.cpp
 		mapsettings/victoryconditions.cpp
 		mapsettings/loseconditions.cpp
 		playersettings.cpp
@@ -23,7 +24,6 @@ set(editor_SRCS
 		scenelayer.cpp
 		mapcontroller.cpp
 		validator.cpp
-		timedevent.cpp
 		inspector/inspector.cpp
 		inspector/townbulidingswidget.cpp
 		inspector/armywidget.cpp
@@ -50,6 +50,7 @@ set(editor_HEADERS
 		mapsettings/mapsettings.h
 		mapsettings/generalsettings.h
 		mapsettings/modsettings.h
+		mapsettings/timedevent.h
 		mapsettings/victoryconditions.h
 		mapsettings/loseconditions.h
 		playersettings.h
@@ -57,7 +58,6 @@ set(editor_HEADERS
 		scenelayer.h
 		mapcontroller.h
 		validator.h
-		timedevent.h
 		inspector/inspector.h
 		inspector/townbulidingswidget.h
 		inspector/armywidget.h
@@ -74,12 +74,12 @@ set(editor_FORMS
 		mapsettings/mapsettings.ui
 		mapsettings/generalsettings.ui
 		mapsettings/modsettings.ui
+		mapsettings/timedevent.ui
 		mapsettings/victoryconditions.ui
 		mapsettings/loseconditions.ui
 		playersettings.ui
 		playerparams.ui
 		validator.ui
-		timedevent.ui
 		inspector/townbulidingswidget.ui
 		inspector/armywidget.ui
 		inspector/messagewidget.ui
