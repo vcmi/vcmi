@@ -31,7 +31,7 @@
 	"vcmi.capitalColors.7" : "Pink",
 	
 	"vcmi.radialWheel.mergeSameUnit" : "Merge same creatures",
-	"vcmi.radialWheel.showUnitInformation" : "Show creature information",
+	"vcmi.radialWheel.fillSingleUnit" : "Fill with single creatures",
 	"vcmi.radialWheel.splitSingleUnit" : "Split off single creature",
 	"vcmi.radialWheel.splitUnitEqually" : "Split creatures equally",
 	"vcmi.radialWheel.moveUnit" : "Move creatures to another army",
