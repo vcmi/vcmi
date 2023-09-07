@@ -251,10 +251,10 @@ void CPlayerInterface::performAutosave()
 {
 	// ToDo : krs - autosaves before each battle
 	// ToDo : krs - autosave at beginning of game
-	int saveFrequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
+	int autosaveFrequency = static_cast<int>(settings["general"]["autosaveFrequency"].Integer());
 	auto turnNumber = cb->getDate();
 
-	if(!(saveFrequency > 0 && turnNumber % saveFrequency == 0))
+	if(!(autosaveFrequency > 0 && turnNumber % autosaveFrequency == 0))
 		return;
 
 	enum MapType {
@@ -268,10 +268,12 @@ void CPlayerInterface::performAutosave()
 	// gather needed info for save file name
 	int humanPlayerCount = 0;
 	bool isMulitplayerGame = false;
-	bool isHotseat = false; // ToDo : find a way to get if game is hotseat
+	bool isHotseat = false; // ToDo: krs - find a way to get if game is hotseat
 	bool isRMGMap = cb->getStartInfo()->createRandomMap();
 	bool isCampaign = cb->getStartInfo()->mode == StartInfo::CAMPAIGN;
-	bool simpleSaves = !settings["general"]["useSimpleAutosave"].Bool();
+
+	bool simpleSaves = !settings["general"]["autosaveMode"].Bool(); // ToDo: krs - not a bool anymore
+
 	std::string saveName = "";
 	std::string lastMapSaveName = ""; // ToDo : krs - count for autosaves continues from load save file name
 	std::string mapName = cb->getMapHeader()->name;

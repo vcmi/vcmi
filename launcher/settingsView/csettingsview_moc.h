@@ -42,7 +42,7 @@ private slots:
 	void on_comboBoxShowIntro_currentIndexChanged(int index);
 	void on_comboBoxAutoCheck_currentIndexChanged(int index);
 	void on_comboBoxDisplayIndex_currentIndexChanged(int index);
-	void on_comboBoxAutoSave_currentIndexChanged(int index);
+	void on_comboBoxAutosaveMode_currentIndexChanged(int index);
 	void on_comboBoxLanguage_currentIndexChanged(int index);
 	void on_comboBoxCursorType_currentIndexChanged(int index);
 	void on_listWidgetSettings_currentRowChanged(int currentRow);
@@ -68,7 +68,7 @@ private slots:
 
 	void on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &arg1);
 
-    void on_spinBoxAutosaveLimit_valueChanged(int arg1);
+    void on_spinBoxAutosaveCountLimit_valueChanged(int arg1);
 
 	void on_spinBoxReservedArea_valueChanged(int arg1);
 

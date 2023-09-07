@@ -40,6 +40,13 @@ static const std::string cursorTypesList[] =
 	"software"
 };
 
+static const std::string autosaveModeList[] =
+{
+	"Off",
+	"Simple",
+	"Using Schema"
+};
+
 }
 
 void CSettingsView::setDisplayList()
@@ -105,7 +112,11 @@ void CSettingsView::loadSettings()
 	ui->checkBoxRepositoryDefault->setChecked(settings["launcher"]["defaultRepositoryEnabled"].Bool());
 	ui->checkBoxRepositoryExtra->setChecked(settings["launcher"]["extraRepositoryEnabled"].Bool());
 
-    ui->spinBoxAutosaveLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
+	std::string autosaveMode = settings["general"]["autosaveMode"].String();
+	size_t autosaveModeIndex = boost::range::find(autosaveModeList, autosaveMode) - autosaveModeList;
+	ui->comboBoxAutosaveMode->setCurrentIndex((int)autosaveModeIndex);
+
+    ui->spinBoxAutosaveCountLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
 
 	Languages::fillLanguages(ui->comboBoxLanguage, false);
 
@@ -308,10 +319,10 @@ void CSettingsView::on_comboBoxShowIntro_currentIndexChanged(int index)
 	node->Bool() = index;
 }
 
-void CSettingsView::on_comboBoxAutoSave_currentIndexChanged(int index)
+void CSettingsView::on_comboBoxAutosaveMode_currentIndexChanged(int index)
 {
-	Settings node = settings.write["general"]["saveFrequency"];
-	node->Integer() = index;
+	Settings node = settings.write["general"]["autosaveMode"];
+	node->String() = autosaveModeList[index];
 }
 
 void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
@@ -508,7 +519,7 @@ void CSettingsView::on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &
 	node->String() = arg1.toUtf8().data();
 }
 
-void CSettingsView::on_spinBoxAutosaveLimit_valueChanged(int arg1)
+void CSettingsView::on_spinBoxAutosaveCountLimit_valueChanged(int arg1)
 {
     Settings node = settings.write["general"]["autosaveCountLimit"];
     node->Float() = arg1;

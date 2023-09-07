@@ -28,15 +28,15 @@
 				"lastSave",
 				"lastSettingsTab",
 				"lastCampaign",
-				"saveFrequency",
 				"notifications",
 				"extraDump",
 				"userRelativePointer",
 				"relativePointerSpeedMultiplier",
 				"hapticFeedback",
 				"longTouchTimeMilliseconds",
+				"autosaveMode",
+				"autosaveFrequency",
 				"autosaveCountLimit",
-				"useSimpleAutosave",
 				"singlePlayerScenarioSaveName",
 				"singlePlayerCampaignSaveName",
 				"singlePlayerRmgSaveName",
@@ -88,10 +88,6 @@
 					"type" : "string",
 					"default" : ""
 				},
-				"saveFrequency" : {
-					"type" : "number",
-					"default" : 1
-				},
 				"notifications" : {
 					"type" : "boolean",
 					"default" : false
@@ -116,13 +112,18 @@
 					"type" : "boolean",
 					"default" : false
 				},
+				"autosaveMode" :  {
+					"type" : "string",
+					"enum" : [ "Off", "Simple", "Using Schema" ],
+					"default" : "Simple"
+				},
+				"autosaveFrequency" : {
+					"type" : "number",
+					"default" : 1
+				},
 				"autosaveCountLimit" : {
 					"type" : "number",
 					"default": 5
-				},
-				"useSimpleAutosave" : {
-					"type": "boolean",
-					"default": true
 				},
 				"singlePlayerScenarioSaveName" : {
 					"type": "string",
