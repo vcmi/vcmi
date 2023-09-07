@@ -15,7 +15,7 @@ struct StartInfo;
 
 class CMapHeader;
 class Campaign;
-class ResourceID;
+class ResourcePath;
 
 /**
  * A class which stores the count of human players and all players, the filename,
@@ -46,7 +46,7 @@ public:
 	CMapInfo &operator=(const CMapInfo &other) = delete;
 
 	void mapInit(const std::string & fname);
-	void saveInit(const ResourceID & file);
+	void saveInit(const ResourcePath & file);
 	void campaignInit();
 	void countPlayers();
 	// TODO: Those must be on client-side

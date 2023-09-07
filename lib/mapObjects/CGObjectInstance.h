@@ -82,9 +82,9 @@ public:
 
 	virtual bool isTile2Terrain() const { return false; }
 
-	std::optional<std::string> getAmbientSound() const;
-	std::optional<std::string> getVisitSound() const;
-	std::optional<std::string> getRemovalSound() const;
+	std::optional<AudioPath> getAmbientSound() const;
+	std::optional<AudioPath> getVisitSound() const;
+	std::optional<AudioPath> getRemovalSound() const;
 
 	/** VIRTUAL METHODS **/
 

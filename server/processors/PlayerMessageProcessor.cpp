@@ -92,7 +92,7 @@ bool PlayerMessageProcessor::handleHostCommand(PlayerColor player, const std::st
 		{
 			for(auto & c : gameHandler->connections)
 			{
-				if(c.first.getStr(false) == playername)
+				if(c.first.toString() == playername)
 					playerToKick = c.first;
 			}
 		}
@@ -113,7 +113,7 @@ bool PlayerMessageProcessor::handleHostCommand(PlayerColor player, const std::st
 			broadcastSystemMessage("No cheaters registered!");
 
 		for (auto const & entry : cheaters)
-			broadcastSystemMessage("Player " + entry.getStr() + " is cheater!");
+			broadcastSystemMessage("Player " + entry.toString() + " is cheater!");
 
 		return true;
 	}
@@ -406,7 +406,7 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 		if (words.front() == "ai" && i.second.human)
 			continue;
 
-		if (words.front() != "all" && words.front() != i.first.getStr())
+		if (words.front() != "all" && words.front() != i.first.toString())
 			continue;
 
 		std::vector<std::string> parameters = words;

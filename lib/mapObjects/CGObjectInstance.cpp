@@ -214,7 +214,7 @@ std::string CGObjectInstance::getObjectName() const
 	return VLC->objtypeh->getObjectName(ID, subID);
 }
 
-std::optional<std::string> CGObjectInstance::getAmbientSound() const
+std::optional<AudioPath> CGObjectInstance::getAmbientSound() const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).ambient;
 	if(!sounds.empty())
@@ -223,7 +223,7 @@ std::optional<std::string> CGObjectInstance::getAmbientSound() const
 	return std::nullopt;
 }
 
-std::optional<std::string> CGObjectInstance::getVisitSound() const
+std::optional<AudioPath> CGObjectInstance::getVisitSound() const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).visit;
 	if(!sounds.empty())
@@ -232,7 +232,7 @@ std::optional<std::string> CGObjectInstance::getVisitSound() const
 	return std::nullopt;
 }
 
-std::optional<std::string> CGObjectInstance::getRemovalSound() const
+std::optional<AudioPath> CGObjectInstance::getRemovalSound() const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).removal;
 	if(!sounds.empty())
@@ -341,12 +341,7 @@ void CGObjectInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
 {
-	ui8 temp = tempOwner.getNum();
-
-	handler.serializeEnum("owner", temp, PlayerColor::NEUTRAL.getNum(), GameConstants::PLAYER_COLOR_NAMES);
-
-	if(!handler.saving)
-		tempOwner = PlayerColor(temp);
+	handler.serializeId("owner", tempOwner, PlayerColor::NEUTRAL);
 }
 
 BattleField CGObjectInstance::getBattlefield() const

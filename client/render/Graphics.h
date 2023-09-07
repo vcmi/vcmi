@@ -11,6 +11,7 @@
 
 #include "../lib/GameConstants.h"
 #include "../lib/Color.h"
+#include "../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -42,10 +43,10 @@ class Graphics
 	void loadFonts();
 	void initializeImageLists();
 
-	std::map<std::string, std::shared_ptr<CAnimation>> cachedAnimations;
+	std::map<AnimationPath, std::shared_ptr<CAnimation>> cachedAnimations;
 
 public:
-	std::shared_ptr<CAnimation> getAnimation(const std::string & path);
+	std::shared_ptr<CAnimation> getAnimation(const AnimationPath & path);
 
 	//Fonts
 	static const int FONTS_NUMBER = 9;

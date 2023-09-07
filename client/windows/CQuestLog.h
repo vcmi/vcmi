@@ -54,7 +54,7 @@ class CQuestIcon : public CAnimImage
 public:
 	std::function<void()> callback; //TODO: merge with other similar classes?
 
-	CQuestIcon(const std::string &defname, int index, int x=0, int y=0);
+	CQuestIcon(const AnimationPath & defname, int index, int x=0, int y=0);
 
 	void clickPressed(const Point & cursorPosition) override;
 	void showAll(Canvas & to) override;

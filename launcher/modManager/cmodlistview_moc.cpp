@@ -25,6 +25,7 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/Languages.h"
+#include "../../lib/modding/CModVersion.h"
 
 static double mbToBytes(double mb)
 {
@@ -196,7 +197,7 @@ QString CModListView::genChangelogText(CModEntry & mod)
 
 	std::sort(versions.begin(), versions.end(), [](QString lesser, QString greater)
 	{
-		return CModEntry::compareVersions(lesser, greater);
+		return CModVersion::fromString(lesser.toStdString()) < CModVersion::fromString(greater.toStdString());
 	});
 	std::reverse(versions.begin(), versions.end());
 
@@ -896,3 +897,51 @@ QString CModListView::getTranslationModName(const QString & language)
 
 	return QString();
 }
+
+void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
+{
+	if(!index.isValid())
+		return;
+	
+	auto modName = index.data(ModRoles::ModNameRole).toString();
+	auto mod = modModel->getMod(modName);
+	
+	bool hasInvalidDeps = !findInvalidDependencies(modName).empty();
+	bool hasBlockingMods = !findBlockingMods(modName).empty();
+	bool hasDependentMods = !findDependentMods(modName, true).empty();
+	
+	if(!hasInvalidDeps && mod.isAvailable() && !mod.getName().contains('.'))
+	{
+		on_installButton_clicked();
+		return;
+	}
+
+	if(!hasInvalidDeps && !hasDependentMods && mod.isUpdateable() && index.column() == ModFields::STATUS_UPDATE)
+	{
+		on_updateButton_clicked();
+		return;
+	}
+	
+	if(index.column() == ModFields::NAME)
+	{
+		if(ui->allModsView->isExpanded(index))
+			ui->allModsView->collapse(index);
+		else
+			ui->allModsView->expand(index);
+		
+		return;
+	}
+
+	if(!hasBlockingMods && !hasInvalidDeps && mod.isDisabled())
+	{
+		on_enableButton_clicked();
+		return;
+	}
+
+	if(!hasDependentMods && !mod.isEssential() && mod.isEnabled())
+	{
+		on_disableButton_clicked();
+		return;
+	}
+}
+

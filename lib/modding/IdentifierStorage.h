@@ -17,7 +17,7 @@ class JsonNode;
 /// if possible, objects ID's should be in format <type>.<name>, camelCase e.g. "creature.grandElf"
 class DLL_LINKAGE CIdentifierStorage
 {
-	enum ELoadingState
+	enum class ELoadingState
 	{
 		LOADING,
 		FINALIZING,
@@ -63,7 +63,7 @@ class DLL_LINKAGE CIdentifierStorage
 	std::multimap<std::string, ObjectData> registeredObjects;
 	mutable std::vector<ObjectCallback> scheduledRequests;
 
-	ELoadingState state;
+	ELoadingState state = ELoadingState::LOADING;
 
 	/// Check if identifier can be valid (camelCase, point as separator)
 	static void checkIdentifier(std::string & ID);

@@ -272,7 +272,7 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 {
 	if(!player.isValidPlayer())
 	{
-		logGlobal->error("Cannot pick hero for player %d. Wrong owner!", player.getStr());
+		logGlobal->error("Cannot pick hero for player %d. Wrong owner!", player.toString());
 		return nullptr;
 	}
 
@@ -285,7 +285,7 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 
 	if(potentialClasses.empty())
 	{
-		logGlobal->error("There are no heroes available for player %s!", player.getStr());
+		logGlobal->error("There are no heroes available for player %s!", player.toString());
 		return nullptr;
 	}
 
@@ -306,7 +306,7 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 
 	if (possibleClasses.empty())
 	{
-		logGlobal->error("Cannot pick native hero for %s. Picking any...", player.getStr());
+		logGlobal->error("Cannot pick native hero for %s. Picking any...", player.toString());
 		possibleClasses = potentialClasses;
 	}
 

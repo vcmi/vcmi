@@ -16,6 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CStack;
 class PlayerColor;
+class BattleID;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -29,13 +30,14 @@ class TurnTimerHandler
 	const int turnTimePropagateThreshold = 3000;
 	std::map<PlayerColor, TurnTimerInfo> timers;
 	std::map<PlayerColor, int> lastUpdate;
+	std::map<PlayerColor, bool> endTurnAllowed;
 	std::recursive_mutex mx;
 	
 	void onPlayerMakingTurn(PlayerColor player, int waitTime);
-	void onBattleLoop(int waitTime);
+	void onBattleLoop(const BattleID & battleID, int waitTime);
 	
 	bool timerCountDown(int & timerToApply, int initialTimer, PlayerColor player, int waitTime);
-	bool isPvpBattle() const;
+	bool isPvpBattle(const BattleID & battleID) const;
 	void sendTimerUpdate(PlayerColor player);
 	
 public:
@@ -43,9 +45,10 @@ public:
 	
 	void onGameplayStart(PlayerColor player);
 	void onPlayerGetTurn(PlayerColor player);
-	void onBattleStart();
-	void onBattleNextStack(const CStack & stack);
-	void onBattleEnd();
+	void onBattleStart(const BattleID & battle);
+	void onBattleNextStack(const BattleID & battle, const CStack & stack);
+	void onBattleEnd(const BattleID & battleID);
 	void update(int waitTime);
 	void setTimerEnabled(PlayerColor player, bool enabled);
+	void setEndTurnAllowed(PlayerColor player, bool enabled);
 };

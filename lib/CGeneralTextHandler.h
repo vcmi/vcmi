@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "filesystem/ResourcePath.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CInputStream;
@@ -56,7 +58,7 @@ public:
 	/// end current line
 	bool endLine();
 
-	explicit CLegacyConfigParser(std::string URI);
+	explicit CLegacyConfigParser(const TextPath & URI);
 };
 
 class CGeneralTextHandler;

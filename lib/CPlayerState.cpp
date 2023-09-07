@@ -11,6 +11,8 @@
 
 #include "CPlayerState.h"
 #include "gameState/QuestInfo.h"
+#include "CGeneralTextHandler.h"
+#include "VCMI_Lib.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -43,7 +45,7 @@ PlayerState::~PlayerState() = default;
 
 std::string PlayerState::nodeName() const
 {
-	return "Player " + color.getStrCap(false);
+	return "Player " + color.toString();
 }
 
 PlayerColor PlayerState::getId() const
@@ -60,18 +62,22 @@ int32_t PlayerState::getIconIndex() const
 {
 	return color.getNum();
 }
+
 std::string PlayerState::getJsonKey() const
 {
-	return color.getStr(false);
+	return color.toString();
 }
+
 std::string PlayerState::getNameTranslated() const
 {
-	return color.getStr(true);
+	return VLC->generaltexth->translate(getNameTextID());
 }
+
 std::string PlayerState::getNameTextID() const
 {
-	return color.getStr(false);
+	return TextIdentifier("core.plcolors", color.getNum()).get();
 }
+
 void PlayerState::registerIcons(const IconRegistar & cb) const
 {
 	//We cannot register new icons for players

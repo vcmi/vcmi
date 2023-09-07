@@ -153,13 +153,32 @@ void AdventureMapInterface::deactivate()
 void AdventureMapInterface::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
+	dim(to);
 	LOCPLINT->cingconsole->show(to);
 }
 
 void AdventureMapInterface::show(Canvas & to)
 {
 	CIntObject::show(to);
+	dim(to);
 	LOCPLINT->cingconsole->show(to);
+}
+
+void AdventureMapInterface::dim(Canvas & to)
+{
+	for (auto window : GH.windows().findWindows<IShowActivatable>())
+	{
+		std::shared_ptr<AdventureMapInterface> casted = std::dynamic_pointer_cast<AdventureMapInterface>(window);
+		if (!casted && !window->isPopupWindow())
+		{
+			int backgroundDimLevel = settings["adventure"]["backgroundDimLevel"].Integer();
+			Rect targetRect(0, 0, GH.screenDimensions().x, GH.screenDimensions().y);
+			ColorRGBA colorToFill(0, 0, 0, std::clamp<int>(backgroundDimLevel, 0, 255));
+			if(backgroundDimLevel > 0)
+				to.drawColor(targetRect, colorToFill);
+			return;
+		}
+	}
 }
 
 void AdventureMapInterface::tick(uint32_t msPassed)

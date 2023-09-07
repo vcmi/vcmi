@@ -22,6 +22,7 @@
 #include "../mapView/MapView.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
@@ -30,7 +31,7 @@
 #include "../PlayerLocalState.h"
 
 #include "../../lib/constants/StringConstants.h"
-#include "../../lib/filesystem/ResourceID.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts )
 	: shortcuts(shortcuts)
@@ -56,13 +57,10 @@ AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> s
 	for (const auto & entry : shortcuts->getShortcuts())
 		addShortcut(entry.shortcut, entry.callback);
 
-	const JsonNode config(ResourceID("config/widgets/adventureMap.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/adventureMap.json"));
 
 	for(const auto & entry : config["options"]["imagesPlayerColored"].Vector())
-	{
-		ResourceID resourceName(entry.String(), EResType::IMAGE);
-		playerColorerImages.push_back(resourceName.getName());
-	}
+		playerColorerImages.push_back(ImagePath::fromJson(entry));
 
 	build(config);
 	addUsedEvents(KEYBOARD);
@@ -127,24 +125,24 @@ Rect AdventureMapWidget::readArea(const JsonNode & source, const Rect & bounding
 	return Rect(topLeft + boundingBox.topLeft(), dimensions);
 }
 
-std::shared_ptr<IImage> AdventureMapWidget::loadImage(const std::string & name)
+std::shared_ptr<IImage> AdventureMapWidget::loadImage(const JsonNode & name)
 {
-	ResourceID resource(name, EResType::IMAGE);
+	ImagePath resource = ImagePath::fromJson(name);
 
-	if(images.count(resource.getName()) == 0)
-		images[resource.getName()] = IImage::createFromFile(resource.getName());
+	if(images.count(resource) == 0)
+		images[resource] = GH.renderHandler().loadImage(resource);
 
-	return images[resource.getName()];
+	return images[resource];
 }
 
-std::shared_ptr<CAnimation> AdventureMapWidget::loadAnimation(const std::string & name)
+std::shared_ptr<CAnimation> AdventureMapWidget::loadAnimation(const JsonNode & name)
 {
-	ResourceID resource(name, EResType::ANIMATION);
+	AnimationPath resource = AnimationPath::fromJson(name);
 
-	if(animations.count(resource.getName()) == 0)
-		animations[resource.getName()] = std::make_shared<CAnimation>(resource.getName());
+	if(animations.count(resource) == 0)
+		animations[resource] = GH.renderHandler().loadAnimation(resource);
 
-	return animations[resource.getName()];
+	return animations[resource];
 }
 
 std::shared_ptr<CIntObject> AdventureMapWidget::buildInfobox(const JsonNode & input)
@@ -158,15 +156,14 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildMapImage(const JsonNode & i
 {
 	Rect targetArea = readTargetArea(input["area"]);
 	Rect sourceArea = readSourceArea(input["sourceArea"], input["area"]);
-	std::string image = input["image"].String();
 
-	return std::make_shared<CFilledTexture>(loadImage(image), targetArea, sourceArea);
+	return std::make_shared<CFilledTexture>(loadImage(input["image"]), targetArea, sourceArea);
 }
 
 std::shared_ptr<CIntObject> AdventureMapWidget::buildMapButton(const JsonNode & input)
 {
 	auto position = readTargetArea(input["area"]);
-	auto image = input["image"].String();
+	auto image = AnimationPath::fromJson(input["image"]);
 	auto help = readHintText(input["help"]);
 	bool playerColored = input["playerColored"].Bool();
 
@@ -259,9 +256,8 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildMapIcon(const JsonNode & in
 	Rect area = readTargetArea(input["area"]);
 	size_t index = input["index"].Integer();
 	size_t perPlayer = input["perPlayer"].Integer();
-	std::string image = input["image"].String();
 
-	return std::make_shared<CAdventureMapIcon>(area.topLeft(), loadAnimation(image), index, perPlayer);
+	return std::make_shared<CAdventureMapIcon>(area.topLeft(), loadAnimation(input["image"]), index, perPlayer);
 }
 
 std::shared_ptr<CIntObject> AdventureMapWidget::buildMapTownList(const JsonNode & input)
@@ -298,7 +294,7 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildMinimap(const JsonNode & in
 std::shared_ptr<CIntObject> AdventureMapWidget::buildResourceDateBar(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
-	std::string image = input["image"].String();
+	auto image = ImagePath::fromJson(input["image"]);
 
 	auto result = std::make_shared<CResDataBar>(image, area.topLeft());
 
@@ -320,7 +316,7 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildResourceDateBar(const JsonN
 std::shared_ptr<CIntObject> AdventureMapWidget::buildStatusBar(const JsonNode & input)
 {
 	Rect area = readTargetArea(input["area"]);
-	std::string image = input["image"].String();
+	auto image = ImagePath::fromJson(input["image"]);
 
 	auto background = std::make_shared<CFilledTexture>(image, area);
 
@@ -330,7 +326,7 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildStatusBar(const JsonNode & 
 std::shared_ptr<CIntObject> AdventureMapWidget::buildTexturePlayerColored(const JsonNode & input)
 {
 	logGlobal->debug("Building widget CFilledTexture");
-	auto image = input["image"].String();
+	auto image = ImagePath::fromJson(input["image"]);
 	Rect area = readTargetArea(input["area"]);
 	return std::make_shared<FilledTexturePlayerColored>(image, area);
 }

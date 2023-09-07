@@ -46,4 +46,5 @@ private:
 	void updateSlots(const ArtifactPosition & slot);
 	std::optional<std::tuple<const CGHeroInstance*, const CArtifactInstance*>> getState();
 	std::optional<CArtifactsOfHeroPtr> findAOHbyRef(CArtifactsOfHeroBase & artsInst);
+	void markPossibleSlots();
 };

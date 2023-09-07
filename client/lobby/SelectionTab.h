@@ -14,6 +14,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CMap;
 VCMI_LIB_NAMESPACE_END
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 class CSlider;
 class CLabel;
@@ -81,9 +82,9 @@ class SelectionTab : public CIntObject
 		std::shared_ptr<CPicture> image2;
 
 		Canvas createMinimapForLayer(std::unique_ptr<CMap> & map, int layer);
-		std::vector<std::shared_ptr<IImage>> createMinimaps(ResourceID resource, int size);
+		std::vector<std::shared_ptr<IImage>> createMinimaps(ResourcePath resource, int size);
 	public:
-		CMapInfoTooltipBox(std::string text, ResourceID resource, ESelectionScreen tabType);
+		CMapInfoTooltipBox(std::string text, ResourcePath resource, ESelectionScreen tabType);
 	};
 public:
 	std::vector<std::shared_ptr<ElementInfo>> allItems;
@@ -134,8 +135,8 @@ private:
 	auto checkSubfolder(std::string path);
 
 	bool isMapSupported(const CMapInfo & info);
-	void parseMaps(const std::unordered_set<ResourceID> & files);
-	void parseSaves(const std::unordered_set<ResourceID> & files);
-	void parseCampaigns(const std::unordered_set<ResourceID> & files);
-	std::unordered_set<ResourceID> getFiles(std::string dirURI, int resType);
+	void parseMaps(const std::unordered_set<ResourcePath> & files);
+	void parseSaves(const std::unordered_set<ResourcePath> & files);
+	void parseCampaigns(const std::unordered_set<ResourcePath> & files);
+	std::unordered_set<ResourcePath> getFiles(std::string dirURI, EResType resType);
 };

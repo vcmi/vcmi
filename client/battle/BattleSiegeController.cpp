@@ -20,15 +20,17 @@
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/CStack.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
-std::string BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisual what, EWallState state) const
+ImagePath BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisual what, EWallState state) const
 {
 	auto getImageIndex = [&]() -> int
 	{
@@ -68,44 +70,44 @@ std::string BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisua
 			auto faction = town->town->faction->getIndex();
 
 			if (faction == ETownType::RAMPART || faction == ETownType::NECROPOLIS || faction == ETownType::DUNGEON || faction == ETownType::STRONGHOLD)
-				return prefix + "TPW1.BMP";
+				return ImagePath::builtinTODO(prefix + "TPW1.BMP");
 			else
-				return prefix + "TPWL.BMP";
+				return ImagePath::builtinTODO(prefix + "TPWL.BMP");
 		}
 	case EWallVisual::KEEP:
-		return prefix + "MAN" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "MAN" + addit + ".BMP");
 	case EWallVisual::BOTTOM_TOWER:
-		return prefix + "TW1" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "TW1" + addit + ".BMP");
 	case EWallVisual::BOTTOM_WALL:
-		return prefix + "WA1" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "WA1" + addit + ".BMP");
 	case EWallVisual::WALL_BELLOW_GATE:
-		return prefix + "WA3" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "WA3" + addit + ".BMP");
 	case EWallVisual::WALL_OVER_GATE:
-		return prefix + "WA4" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "WA4" + addit + ".BMP");
 	case EWallVisual::UPPER_WALL:
-		return prefix + "WA6" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "WA6" + addit + ".BMP");
 	case EWallVisual::UPPER_TOWER:
-		return prefix + "TW2" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "TW2" + addit + ".BMP");
 	case EWallVisual::GATE:
-		return prefix + "DRW" + addit + ".BMP";
+		return ImagePath::builtinTODO(prefix + "DRW" + addit + ".BMP");
 	case EWallVisual::GATE_ARCH:
-		return prefix + "ARCH.BMP";
+		return ImagePath::builtinTODO(prefix + "ARCH.BMP");
 	case EWallVisual::BOTTOM_STATIC_WALL:
-		return prefix + "WA2.BMP";
+		return ImagePath::builtinTODO(prefix + "WA2.BMP");
 	case EWallVisual::UPPER_STATIC_WALL:
-		return prefix + "WA5.BMP";
+		return ImagePath::builtinTODO(prefix + "WA5.BMP");
 	case EWallVisual::MOAT:
-		return prefix + "MOAT.BMP";
+		return ImagePath::builtinTODO(prefix + "MOAT.BMP");
 	case EWallVisual::MOAT_BANK:
-		return prefix + "MLIP.BMP";
+		return ImagePath::builtinTODO(prefix + "MLIP.BMP");
 	case EWallVisual::KEEP_BATTLEMENT:
-		return prefix + "MANC.BMP";
+		return ImagePath::builtinTODO(prefix + "MANC.BMP");
 	case EWallVisual::BOTTOM_BATTLEMENT:
-		return prefix + "TW1C.BMP";
+		return ImagePath::builtinTODO(prefix + "TW1C.BMP");
 	case EWallVisual::UPPER_BATTLEMENT:
-		return prefix + "TW2C.BMP";
+		return ImagePath::builtinTODO(prefix + "TW2C.BMP");
 	default:
-		return "";
+		return ImagePath();
 	}
 }
 
@@ -118,10 +120,10 @@ void BattleSiegeController::showWallPiece(Canvas & canvas, EWallVisual::EWallVis
 		canvas.draw(wallPieceImages[what], Point(pos.x, pos.y));
 }
 
-std::string BattleSiegeController::getBattleBackgroundName() const
+ImagePath BattleSiegeController::getBattleBackgroundName() const
 {
 	const std::string & prefix = town->town->clientInfo.siegePrefix;
-	return prefix + "BACK.BMP";
+	return ImagePath::builtinTODO(prefix + "BACK.BMP");
 }
 
 bool BattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what) const
@@ -133,9 +135,9 @@ bool BattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what)
 	{
 	case EWallVisual::MOAT:              return town->hasBuilt(BuildingID::CITADEL) && town->town->clientInfo.siegePositions.at(EWallVisual::MOAT).isValid();
 	case EWallVisual::MOAT_BANK:         return town->hasBuilt(BuildingID::CITADEL) && town->town->clientInfo.siegePositions.at(EWallVisual::MOAT_BANK).isValid();
-	case EWallVisual::KEEP_BATTLEMENT:   return town->hasBuilt(BuildingID::CITADEL) && owner.curInt->cb->battleGetWallState(EWallPart::KEEP) != EWallState::DESTROYED;
-	case EWallVisual::UPPER_BATTLEMENT:  return town->hasBuilt(BuildingID::CASTLE) && owner.curInt->cb->battleGetWallState(EWallPart::UPPER_TOWER) != EWallState::DESTROYED;
-	case EWallVisual::BOTTOM_BATTLEMENT: return town->hasBuilt(BuildingID::CASTLE) && owner.curInt->cb->battleGetWallState(EWallPart::BOTTOM_TOWER) != EWallState::DESTROYED;
+	case EWallVisual::KEEP_BATTLEMENT:   return town->hasBuilt(BuildingID::CITADEL) && owner.getBattle()->battleGetWallState(EWallPart::KEEP) != EWallState::DESTROYED;
+	case EWallVisual::UPPER_BATTLEMENT:  return town->hasBuilt(BuildingID::CASTLE) && owner.getBattle()->battleGetWallState(EWallPart::UPPER_TOWER) != EWallState::DESTROYED;
+	case EWallVisual::BOTTOM_BATTLEMENT: return town->hasBuilt(BuildingID::CASTLE) && owner.getBattle()->battleGetWallState(EWallPart::BOTTOM_TOWER) != EWallState::DESTROYED;
 	default:                             return true;
 	}
 }
@@ -180,7 +182,7 @@ BattleSiegeController::BattleSiegeController(BattleInterface & owner, const CGTo
 		if ( !getWallPieceExistance(EWallVisual::EWallVisual(g)) )
 			continue;
 
-		wallPieceImages[g] = IImage::createFromFile(getWallPieceImageName(EWallVisual::EWallVisual(g), EWallState::REINFORCED));
+		wallPieceImages[g] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(g), EWallState::REINFORCED));
 	}
 }
 
@@ -220,7 +222,7 @@ Point BattleSiegeController::getTurretCreaturePosition( BattleHex position ) con
 
 void BattleSiegeController::gateStateChanged(const EGateState state)
 {
-	auto oldState = owner.curInt->cb->battleGetGateState();
+	auto oldState = owner.getBattle()->battleGetGateState();
 	bool playSound = false;
 	auto stateId = EWallState::NONE;
 	switch(state)
@@ -246,7 +248,7 @@ void BattleSiegeController::gateStateChanged(const EGateState state)
 		wallPieceImages[EWallVisual::GATE] = nullptr;
 
 	if (stateId != EWallState::NONE)
-		wallPieceImages[EWallVisual::GATE] = IImage::createFromFile(getWallPieceImageName(EWallVisual::GATE,  stateId));
+		wallPieceImages[EWallVisual::GATE] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::GATE,  stateId));
 
 	if (playSound)
 		CCS->soundh->playSound(soundBase::DRAWBRG);
@@ -275,7 +277,7 @@ BattleHex BattleSiegeController::getTurretBattleHex(EWallVisual::EWallVisual wal
 
 const CStack * BattleSiegeController::getTurretStack(EWallVisual::EWallVisual wallPiece) const
 {
-	for (auto & stack : owner.curInt->cb->battleGetAllStacks(true))
+	for (auto & stack : owner.getBattle()->battleGetAllStacks(true))
 	{
 		if ( stack->initialPosition == getTurretBattleHex(wallPiece))
 			return stack;
@@ -318,15 +320,15 @@ bool BattleSiegeController::isAttackableByCatapult(BattleHex hex) const
 	if (owner.tacticsMode)
 		return false;
 
-	auto wallPart = owner.curInt->cb->battleHexToWallPart(hex);
-	return owner.curInt->cb->isWallPartAttackable(wallPart);
+	auto wallPart = owner.getBattle()->battleHexToWallPart(hex);
+	return owner.getBattle()->isWallPartAttackable(wallPart);
 }
 
 void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 {
 	if (ca.attacker != -1)
 	{
-		const CStack *stack = owner.curInt->cb->battleGetStackByID(ca.attacker);
+		const CStack *stack = owner.getBattle()->battleGetStackByID(ca.attacker);
 		for (auto attackInfo : ca.attackedParts)
 		{
 			owner.stacksController->addNewAnim(new CatapultAnimation(owner, stack, attackInfo.destinationTile, nullptr, attackInfo.damageDealt));
@@ -340,8 +342,8 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		for (auto attackInfo : ca.attackedParts)
 			positions.push_back(owner.stacksController->getStackPositionAtHex(attackInfo.destinationTile, nullptr) + Point(99, 120));
 
-		CCS->soundh->playSound( "WALLHIT" );
-		owner.stacksController->addNewAnim(new EffectAnimation(owner, "SGEXPL.DEF", positions));
+		CCS->soundh->playSound( AudioPath::builtin("WALLHIT") );
+		owner.stacksController->addNewAnim(new EffectAnimation(owner, AnimationPath::builtin("SGEXPL.DEF"), positions));
 	}
 
 	owner.waitForAnimations();
@@ -353,9 +355,9 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		if (wallId == EWallVisual::GATE)
 			continue;
 
-		auto wallState = EWallState(owner.curInt->cb->battleGetWallState(attackInfo.attackedPart));
+		auto wallState = EWallState(owner.getBattle()->battleGetWallState(attackInfo.attackedPart));
 
-		wallPieceImages[wallId] = IImage::createFromFile(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState));
+		wallPieceImages[wallId] = GH.renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState));
 	}
 }
 

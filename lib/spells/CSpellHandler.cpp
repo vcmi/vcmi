@@ -310,7 +310,7 @@ const std::string & CSpell::getIconScroll() const
 	return iconScroll;
 }
 
-const std::string & CSpell::getCastSound() const
+const AudioPath & CSpell::getCastSound() const
 {
 	return castSound;
 }
@@ -516,9 +516,9 @@ CSpell::AnimationItem::AnimationItem() :
 }
 
 ///CSpell::AnimationInfo
-std::string CSpell::AnimationInfo::selectProjectile(const double angle) const
+AnimationPath CSpell::AnimationInfo::selectProjectile(const double angle) const
 {
-	std::string res;
+	AnimationPath res;
 	double maximum = 0.0;
 
 	for(const auto & info : projectile)
@@ -561,7 +561,7 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData()
 	using namespace SpellConfig;
 	std::vector<JsonNode> legacyData;
 
-	CLegacyConfigParser parser("DATA/SPTRAITS.TXT");
+	CLegacyConfigParser parser(TextPath::builtin("DATA/SPTRAITS.TXT"));
 
 	auto readSchool = [&](JsonMap & schools, const std::string & name)
 	{
@@ -861,10 +861,10 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 			CSpell::TAnimation newItem;
 
 			if(item.getType() == JsonNode::JsonType::DATA_STRING)
-				newItem.resourceName = item.String();
+				newItem.resourceName = AnimationPath::fromJson(item);
 			else if(item.getType() == JsonNode::JsonType::DATA_STRUCT)
 			{
-				newItem.resourceName = item["defName"].String();
+				newItem.resourceName = AnimationPath::fromJson(item["defName"]);
 				newItem.effectName   = item["effectName"].String();
 
 				auto vPosStr = item["verticalPosition"].String();
@@ -889,14 +889,14 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 	for(const JsonNode & item : projectile)
 	{
 		CSpell::ProjectileInfo info;
-		info.resourceName = item["defName"].String();
+		info.resourceName = AnimationPath::fromJson(item["defName"]);
 		info.minimumAngle = item["minimumAngle"].Float();
 
 		spell->animationInfo.projectile.push_back(info);
 	}
 
 	const JsonNode & soundsNode = json["sounds"];
-	spell->castSound = soundsNode["cast"].String();
+	spell->castSound = AudioPath::fromJson(soundsNode["cast"]);
 
 	//load level attributes
 	const int levelsCount = GameConstants::SPELL_SCHOOL_LEVELS;

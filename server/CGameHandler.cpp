@@ -40,6 +40,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/int3.h"
 
+#include "../lib/battle/BattleInfo.h"
 #include "../lib/filesystem/FileInfo.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/gameState/CGameState.h"
@@ -135,9 +136,9 @@ const Services * CGameHandler::services() const
 	return VLC;
 }
 
-const CGameHandler::BattleCb * CGameHandler::battle() const
+const CGameHandler::BattleCb * CGameHandler::battle(const BattleID & battleID) const
 {
-	return this;
+	return gs->getBattle(battleID);
 }
 
 const CGameHandler::GameCb * CGameHandler::game() const
@@ -1007,6 +1008,7 @@ void CGameHandler::run(bool resume)
 		clockLast += clockDuration;
 		turnTimerHandler.update(timePassed);
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+
 	}
 }
 
@@ -1072,7 +1074,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		return false;
 	}
 
-	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.getStr(), hid.getNum(), h->pos.toString(), dst.toString());
+	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.toString(), hid.getNum(), h->pos.toString(), dst.toString());
 	const int3 hmpos = h->convertToVisitablePos(dst);
 
 	if (!gs->map->isInTheMap(hmpos))
@@ -1106,11 +1108,14 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	const bool canWalkOnSea = pathfinderHelper->hasBonusOfType(BonusType::WATER_WALKING) || (h->boat && h->boat->layer == EPathfindingLayer::WATER);
 	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movementPointsRemaining());
 
+	const bool standAtObstacle = t.blocked && !t.visitable;
+	const bool standAtWater = !h->boat && t.terType->isWater() && (t.visitableObjects.empty() || !t.visitableObjects.back()->isCoastVisitable());
+	
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
-	if (((!t.terType->isPassable()  ||  (t.blocked && !t.visitable && !canFly))
+	if (((!t.terType->isPassable() || (standAtObstacle && !canFly))
 			&& complain("Cannot move hero, destination tile is blocked!"))
-		|| ((!h->boat && !canWalkOnSea && !canFly && t.terType->isWater() && (t.visitableObjects.size() < 1 || !t.visitableObjects.back()->isCoastVisitable()))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
+		|| ((standAtWater && !canFly && !canWalkOnSea)  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!"))
 		|| ((h->boat && h->boat->layer == EPathfindingLayer::SAIL && t.terType->isLand() && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!"))
@@ -1175,14 +1180,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 			visitObjectOnTile(t, h);
 		}
 
-		for(auto topQuery = queries->topQuery(h->tempOwner); true; topQuery = queries->topQuery(h->tempOwner))
-		{
-			moveQuery = std::dynamic_pointer_cast<CHeroMovementQuery>(topQuery);
-			if(!moveQuery || (transit && result == TryMoveHero::SUCCESS))
-				break;
-			
-			queries->popIfTop(moveQuery);
-		}
+		queries->popIfTop(moveQuery);
 		logGlobal->trace("Hero %s ends movement", h->getNameTranslated());
 		return result != TryMoveHero::FAILED;
 	};
@@ -1266,6 +1264,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		if(h->boat && !h->boat->onboardAssaultAllowed)
 		   lookForGuards = IGNORE_GUARDS;
 
+		turnTimerHandler.setEndTurnAllowed(h->getOwner(), !standAtWater && !standAtObstacle);
 		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
 		return true;
 	}
@@ -1720,12 +1719,13 @@ void CGameHandler::save(const std::string & filename)
 	logGlobal->info("Saving to %s", filename);
 	const auto stem	= FileInfo::GetPathStem(filename);
 	const auto savefname = stem.to_string() + ".vsgm1";
+	ResourcePath savePath(stem.to_string(), EResType::SAVEGAME);
 	CResourceHandler::get("local")->createResource(savefname);
 
 	try
 	{
 		{
-			CSaveFile save(*CResourceHandler::get("local")->getResourceName(ResourceID(stem.to_string(), EResType::SAVEGAME)));
+			CSaveFile save(*CResourceHandler::get("local")->getResourceName(savePath));
 			saveCommonState(save);
 			logGlobal->info("Saving server state");
 			save << *this;
@@ -1748,7 +1748,7 @@ bool CGameHandler::load(const std::string & filename)
 	try
 	{
 		{
-			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourceID(stem.to_string(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
+			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(stem.to_string(), EResType::SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
 			loadCommonState(lf);
 			logGlobal->info("Loading server state");
 			lf >> *this;
@@ -2373,28 +2373,40 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 	return true;
 }
 
-bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dstid, CreatureID crid, ui32 cram, si32 fromLvl)
+bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dstid, CreatureID crid, ui32 cram, si32 fromLvl, PlayerColor player)
 {
-	const CGDwelling * dw = static_cast<const CGDwelling *>(getObj(objid));
-	const CArmedInstance *dst = nullptr;
-	const CCreature *c = VLC->creh->objects.at(crid);
+	const CGDwelling * dwelling = dynamic_cast<const CGDwelling *>(getObj(objid));
+	const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(getObj(objid));
+	const CArmedInstance * army = dynamic_cast<const CArmedInstance *>(getObj(dstid));
+	const CGHeroInstance * hero = dynamic_cast<const CGHeroInstance *>(getObj(dstid));
+	const CCreature * c = VLC->creh->objects.at(crid);
+
 	const bool warMachine = c->warMachine != ArtifactID::NONE;
 
-	//TODO: test for owning
-	//TODO: check if dst can recruit objects (e.g. hero is actually visiting object, town and source are same, etc)
-	dst = dynamic_cast<const CArmedInstance*>(getObj(dstid));
+	//TODO: check if hero is actually visiting object
 
-	assert(dw && dst);
+	COMPLAIN_RET_FALSE_IF(!dwelling || !army, "Cannot recruit: invalid object!");
+	COMPLAIN_RET_FALSE_IF(dwelling->getOwner() != player && dwelling->getOwner() != PlayerColor::UNFLAGGABLE, "Cannot recruit: dwelling not owned!");
+
+	if (town)
+	{
+		COMPLAIN_RET_FALSE_IF(town != army && !hero, "Cannot recruit: invalid destination!");
+		COMPLAIN_RET_FALSE_IF(hero != town->garrisonHero && hero != town->visitingHero, "Cannot recruit: can only recruit to town or hero in town!!");
+	}
+	else
+	{
+		COMPLAIN_RET_FALSE_IF(!hero || hero->getOwner() != player, "Cannot recruit: can only recruit to owned hero!");
+	}
 
 	//verify
 	bool found = false;
 	int level = 0;
 
-	for (; level < dw->creatures.size(); level++) //iterate through all levels
+	for (; level < dwelling->creatures.size(); level++) //iterate through all levels
 	{
 		if ((fromLvl != -1) && (level !=fromLvl))
 			continue;
-		const auto &cur = dw->creatures.at(level); //current level info <amount, list of cr. ids>
+		const auto &cur = dwelling->creatures.at(level); //current level info <amount, list of cr. ids>
 		int i = 0;
 		for (; i < cur.second.size(); i++) //look for crid among available creatures list on current level
 			if (cur.second.at(i) == crid)
@@ -2407,10 +2419,10 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 			break;
 		}
 	}
-	SlotID slot = dst->getSlotFor(crid);
+	SlotID slot = army->getSlotFor(crid);
 
 	if ((!found && complain("Cannot recruit: no such creatures!"))
-		|| ((si32)cram  >  VLC->creh->objects.at(crid)->maxAmount(getPlayerState(dst->tempOwner)->resources) && complain("Cannot recruit: lack of resources!"))
+		|| ((si32)cram  >  VLC->creh->objects.at(crid)->maxAmount(getPlayerState(army->tempOwner)->resources) && complain("Cannot recruit: lack of resources!"))
 		|| (cram<=0  &&  complain("Cannot recruit: cram <= 0!"))
 		|| (!slot.validSlot()  && !warMachine && complain("Cannot recruit: no available slot!")))
 	{
@@ -2418,33 +2430,28 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	}
 
 	//recruit
-	giveResources(dst->tempOwner, -(c->getFullRecruitCost() * cram));
+	giveResources(army->tempOwner, -(c->getFullRecruitCost() * cram));
 
 	SetAvailableCreatures sac;
 	sac.tid = objid;
-	sac.creatures = dw->creatures;
+	sac.creatures = dwelling->creatures;
 	sac.creatures[level].first -= cram;
 	sendAndApply(&sac);
 
 	if (warMachine)
 	{
-		const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(dst);
-
-		COMPLAIN_RET_FALSE_IF(!h, "Only hero can buy war machines");
-
 		ArtifactID artId = c->warMachine;
-
-		COMPLAIN_RET_FALSE_IF(artId == ArtifactID::CATAPULT, "Catapult cannot be recruited!");
-
 		const CArtifact * art = artId.toArtifact();
 
+		COMPLAIN_RET_FALSE_IF(!hero, "Only hero can buy war machines");
+		COMPLAIN_RET_FALSE_IF(artId == ArtifactID::CATAPULT, "Catapult cannot be recruited!");
 		COMPLAIN_RET_FALSE_IF(nullptr == art, "Invalid war machine artifact");
 
-		return giveHeroNewArtifact(h, art);
+		return giveHeroNewArtifact(hero, art);
 	}
 	else
 	{
-		addToSlot(StackLocation(dst, slot), c, cram);
+		addToSlot(StackLocation(army, slot), c, cram);
 	}
 	return true;
 }
@@ -3994,7 +4001,7 @@ bool CGameHandler::isBlockedByQueries(const CPack *pack, PlayerColor player)
 	{
 		complain(boost::str(boost::format(
 			"\r\n| Player \"%s\" has to answer queries before attempting any further actions.\r\n| Top Query: \"%s\"\r\n")
-			% boost::to_upper_copy<std::string>(player.getStr())
+			% boost::to_upper_copy<std::string>(player.toString())
 			% query->toString()
 		));
 		return true;
@@ -4095,10 +4102,10 @@ scripting::Pool * CGameHandler::getGlobalContextPool() const
 	return serverScripts.get();
 }
 
-scripting::Pool * CGameHandler::getContextPool() const
-{
-	return serverScripts.get();
-}
+//scripting::Pool * CGameHandler::getContextPool() const
+//{
+//	return serverScripts.get();
+//}
 #endif
 
 void CGameHandler::createObject(const int3 & visitablePosition, Obj type, int32_t subtype)

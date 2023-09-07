@@ -804,7 +804,10 @@ void CSDL_Ext::fillRect( SDL_Surface *dst, const Rect & dstrect, const SDL_Color
 	SDL_Rect newRect = CSDL_Ext::toSDL(dstrect);
 
 	uint32_t sdlColor = SDL_MapRGBA(dst->format, color.r, color.g, color.b, color.a);
-	SDL_FillRect(dst, &newRect, sdlColor);
+	SDL_Surface * tmp = SDL_CreateRGBSurface(0, newRect.w, newRect.h, dst->format->BitsPerPixel, dst->format->Rmask, dst->format->Gmask, dst->format->Bmask, dst->format->Amask);
+	SDL_FillRect(tmp, NULL, sdlColor);
+	SDL_BlitSurface(tmp, NULL, dst, &newRect);
+	SDL_FreeSurface(tmp);
 }
 
 STRONG_INLINE static uint32_t mapColor(SDL_Surface * surface, SDL_Color color)

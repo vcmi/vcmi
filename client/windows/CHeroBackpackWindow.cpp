@@ -24,7 +24,7 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	stretchedBackground = std::make_shared<CFilledTexture>("DIBOXBCK", Rect(0, 0, 410, 425));
+	stretchedBackground = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, 410, 425));
 	pos.w = stretchedBackground->pos.w;
 	pos.h = stretchedBackground->pos.h;
 	center();
@@ -36,7 +36,7 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero)
 
 	addCloseCallback(std::bind(&CHeroBackpackWindow::close, this));
 
-	quitButton = std::make_shared<CButton>(Point(173, 385), "IOKAY32.def", CButton::tooltip(""), [this]() { close(); }, EShortcut::GLOBAL_RETURN);
+	quitButton = std::make_shared<CButton>(Point(173, 385), AnimationPath::builtin("IOKAY32.def"), CButton::tooltip(""), [this]() { close(); }, EShortcut::GLOBAL_RETURN);
 }
 
 void CHeroBackpackWindow::showAll(Canvas &to)

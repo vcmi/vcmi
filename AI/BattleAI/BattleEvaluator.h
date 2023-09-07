@@ -32,6 +32,7 @@ class BattleEvaluator
 	bool activeActionMade = false;
 	std::optional<AttackPossibility> cachedAttack;
 	PlayerColor playerID;
+	BattleID battleID;
 	int side;
 	float cachedScore;
 	DamageCache damageCache;
@@ -52,11 +53,12 @@ public:
 		std::shared_ptr<CBattleCallback> cb,
 		const battle::Unit * activeStack,
 		PlayerColor playerID,
+		BattleID battleID,
 		int side,
 		float strengthRatio)
-		:scoreEvaluator(cb, env, strengthRatio), cachedAttack(), playerID(playerID), side(side), env(env), cb(cb), strengthRatio(strengthRatio)
+		:scoreEvaluator(cb->getBattle(battleID), env, strengthRatio), cachedAttack(), playerID(playerID), side(side), env(env), cb(cb), strengthRatio(strengthRatio), battleID(battleID)
 	{
-		hb = std::make_shared<HypotheticBattle>(env.get(), cb);
+		hb = std::make_shared<HypotheticBattle>(env.get(), cb->getBattle(battleID));
 		damageCache.buildDamageCache(hb, side);
 
 		targets = std::make_unique<PotentialTargets>(activeStack, damageCache, hb);
@@ -70,9 +72,10 @@ public:
 		DamageCache & damageCache,
 		const battle::Unit * activeStack,
 		PlayerColor playerID,
+		BattleID battleID,
 		int side,
 		float strengthRatio)
-		:scoreEvaluator(cb, env, strengthRatio), cachedAttack(), playerID(playerID), side(side), env(env), cb(cb), hb(hb), damageCache(damageCache), strengthRatio(strengthRatio)
+		:scoreEvaluator(cb->getBattle(battleID), env, strengthRatio), cachedAttack(), playerID(playerID), side(side), env(env), cb(cb), hb(hb), damageCache(damageCache), strengthRatio(strengthRatio), battleID(battleID)
 	{
 		targets = std::make_unique<PotentialTargets>(activeStack, damageCache, hb);
 		cachedScore = EvaluationResult::INEFFECTIVE_SCORE;

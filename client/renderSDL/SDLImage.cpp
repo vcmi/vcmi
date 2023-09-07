@@ -24,24 +24,6 @@
 
 class SDLImageLoader;
 
-std::shared_ptr<IImage> IImage::createFromFile( const std::string & path )
-{
-	return createFromFile(path, EImageBlitMode::ALPHA);
-}
-
-std::shared_ptr<IImage> IImage::createFromFile( const std::string & path, EImageBlitMode mode )
-{
-	return std::shared_ptr<IImage>(new SDLImage(path, mode));
-}
-
-std::shared_ptr<IImage> IImage::createFromSurface( SDL_Surface * source )
-{
-	return std::shared_ptr<IImage>(new SDLImage(source, EImageBlitMode::ALPHA));
-}
-
-IImage::IImage() = default;
-IImage::~IImage() = default;
-
 int IImage::width() const
 {
 	return dimensions().x;
@@ -89,9 +71,7 @@ SDLImage::SDLImage(const JsonNode & conf, EImageBlitMode mode)
 	fullSize(0, 0),
 	originalPalette(nullptr)
 {
-	std::string filename = conf["file"].String();
-
-	surf = BitmapHandler::loadBitmap(filename);
+	surf = BitmapHandler::loadBitmap(ImagePath::fromJson(conf["file"]));
 
 	if(surf == nullptr)
 		return;
@@ -118,7 +98,7 @@ SDLImage::SDLImage(const JsonNode & conf, EImageBlitMode mode)
 	}
 }
 
-SDLImage::SDLImage(std::string filename, EImageBlitMode mode)
+SDLImage::SDLImage(const ImagePath & filename, EImageBlitMode mode)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -128,7 +108,7 @@ SDLImage::SDLImage(std::string filename, EImageBlitMode mode)
 
 	if(surf == nullptr)
 	{
-		logGlobal->error("Error: failed to load image %s", filename);
+		logGlobal->error("Error: failed to load image %s", filename.getOriginalName());
 		return;
 	}
 	else

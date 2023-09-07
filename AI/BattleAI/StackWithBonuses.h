@@ -110,11 +110,13 @@ public:
 
 	std::shared_ptr<StackWithBonuses> getForUpdate(uint32_t id);
 
+	BattleID getBattleID() const override;
+
 	int32_t getActiveStackID() const override;
 
 	battle::Units getUnitsIf(battle::UnitFilter predicate) const override;
 
-	void nextRound(int32_t roundNr) override;
+	void nextRound() override;
 	void nextTurn(uint32_t unitId) override;
 
 	void addUnit(uint32_t id, const JsonNode & data) override;
@@ -136,6 +138,9 @@ public:
 	uint32_t nextUnitId() const override;
 
 	int64_t getActualDamage(const DamageRange & damage, int32_t attackerCount, vstd::RNG & rng) const override;
+	std::vector<SpellID> getUsedSpells(ui8 side) const override;
+	int3 getLocation() const override;
+	bool isCreatureBank() const override;
 
 	int64_t getTreeVersion() const;
 
@@ -177,7 +182,7 @@ private:
 		HypotheticEnvironment(HypotheticBattle * owner_, const Environment * upperEnvironment);
 
 		const Services * services() const override;
-		const BattleCb * battle() const override;
+		const BattleCb * battle(const BattleID & battleID) const override;
 		const GameCb * game() const override;
 		vstd::CLoggerBase * logger() const override;
 		events::EventBus * eventBus() const override;

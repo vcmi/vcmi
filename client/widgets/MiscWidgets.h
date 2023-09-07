@@ -164,17 +164,21 @@ public:
 	~CMinorResDataBar();
 };
 
-/// Opens hero window by left-clicking on it
+/// Performs an action by left-clicking on it. Opens hero window by default
 class CHeroArea: public CIntObject
 {
-	const CGHeroInstance * hero;
-	std::shared_ptr<CAnimImage> portrait;
-
 public:
-	CHeroArea(int x, int y, const CGHeroInstance * _hero);
+	using ClickFunctor = std::function<void()>;
 
+	CHeroArea(int x, int y, const CGHeroInstance * hero);
+	void addClickCallback(ClickFunctor callback);
 	void clickPressed(const Point & cursorPosition) override;
 	void hover(bool on) override;
+private:
+	const CGHeroInstance * hero;
+	std::shared_ptr<CAnimImage> portrait;
+	ClickFunctor clickFunctor;
+	ClickFunctor showPopupHandler;
 };
 
 /// Can interact on left and right mouse clicks

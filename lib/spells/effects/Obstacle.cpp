@@ -85,9 +85,9 @@ void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
 	serializeRelativeShape(handler, "shape", shape);
 	serializeRelativeShape(handler, "range", range);
 
-	handler.serializeString("appearSound", appearSound);
-	handler.serializeString("appearAnimation", appearAnimation);
-	handler.serializeString("animation", animation);
+	handler.serializeStruct("appearSound", appearSound);
+	handler.serializeStruct("appearAnimation", appearAnimation);
+	handler.serializeStruct("animation", animation);
 
 	handler.serializeInt("offsetY", offsetY);
 }

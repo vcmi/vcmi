@@ -23,6 +23,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 #include "../render/Canvas.h"
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
@@ -69,7 +70,7 @@ struct ComponentsToBlit
 
 namespace
 {
-	std::array<std::unique_ptr<CAnimation>, PlayerColor::PLAYER_LIMIT_I> dialogBorders;
+	std::array<std::shared_ptr<CAnimation>, PlayerColor::PLAYER_LIMIT_I> dialogBorders;
 	std::array<std::vector<std::shared_ptr<IImage>>, PlayerColor::PLAYER_LIMIT_I> piecesOfBox;
 
 	std::shared_ptr<IImage> background;//todo: should be CFilledTexture
@@ -79,7 +80,7 @@ void CMessage::init()
 {
 	for(int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
 	{
-		dialogBorders[i] = std::make_unique<CAnimation>("DIALGBOX");
+		dialogBorders[i] = GH.renderHandler().loadAnimation(AnimationPath::builtin("DIALGBOX"));
 		dialogBorders[i]->preload();
 
 		for(int j=0; j < dialogBorders[i]->size(0); j++)
@@ -92,7 +93,7 @@ void CMessage::init()
 		}
 	}
 
-	background = IImage::createFromFile("DIBOXBCK.BMP", EImageBlitMode::OPAQUE);
+	background = GH.renderHandler().loadImage(ImagePath::builtin("DIBOXBCK.BMP"), EImageBlitMode::OPAQUE);
 }
 
 void CMessage::dispose()

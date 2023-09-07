@@ -13,7 +13,6 @@
 #include <vcmi/Environment.h>
 
 #include "../lib/IGameCallback.h"
-#include "../lib/battle/CBattleInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,6 +24,7 @@ class CGameInterface;
 class BinaryDeserializer;
 class BinarySerializer;
 class BattleAction;
+class BattleInfo;
 
 template<typename T> class CApplier;
 
@@ -105,12 +105,12 @@ public:
 	const Services * services() const override;
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
-	const BattleCb * battle() const override;
+	const BattleCb * battle(const BattleID & battle) const override;
 	const GameCb * game() const override;
 };
 
 /// Class which handles client - server logic
-class CClient : public IGameCallback, public CBattleInfoCallback, public Environment
+class CClient : public IGameCallback, public Environment
 {
 public:
 	std::map<PlayerColor, std::shared_ptr<CGameInterface>> playerint;
@@ -124,7 +124,7 @@ public:
 	~CClient();
 
 	const Services * services() const override;
-	const BattleCb * battle() const override;
+	const BattleCb * battle(const BattleID & battle) const override;
 	const GameCb * game() const override;
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
@@ -151,8 +151,8 @@ public:
 	int sendRequest(const CPackForServer * request, PlayerColor player); //returns ID given to that request
 
 	void battleStarted(const BattleInfo * info);
-	void battleFinished();
-	void startPlayerBattleAction(PlayerColor color);
+	void battleFinished(const BattleID & battleID);
+	void startPlayerBattleAction(const BattleID & battleID, PlayerColor color);
 
 	void invalidatePaths();
 	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
@@ -220,7 +220,6 @@ public:
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
-	scripting::Pool * getContextPool() const override;
 #endif
 
 private:

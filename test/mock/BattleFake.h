@@ -88,6 +88,17 @@ public:
 		pack->applyBattle(this);
 	}
 
+	const IBattleInfo * getBattle() const override
+	{
+		return nullptr;
+	}
+
+	std::optional<PlayerColor> getPlayerID() const override
+	{
+		return std::nullopt;
+	}
+
+
 protected:
 
 private:

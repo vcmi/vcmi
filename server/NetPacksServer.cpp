@@ -20,7 +20,7 @@
 #include "../lib/IGameCallback.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/gameState/CGameState.h"
-#include "../lib/battle/BattleInfo.h"
+#include "../lib/battle/IBattleState.h"
 #include "../lib/battle/BattleAction.h"
 #include "../lib/battle/Unit.h"
 #include "../lib/serializer/Connection.h"
@@ -104,8 +104,9 @@ void ApplyGhNetPackVisitor::visitBuildStructure(BuildStructure & pack)
 
 void ApplyGhNetPackVisitor::visitRecruitCreatures(RecruitCreatures & pack)
 {
-	gh.throwIfWrongOwner(&pack, pack.tid);
-	result = gh.recruitCreatures(pack.tid, pack.dst, pack.crid, pack.amount, pack.level);
+	gh.throwIfWrongPlayer(&pack);
+	// ownership checks are inside recruitCreatures
+	result = gh.recruitCreatures(pack.tid, pack.dst, pack.crid, pack.amount, pack.level, pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitUpgradeCreature(UpgradeCreature & pack)
@@ -276,7 +277,7 @@ void ApplyGhNetPackVisitor::visitMakeAction(MakeAction & pack)
 {
 	gh.throwIfWrongPlayer(&pack);
 
-	result = gh.battles->makePlayerBattleAction(pack.player, pack.ba);
+	result = gh.battles->makePlayerBattleAction(pack.battleID, pack.player, pack.ba);
 }
 
 void ApplyGhNetPackVisitor::visitDigWithHero(DigWithHero & pack)

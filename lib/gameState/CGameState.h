@@ -83,6 +83,11 @@ class DLL_LINKAGE CGameState : public CNonConstInfoCallback
 	friend class CGameStateCampaign;
 
 public:
+	/// List of currently ongoing battles
+	std::vector<std::unique_ptr<BattleInfo>> currentBattles;
+	/// ID that can be allocated to next battle
+	BattleID nextBattleID = BattleID(0);
+
 	//we have here all heroes available on this map that are not hired
 	std::unique_ptr<TavernHeroesPool> heroesPool;
 
@@ -98,7 +103,6 @@ public:
 	void updateOnLoad(StartInfo * si);
 
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
-	ConstTransitivePtr<BattleInfo> curB; //current battle
 	ui32 day; //total number of days in game
 	ConstTransitivePtr<CMap> map;
 	std::map<PlayerColor, PlayerState> players;
@@ -123,6 +127,13 @@ public:
 	int3 guardingCreaturePosition (int3 pos) const override;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
 	void updateRumor();
+
+	/// Returns battle in which selected player is engaged, or nullptr if none.
+	/// Can NOT be used with neutral player, use battle by ID instead
+	const BattleInfo * getBattle(const PlayerColor & player) const;
+	/// Returns battle by its unique identifier, or nullptr if not found
+	const BattleInfo * getBattle(const BattleID & battle) const;
+	BattleInfo * getBattle(const BattleID & battle);
 
 	// ----- victory, loss condition checks -----
 

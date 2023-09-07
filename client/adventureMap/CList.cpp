@@ -206,9 +206,9 @@ void CList::selectPrev()
 CHeroList::CEmptyHeroItem::CEmptyHeroItem()
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	movement = std::make_shared<CAnimImage>("IMOBIL", 0, 0, 0, 1);
-	portrait = std::make_shared<CPicture>("HPSXXX", movement->pos.w + 1, 0);
-	mana = std::make_shared<CAnimImage>("IMANA", 0, 0, movement->pos.w + portrait->pos.w + 2, 1 );
+	movement = std::make_shared<CAnimImage>(AnimationPath::builtin("IMOBIL"), 0, 0, 0, 1);
+	portrait = std::make_shared<CPicture>(ImagePath::builtin("HPSXXX"), movement->pos.w + 1, 0);
+	mana = std::make_shared<CAnimImage>(AnimationPath::builtin("IMANA"), 0, 0, movement->pos.w + portrait->pos.w + 2, 1 );
 
 	pos.w = mana->pos.w + mana->pos.x - pos.x;
 	pos.h = std::max(std::max<int>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
@@ -219,9 +219,9 @@ CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero)
 	hero(Hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	movement = std::make_shared<CAnimImage>("IMOBIL", 0, 0, 0, 1);
-	portrait = std::make_shared<CAnimImage>("PortraitsSmall", hero->portrait, 0, movement->pos.w + 1);
-	mana = std::make_shared<CAnimImage>("IMANA", 0, 0, movement->pos.w + portrait->pos.w + 2, 1);
+	movement = std::make_shared<CAnimImage>(AnimationPath::builtin("IMOBIL"), 0, 0, 0, 1);
+	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsSmall"), hero->portrait, 0, movement->pos.w + 1);
+	mana = std::make_shared<CAnimImage>(AnimationPath::builtin("IMANA"), 0, 0, movement->pos.w + portrait->pos.w + 2, 1);
 
 	pos.w = mana->pos.w + mana->pos.x - pos.x;
 	pos.h = std::max(std::max<int>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
@@ -238,7 +238,7 @@ void CHeroList::CHeroItem::update()
 
 std::shared_ptr<CIntObject> CHeroList::CHeroItem::genSelection()
 {
-	return std::make_shared<CPicture>("HPSYYY", movement->pos.w + 1, 0);
+	return std::make_shared<CPicture>(ImagePath::builtin("HPSYYY"), movement->pos.w + 1, 0);
 }
 
 void CHeroList::CHeroItem::select(bool on)
@@ -319,7 +319,7 @@ std::shared_ptr<CIntObject> CTownList::createItem(size_t index)
 {
 	if (LOCPLINT->localState->getOwnedTowns().size() > index)
 		return std::make_shared<CTownItem>(this, LOCPLINT->localState->getOwnedTown(index));
-	return std::make_shared<CAnimImage>("ITPA", 0);
+	return std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), 0);
 }
 
 CTownList::CTownItem::CTownItem(CTownList *parent, const CGTownInstance *Town):
@@ -327,14 +327,14 @@ CTownList::CTownItem::CTownItem(CTownList *parent, const CGTownInstance *Town):
 	town(Town)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	picture = std::make_shared<CAnimImage>("ITPA", 0);
+	picture = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), 0);
 	pos = picture->pos;
 	update();
 }
 
 std::shared_ptr<CIntObject> CTownList::CTownItem::genSelection()
 {
-	return std::make_shared<CAnimImage>("ITPA", 1);
+	return std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), 1);
 }
 
 void CTownList::CTownItem::update()

@@ -24,7 +24,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/ResourceSet.h"
 
-CResDataBar::CResDataBar(const std::string & imageName, const Point & position)
+CResDataBar::CResDataBar(const ImagePath & imageName, const Point & position)
 {
 	pos.x += position.x;
 	pos.y += position.y;
@@ -37,7 +37,7 @@ CResDataBar::CResDataBar(const std::string & imageName, const Point & position)
 	pos.h = background->pos.h;
 }
 
-CResDataBar::CResDataBar(const std::string & defname, int x, int y, int offx, int offy, int resdist, int datedist):
+CResDataBar::CResDataBar(const ImagePath & defname, int x, int y, int offx, int offy, int resdist, int datedist):
 	CResDataBar(defname, Point(x,y))
 {
 	for (int i = 0; i < 7 ; i++)

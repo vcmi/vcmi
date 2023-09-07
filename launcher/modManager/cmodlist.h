@@ -74,9 +74,6 @@ public:
 	QVariant getValue(QString value) const;
 	QVariant getBaseValue(QString value) const;
 
-	// returns true if less < greater comparing versions section by section
-	static bool compareVersions(QString lesser, QString greater);
-
 	static QString sizeToString(double size);
 };
 

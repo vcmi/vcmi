@@ -65,35 +65,6 @@ void CTreasureInfo::serializeJson(JsonSerializeFormat & handler)
 namespace rmg
 {
 
-//FIXME: This is never used, instead TerrainID is used
-class TerrainEncoder
-{
-public:
-	static si32 decode(const std::string & identifier)
-	{
-		return *VLC->identifiers()->getIdentifier(ModScope::scopeGame(), "terrain", identifier);
-	}
-
-	static std::string encode(const si32 index)
-	{
-		return VLC->terrainTypeHandler->getByIndex(index)->getJsonKey();
-	}
-};
-
-class ZoneEncoder
-{
-public:
-	static si32 decode(const std::string & json)
-	{
-		return std::stoi(json);
-	}
-
-	static std::string encode(si32 id)
-	{
-		return std::to_string(id);
-	}
-};
-
 const TRmgTemplateZoneId ZoneOptions::NO_ZONE = -1;
 
 ZoneOptions::CTownInfo::CTownInfo()
@@ -508,8 +479,24 @@ void ZoneConnection::serializeJson(JsonSerializeFormat & handler)
 		"random"
 	};
 
-	handler.serializeId<TRmgTemplateZoneId, TRmgTemplateZoneId, ZoneEncoder>("a", zoneA, -1);
-	handler.serializeId<TRmgTemplateZoneId, TRmgTemplateZoneId, ZoneEncoder>("b", zoneB, -1);
+	if (handler.saving)
+	{
+		std::string zoneNameA = std::to_string(zoneA);
+		std::string zoneNameB = std::to_string(zoneB);
+		handler.serializeString("a", zoneNameA);
+		handler.serializeString("b", zoneNameB);
+	}
+	else
+	{
+		std::string zoneNameA;
+		std::string zoneNameB;
+		handler.serializeString("a", zoneNameA);
+		handler.serializeString("b", zoneNameB);
+
+		zoneA = std::stoi(zoneNameA);
+		zoneB = std::stoi(zoneNameB);
+	}
+
 	handler.serializeInt("guard", guardStrength, 0);
 	handler.serializeEnum("type", connectionType, connectionTypes);
 	handler.serializeEnum("road", hasRoad, roadOptions);

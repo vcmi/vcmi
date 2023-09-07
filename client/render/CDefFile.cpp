@@ -24,7 +24,7 @@ class CFileCache
 	static const int cacheSize = 50; //Max number of cached files
 	struct FileData
 	{
-		ResourceID             name;
+		AnimationPath             name;
 		size_t                 size;
 		std::unique_ptr<ui8[]> data;
 
@@ -34,7 +34,7 @@ class CFileCache
 			std::copy(data.get(), data.get() + size, ret.get());
 			return ret;
 		}
-		FileData(ResourceID name_, size_t size_, std::unique_ptr<ui8[]> data_):
+		FileData(AnimationPath name_, size_t size_, std::unique_ptr<ui8[]> data_):
 			name{std::move(name_)},
 			size{size_},
 			data{std::move(data_)}
@@ -43,7 +43,7 @@ class CFileCache
 
 	std::deque<FileData> cache;
 public:
-	std::unique_ptr<ui8[]> getCachedFile(ResourceID rid)
+	std::unique_ptr<ui8[]> getCachedFile(AnimationPath rid)
 	{
 		for(auto & file : cache)
 		{
@@ -97,7 +97,7 @@ static bool colorsSimilar (const SDL_Color & lhs, const SDL_Color & rhs)
 	return std::abs(diffR) < threshold && std::abs(diffG) < threshold && std::abs(diffB) < threshold && std::abs(diffA) < threshold;
 }
 
-CDefFile::CDefFile(std::string Name):
+CDefFile::CDefFile(const AnimationPath & Name):
 	data(nullptr),
 	palette(nullptr)
 {
@@ -124,7 +124,7 @@ CDefFile::CDefFile(std::string Name):
 		{0, 0, 0, 64 }  // shadow border below selection ( used in battle def's )
 	};
 
-	data = animationCache.getCachedFile(ResourceID(std::string("SPRITES/") + Name, EResType::ANIMATION));
+	data = animationCache.getCachedFile(Name);
 
 	palette = std::unique_ptr<SDL_Color[]>(new SDL_Color[256]);
 	int it = 0;

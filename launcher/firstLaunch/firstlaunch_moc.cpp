@@ -230,8 +230,8 @@ bool FirstLaunchView::heroesDataDetect()
 	CResourceHandler::load("config/filesystem.json");
 
 	// use file from lod archive to check presence of H3 data. Very rough estimate, but will work in majority of cases
-	bool heroesDataFoundROE = CResourceHandler::get()->existsResource(ResourceID("DATA/GENRLTXT.TXT"));
-	bool heroesDataFoundSOD = CResourceHandler::get()->existsResource(ResourceID("DATA/TENTCOLR.TXT"));
+	bool heroesDataFoundROE = CResourceHandler::get()->existsResource(ResourcePath("DATA/GENRLTXT.TXT"));
+	bool heroesDataFoundSOD = CResourceHandler::get()->existsResource(ResourcePath("DATA/TENTCOLR.TXT"));
 
 	return heroesDataFoundROE && heroesDataFoundSOD;
 }

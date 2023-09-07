@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CampaignState.h" // Convenience include - not required for build, but required for any user of CampaignHandler
+#include "../filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -32,8 +33,8 @@ class DLL_LINKAGE CampaignHandler
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps
 	static std::vector<std::vector<ui8>> getFile(std::unique_ptr<CInputStream> file, bool headerOnly);
 
-	static std::string prologVideoName(ui8 index);
-	static std::string prologMusicName(ui8 index);
+	static VideoPath prologVideoName(ui8 index);
+	static AudioPath prologMusicName(ui8 index);
 	static std::string prologVoiceName(ui8 index);
 
 public:

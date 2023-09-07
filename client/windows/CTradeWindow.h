@@ -35,7 +35,7 @@ public:
 	class CTradeableItem : public CIntObject, public std::enable_shared_from_this<CTradeableItem>
 	{
 		std::shared_ptr<CAnimImage> image;
-		std::string getFilename();
+		AnimationPath getFilename();
 		int getIndex();
 	public:
 		const CArtifactInstance * hlp; //holds ptr to artifact instance id type artifact
@@ -83,7 +83,7 @@ public:
 	std::shared_ptr<CSlider> slider; //for choosing amount to be exchanged
 	bool readyToTrade;
 
-	CTradeWindow(std::string bgName, const IMarket * Market, const CGHeroInstance * Hero, EMarketMode Mode); //c
+	CTradeWindow(const ImagePath & bgName, const IMarket * Market, const CGHeroInstance * Hero, EMarketMode Mode); //c
 
 	void showAll(Canvas & to) override;
 
@@ -120,7 +120,7 @@ class CMarketplaceWindow : public CTradeWindow
 
 	bool printButtonFor(EMarketMode M) const;
 
-	std::string getBackgroundForMode(EMarketMode mode);
+	ImagePath getBackgroundForMode(EMarketMode mode);
 public:
 	int r1, r2; //suggested amounts of traded resources
 	bool madeTransaction; //if player made at least one transaction

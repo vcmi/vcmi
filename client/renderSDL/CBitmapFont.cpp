@@ -24,7 +24,7 @@
 
 #include <SDL_surface.h>
 
-void CBitmapFont::loadModFont(const std::string & modName, const ResourceID & resource)
+void CBitmapFont::loadModFont(const std::string & modName, const ResourcePath & resource)
 {
 	if (!CResourceHandler::get(modName)->existsResource(resource))
 	{
@@ -72,7 +72,7 @@ void CBitmapFont::loadModFont(const std::string & modName, const ResourceID & re
 CBitmapFont::CBitmapFont(const std::string & filename):
 	maxHeight(0)
 {
-	ResourceID resource("data/" + filename, EResType::BMP_FONT);
+	ResourcePath resource("data/" + filename, EResType::BMP_FONT);
 
 	loadModFont("core", resource);
 

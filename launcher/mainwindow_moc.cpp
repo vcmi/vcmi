@@ -110,7 +110,7 @@ MainWindow::MainWindow(QWidget * parent)
 
 	computeSidePanelSizes();
 
-	bool h3DataFound = CResourceHandler::get()->existsResource(ResourceID("DATA/GENRLTXT.TXT"));
+	bool h3DataFound = CResourceHandler::get()->existsResource(ResourcePath("DATA/GENRLTXT.TXT"));
 
 	if (h3DataFound && setupCompleted)
 		ui->tabListWidget->setCurrentIndex(TabRows::MODS);

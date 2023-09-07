@@ -21,7 +21,7 @@ BattleFieldInfo * BattleFieldHandler::loadFromJson(const std::string & scope, co
 
 	auto * info = new BattleFieldInfo(BattleField(index), identifier);
 
-	info->graphics = json["graphics"].String();
+	info->graphics = ImagePath::fromJson(json["graphics"]);
 	info->icon = json["icon"].String();
 	info->name = json["name"].String();
 	for(const auto & b : json["bonuses"].Vector())
