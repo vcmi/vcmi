@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 
-#include "../lib/filesystem/ResourceID.h"
+#include "../lib/filesystem/ResourcePath.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/TerrainHandler.h"
@@ -111,7 +111,7 @@ TEST(MapManager, DrawTerrain_View)
 {
 	try
 	{
-		const ResourceID testMap("test/TerrainViewTest", EResType::MAP);
+		const ResourcePath testMap("test/TerrainViewTest", EResType::MAP);
 		// Load maps and json config
 		CMapService mapService;
 		const auto originalMap = mapService.loadMap(testMap);
@@ -120,7 +120,7 @@ TEST(MapManager, DrawTerrain_View)
 		// Validate edit manager
 		auto editManager = map->getEditManager();
 		CRandomGenerator gen;
-		const JsonNode viewNode(ResourceID("test/terrainViewMappings", EResType::TEXT));
+		const JsonNode viewNode(JsonPath::builtin("test/terrainViewMappings"));
 		const auto & mappingsNode = viewNode["mappings"].Vector();
 		for (const auto & node : mappingsNode)
 		{

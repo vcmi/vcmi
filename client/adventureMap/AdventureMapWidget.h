@@ -29,11 +29,11 @@ class AdventureMapWidget : public InterfaceObjectConfigurable
 	std::vector<Rect> subwidgetSizes;
 
 	/// list of images on which player-colored palette will be applied
-	std::vector<std::string> playerColorerImages;
+	std::vector<ImagePath> playerColorerImages;
 
 	/// list of named images shared between widgets
-	std::map<std::string, std::shared_ptr<IImage>> images;
-	std::map<std::string, std::shared_ptr<CAnimation>> animations;
+	std::map<ImagePath, std::shared_ptr<IImage>> images;
+	std::map<AnimationPath, std::shared_ptr<CAnimation>> animations;
 
 	/// Widgets that require access from adventure map
 	std::shared_ptr<CHeroList> heroList;
@@ -48,8 +48,8 @@ class AdventureMapWidget : public InterfaceObjectConfigurable
 	Rect readSourceArea(const JsonNode & source, const JsonNode & sourceCommon);
 	Rect readArea(const JsonNode & source, const Rect & boundingBox);
 
-	std::shared_ptr<IImage> loadImage(const std::string & name);
-	std::shared_ptr<CAnimation> loadAnimation(const std::string & name);
+	std::shared_ptr<IImage> loadImage(const JsonNode & name);
+	std::shared_ptr<CAnimation> loadAnimation(const JsonNode & name);
 
 	std::shared_ptr<CIntObject> buildInfobox(const JsonNode & input);
 	std::shared_ptr<CIntObject> buildMapImage(const JsonNode & input);

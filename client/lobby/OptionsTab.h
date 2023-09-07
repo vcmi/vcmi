@@ -62,7 +62,7 @@ private:
 
 		/// visible image settings
 		size_t getImageIndex(bool big = false);
-		std::string getImageName(bool big = false);
+		AnimationPath getImageName(bool big = false);
 
 		std::string getName(); /// name visible in options dialog
 		std::string getTitle(); /// title in popup box

@@ -23,7 +23,7 @@
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/CStack.h"
 
-#include "../../lib/filesystem/ResourceID.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 #include "../../lib/mapping/CMap.h"
 
@@ -146,7 +146,7 @@ public:
 		si.mode = StartInfo::NEW_GAME;
 		si.seedToBeUsed = 42;
 
-		std::unique_ptr<CMapHeader> header = mapService.loadMapHeader(ResourceID(si.mapname));
+		std::unique_ptr<CMapHeader> header = mapService.loadMapHeader(ResourcePath(si.mapname));
 
 		ASSERT_NE(header.get(), nullptr);
 

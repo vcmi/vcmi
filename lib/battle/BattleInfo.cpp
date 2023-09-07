@@ -317,7 +317,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	std::vector<std::vector<int>> creBankFormations[2];
 	std::vector<int> commanderField;
 	std::vector<int> commanderBank;
-	const JsonNode config(ResourceID("config/battleStartpos.json"));
+	const JsonNode config(JsonPath::builtin("config/battleStartpos.json"));
 	const JsonVector &positions = config["battle_positions"].Vector();
 
 	CGH::readBattlePositions(positions[0]["levels"], looseFormations[0]);

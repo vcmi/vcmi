@@ -60,17 +60,17 @@ bool CObstacleInstance::visibleForSide(ui8 side, bool hasNativeStack) const
 	return true;
 }
 
-const std::string & CObstacleInstance::getAnimation() const
+const AnimationPath & CObstacleInstance::getAnimation() const
 {
 	return getInfo().animation;
 }
 
-const std::string & CObstacleInstance::getAppearAnimation() const
+const AnimationPath & CObstacleInstance::getAppearAnimation() const
 {
 	return getInfo().appearAnimation;
 }
 
-const std::string & CObstacleInstance::getAppearSound() const
+const AudioPath & CObstacleInstance::getAppearSound() const
 {
 	return getInfo().appearSound;
 }
@@ -118,9 +118,9 @@ void CObstacleInstance::serializeJson(JsonSerializeFormat & handler)
 
 	//We need only a subset of obstacle info for correct render
 	handler.serializeInt("position", pos);
-	handler.serializeString("appearSound", obstacleInfo.appearSound);
-	handler.serializeString("appearAnimation", obstacleInfo.appearAnimation);
-	handler.serializeString("animation", obstacleInfo.animation);
+	handler.serializeStruct("appearSound", obstacleInfo.appearSound);
+	handler.serializeStruct("appearAnimation", obstacleInfo.appearAnimation);
+	handler.serializeStruct("animation", obstacleInfo.animation);
 	handler.serializeInt("animationYOffset", animationYOffset);
 
 	handler.serializeBool("hidden", hidden);
@@ -213,9 +213,9 @@ void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeBool("removeOnTrigger", removeOnTrigger);
 	handler.serializeBool("nativeVisible", nativeVisible);
 
-	handler.serializeString("appearSound", appearSound);
-	handler.serializeString("appearAnimation", appearAnimation);
-	handler.serializeString("animation", animation);
+	handler.serializeStruct("appearSound", appearSound);
+	handler.serializeStruct("appearAnimation", appearAnimation);
+	handler.serializeStruct("animation", animation);
 
 	handler.serializeInt("animationYOffset", animationYOffset);
 
@@ -239,17 +239,17 @@ void SpellCreatedObstacle::battleTurnPassed()
 		turnsRemaining--;
 }
 
-const std::string & SpellCreatedObstacle::getAnimation() const
+const AnimationPath & SpellCreatedObstacle::getAnimation() const
 {
 	return animation;
 }
 
-const std::string & SpellCreatedObstacle::getAppearAnimation() const
+const AnimationPath & SpellCreatedObstacle::getAppearAnimation() const
 {
 	return appearAnimation;
 }
 
-const std::string & SpellCreatedObstacle::getAppearSound() const
+const AudioPath & SpellCreatedObstacle::getAppearSound() const
 {
 	return appearSound;
 }

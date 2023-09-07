@@ -214,7 +214,7 @@ std::string CGObjectInstance::getObjectName() const
 	return VLC->objtypeh->getObjectName(ID, subID);
 }
 
-std::optional<std::string> CGObjectInstance::getAmbientSound() const
+std::optional<AudioPath> CGObjectInstance::getAmbientSound() const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).ambient;
 	if(!sounds.empty())
@@ -223,7 +223,7 @@ std::optional<std::string> CGObjectInstance::getAmbientSound() const
 	return std::nullopt;
 }
 
-std::optional<std::string> CGObjectInstance::getVisitSound() const
+std::optional<AudioPath> CGObjectInstance::getVisitSound() const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).visit;
 	if(!sounds.empty())
@@ -232,7 +232,7 @@ std::optional<std::string> CGObjectInstance::getVisitSound() const
 	return std::nullopt;
 }
 
-std::optional<std::string> CGObjectInstance::getRemovalSound() const
+std::optional<AudioPath> CGObjectInstance::getRemovalSound() const
 {
 	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).removal;
 	if(!sounds.empty())

@@ -152,7 +152,7 @@ public:
 	void showHillFortWindow(const CGObjectInstance * object, const CGHeroInstance * visitor) override;
 	void playerBonusChanged(const Bonus & bonus, bool gain) override;
 	void heroCreated(const CGHeroInstance *) override;
-	void advmapSpellCast(const CGHeroInstance * caster, int spellID) override;
+	void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID) override;
 	void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID) override;
 	void requestRealized(PackageApplied * pa) override;
 	void receivedResource() override;

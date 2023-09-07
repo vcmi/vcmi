@@ -118,7 +118,7 @@ RandomMapTab::RandomMapTab():
 		});
 	}
 	
-	const JsonNode config(ResourceID("config/widgets/randomMapTab.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/randomMapTab.json"));
 	build(config);
 	
 	//set combo box callbacks
@@ -388,7 +388,7 @@ std::vector<int> RandomMapTab::getPossibleMapSizes()
 TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	InterfaceObjectConfigurable()
 {
-	const JsonNode config(ResourceID("config/widgets/randomMapTeamsWidget.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/randomMapTeamsWidget.json"));
 	variables = config["variables"];
 	
 	int humanPlayers = randomMapTab.obtainMapGenOptions().getPlayerCount();

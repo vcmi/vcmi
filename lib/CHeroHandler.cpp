@@ -243,8 +243,8 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	heroClass->id = HeroClassID(index);
 	heroClass->identifier = identifier;
 	heroClass->modScope = scope;
-	heroClass->imageBattleFemale = node["animation"]["battle"]["female"].String();
-	heroClass->imageBattleMale   = node["animation"]["battle"]["male"].String();
+	heroClass->imageBattleFemale = AnimationPath::fromJson(node["animation"]["battle"]["female"]);
+	heroClass->imageBattleMale   = AnimationPath::fromJson(node["animation"]["battle"]["male"]);
 	//MODS COMPATIBILITY FOR 0.96
 	heroClass->imageMapFemale    = node["animation"]["map"]["female"].String();
 	heroClass->imageMapMale      = node["animation"]["map"]["male"].String();
@@ -320,7 +320,7 @@ std::vector<JsonNode> CHeroClassHandler::loadLegacyData()
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 
-	CLegacyConfigParser parser("DATA/HCTRAITS.TXT");
+	CLegacyConfigParser parser(TextPath::builtin("DATA/HCTRAITS.TXT"));
 
 	parser.endLine(); // header
 	parser.endLine();
@@ -438,7 +438,7 @@ CHero * CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & n
 	hero->iconSpecLarge = node["images"]["specialtyLarge"].String();
 	hero->portraitSmall = node["images"]["small"].String();
 	hero->portraitLarge = node["images"]["large"].String();
-	hero->battleImage = node["battleImage"].String();
+	hero->battleImage = AnimationPath::fromJson(node["battleImage"]);
 
 	loadHeroArmy(hero, node);
 	loadHeroSkills(hero, node);
@@ -681,9 +681,9 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData()
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 
-	CLegacyConfigParser specParser("DATA/HEROSPEC.TXT");
-	CLegacyConfigParser bioParser("DATA/HEROBIOS.TXT");
-	CLegacyConfigParser parser("DATA/HOTRAITS.TXT");
+	CLegacyConfigParser specParser(TextPath::builtin("DATA/HEROSPEC.TXT"));
+	CLegacyConfigParser bioParser(TextPath::builtin("DATA/HEROBIOS.TXT"));
+	CLegacyConfigParser parser(TextPath::builtin("DATA/HOTRAITS.TXT"));
 
 	parser.endLine(); //ignore header
 	parser.endLine();

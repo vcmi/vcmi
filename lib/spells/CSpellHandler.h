@@ -20,6 +20,7 @@
 #include "../GameConstants.h"
 #include "../battle/BattleHex.h"
 #include "../bonuses/Bonus.h"
+#include "../filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -65,7 +66,7 @@ public:
 		double minimumAngle;
 
 		///resource name
-		std::string resourceName;
+		AnimationPath resourceName;
 
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
@@ -76,7 +77,7 @@ public:
 
 	struct AnimationItem
 	{
-		std::string resourceName;
+		AnimationPath resourceName;
 		std::string effectName;
 		VerticalPosition verticalPosition;
 		int pause;
@@ -119,7 +120,7 @@ public:
 			h & affect;
 		}
 
-		std::string selectProjectile(const double angle) const;
+		AnimationPath selectProjectile(const double angle) const;
 	} animationInfo;
 
 public:
@@ -261,7 +262,7 @@ public:
 	const std::string & getIconScenarioBonus() const;
 	const std::string & getIconScroll() const;
 
-	const std::string & getCastSound() const override;
+	const AudioPath & getCastSound() const;
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
@@ -353,7 +354,7 @@ private:
 	std::string iconScroll;
 
 	///sound related stuff
-	std::string castSound;
+	AudioPath castSound;
 
 	std::vector<LevelInfo> levels;
 

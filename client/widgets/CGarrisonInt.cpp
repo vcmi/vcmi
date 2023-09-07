@@ -421,7 +421,7 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, EGa
 	pos.x += x;
 	pos.y += y;
 
-	std::string imgName = owner->smallIcons ? "cprsmall" : "TWCRPORT";
+	AnimationPath imgName = AnimationPath::builtin(owner->smallIcons ? "cprsmall" : "TWCRPORT");
 
 	creatureImage = std::make_shared<CAnimImage>(graphics->getAnimation(imgName), 0);
 	creatureImage->disable();

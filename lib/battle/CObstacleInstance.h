@@ -10,6 +10,7 @@
 #pragma once
 #include "BattleHex.h"
 #include "NetPacksBase.h"
+#include "../filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -51,9 +52,9 @@ struct DLL_LINKAGE CObstacleInstance
 	virtual void battleTurnPassed(){};
 
 	//Client helper functions, make it easier to render animations
-	virtual const std::string & getAnimation() const;
-	virtual const std::string & getAppearAnimation() const;
-	virtual const std::string & getAppearSound() const;
+	virtual const AnimationPath & getAnimation() const;
+	virtual const AnimationPath & getAppearAnimation() const;
+	virtual const AudioPath & getAppearSound() const;
 
 	virtual int getAnimationYOffset(int imageHeight) const;
 
@@ -87,9 +88,9 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 	bool revealed;
 	bool nativeVisible; //Should native terrain creatures reveal obstacle
 
-	std::string appearSound;
-	std::string appearAnimation;
-	std::string animation;
+	AudioPath appearSound;
+	AnimationPath appearAnimation;
+	AnimationPath animation;
 
 	int animationYOffset;
 
@@ -107,9 +108,9 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 	void battleTurnPassed() override;
 
 	//Client helper functions, make it easier to render animations
-	const std::string & getAnimation() const override;
-	const std::string & getAppearAnimation() const override;
-	const std::string & getAppearSound() const override;
+	const AnimationPath & getAnimation() const override;
+	const AnimationPath & getAppearAnimation() const override;
+	const AudioPath & getAppearSound() const override;
 	int getAnimationYOffset(int imageHeight) const override;
 
 	void fromInfo(const ObstacleChanges & info);

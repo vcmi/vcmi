@@ -182,10 +182,10 @@ void BoatInstanceConstructor::initTypeData(const JsonNode & input)
 		layer = EPathfindingLayer(pos);
 	onboardAssaultAllowed = input["onboardAssaultAllowed"].Bool();
 	onboardVisitAllowed = input["onboardVisitAllowed"].Bool();
-	actualAnimation = input["actualAnimation"].String();
-	overlayAnimation = input["overlayAnimation"].String();
+	actualAnimation = AnimationPath::fromJson(input["actualAnimation"]);
+	overlayAnimation = AnimationPath::fromJson(input["overlayAnimation"]);
 	for(int i = 0; i < flagAnimations.size() && i < input["flagAnimations"].Vector().size(); ++i)
-		flagAnimations[i] = input["flagAnimations"].Vector()[i].String();
+		flagAnimations[i] = AnimationPath::fromJson(input["flagAnimations"].Vector()[i]);
 	bonuses = JsonRandom::loadBonuses(input["bonuses"]);
 }
 
@@ -201,7 +201,7 @@ void BoatInstanceConstructor::initializeObject(CGBoat * boat) const
 		boat->addNewBonus(std::make_shared<Bonus>(b));
 }
 
-std::string BoatInstanceConstructor::getBoatAnimationName() const
+AnimationPath BoatInstanceConstructor::getBoatAnimationName() const
 {
 	return actualAnimation;
 }

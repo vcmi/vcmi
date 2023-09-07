@@ -29,6 +29,7 @@
 #include "../windows/CMessage.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
+#include "../render/IRenderHandler.h"
 #include "../adventureMap/CInGameConsole.h"
 
 #include "../../CCallback.h"
@@ -37,7 +38,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/filesystem/ResourceID.h"
+#include "../../lib/filesystem/ResourcePath.h"
 #include "../windows/settings/SettingsMainWindow.h"
 
 BattleWindow::BattleWindow(BattleInterface & owner):
@@ -51,7 +52,7 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 
 	REGISTER_BUILDER("battleConsole", &BattleWindow::buildBattleConsole);
 	
-	const JsonNode config(ResourceID("config/widgets/BattleWindow2.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/BattleWindow2.json"));
 	
 	addShortcut(EShortcut::GLOBAL_OPTIONS, std::bind(&BattleWindow::bOptionsf, this));
 	addShortcut(EShortcut::BATTLE_SURRENDER, std::bind(&BattleWindow::bSurrenderf, this));
@@ -436,23 +437,23 @@ void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 	if(!w)
 		return;
 	
-	std::string iconName = variables["actionIconDefault"].String();
+	AnimationPath iconName = AnimationPath::fromJson(variables["actionIconDefault"]);
 	switch(action.get())
 	{
 		case PossiblePlayerBattleAction::ATTACK:
-			iconName = variables["actionIconAttack"].String();
+			iconName = AnimationPath::fromJson(variables["actionIconAttack"]);
 			break;
 			
 		case PossiblePlayerBattleAction::SHOOT:
-			iconName = variables["actionIconShoot"].String();
+			iconName = AnimationPath::fromJson(variables["actionIconShoot"]);
 			break;
 			
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-			iconName = variables["actionIconSpell"].String();
+			iconName = AnimationPath::fromJson(variables["actionIconSpell"]);
 			break;
 
 		case PossiblePlayerBattleAction::ANY_LOCATION:
-			iconName = variables["actionIconSpell"].String();
+			iconName = AnimationPath::fromJson(variables["actionIconSpell"]);
 			break;
 			
 		//TODO: figure out purpose of this icon
@@ -461,15 +462,15 @@ void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
 			//break;
 			
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
-			iconName = variables["actionIconReturn"].String();
+			iconName = AnimationPath::fromJson(variables["actionIconReturn"]);
 			break;
 			
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
-			iconName = variables["actionIconNoReturn"].String();
+			iconName = AnimationPath::fromJson(variables["actionIconNoReturn"]);
 			break;
 	}
 		
-	auto anim = std::make_shared<CAnimation>(iconName);
+	auto anim = GH.renderHandler().loadAnimation(iconName);
 	w->setImage(anim);
 	w->redraw();
 }

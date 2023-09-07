@@ -15,6 +15,7 @@
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 #include "battle/BattleHex.h"
+#include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -24,7 +25,7 @@ public:
 	BattleField battlefield;
 	std::vector<std::shared_ptr<Bonus>> bonuses;
 	bool isSpecial;
-	std::string graphics;
+	ImagePath graphics;
 	std::string name;
 	std::string identifier;
 	std::string icon;

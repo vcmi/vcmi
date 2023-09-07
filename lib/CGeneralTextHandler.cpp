@@ -48,7 +48,7 @@ void CGeneralTextHandler::detectInstallParameters()
 		"ukrainian"
 	} };
 
-	if(!CResourceHandler::get("core")->existsResource(ResourceID("DATA/GENRLTXT.TXT", EResType::TEXT)))
+	if(!CResourceHandler::get("core")->existsResource(TextPath::builtin("DATA/GENRLTXT.TXT")))
 	{
 		Settings language = settings.write["session"]["language"];
 		language->String() = "english";
@@ -64,7 +64,7 @@ void CGeneralTextHandler::detectInstallParameters()
 
 	// load file that will be used for footprint generation
 	// this is one of the most text-heavy files in game and consists solely from translated texts
-	auto resource = CResourceHandler::get("core")->load(ResourceID("DATA/GENRLTXT.TXT", EResType::TEXT));
+	auto resource = CResourceHandler::get("core")->load(TextPath::builtin("DATA/GENRLTXT.TXT"));
 
 	std::array<size_t, 256> charCount{};
 	std::array<double, 16> footprint{};
@@ -119,9 +119,8 @@ protected:
 	}
 };
 
-CLegacyConfigParser::CLegacyConfigParser(std::string URI)
+CLegacyConfigParser::CLegacyConfigParser(const TextPath & resource)
 {
-	ResourceID resource(URI, EResType::TEXT);
 	auto input = CResourceHandler::get()->load(resource);
 	std::string modName = VLC->modh->findResourceOrigin(resource);
 	std::string language = VLC->modh->getModLanguage(modName);
@@ -250,7 +249,7 @@ bool CLegacyConfigParser::endLine()
 
 void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::string & sourceName)
 {
-	CLegacyConfigParser parser(sourceName);
+	CLegacyConfigParser parser(TextPath::builtin(sourceName));
 	size_t index = 0;
 	do
 	{
@@ -430,11 +429,11 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.mineevnt", "DATA/MINEEVNT.TXT" );
 
 	static const char * QE_MOD_COMMANDS = "DATA/QECOMMANDS.TXT";
-	if (CResourceHandler::get()->existsResource(ResourceID(QE_MOD_COMMANDS, EResType::TEXT)))
+	if (CResourceHandler::get()->existsResource(TextPath::builtin(QE_MOD_COMMANDS)))
 		readToVector("vcmi.quickExchange", QE_MOD_COMMANDS);
 
 	{
-		CLegacyConfigParser parser("DATA/RANDTVRN.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/RANDTVRN.TXT"));
 		parser.endLine();
 		size_t index = 0;
 		do
@@ -449,7 +448,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser parser("DATA/GENRLTXT.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/GENRLTXT.TXT"));
 		parser.endLine();
 		size_t index = 0;
 		do
@@ -460,7 +459,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser parser("DATA/HELP.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/HELP.TXT"));
 		size_t index = 0;
 		do
 		{
@@ -473,7 +472,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser parser("DATA/PLCOLORS.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/PLCOLORS.TXT"));
 		size_t index = 0;
 		do
 		{
@@ -487,7 +486,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser parser("DATA/SEERHUT.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/SEERHUT.TXT"));
 
 		//skip header
 		parser.endLine();
@@ -531,7 +530,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		}
 	}
 	{
-		CLegacyConfigParser parser("DATA/CAMPTEXT.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/CAMPTEXT.TXT"));
 
 		//skip header
 		parser.endLine();
@@ -575,7 +574,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	}
 	if (VLC->settings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
 	{
-		if(CResourceHandler::get()->existsResource(ResourceID("DATA/ZNPC00.TXT", EResType::TEXT)))
+		if(CResourceHandler::get()->existsResource(TextPath::builtin("DATA/ZNPC00.TXT")))
 			readToVector("vcmi.znpc00", "DATA/ZNPC00.TXT" );
 	}
 }

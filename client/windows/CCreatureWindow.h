@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../../lib/bonuses/Bonus.h"
+#include "../../lib/filesystem/ResourcePath.h"
 #include "../widgets/MiscWidgets.h"
 #include "CWindowObject.h"
 
@@ -48,7 +49,7 @@ class CStackWindow : public CWindowObject
 	{
 		std::string name;
 		std::string description;
-		std::string imagePath;
+		ImagePath imagePath;
 	};
 
 	class CWindowSection : public CIntObject
@@ -58,7 +59,7 @@ class CStackWindow : public CWindowObject
 	protected:
 		CStackWindow * parent;
 	public:
-		CWindowSection(CStackWindow * parent, std::string backgroundPath, int yOffset);
+		CWindowSection(CStackWindow * parent, const ImagePath & backgroundPath, int yOffset);
 	};
 
 	class ActiveSpellsSection : public CWindowSection
@@ -138,7 +139,7 @@ class CStackWindow : public CWindowObject
 		void addStatLabel(EStat index, int64_t value1, int64_t value2);
 		void addStatLabel(EStat index, int64_t value);
 
-		static std::string getBackgroundName(bool showExp, bool showArt);
+		static ImagePath getBackgroundName(bool showExp, bool showArt);
 
 		std::array<std::string, 8> statNames;
 		std::array<std::string, 8> statFormats;

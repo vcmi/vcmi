@@ -354,7 +354,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	if(!spell)
 		return;
 
-	const std::string & castSoundPath = spell->getCastSound();
+	const AudioPath & castSoundPath = spell->getCastSound();
 
 	if (!castSoundPath.empty())
 	{
@@ -420,7 +420,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	if (!sc->resistedCres.empty())
 	{
 		addToAnimationStage(EAnimationEvents::HIT, [=](){
-			CCS->soundh->playSound("MAGICRES");
+			CCS->soundh->playSound(AudioPath::builtin("MAGICRES"));
 		});
 	}
 
@@ -441,8 +441,8 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		bool side = sc->side;
 
 		addToAnimationStage(EAnimationEvents::AFTER_HIT, [=](){
-			stacksController->addNewAnim(new EffectAnimation(*this, side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
-			stacksController->addNewAnim(new EffectAnimation(*this, side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
+			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side ? "SP07_A.DEF" : "SP07_B.DEF"), leftHero));
+			stacksController->addNewAnim(new EffectAnimation(*this, AnimationPath::builtin(side ? "SP07_B.DEF" : "SP07_A.DEF"), rightHero));
 		});
 	}
 

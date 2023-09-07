@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../../lib/battle/BattleHex.h"
+#include "../../lib/filesystem/ResourcePath.h"
 #include "BattleConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -68,11 +69,11 @@ class StackActionAnimation : public BattleStackAnimation
 {
 	ECreatureAnimType nextGroup;
 	ECreatureAnimType currGroup;
-	std::string sound;
+	AudioPath sound;
 public:
 	void setNextGroup( ECreatureAnimType group );
 	void setGroup( ECreatureAnimType group );
-	void setSound( std::string sound );
+	void setSound( const AudioPath & sound );
 
 	ECreatureAnimType getGroup() const;
 
@@ -334,17 +335,17 @@ public:
 	};
 
 	/// Create animation with screen-wide effect
-	EffectAnimation(BattleInterface & owner, std::string animationName, int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects = 0, bool reversed = false);
 
 	/// Create animation positioned at point(s). Note that positions must be are absolute, including battleint position offset
-	EffectAnimation(BattleInterface & owner, std::string animationName, Point pos                 , int effects = 0, bool reversed = false);
-	EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos    , int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos                 , int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<Point> pos    , int effects = 0, bool reversed = false);
 
 	/// Create animation positioned at certain hex(es)
-	EffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex             , int effects = 0, bool reversed = false);
-	EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex             , int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<BattleHex> hex, int effects = 0, bool reversed = false);
 
-	EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, BattleHex hex,   int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, BattleHex hex,   int effects = 0, bool reversed = false);
 	 ~EffectAnimation();
 
 	bool init() override;

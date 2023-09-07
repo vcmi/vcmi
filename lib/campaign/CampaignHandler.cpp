@@ -59,7 +59,7 @@ void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & inpu
 
 std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 {
-	ResourceID resourceID(name, EResType::CAMPAIGN);
+	ResourcePath resourceID(name, EResType::CAMPAIGN);
 	std::string modName = VLC->modh->findResourceOrigin(resourceID);
 	std::string language = VLC->modh->getModLanguage(modName);
 	std::string encoding = Languages::getLanguageOptions(language).encoding;
@@ -75,7 +75,7 @@ std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 
 std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string & name )
 {
-	ResourceID resourceID(name, EResType::CAMPAIGN);
+	ResourcePath resourceID(name, EResType::CAMPAIGN);
 	std::string modName = VLC->modh->findResourceOrigin(resourceID);
 	std::string language = VLC->modh->getModLanguage(modName);
 	std::string encoding = Languages::getLanguageOptions(language).encoding;
@@ -152,7 +152,7 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.name = reader["name"].String();
 	ret.description = reader["description"].String();
 	ret.difficultyChoosenByPlayer = reader["allowDifficultySelection"].Bool();
-	ret.music = reader["music"].String();
+	ret.music = AudioPath::fromJson(reader["music"]);
 	ret.filename = filename;
 	ret.modName = modName;
 	ret.encoding = encoding;
@@ -166,8 +166,8 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 		ret.hasPrologEpilog = !identifier.isNull();
 		if(ret.hasPrologEpilog)
 		{
-			ret.prologVideo = identifier["video"].String();
-			ret.prologMusic = identifier["music"].String();
+			ret.prologVideo = VideoPath::fromJson(identifier["video"]);
+			ret.prologMusic = AudioPath::fromJson(identifier["music"]);
 			ret.prologText = identifier["text"].String();
 		}
 		return ret;
@@ -590,24 +590,24 @@ std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputS
 	return ret;
 }
 
-std::string CampaignHandler::prologVideoName(ui8 index)
+VideoPath CampaignHandler::prologVideoName(ui8 index)
 {
-	JsonNode config(ResourceID(std::string("CONFIG/campaignMedia"), EResType::TEXT));
+	JsonNode config(JsonPath::builtin("CONFIG/campaignMedia"));
 	auto vids = config["videos"].Vector();
 	if(index < vids.size())
-		return vids[index].String();
-	return "";
+		return VideoPath::fromJson(vids[index]);
+	return VideoPath();
 }
 
-std::string CampaignHandler::prologMusicName(ui8 index)
+AudioPath CampaignHandler::prologMusicName(ui8 index)
 {
 	std::vector<std::string> music;
-	return VLC->generaltexth->translate("core.cmpmusic." + std::to_string(static_cast<int>(index)));
+	return AudioPath::builtinTODO(VLC->generaltexth->translate("core.cmpmusic." + std::to_string(static_cast<int>(index))));
 }
 
 std::string CampaignHandler::prologVoiceName(ui8 index)
 {
-	JsonNode config(ResourceID(std::string("CONFIG/campaignMedia"), EResType::TEXT));
+	JsonNode config(JsonPath::builtin("CONFIG/campaignMedia"));
 	auto audio = config["voice"].Vector();
 	if(index < audio.size())
 		return audio[index].String();

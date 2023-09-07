@@ -22,6 +22,7 @@ class IStatusBar;
 class CIntObject;
 class IUpdateable;
 class IShowActivatable;
+class IRenderHandler;
 class IScreenHandler;
 class WindowHandler;
 class EventDispatcher;
@@ -41,6 +42,7 @@ private:
 	std::unique_ptr<WindowHandler> windowHandlerInstance;
 
 	std::unique_ptr<IScreenHandler> screenHandlerInstance;
+	std::unique_ptr<IRenderHandler> renderHandlerInstance;
 	std::unique_ptr<FramerateManager> framerateManagerInstance;
 	std::unique_ptr<EventDispatcher> eventDispatcherInstance;
 	std::unique_ptr<InputHandler> inputHandlerInstance;
@@ -67,7 +69,7 @@ public:
 	void stopTextInput();
 
 	IScreenHandler & screenHandler();
-
+	IRenderHandler & renderHandler();
 	WindowHandler & windows();
 
 	/// Returns currently active status bar. Guaranteed to be non-null

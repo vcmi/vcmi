@@ -11,7 +11,7 @@
 
 #include "../gui/CIntObject.h"
 #include "../render/EFont.h"
-
+#include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -45,8 +45,8 @@ private:
 	std::vector<std::shared_ptr<CLabel>> lines;
 
 	size_t getIndex();
-	const std::vector<std::string> getFileName();
-	void setSurface(std::string defName, int imgPos);
+	std::vector<AnimationPath> getFileName();
+	void setSurface(const AnimationPath & defName, int imgPos);
 	std::string getSubtitleInternal();
 
 	void init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts font = FONT_SMALL);

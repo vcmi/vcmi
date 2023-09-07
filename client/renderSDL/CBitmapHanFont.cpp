@@ -98,7 +98,7 @@ void CBitmapHanFont::renderText(SDL_Surface * surface, const std::string & data,
 
 CBitmapHanFont::CBitmapHanFont(const JsonNode &config):
 	fallback(new CBitmapFont(config["fallback"].String())),
-	data(CResourceHandler::get()->load(ResourceID("data/" + config["name"].String(), EResType::OTHER))->readAll()),
+	data(CResourceHandler::get()->load(ResourcePath("data/" + config["name"].String(), EResType::OTHER))->readAll()),
 	size((size_t)config["size"].Float())
 {
 	// basic tests to make sure that fonts are OK

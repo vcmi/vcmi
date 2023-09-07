@@ -330,7 +330,7 @@ std::vector<JsonNode> CTownHandler::loadLegacyData()
 		return dest[town]["town"]["buildings"][EBuildingType::names[building]];
 	};
 
-	CLegacyConfigParser parser("DATA/BUILDING.TXT");
+	CLegacyConfigParser parser(TextPath::builtin("DATA/BUILDING.TXT"));
 
 	parser.endLine(); // header
 	parser.endLine();
@@ -382,7 +382,7 @@ std::vector<JsonNode> CTownHandler::loadLegacyData()
 		}
 	}
 	{
-		CLegacyConfigParser parser("DATA/BLDGNEUT.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/BLDGNEUT.TXT"));
 
 		for(int building=0; building<15; building++)
 		{
@@ -420,7 +420,7 @@ std::vector<JsonNode> CTownHandler::loadLegacyData()
 		}
 	}
 	{
-		CLegacyConfigParser parser("DATA/BLDGSPEC.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/BLDGSPEC.TXT"));
 
 		for(int town=0; town<dataSize; town++)
 		{
@@ -440,7 +440,7 @@ std::vector<JsonNode> CTownHandler::loadLegacyData()
 		}
 	}
 	{
-		CLegacyConfigParser parser("DATA/DWELLING.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/DWELLING.TXT"));
 
 		for(int town=0; town<dataSize; town++)
 		{
@@ -453,8 +453,8 @@ std::vector<JsonNode> CTownHandler::loadLegacyData()
 		}
 	}
 	{
-		CLegacyConfigParser typeParser("DATA/TOWNTYPE.TXT");
-		CLegacyConfigParser nameParser("DATA/TOWNNAME.TXT");
+		CLegacyConfigParser typeParser(TextPath::builtin("DATA/TOWNTYPE.TXT"));
+		CLegacyConfigParser nameParser(TextPath::builtin("DATA/TOWNNAME.TXT"));
 		size_t townID=0;
 		do
 		{
@@ -752,9 +752,9 @@ void CTownHandler::loadStructure(CTown &town, const std::string & stringID, cons
 	ret->pos.z = static_cast<si32>(source["z"].Float());
 
 	ret->hiddenUpgrade = source["hidden"].Bool();
-	ret->defName = source["animation"].String();
-	ret->borderName = source["border"].String();
-	ret->areaName = source["area"].String();
+	ret->defName = AnimationPath::fromJson(source["animation"]);
+	ret->borderName = ImagePath::fromJson(source["border"]);
+	ret->areaName = ImagePath::fromJson(source["area"]);
 
 	town.clientInfo.structures.emplace_back(ret);
 }
@@ -877,22 +877,14 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source) const
 	readIcon(source["icons"]["fort"]["normal"], info.iconSmall[1][0], info.iconLarge[1][0]);
 	readIcon(source["icons"]["fort"]["built"], info.iconSmall[1][1], info.iconLarge[1][1]);
 
-	info.hallBackground = source["hallBackground"].String();
-	info.musicTheme = source["musicTheme"].String();
-	info.townBackground = source["townBackground"].String();
-	info.guildWindow = source["guildWindow"].String();
-	info.buildingsIcons = source["buildingsIcons"].String();
+	info.hallBackground = ImagePath::fromJson(source["hallBackground"]);
+	info.musicTheme = AudioPath::fromJson(source["musicTheme"]);
+	info.townBackground = ImagePath::fromJson(source["townBackground"]);
+	info.guildWindow = ImagePath::fromJson(source["guildWindow"]);
+	info.buildingsIcons = AnimationPath::fromJson(source["buildingsIcons"]);
 
-	//left for back compatibility - will be removed later
-	if(!source["guildBackground"].String().empty())
-		info.guildBackground = source["guildBackground"].String();
-	else
-		info.guildBackground = "TPMAGE.bmp";
-	if(!source["tavernVideo"].String().empty())
-	    info.tavernVideo = source["tavernVideo"].String();
-	else
-		info.tavernVideo = "TAVERN.BIK";
-	//end of legacy assignment
+	info.guildBackground = ImagePath::fromJson(source["guildBackground"]);
+	info.tavernVideo = VideoPath::fromJson(source["tavernVideo"]);
 
 	loadTownHall(town,   source["hallSlots"]);
 	loadStructures(town, source["structures"]);
@@ -1012,7 +1004,7 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source) const
 		std::ostringstream suffix;
 		suffix << std::setfill('0') << std::setw(2) << index;
 
-		spi.filename = prefix + suffix.str();
+		spi.filename = ImagePath::builtinTODO(prefix + suffix.str());
 
 		faction.puzzleMap.push_back(spi);
 	}
@@ -1031,8 +1023,8 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 
 	VLC->generaltexth->registerString(scope, faction->getNameTextID(), source["name"].String());
 
-	faction->creatureBg120 = source["creatureBackground"]["120px"].String();
-	faction->creatureBg130 = source["creatureBackground"]["130px"].String();
+	faction->creatureBg120 = ImagePath::fromJson(source["creatureBackground"]["120px"]);
+	faction->creatureBg130 = ImagePath::fromJson(source["creatureBackground"]["130px"]);
 
 	faction->boatType = BoatId::CASTLE; //Do not crash
 	if (!source["boat"].isNull())
@@ -1156,9 +1148,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 void CTownHandler::loadRandomFaction()
 {
-	static const ResourceID randomFactionPath("config/factions/random.json");
-
-	JsonNode randomFactionJson(randomFactionPath);
+	JsonNode randomFactionJson(JsonPath::builtin("config/factions/random.json"));
 	randomFactionJson.setMeta(ModScope::scopeBuiltin(), true);
 	loadBuildings(randomTown, randomFactionJson["random"]["town"]["buildings"]);
 }

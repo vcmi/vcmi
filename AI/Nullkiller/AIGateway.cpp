@@ -388,7 +388,7 @@ void AIGateway::heroCreated(const CGHeroInstance * h)
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::advmapSpellCast(const CGHeroInstance * caster, int spellID)
+void AIGateway::advmapSpellCast(const CGHeroInstance * caster, SpellID spellID)
 {
 	LOG_TRACE_PARAMS(logAi, "spellID '%i", spellID);
 	NET_EVENT_HANDLER;

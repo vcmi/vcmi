@@ -116,8 +116,6 @@ void ObjectTemplate::afterLoadFixup()
 		usedTiles[0][0] = VISITABLE;
 		visitDir = 0xFF;
 	}
-	boost::algorithm::replace_all(animationFile, "\\", "/");
-	boost::algorithm::replace_all(editorAnimationFile, "\\", "/");
 }
 
 void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
@@ -127,7 +125,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	boost::split(strings, data, boost::is_any_of(" "));
 	assert(strings.size() == 9);
 
-	animationFile = strings[0];
+	animationFile = AnimationPath::builtin(strings[0]);
 	stringID = strings[0];
 
 	std::string & blockStr = strings[1]; //block map, 0 = blocked, 1 = unblocked
@@ -182,7 +180,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 
 void ObjectTemplate::readMsk()
 {
-	ResourceID resID("SPRITES/" + animationFile, EResType::MASK);
+	ResourcePath resID(animationFile.getName(), EResType::MASK);
 
 	if (CResourceHandler::get()->existsResource(resID))
 	{
@@ -197,7 +195,7 @@ void ObjectTemplate::readMsk()
 
 void ObjectTemplate::readMap(CBinaryReader & reader)
 {
-	animationFile = reader.readBaseString();
+	animationFile = AnimationPath::builtin(reader.readBaseString());
 
 	setSize(8, 6);
 	ui8 blockMask[6];
@@ -251,8 +249,8 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 
 void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 {
-	animationFile = node["animation"].String();
-	editorAnimationFile = node["editorAnimation"].String();
+	animationFile = AnimationPath::fromJson(node["animation"]);
+	editorAnimationFile = AnimationPath::fromJson(node["editorAnimation"]);
 
 	const JsonVector & visitDirs = node["visitableFrom"].Vector();
 	if (!visitDirs.empty())
@@ -325,8 +323,8 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 {
-	node["animation"].String() = animationFile;
-	node["editorAnimation"].String() = editorAnimationFile;
+	node["animation"].String() = animationFile.getOriginalName();
+	node["editorAnimation"].String() = editorAnimationFile.getOriginalName();
 
 	if(visitDir != 0x0 && isVisitable())
 	{
@@ -577,7 +575,7 @@ void ObjectTemplate::recalculate()
 	calculateTopVisibleOffset();
 
 	if (visitable && visitDir == 0)
-		logMod->warn("Template for %s is visitable but has no visitable directions!", animationFile);
+		logMod->warn("Template for %s is visitable but has no visitable directions!", animationFile.getOriginalName());
 }
 
 VCMI_LIB_NAMESPACE_END

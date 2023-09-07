@@ -1005,7 +1005,7 @@ namespace
 
 	namespace Formats
 	{
-		bool testFilePresence(const std::string & scope, const ResourceID & resource)
+		bool testFilePresence(const std::string & scope, const ResourcePath & resource)
 		{
 			std::set<std::string> allowedScopes;
 			if(scope != ModScope::scopeBuiltin() && !scope.empty()) // all real mods may have dependencies
@@ -1030,19 +1030,19 @@ namespace
 		}
 
 		#define TEST_FILE(scope, prefix, file, type) \
-			if (testFilePresence(scope, ResourceID(prefix + file, type))) \
+			if (testFilePresence(scope, ResourcePath(prefix + file, type))) \
 				return ""
 
 		std::string testAnimation(const std::string & path, const std::string & scope)
 		{
 			TEST_FILE(scope, "Sprites/", path, EResType::ANIMATION);
-			TEST_FILE(scope, "Sprites/", path, EResType::TEXT);
+			TEST_FILE(scope, "Sprites/", path, EResType::JSON);
 			return "Animation file \"" + path + "\" was not found";
 		}
 
 		std::string textFile(const JsonNode & node)
 		{
-			TEST_FILE(node.meta, "", node.String(), EResType::TEXT);
+			TEST_FILE(node.meta, "", node.String(), EResType::JSON);
 			return "Text file \"" + node.String() + "\" was not found";
 		}
 

@@ -75,7 +75,7 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config)
 
 void CCampaignScreen::activate()
 {
-	CCS->musich->playMusic("Music/MainMenu", true, false);
+	CCS->musich->playMusic(AudioPath::builtin("Music/MainMenu"), true, false);
 
 	CWindowObject::activate();
 }
@@ -86,7 +86,7 @@ std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & butt
 	if(!button["help"].isNull() && button["help"].Float() > 0)
 		help = CGI->generaltexth->zelp[(size_t)button["help"].Float()];
 
-	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), button["name"].String(), help, [=](){ close();}, EShortcut::GLOBAL_CANCEL);
+	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), AnimationPath::fromJson(button["name"]), help, [=](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
@@ -99,7 +99,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 	pos.h = 116;
 
 	campFile = config["file"].String();
-	video = config["video"].String();
+	video = VideoPath::fromJson(config["video"]);
 
 	status = config["open"].Bool() ? CCampaignScreen::ENABLED : CCampaignScreen::DISABLED;
 
@@ -109,14 +109,14 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 	if(status != CCampaignScreen::DISABLED)
 	{
 		addUsedEvents(LCLICK | HOVER);
-		graphicsImage = std::make_shared<CPicture>(config["image"].String());
+		graphicsImage = std::make_shared<CPicture>(ImagePath::fromJson(config["image"]));
 
 		hoverLabel = std::make_shared<CLabel>(pos.w / 2, pos.h + 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, "");
 		parent->addChild(hoverLabel.get());
 	}
 
 	if(status == CCampaignScreen::COMPLETED)
-		graphicsCompleted = std::make_shared<CPicture>("CAMPCHK");
+		graphicsCompleted = std::make_shared<CPicture>(ImagePath::builtin("CAMPCHK"));
 }
 
 void CCampaignScreen::CCampaignButton::show(Canvas & to)
@@ -128,17 +128,7 @@ void CCampaignScreen::CCampaignButton::show(Canvas & to)
 
 	// Play the campaign button video when the mouse cursor is placed over the button
 	if(isHovered())
-	{
-		if(CCS->videoh->fname != video)
-			CCS->videoh->open(video);
-
 		CCS->videoh->update(pos.x, pos.y, to.getInternalSurface(), true, false); // plays sequentially frame by frame, starts at the beginning when the video is over
-	}
-	else if(CCS->videoh->fname == video) // When you got out of the bounds of the button then close the video
-	{
-		CCS->videoh->close();
-		redraw();
-	}
 }
 
 void CCampaignScreen::CCampaignButton::clickReleased(const Point & cursorPosition)
@@ -149,6 +139,11 @@ void CCampaignScreen::CCampaignButton::clickReleased(const Point & cursorPositio
 
 void CCampaignScreen::CCampaignButton::hover(bool on)
 {
+	if (on)
+		CCS->videoh->open(video);
+	else
+		CCS->videoh->close();
+
 	if(hoverLabel)
 	{
 		if(on)

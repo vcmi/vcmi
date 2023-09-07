@@ -415,7 +415,7 @@ const CCreature * CCreatureHandler::getCreature(const std::string & scope, const
 
 void CCreatureHandler::loadCommanders()
 {
-	ResourceID configResource("config/commanders.json");
+	auto configResource = JsonPath::builtin("config/commanders.json");
 
 	std::string modSource = VLC->modh->findResourceOrigin(configResource);
 	JsonNode data(configResource);
@@ -507,7 +507,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 
-	CLegacyConfigParser parser("DATA/CRTRAITS.TXT");
+	CLegacyConfigParser parser(TextPath::builtin("DATA/CRTRAITS.TXT"));
 
 	parser.endLine(); // header
 
@@ -698,7 +698,7 @@ void CCreatureHandler::loadCrExpMod()
 			}
 		}
 
-		CLegacyConfigParser expBonParser("DATA/CREXPMOD.TXT");
+		CLegacyConfigParser expBonParser(TextPath::builtin("DATA/CREXPMOD.TXT"));
 
 		expBonParser.endLine(); //header
 
@@ -745,7 +745,7 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 			globalEffects.addNewBonus(b);
 		};
 
-		CLegacyConfigParser parser("DATA/CREXPBON.TXT");
+		CLegacyConfigParser parser(TextPath::builtin("DATA/CREXPBON.TXT"));
 
 		Bonus b; //prototype with some default properties
 		b.source = BonusSource::STACK_EXPERIENCE;
@@ -804,7 +804,7 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 
 void CCreatureHandler::loadAnimationInfo(std::vector<JsonNode> &h3Data) const
 {
-	CLegacyConfigParser parser("DATA/CRANIM.TXT");
+	CLegacyConfigParser parser(TextPath::builtin("DATA/CRANIM.TXT"));
 
 	parser.endLine(); // header
 	parser.endLine();
@@ -884,7 +884,7 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 
 void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & config) const
 {
-	creature->animDefName = config["graphics"]["animation"].String();
+	creature->animDefName = AnimationPath::fromJson(config["graphics"]["animation"]);
 
 	//FIXME: MOD COMPATIBILITY
 	if (config["abilities"].getType() == JsonNode::JsonType::DATA_STRUCT)
@@ -933,7 +933,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 		});
 	}
 
-	creature->animation.projectileImageName = config["graphics"]["missile"]["projectile"].String();
+	creature->animation.projectileImageName = AnimationPath::fromJson(config["graphics"]["missile"]["projectile"]);
 
 	for(const JsonNode & value : config["graphics"]["missile"]["ray"].Vector())
 	{
@@ -955,17 +955,14 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	creature->special = config["special"].Bool() || config["disabled"].Bool();
 
 	const JsonNode & sounds = config["sound"];
-
-#define GET_SOUND_VALUE(value_name) creature->sounds.value_name = sounds[#value_name].String()
-	GET_SOUND_VALUE(attack);
-	GET_SOUND_VALUE(defend);
-	GET_SOUND_VALUE(killed);
-	GET_SOUND_VALUE(move);
-	GET_SOUND_VALUE(shoot);
-	GET_SOUND_VALUE(wince);
-	GET_SOUND_VALUE(startMoving);
-	GET_SOUND_VALUE(endMoving);
-#undef GET_SOUND_VALUE
+	creature->sounds.attack = AudioPath::fromJson(sounds["attack"]);
+	creature->sounds.defend = AudioPath::fromJson(sounds["defend"]);
+	creature->sounds.killed = AudioPath::fromJson(sounds["killed"]);
+	creature->sounds.move = AudioPath::fromJson(sounds["move"]);
+	creature->sounds.shoot = AudioPath::fromJson(sounds["shoot"]);
+	creature->sounds.wince = AudioPath::fromJson(sounds["wince"]);
+	creature->sounds.startMoving = AudioPath::fromJson(sounds["startMoving"]);
+	creature->sounds.endMoving = AudioPath::fromJson(sounds["endMoving"]);
 }
 
 void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode & input) const

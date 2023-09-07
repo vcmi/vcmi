@@ -69,7 +69,7 @@ public:
 	void setEnabled(bool on);
 
 	static std::string getModDir(const std::string & name);
-	static std::string getModFile(const std::string & name);
+	static JsonPath getModFile(const std::string & name);
 
 	/// return true if this mod can affect gameplay, e.g. adds or modifies any game objects
 	bool checkModGameplayAffecting() const;

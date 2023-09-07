@@ -24,6 +24,7 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
@@ -114,7 +115,7 @@ void StackActionAnimation::setGroup( ECreatureAnimType group )
 	currGroup = group;
 }
 
-void StackActionAnimation::setSound( std::string sound )
+void StackActionAnimation::setSound( const AudioPath & sound )
 {
 	this->sound = sound;
 }
@@ -179,7 +180,7 @@ HittedAnimation::HittedAnimation(BattleInterface & owner, const CStack * stack)
 	: StackActionAnimation(owner, stack)
 {
 	setGroup(ECreatureAnimType::HITTED);
-	setSound(battle_sound(stack->unitType(), wince));
+	setSound(stack->unitType()->sounds.wince);
 	logAnim->debug("Created HittedAnimation for %s", stack->getName());
 }
 
@@ -187,14 +188,14 @@ DefenceAnimation::DefenceAnimation(BattleInterface & owner, const CStack * stack
 	: StackActionAnimation(owner, stack)
 {
 	setGroup(ECreatureAnimType::DEFENCE);
-	setSound(battle_sound(stack->unitType(), defend));
+	setSound(stack->unitType()->sounds.defend);
 	logAnim->debug("Created DefenceAnimation for %s", stack->getName());
 }
 
 DeathAnimation::DeathAnimation(BattleInterface & owner, const CStack * stack, bool ranged):
 	StackActionAnimation(owner, stack)
 {
-	setSound(battle_sound(stack->unitType(), killed));
+	setSound(stack->unitType()->sounds.killed);
 
 	if(ranged && myAnim->framesInGroup(ECreatureAnimType::DEATH_RANGED) > 0)
 		setGroup(ECreatureAnimType::DEATH_RANGED);
@@ -315,7 +316,7 @@ MeleeAttackAnimation::MeleeAttackAnimation(BattleInterface & owner, const CStack
 	: AttackAnimation(owner, attacker, _dest, _attacked)
 {
 	logAnim->debug("Created MeleeAttackAnimation for %s", attacker->getName());
-	setSound(battle_sound(getCreature(), attack));
+	setSound(getCreature()->sounds.attack);
 	setGroup(selectGroup(multiAttack));
 }
 
@@ -356,7 +357,7 @@ bool MovementAnimation::init()
 
 	if (moveSoundHander == -1)
 	{
-		moveSoundHander = CCS->soundh->playSound(battle_sound(stack->unitType(), move), -1);
+		moveSoundHander = CCS->soundh->playSound(stack->unitType()->sounds.move, -1);
 	}
 
 	Point begPosition = owner.stacksController->getStackPositionAtHex(prevHex, stack);
@@ -453,7 +454,7 @@ bool MovementEndAnimation::init()
 	logAnim->debug("CMovementEndAnimation::init: stack %s", stack->getName());
 	myAnim->pos.moveTo(owner.stacksController->getStackPositionAtHex(nextHex, stack));
 
-	CCS->soundh->playSound(battle_sound(stack->unitType(), endMoving));
+	CCS->soundh->playSound(stack->unitType()->sounds.endMoving);
 
 	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_END))
 	{
@@ -494,7 +495,7 @@ bool MovementStartAnimation::init()
 	}
 
 	logAnim->debug("CMovementStartAnimation::init: stack %s", stack->getName());
-	CCS->soundh->playSound(battle_sound(stack->unitType(), startMoving));
+	CCS->soundh->playSound(stack->unitType()->sounds.startMoving);
 
 	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_START))
 	{
@@ -632,7 +633,7 @@ RangedAttackAnimation::RangedAttackAnimation(BattleInterface & owner_, const CSt
 	: AttackAnimation(owner_, attacker, dest_, defender),
 	  projectileEmitted(false)
 {
-	setSound(battle_sound(getCreature(), shoot));
+	setSound(getCreature()->sounds.shoot);
 }
 
 bool RangedAttackAnimation::init()
@@ -806,8 +807,8 @@ void CatapultAnimation::tick(uint32_t msPassed)
 	explosionEmitted = true;
 	Point shotTarget = owner.stacksController->getStackPositionAtHex(dest, defendingStack) + Point(225, 225) - Point(126, 105);
 
-	std::string soundFilename  = (catapultDamage > 0) ? "WALLHIT" : "WALLMISS";
-	std::string effectFilename = (catapultDamage > 0) ? "SGEXPL" : "CSGRCK";
+	auto soundFilename  = AudioPath::builtin((catapultDamage > 0) ? "WALLHIT" : "WALLMISS");
+	AnimationPath effectFilename = AnimationPath::builtin((catapultDamage > 0) ? "SGEXPL" : "CSGRCK");
 
 	CCS->soundh->playSound( soundFilename );
 	owner.stacksController->addNewAnim( new EffectAnimation(owner, effectFilename, shotTarget));
@@ -879,42 +880,42 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 	return maxFrames / 2;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, int effects, bool reversed):
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects, bool reversed):
 	BattleAnimation(owner),
-	animation(std::make_shared<CAnimation>(animationName)),
+	animation(GH.renderHandler().loadAnimation(animationName)),
 	effectFlags(effects),
 	effectFinished(false),
 	reversed(reversed)
 {
-	logAnim->debug("CPointEffectAnimation::init: effect %s", animationName);
+	logAnim->debug("CPointEffectAnimation::init: effect %s", animationName.getName());
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<BattleHex> hex, int effects, bool reversed):
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<BattleHex> hex, int effects, bool reversed):
 	EffectAnimation(owner, animationName, effects, reversed)
 {
 	battlehexes = hex;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, BattleHex hex, int effects, bool reversed):
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex, int effects, bool reversed):
 	EffectAnimation(owner, animationName, effects, reversed)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, std::vector<Point> pos, int effects, bool reversed):
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<Point> pos, int effects, bool reversed):
 	EffectAnimation(owner, animationName, effects, reversed)
 {
 	positions = pos;
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, int effects, bool reversed):
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, int effects, bool reversed):
 	EffectAnimation(owner, animationName, effects, reversed)
 {
 	positions.push_back(pos);
 }
 
-EffectAnimation::EffectAnimation(BattleInterface & owner, std::string animationName, Point pos, BattleHex hex, int effects, bool reversed):
+EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, BattleHex hex, int effects, bool reversed):
 	EffectAnimation(owner, animationName, effects, reversed)
 {
 	assert(hex.isValid());

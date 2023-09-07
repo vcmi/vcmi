@@ -36,7 +36,7 @@ RoadType * RoadTypeHandler::loadFromJson(
 	info->id              = RoadId(index);
 	info->identifier      = identifier;
 	info->modScope        = scope;
-	info->tilesFilename   = json["tilesFilename"].String();
+	info->tilesFilename   = AnimationPath::fromJson(json["tilesFilename"]);
 	info->shortIdentifier = json["shortIdentifier"].String();
 	info->movementCost    = json["moveCost"].Integer();
 

@@ -26,7 +26,7 @@ CreditsScreen::CreditsScreen(Rect rect)
 	pos.h = rect.h;
 	setRedrawParent(true);
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	auto textFile = CResourceHandler::get()->load(ResourceID("DATA/CREDITS.TXT"))->readAll();
+	auto textFile = CResourceHandler::get()->load(ResourcePath("DATA/CREDITS.TXT"))->readAll();
 	std::string text((char *)textFile.first.get(), textFile.second);
 	size_t firstQuote = text.find('\"') + 1;
 	text = text.substr(firstQuote, text.find('\"', firstQuote) - firstQuote);

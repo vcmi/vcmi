@@ -222,7 +222,7 @@ void CClient::loadGame(CGameState * initializedGameState)
 	// try to deserialize client data including sleepingHeroes
 	try
 	{
-		boost::filesystem::path clientSaveName = *CResourceHandler::get()->getResourceName(ResourceID(CSH->si->mapname, EResType::CLIENT_SAVEGAME));
+		boost::filesystem::path clientSaveName = *CResourceHandler::get()->getResourceName(ResourcePath(CSH->si->mapname, EResType::CLIENT_SAVEGAME));
 
 		if(clientSaveName.empty())
 			throw std::runtime_error("Cannot open client part of " + CSH->si->mapname);

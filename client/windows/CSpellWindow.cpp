@@ -30,6 +30,7 @@
 #include "../widgets/TextControls.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../render/CAnimation.h"
+#include "../render/IRenderHandler.h"
 
 #include "../../CCallback.h"
 
@@ -93,7 +94,7 @@ public:
 } spellsorter;
 
 CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
-    CWindowObject(PLAYER_COLORED, "SpelBack"),
+	CWindowObject(PLAYER_COLORED, ImagePath::builtin("SpelBack")),
 	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),
 	currentPage(0),
@@ -166,23 +167,23 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	//numbers of spell pages computed
 
-	leftCorner = std::make_shared<CPicture>("SpelTrnL.bmp", 97, 77);
-	rightCorner = std::make_shared<CPicture>("SpelTrnR.bmp", 487, 72);
+	leftCorner = std::make_shared<CPicture>(ImagePath::builtin("SpelTrnL.bmp"), 97, 77);
+	rightCorner = std::make_shared<CPicture>(ImagePath::builtin("SpelTrnR.bmp"), 487, 72);
 
-	spellIcons = std::make_shared<CAnimation>("Spells");
+	spellIcons = GH.renderHandler().loadAnimation(AnimationPath::builtin("Spells"));
 
-	schoolTab = std::make_shared<CAnimImage>("SpelTab", selectedTab, 0, 524, 88);
-	schoolPicture = std::make_shared<CAnimImage>("Schools", 0, 0, 117, 74);
+	schoolTab = std::make_shared<CAnimImage>(AnimationPath::builtin("SpelTab"), selectedTab, 0, 524, 88);
+	schoolPicture = std::make_shared<CAnimImage>(AnimationPath::builtin("Schools"), 0, 0, 117, 74);
 
-	schoolBorders[0] = std::make_shared<CAnimation>("SplevA.def");
-	schoolBorders[1] = std::make_shared<CAnimation>("SplevF.def");
-	schoolBorders[2] = std::make_shared<CAnimation>("SplevW.def");
-	schoolBorders[3] = std::make_shared<CAnimation>("SplevE.def");
+	schoolBorders[0] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevA.def"));
+	schoolBorders[1] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevF.def"));
+	schoolBorders[2] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevW.def"));
+	schoolBorders[3] = GH.renderHandler().loadAnimation(AnimationPath::builtin("SplevE.def"));
 
 	for(auto item : schoolBorders)
 		item->preload();
 	mana = std::make_shared<CLabel>(435, 426, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, std::to_string(myHero->mana));
-	statusBar = CGStatusBar::create(7, 569, "Spelroll.bmp");
+	statusBar = CGStatusBar::create(7, 569, ImagePath::builtin("Spelroll.bmp"));
 
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 479 + pos.x, 405 + pos.y, 36, 56), std::bind(&CSpellWindow::fexitb,         this),    460, this));
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 221 + pos.x, 405 + pos.y, 36, 56), std::bind(&CSpellWindow::fbattleSpellsb, this),    453, this));
@@ -397,13 +398,13 @@ void CSpellWindow::setCurrentPage(int value)
 void CSpellWindow::turnPageLeft()
 {
 	if(settings["video"]["spellbookAnimation"].Bool())
-		CCS->videoh->openAndPlayVideo("PGTRNLFT.SMK", pos.x+13, pos.y+15);
+		CCS->videoh->openAndPlayVideo(VideoPath::builtin("PGTRNLFT.SMK"), pos.x+13, pos.y+15);
 }
 
 void CSpellWindow::turnPageRight()
 {
 	if(settings["video"]["spellbookAnimation"].Bool())
-		CCS->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15);
+		CCS->videoh->openAndPlayVideo(VideoPath::builtin("PGTRNRGH.SMK"), pos.x+13, pos.y+15);
 }
 
 void CSpellWindow::keyPressed(EShortcut key)

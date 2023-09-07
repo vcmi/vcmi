@@ -13,8 +13,10 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
 
+#include "../gui/CGuiHandler.h"
 #include "../render/Canvas.h"
 #include "../render/ColorFilter.h"
+#include "../render/IRenderHandler.h"
 
 static const ColorRGBA creatureBlueBorder = { 0, 255, 255, 255 };
 static const ColorRGBA creatureGoldBorder = { 255, 255, 0, 255 };
@@ -185,7 +187,7 @@ void CreatureAnimation::setType(ECreatureAnimType type)
 	speed = speedController(this, type);
 }
 
-CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController controller)
+CreatureAnimation::CreatureAnimation(const AnimationPath & name_, TSpeedController controller)
 	: name(name_),
 	  speed(0.1f),
 	  shadowAlpha(128),
@@ -196,8 +198,8 @@ CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController
 	  speedController(controller),
 	  once(false)
 {
-	forward = std::make_shared<CAnimation>(name_);
-	reverse = std::make_shared<CAnimation>(name_);
+	forward = GH.renderHandler().loadAnimation(name_);
+	reverse = GH.renderHandler().loadAnimation(name_);
 
 	//todo: optimize
 	forward->preload();

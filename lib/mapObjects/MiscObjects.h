@@ -354,9 +354,9 @@ public:
 	EPathfindingLayer layer;
 	
 	//animation filenames. If empty - animations won't be used
-	std::string actualAnimation; //for OH3 boats those have actual animations
-	std::string overlayAnimation; //waves animations
-	std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
+	AnimationPath actualAnimation; //for OH3 boats those have actual animations
+	AnimationPath overlayAnimation; //waves animations
+	std::array<AnimationPath, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
 
 	CGBoat();
 	bool isCoastVisitable() const override;

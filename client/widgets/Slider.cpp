@@ -178,7 +178,7 @@ CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int
 
 	if(style == BROWN)
 	{
-		std::string name = getOrientation() == Orientation::HORIZONTAL ? "IGPCRDIV.DEF" : "OVBUTN2.DEF";
+		AnimationPath name = AnimationPath::builtin(getOrientation() == Orientation::HORIZONTAL ? "IGPCRDIV.DEF" : "OVBUTN2.DEF");
 		//NOTE: this images do not have "blocked" frames. They should be implemented somehow (e.g. palette transform or something...)
 
 		left = std::make_shared<CButton>(Point(), name, CButton::tooltip());
@@ -191,9 +191,9 @@ CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int
 	}
 	else
 	{
-		left = std::make_shared<CButton>(Point(), getOrientation() == Orientation::HORIZONTAL ? "SCNRBLF.DEF" : "SCNRBUP.DEF", CButton::tooltip());
-		right = std::make_shared<CButton>(Point(), getOrientation() == Orientation::HORIZONTAL ? "SCNRBRT.DEF" : "SCNRBDN.DEF", CButton::tooltip());
-		slider = std::make_shared<CButton>(Point(), "SCNRBSL.DEF", CButton::tooltip());
+		left = std::make_shared<CButton>(Point(), AnimationPath::builtin(getOrientation() == Orientation::HORIZONTAL ? "SCNRBLF.DEF" : "SCNRBUP.DEF"), CButton::tooltip());
+		right = std::make_shared<CButton>(Point(), AnimationPath::builtin(getOrientation() == Orientation::HORIZONTAL ? "SCNRBRT.DEF" : "SCNRBDN.DEF"), CButton::tooltip());
+		slider = std::make_shared<CButton>(Point(), AnimationPath::builtin("SCNRBSL.DEF"), CButton::tooltip());
 	}
 	slider->actOnDown = true;
 	slider->soundDisabled = true;

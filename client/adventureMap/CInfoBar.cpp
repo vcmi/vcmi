@@ -51,7 +51,7 @@ CInfoBar::EmptyVisibleInfo::EmptyVisibleInfo()
 CInfoBar::VisibleHeroInfo::VisibleHeroInfo(const CGHeroInstance * hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	background = std::make_shared<CPicture>("ADSTATHR");
+	background = std::make_shared<CPicture>(ImagePath::builtin("ADSTATHR"));
 
 	if(settings["gameTweaks"]["infoBarCreatureManagement"].Bool())
 		heroTooltip = std::make_shared<CInteractableHeroTooltip>(Point(0,0), hero);
@@ -62,7 +62,7 @@ CInfoBar::VisibleHeroInfo::VisibleHeroInfo(const CGHeroInstance * hero)
 CInfoBar::VisibleTownInfo::VisibleTownInfo(const CGTownInstance * town)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	background = std::make_shared<CPicture>("ADSTATCS");
+	background = std::make_shared<CPicture>(ImagePath::builtin("ADSTATCS"));
 
 	if(settings["gameTweaks"]["infoBarCreatureManagement"].Bool())
 		townTooltip = std::make_shared<CInteractableTownTooltip>(Point(0,0), town);
@@ -88,36 +88,36 @@ CInfoBar::VisibleDateInfo::VisibleDateInfo()
 	forceRefresh.push_back(label);
 }
 
-std::string CInfoBar::VisibleDateInfo::getNewDayName()
+AnimationPath CInfoBar::VisibleDateInfo::getNewDayName()
 {
 	if(LOCPLINT->cb->getDate(Date::DAY) == 1)
-		return "NEWDAY";
+		return AnimationPath::builtin("NEWDAY");
 
 	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) != 1)
-		return "NEWDAY";
+		return AnimationPath::builtin("NEWDAY");
 
 	switch(LOCPLINT->cb->getDate(Date::WEEK))
 	{
 	case 1:
-		return "NEWWEEK1";
+		return AnimationPath::builtin("NEWWEEK1");
 	case 2:
-		return "NEWWEEK2";
+		return AnimationPath::builtin("NEWWEEK2");
 	case 3:
-		return "NEWWEEK3";
+		return AnimationPath::builtin("NEWWEEK3");
 	case 4:
-		return "NEWWEEK4";
+		return AnimationPath::builtin("NEWWEEK4");
 	default:
-		return "";
+		return AnimationPath();
 	}
 }
 
 CInfoBar::VisibleEnemyTurnInfo::VisibleEnemyTurnInfo(PlayerColor player)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	background = std::make_shared<CPicture>("ADSTATNX");
-	banner = std::make_shared<CAnimImage>("CREST58", player.getNum(), 0, 20, 51);
-	sand = std::make_shared<CShowableAnim>(99, 51, "HOURSAND", 0, 100); // H3 uses around 100 ms per frame
-	glass = std::make_shared<CShowableAnim>(99, 51, "HOURGLAS", CShowableAnim::PLAY_ONCE, 1000); // H3 scales this nicely for AI turn duration, don't have anything like that in vcmi
+	background = std::make_shared<CPicture>(ImagePath::builtin("ADSTATNX"));
+	banner = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), player.getNum(), 0, 20, 51);
+	sand = std::make_shared<CShowableAnim>(99, 51, AnimationPath::builtin("HOURSAND"), 0, 100); // H3 uses around 100 ms per frame
+	glass = std::make_shared<CShowableAnim>(99, 51, AnimationPath::builtin("HOURGLAS"), CShowableAnim::PLAY_ONCE, 1000); // H3 scales this nicely for AI turn duration, don't have anything like that in vcmi
 }
 
 CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
@@ -148,14 +148,14 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	}
 
 	//generate widgets
-	background = std::make_shared<CPicture>("ADSTATIN");
+	background = std::make_shared<CPicture>(ImagePath::builtin("ADSTATIN"));
 	allyLabel = std::make_shared<CLabel>(10, 106, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
 	enemyLabel = std::make_shared<CLabel>(10, 136, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
 
 	int posx = allyLabel->pos.w + allyLabel->pos.x - pos.x + 4;
 	for(PlayerColor & player : allies)
 	{
-		auto image = std::make_shared<CAnimImage>("ITGFLAGS", player.getNum(), 0, posx, 102);
+		auto image = std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS"), player.getNum(), 0, posx, 102);
 		posx += image->pos.w;
 		flags.push_back(image);
 	}
@@ -163,14 +163,14 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	posx = enemyLabel->pos.w + enemyLabel->pos.x - pos.x + 4;
 	for(PlayerColor & player : enemies)
 	{
-		auto image = std::make_shared<CAnimImage>("ITGFLAGS", player.getNum(), 0, posx, 132);
+		auto image = std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS"), player.getNum(), 0, posx, 132);
 		posx += image->pos.w;
 		flags.push_back(image);
 	}
 
 	for(size_t i=0; i<halls.size(); i++)
 	{
-		hallIcons.push_back(std::make_shared<CAnimImage>("itmtl", i, 0, 6 + 42 * (int)i , 11));
+		hallIcons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("itmtl"), i, 0, 6 + 42 * (int)i , 11));
 		if(halls[i])
 			hallLabels.push_back(std::make_shared<CLabel>( 26 + 42 * (int)i, 64, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(halls[i])));
 	}
@@ -180,7 +180,7 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	background = std::make_shared<CPicture>("ADSTATOT", 1, 0);
+	background = std::make_shared<CPicture>(ImagePath::builtin("ADSTATOT"), 1, 0);
 	auto fullRect = Rect(CInfoBar::offset, CInfoBar::offset, data_width - 2 * CInfoBar::offset, data_height - 2 * CInfoBar::offset);
 	auto textRect = fullRect;
 	auto imageRect = fullRect;

@@ -70,30 +70,32 @@ CVideoPlayer::CVideoPlayer()
 	, doLoop(false)
 {}
 
-bool CVideoPlayer::open(std::string fname, bool scale)
+bool CVideoPlayer::open(const VideoPath & fname, bool scale)
 {
 	return open(fname, true, false);
 }
 
 // loop = to loop through the video
 // useOverlay = directly write to the screen.
-bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scale)
+bool CVideoPlayer::open(const VideoPath & videoToOpen, bool loop, bool useOverlay, bool scale)
 {
 	close();
 
-	this->fname = fname;
 	doLoop = loop;
 	frameTime = 0;
 
-	ResourceID resource(std::string("Video/") + fname, EResType::VIDEO);
+	if (CResourceHandler::get()->existsResource(videoToOpen))
+		fname = videoToOpen;
+	else
+		fname = videoToOpen.addPrefix("VIDEO/");
 
-	if (!CResourceHandler::get()->existsResource(resource))
+	if (!CResourceHandler::get()->existsResource(fname))
 	{
-		logGlobal->error("Error: video %s was not found", resource.getName());
+		logGlobal->error("Error: video %s was not found", fname.getName());
 		return false;
 	}
 
-	data = CResourceHandler::get()->load(resource);
+	data = CResourceHandler::get()->load(fname);
 
 	static const int BUFFER_SIZE = 4096;
 
@@ -382,7 +384,8 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 
 void CVideoPlayer::close()
 {
-	fname.clear();
+	fname = VideoPath();
+
 	if (sws)
 	{
 		sws_freeContext(sws);
@@ -467,7 +470,7 @@ bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 	return true;
 }
 
-bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, bool stopOnKey, bool scale)
+bool CVideoPlayer::openAndPlayVideo(const VideoPath & name, int x, int y, bool stopOnKey, bool scale)
 {
 	open(name, false, true, scale);
 	bool ret = playVideo(x, y,  stopOnKey);

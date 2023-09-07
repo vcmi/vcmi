@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../../lib/filesystem/ResourcePath.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class int3;
@@ -21,16 +23,16 @@ class CAnimation;
 class IImage;
 class Canvas;
 class IMapRendererContext;
-enum class EImageBlitMode : uint8_t;
+enum class EImageBlitMode;
 
 class MapTileStorage
 {
-	using TerrainAnimation = std::array<std::unique_ptr<CAnimation>, 4>;
+	using TerrainAnimation = std::array<std::shared_ptr<CAnimation>, 4>;
 	std::vector<TerrainAnimation> animations;
 
 public:
 	explicit MapTileStorage(size_t capacity);
-	void load(size_t index, const std::string & filename, EImageBlitMode blitMode);
+	void load(size_t index, const AnimationPath & filename, EImageBlitMode blitMode);
 	std::shared_ptr<IImage> find(size_t fileIndex, size_t rotationIndex, size_t imageIndex);
 };
 
@@ -69,13 +71,13 @@ public:
 
 class MapRendererObjects
 {
-	std::unordered_map<std::string, std::shared_ptr<CAnimation>> animations;
+	std::map<AnimationPath, std::shared_ptr<CAnimation>> animations;
 
 	std::shared_ptr<CAnimation> getBaseAnimation(const CGObjectInstance * obj);
 	std::shared_ptr<CAnimation> getFlagAnimation(const CGObjectInstance * obj);
 	std::shared_ptr<CAnimation> getOverlayAnimation(const CGObjectInstance * obj);
 
-	std::shared_ptr<CAnimation> getAnimation(const std::string & filename, bool generateMovementGroups);
+	std::shared_ptr<CAnimation> getAnimation(const AnimationPath & filename, bool generateMovementGroups);
 
 	std::shared_ptr<IImage> getImage(IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation> & animation) const;
 
@@ -89,7 +91,7 @@ public:
 
 class MapRendererBorder
 {
-	std::unique_ptr<CAnimation> animation;
+	std::shared_ptr<CAnimation> animation;
 	std::unique_ptr<Canvas> emptyFill;
 
 	size_t getIndexForTile(IMapRendererContext & context, const int3 & coordinates);
@@ -103,8 +105,8 @@ public:
 
 class MapRendererFow
 {
-	std::unique_ptr<CAnimation> fogOfWarFullHide;
-	std::unique_ptr<CAnimation> fogOfWarPartialHide;
+	std::shared_ptr<CAnimation> fogOfWarFullHide;
+	std::shared_ptr<CAnimation> fogOfWarPartialHide;
 
 public:
 	MapRendererFow();
@@ -115,7 +117,7 @@ public:
 
 class MapRendererPath
 {
-	std::unique_ptr<CAnimation> pathNodes;
+	std::shared_ptr<CAnimation> pathNodes;
 
 	size_t selectImageReachability(bool reachableToday, size_t imageIndex);
 	size_t selectImageCross(bool reachableToday, const int3 & curr);

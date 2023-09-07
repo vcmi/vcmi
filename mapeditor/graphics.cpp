@@ -40,7 +40,7 @@ Graphics * graphics = nullptr;
 
 void Graphics::loadPaletteAndColors()
 {
-	auto textFile = CResourceHandler::get()->load(ResourceID("DATA/PLAYERS.PAL"))->readAll();
+	auto textFile = CResourceHandler::get()->load(ResourcePath("DATA/PLAYERS.PAL"))->readAll();
 	std::string pals((char*)textFile.first.get(), textFile.second);
 	
 	playerColorPalette.resize(256);
@@ -59,7 +59,7 @@ void Graphics::loadPaletteAndColors()
 	
 	neutralColorPalette.resize(32);
 	
-	auto stream = CResourceHandler::get()->load(ResourceID("config/NEUTRAL.PAL"));
+	auto stream = CResourceHandler::get()->load(ResourcePath("config/NEUTRAL.PAL"));
 	CBinaryReader reader(stream.get());
 	
 	for(int i = 0; i < 32; ++i)
@@ -129,8 +129,8 @@ void Graphics::loadHeroAnimations()
 	{
 		for(auto templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
 		{
-			if(!heroAnimations.count(templ->animationFile))
-				heroAnimations[templ->animationFile] = loadHeroAnimation(templ->animationFile);
+			if(!heroAnimations.count(templ->animationFile.getName()))
+				heroAnimations[templ->animationFile.getName()] = loadHeroAnimation(templ->animationFile.getName());
 		}
 	}
 	
@@ -270,7 +270,7 @@ std::shared_ptr<Animation> Graphics::getHeroAnimation(const std::shared_ptr<cons
 		return std::shared_ptr<Animation>();
 	}
 	
-	std::shared_ptr<Animation> ret = loadHeroAnimation(info->animationFile);
+	std::shared_ptr<Animation> ret = loadHeroAnimation(info->animationFile.getName());
 	
 	//already loaded
 	if(ret)
@@ -279,8 +279,8 @@ std::shared_ptr<Animation> Graphics::getHeroAnimation(const std::shared_ptr<cons
 		return ret;
 	}
 	
-	ret = std::make_shared<Animation>(info->animationFile);
-	heroAnimations[info->animationFile] = ret;
+	ret = std::make_shared<Animation>(info->animationFile.getOriginalName());
+	heroAnimations[info->animationFile.getName()] = ret;
 	
 	ret->preload();
 	return ret;
@@ -294,7 +294,7 @@ std::shared_ptr<Animation> Graphics::getAnimation(const std::shared_ptr<const Ob
 		return std::shared_ptr<Animation>();
 	}
 	
-	std::shared_ptr<Animation> ret = mapObjectAnimations[info->animationFile];
+	std::shared_ptr<Animation> ret = mapObjectAnimations[info->animationFile.getName()];
 	
 	//already loaded
 	if(ret)
@@ -303,8 +303,8 @@ std::shared_ptr<Animation> Graphics::getAnimation(const std::shared_ptr<const Ob
 		return ret;
 	}
 	
-	ret = std::make_shared<Animation>(info->animationFile);
-	mapObjectAnimations[info->animationFile] = ret;
+	ret = std::make_shared<Animation>(info->animationFile.getOriginalName());
+	mapObjectAnimations[info->animationFile.getName()] = ret;
 	
 	ret->preload();
 	return ret;

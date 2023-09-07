@@ -51,7 +51,7 @@ public:
 	virtual ~CBonusTypeHandler();
 
 	std::string bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer, bool description) const override;
-	std::string bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const override;
+	ImagePath bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const override;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{

@@ -37,6 +37,7 @@
 #include "../windows/CMessage.h"
 #include "../windows/CSpellWindow.h"
 #include "../render/CAnimation.h"
+#include "../render/IRenderHandler.h"
 #include "../adventureMap/CInGameConsole.h"
 
 #include "../../CCallback.h"
@@ -342,7 +343,7 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	currentFrame(0.f),
 	flagCurrentFrame(0.f)
 {
-	std::string animationPath;
+	AnimationPath animationPath;
 
 	if(!hero->type->battleImage.empty())
 		animationPath = hero->type->battleImage;
@@ -352,7 +353,7 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 	else
 		animationPath = hero->type->heroClass->imageBattleMale;
 
-	animation = std::make_shared<CAnimation>(animationPath);
+	animation = GH.renderHandler().loadAnimation(animationPath);
 	animation->preload();
 
 	pos.w = 64;
@@ -364,9 +365,9 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 		animation->verticalFlip();
 
 	if(defender)
-		flagAnimation = std::make_shared<CAnimation>("CMFLAGR");
+		flagAnimation = GH.renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGR"));
 	else
-		flagAnimation = std::make_shared<CAnimation>("CMFLAGL");
+		flagAnimation = GH.renderHandler().loadAnimation(AnimationPath::builtin("CMFLAGL"));
 
 	flagAnimation->preload();
 	flagAnimation->playerColored(hero->tempOwner);
@@ -386,7 +387,7 @@ HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, Point * posit
 
 	if(initializeBackground)
 	{
-		background = std::make_shared<CPicture>("CHRPOP");
+		background = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"));
 		background->getSurface()->setBlitMode(EImageBlitMode::OPAQUE);
 		background->colorize(hero.owner);
 	}
@@ -406,7 +407,7 @@ void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 	auto currentSpellPoints = hero.details->mana;
 	auto maxSpellPoints = hero.details->manaLimit;
 
-	icons.push_back(std::make_shared<CAnimImage>("PortraitsLarge", hero.portrait, 0, 10, 6));
+	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.portrait, 0, 10, 6));
 
 	//primary stats
 	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[380] + ":"));
@@ -423,8 +424,8 @@ void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[384] + ":"));
 	labels.push_back(std::make_shared<CLabel>(9, 143, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[385] + ":"));
 
-	icons.push_back(std::make_shared<CAnimImage>("IMRL22", morale + 3, 0, 47, 131));
-	icons.push_back(std::make_shared<CAnimImage>("ILCK22", luck + 3, 0, 47, 143));
+	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("IMRL22"), morale + 3, 0, 47, 131));
+	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ILCK22"), luck + 3, 0, 47, 143));
 
 	//spell points
 	labels.push_back(std::make_shared<CLabel>(39, 174, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[387]));
@@ -446,7 +447,7 @@ void HeroInfoBasicPanel::show(Canvas & to)
 }
 
 HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
-	: CWindowObject(RCLICK_POPUP | SHADOW_DISABLED, "CHRPOP")
+	: CWindowObject(RCLICK_POPUP | SHADOW_DISABLED, ImagePath::builtin("CHRPOP"))
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	if (position != nullptr)
@@ -462,16 +463,16 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	background = std::make_shared<CPicture>("CPRESULT");
+	background = std::make_shared<CPicture>(ImagePath::builtin("CPRESULT"));
 	background->colorize(owner.playerID);
 	pos = center(background->pos);
 
-	exit = std::make_shared<CButton>(Point(384, 505), "iok6432.def", std::make_pair("", ""), [&](){ bExitf();}, EShortcut::GLOBAL_ACCEPT);
+	exit = std::make_shared<CButton>(Point(384, 505), AnimationPath::builtin("iok6432.def"), std::make_pair("", ""), [&](){ bExitf();}, EShortcut::GLOBAL_ACCEPT);
 	exit->setBorderColor(Colors::METALLIC_GOLD);
 	
 	if(allowReplay)
 	{
-		repeat = std::make_shared<CButton>(Point(24, 505), "icn6432.def", std::make_pair("", ""), [&](){ bRepeatf();}, EShortcut::GLOBAL_CANCEL);
+		repeat = std::make_shared<CButton>(Point(24, 505), AnimationPath::builtin("icn6432.def"), std::make_pair("", ""), [&](){ bRepeatf();}, EShortcut::GLOBAL_CANCEL);
 		repeat->setBorderColor(Colors::METALLIC_GOLD);
 		labels.push_back(std::make_shared<CLabel>(232, 520, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("vcmi.battleResultsWindow.applyResultsLabel")));
 	}
@@ -507,7 +508,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 
 		if(heroInfo.portrait >= 0) //attacking hero
 		{
-			icons.push_back(std::make_shared<CAnimImage>("PortraitsLarge", heroInfo.portrait, 0, xs[i], 38));
+			icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), heroInfo.portrait, 0, xs[i], 38));
 			sideNames[i] = heroInfo.name;
 		}
 		else
@@ -525,7 +526,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 
 			if(best != stacks.end()) //should be always but to be safe...
 			{
-				icons.push_back(std::make_shared<CAnimImage>("TWCRPORT", (*best)->unitType()->getIconIndex(), 0, xs[i], 38));
+				icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), (*best)->unitType()->getIconIndex(), 0, xs[i], 38));
 				sideNames[i] = (*best)->unitType()->getNamePluralTranslated();
 			}
 		}
@@ -552,7 +553,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 				if (creature->getId() == CreatureID::ARROW_TOWERS )
 					continue; // do not show destroyed towers in battle results
 
-				icons.push_back(std::make_shared<CAnimImage>("CPRSMALL", creature->getIconIndex(), 0, xPos, yPos));
+				icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), creature->getIconIndex(), 0, xPos, yPos));
 				std::ostringstream amount;
 				amount<<elem.second;
 				labels.push_back(std::make_shared<CLabel>(xPos + 16, yPos + 42, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, amount.str()));
@@ -580,8 +581,8 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 			break;
 		}
 
-		CCS->musich->playMusic("Music/Win Battle", false, true);
-		CCS->videoh->open("WIN3.BIK");
+		CCS->musich->playMusic(AudioPath::builtin("Music/Win Battle"), false, true);
+		CCS->videoh->open(VideoPath::builtin("WIN3.BIK"));
 		std::string str = CGI->generaltexth->allTexts[text];
 
 		const CGHeroInstance * ourHero = owner.cb->getBattle(br.battleID)->battleGetMyHero();
@@ -597,20 +598,20 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	else // we lose
 	{
 		int text = 311;
-		std::string musicName = "Music/LoseCombat";
-		std::string videoName = "LBSTART.BIK";
+		AudioPath musicName = AudioPath::builtin("Music/LoseCombat");
+		VideoPath videoName = VideoPath::builtin("LBSTART.BIK");
 		switch(br.result)
 		{
 		case EBattleResult::NORMAL:
 			break;
 		case EBattleResult::ESCAPE:
-			musicName = "Music/Retreat Battle";
-			videoName = "RTSTART.BIK";
+			musicName = AudioPath::builtin("Music/Retreat Battle");
+			videoName = VideoPath::builtin("RTSTART.BIK");
 			text = 310;
 			break;
 		case EBattleResult::SURRENDER:
-			musicName = "Music/Surrender Battle";
-			videoName = "SURRENDER.BIK";
+			musicName = AudioPath::builtin("Music/Surrender Battle");
+			videoName = VideoPath::builtin("SURRENDER.BIK");
 			text = 309;
 			break;
 		default:
@@ -676,8 +677,8 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 		pos.x += parent->pos.w/2 - pos.w/2;
 		pos.y += 10;
 
-		icons = std::make_shared<CAnimation>("CPRSMALL");
-		stateIcons = std::make_shared<CAnimation>("VCMI/BATTLEQUEUE/STATESSMALL");
+		icons = GH.renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"));
+		stateIcons = GH.renderHandler().loadAnimation(AnimationPath::builtin("VCMI/BATTLEQUEUE/STATESSMALL"));
 	}
 	else
 	{
@@ -686,12 +687,12 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 		pos.x += 0;
 		pos.y -= pos.h;
 
-		background = std::make_shared<CFilledTexture>("DIBOXBCK", Rect(0, 0, pos.w, pos.h));
+		background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, pos.w, pos.h));
 
-		icons = std::make_shared<CAnimation>("TWCRPORT");
-		stateIcons = std::make_shared<CAnimation>("VCMI/BATTLEQUEUE/STATESSMALL");
+		icons = GH.renderHandler().loadAnimation(AnimationPath::builtin("TWCRPORT"));
+		stateIcons = GH.renderHandler().loadAnimation(AnimationPath::builtin("VCMI/BATTLEQUEUE/STATESSMALL"));
 		//TODO: where use big icons?
-		//stateIcons = std::make_shared<CAnimation>("VCMI/BATTLEQUEUE/STATESBIG");
+		//stateIcons = GH.renderHandler().loadAnimation("VCMI/BATTLEQUEUE/STATESBIG");
 	}
 	stateIcons->preload();
 
@@ -750,7 +751,7 @@ StackQueue::StackBox::StackBox(StackQueue * owner):
 	CIntObject(SHOW_POPUP | HOVER), owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	background = std::make_shared<CPicture>(owner->embedded ? "StackQueueSmall" : "StackQueueLarge");
+	background = std::make_shared<CPicture>(ImagePath::builtin(owner->embedded ? "StackQueueSmall" : "StackQueueLarge"));
 
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;

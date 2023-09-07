@@ -69,7 +69,7 @@ void ResourceConverter::doConvertPcxToPng(const boost::filesystem::path & source
 
 void ResourceConverter::splitDefFile(const std::string & fileName, const boost::filesystem::path & sourceFolder, bool deleteOriginals)
 {
-	if(CResourceHandler::get()->existsResource(ResourceID("SPRITES/" + fileName)))
+	if(CResourceHandler::get()->existsResource(ResourcePath("SPRITES/" + fileName)))
 	{
 		std::unique_ptr<Animation> anim = std::make_unique<Animation>(fileName);
 		anim->preload();

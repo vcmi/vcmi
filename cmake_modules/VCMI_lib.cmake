@@ -63,7 +63,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/filesystem/FileInfo.cpp
 		${MAIN_LIB_DIR}/filesystem/Filesystem.cpp
 		${MAIN_LIB_DIR}/filesystem/MinizipExtensions.cpp
-		${MAIN_LIB_DIR}/filesystem/ResourceID.cpp
+		${MAIN_LIB_DIR}/filesystem/ResourcePath.cpp
 
 		${MAIN_LIB_DIR}/gameState/CGameState.cpp
 		${MAIN_LIB_DIR}/gameState/CGameStateCampaign.cpp
@@ -399,7 +399,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/filesystem/Filesystem.h
 		${MAIN_LIB_DIR}/filesystem/ISimpleResourceLoader.h
 		${MAIN_LIB_DIR}/filesystem/MinizipExtensions.h
-		${MAIN_LIB_DIR}/filesystem/ResourceID.h
+		${MAIN_LIB_DIR}/filesystem/ResourcePath.h
 
 		${MAIN_LIB_DIR}/gameState/CGameState.h
 		${MAIN_LIB_DIR}/gameState/CGameStateCampaign.h

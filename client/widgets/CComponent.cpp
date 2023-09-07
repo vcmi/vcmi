@@ -102,7 +102,7 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize, EFonts 
 	}
 }
 
-const std::vector<std::string> CComponent::getFileName()
+std::vector<AnimationPath> CComponent::getFileName()
 {
 	static const std::string  primSkillsArr [] = {"PSKIL32",        "PSKIL32",        "PSKIL42",        "PSKILL"};
 	static const std::string  secSkillsArr [] =  {"SECSK32",        "SECSK32",        "SECSKILL",       "SECSK82"};
@@ -115,9 +115,9 @@ const std::vector<std::string> CComponent::getFileName()
 	static const std::string  heroArr [] =       {"PortraitsSmall", "PortraitsSmall", "PortraitsSmall", "PortraitsLarge"};
 	static const std::string  flagArr [] =       {"CREST58",        "CREST58",        "CREST58",        "CREST58"};
 
-	auto gen = [](const std::string * arr)
+	auto gen = [](const std::string * arr) -> std::vector<AnimationPath>
 	{
-		return std::vector<std::string>(arr, arr + 4);
+		return { AnimationPath::builtin(arr[0]), AnimationPath::builtin(arr[1]), AnimationPath::builtin(arr[2]), AnimationPath::builtin(arr[3]) };
 	};
 
 	switch(compType)
@@ -131,12 +131,12 @@ const std::vector<std::string> CComponent::getFileName()
 	case spell:      return gen(spellsArr);
 	case morale:     return gen(moraleArr);
 	case luck:       return gen(luckArr);
-	case building:   return std::vector<std::string>(4, (*CGI->townh)[subtype]->town->clientInfo.buildingsIcons);
+	case building:   return std::vector<AnimationPath>(4, (*CGI->townh)[subtype]->town->clientInfo.buildingsIcons);
 	case hero:       return gen(heroArr);
 	case flag:       return gen(flagArr);
 	}
 	assert(0);
-	return std::vector<std::string>();
+	return {};
 }
 
 size_t CComponent::getIndex()
@@ -251,7 +251,7 @@ std::string CComponent::getSubtitleInternal()
 	return "";
 }
 
-void CComponent::setSurface(std::string defName, int imgPos)
+void CComponent::setSurface(const AnimationPath & defName, int imgPos)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 	image = std::make_shared<CAnimImage>(defName, imgPos);
