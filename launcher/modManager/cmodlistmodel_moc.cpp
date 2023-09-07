@@ -192,13 +192,6 @@ void CModListModel::resetRepositories()
 	endResetModel();
 }
 
-void CModListModel::addRepository(QVariantMap data)
-{
-	beginResetModel();
-	CModList::addRepository(data);
-	endResetModel();
-}
-
 void CModListModel::modChanged(QString modID)
 {
 	int index = modNameToID.indexOf(modID);
