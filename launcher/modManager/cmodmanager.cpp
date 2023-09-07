@@ -89,7 +89,7 @@ void CModManager::loadMods()
 		{
 			//calculate mod size
 			qint64 total = 0;
-			ResourceID resDir(CModInfo::getModDir(modname), EResType::DIRECTORY);
+			ResourcePath resDir(CModInfo::getModDir(modname), EResType::DIRECTORY);
 			if(CResourceHandler::get()->existsResource(resDir))
 			{
 				for(QDirIterator iter(QString::fromStdString(CResourceHandler::get()->getResourceName(resDir)->string()), QDirIterator::Subdirectories); iter.hasNext(); iter.next())
