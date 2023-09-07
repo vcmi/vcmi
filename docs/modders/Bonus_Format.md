@@ -81,6 +81,11 @@ readable.
  "dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
 ```
 
+-   spellSchool
+```javascript
+"any", "fire", "air", "water", "earth" 
+```
+
 ### Example
 
 ``` javascript

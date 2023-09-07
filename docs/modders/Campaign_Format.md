@@ -65,7 +65,7 @@ Scenario description looks like follow:
 }
 ```
 
-- `"map"` map name without extension but with relative path. Both *.h3m and *.vmap maps are supported
+- `"map"` map name without extension but with relative path. Both *.h3m and *.vmap maps are supported. If you will pack scenarios inside campaign, numerical map name should be used, see details in [packing campaign](#packing-campaign)
 - `"preconditions"` enumerate scenarios indexes which must be completed to unlock this scenario. For example, if you want to make sequential missions, you should specify `"preconditions": []` for first scenario, but for second scenario it should be `"preconditions": [0]` and for third `"preconditions": [0, 1]`. But you can allow non-linear conquering using this parameter
 - `"color"` defines color id for the region. Possible values are `0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`
 - `"difficulty"` sets initial difficulty for this scenario. If `"allowDifficultySelection"`is defined for campaign, difficulty may be changed by player. Possible values are `0: pawn, 1: knight, 2: rook, 3: queen, 4: king`

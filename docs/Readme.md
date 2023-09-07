@@ -45,6 +45,7 @@ Please see corresponding installation guide articles for details for your platfo
 - [Translations](modders/Translations.md)
 - [Map Editor](modders/Map_Editor.md)
 - [Campaign Format](modders/Campaign_Format.md)
+- [Configurable Widgets](modders/Configurable_Widgets.md)
 
 ## Documentation and guidelines for developers
 

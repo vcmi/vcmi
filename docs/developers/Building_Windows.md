@@ -126,7 +126,7 @@ Make sure you have:
 
 ### Debug build is very slow
 
-Debug builds with MSVC are generally extremely slow since it's not just VCMI binaries are built as debug, but every single dependency too and this usually means no optimizations at all. Debug information that available for release builds is often sufficient so just avoid full debug builds unless absolutely necessary. Instead use RelWithDebInfo configuration. Also Debug configuration might have some compilation issues because it is not checked via CI for now.
+Debug builds with MSVC are generally extremely slow since it's not just VCMI binaries are built as debug, but every single dependency too and this usually means no optimizations at all. Debug information that available for release builds is often sufficient so just avoid full debug builds unless absolutely necessary. Instead use RelWithDebInfo configuration, optionally with Optimization Disabled (/Od) to avoid variables being optimized away Also Debug configuration might have some compilation issues because it is not checked via CI for now.
 
 ### I got crash within library XYZ.dll
 
