@@ -114,8 +114,8 @@
 				},
 				"autosaveMode" :  {
 					"type" : "string",
-					"enum" : [ "Off", "Simple", "Using Schema" ],
-					"default" : "Simple"
+					"enum" : [ "Off", "Using Counter", "Using Turn Info", "Using Schema" ],
+					"default" : "Using Counter"
 				},
 				"autosaveFrequency" : {
 					"type" : "number",

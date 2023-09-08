@@ -43,7 +43,8 @@ static const std::string cursorTypesList[] =
 static const std::string autosaveModeList[] =
 {
 	"Off",
-	"Simple",
+	"Using Counter",
+	"Using Turn Info",
 	"Using Schema"
 };
 
@@ -337,11 +338,11 @@ void CSettingsView::on_comboBoxAutosaveMode_currentIndexChanged(int index)
 	ui->spinBoxAutosaveFrequency->setEnabled(autosaveEnabled);
 
 	// disable count limit when autosame mode is not Simple
-	bool isSimpleAutosave = false;
-	if(autosaveModeList[index] == "Simple")
-		isSimpleAutosave = true;
+	bool autosaveUsingCounter = false;
+	if(autosaveModeList[index] == "Using Counter")
+		autosaveUsingCounter = true;
 
-	ui->spinBoxAutosaveCountLimit->setEnabled(isSimpleAutosave);
+	ui->spinBoxAutosaveCountLimit->setEnabled(autosaveUsingCounter);
 
 }
 
