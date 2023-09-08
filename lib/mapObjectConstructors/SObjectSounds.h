@@ -9,13 +9,15 @@
  */
 #pragma once
 
+#include "../filesystem/ResourcePath.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct SObjectSounds
 {
-	std::vector<std::string> ambient;
-	std::vector<std::string> visit;
-	std::vector<std::string> removal;
+	std::vector<AudioPath> ambient;
+	std::vector<AudioPath> visit;
+	std::vector<AudioPath> removal;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

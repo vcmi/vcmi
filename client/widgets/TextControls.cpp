@@ -419,7 +419,7 @@ CGStatusBar::CGStatusBar(std::shared_ptr<CIntObject> background_, EFonts Font, E
 	autoRedraw = false;
 }
 
-CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
+CGStatusBar::CGStatusBar(int x, int y, const ImagePath & name, int maxw)
 	: CLabel(x, y, FONT_SMALL, ETextAlignment::CENTER)
 	, enteringText(false)
 {
@@ -503,7 +503,7 @@ CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(c
 #endif
 }
 
-CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::string & bgName, const CFunctionList<void(const std::string &)> & CB)
+CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const ImagePath & bgName, const CFunctionList<void(const std::string &)> & CB)
 	:cb(CB), 	CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
 	pos += Pos.topLeft();

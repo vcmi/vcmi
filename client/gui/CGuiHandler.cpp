@@ -25,6 +25,7 @@
 #include "../render/IFont.h"
 #include "../render/EFont.h"
 #include "../renderSDL/ScreenHandler.h"
+#include "../renderSDL/RenderHandler.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
@@ -75,6 +76,7 @@ void CGuiHandler::init()
 	eventDispatcherInstance = std::make_unique<EventDispatcher>();
 	windowHandlerInstance = std::make_unique<WindowHandler>();
 	screenHandlerInstance = std::make_unique<ScreenHandler>();
+	renderHandlerInstance = std::make_unique<RenderHandler>();
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
 	framerateManagerInstance = std::make_unique<FramerateManager>(settings["video"]["targetfps"].Integer());
 }
@@ -204,6 +206,11 @@ void CGuiHandler::dispatchMainThread(const std::function<void()> & functor)
 IScreenHandler & CGuiHandler::screenHandler()
 {
 	return *screenHandlerInstance;
+}
+
+IRenderHandler & CGuiHandler::renderHandler()
+{
+	return *renderHandlerInstance;
 }
 
 EventDispatcher & CGuiHandler::events()

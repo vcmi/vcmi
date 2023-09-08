@@ -11,7 +11,7 @@
 
 #include "CInputStream.h"
 #include "ISimpleResourceLoader.h"
-#include "ResourceID.h"
+#include "ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -27,7 +27,7 @@ class DLL_LINKAGE CFilesystemGenerator
 	CFilesystemList * filesystem;
 	std::string prefix;
 
-	template<EResType::Type archiveType>
+	template<EResType archiveType>
 	void loadArchive(const std::string & mountPoint, const JsonNode & config);
 	void loadDirectory(const std::string & mountPoint, const JsonNode & config);
 	void loadZipArchive(const std::string & mountPoint, const JsonNode & config);

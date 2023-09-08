@@ -63,9 +63,25 @@ void JsonSerializer::serializeInternal(const std::string & fieldName, std::vecto
 
 	for(const si32 rawId : value)
 	{
-        JsonNode jsonElement(JsonNode::JsonType::DATA_STRING);
-        jsonElement.String() = encoder(rawId);
-        data.push_back(std::move(jsonElement));
+		JsonNode jsonElement(JsonNode::JsonType::DATA_STRING);
+		jsonElement.String() = encoder(rawId);
+		data.push_back(std::move(jsonElement));
+	}
+}
+
+void JsonSerializer::serializeInternal(const std::string & fieldName, std::vector<std::string> & value)
+{
+	if(value.empty())
+		return;
+
+	JsonVector & data = currentObject->operator[](fieldName).Vector();
+	data.reserve(value.size());
+
+	for(const auto & rawId : value)
+	{
+		JsonNode jsonElement(JsonNode::JsonType::DATA_STRING);
+		jsonElement.String() = rawId;
+		data.push_back(std::move(jsonElement));
 	}
 }
 

@@ -39,6 +39,8 @@ CArtifactsOfHeroKingdom::CArtifactsOfHeroKingdom(ArtPlaceMap ArtWorn, std::vecto
 	}
 	leftBackpackRoll->addCallback(std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, -1));
 	rightBackpackRoll->addCallback(std::bind(&CArtifactsOfHeroBase::scrollBackpack, this, +1));
+
+	setRedrawParent(true);
 }
 
 CArtifactsOfHeroKingdom::~CArtifactsOfHeroKingdom()

@@ -42,7 +42,7 @@ CArtifactsOfHeroBackpack::CArtifactsOfHeroBackpack(const Point & position)
 
 	for(int i = 0; i < visibleCapacityMax; i++)
 	{
-		auto artifactSlotBackground = std::make_shared<CPicture>("heroWindow/artifactSlotEmpty",
+		auto artifactSlotBackground = std::make_shared<CPicture>( ImagePath::builtin("heroWindow/artifactSlotEmpty"),
 			Point(slotSizeWithMargin * (i % HERO_BACKPACK_WINDOW_SLOT_COLUMNS), slotSizeWithMargin * (i / HERO_BACKPACK_WINDOW_SLOT_COLUMNS)));
 
 		backpackSlotsBackgrounds.emplace_back(artifactSlotBackground);

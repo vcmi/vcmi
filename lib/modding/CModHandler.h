@@ -20,7 +20,7 @@ class JsonNode;
 class IHandlerBase;
 class CIdentifierStorage;
 class CContentHandler;
-class ResourceID;
+class ResourcePath;
 
 using TModID = std::string;
 
@@ -54,12 +54,8 @@ class DLL_LINKAGE CModHandler : boost::noncopyable
 	/// Attempt to set active mods according to provided list of mods from save, throws on failure
 	void trySetActiveMods(std::vector<TModID> saveActiveMods, const std::map<TModID, CModVersion> & modList);
 
-	std::unique_ptr<CIdentifierStorage> identifiers;
-
 public:
 	std::shared_ptr<CContentHandler> content; //(!)Do not serialize FIXME: make private
-
-	CIdentifierStorage & getIdentifiers();
 
 	/// receives list of available mods and trying to load mod.json from all of them
 	void initializeConfig();
@@ -67,7 +63,7 @@ public:
 	void loadModFilesystems();
 
 	/// returns ID of mod that provides selected file resource
-	TModID findResourceOrigin(const ResourceID & name);
+	TModID findResourceOrigin(const ResourcePath & name);
 
 	std::string getModLanguage(const TModID & modId) const;
 
@@ -109,8 +105,6 @@ public:
 
 			trySetActiveMods(saveActiveMods, modVersions);
 		}
-
-		h & identifiers;
 	}
 };
 

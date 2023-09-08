@@ -33,12 +33,10 @@ public slots:
 	void updateMods();
 
 private slots:
-	void on_messageEdit_returnPressed();
-
-	void chatMessage(QString title, QString body, bool isSystem = false);
-	void sysMessage(QString body);
 	void dispatchMessage(QString);
 	void serverCommand(const ServerCommand &);
+	void onMessageSent(QString message);
+	void onChannelSwitch(QString channel);
 
 	void on_connectButton_toggled(bool checked);
 

@@ -10,32 +10,34 @@
 #include "StdInc.h"
 #include "BattleQueries.h"
 #include "MapQueries.h"
+#include "QueriesProcessor.h"
 
 #include "../CGameHandler.h"
 #include "../battles/BattleProcessor.h"
 
-#include "../../lib/battle/BattleInfo.h"
+#include "../../lib/battle/IBattleState.h"
 
 void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {
+	assert(result);
+
 	if(result)
 		objectVisit.visitedObject->battleFinished(objectVisit.visitingHero, *result);
 }
 
-CBattleQuery::CBattleQuery(CGameHandler * owner, const BattleInfo * Bi):
-	CGhQuery(owner)
+CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
+	CGhQuery(owner),
+	battleID(bi->getBattleID())
 {
-	belligerents[0] = Bi->sides[0].armyObject;
-	belligerents[1] = Bi->sides[1].armyObject;
+	belligerents[0] = bi->getSideArmy(0);
+	belligerents[1] = bi->getSideArmy(1);
 
-	bi = Bi;
-
-	for(auto & side : bi->sides)
-		addPlayer(side.color);
+	addPlayer(bi->getSidePlayer(0));
+	addPlayer(bi->getSidePlayer(1));
 }
 
 CBattleQuery::CBattleQuery(CGameHandler * owner):
-	CGhQuery(owner), bi(nullptr)
+	CGhQuery(owner)
 {
 	belligerents[0] = belligerents[1] = nullptr;
 }
@@ -48,17 +50,27 @@ bool CBattleQuery::blocksPack(const CPack * pack) const
 
 void CBattleQuery::onRemoval(PlayerColor color)
 {
+	assert(result);
+
 	if(result)
-		gh->battles->battleAfterLevelUp(*result);
+		gh->battles->battleAfterLevelUp(battleID, *result);
 }
 
-CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const BattleInfo * Bi):
-	CDialogQuery(owner)
+void CBattleQuery::onExposure(QueryPtr topQuery)
 {
-	bi = Bi;
+	// this method may be called in two cases:
+	// 1) when requesting battle replay (but before replay starts -> no valid result)
+	// 2) when aswering on levelup queries after accepting battle result -> valid result
+	if(result)
+		owner->popQuery(*this);
+}
 
-	for(auto & side : bi->sides)
-		addPlayer(side.color);
+CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * bi):
+	CDialogQuery(owner),
+	bi(bi)
+{
+	addPlayer(bi->getSidePlayer(0));
+	addPlayer(bi->getSidePlayer(1));
 }
 
 void CBattleDialogQuery::onRemoval(PlayerColor color)
@@ -66,10 +78,19 @@ void CBattleDialogQuery::onRemoval(PlayerColor color)
 	assert(answer);
 	if(*answer == 1)
 	{
-		gh->startBattlePrimary(bi->sides[0].armyObject, bi->sides[1].armyObject, bi->tile, bi->sides[0].hero, bi->sides[1].hero, bi->creatureBank, bi->town);
+		gh->battles->restartBattlePrimary(
+			bi->getBattleID(),
+			bi->getSideArmy(0),
+			bi->getSideArmy(1),
+			bi->getLocation(),
+			bi->getSideHero(0),
+			bi->getSideHero(1),
+			bi->isCreatureBank(),
+			bi->getDefendedTown()
+		);
 	}
 	else
 	{
-		gh->battles->endBattleConfirm(bi);
+		gh->battles->endBattleConfirm(bi->getBattleID());
 	}
 }

@@ -25,22 +25,22 @@
 #include "../../lib/StartInfo.h"
 
 AdventureOptions::AdventureOptions()
-	: CWindowObject(PLAYER_COLORED, "ADVOPTS")
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("ADVOPTS"))
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	viewWorld = std::make_shared<CButton>(Point(24, 23), "ADVVIEW.DEF", CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_VIEW_WORLD);
+	viewWorld = std::make_shared<CButton>(Point(24, 23), AnimationPath::builtin("ADVVIEW.DEF"), CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_VIEW_WORLD);
 	viewWorld->addCallback( [] { LOCPLINT->viewWorldMap(); });
 
-	exit = std::make_shared<CButton>(Point(204, 313), "IOK6432.DEF", CButton::tooltip(), std::bind(&AdventureOptions::close, this), EShortcut::GLOBAL_RETURN);
+	exit = std::make_shared<CButton>(Point(204, 313), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(), std::bind(&AdventureOptions::close, this), EShortcut::GLOBAL_RETURN);
 
-	scenInfo = std::make_shared<CButton>(Point(24, 198), "ADVINFO.DEF", CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_VIEW_SCENARIO);
+	scenInfo = std::make_shared<CButton>(Point(24, 198), AnimationPath::builtin("ADVINFO.DEF"), CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_VIEW_SCENARIO);
 	scenInfo->addCallback(AdventureOptions::showScenarioInfo);
 
-	puzzle = std::make_shared<CButton>(Point(24, 81), "ADVPUZ.DEF", CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_VIEW_PUZZLE);
+	puzzle = std::make_shared<CButton>(Point(24, 81), AnimationPath::builtin("ADVPUZ.DEF"), CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_VIEW_PUZZLE);
 	puzzle->addCallback(std::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT));
 
-	dig = std::make_shared<CButton>(Point(24, 139), "ADVDIG.DEF", CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_DIG_GRAIL);
+	dig = std::make_shared<CButton>(Point(24, 139), AnimationPath::builtin("ADVDIG.DEF"), CButton::tooltip(), [&](){ close(); }, EShortcut::ADVENTURE_DIG_GRAIL);
 	if(const CGHeroInstance *h = LOCPLINT->localState->getCurrentHero())
 		dig->addCallback(std::bind(&CPlayerInterface::tryDigging, LOCPLINT, h));
 	else

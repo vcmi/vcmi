@@ -251,7 +251,7 @@ int main(int argc, char * argv[])
 	// Some basic data validation to produce better error messages in cases of incorrect install
 	auto testFile = [](std::string filename, std::string message)
 	{
-		if (!CResourceHandler::get()->existsResource(ResourceID(filename)))
+		if (!CResourceHandler::get()->existsResource(ResourcePath(filename)))
 			handleFatalError(message, false);
 	};
 
@@ -423,10 +423,10 @@ int main(int argc, char * argv[])
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
 {
-	if(CCS->videoh->openAndPlayVideo("3DOLOGO.SMK", 0, 1, true, true))
+	if(CCS->videoh->openAndPlayVideo(VideoPath::builtin("3DOLOGO.SMK"), 0, 1, true, true))
 	{
-		if (CCS->videoh->openAndPlayVideo("NWCLOGO.SMK", 0, 1, true, true))
-			CCS->videoh->openAndPlayVideo("H3INTRO.SMK", 0, 1, true, true);
+		if (CCS->videoh->openAndPlayVideo(VideoPath::builtin("NWCLOGO.SMK"), 0, 1, true, true))
+			CCS->videoh->openAndPlayVideo(VideoPath::builtin("H3INTRO.SMK"), 0, 1, true, true);
 	}
 }
 

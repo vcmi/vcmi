@@ -54,7 +54,7 @@ class ComboBox : public CButton
 	void setItem(const void *);
 
 public:
-	ComboBox(Point position, const std::string & defName, const std::pair<std::string, std::string> & help, const JsonNode & dropDownDescriptor, EShortcut key = {}, bool playerColoredButton = false);
+	ComboBox(Point position, const AnimationPath & defName, const std::pair<std::string, std::string> & help, const JsonNode & dropDownDescriptor, EShortcut key = {}, bool playerColoredButton = false);
 	
 	//define this callback to fill input vector with data for the combo box
 	std::function<void(std::vector<const void *> &)> onConstructItems;

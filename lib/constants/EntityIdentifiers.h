@@ -59,6 +59,11 @@ public:
 		}
 	};
 
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & num;
+	}
+
 	constexpr void advance(int change)
 	{
 		num += change;
@@ -86,11 +91,6 @@ public:
 	constexpr Identifier(int32_t _num = -1)
 		:IdentifierBase(_num)
 	{}
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & BaseClass::num;
-	}
 
 	constexpr bool operator == (const Identifier & b) const { return BaseClass::num == b.num; }
 	constexpr bool operator <= (const Identifier & b) const { return BaseClass::num <= b.num; }
@@ -122,19 +122,9 @@ class IdentifierWithEnum : public BaseClass
 
 	static_assert(std::is_same_v<std::underlying_type_t<EnumType>, int32_t>, "Entity Identifier must use int32_t");
 public:
-	constexpr int32_t getNum() const
-	{
-		return BaseClass::num;
-	}
-
 	constexpr EnumType toEnum() const
 	{
 		return static_cast<EnumType>(BaseClass::num);
-	}
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & BaseClass::num;
 	}
 
 	constexpr IdentifierWithEnum(const EnumType & enumValue)
@@ -190,6 +180,12 @@ public:
 	DLL_LINKAGE static const QueryID NONE;
 };
 
+class BattleID : public Identifier<BattleID>
+{
+public:
+	using Identifier<BattleID>::Identifier;
+	DLL_LINKAGE static const BattleID NONE;
+};
 class ObjectInstanceID : public Identifier<ObjectInstanceID>
 {
 public:
@@ -210,6 +206,7 @@ public:
 	///json serialization helpers
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
+	static std::string entityType();
 
 	DLL_LINKAGE static const HeroTypeID NONE;
 };
@@ -230,7 +227,7 @@ public:
 	}
 };
 
-class PlayerColor : public Identifier<PlayerColor>
+class DLL_LINKAGE PlayerColor : public Identifier<PlayerColor>
 {
 public:
 	using Identifier<PlayerColor>::Identifier;
@@ -240,19 +237,20 @@ public:
 		PLAYER_LIMIT_I = 8,
 	};
 
-	using Mask = uint8_t;
+	static const PlayerColor SPECTATOR; //252
+	static const PlayerColor CANNOT_DETERMINE; //253
+	static const PlayerColor UNFLAGGABLE; //254 - neutral objects (pandora, banks)
+	static const PlayerColor NEUTRAL; //255
+	static const PlayerColor PLAYER_LIMIT; //player limit per map
 
-	DLL_LINKAGE static const PlayerColor SPECTATOR; //252
-	DLL_LINKAGE static const PlayerColor CANNOT_DETERMINE; //253
-	DLL_LINKAGE static const PlayerColor UNFLAGGABLE; //254 - neutral objects (pandora, banks)
-	DLL_LINKAGE static const PlayerColor NEUTRAL; //255
-	DLL_LINKAGE static const PlayerColor PLAYER_LIMIT; //player limit per map
+	bool isValidPlayer() const; //valid means < PLAYER_LIMIT (especially non-neutral)
+	bool isSpectator() const;
 
-	DLL_LINKAGE bool isValidPlayer() const; //valid means < PLAYER_LIMIT (especially non-neutral)
-	DLL_LINKAGE bool isSpectator() const;
+	std::string toString() const;
 
-	DLL_LINKAGE std::string getStr(bool L10n = false) const;
-	DLL_LINKAGE std::string getStrCap(bool L10n = false) const;
+	static si32 decode(const std::string& identifier);
+	static std::string encode(const si32 index);
+	static std::string entityType();
 };
 
 class TeamID : public Identifier<TeamID>
@@ -637,16 +635,17 @@ public:
 
 	DLL_LINKAGE const CArtifact * toArtifact() const;
 	DLL_LINKAGE const Artifact * toArtifact(const ArtifactService * service) const;
-
-	///json serialization helpers
-	static si32 decode(const std::string & identifier);
-	static std::string encode(const si32 index);
 };
 
 class ArtifactID : public IdentifierWithEnum<ArtifactID, ArtifactIDBase>
 {
 public:
 	using IdentifierWithEnum<ArtifactID, ArtifactIDBase>::IdentifierWithEnum;
+
+	///json serialization helpers
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+	static std::string entityType();
 };
 
 class CreatureIDBase : public IdentifierBase
@@ -676,16 +675,17 @@ public:
 
 	DLL_LINKAGE const CCreature * toCreature() const;
 	DLL_LINKAGE const Creature * toCreature(const CreatureService * creatures) const;
-
-	///json serialization helpers
-	static si32 decode(const std::string & identifier);
-	static std::string encode(const si32 index);
 };
 
 class CreatureID : public IdentifierWithEnum<CreatureID, CreatureIDBase>
 {
 public:
 	using IdentifierWithEnum<CreatureID, CreatureIDBase>::IdentifierWithEnum;
+
+	///json serialization helpers
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+	static std::string entityType();
 };
 
 class SpellIDBase : public IdentifierBase
@@ -793,16 +793,17 @@ public:
 
 	DLL_LINKAGE const CSpell * toSpell() const; //deprecated
 	DLL_LINKAGE const spells::Spell * toSpell(const spells::Service * service) const;
-
-	///json serialization helpers
-	static si32 decode(const std::string & identifier);
-	static std::string encode(const si32 index);
 };
 
 class SpellID : public IdentifierWithEnum<SpellID, SpellIDBase>
 {
 public:
 	using IdentifierWithEnum<SpellID, SpellIDBase>::IdentifierWithEnum;
+
+	///json serialization helpers
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+	static std::string entityType();
 };
 
 class BattleFieldInfo;
@@ -847,16 +848,16 @@ public:
 		ROCK,
 		ORIGINAL_REGULAR_TERRAIN_COUNT = ROCK
 	};
-
-	static si32 decode(const std::string & identifier);
-	static std::string encode(const si32 index);
-	static std::string entityType();
 };
 
 class TerrainId : public IdentifierWithEnum<TerrainId, TerrainIdBase>
 {
 public:
 	using IdentifierWithEnum<TerrainId, TerrainIdBase>::IdentifierWithEnum;
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+	static std::string entityType();
 };
 
 class ObstacleInfo;

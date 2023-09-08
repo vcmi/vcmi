@@ -14,6 +14,7 @@
 #include "../ISpellMechanics.h"
 #include "../../NetPacks.h"
 #include "../../battle/CBattleInfoCallback.h"
+#include "../../battle/BattleInfo.h"
 #include "../../battle/CUnitState.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
@@ -27,6 +28,7 @@ namespace effects
 void DemonSummon::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	BattleUnitsChanged pack;
+	pack.battleID = m->battle()->getBattle()->getBattleID();
 
 	for(const Destination & dest : target)
 	{

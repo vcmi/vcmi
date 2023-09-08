@@ -252,6 +252,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 
 	sc.side = casterSide;
 	sc.spellID = getSpellId();
+	sc.battleID = battle()->getBattle()->getBattleID();
 	sc.tile = target.at(0).hexValue;
 
 	sc.castByHero = mode == Mode::HERO;
@@ -299,6 +300,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	beforeCast(sc, *server->getRNG(), target);
 
 	BattleLogMessage castDescription;
+	castDescription.battleID = battle()->getBattle()->getBattleID();
 
 	switch (mode)
 	{
@@ -344,8 +346,9 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 
 	// send empty event to client
 	// temporary(?) workaround to force animations to trigger
-	StacksInjured fake_event;
-	server->apply(&fake_event);
+	StacksInjured fakeEvent;
+	fakeEvent.battleID = battle()->getBattle()->getBattleID();
+	server->apply(&fakeEvent);
 }
 
 void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target)
@@ -448,6 +451,7 @@ std::set<const battle::Unit *> BattleSpellMechanics::collectTargets() const
 void BattleSpellMechanics::doRemoveEffects(ServerCallback * server, const std::vector<const battle::Unit *> & targets, const CSelector & selector)
 {
 	SetStackEffect sse;
+	sse.battleID = battle()->getBattle()->getBattleID();
 
 	for(const auto * unit : targets)
 	{

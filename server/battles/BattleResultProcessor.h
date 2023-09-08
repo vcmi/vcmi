@@ -31,14 +31,14 @@ struct CasualtiesAfterBattle
 	TSummoned summoned;
 	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack locations
 
-	CasualtiesAfterBattle(const SideInBattle & battleSide, const BattleInfo * bat);
+	CasualtiesAfterBattle(const CBattleInfoCallback & battle, uint8_t sideInBattle);
 	void updateArmy(CGameHandler * gh);
 };
 
 struct FinishingBattleHelper
 {
-	FinishingBattleHelper();
-	FinishingBattleHelper(std::shared_ptr<const CBattleQuery> Query, int RemainingBattleQueriesCount);
+//	FinishingBattleHelper();
+	FinishingBattleHelper(const CBattleInfoCallback & battle, const BattleResult & result, int RemainingBattleQueriesCount);
 
 	inline bool isDraw() const {return winnerSide == 2;}
 
@@ -64,18 +64,17 @@ class BattleResultProcessor : boost::noncopyable
 	//	BattleProcessor * owner;
 	CGameHandler * gameHandler;
 
-	std::unique_ptr<BattleResult> battleResult;
-	std::unique_ptr<FinishingBattleHelper> finishingBattle;
+	std::map<BattleID, std::unique_ptr<BattleResult>> battleResults;
+	std::map<BattleID, std::unique_ptr<FinishingBattleHelper>> finishingBattles;
 
 public:
 	explicit BattleResultProcessor(BattleProcessor * owner);
 	void setGameHandler(CGameHandler * newGameHandler);
 
-	bool battleIsEnding() const;
+	bool battleIsEnding(const CBattleInfoCallback & battle) const;
 
-	void setupBattle();
-	void setBattleResult(EBattleResult resultType, int victoriusSide);
-	void endBattle(int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2); //ends battle
-	void endBattleConfirm(const BattleInfo * battleInfo);
-	void battleAfterLevelUp(const BattleResult & result);
+	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, int victoriusSide);
+	void endBattle(const CBattleInfoCallback & battle); //ends battle
+	void endBattleConfirm(const CBattleInfoCallback & battle);
+	void battleAfterLevelUp(const BattleID & battleID, const BattleResult & result);
 };

@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../../lib/filesystem/ResourcePath.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class PlayerColor;
@@ -22,7 +24,7 @@ struct SDL_Surface;
 class ColorFilter;
 
 /// Defines which blit method will be selected when image is used for rendering
-enum class EImageBlitMode : uint8_t
+enum class EImageBlitMode
 {
 	/// Image can have no transparency and can be only used as background
 	OPAQUE,
@@ -80,15 +82,7 @@ public:
 	virtual void verticalFlip() = 0;
 	virtual void doubleFlip() = 0;
 
-	IImage();
-	virtual ~IImage();
-
-	/// loads image from specified file. Returns 0-sized images on failure
-	static std::shared_ptr<IImage> createFromFile( const std::string & path );
-	static std::shared_ptr<IImage> createFromFile( const std::string & path, EImageBlitMode mode );
-
-	/// temporary compatibility method. Creates IImage from existing SDL_Surface
-	/// Surface will be shared, called must still free it with SDL_FreeSurface
-	static std::shared_ptr<IImage> createFromSurface( SDL_Surface * source );
+	IImage() = default;
+	virtual ~IImage() = default;
 };
 

@@ -35,7 +35,7 @@ void Rumor::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeString("text", text);
 }
 
-DisposedHero::DisposedHero() : heroId(0), portrait(255), players(0)
+DisposedHero::DisposedHero() : heroId(0), portrait(255)
 {
 
 }

@@ -24,7 +24,7 @@
 std::pair<std::unique_ptr<ui8[]>, ui64> CTrueTypeFont::loadData(const JsonNode & config)
 {
 	std::string filename = "Data/" + config["file"].String();
-	return CResourceHandler::get()->load(ResourceID(filename, EResType::TTF_FONT))->readAll();
+	return CResourceHandler::get()->load(ResourcePath(filename, EResType::TTF_FONT))->readAll();
 }
 
 TTF_Font * CTrueTypeFont::loadFont(const JsonNode &config)

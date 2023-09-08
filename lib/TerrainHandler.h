@@ -15,6 +15,7 @@
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 #include "Color.h"
+#include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -66,11 +67,11 @@ public:
 	ColorRGBA minimapBlocked;
 	ColorRGBA minimapUnblocked;
 	std::string shortIdentifier;
-	std::string musicFilename;
-	std::string tilesFilename;
+	AudioPath musicFilename;
+	AnimationPath tilesFilename;
 	std::string terrainViewPatterns;
-	std::string horseSound;
-	std::string horseSoundPenalty;
+	AudioPath horseSound;
+	AudioPath horseSoundPenalty;
 
 	std::vector<TerrainPaletteAnimation> paletteAnimation;
 

@@ -777,7 +777,7 @@ std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, b
 	return VLC->getBth()->bonusToString(bonus, this, description);
 }
 
-std::string CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
+ImagePath CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
 {
 	return VLC->getBth()->bonusToGraphics(bonus);
 }

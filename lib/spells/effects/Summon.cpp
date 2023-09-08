@@ -14,6 +14,7 @@
 
 #include "../ISpellMechanics.h"
 #include "../../battle/CBattleInfoCallback.h"
+#include "../../battle/BattleInfo.h"
 #include "../../battle/Unit.h"
 #include "../../NetPacks.h"
 #include "../../serializer/JsonSerializeFormat.h"
@@ -87,6 +88,7 @@ void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 	auto valueWithBonus = m->applySpecificSpellBonus(m->calculateRawEffectValue(0, m->getEffectPower()));//TODO: consider use base power too
 
 	BattleUnitsChanged pack;
+	pack.battleID = m->battle()->getBattle()->getBattleID();
 
 	for(const auto & dest : target)
 	{

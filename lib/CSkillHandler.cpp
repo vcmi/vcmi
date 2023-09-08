@@ -146,7 +146,7 @@ void CSkill::serializeJson(JsonSerializeFormat & handler)
 ///CSkillHandler
 std::vector<JsonNode> CSkillHandler::loadLegacyData()
 {
-	CLegacyConfigParser parser("DATA/SSTRAITS.TXT");
+	CLegacyConfigParser parser(TextPath::builtin("DATA/SSTRAITS.TXT"));
 
 	//skip header
 	parser.endLine();

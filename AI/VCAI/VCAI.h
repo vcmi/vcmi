@@ -185,7 +185,7 @@ public:
 	void showHillFortWindow(const CGObjectInstance * object, const CGHeroInstance * visitor) override;
 	void playerBonusChanged(const Bonus & bonus, bool gain) override;
 	void heroCreated(const CGHeroInstance *) override;
-	void advmapSpellCast(const CGHeroInstance * caster, int spellID) override;
+	void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID) override;
 	void showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID) override;
 	void requestRealized(PackageApplied * pa) override;
 	void receivedResource() override;
@@ -201,9 +201,9 @@ public:
 	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor) override;
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 
-	void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed) override;
-	void battleEnd(const BattleResult * br, QueryID queryID) override;
-	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
+	void battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side, bool replayAllowed) override;
+	void battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID) override;
+	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
 	void makeTurn();
 	void mainLoop();

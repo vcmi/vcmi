@@ -692,7 +692,7 @@ void CMapLoaderH3M::readDisposedHeroes()
 			map->disposedHeroes[g].heroId = reader->readHero().getNum();
 			map->disposedHeroes[g].portrait = reader->readHeroPortrait();
 			map->disposedHeroes[g].name = readLocalizedString(TextIdentifier("header", "heroes", map->disposedHeroes[g].heroId));
-			map->disposedHeroes[g].players = reader->readUInt8();
+			reader->readBitmaskPlayers(map->disposedHeroes[g].players, false);
 		}
 	}
 }
@@ -984,8 +984,8 @@ void CMapLoaderH3M::readObjectTemplates()
 		auto tmpl = reader->readObjectTemplate();
 		templates.push_back(tmpl);
 
-		if (!CResourceHandler::get()->existsResource(ResourceID( "SPRITES/" + tmpl->animationFile, EResType::ANIMATION)))
-			logMod->warn("Template animation %s of type (%d %d) is missing!", tmpl->animationFile, tmpl->id, tmpl->subid );
+		if (!CResourceHandler::get()->existsResource(tmpl->animationFile.addPrefix("SPRITES/")))
+			logMod->warn("Template animation %s of type (%d %d) is missing!", tmpl->animationFile.getOriginalName(), tmpl->id, tmpl->subid );
 	}
 }
 
@@ -995,7 +995,7 @@ CGObjectInstance * CMapLoaderH3M::readEvent(const int3 & mapPosition)
 
 	readBoxContent(object, mapPosition);
 
-	object->availableFor = reader->readUInt8();
+	reader->readBitmaskPlayers(object->availableFor, false);
 	object->computerActivate = reader->readBool();
 	object->removeAfterVisit = reader->readBool();
 
@@ -1297,12 +1297,12 @@ CGObjectInstance * CMapLoaderH3M::readHeroPlaceholder(const int3 & mapPosition)
 	if(htid.getNum() == -1)
 	{
 		object->powerRank = reader->readUInt8();
-		logGlobal->debug("Map '%s': Hero placeholder: by power at %s, owned by %s", mapName, mapPosition.toString(), object->getOwner().getStr());
+		logGlobal->debug("Map '%s': Hero placeholder: by power at %s, owned by %s", mapName, mapPosition.toString(), object->getOwner().toString());
 	}
 	else
 	{
 		object->heroType = htid;
-		logGlobal->debug("Map '%s': Hero placeholder: %s at %s, owned by %s", mapName, VLC->heroh->getById(htid)->getJsonKey(), mapPosition.toString(), object->getOwner().getStr());
+		logGlobal->debug("Map '%s': Hero placeholder: %s at %s, owned by %s", mapName, VLC->heroh->getById(htid)->getJsonKey(), mapPosition.toString(), object->getOwner().toString());
 	}
 
 	return object;
@@ -1328,7 +1328,7 @@ CGObjectInstance * CMapLoaderH3M::readGeneric(const int3 & mapPosition, std::sha
 	if(VLC->objtypeh->knownSubObjects(objectTemplate->id).count(objectTemplate->subid))
 		return VLC->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid)->create(objectTemplate);
 
-	logGlobal->warn("Map '%s': Unrecognized object %d:%d ('%s') at %s found!", mapName, objectTemplate->id.toEnum(), objectTemplate->subid, objectTemplate->animationFile, mapPosition.toString());
+	logGlobal->warn("Map '%s': Unrecognized object %d:%d ('%s') at %s found!", mapName, objectTemplate->id.toEnum(), objectTemplate->subid, objectTemplate->animationFile.getOriginalName(), mapPosition.toString());
 	return new CGObjectInstance();
 }
 
@@ -1774,9 +1774,9 @@ CGObjectInstance * CMapLoaderH3M::readHero(const int3 & mapPosition, const Objec
 	}
 
 	if (object->subID != -1)
-		logGlobal->debug("Map '%s': Hero on map: %s at %s, owned by %s", mapName, VLC->heroh->getByIndex(object->subID)->getJsonKey(), mapPosition.toString(), object->getOwner().getStr());
+		logGlobal->debug("Map '%s': Hero on map: %s at %s, owned by %s", mapName, VLC->heroh->getByIndex(object->subID)->getJsonKey(), mapPosition.toString(), object->getOwner().toString());
 	else
-		logGlobal->debug("Map '%s': Hero on map: (random) at %s, owned by %s", mapName, mapPosition.toString(), object->getOwner().getStr());
+		logGlobal->debug("Map '%s': Hero on map: (random) at %s, owned by %s", mapName, mapPosition.toString(), object->getOwner().toString());
 
 	reader->skipZero(16);
 	return object;

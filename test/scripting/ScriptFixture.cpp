@@ -64,7 +64,6 @@ void ScriptFixture::setUp()
 {
 	pool = std::make_shared<PoolMock>();
 
-	EXPECT_CALL(environmentMock, battle()).WillRepeatedly(Return(&binfoMock));
 	EXPECT_CALL(environmentMock, game()).WillRepeatedly(Return(&infoMock));
 	EXPECT_CALL(environmentMock, logger()).WillRepeatedly(Return(&loggerMock));
 	EXPECT_CALL(environmentMock, eventBus()).WillRepeatedly(Return(&eventBus));

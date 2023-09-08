@@ -137,7 +137,7 @@ OptionsTab::OptionsTab() : humanPlayers(0)
 		}
 	});
 	
-	const JsonNode config(ResourceID("config/widgets/optionsTab.json"));
+	const JsonNode config(JsonPath::builtin("config/widgets/optionsTab.json"));
 	build(config);
 	
 	//set timers combo box callbacks
@@ -343,18 +343,18 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex(bool big)
 	return 0;
 }
 
-std::string OptionsTab::CPlayerSettingsHelper::getImageName(bool big)
+AnimationPath OptionsTab::CPlayerSettingsHelper::getImageName(bool big)
 {
 	switch(type)
 	{
 	case OptionsTab::TOWN:
-		return big ? "ITPt": "ITPA";
+		return AnimationPath::builtin(big ? "ITPt": "ITPA");
 	case OptionsTab::HERO:
-		return big ? "PortraitsLarge": "PortraitsSmall";
+		return AnimationPath::builtin(big ? "PortraitsLarge": "PortraitsSmall");
 	case OptionsTab::BONUS:
-		return "SCNRSTAR";
+		return AnimationPath::builtin("SCNRSTAR");
 	}
-	return "";
+	return {};
 }
 
 std::string OptionsTab::CPlayerSettingsHelper::getName()
@@ -553,7 +553,7 @@ OptionsTab::CPlayerOptionTooltipBox::CPlayerOptionTooltipBox(CPlayerSettingsHelp
 
 void OptionsTab::CPlayerOptionTooltipBox::genHeader()
 {
-	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
+	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
 	updateShadow();
 
 	labelTitle = std::make_shared<CLabel>(pos.w / 2 + 8, 21, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, getTitle());
@@ -585,7 +585,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genHeroWindow()
 	labelHeroSpeciality = std::make_shared<CLabel>(pos.w / 2 + 4, 117, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[78]);
 	auto heroIndex = settings.hero.getNum() >= CGI->heroh->size() ? 0 : settings.hero.getNum();
 
-	imageSpeciality = std::make_shared<CAnimImage>("UN44", (*CGI->heroh)[heroIndex]->imageIndex, 0, pos.w / 2 - 22, 134);
+	imageSpeciality = std::make_shared<CAnimImage>(AnimationPath::builtin("UN44"), (*CGI->heroh)[heroIndex]->imageIndex, 0, pos.w / 2 - 22, 134);
 	labelSpecialityName = std::make_shared<CLabel>(pos.w / 2, 188, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*CGI->heroh)[heroIndex]->getSpecialtyNameTranslated());
 }
 
@@ -717,7 +717,7 @@ void OptionsTab::SelectionWindow::recreate()
 
 	pos = Rect(0, 0, x, y);
 
-	backgroundTexture = std::make_shared<FilledTexturePlayerColored>("DiBoxBck", pos);
+	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(ImagePath::builtin("DiBoxBck"), pos);
 	backgroundTexture->playerColored(PlayerColor(1));
 	updateShadow();
 
@@ -747,7 +747,7 @@ void OptionsTab::SelectionWindow::genContentGrid(int lines)
 	{
 		for(int x = 0; x < elementsPerLine; x++)
 		{
-			components.push_back(std::make_shared<CPicture>("lobby/townBorderBig", x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
+			components.push_back(std::make_shared<CPicture>(ImagePath::builtin("lobby/townBorderBig"), x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
 		}
 	}
 }
@@ -763,7 +763,7 @@ void OptionsTab::SelectionWindow::genContentFactions()
 	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 6, (ICON_SMALL_HEIGHT/2)));
 	drawOutlinedText(TEXT_POS_X, TEXT_POS_Y, (selectedFaction.getNum() == PlayerSettings::RANDOM) ? Colors::YELLOW : Colors::WHITE, helper.getName());
 	if(selectedFaction.getNum() == PlayerSettings::RANDOM)
-		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", 6, (ICON_SMALL_HEIGHT/2)));
+		components.push_back(std::make_shared<CPicture>(ImagePath::builtin("lobby/townBorderSmallActivated"), 6, (ICON_SMALL_HEIGHT/2)));
 
 	for(auto & elem : allowedFactions)
 	{
@@ -776,7 +776,7 @@ void OptionsTab::SelectionWindow::genContentFactions()
 		CPlayerSettingsHelper helper = CPlayerSettingsHelper(set, SelType::TOWN);
 
 		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
-		components.push_back(std::make_shared<CPicture>(selectedFaction == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig", x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
+		components.push_back(std::make_shared<CPicture>(ImagePath::builtin(selectedFaction == elem ? "lobby/townBorderBigActivated" : "lobby/townBorderBig"), x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
 		drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, (selectedFaction == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
 		factions.push_back(elem);
 
@@ -795,7 +795,7 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 	components.push_back(std::make_shared<CAnimImage>(helper.getImageName(), helper.getImageIndex(), 0, 6, (ICON_SMALL_HEIGHT/2)));
 	drawOutlinedText(TEXT_POS_X, TEXT_POS_Y, (selectedHero.getNum() == PlayerSettings::RANDOM) ? Colors::YELLOW : Colors::WHITE, helper.getName());
 	if(selectedHero.getNum() == PlayerSettings::RANDOM)
-		components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", 6, (ICON_SMALL_HEIGHT/2)));
+		components.push_back(std::make_shared<CPicture>(ImagePath::builtin("lobby/townBorderSmallActivated"), 6, (ICON_SMALL_HEIGHT/2)));
 
 	for(auto & elem : allowedHeroes)
 	{
@@ -814,11 +814,11 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 
 			components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
 			drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, (selectedHero == elem) ? Colors::YELLOW : Colors::WHITE, helper.getName());
-			std::string image = "lobby/townBorderBig";
+			ImagePath image = ImagePath::builtin("lobby/townBorderBig");
 			if(selectedHero == elem)
-				image = "lobby/townBorderBigActivated";
+				image = ImagePath::builtin("lobby/townBorderBigActivated");
 			if(unusableHeroes.count(elem))
-				image = "lobby/townBorderBigGrayedOut";
+				image = ImagePath::builtin("lobby/townBorderBigGrayedOut");
 			components.push_back(std::make_shared<CPicture>(image, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
 			heroes.push_back(elem);
 
@@ -843,7 +843,7 @@ void OptionsTab::SelectionWindow::genContentBonus()
 		drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, Colors::WHITE , helper.getName());
 		if(selectedBonus == elem)
 		{
-			components.push_back(std::make_shared<CPicture>("lobby/townBorderSmallActivated", x * (ICON_BIG_WIDTH-1) + 6, y * (ICON_BIG_HEIGHT-1) + (ICON_SMALL_HEIGHT/2)));
+			components.push_back(std::make_shared<CPicture>(ImagePath::builtin("lobby/townBorderSmallActivated"), x * (ICON_BIG_WIDTH-1) + 6, y * (ICON_BIG_HEIGHT-1) + (ICON_SMALL_HEIGHT/2)));
 			drawOutlinedText(x * (ICON_BIG_WIDTH-1) + TEXT_POS_X, y * (ICON_BIG_HEIGHT-1) + TEXT_POS_Y, Colors::YELLOW , helper.getName());
 		}
 
@@ -1075,18 +1075,18 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 		"ADOPOPNL.bmp", "ADOPPPNL.bmp", "ADOPTPNL.bmp", "ADOPSPNL.bmp"
 	}};
 
-	background = std::make_shared<CPicture>(bgs[s->color.getNum()], 0, 0);
+	background = std::make_shared<CPicture>(ImagePath::builtin(bgs[s->color.getNum()]), 0, 0);
 	labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, s->name);
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
 
 	if(SEL->screenType == ESelectionScreen::newGame)
 	{
-		buttonTownLeft = std::make_shared<CButton>(Point(107, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[132], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::TOWN, -1, s->color));
-		buttonTownRight = std::make_shared<CButton>(Point(168, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[133], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::TOWN, +1, s->color));
-		buttonHeroLeft = std::make_shared<CButton>(Point(183, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[148], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::HERO, -1, s->color));
-		buttonHeroRight = std::make_shared<CButton>(Point(244, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[149], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::HERO, +1, s->color));
-		buttonBonusLeft = std::make_shared<CButton>(Point(259, 5), "ADOPLFA.DEF", CGI->generaltexth->zelp[164], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::BONUS, -1, s->color));
-		buttonBonusRight = std::make_shared<CButton>(Point(320, 5), "ADOPRTA.DEF", CGI->generaltexth->zelp[165], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::BONUS, +1, s->color));
+		buttonTownLeft   = std::make_shared<CButton>(Point(107, 5), AnimationPath::builtin("ADOPLFA.DEF"), CGI->generaltexth->zelp[132], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::TOWN, -1, s->color));
+		buttonTownRight  = std::make_shared<CButton>(Point(168, 5), AnimationPath::builtin("ADOPRTA.DEF"), CGI->generaltexth->zelp[133], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::TOWN, +1, s->color));
+		buttonHeroLeft   = std::make_shared<CButton>(Point(183, 5), AnimationPath::builtin("ADOPLFA.DEF"), CGI->generaltexth->zelp[148], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::HERO, -1, s->color));
+		buttonHeroRight  = std::make_shared<CButton>(Point(244, 5), AnimationPath::builtin("ADOPRTA.DEF"), CGI->generaltexth->zelp[149], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::HERO, +1, s->color));
+		buttonBonusLeft  = std::make_shared<CButton>(Point(259, 5), AnimationPath::builtin("ADOPLFA.DEF"), CGI->generaltexth->zelp[164], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::BONUS, -1, s->color));
+		buttonBonusRight = std::make_shared<CButton>(Point(320, 5), AnimationPath::builtin("ADOPRTA.DEF"), CGI->generaltexth->zelp[165], std::bind(&IServerAPI::setPlayerOption, CSH, LobbyChangePlayerOption::BONUS, +1, s->color));
 	}
 
 	hideUnavailableButtons();
@@ -1095,7 +1095,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	{
 		flag = std::make_shared<CButton>(
 			Point(-43, 2),
-			flags[s->color.getNum()],
+			AnimationPath::builtin(flags[s->color.getNum()]),
 			CGI->generaltexth->zelp[180],
 			std::bind(&OptionsTab::onSetPlayerClicked, &parentTab, *s)
 		);

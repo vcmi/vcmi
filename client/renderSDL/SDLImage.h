@@ -43,7 +43,7 @@ public:
 	//Load image from def file
 	SDLImage(CDefFile *data, size_t frame, size_t group=0);
 	//Load from bitmap file
-	SDLImage(std::string filename, EImageBlitMode blitMode);
+	SDLImage(const ImagePath & filename, EImageBlitMode blitMode);
 
 	SDLImage(const JsonNode & conf, EImageBlitMode blitMode);
 	//Create using existing surface, extraRef will increase refcount on SDL_Surface

@@ -52,7 +52,7 @@ class MapViewCache
 	std::unique_ptr<Canvas> intermediate;
 	std::unique_ptr<MapRenderer> mapRenderer;
 
-	std::unique_ptr<CAnimation> iconsStorage;
+	std::shared_ptr<CAnimation> iconsStorage;
 
 	Canvas getTile(const int3 & coordinates);
 	void updateTile(const std::shared_ptr<IMapRendererContext> & context, const int3 & coordinates);

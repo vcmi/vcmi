@@ -10,7 +10,7 @@
 #pragma once
 
 #include "ISimpleResourceLoader.h"
-#include "ResourceID.h"
+#include "ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -60,11 +60,11 @@ public:
 
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
-	std::unique_ptr<CInputStream> load(const ResourceID & resourceName) const override;
-	bool existsResource(const ResourceID & resourceName) const override;
+	std::unique_ptr<CInputStream> load(const ResourcePath & resourceName) const override;
+	bool existsResource(const ResourcePath & resourceName) const override;
 	std::string getMountPoint() const override;
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override {}
-	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
+	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 	/** Extracts one archive entry to the specified subfolder. Used for Video and Sound */
 	void extractToFolder(const std::string & outputSubFolder, CInputStream & fileStream, const ArchiveEntry & entry) const;
 	/** Extracts one archive entry to the specified subfolder. Used for Images, Sprites, etc */
@@ -98,7 +98,7 @@ private:
 	std::string mountPoint;
 
 	/** Holds all entries of the archive file. An entry can be accessed via the entry name. **/
-	std::unordered_map<ResourceID, ArchiveEntry> entries;
+	std::unordered_map<ResourcePath, ArchiveEntry> entries;
 
 	/** Specifies if Original H3 archives should be extracted to a separate folder **/
 	bool extractArchives;

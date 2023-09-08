@@ -332,8 +332,8 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 	static std::map<char, std::string> classes =
 		{{'S',"SPECIAL"}, {'T',"TREASURE"},{'N',"MINOR"},{'J',"MAJOR"},{'R',"RELIC"},};
 
-	CLegacyConfigParser parser("DATA/ARTRAITS.TXT");
-	CLegacyConfigParser events("DATA/ARTEVENT.TXT");
+	CLegacyConfigParser parser(TextPath::builtin("DATA/ARTRAITS.TXT"));
+	CLegacyConfigParser events(TextPath::builtin("DATA/ARTEVENT.TXT"));
 
 	parser.endLine(); // header
 	parser.endLine();

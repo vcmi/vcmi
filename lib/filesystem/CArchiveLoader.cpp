@@ -78,7 +78,7 @@ void CArchiveLoader::initLODArchive(const std::string &mountPoint, CFileInputStr
 		entry.compressedSize     = reader.readUInt32();
 
 		// Add lod entry to local entries map
-		entries[ResourceID(mountPoint + entry.name)] = entry;
+		entries[ResourcePath(mountPoint + entry.name)] = entry;
 
 		if(extractArchives)
 		{
@@ -123,7 +123,7 @@ void CArchiveLoader::initVIDArchive(const std::string &mountPoint, CFileInputStr
 		entry.compressedSize = 0;
 
 		offsets.insert(entry.offset);
-		entries[ResourceID(mountPoint + entry.name)] = entry;
+		entries[ResourcePath(mountPoint + entry.name)] = entry;
 	}
 	offsets.insert(static_cast<int>(fileStream.getSize()));
 
@@ -162,14 +162,14 @@ void CArchiveLoader::initSNDArchive(const std::string &mountPoint, CFileInputStr
 		entry.offset = reader.readInt32();
 		entry.fullSize = reader.readInt32();
 		entry.compressedSize = 0;
-		entries[ResourceID(mountPoint + entry.name)] = entry;
+		entries[ResourcePath(mountPoint + entry.name)] = entry;
 
 		if(extractArchives)
 			extractToFolder("SOUND", fileStream, entry);
 	}
 }
 
-std::unique_ptr<CInputStream> CArchiveLoader::load(const ResourceID & resourceName) const
+std::unique_ptr<CInputStream> CArchiveLoader::load(const ResourcePath & resourceName) const
 {
 	assert(existsResource(resourceName));
 
@@ -187,7 +187,7 @@ std::unique_ptr<CInputStream> CArchiveLoader::load(const ResourceID & resourceNa
 	}
 }
 
-bool CArchiveLoader::existsResource(const ResourceID & resourceName) const
+bool CArchiveLoader::existsResource(const ResourcePath & resourceName) const
 {
 	return entries.count(resourceName) != 0;
 }
@@ -197,9 +197,9 @@ std::string CArchiveLoader::getMountPoint() const
 	return mountPoint;
 }
 
-std::unordered_set<ResourceID> CArchiveLoader::getFilteredFiles(std::function<bool(const ResourceID &)> filter) const
+std::unordered_set<ResourcePath> CArchiveLoader::getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const
 {
-	std::unordered_set<ResourceID> foundID;
+	std::unordered_set<ResourcePath> foundID;
 
 	for(const auto & file : entries)
 	{
@@ -229,7 +229,7 @@ void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, CInput
 
 void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, const std::string & mountPoint, ArchiveEntry entry) const
 {
-	std::unique_ptr<CInputStream> inputStream = load(ResourceID(mountPoint + entry.name));
+	std::unique_ptr<CInputStream> inputStream = load(ResourcePath(mountPoint + entry.name));
 
 	entry.offset = 0;
 	extractToFolder(outputSubFolder, *inputStream, entry);

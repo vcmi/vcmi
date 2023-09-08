@@ -30,6 +30,7 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
+#include "../render/IRenderHandler.h"
 #include "../render/Graphics.h"
 
 #include "../../CCallback.h"
@@ -158,16 +159,16 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	if(tabType != ESelectionScreen::campaignList)
 	{
 		sortingBy = _format;
-		background = std::make_shared<CPicture>("SCSELBCK.bmp", 0, 6);
+		background = std::make_shared<CPicture>(ImagePath::builtin("SCSELBCK.bmp"), 0, 6);
 		pos = background->pos;
-		inputName = std::make_shared<CTextInput>(inputNameRect, Point(-32, -25), "GSSTRIP.bmp", 0);
+		inputName = std::make_shared<CTextInput>(inputNameRect, Point(-32, -25), ImagePath::builtin("GSSTRIP.bmp"), 0);
 		inputName->filters += CTextInput::filenameFilter;
 		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[510]);
 
 		int sizes[] = {36, 72, 108, 144, 0};
 		const char * filterIconNmes[] = {"SCSMBUT.DEF", "SCMDBUT.DEF", "SCLGBUT.DEF", "SCXLBUT.DEF", "SCALBUT.DEF"};
 		for(int i = 0; i < 5; i++)
-			buttonsSortBy.push_back(std::make_shared<CButton>(Point(158 + 47 * i, 46), filterIconNmes[i], CGI->generaltexth->zelp[54 + i], std::bind(&SelectionTab::filter, this, sizes[i], true)));
+			buttonsSortBy.push_back(std::make_shared<CButton>(Point(158 + 47 * i, 46), AnimationPath::builtin(filterIconNmes[i]), CGI->generaltexth->zelp[54 + i], std::bind(&SelectionTab::filter, this, sizes[i], true)));
 
 		int xpos[] = {23, 55, 88, 121, 306, 339};
 		const char * sortIconNames[] = {"SCBUTT1.DEF", "SCBUTT2.DEF", "SCBUTCP.DEF", "SCBUTT3.DEF", "SCBUTT4.DEF", "SCBUTT5.DEF"};
@@ -177,7 +178,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 			if(criteria == _name)
 				criteria = generalSortingBy;
 
-			buttonsSortBy.push_back(std::make_shared<CButton>(Point(xpos[i], 86), sortIconNames[i], CGI->generaltexth->zelp[107 + i], std::bind(&SelectionTab::sortBy, this, criteria)));
+			buttonsSortBy.push_back(std::make_shared<CButton>(Point(xpos[i], 86), AnimationPath::builtin(sortIconNames[i]), CGI->generaltexth->zelp[107 + i], std::bind(&SelectionTab::sortBy, this, criteria)));
 		}
 	}
 
@@ -203,17 +204,17 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		pos.x += 3;
 		pos.y += 6;
 
-		buttonsSortBy.push_back(std::make_shared<CButton>(Point(23, 86), "CamCusM.DEF", CButton::tooltip(), std::bind(&SelectionTab::sortBy, this, _numOfMaps)));
-		buttonsSortBy.push_back(std::make_shared<CButton>(Point(55, 86), "CamCusL.DEF", CButton::tooltip(), std::bind(&SelectionTab::sortBy, this, _name)));
+		buttonsSortBy.push_back(std::make_shared<CButton>(Point(23, 86), AnimationPath::builtin("CamCusM.DEF"), CButton::tooltip(), std::bind(&SelectionTab::sortBy, this, _numOfMaps)));
+		buttonsSortBy.push_back(std::make_shared<CButton>(Point(55, 86), AnimationPath::builtin("CamCusL.DEF"), CButton::tooltip(), std::bind(&SelectionTab::sortBy, this, _name)));
 		break;
 	default:
 		assert(0);
 		break;
 	}
 
-	iconsMapFormats = std::make_shared<CAnimation>("SCSELC.DEF");
-	iconsVictoryCondition = std::make_shared<CAnimation>("SCNRVICT.DEF");
-	iconsLossCondition = std::make_shared<CAnimation>("SCNRLOSS.DEF");
+	iconsMapFormats = GH.renderHandler().loadAnimation(AnimationPath::builtin("SCSELC.DEF"));
+	iconsVictoryCondition = GH.renderHandler().loadAnimation(AnimationPath::builtin("SCNRVICT.DEF"));
+	iconsLossCondition = GH.renderHandler().loadAnimation(AnimationPath::builtin("SCNRLOSS.DEF"));
 	for(int i = 0; i < positionsToShow; i++)
 		listItems.push_back(std::make_shared<ListItem>(Point(30, 129 + i * 25), iconsMapFormats, iconsVictoryCondition, iconsLossCondition));
 
@@ -244,7 +245,7 @@ void SelectionTab::toggleMode()
 			{
 				inputName->disable();
 				auto files = getFiles("Maps/", EResType::MAP);
-				files.erase(ResourceID("Maps/Tutorial.tut", EResType::MAP));
+				files.erase(ResourcePath("Maps/Tutorial.tut", EResType::MAP));
 				parseMaps(files);
 				break;
 			}
@@ -367,7 +368,7 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 		if(curItems[py]->date != "")
 			text += boost::str(boost::format("\r\n\r\n%1%:\r\n%2%") % CGI->generaltexth->translate("vcmi.lobby.creationDate") % curItems[py]->date);
 
-		GH.windows().createAndPushWindow<CMapInfoTooltipBox>(text, ResourceID(curItems[py]->fileURI), tabType);
+		GH.windows().createAndPushWindow<CMapInfoTooltipBox>(text, ResourcePath(curItems[py]->fileURI), tabType);
 	}
 }
 
@@ -556,7 +557,7 @@ void SelectionTab::select(int position)
 
 	if(inputName && inputName->isActive())
 	{
-		auto filename = *CResourceHandler::get()->getResourceName(ResourceID(curItems[py]->fileURI, EResType::SAVEGAME));
+		auto filename = *CResourceHandler::get()->getResourceName(ResourcePath(curItems[py]->fileURI, EResType::SAVEGAME));
 		inputName->setText(filename.stem().string());
 	}
 
@@ -723,7 +724,7 @@ bool SelectionTab::isMapSupported(const CMapInfo & info)
 	return false;
 }
 
-void SelectionTab::parseMaps(const std::unordered_set<ResourceID> & files)
+void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 {
 	logGlobal->debug("Parsing %d maps", files.size());
 	allItems.clear();
@@ -744,7 +745,7 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourceID> & files)
 	}
 }
 
-void SelectionTab::parseSaves(const std::unordered_set<ResourceID> & files)
+void SelectionTab::parseSaves(const std::unordered_set<ResourcePath> & files)
 {
 	for(auto & file : files)
 	{
@@ -786,7 +787,7 @@ void SelectionTab::parseSaves(const std::unordered_set<ResourceID> & files)
 	}
 }
 
-void SelectionTab::parseCampaigns(const std::unordered_set<ResourceID> & files)
+void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files)
 {
 	allItems.reserve(files.size());
 	for(auto & file : files)
@@ -800,7 +801,7 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourceID> & files)
 	}
 }
 
-std::unordered_set<ResourceID> SelectionTab::getFiles(std::string dirURI, int resType)
+std::unordered_set<ResourcePath> SelectionTab::getFiles(std::string dirURI, EResType resType)
 {
 	boost::to_upper(dirURI);
 	CResourceHandler::get()->updateFilteredFiles([&](const std::string & mount)
@@ -808,7 +809,7 @@ std::unordered_set<ResourceID> SelectionTab::getFiles(std::string dirURI, int re
 		return boost::algorithm::starts_with(mount, dirURI);
 	});
 
-	std::unordered_set<ResourceID> ret = CResourceHandler::get()->getFilteredFiles([&](const ResourceID & ident)
+	std::unordered_set<ResourcePath> ret = CResourceHandler::get()->getFilteredFiles([&](const ResourcePath & ident)
 	{
 		return ident.getType() == resType && boost::algorithm::starts_with(ident.getName(), dirURI);
 	});
@@ -816,7 +817,7 @@ std::unordered_set<ResourceID> SelectionTab::getFiles(std::string dirURI, int re
 	return ret;
 }
 
-SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceID resource, ESelectionScreen tabType)
+SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourcePath resource, ESelectionScreen tabType)
 	: CWindowObject(BORDERED | RCLICK_POPUP)
 {
 	drawPlayerElements = tabType == ESelectionScreen::newGame;
@@ -826,7 +827,7 @@ SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceI
 
 	std::vector<std::shared_ptr<IImage>> mapLayerImages;
 	if(renderImage)
-		mapLayerImages = createMinimaps(ResourceID(resource.getName(), EResType::MAP), IMAGE_SIZE);
+		mapLayerImages = createMinimaps(ResourcePath(resource.getName(), EResType::MAP), IMAGE_SIZE);
 
 	if(mapLayerImages.size() == 0)
 		renderImage = false;
@@ -844,7 +845,7 @@ SelectionTab::CMapInfoTooltipBox::CMapInfoTooltipBox(std::string text, ResourceI
 	pos.h = BORDER + textHeight + BORDER;
 	if(renderImage)
 		pos.h += IMAGE_SIZE + BORDER;
-	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
+	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
 	updateShadow();
 
 	drawLabel();
@@ -903,7 +904,7 @@ Canvas SelectionTab::CMapInfoTooltipBox::createMinimapForLayer(std::unique_ptr<C
 	return canvas;
 }
 
-std::vector<std::shared_ptr<IImage>> SelectionTab::CMapInfoTooltipBox::createMinimaps(ResourceID resource, int size)
+std::vector<std::shared_ptr<IImage>> SelectionTab::CMapInfoTooltipBox::createMinimaps(ResourcePath resource, int size)
 {
 	std::vector<std::shared_ptr<IImage>> ret = std::vector<std::shared_ptr<IImage>>();
 
@@ -923,7 +924,7 @@ std::vector<std::shared_ptr<IImage>> SelectionTab::CMapInfoTooltipBox::createMin
 		Canvas canvas = createMinimapForLayer(map, i);
 		Canvas canvasScaled = Canvas(Point(size, size));
 		canvasScaled.drawScaled(canvas, Point(0, 0), Point(size, size));
-		std::shared_ptr<IImage> img = IImage::createFromSurface(canvasScaled.getInternalSurface());
+		std::shared_ptr<IImage> img = GH.renderHandler().createImage(canvasScaled.getInternalSurface());
 		
 		ret.push_back(img);
 	}
@@ -935,7 +936,7 @@ SelectionTab::ListItem::ListItem(Point position, std::shared_ptr<CAnimation> ico
 	: CIntObject(LCLICK, position)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	pictureEmptyLine = std::make_shared<CPicture>(IImage::createFromFile("camcust"), Rect(25, 121, 349, 26), -8, -14);
+	pictureEmptyLine = std::make_shared<CPicture>(GH.renderHandler().loadImage(ImagePath::builtin("camcust")), Rect(25, 121, 349, 26), -8, -14);
 	labelName = std::make_shared<CLabel>(184, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelName->setAutoRedraw(false);
 	labelAmountOfPlayers = std::make_shared<CLabel>(8, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
@@ -945,7 +946,7 @@ SelectionTab::ListItem::ListItem(Point position, std::shared_ptr<CAnimation> ico
 	labelMapSizeLetter = std::make_shared<CLabel>(41, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelMapSizeLetter->setAutoRedraw(false);
 	// FIXME: This -12 should not be needed, but for some reason CAnimImage displaced otherwise
-	iconFolder = std::make_shared<CPicture>("lobby/iconFolder.png", -8, -12);
+	iconFolder = std::make_shared<CPicture>(ImagePath::builtin("lobby/iconFolder.png"), -8, -12);
 	iconFormat = std::make_shared<CAnimImage>(iconsFormats, 0, 0, 59, -12);
 	iconVictoryCondition = std::make_shared<CAnimImage>(iconsVictory, 0, 0, 277, -12);
 	iconLossCondition = std::make_shared<CAnimImage>(iconsLoss, 0, 0, 310, -12);

@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "filesystem/ResourcePath.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class IBonusBearer;
@@ -22,7 +24,7 @@ public:
 	virtual ~IBonusTypeHandler() = default;
 
 	virtual std::string bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer, bool description) const = 0;
-	virtual std::string bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const = 0;
+	virtual ImagePath bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

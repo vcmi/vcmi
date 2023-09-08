@@ -23,7 +23,7 @@ std::string IHandlerBase::getScopeBuiltin()
 
 void IHandlerBase::registerObject(const std::string & scope, const std::string & type_name, const std::string & name, si32 index)
 {
-	return VLC->modh->getIdentifiers().registerObject(scope, type_name, name, index);
+	return VLC->identifiersHandler->registerObject(scope, type_name, name, index);
 }
 
 VCMI_LIB_NAMESPACE_END

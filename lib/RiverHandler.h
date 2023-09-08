@@ -14,6 +14,7 @@
 #include <vcmi/Entity.h>
 #include "GameConstants.h"
 #include "IHandlerBase.h"
+#include "filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -49,7 +50,7 @@ public:
 	std::string getNameTextID() const override;
 	std::string getNameTranslated() const override;
 
-	std::string tilesFilename;
+	AnimationPath tilesFilename;
 	std::string shortIdentifier;
 	std::string deltaName;
 

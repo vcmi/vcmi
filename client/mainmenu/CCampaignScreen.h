@@ -37,7 +37,7 @@ private:
 		CampaignStatus status;
 
 		std::string campFile; // the filename/resourcename of the campaign
-		std::string video; // the resource name of the video
+		VideoPath video; // the resource name of the video
 		std::string hoverText;
 
 		void clickReleased(const Point & cursorPosition) override;

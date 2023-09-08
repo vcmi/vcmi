@@ -12,6 +12,7 @@
 #include "../gui/CIntObject.h"
 #include "../render/EFont.h"
 #include "../../lib/FunctionList.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class Rect;
@@ -36,7 +37,7 @@ public:
 		HIGHLIGHTED=3
 	};
 protected:
-	std::vector<std::string> imageNames;//store list of images that can be used by this button
+	std::vector<AnimationPath> imageNames;//store list of images that can be used by this button
 	size_t currentImage;
 
 	ButtonState state;//current state of button from enum
@@ -72,7 +73,7 @@ public:
 	void addOverlay(std::shared_ptr<CIntObject> newOverlay);
 	void addTextOverlay(const std::string & Text, EFonts font, ColorRGBA color);
 
-	void addImage(std::string filename);
+	void addImage(const AnimationPath & filename);
 	void addHoverText(ButtonState state, std::string text);
 
 	void setImageOrder(int state1, int state2, int state3, int state4);
@@ -84,7 +85,7 @@ public:
 	bool isHighlighted();
 
 	/// Constructor
-	CButton(Point position, const std::string & defName, const std::pair<std::string, std::string> & help,
+	CButton(Point position, const AnimationPath & defName, const std::pair<std::string, std::string> & help,
 			CFunctionList<void()> Callback = 0, EShortcut key = {}, bool playerColoredButton = false );
 
 	/// Appearance modifiers
@@ -145,7 +146,7 @@ class CToggleButton : public CButton, public CToggleBase
 	void setEnabled(bool enabled) override;
 
 public:
-	CToggleButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help,
+	CToggleButton(Point position, const AnimationPath &defName, const std::pair<std::string, std::string> &help,
 				  CFunctionList<void(bool)> Callback = 0, EShortcut key = {}, bool playerColoredButton = false );
 
 	void clickPressed(const Point & cursorPosition) override;

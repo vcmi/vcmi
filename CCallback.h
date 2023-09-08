@@ -53,10 +53,13 @@ public:
 	bool waitTillRealize = false; //if true, request functions will return after they are realized by server
 	bool unlockGsWhenWaiting = false;//if true after sending each request, gs mutex will be unlocked so the changes can be applied; NOTICE caller must have gs mx locked prior to any call to actiob callback!
 	//battle
-	virtual void battleMakeSpellAction(const BattleAction & action) = 0;
-	virtual void battleMakeUnitAction(const BattleAction & action) = 0;
-	virtual void battleMakeTacticAction(const BattleAction & action) = 0;
-	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) = 0;
+	virtual void battleMakeSpellAction(const BattleID & battleID, const BattleAction & action) = 0;
+	virtual void battleMakeUnitAction(const BattleID & battleID, const BattleAction & action) = 0;
+	virtual void battleMakeTacticAction(const BattleID & battleID, const BattleAction & action) = 0;
+	virtual std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) = 0;
+
+	virtual std::shared_ptr<CPlayerBattleCallback> getBattle(const BattleID & battleID) = 0;
+	virtual std::optional<PlayerColor> getPlayerID() const = 0;
 };
 
 class IGameActionCallback
@@ -86,7 +89,7 @@ public:
 	virtual int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val)=0;//split creatures from the first stack
 	//virtual bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)=0; //swaps artifacts between two given heroes
 	virtual bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2)=0;
-	virtual bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)=0;
+	virtual void assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)=0;
 	virtual void eraseArtifactByClient(const ArtifactLocation & al)=0;
 	virtual bool dismissCreature(const CArmedInstance *obj, SlotID stackPos)=0;
 	virtual void endTurn()=0;
@@ -108,30 +111,34 @@ public:
 	virtual void bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap) = 0;
 };
 
-class CBattleCallback : public IBattleCallback, public CPlayerBattleCallback
+class CBattleCallback : public IBattleCallback
 {
+	std::map<BattleID, std::shared_ptr<CPlayerBattleCallback>> activeBattles;
+
+	std::optional<PlayerColor> player;
+
 protected:
 	int sendRequest(const CPackForServer * request); //returns requestID (that'll be matched to requestID in PackageApplied)
 	CClient *cl;
 
 public:
-	CBattleCallback(std::optional<PlayerColor> Player, CClient * C);
-	void battleMakeSpellAction(const BattleAction & action) override;//for casting spells by hero - DO NOT use it for moving active stack
-	void battleMakeUnitAction(const BattleAction & action) override;
-	void battleMakeTacticAction(const BattleAction & action) override; // performs tactic phase actions
-	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
+	CBattleCallback(std::optional<PlayerColor> player, CClient * C);
+	void battleMakeSpellAction(const BattleID & battleID, const BattleAction & action) override;//for casting spells by hero - DO NOT use it for moving active stack
+	void battleMakeUnitAction(const BattleID & battleID, const BattleAction & action) override;
+	void battleMakeTacticAction(const BattleID & battleID, const BattleAction & action) override; // performs tactic phase actions
+	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
-#if SCRIPTING_ENABLED
-	scripting::Pool * getContextPool() const override;
-#endif
+	std::shared_ptr<CPlayerBattleCallback> getBattle(const BattleID & battleID) override;
+	std::optional<PlayerColor> getPlayerID() const override;
+
+	void onBattleStarted(const IBattleInfo * info);
+	void onBattleEnded(const BattleID & battleID);
 
 	friend class CCallback;
 	friend class CClient;
 };
 
-class CCallback : public CPlayerSpecificInfoCallback,
-	public IGameActionCallback,
-	public CBattleCallback
+class CCallback : public CPlayerSpecificInfoCallback, public CBattleCallback, public IGameActionCallback
 {
 public:
 	CCallback(CGameState * GS, std::optional<PlayerColor> Player, CClient * C);
@@ -141,6 +148,8 @@ public:
 	virtual bool canMoveBetween(const int3 &a, const int3 &b);
 	virtual int3 getGuardingCreaturePosition(int3 tile);
 	virtual std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
+
+	std::optional<PlayerColor> getPlayerID() const override;
 
 	//Set of metrhods that allows adding more interfaces for this player that'll receive game event call-ins.
 	void registerBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents);
@@ -161,7 +170,7 @@ public:
 	int bulkMergeStacks(ObjectInstanceID armyId, SlotID srcSlot) override;
 	bool dismissHero(const CGHeroInstance * hero) override;
 	bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2) override;
-	bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo) override;
+	void assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo) override;
 	void bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap) override;
 	void eraseArtifactByClient(const ArtifactLocation & al) override;
 	bool buildBuilding(const CGTownInstance *town, BuildingID buildingID) override;

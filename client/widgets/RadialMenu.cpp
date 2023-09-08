@@ -27,10 +27,10 @@ RadialMenuItem::RadialMenuItem(const std::string & imageName, const std::string 
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	inactiveImage = std::make_shared<CPicture>("radialMenu/itemInactive", Point(0, 0));
-	selectedImage = std::make_shared<CPicture>("radialMenu/itemEmpty", Point(0, 0));
+	inactiveImage = std::make_shared<CPicture>(ImagePath::builtin("radialMenu/itemInactive"), Point(0, 0));
+	selectedImage = std::make_shared<CPicture>(ImagePath::builtin("radialMenu/itemEmpty"), Point(0, 0));
 
-	iconImage = std::make_shared<CPicture>("radialMenu/" + imageName, Point(0, 0));
+	iconImage = std::make_shared<CPicture>(ImagePath::builtin("radialMenu/" + imageName), Point(0, 0));
 
 	pos = selectedImage->pos;
 	selectedImage->setEnabled(false);
@@ -56,7 +56,7 @@ RadialMenu::RadialMenu(const Point & positionToCenter, const std::vector<RadialM
 	for (auto const & item : menuConfig)
 		addItem(item.itemPosition, item.enabled, item.imageName, item.hoverText, item.callback);
 
-	statusBar = CGStatusBar::create(-80, -100, "radialMenu/statusBar");
+	statusBar = CGStatusBar::create(-80, -100, ImagePath::builtin("radialMenu/statusBar"));
 
 	for(const auto & item : items)
 		pos = pos.include(item->pos);

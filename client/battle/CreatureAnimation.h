@@ -70,7 +70,7 @@ public:
 	using TSpeedController = std::function<float(CreatureAnimation *, ECreatureAnimType)>;
 
 private:
-	std::string name;
+	AnimationPath name;
 
 	/// animation for rendering stack in default orientation - facing right
 	std::shared_ptr<CAnimation> forward;
@@ -122,7 +122,7 @@ public:
 	/// name - path to .def file, relative to SPRITES/ directory
 	/// controller - function that will return for how long *each* frame
 	/// in specified group of animation should be played, measured in seconds
-	CreatureAnimation(const std::string & name_, TSpeedController speedController);
+	CreatureAnimation(const AnimationPath & name_, TSpeedController speedController);
 
 	/// sets type of animation and resets framecount
 	void setType(ECreatureAnimType type);

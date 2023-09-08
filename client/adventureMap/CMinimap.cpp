@@ -94,7 +94,7 @@ CMinimap::CMinimap(const Rect & position)
 	pos.w = position.w;
 	pos.h = position.h;
 
-	aiShield = std::make_shared<CPicture>("AIShield");
+	aiShield = std::make_shared<CPicture>(ImagePath::builtin("AIShield"));
 	aiShield->disable();
 }
 

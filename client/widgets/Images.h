@@ -11,6 +11,7 @@
 
 #include "../gui/CIntObject.h"
 #include "../battle/BattleConstants.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class Rect;
@@ -49,9 +50,9 @@ public:
 	CPicture(std::shared_ptr<IImage> image, const Rect &SrcRext, int x = 0, int y = 0); //wrap subrect of given surface
 
 	/// Loads image from specified file name
-	CPicture(const std::string & bmpname);
-	CPicture(const std::string & bmpname, const Point & position);
-	CPicture(const std::string & bmpname, int x, int y);
+	CPicture(const ImagePath & bmpname);
+	CPicture(const ImagePath & bmpname, const Point & position);
+	CPicture(const ImagePath & bmpname, int x, int y);
 
 	/// set alpha value for whole surface. Note: may be messed up if surface is shared
 	/// 0=transparent, 255=opaque
@@ -71,7 +72,7 @@ protected:
 	Rect imageArea;
 
 public:
-	CFilledTexture(std::string imageName, Rect position);
+	CFilledTexture(const ImagePath & imageName, Rect position);
 	CFilledTexture(std::shared_ptr<IImage> image, Rect position, Rect imageArea);
 
 	void showAll(Canvas & to) override;
@@ -80,7 +81,7 @@ public:
 class FilledTexturePlayerColored : public CFilledTexture
 {
 public:
-	FilledTexturePlayerColored(std::string imageName, Rect position);
+	FilledTexturePlayerColored(const ImagePath & imageName, Rect position);
 
 	void playerColored(PlayerColor player);
 };
@@ -105,7 +106,7 @@ private:
 public:
 	bool visible;
 
-	CAnimImage(const std::string & name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
+	CAnimImage(const AnimationPath & name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
 	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
 	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, Rect targetPos, size_t Group=0, ui8 Flags=0);
 	~CAnimImage();
@@ -166,7 +167,7 @@ public:
 	//Set per-surface alpha, 0 = transparent, 255 = opaque
 	void setAlpha(ui32 alphaValue);
 
-	CShowableAnim(int x, int y, std::string name, ui8 flags, ui32 frameTime, size_t Group=0, uint8_t alpha = UINT8_MAX);
+	CShowableAnim(int x, int y, const AnimationPath & name, ui8 flags, ui32 frameTime, size_t Group=0, uint8_t alpha = UINT8_MAX);
 	~CShowableAnim();
 
 	//set animation to group or part of group
@@ -213,6 +214,6 @@ public:
 	//clear queue and set animation to this sequence
 	void clearAndSet(ECreatureAnimType type);
 
-	CCreatureAnim(int x, int y, std::string name, ui8 flags = 0, ECreatureAnimType = ECreatureAnimType::HOLDING);
+	CCreatureAnim(int x, int y, const AnimationPath & name, ui8 flags = 0, ECreatureAnimType = ECreatureAnimType::HOLDING);
 
 };

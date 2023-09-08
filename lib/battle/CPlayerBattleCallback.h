@@ -16,7 +16,19 @@ class CGHeroInstance;
 
 class DLL_LINKAGE CPlayerBattleCallback : public CBattleInfoCallback
 {
+	const IBattleInfo * battle;
+	PlayerColor player;
+
 public:
+	CPlayerBattleCallback(const IBattleInfo * battle, PlayerColor player);
+
+#if SCRIPTING_ENABLED
+	scripting::Pool * getContextPool() const override;
+#endif
+
+	const IBattleInfo * getBattle() const override;
+	std::optional<PlayerColor> getPlayerID() const override;
+
 	bool battleCanFlee() const; //returns true if caller can flee from the battle
 	TStacks battleGetStacks(EStackOwnership whose = MINE_AND_ENEMY, bool onlyAlive = true) const; //returns stacks on battlefield
 

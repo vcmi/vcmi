@@ -11,7 +11,8 @@
 
 #include "int3.h"
 #include "ResourceSet.h" // for Res
-#include "battle/CCallbackBase.h"
+
+#define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -46,7 +47,7 @@ class CGDwelling;
 class CGTeleport;
 class CGTownInstance;
 
-class DLL_LINKAGE IGameInfoCallback
+class DLL_LINKAGE IGameInfoCallback : boost::noncopyable
 {
 public:
 	//TODO: all other public methods of CGameInfoCallback
@@ -57,6 +58,7 @@ public:
 	virtual bool isAllowed(int32_t type, int32_t id) const = 0; //type: 0 - spell; 1- artifact; 2 - secondary skill
 
 	//player
+	virtual std::optional<PlayerColor> getPlayerID() const = 0;
 	virtual const Player * getPlayer(PlayerColor color) const = 0;
 //	virtual int getResource(PlayerColor Player, EGameResID which) const = 0;
 //	bool isVisible(int3 pos) const;
@@ -123,13 +125,13 @@ public:
 //	bool isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor player) const;
 };
 
-class DLL_LINKAGE CGameInfoCallback : public virtual CCallbackBase, public IGameInfoCallback
+class DLL_LINKAGE CGameInfoCallback : public IGameInfoCallback
 {
 protected:
 	CGameState * gs;//todo: replace with protected const getter, only actual Server and Client objects should hold game state
 
 	CGameInfoCallback() = default;
-	CGameInfoCallback(CGameState * GS, std::optional<PlayerColor> Player);
+	CGameInfoCallback(CGameState * GS);
 	bool hasAccess(std::optional<PlayerColor> playerId) const;
 
 	bool canGetFullInfo(const CGObjectInstance *obj) const; //true we player owns obj or ally owns obj or privileged mode
@@ -142,6 +144,7 @@ public:
 	bool isAllowed(int32_t type, int32_t id) const override; //type: 0 - spell; 1- artifact; 2 - secondary skill
 
 	//player
+	std::optional<PlayerColor> getPlayerID() const override;
 	const Player * getPlayer(PlayerColor color) const override;
 	virtual const PlayerState * getPlayerState(PlayerColor color, bool verbose = true) const;
 	virtual int getResource(PlayerColor Player, GameResID which) const;
@@ -229,7 +232,6 @@ public:
 	virtual int howManyTowns() const;
 	virtual int howManyHeroes(bool includeGarrisoned = true) const;
 	virtual int3 getGrailPos(double *outKnownRatio);
-	virtual std::optional<PlayerColor> getMyColor() const;
 
 	virtual std::vector <const CGTownInstance *> getTownsInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible
 	virtual int getHeroSerial(const CGHeroInstance * hero, bool includeGarrisoned=true) const;

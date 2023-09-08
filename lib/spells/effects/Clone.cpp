@@ -14,6 +14,7 @@
 #include "../ISpellMechanics.h"
 #include "../../NetPacks.h"
 #include "../../battle/CBattleInfoCallback.h"
+#include "../../battle/IBattleState.h"
 #include "../../battle/CUnitState.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
@@ -60,6 +61,7 @@ void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		info.summoned = true;
 
 		BattleUnitsChanged pack;
+		pack.battleID = m->battle()->getBattle()->getBattleID();
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
 		server->apply(&pack);
@@ -67,6 +69,7 @@ void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		//TODO: use BattleUnitsChanged with UPDATE operation
 
 		BattleUnitsChanged cloneFlags;
+		cloneFlags.battleID = m->battle()->getBattle()->getBattleID();
 
 		const auto *cloneUnit = m->battle()->battleGetUnitByID(unitId);
 
@@ -89,6 +92,8 @@ void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		server->apply(&cloneFlags);
 
 		SetStackEffect sse;
+		sse.battleID = m->battle()->getBattle()->getBattleID();
+
 		Bonus lifeTimeMarker(BonusDuration::N_TURNS, BonusType::NONE, BonusSource::SPELL_EFFECT, 0, SpellID::CLONE); //TODO: use special bonus type
 		lifeTimeMarker.turnsRemain = m->getEffectDuration();
 		std::vector<Bonus> buffer;

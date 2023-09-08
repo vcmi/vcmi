@@ -72,7 +72,7 @@ class DLL_LINKAGE CGEvent : public CGPandoraBox  //event objects
 {
 public:
 	bool removeAfterVisit = false; //true if event is removed after occurring
-	ui8 availableFor = 0; //players whom this event is available for
+	std::set<PlayerColor> availableFor; //players whom this event is available for
 	bool computerActivate = false; //true if computer player can activate this event
 	bool humanActivate = false; //true if human player can activate this event
 

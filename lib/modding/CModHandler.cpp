@@ -28,38 +28,21 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-static JsonNode loadModSettings(const std::string & path)
+static JsonNode loadModSettings(const JsonPath & path)
 {
-	if (CResourceHandler::get("local")->existsResource(ResourceID(path)))
+	if (CResourceHandler::get("local")->existsResource(ResourcePath(path)))
 	{
-		return JsonNode(ResourceID(path, EResType::TEXT));
+		return JsonNode(path);
 	}
 	// Probably new install. Create initial configuration
-	CResourceHandler::get("local")->createResource(path);
+	CResourceHandler::get("local")->createResource(path.getOriginalName() + ".json");
 	return JsonNode();
 }
 
 CModHandler::CModHandler()
 	: content(std::make_shared<CContentHandler>())
-	, identifiers(std::make_unique<CIdentifierStorage>())
 	, coreMod(std::make_unique<CModInfo>())
 {
-	//TODO: moddable spell schools
-	for (auto i = 0; i < GameConstants::DEFAULT_SCHOOLS; ++i)
-		identifiers->registerObject(ModScope::scopeBuiltin(), "spellSchool", SpellConfig::SCHOOL[i].jsonName, SpellConfig::SCHOOL[i].id);
-
-	identifiers->registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool(ESpellSchool::ANY));
-
-	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
-	{
-		identifiers->registerObject(ModScope::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);
-	}
-
-	for(int i=0; i<GameConstants::PRIMARY_SKILLS; ++i)
-	{
-		identifiers->registerObject(ModScope::scopeBuiltin(), "primSkill", NPrimarySkill::names[i], i);
-		identifiers->registerObject(ModScope::scopeBuiltin(), "primarySkill", NPrimarySkill::names[i], i);
-	}
 }
 
 CModHandler::~CModHandler() = default;
@@ -157,7 +140,7 @@ std::vector<std::string> CModHandler::getModList(const std::string & path) const
 	std::string modDir = boost::to_upper_copy(path + "MODS/");
 	size_t depth = boost::range::count(modDir, '/');
 
-	auto list = CResourceHandler::get("initial")->getFilteredFiles([&](const ResourceID & id) ->  bool
+	auto list = CResourceHandler::get("initial")->getFilteredFiles([&](const ResourcePath & id) ->  bool
 	{
 		if (id.getType() != EResType::DIRECTORY)
 			return false;
@@ -200,9 +183,9 @@ void CModHandler::loadOneMod(std::string modName, const std::string & parent, co
 		return;
 	}
 
-	if(CResourceHandler::get("initial")->existsResource(ResourceID(CModInfo::getModFile(modFullName))))
+	if(CResourceHandler::get("initial")->existsResource(CModInfo::getModFile(modFullName)))
 	{
-		CModInfo mod(modFullName, modSettings[modName], JsonNode(ResourceID(CModInfo::getModFile(modFullName))));
+		CModInfo mod(modFullName, modSettings[modName], JsonNode(CModInfo::getModFile(modFullName)));
 		if (!parent.empty()) // this is submod, add parent to dependencies
 			mod.dependencies.insert(parent);
 
@@ -224,11 +207,11 @@ void CModHandler::loadMods(bool onlyEssential)
 	}
 	else
 	{
-		modConfig = loadModSettings("config/modSettings.json");
+		modConfig = loadModSettings(JsonPath::builtin("config/modSettings.json"));
 		loadMods("", "", modConfig["activeMods"], true);
 	}
 
-	coreMod = std::make_unique<CModInfo>(ModScope::scopeBuiltin(), modConfig[ModScope::scopeBuiltin()], JsonNode(ResourceID("config/gameConfig.json")));
+	coreMod = std::make_unique<CModInfo>(ModScope::scopeBuiltin(), modConfig[ModScope::scopeBuiltin()], JsonNode(JsonPath::builtin("config/gameConfig.json")));
 	coreMod->name = "Original game files";
 }
 
@@ -283,19 +266,18 @@ static ui32 calculateModChecksum(const std::string & modName, ISimpleResourceLoa
 	// FIXME: remove workaround for core mod
 	if (modName != ModScope::scopeBuiltin())
 	{
-		ResourceID modConfFile(CModInfo::getModFile(modName), EResType::TEXT);
+		auto modConfFile = CModInfo::getModFile(modName);
 		ui32 configChecksum = CResourceHandler::get("initial")->load(modConfFile)->calculateCRC32();
 		modChecksum.process_bytes(reinterpret_cast<const void *>(&configChecksum), sizeof(configChecksum));
 	}
 	// third - add all detected text files from this mod into checksum
-	auto files = filesystem->getFilteredFiles([](const ResourceID & resID)
+	auto files = filesystem->getFilteredFiles([](const ResourcePath & resID)
 	{
-		return resID.getType() == EResType::TEXT &&
-			   ( boost::starts_with(resID.getName(), "DATA") ||
-				 boost::starts_with(resID.getName(), "CONFIG"));
+		return (resID.getType() == EResType::TEXT || resID.getType() == EResType::JSON) &&
+			   ( boost::starts_with(resID.getName(), "DATA") || boost::starts_with(resID.getName(), "CONFIG"));
 	});
 
-	for (const ResourceID & file : files)
+	for (const ResourcePath & file : files)
 	{
 		ui32 fileChecksum = filesystem->load(file)->calculateCRC32();
 		modChecksum.process_bytes(reinterpret_cast<const void *>(&fileChecksum), sizeof(fileChecksum));
@@ -318,7 +300,7 @@ void CModHandler::loadModFilesystems()
 	}
 }
 
-TModID CModHandler::findResourceOrigin(const ResourceID & name)
+TModID CModHandler::findResourceOrigin(const ResourcePath & name)
 {
 	for(const auto & modID : boost::adaptors::reverse(activeMods))
 	{
@@ -462,7 +444,7 @@ void CModHandler::load()
 
 	logMod->info("\tLoading mod data: %d ms", timer.getDiff());
 	VLC->creh->loadCrExpMod();
-	identifiers->finalize();
+	VLC->identifiersHandler->finalize();
 	logMod->info("\tResolving identifiers: %d ms", timer.getDiff());
 
 	content->afterLoadFinalization();
@@ -483,7 +465,7 @@ void CModHandler::afterLoad(bool onlyEssential)
 
 	if(!onlyEssential)
 	{
-		std::fstream file(CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
+		std::fstream file(CResourceHandler::get()->getResourceName(ResourcePath("config/modSettings.json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
 		file << modSettings.toJson();
 	}
 
@@ -532,11 +514,6 @@ void CModHandler::trySetActiveMods(std::vector<TModID> saveActiveMods, const std
 	}
 
 	std::swap(activeMods, newActiveMods);
-}
-
-CIdentifierStorage & CModHandler::getIdentifiers()
-{
-	return *identifiers;
 }
 
 VCMI_LIB_NAMESPACE_END

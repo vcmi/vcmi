@@ -71,16 +71,16 @@ public:
 	void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB) override;
 	void initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB, AutocombatPreferences autocombatPreferences) override;
 
-	void activeStack(const CStack * stack) override; //called when it's turn of that stack
-	void yourTacticPhase(int distance) override;
+	void activeStack(const BattleID & battleID, const CStack * stack) override; //called when it's turn of that stack
+	void yourTacticPhase(const BattleID & battleID, int distance) override;
 
-	std::optional<BattleAction> considerFleeingOrSurrendering();
+	std::optional<BattleAction> considerFleeingOrSurrendering(const BattleID & battleID);
 
 	void print(const std::string &text) const;
-	BattleAction useCatapult(const CStack *stack);
-	BattleAction useHealingTent(const CStack *stack);
+	BattleAction useCatapult(const BattleID & battleID, const CStack *stack);
+	BattleAction useHealingTent(const BattleID & battleID, const CStack *stack);
 
-	void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool Side, bool replayAllowed) override;
+	void battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool Side, bool replayAllowed) override;
 	//void actionFinished(const BattleAction &action) override;//occurs AFTER every action taken by any stack or by the hero
 	//void actionStarted(const BattleAction &action) override;//occurs BEFORE every action taken by any stack or by the hero
 	//void battleAttack(const BattleAttack *ba) override; //called when stack is performing attack
