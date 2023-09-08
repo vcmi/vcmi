@@ -6120,6 +6120,12 @@ void CGameHandler::runBattle()
 					sendAndApply(&pack);
 				}
 			}
+
+			// send empty event to client
+			// temporary(?) workaround to force animations to trigger
+			StacksInjured fakeEvent;
+			sendAndApply(&fakeEvent);
+
 		}
 
 		stackEnchantedTrigger(stack);
