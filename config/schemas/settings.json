@@ -37,12 +37,13 @@
 				"autosaveMode",
 				"autosaveFrequency",
 				"autosaveCountLimit",
+				"autosaveBeforeBattles",
+				"startTurnAutosave",
 				"singlePlayerScenarioSaveName",
 				"singlePlayerCampaignSaveName",
 				"singlePlayerRmgSaveName",
 				"multiPlayerScenarioSaveName",
 				"multiPlayerRmgSaveName",
-				"startTurnAutosave",
 				"enableUiEnhancements"
 			],
 			"properties" : {
@@ -125,6 +126,14 @@
 					"type" : "number",
 					"default": 5
 				},
+				"autosaveBeforeBattles" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"startTurnAutosave" : {
+					"type": "boolean",
+					"default": false
+				},
 				"singlePlayerScenarioSaveName" : {
 					"type": "string",
 					"default": "%mapName%/%timestamp%/%turn%"
@@ -144,10 +153,6 @@
 				"multiPlayerRmgSaveName" : {
 					"type": "string",
 					"default": "_RMG/%players%/%templateName% - %timestamp%/%turn%"
-				},
-				"startTurnAutosave" : {
-					"type": "boolean",
-					"default": false
 				},
 				"enableUiEnhancements" : {
 					"type": "boolean",

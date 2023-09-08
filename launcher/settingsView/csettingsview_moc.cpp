@@ -123,6 +123,9 @@ void CSettingsView::loadSettings()
     ui->spinBoxAutosaveCountLimit->setValue(settings["general"]["autosaveCountLimit"].Integer());
 	ui->spinBoxAutosaveCountLimit->setEnabled(autosaveMode != "Off");
 
+	ui->checkBoxAutosaveBeforeBattles->setChecked(settings["general"]["autosaveBeforeBattles"].Bool());
+	ui->checkBoxAutosaveBeforeBattles->setEnabled(autosaveMode != "Off");
+
 	Languages::fillLanguages(ui->comboBoxLanguage, false);
 
 	std::string cursorType = settings["video"]["cursor"].String();
@@ -336,6 +339,7 @@ void CSettingsView::on_comboBoxAutosaveMode_currentIndexChanged(int index)
 
 	ui->spinBoxAutosaveCountLimit->setEnabled(autosaveEnabled);
 	ui->spinBoxAutosaveFrequency->setEnabled(autosaveEnabled);
+	ui->checkBoxAutosaveBeforeBattles->setEnabled(autosaveEnabled);
 
 	// disable count limit when autosame mode is not Simple
 	bool autosaveUsingCounter = false;
@@ -540,10 +544,22 @@ void CSettingsView::on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &
 	node->String() = arg1.toUtf8().data();
 }
 
+void CSettingsView::on_spinBoxAutosaveFrequency_valueChanged(int arg1)
+{
+    Settings node = settings.write["general"]["autosaveFrequency"];
+    node->Float() = arg1;
+}
+
 void CSettingsView::on_spinBoxAutosaveCountLimit_valueChanged(int arg1)
 {
     Settings node = settings.write["general"]["autosaveCountLimit"];
     node->Float() = arg1;
+}
+
+void CSettingsView::on_checkBoxAutosaveBeforeBattles_stateChanged(int arg1)
+{
+	Settings node = settings.write["general"]["autosaveBeforeBattles"];
+	node->Bool() = arg1;
 }
 
 void CSettingsView::on_spinBoxReservedArea_valueChanged(int arg1)

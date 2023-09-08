@@ -688,6 +688,20 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
          </property>
         </widget>
        </item>
+       <item row="11" column="0">
+        <widget class="QLabel" name="labelAutosaveBeforeBattles">
+         <property name="text">
+          <string>Autosave before battles</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="1">
+        <widget class="QCheckBox" name="checkBoxAutosaveBeforeBattles">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>
