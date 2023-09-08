@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>EventSettings</class>
- <widget class="QWidget" name="EventSettings">
+ <class>RumorSettings</class>
+ <widget class="QWidget" name="RumorSettings">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>672</width>
-    <height>456</height>
+    <width>538</width>
+    <height>470</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,11 +27,14 @@
     <number>0</number>
    </property>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="bottomMargin">
+      <number>10</number>
+     </property>
      <item>
-      <widget class="QLabel" name="label_7">
+      <widget class="QLabel" name="label">
        <property name="text">
-        <string>Timed events</string>
+        <string>Tavern rumors</string>
        </property>
       </widget>
      </item>
@@ -49,7 +52,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="timedEventAdd">
+      <widget class="QPushButton" name="add">
        <property name="minimumSize">
         <size>
          <width>90</width>
@@ -62,11 +65,17 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="timedEventRemove">
+      <widget class="QPushButton" name="remove">
        <property name="minimumSize">
         <size>
          <width>90</width>
          <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>0</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="text">
@@ -77,7 +86,17 @@
     </layout>
    </item>
    <item>
-    <widget class="QListWidget" name="eventsList"/>
+    <widget class="QListWidget" name="rumors">
+     <property name="editTriggers">
+      <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPlainTextEdit" name="message"/>
    </item>
   </layout>
  </widget>

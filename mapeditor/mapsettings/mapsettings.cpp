@@ -68,6 +68,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	ui->victory->initialize(*controller.map());
 	ui->lose->initialize(*controller.map());
 	ui->events->initialize(*controller.map());
+	ui->rumors->initialize(*controller.map());
 }
 
 MapSettings::~MapSettings()
@@ -98,6 +99,7 @@ void MapSettings::on_pushButton_clicked()
 	ui->victory->update(*controller.map());
 	ui->lose->update(*controller.map());
 	ui->events->update(*controller.map());
+	ui->rumors->update(*controller.map());
 
 	controller.commitChangeWithoutRedraw();
 

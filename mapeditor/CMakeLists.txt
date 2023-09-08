@@ -20,6 +20,7 @@ set(editor_SRCS
 		mapsettings/victoryconditions.cpp
 		mapsettings/loseconditions.cpp
 		mapsettings/eventsettings.cpp
+		mapsettings/rumorsettings.cpp
 		playersettings.cpp
 		playerparams.cpp
 		scenelayer.cpp
@@ -55,6 +56,7 @@ set(editor_HEADERS
 		mapsettings/victoryconditions.h
 		mapsettings/loseconditions.h
 		mapsettings/eventsettings.h
+		mapsettings/rumorsettings.h
 		playersettings.h
 		playerparams.h
 		scenelayer.h
@@ -80,6 +82,7 @@ set(editor_FORMS
 		mapsettings/victoryconditions.ui
 		mapsettings/loseconditions.ui
 		mapsettings/eventsettings.ui
+		mapsettings/rumorsettings.ui
 		playersettings.ui
 		playerparams.ui
 		validator.ui

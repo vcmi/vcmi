@@ -107,7 +107,7 @@ void EventSettings::on_timedEventAdd_clicked()
 void EventSettings::on_timedEventRemove_clicked()
 {
 	if(auto * item = ui->eventsList->currentItem())
-		ui->eventsList->removeItemWidget(item);
+		ui->eventsList->takeItem(ui->eventsList->row(item));
 }
 
 

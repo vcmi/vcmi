@@ -35,7 +35,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -49,7 +49,7 @@
         <number>12</number>
        </property>
        <property name="bottomMargin">
-        <number>12</number>
+        <number>3</number>
        </property>
        <item>
         <widget class="GeneralSettings" name="general" native="true"/>
@@ -92,7 +92,7 @@
        <item>
         <widget class="QTabWidget" name="tabWidget_2">
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab_7">
           <attribute name="title">
@@ -148,6 +148,25 @@
            </property>
            <item>
             <widget class="EventSettings" name="events" native="true"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_11">
+          <attribute name="title">
+           <string>Rumors</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_9">
+           <property name="leftMargin">
+            <number>12</number>
+           </property>
+           <property name="rightMargin">
+            <number>12</number>
+           </property>
+           <property name="bottomMargin">
+            <number>12</number>
+           </property>
+           <item>
+            <widget class="RumorSettings" name="rumors" native="true"/>
            </item>
           </layout>
          </widget>
@@ -335,6 +354,12 @@
    <class>EventSettings</class>
    <extends>QWidget</extends>
    <header>mapsettings/eventsettings.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>RumorSettings</class>
+   <extends>QWidget</extends>
+   <header>mapsettings/rumorsettings.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
