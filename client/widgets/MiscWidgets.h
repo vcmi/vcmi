@@ -14,6 +14,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGGarrison;
+class CGCreature;
 struct InfoAboutArmy;
 struct InfoAboutHero;
 struct InfoAboutTown;
@@ -25,6 +26,7 @@ class AFactionMember;
 VCMI_LIB_NAMESPACE_END
 
 class CLabel;
+class CTextBox;
 class CGarrisonInt;
 class CCreatureAnim;
 class CComponent;
@@ -149,6 +151,15 @@ private:
 public:
 	CCreaturePic(int x, int y, const CCreature * cre, bool Big=true, bool Animated=true);
 	void setAmount(int newAmount);
+};
+
+class CreatureTooltip : public CIntObject
+{
+	std::shared_ptr<CAnimImage> creatureImage;
+	std::shared_ptr<CTextBox> tooltipTextbox;
+
+public:
+	CreatureTooltip(Point pos, const CGCreature * creature);
 };
 
 /// Resource bar like that at the bottom of the adventure map screen

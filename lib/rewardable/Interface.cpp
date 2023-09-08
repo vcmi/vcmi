@@ -140,13 +140,11 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameCallback * cb, const Re
 		caster.setActualCaster(hero);
 		caster.setSpellSchoolLevel(info.reward.spellCast.second);
 		cb->castSpell(&caster, info.reward.spellCast.first, int3{-1, -1, -1});
-		
-		if(info.reward.removeObject)
-			logMod->warn("Removal of object with spell casts is not supported!");
 	}
-	else if(info.reward.removeObject) //FIXME: object can't track spell cancel or finish, so removeObject leads to crash
+
+	if(info.reward.removeObject)
 		if(auto * instance = dynamic_cast<const CGObjectInstance*>(this))
-			cb->removeObject(instance);
+			cb->removeAfterVisit(instance);
 }
 
 VCMI_LIB_NAMESPACE_END

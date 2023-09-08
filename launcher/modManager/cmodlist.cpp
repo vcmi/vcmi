@@ -18,12 +18,9 @@
 
 QString CModEntry::sizeToString(double size)
 {
-	static const QString sizes[] =
-	{
-		/*"%1 B", */ "%1 KiB", "%1 MiB", "%1 GiB", "%1 TiB"
-	};
+	static const std::array<QString, 5> sizes { "%1 B", "%1 KiB", "%1 MiB", "%1 GiB", "%1 TiB" };
 	size_t index = 0;
-	while(size > 1024 && index < 4)
+	while(size > 1024 && index < sizes.size())
 	{
 		size /= 1024;
 		index++;
@@ -285,9 +282,10 @@ CModEntry CModList::getMod(QString modname) const
 					|| CModVersion::fromString(repo["version"].toString().toStdString())
 					 < CModVersion::fromString(repoValMap["version"].toString().toStdString()))
 				{
-					//take valid download link and screenshots before assignment
+					//take valid download link, screenshots and mod size before assignment
 					auto download = repo.value("download");
 					auto screenshots = repo.value("screenshots");
+					auto size = repo.value("downloadSize");
 					repo = repoValMap;
 					if(repo.value("download").isNull())
 					{
@@ -295,6 +293,8 @@ CModEntry CModList::getMod(QString modname) const
 						if(repo.value("screenshots").isNull()) //taking screenshot from the downloadable version
 							repo["screenshots"] = screenshots;
 					}
+					if(repo.value("downloadSize").isNull())
+						repo["downloadSize"] = size;
 				}
 			}
 		}

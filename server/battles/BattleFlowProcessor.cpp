@@ -177,6 +177,11 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 			gameHandler->sendAndApply(&pack);
 		}
 	}
+
+	// send empty event to client
+	// temporary(?) workaround to force animations to trigger
+	StacksInjured fakeEvent;
+	gameHandler->sendAndApply(&fakeEvent);
 }
 
 void BattleFlowProcessor::castOpeningSpells(const CBattleInfoCallback & battle)

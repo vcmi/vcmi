@@ -27,6 +27,11 @@
 #include "../../lib/Languages.h"
 #include "../../lib/modding/CModVersion.h"
 
+static double mbToBytes(double mb)
+{
+	return mb * 1024 * 1024;
+}
+
 void CModListView::setupModModel()
 {
 	modModel = new CModListModel(this);
@@ -244,8 +249,11 @@ QString CModListView::genModInfoText(CModEntry & mod)
 	result += replaceIfNotEmpty(mod.getValue("installedVersion"), lineTemplate.arg(tr("Installed version")));
 	result += replaceIfNotEmpty(mod.getValue("latestVersion"), lineTemplate.arg(tr("Latest version")));
 
-	if(mod.getValue("size").isValid())
-		result += replaceIfNotEmpty(CModEntry::sizeToString(mod.getValue("size").toDouble()), lineTemplate.arg(tr("Download size")));
+	if(mod.getValue("localSizeBytes").isValid())
+		result += replaceIfNotEmpty(CModEntry::sizeToString(mod.getValue("localSizeBytes").toDouble()), lineTemplate.arg(tr("downloadSize")));
+	if((mod.isAvailable() || mod.isUpdateable()) && mod.getValue("downloadSize").isValid())
+		result += replaceIfNotEmpty(CModEntry::sizeToString(mbToBytes(mod.getValue("downloadSize").toDouble())), lineTemplate.arg(tr("Download size")));
+	
 	result += replaceIfNotEmpty(mod.getValue("author"), lineTemplate.arg(tr("Authors")));
 
 	if(mod.getValue("licenseURL").isValid())
@@ -536,7 +544,7 @@ void CModListView::on_updateButton_clicked()
 		auto mod = modModel->getMod(name);
 		// update required mod, install missing (can be new dependency)
 		if(mod.isUpdateable() || !mod.isInstalled())
-			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods");
+			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mbToBytes(mod.getValue("downloadSize").toDouble()));
 	}
 }
 
@@ -566,11 +574,11 @@ void CModListView::on_installButton_clicked()
 	{
 		auto mod = modModel->getMod(name);
 		if(!mod.isInstalled())
-			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods");
+			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mbToBytes(mod.getValue("downloadSize").toDouble()));
 	}
 }
 
-void CModListView::downloadFile(QString file, QString url, QString description)
+void CModListView::downloadFile(QString file, QString url, QString description, qint64 size)
 {
 	if(!dlManager)
 	{
@@ -585,28 +593,28 @@ void CModListView::downloadFile(QString file, QString url, QString description)
 		
 		connect(modModel, &CModListModel::dataChanged, filterModel, &QAbstractItemModel::dataChanged);
 
-
-		QString progressBarFormat = "Downloading %s%. %p% (%v KB out of %m KB) finished";
+		
+		QString progressBarFormat = tr("Downloading %s%. %p% (%v MB out of %m MB) finished");
 
 		progressBarFormat.replace("%s%", description);
 		ui->progressBar->setFormat(progressBarFormat);
 	}
 
-	dlManager->downloadFile(QUrl(url), file);
+	dlManager->downloadFile(QUrl(url), file, size);
 }
 
 void CModListView::downloadProgress(qint64 current, qint64 max)
 {
-	// display progress, in kilobytes
-	ui->progressBar->setMaximum(max / 1024);
-	ui->progressBar->setValue(current / 1024);
+	// display progress, in megabytes
+	ui->progressBar->setMaximum(max / (1024 * 1024));
+	ui->progressBar->setValue(current / (1024 * 1024));
 }
 
 void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors)
 {
-	QString title = "Download failed";
-	QString firstLine = "Unable to download all files.\n\nEncountered errors:\n\n";
-	QString lastLine = "\n\nInstall successfully downloaded?";
+	QString title = tr("Download failed");
+	QString firstLine = tr("Unable to download all files.\n\nEncountered errors:\n\n");
+	QString lastLine = tr("\n\nInstall successfully downloaded?");
 	bool doInstallFiles = false;
 
 	// if all files were d/loaded there should be no errors. And on failure there must be an error
@@ -658,6 +666,7 @@ void CModListView::installFiles(QStringList files)
 {
 	QStringList mods;
 	QStringList images;
+	QVector<QVariantMap> repositories;
 
 	// TODO: some better way to separate zip's with mods and downloaded repository files
 	for(QString filename : files)
@@ -667,12 +676,12 @@ void CModListView::installFiles(QStringList files)
 		if(filename.endsWith(".json"))
 		{
 			//download and merge additional files
-			auto repodata = JsonUtils::JsonFromFile(filename).toMap();
-			if(repodata.value("name").isNull())
+			auto repoData = JsonUtils::JsonFromFile(filename).toMap();
+			if(repoData.value("name").isNull())
 			{
-				for(const auto & key : repodata.keys())
+				for(const auto & key : repoData.keys())
 				{
-					auto modjson = repodata[key].toMap().value("mod");
+					auto modjson = repoData[key].toMap().value("mod");
 					if(!modjson.isNull())
 					{
 						downloadFile(key + ".json", modjson.toString(), "repository index");
@@ -683,14 +692,17 @@ void CModListView::installFiles(QStringList files)
 			{
 				auto modn = QFileInfo(filename).baseName();
 				QVariantMap temp;
-				temp[modn] = repodata;
-				repodata = temp;
+				temp[modn] = repoData;
+				repoData = temp;
 			}
-			manager->loadRepository(repodata);
+			repositories.push_back(repoData);
 		}
 		if(filename.endsWith(".png"))
 			images.push_back(filename);
 	}
+
+	manager->loadRepositories(repositories);
+
 	if(!mods.empty())
 		installMods(mods);
 
@@ -789,8 +801,8 @@ void CModListView::checkManagerErrors()
 	QString errors = manager->getErrors().join('\n');
 	if(errors.size() != 0)
 	{
-		QString title = "Operation failed";
-		QString description = "Encountered errors:\n" + errors;
+		QString title = tr("Operation failed");
+		QString description = tr("Encountered errors:\n") + errors;
 		QMessageBox::warning(this, title, description, QMessageBox::Ok, QMessageBox::Ok);
 	}
 }
@@ -856,7 +868,7 @@ void CModListView::doInstallMod(const QString & modName)
 	{
 		auto mod = modModel->getMod(name);
 		if(!mod.isInstalled())
-			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods");
+			downloadFile(name + ".zip", mod.getValue("download").toString(), "mods", mbToBytes(mod.getValue("downloadSize").toDouble()));
 	}
 }
 
