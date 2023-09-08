@@ -251,10 +251,11 @@ void CPlayerInterface::performAutosave()
 {
 	// ToDo : krs - autosaves before each battle
 	// ToDo : krs - autosave at beginning of game
+	std::string autosaveMode = settings["general"]["autosaveMode"].String();
 	int autosaveFrequency = static_cast<int>(settings["general"]["autosaveFrequency"].Integer());
 	auto turnNumber = cb->getDate();
 
-	if(!(autosaveFrequency > 0 && turnNumber % autosaveFrequency == 0))
+	if(autosaveMode == "Off" && turnNumber % autosaveFrequency == 0)
 		return;
 
 	enum MapType {
@@ -268,11 +269,10 @@ void CPlayerInterface::performAutosave()
 	// gather needed info for save file name
 	int humanPlayerCount = 0;
 	bool isMulitplayerGame = false;
-	bool isHotseat = false; // ToDo: krs - find a way to get if game is hotseat
+	bool isHotseat = CSH->howManyPlayerInterfaces() > 1;
 	bool isRMGMap = cb->getStartInfo()->createRandomMap();
 	bool isCampaign = cb->getStartInfo()->mode == StartInfo::CAMPAIGN;
 
-	bool simpleSaves = !settings["general"]["autosaveMode"].Bool(); // ToDo: krs - not a bool anymore
 
 	std::string saveName = "";
 	std::string lastMapSaveName = ""; // ToDo : krs - count for autosaves continues from load save file name
@@ -288,7 +288,6 @@ void CPlayerInterface::performAutosave()
 	{
 		mapType = RandomMap;
 		mapName = cb->getStartInfo()->mapGenOptions->getMapTemplate()->getName(); // template name
-		//auto playerCount = cb->getStartInfo()->mapGenOptions->getPlayerCount();
 	}
 
 	if(isCampaign)
@@ -330,24 +329,22 @@ void CPlayerInterface::performAutosave()
 	variables["%players%"] = playerNames;
 	variables["%campaignName%"] = campaignName;
  
-	if(simpleSaves)
+	if(autosaveMode == "Using Counter")
 	{
 		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer(); 
-		// save using a counter, and overwrite depending on autosave count limit
-		if(autosaveCountLimit > 0) 
-		{
-			auto saveNumber = extractNumberAfterHash(lastMapSaveName);
-			if(saveNumber != -1)
-				autosaveCount = saveNumber;
+		auto saveNumber = extractNumberAfterHash(lastMapSaveName);
+		if(saveNumber != -1)
+			autosaveCount = saveNumber;
 
-			autosaveCount++;
+		autosaveCount++;
 
-			saveName = "Autosave#" + std::to_string(autosaveCount);
-			autosaveCount %= autosaveCountLimit; 
-		}
-		// save using curent turn (EG: 113) and no limit
-		else 
-			saveName = "Autosave_" + turn; 
+		saveName = "Autosave#" + std::to_string(autosaveCount);
+		autosaveCount %= autosaveCountLimit; 
+
+	}
+	else if(autosaveMode == "Using Turn Info")
+	{
+		saveName = "Autosave_" + turn; 
 	}
 	else
 	{
