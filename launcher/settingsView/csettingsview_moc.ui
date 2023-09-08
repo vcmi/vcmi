@@ -686,6 +686,9 @@ Fullscreen Exclusive Mode - game will cover entirety of your screen and will use
          <property name="specialValueText">
           <string/>
          </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
         </widget>
        </item>
        <item row="11" column="0">
