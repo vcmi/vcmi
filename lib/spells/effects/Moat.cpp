@@ -128,6 +128,7 @@ void Moat::placeObstacles(ServerCallback * server, const Mechanics * m, const Ef
 	assert(m->casterSide == BattleSide::DEFENDER); // Moats are always cast by defender
 
 	BattleObstaclesChanged pack;
+	pack.battleID = m->battle()->getBattle()->getBattleID();
 
 	auto all = m->battle()->battleGetAllObstacles(BattlePerspective::ALL_KNOWING);
 

@@ -874,6 +874,7 @@ bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & s
 				changedObstacle.revealed = true;
 
 				BattleObstaclesChanged bocp;
+				bocp.battleID = getBattle()->getBattleID();
 				bocp.changes.emplace_back(spellObstacle.uniqueID, operation);
 				changedObstacle.toInfo(bocp.changes.back(), operation);
 				spellEnv.apply(&bocp);

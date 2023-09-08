@@ -270,6 +270,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 	const ObstacleSideOptions & options = sideOptions.at(m->casterSide);
 
 	BattleObstaclesChanged pack;
+	pack.battleID = m->battle()->getBattle()->getBattleID();
 
 	auto all = m->battle()->battleGetAllObstacles(BattlePerspective::ALL_KNOWING);
 
