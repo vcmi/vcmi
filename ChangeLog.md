@@ -1,3 +1,45 @@
+# 1.3.1 -> 1.3.2
+
+### GENERAL
+* VCMI now uses new application icon
+* Fixed freeze in Launcher on repository checkout and on mod install
+* Added option to open hero backpack window in hero screen
+* Context popup for adventure map monsters will now show creature icon
+* It is no longer possible to stop movement while moving over water with Water Walk
+* Fixed crash on loading VCMI map with placed Abandoned Mine
+* Fixed crash on loading VCMI map with neutral towns
+* Fixed crash on attempting to visit unknown object, such as Market of Time
+* Added "vcmiartifacts angelWings" form to "give artifacts" cheat
+
+### CAMPAIGNS
+* Fixed reorderging of hero primary skills after moving to next scenario in campaigns
+
+### BATTLES
+* Fixed invisible creatures from SUMMON_GUARDIANS bonus
+* Added option to toggle spell usage by AI in quick combat
+* Fixed updating of spell point of enemy hero in game interface after spell cast
+* Fixed wrong creature spellcasting shortcut (now set to "F")
+* It is now possible to perform melee attack by creatures with spells, especially area spells
+* Right-click will now properly end spellcast mode
+* Fixed crash on attempting to teleport unit that is immune to a spell
+* Fixed cursor preview when casting spell using touchscreen
+* Long tap during spell casting will now properly abort the spell
+
+### INTERFACE
+* Added "Fill all empty slots with 1 creature" option to radial wheel in garrison windows
+* Fixed incorrect display of number of owned Sawmills in Kingdom Overview window
+* Fixed incorrect color of resource bar in hotseat mode
+* Add yellow border to selected commander grandmaster ability
+* Always use bonus description for commander abilities instead of not provided wog-specific translation  
+* Fix scrolling when commander has large number of grandmaster abilities
+* Fixed corrupted message on another player defeat
+* Fixed unavailable Quest Log button on maps with quests
+* Fixed incorrect values on a difficulty selector in save load screen
+* Removed invalid error message on attempting to move non-existing unit in exchange window
+
+### RANDOM MAP GENERATOR:
+* Fixed bug leading to unreachable resources around mines
+
 # 1.3.0 -> 1.3.1
 
 ### GENERAL:
