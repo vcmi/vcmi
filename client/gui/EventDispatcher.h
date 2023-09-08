@@ -35,8 +35,8 @@ class EventDispatcher
 	EventReceiversList textInterested;
 	EventReceiversList panningInterested;
 
-	void handleLeftButtonClick(const Point & position, bool isPressed);
-
+	void handleLeftButtonClick(const Point & position, int tolerance, bool isPressed);
+	AEventsReceiver * findElementInToleranceRange(const EventReceiversList & list, const Point & position, int eventToTest, int tolerance);
 
 	template<typename Functor>
 	void processLists(ui16 activityFlag, const Functor & cb);
@@ -56,15 +56,15 @@ public:
 	void dispatchShortcutReleased(const std::vector<EShortcut> & shortcuts);
 
 	/// Mouse events
-	void dispatchMouseLeftButtonPressed(const Point & position);
-	void dispatchMouseLeftButtonReleased(const Point & position);
+	void dispatchMouseLeftButtonPressed(const Point & position, int tolerance);
+	void dispatchMouseLeftButtonReleased(const Point & position, int tolerance);
 	void dispatchMouseScrolled(const Point & distance, const Point & position);
 	void dispatchMouseDoubleClick(const Point & position);
 	void dispatchMouseMoved(const Point & distance, const Point & position);
 
 	void dispatchMouseDragged(const Point & currentPosition, const Point & lastUpdateDistance);
 
-	void dispatchShowPopup(const Point & position);
+	void dispatchShowPopup(const Point & position, int tolerance);
 	void dispatchClosePopup(const Point & position);
 
 	void dispatchGesturePanningStarted(const Point & initialPosition);

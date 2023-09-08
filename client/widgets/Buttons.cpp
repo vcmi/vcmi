@@ -128,6 +128,13 @@ void CButton::setState(ButtonState newState)
 {
 	if (state == newState)
 		return;
+
+	if (newState == BLOCKED)
+		removeUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
+	else
+		addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
+
+
 	state = newState;
 	update();
 }
