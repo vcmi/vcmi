@@ -372,10 +372,14 @@ void AdventureMapWidget::setPlayerChildren(CIntObject * widget, const PlayerColo
 		auto container = dynamic_cast<CAdventureMapContainerWidget *>(entry);
 		auto icon = dynamic_cast<CAdventureMapIcon *>(entry);
 		auto button = dynamic_cast<CButton *>(entry);
+		auto resDataBar = dynamic_cast<CResDataBar *>(entry);
 		auto texture = dynamic_cast<FilledTexturePlayerColored *>(entry);
 
 		if(button)
 			button->setPlayerColor(player);
+
+		if(resDataBar)
+			resDataBar->colorize(player);
 
 		if(icon)
 			icon->setPlayer(player);

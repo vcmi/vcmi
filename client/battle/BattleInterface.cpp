@@ -104,11 +104,9 @@ void BattleInterface::playIntroSoundAndUnlockInterface()
 {
 	auto onIntroPlayed = [this]()
 	{
+		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 		if(LOCPLINT->battleInt)
-		{
-			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			onIntroSoundPlayed();
-		}
 	};
 
 	int battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);

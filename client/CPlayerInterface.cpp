@@ -1618,15 +1618,6 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		if (GH.curInt == this)
 			GH.curInt = nullptr;
 	}
-	else
-	{
-		if (victoryLossCheckResult.loss() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME) //enemy has lost
-		{
-			MetaString message = victoryLossCheckResult.messageToSelf;
-			message.appendLocalString(EMetaText::COLOR, player.getNum());
-			showInfoDialog(message.toString(), std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(CComponent::flag, player.getNum(), 0)));
-		}
-	}
 }
 
 void CPlayerInterface::playerBonusChanged( const Bonus &bonus, bool gain )
@@ -2016,13 +2007,13 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 		auto canStop = [&](CGPathNode * node) -> bool
 		{
-			if (node->layer == EPathfindingLayer::LAND || node->layer == EPathfindingLayer::SAIL)
-				return true;
+			if (node->layer != EPathfindingLayer::LAND && node->layer != EPathfindingLayer::SAIL)
+				return false;
 
-			if (node->accessible == EPathAccessibility::ACCESSIBLE)
-				return true;
+			if (node->accessible != EPathAccessibility::ACCESSIBLE)
+				return false;
 
-			return false;
+			return true;
 		};
 
 		for (i=(int)path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || !canStop(&path.nodes[i])); i--)
