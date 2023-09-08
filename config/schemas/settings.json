@@ -214,11 +214,15 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "radialWheelGarrisonSwipe" ],
+			"required" : [ "radialWheelGarrisonSwipe", "touchToleranceDistance" ],
 			"properties" : {
 				"radialWheelGarrisonSwipe" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"touchToleranceDistance" : {
+					"type" : "number",
+					"default" : 20
 				}
 			}
 		},

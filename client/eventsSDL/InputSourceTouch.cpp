@@ -39,6 +39,7 @@ InputSourceTouch::InputSourceTouch()
 	params.relativeModeSpeedFactor = settings["general"]["relativePointerSpeedMultiplier"].Float();
 	params.longTouchTimeMilliseconds = settings["general"]["longTouchTimeMilliseconds"].Float();
 	params.hapticFeedbackEnabled = settings["general"]["hapticFeedback"].Bool();
+	params.touchToleranceDistance = settings["input"]["touchToleranceDistance"].Bool();
 
 	if (params.useRelativeMode)
 		state = TouchState::RELATIVE_MODE;
