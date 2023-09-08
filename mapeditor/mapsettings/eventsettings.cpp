@@ -100,6 +100,7 @@ void EventSettings::on_timedEventAdd_clicked()
 	auto * item = new QListWidgetItem(QString::fromStdString(event.name));
 	item->setData(Qt::UserRole, toVariant(event));
 	ui->eventsList->addItem(item);
+	on_eventsList_itemActivated(item);
 }
 
 

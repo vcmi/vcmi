@@ -20,6 +20,8 @@ TimedEvent::TimedEvent(QListWidgetItem * t, QWidget *parent) :
 {
 	ui->setupUi(this);
 
+
+
 	const auto params = t->data(Qt::UserRole).toMap();
 	ui->eventNameText->setText(params.value("name").toString());
 	ui->eventMessageText->setPlainText(params.value("message").toString());
@@ -36,7 +38,17 @@ TimedEvent::TimedEvent(QListWidgetItem * t, QWidget *parent) :
 		item->setCheckState(isAffected ? Qt::Checked : Qt::Unchecked);
 		ui->playersAffected->addItem(item);
 	}
-	//result.resources = resourcesFromVariant(v.value("resources"));
+
+	ui->resources->setRowCount(GameConstants::RESOURCE_QUANTITY);
+	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
+	{
+		auto name = QString::fromStdString(GameConstants::RESOURCE_NAMES[i]);
+		int val = params.value("resources").toMap().value(name).toInt();
+		ui->resources->setItem(i, 0, new QTableWidgetItem(name));
+		auto nval = new QTableWidgetItem(QString::number(val));
+		nval->setFlags(nval->flags() | Qt::ItemIsEditable);
+		ui->resources->setItem(i, 1, nval);
+	}
 
 	show();
 }
@@ -45,12 +57,6 @@ TimedEvent::~TimedEvent()
 {
 	delete ui;
 }
-
-void TimedEvent::on_eventResources_clicked()
-{
-
-}
-
 
 
 void TimedEvent::on_TimedEvent_finished(int result)
@@ -71,7 +77,32 @@ void TimedEvent::on_TimedEvent_finished(int result)
 			players |= 1 << i;
 	}
 	descriptor["players"] = QVariant::fromValue(players);
+
+	auto res = target->data(Qt::UserRole).toMap().value("resources").toMap();
+	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
+	{
+		auto * itemType = ui->resources->item(i, 0);
+		auto * itemQty = ui->resources->item(i, 1);
+		res[itemType->text()] = QVariant::fromValue(itemQty->text().toInt());
+	}
+	descriptor["resources"] = res;
+
 	target->setData(Qt::UserRole, descriptor);
 	target->setText(ui->eventNameText->text());
+}
+
+
+void TimedEvent::on_pushButton_clicked()
+{
+	close();
+}
+
+
+void TimedEvent::on_resources_itemDoubleClicked(QTableWidgetItem *item)
+{
+	if(item && item->column() == 1)
+	{
+		ui->resources->editItem(item);
+	}
 }
 

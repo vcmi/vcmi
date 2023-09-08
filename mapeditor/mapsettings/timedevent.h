@@ -25,9 +25,12 @@ public:
 	~TimedEvent();
 
 private slots:
-	void on_eventResources_clicked();
 
 	void on_TimedEvent_finished(int result);
+
+	void on_pushButton_clicked();
+
+	void on_resources_itemDoubleClicked(QTableWidgetItem *item);
 
 private:
 	Ui::TimedEvent *ui;
