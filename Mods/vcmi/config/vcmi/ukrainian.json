@@ -31,7 +31,7 @@
 	"vcmi.capitalColors.7" : "Рожевий",
 
 	"vcmi.radialWheel.mergeSameUnit" : "Об'єднати однакових істот",
-	"vcmi.radialWheel.showUnitInformation" : "Показати відомості про істоту",
+	"vcmi.radialWheel.fillSingleUnit" : "Заповнити одиничними істотами",
 	"vcmi.radialWheel.splitSingleUnit" : "Відділити одну істоту",
 	"vcmi.radialWheel.splitUnitEqually" : "Розділити істот порівну",
 	"vcmi.radialWheel.moveUnit" : "Перемістити істоту до іншої армії",

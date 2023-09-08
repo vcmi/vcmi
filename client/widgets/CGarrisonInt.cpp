@@ -368,14 +368,15 @@ void CGarrisonSlot::gesture(bool on, const Point & initialPosition, const Point 
 
 	std::vector<RadialMenuConfig> menuElements = {
 		{ RadialMenuConfig::ITEM_NW, hasSameUnit, "stackMerge", "vcmi.radialWheel.mergeSameUnit", [this](){owner->bulkMergeStacks(this);} },
-		{ RadialMenuConfig::ITEM_NE, stackExists, "stackInfo", "vcmi.radialWheel.showUnitInformation", [this](){viewInfo();} },
+		{ RadialMenuConfig::ITEM_NE, hasOwnEmptySlots, "stackFillOne", "vcmi.radialWheel.fillSingleUnit", [this](){owner->bulkSplitStack(this);} },
 		{ RadialMenuConfig::ITEM_WW, hasOwnEmptySlots, "stackSplitOne", "vcmi.radialWheel.splitSingleUnit", [this](){splitIntoParts(this->getGarrison(), 1); } },
 		{ RadialMenuConfig::ITEM_EE, hasOwnEmptySlots, "stackSplitEqual", "vcmi.radialWheel.splitUnitEqually", [this](){owner->bulkSmartSplitStack(this);} },
 		{ RadialMenuConfig::ITEM_SW, hasOtherEmptySlots, "heroMove", "vcmi.radialWheel.moveUnit", [this](){owner->moveStackToAnotherArmy(this);} },
 		{ RadialMenuConfig::ITEM_SE, hasAnyEmptySlots, "heroSwap", "vcmi.radialWheel.splitUnit", [this](){ owner->selectSlot(this); owner->splitClick();} },
 	};
 
-	GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
+	if (hasAnyEmptySlots || hasSameUnit)
+		GH.windows().createAndPushWindow<RadialMenu>(pos.center(), menuElements);
 }
 
 void CGarrisonSlot::update()
