@@ -30,6 +30,20 @@
 #include "../lib/NetPacks.h"
 #include "../lib/CondSh.h"
 
+// Code flow of movement process:
+// - Player requests movement (e.g. press "move" button)
+// -> calls doMoveHero (GUI thread)
+// -> -> sends LOCPLINT->cb->moveHero
+// - Server sends reply
+// -> calls heroMoved (NETWORK thread)
+// -> -> animation starts, sound starts
+// -> -> waits for animation to finish
+// -> -> if player have requested stop and path is not finished, calls doMoveHero again
+//
+// - Players requests movement stop (e.g. mouse click during movement)
+// -> calls movementStopRequested
+// -> -> sets flag that movement should be aborted
+
 HeroMovementController::HeroMovementController()
 {
 	destinationTeleport = ObjectInstanceID();
@@ -41,19 +55,23 @@ void HeroMovementController::setMovementStatus(bool value)
 {
 	duringMovement = value;
 	if (value)
-	{
 		CCS->curh->hide();
-	}
 	else
-	{
 		CCS->curh->show();
-	}
 }
 
-bool HeroMovementController::isHeroMovingThroughGarrison(const CGHeroInstance * hero) const
+bool HeroMovementController::isHeroMovingThroughGarrison(const CGHeroInstance * hero, const CArmedInstance * garrison) const
 {
-	//to ignore calls on passing through garrisons
-	return (movementState == EMoveState::DURING_MOVE && LOCPLINT->localState->hasPath(hero) && LOCPLINT->localState->getPath(hero).nodes.size() > 1);
+	assert(LOCPLINT->localState->hasPath(hero));
+	assert(movementState == EMoveState::DURING_MOVE);
+
+	if (!LOCPLINT->localState->hasPath(hero))
+		return false;
+
+	if (garrison->visitableAt(*LOCPLINT->localState->getLastTile(hero)))
+		return false; // hero want to enter garrison, not pass through it
+
+	return true;
 }
 
 bool HeroMovementController::isHeroMoving() const
@@ -94,6 +112,7 @@ void HeroMovementController::onPlayerTurnStarted()
 
 void HeroMovementController::onBattleStarted()
 {
+	assert(movementState == EMoveState::STOP_MOVE);
 	// when battle starts, game will send battleStart pack *before* movement confirmation
 	// and since network thread wait for battle intro to play, movement confirmation will only happen after intro
 	// leading to several bugs, such as blocked input during intro
@@ -102,11 +121,12 @@ void HeroMovementController::onBattleStarted()
 
 void HeroMovementController::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
-	int choosenExit = -1;
-	auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
-	if (destinationTeleport != ObjectInstanceID() && vstd::contains(exits, neededExit))
-		choosenExit = vstd::find_pos(exits, neededExit);
+	assert(destinationTeleport != ObjectInstanceID::NONE);
 
+	auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
+	assert(vstd::contains(exits, neededExit));
+
+	int choosenExit = vstd::find_pos(exits, neededExit);
 	LOCPLINT->cb->selectionMade(choosenExit, askID);
 }
 
@@ -206,7 +226,7 @@ void HeroMovementController::movementStopRequested()
 		movementState = EMoveState::STOP_MOVE;
 }
 
-void HeroMovementController::doMoveHero(const CGHeroInstance * h, const CGPath & path)
+void HeroMovementController::movementStartRequested(const CGHeroInstance * h, const CGPath & path)
 {
 	setMovementStatus(true);
 

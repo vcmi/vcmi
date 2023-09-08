@@ -64,15 +64,18 @@ void CGObjectInstance::setOwner(const PlayerColor & ow)
 {
 	tempOwner = ow;
 }
-int CGObjectInstance::getWidth() const//returns width of object graphic in tiles
+
+int CGObjectInstance::getWidth() const
 {
 	return appearance->getWidth();
 }
-int CGObjectInstance::getHeight() const //returns height of object graphic in tiles
+
+int CGObjectInstance::getHeight() const
 {
 	return appearance->getHeight();
 }
-bool CGObjectInstance::visitableAt(int x, int y) const //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
+
+bool CGObjectInstance::visitableAt(int x, int y) const
 {
 	return appearance->isVisitableAt(pos.x - x, pos.y - y);
 }
@@ -84,6 +87,20 @@ bool CGObjectInstance::blockingAt(int x, int y) const
 bool CGObjectInstance::coveringAt(int x, int y) const
 {
 	return appearance->isVisibleAt(pos.x - x, pos.y - y);
+}
+
+bool CGObjectInstance::visitableAt(const int3 & testPos) const
+{
+	return pos.z == testPos.z && appearance->isVisitableAt(pos.x - testPos.x, pos.y - testPos.y);
+}
+bool CGObjectInstance::blockingAt(const int3 & testPos) const
+{
+	return pos.z == testPos.z && appearance->isBlockedAt(pos.x - testPos.x, pos.y - testPos.y);
+}
+
+bool CGObjectInstance::coveringAt(const int3 & testPos) const
+{
+	return pos.z == testPos.z && appearance->isVisibleAt(pos.x - testPos.x, pos.y - testPos.y);
 }
 
 std::set<int3> CGObjectInstance::getBlockedPos() const

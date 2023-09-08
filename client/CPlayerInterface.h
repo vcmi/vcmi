@@ -194,7 +194,6 @@ public: // public interface for use by client via LOCPLINT access
 	void showInfoDialogAndWait(std::vector<Component> & components, const MetaString & text);
 	void showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components = std::vector<std::shared_ptr<CComponent>>());
 
-	void stopMovement();
 	void moveHero(const CGHeroInstance *h, const CGPath& path);
 
 	void tryDigging(const CGHeroInstance *h);

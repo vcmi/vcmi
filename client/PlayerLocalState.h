@@ -76,6 +76,11 @@ public:
 	void setPath(const CGHeroInstance * h, const CGPath & path);
 	bool setPath(const CGHeroInstance * h, const int3 & destination);
 
+	/// return final node in a path, if exists
+	std::optional<int3> getLastTile(const CGHeroInstance * h) const;
+	/// return first path in a path, if exists
+	std::optional<int3> getNextTile(const CGHeroInstance * h) const;
+
 	const CGPath & getPath(const CGHeroInstance * h) const;
 	bool hasPath(const CGHeroInstance * h) const;
 

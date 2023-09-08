@@ -980,7 +980,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	{
 		CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->set(true);
-		stopMovement(); // interrupt movement to show dialog
+		movementController->movementStopRequested(); // interrupt movement to show dialog
 		GH.windows().pushWindow(temp);
 	}
 	else
@@ -1003,7 +1003,7 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<vo
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-	stopMovement();
+	movementController->movementStopRequested();
 	LOCPLINT->showingDialog->setn(true);
 	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID);
 }
@@ -1013,7 +1013,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 
-	stopMovement();
+	movementController->movementStopRequested();
 	CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 
 	if (!selection && cancel) //simple yes/no dialog
@@ -1160,6 +1160,11 @@ void CPlayerInterface::loadGame( BinaryDeserializer & h, const int version )
 
 void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 {
+	assert(LOCPLINT->makingTurn);
+	assert(h);
+	assert(!showingDialog->get());
+	assert(!dialogs.empty());
+
 	LOG_TRACE(logGlobal);
 	if (!LOCPLINT->makingTurn)
 		return;
@@ -1173,7 +1178,7 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 	if (localState->isHeroSleeping(h))
 		localState->setHeroAwaken(h);
 
-	movementController->doMoveHero(h, path);
+	movementController->movementStartRequested(h, path);
 }
 
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
@@ -1181,7 +1186,7 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto onEnd = [=](){ cb->selectionMade(0, queryID); };
 
-	if (movementController->isHeroMovingThroughGarrison(down))
+	if (movementController->isHeroMovingThroughGarrison(down, up))
 	{
 		onEnd();
 		return;
@@ -1615,13 +1620,6 @@ void CPlayerInterface::battleNewRoundFirst(const BattleID & battleID)
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->newRoundFirst();
-}
-
-void CPlayerInterface::stopMovement()
-{
-	movementController->movementStopRequested();
-
-
 }
 
 void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor)

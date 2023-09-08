@@ -16,6 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 
 class CGHeroInstance;
+class CArmedInstance;
 
 struct CGPath;
 struct TryMoveHero;
@@ -38,21 +39,24 @@ class HeroMovementController
 	};
 
 	EMoveState movementState;
+
+	void setMovementStatus(bool value);
 public:
 	HeroMovementController();
 
-	bool isHeroMovingThroughGarrison(const CGHeroInstance * hero) const;
+	// const queries
+	bool isHeroMovingThroughGarrison(const CGHeroInstance * hero, const CArmedInstance * garrison) const;
 	bool isHeroMoving() const;
 
+	// netpack handlers
 	void onMoveHeroApplied();
 	void onQueryReplyApplied();
-
 	void onPlayerTurnStarted();
 	void onBattleStarted();
 	void showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID);
 	void heroMoved(const CGHeroInstance * hero, const TryMoveHero & details);
 
+	// UI handlers
+	void movementStartRequested(const CGHeroInstance * h, const CGPath & path);
 	void movementStopRequested();
-	void doMoveHero(const CGHeroInstance * h, const CGPath & path);
-	void setMovementStatus(bool value);
 };
