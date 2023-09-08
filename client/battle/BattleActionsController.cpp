@@ -24,6 +24,7 @@
 #include "../gui/CIntObject.h"
 #include "../gui/WindowHandler.h"
 #include "../windows/CCreatureWindow.h"
+#include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
@@ -607,10 +608,10 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 			return false;
 
 		case PossiblePlayerBattleAction::ANY_LOCATION:
-			return isCastingPossibleHere(action.spell().toSpell(), targetStack, targetHex);
+			return isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
 
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-			return !selectedStack && targetStack && isCastingPossibleHere(action.spell().toSpell(), targetStack, targetHex);
+			return !selectedStack && targetStack && isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
 
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			if(targetStack && targetStackOwned && targetStack != owner.stacksController->getActiveStack() && targetStack->alive()) //only positive spells for other allied creatures
@@ -628,7 +629,7 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, B
 
 		case PossiblePlayerBattleAction::OBSTACLE:
 		case PossiblePlayerBattleAction::FREE_LOCATION:
-			return isCastingPossibleHere(action.spell().toSpell(), targetStack, targetHex);
+			return isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
 
 		case PossiblePlayerBattleAction::CATAPULT:
 			return owner.siegeController && owner.siegeController->isAttackableByCatapult(targetHex);
@@ -1003,6 +1004,7 @@ void BattleActionsController::onHexRightClicked(BattleHex clickedHex)
 	if (spellcastingModeActive() || isCurrentStackInSpellcastMode)
 	{
 		endCastingSpell();
+		CRClickPopup::createAndPush(CGI->generaltexth->translate("core.genrltxt.731")); // spell cancelled
 		return;
 	}
 

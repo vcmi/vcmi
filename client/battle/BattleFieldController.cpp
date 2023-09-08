@@ -129,6 +129,9 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	attackCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"));
 	attackCursors->preload();
 
+	spellCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"));
+	spellCursors->preload();
+
 	initializeHexEdgeMaskToFrameIndex();
 
 	rangedFullDamageLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"));
@@ -889,10 +892,22 @@ void BattleFieldController::show(Canvas & to)
 
 	if (isActive() && isGesturing() && getHoveredHex() != BattleHex::INVALID)
 	{
-		auto cursorIndex = CCS->curh->get<Cursor::Combat>();
-		auto imageIndex = static_cast<size_t>(cursorIndex);
+		auto combatCursorIndex = CCS->curh->get<Cursor::Combat>();
+		if (combatCursorIndex)
+		{
+			auto combatImageIndex = static_cast<size_t>(*combatCursorIndex);
+			to.draw(attackCursors->getImage(combatImageIndex), hexPositionAbsolute(getHoveredHex()).center() - CCS->curh->getPivotOffsetCombat(combatImageIndex));
+			return;
+		}
 
-		to.draw(attackCursors->getImage(imageIndex), hexPositionAbsolute(getHoveredHex()).center() - CCS->curh->getPivotOffsetCombat(imageIndex));
+		auto spellCursorIndex = CCS->curh->get<Cursor::Spellcast>();
+		if (spellCursorIndex)
+		{
+			auto spellImageIndex = static_cast<size_t>(*spellCursorIndex);
+			to.draw(spellCursors->getImage(spellImageIndex), hexPositionAbsolute(getHoveredHex()).center() - CCS->curh->getPivotOffsetSpellcast());
+			return;
+		}
+
 	}
 }
 

@@ -142,6 +142,7 @@ void MapController::repairMap()
 			{
 				nih->typeName = "prison";
 				nih->subTypeName = "prison";
+				nih->subID = 0;
 			}
 			
 			nih->type = type;
