@@ -7,8 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#ifndef EVENTSETTINGS_H
-#define EVENTSETTINGS_H
+#pragma once
 
 #include "abstractsettings.h"
 
@@ -38,4 +37,3 @@ private:
 	Ui::EventSettings *ui;
 };
 
-#endif // EVENTSETTINGS_H

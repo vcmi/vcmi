@@ -7,8 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#ifndef RUMORSETTINGS_H
-#define RUMORSETTINGS_H
+#pragma once
 
 #include "abstractsettings.h"
 
@@ -39,5 +38,3 @@ private slots:
 private:
 	Ui::RumorSettings *ui;
 };
-
-#endif // RUMORSETTINGS_H

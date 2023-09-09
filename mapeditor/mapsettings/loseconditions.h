@@ -7,9 +7,8 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
 
-#ifndef LOSECONDITIONS_H
-#define LOSECONDITIONS_H
 #include "abstractsettings.h"
 
 namespace Ui {
@@ -39,4 +38,3 @@ private:
 	QLineEdit * loseValueWidget = nullptr;
 };
 
-#endif // LOSECONDITIONS_H

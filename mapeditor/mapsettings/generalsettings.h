@@ -7,8 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#ifndef GENERALSETTINGS_H
-#define GENERALSETTINGS_H
+#pragma once
 
 #include "abstractsettings.h"
 
@@ -33,5 +32,3 @@ private slots:
 private:
 	Ui::GeneralSettings *ui;
 };
-
-#endif // GENERALSETTINGS_H

@@ -7,8 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#ifndef TIMEDEVENT_H
-#define TIMEDEVENT_H
+#pragma once
 
 #include <QDialog>
 
@@ -36,5 +35,3 @@ private:
 	Ui::TimedEvent *ui;
 	QListWidgetItem * target;
 };
-
-#endif // TIMEDEVENT_H

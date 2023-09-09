@@ -7,8 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#ifndef ABSTRACTSETTINGS_H
-#define ABSTRACTSETTINGS_H
+#pragma once
 
 #include <QWidget>
 #include "../../lib/mapping/CMap.h"
@@ -66,5 +65,3 @@ public:
 signals:
 
 };
-
-#endif // ABSTRACTSETTINGS_H

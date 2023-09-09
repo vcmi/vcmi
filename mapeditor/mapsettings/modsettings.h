@@ -7,8 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#ifndef MODSETTINGS_H
-#define MODSETTINGS_H
+#pragma once
 
 #include "abstractsettings.h"
 
@@ -41,5 +40,3 @@ private:
 	Ui::ModSettings *ui;
 	const CMap * mapPointer = nullptr;
 };
-
-#endif // MODSETTINGS_H

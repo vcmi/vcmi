@@ -7,8 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#ifndef VICTORYCONDITIONS_H
-#define VICTORYCONDITIONS_H
+#pragma once
 
 #include "abstractsettings.h"
 
@@ -38,5 +37,3 @@ private:
 	QComboBox * victorySelectWidget = nullptr;
 	QLineEdit * victoryValueWidget = nullptr;
 };
-
-#endif // VICTORYCONDITIONS_H
