@@ -126,6 +126,10 @@ void CSettingsView::loadSettings()
 	ui->checkBoxAutosaveBeforeBattles->setChecked(settings["general"]["autosaveBeforeBattles"].Bool());
 	ui->checkBoxAutosaveBeforeBattles->setEnabled(autosaveMode != "Off");
 
+	// Reenable when autosave before battles functionality will be implemented
+	ui->labelAutosaveBeforeBattles->setVisible(false);
+	ui->checkBoxAutosaveBeforeBattles->setVisible(false); 
+
 	Languages::fillLanguages(ui->comboBoxLanguage, false);
 
 	std::string cursorType = settings["video"]["cursor"].String();

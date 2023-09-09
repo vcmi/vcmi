@@ -126,7 +126,7 @@
 					"type" : "number",
 					"default": 5
 				},
-				"autosaveBeforeBattles" : {
+				"autosaveBeforeBattles" : { // not implemented
 					"type" : "boolean",
 					"default" : false
 				},
