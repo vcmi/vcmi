@@ -249,8 +249,10 @@ int extractNumberAfterHash(const std::string& input)
 
 void CPlayerInterface::performAutosave() 
 {
+	// ToDo : krs - gather all static info only once at map start / load
 	// ToDo : krs - autosaves before each battle
 	// ToDo : krs - autosave at beginning of game
+	// ToDo : krs - quick autosaves on hotkey (autosave mode Using Counter could be used)
 	std::string autosaveMode = settings["general"]["autosaveMode"].String();
 	int autosaveFrequency = static_cast<int>(settings["general"]["autosaveFrequency"].Integer());
 	auto turnNumber = cb->getDate();
@@ -273,9 +275,8 @@ void CPlayerInterface::performAutosave()
 	bool isRMGMap = cb->getStartInfo()->createRandomMap();
 	bool isCampaign = cb->getStartInfo()->mode == StartInfo::CAMPAIGN;
 
-
 	std::string saveName = "";
-	std::string lastMapSaveName = ""; // ToDo : krs - count for autosaves continues from load save file name
+	std::string lastMapSaveName = ""; // ToDo : krs - count for autosaves continues from autosave counter found in loaded save file name
 	std::string mapName = cb->getMapHeader()->name;
 	std::string mapDescription = cb->getMapHeader()->description;
 	std::string campaignName = "NA";
@@ -401,7 +402,7 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 		GH.curInt = this;
 
 		NotificationHandler::notify("Your turn");
-		if(settings["general"]["startTurnAutosave"].Bool())
+		if(settings["general"]["autosaveAtTurnStart"].Bool())
 		{
 			performAutosave();
 		}

@@ -444,7 +444,7 @@ void AdventureMapInterface::hotkeyEndingTurn()
 	if(settings["session"]["spectate"].Bool())
 		return;
 
-	if(!settings["general"]["startTurnAutosave"].Bool())
+	if(!settings["general"]["autosaveAtTurnStart"].Bool())
 	{
 		LOCPLINT->performAutosave();
 	}

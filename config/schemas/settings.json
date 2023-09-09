@@ -38,7 +38,7 @@
 				"autosaveFrequency",
 				"autosaveCountLimit",
 				"autosaveBeforeBattles",
-				"startTurnAutosave",
+				"autosaveAtTurnStart",
 				"singlePlayerScenarioSaveName",
 				"singlePlayerCampaignSaveName",
 				"singlePlayerRmgSaveName",
@@ -130,9 +130,9 @@
 					"type" : "boolean",
 					"default" : false
 				},
-				"startTurnAutosave" : {
+				"autosaveAtTurnStart" : {
 					"type": "boolean",
-					"default": false
+					"default": true
 				},
 				"singlePlayerScenarioSaveName" : {
 					"type": "string",
