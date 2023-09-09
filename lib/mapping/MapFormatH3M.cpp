@@ -1273,8 +1273,8 @@ CGObjectInstance * CMapLoaderH3M::readDwellingRandom(const int3 & mapPosition, s
 	//216 and 218
 	if(auto * lvlSpec = dynamic_cast<CCreGenLeveledInfo *>(spec))
 	{
-		lvlSpec->minLevel = std::max(reader->readUInt8(), static_cast<ui8>(1));
-		lvlSpec->maxLevel = std::min(reader->readUInt8(), static_cast<ui8>(7));
+		lvlSpec->minLevel = std::max(reader->readUInt8(), static_cast<ui8>(0)) + 1;
+		lvlSpec->maxLevel = std::min(reader->readUInt8(), static_cast<ui8>(6)) + 1;
 	}
 	object->info = spec;
 	return object;
