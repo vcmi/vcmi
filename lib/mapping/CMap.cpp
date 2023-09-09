@@ -56,9 +56,37 @@ bool CMapEvent::earlierThanOrEqual(const CMapEvent & other) const
 	return firstOccurence <= other.firstOccurence;
 }
 
-CCastleEvent::CCastleEvent() : town(nullptr)
+void CMapEvent::serializeJson(JsonSerializeFormat & handler)
 {
+	handler.serializeString("name", name);
+	handler.serializeString("message", message);
+	handler.serializeInt("players", players);
+	handler.serializeInt("humanAffected", humanAffected);
+	handler.serializeInt("computerAffected", computerAffected);
+	handler.serializeInt("firstOccurence", firstOccurence);
+	handler.serializeInt("nextOccurence", nextOccurence);
+	resources.serializeJson(handler, "resources");
+}
 
+void CCastleEvent::serializeJson(JsonSerializeFormat & handler)
+{
+	CMapEvent::serializeJson(handler);
+	{
+		std::vector<BuildingID> temp(buildings.begin(), buildings.end());
+		auto a = handler.enterArray("buildings");
+		a.syncSize(temp);
+		for(int i = 0; i < temp.size(); ++i)
+		{
+			a.serializeInt(i, temp[i]);
+			buildings.insert(temp[i]);
+		}
+	}
+	{
+		auto a = handler.enterArray("creatures");
+		a.syncSize(creatures);
+		for(int i = 0; i < creatures.size(); ++i)
+			a.serializeInt(i, creatures[i]);
+	}
 }
 
 TerrainTile::TerrainTile():

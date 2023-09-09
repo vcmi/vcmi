@@ -342,7 +342,7 @@ namespace TerrainDetail
 
 ///CMapFormatJson
 const int CMapFormatJson::VERSION_MAJOR = 1;
-const int CMapFormatJson::VERSION_MINOR = 1;
+const int CMapFormatJson::VERSION_MINOR = 2;
 
 const std::string CMapFormatJson::HEADER_FILE_NAME = "header.json";
 const std::string CMapFormatJson::OBJECTS_FILE_NAME = "objects.json";
@@ -775,6 +775,14 @@ void CMapFormatJson::serializeRumors(JsonSerializeFormat & handler)
 	rumors.serializeStruct(map->rumors);
 }
 
+void CMapFormatJson::serializeTimedEvents(JsonSerializeFormat & handler)
+{
+	auto events = handler.enterArray("events");
+	std::vector<CMapEvent> temp(map->events.begin(), map->events.end());
+	events.serializeStruct(temp);
+	map->events.assign(temp.begin(), temp.end());
+}
+
 void CMapFormatJson::serializePredefinedHeroes(JsonSerializeFormat & handler)
 {
     //todo:serializePredefinedHeroes
@@ -816,6 +824,8 @@ void CMapFormatJson::serializePredefinedHeroes(JsonSerializeFormat & handler)
 void CMapFormatJson::serializeOptions(JsonSerializeFormat & handler)
 {
 	serializeRumors(handler);
+	
+	serializeTimedEvents(handler);
 
 	serializePredefinedHeroes(handler);
 
