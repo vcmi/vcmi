@@ -145,7 +145,8 @@ void MapController::repairMap()
 				nih->subID = 0;
 			}
 			
-			nih->type = type;
+			if(obj->ID != Obj::RANDOM_HERO)
+				nih->type = type;
 			
 			if(nih->ID == Obj::HERO) //not prison
 				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();

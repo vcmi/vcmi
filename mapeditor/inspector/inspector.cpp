@@ -135,12 +135,14 @@ void Initializer::initialize(CGHeroInstance * o)
 		}
 	}
 	
-	if(!o->type)
-		o->type = VLC->heroh->objects.at(o->subID);
-	
-	o->gender = o->type->gender;
-	o->portrait = o->type->imageIndex;
-	o->randomizeArmy(o->type->heroClass->faction);
+	if(o->type)
+	{
+		//	o->type = VLC->heroh->objects.at(o->subID);
+		
+		o->gender = o->type->gender;
+		o->portrait = o->type->imageIndex;
+		o->randomizeArmy(o->type->heroClass->faction);
+	}
 }
 
 void Initializer::initialize(CGTownInstance * o)
@@ -250,7 +252,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	
 	addProperty("Owner", o->tempOwner, o->ID == Obj::PRISON); //field is not editable for prison
 	addProperty<int>("Experience", o->exp, false);
-	addProperty("Hero class", o->type->heroClass->getNameTranslated(), true);
+	addProperty("Hero class", o->type ? o->type->heroClass->getNameTranslated() : "", true);
 	
 	{ //Sex
 		auto * delegate = new InspectorDelegate;
@@ -261,6 +263,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	addProperty("Biography", o->biographyCustom, new MessageDelegate, false);
 	addProperty("Portrait", o->portrait, false);
 	
+	if(o->type)
 	{ //Hero type
 		auto * delegate = new InspectorDelegate;
 		for(int i = 0; i < VLC->heroh->objects.size(); ++i)

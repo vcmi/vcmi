@@ -126,7 +126,8 @@ protected:
 			table->setRowCount(row + 1);
 			table->setItem(row, 0, itemKey);
 			table->setItem(row, 1, itemValue);
-			table->setItemDelegateForRow(row, delegate);
+			if(delegate)
+				table->setItemDelegateForRow(row, delegate);
 			++row;
 		}
 	}

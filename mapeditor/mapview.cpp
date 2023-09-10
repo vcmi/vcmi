@@ -397,6 +397,7 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 		bool tab = false;
 		if(sc->selectionObjectsView.selectionMode == SelectionObjectsLayer::MOVEMENT)
 		{
+			tab = sc->selectionObjectsView.shift.isNull();
 			controller->commitObjectShift(sc->level);
 		}
 		else
@@ -405,7 +406,6 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 			sc->selectionObjectsView.shift = QPoint(0, 0);
 			sc->selectionObjectsView.draw();
 			tab = true;
-			//check if we have only one object
 		}
 		auto selection = sc->selectionObjectsView.getSelection();
 		if(selection.size() == 1)
@@ -463,7 +463,9 @@ void MapView::dropEvent(QDropEvent * event)
 		QString errorMsg;
 		if(controller->canPlaceObject(sc->level, sc->selectionObjectsView.newObject, errorMsg))
 		{
+			auto * obj = sc->selectionObjectsView.newObject;
 			controller->commitObjectCreate(sc->level);
+			emit openObjectProperties(obj, false);
 		}
 		else
 		{
