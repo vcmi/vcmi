@@ -107,7 +107,8 @@ protected:
 	{
 		auto * itemValue = addProperty(value);
 		if(restricted)
-			itemValue->setFlags(Qt::NoItemFlags);
+			itemValue->setFlags(itemValue->flags() & ~Qt::ItemIsEnabled);
+		//itemValue->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable);
 		
 		QTableWidgetItem * itemKey = nullptr;
 		if(keyItems.contains(key))
@@ -120,7 +121,6 @@ protected:
 		else
 		{
 			itemKey = new QTableWidgetItem(key);
-			itemKey->setFlags(Qt::NoItemFlags);
 			keyItems[key] = itemKey;
 			
 			table->setRowCount(row + 1);
@@ -130,6 +130,7 @@ protected:
 				table->setItemDelegateForRow(row, delegate);
 			++row;
 		}
+		itemKey->setFlags(restricted ? Qt::NoItemFlags : Qt::ItemIsEnabled);
 	}
 	
 	template<class T>
@@ -153,8 +154,6 @@ class InspectorDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT
 public:
-	static InspectorDelegate * boolDelegate();
-	
 	using QStyledItemDelegate::QStyledItemDelegate;
 
 	QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;

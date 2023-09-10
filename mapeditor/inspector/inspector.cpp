@@ -47,14 +47,6 @@ Initializer::Initializer(CGObjectInstance * o, const PlayerColor & pl) : default
 	//INIT_OBJ_TYPE(CGSeerHut);
 }
 
-bool stringToBool(const QString & s)
-{
-	if(s == "TRUE")
-		return true;
-	//if(s == "FALSE")
-	return false;
-}
-
 void Initializer::initialize(CArmedInstance * o)
 {
 	if(!o) return;
@@ -236,7 +228,7 @@ void Inspector::updateProperties(CGGarrison * o)
 	if(!o) return;
 	
 	addProperty("Owner", o->tempOwner, false);
-	addProperty("Removable units", o->removableUnits, InspectorDelegate::boolDelegate(), false);
+	addProperty("Removable units", o->removableUnits, false);
 }
 
 void Inspector::updateProperties(CGShipyard * o)
@@ -345,8 +337,8 @@ void Inspector::updateProperties(CGCreature * o)
 		delegate->options << "COMPLIANT" << "FRIENDLY" << "AGRESSIVE" << "HOSTILE" << "SAVAGE";
 		addProperty<CGCreature::Character>("Character", (CGCreature::Character)o->character, delegate, false);
 	}
-	addProperty("Never flees", o->neverFlees, InspectorDelegate::boolDelegate(), false);
-	addProperty("Not growing", o->notGrowingTeam, InspectorDelegate::boolDelegate(), false);
+	addProperty("Never flees", o->neverFlees, false);
+	addProperty("Not growing", o->notGrowingTeam, false);
 	addProperty("Artifact reward", o->gainedArtifact); //TODO: implement in setProperty
 	addProperty("Army", PropertyEditorPlaceholder(), true);
 	addProperty("Amount", o->stacks[SlotID(0)]->count, false);
@@ -367,9 +359,9 @@ void Inspector::updateProperties(CGEvent * o)
 {
 	if(!o) return;
 	
-	addProperty("Remove after", o->removeAfterVisit, InspectorDelegate::boolDelegate(), false);
-	addProperty("Human trigger", o->humanActivate, InspectorDelegate::boolDelegate(), false);
-	addProperty("Cpu trigger", o->computerActivate, InspectorDelegate::boolDelegate(), false);
+	addProperty("Remove after", o->removeAfterVisit, false);
+	addProperty("Human trigger", o->humanActivate, false);
+	addProperty("Cpu trigger", o->computerActivate, false);
 	//ui8 availableFor; //players whom this event is available for
 }
 
@@ -499,13 +491,13 @@ void Inspector::setProperty(CGEvent * o, const QString & key, const QVariant & v
 	if(!o) return;
 	
 	if(key == "Remove after")
-		o->removeAfterVisit = stringToBool(value.toString());
+		o->removeAfterVisit = value.toBool();
 	
 	if(key == "Human trigger")
-		o->humanActivate = stringToBool(value.toString());
+		o->humanActivate = value.toBool();
 	
 	if(key == "Cpu trigger")
-		o->computerActivate = stringToBool(value.toString());
+		o->computerActivate = value.toBool();
 }
 
 void Inspector::setProperty(CGTownInstance * o, const QString & key, const QVariant & value)
@@ -562,7 +554,7 @@ void Inspector::setProperty(CGGarrison * o, const QString & key, const QVariant 
 	if(!o) return;
 	
 	if(key == "Removable units")
-		o->removableUnits = stringToBool(value.toString());
+		o->removableUnits = value.toBool();
 }
 
 void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVariant & value)
@@ -626,9 +618,9 @@ void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant 
 			o->character = CGCreature::Character::SAVAGE;
 	}
 	if(key == "Never flees")
-		o->neverFlees = stringToBool(value.toString());
+		o->neverFlees = value.toBool();
 	if(key == "Not growing")
-		o->notGrowingTeam = stringToBool(value.toString());
+		o->notGrowingTeam = value.toBool();
 	if(key == "Amount")
 		o->stacks[SlotID(0)]->count = value.toString().toInt();
 }
@@ -693,7 +685,10 @@ QTableWidgetItem * Inspector::addProperty(int value)
 
 QTableWidgetItem * Inspector::addProperty(bool value)
 {
-	return new QTableWidgetItem(value ? "TRUE" : "FALSE");
+	auto item = new QTableWidgetItem;
+	item->setFlags(item->flags() & ~Qt::ItemIsEditable | Qt::ItemIsUserCheckable);
+	item->setCheckState(value ? Qt::Checked : Qt::Unchecked);
+	return item;
 }
 
 QTableWidgetItem * Inspector::addProperty(const std::string & value)
@@ -826,13 +821,6 @@ Inspector::Inspector(CMap * m, CGObjectInstance * o, QTableWidget * t): obj(o), 
 /*
  * Delegates
  */
-
-InspectorDelegate * InspectorDelegate::boolDelegate()
-{
-	auto * d = new InspectorDelegate;
-	d->options << "TRUE" << "FALSE";
-	return d;
-}
 
 QWidget * InspectorDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {

@@ -1015,7 +1015,10 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 
 	//set parameter
 	Inspector inspector(controller.map(), obj, tableWidget);
-	inspector.setProperty(param, item->text());
+	if(item->flags() & Qt::ItemIsUserCheckable)
+		inspector.setProperty(param, QVariant::fromValue(item->checkState() == Qt::Checked));
+	else
+		inspector.setProperty(param, item->text());
 	controller.commitObjectChange(mapLevel);
 }
 
